@@ -380,7 +380,7 @@ public class Block extends BlockBehaviour implements ItemLike {
     public void playerWillDestroy(Level param0, BlockPos param1, BlockState param2, Player param3) {
         param0.levelEvent(param3, 2001, param1, getId(param2));
         if (this.is(BlockTags.GUARDED_BY_PIGLINS)) {
-            PiglinAi.angerNearbyPiglinsThatSee(param3);
+            PiglinAi.angerNearbyPiglins(param3, false);
         }
 
     }

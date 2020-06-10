@@ -81,6 +81,7 @@ public class CraftingScreen extends AbstractContainerScreen<CraftingMenu> implem
     @Override
     public boolean mouseClicked(double param0, double param1, int param2) {
         if (this.recipeBookComponent.mouseClicked(param0, param1, param2)) {
+            this.setFocused(this.recipeBookComponent);
             return true;
         } else {
             return this.widthTooNarrow && this.recipeBookComponent.isVisible() ? true : super.mouseClicked(param0, param1, param2);

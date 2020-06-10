@@ -14,6 +14,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.decoration.HangingEntity;
 import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -64,29 +65,30 @@ public abstract class MobRenderer<T extends Mob, M extends EntityModel<T>> exten
             - 0.25;
         double var8 = Mth.lerp((double)param1, param4.zo, param4.getZ()) - var3 * 0.7 + var2 * 0.5 * var5;
         double var9 = (double)(Mth.lerp(param1, param0.yBodyRot, param0.yBodyRotO) * (float) (Math.PI / 180.0)) + (Math.PI / 2);
-        var2 = Math.cos(var9) * (double)param0.getBbWidth() * 0.4;
-        var3 = Math.sin(var9) * (double)param0.getBbWidth() * 0.4;
-        double var10 = Mth.lerp((double)param1, param0.xo, param0.getX()) + var2;
-        double var11 = Mth.lerp((double)param1, param0.yo, param0.getY());
-        double var12 = Mth.lerp((double)param1, param0.zo, param0.getZ()) + var3;
-        param2.translate(var2, -(1.6 - (double)param0.getBbHeight()) * 0.5, var3);
-        float var13 = (float)(var6 - var10);
-        float var14 = (float)(var7 - var11);
-        float var15 = (float)(var8 - var12);
-        float var16 = 0.025F;
-        VertexConsumer var17 = param3.getBuffer(RenderType.leash());
-        Matrix4f var18 = param2.last().pose();
-        float var19 = Mth.fastInvSqrt(var13 * var13 + var15 * var15) * 0.025F / 2.0F;
-        float var20 = var15 * var19;
-        float var21 = var13 * var19;
-        BlockPos var22 = new BlockPos(param0.getEyePosition(param1));
-        BlockPos var23 = new BlockPos(param4.getEyePosition(param1));
-        int var24 = this.getBlockLightLevel(param0, var22);
-        int var25 = this.entityRenderDispatcher.getRenderer(param4).getBlockLightLevel(param4, var23);
-        int var26 = param0.level.getBrightness(LightLayer.SKY, var22);
+        Vec3 var10 = param0.getLeashOffset();
+        var2 = Math.cos(var9) * var10.z + Math.sin(var9) * var10.x;
+        var3 = Math.sin(var9) * var10.z - Math.cos(var9) * var10.x;
+        double var11 = Mth.lerp((double)param1, param0.xo, param0.getX()) + var2;
+        double var12 = Mth.lerp((double)param1, param0.yo, param0.getY()) + var10.y;
+        double var13 = Mth.lerp((double)param1, param0.zo, param0.getZ()) + var3;
+        param2.translate(var2, var10.y, var3);
+        float var14 = (float)(var6 - var11);
+        float var15 = (float)(var7 - var12);
+        float var16 = (float)(var8 - var13);
+        float var17 = 0.025F;
+        VertexConsumer var18 = param3.getBuffer(RenderType.leash());
+        Matrix4f var19 = param2.last().pose();
+        float var20 = Mth.fastInvSqrt(var14 * var14 + var16 * var16) * 0.025F / 2.0F;
+        float var21 = var16 * var20;
+        float var22 = var14 * var20;
+        BlockPos var23 = new BlockPos(param0.getEyePosition(param1));
+        BlockPos var24 = new BlockPos(param4.getEyePosition(param1));
+        int var25 = this.getBlockLightLevel(param0, var23);
+        int var26 = this.entityRenderDispatcher.getRenderer(param4).getBlockLightLevel(param4, var24);
         int var27 = param0.level.getBrightness(LightLayer.SKY, var23);
-        renderSide(var17, var18, var13, var14, var15, var24, var25, var26, var27, 0.025F, 0.025F, var20, var21);
-        renderSide(var17, var18, var13, var14, var15, var24, var25, var26, var27, 0.025F, 0.0F, var20, var21);
+        int var28 = param0.level.getBrightness(LightLayer.SKY, var24);
+        renderSide(var18, var19, var14, var15, var16, var25, var26, var27, var28, 0.025F, 0.025F, var21, var22);
+        renderSide(var18, var19, var14, var15, var16, var25, var26, var27, var28, 0.025F, 0.0F, var21, var22);
         param2.popPose();
     }
 
@@ -144,7 +146,7 @@ public abstract class MobRenderer<T extends Mob, M extends EntityModel<T>> exten
 
         float var3 = (float)param9 / (float)param8;
         float var4 = param3 * var3;
-        float var5 = param4 * (var3 * var3 + var3) * 0.5F + ((float)param8 - (float)param9) / ((float)param8 * 0.75F) + 0.125F;
+        float var5 = param4 > 0.0F ? param4 * var3 * var3 : param4 - param4 * (1.0F - var3) * (1.0F - var3);
         float var6 = param5 * var3;
         if (!param10) {
             param0.vertex(param1, var4 + param11, var5 + param6 - param7, var6 - param12).color(var0, var1, var2, 1.0F).uv2(param2).endVertex();

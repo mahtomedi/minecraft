@@ -78,7 +78,7 @@ public class SetAttributesFunction extends LootItemConditionalFunction {
         public JsonObject serialize(JsonSerializationContext param0) {
             JsonObject var0 = new JsonObject();
             var0.addProperty("name", this.name);
-            var0.addProperty("attribute", Registry.ATTRIBUTES.getKey(this.attribute).toString());
+            var0.addProperty("attribute", Registry.ATTRIBUTE.getKey(this.attribute).toString());
             var0.addProperty("operation", operationToString(this.operation));
             var0.add("amount", param0.serialize(this.amount));
             if (this.id != null) {
@@ -103,7 +103,7 @@ public class SetAttributesFunction extends LootItemConditionalFunction {
         public static SetAttributesFunction.Modifier deserialize(JsonObject param0, JsonDeserializationContext param1) {
             String var0 = GsonHelper.getAsString(param0, "name");
             ResourceLocation var1 = new ResourceLocation(GsonHelper.getAsString(param0, "attribute"));
-            Attribute var2 = Registry.ATTRIBUTES.get(var1);
+            Attribute var2 = Registry.ATTRIBUTE.get(var1);
             if (var2 == null) {
                 throw new JsonSyntaxException("Unknown attribute: " + var1);
             } else {

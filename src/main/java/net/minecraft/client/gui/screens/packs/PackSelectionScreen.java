@@ -31,21 +31,18 @@ public abstract class PackSelectionScreen extends Screen {
     private static final Logger LOGGER = LogManager.getLogger();
     private static final Component DRAG_AND_DROP = new TranslatableComponent("pack.dropInfo").withStyle(ChatFormatting.DARK_GRAY);
     private static final Component DIRECTORY_BUTTON_TOOLTIP = new TranslatableComponent("pack.folderInfo");
-    private final Function<Runnable, PackSelectionModel<?>> modelSupplier;
-    private PackSelectionModel<?> model;
+    private final PackSelectionModel<?> model;
     private final Screen lastScreen;
-    private boolean hasChanges;
     private boolean shouldCommit;
     private TransferableSelectionList availablePackList;
     private TransferableSelectionList selectedPackList;
-    private final Function<Minecraft, File> packDir;
+    private final File packDir;
     private Button doneButton;
 
-    public PackSelectionScreen(Screen param0, TranslatableComponent param1, Function<Runnable, PackSelectionModel<?>> param2, Function<Minecraft, File> param3) {
+    public PackSelectionScreen(Screen param0, TranslatableComponent param1, Function<Runnable, PackSelectionModel<?>> param2, File param3) {
         super(param1);
         this.lastScreen = param0;
-        this.modelSupplier = param2;
-        this.model = param2.apply(this::onListsChanged);
+        this.model = param2.apply(this::populateLists);
         this.packDir = param3;
     }
 
@@ -53,22 +50,20 @@ public abstract class PackSelectionScreen extends Screen {
     public void removed() {
         if (this.shouldCommit) {
             this.shouldCommit = false;
-            this.model.commit(false);
+            this.model.commit();
         }
 
     }
 
     @Override
     public void onClose() {
+        this.shouldCommit = true;
         this.minecraft.setScreen(this.lastScreen);
     }
 
     @Override
     protected void init() {
-        this.doneButton = this.addButton(new Button(this.width / 2 + 4, this.height - 48, 150, 20, CommonComponents.GUI_DONE, param0 -> {
-            this.shouldCommit = this.hasChanges;
-            this.onClose();
-        }));
+        this.doneButton = this.addButton(new Button(this.width / 2 + 4, this.height - 48, 150, 20, CommonComponents.GUI_DONE, param0 -> this.onClose()));
         this.addButton(
             new Button(
                 this.width / 2 - 154,
@@ -76,7 +71,7 @@ public abstract class PackSelectionScreen extends Screen {
                 150,
                 20,
                 new TranslatableComponent("pack.openFolder"),
-                param0 -> Util.getPlatform().openFile(this.packDir.apply(this.minecraft)),
+                param0 -> Util.getPlatform().openFile(this.packDir),
                 (param0, param1, param2, param3) -> this.renderTooltip(param1, DIRECTORY_BUTTON_TOOLTIP, param2, param3)
             )
         );
@@ -100,15 +95,10 @@ public abstract class PackSelectionScreen extends Screen {
         param1.forEach(param1x -> param0.children().add(new TransferableSelectionList.PackEntry(this.minecraft, param0, this, param1x)));
     }
 
-    protected void onListsChanged() {
+    private void reload() {
+        this.model.findNewPacks();
         this.populateLists();
-        this.hasChanges = true;
-    }
-
-    protected void reload() {
-        this.model.commit(true);
-        this.model = this.modelSupplier.apply(this::onListsChanged);
-        this.populateLists();
+        this.shouldCommit = true;
     }
 
     @Override
@@ -151,7 +141,7 @@ public abstract class PackSelectionScreen extends Screen {
         String var0 = param0.stream().map(Path::getFileName).map(Path::toString).collect(Collectors.joining(", "));
         this.minecraft.setScreen(new ConfirmScreen(param1 -> {
             if (param1) {
-                copyPacks(this.minecraft, param0, this.packDir.apply(this.minecraft).toPath());
+                copyPacks(this.minecraft, param0, this.packDir.toPath());
                 this.reload();
             }
 

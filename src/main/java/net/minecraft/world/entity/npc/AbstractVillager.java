@@ -9,7 +9,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -181,7 +181,7 @@ public abstract class AbstractVillager extends AgableMob implements Npc, Merchan
 
     @Nullable
     @Override
-    public Entity changeDimension(ResourceKey<Level> param0) {
+    public Entity changeDimension(ServerLevel param0) {
         this.stopTrading();
         return super.changeDimension(param0);
     }

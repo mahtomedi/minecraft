@@ -147,12 +147,12 @@ public class ControlList extends ContainerObjectSelectionList<ControlList.Entry>
                 this.changeButton
                     .setMessage(
                         new TextComponent("> ")
-                            .append(this.changeButton.getMessage().mutableCopy().withStyle(ChatFormatting.YELLOW))
+                            .append(this.changeButton.getMessage().copy().withStyle(ChatFormatting.YELLOW))
                             .append(" <")
                             .withStyle(ChatFormatting.YELLOW)
                     );
             } else if (var1) {
-                this.changeButton.setMessage(this.changeButton.getMessage().mutableCopy().withStyle(ChatFormatting.RED));
+                this.changeButton.setMessage(this.changeButton.getMessage().copy().withStyle(ChatFormatting.RED));
             }
 
             this.changeButton.render(param0, param6, param7, param9);

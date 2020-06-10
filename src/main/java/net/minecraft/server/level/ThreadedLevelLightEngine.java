@@ -76,8 +76,8 @@ public class ThreadedLevelLightEngine extends LevelLightEngine implements AutoCl
             super.enableLightSources(param0, false);
 
             for(int var1x = -1; var1x < 17; ++var1x) {
-                super.queueSectionData(LightLayer.BLOCK, SectionPos.of(param0, var1x), null);
-                super.queueSectionData(LightLayer.SKY, SectionPos.of(param0, var1x), null);
+                super.queueSectionData(LightLayer.BLOCK, SectionPos.of(param0, var1x), null, true);
+                super.queueSectionData(LightLayer.SKY, SectionPos.of(param0, var1x), null, true);
             }
 
             for(int var1 = 0; var1 < 16; ++var1) {
@@ -109,13 +109,13 @@ public class ThreadedLevelLightEngine extends LevelLightEngine implements AutoCl
     }
 
     @Override
-    public void queueSectionData(LightLayer param0, SectionPos param1, @Nullable DataLayer param2) {
+    public void queueSectionData(LightLayer param0, SectionPos param1, @Nullable DataLayer param2, boolean param3) {
         this.addTask(
             param1.x(),
             param1.z(),
             () -> 0,
             ThreadedLevelLightEngine.TaskType.PRE_UPDATE,
-            Util.name(() -> super.queueSectionData(param0, param1, param2), () -> "queueData " + param1)
+            Util.name(() -> super.queueSectionData(param0, param1, param2, param3), () -> "queueData " + param1)
         );
     }
 

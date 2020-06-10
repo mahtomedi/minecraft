@@ -54,6 +54,7 @@ import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.world.entity.ai.goal.TemptGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.entity.ai.goal.target.ResetUniversalAngerTargetGoal;
 import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.ai.util.RandomPos;
@@ -112,6 +113,7 @@ public class Bee extends Animal implements NeutralMob, FlyingAnimal {
         this.lookControl = new Bee.BeeLookControl(this);
         this.setPathfindingMalus(BlockPathTypes.DANGER_FIRE, -1.0F);
         this.setPathfindingMalus(BlockPathTypes.WATER, -1.0F);
+        this.setPathfindingMalus(BlockPathTypes.WATER_BORDER, 16.0F);
         this.setPathfindingMalus(BlockPathTypes.COCOA, -1.0F);
         this.setPathfindingMalus(BlockPathTypes.FENCE, -1.0F);
     }
@@ -147,6 +149,7 @@ public class Bee extends Animal implements NeutralMob, FlyingAnimal {
         this.goalSelector.addGoal(9, new FloatGoal(this));
         this.targetSelector.addGoal(1, new Bee.BeeHurtByOtherGoal(this).setAlertOthers(new Class[0]));
         this.targetSelector.addGoal(2, new Bee.BeeBecomeAngryTargetGoal(this));
+        this.targetSelector.addGoal(3, new ResetUniversalAngerTargetGoal<>(this, true));
     }
 
     @Override
@@ -186,7 +189,7 @@ public class Bee extends Animal implements NeutralMob, FlyingAnimal {
         this.ticksWithoutNectarSinceExitingHive = param0.getInt("TicksSincePollination");
         this.stayOutOfHiveCountdown = param0.getInt("CannotEnterHiveTicks");
         this.numCropsGrownSincePollination = param0.getInt("CropsGrownSincePollination");
-        this.readPersistentAngerSaveData(this.level, param0);
+        this.readPersistentAngerSaveData((ServerLevel)this.level, param0);
     }
 
     @Override
@@ -209,7 +212,7 @@ public class Bee extends Animal implements NeutralMob, FlyingAnimal {
             }
 
             this.setHasStung(true);
-            this.setTarget(null);
+            this.stopBeingAngry();
             this.playSound(SoundEvents.BEE_STING, 1.0F, 1.0F);
         }
 
@@ -280,7 +283,7 @@ public class Bee extends Animal implements NeutralMob, FlyingAnimal {
     }
 
     private boolean wantsToEnterHive() {
-        if (this.stayOutOfHiveCountdown <= 0 && !this.beePollinateGoal.isPollinating() && !this.hasStung()) {
+        if (this.stayOutOfHiveCountdown <= 0 && !this.beePollinateGoal.isPollinating() && !this.hasStung() && this.getTarget() == null) {
             boolean var0 = this.isTiredOfLookingForNectar() || this.level.isRaining() || this.level.isNight() || this.hasNectar();
             return var0 && !this.isHiveNearFire();
         } else {
@@ -327,9 +330,12 @@ public class Bee extends Animal implements NeutralMob, FlyingAnimal {
             }
         }
 
-        this.updatePersistentAnger();
         if (!this.hasNectar()) {
             ++this.ticksWithoutNectarSinceExitingHive;
+        }
+
+        if (!this.level.isClientSide) {
+            this.updatePersistentAnger((ServerLevel)this.level, false);
         }
 
     }
@@ -600,6 +606,12 @@ public class Bee extends Animal implements NeutralMob, FlyingAnimal {
     @Override
     protected void jumpInLiquid(Tag<Fluid> param0) {
         this.setDeltaMovement(this.getDeltaMovement().add(0.0, 0.01, 0.0));
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public Vec3 getLeashOffset() {
+        return new Vec3(0.0, (double)(0.5F * this.getEyeHeight()), (double)(this.getBbWidth() * 0.2F));
     }
 
     private boolean closerThan(BlockPos param0, int param1) {
@@ -943,6 +955,11 @@ public class Bee extends Animal implements NeutralMob, FlyingAnimal {
     class BeeHurtByOtherGoal extends HurtByTargetGoal {
         BeeHurtByOtherGoal(Bee param0) {
             super(param0);
+        }
+
+        @Override
+        public boolean canContinueToUse() {
+            return Bee.this.isAngry() && super.canContinueToUse();
         }
 
         @Override

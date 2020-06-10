@@ -23,8 +23,11 @@ public class DyeItem extends Item {
         if (param2 instanceof Sheep) {
             Sheep var0 = (Sheep)param2;
             if (var0.isAlive() && !var0.isSheared() && var0.getColor() != this.dyeColor) {
-                var0.setColor(this.dyeColor);
-                param0.shrink(1);
+                if (!param1.level.isClientSide) {
+                    var0.setColor(this.dyeColor);
+                    param0.shrink(1);
+                }
+
                 return InteractionResult.sidedSuccess(param1.level.isClientSide);
             }
         }

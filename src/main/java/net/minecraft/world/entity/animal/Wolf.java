@@ -9,6 +9,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.IntRange;
@@ -44,6 +45,7 @@ import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NonTameRandomTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.OwnerHurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.OwnerHurtTargetGoal;
+import net.minecraft.world.entity.ai.goal.target.ResetUniversalAngerTargetGoal;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraft.world.entity.animal.horse.Llama;
 import net.minecraft.world.entity.monster.AbstractSkeleton;
@@ -104,6 +106,7 @@ public class Wolf extends TamableAnimal implements NeutralMob {
         this.targetSelector.addGoal(5, new NonTameRandomTargetGoal<>(this, Animal.class, false, PREY_SELECTOR));
         this.targetSelector.addGoal(6, new NonTameRandomTargetGoal<>(this, Turtle.class, false, Turtle.BABY_ON_LAND_SELECTOR));
         this.targetSelector.addGoal(7, new NearestAttackableTargetGoal<>(this, AbstractSkeleton.class, false));
+        this.targetSelector.addGoal(8, new ResetUniversalAngerTargetGoal<>(this, true));
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -137,7 +140,7 @@ public class Wolf extends TamableAnimal implements NeutralMob {
             this.setCollarColor(DyeColor.byId(param0.getInt("CollarColor")));
         }
 
-        this.readPersistentAngerSaveData(this.level, param0);
+        this.readPersistentAngerSaveData((ServerLevel)this.level, param0);
     }
 
     @Override
@@ -177,7 +180,7 @@ public class Wolf extends TamableAnimal implements NeutralMob {
         }
 
         if (!this.level.isClientSide) {
-            this.updatePersistentAnger();
+            this.updatePersistentAnger((ServerLevel)this.level, true);
         }
 
     }
@@ -502,6 +505,12 @@ public class Wolf extends TamableAnimal implements NeutralMob {
     @Override
     public boolean canBeLeashed(Player param0) {
         return !this.isAngry() && super.canBeLeashed(param0);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public Vec3 getLeashOffset() {
+        return new Vec3(0.0, (double)(0.6F * this.getEyeHeight()), (double)(this.getBbWidth() * 0.4F));
     }
 
     class WolfAvoidEntityGoal<T extends LivingEntity> extends AvoidEntityGoal<T> {

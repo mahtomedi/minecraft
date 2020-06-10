@@ -78,26 +78,14 @@ public class SkullBlockRenderer extends BlockEntityRenderer<SkullBlockEntity> {
         if (param0 == null) {
             param5.translate(0.5, 0.0, 0.5);
         } else {
-            switch(param0) {
-                case NORTH:
-                    param5.translate(0.5, 0.25, 0.74F);
-                    break;
-                case SOUTH:
-                    param5.translate(0.5, 0.25, 0.26F);
-                    break;
-                case WEST:
-                    param5.translate(0.74F, 0.25, 0.5);
-                    break;
-                case EAST:
-                default:
-                    param5.translate(0.26F, 0.25, 0.5);
-            }
+            float var1 = 0.25F;
+            param5.translate((double)(0.5F - (float)param0.getStepX() * 0.25F), 0.25, (double)(0.5F - (float)param0.getStepZ() * 0.25F));
         }
 
         param5.scale(-1.0F, -1.0F, 1.0F);
-        VertexConsumer var1 = param6.getBuffer(getRenderType(param2, param3));
+        VertexConsumer var2 = param6.getBuffer(getRenderType(param2, param3));
         var0.setupAnim(param4, param1, 0.0F);
-        var0.renderToBuffer(param5, var1, param7, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
+        var0.renderToBuffer(param5, var2, param7, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
         param5.popPose();
     }
 

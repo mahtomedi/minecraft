@@ -48,7 +48,7 @@ public class WitherSkullBlock extends SkullBlock {
         if (!param0.isClientSide) {
             BlockState var0 = param2.getBlockState();
             boolean var1 = var0.is(Blocks.WITHER_SKELETON_SKULL) || var0.is(Blocks.WITHER_SKELETON_WALL_SKULL);
-            if (var1 && param1.getY() >= 2 && param0.getDifficulty() != Difficulty.PEACEFUL) {
+            if (var1 && param1.getY() >= 0 && param0.getDifficulty() != Difficulty.PEACEFUL) {
                 BlockPattern var2 = getOrCreateWitherFull();
                 BlockPattern.BlockPatternMatch var3 = var2.find(param0, param1);
                 if (var3 != null) {

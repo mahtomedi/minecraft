@@ -37,7 +37,7 @@ public class ScreenEffectRenderer {
         }
 
         if (!param0.player.isSpectator()) {
-            if (param0.player.isUnderLiquid(FluidTags.WATER)) {
+            if (param0.player.isEyeInFluid(FluidTags.WATER)) {
                 renderWater(param0, param1);
             }
 
@@ -91,6 +91,7 @@ public class ScreenEffectRenderer {
     }
 
     private static void renderWater(Minecraft param0, PoseStack param1) {
+        RenderSystem.enableTexture();
         param0.getTextureManager().bind(UNDERWATER_LOCATION);
         BufferBuilder var0 = Tesselator.getInstance().getBuilder();
         float var1 = param0.player.getBrightness();
@@ -121,6 +122,7 @@ public class ScreenEffectRenderer {
         RenderSystem.depthMask(false);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
+        RenderSystem.enableTexture();
         TextureAtlasSprite var1 = ModelBakery.FIRE_1.sprite();
         param0.getTextureManager().bind(var1.atlas().location());
         float var2 = var1.getU0();

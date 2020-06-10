@@ -36,7 +36,10 @@ public class FancyTrunkPlacer extends TrunkPlacer {
         int var0 = 5;
         int var1 = param2 + 2;
         int var2 = Mth.floor((double)var1 * 0.618);
-        setDirtAt(param0, param3.below());
+        if (!param6.fromSapling) {
+            setDirtAt(param0, param3.below());
+        }
+
         double var3 = 1.0;
         int var4 = Math.min(1, Mth.floor(1.382 + Math.pow(1.0 * (double)var1 / 13.0, 2.0)));
         int var5 = param3.getY() + var2;

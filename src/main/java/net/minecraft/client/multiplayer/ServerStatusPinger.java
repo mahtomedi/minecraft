@@ -21,6 +21,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.network.Connection;
@@ -48,7 +49,7 @@ public class ServerStatusPinger {
     private static final Logger LOGGER = LogManager.getLogger();
     private final List<Connection> connections = Collections.synchronizedList(Lists.newArrayList());
 
-    public void pingServer(final ServerData param0) throws UnknownHostException {
+    public void pingServer(final ServerData param0, final Runnable param1) throws UnknownHostException {
         ServerAddress var0 = ServerAddress.parseString(param0.ip);
         final Connection var1 = Connection.connectToServer(InetAddress.getByName(var0.getHost()), var0.getPort(), false);
         this.connections.add(var1);
@@ -104,15 +105,19 @@ public class ServerStatusPinger {
                             param0.status = new TranslatableComponent("multiplayer.status.unknown").withStyle(ChatFormatting.DARK_GRAY);
                         }
     
+                        String var3 = null;
                         if (var0.getFavicon() != null) {
-                            String var3 = var0.getFavicon();
-                            if (var3.startsWith("data:image/png;base64,")) {
-                                param0.setIconB64(var3.substring("data:image/png;base64,".length()));
+                            String var4 = var0.getFavicon();
+                            if (var4.startsWith("data:image/png;base64,")) {
+                                var3 = var4.substring("data:image/png;base64,".length());
                             } else {
                                 ServerStatusPinger.LOGGER.error("Invalid server icon (unknown format)");
                             }
-                        } else {
-                            param0.setIconB64(null);
+                        }
+    
+                        if (!Objects.equals(var3, param0.getIconB64())) {
+                            param0.setIconB64(var3);
+                            param1.run();
                         }
     
                         this.pingStart = Util.getMillis();
@@ -150,8 +155,8 @@ public class ServerStatusPinger {
         try {
             var1.send(new ClientIntentionPacket(var0.getHost(), var0.getPort(), ConnectionProtocol.STATUS));
             var1.send(new ServerboundStatusRequestPacket());
-        } catch (Throwable var5) {
-            LOGGER.error(var5);
+        } catch (Throwable var6) {
+            LOGGER.error(var6);
         }
 
     }

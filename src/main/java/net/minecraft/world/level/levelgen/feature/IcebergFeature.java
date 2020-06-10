@@ -23,7 +23,7 @@ public class IcebergFeature extends Feature<BlockStateConfiguration> {
     public boolean place(
         WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BlockPos param4, BlockStateConfiguration param5
     ) {
-        param4 = new BlockPos(param4.getX(), param0.getSeaLevel(), param4.getZ());
+        param4 = new BlockPos(param4.getX(), param2.getSeaLevel(), param4.getZ());
         boolean var0 = param3.nextDouble() > 0.7;
         BlockState var1 = param5.state;
         double var2 = param3.nextDouble() * 2.0 * Math.PI;

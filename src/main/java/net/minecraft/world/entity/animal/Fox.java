@@ -702,6 +702,12 @@ public class Fox extends Animal {
         return true;
     }
 
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public Vec3 getLeashOffset() {
+        return new Vec3(0.0, (double)(0.55F * this.getEyeHeight()), (double)(this.getBbWidth() * 0.4F));
+    }
+
     class DefendTrustedTargetGoal extends NearestAttackableTargetGoal<LivingEntity> {
         @Nullable
         private LivingEntity trustedLastHurtBy;

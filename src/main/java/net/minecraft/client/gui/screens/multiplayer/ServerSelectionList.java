@@ -9,8 +9,10 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
+import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.DefaultUncaughtExceptionHandler;
 import net.minecraft.SharedConstants;
@@ -238,7 +240,7 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
                 this.serverData.status = TextComponent.EMPTY;
                 ServerSelectionList.THREAD_POOL.submit(() -> {
                     try {
-                        this.screen.getPinger().pingServer(this.serverData);
+                        this.screen.getPinger().pingServer(this.serverData, () -> this.minecraft.execute(this::updateServerList));
                     } catch (UnknownHostException var2x) {
                         this.serverData.ping = -1L;
                         this.serverData.motd = new TranslatableComponent("multiplayer.status.cannot_resolve").withStyle(ChatFormatting.DARK_RED);
@@ -260,7 +262,7 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
                 this.minecraft.font.draw(param0, var3.get(var4), (float)(param3 + 32 + 3), (float)(param2 + 12 + 9 * var4), 8421504);
             }
 
-            Component var5 = (Component)(var2 ? this.serverData.version.mutableCopy().withStyle(ChatFormatting.DARK_RED) : this.serverData.status);
+            Component var5 = (Component)(var2 ? this.serverData.version.copy().withStyle(ChatFormatting.DARK_RED) : this.serverData.status);
             int var6 = this.minecraft.font.width(var5);
             this.minecraft.font.draw(param0, var5, (float)(param3 + param4 - var6 - 15 - 2), (float)(param2 + 1), 8421504);
             int var7 = 0;
@@ -307,10 +309,14 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
             this.minecraft.getTextureManager().bind(GuiComponent.GUI_ICONS_LOCATION);
             GuiComponent.blit(param0, param3 + param4 - 15, param2, (float)(var7 * 10), (float)(176 + var8 * 8), 10, 8, 256, 256);
-            if (this.serverData.getIconB64() != null && !this.serverData.getIconB64().equals(this.lastIconB64)) {
-                this.lastIconB64 = this.serverData.getIconB64();
-                this.loadServerIcon();
-                this.screen.getServers().save();
+            String var24 = this.serverData.getIconB64();
+            if (!Objects.equals(var24, this.lastIconB64)) {
+                if (this.uploadServerIcon(var24)) {
+                    this.lastIconB64 = var24;
+                } else {
+                    this.serverData.setIconB64(null);
+                    this.updateServerList();
+                }
             }
 
             if (this.icon != null) {
@@ -319,11 +325,11 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
                 this.drawIcon(param0, param3, param2, ServerSelectionList.ICON_MISSING);
             }
 
-            int var24 = param6 - param3;
-            int var25 = param7 - param2;
-            if (var24 >= param4 - 15 && var24 <= param4 - 5 && var25 >= 0 && var25 <= 8) {
+            int var25 = param6 - param3;
+            int var26 = param7 - param2;
+            if (var25 >= param4 - 15 && var25 <= param4 - 5 && var26 >= 0 && var26 <= 8) {
                 this.screen.setToolTip(Collections.singletonList(var9));
-            } else if (var24 >= param4 - var6 - 15 - 2 && var24 <= param4 - 15 - 2 && var25 >= 0 && var25 <= 8) {
+            } else if (var25 >= param4 - var6 - 15 - 2 && var25 <= param4 - 15 - 2 && var26 >= 0 && var26 <= 8) {
                 this.screen.setToolTip(var10);
             }
 
@@ -331,10 +337,10 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
                 this.minecraft.getTextureManager().bind(ServerSelectionList.ICON_OVERLAY_LOCATION);
                 GuiComponent.fill(param0, param3, param2, param3 + 32, param2 + 32, -1601138544);
                 RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-                int var26 = param6 - param3;
-                int var27 = param7 - param2;
+                int var27 = param6 - param3;
+                int var28 = param7 - param2;
                 if (this.canJoin()) {
-                    if (var26 < 32 && var26 > 16) {
+                    if (var27 < 32 && var27 > 16) {
                         GuiComponent.blit(param0, param3, param2, 0.0F, 32.0F, 32, 32, 256, 256);
                     } else {
                         GuiComponent.blit(param0, param3, param2, 0.0F, 0.0F, 32, 32, 256, 256);
@@ -342,7 +348,7 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
                 }
 
                 if (param1 > 0) {
-                    if (var26 < 16 && var27 < 16) {
+                    if (var27 < 16 && var28 < 16) {
                         GuiComponent.blit(param0, param3, param2, 96.0F, 32.0F, 32, 32, 256, 256);
                     } else {
                         GuiComponent.blit(param0, param3, param2, 96.0F, 0.0F, 32, 32, 256, 256);
@@ -350,7 +356,7 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
                 }
 
                 if (param1 < this.screen.getServers().size() - 1) {
-                    if (var26 < 16 && var27 > 16) {
+                    if (var27 < 16 && var28 > 16) {
                         GuiComponent.blit(param0, param3, param2, 64.0F, 32.0F, 32, 32, 256, 256);
                     } else {
                         GuiComponent.blit(param0, param3, param2, 64.0F, 0.0F, 32, 32, 256, 256);
@@ -358,6 +364,10 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
                 }
             }
 
+        }
+
+        public void updateServerList() {
+            this.screen.getServers().save();
         }
 
         protected void drawIcon(PoseStack param0, int param1, int param2, ResourceLocation param3) {
@@ -371,9 +381,8 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
             return true;
         }
 
-        private void loadServerIcon() {
-            String var0 = this.serverData.getIconB64();
-            if (var0 == null) {
+        private boolean uploadServerIcon(@Nullable String param0) {
+            if (param0 == null) {
                 this.minecraft.getTextureManager().release(this.iconLocation);
                 if (this.icon != null && this.icon.getPixels() != null) {
                     this.icon.getPixels().close();
@@ -382,23 +391,24 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
                 this.icon = null;
             } else {
                 try {
-                    NativeImage var1 = NativeImage.fromBase64(var0);
-                    Validate.validState(var1.getWidth() == 64, "Must be 64 pixels wide");
-                    Validate.validState(var1.getHeight() == 64, "Must be 64 pixels high");
+                    NativeImage var0 = NativeImage.fromBase64(param0);
+                    Validate.validState(var0.getWidth() == 64, "Must be 64 pixels wide");
+                    Validate.validState(var0.getHeight() == 64, "Must be 64 pixels high");
                     if (this.icon == null) {
-                        this.icon = new DynamicTexture(var1);
+                        this.icon = new DynamicTexture(var0);
                     } else {
-                        this.icon.setPixels(var1);
+                        this.icon.setPixels(var0);
                         this.icon.upload();
                     }
 
                     this.minecraft.getTextureManager().register(this.iconLocation, this.icon);
                 } catch (Throwable var3) {
                     ServerSelectionList.LOGGER.error("Invalid icon for server {} ({})", this.serverData.name, this.serverData.ip, var3);
-                    this.serverData.setIconB64(null);
+                    return false;
                 }
             }
 
+            return true;
         }
 
         @Override

@@ -86,7 +86,7 @@ public class EnderChestBlock extends AbstractChestBlock<EnderChestBlockEntity> i
                 var0.setActiveChest(var3);
                 param3.openMenu(new SimpleMenuProvider((param1x, param2x, param3x) -> ChestMenu.threeRows(param1x, param2x, var0), CONTAINER_TITLE));
                 param3.awardStat(Stats.OPEN_ENDERCHEST);
-                PiglinAi.angerNearbyPiglinsThatSee(param3);
+                PiglinAi.angerNearbyPiglins(param3, true);
                 return InteractionResult.CONSUME;
             }
         } else {

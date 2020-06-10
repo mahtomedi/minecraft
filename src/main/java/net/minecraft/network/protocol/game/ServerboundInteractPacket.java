@@ -16,6 +16,7 @@ public class ServerboundInteractPacket implements Packet<ServerGamePacketListene
     private ServerboundInteractPacket.Action action;
     private Vec3 location;
     private InteractionHand hand;
+    private boolean usingSecondaryAction;
 
     public ServerboundInteractPacket() {
     }
@@ -26,18 +27,20 @@ public class ServerboundInteractPacket implements Packet<ServerGamePacketListene
     }
 
     @OnlyIn(Dist.CLIENT)
-    public ServerboundInteractPacket(Entity param0, InteractionHand param1) {
+    public ServerboundInteractPacket(Entity param0, InteractionHand param1, boolean param2) {
         this.entityId = param0.getId();
         this.action = ServerboundInteractPacket.Action.INTERACT;
         this.hand = param1;
+        this.usingSecondaryAction = param2;
     }
 
     @OnlyIn(Dist.CLIENT)
-    public ServerboundInteractPacket(Entity param0, InteractionHand param1, Vec3 param2) {
+    public ServerboundInteractPacket(Entity param0, InteractionHand param1, Vec3 param2, boolean param3) {
         this.entityId = param0.getId();
         this.action = ServerboundInteractPacket.Action.INTERACT_AT;
         this.hand = param1;
         this.location = param2;
+        this.usingSecondaryAction = param3;
     }
 
     @Override
@@ -50,6 +53,7 @@ public class ServerboundInteractPacket implements Packet<ServerGamePacketListene
 
         if (this.action == ServerboundInteractPacket.Action.INTERACT || this.action == ServerboundInteractPacket.Action.INTERACT_AT) {
             this.hand = param0.readEnum(InteractionHand.class);
+            this.usingSecondaryAction = param0.readBoolean();
         }
 
     }
@@ -66,6 +70,7 @@ public class ServerboundInteractPacket implements Packet<ServerGamePacketListene
 
         if (this.action == ServerboundInteractPacket.Action.INTERACT || this.action == ServerboundInteractPacket.Action.INTERACT_AT) {
             param0.writeEnum(this.hand);
+            param0.writeBoolean(this.usingSecondaryAction);
         }
 
     }
@@ -89,6 +94,10 @@ public class ServerboundInteractPacket implements Packet<ServerGamePacketListene
 
     public Vec3 getLocation() {
         return this.location;
+    }
+
+    public boolean isUsingSecondaryAction() {
+        return this.usingSecondaryAction;
     }
 
     public static enum Action {

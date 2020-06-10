@@ -3,12 +3,14 @@ package net.minecraft.world.entity.ai.goal.target;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.phys.AABB;
 
 public class HurtByTargetGoal extends TargetGoal {
@@ -29,13 +31,17 @@ public class HurtByTargetGoal extends TargetGoal {
         int var0 = this.mob.getLastHurtByMobTimestamp();
         LivingEntity var1 = this.mob.getLastHurtByMob();
         if (var0 != this.timestamp && var1 != null) {
-            for(Class<?> var2 : this.toIgnoreDamage) {
-                if (var2.isAssignableFrom(var1.getClass())) {
-                    return false;
+            if (var1.getType() == EntityType.PLAYER && this.mob.level.getGameRules().getBoolean(GameRules.RULE_UNIVERSAL_ANGER)) {
+                return false;
+            } else {
+                for(Class<?> var2 : this.toIgnoreDamage) {
+                    if (var2.isAssignableFrom(var1.getClass())) {
+                        return false;
+                    }
                 }
-            }
 
-            return this.canAttack(var1, HURT_BY_TARGETING);
+                return this.canAttack(var1, HURT_BY_TARGETING);
+            }
         } else {
             return false;
         }
@@ -62,47 +68,42 @@ public class HurtByTargetGoal extends TargetGoal {
 
     protected void alertOthers() {
         double var0 = this.getFollowDistance();
-        List<Mob> var1 = this.mob
-            .level
-            .getLoadedEntitiesOfClass(
-                this.mob.getClass(),
-                new AABB(this.mob.getX(), this.mob.getY(), this.mob.getZ(), this.mob.getX() + 1.0, this.mob.getY() + 1.0, this.mob.getZ() + 1.0)
-                    .inflate(var0, 10.0, var0)
-            );
-        Iterator var4 = var1.iterator();
+        AABB var1 = AABB.unitCubeFromLowerCorner(this.mob.position()).inflate(var0, 10.0, var0);
+        List<Mob> var2 = this.mob.level.getLoadedEntitiesOfClass(this.mob.getClass(), var1);
+        Iterator var5 = var2.iterator();
 
         while(true) {
-            Mob var2;
+            Mob var3;
             while(true) {
-                if (!var4.hasNext()) {
+                if (!var5.hasNext()) {
                     return;
                 }
 
-                var2 = (Mob)var4.next();
-                if (this.mob != var2
-                    && var2.getTarget() == null
-                    && (!(this.mob instanceof TamableAnimal) || ((TamableAnimal)this.mob).getOwner() == ((TamableAnimal)var2).getOwner())
-                    && !var2.isAlliedTo(this.mob.getLastHurtByMob())) {
+                var3 = (Mob)var5.next();
+                if (this.mob != var3
+                    && var3.getTarget() == null
+                    && (!(this.mob instanceof TamableAnimal) || ((TamableAnimal)this.mob).getOwner() == ((TamableAnimal)var3).getOwner())
+                    && !var3.isAlliedTo(this.mob.getLastHurtByMob())) {
                     if (this.toIgnoreAlert == null) {
                         break;
                     }
 
-                    boolean var3 = false;
+                    boolean var4 = false;
 
-                    for(Class<?> var4 : this.toIgnoreAlert) {
-                        if (var2.getClass() == var4) {
-                            var3 = true;
+                    for(Class<?> var5 : this.toIgnoreAlert) {
+                        if (var3.getClass() == var5) {
+                            var4 = true;
                             break;
                         }
                     }
 
-                    if (!var3) {
+                    if (!var4) {
                         break;
                     }
                 }
             }
 
-            this.alertOther(var2, this.mob.getLastHurtByMob());
+            this.alertOther(var3, this.mob.getLastHurtByMob());
         }
     }
 

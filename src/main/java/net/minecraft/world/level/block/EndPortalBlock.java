@@ -4,6 +4,7 @@ import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
@@ -39,7 +40,7 @@ public class EndPortalBlock extends BaseEntityBlock {
 
     @Override
     public void entityInside(BlockState param0, Level param1, BlockPos param2, Entity param3) {
-        if (!param1.isClientSide
+        if (param1 instanceof ServerLevel
             && !param3.isPassenger()
             && !param3.isVehicle()
             && param3.canChangeDimensions()
@@ -48,8 +49,13 @@ public class EndPortalBlock extends BaseEntityBlock {
                 param0.getShape(param1, param2),
                 BooleanOp.AND
             )) {
-            ResourceKey<Level> var0 = param1.dimensionType().isEnd() ? Level.OVERWORLD : Level.END;
-            param3.changeDimension(var0);
+            ResourceKey<Level> var0 = param1.dimension() == Level.END ? Level.OVERWORLD : Level.END;
+            ServerLevel var1 = ((ServerLevel)param1).getServer().getLevel(var0);
+            if (var1 == null) {
+                return;
+            }
+
+            param3.changeDimension(var1);
         }
 
     }

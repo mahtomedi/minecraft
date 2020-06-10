@@ -14,7 +14,7 @@ public class NameTagItem extends Item {
     @Override
     public InteractionResult interactLivingEntity(ItemStack param0, Player param1, LivingEntity param2, InteractionHand param3) {
         if (param0.hasCustomHoverName() && !(param2 instanceof Player)) {
-            if (param2.isAlive()) {
+            if (!param1.level.isClientSide && param2.isAlive()) {
                 param2.setCustomName(param0.getHoverName());
                 if (param2 instanceof Mob) {
                     ((Mob)param2).setPersistenceRequired();

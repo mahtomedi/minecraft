@@ -10,8 +10,8 @@ public class VillagerData {
     private static final int[] NEXT_LEVEL_XP_THRESHOLDS = new int[]{0, 10, 70, 150, 250};
     public static final Codec<VillagerData> CODEC = RecordCodecBuilder.create(
         param0 -> param0.group(
-                    Registry.VILLAGER_TYPE.fieldOf("type").forGetter(param0x -> param0x.type),
-                    Registry.VILLAGER_PROFESSION.fieldOf("profession").forGetter(param0x -> param0x.profession),
+                    Registry.VILLAGER_TYPE.fieldOf("type").withDefault(() -> VillagerType.PLAINS).forGetter(param0x -> param0x.type),
+                    Registry.VILLAGER_PROFESSION.fieldOf("profession").withDefault(() -> VillagerProfession.NONE).forGetter(param0x -> param0x.profession),
                     Codec.INT.fieldOf("level").withDefault(1).forGetter(param0x -> param0x.level)
                 )
                 .apply(param0, VillagerData::new)

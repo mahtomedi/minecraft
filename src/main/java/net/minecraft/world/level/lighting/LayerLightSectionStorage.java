@@ -30,6 +30,7 @@ public abstract class LayerLightSectionStorage<M extends DataLayerStorageMap<M>>
     protected final LongSet changedSections = new LongOpenHashSet();
     protected final LongSet sectionsAffectedByLightUpdates = new LongOpenHashSet();
     protected final Long2ObjectMap<DataLayer> queuedSections = Long2ObjectMaps.synchronize(new Long2ObjectOpenHashMap<>());
+    private final LongSet untrustedSections = new LongOpenHashSet();
     private final LongSet columnsToRetainQueuedDataFor = new LongOpenHashSet();
     private final LongSet toRemove = new LongOpenHashSet();
     protected volatile boolean hasToRemove;
@@ -225,61 +226,71 @@ public abstract class LayerLightSectionStorage<M extends DataLayerStorageMap<M>>
             this.updatingSectionData.clearCache();
             if (!param2) {
                 for(long var7 : this.queuedSections.keySet()) {
-                    if (this.storingLightForSection(var7)) {
-                        int var8 = SectionPos.sectionToBlockCoord(SectionPos.x(var7));
-                        int var9 = SectionPos.sectionToBlockCoord(SectionPos.y(var7));
-                        int var10 = SectionPos.sectionToBlockCoord(SectionPos.z(var7));
-
-                        for(Direction var11 : DIRECTIONS) {
-                            long var12 = SectionPos.offset(var7, var11);
-                            if (!this.queuedSections.containsKey(var12) && this.storingLightForSection(var12)) {
-                                for(int var13 = 0; var13 < 16; ++var13) {
-                                    for(int var14 = 0; var14 < 16; ++var14) {
-                                        long var15;
-                                        long var16;
-                                        switch(var11) {
-                                            case DOWN:
-                                                var15 = BlockPos.asLong(var8 + var14, var9, var10 + var13);
-                                                var16 = BlockPos.asLong(var8 + var14, var9 - 1, var10 + var13);
-                                                break;
-                                            case UP:
-                                                var15 = BlockPos.asLong(var8 + var14, var9 + 16 - 1, var10 + var13);
-                                                var16 = BlockPos.asLong(var8 + var14, var9 + 16, var10 + var13);
-                                                break;
-                                            case NORTH:
-                                                var15 = BlockPos.asLong(var8 + var13, var9 + var14, var10);
-                                                var16 = BlockPos.asLong(var8 + var13, var9 + var14, var10 - 1);
-                                                break;
-                                            case SOUTH:
-                                                var15 = BlockPos.asLong(var8 + var13, var9 + var14, var10 + 16 - 1);
-                                                var16 = BlockPos.asLong(var8 + var13, var9 + var14, var10 + 16);
-                                                break;
-                                            case WEST:
-                                                var15 = BlockPos.asLong(var8, var9 + var13, var10 + var14);
-                                                var16 = BlockPos.asLong(var8 - 1, var9 + var13, var10 + var14);
-                                                break;
-                                            default:
-                                                var15 = BlockPos.asLong(var8 + 16 - 1, var9 + var13, var10 + var14);
-                                                var16 = BlockPos.asLong(var8 + 16, var9 + var13, var10 + var14);
-                                        }
-
-                                        param0.checkEdge(var15, var16, param0.computeLevelFromNeighbor(var15, var16, param0.getLevel(var15)), false);
-                                        param0.checkEdge(var16, var15, param0.computeLevelFromNeighbor(var16, var15, param0.getLevel(var16)), false);
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    this.checkEdgesForSection(param0, var7);
+                }
+            } else {
+                for(long var8 : this.untrustedSections) {
+                    this.checkEdgesForSection(param0, var8);
                 }
             }
 
-            ObjectIterator<Entry<DataLayer>> var27 = this.queuedSections.long2ObjectEntrySet().iterator();
+            this.untrustedSections.clear();
+            ObjectIterator<Entry<DataLayer>> var9 = this.queuedSections.long2ObjectEntrySet().iterator();
 
-            while(var27.hasNext()) {
-                Entry<DataLayer> var28 = var27.next();
-                long var29 = var28.getLongKey();
-                if (this.storingLightForSection(var29)) {
-                    var27.remove();
+            while(var9.hasNext()) {
+                Entry<DataLayer> var10 = var9.next();
+                long var11 = var10.getLongKey();
+                if (this.storingLightForSection(var11)) {
+                    var9.remove();
+                }
+            }
+
+        }
+    }
+
+    private void checkEdgesForSection(LayerLightEngine<M, ?> param0, long param1) {
+        if (this.storingLightForSection(param1)) {
+            int var0 = SectionPos.sectionToBlockCoord(SectionPos.x(param1));
+            int var1 = SectionPos.sectionToBlockCoord(SectionPos.y(param1));
+            int var2 = SectionPos.sectionToBlockCoord(SectionPos.z(param1));
+
+            for(Direction var3 : DIRECTIONS) {
+                long var4 = SectionPos.offset(param1, var3);
+                if (!this.queuedSections.containsKey(var4) && this.storingLightForSection(var4)) {
+                    for(int var5 = 0; var5 < 16; ++var5) {
+                        for(int var6 = 0; var6 < 16; ++var6) {
+                            long var7;
+                            long var8;
+                            switch(var3) {
+                                case DOWN:
+                                    var7 = BlockPos.asLong(var0 + var6, var1, var2 + var5);
+                                    var8 = BlockPos.asLong(var0 + var6, var1 - 1, var2 + var5);
+                                    break;
+                                case UP:
+                                    var7 = BlockPos.asLong(var0 + var6, var1 + 16 - 1, var2 + var5);
+                                    var8 = BlockPos.asLong(var0 + var6, var1 + 16, var2 + var5);
+                                    break;
+                                case NORTH:
+                                    var7 = BlockPos.asLong(var0 + var5, var1 + var6, var2);
+                                    var8 = BlockPos.asLong(var0 + var5, var1 + var6, var2 - 1);
+                                    break;
+                                case SOUTH:
+                                    var7 = BlockPos.asLong(var0 + var5, var1 + var6, var2 + 16 - 1);
+                                    var8 = BlockPos.asLong(var0 + var5, var1 + var6, var2 + 16);
+                                    break;
+                                case WEST:
+                                    var7 = BlockPos.asLong(var0, var1 + var5, var2 + var6);
+                                    var8 = BlockPos.asLong(var0 - 1, var1 + var5, var2 + var6);
+                                    break;
+                                default:
+                                    var7 = BlockPos.asLong(var0 + 16 - 1, var1 + var5, var2 + var6);
+                                    var8 = BlockPos.asLong(var0 + 16, var1 + var5, var2 + var6);
+                            }
+
+                            param0.checkEdge(var7, var8, param0.computeLevelFromNeighbor(var7, var8, param0.getLevel(var7)), false);
+                            param0.checkEdge(var8, var7, param0.computeLevelFromNeighbor(var8, var7, param0.getLevel(var8)), false);
+                        }
+                    }
                 }
             }
 
@@ -304,9 +315,12 @@ public abstract class LayerLightSectionStorage<M extends DataLayerStorageMap<M>>
 
     }
 
-    protected void queueSectionData(long param0, @Nullable DataLayer param1) {
+    protected void queueSectionData(long param0, @Nullable DataLayer param1, boolean param2) {
         if (param1 != null) {
             this.queuedSections.put(param0, param1);
+            if (!param2) {
+                this.untrustedSections.add(param0);
+            }
         } else {
             this.queuedSections.remove(param0);
         }

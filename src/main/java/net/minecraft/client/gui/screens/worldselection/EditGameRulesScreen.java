@@ -1,6 +1,7 @@
 package net.minecraft.client.gui.screens.worldselection;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.collect.ImmutableList.Builder;
@@ -102,39 +103,34 @@ public class EditGameRulesScreen extends Screen {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public class BooleanRuleEntry extends EditGameRulesScreen.RuleEntry {
+    public class BooleanRuleEntry extends EditGameRulesScreen.GameRuleEntry {
         private final Button checkbox;
-        private final List<? extends GuiEventListener> children;
 
-        public BooleanRuleEntry(Component param1, List<FormattedText> param2, final String param3, GameRules.BooleanValue param4) {
-            super(param2);
-            this.checkbox = new Button(10, 5, 220, 20, this.getMessage(param1, param4.get()), param2x -> {
+        public BooleanRuleEntry(final Component param1, List<FormattedText> param2, final String param3, final GameRules.BooleanValue param4) {
+            super(param2, param1);
+            this.checkbox = new Button(10, 5, 44, 20, CommonComponents.optionStatus(param4.get()), param1x -> {
                 boolean var0 = !param4.get();
                 param4.set(var0, null);
-                param2x.setMessage(this.getMessage(param1, var0));
+                param1x.setMessage(CommonComponents.optionStatus(param4.get()));
             }) {
                 @Override
                 protected MutableComponent createNarrationMessage() {
-                    return this.getMessage().mutableCopy().append("\n").append(param3);
+                    return BooleanRuleEntry.this.createFullMessage(param1, param4.get()).copy().append("\n").append(param3);
                 }
             };
-            this.children = ImmutableList.of(this.checkbox);
+            this.children.add(this.checkbox);
         }
 
-        private Component getMessage(Component param0, boolean param1) {
-            return param0.mutableCopy().append(": ").append(CommonComponents.optionStatus(param1));
+        private MutableComponent createFullMessage(Component param0, boolean param1) {
+            return new TextComponent("").append(param0).append(": ").append(CommonComponents.optionStatus(param1));
         }
 
         @Override
         public void render(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
-            this.checkbox.x = param3;
+            this.renderLabel(param0, param2, param3);
+            this.checkbox.x = param3 + param4 - 45;
             this.checkbox.y = param2;
             this.checkbox.render(param0, param6, param7, param9);
-        }
-
-        @Override
-        public List<? extends GuiEventListener> children() {
-            return this.children;
         }
     }
 
@@ -165,15 +161,38 @@ public class EditGameRulesScreen extends Screen {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public class IntegerRuleEntry extends EditGameRulesScreen.RuleEntry {
-        private final Component label;
+    public abstract class GameRuleEntry extends EditGameRulesScreen.RuleEntry {
+        private final List<FormattedText> label;
+        protected final List<GuiEventListener> children = Lists.newArrayList();
+
+        public GameRuleEntry(@Nullable List<FormattedText> param1, Component param2) {
+            super(param1);
+            this.label = EditGameRulesScreen.this.minecraft.font.split(param2, 175);
+        }
+
+        @Override
+        public List<? extends GuiEventListener> children() {
+            return this.children;
+        }
+
+        protected void renderLabel(PoseStack param0, int param1, int param2) {
+            if (this.label.size() == 1) {
+                EditGameRulesScreen.this.minecraft.font.draw(param0, this.label.get(0), (float)param2, (float)(param1 + 5), 16777215);
+            } else if (this.label.size() >= 2) {
+                EditGameRulesScreen.this.minecraft.font.draw(param0, this.label.get(0), (float)param2, (float)param1, 16777215);
+                EditGameRulesScreen.this.minecraft.font.draw(param0, this.label.get(1), (float)param2, (float)(param1 + 10), 16777215);
+            }
+
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public class IntegerRuleEntry extends EditGameRulesScreen.GameRuleEntry {
         private final EditBox input;
-        private final List<? extends GuiEventListener> children;
 
         public IntegerRuleEntry(Component param1, List<FormattedText> param2, String param3, GameRules.IntegerValue param4) {
-            super(param2);
-            this.label = param1;
-            this.input = new EditBox(EditGameRulesScreen.this.minecraft.font, 10, 5, 42, 20, param1.mutableCopy().append("\n").append(param3).append("\n"));
+            super(param2, param1);
+            this.input = new EditBox(EditGameRulesScreen.this.minecraft.font, 10, 5, 42, 20, param1.copy().append("\n").append(param3).append("\n"));
             this.input.setValue(Integer.toString(param4.get()));
             this.input.setResponder(param1x -> {
                 if (param4.tryDeserialize(param1x)) {
@@ -185,20 +204,15 @@ public class EditGameRulesScreen extends Screen {
                 }
 
             });
-            this.children = ImmutableList.of(this.input);
+            this.children.add(this.input);
         }
 
         @Override
         public void render(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
-            EditGameRulesScreen.this.minecraft.font.draw(param0, this.label, (float)param3, (float)(param2 + 5), 16777215);
+            this.renderLabel(param0, param2, param3);
             this.input.x = param3 + param4 - 44;
             this.input.y = param2;
             this.input.render(param0, param6, param7, param9);
-        }
-
-        @Override
-        public List<? extends GuiEventListener> children() {
-            return this.children;
         }
     }
 

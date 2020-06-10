@@ -126,7 +126,7 @@ public class RealmsWorldSlotButton extends Button implements TickableWidget {
                     : new TranslatableComponent("mco.configure.world.slot.tooltip");
             }
 
-            Component var5 = var3.mutableCopy().append(var0);
+            Component var5 = var3.copy().append(var0);
             return Pair.of(var3, var5);
         }
     }

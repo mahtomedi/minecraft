@@ -159,6 +159,7 @@ public class ServerPlayer extends Player implements ContainerListener {
     private Vec3 enteredNetherPosition;
     private SectionPos lastSectionPos = SectionPos.of(0, 0, 0);
     private ResourceKey<Level> respawnDimension = Level.OVERWORLD;
+    @Nullable
     private BlockPos respawnPosition;
     private boolean respawnForced;
     private int containerCounter;
@@ -200,7 +201,7 @@ public class ServerPlayer extends Player implements ContainerListener {
                 int var9 = (var7 + var6 * var8) % var5;
                 int var10 = var9 % (var1 * 2 + 1);
                 int var11 = var9 / (var1 * 2 + 1);
-                BlockPos var12 = PlayerRespawnLogic.validSpawnPosition(param0, var0, var1, var10, var11);
+                BlockPos var12 = PlayerRespawnLogic.getOverworldRespawnPos(param0, var0.getX() + var10 - var1, var0.getZ() + var11 - var1, false);
                 if (var12 != null) {
                     this.moveTo(var12, 0.0F, 0.0F);
                     if (param0.noCollision(this)) {
@@ -616,105 +617,104 @@ public class ServerPlayer extends Player implements ContainerListener {
 
     @Nullable
     @Override
-    public Entity changeDimension(ResourceKey<Level> param0) {
+    public Entity changeDimension(ServerLevel param0) {
         this.isChangingDimension = true;
-        ResourceKey<Level> var0 = this.level.dimension();
-        if (var0 == Level.END && param0 == Level.OVERWORLD) {
+        ServerLevel var0 = this.getLevel();
+        ResourceKey<Level> var1 = var0.dimension();
+        if (var1 == Level.END && param0.dimension() == Level.OVERWORLD) {
             this.unRide();
             this.getLevel().removePlayerImmediately(this);
             if (!this.wonGame) {
                 this.wonGame = true;
-                this.connection.send(new ClientboundGameEventPacket(4, this.seenCredits ? 0.0F : 1.0F));
+                this.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.WIN_GAME, this.seenCredits ? 0.0F : 1.0F));
                 this.seenCredits = true;
             }
 
             return this;
         } else {
-            ServerLevel var1 = this.server.getLevel(var0);
-            ServerLevel var2 = this.server.getLevel(param0);
-            LevelData var3 = var2.getLevelData();
+            LevelData var2 = param0.getLevelData();
             this.connection
                 .send(
                     new ClientboundRespawnPacket(
-                        var2.dimensionTypeKey(),
-                        param0,
-                        BiomeManager.obfuscateSeed(var2.getSeed()),
+                        param0.dimensionTypeKey(),
+                        param0.dimension(),
+                        BiomeManager.obfuscateSeed(param0.getSeed()),
                         this.gameMode.getGameModeForPlayer(),
-                        var2.isDebug(),
-                        var2.isFlat(),
+                        param0.isDebug(),
+                        param0.isFlat(),
                         true
                     )
                 );
-            this.connection.send(new ClientboundChangeDifficultyPacket(var3.getDifficulty(), var3.isDifficultyLocked()));
-            PlayerList var4 = this.server.getPlayerList();
-            var4.sendPlayerPermissionLevel(this);
-            var1.removePlayerImmediately(this);
+            this.connection.send(new ClientboundChangeDifficultyPacket(var2.getDifficulty(), var2.isDifficultyLocked()));
+            PlayerList var3 = this.server.getPlayerList();
+            var3.sendPlayerPermissionLevel(this);
+            var0.removePlayerImmediately(this);
             this.removed = false;
-            double var5 = this.getX();
-            double var6 = this.getY();
-            double var7 = this.getZ();
-            float var8 = this.xRot;
-            float var9 = this.yRot;
-            float var10 = var9;
-            var1.getProfiler().push("moving");
-            if (var0 == Level.OVERWORLD && param0 == Level.END) {
-                BlockPos var11 = ServerLevel.END_SPAWN_POINT;
-                var5 = (double)var11.getX();
-                var6 = (double)var11.getY();
-                var7 = (double)var11.getZ();
-                var9 = 90.0F;
-                var8 = 0.0F;
+            double var4 = this.getX();
+            double var5 = this.getY();
+            double var6 = this.getZ();
+            float var7 = this.xRot;
+            float var8 = this.yRot;
+            float var9 = var8;
+            var0.getProfiler().push("moving");
+            if (param0.dimension() == Level.END) {
+                BlockPos var10 = ServerLevel.END_SPAWN_POINT;
+                var4 = (double)var10.getX();
+                var5 = (double)var10.getY();
+                var6 = (double)var10.getZ();
+                var8 = 90.0F;
+                var7 = 0.0F;
             } else {
-                if (var0 == Level.OVERWORLD && param0 == Level.NETHER) {
+                if (var1 == Level.OVERWORLD && param0.dimension() == Level.NETHER) {
                     this.enteredNetherPosition = this.position();
                 }
 
-                DimensionType var12 = var1.dimensionType();
-                DimensionType var13 = var2.dimensionType();
-                double var14 = 8.0;
-                if (!var12.shrunk() && var13.shrunk()) {
-                    var5 /= 8.0;
-                    var7 /= 8.0;
-                } else if (var12.shrunk() && !var13.shrunk()) {
-                    var5 *= 8.0;
-                    var7 *= 8.0;
+                DimensionType var11 = var0.dimensionType();
+                DimensionType var12 = param0.dimensionType();
+                double var13 = 8.0;
+                if (!var11.shrunk() && var12.shrunk()) {
+                    var4 /= 8.0;
+                    var6 /= 8.0;
+                } else if (var11.shrunk() && !var12.shrunk()) {
+                    var4 *= 8.0;
+                    var6 *= 8.0;
                 }
             }
 
-            this.moveTo(var5, var6, var7, var9, var8);
-            var1.getProfiler().pop();
-            var1.getProfiler().push("placing");
-            double var15 = Math.min(-2.9999872E7, var2.getWorldBorder().getMinX() + 16.0);
-            double var16 = Math.min(-2.9999872E7, var2.getWorldBorder().getMinZ() + 16.0);
-            double var17 = Math.min(2.9999872E7, var2.getWorldBorder().getMaxX() - 16.0);
-            double var18 = Math.min(2.9999872E7, var2.getWorldBorder().getMaxZ() - 16.0);
-            var5 = Mth.clamp(var5, var15, var17);
-            var7 = Mth.clamp(var7, var16, var18);
-            this.moveTo(var5, var6, var7, var9, var8);
-            if (param0 == Level.END) {
-                int var19 = Mth.floor(this.getX());
-                int var20 = Mth.floor(this.getY()) - 1;
-                int var21 = Mth.floor(this.getZ());
-                ServerLevel.makeObsidianPlatform(var2);
-                this.moveTo((double)var19, (double)var20, (double)var21, var9, 0.0F);
+            this.moveTo(var4, var5, var6, var8, var7);
+            var0.getProfiler().pop();
+            var0.getProfiler().push("placing");
+            double var14 = Math.min(-2.9999872E7, param0.getWorldBorder().getMinX() + 16.0);
+            double var15 = Math.min(-2.9999872E7, param0.getWorldBorder().getMinZ() + 16.0);
+            double var16 = Math.min(2.9999872E7, param0.getWorldBorder().getMaxX() - 16.0);
+            double var17 = Math.min(2.9999872E7, param0.getWorldBorder().getMaxZ() - 16.0);
+            var4 = Mth.clamp(var4, var14, var16);
+            var6 = Mth.clamp(var6, var15, var17);
+            this.moveTo(var4, var5, var6, var8, var7);
+            if (param0.dimension() == Level.END) {
+                int var18 = Mth.floor(this.getX());
+                int var19 = Mth.floor(this.getY()) - 1;
+                int var20 = Mth.floor(this.getZ());
+                ServerLevel.makeObsidianPlatform(param0);
+                this.moveTo((double)var18, (double)var19, (double)var20, var8, 0.0F);
                 this.setDeltaMovement(Vec3.ZERO);
-            } else if (!var2.getPortalForcer().findAndMoveToPortal(this, var10)) {
-                var2.getPortalForcer().createPortal(this);
-                var2.getPortalForcer().findAndMoveToPortal(this, var10);
+            } else if (!param0.getPortalForcer().findAndMoveToPortal(this, var9)) {
+                param0.getPortalForcer().createPortal(this);
+                param0.getPortalForcer().findAndMoveToPortal(this, var9);
             }
 
-            var1.getProfiler().pop();
-            this.setLevel(var2);
-            var2.addDuringPortalTeleport(this);
-            this.triggerDimensionChangeTriggers(var1);
-            this.connection.teleport(this.getX(), this.getY(), this.getZ(), var9, var8);
-            this.gameMode.setLevel(var2);
+            var0.getProfiler().pop();
+            this.setLevel(param0);
+            param0.addDuringPortalTeleport(this);
+            this.triggerDimensionChangeTriggers(var0);
+            this.connection.teleport(this.getX(), this.getY(), this.getZ(), var8, var7);
+            this.gameMode.setLevel(param0);
             this.connection.send(new ClientboundPlayerAbilitiesPacket(this.abilities));
-            var4.sendLevelInfo(this, var2);
-            var4.sendAllPlayerInfo(this);
+            var3.sendLevelInfo(this, param0);
+            var3.sendAllPlayerInfo(this);
 
-            for(MobEffectInstance var22 : this.getActiveEffects()) {
-                this.connection.send(new ClientboundUpdateMobEffectPacket(this.getId(), var22));
+            for(MobEffectInstance var21 : this.getActiveEffects()) {
+                this.connection.send(new ClientboundUpdateMobEffectPacket(this.getId(), var21));
             }
 
             this.connection.send(new ClientboundLevelEventPacket(1032, BlockPos.ZERO, 0, false));
@@ -726,16 +726,14 @@ public class ServerPlayer extends Player implements ContainerListener {
     }
 
     private void triggerDimensionChangeTriggers(ServerLevel param0) {
-        DimensionType var0 = param0.dimensionType();
-        DimensionType var1 = this.level.dimensionType();
-        ResourceKey<Level> var2 = param0.dimension();
-        ResourceKey<Level> var3 = this.level.dimension();
-        CriteriaTriggers.CHANGED_DIMENSION.trigger(this, var2, var3);
-        if (var0.isNether() && var1.isOverworld() && this.enteredNetherPosition != null) {
+        ResourceKey<Level> var0 = param0.dimension();
+        ResourceKey<Level> var1 = this.level.dimension();
+        CriteriaTriggers.CHANGED_DIMENSION.trigger(this, var0, var1);
+        if (var0 == Level.NETHER && var1 == Level.OVERWORLD && this.enteredNetherPosition != null) {
             CriteriaTriggers.NETHER_TRAVEL.trigger(this, this.enteredNetherPosition);
         }
 
-        if (var3 != Level.NETHER) {
+        if (var1 != Level.NETHER) {
             this.enteredNetherPosition = null;
         }
 
@@ -1205,7 +1203,7 @@ public class ServerPlayer extends Player implements ContainerListener {
     @Override
     public void setGameMode(GameType param0) {
         this.gameMode.setGameModeForPlayer(param0);
-        this.connection.send(new ClientboundGameEventPacket(3, (float)param0.getId()));
+        this.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.CHANGE_GAME_MODE, (float)param0.getId()));
         if (param0 == GameType.SPECTATOR) {
             this.removeEntitiesOnShoulder();
             this.stopRiding();
@@ -1425,7 +1423,7 @@ public class ServerPlayer extends Player implements ContainerListener {
         return this.respawnForced;
     }
 
-    public void setRespawnPosition(ResourceKey<Level> param0, BlockPos param1, boolean param2, boolean param3) {
+    public void setRespawnPosition(ResourceKey<Level> param0, @Nullable BlockPos param1, boolean param2, boolean param3) {
         if (param1 != null) {
             boolean var0 = param1.equals(this.respawnPosition) && param0.equals(this.respawnDimension);
             if (param3 && !var0) {

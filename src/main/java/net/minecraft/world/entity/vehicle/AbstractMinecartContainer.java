@@ -4,7 +4,6 @@ import javax.annotation.Nullable;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -122,7 +121,7 @@ public abstract class AbstractMinecartContainer extends AbstractMinecart impleme
 
     @Nullable
     @Override
-    public Entity changeDimension(ResourceKey<Level> param0) {
+    public Entity changeDimension(ServerLevel param0) {
         this.dropEquipment = false;
         return super.changeDimension(param0);
     }

@@ -41,25 +41,27 @@ public class RenderChunkRegion implements BlockAndTintGetter {
             }
         }
 
-        boolean var7 = true;
+        if (isAllEmpty(param1, param2, var0, var1, var4)) {
+            return null;
+        } else {
+            int var7 = 1;
+            BlockPos var8 = param1.offset(-1, -1, -1);
+            BlockPos var9 = param2.offset(1, 1, 1);
+            return new RenderChunkRegion(param0, var0, var1, var4, var8, var9);
+        }
+    }
 
-        for(int var8 = param1.getX() >> 4; var8 <= param2.getX() >> 4; ++var8) {
-            for(int var9 = param1.getZ() >> 4; var9 <= param2.getZ() >> 4; ++var9) {
-                LevelChunk var10 = var4[var8 - var0][var9 - var1];
-                if (!var10.isYSpaceEmpty(param1.getY(), param2.getY())) {
-                    var7 = false;
+    public static boolean isAllEmpty(BlockPos param0, BlockPos param1, int param2, int param3, LevelChunk[][] param4) {
+        for(int var0 = param0.getX() >> 4; var0 <= param1.getX() >> 4; ++var0) {
+            for(int var1 = param0.getZ() >> 4; var1 <= param1.getZ() >> 4; ++var1) {
+                LevelChunk var2 = param4[var0 - param2][var1 - param3];
+                if (!var2.isYSpaceEmpty(param0.getY(), param1.getY())) {
+                    return false;
                 }
             }
         }
 
-        if (var7) {
-            return null;
-        } else {
-            int var11 = 1;
-            BlockPos var12 = param1.offset(-1, -1, -1);
-            BlockPos var13 = param2.offset(1, 1, 1);
-            return new RenderChunkRegion(param0, var0, var1, var4, var12, var13);
-        }
+        return true;
     }
 
     public RenderChunkRegion(Level param0, int param1, int param2, LevelChunk[][] param3, BlockPos param4, BlockPos param5) {

@@ -72,20 +72,18 @@ public class CampfireBlock extends BaseEntityBlock implements SimpleWaterloggedB
 
     @Override
     public InteractionResult use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
-        if (param0.getValue(LIT)) {
-            BlockEntity var0 = param1.getBlockEntity(param2);
-            if (var0 instanceof CampfireBlockEntity) {
-                CampfireBlockEntity var1 = (CampfireBlockEntity)var0;
-                ItemStack var2 = param3.getItemInHand(param4);
-                Optional<CampfireCookingRecipe> var3 = var1.getCookableRecipe(var2);
-                if (var3.isPresent()) {
-                    if (!param1.isClientSide && var1.placeFood(param3.abilities.instabuild ? var2.copy() : var2, var3.get().getCookingTime())) {
-                        param3.awardStat(Stats.INTERACT_WITH_CAMPFIRE);
-                        return InteractionResult.SUCCESS;
-                    }
-
-                    return InteractionResult.CONSUME;
+        BlockEntity var0 = param1.getBlockEntity(param2);
+        if (var0 instanceof CampfireBlockEntity) {
+            CampfireBlockEntity var1 = (CampfireBlockEntity)var0;
+            ItemStack var2 = param3.getItemInHand(param4);
+            Optional<CampfireCookingRecipe> var3 = var1.getCookableRecipe(var2);
+            if (var3.isPresent()) {
+                if (!param1.isClientSide && var1.placeFood(param3.abilities.instabuild ? var2.copy() : var2, var3.get().getCookingTime())) {
+                    param3.awardStat(Stats.INTERACT_WITH_CAMPFIRE);
+                    return InteractionResult.SUCCESS;
                 }
+
+                return InteractionResult.CONSUME;
             }
         }
 

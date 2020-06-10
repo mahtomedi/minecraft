@@ -62,13 +62,19 @@ public interface EntityGetter {
             return Stream.empty();
         } else {
             AABB var0 = param1.inflate(1.0E-7);
-            return this.getEntities(param0, var0)
+            return this.getEntities(param0, var0, param2.and(param1x -> param0 == null || !param0.isPassengerOfSameVehicle(param1x)))
                 .stream()
-                .filter(param2)
-                .filter(param1x -> param0 == null || !param0.isPassengerOfSameVehicle(param1x))
-                .flatMap(param1x -> Stream.of(param1x.getCollideBox(), param0 == null ? null : param0.getCollideAgainstBox(param1x)))
+                .flatMap(param2x -> {
+                    if (param0 != null) {
+                        AABB var0x = param0.getCollideAgainstBox(param2x);
+                        if (var0x != null && var0x.intersects(var0)) {
+                            return Stream.of(param2x.getCollideBox(), var0x);
+                        }
+                    }
+    
+                    return Stream.of(param2x.getCollideBox());
+                })
                 .filter(Objects::nonNull)
-                .filter(var0::intersects)
                 .map(Shapes::create);
         }
     }

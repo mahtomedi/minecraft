@@ -129,7 +129,7 @@ public class InventoryScreen extends EffectRenderingInventoryScreen<InventoryMen
         var10.overrideCameraOrientation(var4);
         var10.setRenderShadow(false);
         MultiBufferSource.BufferSource var11 = Minecraft.getInstance().renderBuffers().bufferSource();
-        var10.render(param5, 0.0, 0.0, 0.0, 0.0F, 1.0F, var2, var11, 15728880);
+        RenderSystem.runAsFancy(() -> var10.render(param5, 0.0, 0.0, 0.0, 0.0F, 1.0F, var2, var11, 15728880));
         var11.endBatch();
         var10.setRenderShadow(true);
         param5.yBodyRot = var5;
@@ -148,6 +148,7 @@ public class InventoryScreen extends EffectRenderingInventoryScreen<InventoryMen
     @Override
     public boolean mouseClicked(double param0, double param1, int param2) {
         if (this.recipeBookComponent.mouseClicked(param0, param1, param2)) {
+            this.setFocused(this.recipeBookComponent);
             return true;
         } else {
             return this.widthTooNarrow && this.recipeBookComponent.isVisible() ? false : super.mouseClicked(param0, param1, param2);

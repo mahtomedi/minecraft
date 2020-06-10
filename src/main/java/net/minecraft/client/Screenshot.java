@@ -10,11 +10,11 @@ import java.util.Date;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.server.packs.resources.SimpleResource;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
@@ -49,7 +49,7 @@ public class Screenshot {
             var2 = new File(var1, param1);
         }
 
-        SimpleResource.IO_EXECUTOR
+        Util.ioPool()
             .execute(
                 () -> {
                     try {

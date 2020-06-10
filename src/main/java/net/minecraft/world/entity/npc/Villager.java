@@ -620,14 +620,16 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
             MinecraftServer var0 = ((ServerLevel)this.level).getServer();
             this.brain.getMemory(param0).ifPresent(param2 -> {
                 ServerLevel var0x = var0.getLevel(param2.dimension());
-                PoiManager var1x = var0x.getPoiManager();
-                Optional<PoiType> var2x = var1x.getType(param2.pos());
-                BiPredicate<Villager, PoiType> var3 = POI_MEMORIES.get(param0);
-                if (var2x.isPresent() && var3.test(this, (PoiType)var2x.get())) {
-                    var1x.release(param2.pos());
-                    DebugPackets.sendPoiTicketCountPacket(var0x, param2.pos());
-                }
+                if (var0x != null) {
+                    PoiManager var1x = var0x.getPoiManager();
+                    Optional<PoiType> var2x = var1x.getType(param2.pos());
+                    BiPredicate<Villager, PoiType> var3 = POI_MEMORIES.get(param0);
+                    if (var2x.isPresent() && var3.test(this, (PoiType)var2x.get())) {
+                        var1x.release(param2.pos());
+                        DebugPackets.sendPoiTicketCountPacket(var0x, param2.pos());
+                    }
 
+                }
             });
         }
     }

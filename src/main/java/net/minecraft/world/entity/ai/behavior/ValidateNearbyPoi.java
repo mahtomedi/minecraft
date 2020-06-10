@@ -37,7 +37,7 @@ public class ValidateNearbyPoi extends Behavior<LivingEntity> {
         GlobalPos var1 = var0.getMemory(this.memoryType).get();
         BlockPos var2 = var1.pos();
         ServerLevel var3 = param0.getServer().getLevel(var1.dimension());
-        if (this.poiDoesntExist(var3, var2)) {
+        if (var3 == null || this.poiDoesntExist(var3, var2)) {
             var0.eraseMemory(this.memoryType);
         } else if (this.bedIsOccupied(var3, var2, param1)) {
             var0.eraseMemory(this.memoryType);

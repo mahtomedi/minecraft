@@ -38,19 +38,7 @@ public class TreeFeature extends Feature<TreeConfiguration> {
     }
 
     public static boolean isFree(LevelSimulatedReader param0, BlockPos param1) {
-        return param0.isStateAtPosition(
-            param1,
-            param0x -> {
-                Block var0x = param0x.getBlock();
-                return param0x.isAir()
-                    || param0x.is(BlockTags.LEAVES)
-                    || isDirt(var0x)
-                    || param0x.is(BlockTags.LOGS)
-                    || param0x.is(BlockTags.SAPLINGS)
-                    || param0x.is(Blocks.VINE)
-                    || param0x.is(Blocks.WATER);
-            }
-        );
+        return validTreePos(param0, param1) || param0.isStateAtPosition(param1, param0x -> param0x.is(BlockTags.LOGS));
     }
 
     private static boolean isVine(LevelSimulatedReader param0, BlockPos param1) {
@@ -83,7 +71,7 @@ public class TreeFeature extends Feature<TreeConfiguration> {
         param0.setBlock(param1, param2, 19);
     }
 
-    public static boolean validTreePos(LevelSimulatedRW param0, BlockPos param1) {
+    public static boolean validTreePos(LevelSimulatedReader param0, BlockPos param1) {
         return isAirOrLeaves(param0, param1) || isReplaceablePlant(param0, param1) || isBlockWater(param0, param1);
     }
 
@@ -121,32 +109,35 @@ public class TreeFeature extends Feature<TreeConfiguration> {
         } else if (!isGrassOrDirtOrFarmland(param0, var9.below())) {
             return false;
         } else {
-            BlockPos.MutableBlockPos var11 = new BlockPos.MutableBlockPos();
-            OptionalInt var12 = param6.minimumSize.minClippedHeight();
-            int var13 = var0;
+            OptionalInt var11 = param6.minimumSize.minClippedHeight();
+            int var12 = this.getMaxFreeTreeHeight(param0, var0, var9, param6);
+            if (var12 >= var0 || var11.isPresent() && var12 >= var11.getAsInt()) {
+                List<FoliagePlacer.FoliageAttachment> var13 = param6.trunkPlacer.placeTrunk(param0, param1, var12, var9, param3, param5, param6);
+                var13.forEach(param8 -> param6.foliagePlacer.createFoliage(param0, param1, param6, var12, param8, var1, var3, param4, param5));
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
 
-            for(int var14 = 0; var14 <= var0 + 1; ++var14) {
-                int var15 = param6.minimumSize.getSizeAtHeight(var0, var14);
+    private int getMaxFreeTreeHeight(LevelSimulatedReader param0, int param1, BlockPos param2, TreeConfiguration param3) {
+        BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos();
 
-                for(int var16 = -var15; var16 <= var15; ++var16) {
-                    for(int var17 = -var15; var17 <= var15; ++var17) {
-                        var11.setWithOffset(var9, var16, var14, var17);
-                        if (!isFree(param0, var11) || !param6.ignoreVines && isVine(param0, var11)) {
-                            if (!var12.isPresent() || var14 - 1 < var12.getAsInt() + 1) {
-                                return false;
-                            }
+        for(int var1 = 0; var1 <= param1 + 1; ++var1) {
+            int var2 = param3.minimumSize.getSizeAtHeight(param1, var1);
 
-                            var13 = var14 - 2;
-                            break;
-                        }
+            for(int var3 = -var2; var3 <= var2; ++var3) {
+                for(int var4 = -var2; var4 <= var2; ++var4) {
+                    var0.setWithOffset(param2, var3, var1, var4);
+                    if (!isFree(param0, var0) || !param3.ignoreVines && isVine(param0, var0)) {
+                        return var1 - 2;
                     }
                 }
             }
-
-            List<FoliagePlacer.FoliageAttachment> var19 = param6.trunkPlacer.placeTrunk(param0, param1, var13, var9, param3, param5, param6);
-            var19.forEach(param8 -> param6.foliagePlacer.createFoliage(param0, param1, param6, var13, param8, var1, var3, param4, param5));
-            return true;
         }
+
+        return param1;
     }
 
     @Override

@@ -46,6 +46,15 @@ public class ModelPart {
         this.texOffs(param2, param3);
     }
 
+    private ModelPart() {
+    }
+
+    public ModelPart createShallowCopy() {
+        ModelPart var0 = new ModelPart();
+        var0.copyFrom(this);
+        return var0;
+    }
+
     public void copyFrom(ModelPart param0) {
         this.xRot = param0.xRot;
         this.yRot = param0.yRot;

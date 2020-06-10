@@ -378,7 +378,9 @@ public class DebugScreenOverlay extends GuiComponent {
 
     private Level getLevel() {
         return DataFixUtils.orElse(
-            Optional.ofNullable(this.minecraft.getSingleplayerServer()).map(param0 -> param0.getLevel(this.minecraft.level.dimension())), this.minecraft.level
+            Optional.ofNullable(this.minecraft.getSingleplayerServer())
+                .flatMap(param0 -> Optional.ofNullable(param0.getLevel(this.minecraft.level.dimension()))),
+            this.minecraft.level
         );
     }
 

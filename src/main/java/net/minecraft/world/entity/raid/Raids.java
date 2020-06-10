@@ -85,7 +85,7 @@ public class Raids extends SavedData {
             return null;
         } else {
             DimensionType var0 = param0.level.dimensionType();
-            if (var0.isNether()) {
+            if (!var0.hasRaids()) {
                 return null;
             } else {
                 BlockPos var1 = param0.blockPosition();

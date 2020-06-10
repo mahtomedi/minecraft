@@ -7,11 +7,11 @@ import com.google.gson.JsonIOException;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.mojang.datafixers.util.Pair;
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.Lifecycle;
+import com.mojang.serialization.MapCodec;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -26,6 +26,7 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.WritableRegistry;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.util.Codecs;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -45,23 +46,28 @@ public class RegistryReadOps<T> extends DelegatingOps<T> {
         this.registryHolder = param2;
     }
 
-    protected <E> DataResult<Pair<Supplier<E>, T>> decodeElement(T param0, ResourceKey<Registry<E>> param1, Codec<E> param2) {
-        DataResult<Pair<ResourceLocation, T>> var0 = ResourceLocation.CODEC.decode(this.delegate, param0);
-        if (!var0.result().isPresent()) {
-            return param2.decode(this.delegate, param0).map(param0x -> param0x.mapFirst(param0xx -> () -> param0xx));
+    protected <E> DataResult<Pair<Supplier<E>, T>> decodeElement(T param0, ResourceKey<Registry<E>> param1, MapCodec<E> param2) {
+        Optional<WritableRegistry<E>> var0 = this.registryHolder.registry(param1);
+        if (!var0.isPresent()) {
+            return DataResult.error("Unknown registry: " + param1);
         } else {
-            Optional<WritableRegistry<E>> var1 = this.registryHolder.registry(param1);
-            if (!var1.isPresent()) {
-                return DataResult.error("Unknown registry: " + param1);
+            WritableRegistry<E> var1 = var0.get();
+            DataResult<Pair<ResourceLocation, T>> var2 = ResourceLocation.CODEC.decode(this.delegate, param0);
+            if (!var2.result().isPresent()) {
+                return Codecs.withName(param1, param2).codec().decode(this.delegate, param0).map(param1x -> param1x.mapFirst(param1xx -> {
+                        var1.register(param1xx.getFirst(), param1xx.getSecond());
+                        var1.setPersistent(param1xx.getFirst());
+                        return param1xx::getSecond;
+                    }));
             } else {
-                Pair<ResourceLocation, T> var2 = var0.result().get();
-                ResourceLocation var3 = var2.getFirst();
-                return this.readAndRegisterElement(param1, var1.get(), param2, var3).map(param1x -> Pair.of(param1x, var2.getSecond()));
+                Pair<ResourceLocation, T> var3 = var2.result().get();
+                ResourceLocation var4 = var3.getFirst();
+                return this.readAndRegisterElement(param1, var1, param2, var4).map(param1x -> Pair.of(param1x, var3.getSecond()));
             }
         }
     }
 
-    public <E> DataResult<MappedRegistry<E>> decodeElements(MappedRegistry<E> param0, ResourceKey<Registry<E>> param1, Codec<E> param2) {
+    public <E> DataResult<MappedRegistry<E>> decodeElements(MappedRegistry<E> param0, ResourceKey<Registry<E>> param1, MapCodec<E> param2) {
         ResourceLocation var0 = param1.location();
         Collection<ResourceLocation> var1 = this.resourceManager.listResources(var0, param0x -> param0x.endsWith(".json"));
         DataResult<MappedRegistry<E>> var2 = DataResult.success(param0, Lifecycle.stable());
@@ -90,7 +96,7 @@ public class RegistryReadOps<T> extends DelegatingOps<T> {
     }
 
     private <E> DataResult<Supplier<E>> readAndRegisterElement(
-        ResourceKey<Registry<E>> param0, WritableRegistry<E> param1, Codec<E> param2, ResourceLocation param3
+        ResourceKey<Registry<E>> param0, WritableRegistry<E> param1, MapCodec<E> param2, ResourceLocation param3
     ) {
         ResourceKey<E> var0 = ResourceKey.create(param0, param3);
         E var1 = param1.get(var0);
@@ -120,7 +126,7 @@ public class RegistryReadOps<T> extends DelegatingOps<T> {
         }
     }
 
-    private <E> DataResult<E> readElementFromFile(ResourceKey<Registry<E>> param0, ResourceKey<E> param1, Codec<E> param2) {
+    private <E> DataResult<E> readElementFromFile(ResourceKey<Registry<E>> param0, ResourceKey<E> param1, MapCodec<E> param2) {
         ResourceLocation var0 = new ResourceLocation(
             param0.location().getNamespace(),
             param0.location().getPath() + "/" + param1.location().getNamespace() + "/" + param1.location().getPath() + ".json"
@@ -132,7 +138,7 @@ public class RegistryReadOps<T> extends DelegatingOps<T> {
         ) {
             JsonParser var3 = new JsonParser();
             JsonElement var4 = var3.parse(var2);
-            return param2.parse(new RegistryReadOps<>(JsonOps.INSTANCE, this.resourceManager, this.registryHolder), var4);
+            return param2.codec().parse(new RegistryReadOps<>(JsonOps.INSTANCE, this.resourceManager, this.registryHolder), var4);
         } catch (JsonIOException | JsonSyntaxException | IOException var40) {
             return DataResult.error("Failed to parse file: " + var40.getMessage());
         }

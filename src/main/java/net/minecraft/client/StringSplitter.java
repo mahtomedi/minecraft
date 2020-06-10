@@ -173,6 +173,10 @@ public class StringSplitter {
     }
 
     public List<FormattedText> splitLines(FormattedText param0, int param1, Style param2) {
+        return this.splitLines(param0, param1, param2, null);
+    }
+
+    public List<FormattedText> splitLines(FormattedText param0, int param1, Style param2, @Nullable FormattedText param3) {
         List<FormattedText> var0 = Lists.newArrayList();
         List<StringSplitter.LineComponent> var1 = Lists.newArrayList();
         param0.visit((param1x, param2x) -> {
@@ -185,37 +189,44 @@ public class StringSplitter {
         StringSplitter.FlatComponents var2 = new StringSplitter.FlatComponents(var1);
         boolean var3 = true;
         boolean var4 = false;
+        boolean var5 = false;
 
         while(var3) {
             var3 = false;
-            StringSplitter.LineBreakFinder var5 = new StringSplitter.LineBreakFinder((float)param1);
+            StringSplitter.LineBreakFinder var6 = new StringSplitter.LineBreakFinder((float)param1);
 
-            for(StringSplitter.LineComponent var6 : var2.parts) {
-                boolean var7 = StringDecomposer.iterateFormatted(var6.contents, 0, var6.style, param2, var5);
-                if (!var7) {
-                    int var8 = var5.getSplitPosition();
-                    Style var9 = var5.getSplitStyle();
-                    char var10 = var2.charAt(var8);
-                    boolean var11 = var10 == '\n';
-                    boolean var12 = var11 || var10 == ' ';
-                    var4 = var11;
-                    var0.add(var2.splitAt(var8, var12 ? 1 : 0, var9));
+            for(StringSplitter.LineComponent var7 : var2.parts) {
+                boolean var8 = StringDecomposer.iterateFormatted(var7.contents, 0, var7.style, param2, var6);
+                if (!var8) {
+                    int var9 = var6.getSplitPosition();
+                    Style var10 = var6.getSplitStyle();
+                    char var11 = var2.charAt(var9);
+                    boolean var12 = var11 == '\n';
+                    boolean var13 = var12 || var11 == ' ';
+                    var4 = var12;
+                    FormattedText var14 = var2.splitAt(var9, var13 ? 1 : 0, var10);
+                    var0.add(this.formattedLine(var14, var5, param3));
+                    var5 = !var12;
                     var3 = true;
                     break;
                 }
 
-                var5.addToOffset(var6.contents.length());
+                var6.addToOffset(var7.contents.length());
             }
         }
 
-        FormattedText var13 = var2.getRemainder();
-        if (var13 != null) {
-            var0.add(var13);
+        FormattedText var15 = var2.getRemainder();
+        if (var15 != null) {
+            var0.add(this.formattedLine(var15, var5, param3));
         } else if (var4) {
             var0.add(FormattedText.EMPTY);
         }
 
         return var0;
+    }
+
+    private FormattedText formattedLine(FormattedText param0, boolean param1, FormattedText param2) {
+        return param1 && param2 != null ? FormattedText.composite(param2, param0) : param0;
     }
 
     @OnlyIn(Dist.CLIENT)

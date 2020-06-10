@@ -200,29 +200,20 @@ public class EditWorldScreen extends Screen {
 
     }
 
-    public static boolean makeBackupAndShowToast(LevelStorageSource param0, String param1) {
-        LevelStorageSource.LevelStorageAccess var0;
-        try {
-            var0 = param0.createAccess(param1);
-        } catch (IOException var13) {
-            LOGGER.warn("Failed to read level {} data", param1, var13);
-            SystemToast.onWorldAccessFailure(Minecraft.getInstance(), param1);
-            return false;
-        }
+    public static void makeBackupAndShowToast(LevelStorageSource param0, String param1) {
+        boolean var0 = false;
 
-        boolean var1;
-        try {
-            var1 = makeBackupAndShowToast(var0);
-        } finally {
-            try {
-                var0.close();
-            } catch (IOException var11) {
-                LOGGER.warn("Failed to unlock access to level {}", param1, var11);
+        try (LevelStorageSource.LevelStorageAccess var1 = param0.createAccess(param1)) {
+            var0 = true;
+            makeBackupAndShowToast(var1);
+        } catch (IOException var16) {
+            if (!var0) {
+                SystemToast.onWorldAccessFailure(Minecraft.getInstance(), param1);
             }
 
+            LOGGER.warn("Failed to create backup of level {}", param1, var16);
         }
 
-        return var1;
     }
 
     public static boolean makeBackupAndShowToast(LevelStorageSource.LevelStorageAccess param0) {

@@ -136,7 +136,7 @@ public class FogRenderer {
             }
         }
 
-        if (var31 < 1.0) {
+        if (var31 < 1.0 && !var0.is(FluidTags.LAVA)) {
             if (var31 < 0.0) {
                 var31 = 0.0;
             }
@@ -184,50 +184,54 @@ public class FogRenderer {
         FluidState var0 = param0.getFluidInCamera();
         Entity var1 = param0.getEntity();
         boolean var2 = var0.getType() != Fluids.EMPTY;
-        if (var2) {
+        if (var0.is(FluidTags.WATER)) {
             float var3 = 1.0F;
-            if (var0.is(FluidTags.WATER)) {
-                var3 = 0.05F;
-                if (var1 instanceof LocalPlayer) {
-                    LocalPlayer var4 = (LocalPlayer)var1;
-                    var3 -= var4.getWaterVision() * var4.getWaterVision() * 0.03F;
-                    Biome var5 = var4.level.getBiome(var4.blockPosition());
-                    if (var5 == Biomes.SWAMP || var5 == Biomes.SWAMP_HILLS) {
-                        var3 += 0.005F;
-                    }
+            var3 = 0.05F;
+            if (var1 instanceof LocalPlayer) {
+                LocalPlayer var4 = (LocalPlayer)var1;
+                var3 -= var4.getWaterVision() * var4.getWaterVision() * 0.03F;
+                Biome var5 = var4.level.getBiome(var4.blockPosition());
+                if (var5 == Biomes.SWAMP || var5 == Biomes.SWAMP_HILLS) {
+                    var3 += 0.005F;
                 }
-            } else if (var0.is(FluidTags.LAVA)) {
-                var3 = 2.0F;
             }
 
             RenderSystem.fogDensity(var3);
             RenderSystem.fogMode(GlStateManager.FogMode.EXP2);
         } else {
-            float var8;
-            float var9;
-            if (var1 instanceof LivingEntity && ((LivingEntity)var1).hasEffect(MobEffects.BLINDNESS)) {
-                int var6 = ((LivingEntity)var1).getEffect(MobEffects.BLINDNESS).getDuration();
-                float var7 = Mth.lerp(Math.min(1.0F, (float)var6 / 20.0F), param2, 5.0F);
-                if (param1 == FogRenderer.FogMode.FOG_SKY) {
-                    var8 = 0.0F;
-                    var9 = var7 * 0.8F;
+            float var6;
+            float var7;
+            if (var0.is(FluidTags.LAVA)) {
+                if (var1 instanceof LivingEntity && ((LivingEntity)var1).hasEffect(MobEffects.FIRE_RESISTANCE)) {
+                    var6 = 0.0F;
+                    var7 = 3.0F;
                 } else {
-                    var8 = var7 * 0.25F;
-                    var9 = var7;
+                    var6 = 0.25F;
+                    var7 = 1.0F;
+                }
+            } else if (var1 instanceof LivingEntity && ((LivingEntity)var1).hasEffect(MobEffects.BLINDNESS)) {
+                int var10 = ((LivingEntity)var1).getEffect(MobEffects.BLINDNESS).getDuration();
+                float var11 = Mth.lerp(Math.min(1.0F, (float)var10 / 20.0F), param2, 5.0F);
+                if (param1 == FogRenderer.FogMode.FOG_SKY) {
+                    var6 = 0.0F;
+                    var7 = var11 * 0.8F;
+                } else {
+                    var6 = var11 * 0.25F;
+                    var7 = var11;
                 }
             } else if (param3) {
-                var8 = param2 * 0.05F;
-                var9 = Math.min(param2, 192.0F) * 0.5F;
+                var6 = param2 * 0.05F;
+                var7 = Math.min(param2, 192.0F) * 0.5F;
             } else if (param1 == FogRenderer.FogMode.FOG_SKY) {
-                var8 = 0.0F;
-                var9 = param2;
+                var6 = 0.0F;
+                var7 = param2;
             } else {
-                var8 = param2 * 0.75F;
-                var9 = param2;
+                var6 = param2 * 0.75F;
+                var7 = param2;
             }
 
-            RenderSystem.fogStart(var8);
-            RenderSystem.fogEnd(var9);
+            RenderSystem.fogStart(var6);
+            RenderSystem.fogEnd(var7);
             RenderSystem.fogMode(GlStateManager.FogMode.LINEAR);
             RenderSystem.setupNvFogDistance();
         }

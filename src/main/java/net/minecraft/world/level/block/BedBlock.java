@@ -84,7 +84,7 @@ public class BedBlock extends HorizontalDirectionalBlock implements EntityBlock 
                 }
             }
 
-            if (!canSetSpawn(param1, param2)) {
+            if (!canSetSpawn(param1)) {
                 param1.removeBlock(param2, false);
                 BlockPos var0 = param2.relative(param0.getValue(FACING).getOpposite());
                 if (param1.getBlockState(var0).is(this)) {
@@ -121,8 +121,8 @@ public class BedBlock extends HorizontalDirectionalBlock implements EntityBlock 
         }
     }
 
-    public static boolean canSetSpawn(Level param0, BlockPos param1) {
-        return param0.dimensionType().isOverworld();
+    public static boolean canSetSpawn(Level param0) {
+        return param0.dimensionType().bedWorks();
     }
 
     private boolean kickVillagerOutOfBed(Level param0, BlockPos param1) {

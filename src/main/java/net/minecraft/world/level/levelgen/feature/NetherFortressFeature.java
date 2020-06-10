@@ -40,7 +40,7 @@ public class NetherFortressFeature extends StructureFeature<NoneFeatureConfigura
         ChunkPos param7,
         NoneFeatureConfiguration param8
     ) {
-        return param3.nextInt(6) < 2;
+        return param3.nextInt(5) < 2;
     }
 
     @Override

@@ -5,12 +5,12 @@ import net.minecraft.client.model.DrownedModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.monster.Zombie;
+import net.minecraft.world.entity.monster.Drowned;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class DrownedOuterLayer<T extends Zombie> extends RenderLayer<T, DrownedModel<T>> {
+public class DrownedOuterLayer<T extends Drowned> extends RenderLayer<T, DrownedModel<T>> {
     private static final ResourceLocation DROWNED_OUTER_LAYER_LOCATION = new ResourceLocation("textures/entity/zombie/drowned_outer_layer.png");
     private final DrownedModel<T> model = new DrownedModel<>(0.25F, 0.0F, 64, 64);
 

@@ -293,13 +293,13 @@ public abstract class Player extends LivingEntity {
     }
 
     protected boolean updateIsUnderwater() {
-        this.wasUnderwater = this.isUnderLiquid(FluidTags.WATER);
+        this.wasUnderwater = this.isEyeInFluid(FluidTags.WATER);
         return this.wasUnderwater;
     }
 
     private void turtleHelmetTick() {
         ItemStack var0 = this.getItemBySlot(EquipmentSlot.HEAD);
-        if (var0.getItem() == Items.TURTLE_HELMET && !this.isUnderLiquid(FluidTags.WATER)) {
+        if (var0.getItem() == Items.TURTLE_HELMET && !this.isEyeInFluid(FluidTags.WATER)) {
             this.addEffect(new MobEffectInstance(MobEffects.WATER_BREATHING, 200, 0, false, false, true));
         }
 
@@ -746,7 +746,7 @@ public abstract class Player extends LivingEntity {
             var0 *= var3;
         }
 
-        if (this.isUnderLiquid(FluidTags.WATER) && !EnchantmentHelper.hasAquaAffinity(this)) {
+        if (this.isEyeInFluid(FluidTags.WATER) && !EnchantmentHelper.hasAquaAffinity(this)) {
             var0 /= 5.0F;
         }
 
@@ -1017,14 +1017,19 @@ public abstract class Player extends LivingEntity {
     }
 
     @Override
-    public void stopRiding() {
-        super.stopRiding();
+    public void removeVehicle() {
+        super.removeVehicle();
         this.boardingCooldown = 0;
     }
 
     @Override
     protected boolean isImmobile() {
         return super.isImmobile() || this.isSleeping();
+    }
+
+    @Override
+    public boolean isAffectedByFluids() {
+        return !this.abilities.flying;
     }
 
     @Override
@@ -1343,7 +1348,7 @@ public abstract class Player extends LivingEntity {
             }
 
             return var2;
-        } else if (var1 instanceof BedBlock && BedBlock.canSetSpawn(param0, param1)) {
+        } else if (var1 instanceof BedBlock && BedBlock.canSetSpawn(param0)) {
             return BedBlock.findStandUpPosition(EntityType.PLAYER, param0, param1, 0);
         } else if (!param2) {
             return Optional.empty();
@@ -1468,7 +1473,7 @@ public abstract class Player extends LivingEntity {
                     this.awardStat(Stats.SWIM_ONE_CM, var0);
                     this.causeFoodExhaustion(0.01F * (float)var0 * 0.01F);
                 }
-            } else if (this.isUnderLiquid(FluidTags.WATER)) {
+            } else if (this.isEyeInFluid(FluidTags.WATER)) {
                 int var1 = Math.round(Mth.sqrt(param0 * param0 + param1 * param1 + param2 * param2) * 100.0F);
                 if (var1 > 0) {
                     this.awardStat(Stats.WALK_UNDER_WATER_ONE_CM, var1);

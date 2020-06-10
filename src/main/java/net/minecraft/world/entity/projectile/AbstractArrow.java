@@ -366,7 +366,7 @@ public abstract class AbstractArrow extends Projectile {
 
                 this.doPostHurtEffects(var8);
                 if (var3 != null && var8 != var3 && var8 instanceof Player && var3 instanceof ServerPlayer && !this.isSilent()) {
-                    ((ServerPlayer)var3).connection.send(new ClientboundGameEventPacket(6, 0.0F));
+                    ((ServerPlayer)var3).connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.ARROW_HIT_PLAYER, 0.0F));
                 }
 
                 if (!var0.isAlive() && this.piercedAndKilledEntities != null) {

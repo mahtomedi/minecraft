@@ -25,7 +25,7 @@ public class DirectoryLock implements AutoCloseable {
             Files.createDirectories(param0);
         }
 
-        FileChannel var1 = FileChannel.open(var0, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.DELETE_ON_CLOSE);
+        FileChannel var1 = FileChannel.open(var0, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
 
         try {
             var1.write(DUMMY.duplicate());

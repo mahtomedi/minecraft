@@ -89,7 +89,7 @@ public class ShulkerBoxBlock extends BaseEntityBlock {
                 if (var3) {
                     param3.openMenu(var1);
                     param3.awardStat(Stats.OPEN_SHULKER_BOX);
-                    PiglinAi.angerNearbyPiglinsThatSee(param3);
+                    PiglinAi.angerNearbyPiglins(param3, true);
                 }
 
                 return InteractionResult.CONSUME;
@@ -196,7 +196,7 @@ public class ShulkerBoxBlock extends BaseEntityBlock {
                         ++var3;
                         if (var2 <= 4) {
                             ++var2;
-                            MutableComponent var5 = var4.getHoverName().mutableCopy();
+                            MutableComponent var5 = var4.getHoverName().copy();
                             var5.append(" x").append(String.valueOf(var4.getCount()));
                             param2.add(var5);
                         }

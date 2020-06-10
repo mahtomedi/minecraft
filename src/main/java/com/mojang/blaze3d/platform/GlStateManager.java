@@ -42,7 +42,6 @@ public class GlStateManager {
     private static final GlStateManager.PolygonOffsetState POLY_OFFSET = new GlStateManager.PolygonOffsetState();
     private static final GlStateManager.ColorLogicState COLOR_LOGIC = new GlStateManager.ColorLogicState();
     private static final GlStateManager.TexGenState TEX_GEN = new GlStateManager.TexGenState();
-    private static final GlStateManager.ClearState CLEAR = new GlStateManager.ClearState();
     private static final GlStateManager.StencilState STENCIL = new GlStateManager.StencilState();
     private static final FloatBuffer FLOAT_ARG_BUFFER = MemoryTracker.createFloatBuffer(4);
     private static int activeTexture;
@@ -1044,32 +1043,17 @@ public class GlStateManager {
 
     public static void _clearDepth(double param0) {
         RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
-        if (param0 != CLEAR.depth) {
-            CLEAR.depth = param0;
-            GL11.glClearDepth(param0);
-        }
-
+        GL11.glClearDepth(param0);
     }
 
     public static void _clearColor(float param0, float param1, float param2, float param3) {
         RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
-        if (param0 != CLEAR.color.r || param1 != CLEAR.color.g || param2 != CLEAR.color.b || param3 != CLEAR.color.a) {
-            CLEAR.color.r = param0;
-            CLEAR.color.g = param1;
-            CLEAR.color.b = param2;
-            CLEAR.color.a = param3;
-            GL11.glClearColor(param0, param1, param2, param3);
-        }
-
+        GL11.glClearColor(param0, param1, param2, param3);
     }
 
     public static void _clearStencil(int param0) {
         RenderSystem.assertThread(RenderSystem::isOnRenderThread);
-        if (param0 != CLEAR.stencil) {
-            CLEAR.stencil = param0;
-            GL11.glClearStencil(param0);
-        }
-
+        GL11.glClearStencil(param0);
     }
 
     public static void _clear(int param0, boolean param1) {
@@ -1329,16 +1313,6 @@ public class GlStateManager {
                 }
             }
 
-        }
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    static class ClearState {
-        public double depth = 1.0;
-        public final GlStateManager.Color color = new GlStateManager.Color(0.0F, 0.0F, 0.0F, 0.0F);
-        public int stencil;
-
-        private ClearState() {
         }
     }
 

@@ -45,6 +45,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class Pig extends Animal implements ItemSteerable, Saddleable {
     private static final EntityDataAccessor<Boolean> DATA_SADDLE_ID = SynchedEntityData.defineId(Pig.class, EntityDataSerializers.BOOLEAN);
@@ -240,7 +242,6 @@ public class Pig extends Animal implements ItemSteerable, Saddleable {
 
     @Override
     public void travel(Vec3 param0) {
-        this.setSpeed(this.getSteeringSpeed());
         this.travel(this, this.steering, param0);
     }
 
@@ -266,5 +267,11 @@ public class Pig extends Animal implements ItemSteerable, Saddleable {
     @Override
     public boolean isFood(ItemStack param0) {
         return FOOD_ITEMS.test(param0);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public Vec3 getLeashOffset() {
+        return new Vec3(0.0, (double)(0.6F * this.getEyeHeight()), (double)(this.getBbWidth() * 0.4F));
     }
 }

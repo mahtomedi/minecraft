@@ -161,8 +161,8 @@ public class LocalPlayer extends AbstractClientPlayer {
     }
 
     @Override
-    public void stopRiding() {
-        super.stopRiding();
+    public void removeVehicle() {
+        super.removeVehicle();
         this.handsBusy = false;
     }
 
@@ -765,15 +765,15 @@ public class LocalPlayer extends AbstractClientPlayer {
         }
 
         this.wasFallFlying = this.isFallFlying();
-        if (this.isInWater() && this.input.shiftKeyDown) {
+        if (this.isInWater() && this.input.shiftKeyDown && this.isAffectedByFluids()) {
             this.goDownInWater();
         }
 
-        if (this.isUnderLiquid(FluidTags.WATER)) {
+        if (this.isEyeInFluid(FluidTags.WATER)) {
             int var9 = this.isSpectator() ? 10 : 1;
             this.waterVisionTime = Mth.clamp(this.waterVisionTime + var9, 0, 600);
         } else if (this.waterVisionTime > 0) {
-            this.isUnderLiquid(FluidTags.WATER);
+            this.isEyeInFluid(FluidTags.WATER);
             this.waterVisionTime = Mth.clamp(this.waterVisionTime - 10, 0, 600);
         }
 
@@ -1025,7 +1025,7 @@ public class LocalPlayer extends AbstractClientPlayer {
     }
 
     public float getWaterVision() {
-        if (!this.isUnderLiquid(FluidTags.WATER)) {
+        if (!this.isEyeInFluid(FluidTags.WATER)) {
             return 0.0F;
         } else {
             float var0 = 600.0F;

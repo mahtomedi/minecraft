@@ -1,5 +1,6 @@
 package net.minecraft.client;
 
+import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.Window;
 import java.util.Optional;
@@ -285,7 +286,10 @@ public abstract class Option {
     public static final CycleOption RENDER_CLOUDS = new CycleOption("options.renderClouds", (param0, param1) -> {
         param0.renderClouds = CloudStatus.byId(param0.renderClouds.getId() + param1);
         if (Minecraft.useShaderTransparency()) {
-            Minecraft.getInstance().levelRenderer.getCloudsTarget().clear(Minecraft.ON_OSX);
+            RenderTarget var0 = Minecraft.getInstance().levelRenderer.getCloudsTarget();
+            if (var0 != null) {
+                var0.clear(Minecraft.ON_OSX);
+            }
         }
 
     }, (param0, param1) -> param1.createCaption().append(new TranslatableComponent(param0.renderClouds.getKey())));

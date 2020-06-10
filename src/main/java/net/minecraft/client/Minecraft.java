@@ -206,6 +206,7 @@ import net.minecraft.world.item.PlayerHeadItem;
 import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.DataPackConfig;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelSettings;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
@@ -1510,10 +1511,10 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
             this.setScreen(new AdvancementsScreen(this.player.connection.getAdvancements()));
         }
 
-        while(this.options.keySwapHands.consumeClick()) {
+        while(this.options.keySwapOffhand.consumeClick()) {
             if (!this.player.isSpectator()) {
                 this.getConnection()
-                    .send(new ServerboundPlayerActionPacket(ServerboundPlayerActionPacket.Action.SWAP_HELD_ITEMS, BlockPos.ZERO, Direction.DOWN));
+                    .send(new ServerboundPlayerActionPacket(ServerboundPlayerActionPacket.Action.SWAP_ITEM_WITH_OFFHAND, BlockPos.ZERO, Direction.DOWN));
             }
         }
 
@@ -1741,11 +1742,18 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         } else {
             this.setScreen(
                 new ConfirmScreen(
-                    param1x -> {
-                        if (param1x) {
+                    param2x -> {
+                        if (param2x) {
                             param3.run();
                         } else {
                             this.setScreen(null);
+        
+                            try (LevelStorageSource.LevelStorageAccess var0x = this.levelSource.createAccess(param1)) {
+                                var0x.deleteLevel();
+                            } catch (IOException var17) {
+                                SystemToast.onWorldDeleteFailure(this, param1);
+                                LOGGER.error("Failed to delete world {}", param1, var17);
+                            }
                         }
         
                     },
@@ -1846,10 +1854,16 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
 
     private void updateScreenAndTick(Screen param0) {
         this.profiler.push("forcedTick");
-        this.musicManager.stopPlaying();
         this.soundManager.stop();
         this.cameraEntity = null;
         this.pendingConnection = null;
+        this.setScreen(param0);
+        this.runTick(false);
+        this.profiler.pop();
+    }
+
+    public void forceSetScreen(Screen param0) {
+        this.profiler.push("forcedTick");
         this.setScreen(param0);
         this.runTick(false);
         this.profiler.pop();
@@ -2220,7 +2234,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         if (this.screen instanceof WinScreen) {
             return Musics.CREDITS;
         } else if (this.player != null) {
-            if (this.player.level.dimensionType().isEnd()) {
+            if (this.player.level.dimension() == Level.END) {
                 return this.gui.getBossOverlay().shouldPlayMusic() ? Musics.END_BOSS : Musics.END;
             } else {
                 Biome.BiomeCategory var0 = this.player.level.getBiome(this.player.blockPosition()).getBiomeCategory();

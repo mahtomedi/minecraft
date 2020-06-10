@@ -56,11 +56,20 @@ public class BredAnimalsTrigger extends SimpleCriterionTrigger<BredAnimalsTrigge
             );
         }
 
+        public static BredAnimalsTrigger.TriggerInstance bredAnimals(EntityPredicate param0, EntityPredicate param1, EntityPredicate param2) {
+            return new BredAnimalsTrigger.TriggerInstance(
+                EntityPredicate.Composite.ANY,
+                EntityPredicate.Composite.wrap(param0),
+                EntityPredicate.Composite.wrap(param1),
+                EntityPredicate.Composite.wrap(param2)
+            );
+        }
+
         public boolean matches(LootContext param0, LootContext param1, @Nullable LootContext param2) {
-            if (param2 != null && !this.child.matches(param2)) {
-                return false;
-            } else {
+            if (this.child == EntityPredicate.Composite.ANY || param2 != null && this.child.matches(param2)) {
                 return this.parent.matches(param0) && this.partner.matches(param1) || this.parent.matches(param1) && this.partner.matches(param0);
+            } else {
+                return false;
             }
         }
 

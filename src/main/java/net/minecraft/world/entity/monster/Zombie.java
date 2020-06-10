@@ -3,6 +3,7 @@ package net.minecraft.world.entity.monster;
 import java.time.LocalDate;
 import java.time.temporal.ChronoField;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
@@ -198,7 +199,7 @@ public class Zombie extends Monster {
                     this.doUnderWaterConversion();
                 }
             } else if (this.convertsInWater()) {
-                if (this.isUnderLiquid(FluidTags.WATER)) {
+                if (this.isEyeInFluid(FluidTags.WATER)) {
                     ++this.inWaterTime;
                     if (this.inWaterTime >= 600) {
                         this.startUnderWaterConversion(300);
@@ -411,7 +412,7 @@ public class Zombie extends Monster {
             var1.copyPosition(var0);
             var0.remove();
             var1.finalizeSpawn(
-                this.level, this.level.getCurrentDifficultyAt(var1.blockPosition()), MobSpawnType.CONVERSION, new Zombie.ZombieGroupData(false), null
+                this.level, this.level.getCurrentDifficultyAt(var1.blockPosition()), MobSpawnType.CONVERSION, new Zombie.ZombieGroupData(false, true), null
             );
             var1.setVillagerData(var0.getVillagerData());
             var1.setGossips(var0.getGossips().store(NbtOps.INSTANCE).getValue());
@@ -456,29 +457,31 @@ public class Zombie extends Monster {
         float var0 = param1.getSpecialMultiplier();
         this.setCanPickUpLoot(this.random.nextFloat() < 0.55F * var0);
         if (param3 == null) {
-            param3 = new Zombie.ZombieGroupData(param0.getRandom().nextFloat() < 0.05F);
+            param3 = new Zombie.ZombieGroupData(getSpawnAsBabyOdds(param0.getRandom()), true);
         }
 
         if (param3 instanceof Zombie.ZombieGroupData) {
             Zombie.ZombieGroupData var1 = (Zombie.ZombieGroupData)param3;
             if (var1.isBaby) {
                 this.setBaby(true);
-                if ((double)param0.getRandom().nextFloat() < 0.05) {
-                    List<Chicken> var2 = param0.getEntitiesOfClass(
-                        Chicken.class, this.getBoundingBox().inflate(5.0, 3.0, 5.0), EntitySelector.ENTITY_NOT_BEING_RIDDEN
-                    );
-                    if (!var2.isEmpty()) {
-                        Chicken var3 = var2.get(0);
-                        var3.setChickenJockey(true);
-                        this.startRiding(var3);
+                if (var1.canSpawnJockey) {
+                    if ((double)param0.getRandom().nextFloat() < 0.05) {
+                        List<Chicken> var2 = param0.getEntitiesOfClass(
+                            Chicken.class, this.getBoundingBox().inflate(5.0, 3.0, 5.0), EntitySelector.ENTITY_NOT_BEING_RIDDEN
+                        );
+                        if (!var2.isEmpty()) {
+                            Chicken var3 = var2.get(0);
+                            var3.setChickenJockey(true);
+                            this.startRiding(var3);
+                        }
+                    } else if ((double)param0.getRandom().nextFloat() < 0.05) {
+                        Chicken var4 = EntityType.CHICKEN.create(this.level);
+                        var4.moveTo(this.getX(), this.getY(), this.getZ(), this.yRot, 0.0F);
+                        var4.finalizeSpawn(param0, param1, MobSpawnType.JOCKEY, null, null);
+                        var4.setChickenJockey(true);
+                        this.startRiding(var4);
+                        param0.addFreshEntity(var4);
                     }
-                } else if ((double)param0.getRandom().nextFloat() < 0.05) {
-                    Chicken var4 = EntityType.CHICKEN.create(this.level);
-                    var4.moveTo(this.getX(), this.getY(), this.getZ(), this.yRot, 0.0F);
-                    var4.finalizeSpawn(param0, param1, MobSpawnType.JOCKEY, null, null);
-                    var4.setChickenJockey(true);
-                    this.startRiding(var4);
-                    param0.addFreshEntity(var4);
                 }
             }
 
@@ -499,6 +502,10 @@ public class Zombie extends Monster {
 
         this.handleAttributes(var0);
         return param3;
+    }
+
+    public static boolean getSpawnAsBabyOdds(Random param0) {
+        return param0.nextFloat() < 0.05F;
     }
 
     protected void handleAttributes(float param0) {
@@ -576,9 +583,11 @@ public class Zombie extends Monster {
 
     public static class ZombieGroupData implements SpawnGroupData {
         public final boolean isBaby;
+        public final boolean canSpawnJockey;
 
-        public ZombieGroupData(boolean param0) {
+        public ZombieGroupData(boolean param0, boolean param1) {
             this.isBaby = param0;
+            this.canSpawnJockey = param1;
         }
     }
 }

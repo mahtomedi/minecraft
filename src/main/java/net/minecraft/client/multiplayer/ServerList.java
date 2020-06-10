@@ -3,6 +3,7 @@ package net.minecraft.client.multiplayer;
 import com.google.common.collect.Lists;
 import java.io.File;
 import java.util.List;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -52,9 +53,13 @@ public class ServerList {
 
             CompoundTag var2 = new CompoundTag();
             var2.put("servers", var0);
-            NbtIo.safeWrite(var2, new File(this.minecraft.gameDirectory, "servers.dat"));
-        } catch (Exception var4) {
-            LOGGER.error("Couldn't save server list", (Throwable)var4);
+            File var3 = File.createTempFile("servers", ".dat", this.minecraft.gameDirectory);
+            NbtIo.write(var2, var3);
+            File var4 = new File(this.minecraft.gameDirectory, "servers.dat_old");
+            File var5 = new File(this.minecraft.gameDirectory, "servers.dat");
+            Util.safeReplaceFile(var5, var3, var4);
+        } catch (Exception var61) {
+            LOGGER.error("Couldn't save server list", (Throwable)var61);
         }
 
     }

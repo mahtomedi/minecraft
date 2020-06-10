@@ -100,6 +100,11 @@ public abstract class PathNavigation {
     }
 
     @Nullable
+    public Path createPath(Set<BlockPos> param0, int param1) {
+        return this.createPath(param0, 8, false, param1);
+    }
+
+    @Nullable
     public Path createPath(BlockPos param0, int param1) {
         return this.createPath(ImmutableSet.of(param0), 8, false, param1);
     }

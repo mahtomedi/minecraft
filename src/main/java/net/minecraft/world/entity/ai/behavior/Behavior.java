@@ -1,6 +1,7 @@
 package net.minecraft.world.entity.ai.behavior;
 
 import java.util.Map;
+import java.util.Map.Entry;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
@@ -84,11 +85,15 @@ public abstract class Behavior<E extends LivingEntity> {
     }
 
     private boolean hasRequiredMemories(E param0) {
-        return this.entryCondition.entrySet().stream().allMatch(param1 -> {
-            MemoryModuleType<?> var0 = param1.getKey();
-            MemoryStatus var1x = param1.getValue();
-            return param0.getBrain().checkMemory(var0, var1x);
-        });
+        for(Entry<MemoryModuleType<?>, MemoryStatus> var0 : this.entryCondition.entrySet()) {
+            MemoryModuleType<?> var1 = var0.getKey();
+            MemoryStatus var2 = var0.getValue();
+            if (!param0.getBrain().checkMemory(var1, var2)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public static enum Status {

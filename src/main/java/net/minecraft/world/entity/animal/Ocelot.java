@@ -45,6 +45,7 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -273,6 +274,12 @@ public class Ocelot extends Animal {
         }
 
         return super.finalizeSpawn(param0, param1, param2, param3, param4);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public Vec3 getLeashOffset() {
+        return new Vec3(0.0, (double)(0.5F * this.getEyeHeight()), (double)(this.getBbWidth() * 0.4F));
     }
 
     static class OcelotAvoidEntityGoal<T extends LivingEntity> extends AvoidEntityGoal<T> {

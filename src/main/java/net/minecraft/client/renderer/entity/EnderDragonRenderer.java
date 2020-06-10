@@ -62,11 +62,7 @@ public class EnderDragonRenderer extends EntityRenderer<EnderDragon> {
         this.model.renderToBuffer(param3, var7, param5, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
         if (param0.dragonDeathTime > 0) {
             float var8 = ((float)param0.dragonDeathTime + param2) / 200.0F;
-            float var9 = 0.0F;
-            if (var8 > 0.8F) {
-                var9 = (var8 - 0.8F) / 0.2F;
-            }
-
+            float var9 = Math.min(var8 > 0.8F ? (var8 - 0.8F) / 0.2F : 0.0F, 1.0F);
             Random var10 = new Random(432L);
             VertexConsumer var11 = param4.getBuffer(RenderType.lightning());
             param3.pushPose();

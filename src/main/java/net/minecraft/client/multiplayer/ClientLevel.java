@@ -746,7 +746,7 @@ public class ClientLevel extends Level {
 
     @Override
     public float getShade(Direction param0, boolean param1) {
-        boolean var0 = this.dimensionType().isNether();
+        boolean var0 = this.effects().constantAmbientLight();
         if (!param1) {
             return var0 ? 0.9F : 1.0F;
         } else {

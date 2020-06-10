@@ -70,6 +70,6 @@ public class SkinCustomizationScreen extends OptionsSubScreen {
     }
 
     private Component getMessage(PlayerModelPart param0) {
-        return param0.getName().mutableCopy().append(": ").append(CommonComponents.optionStatus(this.options.getModelParts().contains(param0)));
+        return param0.getName().copy().append(": ").append(CommonComponents.optionStatus(this.options.getModelParts().contains(param0)));
     }
 }

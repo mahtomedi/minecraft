@@ -112,7 +112,6 @@ public class BastionHoglinStablePools {
                     new ResourceLocation("bastion/hoglin_stable/stairs"),
                     new ResourceLocation("empty"),
                     ImmutableList.of(
-                        Pair.of(new SinglePoolElement("bastion/hoglin_stable/stairs/stairs_0_mirrored", var0), 1),
                         Pair.of(new SinglePoolElement("bastion/hoglin_stable/stairs/stairs_1_0", var0), 1),
                         Pair.of(new SinglePoolElement("bastion/hoglin_stable/stairs/stairs_1_1", var0), 1),
                         Pair.of(new SinglePoolElement("bastion/hoglin_stable/stairs/stairs_1_2", var0), 1),
@@ -169,7 +168,8 @@ public class BastionHoglinStablePools {
                         Pair.of(new SinglePoolElement("bastion/hoglin_stable/large_stables/inner_0", var0), 1),
                         Pair.of(new SinglePoolElement("bastion/hoglin_stable/large_stables/inner_1", var0), 1),
                         Pair.of(new SinglePoolElement("bastion/hoglin_stable/large_stables/inner_2", var0), 1),
-                        Pair.of(new SinglePoolElement("bastion/hoglin_stable/large_stables/inner_3", var0), 1)
+                        Pair.of(new SinglePoolElement("bastion/hoglin_stable/large_stables/inner_3", var0), 1),
+                        Pair.of(new SinglePoolElement("bastion/hoglin_stable/large_stables/inner_4", var0), 1)
                     ),
                     StructureTemplatePool.Projection.RIGID
                 )
@@ -183,7 +183,8 @@ public class BastionHoglinStablePools {
                         Pair.of(new SinglePoolElement("bastion/hoglin_stable/large_stables/outer_0", var0), 1),
                         Pair.of(new SinglePoolElement("bastion/hoglin_stable/large_stables/outer_1", var0), 1),
                         Pair.of(new SinglePoolElement("bastion/hoglin_stable/large_stables/outer_2", var0), 1),
-                        Pair.of(new SinglePoolElement("bastion/hoglin_stable/large_stables/outer_3", var0), 1)
+                        Pair.of(new SinglePoolElement("bastion/hoglin_stable/large_stables/outer_3", var0), 1),
+                        Pair.of(new SinglePoolElement("bastion/hoglin_stable/large_stables/outer_4", var0), 1)
                     ),
                     StructureTemplatePool.Projection.RIGID
                 )

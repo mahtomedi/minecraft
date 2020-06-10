@@ -2,7 +2,6 @@ package net.minecraft.client.renderer.entity;
 
 import net.minecraft.client.model.SkeletonModel;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
-import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.monster.AbstractSkeleton;
 import net.minecraftforge.api.distmarker.Dist;
@@ -14,7 +13,6 @@ public class SkeletonRenderer extends HumanoidMobRenderer<AbstractSkeleton, Skel
 
     public SkeletonRenderer(EntityRenderDispatcher param0) {
         super(param0, new SkeletonModel<>(), 0.5F);
-        this.addLayer(new ItemInHandLayer<>(this));
         this.addLayer(new HumanoidArmorLayer<>(this, new SkeletonModel(0.5F, true), new SkeletonModel(1.0F, true)));
     }
 

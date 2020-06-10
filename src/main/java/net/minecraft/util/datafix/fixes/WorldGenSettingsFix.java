@@ -86,18 +86,19 @@ public class WorldGenSettingsFix extends DataFix {
             .result()
             .map(Optional::of)
             .orElseGet(() -> var2.equals(Optional.of("customized")) ? param0.get("generatorOptions").asString().result() : Optional.empty());
-        Dynamic<T> var4;
+        boolean var4 = false;
+        Dynamic<T> var5;
         if (var2.equals(Optional.of("customized"))) {
-            var4 = noise(var1, param0, param0.createString("minecraft:overworld"), vanillaBiomeSource(param0, var1, false, false));
+            var5 = defaultOverworld(param0, var1);
         } else if (!var2.isPresent()) {
-            var4 = noise(var1, param0, param0.createString("minecraft:overworld"), vanillaBiomeSource(param0, var1, false, false));
+            var5 = defaultOverworld(param0, var1);
         } else {
-            OptionalDynamic<T> var6 = param0.get("generatorOptions");
-            String var26 = var2.get();
-            switch(var26) {
+            OptionalDynamic<T> var7 = param0.get("generatorOptions");
+            String var27 = var2.get();
+            switch(var27) {
                 case "flat":
-                    Map<Dynamic<T>, Dynamic<T>> var7 = fixFlatStructures(var0, var6);
-                    var4 = param0.createMap(
+                    Map<Dynamic<T>, Dynamic<T>> var8 = fixFlatStructures(var0, var7);
+                    var5 = param0.createMap(
                         ImmutableMap.of(
                             param0.createString("type"),
                             param0.createString("minecraft:flat"),
@@ -105,128 +106,140 @@ public class WorldGenSettingsFix extends DataFix {
                             param0.createMap(
                                 ImmutableMap.of(
                                     param0.createString("structures"),
-                                    param0.createMap(var7),
+                                    param0.createMap(var8),
                                     param0.createString("layers"),
-                                    var6.get("layers").orElseEmptyList(),
+                                    var7.get("layers").orElseEmptyList(),
                                     param0.createString("biome"),
-                                    param0.createString(var6.get("biome").asString("plains"))
+                                    param0.createString(var7.get("biome").asString("plains"))
                                 )
                             )
                         )
                     );
                     break;
                 case "debug_all_block_states":
-                    var4 = param0.createMap(ImmutableMap.of(param0.createString("type"), param0.createString("minecraft:debug")));
+                    var5 = param0.createMap(ImmutableMap.of(param0.createString("type"), param0.createString("minecraft:debug")));
                     break;
                 case "buffet":
-                    OptionalDynamic<?> var10 = var6.get("chunk_generator");
-                    Optional<String> var11 = var10.get("type").asString().result();
-                    Dynamic<T> var12;
-                    if (Objects.equals(var11, Optional.of("minecraft:caves"))) {
-                        var12 = param0.createString("minecraft:caves");
-                    } else if (Objects.equals(var11, Optional.of("minecraft:floating_islands"))) {
-                        var12 = param0.createString("minecraft:floating_islands");
+                    OptionalDynamic<?> var11 = var7.get("chunk_generator");
+                    Optional<String> var12 = var11.get("type").asString().result();
+                    Dynamic<T> var13;
+                    if (Objects.equals(var12, Optional.of("minecraft:caves"))) {
+                        var13 = param0.createString("minecraft:caves");
+                        var4 = true;
+                    } else if (Objects.equals(var12, Optional.of("minecraft:floating_islands"))) {
+                        var13 = param0.createString("minecraft:floating_islands");
                     } else {
-                        var12 = param0.createString("minecraft:overworld");
+                        var13 = param0.createString("minecraft:overworld");
                     }
 
-                    Dynamic<T> var15 = var6.get("biome_source")
+                    Dynamic<T> var16 = var7.get("biome_source")
                         .result()
                         .orElseGet(() -> param0.createMap(ImmutableMap.of(param0.createString("type"), param0.createString("minecraft:fixed"))));
-                    Dynamic<T> var17;
-                    if (var15.get("type").asString().result().equals(Optional.of("minecraft:fixed"))) {
-                        String var16 = var15.get("options")
+                    Dynamic<T> var18;
+                    if (var16.get("type").asString().result().equals(Optional.of("minecraft:fixed"))) {
+                        String var17 = var16.get("options")
                             .get("biomes")
                             .asStream()
                             .findFirst()
                             .flatMap(param0x -> param0x.asString().result())
                             .orElse("minecraft:ocean");
-                        var17 = var15.remove("options").set("biome", param0.createString(var16));
+                        var18 = var16.remove("options").set("biome", param0.createString(var17));
                     } else {
-                        var17 = var15;
+                        var18 = var16;
                     }
 
-                    var4 = noise(var1, param0, var12, var17);
+                    var5 = noise(var1, param0, var13, var18);
                     break;
                 default:
-                    boolean var20 = var2.get().equals("default");
-                    boolean var21 = var2.get().equals("default_1_1") || var20 && param0.get("generatorVersion").asInt(0) == 0;
-                    boolean var22 = var2.get().equals("amplified");
-                    boolean var23 = var2.get().equals("largebiomes");
-                    var4 = noise(
+                    boolean var21 = var2.get().equals("default");
+                    boolean var22 = var2.get().equals("default_1_1") || var21 && param0.get("generatorVersion").asInt(0) == 0;
+                    boolean var23 = var2.get().equals("amplified");
+                    boolean var24 = var2.get().equals("largebiomes");
+                    var5 = noise(
                         var1,
                         param0,
-                        param0.createString(var22 ? "minecraft:amplified" : "minecraft:overworld"),
-                        vanillaBiomeSource(param0, var1, var21, var23)
+                        param0.createString(var23 ? "minecraft:amplified" : "minecraft:overworld"),
+                        vanillaBiomeSource(param0, var1, var22, var24)
                     );
             }
         }
 
-        boolean var25 = param0.get("MapFeatures").asBoolean(true);
-        boolean var26 = param0.get("BonusChest").asBoolean(false);
-        Builder<T, T> var27 = ImmutableMap.builder();
-        var27.put(var0.createString("seed"), var0.createLong(var1));
-        var27.put(var0.createString("generate_features"), var0.createBoolean(var25));
-        var27.put(var0.createString("bonus_chest"), var0.createBoolean(var26));
-        var27.put(
-            var0.createString("dimensions"),
-            var0.createMap(
-                ImmutableMap.of(
-                    var0.createString("minecraft:overworld"),
-                    var0.createMap(
-                        ImmutableMap.of(var0.createString("type"), var0.createString("minecraft:overworld"), var0.createString("generator"), var4.getValue())
-                    ),
-                    var0.createString("minecraft:the_nether"),
-                    var0.createMap(
-                        ImmutableMap.of(
-                            var0.createString("type"),
-                            var0.createString("minecraft:the_nether"),
-                            var0.createString("generator"),
-                            noise(
-                                    var1,
-                                    param0,
-                                    param0.createString("minecraft:nether"),
-                                    param0.createMap(
-                                        ImmutableMap.of(
-                                            param0.createString("type"),
-                                            param0.createString("minecraft:multi_noise"),
-                                            param0.createString("seed"),
-                                            param0.createLong(var1),
-                                            param0.createString("preset"),
-                                            param0.createString("minecraft:nether")
-                                        )
+        boolean var26 = param0.get("MapFeatures").asBoolean(true);
+        boolean var27 = param0.get("BonusChest").asBoolean(false);
+        Builder<T, T> var28 = ImmutableMap.builder();
+        var28.put(var0.createString("seed"), var0.createLong(var1));
+        var28.put(var0.createString("generate_features"), var0.createBoolean(var26));
+        var28.put(var0.createString("bonus_chest"), var0.createBoolean(var27));
+        var28.put(var0.createString("dimensions"), vanillaLevels(param0, var1, var5, var4));
+        var3.ifPresent(param2 -> var28.put(var0.createString("legacy_custom_options"), var0.createString(param2)));
+        return new Dynamic<>(var0, var0.createMap(var28.build()));
+    }
+
+    protected static <T> Dynamic<T> defaultOverworld(Dynamic<T> param0, long param1) {
+        return noise(param1, param0, param0.createString("minecraft:overworld"), vanillaBiomeSource(param0, param1, false, false));
+    }
+
+    protected static <T> T vanillaLevels(Dynamic<T> param0, long param1, Dynamic<T> param2, boolean param3) {
+        DynamicOps<T> var0 = param0.getOps();
+        return var0.createMap(
+            ImmutableMap.of(
+                var0.createString("minecraft:overworld"),
+                var0.createMap(
+                    ImmutableMap.of(
+                        var0.createString("type"),
+                        var0.createString("minecraft:overworld" + (param3 ? "_caves" : "")),
+                        var0.createString("generator"),
+                        param2.getValue()
+                    )
+                ),
+                var0.createString("minecraft:the_nether"),
+                var0.createMap(
+                    ImmutableMap.of(
+                        var0.createString("type"),
+                        var0.createString("minecraft:the_nether"),
+                        var0.createString("generator"),
+                        noise(
+                                param1,
+                                param0,
+                                param0.createString("minecraft:nether"),
+                                param0.createMap(
+                                    ImmutableMap.of(
+                                        param0.createString("type"),
+                                        param0.createString("minecraft:multi_noise"),
+                                        param0.createString("seed"),
+                                        param0.createLong(param1),
+                                        param0.createString("preset"),
+                                        param0.createString("minecraft:nether")
                                     )
                                 )
-                                .getValue()
-                        )
-                    ),
-                    var0.createString("minecraft:the_end"),
-                    var0.createMap(
-                        ImmutableMap.of(
-                            var0.createString("type"),
-                            var0.createString("minecraft:the_end"),
-                            var0.createString("generator"),
-                            noise(
-                                    var1,
-                                    param0,
-                                    param0.createString("minecraft:end"),
-                                    param0.createMap(
-                                        ImmutableMap.of(
-                                            param0.createString("type"),
-                                            param0.createString("minecraft:the_end"),
-                                            param0.createString("seed"),
-                                            param0.createLong(var1)
-                                        )
+                            )
+                            .getValue()
+                    )
+                ),
+                var0.createString("minecraft:the_end"),
+                var0.createMap(
+                    ImmutableMap.of(
+                        var0.createString("type"),
+                        var0.createString("minecraft:the_end"),
+                        var0.createString("generator"),
+                        noise(
+                                param1,
+                                param0,
+                                param0.createString("minecraft:end"),
+                                param0.createMap(
+                                    ImmutableMap.of(
+                                        param0.createString("type"),
+                                        param0.createString("minecraft:the_end"),
+                                        param0.createString("seed"),
+                                        param0.createLong(param1)
                                     )
                                 )
-                                .getValue()
-                        )
+                            )
+                            .getValue()
                     )
                 )
             )
         );
-        var3.ifPresent(param2 -> var27.put(var0.createString("legacy_custom_options"), var0.createString(param2)));
-        return new Dynamic<>(var0, var0.createMap(var27.build()));
     }
 
     private static <T> Map<Dynamic<T>, Dynamic<T>> fixFlatStructures(DynamicOps<T> param0, OptionalDynamic<T> param1) {

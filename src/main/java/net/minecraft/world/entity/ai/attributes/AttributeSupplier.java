@@ -18,7 +18,7 @@ public class AttributeSupplier {
     private AttributeInstance getAttributeInstance(Attribute param0) {
         AttributeInstance var0 = this.instances.get(param0);
         if (var0 == null) {
-            throw new IllegalArgumentException("Can't find attribute " + Registry.ATTRIBUTES.getKey(param0));
+            throw new IllegalArgumentException("Can't find attribute " + Registry.ATTRIBUTE.getKey(param0));
         } else {
             return var0;
         }
@@ -35,7 +35,7 @@ public class AttributeSupplier {
     public double getModifierValue(Attribute param0, UUID param1) {
         AttributeModifier var0 = this.getAttributeInstance(param0).getModifier(param1);
         if (var0 == null) {
-            throw new IllegalArgumentException("Can't find modifier " + param1 + " on attribute " + Registry.ATTRIBUTES.getKey(param0));
+            throw new IllegalArgumentException("Can't find modifier " + param1 + " on attribute " + Registry.ATTRIBUTE.getKey(param0));
         } else {
             return var0.getAmount();
         }
@@ -73,7 +73,7 @@ public class AttributeSupplier {
         private AttributeInstance create(Attribute param0) {
             AttributeInstance var0 = new AttributeInstance(param0, param1 -> {
                 if (this.instanceFrozen) {
-                    throw new UnsupportedOperationException("Tried to change value for default attribute instance: " + Registry.ATTRIBUTES.getKey(param0));
+                    throw new UnsupportedOperationException("Tried to change value for default attribute instance: " + Registry.ATTRIBUTE.getKey(param0));
                 }
             });
             this.builder.put(param0, var0);

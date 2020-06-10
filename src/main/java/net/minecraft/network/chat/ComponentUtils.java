@@ -11,8 +11,11 @@ import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.world.entity.Entity;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ComponentUtils {
+    @OnlyIn(Dist.CLIENT)
     public static MutableComponent mergeStyles(MutableComponent param0, Style param1) {
         if (param1.isEmpty()) {
             return param0;
@@ -28,17 +31,17 @@ public class ComponentUtils {
 
     public static MutableComponent updateForEntity(@Nullable CommandSourceStack param0, Component param1, @Nullable Entity param2, int param3) throws CommandSyntaxException {
         if (param3 > 100) {
-            return param1.mutableCopy();
+            return param1.copy();
         } else {
             MutableComponent var0 = param1 instanceof ContextAwareComponent
                 ? ((ContextAwareComponent)param1).resolve(param0, param2, param3 + 1)
-                : param1.toMutable();
+                : param1.plainCopy();
 
             for(Component var1 : param1.getSiblings()) {
                 var0.append(updateForEntity(param0, var1, param2, param3 + 1));
             }
 
-            return mergeStyles(var0, resolveStyle(param0, param1.getStyle(), param2, param3));
+            return var0.withStyle(resolveStyle(param0, param1.getStyle(), param2, param3));
         }
     }
 
@@ -83,7 +86,7 @@ public class ComponentUtils {
         if (param0.isEmpty()) {
             return new TextComponent("");
         } else if (param0.size() == 1) {
-            return param1.apply(param0.iterator().next()).mutableCopy();
+            return param1.apply(param0.iterator().next()).copy();
         } else {
             MutableComponent var0 = new TextComponent("");
             boolean var1 = true;

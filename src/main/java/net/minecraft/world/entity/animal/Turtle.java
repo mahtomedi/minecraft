@@ -175,7 +175,7 @@ public class Turtle extends Animal {
     }
 
     public static boolean checkTurtleSpawnRules(EntityType<Turtle> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, Random param4) {
-        return param3.getY() < param1.getSeaLevel() + 4 && param1.getBlockState(param3.below()).is(Blocks.SAND) && param1.getRawBrightness(param3, 0) > 8;
+        return param3.getY() < param1.getSeaLevel() + 4 && TurtleEggBlock.onSand(param1, param3) && param1.getRawBrightness(param3, 0) > 8;
     }
 
     @Override
@@ -285,7 +285,7 @@ public class Turtle extends Animal {
         if (!this.isGoingHome() && param1.getFluidState(param0).is(FluidTags.WATER)) {
             return 10.0F;
         } else {
-            return param1.getBlockState(param0.below()).is(Blocks.SAND) ? 10.0F : param1.getBrightness(param0) - 0.5F;
+            return TurtleEggBlock.onSand(param1, param0) ? 10.0F : param1.getBrightness(param0) - 0.5F;
         }
     }
 
@@ -294,7 +294,7 @@ public class Turtle extends Animal {
         super.aiStep();
         if (this.isAlive() && this.isLayingEgg() && this.layEggCounter >= 1 && this.layEggCounter % 5 == 0) {
             BlockPos var0 = this.blockPosition();
-            if (this.level.getBlockState(var0.below()).is(Blocks.SAND)) {
+            if (TurtleEggBlock.onSand(this.level, var0)) {
                 this.level.levelEvent(2001, var0, Block.getId(Blocks.SAND.defaultBlockState()));
             }
         }
@@ -523,7 +523,7 @@ public class Turtle extends Animal {
 
         @Override
         protected boolean isValidTarget(LevelReader param0, BlockPos param1) {
-            return !param0.isEmptyBlock(param1.above()) ? false : param0.getBlockState(param1).is(Blocks.SAND);
+            return !param0.isEmptyBlock(param1.above()) ? false : TurtleEggBlock.isSand(param0, param1);
         }
     }
 

@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
+import net.minecraft.Util;
 import net.minecraft.client.resources.ResourcePack;
 import net.minecraft.client.tutorial.TutorialSteps;
 import net.minecraft.nbt.CompoundTag;
@@ -114,7 +115,7 @@ public class Options {
     public final KeyMapping keyShift = new ToggleKeyMapping("key.sneak", 340, "key.categories.movement", () -> this.toggleCrouch);
     public final KeyMapping keySprint = new ToggleKeyMapping("key.sprint", 341, "key.categories.movement", () -> this.toggleSprint);
     public final KeyMapping keyInventory = new KeyMapping("key.inventory", 69, "key.categories.inventory");
-    public final KeyMapping keySwapHands = new KeyMapping("key.swapHands", 70, "key.categories.inventory");
+    public final KeyMapping keySwapOffhand = new KeyMapping("key.swapOffhand", 70, "key.categories.inventory");
     public final KeyMapping keyDrop = new KeyMapping("key.drop", 81, "key.categories.inventory");
     public final KeyMapping keyUse = new KeyMapping("key.use", InputConstants.Type.MOUSE, 1, "key.categories.gameplay");
     public final KeyMapping keyAttack = new KeyMapping("key.attack", InputConstants.Type.MOUSE, 0, "key.categories.gameplay");
@@ -163,7 +164,7 @@ public class Options {
             this.keySmoothCamera,
             this.keyFullscreen,
             this.keySpectatorOutlines,
-            this.keySwapHands,
+            this.keySwapOffhand,
             this.keySaveHotbarActivator,
             this.keyLoadHotbarActivator,
             this.keyAdvancements
@@ -186,6 +187,7 @@ public class Options {
     public ParticleStatus particles = ParticleStatus.ALL;
     public NarratorStatus narratorStatus = NarratorStatus.OFF;
     public String languageCode = "en_us";
+    public boolean syncWrites;
 
     public Options(Minecraft param0, File param1) {
         this.minecraft = param0;
@@ -197,6 +199,7 @@ public class Options {
         }
 
         this.renderDistance = param0.is64Bit() ? 12 : 8;
+        this.syncWrites = Util.getPlatform() == Util.OS.WINDOWS;
         this.load();
     }
 
@@ -524,6 +527,10 @@ public class Options {
                         this.skipMultiplayerWarning = "true".equals(var4);
                     }
 
+                    if ("syncChunkWrites".equals(var3)) {
+                        this.syncWrites = "true".equals(var4);
+                    }
+
                     for(KeyMapping var5 : this.keyMappings) {
                         if (var3.equals("key_" + var5.getName())) {
                             var5.setKey(InputConstants.getKey(var4));
@@ -651,6 +658,7 @@ public class Options {
             var0.println("rawMouseInput:" + Option.RAW_MOUSE_INPUT.get(this));
             var0.println("glDebugVerbosity:" + this.glDebugVerbosity);
             var0.println("skipMultiplayerWarning:" + this.skipMultiplayerWarning);
+            var0.println("syncChunkWrites:" + this.syncWrites);
 
             for(KeyMapping var1 : this.keyMappings) {
                 var0.println("key_" + var1.getName() + ":" + var1.saveString());

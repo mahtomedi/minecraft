@@ -48,6 +48,7 @@ import net.minecraft.ReportedException;
 import net.minecraft.Util;
 import net.minecraft.client.Camera;
 import net.minecraft.client.CloudStatus;
+import net.minecraft.client.GraphicsStatus;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Option;
 import net.minecraft.client.Options;
@@ -499,14 +500,12 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
             this.particlesTarget = var4;
             this.weatherTarget = var5;
             this.cloudsTarget = var6;
-        } catch (IOException var8) {
-            Options var8 = Minecraft.getInstance().options;
-            var8.graphicsMode = var8.graphicsMode.cyclePrevious();
-            throw new LevelRenderer.TranparencyShaderException("Failed to load shader: " + var0, var8);
-        } catch (JsonSyntaxException var91) {
-            Options var10 = Minecraft.getInstance().options;
-            var10.graphicsMode = var10.graphicsMode.cyclePrevious();
-            throw new LevelRenderer.TranparencyShaderException("Failed to parse shader: " + var0, var91);
+        } catch (Exception var81) {
+            String var8 = var81 instanceof JsonSyntaxException ? "parse" : "load";
+            Options var9 = Minecraft.getInstance().options;
+            var9.graphicsMode = GraphicsStatus.FANCY;
+            var9.save();
+            throw new LevelRenderer.TranparencyShaderException("Failed to " + var8 + " shader: " + var0, var81);
         }
     }
 
@@ -1003,7 +1002,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
         this.renderChunkLayer(RenderType.solid(), param0, var2, var3, var4);
         this.renderChunkLayer(RenderType.cutoutMipped(), param0, var2, var3, var4);
         this.renderChunkLayer(RenderType.cutout(), param0, var2, var3, var4);
-        if (this.level.dimensionType().isNether()) {
+        if (this.level.effects().constantAmbientLight()) {
             Lighting.setupNetherLevel(param0.last().pose());
         } else {
             Lighting.setupLevel(param0.last().pose());
@@ -1180,6 +1179,8 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
             this.translucentTarget.copyDepthFrom(this.minecraft.getMainRenderTarget());
             var0.popPush("translucent");
             this.renderChunkLayer(RenderType.translucent(), param0, var2, var3, var4);
+            var0.popPush("string");
+            this.renderChunkLayer(RenderType.tripwire(), param0, var2, var3, var4);
             this.particlesTarget.clear(Minecraft.ON_OSX);
             this.particlesTarget.copyDepthFrom(this.minecraft.getMainRenderTarget());
             RenderStateShard.PARTICLES_TARGET.setupRenderState();
@@ -1189,6 +1190,8 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
         } else {
             var0.popPush("translucent");
             this.renderChunkLayer(RenderType.translucent(), param0, var2, var3, var4);
+            var0.popPush("string");
+            this.renderChunkLayer(RenderType.tripwire(), param0, var2, var3, var4);
             var0.popPush("particles");
             this.minecraft.particleEngine.render(param0, var21, param6, param4, param1);
         }
@@ -1569,9 +1572,9 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
     }
 
     public void renderSky(PoseStack param0, float param1) {
-        if (this.minecraft.level.dimensionType().isEnd()) {
+        if (this.minecraft.level.effects().skyType() == DimensionSpecialEffects.SkyType.END) {
             this.renderEndSky(param0);
-        } else if (this.minecraft.level.effects().renderNormalSky()) {
+        } else if (this.minecraft.level.effects().skyType() == DimensionSpecialEffects.SkyType.NORMAL) {
             RenderSystem.disableTexture();
             Vec3 var0 = this.level.getSkyColor(this.minecraft.gameRenderer.getMainCamera().getBlockPosition(), param1);
             float var1 = (float)var0.x;

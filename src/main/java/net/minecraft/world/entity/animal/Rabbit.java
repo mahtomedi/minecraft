@@ -396,6 +396,12 @@ public class Rabbit extends Animal {
 
     }
 
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public Vec3 getLeashOffset() {
+        return new Vec3(0.0, (double)(0.6F * this.getEyeHeight()), (double)(this.getBbWidth() * 0.4F));
+    }
+
     static class EvilRabbitAttackGoal extends MeleeAttackGoal {
         public EvilRabbitAttackGoal(Rabbit param0) {
             super(param0, 1.4, true);

@@ -39,25 +39,6 @@ public class NbtIo {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static void safeWrite(CompoundTag param0, File param1) throws IOException {
-        File var0 = new File(param1.getAbsolutePath() + "_tmp");
-        if (var0.exists()) {
-            var0.delete();
-        }
-
-        write(param0, var0);
-        if (param1.exists()) {
-            param1.delete();
-        }
-
-        if (param1.exists()) {
-            throw new IOException("Failed to delete " + param1);
-        } else {
-            var0.renameTo(param1);
-        }
-    }
-
-    @OnlyIn(Dist.CLIENT)
     public static void write(CompoundTag param0, File param1) throws IOException {
         DataOutputStream var0 = new DataOutputStream(new FileOutputStream(param1));
 

@@ -1,5 +1,6 @@
 package net.minecraft.tags;
 
+import java.util.List;
 import java.util.Set;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.material.Fluid;
@@ -26,6 +27,10 @@ public class FluidTags {
 
     public static TagCollection<Fluid> getAllTags() {
         return HELPER.getAllTags();
+    }
+
+    public static List<StaticTagHelper.Wrapper<Fluid>> getWrappers() {
+        return HELPER.getWrappers();
     }
 
     public static Set<ResourceLocation> getMissingTags(TagCollection<Fluid> param0) {

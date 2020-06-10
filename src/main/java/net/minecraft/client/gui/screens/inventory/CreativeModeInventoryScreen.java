@@ -143,7 +143,7 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
                 ItemStack var5 = var4.getCarried();
                 ItemStack var6 = param0.getItem();
                 if (param3 == ClickType.SWAP) {
-                    if (!var6.isEmpty() && param2 >= 0 && param2 < 9) {
+                    if (!var6.isEmpty()) {
                         ItemStack var7 = var6.copy();
                         var7.setCount(var7.getMaxStackSize());
                         this.minecraft.player.inventory.setItem(param2, var7);
@@ -313,7 +313,7 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
             }
         } else {
             boolean var0 = !this.isCreativeSlot(this.hoveredSlot) || this.hoveredSlot != null && this.hoveredSlot.hasItem();
-            if (var0 && this.checkNumkeyPressed(param0, param1)) {
+            if (var0 && this.checkHotbarKeyPressed(param0, param1)) {
                 this.ignoreTextInput = true;
                 return true;
             } else {

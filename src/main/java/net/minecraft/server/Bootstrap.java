@@ -77,7 +77,7 @@ public class Bootstrap {
 
     public static Set<String> getMissingTranslations() {
         Set<String> var0 = new TreeSet<>();
-        checkTranslations(Registry.ATTRIBUTES, Attribute::getDescriptionId, var0);
+        checkTranslations(Registry.ATTRIBUTE, Attribute::getDescriptionId, var0);
         checkTranslations(Registry.ENTITY_TYPE, EntityType::getDescriptionId, var0);
         checkTranslations(Registry.MOB_EFFECT, MobEffect::getDescriptionId, var0);
         checkTranslations(Registry.ITEM, Item::getDescriptionId, var0);

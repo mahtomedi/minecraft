@@ -135,7 +135,7 @@ public class Witch extends Raider implements RangedAttackMob {
                 }
             } else {
                 Potion var3 = null;
-                if (this.random.nextFloat() < 0.15F && this.isUnderLiquid(FluidTags.WATER) && !this.hasEffect(MobEffects.WATER_BREATHING)) {
+                if (this.random.nextFloat() < 0.15F && this.isEyeInFluid(FluidTags.WATER) && !this.hasEffect(MobEffects.WATER_BREATHING)) {
                     var3 = Potions.WATER_BREATHING;
                 } else if (this.random.nextFloat() < 0.15F
                     && (this.isOnFire() || this.getLastDamageSource() != null && this.getLastDamageSource().isFire())

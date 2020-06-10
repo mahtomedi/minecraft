@@ -38,7 +38,7 @@ public class ClientboundUpdateAttributesPacket implements Packet<ClientGamePacke
 
         for(int var1 = 0; var1 < var0; ++var1) {
             ResourceLocation var2 = param0.readResourceLocation();
-            Attribute var3 = Registry.ATTRIBUTES.get(var2);
+            Attribute var3 = Registry.ATTRIBUTE.get(var2);
             double var4 = param0.readDouble();
             List<AttributeModifier> var5 = Lists.newArrayList();
             int var6 = param0.readVarInt();
@@ -63,7 +63,7 @@ public class ClientboundUpdateAttributesPacket implements Packet<ClientGamePacke
         param0.writeInt(this.attributes.size());
 
         for(ClientboundUpdateAttributesPacket.AttributeSnapshot var0 : this.attributes) {
-            param0.writeResourceLocation(Registry.ATTRIBUTES.getKey(var0.getAttribute()));
+            param0.writeResourceLocation(Registry.ATTRIBUTE.getKey(var0.getAttribute()));
             param0.writeDouble(var0.getBase());
             param0.writeVarInt(var0.getModifiers().size());
 

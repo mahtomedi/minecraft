@@ -93,25 +93,20 @@ public class WorldGenSettingsComponent implements TickableWidget, Widget {
         param0.addWidget(this.seedEdit);
         int var0 = this.width / 2 - 155;
         int var1 = this.width / 2 + 5;
-        this.featuresButton = param0.addButton(
-            new Button(var0, 100, 150, 20, new TranslatableComponent("selectWorld.mapFeatures"), param0x -> {
-                this.settings = this.settings.withFeaturesToggled();
-                param0x.queueNarration(250);
-            }) {
-                @Override
-                public Component getMessage() {
-                    return super.getMessage()
-                        .mutableCopy()
-                        .append(" ")
-                        .append(CommonComponents.optionStatus(WorldGenSettingsComponent.this.settings.generateFeatures()));
-                }
-    
-                @Override
-                protected MutableComponent createNarrationMessage() {
-                    return super.createNarrationMessage().append(". ").append(new TranslatableComponent("selectWorld.mapFeatures.info"));
-                }
+        this.featuresButton = param0.addButton(new Button(var0, 100, 150, 20, new TranslatableComponent("selectWorld.mapFeatures"), param0x -> {
+            this.settings = this.settings.withFeaturesToggled();
+            param0x.queueNarration(250);
+        }) {
+            @Override
+            public Component getMessage() {
+                return super.getMessage().copy().append(" ").append(CommonComponents.optionStatus(WorldGenSettingsComponent.this.settings.generateFeatures()));
             }
-        );
+
+            @Override
+            protected MutableComponent createNarrationMessage() {
+                return super.createNarrationMessage().append(". ").append(new TranslatableComponent("selectWorld.mapFeatures.info"));
+            }
+        });
         this.featuresButton.visible = false;
         this.typeButton = param0.addButton(
             new Button(var1, 100, 150, 20, new TranslatableComponent("selectWorld.mapType"), param1x -> {
@@ -123,7 +118,9 @@ public class WorldGenSettingsComponent implements TickableWidget, Widget {
     
                     WorldPreset var1x = WorldPreset.PRESETS.get(var0x);
                     this.preset = Optional.of(var1x);
-                    this.settings = var1x.create(this.settings.seed(), this.settings.generateFeatures(), this.settings.generateBonusChest());
+                    this.settings = var1x.create(
+                        this.registryHolder, this.settings.seed(), this.settings.generateFeatures(), this.settings.generateBonusChest()
+                    );
                     if (!this.settings.isDebug() || Screen.hasShiftDown()) {
                         break;
                     }
@@ -135,7 +132,7 @@ public class WorldGenSettingsComponent implements TickableWidget, Widget {
                 @Override
                 public Component getMessage() {
                     return super.getMessage()
-                        .mutableCopy()
+                        .copy()
                         .append(" ")
                         .append(WorldGenSettingsComponent.this.preset.map(WorldPreset::description).orElse(WorldGenSettingsComponent.CUSTOM_WORLD_DESCRIPTION));
                 }
@@ -166,7 +163,7 @@ public class WorldGenSettingsComponent implements TickableWidget, Widget {
                 @Override
                 public Component getMessage() {
                     return super.getMessage()
-                        .mutableCopy()
+                        .copy()
                         .append(" ")
                         .append(CommonComponents.optionStatus(WorldGenSettingsComponent.this.settings.generateBonusChest() && !param0.hardCore));
                 }

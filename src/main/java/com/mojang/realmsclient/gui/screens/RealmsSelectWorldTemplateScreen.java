@@ -300,7 +300,7 @@ public class RealmsSelectWorldTemplateScreen extends RealmsScreen {
                 if (this.warningURL != null) {
                     if (this.hoverWarning) {
                         var7 = 7107012;
-                        var6 = var6.mutableCopy().withStyle(ChatFormatting.STRIKETHROUGH);
+                        var6 = var6.copy().withStyle(ChatFormatting.STRIKETHROUGH);
                     } else {
                         var7 = 3368635;
                     }

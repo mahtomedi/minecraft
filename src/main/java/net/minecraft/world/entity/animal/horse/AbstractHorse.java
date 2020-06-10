@@ -730,7 +730,6 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
                             this.getDeltaMovement()
                                 .add((double)(-0.4F * var7 * this.playerJumpPendingScale), 0.0, (double)(0.4F * var8 * this.playerJumpPendingScale))
                         );
-                        this.playJumpSound();
                     }
 
                     this.playerJumpPendingScale = 0.0F;
@@ -886,6 +885,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
     public void handleStartJump(int param0) {
         this.allowStandSliding = true;
         this.stand();
+        this.playJumpSound();
     }
 
     @Override

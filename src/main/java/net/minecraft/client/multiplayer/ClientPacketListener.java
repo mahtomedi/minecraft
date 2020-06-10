@@ -1069,6 +1069,10 @@ public class ClientPacketListener implements ClientGamePacketListener {
         LocalPlayer var10 = this.minecraft.gameMode.createPlayer(this.level, var3.getStats(), var3.getRecipeBook(), var3.isShiftKeyDown(), var3.isSprinting());
         var10.setId(var4);
         this.minecraft.player = var10;
+        if (var1 != var3.level.dimension()) {
+            this.minecraft.getMusicManager().stopPlaying();
+        }
+
         this.minecraft.cameraEntity = var10;
         var10.getEntityData().assignValues(var3.getEntityData().getAll());
         if (param0.shouldKeepAllPlayerData()) {
@@ -1271,22 +1275,20 @@ public class ClientPacketListener implements ClientGamePacketListener {
     public void handleGameEvent(ClientboundGameEventPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
         Player var0 = this.minecraft.player;
-        int var1 = param0.getEvent();
+        ClientboundGameEventPacket.Type var1 = param0.getEvent();
         float var2 = param0.getParam();
         int var3 = Mth.floor(var2 + 0.5F);
-        if (var1 >= 0 && var1 < ClientboundGameEventPacket.EVENT_LANGUAGE_ID.length && ClientboundGameEventPacket.EVENT_LANGUAGE_ID[var1] != null) {
-            var0.displayClientMessage(new TranslatableComponent(ClientboundGameEventPacket.EVENT_LANGUAGE_ID[var1]), false);
-        }
-
-        if (var1 == 1) {
+        if (var1 == ClientboundGameEventPacket.NO_RESPAWN_BLOCK_AVAILABLE) {
+            var0.displayClientMessage(new TranslatableComponent("block.minecraft.spawn.not_valid"), false);
+        } else if (var1 == ClientboundGameEventPacket.START_RAINING) {
             this.level.getLevelData().setRaining(true);
             this.level.setRainLevel(0.0F);
-        } else if (var1 == 2) {
+        } else if (var1 == ClientboundGameEventPacket.STOP_RAINING) {
             this.level.getLevelData().setRaining(false);
             this.level.setRainLevel(1.0F);
-        } else if (var1 == 3) {
+        } else if (var1 == ClientboundGameEventPacket.CHANGE_GAME_MODE) {
             this.minecraft.gameMode.setLocalMode(GameType.byId(var3));
-        } else if (var1 == 4) {
+        } else if (var1 == ClientboundGameEventPacket.WIN_GAME) {
             if (var3 == 0) {
                 this.minecraft.player.connection.send(new ServerboundClientCommandPacket(ServerboundClientCommandPacket.Action.PERFORM_RESPAWN));
                 this.minecraft.setScreen(new ReceivingLevelScreen());
@@ -1302,7 +1304,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
                         )
                     );
             }
-        } else if (var1 == 5) {
+        } else if (var1 == ClientboundGameEventPacket.DEMO_EVENT) {
             Options var4 = this.minecraft.options;
             if (var2 == 0.0F) {
                 this.minecraft.setScreen(new DemoIntroScreen());
@@ -1326,20 +1328,20 @@ public class ClientPacketListener implements ClientGamePacketListener {
             } else if (var2 == 104.0F) {
                 this.minecraft.gui.getChat().addMessage(new TranslatableComponent("demo.day.6", var4.keyScreenshot.getTranslatedKeyMessage()));
             }
-        } else if (var1 == 6) {
+        } else if (var1 == ClientboundGameEventPacket.ARROW_HIT_PLAYER) {
             this.level.playSound(var0, var0.getX(), var0.getEyeY(), var0.getZ(), SoundEvents.ARROW_HIT_PLAYER, SoundSource.PLAYERS, 0.18F, 0.45F);
-        } else if (var1 == 7) {
+        } else if (var1 == ClientboundGameEventPacket.RAIN_LEVEL_CHANGE) {
             this.level.setRainLevel(var2);
-        } else if (var1 == 8) {
+        } else if (var1 == ClientboundGameEventPacket.THUNDER_LEVEL_CHANGE) {
             this.level.setThunderLevel(var2);
-        } else if (var1 == 9) {
+        } else if (var1 == ClientboundGameEventPacket.PUFFER_FISH_STING) {
             this.level.playSound(var0, var0.getX(), var0.getY(), var0.getZ(), SoundEvents.PUFFER_FISH_STING, SoundSource.NEUTRAL, 1.0F, 1.0F);
-        } else if (var1 == 10) {
+        } else if (var1 == ClientboundGameEventPacket.GUARDIAN_ELDER_EFFECT) {
             this.level.addParticle(ParticleTypes.ELDER_GUARDIAN, var0.getX(), var0.getY(), var0.getZ(), 0.0, 0.0, 0.0);
             if (var3 == 1) {
                 this.level.playSound(var0, var0.getX(), var0.getY(), var0.getZ(), SoundEvents.ELDER_GUARDIAN_CURSE, SoundSource.HOSTILE, 1.0F, 1.0F);
             }
-        } else if (var1 == 11) {
+        } else if (var1 == ClientboundGameEventPacket.IMMEDIATE_RESPAWN) {
             this.minecraft.player.setShowDeathScreen(var2 == 0.0F);
         }
 
@@ -2220,7 +2222,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
                 for(ClientboundUpdateAttributesPacket.AttributeSnapshot var2 : param0.getValues()) {
                     AttributeInstance var3 = var1.getInstance(var2.getAttribute());
                     if (var3 == null) {
-                        LOGGER.warn("Entity {} does not have attribute {}", var0, Registry.ATTRIBUTES.getKey(var2.getAttribute()));
+                        LOGGER.warn("Entity {} does not have attribute {}", var0, Registry.ATTRIBUTE.getKey(var2.getAttribute()));
                     } else {
                         var3.setBaseValue(var2.getBase());
                         var3.removeModifiers();
@@ -2259,11 +2261,11 @@ public class ClientPacketListener implements ClientGamePacketListener {
         int var3 = param0.getSkyYMask();
         int var4 = param0.getEmptySkyYMask();
         Iterator<byte[]> var5 = param0.getSkyUpdates().iterator();
-        this.readSectionList(var0, var1, var2, LightLayer.SKY, var3, var4, var5);
+        this.readSectionList(var0, var1, var2, LightLayer.SKY, var3, var4, var5, param0.getTrustEdges());
         int var6 = param0.getBlockYMask();
         int var7 = param0.getEmptyBlockYMask();
         Iterator<byte[]> var8 = param0.getBlockUpdates().iterator();
-        this.readSectionList(var0, var1, var2, LightLayer.BLOCK, var6, var7, var8);
+        this.readSectionList(var0, var1, var2, LightLayer.BLOCK, var6, var7, var8, param0.getTrustEdges());
     }
 
     @Override
@@ -2299,13 +2301,17 @@ public class ClientPacketListener implements ClientGamePacketListener {
         this.minecraft.gameMode.handleBlockBreakAck(this.level, param0.getPos(), param0.getState(), param0.action(), param0.allGood());
     }
 
-    private void readSectionList(int param0, int param1, LevelLightEngine param2, LightLayer param3, int param4, int param5, Iterator<byte[]> param6) {
+    private void readSectionList(
+        int param0, int param1, LevelLightEngine param2, LightLayer param3, int param4, int param5, Iterator<byte[]> param6, boolean param7
+    ) {
         for(int var0 = 0; var0 < 18; ++var0) {
             int var1 = -1 + var0;
             boolean var2 = (param4 & 1 << var0) != 0;
             boolean var3 = (param5 & 1 << var0) != 0;
             if (var2 || var3) {
-                param2.queueSectionData(param3, SectionPos.of(param0, var1, param1), var2 ? new DataLayer((byte[])param6.next().clone()) : new DataLayer());
+                param2.queueSectionData(
+                    param3, SectionPos.of(param0, var1, param1), var2 ? new DataLayer((byte[])param6.next().clone()) : new DataLayer(), param7
+                );
                 this.level.setSectionDirtyWithNeighbors(param0, var1, param1);
             }
         }

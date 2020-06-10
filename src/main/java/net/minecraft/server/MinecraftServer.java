@@ -344,57 +344,59 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
             var9 = var7.generator();
         }
 
-        ServerLevel var12 = new ServerLevel(
-            this, this.executor, this.storageSource, var0, Level.OVERWORLD, DimensionType.OVERWORLD_LOCATION, var8, param0, var9, var2, var4, var5, true
-        );
-        this.levels.put(Level.OVERWORLD, var12);
-        DimensionDataStorage var13 = var12.getDataStorage();
-        this.readScoreboard(var13);
-        this.commandStorage = new CommandStorage(var13);
-        WorldBorder var14 = var12.getWorldBorder();
-        var14.applySettings(var0.getWorldBorder());
+        ResourceKey<DimensionType> var12 = this.registryHolder
+            .dimensionTypes()
+            .getResourceKey(var8)
+            .orElseThrow(() -> new IllegalStateException("Unregistered dimension type: " + var8));
+        ServerLevel var13 = new ServerLevel(this, this.executor, this.storageSource, var0, Level.OVERWORLD, var12, var8, param0, var9, var2, var4, var5, true);
+        this.levels.put(Level.OVERWORLD, var13);
+        DimensionDataStorage var14 = var13.getDataStorage();
+        this.readScoreboard(var14);
+        this.commandStorage = new CommandStorage(var14);
+        WorldBorder var15 = var13.getWorldBorder();
+        var15.applySettings(var0.getWorldBorder());
         if (!var0.isInitialized()) {
             try {
-                setInitialSpawn(var12, var0, var1.generateBonusChest(), var2, true);
+                setInitialSpawn(var13, var0, var1.generateBonusChest(), var2, true);
                 var0.setInitialized(true);
                 if (var2) {
                     this.setupDebugLevel(this.worldData);
                 }
-            } catch (Throwable var27) {
-                CrashReport var16 = CrashReport.forThrowable(var27, "Exception initializing level");
+            } catch (Throwable var28) {
+                CrashReport var17 = CrashReport.forThrowable(var28, "Exception initializing level");
 
                 try {
-                    var12.fillReportDetails(var16);
-                } catch (Throwable var26) {
+                    var13.fillReportDetails(var17);
+                } catch (Throwable var27) {
                 }
 
-                throw new ReportedException(var16);
+                throw new ReportedException(var17);
             }
 
             var0.setInitialized(true);
         }
 
-        this.getPlayerList().setLevel(var12);
+        this.getPlayerList().setLevel(var13);
         if (this.worldData.getCustomBossEvents() != null) {
             this.getCustomBossEvents().load(this.worldData.getCustomBossEvents());
         }
 
-        for(Entry<ResourceKey<LevelStem>, LevelStem> var17 : var6.entrySet()) {
-            ResourceKey<LevelStem> var18 = var17.getKey();
-            if (var18 != LevelStem.OVERWORLD) {
-                ResourceKey<Level> var19 = ResourceKey.create(Registry.DIMENSION_REGISTRY, var18.location());
-                DimensionType var20 = var17.getValue().type();
-                ResourceKey<DimensionType> var21 = this.registryHolder
+        for(Entry<ResourceKey<LevelStem>, LevelStem> var18 : var6.entrySet()) {
+            ResourceKey<LevelStem> var19 = var18.getKey();
+            if (var19 != LevelStem.OVERWORLD) {
+                ResourceKey<Level> var20 = ResourceKey.create(Registry.DIMENSION_REGISTRY, var19.location());
+                DimensionType var21 = var18.getValue().type();
+                ResourceKey<DimensionType> var22 = this.registryHolder
                     .dimensionTypes()
-                    .getResourceKey(var20)
-                    .orElseThrow(() -> new IllegalStateException("Unregistered dimension type: " + var20));
-                ChunkGenerator var22 = var17.getValue().generator();
-                DerivedLevelData var23 = new DerivedLevelData(this.worldData, var0);
-                ServerLevel var24 = new ServerLevel(
-                    this, this.executor, this.storageSource, var23, var19, var21, var20, param0, var22, var2, var4, ImmutableList.of(), false
+                    .getResourceKey(var21)
+                    .orElseThrow(() -> new IllegalStateException("Unregistered dimension type: " + var21));
+                ChunkGenerator var23 = var18.getValue().generator();
+                DerivedLevelData var24 = new DerivedLevelData(this.worldData, var0);
+                ServerLevel var25 = new ServerLevel(
+                    this, this.executor, this.storageSource, var24, var20, var22, var21, param0, var23, var2, var4, ImmutableList.of(), false
                 );
-                var14.addListener(new BorderChangeListener.DelegateBorderChangeListener(var24.getWorldBorder()));
-                this.levels.put(var19, var24);
+                var15.addListener(new BorderChangeListener.DelegateBorderChangeListener(var25.getWorldBorder()));
+                this.levels.put(var20, var25);
             }
         }
 
@@ -473,7 +475,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
     }
 
     private void prepareLevels(ChunkProgressListener param0) {
-        ServerLevel var0 = this.getLevel(Level.OVERWORLD);
+        ServerLevel var0 = this.overworld();
         LOGGER.info("Preparing start region for dimension {}", var0.dimension().location());
         BlockPos var1 = var0.getSharedSpawnPos();
         param0.updateSpawnPos(new ChunkPos(var1));
@@ -550,7 +552,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
             var0 = true;
         }
 
-        ServerLevel var2 = this.getLevel(Level.OVERWORLD);
+        ServerLevel var2 = this.overworld();
         ServerLevelData var3 = this.worldData.overworldData();
         var3.setWorldBorder(var2.getWorldBorder().createSettings());
         this.worldData.setCustomBossEvents(this.getCustomBossEvents().save());
@@ -846,31 +848,29 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         this.profiler.popPush("levels");
 
         for(ServerLevel var0 : this.getAllLevels()) {
-            if (var0.dimensionType().isOverworld() || this.isNetherEnabled()) {
-                this.profiler.push(() -> var0 + " " + var0.dimension().location());
-                if (this.tickCount % 20 == 0) {
-                    this.profiler.push("timeSync");
-                    this.playerList
-                        .broadcastAll(
-                            new ClientboundSetTimePacket(var0.getGameTime(), var0.getDayTime(), var0.getGameRules().getBoolean(GameRules.RULE_DAYLIGHT)),
-                            var0.dimension()
-                        );
-                    this.profiler.pop();
-                }
-
-                this.profiler.push("tick");
-
-                try {
-                    var0.tick(param0);
-                } catch (Throwable var6) {
-                    CrashReport var2 = CrashReport.forThrowable(var6, "Exception ticking world");
-                    var0.fillReportDetails(var2);
-                    throw new ReportedException(var2);
-                }
-
-                this.profiler.pop();
+            this.profiler.push(() -> var0 + " " + var0.dimension().location());
+            if (this.tickCount % 20 == 0) {
+                this.profiler.push("timeSync");
+                this.playerList
+                    .broadcastAll(
+                        new ClientboundSetTimePacket(var0.getGameTime(), var0.getDayTime(), var0.getGameRules().getBoolean(GameRules.RULE_DAYLIGHT)),
+                        var0.dimension()
+                    );
                 this.profiler.pop();
             }
+
+            this.profiler.push("tick");
+
+            try {
+                var0.tick(param0);
+            } catch (Throwable var6) {
+                CrashReport var2 = CrashReport.forThrowable(var6, "Exception ticking world");
+                var0.fillReportDetails(var2);
+                throw new ReportedException(var2);
+            }
+
+            this.profiler.pop();
+            this.profiler.pop();
         }
 
         this.profiler.popPush("connection");
@@ -911,6 +911,11 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         return new File(this.getServerDirectory(), param0);
     }
 
+    public final ServerLevel overworld() {
+        return this.levels.get(Level.OVERWORLD);
+    }
+
+    @Nullable
     public ServerLevel getLevel(ResourceKey<Level> param0) {
         return this.levels.get(param0);
     }
@@ -1380,7 +1385,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
     }
 
     public CommandSourceStack createCommandSourceStack() {
-        ServerLevel var0 = this.getLevel(Level.OVERWORLD);
+        ServerLevel var0 = this.overworld();
         return new CommandSourceStack(
             this,
             var0 == null ? Vec3.ZERO : Vec3.atLowerCornerOf(var0.getSharedSpawnPos()),
@@ -1433,7 +1438,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
     }
 
     public GameRules getGameRules() {
-        return this.getLevel(Level.OVERWORLD).getGameRules();
+        return this.overworld().getGameRules();
     }
 
     public CustomBossEvents getCustomBossEvents() {

@@ -24,12 +24,16 @@ public abstract class DimensionSpecialEffects {
     private final float[] sunriseCol = new float[4];
     private final float cloudLevel;
     private final boolean hasGround;
-    private final boolean renderNormalSky;
+    private final DimensionSpecialEffects.SkyType skyType;
+    private final boolean forceBrightLightmap;
+    private final boolean constantAmbientLight;
 
-    public DimensionSpecialEffects(float param0, boolean param1, boolean param2) {
+    public DimensionSpecialEffects(float param0, boolean param1, DimensionSpecialEffects.SkyType param2, boolean param3, boolean param4) {
         this.cloudLevel = param0;
         this.hasGround = param1;
-        this.renderNormalSky = param2;
+        this.skyType = param2;
+        this.forceBrightLightmap = param3;
+        this.constantAmbientLight = param4;
     }
 
     public static DimensionSpecialEffects forType(Optional<ResourceKey<DimensionType>> param0) {
@@ -67,14 +71,22 @@ public abstract class DimensionSpecialEffects {
 
     public abstract boolean isFoggyAt(int var1, int var2);
 
-    public boolean renderNormalSky() {
-        return this.renderNormalSky;
+    public DimensionSpecialEffects.SkyType skyType() {
+        return this.skyType;
+    }
+
+    public boolean forceBrightLightmap() {
+        return this.forceBrightLightmap;
+    }
+
+    public boolean constantAmbientLight() {
+        return this.constantAmbientLight;
     }
 
     @OnlyIn(Dist.CLIENT)
     public static class EndEffects extends DimensionSpecialEffects {
         public EndEffects() {
-            super(Float.NaN, false, false);
+            super(Float.NaN, false, DimensionSpecialEffects.SkyType.END, true, false);
         }
 
         @Override
@@ -97,7 +109,7 @@ public abstract class DimensionSpecialEffects {
     @OnlyIn(Dist.CLIENT)
     public static class NetherEffects extends DimensionSpecialEffects {
         public NetherEffects() {
-            super(Float.NaN, true, false);
+            super(Float.NaN, true, DimensionSpecialEffects.SkyType.NONE, false, true);
         }
 
         @Override
@@ -114,7 +126,7 @@ public abstract class DimensionSpecialEffects {
     @OnlyIn(Dist.CLIENT)
     public static class OverworldEffects extends DimensionSpecialEffects {
         public OverworldEffects() {
-            super(128.0F, true, true);
+            super(128.0F, true, DimensionSpecialEffects.SkyType.NORMAL, false, false);
         }
 
         @Override
@@ -126,5 +138,12 @@ public abstract class DimensionSpecialEffects {
         public boolean isFoggyAt(int param0, int param1) {
             return false;
         }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static enum SkyType {
+        NONE,
+        NORMAL,
+        END;
     }
 }

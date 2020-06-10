@@ -664,7 +664,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
             BlockEntity var1 = this.player.level.getBlockEntity(var0);
             if (var1 instanceof JigsawBlockEntity) {
                 JigsawBlockEntity var2 = (JigsawBlockEntity)var1;
-                var2.generate(this.server.getLevel(this.player.level.dimension()), param0.levels(), param0.keepJigsaws());
+                var2.generate(this.player.getLevel(), param0.levels(), param0.keepJigsaws());
             }
 
         }
@@ -826,11 +826,8 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
                             var10 = var5 - this.lastGoodX;
                             var11 = var6 - this.lastGoodY;
                             var12 = var7 - this.lastGoodZ;
-                            if (var11 > 0.0) {
-                                this.player.fallDistance = 0.0F;
-                            }
-
-                            if (this.player.isOnGround() && !param0.isOnGround() && var11 > 0.0) {
+                            boolean var18 = var11 > 0.0;
+                            if (this.player.isOnGround() && !param0.isOnGround() && var18) {
                                 this.player.jumpFromGround();
                             }
 
@@ -843,20 +840,20 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
 
                             var12 = var7 - this.player.getZ();
                             var14 = var10 * var10 + var11 * var11 + var12 * var12;
-                            boolean var19 = false;
+                            boolean var20 = false;
                             if (!this.player.isChangingDimension()
                                 && var14 > 0.0625
                                 && !this.player.isSleeping()
                                 && !this.player.gameMode.isCreative()
                                 && this.player.gameMode.getGameModeForPlayer() != GameType.SPECTATOR) {
-                                var19 = true;
+                                var20 = true;
                                 LOGGER.warn("{} moved wrongly!", this.player.getName().getString());
                             }
 
                             this.player.absMoveTo(var5, var6, var7, var8, var9);
                             if (this.player.noPhysics
                                 || this.player.isSleeping()
-                                || (!var19 || !var0.noCollision(this.player, var17)) && !this.isPlayerCollidingWithAnythingNew(var0, var17)) {
+                                || (!var20 || !var0.noCollision(this.player, var17)) && !this.isPlayerCollidingWithAnythingNew(var0, var17)) {
                                 this.clientIsFloating = var11 >= -0.03125
                                     && this.player.gameMode.getGameModeForPlayer() != GameType.SPECTATOR
                                     && !this.server.isFlightAllowed()
@@ -867,6 +864,10 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
                                 this.player.getLevel().getChunkSource().move(this.player);
                                 this.player.doCheckFallDamage(this.player.getY() - var4, param0.isOnGround());
                                 this.player.setOnGround(param0.isOnGround());
+                                if (var18) {
+                                    this.player.fallDistance = 0.0F;
+                                }
+
                                 this.player.checkMovementStatistics(this.player.getX() - var1, this.player.getY() - var2, this.player.getZ() - var3);
                                 this.lastGoodX = this.player.getX();
                                 this.lastGoodY = this.player.getY();
@@ -916,7 +917,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
         this.player.resetLastActionTime();
         ServerboundPlayerActionPacket.Action var1 = param0.getAction();
         switch(var1) {
-            case SWAP_HELD_ITEMS:
+            case SWAP_ITEM_WITH_OFFHAND:
                 if (!this.player.isSpectator()) {
                     ItemStack var2 = this.player.getItemInHand(InteractionHand.OFF_HAND);
                     this.player.setItemInHand(InteractionHand.OFF_HAND, this.player.getItemInHand(InteractionHand.MAIN_HAND));
@@ -1202,6 +1203,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
         ServerLevel var0 = this.player.getLevel();
         Entity var1 = param0.getTarget(var0);
         this.player.resetLastActionTime();
+        this.player.setShiftKeyDown(param0.isUsingSecondaryAction());
         if (var1 != null) {
             double var2 = 36.0;
             if (this.player.distanceToSqr(var1) < 36.0) {

@@ -310,7 +310,7 @@ public abstract class AbstractContainerMenu {
                     var14.setChanged();
                 }
             }
-        } else if (param2 == ClickType.SWAP && param1 >= 0 && param1 < 9) {
+        } else if (param2 == ClickType.SWAP) {
             Slot var21 = this.slots.get(param0);
             ItemStack var22 = var1.getItem(param1);
             ItemStack var23 = var21.getItem();

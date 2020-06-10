@@ -5,12 +5,14 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Map.Entry;
 import net.minecraft.Util;
 import net.minecraft.core.Registry;
+import net.minecraft.util.Codecs;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeDefaultFeatures;
 import net.minecraft.world.level.biome.Biomes;
@@ -39,10 +41,10 @@ public class FlatLevelGeneratorSettings {
             param0 -> param0.group(
                         StructureSettings.CODEC.fieldOf("structures").forGetter(FlatLevelGeneratorSettings::structureSettings),
                         FlatLayerInfo.CODEC.listOf().fieldOf("layers").forGetter(FlatLevelGeneratorSettings::getLayersInfo),
-                        Registry.BIOME.fieldOf("biome").withDefault(() -> {
-                            LOGGER.error("Unknown biome, defaulting to plains");
-                            return Biomes.PLAINS;
-                        }).forGetter(param0x -> param0x.biome)
+                        Codecs.withDefault(
+                                Registry.BIOME.fieldOf("biome"), Util.prefix("Unknown biome, defaulting to plains", LOGGER::error), () -> Biomes.PLAINS
+                            )
+                            .forGetter(param0x -> param0x.biome)
                     )
                     .apply(param0, FlatLevelGeneratorSettings::new)
         )
@@ -92,14 +94,27 @@ public class FlatLevelGeneratorSettings {
 
     @OnlyIn(Dist.CLIENT)
     public FlatLevelGeneratorSettings withStructureSettings(StructureSettings param0) {
-        FlatLevelGeneratorSettings var0 = new FlatLevelGeneratorSettings(param0);
+        return this.withLayers(this.layersInfo, param0);
+    }
 
-        for(FlatLayerInfo var1 : this.getLayersInfo()) {
-            var0.getLayersInfo().add(new FlatLayerInfo(var1.getHeight(), var1.getBlockState().getBlock()));
+    @OnlyIn(Dist.CLIENT)
+    public FlatLevelGeneratorSettings withLayers(List<FlatLayerInfo> param0, StructureSettings param1) {
+        FlatLevelGeneratorSettings var0 = new FlatLevelGeneratorSettings(param1);
+
+        for(FlatLayerInfo var1 : param0) {
+            var0.layersInfo.add(new FlatLayerInfo(var1.getHeight(), var1.getBlockState().getBlock()));
             var0.updateLayers();
         }
 
         var0.setBiome(this.biome);
+        if (this.decoration) {
+            var0.setDecoration();
+        }
+
+        if (this.addLakes) {
+            var0.setAddLakes();
+        }
+
         return var0;
     }
 
@@ -186,6 +201,7 @@ public class FlatLevelGeneratorSettings {
     }
 
     public void updateLayers() {
+        Arrays.fill(this.layers, 0, this.layers.length, null);
         int var0 = 0;
 
         for(FlatLayerInfo var1 : this.layersInfo) {

@@ -60,8 +60,8 @@ public class Advancement {
         } else {
             Component var0 = param2.getTitle();
             ChatFormatting var1 = param2.getFrame().getChatColor();
-            Component var2 = var0.mutableCopy().withStyle(var1).append("\n").append(param2.getDescription());
-            Component var3 = var0.mutableCopy().withStyle(param1x -> param1x.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, var2)));
+            Component var2 = var0.copy().withStyle(var1).append("\n").append(param2.getDescription());
+            Component var3 = var0.copy().withStyle(param1x -> param1x.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, var2)));
             this.chatComponent = new TextComponent("[").append(var3).append("]").withStyle(var1);
         }
 

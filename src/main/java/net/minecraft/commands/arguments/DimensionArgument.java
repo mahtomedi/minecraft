@@ -17,6 +17,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 
 public class DimensionArgument implements ArgumentType<ResourceLocation> {
@@ -47,13 +48,14 @@ public class DimensionArgument implements ArgumentType<ResourceLocation> {
         return new DimensionArgument();
     }
 
-    public static ResourceKey<Level> getDimension(CommandContext<CommandSourceStack> param0, String param1) throws CommandSyntaxException {
+    public static ServerLevel getDimension(CommandContext<CommandSourceStack> param0, String param1) throws CommandSyntaxException {
         ResourceLocation var0 = param0.getArgument(param1, ResourceLocation.class);
         ResourceKey<Level> var1 = ResourceKey.create(Registry.DIMENSION_REGISTRY, var0);
-        if (param0.getSource().getServer().getLevel(var1) == null) {
+        ServerLevel var2 = param0.getSource().getServer().getLevel(var1);
+        if (var2 == null) {
             throw ERROR_INVALID_VALUE.create(var0);
         } else {
-            return var1;
+            return var2;
         }
     }
 }

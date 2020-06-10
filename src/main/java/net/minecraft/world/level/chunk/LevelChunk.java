@@ -58,6 +58,7 @@ import org.apache.logging.log4j.Logger;
 
 public class LevelChunk implements ChunkAccess {
     private static final Logger LOGGER = LogManager.getLogger();
+    @Nullable
     public static final LevelChunkSection EMPTY_SECTION = null;
     private final LevelChunkSection[] sections = new LevelChunkSection[16];
     private ChunkBiomeContainer biomes;
@@ -486,18 +487,21 @@ public class LevelChunk implements ChunkAccess {
         var1 = Mth.clamp(var1, 0, this.entitySections.length - 1);
 
         for(int var2 = var0; var2 <= var1; ++var2) {
-            if (!this.entitySections[var2].isEmpty()) {
-                for(Entity var3 : this.entitySections[var2]) {
-                    if (var3.getBoundingBox().intersects(param1) && var3 != param0) {
-                        if (param3 == null || param3.test(var3)) {
-                            param2.add(var3);
-                        }
+            ClassInstanceMultiMap<Entity> var3 = this.entitySections[var2];
+            List<Entity> var4 = var3.getAllInstances();
+            int var5 = var4.size();
 
-                        if (var3 instanceof EnderDragon) {
-                            for(EnderDragonPart var4 : ((EnderDragon)var3).getSubEntities()) {
-                                if (var4 != param0 && var4.getBoundingBox().intersects(param1) && (param3 == null || param3.test(var4))) {
-                                    param2.add(var4);
-                                }
+            for(int var6 = 0; var6 < var5; ++var6) {
+                Entity var7 = var4.get(var6);
+                if (var7.getBoundingBox().intersects(param1) && var7 != param0) {
+                    if (param3 == null || param3.test(var7)) {
+                        param2.add(var7);
+                    }
+
+                    if (var7 instanceof EnderDragon) {
+                        for(EnderDragonPart var8 : ((EnderDragon)var7).getSubEntities()) {
+                            if (var8 != param0 && var8.getBoundingBox().intersects(param1) && (param3 == null || param3.test(var8))) {
+                                param2.add(var8);
                             }
                         }
                     }

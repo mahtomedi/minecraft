@@ -94,7 +94,21 @@ public class BannerRenderer extends BlockEntityRenderer<BannerBlockEntity> {
         boolean param6,
         List<Pair<BannerPattern, DyeColor>> param7
     ) {
-        param4.render(param0, param5.buffer(param1, RenderType::entitySolid), param2, param3);
+        renderPatterns(param0, param1, param2, param3, param4, param5, param6, param7, false);
+    }
+
+    public static void renderPatterns(
+        PoseStack param0,
+        MultiBufferSource param1,
+        int param2,
+        int param3,
+        ModelPart param4,
+        Material param5,
+        boolean param6,
+        List<Pair<BannerPattern, DyeColor>> param7,
+        boolean param8
+    ) {
+        param4.render(param0, param5.buffer(param1, RenderType::entitySolid, param8), param2, param3);
 
         for(int var0 = 0; var0 < 17 && var0 < param7.size(); ++var0) {
             Pair<BannerPattern, DyeColor> var1 = param7.get(var0);

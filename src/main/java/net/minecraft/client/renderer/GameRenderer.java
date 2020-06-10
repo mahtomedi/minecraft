@@ -28,7 +28,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
-import net.minecraft.server.packs.resources.SimpleResource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -574,7 +573,7 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
             NativeImage var0 = Screenshot.takeScreenshot(
                 this.minecraft.getWindow().getWidth(), this.minecraft.getWindow().getHeight(), this.minecraft.getMainRenderTarget()
             );
-            SimpleResource.IO_EXECUTOR.execute(() -> {
+            Util.ioPool().execute(() -> {
                 int var0x = var0.getWidth();
                 int var1x = var0.getHeight();
                 int var2 = 0;

@@ -197,7 +197,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
             param0.getPlayerList().getViewDistance(),
             param0.forceSynchronousWrites(),
             param7,
-            () -> param0.getLevel(Level.OVERWORLD).getDataStorage()
+            () -> param0.overworld().getDataStorage()
         );
         this.portalForcer = new PortalForcer(this);
         this.updateSkyBrightness();
@@ -302,22 +302,26 @@ public class ServerLevel extends Level implements WorldGenLevel {
         }
 
         if (this.oRainLevel != this.rainLevel) {
-            this.server.getPlayerList().broadcastAll(new ClientboundGameEventPacket(7, this.rainLevel), this.dimension());
+            this.server
+                .getPlayerList()
+                .broadcastAll(new ClientboundGameEventPacket(ClientboundGameEventPacket.RAIN_LEVEL_CHANGE, this.rainLevel), this.dimension());
         }
 
         if (this.oThunderLevel != this.thunderLevel) {
-            this.server.getPlayerList().broadcastAll(new ClientboundGameEventPacket(8, this.thunderLevel), this.dimension());
+            this.server
+                .getPlayerList()
+                .broadcastAll(new ClientboundGameEventPacket(ClientboundGameEventPacket.THUNDER_LEVEL_CHANGE, this.thunderLevel), this.dimension());
         }
 
         if (var1 != this.isRaining()) {
             if (var1) {
-                this.server.getPlayerList().broadcastAll(new ClientboundGameEventPacket(2, 0.0F));
+                this.server.getPlayerList().broadcastAll(new ClientboundGameEventPacket(ClientboundGameEventPacket.STOP_RAINING, 0.0F));
             } else {
-                this.server.getPlayerList().broadcastAll(new ClientboundGameEventPacket(1, 0.0F));
+                this.server.getPlayerList().broadcastAll(new ClientboundGameEventPacket(ClientboundGameEventPacket.START_RAINING, 0.0F));
             }
 
-            this.server.getPlayerList().broadcastAll(new ClientboundGameEventPacket(7, this.rainLevel));
-            this.server.getPlayerList().broadcastAll(new ClientboundGameEventPacket(8, this.thunderLevel));
+            this.server.getPlayerList().broadcastAll(new ClientboundGameEventPacket(ClientboundGameEventPacket.RAIN_LEVEL_CHANGE, this.rainLevel));
+            this.server.getPlayerList().broadcastAll(new ClientboundGameEventPacket(ClientboundGameEventPacket.THUNDER_LEVEL_CHANGE, this.thunderLevel));
         }
 
         if (this.allPlayersSleeping && this.players.stream().noneMatch(param0x -> !param0x.isSpectator() && !param0x.isSleepingLongEnough())) {
@@ -1192,17 +1196,17 @@ public class ServerLevel extends Level implements WorldGenLevel {
     @Nullable
     @Override
     public MapItemSavedData getMapData(String param0) {
-        return this.getServer().getLevel(Level.OVERWORLD).getDataStorage().get(() -> new MapItemSavedData(param0), param0);
+        return this.getServer().overworld().getDataStorage().get(() -> new MapItemSavedData(param0), param0);
     }
 
     @Override
     public void setMapData(MapItemSavedData param0) {
-        this.getServer().getLevel(Level.OVERWORLD).getDataStorage().set(param0);
+        this.getServer().overworld().getDataStorage().set(param0);
     }
 
     @Override
     public int getFreeMapId() {
-        return this.getServer().getLevel(Level.OVERWORLD).getDataStorage().computeIfAbsent(MapIndex::new, "idcounts").getFreeAuxValueForMap();
+        return this.getServer().overworld().getDataStorage().computeIfAbsent(MapIndex::new, "idcounts").getFreeAuxValueForMap();
     }
 
     public void setDefaultSpawnPos(BlockPos param0) {

@@ -30,7 +30,7 @@ public class DemoMode extends ServerPlayerGameMode {
         long var1 = var0 / 24000L + 1L;
         if (!this.displayedIntro && this.gameModeTicks > 20) {
             this.displayedIntro = true;
-            this.player.connection.send(new ClientboundGameEventPacket(5, 0.0F));
+            this.player.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.DEMO_EVENT, 0.0F));
         }
 
         this.demoHasEnded = var0 > 120500L;
@@ -41,18 +41,18 @@ public class DemoMode extends ServerPlayerGameMode {
         if (var0 % 24000L == 500L) {
             if (var1 <= 6L) {
                 if (var1 == 6L) {
-                    this.player.connection.send(new ClientboundGameEventPacket(5, 104.0F));
+                    this.player.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.DEMO_EVENT, 104.0F));
                 } else {
                     this.player.sendMessage(new TranslatableComponent("demo.day." + var1), Util.NIL_UUID);
                 }
             }
         } else if (var1 == 1L) {
             if (var0 == 100L) {
-                this.player.connection.send(new ClientboundGameEventPacket(5, 101.0F));
+                this.player.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.DEMO_EVENT, 101.0F));
             } else if (var0 == 175L) {
-                this.player.connection.send(new ClientboundGameEventPacket(5, 102.0F));
+                this.player.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.DEMO_EVENT, 102.0F));
             } else if (var0 == 250L) {
-                this.player.connection.send(new ClientboundGameEventPacket(5, 103.0F));
+                this.player.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.DEMO_EVENT, 103.0F));
             }
         } else if (var1 == 5L && var0 % 24000L == 22000L) {
             this.player.sendMessage(new TranslatableComponent("demo.day.warning"), Util.NIL_UUID);

@@ -11,6 +11,7 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
@@ -27,11 +28,13 @@ import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.NearestNeighborBiomeZoomer;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.Vec3;
@@ -257,14 +260,29 @@ public final class NaturalSpawner {
     private static Biome.SpawnerData getRandomSpawnMobAt(
         ServerLevel param0, StructureFeatureManager param1, ChunkGenerator param2, MobCategory param3, Random param4, BlockPos param5
     ) {
-        List<Biome.SpawnerData> var0 = param2.getMobsAt(param0.getBiome(param5), param1, param3, param5);
-        return var0.isEmpty() ? null : WeighedRandom.getRandomItem(param4, var0);
+        Biome var0 = param0.getBiome(param5);
+        if (param3 == MobCategory.WATER_AMBIENT && var0.getBiomeCategory() == Biome.BiomeCategory.RIVER && param4.nextFloat() < 0.98F) {
+            return null;
+        } else {
+            List<Biome.SpawnerData> var1 = mobsAt(param0, param1, param2, param3, param5, var0);
+            return var1.isEmpty() ? null : WeighedRandom.getRandomItem(param4, var1);
+        }
     }
 
     private static boolean canSpawnMobAt(
         ServerLevel param0, StructureFeatureManager param1, ChunkGenerator param2, MobCategory param3, Biome.SpawnerData param4, BlockPos param5
     ) {
-        return param2.getMobsAt(param0.getBiome(param5), param1, param3, param5).contains(param4);
+        return mobsAt(param0, param1, param2, param3, param5, null).contains(param4);
+    }
+
+    private static List<Biome.SpawnerData> mobsAt(
+        ServerLevel param0, StructureFeatureManager param1, ChunkGenerator param2, MobCategory param3, BlockPos param4, @Nullable Biome param5
+    ) {
+        return param3 == MobCategory.MONSTER
+                && param0.getBlockState(param4.below()).getBlock() == Blocks.NETHER_BRICKS
+                && param1.getStructureAt(param4, false, StructureFeature.NETHER_BRIDGE).isValid()
+            ? StructureFeature.NETHER_BRIDGE.getSpecialEnemies()
+            : param2.getMobsAt(param5 != null ? param5 : param0.getBiome(param4), param1, param3, param4);
     }
 
     private static BlockPos getRandomPosWithin(Level param0, LevelChunk param1) {
@@ -304,9 +322,7 @@ public final class NaturalSpawner {
                         && param1.getFluidState(var3).is(FluidTags.WATER)
                         && !param1.getBlockState(var2).isRedstoneConductor(param1, var2);
                 case IN_LAVA:
-                    return var1.is(FluidTags.LAVA)
-                        && param1.getFluidState(var3).is(FluidTags.LAVA)
-                        && !param1.getBlockState(var2).isRedstoneConductor(param1, var2);
+                    return var1.is(FluidTags.LAVA);
                 case ON_GROUND:
                 default:
                     BlockState var4 = param1.getBlockState(var3);
@@ -342,7 +358,7 @@ public final class NaturalSpawner {
 
                     for(int var12 = 0; !var11 && var12 < 4; ++var12) {
                         BlockPos var13 = getTopNonCollidingPos(param0, var3.type, var6, var7);
-                        if (var3.type.canSummon() && isSpawnPositionOk(SpawnPlacements.Type.ON_GROUND, param0, var13, var3.type)) {
+                        if (var3.type.canSummon() && isSpawnPositionOk(SpawnPlacements.getPlacementType(var3.type), param0, var13, var3.type)) {
                             float var14 = var3.type.getWidth();
                             double var15 = Mth.clamp((double)var6, (double)var1 + (double)var14, (double)var1 + 16.0 - (double)var14);
                             double var16 = Mth.clamp((double)var7, (double)var2 + (double)var14, (double)var2 + 16.0 - (double)var14);
@@ -389,10 +405,27 @@ public final class NaturalSpawner {
         }
     }
 
-    private static BlockPos getTopNonCollidingPos(LevelReader param0, @Nullable EntityType<?> param1, int param2, int param3) {
-        BlockPos var0 = new BlockPos(param2, param0.getHeight(SpawnPlacements.getHeightmapType(param1), param2, param3), param3);
-        BlockPos var1 = var0.below();
-        return param0.getBlockState(var1).isPathfindable(param0, var1, PathComputationType.LAND) ? var1 : var0;
+    private static BlockPos getTopNonCollidingPos(LevelReader param0, EntityType<?> param1, int param2, int param3) {
+        int var0 = param0.getHeight(SpawnPlacements.getHeightmapType(param1), param2, param3);
+        BlockPos.MutableBlockPos var1 = new BlockPos.MutableBlockPos(param2, var0, param3);
+        if (param0.dimensionType().hasCeiling()) {
+            do {
+                var1.move(Direction.DOWN);
+            } while(!param0.getBlockState(var1).isAir());
+
+            do {
+                var1.move(Direction.DOWN);
+            } while(param0.getBlockState(var1).isAir() && var1.getY() > 0);
+        }
+
+        if (SpawnPlacements.getPlacementType(param1) == SpawnPlacements.Type.ON_GROUND) {
+            BlockPos var2 = var1.below();
+            if (param0.getBlockState(var2).isPathfindable(param0, var2, PathComputationType.LAND)) {
+                return var2;
+            }
+        }
+
+        return var1.immutable();
     }
 
     @FunctionalInterface

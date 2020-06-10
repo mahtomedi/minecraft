@@ -13,6 +13,7 @@ import net.minecraft.advancements.critereon.DamageSourcePredicate;
 import net.minecraft.advancements.critereon.DistancePredicate;
 import net.minecraft.advancements.critereon.EffectsChangedTrigger;
 import net.minecraft.advancements.critereon.EntityEquipmentPredicate;
+import net.minecraft.advancements.critereon.EntityFlagsPredicate;
 import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.advancements.critereon.ItemDurabilityTrigger;
@@ -520,7 +521,9 @@ public class NetherAdvancements implements Consumer<Consumer<Advancement>> {
                             .build()
                     ),
                     ItemPredicate.Builder.item().of(ItemTags.PIGLIN_LOVED),
-                    EntityPredicate.Composite.wrap(EntityPredicate.Builder.entity().of(EntityType.PIGLIN).build())
+                    EntityPredicate.Composite.wrap(
+                        EntityPredicate.Builder.entity().of(EntityType.PIGLIN).flags(EntityFlagsPredicate.Builder.flags().setIsBaby(false).build()).build()
+                    )
                 )
             )
             .save(param0, "nether/distract_piglin");

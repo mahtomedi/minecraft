@@ -1,6 +1,5 @@
 package net.minecraft.data.tags;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -21,6 +20,7 @@ import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.HashCache;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.SetTag;
 import net.minecraft.tags.Tag;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -43,7 +43,7 @@ public abstract class TagsProvider<T> implements DataProvider {
     public void run(HashCache param0) {
         this.builders.clear();
         this.addTags();
-        Tag<T> var0 = Tag.fromSet(ImmutableSet.of());
+        Tag<T> var0 = SetTag.empty();
         Function<ResourceLocation, Tag<T>> var1 = param1 -> this.builders.containsKey(param1) ? var0 : null;
         Function<ResourceLocation, T> var2 = param0x -> this.registry.getOptional(param0x).orElse((T)null);
         this.builders

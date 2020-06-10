@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableMap.Builder;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.Lifecycle;
+import com.mojang.serialization.MapCodec;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -21,6 +22,7 @@ import net.minecraft.Util;
 import net.minecraft.resources.RegistryDataPackCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Codecs;
 import net.minecraft.util.CrudeIncrementalIntIdentityHashBiMap;
 import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
@@ -140,43 +142,42 @@ public class MappedRegistry<T> extends WritableRegistry<T> {
         return this.map.contains(param0);
     }
 
+    @Override
     public boolean persistent(ResourceKey<T> param0) {
         return this.persistent.contains(param0);
     }
 
+    @Override
     public void setPersistent(ResourceKey<T> param0) {
         this.persistent.add(param0);
     }
 
-    public static <T> Codec<MappedRegistry<T>> networkCodec(ResourceKey<Registry<T>> param0, Lifecycle param1, Codec<T> param2) {
-        return Codec.mapPair(ResourceLocation.CODEC.xmap(ResourceKey.elementKey(param0), ResourceKey::location).fieldOf("key"), param2.fieldOf("element"))
-            .codec()
-            .listOf()
-            .xmap(param2x -> {
-                MappedRegistry<T> var0x = new MappedRegistry<>(param0, param1);
-    
-                for(Pair<ResourceKey<T>, T> var1x : param2x) {
-                    var0x.register((ResourceKey<T>)var1x.getFirst(), var1x.getSecond());
-                }
-    
-                return var0x;
-            }, param0x -> {
-                com.google.common.collect.ImmutableList.Builder<Pair<ResourceKey<T>, T>> var0x = ImmutableList.builder();
-    
-                for(T var1x : param0x.map) {
-                    var0x.add(Pair.of(param0x.getResourceKey((T)var1x).get(), var1x));
-                }
-    
-                return var0x.build();
-            });
+    public static <T> Codec<MappedRegistry<T>> networkCodec(ResourceKey<Registry<T>> param0, Lifecycle param1, MapCodec<T> param2) {
+        return Codecs.withName(param0, param2).codec().listOf().xmap(param2x -> {
+            MappedRegistry<T> var0x = new MappedRegistry<>(param0, param1);
+
+            for(Pair<ResourceKey<T>, T> var1x : param2x) {
+                var0x.register((ResourceKey<T>)var1x.getFirst(), var1x.getSecond());
+            }
+
+            return var0x;
+        }, param0x -> {
+            com.google.common.collect.ImmutableList.Builder<Pair<ResourceKey<T>, T>> var0x = ImmutableList.builder();
+
+            for(T var1x : param0x.map) {
+                var0x.add(Pair.of(param0x.getResourceKey((T)var1x).get(), var1x));
+            }
+
+            return var0x.build();
+        });
     }
 
-    public static <T> Codec<MappedRegistry<T>> dataPackCodec(ResourceKey<Registry<T>> param0, Lifecycle param1, Codec<T> param2) {
+    public static <T> Codec<MappedRegistry<T>> dataPackCodec(ResourceKey<Registry<T>> param0, Lifecycle param1, MapCodec<T> param2) {
         return RegistryDataPackCodec.create(param0, param1, param2);
     }
 
-    public static <T> Codec<MappedRegistry<T>> directCodec(ResourceKey<Registry<T>> param0, Lifecycle param1, Codec<T> param2) {
-        return Codec.unboundedMap(ResourceLocation.CODEC.xmap(ResourceKey.elementKey(param0), ResourceKey::location), param2).xmap(param2x -> {
+    public static <T> Codec<MappedRegistry<T>> directCodec(ResourceKey<Registry<T>> param0, Lifecycle param1, MapCodec<T> param2) {
+        return Codec.unboundedMap(ResourceLocation.CODEC.xmap(ResourceKey.elementKey(param0), ResourceKey::location), param2.codec()).xmap(param2x -> {
             MappedRegistry<T> var0x = new MappedRegistry<>(param0, param1);
             param2x.forEach((param1x, param2xx) -> {
                 var0x.registerMapping(var0x.nextId, param1x, param2xx);

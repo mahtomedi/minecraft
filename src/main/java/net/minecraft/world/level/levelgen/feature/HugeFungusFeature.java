@@ -43,7 +43,7 @@ public class HugeFungusFeature extends Feature<HugeFungusConfiguration> {
             }
 
             if (!param5.planted) {
-                int var4 = param0.getHeight();
+                int var4 = param2.getGenDepth();
                 if (var1.getY() + var3 + 1 >= var4) {
                     return false;
                 }

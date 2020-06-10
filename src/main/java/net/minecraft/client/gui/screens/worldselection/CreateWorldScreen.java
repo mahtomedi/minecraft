@@ -1,10 +1,13 @@
 package net.minecraft.client.gui.screens.worldselection;
 
+import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.FileUtil;
@@ -28,8 +31,11 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.ServerResources;
+import net.minecraft.server.packs.repository.FolderRepositorySource;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackRepository;
+import net.minecraft.server.packs.repository.PackSource;
+import net.minecraft.server.packs.repository.ServerPacksSource;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.level.DataPackConfig;
 import net.minecraft.world.level.GameRules;
@@ -58,7 +64,6 @@ public class CreateWorldScreen extends Screen {
     private boolean commands;
     private boolean commandsChanged;
     public boolean hardCore;
-    private boolean done;
     protected DataPackConfig dataPacks = DataPackConfig.DEFAULT;
     @Nullable
     private Path tempDataPackDir;
@@ -155,7 +160,7 @@ public class CreateWorldScreen extends Screen {
                 @Override
                 public Component getMessage() {
                     return super.getMessage()
-                        .mutableCopy()
+                        .copy()
                         .append(": ")
                         .append(new TranslatableComponent("selectWorld.gameMode." + CreateWorldScreen.this.gameMode.name));
                 }
@@ -189,7 +194,7 @@ public class CreateWorldScreen extends Screen {
                 @Override
                 public Component getMessage() {
                     return super.getMessage()
-                        .mutableCopy()
+                        .copy()
                         .append(" ")
                         .append(CommonComponents.optionStatus(CreateWorldScreen.this.commands && !CreateWorldScreen.this.hardCore));
                 }
@@ -265,32 +270,27 @@ public class CreateWorldScreen extends Screen {
     }
 
     private void onCreate() {
-        this.minecraft.setScreen(null);
-        if (!this.done) {
-            this.done = true;
-            if (this.copyTempDataPackDirToNewWorld()) {
-                WorldGenSettings var0 = this.worldGenSettingsComponent.makeSettings(this.hardCore);
-                LevelSettings var2;
-                if (var0.isDebug()) {
-                    GameRules var1 = new GameRules();
-                    var1.getRule(GameRules.RULE_DAYLIGHT).set(false, null);
-                    var2 = new LevelSettings(
-                        this.nameEdit.getValue().trim(), GameType.SPECTATOR, false, Difficulty.PEACEFUL, true, var1, DataPackConfig.DEFAULT
-                    );
-                } else {
-                    var2 = new LevelSettings(
-                        this.nameEdit.getValue().trim(),
-                        this.gameMode.gameType,
-                        this.hardCore,
-                        this.effectiveDifficulty,
-                        this.commands && !this.hardCore,
-                        this.gameRules,
-                        this.dataPacks
-                    );
-                }
-
-                this.minecraft.createLevel(this.resultFolder, var2, this.worldGenSettingsComponent.registryHolder(), var0);
+        this.minecraft.forceSetScreen(new GenericDirtMessageScreen(new TranslatableComponent("createWorld.preparing")));
+        if (this.copyTempDataPackDirToNewWorld()) {
+            WorldGenSettings var0 = this.worldGenSettingsComponent.makeSettings(this.hardCore);
+            LevelSettings var2;
+            if (var0.isDebug()) {
+                GameRules var1 = new GameRules();
+                var1.getRule(GameRules.RULE_DAYLIGHT).set(false, null);
+                var2 = new LevelSettings(this.nameEdit.getValue().trim(), GameType.SPECTATOR, false, Difficulty.PEACEFUL, true, var1, DataPackConfig.DEFAULT);
+            } else {
+                var2 = new LevelSettings(
+                    this.nameEdit.getValue().trim(),
+                    this.gameMode.gameType,
+                    this.hardCore,
+                    this.effectiveDifficulty,
+                    this.commands && !this.hardCore,
+                    this.gameRules,
+                    this.dataPacks
+                );
             }
+
+            this.minecraft.createLevel(this.resultFolder, var2, this.worldGenSettingsComponent.registryHolder(), var0);
         }
     }
 
@@ -432,49 +432,60 @@ public class CreateWorldScreen extends Screen {
     private void openDataPackSelectionScreen() {
         Path var0 = this.getTempDataPackDir();
         if (var0 != null) {
-            this.minecraft.setScreen(new DataPackSelectScreen(this, this.dataPacks, this::tryApplyNewDataPacks, var0.toFile()));
+            File var1 = var0.toFile();
+            PackRepository<Pack> var2 = new PackRepository<>(Pack::new, new ServerPacksSource(), new FolderRepositorySource(var1, PackSource.DEFAULT));
+            var2.reload();
+            var2.setSelected(this.dataPacks.getEnabled());
+            this.minecraft.setScreen(new DataPackSelectScreen(this, var2, this::tryApplyNewDataPacks, var1));
         }
 
     }
 
-    private void tryApplyNewDataPacks(DataPackConfig param0, PackRepository<Pack> param1) {
-        this.minecraft.tell(() -> this.minecraft.setScreen(new GenericDirtMessageScreen(new TranslatableComponent("dataPack.validation.working"))));
-        ServerResources.loadResources(param1.openAllSelected(), Commands.CommandSelection.INTEGRATED, 2, Util.backgroundExecutor(), this.minecraft)
-            .handle(
-                (param1x, param2) -> {
-                    if (param2 != null) {
-                        LOGGER.warn("Failed to validate datapack", param2);
-                        this.minecraft
-                            .tell(
-                                () -> this.minecraft
-                                        .setScreen(
-                                            new ConfirmScreen(
-                                                param0x -> {
-                                                    if (param0x) {
-                                                        this.openDataPackSelectionScreen();
-                                                    } else {
-                                                        this.dataPacks = DataPackConfig.DEFAULT;
-                                                        this.minecraft.setScreen(this);
-                                                    }
+    private void tryApplyNewDataPacks(PackRepository<Pack> param0) {
+        List<String> var0x = ImmutableList.copyOf(param0.getSelectedIds());
+        List<String> var1x = param0.getAvailableIds().stream().filter(param1 -> !var0x.contains(param1)).collect(ImmutableList.toImmutableList());
+        DataPackConfig var2x = new DataPackConfig(var0x, var1x);
+        if (var0x.equals(this.dataPacks.getEnabled())) {
+            this.dataPacks = var2x;
+        } else {
+            this.minecraft.tell(() -> this.minecraft.setScreen(new GenericDirtMessageScreen(new TranslatableComponent("dataPack.validation.working"))));
+            ServerResources.loadResources(param0.openAllSelected(), Commands.CommandSelection.INTEGRATED, 2, Util.backgroundExecutor(), this.minecraft)
+                .handle(
+                    (param1, param2) -> {
+                        if (param2 != null) {
+                            LOGGER.warn("Failed to validate datapack", param2);
+                            this.minecraft
+                                .tell(
+                                    () -> this.minecraft
+                                            .setScreen(
+                                                new ConfirmScreen(
+                                                    param0x -> {
+                                                        if (param0x) {
+                                                            this.openDataPackSelectionScreen();
+                                                        } else {
+                                                            this.dataPacks = DataPackConfig.DEFAULT;
+                                                            this.minecraft.setScreen(this);
+                                                        }
                             
-                                                },
-                                                new TranslatableComponent("dataPack.validation.failed"),
-                                                TextComponent.EMPTY,
-                                                new TranslatableComponent("dataPack.validation.back"),
-                                                new TranslatableComponent("dataPack.validation.reset")
+                                                    },
+                                                    new TranslatableComponent("dataPack.validation.failed"),
+                                                    TextComponent.EMPTY,
+                                                    new TranslatableComponent("dataPack.validation.back"),
+                                                    new TranslatableComponent("dataPack.validation.reset")
+                                                )
                                             )
-                                        )
-                            );
-                    } else {
-                        this.minecraft.tell(() -> {
-                            this.dataPacks = param0;
-                            this.minecraft.setScreen(this);
-                        });
-                    }
+                                );
+                        } else {
+                            this.minecraft.tell(() -> {
+                                this.dataPacks = var2x;
+                                this.minecraft.setScreen(this);
+                            });
+                        }
         
-                    return null;
-                }
-            );
+                        return null;
+                    }
+                );
+        }
     }
 
     private void removeTempDataPackDir() {

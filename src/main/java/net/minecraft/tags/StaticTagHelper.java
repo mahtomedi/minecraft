@@ -40,13 +40,17 @@ public class StaticTagHelper<T> {
         return this.source;
     }
 
+    public List<StaticTagHelper.Wrapper<T>> getWrappers() {
+        return this.wrappers;
+    }
+
     public Set<ResourceLocation> getMissingTags(TagCollection<T> param0) {
         Set<ResourceLocation> var0 = this.wrappers.stream().map(StaticTagHelper.Wrapper::getName).collect(Collectors.toSet());
         ImmutableSet<ResourceLocation> var1 = ImmutableSet.copyOf(param0.getAvailableTags());
         return Sets.difference(var0, var1);
     }
 
-    static class Wrapper<T> implements Tag.Named<T> {
+    public static class Wrapper<T> implements Tag.Named<T> {
         @Nullable
         private Tag<T> tag;
         protected final ResourceLocation name;

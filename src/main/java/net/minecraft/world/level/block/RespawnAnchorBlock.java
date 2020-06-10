@@ -142,7 +142,7 @@ public class RespawnAnchorBlock extends Block {
     }
 
     public static boolean canSetSpawn(Level param0) {
-        return param0.dimensionType().isNether();
+        return param0.dimensionType().respawnAnchorWorks();
     }
 
     public static void charge(Level param0, BlockPos param1, BlockState param2) {
@@ -212,11 +212,6 @@ public class RespawnAnchorBlock extends Block {
         }
 
         return Optional.empty();
-    }
-
-    @Override
-    public boolean useShapeForLightOcclusion(BlockState param0) {
-        return true;
     }
 
     @Override

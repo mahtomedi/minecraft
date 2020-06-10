@@ -5,7 +5,7 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.FeatureAccess;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
@@ -13,12 +13,20 @@ import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 
 public class StructureFeatureManager {
-    private final ServerLevel level;
+    private final LevelAccessor level;
     private final WorldGenSettings worldGenSettings;
 
-    public StructureFeatureManager(ServerLevel param0, WorldGenSettings param1) {
+    public StructureFeatureManager(LevelAccessor param0, WorldGenSettings param1) {
         this.level = param0;
         this.worldGenSettings = param1;
+    }
+
+    public StructureFeatureManager forWorldGenRegion(WorldGenRegion param0) {
+        if (param0.getLevel() != this.level) {
+            throw new IllegalStateException("Using invalid feature manager (source level: " + param0.getLevel() + ", region: " + param0);
+        } else {
+            return new StructureFeatureManager(param0, this.worldGenSettings);
+        }
     }
 
     public Stream<? extends StructureStart<?>> startsForFeature(SectionPos param0, StructureFeature<?> param1) {

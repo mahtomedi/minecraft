@@ -144,7 +144,7 @@ public abstract class BaseFireBlock extends Block {
     @Override
     public void onPlace(BlockState param0, Level param1, BlockPos param2, BlockState param3, boolean param4) {
         if (!param3.is(param0.getBlock())) {
-            if (!param1.dimensionType().isOverworld() && !param1.dimensionType().isNether() || !NetherPortalBlock.trySpawnPortal(param1, param2)) {
+            if (param1.dimension() != Level.OVERWORLD && param1.dimension() != Level.NETHER || !NetherPortalBlock.trySpawnPortal(param1, param2)) {
                 if (!param0.canSurvive(param1, param2)) {
                     param1.removeBlock(param2, false);
                 }

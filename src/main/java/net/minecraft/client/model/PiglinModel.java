@@ -12,6 +12,10 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class PiglinModel<T extends Mob> extends PlayerModel<T> {
     public final ModelPart earRight;
     public final ModelPart earLeft;
+    private final ModelPart bodyDefault;
+    private final ModelPart headDefault;
+    private final ModelPart leftArmDefault;
+    private final ModelPart rightArmDefault;
 
     public PiglinModel(float param0, int param1, int param2) {
         super(param0, false);
@@ -33,9 +37,17 @@ public class PiglinModel<T extends Mob> extends PlayerModel<T> {
         this.earLeft.texOffs(39, 6).addBox(-1.0F, 0.0F, -2.0F, 1.0F, 5.0F, 4.0F, param0);
         this.head.addChild(this.earLeft);
         this.hat = new ModelPart(this);
+        this.bodyDefault = this.body.createShallowCopy();
+        this.headDefault = this.head.createShallowCopy();
+        this.leftArmDefault = this.leftArm.createShallowCopy();
+        this.rightArmDefault = this.leftArm.createShallowCopy();
     }
 
     public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5) {
+        this.body.copyFrom(this.bodyDefault);
+        this.head.copyFrom(this.headDefault);
+        this.leftArm.copyFrom(this.leftArmDefault);
+        this.rightArm.copyFrom(this.rightArmDefault);
         super.setupAnim(param0, param1, param2, param3, param4, param5);
         float var0 = (float) (Math.PI / 6);
         float var1 = param3 * 0.1F + param1 * 0.5F;
@@ -50,9 +62,11 @@ public class PiglinModel<T extends Mob> extends PlayerModel<T> {
                 this.earLeft.zRot = (float) (Math.PI / 6) + (float) (Math.PI / 180.0) * Mth.sin(var5 * 30.0F) * 10.0F;
                 this.earRight.zRot = (float) (-Math.PI / 6) - (float) (Math.PI / 180.0) * Mth.cos(var5 * 30.0F) * 10.0F;
                 this.head.x = Mth.sin(var5 * 10.0F);
-                this.head.y = Mth.sin(var5 * 40.0F);
+                this.head.y = Mth.sin(var5 * 40.0F) + 0.4F;
                 this.rightArm.zRot = (float) (Math.PI / 180.0) * (70.0F + Mth.cos(var5 * 40.0F) * 10.0F);
                 this.leftArm.zRot = this.rightArm.zRot * -1.0F;
+                this.rightArm.y = Mth.sin(var5 * 40.0F) * 0.5F + 1.5F;
+                this.leftArm.y = Mth.sin(var5 * 40.0F) * 0.5F + 1.5F;
                 this.body.y = Mth.sin(var5 * 40.0F) * 0.35F;
             } else if (var4 == Piglin.PiglinArmPose.ATTACKING_WITH_MELEE_WEAPON && this.attackTime == 0.0F) {
                 this.holdWeaponHigh(param0);

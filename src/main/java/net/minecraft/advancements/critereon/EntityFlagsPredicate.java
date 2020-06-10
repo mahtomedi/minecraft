@@ -106,6 +106,11 @@ public class EntityFlagsPredicate {
             return this;
         }
 
+        public EntityFlagsPredicate.Builder setIsBaby(@Nullable Boolean param0) {
+            this.isBaby = param0;
+            return this;
+        }
+
         public EntityFlagsPredicate build() {
             return new EntityFlagsPredicate(this.isOnFire, this.isCrouching, this.isSprinting, this.isSwimming, this.isBaby);
         }

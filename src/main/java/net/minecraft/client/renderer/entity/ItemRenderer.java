@@ -42,10 +42,14 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.HalfTransparentBlock;
+import net.minecraft.world.level.block.StainedGlassPaneBlock;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -110,19 +114,23 @@ public class ItemRenderer implements ResourceManagerReloadListener {
             param7.getTransforms().getTransform(param1).apply(param2, param3);
             param3.translate(-0.5, -0.5, -0.5);
             if (!param7.isCustomRenderer() && (param0.getItem() != Items.TRIDENT || var0)) {
-                boolean var1 = param1 == ItemTransforms.TransformType.GUI
-                    || param1 == ItemTransforms.TransformType.FIRST_PERSON_LEFT_HAND
-                    || param1 == ItemTransforms.TransformType.FIRST_PERSON_RIGHT_HAND
-                    || param1 == ItemTransforms.TransformType.FIXED;
-                RenderType var2 = ItemBlockRenderTypes.getRenderType(param0, var1);
-                VertexConsumer var3;
-                if (var1) {
-                    var3 = getFoilBufferDirect(param4, var2, true, param0.hasFoil());
+                boolean var2;
+                if (param1 != ItemTransforms.TransformType.GUI && !param1.firstPerson() && param0.getItem() instanceof BlockItem) {
+                    Block var1 = ((BlockItem)param0.getItem()).getBlock();
+                    var2 = !(var1 instanceof HalfTransparentBlock) && !(var1 instanceof StainedGlassPaneBlock);
                 } else {
-                    var3 = getFoilBuffer(param4, var2, true, param0.hasFoil());
+                    var2 = true;
                 }
 
-                this.renderModelLists(param7, param0, param5, param6, param3, var3);
+                RenderType var4 = ItemBlockRenderTypes.getRenderType(param0, var2);
+                VertexConsumer var5;
+                if (var2) {
+                    var5 = getFoilBufferDirect(param4, var4, true, param0.hasFoil());
+                } else {
+                    var5 = getFoilBuffer(param4, var4, true, param0.hasFoil());
+                }
+
+                this.renderModelLists(param7, param0, param5, param6, param3, var5);
             } else {
                 BlockEntityWithoutLevelRenderer.instance.renderByItem(param0, param1, param3, param4, param5, param6);
             }

@@ -146,16 +146,6 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         return null;
     }
 
-    public BlockState getTopBlockState(BlockPos param0) {
-        BlockPos var0 = new BlockPos(param0.getX(), this.getSeaLevel(), param0.getZ());
-
-        while(!this.isEmptyBlock(var0.above())) {
-            var0 = var0.above();
-        }
-
-        return this.getBlockState(var0);
-    }
-
     public static boolean isInWorldBounds(BlockPos param0) {
         return !isOutsideBuildHeight(param0) && isInWorldBoundsHorizontal(param0);
     }
@@ -436,11 +426,11 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     }
 
     public boolean isDay() {
-        return this.dimensionType().isOverworld() && this.skyDarken < 4;
+        return !this.dimensionType().hasFixedTime() && this.skyDarken < 4;
     }
 
     public boolean isNight() {
-        return this.dimensionType().isOverworld() && !this.isDay();
+        return !this.dimensionType().hasFixedTime() && !this.isDay();
     }
 
     @Override
@@ -754,12 +744,13 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         int var2 = Mth.floor((param1.maxX + 2.0) / 16.0);
         int var3 = Mth.floor((param1.minZ - 2.0) / 16.0);
         int var4 = Mth.floor((param1.maxZ + 2.0) / 16.0);
+        ChunkSource var5 = this.getChunkSource();
 
-        for(int var5 = var1; var5 <= var2; ++var5) {
-            for(int var6 = var3; var6 <= var4; ++var6) {
-                LevelChunk var7 = this.getChunkSource().getChunk(var5, var6, false);
-                if (var7 != null) {
-                    var7.getEntities(param0, param1, var0, param2);
+        for(int var6 = var1; var6 <= var2; ++var6) {
+            for(int var7 = var3; var7 <= var4; ++var7) {
+                LevelChunk var8 = var5.getChunk(var6, var7, false);
+                if (var8 != null) {
+                    var8.getEntities(param0, param1, var0, param2);
                 }
             }
         }

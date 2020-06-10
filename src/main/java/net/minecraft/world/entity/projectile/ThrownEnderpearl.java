@@ -4,7 +4,7 @@ import javax.annotation.Nullable;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -25,15 +25,12 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ThrownEnderpearl extends ThrowableItemProjectile {
-    private LivingEntity originalOwner;
-
     public ThrownEnderpearl(EntityType<? extends ThrownEnderpearl> param0, Level param1) {
         super(param0, param1);
     }
 
     public ThrownEnderpearl(Level param0, LivingEntity param1) {
         super(EntityType.ENDER_PEARL, param1, param0);
-        this.originalOwner = param1;
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -49,10 +46,7 @@ public class ThrownEnderpearl extends ThrowableItemProjectile {
     @Override
     protected void onHitEntity(EntityHitResult param0) {
         super.onHitEntity(param0);
-        Entity var0 = param0.getEntity();
-        if (var0 != this.originalOwner) {
-            var0.hurt(DamageSource.thrown(this, this.getOwner()), 0.0F);
-        }
+        param0.getEntity().hurt(DamageSource.thrown(this, this.getOwner()), 0.0F);
     }
 
     @Override
@@ -127,7 +121,7 @@ public class ThrownEnderpearl extends ThrowableItemProjectile {
     @Override
     public void tick() {
         Entity var0 = this.getOwner();
-        if (var0 != null && var0 instanceof Player && !var0.isAlive()) {
+        if (var0 instanceof Player && !var0.isAlive()) {
             this.remove();
         } else {
             super.tick();
@@ -137,9 +131,9 @@ public class ThrownEnderpearl extends ThrowableItemProjectile {
 
     @Nullable
     @Override
-    public Entity changeDimension(ResourceKey<Level> param0) {
+    public Entity changeDimension(ServerLevel param0) {
         Entity var0 = this.getOwner();
-        if (var0 != null && var0.level.dimension() != param0) {
+        if (var0 != null && var0.level.dimension() != param0.dimension()) {
             this.setOwner(null);
         }
 

@@ -17,7 +17,7 @@ public class TickTrigger extends SimpleCriterionTrigger<TickTrigger.TriggerInsta
     }
 
     public void trigger(ServerPlayer param0) {
-        this.trigger(param0.getAdvancements());
+        this.trigger(param0, param0x -> true);
     }
 
     public static class TriggerInstance extends AbstractCriterionTriggerInstance {

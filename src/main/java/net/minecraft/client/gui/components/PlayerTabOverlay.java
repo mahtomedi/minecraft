@@ -47,7 +47,7 @@ public class PlayerTabOverlay extends GuiComponent {
 
     public Component getNameForDisplay(PlayerInfo param0) {
         return param0.getTabListDisplayName() != null
-            ? this.decorateName(param0, param0.getTabListDisplayName().mutableCopy())
+            ? this.decorateName(param0, param0.getTabListDisplayName().copy())
             : this.decorateName(param0, PlayerTeam.formatNameForTeam(param0.getTeam(), new TextComponent(param0.getProfile().getName())));
     }
 

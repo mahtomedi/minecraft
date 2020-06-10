@@ -254,4 +254,9 @@ public class IntegratedServer extends MinecraftServer {
     public int getScaledTrackingDistance(int param0) {
         return (int)(this.minecraft.options.entityDistanceScaling * (float)param0);
     }
+
+    @Override
+    public boolean forceSynchronousWrites() {
+        return this.minecraft.options.syncWrites;
+    }
 }

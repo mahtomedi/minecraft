@@ -18,6 +18,7 @@ import java.util.Properties;
 import java.util.Random;
 import java.util.Map.Entry;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
@@ -101,18 +102,22 @@ public class WorldGenSettings {
     }
 
     public static MappedRegistry<LevelStem> withOverworld(MappedRegistry<LevelStem> param0, ChunkGenerator param1) {
+        LevelStem var0 = param0.get(LevelStem.OVERWORLD);
+        Supplier<DimensionType> var1 = () -> var0 == null ? DimensionType.defaultOverworld() : var0.type();
+        return withOverworld(param0, var1, param1);
+    }
+
+    public static MappedRegistry<LevelStem> withOverworld(MappedRegistry<LevelStem> param0, Supplier<DimensionType> param1, ChunkGenerator param2) {
         MappedRegistry<LevelStem> var0 = new MappedRegistry<>(Registry.LEVEL_STEM_REGISTRY, Lifecycle.experimental());
-        LevelStem var1 = param0.get(LevelStem.OVERWORLD);
-        DimensionType var2 = var1 == null ? DimensionType.defaultOverworld() : var1.type();
-        var0.register(LevelStem.OVERWORLD, new LevelStem(() -> var2, param1));
+        var0.register(LevelStem.OVERWORLD, new LevelStem(param1, param2));
         var0.setPersistent(LevelStem.OVERWORLD);
 
-        for(Entry<ResourceKey<LevelStem>, LevelStem> var3 : param0.entrySet()) {
-            ResourceKey<LevelStem> var4 = var3.getKey();
-            if (var4 != LevelStem.OVERWORLD) {
-                var0.register(var4, var3.getValue());
-                if (param0.persistent(var4)) {
-                    var0.setPersistent(var4);
+        for(Entry<ResourceKey<LevelStem>, LevelStem> var1 : param0.entrySet()) {
+            ResourceKey<LevelStem> var2 = var1.getKey();
+            if (var2 != LevelStem.OVERWORLD) {
+                var0.register(var2, var1.getValue());
+                if (param0.persistent(var2)) {
+                    var0.setPersistent(var2);
                 }
             }
         }

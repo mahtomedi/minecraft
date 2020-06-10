@@ -35,11 +35,11 @@ public abstract class BaseComponent implements MutableComponent {
         return this.style;
     }
 
-    public abstract BaseComponent toMutable();
+    public abstract BaseComponent plainCopy();
 
     @Override
-    public final MutableComponent mutableCopy() {
-        BaseComponent var0 = this.toMutable();
+    public final MutableComponent copy() {
+        BaseComponent var0 = this.plainCopy();
         var0.siblings.addAll(this.siblings);
         var0.setStyle(this.style);
         return var0;

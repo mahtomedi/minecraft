@@ -61,6 +61,8 @@ import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class Strider extends Animal implements ItemSteerable, Saddleable {
     private static final Ingredient FOOD_ITEMS = Ingredient.of(Items.WARPED_FUNGUS);
@@ -82,7 +84,13 @@ public class Strider extends Animal implements ItemSteerable, Saddleable {
     }
 
     public static boolean checkStriderSpawnRules(EntityType<Strider> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, Random param4) {
-        return param1.getBlockState(param3.above()).isAir();
+        BlockPos.MutableBlockPos var0 = param3.mutable();
+
+        do {
+            var0.move(Direction.UP);
+        } while(param1.getFluidState(var0).is(FluidTags.LAVA));
+
+        return param1.getBlockState(var0).isAir();
     }
 
     @Override
@@ -299,7 +307,7 @@ public class Strider extends Animal implements ItemSteerable, Saddleable {
 
         BlockState var0 = this.level.getBlockState(this.blockPosition());
         BlockState var1 = this.getBlockStateOn();
-        boolean var2 = var0.is(BlockTags.STRIDER_WARM_BLOCKS) || var1.is(BlockTags.STRIDER_WARM_BLOCKS);
+        boolean var2 = var0.is(BlockTags.STRIDER_WARM_BLOCKS) || var1.is(BlockTags.STRIDER_WARM_BLOCKS) || this.getFluidHeight(FluidTags.LAVA) > 0.0;
         this.setSuffocating(!var2);
         super.tick();
         this.floatStrider();
@@ -345,7 +353,7 @@ public class Strider extends Animal implements ItemSteerable, Saddleable {
 
     @Override
     protected boolean canAddPassenger(Entity param0) {
-        return this.getPassengers().isEmpty() && !this.isUnderLiquid(FluidTags.LAVA);
+        return this.getPassengers().isEmpty() && !this.isEyeInFluid(FluidTags.LAVA);
     }
 
     @Override
@@ -420,49 +428,57 @@ public class Strider extends Animal implements ItemSteerable, Saddleable {
         }
     }
 
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public Vec3 getLeashOffset() {
+        return new Vec3(0.0, (double)(0.6F * this.getEyeHeight()), (double)(this.getBbWidth() * 0.4F));
+    }
+
     @Nullable
     @Override
     public SpawnGroupData finalizeSpawn(
         LevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
     ) {
-        Strider.StriderGroupData.Rider var0;
+        SpawnGroupData var0 = null;
+        Strider.StriderGroupData.Rider var1;
         if (param3 instanceof Strider.StriderGroupData) {
-            var0 = ((Strider.StriderGroupData)param3).rider;
+            var1 = ((Strider.StriderGroupData)param3).rider;
         } else if (!this.isBaby()) {
             if (this.random.nextInt(30) == 0) {
-                var0 = Strider.StriderGroupData.Rider.PIGLIN_RIDER;
+                var1 = Strider.StriderGroupData.Rider.PIGLIN_RIDER;
+                var0 = new Zombie.ZombieGroupData(Zombie.getSpawnAsBabyOdds(this.random), false);
             } else if (this.random.nextInt(10) == 0) {
-                var0 = Strider.StriderGroupData.Rider.BABY_RIDER;
+                var1 = Strider.StriderGroupData.Rider.BABY_RIDER;
             } else {
-                var0 = Strider.StriderGroupData.Rider.NO_RIDER;
+                var1 = Strider.StriderGroupData.Rider.NO_RIDER;
             }
 
-            param3 = new Strider.StriderGroupData(var0);
-            ((AgableMob.AgableMobGroupData)param3).setBabySpawnChance(var0 == Strider.StriderGroupData.Rider.NO_RIDER ? 0.5F : 0.0F);
+            param3 = new Strider.StriderGroupData(var1);
+            ((AgableMob.AgableMobGroupData)param3).setBabySpawnChance(var1 == Strider.StriderGroupData.Rider.NO_RIDER ? 0.5F : 0.0F);
         } else {
-            var0 = Strider.StriderGroupData.Rider.NO_RIDER;
+            var1 = Strider.StriderGroupData.Rider.NO_RIDER;
         }
 
-        Mob var5 = null;
-        if (var0 == Strider.StriderGroupData.Rider.BABY_RIDER) {
-            Strider var6 = EntityType.STRIDER.create(param0.getLevel());
-            if (var6 != null) {
-                var5 = var6;
-                var6.setAge(-24000);
-            }
-        } else if (var0 == Strider.StriderGroupData.Rider.PIGLIN_RIDER) {
-            ZombifiedPiglin var7 = EntityType.ZOMBIFIED_PIGLIN.create(param0.getLevel());
+        Mob var6 = null;
+        if (var1 == Strider.StriderGroupData.Rider.BABY_RIDER) {
+            Strider var7 = EntityType.STRIDER.create(param0.getLevel());
             if (var7 != null) {
-                var5 = var7;
+                var6 = var7;
+                var7.setAge(-24000);
+            }
+        } else if (var1 == Strider.StriderGroupData.Rider.PIGLIN_RIDER) {
+            ZombifiedPiglin var8 = EntityType.ZOMBIFIED_PIGLIN.create(param0.getLevel());
+            if (var8 != null) {
+                var6 = var8;
                 this.equipSaddle(null);
             }
         }
 
-        if (var5 != null) {
-            var5.moveTo(this.getX(), this.getY(), this.getZ(), this.yRot, 0.0F);
-            var5.finalizeSpawn(param0, param1, MobSpawnType.JOCKEY, null, null);
-            var5.startRiding(this, true);
-            param0.addFreshEntity(var5);
+        if (var6 != null) {
+            var6.moveTo(this.getX(), this.getY(), this.getZ(), this.yRot, 0.0F);
+            var6.finalizeSpawn(param0, param1, MobSpawnType.JOCKEY, var0, null);
+            var6.startRiding(this, true);
+            param0.addFreshEntity(var6);
         }
 
         return super.finalizeSpawn(param0, param1, param2, param3, param4);

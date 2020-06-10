@@ -2,9 +2,10 @@ package net.minecraft.client.gui.screens.packs;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import net.minecraft.client.renderer.texture.TextureManager;
@@ -12,26 +13,29 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackCompatibility;
+import net.minecraft.server.packs.repository.PackRepository;
 import net.minecraft.server.packs.repository.PackSource;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class PackSelectionModel<T extends Pack> {
+    private final PackRepository<T> repository;
     private final List<T> selected;
     private final List<T> unselected;
     private final BiConsumer<T, TextureManager> iconBinder;
     private final Runnable onListChanged;
-    private final PackSelectionModel.CommitHandler<T> output;
+    private final Consumer<PackRepository<T>> output;
 
-    public PackSelectionModel(
-        Runnable param0, BiConsumer<T, TextureManager> param1, Collection<T> param2, Collection<T> param3, PackSelectionModel.CommitHandler<T> param4
-    ) {
+    public PackSelectionModel(Runnable param0, BiConsumer<T, TextureManager> param1, PackRepository<T> param2, Consumer<PackRepository<T>> param3) {
         this.onListChanged = param0;
         this.iconBinder = param1;
-        this.selected = Lists.newArrayList(param2);
-        this.unselected = Lists.newArrayList(param3);
-        this.output = param4;
+        this.repository = param2;
+        this.selected = Lists.newArrayList(param2.getSelectedPacks());
+        Collections.reverse(this.selected);
+        this.unselected = Lists.newArrayList(param2.getAvailablePacks());
+        this.unselected.removeAll(this.selected);
+        this.output = param3;
     }
 
     public Stream<PackSelectionModel.Entry> getUnselected() {
@@ -42,14 +46,16 @@ public class PackSelectionModel<T extends Pack> {
         return this.selected.stream().map(param0 -> new PackSelectionModel.SelectedPackEntry(param0));
     }
 
-    public void commit(boolean param0) {
-        this.output.accept(ImmutableList.copyOf(this.selected), ImmutableList.copyOf(this.unselected), param0);
+    public void commit() {
+        this.repository.setSelected(Lists.reverse(this.selected).stream().map(Pack::getId).collect(ImmutableList.toImmutableList()));
+        this.output.accept(this.repository);
     }
 
-    @FunctionalInterface
-    @OnlyIn(Dist.CLIENT)
-    public interface CommitHandler<T extends Pack> {
-        void accept(List<T> var1, List<T> var2, boolean var3);
+    public void findNewPacks() {
+        this.repository.reload();
+        this.unselected.clear();
+        this.unselected.addAll(this.repository.getAvailablePacks());
+        this.unselected.removeAll(this.selected);
     }
 
     @OnlyIn(Dist.CLIENT)

@@ -518,6 +518,10 @@ public class WalkNodeEvaluator extends NodeEvaluator {
                         if (isBurningBlock(var6)) {
                             return BlockPathTypes.DANGER_FIRE;
                         }
+
+                        if (param0.getFluidState(param1).is(FluidTags.WATER)) {
+                            return BlockPathTypes.WATER_BORDER;
+                        }
                     }
                 }
             }

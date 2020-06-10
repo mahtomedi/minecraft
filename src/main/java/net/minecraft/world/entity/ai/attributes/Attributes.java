@@ -38,6 +38,6 @@ public class Attributes {
     );
 
     private static Attribute register(String param0, Attribute param1) {
-        return Registry.register(Registry.ATTRIBUTES, param0, param1);
+        return Registry.register(Registry.ATTRIBUTE, param0, param1);
     }
 }

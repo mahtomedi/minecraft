@@ -46,7 +46,7 @@ public class ArmorItem extends Item implements Wearable {
     public static boolean dispenseArmor(BlockSource param0, ItemStack param1) {
         BlockPos var0 = param0.getPos().relative(param0.getBlockState().getValue(DispenserBlock.FACING));
         List<LivingEntity> var1 = param0.getLevel()
-            .getEntitiesOfClass(LivingEntity.class, new AABB(var0), EntitySelector.NO_SPECTATORS.and(new EntitySelector.MobCanWearArmourEntitySelector(param1)));
+            .getEntitiesOfClass(LivingEntity.class, new AABB(var0), EntitySelector.NO_SPECTATORS.and(new EntitySelector.MobCanWearArmorEntitySelector(param1)));
         if (var1.isEmpty()) {
             return false;
         } else {

@@ -251,7 +251,7 @@ public class ChestBlock extends AbstractChestBlock<ChestBlockEntity> implements 
             if (var0 != null) {
                 param3.openMenu(var0);
                 param3.awardStat(this.getOpenChestStat());
-                PiglinAi.angerNearbyPiglinsThatSee(param3);
+                PiglinAi.angerNearbyPiglins(param3, true);
             }
 
             return InteractionResult.CONSUME;

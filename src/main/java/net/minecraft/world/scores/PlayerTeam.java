@@ -46,7 +46,7 @@ public class PlayerTeam extends Team {
     }
 
     public MutableComponent getFormattedDisplayName() {
-        MutableComponent var0 = ComponentUtils.wrapInSquareBrackets(this.displayName.mutableCopy().withStyle(this.displayNameStyle));
+        MutableComponent var0 = ComponentUtils.wrapInSquareBrackets(this.displayName.copy().withStyle(this.displayNameStyle));
         ChatFormatting var1 = this.getColor();
         if (var1 != ChatFormatting.RESET) {
             var0.withStyle(var1);
@@ -99,7 +99,7 @@ public class PlayerTeam extends Team {
     }
 
     public static MutableComponent formatNameForTeam(@Nullable Team param0, Component param1) {
-        return param0 == null ? param1.mutableCopy() : param0.getFormattedName(param1);
+        return param0 == null ? param1.copy() : param0.getFormattedName(param1);
     }
 
     @Override

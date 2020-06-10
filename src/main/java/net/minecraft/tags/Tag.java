@@ -1,6 +1,5 @@
 package net.minecraft.tags;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
@@ -37,19 +36,8 @@ public interface Tag<T> {
         return var0.get(param0.nextInt(var0.size()));
     }
 
-    static <T> Tag<T> fromSet(final Set<T> param0) {
-        final ImmutableList<T> var0 = ImmutableList.copyOf(param0);
-        return new Tag<T>() {
-            @Override
-            public boolean contains(T param0x) {
-                return param0.contains(param0);
-            }
-
-            @Override
-            public List<T> getValues() {
-                return var0;
-            }
-        };
+    static <T> Tag<T> fromSet(Set<T> param0) {
+        return SetTag.create(param0);
     }
 
     public static class Builder {

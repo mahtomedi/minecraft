@@ -34,10 +34,6 @@ public class Target extends Node {
         this.reached = true;
     }
 
-    public boolean isReached() {
-        return this.reached;
-    }
-
     @OnlyIn(Dist.CLIENT)
     public static Target createFromStream(FriendlyByteBuf param0) {
         Target var0 = new Target(param0.readInt(), param0.readInt(), param0.readInt());

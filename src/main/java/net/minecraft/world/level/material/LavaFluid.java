@@ -163,7 +163,7 @@ public abstract class LavaFluid extends FlowingFluid {
 
     @Override
     public int getTickDelay(LevelReader param0) {
-        return param0.dimensionType().hasCeiling() ? 10 : 30;
+        return param0.dimensionType().ultraWarm() ? 10 : 30;
     }
 
     @Override

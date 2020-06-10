@@ -13,6 +13,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.IntRange;
@@ -38,6 +39,7 @@ import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.target.DefendVillageTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.entity.ai.goal.target.ResetUniversalAngerTargetGoal;
 import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
@@ -49,6 +51,7 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.NaturalSpawner;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -79,6 +82,7 @@ public class IronGolem extends AbstractGolem implements NeutralMob {
         this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, Player.class, 10, true, false, this::isAngryAt));
         this.targetSelector
             .addGoal(3, new NearestAttackableTargetGoal<>(this, Mob.class, 5, false, false, param0 -> param0 instanceof Enemy && !(param0 instanceof Creeper)));
+        this.targetSelector.addGoal(4, new ResetUniversalAngerTargetGoal<>(this, false));
     }
 
     @Override
@@ -140,7 +144,7 @@ public class IronGolem extends AbstractGolem implements NeutralMob {
         }
 
         if (!this.level.isClientSide) {
-            this.updatePersistentAnger();
+            this.updatePersistentAnger((ServerLevel)this.level, true);
         }
 
     }
@@ -165,7 +169,7 @@ public class IronGolem extends AbstractGolem implements NeutralMob {
     public void readAdditionalSaveData(CompoundTag param0) {
         super.readAdditionalSaveData(param0);
         this.setPlayerCreated(param0.getBoolean("PlayerCreated"));
-        this.readPersistentAngerSaveData(this.level, param0);
+        this.readPersistentAngerSaveData((ServerLevel)this.level, param0);
     }
 
     @Override
@@ -341,6 +345,12 @@ public class IronGolem extends AbstractGolem implements NeutralMob {
             return NaturalSpawner.isValidEmptySpawnBlock(param0, var0, param0.getBlockState(var0), Fluids.EMPTY.defaultFluidState(), EntityType.IRON_GOLEM)
                 && param0.isUnobstructed(this);
         }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public Vec3 getLeashOffset() {
+        return new Vec3(0.0, (double)(0.875F * this.getEyeHeight()), (double)(this.getBbWidth() * 0.4F));
     }
 
     public static enum Crackiness {

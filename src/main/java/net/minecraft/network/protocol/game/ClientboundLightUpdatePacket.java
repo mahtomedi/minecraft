@@ -22,13 +22,15 @@ public class ClientboundLightUpdatePacket implements Packet<ClientGamePacketList
     private int emptyBlockYMask;
     private List<byte[]> skyUpdates;
     private List<byte[]> blockUpdates;
+    private boolean trustEdges;
 
     public ClientboundLightUpdatePacket() {
     }
 
-    public ClientboundLightUpdatePacket(ChunkPos param0, LevelLightEngine param1) {
+    public ClientboundLightUpdatePacket(ChunkPos param0, LevelLightEngine param1, boolean param2) {
         this.x = param0.x;
         this.z = param0.z;
+        this.trustEdges = param2;
         this.skyUpdates = Lists.newArrayList();
         this.blockUpdates = Lists.newArrayList();
 
@@ -56,9 +58,10 @@ public class ClientboundLightUpdatePacket implements Packet<ClientGamePacketList
 
     }
 
-    public ClientboundLightUpdatePacket(ChunkPos param0, LevelLightEngine param1, int param2, int param3) {
+    public ClientboundLightUpdatePacket(ChunkPos param0, LevelLightEngine param1, int param2, int param3, boolean param4) {
         this.x = param0.x;
         this.z = param0.z;
+        this.trustEdges = param4;
         this.skyYMask = param2;
         this.blockYMask = param3;
         this.skyUpdates = Lists.newArrayList();
@@ -96,6 +99,7 @@ public class ClientboundLightUpdatePacket implements Packet<ClientGamePacketList
     public void read(FriendlyByteBuf param0) throws IOException {
         this.x = param0.readVarInt();
         this.z = param0.readVarInt();
+        this.trustEdges = param0.readBoolean();
         this.skyYMask = param0.readVarInt();
         this.blockYMask = param0.readVarInt();
         this.emptySkyYMask = param0.readVarInt();
@@ -122,6 +126,7 @@ public class ClientboundLightUpdatePacket implements Packet<ClientGamePacketList
     public void write(FriendlyByteBuf param0) throws IOException {
         param0.writeVarInt(this.x);
         param0.writeVarInt(this.z);
+        param0.writeBoolean(this.trustEdges);
         param0.writeVarInt(this.skyYMask);
         param0.writeVarInt(this.blockYMask);
         param0.writeVarInt(this.emptySkyYMask);
@@ -179,5 +184,10 @@ public class ClientboundLightUpdatePacket implements Packet<ClientGamePacketList
     @OnlyIn(Dist.CLIENT)
     public List<byte[]> getBlockUpdates() {
         return this.blockUpdates;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public boolean getTrustEdges() {
+        return this.trustEdges;
     }
 }

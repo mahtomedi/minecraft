@@ -7,6 +7,7 @@ import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
@@ -46,6 +47,10 @@ public class Material {
 
     public VertexConsumer buffer(MultiBufferSource param0, Function<ResourceLocation, RenderType> param1) {
         return this.sprite().wrap(param0.getBuffer(this.renderType(param1)));
+    }
+
+    public VertexConsumer buffer(MultiBufferSource param0, Function<ResourceLocation, RenderType> param1, boolean param2) {
+        return this.sprite().wrap(ItemRenderer.getFoilBufferDirect(param0, this.renderType(param1), false, param2));
     }
 
     @Override

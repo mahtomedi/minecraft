@@ -192,10 +192,7 @@ public class EnchantmentScreen extends AbstractContainerScreen<EnchantmentMenu> 
             int var6 = var2 + 1;
             if (this.isHovering(60, 14 + 19 * var2, 108, 17, (double)param1, (double)param2) && var3 > 0 && var5 >= 0 && var4 != null) {
                 List<Component> var7 = Lists.newArrayList();
-                var7.add(
-                    new TranslatableComponent("container.enchant.clue", var4.getFullname(var5))
-                        .withStyle(new ChatFormatting[]{ChatFormatting.WHITE, ChatFormatting.ITALIC})
-                );
+                var7.add(new TranslatableComponent("container.enchant.clue", var4.getFullname(var5)).withStyle(ChatFormatting.WHITE));
                 if (!var0) {
                     var7.add(TextComponent.EMPTY);
                     if (this.minecraft.player.experienceLevel < var3) {

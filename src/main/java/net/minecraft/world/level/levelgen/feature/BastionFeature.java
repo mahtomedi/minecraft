@@ -28,7 +28,7 @@ public class BastionFeature extends StructureFeature<MultiJigsawConfiguration> {
         ChunkPos param7,
         MultiJigsawConfiguration param8
     ) {
-        return param3.nextInt(6) >= 2;
+        return param3.nextInt(5) >= 2;
     }
 
     @Override

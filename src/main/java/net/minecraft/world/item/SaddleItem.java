@@ -17,8 +17,11 @@ public class SaddleItem extends Item {
         if (param2 instanceof Saddleable && param2.isAlive()) {
             Saddleable var0 = (Saddleable)param2;
             if (!var0.isSaddled() && var0.isSaddleable()) {
-                var0.equipSaddle(SoundSource.NEUTRAL);
-                param0.shrink(1);
+                if (!param1.level.isClientSide) {
+                    var0.equipSaddle(SoundSource.NEUTRAL);
+                    param0.shrink(1);
+                }
+
                 return InteractionResult.sidedSuccess(param1.level.isClientSide);
             }
         }

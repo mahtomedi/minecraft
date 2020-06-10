@@ -870,7 +870,7 @@ public class Gui extends GuiComponent {
             this.minecraft.getProfiler().popPush("air");
             int var35 = var0.getAirSupply();
             int var36 = var0.getMaxAirSupply();
-            if (var0.isUnderLiquid(FluidTags.WATER) || var35 < var36) {
+            if (var0.isEyeInFluid(FluidTags.WATER) || var35 < var36) {
                 int var37 = this.getVisibleVehicleHeartRows(var29) - 1;
                 var15 -= var37 * 10;
                 int var38 = Mth.ceil((double)(var35 - 2) * 10.0 / (double)var36);

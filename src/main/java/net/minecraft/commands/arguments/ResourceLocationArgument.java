@@ -66,7 +66,7 @@ public class ResourceLocationArgument implements ArgumentType<ResourceLocation> 
 
     public static Attribute getAttribute(CommandContext<CommandSourceStack> param0, String param1) throws CommandSyntaxException {
         ResourceLocation var0 = param0.getArgument(param1, ResourceLocation.class);
-        return Registry.ATTRIBUTES.getOptional(var0).orElseThrow(() -> ERROR_UNKNOWN_ATTRIBUTE.create(var0));
+        return Registry.ATTRIBUTE.getOptional(var0).orElseThrow(() -> ERROR_UNKNOWN_ATTRIBUTE.create(var0));
     }
 
     public static ResourceLocation getId(CommandContext<CommandSourceStack> param0, String param1) {

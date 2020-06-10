@@ -54,23 +54,19 @@ public class ChunkStatus {
         }
     );
     public static final ChunkStatus STRUCTURE_REFERENCES = registerSimple(
-        "structure_references",
-        STRUCTURE_STARTS,
-        8,
-        PRE_FEATURES,
-        ChunkStatus.ChunkType.PROTOCHUNK,
-        (param0, param1, param2, param3) -> param1.createReferences(new WorldGenRegion(param0, param2), param0.structureFeatureManager(), param3)
+        "structure_references", STRUCTURE_STARTS, 8, PRE_FEATURES, ChunkStatus.ChunkType.PROTOCHUNK, (param0, param1, param2, param3) -> {
+            WorldGenRegion var0 = new WorldGenRegion(param0, param2);
+            param1.createReferences(var0, param0.structureFeatureManager().forWorldGenRegion(var0), param3);
+        }
     );
     public static final ChunkStatus BIOMES = registerSimple(
         "biomes", STRUCTURE_REFERENCES, 0, PRE_FEATURES, ChunkStatus.ChunkType.PROTOCHUNK, (param0, param1, param2, param3) -> param1.createBiomes(param3)
     );
     public static final ChunkStatus NOISE = registerSimple(
-        "noise",
-        BIOMES,
-        8,
-        PRE_FEATURES,
-        ChunkStatus.ChunkType.PROTOCHUNK,
-        (param0, param1, param2, param3) -> param1.fillFromNoise(new WorldGenRegion(param0, param2), param0.structureFeatureManager(), param3)
+        "noise", BIOMES, 8, PRE_FEATURES, ChunkStatus.ChunkType.PROTOCHUNK, (param0, param1, param2, param3) -> {
+            WorldGenRegion var0 = new WorldGenRegion(param0, param2);
+            param1.fillFromNoise(var0, param0.structureFeatureManager().forWorldGenRegion(var0), param3);
+        }
     );
     public static final ChunkStatus SURFACE = registerSimple(
         "surface",
@@ -112,7 +108,8 @@ public class ChunkStatus {
                         Heightmap.Types.MOTION_BLOCKING, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Heightmap.Types.OCEAN_FLOOR, Heightmap.Types.WORLD_SURFACE
                     )
                 );
-                param2.applyBiomeDecoration(new WorldGenRegion(param1, param6), param1.structureFeatureManager());
+                WorldGenRegion var1 = new WorldGenRegion(param1, param6);
+                param2.applyBiomeDecoration(var1, param1.structureFeatureManager().forWorldGenRegion(var1));
                 var0.setStatus(param0);
             }
     

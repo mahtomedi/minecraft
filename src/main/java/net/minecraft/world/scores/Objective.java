@@ -44,9 +44,7 @@ public class Objective {
 
     private Component createFormattedDisplayName() {
         return ComponentUtils.wrapInSquareBrackets(
-            this.displayName
-                .mutableCopy()
-                .withStyle(param0 -> param0.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponent(this.name))))
+            this.displayName.copy().withStyle(param0 -> param0.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponent(this.name))))
         );
     }
 

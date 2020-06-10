@@ -186,8 +186,8 @@ public abstract class LayerLightEngine<M extends DataLayerStorageMap<M>, S exten
         return param0;
     }
 
-    protected void queueSectionData(long param0, @Nullable DataLayer param1) {
-        this.storage.queueSectionData(param0, param1);
+    protected void queueSectionData(long param0, @Nullable DataLayer param1, boolean param2) {
+        this.storage.queueSectionData(param0, param1, param2);
     }
 
     @Nullable

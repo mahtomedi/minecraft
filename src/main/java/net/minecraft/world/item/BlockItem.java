@@ -71,7 +71,10 @@ public class BlockItem extends Item {
 
                     SoundType var8 = var6.getSoundType();
                     var3.playSound(var4, var2, this.getPlaceSound(var6), SoundSource.BLOCKS, (var8.getVolume() + 1.0F) / 2.0F, var8.getPitch() * 0.8F);
-                    var5.shrink(1);
+                    if (!var4.abilities.instabuild) {
+                        var5.shrink(1);
+                    }
+
                     return InteractionResult.sidedSuccess(var3.isClientSide);
                 }
             }

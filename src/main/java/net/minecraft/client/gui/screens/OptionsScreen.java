@@ -1,17 +1,21 @@
 package net.minecraft.client.gui.screens;
 
+import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
+import java.util.List;
 import net.minecraft.client.Option;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.LockIconButton;
 import net.minecraft.client.gui.components.OptionButton;
 import net.minecraft.client.gui.screens.controls.ControlsScreen;
+import net.minecraft.client.resources.ResourcePack;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.game.ServerboundChangeDifficultyPacket;
 import net.minecraft.network.protocol.game.ServerboundLockDifficultyPacket;
+import net.minecraft.server.packs.repository.PackRepository;
 import net.minecraft.world.Difficulty;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -170,7 +174,9 @@ public class OptionsScreen extends Screen {
                 new TranslatableComponent("options.resourcepack"),
                 param0 -> this.minecraft
                         .setScreen(
-                            new ResourcePackSelectScreen(this, this.options, this.minecraft.getResourcePackRepository(), this.minecraft::reloadResourcePacks)
+                            new ResourcePackSelectScreen(
+                                this, this.minecraft.getResourcePackRepository(), this::updatePackList, this.minecraft.getResourcePackDirectory()
+                            )
                         )
             )
         );
@@ -187,6 +193,28 @@ public class OptionsScreen extends Screen {
         this.addButton(
             new Button(this.width / 2 - 100, this.height / 6 + 168, 200, 20, CommonComponents.GUI_DONE, param0 -> this.minecraft.setScreen(this.lastScreen))
         );
+    }
+
+    private void updatePackList(PackRepository<ResourcePack> param0) {
+        List<String> var0 = ImmutableList.copyOf(this.options.resourcePacks);
+        this.options.resourcePacks.clear();
+        this.options.incompatibleResourcePacks.clear();
+
+        for(ResourcePack var1 : param0.getSelectedPacks()) {
+            if (!var1.isFixedPosition()) {
+                this.options.resourcePacks.add(var1.getId());
+                if (!var1.getCompatibility().isCompatible()) {
+                    this.options.incompatibleResourcePacks.add(var1.getId());
+                }
+            }
+        }
+
+        this.options.save();
+        List<String> var2 = ImmutableList.copyOf(this.options.resourcePacks);
+        if (!var2.equals(var0)) {
+            this.minecraft.reloadResourcePacks();
+        }
+
     }
 
     private Component getDifficultyText(Difficulty param0) {

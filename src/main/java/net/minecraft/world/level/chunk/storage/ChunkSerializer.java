@@ -100,11 +100,11 @@ public class ChunkSerializer {
 
             if (var8) {
                 if (var16.contains("BlockLight", 7)) {
-                    var14.queueSectionData(LightLayer.BLOCK, SectionPos.of(param3, var17), new DataLayer(var16.getByteArray("BlockLight")));
+                    var14.queueSectionData(LightLayer.BLOCK, SectionPos.of(param3, var17), new DataLayer(var16.getByteArray("BlockLight")), true);
                 }
 
                 if (var12 && var16.contains("SkyLight", 7)) {
-                    var14.queueSectionData(LightLayer.SKY, SectionPos.of(param3, var17), new DataLayer(var16.getByteArray("SkyLight")));
+                    var14.queueSectionData(LightLayer.SKY, SectionPos.of(param3, var17), new DataLayer(var16.getByteArray("SkyLight")), true);
                 }
             }
         }

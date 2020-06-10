@@ -6,9 +6,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ambient.Bat;
 import net.minecraft.world.entity.animal.Turtle;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.player.Player;
@@ -53,9 +55,7 @@ public class TurtleEggBlock extends Block {
     }
 
     private void destroyEgg(Level param0, BlockPos param1, Entity param2, int param3) {
-        if (!this.canDestroyEgg(param0, param2)) {
-            super.stepOn(param0, param1, param2);
-        } else {
+        if (this.canDestroyEgg(param0, param2)) {
             if (!param0.isClientSide && param0.random.nextInt(param3) == 0) {
                 this.decreaseEggs(param0, param1, param0.getBlockState(param1));
             }
@@ -77,7 +77,7 @@ public class TurtleEggBlock extends Block {
 
     @Override
     public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
-        if (this.shouldUpdateHatchLevel(param1) && this.onSand(param1, param2)) {
+        if (this.shouldUpdateHatchLevel(param1) && onSand(param1, param2)) {
             int var0 = param0.getValue(HATCH);
             if (var0 < 2) {
                 param1.playSound(null, param2, SoundEvents.TURTLE_EGG_CRACK, SoundSource.BLOCKS, 0.7F, 0.9F + param3.nextFloat() * 0.2F);
@@ -99,13 +99,17 @@ public class TurtleEggBlock extends Block {
 
     }
 
-    private boolean onSand(BlockGetter param0, BlockPos param1) {
-        return param0.getBlockState(param1.below()).is(Blocks.SAND);
+    public static boolean onSand(BlockGetter param0, BlockPos param1) {
+        return isSand(param0, param1.below());
+    }
+
+    public static boolean isSand(BlockGetter param0, BlockPos param1) {
+        return param0.getBlockState(param1.below()).is(BlockTags.SAND);
     }
 
     @Override
     public void onPlace(BlockState param0, Level param1, BlockPos param2, BlockState param3, boolean param4) {
-        if (this.onSand(param1, param2) && !param1.isClientSide) {
+        if (onSand(param1, param2) && !param1.isClientSide) {
             param1.levelEvent(2005, param2, 0);
         }
 
@@ -149,7 +153,7 @@ public class TurtleEggBlock extends Block {
     }
 
     private boolean canDestroyEgg(Level param0, Entity param1) {
-        if (param1 instanceof Turtle) {
+        if (param1 instanceof Turtle || param1 instanceof Bat) {
             return false;
         } else if (!(param1 instanceof LivingEntity)) {
             return false;

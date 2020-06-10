@@ -39,12 +39,15 @@ public class GoToPotentialJobSite extends Behavior<Villager> {
         Optional<GlobalPos> var0 = param1.getBrain().getMemory(MemoryModuleType.POTENTIAL_JOB_SITE);
         var0.ifPresent(param1x -> {
             BlockPos var0x = param1x.pos();
-            PoiManager var1x = param0.getServer().getLevel(param1x.dimension()).getPoiManager();
-            if (var1x.exists(var0x, param0x -> true)) {
-                var1x.release(var0x);
-            }
+            ServerLevel var1x = param0.getServer().getLevel(param1x.dimension());
+            if (var1x != null) {
+                PoiManager var2x = var1x.getPoiManager();
+                if (var2x.exists(var0x, param0x -> true)) {
+                    var2x.release(var0x);
+                }
 
-            DebugPackets.sendPoiTicketCountPacket(param0, var0x);
+                DebugPackets.sendPoiTicketCountPacket(param0, var0x);
+            }
         });
         param1.getBrain().eraseMemory(MemoryModuleType.POTENTIAL_JOB_SITE);
     }

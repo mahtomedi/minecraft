@@ -272,21 +272,29 @@ public class PiglinAi {
 
     protected static void pickUpItem(Piglin param0, ItemEntity param1) {
         stopWalking(param0);
-        param0.take(param1, 1);
-        ItemStack var0 = removeOneItemFromItemEntity(param1);
-        Item var1 = var0.getItem();
-        if (isLovedItem(var1)) {
+        ItemStack var0;
+        if (param1.getItem().getItem() == Items.GOLD_NUGGET) {
+            param0.take(param1, param1.getItem().getCount());
+            var0 = param1.getItem();
+            param1.remove();
+        } else {
+            param0.take(param1, 1);
+            var0 = removeOneItemFromItemEntity(param1);
+        }
+
+        Item var2 = var0.getItem();
+        if (isLovedItem(var2)) {
             if (isHoldingItemInOffHand(param0)) {
                 param0.spawnAtLocation(param0.getItemInHand(InteractionHand.OFF_HAND));
             }
 
             param0.holdInOffHand(var0);
             admireGoldItem(param0);
-        } else if (isFood(var1) && !hasEatenRecently(param0)) {
+        } else if (isFood(var2) && !hasEatenRecently(param0)) {
             eat(param0);
         } else {
-            boolean var2 = param0.equipItemIfPossible(var0);
-            if (!var2) {
+            boolean var3 = param0.equipItemIfPossible(var0);
+            if (!var3) {
                 putInInventory(param0, var0);
             }
         }
@@ -473,11 +481,16 @@ public class PiglinAi {
         }
     }
 
-    public static void angerNearbyPiglinsThatSee(Player param0) {
-        if (isAttackAllowed(param0)) {
-            List<Piglin> var0 = param0.level.getEntitiesOfClass(Piglin.class, param0.getBoundingBox().inflate(16.0));
-            var0.stream().filter(PiglinAi::isIdle).filter(param1 -> BehaviorUtils.canSee(param1, param0)).forEach(param1 -> setAngerTarget(param1, param0));
-        }
+    public static void angerNearbyPiglins(Player param0, boolean param1) {
+        List<Piglin> var0 = param0.level.getEntitiesOfClass(Piglin.class, param0.getBoundingBox().inflate(16.0));
+        var0.stream().filter(PiglinAi::isIdle).filter(param2 -> !param1 || BehaviorUtils.canSee(param2, param0)).forEach(param1x -> {
+            if (param1x.level.getGameRules().getBoolean(GameRules.RULE_UNIVERSAL_ANGER)) {
+                setAngerTargetToNearestTargetablePlayerIfFound(param1x, param0);
+            } else {
+                setAngerTarget(param1x, param0);
+            }
+
+        });
     }
 
     public static InteractionResult mobInteract(Piglin param0, Player param1, InteractionHand param2) {
@@ -535,8 +548,14 @@ public class PiglinAi {
         if (!param0.getBrain().isActive(Activity.AVOID)) {
             if (isAttackAllowed(param1)) {
                 if (!BehaviorUtils.isOtherTargetMuchFurtherAwayThanCurrentAttackTarget(param0, param1, 4.0)) {
-                    setAngerTarget(param0, param1);
-                    broadcastAngerTarget(param0, param1);
+                    if (param1.getType() == EntityType.PLAYER && param0.level.getGameRules().getBoolean(GameRules.RULE_UNIVERSAL_ANGER)) {
+                        setAngerTargetToNearestTargetablePlayerIfFound(param0, param1);
+                        broadcastUniversalAnger(param0);
+                    } else {
+                        setAngerTarget(param0, param1);
+                        broadcastAngerTarget(param0, param1);
+                    }
+
                 }
             }
         }
@@ -619,19 +638,35 @@ public class PiglinAi {
         });
     }
 
+    protected static void broadcastUniversalAnger(Piglin param0) {
+        getAdultPiglins(param0).forEach(param0x -> getNearestVisibleTargetablePlayer(param0x).ifPresent(param1 -> setAngerTarget(param0x, param1)));
+    }
+
     protected static void broadcastDontKillAnyMoreHoglinsForAWhile(Piglin param0) {
         getVisibleAdultPiglins(param0).forEach(PiglinAi::dontKillAnyMoreHoglinsForAWhile);
     }
 
     protected static void setAngerTarget(Piglin param0, LivingEntity param1) {
-        param0.getBrain().eraseMemory(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);
-        param0.getBrain().setMemoryWithExpiry(MemoryModuleType.ANGRY_AT, param1.getUUID(), 600L);
-        if (param1.getType() == EntityType.HOGLIN) {
-            dontKillAnyMoreHoglinsForAWhile(param0);
-        }
+        if (isAttackAllowed(param1)) {
+            param0.getBrain().eraseMemory(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);
+            param0.getBrain().setMemoryWithExpiry(MemoryModuleType.ANGRY_AT, param1.getUUID(), 600L);
+            if (param1.getType() == EntityType.HOGLIN) {
+                dontKillAnyMoreHoglinsForAWhile(param0);
+            }
 
-        if (param1.getType() == EntityType.PLAYER && param0.level.getGameRules().getBoolean(GameRules.RULE_UNIVERSAL_ANGER)) {
-            param0.getBrain().setMemoryWithExpiry(MemoryModuleType.UNIVERSAL_ANGER, true, 600L);
+            if (param1.getType() == EntityType.PLAYER && param0.level.getGameRules().getBoolean(GameRules.RULE_UNIVERSAL_ANGER)) {
+                param0.getBrain().setMemoryWithExpiry(MemoryModuleType.UNIVERSAL_ANGER, true, 600L);
+            }
+
+        }
+    }
+
+    private static void setAngerTargetToNearestTargetablePlayerIfFound(Piglin param0, LivingEntity param1) {
+        Optional<Player> var0 = getNearestVisibleTargetablePlayer(param0);
+        if (var0.isPresent()) {
+            setAngerTarget(param0, var0.get());
+        } else {
+            setAngerTarget(param0, param1);
         }
 
     }
@@ -650,6 +685,12 @@ public class PiglinAi {
 
     public static Optional<LivingEntity> getAvoidTarget(Piglin param0) {
         return param0.getBrain().hasMemoryValue(MemoryModuleType.AVOID_TARGET) ? param0.getBrain().getMemory(MemoryModuleType.AVOID_TARGET) : Optional.empty();
+    }
+
+    public static Optional<Player> getNearestVisibleTargetablePlayer(Piglin param0) {
+        return param0.getBrain().hasMemoryValue(MemoryModuleType.NEAREST_VISIBLE_TARGETABLE_PLAYER)
+            ? param0.getBrain().getMemory(MemoryModuleType.NEAREST_VISIBLE_TARGETABLE_PLAYER)
+            : Optional.empty();
     }
 
     private static void broadcastRetreat(Piglin param0, LivingEntity param1) {

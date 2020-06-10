@@ -109,7 +109,7 @@ public class LightTexture implements AutoCloseable {
                         float var16 = var14 * ((var14 * 0.6F + 0.4F) * 0.6F + 0.4F);
                         float var17 = var14 * (var14 * var14 * 0.6F + 0.4F);
                         var10.set(var14, var16, var17);
-                        if (var0.dimensionType().isEnd()) {
+                        if (var0.effects().forceBrightLightmap()) {
                             var10.lerp(new Vector3f(0.99F, 1.12F, 1.0F), 0.25F);
                         } else {
                             Vector3f var18 = var8.copy();

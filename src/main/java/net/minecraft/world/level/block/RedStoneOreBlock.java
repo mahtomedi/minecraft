@@ -9,6 +9,8 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.BlockPlaceContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
@@ -45,11 +47,14 @@ public class RedStoneOreBlock extends Block {
     public InteractionResult use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
         if (param1.isClientSide) {
             spawnParticles(param1, param2);
-            return InteractionResult.SUCCESS;
         } else {
             interact(param0, param1, param2);
-            return InteractionResult.PASS;
         }
+
+        ItemStack var0 = param3.getItemInHand(param4);
+        return var0.getItem() instanceof BlockItem && new BlockPlaceContext(param3, param4, var0, param5).canPlace()
+            ? InteractionResult.PASS
+            : InteractionResult.SUCCESS;
     }
 
     private static void interact(BlockState param0, Level param1, BlockPos param2) {
