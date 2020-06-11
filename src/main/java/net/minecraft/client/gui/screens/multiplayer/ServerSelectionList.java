@@ -20,6 +20,7 @@ import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.chat.NarratorChatListener;
+import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ServerData;
@@ -32,7 +33,6 @@ import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.Validate;
@@ -69,13 +69,14 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
         this.networkServers.forEach(this::addEntry);
     }
 
-    public void setSelected(ServerSelectionList.Entry param0) {
+    public void setSelected(@Nullable ServerSelectionList.Entry param0) {
         super.setSelected(param0);
         if (this.getSelected() instanceof ServerSelectionList.OnlineServerEntry) {
             NarratorChatListener.INSTANCE
                 .sayNow(new TranslatableComponent("narrator.select", ((ServerSelectionList.OnlineServerEntry)this.getSelected()).serverData.name).getString());
         }
 
+        this.screen.onSelectedChange();
     }
 
     @Override
@@ -85,18 +86,8 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
     }
 
     @Override
-    protected void moveSelection(int param0) {
-        int var0 = this.children().indexOf(this.getSelected());
-        int var1 = Mth.clamp(var0 + param0, 0, this.getItemCount() - 1);
-        ServerSelectionList.Entry var2 = this.children().get(var1);
-        if (var2 instanceof ServerSelectionList.LANHeader) {
-            var1 = Mth.clamp(var1 + (param0 > 0 ? 1 : -1), 0, this.getItemCount() - 1);
-            var2 = this.children().get(var1);
-        }
-
-        super.setSelected(var2);
-        this.ensureVisible(var2);
-        this.screen.onSelectedChange();
+    protected void moveSelection(AbstractSelectionList.SelectionDirection param0) {
+        this.moveSelection(param0, param0x -> !(param0x instanceof ServerSelectionList.LANHeader));
     }
 
     public void updateOnlineServers(ServerList param0) {

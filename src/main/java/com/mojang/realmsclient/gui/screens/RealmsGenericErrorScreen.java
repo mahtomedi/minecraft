@@ -58,7 +58,7 @@ public class RealmsGenericErrorScreen extends RealmsScreen {
 
     @Override
     public void init() {
-        NarrationHelper.now(this.line1 + ": " + this.line2);
+        NarrationHelper.now(this.line1.getString() + ": " + this.line2.getString());
         this.addButton(
             new Button(this.width / 2 - 100, this.height - 52, 200, 20, new TextComponent("Ok"), param0 -> this.minecraft.setScreen(this.nextScreen))
         );

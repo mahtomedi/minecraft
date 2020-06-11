@@ -25,6 +25,7 @@ import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.chat.NarratorChatListener;
+import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.client.gui.screens.AlertScreen;
@@ -158,9 +159,10 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.W
     }
 
     @Override
-    protected void moveSelection(int param0) {
-        super.moveSelection(param0);
-        this.screen.updateButtonStatus(true);
+    protected void moveSelection(AbstractSelectionList.SelectionDirection param0) {
+        this.moveSelection(param0, param0x -> !param0x.summary.isLocked());
+        WorldSelectionList.WorldListEntry var0 = this.getSelected();
+        this.screen.updateButtonStatus(var0 != null && var0.summary.isLocked());
     }
 
     public Optional<WorldSelectionList.WorldListEntry> getSelectedOpt() {

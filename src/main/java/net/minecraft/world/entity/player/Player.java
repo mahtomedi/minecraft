@@ -62,7 +62,6 @@ import net.minecraft.world.entity.MobType;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.TamableAnimal;
-import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.Parrot;
@@ -508,39 +507,34 @@ public abstract class Player extends LivingEntity {
         this.inventory.tick();
         this.oBob = this.bob;
         super.aiStep();
-        AttributeInstance var0 = this.getAttribute(Attributes.MOVEMENT_SPEED);
-        if (!this.level.isClientSide) {
-            var0.setBaseValue((double)this.abilities.getWalkingSpeed());
-        }
-
         this.flyingSpeed = 0.02F;
         if (this.isSprinting()) {
             this.flyingSpeed = (float)((double)this.flyingSpeed + 0.005999999865889549);
         }
 
-        this.setSpeed((float)var0.getValue());
-        float var2;
+        this.setSpeed((float)this.getAttributeValue(Attributes.MOVEMENT_SPEED));
+        float var1;
         if (this.onGround && !this.isDeadOrDying() && !this.isSwimming()) {
-            var2 = Math.min(0.1F, Mth.sqrt(getHorizontalDistanceSqr(this.getDeltaMovement())));
+            var1 = Math.min(0.1F, Mth.sqrt(getHorizontalDistanceSqr(this.getDeltaMovement())));
         } else {
-            var2 = 0.0F;
+            var1 = 0.0F;
         }
 
-        this.bob += (var2 - this.bob) * 0.4F;
+        this.bob += (var1 - this.bob) * 0.4F;
         if (this.getHealth() > 0.0F && !this.isSpectator()) {
-            AABB var3;
+            AABB var2;
             if (this.isPassenger() && !this.getVehicle().removed) {
-                var3 = this.getBoundingBox().minmax(this.getVehicle().getBoundingBox()).inflate(1.0, 0.0, 1.0);
+                var2 = this.getBoundingBox().minmax(this.getVehicle().getBoundingBox()).inflate(1.0, 0.0, 1.0);
             } else {
-                var3 = this.getBoundingBox().inflate(1.0, 0.5, 1.0);
+                var2 = this.getBoundingBox().inflate(1.0, 0.5, 1.0);
             }
 
-            List<Entity> var5 = this.level.getEntities(this, var3);
+            List<Entity> var4 = this.level.getEntities(this, var2);
 
-            for(int var6 = 0; var6 < var5.size(); ++var6) {
-                Entity var7 = var5.get(var6);
-                if (!var7.removed) {
-                    this.touch(var7);
+            for(int var5 = 0; var5 < var4.size(); ++var5) {
+                Entity var6 = var4.get(var5);
+                if (!var6.removed) {
+                    this.touch(var6);
                 }
             }
         }
@@ -780,6 +774,7 @@ public abstract class Player extends LivingEntity {
         this.setScore(param0.getInt("Score"));
         this.foodData.readAdditionalSaveData(param0);
         this.abilities.loadSaveData(param0);
+        this.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue((double)this.abilities.getWalkingSpeed());
         if (param0.contains("EnderItems", 9)) {
             this.enderChestInventory.fromTag(param0.getList("EnderItems", 10));
         }

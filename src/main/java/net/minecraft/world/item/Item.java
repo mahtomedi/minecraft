@@ -294,7 +294,6 @@ public class Item implements ItemLike {
         return param0.getItem() == Items.CROSSBOW;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public ItemStack getDefaultInstance() {
         return new ItemStack(this);
     }

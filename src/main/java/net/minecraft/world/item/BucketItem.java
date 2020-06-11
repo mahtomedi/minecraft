@@ -58,7 +58,7 @@ public class BucketItem extends Item {
                     if (var7 != Fluids.EMPTY) {
                         param1.awardStat(Stats.ITEM_USED.get(this));
                         param1.playSound(var7.is(FluidTags.LAVA) ? SoundEvents.BUCKET_FILL_LAVA : SoundEvents.BUCKET_FILL, 1.0F, 1.0F);
-                        ItemStack var8 = this.createResultItem(var0, param1, var7.getBucket());
+                        ItemStack var8 = ItemUtils.createBucketResult(var0, param1, new ItemStack(var7.getBucket()));
                         if (!param0.isClientSide) {
                             CriteriaTriggers.FILLED_BUCKET.trigger((ServerPlayer)param1, new ItemStack(var7.getBucket()));
                         }
@@ -91,28 +91,6 @@ public class BucketItem extends Item {
     }
 
     public void checkExtraContent(Level param0, ItemStack param1, BlockPos param2) {
-    }
-
-    private ItemStack createResultItem(ItemStack param0, Player param1, Item param2) {
-        if (param1.abilities.instabuild) {
-            ItemStack var0 = new ItemStack(param2);
-            if (!param1.inventory.contains(var0)) {
-                param1.inventory.add(var0);
-            }
-
-            return param0;
-        } else {
-            param0.shrink(1);
-            if (param0.isEmpty()) {
-                return new ItemStack(param2);
-            } else {
-                if (!param1.inventory.add(new ItemStack(param2))) {
-                    param1.drop(new ItemStack(param2), false);
-                }
-
-                return param0;
-            }
-        }
     }
 
     public boolean emptyBucket(@Nullable Player param0, Level param1, BlockPos param2, @Nullable BlockHitResult param3) {

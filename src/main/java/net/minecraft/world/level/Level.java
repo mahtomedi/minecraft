@@ -269,7 +269,7 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
                     }
 
                     if ((param2 & 16) == 0) {
-                        int var4 = param2 & -2;
+                        int var4 = param2 & -34;
                         var2.updateIndirectNeighbourShapes(this, param0, var4);
                         param1.updateNeighbourShapes(this, param0, var4);
                         param1.updateIndirectNeighbourShapes(this, param0, var4);

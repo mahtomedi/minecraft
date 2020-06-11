@@ -22,6 +22,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.Container;
 import net.minecraft.world.ContainerListener;
 import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffects;
@@ -418,6 +419,19 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
 
     }
 
+    public InteractionResult fedFood(Player param0, ItemStack param1) {
+        boolean var0 = this.handleEating(param0, param1);
+        if (!param0.abilities.instabuild) {
+            param1.shrink(1);
+        }
+
+        if (this.level.isClientSide) {
+            return InteractionResult.CONSUME;
+        } else {
+            return var0 ? InteractionResult.SUCCESS : InteractionResult.PASS;
+        }
+    }
+
     protected boolean handleEating(Player param0, ItemStack param1) {
         boolean var0 = false;
         float var1 = 0.0F;
@@ -443,7 +457,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
             var1 = 4.0F;
             var2 = 60;
             var3 = 5;
-            if (this.isTamed() && this.getAge() == 0 && !this.isInLove()) {
+            if (!this.level.isClientSide && this.isTamed() && this.getAge() == 0 && !this.isInLove()) {
                 var0 = true;
                 this.setInLove(param0);
             }
@@ -451,7 +465,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
             var1 = 10.0F;
             var2 = 240;
             var3 = 10;
-            if (this.isTamed() && this.getAge() == 0 && !this.isInLove()) {
+            if (!this.level.isClientSide && this.isTamed() && this.getAge() == 0 && !this.isInLove()) {
                 var0 = true;
                 this.setInLove(param0);
             }

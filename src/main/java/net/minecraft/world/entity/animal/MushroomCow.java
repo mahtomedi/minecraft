@@ -25,6 +25,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.SuspiciousStewItem;
 import net.minecraft.world.level.Level;
@@ -77,10 +78,6 @@ public class MushroomCow extends Cow implements Shearable {
     public InteractionResult mobInteract(Player param0, InteractionHand param1) {
         ItemStack var0 = param0.getItemInHand(param1);
         if (var0.getItem() == Items.BOWL && !this.isBaby()) {
-            if (!param0.abilities.instabuild) {
-                var0.shrink(1);
-            }
-
             boolean var1 = false;
             ItemStack var2;
             if (this.effect != null) {
@@ -93,12 +90,7 @@ public class MushroomCow extends Cow implements Shearable {
                 var2 = new ItemStack(Items.MUSHROOM_STEW);
             }
 
-            if (var0.isEmpty()) {
-                param0.setItemInHand(param1, var2);
-            } else if (!param0.inventory.add(var2)) {
-                param0.drop(var2, false);
-            }
-
+            ItemUtils.createBucketResult(var0, param0, var2);
             SoundEvent var4;
             if (var1) {
                 var4 = SoundEvents.MOOSHROOM_MILK_SUSPICIOUSLY;

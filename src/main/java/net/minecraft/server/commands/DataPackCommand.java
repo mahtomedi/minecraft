@@ -115,7 +115,7 @@ public class DataPackCommand {
         PackRepository<?> var0 = param0.getServer().getPackRepository();
         List<Pack> var1 = Lists.newArrayList(var0.getSelectedPacks());
         param2.apply(var1, param1);
-        param0.sendSuccess(new TranslatableComponent("commands.datapack.enable.success", param1.getChatLink(true)), true);
+        param0.sendSuccess(new TranslatableComponent("commands.datapack.modify.enable", param1.getChatLink(true)), true);
         ReloadCommand.reloadPacks(var1.stream().map(Pack::getId).collect(Collectors.toList()), param0);
         return var1.size();
     }
@@ -124,8 +124,8 @@ public class DataPackCommand {
         PackRepository<?> var0 = param0.getServer().getPackRepository();
         List<Pack> var1 = Lists.newArrayList(var0.getSelectedPacks());
         var1.remove(param1);
+        param0.sendSuccess(new TranslatableComponent("commands.datapack.modify.disable", param1.getChatLink(true)), true);
         ReloadCommand.reloadPacks(var1.stream().map(Pack::getId).collect(Collectors.toList()), param0);
-        param0.sendSuccess(new TranslatableComponent("commands.datapack.disable.success", param1.getChatLink(true)), true);
         return var1.size();
     }
 

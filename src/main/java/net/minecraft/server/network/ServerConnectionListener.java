@@ -26,7 +26,6 @@ import java.util.Iterator;
 import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.CrashReport;
-import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
 import net.minecraft.network.Connection;
 import net.minecraft.network.PacketDecoder;
@@ -153,17 +152,14 @@ public class ServerConnectionListener {
                     if (var1.isConnected()) {
                         try {
                             var1.tick();
-                        } catch (Exception var8) {
+                        } catch (Exception var7) {
                             if (var1.isMemoryConnection()) {
-                                CrashReport var3 = CrashReport.forThrowable(var8, "Ticking memory connection");
-                                CrashReportCategory var4 = var3.addCategory("Ticking connection");
-                                var4.setDetail("Connection", var1::toString);
-                                throw new ReportedException(var3);
+                                throw new ReportedException(CrashReport.forThrowable(var7, "Ticking memory connection"));
                             }
 
-                            LOGGER.warn("Failed to handle packet for {}", var1.getRemoteAddress(), var8);
-                            Component var5 = new TextComponent("Internal server error");
-                            var1.send(new ClientboundDisconnectPacket(var5), param2 -> var1.disconnect(var5));
+                            LOGGER.warn("Failed to handle packet for {}", var1.getRemoteAddress(), var7);
+                            Component var3 = new TextComponent("Internal server error");
+                            var1.send(new ClientboundDisconnectPacket(var3), param2 -> var1.disconnect(var3));
                             var1.setReadOnly();
                         }
                     } else {

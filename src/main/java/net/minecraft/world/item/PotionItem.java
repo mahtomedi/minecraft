@@ -25,7 +25,6 @@ public class PotionItem extends Item {
         super(param0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public ItemStack getDefaultInstance() {
         return PotionUtils.setPotion(super.getDefaultInstance(), Potions.WATER);

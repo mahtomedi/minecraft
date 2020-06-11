@@ -11,11 +11,8 @@ import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.world.entity.Entity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ComponentUtils {
-    @OnlyIn(Dist.CLIENT)
     public static MutableComponent mergeStyles(MutableComponent param0, Style param1) {
         if (param1.isEmpty()) {
             return param0;
@@ -24,7 +21,7 @@ public class ComponentUtils {
             if (var0.isEmpty()) {
                 return param0.setStyle(param1);
             } else {
-                return var0.equals(param1) ? param0 : new TextComponent("").append(param0).setStyle(param1);
+                return var0.equals(param1) ? param0 : param0.setStyle(var0.applyTo(param1));
             }
         }
     }

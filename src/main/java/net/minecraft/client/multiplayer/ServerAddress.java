@@ -1,7 +1,9 @@
 package net.minecraft.client.multiplayer;
 
+import com.mojang.datafixers.util.Pair;
 import java.net.IDN;
 import java.util.Hashtable;
+import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
@@ -56,16 +58,16 @@ public class ServerAddress {
             String var4 = var0[0];
             int var5 = var0.length > 1 ? parseInt(var0[1], 25565) : 25565;
             if (var5 == 25565) {
-                String[] var6 = lookupSrv(var4);
-                var4 = var6[0];
-                var5 = parseInt(var6[1], 25565);
+                Pair<String, Integer> var6 = lookupSrv(var4);
+                var4 = var6.getFirst();
+                var5 = var6.getSecond();
             }
 
             return new ServerAddress(var4, var5);
         }
     }
 
-    private static String[] lookupSrv(String param0) {
+    private static Pair<String, Integer> lookupSrv(String param0) {
         try {
             String var0 = "com.sun.jndi.dns.DnsContextFactory";
             Class.forName("com.sun.jndi.dns.DnsContextFactory");
@@ -75,11 +77,15 @@ public class ServerAddress {
             var1.put("com.sun.jndi.dns.timeout.retries", "1");
             DirContext var2 = new InitialDirContext(var1);
             Attributes var3 = var2.getAttributes("_minecraft._tcp." + param0, new String[]{"SRV"});
-            String[] var4 = var3.get("srv").get().toString().split(" ", 4);
-            return new String[]{var4[3], var4[2]};
-        } catch (Throwable var6) {
-            return new String[]{param0, Integer.toString(25565)};
+            Attribute var4 = var3.get("srv");
+            if (var4 != null) {
+                String[] var5 = var4.get().toString().split(" ", 4);
+                return Pair.of(var5[3], parseInt(var5[2], 25565));
+            }
+        } catch (Throwable var7) {
         }
+
+        return Pair.of(param0, 25565);
     }
 
     private static int parseInt(String param0, int param1) {

@@ -148,12 +148,7 @@ public abstract class AbstractChestedHorse extends AbstractHorse {
 
         if (!var0.isEmpty()) {
             if (this.isFood(var0)) {
-                boolean var1 = this.handleEating(param0, var0);
-                if (!param0.abilities.instabuild) {
-                    var0.shrink(1);
-                }
-
-                return var1 ? InteractionResult.sidedSuccess(this.level.isClientSide) : InteractionResult.CONSUME;
+                return this.fedFood(param0, var0);
             }
 
             if (!this.isTamed()) {

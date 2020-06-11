@@ -29,9 +29,10 @@ public class FireChargeItem extends Item {
             }
         } else {
             var1 = var1.relative(param0.getClickedFace());
-            if (var0.getBlockState(var1).isAir()) {
+            BlockState var4 = BaseFireBlock.getState(var0, var1);
+            if (var0.getBlockState(var1).isAir() && var4.canSurvive(var0, var1)) {
                 this.playSound(var0, var1);
-                var0.setBlockAndUpdate(var1, BaseFireBlock.getState(var0, var1));
+                var0.setBlockAndUpdate(var1, var4);
                 var3 = true;
             }
         }

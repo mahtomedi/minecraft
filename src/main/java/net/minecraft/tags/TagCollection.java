@@ -61,11 +61,6 @@ public class TagCollection<T> {
         return this.tags.getOrDefault(param0, this.empty);
     }
 
-    @OnlyIn(Dist.CLIENT)
-    public Tag<T> getEmptyTag() {
-        return this.empty;
-    }
-
     @Nullable
     public ResourceLocation getId(Tag<T> param0) {
         return param0 instanceof Tag.Named ? ((Tag.Named)param0).getName() : this.tags.inverse().get(param0);

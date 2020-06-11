@@ -196,17 +196,12 @@ public class Horse extends AbstractHorse {
 
         if (!var0.isEmpty()) {
             if (this.isFood(var0)) {
-                boolean var1 = this.handleEating(param0, var0);
-                if (!param0.abilities.instabuild) {
-                    var0.shrink(1);
-                }
-
-                return var1 ? InteractionResult.sidedSuccess(this.level.isClientSide) : InteractionResult.CONSUME;
+                return this.fedFood(param0, var0);
             }
 
-            InteractionResult var2 = var0.interactLivingEntity(param0, this, param1);
-            if (var2.consumesAction()) {
-                return var2;
+            InteractionResult var1 = var0.interactLivingEntity(param0, this, param1);
+            if (var1.consumesAction()) {
+                return var1;
             }
 
             if (!this.isTamed()) {
@@ -214,8 +209,8 @@ public class Horse extends AbstractHorse {
                 return InteractionResult.sidedSuccess(this.level.isClientSide);
             }
 
-            boolean var3 = !this.isBaby() && !this.isSaddled() && var0.getItem() == Items.SADDLE;
-            if (this.isArmor(var0) || var3) {
+            boolean var2 = !this.isBaby() && !this.isSaddled() && var0.getItem() == Items.SADDLE;
+            if (this.isArmor(var0) || var2) {
                 this.openInventory(param0);
                 return InteractionResult.sidedSuccess(this.level.isClientSide);
             }

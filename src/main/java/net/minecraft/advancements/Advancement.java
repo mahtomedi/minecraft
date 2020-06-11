@@ -17,7 +17,9 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.advancements.critereon.DeserializationContext;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -60,7 +62,7 @@ public class Advancement {
         } else {
             Component var0 = param2.getTitle();
             ChatFormatting var1 = param2.getFrame().getChatColor();
-            Component var2 = var0.copy().withStyle(var1).append("\n").append(param2.getDescription());
+            Component var2 = ComponentUtils.mergeStyles(var0.copy(), Style.EMPTY.withColor(var1)).append("\n").append(param2.getDescription());
             Component var3 = var0.copy().withStyle(param1x -> param1x.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, var2)));
             this.chatComponent = new TextComponent("[").append(var3).append("]").withStyle(var1);
         }

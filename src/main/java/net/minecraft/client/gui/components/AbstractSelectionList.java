@@ -11,6 +11,7 @@ import java.util.AbstractList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
@@ -384,23 +385,49 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
         if (super.keyPressed(param0, param1, param2)) {
             return true;
         } else if (param0 == 264) {
-            this.moveSelection(1);
+            this.moveSelection(AbstractSelectionList.SelectionDirection.DOWN);
             return true;
         } else if (param0 == 265) {
-            this.moveSelection(-1);
+            this.moveSelection(AbstractSelectionList.SelectionDirection.UP);
             return true;
         } else {
             return false;
         }
     }
 
-    protected void moveSelection(int param0) {
+    protected void moveSelection(AbstractSelectionList.SelectionDirection param0) {
+        this.moveSelection(param0, param0x -> true);
+    }
+
+    protected void refreshSelection() {
+        E var0 = this.getSelected();
+        if (var0 != null) {
+            this.setSelected(var0);
+            this.ensureVisible(var0);
+        }
+
+    }
+
+    protected void moveSelection(AbstractSelectionList.SelectionDirection param0, Predicate<E> param1) {
+        int var0 = param0 == AbstractSelectionList.SelectionDirection.UP ? -1 : 1;
         if (!this.children().isEmpty()) {
-            int var0 = this.children().indexOf(this.getSelected());
-            int var1 = Mth.clamp(var0 + param0, 0, this.getItemCount() - 1);
-            E var2 = this.children().get(var1);
-            this.setSelected(var2);
-            this.ensureVisible(var2);
+            int var1 = this.children().indexOf(this.getSelected());
+
+            while(true) {
+                int var2 = Mth.clamp(var1 + var0, 0, this.getItemCount() - 1);
+                if (var1 == var2) {
+                    break;
+                }
+
+                E var3 = this.children().get(var2);
+                if (param1.test(var3)) {
+                    this.setSelected(var3);
+                    this.ensureVisible(var3);
+                    break;
+                }
+
+                var1 = var2;
+            }
         }
 
     }
@@ -508,6 +535,12 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
         public boolean isMouseOver(double param0, double param1) {
             return Objects.equals(this.list.getEntryAtPosition(param0, param1), this);
         }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static enum SelectionDirection {
+        UP,
+        DOWN;
     }
 
     @OnlyIn(Dist.CLIENT)

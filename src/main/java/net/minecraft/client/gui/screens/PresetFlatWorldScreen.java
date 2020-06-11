@@ -15,6 +15,7 @@ import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.chat.NarratorChatListener;
+import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.ObjectSelectionList;
@@ -422,7 +423,7 @@ public class PresetFlatWorldScreen extends Screen {
         }
 
         @Override
-        protected void moveSelection(int param0) {
+        protected void moveSelection(AbstractSelectionList.SelectionDirection param0) {
             super.moveSelection(param0);
             PresetFlatWorldScreen.this.updateButtonValidity(true);
         }

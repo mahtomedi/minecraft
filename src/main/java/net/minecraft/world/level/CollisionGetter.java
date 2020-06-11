@@ -1,6 +1,5 @@
 package net.minecraft.world.level;
 
-import com.google.common.collect.Streams;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -49,12 +48,10 @@ public interface CollisionGetter extends BlockGetter {
         return this.getCollisions(param0, param1, param2).allMatch(VoxelShape::isEmpty);
     }
 
-    default Stream<VoxelShape> getEntityCollisions(@Nullable Entity param0, AABB param1, Predicate<Entity> param2) {
-        return Stream.empty();
-    }
+    Stream<VoxelShape> getEntityCollisions(@Nullable Entity var1, AABB var2, Predicate<Entity> var3);
 
     default Stream<VoxelShape> getCollisions(@Nullable Entity param0, AABB param1, Predicate<Entity> param2) {
-        return Streams.concat(this.getBlockCollisions(param0, param1), this.getEntityCollisions(param0, param1, param2));
+        return Stream.concat(this.getBlockCollisions(param0, param1), this.getEntityCollisions(param0, param1, param2));
     }
 
     default Stream<VoxelShape> getBlockCollisions(@Nullable Entity param0, AABB param1) {

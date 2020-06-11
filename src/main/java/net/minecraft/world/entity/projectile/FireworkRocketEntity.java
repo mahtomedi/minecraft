@@ -1,6 +1,7 @@
 package net.minecraft.world.entity.projectile;
 
 import java.util.OptionalInt;
+import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -62,7 +63,7 @@ public class FireworkRocketEntity extends Projectile implements ItemSupplier {
         this.lifetime = 10 * var0 + this.random.nextInt(6) + this.random.nextInt(7);
     }
 
-    public FireworkRocketEntity(Level param0, Entity param1, double param2, double param3, double param4, ItemStack param5) {
+    public FireworkRocketEntity(Level param0, @Nullable Entity param1, double param2, double param3, double param4, ItemStack param5) {
         this(param0, param2, param3, param4, param5);
         this.setOwner(param1);
     }

@@ -6,6 +6,7 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import net.minecraft.client.gui.chat.NarratorChatListener;
+import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.resources.language.I18n;
@@ -95,7 +96,7 @@ public class CreateBuffetWorldScreen extends Screen {
         }
 
         @Override
-        protected void moveSelection(int param0) {
+        protected void moveSelection(AbstractSelectionList.SelectionDirection param0) {
             super.moveSelection(param0);
             CreateBuffetWorldScreen.this.updateButtonValidity();
         }

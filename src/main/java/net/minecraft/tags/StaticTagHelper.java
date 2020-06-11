@@ -27,7 +27,7 @@ public class StaticTagHelper<T> {
     @OnlyIn(Dist.CLIENT)
     public void resetToEmpty() {
         this.source = this.empty;
-        Tag<T> var0 = this.empty.getEmptyTag();
+        Tag<T> var0 = SetTag.empty();
         this.wrappers.forEach(param1 -> param1.rebind(param1x -> var0));
     }
 

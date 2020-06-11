@@ -19,41 +19,41 @@ public class ClientboundPlayerAbilitiesPacket implements Packet<ClientGamePacket
     }
 
     public ClientboundPlayerAbilitiesPacket(Abilities param0) {
-        this.setInvulnerable(param0.invulnerable);
-        this.setFlying(param0.flying);
-        this.setCanFly(param0.mayfly);
-        this.setInstabuild(param0.instabuild);
-        this.setFlyingSpeed(param0.getFlyingSpeed());
-        this.setWalkingSpeed(param0.getWalkingSpeed());
+        this.invulnerable = param0.invulnerable;
+        this.isFlying = param0.flying;
+        this.canFly = param0.mayfly;
+        this.instabuild = param0.instabuild;
+        this.flyingSpeed = param0.getFlyingSpeed();
+        this.walkingSpeed = param0.getWalkingSpeed();
     }
 
     @Override
     public void read(FriendlyByteBuf param0) throws IOException {
         byte var0 = param0.readByte();
-        this.setInvulnerable((var0 & 1) > 0);
-        this.setFlying((var0 & 2) > 0);
-        this.setCanFly((var0 & 4) > 0);
-        this.setInstabuild((var0 & 8) > 0);
-        this.setFlyingSpeed(param0.readFloat());
-        this.setWalkingSpeed(param0.readFloat());
+        this.invulnerable = (var0 & 1) != 0;
+        this.isFlying = (var0 & 2) != 0;
+        this.canFly = (var0 & 4) != 0;
+        this.instabuild = (var0 & 8) != 0;
+        this.flyingSpeed = param0.readFloat();
+        this.walkingSpeed = param0.readFloat();
     }
 
     @Override
     public void write(FriendlyByteBuf param0) throws IOException {
         byte var0 = 0;
-        if (this.isInvulnerable()) {
+        if (this.invulnerable) {
             var0 = (byte)(var0 | 1);
         }
 
-        if (this.isFlying()) {
+        if (this.isFlying) {
             var0 = (byte)(var0 | 2);
         }
 
-        if (this.canFly()) {
+        if (this.canFly) {
             var0 = (byte)(var0 | 4);
         }
 
-        if (this.canInstabuild()) {
+        if (this.instabuild) {
             var0 = (byte)(var0 | 8);
         }
 
@@ -66,36 +66,24 @@ public class ClientboundPlayerAbilitiesPacket implements Packet<ClientGamePacket
         param0.handlePlayerAbilities(this);
     }
 
+    @OnlyIn(Dist.CLIENT)
     public boolean isInvulnerable() {
         return this.invulnerable;
     }
 
-    public void setInvulnerable(boolean param0) {
-        this.invulnerable = param0;
-    }
-
+    @OnlyIn(Dist.CLIENT)
     public boolean isFlying() {
         return this.isFlying;
     }
 
-    public void setFlying(boolean param0) {
-        this.isFlying = param0;
-    }
-
+    @OnlyIn(Dist.CLIENT)
     public boolean canFly() {
         return this.canFly;
     }
 
-    public void setCanFly(boolean param0) {
-        this.canFly = param0;
-    }
-
+    @OnlyIn(Dist.CLIENT)
     public boolean canInstabuild() {
         return this.instabuild;
-    }
-
-    public void setInstabuild(boolean param0) {
-        this.instabuild = param0;
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -103,16 +91,8 @@ public class ClientboundPlayerAbilitiesPacket implements Packet<ClientGamePacket
         return this.flyingSpeed;
     }
 
-    public void setFlyingSpeed(float param0) {
-        this.flyingSpeed = param0;
-    }
-
     @OnlyIn(Dist.CLIENT)
     public float getWalkingSpeed() {
         return this.walkingSpeed;
-    }
-
-    public void setWalkingSpeed(float param0) {
-        this.walkingSpeed = param0;
     }
 }
