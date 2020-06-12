@@ -80,6 +80,7 @@ import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.item.trading.MerchantOffers;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -897,26 +898,36 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
         for(int var1 = 0; var1 < 10; ++var1) {
             double var2 = (double)(this.level.random.nextInt(16) - 8);
             double var3 = (double)(this.level.random.nextInt(16) - 8);
-            double var4 = 6.0;
+            BlockPos var4 = this.findSpawnPositionForGolemInColumn(var0, var2, var3);
+            if (var4 != null) {
+                IronGolem var5 = EntityType.IRON_GOLEM.create(this.level, null, null, null, var4, MobSpawnType.MOB_SUMMONED, false, false);
+                if (var5 != null) {
+                    if (var5.checkSpawnRules(this.level, MobSpawnType.MOB_SUMMONED) && var5.checkSpawnObstruction(this.level)) {
+                        this.level.addFreshEntity(var5);
+                        return var5;
+                    }
 
-            for(int var5 = 0; var5 >= -12; --var5) {
-                BlockPos var6 = var0.offset(var2, var4 + (double)var5, var3);
-                if ((this.level.getBlockState(var6).isAir() || this.level.getBlockState(var6).getMaterial().isLiquid())
-                    && this.level.getBlockState(var6.below()).getMaterial().isSolidBlocking()) {
-                    var4 += (double)var5;
-                    break;
+                    var5.remove();
                 }
             }
+        }
 
-            BlockPos var7 = var0.offset(var2, var4, var3);
-            IronGolem var8 = EntityType.IRON_GOLEM.create(this.level, null, null, null, var7, MobSpawnType.MOB_SUMMONED, false, false);
-            if (var8 != null) {
-                if (var8.checkSpawnRules(this.level, MobSpawnType.MOB_SUMMONED) && var8.checkSpawnObstruction(this.level)) {
-                    this.level.addFreshEntity(var8);
-                    return var8;
-                }
+        return null;
+    }
 
-                var8.remove();
+    @Nullable
+    private BlockPos findSpawnPositionForGolemInColumn(BlockPos param0, double param1, double param2) {
+        int var0 = 6;
+        BlockPos var1 = param0.offset(param1, 6.0, param2);
+        BlockState var2 = this.level.getBlockState(var1);
+
+        for(int var3 = 6; var3 >= -6; --var3) {
+            BlockPos var4 = var1;
+            BlockState var5 = var2;
+            var1 = var1.below();
+            var2 = this.level.getBlockState(var1);
+            if ((var5.isAir() || var5.getMaterial().isLiquid()) && var2.getMaterial().isSolidBlocking()) {
+                return var4;
             }
         }
 

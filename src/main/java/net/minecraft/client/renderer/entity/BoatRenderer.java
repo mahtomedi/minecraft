@@ -55,8 +55,11 @@ public class BoatRenderer extends EntityRenderer<Boat> {
         this.model.setupAnim(param0, param2, 0.0F, -0.1F, 0.0F, 0.0F);
         VertexConsumer var3 = param4.getBuffer(this.model.renderType(this.getTextureLocation(param0)));
         this.model.renderToBuffer(param3, var3, param5, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
-        VertexConsumer var4 = param4.getBuffer(RenderType.waterMask());
-        this.model.waterPatch().render(param3, var4, param5, OverlayTexture.NO_OVERLAY);
+        if (!param0.isUnderWater()) {
+            VertexConsumer var4 = param4.getBuffer(RenderType.waterMask());
+            this.model.waterPatch().render(param3, var4, param5, OverlayTexture.NO_OVERLAY);
+        }
+
         param3.popPose();
         super.render(param0, param1, param2, param3, param4, param5);
     }

@@ -85,6 +85,25 @@ public class Codecs {
         });
     }
 
+    public static <A> MapCodec<A> setPartial(MapCodec<A> param0, final Supplier<A> param1) {
+        return mapResult(param0, new Codecs.ResultFunction<A>() {
+            @Override
+            public <T> DataResult<A> apply(DynamicOps<T> param0, MapLike<T> param1x, DataResult<A> param2) {
+                return param2.setPartial(param1);
+            }
+
+            @Override
+            public <T> RecordBuilder<T> coApply(DynamicOps<T> param0, A param1x, RecordBuilder<T> param2) {
+                return param2;
+            }
+
+            @Override
+            public String toString() {
+                return "SetPartial[" + param1 + "]";
+            }
+        });
+    }
+
     interface ResultFunction<A> {
         <T> DataResult<A> apply(DynamicOps<T> var1, MapLike<T> var2, DataResult<A> var3);
 

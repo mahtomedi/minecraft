@@ -113,6 +113,7 @@ import net.minecraft.util.datafix.fixes.OptionsForceVBOFix;
 import net.minecraft.util.datafix.fixes.OptionsKeyLwjgl3Fix;
 import net.minecraft.util.datafix.fixes.OptionsKeyTranslationFix;
 import net.minecraft.util.datafix.fixes.OptionsLowerCaseLanguageFix;
+import net.minecraft.util.datafix.fixes.OptionsRenameFieldFix;
 import net.minecraft.util.datafix.fixes.PlayerUUIDFix;
 import net.minecraft.util.datafix.fixes.RecipesFix;
 import net.minecraft.util.datafix.fixes.RecipesRenameFix;
@@ -682,5 +683,6 @@ public class DataFixers {
         param0.addFixer(new BiomeFix(var121, false));
         Schema var122 = param0.addSchema(2558, SAME_NAMESPACED);
         param0.addFixer(new MissingDimensionFix(var122, false));
+        param0.addFixer(new OptionsRenameFieldFix(var122, false, "Rename swapHands setting", "key_key.swapHands", "key_key.swapOffhand"));
     }
 }

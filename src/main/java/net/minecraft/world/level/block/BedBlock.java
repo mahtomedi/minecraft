@@ -6,7 +6,6 @@ import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.stats.Stats;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -175,25 +174,17 @@ public class BedBlock extends HorizontalDirectionalBlock implements EntityBlock 
     }
 
     @Override
-    public void playerDestroy(Level param0, Player param1, BlockPos param2, BlockState param3, @Nullable BlockEntity param4, ItemStack param5) {
-        super.playerDestroy(param0, param1, param2, Blocks.AIR.defaultBlockState(), param4, param5);
-    }
-
-    @Override
     public void playerWillDestroy(Level param0, BlockPos param1, BlockState param2, Player param3) {
-        BedPart var0 = param2.getValue(PART);
-        BlockPos var1 = param1.relative(getNeighbourDirection(var0, param2.getValue(FACING)));
-        BlockState var2 = param0.getBlockState(var1);
-        if (var2.is(this) && var2.getValue(PART) != var0) {
-            param0.setBlock(var1, Blocks.AIR.defaultBlockState(), 35);
-            param0.levelEvent(param3, 2001, var1, Block.getId(var2));
-            if (!param0.isClientSide && !param3.isCreative()) {
-                ItemStack var3 = param3.getMainHandItem();
-                dropResources(param2, param0, param1, null, param3, var3);
-                dropResources(var2, param0, var1, null, param3, var3);
+        if (!param0.isClientSide && param3.isCreative()) {
+            BedPart var0 = param2.getValue(PART);
+            if (var0 == BedPart.FOOT) {
+                BlockPos var1 = param1.relative(getNeighbourDirection(var0, param2.getValue(FACING)));
+                BlockState var2 = param0.getBlockState(var1);
+                if (var2.getBlock() == this && var2.getValue(PART) == BedPart.HEAD) {
+                    param0.setBlock(var1, Blocks.AIR.defaultBlockState(), 35);
+                    param0.levelEvent(param3, 2001, var1, Block.getId(var2));
+                }
             }
-
-            param3.awardStat(Stats.BLOCK_MINED.get(this));
         }
 
         super.playerWillDestroy(param0, param1, param2, param3);

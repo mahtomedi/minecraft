@@ -3,7 +3,6 @@ package net.minecraft.world.item;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseFireBlock;
@@ -21,18 +20,15 @@ public class FireChargeItem extends Item {
         BlockPos var1 = param0.getClickedPos();
         BlockState var2 = var0.getBlockState(var1);
         boolean var3 = false;
-        if (var2.is(BlockTags.CAMPFIRES, param0x -> param0x.hasProperty(CampfireBlock.LIT) && param0x.hasProperty(CampfireBlock.WATERLOGGED))) {
-            if (!var2.getValue(CampfireBlock.LIT) && !var2.getValue(CampfireBlock.WATERLOGGED)) {
-                this.playSound(var0, var1);
-                var0.setBlockAndUpdate(var1, var2.setValue(CampfireBlock.LIT, Boolean.valueOf(true)));
-                var3 = true;
-            }
+        if (CampfireBlock.canLight(var2)) {
+            this.playSound(var0, var1);
+            var0.setBlockAndUpdate(var1, var2.setValue(CampfireBlock.LIT, Boolean.valueOf(true)));
+            var3 = true;
         } else {
             var1 = var1.relative(param0.getClickedFace());
-            BlockState var4 = BaseFireBlock.getState(var0, var1);
-            if (var0.getBlockState(var1).isAir() && var4.canSurvive(var0, var1)) {
+            if (BaseFireBlock.canBePlacedAt(var0, var1)) {
                 this.playSound(var0, var1);
-                var0.setBlockAndUpdate(var1, var4);
+                var0.setBlockAndUpdate(var1, BaseFireBlock.getState(var0, var1));
                 var3 = true;
             }
         }

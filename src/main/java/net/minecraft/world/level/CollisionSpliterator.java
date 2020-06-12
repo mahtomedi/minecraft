@@ -2,6 +2,7 @@ package net.minecraft.world.level;
 
 import java.util.Objects;
 import java.util.Spliterators.AbstractSpliterator;
+import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
@@ -27,8 +28,13 @@ public class CollisionSpliterator extends AbstractSpliterator<VoxelShape> {
     private final VoxelShape entityShape;
     private final CollisionGetter collisionGetter;
     private boolean needsBorderCheck;
+    private final BiPredicate<BlockState, BlockPos> predicate;
 
     public CollisionSpliterator(CollisionGetter param0, @Nullable Entity param1, AABB param2) {
+        this(param0, param1, param2, (param0x, param1x) -> true);
+    }
+
+    public CollisionSpliterator(CollisionGetter param0, @Nullable Entity param1, AABB param2, BiPredicate<BlockState, BlockPos> param3) {
         super(Long.MAX_VALUE, 1280);
         this.context = param1 == null ? CollisionContext.empty() : CollisionContext.of(param1);
         this.pos = new BlockPos.MutableBlockPos();
@@ -37,6 +43,7 @@ public class CollisionSpliterator extends AbstractSpliterator<VoxelShape> {
         this.needsBorderCheck = param1 != null;
         this.source = param1;
         this.box = param2;
+        this.predicate = param3;
         int var0 = Mth.floor(param2.minX - 1.0E-7) - 1;
         int var1 = Mth.floor(param2.maxX + 1.0E-7) + 1;
         int var2 = Mth.floor(param2.minY - 1.0E-7) - 1;
@@ -62,7 +69,7 @@ public class CollisionSpliterator extends AbstractSpliterator<VoxelShape> {
                 if (var4 != null) {
                     this.pos.set(var0, var1, var2);
                     BlockState var5 = var4.getBlockState(this.pos);
-                    if ((var3 != 1 || var5.hasLargeCollisionShape()) && (var3 != 2 || var5.is(Blocks.MOVING_PISTON))) {
+                    if (this.predicate.test(var5, this.pos) && (var3 != 1 || var5.hasLargeCollisionShape()) && (var3 != 2 || var5.is(Blocks.MOVING_PISTON))) {
                         VoxelShape var6 = var5.getCollisionShape(this.collisionGetter, this.pos, this.context);
                         if (var6 == Shapes.block()) {
                             if (this.box.intersects((double)var0, (double)var1, (double)var2, (double)var0 + 1.0, (double)var1 + 1.0, (double)var2 + 1.0)) {

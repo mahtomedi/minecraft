@@ -500,7 +500,6 @@ public class ClientPacketListener implements ClientGamePacketListener {
             var4 = new AreaEffectCloud(this.level, var0, var1, var2);
         } else if (var3 == EntityType.LIGHTNING_BOLT) {
             var4 = new LightningBolt(EntityType.LIGHTNING_BOLT, this.level);
-            var4.moveTo(var0, var1, var2);
         } else {
             var4 = null;
         }
@@ -508,6 +507,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
         if (var4 != null) {
             int var45 = param0.getId();
             var4.setPacketCoordinates(var0, var1, var2);
+            var4.moveTo(var0, var1, var2);
             var4.xRot = (float)(param0.getxRot() * 360) / 256.0F;
             var4.yRot = (float)(param0.getyRot() * 360) / 256.0F;
             var4.setId(var45);

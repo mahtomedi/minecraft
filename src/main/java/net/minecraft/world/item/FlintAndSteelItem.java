@@ -2,17 +2,14 @@ package net.minecraft.world.item;
 
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.BaseFireBlock;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.NetherPortalBlock;
+import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
@@ -27,7 +24,7 @@ public class FlintAndSteelItem extends Item {
         LevelAccessor var1 = param0.getLevel();
         BlockPos var2 = param0.getClickedPos();
         BlockState var3 = var1.getBlockState(var2);
-        if (canLightCampFire(var3)) {
+        if (CampfireBlock.canLight(var3)) {
             var1.playSound(var0, var2, SoundEvents.FLINTANDSTEEL_USE, SoundSource.BLOCKS, 1.0F, random.nextFloat() * 0.4F + 0.8F);
             var1.setBlock(var2, var3.setValue(BlockStateProperties.LIT, Boolean.valueOf(true)), 11);
             if (var0 != null) {
@@ -37,7 +34,7 @@ public class FlintAndSteelItem extends Item {
             return InteractionResult.sidedSuccess(var1.isClientSide());
         } else {
             BlockPos var4 = var2.relative(param0.getClickedFace());
-            if (canUse(var1.getBlockState(var4), var1, var4)) {
+            if (BaseFireBlock.canBePlacedAt(var1, var4)) {
                 var1.playSound(var0, var4, SoundEvents.FLINTANDSTEEL_USE, SoundSource.BLOCKS, 1.0F, random.nextFloat() * 0.4F + 0.8F);
                 BlockState var5 = BaseFireBlock.getState(var1, var4);
                 var1.setBlock(var4, var5, 11);
@@ -52,24 +49,5 @@ public class FlintAndSteelItem extends Item {
                 return InteractionResult.FAIL;
             }
         }
-    }
-
-    public static boolean canLightCampFire(BlockState param0) {
-        return param0.is(BlockTags.CAMPFIRES, param0x -> param0x.hasProperty(BlockStateProperties.WATERLOGGED) && param0x.hasProperty(BlockStateProperties.LIT))
-            && !param0.getValue(BlockStateProperties.WATERLOGGED)
-            && !param0.getValue(BlockStateProperties.LIT);
-    }
-
-    public static boolean canUse(BlockState param0, LevelAccessor param1, BlockPos param2) {
-        BlockState var0 = BaseFireBlock.getState(param1, param2);
-        boolean var1 = false;
-
-        for(Direction var2 : Direction.Plane.HORIZONTAL) {
-            if (param1.getBlockState(param2.relative(var2)).is(Blocks.OBSIDIAN) && NetherPortalBlock.isPortal(param1, param2) != null) {
-                var1 = true;
-            }
-        }
-
-        return param0.isAir() && (var0.canSurvive(param1, param2) || var1);
     }
 }

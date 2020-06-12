@@ -12,6 +12,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -159,5 +160,21 @@ public abstract class BaseFireBlock extends Block {
             param0.levelEvent(null, 1009, param1, 0);
         }
 
+    }
+
+    public static boolean canBePlacedAt(LevelAccessor param0, BlockPos param1) {
+        BlockState var0 = param0.getBlockState(param1);
+        BlockState var1 = getState(param0, param1);
+        return var0.isAir() && (var1.canSurvive(param0, param1) || isPortal(param0, param1));
+    }
+
+    private static boolean isPortal(LevelAccessor param0, BlockPos param1) {
+        for(Direction var0 : Direction.Plane.HORIZONTAL) {
+            if (param0.getBlockState(param1.relative(var0)).is(Blocks.OBSIDIAN) && NetherPortalBlock.isPortal(param0, param1) != null) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

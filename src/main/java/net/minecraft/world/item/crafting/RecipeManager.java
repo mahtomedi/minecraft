@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Map.Entry;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import net.minecraft.Util;
@@ -66,6 +67,10 @@ public class RecipeManager extends SimpleJsonResourceReloadListener {
 
     public <C extends Container, T extends Recipe<C>> Optional<T> getRecipeFor(RecipeType<T> param0, C param1, Level param2) {
         return this.byType(param0).values().stream().flatMap(param3 -> Util.toStream(param0.tryMatch(param3, param2, param1))).findFirst();
+    }
+
+    public <C extends Container, T extends Recipe<C>> List<T> getAllRecipesFor(RecipeType<T> param0) {
+        return this.byType(param0).values().stream().map((Function<? super Recipe, ? extends Recipe>)(param0x -> param0x)).collect(Collectors.toList());
     }
 
     public <C extends Container, T extends Recipe<C>> List<T> getRecipesFor(RecipeType<T> param0, C param1, Level param2) {

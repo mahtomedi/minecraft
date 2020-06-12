@@ -4,6 +4,7 @@ import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -90,7 +91,19 @@ public class LecternBlock extends BaseEntityBlock {
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext param0) {
-        return this.defaultBlockState().setValue(FACING, param0.getHorizontalDirection().getOpposite());
+        Level var0 = param0.getLevel();
+        ItemStack var1 = param0.getItemInHand();
+        CompoundTag var2 = var1.getOrCreateTag();
+        Player var3 = param0.getPlayer();
+        boolean var4 = false;
+        if (!var0.isClientSide && var3 != null && var3.canUseGameMasterBlocks() && var2.contains("BlockEntityTag")) {
+            CompoundTag var5 = var2.getCompound("BlockEntityTag");
+            if (var5.contains("Book")) {
+                var4 = true;
+            }
+        }
+
+        return this.defaultBlockState().setValue(FACING, param0.getHorizontalDirection().getOpposite()).setValue(HAS_BOOK, Boolean.valueOf(var4));
     }
 
     @Override

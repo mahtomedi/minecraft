@@ -11,7 +11,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -71,25 +70,25 @@ public class DoublePlantBlock extends BushBlock {
     }
 
     @Override
-    public void playerDestroy(Level param0, Player param1, BlockPos param2, BlockState param3, @Nullable BlockEntity param4, ItemStack param5) {
-        super.playerDestroy(param0, param1, param2, Blocks.AIR.defaultBlockState(), param4, param5);
-    }
-
-    @Override
     public void playerWillDestroy(Level param0, BlockPos param1, BlockState param2, Player param3) {
-        DoubleBlockHalf var0 = param2.getValue(HALF);
-        BlockPos var1 = var0 == DoubleBlockHalf.LOWER ? param1.above() : param1.below();
-        BlockState var2 = param0.getBlockState(var1);
-        if (var2.is(this) && var2.getValue(HALF) != var0) {
-            param0.setBlock(var1, Blocks.AIR.defaultBlockState(), 35);
-            param0.levelEvent(param3, 2001, var1, Block.getId(var2));
-            if (!param0.isClientSide && !param3.isCreative()) {
-                dropResources(param2, param0, param1, null, param3, param3.getMainHandItem());
-                dropResources(var2, param0, var1, null, param3, param3.getMainHandItem());
-            }
+        if (!param0.isClientSide && param3.isCreative()) {
+            preventCreativeDropFromBottomPart(param0, param1, param2, param3);
         }
 
         super.playerWillDestroy(param0, param1, param2, param3);
+    }
+
+    protected static void preventCreativeDropFromBottomPart(Level param0, BlockPos param1, BlockState param2, Player param3) {
+        DoubleBlockHalf var0 = param2.getValue(HALF);
+        if (var0 == DoubleBlockHalf.UPPER) {
+            BlockPos var1 = param1.below();
+            BlockState var2 = param0.getBlockState(var1);
+            if (var2.getBlock() == param2.getBlock() && var2.getValue(HALF) == DoubleBlockHalf.LOWER) {
+                param0.setBlock(var1, Blocks.AIR.defaultBlockState(), 35);
+                param0.levelEvent(param3, 2001, var1, Block.getId(var2));
+            }
+        }
+
     }
 
     @Override

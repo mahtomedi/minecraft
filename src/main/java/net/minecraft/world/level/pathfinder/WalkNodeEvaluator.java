@@ -522,6 +522,10 @@ public class WalkNodeEvaluator extends NodeEvaluator {
                         if (param0.getFluidState(param1).is(FluidTags.WATER)) {
                             return BlockPathTypes.WATER_BORDER;
                         }
+
+                        if (param0.getFluidState(param1).is(FluidTags.LAVA)) {
+                            return BlockPathTypes.LAVA;
+                        }
                     }
                 }
             }
@@ -575,6 +579,6 @@ public class WalkNodeEvaluator extends NodeEvaluator {
     }
 
     private static boolean isBurningBlock(BlockState param0) {
-        return param0.is(BlockTags.FIRE) || param0.is(Blocks.LAVA) || param0.is(Blocks.MAGMA_BLOCK) || CampfireBlock.isLitCampfire(param0);
+        return param0.is(BlockTags.FIRE) || param0.is(Blocks.MAGMA_BLOCK) || CampfireBlock.isLitCampfire(param0);
     }
 }

@@ -32,7 +32,7 @@ public abstract class PropertyDispatch {
         Stream<Selector> var1 = Stream.of(Selector.empty());
 
         for(Property<?> var2 : var0) {
-            var1 = var1.flatMap(param1 -> PropertyValue.getAll(var2).map(param1::extend));
+            var1 = var1.flatMap(param1 -> var2.getAllValues().map(param1::extend));
         }
 
         List<Selector> var3 = var1.filter(param0 -> !this.values.containsKey(param0)).collect(Collectors.toList());
@@ -82,7 +82,7 @@ public abstract class PropertyDispatch {
         }
 
         public PropertyDispatch.C1<T1> select(T1 param0, List<Variant> param1) {
-            Selector var0 = Selector.of(new PropertyValue<>(this.property1, param0));
+            Selector var0 = Selector.of(this.property1.value(param0));
             this.putValue(var0, param1);
             return this;
         }
@@ -112,7 +112,7 @@ public abstract class PropertyDispatch {
         }
 
         public PropertyDispatch.C2<T1, T2> select(T1 param0, T2 param1, List<Variant> param2) {
-            Selector var0 = Selector.of(new PropertyValue<>(this.property1, param0), new PropertyValue<>(this.property2, param1));
+            Selector var0 = Selector.of(this.property1.value(param0), this.property2.value(param1));
             this.putValue(var0, param2);
             return this;
         }
@@ -153,9 +153,7 @@ public abstract class PropertyDispatch {
         }
 
         public PropertyDispatch.C3<T1, T2, T3> select(T1 param0, T2 param1, T3 param2, List<Variant> param3) {
-            Selector var0 = Selector.of(
-                new PropertyValue<>(this.property1, param0), new PropertyValue<>(this.property2, param1), new PropertyValue<>(this.property3, param2)
-            );
+            Selector var0 = Selector.of(this.property1.value(param0), this.property2.value(param1), this.property3.value(param2));
             this.putValue(var0, param3);
             return this;
         }
@@ -199,12 +197,7 @@ public abstract class PropertyDispatch {
         }
 
         public PropertyDispatch.C4<T1, T2, T3, T4> select(T1 param0, T2 param1, T3 param2, T4 param3, List<Variant> param4) {
-            Selector var0 = Selector.of(
-                new PropertyValue<>(this.property1, param0),
-                new PropertyValue<>(this.property2, param1),
-                new PropertyValue<>(this.property3, param2),
-                new PropertyValue<>(this.property4, param3)
-            );
+            Selector var0 = Selector.of(this.property1.value(param0), this.property2.value(param1), this.property3.value(param2), this.property4.value(param3));
             this.putValue(var0, param4);
             return this;
         }
@@ -237,11 +230,11 @@ public abstract class PropertyDispatch {
 
         public PropertyDispatch.C5<T1, T2, T3, T4, T5> select(T1 param0, T2 param1, T3 param2, T4 param3, T5 param4, List<Variant> param5) {
             Selector var0 = Selector.of(
-                new PropertyValue<>(this.property1, param0),
-                new PropertyValue<>(this.property2, param1),
-                new PropertyValue<>(this.property3, param2),
-                new PropertyValue<>(this.property4, param3),
-                new PropertyValue<>(this.property5, param4)
+                this.property1.value(param0),
+                this.property2.value(param1),
+                this.property3.value(param2),
+                this.property4.value(param3),
+                this.property5.value(param4)
             );
             this.putValue(var0, param5);
             return this;

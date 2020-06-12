@@ -35,12 +35,7 @@ public interface Component extends Message, FormattedText {
 
     @Override
     default String getString() {
-        StringBuilder var0 = new StringBuilder();
-        this.visit(param1 -> {
-            var0.append(param1);
-            return Optional.empty();
-        });
-        return var0.toString();
+        return FormattedText.super.getString();
     }
 
     default String getString(int param0) {

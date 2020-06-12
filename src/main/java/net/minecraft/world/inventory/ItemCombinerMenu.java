@@ -89,6 +89,10 @@ public abstract class ItemCombinerMenu extends AbstractContainerMenu {
             );
     }
 
+    protected boolean shouldQuickMoveToAdditionalSlot(ItemStack param0) {
+        return false;
+    }
+
     @Override
     public ItemStack quickMoveStack(Player param0, int param1) {
         ItemStack var0 = ItemStack.EMPTY;
@@ -103,8 +107,11 @@ public abstract class ItemCombinerMenu extends AbstractContainerMenu {
 
                 var1.onQuickCraft(var2, var0);
             } else if (param1 != 0 && param1 != 1) {
-                if (param1 >= 3 && param1 < 39 && !this.moveItemStackTo(var2, 0, 2, false)) {
-                    return ItemStack.EMPTY;
+                if (param1 >= 3 && param1 < 39) {
+                    int var3 = this.shouldQuickMoveToAdditionalSlot(var0) ? 1 : 0;
+                    if (!this.moveItemStackTo(var2, var3, 2, false)) {
+                        return ItemStack.EMPTY;
+                    }
                 }
             } else if (!this.moveItemStackTo(var2, 3, 39, false)) {
                 return ItemStack.EMPTY;

@@ -4,21 +4,22 @@ import com.google.common.collect.ImmutableList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+import net.minecraft.world.level.block.state.properties.Property;
 
 public final class Selector {
     private static final Selector EMPTY = new Selector(ImmutableList.of());
-    private static final Comparator<PropertyValue<?>> COMPARE_BY_NAME = Comparator.comparing(param0 -> param0.getProperty().getName());
-    private final List<PropertyValue<?>> values;
+    private static final Comparator<Property.Value<?>> COMPARE_BY_NAME = Comparator.comparing(param0 -> param0.getProperty().getName());
+    private final List<Property.Value<?>> values;
 
-    public Selector extend(PropertyValue<?> param0) {
-        return new Selector(ImmutableList.<PropertyValue<?>>builder().addAll(this.values).add(param0).build());
+    public Selector extend(Property.Value<?> param0) {
+        return new Selector(ImmutableList.<Property.Value<?>>builder().addAll(this.values).add(param0).build());
     }
 
     public Selector extend(Selector param0) {
-        return new Selector(ImmutableList.<PropertyValue<?>>builder().addAll(this.values).addAll(param0.values).build());
+        return new Selector(ImmutableList.<Property.Value<?>>builder().addAll(this.values).addAll(param0.values).build());
     }
 
-    private Selector(List<PropertyValue<?>> param0) {
+    private Selector(List<Property.Value<?>> param0) {
         this.values = param0;
     }
 
@@ -26,7 +27,7 @@ public final class Selector {
         return EMPTY;
     }
 
-    public static Selector of(PropertyValue<?>... param0) {
+    public static Selector of(Property.Value<?>... param0) {
         return new Selector(ImmutableList.copyOf(param0));
     }
 
@@ -41,7 +42,7 @@ public final class Selector {
     }
 
     public String getKey() {
-        return this.values.stream().sorted(COMPARE_BY_NAME).map(PropertyValue::toString).collect(Collectors.joining(","));
+        return this.values.stream().sorted(COMPARE_BY_NAME).map(Property.Value::toString).collect(Collectors.joining(","));
     }
 
     @Override

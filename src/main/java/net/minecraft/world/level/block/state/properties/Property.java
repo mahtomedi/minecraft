@@ -3,9 +3,9 @@ package net.minecraft.world.level.block.state.properties;
 import com.google.common.base.MoreObjects;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
-import com.mojang.serialization.DynamicOps;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.stream.Stream;
 import net.minecraft.world.level.block.state.StateHolder;
 
 public abstract class Property<T extends Comparable<T>> {
@@ -19,10 +19,27 @@ public abstract class Property<T extends Comparable<T>> {
                     .orElseGet(() -> DataResult.error("Unable to read property: " + this + " with value: " + param0x)),
             this::getName
         );
+    private final Codec<Property.Value<T>> valueCodec = this.codec.xmap(this::value, Property.Value::value);
 
     protected Property(String param0, Class<T> param1) {
         this.clazz = param1;
         this.name = param0;
+    }
+
+    public Property.Value<T> value(T param0x) {
+        return new Property.Value<>(this, param0x);
+    }
+
+    public Property.Value<T> value(StateHolder<?, ?> param0) {
+        return new Property.Value<>(this, param0.getValue(this));
+    }
+
+    public Stream<Property.Value<T>> getAllValues() {
+        return this.getPossibleValues().stream().map(this::value);
+    }
+
+    public Codec<Property.Value<T>> valueCodec() {
+        return this.valueCodec;
     }
 
     public String getName() {
@@ -69,8 +86,48 @@ public abstract class Property<T extends Comparable<T>> {
         return 31 * this.clazz.hashCode() + this.name.hashCode();
     }
 
-    public <U, S extends StateHolder<?, S>> DataResult<S> parseValue(DynamicOps<U> param0, S param1, U param2) {
-        DataResult<T> var0 = this.codec.parse(param0, param2);
-        return var0.<S>map(param1x -> param1.setValue(this, param1x)).setPartial(param1);
+    public static final class Value<T extends Comparable<T>> {
+        private final Property<T> property;
+        private final T value;
+
+        private Value(Property<T> param0, T param1) {
+            if (!param0.getPossibleValues().contains(param1)) {
+                throw new IllegalArgumentException("Value " + param1 + " does not belong to property " + param0);
+            } else {
+                this.property = param0;
+                this.value = param1;
+            }
+        }
+
+        public Property<T> getProperty() {
+            return this.property;
+        }
+
+        public T value() {
+            return this.value;
+        }
+
+        @Override
+        public String toString() {
+            return this.property.getName() + "=" + this.property.getName(this.value);
+        }
+
+        @Override
+        public boolean equals(Object param0) {
+            if (this == param0) {
+                return true;
+            } else if (!(param0 instanceof Property.Value)) {
+                return false;
+            } else {
+                Property.Value<?> var0 = (Property.Value)param0;
+                return this.property == var0.property && this.value.equals(var0.value);
+            }
+        }
+
+        @Override
+        public int hashCode() {
+            int var0 = this.property.hashCode();
+            return 31 * var0 + this.value.hashCode();
+        }
     }
 }

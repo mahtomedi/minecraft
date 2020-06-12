@@ -90,15 +90,16 @@ public class MushroomCow extends Cow implements Shearable {
                 var2 = new ItemStack(Items.MUSHROOM_STEW);
             }
 
-            ItemUtils.createBucketResult(var0, param0, var2);
-            SoundEvent var4;
+            ItemStack var4 = ItemUtils.createBucketResult(var0, param0, var2);
+            param0.setItemInHand(param1, var4);
+            SoundEvent var5;
             if (var1) {
-                var4 = SoundEvents.MOOSHROOM_MILK_SUSPICIOUSLY;
+                var5 = SoundEvents.MOOSHROOM_MILK_SUSPICIOUSLY;
             } else {
-                var4 = SoundEvents.MOOSHROOM_MILK;
+                var5 = SoundEvents.MOOSHROOM_MILK;
             }
 
-            this.playSound(var4, 1.0F, 1.0F);
+            this.playSound(var5, 1.0F, 1.0F);
             return InteractionResult.sidedSuccess(this.level.isClientSide);
         } else if (var0.getItem() == Items.SHEARS && this.readyForShearing()) {
             this.shear(SoundSource.PLAYERS);
@@ -109,7 +110,7 @@ public class MushroomCow extends Cow implements Shearable {
             return InteractionResult.sidedSuccess(this.level.isClientSide);
         } else if (this.getMushroomType() == MushroomCow.MushroomType.BROWN && var0.getItem().is(ItemTags.SMALL_FLOWERS)) {
             if (this.effect != null) {
-                for(int var6 = 0; var6 < 2; ++var6) {
+                for(int var7 = 0; var7 < 2; ++var7) {
                     this.level
                         .addParticle(
                             ParticleTypes.SMOKE,
@@ -122,12 +123,12 @@ public class MushroomCow extends Cow implements Shearable {
                         );
                 }
             } else {
-                Pair<MobEffect, Integer> var7 = this.getEffectFromItemStack(var0);
+                Pair<MobEffect, Integer> var8 = this.getEffectFromItemStack(var0);
                 if (!param0.abilities.instabuild) {
                     var0.shrink(1);
                 }
 
-                for(int var8 = 0; var8 < 4; ++var8) {
+                for(int var9 = 0; var9 < 4; ++var9) {
                     this.level
                         .addParticle(
                             ParticleTypes.EFFECT,
@@ -140,8 +141,8 @@ public class MushroomCow extends Cow implements Shearable {
                         );
                 }
 
-                this.effect = var7.getLeft();
-                this.effectDuration = var7.getRight();
+                this.effect = var8.getLeft();
+                this.effectDuration = var8.getRight();
                 this.playSound(SoundEvents.MOOSHROOM_EAT, 2.0F, 1.0F);
             }
 

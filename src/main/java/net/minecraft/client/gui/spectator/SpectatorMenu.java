@@ -40,7 +40,6 @@ public class SpectatorMenu {
         }
     };
     private final SpectatorMenuListener listener;
-    private final List<SpectatorPage> previousCategories = Lists.newArrayList();
     private SpectatorMenuCategory category;
     private int selectedSlot = -1;
     private int page;
@@ -102,7 +101,6 @@ public class SpectatorMenu {
     }
 
     public void selectCategory(SpectatorMenuCategory param0) {
-        this.previousCategories.add(this.getCurrentPage());
         this.category = param0;
         this.selectedSlot = -1;
         this.page = 0;

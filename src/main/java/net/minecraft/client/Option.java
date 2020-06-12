@@ -3,12 +3,15 @@ package net.minecraft.client;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.Window;
+import java.util.List;
 import java.util.Optional;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -220,6 +223,11 @@ public abstract class Option {
         (param0, param1) -> param0.chatVisibility = ChatVisiblity.byId((param0.chatVisibility.getId() + param1) % 3),
         (param0, param1) -> param1.createCaption().append(new TranslatableComponent(param0.chatVisibility.getKey()))
     );
+    private static final Component GRAPHICS_TOOLTIP_FAST = new TranslatableComponent("options.graphics.fast.tooltip");
+    private static final Component GRAPHICS_TOOLTIP_FABULOUS = new TranslatableComponent(
+        "options.graphics.fabulous.tooltip", new TranslatableComponent("options.graphics.fabulous").withStyle(ChatFormatting.ITALIC)
+    );
+    private static final Component GRAPHICS_TOOLTIP_FANCY = new TranslatableComponent("options.graphics.fancy.tooltip");
     public static final CycleOption GRAPHICS = new CycleOption(
         "options.graphics",
         (param0, param1) -> {
@@ -233,13 +241,13 @@ public abstract class Option {
         (param0, param1) -> {
             switch(param0.graphicsMode) {
                 case FAST:
-                    param1.setTooltip("options.graphics.fast.tooltip");
+                    param1.setTooltip(Minecraft.getInstance().font.split(GRAPHICS_TOOLTIP_FAST, 200));
                     break;
                 case FANCY:
-                    param1.setTooltip("options.graphics.fancy.tooltip");
+                    param1.setTooltip(Minecraft.getInstance().font.split(GRAPHICS_TOOLTIP_FANCY, 200));
                     break;
                 case FABULOUS:
-                    param1.setTooltip("options.graphics.fabulous.tooltip");
+                    param1.setTooltip(Minecraft.getInstance().font.split(GRAPHICS_TOOLTIP_FABULOUS, 200));
             }
     
             TranslatableComponent var0 = new TranslatableComponent(param0.graphicsMode.getKey());
@@ -383,7 +391,7 @@ public abstract class Option {
         "options.viewBobbing", param0 -> param0.bobView, (param0, param1) -> param0.bobView = param1
     );
     private final String captionId;
-    private Optional<TranslatableComponent> toolTip;
+    private Optional<List<FormattedText>> toolTip;
 
     public Option(String param0) {
         this.captionId = param0;
@@ -396,11 +404,11 @@ public abstract class Option {
         return new TranslatableComponent(this.captionId).append(": ");
     }
 
-    public void setTooltip(String param0) {
-        this.toolTip = Optional.of(new TranslatableComponent(param0));
+    public void setTooltip(List<FormattedText> param0) {
+        this.toolTip = Optional.of(param0);
     }
 
-    public Optional<TranslatableComponent> getTooltip() {
+    public Optional<List<FormattedText>> getTooltip() {
         return this.toolTip;
     }
 }

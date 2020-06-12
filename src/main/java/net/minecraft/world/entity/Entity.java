@@ -3,7 +3,6 @@ package net.minecraft.world.entity;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.google.gson.JsonSyntaxException;
 import it.unimi.dsi.fastutil.objects.Object2DoubleArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
 import java.util.Arrays;
@@ -985,14 +984,23 @@ public abstract class Entity implements CommandSource, Nameable {
         this.wasEyeInWater = this.isEyeInFluid(FluidTags.WATER);
         this.fluidOnEyes = null;
         double var0 = this.getEyeY() - 0.11111111F;
-        BlockPos var1 = new BlockPos(this.getX(), var0, this.getZ());
-        FluidState var2 = this.level.getFluidState(var1);
+        Vec3 var1 = new Vec3(this.getX(), var0, this.getZ());
+        Entity var2 = this.getVehicle();
+        if (var2 instanceof Boat) {
+            Boat var3 = (Boat)var2;
+            if (!var3.isUnderWater() && var3.getBoundingBox().contains(var1)) {
+                return;
+            }
+        }
 
-        for(Tag<Fluid> var3 : FluidTags.getWrappers()) {
-            if (var2.is(var3)) {
-                double var4 = (double)((float)var1.getY() + var2.getHeight(this.level, var1));
-                if (var4 > var0) {
-                    this.fluidOnEyes = var3;
+        BlockPos var4 = new BlockPos(var1);
+        FluidState var5 = this.level.getFluidState(var4);
+
+        for(Tag<Fluid> var6 : FluidTags.getWrappers()) {
+            if (var5.is(var6)) {
+                double var7 = (double)((float)var4.getY() + var5.getHeight(this.level, var4));
+                if (var7 > var0) {
+                    this.fluidOnEyes = var6;
                 }
 
                 return;
@@ -1445,7 +1453,7 @@ public abstract class Entity implements CommandSource, Nameable {
 
                     try {
                         this.setCustomName(Component.Serializer.fromJson(var6));
-                    } catch (JsonSyntaxException var14) {
+                    } catch (Exception var14) {
                         LOGGER.warn("Failed to parse entity custom name {}", var6, var14);
                     }
                 }
@@ -1552,21 +1560,10 @@ public abstract class Entity implements CommandSource, Nameable {
         if (this.noPhysics) {
             return false;
         } else {
-            BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos();
-
-            for(int var1 = 0; var1 < 8; ++var1) {
-                int var2 = Mth.floor(this.getY() + (double)(((float)((var1 >> 0) % 2) - 0.5F) * 0.1F) + (double)this.eyeHeight);
-                int var3 = Mth.floor(this.getX() + (double)(((float)((var1 >> 1) % 2) - 0.5F) * this.dimensions.width * 0.8F));
-                int var4 = Mth.floor(this.getZ() + (double)(((float)((var1 >> 2) % 2) - 0.5F) * this.dimensions.width * 0.8F));
-                if (var0.getX() != var3 || var0.getY() != var2 || var0.getZ() != var4) {
-                    var0.set(var3, var2, var4);
-                    if (this.level.getBlockState(var0).isSuffocating(this.level, var0)) {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
+            float var0 = 0.1F;
+            float var1 = this.dimensions.width * 0.8F;
+            AABB var2 = AABB.ofSize((double)var1, 0.1F, (double)var1).move(this.getX(), this.getEyeY(), this.getZ());
+            return this.level.getBlockCollisions(this, var2, (param0, param1) -> param0.isSuffocating(this.level, param1)).findAny().isPresent();
         }
     }
 

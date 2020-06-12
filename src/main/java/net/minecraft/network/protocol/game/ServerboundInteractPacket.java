@@ -21,9 +21,11 @@ public class ServerboundInteractPacket implements Packet<ServerGamePacketListene
     public ServerboundInteractPacket() {
     }
 
-    public ServerboundInteractPacket(Entity param0) {
+    @OnlyIn(Dist.CLIENT)
+    public ServerboundInteractPacket(Entity param0, boolean param1) {
         this.entityId = param0.getId();
         this.action = ServerboundInteractPacket.Action.ATTACK;
+        this.usingSecondaryAction = param1;
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -53,9 +55,9 @@ public class ServerboundInteractPacket implements Packet<ServerGamePacketListene
 
         if (this.action == ServerboundInteractPacket.Action.INTERACT || this.action == ServerboundInteractPacket.Action.INTERACT_AT) {
             this.hand = param0.readEnum(InteractionHand.class);
-            this.usingSecondaryAction = param0.readBoolean();
         }
 
+        this.usingSecondaryAction = param0.readBoolean();
     }
 
     @Override
@@ -70,9 +72,9 @@ public class ServerboundInteractPacket implements Packet<ServerGamePacketListene
 
         if (this.action == ServerboundInteractPacket.Action.INTERACT || this.action == ServerboundInteractPacket.Action.INTERACT_AT) {
             param0.writeEnum(this.hand);
-            param0.writeBoolean(this.usingSecondaryAction);
         }
 
+        param0.writeBoolean(this.usingSecondaryAction);
     }
 
     public void handle(ServerGamePacketListener param0) {

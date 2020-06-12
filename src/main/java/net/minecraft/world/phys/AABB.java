@@ -458,4 +458,8 @@ public class AABB {
     public Vec3 getCenter() {
         return new Vec3(Mth.lerp(0.5, this.minX, this.maxX), Mth.lerp(0.5, this.minY, this.maxY), Mth.lerp(0.5, this.minZ, this.maxZ));
     }
+
+    public static AABB ofSize(double param0, double param1, double param2) {
+        return new AABB(-param0 / 2.0, -param1 / 2.0, -param2 / 2.0, param0 / 2.0, param1 / 2.0, param2 / 2.0);
+    }
 }

@@ -35,7 +35,6 @@ import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.BoneMealItem;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.item.FlintAndSteelItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -49,6 +48,7 @@ import net.minecraft.world.level.block.BeehiveBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.BucketPickup;
+import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.block.CarvedPumpkinBlock;
 import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.block.RespawnAnchorBlock;
@@ -381,9 +381,9 @@ public interface DispenseItemBehavior {
                 this.setSuccess(true);
                 BlockPos var1 = param0.getPos().relative(param0.getBlockState().getValue(DispenserBlock.FACING));
                 BlockState var2 = var0.getBlockState(var1);
-                if (FlintAndSteelItem.canUse(var2, var0, var1)) {
+                if (BaseFireBlock.canBePlacedAt(var0, var1)) {
                     var0.setBlockAndUpdate(var1, BaseFireBlock.getState(var0, var1));
-                } else if (FlintAndSteelItem.canLightCampFire(var2)) {
+                } else if (CampfireBlock.canLight(var2)) {
                     var0.setBlockAndUpdate(var1, var2.setValue(BlockStateProperties.LIT, Boolean.valueOf(true)));
                 } else if (var2.getBlock() instanceof TntBlock) {
                     TntBlock.explode(var0, var1);
