@@ -1426,4 +1426,10 @@ public abstract class Mob extends LivingEntity {
         }
 
     }
+
+    @Override
+    protected void removeAfterChangingDimensions() {
+        super.removeAfterChangingDimensions();
+        this.dropLeash(true, false);
+    }
 }

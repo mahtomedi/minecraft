@@ -519,11 +519,12 @@ public class WalkNodeEvaluator extends NodeEvaluator {
                             return BlockPathTypes.DANGER_FIRE;
                         }
 
-                        if (param0.getFluidState(param1).is(FluidTags.WATER)) {
+                        FluidState var7 = param0.getFluidState(param1);
+                        if (var7.is(FluidTags.WATER)) {
                             return BlockPathTypes.WATER_BORDER;
                         }
 
-                        if (param0.getFluidState(param1).is(FluidTags.LAVA)) {
+                        if (var7.is(FluidTags.LAVA)) {
                             return BlockPathTypes.LAVA;
                         }
                     }

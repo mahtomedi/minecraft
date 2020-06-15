@@ -10,6 +10,8 @@ import java.util.Random;
 import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.IntRange;
 import net.minecraft.util.TimeUtil;
@@ -69,12 +71,13 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
 
 public class PiglinAi {
-    protected static final Item BARTERING_ITEM = Items.GOLD_INGOT;
+    public static final Item BARTERING_ITEM = Items.GOLD_INGOT;
     private static final IntRange TIME_BETWEEN_HUNTS = TimeUtil.rangeOfSeconds(30, 120);
     private static final IntRange RIDE_START_INTERVAL = TimeUtil.rangeOfSeconds(10, 40);
     private static final IntRange RIDE_DURATION = TimeUtil.rangeOfSeconds(10, 30);
     private static final IntRange RETREAT_DURATION = TimeUtil.rangeOfSeconds(5, 20);
     private static final IntRange AVOID_ZOMBIFIED_DURATION = TimeUtil.rangeOfSeconds(5, 7);
+    private static final IntRange BABY_AVOID_NEMESIS_DURATION = TimeUtil.rangeOfSeconds(5, 7);
     private static final Set<Item> FOOD_ITEMS = ImmutableSet.of(Items.PORKCHOP, Items.COOKED_PORKCHOP);
 
     protected static Brain<?> makeBrain(Piglin param0, Brain<Piglin> param1) {
@@ -104,6 +107,7 @@ public class PiglinAi {
                 new LookAtTargetSink(45, 90),
                 new MoveToTargetSink(200),
                 new InteractWithDoor(),
+                babyAvoidNemesis(),
                 avoidZombified(),
                 new StopHoldingItemIfNoLongerAdmiring(),
                 new StartAdmiringItemIfSeen(120),
@@ -183,7 +187,7 @@ public class PiglinAi {
             Activity.AVOID,
             10,
             ImmutableList.of(
-                SetWalkTargetAwayFrom.entity(MemoryModuleType.AVOID_TARGET, 1.1F, 6, true),
+                SetWalkTargetAwayFrom.entity(MemoryModuleType.AVOID_TARGET, 1.0F, 12, true),
                 createIdleLookBehaviors(),
                 createIdleMovementBehaviors(),
                 new EraseMemoryIf<Piglin>(PiglinAi::wantsToStopFleeing, MemoryModuleType.AVOID_TARGET)
@@ -229,7 +233,11 @@ public class PiglinAi {
     }
 
     private static SetWalkTargetAwayFrom<BlockPos> avoidRepellent() {
-        return SetWalkTargetAwayFrom.pos(MemoryModuleType.NEAREST_REPELLENT, 1.1F, 8, false);
+        return SetWalkTargetAwayFrom.pos(MemoryModuleType.NEAREST_REPELLENT, 1.0F, 8, false);
+    }
+
+    private static CopyMemoryWithExpiry<Piglin, LivingEntity> babyAvoidNemesis() {
+        return new CopyMemoryWithExpiry<>(Piglin::isBaby, MemoryModuleType.NEAREST_VISIBLE_NEMESIS, MemoryModuleType.AVOID_TARGET, BABY_AVOID_NEMESIS_DURATION);
     }
 
     private static CopyMemoryWithExpiry<Piglin, LivingEntity> avoidZombified() {
@@ -246,7 +254,7 @@ public class PiglinAi {
         );
         Activity var2 = var0.getActiveNonCoreActivity().orElse(null);
         if (var1 != var2) {
-            playActivitySound(param0);
+            getSoundForCurrentActivity(param0).ifPresent(param0::playSound);
         }
 
         param0.setAggressive(var0.hasMemoryValue(MemoryModuleType.ATTACK_TARGET));
@@ -284,11 +292,7 @@ public class PiglinAi {
 
         Item var2 = var0.getItem();
         if (isLovedItem(var2)) {
-            if (isHoldingItemInOffHand(param0)) {
-                param0.spawnAtLocation(param0.getItemInHand(InteractionHand.OFF_HAND));
-            }
-
-            param0.holdInOffHand(var0);
+            holdInOffhand(param0, var0);
             admireGoldItem(param0);
         } else if (isFood(var2) && !hasEatenRecently(param0)) {
             eat(param0);
@@ -298,6 +302,14 @@ public class PiglinAi {
                 putInInventory(param0, var0);
             }
         }
+    }
+
+    private static void holdInOffhand(Piglin param0, ItemStack param1) {
+        if (isHoldingItemInOffHand(param0)) {
+            param0.spawnAtLocation(param0.getItemInHand(InteractionHand.OFF_HAND));
+        }
+
+        param0.holdInOffHand(param1);
     }
 
     private static ItemStack removeOneItemFromItemEntity(ItemEntity param0) {
@@ -497,8 +509,9 @@ public class PiglinAi {
         ItemStack var0 = param1.getItemInHand(param2);
         if (canAdmire(param0, var0)) {
             ItemStack var1 = var0.split(1);
-            param0.holdInOffHand(var1);
+            holdInOffhand(param0, var1);
             admireGoldItem(param0);
+            stopWalking(param0);
             return InteractionResult.CONSUME;
         } else {
             return InteractionResult.PASS;
@@ -561,37 +574,31 @@ public class PiglinAi {
         }
     }
 
-    private static void playActivitySound(Piglin param0) {
-        param0.getBrain().getActiveNonCoreActivity().ifPresent(param1 -> {
-            if (param1 == Activity.FIGHT) {
-                param0.playAngrySound();
-            } else if (param0.isConverting()) {
-                param0.playRetreatSound();
-            } else if (param1 == Activity.AVOID && isNearAvoidTarget(param0)) {
-                param0.playRetreatSound();
-            } else if (param1 == Activity.ADMIRE_ITEM) {
-                param0.playAdmiringSound();
-            } else if (param1 == Activity.CELEBRATE) {
-                param0.playCelebrateSound();
-            } else if (seesPlayerHoldingLovedItem(param0)) {
-                param0.playJealousSound();
-            } else if (isNearRepellent(param0)) {
-                param0.playRetreatSound();
-            }
+    public static Optional<SoundEvent> getSoundForCurrentActivity(Piglin param0) {
+        return param0.getBrain().getActiveNonCoreActivity().map(param1 -> getSoundForActivity(param0, param1));
+    }
 
-        });
+    private static SoundEvent getSoundForActivity(Piglin param0, Activity param1) {
+        if (param1 == Activity.FIGHT) {
+            return SoundEvents.PIGLIN_ANGRY;
+        } else if (param0.isConverting()) {
+            return SoundEvents.PIGLIN_RETREAT;
+        } else if (param1 == Activity.AVOID && isNearAvoidTarget(param0)) {
+            return SoundEvents.PIGLIN_RETREAT;
+        } else if (param1 == Activity.ADMIRE_ITEM) {
+            return SoundEvents.PIGLIN_ADMIRING_ITEM;
+        } else if (param1 == Activity.CELEBRATE) {
+            return SoundEvents.PIGLIN_CELEBRATE;
+        } else if (seesPlayerHoldingLovedItem(param0)) {
+            return SoundEvents.PIGLIN_JEALOUS;
+        } else {
+            return isNearRepellent(param0) ? SoundEvents.PIGLIN_RETREAT : SoundEvents.PIGLIN_AMBIENT;
+        }
     }
 
     private static boolean isNearAvoidTarget(Piglin param0) {
         Brain<Piglin> var0 = param0.getBrain();
-        return !var0.hasMemoryValue(MemoryModuleType.AVOID_TARGET) ? false : var0.getMemory(MemoryModuleType.AVOID_TARGET).get().closerThan(param0, 6.0);
-    }
-
-    protected static void maybePlayActivitySound(Piglin param0) {
-        if ((double)param0.level.random.nextFloat() < 0.0125) {
-            playActivitySound(param0);
-        }
-
+        return !var0.hasMemoryValue(MemoryModuleType.AVOID_TARGET) ? false : var0.getMemory(MemoryModuleType.AVOID_TARGET).get().closerThan(param0, 12.0);
     }
 
     protected static boolean hasAnyoneNearbyHuntedRecently(Piglin param0) {

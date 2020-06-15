@@ -93,10 +93,10 @@ public class LecternBlock extends BaseEntityBlock {
     public BlockState getStateForPlacement(BlockPlaceContext param0) {
         Level var0 = param0.getLevel();
         ItemStack var1 = param0.getItemInHand();
-        CompoundTag var2 = var1.getOrCreateTag();
+        CompoundTag var2 = var1.getTag();
         Player var3 = param0.getPlayer();
         boolean var4 = false;
-        if (!var0.isClientSide && var3 != null && var3.canUseGameMasterBlocks() && var2.contains("BlockEntityTag")) {
+        if (!var0.isClientSide && var3 != null && var2 != null && var3.canUseGameMasterBlocks() && var2.contains("BlockEntityTag")) {
             CompoundTag var5 = var2.getCompound("BlockEntityTag");
             if (var5.contains("Book")) {
                 var4 = true;

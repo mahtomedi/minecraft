@@ -3,6 +3,7 @@ package net.minecraft.client.gui.screens.inventory;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
@@ -303,28 +304,31 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
     @Override
     public boolean keyPressed(int param0, int param1, int param2) {
         this.ignoreTextInput = false;
-        if (selectedTab == CreativeModeTab.TAB_SEARCH.getId()) {
-            String var1 = this.searchBox.getValue();
-            if (this.searchBox.keyPressed(param0, param1, param2)) {
-                if (!Objects.equals(var1, this.searchBox.getValue())) {
-                    this.refreshSearchResults();
-                }
-
-                return true;
-            } else {
-                return this.searchBox.isFocused() && this.searchBox.isVisible() && param0 != 256 ? true : super.keyPressed(param0, param1, param2);
-            }
-        } else {
-            boolean var0 = !this.isCreativeSlot(this.hoveredSlot) || this.hoveredSlot != null && this.hoveredSlot.hasItem();
-            if (var0 && this.checkHotbarKeyPressed(param0, param1)) {
-                this.ignoreTextInput = true;
-                return true;
-            } else if (this.minecraft.options.keyChat.matches(param0, param1)) {
+        if (selectedTab != CreativeModeTab.TAB_SEARCH.getId()) {
+            if (this.minecraft.options.keyChat.matches(param0, param1)) {
                 this.ignoreTextInput = true;
                 this.selectTab(CreativeModeTab.TAB_SEARCH);
                 return true;
             } else {
                 return super.keyPressed(param0, param1, param2);
+            }
+        } else {
+            boolean var0 = !this.isCreativeSlot(this.hoveredSlot) || this.hoveredSlot.hasItem();
+            boolean var1 = InputConstants.getKey(param0, param1).getNumericKeyValue().isPresent();
+            if (var0 && var1 && this.checkHotbarKeyPressed(param0, param1)) {
+                this.ignoreTextInput = true;
+                return true;
+            } else {
+                String var2 = this.searchBox.getValue();
+                if (this.searchBox.keyPressed(param0, param1, param2)) {
+                    if (!Objects.equals(var2, this.searchBox.getValue())) {
+                        this.refreshSearchResults();
+                    }
+
+                    return true;
+                } else {
+                    return this.searchBox.isFocused() && this.searchBox.isVisible() && param0 != 256 ? true : super.keyPressed(param0, param1, param2);
+                }
             }
         }
     }

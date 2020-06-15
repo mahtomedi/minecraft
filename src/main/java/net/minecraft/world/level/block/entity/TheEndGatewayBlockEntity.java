@@ -3,14 +3,17 @@ package net.minecraft.world.level.block.entity;
 import java.util.List;
 import java.util.Random;
 import javax.annotation.Nullable;
+import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.projectile.ThrownEnderpearl;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
@@ -82,7 +85,7 @@ public class TheEndGatewayBlockEntity extends TheEndPortalBlockEntity implements
         } else if (!this.level.isClientSide) {
             List<Entity> var2 = this.level.getEntitiesOfClass(Entity.class, new AABB(this.getBlockPos()));
             if (!var2.isEmpty()) {
-                this.teleportEntity(var2.get(0).getRootVehicle());
+                this.teleportEntity(var2.get(this.level.random.nextInt(var2.size())));
             }
 
             if (this.age % 2400L == 0L) {
@@ -153,7 +156,24 @@ public class TheEndGatewayBlockEntity extends TheEndPortalBlockEntity implements
 
             if (this.exitPortal != null) {
                 BlockPos var0 = this.exactTeleport ? this.exitPortal : this.findExitPosition();
-                param0.teleportToWithTicket((double)var0.getX() + 0.5, (double)var0.getY(), (double)var0.getZ() + 0.5);
+                Entity var2;
+                if (param0 instanceof ThrownEnderpearl) {
+                    Entity var1 = ((ThrownEnderpearl)param0).getOwner();
+                    if (var1 instanceof ServerPlayer) {
+                        CriteriaTriggers.ENTER_BLOCK.trigger((ServerPlayer)var1, this.level.getBlockState(this.getBlockPos()));
+                    }
+
+                    if (var1 != null) {
+                        var2 = var1;
+                        param0.remove();
+                    } else {
+                        var2 = param0;
+                    }
+                } else {
+                    var2 = param0.getRootVehicle();
+                }
+
+                var2.teleportToWithTicket((double)var0.getX() + 0.5, (double)var0.getY(), (double)var0.getZ() + 0.5);
             }
 
             this.triggerCooldown();

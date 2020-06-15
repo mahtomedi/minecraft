@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import javax.annotation.Nullable;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.ClientRecipeBook;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.RecipeBookCategories;
@@ -38,6 +39,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class RecipeBookComponent extends GuiComponent implements Widget, GuiEventListener, RecipeShownListener, PlaceRecipe<Ingredient> {
     protected static final ResourceLocation RECIPE_BOOK_LOCATION = new ResourceLocation("textures/gui/recipe_book.png");
+    private static final Component SEARCH_HINT = new TranslatableComponent("gui.recipebook.search_hint")
+        .withStyle(ChatFormatting.ITALIC)
+        .withStyle(ChatFormatting.GRAY);
     private int xOffset;
     private int width;
     private int height;
@@ -231,7 +235,11 @@ public class RecipeBookComponent extends GuiComponent implements Widget, GuiEven
             int var0 = (this.width - 147) / 2 - this.xOffset;
             int var1 = (this.height - 166) / 2;
             this.blit(param0, var0, var1, 1, 1, 147, 166);
-            this.searchBox.render(param0, param1, param2, param3);
+            if (!this.searchBox.isFocused() && this.searchBox.getValue().isEmpty()) {
+                this.drawString(param0, this.minecraft.font, SEARCH_HINT, var0 + 25, var1 + 14, -1);
+            } else {
+                this.searchBox.render(param0, param1, param2, param3);
+            }
 
             for(RecipeBookTabButton var2 : this.tabButtons) {
                 var2.render(param0, param1, param2, param3);

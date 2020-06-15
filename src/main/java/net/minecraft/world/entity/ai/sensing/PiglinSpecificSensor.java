@@ -20,6 +20,9 @@ import net.minecraft.world.entity.monster.hoglin.Hoglin;
 import net.minecraft.world.entity.monster.piglin.Piglin;
 import net.minecraft.world.entity.monster.piglin.PiglinAi;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.CampfireBlock;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class PiglinSpecificSensor extends Sensor<LivingEntity> {
     @Override
@@ -111,6 +114,12 @@ public class PiglinSpecificSensor extends Sensor<LivingEntity> {
     }
 
     private static Optional<BlockPos> findNearestRepellent(ServerLevel param0, LivingEntity param1) {
-        return BlockPos.findClosestMatch(param1.blockPosition(), 8, 4, param1x -> param0.getBlockState(param1x).is(BlockTags.PIGLIN_REPELLENTS));
+        return BlockPos.findClosestMatch(param1.blockPosition(), 8, 4, param1x -> isValidRepellent(param0, param1x));
+    }
+
+    private static boolean isValidRepellent(ServerLevel param0, BlockPos param1) {
+        BlockState var0 = param0.getBlockState(param1);
+        boolean var1 = var0.is(BlockTags.PIGLIN_REPELLENTS);
+        return var1 && var0.is(Blocks.SOUL_CAMPFIRE) ? CampfireBlock.isLitCampfire(var0) : var1;
     }
 }

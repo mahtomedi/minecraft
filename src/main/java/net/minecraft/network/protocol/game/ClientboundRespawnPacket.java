@@ -16,6 +16,7 @@ public class ClientboundRespawnPacket implements Packet<ClientGamePacketListener
     private ResourceKey<Level> dimension;
     private long seed;
     private GameType playerGameType;
+    private GameType previousPlayerGameType;
     private boolean isDebug;
     private boolean isFlat;
     private boolean keepAllPlayerData;
@@ -24,15 +25,23 @@ public class ClientboundRespawnPacket implements Packet<ClientGamePacketListener
     }
 
     public ClientboundRespawnPacket(
-        ResourceKey<DimensionType> param0, ResourceKey<Level> param1, long param2, GameType param3, boolean param4, boolean param5, boolean param6
+        ResourceKey<DimensionType> param0,
+        ResourceKey<Level> param1,
+        long param2,
+        GameType param3,
+        GameType param4,
+        boolean param5,
+        boolean param6,
+        boolean param7
     ) {
         this.dimensionType = param0;
         this.dimension = param1;
         this.seed = param2;
         this.playerGameType = param3;
-        this.isDebug = param4;
-        this.isFlat = param5;
-        this.keepAllPlayerData = param6;
+        this.previousPlayerGameType = param4;
+        this.isDebug = param5;
+        this.isFlat = param6;
+        this.keepAllPlayerData = param7;
     }
 
     public void handle(ClientGamePacketListener param0) {
@@ -45,6 +54,7 @@ public class ClientboundRespawnPacket implements Packet<ClientGamePacketListener
         this.dimension = ResourceKey.create(Registry.DIMENSION_REGISTRY, param0.readResourceLocation());
         this.seed = param0.readLong();
         this.playerGameType = GameType.byId(param0.readUnsignedByte());
+        this.previousPlayerGameType = GameType.byId(param0.readUnsignedByte());
         this.isDebug = param0.readBoolean();
         this.isFlat = param0.readBoolean();
         this.keepAllPlayerData = param0.readBoolean();
@@ -56,6 +66,7 @@ public class ClientboundRespawnPacket implements Packet<ClientGamePacketListener
         param0.writeResourceLocation(this.dimension.location());
         param0.writeLong(this.seed);
         param0.writeByte(this.playerGameType.getId());
+        param0.writeByte(this.previousPlayerGameType.getId());
         param0.writeBoolean(this.isDebug);
         param0.writeBoolean(this.isFlat);
         param0.writeBoolean(this.keepAllPlayerData);
@@ -79,6 +90,11 @@ public class ClientboundRespawnPacket implements Packet<ClientGamePacketListener
     @OnlyIn(Dist.CLIENT)
     public GameType getPlayerGameType() {
         return this.playerGameType;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public GameType getPreviousPlayerGameType() {
+        return this.previousPlayerGameType;
     }
 
     @OnlyIn(Dist.CLIENT)

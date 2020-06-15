@@ -1,10 +1,10 @@
 {
-    "id": "1.16-pre5",
-    "name": "1.16 Pre-release 5",
+    "id": "1.16-pre6",
+    "name": "1.16 Pre-release 6",
     "release_target": "1.16",
-    "world_version": 2561,
-    "protocol_version": 729,
+    "world_version": 2562,
+    "protocol_version": 730,
     "pack_version": 5,
-    "build_time": "2020-06-12T14:32:13+00:00",
+    "build_time": "2020-06-15T16:56:09+00:00",
     "stable": false
 }

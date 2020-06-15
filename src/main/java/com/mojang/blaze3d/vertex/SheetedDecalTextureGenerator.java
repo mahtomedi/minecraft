@@ -9,10 +9,10 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class BreakingTextureGenerator extends DefaultedVertexConsumer {
+public class SheetedDecalTextureGenerator extends DefaultedVertexConsumer {
     private final VertexConsumer delegate;
     private final Matrix4f cameraInversePose;
-    private final Matrix3f normalPose;
+    private final Matrix3f normalInversePose;
     private float x;
     private float y;
     private float z;
@@ -23,12 +23,12 @@ public class BreakingTextureGenerator extends DefaultedVertexConsumer {
     private float ny;
     private float nz;
 
-    public BreakingTextureGenerator(VertexConsumer param0, PoseStack.Pose param1) {
+    public SheetedDecalTextureGenerator(VertexConsumer param0, Matrix4f param1, Matrix3f param2) {
         this.delegate = param0;
-        this.cameraInversePose = param1.pose().copy();
+        this.cameraInversePose = param1.copy();
         this.cameraInversePose.invert();
-        this.normalPose = param1.normal().copy();
-        this.normalPose.invert();
+        this.normalInversePose = param2.copy();
+        this.normalInversePose.invert();
         this.resetState();
     }
 
@@ -47,7 +47,7 @@ public class BreakingTextureGenerator extends DefaultedVertexConsumer {
     @Override
     public void endVertex() {
         Vector3f var0 = new Vector3f(this.nx, this.ny, this.nz);
-        var0.transform(this.normalPose);
+        var0.transform(this.normalInversePose);
         Direction var1 = Direction.getNearest(var0.x(), var0.y(), var0.z());
         Vector4f var2 = new Vector4f(this.x, this.y, this.z, 1.0F);
         var2.transform(this.cameraInversePose);

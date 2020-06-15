@@ -9,11 +9,11 @@ import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BreakingTextureGenerator;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.SheetedDecalTextureGenerator;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -1084,12 +1084,13 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                     if (var36 != null && !var36.isEmpty()) {
                         int var37 = var36.last().getProgress();
                         if (var37 >= 0) {
-                            VertexConsumer var38 = new BreakingTextureGenerator(
-                                this.renderBuffers.crumblingBufferSource().getBuffer(ModelBakery.DESTROY_TYPES.get(var37)), param0.last()
+                            PoseStack.Pose var38 = param0.last();
+                            VertexConsumer var39 = new SheetedDecalTextureGenerator(
+                                this.renderBuffers.crumblingBufferSource().getBuffer(ModelBakery.DESTROY_TYPES.get(var37)), var38.pose(), var38.normal()
                             );
                             var35 = param2x -> {
                                 VertexConsumer var0x = var21.getBuffer(param2x);
-                                return param2x.affectsCrumbling() ? VertexMultiConsumer.create(var38, var0x) : var0x;
+                                return param2x.affectsCrumbling() ? VertexMultiConsumer.create(var39, var0x) : var0x;
                             };
                         }
                     }
@@ -1101,11 +1102,11 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
         }
 
         synchronized(this.globalBlockEntities) {
-            for(BlockEntity var39 : this.globalBlockEntities) {
-                BlockPos var40 = var39.getBlockPos();
+            for(BlockEntity var40 : this.globalBlockEntities) {
+                BlockPos var41 = var40.getBlockPos();
                 param0.pushPose();
-                param0.translate((double)var40.getX() - var2, (double)var40.getY() - var3, (double)var40.getZ() - var4);
-                BlockEntityRenderDispatcher.instance.render(var39, param1, param0, var21);
+                param0.translate((double)var41.getX() - var2, (double)var41.getY() - var3, (double)var41.getZ() - var4);
+                BlockEntityRenderDispatcher.instance.render(var40, param1, param0, var21);
                 param0.popPose();
             }
         }
@@ -1126,21 +1127,22 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
 
         var0.popPush("destroyProgress");
 
-        for(Entry<SortedSet<BlockDestructionProgress>> var41 : this.destructionProgress.long2ObjectEntrySet()) {
-            BlockPos var42 = BlockPos.of(var41.getLongKey());
-            double var43 = (double)var42.getX() - var2;
-            double var44 = (double)var42.getY() - var3;
-            double var45 = (double)var42.getZ() - var4;
-            if (!(var43 * var43 + var44 * var44 + var45 * var45 > 1024.0)) {
-                SortedSet<BlockDestructionProgress> var46 = var41.getValue();
-                if (var46 != null && !var46.isEmpty()) {
-                    int var47 = var46.last().getProgress();
+        for(Entry<SortedSet<BlockDestructionProgress>> var42 : this.destructionProgress.long2ObjectEntrySet()) {
+            BlockPos var43 = BlockPos.of(var42.getLongKey());
+            double var44 = (double)var43.getX() - var2;
+            double var45 = (double)var43.getY() - var3;
+            double var46 = (double)var43.getZ() - var4;
+            if (!(var44 * var44 + var45 * var45 + var46 * var46 > 1024.0)) {
+                SortedSet<BlockDestructionProgress> var47 = var42.getValue();
+                if (var47 != null && !var47.isEmpty()) {
+                    int var48 = var47.last().getProgress();
                     param0.pushPose();
-                    param0.translate((double)var42.getX() - var2, (double)var42.getY() - var3, (double)var42.getZ() - var4);
-                    VertexConsumer var48 = new BreakingTextureGenerator(
-                        this.renderBuffers.crumblingBufferSource().getBuffer(ModelBakery.DESTROY_TYPES.get(var47)), param0.last()
+                    param0.translate((double)var43.getX() - var2, (double)var43.getY() - var3, (double)var43.getZ() - var4);
+                    PoseStack.Pose var49 = param0.last();
+                    VertexConsumer var50 = new SheetedDecalTextureGenerator(
+                        this.renderBuffers.crumblingBufferSource().getBuffer(ModelBakery.DESTROY_TYPES.get(var48)), var49.pose(), var49.normal()
                     );
-                    this.minecraft.getBlockRenderer().renderBreakingTexture(this.level.getBlockState(var42), var42, this.level, param0, var48);
+                    this.minecraft.getBlockRenderer().renderBreakingTexture(this.level.getBlockState(var43), var43, this.level, param0, var50);
                     param0.popPose();
                 }
             }
@@ -1148,14 +1150,14 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
 
         this.checkPoseStack(param0);
         var0.pop();
-        HitResult var49 = this.minecraft.hitResult;
-        if (param3 && var49 != null && var49.getType() == HitResult.Type.BLOCK) {
+        HitResult var51 = this.minecraft.hitResult;
+        if (param3 && var51 != null && var51.getType() == HitResult.Type.BLOCK) {
             var0.popPush("outline");
-            BlockPos var50 = ((BlockHitResult)var49).getBlockPos();
-            BlockState var51 = this.level.getBlockState(var50);
-            if (!var51.isAir() && this.level.getWorldBorder().isWithinBounds(var50)) {
-                VertexConsumer var52 = var21.getBuffer(RenderType.lines());
-                this.renderHitOutline(param0, var52, param4.getEntity(), var2, var3, var4, var50, var51);
+            BlockPos var52 = ((BlockHitResult)var51).getBlockPos();
+            BlockState var53 = this.level.getBlockState(var52);
+            if (!var53.isAir() && this.level.getWorldBorder().isWithinBounds(var52)) {
+                VertexConsumer var54 = var21.getBuffer(RenderType.lines());
+                this.renderHitOutline(param0, var54, param4.getEntity(), var2, var3, var4, var52, var53);
             }
         }
 
@@ -2689,7 +2691,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                 this.level
                     .playLocalSound(param2, SoundEvents.LAVA_EXTINGUISH, SoundSource.BLOCKS, 0.5F, 2.6F + (var0.nextFloat() - var0.nextFloat()) * 0.8F, false);
 
-                for(int var43 = 0; var43 < 8; ++var43) {
+                for(int var41 = 0; var41 < 8; ++var41) {
                     this.level
                         .addParticle(
                             ParticleTypes.LARGE_SMOKE,
@@ -2708,21 +2710,21 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                         param2, SoundEvents.REDSTONE_TORCH_BURNOUT, SoundSource.BLOCKS, 0.5F, 2.6F + (var0.nextFloat() - var0.nextFloat()) * 0.8F, false
                     );
 
-                for(int var44 = 0; var44 < 5; ++var44) {
-                    double var45 = (double)param2.getX() + var0.nextDouble() * 0.6 + 0.2;
-                    double var46 = (double)param2.getY() + var0.nextDouble() * 0.6 + 0.2;
-                    double var47 = (double)param2.getZ() + var0.nextDouble() * 0.6 + 0.2;
-                    this.level.addParticle(ParticleTypes.SMOKE, var45, var46, var47, 0.0, 0.0, 0.0);
+                for(int var42 = 0; var42 < 5; ++var42) {
+                    double var43 = (double)param2.getX() + var0.nextDouble() * 0.6 + 0.2;
+                    double var44 = (double)param2.getY() + var0.nextDouble() * 0.6 + 0.2;
+                    double var45 = (double)param2.getZ() + var0.nextDouble() * 0.6 + 0.2;
+                    this.level.addParticle(ParticleTypes.SMOKE, var43, var44, var45, 0.0, 0.0, 0.0);
                 }
                 break;
             case 1503:
                 this.level.playLocalSound(param2, SoundEvents.END_PORTAL_FRAME_FILL, SoundSource.BLOCKS, 1.0F, 1.0F, false);
 
-                for(int var48 = 0; var48 < 16; ++var48) {
-                    double var49 = (double)param2.getX() + (5.0 + var0.nextDouble() * 6.0) / 16.0;
-                    double var50 = (double)param2.getY() + 0.8125;
-                    double var51 = (double)param2.getZ() + (5.0 + var0.nextDouble() * 6.0) / 16.0;
-                    this.level.addParticle(ParticleTypes.SMOKE, var49, var50, var51, 0.0, 0.0, 0.0);
+                for(int var46 = 0; var46 < 16; ++var46) {
+                    double var47 = (double)param2.getX() + (5.0 + var0.nextDouble() * 6.0) / 16.0;
+                    double var48 = (double)param2.getY() + 0.8125;
+                    double var49 = (double)param2.getZ() + (5.0 + var0.nextDouble() * 6.0) / 16.0;
+                    this.level.addParticle(ParticleTypes.SMOKE, var47, var48, var49, 0.0, 0.0, 0.0);
                 }
                 break;
             case 2000:
@@ -2746,51 +2748,49 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                 }
                 break;
             case 2001:
-                BlockState var37 = Block.stateById(param3);
-                if (!var37.isAir()) {
-                    SoundType var38 = var37.getSoundType();
+                BlockState var35 = Block.stateById(param3);
+                if (!var35.isAir()) {
+                    SoundType var36 = var35.getSoundType();
                     this.level
-                        .playLocalSound(param2, var38.getBreakSound(), SoundSource.BLOCKS, (var38.getVolume() + 1.0F) / 2.0F, var38.getPitch() * 0.8F, false);
+                        .playLocalSound(param2, var36.getBreakSound(), SoundSource.BLOCKS, (var36.getVolume() + 1.0F) / 2.0F, var36.getPitch() * 0.8F, false);
                 }
 
-                this.minecraft.particleEngine.destroy(param2, var37);
+                this.minecraft.particleEngine.destroy(param2, var35);
                 break;
             case 2002:
             case 2007:
-                double var21 = (double)param2.getX();
-                double var22 = (double)param2.getY();
-                double var23 = (double)param2.getZ();
+                Vec3 var21 = Vec3.atBottomCenterOf(param2);
 
-                for(int var24 = 0; var24 < 8; ++var24) {
+                for(int var22 = 0; var22 < 8; ++var22) {
                     this.addParticle(
                         new ItemParticleOption(ParticleTypes.ITEM, new ItemStack(Items.SPLASH_POTION)),
-                        var21,
-                        var22,
-                        var23,
+                        var21.x,
+                        var21.y,
+                        var21.z,
                         var0.nextGaussian() * 0.15,
                         var0.nextDouble() * 0.2,
                         var0.nextGaussian() * 0.15
                     );
                 }
 
-                float var25 = (float)(param3 >> 16 & 0xFF) / 255.0F;
-                float var26 = (float)(param3 >> 8 & 0xFF) / 255.0F;
-                float var27 = (float)(param3 >> 0 & 0xFF) / 255.0F;
-                ParticleOptions var28 = param1 == 2007 ? ParticleTypes.INSTANT_EFFECT : ParticleTypes.EFFECT;
+                float var23 = (float)(param3 >> 16 & 0xFF) / 255.0F;
+                float var24 = (float)(param3 >> 8 & 0xFF) / 255.0F;
+                float var25 = (float)(param3 >> 0 & 0xFF) / 255.0F;
+                ParticleOptions var26 = param1 == 2007 ? ParticleTypes.INSTANT_EFFECT : ParticleTypes.EFFECT;
 
-                for(int var29 = 0; var29 < 100; ++var29) {
-                    double var30 = var0.nextDouble() * 4.0;
-                    double var31 = var0.nextDouble() * Math.PI * 2.0;
-                    double var32 = Math.cos(var31) * var30;
-                    double var33 = 0.01 + var0.nextDouble() * 0.5;
-                    double var34 = Math.sin(var31) * var30;
-                    Particle var35 = this.addParticleInternal(
-                        var28, var28.getType().getOverrideLimiter(), var21 + var32 * 0.1, var22 + 0.3, var23 + var34 * 0.1, var32, var33, var34
+                for(int var27 = 0; var27 < 100; ++var27) {
+                    double var28 = var0.nextDouble() * 4.0;
+                    double var29 = var0.nextDouble() * Math.PI * 2.0;
+                    double var30 = Math.cos(var29) * var28;
+                    double var31 = 0.01 + var0.nextDouble() * 0.5;
+                    double var32 = Math.sin(var29) * var28;
+                    Particle var33 = this.addParticleInternal(
+                        var26, var26.getType().getOverrideLimiter(), var21.x + var30 * 0.1, var21.y + 0.3, var21.z + var32 * 0.1, var30, var31, var32
                     );
-                    if (var35 != null) {
-                        float var36 = 0.75F + var0.nextFloat() * 0.25F;
-                        var35.setColor(var25 * var36, var26 * var36, var27 * var36);
-                        var35.setPower((float)var30);
+                    if (var33 != null) {
+                        float var34 = 0.75F + var0.nextFloat() * 0.25F;
+                        var33.setColor(var23 * var34, var24 * var34, var25 * var34);
+                        var33.setPower((float)var28);
                     }
                 }
 
@@ -2835,36 +2835,36 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                 }
                 break;
             case 2004:
-                for(int var39 = 0; var39 < 20; ++var39) {
-                    double var40 = (double)param2.getX() + 0.5 + (var0.nextDouble() - 0.5) * 2.0;
-                    double var41 = (double)param2.getY() + 0.5 + (var0.nextDouble() - 0.5) * 2.0;
-                    double var42 = (double)param2.getZ() + 0.5 + (var0.nextDouble() - 0.5) * 2.0;
-                    this.level.addParticle(ParticleTypes.SMOKE, var40, var41, var42, 0.0, 0.0, 0.0);
-                    this.level.addParticle(ParticleTypes.FLAME, var40, var41, var42, 0.0, 0.0, 0.0);
+                for(int var37 = 0; var37 < 20; ++var37) {
+                    double var38 = (double)param2.getX() + 0.5 + (var0.nextDouble() - 0.5) * 2.0;
+                    double var39 = (double)param2.getY() + 0.5 + (var0.nextDouble() - 0.5) * 2.0;
+                    double var40 = (double)param2.getZ() + 0.5 + (var0.nextDouble() - 0.5) * 2.0;
+                    this.level.addParticle(ParticleTypes.SMOKE, var38, var39, var40, 0.0, 0.0, 0.0);
+                    this.level.addParticle(ParticleTypes.FLAME, var38, var39, var40, 0.0, 0.0, 0.0);
                 }
                 break;
             case 2005:
                 BoneMealItem.addGrowthParticles(this.level, param2, param3);
                 break;
             case 2006:
-                for(int var52 = 0; var52 < 200; ++var52) {
-                    float var53 = var0.nextFloat() * 4.0F;
-                    float var54 = var0.nextFloat() * (float) (Math.PI * 2);
-                    double var55 = (double)(Mth.cos(var54) * var53);
-                    double var56 = 0.01 + var0.nextDouble() * 0.5;
-                    double var57 = (double)(Mth.sin(var54) * var53);
-                    Particle var58 = this.addParticleInternal(
+                for(int var50 = 0; var50 < 200; ++var50) {
+                    float var51 = var0.nextFloat() * 4.0F;
+                    float var52 = var0.nextFloat() * (float) (Math.PI * 2);
+                    double var53 = (double)(Mth.cos(var52) * var51);
+                    double var54 = 0.01 + var0.nextDouble() * 0.5;
+                    double var55 = (double)(Mth.sin(var52) * var51);
+                    Particle var56 = this.addParticleInternal(
                         ParticleTypes.DRAGON_BREATH,
                         false,
-                        (double)param2.getX() + var55 * 0.1,
+                        (double)param2.getX() + var53 * 0.1,
                         (double)param2.getY() + 0.3,
-                        (double)param2.getZ() + var57 * 0.1,
-                        var55,
-                        var56,
-                        var57
+                        (double)param2.getZ() + var55 * 0.1,
+                        var53,
+                        var54,
+                        var55
                     );
-                    if (var58 != null) {
-                        var58.setPower(var53);
+                    if (var56 != null) {
+                        var56.setPower(var51);
                     }
                 }
 
@@ -2877,7 +2877,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                     .addParticle(ParticleTypes.EXPLOSION, (double)param2.getX() + 0.5, (double)param2.getY() + 0.5, (double)param2.getZ() + 0.5, 0.0, 0.0, 0.0);
                 break;
             case 2009:
-                for(int var59 = 0; var59 < 8; ++var59) {
+                for(int var57 = 0; var57 < 8; ++var57) {
                     this.level
                         .addParticle(
                             ParticleTypes.CLOUD,

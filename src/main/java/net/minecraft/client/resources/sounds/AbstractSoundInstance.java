@@ -104,4 +104,9 @@ public abstract class AbstractSoundInstance implements SoundInstance {
     public boolean isRelative() {
         return this.relative;
     }
+
+    @Override
+    public String toString() {
+        return "SoundInstance[" + this.location + "]";
+    }
 }

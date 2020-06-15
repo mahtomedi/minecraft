@@ -228,9 +228,13 @@ public class ServerPlayer extends Player implements ContainerListener {
         super.readAdditionalSaveData(param0);
         if (param0.contains("playerGameType", 99)) {
             if (this.getServer().getForceGameType()) {
-                this.gameMode.setGameModeForPlayer(this.getServer().getDefaultGameType());
+                this.gameMode.setGameModeForPlayer(this.getServer().getDefaultGameType(), GameType.NOT_SET);
             } else {
-                this.gameMode.setGameModeForPlayer(GameType.byId(param0.getInt("playerGameType")));
+                this.gameMode
+                    .setGameModeForPlayer(
+                        GameType.byId(param0.getInt("playerGameType")),
+                        param0.contains("previousPlayerGameType", 3) ? GameType.byId(param0.getInt("previousPlayerGameType")) : GameType.NOT_SET
+                    );
             }
         }
 
@@ -265,6 +269,7 @@ public class ServerPlayer extends Player implements ContainerListener {
     public void addAdditionalSaveData(CompoundTag param0) {
         super.addAdditionalSaveData(param0);
         param0.putInt("playerGameType", this.gameMode.getGameModeForPlayer().getId());
+        param0.putInt("previousPlayerGameType", this.gameMode.getPreviousGameModeForPlayer().getId());
         param0.putBoolean("seenCredits", this.seenCredits);
         if (this.enteredNetherPosition != null) {
             CompoundTag var0 = new CompoundTag();
@@ -640,6 +645,7 @@ public class ServerPlayer extends Player implements ContainerListener {
                         param0.dimension(),
                         BiomeManager.obfuscateSeed(param0.getSeed()),
                         this.gameMode.getGameModeForPlayer(),
+                        this.gameMode.getPreviousGameModeForPlayer(),
                         param0.isDebug(),
                         param0.isFlat(),
                         true
@@ -1389,6 +1395,7 @@ public class ServerPlayer extends Player implements ContainerListener {
                         param0.dimension(),
                         BiomeManager.obfuscateSeed(param0.getSeed()),
                         this.gameMode.getGameModeForPlayer(),
+                        this.gameMode.getPreviousGameModeForPlayer(),
                         param0.isDebug(),
                         param0.isFlat(),
                         true

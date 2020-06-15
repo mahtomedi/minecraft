@@ -112,21 +112,19 @@ public class BeeDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
 
     private Map<BlockPos, Set<UUID>> createHiveBlacklistMap() {
         Map<BlockPos, Set<UUID>> var0 = Maps.newHashMap();
-        this.beeInfosPerEntity.values().forEach(param1 -> param1.blacklistedHives.forEach(param2 -> addBeeToSetInMap(var0, param1, param2)));
+        this.beeInfosPerEntity
+            .values()
+            .forEach(param1 -> param1.blacklistedHives.forEach(param2 -> var0.computeIfAbsent(param2, param0x -> Sets.newHashSet()).add(param1.getUuid())));
         return var0;
     }
 
     private void renderFlowerInfos() {
         Map<BlockPos, Set<UUID>> var0 = Maps.newHashMap();
-        this.beeInfosPerEntity.values().stream().filter(BeeDebugRenderer.BeeInfo::hasFlower).forEach(param1 -> {
-            Set<UUID> var0x = var0.get(param1.flowerPos);
-            if (var0x == null) {
-                var0x = Sets.newHashSet();
-                var0.put(param1.flowerPos, var0x);
-            }
-
-            var0x.add(param1.getUuid());
-        });
+        this.beeInfosPerEntity
+            .values()
+            .stream()
+            .filter(BeeDebugRenderer.BeeInfo::hasFlower)
+            .forEach(param1 -> var0.computeIfAbsent(param1.flowerPos, param0x -> Sets.newHashSet()).add(param1.getUuid()));
         var0.entrySet().forEach(param0 -> {
             BlockPos var0x = param0.getKey();
             Set<UUID> var1x = param0.getValue();
@@ -147,16 +145,6 @@ public class BeeDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
                 ? "" + param0.size() + " bees"
                 : param0.stream().map(DebugEntityNameGenerator::getEntityName).collect(Collectors.toSet()).toString();
         }
-    }
-
-    private static void addBeeToSetInMap(Map<BlockPos, Set<UUID>> param0, BeeDebugRenderer.BeeInfo param1, BlockPos param2) {
-        Set<UUID> var0 = param0.get(param2);
-        if (var0 == null) {
-            var0 = Sets.newHashSet();
-            param0.put(param2, var0);
-        }
-
-        var0.add(param1.getUuid());
     }
 
     private static void highlightHive(BlockPos param0) {
@@ -296,13 +284,7 @@ public class BeeDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
 
         for(BeeDebugRenderer.BeeInfo var1 : this.beeInfosPerEntity.values()) {
             if (var1.hivePos != null && !this.hives.containsKey(var1.hivePos)) {
-                List<String> var2 = var0.get(var1.hivePos);
-                if (var2 == null) {
-                    var2 = Lists.newArrayList();
-                    var0.put(var1.hivePos, var2);
-                }
-
-                var2.add(var1.getName());
+                var0.computeIfAbsent(var1.hivePos, param0 -> Lists.newArrayList()).add(var1.getName());
             }
         }
 

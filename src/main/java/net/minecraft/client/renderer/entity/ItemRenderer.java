@@ -7,6 +7,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.SheetedDecalTextureGenerator;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexMultiConsumer;
@@ -123,14 +124,30 @@ public class ItemRenderer implements ResourceManagerReloadListener {
                 }
 
                 RenderType var4 = ItemBlockRenderTypes.getRenderType(param0, var2);
-                VertexConsumer var5;
-                if (var2) {
-                    var5 = getFoilBufferDirect(param4, var4, true, param0.hasFoil());
+                VertexConsumer var6;
+                if (param0.getItem() == Items.COMPASS && param0.hasFoil()) {
+                    param3.pushPose();
+                    PoseStack.Pose var5 = param3.last();
+                    if (param1 == ItemTransforms.TransformType.GUI) {
+                        var5.pose().multiply(0.5F);
+                    } else if (param1.firstPerson()) {
+                        var5.pose().multiply(0.75F);
+                    }
+
+                    if (var2) {
+                        var6 = getCompassFoilBufferDirect(param4, var4, var5);
+                    } else {
+                        var6 = getCompassFoilBuffer(param4, var4, var5);
+                    }
+
+                    param3.popPose();
+                } else if (var2) {
+                    var6 = getFoilBufferDirect(param4, var4, true, param0.hasFoil());
                 } else {
-                    var5 = getFoilBuffer(param4, var4, true, param0.hasFoil());
+                    var6 = getFoilBuffer(param4, var4, true, param0.hasFoil());
                 }
 
-                this.renderModelLists(param7, param0, param5, param6, param3, var5);
+                this.renderModelLists(param7, param0, param5, param6, param3, var6);
             } else {
                 BlockEntityWithoutLevelRenderer.instance.renderByItem(param0, param1, param3, param4, param5, param6);
             }
@@ -143,6 +160,18 @@ public class ItemRenderer implements ResourceManagerReloadListener {
         return param3
             ? VertexMultiConsumer.create(param0.getBuffer(param2 ? RenderType.armorGlint() : RenderType.armorEntityGlint()), param0.getBuffer(param1))
             : param0.getBuffer(param1);
+    }
+
+    public static VertexConsumer getCompassFoilBuffer(MultiBufferSource param0, RenderType param1, PoseStack.Pose param2) {
+        return VertexMultiConsumer.create(
+            new SheetedDecalTextureGenerator(param0.getBuffer(RenderType.glint()), param2.pose(), param2.normal()), param0.getBuffer(param1)
+        );
+    }
+
+    public static VertexConsumer getCompassFoilBufferDirect(MultiBufferSource param0, RenderType param1, PoseStack.Pose param2) {
+        return VertexMultiConsumer.create(
+            new SheetedDecalTextureGenerator(param0.getBuffer(RenderType.glintDirect()), param2.pose(), param2.normal()), param0.getBuffer(param1)
+        );
     }
 
     public static VertexConsumer getFoilBuffer(MultiBufferSource param0, RenderType param1, boolean param2, boolean param3) {

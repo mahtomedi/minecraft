@@ -61,7 +61,7 @@ public class MultiPlayerGameMode {
     private int destroyDelay;
     private boolean isDestroying;
     private GameType localPlayerMode = GameType.SURVIVAL;
-    private GameType prevLocalPlayerMode = GameType.SURVIVAL;
+    private GameType previousLocalPlayerMode = GameType.NOT_SET;
     private final Object2ObjectLinkedOpenHashMap<Pair<BlockPos, ServerboundPlayerActionPacket.Action>, PosAndRot> unAckedActions = new Object2ObjectLinkedOpenHashMap<>(
         
     );
@@ -76,9 +76,13 @@ public class MultiPlayerGameMode {
         this.localPlayerMode.updatePlayerAbilities(param0.abilities);
     }
 
+    public void setPreviousLocalMode(GameType param0) {
+        this.previousLocalPlayerMode = param0;
+    }
+
     public void setLocalMode(GameType param0) {
         if (param0 != this.localPlayerMode) {
-            this.prevLocalPlayerMode = this.localPlayerMode;
+            this.previousLocalPlayerMode = this.localPlayerMode;
         }
 
         this.localPlayerMode = param0;
@@ -405,8 +409,8 @@ public class MultiPlayerGameMode {
         return this.localPlayerMode == GameType.SPECTATOR;
     }
 
-    public GameType getPrevPlayerMode() {
-        return this.prevLocalPlayerMode;
+    public GameType getPreviousPlayerMode() {
+        return this.previousLocalPlayerMode;
     }
 
     public GameType getPlayerMode() {

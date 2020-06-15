@@ -35,8 +35,6 @@ public class EntityPredicate {
         EntityEquipmentPredicate.ANY,
         PlayerPredicate.ANY,
         FishingHookPredicate.ANY,
-        EntityPredicate.ANY,
-        EntityPredicate.ANY,
         null,
         null
     );
@@ -55,6 +53,34 @@ public class EntityPredicate {
     private final String team;
     @Nullable
     private final ResourceLocation catType;
+
+    private EntityPredicate(
+        EntityTypePredicate param0,
+        DistancePredicate param1,
+        LocationPredicate param2,
+        MobEffectsPredicate param3,
+        NbtPredicate param4,
+        EntityFlagsPredicate param5,
+        EntityEquipmentPredicate param6,
+        PlayerPredicate param7,
+        FishingHookPredicate param8,
+        @Nullable String param9,
+        @Nullable ResourceLocation param10
+    ) {
+        this.entityType = param0;
+        this.distanceToPlayer = param1;
+        this.location = param2;
+        this.effects = param3;
+        this.nbt = param4;
+        this.flags = param5;
+        this.equipment = param6;
+        this.player = param7;
+        this.fishingHook = param8;
+        this.vehicle = this;
+        this.targetedEntity = this;
+        this.team = param9;
+        this.catType = param10;
+    }
 
     private EntityPredicate(
         EntityTypePredicate param0,

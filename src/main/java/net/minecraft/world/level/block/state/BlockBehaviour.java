@@ -94,7 +94,7 @@ public abstract class BlockBehaviour {
     }
 
     @Deprecated
-    public void updateIndirectNeighbourShapes(BlockState param0, LevelAccessor param1, BlockPos param2, int param3) {
+    public void updateIndirectNeighbourShapes(BlockState param0, LevelAccessor param1, BlockPos param2, int param3, int param4) {
     }
 
     @Deprecated
@@ -577,6 +577,10 @@ public abstract class BlockBehaviour {
         }
 
         public final void updateNeighbourShapes(LevelAccessor param0, BlockPos param1, int param2) {
+            this.updateNeighbourShapes(param0, param1, param2, 512);
+        }
+
+        public final void updateNeighbourShapes(LevelAccessor param0, BlockPos param1, int param2, int param3) {
             this.getBlock();
             BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos();
 
@@ -584,13 +588,17 @@ public abstract class BlockBehaviour {
                 var0.setWithOffset(param1, var1);
                 BlockState var2 = param0.getBlockState(var0);
                 BlockState var3 = var2.updateShape(var1.getOpposite(), this.asState(), param0, var0, param1);
-                Block.updateOrDestroy(var2, var3, param0, var0, param2);
+                Block.updateOrDestroy(var2, var3, param0, var0, param2, param3);
             }
 
         }
 
-        public void updateIndirectNeighbourShapes(LevelAccessor param0, BlockPos param1, int param2) {
-            this.getBlock().updateIndirectNeighbourShapes(this.asState(), param0, param1, param2);
+        public final void updateIndirectNeighbourShapes(LevelAccessor param0, BlockPos param1, int param2) {
+            this.updateIndirectNeighbourShapes(param0, param1, param2, 512);
+        }
+
+        public void updateIndirectNeighbourShapes(LevelAccessor param0, BlockPos param1, int param2, int param3) {
+            this.getBlock().updateIndirectNeighbourShapes(this.asState(), param0, param1, param2, param3);
         }
 
         public void onPlace(Level param0, BlockPos param1, BlockState param2, boolean param3) {

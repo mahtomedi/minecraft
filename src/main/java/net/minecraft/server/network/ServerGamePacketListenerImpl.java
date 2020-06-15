@@ -1223,8 +1223,11 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
                     this.player.attack(var1);
                 }
 
-                if (var4.isPresent() && var4.get().shouldSwing()) {
-                    this.player.swing(var3, true);
+                if (var4.isPresent() && var4.get().consumesAction()) {
+                    CriteriaTriggers.PLAYER_INTERACTED_WITH_ENTITY.trigger(this.player, this.player.getItemInHand(var3), var1);
+                    if (var4.get().shouldSwing()) {
+                        this.player.swing(var3, true);
+                    }
                 }
             }
         }

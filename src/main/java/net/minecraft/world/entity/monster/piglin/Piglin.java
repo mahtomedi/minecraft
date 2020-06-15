@@ -50,6 +50,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ProjectileWeaponItem;
 import net.minecraft.world.item.TieredItem;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
@@ -211,6 +212,7 @@ public class Piglin extends Monster implements CrossbowAttackMob {
 
         PiglinAi.initMemories(this);
         this.populateDefaultEquipmentSlots(param1);
+        this.populateDefaultEquipmentEnchantments(param1);
         return super.finalizeSpawn(param0, param1, param2, param3, param4);
     }
 
@@ -333,7 +335,6 @@ public class Piglin extends Monster implements CrossbowAttackMob {
         this.getBrain().tick((ServerLevel)this.level, this);
         this.level.getProfiler().pop();
         PiglinAi.updateActivity(this);
-        PiglinAi.maybePlayActivitySound(this);
         if (this.isConverting()) {
             ++this.timeInOverworld;
         } else {
@@ -341,7 +342,7 @@ public class Piglin extends Monster implements CrossbowAttackMob {
         }
 
         if (this.timeInOverworld > 300) {
-            this.playConvertedSound();
+            this.playSound(SoundEvents.PIGLIN_CONVERTED_TO_ZOMBIFIED);
             this.finishConversion((ServerLevel)this.level);
         }
 
@@ -386,16 +387,14 @@ public class Piglin extends Monster implements CrossbowAttackMob {
     public Piglin.PiglinArmPose getArmPose() {
         if (this.isDancing()) {
             return Piglin.PiglinArmPose.DANCING;
-        } else if (this.swinging) {
-            return Piglin.PiglinArmPose.DEFAULT;
         } else if (PiglinAi.isLovedItem(this.getOffhandItem().getItem())) {
             return Piglin.PiglinArmPose.ADMIRING_ITEM;
+        } else if (this.isAggressive() && this.isHoldingMeleeWeapon()) {
+            return Piglin.PiglinArmPose.ATTACKING_WITH_MELEE_WEAPON;
         } else if (this.isChargingCrossbow()) {
             return Piglin.PiglinArmPose.CROSSBOW_CHARGE;
-        } else if (this.isAggressive() && this.isHolding(Items.CROSSBOW)) {
-            return Piglin.PiglinArmPose.CROSSBOW_HOLD;
         } else {
-            return this.isAggressive() && this.isHoldingMeleeWeapon() ? Piglin.PiglinArmPose.ATTACKING_WITH_MELEE_WEAPON : Piglin.PiglinArmPose.DEFAULT;
+            return this.isAggressive() && this.isHolding(Items.CROSSBOW) ? Piglin.PiglinArmPose.CROSSBOW_HOLD : Piglin.PiglinArmPose.DEFAULT;
         }
     }
 
@@ -467,16 +466,20 @@ public class Piglin extends Monster implements CrossbowAttackMob {
 
     @Override
     protected boolean canReplaceCurrentItem(ItemStack param0, ItemStack param1) {
-        boolean var0 = PiglinAi.isLovedItem(param0.getItem()) || param0.getItem() == Items.CROSSBOW;
-        boolean var1 = PiglinAi.isLovedItem(param1.getItem()) || param1.getItem() == Items.CROSSBOW;
-        if (var0 && !var1) {
-            return true;
-        } else if (!var0 && var1) {
+        if (EnchantmentHelper.hasBindingCurse(param1)) {
             return false;
         } else {
-            return this.isAdult() && param0.getItem() != Items.CROSSBOW && param1.getItem() == Items.CROSSBOW
-                ? false
-                : super.canReplaceCurrentItem(param0, param1);
+            boolean var0 = PiglinAi.isLovedItem(param0.getItem()) || param0.getItem() == Items.CROSSBOW;
+            boolean var1 = PiglinAi.isLovedItem(param1.getItem()) || param1.getItem() == Items.CROSSBOW;
+            if (var0 && !var1) {
+                return true;
+            } else if (!var0 && var1) {
+                return false;
+            } else {
+                return this.isAdult() && param0.getItem() != Items.CROSSBOW && param1.getItem() == Items.CROSSBOW
+                    ? false
+                    : super.canReplaceCurrentItem(param0, param1);
+            }
         }
     }
 
@@ -502,7 +505,7 @@ public class Piglin extends Monster implements CrossbowAttackMob {
 
     @Override
     protected SoundEvent getAmbientSound() {
-        return SoundEvents.PIGLIN_AMBIENT;
+        return this.level.isClientSide ? null : PiglinAi.getSoundForCurrentActivity(this).orElse(null);
     }
 
     @Override
@@ -520,36 +523,8 @@ public class Piglin extends Monster implements CrossbowAttackMob {
         this.playSound(SoundEvents.PIGLIN_STEP, 0.15F, 1.0F);
     }
 
-    protected void playAdmiringSound() {
-        this.playSound(SoundEvents.PIGLIN_ADMIRING_ITEM, 1.0F, this.getVoicePitch());
-    }
-
-    @Override
-    public void playAmbientSound() {
-        if (PiglinAi.isIdle(this)) {
-            super.playAmbientSound();
-        }
-
-    }
-
-    protected void playAngrySound() {
-        this.playSound(SoundEvents.PIGLIN_ANGRY, 1.0F, this.getVoicePitch());
-    }
-
-    protected void playCelebrateSound() {
-        this.playSound(SoundEvents.PIGLIN_CELEBRATE, 1.0F, this.getVoicePitch());
-    }
-
-    protected void playRetreatSound() {
-        this.playSound(SoundEvents.PIGLIN_RETREAT, 1.0F, this.getVoicePitch());
-    }
-
-    protected void playJealousSound() {
-        this.playSound(SoundEvents.PIGLIN_JEALOUS, 1.0F, this.getVoicePitch());
-    }
-
-    private void playConvertedSound() {
-        this.playSound(SoundEvents.PIGLIN_CONVERTED_TO_ZOMBIFIED, 1.0F, this.getVoicePitch());
+    protected void playSound(SoundEvent param0) {
+        this.playSound(param0, this.getSoundVolume(), this.getVoicePitch());
     }
 
     @Override

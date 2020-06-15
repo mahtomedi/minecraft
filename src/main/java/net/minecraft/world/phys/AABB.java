@@ -442,7 +442,7 @@ public class AABB {
 
     @Override
     public String toString() {
-        return "box[" + this.minX + ", " + this.minY + ", " + this.minZ + "] -> [" + this.maxX + ", " + this.maxY + ", " + this.maxZ + "]";
+        return "AABB[" + this.minX + ", " + this.minY + ", " + this.minZ + "] -> [" + this.maxX + ", " + this.maxY + ", " + this.maxZ + "]";
     }
 
     @OnlyIn(Dist.CLIENT)

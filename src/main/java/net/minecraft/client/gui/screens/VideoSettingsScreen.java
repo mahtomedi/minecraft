@@ -55,6 +55,7 @@ public class VideoSettingsScreen extends OptionsSubScreen {
     private OptionsList list;
     private final GpuWarnlistManager gpuWarnlistManager;
     private final int oldMipmaps;
+    private boolean disableGraphicsWarning;
 
     public VideoSettingsScreen(Screen param0, Options param1) {
         super(param0, param1, new TranslatableComponent("options.videoTitle"));
@@ -95,36 +96,40 @@ public class VideoSettingsScreen extends OptionsSubScreen {
                 this.minecraft.resizeDisplay();
             }
 
-            if (this.options.graphicsMode != var1 && this.options.graphicsMode == GraphicsStatus.FABULOUS && this.gpuWarnlistManager.hasWarnings()) {
-                this.options.graphicsMode = GraphicsStatus.FANCY;
-                List<FormattedText> var2 = Lists.newArrayList(WARNING_MESSAGE, NEW_LINE);
-                String var3 = this.gpuWarnlistManager.getRendererWarnings();
-                if (var3 != null) {
-                    var2.add(NEW_LINE);
-                    var2.add(new TranslatableComponent("options.graphics.warning.renderer", var3).withStyle(ChatFormatting.GRAY));
-                }
-
-                String var4 = this.gpuWarnlistManager.getVendorWarnings();
-                if (var4 != null) {
-                    var2.add(NEW_LINE);
-                    var2.add(new TranslatableComponent("options.graphics.warning.vendor", var4).withStyle(ChatFormatting.GRAY));
-                }
-
-                String var5 = this.gpuWarnlistManager.getVersionWarnings();
-                if (var5 != null) {
-                    var2.add(NEW_LINE);
-                    var2.add(new TranslatableComponent("options.graphics.warning.version", var5).withStyle(ChatFormatting.GRAY));
-                }
-
-                this.minecraft.setScreen(new PopupScreen(WARNING_TITLE, var2, ImmutableList.of(new PopupScreen.ButtonOption(BUTTON_ACCEPT, param0x -> {
-                    this.options.graphicsMode = GraphicsStatus.FABULOUS;
-                    Minecraft.getInstance().levelRenderer.allChanged();
-                    this.minecraft.setScreen(this);
-                }), new PopupScreen.ButtonOption(BUTTON_CANCEL, param0x -> {
+            if (this.options.graphicsMode != var1 && this.options.graphicsMode == GraphicsStatus.FABULOUS) {
+                if (this.disableGraphicsWarning) {
                     this.options.graphicsMode = GraphicsStatus.FAST;
-                    Minecraft.getInstance().levelRenderer.allChanged();
-                    this.minecraft.setScreen(this);
-                }))));
+                    this.reinitialize();
+                } else if (this.gpuWarnlistManager.hasWarnings()) {
+                    this.options.graphicsMode = GraphicsStatus.FANCY;
+                    List<FormattedText> var2 = Lists.newArrayList(WARNING_MESSAGE, NEW_LINE);
+                    String var3 = this.gpuWarnlistManager.getRendererWarnings();
+                    if (var3 != null) {
+                        var2.add(NEW_LINE);
+                        var2.add(new TranslatableComponent("options.graphics.warning.renderer", var3).withStyle(ChatFormatting.GRAY));
+                    }
+
+                    String var4 = this.gpuWarnlistManager.getVendorWarnings();
+                    if (var4 != null) {
+                        var2.add(NEW_LINE);
+                        var2.add(new TranslatableComponent("options.graphics.warning.vendor", var4).withStyle(ChatFormatting.GRAY));
+                    }
+
+                    String var5 = this.gpuWarnlistManager.getVersionWarnings();
+                    if (var5 != null) {
+                        var2.add(NEW_LINE);
+                        var2.add(new TranslatableComponent("options.graphics.warning.version", var5).withStyle(ChatFormatting.GRAY));
+                    }
+
+                    this.minecraft.setScreen(new PopupScreen(WARNING_TITLE, var2, ImmutableList.of(new PopupScreen.ButtonOption(BUTTON_ACCEPT, param0x -> {
+                        this.options.graphicsMode = GraphicsStatus.FABULOUS;
+                        Minecraft.getInstance().levelRenderer.allChanged();
+                        this.minecraft.setScreen(this);
+                    }), new PopupScreen.ButtonOption(BUTTON_CANCEL, param0x -> {
+                        this.disableGraphicsWarning = true;
+                        this.minecraft.setScreen(this);
+                    }))));
+                }
             }
 
             return true;
@@ -166,5 +171,11 @@ public class VideoSettingsScreen extends OptionsSubScreen {
             this.renderTooltip(param0, this.tooltip, param1, param2);
         }
 
+    }
+
+    private void reinitialize() {
+        this.buttons.clear();
+        this.children.clear();
+        this.init();
     }
 }

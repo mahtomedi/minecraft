@@ -1,8 +1,6 @@
 package net.minecraft.world.entity.projectile;
 
 import javax.annotation.Nullable;
-import net.minecraft.advancements.CriteriaTriggers;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -16,9 +14,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.TheEndGatewayBlockEntity;
-import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraftforge.api.distmarker.Dist;
@@ -47,28 +42,6 @@ public class ThrownEnderpearl extends ThrowableItemProjectile {
     protected void onHitEntity(EntityHitResult param0) {
         super.onHitEntity(param0);
         param0.getEntity().hurt(DamageSource.thrown(this, this.getOwner()), 0.0F);
-    }
-
-    @Override
-    protected void onHitBlock(BlockHitResult param0) {
-        super.onHitBlock(param0);
-        Entity var0 = this.getOwner();
-        BlockPos var1 = param0.getBlockPos();
-        BlockEntity var2 = this.level.getBlockEntity(var1);
-        if (var2 instanceof TheEndGatewayBlockEntity) {
-            TheEndGatewayBlockEntity var3 = (TheEndGatewayBlockEntity)var2;
-            if (var0 != null) {
-                if (var0 instanceof ServerPlayer) {
-                    CriteriaTriggers.ENTER_BLOCK.trigger((ServerPlayer)var0, this.level.getBlockState(var1));
-                }
-
-                var3.teleportEntity(var0);
-                this.remove();
-            } else {
-                var3.teleportEntity(this);
-            }
-        }
-
     }
 
     @Override

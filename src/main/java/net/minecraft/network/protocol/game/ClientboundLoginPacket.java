@@ -19,6 +19,7 @@ public class ClientboundLoginPacket implements Packet<ClientGamePacketListener> 
     private long seed;
     private boolean hardcore;
     private GameType gameType;
+    private GameType previousGameType;
     private Set<ResourceKey<Level>> levels;
     private RegistryAccess.RegistryHolder registryHolder;
     private ResourceKey<DimensionType> dimensionType;
@@ -36,33 +37,35 @@ public class ClientboundLoginPacket implements Packet<ClientGamePacketListener> 
     public ClientboundLoginPacket(
         int param0,
         GameType param1,
-        long param2,
-        boolean param3,
-        Set<ResourceKey<Level>> param4,
-        RegistryAccess.RegistryHolder param5,
-        ResourceKey<DimensionType> param6,
-        ResourceKey<Level> param7,
-        int param8,
+        GameType param2,
+        long param3,
+        boolean param4,
+        Set<ResourceKey<Level>> param5,
+        RegistryAccess.RegistryHolder param6,
+        ResourceKey<DimensionType> param7,
+        ResourceKey<Level> param8,
         int param9,
-        boolean param10,
+        int param10,
         boolean param11,
         boolean param12,
-        boolean param13
+        boolean param13,
+        boolean param14
     ) {
         this.playerId = param0;
-        this.levels = param4;
-        this.registryHolder = param5;
-        this.dimensionType = param6;
-        this.dimension = param7;
-        this.seed = param2;
+        this.levels = param5;
+        this.registryHolder = param6;
+        this.dimensionType = param7;
+        this.dimension = param8;
+        this.seed = param3;
         this.gameType = param1;
-        this.maxPlayers = param8;
-        this.hardcore = param3;
-        this.chunkRadius = param9;
-        this.reducedDebugInfo = param10;
-        this.showDeathScreen = param11;
-        this.isDebug = param12;
-        this.isFlat = param13;
+        this.previousGameType = param2;
+        this.maxPlayers = param9;
+        this.hardcore = param4;
+        this.chunkRadius = param10;
+        this.reducedDebugInfo = param11;
+        this.showDeathScreen = param12;
+        this.isDebug = param13;
+        this.isFlat = param14;
     }
 
     @Override
@@ -72,6 +75,7 @@ public class ClientboundLoginPacket implements Packet<ClientGamePacketListener> 
         this.hardcore = (var0 & 8) == 8;
         var0 &= -9;
         this.gameType = GameType.byId(var0);
+        this.previousGameType = GameType.byId(param0.readUnsignedByte());
         int var1 = param0.readVarInt();
         this.levels = Sets.newHashSet();
 
@@ -100,6 +104,7 @@ public class ClientboundLoginPacket implements Packet<ClientGamePacketListener> 
         }
 
         param0.writeByte(var0);
+        param0.writeByte(this.previousGameType.getId());
         param0.writeVarInt(this.levels.size());
 
         for(ResourceKey<Level> var1 : this.levels) {
@@ -140,6 +145,11 @@ public class ClientboundLoginPacket implements Packet<ClientGamePacketListener> 
     @OnlyIn(Dist.CLIENT)
     public GameType getGameType() {
         return this.gameType;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public GameType getPreviousGameType() {
+        return this.previousGameType;
     }
 
     @OnlyIn(Dist.CLIENT)

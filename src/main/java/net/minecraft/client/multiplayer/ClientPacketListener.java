@@ -395,6 +395,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
         this.minecraft.player.setReducedDebugInfo(param0.isReducedDebugInfo());
         this.minecraft.player.setShowDeathScreen(param0.shouldShowDeathScreen());
         this.minecraft.gameMode.setLocalMode(param0.getGameType());
+        this.minecraft.gameMode.setPreviousLocalMode(param0.getPreviousGameType());
         this.minecraft.options.broadcastOptions();
         this.connection
             .send(
@@ -1092,6 +1093,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
         }
 
         this.minecraft.gameMode.setLocalMode(param0.getPlayerGameType());
+        this.minecraft.gameMode.setPreviousLocalMode(param0.getPreviousPlayerGameType());
     }
 
     @Override

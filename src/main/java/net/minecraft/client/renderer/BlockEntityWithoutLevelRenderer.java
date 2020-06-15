@@ -118,7 +118,7 @@ public class BlockEntityWithoutLevelRenderer {
                 param2.scale(1.0F, -1.0F, -1.0F);
                 Material var15 = var14 ? ModelBakery.SHIELD_BASE : ModelBakery.NO_PATTERN_SHIELD;
                 VertexConsumer var16 = var15.sprite()
-                    .wrap(ItemRenderer.getFoilBufferDirect(param3, this.shieldModel.renderType(var15.atlasLocation()), false, param0.hasFoil()));
+                    .wrap(ItemRenderer.getFoilBufferDirect(param3, this.shieldModel.renderType(var15.atlasLocation()), true, param0.hasFoil()));
                 this.shieldModel.handle().render(param2, var16, param4, param5, 1.0F, 1.0F, 1.0F, 1.0F);
                 if (var14) {
                     List<Pair<BannerPattern, DyeColor>> var17 = BannerBlockEntity.createPatterns(

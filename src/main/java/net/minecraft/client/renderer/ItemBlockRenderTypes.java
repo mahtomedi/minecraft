@@ -3,6 +3,7 @@ package net.minecraft.client.renderer;
 import com.google.common.collect.Maps;
 import java.util.Map;
 import net.minecraft.Util;
+import net.minecraft.client.Minecraft;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -296,7 +297,11 @@ public class ItemBlockRenderTypes {
     public static RenderType getRenderType(BlockState param0, boolean param1) {
         RenderType var0 = getChunkRenderType(param0);
         if (var0 == RenderType.translucent()) {
-            return param1 ? Sheets.translucentCullBlockSheet() : Sheets.translucentItemSheet();
+            if (!Minecraft.useShaderTransparency()) {
+                return Sheets.translucentCullBlockSheet();
+            } else {
+                return param1 ? Sheets.translucentCullBlockSheet() : Sheets.translucentItemSheet();
+            }
         } else {
             return Sheets.cutoutBlockSheet();
         }

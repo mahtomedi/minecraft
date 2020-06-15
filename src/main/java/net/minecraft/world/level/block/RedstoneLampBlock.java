@@ -19,11 +19,6 @@ public class RedstoneLampBlock extends Block {
         this.registerDefaultState(this.defaultBlockState().setValue(LIT, Boolean.valueOf(false)));
     }
 
-    @Override
-    public void onPlace(BlockState param0, Level param1, BlockPos param2, BlockState param3, boolean param4) {
-        super.onPlace(param0, param1, param2, param3, param4);
-    }
-
     @Nullable
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext param0) {

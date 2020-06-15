@@ -226,6 +226,11 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
 
     @Override
     public boolean setBlock(BlockPos param0, BlockState param1, int param2) {
+        return this.setBlock(param0, param1, param2, 512);
+    }
+
+    @Override
+    public boolean setBlock(BlockPos param0, BlockState param1, int param2, int param3) {
         if (isOutsideBuildHeight(param0)) {
             return false;
         } else if (!this.isClientSide && this.isDebug()) {
@@ -268,11 +273,11 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
                         }
                     }
 
-                    if ((param2 & 16) == 0) {
+                    if ((param2 & 16) == 0 && param3 > 0) {
                         int var4 = param2 & -34;
-                        var2.updateIndirectNeighbourShapes(this, param0, var4);
-                        param1.updateNeighbourShapes(this, param0, var4);
-                        param1.updateIndirectNeighbourShapes(this, param0, var4);
+                        var2.updateIndirectNeighbourShapes(this, param0, var4, param3 - 1);
+                        param1.updateNeighbourShapes(this, param0, var4, param3 - 1);
+                        param1.updateIndirectNeighbourShapes(this, param0, var4, param3 - 1);
                     }
 
                     this.onBlockStateChange(param0, var2, var3);
@@ -293,7 +298,7 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     }
 
     @Override
-    public boolean destroyBlock(BlockPos param0, boolean param1, @Nullable Entity param2) {
+    public boolean destroyBlock(BlockPos param0, boolean param1, @Nullable Entity param2, int param3) {
         BlockState var0 = this.getBlockState(param0);
         if (var0.isAir()) {
             return false;
@@ -308,7 +313,7 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
                 Block.dropResources(var0, this, param0, var2, param2, ItemStack.EMPTY);
             }
 
-            return this.setBlock(param0, var1.createLegacyBlock(), 3);
+            return this.setBlock(param0, var1.createLegacyBlock(), 3, param3);
         }
     }
 

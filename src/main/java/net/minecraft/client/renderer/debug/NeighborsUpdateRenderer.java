@@ -28,17 +28,8 @@ public class NeighborsUpdateRenderer implements DebugRenderer.SimpleDebugRendere
     }
 
     public void addUpdate(long param0, BlockPos param1) {
-        Map<BlockPos, Integer> var0 = this.lastUpdate.get(param0);
-        if (var0 == null) {
-            var0 = Maps.newHashMap();
-            this.lastUpdate.put(param0, var0);
-        }
-
-        Integer var1 = var0.get(param1);
-        if (var1 == null) {
-            var1 = 0;
-        }
-
+        Map<BlockPos, Integer> var0 = this.lastUpdate.computeIfAbsent(param0, param0x -> Maps.newHashMap());
+        int var1 = var0.getOrDefault(param1, 0);
         var0.put(param1, var1 + 1);
     }
 

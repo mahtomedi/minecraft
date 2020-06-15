@@ -162,6 +162,7 @@ public abstract class PlayerList {
             new ClientboundLoginPacket(
                 param1.getId(),
                 param1.gameMode.getGameModeForPlayer(),
+                param1.gameMode.getPreviousGameModeForPlayer(),
                 BiomeManager.obfuscateSeed(var7.getSeed()),
                 var10.isHardcore(),
                 this.server.levelKeys(),
@@ -490,6 +491,7 @@ public abstract class PlayerList {
                     var8.level.dimension(),
                     BiomeManager.obfuscateSeed(var8.getLevel().getSeed()),
                     var8.gameMode.getGameModeForPlayer(),
+                    var8.gameMode.getPreviousGameModeForPlayer(),
                     var8.getLevel().isDebug(),
                     var8.getLevel().isFlat(),
                     param1
@@ -759,9 +761,9 @@ public abstract class PlayerList {
 
     private void updatePlayerGameMode(ServerPlayer param0, @Nullable ServerPlayer param1, ServerLevel param2) {
         if (param1 != null) {
-            param0.gameMode.setGameModeForPlayer(param1.gameMode.getGameModeForPlayer());
+            param0.gameMode.setGameModeForPlayer(param1.gameMode.getGameModeForPlayer(), param1.gameMode.getPreviousGameModeForPlayer());
         } else if (this.overrideGameMode != null) {
-            param0.gameMode.setGameModeForPlayer(this.overrideGameMode);
+            param0.gameMode.setGameModeForPlayer(this.overrideGameMode, GameType.NOT_SET);
         }
 
         param0.gameMode.updateGameMode(param2.getServer().getWorldData().getGameType());

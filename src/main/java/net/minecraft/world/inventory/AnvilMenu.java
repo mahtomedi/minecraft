@@ -146,7 +146,7 @@ public class AnvilMenu extends ItemCombinerMenu {
 
                     for(Enchantment var19 : var16.keySet()) {
                         if (var19 != null) {
-                            int var20 = var6.containsKey(var19) ? var6.get(var19) : 0;
+                            int var20 = var6.getOrDefault(var19, 0);
                             int var21 = var16.get(var19);
                             var21 = var20 == var21 ? var21 + 1 : Math.max(var21, var20);
                             boolean var22 = var19.canEnchant(var0);

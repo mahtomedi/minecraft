@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.apache.commons.lang3.mutable.MutableInt;
@@ -93,11 +94,11 @@ public class WorldGenSettingsFix extends DataFix {
         } else if (!var2.isPresent()) {
             var5 = defaultOverworld(param0, var1);
         } else {
-            OptionalDynamic<T> var7 = param0.get("generatorOptions");
             String var27 = var2.get();
             switch(var27) {
                 case "flat":
-                    Map<Dynamic<T>, Dynamic<T>> var8 = fixFlatStructures(var0, var7);
+                    OptionalDynamic<T> var7 = param0.get("generatorOptions");
+                    Map<Dynamic<T>, Dynamic<T>> var8x = fixFlatStructures(var0, var7);
                     var5 = param0.createMap(
                         ImmutableMap.of(
                             param0.createString("type"),
@@ -106,11 +107,42 @@ public class WorldGenSettingsFix extends DataFix {
                             param0.createMap(
                                 ImmutableMap.of(
                                     param0.createString("structures"),
-                                    param0.createMap(var8),
+                                    param0.createMap(var8x),
                                     param0.createString("layers"),
-                                    var7.get("layers").orElseEmptyList(),
+                                    var7.get("layers")
+                                        .result()
+                                        .orElseGet(
+                                            () -> param0.createList(
+                                                    Stream.of(
+                                                        param0.createMap(
+                                                            ImmutableMap.of(
+                                                                param0.createString("height"),
+                                                                param0.createInt(1),
+                                                                param0.createString("block"),
+                                                                param0.createString("minecraft:bedrock")
+                                                            )
+                                                        ),
+                                                        param0.createMap(
+                                                            ImmutableMap.of(
+                                                                param0.createString("height"),
+                                                                param0.createInt(2),
+                                                                param0.createString("block"),
+                                                                param0.createString("minecraft:dirt")
+                                                            )
+                                                        ),
+                                                        param0.createMap(
+                                                            ImmutableMap.of(
+                                                                param0.createString("height"),
+                                                                param0.createInt(1),
+                                                                param0.createString("block"),
+                                                                param0.createString("minecraft:grass_block")
+                                                            )
+                                                        )
+                                                    )
+                                                )
+                                        ),
                                     param0.createString("biome"),
-                                    param0.createString(var7.get("biome").asString("plains"))
+                                    param0.createString(var7.get("biome").asString("minecraft:plains"))
                                 )
                             )
                         )
@@ -120,59 +152,60 @@ public class WorldGenSettingsFix extends DataFix {
                     var5 = param0.createMap(ImmutableMap.of(param0.createString("type"), param0.createString("minecraft:debug")));
                     break;
                 case "buffet":
-                    OptionalDynamic<?> var11 = var7.get("chunk_generator");
-                    Optional<String> var12 = var11.get("type").asString().result();
-                    Dynamic<T> var13;
-                    if (Objects.equals(var12, Optional.of("minecraft:caves"))) {
-                        var13 = param0.createString("minecraft:caves");
+                    OptionalDynamic<T> var11 = param0.get("generatorOptions");
+                    OptionalDynamic<?> var12 = var11.get("chunk_generator");
+                    Optional<String> var13 = var12.get("type").asString().result();
+                    Dynamic<T> var14;
+                    if (Objects.equals(var13, Optional.of("minecraft:caves"))) {
+                        var14 = param0.createString("minecraft:caves");
                         var4 = true;
-                    } else if (Objects.equals(var12, Optional.of("minecraft:floating_islands"))) {
-                        var13 = param0.createString("minecraft:floating_islands");
+                    } else if (Objects.equals(var13, Optional.of("minecraft:floating_islands"))) {
+                        var14 = param0.createString("minecraft:floating_islands");
                     } else {
-                        var13 = param0.createString("minecraft:overworld");
+                        var14 = param0.createString("minecraft:overworld");
                     }
 
-                    Dynamic<T> var16 = var7.get("biome_source")
+                    Dynamic<T> var17 = var11.get("biome_source")
                         .result()
                         .orElseGet(() -> param0.createMap(ImmutableMap.of(param0.createString("type"), param0.createString("minecraft:fixed"))));
-                    Dynamic<T> var18;
-                    if (var16.get("type").asString().result().equals(Optional.of("minecraft:fixed"))) {
-                        String var17 = var16.get("options")
+                    Dynamic<T> var19;
+                    if (var17.get("type").asString().result().equals(Optional.of("minecraft:fixed"))) {
+                        String var18 = var17.get("options")
                             .get("biomes")
                             .asStream()
                             .findFirst()
                             .flatMap(param0x -> param0x.asString().result())
                             .orElse("minecraft:ocean");
-                        var18 = var16.remove("options").set("biome", param0.createString(var17));
+                        var19 = var17.remove("options").set("biome", param0.createString(var18));
                     } else {
-                        var18 = var16;
+                        var19 = var17;
                     }
 
-                    var5 = noise(var1, param0, var13, var18);
+                    var5 = noise(var1, param0, var14, var19);
                     break;
                 default:
-                    boolean var21 = var2.get().equals("default");
-                    boolean var22 = var2.get().equals("default_1_1") || var21 && param0.get("generatorVersion").asInt(0) == 0;
-                    boolean var23 = var2.get().equals("amplified");
-                    boolean var24 = var2.get().equals("largebiomes");
+                    boolean var22 = var2.get().equals("default");
+                    boolean var23 = var2.get().equals("default_1_1") || var22 && param0.get("generatorVersion").asInt(0) == 0;
+                    boolean var24 = var2.get().equals("amplified");
+                    boolean var25 = var2.get().equals("largebiomes");
                     var5 = noise(
                         var1,
                         param0,
-                        param0.createString(var23 ? "minecraft:amplified" : "minecraft:overworld"),
-                        vanillaBiomeSource(param0, var1, var22, var24)
+                        param0.createString(var24 ? "minecraft:amplified" : "minecraft:overworld"),
+                        vanillaBiomeSource(param0, var1, var23, var25)
                     );
             }
         }
 
-        boolean var26 = param0.get("MapFeatures").asBoolean(true);
-        boolean var27 = param0.get("BonusChest").asBoolean(false);
-        Builder<T, T> var28 = ImmutableMap.builder();
-        var28.put(var0.createString("seed"), var0.createLong(var1));
-        var28.put(var0.createString("generate_features"), var0.createBoolean(var26));
-        var28.put(var0.createString("bonus_chest"), var0.createBoolean(var27));
-        var28.put(var0.createString("dimensions"), vanillaLevels(param0, var1, var5, var4));
-        var3.ifPresent(param2 -> var28.put(var0.createString("legacy_custom_options"), var0.createString(param2)));
-        return new Dynamic<>(var0, var0.createMap(var28.build()));
+        boolean var27 = param0.get("MapFeatures").asBoolean(true);
+        boolean var28 = param0.get("BonusChest").asBoolean(false);
+        Builder<T, T> var29 = ImmutableMap.builder();
+        var29.put(var0.createString("seed"), var0.createLong(var1));
+        var29.put(var0.createString("generate_features"), var0.createBoolean(var27));
+        var29.put(var0.createString("bonus_chest"), var0.createBoolean(var28));
+        var29.put(var0.createString("dimensions"), vanillaLevels(param0, var1, var5, var4));
+        var3.ifPresent(param2 -> var29.put(var0.createString("legacy_custom_options"), var0.createString(param2)));
+        return new Dynamic<>(var0, var0.createMap(var29.build()));
     }
 
     protected static <T> Dynamic<T> defaultOverworld(Dynamic<T> param0, long param1) {
@@ -248,6 +281,11 @@ public class WorldGenSettingsFix extends DataFix {
         MutableInt var2 = new MutableInt(128);
         MutableBoolean var3 = new MutableBoolean(false);
         Map<String, WorldGenSettingsFix.StructureFeatureConfiguration> var4 = Maps.newHashMap();
+        if (!param1.result().isPresent()) {
+            var3.setTrue();
+            var4.put("minecraft:village", DEFAULTS.get("minecraft:village"));
+        }
+
         param1.get("structures")
             .flatMap(Dynamic::getMapValues)
             .result()

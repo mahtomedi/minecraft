@@ -30,6 +30,7 @@ public class ServerPlayerGameMode {
     public ServerLevel level;
     public ServerPlayer player;
     private GameType gameModeForPlayer = GameType.NOT_SET;
+    private GameType previousGameModeForPlayer = GameType.NOT_SET;
     private boolean isDestroyingBlock;
     private int destroyProgressStart;
     private BlockPos destroyPos = BlockPos.ZERO;
@@ -44,6 +45,11 @@ public class ServerPlayerGameMode {
     }
 
     public void setGameModeForPlayer(GameType param0) {
+        this.setGameModeForPlayer(param0, param0 != this.gameModeForPlayer ? this.gameModeForPlayer : this.previousGameModeForPlayer);
+    }
+
+    public void setGameModeForPlayer(GameType param0, GameType param1) {
+        this.previousGameModeForPlayer = param1;
         this.gameModeForPlayer = param0;
         param0.updatePlayerAbilities(this.player.abilities);
         this.player.onUpdateAbilities();
@@ -53,6 +59,10 @@ public class ServerPlayerGameMode {
 
     public GameType getGameModeForPlayer() {
         return this.gameModeForPlayer;
+    }
+
+    public GameType getPreviousGameModeForPlayer() {
+        return this.previousGameModeForPlayer;
     }
 
     public boolean isSurvival() {

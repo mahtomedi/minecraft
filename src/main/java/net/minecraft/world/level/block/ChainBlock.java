@@ -3,7 +3,6 @@ package net.minecraft.world.level.block;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.tags.FluidTags;
 import net.minecraft.world.item.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelAccessor;
@@ -36,7 +35,7 @@ public class ChainBlock extends Block implements SimpleWaterloggedBlock {
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext param0) {
         FluidState var0 = param0.getLevel().getFluidState(param0.getClickedPos());
-        boolean var1 = var0.is(FluidTags.WATER) && var0.getAmount() == 8;
+        boolean var1 = var0.getType() == Fluids.WATER;
         return super.getStateForPlacement(param0).setValue(WATERLOGGED, Boolean.valueOf(var1));
     }
 

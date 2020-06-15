@@ -131,7 +131,7 @@ public class Explosion {
                         double var12 = Mth.lerp((double)var9, var0.minY, var0.maxY);
                         double var13 = Mth.lerp((double)var10, var0.minZ, var0.maxZ);
                         Vec3 var14 = new Vec3(var11 + var4, var12, var13 + var5);
-                        if (param1.level.clip(new ClipContext(var14, param0, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, param1)).getType()
+                        if (param1.level.clip(new ClipContext(var14, param0, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, param1)).getType()
                             == HitResult.Type.MISS) {
                             ++var6;
                         }
