@@ -306,4 +306,8 @@ public class MouseHandler {
             InputConstants.grabOrReleaseMouse(this.minecraft.getWindow().getWindow(), 212993, this.xpos, this.ypos);
         }
     }
+
+    public void cursorEntered() {
+        this.ignoreFirstMove = true;
+    }
 }

@@ -58,6 +58,7 @@ public class MusicManager {
             this.currentMusic = null;
         }
 
+        this.nextSongDelay += 100;
     }
 
     public boolean isPlayingMusic(Music param0) {

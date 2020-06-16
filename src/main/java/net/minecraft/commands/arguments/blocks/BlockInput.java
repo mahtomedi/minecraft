@@ -51,6 +51,10 @@ public class BlockInput implements Predicate<BlockInWorld> {
 
     public boolean place(ServerLevel param0, BlockPos param1, int param2) {
         BlockState var0 = Block.updateFromNeighbourShapes(this.state, param0, param1);
+        if (var0.isAir()) {
+            var0 = this.state;
+        }
+
         if (!param0.setBlock(param1, var0, param2)) {
             return false;
         } else {

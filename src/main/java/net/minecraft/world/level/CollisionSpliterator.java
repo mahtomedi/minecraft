@@ -102,14 +102,24 @@ public class CollisionSpliterator extends AbstractSpliterator<VoxelShape> {
         Objects.requireNonNull(this.source);
         this.needsBorderCheck = false;
         WorldBorder var0 = this.collisionGetter.getWorldBorder();
-        boolean var1 = isBoxFullyWithinWorldBorder(var0, this.source.getBoundingBox().deflate(1.0E-7));
-        boolean var2 = var1 && !isBoxFullyWithinWorldBorder(var0, this.source.getBoundingBox().inflate(1.0E-7));
-        if (var2) {
-            param0.accept(var0.getCollisionShape());
-            return true;
-        } else {
-            return false;
+        AABB var1 = this.source.getBoundingBox();
+        if (!isBoxFullyWithinWorldBorder(var0, var1)) {
+            VoxelShape var2 = var0.getCollisionShape();
+            if (!isOutsideBorder(var2, var1) && isCloseToBorder(var2, var1)) {
+                param0.accept(var2);
+                return true;
+            }
         }
+
+        return false;
+    }
+
+    private static boolean isCloseToBorder(VoxelShape param0, AABB param1) {
+        return Shapes.joinIsNotEmpty(param0, Shapes.create(param1.inflate(1.0E-7)), BooleanOp.AND);
+    }
+
+    private static boolean isOutsideBorder(VoxelShape param0, AABB param1) {
+        return Shapes.joinIsNotEmpty(param0, Shapes.create(param1.deflate(1.0E-7)), BooleanOp.AND);
     }
 
     public static boolean isBoxFullyWithinWorldBorder(WorldBorder param0, AABB param1) {

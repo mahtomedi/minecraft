@@ -1,5 +1,7 @@
 package net.minecraft.server.level;
 
+import com.google.common.collect.Lists;
+import com.mojang.datafixers.util.Pair;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -12,7 +14,7 @@ import net.minecraft.network.protocol.game.ClientboundRotateHeadPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityLinkPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
-import net.minecraft.network.protocol.game.ClientboundSetEquippedItemPacket;
+import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
 import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
 import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundUpdateAttributesPacket;
@@ -230,19 +232,25 @@ public class ServerEntity {
         }
 
         if (this.entity instanceof LivingEntity) {
-            for(EquipmentSlot var3 : EquipmentSlot.values()) {
-                ItemStack var4 = ((LivingEntity)this.entity).getItemBySlot(var3);
-                if (!var4.isEmpty()) {
-                    param0.accept(new ClientboundSetEquippedItemPacket(this.entity.getId(), var3, var4));
+            List<Pair<EquipmentSlot, ItemStack>> var3 = Lists.newArrayList();
+
+            for(EquipmentSlot var4 : EquipmentSlot.values()) {
+                ItemStack var5 = ((LivingEntity)this.entity).getItemBySlot(var4);
+                if (!var5.isEmpty()) {
+                    var3.add(Pair.of(var4, var5.copy()));
                 }
+            }
+
+            if (!var3.isEmpty()) {
+                param0.accept(new ClientboundSetEquipmentPacket(this.entity.getId(), var3));
             }
         }
 
         if (this.entity instanceof LivingEntity) {
-            LivingEntity var5 = (LivingEntity)this.entity;
+            LivingEntity var6 = (LivingEntity)this.entity;
 
-            for(MobEffectInstance var6 : var5.getActiveEffects()) {
-                param0.accept(new ClientboundUpdateMobEffectPacket(this.entity.getId(), var6));
+            for(MobEffectInstance var7 : var6.getActiveEffects()) {
+                param0.accept(new ClientboundUpdateMobEffectPacket(this.entity.getId(), var7));
             }
         }
 
@@ -255,9 +263,9 @@ public class ServerEntity {
         }
 
         if (this.entity instanceof Mob) {
-            Mob var7 = (Mob)this.entity;
-            if (var7.isLeashed()) {
-                param0.accept(new ClientboundSetEntityLinkPacket(var7, var7.getLeashHolder()));
+            Mob var8 = (Mob)this.entity;
+            if (var8.isLeashed()) {
+                param0.accept(new ClientboundSetEntityLinkPacket(var8, var8.getLeashHolder()));
             }
         }
 

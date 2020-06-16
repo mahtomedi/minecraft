@@ -89,6 +89,11 @@ public class PiglinModel<T extends Mob> extends PlayerModel<T> {
             AnimationUtils.animateZombieArms(this.leftArm, this.rightArm, param0.isAggressive(), this.attackTime, param3);
         }
 
+        this.leftPants.copyFrom(this.leftLeg);
+        this.rightPants.copyFrom(this.rightLeg);
+        this.leftSleeve.copyFrom(this.leftArm);
+        this.rightSleeve.copyFrom(this.rightArm);
+        this.jacket.copyFrom(this.body);
     }
 
     protected void setupAttackAnimation(T param0, float param1) {

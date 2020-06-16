@@ -3,7 +3,9 @@ package net.minecraft.world.entity;
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Dynamic;
 import java.util.Collection;
@@ -31,7 +33,8 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundAddMobPacket;
 import net.minecraft.network.protocol.game.ClientboundAnimatePacket;
-import net.minecraft.network.protocol.game.ClientboundSetEquippedItemPacket;
+import net.minecraft.network.protocol.game.ClientboundEntityEventPacket;
+import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
 import net.minecraft.network.protocol.game.ClientboundTakeItemEntityPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -105,7 +108,6 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.apache.commons.lang3.tuple.Pair;
 
 public abstract class LivingEntity extends Entity {
     private static final UUID SPEED_MODIFIER_SPRINTING_UUID = UUID.fromString("662A6B8D-DA3E-4C1C-8813-96EA6097278D");
@@ -1725,8 +1727,18 @@ public abstract class LivingEntity extends Entity {
                 break;
             case 54:
                 HoneyBlock.showJumpParticles(this);
+                break;
+            case 55:
+                this.swapHandItems();
         }
 
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private void swapHandItems() {
+        ItemStack var0 = this.getItemBySlot(EquipmentSlot.OFFHAND);
+        this.setItemSlot(EquipmentSlot.OFFHAND, this.getItemBySlot(EquipmentSlot.MAINHAND));
+        this.setItemSlot(EquipmentSlot.MAINHAND, var0);
     }
 
     @Override
@@ -1976,52 +1988,59 @@ public abstract class LivingEntity extends Entity {
                 double var9 = this.getY();
                 this.moveRelative(0.02F, param0);
                 this.move(MoverType.SELF, this.getDeltaMovement());
-                this.setDeltaMovement(this.getDeltaMovement().scale(0.5));
+                if (this.getFluidHeight(FluidTags.LAVA) <= this.getFluidJumpThreshold()) {
+                    this.setDeltaMovement(this.getDeltaMovement().multiply(0.5, 0.8F, 0.5));
+                    Vec3 var10 = this.getFluidFallingAdjustedMovement(var0, var1, this.getDeltaMovement());
+                    this.setDeltaMovement(var10);
+                } else {
+                    this.setDeltaMovement(this.getDeltaMovement().scale(0.5));
+                }
+
                 if (!this.isNoGravity()) {
                     this.setDeltaMovement(this.getDeltaMovement().add(0.0, -var0 / 4.0, 0.0));
                 }
 
-                Vec3 var10 = this.getDeltaMovement();
-                if (this.horizontalCollision && this.isFree(var10.x, var10.y + 0.6F - this.getY() + var9, var10.z)) {
-                    this.setDeltaMovement(var10.x, 0.3F, var10.z);
+                Vec3 var11 = this.getDeltaMovement();
+                if (this.horizontalCollision && this.isFree(var11.x, var11.y + 0.6F - this.getY() + var9, var11.z)) {
+                    this.setDeltaMovement(var11.x, 0.3F, var11.z);
                 }
             } else if (this.isFallFlying()) {
-                Vec3 var11 = this.getDeltaMovement();
-                if (var11.y > -0.5) {
+                Vec3 var12 = this.getDeltaMovement();
+                if (var12.y > -0.5) {
                     this.fallDistance = 1.0F;
                 }
 
-                Vec3 var12 = this.getLookAngle();
-                float var13 = this.xRot * (float) (Math.PI / 180.0);
-                double var14 = Math.sqrt(var12.x * var12.x + var12.z * var12.z);
-                double var15 = Math.sqrt(getHorizontalDistanceSqr(var11));
-                double var16 = var12.length();
-                float var17 = Mth.cos(var13);
-                var17 = (float)((double)var17 * (double)var17 * Math.min(1.0, var16 / 0.4));
-                var11 = this.getDeltaMovement().add(0.0, var0 * (-1.0 + (double)var17 * 0.75), 0.0);
-                if (var11.y < 0.0 && var14 > 0.0) {
-                    double var18 = var11.y * -0.1 * (double)var17;
-                    var11 = var11.add(var12.x * var18 / var14, var18, var12.z * var18 / var14);
+                Vec3 var13 = this.getLookAngle();
+                float var14 = this.xRot * (float) (Math.PI / 180.0);
+                double var15 = Math.sqrt(var13.x * var13.x + var13.z * var13.z);
+                double var16 = Math.sqrt(getHorizontalDistanceSqr(var12));
+                double var17 = var13.length();
+                float var18 = Mth.cos(var14);
+                var18 = (float)((double)var18 * (double)var18 * Math.min(1.0, var17 / 0.4));
+                var12 = this.getDeltaMovement().add(0.0, var0 * (-1.0 + (double)var18 * 0.75), 0.0);
+                if (var12.y < 0.0 && var15 > 0.0) {
+                    double var19 = var12.y * -0.1 * (double)var18;
+                    var12 = var12.add(var13.x * var19 / var15, var19, var13.z * var19 / var15);
                 }
 
-                if (var13 < 0.0F && var14 > 0.0) {
-                    double var19 = var15 * (double)(-Mth.sin(var13)) * 0.04;
-                    var11 = var11.add(-var12.x * var19 / var14, var19 * 3.2, -var12.z * var19 / var14);
+                if (var14 < 0.0F && var15 > 0.0) {
+                    double var20 = var16 * (double)(-Mth.sin(var14)) * 0.04;
+                    var12 = var12.add(-var13.x * var20 / var15, var20 * 3.2, -var13.z * var20 / var15);
                 }
 
-                if (var14 > 0.0) {
-                    var11 = var11.add((var12.x / var14 * var15 - var11.x) * 0.1, 0.0, (var12.z / var14 * var15 - var11.z) * 0.1);
+                if (var15 > 0.0) {
+                    var12 = var12.add((var13.x / var15 * var16 - var12.x) * 0.1, 0.0, (var13.z / var15 * var16 - var12.z) * 0.1);
                 }
 
-                this.setDeltaMovement(var11.multiply(0.99F, 0.98F, 0.99F));
+                this.setDeltaMovement(var12.multiply(0.99F, 0.98F, 0.99F));
                 this.move(MoverType.SELF, this.getDeltaMovement());
                 if (this.horizontalCollision && !this.level.isClientSide) {
-                    double var20 = Math.sqrt(getHorizontalDistanceSqr(this.getDeltaMovement()));
-                    double var21 = var15 - var20;
-                    float var22 = (float)(var21 * 10.0 - 3.0);
-                    if (var22 > 0.0F) {
-                        this.playSound(this.getFallDamageSound((int)var22), 1.0F, 1.0F);
-                        this.hurt(DamageSource.FLY_INTO_WALL, var22);
+                    double var21 = Math.sqrt(getHorizontalDistanceSqr(this.getDeltaMovement()));
+                    double var22 = var16 - var21;
+                    float var23 = (float)(var22 * 10.0 - 3.0);
+                    if (var23 > 0.0F) {
+                        this.playSound(this.getFallDamageSound((int)var23), 1.0F, 1.0F);
+                        this.hurt(DamageSource.FLY_INTO_WALL, var23);
                     }
                 }
 
@@ -2029,25 +2048,25 @@ public abstract class LivingEntity extends Entity {
                     this.setSharedFlag(7, false);
                 }
             } else {
-                BlockPos var23 = this.getBlockPosBelowThatAffectsMyMovement();
-                float var24 = this.level.getBlockState(var23).getBlock().getFriction();
-                float var25 = this.onGround ? var24 * 0.91F : 0.91F;
-                Vec3 var26 = this.handleRelativeFrictionAndCalculateMovement(param0, var24);
-                double var27 = var26.y;
+                BlockPos var24 = this.getBlockPosBelowThatAffectsMyMovement();
+                float var25 = this.level.getBlockState(var24).getBlock().getFriction();
+                float var26 = this.onGround ? var25 * 0.91F : 0.91F;
+                Vec3 var27 = this.handleRelativeFrictionAndCalculateMovement(param0, var25);
+                double var28 = var27.y;
                 if (this.hasEffect(MobEffects.LEVITATION)) {
-                    var27 += (0.05 * (double)(this.getEffect(MobEffects.LEVITATION).getAmplifier() + 1) - var26.y) * 0.2;
+                    var28 += (0.05 * (double)(this.getEffect(MobEffects.LEVITATION).getAmplifier() + 1) - var27.y) * 0.2;
                     this.fallDistance = 0.0F;
-                } else if (this.level.isClientSide && !this.level.hasChunkAt(var23)) {
+                } else if (this.level.isClientSide && !this.level.hasChunkAt(var24)) {
                     if (this.getY() > 0.0) {
-                        var27 = -0.1;
+                        var28 = -0.1;
                     } else {
-                        var27 = 0.0;
+                        var28 = 0.0;
                     }
                 } else if (!this.isNoGravity()) {
-                    var27 -= var0;
+                    var28 -= var0;
                 }
 
-                this.setDeltaMovement(var26.x * (double)var25, var27 * 0.98F, var26.z * (double)var25);
+                this.setDeltaMovement(var27.x * (double)var26, var28 * 0.98F, var27.z * (double)var26);
             }
         }
 
@@ -2159,48 +2178,15 @@ public abstract class LivingEntity extends Entity {
                 }
             }
 
-            for(EquipmentSlot var2 : EquipmentSlot.values()) {
-                ItemStack var3;
-                switch(var2.getType()) {
-                    case HAND:
-                        var3 = this.lastHandItemStacks.get(var2.getIndex());
-                        break;
-                    case ARMOR:
-                        var3 = this.lastArmorItemStacks.get(var2.getIndex());
-                        break;
-                    default:
-                        continue;
-                }
-
-                ItemStack var6 = this.getItemBySlot(var2);
-                if (!ItemStack.matches(var6, var3)) {
-                    ((ServerLevel)this.level).getChunkSource().broadcast(this, new ClientboundSetEquippedItemPacket(this.getId(), var2, var6));
-                    if (!var3.isEmpty()) {
-                        this.getAttributes().removeAttributeModifiers(var3.getAttributeModifiers(var2));
-                    }
-
-                    if (!var6.isEmpty()) {
-                        this.getAttributes().addTransientAttributeModifiers(var6.getAttributeModifiers(var2));
-                    }
-
-                    switch(var2.getType()) {
-                        case HAND:
-                            this.lastHandItemStacks.set(var2.getIndex(), var6.copy());
-                            break;
-                        case ARMOR:
-                            this.lastArmorItemStacks.set(var2.getIndex(), var6.copy());
-                    }
-                }
-            }
-
+            this.detectEquipmentUpdates();
             if (this.tickCount % 20 == 0) {
                 this.getCombatTracker().recheckStatus();
             }
 
             if (!this.glowing) {
-                boolean var7 = this.hasEffect(MobEffects.GLOWING);
-                if (this.getSharedFlag(6) != var7) {
-                    this.setSharedFlag(6, var7);
+                boolean var2 = this.hasEffect(MobEffects.GLOWING);
+                if (this.getSharedFlag(6) != var2) {
+                    this.setSharedFlag(6, var2);
                 }
             }
 
@@ -2210,36 +2196,36 @@ public abstract class LivingEntity extends Entity {
         }
 
         this.aiStep();
-        double var8 = this.getX() - this.xo;
-        double var9 = this.getZ() - this.zo;
-        float var10 = (float)(var8 * var8 + var9 * var9);
-        float var11 = this.yBodyRot;
-        float var12 = 0.0F;
+        double var3 = this.getX() - this.xo;
+        double var4 = this.getZ() - this.zo;
+        float var5 = (float)(var3 * var3 + var4 * var4);
+        float var6 = this.yBodyRot;
+        float var7 = 0.0F;
         this.oRun = this.run;
-        float var13 = 0.0F;
-        if (var10 > 0.0025000002F) {
-            var13 = 1.0F;
-            var12 = (float)Math.sqrt((double)var10) * 3.0F;
-            float var14 = (float)Mth.atan2(var9, var8) * (180.0F / (float)Math.PI) - 90.0F;
-            float var15 = Mth.abs(Mth.wrapDegrees(this.yRot) - var14);
-            if (95.0F < var15 && var15 < 265.0F) {
-                var11 = var14 - 180.0F;
+        float var8 = 0.0F;
+        if (var5 > 0.0025000002F) {
+            var8 = 1.0F;
+            var7 = (float)Math.sqrt((double)var5) * 3.0F;
+            float var9 = (float)Mth.atan2(var4, var3) * (180.0F / (float)Math.PI) - 90.0F;
+            float var10 = Mth.abs(Mth.wrapDegrees(this.yRot) - var9);
+            if (95.0F < var10 && var10 < 265.0F) {
+                var6 = var9 - 180.0F;
             } else {
-                var11 = var14;
+                var6 = var9;
             }
         }
 
         if (this.attackAnim > 0.0F) {
-            var11 = this.yRot;
+            var6 = this.yRot;
         }
 
         if (!this.onGround) {
-            var13 = 0.0F;
+            var8 = 0.0F;
         }
 
-        this.run += (var13 - this.run) * 0.3F;
+        this.run += (var8 - this.run) * 0.3F;
         this.level.getProfiler().push("headTurn");
-        var12 = this.tickHeadTurn(var11, var12);
+        var7 = this.tickHeadTurn(var6, var7);
         this.level.getProfiler().pop();
         this.level.getProfiler().push("rangeChecks");
 
@@ -2276,7 +2262,7 @@ public abstract class LivingEntity extends Entity {
         }
 
         this.level.getProfiler().pop();
-        this.animStep += var12;
+        this.animStep += var7;
         if (this.isFallFlying()) {
             ++this.fallFlyTicks;
         } else {
@@ -2287,6 +2273,103 @@ public abstract class LivingEntity extends Entity {
             this.xRot = 0.0F;
         }
 
+    }
+
+    private void detectEquipmentUpdates() {
+        Map<EquipmentSlot, ItemStack> var0 = this.collectEquipmentChanges();
+        if (var0 != null) {
+            this.handleHandSwap(var0);
+            if (!var0.isEmpty()) {
+                this.handleEquipmentChanges(var0);
+            }
+        }
+
+    }
+
+    @Nullable
+    private Map<EquipmentSlot, ItemStack> collectEquipmentChanges() {
+        Map<EquipmentSlot, ItemStack> var0 = null;
+
+        for(EquipmentSlot var1 : EquipmentSlot.values()) {
+            ItemStack var2;
+            switch(var1.getType()) {
+                case HAND:
+                    var2 = this.getLastHandItem(var1);
+                    break;
+                case ARMOR:
+                    var2 = this.getLastArmorItem(var1);
+                    break;
+                default:
+                    continue;
+            }
+
+            ItemStack var5 = this.getItemBySlot(var1);
+            if (!ItemStack.matches(var5, var2)) {
+                if (var0 == null) {
+                    var0 = Maps.newEnumMap(EquipmentSlot.class);
+                }
+
+                var0.put(var1, var5);
+                if (!var2.isEmpty()) {
+                    this.getAttributes().removeAttributeModifiers(var2.getAttributeModifiers(var1));
+                }
+
+                if (!var5.isEmpty()) {
+                    this.getAttributes().addTransientAttributeModifiers(var5.getAttributeModifiers(var1));
+                }
+            }
+        }
+
+        return var0;
+    }
+
+    private void handleHandSwap(Map<EquipmentSlot, ItemStack> param0) {
+        ItemStack var0 = param0.get(EquipmentSlot.MAINHAND);
+        ItemStack var1 = param0.get(EquipmentSlot.OFFHAND);
+        if (var0 != null
+            && var1 != null
+            && ItemStack.matches(var0, this.getLastHandItem(EquipmentSlot.OFFHAND))
+            && ItemStack.matches(var1, this.getLastHandItem(EquipmentSlot.MAINHAND))) {
+            ((ServerLevel)this.level).getChunkSource().broadcast(this, new ClientboundEntityEventPacket(this, (byte)55));
+            param0.remove(EquipmentSlot.MAINHAND);
+            param0.remove(EquipmentSlot.OFFHAND);
+            this.setLastHandItem(EquipmentSlot.MAINHAND, var0.copy());
+            this.setLastHandItem(EquipmentSlot.OFFHAND, var1.copy());
+        }
+
+    }
+
+    private void handleEquipmentChanges(Map<EquipmentSlot, ItemStack> param0) {
+        List<Pair<EquipmentSlot, ItemStack>> var0 = Lists.newArrayListWithCapacity(param0.size());
+        param0.forEach((param1, param2) -> {
+            ItemStack var0x = param2.copy();
+            var0.add(Pair.of(param1, var0x));
+            switch(param1.getType()) {
+                case HAND:
+                    this.setLastHandItem(param1, var0x);
+                    break;
+                case ARMOR:
+                    this.setLastArmorItem(param1, var0x);
+            }
+
+        });
+        ((ServerLevel)this.level).getChunkSource().broadcast(this, new ClientboundSetEquipmentPacket(this.getId(), var0));
+    }
+
+    private ItemStack getLastArmorItem(EquipmentSlot param0) {
+        return this.lastArmorItemStacks.get(param0.getIndex());
+    }
+
+    private void setLastArmorItem(EquipmentSlot param0, ItemStack param1) {
+        this.lastArmorItemStacks.set(param0.getIndex(), param1);
+    }
+
+    private ItemStack getLastHandItem(EquipmentSlot param0) {
+        return this.lastHandItemStacks.get(param0.getIndex());
+    }
+
+    private void setLastHandItem(EquipmentSlot param0, ItemStack param1) {
+        this.lastHandItemStacks.set(param0.getIndex(), param1);
     }
 
     protected float tickHeadTurn(float param0, float param1) {
@@ -2374,15 +2457,23 @@ public abstract class LivingEntity extends Entity {
         this.level.getProfiler().pop();
         this.level.getProfiler().push("jump");
         if (this.jumping && this.isAffectedByFluids()) {
-            double var8 = this.getFluidHeight(FluidTags.WATER);
-            boolean var9 = this.isInWater() && var8 > 0.0;
-            double var10 = this.getFluidJumpThreshold();
-            if (!var9 || this.onGround && !(var8 > var10)) {
-                if (this.isInLava()) {
+            double var8;
+            if (this.isInLava()) {
+                var8 = this.getFluidHeight(FluidTags.LAVA);
+            } else {
+                var8 = this.getFluidHeight(FluidTags.WATER);
+            }
+
+            boolean var10 = this.isInWater() && var8 > 0.0;
+            double var11 = this.getFluidJumpThreshold();
+            if (!var10 || this.onGround && !(var8 > var11)) {
+                if (!this.isInLava() || this.onGround && !(var8 > var11)) {
+                    if ((this.onGround || var10 && var8 <= var11) && this.noJumpDelay == 0) {
+                        this.jumpFromGround();
+                        this.noJumpDelay = 10;
+                    }
+                } else {
                     this.jumpInLiquid(FluidTags.LAVA);
-                } else if ((this.onGround || var9 && var8 <= var10) && this.noJumpDelay == 0) {
-                    this.jumpFromGround();
-                    this.noJumpDelay = 10;
                 }
             } else {
                 this.jumpInLiquid(FluidTags.WATER);
@@ -2396,13 +2487,13 @@ public abstract class LivingEntity extends Entity {
         this.xxa *= 0.98F;
         this.zza *= 0.98F;
         this.updateFallFlying();
-        AABB var11 = this.getBoundingBox();
+        AABB var12 = this.getBoundingBox();
         this.travel(new Vec3((double)this.xxa, (double)this.yya, (double)this.zza));
         this.level.getProfiler().pop();
         this.level.getProfiler().push("push");
         if (this.autoSpinAttackTicks > 0) {
             --this.autoSpinAttackTicks;
-            this.checkAutoSpinAttack(var11, this.getBoundingBox());
+            this.checkAutoSpinAttack(var12, this.getBoundingBox());
         }
 
         this.pushEntities();
@@ -3044,8 +3135,8 @@ public abstract class LivingEntity extends Entity {
         Item var0 = param0.getItem();
         if (var0.isEdible()) {
             for(Pair<MobEffectInstance, Float> var2 : var0.getFoodProperties().getEffects()) {
-                if (!param1.isClientSide && var2.getLeft() != null && param1.random.nextFloat() < var2.getRight()) {
-                    param2.addEffect(new MobEffectInstance(var2.getLeft()));
+                if (!param1.isClientSide && var2.getFirst() != null && param1.random.nextFloat() < var2.getSecond()) {
+                    param2.addEffect(new MobEffectInstance(var2.getFirst()));
                 }
             }
         }

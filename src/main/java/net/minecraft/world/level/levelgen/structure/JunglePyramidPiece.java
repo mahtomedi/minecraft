@@ -210,7 +210,7 @@ public class JunglePyramidPiece extends ScatteredFeaturePiece {
                 .defaultBlockState()
                 .setValue(RedStoneWireBlock.NORTH, RedstoneSide.SIDE)
                 .setValue(RedStoneWireBlock.SOUTH, RedstoneSide.SIDE);
-            this.placeBlock(param0, Blocks.REDSTONE_WIRE.defaultBlockState().setValue(RedStoneWireBlock.SOUTH, RedstoneSide.SIDE), 5, -3, 7, param4);
+            this.placeBlock(param0, var10, 5, -3, 7, param4);
             this.placeBlock(param0, var10, 5, -3, 6, param4);
             this.placeBlock(param0, var10, 5, -3, 5, param4);
             this.placeBlock(param0, var10, 5, -3, 4, param4);
@@ -227,7 +227,17 @@ public class JunglePyramidPiece extends ScatteredFeaturePiece {
                 1,
                 param4
             );
-            this.placeBlock(param0, Blocks.REDSTONE_WIRE.defaultBlockState().setValue(RedStoneWireBlock.EAST, RedstoneSide.SIDE), 4, -3, 1, param4);
+            this.placeBlock(
+                param0,
+                Blocks.REDSTONE_WIRE
+                    .defaultBlockState()
+                    .setValue(RedStoneWireBlock.EAST, RedstoneSide.SIDE)
+                    .setValue(RedStoneWireBlock.WEST, RedstoneSide.SIDE),
+                4,
+                -3,
+                1,
+                param4
+            );
             this.placeBlock(param0, Blocks.MOSSY_COBBLESTONE.defaultBlockState(), 3, -3, 1, param4);
             if (!this.placedTrap1) {
                 this.placedTrap1 = this.createDispenser(param0, param4, param3, 3, -2, 1, Direction.NORTH, BuiltInLootTables.JUNGLE_TEMPLE_DISPENSER);
@@ -292,7 +302,17 @@ public class JunglePyramidPiece extends ScatteredFeaturePiece {
                 4,
                 param4
             );
-            this.placeBlock(param0, Blocks.REDSTONE_WIRE.defaultBlockState().setValue(RedStoneWireBlock.EAST, RedstoneSide.SIDE), 8, -3, 6, param4);
+            this.placeBlock(
+                param0,
+                Blocks.REDSTONE_WIRE
+                    .defaultBlockState()
+                    .setValue(RedStoneWireBlock.EAST, RedstoneSide.SIDE)
+                    .setValue(RedStoneWireBlock.WEST, RedstoneSide.SIDE),
+                8,
+                -3,
+                6,
+                param4
+            );
             this.placeBlock(
                 param0,
                 Blocks.REDSTONE_WIRE
@@ -316,7 +336,7 @@ public class JunglePyramidPiece extends ScatteredFeaturePiece {
                 param4
             );
             this.placeBlock(param0, Blocks.MOSSY_COBBLESTONE.defaultBlockState(), 9, -3, 4, param4);
-            this.placeBlock(param0, Blocks.REDSTONE_WIRE.defaultBlockState().setValue(RedStoneWireBlock.NORTH, RedstoneSide.SIDE), 9, -2, 4, param4);
+            this.placeBlock(param0, var10, 9, -2, 4, param4);
             if (!this.placedTrap2) {
                 this.placedTrap2 = this.createDispenser(param0, param4, param3, 9, -2, 3, Direction.WEST, BuiltInLootTables.JUNGLE_TEMPLE_DISPENSER);
             }
@@ -348,9 +368,21 @@ public class JunglePyramidPiece extends ScatteredFeaturePiece {
             this.generateBox(param0, param4, 8, -3, 8, 8, -3, 10, false, param3, STONE_SELECTOR);
             this.generateBox(param0, param4, 10, -3, 8, 10, -3, 10, false, param3, STONE_SELECTOR);
             this.placeBlock(param0, Blocks.MOSSY_COBBLESTONE.defaultBlockState(), 10, -2, 9, param4);
-            this.placeBlock(param0, Blocks.REDSTONE_WIRE.defaultBlockState().setValue(RedStoneWireBlock.NORTH, RedstoneSide.SIDE), 8, -2, 9, param4);
-            this.placeBlock(param0, Blocks.REDSTONE_WIRE.defaultBlockState().setValue(RedStoneWireBlock.SOUTH, RedstoneSide.SIDE), 8, -2, 10, param4);
-            this.placeBlock(param0, Blocks.REDSTONE_WIRE.defaultBlockState(), 10, -1, 9, param4);
+            this.placeBlock(param0, var10, 8, -2, 9, param4);
+            this.placeBlock(param0, var10, 8, -2, 10, param4);
+            this.placeBlock(
+                param0,
+                Blocks.REDSTONE_WIRE
+                    .defaultBlockState()
+                    .setValue(RedStoneWireBlock.NORTH, RedstoneSide.SIDE)
+                    .setValue(RedStoneWireBlock.SOUTH, RedstoneSide.SIDE)
+                    .setValue(RedStoneWireBlock.EAST, RedstoneSide.SIDE)
+                    .setValue(RedStoneWireBlock.WEST, RedstoneSide.SIDE),
+                10,
+                -1,
+                9,
+                param4
+            );
             this.placeBlock(param0, Blocks.STICKY_PISTON.defaultBlockState().setValue(PistonBaseBlock.FACING, Direction.UP), 9, -2, 8, param4);
             this.placeBlock(param0, Blocks.STICKY_PISTON.defaultBlockState().setValue(PistonBaseBlock.FACING, Direction.WEST), 10, -2, 8, param4);
             this.placeBlock(param0, Blocks.STICKY_PISTON.defaultBlockState().setValue(PistonBaseBlock.FACING, Direction.WEST), 10, -1, 8, param4);

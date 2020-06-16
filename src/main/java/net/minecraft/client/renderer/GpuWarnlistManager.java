@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableMap.Builder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 import com.mojang.blaze3d.platform.GlUtil;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -22,14 +23,51 @@ import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class GpuWarnlistManager extends SimplePreparableReloadListener<GpuWarnlistManager.Preparations> {
+    private static final Logger LOGGER = LogManager.getLogger();
     private static final ResourceLocation GPU_WARNLIST_LOCATION = new ResourceLocation("gpu_warnlist.json");
     private ImmutableMap<String, String> warnings = ImmutableMap.of();
+    private boolean showWarning;
+    private boolean warningDismissed;
+    private boolean skipFabulous;
 
     public boolean hasWarnings() {
         return !this.warnings.isEmpty();
+    }
+
+    public boolean willShowWarning() {
+        return this.hasWarnings() && !this.warningDismissed;
+    }
+
+    public void showWarning() {
+        this.showWarning = true;
+    }
+
+    public void dismissWarning() {
+        this.warningDismissed = true;
+    }
+
+    public void dismissWarningAndSkipFabulous() {
+        this.warningDismissed = true;
+        this.skipFabulous = true;
+    }
+
+    public boolean isShowingWarning() {
+        return this.showWarning && !this.warningDismissed;
+    }
+
+    public boolean isSkippingFabulous() {
+        return this.skipFabulous;
+    }
+
+    public void resetWarnings() {
+        this.showWarning = false;
+        this.warningDismissed = false;
+        this.skipFabulous = false;
     }
 
     @Nullable
@@ -83,7 +121,8 @@ public class GpuWarnlistManager extends SimplePreparableReloadListener<GpuWarnli
             BufferedReader var2 = new BufferedReader(new InputStreamReader(var1.getInputStream(), StandardCharsets.UTF_8));
         ) {
             var0 = new JsonParser().parse(var2).getAsJsonObject();
-        } catch (IOException var35) {
+        } catch (JsonSyntaxException | IOException var35) {
+            LOGGER.warn("Failed to load GPU warnlist");
         }
 
         param1.pop();

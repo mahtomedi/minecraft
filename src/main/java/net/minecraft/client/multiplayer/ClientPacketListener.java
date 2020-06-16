@@ -154,7 +154,7 @@ import net.minecraft.network.protocol.game.ClientboundSetDisplayObjectivePacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityLinkPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
-import net.minecraft.network.protocol.game.ClientboundSetEquippedItemPacket;
+import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
 import net.minecraft.network.protocol.game.ClientboundSetExperiencePacket;
 import net.minecraft.network.protocol.game.ClientboundSetHealthPacket;
 import net.minecraft.network.protocol.game.ClientboundSetObjectivePacket;
@@ -769,6 +769,22 @@ public class ClientPacketListener implements ClientGamePacketListener {
             }
         }
 
+        if (!param0.forgetOldData()) {
+            this.level.getLightEngine().enableLightSources(var2.getPos(), false);
+            int var7 = param0.getAvailableSections();
+
+            for(int var8 = 0; var8 < 16; ++var8) {
+                if ((var7 & 1 << var8) != 0) {
+                    this.level.getLightEngine().queueSectionData(LightLayer.BLOCK, SectionPos.of(var2.getPos(), var8), new DataLayer(), false);
+                    this.level.getLightEngine().queueSectionData(LightLayer.SKY, SectionPos.of(var2.getPos(), var8), new DataLayer(), false);
+                }
+            }
+
+            this.level.getLightEngine().runUpdates(Integer.MAX_VALUE, true, true);
+            this.level.getLightEngine().enableLightSources(var2.getPos(), true);
+            var2.getLights().forEach(param1 -> this.level.getLightEngine().onBlockEmissionIncrease(param1, var2.getLightEmission(param1)));
+        }
+
     }
 
     @Override
@@ -1246,11 +1262,11 @@ public class ClientPacketListener implements ClientGamePacketListener {
     }
 
     @Override
-    public void handleSetEquippedItem(ClientboundSetEquippedItemPacket param0) {
+    public void handleSetEquipment(ClientboundSetEquipmentPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
         Entity var0 = this.level.getEntity(param0.getEntity());
         if (var0 != null) {
-            var0.setItemSlot(param0.getSlot(), param0.getItem());
+            param0.getSlots().forEach(param1 -> var0.setItemSlot(param1.getFirst(), param1.getSecond()));
         }
 
     }

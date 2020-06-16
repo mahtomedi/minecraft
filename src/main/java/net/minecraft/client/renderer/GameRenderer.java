@@ -177,7 +177,7 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
             this.effectIndex = EFFECT_NONE;
             this.effectActive = false;
         } catch (JsonSyntaxException var4) {
-            LOGGER.warn("Failed to load shader: {}", param0, var4);
+            LOGGER.warn("Failed to parse shader: {}", param0, var4);
             this.effectIndex = EFFECT_NONE;
             this.effectActive = false;
         }

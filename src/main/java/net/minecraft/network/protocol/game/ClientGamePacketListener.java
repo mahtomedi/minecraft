@@ -99,7 +99,7 @@ public interface ClientGamePacketListener extends PacketListener {
 
     void handleSetEntityMotion(ClientboundSetEntityMotionPacket var1);
 
-    void handleSetEquippedItem(ClientboundSetEquippedItemPacket var1);
+    void handleSetEquipment(ClientboundSetEquipmentPacket var1);
 
     void handleSetExperience(ClientboundSetExperiencePacket var1);
 

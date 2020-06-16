@@ -1052,6 +1052,11 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         this.mouseHandler.setIgnoreFirstMove();
     }
 
+    @Override
+    public void cursorEntered() {
+        this.mouseHandler.cursorEntered();
+    }
+
     private int getFramerateLimit() {
         return this.level != null || this.screen == null && this.overlay == null ? this.window.getFramerateLimit() : 60;
     }
@@ -2248,7 +2253,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
                 Biome.BiomeCategory var0 = this.player.level.getBiome(this.player.blockPosition()).getBiomeCategory();
                 if (!this.musicManager.isPlayingMusic(Musics.UNDER_WATER)
                     && (!this.player.isUnderWater() || var0 != Biome.BiomeCategory.OCEAN && var0 != Biome.BiomeCategory.RIVER)) {
-                    return this.player.abilities.instabuild && this.player.abilities.mayfly
+                    return this.player.level.dimension() != Level.NETHER && this.player.abilities.instabuild && this.player.abilities.mayfly
                         ? Musics.CREATIVE
                         : this.level.getBiomeManager().getNoiseBiomeAtPosition(this.player.blockPosition()).getBackgroundMusic().orElse(Musics.GAME);
                 } else {

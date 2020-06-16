@@ -56,7 +56,6 @@ public class ChunkHolder {
     private final short[] changedBlocks = new short[64];
     private int changes;
     private int changedSectionFilter;
-    private boolean forceSendLight;
     private int blockChangedLightSectionFilter;
     private int skyChangedLightSectionFilter;
     private final LevelLightEngine lightEngine;
@@ -172,44 +171,38 @@ public class ChunkHolder {
     public void broadcastChanges(LevelChunk param0) {
         if (this.changes != 0 || this.skyChangedLightSectionFilter != 0 || this.blockChangedLightSectionFilter != 0) {
             Level var0 = param0.getLevel();
-            if (this.changes == 64) {
-                this.forceSendLight = true;
-            }
-
-            boolean var1 = !this.forceSendLight;
-            this.forceSendLight = this.forceSendLight && this.lightEngine.hasLightWork();
-            if (this.skyChangedLightSectionFilter != 0 || this.blockChangedLightSectionFilter != 0) {
+            if (this.changes < 64 && (this.skyChangedLightSectionFilter != 0 || this.blockChangedLightSectionFilter != 0)) {
                 this.broadcast(
                     new ClientboundLightUpdatePacket(
-                        param0.getPos(), this.lightEngine, this.skyChangedLightSectionFilter, this.blockChangedLightSectionFilter, var1
+                        param0.getPos(), this.lightEngine, this.skyChangedLightSectionFilter, this.blockChangedLightSectionFilter, false
                     ),
-                    var1
+                    true
                 );
                 this.skyChangedLightSectionFilter = 0;
                 this.blockChangedLightSectionFilter = 0;
             }
 
             if (this.changes == 1) {
-                int var2 = (this.changedBlocks[0] >> 12 & 15) + this.pos.x * 16;
-                int var3 = this.changedBlocks[0] & 255;
-                int var4 = (this.changedBlocks[0] >> 8 & 15) + this.pos.z * 16;
-                BlockPos var5 = new BlockPos(var2, var3, var4);
-                this.broadcast(new ClientboundBlockUpdatePacket(var0, var5), false);
-                if (var0.getBlockState(var5).getBlock().isEntityBlock()) {
-                    this.broadcastBlockEntity(var0, var5);
+                int var1 = (this.changedBlocks[0] >> 12 & 15) + this.pos.x * 16;
+                int var2 = this.changedBlocks[0] & 255;
+                int var3 = (this.changedBlocks[0] >> 8 & 15) + this.pos.z * 16;
+                BlockPos var4 = new BlockPos(var1, var2, var3);
+                this.broadcast(new ClientboundBlockUpdatePacket(var0, var4), false);
+                if (var0.getBlockState(var4).getBlock().isEntityBlock()) {
+                    this.broadcastBlockEntity(var0, var4);
                 }
             } else if (this.changes == 64) {
-                this.broadcast(new ClientboundLevelChunkPacket(param0, this.changedSectionFilter), false);
+                this.broadcast(new ClientboundLevelChunkPacket(param0, this.changedSectionFilter, false), false);
             } else if (this.changes != 0) {
                 this.broadcast(new ClientboundChunkBlocksUpdatePacket(this.changes, this.changedBlocks, param0), false);
 
-                for(int var6 = 0; var6 < this.changes; ++var6) {
-                    int var7 = (this.changedBlocks[var6] >> 12 & 15) + this.pos.x * 16;
-                    int var8 = this.changedBlocks[var6] & 255;
-                    int var9 = (this.changedBlocks[var6] >> 8 & 15) + this.pos.z * 16;
-                    BlockPos var10 = new BlockPos(var7, var8, var9);
-                    if (var0.getBlockState(var10).getBlock().isEntityBlock()) {
-                        this.broadcastBlockEntity(var0, var10);
+                for(int var5 = 0; var5 < this.changes; ++var5) {
+                    int var6 = (this.changedBlocks[var5] >> 12 & 15) + this.pos.x * 16;
+                    int var7 = this.changedBlocks[var5] & 255;
+                    int var8 = (this.changedBlocks[var5] >> 8 & 15) + this.pos.z * 16;
+                    BlockPos var9 = new BlockPos(var6, var7, var8);
+                    if (var0.getBlockState(var9).getBlock().isEntityBlock()) {
+                        this.broadcastBlockEntity(var0, var9);
                     }
                 }
             }

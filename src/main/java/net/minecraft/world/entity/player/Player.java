@@ -236,10 +236,6 @@ public abstract class Player extends LivingEntity {
             this.containerMenu = this.inventoryMenu;
         }
 
-        if (this.isOnFire() && this.abilities.invulnerable) {
-            this.clearFire();
-        }
-
         this.moveCloak();
         if (!this.level.isClientSide) {
             this.foodData.tick(this);
@@ -1959,6 +1955,11 @@ public abstract class Player extends LivingEntity {
     @OnlyIn(Dist.CLIENT)
     public void setReducedDebugInfo(boolean param0) {
         this.reducedDebugInfo = param0;
+    }
+
+    @Override
+    public void setRemainingFireTicks(int param0) {
+        super.setRemainingFireTicks(this.abilities.invulnerable ? Math.min(param0, 1) : param0);
     }
 
     @Override

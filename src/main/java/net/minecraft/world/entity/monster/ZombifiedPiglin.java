@@ -104,6 +104,10 @@ public class ZombifiedPiglin extends Zombie implements NeutralMob {
             this.maybeAlertOthers();
         }
 
+        if (this.isAngry()) {
+            this.lastHurtByPlayerTime = this.tickCount;
+        }
+
         super.customServerAiStep();
     }
 
@@ -152,12 +156,11 @@ public class ZombifiedPiglin extends Zombie implements NeutralMob {
             this.ticksUntilNextAlert = ALERT_INTERVAL.randomValue(this.random);
         }
 
-        super.setTarget(param0);
-    }
+        if (param0 instanceof Player) {
+            this.setLastHurtByPlayer((Player)param0);
+        }
 
-    @Override
-    protected boolean isAlwaysExperienceDropper() {
-        return this.getTarget() != null;
+        super.setTarget(param0);
     }
 
     @Override

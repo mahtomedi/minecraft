@@ -361,20 +361,23 @@ public class ServerChunkCache extends ChunkSource {
             List<ChunkHolder> var9 = Lists.newArrayList(this.chunkMap.getChunks());
             Collections.shuffle(var9);
             var9.forEach(param5 -> {
-                Optional<LevelChunk> var0x = param5.getEntityTickingChunkFuture().getNow(ChunkHolder.UNLOADED_LEVEL_CHUNK).left();
+                Optional<LevelChunk> var0x = param5.getTickingChunkFuture().getNow(ChunkHolder.UNLOADED_LEVEL_CHUNK).left();
                 if (var0x.isPresent()) {
-                    LevelChunk var1x = var0x.get();
                     this.level.getProfiler().push("broadcast");
-                    param5.broadcastChanges(var1x);
+                    param5.broadcastChanges(var0x.get());
                     this.level.getProfiler().pop();
-                    ChunkPos var2x = param5.getPos();
-                    if (!this.chunkMap.noPlayersCloseForSpawning(var2x)) {
-                        var1x.setInhabitedTime(var1x.getInhabitedTime() + var1);
-                        if (var4 && (this.spawnEnemies || this.spawnFriendlies) && this.level.getWorldBorder().isWithinBounds(var1x.getPos())) {
-                            NaturalSpawner.spawnForChunk(this.level, var1x, var8, this.spawnFriendlies, this.spawnEnemies, var6);
-                        }
+                    Optional<LevelChunk> var1x = param5.getEntityTickingChunkFuture().getNow(ChunkHolder.UNLOADED_LEVEL_CHUNK).left();
+                    if (var1x.isPresent()) {
+                        LevelChunk var2x = var1x.get();
+                        ChunkPos var3x = param5.getPos();
+                        if (!this.chunkMap.noPlayersCloseForSpawning(var3x)) {
+                            var2x.setInhabitedTime(var2x.getInhabitedTime() + var1);
+                            if (var4 && (this.spawnEnemies || this.spawnFriendlies) && this.level.getWorldBorder().isWithinBounds(var2x.getPos())) {
+                                NaturalSpawner.spawnForChunk(this.level, var2x, var8, this.spawnFriendlies, this.spawnEnemies, var6);
+                            }
 
-                        this.level.tickChunk(var1x, var5);
+                            this.level.tickChunk(var2x, var5);
+                        }
                     }
                 }
             });

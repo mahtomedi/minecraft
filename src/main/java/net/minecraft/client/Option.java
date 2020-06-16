@@ -9,6 +9,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.ChatComponent;
+import net.minecraft.client.renderer.GpuWarnlistManager;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
@@ -231,12 +232,18 @@ public abstract class Option {
     public static final CycleOption GRAPHICS = new CycleOption(
         "options.graphics",
         (param0, param1) -> {
-            param0.graphicsMode = param0.graphicsMode.cycleNext();
-            if (param0.graphicsMode == GraphicsStatus.FABULOUS && !GlStateManager.supportsFramebufferBlit()) {
-                param0.graphicsMode = GraphicsStatus.FAST;
-            }
+            Minecraft var0 = Minecraft.getInstance();
+            GpuWarnlistManager var1 = var0.getGpuWarnlistManager();
+            if (param0.graphicsMode == GraphicsStatus.FANCY && var1.willShowWarning()) {
+                var1.showWarning();
+            } else {
+                param0.graphicsMode = param0.graphicsMode.cycleNext();
+                if (param0.graphicsMode == GraphicsStatus.FABULOUS && (!GlStateManager.supportsFramebufferBlit() || var1.isSkippingFabulous())) {
+                    param0.graphicsMode = GraphicsStatus.FAST;
+                }
     
-            Minecraft.getInstance().levelRenderer.allChanged();
+                var0.levelRenderer.allChanged();
+            }
         },
         (param0, param1) -> {
             switch(param0.graphicsMode) {
