@@ -9,6 +9,7 @@ import java.util.Random;
 import java.util.function.Function;
 import javax.annotation.Nullable;
 import net.minecraft.CrashReport;
+import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
@@ -265,9 +266,18 @@ public abstract class ChunkGenerator {
                 long var8 = ChunkPos.asLong(var6, var7);
 
                 for(StructureStart<?> var9 : param0.getChunk(var6, var7).getAllStarts().values()) {
-                    if (var9 != StructureStart.INVALID_START && var9.getBoundingBox().intersects(var3, var4, var3 + 15, var4 + 15)) {
-                        param1.addReferenceForFeature(var5, var9.getFeature(), var8, param2);
-                        DebugPackets.sendStructurePacket(param0, var9);
+                    try {
+                        if (var9 != StructureStart.INVALID_START && var9.getBoundingBox().intersects(var3, var4, var3 + 15, var4 + 15)) {
+                            param1.addReferenceForFeature(var5, var9.getFeature(), var8, param2);
+                            DebugPackets.sendStructurePacket(param0, var9);
+                        }
+                    } catch (Exception var19) {
+                        CrashReport var11 = CrashReport.forThrowable(var19, "Generating structure reference");
+                        CrashReportCategory var12 = var11.addCategory("Structure");
+                        var12.setDetail("Id", () -> Registry.STRUCTURE_FEATURE.getKey(var9.getFeature()).toString());
+                        var12.setDetail("Name", () -> var9.getFeature().getFeatureName());
+                        var12.setDetail("Class", () -> var9.getFeature().getClass().getCanonicalName());
+                        throw new ReportedException(var11);
                     }
                 }
             }

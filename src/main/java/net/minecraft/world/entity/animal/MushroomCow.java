@@ -1,5 +1,6 @@
 package net.minecraft.world.entity.animal;
 
+import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
@@ -24,6 +25,7 @@ import net.minecraft.world.entity.Shearable;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.Items;
@@ -31,6 +33,7 @@ import net.minecraft.world.item.SuspiciousStewItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FlowerBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -123,12 +126,17 @@ public class MushroomCow extends Cow implements Shearable {
                         );
                 }
             } else {
-                Pair<MobEffect, Integer> var8 = this.getEffectFromItemStack(var0);
+                Optional<Pair<MobEffect, Integer>> var8 = this.getEffectFromItemStack(var0);
+                if (!var8.isPresent()) {
+                    return InteractionResult.PASS;
+                }
+
+                Pair<MobEffect, Integer> var9 = var8.get();
                 if (!param0.abilities.instabuild) {
                     var0.shrink(1);
                 }
 
-                for(int var9 = 0; var9 < 4; ++var9) {
+                for(int var10 = 0; var10 < 4; ++var10) {
                     this.level
                         .addParticle(
                             ParticleTypes.EFFECT,
@@ -141,8 +149,8 @@ public class MushroomCow extends Cow implements Shearable {
                         );
                 }
 
-                this.effect = var8.getLeft();
-                this.effectDuration = var8.getRight();
+                this.effect = var9.getLeft();
+                this.effectDuration = var9.getRight();
                 this.playSound(SoundEvents.MOOSHROOM_EAT, 2.0F, 1.0F);
             }
 
@@ -214,9 +222,17 @@ public class MushroomCow extends Cow implements Shearable {
 
     }
 
-    private Pair<MobEffect, Integer> getEffectFromItemStack(ItemStack param0) {
-        FlowerBlock var0 = (FlowerBlock)((BlockItem)param0.getItem()).getBlock();
-        return Pair.of(var0.getSuspiciousStewEffect(), var0.getEffectDuration());
+    private Optional<Pair<MobEffect, Integer>> getEffectFromItemStack(ItemStack param0) {
+        Item var0 = param0.getItem();
+        if (var0 instanceof BlockItem) {
+            Block var1 = ((BlockItem)var0).getBlock();
+            if (var1 instanceof FlowerBlock) {
+                FlowerBlock var2 = (FlowerBlock)var1;
+                return Optional.of(Pair.of(var2.getSuspiciousStewEffect(), var2.getEffectDuration()));
+            }
+        }
+
+        return Optional.empty();
     }
 
     private void setMushroomType(MushroomCow.MushroomType param0) {

@@ -15,7 +15,6 @@ import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.chat.NarratorChatListener;
-import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.ObjectSelectionList;
@@ -420,12 +419,7 @@ public class PresetFlatWorldScreen extends Screen {
                     );
             }
 
-        }
-
-        @Override
-        protected void moveSelection(AbstractSelectionList.SelectionDirection param0) {
-            super.moveSelection(param0);
-            PresetFlatWorldScreen.this.updateButtonValidity(true);
+            PresetFlatWorldScreen.this.updateButtonValidity(param0 != null);
         }
 
         @Override
@@ -468,7 +462,6 @@ public class PresetFlatWorldScreen extends Screen {
 
             private void select() {
                 PresetsList.this.setSelected(this);
-                PresetFlatWorldScreen.this.updateButtonValidity(true);
                 PresetFlatWorldScreen.PresetInfo var0 = PresetFlatWorldScreen.PRESETS.get(PresetsList.this.children().indexOf(this));
                 PresetFlatWorldScreen.this.export.setValue(PresetFlatWorldScreen.save(var0.settings));
                 PresetFlatWorldScreen.this.export.moveCursorToStart();

@@ -355,6 +355,7 @@ public class DimensionType {
     }
 
     public Tag<Block> infiniburn() {
-        return BlockTags.getAllTags().getTag(this.infiniburn);
+        Tag<Block> var0 = BlockTags.getAllTags().getTag(this.infiniburn);
+        return (Tag<Block>)(var0 != null ? var0 : BlockTags.INFINIBURN_OVERWORLD);
     }
 }

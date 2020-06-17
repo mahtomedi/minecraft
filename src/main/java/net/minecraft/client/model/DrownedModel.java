@@ -54,12 +54,12 @@ public class DrownedModel<T extends Zombie> extends ZombieModel<T> {
         }
 
         if (this.swimAmount > 0.0F) {
-            this.rightArm.xRot = this.rotlerpRad(this.rightArm.xRot, (float) (-Math.PI * 4.0 / 5.0), this.swimAmount)
+            this.rightArm.xRot = this.rotlerpRad(this.swimAmount, this.rightArm.xRot, (float) (-Math.PI * 4.0 / 5.0))
                 + this.swimAmount * 0.35F * Mth.sin(0.1F * param3);
-            this.leftArm.xRot = this.rotlerpRad(this.leftArm.xRot, (float) (-Math.PI * 4.0 / 5.0), this.swimAmount)
+            this.leftArm.xRot = this.rotlerpRad(this.swimAmount, this.leftArm.xRot, (float) (-Math.PI * 4.0 / 5.0))
                 - this.swimAmount * 0.35F * Mth.sin(0.1F * param3);
-            this.rightArm.zRot = this.rotlerpRad(this.rightArm.zRot, -0.15F, this.swimAmount);
-            this.leftArm.zRot = this.rotlerpRad(this.leftArm.zRot, 0.15F, this.swimAmount);
+            this.rightArm.zRot = this.rotlerpRad(this.swimAmount, this.rightArm.zRot, -0.15F);
+            this.leftArm.zRot = this.rotlerpRad(this.swimAmount, this.leftArm.zRot, 0.15F);
             this.leftLeg.xRot -= this.swimAmount * 0.55F * Mth.sin(0.1F * param3);
             this.rightLeg.xRot += this.swimAmount * 0.55F * Mth.sin(0.1F * param3);
             this.head.xRot = 0.0F;

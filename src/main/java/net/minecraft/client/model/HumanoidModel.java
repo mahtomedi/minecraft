@@ -87,9 +87,9 @@ public class HumanoidModel<T extends LivingEntity> extends AgeableListModel<T> i
             this.head.xRot = (float) (-Math.PI / 4);
         } else if (this.swimAmount > 0.0F) {
             if (var1) {
-                this.head.xRot = this.rotlerpRad(this.head.xRot, (float) (-Math.PI / 4), this.swimAmount);
+                this.head.xRot = this.rotlerpRad(this.swimAmount, this.head.xRot, (float) (-Math.PI / 4));
             } else {
-                this.head.xRot = this.rotlerpRad(this.head.xRot, param5 * (float) (Math.PI / 180.0), this.swimAmount);
+                this.head.xRot = this.rotlerpRad(this.swimAmount, this.head.xRot, param5 * (float) (Math.PI / 180.0));
             }
         } else {
             this.head.xRot = param5 * (float) (Math.PI / 180.0);
@@ -133,55 +133,15 @@ public class HumanoidModel<T extends LivingEntity> extends AgeableListModel<T> i
         }
 
         this.rightArm.yRot = 0.0F;
-        this.rightArm.zRot = 0.0F;
-        switch(this.leftArmPose) {
-            case EMPTY:
-                this.leftArm.yRot = 0.0F;
-                break;
-            case BLOCK:
-                this.leftArm.xRot = this.leftArm.xRot * 0.5F - 0.9424779F;
-                this.leftArm.yRot = (float) (Math.PI / 6);
-                break;
-            case ITEM:
-                this.leftArm.xRot = this.leftArm.xRot * 0.5F - (float) (Math.PI / 10);
-                this.leftArm.yRot = 0.0F;
-                break;
-            case THROW_SPEAR:
-                this.leftArm.xRot = this.leftArm.xRot * 0.5F - (float) Math.PI;
-                this.leftArm.yRot = 0.0F;
-        }
-
-        switch(this.rightArmPose) {
-            case EMPTY:
-                this.rightArm.yRot = 0.0F;
-                break;
-            case BLOCK:
-                this.rightArm.xRot = this.rightArm.xRot * 0.5F - 0.9424779F;
-                this.rightArm.yRot = (float) (-Math.PI / 6);
-                break;
-            case ITEM:
-                this.rightArm.xRot = this.rightArm.xRot * 0.5F - (float) (Math.PI / 10);
-                this.rightArm.yRot = 0.0F;
-                break;
-            case THROW_SPEAR:
-                this.rightArm.xRot = this.rightArm.xRot * 0.5F - (float) Math.PI;
-                this.rightArm.yRot = 0.0F;
-        }
-
-        if (this.leftArmPose == HumanoidModel.ArmPose.THROW_SPEAR
-            && this.rightArmPose != HumanoidModel.ArmPose.BLOCK
-            && this.rightArmPose != HumanoidModel.ArmPose.THROW_SPEAR
-            && this.rightArmPose != HumanoidModel.ArmPose.BOW_AND_ARROW) {
-            this.leftArm.xRot = this.leftArm.xRot * 0.5F - (float) Math.PI;
-            this.leftArm.yRot = 0.0F;
-        }
-
-        if (this.rightArmPose == HumanoidModel.ArmPose.THROW_SPEAR
-            && this.leftArmPose != HumanoidModel.ArmPose.BLOCK
-            && this.leftArmPose != HumanoidModel.ArmPose.THROW_SPEAR
-            && this.leftArmPose != HumanoidModel.ArmPose.BOW_AND_ARROW) {
-            this.rightArm.xRot = this.rightArm.xRot * 0.5F - (float) Math.PI;
-            this.rightArm.yRot = 0.0F;
+        this.leftArm.yRot = 0.0F;
+        boolean var3 = param0.getMainArm() == HumanoidArm.RIGHT;
+        boolean var4 = var3 ? this.leftArmPose.isTwoHanded() : this.rightArmPose.isTwoHanded();
+        if (var3 != var4) {
+            this.poseLeftArm(param0);
+            this.poseRightArm(param0);
+        } else {
+            this.poseRightArm(param0);
+            this.poseLeftArm(param0);
         }
 
         this.setupAttackAnimation(param0, param3);
@@ -210,73 +170,111 @@ public class HumanoidModel<T extends LivingEntity> extends AgeableListModel<T> i
         }
 
         AnimationUtils.bobArms(this.rightArm, this.leftArm, param3);
-        if (this.rightArmPose == HumanoidModel.ArmPose.BOW_AND_ARROW) {
-            this.rightArm.yRot = -0.1F + this.head.yRot;
-            this.leftArm.yRot = 0.1F + this.head.yRot + 0.4F;
-            this.rightArm.xRot = (float) (-Math.PI / 2) + this.head.xRot;
-            this.leftArm.xRot = (float) (-Math.PI / 2) + this.head.xRot;
-        } else if (this.leftArmPose == HumanoidModel.ArmPose.BOW_AND_ARROW
-            && this.rightArmPose != HumanoidModel.ArmPose.THROW_SPEAR
-            && this.rightArmPose != HumanoidModel.ArmPose.BLOCK) {
-            this.rightArm.yRot = -0.1F + this.head.yRot - 0.4F;
-            this.leftArm.yRot = 0.1F + this.head.yRot;
-            this.rightArm.xRot = (float) (-Math.PI / 2) + this.head.xRot;
-            this.leftArm.xRot = (float) (-Math.PI / 2) + this.head.xRot;
-        }
-
-        if (this.rightArmPose == HumanoidModel.ArmPose.CROSSBOW_CHARGE) {
-            AnimationUtils.animateCrossbowCharge(this.rightArm, this.leftArm, param0, true);
-        } else if (this.leftArmPose == HumanoidModel.ArmPose.CROSSBOW_CHARGE) {
-            AnimationUtils.animateCrossbowCharge(this.rightArm, this.leftArm, param0, false);
-        }
-
-        if (this.rightArmPose == HumanoidModel.ArmPose.CROSSBOW_HOLD && this.attackTime <= 0.0F) {
-            AnimationUtils.animateCrossbowHold(this.rightArm, this.leftArm, this.head, true);
-        } else if (this.leftArmPose == HumanoidModel.ArmPose.CROSSBOW_HOLD) {
-            AnimationUtils.animateCrossbowHold(this.rightArm, this.leftArm, this.head, false);
-        }
-
         if (this.swimAmount > 0.0F) {
-            float var3 = param1 % 26.0F;
-            HumanoidArm var4 = this.getAttackArm(param0);
-            float var5 = var4 == HumanoidArm.RIGHT && this.attackTime > 0.0F ? 0.0F : this.swimAmount;
-            float var6 = var4 == HumanoidArm.LEFT && this.attackTime > 0.0F ? 0.0F : this.swimAmount;
-            if (var3 < 14.0F) {
-                this.leftArm.xRot = Mth.lerp(var6, this.leftArm.xRot, 0.0F);
-                this.rightArm.xRot = Mth.lerp(var5, this.rightArm.xRot, 0.0F);
-                this.leftArm.yRot = Mth.lerp(var6, this.leftArm.yRot, (float) Math.PI);
-                this.rightArm.yRot = Mth.lerp(var5, this.rightArm.yRot, (float) Math.PI);
-                this.leftArm.zRot = Mth.lerp(
-                    var6, this.leftArm.zRot, (float) Math.PI + 1.8707964F * this.quadraticArmUpdate(var3) / this.quadraticArmUpdate(14.0F)
+            float var5 = param1 % 26.0F;
+            HumanoidArm var6 = this.getAttackArm(param0);
+            float var7 = var6 == HumanoidArm.RIGHT && this.attackTime > 0.0F ? 0.0F : this.swimAmount;
+            float var8 = var6 == HumanoidArm.LEFT && this.attackTime > 0.0F ? 0.0F : this.swimAmount;
+            if (var5 < 14.0F) {
+                this.leftArm.xRot = this.rotlerpRad(var8, this.leftArm.xRot, 0.0F);
+                this.rightArm.xRot = Mth.lerp(var7, this.rightArm.xRot, 0.0F);
+                this.leftArm.yRot = this.rotlerpRad(var8, this.leftArm.yRot, (float) Math.PI);
+                this.rightArm.yRot = Mth.lerp(var7, this.rightArm.yRot, (float) Math.PI);
+                this.leftArm.zRot = this.rotlerpRad(
+                    var8, this.leftArm.zRot, (float) Math.PI + 1.8707964F * this.quadraticArmUpdate(var5) / this.quadraticArmUpdate(14.0F)
                 );
                 this.rightArm.zRot = Mth.lerp(
-                    var5, this.rightArm.zRot, (float) Math.PI - 1.8707964F * this.quadraticArmUpdate(var3) / this.quadraticArmUpdate(14.0F)
+                    var7, this.rightArm.zRot, (float) Math.PI - 1.8707964F * this.quadraticArmUpdate(var5) / this.quadraticArmUpdate(14.0F)
                 );
-            } else if (var3 >= 14.0F && var3 < 22.0F) {
-                float var7 = (var3 - 14.0F) / 8.0F;
-                this.leftArm.xRot = Mth.lerp(var6, this.leftArm.xRot, (float) (Math.PI / 2) * var7);
-                this.rightArm.xRot = Mth.lerp(var5, this.rightArm.xRot, (float) (Math.PI / 2) * var7);
-                this.leftArm.yRot = Mth.lerp(var6, this.leftArm.yRot, (float) Math.PI);
-                this.rightArm.yRot = Mth.lerp(var5, this.rightArm.yRot, (float) Math.PI);
-                this.leftArm.zRot = Mth.lerp(var6, this.leftArm.zRot, 5.012389F - 1.8707964F * var7);
-                this.rightArm.zRot = Mth.lerp(var5, this.rightArm.zRot, 1.2707963F + 1.8707964F * var7);
-            } else if (var3 >= 22.0F && var3 < 26.0F) {
-                float var8 = (var3 - 22.0F) / 4.0F;
-                this.leftArm.xRot = Mth.lerp(var6, this.leftArm.xRot, (float) (Math.PI / 2) - (float) (Math.PI / 2) * var8);
-                this.rightArm.xRot = Mth.lerp(var5, this.rightArm.xRot, (float) (Math.PI / 2) - (float) (Math.PI / 2) * var8);
-                this.leftArm.yRot = Mth.lerp(var6, this.leftArm.yRot, (float) Math.PI);
-                this.rightArm.yRot = Mth.lerp(var5, this.rightArm.yRot, (float) Math.PI);
-                this.leftArm.zRot = Mth.lerp(var6, this.leftArm.zRot, (float) Math.PI);
-                this.rightArm.zRot = Mth.lerp(var5, this.rightArm.zRot, (float) Math.PI);
+            } else if (var5 >= 14.0F && var5 < 22.0F) {
+                float var9 = (var5 - 14.0F) / 8.0F;
+                this.leftArm.xRot = this.rotlerpRad(var8, this.leftArm.xRot, (float) (Math.PI / 2) * var9);
+                this.rightArm.xRot = Mth.lerp(var7, this.rightArm.xRot, (float) (Math.PI / 2) * var9);
+                this.leftArm.yRot = this.rotlerpRad(var8, this.leftArm.yRot, (float) Math.PI);
+                this.rightArm.yRot = Mth.lerp(var7, this.rightArm.yRot, (float) Math.PI);
+                this.leftArm.zRot = this.rotlerpRad(var8, this.leftArm.zRot, 5.012389F - 1.8707964F * var9);
+                this.rightArm.zRot = Mth.lerp(var7, this.rightArm.zRot, 1.2707963F + 1.8707964F * var9);
+            } else if (var5 >= 22.0F && var5 < 26.0F) {
+                float var10 = (var5 - 22.0F) / 4.0F;
+                this.leftArm.xRot = this.rotlerpRad(var8, this.leftArm.xRot, (float) (Math.PI / 2) - (float) (Math.PI / 2) * var10);
+                this.rightArm.xRot = Mth.lerp(var7, this.rightArm.xRot, (float) (Math.PI / 2) - (float) (Math.PI / 2) * var10);
+                this.leftArm.yRot = this.rotlerpRad(var8, this.leftArm.yRot, (float) Math.PI);
+                this.rightArm.yRot = Mth.lerp(var7, this.rightArm.yRot, (float) Math.PI);
+                this.leftArm.zRot = this.rotlerpRad(var8, this.leftArm.zRot, (float) Math.PI);
+                this.rightArm.zRot = Mth.lerp(var7, this.rightArm.zRot, (float) Math.PI);
             }
 
-            float var9 = 0.3F;
-            float var10 = 0.33333334F;
+            float var11 = 0.3F;
+            float var12 = 0.33333334F;
             this.leftLeg.xRot = Mth.lerp(this.swimAmount, this.leftLeg.xRot, 0.3F * Mth.cos(param1 * 0.33333334F + (float) Math.PI));
             this.rightLeg.xRot = Mth.lerp(this.swimAmount, this.rightLeg.xRot, 0.3F * Mth.cos(param1 * 0.33333334F));
         }
 
         this.hat.copyFrom(this.head);
+    }
+
+    private void poseRightArm(T param0) {
+        switch(this.rightArmPose) {
+            case EMPTY:
+                this.rightArm.yRot = 0.0F;
+                break;
+            case BLOCK:
+                this.rightArm.xRot = this.rightArm.xRot * 0.5F - 0.9424779F;
+                this.rightArm.yRot = (float) (-Math.PI / 6);
+                break;
+            case ITEM:
+                this.rightArm.xRot = this.rightArm.xRot * 0.5F - (float) (Math.PI / 10);
+                this.rightArm.yRot = 0.0F;
+                break;
+            case THROW_SPEAR:
+                this.rightArm.xRot = this.rightArm.xRot * 0.5F - (float) Math.PI;
+                this.rightArm.yRot = 0.0F;
+                break;
+            case BOW_AND_ARROW:
+                this.rightArm.yRot = -0.1F + this.head.yRot;
+                this.leftArm.yRot = 0.1F + this.head.yRot + 0.4F;
+                this.rightArm.xRot = (float) (-Math.PI / 2) + this.head.xRot;
+                this.leftArm.xRot = (float) (-Math.PI / 2) + this.head.xRot;
+                break;
+            case CROSSBOW_CHARGE:
+                AnimationUtils.animateCrossbowCharge(this.rightArm, this.leftArm, param0, true);
+                break;
+            case CROSSBOW_HOLD:
+                AnimationUtils.animateCrossbowHold(this.rightArm, this.leftArm, this.head, true);
+        }
+
+    }
+
+    private void poseLeftArm(T param0) {
+        switch(this.leftArmPose) {
+            case EMPTY:
+                this.leftArm.yRot = 0.0F;
+                break;
+            case BLOCK:
+                this.leftArm.xRot = this.leftArm.xRot * 0.5F - 0.9424779F;
+                this.leftArm.yRot = (float) (Math.PI / 6);
+                break;
+            case ITEM:
+                this.leftArm.xRot = this.leftArm.xRot * 0.5F - (float) (Math.PI / 10);
+                this.leftArm.yRot = 0.0F;
+                break;
+            case THROW_SPEAR:
+                this.leftArm.xRot = this.leftArm.xRot * 0.5F - (float) Math.PI;
+                this.leftArm.yRot = 0.0F;
+                break;
+            case BOW_AND_ARROW:
+                this.rightArm.yRot = -0.1F + this.head.yRot - 0.4F;
+                this.leftArm.yRot = 0.1F + this.head.yRot;
+                this.rightArm.xRot = (float) (-Math.PI / 2) + this.head.xRot;
+                this.leftArm.xRot = (float) (-Math.PI / 2) + this.head.xRot;
+                break;
+            case CROSSBOW_CHARGE:
+                AnimationUtils.animateCrossbowCharge(this.rightArm, this.leftArm, param0, false);
+                break;
+            case CROSSBOW_HOLD:
+                AnimationUtils.animateCrossbowHold(this.rightArm, this.leftArm, this.head, false);
+        }
+
     }
 
     protected void setupAttackAnimation(T param0, float param1) {
@@ -309,7 +307,7 @@ public class HumanoidModel<T extends LivingEntity> extends AgeableListModel<T> i
     }
 
     protected float rotlerpRad(float param0, float param1, float param2) {
-        float var0 = (param1 - param0) % (float) (Math.PI * 2);
+        float var0 = (param2 - param1) % (float) (Math.PI * 2);
         if (var0 < (float) -Math.PI) {
             var0 += (float) (Math.PI * 2);
         }
@@ -318,7 +316,7 @@ public class HumanoidModel<T extends LivingEntity> extends AgeableListModel<T> i
             var0 -= (float) (Math.PI * 2);
         }
 
-        return param0 + param2 * var0;
+        return param1 + param0 * var0;
     }
 
     private float quadraticArmUpdate(float param0) {
@@ -370,12 +368,22 @@ public class HumanoidModel<T extends LivingEntity> extends AgeableListModel<T> i
 
     @OnlyIn(Dist.CLIENT)
     public static enum ArmPose {
-        EMPTY,
-        ITEM,
-        BLOCK,
-        BOW_AND_ARROW,
-        THROW_SPEAR,
-        CROSSBOW_CHARGE,
-        CROSSBOW_HOLD;
+        EMPTY(false),
+        ITEM(false),
+        BLOCK(false),
+        BOW_AND_ARROW(true),
+        THROW_SPEAR(false),
+        CROSSBOW_CHARGE(true),
+        CROSSBOW_HOLD(true);
+
+        private final boolean twoHanded;
+
+        private ArmPose(boolean param0) {
+            this.twoHanded = param0;
+        }
+
+        public boolean isTwoHanded() {
+            return this.twoHanded;
+        }
     }
 }

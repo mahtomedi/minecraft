@@ -240,11 +240,13 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
             RenderSystem.defaultAlphaFunc();
+            RenderSystem.enableDepthTest();
             int var7 = 5;
             if (Minecraft.useFancyGraphics()) {
                 var7 = 10;
             }
 
+            RenderSystem.depthMask(Minecraft.useShaderTransparency());
             int var8 = -1;
             float var9 = (float)this.ticks + param1;
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
@@ -1718,6 +1720,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                 GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA
             );
             RenderSystem.enableFog();
+            RenderSystem.depthMask(true);
             float var1 = 12.0F;
             float var2 = 4.0F;
             double var3 = 2.0E-4;
@@ -2047,7 +2050,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                 GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO
             );
             this.textureManager.bind(FORCEFIELD_LOCATION);
-            RenderSystem.depthMask(true);
+            RenderSystem.depthMask(Minecraft.useShaderTransparency());
             RenderSystem.pushMatrix();
             int var7 = var1.getStatus().getColor();
             float var8 = (float)(var7 >> 16 & 0xFF) / 255.0F;

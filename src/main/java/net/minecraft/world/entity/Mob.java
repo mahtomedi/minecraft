@@ -1257,15 +1257,16 @@ public abstract class Mob extends LivingEntity {
                 Entity var1 = ((ServerLevel)this.level).getEntity(var0);
                 if (var1 != null) {
                     this.setLeashedTo(var1, true);
+                    return;
                 }
             } else if (this.leashInfoTag.contains("X", 99) && this.leashInfoTag.contains("Y", 99) && this.leashInfoTag.contains("Z", 99)) {
                 BlockPos var2 = new BlockPos(this.leashInfoTag.getInt("X"), this.leashInfoTag.getInt("Y"), this.leashInfoTag.getInt("Z"));
                 this.setLeashedTo(LeashFenceKnotEntity.getOrCreateKnot(this.level, var2), true);
-            } else {
-                this.dropLeash(false, true);
+                return;
             }
 
             if (this.tickCount > 100) {
+                this.spawnAtLocation(Items.LEAD);
                 this.leashInfoTag = null;
             }
         }

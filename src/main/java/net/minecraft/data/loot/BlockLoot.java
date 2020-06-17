@@ -9,10 +9,13 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
+import net.minecraft.advancements.critereon.BlockPredicate;
 import net.minecraft.advancements.critereon.EnchantmentPredicate;
 import net.minecraft.advancements.critereon.ItemPredicate;
+import net.minecraft.advancements.critereon.LocationPredicate;
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.advancements.critereon.StatePropertiesPredicate;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringRepresentable;
@@ -70,6 +73,7 @@ import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.predicates.BonusLevelTableCondition;
 import net.minecraft.world.level.storage.loot.predicates.ConditionUserBuilder;
 import net.minecraft.world.level.storage.loot.predicates.ExplosionCondition;
+import net.minecraft.world.level.storage.loot.predicates.LocationCheck;
 import net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemEntityPropertyCondition;
@@ -459,6 +463,65 @@ public class BlockLoot implements Consumer<BiConsumer<ResourceLocation, LootTabl
                         .add(LootItem.lootTableItem(param2).apply(ApplyBonusCount.addBonusBinomialDistributionCount(Enchantments.BLOCK_FORTUNE, 0.5714286F, 3)))
                 )
         );
+    }
+
+    private static LootTable.Builder createDoublePlantShearsDrop(Block param0) {
+        return LootTable.lootTable()
+            .withPool(
+                LootPool.lootPool().when(HAS_SHEARS).add(LootItem.lootTableItem(param0).apply(SetItemCountFunction.setCount(ConstantIntValue.exactly(2))))
+            );
+    }
+
+    private static LootTable.Builder createDoublePlantWithSeedDrops(Block param0, Block param1) {
+        LootPoolEntryContainer.Builder<?> var0 = LootItem.lootTableItem(param1)
+            .apply(SetItemCountFunction.setCount(ConstantIntValue.exactly(2)))
+            .when(HAS_SHEARS)
+            .otherwise(applyExplosionCondition(param0, LootItem.lootTableItem(Items.WHEAT_SEEDS)).when(LootItemRandomChanceCondition.randomChance(0.125F)));
+        return LootTable.lootTable()
+            .withPool(
+                LootPool.lootPool()
+                    .add(var0)
+                    .when(
+                        LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0)
+                            .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(DoublePlantBlock.HALF, DoubleBlockHalf.LOWER))
+                    )
+                    .when(
+                        LocationCheck.checkLocation(
+                            LocationPredicate.Builder.location()
+                                .setBlock(
+                                    BlockPredicate.Builder.block()
+                                        .of(param0)
+                                        .setProperties(
+                                            StatePropertiesPredicate.Builder.properties().hasProperty(DoublePlantBlock.HALF, DoubleBlockHalf.UPPER).build()
+                                        )
+                                        .build()
+                                ),
+                            new BlockPos(0, 1, 0)
+                        )
+                    )
+            )
+            .withPool(
+                LootPool.lootPool()
+                    .add(var0)
+                    .when(
+                        LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0)
+                            .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(DoublePlantBlock.HALF, DoubleBlockHalf.UPPER))
+                    )
+                    .when(
+                        LocationCheck.checkLocation(
+                            LocationPredicate.Builder.location()
+                                .setBlock(
+                                    BlockPredicate.Builder.block()
+                                        .of(param0)
+                                        .setProperties(
+                                            StatePropertiesPredicate.Builder.properties().hasProperty(DoublePlantBlock.HALF, DoubleBlockHalf.LOWER).build()
+                                        )
+                                        .build()
+                                ),
+                            new BlockPos(0, -1, 0)
+                        )
+                    )
+            );
     }
 
     public static LootTable.Builder noDrop() {
@@ -1270,31 +1333,9 @@ public class BlockLoot implements Consumer<BiConsumer<ResourceLocation, LootTabl
         this.add(Blocks.NETHER_SPROUTS, BlockLoot::createShearsOnlyDrop);
         this.add(Blocks.SEAGRASS, BlockLoot::createShearsOnlyDrop);
         this.add(Blocks.VINE, BlockLoot::createShearsOnlyDrop);
-        this.add(Blocks.TALL_SEAGRASS, createShearsOnlyDrop(Blocks.SEAGRASS));
-        this.add(
-            Blocks.LARGE_FERN,
-            param0x -> createShearsDispatchTable(
-                    Blocks.FERN,
-                    applyExplosionCondition(param0x, LootItem.lootTableItem(Items.WHEAT_SEEDS))
-                        .when(
-                            LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0x)
-                                .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(DoublePlantBlock.HALF, DoubleBlockHalf.LOWER))
-                        )
-                        .when(LootItemRandomChanceCondition.randomChance(0.125F))
-                )
-        );
-        this.add(
-            Blocks.TALL_GRASS,
-            createShearsDispatchTable(
-                Blocks.GRASS,
-                applyExplosionCondition(Blocks.TALL_GRASS, LootItem.lootTableItem(Items.WHEAT_SEEDS))
-                    .when(
-                        LootItemBlockStatePropertyCondition.hasBlockStateProperties(Blocks.TALL_GRASS)
-                            .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(DoublePlantBlock.HALF, DoubleBlockHalf.LOWER))
-                    )
-                    .when(LootItemRandomChanceCondition.randomChance(0.125F))
-            )
-        );
+        this.add(Blocks.TALL_SEAGRASS, createDoublePlantShearsDrop(Blocks.SEAGRASS));
+        this.add(Blocks.LARGE_FERN, param0x -> createDoublePlantWithSeedDrops(param0x, Blocks.FERN));
+        this.add(Blocks.TALL_GRASS, param0x -> createDoublePlantWithSeedDrops(param0x, Blocks.GRASS));
         this.add(Blocks.MELON_STEM, param0x -> createStemDrops(param0x, Items.MELON_SEEDS));
         this.add(Blocks.ATTACHED_MELON_STEM, param0x -> createAttachedStemDrops(param0x, Items.MELON_SEEDS));
         this.add(Blocks.PUMPKIN_STEM, param0x -> createStemDrops(param0x, Items.PUMPKIN_SEEDS));

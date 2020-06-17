@@ -6,7 +6,6 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import net.minecraft.client.gui.chat.NarratorChatListener;
-import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.resources.language.I18n;
@@ -42,13 +41,12 @@ public class CreateBuffetWorldScreen extends Screen {
         this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
         this.list = new CreateBuffetWorldScreen.BiomeList();
         this.children.add(this.list);
-        this.list.setSelected(this.list.children().stream().filter(param0 -> Objects.equals(param0.biome, this.biome)).findFirst().orElse(null));
         this.doneButton = this.addButton(new Button(this.width / 2 - 155, this.height - 28, 150, 20, CommonComponents.GUI_DONE, param0 -> {
             this.applySettings.accept(this.biome);
             this.minecraft.setScreen(this.parent);
         }));
         this.addButton(new Button(this.width / 2 + 5, this.height - 28, 150, 20, CommonComponents.GUI_CANCEL, param0 -> this.minecraft.setScreen(this.parent)));
-        this.updateButtonValidity();
+        this.list.setSelected(this.list.children().stream().filter(param0 -> Objects.equals(param0.biome, this.biome)).findFirst().orElse(null));
     }
 
     private void updateButtonValidity() {
@@ -93,11 +91,6 @@ public class CreateBuffetWorldScreen extends Screen {
                 NarratorChatListener.INSTANCE.sayNow(new TranslatableComponent("narrator.select", param0.biome.getName().getString()).getString());
             }
 
-        }
-
-        @Override
-        protected void moveSelection(AbstractSelectionList.SelectionDirection param0) {
-            super.moveSelection(param0);
             CreateBuffetWorldScreen.this.updateButtonValidity();
         }
 
@@ -120,7 +113,6 @@ public class CreateBuffetWorldScreen extends Screen {
             public boolean mouseClicked(double param0, double param1, int param2) {
                 if (param2 == 0) {
                     BiomeList.this.setSelected(this);
-                    CreateBuffetWorldScreen.this.updateButtonValidity();
                     return true;
                 } else {
                     return false;

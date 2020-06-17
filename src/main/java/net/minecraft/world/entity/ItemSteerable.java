@@ -40,6 +40,7 @@ public interface ItemSteerable {
                     param0.lerpSteps = 0;
                 } else {
                     param0.calculateEntityAnimation(param0, false);
+                    param0.setDeltaMovement(Vec3.ZERO);
                 }
 
                 return true;

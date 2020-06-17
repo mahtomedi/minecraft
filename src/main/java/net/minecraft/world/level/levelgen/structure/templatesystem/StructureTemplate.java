@@ -85,7 +85,7 @@ public class StructureTemplate {
                         var10.remove("x");
                         var10.remove("y");
                         var10.remove("z");
-                        var11 = new StructureTemplate.StructureBlockInfo(var7, var8, var10);
+                        var11 = new StructureTemplate.StructureBlockInfo(var7, var8, var10.copy());
                     } else {
                         var11 = new StructureTemplate.StructureBlockInfo(var7, var8, null);
                     }
@@ -153,7 +153,7 @@ public class StructureTemplate {
                 var4 = new BlockPos(var2);
             }
 
-            this.entityInfoList.add(new StructureTemplate.StructureEntityInfo(var2, var4, var3));
+            this.entityInfoList.add(new StructureTemplate.StructureEntityInfo(var2, var4, var3.copy()));
         }
 
     }
@@ -370,7 +370,7 @@ public class StructureTemplate {
 
         for(StructureTemplate.StructureBlockInfo var1 : param4) {
             BlockPos var2 = calculateRelativePosition(param3, var1.pos).offset(param1);
-            StructureTemplate.StructureBlockInfo var3 = new StructureTemplate.StructureBlockInfo(var2, var1.state, var1.nbt);
+            StructureTemplate.StructureBlockInfo var3 = new StructureTemplate.StructureBlockInfo(var2, var1.state, var1.nbt != null ? var1.nbt.copy() : null);
             Iterator<StructureProcessor> var4 = param3.getProcessors().iterator();
 
             while(var3 != null && var4.hasNext()) {
@@ -391,7 +391,7 @@ public class StructureTemplate {
         for(StructureTemplate.StructureEntityInfo var0 : this.entityInfoList) {
             BlockPos var1 = transform(var0.blockPos, param2, param3, param4).offset(param1);
             if (param5 == null || param5.isInside(var1)) {
-                CompoundTag var2 = var0.nbt;
+                CompoundTag var2 = var0.nbt.copy();
                 Vec3 var3 = transform(var0.pos, param2, param3, param4);
                 Vec3 var4 = var3.add((double)param1.getX(), (double)param1.getY(), (double)param1.getZ());
                 ListTag var5 = new ListTag();

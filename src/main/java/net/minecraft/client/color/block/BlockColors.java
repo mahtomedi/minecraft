@@ -15,8 +15,8 @@ import net.minecraft.world.level.GrassColor;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.DoublePlantBlock;
 import net.minecraft.world.level.block.RedStoneWireBlock;
-import net.minecraft.world.level.block.ShearableDoublePlantBlock;
 import net.minecraft.world.level.block.StemBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
@@ -34,14 +34,12 @@ public class BlockColors {
         BlockColors var0 = new BlockColors();
         var0.register(
             (param0, param1, param2, param3) -> param1 != null && param2 != null
-                    ? BiomeColors.getAverageGrassColor(
-                        param1, param0.getValue(ShearableDoublePlantBlock.HALF) == DoubleBlockHalf.UPPER ? param2.below() : param2
-                    )
+                    ? BiomeColors.getAverageGrassColor(param1, param0.getValue(DoublePlantBlock.HALF) == DoubleBlockHalf.UPPER ? param2.below() : param2)
                     : -1,
             Blocks.LARGE_FERN,
             Blocks.TALL_GRASS
         );
-        var0.addColoringState(ShearableDoublePlantBlock.HALF, Blocks.LARGE_FERN, Blocks.TALL_GRASS);
+        var0.addColoringState(DoublePlantBlock.HALF, Blocks.LARGE_FERN, Blocks.TALL_GRASS);
         var0.register(
             (param0, param1, param2, param3) -> param1 != null && param2 != null ? BiomeColors.getAverageGrassColor(param1, param2) : GrassColor.get(0.5, 1.0),
             Blocks.GRASS_BLOCK,

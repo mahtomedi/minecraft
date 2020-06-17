@@ -7,7 +7,6 @@ import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.chat.NarratorChatListener;
-import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.resources.language.I18n;
@@ -64,6 +63,7 @@ public class CreateFlatWorldScreen extends Screen {
                     var0.remove(var2);
                     this.list.setSelected(var0.isEmpty() ? null : this.list.children().get(Math.min(var1, var0.size() - 1)));
                     this.generator.updateLayers();
+                    this.list.resetRows();
                     this.updateButtonValidity();
                 }
             })
@@ -77,20 +77,17 @@ public class CreateFlatWorldScreen extends Screen {
             this.applySettings.accept(this.generator);
             this.minecraft.setScreen(this.parent);
             this.generator.updateLayers();
-            this.updateButtonValidity();
         }));
         this.addButton(new Button(this.width / 2 + 5, this.height - 28, 150, 20, CommonComponents.GUI_CANCEL, param0 -> {
             this.minecraft.setScreen(this.parent);
             this.generator.updateLayers();
-            this.updateButtonValidity();
         }));
         this.generator.updateLayers();
         this.updateButtonValidity();
     }
 
-    public void updateButtonValidity() {
+    private void updateButtonValidity() {
         this.deleteLayerButton.active = this.hasValidSelection();
-        this.list.resetRows();
     }
 
     private boolean hasValidSelection() {
@@ -143,11 +140,6 @@ public class CreateFlatWorldScreen extends Screen {
                 }
             }
 
-        }
-
-        @Override
-        protected void moveSelection(AbstractSelectionList.SelectionDirection param0) {
-            super.moveSelection(param0);
             CreateFlatWorldScreen.this.updateButtonValidity();
         }
 
@@ -218,7 +210,6 @@ public class CreateFlatWorldScreen extends Screen {
             public boolean mouseClicked(double param0, double param1, int param2) {
                 if (param2 == 0) {
                     DetailsList.this.setSelected(this);
-                    CreateFlatWorldScreen.this.updateButtonValidity();
                     return true;
                 } else {
                     return false;

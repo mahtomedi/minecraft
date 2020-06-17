@@ -130,13 +130,14 @@ public final class NoiseGeneratorSettings {
             "nether", param0 -> nether(new StructureSettings(false), Blocks.NETHERRACK.defaultBlockState(), Blocks.LAVA.defaultBlockState(), param0)
         );
         public static final NoiseGeneratorSettings.Preset END = new NoiseGeneratorSettings.Preset(
-            "end", param0 -> end(new StructureSettings(false), Blocks.END_STONE.defaultBlockState(), Blocks.AIR.defaultBlockState(), param0, true)
+            "end", param0 -> end(new StructureSettings(false), Blocks.END_STONE.defaultBlockState(), Blocks.AIR.defaultBlockState(), param0, true, true)
         );
         public static final NoiseGeneratorSettings.Preset CAVES = new NoiseGeneratorSettings.Preset(
             "caves", param0 -> nether(new StructureSettings(false), Blocks.STONE.defaultBlockState(), Blocks.WATER.defaultBlockState(), param0)
         );
         public static final NoiseGeneratorSettings.Preset FLOATING_ISLANDS = new NoiseGeneratorSettings.Preset(
-            "floating_islands", param0 -> end(new StructureSettings(false), Blocks.STONE.defaultBlockState(), Blocks.WATER.defaultBlockState(), param0, false)
+            "floating_islands",
+            param0 -> end(new StructureSettings(false), Blocks.STONE.defaultBlockState(), Blocks.WATER.defaultBlockState(), param0, false, false)
         );
         private final Component description;
         private final ResourceLocation name;
@@ -154,7 +155,7 @@ public final class NoiseGeneratorSettings {
         }
 
         private static NoiseGeneratorSettings end(
-            StructureSettings param0, BlockState param1, BlockState param2, NoiseGeneratorSettings.Preset param3, boolean param4
+            StructureSettings param0, BlockState param1, BlockState param2, NoiseGeneratorSettings.Preset param3, boolean param4, boolean param5
         ) {
             return new NoiseGeneratorSettings(
                 param0,
@@ -169,7 +170,7 @@ public final class NoiseGeneratorSettings {
                     0.0,
                     true,
                     false,
-                    param4,
+                    param5,
                     false
                 ),
                 param1,
@@ -177,7 +178,7 @@ public final class NoiseGeneratorSettings {
                 -10,
                 -10,
                 0,
-                true,
+                param4,
                 Optional.of(param3)
             );
         }

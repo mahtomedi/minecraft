@@ -11,6 +11,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -71,11 +72,20 @@ public class DoublePlantBlock extends BushBlock {
 
     @Override
     public void playerWillDestroy(Level param0, BlockPos param1, BlockState param2, Player param3) {
-        if (!param0.isClientSide && param3.isCreative()) {
-            preventCreativeDropFromBottomPart(param0, param1, param2, param3);
+        if (!param0.isClientSide) {
+            if (param3.isCreative()) {
+                preventCreativeDropFromBottomPart(param0, param1, param2, param3);
+            } else {
+                dropResources(param2, param0, param1, null, param3, param3.getMainHandItem());
+            }
         }
 
         super.playerWillDestroy(param0, param1, param2, param3);
+    }
+
+    @Override
+    public void playerDestroy(Level param0, Player param1, BlockPos param2, BlockState param3, @Nullable BlockEntity param4, ItemStack param5) {
+        super.playerDestroy(param0, param1, param2, Blocks.AIR.defaultBlockState(), param4, param5);
     }
 
     protected static void preventCreativeDropFromBottomPart(Level param0, BlockPos param1, BlockState param2, Player param3) {
