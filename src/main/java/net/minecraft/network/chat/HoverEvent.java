@@ -145,14 +145,16 @@ public class HoverEvent {
             return (T)param0;
         }
 
+        @Nullable
         public HoverEvent deserialize(JsonElement param0) {
             T var0 = this.argDeserializer.apply(param0);
-            return new HoverEvent(this, var0);
+            return var0 == null ? null : new HoverEvent(this, var0);
         }
 
+        @Nullable
         public HoverEvent deserializeFromLegacy(Component param0) {
             T var0 = this.legacyArgDeserializer.apply(param0);
-            return new HoverEvent(this, var0);
+            return var0 == null ? null : new HoverEvent(this, var0);
         }
 
         public JsonElement serializeArg(Object param0) {

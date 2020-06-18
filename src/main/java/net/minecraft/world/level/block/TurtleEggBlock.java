@@ -57,7 +57,10 @@ public class TurtleEggBlock extends Block {
     private void destroyEgg(Level param0, BlockPos param1, Entity param2, int param3) {
         if (this.canDestroyEgg(param0, param2)) {
             if (!param0.isClientSide && param0.random.nextInt(param3) == 0) {
-                this.decreaseEggs(param0, param1, param0.getBlockState(param1));
+                BlockState var0 = param0.getBlockState(param1);
+                if (var0.is(Blocks.TURTLE_EGG)) {
+                    this.decreaseEggs(param0, param1, var0);
+                }
             }
 
         }

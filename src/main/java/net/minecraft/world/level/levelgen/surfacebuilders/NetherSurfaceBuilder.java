@@ -36,7 +36,7 @@ public class NetherSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBaseConfi
         long param10,
         SurfaceBuilderBaseConfiguration param11
     ) {
-        int var0 = param9 + 1;
+        int var0 = param9;
         int var1 = param3 & 15;
         int var2 = param4 & 15;
         double var3 = 0.03125;
@@ -55,8 +55,9 @@ public class NetherSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBaseConfi
                 var8 = -1;
             } else if (var12.is(param7.getBlock())) {
                 if (var8 == -1) {
+                    boolean var13 = false;
                     if (var6 <= 0) {
-                        var9 = AIR;
+                        var13 = true;
                         var10 = param11.getUnderMaterial();
                     } else if (var11 >= var0 - 4 && var11 <= var0 + 1) {
                         var9 = param11.getTopMaterial();
@@ -72,7 +73,7 @@ public class NetherSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBaseConfi
                         }
                     }
 
-                    if (var11 < var0 && var9.isAir()) {
+                    if (var11 < var0 && var13) {
                         var9 = param8;
                     }
 

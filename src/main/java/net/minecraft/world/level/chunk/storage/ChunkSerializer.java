@@ -413,10 +413,16 @@ public class ChunkSerializer {
         CompoundTag var1 = param1.getCompound("Starts");
 
         for(String var2 : var1.getAllKeys()) {
-            var0.put(
-                StructureFeature.STRUCTURES_REGISTRY.get(var2.toLowerCase(Locale.ROOT)),
-                StructureFeature.loadStaticStart(param0, var1.getCompound(var2), param2)
-            );
+            String var3 = var2.toLowerCase(Locale.ROOT);
+            StructureFeature<?> var4 = StructureFeature.STRUCTURES_REGISTRY.get(var3);
+            if (var4 == null) {
+                LOGGER.error("Unknown structure start: {}", var3);
+            } else {
+                StructureStart<?> var5 = StructureFeature.loadStaticStart(param0, var1.getCompound(var2), param2);
+                if (var5 != null) {
+                    var0.put(var4, var5);
+                }
+            }
         }
 
         return var0;

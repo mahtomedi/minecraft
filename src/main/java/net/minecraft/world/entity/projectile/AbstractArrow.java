@@ -302,7 +302,7 @@ public abstract class AbstractArrow extends Projectile {
         super.onHitEntity(param0);
         Entity var0 = param0.getEntity();
         float var1 = (float)this.getDeltaMovement().length();
-        int var2 = Mth.ceil(Math.max((double)var1 * this.baseDamage, 0.0));
+        int var2 = Mth.ceil(Mth.clamp((double)var1 * this.baseDamage, 0.0, 2.147483647E9));
         if (this.getPierceLevel() > 0) {
             if (this.piercingIgnoreEntityIds == null) {
                 this.piercingIgnoreEntityIds = new IntOpenHashSet(5);
@@ -321,64 +321,65 @@ public abstract class AbstractArrow extends Projectile {
         }
 
         if (this.isCritArrow()) {
-            var2 += this.random.nextInt(var2 / 2 + 2);
+            long var3 = (long)this.random.nextInt(var2 / 2 + 2);
+            var2 = (int)Math.min(var3 + (long)var2, 2147483647L);
         }
 
-        Entity var3 = this.getOwner();
-        DamageSource var4;
-        if (var3 == null) {
-            var4 = DamageSource.arrow(this, this);
+        Entity var4 = this.getOwner();
+        DamageSource var5;
+        if (var4 == null) {
+            var5 = DamageSource.arrow(this, this);
         } else {
-            var4 = DamageSource.arrow(this, var3);
-            if (var3 instanceof LivingEntity) {
-                ((LivingEntity)var3).setLastHurtMob(var0);
+            var5 = DamageSource.arrow(this, var4);
+            if (var4 instanceof LivingEntity) {
+                ((LivingEntity)var4).setLastHurtMob(var0);
             }
         }
 
-        boolean var6 = var0.getType() == EntityType.ENDERMAN;
-        int var7 = var0.getRemainingFireTicks();
-        if (this.isOnFire() && !var6) {
+        boolean var7 = var0.getType() == EntityType.ENDERMAN;
+        int var8 = var0.getRemainingFireTicks();
+        if (this.isOnFire() && !var7) {
             var0.setSecondsOnFire(5);
         }
 
-        if (var0.hurt(var4, (float)var2)) {
-            if (var6) {
+        if (var0.hurt(var5, (float)var2)) {
+            if (var7) {
                 return;
             }
 
             if (var0 instanceof LivingEntity) {
-                LivingEntity var8 = (LivingEntity)var0;
+                LivingEntity var9 = (LivingEntity)var0;
                 if (!this.level.isClientSide && this.getPierceLevel() <= 0) {
-                    var8.setArrowCount(var8.getArrowCount() + 1);
+                    var9.setArrowCount(var9.getArrowCount() + 1);
                 }
 
                 if (this.knockback > 0) {
-                    Vec3 var9 = this.getDeltaMovement().multiply(1.0, 0.0, 1.0).normalize().scale((double)this.knockback * 0.6);
-                    if (var9.lengthSqr() > 0.0) {
-                        var8.push(var9.x, 0.1, var9.z);
+                    Vec3 var10 = this.getDeltaMovement().multiply(1.0, 0.0, 1.0).normalize().scale((double)this.knockback * 0.6);
+                    if (var10.lengthSqr() > 0.0) {
+                        var9.push(var10.x, 0.1, var10.z);
                     }
                 }
 
-                if (!this.level.isClientSide && var3 instanceof LivingEntity) {
-                    EnchantmentHelper.doPostHurtEffects(var8, var3);
-                    EnchantmentHelper.doPostDamageEffects((LivingEntity)var3, var8);
+                if (!this.level.isClientSide && var4 instanceof LivingEntity) {
+                    EnchantmentHelper.doPostHurtEffects(var9, var4);
+                    EnchantmentHelper.doPostDamageEffects((LivingEntity)var4, var9);
                 }
 
-                this.doPostHurtEffects(var8);
-                if (var3 != null && var8 != var3 && var8 instanceof Player && var3 instanceof ServerPlayer && !this.isSilent()) {
-                    ((ServerPlayer)var3).connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.ARROW_HIT_PLAYER, 0.0F));
+                this.doPostHurtEffects(var9);
+                if (var4 != null && var9 != var4 && var9 instanceof Player && var4 instanceof ServerPlayer && !this.isSilent()) {
+                    ((ServerPlayer)var4).connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.ARROW_HIT_PLAYER, 0.0F));
                 }
 
                 if (!var0.isAlive() && this.piercedAndKilledEntities != null) {
-                    this.piercedAndKilledEntities.add(var8);
+                    this.piercedAndKilledEntities.add(var9);
                 }
 
-                if (!this.level.isClientSide && var3 instanceof ServerPlayer) {
-                    ServerPlayer var10 = (ServerPlayer)var3;
+                if (!this.level.isClientSide && var4 instanceof ServerPlayer) {
+                    ServerPlayer var11 = (ServerPlayer)var4;
                     if (this.piercedAndKilledEntities != null && this.shotFromCrossbow()) {
-                        CriteriaTriggers.KILLED_BY_CROSSBOW.trigger(var10, this.piercedAndKilledEntities);
+                        CriteriaTriggers.KILLED_BY_CROSSBOW.trigger(var11, this.piercedAndKilledEntities);
                     } else if (!var0.isAlive() && this.shotFromCrossbow()) {
-                        CriteriaTriggers.KILLED_BY_CROSSBOW.trigger(var10, Arrays.asList(var0));
+                        CriteriaTriggers.KILLED_BY_CROSSBOW.trigger(var11, Arrays.asList(var0));
                     }
                 }
             }
@@ -388,7 +389,7 @@ public abstract class AbstractArrow extends Projectile {
                 this.remove();
             }
         } else {
-            var0.setRemainingFireTicks(var7);
+            var0.setRemainingFireTicks(var8);
             this.setDeltaMovement(this.getDeltaMovement().scale(-0.1));
             this.yRot += 180.0F;
             this.yRotO += 180.0F;
