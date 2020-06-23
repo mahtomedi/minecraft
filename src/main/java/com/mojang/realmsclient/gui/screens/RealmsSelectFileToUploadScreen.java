@@ -14,6 +14,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.realms.NarrationHelper;
@@ -76,7 +77,7 @@ public class RealmsSelectFileToUploadScreen extends RealmsScreen {
         } catch (Exception var2) {
             LOGGER.error("Couldn't load level list", (Throwable)var2);
             this.minecraft
-                .setScreen(new RealmsGenericErrorScreen(new TextComponent("Unable to load worlds"), new TextComponent(var2.getMessage()), this.lastScreen));
+                .setScreen(new RealmsGenericErrorScreen(new TextComponent("Unable to load worlds"), Component.nullToEmpty(var2.getMessage()), this.lastScreen));
             return;
         }
 

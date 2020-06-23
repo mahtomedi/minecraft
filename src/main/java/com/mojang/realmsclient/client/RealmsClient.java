@@ -348,7 +348,7 @@ public class RealmsClient {
                     LOGGER.info("Could not authorize you against Realms server: " + var3);
                     throw new RealmsServiceException(var0, var3, -1, var3);
                 } else if (var2 != null && var2.length() != 0) {
-                    RealmsError var4 = new RealmsError(var2);
+                    RealmsError var4 = RealmsError.create(var2);
                     LOGGER.error(
                         "Realms http code: "
                             + var0

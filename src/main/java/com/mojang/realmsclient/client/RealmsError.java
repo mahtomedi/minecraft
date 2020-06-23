@@ -11,20 +11,26 @@ import org.apache.logging.log4j.Logger;
 @OnlyIn(Dist.CLIENT)
 public class RealmsError {
     private static final Logger LOGGER = LogManager.getLogger();
-    private String errorMessage;
-    private int errorCode;
+    private final String errorMessage;
+    private final int errorCode;
 
-    public RealmsError(String param0) {
+    private RealmsError(String param0, int param1) {
+        this.errorMessage = param0;
+        this.errorCode = param1;
+    }
+
+    public static RealmsError create(String param0) {
         try {
             JsonParser var0 = new JsonParser();
             JsonObject var1 = var0.parse(param0).getAsJsonObject();
-            this.errorMessage = JsonUtils.getStringOr("errorMsg", var1, "");
-            this.errorCode = JsonUtils.getIntOr("errorCode", var1, -1);
-        } catch (Exception var4) {
-            LOGGER.error("Could not parse RealmsError: " + var4.getMessage());
+            String var2 = JsonUtils.getStringOr("errorMsg", var1, "");
+            int var3 = JsonUtils.getIntOr("errorCode", var1, -1);
+            return new RealmsError(var2, var3);
+        } catch (Exception var5) {
+            LOGGER.error("Could not parse RealmsError: " + var5.getMessage());
             LOGGER.error("The error was: " + param0);
+            return new RealmsError("Failed to parse response from server", -1);
         }
-
     }
 
     public String getErrorMessage() {

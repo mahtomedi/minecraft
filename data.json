@@ -116,27 +116,27 @@
   "complianceLevel": 0,
   "downloads": {
     "client": {
-      "sha1": "a056316b66aea50c0555d5f438cf839b6cdde000",
-      "size": 17491971,
-      "url": "https://launcher.mojang.com/v1/objects/a056316b66aea50c0555d5f438cf839b6cdde000/client.jar"
+      "sha1": "228fdf45541c4c2fe8aec4f20e880cb8fcd46621",
+      "size": 17492200,
+      "url": "https://launcher.mojang.com/v1/objects/228fdf45541c4c2fe8aec4f20e880cb8fcd46621/client.jar"
     },
     "client_mappings": {
-      "sha1": "0f3bd85e99d8cf479ce4a5bdf1b1b129b6e79a66",
-      "size": 5632156,
-      "url": "https://launcher.mojang.com/v1/objects/0f3bd85e99d8cf479ce4a5bdf1b1b129b6e79a66/client.txt"
+      "sha1": "9539840a7dbea682b305858fe138bd03ee7823cf",
+      "size": 5632455,
+      "url": "https://launcher.mojang.com/v1/objects/9539840a7dbea682b305858fe138bd03ee7823cf/client.txt"
     },
     "server": {
-      "sha1": "7213e5ba8fe8d352141cf3dde907c26c43480092",
-      "size": 37968843,
-      "url": "https://launcher.mojang.com/v1/objects/7213e5ba8fe8d352141cf3dde907c26c43480092/server.jar"
+      "sha1": "a0d03225615ba897619220e256a266cb33a44b6b",
+      "size": 37968865,
+      "url": "https://launcher.mojang.com/v1/objects/a0d03225615ba897619220e256a266cb33a44b6b/server.jar"
     },
     "server_mappings": {
-      "sha1": "3ac6c8d2558ab4b6c9cde1cfd09a2ec4bca260c5",
-      "size": 4329529,
-      "url": "https://launcher.mojang.com/v1/objects/3ac6c8d2558ab4b6c9cde1cfd09a2ec4bca260c5/server.txt"
+      "sha1": "11120c39da4df293c4bd020896391fb9ddd6c2ba",
+      "size": 4329615,
+      "url": "https://launcher.mojang.com/v1/objects/11120c39da4df293c4bd020896391fb9ddd6c2ba/server.txt"
     }
   },
-  "id": "1.16-rc1",
+  "id": "1.16",
   "javaVersion": {
     "component": "jre-legacy",
     "majorVersion": 8
@@ -1548,7 +1548,7 @@
   },
   "mainClass": "net.minecraft.client.main.Main",
   "minimumLauncherVersion": 21,
-  "releaseTime": "2020-06-18T12:49:28+00:00",
-  "time": "2020-06-18T12:49:28+00:00",
-  "type": "snapshot"
+  "releaseTime": "2020-06-23T16:20:52+00:00",
+  "time": "2020-06-23T16:20:52+00:00",
+  "type": "release"
 }

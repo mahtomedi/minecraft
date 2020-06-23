@@ -103,6 +103,11 @@ public interface Component extends Message, FormattedText {
         return param0.accept(this.getContents());
     }
 
+    @OnlyIn(Dist.CLIENT)
+    static Component nullToEmpty(@Nullable String param0) {
+        return (Component)(param0 != null ? new TextComponent(param0) : TextComponent.EMPTY);
+    }
+
     public static class Serializer implements JsonDeserializer<MutableComponent>, JsonSerializer<Component> {
         private static final Gson GSON = Util.make(() -> {
             GsonBuilder var0 = new GsonBuilder();

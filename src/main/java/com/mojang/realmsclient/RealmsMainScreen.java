@@ -128,7 +128,7 @@ public class RealmsMainScreen extends RealmsScreen {
         this.inviteNarrationLimiter = RateLimiter.create(0.016666668F);
     }
 
-    public boolean shouldShowMessageInList() {
+    private boolean shouldShowMessageInList() {
         if (hasParentalConsent() && this.hasFetchedServers) {
             if (this.trialsAvailable && !this.createdTrial) {
                 return true;
@@ -349,7 +349,7 @@ public class RealmsMainScreen extends RealmsScreen {
 
                     this.realmsServers = var0;
                     if (this.shouldShowMessageInList()) {
-                        this.realmSelectionList.addEntry(new RealmsMainScreen.TrialEntry());
+                        this.realmSelectionList.addMessageEntry(new RealmsMainScreen.TrialEntry());
                     }
 
                     for(RealmsServer var4 : this.realmsServers) {
@@ -1159,7 +1159,9 @@ public class RealmsMainScreen extends RealmsScreen {
     }
 
     public RealmsMainScreen newScreen() {
-        return new RealmsMainScreen(this.lastScreen);
+        RealmsMainScreen var0 = new RealmsMainScreen(this.lastScreen);
+        var0.init(this.minecraft, this.width, this.height);
+        return var0;
     }
 
     public static void updateTeaserImages(ResourceManager param0) {
@@ -1258,8 +1260,21 @@ public class RealmsMainScreen extends RealmsScreen {
 
     @OnlyIn(Dist.CLIENT)
     class RealmSelectionList extends RealmsObjectSelectionList<RealmsMainScreen.Entry> {
+        private boolean showingMessage;
+
         public RealmSelectionList() {
             super(RealmsMainScreen.this.width, RealmsMainScreen.this.height, 32, RealmsMainScreen.this.height - 40, 36);
+        }
+
+        @Override
+        public void clear() {
+            super.clear();
+            this.showingMessage = false;
+        }
+
+        public int addMessageEntry(RealmsMainScreen.Entry param0) {
+            this.showingMessage = true;
+            return this.addEntry(param0);
         }
 
         @Override
@@ -1301,7 +1316,7 @@ public class RealmsMainScreen extends RealmsScreen {
             this.setSelectedItem(param0);
             if (param0 != -1) {
                 RealmsServer var0;
-                if (RealmsMainScreen.this.shouldShowMessageInList()) {
+                if (this.showingMessage) {
                     if (param0 == 0) {
                         NarrationHelper.now(I18n.get("mco.trial.message.line1"), I18n.get("mco.trial.message.line2"));
                         var0 = null;
@@ -1341,15 +1356,14 @@ public class RealmsMainScreen extends RealmsScreen {
 
         public void setSelected(@Nullable RealmsMainScreen.Entry param0) {
             super.setSelected(param0);
-            RealmsServer var0 = RealmsMainScreen.this.realmsServers
-                .get(this.children().indexOf(param0) - (RealmsMainScreen.this.shouldShowMessageInList() ? 1 : 0));
+            RealmsServer var0 = RealmsMainScreen.this.realmsServers.get(this.children().indexOf(param0) - (this.showingMessage ? 1 : 0));
             RealmsMainScreen.this.selectedServerId = var0.id;
             RealmsMainScreen.this.updateButtonStates(var0);
         }
 
         @Override
         public void itemClicked(int param0, int param1, double param2, double param3, int param4) {
-            if (RealmsMainScreen.this.shouldShowMessageInList()) {
+            if (this.showingMessage) {
                 if (param1 == 0) {
                     RealmsMainScreen.this.popupOpenedByUser = true;
                     return;
