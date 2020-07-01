@@ -10,6 +10,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -51,6 +52,7 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -382,8 +384,8 @@ public class Strider extends Animal implements ItemSteerable, Saddleable {
         return param1.getBlockState(param0).getFluidState().is(FluidTags.LAVA) ? 10.0F : 0.0F;
     }
 
-    public Strider getBreedOffspring(AgableMob param0) {
-        return EntityType.STRIDER.create(this.level);
+    public Strider getBreedOffspring(ServerLevel param0, AgableMob param1) {
+        return EntityType.STRIDER.create(param0);
     }
 
     @Override
@@ -403,7 +405,7 @@ public class Strider extends Animal implements ItemSteerable, Saddleable {
     @Override
     public InteractionResult mobInteract(Player param0, InteractionHand param1) {
         boolean var0 = this.isFood(param0.getItemInHand(param1));
-        if (!var0 && this.isSaddled() && !this.isVehicle()) {
+        if (!var0 && this.isSaddled() && !this.isVehicle() && !param0.isSecondaryUseActive()) {
             if (!this.level.isClientSide) {
                 param0.startRiding(this);
             }
@@ -443,7 +445,7 @@ public class Strider extends Animal implements ItemSteerable, Saddleable {
     @Nullable
     @Override
     public SpawnGroupData finalizeSpawn(
-        LevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
+        ServerLevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
     ) {
         SpawnGroupData var0 = null;
         Strider.StriderGroupData.Rider var1;

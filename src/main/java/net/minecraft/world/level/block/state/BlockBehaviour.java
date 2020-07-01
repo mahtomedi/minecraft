@@ -304,7 +304,7 @@ public abstract class BlockBehaviour {
     }
 
     @Deprecated
-    public void spawnAfterBreak(BlockState param0, Level param1, BlockPos param2, ItemStack param3) {
+    public void spawnAfterBreak(BlockState param0, ServerLevel param1, BlockPos param2, ItemStack param3) {
     }
 
     @Deprecated
@@ -621,7 +621,7 @@ public abstract class BlockBehaviour {
             this.getBlock().entityInside(this.asState(), param0, param1, param2);
         }
 
-        public void spawnAfterBreak(Level param0, BlockPos param1, ItemStack param2) {
+        public void spawnAfterBreak(ServerLevel param0, BlockPos param1, ItemStack param2) {
             this.getBlock().spawnAfterBreak(this.asState(), param0, param1, param2);
         }
 

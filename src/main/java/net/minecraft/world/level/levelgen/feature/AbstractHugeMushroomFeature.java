@@ -6,7 +6,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -45,7 +44,7 @@ public abstract class AbstractHugeMushroomFeature extends Feature<HugeMushroomFe
         int var0 = param1.getY();
         if (var0 >= 1 && var0 + param2 + 1 < 256) {
             Block var1 = param0.getBlockState(param1.below()).getBlock();
-            if (!isDirt(var1)) {
+            if (!isDirt(var1) && !var1.is(BlockTags.MUSHROOM_GROW_BLOCK)) {
                 return false;
             } else {
                 for(int var2 = 0; var2 <= param2; ++var2) {
@@ -68,16 +67,14 @@ public abstract class AbstractHugeMushroomFeature extends Feature<HugeMushroomFe
         }
     }
 
-    public boolean place(
-        WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BlockPos param4, HugeMushroomFeatureConfiguration param5
-    ) {
-        int var0 = this.getTreeHeight(param3);
+    public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, HugeMushroomFeatureConfiguration param4) {
+        int var0 = this.getTreeHeight(param2);
         BlockPos.MutableBlockPos var1 = new BlockPos.MutableBlockPos();
-        if (!this.isValidPosition(param0, param4, var0, var1, param5)) {
+        if (!this.isValidPosition(param0, param3, var0, var1, param4)) {
             return false;
         } else {
-            this.makeCap(param0, param3, param4, var0, var1, param5);
-            this.placeTrunk(param0, param3, param4, param5, var0, var1);
+            this.makeCap(param0, param2, param3, var0, var1, param4);
+            this.placeTrunk(param0, param2, param3, param4, var0, var1);
             return true;
         }
     }

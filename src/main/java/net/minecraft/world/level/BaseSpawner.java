@@ -12,6 +12,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.StringUtil;
 import net.minecraft.util.WeighedRandom;
 import net.minecraft.world.entity.Entity;
@@ -70,7 +71,7 @@ public abstract class BaseSpawner {
         } else {
             Level var0 = this.getLevel();
             BlockPos var1 = this.getPos();
-            if (var0.isClientSide) {
+            if (!(var0 instanceof ServerLevel)) {
                 double var2 = (double)var1.getX() + var0.random.nextDouble();
                 double var3 = (double)var1.getY() + var0.random.nextDouble();
                 double var4 = (double)var1.getZ() + var0.random.nextDouble();
@@ -111,56 +112,56 @@ public abstract class BaseSpawner {
                     double var13 = var10 >= 3
                         ? var9.getDouble(2)
                         : (double)var1.getZ() + (var0.random.nextDouble() - var0.random.nextDouble()) * (double)this.spawnRange + 0.5;
-                    if (var0.noCollision(var8.get().getAABB(var11, var12, var13))
-                        && SpawnPlacements.checkSpawnRules(
-                            var8.get(), var0.getLevel(), MobSpawnType.SPAWNER, new BlockPos(var11, var12, var13), var0.getRandom()
-                        )) {
-                        Entity var14 = EntityType.loadEntityRecursive(var7, var0, param3 -> {
-                            param3.moveTo(var11, var12, var13, param3.yRot, param3.xRot);
-                            return param3;
-                        });
-                        if (var14 == null) {
-                            this.delay();
-                            return;
-                        }
-
-                        int var15 = var0.getEntitiesOfClass(
-                                var14.getClass(),
-                                new AABB(
-                                        (double)var1.getX(),
-                                        (double)var1.getY(),
-                                        (double)var1.getZ(),
-                                        (double)(var1.getX() + 1),
-                                        (double)(var1.getY() + 1),
-                                        (double)(var1.getZ() + 1)
-                                    )
-                                    .inflate((double)this.spawnRange)
-                            )
-                            .size();
-                        if (var15 >= this.maxNearbyEntities) {
-                            this.delay();
-                            return;
-                        }
-
-                        var14.moveTo(var14.getX(), var14.getY(), var14.getZ(), var0.random.nextFloat() * 360.0F, 0.0F);
-                        if (var14 instanceof Mob) {
-                            Mob var16 = (Mob)var14;
-                            if (!var16.checkSpawnRules(var0, MobSpawnType.SPAWNER) || !var16.checkSpawnObstruction(var0)) {
-                                continue;
+                    if (var0.noCollision(var8.get().getAABB(var11, var12, var13))) {
+                        ServerLevel var14 = (ServerLevel)var0;
+                        if (SpawnPlacements.checkSpawnRules(var8.get(), var14, MobSpawnType.SPAWNER, new BlockPos(var11, var12, var13), var0.getRandom())) {
+                            Entity var15 = EntityType.loadEntityRecursive(var7, var0, param3 -> {
+                                param3.moveTo(var11, var12, var13, param3.yRot, param3.xRot);
+                                return param3;
+                            });
+                            if (var15 == null) {
+                                this.delay();
+                                return;
                             }
 
-                            if (this.nextSpawnData.getTag().size() == 1 && this.nextSpawnData.getTag().contains("id", 8)) {
-                                ((Mob)var14).finalizeSpawn(var0, var0.getCurrentDifficultyAt(var14.blockPosition()), MobSpawnType.SPAWNER, null, null);
+                            int var16 = var0.getEntitiesOfClass(
+                                    var15.getClass(),
+                                    new AABB(
+                                            (double)var1.getX(),
+                                            (double)var1.getY(),
+                                            (double)var1.getZ(),
+                                            (double)(var1.getX() + 1),
+                                            (double)(var1.getY() + 1),
+                                            (double)(var1.getZ() + 1)
+                                        )
+                                        .inflate((double)this.spawnRange)
+                                )
+                                .size();
+                            if (var16 >= this.maxNearbyEntities) {
+                                this.delay();
+                                return;
                             }
-                        }
 
-                        this.addWithPassengers(var14);
-                        var0.levelEvent(2004, var1, 0);
-                        if (var14 instanceof Mob) {
-                            ((Mob)var14).spawnAnim();
-                        }
+                            var15.moveTo(var15.getX(), var15.getY(), var15.getZ(), var0.random.nextFloat() * 360.0F, 0.0F);
+                            if (var15 instanceof Mob) {
+                                Mob var17 = (Mob)var15;
+                                if (!var17.checkSpawnRules(var0, MobSpawnType.SPAWNER) || !var17.checkSpawnObstruction(var0)) {
+                                    continue;
+                                }
 
-                        var5 = true;
+                                if (this.nextSpawnData.getTag().size() == 1 && this.nextSpawnData.getTag().contains("id", 8)) {
+                                    ((Mob)var15).finalizeSpawn(var14, var0.getCurrentDifficultyAt(var15.blockPosition()), MobSpawnType.SPAWNER, null, null);
+                                }
+                            }
+
+                            this.addWithPassengers(var15);
+                            var0.levelEvent(2004, var1, 0);
+                            if (var15 instanceof Mob) {
+                                ((Mob)var15).spawnAnim();
+                            }
+
+                            var5 = true;
+                        }
                     }
                 }
 
@@ -266,10 +267,6 @@ public abstract class BaseSpawner {
         if (this.displayEntity == null) {
             this.displayEntity = EntityType.loadEntityRecursive(this.nextSpawnData.getTag(), this.getLevel(), Function.identity());
             if (this.nextSpawnData.getTag().size() == 1 && this.nextSpawnData.getTag().contains("id", 8) && this.displayEntity instanceof Mob) {
-                ((Mob)this.displayEntity)
-                    .finalizeSpawn(
-                        this.getLevel(), this.getLevel().getCurrentDifficultyAt(this.displayEntity.blockPosition()), MobSpawnType.SPAWNER, null, null
-                    );
             }
         }
 

@@ -31,4 +31,7 @@ public abstract class RecipeBookMenu<C extends Container> extends AbstractContai
 
     @OnlyIn(Dist.CLIENT)
     public abstract int getSize();
+
+    @OnlyIn(Dist.CLIENT)
+    public abstract RecipeBookType getRecipeBookType();
 }

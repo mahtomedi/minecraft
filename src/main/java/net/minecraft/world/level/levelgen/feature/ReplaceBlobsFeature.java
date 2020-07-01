@@ -7,7 +7,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -19,15 +18,13 @@ public class ReplaceBlobsFeature extends Feature<ReplaceSpheroidConfiguration> {
         super(param0);
     }
 
-    public boolean place(
-        WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BlockPos param4, ReplaceSpheroidConfiguration param5
-    ) {
-        Block var0 = param5.targetState.getBlock();
-        BlockPos var1 = findTarget(param0, param4.mutable().clamp(Direction.Axis.Y, 1, param0.getMaxBuildHeight() - 1), var0);
+    public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, ReplaceSpheroidConfiguration param4) {
+        Block var0 = param4.targetState.getBlock();
+        BlockPos var1 = findTarget(param0, param3.mutable().clamp(Direction.Axis.Y, 1, param0.getMaxBuildHeight() - 1), var0);
         if (var1 == null) {
             return false;
         } else {
-            Vec3i var2 = calculateReach(param3, param5);
+            Vec3i var2 = calculateReach(param2, param4);
             int var3 = Math.max(var2.getX(), Math.max(var2.getY(), var2.getZ()));
             boolean var4 = false;
 
@@ -38,7 +35,7 @@ public class ReplaceBlobsFeature extends Feature<ReplaceSpheroidConfiguration> {
 
                 BlockState var6 = param0.getBlockState(var5);
                 if (var6.is(var0)) {
-                    this.setBlock(param0, var5, param5.replaceState);
+                    this.setBlock(param0, var5, param4.replaceState);
                     var4 = true;
                 }
             }

@@ -2,6 +2,7 @@ package net.minecraft.client.multiplayer;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.CommandDispatcher;
@@ -192,11 +193,8 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stat;
 import net.minecraft.stats.StatsCounter;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.EntityTypeTags;
-import net.minecraft.tags.FluidTags;
-import net.minecraft.tags.ItemTags;
-import net.minecraft.tags.TagManager;
+import net.minecraft.tags.StaticTags;
+import net.minecraft.tags.TagContainer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.InteractionHand;
@@ -317,7 +315,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
     private final Map<UUID, PlayerInfo> playerInfoMap = Maps.newHashMap();
     private final ClientAdvancements advancements;
     private final ClientSuggestionProvider suggestionsProvider;
-    private TagManager tags = new TagManager();
+    private TagContainer tags = TagContainer.EMPTY;
     private final DebugQueryHandler debugQueryHandler = new DebugQueryHandler(this);
     private int serverChunkRadius = 3;
     private final Random random = new Random();
@@ -353,10 +351,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
         this.minecraft.gameMode = new MultiPlayerGameMode(this.minecraft, this);
         if (!this.connection.isMemoryConnection()) {
-            BlockTags.resetToEmpty();
-            ItemTags.resetToEmpty();
-            FluidTags.resetToEmpty();
-            EntityTypeTags.resetToEmpty();
+            StaticTags.resetAllToEmpty();
         }
 
         ArrayList<ResourceKey<Level>> var0 = Lists.newArrayList(param0.levels());
@@ -376,7 +371,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
         );
         this.minecraft.setLevel(this.level);
         if (this.minecraft.player == null) {
-            this.minecraft.player = this.minecraft.gameMode.createPlayer(this.level, new StatsCounter(), new ClientRecipeBook(this.level.getRecipeManager()));
+            this.minecraft.player = this.minecraft.gameMode.createPlayer(this.level, new StatsCounter(), new ClientRecipeBook());
             this.minecraft.player.yRot = -180.0F;
             if (this.minecraft.getSingleplayerServer() != null) {
                 this.minecraft.getSingleplayerServer().setUUID(this.minecraft.player.getUUID());
@@ -592,12 +587,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
             if (!var0.isControlledByLocalInstance()) {
                 float var4 = (float)(param0.getyRot() * 360) / 256.0F;
                 float var5 = (float)(param0.getxRot() * 360) / 256.0F;
-                if (!(Math.abs(var0.getX() - var1) >= 0.03125) && !(Math.abs(var0.getY() - var2) >= 0.015625) && !(Math.abs(var0.getZ() - var3) >= 0.03125)) {
-                    var0.lerpTo(var0.getX(), var0.getY(), var0.getZ(), var4, var5, 3, true);
-                } else {
-                    var0.lerpTo(var1, var2, var3, var4, var5, 3, true);
-                }
-
+                var0.lerpTo(var1, var2, var3, var4, var5, 3, true);
                 var0.setOnGround(param0.isOnGround());
             }
 
@@ -620,13 +610,11 @@ public class ClientPacketListener implements ClientGamePacketListener {
         if (var0 != null) {
             if (!var0.isControlledByLocalInstance()) {
                 if (param0.hasPosition()) {
-                    var0.xp += (long)param0.getXa();
-                    var0.yp += (long)param0.getYa();
-                    var0.zp += (long)param0.getZa();
-                    Vec3 var1 = ClientboundMoveEntityPacket.packetToEntity(var0.xp, var0.yp, var0.zp);
+                    Vec3 var1 = param0.updateEntityPosition(var0.getPacketCoordinates());
+                    var0.setPacketCoordinates(var1);
                     float var2 = param0.hasRotation() ? (float)(param0.getyRot() * 360) / 256.0F : var0.yRot;
                     float var3 = param0.hasRotation() ? (float)(param0.getxRot() * 360) / 256.0F : var0.xRot;
-                    var0.lerpTo(var1.x, var1.y, var1.z, var2, var3, 3, false);
+                    var0.lerpTo(var1.x(), var1.y(), var1.z(), var2, var3, 3, false);
                 } else if (param0.hasRotation()) {
                     float var4 = (float)(param0.getyRot() * 360) / 256.0F;
                     float var5 = (float)(param0.getxRot() * 360) / 256.0F;
@@ -1442,7 +1430,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
         MutableSearchTree<RecipeCollection> var0 = this.minecraft.getSearchTree(SearchRegistry.RECIPE_COLLECTIONS);
         var0.clear();
         ClientRecipeBook var1 = this.minecraft.player.getRecipeBook();
-        var1.setupCollections();
+        var1.setupCollections(this.recipeManager.getRecipes());
         var1.getCollections().forEach(var0::add);
         var0.refresh();
     }
@@ -1486,10 +1474,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
     public void handleAddOrRemoveRecipes(ClientboundRecipePacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
         ClientRecipeBook var0 = this.minecraft.player.getRecipeBook();
-        var0.setGuiOpen(param0.isGuiOpen());
-        var0.setFilteringCraftable(param0.isFilteringCraftable());
-        var0.setFurnaceGuiOpen(param0.isFurnaceGuiOpen());
-        var0.setFurnaceFilteringCraftable(param0.isFurnaceFilteringCraftable());
+        var0.setBookSettings(param0.getBookSettings());
         ClientboundRecipePacket.State var1 = param0.getState();
         switch(var1) {
             case REMOVE:
@@ -1547,12 +1532,19 @@ public class ClientPacketListener implements ClientGamePacketListener {
     @Override
     public void handleUpdateTags(ClientboundUpdateTagsPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
-        this.tags = param0.getTags();
-        if (!this.connection.isMemoryConnection()) {
-            this.tags.bindToGlobal();
-        }
+        TagContainer var0 = param0.getTags();
+        Multimap<ResourceLocation, ResourceLocation> var1 = StaticTags.getAllMissingTags(var0);
+        if (!var1.isEmpty()) {
+            LOGGER.warn("Incomplete server tags, disconnecting. Missing: {}", var1);
+            this.connection.disconnect(new TranslatableComponent("multiplayer.disconnect.missing_tags"));
+        } else {
+            this.tags = var0;
+            if (!this.connection.isMemoryConnection()) {
+                var0.bindToGlobal();
+            }
 
-        this.minecraft.getSearchTree(SearchRegistry.CREATIVE_TAGS).refresh();
+            this.minecraft.getSearchTree(SearchRegistry.CREATIVE_TAGS).refresh();
+        }
     }
 
     @Override
@@ -2377,7 +2369,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
         return this.level;
     }
 
-    public TagManager getTags() {
+    public TagContainer getTags() {
         return this.tags;
     }
 

@@ -4,13 +4,12 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
-import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackCompatibility;
 import net.minecraft.server.packs.repository.PackRepository;
@@ -19,17 +18,17 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class PackSelectionModel<T extends Pack> {
-    private final PackRepository<T> repository;
-    private final List<T> selected;
-    private final List<T> unselected;
-    private final BiConsumer<T, TextureManager> iconBinder;
+public class PackSelectionModel {
+    private final PackRepository repository;
+    private final List<Pack> selected;
+    private final List<Pack> unselected;
+    private final Function<Pack, ResourceLocation> iconGetter;
     private final Runnable onListChanged;
-    private final Consumer<PackRepository<T>> output;
+    private final Consumer<PackRepository> output;
 
-    public PackSelectionModel(Runnable param0, BiConsumer<T, TextureManager> param1, PackRepository<T> param2, Consumer<PackRepository<T>> param3) {
+    public PackSelectionModel(Runnable param0, Function<Pack, ResourceLocation> param1, PackRepository param2, Consumer<PackRepository> param3) {
         this.onListChanged = param0;
-        this.iconBinder = param1;
+        this.iconGetter = param1;
         this.repository = param2;
         this.selected = Lists.newArrayList(param2.getSelectedPacks());
         Collections.reverse(this.selected);
@@ -53,6 +52,9 @@ public class PackSelectionModel<T extends Pack> {
 
     public void findNewPacks() {
         this.repository.reload();
+        this.selected.clear();
+        this.selected.addAll(this.repository.getSelectedPacks());
+        Collections.reverse(this.selected);
         this.unselected.clear();
         this.unselected.addAll(this.repository.getAvailablePacks());
         this.unselected.removeAll(this.selected);
@@ -60,7 +62,7 @@ public class PackSelectionModel<T extends Pack> {
 
     @OnlyIn(Dist.CLIENT)
     public interface Entry {
-        void bindIcon(TextureManager var1);
+        ResourceLocation getIconTexture();
 
         PackCompatibility getCompatibility();
 
@@ -103,19 +105,19 @@ public class PackSelectionModel<T extends Pack> {
 
     @OnlyIn(Dist.CLIENT)
     abstract class EntryBase implements PackSelectionModel.Entry {
-        private final T pack;
+        private final Pack pack;
 
-        public EntryBase(T param0) {
+        public EntryBase(Pack param0) {
             this.pack = param0;
         }
 
-        protected abstract List<T> getSelfList();
+        protected abstract List<Pack> getSelfList();
 
-        protected abstract List<T> getOtherList();
+        protected abstract List<Pack> getOtherList();
 
         @Override
-        public void bindIcon(TextureManager param0) {
-            PackSelectionModel.this.iconBinder.accept(this.pack, param0);
+        public ResourceLocation getIconTexture() {
+            return PackSelectionModel.this.iconGetter.apply(this.pack);
         }
 
         @Override
@@ -155,7 +157,7 @@ public class PackSelectionModel<T extends Pack> {
         }
 
         protected void move(int param0) {
-            List<T> var0 = this.getSelfList();
+            List<Pack> var0 = this.getSelfList();
             int var1 = var0.indexOf(this.pack);
             var0.remove(var1);
             var0.add(var1 + param0, this.pack);
@@ -164,7 +166,7 @@ public class PackSelectionModel<T extends Pack> {
 
         @Override
         public boolean canMoveUp() {
-            List<T> var0 = this.getSelfList();
+            List<Pack> var0 = this.getSelfList();
             int var1 = var0.indexOf(this.pack);
             return var1 > 0 && !var0.get(var1 - 1).isFixedPosition();
         }
@@ -176,7 +178,7 @@ public class PackSelectionModel<T extends Pack> {
 
         @Override
         public boolean canMoveDown() {
-            List<T> var0 = this.getSelfList();
+            List<Pack> var0 = this.getSelfList();
             int var1 = var0.indexOf(this.pack);
             return var1 >= 0 && var1 < var0.size() - 1 && !var0.get(var1 + 1).isFixedPosition();
         }
@@ -188,18 +190,18 @@ public class PackSelectionModel<T extends Pack> {
     }
 
     @OnlyIn(Dist.CLIENT)
-    class SelectedPackEntry extends PackSelectionModel<T>.EntryBase {
-        public SelectedPackEntry(T param0) {
+    class SelectedPackEntry extends PackSelectionModel.EntryBase {
+        public SelectedPackEntry(Pack param0) {
             super(param0);
         }
 
         @Override
-        protected List<T> getSelfList() {
+        protected List<Pack> getSelfList() {
             return PackSelectionModel.this.selected;
         }
 
         @Override
-        protected List<T> getOtherList() {
+        protected List<Pack> getOtherList() {
             return PackSelectionModel.this.unselected;
         }
 
@@ -219,18 +221,18 @@ public class PackSelectionModel<T extends Pack> {
     }
 
     @OnlyIn(Dist.CLIENT)
-    class UnselectedPackEntry extends PackSelectionModel<T>.EntryBase {
-        public UnselectedPackEntry(T param0) {
+    class UnselectedPackEntry extends PackSelectionModel.EntryBase {
+        public UnselectedPackEntry(Pack param0) {
             super(param0);
         }
 
         @Override
-        protected List<T> getSelfList() {
+        protected List<Pack> getSelfList() {
             return PackSelectionModel.this.unselected;
         }
 
         @Override
-        protected List<T> getOtherList() {
+        protected List<Pack> getOtherList() {
             return PackSelectionModel.this.selected;
         }
 

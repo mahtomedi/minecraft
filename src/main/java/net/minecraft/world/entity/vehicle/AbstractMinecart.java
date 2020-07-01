@@ -369,6 +369,11 @@ public abstract class AbstractMinecart extends Entity {
             }
 
             this.updateInWaterStateAndDoFluidPushing();
+            if (this.isInLava()) {
+                this.lavaHurt();
+                this.fallDistance *= 0.5F;
+            }
+
         }
     }
 

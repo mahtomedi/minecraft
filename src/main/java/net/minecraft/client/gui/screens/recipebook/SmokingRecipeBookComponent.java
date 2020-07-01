@@ -11,26 +11,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class SmokingRecipeBookComponent extends AbstractFurnaceRecipeBookComponent {
     @Override
-    protected boolean getFilteringCraftable() {
-        return this.book.isSmokerFilteringCraftable();
-    }
-
-    @Override
-    protected void setFilteringCraftable(boolean param0) {
-        this.book.setSmokerFilteringCraftable(param0);
-    }
-
-    @Override
-    protected boolean isGuiOpen() {
-        return this.book.isSmokerGuiOpen();
-    }
-
-    @Override
-    protected void setGuiOpen(boolean param0) {
-        this.book.setSmokerGuiOpen(param0);
-    }
-
-    @Override
     protected Component getRecipeFilterName() {
         return new TranslatableComponent("gui.recipebook.toggleRecipes.smokable");
     }

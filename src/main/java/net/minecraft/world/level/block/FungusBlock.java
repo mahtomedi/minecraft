@@ -30,7 +30,7 @@ public class FungusBlock extends BushBlock implements BonemealableBlock {
 
     @Override
     protected boolean mayPlaceOn(BlockState param0, BlockGetter param1, BlockPos param2) {
-        return param0.is(BlockTags.NYLIUM) || param0.is(Blocks.SOUL_SOIL) || super.mayPlaceOn(param0, param1, param2);
+        return param0.is(BlockTags.NYLIUM) || param0.is(Blocks.MYCELIUM) || param0.is(Blocks.SOUL_SOIL) || super.mayPlaceOn(param0, param1, param2);
     }
 
     @Override
@@ -47,6 +47,6 @@ public class FungusBlock extends BushBlock implements BonemealableBlock {
 
     @Override
     public void performBonemeal(ServerLevel param0, Random param1, BlockPos param2, BlockState param3) {
-        this.feature.get().place(param0, param0.structureFeatureManager(), param0.getChunkSource().getGenerator(), param1, param2);
+        this.feature.get().place(param0, param0.getChunkSource().getGenerator(), param1, param2);
     }
 }

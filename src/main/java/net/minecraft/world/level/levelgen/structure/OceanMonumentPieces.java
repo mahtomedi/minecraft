@@ -13,7 +13,6 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.monster.ElderGuardian;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
@@ -406,7 +405,7 @@ public class OceanMonumentPieces {
             return true;
         }
 
-        private void generateWing(boolean param0, int param1, LevelAccessor param2, Random param3, BoundingBox param4) {
+        private void generateWing(boolean param0, int param1, WorldGenLevel param2, Random param3, BoundingBox param4) {
             int var0 = 24;
             if (this.chunkIntersects(param4, param1, 0, param1 + 23, 20)) {
                 this.generateBox(param2, param4, param1 + 0, 0, 0, param1 + 24, 0, 20, BASE_GRAY, BASE_GRAY, false);
@@ -453,7 +452,7 @@ public class OceanMonumentPieces {
 
         }
 
-        private void generateEntranceArchs(LevelAccessor param0, Random param1, BoundingBox param2) {
+        private void generateEntranceArchs(WorldGenLevel param0, Random param1, BoundingBox param2) {
             if (this.chunkIntersects(param2, 22, 5, 35, 17)) {
                 this.generateWaterBox(param0, param2, 25, 0, 0, 32, 8, 20);
 
@@ -474,7 +473,7 @@ public class OceanMonumentPieces {
 
         }
 
-        private void generateEntranceWall(LevelAccessor param0, Random param1, BoundingBox param2) {
+        private void generateEntranceWall(WorldGenLevel param0, Random param1, BoundingBox param2) {
             if (this.chunkIntersects(param2, 15, 20, 42, 21)) {
                 this.generateBox(param0, param2, 15, 0, 21, 42, 0, 21, BASE_GRAY, BASE_GRAY, false);
                 this.generateWaterBox(param0, param2, 26, 1, 21, 31, 3, 21);
@@ -534,7 +533,7 @@ public class OceanMonumentPieces {
 
         }
 
-        private void generateRoofPiece(LevelAccessor param0, Random param1, BoundingBox param2) {
+        private void generateRoofPiece(WorldGenLevel param0, Random param1, BoundingBox param2) {
             if (this.chunkIntersects(param2, 21, 21, 36, 36)) {
                 this.generateBox(param0, param2, 21, 0, 22, 36, 0, 36, BASE_GRAY, BASE_GRAY, false);
                 this.generateWaterBox(param0, param2, 21, 1, 22, 36, 23, 36);
@@ -571,7 +570,7 @@ public class OceanMonumentPieces {
 
         }
 
-        private void generateLowerWall(LevelAccessor param0, Random param1, BoundingBox param2) {
+        private void generateLowerWall(WorldGenLevel param0, Random param1, BoundingBox param2) {
             if (this.chunkIntersects(param2, 0, 21, 6, 58)) {
                 this.generateBox(param0, param2, 0, 0, 21, 6, 0, 57, BASE_GRAY, BASE_GRAY, false);
                 this.generateWaterBox(param0, param2, 0, 1, 21, 6, 7, 57);
@@ -624,7 +623,7 @@ public class OceanMonumentPieces {
 
         }
 
-        private void generateMiddleWall(LevelAccessor param0, Random param1, BoundingBox param2) {
+        private void generateMiddleWall(WorldGenLevel param0, Random param1, BoundingBox param2) {
             if (this.chunkIntersects(param2, 7, 21, 13, 50)) {
                 this.generateBox(param0, param2, 7, 0, 21, 13, 0, 50, BASE_GRAY, BASE_GRAY, false);
                 this.generateWaterBox(param0, param2, 7, 1, 21, 13, 10, 50);
@@ -684,7 +683,7 @@ public class OceanMonumentPieces {
 
         }
 
-        private void generateUpperWall(LevelAccessor param0, Random param1, BoundingBox param2) {
+        private void generateUpperWall(WorldGenLevel param0, Random param1, BoundingBox param2) {
             if (this.chunkIntersects(param2, 14, 21, 20, 43)) {
                 this.generateBox(param0, param2, 14, 0, 21, 20, 0, 43, BASE_GRAY, BASE_GRAY, false);
                 this.generateWaterBox(param0, param2, 14, 1, 22, 20, 14, 43);
@@ -1469,7 +1468,7 @@ public class OceanMonumentPieces {
         protected void addAdditionalSaveData(CompoundTag param0) {
         }
 
-        protected void generateWaterBox(LevelAccessor param0, BoundingBox param1, int param2, int param3, int param4, int param5, int param6, int param7) {
+        protected void generateWaterBox(WorldGenLevel param0, BoundingBox param1, int param2, int param3, int param4, int param5, int param6, int param7) {
             for(int var0 = param3; var0 <= param6; ++var0) {
                 for(int var1 = param2; var1 <= param5; ++var1) {
                     for(int var2 = param4; var2 <= param7; ++var2) {
@@ -1487,7 +1486,7 @@ public class OceanMonumentPieces {
 
         }
 
-        protected void generateDefaultFloor(LevelAccessor param0, BoundingBox param1, int param2, int param3, boolean param4) {
+        protected void generateDefaultFloor(WorldGenLevel param0, BoundingBox param1, int param2, int param3, boolean param4) {
             if (param4) {
                 this.generateBox(param0, param1, param2 + 0, 0, param3 + 0, param2 + 2, 0, param3 + 8 - 1, BASE_GRAY, BASE_GRAY, false);
                 this.generateBox(param0, param1, param2 + 5, 0, param3 + 0, param2 + 8 - 1, 0, param3 + 8 - 1, BASE_GRAY, BASE_GRAY, false);
@@ -1504,7 +1503,7 @@ public class OceanMonumentPieces {
         }
 
         protected void generateBoxOnFillOnly(
-            LevelAccessor param0, BoundingBox param1, int param2, int param3, int param4, int param5, int param6, int param7, BlockState param8
+            WorldGenLevel param0, BoundingBox param1, int param2, int param3, int param4, int param5, int param6, int param7, BlockState param8
         ) {
             for(int var0 = param3; var0 <= param6; ++var0) {
                 for(int var1 = param2; var1 <= param5; ++var1) {
@@ -1526,7 +1525,7 @@ public class OceanMonumentPieces {
             return param0.intersects(Math.min(var0, var2), Math.min(var1, var3), Math.max(var0, var2), Math.max(var1, var3));
         }
 
-        protected boolean spawnElder(LevelAccessor param0, BoundingBox param1, int param2, int param3, int param4) {
+        protected boolean spawnElder(WorldGenLevel param0, BoundingBox param1, int param2, int param3, int param4) {
             int var0 = this.getWorldX(param2, param4);
             int var1 = this.getWorldY(param3);
             int var2 = this.getWorldZ(param2, param4);

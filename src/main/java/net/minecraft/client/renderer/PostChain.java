@@ -183,11 +183,11 @@ public class PostChain implements AutoCloseable {
                                 RenderSystem.texParameter(3553, 10240, 9728);
                             }
 
-                            var6.addAuxAsset(var11, var21.getId(), var22, var23);
+                            var6.addAuxAsset(var11, var21::getId, var22, var23);
                         } else if (var13) {
-                            var6.addAuxAsset(var11, var17.depthBufferId, var17.width, var17.height);
+                            var6.addAuxAsset(var11, var17::getDepthTextureId, var17.width, var17.height);
                         } else {
-                            var6.addAuxAsset(var11, var17, var17.width, var17.height);
+                            var6.addAuxAsset(var11, var17::getColorTextureId, var17.width, var17.height);
                         }
                     } catch (Exception var33) {
                         ChainedJsonException var26 = ChainedJsonException.forException(var33);

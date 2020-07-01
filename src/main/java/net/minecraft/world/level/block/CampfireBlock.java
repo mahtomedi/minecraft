@@ -186,7 +186,7 @@ public class CampfireBlock extends BaseEntityBlock implements SimpleWaterloggedB
     public static void dowse(LevelAccessor param0, BlockPos param1, BlockState param2) {
         if (param0.isClientSide()) {
             for(int var0 = 0; var0 < 20; ++var0) {
-                makeParticles(param0.getLevel(), param1, param2.getValue(SIGNAL_FIRE), true);
+                makeParticles((Level)param0, param1, param2.getValue(SIGNAL_FIRE), true);
             }
         }
 

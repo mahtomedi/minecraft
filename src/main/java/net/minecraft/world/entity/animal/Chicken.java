@@ -2,6 +2,7 @@ package net.minecraft.world.entity.animal;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
@@ -119,8 +120,8 @@ public class Chicken extends Animal {
         this.playSound(SoundEvents.CHICKEN_STEP, 0.15F, 1.0F);
     }
 
-    public Chicken getBreedOffspring(AgableMob param0) {
-        return EntityType.CHICKEN.create(this.level);
+    public Chicken getBreedOffspring(ServerLevel param0, AgableMob param1) {
+        return EntityType.CHICKEN.create(param0);
     }
 
     @Override

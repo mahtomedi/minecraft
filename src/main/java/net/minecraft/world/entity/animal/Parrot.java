@@ -15,6 +15,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -54,6 +55,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
@@ -123,7 +125,7 @@ public class Parrot extends ShoulderRidingEntity implements FlyingAnimal {
     @Nullable
     @Override
     public SpawnGroupData finalizeSpawn(
-        LevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
+        ServerLevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
     ) {
         this.setVariant(this.random.nextInt(5));
         if (param3 == null) {
@@ -313,7 +315,7 @@ public class Parrot extends ShoulderRidingEntity implements FlyingAnimal {
 
     @Nullable
     @Override
-    public AgableMob getBreedOffspring(AgableMob param0) {
+    public AgableMob getBreedOffspring(ServerLevel param0, AgableMob param1) {
         return null;
     }
 

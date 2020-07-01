@@ -73,7 +73,7 @@ public class TransferableSelectionList extends ObjectSelectionList<TransferableS
                 GuiComponent.fill(param0, param3 - 1, param2 - 1, param3 + param4 - 9, param2 + param5 + 1, -8978432);
             }
 
-            this.pack.bindIcon(this.minecraft.getTextureManager());
+            this.minecraft.getTextureManager().bind(this.pack.getIconTexture());
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
             GuiComponent.blit(param0, param3, param2, 0.0F, 0.0F, 32, 32, 32, 32);
             Component var1 = this.pack.getTitle();

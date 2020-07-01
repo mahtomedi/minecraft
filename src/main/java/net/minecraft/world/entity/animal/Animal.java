@@ -7,6 +7,7 @@ import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
@@ -207,8 +208,8 @@ public abstract class Animal extends AgableMob {
         }
     }
 
-    public void spawnChildFromBreeding(Level param0, Animal param1) {
-        AgableMob var0 = this.getBreedOffspring(param1);
+    public void spawnChildFromBreeding(ServerLevel param0, Animal param1) {
+        AgableMob var0 = this.getBreedOffspring(param0, param1);
         if (var0 != null) {
             ServerPlayer var1 = this.getLoveCause();
             if (var1 == null && param1.getLoveCause() != null) {

@@ -8,6 +8,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
@@ -32,8 +33,8 @@ public class FishBucketItem extends BucketItem {
 
     @Override
     public void checkExtraContent(Level param0, ItemStack param1, BlockPos param2) {
-        if (!param0.isClientSide) {
-            this.spawn(param0, param1, param2);
+        if (param0 instanceof ServerLevel) {
+            this.spawn((ServerLevel)param0, param1, param2);
         }
 
     }
@@ -43,7 +44,7 @@ public class FishBucketItem extends BucketItem {
         param1.playSound(param0, param2, SoundEvents.BUCKET_EMPTY_FISH, SoundSource.NEUTRAL, 1.0F, 1.0F);
     }
 
-    private void spawn(Level param0, ItemStack param1, BlockPos param2) {
+    private void spawn(ServerLevel param0, ItemStack param1, BlockPos param2) {
         Entity var0 = this.type.spawn(param0, param1, null, param2, MobSpawnType.BUCKET, true, false);
         if (var0 != null) {
             ((AbstractFish)var0).setFromBucket(true);

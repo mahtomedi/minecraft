@@ -22,6 +22,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.StructureFeatureManager;
+import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeDefaultFeatures;
 import net.minecraft.world.level.biome.BiomeManager;
@@ -253,7 +254,7 @@ public abstract class ChunkGenerator {
         param1.setStartForFeature(SectionPos.of(param2.getPos(), 0), param0.feature, var2, param2);
     }
 
-    public void createReferences(LevelAccessor param0, StructureFeatureManager param1, ChunkAccess param2) {
+    public void createReferences(WorldGenLevel param0, StructureFeatureManager param1, ChunkAccess param2) {
         int var0 = 8;
         int var1 = param2.getPos().x;
         int var2 = param2.getPos().z;

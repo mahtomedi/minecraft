@@ -3,6 +3,7 @@ package net.minecraft.world.level.block;
 import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
@@ -67,10 +68,10 @@ public class MushroomBlock extends BushBlock implements BonemealableBlock {
     public boolean canSurvive(BlockState param0, LevelReader param1, BlockPos param2) {
         BlockPos var0 = param2.below();
         BlockState var1 = param1.getBlockState(var0);
-        if (!var1.is(Blocks.MYCELIUM) && !var1.is(Blocks.PODZOL)) {
-            return param1.getRawBrightness(param2, 0) < 13 && this.mayPlaceOn(var1, param1, var0);
-        } else {
+        if (var1.is(BlockTags.MUSHROOM_GROW_BLOCK)) {
             return true;
+        } else {
+            return param1.getRawBrightness(param2, 0) < 13 && this.mayPlaceOn(var1, param1, var0);
         }
     }
 
@@ -88,7 +89,7 @@ public class MushroomBlock extends BushBlock implements BonemealableBlock {
             var0 = Feature.HUGE_RED_MUSHROOM.configured(BiomeDefaultFeatures.HUGE_RED_MUSHROOM_CONFIG);
         }
 
-        if (var0.place(param0, param0.structureFeatureManager(), param0.getChunkSource().getGenerator(), param3, param1)) {
+        if (var0.place(param0, param0.getChunkSource().getGenerator(), param3, param1)) {
             return true;
         } else {
             param0.setBlock(param1, param2, 3);

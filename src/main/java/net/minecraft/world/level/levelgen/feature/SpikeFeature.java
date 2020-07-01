@@ -16,8 +16,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.boss.enderdragon.EndCrystal;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.StructureFeatureManager;
+import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.IronBarsBlock;
@@ -41,22 +40,22 @@ public class SpikeFeature extends Feature<SpikeConfiguration> {
         return SPIKE_CACHE.getUnchecked(var1);
     }
 
-    public boolean place(WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BlockPos param4, SpikeConfiguration param5) {
-        List<SpikeFeature.EndSpike> var0 = param5.getSpikes();
+    public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, SpikeConfiguration param4) {
+        List<SpikeFeature.EndSpike> var0 = param4.getSpikes();
         if (var0.isEmpty()) {
             var0 = getSpikesForLevel(param0);
         }
 
         for(SpikeFeature.EndSpike var1 : var0) {
-            if (var1.isCenterWithinChunk(param4)) {
-                this.placeSpike(param0, param3, param5, var1);
+            if (var1.isCenterWithinChunk(param3)) {
+                this.placeSpike(param0, param2, param4, var1);
             }
         }
 
         return true;
     }
 
-    private void placeSpike(LevelAccessor param0, Random param1, SpikeConfiguration param2, SpikeFeature.EndSpike param3) {
+    private void placeSpike(ServerLevelAccessor param0, Random param1, SpikeConfiguration param2, SpikeFeature.EndSpike param3) {
         int var0 = param3.getRadius();
 
         for(BlockPos var1 : BlockPos.betweenClosed(

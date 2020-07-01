@@ -45,7 +45,7 @@ public class TradeWithVillager extends Behavior<Villager> {
         Villager var0 = (Villager)param1.getBrain().getMemory(MemoryModuleType.INTERACTION_TARGET).get();
         if (!(param1.distanceToSqr(var0) > 5.0)) {
             BehaviorUtils.lockGazeAndWalkToEachOther(param1, var0, 0.5F);
-            param1.gossip(var0, param2);
+            param1.gossip(param0, var0, param2);
             if (param1.hasExcessFood() && (param1.getVillagerData().getProfession() == VillagerProfession.FARMER || var0.wantsMoreFood())) {
                 throwHalfStack(param1, Villager.FOOD_POINTS.keySet(), var0);
             }

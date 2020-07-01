@@ -7,6 +7,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -94,7 +95,7 @@ public class LightningBolt extends Entity {
         }
 
         if (this.life >= 0) {
-            if (this.level.isClientSide) {
+            if (!(this.level instanceof ServerLevel)) {
                 this.level.setSkyFlashTime(2);
             } else if (!this.visualOnly) {
                 double var1 = 3.0;
@@ -106,7 +107,7 @@ public class LightningBolt extends Entity {
                     );
 
                 for(Entity var3 : var2) {
-                    var3.thunderHit(this);
+                    var3.thunderHit((ServerLevel)this.level, this);
                 }
 
                 if (this.cause != null) {

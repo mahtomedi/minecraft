@@ -61,16 +61,7 @@ public class BottleItem extends Item {
     }
 
     protected ItemStack turnBottleIntoItem(ItemStack param0, Player param1, ItemStack param2) {
-        param0.shrink(1);
         param1.awardStat(Stats.ITEM_USED.get(this));
-        if (param0.isEmpty()) {
-            return param2;
-        } else {
-            if (!param1.inventory.add(param2)) {
-                param1.drop(param2, false);
-            }
-
-            return param0;
-        }
+        return ItemUtils.createFilledResult(param0, param1, param2);
     }
 }

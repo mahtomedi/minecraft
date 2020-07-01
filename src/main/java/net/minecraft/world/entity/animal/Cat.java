@@ -56,7 +56,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.BedBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
@@ -324,13 +324,13 @@ public class Cat extends TamableAnimal {
         return Mth.lerp(param0, this.relaxStateOneAmountO, this.relaxStateOneAmount);
     }
 
-    public Cat getBreedOffspring(AgableMob param0) {
-        Cat var0 = EntityType.CAT.create(this.level);
-        if (param0 instanceof Cat) {
+    public Cat getBreedOffspring(ServerLevel param0, AgableMob param1) {
+        Cat var0 = EntityType.CAT.create(param0);
+        if (param1 instanceof Cat) {
             if (this.random.nextBoolean()) {
                 var0.setCatType(this.getCatType());
             } else {
-                var0.setCatType(((Cat)param0).getCatType());
+                var0.setCatType(((Cat)param1).getCatType());
             }
 
             if (this.isTame()) {
@@ -339,7 +339,7 @@ public class Cat extends TamableAnimal {
                 if (this.random.nextBoolean()) {
                     var0.setCollarColor(this.getCollarColor());
                 } else {
-                    var0.setCollarColor(((Cat)param0).getCollarColor());
+                    var0.setCollarColor(((Cat)param1).getCollarColor());
                 }
             }
         }
@@ -362,7 +362,7 @@ public class Cat extends TamableAnimal {
     @Nullable
     @Override
     public SpawnGroupData finalizeSpawn(
-        LevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
+        ServerLevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
     ) {
         param3 = super.finalizeSpawn(param0, param1, param2, param3, param4);
         if (param0.getMoonBrightness() > 0.9F) {

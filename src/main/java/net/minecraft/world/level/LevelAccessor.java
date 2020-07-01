@@ -1,8 +1,6 @@
 package net.minecraft.world.level;
 
 import java.util.Random;
-import java.util.function.Predicate;
-import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleOptions;
@@ -10,38 +8,21 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.chunk.ChunkSource;
-import net.minecraft.world.level.dimension.DimensionType;
-import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.storage.LevelData;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
-public interface LevelAccessor extends EntityGetter, LevelReader, LevelSimulatedRW {
-    default float getMoonBrightness() {
-        return DimensionType.MOON_BRIGHTNESS_PER_PHASE[this.dimensionType().moonPhase(this.getLevelData().getDayTime())];
-    }
-
-    default float getTimeOfDay(float param0) {
-        return this.dimensionType().timeOfDay(this.getLevelData().getDayTime());
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    default int getMoonPhase() {
-        return this.dimensionType().moonPhase(this.getLevelData().getDayTime());
+public interface LevelAccessor extends CommonLevelAccessor, LevelTimeAccess {
+    @Override
+    default long dayTime() {
+        return this.getLevelData().getDayTime();
     }
 
     TickList<Block> getBlockTicks();
 
     TickList<Fluid> getLiquidTicks();
-
-    Level getLevel();
 
     LevelData getLevelData();
 
@@ -75,20 +56,5 @@ public interface LevelAccessor extends EntityGetter, LevelReader, LevelSimulated
 
     default void levelEvent(int param0, BlockPos param1, int param2) {
         this.levelEvent(null, param0, param1, param2);
-    }
-
-    @Override
-    default Stream<VoxelShape> getEntityCollisions(@Nullable Entity param0, AABB param1, Predicate<Entity> param2) {
-        return EntityGetter.super.getEntityCollisions(param0, param1, param2);
-    }
-
-    @Override
-    default boolean isUnobstructed(@Nullable Entity param0, VoxelShape param1) {
-        return EntityGetter.super.isUnobstructed(param0, param1);
-    }
-
-    @Override
-    default BlockPos getHeightmapPos(Heightmap.Types param0, BlockPos param1) {
-        return LevelReader.super.getHeightmapPos(param0, param1);
     }
 }

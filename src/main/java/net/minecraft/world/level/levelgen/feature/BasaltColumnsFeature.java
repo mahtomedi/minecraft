@@ -7,7 +7,6 @@ import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -33,26 +32,24 @@ public class BasaltColumnsFeature extends Feature<ColumnFeatureConfiguration> {
         super(param0);
     }
 
-    public boolean place(
-        WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BlockPos param4, ColumnFeatureConfiguration param5
-    ) {
-        int var0 = param2.getSeaLevel();
-        BlockPos var1 = findSurface(param0, var0, param4.mutable().clamp(Direction.Axis.Y, 1, param0.getMaxBuildHeight() - 1), Integer.MAX_VALUE);
+    public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, ColumnFeatureConfiguration param4) {
+        int var0 = param1.getSeaLevel();
+        BlockPos var1 = findSurface(param0, var0, param3.mutable().clamp(Direction.Axis.Y, 1, param0.getMaxBuildHeight() - 1), Integer.MAX_VALUE);
         if (var1 == null) {
             return false;
         } else {
-            int var2 = calculateHeight(param3, param5);
-            boolean var3 = param3.nextFloat() < 0.9F;
+            int var2 = calculateHeight(param2, param4);
+            boolean var3 = param2.nextFloat() < 0.9F;
             int var4 = Math.min(var2, var3 ? 5 : 8);
             int var5 = var3 ? 50 : 15;
             boolean var6 = false;
 
             for(BlockPos var7 : BlockPos.randomBetweenClosed(
-                param3, var5, var1.getX() - var4, var1.getY(), var1.getZ() - var4, var1.getX() + var4, var1.getY(), var1.getZ() + var4
+                param2, var5, var1.getX() - var4, var1.getY(), var1.getZ() - var4, var1.getX() + var4, var1.getY(), var1.getZ() + var4
             )) {
                 int var8 = var2 - var7.distManhattan(var1);
                 if (var8 >= 0) {
-                    var6 |= this.placeColumn(param0, var0, var7, var8, calculateReach(param3, param5));
+                    var6 |= this.placeColumn(param0, var0, var7, var8, calculateReach(param2, param4));
                 }
             }
 

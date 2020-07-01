@@ -37,8 +37,8 @@ public class Pack implements AutoCloseable {
     private final PackSource packSource;
 
     @Nullable
-    public static <T extends Pack> T create(
-        String param0, boolean param1, Supplier<PackResources> param2, Pack.PackConstructor<T> param3, Pack.Position param4, PackSource param5
+    public static Pack create(
+        String param0, boolean param1, Supplier<PackResources> param2, Pack.PackConstructor param3, Pack.Position param4, PackSource param5
     ) {
         try (PackResources var0 = param2.get()) {
             PackMetadataSection var1 = var0.getMetadataSection(PackMetadataSection.SERIALIZER);
@@ -177,21 +177,21 @@ public class Pack implements AutoCloseable {
     }
 
     @FunctionalInterface
-    public interface PackConstructor<T extends Pack> {
+    public interface PackConstructor {
         @Nullable
-        T create(String var1, boolean var2, Supplier<PackResources> var3, PackResources var4, PackMetadataSection var5, Pack.Position var6, PackSource var7);
+        Pack create(String var1, boolean var2, Supplier<PackResources> var3, PackResources var4, PackMetadataSection var5, Pack.Position var6, PackSource var7);
     }
 
     public static enum Position {
         TOP,
         BOTTOM;
 
-        public <T, P extends Pack> int insert(List<T> param0, T param1, Function<T, P> param2, boolean param3) {
+        public <T> int insert(List<T> param0, T param1, Function<T, Pack> param2, boolean param3) {
             Pack.Position var0 = param3 ? this.opposite() : this;
             if (var0 == BOTTOM) {
                 int var1;
                 for(var1 = 0; var1 < param0.size(); ++var1) {
-                    P var2 = param2.apply(param0.get(var1));
+                    Pack var2 = param2.apply(param0.get(var1));
                     if (!var2.isFixedPosition() || var2.getDefaultPosition() != this) {
                         break;
                     }
@@ -202,7 +202,7 @@ public class Pack implements AutoCloseable {
             } else {
                 int var3;
                 for(var3 = param0.size() - 1; var3 >= 0; --var3) {
-                    P var4 = param2.apply(param0.get(var3));
+                    Pack var4 = param2.apply(param0.get(var3));
                     if (!var4.isFixedPosition() || var4.getDefaultPosition() != this) {
                         break;
                     }

@@ -9,12 +9,13 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.LockIconButton;
 import net.minecraft.client.gui.components.OptionButton;
 import net.minecraft.client.gui.screens.controls.ControlsScreen;
-import net.minecraft.client.resources.ResourcePack;
+import net.minecraft.client.gui.screens.packs.PackSelectionScreen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.game.ServerboundChangeDifficultyPacket;
 import net.minecraft.network.protocol.game.ServerboundLockDifficultyPacket;
+import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackRepository;
 import net.minecraft.world.Difficulty;
 import net.minecraftforge.api.distmarker.Dist;
@@ -174,8 +175,12 @@ public class OptionsScreen extends Screen {
                 new TranslatableComponent("options.resourcepack"),
                 param0 -> this.minecraft
                         .setScreen(
-                            new ResourcePackSelectScreen(
-                                this, this.minecraft.getResourcePackRepository(), this::updatePackList, this.minecraft.getResourcePackDirectory()
+                            new PackSelectionScreen(
+                                this,
+                                this.minecraft.getResourcePackRepository(),
+                                this::updatePackList,
+                                this.minecraft.getResourcePackDirectory(),
+                                new TranslatableComponent("resourcePack.title")
                             )
                         )
             )
@@ -195,12 +200,12 @@ public class OptionsScreen extends Screen {
         );
     }
 
-    private void updatePackList(PackRepository<ResourcePack> param0) {
+    private void updatePackList(PackRepository param0) {
         List<String> var0 = ImmutableList.copyOf(this.options.resourcePacks);
         this.options.resourcePacks.clear();
         this.options.incompatibleResourcePacks.clear();
 
-        for(ResourcePack var1 : param0.getSelectedPacks()) {
+        for(Pack var1 : param0.getSelectedPacks()) {
             if (!var1.isFixedPosition()) {
                 this.options.resourcePacks.add(var1.getId());
                 if (!var1.getCompatibility().isCompatible()) {

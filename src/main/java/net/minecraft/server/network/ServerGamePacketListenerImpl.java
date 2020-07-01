@@ -75,7 +75,8 @@ import net.minecraft.network.protocol.game.ServerboundPlayerAbilitiesPacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerCommandPacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerInputPacket;
-import net.minecraft.network.protocol.game.ServerboundRecipeBookUpdatePacket;
+import net.minecraft.network.protocol.game.ServerboundRecipeBookChangeSettingsPacket;
+import net.minecraft.network.protocol.game.ServerboundRecipeBookSeenRecipePacket;
 import net.minecraft.network.protocol.game.ServerboundRenameItemPacket;
 import net.minecraft.network.protocol.game.ServerboundResourcePackPacket;
 import net.minecraft.network.protocol.game.ServerboundSeenAdvancementsPacket;
@@ -407,21 +408,15 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
     }
 
     @Override
-    public void handleRecipeBookUpdatePacket(ServerboundRecipeBookUpdatePacket param0) {
+    public void handleRecipeBookSeenRecipePacket(ServerboundRecipeBookSeenRecipePacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.player.getLevel());
-        if (param0.getPurpose() == ServerboundRecipeBookUpdatePacket.Purpose.SHOWN) {
-            this.server.getRecipeManager().byKey(param0.getRecipe()).ifPresent(this.player.getRecipeBook()::removeHighlight);
-        } else if (param0.getPurpose() == ServerboundRecipeBookUpdatePacket.Purpose.SETTINGS) {
-            this.player.getRecipeBook().setGuiOpen(param0.isGuiOpen());
-            this.player.getRecipeBook().setFilteringCraftable(param0.isFilteringCraftable());
-            this.player.getRecipeBook().setFurnaceGuiOpen(param0.isFurnaceGuiOpen());
-            this.player.getRecipeBook().setFurnaceFilteringCraftable(param0.isFurnaceFilteringCraftable());
-            this.player.getRecipeBook().setBlastingFurnaceGuiOpen(param0.isBlastFurnaceGuiOpen());
-            this.player.getRecipeBook().setBlastingFurnaceFilteringCraftable(param0.isBlastFurnaceFilteringCraftable());
-            this.player.getRecipeBook().setSmokerGuiOpen(param0.isSmokerGuiOpen());
-            this.player.getRecipeBook().setSmokerFilteringCraftable(param0.isSmokerFilteringCraftable());
-        }
+        this.server.getRecipeManager().byKey(param0.getRecipe()).ifPresent(this.player.getRecipeBook()::removeHighlight);
+    }
 
+    @Override
+    public void handleRecipeBookChangeSettingsPacket(ServerboundRecipeBookChangeSettingsPacket param0) {
+        PacketUtils.ensureRunningOnSameThread(param0, this, this.player.getLevel());
+        this.player.getRecipeBook().setBookSetting(param0.getBookType(), param0.isOpen(), param0.isFiltering());
     }
 
     @Override
@@ -612,7 +607,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
                     } else if (param0.getUpdateType() == StructureBlockEntity.UpdateType.LOAD_AREA) {
                         if (!var3.isStructureLoadable()) {
                             this.player.displayClientMessage(new TranslatableComponent("structure_block.load_not_found", var4), false);
-                        } else if (var3.loadStructure()) {
+                        } else if (var3.loadStructure(this.player.getLevel())) {
                             this.player.displayClientMessage(new TranslatableComponent("structure_block.load_success", var4), false);
                         } else {
                             this.player.displayClientMessage(new TranslatableComponent("structure_block.load_prepare", var4), false);
@@ -1208,11 +1203,12 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
             double var2 = 36.0;
             if (this.player.distanceToSqr(var1) < 36.0) {
                 InteractionHand var3 = param0.getHand();
-                Optional<InteractionResult> var4 = Optional.empty();
+                ItemStack var4 = var3 != null ? this.player.getItemInHand(var3).copy() : ItemStack.EMPTY;
+                Optional<InteractionResult> var5 = Optional.empty();
                 if (param0.getAction() == ServerboundInteractPacket.Action.INTERACT) {
-                    var4 = Optional.of(this.player.interactOn(var1, var3));
+                    var5 = Optional.of(this.player.interactOn(var1, var3));
                 } else if (param0.getAction() == ServerboundInteractPacket.Action.INTERACT_AT) {
-                    var4 = Optional.of(var1.interactAt(this.player, param0.getLocation(), var3));
+                    var5 = Optional.of(var1.interactAt(this.player, param0.getLocation(), var3));
                 } else if (param0.getAction() == ServerboundInteractPacket.Action.ATTACK) {
                     if (var1 instanceof ItemEntity || var1 instanceof ExperienceOrb || var1 instanceof AbstractArrow || var1 == this.player) {
                         this.disconnect(new TranslatableComponent("multiplayer.disconnect.invalid_entity_attacked"));
@@ -1223,9 +1219,9 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
                     this.player.attack(var1);
                 }
 
-                if (var4.isPresent() && var4.get().consumesAction()) {
-                    CriteriaTriggers.PLAYER_INTERACTED_WITH_ENTITY.trigger(this.player, this.player.getItemInHand(var3), var1);
-                    if (var4.get().shouldSwing()) {
+                if (var5.isPresent() && var5.get().consumesAction()) {
+                    CriteriaTriggers.PLAYER_INTERACTED_WITH_ENTITY.trigger(this.player, var4, var1);
+                    if (var5.get().shouldSwing()) {
                         this.player.swing(var3, true);
                     }
                 }

@@ -6,7 +6,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.GrowingPlantHeadBlock;
@@ -21,18 +20,16 @@ public class WeepingVinesFeature extends Feature<NoneFeatureConfiguration> {
         super(param0);
     }
 
-    public boolean place(
-        WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BlockPos param4, NoneFeatureConfiguration param5
-    ) {
-        if (!param0.isEmptyBlock(param4)) {
+    public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, NoneFeatureConfiguration param4) {
+        if (!param0.isEmptyBlock(param3)) {
             return false;
         } else {
-            BlockState var0 = param0.getBlockState(param4.above());
+            BlockState var0 = param0.getBlockState(param3.above());
             if (!var0.is(Blocks.NETHERRACK) && !var0.is(Blocks.NETHER_WART_BLOCK)) {
                 return false;
             } else {
-                this.placeRoofNetherWart(param0, param3, param4);
-                this.placeRoofWeepingVines(param0, param3, param4);
+                this.placeRoofNetherWart(param0, param2, param3);
+                this.placeRoofWeepingVines(param0, param2, param3);
                 return true;
             }
         }

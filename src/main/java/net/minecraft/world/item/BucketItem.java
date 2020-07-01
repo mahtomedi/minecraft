@@ -58,7 +58,7 @@ public class BucketItem extends Item {
                     if (var7 != Fluids.EMPTY) {
                         param1.awardStat(Stats.ITEM_USED.get(this));
                         param1.playSound(var7.is(FluidTags.LAVA) ? SoundEvents.BUCKET_FILL_LAVA : SoundEvents.BUCKET_FILL, 1.0F, 1.0F);
-                        ItemStack var8 = ItemUtils.createBucketResult(var0, param1, new ItemStack(var7.getBucket()));
+                        ItemStack var8 = ItemUtils.createFilledResult(var0, param1, new ItemStack(var7.getBucket()));
                         if (!param0.isClientSide) {
                             CriteriaTriggers.FILLED_BUCKET.trigger((ServerPlayer)param1, new ItemStack(var7.getBucket()));
                         }

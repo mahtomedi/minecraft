@@ -5,7 +5,6 @@ import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -17,22 +16,20 @@ public class BlockPileFeature extends Feature<BlockPileConfiguration> {
         super(param0);
     }
 
-    public boolean place(
-        WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BlockPos param4, BlockPileConfiguration param5
-    ) {
-        if (param4.getY() < 5) {
+    public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, BlockPileConfiguration param4) {
+        if (param3.getY() < 5) {
             return false;
         } else {
-            int var0 = 2 + param3.nextInt(2);
-            int var1 = 2 + param3.nextInt(2);
+            int var0 = 2 + param2.nextInt(2);
+            int var1 = 2 + param2.nextInt(2);
 
-            for(BlockPos var2 : BlockPos.betweenClosed(param4.offset(-var0, 0, -var1), param4.offset(var0, 1, var1))) {
-                int var3 = param4.getX() - var2.getX();
-                int var4 = param4.getZ() - var2.getZ();
-                if ((float)(var3 * var3 + var4 * var4) <= param3.nextFloat() * 10.0F - param3.nextFloat() * 6.0F) {
-                    this.tryPlaceBlock(param0, var2, param3, param5);
-                } else if ((double)param3.nextFloat() < 0.031) {
-                    this.tryPlaceBlock(param0, var2, param3, param5);
+            for(BlockPos var2 : BlockPos.betweenClosed(param3.offset(-var0, 0, -var1), param3.offset(var0, 1, var1))) {
+                int var3 = param3.getX() - var2.getX();
+                int var4 = param3.getZ() - var2.getZ();
+                if ((float)(var3 * var3 + var4 * var4) <= param2.nextFloat() * 10.0F - param2.nextFloat() * 6.0F) {
+                    this.tryPlaceBlock(param0, var2, param2, param4);
+                } else if ((double)param2.nextFloat() < 0.031) {
+                    this.tryPlaceBlock(param0, var2, param2, param4);
                 }
             }
 

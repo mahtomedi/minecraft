@@ -17,7 +17,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.raid.Raid;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.entity.BeehiveBlockEntity;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.pathfinder.Path;
@@ -65,10 +65,13 @@ public class DebugPackets {
     public static void sendNeighborsUpdatePacket(Level param0, BlockPos param1) {
     }
 
-    public static void sendStructurePacket(LevelAccessor param0, StructureStart<?> param1) {
+    public static void sendStructurePacket(WorldGenLevel param0, StructureStart<?> param1) {
     }
 
     public static void sendGoalSelector(Level param0, Mob param1, GoalSelector param2) {
+        if (param0 instanceof ServerLevel) {
+            ;
+        }
     }
 
     public static void sendRaids(ServerLevel param0, Collection<Raid> param1) {

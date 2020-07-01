@@ -111,7 +111,7 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.W
 
             for(LevelSummary var3 : this.cachedList) {
                 if (var3.getLevelName().toLowerCase(Locale.ROOT).contains(var2) || var3.getLevelId().toLowerCase(Locale.ROOT).contains(var2)) {
-                    this.addEntry(new WorldSelectionList.WorldListEntry(this, var3, this.minecraft.getLevelSource()));
+                    this.addEntry(new WorldSelectionList.WorldListEntry(this, var3));
                 }
             }
 
@@ -183,11 +183,12 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.W
         private final DynamicTexture icon;
         private long lastClickTime;
 
-        public WorldListEntry(WorldSelectionList param1, LevelSummary param2, LevelStorageSource param3) {
+        public WorldListEntry(WorldSelectionList param1, LevelSummary param2) {
             this.screen = param1.getScreen();
             this.summary = param2;
             this.minecraft = Minecraft.getInstance();
-            this.iconLocation = new ResourceLocation("worlds/" + Hashing.sha1().hashUnencodedChars(param2.getLevelId()) + "/icon");
+            String var0 = param2.getLevelId();
+            this.iconLocation = new ResourceLocation("worlds/" + Util.sanitizeResourceName(var0) + "/" + Hashing.sha1().hashUnencodedChars(var0) + "/icon");
             this.iconFile = param2.getIcon();
             if (!this.iconFile.isFile()) {
                 this.iconFile = null;

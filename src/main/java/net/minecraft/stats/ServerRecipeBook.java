@@ -59,24 +59,12 @@ public class ServerRecipeBook extends RecipeBook {
     }
 
     private void sendRecipes(ClientboundRecipePacket.State param0, ServerPlayer param1, List<ResourceLocation> param2) {
-        param1.connection
-            .send(
-                new ClientboundRecipePacket(
-                    param0, param2, Collections.emptyList(), this.guiOpen, this.filteringCraftable, this.furnaceGuiOpen, this.furnaceFilteringCraftable
-                )
-            );
+        param1.connection.send(new ClientboundRecipePacket(param0, param2, Collections.emptyList(), this.getBookSettings()));
     }
 
     public CompoundTag toNbt() {
         CompoundTag var0 = new CompoundTag();
-        var0.putBoolean("isGuiOpen", this.guiOpen);
-        var0.putBoolean("isFilteringCraftable", this.filteringCraftable);
-        var0.putBoolean("isFurnaceGuiOpen", this.furnaceGuiOpen);
-        var0.putBoolean("isFurnaceFilteringCraftable", this.furnaceFilteringCraftable);
-        var0.putBoolean("isBlastingFurnaceGuiOpen", this.blastingFurnaceGuiOpen);
-        var0.putBoolean("isBlastingFurnaceFilteringCraftable", this.blastingFurnaceFilteringCraftable);
-        var0.putBoolean("isSmokerGuiOpen", this.smokerGuiOpen);
-        var0.putBoolean("isSmokerFilteringCraftable", this.smokerFilteringCraftable);
+        this.getBookSettings().write(var0);
         ListTag var1 = new ListTag();
 
         for(ResourceLocation var2 : this.known) {
@@ -95,14 +83,7 @@ public class ServerRecipeBook extends RecipeBook {
     }
 
     public void fromNbt(CompoundTag param0, RecipeManager param1) {
-        this.guiOpen = param0.getBoolean("isGuiOpen");
-        this.filteringCraftable = param0.getBoolean("isFilteringCraftable");
-        this.furnaceGuiOpen = param0.getBoolean("isFurnaceGuiOpen");
-        this.furnaceFilteringCraftable = param0.getBoolean("isFurnaceFilteringCraftable");
-        this.blastingFurnaceGuiOpen = param0.getBoolean("isBlastingFurnaceGuiOpen");
-        this.blastingFurnaceFilteringCraftable = param0.getBoolean("isBlastingFurnaceFilteringCraftable");
-        this.smokerGuiOpen = param0.getBoolean("isSmokerGuiOpen");
-        this.smokerFilteringCraftable = param0.getBoolean("isSmokerFilteringCraftable");
+        this.setBookSettings(RecipeBookSettings.read(param0));
         ListTag var0 = param0.getList("recipes", 8);
         this.loadRecipes(var0, this::add, param1);
         ListTag var1 = param0.getList("toBeDisplayed", 8);
@@ -129,17 +110,6 @@ public class ServerRecipeBook extends RecipeBook {
     }
 
     public void sendInitialRecipeBook(ServerPlayer param0) {
-        param0.connection
-            .send(
-                new ClientboundRecipePacket(
-                    ClientboundRecipePacket.State.INIT,
-                    this.known,
-                    this.highlight,
-                    this.guiOpen,
-                    this.filteringCraftable,
-                    this.furnaceGuiOpen,
-                    this.furnaceFilteringCraftable
-                )
-            );
+        param0.connection.send(new ClientboundRecipePacket(ClientboundRecipePacket.State.INIT, this.known, this.highlight, this.getBookSettings()));
     }
 }

@@ -7,7 +7,6 @@ import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -33,20 +32,18 @@ public class DeltaFeature extends Feature<DeltaFeatureConfiguration> {
         super(param0);
     }
 
-    public boolean place(
-        WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BlockPos param4, DeltaFeatureConfiguration param5
-    ) {
-        BlockPos var0 = findDeltaLevel(param0, param4.mutable().clamp(Direction.Axis.Y, 1, param0.getMaxBuildHeight() - 1));
+    public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, DeltaFeatureConfiguration param4) {
+        BlockPos var0 = findDeltaLevel(param0, param3.mutable().clamp(Direction.Axis.Y, 1, param0.getMaxBuildHeight() - 1));
         if (var0 == null) {
             return false;
         } else {
             boolean var1 = false;
-            boolean var2 = param3.nextDouble() < 0.9;
-            int var3 = var2 ? calculateRimSize(param3, param5) : 0;
-            int var4 = var2 ? calculateRimSize(param3, param5) : 0;
+            boolean var2 = param2.nextDouble() < 0.9;
+            int var3 = var2 ? calculateRimSize(param2, param4) : 0;
+            int var4 = var2 ? calculateRimSize(param2, param4) : 0;
             boolean var5 = var2 && var3 != 0 && var4 != 0;
-            int var6 = calculateRadius(param3, param5);
-            int var7 = calculateRadius(param3, param5);
+            int var6 = calculateRadius(param2, param4);
+            int var7 = calculateRadius(param2, param4);
             int var8 = Math.max(var6, var7);
 
             for(BlockPos var9 : BlockPos.withinManhattan(var0, var6, 0, var7)) {
@@ -54,16 +51,16 @@ public class DeltaFeature extends Feature<DeltaFeatureConfiguration> {
                     break;
                 }
 
-                if (isClear(param0, var9, param5)) {
+                if (isClear(param0, var9, param4)) {
                     if (var5) {
                         var1 = true;
-                        this.setBlock(param0, var9, param5.rim);
+                        this.setBlock(param0, var9, param4.rim);
                     }
 
                     BlockPos var10 = var9.offset(var3, 0, var4);
-                    if (isClear(param0, var10, param5)) {
+                    if (isClear(param0, var10, param4)) {
                         var1 = true;
-                        this.setBlock(param0, var10, param5.contents);
+                        this.setBlock(param0, var10, param4.contents);
                     }
                 }
             }

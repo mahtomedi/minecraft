@@ -14,13 +14,15 @@ public class StrollToPoi extends Behavior<PathfinderMob> {
     private final MemoryModuleType<GlobalPos> memoryType;
     private final int closeEnoughDist;
     private final int maxDistanceFromPoi;
+    private final float speedModifier;
     private long nextOkStartTime;
 
-    public StrollToPoi(MemoryModuleType<GlobalPos> param0, int param1, int param2) {
+    public StrollToPoi(MemoryModuleType<GlobalPos> param0, float param1, int param2, int param3) {
         super(ImmutableMap.of(MemoryModuleType.WALK_TARGET, MemoryStatus.REGISTERED, param0, MemoryStatus.VALUE_PRESENT));
         this.memoryType = param0;
-        this.closeEnoughDist = param1;
-        this.maxDistanceFromPoi = param2;
+        this.speedModifier = param1;
+        this.closeEnoughDist = param2;
+        this.maxDistanceFromPoi = param3;
     }
 
     protected boolean checkExtraStartConditions(ServerLevel param0, PathfinderMob param1) {
@@ -34,7 +36,7 @@ public class StrollToPoi extends Behavior<PathfinderMob> {
         if (param2 > this.nextOkStartTime) {
             Brain<?> var0 = param1.getBrain();
             Optional<GlobalPos> var1 = var0.getMemory(this.memoryType);
-            var1.ifPresent(param1x -> var0.setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(param1x.pos(), 0.4F, this.closeEnoughDist)));
+            var1.ifPresent(param1x -> var0.setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(param1x.pos(), this.speedModifier, this.closeEnoughDist)));
             this.nextOkStartTime = param2 + 80L;
         }
 

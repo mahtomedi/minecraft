@@ -89,9 +89,10 @@ public class ItemEntity extends Entity {
             this.yo = this.getY();
             this.zo = this.getZ();
             Vec3 var0 = this.getDeltaMovement();
-            if (this.isEyeInFluid(FluidTags.WATER)) {
+            float var1 = this.getEyeHeight() - 0.11111111F;
+            if (this.isInWater() && this.getFluidHeight(FluidTags.WATER) > (double)var1) {
                 this.setUnderwaterMovement();
-            } else if (this.isEyeInFluid(FluidTags.LAVA)) {
+            } else if (this.isInLava() && this.getFluidHeight(FluidTags.LAVA) > (double)var1) {
                 this.setUnderLavaMovement();
             } else if (!this.isNoGravity()) {
                 this.setDeltaMovement(this.getDeltaMovement().add(0.0, -0.04, 0.0));
@@ -108,22 +109,25 @@ public class ItemEntity extends Entity {
 
             if (!this.onGround || getHorizontalDistanceSqr(this.getDeltaMovement()) > 1.0E-5F || (this.tickCount + this.getId()) % 4 == 0) {
                 this.move(MoverType.SELF, this.getDeltaMovement());
-                float var1 = 0.98F;
+                float var2 = 0.98F;
                 if (this.onGround) {
-                    var1 = this.level.getBlockState(new BlockPos(this.getX(), this.getY() - 1.0, this.getZ())).getBlock().getFriction() * 0.98F;
+                    var2 = this.level.getBlockState(new BlockPos(this.getX(), this.getY() - 1.0, this.getZ())).getBlock().getFriction() * 0.98F;
                 }
 
-                this.setDeltaMovement(this.getDeltaMovement().multiply((double)var1, 0.98, (double)var1));
+                this.setDeltaMovement(this.getDeltaMovement().multiply((double)var2, 0.98, (double)var2));
                 if (this.onGround) {
-                    this.setDeltaMovement(this.getDeltaMovement().multiply(1.0, -0.5, 1.0));
+                    Vec3 var3 = this.getDeltaMovement();
+                    if (var3.y < 0.0) {
+                        this.setDeltaMovement(var3.multiply(1.0, -0.5, 1.0));
+                    }
                 }
             }
 
-            boolean var2 = Mth.floor(this.xo) != Mth.floor(this.getX())
+            boolean var4 = Mth.floor(this.xo) != Mth.floor(this.getX())
                 || Mth.floor(this.yo) != Mth.floor(this.getY())
                 || Mth.floor(this.zo) != Mth.floor(this.getZ());
-            int var3 = var2 ? 2 : 40;
-            if (this.tickCount % var3 == 0) {
+            int var5 = var4 ? 2 : 40;
+            if (this.tickCount % var5 == 0) {
                 if (this.level.getFluidState(this.blockPosition()).is(FluidTags.LAVA) && !this.fireImmune()) {
                     this.playSound(SoundEvents.GENERIC_BURN, 0.4F, 2.0F + this.random.nextFloat() * 0.4F);
                 }
@@ -139,8 +143,8 @@ public class ItemEntity extends Entity {
 
             this.hasImpulse |= this.updateInWaterStateAndDoFluidPushing();
             if (!this.level.isClientSide) {
-                double var4 = this.getDeltaMovement().subtract(var0).lengthSqr();
-                if (var4 > 0.01) {
+                double var6 = this.getDeltaMovement().subtract(var0).lengthSqr();
+                if (var6 > 0.01) {
                     this.hasImpulse = true;
                 }
             }

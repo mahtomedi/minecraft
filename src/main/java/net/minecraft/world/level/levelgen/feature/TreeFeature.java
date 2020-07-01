@@ -16,7 +16,6 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelSimulatedRW;
 import net.minecraft.world.level.LevelSimulatedReader;
 import net.minecraft.world.level.LevelWriter;
-import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -145,21 +144,19 @@ public class TreeFeature extends Feature<TreeConfiguration> {
         setBlockKnownShape(param0, param1, param2);
     }
 
-    public final boolean place(
-        WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BlockPos param4, TreeConfiguration param5
-    ) {
+    public final boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, TreeConfiguration param4) {
         Set<BlockPos> var0 = Sets.newHashSet();
         Set<BlockPos> var1 = Sets.newHashSet();
         Set<BlockPos> var2 = Sets.newHashSet();
         BoundingBox var3 = BoundingBox.getUnknownBox();
-        boolean var4 = this.doPlace(param0, param3, param4, var0, var1, var3, param5);
+        boolean var4 = this.doPlace(param0, param2, param3, var0, var1, var3, param4);
         if (var3.x0 <= var3.x1 && var4 && !var0.isEmpty()) {
-            if (!param5.decorators.isEmpty()) {
+            if (!param4.decorators.isEmpty()) {
                 List<BlockPos> var5 = Lists.newArrayList(var0);
                 List<BlockPos> var6 = Lists.newArrayList(var1);
                 var5.sort(Comparator.comparingInt(Vec3i::getY));
                 var6.sort(Comparator.comparingInt(Vec3i::getY));
-                param5.decorators.forEach(param6 -> param6.place(param0, param3, var5, var6, var2, var3));
+                param4.decorators.forEach(param6 -> param6.place(param0, param2, var5, var6, var2, var3));
             }
 
             DiscreteVoxelShape var7 = this.updateLeaves(param0, var3, var0, var2);

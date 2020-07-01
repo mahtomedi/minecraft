@@ -9,7 +9,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
@@ -1455,7 +1454,7 @@ public class StrongholdPieces {
         }
 
         protected void generateSmallDoor(
-            LevelAccessor param0, Random param1, BoundingBox param2, StrongholdPieces.StrongholdPiece.SmallDoorType param3, int param4, int param5, int param6
+            WorldGenLevel param0, Random param1, BoundingBox param2, StrongholdPieces.StrongholdPiece.SmallDoorType param3, int param4, int param5, int param6
         ) {
             switch(param3) {
                 case OPENING:

@@ -13,6 +13,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -53,7 +54,7 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
@@ -334,9 +335,9 @@ public class Sheep extends Animal implements Shearable {
         }
     }
 
-    public Sheep getBreedOffspring(AgableMob param0) {
-        Sheep var0 = (Sheep)param0;
-        Sheep var1 = EntityType.SHEEP.create(this.level);
+    public Sheep getBreedOffspring(ServerLevel param0, AgableMob param1) {
+        Sheep var0 = (Sheep)param1;
+        Sheep var1 = EntityType.SHEEP.create(param0);
         var1.setColor(this.getOffspringColor(this, var0));
         return var1;
     }
@@ -353,7 +354,7 @@ public class Sheep extends Animal implements Shearable {
     @Nullable
     @Override
     public SpawnGroupData finalizeSpawn(
-        LevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
+        ServerLevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
     ) {
         this.setColor(getRandomSheepColor(param0.getRandom()));
         return super.finalizeSpawn(param0, param1, param2, param3, param4);

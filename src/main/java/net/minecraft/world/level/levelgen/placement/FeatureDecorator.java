@@ -6,7 +6,6 @@ import java.util.stream.Stream;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
@@ -153,11 +152,11 @@ public abstract class FeatureDecorator<DC extends DecoratorConfiguration> {
     }
 
     protected <FC extends FeatureConfiguration, F extends Feature<FC>> boolean placeFeature(
-        WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BlockPos param4, DC param5, ConfiguredFeature<FC, F> param6
+        WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, DC param4, ConfiguredFeature<FC, F> param5
     ) {
         MutableBoolean var0 = new MutableBoolean();
-        this.getPositions(param0, param2, param3, param5, param4).forEach(param6x -> {
-            if (param6.place(param0, param1, param2, param3, param6x)) {
+        this.getPositions(param0, param1, param2, param4, param3).forEach(param5x -> {
+            if (param5.place(param0, param1, param2, param5x)) {
                 var0.setTrue();
             }
 

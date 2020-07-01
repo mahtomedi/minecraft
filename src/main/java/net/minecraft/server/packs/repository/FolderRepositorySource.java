@@ -23,7 +23,7 @@ public class FolderRepositorySource implements RepositorySource {
     }
 
     @Override
-    public <T extends Pack> void loadPacks(Consumer<T> param0, Pack.PackConstructor<T> param1) {
+    public void loadPacks(Consumer<Pack> param0, Pack.PackConstructor param1) {
         if (!this.folder.isDirectory()) {
             this.folder.mkdirs();
         }
@@ -32,7 +32,7 @@ public class FolderRepositorySource implements RepositorySource {
         if (var0 != null) {
             for(File var1 : var0) {
                 String var2 = "file/" + var1.getName();
-                T var3 = Pack.create(var2, false, this.createSupplier(var1), param1, Pack.Position.TOP, this.packSource);
+                Pack var3 = Pack.create(var2, false, this.createSupplier(var1), param1, Pack.Position.TOP, this.packSource);
                 if (var3 != null) {
                     param0.accept(var3);
                 }

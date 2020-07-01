@@ -432,7 +432,7 @@ public class Biome {
             param5.setFeatureSeed(param4, var0, param0.ordinal());
 
             try {
-                var8.place(param3, param1, param2, param5, param6);
+                var8.place(param3, param2, param5, param6);
             } catch (Exception var18) {
                 CrashReport var10 = CrashReport.forThrowable(var18, "Feature placement");
                 var10.addCategory("Feature")

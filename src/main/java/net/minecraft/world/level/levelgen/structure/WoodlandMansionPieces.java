@@ -13,7 +13,7 @@ import net.minecraft.util.Tuple;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.monster.AbstractIllager;
-import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ChestBlock;
 import net.minecraft.world.level.block.Mirror;
@@ -1222,7 +1222,7 @@ public class WoodlandMansionPieces {
         }
 
         @Override
-        protected void handleDataMarker(String param0, BlockPos param1, LevelAccessor param2, Random param3, BoundingBox param4) {
+        protected void handleDataMarker(String param0, BlockPos param1, ServerLevelAccessor param2, Random param3, BoundingBox param4) {
             if (param0.startsWith("Chest")) {
                 Rotation var0 = this.placeSettings.getRotation();
                 BlockState var1 = Blocks.CHEST.defaultBlockState();

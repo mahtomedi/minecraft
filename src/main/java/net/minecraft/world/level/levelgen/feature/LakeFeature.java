@@ -5,7 +5,6 @@ import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.LightLayer;
-import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Blocks;
@@ -21,30 +20,28 @@ public class LakeFeature extends Feature<BlockStateConfiguration> {
         super(param0);
     }
 
-    public boolean place(
-        WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BlockPos param4, BlockStateConfiguration param5
-    ) {
-        while(param4.getY() > 5 && param0.isEmptyBlock(param4)) {
-            param4 = param4.below();
+    public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, BlockStateConfiguration param4) {
+        while(param3.getY() > 5 && param0.isEmptyBlock(param3)) {
+            param3 = param3.below();
         }
 
-        if (param4.getY() <= 4) {
+        if (param3.getY() <= 4) {
             return false;
         } else {
-            param4 = param4.below(4);
-            if (param1.startsForFeature(SectionPos.of(param4), StructureFeature.VILLAGE).findAny().isPresent()) {
+            param3 = param3.below(4);
+            if (param0.startsForFeature(SectionPos.of(param3), StructureFeature.VILLAGE).findAny().isPresent()) {
                 return false;
             } else {
                 boolean[] var0 = new boolean[2048];
-                int var1 = param3.nextInt(4) + 4;
+                int var1 = param2.nextInt(4) + 4;
 
                 for(int var2 = 0; var2 < var1; ++var2) {
-                    double var3 = param3.nextDouble() * 6.0 + 3.0;
-                    double var4 = param3.nextDouble() * 4.0 + 2.0;
-                    double var5 = param3.nextDouble() * 6.0 + 3.0;
-                    double var6 = param3.nextDouble() * (16.0 - var3 - 2.0) + 1.0 + var3 / 2.0;
-                    double var7 = param3.nextDouble() * (8.0 - var4 - 4.0) + 2.0 + var4 / 2.0;
-                    double var8 = param3.nextDouble() * (16.0 - var5 - 2.0) + 1.0 + var5 / 2.0;
+                    double var3 = param2.nextDouble() * 6.0 + 3.0;
+                    double var4 = param2.nextDouble() * 4.0 + 2.0;
+                    double var5 = param2.nextDouble() * 6.0 + 3.0;
+                    double var6 = param2.nextDouble() * (16.0 - var3 - 2.0) + 1.0 + var3 / 2.0;
+                    double var7 = param2.nextDouble() * (8.0 - var4 - 4.0) + 2.0 + var4 / 2.0;
+                    double var8 = param2.nextDouble() * (16.0 - var5 - 2.0) + 1.0 + var5 / 2.0;
 
                     for(int var9 = 1; var9 < 15; ++var9) {
                         for(int var10 = 1; var10 < 15; ++var10) {
@@ -74,12 +71,12 @@ public class LakeFeature extends Feature<BlockStateConfiguration> {
                                         || var18 > 0 && var0[(var16 * 16 + var17) * 8 + (var18 - 1)]
                                 );
                             if (var19) {
-                                Material var20 = param0.getBlockState(param4.offset(var16, var18, var17)).getMaterial();
+                                Material var20 = param0.getBlockState(param3.offset(var16, var18, var17)).getMaterial();
                                 if (var18 >= 4 && var20.isLiquid()) {
                                     return false;
                                 }
 
-                                if (var18 < 4 && !var20.isSolid() && param0.getBlockState(param4.offset(var16, var18, var17)) != param5.state) {
+                                if (var18 < 4 && !var20.isSolid() && param0.getBlockState(param3.offset(var16, var18, var17)) != param4.state) {
                                     return false;
                                 }
                             }
@@ -91,7 +88,7 @@ public class LakeFeature extends Feature<BlockStateConfiguration> {
                     for(int var22 = 0; var22 < 16; ++var22) {
                         for(int var23 = 0; var23 < 8; ++var23) {
                             if (var0[(var21 * 16 + var22) * 8 + var23]) {
-                                param0.setBlock(param4.offset(var21, var23, var22), var23 >= 4 ? AIR : param5.state, 2);
+                                param0.setBlock(param3.offset(var21, var23, var22), var23 >= 4 ? AIR : param4.state, 2);
                             }
                         }
                     }
@@ -101,9 +98,9 @@ public class LakeFeature extends Feature<BlockStateConfiguration> {
                     for(int var25 = 0; var25 < 16; ++var25) {
                         for(int var26 = 4; var26 < 8; ++var26) {
                             if (var0[(var24 * 16 + var25) * 8 + var26]) {
-                                BlockPos var27 = param4.offset(var24, var26 - 1, var25);
+                                BlockPos var27 = param3.offset(var24, var26 - 1, var25);
                                 if (isDirt(param0.getBlockState(var27).getBlock())
-                                    && param0.getBrightness(LightLayer.SKY, param4.offset(var24, var26, var25)) > 0) {
+                                    && param0.getBrightness(LightLayer.SKY, param3.offset(var24, var26, var25)) > 0) {
                                     Biome var28 = param0.getBiome(var27);
                                     if (var28.getSurfaceBuilderConfig().getTopMaterial().is(Blocks.MYCELIUM)) {
                                         param0.setBlock(var27, Blocks.MYCELIUM.defaultBlockState(), 2);
@@ -116,7 +113,7 @@ public class LakeFeature extends Feature<BlockStateConfiguration> {
                     }
                 }
 
-                if (param5.state.getMaterial() == Material.LAVA) {
+                if (param4.state.getMaterial() == Material.LAVA) {
                     for(int var29 = 0; var29 < 16; ++var29) {
                         for(int var30 = 0; var30 < 16; ++var30) {
                             for(int var31 = 0; var31 < 8; ++var31) {
@@ -130,20 +127,20 @@ public class LakeFeature extends Feature<BlockStateConfiguration> {
                                             || var31 > 0 && var0[(var29 * 16 + var30) * 8 + (var31 - 1)]
                                     );
                                 if (var32
-                                    && (var31 < 4 || param3.nextInt(2) != 0)
-                                    && param0.getBlockState(param4.offset(var29, var31, var30)).getMaterial().isSolid()) {
-                                    param0.setBlock(param4.offset(var29, var31, var30), Blocks.STONE.defaultBlockState(), 2);
+                                    && (var31 < 4 || param2.nextInt(2) != 0)
+                                    && param0.getBlockState(param3.offset(var29, var31, var30)).getMaterial().isSolid()) {
+                                    param0.setBlock(param3.offset(var29, var31, var30), Blocks.STONE.defaultBlockState(), 2);
                                 }
                             }
                         }
                     }
                 }
 
-                if (param5.state.getMaterial() == Material.WATER) {
+                if (param4.state.getMaterial() == Material.WATER) {
                     for(int var33 = 0; var33 < 16; ++var33) {
                         for(int var34 = 0; var34 < 16; ++var34) {
                             int var35 = 4;
-                            BlockPos var36 = param4.offset(var33, 4, var34);
+                            BlockPos var36 = param3.offset(var33, 4, var34);
                             if (param0.getBiome(var36).shouldFreeze(param0, var36, false)) {
                                 param0.setBlock(var36, Blocks.ICE.defaultBlockState(), 2);
                             }

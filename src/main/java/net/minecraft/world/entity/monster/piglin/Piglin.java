@@ -20,8 +20,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
@@ -37,28 +35,25 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.entity.ai.sensing.Sensor;
 import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.CrossbowAttackMob;
 import net.minecraft.world.entity.monster.Monster;
-import net.minecraft.world.entity.monster.ZombifiedPiglin;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ProjectileWeaponItem;
-import net.minecraft.world.item.TieredItem;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.pathfinder.BlockPathTypes;
 
-public class Piglin extends Monster implements CrossbowAttackMob {
+public class Piglin extends AbstractPiglin implements CrossbowAttackMob {
     private static final EntityDataAccessor<Boolean> DATA_BABY_ID = SynchedEntityData.defineId(Piglin.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> DATA_IMMUNE_TO_ZOMBIFICATION = SynchedEntityData.defineId(Piglin.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> DATA_IS_CHARGING_CROSSBOW = SynchedEntityData.defineId(Piglin.class, EntityDataSerializers.BOOLEAN);
@@ -87,7 +82,7 @@ public class Piglin extends Monster implements CrossbowAttackMob {
         MemoryModuleType.NEAREST_VISIBLE_PLAYER,
         MemoryModuleType.NEAREST_VISIBLE_TARGETABLE_PLAYER,
         MemoryModuleType.NEAREST_VISIBLE_ADULT_PIGLINS,
-        MemoryModuleType.NEAREST_ADULT_PIGLINS,
+        MemoryModuleType.NEARBY_ADULT_PIGLINS,
         MemoryModuleType.NEAREST_VISIBLE_WANTED_ITEM,
         MemoryModuleType.HURT_BY,
         MemoryModuleType.HURT_BY_ENTITY,
@@ -106,7 +101,6 @@ public class Piglin extends Monster implements CrossbowAttackMob {
         MemoryModuleType.DANCING,
         MemoryModuleType.HUNTED_RECENTLY,
         MemoryModuleType.NEAREST_VISIBLE_BABY_HOGLIN,
-        MemoryModuleType.NEAREST_VISIBLE_BABY_PIGLIN,
         MemoryModuleType.NEAREST_VISIBLE_NEMESIS,
         MemoryModuleType.NEAREST_VISIBLE_ZOMBIFIED,
         MemoryModuleType.RIDE_TARGET,
@@ -119,13 +113,9 @@ public class Piglin extends Monster implements CrossbowAttackMob {
         MemoryModuleType.NEAREST_REPELLENT
     );
 
-    public Piglin(EntityType<? extends Monster> param0, Level param1) {
+    public Piglin(EntityType<? extends AbstractPiglin> param0, Level param1) {
         super(param0, param1);
-        this.setCanPickUpLoot(true);
-        ((GroundPathNavigation)this.getNavigation()).setCanOpenDoors(true);
         this.xpReward = 5;
-        this.setPathfindingMalus(BlockPathTypes.DANGER_FIRE, 16.0F);
-        this.setPathfindingMalus(BlockPathTypes.DAMAGE_FIRE, -1.0F);
     }
 
     @Override
@@ -135,15 +125,10 @@ public class Piglin extends Monster implements CrossbowAttackMob {
             param0.putBoolean("IsBaby", true);
         }
 
-        if (this.isImmuneToZombification()) {
-            param0.putBoolean("IsImmuneToZombification", true);
-        }
-
         if (this.cannotHunt) {
             param0.putBoolean("CannotHunt", true);
         }
 
-        param0.putInt("TimeInOverworld", this.timeInOverworld);
         param0.put("Inventory", this.inventory.createTag());
     }
 
@@ -151,9 +136,7 @@ public class Piglin extends Monster implements CrossbowAttackMob {
     public void readAdditionalSaveData(CompoundTag param0) {
         super.readAdditionalSaveData(param0);
         this.setBaby(param0.getBoolean("IsBaby"));
-        this.setImmuneToZombification(param0.getBoolean("IsImmuneToZombification"));
         this.setCannotHunt(param0.getBoolean("CannotHunt"));
-        this.timeInOverworld = param0.getInt("TimeInOverworld");
         this.inventory.fromTag(param0.getList("Inventory", 10));
     }
 
@@ -200,7 +183,7 @@ public class Piglin extends Monster implements CrossbowAttackMob {
     @Nullable
     @Override
     public SpawnGroupData finalizeSpawn(
-        LevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
+        ServerLevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
     ) {
         if (param2 != MobSpawnType.STRUCTURE) {
             if (param0.getRandom().nextFloat() < 0.2F) {
@@ -267,7 +250,7 @@ public class Piglin extends Monster implements CrossbowAttackMob {
         } else if (!this.level.isClientSide) {
             return PiglinAi.mobInteract(this, param0, param1);
         } else {
-            boolean var1 = PiglinAi.canAdmire(this, param0.getItemInHand(param1)) && this.getArmPose() != Piglin.PiglinArmPose.ADMIRING_ITEM;
+            boolean var1 = PiglinAi.canAdmire(this, param0.getItemInHand(param1)) && this.getArmPose() != PiglinArmPose.ADMIRING_ITEM;
             return var1 ? InteractionResult.SUCCESS : InteractionResult.PASS;
         }
     }
@@ -305,32 +288,18 @@ public class Piglin extends Monster implements CrossbowAttackMob {
         return this.getEntityData().get(DATA_BABY_ID);
     }
 
-    public boolean isAdult() {
-        return !this.isBaby();
-    }
-
-    public void setImmuneToZombification(boolean param0) {
-        this.getEntityData().set(DATA_IMMUNE_TO_ZOMBIFICATION, param0);
-    }
-
-    private boolean isImmuneToZombification() {
-        return this.getEntityData().get(DATA_IMMUNE_TO_ZOMBIFICATION);
-    }
-
     private void setCannotHunt(boolean param0) {
         this.cannotHunt = param0;
     }
 
+    @Override
     protected boolean canHunt() {
         return !this.cannotHunt;
     }
 
-    public boolean isConverting() {
-        return !this.level.dimensionType().piglinSafe() && !this.isImmuneToZombification() && !this.isNoAi();
-    }
-
     @Override
     protected void customServerAiStep() {
+        super.customServerAiStep();
         this.level.getProfiler().push("piglinBrain");
         this.getBrain().tick((ServerLevel)this.level, this);
         this.level.getProfiler().pop();
@@ -342,7 +311,7 @@ public class Piglin extends Monster implements CrossbowAttackMob {
         }
 
         if (this.timeInOverworld > 300) {
-            this.playSound(SoundEvents.PIGLIN_CONVERTED_TO_ZOMBIFIED);
+            this.playConvertedSound();
             this.finishConversion((ServerLevel)this.level);
         }
 
@@ -353,17 +322,11 @@ public class Piglin extends Monster implements CrossbowAttackMob {
         return this.xpReward;
     }
 
-    private void finishConversion(ServerLevel param0) {
+    @Override
+    protected void finishConversion(ServerLevel param0) {
         PiglinAi.cancelAdmiring(this);
         this.inventory.removeAllItems().forEach(this::spawnAtLocation);
-        ZombifiedPiglin var0 = this.convertTo(EntityType.ZOMBIFIED_PIGLIN);
-        var0.addEffect(new MobEffectInstance(MobEffects.CONFUSION, 200, 0));
-    }
-
-    @Nullable
-    @Override
-    public LivingEntity getTarget() {
-        return this.brain.getMemory(MemoryModuleType.ATTACK_TARGET).orElse(null);
+        super.finishConversion(param0);
     }
 
     private ItemStack createSpawnWeapon() {
@@ -384,17 +347,18 @@ public class Piglin extends Monster implements CrossbowAttackMob {
         this.noActionTime = 0;
     }
 
-    public Piglin.PiglinArmPose getArmPose() {
+    @Override
+    public PiglinArmPose getArmPose() {
         if (this.isDancing()) {
-            return Piglin.PiglinArmPose.DANCING;
+            return PiglinArmPose.DANCING;
         } else if (PiglinAi.isLovedItem(this.getOffhandItem().getItem())) {
-            return Piglin.PiglinArmPose.ADMIRING_ITEM;
+            return PiglinArmPose.ADMIRING_ITEM;
         } else if (this.isAggressive() && this.isHoldingMeleeWeapon()) {
-            return Piglin.PiglinArmPose.ATTACKING_WITH_MELEE_WEAPON;
+            return PiglinArmPose.ATTACKING_WITH_MELEE_WEAPON;
         } else if (this.isChargingCrossbow()) {
-            return Piglin.PiglinArmPose.CROSSBOW_CHARGE;
+            return PiglinArmPose.CROSSBOW_CHARGE;
         } else {
-            return this.isAggressive() && this.isHolding(Items.CROSSBOW) ? Piglin.PiglinArmPose.CROSSBOW_HOLD : Piglin.PiglinArmPose.DEFAULT;
+            return this.isAggressive() && this.isHolding(Items.CROSSBOW) ? PiglinArmPose.CROSSBOW_HOLD : PiglinArmPose.DEFAULT;
         }
     }
 
@@ -404,10 +368,6 @@ public class Piglin extends Monster implements CrossbowAttackMob {
 
     public void setDancing(boolean param0) {
         this.entityData.set(DATA_IS_DANCING, param0);
-    }
-
-    private boolean isHoldingMeleeWeapon() {
-        return this.getMainHandItem().getItem() instanceof TieredItem;
     }
 
     @Override
@@ -533,12 +493,8 @@ public class Piglin extends Monster implements CrossbowAttackMob {
         DebugPackets.sendEntityBrain(this);
     }
 
-    public static enum PiglinArmPose {
-        ATTACKING_WITH_MELEE_WEAPON,
-        CROSSBOW_HOLD,
-        CROSSBOW_CHARGE,
-        ADMIRING_ITEM,
-        DANCING,
-        DEFAULT;
+    @Override
+    protected void playConvertedSound() {
+        this.playSound(SoundEvents.PIGLIN_CONVERTED_TO_ZOMBIFIED);
     }
 }

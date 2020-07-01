@@ -1173,7 +1173,9 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
         var21.endBatch(RenderType.armorGlint());
         var21.endBatch(RenderType.armorEntityGlint());
         var21.endBatch(RenderType.glint());
+        var21.endBatch(RenderType.glintDirect());
         var21.endBatch(RenderType.entityGlint());
+        var21.endBatch(RenderType.entityGlintDirect());
         var21.endBatch(RenderType.waterMask());
         this.renderBuffers.crumblingBufferSource().endBatch();
         var21.endBatch(RenderType.lines());

@@ -73,7 +73,7 @@ public class Screenshot {
         param0 = param2.width;
         param1 = param2.height;
         NativeImage var0 = new NativeImage(param0, param1, false);
-        RenderSystem.bindTexture(param2.colorTextureId);
+        RenderSystem.bindTexture(param2.getColorTextureId());
         var0.downloadTexture(0, true);
         var0.flipY();
         return var0;

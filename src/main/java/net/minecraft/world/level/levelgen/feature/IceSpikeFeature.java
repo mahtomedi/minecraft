@@ -4,7 +4,6 @@ import com.mojang.serialization.Codec;
 import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
-import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -17,21 +16,19 @@ public class IceSpikeFeature extends Feature<NoneFeatureConfiguration> {
         super(param0);
     }
 
-    public boolean place(
-        WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BlockPos param4, NoneFeatureConfiguration param5
-    ) {
-        while(param0.isEmptyBlock(param4) && param4.getY() > 2) {
-            param4 = param4.below();
+    public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, NoneFeatureConfiguration param4) {
+        while(param0.isEmptyBlock(param3) && param3.getY() > 2) {
+            param3 = param3.below();
         }
 
-        if (!param0.getBlockState(param4).is(Blocks.SNOW_BLOCK)) {
+        if (!param0.getBlockState(param3).is(Blocks.SNOW_BLOCK)) {
             return false;
         } else {
-            param4 = param4.above(param3.nextInt(4));
-            int var0 = param3.nextInt(4) + 7;
-            int var1 = var0 / 4 + param3.nextInt(2);
-            if (var1 > 1 && param3.nextInt(60) == 0) {
-                param4 = param4.above(10 + param3.nextInt(30));
+            param3 = param3.above(param2.nextInt(4));
+            int var0 = param2.nextInt(4) + 7;
+            int var1 = var0 / 4 + param2.nextInt(2);
+            if (var1 > 1 && param2.nextInt(60) == 0) {
+                param3 = param3.above(10 + param2.nextInt(30));
             }
 
             for(int var2 = 0; var2 < var0; ++var2) {
@@ -44,18 +41,18 @@ public class IceSpikeFeature extends Feature<NoneFeatureConfiguration> {
                     for(int var7 = -var4; var7 <= var4; ++var7) {
                         float var8 = (float)Mth.abs(var7) - 0.25F;
                         if ((var5 == 0 && var7 == 0 || !(var6 * var6 + var8 * var8 > var3 * var3))
-                            && (var5 != -var4 && var5 != var4 && var7 != -var4 && var7 != var4 || !(param3.nextFloat() > 0.75F))) {
-                            BlockState var9 = param0.getBlockState(param4.offset(var5, var2, var7));
+                            && (var5 != -var4 && var5 != var4 && var7 != -var4 && var7 != var4 || !(param2.nextFloat() > 0.75F))) {
+                            BlockState var9 = param0.getBlockState(param3.offset(var5, var2, var7));
                             Block var10 = var9.getBlock();
                             if (var9.isAir() || isDirt(var10) || var10 == Blocks.SNOW_BLOCK || var10 == Blocks.ICE) {
-                                this.setBlock(param0, param4.offset(var5, var2, var7), Blocks.PACKED_ICE.defaultBlockState());
+                                this.setBlock(param0, param3.offset(var5, var2, var7), Blocks.PACKED_ICE.defaultBlockState());
                             }
 
                             if (var2 != 0 && var4 > 1) {
-                                var9 = param0.getBlockState(param4.offset(var5, -var2, var7));
+                                var9 = param0.getBlockState(param3.offset(var5, -var2, var7));
                                 var10 = var9.getBlock();
                                 if (var9.isAir() || isDirt(var10) || var10 == Blocks.SNOW_BLOCK || var10 == Blocks.ICE) {
-                                    this.setBlock(param0, param4.offset(var5, -var2, var7), Blocks.PACKED_ICE.defaultBlockState());
+                                    this.setBlock(param0, param3.offset(var5, -var2, var7), Blocks.PACKED_ICE.defaultBlockState());
                                 }
                             }
                         }
@@ -72,10 +69,10 @@ public class IceSpikeFeature extends Feature<NoneFeatureConfiguration> {
 
             for(int var12 = -var11; var12 <= var11; ++var12) {
                 for(int var13 = -var11; var13 <= var11; ++var13) {
-                    BlockPos var14 = param4.offset(var12, -1, var13);
+                    BlockPos var14 = param3.offset(var12, -1, var13);
                     int var15 = 50;
                     if (Math.abs(var12) == 1 && Math.abs(var13) == 1) {
-                        var15 = param3.nextInt(5);
+                        var15 = param2.nextInt(5);
                     }
 
                     while(var14.getY() > 50) {
@@ -88,8 +85,8 @@ public class IceSpikeFeature extends Feature<NoneFeatureConfiguration> {
                         this.setBlock(param0, var14, Blocks.PACKED_ICE.defaultBlockState());
                         var14 = var14.below();
                         if (--var15 <= 0) {
-                            var14 = var14.below(param3.nextInt(5) + 1);
-                            var15 = param3.nextInt(5);
+                            var14 = var14.below(param2.nextInt(5) + 1);
+                            var15 = param2.nextInt(5);
                         }
                     }
                 }

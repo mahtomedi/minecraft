@@ -7,6 +7,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.Container;
@@ -27,7 +28,7 @@ import net.minecraft.world.item.HorseArmorItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.SoundType;
 
 public class Horse extends AbstractHorse {
@@ -236,13 +237,13 @@ public class Horse extends AbstractHorse {
     }
 
     @Override
-    public AgableMob getBreedOffspring(AgableMob param0) {
+    public AgableMob getBreedOffspring(ServerLevel param0, AgableMob param1) {
         AbstractHorse var0;
-        if (param0 instanceof Donkey) {
-            var0 = EntityType.MULE.create(this.level);
+        if (param1 instanceof Donkey) {
+            var0 = EntityType.MULE.create(param0);
         } else {
-            Horse var1 = (Horse)param0;
-            var0 = EntityType.HORSE.create(this.level);
+            Horse var1 = (Horse)param1;
+            var0 = EntityType.HORSE.create(param0);
             int var3 = this.random.nextInt(9);
             Variant var4;
             if (var3 < 4) {
@@ -266,7 +267,7 @@ public class Horse extends AbstractHorse {
             ((Horse)var0).setVariantAndMarkings(var4, var8);
         }
 
-        this.setOffspringAttributes(param0, var0);
+        this.setOffspringAttributes(param1, var0);
         return var0;
     }
 
@@ -283,7 +284,7 @@ public class Horse extends AbstractHorse {
     @Nullable
     @Override
     public SpawnGroupData finalizeSpawn(
-        LevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
+        ServerLevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
     ) {
         Variant var0;
         if (param3 instanceof Horse.HorseGroupData) {

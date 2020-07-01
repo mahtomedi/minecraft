@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelSimulatedRW;
+import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
@@ -28,7 +28,7 @@ public class AlterGroundDecorator extends TreeDecorator {
     }
 
     @Override
-    public void place(LevelAccessor param0, Random param1, List<BlockPos> param2, List<BlockPos> param3, Set<BlockPos> param4, BoundingBox param5) {
+    public void place(WorldGenLevel param0, Random param1, List<BlockPos> param2, List<BlockPos> param3, Set<BlockPos> param4, BoundingBox param5) {
         int var0 = param2.get(0).getY();
         param2.stream().filter(param1x -> param1x.getY() == var0).forEach(param2x -> {
             this.placeCircle(param0, param1, param2x.west().north());

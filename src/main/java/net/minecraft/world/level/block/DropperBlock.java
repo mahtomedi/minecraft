@@ -5,10 +5,10 @@ import net.minecraft.core.BlockSourceImpl;
 import net.minecraft.core.Direction;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
 import net.minecraft.core.dispenser.DispenseItemBehavior;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.DispenserBlockEntity;
 import net.minecraft.world.level.block.entity.DropperBlockEntity;
@@ -33,7 +33,7 @@ public class DropperBlock extends DispenserBlock {
     }
 
     @Override
-    protected void dispenseFrom(Level param0, BlockPos param1) {
+    protected void dispenseFrom(ServerLevel param0, BlockPos param1) {
         BlockSourceImpl var0 = new BlockSourceImpl(param0, param1);
         DispenserBlockEntity var1 = var0.getEntity();
         int var2 = var1.getRandomSlot();

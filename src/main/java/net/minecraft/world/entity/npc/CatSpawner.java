@@ -13,7 +13,6 @@ import net.minecraft.world.entity.animal.Cat;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.CustomSpawner;
 import net.minecraft.world.level.GameRules;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.NaturalSpawner;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.phys.AABB;
@@ -71,13 +70,13 @@ public class CatSpawner implements CustomSpawner {
         return 0;
     }
 
-    private int spawnInHut(Level param0, BlockPos param1) {
+    private int spawnInHut(ServerLevel param0, BlockPos param1) {
         int var0 = 16;
         List<Cat> var1 = param0.getEntitiesOfClass(Cat.class, new AABB(param1).inflate(16.0, 8.0, 16.0));
         return var1.size() < 1 ? this.spawnCat(param1, param0) : 0;
     }
 
-    private int spawnCat(BlockPos param0, Level param1) {
+    private int spawnCat(BlockPos param0, ServerLevel param1) {
         Cat var0 = EntityType.CAT.create(param1);
         if (var0 == null) {
             return 0;

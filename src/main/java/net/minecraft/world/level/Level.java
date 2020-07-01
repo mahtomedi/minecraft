@@ -26,7 +26,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.tags.TagManager;
+import net.minecraft.tags.TagContainer;
 import net.minecraft.util.Mth;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.DifficultyInstance;
@@ -842,11 +842,6 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         return 63;
     }
 
-    @Override
-    public Level getLevel() {
-        return this;
-    }
-
     public int getDirectSignalTo(BlockPos param0) {
         int var0 = 0;
         var0 = Math.max(var0, this.getDirectSignal(param0.below(), Direction.DOWN));
@@ -1109,7 +1104,7 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
 
     public abstract RecipeManager getRecipeManager();
 
-    public abstract TagManager getTagManager();
+    public abstract TagContainer getTagManager();
 
     public BlockPos getBlockRandomPos(int param0, int param1, int param2, int param3) {
         this.randValue = this.randValue * 3 + 1013904223;

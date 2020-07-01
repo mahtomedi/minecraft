@@ -1,13 +1,10 @@
 package net.minecraft.tags;
 
-import java.util.Set;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class EntityTypeTags {
-    private static final StaticTagHelper<EntityType<?>> HELPER = new StaticTagHelper<>();
+public final class EntityTypeTags {
+    protected static final StaticTagHelper<EntityType<?>> HELPER = StaticTags.create(new ResourceLocation("entity_type"), TagContainer::getEntityTypes);
     public static final Tag.Named<EntityType<?>> SKELETONS = bind("skeletons");
     public static final Tag.Named<EntityType<?>> RAIDERS = bind("raiders");
     public static final Tag.Named<EntityType<?>> BEEHIVE_INHABITORS = bind("beehive_inhabitors");
@@ -18,20 +15,7 @@ public class EntityTypeTags {
         return HELPER.bind(param0);
     }
 
-    public static void reset(TagCollection<EntityType<?>> param0) {
-        HELPER.reset(param0);
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public static void resetToEmpty() {
-        HELPER.resetToEmpty();
-    }
-
     public static TagCollection<EntityType<?>> getAllTags() {
         return HELPER.getAllTags();
-    }
-
-    public static Set<ResourceLocation> getMissingTags(TagCollection<EntityType<?>> param0) {
-        return HELPER.getMissingTags(param0);
     }
 }

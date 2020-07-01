@@ -5,6 +5,7 @@ import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
@@ -282,7 +283,7 @@ public class Evoker extends SpellcasterIllager {
                 BlockPos var1 = Evoker.this.blockPosition().offset(-2 + Evoker.this.random.nextInt(5), 1, -2 + Evoker.this.random.nextInt(5));
                 Vex var2 = EntityType.VEX.create(Evoker.this.level);
                 var2.moveTo(var1, 0.0F, 0.0F);
-                var2.finalizeSpawn(Evoker.this.level, Evoker.this.level.getCurrentDifficultyAt(var1), MobSpawnType.MOB_SUMMONED, null, null);
+                var2.finalizeSpawn((ServerLevel)Evoker.this.level, Evoker.this.level.getCurrentDifficultyAt(var1), MobSpawnType.MOB_SUMMONED, null, null);
                 var2.setOwner(Evoker.this);
                 var2.setBoundOrigin(var1);
                 var2.setLimitedLife(20 * (30 + Evoker.this.random.nextInt(90)));

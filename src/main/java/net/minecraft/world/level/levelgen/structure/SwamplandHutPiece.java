@@ -9,7 +9,7 @@ import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.animal.Cat;
 import net.minecraft.world.entity.monster.Witch;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
@@ -107,7 +107,7 @@ public class SwamplandHutPiece extends ScatteredFeaturePiece {
         }
     }
 
-    private void spawnCat(LevelAccessor param0, BoundingBox param1) {
+    private void spawnCat(ServerLevelAccessor param0, BoundingBox param1) {
         if (!this.spawnedCat) {
             int var0 = this.getWorldX(2, 5);
             int var1 = this.getWorldY(2);

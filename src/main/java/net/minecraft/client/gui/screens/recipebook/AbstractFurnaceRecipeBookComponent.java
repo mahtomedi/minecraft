@@ -28,36 +28,6 @@ public abstract class AbstractFurnaceRecipeBookComponent extends RecipeBookCompo
     private float time;
 
     @Override
-    protected boolean updateFiltering() {
-        boolean var0 = !this.getFilteringCraftable();
-        this.setFilteringCraftable(var0);
-        return var0;
-    }
-
-    protected abstract boolean getFilteringCraftable();
-
-    protected abstract void setFilteringCraftable(boolean var1);
-
-    @Override
-    public boolean isVisible() {
-        return this.isGuiOpen();
-    }
-
-    protected abstract boolean isGuiOpen();
-
-    @Override
-    protected void setVisible(boolean param0) {
-        this.setGuiOpen(param0);
-        if (!param0) {
-            this.recipeBookPage.setInvisible();
-        }
-
-        this.sendUpdateSettings();
-    }
-
-    protected abstract void setGuiOpen(boolean var1);
-
-    @Override
     protected void initFilterButtonTextures() {
         this.filterButton.initTextureValues(152, 182, 28, 18, RECIPE_BOOK_LOCATION);
     }

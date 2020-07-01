@@ -5,7 +5,6 @@ import com.google.common.collect.Maps;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.shaders.AbstractUniform;
 import com.mojang.blaze3d.shaders.BlendMode;
@@ -22,8 +21,8 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import java.util.function.IntSupplier;
 import javax.annotation.Nullable;
-import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.ChainedJsonException;
 import net.minecraft.server.packs.resources.Resource;
@@ -41,7 +40,7 @@ public class EffectInstance implements Effect, AutoCloseable {
     private static final AbstractUniform DUMMY_UNIFORM = new AbstractUniform();
     private static EffectInstance lastAppliedEffect;
     private static int lastProgramId = -1;
-    private final Map<String, Object> samplerMap = Maps.newHashMap();
+    private final Map<String, IntSupplier> samplerMap = Maps.newHashMap();
     private final List<String> samplerNames = Lists.newArrayList();
     private final List<Integer> samplerLocations = Lists.newArrayList();
     private final List<Uniform> uniforms = Lists.newArrayList();
@@ -255,28 +254,21 @@ public class EffectInstance implements Effect, AutoCloseable {
         }
 
         for(int var0 = 0; var0 < this.samplerLocations.size(); ++var0) {
-            if (this.samplerMap.get(this.samplerNames.get(var0)) != null) {
+            String var1 = this.samplerNames.get(var0);
+            IntSupplier var2 = this.samplerMap.get(var1);
+            if (var2 != null) {
                 RenderSystem.activeTexture(33984 + var0);
                 RenderSystem.enableTexture();
-                Object var1 = this.samplerMap.get(this.samplerNames.get(var0));
-                int var2 = -1;
-                if (var1 instanceof RenderTarget) {
-                    var2 = ((RenderTarget)var1).colorTextureId;
-                } else if (var1 instanceof AbstractTexture) {
-                    var2 = ((AbstractTexture)var1).getId();
-                } else if (var1 instanceof Integer) {
-                    var2 = (Integer)var1;
-                }
-
-                if (var2 != -1) {
-                    RenderSystem.bindTexture(var2);
+                int var3 = var2.getAsInt();
+                if (var3 != -1) {
+                    RenderSystem.bindTexture(var3);
                     Uniform.uploadInteger(this.samplerLocations.get(var0), var0);
                 }
             }
         }
 
-        for(Uniform var3 : this.uniforms) {
-            var3.upload();
+        for(Uniform var4 : this.uniforms) {
+            var4.upload();
         }
 
     }
@@ -343,7 +335,7 @@ public class EffectInstance implements Effect, AutoCloseable {
         }
     }
 
-    public void setSampler(String param0, Object param1) {
+    public void setSampler(String param0, IntSupplier param1) {
         if (this.samplerMap.containsKey(param0)) {
             this.samplerMap.remove(param0);
         }

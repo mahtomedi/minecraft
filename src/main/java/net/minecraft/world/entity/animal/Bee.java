@@ -556,8 +556,8 @@ public class Bee extends Animal implements NeutralMob, FlyingAnimal {
         return 0.4F;
     }
 
-    public Bee getBreedOffspring(AgableMob param0) {
-        return EntityType.BEE.create(this.level);
+    public Bee getBreedOffspring(ServerLevel param0, AgableMob param1) {
+        return EntityType.BEE.create(param0);
     }
 
     @Override

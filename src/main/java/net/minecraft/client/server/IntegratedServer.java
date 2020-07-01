@@ -18,7 +18,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerResources;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.progress.ChunkProgressListenerFactory;
-import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackRepository;
 import net.minecraft.server.players.GameProfileCache;
 import net.minecraft.util.Crypt;
@@ -46,7 +45,7 @@ public class IntegratedServer extends MinecraftServer {
         Minecraft param1,
         RegistryAccess.RegistryHolder param2,
         LevelStorageSource.LevelStorageAccess param3,
-        PackRepository<Pack> param4,
+        PackRepository param4,
         ServerResources param5,
         WorldData param6,
         MinecraftSessionService param7,

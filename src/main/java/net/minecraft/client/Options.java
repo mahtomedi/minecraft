@@ -23,11 +23,11 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
-import net.minecraft.client.resources.ResourcePack;
 import net.minecraft.client.tutorial.TutorialSteps;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.protocol.game.ServerboundClientInformationPacket;
+import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackRepository;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.GsonHelper;
@@ -735,13 +735,13 @@ public class Options {
         return this.useNativeTransport;
     }
 
-    public void loadSelectedResourcePacks(PackRepository<ResourcePack> param0) {
+    public void loadSelectedResourcePacks(PackRepository param0) {
         Set<String> var0 = Sets.newLinkedHashSet();
         Iterator<String> var1 = this.resourcePacks.iterator();
 
         while(var1.hasNext()) {
             String var2 = var1.next();
-            ResourcePack var3 = param0.getPack(var2);
+            Pack var3 = param0.getPack(var2);
             if (var3 == null && !var2.startsWith("file/")) {
                 var3 = param0.getPack("file/" + var2);
             }

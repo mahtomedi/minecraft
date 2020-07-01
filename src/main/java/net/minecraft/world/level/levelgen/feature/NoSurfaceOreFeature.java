@@ -5,7 +5,6 @@ import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.configurations.OreConfiguration;
@@ -15,14 +14,14 @@ public class NoSurfaceOreFeature extends Feature<OreConfiguration> {
         super(param0);
     }
 
-    public boolean place(WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BlockPos param4, OreConfiguration param5) {
-        int var0 = param3.nextInt(param5.size + 1);
+    public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, OreConfiguration param4) {
+        int var0 = param2.nextInt(param4.size + 1);
         BlockPos.MutableBlockPos var1 = new BlockPos.MutableBlockPos();
 
         for(int var2 = 0; var2 < var0; ++var2) {
-            this.offsetTargetPos(var1, param3, param4, Math.min(var2, 7));
-            if (param5.target.getPredicate().test(param0.getBlockState(var1)) && !this.isFacingAir(param0, var1)) {
-                param0.setBlock(var1, param5.state, 2);
+            this.offsetTargetPos(var1, param2, param3, Math.min(var2, 7));
+            if (param4.target.getPredicate().test(param0.getBlockState(var1)) && !this.isFacingAir(param0, var1)) {
+                param0.setBlock(var1, param4.state, 2);
             }
         }
 

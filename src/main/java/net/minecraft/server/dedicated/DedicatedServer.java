@@ -35,7 +35,6 @@ import net.minecraft.server.ServerResources;
 import net.minecraft.server.gui.MinecraftServerGui;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.progress.ChunkProgressListenerFactory;
-import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackRepository;
 import net.minecraft.server.players.GameProfileCache;
 import net.minecraft.server.players.OldUsersConverter;
@@ -73,7 +72,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface 
         Thread param0,
         RegistryAccess.RegistryHolder param1,
         LevelStorageSource.LevelStorageAccess param2,
-        PackRepository<Pack> param3,
+        PackRepository param3,
         ServerResources param4,
         WorldData param5,
         DedicatedServerSettings param6,

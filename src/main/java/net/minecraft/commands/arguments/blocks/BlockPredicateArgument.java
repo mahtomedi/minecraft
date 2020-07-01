@@ -22,7 +22,7 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.Tag;
-import net.minecraft.tags.TagManager;
+import net.minecraft.tags.TagContainer;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -116,7 +116,7 @@ public class BlockPredicateArgument implements ArgumentType<BlockPredicateArgume
     }
 
     public interface Result {
-        Predicate<BlockInWorld> create(TagManager var1) throws CommandSyntaxException;
+        Predicate<BlockInWorld> create(TagContainer var1) throws CommandSyntaxException;
     }
 
     static class TagPredicate implements Predicate<BlockInWorld> {

@@ -1,13 +1,10 @@
 package net.minecraft.tags;
 
-import java.util.Set;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class ItemTags {
-    private static final StaticTagHelper<Item> HELPER = new StaticTagHelper<>();
+public final class ItemTags {
+    protected static final StaticTagHelper<Item> HELPER = StaticTags.create(new ResourceLocation("item"), TagContainer::getItems);
     public static final Tag.Named<Item> WOOL = bind("wool");
     public static final Tag.Named<Item> PLANKS = bind("planks");
     public static final Tag.Named<Item> STONE_BRICKS = bind("stone_bricks");
@@ -67,20 +64,7 @@ public class ItemTags {
         return HELPER.bind(param0);
     }
 
-    public static void reset(TagCollection<Item> param0) {
-        HELPER.reset(param0);
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public static void resetToEmpty() {
-        HELPER.resetToEmpty();
-    }
-
     public static TagCollection<Item> getAllTags() {
         return HELPER.getAllTags();
-    }
-
-    public static Set<ResourceLocation> getMissingTags(TagCollection<Item> param0) {
-        return HELPER.getMissingTags(param0);
     }
 }

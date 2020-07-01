@@ -16,6 +16,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.Tag;
 import net.minecraft.util.Mth;
@@ -95,6 +96,7 @@ import net.minecraft.world.entity.monster.ZombieVillager;
 import net.minecraft.world.entity.monster.ZombifiedPiglin;
 import net.minecraft.world.entity.monster.hoglin.Hoglin;
 import net.minecraft.world.entity.monster.piglin.Piglin;
+import net.minecraft.world.entity.monster.piglin.PiglinBrute;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.npc.WanderingTrader;
 import net.minecraft.world.entity.player.Player;
@@ -347,6 +349,9 @@ public class EntityType<T extends Entity> {
     public static final EntityType<Piglin> PIGLIN = register(
         "piglin", EntityType.Builder.<Piglin>of(Piglin::new, MobCategory.MONSTER).sized(0.6F, 1.95F).clientTrackingRange(8)
     );
+    public static final EntityType<PiglinBrute> PIGLIN_BRUTE = register(
+        "piglin_brute", EntityType.Builder.<PiglinBrute>of(PiglinBrute::new, MobCategory.MONSTER).sized(0.6F, 1.95F).clientTrackingRange(8)
+    );
     public static final EntityType<Pillager> PILLAGER = register(
         "pillager", EntityType.Builder.<Pillager>of(Pillager::new, MobCategory.MONSTER).canSpawnFarFromPlayer().sized(0.6F, 1.95F).clientTrackingRange(8)
     );
@@ -560,7 +565,9 @@ public class EntityType<T extends Entity> {
     }
 
     @Nullable
-    public Entity spawn(Level param0, @Nullable ItemStack param1, @Nullable Player param2, BlockPos param3, MobSpawnType param4, boolean param5, boolean param6) {
+    public Entity spawn(
+        ServerLevel param0, @Nullable ItemStack param1, @Nullable Player param2, BlockPos param3, MobSpawnType param4, boolean param5, boolean param6
+    ) {
         return this.spawn(
             param0,
             param1 == null ? null : param1.getTag(),
@@ -575,7 +582,7 @@ public class EntityType<T extends Entity> {
 
     @Nullable
     public T spawn(
-        Level param0,
+        ServerLevel param0,
         @Nullable CompoundTag param1,
         @Nullable Component param2,
         @Nullable Player param3,
@@ -591,7 +598,7 @@ public class EntityType<T extends Entity> {
 
     @Nullable
     public T create(
-        Level param0,
+        ServerLevel param0,
         @Nullable CompoundTag param1,
         @Nullable Component param2,
         @Nullable Player param3,

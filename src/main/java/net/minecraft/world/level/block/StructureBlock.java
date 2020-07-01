@@ -2,6 +2,7 @@ package net.minecraft.world.level.block;
 
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
@@ -72,7 +73,7 @@ public class StructureBlock extends BaseEntityBlock {
 
     @Override
     public void neighborChanged(BlockState param0, Level param1, BlockPos param2, Block param3, BlockPos param4, boolean param5) {
-        if (!param1.isClientSide) {
+        if (param1 instanceof ServerLevel) {
             BlockEntity var0 = param1.getBlockEntity(param2);
             if (var0 instanceof StructureBlockEntity) {
                 StructureBlockEntity var1 = (StructureBlockEntity)var0;
@@ -80,7 +81,7 @@ public class StructureBlock extends BaseEntityBlock {
                 boolean var3 = var1.isPowered();
                 if (var2 && !var3) {
                     var1.setPowered(true);
-                    this.trigger(var1);
+                    this.trigger((ServerLevel)param1, var1);
                 } else if (!var2 && var3) {
                     var1.setPowered(false);
                 }
@@ -89,16 +90,16 @@ public class StructureBlock extends BaseEntityBlock {
         }
     }
 
-    private void trigger(StructureBlockEntity param0) {
-        switch(param0.getMode()) {
+    private void trigger(ServerLevel param0, StructureBlockEntity param1) {
+        switch(param1.getMode()) {
             case SAVE:
-                param0.saveStructure(false);
+                param1.saveStructure(false);
                 break;
             case LOAD:
-                param0.loadStructure(false);
+                param1.loadStructure(param0, false);
                 break;
             case CORNER:
-                param0.unloadStructure();
+                param1.unloadStructure();
             case DATA:
         }
 

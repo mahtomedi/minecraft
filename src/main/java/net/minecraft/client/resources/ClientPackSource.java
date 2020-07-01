@@ -2,7 +2,6 @@ package net.minecraft.client.resources;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.mojang.blaze3d.platform.NativeImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -53,7 +52,7 @@ public class ClientPackSource implements RepositorySource {
     @Nullable
     private CompletableFuture<?> currentDownload;
     @Nullable
-    private ResourcePack serverPack;
+    private Pack serverPack;
 
     public ClientPackSource(File param0, AssetIndex param1) {
         this.serverPackDir = param0;
@@ -62,17 +61,17 @@ public class ClientPackSource implements RepositorySource {
     }
 
     @Override
-    public <T extends Pack> void loadPacks(Consumer<T> param0, Pack.PackConstructor<T> param1) {
-        T var0 = Pack.create("vanilla", true, () -> this.vanillaPack, param1, Pack.Position.BOTTOM, PackSource.BUILT_IN);
+    public void loadPacks(Consumer<Pack> param0, Pack.PackConstructor param1) {
+        Pack var0 = Pack.create("vanilla", true, () -> this.vanillaPack, param1, Pack.Position.BOTTOM, PackSource.BUILT_IN);
         if (var0 != null) {
             param0.accept(var0);
         }
 
         if (this.serverPack != null) {
-            param0.accept((T)this.serverPack);
+            param0.accept(this.serverPack);
         }
 
-        T var1 = this.createProgrammerArtPack(param1);
+        Pack var1 = this.createProgrammerArtPack(param1);
         if (var1 != null) {
             param0.accept(var1);
         }
@@ -83,7 +82,7 @@ public class ClientPackSource implements RepositorySource {
         return this.vanillaPack;
     }
 
-    public static Map<String, String> getDownloadHeaders() {
+    private static Map<String, String> getDownloadHeaders() {
         Map<String, String> var0 = Maps.newHashMap();
         var0.put("X-Minecraft-Username", Minecraft.getInstance().getUser().getName());
         var0.put("X-Minecraft-UUID", Minecraft.getInstance().getUser().getUuid());
@@ -204,16 +203,14 @@ public class ClientPackSource implements RepositorySource {
 
     public CompletableFuture<Void> setServerPack(File param0, PackSource param1) {
         PackMetadataSection var1;
-        NativeImage var2;
         try (FilePackResources var0 = new FilePackResources(param0)) {
             var1 = var0.getMetadataSection(PackMetadataSection.SERIALIZER);
-            var2 = ResourcePack.readIcon(var0);
-        } catch (IOException var18) {
-            return Util.failedFuture(new IOException(String.format("Invalid resourcepack at %s", param0), var18));
+        } catch (IOException var17) {
+            return Util.failedFuture(new IOException(String.format("Invalid resourcepack at %s", param0), var17));
         }
 
         LOGGER.info("Applying server pack {}", param0);
-        this.serverPack = new ResourcePack(
+        this.serverPack = new Pack(
             "server",
             true,
             () -> new FilePackResources(param0),
@@ -222,15 +219,14 @@ public class ClientPackSource implements RepositorySource {
             PackCompatibility.forFormat(var1.getPackFormat()),
             Pack.Position.TOP,
             true,
-            param1,
-            var2
+            param1
         );
         return Minecraft.getInstance().delayTextureReload();
     }
 
     @Nullable
-    private <T extends Pack> T createProgrammerArtPack(Pack.PackConstructor<T> param0) {
-        T var0 = null;
+    private Pack createProgrammerArtPack(Pack.PackConstructor param0) {
+        Pack var0 = null;
         File var1 = this.assetIndex.getFile(new ResourceLocation("resourcepacks/programmer_art.zip"));
         if (var1 != null && var1.isFile()) {
             var0 = createProgrammerArtPack(param0, () -> createProgrammerArtZipPack(var1));
@@ -247,7 +243,7 @@ public class ClientPackSource implements RepositorySource {
     }
 
     @Nullable
-    private static <T extends Pack> T createProgrammerArtPack(Pack.PackConstructor<T> param0, Supplier<PackResources> param1) {
+    private static Pack createProgrammerArtPack(Pack.PackConstructor param0, Supplier<PackResources> param1) {
         return Pack.create("programer_art", false, param1, param0, Pack.Position.TOP, PackSource.BUILT_IN);
     }
 

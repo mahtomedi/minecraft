@@ -6,7 +6,6 @@ import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -30,16 +29,14 @@ public class MonsterRoomFeature extends Feature<NoneFeatureConfiguration> {
         super(param0);
     }
 
-    public boolean place(
-        WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BlockPos param4, NoneFeatureConfiguration param5
-    ) {
+    public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, NoneFeatureConfiguration param4) {
         int var0 = 3;
-        int var1 = param3.nextInt(2) + 2;
+        int var1 = param2.nextInt(2) + 2;
         int var2 = -var1 - 1;
         int var3 = var1 + 1;
         int var4 = -1;
         int var5 = 4;
-        int var6 = param3.nextInt(2) + 2;
+        int var6 = param2.nextInt(2) + 2;
         int var7 = -var6 - 1;
         int var8 = var6 + 1;
         int var9 = 0;
@@ -47,7 +44,7 @@ public class MonsterRoomFeature extends Feature<NoneFeatureConfiguration> {
         for(int var10 = var2; var10 <= var3; ++var10) {
             for(int var11 = -1; var11 <= 4; ++var11) {
                 for(int var12 = var7; var12 <= var8; ++var12) {
-                    BlockPos var13 = param4.offset(var10, var11, var12);
+                    BlockPos var13 = param3.offset(var10, var11, var12);
                     Material var14 = param0.getBlockState(var13).getMaterial();
                     boolean var15 = var14.isSolid();
                     if (var11 == -1 && !var15) {
@@ -72,7 +69,7 @@ public class MonsterRoomFeature extends Feature<NoneFeatureConfiguration> {
             for(int var16 = var2; var16 <= var3; ++var16) {
                 for(int var17 = 3; var17 >= -1; --var17) {
                     for(int var18 = var7; var18 <= var8; ++var18) {
-                        BlockPos var19 = param4.offset(var16, var17, var18);
+                        BlockPos var19 = param3.offset(var16, var17, var18);
                         BlockState var20 = param0.getBlockState(var19);
                         if (var16 != var2 && var17 != -1 && var18 != var7 && var16 != var3 && var17 != 4 && var18 != var8) {
                             if (!var20.is(Blocks.CHEST) && !var20.is(Blocks.SPAWNER)) {
@@ -81,7 +78,7 @@ public class MonsterRoomFeature extends Feature<NoneFeatureConfiguration> {
                         } else if (var19.getY() >= 0 && !param0.getBlockState(var19.below()).getMaterial().isSolid()) {
                             param0.setBlock(var19, AIR, 2);
                         } else if (var20.getMaterial().isSolid() && !var20.is(Blocks.CHEST)) {
-                            if (var17 == -1 && param3.nextInt(4) != 0) {
+                            if (var17 == -1 && param2.nextInt(4) != 0) {
                                 param0.setBlock(var19, Blocks.MOSSY_COBBLESTONE.defaultBlockState(), 2);
                             } else {
                                 param0.setBlock(var19, Blocks.COBBLESTONE.defaultBlockState(), 2);
@@ -93,9 +90,9 @@ public class MonsterRoomFeature extends Feature<NoneFeatureConfiguration> {
 
             for(int var21 = 0; var21 < 2; ++var21) {
                 for(int var22 = 0; var22 < 3; ++var22) {
-                    int var23 = param4.getX() + param3.nextInt(var1 * 2 + 1) - var1;
-                    int var24 = param4.getY();
-                    int var25 = param4.getZ() + param3.nextInt(var6 * 2 + 1) - var6;
+                    int var23 = param3.getX() + param2.nextInt(var1 * 2 + 1) - var1;
+                    int var24 = param3.getY();
+                    int var25 = param3.getZ() + param2.nextInt(var6 * 2 + 1) - var6;
                     BlockPos var26 = new BlockPos(var23, var24, var25);
                     if (param0.isEmptyBlock(var26)) {
                         int var27 = 0;
@@ -108,19 +105,19 @@ public class MonsterRoomFeature extends Feature<NoneFeatureConfiguration> {
 
                         if (var27 == 1) {
                             param0.setBlock(var26, StructurePiece.reorient(param0, var26, Blocks.CHEST.defaultBlockState()), 2);
-                            RandomizableContainerBlockEntity.setLootTable(param0, param3, var26, BuiltInLootTables.SIMPLE_DUNGEON);
+                            RandomizableContainerBlockEntity.setLootTable(param0, param2, var26, BuiltInLootTables.SIMPLE_DUNGEON);
                             break;
                         }
                     }
                 }
             }
 
-            param0.setBlock(param4, Blocks.SPAWNER.defaultBlockState(), 2);
-            BlockEntity var29 = param0.getBlockEntity(param4);
+            param0.setBlock(param3, Blocks.SPAWNER.defaultBlockState(), 2);
+            BlockEntity var29 = param0.getBlockEntity(param3);
             if (var29 instanceof SpawnerBlockEntity) {
-                ((SpawnerBlockEntity)var29).getSpawner().setEntityId(this.randomEntityId(param3));
+                ((SpawnerBlockEntity)var29).getSpawner().setEntityId(this.randomEntityId(param2));
             } else {
-                LOGGER.error("Failed to fetch mob spawner entity at ({}, {}, {})", param4.getX(), param4.getY(), param4.getZ());
+                LOGGER.error("Failed to fetch mob spawner entity at ({}, {}, {})", param3.getX(), param3.getY(), param3.getZ());
             }
 
             return true;

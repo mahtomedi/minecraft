@@ -183,6 +183,7 @@ import net.minecraft.util.datafix.schemas.V2509;
 import net.minecraft.util.datafix.schemas.V2519;
 import net.minecraft.util.datafix.schemas.V2522;
 import net.minecraft.util.datafix.schemas.V2551;
+import net.minecraft.util.datafix.schemas.V2568;
 import net.minecraft.util.datafix.schemas.V501;
 import net.minecraft.util.datafix.schemas.V700;
 import net.minecraft.util.datafix.schemas.V701;
@@ -664,6 +665,8 @@ public class DataFixers {
         Schema var122 = param0.addSchema(2558, SAME_NAMESPACED);
         param0.addFixer(new MissingDimensionFix(var122, false));
         param0.addFixer(new OptionsRenameFieldFix(var122, false, "Rename swapHands setting", "key_key.swapHands", "key_key.swapOffhand"));
+        Schema var123 = param0.addSchema(2568, V2568::new);
+        param0.addFixer(new AddNewChoices(var123, "Added Piglin Brute", References.ENTITY));
     }
 
     private static UnaryOperator<String> createRenamer(Map<String, String> param0) {

@@ -9,6 +9,7 @@ import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -49,7 +50,7 @@ public class SpawnEggItem extends Item {
     @Override
     public InteractionResult useOn(UseOnContext param0) {
         Level var0 = param0.getLevel();
-        if (var0.isClientSide) {
+        if (!(var0 instanceof ServerLevel)) {
             return InteractionResult.SUCCESS;
         } else {
             ItemStack var1 = param0.getItemInHand();
@@ -77,7 +78,10 @@ public class SpawnEggItem extends Item {
             }
 
             EntityType<?> var10 = this.getType(var1.getTag());
-            if (var10.spawn(var0, var1, param0.getPlayer(), var8, MobSpawnType.SPAWN_EGG, true, !Objects.equals(var2, var8) && var3 == Direction.UP) != null) {
+            if (var10.spawn(
+                    (ServerLevel)var0, var1, param0.getPlayer(), var8, MobSpawnType.SPAWN_EGG, true, !Objects.equals(var2, var8) && var3 == Direction.UP
+                )
+                != null) {
                 var1.shrink(1);
             }
 
@@ -91,7 +95,7 @@ public class SpawnEggItem extends Item {
         HitResult var1 = getPlayerPOVHitResult(param0, param1, ClipContext.Fluid.SOURCE_ONLY);
         if (var1.getType() != HitResult.Type.BLOCK) {
             return InteractionResultHolder.pass(var0);
-        } else if (param0.isClientSide) {
+        } else if (!(param0 instanceof ServerLevel)) {
             return InteractionResultHolder.success(var0);
         } else {
             BlockHitResult var2 = (BlockHitResult)var1;
@@ -100,7 +104,7 @@ public class SpawnEggItem extends Item {
                 return InteractionResultHolder.pass(var0);
             } else if (param0.mayInteract(param1, var3) && param1.mayUseItemAt(var3, var2.getDirection(), var0)) {
                 EntityType<?> var4 = this.getType(var0.getTag());
-                if (var4.spawn(param0, var0, param1, var3, MobSpawnType.SPAWN_EGG, false, false) == null) {
+                if (var4.spawn((ServerLevel)param0, var0, param1, var3, MobSpawnType.SPAWN_EGG, false, false) == null) {
                     return InteractionResultHolder.pass(var0);
                 } else {
                     if (!param1.abilities.instabuild) {
@@ -146,13 +150,15 @@ public class SpawnEggItem extends Item {
         return this.defaultType;
     }
 
-    public Optional<Mob> spawnOffspringFromSpawnEgg(Player param0, Mob param1, EntityType<? extends Mob> param2, Level param3, Vec3 param4, ItemStack param5) {
+    public Optional<Mob> spawnOffspringFromSpawnEgg(
+        Player param0, Mob param1, EntityType<? extends Mob> param2, ServerLevel param3, Vec3 param4, ItemStack param5
+    ) {
         if (!this.spawnsEntity(param5.getTag(), param2)) {
             return Optional.empty();
         } else {
             Mob var0;
             if (param1 instanceof AgableMob) {
-                var0 = ((AgableMob)param1).getBreedOffspring((AgableMob)param1);
+                var0 = ((AgableMob)param1).getBreedOffspring(param3, (AgableMob)param1);
             } else {
                 var0 = param2.create(param3);
             }

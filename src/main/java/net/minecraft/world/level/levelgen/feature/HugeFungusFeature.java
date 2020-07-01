@@ -7,7 +7,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -20,39 +19,37 @@ public class HugeFungusFeature extends Feature<HugeFungusConfiguration> {
         super(param0);
     }
 
-    public boolean place(
-        WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BlockPos param4, HugeFungusConfiguration param5
-    ) {
-        Block var0 = param5.validBaseState.getBlock();
+    public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, HugeFungusConfiguration param4) {
+        Block var0 = param4.validBaseState.getBlock();
         BlockPos var1 = null;
-        if (param5.planted) {
-            Block var2 = param0.getBlockState(param4.below()).getBlock();
+        if (param4.planted) {
+            Block var2 = param0.getBlockState(param3.below()).getBlock();
             if (var2 == var0) {
-                var1 = param4;
+                var1 = param3;
             }
         } else {
-            var1 = findOnNyliumPosition(param0, param4, var0);
+            var1 = findOnNyliumPosition(param0, param3, var0);
         }
 
         if (var1 == null) {
             return false;
         } else {
-            int var3 = Mth.nextInt(param3, 4, 13);
-            if (param3.nextInt(12) == 0) {
+            int var3 = Mth.nextInt(param2, 4, 13);
+            if (param2.nextInt(12) == 0) {
                 var3 *= 2;
             }
 
-            if (!param5.planted) {
-                int var4 = param2.getGenDepth();
+            if (!param4.planted) {
+                int var4 = param1.getGenDepth();
                 if (var1.getY() + var3 + 1 >= var4) {
                     return false;
                 }
             }
 
-            boolean var5 = !param5.planted && param3.nextFloat() < 0.06F;
-            param0.setBlock(param4, Blocks.AIR.defaultBlockState(), 4);
-            this.placeStem(param0, param3, param5, var1, var3, var5);
-            this.placeHat(param0, param3, param5, var1, var3, var5);
+            boolean var5 = !param4.planted && param2.nextFloat() < 0.06F;
+            param0.setBlock(param3, Blocks.AIR.defaultBlockState(), 4);
+            this.placeStem(param0, param2, param4, var1, var3, var5);
+            this.placeHat(param0, param2, param4, var1, var3, var5);
             return true;
         }
     }

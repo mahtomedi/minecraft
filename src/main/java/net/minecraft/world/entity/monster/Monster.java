@@ -22,6 +22,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.level.ServerLevelAccessor;
 
 public abstract class Monster extends PathfinderMob implements Enemy {
     protected Monster(EntityType<? extends Monster> param0, Level param1) {
@@ -89,7 +90,7 @@ public abstract class Monster extends PathfinderMob implements Enemy {
         return 0.5F - param1.getBrightness(param0);
     }
 
-    public static boolean isDarkEnoughToSpawn(LevelAccessor param0, BlockPos param1, Random param2) {
+    public static boolean isDarkEnoughToSpawn(ServerLevelAccessor param0, BlockPos param1, Random param2) {
         if (param0.getBrightness(LightLayer.SKY, param1) > param2.nextInt(32)) {
             return false;
         } else {
@@ -99,7 +100,7 @@ public abstract class Monster extends PathfinderMob implements Enemy {
     }
 
     public static boolean checkMonsterSpawnRules(
-        EntityType<? extends Monster> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, Random param4
+        EntityType<? extends Monster> param0, ServerLevelAccessor param1, MobSpawnType param2, BlockPos param3, Random param4
     ) {
         return param1.getDifficulty() != Difficulty.PEACEFUL
             && isDarkEnoughToSpawn(param1, param3, param4)

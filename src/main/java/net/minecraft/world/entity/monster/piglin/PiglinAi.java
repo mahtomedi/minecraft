@@ -123,7 +123,7 @@ public class PiglinAi {
             10,
             ImmutableList.of(
                 new SetEntityLookTarget(PiglinAi::isPlayerHoldingLovedItem, 14.0F),
-                new StartAttacking<>(Piglin::isAdult, PiglinAi::findNearestValidAttackTarget),
+                new StartAttacking<>(AbstractPiglin::isAdult, PiglinAi::findNearestValidAttackTarget),
                 new RunIf(Piglin::canHunt, new StartHuntingHoglin<>()),
                 avoidRepellent(),
                 babySometimesRideBabyHoglin(),
@@ -158,7 +158,7 @@ public class PiglinAi {
             ImmutableList.of(
                 avoidRepellent(),
                 new SetEntityLookTarget(PiglinAi::isPlayerHoldingLovedItem, 14.0F),
-                new StartAttacking<Piglin>(Piglin::isAdult, PiglinAi::findNearestValidAttackTarget),
+                new StartAttacking<Piglin>(AbstractPiglin::isAdult, PiglinAi::findNearestValidAttackTarget),
                 new RunIf<Piglin>(param0x -> !param0x.isDancing(), new GoToCelebrateLocation<>(2, 1.0F)),
                 new RunIf<Piglin>(Piglin::isDancing, new GoToCelebrateLocation<>(4, 0.6F)),
                 new RunOne(
@@ -557,7 +557,7 @@ public class PiglinAi {
         }
     }
 
-    private static void maybeRetaliate(Piglin param0, LivingEntity param1) {
+    protected static void maybeRetaliate(AbstractPiglin param0, LivingEntity param1) {
         if (!param0.getBrain().isActive(Activity.AVOID)) {
             if (isAttackAllowed(param1)) {
                 if (!BehaviorUtils.isOtherTargetMuchFurtherAwayThanCurrentAttackTarget(param0, param1, 4.0)) {
@@ -606,12 +606,12 @@ public class PiglinAi {
             || getVisibleAdultPiglins(param0).stream().anyMatch(param0x -> param0x.getBrain().hasMemoryValue(MemoryModuleType.HUNTED_RECENTLY));
     }
 
-    private static List<Piglin> getVisibleAdultPiglins(Piglin param0) {
+    private static List<AbstractPiglin> getVisibleAdultPiglins(Piglin param0) {
         return param0.getBrain().getMemory(MemoryModuleType.NEAREST_VISIBLE_ADULT_PIGLINS).orElse(ImmutableList.of());
     }
 
-    private static List<Piglin> getAdultPiglins(Piglin param0) {
-        return param0.getBrain().getMemory(MemoryModuleType.NEAREST_ADULT_PIGLINS).orElse(ImmutableList.of());
+    private static List<AbstractPiglin> getAdultPiglins(AbstractPiglin param0) {
+        return param0.getBrain().getMemory(MemoryModuleType.NEARBY_ADULT_PIGLINS).orElse(ImmutableList.of());
     }
 
     public static boolean isWearingGold(LivingEntity param0) {
@@ -637,7 +637,7 @@ public class PiglinAi {
         );
     }
 
-    protected static void broadcastAngerTarget(Piglin param0, LivingEntity param1) {
+    protected static void broadcastAngerTarget(AbstractPiglin param0, LivingEntity param1) {
         getAdultPiglins(param0).forEach(param1x -> {
             if (param1.getType() != EntityType.HOGLIN || param1x.canHunt() && ((Hoglin)param1).canBeHunted()) {
                 setAngerTargetIfCloserThanCurrent(param1x, param1);
@@ -645,7 +645,7 @@ public class PiglinAi {
         });
     }
 
-    protected static void broadcastUniversalAnger(Piglin param0) {
+    protected static void broadcastUniversalAnger(AbstractPiglin param0) {
         getAdultPiglins(param0).forEach(param0x -> getNearestVisibleTargetablePlayer(param0x).ifPresent(param1 -> setAngerTarget(param0x, param1)));
     }
 
@@ -653,11 +653,11 @@ public class PiglinAi {
         getVisibleAdultPiglins(param0).forEach(PiglinAi::dontKillAnyMoreHoglinsForAWhile);
     }
 
-    protected static void setAngerTarget(Piglin param0, LivingEntity param1) {
+    protected static void setAngerTarget(AbstractPiglin param0, LivingEntity param1) {
         if (isAttackAllowed(param1)) {
             param0.getBrain().eraseMemory(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);
             param0.getBrain().setMemoryWithExpiry(MemoryModuleType.ANGRY_AT, param1.getUUID(), 600L);
-            if (param1.getType() == EntityType.HOGLIN) {
+            if (param1.getType() == EntityType.HOGLIN && param0.canHunt()) {
                 dontKillAnyMoreHoglinsForAWhile(param0);
             }
 
@@ -668,7 +668,7 @@ public class PiglinAi {
         }
     }
 
-    private static void setAngerTargetToNearestTargetablePlayerIfFound(Piglin param0, LivingEntity param1) {
+    private static void setAngerTargetToNearestTargetablePlayerIfFound(AbstractPiglin param0, LivingEntity param1) {
         Optional<Player> var0 = getNearestVisibleTargetablePlayer(param0);
         if (var0.isPresent()) {
             setAngerTarget(param0, var0.get());
@@ -678,7 +678,7 @@ public class PiglinAi {
 
     }
 
-    private static void setAngerTargetIfCloserThanCurrent(Piglin param0, LivingEntity param1) {
+    private static void setAngerTargetIfCloserThanCurrent(AbstractPiglin param0, LivingEntity param1) {
         Optional<LivingEntity> var0 = getAngerTarget(param0);
         LivingEntity var1 = BehaviorUtils.getNearestTarget(param0, var0, param1);
         if (!var0.isPresent() || var0.get() != var1) {
@@ -686,7 +686,7 @@ public class PiglinAi {
         }
     }
 
-    private static Optional<LivingEntity> getAngerTarget(Piglin param0) {
+    private static Optional<LivingEntity> getAngerTarget(AbstractPiglin param0) {
         return BehaviorUtils.getLivingEntityFromUUIDMemory(param0, MemoryModuleType.ANGRY_AT);
     }
 
@@ -694,14 +694,17 @@ public class PiglinAi {
         return param0.getBrain().hasMemoryValue(MemoryModuleType.AVOID_TARGET) ? param0.getBrain().getMemory(MemoryModuleType.AVOID_TARGET) : Optional.empty();
     }
 
-    public static Optional<Player> getNearestVisibleTargetablePlayer(Piglin param0) {
+    public static Optional<Player> getNearestVisibleTargetablePlayer(AbstractPiglin param0) {
         return param0.getBrain().hasMemoryValue(MemoryModuleType.NEAREST_VISIBLE_TARGETABLE_PLAYER)
             ? param0.getBrain().getMemory(MemoryModuleType.NEAREST_VISIBLE_TARGETABLE_PLAYER)
             : Optional.empty();
     }
 
     private static void broadcastRetreat(Piglin param0, LivingEntity param1) {
-        getVisibleAdultPiglins(param0).forEach(param1x -> retreatFromNearestTarget(param1x, param1));
+        getVisibleAdultPiglins(param0)
+            .stream()
+            .filter(param0x -> param0x instanceof Piglin)
+            .forEach(param1x -> retreatFromNearestTarget((Piglin)param1x, param1));
     }
 
     private static void retreatFromNearestTarget(Piglin param0, LivingEntity param1) {
@@ -746,7 +749,7 @@ public class PiglinAi {
         dontKillAnyMoreHoglinsForAWhile(param0);
     }
 
-    protected static void dontKillAnyMoreHoglinsForAWhile(Piglin param0x) {
+    protected static void dontKillAnyMoreHoglinsForAWhile(AbstractPiglin param0x) {
         param0x.getBrain().setMemoryWithExpiry(MemoryModuleType.HUNTED_RECENTLY, true, (long)TIME_BETWEEN_HUNTS.randomValue(param0x.level.random));
     }
 
@@ -763,7 +766,7 @@ public class PiglinAi {
         return param0.getBrain().hasMemoryValue(MemoryModuleType.ATE_RECENTLY);
     }
 
-    protected static boolean isIdle(Piglin param0x) {
+    protected static boolean isIdle(AbstractPiglin param0x) {
         return param0x.getBrain().isActive(Activity.IDLE);
     }
 

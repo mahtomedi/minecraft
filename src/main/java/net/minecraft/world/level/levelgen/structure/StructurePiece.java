@@ -12,8 +12,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
@@ -203,7 +203,7 @@ public abstract class StructurePiece {
         }
     }
 
-    protected void placeBlock(LevelAccessor param0, BlockState param1, int param2, int param3, int param4, BoundingBox param5) {
+    protected void placeBlock(WorldGenLevel param0, BlockState param1, int param2, int param3, int param4, BoundingBox param5) {
         BlockPos var0 = new BlockPos(this.getWorldX(param2, param4), this.getWorldY(param3), this.getWorldZ(param2, param4));
         if (param5.isInside(var0)) {
             if (this.mirror != Mirror.NONE) {
@@ -247,7 +247,7 @@ public abstract class StructurePiece {
         }
     }
 
-    protected void generateAirBox(LevelAccessor param0, BoundingBox param1, int param2, int param3, int param4, int param5, int param6, int param7) {
+    protected void generateAirBox(WorldGenLevel param0, BoundingBox param1, int param2, int param3, int param4, int param5, int param6, int param7) {
         for(int var0 = param3; var0 <= param6; ++var0) {
             for(int var1 = param2; var1 <= param5; ++var1) {
                 for(int var2 = param4; var2 <= param7; ++var2) {
@@ -259,7 +259,7 @@ public abstract class StructurePiece {
     }
 
     protected void generateBox(
-        LevelAccessor param0,
+        WorldGenLevel param0,
         BoundingBox param1,
         int param2,
         int param3,
@@ -288,7 +288,7 @@ public abstract class StructurePiece {
     }
 
     protected void generateBox(
-        LevelAccessor param0,
+        WorldGenLevel param0,
         BoundingBox param1,
         int param2,
         int param3,
@@ -316,7 +316,7 @@ public abstract class StructurePiece {
     }
 
     protected void generateMaybeBox(
-        LevelAccessor param0,
+        WorldGenLevel param0,
         BoundingBox param1,
         Random param2,
         float param3,
@@ -350,7 +350,7 @@ public abstract class StructurePiece {
     }
 
     protected void maybeGenerateBlock(
-        LevelAccessor param0, BoundingBox param1, Random param2, float param3, int param4, int param5, int param6, BlockState param7
+        WorldGenLevel param0, BoundingBox param1, Random param2, float param3, int param4, int param5, int param6, BlockState param7
     ) {
         if (param2.nextFloat() < param3) {
             this.placeBlock(param0, param7, param4, param5, param6, param1);
@@ -359,7 +359,7 @@ public abstract class StructurePiece {
     }
 
     protected void generateUpperHalfSphere(
-        LevelAccessor param0, BoundingBox param1, int param2, int param3, int param4, int param5, int param6, int param7, BlockState param8, boolean param9
+        WorldGenLevel param0, BoundingBox param1, int param2, int param3, int param4, int param5, int param6, int param7, BlockState param8, boolean param9
     ) {
         float var0 = (float)(param5 - param2 + 1);
         float var1 = (float)(param6 - param3 + 1);
@@ -387,7 +387,7 @@ public abstract class StructurePiece {
 
     }
 
-    protected void fillColumnDown(LevelAccessor param0, BlockState param1, int param2, int param3, int param4, BoundingBox param5) {
+    protected void fillColumnDown(WorldGenLevel param0, BlockState param1, int param2, int param3, int param4, BoundingBox param5) {
         int var0 = this.getWorldX(param2, param4);
         int var1 = this.getWorldY(param3);
         int var2 = this.getWorldZ(param2, param4);
@@ -403,7 +403,7 @@ public abstract class StructurePiece {
         }
     }
 
-    protected boolean createChest(LevelAccessor param0, BoundingBox param1, Random param2, int param3, int param4, int param5, ResourceLocation param6) {
+    protected boolean createChest(WorldGenLevel param0, BoundingBox param1, Random param2, int param3, int param4, int param5, ResourceLocation param6) {
         BlockPos var0 = new BlockPos(this.getWorldX(param3, param5), this.getWorldY(param4), this.getWorldZ(param3, param5));
         return this.createChest(param0, param1, param2, var0, param6, null);
     }
@@ -453,7 +453,7 @@ public abstract class StructurePiece {
     }
 
     protected boolean createChest(
-        LevelAccessor param0, BoundingBox param1, Random param2, BlockPos param3, ResourceLocation param4, @Nullable BlockState param5
+        ServerLevelAccessor param0, BoundingBox param1, Random param2, BlockPos param3, ResourceLocation param4, @Nullable BlockState param5
     ) {
         if (param1.isInside(param3) && !param0.getBlockState(param3).is(Blocks.CHEST)) {
             if (param5 == null) {
@@ -473,7 +473,7 @@ public abstract class StructurePiece {
     }
 
     protected boolean createDispenser(
-        LevelAccessor param0, BoundingBox param1, Random param2, int param3, int param4, int param5, Direction param6, ResourceLocation param7
+        WorldGenLevel param0, BoundingBox param1, Random param2, int param3, int param4, int param5, Direction param6, ResourceLocation param7
     ) {
         BlockPos var0 = new BlockPos(this.getWorldX(param3, param5), this.getWorldY(param4), this.getWorldZ(param3, param5));
         if (param1.isInside(var0) && !param0.getBlockState(var0).is(Blocks.DISPENSER)) {

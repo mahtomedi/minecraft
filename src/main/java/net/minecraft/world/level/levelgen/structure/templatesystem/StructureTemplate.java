@@ -31,6 +31,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.EmptyBlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LiquidBlockContainer;
@@ -189,16 +190,16 @@ public class StructureTemplate {
         return transform(param1, param0.getMirror(), param0.getRotation(), param0.getRotationPivot());
     }
 
-    public void placeInWorldChunk(LevelAccessor param0, BlockPos param1, StructurePlaceSettings param2, Random param3) {
+    public void placeInWorldChunk(ServerLevelAccessor param0, BlockPos param1, StructurePlaceSettings param2, Random param3) {
         param2.updateBoundingBoxFromChunkPos();
         this.placeInWorld(param0, param1, param2, param3);
     }
 
-    public void placeInWorld(LevelAccessor param0, BlockPos param1, StructurePlaceSettings param2, Random param3) {
+    public void placeInWorld(ServerLevelAccessor param0, BlockPos param1, StructurePlaceSettings param2, Random param3) {
         this.placeInWorld(param0, param1, param1, param2, param3, 2);
     }
 
-    public boolean placeInWorld(LevelAccessor param0, BlockPos param1, BlockPos param2, StructurePlaceSettings param3, Random param4, int param5) {
+    public boolean placeInWorld(ServerLevelAccessor param0, BlockPos param1, BlockPos param2, StructurePlaceSettings param3, Random param4, int param5) {
         if (this.palettes.isEmpty()) {
             return false;
         } else {
@@ -386,7 +387,7 @@ public class StructureTemplate {
     }
 
     private void placeEntities(
-        LevelAccessor param0, BlockPos param1, Mirror param2, Rotation param3, BlockPos param4, @Nullable BoundingBox param5, boolean param6
+        ServerLevelAccessor param0, BlockPos param1, Mirror param2, Rotation param3, BlockPos param4, @Nullable BoundingBox param5, boolean param6
     ) {
         for(StructureTemplate.StructureEntityInfo var0 : this.entityInfoList) {
             BlockPos var1 = transform(var0.blockPos, param2, param3, param4).offset(param1);
@@ -415,7 +416,7 @@ public class StructureTemplate {
 
     }
 
-    private static Optional<Entity> createEntityIgnoreException(LevelAccessor param0, CompoundTag param1) {
+    private static Optional<Entity> createEntityIgnoreException(ServerLevelAccessor param0, CompoundTag param1) {
         try {
             return EntityType.create(param1, param0.getLevel());
         } catch (Exception var3) {

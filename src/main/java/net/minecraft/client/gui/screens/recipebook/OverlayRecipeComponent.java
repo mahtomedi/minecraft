@@ -43,7 +43,7 @@ public class OverlayRecipeComponent extends GuiComponent implements Widget, GuiE
             this.isFurnaceMenu = true;
         }
 
-        boolean var0 = param0.player.getRecipeBook().isFilteringCraftable((RecipeBookMenu<?>)param0.player.containerMenu);
+        boolean var0 = param0.player.getRecipeBook().isFiltering((RecipeBookMenu<?>)param0.player.containerMenu);
         List<Recipe<?>> var1 = param1.getDisplayRecipes(true);
         List<Recipe<?>> var2 = var0 ? Collections.emptyList() : param1.getDisplayRecipes(false);
         int var3 = var1.size();

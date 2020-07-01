@@ -6,9 +6,10 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.ServerLevelAccessor;
 
 public abstract class AgableMob extends PathfinderMob {
     private static final EntityDataAccessor<Boolean> DATA_BABY_ID = SynchedEntityData.defineId(AgableMob.class, EntityDataSerializers.BOOLEAN);
@@ -22,7 +23,7 @@ public abstract class AgableMob extends PathfinderMob {
 
     @Override
     public SpawnGroupData finalizeSpawn(
-        LevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
+        ServerLevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
     ) {
         if (param3 == null) {
             param3 = new AgableMob.AgableMobGroupData();
@@ -38,7 +39,7 @@ public abstract class AgableMob extends PathfinderMob {
     }
 
     @Nullable
-    public abstract AgableMob getBreedOffspring(AgableMob var1);
+    public abstract AgableMob getBreedOffspring(ServerLevel var1, AgableMob var2);
 
     @Override
     protected void defineSynchedData() {

@@ -207,12 +207,12 @@ public class StructureUtils {
         var0.setRotation(param2);
         var0.setIgnoreEntities(false);
         var0.setStructureName(new ResourceLocation(param0));
-        var0.loadStructure(param4);
+        var0.loadStructure(param3, param4);
         if (var0.getStructureSize() != BlockPos.ZERO) {
             return var0;
         } else {
             StructureTemplate var1 = getStructureTemplate(param0, param3);
-            var0.loadStructure(param4, var1);
+            var0.loadStructure(param3, param4, var1);
             if (var0.getStructureSize() == BlockPos.ZERO) {
                 throw new RuntimeException("Failed to load structure " + param0);
             } else {

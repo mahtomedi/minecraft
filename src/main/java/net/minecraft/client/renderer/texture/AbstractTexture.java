@@ -11,7 +11,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public abstract class AbstractTexture {
+public abstract class AbstractTexture implements AutoCloseable {
     protected int id = -1;
     protected boolean blur;
     protected boolean mipmap;
@@ -72,5 +72,9 @@ public abstract class AbstractTexture {
 
     public void reset(TextureManager param0, ResourceManager param1, ResourceLocation param2, Executor param3) {
         param0.register(param2, this);
+    }
+
+    @Override
+    public void close() {
     }
 }

@@ -1,6 +1,7 @@
 package net.minecraft.network.protocol.game;
 
 import java.io.IOException;
+import javax.annotation.Nullable;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.util.Mth;
@@ -23,6 +24,19 @@ public class ClientboundMoveEntityPacket implements Packet<ClientGamePacketListe
 
     public static long entityToPacket(double param0) {
         return Mth.lfloor(param0 * 4096.0);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static double packetToEntity(long param0) {
+        return (double)param0 / 4096.0;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public Vec3 updateEntityPosition(Vec3 param0) {
+        double var0 = this.xa == 0 ? param0.x : packetToEntity(entityToPacket(param0.x) + (long)this.xa);
+        double var1 = this.ya == 0 ? param0.y : packetToEntity(entityToPacket(param0.y) + (long)this.ya);
+        double var2 = this.za == 0 ? param0.z : packetToEntity(entityToPacket(param0.z) + (long)this.za);
+        return new Vec3(var0, var1, var2);
     }
 
     public static Vec3 packetToEntity(long param0, long param1, long param2) {
@@ -55,24 +69,10 @@ public class ClientboundMoveEntityPacket implements Packet<ClientGamePacketListe
         return "Entity_" + super.toString();
     }
 
+    @Nullable
     @OnlyIn(Dist.CLIENT)
     public Entity getEntity(Level param0) {
         return param0.getEntity(this.entityId);
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public short getXa() {
-        return this.xa;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public short getYa() {
-        return this.ya;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public short getZa() {
-        return this.za;
     }
 
     @OnlyIn(Dist.CLIENT)

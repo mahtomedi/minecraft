@@ -774,7 +774,7 @@ public class ArmorStand extends LivingEntity {
     }
 
     @Override
-    public void thunderHit(LightningBolt param0) {
+    public void thunderHit(ServerLevel param0, LightningBolt param1) {
     }
 
     @Override

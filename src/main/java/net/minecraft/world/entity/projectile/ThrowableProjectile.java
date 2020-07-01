@@ -58,7 +58,7 @@ public abstract class ThrowableProjectile extends Projectile {
                 var1 = true;
             } else if (var3.is(Blocks.END_GATEWAY)) {
                 BlockEntity var4 = this.level.getBlockEntity(var2);
-                if (var4 instanceof TheEndGatewayBlockEntity) {
+                if (var4 instanceof TheEndGatewayBlockEntity && TheEndGatewayBlockEntity.canEntityTeleport(this)) {
                     ((TheEndGatewayBlockEntity)var4).teleportEntity(this);
                 }
 

@@ -13,7 +13,6 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.vehicle.MinecartChest;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
@@ -303,7 +302,7 @@ public class MineShaftPieces {
         }
 
         @Override
-        protected boolean createChest(LevelAccessor param0, BoundingBox param1, Random param2, int param3, int param4, int param5, ResourceLocation param6) {
+        protected boolean createChest(WorldGenLevel param0, BoundingBox param1, Random param2, int param3, int param4, int param5, ResourceLocation param6) {
             BlockPos var0 = new BlockPos(this.getWorldX(param3, param5), this.getWorldY(param4), this.getWorldZ(param3, param5));
             if (param1.isInside(var0) && param0.getBlockState(var0).isAir() && !param0.getBlockState(var0.below()).isAir()) {
                 BlockState var1 = Blocks.RAIL.defaultBlockState().setValue(RailBlock.SHAPE, param2.nextBoolean() ? RailShape.NORTH_SOUTH : RailShape.EAST_WEST);
@@ -401,7 +400,7 @@ public class MineShaftPieces {
             }
         }
 
-        private void placeSupport(LevelAccessor param0, BoundingBox param1, int param2, int param3, int param4, int param5, int param6, Random param7) {
+        private void placeSupport(WorldGenLevel param0, BoundingBox param1, int param2, int param3, int param4, int param5, int param6, Random param7) {
             if (this.isSupportingBox(param0, param1, param2, param6, param5, param4)) {
                 BlockState var0 = this.getPlanksBlock();
                 BlockState var1 = this.getFenceBlock();
@@ -441,7 +440,7 @@ public class MineShaftPieces {
             }
         }
 
-        private void placeCobWeb(LevelAccessor param0, BoundingBox param1, Random param2, float param3, int param4, int param5, int param6) {
+        private void placeCobWeb(WorldGenLevel param0, BoundingBox param1, Random param2, float param3, int param4, int param5, int param6) {
             if (this.isInterior(param0, param4, param5, param6, param1)) {
                 this.maybeGenerateBlock(param0, param1, param2, param3, param4, param5, param6, Blocks.COBWEB.defaultBlockState());
             }
@@ -704,7 +703,7 @@ public class MineShaftPieces {
             }
         }
 
-        private void placeSupportPillar(LevelAccessor param0, BoundingBox param1, int param2, int param3, int param4, int param5) {
+        private void placeSupportPillar(WorldGenLevel param0, BoundingBox param1, int param2, int param3, int param4, int param5) {
             if (!this.getBlock(param0, param2, param5 + 1, param4, param1).isAir()) {
                 this.generateBox(param0, param1, param2, param3, param4, param2, param5, param4, this.getPlanksBlock(), CAVE_AIR, false);
             }

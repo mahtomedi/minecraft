@@ -37,7 +37,7 @@ import net.minecraft.network.protocol.game.ServerboundPlayerAbilitiesPacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerCommandPacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerInputPacket;
-import net.minecraft.network.protocol.game.ServerboundRecipeBookUpdatePacket;
+import net.minecraft.network.protocol.game.ServerboundRecipeBookSeenRecipePacket;
 import net.minecraft.network.protocol.game.ServerboundSwingPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.sounds.SoundEvent;
@@ -391,7 +391,7 @@ public class LocalPlayer extends AbstractClientPlayer {
     public void removeRecipeHighlight(Recipe<?> param0) {
         if (this.recipeBook.willHighlight(param0)) {
             this.recipeBook.removeHighlight(param0);
-            this.connection.send(new ServerboundRecipeBookUpdatePacket(param0));
+            this.connection.send(new ServerboundRecipeBookSeenRecipePacket(param0));
         }
 
     }
@@ -866,7 +866,7 @@ public class LocalPlayer extends AbstractClientPlayer {
             }
         }
 
-        this.processDimensionDelay();
+        this.processPortalCooldown();
     }
 
     @Override

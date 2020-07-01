@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelSimulatedRW;
+import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.VineBlock;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.levelgen.feature.Feature;
@@ -22,7 +22,7 @@ public class LeaveVineDecorator extends TreeDecorator {
     }
 
     @Override
-    public void place(LevelAccessor param0, Random param1, List<BlockPos> param2, List<BlockPos> param3, Set<BlockPos> param4, BoundingBox param5) {
+    public void place(WorldGenLevel param0, Random param1, List<BlockPos> param2, List<BlockPos> param3, Set<BlockPos> param4, BoundingBox param5) {
         param3.forEach(param4x -> {
             if (param1.nextInt(4) == 0) {
                 BlockPos var3x = param4x.west();

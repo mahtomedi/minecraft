@@ -4,7 +4,6 @@ import com.mojang.serialization.Codec;
 import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -16,20 +15,18 @@ public class GlowstoneFeature extends Feature<NoneFeatureConfiguration> {
         super(param0);
     }
 
-    public boolean place(
-        WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BlockPos param4, NoneFeatureConfiguration param5
-    ) {
-        if (!param0.isEmptyBlock(param4)) {
+    public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, NoneFeatureConfiguration param4) {
+        if (!param0.isEmptyBlock(param3)) {
             return false;
         } else {
-            BlockState var0 = param0.getBlockState(param4.above());
+            BlockState var0 = param0.getBlockState(param3.above());
             if (!var0.is(Blocks.NETHERRACK) && !var0.is(Blocks.BASALT) && !var0.is(Blocks.BLACKSTONE)) {
                 return false;
             } else {
-                param0.setBlock(param4, Blocks.GLOWSTONE.defaultBlockState(), 2);
+                param0.setBlock(param3, Blocks.GLOWSTONE.defaultBlockState(), 2);
 
                 for(int var1 = 0; var1 < 1500; ++var1) {
-                    BlockPos var2 = param4.offset(param3.nextInt(8) - param3.nextInt(8), -param3.nextInt(12), param3.nextInt(8) - param3.nextInt(8));
+                    BlockPos var2 = param3.offset(param2.nextInt(8) - param2.nextInt(8), -param2.nextInt(12), param2.nextInt(8) - param2.nextInt(8));
                     if (param0.getBlockState(var2).isAir()) {
                         int var3 = 0;
 

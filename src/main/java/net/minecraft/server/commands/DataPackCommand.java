@@ -32,7 +32,7 @@ public class DataPackCommand {
             param0.getSource().getServer().getPackRepository().getSelectedIds().stream().map(StringArgumentType::escapeIfRequired), param1
         );
     private static final SuggestionProvider<CommandSourceStack> UNSELECTED_PACKS = (param0, param1) -> {
-        PackRepository<?> var0 = param0.getSource().getServer().getPackRepository();
+        PackRepository var0 = param0.getSource().getServer().getPackRepository();
         Collection<String> var1 = var0.getSelectedIds();
         return SharedSuggestionProvider.suggest(
             var0.getAvailableIds().stream().filter(param1x -> !var1.contains(param1x)).map(StringArgumentType::escapeIfRequired), param1
@@ -112,7 +112,7 @@ public class DataPackCommand {
     }
 
     private static int enablePack(CommandSourceStack param0, Pack param1, DataPackCommand.Inserter param2) throws CommandSyntaxException {
-        PackRepository<?> var0 = param0.getServer().getPackRepository();
+        PackRepository var0 = param0.getServer().getPackRepository();
         List<Pack> var1 = Lists.newArrayList(var0.getSelectedPacks());
         param2.apply(var1, param1);
         param0.sendSuccess(new TranslatableComponent("commands.datapack.modify.enable", param1.getChatLink(true)), true);
@@ -121,7 +121,7 @@ public class DataPackCommand {
     }
 
     private static int disablePack(CommandSourceStack param0, Pack param1) {
-        PackRepository<?> var0 = param0.getServer().getPackRepository();
+        PackRepository var0 = param0.getServer().getPackRepository();
         List<Pack> var1 = Lists.newArrayList(var0.getSelectedPacks());
         var1.remove(param1);
         param0.sendSuccess(new TranslatableComponent("commands.datapack.modify.disable", param1.getChatLink(true)), true);
@@ -134,7 +134,7 @@ public class DataPackCommand {
     }
 
     private static int listAvailablePacks(CommandSourceStack param0) {
-        PackRepository<?> var0 = param0.getServer().getPackRepository();
+        PackRepository var0 = param0.getServer().getPackRepository();
         var0.reload();
         Collection<? extends Pack> var1 = var0.getSelectedPacks();
         Collection<? extends Pack> var2 = var0.getAvailablePacks();
@@ -154,7 +154,7 @@ public class DataPackCommand {
     }
 
     private static int listEnabledPacks(CommandSourceStack param0) {
-        PackRepository<?> var0 = param0.getServer().getPackRepository();
+        PackRepository var0 = param0.getServer().getPackRepository();
         var0.reload();
         Collection<? extends Pack> var1 = var0.getSelectedPacks();
         if (var1.isEmpty()) {
@@ -173,7 +173,7 @@ public class DataPackCommand {
 
     private static Pack getPack(CommandContext<CommandSourceStack> param0, String param1, boolean param2) throws CommandSyntaxException {
         String var0 = StringArgumentType.getString(param0, param1);
-        PackRepository<?> var1 = param0.getSource().getServer().getPackRepository();
+        PackRepository var1 = param0.getSource().getServer().getPackRepository();
         Pack var2 = var1.getPack(var0);
         if (var2 == null) {
             throw ERROR_UNKNOWN_PACK.create(var0);

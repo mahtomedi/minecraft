@@ -4,10 +4,8 @@ import com.google.common.collect.Sets;
 import java.util.Set;
 import javax.annotation.Nullable;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.inventory.BlastFurnaceMenu;
-import net.minecraft.world.inventory.FurnaceMenu;
 import net.minecraft.world.inventory.RecipeBookMenu;
-import net.minecraft.world.inventory.SmokerMenu;
+import net.minecraft.world.inventory.RecipeBookType;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -15,26 +13,12 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class RecipeBook {
     protected final Set<ResourceLocation> known = Sets.newHashSet();
     protected final Set<ResourceLocation> highlight = Sets.newHashSet();
-    protected boolean guiOpen;
-    protected boolean filteringCraftable;
-    protected boolean furnaceGuiOpen;
-    protected boolean furnaceFilteringCraftable;
-    protected boolean blastingFurnaceGuiOpen;
-    protected boolean blastingFurnaceFilteringCraftable;
-    protected boolean smokerGuiOpen;
-    protected boolean smokerFilteringCraftable;
+    private final RecipeBookSettings bookSettings = new RecipeBookSettings();
 
     public void copyOverData(RecipeBook param0) {
         this.known.clear();
         this.highlight.clear();
-        this.guiOpen = param0.guiOpen;
-        this.filteringCraftable = param0.filteringCraftable;
-        this.furnaceGuiOpen = param0.furnaceGuiOpen;
-        this.furnaceFilteringCraftable = param0.furnaceFilteringCraftable;
-        this.blastingFurnaceGuiOpen = param0.blastingFurnaceGuiOpen;
-        this.blastingFurnaceFilteringCraftable = param0.blastingFurnaceFilteringCraftable;
-        this.smokerGuiOpen = param0.smokerGuiOpen;
-        this.smokerFilteringCraftable = param0.smokerFilteringCraftable;
+        this.bookSettings.replaceFrom(param0.bookSettings);
         this.known.addAll(param0.known);
         this.highlight.addAll(param0.highlight);
     }
@@ -86,85 +70,40 @@ public class RecipeBook {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public boolean isGuiOpen() {
-        return this.guiOpen;
-    }
-
-    public void setGuiOpen(boolean param0) {
-        this.guiOpen = param0;
+    public boolean isOpen(RecipeBookType param0) {
+        return this.bookSettings.isOpen(param0);
     }
 
     @OnlyIn(Dist.CLIENT)
-    public boolean isFilteringCraftable(RecipeBookMenu<?> param0) {
-        if (param0 instanceof FurnaceMenu) {
-            return this.furnaceFilteringCraftable;
-        } else if (param0 instanceof BlastFurnaceMenu) {
-            return this.blastingFurnaceFilteringCraftable;
-        } else {
-            return param0 instanceof SmokerMenu ? this.smokerFilteringCraftable : this.filteringCraftable;
-        }
+    public void setOpen(RecipeBookType param0, boolean param1) {
+        this.bookSettings.setOpen(param0, param1);
     }
 
     @OnlyIn(Dist.CLIENT)
-    public boolean isFilteringCraftable() {
-        return this.filteringCraftable;
-    }
-
-    public void setFilteringCraftable(boolean param0) {
-        this.filteringCraftable = param0;
+    public boolean isFiltering(RecipeBookMenu<?> param0) {
+        return this.isFiltering(param0.getRecipeBookType());
     }
 
     @OnlyIn(Dist.CLIENT)
-    public boolean isFurnaceGuiOpen() {
-        return this.furnaceGuiOpen;
-    }
-
-    public void setFurnaceGuiOpen(boolean param0) {
-        this.furnaceGuiOpen = param0;
+    public boolean isFiltering(RecipeBookType param0) {
+        return this.bookSettings.isFiltering(param0);
     }
 
     @OnlyIn(Dist.CLIENT)
-    public boolean isFurnaceFilteringCraftable() {
-        return this.furnaceFilteringCraftable;
+    public void setFiltering(RecipeBookType param0, boolean param1) {
+        this.bookSettings.setFiltering(param0, param1);
     }
 
-    public void setFurnaceFilteringCraftable(boolean param0) {
-        this.furnaceFilteringCraftable = param0;
+    public void setBookSettings(RecipeBookSettings param0) {
+        this.bookSettings.replaceFrom(param0);
     }
 
-    @OnlyIn(Dist.CLIENT)
-    public boolean isBlastingFurnaceGuiOpen() {
-        return this.blastingFurnaceGuiOpen;
+    public RecipeBookSettings getBookSettings() {
+        return this.bookSettings.copy();
     }
 
-    public void setBlastingFurnaceGuiOpen(boolean param0) {
-        this.blastingFurnaceGuiOpen = param0;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public boolean isBlastingFurnaceFilteringCraftable() {
-        return this.blastingFurnaceFilteringCraftable;
-    }
-
-    public void setBlastingFurnaceFilteringCraftable(boolean param0) {
-        this.blastingFurnaceFilteringCraftable = param0;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public boolean isSmokerGuiOpen() {
-        return this.smokerGuiOpen;
-    }
-
-    public void setSmokerGuiOpen(boolean param0) {
-        this.smokerGuiOpen = param0;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public boolean isSmokerFilteringCraftable() {
-        return this.smokerFilteringCraftable;
-    }
-
-    public void setSmokerFilteringCraftable(boolean param0) {
-        this.smokerFilteringCraftable = param0;
+    public void setBookSetting(RecipeBookType param0, boolean param1, boolean param2) {
+        this.bookSettings.setOpen(param0, param1);
+        this.bookSettings.setFiltering(param0, param2);
     }
 }

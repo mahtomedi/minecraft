@@ -1,8 +1,13 @@
 package net.minecraft.world.level.block;
 
+import java.util.Random;
+import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
@@ -21,6 +26,19 @@ public abstract class GrowingPlantBlock extends Block {
         this.scheduleFluidTicks = param3;
     }
 
+    @Nullable
+    @Override
+    public BlockState getStateForPlacement(BlockPlaceContext param0) {
+        BlockState var0 = param0.getLevel().getBlockState(param0.getClickedPos().relative(this.growthDirection));
+        return !var0.is(this.getHeadBlock()) && !var0.is(this.getBodyBlock())
+            ? this.getStateForPlacement(param0.getLevel())
+            : this.getBodyBlock().defaultBlockState();
+    }
+
+    public BlockState getStateForPlacement(LevelAccessor param0) {
+        return this.defaultBlockState();
+    }
+
     @Override
     public boolean canSurvive(BlockState param0, LevelReader param1, BlockPos param2) {
         BlockPos var0 = param2.relative(this.growthDirection.getOpposite());
@@ -31,6 +49,14 @@ public abstract class GrowingPlantBlock extends Block {
         } else {
             return var2 == this.getHeadBlock() || var2 == this.getBodyBlock() || var1.isFaceSturdy(param1, var0, this.growthDirection);
         }
+    }
+
+    @Override
+    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+        if (!param0.canSurvive(param1, param2)) {
+            param1.destroyBlock(param2, true);
+        }
+
     }
 
     protected boolean canAttachToBlock(Block param0) {

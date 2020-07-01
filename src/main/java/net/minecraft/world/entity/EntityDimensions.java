@@ -1,5 +1,7 @@
 package net.minecraft.world.entity;
 
+import net.minecraft.world.phys.AABB;
+
 public class EntityDimensions {
     public final float width;
     public final float height;
@@ -9,6 +11,12 @@ public class EntityDimensions {
         this.width = param0;
         this.height = param1;
         this.fixed = param2;
+    }
+
+    public AABB makeBoundingBox(double param0, double param1, double param2) {
+        float var0 = this.width / 2.0F;
+        float var1 = this.height;
+        return new AABB(param0 - (double)var0, param1, param2 - (double)var0, param0 + (double)var0, param1 + (double)var1, param2 + (double)var0);
     }
 
     public EntityDimensions scale(float param0) {

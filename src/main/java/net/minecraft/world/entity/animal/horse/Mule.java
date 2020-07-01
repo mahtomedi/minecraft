@@ -1,6 +1,7 @@
 package net.minecraft.world.entity.animal.horse;
 
 import javax.annotation.Nullable;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
@@ -49,7 +50,7 @@ public class Mule extends AbstractChestedHorse {
     }
 
     @Override
-    public AgableMob getBreedOffspring(AgableMob param0) {
-        return EntityType.MULE.create(this.level);
+    public AgableMob getBreedOffspring(ServerLevel param0, AgableMob param1) {
+        return EntityType.MULE.create(param0);
     }
 }

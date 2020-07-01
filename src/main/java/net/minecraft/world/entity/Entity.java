@@ -37,7 +37,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientboundMoveEntityPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -156,7 +155,6 @@ public abstract class Entity implements CommandSource, Nameable {
     protected boolean wasEyeInWater;
     @Nullable
     protected Tag<Fluid> fluidOnEyes;
-    protected boolean isTouchingLava;
     public int invulnerableTime;
     protected boolean firstTick = true;
     protected final SynchedEntityData entityData;
@@ -174,12 +172,10 @@ public abstract class Entity implements CommandSource, Nameable {
     public int yChunk;
     public int zChunk;
     private boolean movedSinceLastChunkCheck;
-    public long xp;
-    public long yp;
-    public long zp;
+    private Vec3 packetCoordinates;
     public boolean noCulling;
     public boolean hasImpulse;
-    public int changingDimensionDelay;
+    private int portalCooldown;
     protected boolean isInsidePortal;
     protected int portalTime;
     protected BlockPos portalEntranceBlock;
@@ -202,6 +198,7 @@ public abstract class Entity implements CommandSource, Nameable {
         this.dimensions = param0.getDimensions();
         this.position = Vec3.ZERO;
         this.blockPosition = BlockPos.ZERO;
+        this.packetCoordinates = Vec3.ZERO;
         this.setPos(0.0, 0.0, 0.0);
         this.entityData = new SynchedEntityData(this);
         this.entityData.define(DATA_SHARED_FLAGS_ID, (byte)0);
@@ -237,9 +234,16 @@ public abstract class Entity implements CommandSource, Nameable {
     }
 
     public void setPacketCoordinates(double param0, double param1, double param2) {
-        this.xp = ClientboundMoveEntityPacket.entityToPacket(param0);
-        this.yp = ClientboundMoveEntityPacket.entityToPacket(param1);
-        this.zp = ClientboundMoveEntityPacket.entityToPacket(param2);
+        this.setPacketCoordinates(new Vec3(param0, param1, param2));
+    }
+
+    public void setPacketCoordinates(Vec3 param0) {
+        this.packetCoordinates = param0;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public Vec3 getPacketCoordinates() {
+        return this.packetCoordinates;
     }
 
     public EntityType<?> getType() {
@@ -331,9 +335,7 @@ public abstract class Entity implements CommandSource, Nameable {
 
     public void setPos(double param0, double param1, double param2) {
         this.setPosRaw(param0, param1, param2);
-        float var0 = this.dimensions.width / 2.0F;
-        float var1 = this.dimensions.height;
-        this.setBoundingBox(new AABB(param0 - (double)var0, param1, param2 - (double)var0, param0 + (double)var0, param1 + (double)var1, param2 + (double)var0));
+        this.setBoundingBox(this.dimensions.makeBoundingBox(param0, param1, param2));
     }
 
     protected void reapplyPosition() {
@@ -419,9 +421,17 @@ public abstract class Entity implements CommandSource, Nameable {
         this.level.getProfiler().pop();
     }
 
-    protected void processDimensionDelay() {
-        if (this.changingDimensionDelay > 0) {
-            --this.changingDimensionDelay;
+    public void setPortalCooldown() {
+        this.portalCooldown = this.getDimensionChangingDelay();
+    }
+
+    public boolean isOnPortalCooldown() {
+        return this.portalCooldown > 0;
+    }
+
+    protected void processPortalCooldown() {
+        if (this.isOnPortalCooldown()) {
+            --this.portalCooldown;
         }
 
     }
@@ -564,7 +574,6 @@ public abstract class Entity implements CommandSource, Nameable {
             }
 
             try {
-                this.isTouchingLava = false;
                 this.checkInsideBlocks();
             } catch (Throwable var18) {
                 CrashReport var13 = CrashReport.forThrowable(var18, "Checking entity block collision");
@@ -1083,12 +1092,8 @@ public abstract class Entity implements CommandSource, Nameable {
         return this.fluidOnEyes == param0;
     }
 
-    public void setInLava() {
-        this.isTouchingLava = true;
-    }
-
     public boolean isInLava() {
-        return this.isTouchingLava;
+        return !this.firstTick && this.fluidHeight.getDouble(FluidTags.LAVA) > 0.0;
     }
 
     public void moveRelative(float param0, Vec3 param1) {
@@ -1345,7 +1350,7 @@ public abstract class Entity implements CommandSource, Nameable {
     public CompoundTag saveWithoutId(CompoundTag param0) {
         try {
             if (this.vehicle != null) {
-                param0.put("Pos", this.newDoubleList(this.vehicle.getX(), this.vehicle.getY(), this.vehicle.getZ()));
+                param0.put("Pos", this.newDoubleList(this.vehicle.getX(), this.getY(), this.vehicle.getZ()));
             } else {
                 param0.put("Pos", this.newDoubleList(this.getX(), this.getY(), this.getZ()));
             }
@@ -1358,7 +1363,7 @@ public abstract class Entity implements CommandSource, Nameable {
             param0.putShort("Air", (short)this.getAirSupply());
             param0.putBoolean("OnGround", this.onGround);
             param0.putBoolean("Invulnerable", this.invulnerable);
-            param0.putInt("PortalCooldown", this.changingDimensionDelay);
+            param0.putInt("PortalCooldown", this.portalCooldown);
             param0.putUUID("UUID", this.getUUID());
             Component var1 = this.getCustomName();
             if (var1 != null) {
@@ -1437,7 +1442,7 @@ public abstract class Entity implements CommandSource, Nameable {
             this.setAirSupply(param0.getShort("Air"));
             this.onGround = param0.getBoolean("OnGround");
             this.invulnerable = param0.getBoolean("Invulnerable");
-            this.changingDimensionDelay = param0.getInt("PortalCooldown");
+            this.portalCooldown = param0.getInt("PortalCooldown");
             if (param0.hasUUID("UUID")) {
                 this.uuid = param0.getUUID("UUID");
                 this.stringUUID = this.uuid.toString();
@@ -1720,8 +1725,8 @@ public abstract class Entity implements CommandSource, Nameable {
     }
 
     public void handleInsidePortal(BlockPos param0) {
-        if (this.changingDimensionDelay > 0) {
-            this.changingDimensionDelay = this.getDimensionChangingDelay();
+        if (this.isOnPortalCooldown()) {
+            this.setPortalCooldown();
         } else {
             if (!this.level.isClientSide && !param0.equals(this.portalEntranceBlock)) {
                 this.portalEntranceBlock = new BlockPos(param0);
@@ -1763,7 +1768,7 @@ public abstract class Entity implements CommandSource, Nameable {
                 if (var4 != null && var2.isNetherEnabled() && !this.isPassenger() && this.portalTime++ >= var0) {
                     this.level.getProfiler().push("portal");
                     this.portalTime = var0;
-                    this.changingDimensionDelay = this.getDimensionChangingDelay();
+                    this.setPortalCooldown();
                     this.changeDimension(var4);
                     this.level.getProfiler().pop();
                 }
@@ -1779,7 +1784,7 @@ public abstract class Entity implements CommandSource, Nameable {
                 }
             }
 
-            this.processDimensionDelay();
+            this.processPortalCooldown();
         }
     }
 
@@ -1958,7 +1963,7 @@ public abstract class Entity implements CommandSource, Nameable {
         this.entityData.set(DATA_AIR_SUPPLY_ID, param0);
     }
 
-    public void thunderHit(LightningBolt param0) {
+    public void thunderHit(ServerLevel param0, LightningBolt param1) {
         this.setRemainingFireTicks(this.remainingFireTicks + 1);
         if (this.remainingFireTicks == 0) {
             this.setSecondsOnFire(8);
@@ -1992,7 +1997,7 @@ public abstract class Entity implements CommandSource, Nameable {
         this.fallDistance = 0.0F;
     }
 
-    public void killed(LivingEntity param0) {
+    public void killed(ServerLevel param0, LivingEntity param1) {
     }
 
     protected void checkInBlock(double param0, double param1, double param2) {
@@ -2109,7 +2114,7 @@ public abstract class Entity implements CommandSource, Nameable {
         CompoundTag var0 = param0.saveWithoutId(new CompoundTag());
         var0.remove("Dimension");
         this.load(var0);
-        this.changingDimensionDelay = param0.changingDimensionDelay;
+        this.portalCooldown = param0.portalCooldown;
         this.portalEntranceBlock = param0.portalEntranceBlock;
         this.portalEntranceOffset = param0.portalEntranceOffset;
         this.portalEntranceForwards = param0.portalEntranceForwards;

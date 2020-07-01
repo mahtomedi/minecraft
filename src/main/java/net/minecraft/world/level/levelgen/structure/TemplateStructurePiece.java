@@ -8,7 +8,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
@@ -94,7 +94,7 @@ public abstract class TemplateStructurePiece extends StructurePiece {
         return true;
     }
 
-    protected abstract void handleDataMarker(String var1, BlockPos var2, LevelAccessor var3, Random var4, BoundingBox var5);
+    protected abstract void handleDataMarker(String var1, BlockPos var2, ServerLevelAccessor var3, Random var4, BoundingBox var5);
 
     @Override
     public void move(int param0, int param1, int param2) {

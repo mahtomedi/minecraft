@@ -289,6 +289,7 @@ public class GsonHelper {
     }
 
     @Nullable
+    @OnlyIn(Dist.CLIENT)
     public static <T> T fromJson(Gson param0, Reader param1, TypeToken<T> param2, boolean param3) {
         try {
             JsonReader var0 = new JsonReader(param1);
@@ -311,6 +312,7 @@ public class GsonHelper {
     }
 
     @Nullable
+    @OnlyIn(Dist.CLIENT)
     public static <T> T fromJson(Gson param0, Reader param1, TypeToken<T> param2) {
         return fromJson(param0, param1, param2, false);
     }

@@ -71,8 +71,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Block;
@@ -282,16 +282,16 @@ public class Fox extends Animal {
             .add(Attributes.ATTACK_DAMAGE, 2.0);
     }
 
-    public Fox getBreedOffspring(AgableMob param0) {
-        Fox var0 = EntityType.FOX.create(this.level);
-        var0.setFoxType(this.random.nextBoolean() ? this.getFoxType() : ((Fox)param0).getFoxType());
+    public Fox getBreedOffspring(ServerLevel param0, AgableMob param1) {
+        Fox var0 = EntityType.FOX.create(param0);
+        var0.setFoxType(this.random.nextBoolean() ? this.getFoxType() : ((Fox)param1).getFoxType());
         return var0;
     }
 
     @Nullable
     @Override
     public SpawnGroupData finalizeSpawn(
-        LevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
+        ServerLevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
     ) {
         Biome var0 = param0.getBiome(this.blockPosition());
         Fox.Type var1 = Fox.Type.byBiome(var0);
@@ -843,7 +843,7 @@ public class Fox extends Animal {
 
         @Override
         protected void breed() {
-            Fox var0 = (Fox)this.animal.getBreedOffspring(this.partner);
+            Fox var0 = (Fox)this.animal.getBreedOffspring((ServerLevel)this.level, this.partner);
             if (var0 != null) {
                 ServerPlayer var1 = this.animal.getLoveCause();
                 ServerPlayer var2 = this.partner.getLoveCause();

@@ -24,11 +24,12 @@ import net.minecraft.client.resources.language.LanguageManager;
 import net.minecraft.client.searchtree.SearchRegistry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.network.protocol.game.ServerboundRecipeBookUpdatePacket;
+import net.minecraft.network.protocol.game.ServerboundRecipeBookChangeSettingsPacket;
 import net.minecraft.recipebook.PlaceRecipe;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.StackedContents;
 import net.minecraft.world.inventory.RecipeBookMenu;
+import net.minecraft.world.inventory.RecipeBookType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -53,9 +54,9 @@ public class RecipeBookComponent extends GuiComponent implements Widget, GuiEven
     protected Minecraft minecraft;
     private EditBox searchBox;
     private String lastSearch = "";
-    protected ClientRecipeBook book;
-    protected final RecipeBookPage recipeBookPage = new RecipeBookPage();
-    protected final StackedContents stackedContents = new StackedContents();
+    private ClientRecipeBook book;
+    private final RecipeBookPage recipeBookPage = new RecipeBookPage();
+    private final StackedContents stackedContents = new StackedContents();
     private int timesInventoryChanged;
     private boolean ignoreTextInput;
 
@@ -90,11 +91,11 @@ public class RecipeBookComponent extends GuiComponent implements Widget, GuiEven
         this.searchBox.setValue(var2);
         this.recipeBookPage.init(this.minecraft, var0, var1);
         this.recipeBookPage.addListener(this);
-        this.filterButton = new StateSwitchingButton(var0 + 110, var1 + 12, 26, 16, this.book.isFilteringCraftable(this.menu));
+        this.filterButton = new StateSwitchingButton(var0 + 110, var1 + 12, 26, 16, this.book.isFiltering(this.menu));
         this.initFilterButtonTextures();
         this.tabButtons.clear();
 
-        for(RecipeBookCategories var3 : ClientRecipeBook.getCategories(this.menu)) {
+        for(RecipeBookCategories var3 : RecipeBookCategories.getCategories(this.menu.getRecipeBookType())) {
             this.tabButtons.add(new RecipeBookTabButton(var3));
         }
 
@@ -146,11 +147,11 @@ public class RecipeBookComponent extends GuiComponent implements Widget, GuiEven
     }
 
     public boolean isVisible() {
-        return this.book.isGuiOpen();
+        return this.book.isOpen(this.menu.getRecipeBookType());
     }
 
     protected void setVisible(boolean param0) {
-        this.book.setGuiOpen(param0);
+        this.book.setOpen(this.menu.getRecipeBookType(), param0);
         if (!param0) {
             this.recipeBookPage.setInvisible();
         }
@@ -182,7 +183,7 @@ public class RecipeBookComponent extends GuiComponent implements Widget, GuiEven
             var1.removeIf(param1 -> !var3.contains(param1));
         }
 
-        if (this.book.isFilteringCraftable(this.menu)) {
+        if (this.book.isFiltering(this.menu)) {
             var1.removeIf(param0x -> !param0x.hasCraftable());
         }
 
@@ -197,7 +198,7 @@ public class RecipeBookComponent extends GuiComponent implements Widget, GuiEven
 
         for(RecipeBookTabButton var4 : this.tabButtons) {
             RecipeBookCategories var5 = var4.getCategory();
-            if (var5 == RecipeBookCategories.SEARCH || var5 == RecipeBookCategories.FURNACE_SEARCH) {
+            if (var5 == RecipeBookCategories.CRAFTING_SEARCH || var5 == RecipeBookCategories.FURNACE_SEARCH) {
                 var4.visible = true;
                 var4.setPosition(var0, var1 + 27 * var3++);
             } else if (var4.updateVisibility(this.book)) {
@@ -313,7 +314,7 @@ public class RecipeBookComponent extends GuiComponent implements Widget, GuiEven
             } else if (this.searchBox.mouseClicked(param0, param1, param2)) {
                 return true;
             } else if (this.filterButton.mouseClicked(param0, param1, param2)) {
-                boolean var2 = this.updateFiltering();
+                boolean var2 = this.toggleFiltering();
                 this.filterButton.setStateTriggered(var2);
                 this.sendUpdateSettings();
                 this.updateCollections(false);
@@ -339,10 +340,11 @@ public class RecipeBookComponent extends GuiComponent implements Widget, GuiEven
         }
     }
 
-    protected boolean updateFiltering() {
-        boolean var0 = !this.book.isFilteringCraftable();
-        this.book.setFilteringCraftable(var0);
-        return var0;
+    private boolean toggleFiltering() {
+        RecipeBookType var0 = this.menu.getRecipeBookType();
+        boolean var1 = !this.book.isFiltering(var0);
+        this.book.setFiltering(var0, var1);
+        return var1;
     }
 
     public boolean hasClickedOutside(double param0, double param1, int param2, int param3, int param4, int param5, int param6) {
@@ -467,18 +469,10 @@ public class RecipeBookComponent extends GuiComponent implements Widget, GuiEven
 
     protected void sendUpdateSettings() {
         if (this.minecraft.getConnection() != null) {
-            this.minecraft
-                .getConnection()
-                .send(
-                    new ServerboundRecipeBookUpdatePacket(
-                        this.book.isGuiOpen(),
-                        this.book.isFilteringCraftable(),
-                        this.book.isFurnaceGuiOpen(),
-                        this.book.isFurnaceFilteringCraftable(),
-                        this.book.isBlastingFurnaceGuiOpen(),
-                        this.book.isBlastingFurnaceFilteringCraftable()
-                    )
-                );
+            RecipeBookType var0 = this.menu.getRecipeBookType();
+            boolean var1 = this.book.getBookSettings().isOpen(var0);
+            boolean var2 = this.book.getBookSettings().isFiltering(var0);
+            this.minecraft.getConnection().send(new ServerboundRecipeBookChangeSettingsPacket(var0, var1, var2));
         }
 
     }

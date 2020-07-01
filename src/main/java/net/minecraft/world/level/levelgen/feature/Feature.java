@@ -6,7 +6,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.world.level.LevelSimulatedReader;
 import net.minecraft.world.level.LevelWriter;
-import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -142,7 +141,7 @@ public abstract class Feature<FC extends FeatureConfiguration> {
         param0.setBlock(param1, param2, 3);
     }
 
-    public abstract boolean place(WorldGenLevel var1, StructureFeatureManager var2, ChunkGenerator var3, Random var4, BlockPos var5, FC var6);
+    public abstract boolean place(WorldGenLevel var1, ChunkGenerator var2, Random var3, BlockPos var4, FC var5);
 
     protected static boolean isStone(Block param0) {
         return param0 == Blocks.STONE || param0 == Blocks.GRANITE || param0 == Blocks.DIORITE || param0 == Blocks.ANDESITE;

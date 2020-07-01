@@ -65,7 +65,7 @@ public class VillagerMakeLove extends Behavior<Villager> {
             param0.broadcastEntityEvent(param2, (byte)13);
             param0.broadcastEntityEvent(param1, (byte)13);
         } else {
-            Optional<Villager> var1 = this.breed(param1, param2);
+            Optional<Villager> var1 = this.breed(param0, param1, param2);
             if (var1.isPresent()) {
                 this.giveBedToChild(param0, var1.get(), var0.get());
             } else {
@@ -99,17 +99,17 @@ public class VillagerMakeLove extends Behavior<Villager> {
         return var0 != null && var0.canReach();
     }
 
-    private Optional<Villager> breed(Villager param0, Villager param1) {
-        Villager var0 = param0.getBreedOffspring(param1);
+    private Optional<Villager> breed(ServerLevel param0, Villager param1, Villager param2) {
+        Villager var0 = param1.getBreedOffspring(param0, param2);
         if (var0 == null) {
             return Optional.empty();
         } else {
-            param0.setAge(6000);
             param1.setAge(6000);
+            param2.setAge(6000);
             var0.setAge(-24000);
-            var0.moveTo(param0.getX(), param0.getY(), param0.getZ(), 0.0F, 0.0F);
-            param0.level.addFreshEntity(var0);
-            param0.level.broadcastEntityEvent(var0, (byte)12);
+            var0.moveTo(param1.getX(), param1.getY(), param1.getZ(), 0.0F, 0.0F);
+            param1.level.addFreshEntity(var0);
+            param1.level.broadcastEntityEvent(var0, (byte)12);
             return Optional.of(var0);
         }
     }

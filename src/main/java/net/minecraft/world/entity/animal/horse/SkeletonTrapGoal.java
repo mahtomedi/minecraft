@@ -1,5 +1,6 @@
 package net.minecraft.world.entity.animal.horse;
 
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -47,7 +48,7 @@ public class SkeletonTrapGoal extends Goal {
 
     private AbstractHorse createHorse(DifficultyInstance param0) {
         SkeletonHorse var0 = EntityType.SKELETON_HORSE.create(this.horse.level);
-        var0.finalizeSpawn(this.horse.level, param0, MobSpawnType.TRIGGERED, null, null);
+        var0.finalizeSpawn((ServerLevel)this.horse.level, param0, MobSpawnType.TRIGGERED, null, null);
         var0.setPos(this.horse.getX(), this.horse.getY(), this.horse.getZ());
         var0.invulnerableTime = 60;
         var0.setPersistenceRequired();
@@ -59,7 +60,7 @@ public class SkeletonTrapGoal extends Goal {
 
     private Skeleton createSkeleton(DifficultyInstance param0, AbstractHorse param1) {
         Skeleton var0 = EntityType.SKELETON.create(param1.level);
-        var0.finalizeSpawn(param1.level, param0, MobSpawnType.TRIGGERED, null, null);
+        var0.finalizeSpawn((ServerLevel)param1.level, param0, MobSpawnType.TRIGGERED, null, null);
         var0.setPos(param1.getX(), param1.getY(), param1.getZ());
         var0.invulnerableTime = 60;
         var0.setPersistenceRequired();

@@ -3,6 +3,7 @@ package net.minecraft.world.level.block;
 import com.google.common.collect.Maps;
 import java.util.Map;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.monster.Silverfish;
 import net.minecraft.world.item.ItemStack;
@@ -32,7 +33,7 @@ public class InfestedBlock extends Block {
         return BLOCK_BY_HOST_BLOCK.containsKey(param0.getBlock());
     }
 
-    private void spawnInfestation(Level param0, BlockPos param1) {
+    private void spawnInfestation(ServerLevel param0, BlockPos param1) {
         Silverfish var0 = EntityType.SILVERFISH.create(param0);
         var0.moveTo((double)param1.getX() + 0.5, (double)param1.getY(), (double)param1.getZ() + 0.5, 0.0F, 0.0F);
         param0.addFreshEntity(var0);
@@ -40,11 +41,9 @@ public class InfestedBlock extends Block {
     }
 
     @Override
-    public void spawnAfterBreak(BlockState param0, Level param1, BlockPos param2, ItemStack param3) {
+    public void spawnAfterBreak(BlockState param0, ServerLevel param1, BlockPos param2, ItemStack param3) {
         super.spawnAfterBreak(param0, param1, param2, param3);
-        if (!param1.isClientSide
-            && param1.getGameRules().getBoolean(GameRules.RULE_DOBLOCKDROPS)
-            && EnchantmentHelper.getItemEnchantmentLevel(Enchantments.SILK_TOUCH, param3) == 0) {
+        if (param1.getGameRules().getBoolean(GameRules.RULE_DOBLOCKDROPS) && EnchantmentHelper.getItemEnchantmentLevel(Enchantments.SILK_TOUCH, param3) == 0) {
             this.spawnInfestation(param1, param2);
         }
 
@@ -52,8 +51,8 @@ public class InfestedBlock extends Block {
 
     @Override
     public void wasExploded(Level param0, BlockPos param1, Explosion param2) {
-        if (!param0.isClientSide) {
-            this.spawnInfestation(param0, param1);
+        if (param0 instanceof ServerLevel) {
+            this.spawnInfestation((ServerLevel)param0, param1);
         }
 
     }

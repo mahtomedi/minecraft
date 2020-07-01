@@ -7,8 +7,8 @@ public class ServerPacksSource implements RepositorySource {
     private final VanillaPackResources vanillaPack = new VanillaPackResources("minecraft");
 
     @Override
-    public <T extends Pack> void loadPacks(Consumer<T> param0, Pack.PackConstructor<T> param1) {
-        T var0 = Pack.create("vanilla", false, () -> this.vanillaPack, param1, Pack.Position.BOTTOM, PackSource.BUILT_IN);
+    public void loadPacks(Consumer<Pack> param0, Pack.PackConstructor param1) {
+        Pack var0 = Pack.create("vanilla", false, () -> this.vanillaPack, param1, Pack.Position.BOTTOM, PackSource.BUILT_IN);
         if (var0 != null) {
             param0.accept(var0);
         }

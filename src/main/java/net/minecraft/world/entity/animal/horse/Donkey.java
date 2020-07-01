@@ -1,6 +1,7 @@
 package net.minecraft.world.entity.animal.horse;
 
 import javax.annotation.Nullable;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
@@ -56,10 +57,10 @@ public class Donkey extends AbstractChestedHorse {
     }
 
     @Override
-    public AgableMob getBreedOffspring(AgableMob param0) {
-        EntityType<? extends AbstractHorse> var0 = param0 instanceof Horse ? EntityType.MULE : EntityType.DONKEY;
-        AbstractHorse var1 = var0.create(this.level);
-        this.setOffspringAttributes(param0, var1);
+    public AgableMob getBreedOffspring(ServerLevel param0, AgableMob param1) {
+        EntityType<? extends AbstractHorse> var0 = param1 instanceof Horse ? EntityType.MULE : EntityType.DONKEY;
+        AbstractHorse var1 = var0.create(param0);
+        this.setOffspringAttributes(param1, var1);
         return var1;
     }
 }

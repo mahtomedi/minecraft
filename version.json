@@ -1,10 +1,10 @@
 {
-    "id": "1.16.1",
-    "name": "1.16.1",
-    "release_target": "1.16.1",
-    "world_version": 2567,
-    "protocol_version": 736,
+    "id": "20w27a",
+    "name": "20w27a",
+    "release_target": "1.16.2",
+    "world_version": 2569,
+    "protocol_version": 738,
     "pack_version": 5,
-    "build_time": "2020-06-24T10:29:54+00:00",
-    "stable": true
+    "build_time": "2020-07-01T15:05:44+00:00",
+    "stable": false
 }

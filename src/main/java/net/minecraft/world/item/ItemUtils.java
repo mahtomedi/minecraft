@@ -11,15 +11,19 @@ public class ItemUtils {
         return InteractionResultHolder.consume(param1.getItemInHand(param2));
     }
 
-    public static ItemStack createBucketResult(ItemStack param0, Player param1, ItemStack param2) {
-        if (param1.abilities.instabuild) {
+    public static ItemStack createFilledResult(ItemStack param0, Player param1, ItemStack param2, boolean param3) {
+        boolean var0 = param1.abilities.instabuild;
+        if (param3 && var0) {
             if (!param1.inventory.contains(param2)) {
                 param1.inventory.add(param2);
             }
 
             return param0;
         } else {
-            param0.shrink(1);
+            if (!var0) {
+                param0.shrink(1);
+            }
+
             if (param0.isEmpty()) {
                 return param2;
             } else {
@@ -30,5 +34,9 @@ public class ItemUtils {
                 return param0;
             }
         }
+    }
+
+    public static ItemStack createFilledResult(ItemStack param0, Player param1, ItemStack param2) {
+        return createFilledResult(param0, param1, param2, true);
     }
 }

@@ -42,6 +42,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Blocks;
@@ -80,7 +81,7 @@ public class Drowned extends Zombie implements RangedAttackMob {
 
     @Override
     public SpawnGroupData finalizeSpawn(
-        LevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
+        ServerLevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
     ) {
         param3 = super.finalizeSpawn(param0, param1, param2, param3, param4);
         if (this.getItemBySlot(EquipmentSlot.OFFHAND).isEmpty() && this.random.nextFloat() < 0.03F) {
@@ -91,7 +92,7 @@ public class Drowned extends Zombie implements RangedAttackMob {
         return param3;
     }
 
-    public static boolean checkDrownedSpawnRules(EntityType<Drowned> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, Random param4) {
+    public static boolean checkDrownedSpawnRules(EntityType<Drowned> param0, ServerLevelAccessor param1, MobSpawnType param2, BlockPos param3, Random param4) {
         Biome var0 = param1.getBiome(param3);
         boolean var1 = param1.getDifficulty() != Difficulty.PEACEFUL
             && isDarkEnoughToSpawn(param1, param3, param4)

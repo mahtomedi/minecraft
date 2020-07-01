@@ -61,6 +61,7 @@ import net.minecraft.world.entity.ai.gossip.GossipType;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
+import net.minecraft.world.entity.ai.sensing.GolemSensor;
 import net.minecraft.world.entity.ai.sensing.Sensor;
 import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.ai.village.ReputationEventType;
@@ -79,7 +80,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.item.trading.MerchantOffers;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.api.distmarker.Dist;
@@ -134,7 +135,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
         MemoryModuleType.LAST_SLEPT,
         MemoryModuleType.LAST_WOKEN,
         MemoryModuleType.LAST_WORKED_AT_POI,
-        MemoryModuleType.GOLEM_LAST_SEEN_TIME
+        MemoryModuleType.GOLEM_DETECTED_RECENTLY
     );
     private static final ImmutableList<SensorType<? extends Sensor<? super Villager>>> SENSOR_TYPES = ImmutableList.of(
         SensorType.NEAREST_LIVING_ENTITIES,
@@ -146,7 +147,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
         SensorType.VILLAGER_HOSTILES,
         SensorType.VILLAGER_BABIES,
         SensorType.SECONDARY_POIS,
-        SensorType.GOLEM_LAST_SEEN
+        SensorType.GOLEM_DETECTED
     );
     public static final Map<MemoryModuleType<GlobalPos>, BiPredicate<Villager, PoiType>> POI_MEMORIES = ImmutableMap.of(
         MemoryModuleType.HOME,
@@ -721,7 +722,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
     @Nullable
     @Override
     public SpawnGroupData finalizeSpawn(
-        LevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
+        ServerLevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
     ) {
         if (param2 == MobSpawnType.BREEDING) {
             this.setVillagerData(this.getVillagerData().setProfession(VillagerProfession.NONE));
@@ -738,29 +739,29 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
         return super.finalizeSpawn(param0, param1, param2, param3, param4);
     }
 
-    public Villager getBreedOffspring(AgableMob param0) {
+    public Villager getBreedOffspring(ServerLevel param0, AgableMob param1) {
         double var0 = this.random.nextDouble();
         VillagerType var1;
         if (var0 < 0.5) {
-            var1 = VillagerType.byBiome(this.level.getBiome(this.blockPosition()));
+            var1 = VillagerType.byBiome(param0.getBiome(this.blockPosition()));
         } else if (var0 < 0.75) {
             var1 = this.getVillagerData().getType();
         } else {
-            var1 = ((Villager)param0).getVillagerData().getType();
+            var1 = ((Villager)param1).getVillagerData().getType();
         }
 
-        Villager var4 = new Villager(EntityType.VILLAGER, this.level, var1);
-        var4.finalizeSpawn(this.level, this.level.getCurrentDifficultyAt(var4.blockPosition()), MobSpawnType.BREEDING, null, null);
+        Villager var4 = new Villager(EntityType.VILLAGER, param0, var1);
+        var4.finalizeSpawn(param0, param0.getCurrentDifficultyAt(var4.blockPosition()), MobSpawnType.BREEDING, null, null);
         return var4;
     }
 
     @Override
-    public void thunderHit(LightningBolt param0) {
-        if (this.level.getDifficulty() != Difficulty.PEACEFUL) {
-            LOGGER.info("Villager {} was struck by lightning {}.", this, param0);
-            Witch var0 = EntityType.WITCH.create(this.level);
+    public void thunderHit(ServerLevel param0, LightningBolt param1) {
+        if (param0.getDifficulty() != Difficulty.PEACEFUL) {
+            LOGGER.info("Villager {} was struck by lightning {}.", this, param1);
+            Witch var0 = EntityType.WITCH.create(param0);
             var0.moveTo(this.getX(), this.getY(), this.getZ(), this.yRot, this.xRot);
-            var0.finalizeSpawn(this.level, this.level.getCurrentDifficultyAt(var0.blockPosition()), MobSpawnType.CONVERSION, null, null);
+            var0.finalizeSpawn(param0, param0.getCurrentDifficultyAt(var0.blockPosition()), MobSpawnType.CONVERSION, null, null);
             var0.setNoAi(this.isNoAi());
             if (this.hasCustomName()) {
                 var0.setCustomName(this.getCustomName());
@@ -768,10 +769,10 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
             }
 
             var0.setPersistenceRequired();
-            this.level.addFreshEntity(var0);
+            param0.addFreshEntity(var0);
             this.remove();
         } else {
-            super.thunderHit(param0);
+            super.thunderHit(param0, param1);
         }
 
     }
@@ -835,13 +836,13 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
         }
     }
 
-    public void gossip(Villager param0, long param1) {
-        if ((param1 < this.lastGossipTime || param1 >= this.lastGossipTime + 1200L)
-            && (param1 < param0.lastGossipTime || param1 >= param0.lastGossipTime + 1200L)) {
-            this.gossips.transferFrom(param0.gossips, this.random, 10);
-            this.lastGossipTime = param1;
-            param0.lastGossipTime = param1;
-            this.spawnGolemIfNeeded(param1, 5);
+    public void gossip(ServerLevel param0, Villager param1, long param2) {
+        if ((param2 < this.lastGossipTime || param2 >= this.lastGossipTime + 1200L)
+            && (param2 < param1.lastGossipTime || param2 >= param1.lastGossipTime + 1200L)) {
+            this.gossips.transferFrom(param1.gossips, this.random, 10);
+            this.lastGossipTime = param2;
+            param1.lastGossipTime = param2;
+            this.spawnGolemIfNeeded(param0, param2, 5);
         }
     }
 
@@ -855,31 +856,17 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
         }
     }
 
-    public void spawnGolemIfNeeded(long param0, int param1) {
-        if (this.wantsToSpawnGolem(param0)) {
+    public void spawnGolemIfNeeded(ServerLevel param0, long param1, int param2) {
+        if (this.wantsToSpawnGolem(param1)) {
             AABB var0 = this.getBoundingBox().inflate(10.0, 10.0, 10.0);
-            List<Villager> var1 = this.level.getEntitiesOfClass(Villager.class, var0);
-            List<Villager> var2 = var1.stream().filter(param1x -> param1x.wantsToSpawnGolem(param0)).limit(5L).collect(Collectors.toList());
-            if (var2.size() >= param1) {
-                IronGolem var3 = this.trySpawnGolem();
+            List<Villager> var1 = param0.getEntitiesOfClass(Villager.class, var0);
+            List<Villager> var2 = var1.stream().filter(param1x -> param1x.wantsToSpawnGolem(param1)).limit(5L).collect(Collectors.toList());
+            if (var2.size() >= param2) {
+                IronGolem var3 = this.trySpawnGolem(param0);
                 if (var3 != null) {
-                    var1.forEach(param1x -> param1x.sawGolem(param0));
+                    var1.forEach(GolemSensor::golemDetected);
                 }
             }
-        }
-    }
-
-    private void sawGolem(long param0) {
-        this.brain.setMemory(MemoryModuleType.GOLEM_LAST_SEEN_TIME, param0);
-    }
-
-    private boolean hasSeenGolemRecently(long param0) {
-        Optional<Long> var0 = this.brain.getMemory(MemoryModuleType.GOLEM_LAST_SEEN_TIME);
-        if (!var0.isPresent()) {
-            return false;
-        } else {
-            Long var1 = var0.get();
-            return param0 - var1 <= 600L;
         }
     }
 
@@ -887,23 +874,23 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
         if (!this.golemSpawnConditionsMet(this.level.getGameTime())) {
             return false;
         } else {
-            return !this.hasSeenGolemRecently(param0);
+            return !this.brain.hasMemoryValue(MemoryModuleType.GOLEM_DETECTED_RECENTLY);
         }
     }
 
     @Nullable
-    private IronGolem trySpawnGolem() {
+    private IronGolem trySpawnGolem(ServerLevel param0) {
         BlockPos var0 = this.blockPosition();
 
         for(int var1 = 0; var1 < 10; ++var1) {
-            double var2 = (double)(this.level.random.nextInt(16) - 8);
-            double var3 = (double)(this.level.random.nextInt(16) - 8);
+            double var2 = (double)(param0.random.nextInt(16) - 8);
+            double var3 = (double)(param0.random.nextInt(16) - 8);
             BlockPos var4 = this.findSpawnPositionForGolemInColumn(var0, var2, var3);
             if (var4 != null) {
-                IronGolem var5 = EntityType.IRON_GOLEM.create(this.level, null, null, null, var4, MobSpawnType.MOB_SUMMONED, false, false);
+                IronGolem var5 = EntityType.IRON_GOLEM.create(param0, null, null, null, var4, MobSpawnType.MOB_SUMMONED, false, false);
                 if (var5 != null) {
-                    if (var5.checkSpawnRules(this.level, MobSpawnType.MOB_SUMMONED) && var5.checkSpawnObstruction(this.level)) {
-                        this.level.addFreshEntity(var5);
+                    if (var5.checkSpawnRules(param0, MobSpawnType.MOB_SUMMONED) && var5.checkSpawnObstruction(param0)) {
+                        param0.addFreshEntity(var5);
                         return var5;
                     }
 

@@ -42,6 +42,7 @@ import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.sensing.Sensor;
 import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.monster.hoglin.HoglinBase;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -170,6 +171,11 @@ public class Zoglin extends Monster implements Enemy, HoglinBase {
             this.playSound(SoundEvents.ZOGLIN_ATTACK, 1.0F, this.getVoicePitch());
             return HoglinBase.hurtAndThrowTarget(this, (LivingEntity)param0);
         }
+    }
+
+    @Override
+    public boolean canBeLeashed(Player param0) {
+        return !this.isLeashed();
     }
 
     @Override

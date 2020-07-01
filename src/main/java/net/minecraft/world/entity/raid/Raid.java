@@ -575,7 +575,7 @@ public class Raid {
             .addPattern(BannerPattern.BORDER, DyeColor.BLACK)
             .toListTag();
         var1.put("Patterns", var2);
-        var0.getOrCreateTag().putInt("HideFlags", 32);
+        var0.hideTooltipPart(ItemStack.TooltipPart.ADDITIONAL);
         var0.setHoverName(new TranslatableComponent("block.minecraft.ominous_banner").withStyle(ChatFormatting.GOLD));
         return var0;
     }

@@ -1223,17 +1223,17 @@ public abstract class LivingEntity extends Entity {
                 var1.awardKillScore(this, this.deathScore, param0);
             }
 
-            if (var0 != null) {
-                var0.killed(this);
-            }
-
             if (this.isSleeping()) {
                 this.stopSleeping();
             }
 
             this.dead = true;
             this.getCombatTracker().recheckStatus();
-            if (!this.level.isClientSide) {
+            if (this.level instanceof ServerLevel) {
+                if (var0 != null) {
+                    var0.killed((ServerLevel)this.level, this);
+                }
+
                 this.dropAllDeathLoot(param0);
                 this.createWitherRose(var1);
             }
@@ -2867,12 +2867,17 @@ public abstract class LivingEntity extends Entity {
     }
 
     protected void completeUsingItem() {
-        if (!this.useItem.equals(this.getItemInHand(this.getUsedItemHand()))) {
+        InteractionHand var0 = this.getUsedItemHand();
+        if (!this.useItem.equals(this.getItemInHand(var0))) {
             this.releaseUsingItem();
         } else {
             if (!this.useItem.isEmpty() && this.isUsingItem()) {
                 this.triggerItemUseEffects(this.useItem, 16);
-                this.setItemInHand(this.getUsedItemHand(), this.useItem.finishUsingItem(this.level, this));
+                ItemStack var1 = this.useItem.finishUsingItem(this.level, this);
+                if (var1 != this.useItem) {
+                    this.setItemInHand(var0, var1);
+                }
+
                 this.stopUsingItem();
             }
 
@@ -3168,5 +3173,16 @@ public abstract class LivingEntity extends Entity {
 
     public void broadcastBreakEvent(InteractionHand param0) {
         this.broadcastBreakEvent(param0 == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public AABB getBoundingBoxForCulling() {
+        if (this.getItemBySlot(EquipmentSlot.HEAD).getItem() == Items.DRAGON_HEAD) {
+            float var0 = 0.5F;
+            return this.getBoundingBox().inflate(0.5, 0.5, 0.5);
+        } else {
+            return super.getBoundingBoxForCulling();
+        }
     }
 }

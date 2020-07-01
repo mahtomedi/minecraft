@@ -23,7 +23,7 @@ public class ReloadCommand {
         });
     }
 
-    private static Collection<String> discoverNewPacks(PackRepository<?> param0, WorldData param1, Collection<String> param2) {
+    private static Collection<String> discoverNewPacks(PackRepository param0, WorldData param1, Collection<String> param2) {
         param0.reload();
         Collection<String> var0 = Lists.newArrayList(param2);
         Collection<String> var1 = param1.getDataPackConfig().getDisabled();
@@ -41,7 +41,7 @@ public class ReloadCommand {
         param0.register(Commands.literal("reload").requires(param0x -> param0x.hasPermission(2)).executes(param0x -> {
             CommandSourceStack var0x = param0x.getSource();
             MinecraftServer var1 = var0x.getServer();
-            PackRepository<?> var2 = var1.getPackRepository();
+            PackRepository var2 = var1.getPackRepository();
             WorldData var3 = var1.getWorldData();
             Collection<String> var4 = var2.getSelectedIds();
             Collection<String> var5 = discoverNewPacks(var2, var3, var4);

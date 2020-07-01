@@ -21,36 +21,44 @@ public abstract class AbstractFurnaceMenu extends RecipeBookMenu<Container> {
     private final ContainerData data;
     protected final Level level;
     private final RecipeType<? extends AbstractCookingRecipe> recipeType;
+    private final RecipeBookType recipeBookType;
 
-    protected AbstractFurnaceMenu(MenuType<?> param0, RecipeType<? extends AbstractCookingRecipe> param1, int param2, Inventory param3) {
-        this(param0, param1, param2, param3, new SimpleContainer(3), new SimpleContainerData(4));
+    protected AbstractFurnaceMenu(MenuType<?> param0, RecipeType<? extends AbstractCookingRecipe> param1, RecipeBookType param2, int param3, Inventory param4) {
+        this(param0, param1, param2, param3, param4, new SimpleContainer(3), new SimpleContainerData(4));
     }
 
     protected AbstractFurnaceMenu(
-        MenuType<?> param0, RecipeType<? extends AbstractCookingRecipe> param1, int param2, Inventory param3, Container param4, ContainerData param5
+        MenuType<?> param0,
+        RecipeType<? extends AbstractCookingRecipe> param1,
+        RecipeBookType param2,
+        int param3,
+        Inventory param4,
+        Container param5,
+        ContainerData param6
     ) {
-        super(param0, param2);
+        super(param0, param3);
         this.recipeType = param1;
-        checkContainerSize(param4, 3);
-        checkContainerDataCount(param5, 4);
-        this.container = param4;
-        this.data = param5;
-        this.level = param3.player.level;
-        this.addSlot(new Slot(param4, 0, 56, 17));
-        this.addSlot(new FurnaceFuelSlot(this, param4, 1, 56, 53));
-        this.addSlot(new FurnaceResultSlot(param3.player, param4, 2, 116, 35));
+        this.recipeBookType = param2;
+        checkContainerSize(param5, 3);
+        checkContainerDataCount(param6, 4);
+        this.container = param5;
+        this.data = param6;
+        this.level = param4.player.level;
+        this.addSlot(new Slot(param5, 0, 56, 17));
+        this.addSlot(new FurnaceFuelSlot(this, param5, 1, 56, 53));
+        this.addSlot(new FurnaceResultSlot(param4.player, param5, 2, 116, 35));
 
         for(int var0 = 0; var0 < 3; ++var0) {
             for(int var1 = 0; var1 < 9; ++var1) {
-                this.addSlot(new Slot(param3, var1 + var0 * 9 + 9, 8 + var1 * 18, 84 + var0 * 18));
+                this.addSlot(new Slot(param4, var1 + var0 * 9 + 9, 8 + var1 * 18, 84 + var0 * 18));
             }
         }
 
         for(int var2 = 0; var2 < 9; ++var2) {
-            this.addSlot(new Slot(param3, var2, 8 + var2 * 18, 142));
+            this.addSlot(new Slot(param4, var2, 8 + var2 * 18, 142));
         }
 
-        this.addDataSlots(param5);
+        this.addDataSlots(param6);
     }
 
     @Override
@@ -179,5 +187,11 @@ public abstract class AbstractFurnaceMenu extends RecipeBookMenu<Container> {
     @OnlyIn(Dist.CLIENT)
     public boolean isLit() {
         return this.data.get(0) > 0;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public RecipeBookType getRecipeBookType() {
+        return this.recipeBookType;
     }
 }

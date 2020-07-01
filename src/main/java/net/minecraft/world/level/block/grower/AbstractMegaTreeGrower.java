@@ -40,7 +40,7 @@ public abstract class AbstractMegaTreeGrower extends AbstractTreeGrower {
             param0.setBlock(param2.offset(param5 + 1, 0, param6), var1, 4);
             param0.setBlock(param2.offset(param5, 0, param6 + 1), var1, 4);
             param0.setBlock(param2.offset(param5 + 1, 0, param6 + 1), var1, 4);
-            if (var0.place(param0, param0.structureFeatureManager(), param1, param4, param2.offset(param5, 0, param6))) {
+            if (var0.place(param0, param1, param4, param2.offset(param5, 0, param6))) {
                 return true;
             } else {
                 param0.setBlock(param2.offset(param5, 0, param6), param3, 4);

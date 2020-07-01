@@ -6,7 +6,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.BaseCoralWallFanBlock;
 import net.minecraft.world.level.block.Blocks;
@@ -20,11 +19,9 @@ public abstract class CoralFeature extends Feature<NoneFeatureConfiguration> {
         super(param0);
     }
 
-    public boolean place(
-        WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BlockPos param4, NoneFeatureConfiguration param5
-    ) {
-        BlockState var0 = BlockTags.CORAL_BLOCKS.getRandomElement(param3).defaultBlockState();
-        return this.placeFeature(param0, param3, param4, var0);
+    public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, NoneFeatureConfiguration param4) {
+        BlockState var0 = BlockTags.CORAL_BLOCKS.getRandomElement(param2).defaultBlockState();
+        return this.placeFeature(param0, param2, param3, var0);
     }
 
     protected abstract boolean placeFeature(LevelAccessor var1, Random var2, BlockPos var3, BlockState var4);

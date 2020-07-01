@@ -7,6 +7,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.ItemTags;
@@ -45,7 +46,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.WoolCarpetBlock;
@@ -249,7 +250,7 @@ public class Llama extends AbstractChestedHorse implements RangedAttackMob {
     @Nullable
     @Override
     public SpawnGroupData finalizeSpawn(
-        LevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
+        ServerLevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
     ) {
         this.setRandomStrength();
         int var0;
@@ -380,10 +381,10 @@ public class Llama extends AbstractChestedHorse implements RangedAttackMob {
         return param0 != this && param0 instanceof Llama && this.canParent() && ((Llama)param0).canParent();
     }
 
-    public Llama getBreedOffspring(AgableMob param0) {
+    public Llama getBreedOffspring(ServerLevel param0, AgableMob param1) {
         Llama var0 = this.makeBabyLlama();
-        this.setOffspringAttributes(param0, var0);
-        Llama var1 = (Llama)param0;
+        this.setOffspringAttributes(param1, var0);
+        Llama var1 = (Llama)param1;
         int var2 = this.random.nextInt(Math.max(this.getStrength(), var1.getStrength())) + 1;
         if (this.random.nextFloat() < 0.03F) {
             ++var2;

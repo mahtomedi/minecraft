@@ -1025,7 +1025,7 @@ public abstract class Player extends LivingEntity {
 
     @Override
     protected Vec3 maybeBackOffFromEdge(Vec3 param0, MoverType param1) {
-        if ((param1 == MoverType.SELF || param1 == MoverType.PLAYER) && this.onGround && this.isStayingOnGroundSurface()) {
+        if ((param1 == MoverType.SELF || param1 == MoverType.PLAYER) && this.isStayingOnGroundSurface() && this.isAboveGround()) {
             double var0 = param0.x;
             double var1 = param0.z;
             double var2 = 0.05;
@@ -1072,6 +1072,12 @@ public abstract class Player extends LivingEntity {
         }
 
         return param0;
+    }
+
+    private boolean isAboveGround() {
+        return this.onGround
+            || this.fallDistance < this.maxUpStep
+                && !this.level.noCollision(this, this.getBoundingBox().move(0.0, (double)(this.fallDistance - this.maxUpStep), 0.0));
     }
 
     public void attack(Entity param0) {
@@ -1576,8 +1582,8 @@ public abstract class Player extends LivingEntity {
     }
 
     @Override
-    public void killed(LivingEntity param0) {
-        this.awardStat(Stats.ENTITY_KILLED.get(param0.getType()));
+    public void killed(ServerLevel param0, LivingEntity param1) {
+        this.awardStat(Stats.ENTITY_KILLED.get(param1.getType()));
     }
 
     @Override

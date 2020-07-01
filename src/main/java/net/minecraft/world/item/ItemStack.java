@@ -43,7 +43,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.Tag;
-import net.minecraft.tags.TagManager;
+import net.minecraft.tags.TagContainer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
@@ -543,23 +543,19 @@ public final class ItemStack {
             var0.add(new TextComponent("#" + MapItem.getMapId(this)).withStyle(ChatFormatting.GRAY));
         }
 
-        int var2 = 0;
-        if (this.hasTag() && this.tag.contains("HideFlags", 99)) {
-            var2 = this.tag.getInt("HideFlags");
-        }
-
-        if ((var2 & 32) == 0) {
+        int var2 = this.getHideFlags();
+        if (shouldShowInTooltip(var2, ItemStack.TooltipPart.ADDITIONAL)) {
             this.getItem().appendHoverText(this, param0 == null ? null : param0.level, var0, param1);
         }
 
         if (this.hasTag()) {
-            if ((var2 & 1) == 0) {
+            if (shouldShowInTooltip(var2, ItemStack.TooltipPart.ENCHANTMENTS)) {
                 appendEnchantmentNames(var0, this.getEnchantmentTags());
             }
 
             if (this.tag.contains("display", 10)) {
                 CompoundTag var3 = this.tag.getCompound("display");
-                if (var3.contains("color", 3)) {
+                if (shouldShowInTooltip(var2, ItemStack.TooltipPart.DYE) && var3.contains("color", 99)) {
                     if (param1.isAdvanced()) {
                         var0.add(new TranslatableComponent("item.color", String.format("#%06X", var3.getInt("color"))).withStyle(ChatFormatting.GRAY));
                     } else {
@@ -586,98 +582,101 @@ public final class ItemStack {
             }
         }
 
-        for(EquipmentSlot var9 : EquipmentSlot.values()) {
-            Multimap<Attribute, AttributeModifier> var10 = this.getAttributeModifiers(var9);
-            if (!var10.isEmpty() && (var2 & 2) == 0) {
-                var0.add(TextComponent.EMPTY);
-                var0.add(new TranslatableComponent("item.modifiers." + var9.getName()).withStyle(ChatFormatting.GRAY));
+        if (shouldShowInTooltip(var2, ItemStack.TooltipPart.MODIFIERS)) {
+            for(EquipmentSlot var9 : EquipmentSlot.values()) {
+                Multimap<Attribute, AttributeModifier> var10 = this.getAttributeModifiers(var9);
+                if (!var10.isEmpty()) {
+                    var0.add(TextComponent.EMPTY);
+                    var0.add(new TranslatableComponent("item.modifiers." + var9.getName()).withStyle(ChatFormatting.GRAY));
 
-                for(Entry<Attribute, AttributeModifier> var11 : var10.entries()) {
-                    AttributeModifier var12 = var11.getValue();
-                    double var13 = var12.getAmount();
-                    boolean var14 = false;
-                    if (param0 != null) {
-                        if (var12.getId() == Item.BASE_ATTACK_DAMAGE_UUID) {
-                            var13 += param0.getAttributeBaseValue(Attributes.ATTACK_DAMAGE);
-                            var13 += (double)EnchantmentHelper.getDamageBonus(this, MobType.UNDEFINED);
-                            var14 = true;
-                        } else if (var12.getId() == Item.BASE_ATTACK_SPEED_UUID) {
-                            var13 += param0.getAttributeBaseValue(Attributes.ATTACK_SPEED);
-                            var14 = true;
+                    for(Entry<Attribute, AttributeModifier> var11 : var10.entries()) {
+                        AttributeModifier var12 = var11.getValue();
+                        double var13 = var12.getAmount();
+                        boolean var14 = false;
+                        if (param0 != null) {
+                            if (var12.getId() == Item.BASE_ATTACK_DAMAGE_UUID) {
+                                var13 += param0.getAttributeBaseValue(Attributes.ATTACK_DAMAGE);
+                                var13 += (double)EnchantmentHelper.getDamageBonus(this, MobType.UNDEFINED);
+                                var14 = true;
+                            } else if (var12.getId() == Item.BASE_ATTACK_SPEED_UUID) {
+                                var13 += param0.getAttributeBaseValue(Attributes.ATTACK_SPEED);
+                                var14 = true;
+                            }
                         }
-                    }
 
-                    double var15;
-                    if (var12.getOperation() == AttributeModifier.Operation.MULTIPLY_BASE || var12.getOperation() == AttributeModifier.Operation.MULTIPLY_TOTAL
-                        )
-                     {
-                        var15 = var13 * 100.0;
-                    } else if (var11.getKey().equals(Attributes.KNOCKBACK_RESISTANCE)) {
-                        var15 = var13 * 10.0;
-                    } else {
-                        var15 = var13;
-                    }
+                        double var15;
+                        if (var12.getOperation() == AttributeModifier.Operation.MULTIPLY_BASE
+                            || var12.getOperation() == AttributeModifier.Operation.MULTIPLY_TOTAL) {
+                            var15 = var13 * 100.0;
+                        } else if (var11.getKey().equals(Attributes.KNOCKBACK_RESISTANCE)) {
+                            var15 = var13 * 10.0;
+                        } else {
+                            var15 = var13;
+                        }
 
-                    if (var14) {
-                        var0.add(
-                            new TextComponent(" ")
-                                .append(
-                                    new TranslatableComponent(
-                                        "attribute.modifier.equals." + var12.getOperation().toValue(),
+                        if (var14) {
+                            var0.add(
+                                new TextComponent(" ")
+                                    .append(
+                                        new TranslatableComponent(
+                                            "attribute.modifier.equals." + var12.getOperation().toValue(),
+                                            ATTRIBUTE_MODIFIER_FORMAT.format(var15),
+                                            new TranslatableComponent(var11.getKey().getDescriptionId())
+                                        )
+                                    )
+                                    .withStyle(ChatFormatting.DARK_GREEN)
+                            );
+                        } else if (var13 > 0.0) {
+                            var0.add(
+                                new TranslatableComponent(
+                                        "attribute.modifier.plus." + var12.getOperation().toValue(),
                                         ATTRIBUTE_MODIFIER_FORMAT.format(var15),
                                         new TranslatableComponent(var11.getKey().getDescriptionId())
                                     )
-                                )
-                                .withStyle(ChatFormatting.DARK_GREEN)
-                        );
-                    } else if (var13 > 0.0) {
-                        var0.add(
-                            new TranslatableComponent(
-                                    "attribute.modifier.plus." + var12.getOperation().toValue(),
-                                    ATTRIBUTE_MODIFIER_FORMAT.format(var15),
-                                    new TranslatableComponent(var11.getKey().getDescriptionId())
-                                )
-                                .withStyle(ChatFormatting.BLUE)
-                        );
-                    } else if (var13 < 0.0) {
-                        var15 *= -1.0;
-                        var0.add(
-                            new TranslatableComponent(
-                                    "attribute.modifier.take." + var12.getOperation().toValue(),
-                                    ATTRIBUTE_MODIFIER_FORMAT.format(var15),
-                                    new TranslatableComponent(var11.getKey().getDescriptionId())
-                                )
-                                .withStyle(ChatFormatting.RED)
-                        );
+                                    .withStyle(ChatFormatting.BLUE)
+                            );
+                        } else if (var13 < 0.0) {
+                            var15 *= -1.0;
+                            var0.add(
+                                new TranslatableComponent(
+                                        "attribute.modifier.take." + var12.getOperation().toValue(),
+                                        ATTRIBUTE_MODIFIER_FORMAT.format(var15),
+                                        new TranslatableComponent(var11.getKey().getDescriptionId())
+                                    )
+                                    .withStyle(ChatFormatting.RED)
+                            );
+                        }
                     }
                 }
             }
         }
 
-        if (this.hasTag() && this.getTag().getBoolean("Unbreakable") && (var2 & 4) == 0) {
-            var0.add(new TranslatableComponent("item.unbreakable").withStyle(ChatFormatting.BLUE));
-        }
+        if (this.hasTag()) {
+            if (shouldShowInTooltip(var2, ItemStack.TooltipPart.UNBREAKABLE) && this.tag.getBoolean("Unbreakable")) {
+                var0.add(new TranslatableComponent("item.unbreakable").withStyle(ChatFormatting.BLUE));
+            }
 
-        if (this.hasTag() && this.tag.contains("CanDestroy", 9) && (var2 & 8) == 0) {
-            ListTag var18 = this.tag.getList("CanDestroy", 8);
-            if (!var18.isEmpty()) {
-                var0.add(TextComponent.EMPTY);
-                var0.add(new TranslatableComponent("item.canBreak").withStyle(ChatFormatting.GRAY));
+            if (shouldShowInTooltip(var2, ItemStack.TooltipPart.CAN_DESTROY) && this.tag.contains("CanDestroy", 9)) {
+                ListTag var18 = this.tag.getList("CanDestroy", 8);
+                if (!var18.isEmpty()) {
+                    var0.add(TextComponent.EMPTY);
+                    var0.add(new TranslatableComponent("item.canBreak").withStyle(ChatFormatting.GRAY));
 
-                for(int var19 = 0; var19 < var18.size(); ++var19) {
-                    var0.addAll(expandBlockState(var18.getString(var19)));
+                    for(int var19 = 0; var19 < var18.size(); ++var19) {
+                        var0.addAll(expandBlockState(var18.getString(var19)));
+                    }
                 }
             }
-        }
 
-        if (this.hasTag() && this.tag.contains("CanPlaceOn", 9) && (var2 & 16) == 0) {
-            ListTag var20 = this.tag.getList("CanPlaceOn", 8);
-            if (!var20.isEmpty()) {
-                var0.add(TextComponent.EMPTY);
-                var0.add(new TranslatableComponent("item.canPlace").withStyle(ChatFormatting.GRAY));
+            if (shouldShowInTooltip(var2, ItemStack.TooltipPart.CAN_PLACE) && this.tag.contains("CanPlaceOn", 9)) {
+                ListTag var20 = this.tag.getList("CanPlaceOn", 8);
+                if (!var20.isEmpty()) {
+                    var0.add(TextComponent.EMPTY);
+                    var0.add(new TranslatableComponent("item.canPlace").withStyle(ChatFormatting.GRAY));
 
-                for(int var21 = 0; var21 < var20.size(); ++var21) {
-                    var0.addAll(expandBlockState(var20.getString(var21)));
+                    for(int var21 = 0; var21 < var20.size(); ++var21) {
+                        var0.addAll(expandBlockState(var20.getString(var21)));
+                    }
                 }
             }
         }
@@ -689,11 +688,26 @@ public final class ItemStack {
 
             var0.add(new TextComponent(Registry.ITEM.getKey(this.getItem()).toString()).withStyle(ChatFormatting.DARK_GRAY));
             if (this.hasTag()) {
-                var0.add(new TranslatableComponent("item.nbt_tags", this.getTag().getAllKeys().size()).withStyle(ChatFormatting.DARK_GRAY));
+                var0.add(new TranslatableComponent("item.nbt_tags", this.tag.getAllKeys().size()).withStyle(ChatFormatting.DARK_GRAY));
             }
         }
 
         return var0;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private static boolean shouldShowInTooltip(int param0, ItemStack.TooltipPart param1) {
+        return (param0 & param1.getMask()) == 0;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private int getHideFlags() {
+        return this.hasTag() && this.tag.contains("HideFlags", 99) ? this.tag.getInt("HideFlags") : 0;
+    }
+
+    public void hideTooltipPart(ItemStack.TooltipPart param0) {
+        CompoundTag var0 = this.getOrCreateTag();
+        var0.putInt("HideFlags", var0.getInt("HideFlags") | param0.getMask());
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -869,7 +883,7 @@ public final class ItemStack {
         }
     }
 
-    public boolean hasAdventureModeBreakTagForBlock(TagManager param0, BlockInWorld param1) {
+    public boolean hasAdventureModeBreakTagForBlock(TagContainer param0, BlockInWorld param1) {
         if (areSameBlocks(param1, this.cachedBreakBlock)) {
             return this.cachedBreakBlockResult;
         } else {
@@ -896,7 +910,7 @@ public final class ItemStack {
         }
     }
 
-    public boolean hasAdventureModePlaceTagForBlock(TagManager param0, BlockInWorld param1) {
+    public boolean hasAdventureModePlaceTagForBlock(TagContainer param0, BlockInWorld param1) {
         if (areSameBlocks(param1, this.cachedPlaceBlock)) {
             return this.cachedPlaceBlockResult;
         } else {
@@ -962,5 +976,21 @@ public final class ItemStack {
 
     public SoundEvent getEatingSound() {
         return this.getItem().getEatingSound();
+    }
+
+    public static enum TooltipPart {
+        ENCHANTMENTS,
+        MODIFIERS,
+        UNBREAKABLE,
+        CAN_DESTROY,
+        CAN_PLACE,
+        ADDITIONAL,
+        DYE;
+
+        private int mask = 1 << this.ordinal();
+
+        public int getMask() {
+            return this.mask;
+        }
     }
 }

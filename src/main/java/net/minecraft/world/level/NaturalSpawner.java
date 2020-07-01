@@ -294,7 +294,7 @@ public final class NaturalSpawner {
         return new BlockPos(var1, var4, var2);
     }
 
-    public static boolean isValidEmptySpawnBlock(BlockGetter param0, BlockPos param1, BlockState param2, FluidState param3, EntityType param4) {
+    public static boolean isValidEmptySpawnBlock(BlockGetter param0, BlockPos param1, BlockState param2, FluidState param3, EntityType<?> param4) {
         if (param2.isCollisionShapeFullBlock(param0, param1)) {
             return false;
         } else if (param2.isSignalSource()) {
@@ -338,7 +338,7 @@ public final class NaturalSpawner {
         }
     }
 
-    public static void spawnMobsForChunkGeneration(LevelAccessor param0, Biome param1, int param2, int param3, Random param4) {
+    public static void spawnMobsForChunkGeneration(ServerLevelAccessor param0, Biome param1, int param2, int param3, Random param4) {
         List<Biome.SpawnerData> var0 = param1.getMobs(MobCategory.CREATURE);
         if (!var0.isEmpty()) {
             int var1 = param2 << 4;

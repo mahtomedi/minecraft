@@ -72,7 +72,7 @@ public class DispenserBlock extends BaseEntityBlock {
         }
     }
 
-    protected void dispenseFrom(Level param0, BlockPos param1) {
+    protected void dispenseFrom(ServerLevel param0, BlockPos param1) {
         BlockSourceImpl var0 = new BlockSourceImpl(param0, param1);
         DispenserBlockEntity var1 = var0.getEntity();
         int var2 = var1.getRandomSlot();

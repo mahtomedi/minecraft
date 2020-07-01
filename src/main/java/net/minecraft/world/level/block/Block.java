@@ -267,25 +267,25 @@ public class Block extends BlockBehaviour implements ItemLike {
     public static void dropResources(BlockState param0, Level param1, BlockPos param2) {
         if (param1 instanceof ServerLevel) {
             getDrops(param0, (ServerLevel)param1, param2, null).forEach(param2x -> popResource(param1, param2, param2x));
+            param0.spawnAfterBreak((ServerLevel)param1, param2, ItemStack.EMPTY);
         }
 
-        param0.spawnAfterBreak(param1, param2, ItemStack.EMPTY);
     }
 
-    public static void dropResources(BlockState param0, Level param1, BlockPos param2, @Nullable BlockEntity param3) {
+    public static void dropResources(BlockState param0, LevelAccessor param1, BlockPos param2, @Nullable BlockEntity param3) {
         if (param1 instanceof ServerLevel) {
-            getDrops(param0, (ServerLevel)param1, param2, param3).forEach(param2x -> popResource(param1, param2, param2x));
+            getDrops(param0, (ServerLevel)param1, param2, param3).forEach(param2x -> popResource((ServerLevel)param1, param2, param2x));
+            param0.spawnAfterBreak((ServerLevel)param1, param2, ItemStack.EMPTY);
         }
 
-        param0.spawnAfterBreak(param1, param2, ItemStack.EMPTY);
     }
 
     public static void dropResources(BlockState param0, Level param1, BlockPos param2, @Nullable BlockEntity param3, Entity param4, ItemStack param5) {
         if (param1 instanceof ServerLevel) {
             getDrops(param0, (ServerLevel)param1, param2, param3, param4, param5).forEach(param2x -> popResource(param1, param2, param2x));
+            param0.spawnAfterBreak((ServerLevel)param1, param2, param5);
         }
 
-        param0.spawnAfterBreak(param1, param2, param5);
     }
 
     public static void popResource(Level param0, BlockPos param1, ItemStack param2) {
@@ -300,8 +300,8 @@ public class Block extends BlockBehaviour implements ItemLike {
         }
     }
 
-    protected void popExperience(Level param0, BlockPos param1, int param2) {
-        if (!param0.isClientSide && param0.getGameRules().getBoolean(GameRules.RULE_DOBLOCKDROPS)) {
+    protected void popExperience(ServerLevel param0, BlockPos param1, int param2) {
+        if (param0.getGameRules().getBoolean(GameRules.RULE_DOBLOCKDROPS)) {
             while(param2 > 0) {
                 int var0 = ExperienceOrb.getExperienceValue(param2);
                 param2 -= var0;

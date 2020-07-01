@@ -10,6 +10,7 @@ import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.math.Matrix4f;
 import java.io.IOException;
 import java.util.List;
+import java.util.function.IntSupplier;
 import net.minecraft.client.Minecraft;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraftforge.api.distmarker.Dist;
@@ -20,7 +21,7 @@ public class PostPass implements AutoCloseable {
     private final EffectInstance effect;
     public final RenderTarget inTarget;
     public final RenderTarget outTarget;
-    private final List<Object> auxAssets = Lists.newArrayList();
+    private final List<IntSupplier> auxAssets = Lists.newArrayList();
     private final List<String> auxNames = Lists.newArrayList();
     private final List<Integer> auxWidths = Lists.newArrayList();
     private final List<Integer> auxHeights = Lists.newArrayList();
@@ -37,7 +38,7 @@ public class PostPass implements AutoCloseable {
         this.effect.close();
     }
 
-    public void addAuxAsset(String param0, Object param1, int param2, int param3) {
+    public void addAuxAsset(String param0, IntSupplier param1, int param2, int param3) {
         this.auxNames.add(this.auxNames.size(), param0);
         this.auxAssets.add(this.auxAssets.size(), param1);
         this.auxWidths.add(this.auxWidths.size(), param2);
@@ -53,7 +54,7 @@ public class PostPass implements AutoCloseable {
         float var0 = (float)this.outTarget.width;
         float var1 = (float)this.outTarget.height;
         RenderSystem.viewport(0, 0, (int)var0, (int)var1);
-        this.effect.setSampler("DiffuseSampler", this.inTarget);
+        this.effect.setSampler("DiffuseSampler", this.inTarget::getColorTextureId);
 
         for(int var2 = 0; var2 < this.auxAssets.size(); ++var2) {
             this.effect.setSampler(this.auxNames.get(var2), this.auxAssets.get(var2));

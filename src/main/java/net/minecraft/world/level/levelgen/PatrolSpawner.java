@@ -9,7 +9,6 @@ import net.minecraft.world.entity.monster.PatrollingMonster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.CustomSpawner;
 import net.minecraft.world.level.GameRules;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.NaturalSpawner;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.state.BlockState;
@@ -87,7 +86,7 @@ public class PatrolSpawner implements CustomSpawner {
         }
     }
 
-    private boolean spawnPatrolMember(Level param0, BlockPos param1, Random param2, boolean param3) {
+    private boolean spawnPatrolMember(ServerLevel param0, BlockPos param1, Random param2, boolean param3) {
         BlockState var0 = param0.getBlockState(param1);
         if (!NaturalSpawner.isValidEmptySpawnBlock(param0, param1, var0, var0.getFluidState(), EntityType.PILLAGER)) {
             return false;

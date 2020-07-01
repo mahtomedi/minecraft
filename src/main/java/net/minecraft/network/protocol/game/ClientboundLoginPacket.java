@@ -71,15 +71,13 @@ public class ClientboundLoginPacket implements Packet<ClientGamePacketListener> 
     @Override
     public void read(FriendlyByteBuf param0) throws IOException {
         this.playerId = param0.readInt();
-        int var0 = param0.readUnsignedByte();
-        this.hardcore = (var0 & 8) == 8;
-        var0 &= -9;
-        this.gameType = GameType.byId(var0);
-        this.previousGameType = GameType.byId(param0.readUnsignedByte());
-        int var1 = param0.readVarInt();
+        this.hardcore = param0.readBoolean();
+        this.gameType = GameType.byId(param0.readByte());
+        this.previousGameType = GameType.byId(param0.readByte());
+        int var0 = param0.readVarInt();
         this.levels = Sets.newHashSet();
 
-        for(int var2 = 0; var2 < var1; ++var2) {
+        for(int var1 = 0; var1 < var0; ++var1) {
             this.levels.add(ResourceKey.create(Registry.DIMENSION_REGISTRY, param0.readResourceLocation()));
         }
 
@@ -87,7 +85,7 @@ public class ClientboundLoginPacket implements Packet<ClientGamePacketListener> 
         this.dimensionType = ResourceKey.create(Registry.DIMENSION_TYPE_REGISTRY, param0.readResourceLocation());
         this.dimension = ResourceKey.create(Registry.DIMENSION_REGISTRY, param0.readResourceLocation());
         this.seed = param0.readLong();
-        this.maxPlayers = param0.readUnsignedByte();
+        this.maxPlayers = param0.readVarInt();
         this.chunkRadius = param0.readVarInt();
         this.reducedDebugInfo = param0.readBoolean();
         this.showDeathScreen = param0.readBoolean();
@@ -98,24 +96,20 @@ public class ClientboundLoginPacket implements Packet<ClientGamePacketListener> 
     @Override
     public void write(FriendlyByteBuf param0) throws IOException {
         param0.writeInt(this.playerId);
-        int var0 = this.gameType.getId();
-        if (this.hardcore) {
-            var0 |= 8;
-        }
-
-        param0.writeByte(var0);
+        param0.writeBoolean(this.hardcore);
+        param0.writeByte(this.gameType.getId());
         param0.writeByte(this.previousGameType.getId());
         param0.writeVarInt(this.levels.size());
 
-        for(ResourceKey<Level> var1 : this.levels) {
-            param0.writeResourceLocation(var1.location());
+        for(ResourceKey<Level> var0 : this.levels) {
+            param0.writeResourceLocation(var0.location());
         }
 
         param0.writeWithCodec(RegistryAccess.RegistryHolder.CODEC, this.registryHolder);
         param0.writeResourceLocation(this.dimensionType.location());
         param0.writeResourceLocation(this.dimension.location());
         param0.writeLong(this.seed);
-        param0.writeByte(this.maxPlayers);
+        param0.writeVarInt(this.maxPlayers);
         param0.writeVarInt(this.chunkRadius);
         param0.writeBoolean(this.reducedDebugInfo);
         param0.writeBoolean(this.showDeathScreen);

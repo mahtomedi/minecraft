@@ -23,7 +23,7 @@ public abstract class AbstractTreeGrower {
         } else {
             param0.setBlock(param2, Blocks.AIR.defaultBlockState(), 4);
             var0.config.setFromSapling();
-            if (var0.place(param0, param0.structureFeatureManager(), param1, param4, param2)) {
+            if (var0.place(param0, param1, param4, param2)) {
                 return true;
             } else {
                 param0.setBlock(param2, param3, 4);

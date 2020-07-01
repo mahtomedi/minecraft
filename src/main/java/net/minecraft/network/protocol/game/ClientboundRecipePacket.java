@@ -8,6 +8,7 @@ import java.util.List;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.stats.RecipeBookSettings;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -15,30 +16,18 @@ public class ClientboundRecipePacket implements Packet<ClientGamePacketListener>
     private ClientboundRecipePacket.State state;
     private List<ResourceLocation> recipes;
     private List<ResourceLocation> toHighlight;
-    private boolean guiOpen;
-    private boolean filteringCraftable;
-    private boolean furnaceGuiOpen;
-    private boolean furnaceFilteringCraftable;
+    private RecipeBookSettings bookSettings;
 
     public ClientboundRecipePacket() {
     }
 
     public ClientboundRecipePacket(
-        ClientboundRecipePacket.State param0,
-        Collection<ResourceLocation> param1,
-        Collection<ResourceLocation> param2,
-        boolean param3,
-        boolean param4,
-        boolean param5,
-        boolean param6
+        ClientboundRecipePacket.State param0, Collection<ResourceLocation> param1, Collection<ResourceLocation> param2, RecipeBookSettings param3
     ) {
         this.state = param0;
         this.recipes = ImmutableList.copyOf(param1);
         this.toHighlight = ImmutableList.copyOf(param2);
-        this.guiOpen = param3;
-        this.filteringCraftable = param4;
-        this.furnaceGuiOpen = param5;
-        this.furnaceFilteringCraftable = param6;
+        this.bookSettings = param3;
     }
 
     public void handle(ClientGamePacketListener param0) {
@@ -48,10 +37,7 @@ public class ClientboundRecipePacket implements Packet<ClientGamePacketListener>
     @Override
     public void read(FriendlyByteBuf param0) throws IOException {
         this.state = param0.readEnum(ClientboundRecipePacket.State.class);
-        this.guiOpen = param0.readBoolean();
-        this.filteringCraftable = param0.readBoolean();
-        this.furnaceGuiOpen = param0.readBoolean();
-        this.furnaceFilteringCraftable = param0.readBoolean();
+        this.bookSettings = RecipeBookSettings.read(param0);
         int var0 = param0.readVarInt();
         this.recipes = Lists.newArrayList();
 
@@ -73,10 +59,7 @@ public class ClientboundRecipePacket implements Packet<ClientGamePacketListener>
     @Override
     public void write(FriendlyByteBuf param0) throws IOException {
         param0.writeEnum(this.state);
-        param0.writeBoolean(this.guiOpen);
-        param0.writeBoolean(this.filteringCraftable);
-        param0.writeBoolean(this.furnaceGuiOpen);
-        param0.writeBoolean(this.furnaceFilteringCraftable);
+        this.bookSettings.write(param0);
         param0.writeVarInt(this.recipes.size());
 
         for(ResourceLocation var0 : this.recipes) {
@@ -104,23 +87,8 @@ public class ClientboundRecipePacket implements Packet<ClientGamePacketListener>
     }
 
     @OnlyIn(Dist.CLIENT)
-    public boolean isGuiOpen() {
-        return this.guiOpen;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public boolean isFilteringCraftable() {
-        return this.filteringCraftable;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public boolean isFurnaceGuiOpen() {
-        return this.furnaceGuiOpen;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public boolean isFurnaceFilteringCraftable() {
-        return this.furnaceFilteringCraftable;
+    public RecipeBookSettings getBookSettings() {
+        return this.bookSettings;
     }
 
     @OnlyIn(Dist.CLIENT)

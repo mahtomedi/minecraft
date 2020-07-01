@@ -35,7 +35,7 @@ public class VillagerPanicTrigger extends Behavior<Villager> {
 
     protected void tick(ServerLevel param0, Villager param1, long param2) {
         if (param2 % 100L == 0L) {
-            param1.spawnGolemIfNeeded(param2, 3);
+            param1.spawnGolemIfNeeded(param0, param2, 3);
         }
 
     }

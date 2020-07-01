@@ -1336,9 +1336,9 @@ public class ServerPlayer extends Player implements ContainerListener {
     }
 
     @Override
-    protected void processDimensionDelay() {
-        if (this.changingDimensionDelay > 0 && !this.isChangingDimension) {
-            --this.changingDimensionDelay;
+    protected void processPortalCooldown() {
+        if (!this.isChangingDimension) {
+            super.processPortalCooldown();
         }
 
     }
