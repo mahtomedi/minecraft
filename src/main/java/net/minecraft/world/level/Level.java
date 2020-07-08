@@ -17,6 +17,7 @@ import net.minecraft.ReportedException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -59,8 +60,6 @@ import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.level.storage.WritableLevelData;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -168,42 +167,6 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
 
     public static boolean isOutsideBuildHeight(int param0) {
         return param0 < 0 || param0 >= 256;
-    }
-
-    public double getRelativeFloorHeight(BlockPos param0) {
-        return this.getRelativeFloorHeight(param0, param0x -> false);
-    }
-
-    public double getRelativeFloorHeight(BlockPos param0, Predicate<BlockState> param1) {
-        BlockState var0 = this.getBlockState(param0);
-        VoxelShape var1 = param1.test(var0) ? Shapes.empty() : var0.getCollisionShape(this, param0);
-        if (var1.isEmpty()) {
-            BlockPos var2 = param0.below();
-            BlockState var3 = this.getBlockState(var2);
-            VoxelShape var4 = param1.test(var3) ? Shapes.empty() : var3.getCollisionShape(this, var2);
-            double var5 = var4.max(Direction.Axis.Y);
-            return var5 >= 1.0 ? var5 - 1.0 : Double.NEGATIVE_INFINITY;
-        } else {
-            return var1.max(Direction.Axis.Y);
-        }
-    }
-
-    public double getRelativeCeilingHeight(BlockPos param0, double param1) {
-        BlockPos.MutableBlockPos var0 = param0.mutable();
-        int var1 = Mth.ceil(param1);
-        int var2 = 0;
-
-        while(var2 < var1) {
-            VoxelShape var3 = this.getBlockState(var0).getCollisionShape(this, var0);
-            if (!var3.isEmpty()) {
-                return (double)var2 + var3.min(Direction.Axis.Y);
-            }
-
-            ++var2;
-            var0.move(Direction.UP);
-        }
-
-        return Double.POSITIVE_INFINITY;
     }
 
     public LevelChunk getChunkAt(BlockPos param0) {
@@ -1132,4 +1095,6 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     public final boolean isDebug() {
         return this.isDebug;
     }
+
+    public abstract RegistryAccess registryAccess();
 }

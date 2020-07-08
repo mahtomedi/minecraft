@@ -10,11 +10,11 @@ import net.minecraft.util.Mth;
 public class AxisAlignedLinearPosTest extends PosRuleTest {
     public static final Codec<AxisAlignedLinearPosTest> CODEC = RecordCodecBuilder.create(
         param0 -> param0.group(
-                    Codec.FLOAT.fieldOf("min_chance").withDefault(0.0F).forGetter(param0x -> param0x.minChance),
-                    Codec.FLOAT.fieldOf("max_chance").withDefault(0.0F).forGetter(param0x -> param0x.maxChance),
-                    Codec.INT.fieldOf("min_dist").withDefault(0).forGetter(param0x -> param0x.minDist),
-                    Codec.INT.fieldOf("max_dist").withDefault(0).forGetter(param0x -> param0x.maxDist),
-                    Direction.Axis.CODEC.fieldOf("axis").withDefault(Direction.Axis.Y).forGetter(param0x -> param0x.axis)
+                    Codec.FLOAT.fieldOf("min_chance").orElse(0.0F).forGetter(param0x -> param0x.minChance),
+                    Codec.FLOAT.fieldOf("max_chance").orElse(0.0F).forGetter(param0x -> param0x.maxChance),
+                    Codec.INT.fieldOf("min_dist").orElse(0).forGetter(param0x -> param0x.minDist),
+                    Codec.INT.fieldOf("max_dist").orElse(0).forGetter(param0x -> param0x.maxDist),
+                    Direction.Axis.CODEC.fieldOf("axis").orElse(Direction.Axis.Y).forGetter(param0x -> param0x.axis)
                 )
                 .apply(param0, AxisAlignedLinearPosTest::new)
     );

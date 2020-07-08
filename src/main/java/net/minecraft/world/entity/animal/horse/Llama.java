@@ -512,6 +512,7 @@ public class Llama extends AbstractChestedHorse implements RangedAttackMob {
         public final int variant;
 
         private LlamaGroupData(int param0) {
+            super(true);
             this.variant = param0;
         }
     }

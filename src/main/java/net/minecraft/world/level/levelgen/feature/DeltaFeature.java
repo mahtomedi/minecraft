@@ -3,7 +3,6 @@ package net.minecraft.world.level.levelgen.feature;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import java.util.Random;
-import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.LevelAccessor;
@@ -20,58 +19,45 @@ public class DeltaFeature extends Feature<DeltaFeatureConfiguration> {
     );
     private static final Direction[] DIRECTIONS = Direction.values();
 
-    private static int calculateRadius(Random param0, DeltaFeatureConfiguration param1) {
-        return param1.minimumRadius + param0.nextInt(param1.maximumRadius - param1.minimumRadius + 1);
-    }
-
-    private static int calculateRimSize(Random param0, DeltaFeatureConfiguration param1) {
-        return param0.nextInt(param1.maximumRimSize + 1);
-    }
-
     public DeltaFeature(Codec<DeltaFeatureConfiguration> param0) {
         super(param0);
     }
 
     public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, DeltaFeatureConfiguration param4) {
-        BlockPos var0 = findDeltaLevel(param0, param3.mutable().clamp(Direction.Axis.Y, 1, param0.getMaxBuildHeight() - 1));
-        if (var0 == null) {
-            return false;
-        } else {
-            boolean var1 = false;
-            boolean var2 = param2.nextDouble() < 0.9;
-            int var3 = var2 ? calculateRimSize(param2, param4) : 0;
-            int var4 = var2 ? calculateRimSize(param2, param4) : 0;
-            boolean var5 = var2 && var3 != 0 && var4 != 0;
-            int var6 = calculateRadius(param2, param4);
-            int var7 = calculateRadius(param2, param4);
-            int var8 = Math.max(var6, var7);
+        boolean var0 = false;
+        boolean var1 = param2.nextDouble() < 0.9;
+        int var2 = var1 ? param4.rimSize().sample(param2) : 0;
+        int var3 = var1 ? param4.rimSize().sample(param2) : 0;
+        boolean var4 = var1 && var2 != 0 && var3 != 0;
+        int var5 = param4.size().sample(param2);
+        int var6 = param4.size().sample(param2);
+        int var7 = Math.max(var5, var6);
 
-            for(BlockPos var9 : BlockPos.withinManhattan(var0, var6, 0, var7)) {
-                if (var9.distManhattan(var0) > var8) {
-                    break;
-                }
-
-                if (isClear(param0, var9, param4)) {
-                    if (var5) {
-                        var1 = true;
-                        this.setBlock(param0, var9, param4.rim);
-                    }
-
-                    BlockPos var10 = var9.offset(var3, 0, var4);
-                    if (isClear(param0, var10, param4)) {
-                        var1 = true;
-                        this.setBlock(param0, var10, param4.contents);
-                    }
-                }
+        for(BlockPos var8 : BlockPos.withinManhattan(param3, var5, 0, var6)) {
+            if (var8.distManhattan(param3) > var7) {
+                break;
             }
 
-            return var1;
+            if (isClear(param0, var8, param4)) {
+                if (var4) {
+                    var0 = true;
+                    this.setBlock(param0, var8, param4.rim());
+                }
+
+                BlockPos var9 = var8.offset(var2, 0, var3);
+                if (isClear(param0, var9, param4)) {
+                    var0 = true;
+                    this.setBlock(param0, var9, param4.contents());
+                }
+            }
         }
+
+        return var0;
     }
 
     private static boolean isClear(LevelAccessor param0, BlockPos param1, DeltaFeatureConfiguration param2) {
         BlockState var0 = param0.getBlockState(param1);
-        if (var0.is(param2.contents.getBlock())) {
+        if (var0.is(param2.contents().getBlock())) {
             return false;
         } else if (CANNOT_REPLACE.contains(var0.getBlock())) {
             return false;
@@ -85,20 +71,5 @@ public class DeltaFeature extends Feature<DeltaFeatureConfiguration> {
 
             return true;
         }
-    }
-
-    @Nullable
-    private static BlockPos findDeltaLevel(LevelAccessor param0, BlockPos.MutableBlockPos param1) {
-        for(; param1.getY() > 1; param1.move(Direction.DOWN)) {
-            if (param0.getBlockState(param1).isAir()) {
-                BlockState var0 = param0.getBlockState(param1.move(Direction.DOWN));
-                param1.move(Direction.UP);
-                if (!var0.is(Blocks.LAVA) && !var0.is(Blocks.BEDROCK) && !var0.isAir()) {
-                    return param1;
-                }
-            }
-        }
-
-        return null;
     }
 }

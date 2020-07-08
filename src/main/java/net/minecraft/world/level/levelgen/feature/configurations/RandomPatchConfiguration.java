@@ -23,13 +23,13 @@ public class RandomPatchConfiguration implements FeatureConfiguration {
                         .fieldOf("whitelist")
                         .forGetter(param0x -> param0x.whitelist.stream().map(Block::defaultBlockState).collect(Collectors.toList())),
                     BlockState.CODEC.listOf().fieldOf("blacklist").forGetter(param0x -> ImmutableList.copyOf(param0x.blacklist)),
-                    Codec.INT.fieldOf("tries").withDefault(128).forGetter(param0x -> param0x.tries),
-                    Codec.INT.fieldOf("xspread").withDefault(7).forGetter(param0x -> param0x.xspread),
-                    Codec.INT.fieldOf("yspread").withDefault(3).forGetter(param0x -> param0x.yspread),
-                    Codec.INT.fieldOf("zspread").withDefault(7).forGetter(param0x -> param0x.zspread),
-                    Codec.BOOL.fieldOf("can_replace").withDefault(false).forGetter(param0x -> param0x.canReplace),
-                    Codec.BOOL.fieldOf("project").withDefault(true).forGetter(param0x -> param0x.project),
-                    Codec.BOOL.fieldOf("need_water").withDefault(false).forGetter(param0x -> param0x.needWater)
+                    Codec.INT.fieldOf("tries").orElse(128).forGetter(param0x -> param0x.tries),
+                    Codec.INT.fieldOf("xspread").orElse(7).forGetter(param0x -> param0x.xspread),
+                    Codec.INT.fieldOf("yspread").orElse(3).forGetter(param0x -> param0x.yspread),
+                    Codec.INT.fieldOf("zspread").orElse(7).forGetter(param0x -> param0x.zspread),
+                    Codec.BOOL.fieldOf("can_replace").orElse(false).forGetter(param0x -> param0x.canReplace),
+                    Codec.BOOL.fieldOf("project").orElse(true).forGetter(param0x -> param0x.project),
+                    Codec.BOOL.fieldOf("need_water").orElse(false).forGetter(param0x -> param0x.needWater)
                 )
                 .apply(param0, RandomPatchConfiguration::new)
     );

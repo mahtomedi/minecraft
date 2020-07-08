@@ -24,6 +24,7 @@ import net.minecraft.client.searchtree.SearchRegistry;
 import net.minecraft.client.searchtree.SearchTree;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.Registry;
+import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -354,6 +355,7 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
                 var2 = this.minecraft.getSearchTree(SearchRegistry.CREATIVE_TAGS);
                 this.updateVisibleTags(var0);
             } else {
+                var0 = Language.getInstance().reorder(var0, false);
                 var2 = this.minecraft.getSearchTree(SearchRegistry.CREATIVE_NAMES);
             }
 

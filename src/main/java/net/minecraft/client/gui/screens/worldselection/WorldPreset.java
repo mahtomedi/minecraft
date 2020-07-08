@@ -111,18 +111,21 @@ public abstract class WorldPreset {
         Optional.of(SINGLE_BIOME_SURFACE),
         (param0, param1) -> new CreateBuffetWorldScreen(
                 param0,
+                param0.worldGenSettingsComponent.registryHolder(),
                 param2 -> param0.worldGenSettingsComponent.updateSettings(fromBuffetSettings(param1, SINGLE_BIOME_SURFACE, param2)),
                 parseBuffetSettings(param1)
             ),
         Optional.of(SINGLE_BIOME_CAVES),
         (param0, param1) -> new CreateBuffetWorldScreen(
                 param0,
+                param0.worldGenSettingsComponent.registryHolder(),
                 param2 -> param0.worldGenSettingsComponent.updateSettings(fromBuffetSettings(param1, SINGLE_BIOME_CAVES, param2)),
                 parseBuffetSettings(param1)
             ),
         Optional.of(SINGLE_BIOME_FLOATING_ISLANDS),
         (param0, param1) -> new CreateBuffetWorldScreen(
                 param0,
+                param0.worldGenSettingsComponent.registryHolder(),
                 param2 -> param0.worldGenSettingsComponent.updateSettings(fromBuffetSettings(param1, SINGLE_BIOME_FLOATING_ISLANDS, param2)),
                 parseBuffetSettings(param1)
             )

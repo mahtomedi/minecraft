@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -23,18 +24,20 @@ public class AcquirePoi extends Behavior<PathfinderMob> {
     private final PoiType poiType;
     private final MemoryModuleType<GlobalPos> memoryToAcquire;
     private final boolean onlyIfAdult;
+    private final Optional<Byte> onPoiAcquisitionEvent;
     private long nextScheduledStart;
     private final Long2ObjectMap<AcquirePoi.JitteredLinearRetry> batchCache = new Long2ObjectOpenHashMap<>();
 
-    public AcquirePoi(PoiType param0, MemoryModuleType<GlobalPos> param1, MemoryModuleType<GlobalPos> param2, boolean param3) {
+    public AcquirePoi(PoiType param0, MemoryModuleType<GlobalPos> param1, MemoryModuleType<GlobalPos> param2, boolean param3, Optional<Byte> param4) {
         super(constructEntryConditionMap(param1, param2));
         this.poiType = param0;
         this.memoryToAcquire = param2;
         this.onlyIfAdult = param3;
+        this.onPoiAcquisitionEvent = param4;
     }
 
-    public AcquirePoi(PoiType param0, MemoryModuleType<GlobalPos> param1, boolean param2) {
-        this(param0, param1, param1, param2);
+    public AcquirePoi(PoiType param0, MemoryModuleType<GlobalPos> param1, boolean param2, Optional<Byte> param3) {
+        this(param0, param1, param1, param2, param3);
     }
 
     private static ImmutableMap<MemoryModuleType<?>, MemoryStatus> constructEntryConditionMap(
@@ -84,6 +87,7 @@ public class AcquirePoi extends Behavior<PathfinderMob> {
             var0.getType(var4).ifPresent(param4 -> {
                 var0.take(this.poiType.getPredicate(), param1x -> param1x.equals(var4), var4, 1);
                 param1.getBrain().setMemory(this.memoryToAcquire, GlobalPos.of(param0.dimension(), var4));
+                this.onPoiAcquisitionEvent.ifPresent(param2x -> param0.broadcastEntityEvent(param1, param2x));
                 this.batchCache.clear();
                 DebugPackets.sendPoiTicketCountPacket(param0, var4);
             });

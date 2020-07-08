@@ -24,6 +24,7 @@ import net.minecraft.advancements.critereon.TargetBlockTrigger;
 import net.minecraft.advancements.critereon.TradeTrigger;
 import net.minecraft.advancements.critereon.UsedTotemTrigger;
 import net.minecraft.core.Registry;
+import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.EntityTypeTags;
@@ -456,7 +457,7 @@ public class AdventureAdvancements implements Consumer<Consumer<Advancement>> {
 
     protected static Advancement.Builder addBiomes(Advancement.Builder param0, Biome[] param1) {
         for(Biome var0 : param1) {
-            param0.addCriterion(Registry.BIOME.getKey(var0).toString(), LocationTrigger.TriggerInstance.located(LocationPredicate.inBiome(var0)));
+            param0.addCriterion(BuiltinRegistries.BIOME.getKey(var0).toString(), LocationTrigger.TriggerInstance.located(LocationPredicate.inBiome(var0)));
         }
 
         return param0;

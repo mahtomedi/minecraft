@@ -2,26 +2,20 @@ package net.minecraft.world.level.levelgen.placement.nether;
 
 import com.mojang.serialization.Codec;
 import java.util.Random;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.levelgen.feature.configurations.NoneDecoratorConfiguration;
+import net.minecraft.world.level.levelgen.placement.DecorationContext;
 import net.minecraft.world.level.levelgen.placement.FeatureDecorator;
-import net.minecraft.world.level.levelgen.placement.FrequencyDecoratorConfiguration;
 
-public class MagmaDecorator extends FeatureDecorator<FrequencyDecoratorConfiguration> {
-    public MagmaDecorator(Codec<FrequencyDecoratorConfiguration> param0) {
+public class MagmaDecorator extends FeatureDecorator<NoneDecoratorConfiguration> {
+    public MagmaDecorator(Codec<NoneDecoratorConfiguration> param0) {
         super(param0);
     }
 
-    public Stream<BlockPos> getPositions(LevelAccessor param0, ChunkGenerator param1, Random param2, FrequencyDecoratorConfiguration param3, BlockPos param4) {
-        int var0 = param0.getSeaLevel() / 2 + 1;
-        return IntStream.range(0, param3.count).mapToObj(param3x -> {
-            int var0x = param2.nextInt(16) + param4.getX();
-            int var1x = param2.nextInt(16) + param4.getZ();
-            int var2x = var0 - 5 + param2.nextInt(10);
-            return new BlockPos(var0x, var2x, var1x);
-        });
+    public Stream<BlockPos> getPositions(DecorationContext param0, Random param1, NoneDecoratorConfiguration param2, BlockPos param3) {
+        int var0 = param0.getSeaLevel();
+        int var1 = var0 - 5 + param1.nextInt(10);
+        return Stream.of(new BlockPos(param3.getX(), var1, param3.getZ()));
     }
 }

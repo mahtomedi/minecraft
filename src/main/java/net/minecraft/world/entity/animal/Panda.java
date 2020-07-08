@@ -550,8 +550,7 @@ public class Panda extends Animal {
         this.setHiddenGene(Panda.Gene.getRandom(this.random));
         this.setAttributes();
         if (param3 == null) {
-            param3 = new AgableMob.AgableMobGroupData();
-            ((AgableMob.AgableMobGroupData)param3).setBabySpawnChance(0.2F);
+            param3 = new AgableMob.AgableMobGroupData(0.2F);
         }
 
         return super.finalizeSpawn(param0, param1, param2, param3, param4);

@@ -26,7 +26,7 @@ public abstract class AgableMob extends PathfinderMob {
         ServerLevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
     ) {
         if (param3 == null) {
-            param3 = new AgableMob.AgableMobGroupData();
+            param3 = new AgableMob.AgableMobGroupData(true);
         }
 
         AgableMob.AgableMobGroupData var0 = (AgableMob.AgableMobGroupData)param3;
@@ -155,8 +155,21 @@ public abstract class AgableMob extends PathfinderMob {
 
     public static class AgableMobGroupData implements SpawnGroupData {
         private int groupSize;
-        private boolean shouldSpawnBaby = true;
-        private float babySpawnChance = 0.05F;
+        private final boolean shouldSpawnBaby;
+        private final float babySpawnChance;
+
+        private AgableMobGroupData(boolean param0, float param1) {
+            this.shouldSpawnBaby = param0;
+            this.babySpawnChance = param1;
+        }
+
+        public AgableMobGroupData(boolean param0) {
+            this(param0, 0.05F);
+        }
+
+        public AgableMobGroupData(float param0) {
+            this(true, param0);
+        }
 
         public int getGroupSize() {
             return this.groupSize;
@@ -170,16 +183,8 @@ public abstract class AgableMob extends PathfinderMob {
             return this.shouldSpawnBaby;
         }
 
-        public void setShouldSpawnBaby(boolean param0) {
-            this.shouldSpawnBaby = param0;
-        }
-
         public float getBabySpawnChance() {
             return this.babySpawnChance;
-        }
-
-        public void setBabySpawnChance(float param0) {
-            this.babySpawnChance = param0;
         }
     }
 }

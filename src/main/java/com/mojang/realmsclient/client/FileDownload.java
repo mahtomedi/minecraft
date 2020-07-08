@@ -327,10 +327,10 @@ public class FileDownload {
     private static void deletePlayerTag(File param0) {
         if (param0.exists()) {
             try {
-                CompoundTag var0 = NbtIo.readCompressed(new FileInputStream(param0));
+                CompoundTag var0 = NbtIo.readCompressed(param0);
                 CompoundTag var1 = var0.getCompound("Data");
                 var1.remove("Player");
-                NbtIo.writeCompressed(var0, new FileOutputStream(param0));
+                NbtIo.writeCompressed(var0, param0);
             } catch (Exception var3) {
                 var3.printStackTrace();
             }

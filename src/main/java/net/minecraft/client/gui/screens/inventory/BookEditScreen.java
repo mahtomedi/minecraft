@@ -24,12 +24,12 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.font.TextFieldHelper;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.Rect2i;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -45,6 +45,10 @@ import org.apache.commons.lang3.mutable.MutableInt;
 
 @OnlyIn(Dist.CLIENT)
 public class BookEditScreen extends Screen {
+    private static final FormattedText EDIT_TITLE_LABEL = new TranslatableComponent("book.editTitle");
+    private static final FormattedText FINALIZE_WARNING_LABEL = new TranslatableComponent("book.finalizeWarning");
+    private static final FormattedText BLACK_CURSOR = FormattedText.of("_", Style.EMPTY.withColor(ChatFormatting.BLACK));
+    private static final FormattedText GRAY_CURSOR = FormattedText.of("_", Style.EMPTY.withColor(ChatFormatting.GRAY));
     private final Player owner;
     private final ItemStack book;
     private boolean isModified;
@@ -74,6 +78,8 @@ public class BookEditScreen extends Screen {
     private final InteractionHand hand;
     @Nullable
     private BookEditScreen.DisplayCache displayCache = BookEditScreen.DisplayCache.EMPTY;
+    private FormattedText pageMsg = FormattedText.EMPTY;
+    private final FormattedText ownerText;
 
     public BookEditScreen(Player param0, ItemStack param1, InteractionHand param2) {
         super(NarratorChatListener.NO_TITLE);
@@ -93,6 +99,7 @@ public class BookEditScreen extends Screen {
             this.pages.add("");
         }
 
+        this.ownerText = new TranslatableComponent("book.byAuthor", param0.getName()).withStyle(ChatFormatting.DARK_GRAY);
     }
 
     private void setClipboard(String param0x) {
@@ -385,34 +392,26 @@ public class BookEditScreen extends Screen {
         int var1 = 2;
         this.blit(param0, var0, 2, 0, 0, 192, 192);
         if (this.isSigning) {
-            String var2 = this.title;
-            if (this.frameTick / 6 % 2 == 0) {
-                var2 = var2 + "" + ChatFormatting.BLACK + "_";
-            } else {
-                var2 = var2 + "" + ChatFormatting.GRAY + "_";
-            }
-
-            String var3 = I18n.get("book.editTitle");
-            int var4 = this.strWidth(var3);
-            this.font.draw(param0, var3, (float)(var0 + 36 + (114 - var4) / 2), 34.0F, 0);
-            int var5 = this.strWidth(var2);
-            this.font.draw(param0, var2, (float)(var0 + 36 + (114 - var5) / 2), 50.0F, 0);
-            String var6 = I18n.get("book.byAuthor", this.owner.getName().getString());
-            int var7 = this.strWidth(var6);
-            this.font.draw(param0, ChatFormatting.DARK_GRAY + var6, (float)(var0 + 36 + (114 - var7) / 2), 60.0F, 0);
-            this.font.drawWordWrap(new TranslatableComponent("book.finalizeWarning"), var0 + 36, 82, 114, 0);
+            boolean var2 = this.frameTick / 6 % 2 == 0;
+            FormattedText var3 = FormattedText.composite(FormattedText.of(this.title), var2 ? BLACK_CURSOR : GRAY_CURSOR);
+            int var4 = this.font.width(EDIT_TITLE_LABEL);
+            this.font.draw(param0, EDIT_TITLE_LABEL, (float)(var0 + 36 + (114 - var4) / 2), 34.0F, 0);
+            int var5 = this.font.width(var3);
+            this.font.draw(param0, var3, (float)(var0 + 36 + (114 - var5) / 2), 50.0F, 0);
+            int var6 = this.font.width(this.ownerText);
+            this.font.draw(param0, this.ownerText, (float)(var0 + 36 + (114 - var6) / 2), 60.0F, 0);
+            this.font.drawWordWrap(FINALIZE_WARNING_LABEL, var0 + 36, 82, 114, 0);
         } else {
-            String var8 = I18n.get("book.pageIndicator", this.currentPage + 1, this.getNumPages());
-            int var9 = this.strWidth(var8);
-            this.font.draw(param0, var8, (float)(var0 - var9 + 192 - 44), 18.0F, 0);
-            BookEditScreen.DisplayCache var10 = this.getDisplayCache();
+            int var7 = this.font.width(this.pageMsg);
+            this.font.draw(param0, this.pageMsg, (float)(var0 - var7 + 192 - 44), 18.0F, 0);
+            BookEditScreen.DisplayCache var8 = this.getDisplayCache();
 
-            for(BookEditScreen.LineInfo var11 : var10.lines) {
-                this.font.draw(param0, var11.asComponent, (float)var11.x, (float)var11.y, -16777216);
+            for(BookEditScreen.LineInfo var9 : var8.lines) {
+                this.font.draw(param0, var9.asComponent, (float)var9.x, (float)var9.y, -16777216);
             }
 
-            this.renderHighlight(var10.selection);
-            this.renderCursor(param0, var10.cursor, var10.cursorAtEnd);
+            this.renderHighlight(var8.selection);
+            this.renderCursor(param0, var8.cursor, var8.cursorAtEnd);
         }
 
         super.render(param0, param1, param2, param3);
@@ -428,10 +427,6 @@ public class BookEditScreen extends Screen {
             }
         }
 
-    }
-
-    private int strWidth(String param0) {
-        return this.font.width(this.font.isBidirectional() ? this.font.bidirectionalShaping(param0) : param0);
     }
 
     private void renderHighlight(Rect2i[] param0) {
@@ -520,6 +515,7 @@ public class BookEditScreen extends Screen {
     private BookEditScreen.DisplayCache getDisplayCache() {
         if (this.displayCache == null) {
             this.displayCache = this.rebuildDisplayCache();
+            this.pageMsg = new TranslatableComponent("book.pageIndicator", this.currentPage + 1, this.getNumPages());
         }
 
         return this.displayCache;

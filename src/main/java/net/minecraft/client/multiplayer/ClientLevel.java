@@ -30,6 +30,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Cursor3D;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -104,9 +105,9 @@ public class ClientLevel extends Level {
         long param9
     ) {
         super(param1, param2, param3, param4, param6, true, param8, param9);
+        this.connection = param0;
         this.chunkSource = new ClientChunkCache(this, param5);
         this.clientLevelData = param1;
-        this.connection = param0;
         this.levelRenderer = param7;
         this.effects = DimensionSpecialEffects.forType(param0.registryAccess().dimensionTypes().getResourceKey(param4));
         this.setDefaultSpawnPos(new BlockPos(8, 64, 8));
@@ -569,6 +570,11 @@ public class ClientLevel extends Level {
     @Override
     public TagContainer getTagManager() {
         return this.connection.getTags();
+    }
+
+    @Override
+    public RegistryAccess registryAccess() {
+        return this.connection.registryAccess();
     }
 
     @Override

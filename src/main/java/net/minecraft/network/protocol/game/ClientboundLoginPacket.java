@@ -81,7 +81,7 @@ public class ClientboundLoginPacket implements Packet<ClientGamePacketListener> 
             this.levels.add(ResourceKey.create(Registry.DIMENSION_REGISTRY, param0.readResourceLocation()));
         }
 
-        this.registryHolder = param0.readWithCodec(RegistryAccess.RegistryHolder.CODEC);
+        this.registryHolder = param0.readWithCodec(RegistryAccess.RegistryHolder.NETWORK_CODEC);
         this.dimensionType = ResourceKey.create(Registry.DIMENSION_TYPE_REGISTRY, param0.readResourceLocation());
         this.dimension = ResourceKey.create(Registry.DIMENSION_REGISTRY, param0.readResourceLocation());
         this.seed = param0.readLong();
@@ -105,7 +105,7 @@ public class ClientboundLoginPacket implements Packet<ClientGamePacketListener> 
             param0.writeResourceLocation(var0.location());
         }
 
-        param0.writeWithCodec(RegistryAccess.RegistryHolder.CODEC, this.registryHolder);
+        param0.writeWithCodec(RegistryAccess.RegistryHolder.NETWORK_CODEC, this.registryHolder);
         param0.writeResourceLocation(this.dimensionType.location());
         param0.writeResourceLocation(this.dimension.location());
         param0.writeLong(this.seed);

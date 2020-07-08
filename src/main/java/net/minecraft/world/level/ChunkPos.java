@@ -94,10 +94,6 @@ public class ChunkPos {
         return this.z & 31;
     }
 
-    public BlockPos getBlockAt(int param0, int param1, int param2) {
-        return new BlockPos((this.x << 4) + param0, param1, (this.z << 4) + param2);
-    }
-
     @Override
     public String toString() {
         return "[" + this.x + ", " + this.z + "]";

@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.StructureFeatureManager;
@@ -37,39 +38,31 @@ public class SinglePoolElement extends StructurePoolElement {
         param0 -> param0.group(templateCodec(), processorsCodec(), projectionCodec()).apply(param0, SinglePoolElement::new)
     );
     protected final Either<ResourceLocation, StructureTemplate> template;
-    protected final ImmutableList<StructureProcessor> processors;
+    protected final Supplier<ImmutableList<StructureProcessor>> processors;
 
     private static <T> DataResult<T> encodeTemplate(Either<ResourceLocation, StructureTemplate> param0, DynamicOps<T> param1, T param2) {
         Optional<ResourceLocation> var0 = param0.left();
         return !var0.isPresent() ? DataResult.error("Can not serialize a runtime pool element") : ResourceLocation.CODEC.encode(var0.get(), param1, param2);
     }
 
-    protected static <E extends SinglePoolElement> RecordCodecBuilder<E, List<StructureProcessor>> processorsCodec() {
-        return StructureProcessorType.CODEC.listOf().fieldOf("processors").forGetter(param0 -> param0.processors);
+    protected static <E extends SinglePoolElement> RecordCodecBuilder<E, Supplier<ImmutableList<StructureProcessor>>> processorsCodec() {
+        return StructureProcessorType.LIST_CODEC.fieldOf("processors").forGetter(param0 -> param0.processors);
     }
 
     protected static <E extends SinglePoolElement> RecordCodecBuilder<E, Either<ResourceLocation, StructureTemplate>> templateCodec() {
         return TEMPLATE_CODEC.fieldOf("location").forGetter(param0 -> param0.template);
     }
 
-    @Deprecated
-    public SinglePoolElement(String param0, List<StructureProcessor> param1) {
-        this(Either.left(new ResourceLocation(param0)), param1, StructureTemplatePool.Projection.RIGID);
-    }
-
-    protected SinglePoolElement(Either<ResourceLocation, StructureTemplate> param0, List<StructureProcessor> param1, StructureTemplatePool.Projection param2) {
+    protected SinglePoolElement(
+        Either<ResourceLocation, StructureTemplate> param0, Supplier<ImmutableList<StructureProcessor>> param1, StructureTemplatePool.Projection param2
+    ) {
         super(param2);
         this.template = param0;
-        this.processors = ImmutableList.copyOf(param1);
+        this.processors = param1;
     }
 
-    public SinglePoolElement(StructureTemplate param0, List<StructureProcessor> param1, StructureTemplatePool.Projection param2) {
-        this(Either.right(param0), param1, param2);
-    }
-
-    @Deprecated
-    public SinglePoolElement(String param0) {
-        this(param0, ImmutableList.of());
+    public SinglePoolElement(StructureTemplate param0) {
+        this(Either.right(param0), ImmutableList::of, StructureTemplatePool.Projection.RIGID);
     }
 
     private StructureTemplate getTemplate(StructureManager param0) {
@@ -149,7 +142,7 @@ public class SinglePoolElement extends StructurePoolElement {
             var0.addProcessor(JigsawReplacementProcessor.INSTANCE);
         }
 
-        this.processors.forEach(var0::addProcessor);
+        this.processors.get().forEach(var0::addProcessor);
         this.getProjection().getProcessors().forEach(var0::addProcessor);
         return var0;
     }

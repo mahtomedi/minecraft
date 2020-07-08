@@ -22,6 +22,15 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class NbtIo {
+    public static CompoundTag readCompressed(File param0) throws IOException {
+        CompoundTag var3;
+        try (InputStream var0 = new FileInputStream(param0)) {
+            var3 = readCompressed(var0);
+        }
+
+        return var3;
+    }
+
     public static CompoundTag readCompressed(InputStream param0) throws IOException {
         CompoundTag var3;
         try (DataInputStream var0 = new DataInputStream(new BufferedInputStream(new GZIPInputStream(param0)))) {
@@ -29,6 +38,13 @@ public class NbtIo {
         }
 
         return var3;
+    }
+
+    public static void writeCompressed(CompoundTag param0, File param1) throws IOException {
+        try (OutputStream var0 = new FileOutputStream(param1)) {
+            writeCompressed(param0, var0);
+        }
+
     }
 
     public static void writeCompressed(CompoundTag param0, OutputStream param1) throws IOException {
@@ -40,12 +56,11 @@ public class NbtIo {
 
     @OnlyIn(Dist.CLIENT)
     public static void write(CompoundTag param0, File param1) throws IOException {
-        DataOutputStream var0 = new DataOutputStream(new FileOutputStream(param1));
-
-        try {
-            write(param0, var0);
-        } finally {
-            var0.close();
+        try (
+            FileOutputStream var0 = new FileOutputStream(param1);
+            DataOutputStream var1 = new DataOutputStream(var0);
+        ) {
+            write(param0, var1);
         }
 
     }
@@ -56,20 +71,19 @@ public class NbtIo {
         if (!param0.exists()) {
             return null;
         } else {
-            DataInputStream var0 = new DataInputStream(new FileInputStream(param0));
-
-            CompoundTag var2;
-            try {
-                var2 = read(var0, NbtAccounter.UNLIMITED);
-            } finally {
-                var0.close();
+            CompoundTag var5;
+            try (
+                FileInputStream var0 = new FileInputStream(param0);
+                DataInputStream var1 = new DataInputStream(var0);
+            ) {
+                var5 = read(var1, NbtAccounter.UNLIMITED);
             }
 
-            return var2;
+            return var5;
         }
     }
 
-    public static CompoundTag read(DataInputStream param0) throws IOException {
+    public static CompoundTag read(DataInput param0) throws IOException {
         return read(param0, NbtAccounter.UNLIMITED);
     }
 

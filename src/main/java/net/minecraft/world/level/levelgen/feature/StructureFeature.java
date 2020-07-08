@@ -3,6 +3,7 @@ package net.minecraft.world.level.levelgen.feature;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.mojang.serialization.Codec;
 import java.util.Collections;
@@ -12,6 +13,7 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -26,13 +28,12 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
-import net.minecraft.world.level.levelgen.feature.configurations.BuriedTreasureConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.JigsawConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.MineshaftConfiguration;
-import net.minecraft.world.level.levelgen.feature.configurations.MultiJigsawConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.OceanRuinConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.ProbabilityFeatureConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.RuinedPortalConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.ShipwreckConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.StructureFeatureConfiguration;
@@ -49,8 +50,8 @@ public abstract class StructureFeature<C extends FeatureConfiguration> {
     public static final BiMap<String, StructureFeature<?>> STRUCTURES_REGISTRY = HashBiMap.create();
     private static final Map<StructureFeature<?>, GenerationStep.Decoration> STEP = Maps.newHashMap();
     private static final Logger LOGGER = LogManager.getLogger();
-    public static final StructureFeature<NoneFeatureConfiguration> PILLAGER_OUTPOST = register(
-        "Pillager_Outpost", new PillagerOutpostFeature(NoneFeatureConfiguration.CODEC), GenerationStep.Decoration.SURFACE_STRUCTURES
+    public static final StructureFeature<JigsawConfiguration> PILLAGER_OUTPOST = register(
+        "Pillager_Outpost", new PillagerOutpostFeature(JigsawConfiguration.CODEC), GenerationStep.Decoration.SURFACE_STRUCTURES
     );
     public static final StructureFeature<MineshaftConfiguration> MINESHAFT = register(
         "Mineshaft", new MineshaftFeature(MineshaftConfiguration.CODEC), GenerationStep.Decoration.UNDERGROUND_STRUCTURES
@@ -91,8 +92,8 @@ public abstract class StructureFeature<C extends FeatureConfiguration> {
     public static final StructureFeature<NoneFeatureConfiguration> END_CITY = register(
         "EndCity", new EndCityFeature(NoneFeatureConfiguration.CODEC), GenerationStep.Decoration.SURFACE_STRUCTURES
     );
-    public static final StructureFeature<BuriedTreasureConfiguration> BURIED_TREASURE = register(
-        "Buried_Treasure", new BuriedTreasureFeature(BuriedTreasureConfiguration.CODEC), GenerationStep.Decoration.UNDERGROUND_STRUCTURES
+    public static final StructureFeature<ProbabilityFeatureConfiguration> BURIED_TREASURE = register(
+        "Buried_Treasure", new BuriedTreasureFeature(ProbabilityFeatureConfiguration.CODEC), GenerationStep.Decoration.UNDERGROUND_STRUCTURES
     );
     public static final StructureFeature<JigsawConfiguration> VILLAGE = register(
         "Village", new VillageFeature(JigsawConfiguration.CODEC), GenerationStep.Decoration.SURFACE_STRUCTURES
@@ -100,10 +101,16 @@ public abstract class StructureFeature<C extends FeatureConfiguration> {
     public static final StructureFeature<NoneFeatureConfiguration> NETHER_FOSSIL = register(
         "Nether_Fossil", new NetherFossilFeature(NoneFeatureConfiguration.CODEC), GenerationStep.Decoration.UNDERGROUND_DECORATION
     );
-    public static final StructureFeature<MultiJigsawConfiguration> BASTION_REMNANT = register(
-        "Bastion_Remnant", new BastionFeature(MultiJigsawConfiguration.CODEC), GenerationStep.Decoration.SURFACE_STRUCTURES
+    public static final StructureFeature<JigsawConfiguration> BASTION_REMNANT = register(
+        "Bastion_Remnant", new BastionFeature(JigsawConfiguration.CODEC), GenerationStep.Decoration.SURFACE_STRUCTURES
     );
     public static final List<StructureFeature<?>> NOISE_AFFECTING_FEATURES = ImmutableList.of(PILLAGER_OUTPOST, VILLAGE, NETHER_FOSSIL);
+    private static final Map<String, String> RENAMES = ImmutableMap.<String, String>builder()
+        .put("nvi", "jigsaw")
+        .put("pcp", "jigsaw")
+        .put("bastionremnant", "jigsaw")
+        .put("runtime", "jigsaw")
+        .build();
     private final Codec<ConfiguredStructureFeature<C, StructureFeature<C>>> configuredStructureCodec;
 
     private static <F extends StructureFeature<?>> F register(String param0, F param1, GenerationStep.Decoration param2) {
@@ -147,23 +154,24 @@ public abstract class StructureFeature<C extends FeatureConfiguration> {
 
                     for(int var8 = 0; var8 < var6.size(); ++var8) {
                         CompoundTag var9 = var6.getCompound(var8);
-                        String var10 = var9.getString("id");
-                        StructurePieceType var11 = Registry.STRUCTURE_PIECE.get(new ResourceLocation(var10.toLowerCase(Locale.ROOT)));
-                        if (var11 == null) {
-                            LOGGER.error("Unknown structure piece id: {}", var10);
+                        String var10 = var9.getString("id").toLowerCase(Locale.ROOT);
+                        String var11 = RENAMES.getOrDefault(var10, var10);
+                        StructurePieceType var12 = Registry.STRUCTURE_PIECE.get(new ResourceLocation(var11));
+                        if (var12 == null) {
+                            LOGGER.error("Unknown structure piece id: {}", var11);
                         } else {
                             try {
-                                StructurePiece var12 = var11.load(param0, var9);
-                                var7.getPieces().add(var12);
-                            } catch (Exception var17) {
-                                LOGGER.error("Exception loading structure piece with id {}", var10, var17);
+                                StructurePiece var13 = var12.load(param0, var9);
+                                var7.getPieces().add(var13);
+                            } catch (Exception var18) {
+                                LOGGER.error("Exception loading structure piece with id {}", var11, var18);
                             }
                         }
                     }
 
                     return var7;
-                } catch (Exception var18) {
-                    LOGGER.error("Failed Start with id {}", var0, var18);
+                } catch (Exception var19) {
+                    LOGGER.error("Failed Start with id {}", var0, var19);
                     return null;
                 }
             }
@@ -259,21 +267,22 @@ public abstract class StructureFeature<C extends FeatureConfiguration> {
     }
 
     public StructureStart<?> generate(
-        ChunkGenerator param0,
-        BiomeSource param1,
-        StructureManager param2,
-        long param3,
-        ChunkPos param4,
-        Biome param5,
-        int param6,
-        WorldgenRandom param7,
-        StructureFeatureConfiguration param8,
-        C param9
+        RegistryAccess param0,
+        ChunkGenerator param1,
+        BiomeSource param2,
+        StructureManager param3,
+        long param4,
+        ChunkPos param5,
+        Biome param6,
+        int param7,
+        WorldgenRandom param8,
+        StructureFeatureConfiguration param9,
+        C param10
     ) {
-        ChunkPos var0 = this.getPotentialFeatureChunk(param8, param3, param7, param4.x, param4.z);
-        if (param4.x == var0.x && param4.z == var0.z && this.isFeatureChunk(param0, param1, param3, param7, param4.x, param4.z, param5, var0, param9)) {
-            StructureStart<C> var1 = this.createStart(param4.x, param4.z, BoundingBox.getUnknownBox(), param6, param3);
-            var1.generatePieces(param0, param2, param4.x, param4.z, param5, param9);
+        ChunkPos var0 = this.getPotentialFeatureChunk(param9, param4, param8, param5.x, param5.z);
+        if (param5.x == var0.x && param5.z == var0.z && this.isFeatureChunk(param1, param2, param4, param8, param5.x, param5.z, param6, var0, param10)) {
+            StructureStart<C> var1 = this.createStart(param5.x, param5.z, BoundingBox.getUnknownBox(), param7, param4);
+            var1.generatePieces(param0, param1, param3, param5.x, param5.z, param6, param10);
             if (var1.isValid()) {
                 return var1;
             }

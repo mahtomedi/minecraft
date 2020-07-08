@@ -21,7 +21,7 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureMana
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public abstract class PoolElementStructurePiece extends StructurePiece {
+public class PoolElementStructurePiece extends StructurePiece {
     private static final Logger LOGGER = LogManager.getLogger();
     protected final StructurePoolElement element;
     protected BlockPos position;
@@ -30,20 +30,18 @@ public abstract class PoolElementStructurePiece extends StructurePiece {
     private final List<JigsawJunction> junctions = Lists.newArrayList();
     private final StructureManager structureManager;
 
-    public PoolElementStructurePiece(
-        StructurePieceType param0, StructureManager param1, StructurePoolElement param2, BlockPos param3, int param4, Rotation param5, BoundingBox param6
-    ) {
-        super(param0, 0);
-        this.structureManager = param1;
-        this.element = param2;
-        this.position = param3;
-        this.groundLevelDelta = param4;
-        this.rotation = param5;
-        this.boundingBox = param6;
+    public PoolElementStructurePiece(StructureManager param0, StructurePoolElement param1, BlockPos param2, int param3, Rotation param4, BoundingBox param5) {
+        super(StructurePieceType.JIGSAW, 0);
+        this.structureManager = param0;
+        this.element = param1;
+        this.position = param2;
+        this.groundLevelDelta = param3;
+        this.rotation = param4;
+        this.boundingBox = param5;
     }
 
-    public PoolElementStructurePiece(StructureManager param0, CompoundTag param1, StructurePieceType param2) {
-        super(param2, param1);
+    public PoolElementStructurePiece(StructureManager param0, CompoundTag param1) {
+        super(StructurePieceType.JIGSAW, param1);
         this.structureManager = param0;
         this.position = new BlockPos(param1.getInt("PosX"), param1.getInt("PosY"), param1.getInt("PosZ"));
         this.groundLevelDelta = param1.getInt("ground_level_delta");

@@ -5,6 +5,7 @@ import com.mojang.serialization.Codec;
 import java.util.List;
 import java.util.Random;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.WorldGenLevel;
@@ -62,7 +63,9 @@ public class WoodlandMansionFeature extends StructureFeature<NoneFeatureConfigur
             super(param0, param1, param2, param3, param4, param5);
         }
 
-        public void generatePieces(ChunkGenerator param0, StructureManager param1, int param2, int param3, Biome param4, NoneFeatureConfiguration param5) {
+        public void generatePieces(
+            RegistryAccess param0, ChunkGenerator param1, StructureManager param2, int param3, int param4, Biome param5, NoneFeatureConfiguration param6
+        ) {
             Rotation var0 = Rotation.getRandom(this.random);
             int var1 = 5;
             int var2 = 5;
@@ -75,17 +78,17 @@ public class WoodlandMansionFeature extends StructureFeature<NoneFeatureConfigur
                 var2 = -5;
             }
 
-            int var3 = (param2 << 4) + 7;
-            int var4 = (param3 << 4) + 7;
-            int var5 = param0.getFirstOccupiedHeight(var3, var4, Heightmap.Types.WORLD_SURFACE_WG);
-            int var6 = param0.getFirstOccupiedHeight(var3, var4 + var2, Heightmap.Types.WORLD_SURFACE_WG);
-            int var7 = param0.getFirstOccupiedHeight(var3 + var1, var4, Heightmap.Types.WORLD_SURFACE_WG);
-            int var8 = param0.getFirstOccupiedHeight(var3 + var1, var4 + var2, Heightmap.Types.WORLD_SURFACE_WG);
+            int var3 = (param3 << 4) + 7;
+            int var4 = (param4 << 4) + 7;
+            int var5 = param1.getFirstOccupiedHeight(var3, var4, Heightmap.Types.WORLD_SURFACE_WG);
+            int var6 = param1.getFirstOccupiedHeight(var3, var4 + var2, Heightmap.Types.WORLD_SURFACE_WG);
+            int var7 = param1.getFirstOccupiedHeight(var3 + var1, var4, Heightmap.Types.WORLD_SURFACE_WG);
+            int var8 = param1.getFirstOccupiedHeight(var3 + var1, var4 + var2, Heightmap.Types.WORLD_SURFACE_WG);
             int var9 = Math.min(Math.min(var5, var6), Math.min(var7, var8));
             if (var9 >= 60) {
-                BlockPos var10 = new BlockPos(param2 * 16 + 8, var9 + 1, param3 * 16 + 8);
+                BlockPos var10 = new BlockPos(param3 * 16 + 8, var9 + 1, param4 * 16 + 8);
                 List<WoodlandMansionPieces.WoodlandMansionPiece> var11 = Lists.newLinkedList();
-                WoodlandMansionPieces.generateMansion(param1, var10, var0, var11, this.random);
+                WoodlandMansionPieces.generateMansion(param2, var10, var0, var11, this.random);
                 this.pieces.addAll(var11);
                 this.calculateBoundingBox();
             }

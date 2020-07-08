@@ -26,6 +26,8 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class PotionUtils {
+    private static final MutableComponent NO_EFFECT = new TranslatableComponent("effect.none").withStyle(ChatFormatting.GRAY);
+
     public static List<MobEffectInstance> getMobEffects(ItemStack param0) {
         return getAllEffects(param0.getTag());
     }
@@ -154,7 +156,7 @@ public class PotionUtils {
         List<MobEffectInstance> var0 = getMobEffects(param0);
         List<Pair<Attribute, AttributeModifier>> var1 = Lists.newArrayList();
         if (var0.isEmpty()) {
-            param1.add(new TranslatableComponent("effect.none").withStyle(ChatFormatting.GRAY));
+            param1.add(NO_EFFECT);
         } else {
             for(MobEffectInstance var2 : var0) {
                 MutableComponent var3 = new TranslatableComponent(var2.getDescriptionId());
@@ -171,11 +173,11 @@ public class PotionUtils {
                 }
 
                 if (var2.getAmplifier() > 0) {
-                    var3.append(" ").append(new TranslatableComponent("potion.potency." + var2.getAmplifier()));
+                    var3 = new TranslatableComponent("potion.withAmplifier", var3, new TranslatableComponent("potion.potency." + var2.getAmplifier()));
                 }
 
                 if (var2.getDuration() > 20) {
-                    var3.append(" (").append(MobEffectUtil.formatDuration(var2, param2)).append(")");
+                    var3 = new TranslatableComponent("potion.withDuration", var3, MobEffectUtil.formatDuration(var2, param2));
                 }
 
                 param1.add(var3.withStyle(var4.getCategory().getTooltipFormatting()));

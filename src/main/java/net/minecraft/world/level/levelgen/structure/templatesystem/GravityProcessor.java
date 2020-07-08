@@ -11,8 +11,8 @@ import net.minecraft.world.level.levelgen.Heightmap;
 public class GravityProcessor extends StructureProcessor {
     public static final Codec<GravityProcessor> CODEC = RecordCodecBuilder.create(
         param0 -> param0.group(
-                    Heightmap.Types.CODEC.fieldOf("heightmap").withDefault(Heightmap.Types.WORLD_SURFACE_WG).forGetter(param0x -> param0x.heightmap),
-                    Codec.INT.fieldOf("offset").withDefault(0).forGetter(param0x -> param0x.offset)
+                    Heightmap.Types.CODEC.fieldOf("heightmap").orElse(Heightmap.Types.WORLD_SURFACE_WG).forGetter(param0x -> param0x.heightmap),
+                    Codec.INT.fieldOf("offset").orElse(0).forGetter(param0x -> param0x.offset)
                 )
                 .apply(param0, GravityProcessor::new)
     );

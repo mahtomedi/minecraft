@@ -44,10 +44,8 @@ public class ThornsEnchantment extends Enchantment {
             }
 
             if (var1 != null) {
-                var1.getValue().hurtAndBreak(3, param0, param1x -> param1x.broadcastBreakEvent(var1.getKey()));
+                var1.getValue().hurtAndBreak(2, param0, param1x -> param1x.broadcastBreakEvent(var1.getKey()));
             }
-        } else if (var1 != null) {
-            var1.getValue().hurtAndBreak(1, param0, param1x -> param1x.broadcastBreakEvent(var1.getKey()));
         }
 
     }

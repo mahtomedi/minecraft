@@ -40,6 +40,7 @@ public class IdMapper<T> implements IdMap<T> {
         this.addMapping(param0, this.nextId);
     }
 
+    @Override
     public int getId(T param0) {
         Integer var0 = this.tToId.get(param0);
         return var0 == null ? -1 : var0;

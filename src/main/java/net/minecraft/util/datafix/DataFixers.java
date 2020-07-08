@@ -122,6 +122,7 @@ import net.minecraft.util.datafix.fixes.RecipesRenameFix;
 import net.minecraft.util.datafix.fixes.RecipesRenameningFix;
 import net.minecraft.util.datafix.fixes.RedstoneWireConnectionsFix;
 import net.minecraft.util.datafix.fixes.References;
+import net.minecraft.util.datafix.fixes.RemoveGolemGossipFix;
 import net.minecraft.util.datafix.fixes.RenameBiomesFix;
 import net.minecraft.util.datafix.fixes.RenamedCoralFansFix;
 import net.minecraft.util.datafix.fixes.RenamedCoralFix;
@@ -548,91 +549,93 @@ public class DataFixers {
         param0.addFixer(new ZombieVillagerRebuildXpFix(var92, false));
         Schema var93 = param0.addSchema(1961, SAME_NAMESPACED);
         param0.addFixer(new ChunkLightRemoveFix(var93, false));
-        Schema var94 = param0.addSchema(2100, V2100::new);
-        param0.addFixer(new AddNewChoices(var94, "Added Bee and Bee Stinger", References.ENTITY));
-        param0.addFixer(new AddNewChoices(var94, "Add beehive", References.BLOCK_ENTITY));
-        param0.addFixer(new RecipesRenameFix(var94, false, "Rename sugar recipe", createRenamer("minecraft:sugar", "sugar_from_sugar_cane")));
+        Schema var94 = param0.addSchema(1963, SAME_NAMESPACED);
+        param0.addFixer(new RemoveGolemGossipFix(var94, false));
+        Schema var95 = param0.addSchema(2100, V2100::new);
+        param0.addFixer(new AddNewChoices(var95, "Added Bee and Bee Stinger", References.ENTITY));
+        param0.addFixer(new AddNewChoices(var95, "Add beehive", References.BLOCK_ENTITY));
+        param0.addFixer(new RecipesRenameFix(var95, false, "Rename sugar recipe", createRenamer("minecraft:sugar", "sugar_from_sugar_cane")));
         param0.addFixer(
             new AdvancementsRenameFix(
-                var94, false, "Rename sugar recipe advancement", createRenamer("minecraft:recipes/misc/sugar", "minecraft:recipes/misc/sugar_from_sugar_cane")
+                var95, false, "Rename sugar recipe advancement", createRenamer("minecraft:recipes/misc/sugar", "minecraft:recipes/misc/sugar_from_sugar_cane")
             )
         );
-        Schema var95 = param0.addSchema(2202, SAME_NAMESPACED);
-        param0.addFixer(new ChunkBiomeFix(var95, false));
-        Schema var96 = param0.addSchema(2209, SAME_NAMESPACED);
-        param0.addFixer(ItemRenameFix.create(var96, "Rename bee_hive item to beehive", createRenamer("minecraft:bee_hive", "minecraft:beehive")));
-        param0.addFixer(new BeehivePoiRenameFix(var96));
-        param0.addFixer(BlockRenameFix.create(var96, "Rename bee_hive block to beehive", createRenamer("minecraft:bee_hive", "minecraft:beehive")));
-        Schema var97 = param0.addSchema(2211, SAME_NAMESPACED);
-        param0.addFixer(new StructureReferenceCountFix(var97, false));
-        Schema var98 = param0.addSchema(2218, SAME_NAMESPACED);
-        param0.addFixer(new ForcePoiRebuild(var98, false));
-        Schema var99 = param0.addSchema(2501, V2501::new);
-        param0.addFixer(new FurnaceRecipeFix(var99, true));
-        Schema var100 = param0.addSchema(2502, V2502::new);
-        param0.addFixer(new AddNewChoices(var100, "Added Hoglin", References.ENTITY));
-        Schema var101 = param0.addSchema(2503, SAME_NAMESPACED);
-        param0.addFixer(new WallPropertyFix(var101, false));
+        Schema var96 = param0.addSchema(2202, SAME_NAMESPACED);
+        param0.addFixer(new ChunkBiomeFix(var96, false));
+        Schema var97 = param0.addSchema(2209, SAME_NAMESPACED);
+        param0.addFixer(ItemRenameFix.create(var97, "Rename bee_hive item to beehive", createRenamer("minecraft:bee_hive", "minecraft:beehive")));
+        param0.addFixer(new BeehivePoiRenameFix(var97));
+        param0.addFixer(BlockRenameFix.create(var97, "Rename bee_hive block to beehive", createRenamer("minecraft:bee_hive", "minecraft:beehive")));
+        Schema var98 = param0.addSchema(2211, SAME_NAMESPACED);
+        param0.addFixer(new StructureReferenceCountFix(var98, false));
+        Schema var99 = param0.addSchema(2218, SAME_NAMESPACED);
+        param0.addFixer(new ForcePoiRebuild(var99, false));
+        Schema var100 = param0.addSchema(2501, V2501::new);
+        param0.addFixer(new FurnaceRecipeFix(var100, true));
+        Schema var101 = param0.addSchema(2502, V2502::new);
+        param0.addFixer(new AddNewChoices(var101, "Added Hoglin", References.ENTITY));
+        Schema var102 = param0.addSchema(2503, SAME_NAMESPACED);
+        param0.addFixer(new WallPropertyFix(var102, false));
         param0.addFixer(
             new AdvancementsRenameFix(
-                var101, false, "Composter category change", createRenamer("minecraft:recipes/misc/composter", "minecraft:recipes/decorations/composter")
+                var102, false, "Composter category change", createRenamer("minecraft:recipes/misc/composter", "minecraft:recipes/decorations/composter")
             )
         );
-        Schema var102 = param0.addSchema(2505, V2505::new);
-        param0.addFixer(new AddNewChoices(var102, "Added Piglin", References.ENTITY));
-        param0.addFixer(new MemoryExpiryDataFix(var102, "minecraft:villager"));
-        Schema var103 = param0.addSchema(2508, SAME_NAMESPACED);
+        Schema var103 = param0.addSchema(2505, V2505::new);
+        param0.addFixer(new AddNewChoices(var103, "Added Piglin", References.ENTITY));
+        param0.addFixer(new MemoryExpiryDataFix(var103, "minecraft:villager"));
+        Schema var104 = param0.addSchema(2508, SAME_NAMESPACED);
         param0.addFixer(
             ItemRenameFix.create(
-                var103,
+                var104,
                 "Renamed fungi items to fungus",
                 createRenamer(ImmutableMap.of("minecraft:warped_fungi", "minecraft:warped_fungus", "minecraft:crimson_fungi", "minecraft:crimson_fungus"))
             )
         );
         param0.addFixer(
             BlockRenameFix.create(
-                var103,
+                var104,
                 "Renamed fungi blocks to fungus",
                 createRenamer(ImmutableMap.of("minecraft:warped_fungi", "minecraft:warped_fungus", "minecraft:crimson_fungi", "minecraft:crimson_fungus"))
             )
         );
-        Schema var104 = param0.addSchema(2509, V2509::new);
-        param0.addFixer(new EntityZombifiedPiglinRenameFix(var104));
-        param0.addFixer(ItemRenameFix.create(var104, "Rename zombie pigman egg item", createRenamer(EntityZombifiedPiglinRenameFix.RENAMED_IDS)));
-        Schema var105 = param0.addSchema(2511, SAME_NAMESPACED);
-        param0.addFixer(new EntityProjectileOwnerFix(var105));
-        Schema var106 = param0.addSchema(2514, SAME_NAMESPACED);
-        param0.addFixer(new EntityUUIDFix(var106));
-        param0.addFixer(new BlockEntityUUIDFix(var106));
-        param0.addFixer(new PlayerUUIDFix(var106));
-        param0.addFixer(new LevelUUIDFix(var106));
-        param0.addFixer(new SavedDataUUIDFix(var106));
-        param0.addFixer(new ItemStackUUIDFix(var106));
-        Schema var107 = param0.addSchema(2516, SAME_NAMESPACED);
-        param0.addFixer(new GossipUUIDFix(var107, "minecraft:villager"));
-        param0.addFixer(new GossipUUIDFix(var107, "minecraft:zombie_villager"));
-        Schema var108 = param0.addSchema(2518, SAME_NAMESPACED);
-        param0.addFixer(new JigsawPropertiesFix(var108, false));
-        param0.addFixer(new JigsawRotationFix(var108, false));
-        Schema var109 = param0.addSchema(2519, V2519::new);
-        param0.addFixer(new AddNewChoices(var109, "Added Strider", References.ENTITY));
-        Schema var110 = param0.addSchema(2522, V2522::new);
-        param0.addFixer(new AddNewChoices(var110, "Added Zoglin", References.ENTITY));
-        Schema var111 = param0.addSchema(2523, SAME_NAMESPACED);
-        param0.addFixer(new AttributesRename(var111));
-        Schema var112 = param0.addSchema(2527, SAME_NAMESPACED);
-        param0.addFixer(new BitStorageAlignFix(var112));
-        Schema var113 = param0.addSchema(2528, SAME_NAMESPACED);
+        Schema var105 = param0.addSchema(2509, V2509::new);
+        param0.addFixer(new EntityZombifiedPiglinRenameFix(var105));
+        param0.addFixer(ItemRenameFix.create(var105, "Rename zombie pigman egg item", createRenamer(EntityZombifiedPiglinRenameFix.RENAMED_IDS)));
+        Schema var106 = param0.addSchema(2511, SAME_NAMESPACED);
+        param0.addFixer(new EntityProjectileOwnerFix(var106));
+        Schema var107 = param0.addSchema(2514, SAME_NAMESPACED);
+        param0.addFixer(new EntityUUIDFix(var107));
+        param0.addFixer(new BlockEntityUUIDFix(var107));
+        param0.addFixer(new PlayerUUIDFix(var107));
+        param0.addFixer(new LevelUUIDFix(var107));
+        param0.addFixer(new SavedDataUUIDFix(var107));
+        param0.addFixer(new ItemStackUUIDFix(var107));
+        Schema var108 = param0.addSchema(2516, SAME_NAMESPACED);
+        param0.addFixer(new GossipUUIDFix(var108, "minecraft:villager"));
+        param0.addFixer(new GossipUUIDFix(var108, "minecraft:zombie_villager"));
+        Schema var109 = param0.addSchema(2518, SAME_NAMESPACED);
+        param0.addFixer(new JigsawPropertiesFix(var109, false));
+        param0.addFixer(new JigsawRotationFix(var109, false));
+        Schema var110 = param0.addSchema(2519, V2519::new);
+        param0.addFixer(new AddNewChoices(var110, "Added Strider", References.ENTITY));
+        Schema var111 = param0.addSchema(2522, V2522::new);
+        param0.addFixer(new AddNewChoices(var111, "Added Zoglin", References.ENTITY));
+        Schema var112 = param0.addSchema(2523, SAME_NAMESPACED);
+        param0.addFixer(new AttributesRename(var112));
+        Schema var113 = param0.addSchema(2527, SAME_NAMESPACED);
+        param0.addFixer(new BitStorageAlignFix(var113));
+        Schema var114 = param0.addSchema(2528, SAME_NAMESPACED);
         param0.addFixer(
             ItemRenameFix.create(
-                var113,
+                var114,
                 "Rename soul fire torch and soul fire lantern",
                 createRenamer(ImmutableMap.of("minecraft:soul_fire_torch", "minecraft:soul_torch", "minecraft:soul_fire_lantern", "minecraft:soul_lantern"))
             )
         );
         param0.addFixer(
             BlockRenameFix.create(
-                var113,
+                var114,
                 "Rename soul fire torch and soul fire lantern",
                 createRenamer(
                     ImmutableMap.of(
@@ -646,27 +649,27 @@ public class DataFixers {
                 )
             )
         );
-        Schema var114 = param0.addSchema(2529, SAME_NAMESPACED);
-        param0.addFixer(new StriderGravityFix(var114, false));
-        Schema var115 = param0.addSchema(2531, SAME_NAMESPACED);
-        param0.addFixer(new RedstoneWireConnectionsFix(var115));
-        Schema var116 = param0.addSchema(2533, SAME_NAMESPACED);
-        param0.addFixer(new VillagerFollowRangeFix(var116));
-        Schema var117 = param0.addSchema(2535, SAME_NAMESPACED);
-        param0.addFixer(new EntityShulkerRotationFix(var117));
-        Schema var118 = param0.addSchema(2550, SAME_NAMESPACED);
-        param0.addFixer(new WorldGenSettingsFix(var118));
-        Schema var119 = param0.addSchema(2551, V2551::new);
-        param0.addFixer(new WriteAndReadFix(var119, "add types to WorldGenData", References.WORLD_GEN_SETTINGS));
-        Schema var120 = param0.addSchema(2552, SAME_NAMESPACED);
-        param0.addFixer(new RenameBiomesFix(var120, false, "Nether biome rename", ImmutableMap.of("minecraft:nether", "minecraft:nether_wastes")));
-        Schema var121 = param0.addSchema(2553, SAME_NAMESPACED);
-        param0.addFixer(new BiomeFix(var121, false));
-        Schema var122 = param0.addSchema(2558, SAME_NAMESPACED);
-        param0.addFixer(new MissingDimensionFix(var122, false));
-        param0.addFixer(new OptionsRenameFieldFix(var122, false, "Rename swapHands setting", "key_key.swapHands", "key_key.swapOffhand"));
-        Schema var123 = param0.addSchema(2568, V2568::new);
-        param0.addFixer(new AddNewChoices(var123, "Added Piglin Brute", References.ENTITY));
+        Schema var115 = param0.addSchema(2529, SAME_NAMESPACED);
+        param0.addFixer(new StriderGravityFix(var115, false));
+        Schema var116 = param0.addSchema(2531, SAME_NAMESPACED);
+        param0.addFixer(new RedstoneWireConnectionsFix(var116));
+        Schema var117 = param0.addSchema(2533, SAME_NAMESPACED);
+        param0.addFixer(new VillagerFollowRangeFix(var117));
+        Schema var118 = param0.addSchema(2535, SAME_NAMESPACED);
+        param0.addFixer(new EntityShulkerRotationFix(var118));
+        Schema var119 = param0.addSchema(2550, SAME_NAMESPACED);
+        param0.addFixer(new WorldGenSettingsFix(var119));
+        Schema var120 = param0.addSchema(2551, V2551::new);
+        param0.addFixer(new WriteAndReadFix(var120, "add types to WorldGenData", References.WORLD_GEN_SETTINGS));
+        Schema var121 = param0.addSchema(2552, SAME_NAMESPACED);
+        param0.addFixer(new RenameBiomesFix(var121, false, "Nether biome rename", ImmutableMap.of("minecraft:nether", "minecraft:nether_wastes")));
+        Schema var122 = param0.addSchema(2553, SAME_NAMESPACED);
+        param0.addFixer(new BiomeFix(var122, false));
+        Schema var123 = param0.addSchema(2558, SAME_NAMESPACED);
+        param0.addFixer(new MissingDimensionFix(var123, false));
+        param0.addFixer(new OptionsRenameFieldFix(var123, false, "Rename swapHands setting", "key_key.swapHands", "key_key.swapOffhand"));
+        Schema var124 = param0.addSchema(2568, V2568::new);
+        param0.addFixer(new AddNewChoices(var124, "Added Piglin Brute", References.ENTITY));
     }
 
     private static UnaryOperator<String> createRenamer(Map<String, String> param0) {

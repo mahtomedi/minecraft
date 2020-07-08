@@ -202,7 +202,9 @@ public class PackSelectionScreen extends Screen {
             InputStream var1 = var0.getRootResource("pack.png");
         ) {
             String var2 = param1.getId();
-            ResourceLocation var3 = new ResourceLocation("pack/" + Util.sanitizeResourceName(var2) + "/" + Hashing.sha1().hashUnencodedChars(var2) + "/icon");
+            ResourceLocation var3 = new ResourceLocation(
+                "minecraft", "pack/" + Util.sanitizeName(var2, ResourceLocation::validPathChar) + "/" + Hashing.sha1().hashUnencodedChars(var2) + "/icon"
+            );
             NativeImage var4 = NativeImage.read(var1);
             param0.register(var3, new DynamicTexture(var4));
             return var3;

@@ -6,6 +6,7 @@ import javax.annotation.Nullable;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.data.worldgen.Features;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -24,7 +25,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.configurations.EndGatewayConfiguration;
-import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
@@ -210,9 +210,7 @@ public class TheEndGatewayBlockEntity extends TheEndPortalBlockEntity implements
         if (this.exitPortal == null) {
             this.exitPortal = new BlockPos(var1.x + 0.5, 75.0, var1.z + 0.5);
             LOGGER.debug("Failed to find suitable block, settling on {}", this.exitPortal);
-            Feature.END_ISLAND
-                .configured(FeatureConfiguration.NONE)
-                .place(param0, param0.getChunkSource().getGenerator(), new Random(this.exitPortal.asLong()), this.exitPortal);
+            Features.END_ISLAND.place(param0, param0.getChunkSource().getGenerator(), new Random(this.exitPortal.asLong()), this.exitPortal);
         } else {
             LOGGER.debug("Found block at {}", this.exitPortal);
         }

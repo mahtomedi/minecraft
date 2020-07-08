@@ -89,6 +89,7 @@ public class Parrot extends ShoulderRidingEntity implements FlyingAnimal {
         param0.put(EntityType.MAGMA_CUBE, SoundEvents.PARROT_IMITATE_MAGMA_CUBE);
         param0.put(EntityType.PHANTOM, SoundEvents.PARROT_IMITATE_PHANTOM);
         param0.put(EntityType.PIGLIN, SoundEvents.PARROT_IMITATE_PIGLIN);
+        param0.put(EntityType.PIGLIN_BRUTE, SoundEvents.PARROT_IMITATE_PIGLIN_BRUTE);
         param0.put(EntityType.PILLAGER, SoundEvents.PARROT_IMITATE_PILLAGER);
         param0.put(EntityType.RAVAGER, SoundEvents.PARROT_IMITATE_RAVAGER);
         param0.put(EntityType.SHULKER, SoundEvents.PARROT_IMITATE_SHULKER);
@@ -129,8 +130,7 @@ public class Parrot extends ShoulderRidingEntity implements FlyingAnimal {
     ) {
         this.setVariant(this.random.nextInt(5));
         if (param3 == null) {
-            param3 = new AgableMob.AgableMobGroupData();
-            ((AgableMob.AgableMobGroupData)param3).setShouldSpawnBaby(false);
+            param3 = new AgableMob.AgableMobGroupData(false);
         }
 
         return super.finalizeSpawn(param0, param1, param2, param3, param4);

@@ -55,7 +55,35 @@ public class SectionPos extends Vec3i {
         int var0 = sectionRelative(param0.getX());
         int var1 = sectionRelative(param0.getY());
         int var2 = sectionRelative(param0.getZ());
-        return (short)(var0 << 8 | var2 << 4 | var1);
+        return (short)(var0 << 8 | var2 << 4 | var1 << 0);
+    }
+
+    public static int sectionRelativeX(short param0) {
+        return param0 >>> 8 & 15;
+    }
+
+    public static int sectionRelativeY(short param0) {
+        return param0 >>> 0 & 15;
+    }
+
+    public static int sectionRelativeZ(short param0) {
+        return param0 >>> 4 & 15;
+    }
+
+    public int relativeToBlockX(short param0) {
+        return this.minBlockX() + sectionRelativeX(param0);
+    }
+
+    public int relativeToBlockY(short param0) {
+        return this.minBlockY() + sectionRelativeY(param0);
+    }
+
+    public int relativeToBlockZ(short param0) {
+        return this.minBlockZ() + sectionRelativeZ(param0);
+    }
+
+    public BlockPos relativeToBlockPos(short param0) {
+        return new BlockPos(this.relativeToBlockX(param0), this.relativeToBlockY(param0), this.relativeToBlockZ(param0));
     }
 
     public static int sectionToBlockCoord(int param0) {

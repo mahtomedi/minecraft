@@ -11,8 +11,6 @@ import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.Lifecycle;
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -169,7 +167,7 @@ public class LevelStorageSource {
     @Nullable
     private static DataPackConfig getDataPacks(File param0, DataFixer param1) {
         try {
-            CompoundTag var0 = NbtIo.readCompressed(new FileInputStream(param0));
+            CompoundTag var0 = NbtIo.readCompressed(param0);
             CompoundTag var1 = var0.getCompound("Data");
             var1.remove("Player");
             int var2 = var1.contains("DataVersion", 99) ? var1.getInt("DataVersion") : -1;
@@ -186,7 +184,7 @@ public class LevelStorageSource {
     private static BiFunction<File, DataFixer, PrimaryLevelData> getLevelData(DynamicOps<Tag> param0, DataPackConfig param1) {
         return (param2, param3) -> {
             try {
-                CompoundTag var0 = NbtIo.readCompressed(new FileInputStream(param2));
+                CompoundTag var0 = NbtIo.readCompressed(param2);
                 CompoundTag var1x = var0.getCompound("Data");
                 CompoundTag var2 = var1x.contains("Player", 10) ? var1x.getCompound("Player") : null;
                 var1x.remove("Player");
@@ -208,7 +206,7 @@ public class LevelStorageSource {
     private BiFunction<File, DataFixer, LevelSummary> levelSummaryReader(File param0, boolean param1) {
         return (param2, param3) -> {
             try {
-                CompoundTag var0 = NbtIo.readCompressed(new FileInputStream(param2));
+                CompoundTag var0 = NbtIo.readCompressed(param2);
                 CompoundTag var1x = var0.getCompound("Data");
                 var1x.remove("Player");
                 int var2x = var1x.contains("DataVersion", 99) ? var1x.getInt("DataVersion") : -1;
@@ -339,7 +337,7 @@ public class LevelStorageSource {
 
             try {
                 File var3 = File.createTempFile("level", ".dat", var0);
-                NbtIo.writeCompressed(var2, new FileOutputStream(var3));
+                NbtIo.writeCompressed(var2, var3);
                 File var4 = new File(var0, "level.dat_old");
                 File var5 = new File(var0, "level.dat");
                 Util.safeReplaceFile(var5, var3, var4);
@@ -411,10 +409,10 @@ public class LevelStorageSource {
             if (var0.exists()) {
                 File var1 = new File(var0, "level.dat");
                 if (var1.exists()) {
-                    CompoundTag var2 = NbtIo.readCompressed(new FileInputStream(var1));
+                    CompoundTag var2 = NbtIo.readCompressed(var1);
                     CompoundTag var3 = var2.getCompound("Data");
                     var3.putString("LevelName", param0);
-                    NbtIo.writeCompressed(var2, new FileOutputStream(var1));
+                    NbtIo.writeCompressed(var2, var1);
                 }
 
             }

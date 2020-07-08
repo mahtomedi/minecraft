@@ -20,8 +20,8 @@ public class TreeConfiguration implements FeatureConfiguration {
                     TrunkPlacer.CODEC.fieldOf("trunk_placer").forGetter(param0x -> param0x.trunkPlacer),
                     FeatureSize.CODEC.fieldOf("minimum_size").forGetter(param0x -> param0x.minimumSize),
                     TreeDecorator.CODEC.listOf().fieldOf("decorators").forGetter(param0x -> param0x.decorators),
-                    Codec.INT.fieldOf("max_water_depth").withDefault(0).forGetter(param0x -> param0x.maxWaterDepth),
-                    Codec.BOOL.fieldOf("ignore_vines").withDefault(false).forGetter(param0x -> param0x.ignoreVines),
+                    Codec.INT.fieldOf("max_water_depth").orElse(0).forGetter(param0x -> param0x.maxWaterDepth),
+                    Codec.BOOL.fieldOf("ignore_vines").orElse(false).forGetter(param0x -> param0x.ignoreVines),
                     Heightmap.Types.CODEC.fieldOf("heightmap").forGetter(param0x -> param0x.heightmap)
                 )
                 .apply(param0, TreeConfiguration::new)

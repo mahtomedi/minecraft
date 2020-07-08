@@ -12,6 +12,8 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import org.apache.logging.log4j.LogManager;
@@ -61,29 +63,32 @@ public class CompassItem extends Item implements Vanishable {
 
     @Override
     public InteractionResult useOn(UseOnContext param0) {
-        BlockPos var0 = param0.hitResult.getBlockPos();
-        if (!param0.level.getBlockState(var0).is(Blocks.LODESTONE)) {
+        BlockPos var0 = param0.getClickedPos();
+        Level var1 = param0.getLevel();
+        if (!var1.getBlockState(var0).is(Blocks.LODESTONE)) {
             return super.useOn(param0);
         } else {
-            param0.level.playSound(null, var0, SoundEvents.LODESTONE_COMPASS_LOCK, SoundSource.PLAYERS, 1.0F, 1.0F);
-            boolean var1 = !param0.player.abilities.instabuild && param0.itemStack.getCount() == 1;
-            if (var1) {
-                this.addLodestoneTags(param0.level.dimension(), var0, param0.itemStack.getOrCreateTag());
+            var1.playSound(null, var0, SoundEvents.LODESTONE_COMPASS_LOCK, SoundSource.PLAYERS, 1.0F, 1.0F);
+            Player var2 = param0.getPlayer();
+            ItemStack var3 = param0.getItemInHand();
+            boolean var4 = !var2.abilities.instabuild && var3.getCount() == 1;
+            if (var4) {
+                this.addLodestoneTags(var1.dimension(), var0, var3.getOrCreateTag());
             } else {
-                ItemStack var2 = new ItemStack(Items.COMPASS, 1);
-                CompoundTag var3 = param0.itemStack.hasTag() ? param0.itemStack.getTag().copy() : new CompoundTag();
-                var2.setTag(var3);
-                if (!param0.player.abilities.instabuild) {
-                    param0.itemStack.shrink(1);
+                ItemStack var5 = new ItemStack(Items.COMPASS, 1);
+                CompoundTag var6 = var3.hasTag() ? var3.getTag().copy() : new CompoundTag();
+                var5.setTag(var6);
+                if (!var2.abilities.instabuild) {
+                    var3.shrink(1);
                 }
 
-                this.addLodestoneTags(param0.level.dimension(), var0, var3);
-                if (!param0.player.inventory.add(var2)) {
-                    param0.player.drop(var2, false);
+                this.addLodestoneTags(var1.dimension(), var0, var6);
+                if (!var2.inventory.add(var5)) {
+                    var2.drop(var5, false);
                 }
             }
 
-            return InteractionResult.sidedSuccess(param0.level.isClientSide);
+            return InteractionResult.sidedSuccess(var1.isClientSide);
         }
     }
 

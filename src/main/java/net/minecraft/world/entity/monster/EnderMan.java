@@ -91,11 +91,10 @@ public class EnderMan extends Monster implements NeutralMob {
         this.goalSelector.addGoal(8, new RandomLookAroundGoal(this));
         this.goalSelector.addGoal(10, new EnderMan.EndermanLeaveBlockGoal(this));
         this.goalSelector.addGoal(11, new EnderMan.EndermanTakeBlockGoal(this));
-        this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, Player.class, 10, true, false, this::isAngryAt));
-        this.targetSelector.addGoal(2, new EnderMan.EndermanLookForPlayerGoal(this));
-        this.targetSelector.addGoal(3, new HurtByTargetGoal(this));
-        this.targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(this, Endermite.class, 10, true, false, ENDERMITE_SELECTOR));
-        this.targetSelector.addGoal(5, new ResetUniversalAngerTargetGoal<>(this, false));
+        this.targetSelector.addGoal(1, new EnderMan.EndermanLookForPlayerGoal(this, this::isAngryAt));
+        this.targetSelector.addGoal(2, new HurtByTargetGoal(this));
+        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, Endermite.class, 10, true, false, ENDERMITE_SELECTOR));
+        this.targetSelector.addGoal(4, new ResetUniversalAngerTargetGoal<>(this, false));
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -357,7 +356,7 @@ public class EnderMan extends Monster implements NeutralMob {
             return false;
         } else {
             boolean var1 = super.hurt(param0, param1);
-            if (!this.level.isClientSide() && this.random.nextInt(10) != 0) {
+            if (!this.level.isClientSide() && !(param0.getEntity() instanceof LivingEntity) && this.random.nextInt(10) != 0) {
                 this.teleport();
             }
 
@@ -463,12 +462,12 @@ public class EnderMan extends Monster implements NeutralMob {
         private final TargetingConditions startAggroTargetConditions;
         private final TargetingConditions continueAggroTargetConditions = new TargetingConditions().allowUnseeable();
 
-        public EndermanLookForPlayerGoal(EnderMan param0) {
-            super(param0, Player.class, false);
+        public EndermanLookForPlayerGoal(EnderMan param0, @Nullable Predicate<LivingEntity> param1) {
+            super(param0, Player.class, 10, false, false, param1);
             this.enderman = param0;
             this.startAggroTargetConditions = new TargetingConditions()
                 .range(this.getFollowDistance())
-                .selector(param1 -> param0.isLookingAtMe((Player)param1));
+                .selector(param1x -> param0.isLookingAtMe((Player)param1x));
         }
 
         @Override

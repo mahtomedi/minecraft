@@ -695,24 +695,20 @@ public class Boat extends Entity {
         BlockPos var3 = new BlockPos(var1, this.getBoundingBox().maxY, var2);
         BlockPos var4 = var3.below();
         if (!this.level.isWaterAt(var4)) {
-            for(Pose var5 : param0.getDismountPoses()) {
-                AABB var6 = param0.getLocalBoundsForPose(var5);
-                double var7 = this.level.getRelativeFloorHeight(var3);
-                if (DismountHelper.isFloorValid(var7)) {
-                    Vec3 var8 = new Vec3(var1, (double)var3.getY() + var7, var2);
-                    if (DismountHelper.canDismountTo(this.level, param0, var6.move(var8))) {
-                        param0.setPose(var5);
-                        return var8;
-                    }
+            double var5 = (double)var3.getY() + this.level.getBlockFloorHeight(var3);
+            double var6 = (double)var3.getY() + this.level.getBlockFloorHeight(var4);
+
+            for(Pose var7 : param0.getDismountPoses()) {
+                Vec3 var8 = DismountHelper.findDismountLocation(this.level, var1, var5, var2, param0, var7);
+                if (var8 != null) {
+                    param0.setPose(var7);
+                    return var8;
                 }
 
-                double var9 = this.level.getRelativeFloorHeight(var4);
-                if (DismountHelper.isFloorValid(var9)) {
-                    Vec3 var10 = new Vec3(var1, (double)var4.getY() + var9, var2);
-                    if (DismountHelper.canDismountTo(this.level, param0, var6.move(var10))) {
-                        param0.setPose(var5);
-                        return var10;
-                    }
+                Vec3 var9 = DismountHelper.findDismountLocation(this.level, var1, var6, var2, param0, var7);
+                if (var9 != null) {
+                    param0.setPose(var7);
+                    return var9;
                 }
             }
         }

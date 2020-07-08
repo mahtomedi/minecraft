@@ -9,7 +9,7 @@ import net.minecraft.world.level.LevelReader;
 public class BlockRotProcessor extends StructureProcessor {
     public static final Codec<BlockRotProcessor> CODEC = Codec.FLOAT
         .fieldOf("integrity")
-        .withDefault(1.0F)
+        .orElse(1.0F)
         .xmap(BlockRotProcessor::new, param0 -> param0.integrity)
         .codec();
     private final float integrity;

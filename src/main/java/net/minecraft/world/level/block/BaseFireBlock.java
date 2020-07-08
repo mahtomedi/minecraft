@@ -1,5 +1,6 @@
 package net.minecraft.world.level.block;
 
+import java.util.Optional;
 import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -9,12 +10,12 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.BlockPlaceContext;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.portal.PortalShape;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
@@ -145,13 +146,23 @@ public abstract class BaseFireBlock extends Block {
     @Override
     public void onPlace(BlockState param0, Level param1, BlockPos param2, BlockState param3, boolean param4) {
         if (!param3.is(param0.getBlock())) {
-            if (param1.dimension() != Level.OVERWORLD && param1.dimension() != Level.NETHER || !NetherPortalBlock.trySpawnPortal(param1, param2)) {
-                if (!param0.canSurvive(param1, param2)) {
-                    param1.removeBlock(param2, false);
+            if (inPortalDimension(param1)) {
+                Optional<PortalShape> var0 = PortalShape.findEmptyPortalShape(param1, param2, Direction.Axis.X);
+                if (var0.isPresent()) {
+                    var0.get().createPortalBlocks();
+                    return;
                 }
-
             }
+
+            if (!param0.canSurvive(param1, param2)) {
+                param1.removeBlock(param2, false);
+            }
+
         }
+    }
+
+    private static boolean inPortalDimension(Level param0) {
+        return param0.dimension() == Level.OVERWORLD || param0.dimension() == Level.NETHER;
     }
 
     @Override
@@ -162,19 +173,30 @@ public abstract class BaseFireBlock extends Block {
 
     }
 
-    public static boolean canBePlacedAt(LevelAccessor param0, BlockPos param1) {
+    public static boolean canBePlacedAt(Level param0, BlockPos param1, Direction param2) {
         BlockState var0 = param0.getBlockState(param1);
-        BlockState var1 = getState(param0, param1);
-        return var0.isAir() && (var1.canSurvive(param0, param1) || isPortal(param0, param1));
+        if (!var0.isAir()) {
+            return false;
+        } else {
+            return getState(param0, param1).canSurvive(param0, param1) || isPortal(param0, param1, param2);
+        }
     }
 
-    private static boolean isPortal(LevelAccessor param0, BlockPos param1) {
-        for(Direction var0 : Direction.Plane.HORIZONTAL) {
-            if (param0.getBlockState(param1.relative(var0)).is(Blocks.OBSIDIAN) && NetherPortalBlock.isPortal(param0, param1) != null) {
-                return true;
-            }
-        }
+    private static boolean isPortal(Level param0, BlockPos param1, Direction param2) {
+        if (!inPortalDimension(param0)) {
+            return false;
+        } else {
+            BlockPos.MutableBlockPos var0 = param1.mutable();
+            boolean var1 = false;
 
-        return false;
+            for(Direction var2 : Direction.values()) {
+                if (param0.getBlockState(var0.set(param1).move(var2)).is(Blocks.OBSIDIAN)) {
+                    var1 = true;
+                    break;
+                }
+            }
+
+            return var1 && PortalShape.findEmptyPortalShape(param0, param1, param2.getCounterClockWise().getAxis()).isPresent();
+        }
     }
 }

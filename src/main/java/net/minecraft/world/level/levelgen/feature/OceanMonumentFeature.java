@@ -5,6 +5,7 @@ import com.mojang.serialization.Codec;
 import java.util.List;
 import java.util.Random;
 import net.minecraft.core.Direction;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.StructureFeatureManager;
@@ -74,8 +75,10 @@ public class OceanMonumentFeature extends StructureFeature<NoneFeatureConfigurat
             super(param0, param1, param2, param3, param4, param5);
         }
 
-        public void generatePieces(ChunkGenerator param0, StructureManager param1, int param2, int param3, Biome param4, NoneFeatureConfiguration param5) {
-            this.generatePieces(param2, param3);
+        public void generatePieces(
+            RegistryAccess param0, ChunkGenerator param1, StructureManager param2, int param3, int param4, Biome param5, NoneFeatureConfiguration param6
+        ) {
+            this.generatePieces(param3, param4);
         }
 
         private void generatePieces(int param0, int param1) {

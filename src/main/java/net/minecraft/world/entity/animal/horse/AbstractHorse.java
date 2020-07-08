@@ -1034,12 +1034,12 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
             double var5 = this.getBoundingBox().maxY + 0.75;
 
             do {
-                double var6 = this.level.getRelativeFloorHeight(var3);
+                double var6 = this.level.getBlockFloorHeight(var3);
                 if ((double)var3.getY() + var6 > var5) {
                     break;
                 }
 
-                if (DismountHelper.isFloorValid(var6)) {
+                if (DismountHelper.isBlockFloorValid(var6)) {
                     AABB var7 = param1.getLocalBoundsForPose(var4);
                     Vec3 var8 = new Vec3(var0, (double)var3.getY() + var6, var2);
                     if (DismountHelper.canDismountTo(this.level, param1, var7.move(var8))) {
@@ -1081,8 +1081,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
         ServerLevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
     ) {
         if (param3 == null) {
-            param3 = new AgableMob.AgableMobGroupData();
-            ((AgableMob.AgableMobGroupData)param3).setBabySpawnChance(0.2F);
+            param3 = new AgableMob.AgableMobGroupData(0.2F);
         }
 
         this.randomizeAttributes();

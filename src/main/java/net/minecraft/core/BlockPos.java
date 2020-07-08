@@ -15,6 +15,7 @@ import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -170,6 +171,17 @@ public class BlockPos extends Vec3i {
         return param1 == 0
             ? this
             : new BlockPos(this.getX() + param0.getStepX() * param1, this.getY() + param0.getStepY() * param1, this.getZ() + param0.getStepZ() * param1);
+    }
+
+    public BlockPos relative(Direction.Axis param0, int param1) {
+        if (param1 == 0) {
+            return this;
+        } else {
+            int var0 = param0 == Direction.Axis.X ? param1 : 0;
+            int var1 = param0 == Direction.Axis.Y ? param1 : 0;
+            int var2 = param0 == Direction.Axis.Z ? param1 : 0;
+            return new BlockPos(this.getX() + var0, this.getY() + var1, this.getZ() + var2);
+        }
     }
 
     public BlockPos rotate(Rotation param0) {
@@ -343,6 +355,40 @@ public class BlockPos extends Vec3i {
             };
     }
 
+    public static Iterable<BlockPos.MutableBlockPos> spiralAround(BlockPos param0, int param1, Direction param2, Direction param3) {
+        Validate.validState(param2.getAxis() != param3.getAxis(), "The two directions cannot be on the same axis");
+        return () -> new AbstractIterator<BlockPos.MutableBlockPos>() {
+                private final Direction[] directions = new Direction[]{param2, param3, param2.getOpposite(), param3.getOpposite()};
+                private final BlockPos.MutableBlockPos cursor = param0.mutable().move(param3);
+                private final int legs = 4 * param1;
+                private int leg = -1;
+                private int legSize;
+                private int legIndex;
+                private int lastX = this.cursor.getX();
+                private int lastY = this.cursor.getY();
+                private int lastZ = this.cursor.getZ();
+
+                protected BlockPos.MutableBlockPos computeNext() {
+                    this.cursor.set(this.lastX, this.lastY, this.lastZ).move(this.directions[(this.leg + 4) % 4]);
+                    this.lastX = this.cursor.getX();
+                    this.lastY = this.cursor.getY();
+                    this.lastZ = this.cursor.getZ();
+                    if (this.legIndex >= this.legSize) {
+                        if (this.leg >= this.legs) {
+                            return this.endOfData();
+                        }
+
+                        ++this.leg;
+                        this.legIndex = 0;
+                        this.legSize = this.leg / 2 + 1;
+                    }
+
+                    ++this.legIndex;
+                    return this.cursor;
+                }
+            };
+    }
+
     public static class MutableBlockPos extends BlockPos {
         public MutableBlockPos() {
             this(0, 0, 0);
@@ -368,6 +414,11 @@ public class BlockPos extends Vec3i {
 
         @Override
         public BlockPos relative(Direction param0, int param1) {
+            return super.relative(param0, param1).immutable();
+        }
+
+        @Override
+        public BlockPos relative(Direction.Axis param0, int param1) {
             return super.relative(param0, param1).immutable();
         }
 

@@ -2,17 +2,15 @@ package net.minecraft.world.level.block;
 
 import java.util.Random;
 import net.minecraft.core.BlockPos;
+import net.minecraft.data.worldgen.Features;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.biome.BiomeDefaultFeatures;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
-import net.minecraft.world.level.levelgen.feature.Feature;
-import net.minecraft.world.level.levelgen.feature.configurations.HugeMushroomFeatureConfiguration;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
@@ -77,16 +75,16 @@ public class MushroomBlock extends BushBlock implements BonemealableBlock {
 
     public boolean growMushroom(ServerLevel param0, BlockPos param1, BlockState param2, Random param3) {
         param0.removeBlock(param1, false);
-        ConfiguredFeature<HugeMushroomFeatureConfiguration, ?> var0;
+        ConfiguredFeature<?, ?> var0;
         if (this == Blocks.BROWN_MUSHROOM) {
-            var0 = Feature.HUGE_BROWN_MUSHROOM.configured(BiomeDefaultFeatures.HUGE_BROWN_MUSHROOM_CONFIG);
+            var0 = Features.HUGE_BROWN_MUSHROOM;
         } else {
             if (this != Blocks.RED_MUSHROOM) {
                 param0.setBlock(param1, param2, 3);
                 return false;
             }
 
-            var0 = Feature.HUGE_RED_MUSHROOM.configured(BiomeDefaultFeatures.HUGE_RED_MUSHROOM_CONFIG);
+            var0 = Features.HUGE_RED_MUSHROOM;
         }
 
         if (var0.place(param0, param0.getChunkSource().getGenerator(), param3, param1)) {

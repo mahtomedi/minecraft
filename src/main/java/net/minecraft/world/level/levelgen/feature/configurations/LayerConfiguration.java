@@ -7,7 +7,8 @@ import net.minecraft.world.level.block.state.BlockState;
 public class LayerConfiguration implements FeatureConfiguration {
     public static final Codec<LayerConfiguration> CODEC = RecordCodecBuilder.create(
         param0 -> param0.group(
-                    Codec.INT.fieldOf("height").forGetter(param0x -> param0x.height), BlockState.CODEC.fieldOf("state").forGetter(param0x -> param0x.state)
+                    Codec.intRange(0, 255).fieldOf("height").forGetter(param0x -> param0x.height),
+                    BlockState.CODEC.fieldOf("state").forGetter(param0x -> param0x.state)
                 )
                 .apply(param0, LayerConfiguration::new)
     );

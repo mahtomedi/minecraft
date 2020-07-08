@@ -2,6 +2,7 @@ package net.minecraft.world.level;
 
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
@@ -69,6 +70,22 @@ public interface BlockGetter {
         }
 
         return var0;
+    }
+
+    default double getBlockFloorHeight(VoxelShape param0, Supplier<VoxelShape> param1) {
+        if (!param0.isEmpty()) {
+            return param0.max(Direction.Axis.Y);
+        } else {
+            double var0 = param1.get().max(Direction.Axis.Y);
+            return var0 >= 1.0 ? var0 - 1.0 : Double.NEGATIVE_INFINITY;
+        }
+    }
+
+    default double getBlockFloorHeight(BlockPos param0) {
+        return this.getBlockFloorHeight(this.getBlockState(param0).getCollisionShape(this, param0), () -> {
+            BlockPos var0 = param0.below();
+            return this.getBlockState(var0).getCollisionShape(this, var0);
+        });
     }
 
     static <T> T traverseBlocks(ClipContext param0, BiFunction<ClipContext, BlockPos, T> param1, Function<ClipContext, T> param2) {

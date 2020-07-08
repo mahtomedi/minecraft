@@ -6,6 +6,7 @@ import java.util.Random;
 import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
+import net.minecraft.util.UniformInt;
 import net.minecraft.world.level.LevelSimulatedRW;
 import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
@@ -13,8 +14,8 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 public class FancyFoliagePlacer extends BlobFoliagePlacer {
     public static final Codec<FancyFoliagePlacer> CODEC = RecordCodecBuilder.create(param0 -> blobParts(param0).apply(param0, FancyFoliagePlacer::new));
 
-    public FancyFoliagePlacer(int param0, int param1, int param2, int param3, int param4) {
-        super(param0, param1, param2, param3, param4, FoliagePlacerType.FANCY_FOLIAGE_PLACER);
+    public FancyFoliagePlacer(UniformInt param0, UniformInt param1, int param2) {
+        super(param0, param1, param2);
     }
 
     @Override

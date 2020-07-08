@@ -26,10 +26,10 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
-import net.minecraft.world.item.BlockPlaceContext;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.EmptyBlockGetter;
 import net.minecraft.world.level.Level;
@@ -41,6 +41,7 @@ import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.SupportType;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
@@ -709,7 +710,11 @@ public abstract class BlockBehaviour {
         }
 
         public boolean isFaceSturdy(BlockGetter param0, BlockPos param1, Direction param2) {
-            return this.cache != null ? this.cache.isFaceSturdy[param2.ordinal()] : Block.isFaceSturdy(this.asState(), param0, param1, param2);
+            return this.isFaceSturdy(param0, param1, param2, SupportType.FULL);
+        }
+
+        public boolean isFaceSturdy(BlockGetter param0, BlockPos param1, Direction param2, SupportType param3) {
+            return this.cache != null ? this.cache.isFaceSturdy(param2, param3) : param3.isSupporting(this.asState(), param0, param1, param2);
         }
 
         public boolean isCollisionShapeFullBlock(BlockGetter param0, BlockPos param1) {
@@ -724,6 +729,7 @@ public abstract class BlockBehaviour {
 
         static final class Cache {
             private static final Direction[] DIRECTIONS = Direction.values();
+            private static final int SUPPORT_TYPE_COUNT = SupportType.values().length;
             protected final boolean solidRender;
             private final boolean propagatesSkylightDown;
             private final int lightBlock;
@@ -731,7 +737,7 @@ public abstract class BlockBehaviour {
             private final VoxelShape[] occlusionShapes;
             protected final VoxelShape collisionShape;
             protected final boolean largeCollisionShape;
-            protected final boolean[] isFaceSturdy;
+            private final boolean[] faceSturdy;
             protected final boolean isCollisionShapeFullBlock;
 
             private Cache(BlockState param0) {
@@ -753,13 +759,23 @@ public abstract class BlockBehaviour {
                 this.collisionShape = var0.getCollisionShape(param0, EmptyBlockGetter.INSTANCE, BlockPos.ZERO, CollisionContext.empty());
                 this.largeCollisionShape = Arrays.stream(Direction.Axis.values())
                     .anyMatch(param0x -> this.collisionShape.min(param0x) < 0.0 || this.collisionShape.max(param0x) > 1.0);
-                this.isFaceSturdy = new boolean[6];
+                this.faceSturdy = new boolean[DIRECTIONS.length * SUPPORT_TYPE_COUNT];
 
                 for(Direction var3 : DIRECTIONS) {
-                    this.isFaceSturdy[var3.ordinal()] = Block.isFaceSturdy(param0, EmptyBlockGetter.INSTANCE, BlockPos.ZERO, var3);
+                    for(SupportType var4 : SupportType.values()) {
+                        this.faceSturdy[getFaceSupportIndex(var3, var4)] = var4.isSupporting(param0, EmptyBlockGetter.INSTANCE, BlockPos.ZERO, var3);
+                    }
                 }
 
                 this.isCollisionShapeFullBlock = Block.isShapeFullBlock(param0.getCollisionShape(EmptyBlockGetter.INSTANCE, BlockPos.ZERO));
+            }
+
+            public boolean isFaceSturdy(Direction param0, SupportType param1) {
+                return this.faceSturdy[getFaceSupportIndex(param0, param1)];
+            }
+
+            private static int getFaceSupportIndex(Direction param0, SupportType param1) {
+                return param0.ordinal() * SUPPORT_TYPE_COUNT + param1.ordinal();
             }
         }
     }

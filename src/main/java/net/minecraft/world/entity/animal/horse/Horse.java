@@ -302,6 +302,7 @@ public class Horse extends AbstractHorse {
         public final Variant variant;
 
         public HorseGroupData(Variant param0) {
+            super(true);
             this.variant = param0;
         }
     }

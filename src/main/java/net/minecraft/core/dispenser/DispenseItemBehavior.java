@@ -380,15 +380,16 @@ public interface DispenseItemBehavior {
             protected ItemStack execute(BlockSource param0, ItemStack param1) {
                 Level var0 = param0.getLevel();
                 this.setSuccess(true);
-                BlockPos var1 = param0.getPos().relative(param0.getBlockState().getValue(DispenserBlock.FACING));
-                BlockState var2 = var0.getBlockState(var1);
-                if (BaseFireBlock.canBePlacedAt(var0, var1)) {
-                    var0.setBlockAndUpdate(var1, BaseFireBlock.getState(var0, var1));
-                } else if (CampfireBlock.canLight(var2)) {
-                    var0.setBlockAndUpdate(var1, var2.setValue(BlockStateProperties.LIT, Boolean.valueOf(true)));
-                } else if (var2.getBlock() instanceof TntBlock) {
-                    TntBlock.explode(var0, var1);
-                    var0.removeBlock(var1, false);
+                Direction var1 = param0.getBlockState().getValue(DispenserBlock.FACING);
+                BlockPos var2 = param0.getPos().relative(var1);
+                BlockState var3 = var0.getBlockState(var2);
+                if (BaseFireBlock.canBePlacedAt(var0, var2, var1)) {
+                    var0.setBlockAndUpdate(var2, BaseFireBlock.getState(var0, var2));
+                } else if (CampfireBlock.canLight(var3)) {
+                    var0.setBlockAndUpdate(var2, var3.setValue(BlockStateProperties.LIT, Boolean.valueOf(true)));
+                } else if (var3.getBlock() instanceof TntBlock) {
+                    TntBlock.explode(var0, var2);
+                    var0.removeBlock(var2, false);
                 } else {
                     this.setSuccess(false);
                 }

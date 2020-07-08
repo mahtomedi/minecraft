@@ -2,6 +2,7 @@ package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
 import java.util.List;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
@@ -46,16 +47,18 @@ public class StrongholdFeature extends StructureFeature<NoneFeatureConfiguration
             this.seed = param5;
         }
 
-        public void generatePieces(ChunkGenerator param0, StructureManager param1, int param2, int param3, Biome param4, NoneFeatureConfiguration param5) {
+        public void generatePieces(
+            RegistryAccess param0, ChunkGenerator param1, StructureManager param2, int param3, int param4, Biome param5, NoneFeatureConfiguration param6
+        ) {
             int var0 = 0;
 
             StrongholdPieces.StartPiece var1;
             do {
                 this.pieces.clear();
                 this.boundingBox = BoundingBox.getUnknownBox();
-                this.random.setLargeFeatureSeed(this.seed + (long)(var0++), param2, param3);
+                this.random.setLargeFeatureSeed(this.seed + (long)(var0++), param3, param4);
                 StrongholdPieces.resetPieces();
-                var1 = new StrongholdPieces.StartPiece(this.random, (param2 << 4) + 2, (param3 << 4) + 2);
+                var1 = new StrongholdPieces.StartPiece(this.random, (param3 << 4) + 2, (param4 << 4) + 2);
                 this.pieces.add(var1);
                 var1.addChildren(var1, this.pieces, this.random);
                 List<StructurePiece> var2 = var1.pendingChildren;
@@ -67,7 +70,7 @@ public class StrongholdFeature extends StructureFeature<NoneFeatureConfiguration
                 }
 
                 this.calculateBoundingBox();
-                this.moveBelowSeaLevel(param0.getSeaLevel(), this.random, 10);
+                this.moveBelowSeaLevel(param1.getSeaLevel(), this.random, 10);
             } while(this.pieces.isEmpty() || var1.portalRoomPiece == null);
 
         }

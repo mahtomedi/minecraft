@@ -17,4 +17,8 @@ public class CommonComponents {
     public static Component optionStatus(boolean param0) {
         return param0 ? OPTION_ON : OPTION_OFF;
     }
+
+    public static MutableComponent optionStatus(Component param0, boolean param1) {
+        return new TranslatableComponent(param1 ? "options.on.composed" : "options.off.composed", param0);
+    }
 }

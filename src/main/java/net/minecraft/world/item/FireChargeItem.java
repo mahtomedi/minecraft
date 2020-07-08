@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseFireBlock;
 import net.minecraft.world.level.block.CampfireBlock;
@@ -26,7 +27,7 @@ public class FireChargeItem extends Item {
             var3 = true;
         } else {
             var1 = var1.relative(param0.getClickedFace());
-            if (BaseFireBlock.canBePlacedAt(var0, var1)) {
+            if (BaseFireBlock.canBePlacedAt(var0, var1, param0.getHorizontalDirection())) {
                 this.playSound(var0, var1);
                 var0.setBlockAndUpdate(var1, BaseFireBlock.getState(var0, var1));
                 var3 = true;

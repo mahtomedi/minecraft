@@ -11,14 +11,14 @@ import net.minecraft.core.Registry;
 
 public final class RegistryDataPackCodec<E> implements Codec<MappedRegistry<E>> {
     private final Codec<MappedRegistry<E>> directCodec;
-    private final ResourceKey<Registry<E>> registryKey;
+    private final ResourceKey<? extends Registry<E>> registryKey;
     private final MapCodec<E> elementCodec;
 
-    public static <E> RegistryDataPackCodec<E> create(ResourceKey<Registry<E>> param0, Lifecycle param1, MapCodec<E> param2) {
+    public static <E> RegistryDataPackCodec<E> create(ResourceKey<? extends Registry<E>> param0, Lifecycle param1, MapCodec<E> param2) {
         return new RegistryDataPackCodec<>(param0, param1, param2);
     }
 
-    private RegistryDataPackCodec(ResourceKey<Registry<E>> param0, Lifecycle param1, MapCodec<E> param2) {
+    private RegistryDataPackCodec(ResourceKey<? extends Registry<E>> param0, Lifecycle param1, MapCodec<E> param2) {
         this.directCodec = MappedRegistry.directCodec(param0, param1, param2);
         this.registryKey = param0;
         this.elementCodec = param2;
@@ -42,6 +42,6 @@ public final class RegistryDataPackCodec<E> implements Codec<MappedRegistry<E>> 
 
     @Override
     public String toString() {
-        return "RegistryDapaPackCodec[" + this.directCodec + " " + this.registryKey + " " + this.elementCodec + "]";
+        return "RegistryDataPackCodec[" + this.directCodec + " " + this.registryKey + " " + this.elementCodec + "]";
     }
 }

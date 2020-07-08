@@ -102,7 +102,6 @@ import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundBossEventPacket;
 import net.minecraft.network.protocol.game.ClientboundChangeDifficultyPacket;
 import net.minecraft.network.protocol.game.ClientboundChatPacket;
-import net.minecraft.network.protocol.game.ClientboundChunkBlocksUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundCommandSuggestionsPacket;
 import net.minecraft.network.protocol.game.ClientboundCommandsPacket;
 import net.minecraft.network.protocol.game.ClientboundContainerAckPacket;
@@ -144,6 +143,7 @@ import net.minecraft.network.protocol.game.ClientboundRemoveMobEffectPacket;
 import net.minecraft.network.protocol.game.ClientboundResourcePackPacket;
 import net.minecraft.network.protocol.game.ClientboundRespawnPacket;
 import net.minecraft.network.protocol.game.ClientboundRotateHeadPacket;
+import net.minecraft.network.protocol.game.ClientboundSectionBlocksUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundSelectAdvancementsTabPacket;
 import net.minecraft.network.protocol.game.ClientboundSetBorderPacket;
 import net.minecraft.network.protocol.game.ClientboundSetCameraPacket;
@@ -283,6 +283,7 @@ import net.minecraft.world.level.block.entity.SkullBlockEntity;
 import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
 import net.minecraft.world.level.block.entity.StructureBlockEntity;
 import net.minecraft.world.level.block.entity.TheEndGatewayBlockEntity;
+import net.minecraft.world.level.chunk.ChunkBiomeContainer;
 import net.minecraft.world.level.chunk.DataLayer;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.dimension.DimensionType;
@@ -722,13 +723,9 @@ public class ClientPacketListener implements ClientGamePacketListener {
     }
 
     @Override
-    public void handleChunkBlocksUpdate(ClientboundChunkBlocksUpdatePacket param0) {
+    public void handleChunkBlocksUpdate(ClientboundSectionBlocksUpdatePacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
-
-        for(ClientboundChunkBlocksUpdatePacket.BlockUpdate var0 : param0.getUpdates()) {
-            this.level.setKnownState(var0.getPos(), var0.getBlock());
-        }
-
+        param0.runUpdates(this.level::setKnownState);
     }
 
     @Override
@@ -736,41 +733,42 @@ public class ClientPacketListener implements ClientGamePacketListener {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
         int var0 = param0.getX();
         int var1 = param0.getZ();
-        LevelChunk var2 = this.level
+        ChunkBiomeContainer var2 = param0.getBiomes() == null
+            ? null
+            : new ChunkBiomeContainer(this.registryAccess.registryOrThrow(Registry.BIOME_REGISTRY), param0.getBiomes());
+        LevelChunk var3 = this.level
             .getChunkSource()
-            .replaceWithPacketData(
-                var0, var1, param0.getBiomes(), param0.getReadBuffer(), param0.getHeightmaps(), param0.getAvailableSections(), param0.isFullChunk()
-            );
-        if (var2 != null && param0.isFullChunk()) {
-            this.level.reAddEntitiesToChunk(var2);
+            .replaceWithPacketData(var0, var1, var2, param0.getReadBuffer(), param0.getHeightmaps(), param0.getAvailableSections(), param0.isFullChunk());
+        if (var3 != null && param0.isFullChunk()) {
+            this.level.reAddEntitiesToChunk(var3);
         }
 
-        for(int var3 = 0; var3 < 16; ++var3) {
-            this.level.setSectionDirtyWithNeighbors(var0, var3, var1);
+        for(int var4 = 0; var4 < 16; ++var4) {
+            this.level.setSectionDirtyWithNeighbors(var0, var4, var1);
         }
 
-        for(CompoundTag var4 : param0.getBlockEntitiesTags()) {
-            BlockPos var5 = new BlockPos(var4.getInt("x"), var4.getInt("y"), var4.getInt("z"));
-            BlockEntity var6 = this.level.getBlockEntity(var5);
-            if (var6 != null) {
-                var6.load(this.level.getBlockState(var5), var4);
+        for(CompoundTag var5 : param0.getBlockEntitiesTags()) {
+            BlockPos var6 = new BlockPos(var5.getInt("x"), var5.getInt("y"), var5.getInt("z"));
+            BlockEntity var7 = this.level.getBlockEntity(var6);
+            if (var7 != null) {
+                var7.load(this.level.getBlockState(var6), var5);
             }
         }
 
         if (!param0.forgetOldData()) {
-            this.level.getLightEngine().enableLightSources(var2.getPos(), false);
-            int var7 = param0.getAvailableSections();
+            this.level.getLightEngine().enableLightSources(var3.getPos(), false);
+            int var8 = param0.getAvailableSections();
 
-            for(int var8 = 0; var8 < 16; ++var8) {
-                if ((var7 & 1 << var8) != 0) {
-                    this.level.getLightEngine().queueSectionData(LightLayer.BLOCK, SectionPos.of(var2.getPos(), var8), new DataLayer(), false);
-                    this.level.getLightEngine().queueSectionData(LightLayer.SKY, SectionPos.of(var2.getPos(), var8), new DataLayer(), false);
+            for(int var9 = 0; var9 < 16; ++var9) {
+                if ((var8 & 1 << var9) != 0) {
+                    this.level.getLightEngine().queueSectionData(LightLayer.BLOCK, SectionPos.of(var3.getPos(), var9), new DataLayer(), false);
+                    this.level.getLightEngine().queueSectionData(LightLayer.SKY, SectionPos.of(var3.getPos(), var9), new DataLayer(), false);
                 }
             }
 
             this.level.getLightEngine().runUpdates(Integer.MAX_VALUE, true, true);
-            this.level.getLightEngine().enableLightSources(var2.getPos(), true);
-            var2.getLights().forEach(param1 -> this.level.getLightEngine().onBlockEmissionIncrease(param1, var2.getLightEmission(param1)));
+            this.level.getLightEngine().enableLightSources(var3.getPos(), true);
+            var3.getLights().forEach(param1 -> this.level.getLightEngine().onBlockEmissionIncrease(param1, var3.getLightEmission(param1)));
         }
 
     }

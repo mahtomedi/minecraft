@@ -10,6 +10,8 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.WritableRegistry;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.level.biome.Biome;
@@ -20,15 +22,17 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class CreateBuffetWorldScreen extends Screen {
     private final Screen parent;
     private final Consumer<Biome> applySettings;
+    private final WritableRegistry<Biome> biomes;
     private CreateBuffetWorldScreen.BiomeList list;
     private Biome biome;
     private Button doneButton;
 
-    public CreateBuffetWorldScreen(Screen param0, Consumer<Biome> param1, Biome param2) {
+    public CreateBuffetWorldScreen(Screen param0, RegistryAccess param1, Consumer<Biome> param2, Biome param3) {
         super(new TranslatableComponent("createWorld.customize.buffet.title"));
         this.parent = param0;
-        this.applySettings = param1;
-        this.biome = param2;
+        this.applySettings = param2;
+        this.biome = param3;
+        this.biomes = param1.registryOrThrow(Registry.BIOME_REGISTRY);
     }
 
     @Override
@@ -73,10 +77,11 @@ public class CreateBuffetWorldScreen extends Screen {
                 CreateBuffetWorldScreen.this.height - 37,
                 16
             );
-            Registry.BIOME
+            CreateBuffetWorldScreen.this.biomes
+                .entrySet()
                 .stream()
-                .sorted(Comparator.comparing(param0 -> param0.getName().getString()))
-                .forEach(param0 -> this.addEntry(new CreateBuffetWorldScreen.BiomeList.Entry(param0)));
+                .sorted(Comparator.comparing(param0 -> param0.getKey().location().toString()))
+                .forEach(param0 -> this.addEntry(new CreateBuffetWorldScreen.BiomeList.Entry(param0.getValue())));
         }
 
         @Override
@@ -88,7 +93,8 @@ public class CreateBuffetWorldScreen extends Screen {
             super.setSelected(param0);
             if (param0 != null) {
                 CreateBuffetWorldScreen.this.biome = param0.biome;
-                NarratorChatListener.INSTANCE.sayNow(new TranslatableComponent("narrator.select", param0.biome.getName().getString()).getString());
+                NarratorChatListener.INSTANCE
+                    .sayNow(new TranslatableComponent("narrator.select", CreateBuffetWorldScreen.this.biomes.getKey(param0.biome)).getString());
             }
 
             CreateBuffetWorldScreen.this.updateButtonValidity();
@@ -106,7 +112,14 @@ public class CreateBuffetWorldScreen extends Screen {
             public void render(
                 PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9
             ) {
-                BiomeList.this.drawString(param0, CreateBuffetWorldScreen.this.font, this.biome.getName().getString(), param3 + 5, param2 + 2, 16777215);
+                BiomeList.this.drawString(
+                    param0,
+                    CreateBuffetWorldScreen.this.font,
+                    CreateBuffetWorldScreen.this.biomes.getKey(this.biome).toString(),
+                    param3 + 5,
+                    param2 + 2,
+                    16777215
+                );
             }
 
             @Override

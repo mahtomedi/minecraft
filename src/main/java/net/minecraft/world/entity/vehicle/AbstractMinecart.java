@@ -38,7 +38,6 @@ import net.minecraft.world.level.block.BaseRailBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.PoweredRailBlock;
-import net.minecraft.world.level.block.TrapDoorBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.RailShape;
 import net.minecraft.world.phys.AABB;
@@ -171,15 +170,12 @@ public abstract class AbstractMinecart extends Entity {
                 for(int var8 : POSE_DISMOUNT_HEIGHTS.get(var5)) {
                     for(int[] var9 : var1) {
                         var3.set(var2.getX() + var9[0], var2.getY() + var8, var2.getZ() + var9[1]);
-                        double var10 = this.level.getRelativeFloorHeight(var3, param0x -> {
-                            if (param0x.is(BlockTags.CLIMBABLE)) {
-                                return true;
-                            } else {
-                                return param0x.getBlock() instanceof TrapDoorBlock && param0x.getValue(TrapDoorBlock.OPEN);
-                            }
-                        });
-                        if (DismountHelper.isFloorValid(var10)) {
-                            AABB var11 = new AABB((double)(-var7), var10, (double)(-var7), (double)var7, var10 + (double)var6.height, (double)var7);
+                        double var10 = this.level
+                            .getBlockFloorHeight(
+                                DismountHelper.nonClimbableShape(this.level, var3), () -> DismountHelper.nonClimbableShape(this.level, var3.below())
+                            );
+                        if (DismountHelper.isBlockFloorValid(var10)) {
+                            AABB var11 = new AABB((double)(-var7), 0.0, (double)(-var7), (double)var7, (double)var6.height, (double)var7);
                             Vec3 var12 = Vec3.upFromBottomCenterOf(var3, var10);
                             if (DismountHelper.canDismountTo(this.level, param0, var11.move(var12))) {
                                 param0.setPose(var5);
@@ -195,8 +191,9 @@ public abstract class AbstractMinecart extends Entity {
 
             for(Pose var14 : var4) {
                 double var15 = (double)param0.getDimensions(var14).height;
-                double var16 = (double)var3.getY() + this.level.getRelativeCeilingHeight(var3, var13 - (double)var3.getY() + var15);
-                if (var13 + var15 <= var16) {
+                int var16 = Mth.ceil(var13 - (double)var3.getY() + var15);
+                double var17 = DismountHelper.findCeilingFrom(var3, var16, param0x -> this.level.getBlockState(param0x).getCollisionShape(this.level, param0x));
+                if (var13 + var15 <= var17) {
                     param0.setPose(var14);
                     break;
                 }
@@ -374,6 +371,7 @@ public abstract class AbstractMinecart extends Entity {
                 this.fallDistance *= 0.5F;
             }
 
+            this.firstTick = false;
         }
     }
 

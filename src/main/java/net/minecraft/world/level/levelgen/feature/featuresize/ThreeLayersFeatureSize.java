@@ -7,11 +7,11 @@ import java.util.OptionalInt;
 public class ThreeLayersFeatureSize extends FeatureSize {
     public static final Codec<ThreeLayersFeatureSize> CODEC = RecordCodecBuilder.create(
         param0 -> param0.group(
-                    Codec.INT.fieldOf("limit").withDefault(1).forGetter(param0x -> param0x.limit),
-                    Codec.INT.fieldOf("upper_limit").withDefault(1).forGetter(param0x -> param0x.upperLimit),
-                    Codec.INT.fieldOf("lower_size").withDefault(0).forGetter(param0x -> param0x.lowerSize),
-                    Codec.INT.fieldOf("middle_size").withDefault(1).forGetter(param0x -> param0x.middleSize),
-                    Codec.INT.fieldOf("upper_size").withDefault(1).forGetter(param0x -> param0x.upperSize),
+                    Codec.intRange(0, 80).fieldOf("limit").orElse(1).forGetter(param0x -> param0x.limit),
+                    Codec.intRange(0, 80).fieldOf("upper_limit").orElse(1).forGetter(param0x -> param0x.upperLimit),
+                    Codec.intRange(0, 16).fieldOf("lower_size").orElse(0).forGetter(param0x -> param0x.lowerSize),
+                    Codec.intRange(0, 16).fieldOf("middle_size").orElse(1).forGetter(param0x -> param0x.middleSize),
+                    Codec.intRange(0, 16).fieldOf("upper_size").orElse(1).forGetter(param0x -> param0x.upperSize),
                     minClippedHeightCodec()
                 )
                 .apply(param0, ThreeLayersFeatureSize::new)

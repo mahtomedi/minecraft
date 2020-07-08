@@ -1,6 +1,6 @@
 package net.minecraft.world.level.newbiome.layer;
 
-import net.minecraft.core.Registry;
+import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.newbiome.context.Context;
 import net.minecraft.world.level.newbiome.layer.traits.CastleTransformer;
@@ -8,7 +8,7 @@ import net.minecraft.world.level.newbiome.layer.traits.CastleTransformer;
 public enum RiverLayer implements CastleTransformer {
     INSTANCE;
 
-    public static final int RIVER = Registry.BIOME.getId(Biomes.RIVER);
+    public static final int RIVER = BuiltinRegistries.BIOME.getId(Biomes.RIVER);
 
     @Override
     public int apply(Context param0, int param1, int param2, int param3, int param4, int param5) {

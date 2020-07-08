@@ -9,6 +9,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
+import java.util.OptionalLong;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.FileUtil;
@@ -53,6 +55,7 @@ import org.apache.logging.log4j.Logger;
 @OnlyIn(Dist.CLIENT)
 public class CreateWorldScreen extends Screen {
     private static final Logger LOGGER = LogManager.getLogger();
+    private static final TranslatableComponent GAME_MODEL_LABEL = new TranslatableComponent("selectWorld.gameMode");
     private final Screen lastScreen;
     private EditBox nameEdit;
     private String resultFolder;
@@ -64,7 +67,7 @@ public class CreateWorldScreen extends Screen {
     private boolean commands;
     private boolean commandsChanged;
     public boolean hardCore;
-    protected DataPackConfig dataPacks = DataPackConfig.DEFAULT;
+    protected DataPackConfig dataPacks;
     @Nullable
     private Path tempDataPackDir;
     @Nullable
@@ -84,16 +87,20 @@ public class CreateWorldScreen extends Screen {
     public final WorldGenSettingsComponent worldGenSettingsComponent;
 
     public CreateWorldScreen(
-        @Nullable Screen param0, LevelSettings param1, WorldGenSettings param2, @Nullable Path param3, RegistryAccess.RegistryHolder param4
+        @Nullable Screen param0,
+        LevelSettings param1,
+        WorldGenSettings param2,
+        @Nullable Path param3,
+        DataPackConfig param4,
+        RegistryAccess.RegistryHolder param5
     ) {
-        this(param0, new WorldGenSettingsComponent(param4, param2));
+        this(param0, param4, new WorldGenSettingsComponent(param5, param2, WorldPreset.of(param2), OptionalLong.of(param2.seed())));
         this.initName = param1.levelName();
         this.commands = param1.allowCommands();
         this.commandsChanged = true;
         this.selectedDifficulty = param1.difficulty();
         this.effectiveDifficulty = this.selectedDifficulty;
         this.gameRules.assignFrom(param1.gameRules(), null);
-        this.dataPacks = param1.getDataPackConfig();
         if (param1.hardcore()) {
             this.gameMode = CreateWorldScreen.SelectedGameMode.HARDCORE;
         } else if (param1.gameType().isSurvival()) {
@@ -106,14 +113,19 @@ public class CreateWorldScreen extends Screen {
     }
 
     public CreateWorldScreen(@Nullable Screen param0) {
-        this(param0, new WorldGenSettingsComponent());
+        this(
+            param0,
+            DataPackConfig.DEFAULT,
+            new WorldGenSettingsComponent(RegistryAccess.builtin(), WorldGenSettings.makeDefault(), Optional.of(WorldPreset.NORMAL), OptionalLong.empty())
+        );
     }
 
-    private CreateWorldScreen(@Nullable Screen param0, WorldGenSettingsComponent param1) {
+    private CreateWorldScreen(@Nullable Screen param0, DataPackConfig param1, WorldGenSettingsComponent param2) {
         super(new TranslatableComponent("selectWorld.create"));
         this.lastScreen = param0;
         this.initName = I18n.get("selectWorld.newWorld");
-        this.worldGenSettingsComponent = param1;
+        this.dataPacks = param1;
+        this.worldGenSettingsComponent = param2;
     }
 
     @Override
@@ -145,7 +157,7 @@ public class CreateWorldScreen extends Screen {
         int var0 = this.width / 2 - 155;
         int var1 = this.width / 2 + 5;
         this.modeButton = this.addButton(
-            new Button(var0, 100, 150, 20, new TranslatableComponent("selectWorld.gameMode"), param0 -> {
+            new Button(var0, 100, 150, 20, TextComponent.EMPTY, param0 -> {
                 switch(this.gameMode) {
                     case SURVIVAL:
                         this.setGameMode(CreateWorldScreen.SelectedGameMode.HARDCORE);
@@ -161,10 +173,11 @@ public class CreateWorldScreen extends Screen {
             }) {
                 @Override
                 public Component getMessage() {
-                    return super.getMessage()
-                        .copy()
-                        .append(": ")
-                        .append(new TranslatableComponent("selectWorld.gameMode." + CreateWorldScreen.this.gameMode.name));
+                    return new TranslatableComponent(
+                        "options.generic_value",
+                        CreateWorldScreen.GAME_MODEL_LABEL,
+                        new TranslatableComponent("selectWorld.gameMode." + CreateWorldScreen.this.gameMode.name)
+                    );
                 }
     
                 @Override
@@ -187,26 +200,21 @@ public class CreateWorldScreen extends Screen {
                 return new TranslatableComponent("options.difficulty").append(": ").append(CreateWorldScreen.this.effectiveDifficulty.getDisplayName());
             }
         });
-        this.commandsButton = this.addButton(
-            new Button(var0, 151, 150, 20, new TranslatableComponent("selectWorld.allowCommands"), param0 -> {
-                this.commandsChanged = true;
-                this.commands = !this.commands;
-                param0.queueNarration(250);
-            }) {
-                @Override
-                public Component getMessage() {
-                    return super.getMessage()
-                        .copy()
-                        .append(" ")
-                        .append(CommonComponents.optionStatus(CreateWorldScreen.this.commands && !CreateWorldScreen.this.hardCore));
-                }
-    
-                @Override
-                protected MutableComponent createNarrationMessage() {
-                    return super.createNarrationMessage().append(". ").append(new TranslatableComponent("selectWorld.allowCommands.info"));
-                }
+        this.commandsButton = this.addButton(new Button(var0, 151, 150, 20, new TranslatableComponent("selectWorld.allowCommands"), param0 -> {
+            this.commandsChanged = true;
+            this.commands = !this.commands;
+            param0.queueNarration(250);
+        }) {
+            @Override
+            public Component getMessage() {
+                return CommonComponents.optionStatus(super.getMessage(), CreateWorldScreen.this.commands && !CreateWorldScreen.this.hardCore);
             }
-        );
+
+            @Override
+            protected MutableComponent createNarrationMessage() {
+                return super.createNarrationMessage().append(". ").append(new TranslatableComponent("selectWorld.allowCommands.info"));
+            }
+        });
         this.dataPacksButton = this.addButton(
             new Button(var1, 151, 150, 20, new TranslatableComponent("selectWorld.dataPacks"), param0 -> this.openDataPackSelectionScreen())
         );
@@ -489,6 +497,8 @@ public class CreateWorldScreen extends Screen {
                         } else {
                             this.minecraft.tell(() -> {
                                 this.dataPacks = var2;
+                                this.worldGenSettingsComponent.setRegistryHolder(RegistryAccess.load(param1.getResourceManager()));
+                                param1.close();
                                 this.minecraft.setScreen(this);
                             });
                         }

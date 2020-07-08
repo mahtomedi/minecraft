@@ -235,14 +235,15 @@ public class Strider extends Animal implements ItemSteerable, Saddleable {
 
         for(BlockPos var7 : var1) {
             if (!this.level.getFluidState(var7).is(FluidTags.LAVA)) {
-                for(Pose var8 : param0.getDismountPoses()) {
-                    double var9 = this.level.getRelativeFloorHeight(var7);
-                    if (DismountHelper.isFloorValid(var9)) {
-                        AABB var10 = param0.getLocalBoundsForPose(var8);
-                        Vec3 var11 = Vec3.upFromBottomCenterOf(var7, var9);
-                        if (DismountHelper.canDismountTo(this.level, param0, var10.move(var11))) {
-                            param0.setPose(var8);
-                            return var11;
+                double var8 = this.level.getBlockFloorHeight(var7);
+                if (DismountHelper.isBlockFloorValid(var8)) {
+                    Vec3 var9 = Vec3.upFromBottomCenterOf(var7, var8);
+
+                    for(Pose var10 : param0.getDismountPoses()) {
+                        AABB var11 = param0.getLocalBoundsForPose(var10);
+                        if (DismountHelper.canDismountTo(this.level, param0, var11.move(var9))) {
+                            param0.setPose(var10);
+                            return var9;
                         }
                     }
                 }
@@ -447,63 +448,32 @@ public class Strider extends Animal implements ItemSteerable, Saddleable {
     public SpawnGroupData finalizeSpawn(
         ServerLevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
     ) {
-        SpawnGroupData var0 = null;
-        Strider.StriderGroupData.Rider var1;
-        if (param3 instanceof Strider.StriderGroupData) {
-            var1 = ((Strider.StriderGroupData)param3).rider;
-        } else if (!this.isBaby()) {
-            if (this.random.nextInt(30) == 0) {
-                var1 = Strider.StriderGroupData.Rider.PIGLIN_RIDER;
-                var0 = new Zombie.ZombieGroupData(Zombie.getSpawnAsBabyOdds(this.random), false);
-            } else if (this.random.nextInt(10) == 0) {
-                var1 = Strider.StriderGroupData.Rider.BABY_RIDER;
-            } else {
-                var1 = Strider.StriderGroupData.Rider.NO_RIDER;
-            }
-
-            param3 = new Strider.StriderGroupData(var1);
-            ((AgableMob.AgableMobGroupData)param3).setBabySpawnChance(var1 == Strider.StriderGroupData.Rider.NO_RIDER ? 0.5F : 0.0F);
+        if (this.isBaby()) {
+            return super.finalizeSpawn(param0, param1, param2, param3, param4);
         } else {
-            var1 = Strider.StriderGroupData.Rider.NO_RIDER;
-        }
-
-        Mob var6 = null;
-        if (var1 == Strider.StriderGroupData.Rider.BABY_RIDER) {
-            Strider var7 = EntityType.STRIDER.create(param0.getLevel());
-            if (var7 != null) {
-                var6 = var7;
-                var7.setAge(-24000);
-            }
-        } else if (var1 == Strider.StriderGroupData.Rider.PIGLIN_RIDER) {
-            ZombifiedPiglin var8 = EntityType.ZOMBIFIED_PIGLIN.create(param0.getLevel());
-            if (var8 != null) {
-                var6 = var8;
+            Object var7;
+            if (this.random.nextInt(30) == 0) {
+                Mob var0 = EntityType.ZOMBIFIED_PIGLIN.create(param0.getLevel());
+                var7 = this.spawnJockey(param0, param1, var0, new Zombie.ZombieGroupData(Zombie.getSpawnAsBabyOdds(this.random), false));
                 this.equipSaddle(null);
+            } else if (this.random.nextInt(10) == 0) {
+                AgableMob var1 = EntityType.STRIDER.create(param0.getLevel());
+                var1.setAge(-24000);
+                var7 = this.spawnJockey(param0, param1, var1, null);
+            } else {
+                var7 = new AgableMob.AgableMobGroupData(0.5F);
             }
-        }
 
-        if (var6 != null) {
-            var6.moveTo(this.getX(), this.getY(), this.getZ(), this.yRot, 0.0F);
-            var6.finalizeSpawn(param0, param1, MobSpawnType.JOCKEY, var0, null);
-            var6.startRiding(this, true);
-            param0.addFreshEntity(var6);
+            return super.finalizeSpawn(param0, param1, param2, (SpawnGroupData)var7, param4);
         }
-
-        return super.finalizeSpawn(param0, param1, param2, param3, param4);
     }
 
-    public static class StriderGroupData extends AgableMob.AgableMobGroupData {
-        public final Strider.StriderGroupData.Rider rider;
-
-        public StriderGroupData(Strider.StriderGroupData.Rider param0) {
-            this.rider = param0;
-        }
-
-        public static enum Rider {
-            NO_RIDER,
-            BABY_RIDER,
-            PIGLIN_RIDER;
-        }
+    private SpawnGroupData spawnJockey(ServerLevelAccessor param0, DifficultyInstance param1, Mob param2, @Nullable SpawnGroupData param3) {
+        param2.moveTo(this.getX(), this.getY(), this.getZ(), this.yRot, 0.0F);
+        param2.finalizeSpawn(param0, param1, MobSpawnType.JOCKEY, param3, null);
+        param2.startRiding(this, true);
+        param0.addFreshEntity(param2);
+        return new AgableMob.AgableMobGroupData(0.0F);
     }
 
     static class StriderPathNavigation extends GroundPathNavigation {

@@ -67,28 +67,21 @@ public class WorldGenSettingsComponent implements TickableWidget, Widget {
     private RegistryAccess.RegistryHolder registryHolder;
     private WorldGenSettings settings;
     private Optional<WorldPreset> preset;
-    private String initSeed;
+    private OptionalLong seed;
 
-    public WorldGenSettingsComponent() {
-        this.registryHolder = RegistryAccess.builtin();
-        this.settings = WorldGenSettings.makeDefault();
-        this.preset = Optional.of(WorldPreset.NORMAL);
-        this.initSeed = "";
-    }
-
-    public WorldGenSettingsComponent(RegistryAccess.RegistryHolder param0, WorldGenSettings param1) {
+    public WorldGenSettingsComponent(RegistryAccess.RegistryHolder param0, WorldGenSettings param1, Optional<WorldPreset> param2, OptionalLong param3) {
         this.registryHolder = param0;
         this.settings = param1;
-        this.preset = WorldPreset.of(param1);
-        this.initSeed = Long.toString(param1.seed());
+        this.preset = param2;
+        this.seed = param3;
     }
 
     public void init(final CreateWorldScreen param0, Minecraft param1, Font param2) {
         this.font = param2;
         this.width = param0.width;
         this.seedEdit = new EditBox(this.font, this.width / 2 - 100, 60, 200, 20, new TranslatableComponent("selectWorld.enterSeed"));
-        this.seedEdit.setValue(this.initSeed);
-        this.seedEdit.setResponder(param0x -> this.initSeed = this.seedEdit.getValue());
+        this.seedEdit.setValue(toString(this.seed));
+        this.seedEdit.setResponder(param0x -> this.seed = this.parseSeed());
         param0.addWidget(this.seedEdit);
         int var0 = this.width / 2 - 155;
         int var1 = this.width / 2 + 5;
@@ -98,7 +91,7 @@ public class WorldGenSettingsComponent implements TickableWidget, Widget {
         }) {
             @Override
             public Component getMessage() {
-                return super.getMessage().copy().append(" ").append(CommonComponents.optionStatus(WorldGenSettingsComponent.this.settings.generateFeatures()));
+                return CommonComponents.optionStatus(super.getMessage(), WorldGenSettingsComponent.this.settings.generateFeatures());
             }
 
             @Override
@@ -154,20 +147,15 @@ public class WorldGenSettingsComponent implements TickableWidget, Widget {
 
         }));
         this.customizeTypeButton.visible = false;
-        this.bonusItemsButton = param0.addButton(
-            new Button(var0, 151, 150, 20, new TranslatableComponent("selectWorld.bonusItems"), param0x -> {
-                this.settings = this.settings.withBonusChestToggled();
-                param0x.queueNarration(250);
-            }) {
-                @Override
-                public Component getMessage() {
-                    return super.getMessage()
-                        .copy()
-                        .append(" ")
-                        .append(CommonComponents.optionStatus(WorldGenSettingsComponent.this.settings.generateBonusChest() && !param0.hardCore));
-                }
+        this.bonusItemsButton = param0.addButton(new Button(var0, 151, 150, 20, new TranslatableComponent("selectWorld.bonusItems"), param0x -> {
+            this.settings = this.settings.withBonusChestToggled();
+            param0x.queueNarration(250);
+        }) {
+            @Override
+            public Component getMessage() {
+                return CommonComponents.optionStatus(super.getMessage(), WorldGenSettingsComponent.this.settings.generateBonusChest() && !param0.hardCore);
             }
-        );
+        });
         this.bonusItemsButton.visible = false;
         this.importSettingsButton = param0.addButton(
             new Button(
@@ -221,6 +209,7 @@ public class WorldGenSettingsComponent implements TickableWidget, Widget {
                             param1.getToasts().addToast(SystemToast.multiline(param1, SystemToast.SystemToastIds.WORLD_GEN_SETTINGS_TRANSFER, var18, var20));
                         }
         
+                        var5.close();
                         Lifecycle var21 = var14.lifecycle();
                         var14.resultOrPartial(LOGGER::error)
                             .ifPresent(
@@ -262,11 +251,11 @@ public class WorldGenSettingsComponent implements TickableWidget, Widget {
     }
 
     private void importSettings(RegistryAccess.RegistryHolder param0, WorldGenSettings param1) {
-        this.registryHolder = param0;
+        this.setRegistryHolder(param0);
         this.settings = param1;
         this.preset = WorldPreset.of(param1);
-        this.initSeed = Long.toString(param1.seed());
-        this.seedEdit.setValue(this.initSeed);
+        this.seed = OptionalLong.of(param1.seed());
+        this.seedEdit.setValue(toString(this.seed));
         this.typeButton.active = this.preset.isPresent();
     }
 
@@ -292,6 +281,10 @@ public class WorldGenSettingsComponent implements TickableWidget, Widget {
         this.settings = param0;
     }
 
+    private static String toString(OptionalLong param0) {
+        return param0.isPresent() ? Long.toString(param0.getAsLong()) : "";
+    }
+
     private static OptionalLong parseLong(String param0) {
         try {
             return OptionalLong.of(Long.parseLong(param0));
@@ -301,6 +294,11 @@ public class WorldGenSettingsComponent implements TickableWidget, Widget {
     }
 
     public WorldGenSettings makeSettings(boolean param0) {
+        OptionalLong var0 = this.parseSeed();
+        return this.settings.withSeed(param0, var0);
+    }
+
+    private OptionalLong parseSeed() {
         String var0 = this.seedEdit.getValue();
         OptionalLong var1;
         if (StringUtils.isEmpty(var0)) {
@@ -314,7 +312,7 @@ public class WorldGenSettingsComponent implements TickableWidget, Widget {
             }
         }
 
-        return this.settings.withSeed(param0, var1);
+        return var1;
     }
 
     public boolean isDebug() {
@@ -340,5 +338,9 @@ public class WorldGenSettingsComponent implements TickableWidget, Widget {
 
     public RegistryAccess.RegistryHolder registryHolder() {
         return this.registryHolder;
+    }
+
+    protected void setRegistryHolder(RegistryAccess.RegistryHolder param0) {
+        this.registryHolder = param0;
     }
 }

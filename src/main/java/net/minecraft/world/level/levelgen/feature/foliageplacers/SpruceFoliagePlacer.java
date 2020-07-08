@@ -5,6 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Random;
 import java.util.Set;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.UniformInt;
 import net.minecraft.world.level.LevelSimulatedRW;
 import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
@@ -12,21 +13,14 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 public class SpruceFoliagePlacer extends FoliagePlacer {
     public static final Codec<SpruceFoliagePlacer> CODEC = RecordCodecBuilder.create(
         param0 -> foliagePlacerParts(param0)
-                .and(
-                    param0.group(
-                        Codec.INT.fieldOf("trunk_height").forGetter(param0x -> param0x.trunkHeight),
-                        Codec.INT.fieldOf("trunk_height_random").forGetter(param0x -> param0x.trunkHeightRandom)
-                    )
-                )
+                .and(UniformInt.codec(0, 16, 8).fieldOf("trunk_height").forGetter(param0x -> param0x.trunkHeight))
                 .apply(param0, SpruceFoliagePlacer::new)
     );
-    private final int trunkHeight;
-    private final int trunkHeightRandom;
+    private final UniformInt trunkHeight;
 
-    public SpruceFoliagePlacer(int param0, int param1, int param2, int param3, int param4, int param5) {
-        super(param0, param1, param2, param3);
-        this.trunkHeight = param4;
-        this.trunkHeightRandom = param5;
+    public SpruceFoliagePlacer(UniformInt param0, UniformInt param1, UniformInt param2) {
+        super(param0, param1);
+        this.trunkHeight = param2;
     }
 
     @Override
@@ -67,7 +61,7 @@ public class SpruceFoliagePlacer extends FoliagePlacer {
 
     @Override
     public int foliageHeight(Random param0, int param1, TreeConfiguration param2) {
-        return Math.max(4, param1 - this.trunkHeight - param0.nextInt(this.trunkHeightRandom + 1));
+        return Math.max(4, param1 - this.trunkHeight.sample(param0));
     }
 
     @Override

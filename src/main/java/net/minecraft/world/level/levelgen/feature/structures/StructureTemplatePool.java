@@ -4,15 +4,20 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.ObjectArrays;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.RegistryFileCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.block.Rotation;
@@ -25,7 +30,7 @@ import org.apache.logging.log4j.Logger;
 
 public class StructureTemplatePool {
     private static final Logger LOGGER = LogManager.getLogger();
-    public static final Codec<StructureTemplatePool> CODEC = RecordCodecBuilder.create(
+    public static final MapCodec<StructureTemplatePool> DIRECT_CODEC = RecordCodecBuilder.mapCodec(
         param0 -> param0.group(
                     ResourceLocation.CODEC.fieldOf("name").forGetter(StructureTemplatePool::getName),
                     ResourceLocation.CODEC.fieldOf("fallback").forGetter(StructureTemplatePool::getFallback),
@@ -34,39 +39,53 @@ public class StructureTemplatePool {
                         .listOf()
                         .promotePartial(Util.prefix("Pool element: ", LOGGER::error))
                         .fieldOf("elements")
-                        .forGetter(param0x -> param0x.rawTemplates),
-                    StructureTemplatePool.Projection.CODEC.fieldOf("projection").forGetter(param0x -> param0x.projection)
+                        .forGetter(param0x -> param0x.rawTemplates)
                 )
                 .apply(param0, StructureTemplatePool::new)
     );
-    public static final StructureTemplatePool EMPTY = new StructureTemplatePool(
-        new ResourceLocation("empty"), new ResourceLocation("empty"), ImmutableList.of(), StructureTemplatePool.Projection.RIGID
-    );
-    public static final StructureTemplatePool INVALID = new StructureTemplatePool(
-        new ResourceLocation("invalid"), new ResourceLocation("invalid"), ImmutableList.of(), StructureTemplatePool.Projection.RIGID
-    );
+    public static final Codec<Supplier<StructureTemplatePool>> CODEC = RegistryFileCodec.create(Registry.TEMPLATE_POOL_REGISTRY, DIRECT_CODEC);
     private final ResourceLocation name;
-    private final ImmutableList<Pair<StructurePoolElement, Integer>> rawTemplates;
+    private final List<Pair<StructurePoolElement, Integer>> rawTemplates;
     private final List<StructurePoolElement> templates;
     private final ResourceLocation fallback;
-    private final StructureTemplatePool.Projection projection;
     private int maxSize = Integer.MIN_VALUE;
 
-    public StructureTemplatePool(
-        ResourceLocation param0, ResourceLocation param1, List<Pair<StructurePoolElement, Integer>> param2, StructureTemplatePool.Projection param3
-    ) {
+    public StructureTemplatePool(ResourceLocation param0, ResourceLocation param1, List<Pair<StructurePoolElement, Integer>> param2) {
         this.name = param0;
-        this.rawTemplates = ImmutableList.copyOf(param2);
+        this.rawTemplates = param2;
         this.templates = Lists.newArrayList();
 
         for(Pair<StructurePoolElement, Integer> var0 : param2) {
-            for(int var1 = 0; var1 < var0.getSecond(); ++var1) {
-                this.templates.add(var0.getFirst().setProjection(param3));
+            StructurePoolElement var1 = var0.getFirst();
+
+            for(int var2 = 0; var2 < var0.getSecond(); ++var2) {
+                this.templates.add(var1);
             }
         }
 
         this.fallback = param1;
-        this.projection = param3;
+    }
+
+    public StructureTemplatePool(
+        ResourceLocation param0,
+        ResourceLocation param1,
+        List<Pair<Function<StructureTemplatePool.Projection, ? extends StructurePoolElement>, Integer>> param2,
+        StructureTemplatePool.Projection param3
+    ) {
+        this.name = param0;
+        this.rawTemplates = Lists.newArrayList();
+        this.templates = Lists.newArrayList();
+
+        for(Pair<Function<StructureTemplatePool.Projection, ? extends StructurePoolElement>, Integer> var0 : param2) {
+            StructurePoolElement var1 = var0.getFirst().apply(param3);
+            this.rawTemplates.add(Pair.of(var1, var0.getSecond()));
+
+            for(int var2 = 0; var2 < var0.getSecond(); ++var2) {
+                this.templates.add(var1);
+            }
+        }
+
+        this.fallback = param1;
     }
 
     public int getMaxSize(StructureManager param0) {

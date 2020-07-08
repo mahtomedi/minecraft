@@ -99,7 +99,10 @@ public abstract class AbstractPiglin extends Monster {
 
     protected void finishConversion(ServerLevel param0) {
         ZombifiedPiglin var0 = this.convertTo(EntityType.ZOMBIFIED_PIGLIN);
-        var0.addEffect(new MobEffectInstance(MobEffects.CONFUSION, 200, 0));
+        if (var0 != null) {
+            var0.addEffect(new MobEffectInstance(MobEffects.CONFUSION, 200, 0));
+        }
+
     }
 
     public boolean isAdult() {

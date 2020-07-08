@@ -14,6 +14,8 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
@@ -37,7 +39,7 @@ public class BlockItem extends Item {
     @Override
     public InteractionResult useOn(UseOnContext param0) {
         InteractionResult var0 = this.place(new BlockPlaceContext(param0));
-        return !var0.consumesAction() && this.isEdible() ? this.use(param0.level, param0.player, param0.hand).getResult() : var0;
+        return !var0.consumesAction() && this.isEdible() ? this.use(param0.getLevel(), param0.getPlayer(), param0.getHand()).getResult() : var0;
     }
 
     public InteractionResult place(BlockPlaceContext param0) {

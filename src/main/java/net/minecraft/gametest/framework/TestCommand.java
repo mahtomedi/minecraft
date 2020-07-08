@@ -458,13 +458,16 @@ public class TestCommand {
             BufferedReader var3 = Files.newBufferedReader(var0);
             String var4 = IOUtils.toString((Reader)var3);
             Files.createDirectories(var2.getParent());
-            OutputStream var5 = Files.newOutputStream(var2);
-            NbtIo.writeCompressed(TagParser.parseTag(var4), var5);
+
+            try (OutputStream var5 = Files.newOutputStream(var2)) {
+                NbtIo.writeCompressed(TagParser.parseTag(var4), var5);
+            }
+
             say(param0, "Imported to " + var2.toAbsolutePath());
             return 0;
-        } catch (CommandSyntaxException | IOException var8) {
+        } catch (CommandSyntaxException | IOException var20) {
             System.err.println("Failed to load structure " + param1);
-            var8.printStackTrace();
+            var20.printStackTrace();
             return 1;
         }
     }

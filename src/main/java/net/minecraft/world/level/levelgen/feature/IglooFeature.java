@@ -2,6 +2,7 @@ package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -26,12 +27,14 @@ public class IglooFeature extends StructureFeature<NoneFeatureConfiguration> {
             super(param0, param1, param2, param3, param4, param5);
         }
 
-        public void generatePieces(ChunkGenerator param0, StructureManager param1, int param2, int param3, Biome param4, NoneFeatureConfiguration param5) {
-            int var0 = param2 * 16;
-            int var1 = param3 * 16;
+        public void generatePieces(
+            RegistryAccess param0, ChunkGenerator param1, StructureManager param2, int param3, int param4, Biome param5, NoneFeatureConfiguration param6
+        ) {
+            int var0 = param3 * 16;
+            int var1 = param4 * 16;
             BlockPos var2 = new BlockPos(var0, 90, var1);
             Rotation var3 = Rotation.getRandom(this.random);
-            IglooPieces.addPieces(param1, var2, var3, this.pieces, this.random);
+            IglooPieces.addPieces(param2, var2, var3, this.pieces, this.random);
             this.calculateBoundingBox();
         }
     }

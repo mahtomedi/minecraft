@@ -37,7 +37,7 @@ public class PoiSection {
                         )
                         .apply(param1, PoiSection::new)
             )
-            .withDefault(Util.prefix("Failed to read POI section: ", LOGGER::error), () -> new PoiSection(param0, false, ImmutableList.of()));
+            .orElseGet(Util.prefix("Failed to read POI section: ", LOGGER::error), () -> new PoiSection(param0, false, ImmutableList.of()));
     }
 
     public PoiSection(Runnable param0) {

@@ -1,6 +1,7 @@
 package net.minecraft.core;
 
 import com.mojang.serialization.Lifecycle;
+import java.util.Optional;
 import java.util.Random;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -11,7 +12,7 @@ public class DefaultedRegistry<T> extends MappedRegistry<T> {
     private final ResourceLocation defaultKey;
     private T defaultValue;
 
-    public DefaultedRegistry(String param0, ResourceKey<Registry<T>> param1, Lifecycle param2) {
+    public DefaultedRegistry(String param0, ResourceKey<? extends Registry<T>> param1, Lifecycle param2) {
         super(param1, param2);
         this.defaultKey = new ResourceLocation(param0);
     }
@@ -43,6 +44,11 @@ public class DefaultedRegistry<T> extends MappedRegistry<T> {
     public T get(@Nullable ResourceLocation param0) {
         T var0 = super.get(param0);
         return (T)(var0 == null ? this.defaultValue : var0);
+    }
+
+    @Override
+    public Optional<T> getOptional(@Nullable ResourceLocation param0) {
+        return Optional.ofNullable(super.get(param0));
     }
 
     @Nonnull

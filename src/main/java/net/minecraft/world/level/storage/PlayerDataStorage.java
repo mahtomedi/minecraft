@@ -2,8 +2,6 @@ package net.minecraft.world.level.storage;
 
 import com.mojang.datafixers.DataFixer;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.nbt.CompoundTag;
@@ -29,7 +27,7 @@ public class PlayerDataStorage {
         try {
             CompoundTag var0 = param0.saveWithoutId(new CompoundTag());
             File var1 = File.createTempFile(param0.getStringUUID() + "-", ".dat", this.playerDir);
-            NbtIo.writeCompressed(var0, new FileOutputStream(var1));
+            NbtIo.writeCompressed(var0, var1);
             File var2 = new File(this.playerDir, param0.getStringUUID() + ".dat");
             File var3 = new File(this.playerDir, param0.getStringUUID() + ".dat_old");
             Util.safeReplaceFile(var2, var1, var3);
@@ -46,7 +44,7 @@ public class PlayerDataStorage {
         try {
             File var1 = new File(this.playerDir, param0.getStringUUID() + ".dat");
             if (var1.exists() && var1.isFile()) {
-                var0 = NbtIo.readCompressed(new FileInputStream(var1));
+                var0 = NbtIo.readCompressed(var1);
             }
         } catch (Exception var4) {
             LOGGER.warn("Failed to load player data for {}", param0.getName().getString());

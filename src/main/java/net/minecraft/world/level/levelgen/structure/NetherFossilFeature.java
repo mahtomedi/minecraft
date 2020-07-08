@@ -3,6 +3,7 @@ package net.minecraft.world.level.levelgen.structure;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.biome.Biome;
@@ -28,13 +29,15 @@ public class NetherFossilFeature extends StructureFeature<NoneFeatureConfigurati
             super(param0, param1, param2, param3, param4, param5);
         }
 
-        public void generatePieces(ChunkGenerator param0, StructureManager param1, int param2, int param3, Biome param4, NoneFeatureConfiguration param5) {
-            ChunkPos var0 = new ChunkPos(param2, param3);
+        public void generatePieces(
+            RegistryAccess param0, ChunkGenerator param1, StructureManager param2, int param3, int param4, Biome param5, NoneFeatureConfiguration param6
+        ) {
+            ChunkPos var0 = new ChunkPos(param3, param4);
             int var1 = var0.getMinBlockX() + this.random.nextInt(16);
             int var2 = var0.getMinBlockZ() + this.random.nextInt(16);
-            int var3 = param0.getSeaLevel();
-            int var4 = var3 + this.random.nextInt(param0.getGenDepth() - 2 - var3);
-            BlockGetter var5 = param0.getBaseColumn(var1, var2);
+            int var3 = param1.getSeaLevel();
+            int var4 = var3 + this.random.nextInt(param1.getGenDepth() - 2 - var3);
+            BlockGetter var5 = param1.getBaseColumn(var1, var2);
 
             for(BlockPos.MutableBlockPos var6 = new BlockPos.MutableBlockPos(var1, var4, var2); var4 > var3; --var4) {
                 BlockState var7 = var5.getBlockState(var6);
@@ -46,7 +49,7 @@ public class NetherFossilFeature extends StructureFeature<NoneFeatureConfigurati
             }
 
             if (var4 > var3) {
-                NetherFossilPieces.addPieces(param1, this.pieces, this.random, new BlockPos(var1, var4, var2));
+                NetherFossilPieces.addPieces(param2, this.pieces, this.random, new BlockPos(var1, var4, var2));
                 this.calculateBoundingBox();
             }
         }

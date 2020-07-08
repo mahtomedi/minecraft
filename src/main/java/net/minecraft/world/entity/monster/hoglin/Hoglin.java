@@ -261,7 +261,10 @@ public class Hoglin extends Animal implements Enemy, HoglinBase {
 
     private void finishConversion(ServerLevel param0) {
         Zoglin var0 = this.convertTo(EntityType.ZOGLIN);
-        var0.addEffect(new MobEffectInstance(MobEffects.CONFUSION, 200, 0));
+        if (var0 != null) {
+            var0.addEffect(new MobEffectInstance(MobEffects.CONFUSION, 200, 0));
+        }
+
     }
 
     @Override

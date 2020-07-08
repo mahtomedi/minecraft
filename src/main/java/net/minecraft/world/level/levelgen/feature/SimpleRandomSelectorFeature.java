@@ -14,7 +14,7 @@ public class SimpleRandomSelectorFeature extends Feature<SimpleRandomFeatureConf
 
     public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, SimpleRandomFeatureConfiguration param4) {
         int var0 = param2.nextInt(param4.features.size());
-        ConfiguredFeature<?, ?> var1 = param4.features.get(var0);
+        ConfiguredFeature<?, ?> var1 = param4.features.get(var0).get();
         return var1.place(param0, param1, param2, param3);
     }
 }

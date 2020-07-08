@@ -43,7 +43,6 @@ public class SoulParticle extends RisingParticle {
         ) {
             SoulParticle var0 = new SoulParticle(param1, param2, param3, param4, param5, param6, param7, this.sprite);
             var0.setAlpha(1.0F);
-            var0.pickSprite(this.sprite);
             return var0;
         }
     }

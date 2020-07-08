@@ -9,14 +9,14 @@ import java.util.function.Supplier;
 import net.minecraft.core.Registry;
 
 public final class RegistryFileCodec<E> implements Codec<Supplier<E>> {
-    private final ResourceKey<Registry<E>> registryKey;
+    private final ResourceKey<? extends Registry<E>> registryKey;
     private final MapCodec<E> elementCodec;
 
-    public static <E> RegistryFileCodec<E> create(ResourceKey<Registry<E>> param0, MapCodec<E> param1) {
+    public static <E> RegistryFileCodec<E> create(ResourceKey<? extends Registry<E>> param0, MapCodec<E> param1) {
         return new RegistryFileCodec<>(param0, param1);
     }
 
-    private RegistryFileCodec(ResourceKey<Registry<E>> param0, MapCodec<E> param1) {
+    private RegistryFileCodec(ResourceKey<? extends Registry<E>> param0, MapCodec<E> param1) {
         this.registryKey = param0;
         this.elementCodec = param1;
     }

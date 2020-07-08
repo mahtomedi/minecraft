@@ -20,10 +20,10 @@ public class OreFeature extends Feature<OreConfiguration> {
         float var0 = param2.nextFloat() * (float) Math.PI;
         float var1 = (float)param4.size / 8.0F;
         int var2 = Mth.ceil(((float)param4.size / 16.0F * 2.0F + 1.0F) / 2.0F);
-        double var3 = (double)((float)param3.getX() + Mth.sin(var0) * var1);
-        double var4 = (double)((float)param3.getX() - Mth.sin(var0) * var1);
-        double var5 = (double)((float)param3.getZ() + Mth.cos(var0) * var1);
-        double var6 = (double)((float)param3.getZ() - Mth.cos(var0) * var1);
+        double var3 = (double)param3.getX() + Math.sin((double)var0) * (double)var1;
+        double var4 = (double)param3.getX() - Math.sin((double)var0) * (double)var1;
+        double var5 = (double)param3.getZ() + Math.cos((double)var0) * (double)var1;
+        double var6 = (double)param3.getZ() - Math.cos((double)var0) * (double)var1;
         int var7 = 2;
         double var8 = (double)(param3.getY() + param2.nextInt(3) - 2);
         double var9 = (double)(param3.getY() + param2.nextInt(3) - 2);
@@ -63,34 +63,35 @@ public class OreFeature extends Feature<OreConfiguration> {
         int var0 = 0;
         BitSet var1 = new BitSet(param12 * param13 * param12);
         BlockPos.MutableBlockPos var2 = new BlockPos.MutableBlockPos();
-        double[] var3 = new double[param2.size * 4];
+        int var3 = param2.size;
+        double[] var4 = new double[var3 * 4];
 
-        for(int var4 = 0; var4 < param2.size; ++var4) {
-            float var5 = (float)var4 / (float)param2.size;
-            double var6 = Mth.lerp((double)var5, param3, param4);
-            double var7 = Mth.lerp((double)var5, param7, param8);
-            double var8 = Mth.lerp((double)var5, param5, param6);
-            double var9 = param1.nextDouble() * (double)param2.size / 16.0;
-            double var10 = ((double)(Mth.sin((float) Math.PI * var5) + 1.0F) * var9 + 1.0) / 2.0;
-            var3[var4 * 4 + 0] = var6;
-            var3[var4 * 4 + 1] = var7;
-            var3[var4 * 4 + 2] = var8;
-            var3[var4 * 4 + 3] = var10;
+        for(int var5 = 0; var5 < var3; ++var5) {
+            float var6 = (float)var5 / (float)var3;
+            double var7 = Mth.lerp((double)var6, param3, param4);
+            double var8 = Mth.lerp((double)var6, param7, param8);
+            double var9 = Mth.lerp((double)var6, param5, param6);
+            double var10 = param1.nextDouble() * (double)var3 / 16.0;
+            double var11 = ((double)(Mth.sin((float) Math.PI * var6) + 1.0F) * var10 + 1.0) / 2.0;
+            var4[var5 * 4 + 0] = var7;
+            var4[var5 * 4 + 1] = var8;
+            var4[var5 * 4 + 2] = var9;
+            var4[var5 * 4 + 3] = var11;
         }
 
-        for(int var11 = 0; var11 < param2.size - 1; ++var11) {
-            if (!(var3[var11 * 4 + 3] <= 0.0)) {
-                for(int var12 = var11 + 1; var12 < param2.size; ++var12) {
-                    if (!(var3[var12 * 4 + 3] <= 0.0)) {
-                        double var13 = var3[var11 * 4 + 0] - var3[var12 * 4 + 0];
-                        double var14 = var3[var11 * 4 + 1] - var3[var12 * 4 + 1];
-                        double var15 = var3[var11 * 4 + 2] - var3[var12 * 4 + 2];
-                        double var16 = var3[var11 * 4 + 3] - var3[var12 * 4 + 3];
-                        if (var16 * var16 > var13 * var13 + var14 * var14 + var15 * var15) {
-                            if (var16 > 0.0) {
-                                var3[var12 * 4 + 3] = -1.0;
+        for(int var12 = 0; var12 < var3 - 1; ++var12) {
+            if (!(var4[var12 * 4 + 3] <= 0.0)) {
+                for(int var13 = var12 + 1; var13 < var3; ++var13) {
+                    if (!(var4[var13 * 4 + 3] <= 0.0)) {
+                        double var14 = var4[var12 * 4 + 0] - var4[var13 * 4 + 0];
+                        double var15 = var4[var12 * 4 + 1] - var4[var13 * 4 + 1];
+                        double var16 = var4[var12 * 4 + 2] - var4[var13 * 4 + 2];
+                        double var17 = var4[var12 * 4 + 3] - var4[var13 * 4 + 3];
+                        if (var17 * var17 > var14 * var14 + var15 * var15 + var16 * var16) {
+                            if (var17 > 0.0) {
+                                var4[var13 * 4 + 3] = -1.0;
                             } else {
-                                var3[var11 * 4 + 3] = -1.0;
+                                var4[var12 * 4 + 3] = -1.0;
                             }
                         }
                     }
@@ -98,33 +99,33 @@ public class OreFeature extends Feature<OreConfiguration> {
             }
         }
 
-        for(int var17 = 0; var17 < param2.size; ++var17) {
-            double var18 = var3[var17 * 4 + 3];
-            if (!(var18 < 0.0)) {
-                double var19 = var3[var17 * 4 + 0];
-                double var20 = var3[var17 * 4 + 1];
-                double var21 = var3[var17 * 4 + 2];
-                int var22 = Math.max(Mth.floor(var19 - var18), param9);
-                int var23 = Math.max(Mth.floor(var20 - var18), param10);
-                int var24 = Math.max(Mth.floor(var21 - var18), param11);
-                int var25 = Math.max(Mth.floor(var19 + var18), var22);
-                int var26 = Math.max(Mth.floor(var20 + var18), var23);
-                int var27 = Math.max(Mth.floor(var21 + var18), var24);
+        for(int var18 = 0; var18 < var3; ++var18) {
+            double var19 = var4[var18 * 4 + 3];
+            if (!(var19 < 0.0)) {
+                double var20 = var4[var18 * 4 + 0];
+                double var21 = var4[var18 * 4 + 1];
+                double var22 = var4[var18 * 4 + 2];
+                int var23 = Math.max(Mth.floor(var20 - var19), param9);
+                int var24 = Math.max(Mth.floor(var21 - var19), param10);
+                int var25 = Math.max(Mth.floor(var22 - var19), param11);
+                int var26 = Math.max(Mth.floor(var20 + var19), var23);
+                int var27 = Math.max(Mth.floor(var21 + var19), var24);
+                int var28 = Math.max(Mth.floor(var22 + var19), var25);
 
-                for(int var28 = var22; var28 <= var25; ++var28) {
-                    double var29 = ((double)var28 + 0.5 - var19) / var18;
-                    if (var29 * var29 < 1.0) {
-                        for(int var30 = var23; var30 <= var26; ++var30) {
-                            double var31 = ((double)var30 + 0.5 - var20) / var18;
-                            if (var29 * var29 + var31 * var31 < 1.0) {
-                                for(int var32 = var24; var32 <= var27; ++var32) {
-                                    double var33 = ((double)var32 + 0.5 - var21) / var18;
-                                    if (var29 * var29 + var31 * var31 + var33 * var33 < 1.0) {
-                                        int var34 = var28 - param9 + (var30 - param10) * param12 + (var32 - param11) * param12 * param13;
-                                        if (!var1.get(var34)) {
-                                            var1.set(var34);
-                                            var2.set(var28, var30, var32);
-                                            if (param2.target.getPredicate().test(param0.getBlockState(var2))) {
+                for(int var29 = var23; var29 <= var26; ++var29) {
+                    double var30 = ((double)var29 + 0.5 - var20) / var19;
+                    if (var30 * var30 < 1.0) {
+                        for(int var31 = var24; var31 <= var27; ++var31) {
+                            double var32 = ((double)var31 + 0.5 - var21) / var19;
+                            if (var30 * var30 + var32 * var32 < 1.0) {
+                                for(int var33 = var25; var33 <= var28; ++var33) {
+                                    double var34 = ((double)var33 + 0.5 - var22) / var19;
+                                    if (var30 * var30 + var32 * var32 + var34 * var34 < 1.0) {
+                                        int var35 = var29 - param9 + (var31 - param10) * param12 + (var33 - param11) * param12 * param13;
+                                        if (!var1.get(var35)) {
+                                            var1.set(var35);
+                                            var2.set(var29, var31, var33);
+                                            if (param2.target.test(param0.getBlockState(var2), param1)) {
                                                 param0.setBlock(var2, param2.state, 2);
                                                 ++var0;
                                             }

@@ -10,7 +10,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.phys.Vec3;
 
 public class BlockPattern {
     private final Predicate<BlockInWorld>[][][] pattern;
@@ -149,14 +148,6 @@ public class BlockPattern {
             return this.up;
         }
 
-        public int getWidth() {
-            return this.width;
-        }
-
-        public int getHeight() {
-            return this.height;
-        }
-
         public BlockInWorld getBlock(int param0, int param1, int param2) {
             return this.cache.getUnchecked(BlockPattern.translateAndRotate(this.frontTopLeft, this.getForwards(), this.getUp(), param0, param1, param2));
         }
@@ -164,58 +155,6 @@ public class BlockPattern {
         @Override
         public String toString() {
             return MoreObjects.toStringHelper(this).add("up", this.up).add("forwards", this.forwards).add("frontTopLeft", this.frontTopLeft).toString();
-        }
-
-        public BlockPattern.PortalInfo getPortalOutput(Direction param0, BlockPos param1, double param2, Vec3 param3, double param4) {
-            Direction var0 = this.getForwards();
-            Direction var1 = var0.getClockWise();
-            double var2 = (double)(this.getFrontTopLeft().getY() + 1) - param2 * (double)this.getHeight();
-            double var3;
-            double var4;
-            if (var1 == Direction.NORTH) {
-                var3 = (double)param1.getX() + 0.5;
-                var4 = (double)(this.getFrontTopLeft().getZ() + 1) - (1.0 - param4) * (double)this.getWidth();
-            } else if (var1 == Direction.SOUTH) {
-                var3 = (double)param1.getX() + 0.5;
-                var4 = (double)this.getFrontTopLeft().getZ() + (1.0 - param4) * (double)this.getWidth();
-            } else if (var1 == Direction.WEST) {
-                var3 = (double)(this.getFrontTopLeft().getX() + 1) - (1.0 - param4) * (double)this.getWidth();
-                var4 = (double)param1.getZ() + 0.5;
-            } else {
-                var3 = (double)this.getFrontTopLeft().getX() + (1.0 - param4) * (double)this.getWidth();
-                var4 = (double)param1.getZ() + 0.5;
-            }
-
-            double var11;
-            double var12;
-            if (var0.getOpposite() == param0) {
-                var11 = param3.x;
-                var12 = param3.z;
-            } else if (var0.getOpposite() == param0.getOpposite()) {
-                var11 = -param3.x;
-                var12 = -param3.z;
-            } else if (var0.getOpposite() == param0.getClockWise()) {
-                var11 = -param3.z;
-                var12 = param3.x;
-            } else {
-                var11 = param3.z;
-                var12 = -param3.x;
-            }
-
-            int var19 = (var0.get2DDataValue() - param0.getOpposite().get2DDataValue()) * 90;
-            return new BlockPattern.PortalInfo(new Vec3(var3, var2, var4), new Vec3(var11, param3.y, var12), var19);
-        }
-    }
-
-    public static class PortalInfo {
-        public final Vec3 pos;
-        public final Vec3 speed;
-        public final int angle;
-
-        public PortalInfo(Vec3 param0, Vec3 param1, int param2) {
-            this.pos = param0;
-            this.speed = param1;
-            this.angle = param2;
         }
     }
 }

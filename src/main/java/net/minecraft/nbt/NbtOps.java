@@ -121,7 +121,7 @@ public class NbtOps implements DynamicOps<Tag> {
     }
 
     private static boolean typesMatch(byte param0, byte param1, byte param2) {
-        return (param0 == param2 || param0 == 0) && (param1 == param2 || param1 == 0);
+        return param0 == param2 && (param1 == param2 || param1 == 0);
     }
 
     private static <T extends Tag> void fillOne(CollectionTag<T> param0, Tag param1, Tag param2) {

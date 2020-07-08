@@ -11,7 +11,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.ClickEvent;
@@ -47,6 +46,7 @@ public class BookViewScreen extends Screen {
     private int currentPage;
     private List<FormattedText> cachedPageComponents = Collections.emptyList();
     private int cachedPage = -1;
+    private FormattedText pageMsg = FormattedText.EMPTY;
     private PageButton forwardButton;
     private PageButton backButton;
     private final boolean playTurnSound;
@@ -157,32 +157,28 @@ public class BookViewScreen extends Screen {
         int var0 = (this.width - 192) / 2;
         int var1 = 2;
         this.blit(param0, var0, 2, 0, 0, 192, 192);
-        String var2 = I18n.get("book.pageIndicator", this.currentPage + 1, Math.max(this.getNumPages(), 1));
         if (this.cachedPage != this.currentPage) {
-            FormattedText var3 = this.bookAccess.getPage(this.currentPage);
-            this.cachedPageComponents = this.font.getSplitter().splitLines(var3, 114, Style.EMPTY);
+            FormattedText var2 = this.bookAccess.getPage(this.currentPage);
+            this.cachedPageComponents = this.font.getSplitter().splitLines(var2, 114, Style.EMPTY);
+            this.pageMsg = new TranslatableComponent("book.pageIndicator", this.currentPage + 1, Math.max(this.getNumPages(), 1));
         }
 
         this.cachedPage = this.currentPage;
-        int var4 = this.strWidth(var2);
-        this.font.draw(param0, var2, (float)(var0 - var4 + 192 - 44), 18.0F, 0);
-        int var5 = Math.min(128 / 9, this.cachedPageComponents.size());
+        int var3 = this.font.width(this.pageMsg);
+        this.font.draw(param0, this.pageMsg, (float)(var0 - var3 + 192 - 44), 18.0F, 0);
+        int var4 = Math.min(128 / 9, this.cachedPageComponents.size());
 
-        for(int var6 = 0; var6 < var5; ++var6) {
-            FormattedText var7 = this.cachedPageComponents.get(var6);
-            this.font.draw(param0, var7, (float)(var0 + 36), (float)(32 + var6 * 9), 0);
+        for(int var5 = 0; var5 < var4; ++var5) {
+            FormattedText var6 = this.cachedPageComponents.get(var5);
+            this.font.draw(param0, var6, (float)(var0 + 36), (float)(32 + var5 * 9), 0);
         }
 
-        Style var8 = this.getClickedComponentStyleAt((double)param1, (double)param2);
-        if (var8 != null) {
-            this.renderComponentHoverEffect(param0, var8, param1, param2);
+        Style var7 = this.getClickedComponentStyleAt((double)param1, (double)param2);
+        if (var7 != null) {
+            this.renderComponentHoverEffect(param0, var7, param1, param2);
         }
 
         super.render(param0, param1, param2, param3);
-    }
-
-    private int strWidth(String param0) {
-        return this.font.width(this.font.isBidirectional() ? this.font.bidirectionalShaping(param0) : param0);
     }
 
     @Override

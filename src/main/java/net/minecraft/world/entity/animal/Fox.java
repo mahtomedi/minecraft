@@ -1002,7 +1002,7 @@ public class Fox extends Animal {
         public final Fox.Type type;
 
         public FoxGroupData(Fox.Type param0) {
-            this.setShouldSpawnBaby(false);
+            super(false);
             this.type = param0;
         }
     }

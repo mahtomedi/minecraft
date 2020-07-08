@@ -46,6 +46,6 @@ public class BooleanOption extends Option {
     }
 
     public Component getMessage(Options param0) {
-        return this.createCaption().append(CommonComponents.optionStatus(this.get(param0)));
+        return CommonComponents.optionStatus(this.getCaption(), this.get(param0));
     }
 }

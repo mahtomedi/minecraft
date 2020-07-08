@@ -338,6 +338,11 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface 
     }
 
     @Override
+    public int getRateLimitPacketsPerSecond() {
+        return this.getProperties().rateLimitPacketsPerSecond;
+    }
+
+    @Override
     public boolean isEpollEnabled() {
         return this.getProperties().useNativeTransport;
     }

@@ -30,6 +30,7 @@ import net.minecraft.ReportedException;
 import net.minecraft.network.Connection;
 import net.minecraft.network.PacketDecoder;
 import net.minecraft.network.PacketEncoder;
+import net.minecraft.network.RateKickingConnection;
 import net.minecraft.network.Varint21FrameDecoder;
 import net.minecraft.network.Varint21LengthFieldPrepender;
 import net.minecraft.network.chat.Component;
@@ -85,7 +86,7 @@ public class ServerConnectionListener {
                                 protected void initChannel(Channel param0) throws Exception {
                                     try {
                                         param0.config().setOption(ChannelOption.TCP_NODELAY, true);
-                                    } catch (ChannelException var3) {
+                                    } catch (ChannelException var4) {
                                     }
                 
                                     param0.pipeline()
@@ -95,10 +96,11 @@ public class ServerConnectionListener {
                                         .addLast("decoder", new PacketDecoder(PacketFlow.SERVERBOUND))
                                         .addLast("prepender", new Varint21LengthFieldPrepender())
                                         .addLast("encoder", new PacketEncoder(PacketFlow.CLIENTBOUND));
-                                    Connection var0 = new Connection(PacketFlow.SERVERBOUND);
-                                    ServerConnectionListener.this.connections.add(var0);
-                                    param0.pipeline().addLast("packet_handler", var0);
-                                    var0.setListener(new ServerHandshakePacketListenerImpl(ServerConnectionListener.this.server, var0));
+                                    int var0 = ServerConnectionListener.this.server.getRateLimitPacketsPerSecond();
+                                    Connection var1 = (Connection)(var0 > 0 ? new RateKickingConnection(var0) : new Connection(PacketFlow.SERVERBOUND));
+                                    ServerConnectionListener.this.connections.add(var1);
+                                    param0.pipeline().addLast("packet_handler", var1);
+                                    var1.setListener(new ServerHandshakePacketListenerImpl(ServerConnectionListener.this.server, var1));
                                 }
                             }
                         )

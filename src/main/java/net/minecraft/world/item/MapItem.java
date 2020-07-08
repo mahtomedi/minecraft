@@ -20,6 +20,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
@@ -340,6 +341,9 @@ public class MapItem extends ComplexItem {
         if (var0 != null && var0.contains("map_scale_direction", 99)) {
             scaleMap(param0, param1, var0.getInt("map_scale_direction"));
             var0.remove("map_scale_direction");
+        } else if (var0 != null && var0.contains("map_to_lock", 1) && var0.getBoolean("map_to_lock")) {
+            lockMap(param1, param0);
+            var0.remove("map_to_lock");
         }
 
     }
@@ -354,17 +358,13 @@ public class MapItem extends ComplexItem {
 
     }
 
-    @Nullable
-    public static ItemStack lockMap(Level param0, ItemStack param1) {
+    public static void lockMap(Level param0, ItemStack param1) {
         MapItemSavedData var0 = getOrCreateSavedData(param1, param0);
         if (var0 != null) {
-            ItemStack var1 = param1.copy();
-            MapItemSavedData var2 = createAndStoreSavedData(var1, param0, 0, 0, var0.scale, var0.trackingPosition, var0.unlimitedTracking, var0.dimension);
-            var2.lockData(var0);
-            return var1;
-        } else {
-            return null;
+            MapItemSavedData var1 = createAndStoreSavedData(param1, param0, 0, 0, var0.scale, var0.trackingPosition, var0.unlimitedTracking, var0.dimension);
+            var1.lockData(var0);
         }
+
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -402,12 +402,12 @@ public class MapItem extends ComplexItem {
     public InteractionResult useOn(UseOnContext param0) {
         BlockState var0 = param0.getLevel().getBlockState(param0.getClickedPos());
         if (var0.is(BlockTags.BANNERS)) {
-            if (!param0.level.isClientSide) {
+            if (!param0.getLevel().isClientSide) {
                 MapItemSavedData var1 = getOrCreateSavedData(param0.getItemInHand(), param0.getLevel());
                 var1.toggleBanner(param0.getLevel(), param0.getClickedPos());
             }
 
-            return InteractionResult.sidedSuccess(param0.level.isClientSide);
+            return InteractionResult.sidedSuccess(param0.getLevel().isClientSide);
         } else {
             return super.useOn(param0);
         }

@@ -19,6 +19,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -113,8 +114,8 @@ public class PresetFlatWorldScreen extends Screen {
         return var0;
     }
 
-    public static FlatLevelGeneratorSettings fromString(String param0, FlatLevelGeneratorSettings param1) {
-        Iterator<String> var0 = Splitter.on(';').split(param0).iterator();
+    public static FlatLevelGeneratorSettings fromString(Registry<Biome> param0, String param1, FlatLevelGeneratorSettings param2) {
+        Iterator<String> var0 = Splitter.on(';').split(param1).iterator();
         if (!var0.hasNext()) {
             return FlatLevelGeneratorSettings.getDefault();
         } else {
@@ -122,14 +123,14 @@ public class PresetFlatWorldScreen extends Screen {
             if (var1.isEmpty()) {
                 return FlatLevelGeneratorSettings.getDefault();
             } else {
-                FlatLevelGeneratorSettings var2 = param1.withLayers(var1, param1.structureSettings());
+                FlatLevelGeneratorSettings var2 = param2.withLayers(var1, param2.structureSettings());
                 Biome var3 = Biomes.PLAINS;
                 if (var0.hasNext()) {
                     try {
                         ResourceLocation var4 = new ResourceLocation(var0.next());
-                        var3 = Registry.BIOME.getOptional(var4).orElseThrow(() -> new IllegalArgumentException("Invalid Biome: " + var4));
-                    } catch (Exception var7) {
-                        LOGGER.error("Error while parsing flat world string => {}", var7.getMessage());
+                        var3 = param0.getOptional(var4).orElseThrow(() -> new IllegalArgumentException("Invalid Biome: " + var4));
+                    } catch (Exception var8) {
+                        LOGGER.error("Error while parsing flat world string => {}", var8.getMessage());
                     }
                 }
 
@@ -139,19 +140,19 @@ public class PresetFlatWorldScreen extends Screen {
         }
     }
 
-    private static String save(FlatLevelGeneratorSettings param0) {
+    private static String save(RegistryAccess param0, FlatLevelGeneratorSettings param1) {
         StringBuilder var0 = new StringBuilder();
 
-        for(int var1 = 0; var1 < param0.getLayersInfo().size(); ++var1) {
+        for(int var1 = 0; var1 < param1.getLayersInfo().size(); ++var1) {
             if (var1 > 0) {
                 var0.append(",");
             }
 
-            var0.append(param0.getLayersInfo().get(var1));
+            var0.append(param1.getLayersInfo().get(var1));
         }
 
         var0.append(";");
-        var0.append(Registry.BIOME.getKey(param0.getBiome()));
+        var0.append(param0.registryOrThrow(Registry.BIOME_REGISTRY).getKey(param1.getBiome()));
         return var0.toString();
     }
 
@@ -162,17 +163,28 @@ public class PresetFlatWorldScreen extends Screen {
         this.listText = new TranslatableComponent("createWorld.customize.presets.list");
         this.export = new EditBox(this.font, 50, 40, this.width - 100, 20, this.shareText);
         this.export.setMaxLength(1230);
-        this.export.setValue(save(this.parent.settings()));
+        this.export.setValue(save(this.parent.parent.worldGenSettingsComponent.registryHolder(), this.parent.settings()));
         this.settings = this.parent.settings();
         this.children.add(this.export);
         this.list = new PresetFlatWorldScreen.PresetsList();
         this.children.add(this.list);
         this.selectButton = this.addButton(
-            new Button(this.width / 2 - 155, this.height - 28, 150, 20, new TranslatableComponent("createWorld.customize.presets.select"), param0 -> {
-                FlatLevelGeneratorSettings var0 = fromString(this.export.getValue(), this.settings);
-                this.parent.setConfig(var0);
-                this.minecraft.setScreen(this.parent);
-            })
+            new Button(
+                this.width / 2 - 155,
+                this.height - 28,
+                150,
+                20,
+                new TranslatableComponent("createWorld.customize.presets.select"),
+                param0 -> {
+                    FlatLevelGeneratorSettings var0 = fromString(
+                        this.parent.parent.worldGenSettingsComponent.registryHolder().registryOrThrow(Registry.BIOME_REGISTRY),
+                        this.export.getValue(),
+                        this.settings
+                    );
+                    this.parent.setConfig(var0);
+                    this.minecraft.setScreen(this.parent);
+                }
+            )
         );
         this.addButton(new Button(this.width / 2 + 5, this.height - 28, 150, 20, CommonComponents.GUI_CANCEL, param0 -> this.minecraft.setScreen(this.parent)));
         this.updateButtonValidity(this.list.getSelected() != null);
@@ -463,7 +475,8 @@ public class PresetFlatWorldScreen extends Screen {
             private void select() {
                 PresetsList.this.setSelected(this);
                 PresetFlatWorldScreen.PresetInfo var0 = PresetFlatWorldScreen.PRESETS.get(PresetsList.this.children().indexOf(this));
-                PresetFlatWorldScreen.this.export.setValue(PresetFlatWorldScreen.save(var0.settings));
+                PresetFlatWorldScreen.this.export
+                    .setValue(PresetFlatWorldScreen.save(PresetFlatWorldScreen.this.parent.parent.worldGenSettingsComponent.registryHolder(), var0.settings));
                 PresetFlatWorldScreen.this.export.moveCursorToStart();
                 PresetFlatWorldScreen.this.settings = var0.settings;
             }

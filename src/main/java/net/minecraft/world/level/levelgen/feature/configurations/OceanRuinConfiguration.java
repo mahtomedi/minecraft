@@ -8,8 +8,8 @@ public class OceanRuinConfiguration implements FeatureConfiguration {
     public static final Codec<OceanRuinConfiguration> CODEC = RecordCodecBuilder.create(
         param0 -> param0.group(
                     OceanRuinFeature.Type.CODEC.fieldOf("biome_temp").forGetter(param0x -> param0x.biomeTemp),
-                    Codec.FLOAT.fieldOf("large_probability").forGetter(param0x -> param0x.largeProbability),
-                    Codec.FLOAT.fieldOf("cluster_probability").forGetter(param0x -> param0x.clusterProbability)
+                    Codec.floatRange(0.0F, 1.0F).fieldOf("large_probability").forGetter(param0x -> param0x.largeProbability),
+                    Codec.floatRange(0.0F, 1.0F).fieldOf("cluster_probability").forGetter(param0x -> param0x.clusterProbability)
                 )
                 .apply(param0, OceanRuinConfiguration::new)
     );

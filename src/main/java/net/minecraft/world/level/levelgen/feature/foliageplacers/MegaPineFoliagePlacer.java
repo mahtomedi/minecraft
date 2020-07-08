@@ -6,6 +6,7 @@ import java.util.Random;
 import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
+import net.minecraft.util.UniformInt;
 import net.minecraft.world.level.LevelSimulatedRW;
 import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
@@ -13,21 +14,14 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 public class MegaPineFoliagePlacer extends FoliagePlacer {
     public static final Codec<MegaPineFoliagePlacer> CODEC = RecordCodecBuilder.create(
         param0 -> foliagePlacerParts(param0)
-                .and(
-                    param0.group(
-                        Codec.INT.fieldOf("height_random").forGetter(param0x -> param0x.heightRand),
-                        Codec.INT.fieldOf("crown_height").forGetter(param0x -> param0x.crownHeight)
-                    )
-                )
+                .and(UniformInt.codec(0, 16, 8).fieldOf("crown_height").forGetter(param0x -> param0x.crownHeight))
                 .apply(param0, MegaPineFoliagePlacer::new)
     );
-    private final int heightRand;
-    private final int crownHeight;
+    private final UniformInt crownHeight;
 
-    public MegaPineFoliagePlacer(int param0, int param1, int param2, int param3, int param4, int param5) {
-        super(param0, param1, param2, param3);
-        this.heightRand = param4;
-        this.crownHeight = param5;
+    public MegaPineFoliagePlacer(UniformInt param0, UniformInt param1, UniformInt param2) {
+        super(param0, param1);
+        this.crownHeight = param2;
     }
 
     @Override
@@ -69,7 +63,7 @@ public class MegaPineFoliagePlacer extends FoliagePlacer {
 
     @Override
     public int foliageHeight(Random param0, int param1, TreeConfiguration param2) {
-        return param0.nextInt(this.heightRand + 1) + this.crownHeight;
+        return this.crownHeight.sample(param0);
     }
 
     @Override

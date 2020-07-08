@@ -9,6 +9,7 @@ import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ObjectSelectionList;
+import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -25,7 +26,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class CreateFlatWorldScreen extends Screen {
-    private final Screen parent;
+    protected final CreateWorldScreen parent;
     private final Consumer<FlatLevelGeneratorSettings> applySettings;
     private FlatLevelGeneratorSettings generator;
     private Component columnType;
@@ -33,7 +34,7 @@ public class CreateFlatWorldScreen extends Screen {
     private CreateFlatWorldScreen.DetailsList list;
     private Button deleteLayerButton;
 
-    public CreateFlatWorldScreen(Screen param0, Consumer<FlatLevelGeneratorSettings> param1, FlatLevelGeneratorSettings param2) {
+    public CreateFlatWorldScreen(CreateWorldScreen param0, Consumer<FlatLevelGeneratorSettings> param1, FlatLevelGeneratorSettings param2) {
         super(new TranslatableComponent("createWorld.customize.flat.title"));
         this.parent = param0;
         this.applySettings = param1;

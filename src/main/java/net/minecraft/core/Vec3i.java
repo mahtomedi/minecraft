@@ -139,6 +139,10 @@ public class Vec3i implements Comparable<Vec3i> {
         return (int)(var0 + var1 + var2);
     }
 
+    public int get(Direction.Axis param0) {
+        return param0.choose(this.x, this.y, this.z);
+    }
+
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this).add("x", this.getX()).add("y", this.getY()).add("z", this.getZ()).toString();

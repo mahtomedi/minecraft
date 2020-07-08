@@ -167,7 +167,7 @@ public class ResourceLocation implements Comparable<ResourceLocation> {
         return true;
     }
 
-    private static boolean validPathChar(char param0) {
+    public static boolean validPathChar(char param0) {
         return param0 == '_' || param0 == '-' || param0 >= 'a' && param0 <= 'z' || param0 >= '0' && param0 <= '9' || param0 == '/' || param0 == '.';
     }
 

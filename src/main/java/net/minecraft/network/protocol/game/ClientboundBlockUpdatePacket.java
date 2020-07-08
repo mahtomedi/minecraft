@@ -17,9 +17,13 @@ public class ClientboundBlockUpdatePacket implements Packet<ClientGamePacketList
     public ClientboundBlockUpdatePacket() {
     }
 
+    public ClientboundBlockUpdatePacket(BlockPos param0, BlockState param1) {
+        this.pos = param0;
+        this.blockState = param1;
+    }
+
     public ClientboundBlockUpdatePacket(BlockGetter param0, BlockPos param1) {
-        this.pos = param1;
-        this.blockState = param0.getBlockState(param1);
+        this(param1, param0.getBlockState(param1));
     }
 
     @Override

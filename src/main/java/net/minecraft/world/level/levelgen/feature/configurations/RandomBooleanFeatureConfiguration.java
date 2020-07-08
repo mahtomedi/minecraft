@@ -2,6 +2,7 @@ package net.minecraft.world.level.levelgen.feature.configurations;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import java.util.function.Supplier;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 
 public class RandomBooleanFeatureConfiguration implements FeatureConfiguration {
@@ -12,10 +13,10 @@ public class RandomBooleanFeatureConfiguration implements FeatureConfiguration {
                 )
                 .apply(param0, RandomBooleanFeatureConfiguration::new)
     );
-    public final ConfiguredFeature<?, ?> featureTrue;
-    public final ConfiguredFeature<?, ?> featureFalse;
+    public final Supplier<ConfiguredFeature<?, ?>> featureTrue;
+    public final Supplier<ConfiguredFeature<?, ?>> featureFalse;
 
-    public RandomBooleanFeatureConfiguration(ConfiguredFeature<?, ?> param0, ConfiguredFeature<?, ?> param1) {
+    public RandomBooleanFeatureConfiguration(Supplier<ConfiguredFeature<?, ?>> param0, Supplier<ConfiguredFeature<?, ?>> param1) {
         this.featureTrue = param0;
         this.featureFalse = param1;
     }

@@ -62,9 +62,9 @@ public class McRegionUpgrader {
             var11 = new OverworldBiomeSource(var10, false, false);
         }
 
-        convertRegions(new File(var3, "region"), var0, var11, 0, var6, param1);
-        convertRegions(new File(var4, "region"), var1, new FixedBiomeSource(Biomes.NETHER_WASTES), var0.size(), var6, param1);
-        convertRegions(new File(var5, "region"), var2, new FixedBiomeSource(Biomes.THE_END), var0.size() + var1.size(), var6, param1);
+        convertRegions(var7, new File(var3, "region"), var0, var11, 0, var6, param1);
+        convertRegions(var7, new File(var4, "region"), var1, new FixedBiomeSource(Biomes.NETHER_WASTES), var0.size(), var6, param1);
+        convertRegions(var7, new File(var5, "region"), var2, new FixedBiomeSource(Biomes.THE_END), var0.size() + var1.size(), var6, param1);
         makeMcrLevelDatBackup(param0);
         param0.saveDataTag(var7, var9);
         return true;
@@ -83,22 +83,26 @@ public class McRegionUpgrader {
         }
     }
 
-    private static void convertRegions(File param0, Iterable<File> param1, BiomeSource param2, int param3, int param4, ProgressListener param5) {
-        for(File var0 : param1) {
-            convertRegion(param0, var0, param2, param3, param4, param5);
-            ++param3;
-            int var1 = (int)Math.round(100.0 * (double)param3 / (double)param4);
-            param5.progressStagePercentage(var1);
+    private static void convertRegions(
+        RegistryAccess.RegistryHolder param0, File param1, Iterable<File> param2, BiomeSource param3, int param4, int param5, ProgressListener param6
+    ) {
+        for(File var0 : param2) {
+            convertRegion(param0, param1, var0, param3, param4, param5, param6);
+            ++param4;
+            int var1 = (int)Math.round(100.0 * (double)param4 / (double)param5);
+            param6.progressStagePercentage(var1);
         }
 
     }
 
-    private static void convertRegion(File param0, File param1, BiomeSource param2, int param3, int param4, ProgressListener param5) {
-        String var0 = param1.getName();
+    private static void convertRegion(
+        RegistryAccess.RegistryHolder param0, File param1, File param2, BiomeSource param3, int param4, int param5, ProgressListener param6
+    ) {
+        String var0 = param2.getName();
 
         try (
-            RegionFile var1 = new RegionFile(param1, param0, true);
-            RegionFile var2 = new RegionFile(new File(param0, var0.substring(0, var0.length() - ".mcr".length()) + ".mca"), param0, true);
+            RegionFile var1 = new RegionFile(param2, param1, true);
+            RegionFile var2 = new RegionFile(new File(param1, var0.substring(0, var0.length() - ".mcr".length()) + ".mca"), param1, true);
         ) {
             for(int var3 = 0; var3 < 32; ++var3) {
                 for(int var4 = 0; var4 < 32; ++var4) {
@@ -112,8 +116,8 @@ public class McRegionUpgrader {
                             }
 
                             var7 = NbtIo.read(var6);
-                        } catch (IOException var106) {
-                            LOGGER.warn("Failed to read data for chunk {}", var5, var106);
+                        } catch (IOException var107) {
+                            LOGGER.warn("Failed to read data for chunk {}", var5, var107);
                             continue;
                         }
 
@@ -122,7 +126,7 @@ public class McRegionUpgrader {
                         CompoundTag var13 = new CompoundTag();
                         CompoundTag var14 = new CompoundTag();
                         var13.put("Level", var14);
-                        OldChunkStorage.convertToAnvilFormat(var12, var14, param2);
+                        OldChunkStorage.convertToAnvilFormat(param0, var12, var14, param3);
 
                         try (DataOutputStream var15 = var2.getChunkDataOutputStream(var5)) {
                             NbtIo.write(var13, var15);
@@ -130,14 +134,14 @@ public class McRegionUpgrader {
                     }
                 }
 
-                int var16 = (int)Math.round(100.0 * (double)(param3 * 1024) / (double)(param4 * 1024));
-                int var17 = (int)Math.round(100.0 * (double)((var3 + 1) * 32 + param3 * 1024) / (double)(param4 * 1024));
+                int var16 = (int)Math.round(100.0 * (double)(param4 * 1024) / (double)(param5 * 1024));
+                int var17 = (int)Math.round(100.0 * (double)((var3 + 1) * 32 + param4 * 1024) / (double)(param5 * 1024));
                 if (var17 > var16) {
-                    param5.progressStagePercentage(var17);
+                    param6.progressStagePercentage(var17);
                 }
             }
-        } catch (IOException var111) {
-            LOGGER.error("Failed to upgrade region file {}", param1, var111);
+        } catch (IOException var112) {
+            LOGGER.error("Failed to upgrade region file {}", param2, var112);
         }
 
     }

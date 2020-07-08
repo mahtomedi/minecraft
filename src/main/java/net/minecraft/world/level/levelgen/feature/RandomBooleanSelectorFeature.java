@@ -14,6 +14,6 @@ public class RandomBooleanSelectorFeature extends Feature<RandomBooleanFeatureCo
 
     public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, RandomBooleanFeatureConfiguration param4) {
         boolean var0 = param2.nextBoolean();
-        return var0 ? param4.featureTrue.place(param0, param1, param2, param3) : param4.featureFalse.place(param0, param1, param2, param3);
+        return var0 ? param4.featureTrue.get().place(param0, param1, param2, param3) : param4.featureFalse.get().place(param0, param1, param2, param3);
     }
 }

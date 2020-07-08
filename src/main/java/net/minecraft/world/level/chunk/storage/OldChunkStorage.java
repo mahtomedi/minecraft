@@ -1,5 +1,7 @@
 package net.minecraft.world.level.chunk.storage;
 
+import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.world.level.ChunkPos;
@@ -32,18 +34,18 @@ public class OldChunkStorage {
         return var2;
     }
 
-    public static void convertToAnvilFormat(OldChunkStorage.OldLevelChunk param0, CompoundTag param1, BiomeSource param2) {
-        param1.putInt("xPos", param0.x);
-        param1.putInt("zPos", param0.z);
-        param1.putLong("LastUpdate", param0.lastUpdated);
-        int[] var0 = new int[param0.heightmap.length];
+    public static void convertToAnvilFormat(RegistryAccess.RegistryHolder param0, OldChunkStorage.OldLevelChunk param1, CompoundTag param2, BiomeSource param3) {
+        param2.putInt("xPos", param1.x);
+        param2.putInt("zPos", param1.z);
+        param2.putLong("LastUpdate", param1.lastUpdated);
+        int[] var0 = new int[param1.heightmap.length];
 
-        for(int var1 = 0; var1 < param0.heightmap.length; ++var1) {
-            var0[var1] = param0.heightmap[var1];
+        for(int var1 = 0; var1 < param1.heightmap.length; ++var1) {
+            var0[var1] = param1.heightmap[var1];
         }
 
-        param1.putIntArray("HeightMap", var0);
-        param1.putBoolean("TerrainPopulated", param0.terrainPopulated);
+        param2.putIntArray("HeightMap", var0);
+        param2.putBoolean("TerrainPopulated", param1.terrainPopulated);
         ListTag var2 = new ListTag();
 
         for(int var3 = 0; var3 < 8; ++var3) {
@@ -53,7 +55,7 @@ public class OldChunkStorage {
                 for(int var6 = 0; var6 < 16 && var4; ++var6) {
                     for(int var7 = 0; var7 < 16; ++var7) {
                         int var8 = var5 << 11 | var7 << 7 | var6 + (var3 << 4);
-                        int var9 = param0.blocks[var8];
+                        int var9 = param1.blocks[var8];
                         if (var9 != 0) {
                             var4 = false;
                             break;
@@ -72,11 +74,11 @@ public class OldChunkStorage {
                     for(int var15 = 0; var15 < 16; ++var15) {
                         for(int var16 = 0; var16 < 16; ++var16) {
                             int var17 = var14 << 11 | var16 << 7 | var15 + (var3 << 4);
-                            int var18 = param0.blocks[var17];
+                            int var18 = param1.blocks[var17];
                             var10[var15 << 8 | var16 << 4 | var14] = (byte)(var18 & 0xFF);
-                            var11.set(var14, var15, var16, param0.data.get(var14, var15 + (var3 << 4), var16));
-                            var12.set(var14, var15, var16, param0.skyLight.get(var14, var15 + (var3 << 4), var16));
-                            var13.set(var14, var15, var16, param0.blockLight.get(var14, var15 + (var3 << 4), var16));
+                            var11.set(var14, var15, var16, param1.data.get(var14, var15 + (var3 << 4), var16));
+                            var12.set(var14, var15, var16, param1.skyLight.get(var14, var15 + (var3 << 4), var16));
+                            var13.set(var14, var15, var16, param1.blockLight.get(var14, var15 + (var3 << 4), var16));
                         }
                     }
                 }
@@ -91,15 +93,17 @@ public class OldChunkStorage {
             }
         }
 
-        param1.put("Sections", var2);
-        param1.putIntArray("Biomes", new ChunkBiomeContainer(new ChunkPos(param0.x, param0.z), param2).writeBiomes());
-        param1.put("Entities", param0.entities);
-        param1.put("TileEntities", param0.blockEntities);
-        if (param0.blockTicks != null) {
-            param1.put("TileTicks", param0.blockTicks);
+        param2.put("Sections", var2);
+        param2.putIntArray(
+            "Biomes", new ChunkBiomeContainer(param0.registryOrThrow(Registry.BIOME_REGISTRY), new ChunkPos(param1.x, param1.z), param3).writeBiomes()
+        );
+        param2.put("Entities", param1.entities);
+        param2.put("TileEntities", param1.blockEntities);
+        if (param1.blockTicks != null) {
+            param2.put("TileTicks", param1.blockTicks);
         }
 
-        param1.putBoolean("convertedFromAlphaFormat", true);
+        param2.putBoolean("convertedFromAlphaFormat", true);
     }
 
     public static class OldLevelChunk {

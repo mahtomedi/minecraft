@@ -2,7 +2,6 @@ package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
 import java.util.Random;
-import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
@@ -22,13 +21,9 @@ public class HugeFungusFeature extends Feature<HugeFungusConfiguration> {
     public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, HugeFungusConfiguration param4) {
         Block var0 = param4.validBaseState.getBlock();
         BlockPos var1 = null;
-        if (param4.planted) {
-            Block var2 = param0.getBlockState(param3.below()).getBlock();
-            if (var2 == var0) {
-                var1 = param3;
-            }
-        } else {
-            var1 = findOnNyliumPosition(param0, param3, var0);
+        Block var2 = param0.getBlockState(param3.below()).getBlock();
+        if (var2 == var0) {
+            var1 = param3;
         }
 
         if (var1 == null) {
@@ -55,17 +50,10 @@ public class HugeFungusFeature extends Feature<HugeFungusConfiguration> {
     }
 
     private static boolean isReplaceable(LevelAccessor param0, BlockPos param1, boolean param2) {
-        return param0.isStateAtPosition(
-            param1,
-            param1x -> {
-                Material var0x = param1x.getMaterial();
-                return param1x.isAir()
-                    || param1x.is(Blocks.WATER)
-                    || param1x.is(Blocks.LAVA)
-                    || var0x == Material.REPLACEABLE_PLANT
-                    || param2 && var0x == Material.PLANT;
-            }
-        );
+        return param0.isStateAtPosition(param1, param1x -> {
+            Material var0x = param1x.getMaterial();
+            return param1x.getMaterial().isReplaceable() || param2 && var0x == Material.PLANT;
+        });
     }
 
     private void placeStem(LevelAccessor param0, Random param1, HugeFungusConfiguration param2, BlockPos param3, int param4, boolean param5) {
@@ -171,21 +159,6 @@ public class HugeFungusFeature extends Feature<HugeFungusConfiguration> {
             }
         }
 
-    }
-
-    @Nullable
-    private static BlockPos.MutableBlockPos findOnNyliumPosition(LevelAccessor param0, BlockPos param1, Block param2) {
-        BlockPos.MutableBlockPos var0 = param1.mutable();
-
-        for(int var1 = param1.getY(); var1 >= 1; --var1) {
-            var0.setY(var1);
-            Block var2 = param0.getBlockState(var0.below()).getBlock();
-            if (var2 == param2) {
-                return var0;
-            }
-        }
-
-        return null;
     }
 
     private static void tryPlaceWeepingVines(BlockPos param0, LevelAccessor param1, Random param2) {

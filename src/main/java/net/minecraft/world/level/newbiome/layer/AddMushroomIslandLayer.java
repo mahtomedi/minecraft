@@ -1,6 +1,6 @@
 package net.minecraft.world.level.newbiome.layer;
 
-import net.minecraft.core.Registry;
+import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.newbiome.context.Context;
 import net.minecraft.world.level.newbiome.layer.traits.BishopTransformer;
@@ -8,7 +8,7 @@ import net.minecraft.world.level.newbiome.layer.traits.BishopTransformer;
 public enum AddMushroomIslandLayer implements BishopTransformer {
     INSTANCE;
 
-    private static final int MUSHROOM_FIELDS = Registry.BIOME.getId(Biomes.MUSHROOM_FIELDS);
+    private static final int MUSHROOM_FIELDS = BuiltinRegistries.BIOME.getId(Biomes.MUSHROOM_FIELDS);
 
     @Override
     public int apply(Context param0, int param1, int param2, int param3, int param4, int param5) {

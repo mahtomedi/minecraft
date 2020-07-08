@@ -13,12 +13,12 @@ import java.util.function.Supplier;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.WritableRegistry;
 import net.minecraft.resources.RegistryFileCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.Tag;
-import net.minecraft.util.Codecs;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.BiomeZoomer;
@@ -52,7 +52,7 @@ public class DimensionType {
                     Codec.BOOL.fieldOf("bed_works").forGetter(DimensionType::bedWorks),
                     Codec.BOOL.fieldOf("respawn_anchor_works").forGetter(DimensionType::respawnAnchorWorks),
                     Codec.BOOL.fieldOf("has_raids").forGetter(DimensionType::hasRaids),
-                    Codecs.intRange(0, 256).fieldOf("logical_height").forGetter(DimensionType::logicalHeight),
+                    Codec.intRange(0, 256).fieldOf("logical_height").forGetter(DimensionType::logicalHeight),
                     ResourceLocation.CODEC.fieldOf("infiniburn").forGetter(param0x -> param0x.infiniburn),
                     Codec.FLOAT.fieldOf("ambient_light").forGetter(param0x -> param0x.ambientLight)
                 )
@@ -247,10 +247,11 @@ public class DimensionType {
     }
 
     public static RegistryAccess.RegistryHolder registerBuiltin(RegistryAccess.RegistryHolder param0) {
-        param0.registerDimension(OVERWORLD_LOCATION, DEFAULT_OVERWORLD);
-        param0.registerDimension(OVERWORLD_CAVES_LOCATION, DEFAULT_OVERWORLD_CAVES);
-        param0.registerDimension(NETHER_LOCATION, DEFAULT_NETHER);
-        param0.registerDimension(END_LOCATION, DEFAULT_END);
+        WritableRegistry<DimensionType> var0 = param0.registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY);
+        var0.register(OVERWORLD_LOCATION, DEFAULT_OVERWORLD);
+        var0.register(OVERWORLD_CAVES_LOCATION, DEFAULT_OVERWORLD_CAVES);
+        var0.register(NETHER_LOCATION, DEFAULT_NETHER);
+        var0.register(END_LOCATION, DEFAULT_END);
         return param0;
     }
 

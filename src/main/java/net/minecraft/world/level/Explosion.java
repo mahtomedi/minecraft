@@ -42,6 +42,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class Explosion {
+    private static final ExplosionDamageCalculator EXPLOSION_DAMAGE_CALCULATOR = new ExplosionDamageCalculator();
     private final boolean fire;
     private final Explosion.BlockInteraction blockInteraction;
     private final Random random = new Random();
@@ -110,7 +111,7 @@ public class Explosion {
     }
 
     private ExplosionDamageCalculator makeDamageCalculator(@Nullable Entity param0) {
-        return (ExplosionDamageCalculator)(param0 == null ? DefaultExplosionDamageCalculator.INSTANCE : new EntityBasedExplosionDamageCalculator(param0));
+        return (ExplosionDamageCalculator)(param0 == null ? EXPLOSION_DAMAGE_CALCULATOR : new EntityBasedExplosionDamageCalculator(param0));
     }
 
     public static float getSeenPercent(Vec3 param0, Entity param1) {

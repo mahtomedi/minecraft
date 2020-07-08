@@ -20,7 +20,7 @@ public class VinesFeature extends Feature<NoneFeatureConfiguration> {
     public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, NoneFeatureConfiguration param4) {
         BlockPos.MutableBlockPos var0 = param3.mutable();
 
-        for(int var1 = param3.getY(); var1 < 256; ++var1) {
+        for(int var1 = 64; var1 < 256; ++var1) {
             var0.set(param3);
             var0.move(param2.nextInt(4) - param2.nextInt(4), 0, param2.nextInt(4) - param2.nextInt(4));
             var0.setY(var1);

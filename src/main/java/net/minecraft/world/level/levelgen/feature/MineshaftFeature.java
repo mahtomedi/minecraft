@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.biome.Biome;
@@ -34,7 +35,7 @@ public class MineshaftFeature extends StructureFeature<MineshaftConfiguration> {
         MineshaftConfiguration param8
     ) {
         param3.setLargeFeatureSeed(param2, param4, param5);
-        double var0 = param8.probability;
+        double var0 = (double)param8.probability;
         return param3.nextDouble() < var0;
     }
 
@@ -48,21 +49,23 @@ public class MineshaftFeature extends StructureFeature<MineshaftConfiguration> {
             super(param0, param1, param2, param3, param4, param5);
         }
 
-        public void generatePieces(ChunkGenerator param0, StructureManager param1, int param2, int param3, Biome param4, MineshaftConfiguration param5) {
-            MineShaftPieces.MineShaftRoom var0 = new MineShaftPieces.MineShaftRoom(0, this.random, (param2 << 4) + 2, (param3 << 4) + 2, param5.type);
+        public void generatePieces(
+            RegistryAccess param0, ChunkGenerator param1, StructureManager param2, int param3, int param4, Biome param5, MineshaftConfiguration param6
+        ) {
+            MineShaftPieces.MineShaftRoom var0 = new MineShaftPieces.MineShaftRoom(0, this.random, (param3 << 4) + 2, (param4 << 4) + 2, param6.type);
             this.pieces.add(var0);
             var0.addChildren(var0, this.pieces, this.random);
             this.calculateBoundingBox();
-            if (param5.type == MineshaftFeature.Type.MESA) {
+            if (param6.type == MineshaftFeature.Type.MESA) {
                 int var1 = -5;
-                int var2 = param0.getSeaLevel() - this.boundingBox.y1 + this.boundingBox.getYSpan() / 2 - -5;
+                int var2 = param1.getSeaLevel() - this.boundingBox.y1 + this.boundingBox.getYSpan() / 2 - -5;
                 this.boundingBox.move(0, var2, 0);
 
                 for(StructurePiece var3 : this.pieces) {
                     var3.move(0, var2, 0);
                 }
             } else {
-                this.moveBelowSeaLevel(param0.getSeaLevel(), this.random, 10);
+                this.moveBelowSeaLevel(param1.getSeaLevel(), this.random, 10);
             }
 
         }

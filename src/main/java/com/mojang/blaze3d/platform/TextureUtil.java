@@ -10,6 +10,8 @@ import java.nio.IntBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
+import java.util.concurrent.ThreadLocalRandom;
+import net.minecraft.SharedConstants;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
@@ -23,7 +25,15 @@ public class TextureUtil {
 
     public static int generateTextureId() {
         RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
-        return GlStateManager._genTexture();
+        if (SharedConstants.IS_RUNNING_IN_IDE) {
+            int[] var0 = new int[ThreadLocalRandom.current().nextInt(15) + 1];
+            GlStateManager._genTextures(var0);
+            int var1 = GlStateManager._genTexture();
+            GlStateManager._deleteTextures(var0);
+            return var1;
+        } else {
+            return GlStateManager._genTexture();
+        }
     }
 
     public static void releaseTextureId(int param0) {

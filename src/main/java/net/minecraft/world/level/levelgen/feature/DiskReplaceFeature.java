@@ -5,44 +5,16 @@ import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.level.WorldGenLevel;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.configurations.DiskConfiguration;
 
-public class DiskReplaceFeature extends Feature<DiskConfiguration> {
+public class DiskReplaceFeature extends BaseDiskFeature {
     public DiskReplaceFeature(Codec<DiskConfiguration> param0) {
         super(param0);
     }
 
+    @Override
     public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, DiskConfiguration param4) {
-        if (!param0.getFluidState(param3).is(FluidTags.WATER)) {
-            return false;
-        } else {
-            int var0 = 0;
-            int var1 = param2.nextInt(param4.radius - 2) + 2;
-
-            for(int var2 = param3.getX() - var1; var2 <= param3.getX() + var1; ++var2) {
-                for(int var3 = param3.getZ() - var1; var3 <= param3.getZ() + var1; ++var3) {
-                    int var4 = var2 - param3.getX();
-                    int var5 = var3 - param3.getZ();
-                    if (var4 * var4 + var5 * var5 <= var1 * var1) {
-                        for(int var6 = param3.getY() - param4.ySize; var6 <= param3.getY() + param4.ySize; ++var6) {
-                            BlockPos var7 = new BlockPos(var2, var6, var3);
-                            BlockState var8 = param0.getBlockState(var7);
-
-                            for(BlockState var9 : param4.targets) {
-                                if (var9.is(var8.getBlock())) {
-                                    param0.setBlock(var7, param4.state, 2);
-                                    ++var0;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            return var0 > 0;
-        }
+        return !param0.getFluidState(param3).is(FluidTags.WATER) ? false : super.place(param0, param1, param2, param3, param4);
     }
 }

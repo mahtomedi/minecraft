@@ -22,7 +22,6 @@ import net.minecraft.Util;
 import net.minecraft.resources.RegistryDataPackCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Codecs;
 import net.minecraft.util.CrudeIncrementalIntIdentityHashBiMap;
 import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
@@ -37,8 +36,12 @@ public class MappedRegistry<T> extends WritableRegistry<T> {
     protected Object[] randomCache;
     private int nextId;
 
-    public MappedRegistry(ResourceKey<Registry<T>> param0, Lifecycle param1) {
+    public MappedRegistry(ResourceKey<? extends Registry<T>> param0, Lifecycle param1) {
         super(param0, param1);
+    }
+
+    public static <T> MapCodec<Pair<ResourceKey<T>, T>> withName(ResourceKey<? extends Registry<T>> param0, MapCodec<T> param1) {
+        return Codec.mapPair(ResourceLocation.CODEC.xmap(ResourceKey.elementKey(param0), ResourceKey::location).fieldOf("name"), param1);
     }
 
     @Override
@@ -105,15 +108,11 @@ public class MappedRegistry<T> extends WritableRegistry<T> {
     }
 
     @Override
-    public Optional<T> getOptional(@Nullable ResourceLocation param0) {
-        return Optional.ofNullable(this.storage.get(param0));
-    }
-
-    @Override
     public Set<ResourceLocation> keySet() {
         return Collections.unmodifiableSet(this.storage.keySet());
     }
 
+    @Override
     public Set<Entry<ResourceKey<T>, T>> entrySet() {
         return Collections.unmodifiableMap(this.keyStorage).entrySet();
     }
@@ -152,8 +151,8 @@ public class MappedRegistry<T> extends WritableRegistry<T> {
         this.persistent.add(param0);
     }
 
-    public static <T> Codec<MappedRegistry<T>> networkCodec(ResourceKey<Registry<T>> param0, Lifecycle param1, MapCodec<T> param2) {
-        return Codecs.withName(param0, param2).codec().listOf().xmap(param2x -> {
+    public static <T> Codec<MappedRegistry<T>> networkCodec(ResourceKey<? extends Registry<T>> param0, Lifecycle param1, MapCodec<T> param2) {
+        return withName(param0, param2).codec().listOf().xmap(param2x -> {
             MappedRegistry<T> var0x = new MappedRegistry<>(param0, param1);
 
             for(Pair<ResourceKey<T>, T> var1x : param2x) {
@@ -172,11 +171,11 @@ public class MappedRegistry<T> extends WritableRegistry<T> {
         });
     }
 
-    public static <T> Codec<MappedRegistry<T>> dataPackCodec(ResourceKey<Registry<T>> param0, Lifecycle param1, MapCodec<T> param2) {
+    public static <T> Codec<MappedRegistry<T>> dataPackCodec(ResourceKey<? extends Registry<T>> param0, Lifecycle param1, MapCodec<T> param2) {
         return RegistryDataPackCodec.create(param0, param1, param2);
     }
 
-    public static <T> Codec<MappedRegistry<T>> directCodec(ResourceKey<Registry<T>> param0, Lifecycle param1, MapCodec<T> param2) {
+    public static <T> Codec<MappedRegistry<T>> directCodec(ResourceKey<? extends Registry<T>> param0, Lifecycle param1, MapCodec<T> param2) {
         return Codec.unboundedMap(ResourceLocation.CODEC.xmap(ResourceKey.elementKey(param0), ResourceKey::location), param2.codec()).xmap(param2x -> {
             MappedRegistry<T> var0x = new MappedRegistry<>(param0, param1);
             param2x.forEach((param1x, param2xx) -> {

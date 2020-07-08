@@ -5,19 +5,22 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Random;
 import java.util.Set;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.UniformInt;
 import net.minecraft.world.level.LevelSimulatedRW;
 import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 public class MegaJungleFoliagePlacer extends FoliagePlacer {
     public static final Codec<MegaJungleFoliagePlacer> CODEC = RecordCodecBuilder.create(
-        param0 -> foliagePlacerParts(param0).and(Codec.INT.fieldOf("height").forGetter(param0x -> param0x.height)).apply(param0, MegaJungleFoliagePlacer::new)
+        param0 -> foliagePlacerParts(param0)
+                .and(Codec.intRange(0, 16).fieldOf("height").forGetter(param0x -> param0x.height))
+                .apply(param0, MegaJungleFoliagePlacer::new)
     );
     protected final int height;
 
-    public MegaJungleFoliagePlacer(int param0, int param1, int param2, int param3, int param4) {
-        super(param0, param1, param2, param3);
-        this.height = param4;
+    public MegaJungleFoliagePlacer(UniformInt param0, UniformInt param1, int param2) {
+        super(param0, param1);
+        this.height = param2;
     }
 
     @Override

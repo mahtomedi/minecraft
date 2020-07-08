@@ -15,7 +15,6 @@ import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 
 public class CartographyTableMenu extends AbstractContainerMenu {
     private final ContainerLevelAccess access;
-    private boolean quickMoved;
     private long lastSoundTime;
     public final Container container = new SimpleContainer(2) {
         @Override
@@ -59,32 +58,9 @@ public class CartographyTableMenu extends AbstractContainerMenu {
             }
 
             @Override
-            public ItemStack remove(int param0) {
-                ItemStack var0 = super.remove(param0);
-                ItemStack var1 = param2.<ItemStack>evaluate((param1, param2xx) -> {
-                    if (!CartographyTableMenu.this.quickMoved && CartographyTableMenu.this.container.getItem(1).getItem() == Items.GLASS_PANE) {
-                        ItemStack var0x = MapItem.lockMap(param1, CartographyTableMenu.this.container.getItem(0));
-                        if (var0x != null) {
-                            var0x.setCount(1);
-                            return var0x;
-                        }
-                    }
-
-                    return var0;
-                }).orElse(var0);
-                CartographyTableMenu.this.container.removeItem(0, 1);
-                CartographyTableMenu.this.container.removeItem(1, 1);
-                return var1;
-            }
-
-            @Override
-            protected void onQuickCraft(ItemStack param0, int param1) {
-                this.remove(param1);
-                super.onQuickCraft(param0, param1);
-            }
-
-            @Override
             public ItemStack onTake(Player param0, ItemStack param1) {
+                CartographyTableMenu.this.slots.get(0).remove(1);
+                CartographyTableMenu.this.slots.get(1).remove(1);
                 param1.getItem().onCraftedBy(param1, param0.level, param0);
                 param2.execute((param0x, param1x) -> {
                     long var0 = param0x.getGameTime();
@@ -144,6 +120,7 @@ public class CartographyTableMenu extends AbstractContainerMenu {
                 } else if (var0 == Items.GLASS_PANE && !var1x.locked) {
                     var2 = param0.copy();
                     var2.setCount(1);
+                    var2.getOrCreateTag().putBoolean("map_to_lock", true);
                     this.broadcastChanges();
                 } else {
                     if (var0 != Items.MAP) {
@@ -177,28 +154,15 @@ public class CartographyTableMenu extends AbstractContainerMenu {
         Slot var1 = this.slots.get(param1);
         if (var1 != null && var1.hasItem()) {
             ItemStack var2 = var1.getItem();
-            ItemStack var3 = var2;
             Item var4 = var2.getItem();
             var0 = var2.copy();
             if (param1 == 2) {
-                if (this.container.getItem(1).getItem() == Items.GLASS_PANE) {
-                    var3 = this.access.<ItemStack>evaluate((param1x, param2) -> {
-                        ItemStack var0x = MapItem.lockMap(param1x, this.container.getItem(0));
-                        if (var0x != null) {
-                            var0x.setCount(1);
-                            return var0x;
-                        } else {
-                            return var2;
-                        }
-                    }).orElse(var2);
-                }
-
-                var4.onCraftedBy(var3, param0.level, param0);
-                if (!this.moveItemStackTo(var3, 3, 39, true)) {
+                var4.onCraftedBy(var2, param0.level, param0);
+                if (!this.moveItemStackTo(var2, 3, 39, true)) {
                     return ItemStack.EMPTY;
                 }
 
-                var1.onQuickCraft(var3, var0);
+                var1.onQuickCraft(var2, var0);
             } else if (param1 != 1 && param1 != 0) {
                 if (var4 == Items.FILLED_MAP) {
                     if (!this.moveItemStackTo(var2, 0, 1, false)) {
@@ -219,18 +183,16 @@ public class CartographyTableMenu extends AbstractContainerMenu {
                 return ItemStack.EMPTY;
             }
 
-            if (var3.isEmpty()) {
+            if (var2.isEmpty()) {
                 var1.set(ItemStack.EMPTY);
             }
 
             var1.setChanged();
-            if (var3.getCount() == var0.getCount()) {
+            if (var2.getCount() == var0.getCount()) {
                 return ItemStack.EMPTY;
             }
 
-            this.quickMoved = true;
-            var1.onTake(param0, var3);
-            this.quickMoved = false;
+            var1.onTake(param0, var2);
             this.broadcastChanges();
         }
 

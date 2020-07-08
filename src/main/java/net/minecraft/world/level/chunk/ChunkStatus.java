@@ -42,7 +42,7 @@ public class ChunkStatus {
         "structure_starts", EMPTY, 0, PRE_FEATURES, ChunkStatus.ChunkType.PROTOCHUNK, (param0, param1, param2, param3, param4, param5, param6, param7) -> {
             if (!param7.getStatus().isOrAfter(param0)) {
                 if (param1.getServer().getWorldData().worldGenSettings().generateFeatures()) {
-                    param2.createStructures(param1.structureFeatureManager(), param7, param3, param1.getSeed());
+                    param2.createStructures(param1.registryAccess(), param1.structureFeatureManager(), param7, param3, param1.getSeed());
                 }
     
                 if (param7 instanceof ProtoChunk) {
@@ -60,7 +60,12 @@ public class ChunkStatus {
         }
     );
     public static final ChunkStatus BIOMES = registerSimple(
-        "biomes", STRUCTURE_REFERENCES, 0, PRE_FEATURES, ChunkStatus.ChunkType.PROTOCHUNK, (param0, param1, param2, param3) -> param1.createBiomes(param3)
+        "biomes",
+        STRUCTURE_REFERENCES,
+        0,
+        PRE_FEATURES,
+        ChunkStatus.ChunkType.PROTOCHUNK,
+        (param0, param1, param2, param3) -> param1.createBiomes(param0.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY), param3)
     );
     public static final ChunkStatus NOISE = registerSimple(
         "noise", BIOMES, 8, PRE_FEATURES, ChunkStatus.ChunkType.PROTOCHUNK, (param0, param1, param2, param3) -> {

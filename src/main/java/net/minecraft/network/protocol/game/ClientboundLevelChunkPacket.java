@@ -27,7 +27,7 @@ public class ClientboundLevelChunkPacket implements Packet<ClientGamePacketListe
     private int availableSections;
     private CompoundTag heightmaps;
     @Nullable
-    private ChunkBiomeContainer biomes;
+    private int[] biomes;
     private byte[] buffer;
     private List<CompoundTag> blockEntitiesTags;
     private boolean fullChunk;
@@ -51,7 +51,7 @@ public class ClientboundLevelChunkPacket implements Packet<ClientGamePacketListe
         }
 
         if (this.fullChunk) {
-            this.biomes = param0.getBiomes().copy();
+            this.biomes = param0.getBiomes().writeBiomes();
         }
 
         this.buffer = new byte[this.calculateChunkSize(param0, param1)];
@@ -79,7 +79,7 @@ public class ClientboundLevelChunkPacket implements Packet<ClientGamePacketListe
         this.availableSections = param0.readVarInt();
         this.heightmaps = param0.readNbt();
         if (this.fullChunk) {
-            this.biomes = new ChunkBiomeContainer(param0);
+            this.biomes = param0.readVarIntArray(ChunkBiomeContainer.BIOMES_SIZE);
         }
 
         int var0 = param0.readVarInt();
@@ -107,7 +107,7 @@ public class ClientboundLevelChunkPacket implements Packet<ClientGamePacketListe
         param0.writeVarInt(this.availableSections);
         param0.writeNbt(this.heightmaps);
         if (this.biomes != null) {
-            this.biomes.write(param0);
+            param0.writeVarIntArray(this.biomes);
         }
 
         param0.writeVarInt(this.buffer.length);
@@ -202,7 +202,7 @@ public class ClientboundLevelChunkPacket implements Packet<ClientGamePacketListe
 
     @Nullable
     @OnlyIn(Dist.CLIENT)
-    public ChunkBiomeContainer getBiomes() {
-        return this.biomes == null ? null : this.biomes.copy();
+    public int[] getBiomes() {
+        return this.biomes;
     }
 }

@@ -111,8 +111,7 @@ public class TraderLlama extends Llama {
         }
 
         if (param3 == null) {
-            param3 = new AgableMob.AgableMobGroupData();
-            ((AgableMob.AgableMobGroupData)param3).setShouldSpawnBaby(false);
+            param3 = new AgableMob.AgableMobGroupData(false);
         }
 
         return super.finalizeSpawn(param0, param1, param2, param3, param4);

@@ -91,7 +91,7 @@ public abstract class Screen extends AbstractContainerEventHandler implements Ti
                 this.changeFocus(var0);
             }
 
-            return true;
+            return false;
         } else {
             return super.keyPressed(param0, param1, param2);
         }

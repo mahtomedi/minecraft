@@ -276,59 +276,38 @@ public class WalkNodeEvaluator extends NodeEvaluator {
                 }
 
                 if (var3 == BlockPathTypes.OPEN) {
-                    AABB var9 = new AABB(
-                        (double)param0 - var5 + 0.5,
-                        (double)param1 + 0.001,
-                        (double)param2 - var5 + 0.5,
-                        (double)param0 + var5 + 0.5,
-                        (double)((float)param1 + this.mob.getBbHeight()),
-                        (double)param2 + var5 + 0.5
-                    );
-                    if (this.hasCollisions(var9)) {
-                        return null;
-                    }
-
-                    if (this.mob.getBbWidth() >= 1.0F) {
-                        BlockPathTypes var10 = this.getCachedBlockType(this.mob, param0, param1 - 1, param2);
-                        if (var10 == BlockPathTypes.BLOCKED) {
-                            var0 = this.getNode(param0, param1, param2);
-                            var0.type = BlockPathTypes.WALKABLE;
-                            var0.costMalus = Math.max(var0.costMalus, var4);
-                            return var0;
-                        }
-                    }
-
-                    int var11 = 0;
-                    int var12 = param1;
+                    int var9 = 0;
+                    int var10 = param1;
 
                     while(var3 == BlockPathTypes.OPEN) {
                         if (--param1 < 0) {
-                            Node var13 = this.getNode(param0, var12, param2);
-                            var13.type = BlockPathTypes.BLOCKED;
-                            var13.costMalus = -1.0F;
-                            return var13;
+                            Node var11 = this.getNode(param0, var10, param2);
+                            var11.type = BlockPathTypes.BLOCKED;
+                            var11.costMalus = -1.0F;
+                            return var11;
                         }
 
-                        Node var14 = this.getNode(param0, param1, param2);
-                        if (var11++ >= this.mob.getMaxFallDistance()) {
-                            var14.type = BlockPathTypes.BLOCKED;
-                            var14.costMalus = -1.0F;
-                            return var14;
+                        if (var9++ >= this.mob.getMaxFallDistance()) {
+                            Node var12 = this.getNode(param0, param1, param2);
+                            var12.type = BlockPathTypes.BLOCKED;
+                            var12.costMalus = -1.0F;
+                            return var12;
                         }
 
                         var3 = this.getCachedBlockType(this.mob, param0, param1, param2);
                         var4 = this.mob.getPathfindingMalus(var3);
                         if (var3 != BlockPathTypes.OPEN && var4 >= 0.0F) {
-                            var0 = var14;
-                            var14.type = var3;
-                            var14.costMalus = Math.max(var14.costMalus, var4);
+                            var0 = this.getNode(param0, param1, param2);
+                            var0.type = var3;
+                            var0.costMalus = Math.max(var0.costMalus, var4);
                             break;
                         }
 
                         if (var4 < 0.0F) {
-                            var14.type = BlockPathTypes.BLOCKED;
-                            var14.costMalus = -1.0F;
-                            return var14;
+                            Node var13 = this.getNode(param0, param1, param2);
+                            var13.type = BlockPathTypes.BLOCKED;
+                            var13.costMalus = -1.0F;
+                            return var13;
                         }
                     }
                 }
@@ -374,7 +353,7 @@ public class WalkNodeEvaluator extends NodeEvaluator {
                 }
             }
 
-            return var1 == BlockPathTypes.OPEN && param4.getPathfindingMalus(var3) == 0.0F ? BlockPathTypes.OPEN : var3;
+            return var1 == BlockPathTypes.OPEN && param4.getPathfindingMalus(var3) == 0.0F && param5 <= 1 ? BlockPathTypes.OPEN : var3;
         }
     }
 

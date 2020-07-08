@@ -7,13 +7,16 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Random;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.SectionPos;
+import net.minecraft.data.worldgen.StructureFeatures;
 import net.minecraft.network.protocol.game.DebugPackets;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.WorldGenRegion;
@@ -24,7 +27,6 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.biome.BiomeDefaultFeatures;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.levelgen.DebugLevelSource;
@@ -113,9 +115,9 @@ public abstract class ChunkGenerator {
     @OnlyIn(Dist.CLIENT)
     public abstract ChunkGenerator withSeed(long var1);
 
-    public void createBiomes(ChunkAccess param0) {
-        ChunkPos var0 = param0.getPos();
-        ((ProtoChunk)param0).setBiomes(new ChunkBiomeContainer(var0, this.runtimeBiomeSource));
+    public void createBiomes(Registry<Biome> param0, ChunkAccess param1) {
+        ChunkPos var0 = param1.getPos();
+        ((ProtoChunk)param1).setBiomes(new ChunkBiomeContainer(param0, var0, this.runtimeBiomeSource));
     }
 
     public void applyCarvers(long param0, BiomeManager param1, ChunkAccess param2, GenerationStep.Carving param3) {
@@ -130,12 +132,12 @@ public abstract class ChunkGenerator {
 
         for(int var8 = var4 - 8; var8 <= var4 + 8; ++var8) {
             for(int var9 = var5 - 8; var9 <= var5 + 8; ++var9) {
-                List<ConfiguredWorldCarver<?>> var10 = var6.getCarvers(param3);
-                ListIterator<ConfiguredWorldCarver<?>> var11 = var10.listIterator();
+                List<Supplier<ConfiguredWorldCarver<?>>> var10 = var6.getCarvers(param3);
+                ListIterator<Supplier<ConfiguredWorldCarver<?>>> var11 = var10.listIterator();
 
                 while(var11.hasNext()) {
                     int var12 = var11.nextIndex();
-                    ConfiguredWorldCarver<?> var13 = var11.next();
+                    ConfiguredWorldCarver<?> var13 = var11.next().get();
                     var1.setLargeFeatureSeed(param0 + (long)var12, var8, var9);
                     if (var13.isStartChunk(var1, var8, var9)) {
                         var13.carve(param2, var0::getBiome, var1, this.getSeaLevel(), var8, var9, var4, var5, var7);
@@ -186,21 +188,13 @@ public abstract class ChunkGenerator {
         WorldgenRandom var6 = new WorldgenRandom();
         long var7 = var6.setDecorationSeed(param0.getSeed(), var2, var3);
 
-        for(GenerationStep.Decoration var8 : GenerationStep.Decoration.values()) {
-            try {
-                var5.generate(var8, param1, this, param0, var7, var6, var4);
-            } catch (Exception var18) {
-                CrashReport var10 = CrashReport.forThrowable(var18, "Biome decoration");
-                var10.addCategory("Generation")
-                    .setDetail("CenterX", var0)
-                    .setDetail("CenterZ", var1)
-                    .setDetail("Step", var8)
-                    .setDetail("Seed", var7)
-                    .setDetail("Biome", Registry.BIOME.getKey(var5));
-                throw new ReportedException(var10);
-            }
+        try {
+            var5.generate(param1, this, param0, var7, var6, var4);
+        } catch (Exception var14) {
+            CrashReport var9 = CrashReport.forThrowable(var14, "Biome decoration");
+            var9.addCategory("Generation").setDetail("CenterX", var0).setDetail("CenterZ", var1).setDetail("Seed", var7).setDetail("Biome", var5);
+            throw new ReportedException(var9);
         }
-
     }
 
     public abstract void buildSurfaceAndBedrock(WorldGenRegion var1, ChunkAccess var2);
@@ -228,30 +222,31 @@ public abstract class ChunkGenerator {
         return param0.getMobs(param2);
     }
 
-    public void createStructures(StructureFeatureManager param0, ChunkAccess param1, StructureManager param2, long param3) {
-        ChunkPos var0 = param1.getPos();
+    public void createStructures(RegistryAccess param0, StructureFeatureManager param1, ChunkAccess param2, StructureManager param3, long param4) {
+        ChunkPos var0 = param2.getPos();
         Biome var1 = this.biomeSource.getNoiseBiome((var0.x << 2) + 2, 0, (var0.z << 2) + 2);
-        this.createStructure(BiomeDefaultFeatures.STRONGHOLD, param0, param1, param2, param3, var0, var1);
+        this.createStructure(StructureFeatures.STRONGHOLD, param0, param1, param2, param3, param4, var0, var1);
 
-        for(ConfiguredStructureFeature<?, ?> var2 : var1.structures()) {
-            this.createStructure(var2, param0, param1, param2, param3, var0, var1);
+        for(Supplier<ConfiguredStructureFeature<?, ?>> var2 : var1.structures()) {
+            this.createStructure(var2.get(), param0, param1, param2, param3, param4, var0, var1);
         }
 
     }
 
     private void createStructure(
         ConfiguredStructureFeature<?, ?> param0,
-        StructureFeatureManager param1,
-        ChunkAccess param2,
-        StructureManager param3,
-        long param4,
-        ChunkPos param5,
-        Biome param6
+        RegistryAccess param1,
+        StructureFeatureManager param2,
+        ChunkAccess param3,
+        StructureManager param4,
+        long param5,
+        ChunkPos param6,
+        Biome param7
     ) {
-        StructureStart<?> var0 = param1.getStartForFeature(SectionPos.of(param2.getPos(), 0), param0.feature, param2);
+        StructureStart<?> var0 = param2.getStartForFeature(SectionPos.of(param3.getPos(), 0), param0.feature, param3);
         int var1 = var0 != null ? var0.getReferences() : 0;
-        StructureStart<?> var2 = param0.generate(this, this.biomeSource, param3, param4, param5, param6, var1, this.settings.getConfig(param0.feature));
-        param1.setStartForFeature(SectionPos.of(param2.getPos(), 0), param0.feature, var2, param2);
+        StructureStart<?> var2 = param0.generate(param1, this, this.biomeSource, param4, param5, param6, param7, var1, this.settings.getConfig(param0.feature));
+        param2.setStartForFeature(SectionPos.of(param3.getPos(), 0), param0.feature, var2, param3);
     }
 
     public void createReferences(WorldGenLevel param0, StructureFeatureManager param1, ChunkAccess param2) {

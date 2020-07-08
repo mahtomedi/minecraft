@@ -306,7 +306,14 @@ public class DebugScreenOverlay extends GuiComponent {
 
                         var17.add(var25.toString());
                         if (var6.getY() >= 0 && var6.getY() < 256) {
-                            var17.add("Biome: " + Registry.BIOME.getKey(this.minecraft.level.getBiome(var6)));
+                            var17.add(
+                                "Biome: "
+                                    + this.minecraft
+                                        .level
+                                        .registryAccess()
+                                        .registryOrThrow(Registry.BIOME_REGISTRY)
+                                        .getKey(this.minecraft.level.getBiome(var6))
+                            );
                             long var28 = 0L;
                             float var29 = 0.0F;
                             if (var23 != null) {

@@ -34,7 +34,11 @@ public class LocateBiomeCommand {
     }
 
     private static int locateBiome(CommandSourceStack param0, ResourceLocation param1) throws CommandSyntaxException {
-        Biome var0 = Registry.BIOME.getOptional(param1).orElseThrow(() -> ERROR_INVALID_BIOME.create(param1));
+        Biome var0 = param0.getServer()
+            .registryAccess()
+            .registryOrThrow(Registry.BIOME_REGISTRY)
+            .getOptional(param1)
+            .orElseThrow(() -> ERROR_INVALID_BIOME.create(param1));
         BlockPos var1 = new BlockPos(param0.getPosition());
         BlockPos var2 = param0.getLevel().findNearestBiome(var0, var1, 6400, 8);
         String var3 = param1.toString();

@@ -1,6 +1,7 @@
 package net.minecraft.client.gui.components;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.brigadier.CommandDispatcher;
@@ -24,6 +25,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -35,7 +37,11 @@ import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
+import net.minecraft.network.chat.FormattedText;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec2;
 import net.minecraftforge.api.distmarker.Dist;
@@ -44,6 +50,13 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class CommandSuggestions {
     private static final Pattern WHITESPACE_PATTERN = Pattern.compile("(\\s+)");
+    private static final Style UNPARSED_STYLE = Style.EMPTY.withColor(ChatFormatting.RED);
+    private static final Style LITERAL_STYLE = Style.EMPTY.withColor(ChatFormatting.GRAY);
+    private static final List<Style> ARGUMENT_STYLES = Stream.of(
+            ChatFormatting.AQUA, ChatFormatting.YELLOW, ChatFormatting.GREEN, ChatFormatting.LIGHT_PURPLE, ChatFormatting.GOLD
+        )
+        .map(Style.EMPTY::withColor)
+        .collect(ImmutableList.toImmutableList());
     private final Minecraft minecraft;
     private final Screen screen;
     private final EditBox input;
@@ -54,7 +67,7 @@ public class CommandSuggestions {
     private final int suggestionLineLimit;
     private final boolean anchorToBottom;
     private final int fillColor;
-    private final List<String> commandUsage = Lists.newArrayList();
+    private final List<FormattedText> commandUsage = Lists.newArrayList();
     private int commandUsagePosition;
     private int commandUsageWidth;
     private ParseResults<SharedSuggestionProvider> currentParse;
@@ -202,6 +215,12 @@ public class CommandSuggestions {
         }
     }
 
+    private static FormattedText getExceptionMessage(CommandSyntaxException param0) {
+        Component var0 = ComponentUtils.fromMessage(param0.getRawMessage());
+        String var1 = param0.getContext();
+        return (FormattedText)(var1 == null ? var0 : new TranslatableComponent("command.context.parse_error", var0, param0.getCursor(), var1));
+    }
+
     public void updateUsageInfo() {
         if (this.input.getCursorPosition() == this.input.getValue().length()) {
             if (this.pendingSuggestions.join().isEmpty() && !this.currentParse.getExceptions().isEmpty()) {
@@ -212,15 +231,15 @@ public class CommandSuggestions {
                     if (var2.getType() == CommandSyntaxException.BUILT_IN_EXCEPTIONS.literalIncorrect()) {
                         ++var0;
                     } else {
-                        this.commandUsage.add(var2.getMessage());
+                        this.commandUsage.add(getExceptionMessage(var2));
                     }
                 }
 
                 if (var0 > 0) {
-                    this.commandUsage.add(CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherUnknownCommand().create().getMessage());
+                    this.commandUsage.add(getExceptionMessage(CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherUnknownCommand().create()));
                 }
             } else if (this.currentParse.getReader().canRead()) {
-                this.commandUsage.add(Commands.getParseException(this.currentParse).getMessage());
+                this.commandUsage.add(getExceptionMessage(Commands.getParseException(this.currentParse)));
             }
         }
 
@@ -245,13 +264,14 @@ public class CommandSuggestions {
             .connection
             .getCommands()
             .getSmartUsage(var1.parent, this.minecraft.player.connection.getSuggestionsProvider());
-        List<String> var3 = Lists.newArrayList();
+        List<FormattedText> var3 = Lists.newArrayList();
         int var4 = 0;
+        Style var5 = Style.EMPTY.withColor(param0);
 
-        for(Entry<CommandNode<SharedSuggestionProvider>, String> var5 : var2.entrySet()) {
-            if (!(var5.getKey() instanceof LiteralCommandNode)) {
-                var3.add(param0 + (String)var5.getValue());
-                var4 = Math.max(var4, this.font.width(var5.getValue()));
+        for(Entry<CommandNode<SharedSuggestionProvider>, String> var6 : var2.entrySet()) {
+            if (!(var6.getKey() instanceof LiteralCommandNode)) {
+                var3.add(FormattedText.of(var6.getValue(), var5));
+                var4 = Math.max(var4, this.font.width(var6.getValue()));
             }
         }
 
@@ -263,8 +283,8 @@ public class CommandSuggestions {
 
     }
 
-    private String formatChat(String param0x, int param1x) {
-        return this.currentParse != null ? formatText(this.currentParse, param0x, param1x) : param0x;
+    private FormattedText formatChat(String param0x, int param1x) {
+        return this.currentParse != null ? formatText(this.currentParse, param0x, param1x) : FormattedText.of(param0x);
     }
 
     @Nullable
@@ -272,49 +292,42 @@ public class CommandSuggestions {
         return param1.startsWith(param0) ? param1.substring(param0.length()) : null;
     }
 
-    public static String formatText(ParseResults<SharedSuggestionProvider> param0, String param1, int param2) {
-        ChatFormatting[] var0 = new ChatFormatting[]{
-            ChatFormatting.AQUA, ChatFormatting.YELLOW, ChatFormatting.GREEN, ChatFormatting.LIGHT_PURPLE, ChatFormatting.GOLD
-        };
-        String var1 = ChatFormatting.GRAY.toString();
-        StringBuilder var2 = new StringBuilder(var1);
-        int var3 = 0;
-        int var4 = -1;
-        CommandContextBuilder<SharedSuggestionProvider> var5 = param0.getContext().getLastChild();
+    private static FormattedText formatText(ParseResults<SharedSuggestionProvider> param0, String param1, int param2) {
+        List<FormattedText> var0 = Lists.newArrayList();
+        int var1 = 0;
+        int var2 = -1;
+        CommandContextBuilder<SharedSuggestionProvider> var3 = param0.getContext().getLastChild();
 
-        for(ParsedArgument<SharedSuggestionProvider, ?> var6 : var5.getArguments().values()) {
-            if (++var4 >= var0.length) {
-                var4 = 0;
+        for(ParsedArgument<SharedSuggestionProvider, ?> var4 : var3.getArguments().values()) {
+            if (++var2 >= ARGUMENT_STYLES.size()) {
+                var2 = 0;
             }
 
-            int var7 = Math.max(var6.getRange().getStart() - param2, 0);
-            if (var7 >= param1.length()) {
+            int var5 = Math.max(var4.getRange().getStart() - param2, 0);
+            if (var5 >= param1.length()) {
                 break;
             }
 
-            int var8 = Math.min(var6.getRange().getEnd() - param2, param1.length());
-            if (var8 > 0) {
-                var2.append((CharSequence)param1, var3, var7);
-                var2.append(var0[var4]);
-                var2.append((CharSequence)param1, var7, var8);
-                var2.append(var1);
-                var3 = var8;
+            int var6 = Math.min(var4.getRange().getEnd() - param2, param1.length());
+            if (var6 > 0) {
+                var0.add(FormattedText.of(param1.substring(var1, var5), LITERAL_STYLE));
+                var0.add(FormattedText.of(param1.substring(var5, var6), ARGUMENT_STYLES.get(var2)));
+                var1 = var6;
             }
         }
 
         if (param0.getReader().canRead()) {
-            int var9 = Math.max(param0.getReader().getCursor() - param2, 0);
-            if (var9 < param1.length()) {
-                int var10 = Math.min(var9 + param0.getReader().getRemainingLength(), param1.length());
-                var2.append((CharSequence)param1, var3, var9);
-                var2.append(ChatFormatting.RED);
-                var2.append((CharSequence)param1, var9, var10);
-                var3 = var10;
+            int var7 = Math.max(param0.getReader().getCursor() - param2, 0);
+            if (var7 < param1.length()) {
+                int var8 = Math.min(var7 + param0.getReader().getRemainingLength(), param1.length());
+                var0.add(FormattedText.of(param1.substring(var1, var7), LITERAL_STYLE));
+                var0.add(FormattedText.of(param1.substring(var7, var8), UNPARSED_STYLE));
+                var1 = var8;
             }
         }
 
-        var2.append((CharSequence)param1, var3, param1.length());
-        return var2.toString();
+        var0.add(FormattedText.of(param1.substring(var1), LITERAL_STYLE));
+        return FormattedText.composite(var0);
     }
 
     public void render(PoseStack param0, int param1, int param2) {
@@ -323,7 +336,7 @@ public class CommandSuggestions {
         } else {
             int var0 = 0;
 
-            for(String var1 : this.commandUsage) {
+            for(FormattedText var1 : this.commandUsage) {
                 int var2 = this.anchorToBottom ? this.screen.height - 14 - 13 - 12 * var0 : 72 + 12 * var0;
                 GuiComponent.fill(
                     param0, this.commandUsagePosition - 1, var2, this.commandUsagePosition + this.commandUsageWidth + 1, var2 + 12, this.fillColor

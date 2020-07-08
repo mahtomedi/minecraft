@@ -6,10 +6,12 @@ import com.mojang.datafixers.util.Either;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.Random;
 import java.util.UUID;
 import javax.annotation.Nullable;
+import net.minecraft.BlockUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
@@ -110,12 +112,14 @@ import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.BiomeManager;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.NetherPortalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.CommandBlockEntity;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.portal.PortalInfo;
 import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -622,6 +626,18 @@ public class ServerPlayer extends Player implements ContainerListener {
 
     @Nullable
     @Override
+    protected PortalInfo findDimensionEntryPoint(ServerLevel param0) {
+        PortalInfo var0 = super.findDimensionEntryPoint(param0);
+        if (var0 != null && this.level.dimension() == Level.OVERWORLD && param0.dimension() == Level.END) {
+            Vec3 var1 = var0.pos.add(0.0, -1.0, 0.0);
+            return new PortalInfo(var1, Vec3.ZERO, 90.0F, 0.0F);
+        } else {
+            return var0;
+        }
+    }
+
+    @Nullable
+    @Override
     public Entity changeDimension(ServerLevel param0) {
         this.isChangingDimension = true;
         ServerLevel var0 = this.getLevel();
@@ -656,78 +672,69 @@ public class ServerPlayer extends Player implements ContainerListener {
             var3.sendPlayerPermissionLevel(this);
             var0.removePlayerImmediately(this);
             this.removed = false;
-            double var4 = this.getX();
-            double var5 = this.getY();
-            double var6 = this.getZ();
-            float var7 = this.xRot;
-            float var8 = this.yRot;
-            float var9 = var8;
-            var0.getProfiler().push("moving");
-            if (param0.dimension() == Level.END) {
-                BlockPos var10 = ServerLevel.END_SPAWN_POINT;
-                var4 = (double)var10.getX();
-                var5 = (double)var10.getY();
-                var6 = (double)var10.getZ();
-                var8 = 90.0F;
-                var7 = 0.0F;
-            } else {
+            PortalInfo var4 = this.findDimensionEntryPoint(param0);
+            if (var4 != null) {
+                var0.getProfiler().push("moving");
                 if (var1 == Level.OVERWORLD && param0.dimension() == Level.NETHER) {
                     this.enteredNetherPosition = this.position();
+                } else if (param0.dimension() == Level.END) {
+                    this.createEndPlatform(param0, new BlockPos(var4.pos));
                 }
 
-                DimensionType var11 = var0.dimensionType();
-                DimensionType var12 = param0.dimensionType();
-                double var13 = 8.0;
-                if (!var11.shrunk() && var12.shrunk()) {
-                    var4 /= 8.0;
-                    var6 /= 8.0;
-                } else if (var11.shrunk() && !var12.shrunk()) {
-                    var4 *= 8.0;
-                    var6 *= 8.0;
+                var0.getProfiler().pop();
+                var0.getProfiler().push("placing");
+                this.setLevel(param0);
+                param0.addDuringPortalTeleport(this);
+                this.triggerDimensionChangeTriggers(var0);
+                this.setRot(var4.yRot, var4.xRot);
+                this.moveTo(var4.pos.x, var4.pos.y, var4.pos.z);
+                var0.getProfiler().pop();
+                this.gameMode.setLevel(param0);
+                this.connection.send(new ClientboundPlayerAbilitiesPacket(this.abilities));
+                var3.sendLevelInfo(this, param0);
+                var3.sendAllPlayerInfo(this);
+
+                for(MobEffectInstance var5 : this.getActiveEffects()) {
+                    this.connection.send(new ClientboundUpdateMobEffectPacket(this.getId(), var5));
                 }
+
+                this.connection.send(new ClientboundLevelEventPacket(1032, BlockPos.ZERO, 0, false));
+                this.lastSentExp = -1;
+                this.lastSentHealth = -1.0F;
+                this.lastSentFood = -1;
             }
 
-            this.moveTo(var4, var5, var6, var8, var7);
-            var0.getProfiler().pop();
-            var0.getProfiler().push("placing");
-            double var14 = Math.min(-2.9999872E7, param0.getWorldBorder().getMinX() + 16.0);
-            double var15 = Math.min(-2.9999872E7, param0.getWorldBorder().getMinZ() + 16.0);
-            double var16 = Math.min(2.9999872E7, param0.getWorldBorder().getMaxX() - 16.0);
-            double var17 = Math.min(2.9999872E7, param0.getWorldBorder().getMaxZ() - 16.0);
-            var4 = Mth.clamp(var4, var14, var16);
-            var6 = Mth.clamp(var6, var15, var17);
-            this.moveTo(var4, var5, var6, var8, var7);
-            if (param0.dimension() == Level.END) {
-                int var18 = Mth.floor(this.getX());
-                int var19 = Mth.floor(this.getY()) - 1;
-                int var20 = Mth.floor(this.getZ());
-                ServerLevel.makeObsidianPlatform(param0);
-                this.moveTo((double)var18, (double)var19, (double)var20, var8, 0.0F);
-                this.setDeltaMovement(Vec3.ZERO);
-            } else if (!param0.getPortalForcer().findAndMoveToPortal(this, var9)) {
-                param0.getPortalForcer().createPortal(this);
-                param0.getPortalForcer().findAndMoveToPortal(this, var9);
-            }
-
-            var0.getProfiler().pop();
-            this.setLevel(param0);
-            param0.addDuringPortalTeleport(this);
-            this.triggerDimensionChangeTriggers(var0);
-            this.connection.teleport(this.getX(), this.getY(), this.getZ(), var8, var7);
-            this.gameMode.setLevel(param0);
-            this.connection.send(new ClientboundPlayerAbilitiesPacket(this.abilities));
-            var3.sendLevelInfo(this, param0);
-            var3.sendAllPlayerInfo(this);
-
-            for(MobEffectInstance var21 : this.getActiveEffects()) {
-                this.connection.send(new ClientboundUpdateMobEffectPacket(this.getId(), var21));
-            }
-
-            this.connection.send(new ClientboundLevelEventPacket(1032, BlockPos.ZERO, 0, false));
-            this.lastSentExp = -1;
-            this.lastSentHealth = -1.0F;
-            this.lastSentFood = -1;
             return this;
+        }
+    }
+
+    private void createEndPlatform(ServerLevel param0, BlockPos param1) {
+        BlockPos.MutableBlockPos var0 = param1.mutable();
+
+        for(int var1 = -2; var1 <= 2; ++var1) {
+            for(int var2 = -2; var2 <= 2; ++var2) {
+                for(int var3 = -1; var3 < 3; ++var3) {
+                    BlockState var4 = var3 == -1 ? Blocks.OBSIDIAN.defaultBlockState() : Blocks.AIR.defaultBlockState();
+                    param0.setBlockAndUpdate(var0.set(param1).move(var2, var3, var1), var4);
+                }
+            }
+        }
+
+    }
+
+    @Override
+    protected Optional<BlockUtil.FoundRectangle> getExitPortal(ServerLevel param0, BlockPos param1, boolean param2) {
+        Optional<BlockUtil.FoundRectangle> var0 = super.getExitPortal(param0, param1, param2);
+        if (var0.isPresent()) {
+            return var0;
+        } else {
+            Direction.Axis var1 = this.level.getBlockState(this.portalEntrancePos).getOptionalValue(NetherPortalBlock.AXIS).orElse(Direction.Axis.X);
+            Optional<BlockUtil.FoundRectangle> var2 = param0.getPortalForcer().createPortal(param1, var1);
+            if (!var2.isPresent()) {
+                LOGGER.error("Unable to create a portal, likely target out of worldborder");
+            }
+
+            return var2;
         }
     }
 
@@ -1118,9 +1125,7 @@ public class ServerPlayer extends Player implements ContainerListener {
             this.totalExperience = param0.totalExperience;
             this.experienceProgress = param0.experienceProgress;
             this.setScore(param0.getScore());
-            this.portalEntranceBlock = param0.portalEntranceBlock;
-            this.portalEntranceOffset = param0.portalEntranceOffset;
-            this.portalEntranceForwards = param0.portalEntranceForwards;
+            this.portalEntrancePos = param0.portalEntrancePos;
         } else if (this.level.getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY) || param0.isSpectator()) {
             this.inventory.replaceWith(param0.inventory);
             this.experienceLevel = param0.experienceLevel;
@@ -1180,7 +1185,7 @@ public class ServerPlayer extends Player implements ContainerListener {
 
     @Override
     public void moveTo(double param0, double param1, double param2) {
-        this.connection.teleport(param0, param1, param2, this.yRot, this.xRot);
+        this.teleportTo(param0, param1, param2);
         this.connection.resetPosition();
     }
 

@@ -19,6 +19,7 @@ import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.Mth;
@@ -43,7 +44,7 @@ public class EditBox extends AbstractWidget implements Widget, GuiEventListener 
     private String suggestion;
     private Consumer<String> responder;
     private Predicate<String> filter = Objects::nonNull;
-    private BiFunction<String, Integer, String> formatter = (param0x, param1x) -> param0x;
+    private BiFunction<String, Integer, FormattedText> formatter = (param0x, param1x) -> FormattedText.of(param0x);
 
     public EditBox(Font param0, int param1, int param2, int param3, int param4, Component param5) {
         this(param0, param1, param2, param3, param4, null, param5);
@@ -62,7 +63,7 @@ public class EditBox extends AbstractWidget implements Widget, GuiEventListener 
         this.responder = param0;
     }
 
-    public void setFormatter(BiFunction<String, Integer, String> param0) {
+    public void setFormatter(BiFunction<String, Integer, FormattedText> param0) {
         this.formatter = param0;
     }
 

@@ -15,6 +15,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.GameProfileRepository;
 import com.mojang.authlib.ProfileLookupCallback;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
@@ -34,8 +35,11 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.world.entity.player.Player;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class GameProfileCache {
+    private static final Logger LOGGER = LogManager.getLogger();
     private static boolean usesAuthentication;
     private final Map<String, GameProfileCache.GameProfileInfo> profilesByName = Maps.newConcurrentMap();
     private final Map<UUID, GameProfileCache.GameProfileInfo> profilesByUUID = Maps.newConcurrentMap();
@@ -162,6 +166,10 @@ public class GameProfileCache {
 
         try (Reader var1 = Files.newReader(this.file, StandardCharsets.UTF_8)) {
             JsonArray var2 = this.gson.fromJson(var1, JsonArray.class);
+            if (var2 == null) {
+                return var0;
+            }
+
             DateFormat var3 = createDateFormat();
             var2.forEach(param2 -> {
                 GameProfileCache.GameProfileInfo var0x = readGameProfile(param2, var3);
@@ -170,7 +178,9 @@ public class GameProfileCache {
                 }
 
             });
-        } catch (JsonParseException | IOException var16) {
+        } catch (FileNotFoundException var19) {
+        } catch (JsonParseException | IOException var20) {
+            LOGGER.warn("Failed to load profile cache {}", this.file, var20);
         }
 
         return var0;

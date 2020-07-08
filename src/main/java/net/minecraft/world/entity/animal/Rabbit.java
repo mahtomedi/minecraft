@@ -433,8 +433,8 @@ public class Rabbit extends Animal {
         public final int rabbitType;
 
         public RabbitGroupData(int param0) {
+            super(1.0F);
             this.rabbitType = param0;
-            this.setBabySpawnChance(1.0F);
         }
     }
 

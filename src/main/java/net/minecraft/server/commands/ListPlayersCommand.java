@@ -26,7 +26,7 @@ public class ListPlayersCommand {
     }
 
     private static int listPlayersWithUuids(CommandSourceStack param0) {
-        return format(param0, Player::getDisplayNameWithUuid);
+        return format(param0, param0x -> new TranslatableComponent("commands.list.nameAndId", param0x.getName(), param0x.getGameProfile().getId()));
     }
 
     private static int format(CommandSourceStack param0, Function<ServerPlayer, Component> param1) {

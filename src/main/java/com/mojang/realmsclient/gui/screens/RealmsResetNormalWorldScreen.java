@@ -99,7 +99,6 @@ public class RealmsResetNormalWorldScreen extends RealmsScreen {
     }
 
     private Component generateStructuresTitle() {
-        String var0 = this.generateStructures ? "mco.configure.world.on" : "mco.configure.world.off";
-        return new TranslatableComponent("selectWorld.mapFeatures").append(" ").append(new TranslatableComponent(var0));
+        return CommonComponents.optionStatus(new TranslatableComponent("selectWorld.mapFeatures"), this.generateStructures);
     }
 }

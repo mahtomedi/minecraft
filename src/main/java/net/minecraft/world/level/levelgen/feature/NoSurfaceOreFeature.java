@@ -20,7 +20,7 @@ public class NoSurfaceOreFeature extends Feature<OreConfiguration> {
 
         for(int var2 = 0; var2 < var0; ++var2) {
             this.offsetTargetPos(var1, param2, param3, Math.min(var2, 7));
-            if (param4.target.getPredicate().test(param0.getBlockState(var1)) && !this.isFacingAir(param0, var1)) {
+            if (param4.target.test(param0.getBlockState(var1), param2) && !this.isFacingAir(param0, var1)) {
                 param0.setBlock(var1, param4.state, 2);
             }
         }

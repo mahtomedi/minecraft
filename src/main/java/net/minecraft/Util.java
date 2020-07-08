@@ -40,6 +40,7 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinWorkerThread;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.LongSupplier;
 import java.util.function.Supplier;
@@ -357,21 +358,113 @@ public class Util {
         return param0[param1.nextInt(param0.length)];
     }
 
+    private static BooleanSupplier createRenamer(final Path param0, final Path param1) {
+        return new BooleanSupplier() {
+            @Override
+            public boolean getAsBoolean() {
+                try {
+                    Files.move(param0, param1);
+                    return true;
+                } catch (IOException var2) {
+                    Util.LOGGER.error("Failed to rename", (Throwable)var2);
+                    return false;
+                }
+            }
+
+            @Override
+            public String toString() {
+                return "rename " + param0 + " to " + param1;
+            }
+        };
+    }
+
+    private static BooleanSupplier createDeleter(final Path param0) {
+        return new BooleanSupplier() {
+            @Override
+            public boolean getAsBoolean() {
+                try {
+                    Files.deleteIfExists(param0);
+                    return true;
+                } catch (IOException var2) {
+                    Util.LOGGER.warn("Failed to delete", (Throwable)var2);
+                    return false;
+                }
+            }
+
+            @Override
+            public String toString() {
+                return "delete old " + param0;
+            }
+        };
+    }
+
+    private static BooleanSupplier createFileDeletedCheck(final Path param0) {
+        return new BooleanSupplier() {
+            @Override
+            public boolean getAsBoolean() {
+                return !Files.exists(param0);
+            }
+
+            @Override
+            public String toString() {
+                return "verify that " + param0 + " is deleted";
+            }
+        };
+    }
+
+    private static BooleanSupplier createFileCreatedCheck(final Path param0) {
+        return new BooleanSupplier() {
+            @Override
+            public boolean getAsBoolean() {
+                return Files.isRegularFile(param0);
+            }
+
+            @Override
+            public String toString() {
+                return "verify that " + param0 + " is present";
+            }
+        };
+    }
+
+    private static boolean executeInSequence(BooleanSupplier... param0) {
+        for(BooleanSupplier var0 : param0) {
+            if (!var0.getAsBoolean()) {
+                LOGGER.warn("Failed to execute {}", var0);
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static boolean runWithRetries(int param0, String param1, BooleanSupplier... param2) {
+        for(int var0 = 0; var0 < param0; ++var0) {
+            if (executeInSequence(param2)) {
+                return true;
+            }
+
+            LOGGER.error("Failed to {}, retrying {}/{}", param1, var0, param0);
+        }
+
+        LOGGER.error("Failed to {}, aborting, progress might be lost", param1);
+        return false;
+    }
+
     public static void safeReplaceFile(File param0, File param1, File param2) {
-        if (param2.exists()) {
-            param2.delete();
-        }
+        safeReplaceFile(param0.toPath(), param1.toPath(), param2.toPath());
+    }
 
-        param0.renameTo(param2);
-        if (param0.exists()) {
-            param0.delete();
-        }
+    public static void safeReplaceFile(Path param0, Path param1, Path param2) {
+        int var0 = 10;
+        if (!Files.exists(param0)
+            || runWithRetries(10, "create backup " + param2, createDeleter(param2), createRenamer(param0, param2), createFileCreatedCheck(param2))) {
+            if (runWithRetries(10, "remove old " + param0, createDeleter(param0), createFileDeletedCheck(param0))) {
+                if (!runWithRetries(10, "replace " + param0 + " with " + param1, createRenamer(param1, param0), createFileCreatedCheck(param0))) {
+                    runWithRetries(10, "restore " + param0 + " from " + param2, createRenamer(param2, param0), createFileCreatedCheck(param0));
+                }
 
-        param1.renameTo(param0);
-        if (param1.exists()) {
-            param1.delete();
+            }
         }
-
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -436,10 +529,10 @@ public class Util {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static String sanitizeResourceName(String param0) {
+    public static String sanitizeName(String param0, CharPredicate param1) {
         return param0.toLowerCase(Locale.ROOT)
             .chars()
-            .mapToObj(param0x -> ResourceLocation.isAllowedInResourceLocation((char)param0x) ? Character.toString((char)param0x) : "_")
+            .mapToObj(param1x -> param1.test((char)param1x) ? Character.toString((char)param1x) : "_")
             .collect(Collectors.joining());
     }
 

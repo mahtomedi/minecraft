@@ -8,7 +8,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class TagMatchTest extends RuleTest {
-    public static final Codec<TagMatchTest> CODEC = Tag.codec(SerializationTags.getInstance()::getBlocks)
+    public static final Codec<TagMatchTest> CODEC = Tag.codec(() -> SerializationTags.getInstance().getBlocks())
         .fieldOf("tag")
         .xmap(TagMatchTest::new, param0 -> param0.tag)
         .codec();

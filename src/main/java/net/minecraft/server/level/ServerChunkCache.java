@@ -424,7 +424,7 @@ public class ServerChunkCache extends ChunkSource {
         int var1 = param0.getZ() >> 4;
         ChunkHolder var2 = this.getVisibleChunkIfPresent(ChunkPos.asLong(var0, var1));
         if (var2 != null) {
-            var2.blockChanged(param0.getX() & 15, param0.getY(), param0.getZ() & 15);
+            var2.blockChanged(param0);
         }
 
     }

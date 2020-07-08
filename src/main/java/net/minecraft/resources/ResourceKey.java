@@ -11,7 +11,7 @@ public class ResourceKey<T> {
     private final ResourceLocation registryName;
     private final ResourceLocation location;
 
-    public static <T> ResourceKey<T> create(ResourceKey<Registry<T>> param0, ResourceLocation param1) {
+    public static <T> ResourceKey<T> create(ResourceKey<? extends Registry<T>> param0, ResourceLocation param1) {
         return create(param0.location, param1);
     }
 
@@ -38,7 +38,7 @@ public class ResourceKey<T> {
         return this.location;
     }
 
-    public static <T> Function<ResourceLocation, ResourceKey<T>> elementKey(ResourceKey<Registry<T>> param0) {
+    public static <T> Function<ResourceLocation, ResourceKey<T>> elementKey(ResourceKey<? extends Registry<T>> param0) {
         return param1 -> create(param0, param1);
     }
 }

@@ -7,7 +7,8 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseFireBlock;
 import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -21,7 +22,7 @@ public class FlintAndSteelItem extends Item {
     @Override
     public InteractionResult useOn(UseOnContext param0) {
         Player var0 = param0.getPlayer();
-        LevelAccessor var1 = param0.getLevel();
+        Level var1 = param0.getLevel();
         BlockPos var2 = param0.getClickedPos();
         BlockState var3 = var1.getBlockState(var2);
         if (CampfireBlock.canLight(var3)) {
@@ -34,7 +35,7 @@ public class FlintAndSteelItem extends Item {
             return InteractionResult.sidedSuccess(var1.isClientSide());
         } else {
             BlockPos var4 = var2.relative(param0.getClickedFace());
-            if (BaseFireBlock.canBePlacedAt(var1, var4)) {
+            if (BaseFireBlock.canBePlacedAt(var1, var4, param0.getHorizontalDirection())) {
                 var1.playSound(var0, var4, SoundEvents.FLINTANDSTEEL_USE, SoundSource.BLOCKS, 1.0F, random.nextFloat() * 0.4F + 0.8F);
                 BlockState var5 = BaseFireBlock.getState(var1, var4);
                 var1.setBlock(var4, var5, 11);

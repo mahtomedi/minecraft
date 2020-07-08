@@ -22,6 +22,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.LanguageInfo;
 import net.minecraft.client.resources.language.LanguageManager;
 import net.minecraft.client.searchtree.SearchRegistry;
+import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.game.ServerboundRecipeBookChangeSettingsPacket;
@@ -178,7 +179,7 @@ public class RecipeBookComponent extends GuiComponent implements Widget, GuiEven
         String var2 = this.searchBox.getValue();
         if (!var2.isEmpty()) {
             ObjectSet<RecipeCollection> var3 = new ObjectLinkedOpenHashSet<>(
-                this.minecraft.getSearchTree(SearchRegistry.RECIPE_COLLECTIONS).search(var2.toLowerCase(Locale.ROOT))
+                this.minecraft.getSearchTree(SearchRegistry.RECIPE_COLLECTIONS).search(Language.getInstance().reorder(var2.toLowerCase(Locale.ROOT), false))
             );
             var1.removeIf(param1 -> !var3.contains(param1));
         }

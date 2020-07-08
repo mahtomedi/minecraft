@@ -28,11 +28,11 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.piglin.PiglinAi;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.BlockPlaceContext;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.GameRules;
@@ -65,8 +65,6 @@ public class Block extends BlockBehaviour implements ItemLike {
                 return !Shapes.joinIsNotEmpty(Shapes.block(), param0, BooleanOp.NOT_SAME);
             }
         });
-    private static final VoxelShape RIGID_SUPPORT_SHAPE = Shapes.join(Shapes.block(), box(2.0, 0.0, 2.0, 14.0, 16.0, 14.0), BooleanOp.ONLY_FIRST);
-    private static final VoxelShape CENTER_SUPPORT_SHAPE = box(7.0, 0.0, 7.0, 9.0, 10.0, 9.0);
     protected final StateDefinition<Block, BlockState> stateDefinition;
     private BlockState defaultBlockState;
     @Nullable
@@ -205,22 +203,12 @@ public class Block extends BlockBehaviour implements ItemLike {
     }
 
     public static boolean canSupportRigidBlock(BlockGetter param0, BlockPos param1) {
-        BlockState var0 = param0.getBlockState(param1);
-        return var0.isCollisionShapeFullBlock(param0, param1) && var0.isFaceSturdy(param0, param1, Direction.UP)
-            || !Shapes.joinIsNotEmpty(var0.getBlockSupportShape(param0, param1).getFaceShape(Direction.UP), RIGID_SUPPORT_SHAPE, BooleanOp.ONLY_SECOND);
+        return param0.getBlockState(param1).isFaceSturdy(param0, param1, Direction.UP, SupportType.RIGID);
     }
 
     public static boolean canSupportCenter(LevelReader param0, BlockPos param1, Direction param2) {
         BlockState var0 = param0.getBlockState(param1);
-        if (param2 == Direction.DOWN && var0.is(BlockTags.UNSTABLE_BOTTOM_CENTER)) {
-            return false;
-        } else {
-            return !Shapes.joinIsNotEmpty(var0.getBlockSupportShape(param0, param1).getFaceShape(param2), CENTER_SUPPORT_SHAPE, BooleanOp.ONLY_SECOND);
-        }
-    }
-
-    public static boolean isFaceSturdy(BlockState param0, BlockGetter param1, BlockPos param2, Direction param3) {
-        return isFaceFull(param0.getBlockSupportShape(param1, param2), param3);
+        return param2 == Direction.DOWN && var0.is(BlockTags.UNSTABLE_BOTTOM_CENTER) ? false : var0.isFaceSturdy(param0, param1, param2, SupportType.CENTER);
     }
 
     public static boolean isFaceFull(VoxelShape param0, Direction param1) {

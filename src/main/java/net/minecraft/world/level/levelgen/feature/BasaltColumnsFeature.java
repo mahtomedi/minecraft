@@ -34,26 +34,25 @@ public class BasaltColumnsFeature extends Feature<ColumnFeatureConfiguration> {
 
     public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, ColumnFeatureConfiguration param4) {
         int var0 = param1.getSeaLevel();
-        BlockPos var1 = findSurface(param0, var0, param3.mutable().clamp(Direction.Axis.Y, 1, param0.getMaxBuildHeight() - 1), Integer.MAX_VALUE);
-        if (var1 == null) {
+        if (!canPlaceAt(param0, var0, param3.mutable())) {
             return false;
         } else {
-            int var2 = calculateHeight(param2, param4);
-            boolean var3 = param2.nextFloat() < 0.9F;
-            int var4 = Math.min(var2, var3 ? 5 : 8);
-            int var5 = var3 ? 50 : 15;
-            boolean var6 = false;
+            int var1 = param4.height().sample(param2);
+            boolean var2 = param2.nextFloat() < 0.9F;
+            int var3 = Math.min(var1, var2 ? 5 : 8);
+            int var4 = var2 ? 50 : 15;
+            boolean var5 = false;
 
-            for(BlockPos var7 : BlockPos.randomBetweenClosed(
-                param2, var5, var1.getX() - var4, var1.getY(), var1.getZ() - var4, var1.getX() + var4, var1.getY(), var1.getZ() + var4
+            for(BlockPos var6 : BlockPos.randomBetweenClosed(
+                param2, var4, param3.getX() - var3, param3.getY(), param3.getZ() - var3, param3.getX() + var3, param3.getY(), param3.getZ() + var3
             )) {
-                int var8 = var2 - var7.distManhattan(var1);
-                if (var8 >= 0) {
-                    var6 |= this.placeColumn(param0, var0, var7, var8, calculateReach(param2, param4));
+                int var7 = var1 - var6.distManhattan(param3);
+                if (var7 >= 0) {
+                    var5 |= this.placeColumn(param0, var0, var6, var7, param4.reach().sample(param2));
                 }
             }
 
-            return var6;
+            return var5;
         }
     }
 
@@ -89,18 +88,26 @@ public class BasaltColumnsFeature extends Feature<ColumnFeatureConfiguration> {
 
     @Nullable
     private static BlockPos findSurface(LevelAccessor param0, int param1, BlockPos.MutableBlockPos param2, int param3) {
-        for(; param2.getY() > 1 && param3 > 0; param2.move(Direction.DOWN)) {
+        while(param2.getY() > 1 && param3 > 0) {
             --param3;
-            if (isAirOrLavaOcean(param0, param1, param2)) {
-                BlockState var0 = param0.getBlockState(param2.move(Direction.DOWN));
-                param2.move(Direction.UP);
-                if (!var0.isAir() && !CANNOT_PLACE_ON.contains(var0.getBlock())) {
-                    return param2;
-                }
+            if (canPlaceAt(param0, param1, param2)) {
+                return param2;
             }
+
+            param2.move(Direction.DOWN);
         }
 
         return null;
+    }
+
+    private static boolean canPlaceAt(LevelAccessor param0, int param1, BlockPos.MutableBlockPos param2) {
+        if (!isAirOrLavaOcean(param0, param1, param2)) {
+            return false;
+        } else {
+            BlockState var0 = param0.getBlockState(param2.move(Direction.DOWN));
+            param2.move(Direction.UP);
+            return !var0.isAir() && !CANNOT_PLACE_ON.contains(var0.getBlock());
+        }
     }
 
     @Nullable
@@ -120,14 +127,6 @@ public class BasaltColumnsFeature extends Feature<ColumnFeatureConfiguration> {
         }
 
         return null;
-    }
-
-    private static int calculateHeight(Random param0, ColumnFeatureConfiguration param1) {
-        return param1.minimumHeight + param0.nextInt(param1.maximumHeight - param1.minimumHeight + 1);
-    }
-
-    private static int calculateReach(Random param0, ColumnFeatureConfiguration param1) {
-        return param1.minimumReach + param0.nextInt(param1.maximumReach - param1.minimumReach + 1);
     }
 
     private static boolean isAirOrLavaOcean(LevelAccessor param0, int param1, BlockPos param2) {
