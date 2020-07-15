@@ -35,6 +35,11 @@ public class DerivedLevelData implements ServerLevelData {
     }
 
     @Override
+    public float getSpawnAngle() {
+        return this.wrapped.getSpawnAngle();
+    }
+
+    @Override
     public long getGameTime() {
         return this.wrapped.getGameTime();
     }
@@ -96,6 +101,10 @@ public class DerivedLevelData implements ServerLevelData {
     }
 
     @Override
+    public void setSpawnAngle(float param0) {
+    }
+
+    @Override
     public void setGameTime(long param0) {
     }
 
@@ -104,7 +113,7 @@ public class DerivedLevelData implements ServerLevelData {
     }
 
     @Override
-    public void setSpawn(BlockPos param0) {
+    public void setSpawn(BlockPos param0, float param1) {
     }
 
     @Override

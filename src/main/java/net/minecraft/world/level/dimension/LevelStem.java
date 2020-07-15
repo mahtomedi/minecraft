@@ -97,9 +97,9 @@ public final class LevelStem {
             } else if (var2.getValue().generator() instanceof NoiseBasedChunkGenerator && var3.getValue().generator() instanceof NoiseBasedChunkGenerator) {
                 NoiseBasedChunkGenerator var4 = (NoiseBasedChunkGenerator)var2.getValue().generator();
                 NoiseBasedChunkGenerator var5 = (NoiseBasedChunkGenerator)var3.getValue().generator();
-                if (!var4.stable(param0, NoiseGeneratorSettings.Preset.NETHER)) {
+                if (!var4.stable(param0, NoiseGeneratorSettings.NETHER)) {
                     return false;
-                } else if (!var5.stable(param0, NoiseGeneratorSettings.Preset.END)) {
+                } else if (!var5.stable(param0, NoiseGeneratorSettings.END)) {
                     return false;
                 } else if (!(var4.getBiomeSource() instanceof MultiNoiseBiomeSource)) {
                     return false;

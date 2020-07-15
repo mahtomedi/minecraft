@@ -110,7 +110,7 @@ public class ClientLevel extends Level {
         this.clientLevelData = param1;
         this.levelRenderer = param7;
         this.effects = DimensionSpecialEffects.forType(param0.registryAccess().dimensionTypes().getResourceKey(param4));
-        this.setDefaultSpawnPos(new BlockPos(8, 64, 8));
+        this.setDefaultSpawnPos(new BlockPos(8, 64, 8), 0.0F);
         this.updateSkyBrightness();
         this.prepareWeather();
     }
@@ -813,8 +813,12 @@ public class ClientLevel extends Level {
         return var0;
     }
 
-    public void setDefaultSpawnPos(BlockPos param0) {
-        this.levelData.setSpawn(param0);
+    public float getSharedSpawnAngle() {
+        return this.levelData.getSpawnAngle();
+    }
+
+    public void setDefaultSpawnPos(BlockPos param0, float param1) {
+        this.levelData.setSpawn(param0, param1);
     }
 
     @Override
@@ -834,6 +838,7 @@ public class ClientLevel extends Level {
         private int xSpawn;
         private int ySpawn;
         private int zSpawn;
+        private float spawnAngle;
         private long gameTime;
         private long dayTime;
         private boolean raining;
@@ -863,6 +868,11 @@ public class ClientLevel extends Level {
         }
 
         @Override
+        public float getSpawnAngle() {
+            return this.spawnAngle;
+        }
+
+        @Override
         public long getGameTime() {
             return this.gameTime;
         }
@@ -887,6 +897,11 @@ public class ClientLevel extends Level {
             this.zSpawn = param0;
         }
 
+        @Override
+        public void setSpawnAngle(float param0) {
+            this.spawnAngle = param0;
+        }
+
         public void setGameTime(long param0) {
             this.gameTime = param0;
         }
@@ -896,10 +911,11 @@ public class ClientLevel extends Level {
         }
 
         @Override
-        public void setSpawn(BlockPos param0) {
+        public void setSpawn(BlockPos param0, float param1) {
             this.xSpawn = param0.getX();
             this.ySpawn = param0.getY();
             this.zSpawn = param0.getZ();
+            this.spawnAngle = param1;
         }
 
         @Override

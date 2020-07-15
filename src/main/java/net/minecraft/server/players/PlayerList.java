@@ -441,75 +441,76 @@ public abstract class PlayerList {
         this.players.remove(param0);
         param0.getLevel().removePlayerImmediately(param0);
         BlockPos var0 = param0.getRespawnPosition();
-        boolean var1 = param0.isRespawnForced();
-        ServerLevel var2 = this.server.getLevel(param0.getRespawnDimension());
-        Optional<Vec3> var3;
-        if (var2 != null && var0 != null) {
-            var3 = Player.findRespawnPositionAndUseSpawnBlock(var2, var0, var1, param1);
+        float var1 = param0.getRespawnAngle();
+        boolean var2 = param0.isRespawnForced();
+        ServerLevel var3 = this.server.getLevel(param0.getRespawnDimension());
+        Optional<Vec3> var4;
+        if (var3 != null && var0 != null) {
+            var4 = Player.findRespawnPositionAndUseSpawnBlock(var3, var0, var2, param1);
         } else {
-            var3 = Optional.empty();
+            var4 = Optional.empty();
         }
 
-        ServerLevel var5 = var2 != null && var3.isPresent() ? var2 : this.server.overworld();
-        ServerPlayerGameMode var6;
+        ServerLevel var6 = var3 != null && var4.isPresent() ? var3 : this.server.overworld();
+        ServerPlayerGameMode var7;
         if (this.server.isDemo()) {
-            var6 = new DemoMode(var5);
+            var7 = new DemoMode(var6);
         } else {
-            var6 = new ServerPlayerGameMode(var5);
+            var7 = new ServerPlayerGameMode(var6);
         }
 
-        ServerPlayer var8 = new ServerPlayer(this.server, var5, param0.getGameProfile(), var6);
-        var8.connection = param0.connection;
-        var8.restoreFrom(param0, param1);
-        var8.setId(param0.getId());
-        var8.setMainArm(param0.getMainArm());
+        ServerPlayer var9 = new ServerPlayer(this.server, var6, param0.getGameProfile(), var7);
+        var9.connection = param0.connection;
+        var9.restoreFrom(param0, param1);
+        var9.setId(param0.getId());
+        var9.setMainArm(param0.getMainArm());
 
-        for(String var9 : param0.getTags()) {
-            var8.addTag(var9);
+        for(String var10 : param0.getTags()) {
+            var9.addTag(var10);
         }
 
-        this.updatePlayerGameMode(var8, param0, var5);
-        boolean var10 = false;
-        if (var3.isPresent()) {
-            Vec3 var11 = var3.get();
-            var8.moveTo(var11.x, var11.y, var11.z, 0.0F, 0.0F);
-            var8.setRespawnPosition(var5.dimension(), var0, var1, false);
-            var10 = !param1 && var5.getBlockState(var0).getBlock() instanceof RespawnAnchorBlock;
+        this.updatePlayerGameMode(var9, param0, var6);
+        boolean var11 = false;
+        if (var4.isPresent()) {
+            Vec3 var12 = var4.get();
+            var9.moveTo(var12.x, var12.y, var12.z, var1, 0.0F);
+            var9.setRespawnPosition(var6.dimension(), var0, var1, var2, false);
+            var11 = !param1 && var6.getBlockState(var0).getBlock() instanceof RespawnAnchorBlock;
         } else if (var0 != null) {
-            var8.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.NO_RESPAWN_BLOCK_AVAILABLE, 0.0F));
+            var9.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.NO_RESPAWN_BLOCK_AVAILABLE, 0.0F));
         }
 
-        while(!var5.noCollision(var8) && var8.getY() < 256.0) {
-            var8.setPos(var8.getX(), var8.getY() + 1.0, var8.getZ());
+        while(!var6.noCollision(var9) && var9.getY() < 256.0) {
+            var9.setPos(var9.getX(), var9.getY() + 1.0, var9.getZ());
         }
 
-        LevelData var12 = var8.level.getLevelData();
-        var8.connection
+        LevelData var13 = var9.level.getLevelData();
+        var9.connection
             .send(
                 new ClientboundRespawnPacket(
-                    var8.level.dimensionTypeKey(),
-                    var8.level.dimension(),
-                    BiomeManager.obfuscateSeed(var8.getLevel().getSeed()),
-                    var8.gameMode.getGameModeForPlayer(),
-                    var8.gameMode.getPreviousGameModeForPlayer(),
-                    var8.getLevel().isDebug(),
-                    var8.getLevel().isFlat(),
+                    var9.level.dimensionTypeKey(),
+                    var9.level.dimension(),
+                    BiomeManager.obfuscateSeed(var9.getLevel().getSeed()),
+                    var9.gameMode.getGameModeForPlayer(),
+                    var9.gameMode.getPreviousGameModeForPlayer(),
+                    var9.getLevel().isDebug(),
+                    var9.getLevel().isFlat(),
                     param1
                 )
             );
-        var8.connection.teleport(var8.getX(), var8.getY(), var8.getZ(), var8.yRot, var8.xRot);
-        var8.connection.send(new ClientboundSetDefaultSpawnPositionPacket(var5.getSharedSpawnPos()));
-        var8.connection.send(new ClientboundChangeDifficultyPacket(var12.getDifficulty(), var12.isDifficultyLocked()));
-        var8.connection.send(new ClientboundSetExperiencePacket(var8.experienceProgress, var8.totalExperience, var8.experienceLevel));
-        this.sendLevelInfo(var8, var5);
-        this.sendPlayerPermissionLevel(var8);
-        var5.addRespawnedPlayer(var8);
-        this.players.add(var8);
-        this.playersByUUID.put(var8.getUUID(), var8);
-        var8.initMenu();
-        var8.setHealth(var8.getHealth());
-        if (var10) {
-            var8.connection
+        var9.connection.teleport(var9.getX(), var9.getY(), var9.getZ(), var9.yRot, var9.xRot);
+        var9.connection.send(new ClientboundSetDefaultSpawnPositionPacket(var6.getSharedSpawnPos(), var6.getSharedSpawnAngle()));
+        var9.connection.send(new ClientboundChangeDifficultyPacket(var13.getDifficulty(), var13.isDifficultyLocked()));
+        var9.connection.send(new ClientboundSetExperiencePacket(var9.experienceProgress, var9.totalExperience, var9.experienceLevel));
+        this.sendLevelInfo(var9, var6);
+        this.sendPlayerPermissionLevel(var9);
+        var6.addRespawnedPlayer(var9);
+        this.players.add(var9);
+        this.playersByUUID.put(var9.getUUID(), var9);
+        var9.initMenu();
+        var9.setHealth(var9.getHealth());
+        if (var11) {
+            var9.connection
                 .send(
                     new ClientboundSoundPacket(
                         SoundEvents.RESPAWN_ANCHOR_DEPLETE, SoundSource.BLOCKS, (double)var0.getX(), (double)var0.getY(), (double)var0.getZ(), 1.0F, 1.0F
@@ -517,7 +518,7 @@ public abstract class PlayerList {
                 );
         }
 
-        return var8;
+        return var9;
     }
 
     public void sendPlayerPermissionLevel(ServerPlayer param0) {
@@ -699,7 +700,7 @@ public abstract class PlayerList {
         param0.connection.send(new ClientboundSetBorderPacket(var0, ClientboundSetBorderPacket.Type.INITIALIZE));
         param0.connection
             .send(new ClientboundSetTimePacket(param1.getGameTime(), param1.getDayTime(), param1.getGameRules().getBoolean(GameRules.RULE_DAYLIGHT)));
-        param0.connection.send(new ClientboundSetDefaultSpawnPositionPacket(param1.getSharedSpawnPos()));
+        param0.connection.send(new ClientboundSetDefaultSpawnPositionPacket(param1.getSharedSpawnPos(), param1.getSharedSpawnAngle()));
         if (param1.isRaining()) {
             param0.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.START_RAINING, 0.0F));
             param0.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.RAIN_LEVEL_CHANGE, param1.getRainLevel(1.0F)));

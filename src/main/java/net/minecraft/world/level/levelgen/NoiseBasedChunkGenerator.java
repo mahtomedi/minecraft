@@ -8,6 +8,7 @@ import it.unimi.dsi.fastutil.objects.ObjectListIterator;
 import java.util.List;
 import java.util.Random;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
@@ -90,39 +91,40 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
     protected final BlockState defaultBlock;
     protected final BlockState defaultFluid;
     private final long seed;
-    protected final NoiseGeneratorSettings settings;
+    protected final Supplier<NoiseGeneratorSettings> settings;
     private final int height;
 
-    public NoiseBasedChunkGenerator(BiomeSource param0, long param1, NoiseGeneratorSettings param2) {
+    public NoiseBasedChunkGenerator(BiomeSource param0, long param1, Supplier<NoiseGeneratorSettings> param2) {
         this(param0, param0, param1, param2);
     }
 
-    private NoiseBasedChunkGenerator(BiomeSource param0, BiomeSource param1, long param2, NoiseGeneratorSettings param3) {
-        super(param0, param1, param3.structureSettings(), param2);
+    private NoiseBasedChunkGenerator(BiomeSource param0, BiomeSource param1, long param2, Supplier<NoiseGeneratorSettings> param3) {
+        super(param0, param1, param3.get().structureSettings(), param2);
         this.seed = param2;
+        NoiseGeneratorSettings var0 = param3.get();
         this.settings = param3;
-        NoiseSettings var0 = param3.noiseSettings();
-        this.height = var0.height();
-        this.chunkHeight = var0.noiseSizeVertical() * 4;
-        this.chunkWidth = var0.noiseSizeHorizontal() * 4;
-        this.defaultBlock = param3.getDefaultBlock();
-        this.defaultFluid = param3.getDefaultFluid();
+        NoiseSettings var1 = var0.noiseSettings();
+        this.height = var1.height();
+        this.chunkHeight = var1.noiseSizeVertical() * 4;
+        this.chunkWidth = var1.noiseSizeHorizontal() * 4;
+        this.defaultBlock = var0.getDefaultBlock();
+        this.defaultFluid = var0.getDefaultFluid();
         this.chunkCountX = 16 / this.chunkWidth;
-        this.chunkCountY = var0.height() / this.chunkHeight;
+        this.chunkCountY = var1.height() / this.chunkHeight;
         this.chunkCountZ = 16 / this.chunkWidth;
         this.random = new WorldgenRandom(param2);
         this.minLimitPerlinNoise = new PerlinNoise(this.random, IntStream.rangeClosed(-15, 0));
         this.maxLimitPerlinNoise = new PerlinNoise(this.random, IntStream.rangeClosed(-15, 0));
         this.mainPerlinNoise = new PerlinNoise(this.random, IntStream.rangeClosed(-7, 0));
-        this.surfaceNoise = (SurfaceNoise)(var0.useSimplexSurfaceNoise()
+        this.surfaceNoise = (SurfaceNoise)(var1.useSimplexSurfaceNoise()
             ? new PerlinSimplexNoise(this.random, IntStream.rangeClosed(-3, 0))
             : new PerlinNoise(this.random, IntStream.rangeClosed(-3, 0)));
         this.random.consumeCount(2620);
         this.depthNoise = new PerlinNoise(this.random, IntStream.rangeClosed(-15, 0));
-        if (var0.islandNoiseOverride()) {
-            WorldgenRandom var1 = new WorldgenRandom(param2);
-            var1.consumeCount(17292);
-            this.islandNoise = new SimplexNoise(var1);
+        if (var1.islandNoiseOverride()) {
+            WorldgenRandom var2 = new WorldgenRandom(param2);
+            var2.consumeCount(17292);
+            this.islandNoise = new SimplexNoise(var2);
         } else {
             this.islandNoise = null;
         }
@@ -140,8 +142,8 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
         return new NoiseBasedChunkGenerator(this.biomeSource.withSeed(param0), param0, this.settings);
     }
 
-    public boolean stable(long param0, NoiseGeneratorSettings.Preset param1) {
-        return this.seed == param0 && this.settings.stable(param1);
+    public boolean stable(long param0, NoiseGeneratorSettings param1) {
+        return this.seed == param0 && this.settings.get().stable(param1);
     }
 
     private double sampleAndClampNoise(int param0, int param1, int param2, double param3, double param4, double param5, double param6) {
@@ -193,7 +195,7 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
     }
 
     private void fillNoiseColumn(double[] param0, int param1, int param2) {
-        NoiseSettings var0 = this.settings.noiseSettings();
+        NoiseSettings var0 = this.settings.get().noiseSettings();
         double var1;
         double var2;
         if (this.islandNoise != null) {
@@ -393,25 +395,26 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
         BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos();
         int var1 = param0.getPos().getMinBlockX();
         int var2 = param0.getPos().getMinBlockZ();
-        int var3 = this.settings.getBedrockFloorPosition();
-        int var4 = this.height - 1 - this.settings.getBedrockRoofPosition();
-        int var5 = 5;
-        boolean var6 = var4 + 4 >= 0 && var4 < this.height;
-        boolean var7 = var3 + 4 >= 0 && var3 < this.height;
-        if (var6 || var7) {
-            for(BlockPos var8 : BlockPos.betweenClosed(var1, 0, var2, var1 + 15, 0, var2 + 15)) {
-                if (var6) {
-                    for(int var9 = 0; var9 < 5; ++var9) {
-                        if (var9 <= param1.nextInt(5)) {
-                            param0.setBlockState(var0.set(var8.getX(), var4 - var9, var8.getZ()), Blocks.BEDROCK.defaultBlockState(), false);
+        NoiseGeneratorSettings var3 = this.settings.get();
+        int var4 = var3.getBedrockFloorPosition();
+        int var5 = this.height - 1 - var3.getBedrockRoofPosition();
+        int var6 = 5;
+        boolean var7 = var5 + 4 >= 0 && var5 < this.height;
+        boolean var8 = var4 + 4 >= 0 && var4 < this.height;
+        if (var7 || var8) {
+            for(BlockPos var9 : BlockPos.betweenClosed(var1, 0, var2, var1 + 15, 0, var2 + 15)) {
+                if (var7) {
+                    for(int var10 = 0; var10 < 5; ++var10) {
+                        if (var10 <= param1.nextInt(5)) {
+                            param0.setBlockState(var0.set(var9.getX(), var5 - var10, var9.getZ()), Blocks.BEDROCK.defaultBlockState(), false);
                         }
                     }
                 }
 
-                if (var7) {
-                    for(int var10 = 4; var10 >= 0; --var10) {
-                        if (var10 <= param1.nextInt(5)) {
-                            param0.setBlockState(var0.set(var8.getX(), var3 + var10, var8.getZ()), Blocks.BEDROCK.defaultBlockState(), false);
+                if (var8) {
+                    for(int var11 = 4; var11 >= 0; --var11) {
+                        if (var11 <= param1.nextInt(5)) {
+                            param0.setBlockState(var0.set(var9.getX(), var4 + var11, var9.getZ()), Blocks.BEDROCK.defaultBlockState(), false);
                         }
                     }
                 }
@@ -602,7 +605,7 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
 
     @Override
     public int getSeaLevel() {
-        return this.settings.seaLevel();
+        return this.settings.get().seaLevel();
     }
 
     @Override
@@ -636,7 +639,7 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
 
     @Override
     public void spawnOriginalMobs(WorldGenRegion param0) {
-        if (!this.settings.disableMobGeneration()) {
+        if (!this.settings.get().disableMobGeneration()) {
             int var0 = param0.getCenterX();
             int var1 = param0.getCenterZ();
             Biome var2 = param0.getBiome(new ChunkPos(var0, var1).getWorldPosition());

@@ -10,6 +10,7 @@ import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.feature.configurations.JigsawConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.StructureFeatureConfiguration;
 
 public class PillagerOutpostFeature extends JigsawFeature {
     private static final List<Biome.SpawnerData> OUTPOST_ENEMIES = Lists.newArrayList(new Biome.SpawnerData(EntityType.PILLAGER, 1, 1, 1));
@@ -41,17 +42,21 @@ public class PillagerOutpostFeature extends JigsawFeature {
         if (param3.nextInt(5) != 0) {
             return false;
         } else {
-            for(int var2 = param4 - 10; var2 <= param4 + 10; ++var2) {
-                for(int var3 = param5 - 10; var3 <= param5 + 10; ++var3) {
-                    ChunkPos var4 = StructureFeature.VILLAGE
-                        .getPotentialFeatureChunk(param0.getSettings().getConfig(StructureFeature.VILLAGE), param2, param3, var2, var3);
-                    if (var2 == var4.x && var3 == var4.z) {
-                        return false;
+            StructureFeatureConfiguration var2 = param0.getSettings().getConfig(StructureFeature.VILLAGE);
+            if (var2 == null) {
+                return true;
+            } else {
+                for(int var3 = param4 - 10; var3 <= param4 + 10; ++var3) {
+                    for(int var4 = param5 - 10; var4 <= param5 + 10; ++var4) {
+                        ChunkPos var5 = StructureFeature.VILLAGE.getPotentialFeatureChunk(var2, param2, param3, var3, var4);
+                        if (var3 == var5.x && var4 == var5.z) {
+                            return false;
+                        }
                     }
                 }
-            }
 
-            return true;
+                return true;
+            }
         }
     }
 }

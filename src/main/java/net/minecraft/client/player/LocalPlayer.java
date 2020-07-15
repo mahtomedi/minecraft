@@ -415,66 +415,41 @@ public class LocalPlayer extends AbstractClientPlayer {
 
     }
 
-    @Override
-    protected void checkInBlock(double param0, double param1, double param2) {
-        BlockPos var0 = new BlockPos(param0, param1, param2);
-        if (this.blocked(var0)) {
+    private void moveTowardsClosestSpace(double param0, double param1) {
+        BlockPos var0 = new BlockPos(param0, this.getY(), param1);
+        if (this.suffocatesAt(var0)) {
             double var1 = param0 - (double)var0.getX();
-            double var2 = param2 - (double)var0.getZ();
+            double var2 = param1 - (double)var0.getZ();
             Direction var3 = null;
-            double var4 = 9999.0;
-            if (!this.blocked(var0.west()) && var1 < var4) {
-                var4 = var1;
-                var3 = Direction.WEST;
-            }
+            double var4 = Double.MAX_VALUE;
+            Direction[] var5 = new Direction[]{Direction.WEST, Direction.EAST, Direction.NORTH, Direction.SOUTH};
 
-            if (!this.blocked(var0.east()) && 1.0 - var1 < var4) {
-                var4 = 1.0 - var1;
-                var3 = Direction.EAST;
-            }
-
-            if (!this.blocked(var0.north()) && var2 < var4) {
-                var4 = var2;
-                var3 = Direction.NORTH;
-            }
-
-            if (!this.blocked(var0.south()) && 1.0 - var2 < var4) {
-                var4 = 1.0 - var2;
-                var3 = Direction.SOUTH;
+            for(Direction var6 : var5) {
+                double var7 = var6.getAxis().choose(var1, 0.0, var2);
+                double var8 = var6.getAxisDirection() == Direction.AxisDirection.POSITIVE ? 1.0 - var7 : var7;
+                if (var8 < var4 && !this.suffocatesAt(var0.relative(var6))) {
+                    var4 = var8;
+                    var3 = var6;
+                }
             }
 
             if (var3 != null) {
-                Vec3 var5 = this.getDeltaMovement();
-                switch(var3) {
-                    case WEST:
-                        this.setDeltaMovement(-0.1, var5.y, var5.z);
-                        break;
-                    case EAST:
-                        this.setDeltaMovement(0.1, var5.y, var5.z);
-                        break;
-                    case NORTH:
-                        this.setDeltaMovement(var5.x, var5.y, -0.1);
-                        break;
-                    case SOUTH:
-                        this.setDeltaMovement(var5.x, var5.y, 0.1);
+                Vec3 var9 = this.getDeltaMovement();
+                if (var3.getAxis() == Direction.Axis.X) {
+                    this.setDeltaMovement(0.1 * (double)var3.getStepX(), var9.y, var9.z);
+                } else {
+                    this.setDeltaMovement(var9.x, var9.y, 0.1 * (double)var3.getStepZ());
                 }
             }
-        }
 
+        }
     }
 
-    private boolean blocked(BlockPos param0) {
+    private boolean suffocatesAt(BlockPos param0) {
         AABB var0 = this.getBoundingBox();
-        BlockPos.MutableBlockPos var1 = param0.mutable();
-
-        for(int var2 = Mth.floor(var0.minY); var2 < Mth.ceil(var0.maxY); ++var2) {
-            var1.setY(var2);
-            if (!this.freeAt(var1)) {
-                return true;
-            }
-        }
-
-        return false;
+        AABB var1 = new AABB((double)param0.getX(), var0.minY, (double)param0.getZ(), (double)param0.getX() + 1.0, var0.maxY, (double)param0.getZ() + 1.0)
+            .deflate(1.0E-7);
+        return !this.level.noBlockCollision(this, var1, (param0x, param1) -> param0x.isSuffocating(this.level, param1));
     }
 
     @Override
@@ -689,10 +664,10 @@ public class LocalPlayer extends AbstractClientPlayer {
         }
 
         if (!this.noPhysics) {
-            this.checkInBlock(this.getX() - (double)this.getBbWidth() * 0.35, this.getY() + 0.5, this.getZ() + (double)this.getBbWidth() * 0.35);
-            this.checkInBlock(this.getX() - (double)this.getBbWidth() * 0.35, this.getY() + 0.5, this.getZ() - (double)this.getBbWidth() * 0.35);
-            this.checkInBlock(this.getX() + (double)this.getBbWidth() * 0.35, this.getY() + 0.5, this.getZ() - (double)this.getBbWidth() * 0.35);
-            this.checkInBlock(this.getX() + (double)this.getBbWidth() * 0.35, this.getY() + 0.5, this.getZ() + (double)this.getBbWidth() * 0.35);
+            this.moveTowardsClosestSpace(this.getX() - (double)this.getBbWidth() * 0.35, this.getZ() + (double)this.getBbWidth() * 0.35);
+            this.moveTowardsClosestSpace(this.getX() - (double)this.getBbWidth() * 0.35, this.getZ() - (double)this.getBbWidth() * 0.35);
+            this.moveTowardsClosestSpace(this.getX() + (double)this.getBbWidth() * 0.35, this.getZ() - (double)this.getBbWidth() * 0.35);
+            this.moveTowardsClosestSpace(this.getX() + (double)this.getBbWidth() * 0.35, this.getZ() + (double)this.getBbWidth() * 0.35);
         }
 
         if (var1) {

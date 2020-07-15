@@ -105,11 +105,12 @@ public abstract class StructureFeature<C extends FeatureConfiguration> {
         "Bastion_Remnant", new BastionFeature(JigsawConfiguration.CODEC), GenerationStep.Decoration.SURFACE_STRUCTURES
     );
     public static final List<StructureFeature<?>> NOISE_AFFECTING_FEATURES = ImmutableList.of(PILLAGER_OUTPOST, VILLAGE, NETHER_FOSSIL);
-    private static final Map<String, String> RENAMES = ImmutableMap.<String, String>builder()
-        .put("nvi", "jigsaw")
-        .put("pcp", "jigsaw")
-        .put("bastionremnant", "jigsaw")
-        .put("runtime", "jigsaw")
+    private static final ResourceLocation JIGSAW_RENAME = new ResourceLocation("jigsaw");
+    private static final Map<ResourceLocation, ResourceLocation> RENAMES = ImmutableMap.<ResourceLocation, ResourceLocation>builder()
+        .put(new ResourceLocation("nvi"), JIGSAW_RENAME)
+        .put(new ResourceLocation("pcp"), JIGSAW_RENAME)
+        .put(new ResourceLocation("bastionremnant"), JIGSAW_RENAME)
+        .put(new ResourceLocation("runtime"), JIGSAW_RENAME)
         .build();
     private final Codec<ConfiguredStructureFeature<C, StructureFeature<C>>> configuredStructureCodec;
 
@@ -155,23 +156,24 @@ public abstract class StructureFeature<C extends FeatureConfiguration> {
                     for(int var8 = 0; var8 < var6.size(); ++var8) {
                         CompoundTag var9 = var6.getCompound(var8);
                         String var10 = var9.getString("id").toLowerCase(Locale.ROOT);
-                        String var11 = RENAMES.getOrDefault(var10, var10);
-                        StructurePieceType var12 = Registry.STRUCTURE_PIECE.get(new ResourceLocation(var11));
-                        if (var12 == null) {
-                            LOGGER.error("Unknown structure piece id: {}", var11);
+                        ResourceLocation var11 = new ResourceLocation(var10);
+                        ResourceLocation var12 = RENAMES.getOrDefault(var11, var11);
+                        StructurePieceType var13 = Registry.STRUCTURE_PIECE.get(var12);
+                        if (var13 == null) {
+                            LOGGER.error("Unknown structure piece id: {}", var12);
                         } else {
                             try {
-                                StructurePiece var13 = var12.load(param0, var9);
-                                var7.getPieces().add(var13);
-                            } catch (Exception var18) {
-                                LOGGER.error("Exception loading structure piece with id {}", var11, var18);
+                                StructurePiece var14 = var13.load(param0, var9);
+                                var7.getPieces().add(var14);
+                            } catch (Exception var19) {
+                                LOGGER.error("Exception loading structure piece with id {}", var12, var19);
                             }
                         }
                     }
 
                     return var7;
-                } catch (Exception var19) {
-                    LOGGER.error("Failed Start with id {}", var0, var19);
+                } catch (Exception var20) {
+                    LOGGER.error("Failed Start with id {}", var0, var20);
                     return null;
                 }
             }

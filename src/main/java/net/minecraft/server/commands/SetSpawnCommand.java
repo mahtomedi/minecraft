@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.AngleArgument;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.core.BlockPos;
@@ -22,14 +23,15 @@ public class SetSpawnCommand {
                     param0x -> setSpawn(
                             param0x.getSource(),
                             Collections.singleton(param0x.getSource().getPlayerOrException()),
-                            new BlockPos(param0x.getSource().getPosition())
+                            new BlockPos(param0x.getSource().getPosition()),
+                            0.0F
                         )
                 )
                 .then(
                     Commands.argument("targets", EntityArgument.players())
                         .executes(
                             param0x -> setSpawn(
-                                    param0x.getSource(), EntityArgument.getPlayers(param0x, "targets"), new BlockPos(param0x.getSource().getPosition())
+                                    param0x.getSource(), EntityArgument.getPlayers(param0x, "targets"), new BlockPos(param0x.getSource().getPosition()), 0.0F
                                 )
                         )
                         .then(
@@ -38,7 +40,19 @@ public class SetSpawnCommand {
                                     param0x -> setSpawn(
                                             param0x.getSource(),
                                             EntityArgument.getPlayers(param0x, "targets"),
-                                            BlockPosArgument.getOrLoadBlockPos(param0x, "pos")
+                                            BlockPosArgument.getOrLoadBlockPos(param0x, "pos"),
+                                            0.0F
+                                        )
+                                )
+                                .then(
+                                    Commands.argument("angle", AngleArgument.angle())
+                                        .executes(
+                                            param0x -> setSpawn(
+                                                    param0x.getSource(),
+                                                    EntityArgument.getPlayers(param0x, "targets"),
+                                                    BlockPosArgument.getOrLoadBlockPos(param0x, "pos"),
+                                                    AngleArgument.getAngle(param0x, "angle")
+                                                )
                                         )
                                 )
                         )
@@ -46,24 +60,25 @@ public class SetSpawnCommand {
         );
     }
 
-    private static int setSpawn(CommandSourceStack param0, Collection<ServerPlayer> param1, BlockPos param2) {
+    private static int setSpawn(CommandSourceStack param0, Collection<ServerPlayer> param1, BlockPos param2, float param3) {
         ResourceKey<Level> var0 = param0.getLevel().dimension();
 
         for(ServerPlayer var1 : param1) {
-            var1.setRespawnPosition(var0, param2, true, false);
+            var1.setRespawnPosition(var0, param2, param3, true, false);
         }
 
         String var2 = var0.location().toString();
         if (param1.size() == 1) {
             param0.sendSuccess(
                 new TranslatableComponent(
-                    "commands.spawnpoint.success.single", param2.getX(), param2.getY(), param2.getZ(), var2, param1.iterator().next().getDisplayName()
+                    "commands.spawnpoint.success.single", param2.getX(), param2.getY(), param2.getZ(), param3, var2, param1.iterator().next().getDisplayName()
                 ),
                 true
             );
         } else {
             param0.sendSuccess(
-                new TranslatableComponent("commands.spawnpoint.success.multiple", param2.getX(), param2.getY(), param2.getZ(), var2, param1.size()), true
+                new TranslatableComponent("commands.spawnpoint.success.multiple", param2.getX(), param2.getY(), param2.getZ(), param3, var2, param1.size()),
+                true
             );
         }
 

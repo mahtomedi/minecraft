@@ -404,9 +404,9 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
     private static void setInitialSpawn(ServerLevel param0, ServerLevelData param1, boolean param2, boolean param3, boolean param4) {
         ChunkGenerator var0 = param0.getChunkSource().getGenerator();
         if (!param4) {
-            param1.setSpawn(BlockPos.ZERO.above(var0.getSpawnHeight()));
+            param1.setSpawn(BlockPos.ZERO.above(var0.getSpawnHeight()), 0.0F);
         } else if (param3) {
-            param1.setSpawn(BlockPos.ZERO.above());
+            param1.setSpawn(BlockPos.ZERO.above(), 0.0F);
         } else {
             BiomeSource var1 = var0.getBiomeSource();
             List<Biome> var2 = var1.getPlayerSpawnBiomes();
@@ -426,7 +426,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
                 }
             }
 
-            param1.setSpawn(var5.getWorldPosition().offset(8, var0.getSpawnHeight(), 8));
+            param1.setSpawn(var5.getWorldPosition().offset(8, var0.getSpawnHeight(), 8), 0.0F);
             int var8 = 0;
             int var9 = 0;
             int var10 = 0;
@@ -437,7 +437,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
                 if (var8 > -16 && var8 <= 16 && var9 > -16 && var9 <= 16) {
                     BlockPos var14 = PlayerRespawnLogic.getSpawnPosInChunk(param0, new ChunkPos(var5.x + var8, var5.z + var9), var6);
                     if (var14 != null) {
-                        param1.setSpawn(var14);
+                        param1.setSpawn(var14, 0.0F);
                         break;
                     }
                 }

@@ -119,7 +119,7 @@ public class BiomeDefaultFeatures {
     }
 
     public static void addBirchTrees(Biome param0) {
-        param0.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, Features.BIRCH_BEES_0002);
+        param0.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, Features.TREES_BIRCH);
     }
 
     public static void addOtherBirchTrees(Biome param0) {
@@ -160,14 +160,6 @@ public class BiomeDefaultFeatures {
 
     public static void addSnowyTrees(Biome param0) {
         param0.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, Features.SPRUCE_SNOWY);
-    }
-
-    public static void addGiantSpruceTrees(Biome param0) {
-        param0.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, Features.TREES_GIANT_SPRUCE);
-    }
-
-    public static void addGiantTrees(Biome param0) {
-        param0.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, Features.TREES_GIANT);
     }
 
     public static void addJungleGrass(Biome param0) {
@@ -344,13 +336,34 @@ public class BiomeDefaultFeatures {
         param0.addSpawn(MobCategory.CREATURE, new Biome.SpawnerData(EntityType.COW, 8, 4, 4));
     }
 
-    private static void ambientSpawns(Biome param0) {
+    public static void ambientSpawns(Biome param0) {
         param0.addSpawn(MobCategory.AMBIENT, new Biome.SpawnerData(EntityType.BAT, 10, 8, 8));
     }
 
     public static void commonSpawns(Biome param0) {
         ambientSpawns(param0);
         monsters(param0, 95, 5, 100);
+    }
+
+    public static void oceanSpawns(Biome param0, int param1, int param2, int param3) {
+        param0.addSpawn(MobCategory.WATER_CREATURE, new Biome.SpawnerData(EntityType.SQUID, param1, 1, param2));
+        param0.addSpawn(MobCategory.WATER_AMBIENT, new Biome.SpawnerData(EntityType.COD, param3, 3, 6));
+        commonSpawns(param0);
+        param0.addSpawn(MobCategory.MONSTER, new Biome.SpawnerData(EntityType.DROWNED, 5, 1, 1));
+    }
+
+    public static void warmOceanSpawns(Biome param0, int param1, int param2) {
+        param0.addSpawn(MobCategory.WATER_CREATURE, new Biome.SpawnerData(EntityType.SQUID, param1, param2, 4));
+        param0.addSpawn(MobCategory.WATER_AMBIENT, new Biome.SpawnerData(EntityType.TROPICAL_FISH, 25, 8, 8));
+        param0.addSpawn(MobCategory.WATER_CREATURE, new Biome.SpawnerData(EntityType.DOLPHIN, 2, 1, 2));
+        commonSpawns(param0);
+    }
+
+    public static void plainsSpawns(Biome param0) {
+        farmAnimals(param0);
+        param0.addSpawn(MobCategory.CREATURE, new Biome.SpawnerData(EntityType.HORSE, 5, 2, 6));
+        param0.addSpawn(MobCategory.CREATURE, new Biome.SpawnerData(EntityType.DONKEY, 1, 1, 3));
+        commonSpawns(param0);
     }
 
     public static void snowySpawns(Biome param0) {
@@ -368,16 +381,7 @@ public class BiomeDefaultFeatures {
         param0.addSpawn(MobCategory.MONSTER, new Biome.SpawnerData(EntityType.HUSK, 80, 4, 4));
     }
 
-    public static void giantTaigaSpawns(Biome param0) {
-        farmAnimals(param0);
-        param0.addSpawn(MobCategory.CREATURE, new Biome.SpawnerData(EntityType.WOLF, 8, 4, 4));
-        param0.addSpawn(MobCategory.CREATURE, new Biome.SpawnerData(EntityType.RABBIT, 4, 2, 3));
-        param0.addSpawn(MobCategory.CREATURE, new Biome.SpawnerData(EntityType.FOX, 8, 2, 4));
-        ambientSpawns(param0);
-        monsters(param0, 100, 25, 100);
-    }
-
-    private static void monsters(Biome param0, int param1, int param2, int param3) {
+    public static void monsters(Biome param0, int param1, int param2, int param3) {
         param0.addSpawn(MobCategory.MONSTER, new Biome.SpawnerData(EntityType.SPIDER, 100, 4, 4));
         param0.addSpawn(MobCategory.MONSTER, new Biome.SpawnerData(EntityType.ZOMBIE, param1, 4, 4));
         param0.addSpawn(MobCategory.MONSTER, new Biome.SpawnerData(EntityType.ZOMBIE_VILLAGER, param2, 1, 1));

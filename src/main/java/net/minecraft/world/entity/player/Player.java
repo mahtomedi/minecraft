@@ -160,13 +160,13 @@ public abstract class Player extends LivingEntity {
     @Nullable
     public FishingHook fishing;
 
-    public Player(Level param0, BlockPos param1, GameProfile param2) {
+    public Player(Level param0, BlockPos param1, float param2, GameProfile param3) {
         super(EntityType.PLAYER, param0);
-        this.setUUID(createPlayerUUID(param2));
-        this.gameProfile = param2;
+        this.setUUID(createPlayerUUID(param3));
+        this.gameProfile = param3;
         this.inventoryMenu = new InventoryMenu(this.inventory, !param0.isClientSide, this);
         this.containerMenu = this.inventoryMenu;
-        this.moveTo((double)param1.getX() + 0.5, (double)(param1.getY() + 1), (double)param1.getZ() + 0.5, 0.0F, 0.0F);
+        this.moveTo((double)param1.getX() + 0.5, (double)(param1.getY() + 1), (double)param1.getZ() + 0.5, param2, 0.0F);
         this.rotOffs = 180.0F;
     }
 
@@ -1025,7 +1025,7 @@ public abstract class Player extends LivingEntity {
 
     @Override
     protected Vec3 maybeBackOffFromEdge(Vec3 param0, MoverType param1) {
-        if ((param1 == MoverType.SELF || param1 == MoverType.PLAYER) && this.isStayingOnGroundSurface() && this.isAboveGround()) {
+        if (!this.abilities.flying && (param1 == MoverType.SELF || param1 == MoverType.PLAYER) && this.isStayingOnGroundSurface() && this.isAboveGround()) {
             double var0 = param0.x;
             double var1 = param0.z;
             double var2 = 0.05;

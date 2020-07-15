@@ -62,7 +62,7 @@ public class WorldCoordinate {
         }
     }
 
-    private static boolean isRelative(StringReader param0) {
+    public static boolean isRelative(StringReader param0) {
         boolean var0;
         if (param0.peek() == '~') {
             var0 = true;

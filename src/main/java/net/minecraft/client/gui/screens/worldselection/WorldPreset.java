@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Supplier;
 import net.minecraft.client.gui.screens.CreateBuffetWorldScreen;
 import net.minecraft.client.gui.screens.CreateFlatWorldScreen;
 import net.minecraft.client.gui.screens.Screen;
@@ -32,7 +33,7 @@ public abstract class WorldPreset {
     public static final WorldPreset NORMAL = new WorldPreset("default") {
         @Override
         protected ChunkGenerator generator(long param0) {
-            return new NoiseBasedChunkGenerator(new OverworldBiomeSource(param0, false, false), param0, NoiseGeneratorSettings.Preset.OVERWORLD.settings());
+            return new NoiseBasedChunkGenerator(new OverworldBiomeSource(param0, false, false), param0, () -> NoiseGeneratorSettings.OVERWORLD);
         }
     };
     private static final WorldPreset FLAT = new WorldPreset("flat") {
@@ -44,19 +45,19 @@ public abstract class WorldPreset {
     private static final WorldPreset LARGE_BIOMES = new WorldPreset("large_biomes") {
         @Override
         protected ChunkGenerator generator(long param0) {
-            return new NoiseBasedChunkGenerator(new OverworldBiomeSource(param0, false, true), param0, NoiseGeneratorSettings.Preset.OVERWORLD.settings());
+            return new NoiseBasedChunkGenerator(new OverworldBiomeSource(param0, false, true), param0, () -> NoiseGeneratorSettings.OVERWORLD);
         }
     };
     public static final WorldPreset AMPLIFIED = new WorldPreset("amplified") {
         @Override
         protected ChunkGenerator generator(long param0) {
-            return new NoiseBasedChunkGenerator(new OverworldBiomeSource(param0, false, false), param0, NoiseGeneratorSettings.Preset.AMPLIFIED.settings());
+            return new NoiseBasedChunkGenerator(new OverworldBiomeSource(param0, false, false), param0, () -> NoiseGeneratorSettings.AMPLIFIED);
         }
     };
     private static final WorldPreset SINGLE_BIOME_SURFACE = new WorldPreset("single_biome_surface") {
         @Override
         protected ChunkGenerator generator(long param0) {
-            return new NoiseBasedChunkGenerator(new FixedBiomeSource(Biomes.PLAINS), param0, NoiseGeneratorSettings.Preset.OVERWORLD.settings());
+            return new NoiseBasedChunkGenerator(new FixedBiomeSource(Biomes.PLAINS), param0, () -> NoiseGeneratorSettings.OVERWORLD);
         }
     };
     private static final WorldPreset SINGLE_BIOME_CAVES = new WorldPreset("single_biome_caves") {
@@ -72,13 +73,13 @@ public abstract class WorldPreset {
 
         @Override
         protected ChunkGenerator generator(long param0) {
-            return new NoiseBasedChunkGenerator(new FixedBiomeSource(Biomes.PLAINS), param0, NoiseGeneratorSettings.Preset.CAVES.settings());
+            return new NoiseBasedChunkGenerator(new FixedBiomeSource(Biomes.PLAINS), param0, () -> NoiseGeneratorSettings.CAVES);
         }
     };
     private static final WorldPreset SINGLE_BIOME_FLOATING_ISLANDS = new WorldPreset("single_biome_floating_islands") {
         @Override
         protected ChunkGenerator generator(long param0) {
-            return new NoiseBasedChunkGenerator(new FixedBiomeSource(Biomes.PLAINS), param0, NoiseGeneratorSettings.Preset.FLOATING_ISLANDS.settings());
+            return new NoiseBasedChunkGenerator(new FixedBiomeSource(Biomes.PLAINS), param0, () -> NoiseGeneratorSettings.FLOATING_ISLANDS);
         }
     };
     private static final WorldPreset DEBUG = new WorldPreset("debug_all_block_states") {
@@ -138,13 +139,13 @@ public abstract class WorldPreset {
 
     private static WorldGenSettings fromBuffetSettings(WorldGenSettings param0, WorldPreset param1, Biome param2) {
         BiomeSource var0 = new FixedBiomeSource(param2);
-        NoiseGeneratorSettings var1;
+        Supplier<NoiseGeneratorSettings> var1;
         if (param1 == SINGLE_BIOME_CAVES) {
-            var1 = NoiseGeneratorSettings.Preset.CAVES.settings();
+            var1 = () -> NoiseGeneratorSettings.CAVES;
         } else if (param1 == SINGLE_BIOME_FLOATING_ISLANDS) {
-            var1 = NoiseGeneratorSettings.Preset.FLOATING_ISLANDS.settings();
+            var1 = () -> NoiseGeneratorSettings.FLOATING_ISLANDS;
         } else {
-            var1 = NoiseGeneratorSettings.Preset.OVERWORLD.settings();
+            var1 = () -> NoiseGeneratorSettings.OVERWORLD;
         }
 
         return new WorldGenSettings(

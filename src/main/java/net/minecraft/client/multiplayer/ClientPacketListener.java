@@ -959,7 +959,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
     @Override
     public void handleSetSpawn(ClientboundSetDefaultSpawnPositionPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
-        this.minecraft.level.setDefaultSpawnPos(param0.getPos());
+        this.minecraft.level.setDefaultSpawnPos(param0.getPos(), param0.getAngle());
     }
 
     @Override

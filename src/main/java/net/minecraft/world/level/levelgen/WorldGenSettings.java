@@ -86,7 +86,7 @@ public class WorldGenSettings {
     }
 
     public static NoiseBasedChunkGenerator makeDefaultOverworld(long param0) {
-        return new NoiseBasedChunkGenerator(new OverworldBiomeSource(param0, false, false), param0, NoiseGeneratorSettings.Preset.OVERWORLD.settings());
+        return new NoiseBasedChunkGenerator(new OverworldBiomeSource(param0, false, false), param0, () -> NoiseGeneratorSettings.OVERWORLD);
     }
 
     public long seed() {
@@ -221,8 +221,7 @@ public class WorldGenSettings {
                     var3,
                     false,
                     withOverworld(
-                        var9,
-                        new NoiseBasedChunkGenerator(new OverworldBiomeSource(var6, false, false), var6, NoiseGeneratorSettings.Preset.AMPLIFIED.settings())
+                        var9, new NoiseBasedChunkGenerator(new OverworldBiomeSource(var6, false, false), var6, () -> NoiseGeneratorSettings.AMPLIFIED)
                     )
                 );
             case "largebiomes":
@@ -230,10 +229,7 @@ public class WorldGenSettings {
                     var6,
                     var3,
                     false,
-                    withOverworld(
-                        var9,
-                        new NoiseBasedChunkGenerator(new OverworldBiomeSource(var6, false, true), var6, NoiseGeneratorSettings.Preset.OVERWORLD.settings())
-                    )
+                    withOverworld(var9, new NoiseBasedChunkGenerator(new OverworldBiomeSource(var6, false, true), var6, () -> NoiseGeneratorSettings.OVERWORLD))
                 );
             default:
                 return new WorldGenSettings(var6, var3, false, withOverworld(var9, makeDefaultOverworld(var6)));

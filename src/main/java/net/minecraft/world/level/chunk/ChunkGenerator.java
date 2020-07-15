@@ -40,6 +40,7 @@ import net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver;
 import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.levelgen.feature.configurations.StrongholdConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.StructureFeatureConfiguration;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import net.minecraftforge.api.distmarker.Dist;
@@ -172,9 +173,10 @@ public abstract class ChunkGenerator {
 
             return var0;
         } else {
-            return param1.getNearestGeneratedFeature(
-                param0, param0.structureFeatureManager(), param2, param3, param4, param0.getSeed(), this.settings.getConfig(param1)
-            );
+            StructureFeatureConfiguration var5 = this.settings.getConfig(param1);
+            return var5 == null
+                ? null
+                : param1.getNearestGeneratedFeature(param0, param0.structureFeatureManager(), param2, param3, param4, param0.getSeed(), var5);
         }
     }
 
@@ -245,8 +247,12 @@ public abstract class ChunkGenerator {
     ) {
         StructureStart<?> var0 = param2.getStartForFeature(SectionPos.of(param3.getPos(), 0), param0.feature, param3);
         int var1 = var0 != null ? var0.getReferences() : 0;
-        StructureStart<?> var2 = param0.generate(param1, this, this.biomeSource, param4, param5, param6, param7, var1, this.settings.getConfig(param0.feature));
-        param2.setStartForFeature(SectionPos.of(param3.getPos(), 0), param0.feature, var2, param3);
+        StructureFeatureConfiguration var2 = this.settings.getConfig(param0.feature);
+        if (var2 != null) {
+            StructureStart<?> var3 = param0.generate(param1, this, this.biomeSource, param4, param5, param6, param7, var1, var2);
+            param2.setStartForFeature(SectionPos.of(param3.getPos(), 0), param0.feature, var3, param3);
+        }
+
     }
 
     public void createReferences(WorldGenLevel param0, StructureFeatureManager param1, ChunkAccess param2) {

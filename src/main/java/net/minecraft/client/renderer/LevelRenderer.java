@@ -1174,6 +1174,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
         var21.endBatch(RenderType.armorEntityGlint());
         var21.endBatch(RenderType.glint());
         var21.endBatch(RenderType.glintDirect());
+        var21.endBatch(RenderType.glintTranslucent());
         var21.endBatch(RenderType.entityGlint());
         var21.endBatch(RenderType.entityGlintDirect());
         var21.endBatch(RenderType.waterMask());
@@ -1196,12 +1197,12 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
         } else {
             var0.popPush("translucent");
             this.renderChunkLayer(RenderType.translucent(), param0, var2, var3, var4);
+            var21.endBatch(RenderType.lines());
+            var21.endBatch();
             var0.popPush("string");
             this.renderChunkLayer(RenderType.tripwire(), param0, var2, var3, var4);
             var0.popPush("particles");
             this.minecraft.particleEngine.render(param0, var21, param6, param4, param1);
-            var21.endBatch(RenderType.lines());
-            var21.endBatch();
         }
 
         RenderSystem.pushMatrix();

@@ -9,12 +9,14 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundSetDefaultSpawnPositionPacket implements Packet<ClientGamePacketListener> {
     private BlockPos pos;
+    private float angle;
 
     public ClientboundSetDefaultSpawnPositionPacket() {
     }
 
-    public ClientboundSetDefaultSpawnPositionPacket(BlockPos param0) {
+    public ClientboundSetDefaultSpawnPositionPacket(BlockPos param0, float param1) {
         this.pos = param0;
+        this.angle = param1;
     }
 
     @Override
@@ -34,5 +36,10 @@ public class ClientboundSetDefaultSpawnPositionPacket implements Packet<ClientGa
     @OnlyIn(Dist.CLIENT)
     public BlockPos getPos() {
         return this.pos;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public float getAngle() {
+        return this.angle;
     }
 }

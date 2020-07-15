@@ -28,6 +28,7 @@ import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.ItemModelShaper;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -175,9 +176,13 @@ public class ItemRenderer implements ResourceManagerReloadListener {
     }
 
     public static VertexConsumer getFoilBuffer(MultiBufferSource param0, RenderType param1, boolean param2, boolean param3) {
-        return param3
-            ? VertexMultiConsumer.create(param0.getBuffer(param2 ? RenderType.glint() : RenderType.entityGlint()), param0.getBuffer(param1))
-            : param0.getBuffer(param1);
+        if (param3) {
+            return Minecraft.useShaderTransparency() && param1 == Sheets.translucentItemSheet()
+                ? VertexMultiConsumer.create(param0.getBuffer(RenderType.glintTranslucent()), param0.getBuffer(param1))
+                : VertexMultiConsumer.create(param0.getBuffer(param2 ? RenderType.glint() : RenderType.entityGlint()), param0.getBuffer(param1));
+        } else {
+            return param0.getBuffer(param1);
+        }
     }
 
     public static VertexConsumer getFoilBufferDirect(MultiBufferSource param0, RenderType param1, boolean param2, boolean param3) {

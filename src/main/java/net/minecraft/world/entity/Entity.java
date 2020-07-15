@@ -214,6 +214,13 @@ public abstract class Entity implements CommandSource, Nameable {
     }
 
     @OnlyIn(Dist.CLIENT)
+    public boolean isColliding(BlockPos param0, BlockState param1) {
+        VoxelShape var0 = param1.getCollisionShape(this.level, param0, CollisionContext.of(this));
+        VoxelShape var1 = var0.move((double)param0.getX(), (double)param0.getY(), (double)param0.getZ());
+        return Shapes.joinIsNotEmpty(var1, Shapes.create(this.getBoundingBox()), BooleanOp.AND);
+    }
+
+    @OnlyIn(Dist.CLIENT)
     public int getTeamColor() {
         Team var0 = this.getTeam();
         return var0 != null && var0.getColor().getColor() != null ? var0.getColor().getColor() : 16777215;
@@ -930,7 +937,7 @@ public abstract class Entity implements CommandSource, Nameable {
 
     private boolean isInRain() {
         BlockPos var0 = this.blockPosition();
-        return this.level.isRainingAt(var0) || this.level.isRainingAt(var0.offset(0.0, (double)this.dimensions.height, 0.0));
+        return this.level.isRainingAt(var0) || this.level.isRainingAt(new BlockPos((double)var0.getX(), this.getBoundingBox().maxY, (double)var0.getZ()));
     }
 
     private boolean isInBubbleColumn() {
@@ -991,23 +998,22 @@ public abstract class Entity implements CommandSource, Nameable {
         this.wasEyeInWater = this.isEyeInFluid(FluidTags.WATER);
         this.fluidOnEyes = null;
         double var0 = this.getEyeY() - 0.11111111F;
-        Vec3 var1 = new Vec3(this.getX(), var0, this.getZ());
-        Entity var2 = this.getVehicle();
-        if (var2 instanceof Boat) {
-            Boat var3 = (Boat)var2;
-            if (!var3.isUnderWater() && var3.getBoundingBox().contains(var1)) {
+        Entity var1 = this.getVehicle();
+        if (var1 instanceof Boat) {
+            Boat var2 = (Boat)var1;
+            if (!var2.isUnderWater() && var2.getBoundingBox().maxY >= var0 && var2.getBoundingBox().minY <= var0) {
                 return;
             }
         }
 
-        BlockPos var4 = new BlockPos(var1);
-        FluidState var5 = this.level.getFluidState(var4);
+        BlockPos var3 = new BlockPos(this.getX(), var0, this.getZ());
+        FluidState var4 = this.level.getFluidState(var3);
 
-        for(Tag<Fluid> var6 : FluidTags.getWrappers()) {
-            if (var5.is(var6)) {
-                double var7 = (double)((float)var4.getY() + var5.getHeight(this.level, var4));
-                if (var7 > var0) {
-                    this.fluidOnEyes = var6;
+        for(Tag<Fluid> var5 : FluidTags.getWrappers()) {
+            if (var4.is(var5)) {
+                double var6 = (double)((float)var3.getY() + var4.getHeight(this.level, var3));
+                if (var6 > var0) {
+                    this.fluidOnEyes = var5;
                 }
 
                 return;
@@ -1126,16 +1132,20 @@ public abstract class Entity implements CommandSource, Nameable {
     }
 
     public void absMoveTo(double param0, double param1, double param2, float param3, float param4) {
+        this.absMoveTo(param0, param1, param2);
+        this.yRot = param3 % 360.0F;
+        this.xRot = Mth.clamp(param4, -90.0F, 90.0F) % 360.0F;
+        this.yRotO = this.yRot;
+        this.xRotO = this.xRot;
+    }
+
+    public void absMoveTo(double param0, double param1, double param2) {
         double var0 = Mth.clamp(param0, -3.0E7, 3.0E7);
         double var1 = Mth.clamp(param2, -3.0E7, 3.0E7);
         this.xo = var0;
         this.yo = param1;
         this.zo = var1;
         this.setPos(var0, param1, var1);
-        this.yRot = param3 % 360.0F;
-        this.xRot = Mth.clamp(param4, -90.0F, 90.0F) % 360.0F;
-        this.yRotO = this.yRot;
-        this.xRotO = this.xRot;
     }
 
     public void moveTo(Vec3 param0) {
@@ -1977,7 +1987,7 @@ public abstract class Entity implements CommandSource, Nameable {
     public void killed(ServerLevel param0, LivingEntity param1) {
     }
 
-    protected void checkInBlock(double param0, double param1, double param2) {
+    protected void moveTowardsClosestSpace(double param0, double param1, double param2) {
         BlockPos var0 = new BlockPos(param0, param1, param2);
         Vec3 var1 = new Vec3(param0 - (double)var0.getX(), param1 - (double)var0.getY(), param2 - (double)var0.getZ());
         BlockPos.MutableBlockPos var2 = new BlockPos.MutableBlockPos();
@@ -2160,7 +2170,7 @@ public abstract class Entity implements CommandSource, Nameable {
                                 BlockUtil.FoundRectangle var2x = BlockUtil.getLargestRectangleAround(
                                     this.portalEntrancePos, var1x, 21, Direction.Axis.Y, 21, param1x -> this.level.getBlockState(param1x) == var0x
                                 );
-                                var3x = PortalShape.getRelativePosition(var2x, var1x, this.position(), this.getDimensions(this.getPose()));
+                                var3x = this.getRelativePortalPosition(var1x, var2x);
                             } else {
                                 var1x = Direction.Axis.X;
                                 var3x = new Vec3(0.5, 0.0, 0.0);
@@ -2185,6 +2195,10 @@ public abstract class Entity implements CommandSource, Nameable {
                 new Vec3((double)var2.getX() + 0.5, (double)var2.getY(), (double)var2.getZ() + 0.5), this.getDeltaMovement(), this.yRot, this.xRot
             );
         }
+    }
+
+    protected Vec3 getRelativePortalPosition(Direction.Axis param0, BlockUtil.FoundRectangle param1) {
+        return PortalShape.getRelativePosition(param1, param0, this.position(), this.getDimensions(this.getPose()));
     }
 
     protected Optional<BlockUtil.FoundRectangle> getExitPortal(ServerLevel param0, BlockPos param1, boolean param2) {

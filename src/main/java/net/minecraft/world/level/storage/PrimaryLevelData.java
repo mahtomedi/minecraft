@@ -47,6 +47,7 @@ public class PrimaryLevelData implements ServerLevelData, WorldData {
     private int xSpawn;
     private int ySpawn;
     private int zSpawn;
+    private float spawnAngle;
     private long gameTime;
     private long dayTime;
     @Nullable
@@ -83,56 +84,58 @@ public class PrimaryLevelData implements ServerLevelData, WorldData {
         int param4,
         int param5,
         int param6,
-        long param7,
+        float param7,
         long param8,
-        int param9,
+        long param9,
         int param10,
         int param11,
-        boolean param12,
-        int param13,
-        boolean param14,
+        int param12,
+        boolean param13,
+        int param14,
         boolean param15,
         boolean param16,
-        WorldBorder.Settings param17,
-        int param18,
+        boolean param17,
+        WorldBorder.Settings param18,
         int param19,
-        @Nullable UUID param20,
-        LinkedHashSet<String> param21,
-        TimerQueue<MinecraftServer> param22,
-        @Nullable CompoundTag param23,
-        CompoundTag param24,
-        LevelSettings param25,
-        WorldGenSettings param26,
-        Lifecycle param27
+        int param20,
+        @Nullable UUID param21,
+        LinkedHashSet<String> param22,
+        TimerQueue<MinecraftServer> param23,
+        @Nullable CompoundTag param24,
+        CompoundTag param25,
+        LevelSettings param26,
+        WorldGenSettings param27,
+        Lifecycle param28
     ) {
         this.fixerUpper = param0;
         this.wasModded = param3;
         this.xSpawn = param4;
         this.ySpawn = param5;
         this.zSpawn = param6;
-        this.gameTime = param7;
-        this.dayTime = param8;
-        this.version = param9;
-        this.clearWeatherTime = param10;
-        this.rainTime = param11;
-        this.raining = param12;
-        this.thunderTime = param13;
-        this.thundering = param14;
-        this.initialized = param15;
-        this.difficultyLocked = param16;
-        this.worldBorder = param17;
-        this.wanderingTraderSpawnDelay = param18;
-        this.wanderingTraderSpawnChance = param19;
-        this.wanderingTraderId = param20;
-        this.knownServerBrands = param21;
+        this.spawnAngle = param7;
+        this.gameTime = param8;
+        this.dayTime = param9;
+        this.version = param10;
+        this.clearWeatherTime = param11;
+        this.rainTime = param12;
+        this.raining = param13;
+        this.thunderTime = param14;
+        this.thundering = param15;
+        this.initialized = param16;
+        this.difficultyLocked = param17;
+        this.worldBorder = param18;
+        this.wanderingTraderSpawnDelay = param19;
+        this.wanderingTraderSpawnChance = param20;
+        this.wanderingTraderId = param21;
+        this.knownServerBrands = param22;
         this.loadedPlayerTag = param2;
         this.playerDataVersion = param1;
-        this.scheduledEvents = param22;
-        this.customBossEvents = param23;
-        this.endDragonFightData = param24;
-        this.settings = param25;
-        this.worldGenSettings = param26;
-        this.worldGenSettingsLifecycle = param27;
+        this.scheduledEvents = param23;
+        this.customBossEvents = param24;
+        this.endDragonFightData = param25;
+        this.settings = param26;
+        this.worldGenSettings = param27;
+        this.worldGenSettingsLifecycle = param28;
     }
 
     public PrimaryLevelData(LevelSettings param0, WorldGenSettings param1, Lifecycle param2) {
@@ -144,6 +147,7 @@ public class PrimaryLevelData implements ServerLevelData, WorldData {
             0,
             0,
             0,
+            0.0F,
             0L,
             0L,
             19133,
@@ -191,6 +195,7 @@ public class PrimaryLevelData implements ServerLevelData, WorldData {
             param0.get("SpawnX").asInt(0),
             param0.get("SpawnY").asInt(0),
             param0.get("SpawnZ").asInt(0),
+            param0.get("SpawnAngle").asFloat(0.0F),
             var0,
             param0.get("DayTime").asLong(var0),
             param5.levelDataVersion(),
@@ -250,6 +255,7 @@ public class PrimaryLevelData implements ServerLevelData, WorldData {
         param1.putInt("SpawnX", this.xSpawn);
         param1.putInt("SpawnY", this.ySpawn);
         param1.putInt("SpawnZ", this.zSpawn);
+        param1.putFloat("SpawnAngle", this.spawnAngle);
         param1.putLong("Time", this.gameTime);
         param1.putLong("DayTime", this.dayTime);
         param1.putLong("LastPlayed", Util.getEpochMillis());
@@ -302,6 +308,11 @@ public class PrimaryLevelData implements ServerLevelData, WorldData {
     }
 
     @Override
+    public float getSpawnAngle() {
+        return this.spawnAngle;
+    }
+
+    @Override
     public long getGameTime() {
         return this.gameTime;
     }
@@ -349,6 +360,11 @@ public class PrimaryLevelData implements ServerLevelData, WorldData {
     }
 
     @Override
+    public void setSpawnAngle(float param0) {
+        this.spawnAngle = param0;
+    }
+
+    @Override
     public void setGameTime(long param0) {
         this.gameTime = param0;
     }
@@ -359,10 +375,11 @@ public class PrimaryLevelData implements ServerLevelData, WorldData {
     }
 
     @Override
-    public void setSpawn(BlockPos param0) {
+    public void setSpawn(BlockPos param0, float param1) {
         this.xSpawn = param0.getX();
         this.ySpawn = param0.getY();
         this.zSpawn = param0.getZ();
+        this.spawnAngle = param1;
     }
 
     @Override

@@ -10,7 +10,6 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.AbstractFlowerFeature;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
-import net.minecraft.world.level.levelgen.feature.configurations.DecoratedFeatureConfiguration;
 
 public class GrassBlock extends SpreadingSnowyDirtBlock implements BonemealableBlock {
     public GrassBlock(BlockBehaviour.Properties param0) {
@@ -49,21 +48,22 @@ public class GrassBlock extends SpreadingSnowyDirtBlock implements BonemealableB
             }
 
             if (var5.isAir()) {
-                BlockState var8;
+                BlockState var9;
                 if (param1.nextInt(8) == 0) {
                     List<ConfiguredFeature<?, ?>> var6 = param0.getBiome(var3).getFlowerFeatures();
                     if (var6.isEmpty()) {
                         continue;
                     }
 
-                    ConfiguredFeature<?, ?> var7 = ((DecoratedFeatureConfiguration)var6.get(0).config).feature.get();
-                    var8 = ((AbstractFlowerFeature)var7.feature).getRandomFlower(param1, var3, var7.config);
+                    ConfiguredFeature<?, ?> var7 = var6.get(0);
+                    AbstractFlowerFeature var8 = (AbstractFlowerFeature)var7.feature;
+                    var9 = var8.getRandomFlower(param1, var3, var7.config());
                 } else {
-                    var8 = var1;
+                    var9 = var1;
                 }
 
-                if (var8.canSurvive(param0, var3)) {
-                    param0.setBlock(var3, var8, 3);
+                if (var9.canSurvive(param0, var3)) {
+                    param0.setBlock(var3, var9, 3);
                 }
             }
         }

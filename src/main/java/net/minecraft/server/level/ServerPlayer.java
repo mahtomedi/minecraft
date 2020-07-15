@@ -166,13 +166,14 @@ public class ServerPlayer extends Player implements ContainerListener {
     @Nullable
     private BlockPos respawnPosition;
     private boolean respawnForced;
+    private float respawnAngle;
     private int containerCounter;
     public boolean ignoreSlotUpdateHack;
     public int latency;
     public boolean wonGame;
 
     public ServerPlayer(MinecraftServer param0, ServerLevel param1, GameProfile param2, ServerPlayerGameMode param3) {
-        super(param1, param1.getSharedSpawnPos(), param2);
+        super(param1, param1.getSharedSpawnPos(), param1.getSharedSpawnAngle(), param2);
         param3.player = this;
         this.gameMode = param3;
         this.server = param0;
@@ -259,6 +260,7 @@ public class ServerPlayer extends Player implements ContainerListener {
         if (param0.contains("SpawnX", 99) && param0.contains("SpawnY", 99) && param0.contains("SpawnZ", 99)) {
             this.respawnPosition = new BlockPos(param0.getInt("SpawnX"), param0.getInt("SpawnY"), param0.getInt("SpawnZ"));
             this.respawnForced = param0.getBoolean("SpawnForced");
+            this.respawnAngle = param0.getFloat("SpawnAngle");
             if (param0.contains("SpawnDimension")) {
                 this.respawnDimension = Level.RESOURCE_KEY_CODEC
                     .parse(NbtOps.INSTANCE, param0.get("SpawnDimension"))
@@ -301,6 +303,7 @@ public class ServerPlayer extends Player implements ContainerListener {
             param0.putInt("SpawnY", this.respawnPosition.getY());
             param0.putInt("SpawnZ", this.respawnPosition.getZ());
             param0.putBoolean("SpawnForced", this.respawnForced);
+            param0.putFloat("SpawnAngle", this.respawnAngle);
             ResourceLocation.CODEC
                 .encodeStart(NbtOps.INSTANCE, this.respawnDimension.location())
                 .resultOrPartial(LOGGER::error)
@@ -789,7 +792,7 @@ public class ServerPlayer extends Player implements ContainerListener {
         } else if (this.bedBlocked(param0, var0)) {
             return Either.left(Player.BedSleepingProblem.OBSTRUCTED);
         } else {
-            this.setRespawnPosition(this.level.dimension(), param0, false, true);
+            this.setRespawnPosition(this.level.dimension(), param0, 0.0F, false, true);
             if (this.level.isDay()) {
                 return Either.left(Player.BedSleepingProblem.NOT_POSSIBLE_NOW);
             } else {
@@ -1427,6 +1430,10 @@ public class ServerPlayer extends Player implements ContainerListener {
         return this.respawnPosition;
     }
 
+    public float getRespawnAngle() {
+        return this.respawnAngle;
+    }
+
     public ResourceKey<Level> getRespawnDimension() {
         return this.respawnDimension;
     }
@@ -1435,19 +1442,21 @@ public class ServerPlayer extends Player implements ContainerListener {
         return this.respawnForced;
     }
 
-    public void setRespawnPosition(ResourceKey<Level> param0, @Nullable BlockPos param1, boolean param2, boolean param3) {
+    public void setRespawnPosition(ResourceKey<Level> param0, @Nullable BlockPos param1, float param2, boolean param3, boolean param4) {
         if (param1 != null) {
             boolean var0 = param1.equals(this.respawnPosition) && param0.equals(this.respawnDimension);
-            if (param3 && !var0) {
+            if (param4 && !var0) {
                 this.sendMessage(new TranslatableComponent("block.minecraft.set_spawn"), Util.NIL_UUID);
             }
 
             this.respawnPosition = param1;
             this.respawnDimension = param0;
-            this.respawnForced = param2;
+            this.respawnAngle = param2;
+            this.respawnForced = param3;
         } else {
             this.respawnPosition = null;
             this.respawnDimension = Level.OVERWORLD;
+            this.respawnAngle = 0.0F;
             this.respawnForced = false;
         }
 

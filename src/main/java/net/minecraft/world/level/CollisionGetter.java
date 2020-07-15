@@ -13,6 +13,8 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public interface CollisionGetter extends BlockGetter {
     WorldBorder getWorldBorder();
@@ -57,6 +59,11 @@ public interface CollisionGetter extends BlockGetter {
 
     default Stream<VoxelShape> getBlockCollisions(@Nullable Entity param0, AABB param1) {
         return StreamSupport.stream(new CollisionSpliterator(this, param0, param1), false);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    default boolean noBlockCollision(@Nullable Entity param0, AABB param1, BiPredicate<BlockState, BlockPos> param2) {
+        return this.getBlockCollisions(param0, param1, param2).allMatch(VoxelShape::isEmpty);
     }
 
     default Stream<VoxelShape> getBlockCollisions(@Nullable Entity param0, AABB param1, BiPredicate<BlockState, BlockPos> param2) {

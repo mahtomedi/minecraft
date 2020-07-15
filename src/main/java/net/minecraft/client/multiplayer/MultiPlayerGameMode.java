@@ -42,7 +42,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.phys.PosAndRot;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -62,7 +61,7 @@ public class MultiPlayerGameMode {
     private boolean isDestroying;
     private GameType localPlayerMode = GameType.SURVIVAL;
     private GameType previousLocalPlayerMode = GameType.NOT_SET;
-    private final Object2ObjectLinkedOpenHashMap<Pair<BlockPos, ServerboundPlayerActionPacket.Action>, PosAndRot> unAckedActions = new Object2ObjectLinkedOpenHashMap<>(
+    private final Object2ObjectLinkedOpenHashMap<Pair<BlockPos, ServerboundPlayerActionPacket.Action>, Vec3> unAckedActions = new Object2ObjectLinkedOpenHashMap<>(
         
     );
     private int carriedIndex;
@@ -427,18 +426,18 @@ public class MultiPlayerGameMode {
 
     private void sendBlockAction(ServerboundPlayerActionPacket.Action param0, BlockPos param1, Direction param2) {
         LocalPlayer var0 = this.minecraft.player;
-        this.unAckedActions.put(Pair.of(param1, param0), new PosAndRot(var0.position(), var0.xRot, var0.yRot));
+        this.unAckedActions.put(Pair.of(param1, param0), var0.position());
         this.connection.send(new ServerboundPlayerActionPacket(param0, param1, param2));
     }
 
     public void handleBlockBreakAck(ClientLevel param0, BlockPos param1, BlockState param2, ServerboundPlayerActionPacket.Action param3, boolean param4) {
-        PosAndRot var0 = this.unAckedActions.remove(Pair.of(param1, param3));
+        Vec3 var0 = this.unAckedActions.remove(Pair.of(param1, param3));
         BlockState var1 = param0.getBlockState(param1);
         if ((var0 == null || !param4 || param3 != ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK && var1 != param2) && var1 != param2) {
             param0.setKnownState(param1, param2);
-            if (var0 != null) {
-                Vec3 var2 = var0.pos();
-                this.minecraft.player.absMoveTo(var2.x, var2.y, var2.z, var0.yRot(), var0.xRot());
+            Player var2 = this.minecraft.player;
+            if (var0 != null && param0 == var2.level && var2.isColliding(param1, param2)) {
+                var2.absMoveTo(var0.x, var0.y, var0.z);
             }
         }
 

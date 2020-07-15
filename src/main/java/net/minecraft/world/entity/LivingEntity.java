@@ -18,6 +18,7 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
+import net.minecraft.BlockUtil;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
@@ -1144,7 +1145,7 @@ public abstract class LivingEntity extends Entity {
                 this.removeAllEffects();
                 this.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 900, 1));
                 this.addEffect(new MobEffectInstance(MobEffects.ABSORPTION, 100, 1));
-                this.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 800, 1));
+                this.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 800, 0));
                 this.level.broadcastEntityEvent(this, (byte)35);
             }
 
@@ -2691,7 +2692,7 @@ public abstract class LivingEntity extends Entity {
 
     @Override
     public boolean isPushable() {
-        return this.isAlive() && !this.onClimbable();
+        return this.isAlive() && !this.isSpectator() && !this.onClimbable();
     }
 
     @Override
@@ -2712,6 +2713,12 @@ public abstract class LivingEntity extends Entity {
     @Override
     public void setYBodyRot(float param0) {
         this.yBodyRot = param0;
+    }
+
+    @Override
+    protected Vec3 getRelativePortalPosition(Direction.Axis param0, BlockUtil.FoundRectangle param1) {
+        Vec3 var0 = super.getRelativePortalPosition(param0, param1);
+        return new Vec3(var0.x, var0.y, 0.0);
     }
 
     public float getAbsorptionAmount() {
