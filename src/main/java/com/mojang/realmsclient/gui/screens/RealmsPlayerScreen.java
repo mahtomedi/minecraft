@@ -17,6 +17,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.realms.NarrationHelper;
@@ -36,7 +37,12 @@ public class RealmsPlayerScreen extends RealmsScreen {
     private static final ResourceLocation USER_ICON_LOCATION = new ResourceLocation("realms", "textures/gui/realms/user_icon.png");
     private static final ResourceLocation CROSS_ICON_LOCATION = new ResourceLocation("realms", "textures/gui/realms/cross_player_icon.png");
     private static final ResourceLocation OPTIONS_BACKGROUND = new ResourceLocation("minecraft", "textures/gui/options_background.png");
-    private String toolTip;
+    private static final Component DISABLED_ACTIVITY_FEED_LABEL = new TranslatableComponent("mco.configure.world.activityfeed.disabled");
+    private static final Component NORMAL_USER_TOOLTIP = new TranslatableComponent("mco.configure.world.invites.normal.tooltip");
+    private static final Component OP_TOOLTIP = new TranslatableComponent("mco.configure.world.invites.ops.tooltip");
+    private static final Component REMOVE_ENTRY_TOOLTIP = new TranslatableComponent("mco.configure.world.invites.remove.tooltip");
+    private static final Component INVITED_LABEL = new TranslatableComponent("mco.configure.world.invited");
+    private Component toolTip;
     private final RealmsConfigureWorldScreen lastScreen;
     private final RealmsServer serverData;
     private RealmsPlayerScreen.InvitedObjectSelectionList invitedObjectSelectionList;
@@ -50,6 +56,7 @@ public class RealmsPlayerScreen extends RealmsScreen {
     private int player = -1;
     private boolean stateChanged;
     private RealmsLabel titleLabel;
+    private RealmsPlayerScreen.UserAction hoveredUserAction = RealmsPlayerScreen.UserAction.NONE;
 
     public RealmsPlayerScreen(RealmsConfigureWorldScreen param0, RealmsServer param1) {
         this.lastScreen = param0;
@@ -221,6 +228,7 @@ public class RealmsPlayerScreen extends RealmsScreen {
     @Override
     public void render(PoseStack param0, int param1, int param2, float param3) {
         this.toolTip = null;
+        this.hoveredUserAction = RealmsPlayerScreen.UserAction.NONE;
         this.renderBackground(param0);
         if (this.invitedObjectSelectionList != null) {
             this.invitedObjectSelectionList.render(param0, param1, param2, param3);
@@ -246,25 +254,22 @@ public class RealmsPlayerScreen extends RealmsScreen {
             this.font
                 .draw(
                     param0,
-                    I18n.get("mco.configure.world.invited") + " (" + this.serverData.players.size() + ")",
+                    new TextComponent("").append(INVITED_LABEL).append(" (").append(Integer.toString(this.serverData.players.size())).append(")"),
                     (float)this.column1X,
                     (float)row(0),
                     10526880
                 );
         } else {
-            this.font.draw(param0, I18n.get("mco.configure.world.invited"), (float)this.column1X, (float)row(0), 10526880);
+            this.font.draw(param0, INVITED_LABEL, (float)this.column1X, (float)row(0), 10526880);
         }
 
         super.render(param0, param1, param2, param3);
         if (this.serverData != null) {
-            if (this.toolTip != null) {
-                this.renderMousehoverTooltip(param0, this.toolTip, param1, param2);
-            }
-
+            this.renderMousehoverTooltip(param0, this.toolTip, param1, param2);
         }
     }
 
-    protected void renderMousehoverTooltip(PoseStack param0, String param1, int param2, int param3) {
+    protected void renderMousehoverTooltip(PoseStack param0, @Nullable Component param1, int param2, int param3) {
         if (param1 != null) {
             int var0 = param2 + 12;
             int var1 = param3 - 12;
@@ -281,7 +286,8 @@ public class RealmsPlayerScreen extends RealmsScreen {
         float var1 = var0 ? 7.0F : 0.0F;
         GuiComponent.blit(param0, param1, param2, 0.0F, var1, 8, 7, 8, 14);
         if (var0) {
-            this.toolTip = I18n.get("mco.configure.world.invites.remove.tooltip");
+            this.toolTip = REMOVE_ENTRY_TOOLTIP;
+            this.hoveredUserAction = RealmsPlayerScreen.UserAction.REMOVE;
         }
 
     }
@@ -293,7 +299,8 @@ public class RealmsPlayerScreen extends RealmsScreen {
         float var1 = var0 ? 8.0F : 0.0F;
         GuiComponent.blit(param0, param1, param2, 0.0F, var1, 8, 8, 8, 16);
         if (var0) {
-            this.toolTip = I18n.get("mco.configure.world.invites.ops.tooltip");
+            this.toolTip = OP_TOOLTIP;
+            this.hoveredUserAction = RealmsPlayerScreen.UserAction.TOGGLE_OP;
         }
 
     }
@@ -305,7 +312,8 @@ public class RealmsPlayerScreen extends RealmsScreen {
         float var1 = var0 ? 8.0F : 0.0F;
         GuiComponent.blit(param0, param1, param2, 0.0F, var1, 8, 8, 8, 16);
         if (var0) {
-            this.toolTip = I18n.get("mco.configure.world.invites.normal.tooltip");
+            this.toolTip = NORMAL_USER_TOOLTIP;
+            this.hoveredUserAction = RealmsPlayerScreen.UserAction.TOGGLE_OP;
         }
 
     }
@@ -350,7 +358,7 @@ public class RealmsPlayerScreen extends RealmsScreen {
             RealmsPlayerScreen.this.font
                 .draw(
                     param0,
-                    I18n.get("mco.configure.world.activityfeed.disabled"),
+                    RealmsPlayerScreen.DISABLED_ACTIVITY_FEED_LABEL,
                     (float)RealmsPlayerScreen.this.column2X,
                     (float)RealmsPlayerScreen.row(5),
                     10526880
@@ -403,16 +411,17 @@ public class RealmsPlayerScreen extends RealmsScreen {
 
         @Override
         public void itemClicked(int param0, int param1, double param2, double param3, int param4) {
-            if (param1 >= 0 && param1 <= RealmsPlayerScreen.this.serverData.players.size() && RealmsPlayerScreen.this.toolTip != null) {
-                if (!RealmsPlayerScreen.this.toolTip.equals(I18n.get("mco.configure.world.invites.ops.tooltip"))
-                    && !RealmsPlayerScreen.this.toolTip.equals(I18n.get("mco.configure.world.invites.normal.tooltip"))) {
-                    if (RealmsPlayerScreen.this.toolTip.equals(I18n.get("mco.configure.world.invites.remove.tooltip"))) {
-                        RealmsPlayerScreen.this.uninvite(param1);
+            if (param1 >= 0
+                && param1 <= RealmsPlayerScreen.this.serverData.players.size()
+                && RealmsPlayerScreen.this.hoveredUserAction != RealmsPlayerScreen.UserAction.NONE) {
+                if (RealmsPlayerScreen.this.hoveredUserAction == RealmsPlayerScreen.UserAction.TOGGLE_OP) {
+                    if (RealmsPlayerScreen.this.serverData.players.get(param1).isOperator()) {
+                        RealmsPlayerScreen.this.deop(param1);
+                    } else {
+                        RealmsPlayerScreen.this.op(param1);
                     }
-                } else if (RealmsPlayerScreen.this.serverData.players.get(param1).isOperator()) {
-                    RealmsPlayerScreen.this.deop(param1);
-                } else {
-                    RealmsPlayerScreen.this.op(param1);
+                } else if (RealmsPlayerScreen.this.hoveredUserAction == RealmsPlayerScreen.UserAction.REMOVE) {
+                    RealmsPlayerScreen.this.uninvite(param1);
                 }
 
             }
@@ -453,5 +462,12 @@ public class RealmsPlayerScreen extends RealmsScreen {
         public int getMaxPosition() {
             return this.getItemCount() * 13;
         }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    static enum UserAction {
+        TOGGLE_OP,
+        REMOVE,
+        NONE;
     }
 }

@@ -28,6 +28,9 @@ public class RealmsWorldSlotButton extends Button implements TickableWidget {
     public static final ResourceLocation DEFAULT_WORLD_SLOT_1 = new ResourceLocation("minecraft", "textures/gui/title/background/panorama_0.png");
     public static final ResourceLocation DEFAULT_WORLD_SLOT_2 = new ResourceLocation("minecraft", "textures/gui/title/background/panorama_2.png");
     public static final ResourceLocation DEFAULT_WORLD_SLOT_3 = new ResourceLocation("minecraft", "textures/gui/title/background/panorama_3.png");
+    private static final Component SLOT_ACTIVE_TOOLTIP = new TranslatableComponent("mco.configure.world.slot.tooltip.active");
+    private static final Component SWITCH_TO_MINIGAME_SLOT_TOOLTIP = new TranslatableComponent("mco.configure.world.slot.tooltip.minigame");
+    private static final Component SWITCH_TO_WORLD_SLOT_TOOLTIP = new TranslatableComponent("mco.configure.world.slot.tooltip");
     private final Supplier<RealmsServer> serverDataProvider;
     private final Consumer<Component> toolTipSetter;
     private final int slotIndex;
@@ -119,11 +122,9 @@ public class RealmsWorldSlotButton extends Button implements TickableWidget {
 
             Component var3;
             if (param4 == RealmsWorldSlotButton.Action.JOIN) {
-                var3 = new TranslatableComponent("mco.configure.world.slot.tooltip.active");
+                var3 = SLOT_ACTIVE_TOOLTIP;
             } else {
-                var3 = param3
-                    ? new TranslatableComponent("mco.configure.world.slot.tooltip.minigame")
-                    : new TranslatableComponent("mco.configure.world.slot.tooltip");
+                var3 = param3 ? SWITCH_TO_MINIGAME_SLOT_TOOLTIP : SWITCH_TO_WORLD_SLOT_TOOLTIP;
             }
 
             Component var5 = var3.copy().append(var0);
@@ -209,7 +210,7 @@ public class RealmsWorldSlotButton extends Button implements TickableWidget {
         }
 
         blit(param0, param1, param2, 0.0F, 0.0F, 80, 80, 80, 80);
-        this.drawCenteredString(param0, var1.font, param6, param1 + 40, param2 + 66, 16777215);
+        drawCenteredString(param0, var1.font, param6, param1 + 40, param2 + 66, 16777215);
     }
 
     @OnlyIn(Dist.CLIENT)

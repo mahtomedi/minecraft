@@ -11,11 +11,13 @@ import net.minecraft.advancements.DisplayInfo;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.StringSplitter;
 import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -27,9 +29,9 @@ public class AdvancementWidget extends GuiComponent {
     private final AdvancementTab tab;
     private final Advancement advancement;
     private final DisplayInfo display;
-    private final FormattedText title;
+    private final FormattedCharSequence title;
     private final int width;
-    private final List<FormattedText> description;
+    private final List<FormattedCharSequence> description;
     private final Minecraft minecraft;
     private AdvancementWidget parent;
     private final List<AdvancementWidget> children = Lists.newArrayList();
@@ -42,18 +44,19 @@ public class AdvancementWidget extends GuiComponent {
         this.advancement = param2;
         this.display = param3;
         this.minecraft = param1;
-        this.title = param1.font.substrByWidth(param3.getTitle(), 163);
+        this.title = Language.getInstance().getVisualOrder(param1.font.substrByWidth(param3.getTitle(), 163));
         this.x = Mth.floor(param3.getX() * 28.0F);
         this.y = Mth.floor(param3.getY() * 27.0F);
         int var0 = param2.getMaxCriteraRequired();
         int var1 = String.valueOf(var0).length();
         int var2 = var0 > 1 ? param1.font.width("  ") + param1.font.width("0") * var1 * 2 + param1.font.width("/") : 0;
         int var3 = 29 + param1.font.width(this.title) + var2;
-        this.description = this.findOptimalLines(
-            ComponentUtils.mergeStyles(param3.getDescription().copy(), Style.EMPTY.withColor(param3.getFrame().getChatColor())), var3
-        );
+        this.description = Language.getInstance()
+            .getVisualOrder(
+                this.findOptimalLines(ComponentUtils.mergeStyles(param3.getDescription().copy(), Style.EMPTY.withColor(param3.getFrame().getChatColor())), var3)
+            );
 
-        for(FormattedText var4 : this.description) {
+        for(FormattedCharSequence var4 : this.description) {
             var3 = Math.max(var3, param1.font.width(var4));
         }
 

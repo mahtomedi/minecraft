@@ -8,7 +8,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.multiplayer.ServerData;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -18,6 +17,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class EditServerScreen extends Screen {
+    private static final Component NAME_LABEL = new TranslatableComponent("addServer.enterName");
+    private static final Component IP_LABEL = new TranslatableComponent("addServer.enterIp");
     private Button addButton;
     private final BooleanConsumer callback;
     private final ServerData serverData;
@@ -139,9 +140,9 @@ public class EditServerScreen extends Screen {
     @Override
     public void render(PoseStack param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
-        this.drawCenteredString(param0, this.font, this.title, this.width / 2, 17, 16777215);
-        this.drawString(param0, this.font, I18n.get("addServer.enterName"), this.width / 2 - 100, 53, 10526880);
-        this.drawString(param0, this.font, I18n.get("addServer.enterIp"), this.width / 2 - 100, 94, 10526880);
+        drawCenteredString(param0, this.font, this.title, this.width / 2, 17, 16777215);
+        drawString(param0, this.font, NAME_LABEL, this.width / 2 - 100, 53, 10526880);
+        drawString(param0, this.font, IP_LABEL, this.width / 2 - 100, 94, 10526880);
         this.nameEdit.render(param0, param1, param2, param3);
         this.ipEdit.render(param0, param1, param2, param3);
         super.render(param0, param1, param2, param3);

@@ -24,6 +24,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class TeleportToTeamMenuCategory implements SpectatorMenuCategory, SpectatorMenuItem {
+    private static final Component TELEPORT_TEXT = new TranslatableComponent("spectatorMenu.team_teleport");
+    private static final Component TELEPORT_PROMPT = new TranslatableComponent("spectatorMenu.team_teleport.prompt");
     private final List<SpectatorMenuItem> items = Lists.newArrayList();
 
     public TeleportToTeamMenuCategory() {
@@ -42,7 +44,7 @@ public class TeleportToTeamMenuCategory implements SpectatorMenuCategory, Specta
 
     @Override
     public Component getPrompt() {
-        return new TranslatableComponent("spectatorMenu.team_teleport.prompt");
+        return TELEPORT_PROMPT;
     }
 
     @Override
@@ -52,7 +54,7 @@ public class TeleportToTeamMenuCategory implements SpectatorMenuCategory, Specta
 
     @Override
     public Component getName() {
-        return new TranslatableComponent("spectatorMenu.team_teleport");
+        return TELEPORT_TEXT;
     }
 
     @Override

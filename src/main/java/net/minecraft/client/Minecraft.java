@@ -2084,6 +2084,14 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         );
         var0.setDetail("Type", "Client (map_client.txt)");
         if (param2 != null) {
+            if (instance != null) {
+                String var1 = instance.getGpuWarnlistManager().getAllWarnings();
+                if (var1 != null) {
+                    var0.setDetail("GPU Warnings", var1);
+                }
+            }
+
+            var0.setDetail("Graphics mode", param2.graphicsMode);
             var0.setDetail("Resource Packs", () -> {
                 StringBuilder var0x = new StringBuilder();
 

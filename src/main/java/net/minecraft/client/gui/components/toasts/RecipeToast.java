@@ -4,7 +4,8 @@ import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.List;
-import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraftforge.api.distmarker.Dist;
@@ -12,6 +13,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class RecipeToast implements Toast {
+    private static final Component TITLE_TEXT = new TranslatableComponent("recipe.toast.title");
+    private static final Component DESCRIPTION_TEXT = new TranslatableComponent("recipe.toast.description");
     private final List<Recipe<?>> recipes = Lists.newArrayList();
     private long lastChanged;
     private boolean changed;
@@ -33,8 +36,8 @@ public class RecipeToast implements Toast {
             param1.getMinecraft().getTextureManager().bind(TEXTURE);
             RenderSystem.color3f(1.0F, 1.0F, 1.0F);
             param1.blit(param0, 0, 0, 0, 32, this.width(), this.height());
-            param1.getMinecraft().font.draw(param0, I18n.get("recipe.toast.title"), 30.0F, 7.0F, -11534256);
-            param1.getMinecraft().font.draw(param0, I18n.get("recipe.toast.description"), 30.0F, 18.0F, -16777216);
+            param1.getMinecraft().font.draw(param0, TITLE_TEXT, 30.0F, 7.0F, -11534256);
+            param1.getMinecraft().font.draw(param0, DESCRIPTION_TEXT, 30.0F, 18.0F, -16777216);
             Recipe<?> var0 = this.recipes.get((int)(param2 / Math.max(1L, 5000L / (long)this.recipes.size()) % (long)this.recipes.size()));
             ItemStack var1 = var0.getToastSymbol();
             RenderSystem.pushMatrix();
@@ -46,11 +49,9 @@ public class RecipeToast implements Toast {
         }
     }
 
-    public void addItem(Recipe<?> param0) {
-        if (this.recipes.add(param0)) {
-            this.changed = true;
-        }
-
+    private void addItem(Recipe<?> param0) {
+        this.recipes.add(param0);
+        this.changed = true;
     }
 
     public static void addOrUpdate(ToastComponent param0, Recipe<?> param1) {

@@ -160,7 +160,6 @@ public class Spider extends Monster {
             var0.moveTo(this.getX(), this.getY(), this.getZ(), this.yRot, 0.0F);
             var0.finalizeSpawn(param0, param1, param2, null, null);
             var0.startRiding(this);
-            param0.addFreshEntity(var0);
         }
 
         if (param3 == null) {

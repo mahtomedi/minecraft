@@ -4,7 +4,7 @@ import com.mojang.realmsclient.client.RealmsClient;
 import com.mojang.realmsclient.dto.RealmsServer;
 import com.mojang.realmsclient.exception.RetryCallException;
 import com.mojang.realmsclient.gui.screens.RealmsConfigureWorldScreen;
-import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -20,7 +20,7 @@ public class CloseServerTask extends LongRunningTask {
 
     @Override
     public void run() {
-        this.setTitle(I18n.get("mco.configure.world.closing"));
+        this.setTitle(new TranslatableComponent("mco.configure.world.closing"));
         RealmsClient var0 = RealmsClient.create();
 
         for(int var1 = 0; var1 < 25; ++var1) {

@@ -21,6 +21,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class PlayerMenuItem implements SpectatorMenuItem {
     private final GameProfile profile;
     private final ResourceLocation location;
+    private final TextComponent name;
 
     public PlayerMenuItem(GameProfile param0) {
         this.profile = param0;
@@ -32,6 +33,7 @@ public class PlayerMenuItem implements SpectatorMenuItem {
             this.location = DefaultPlayerSkin.getDefaultSkin(Player.createPlayerUUID(param0));
         }
 
+        this.name = new TextComponent(param0.getName());
     }
 
     @Override
@@ -41,7 +43,7 @@ public class PlayerMenuItem implements SpectatorMenuItem {
 
     @Override
     public Component getName() {
-        return new TextComponent(this.profile.getName());
+        return this.name;
     }
 
     @Override

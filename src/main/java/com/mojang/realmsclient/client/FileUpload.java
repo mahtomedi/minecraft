@@ -82,9 +82,7 @@ public class FileUpload {
             return var0.build();
         } else {
             this.uploadStatus.totalBytes = this.file.length();
-            HttpPost var1 = new HttpPost(
-                "http://" + this.uploadInfo.getUploadEndpoint() + ":" + this.uploadInfo.getPort() + "/upload" + "/" + this.worldId + "/" + this.slotId
-            );
+            HttpPost var1 = new HttpPost(this.uploadInfo.getUploadEndpoint().resolve("/upload/" + this.worldId + "/" + this.slotId));
             CloseableHttpClient var2 = HttpClientBuilder.create().setDefaultRequestConfig(this.requestConfig).build();
 
             UploadResult var8;
@@ -196,8 +194,7 @@ public class FileUpload {
                 if (this.length < 0L) {
                     while((var2 = var0.read(var1)) != -1) {
                         param0.write(var1, 0, var2);
-                        UploadStatus var12 = this.uploadStatus;
-                        var12.bytesWritten = var12.bytesWritten + (long)var2;
+                        this.uploadStatus.bytesWritten += (long)var2;
                     }
                 } else {
                     long var3 = this.length;
@@ -209,8 +206,7 @@ public class FileUpload {
                         }
 
                         param0.write(var1, 0, var2);
-                        UploadStatus var7 = this.uploadStatus;
-                        var7.bytesWritten = var7.bytesWritten + (long)var2;
+                        this.uploadStatus.bytesWritten += (long)var2;
                         var3 -= (long)var2;
                         param0.flush();
                     }

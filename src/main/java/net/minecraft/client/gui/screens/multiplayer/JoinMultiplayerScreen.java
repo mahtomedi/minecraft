@@ -210,10 +210,10 @@ public class JoinMultiplayerScreen extends Screen {
         this.toolTip = null;
         this.renderBackground(param0);
         this.serverSelectionList.render(param0, param1, param2, param3);
-        this.drawCenteredString(param0, this.font, this.title, this.width / 2, 20, 16777215);
+        drawCenteredString(param0, this.font, this.title, this.width / 2, 20, 16777215);
         super.render(param0, param1, param2, param3);
         if (this.toolTip != null) {
-            this.renderTooltip(param0, this.toolTip, param1, param2);
+            this.renderComponentTooltip(param0, this.toolTip, param1, param2);
         }
 
     }

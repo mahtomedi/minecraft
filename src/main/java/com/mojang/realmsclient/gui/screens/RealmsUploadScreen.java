@@ -47,6 +47,7 @@ public class RealmsUploadScreen extends RealmsScreen {
     private static final Logger LOGGER = LogManager.getLogger();
     private static final ReentrantLock UPLOAD_LOCK = new ReentrantLock();
     private static final String[] DOTS = new String[]{"", ".", ". .", ". . ."};
+    private static final Component VERIFYING_TEXT = new TranslatableComponent("mco.upload.verifying");
     private final RealmsResetWorldScreen lastScreen;
     private final LevelSummary selectedLevel;
     private final long worldId;
@@ -81,7 +82,8 @@ public class RealmsUploadScreen extends RealmsScreen {
     @Override
     public void init() {
         this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
-        this.backButton = new Button(this.width / 2 - 100, this.height - 42, 200, 20, CommonComponents.GUI_BACK, param0 -> this.onBack());
+        this.backButton = this.addButton(new Button(this.width / 2 - 100, this.height - 42, 200, 20, CommonComponents.GUI_BACK, param0 -> this.onBack()));
+        this.backButton.visible = false;
         this.cancelButton = this.addButton(new Button(this.width / 2 - 100, this.height - 42, 200, 20, CommonComponents.GUI_CANCEL, param0 -> this.onCancel()));
         if (!this.uploadStarted) {
             if (this.lastScreen.slot == -1) {
@@ -133,11 +135,11 @@ public class RealmsUploadScreen extends RealmsScreen {
     public void render(PoseStack param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
         if (!this.uploadFinished && this.uploadStatus.bytesWritten != 0L && this.uploadStatus.bytesWritten == this.uploadStatus.totalBytes) {
-            this.status = new TranslatableComponent("mco.upload.verifying");
+            this.status = VERIFYING_TEXT;
             this.cancelButton.active = false;
         }
 
-        this.drawCenteredString(param0, this.font, this.status, this.width / 2, 50, 16777215);
+        drawCenteredString(param0, this.font, this.status, this.width / 2, 50, 16777215);
         if (this.showDots) {
             this.drawDots(param0);
         }
@@ -149,7 +151,7 @@ public class RealmsUploadScreen extends RealmsScreen {
 
         if (this.errorMessage != null) {
             for(int var0 = 0; var0 < this.errorMessage.length; ++var0) {
-                this.drawCenteredString(param0, this.font, this.errorMessage[var0], this.width / 2, 110 + 12 * var0, 16711680);
+                drawCenteredString(param0, this.font, this.errorMessage[var0], this.width / 2, 110 + 12 * var0, 16711680);
             }
         }
 
@@ -162,12 +164,8 @@ public class RealmsUploadScreen extends RealmsScreen {
     }
 
     private void drawProgressBar(PoseStack param0) {
-        double var0 = this.uploadStatus.bytesWritten.doubleValue() / this.uploadStatus.totalBytes.doubleValue() * 100.0;
-        if (var0 > 100.0) {
-            var0 = 100.0;
-        }
-
-        this.progress = String.format(Locale.ROOT, "%.1f", var0);
+        double var0 = Math.min((double)this.uploadStatus.bytesWritten / (double)this.uploadStatus.totalBytes, 1.0);
+        this.progress = String.format(Locale.ROOT, "%.1f", var0 * 100.0);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.disableTexture();
         double var1 = (double)(this.width / 2 - 100);
@@ -176,16 +174,16 @@ public class RealmsUploadScreen extends RealmsScreen {
         BufferBuilder var4 = var3.getBuilder();
         var4.begin(7, DefaultVertexFormat.POSITION_COLOR);
         var4.vertex(var1 - 0.5, 95.5, 0.0).color(217, 210, 210, 255).endVertex();
-        var4.vertex(var1 + 200.0 * var0 / 100.0 + 0.5, 95.5, 0.0).color(217, 210, 210, 255).endVertex();
-        var4.vertex(var1 + 200.0 * var0 / 100.0 + 0.5, 79.5, 0.0).color(217, 210, 210, 255).endVertex();
+        var4.vertex(var1 + 200.0 * var0 + 0.5, 95.5, 0.0).color(217, 210, 210, 255).endVertex();
+        var4.vertex(var1 + 200.0 * var0 + 0.5, 79.5, 0.0).color(217, 210, 210, 255).endVertex();
         var4.vertex(var1 - 0.5, 79.5, 0.0).color(217, 210, 210, 255).endVertex();
         var4.vertex(var1, 95.0, 0.0).color(128, 128, 128, 255).endVertex();
-        var4.vertex(var1 + 200.0 * var0 / 100.0, 95.0, 0.0).color(128, 128, 128, 255).endVertex();
-        var4.vertex(var1 + 200.0 * var0 / 100.0, 80.0, 0.0).color(128, 128, 128, 255).endVertex();
+        var4.vertex(var1 + 200.0 * var0, 95.0, 0.0).color(128, 128, 128, 255).endVertex();
+        var4.vertex(var1 + 200.0 * var0, 80.0, 0.0).color(128, 128, 128, 255).endVertex();
         var4.vertex(var1, 80.0, 0.0).color(128, 128, 128, 255).endVertex();
         var3.end();
         RenderSystem.enableTexture();
-        this.drawCenteredString(param0, this.font, this.progress + " %", this.width / 2, 84, 16777215);
+        drawCenteredString(param0, this.font, this.progress + " %", this.width / 2, 84, 16777215);
     }
 
     private void drawUploadSpeed(PoseStack param0) {
@@ -259,8 +257,10 @@ public class RealmsUploadScreen extends RealmsScreen {
                                             return;
                                         }
         
-                                        var3 = var1.upload(var2, UploadTokenCache.get(var2));
-                                        break;
+                                        var3 = var1.requestUploadInfo(var2, UploadTokenCache.get(var2));
+                                        if (var3 != null) {
+                                            break;
+                                        }
                                     } catch (RetryCallException var20) {
                                         Thread.sleep((long)(var20.delaySeconds * 1000));
                                     }
@@ -373,8 +373,8 @@ public class RealmsUploadScreen extends RealmsScreen {
                         if (UPLOAD_LOCK.isHeldByCurrentThread()) {
                             UPLOAD_LOCK.unlock();
                             this.showDots = false;
-                            this.children.clear();
-                            this.addButton(this.backButton);
+                            this.backButton.visible = true;
+                            this.cancelButton.visible = false;
                             if (var0 != null) {
                                 LOGGER.debug("Deleting file " + var0.getAbsolutePath());
                                 var0.delete();

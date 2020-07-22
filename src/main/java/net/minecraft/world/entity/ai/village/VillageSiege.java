@@ -13,8 +13,11 @@ import net.minecraft.world.level.CustomSpawner;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class VillageSiege implements CustomSpawner {
+    private static final Logger LOGGER = LogManager.getLogger();
     private boolean hasSetupSiege;
     private VillageSiege.State siegeState = VillageSiege.State.SIEGE_DONE;
     private int zombiesToSpawn;
@@ -97,12 +100,12 @@ public class VillageSiege implements CustomSpawner {
                 var1 = new Zombie(param0);
                 var1.finalizeSpawn(param0, param0.getCurrentDifficultyAt(var1.blockPosition()), MobSpawnType.EVENT, null, null);
             } catch (Exception var5) {
-                var5.printStackTrace();
+                LOGGER.warn("Failed to create zombie for village siege at {}", var0, var5);
                 return;
             }
 
             var1.moveTo(var0.x, var0.y, var0.z, param0.random.nextFloat() * 360.0F, 0.0F);
-            param0.addFreshEntity(var1);
+            param0.addFreshEntityWithPassengers(var1);
         }
     }
 

@@ -1,5 +1,6 @@
 package net.minecraft.locale;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.gson.Gson;
@@ -10,11 +11,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Map.Entry;
 import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
+import net.minecraft.network.chat.FormattedText;
+import net.minecraft.network.chat.Style;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.GsonHelper;
+import net.minecraft.util.StringDecomposer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
@@ -50,13 +57,18 @@ public abstract class Language {
 
             @OnlyIn(Dist.CLIENT)
             @Override
-            public boolean requiresReordering() {
+            public boolean isDefaultRightToLeft() {
                 return false;
             }
 
+            @OnlyIn(Dist.CLIENT)
             @Override
-            public String reorder(String param0, boolean param1) {
-                return param0;
+            public FormattedCharSequence getVisualOrder(FormattedText param0) {
+                return param1 -> param0.visit(
+                            (param1x, param2) -> StringDecomposer.iterateFormatted(param2, param1x, param1) ? Optional.empty() : FormattedText.STOP_ITERATION,
+                            Style.EMPTY
+                        )
+                        .isPresent();
             }
         };
     }
@@ -85,7 +97,13 @@ public abstract class Language {
     public abstract boolean has(String var1);
 
     @OnlyIn(Dist.CLIENT)
-    public abstract boolean requiresReordering();
+    public abstract boolean isDefaultRightToLeft();
 
-    public abstract String reorder(String var1, boolean var2);
+    @OnlyIn(Dist.CLIENT)
+    public abstract FormattedCharSequence getVisualOrder(FormattedText var1);
+
+    @OnlyIn(Dist.CLIENT)
+    public List<FormattedCharSequence> getVisualOrder(List<FormattedText> param0) {
+        return param0.stream().map(getInstance()::getVisualOrder).collect(ImmutableList.toImmutableList());
+    }
 }

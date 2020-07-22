@@ -179,7 +179,9 @@ public class WalkNodeEvaluator extends NodeEvaluator {
             return false;
         } else if (param3.closed) {
             return false;
-        } else if (param2.y <= param0.y && param1.y <= param0.y) {
+        } else if (param2.y > param0.y || param1.y > param0.y) {
+            return false;
+        } else if (param1.type != BlockPathTypes.WALKABLE_DOOR && param2.type != BlockPathTypes.WALKABLE_DOOR && param3.type != BlockPathTypes.WALKABLE_DOOR) {
             boolean var0 = param2.type == BlockPathTypes.FENCE && param1.type == BlockPathTypes.FENCE && (double)this.mob.getBbWidth() < 0.5;
             return param3.costMalus >= 0.0F
                 && (param2.y < param0.y || param2.costMalus >= 0.0F || var0)
@@ -393,7 +395,7 @@ public class WalkNodeEvaluator extends NodeEvaluator {
 
     protected BlockPathTypes evaluateBlockPathType(BlockGetter param0, boolean param1, boolean param2, BlockPos param3, BlockPathTypes param4) {
         if (param4 == BlockPathTypes.DOOR_WOOD_CLOSED && param1 && param2) {
-            param4 = BlockPathTypes.WALKABLE;
+            param4 = BlockPathTypes.WALKABLE_DOOR;
         }
 
         if (param4 == BlockPathTypes.DOOR_OPEN && !param2) {
@@ -498,13 +500,8 @@ public class WalkNodeEvaluator extends NodeEvaluator {
                             return BlockPathTypes.DANGER_FIRE;
                         }
 
-                        FluidState var7 = param0.getFluidState(param1);
-                        if (var7.is(FluidTags.WATER)) {
+                        if (param0.getFluidState(param1).is(FluidTags.WATER)) {
                             return BlockPathTypes.WATER_BORDER;
-                        }
-
-                        if (var7.is(FluidTags.LAVA)) {
-                            return BlockPathTypes.LAVA;
                         }
                     }
                 }
@@ -530,35 +527,33 @@ public class WalkNodeEvaluator extends NodeEvaluator {
             return BlockPathTypes.STICKY_HONEY;
         } else if (var0.is(Blocks.COCOA)) {
             return BlockPathTypes.COCOA;
-        } else if (isBurningBlock(var0)) {
-            return BlockPathTypes.DAMAGE_FIRE;
-        } else if (DoorBlock.isWoodenDoor(var0) && !var0.getValue(DoorBlock.OPEN)) {
-            return BlockPathTypes.DOOR_WOOD_CLOSED;
-        } else if (var1 instanceof DoorBlock && var2 == Material.METAL && !var0.getValue(DoorBlock.OPEN)) {
-            return BlockPathTypes.DOOR_IRON_CLOSED;
-        } else if (var1 instanceof DoorBlock && var0.getValue(DoorBlock.OPEN)) {
-            return BlockPathTypes.DOOR_OPEN;
-        } else if (var1 instanceof BaseRailBlock) {
-            return BlockPathTypes.RAIL;
-        } else if (var1 instanceof LeavesBlock) {
-            return BlockPathTypes.LEAVES;
-        } else if (!var1.is(BlockTags.FENCES) && !var1.is(BlockTags.WALLS) && (!(var1 instanceof FenceGateBlock) || var0.getValue(FenceGateBlock.OPEN))) {
-            if (!var0.isPathfindable(param0, param1, PathComputationType.LAND)) {
-                return BlockPathTypes.BLOCKED;
-            } else {
-                FluidState var3 = param0.getFluidState(param1);
-                if (var3.is(FluidTags.WATER)) {
-                    return BlockPathTypes.WATER;
-                } else {
-                    return var3.is(FluidTags.LAVA) ? BlockPathTypes.LAVA : BlockPathTypes.OPEN;
-                }
-            }
         } else {
-            return BlockPathTypes.FENCE;
+            FluidState var3 = param0.getFluidState(param1);
+            if (var3.is(FluidTags.WATER)) {
+                return BlockPathTypes.WATER;
+            } else if (var3.is(FluidTags.LAVA)) {
+                return BlockPathTypes.LAVA;
+            } else if (isBurningBlock(var0)) {
+                return BlockPathTypes.DAMAGE_FIRE;
+            } else if (DoorBlock.isWoodenDoor(var0) && !var0.getValue(DoorBlock.OPEN)) {
+                return BlockPathTypes.DOOR_WOOD_CLOSED;
+            } else if (var1 instanceof DoorBlock && var2 == Material.METAL && !var0.getValue(DoorBlock.OPEN)) {
+                return BlockPathTypes.DOOR_IRON_CLOSED;
+            } else if (var1 instanceof DoorBlock && var0.getValue(DoorBlock.OPEN)) {
+                return BlockPathTypes.DOOR_OPEN;
+            } else if (var1 instanceof BaseRailBlock) {
+                return BlockPathTypes.RAIL;
+            } else if (var1 instanceof LeavesBlock) {
+                return BlockPathTypes.LEAVES;
+            } else if (!var1.is(BlockTags.FENCES) && !var1.is(BlockTags.WALLS) && (!(var1 instanceof FenceGateBlock) || var0.getValue(FenceGateBlock.OPEN))) {
+                return !var0.isPathfindable(param0, param1, PathComputationType.LAND) ? BlockPathTypes.BLOCKED : BlockPathTypes.OPEN;
+            } else {
+                return BlockPathTypes.FENCE;
+            }
         }
     }
 
     private static boolean isBurningBlock(BlockState param0) {
-        return param0.is(BlockTags.FIRE) || param0.is(Blocks.MAGMA_BLOCK) || CampfireBlock.isLitCampfire(param0);
+        return param0.is(BlockTags.FIRE) || param0.is(Blocks.LAVA) || param0.is(Blocks.MAGMA_BLOCK) || CampfireBlock.isLitCampfire(param0);
     }
 }

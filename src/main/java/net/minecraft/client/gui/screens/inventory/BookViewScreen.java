@@ -18,8 +18,10 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -44,9 +46,9 @@ public class BookViewScreen extends Screen {
     public static final ResourceLocation BOOK_LOCATION = new ResourceLocation("textures/gui/book.png");
     private BookViewScreen.BookAccess bookAccess;
     private int currentPage;
-    private List<FormattedText> cachedPageComponents = Collections.emptyList();
+    private List<FormattedCharSequence> cachedPageComponents = Collections.emptyList();
     private int cachedPage = -1;
-    private FormattedText pageMsg = FormattedText.EMPTY;
+    private Component pageMsg = TextComponent.EMPTY;
     private PageButton forwardButton;
     private PageButton backButton;
     private final boolean playTurnSound;
@@ -159,7 +161,7 @@ public class BookViewScreen extends Screen {
         this.blit(param0, var0, 2, 0, 0, 192, 192);
         if (this.cachedPage != this.currentPage) {
             FormattedText var2 = this.bookAccess.getPage(this.currentPage);
-            this.cachedPageComponents = this.font.getSplitter().splitLines(var2, 114, Style.EMPTY);
+            this.cachedPageComponents = this.font.split(var2, 114);
             this.pageMsg = new TranslatableComponent("book.pageIndicator", this.currentPage + 1, Math.max(this.getNumPages(), 1));
         }
 
@@ -169,7 +171,7 @@ public class BookViewScreen extends Screen {
         int var4 = Math.min(128 / 9, this.cachedPageComponents.size());
 
         for(int var5 = 0; var5 < var4; ++var5) {
-            FormattedText var6 = this.cachedPageComponents.get(var5);
+            FormattedCharSequence var6 = this.cachedPageComponents.get(var5);
             this.font.draw(param0, var6, (float)(var0 + 36), (float)(32 + var5 * 9), 0);
         }
 
@@ -219,7 +221,7 @@ public class BookViewScreen extends Screen {
 
     @Nullable
     public Style getClickedComponentStyleAt(double param0, double param1) {
-        if (this.cachedPageComponents == null) {
+        if (this.cachedPageComponents.isEmpty()) {
             return null;
         } else {
             int var0 = Mth.floor(param0 - (double)((this.width - 192) / 2) - 36.0);
@@ -229,7 +231,7 @@ public class BookViewScreen extends Screen {
                 if (var0 <= 114 && var1 < 9 * var2 + var2) {
                     int var3 = var1 / 9;
                     if (var3 >= 0 && var3 < this.cachedPageComponents.size()) {
-                        FormattedText var4 = this.cachedPageComponents.get(var3);
+                        FormattedCharSequence var4 = this.cachedPageComponents.get(var3);
                         return this.minecraft.font.getSplitter().componentStyleAtWidth(var4, var0);
                     } else {
                         return null;

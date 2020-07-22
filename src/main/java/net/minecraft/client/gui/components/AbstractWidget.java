@@ -112,9 +112,7 @@ public abstract class AbstractWidget extends GuiComponent implements Widget, Gui
         this.blit(param0, this.x + this.width / 2, this.y, 200 - this.width / 2, 46 + var2 * 20, this.width / 2, this.height);
         this.renderBg(param0, var0, param1, param2);
         int var3 = this.active ? 16777215 : 10526880;
-        this.drawCenteredString(
-            param0, var1, this.getMessage(), this.x + this.width / 2, this.y + (this.height - 8) / 2, var3 | Mth.ceil(this.alpha * 255.0F) << 24
-        );
+        drawCenteredString(param0, var1, this.getMessage(), this.x + this.width / 2, this.y + (this.height - 8) / 2, var3 | Mth.ceil(this.alpha * 255.0F) << 24);
     }
 
     protected void renderBg(PoseStack param0, Minecraft param1, int param2, int param3) {

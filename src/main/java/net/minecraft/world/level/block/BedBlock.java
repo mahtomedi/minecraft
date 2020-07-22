@@ -15,14 +15,15 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.vehicle.DismountHelper;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.CollisionGetter;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.entity.BedBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -42,6 +43,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.apache.commons.lang3.ArrayUtils;
 
 public class BedBlock extends HorizontalDirectionalBlock implements EntityBlock {
     public static final EnumProperty<BedPart> PART = BlockStateProperties.BED_PART;
@@ -225,63 +227,63 @@ public class BedBlock extends HorizontalDirectionalBlock implements EntityBlock 
         return var0 == BedPart.HEAD ? DoubleBlockCombiner.BlockType.FIRST : DoubleBlockCombiner.BlockType.SECOND;
     }
 
-    public static Optional<Vec3> findStandUpPosition(EntityType<?> param0, LevelReader param1, BlockPos param2, int param3) {
+    private static boolean isBunkBed(BlockGetter param0, BlockPos param1) {
+        return param0.getBlockState(param1.below()).getBlock() instanceof BedBlock;
+    }
+
+    public static Optional<Vec3> findStandUpPosition(EntityType<?> param0, CollisionGetter param1, BlockPos param2, float param3) {
         Direction var0 = param1.getBlockState(param2).getValue(FACING);
-        int var1 = param2.getX();
-        int var2 = param2.getY();
-        int var3 = param2.getZ();
+        Direction var1 = var0.getClockWise();
+        Direction var2 = var1.isFacingAngle(param3) ? var1.getOpposite() : var1;
+        if (isBunkBed(param1, param2)) {
+            return findBunkBedStandUpPosition(param0, param1, param2, var0, var2);
+        } else {
+            int[][] var3 = bedStandUpOffsets(var0, var2);
+            Optional<Vec3> var4 = findStandUpPositionAtOffset(param0, param1, param2, var3, true);
+            return var4.isPresent() ? var4 : findStandUpPositionAtOffset(param0, param1, param2, var3, false);
+        }
+    }
 
-        for(int var4 = 0; var4 <= 1; ++var4) {
-            int var5 = var1 - var0.getStepX() * var4 - 1;
-            int var6 = var3 - var0.getStepZ() * var4 - 1;
-            int var7 = var5 + 2;
-            int var8 = var6 + 2;
-
-            for(int var9 = var5; var9 <= var7; ++var9) {
-                for(int var10 = var6; var10 <= var8; ++var10) {
-                    BlockPos var11 = new BlockPos(var9, var2, var10);
-                    Optional<Vec3> var12 = getStandingLocationAtOrBelow(param0, param1, var11);
-                    if (var12.isPresent()) {
-                        if (param3 <= 0) {
-                            return var12;
-                        }
-
-                        --param3;
+    private static Optional<Vec3> findBunkBedStandUpPosition(EntityType<?> param0, CollisionGetter param1, BlockPos param2, Direction param3, Direction param4) {
+        int[][] var0 = bedSurroundStandUpOffsets(param3, param4);
+        Optional<Vec3> var1 = findStandUpPositionAtOffset(param0, param1, param2, var0, true);
+        if (var1.isPresent()) {
+            return var1;
+        } else {
+            BlockPos var2 = param2.below();
+            Optional<Vec3> var3 = findStandUpPositionAtOffset(param0, param1, var2, var0, true);
+            if (var3.isPresent()) {
+                return var3;
+            } else {
+                int[][] var4 = bedAboveStandUpOffsets(param3);
+                Optional<Vec3> var5 = findStandUpPositionAtOffset(param0, param1, param2, var4, true);
+                if (var5.isPresent()) {
+                    return var5;
+                } else {
+                    Optional<Vec3> var6 = findStandUpPositionAtOffset(param0, param1, param2, var0, false);
+                    if (var6.isPresent()) {
+                        return var6;
+                    } else {
+                        Optional<Vec3> var7 = findStandUpPositionAtOffset(param0, param1, var2, var0, false);
+                        return var7.isPresent() ? var7 : findStandUpPositionAtOffset(param0, param1, param2, var4, false);
                     }
                 }
             }
         }
-
-        return Optional.empty();
     }
 
-    public static Optional<Vec3> getStandingLocationAtOrBelow(EntityType<?> param0, LevelReader param1, BlockPos param2) {
-        VoxelShape var0 = param1.getBlockState(param2).getCollisionShape(param1, param2);
-        if (var0.max(Direction.Axis.Y) > 0.4375) {
-            return Optional.empty();
-        } else {
-            BlockPos.MutableBlockPos var1 = param2.mutable();
+    private static Optional<Vec3> findStandUpPositionAtOffset(EntityType<?> param0, CollisionGetter param1, BlockPos param2, int[][] param3, boolean param4) {
+        BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos();
 
-            while(var1.getY() >= 0 && param2.getY() - var1.getY() <= 2 && param1.getBlockState(var1).getCollisionShape(param1, var1).isEmpty()) {
-                var1.move(Direction.DOWN);
-            }
-
-            VoxelShape var2 = param1.getBlockState(var1).getCollisionShape(param1, var1);
-            if (var2.isEmpty()) {
-                return Optional.empty();
-            } else {
-                double var3 = (double)var1.getY() + var2.max(Direction.Axis.Y) + 2.0E-7;
-                if ((double)param2.getY() - var3 > 2.0) {
-                    return Optional.empty();
-                } else {
-                    Vec3 var4 = new Vec3((double)var1.getX() + 0.5, var3, (double)var1.getZ() + 0.5);
-                    AABB var5 = param0.getAABB(var4.x, var4.y, var4.z);
-                    return param1.noCollision(var5) && param1.getBlockStates(var5.expandTowards(0.0, -0.2F, 0.0)).noneMatch(param0::isBlockDangerous)
-                        ? Optional.of(var4)
-                        : Optional.empty();
-                }
+        for(int[] var1 : param3) {
+            var0.set(param2.getX() + var1[0], param2.getY(), param2.getZ() + var1[1]);
+            Vec3 var2 = DismountHelper.findSafeDismountLocation(param0, param1, var0, param4);
+            if (var2 != null) {
+                return Optional.of(var2);
             }
         }
+
+        return Optional.empty();
     }
 
     @Override
@@ -331,5 +333,28 @@ public class BedBlock extends HorizontalDirectionalBlock implements EntityBlock 
     @Override
     public boolean isPathfindable(BlockState param0, BlockGetter param1, BlockPos param2, PathComputationType param3) {
         return false;
+    }
+
+    private static int[][] bedStandUpOffsets(Direction param0, Direction param1) {
+        return ArrayUtils.addAll((int[][])bedSurroundStandUpOffsets(param0, param1), (int[][])bedAboveStandUpOffsets(param0));
+    }
+
+    private static int[][] bedSurroundStandUpOffsets(Direction param0, Direction param1) {
+        return new int[][]{
+            {param1.getStepX(), param1.getStepZ()},
+            {param1.getStepX() - param0.getStepX(), param1.getStepZ() - param0.getStepZ()},
+            {param1.getStepX() - param0.getStepX() * 2, param1.getStepZ() - param0.getStepZ() * 2},
+            {-param0.getStepX() * 2, -param0.getStepZ() * 2},
+            {-param1.getStepX() - param0.getStepX() * 2, -param1.getStepZ() - param0.getStepZ() * 2},
+            {-param1.getStepX() - param0.getStepX(), -param1.getStepZ() - param0.getStepZ()},
+            {-param1.getStepX(), -param1.getStepZ()},
+            {-param1.getStepX() + param0.getStepX(), -param1.getStepZ() + param0.getStepZ()},
+            {param0.getStepX(), param0.getStepZ()},
+            {param1.getStepX() + param0.getStepX(), param1.getStepZ() + param0.getStepZ()}
+        };
+    }
+
+    private static int[][] bedAboveStandUpOffsets(Direction param0) {
+        return new int[][]{{0, 0}, {-param0.getStepX(), -param0.getStepZ()}};
     }
 }

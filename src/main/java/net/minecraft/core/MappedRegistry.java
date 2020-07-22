@@ -44,6 +44,12 @@ public class MappedRegistry<T> extends WritableRegistry<T> {
         return Codec.mapPair(ResourceLocation.CODEC.xmap(ResourceKey.elementKey(param0), ResourceKey::location).fieldOf("name"), param1);
     }
 
+    public static <T> MapCodec<Pair<Pair<ResourceKey<T>, Integer>, T>> withNameAndId(ResourceKey<? extends Registry<T>> param0, MapCodec<T> param1) {
+        return Codec.mapPair(
+            Codec.mapPair(ResourceLocation.CODEC.xmap(ResourceKey.elementKey(param0), ResourceKey::location).fieldOf("name"), Codec.INT.fieldOf("id")), param1
+        );
+    }
+
     @Override
     public <V extends T> V registerMapping(int param0, ResourceKey<T> param1, V param2) {
         this.map.addMapping((T)param2, param0);
@@ -52,6 +58,10 @@ public class MappedRegistry<T> extends WritableRegistry<T> {
         this.randomCache = null;
         if (this.keyStorage.containsKey(param1)) {
             LOGGER.debug("Adding duplicate key '{}' to registry", param1);
+        }
+
+        if (this.storage.containsValue(param2)) {
+            LOGGER.error("Adding duplicate value '{}' to registry", param2);
         }
 
         this.storage.put(param1.location(), (T)param2);
@@ -152,19 +162,19 @@ public class MappedRegistry<T> extends WritableRegistry<T> {
     }
 
     public static <T> Codec<MappedRegistry<T>> networkCodec(ResourceKey<? extends Registry<T>> param0, Lifecycle param1, MapCodec<T> param2) {
-        return withName(param0, param2).codec().listOf().xmap(param2x -> {
+        return withNameAndId(param0, param2).codec().listOf().xmap(param2x -> {
             MappedRegistry<T> var0x = new MappedRegistry<>(param0, param1);
 
-            for(Pair<ResourceKey<T>, T> var1x : param2x) {
-                var0x.register((ResourceKey<T>)var1x.getFirst(), var1x.getSecond());
+            for(Pair<Pair<ResourceKey<T>, Integer>, T> var1x : param2x) {
+                var0x.registerMapping(((Pair)var1x.getFirst()).getSecond(), (ResourceKey<T>)((Pair)var1x.getFirst()).getFirst(), var1x.getSecond());
             }
 
             return var0x;
         }, param0x -> {
-            com.google.common.collect.ImmutableList.Builder<Pair<ResourceKey<T>, T>> var0x = ImmutableList.builder();
+            com.google.common.collect.ImmutableList.Builder<Pair<Pair<ResourceKey<T>, Integer>, T>> var0x = ImmutableList.builder();
 
             for(T var1x : param0x.map) {
-                var0x.add(Pair.of(param0x.getResourceKey((T)var1x).get(), var1x));
+                var0x.add(Pair.of(Pair.of(param0x.getResourceKey((T)var1x).get(), param0x.getId((T)var1x)), var1x));
             }
 
             return var0x.build();

@@ -1,6 +1,8 @@
 package net.minecraft.advancements;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -12,11 +14,13 @@ public enum FrameType {
     private final String name;
     private final int texture;
     private final ChatFormatting chatColor;
+    private final Component displayName;
 
     private FrameType(String param0, int param1, ChatFormatting param2) {
         this.name = param0;
         this.texture = param1;
         this.chatColor = param2;
+        this.displayName = new TranslatableComponent("advancements.toast." + param0);
     }
 
     public String getName() {
@@ -40,5 +44,10 @@ public enum FrameType {
 
     public ChatFormatting getChatColor() {
         return this.chatColor;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public Component getDisplayName() {
+        return this.displayName;
     }
 }

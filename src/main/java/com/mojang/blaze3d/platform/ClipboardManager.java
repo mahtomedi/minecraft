@@ -3,7 +3,7 @@ package com.mojang.blaze3d.platform;
 import com.google.common.base.Charsets;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
-import net.minecraft.client.StringDecomposer;
+import net.minecraft.util.StringDecomposer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.lwjgl.BufferUtils;

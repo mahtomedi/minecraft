@@ -35,6 +35,10 @@ public class Path {
         ++this.index;
     }
 
+    public boolean notStarted() {
+        return this.index <= 0;
+    }
+
     public boolean isDone() {
         return this.index >= this.nodes.size();
     }
@@ -46,10 +50,6 @@ public class Path {
 
     public Node get(int param0) {
         return this.nodes.get(param0);
-    }
-
-    public List<Node> getNodes() {
-        return this.nodes;
     }
 
     public void truncate(int param0) {
@@ -94,6 +94,11 @@ public class Path {
 
     public Node currentNode() {
         return this.nodes.get(this.index);
+    }
+
+    @Nullable
+    public Node previousNode() {
+        return this.index > 0 ? this.nodes.get(this.index - 1) : null;
     }
 
     public boolean sameAs(@Nullable Path param0) {

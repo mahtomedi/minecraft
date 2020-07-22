@@ -90,12 +90,7 @@ public interface Tag<T> {
             List<Tag.Entry> var1 = Lists.newArrayList();
 
             for(JsonElement var2 : var0) {
-                String var3 = GsonHelper.convertToString(var2, "value");
-                if (var3.startsWith("#")) {
-                    var1.add(new Tag.TagEntry(new ResourceLocation(var3.substring(1))));
-                } else {
-                    var1.add(new Tag.ElementEntry(new ResourceLocation(var3)));
-                }
+                var1.add(parseEntry(var2));
             }
 
             if (GsonHelper.getAsBoolean(param0, "replace", false)) {
@@ -104,6 +99,27 @@ public interface Tag<T> {
 
             var1.forEach(param1x -> this.entries.add(new Tag.BuilderEntry(param1x, param1)));
             return this;
+        }
+
+        private static Tag.Entry parseEntry(JsonElement param0) {
+            String var1;
+            boolean var2;
+            if (param0.isJsonObject()) {
+                JsonObject var0 = param0.getAsJsonObject();
+                var1 = GsonHelper.getAsString(var0, "id");
+                var2 = GsonHelper.getAsBoolean(var0, "required", true);
+            } else {
+                var1 = GsonHelper.convertToString(param0, "id");
+                var2 = true;
+            }
+
+            if (var1.startsWith("#")) {
+                ResourceLocation var5 = new ResourceLocation(var1.substring(1));
+                return (Tag.Entry)(var2 ? new Tag.TagEntry(var5) : new Tag.OptionalTagEntry(var5));
+            } else {
+                ResourceLocation var6 = new ResourceLocation(var1);
+                return (Tag.Entry)(var2 ? new Tag.ElementEntry(var6) : new Tag.OptionalElementEntry(var6));
+            }
         }
 
         public JsonObject serializeToJson() {
@@ -176,6 +192,68 @@ public interface Tag<T> {
 
     public interface Named<T> extends Tag<T> {
         ResourceLocation getName();
+    }
+
+    public static class OptionalElementEntry implements Tag.Entry {
+        private final ResourceLocation id;
+
+        public OptionalElementEntry(ResourceLocation param0) {
+            this.id = param0;
+        }
+
+        @Override
+        public <T> boolean build(Function<ResourceLocation, Tag<T>> param0, Function<ResourceLocation, T> param1, Consumer<T> param2) {
+            T var0 = param1.apply(this.id);
+            if (var0 != null) {
+                param2.accept(var0);
+            }
+
+            return true;
+        }
+
+        @Override
+        public void serializeTo(JsonArray param0) {
+            JsonObject var0 = new JsonObject();
+            var0.addProperty("id", this.id.toString());
+            var0.addProperty("required", false);
+            param0.add(var0);
+        }
+
+        @Override
+        public String toString() {
+            return this.id.toString() + "?";
+        }
+    }
+
+    public static class OptionalTagEntry implements Tag.Entry {
+        private final ResourceLocation id;
+
+        public OptionalTagEntry(ResourceLocation param0) {
+            this.id = param0;
+        }
+
+        @Override
+        public <T> boolean build(Function<ResourceLocation, Tag<T>> param0, Function<ResourceLocation, T> param1, Consumer<T> param2) {
+            Tag<T> var0 = param0.apply(this.id);
+            if (var0 != null) {
+                var0.getValues().forEach(param2);
+            }
+
+            return true;
+        }
+
+        @Override
+        public void serializeTo(JsonArray param0) {
+            JsonObject var0 = new JsonObject();
+            var0.addProperty("id", "#" + this.id);
+            var0.addProperty("required", false);
+            param0.add(var0);
+        }
+
+        @Override
+        public String toString() {
+            return "#" + this.id + "?";
+        }
     }
 
     public static class TagEntry implements Tag.Entry {

@@ -108,7 +108,7 @@ public class RecipeBookPage {
 
     public void renderTooltip(PoseStack param0, int param1, int param2) {
         if (this.minecraft.screen != null && this.hoveredButton != null && !this.overlay.isVisible()) {
-            this.minecraft.screen.renderTooltip(param0, this.hoveredButton.getTooltipText(this.minecraft.screen), param1, param2);
+            this.minecraft.screen.renderComponentTooltip(param0, this.hoveredButton.getTooltipText(this.minecraft.screen), param1, param2);
         }
 
     }

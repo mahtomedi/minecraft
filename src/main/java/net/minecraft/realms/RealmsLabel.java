@@ -23,7 +23,7 @@ public class RealmsLabel implements GuiEventListener {
     }
 
     public void render(Screen param0, PoseStack param1) {
-        param0.drawCenteredString(param1, Minecraft.getInstance().font, this.text, this.x, this.y, this.color);
+        Screen.drawCenteredString(param1, Minecraft.getInstance().font, this.text, this.x, this.y, this.color);
     }
 
     public String getText() {

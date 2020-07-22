@@ -1,7 +1,5 @@
 package com.mojang.realmsclient.client;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.mojang.realmsclient.dto.BackupList;
 import com.mojang.realmsclient.dto.GuardedSerializer;
 import com.mojang.realmsclient.dto.Ops;
@@ -260,7 +258,7 @@ public class RealmsClient {
         this.execute(Request.put(var0, ""));
     }
 
-    public WorldDownload download(long param0, int param1) throws RealmsServiceException {
+    public WorldDownload requestDownloadInfo(long param0, int param1) throws RealmsServiceException {
         String var0 = this.url(
             "worlds" + "/$WORLD_ID/slot/$SLOT_ID/download".replace("$WORLD_ID", String.valueOf(param0)).replace("$SLOT_ID", String.valueOf(param1))
         );
@@ -268,18 +266,10 @@ public class RealmsClient {
         return WorldDownload.parse(var1);
     }
 
-    public UploadInfo upload(long param0, String param1) throws RealmsServiceException {
+    @Nullable
+    public UploadInfo requestUploadInfo(long param0, @Nullable String param1) throws RealmsServiceException {
         String var0 = this.url("worlds" + "/$WORLD_ID/backups/upload".replace("$WORLD_ID", String.valueOf(param0)));
-        UploadInfo var1 = new UploadInfo();
-        if (param1 != null) {
-            var1.setToken(param1);
-        }
-
-        GsonBuilder var2 = new GsonBuilder();
-        var2.excludeFieldsWithoutExposeAnnotation();
-        Gson var3 = var2.create();
-        String var4 = var3.toJson(var1);
-        return UploadInfo.parse(this.execute(Request.put(var0, var4)));
+        return UploadInfo.parse(this.execute(Request.put(var0, UploadInfo.createRequest(param1))));
     }
 
     public void rejectInvitation(String param0) throws RealmsServiceException {

@@ -474,6 +474,10 @@ public class BlockPos extends Vec3i {
             return this.set(this.getX() + param0, this.getY() + param1, this.getZ() + param2);
         }
 
+        public BlockPos.MutableBlockPos move(Vec3i param0) {
+            return this.set(this.getX() + param0.getX(), this.getY() + param0.getY(), this.getZ() + param0.getZ());
+        }
+
         public BlockPos.MutableBlockPos clamp(Direction.Axis param0, int param1, int param2) {
             switch(param0) {
                 case X:

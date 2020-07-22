@@ -55,7 +55,12 @@ import org.apache.logging.log4j.Logger;
 @OnlyIn(Dist.CLIENT)
 public class CreateWorldScreen extends Screen {
     private static final Logger LOGGER = LogManager.getLogger();
-    private static final TranslatableComponent GAME_MODEL_LABEL = new TranslatableComponent("selectWorld.gameMode");
+    private static final Component GAME_MODEL_LABEL = new TranslatableComponent("selectWorld.gameMode");
+    private static final Component SEED_LABEL = new TranslatableComponent("selectWorld.enterSeed");
+    private static final Component SEED_INFO = new TranslatableComponent("selectWorld.seedInfo");
+    private static final Component NAME_LABEL = new TranslatableComponent("selectWorld.enterName");
+    private static final Component OUTPUT_DIR_INFO = new TranslatableComponent("selectWorld.resultFolder");
+    private static final Component COMMANDS_INFO = new TranslatableComponent("selectWorld.allowCommands.info");
     private final Screen lastScreen;
     private EditBox nameEdit;
     private String resultFolder;
@@ -405,19 +410,21 @@ public class CreateWorldScreen extends Screen {
     @Override
     public void render(PoseStack param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
-        this.drawCenteredString(param0, this.font, this.title, this.width / 2, 20, -1);
+        drawCenteredString(param0, this.font, this.title, this.width / 2, 20, -1);
         if (this.displayOptions) {
-            this.drawString(param0, this.font, I18n.get("selectWorld.enterSeed"), this.width / 2 - 100, 47, -6250336);
-            this.drawString(param0, this.font, I18n.get("selectWorld.seedInfo"), this.width / 2 - 100, 85, -6250336);
+            drawString(param0, this.font, SEED_LABEL, this.width / 2 - 100, 47, -6250336);
+            drawString(param0, this.font, SEED_INFO, this.width / 2 - 100, 85, -6250336);
             this.worldGenSettingsComponent.render(param0, param1, param2, param3);
         } else {
-            this.drawString(param0, this.font, I18n.get("selectWorld.enterName"), this.width / 2 - 100, 47, -6250336);
-            this.drawString(param0, this.font, I18n.get("selectWorld.resultFolder") + " " + this.resultFolder, this.width / 2 - 100, 85, -6250336);
+            drawString(param0, this.font, NAME_LABEL, this.width / 2 - 100, 47, -6250336);
+            drawString(
+                param0, this.font, new TextComponent("").append(OUTPUT_DIR_INFO).append(" ").append(this.resultFolder), this.width / 2 - 100, 85, -6250336
+            );
             this.nameEdit.render(param0, param1, param2, param3);
-            this.drawString(param0, this.font, this.gameModeHelp1, this.width / 2 - 150, 122, -6250336);
-            this.drawString(param0, this.font, this.gameModeHelp2, this.width / 2 - 150, 134, -6250336);
+            drawString(param0, this.font, this.gameModeHelp1, this.width / 2 - 150, 122, -6250336);
+            drawString(param0, this.font, this.gameModeHelp2, this.width / 2 - 150, 134, -6250336);
             if (this.commandsButton.visible) {
-                this.drawString(param0, this.font, I18n.get("selectWorld.allowCommands.info"), this.width / 2 - 150, 172, -6250336);
+                drawString(param0, this.font, COMMANDS_INFO, this.width / 2 - 150, 172, -6250336);
             }
         }
 

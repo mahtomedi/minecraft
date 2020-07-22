@@ -4,7 +4,8 @@ import com.mojang.realmsclient.client.RealmsClient;
 import com.mojang.realmsclient.dto.WorldTemplate;
 import com.mojang.realmsclient.exception.RetryCallException;
 import javax.annotation.Nullable;
-import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -15,11 +16,11 @@ public class ResettingWorldTask extends LongRunningTask {
     private final int levelType;
     private final boolean generateStructures;
     private final long serverId;
-    private String title = I18n.get("mco.reset.world.resetting.screen.title");
+    private Component title = new TranslatableComponent("mco.reset.world.resetting.screen.title");
     private final Runnable callback;
 
     public ResettingWorldTask(
-        @Nullable String param0, @Nullable WorldTemplate param1, int param2, boolean param3, long param4, @Nullable String param5, Runnable param6
+        @Nullable String param0, @Nullable WorldTemplate param1, int param2, boolean param3, long param4, @Nullable Component param5, Runnable param6
     ) {
         this.seed = param0;
         this.worldTemplate = param1;

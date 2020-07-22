@@ -1,9 +1,12 @@
 package net.minecraft.world.level.block;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
 import java.util.Optional;
 import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -15,13 +18,14 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.vehicle.DismountHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.CollisionGetter;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.ExplosionDamageCalculator;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -36,6 +40,22 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class RespawnAnchorBlock extends Block {
     public static final IntegerProperty CHARGE = BlockStateProperties.RESPAWN_ANCHOR_CHARGES;
+    private static final ImmutableList<Vec3i> RESPAWN_HORIZONTAL_OFFSETS = ImmutableList.of(
+        new Vec3i(0, 0, -1),
+        new Vec3i(-1, 0, 0),
+        new Vec3i(0, 0, 1),
+        new Vec3i(1, 0, 0),
+        new Vec3i(-1, 0, -1),
+        new Vec3i(1, 0, -1),
+        new Vec3i(-1, 0, 1),
+        new Vec3i(1, 0, 1)
+    );
+    private static final ImmutableList<Vec3i> RESPAWN_OFFSETS = new Builder<Vec3i>()
+        .addAll(RESPAWN_HORIZONTAL_OFFSETS)
+        .addAll(RESPAWN_HORIZONTAL_OFFSETS.stream().map(Vec3i::below).iterator())
+        .addAll(RESPAWN_HORIZONTAL_OFFSETS.stream().map(Vec3i::above).iterator())
+        .add(new Vec3i(0, 1, 0))
+        .build();
 
     public RespawnAnchorBlock(BlockBehaviour.Properties param0) {
         super(param0);
@@ -197,11 +217,19 @@ public class RespawnAnchorBlock extends Block {
         return getScaledChargeLevel(param0, 15);
     }
 
-    public static Optional<Vec3> findStandUpPosition(EntityType<?> param0, LevelReader param1, BlockPos param2) {
-        for(BlockPos var0 : BlockPos.betweenClosed(param2.offset(-1, -1, -1), param2.offset(1, 1, 1))) {
-            Optional<Vec3> var1 = BedBlock.getStandingLocationAtOrBelow(param0, param1, var0);
-            if (var1.isPresent()) {
-                return var1;
+    public static Optional<Vec3> findStandUpPosition(EntityType<?> param0, CollisionGetter param1, BlockPos param2) {
+        Optional<Vec3> var0 = findStandUpPosition(param0, param1, param2, true);
+        return var0.isPresent() ? var0 : findStandUpPosition(param0, param1, param2, false);
+    }
+
+    private static Optional<Vec3> findStandUpPosition(EntityType<?> param0, CollisionGetter param1, BlockPos param2, boolean param3) {
+        BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos();
+
+        for(Vec3i var1 : RESPAWN_OFFSETS) {
+            var0.set(param2).move(var1);
+            Vec3 var2 = DismountHelper.findSafeDismountLocation(param0, param1, var0, param3);
+            if (var2 != null) {
+                return Optional.of(var2);
             }
         }
 

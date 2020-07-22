@@ -8,18 +8,17 @@ import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.FormattedText;
-import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class SystemToast implements Toast {
     private final SystemToast.SystemToastIds id;
-    private FormattedText title;
-    private List<FormattedText> messageLines;
+    private Component title;
+    private List<FormattedCharSequence> messageLines;
     private long lastChanged;
     private boolean changed;
     private final int width;
@@ -30,20 +29,20 @@ public class SystemToast implements Toast {
 
     public static SystemToast multiline(Minecraft param0, SystemToast.SystemToastIds param1, Component param2, Component param3) {
         Font var0 = param0.font;
-        List<FormattedText> var1 = var0.getSplitter().splitLines(param3, 200, Style.EMPTY);
+        List<FormattedCharSequence> var1 = var0.split(param3, 200);
         int var2 = Math.max(200, var1.stream().mapToInt(var0::width).max().orElse(200));
         return new SystemToast(param1, param2, var1, var2 + 30);
     }
 
-    private SystemToast(SystemToast.SystemToastIds param0, Component param1, List<FormattedText> param2, int param3) {
+    private SystemToast(SystemToast.SystemToastIds param0, Component param1, List<FormattedCharSequence> param2, int param3) {
         this.id = param0;
         this.title = param1;
         this.messageLines = param2;
         this.width = param3;
     }
 
-    private static ImmutableList<FormattedText> nullToEmpty(@Nullable Component param0) {
-        return param0 == null ? ImmutableList.of() : ImmutableList.of(param0);
+    private static ImmutableList<FormattedCharSequence> nullToEmpty(@Nullable Component param0) {
+        return param0 == null ? ImmutableList.of() : ImmutableList.of(param0.getVisualOrderText());
     }
 
     @Override

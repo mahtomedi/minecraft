@@ -12,11 +12,14 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.RootCommandNode;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
+import net.minecraft.commands.synchronization.ArgumentTypes;
 import net.minecraft.commands.synchronization.SuggestionProviders;
 import net.minecraft.gametest.framework.TestCommand;
 import net.minecraft.network.chat.ClickEvent;
@@ -338,6 +341,18 @@ public class Commands {
             return param0.getContext().getRange().isEmpty()
                 ? CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherUnknownCommand().createWithContext(param0.getReader())
                 : CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherUnknownArgument().createWithContext(param0.getReader());
+        }
+    }
+
+    public static void validate() {
+        RootCommandNode<CommandSourceStack> var0 = new Commands(Commands.CommandSelection.ALL).getDispatcher().getRoot();
+        Set<ArgumentType<?>> var1 = ArgumentTypes.findUsedArgumentTypes(var0);
+        Set<ArgumentType<?>> var2 = var1.stream().filter(param0 -> !ArgumentTypes.isTypeRegistered(param0)).collect(Collectors.toSet());
+        if (!var2.isEmpty()) {
+            LOGGER.warn(
+                "Missing type registration for following arguments:\n {}", var2.stream().map(param0 -> "\t" + param0).collect(Collectors.joining(",\n"))
+            );
+            throw new IllegalStateException("Unregistered argument types");
         }
     }
 

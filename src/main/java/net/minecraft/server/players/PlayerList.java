@@ -61,6 +61,8 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.ServerStatsCounter;
 import net.minecraft.stats.Stats;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -69,7 +71,8 @@ import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.BiomeManager;
-import net.minecraft.world.level.block.RespawnAnchorBlock;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.border.BorderChangeListener;
 import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.level.dimension.DimensionType;
@@ -446,7 +449,7 @@ public abstract class PlayerList {
         ServerLevel var3 = this.server.getLevel(param0.getRespawnDimension());
         Optional<Vec3> var4;
         if (var3 != null && var0 != null) {
-            var4 = Player.findRespawnPositionAndUseSpawnBlock(var3, var0, var2, param1);
+            var4 = Player.findRespawnPositionAndUseSpawnBlock(var3, var0, var1, var2, param1);
         } else {
             var4 = Optional.empty();
         }
@@ -472,10 +475,20 @@ public abstract class PlayerList {
         this.updatePlayerGameMode(var9, param0, var6);
         boolean var11 = false;
         if (var4.isPresent()) {
-            Vec3 var12 = var4.get();
-            var9.moveTo(var12.x, var12.y, var12.z, var1, 0.0F);
+            BlockState var12 = var6.getBlockState(var0);
+            boolean var13 = var12.is(Blocks.RESPAWN_ANCHOR);
+            Vec3 var14 = var4.get();
+            float var17;
+            if (!var12.is(BlockTags.BEDS) && !var13) {
+                var17 = var1;
+            } else {
+                Vec3 var15 = Vec3.atBottomCenterOf(var0).subtract(var14).normalize();
+                var17 = (float)Mth.wrapDegrees(Mth.atan2(var15.z, var15.x) * 180.0F / (float)Math.PI - 90.0);
+            }
+
+            var9.moveTo(var14.x, var14.y, var14.z, var17, 0.0F);
             var9.setRespawnPosition(var6.dimension(), var0, var1, var2, false);
-            var11 = !param1 && var6.getBlockState(var0).getBlock() instanceof RespawnAnchorBlock;
+            var11 = !param1 && var13;
         } else if (var0 != null) {
             var9.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.NO_RESPAWN_BLOCK_AVAILABLE, 0.0F));
         }
@@ -484,7 +497,7 @@ public abstract class PlayerList {
             var9.setPos(var9.getX(), var9.getY() + 1.0, var9.getZ());
         }
 
-        LevelData var13 = var9.level.getLevelData();
+        LevelData var18 = var9.level.getLevelData();
         var9.connection
             .send(
                 new ClientboundRespawnPacket(
@@ -500,7 +513,7 @@ public abstract class PlayerList {
             );
         var9.connection.teleport(var9.getX(), var9.getY(), var9.getZ(), var9.yRot, var9.xRot);
         var9.connection.send(new ClientboundSetDefaultSpawnPositionPacket(var6.getSharedSpawnPos(), var6.getSharedSpawnAngle()));
-        var9.connection.send(new ClientboundChangeDifficultyPacket(var13.getDifficulty(), var13.isDifficultyLocked()));
+        var9.connection.send(new ClientboundChangeDifficultyPacket(var18.getDifficulty(), var18.isDifficultyLocked()));
         var9.connection.send(new ClientboundSetExperiencePacket(var9.experienceProgress, var9.totalExperience, var9.experienceLevel));
         this.sendLevelInfo(var9, var6);
         this.sendPlayerPermissionLevel(var9);

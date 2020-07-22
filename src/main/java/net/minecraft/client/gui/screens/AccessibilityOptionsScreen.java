@@ -55,7 +55,7 @@ public class AccessibilityOptionsScreen extends OptionsSubScreen {
     @Override
     public void render(PoseStack param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
-        this.drawCenteredString(param0, this.font, this.title, this.width / 2, 20, 16777215);
+        drawCenteredString(param0, this.font, this.title, this.width / 2, 20, 16777215);
         super.render(param0, param1, param2, param3);
     }
 

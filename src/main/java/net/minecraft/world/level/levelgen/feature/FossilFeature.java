@@ -4,7 +4,6 @@ import com.mojang.serialization.Codec;
 import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Mirror;
@@ -48,7 +47,7 @@ public class FossilFeature extends Feature<NoneFeatureConfiguration> {
     public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, NoneFeatureConfiguration param4) {
         Rotation var0 = Rotation.getRandom(param2);
         int var1 = param2.nextInt(fossils.length);
-        StructureManager var2 = ((ServerLevel)param0.getLevel()).getServer().getStructureManager();
+        StructureManager var2 = param0.getLevel().getServer().getStructureManager();
         StructureTemplate var3 = var2.getOrCreate(fossils[var1]);
         StructureTemplate var4 = var2.getOrCreate(fossilsCoal[var1]);
         ChunkPos var5 = new ChunkPos(param3);

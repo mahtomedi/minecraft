@@ -26,22 +26,25 @@ public class SkeletonTrapGoal extends Goal {
 
     @Override
     public void tick() {
-        DifficultyInstance var0 = this.horse.level.getCurrentDifficultyAt(this.horse.blockPosition());
+        ServerLevel var0 = (ServerLevel)this.horse.level;
+        DifficultyInstance var1 = var0.getCurrentDifficultyAt(this.horse.blockPosition());
         this.horse.setTrap(false);
         this.horse.setTamed(true);
         this.horse.setAge(0);
-        LightningBolt var1 = EntityType.LIGHTNING_BOLT.create(this.horse.level);
-        var1.moveTo(this.horse.getX(), this.horse.getY(), this.horse.getZ());
-        var1.setVisualOnly(true);
-        this.horse.level.addFreshEntity(var1);
-        Skeleton var2 = this.createSkeleton(var0, this.horse);
-        var2.startRiding(this.horse);
+        LightningBolt var2 = EntityType.LIGHTNING_BOLT.create(var0);
+        var2.moveTo(this.horse.getX(), this.horse.getY(), this.horse.getZ());
+        var2.setVisualOnly(true);
+        var0.addFreshEntity(var2);
+        Skeleton var3 = this.createSkeleton(var1, this.horse);
+        var3.startRiding(this.horse);
+        var0.addFreshEntityWithPassengers(var3);
 
-        for(int var3 = 0; var3 < 3; ++var3) {
-            AbstractHorse var4 = this.createHorse(var0);
-            Skeleton var5 = this.createSkeleton(var0, var4);
-            var5.startRiding(var4);
-            var4.push(this.horse.getRandom().nextGaussian() * 0.5, 0.0, this.horse.getRandom().nextGaussian() * 0.5);
+        for(int var4 = 0; var4 < 3; ++var4) {
+            AbstractHorse var5 = this.createHorse(var1);
+            Skeleton var6 = this.createSkeleton(var1, var5);
+            var6.startRiding(var5);
+            var5.push(this.horse.getRandom().nextGaussian() * 0.5, 0.0, this.horse.getRandom().nextGaussian() * 0.5);
+            var0.addFreshEntityWithPassengers(var5);
         }
 
     }
@@ -54,7 +57,6 @@ public class SkeletonTrapGoal extends Goal {
         var0.setPersistenceRequired();
         var0.setTamed(true);
         var0.setAge(0);
-        var0.level.addFreshEntity(var0);
         return var0;
     }
 
@@ -71,19 +73,26 @@ public class SkeletonTrapGoal extends Goal {
         var0.setItemSlot(
             EquipmentSlot.MAINHAND,
             EnchantmentHelper.enchantItem(
-                var0.getRandom(), var0.getMainHandItem(), (int)(5.0F + param0.getSpecialMultiplier() * (float)var0.getRandom().nextInt(18)), false
+                var0.getRandom(),
+                this.disenchant(var0.getMainHandItem()),
+                (int)(5.0F + param0.getSpecialMultiplier() * (float)var0.getRandom().nextInt(18)),
+                false
             )
         );
         var0.setItemSlot(
             EquipmentSlot.HEAD,
             EnchantmentHelper.enchantItem(
                 var0.getRandom(),
-                var0.getItemBySlot(EquipmentSlot.HEAD),
+                this.disenchant(var0.getItemBySlot(EquipmentSlot.HEAD)),
                 (int)(5.0F + param0.getSpecialMultiplier() * (float)var0.getRandom().nextInt(18)),
                 false
             )
         );
-        var0.level.addFreshEntity(var0);
         return var0;
+    }
+
+    private ItemStack disenchant(ItemStack param0) {
+        param0.removeTagKey("Enchantments");
+        return param0;
     }
 }

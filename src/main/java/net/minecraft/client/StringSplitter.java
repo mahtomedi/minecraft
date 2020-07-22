@@ -4,14 +4,19 @@ import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.Style;
+import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.util.FormattedCharSink;
+import net.minecraft.util.StringDecomposer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.mutable.MutableFloat;
 import org.apache.commons.lang3.mutable.MutableInt;
+import org.apache.commons.lang3.mutable.MutableObject;
 
 @OnlyIn(Dist.CLIENT)
 public class StringSplitter {
@@ -37,6 +42,15 @@ public class StringSplitter {
     public float stringWidth(FormattedText param0) {
         MutableFloat var0 = new MutableFloat();
         StringDecomposer.iterateFormatted(param0, Style.EMPTY, (param1, param2, param3) -> {
+            var0.add(this.widthProvider.getWidth(param3, param2));
+            return true;
+        });
+        return var0.floatValue();
+    }
+
+    public float stringWidth(FormattedCharSequence param0) {
+        MutableFloat var0 = new MutableFloat();
+        param0.accept((param1, param2, param3) -> {
             var0.add(this.widthProvider.getWidth(param3, param2));
             return true;
         });
@@ -75,6 +89,21 @@ public class StringSplitter {
                 (param1x, param2) -> StringDecomposer.iterateFormatted(param2, param1x, var0) ? Optional.empty() : Optional.of(param1x), Style.EMPTY
             )
             .orElse(null);
+    }
+
+    @Nullable
+    public Style componentStyleAtWidth(FormattedCharSequence param0, int param1) {
+        StringSplitter.WidthLimitedCharSink var0 = new StringSplitter.WidthLimitedCharSink((float)param1);
+        MutableObject<Style> var1 = new MutableObject<>();
+        param0.accept((param2, param3, param4) -> {
+            if (!var0.accept(param2, param3, param4)) {
+                var1.setValue(param3);
+                return false;
+            } else {
+                return true;
+            }
+        });
+        return var1.getValue();
     }
 
     public FormattedText headByWidth(FormattedText param0, int param1, Style param2) {
@@ -173,60 +202,56 @@ public class StringSplitter {
     }
 
     public List<FormattedText> splitLines(FormattedText param0, int param1, Style param2) {
-        return this.splitLines(param0, param1, param2, null);
+        List<FormattedText> var0 = Lists.newArrayList();
+        this.splitLines(param0, param1, param2, (param1x, param2x) -> var0.add(param1x));
+        return var0;
     }
 
-    public List<FormattedText> splitLines(FormattedText param0, int param1, Style param2, @Nullable FormattedText param3) {
-        List<FormattedText> var0 = Lists.newArrayList();
-        List<StringSplitter.LineComponent> var1 = Lists.newArrayList();
+    public void splitLines(FormattedText param0, int param1, Style param2, BiConsumer<FormattedText, Boolean> param3) {
+        List<StringSplitter.LineComponent> var0 = Lists.newArrayList();
         param0.visit((param1x, param2x) -> {
             if (!param2x.isEmpty()) {
-                var1.add(new StringSplitter.LineComponent(param2x, param1x));
+                var0.add(new StringSplitter.LineComponent(param2x, param1x));
             }
 
             return Optional.empty();
         }, param2);
-        StringSplitter.FlatComponents var2 = new StringSplitter.FlatComponents(var1);
-        boolean var3 = true;
+        StringSplitter.FlatComponents var1 = new StringSplitter.FlatComponents(var0);
+        boolean var2 = true;
+        boolean var3 = false;
         boolean var4 = false;
-        boolean var5 = false;
 
-        while(var3) {
-            var3 = false;
-            StringSplitter.LineBreakFinder var6 = new StringSplitter.LineBreakFinder((float)param1);
+        while(var2) {
+            var2 = false;
+            StringSplitter.LineBreakFinder var5 = new StringSplitter.LineBreakFinder((float)param1);
 
-            for(StringSplitter.LineComponent var7 : var2.parts) {
-                boolean var8 = StringDecomposer.iterateFormatted(var7.contents, 0, var7.style, param2, var6);
-                if (!var8) {
-                    int var9 = var6.getSplitPosition();
-                    Style var10 = var6.getSplitStyle();
-                    char var11 = var2.charAt(var9);
-                    boolean var12 = var11 == '\n';
-                    boolean var13 = var12 || var11 == ' ';
-                    var4 = var12;
-                    FormattedText var14 = var2.splitAt(var9, var13 ? 1 : 0, var10);
-                    var0.add(this.formattedLine(var14, var5, param3));
-                    var5 = !var12;
-                    var3 = true;
+            for(StringSplitter.LineComponent var6 : var1.parts) {
+                boolean var7 = StringDecomposer.iterateFormatted(var6.contents, 0, var6.style, param2, var5);
+                if (!var7) {
+                    int var8 = var5.getSplitPosition();
+                    Style var9 = var5.getSplitStyle();
+                    char var10 = var1.charAt(var8);
+                    boolean var11 = var10 == '\n';
+                    boolean var12 = var11 || var10 == ' ';
+                    var3 = var11;
+                    FormattedText var13 = var1.splitAt(var8, var12 ? 1 : 0, var9);
+                    param3.accept(var13, var4);
+                    var4 = !var11;
+                    var2 = true;
                     break;
                 }
 
-                var6.addToOffset(var7.contents.length());
+                var5.addToOffset(var6.contents.length());
             }
         }
 
-        FormattedText var15 = var2.getRemainder();
-        if (var15 != null) {
-            var0.add(this.formattedLine(var15, var5, param3));
-        } else if (var4) {
-            var0.add(FormattedText.EMPTY);
+        FormattedText var14 = var1.getRemainder();
+        if (var14 != null) {
+            param3.accept(var14, var4);
+        } else if (var3) {
+            param3.accept(FormattedText.EMPTY, false);
         }
 
-        return var0;
-    }
-
-    private FormattedText formattedLine(FormattedText param0, boolean param1, FormattedText param2) {
-        return param1 && param2 != null ? FormattedText.composite(param2, param0) : param0;
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -299,7 +324,7 @@ public class StringSplitter {
     }
 
     @OnlyIn(Dist.CLIENT)
-    class LineBreakFinder implements StringDecomposer.Output {
+    class LineBreakFinder implements FormattedCharSink {
         private final float maxWidth;
         private int lineBreak = -1;
         private Style lineBreakStyle = Style.EMPTY;
@@ -315,7 +340,7 @@ public class StringSplitter {
         }
 
         @Override
-        public boolean onChar(int param0, Style param1, int param2) {
+        public boolean accept(int param0, Style param1, int param2) {
             int var0 = param0 + this.offset;
             switch(param2) {
                 case 10:
@@ -387,7 +412,7 @@ public class StringSplitter {
     }
 
     @OnlyIn(Dist.CLIENT)
-    class WidthLimitedCharSink implements StringDecomposer.Output {
+    class WidthLimitedCharSink implements FormattedCharSink {
         private float maxWidth;
         private int position;
 
@@ -396,7 +421,7 @@ public class StringSplitter {
         }
 
         @Override
-        public boolean onChar(int param0, Style param1, int param2) {
+        public boolean accept(int param0, Style param1, int param2) {
             this.maxWidth -= StringSplitter.this.widthProvider.getWidth(param2, param1);
             if (this.maxWidth >= 0.0F) {
                 this.position = param0 + Character.charCount(param2);

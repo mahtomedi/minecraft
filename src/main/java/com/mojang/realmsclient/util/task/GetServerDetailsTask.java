@@ -15,7 +15,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -38,7 +37,7 @@ public class GetServerDetailsTask extends LongRunningTask {
 
     @Override
     public void run() {
-        this.setTitle(I18n.get("mco.connect.connecting"));
+        this.setTitle(new TranslatableComponent("mco.connect.connecting"));
         RealmsClient var0 = RealmsClient.create();
         boolean var1 = false;
         boolean var2 = false;

@@ -287,6 +287,13 @@ public enum Direction implements StringRepresentable {
         return this.normal;
     }
 
+    public boolean isFacingAngle(float param0) {
+        float var0 = param0 * (float) (Math.PI / 180.0);
+        float var1 = -Mth.sin(var0);
+        float var2 = Mth.cos(var0);
+        return (float)this.normal.getX() * var1 + (float)this.normal.getZ() * var2 > 0.0F;
+    }
+
     public static enum Axis implements StringRepresentable, Predicate<Direction> {
         X("x") {
             @Override

@@ -3,7 +3,6 @@ package net.minecraft.client.gui.screens.inventory;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -22,6 +21,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class MerchantScreen extends AbstractContainerScreen<MerchantMenu> {
     private static final ResourceLocation VILLAGER_LOCATION = new ResourceLocation("textures/gui/container/villager2.png");
+    private static final Component TRADES_LABEL = new TranslatableComponent("merchant.trades");
+    private static final Component LEVEL_SEPARATOR = new TextComponent(" - ");
+    private static final Component DEPRECATED_TOOLTIP = new TranslatableComponent("merchant.deprecated");
     private int shopItem;
     private final MerchantScreen.TradeOfferButton[] tradeOfferButtons = new MerchantScreen.TradeOfferButton[7];
     private int scrollOff;
@@ -63,21 +65,17 @@ public class MerchantScreen extends AbstractContainerScreen<MerchantMenu> {
     protected void renderLabels(PoseStack param0, int param1, int param2) {
         int var0 = this.menu.getTraderLevel();
         if (var0 > 0 && var0 <= 5 && this.menu.showProgressBar()) {
-            String var1 = "- " + I18n.get("merchant.level." + var0);
-            int var2 = this.font.width(this.title);
-            int var3 = this.font.width(var1);
-            int var4 = var2 + var3 + 3;
-            int var5 = 49 + this.imageWidth / 2 - var4 / 2;
-            this.font.draw(param0, this.title, (float)var5, 6.0F, 4210752);
-            this.font.draw(param0, var1, (float)(var5 + var2 + 3), 6.0F, 4210752);
+            Component var1 = this.title.copy().append(LEVEL_SEPARATOR).append(new TranslatableComponent("merchant.level." + var0));
+            int var2 = this.font.width(var1);
+            int var3 = 49 + this.imageWidth / 2 - var2 / 2;
+            this.font.draw(param0, var1, (float)var3, 6.0F, 4210752);
         } else {
             this.font.draw(param0, this.title, (float)(49 + this.imageWidth / 2 - this.font.width(this.title) / 2), 6.0F, 4210752);
         }
 
         this.font.draw(param0, this.inventory.getDisplayName(), (float)this.inventoryLabelX, (float)this.inventoryLabelY, 4210752);
-        String var6 = I18n.get("merchant.trades");
-        int var7 = this.font.width(var6);
-        this.font.draw(param0, var6, (float)(5 - var7 / 2 + 48), 6.0F, 4210752);
+        int var4 = this.font.width(TRADES_LABEL);
+        this.font.draw(param0, TRADES_LABEL, (float)(5 - var4 / 2 + 48), 6.0F, 4210752);
     }
 
     @Override
@@ -192,7 +190,7 @@ public class MerchantScreen extends AbstractContainerScreen<MerchantMenu> {
             }
 
             if (var13.isOutOfStock() && this.isHovering(186, 35, 22, 21, (double)param1, (double)param2) && this.menu.canRestock()) {
-                this.renderTooltip(param0, new TranslatableComponent("merchant.deprecated"), param1, param2);
+                this.renderTooltip(param0, DEPRECATED_TOOLTIP, param1, param2);
             }
 
             for(MerchantScreen.TradeOfferButton var14 : this.tradeOfferButtons) {

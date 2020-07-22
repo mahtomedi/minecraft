@@ -10,8 +10,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Matrix4f;
-import java.util.Arrays;
-import net.minecraft.Util;
+import java.util.stream.IntStream;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.font.TextFieldHelper;
 import net.minecraft.client.gui.screens.Screen;
@@ -21,6 +20,7 @@ import net.minecraft.client.renderer.blockentity.SignRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.Material;
 import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.game.ServerboundSignUpdatePacket;
@@ -37,10 +37,11 @@ public class SignEditScreen extends Screen {
     private int frame;
     private int line;
     private TextFieldHelper signField;
-    private final String[] messages = Util.make(new String[4], param0x -> Arrays.fill(param0x, ""));
+    private final String[] messages;
 
     public SignEditScreen(SignBlockEntity param0) {
         super(new TranslatableComponent("sign.edit"));
+        this.messages = IntStream.range(0, 4).mapToObj(param0::getMessage).map(Component::getString).toArray(param0x -> new String[param0x]);
         this.sign = param0;
     }
 
@@ -116,7 +117,7 @@ public class SignEditScreen extends Screen {
     public void render(PoseStack param0, int param1, int param2, float param3) {
         Lighting.setupForFlatItems();
         this.renderBackground(param0);
-        this.drawCenteredString(param0, this.font, this.title, this.width / 2, 40, 16777215);
+        drawCenteredString(param0, this.font, this.title, this.width / 2, 40, 16777215);
         param0.pushPose();
         param0.translate((double)(this.width / 2), 0.0, 50.0);
         float var0 = 93.75F;

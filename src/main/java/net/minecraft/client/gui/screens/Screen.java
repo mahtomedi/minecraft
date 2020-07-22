@@ -34,9 +34,9 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraftforge.api.distmarker.Dist;
@@ -116,7 +116,7 @@ public abstract class Screen extends AbstractContainerEventHandler implements Ti
     }
 
     protected void renderTooltip(PoseStack param0, ItemStack param1, int param2, int param3) {
-        this.renderTooltip(param0, this.getTooltipFromItem(param1), param2, param3);
+        this.renderComponentTooltip(param0, this.getTooltipFromItem(param1), param2, param3);
     }
 
     public List<Component> getTooltipFromItem(ItemStack param0) {
@@ -125,15 +125,19 @@ public abstract class Screen extends AbstractContainerEventHandler implements Ti
         );
     }
 
-    public void renderTooltip(PoseStack param0, FormattedText param1, int param2, int param3) {
-        this.renderTooltip(param0, Arrays.asList(param1), param2, param3);
+    public void renderTooltip(PoseStack param0, Component param1, int param2, int param3) {
+        this.renderTooltip(param0, Arrays.asList(param1.getVisualOrderText()), param2, param3);
     }
 
-    public void renderTooltip(PoseStack param0, List<? extends FormattedText> param1, int param2, int param3) {
+    public void renderComponentTooltip(PoseStack param0, List<Component> param1, int param2, int param3) {
+        this.renderTooltip(param0, Lists.transform(param1, Component::getVisualOrderText), param2, param3);
+    }
+
+    public void renderTooltip(PoseStack param0, List<? extends FormattedCharSequence> param1, int param2, int param3) {
         if (!param1.isEmpty()) {
             int var0 = 0;
 
-            for(FormattedText var1 : param1) {
+            for(FormattedCharSequence var1 : param1) {
                 int var2 = this.font.width(var1);
                 if (var2 > var0) {
                     var0 = var2;
@@ -187,7 +191,7 @@ public abstract class Screen extends AbstractContainerEventHandler implements Ti
             param0.translate(0.0, 0.0, 400.0);
 
             for(int var15 = 0; var15 < param1.size(); ++var15) {
-                FormattedText var16 = param1.get(var15);
+                FormattedCharSequence var16 = param1.get(var15);
                 if (var16 != null) {
                     this.font.drawInBatch(var16, (float)var3, (float)var4, -1, true, var13, var14, false, 0, 15728880);
                 }
@@ -214,7 +218,7 @@ public abstract class Screen extends AbstractContainerEventHandler implements Ti
                 HoverEvent.EntityTooltipInfo var2 = var0.getValue(HoverEvent.Action.SHOW_ENTITY);
                 if (var2 != null) {
                     if (this.minecraft.options.advancedItemTooltips) {
-                        this.renderTooltip(param0, var2.getTooltipLines(), param2, param3);
+                        this.renderComponentTooltip(param0, var2.getTooltipLines(), param2, param3);
                     }
                 } else {
                     Component var3 = var0.getValue(HoverEvent.Action.SHOW_TEXT);

@@ -15,6 +15,7 @@ import net.minecraft.client.gui.screens.DisconnectedScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.Connection;
 import net.minecraft.network.ConnectionProtocol;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.login.ClientLoginPacketListener;
@@ -103,9 +104,9 @@ public class ClientHandshakePacketListenerImpl implements ClientLoginPacketListe
     @Override
     public void onDisconnect(Component param0) {
         if (this.parent != null && this.parent instanceof RealmsScreen) {
-            this.minecraft.setScreen(new DisconnectedRealmsScreen(this.parent, "connect.failed", param0));
+            this.minecraft.setScreen(new DisconnectedRealmsScreen(this.parent, CommonComponents.CONNECT_FAILED, param0));
         } else {
-            this.minecraft.setScreen(new DisconnectedScreen(this.parent, "connect.failed", param0));
+            this.minecraft.setScreen(new DisconnectedScreen(this.parent, CommonComponents.CONNECT_FAILED, param0));
         }
 
     }

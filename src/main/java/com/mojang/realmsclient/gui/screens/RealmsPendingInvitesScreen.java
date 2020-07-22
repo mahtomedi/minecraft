@@ -19,6 +19,7 @@ import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.realms.NarrationHelper;
 import net.minecraft.realms.RealmsLabel;
@@ -35,8 +36,12 @@ public class RealmsPendingInvitesScreen extends RealmsScreen {
     private static final Logger LOGGER = LogManager.getLogger();
     private static final ResourceLocation ACCEPT_ICON_LOCATION = new ResourceLocation("realms", "textures/gui/realms/accept_icon.png");
     private static final ResourceLocation REJECT_ICON_LOCATION = new ResourceLocation("realms", "textures/gui/realms/reject_icon.png");
+    private static final Component NO_PENDING_INVITES_TEXT = new TranslatableComponent("mco.invites.nopending");
+    private static final Component ACCEPT_INVITE_TOOLTIP = new TranslatableComponent("mco.invites.button.accept");
+    private static final Component REJECT_INVITE_TOOLTIP = new TranslatableComponent("mco.invites.button.reject");
     private final Screen lastScreen;
-    private String toolTip;
+    @Nullable
+    private Component toolTip;
     private boolean loaded;
     private RealmsPendingInvitesScreen.PendingInvitationSelectionList pendingInvitationSelectionList;
     private RealmsLabel titleLabel;
@@ -167,13 +172,13 @@ public class RealmsPendingInvitesScreen extends RealmsScreen {
         }
 
         if (this.pendingInvitationSelectionList.getItemCount() == 0 && this.loaded) {
-            this.drawCenteredString(param0, this.font, I18n.get("mco.invites.nopending"), this.width / 2, this.height / 2 - 20, 16777215);
+            drawCenteredString(param0, this.font, NO_PENDING_INVITES_TEXT, this.width / 2, this.height / 2 - 20, 16777215);
         }
 
         super.render(param0, param1, param2, param3);
     }
 
-    protected void renderMousehoverTooltip(PoseStack param0, String param1, int param2, int param3) {
+    protected void renderMousehoverTooltip(PoseStack param0, @Nullable Component param1, int param2, int param3) {
         if (param1 != null) {
             int var0 = param2 + 12;
             int var1 = param3 - 12;
@@ -239,7 +244,7 @@ public class RealmsPendingInvitesScreen extends RealmsScreen {
                 float var0 = param3 ? 19.0F : 0.0F;
                 GuiComponent.blit(param0, param1, param2, var0, 0.0F, 18, 18, 37, 18);
                 if (param3) {
-                    RealmsPendingInvitesScreen.this.toolTip = I18n.get("mco.invites.button.accept");
+                    RealmsPendingInvitesScreen.this.toolTip = RealmsPendingInvitesScreen.ACCEPT_INVITE_TOOLTIP;
                 }
 
             }
@@ -263,7 +268,7 @@ public class RealmsPendingInvitesScreen extends RealmsScreen {
                 float var0 = param3 ? 19.0F : 0.0F;
                 GuiComponent.blit(param0, param1, param2, var0, 0.0F, 18, 18, 37, 18);
                 if (param3) {
-                    RealmsPendingInvitesScreen.this.toolTip = I18n.get("mco.invites.button.reject");
+                    RealmsPendingInvitesScreen.this.toolTip = RealmsPendingInvitesScreen.REJECT_INVITE_TOOLTIP;
                 }
 
             }

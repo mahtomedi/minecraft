@@ -91,7 +91,7 @@ public class Zoglin extends Monster implements Enemy, HoglinBase {
     }
 
     private static void initCoreActivity(Brain<Zoglin> param0) {
-        param0.addActivity(Activity.CORE, 0, ImmutableList.of(new LookAtTargetSink(45, 90), new MoveToTargetSink(200)));
+        param0.addActivity(Activity.CORE, 0, ImmutableList.of(new LookAtTargetSink(45, 90), new MoveToTargetSink()));
     }
 
     private static void initIdleActivity(Brain<Zoglin> param0) {
@@ -184,6 +184,11 @@ public class Zoglin extends Monster implements Enemy, HoglinBase {
             HoglinBase.throwTarget(this, param0);
         }
 
+    }
+
+    @Override
+    public double getPassengersRidingOffset() {
+        return (double)this.getBbHeight() - (this.isBaby() ? 0.2 : 0.15);
     }
 
     @Override

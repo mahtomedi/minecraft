@@ -6,7 +6,6 @@ import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
@@ -20,6 +19,7 @@ public class DeathScreen extends Screen {
     private int delayTicker;
     private final Component causeOfDeath;
     private final boolean hardcore;
+    private Component deathScore;
 
     public DeathScreen(@Nullable Component param0, boolean param1) {
         super(new TranslatableComponent(param1 ? "deathScreen.title.hardcore" : "deathScreen.title"));
@@ -75,6 +75,9 @@ public class DeathScreen extends Screen {
             var1.active = false;
         }
 
+        this.deathScore = new TranslatableComponent("deathScreen.score")
+            .append(": ")
+            .append(new TextComponent(Integer.toString(this.minecraft.player.getScore())).withStyle(ChatFormatting.YELLOW));
     }
 
     @Override
@@ -106,15 +109,13 @@ public class DeathScreen extends Screen {
         this.fillGradient(param0, 0, 0, this.width, this.height, 1615855616, -1602211792);
         RenderSystem.pushMatrix();
         RenderSystem.scalef(2.0F, 2.0F, 2.0F);
-        this.drawCenteredString(param0, this.font, this.title, this.width / 2 / 2, 30, 16777215);
+        drawCenteredString(param0, this.font, this.title, this.width / 2 / 2, 30, 16777215);
         RenderSystem.popMatrix();
         if (this.causeOfDeath != null) {
-            this.drawCenteredString(param0, this.font, this.causeOfDeath, this.width / 2, 85, 16777215);
+            drawCenteredString(param0, this.font, this.causeOfDeath, this.width / 2, 85, 16777215);
         }
 
-        this.drawCenteredString(
-            param0, this.font, I18n.get("deathScreen.score") + ": " + ChatFormatting.YELLOW + this.minecraft.player.getScore(), this.width / 2, 100, 16777215
-        );
+        drawCenteredString(param0, this.font, this.deathScore, this.width / 2, 100, 16777215);
         if (this.causeOfDeath != null && param2 > 85 && param2 < 85 + 9) {
             Style var0 = this.getClickedComponentStyleAt(param1);
             this.renderComponentHoverEffect(param0, var0, param1, param2);

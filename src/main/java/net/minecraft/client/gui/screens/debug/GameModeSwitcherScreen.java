@@ -81,9 +81,8 @@ public class GameModeSwitcherScreen extends Screen {
             blit(param0, var0, var1, 0.0F, 0.0F, 125, 75, 128, 128);
             param0.popPose();
             super.render(param0, param1, param2, param3);
-            this.currentlyHovered
-                .ifPresent(param1x -> this.drawCenteredString(param0, this.font, param1x.getName(), this.width / 2, this.height / 2 - 30 - 20, -1));
-            this.drawCenteredString(param0, this.font, SELECT_KEY, this.width / 2, this.height / 2 + 5, 16777215);
+            this.currentlyHovered.ifPresent(param1x -> drawCenteredString(param0, this.font, param1x.getName(), this.width / 2, this.height / 2 - 30 - 20, -1));
+            drawCenteredString(param0, this.font, SELECT_KEY, this.width / 2, this.height / 2 + 5, 16777215);
             if (!this.setFirstMousePos) {
                 this.firstMouseX = param1;
                 this.firstMouseY = param2;

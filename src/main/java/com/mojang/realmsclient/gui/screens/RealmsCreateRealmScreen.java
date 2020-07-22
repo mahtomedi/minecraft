@@ -6,8 +6,8 @@ import com.mojang.realmsclient.dto.RealmsServer;
 import com.mojang.realmsclient.util.task.WorldCreationTask;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.realms.RealmsLabel;
 import net.minecraft.realms.RealmsScreen;
@@ -16,6 +16,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class RealmsCreateRealmScreen extends RealmsScreen {
+    private static final Component NAME_LABEL = new TranslatableComponent("mco.configure.world.name");
+    private static final Component DESCRIPTION_LABEL = new TranslatableComponent("mco.configure.world.description");
     private final RealmsServer server;
     private final RealmsMainScreen lastScreen;
     private EditBox nameBox;
@@ -98,7 +100,7 @@ public class RealmsCreateRealmScreen extends RealmsScreen {
                 () -> this.minecraft.setScreen(this.lastScreen.newScreen()),
                 () -> this.minecraft.setScreen(this.lastScreen.newScreen())
             );
-            var0.setResetTitle(I18n.get("mco.create.world.reset.title"));
+            var0.setResetTitle(new TranslatableComponent("mco.create.world.reset.title"));
             this.minecraft
                 .setScreen(
                     new RealmsLongRunningMcoTaskScreen(
@@ -117,8 +119,8 @@ public class RealmsCreateRealmScreen extends RealmsScreen {
     public void render(PoseStack param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
         this.createRealmLabel.render(this, param0);
-        this.font.draw(param0, I18n.get("mco.configure.world.name"), (float)(this.width / 2 - 100), 52.0F, 10526880);
-        this.font.draw(param0, I18n.get("mco.configure.world.description"), (float)(this.width / 2 - 100), 102.0F, 10526880);
+        this.font.draw(param0, NAME_LABEL, (float)(this.width / 2 - 100), 52.0F, 10526880);
+        this.font.draw(param0, DESCRIPTION_LABEL, (float)(this.width / 2 - 100), 102.0F, 10526880);
         if (this.nameBox != null) {
             this.nameBox.render(param0, param1, param2, param3);
         }

@@ -1,8 +1,7 @@
 package net.minecraft.world.level.levelgen.synth;
 
-import com.google.common.collect.ImmutableList;
-import java.util.List;
-import java.util.stream.IntStream;
+import it.unimi.dsi.fastutil.doubles.DoubleList;
+import it.unimi.dsi.fastutil.doubles.DoubleListIterator;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 
 public class NormalNoise {
@@ -10,15 +9,26 @@ public class NormalNoise {
     private final PerlinNoise first;
     private final PerlinNoise second;
 
-    public NormalNoise(WorldgenRandom param0, IntStream param1) {
-        this(param0, param1.boxed().collect(ImmutableList.toImmutableList()));
+    public static NormalNoise create(WorldgenRandom param0, int param1, DoubleList param2) {
+        return new NormalNoise(param0, param1, param2);
     }
 
-    public NormalNoise(WorldgenRandom param0, List<Integer> param1) {
-        this.first = new PerlinNoise(param0, param1);
-        this.second = new PerlinNoise(param0, param1);
-        int var0 = param1.stream().min(Integer::compareTo).orElse(0);
-        int var1 = param1.stream().max(Integer::compareTo).orElse(0);
+    private NormalNoise(WorldgenRandom param0, int param1, DoubleList param2) {
+        this.first = PerlinNoise.create(param0, param1, param2);
+        this.second = PerlinNoise.create(param0, param1, param2);
+        int var0 = Integer.MAX_VALUE;
+        int var1 = Integer.MIN_VALUE;
+        DoubleListIterator var2 = param2.iterator();
+
+        while(var2.hasNext()) {
+            int var3 = var2.nextIndex();
+            double var4 = var2.nextDouble();
+            if (var4 != 0.0) {
+                var0 = Math.min(var0, var3);
+                var1 = Math.max(var1, var3);
+            }
+        }
+
         this.valueFactor = 0.16666666666666666 / expectedDeviation(var1 - var0);
     }
 

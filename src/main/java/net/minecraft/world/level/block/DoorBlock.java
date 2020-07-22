@@ -197,11 +197,14 @@ public class DoorBlock extends Block {
         }
     }
 
-    public void setOpen(Level param0, BlockPos param1, boolean param2) {
-        BlockState var0 = param0.getBlockState(param1);
-        if (var0.is(this) && var0.getValue(OPEN) != param2) {
-            param0.setBlock(param1, var0.setValue(OPEN, Boolean.valueOf(param2)), 10);
-            this.playSound(param0, param1, param2);
+    public boolean isOpen(BlockState param0) {
+        return param0.getValue(OPEN);
+    }
+
+    public void setOpen(Level param0, BlockState param1, BlockPos param2, boolean param3) {
+        if (param1.is(this) && param1.getValue(OPEN) != param3) {
+            param0.setBlock(param2, param1.setValue(OPEN, Boolean.valueOf(param3)), 10);
+            this.playSound(param0, param2, param3);
         }
     }
 

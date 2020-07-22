@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.Util;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
@@ -13,6 +14,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class DemoIntroScreen extends Screen {
     private static final ResourceLocation DEMO_BACKGROUND_LOCATION = new ResourceLocation("textures/gui/demo_background.png");
+    private MultiLineLabel movementMessage = MultiLineLabel.EMPTY;
+    private MultiLineLabel durationMessage = MultiLineLabel.EMPTY;
 
     public DemoIntroScreen() {
         super(new TranslatableComponent("demo.help.title"));
@@ -29,6 +32,21 @@ public class DemoIntroScreen extends Screen {
             this.minecraft.setScreen(null);
             this.minecraft.mouseHandler.grabMouse();
         }));
+        Options var1 = this.minecraft.options;
+        this.movementMessage = MultiLineLabel.create(
+            this.font,
+            new TranslatableComponent(
+                "demo.help.movementShort",
+                var1.keyUp.getTranslatedKeyMessage(),
+                var1.keyLeft.getTranslatedKeyMessage(),
+                var1.keyDown.getTranslatedKeyMessage(),
+                var1.keyRight.getTranslatedKeyMessage()
+            ),
+            new TranslatableComponent("demo.help.movementMouse"),
+            new TranslatableComponent("demo.help.jump", var1.keyJump.getTranslatedKeyMessage()),
+            new TranslatableComponent("demo.help.inventory", var1.keyInventory.getTranslatedKeyMessage())
+        );
+        this.durationMessage = MultiLineLabel.create(this.font, new TranslatableComponent("demo.help.fullWrapped"), 218);
     }
 
     @Override
@@ -47,29 +65,8 @@ public class DemoIntroScreen extends Screen {
         int var0 = (this.width - 248) / 2 + 10;
         int var1 = (this.height - 166) / 2 + 8;
         this.font.draw(param0, this.title, (float)var0, (float)var1, 2039583);
-        var1 += 12;
-        Options var2 = this.minecraft.options;
-        this.font
-            .draw(
-                param0,
-                new TranslatableComponent(
-                    "demo.help.movementShort",
-                    var2.keyUp.getTranslatedKeyMessage(),
-                    var2.keyLeft.getTranslatedKeyMessage(),
-                    var2.keyDown.getTranslatedKeyMessage(),
-                    var2.keyRight.getTranslatedKeyMessage()
-                ),
-                (float)var0,
-                (float)var1,
-                5197647
-            );
-        this.font.draw(param0, new TranslatableComponent("demo.help.movementMouse"), (float)var0, (float)(var1 + 12), 5197647);
-        this.font.draw(param0, new TranslatableComponent("demo.help.jump", var2.keyJump.getTranslatedKeyMessage()), (float)var0, (float)(var1 + 24), 5197647);
-        this.font
-            .draw(
-                param0, new TranslatableComponent("demo.help.inventory", var2.keyInventory.getTranslatedKeyMessage()), (float)var0, (float)(var1 + 36), 5197647
-            );
-        this.font.drawWordWrap(new TranslatableComponent("demo.help.fullWrapped"), var0, var1 + 68, 218, 2039583);
+        var1 = this.movementMessage.renderLeftAlignedNoShadow(param0, var0, var1 + 12, 12, 5197647);
+        this.durationMessage.renderLeftAlignedNoShadow(param0, var0, var1 + 20, 9, 2039583);
         super.render(param0, param1, param2, param3);
     }
 }

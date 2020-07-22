@@ -37,6 +37,7 @@ import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.components.TickableWidget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -44,7 +45,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.realms.NarrationHelper;
@@ -78,6 +78,27 @@ public class RealmsMainScreen extends RealmsScreen {
     private static final ResourceLocation CROSS_ICON_LOCATION = new ResourceLocation("realms", "textures/gui/realms/cross_icon.png");
     private static final ResourceLocation TRIAL_ICON_LOCATION = new ResourceLocation("realms", "textures/gui/realms/trial_icon.png");
     private static final ResourceLocation BUTTON_LOCATION = new ResourceLocation("minecraft", "textures/gui/widgets.png");
+    private static final Component NO_PENDING_INVITES_TEXT = new TranslatableComponent("mco.invites.nopending");
+    private static final Component PENDING_INVITES_TEXT = new TranslatableComponent("mco.invites.pending");
+    private static final List<Component> TRIAL_MESSAGE_LINES = ImmutableList.of(
+        new TranslatableComponent("mco.trial.message.line1"), new TranslatableComponent("mco.trial.message.line2")
+    );
+    private static final Component SERVER_UNITIALIZED_TEXT = new TranslatableComponent("mco.selectServer.uninitialized");
+    private static final Component SUBSCRIPTION_EXPIRED_TEXT = new TranslatableComponent("mco.selectServer.expiredList");
+    private static final Component SUBSCRIPTION_RENEW_TEXT = new TranslatableComponent("mco.selectServer.expiredRenew");
+    private static final Component TRIAL_EXPIRED_TEXT = new TranslatableComponent("mco.selectServer.expiredTrial");
+    private static final Component SUBSCRIPTION_CREATE_TEXT = new TranslatableComponent("mco.selectServer.expiredSubscribe");
+    private static final Component SELECT_MINIGAME_PREFIX = new TranslatableComponent("mco.selectServer.minigame").append(" ");
+    private static final Component POPUP_TEXT = new TranslatableComponent("mco.selectServer.popup");
+    private static final Component SERVER_EXPIRED_TOOLTIP = new TranslatableComponent("mco.selectServer.expired");
+    private static final Component SERVER_EXPIRES_SOON_TOOLTIP = new TranslatableComponent("mco.selectServer.expires.soon");
+    private static final Component SERVER_EXPIRES_IN_DAY_TOOLTIP = new TranslatableComponent("mco.selectServer.expires.day");
+    private static final Component SERVER_OPEN_TOOLTIP = new TranslatableComponent("mco.selectServer.open");
+    private static final Component SERVER_CLOSED_TOOLTIP = new TranslatableComponent("mco.selectServer.closed");
+    private static final Component LEAVE_SERVER_TOOLTIP = new TranslatableComponent("mco.selectServer.leave");
+    private static final Component CONFIGURE_SERVER_TOOLTIP = new TranslatableComponent("mco.selectServer.configure");
+    private static final Component SERVER_INFO_TOOLTIP = new TranslatableComponent("mco.selectServer.info");
+    private static final Component NEWS_TOOLTIP = new TranslatableComponent("mco.news");
     private static List<ResourceLocation> teaserImages = ImmutableList.of();
     private static final RealmsDataFetcher REALMS_DATA_FETCHER = new RealmsDataFetcher();
     private static boolean overrideConfigure;
@@ -115,6 +136,7 @@ public class RealmsMainScreen extends RealmsScreen {
     private List<KeyCombo> keyCombos;
     private int clicks;
     private ReentrantLock connectLock = new ReentrantLock();
+    private MultiLineLabel formattedPopup = MultiLineLabel.EMPTY;
     private RealmsMainScreen.HoveredElement hoveredElement;
     private Button showPopupButton;
     private Button pendingInvitesButton;
@@ -208,6 +230,7 @@ public class RealmsMainScreen extends RealmsScreen {
 
             this.addWidget(this.realmSelectionList);
             this.magicalSpecialHackyFocus(this.realmSelectionList);
+            this.formattedPopup = MultiLineLabel.create(this.font, POPUP_TEXT, 100);
         }
     }
 
@@ -794,21 +817,19 @@ public class RealmsMainScreen extends RealmsScreen {
     private void drawPopup(PoseStack param0, int param1, int param2) {
         int var0 = this.popupX0();
         int var1 = this.popupY0();
-        Component var2 = new TranslatableComponent("mco.selectServer.popup");
-        List<FormattedText> var3 = this.font.split(var2, 100);
         if (!this.showingPopup) {
             this.carouselIndex = 0;
             this.carouselTick = 0;
             this.hasSwitchedCarouselImage = true;
             this.updateButtonStates(null);
             if (this.children.contains(this.realmSelectionList)) {
-                GuiEventListener var4 = this.realmSelectionList;
-                if (!this.children.remove(var4)) {
-                    LOGGER.error("Unable to remove widget: " + var4);
+                GuiEventListener var2 = this.realmSelectionList;
+                if (!this.children.remove(var2)) {
+                    LOGGER.error("Unable to remove widget: " + var2);
                 }
             }
 
-            NarrationHelper.now(var2.getString());
+            NarrationHelper.now(POPUP_TEXT.getString());
         }
 
         if (this.hasFetchedServers) {
@@ -818,8 +839,8 @@ public class RealmsMainScreen extends RealmsScreen {
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 0.7F);
         RenderSystem.enableBlend();
         this.minecraft.getTextureManager().bind(DARKEN_LOCATION);
-        int var5 = 0;
-        int var6 = 32;
+        int var3 = 0;
+        int var4 = 32;
         GuiComponent.blit(param0, 0, 32, 0.0F, 0.0F, this.width, this.height - 40 - 32, 310, 166);
         RenderSystem.disableBlend();
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
@@ -839,14 +860,7 @@ public class RealmsMainScreen extends RealmsScreen {
             }
         }
 
-        int var7 = 0;
-
-        for(FormattedText var8 : var3) {
-            ++var7;
-            int var9 = var1 + 10 * var7 - 3;
-            this.font.draw(param0, var8, (float)(this.width / 2 + 52), (float)var9, 5000268);
-        }
-
+        this.formattedPopup.renderLeftAlignedNoShadow(param0, this.width / 2 + 52, var1 + 7, 10, 5000268);
     }
 
     private int popupX0() {
@@ -890,11 +904,10 @@ public class RealmsMainScreen extends RealmsScreen {
         int var11 = param1 + 12;
         boolean var13 = param6 && var1;
         if (var13) {
-            String var14 = var0 == 0 ? "mco.invites.nopending" : "mco.invites.pending";
-            String var15 = I18n.get(var14);
-            int var16 = this.font.width(var15);
-            this.fillGradient(param0, var11 - 3, param2 - 3, var11 + var16 + 3, param2 + 8 + 3, -1073741824, -1073741824);
-            this.font.drawShadow(param0, var15, (float)var11, (float)param2, -1);
+            Component var14 = var0 == 0 ? NO_PENDING_INVITES_TEXT : PENDING_INVITES_TEXT;
+            int var15 = this.font.width(var14);
+            this.fillGradient(param0, var11 - 3, param2 - 3, var11 + var15 + 3, param2 + 8 + 3, -1073741824, -1073741824);
+            this.font.drawShadow(param0, var14, (float)var11, (float)param2, -1);
         }
 
     }
@@ -953,7 +966,7 @@ public class RealmsMainScreen extends RealmsScreen {
             && param4 < this.height - 40
             && param4 > 32
             && !this.shouldShowPopup()) {
-            this.setTooltip(new TranslatableComponent("mco.selectServer.expired"));
+            this.setTooltip(SERVER_EXPIRED_TOOLTIP);
         }
 
     }
@@ -975,9 +988,9 @@ public class RealmsMainScreen extends RealmsScreen {
             && param4 > 32
             && !this.shouldShowPopup()) {
             if (param5 <= 0) {
-                this.setTooltip(new TranslatableComponent("mco.selectServer.expires.soon"));
+                this.setTooltip(SERVER_EXPIRES_SOON_TOOLTIP);
             } else if (param5 == 1) {
-                this.setTooltip(new TranslatableComponent("mco.selectServer.expires.day"));
+                this.setTooltip(SERVER_EXPIRES_IN_DAY_TOOLTIP);
             } else {
                 this.setTooltip(new TranslatableComponent("mco.selectServer.expires.days", param5));
             }
@@ -996,7 +1009,7 @@ public class RealmsMainScreen extends RealmsScreen {
             && param4 < this.height - 40
             && param4 > 32
             && !this.shouldShowPopup()) {
-            this.setTooltip(new TranslatableComponent("mco.selectServer.open"));
+            this.setTooltip(SERVER_OPEN_TOOLTIP);
         }
 
     }
@@ -1012,7 +1025,7 @@ public class RealmsMainScreen extends RealmsScreen {
             && param4 < this.height - 40
             && param4 > 32
             && !this.shouldShowPopup()) {
-            this.setTooltip(new TranslatableComponent("mco.selectServer.closed"));
+            this.setTooltip(SERVER_CLOSED_TOOLTIP);
         }
 
     }
@@ -1034,7 +1047,7 @@ public class RealmsMainScreen extends RealmsScreen {
         float var1 = var0 ? 28.0F : 0.0F;
         GuiComponent.blit(param0, param1, param2, var1, 0.0F, 28, 28, 56, 28);
         if (var0) {
-            this.setTooltip(new TranslatableComponent("mco.selectServer.leave"));
+            this.setTooltip(LEAVE_SERVER_TOOLTIP);
             this.hoveredElement = RealmsMainScreen.HoveredElement.LEAVE;
         }
 
@@ -1057,7 +1070,7 @@ public class RealmsMainScreen extends RealmsScreen {
         float var1 = var0 ? 28.0F : 0.0F;
         GuiComponent.blit(param0, param1, param2, var1, 0.0F, 28, 28, 56, 28);
         if (var0) {
-            this.setTooltip(new TranslatableComponent("mco.selectServer.configure"));
+            this.setTooltip(CONFIGURE_SERVER_TOOLTIP);
             this.hoveredElement = RealmsMainScreen.HoveredElement.CONFIGURE;
         }
 
@@ -1102,7 +1115,7 @@ public class RealmsMainScreen extends RealmsScreen {
         float var1 = param5 ? 20.0F : 0.0F;
         GuiComponent.blit(param0, param3, param4, var1, 0.0F, 20, 20, 40, 20);
         if (var0) {
-            this.setTooltip(new TranslatableComponent("mco.selectServer.info"));
+            this.setTooltip(SERVER_INFO_TOOLTIP);
         }
 
     }
@@ -1124,7 +1137,7 @@ public class RealmsMainScreen extends RealmsScreen {
         float var2 = var1 ? 20.0F : 0.0F;
         GuiComponent.blit(param0, param4, param5, var2, 0.0F, 20, 20, 40, 20);
         if (var0 && param7) {
-            this.setTooltip(new TranslatableComponent("mco.news"));
+            this.setTooltip(NEWS_TOOLTIP);
         }
 
         if (param3 && param7) {
@@ -1448,8 +1461,8 @@ public class RealmsMainScreen extends RealmsScreen {
                 GuiComponent.blit(param1, param2 + 10, param3 + 6, 0.0F, 0.0F, 40, 20, 40, 20);
                 float var0 = 0.5F + (1.0F + Mth.sin((float)RealmsMainScreen.this.animTick * 0.25F)) * 0.25F;
                 int var1 = 0xFF000000 | (int)(127.0F * var0) << 16 | (int)(255.0F * var0) << 8 | (int)(127.0F * var0);
-                RealmsMainScreen.this.drawCenteredString(
-                    param1, RealmsMainScreen.this.font, I18n.get("mco.selectServer.uninitialized"), param2 + 10 + 40 + 75, param3 + 12, var1
+                GuiComponent.drawCenteredString(
+                    param1, RealmsMainScreen.this.font, RealmsMainScreen.SERVER_UNITIALIZED_TEXT, param2 + 10 + 40 + 75, param3 + 12, var1
                 );
             } else {
                 int var2 = 225;
@@ -1489,45 +1502,47 @@ public class RealmsMainScreen extends RealmsScreen {
                     RenderSystem.enableBlend();
                     RealmsMainScreen.this.minecraft.getTextureManager().bind(RealmsMainScreen.BUTTON_LOCATION);
                     RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-                    String var5 = I18n.get("mco.selectServer.expiredList");
-                    String var6 = I18n.get("mco.selectServer.expiredRenew");
+                    Component var5;
+                    Component var6;
                     if (param0.expiredTrial) {
-                        var5 = I18n.get("mco.selectServer.expiredTrial");
-                        var6 = I18n.get("mco.selectServer.expiredSubscribe");
+                        var5 = RealmsMainScreen.TRIAL_EXPIRED_TEXT;
+                        var6 = RealmsMainScreen.SUBSCRIPTION_CREATE_TEXT;
+                    } else {
+                        var5 = RealmsMainScreen.SUBSCRIPTION_EXPIRED_TEXT;
+                        var6 = RealmsMainScreen.SUBSCRIPTION_RENEW_TEXT;
                     }
 
-                    int var7 = RealmsMainScreen.this.font.width(var6) + 17;
-                    int var8 = 16;
-                    int var9 = param2 + RealmsMainScreen.this.font.width(var5) + 8;
-                    int var10 = param3 + 13;
-                    boolean var11 = false;
-                    if (param4 >= var9
-                        && param4 < var9 + var7
-                        && param5 > var10
-                        && param5 <= var10 + 16 & param5 < RealmsMainScreen.this.height - 40
+                    int var9 = RealmsMainScreen.this.font.width(var6) + 17;
+                    int var10 = 16;
+                    int var11 = param2 + RealmsMainScreen.this.font.width(var5) + 8;
+                    int var12 = param3 + 13;
+                    boolean var13 = false;
+                    if (param4 >= var11
+                        && param4 < var11 + var9
+                        && param5 > var12
+                        && param5 <= var12 + 16 & param5 < RealmsMainScreen.this.height - 40
                         && param5 > 32
                         && !RealmsMainScreen.this.shouldShowPopup()) {
-                        var11 = true;
+                        var13 = true;
                         RealmsMainScreen.this.hoveredElement = RealmsMainScreen.HoveredElement.EXPIRED;
                     }
 
-                    int var12 = var11 ? 2 : 1;
-                    GuiComponent.blit(param1, var9, var10, 0.0F, (float)(46 + var12 * 20), var7 / 2, 8, 256, 256);
-                    GuiComponent.blit(param1, var9 + var7 / 2, var10, (float)(200 - var7 / 2), (float)(46 + var12 * 20), var7 / 2, 8, 256, 256);
-                    GuiComponent.blit(param1, var9, var10 + 8, 0.0F, (float)(46 + var12 * 20 + 12), var7 / 2, 8, 256, 256);
-                    GuiComponent.blit(param1, var9 + var7 / 2, var10 + 8, (float)(200 - var7 / 2), (float)(46 + var12 * 20 + 12), var7 / 2, 8, 256, 256);
+                    int var14 = var13 ? 2 : 1;
+                    GuiComponent.blit(param1, var11, var12, 0.0F, (float)(46 + var14 * 20), var9 / 2, 8, 256, 256);
+                    GuiComponent.blit(param1, var11 + var9 / 2, var12, (float)(200 - var9 / 2), (float)(46 + var14 * 20), var9 / 2, 8, 256, 256);
+                    GuiComponent.blit(param1, var11, var12 + 8, 0.0F, (float)(46 + var14 * 20 + 12), var9 / 2, 8, 256, 256);
+                    GuiComponent.blit(param1, var11 + var9 / 2, var12 + 8, (float)(200 - var9 / 2), (float)(46 + var14 * 20 + 12), var9 / 2, 8, 256, 256);
                     RenderSystem.disableBlend();
-                    int var13 = param3 + 11 + 5;
-                    int var14 = var11 ? 16777120 : 16777215;
-                    RealmsMainScreen.this.font.draw(param1, var5, (float)(param2 + 2), (float)(var13 + 1), 15553363);
-                    RealmsMainScreen.this.drawCenteredString(param1, RealmsMainScreen.this.font, var6, var9 + var7 / 2, var13 + 1, var14);
+                    int var15 = param3 + 11 + 5;
+                    int var16 = var13 ? 16777120 : 16777215;
+                    RealmsMainScreen.this.font.draw(param1, var5, (float)(param2 + 2), (float)(var15 + 1), 15553363);
+                    GuiComponent.drawCenteredString(param1, RealmsMainScreen.this.font, var6, var11 + var9 / 2, var15 + 1, var16);
                 } else {
                     if (param0.worldType == RealmsServer.WorldType.MINIGAME) {
-                        int var15 = 13413468;
-                        String var16 = I18n.get("mco.selectServer.minigame") + " ";
-                        int var17 = RealmsMainScreen.this.font.width(var16);
-                        RealmsMainScreen.this.font.draw(param1, var16, (float)(param2 + 2), (float)(param3 + 12), 13413468);
-                        RealmsMainScreen.this.font.draw(param1, param0.getMinigameName(), (float)(param2 + 2 + var17), (float)(param3 + 12), 7105644);
+                        int var17 = 13413468;
+                        int var18 = RealmsMainScreen.this.font.width(RealmsMainScreen.SELECT_MINIGAME_PREFIX);
+                        RealmsMainScreen.this.font.draw(param1, RealmsMainScreen.SELECT_MINIGAME_PREFIX, (float)(param2 + 2), (float)(param3 + 12), 13413468);
+                        RealmsMainScreen.this.font.draw(param1, param0.getMinigameName(), (float)(param2 + 2 + var18), (float)(param3 + 12), 7105644);
                     } else {
                         RealmsMainScreen.this.font.draw(param1, param0.getDescription(), (float)(param2 + 2), (float)(param3 + 12), 7105644);
                     }
@@ -1585,19 +1600,18 @@ public class RealmsMainScreen extends RealmsScreen {
         private void renderTrialItem(PoseStack param0, int param1, int param2, int param3, int param4, int param5) {
             int var0 = param3 + 8;
             int var1 = 0;
-            String var2 = I18n.get("mco.trial.message.line1") + "\\n" + I18n.get("mco.trial.message.line2");
-            boolean var3 = false;
+            boolean var2 = false;
             if (param2 <= param4 && param4 <= (int)RealmsMainScreen.this.realmSelectionList.getScrollAmount() && param3 <= param5 && param5 <= param3 + 32) {
-                var3 = true;
+                var2 = true;
             }
 
-            int var4 = 8388479;
-            if (var3 && !RealmsMainScreen.this.shouldShowPopup()) {
-                var4 = 6077788;
+            int var3 = 8388479;
+            if (var2 && !RealmsMainScreen.this.shouldShowPopup()) {
+                var3 = 6077788;
             }
 
-            for(String var5 : var2.split("\\\\n")) {
-                RealmsMainScreen.this.drawCenteredString(param0, RealmsMainScreen.this.font, var5, RealmsMainScreen.this.width / 2, var0 + var1, var4);
+            for(Component var4 : RealmsMainScreen.TRIAL_MESSAGE_LINES) {
+                GuiComponent.drawCenteredString(param0, RealmsMainScreen.this.font, var4, RealmsMainScreen.this.width / 2, var0 + var1, var3);
                 var1 += 10;
             }
 

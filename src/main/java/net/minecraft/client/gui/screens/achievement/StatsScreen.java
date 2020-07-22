@@ -10,9 +10,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.Nullable;
-import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.screens.Screen;
@@ -39,6 +39,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class StatsScreen extends Screen implements StatsUpdateListener {
+    private static final Component PENDING_TEXT = new TranslatableComponent("multiplayer.downloadingStats");
     protected final Screen lastScreen;
     private StatsScreen.GeneralStatisticsList statsList;
     private StatsScreen.ItemStatisticsList itemStatsList;
@@ -99,8 +100,8 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
     public void render(PoseStack param0, int param1, int param2, float param3) {
         if (this.isLoading) {
             this.renderBackground(param0);
-            this.drawCenteredString(param0, this.font, I18n.get("multiplayer.downloadingStats"), this.width / 2, this.height / 2, 16777215);
-            this.drawCenteredString(
+            drawCenteredString(param0, this.font, PENDING_TEXT, this.width / 2, this.height / 2, 16777215);
+            drawCenteredString(
                 param0,
                 this.font,
                 LOADING_SYMBOLS[(int)(Util.getMillis() / 150L % (long)LOADING_SYMBOLS.length)],
@@ -110,7 +111,7 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
             );
         } else {
             this.getActiveList().render(param0, param1, param2, param3);
-            this.drawCenteredString(param0, this.font, this.title, this.width / 2, 20, 16777215);
+            drawCenteredString(param0, this.font, this.title, this.width / 2, 20, 16777215);
             super.render(param0, param1, param2, param3);
         }
 
@@ -190,22 +191,21 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
         @OnlyIn(Dist.CLIENT)
         class Entry extends ObjectSelectionList.Entry<StatsScreen.GeneralStatisticsList.Entry> {
             private final Stat<ResourceLocation> stat;
+            private final Component statDisplay;
 
             private Entry(Stat<ResourceLocation> param0) {
                 this.stat = param0;
+                this.statDisplay = new TranslatableComponent(StatsScreen.getTranslationKey(param0));
             }
 
             @Override
             public void render(
                 PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9
             ) {
-                Component var0 = new TranslatableComponent(StatsScreen.getTranslationKey(this.stat)).withStyle(ChatFormatting.GRAY);
-                GeneralStatisticsList.this.drawString(
-                    param0, StatsScreen.this.font, var0.getString(), param3 + 2, param2 + 1, param1 % 2 == 0 ? 16777215 : 9474192
-                );
-                String var1 = this.stat.format(StatsScreen.this.stats.getValue(this.stat));
-                GeneralStatisticsList.this.drawString(
-                    param0, StatsScreen.this.font, var1, param3 + 2 + 213 - StatsScreen.this.font.width(var1), param2 + 1, param1 % 2 == 0 ? 16777215 : 9474192
+                GuiComponent.drawString(param0, StatsScreen.this.font, this.statDisplay, param3 + 2, param2 + 1, param1 % 2 == 0 ? 16777215 : 9474192);
+                String var0 = this.stat.format(StatsScreen.this.stats.getValue(this.stat));
+                GuiComponent.drawString(
+                    param0, StatsScreen.this.font, var0, param3 + 2 + 213 - StatsScreen.this.font.width(var0), param2 + 1, param1 % 2 == 0 ? 16777215 : 9474192
                 );
             }
         }
@@ -360,7 +360,7 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
                     for(int var5 = 0; var5 < this.iconOffsets.length; ++var5) {
                         int var6 = StatsScreen.this.getColumnX(var5);
                         if (var4 >= var6 - 18 && var4 <= var6) {
-                            var3 = new TranslatableComponent(this.getColumn(var5).getTranslationKey());
+                            var3 = this.getColumn(var5).getDisplayName();
                             break;
                         }
                     }
@@ -466,7 +466,7 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
 
             protected void renderStat(PoseStack param0, @Nullable Stat<?> param1, int param2, int param3, boolean param4) {
                 String var0 = param1 == null ? "-" : param1.format(StatsScreen.this.stats.getValue(param1));
-                ItemStatisticsList.this.drawString(
+                GuiComponent.drawString(
                     param0, StatsScreen.this.font, var0, param2 - StatsScreen.this.font.width(var0), param3 + 5, param4 ? 16777215 : 9474192
                 );
             }
@@ -495,35 +495,42 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
         @OnlyIn(Dist.CLIENT)
         class MobRow extends ObjectSelectionList.Entry<StatsScreen.MobsStatisticsList.MobRow> {
             private final EntityType<?> type;
+            private final Component mobName;
+            private final Component kills;
+            private final boolean hasKills;
+            private final Component killedBy;
+            private final boolean wasKilledBy;
 
             public MobRow(EntityType<?> param0) {
                 this.type = param0;
+                this.mobName = param0.getDescription();
+                int param1 = StatsScreen.this.stats.getValue(Stats.ENTITY_KILLED.get(param0));
+                if (param1 == 0) {
+                    this.kills = new TranslatableComponent("stat_type.minecraft.killed.none", this.mobName);
+                    this.hasKills = false;
+                } else {
+                    this.kills = new TranslatableComponent("stat_type.minecraft.killed", param1, this.mobName);
+                    this.hasKills = true;
+                }
+
+                int var0 = StatsScreen.this.stats.getValue(Stats.ENTITY_KILLED_BY.get(param0));
+                if (var0 == 0) {
+                    this.killedBy = new TranslatableComponent("stat_type.minecraft.killed_by.none", this.mobName);
+                    this.wasKilledBy = false;
+                } else {
+                    this.killedBy = new TranslatableComponent("stat_type.minecraft.killed_by", var0, this.mobName);
+                    this.wasKilledBy = true;
+                }
+
             }
 
             @Override
             public void render(
                 PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9
             ) {
-                String var0 = I18n.get(Util.makeDescriptionId("entity", EntityType.getKey(this.type)));
-                int var1 = StatsScreen.this.stats.getValue(Stats.ENTITY_KILLED.get(this.type));
-                int var2 = StatsScreen.this.stats.getValue(Stats.ENTITY_KILLED_BY.get(this.type));
-                MobsStatisticsList.this.drawString(param0, StatsScreen.this.font, var0, param3 + 2, param2 + 1, 16777215);
-                MobsStatisticsList.this.drawString(
-                    param0, StatsScreen.this.font, this.killsMessage(var0, var1), param3 + 2 + 10, param2 + 1 + 9, var1 == 0 ? 6316128 : 9474192
-                );
-                MobsStatisticsList.this.drawString(
-                    param0, StatsScreen.this.font, this.killedByMessage(var0, var2), param3 + 2 + 10, param2 + 1 + 9 * 2, var2 == 0 ? 6316128 : 9474192
-                );
-            }
-
-            private String killsMessage(String param0, int param1) {
-                String var0 = Stats.ENTITY_KILLED.getTranslationKey();
-                return param1 == 0 ? I18n.get(var0 + ".none", param0) : I18n.get(var0, param1, param0);
-            }
-
-            private String killedByMessage(String param0, int param1) {
-                String var0 = Stats.ENTITY_KILLED_BY.getTranslationKey();
-                return param1 == 0 ? I18n.get(var0 + ".none", param0) : I18n.get(var0, param0, param1);
+                GuiComponent.drawString(param0, StatsScreen.this.font, this.mobName, param3 + 2, param2 + 1, 16777215);
+                GuiComponent.drawString(param0, StatsScreen.this.font, this.kills, param3 + 2 + 10, param2 + 1 + 9, this.hasKills ? 9474192 : 6316128);
+                GuiComponent.drawString(param0, StatsScreen.this.font, this.killedBy, param3 + 2 + 10, param2 + 1 + 9 * 2, this.wasKilledBy ? 9474192 : 6316128);
             }
         }
     }

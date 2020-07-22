@@ -12,10 +12,10 @@ import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.renderer.GpuWarnlistManager;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.ChatVisiblity;
 import net.minecraftforge.api.distmarker.Dist;
@@ -393,11 +393,10 @@ public abstract class Option {
         "options.viewBobbing", param0 -> param0.bobView, (param0, param1) -> param0.bobView = param1
     );
     private final Component caption;
-    private Optional<List<FormattedText>> toolTip;
+    private Optional<List<FormattedCharSequence>> toolTip = Optional.empty();
 
     public Option(String param0) {
         this.caption = new TranslatableComponent(param0);
-        this.toolTip = Optional.empty();
     }
 
     public abstract AbstractWidget createButton(Options var1, int var2, int var3, int var4);
@@ -406,11 +405,11 @@ public abstract class Option {
         return this.caption;
     }
 
-    public void setTooltip(List<FormattedText> param0) {
+    public void setTooltip(List<FormattedCharSequence> param0) {
         this.toolTip = Optional.of(param0);
     }
 
-    public Optional<List<FormattedText>> getTooltip() {
+    public Optional<List<FormattedCharSequence>> getTooltip() {
         return this.toolTip;
     }
 

@@ -19,10 +19,10 @@ import java.util.Random;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.chat.NarratorChatListener;
-import net.minecraft.network.chat.FormattedText;
-import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.io.IOUtils;
@@ -39,7 +39,7 @@ public class WinScreen extends Screen {
     private final boolean poem;
     private final Runnable onFinished;
     private float time;
-    private List<FormattedText> lines;
+    private List<FormattedCharSequence> lines;
     private IntSet centeredLines;
     private int totalScrollLength;
     private float scrollSpeed = 0.5F;
@@ -103,14 +103,14 @@ public class WinScreen extends Screen {
                             var8 = var5.substring(var6 + OBFUSCATE_TOKEN.length());
                         }
 
-                        this.lines.addAll(this.minecraft.font.getSplitter().splitLines(var5, 274, Style.EMPTY));
-                        this.lines.add(FormattedText.EMPTY);
+                        this.lines.addAll(this.minecraft.font.split(new TextComponent(var5), 274));
+                        this.lines.add(FormattedCharSequence.EMPTY);
                     }
 
                     var2.close();
 
                     for(int var9 = 0; var9 < 8; ++var9) {
-                        this.lines.add(FormattedText.EMPTY);
+                        this.lines.add(FormattedCharSequence.EMPTY);
                     }
                 }
 
@@ -129,7 +129,7 @@ public class WinScreen extends Screen {
                         var13 = false;
                     }
 
-                    for(FormattedText var16 : this.minecraft.font.getSplitter().splitLines(var12, 274, Style.EMPTY)) {
+                    for(FormattedCharSequence var16 : this.minecraft.font.split(new TextComponent(var12), 274)) {
                         if (var13) {
                             this.centeredLines.add(this.lines.size());
                         }
@@ -137,7 +137,7 @@ public class WinScreen extends Screen {
                         this.lines.add(var16);
                     }
 
-                    this.lines.add(FormattedText.EMPTY);
+                    this.lines.add(FormattedCharSequence.EMPTY);
                 }
 
                 var10.close();
@@ -216,7 +216,7 @@ public class WinScreen extends Screen {
             }
 
             if ((float)var4 + var3 + 12.0F + 8.0F > 0.0F && (float)var4 + var3 < (float)this.height) {
-                FormattedText var7 = this.lines.get(var5);
+                FormattedCharSequence var7 = this.lines.get(var5);
                 if (this.centeredLines.contains(var5)) {
                     this.font.drawShadow(param0, var7, (float)(var1 + (274 - this.font.width(var7)) / 2), (float)var4, 16777215);
                 } else {

@@ -6,7 +6,7 @@ import com.mojang.realmsclient.exception.RealmsServiceException;
 import com.mojang.realmsclient.exception.RetryCallException;
 import com.mojang.realmsclient.gui.screens.RealmsConfigureWorldScreen;
 import com.mojang.realmsclient.gui.screens.RealmsGenericErrorScreen;
-import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -24,7 +24,7 @@ public class RestoreTask extends LongRunningTask {
 
     @Override
     public void run() {
-        this.setTitle(I18n.get("mco.backup.restoring"));
+        this.setTitle(new TranslatableComponent("mco.backup.restoring"));
         RealmsClient var0 = RealmsClient.create();
         int var1 = 0;
 

@@ -148,9 +148,9 @@ public class PauseScreen extends Screen {
     public void render(PoseStack param0, int param1, int param2, float param3) {
         if (this.showPauseMenu) {
             this.renderBackground(param0);
-            this.drawCenteredString(param0, this.font, this.title, this.width / 2, 40, 16777215);
+            drawCenteredString(param0, this.font, this.title, this.width / 2, 40, 16777215);
         } else {
-            this.drawCenteredString(param0, this.font, this.title, this.width / 2, 10, 16777215);
+            drawCenteredString(param0, this.font, this.title, this.width / 2, 10, 16777215);
         }
 
         super.render(param0, param1, param2, param3);

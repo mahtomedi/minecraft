@@ -8,6 +8,7 @@ import net.minecraft.client.multiplayer.ClientHandshakePacketListenerImpl;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.Connection;
 import net.minecraft.network.ConnectionProtocol;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.handshake.ClientIntentionPacket;
 import net.minecraft.network.protocol.login.ServerboundHelloPacket;
@@ -71,7 +72,7 @@ public class RealmsConnect {
                         RealmsConnect.LOGGER.error("Couldn't connect to world", (Throwable)var5);
                         DisconnectedRealmsScreen var2 = new DisconnectedRealmsScreen(
                             RealmsConnect.this.onlineScreen,
-                            "connect.failed",
+                            CommonComponents.CONNECT_FAILED,
                             new TranslatableComponent("disconnect.genericReason", "Unknown host '" + param0 + "'")
                         );
                         var0.execute(() -> var0.setScreen(var2));
@@ -89,7 +90,7 @@ public class RealmsConnect {
                         }
     
                         DisconnectedRealmsScreen var6 = new DisconnectedRealmsScreen(
-                            RealmsConnect.this.onlineScreen, "connect.failed", new TranslatableComponent("disconnect.genericReason", var4)
+                            RealmsConnect.this.onlineScreen, CommonComponents.CONNECT_FAILED, new TranslatableComponent("disconnect.genericReason", var4)
                         );
                         var0.execute(() -> var0.setScreen(var6));
                     }

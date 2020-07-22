@@ -56,9 +56,9 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
 
 public class Raid {
-    private static final TranslatableComponent RAID_NAME_COMPONENT = new TranslatableComponent("event.minecraft.raid");
-    private static final TranslatableComponent VICTORY = new TranslatableComponent("event.minecraft.raid.victory");
-    private static final TranslatableComponent DEFEAT = new TranslatableComponent("event.minecraft.raid.defeat");
+    private static final Component RAID_NAME_COMPONENT = new TranslatableComponent("event.minecraft.raid");
+    private static final Component VICTORY = new TranslatableComponent("event.minecraft.raid.victory");
+    private static final Component DEFEAT = new TranslatableComponent("event.minecraft.raid.defeat");
     private static final Component RAID_BAR_VICTORY_COMPONENT = RAID_NAME_COMPONENT.copy().append(" - ").append(VICTORY);
     private static final Component RAID_BAR_DEFEAT_COMPONENT = RAID_NAME_COMPONENT.copy().append(" - ").append(DEFEAT);
     private final Map<Integer, Raider> groupToLeaderMap = Maps.newHashMap();
@@ -510,7 +510,7 @@ public class Raid {
                 param1.finalizeSpawn(this.level, this.level.getCurrentDifficultyAt(param2), MobSpawnType.EVENT, null, null);
                 param1.applyRaidBuffs(param0, false);
                 param1.setOnGround(true);
-                this.level.addFreshEntity(param1);
+                this.level.addFreshEntityWithPassengers(param1);
             }
         }
 

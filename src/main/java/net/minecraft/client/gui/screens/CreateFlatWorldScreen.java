@@ -104,10 +104,10 @@ public class CreateFlatWorldScreen extends Screen {
     public void render(PoseStack param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
         this.list.render(param0, param1, param2, param3);
-        this.drawCenteredString(param0, this.font, this.title, this.width / 2, 8, 16777215);
+        drawCenteredString(param0, this.font, this.title, this.width / 2, 8, 16777215);
         int var0 = this.width / 2 - 92 - 16;
-        this.drawString(param0, this.font, this.columnType, var0, 32, 16777215);
-        this.drawString(param0, this.font, this.columnHeight, var0 + 2 + 213 - this.font.width(this.columnHeight), 32, 16777215);
+        drawString(param0, this.font, this.columnType, var0, 32, 16777215);
+        drawString(param0, this.font, this.columnHeight, var0 + 2 + 213 - this.font.width(this.columnHeight), 32, 16777215);
         super.render(param0, param1, param2, param3);
     }
 

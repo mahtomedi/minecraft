@@ -3,7 +3,7 @@ package com.mojang.realmsclient.util.task;
 import com.mojang.realmsclient.client.RealmsClient;
 import com.mojang.realmsclient.exception.RealmsServiceException;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -23,19 +23,18 @@ public class WorldCreationTask extends LongRunningTask {
 
     @Override
     public void run() {
-        String var0 = I18n.get("mco.create.world.wait");
-        this.setTitle(var0);
-        RealmsClient var1 = RealmsClient.create();
+        this.setTitle(new TranslatableComponent("mco.create.world.wait"));
+        RealmsClient var0 = RealmsClient.create();
 
         try {
-            var1.initializeWorld(this.worldId, this.name, this.motd);
+            var0.initializeWorld(this.worldId, this.name, this.motd);
             setScreen(this.lastScreen);
-        } catch (RealmsServiceException var4) {
+        } catch (RealmsServiceException var3) {
             LOGGER.error("Couldn't create world");
-            this.error(var4.toString());
-        } catch (Exception var5) {
+            this.error(var3.toString());
+        } catch (Exception var4) {
             LOGGER.error("Could not create world");
-            this.error(var5.getLocalizedMessage());
+            this.error(var4.getLocalizedMessage());
         }
 
     }

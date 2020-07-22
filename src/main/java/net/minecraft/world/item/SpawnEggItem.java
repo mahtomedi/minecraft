@@ -172,7 +172,7 @@ public class SpawnEggItem extends Item {
                     return Optional.empty();
                 } else {
                     var0.moveTo(param4.x(), param4.y(), param4.z(), 0.0F, 0.0F);
-                    param3.addFreshEntity(var0);
+                    param3.addFreshEntityWithPassengers(var0);
                     if (param5.hasCustomHoverName()) {
                         var0.setCustomName(param5.getHoverName());
                     }

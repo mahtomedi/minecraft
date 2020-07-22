@@ -37,18 +37,18 @@ public class ArmorStandItem extends Item {
             AABB var6 = EntityType.ARMOR_STAND.getDimensions().makeBoundingBox(var5.x(), var5.y(), var5.z());
             if (var1.noCollision(null, var6, param0x -> true) && var1.getEntities(null, var6).isEmpty()) {
                 if (var1 instanceof ServerLevel) {
-                    ArmorStand var7 = EntityType.ARMOR_STAND
-                        .create((ServerLevel)var1, var4.getTag(), null, param0.getPlayer(), var3, MobSpawnType.SPAWN_EGG, true, true);
-                    if (var7 == null) {
+                    ServerLevel var7 = (ServerLevel)var1;
+                    ArmorStand var8 = EntityType.ARMOR_STAND.create(var7, var4.getTag(), null, param0.getPlayer(), var3, MobSpawnType.SPAWN_EGG, true, true);
+                    if (var8 == null) {
                         return InteractionResult.FAIL;
                     }
 
-                    var1.addFreshEntity(var7);
-                    float var8 = (float)Mth.floor((Mth.wrapDegrees(param0.getRotation() - 180.0F) + 22.5F) / 45.0F) * 45.0F;
-                    var7.moveTo(var7.getX(), var7.getY(), var7.getZ(), var8, 0.0F);
-                    this.randomizePose(var7, var1.random);
-                    var1.addFreshEntity(var7);
-                    var1.playSound(null, var7.getX(), var7.getY(), var7.getZ(), SoundEvents.ARMOR_STAND_PLACE, SoundSource.BLOCKS, 0.75F, 0.8F);
+                    var7.addFreshEntityWithPassengers(var8);
+                    float var9 = (float)Mth.floor((Mth.wrapDegrees(param0.getRotation() - 180.0F) + 22.5F) / 45.0F) * 45.0F;
+                    var8.moveTo(var8.getX(), var8.getY(), var8.getZ(), var9, 0.0F);
+                    this.randomizePose(var8, var1.random);
+                    var1.addFreshEntity(var8);
+                    var1.playSound(null, var8.getX(), var8.getY(), var8.getZ(), SoundEvents.ARMOR_STAND_PLACE, SoundSource.BLOCKS, 0.75F, 0.8F);
                 }
 
                 var4.shrink(1);

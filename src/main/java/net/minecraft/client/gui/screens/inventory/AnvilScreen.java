@@ -4,7 +4,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.game.ServerboundRenameItemPacket;
@@ -20,6 +19,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class AnvilScreen extends ItemCombinerScreen<AnvilMenu> {
     private static final ResourceLocation ANVIL_LOCATION = new ResourceLocation("textures/gui/container/anvil.png");
+    private static final Component TOO_EXPENSIVE_TEXT = new TranslatableComponent("container.repair.expensive");
     private EditBox name;
 
     public AnvilScreen(AnvilMenu param0, Inventory param1, Component param2) {
@@ -85,22 +85,24 @@ public class AnvilScreen extends ItemCombinerScreen<AnvilMenu> {
         int var0 = this.menu.getCost();
         if (var0 > 0) {
             int var1 = 8453920;
-            boolean var2 = true;
-            String var3 = I18n.get("container.repair.cost", var0);
+            Component var2;
             if (var0 >= 40 && !this.minecraft.player.abilities.instabuild) {
-                var3 = I18n.get("container.repair.expensive");
+                var2 = TOO_EXPENSIVE_TEXT;
                 var1 = 16736352;
             } else if (!this.menu.getSlot(2).hasItem()) {
-                var2 = false;
-            } else if (!this.menu.getSlot(2).mayPickup(this.inventory.player)) {
-                var1 = 16736352;
+                var2 = null;
+            } else {
+                var2 = new TranslatableComponent("container.repair.cost", var0);
+                if (!this.menu.getSlot(2).mayPickup(this.inventory.player)) {
+                    var1 = 16736352;
+                }
             }
 
-            if (var2) {
-                int var4 = this.imageWidth - 8 - this.font.width(var3) - 2;
-                int var5 = 69;
-                fill(param0, var4 - 2, 67, this.imageWidth - 8, 79, 1325400064);
-                this.font.drawShadow(param0, var3, (float)var4, 69.0F, var1);
+            if (var2 != null) {
+                int var5 = this.imageWidth - 8 - this.font.width(var2) - 2;
+                int var6 = 69;
+                fill(param0, var5 - 2, 67, this.imageWidth - 8, 79, 1325400064);
+                this.font.drawShadow(param0, var2, (float)var5, 69.0F, var1);
             }
         }
 

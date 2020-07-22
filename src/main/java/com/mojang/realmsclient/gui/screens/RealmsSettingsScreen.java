@@ -4,7 +4,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.realmsclient.dto.RealmsServer;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -15,6 +14,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class RealmsSettingsScreen extends RealmsScreen {
+    private static final Component NAME_LABEL = new TranslatableComponent("mco.configure.world.name");
+    private static final Component DESCRIPTION_LABEL = new TranslatableComponent("mco.configure.world.description");
     private final RealmsConfigureWorldScreen configureWorldScreen;
     private final RealmsServer serverData;
     private Button doneButton;
@@ -95,8 +96,8 @@ public class RealmsSettingsScreen extends RealmsScreen {
     public void render(PoseStack param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
         this.titleLabel.render(this, param0);
-        this.font.draw(param0, I18n.get("mco.configure.world.name"), (float)(this.width / 2 - 106), (float)row(3), 10526880);
-        this.font.draw(param0, I18n.get("mco.configure.world.description"), (float)(this.width / 2 - 106), (float)row(7), 10526880);
+        this.font.draw(param0, NAME_LABEL, (float)(this.width / 2 - 106), (float)row(3), 10526880);
+        this.font.draw(param0, DESCRIPTION_LABEL, (float)(this.width / 2 - 106), (float)row(7), 10526880);
         this.nameEdit.render(param0, param1, param2, param3);
         this.descEdit.render(param0, param1, param2, param3);
         super.render(param0, param1, param2, param3);

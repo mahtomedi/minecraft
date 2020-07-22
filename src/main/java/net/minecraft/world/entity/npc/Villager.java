@@ -122,8 +122,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
         MemoryModuleType.INTERACTION_TARGET,
         MemoryModuleType.BREED_TARGET,
         MemoryModuleType.PATH,
-        MemoryModuleType.INTERACTABLE_DOORS,
-        MemoryModuleType.OPENED_DOORS,
+        MemoryModuleType.DOORS_TO_CLOSE,
         MemoryModuleType.NEAREST_BED,
         MemoryModuleType.HURT_BY,
         MemoryModuleType.HURT_BY_ENTITY,
@@ -141,7 +140,6 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
         SensorType.NEAREST_LIVING_ENTITIES,
         SensorType.NEAREST_PLAYERS,
         SensorType.NEAREST_ITEMS,
-        SensorType.INTERACTABLE_DOORS,
         SensorType.NEAREST_BED,
         SensorType.HURT_BY,
         SensorType.VILLAGER_HOSTILES,
@@ -769,7 +767,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
             }
 
             var0.setPersistenceRequired();
-            param0.addFreshEntity(var0);
+            param0.addFreshEntityWithPassengers(var0);
             this.remove();
         } else {
             super.thunderHit(param0, param1);
@@ -890,7 +888,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
                 IronGolem var5 = EntityType.IRON_GOLEM.create(param0, null, null, null, var4, MobSpawnType.MOB_SUMMONED, false, false);
                 if (var5 != null) {
                     if (var5.checkSpawnRules(param0, MobSpawnType.MOB_SUMMONED) && var5.checkSpawnObstruction(param0)) {
-                        param0.addFreshEntity(var5);
+                        param0.addFreshEntityWithPassengers(var5);
                         return var5;
                     }
 

@@ -409,7 +409,7 @@ public class StructureTemplate {
                         ((Mob)param6x).finalizeSpawn(param0, param0.getCurrentDifficultyAt(new BlockPos(var4)), MobSpawnType.STRUCTURE, null, var2);
                     }
 
-                    param0.addFreshEntity(param6x);
+                    param0.addFreshEntityWithPassengers(param6x);
                 });
             }
         }

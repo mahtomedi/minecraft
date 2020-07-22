@@ -11,7 +11,8 @@ import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ClientAdvancements;
 import net.minecraft.client.multiplayer.ClientPacketListener;
-import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.game.ServerboundSeenAdvancementsPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
@@ -21,6 +22,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class AdvancementsScreen extends Screen implements ClientAdvancements.Listener {
     private static final ResourceLocation WINDOW_LOCATION = new ResourceLocation("textures/gui/advancements/window.png");
     private static final ResourceLocation TABS_LOCATION = new ResourceLocation("textures/gui/advancements/tabs.png");
+    private static final Component VERY_SAD_LABEL = new TranslatableComponent("advancements.sad_label");
+    private static final Component NO_ADVANCEMENTS_LABEL = new TranslatableComponent("advancements.empty");
+    private static final Component TITLE = new TranslatableComponent("gui.advancements");
     private final ClientAdvancements advancements;
     private final Map<Advancement, AdvancementTab> tabs = Maps.newLinkedHashMap();
     private AdvancementTab selectedTab;
@@ -112,10 +116,9 @@ public class AdvancementsScreen extends Screen implements ClientAdvancements.Lis
         AdvancementTab var0 = this.selectedTab;
         if (var0 == null) {
             fill(param0, param3 + 9, param4 + 18, param3 + 9 + 234, param4 + 18 + 113, -16777216);
-            String var1 = I18n.get("advancements.empty");
-            int var2 = this.font.width(var1);
-            this.font.draw(param0, var1, (float)(param3 + 9 + 117 - var2 / 2), (float)(param4 + 18 + 56 - 9 / 2), -1);
-            this.font.draw(param0, ":(", (float)(param3 + 9 + 117 - this.font.width(":(") / 2), (float)(param4 + 18 + 113 - 9), -1);
+            int var1 = param3 + 9 + 117;
+            drawCenteredString(param0, this.font, NO_ADVANCEMENTS_LABEL, var1, param4 + 18 + 56 - 9 / 2, -1);
+            drawCenteredString(param0, this.font, VERY_SAD_LABEL, var1, param4 + 18 + 113 - 9, -1);
         } else {
             RenderSystem.pushMatrix();
             RenderSystem.translatef((float)(param3 + 9), (float)(param4 + 18), 0.0F);
@@ -148,7 +151,7 @@ public class AdvancementsScreen extends Screen implements ClientAdvancements.Lis
             RenderSystem.disableBlend();
         }
 
-        this.font.draw(param0, I18n.get("gui.advancements"), (float)(param1 + 8), (float)(param2 + 6), 4210752);
+        this.font.draw(param0, TITLE, (float)(param1 + 8), (float)(param2 + 6), 4210752);
     }
 
     private void renderTooltips(PoseStack param0, int param1, int param2, int param3, int param4) {

@@ -88,7 +88,9 @@ public class ConnectScreen extends Screen {
                             () -> ConnectScreen.this.minecraft
                                     .setScreen(
                                         new DisconnectedScreen(
-                                            ConnectScreen.this.parent, "connect.failed", new TranslatableComponent("disconnect.genericReason", "Unknown host")
+                                            ConnectScreen.this.parent,
+                                            CommonComponents.CONNECT_FAILED,
+                                            new TranslatableComponent("disconnect.genericReason", "Unknown host")
                                         )
                                     )
                         );
@@ -104,7 +106,9 @@ public class ConnectScreen extends Screen {
                             () -> ConnectScreen.this.minecraft
                                     .setScreen(
                                         new DisconnectedScreen(
-                                            ConnectScreen.this.parent, "connect.failed", new TranslatableComponent("disconnect.genericReason", var3)
+                                            ConnectScreen.this.parent,
+                                            CommonComponents.CONNECT_FAILED,
+                                            new TranslatableComponent("disconnect.genericReason", var3)
                                         )
                                     )
                         );
@@ -158,7 +162,7 @@ public class ConnectScreen extends Screen {
             NarratorChatListener.INSTANCE.sayNow(new TranslatableComponent("narrator.joining").getString());
         }
 
-        this.drawCenteredString(param0, this.font, this.status, this.width / 2, this.height / 2 - 50, 16777215);
+        drawCenteredString(param0, this.font, this.status, this.width / 2, this.height / 2 - 50, 16777215);
         super.render(param0, param1, param2, param3);
     }
 }

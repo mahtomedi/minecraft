@@ -843,33 +843,34 @@ public class Fox extends Animal {
 
         @Override
         protected void breed() {
-            Fox var0 = (Fox)this.animal.getBreedOffspring((ServerLevel)this.level, this.partner);
-            if (var0 != null) {
-                ServerPlayer var1 = this.animal.getLoveCause();
-                ServerPlayer var2 = this.partner.getLoveCause();
-                ServerPlayer var3 = var1;
-                if (var1 != null) {
-                    var0.addTrustedUUID(var1.getUUID());
+            ServerLevel var0 = (ServerLevel)this.level;
+            Fox var1 = (Fox)this.animal.getBreedOffspring(var0, this.partner);
+            if (var1 != null) {
+                ServerPlayer var2 = this.animal.getLoveCause();
+                ServerPlayer var3 = this.partner.getLoveCause();
+                ServerPlayer var4 = var2;
+                if (var2 != null) {
+                    var1.addTrustedUUID(var2.getUUID());
                 } else {
-                    var3 = var2;
+                    var4 = var3;
                 }
 
-                if (var2 != null && var1 != var2) {
-                    var0.addTrustedUUID(var2.getUUID());
+                if (var3 != null && var2 != var3) {
+                    var1.addTrustedUUID(var3.getUUID());
                 }
 
-                if (var3 != null) {
-                    var3.awardStat(Stats.ANIMALS_BRED);
-                    CriteriaTriggers.BRED_ANIMALS.trigger(var3, this.animal, this.partner, var0);
+                if (var4 != null) {
+                    var4.awardStat(Stats.ANIMALS_BRED);
+                    CriteriaTriggers.BRED_ANIMALS.trigger(var4, this.animal, this.partner, var1);
                 }
 
                 this.animal.setAge(6000);
                 this.partner.setAge(6000);
                 this.animal.resetLove();
                 this.partner.resetLove();
-                var0.setAge(-24000);
-                var0.moveTo(this.animal.getX(), this.animal.getY(), this.animal.getZ(), 0.0F, 0.0F);
-                this.level.addFreshEntity(var0);
+                var1.setAge(-24000);
+                var1.moveTo(this.animal.getX(), this.animal.getY(), this.animal.getZ(), 0.0F, 0.0F);
+                var0.addFreshEntityWithPassengers(var1);
                 this.level.broadcastEntityEvent(this.animal, (byte)18);
                 if (this.level.getGameRules().getBoolean(GameRules.RULE_DOMOBLOOT)) {
                     this.level

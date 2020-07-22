@@ -592,7 +592,10 @@ public class EntityType<T extends Entity> {
         boolean param7
     ) {
         T var0 = this.create(param0, param1, param2, param3, param4, param5, param6, param7);
-        param0.addFreshEntity(var0);
+        if (var0 != null) {
+            param0.addFreshEntityWithPassengers(var0);
+        }
+
         return var0;
     }
 

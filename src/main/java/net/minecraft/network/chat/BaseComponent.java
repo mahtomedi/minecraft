@@ -3,9 +3,18 @@ package net.minecraft.network.chat;
 import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Objects;
+import javax.annotation.Nullable;
+import net.minecraft.locale.Language;
+import net.minecraft.util.FormattedCharSequence;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class BaseComponent implements MutableComponent {
     protected final List<Component> siblings = Lists.newArrayList();
+    private FormattedCharSequence visualOrderText = FormattedCharSequence.EMPTY;
+    @Nullable
+    @OnlyIn(Dist.CLIENT)
+    private Language decomposedWith;
     private Style style = Style.EMPTY;
 
     @Override
@@ -43,6 +52,18 @@ public abstract class BaseComponent implements MutableComponent {
         var0.siblings.addAll(this.siblings);
         var0.setStyle(this.style);
         return var0;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public FormattedCharSequence getVisualOrderText() {
+        Language var0 = Language.getInstance();
+        if (this.decomposedWith != var0) {
+            this.visualOrderText = var0.getVisualOrder(this);
+            this.decomposedWith = var0;
+        }
+
+        return this.visualOrderText;
     }
 
     @Override

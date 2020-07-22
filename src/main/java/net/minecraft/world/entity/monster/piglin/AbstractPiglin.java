@@ -71,6 +71,11 @@ public abstract class AbstractPiglin extends Monster {
     }
 
     @Override
+    public double getMyRidingOffset() {
+        return this.isBaby() ? -0.05 : -0.45;
+    }
+
+    @Override
     public void readAdditionalSaveData(CompoundTag param0) {
         super.readAdditionalSaveData(param0);
         this.setImmuneToZombification(param0.getBoolean("IsImmuneToZombification"));

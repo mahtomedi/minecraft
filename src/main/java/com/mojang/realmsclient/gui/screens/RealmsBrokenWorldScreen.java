@@ -20,7 +20,6 @@ import java.util.stream.Stream;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -98,7 +97,7 @@ public class RealmsBrokenWorldScreen extends RealmsScreen {
                                 }
                             );
                             var0x.setSlot(var1);
-                            var0x.setResetTitle(I18n.get("mco.create.world.reset.title"));
+                            var0x.setResetTitle(new TranslatableComponent("mco.create.world.reset.title"));
                             this.minecraft.setScreen(var0x);
                         } else {
                             this.minecraft
@@ -154,10 +153,10 @@ public class RealmsBrokenWorldScreen extends RealmsScreen {
     public void render(PoseStack param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
         super.render(param0, param1, param2, param3);
-        this.drawCenteredString(param0, this.font, this.header, this.width / 2, 17, 16777215);
+        drawCenteredString(param0, this.font, this.header, this.width / 2, 17, 16777215);
 
         for(int var0 = 0; var0 < this.message.length; ++var0) {
-            this.drawCenteredString(param0, this.font, this.message[var0], this.width / 2, row(-1) + 3 + var0 * 12, 10526880);
+            drawCenteredString(param0, this.font, this.message[var0], this.width / 2, row(-1) + 3 + var0 * 12, 10526880);
         }
 
         if (this.serverData != null) {
@@ -262,7 +261,7 @@ public class RealmsBrokenWorldScreen extends RealmsScreen {
         RealmsClient var0 = RealmsClient.create();
 
         try {
-            WorldDownload var1 = var0.download(this.serverData.id, param0);
+            WorldDownload var1 = var0.requestDownloadInfo(this.serverData.id, param0);
             RealmsDownloadLatestWorldScreen var2 = new RealmsDownloadLatestWorldScreen(this, var1, this.serverData.getWorldName(param0), param1 -> {
                 if (param1) {
                     this.slotsThatHasBeenDownloaded.add(param0);
@@ -328,6 +327,6 @@ public class RealmsBrokenWorldScreen extends RealmsScreen {
         }
 
         GuiComponent.blit(param0, param1, param2, 0.0F, 0.0F, 80, 80, 80, 80);
-        this.drawCenteredString(param0, this.font, param6, param1 + 40, param2 + 66, 16777215);
+        drawCenteredString(param0, this.font, param6, param1 + 40, param2 + 66, 16777215);
     }
 }

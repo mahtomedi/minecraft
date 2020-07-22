@@ -7,7 +7,6 @@ import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
@@ -23,6 +22,11 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class JigsawBlockEditScreen extends Screen {
+    private static final Component JOINT_LABEL = new TranslatableComponent("jigsaw_block.joint_label");
+    private static final Component POOL_LABEL = new TranslatableComponent("jigsaw_block.pool");
+    private static final Component NAME_LABEL = new TranslatableComponent("jigsaw_block.name");
+    private static final Component TARGET_LABEL = new TranslatableComponent("jigsaw_block.target");
+    private static final Component FINAL_STATE_LABEL = new TranslatableComponent("jigsaw_block.final_state");
     private final JigsawBlockEntity jigsawEntity;
     private EditBox nameEdit;
     private EditBox targetEdit;
@@ -103,7 +107,7 @@ public class JigsawBlockEditScreen extends Screen {
         this.finalStateEdit.setValue(this.jigsawEntity.getFinalState());
         this.children.add(this.finalStateEdit);
         this.joint = this.jigsawEntity.getJoint();
-        int var0 = this.font.width(I18n.get("jigsaw_block.joint_label")) + 10;
+        int var0 = this.font.width(JOINT_LABEL) + 10;
         this.jointButton = this.addButton(new Button(this.width / 2 - 152 + var0, 150, 300 - var0, 20, this.getJointText(), param0 -> {
             JigsawBlockEntity.JointType[] var0x = JigsawBlockEntity.JointType.values();
             int var1x = (this.joint.ordinal() + 1) % var0x.length;
@@ -195,16 +199,16 @@ public class JigsawBlockEditScreen extends Screen {
     @Override
     public void render(PoseStack param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
-        this.drawString(param0, this.font, I18n.get("jigsaw_block.pool"), this.width / 2 - 153, 10, 10526880);
+        drawString(param0, this.font, POOL_LABEL, this.width / 2 - 153, 10, 10526880);
         this.poolEdit.render(param0, param1, param2, param3);
-        this.drawString(param0, this.font, I18n.get("jigsaw_block.name"), this.width / 2 - 153, 45, 10526880);
+        drawString(param0, this.font, NAME_LABEL, this.width / 2 - 153, 45, 10526880);
         this.nameEdit.render(param0, param1, param2, param3);
-        this.drawString(param0, this.font, I18n.get("jigsaw_block.target"), this.width / 2 - 153, 80, 10526880);
+        drawString(param0, this.font, TARGET_LABEL, this.width / 2 - 153, 80, 10526880);
         this.targetEdit.render(param0, param1, param2, param3);
-        this.drawString(param0, this.font, I18n.get("jigsaw_block.final_state"), this.width / 2 - 153, 115, 10526880);
+        drawString(param0, this.font, FINAL_STATE_LABEL, this.width / 2 - 153, 115, 10526880);
         this.finalStateEdit.render(param0, param1, param2, param3);
         if (JigsawBlock.getFrontFacing(this.jigsawEntity.getBlockState()).getAxis().isVertical()) {
-            this.drawString(param0, this.font, I18n.get("jigsaw_block.joint_label"), this.width / 2 - 153, 156, 16777215);
+            drawString(param0, this.font, JOINT_LABEL, this.width / 2 - 153, 156, 16777215);
         }
 
         super.render(param0, param1, param2, param3);

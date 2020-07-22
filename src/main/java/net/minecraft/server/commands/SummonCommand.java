@@ -23,6 +23,9 @@ import net.minecraft.world.phys.Vec3;
 
 public class SummonCommand {
     private static final SimpleCommandExceptionType ERROR_FAILED = new SimpleCommandExceptionType(new TranslatableComponent("commands.summon.failed"));
+    private static final SimpleCommandExceptionType ERROR_DUPLICATE_UUID = new SimpleCommandExceptionType(
+        new TranslatableComponent("commands.summon.failed.uuid")
+    );
     private static final SimpleCommandExceptionType INVALID_POSITION = new SimpleCommandExceptionType(
         new TranslatableComponent("commands.summon.invalidPosition")
     );
@@ -79,9 +82,9 @@ public class SummonCommand {
             CompoundTag var1 = param3.copy();
             var1.putString("id", param1.toString());
             ServerLevel var2 = param0.getLevel();
-            Entity var3 = EntityType.loadEntityRecursive(var1, var2, param2x -> {
-                param2x.moveTo(param2.x, param2.y, param2.z, param2x.yRot, param2x.xRot);
-                return !var2.addWithUUID(param2x) ? null : param2x;
+            Entity var3 = EntityType.loadEntityRecursive(var1, var2, param1x -> {
+                param1x.moveTo(param2.x, param2.y, param2.z, param1x.yRot, param1x.xRot);
+                return param1x;
             });
             if (var3 == null) {
                 throw ERROR_FAILED.create();
@@ -91,8 +94,12 @@ public class SummonCommand {
                         .finalizeSpawn(param0.getLevel(), param0.getLevel().getCurrentDifficultyAt(var3.blockPosition()), MobSpawnType.COMMAND, null, null);
                 }
 
-                param0.sendSuccess(new TranslatableComponent("commands.summon.success", var3.getDisplayName()), true);
-                return 1;
+                if (!var2.tryAddFreshEntityWithPassengers(var3)) {
+                    throw ERROR_DUPLICATE_UUID.create();
+                } else {
+                    param0.sendSuccess(new TranslatableComponent("commands.summon.success", var3.getDisplayName()), true);
+                    return 1;
+                }
             }
         }
     }

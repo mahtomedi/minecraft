@@ -152,7 +152,10 @@ public abstract class Mob extends LivingEntity {
     }
 
     public boolean canCutCorner(BlockPathTypes param0) {
-        return param0 != BlockPathTypes.DANGER_FIRE && param0 != BlockPathTypes.DANGER_CACTUS && param0 != BlockPathTypes.DANGER_OTHER;
+        return param0 != BlockPathTypes.DANGER_FIRE
+            && param0 != BlockPathTypes.DANGER_CACTUS
+            && param0 != BlockPathTypes.DANGER_OTHER
+            && param0 != BlockPathTypes.WALKABLE_DOOR;
     }
 
     protected BodyRotationControl createBodyControl() {
@@ -978,20 +981,30 @@ public abstract class Mob extends LivingEntity {
 
     protected void populateDefaultEquipmentEnchantments(DifficultyInstance param0) {
         float var0 = param0.getSpecialMultiplier();
-        if (!this.getMainHandItem().isEmpty() && this.random.nextFloat() < 0.25F * var0) {
-            this.setItemSlot(
-                EquipmentSlot.MAINHAND,
-                EnchantmentHelper.enchantItem(this.random, this.getMainHandItem(), (int)(5.0F + var0 * (float)this.random.nextInt(18)), false)
-            );
-        }
+        this.enchantSpawnedWeapon(var0);
 
         for(EquipmentSlot var1 : EquipmentSlot.values()) {
             if (var1.getType() == EquipmentSlot.Type.ARMOR) {
-                ItemStack var2 = this.getItemBySlot(var1);
-                if (!var2.isEmpty() && this.random.nextFloat() < 0.5F * var0) {
-                    this.setItemSlot(var1, EnchantmentHelper.enchantItem(this.random, var2, (int)(5.0F + var0 * (float)this.random.nextInt(18)), false));
-                }
+                this.enchantSpawnedArmor(var0, var1);
             }
+        }
+
+    }
+
+    protected void enchantSpawnedWeapon(float param0) {
+        if (!this.getMainHandItem().isEmpty() && this.random.nextFloat() < 0.25F * param0) {
+            this.setItemSlot(
+                EquipmentSlot.MAINHAND,
+                EnchantmentHelper.enchantItem(this.random, this.getMainHandItem(), (int)(5.0F + param0 * (float)this.random.nextInt(18)), false)
+            );
+        }
+
+    }
+
+    protected void enchantSpawnedArmor(float param0, EquipmentSlot param1) {
+        ItemStack var0 = this.getItemBySlot(param1);
+        if (!var0.isEmpty() && this.random.nextFloat() < 0.5F * param0) {
+            this.setItemSlot(param1, EnchantmentHelper.enchantItem(this.random, var0, (int)(5.0F + param0 * (float)this.random.nextInt(18)), false));
         }
 
     }

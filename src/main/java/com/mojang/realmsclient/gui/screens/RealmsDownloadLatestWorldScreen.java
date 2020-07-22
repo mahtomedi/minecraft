@@ -144,12 +144,8 @@ public class RealmsDownloadLatestWorldScreen extends RealmsScreen {
     @Override
     public void render(PoseStack param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
-        if (this.extracting && !this.finished) {
-            this.status = new TranslatableComponent("mco.download.extracting");
-        }
-
-        this.drawCenteredString(param0, this.font, this.downloadTitle, this.width / 2, 20, 16777215);
-        this.drawCenteredString(param0, this.font, this.status, this.width / 2, 50, 16777215);
+        drawCenteredString(param0, this.font, this.downloadTitle, this.width / 2, 20, 16777215);
+        drawCenteredString(param0, this.font, this.status, this.width / 2, 50, 16777215);
         if (this.showDots) {
             this.drawDots(param0);
         }
@@ -160,7 +156,7 @@ public class RealmsDownloadLatestWorldScreen extends RealmsScreen {
         }
 
         if (this.errorMessage != null) {
-            this.drawCenteredString(param0, this.font, this.errorMessage, this.width / 2, 110, 16711680);
+            drawCenteredString(param0, this.font, this.errorMessage, this.width / 2, 110, 16711680);
         }
 
         super.render(param0, param1, param2, param3);
@@ -176,8 +172,8 @@ public class RealmsDownloadLatestWorldScreen extends RealmsScreen {
     }
 
     private void drawProgressBar(PoseStack param0) {
-        double var0 = this.downloadStatus.bytesWritten.doubleValue() / this.downloadStatus.totalBytes.doubleValue() * 100.0;
-        this.progress = String.format(Locale.ROOT, "%.1f", var0);
+        double var0 = Math.min((double)this.downloadStatus.bytesWritten / (double)this.downloadStatus.totalBytes, 1.0);
+        this.progress = String.format(Locale.ROOT, "%.1f", var0 * 100.0);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.disableTexture();
         Tesselator var1 = Tesselator.getInstance();
@@ -186,16 +182,16 @@ public class RealmsDownloadLatestWorldScreen extends RealmsScreen {
         double var3 = (double)(this.width / 2 - 100);
         double var4 = 0.5;
         var2.vertex(var3 - 0.5, 95.5, 0.0).color(217, 210, 210, 255).endVertex();
-        var2.vertex(var3 + 200.0 * var0 / 100.0 + 0.5, 95.5, 0.0).color(217, 210, 210, 255).endVertex();
-        var2.vertex(var3 + 200.0 * var0 / 100.0 + 0.5, 79.5, 0.0).color(217, 210, 210, 255).endVertex();
+        var2.vertex(var3 + 200.0 * var0 + 0.5, 95.5, 0.0).color(217, 210, 210, 255).endVertex();
+        var2.vertex(var3 + 200.0 * var0 + 0.5, 79.5, 0.0).color(217, 210, 210, 255).endVertex();
         var2.vertex(var3 - 0.5, 79.5, 0.0).color(217, 210, 210, 255).endVertex();
         var2.vertex(var3, 95.0, 0.0).color(128, 128, 128, 255).endVertex();
-        var2.vertex(var3 + 200.0 * var0 / 100.0, 95.0, 0.0).color(128, 128, 128, 255).endVertex();
-        var2.vertex(var3 + 200.0 * var0 / 100.0, 80.0, 0.0).color(128, 128, 128, 255).endVertex();
+        var2.vertex(var3 + 200.0 * var0, 95.0, 0.0).color(128, 128, 128, 255).endVertex();
+        var2.vertex(var3 + 200.0 * var0, 80.0, 0.0).color(128, 128, 128, 255).endVertex();
         var2.vertex(var3, 80.0, 0.0).color(128, 128, 128, 255).endVertex();
         var1.end();
         RenderSystem.enableTexture();
-        this.drawCenteredString(param0, this.font, this.progress + " %", this.width / 2, 84, 16777215);
+        drawCenteredString(param0, this.font, this.progress + " %", this.width / 2, 84, 16777215);
     }
 
     private void drawDownloadSpeed(PoseStack param0) {
@@ -250,6 +246,10 @@ public class RealmsDownloadLatestWorldScreen extends RealmsScreen {
                         }
 
                         if (var0.isExtracting()) {
+                            if (!this.extracting) {
+                                this.status = new TranslatableComponent("mco.download.extracting");
+                            }
+
                             this.extracting = true;
                         }
 
@@ -299,7 +299,7 @@ public class RealmsDownloadLatestWorldScreen extends RealmsScreen {
 
     @OnlyIn(Dist.CLIENT)
     public class DownloadStatus {
-        public volatile Long bytesWritten = 0L;
-        public volatile Long totalBytes = 0L;
+        public volatile long bytesWritten;
+        public volatile long totalBytes;
     }
 }

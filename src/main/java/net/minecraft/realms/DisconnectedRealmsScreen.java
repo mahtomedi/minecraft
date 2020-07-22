@@ -1,30 +1,26 @@
 package net.minecraft.realms;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import java.util.List;
-import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.FormattedText;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class DisconnectedRealmsScreen extends RealmsScreen {
-    private final String title;
+    private final Component title;
     private final Component reason;
-    @Nullable
-    private List<FormattedText> lines;
+    private MultiLineLabel message = MultiLineLabel.EMPTY;
     private final Screen parent;
     private int textHeight;
 
-    public DisconnectedRealmsScreen(Screen param0, String param1, Component param2) {
+    public DisconnectedRealmsScreen(Screen param0, Component param1, Component param2) {
         this.parent = param0;
-        this.title = I18n.get(param1);
+        this.title = param1;
         this.reason = param2;
     }
 
@@ -33,9 +29,9 @@ public class DisconnectedRealmsScreen extends RealmsScreen {
         Minecraft var0 = Minecraft.getInstance();
         var0.setConnectedToRealms(false);
         var0.getClientPackSource().clearServerPack();
-        NarrationHelper.now(this.title + ": " + this.reason.getString());
-        this.lines = this.font.split(this.reason, this.width - 50);
-        this.textHeight = this.lines.size() * 9;
+        NarrationHelper.now(this.title.getString() + ": " + this.reason.getString());
+        this.message = MultiLineLabel.create(this.font, this.reason, this.width - 50);
+        this.textHeight = this.message.getLineCount() * 9;
         this.addButton(
             new Button(
                 this.width / 2 - 100, this.height / 2 + this.textHeight / 2 + 9, 200, 20, CommonComponents.GUI_BACK, param1 -> var0.setScreen(this.parent)
@@ -44,27 +40,15 @@ public class DisconnectedRealmsScreen extends RealmsScreen {
     }
 
     @Override
-    public boolean keyPressed(int param0, int param1, int param2) {
-        if (param0 == 256) {
-            Minecraft.getInstance().setScreen(this.parent);
-            return true;
-        } else {
-            return super.keyPressed(param0, param1, param2);
-        }
+    public void onClose() {
+        Minecraft.getInstance().setScreen(this.parent);
     }
 
     @Override
     public void render(PoseStack param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
-        this.drawCenteredString(param0, this.font, this.title, this.width / 2, this.height / 2 - this.textHeight / 2 - 9 * 2, 11184810);
-        int var0 = this.height / 2 - this.textHeight / 2;
-        if (this.lines != null) {
-            for(FormattedText var1 : this.lines) {
-                this.drawCenteredString(param0, this.font, var1, this.width / 2, var0, 16777215);
-                var0 += 9;
-            }
-        }
-
+        drawCenteredString(param0, this.font, this.title, this.width / 2, this.height / 2 - this.textHeight / 2 - 9 * 2, 11184810);
+        this.message.renderCentered(param0, this.width / 2, this.height / 2 - this.textHeight / 2);
         super.render(param0, param1, param2, param3);
     }
 }

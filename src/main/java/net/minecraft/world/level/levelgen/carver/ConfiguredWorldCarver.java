@@ -14,7 +14,7 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 
 public class ConfiguredWorldCarver<WC extends CarverConfiguration> {
     public static final MapCodec<ConfiguredWorldCarver<?>> DIRECT_CODEC = Registry.CARVER
-        .dispatchMap("name", param0 -> param0.worldCarver, WorldCarver::configuredCodec);
+        .dispatchMap(param0 -> param0.worldCarver, WorldCarver::configuredCodec);
     public static final Codec<Supplier<ConfiguredWorldCarver<?>>> CODEC = RegistryFileCodec.create(Registry.CONFIGURED_CARVER_REGISTRY, DIRECT_CODEC);
     private final WorldCarver<WC> worldCarver;
     private final WC config;

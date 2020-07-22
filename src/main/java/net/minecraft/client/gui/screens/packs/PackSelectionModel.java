@@ -8,7 +8,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.FormattedText;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackCompatibility;
@@ -72,7 +71,7 @@ public class PackSelectionModel {
 
         PackSource getPackSource();
 
-        default FormattedText getExtendedDescription() {
+        default Component getExtendedDescription() {
             return this.getPackSource().decorate(this.getDescription());
         }
 

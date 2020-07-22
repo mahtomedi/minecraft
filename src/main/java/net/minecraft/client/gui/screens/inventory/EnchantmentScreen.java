@@ -217,7 +217,7 @@ public class EnchantmentScreen extends AbstractContainerScreen<EnchantmentMenu> 
                     }
                 }
 
-                this.renderTooltip(param0, var7, param1, param2);
+                this.renderComponentTooltip(param0, var7, param1, param2);
                 break;
             }
         }

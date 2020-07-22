@@ -26,13 +26,12 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.ServerList;
 import net.minecraft.client.renderer.texture.DynamicTexture;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.client.server.LanServer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.Validate;
@@ -52,6 +51,13 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
     );
     private static final ResourceLocation ICON_MISSING = new ResourceLocation("textures/misc/unknown_server.png");
     private static final ResourceLocation ICON_OVERLAY_LOCATION = new ResourceLocation("textures/gui/server_selection.png");
+    private static final Component SCANNING_LABEL = new TranslatableComponent("lanServer.scanning");
+    private static final Component CANT_RESOLVE_TEXT = new TranslatableComponent("multiplayer.status.cannot_resolve").withStyle(ChatFormatting.DARK_RED);
+    private static final Component CANT_CONNECT_TEXT = new TranslatableComponent("multiplayer.status.cannot_connect").withStyle(ChatFormatting.DARK_RED);
+    private static final Component CLIENT_OUT_OF_DATE_TOOLTIP = new TranslatableComponent("multiplayer.status.client_out_of_date");
+    private static final Component SERVER_OUT_OF_DATE_TOOLTIP = new TranslatableComponent("multiplayer.status.server_out_of_date");
+    private static final Component NO_CONNECTION_TOOLTIP = new TranslatableComponent("multiplayer.status.no_connection");
+    private static final Component PINGING_TOOLTIP = new TranslatableComponent("multiplayer.status.pinging");
     private final JoinMultiplayerScreen screen;
     private final List<ServerSelectionList.OnlineServerEntry> onlineServers = Lists.newArrayList();
     private final ServerSelectionList.Entry lanHeader = new ServerSelectionList.LANHeader();
@@ -140,8 +146,8 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
                 .font
                 .draw(
                     param0,
-                    I18n.get("lanServer.scanning"),
-                    (float)(this.minecraft.screen.width / 2 - this.minecraft.font.width(I18n.get("lanServer.scanning")) / 2),
+                    ServerSelectionList.SCANNING_LABEL,
+                    (float)(this.minecraft.screen.width / 2 - this.minecraft.font.width(ServerSelectionList.SCANNING_LABEL) / 2),
                     (float)var0,
                     16777215
                 );
@@ -165,6 +171,8 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
 
     @OnlyIn(Dist.CLIENT)
     public static class NetworkServerEntry extends ServerSelectionList.Entry {
+        private static final Component LAN_SERVER_HEADER = new TranslatableComponent("lanServer.title");
+        private static final Component HIDDEN_ADDRESS_TEXT = new TranslatableComponent("selectServer.hiddenAddress");
         private final JoinMultiplayerScreen screen;
         protected final Minecraft minecraft;
         protected final LanServer serverData;
@@ -178,10 +186,10 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
 
         @Override
         public void render(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
-            this.minecraft.font.draw(param0, I18n.get("lanServer.title"), (float)(param3 + 32 + 3), (float)(param2 + 1), 16777215);
+            this.minecraft.font.draw(param0, LAN_SERVER_HEADER, (float)(param3 + 32 + 3), (float)(param2 + 1), 16777215);
             this.minecraft.font.draw(param0, this.serverData.getMotd(), (float)(param3 + 32 + 3), (float)(param2 + 12), 8421504);
             if (this.minecraft.options.hideServerAddress) {
-                this.minecraft.font.draw(param0, I18n.get("selectServer.hiddenAddress"), (float)(param3 + 32 + 3), (float)(param2 + 12 + 11), 3158064);
+                this.minecraft.font.draw(param0, HIDDEN_ADDRESS_TEXT, (float)(param3 + 32 + 3), (float)(param2 + 12 + 11), 3158064);
             } else {
                 this.minecraft.font.draw(param0, this.serverData.getAddress(), (float)(param3 + 32 + 3), (float)(param2 + 12 + 11), 3158064);
             }
@@ -234,10 +242,10 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
                         this.screen.getPinger().pingServer(this.serverData, () -> this.minecraft.execute(this::updateServerList));
                     } catch (UnknownHostException var2x) {
                         this.serverData.ping = -1L;
-                        this.serverData.motd = new TranslatableComponent("multiplayer.status.cannot_resolve").withStyle(ChatFormatting.DARK_RED);
+                        this.serverData.motd = ServerSelectionList.CANT_RESOLVE_TEXT;
                     } catch (Exception var3x) {
                         this.serverData.ping = -1L;
-                        this.serverData.motd = new TranslatableComponent("multiplayer.status.cannot_connect").withStyle(ChatFormatting.DARK_RED);
+                        this.serverData.motd = ServerSelectionList.CANT_CONNECT_TEXT;
                     }
 
                 });
@@ -247,7 +255,7 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
             boolean var1 = this.serverData.protocol < SharedConstants.getCurrentVersion().getProtocolVersion();
             boolean var2 = var0 || var1;
             this.minecraft.font.draw(param0, this.serverData.name, (float)(param3 + 32 + 3), (float)(param2 + 1), 16777215);
-            List<FormattedText> var3 = this.minecraft.font.split(this.serverData.motd, param4 - 32 - 2);
+            List<FormattedCharSequence> var3 = this.minecraft.font.split(this.serverData.motd, param4 - 32 - 2);
 
             for(int var4 = 0; var4 < Math.min(var3.size(), 2); ++var4) {
                 this.minecraft.font.draw(param0, var3.get(var4), (float)(param3 + 32 + 3), (float)(param2 + 12 + 9 * var4), 8421504);
@@ -262,7 +270,7 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
             Component var9;
             if (var2) {
                 var8 = 5;
-                var9 = new TranslatableComponent(var0 ? "multiplayer.status.client_out_of_date" : "multiplayer.status.server_out_of_date");
+                var9 = var0 ? ServerSelectionList.CLIENT_OUT_OF_DATE_TOOLTIP : ServerSelectionList.SERVER_OUT_OF_DATE_TOOLTIP;
                 var10 = this.serverData.playerList;
             } else if (this.serverData.pinged && this.serverData.ping != -2L) {
                 if (this.serverData.ping < 0L) {
@@ -280,7 +288,7 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
                 }
 
                 if (this.serverData.ping < 0L) {
-                    var9 = new TranslatableComponent("multiplayer.status.no_connection");
+                    var9 = ServerSelectionList.NO_CONNECTION_TOOLTIP;
                     var10 = Collections.emptyList();
                 } else {
                     var9 = new TranslatableComponent("multiplayer.status.ping", this.serverData.ping);
@@ -293,7 +301,7 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
                     var8 = 8 - var8;
                 }
 
-                var9 = new TranslatableComponent("multiplayer.status.pinging");
+                var9 = ServerSelectionList.PINGING_TOOLTIP;
                 var10 = Collections.emptyList();
             }
 

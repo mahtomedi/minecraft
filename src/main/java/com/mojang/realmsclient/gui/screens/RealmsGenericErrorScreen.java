@@ -67,8 +67,8 @@ public class RealmsGenericErrorScreen extends RealmsScreen {
     @Override
     public void render(PoseStack param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
-        this.drawCenteredString(param0, this.font, this.line1, this.width / 2, 80, 16777215);
-        this.drawCenteredString(param0, this.font, this.line2, this.width / 2, 100, 16711680);
+        drawCenteredString(param0, this.font, this.line1, this.width / 2, 80, 16777215);
+        drawCenteredString(param0, this.font, this.line2, this.width / 2, 100, 16711680);
         super.render(param0, param1, param2, param3);
     }
 }

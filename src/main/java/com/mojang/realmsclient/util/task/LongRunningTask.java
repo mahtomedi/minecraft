@@ -38,7 +38,7 @@ public abstract class LongRunningTask implements ErrorCallback, Runnable {
         this.longRunningMcoTaskScreen.error(param0);
     }
 
-    public void setTitle(String param0) {
+    public void setTitle(Component param0) {
         this.longRunningMcoTaskScreen.setTitle(param0);
     }
 

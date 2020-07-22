@@ -174,7 +174,7 @@ public final class NaturalSpawner {
                                     var11 = var19.finalizeSpawn(param1, param1.getCurrentDifficultyAt(var19.blockPosition()), MobSpawnType.NATURAL, var11, null);
                                     ++var5;
                                     ++var13;
-                                    param1.addFreshEntity(var19);
+                                    param1.addFreshEntityWithPassengers(var19);
                                     param5.run(var19, param2);
                                     if (var5 >= var19.getMaxSpawnClusterSize()) {
                                         return;
@@ -384,7 +384,7 @@ public final class NaturalSpawner {
                                     var5 = var20.finalizeSpawn(
                                         param0, param0.getCurrentDifficultyAt(var20.blockPosition()), MobSpawnType.CHUNK_GENERATION, var5, null
                                     );
-                                    param0.addFreshEntity(var20);
+                                    param0.addFreshEntityWithPassengers(var20);
                                     var11 = true;
                                 }
                             }

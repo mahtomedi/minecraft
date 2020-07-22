@@ -91,8 +91,8 @@ public class EffectInstance implements Effect, AutoCloseable {
                 for(JsonElement var12 : var10) {
                     try {
                         this.attributeNames.add(GsonHelper.convertToString(var12, "attribute"));
-                    } catch (Exception var231) {
-                        ChainedJsonException var14 = ChainedJsonException.forException(var231);
+                    } catch (Exception var23) {
+                        ChainedJsonException var14 = ChainedJsonException.forException(var23);
                         var14.prependJsonKey("attributes[" + var11 + "]");
                         throw var14;
                     }
@@ -133,10 +133,17 @@ public class EffectInstance implements Effect, AutoCloseable {
                     this.attributes.add(var21);
                 }
             }
-        } catch (Exception var25) {
-            ChainedJsonException var23 = ChainedJsonException.forException(var25);
-            var23.setFilenameAndFlush(var0.getPath());
-            throw var23;
+        } catch (Exception var251) {
+            String var23;
+            if (var1 != null) {
+                var23 = " (" + var1.getSourceName() + ")";
+            } else {
+                var23 = "";
+            }
+
+            ChainedJsonException var25 = ChainedJsonException.forException(var251);
+            var25.setFilenameAndFlush(var0.getPath() + var23);
+            throw var25;
         } finally {
             IOUtils.closeQuietly((Closeable)var1);
         }
@@ -151,7 +158,7 @@ public class EffectInstance implements Effect, AutoCloseable {
             Resource var2 = param0.getResource(var1);
 
             try {
-                var0 = Program.compileShader(param1, param2, var2.getInputStream());
+                var0 = Program.compileShader(param1, param2, var2.getInputStream(), var2.getSourceName());
             } finally {
                 IOUtils.closeQuietly((Closeable)var2);
             }

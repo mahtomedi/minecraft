@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ContainerObjectSelectionList;
 import net.minecraft.client.gui.components.EditBox;
@@ -22,10 +23,10 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.level.GameRules;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -37,7 +38,7 @@ public class EditGameRulesScreen extends Screen {
     private final Set<EditGameRulesScreen.RuleEntry> invalidEntries = Sets.newHashSet();
     private Button doneButton;
     @Nullable
-    private List<FormattedText> tooltip;
+    private List<FormattedCharSequence> tooltip;
     private final GameRules gameRules;
 
     public EditGameRulesScreen(GameRules param0, Consumer<Optional<GameRules>> param1) {
@@ -76,7 +77,7 @@ public class EditGameRulesScreen extends Screen {
     public void render(PoseStack param0, int param1, int param2, float param3) {
         this.tooltip = null;
         this.rules.render(param0, param1, param2, param3);
-        this.drawCenteredString(param0, this.font, this.title, this.width / 2, 20, 16777215);
+        drawCenteredString(param0, this.font, this.title, this.width / 2, 20, 16777215);
         super.render(param0, param1, param2, param3);
         if (this.tooltip != null) {
             this.renderTooltip(param0, this.tooltip, param1, param2);
@@ -84,7 +85,7 @@ public class EditGameRulesScreen extends Screen {
 
     }
 
-    private void setTooltip(@Nullable List<FormattedText> param0) {
+    private void setTooltip(@Nullable List<FormattedCharSequence> param0) {
         this.tooltip = param0;
     }
 
@@ -106,7 +107,7 @@ public class EditGameRulesScreen extends Screen {
     public class BooleanRuleEntry extends EditGameRulesScreen.GameRuleEntry {
         private final Button checkbox;
 
-        public BooleanRuleEntry(final Component param1, List<FormattedText> param2, final String param3, final GameRules.BooleanValue param4) {
+        public BooleanRuleEntry(final Component param1, List<FormattedCharSequence> param2, final String param3, final GameRules.BooleanValue param4) {
             super(param2, param1);
             this.checkbox = new Button(10, 5, 44, 20, CommonComponents.optionStatus(param4.get()), param1x -> {
                 boolean var0 = !param4.get();
@@ -141,7 +142,7 @@ public class EditGameRulesScreen extends Screen {
 
         @Override
         public void render(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
-            EditGameRulesScreen.this.drawCenteredString(param0, EditGameRulesScreen.this.minecraft.font, this.label, param3 + param4 / 2, param2 + 5, 16777215);
+            GuiComponent.drawCenteredString(param0, EditGameRulesScreen.this.minecraft.font, this.label, param3 + param4 / 2, param2 + 5, 16777215);
         }
 
         @Override
@@ -153,15 +154,15 @@ public class EditGameRulesScreen extends Screen {
     @FunctionalInterface
     @OnlyIn(Dist.CLIENT)
     interface EntryFactory<T extends GameRules.Value<T>> {
-        EditGameRulesScreen.RuleEntry create(Component var1, List<FormattedText> var2, String var3, T var4);
+        EditGameRulesScreen.RuleEntry create(Component var1, List<FormattedCharSequence> var2, String var3, T var4);
     }
 
     @OnlyIn(Dist.CLIENT)
     public abstract class GameRuleEntry extends EditGameRulesScreen.RuleEntry {
-        private final List<FormattedText> label;
+        private final List<FormattedCharSequence> label;
         protected final List<GuiEventListener> children = Lists.newArrayList();
 
-        public GameRuleEntry(@Nullable List<FormattedText> param1, Component param2) {
+        public GameRuleEntry(@Nullable List<FormattedCharSequence> param1, Component param2) {
             super(param1);
             this.label = EditGameRulesScreen.this.minecraft.font.split(param2, 175);
         }
@@ -186,7 +187,7 @@ public class EditGameRulesScreen extends Screen {
     public class IntegerRuleEntry extends EditGameRulesScreen.GameRuleEntry {
         private final EditBox input;
 
-        public IntegerRuleEntry(Component param1, List<FormattedText> param2, String param3, GameRules.IntegerValue param4) {
+        public IntegerRuleEntry(Component param1, List<FormattedCharSequence> param2, String param3, GameRules.IntegerValue param4) {
             super(param2, param1);
             this.input = new EditBox(EditGameRulesScreen.this.minecraft.font, 10, 5, 42, 20, param1.copy().append("\n").append(param3).append("\n"));
             this.input.setValue(Integer.toString(param4.get()));
@@ -215,9 +216,9 @@ public class EditGameRulesScreen extends Screen {
     @OnlyIn(Dist.CLIENT)
     public abstract class RuleEntry extends ContainerObjectSelectionList.Entry<EditGameRulesScreen.RuleEntry> {
         @Nullable
-        private final List<FormattedText> tooltip;
+        private final List<FormattedCharSequence> tooltip;
 
-        public RuleEntry(@Nullable List<FormattedText> param1) {
+        public RuleEntry(@Nullable List<FormattedCharSequence> param1) {
             this.tooltip = param1;
         }
     }
@@ -257,16 +258,16 @@ public class EditGameRulesScreen extends Screen {
                         String var3 = var2.serialize();
                         Component var4 = new TranslatableComponent("editGamerule.default", new TextComponent(var3)).withStyle(ChatFormatting.GRAY);
                         String var5 = param0.getDescriptionId() + ".description";
-                        List<FormattedText> var8;
+                        List<FormattedCharSequence> var8;
                         String var9;
                         if (I18n.exists(var5)) {
-                            Builder<FormattedText> var6 = ImmutableList.<FormattedText>builder().add(var1);
+                            Builder<FormattedCharSequence> var6 = ImmutableList.<FormattedCharSequence>builder().add(var1.getVisualOrderText());
                             Component var7 = new TranslatableComponent(var5);
                             EditGameRulesScreen.this.font.split(var7, 150).forEach(var6::add);
-                            var8 = var6.add(var4).build();
+                            var8 = var6.add(var4.getVisualOrderText()).build();
                             var9 = var7.getString() + "\n" + var4.getString();
                         } else {
-                            var8 = ImmutableList.of(var1, var4);
+                            var8 = ImmutableList.of(var1.getVisualOrderText(), var4.getVisualOrderText());
                             var9 = var4.getString();
                         }
     

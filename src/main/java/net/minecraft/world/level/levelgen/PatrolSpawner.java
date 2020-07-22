@@ -102,7 +102,7 @@ public class PatrolSpawner implements CustomSpawner {
 
                 var1.setPos((double)param1.getX(), (double)param1.getY(), (double)param1.getZ());
                 var1.finalizeSpawn(param0, param0.getCurrentDifficultyAt(param1), MobSpawnType.PATROL, null, null);
-                param0.addFreshEntity(var1);
+                param0.addFreshEntityWithPassengers(var1);
                 return true;
             } else {
                 return false;

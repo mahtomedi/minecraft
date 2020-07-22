@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraftforge.api.distmarker.Dist;
@@ -14,7 +15,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class PopupScreen extends Screen {
     private final FormattedText message;
     private final ImmutableList<PopupScreen.ButtonOption> buttonOptions;
-    private List<FormattedText> messageLines;
+    private MultiLineLabel messageLines = MultiLineLabel.EMPTY;
     private int contentTop;
     private int buttonWidth;
 
@@ -39,8 +40,8 @@ public class PopupScreen extends Screen {
 
         int var1 = 5 + this.buttonWidth + 5;
         int var2 = var1 * this.buttonOptions.size();
-        this.messageLines = this.font.split(this.message, var2);
-        int var3 = this.messageLines.size() * 9;
+        this.messageLines = MultiLineLabel.create(this.font, this.message, var2);
+        int var3 = this.messageLines.getLineCount() * 9;
         this.contentTop = (int)((double)param2 / 2.0 - (double)var3 / 2.0);
         int var4 = this.contentTop + var3 + 9 * 2;
         int var5 = (int)((double)param1 / 2.0 - (double)var2 / 2.0);
@@ -55,14 +56,8 @@ public class PopupScreen extends Screen {
     @Override
     public void render(PoseStack param0, int param1, int param2, float param3) {
         this.renderDirtBackground(0);
-        this.drawCenteredString(param0, this.font, this.title, this.width / 2, this.contentTop - 9 * 2, -1);
-        int var0 = this.contentTop;
-
-        for(FormattedText var1 : this.messageLines) {
-            this.drawCenteredString(param0, this.font, var1, this.width / 2, var0, -1);
-            var0 += 9;
-        }
-
+        drawCenteredString(param0, this.font, this.title, this.width / 2, this.contentTop - 9 * 2, -1);
+        this.messageLines.renderCentered(param0, this.width / 2, this.contentTop);
         super.render(param0, param1, param2, param3);
     }
 

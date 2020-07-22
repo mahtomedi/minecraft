@@ -42,21 +42,25 @@ public class PillagerOutpostFeature extends JigsawFeature {
         if (param3.nextInt(5) != 0) {
             return false;
         } else {
-            StructureFeatureConfiguration var2 = param0.getSettings().getConfig(StructureFeature.VILLAGE);
-            if (var2 == null) {
-                return true;
-            } else {
-                for(int var3 = param4 - 10; var3 <= param4 + 10; ++var3) {
-                    for(int var4 = param5 - 10; var4 <= param5 + 10; ++var4) {
-                        ChunkPos var5 = StructureFeature.VILLAGE.getPotentialFeatureChunk(var2, param2, param3, var3, var4);
-                        if (var3 == var5.x && var4 == var5.z) {
-                            return false;
-                        }
+            return !this.isNearVillage(param0, param2, param3, param4, param5);
+        }
+    }
+
+    private boolean isNearVillage(ChunkGenerator param0, long param1, WorldgenRandom param2, int param3, int param4) {
+        StructureFeatureConfiguration var0 = param0.getSettings().getConfig(StructureFeature.VILLAGE);
+        if (var0 == null) {
+            return false;
+        } else {
+            for(int var1 = param3 - 10; var1 <= param3 + 10; ++var1) {
+                for(int var2 = param4 - 10; var2 <= param4 + 10; ++var2) {
+                    ChunkPos var3 = StructureFeature.VILLAGE.getPotentialFeatureChunk(var0, param1, param2, var1, var2);
+                    if (var1 == var3.x && var2 == var3.z) {
+                        return true;
                     }
                 }
-
-                return true;
             }
+
+            return false;
         }
     }
 }

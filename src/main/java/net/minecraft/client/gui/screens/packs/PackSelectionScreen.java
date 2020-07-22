@@ -62,7 +62,7 @@ public class PackSelectionScreen extends Screen {
     private Button doneButton;
     private final Map<String, ResourceLocation> packIcons = Maps.newHashMap();
 
-    public PackSelectionScreen(Screen param0, PackRepository param1, Consumer<PackRepository> param2, File param3, TranslatableComponent param4) {
+    public PackSelectionScreen(Screen param0, PackRepository param1, Consumer<PackRepository> param2, File param3, Component param4) {
         super(param4);
         this.lastScreen = param0;
         this.model = new PackSelectionModel(this::populateLists, this::getPackIcon, param1, param2);
@@ -153,8 +153,8 @@ public class PackSelectionScreen extends Screen {
         this.renderDirtBackground(0);
         this.availablePackList.render(param0, param1, param2, param3);
         this.selectedPackList.render(param0, param1, param2, param3);
-        this.drawCenteredString(param0, this.font, this.title, this.width / 2, 8, 16777215);
-        this.drawCenteredString(param0, this.font, DRAG_AND_DROP, this.width / 2, 20, 16777215);
+        drawCenteredString(param0, this.font, this.title, this.width / 2, 8, 16777215);
+        drawCenteredString(param0, this.font, DRAG_AND_DROP, this.width / 2, 20, 16777215);
         super.render(param0, param1, param2, param3);
     }
 

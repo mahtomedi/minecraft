@@ -8,9 +8,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.game.ServerboundSetStructureBlockPacket;
@@ -24,6 +24,15 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class StructureBlockEditScreen extends Screen {
+    private static final Component NAME_LABEL = new TranslatableComponent("structure_block.structure_name");
+    private static final Component POSITION_LABEL = new TranslatableComponent("structure_block.position");
+    private static final Component SIZE_LABEL = new TranslatableComponent("structure_block.size");
+    private static final Component INTEGRITY_LABEL = new TranslatableComponent("structure_block.integrity");
+    private static final Component CUSTOM_DATA_LABEL = new TranslatableComponent("structure_block.custom_data");
+    private static final Component INCLUDE_ENTITIES_LABEL = new TranslatableComponent("structure_block.include_entities");
+    private static final Component DETECT_SIZE_LABEL = new TranslatableComponent("structure_block.detect_size");
+    private static final Component SHOW_AIR_LABEL = new TranslatableComponent("structure_block.show_air");
+    private static final Component SHOW_BOUNDING_BOX_LABEL = new TranslatableComponent("structure_block.show_boundingbox");
     private final StructureBlockEntity structure;
     private Mirror initialMirror = Mirror.NONE;
     private Rotation initialRotation = Rotation.NONE;
@@ -454,51 +463,42 @@ public class StructureBlockEditScreen extends Screen {
     public void render(PoseStack param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
         StructureMode var0 = this.structure.getMode();
-        this.drawCenteredString(param0, this.font, this.title, this.width / 2, 10, 16777215);
+        drawCenteredString(param0, this.font, this.title, this.width / 2, 10, 16777215);
         if (var0 != StructureMode.DATA) {
-            this.drawString(param0, this.font, I18n.get("structure_block.structure_name"), this.width / 2 - 153, 30, 10526880);
+            drawString(param0, this.font, NAME_LABEL, this.width / 2 - 153, 30, 10526880);
             this.nameEdit.render(param0, param1, param2, param3);
         }
 
         if (var0 == StructureMode.LOAD || var0 == StructureMode.SAVE) {
-            this.drawString(param0, this.font, I18n.get("structure_block.position"), this.width / 2 - 153, 70, 10526880);
+            drawString(param0, this.font, POSITION_LABEL, this.width / 2 - 153, 70, 10526880);
             this.posXEdit.render(param0, param1, param2, param3);
             this.posYEdit.render(param0, param1, param2, param3);
             this.posZEdit.render(param0, param1, param2, param3);
-            String var1 = I18n.get("structure_block.include_entities");
-            int var2 = this.font.width(var1);
-            this.drawString(param0, this.font, var1, this.width / 2 + 154 - var2, 150, 10526880);
+            drawString(param0, this.font, INCLUDE_ENTITIES_LABEL, this.width / 2 + 154 - this.font.width(INCLUDE_ENTITIES_LABEL), 150, 10526880);
         }
 
         if (var0 == StructureMode.SAVE) {
-            this.drawString(param0, this.font, I18n.get("structure_block.size"), this.width / 2 - 153, 110, 10526880);
+            drawString(param0, this.font, SIZE_LABEL, this.width / 2 - 153, 110, 10526880);
             this.sizeXEdit.render(param0, param1, param2, param3);
             this.sizeYEdit.render(param0, param1, param2, param3);
             this.sizeZEdit.render(param0, param1, param2, param3);
-            String var3 = I18n.get("structure_block.detect_size");
-            int var4 = this.font.width(var3);
-            this.drawString(param0, this.font, var3, this.width / 2 + 154 - var4, 110, 10526880);
-            String var5 = I18n.get("structure_block.show_air");
-            int var6 = this.font.width(var5);
-            this.drawString(param0, this.font, var5, this.width / 2 + 154 - var6, 70, 10526880);
+            drawString(param0, this.font, DETECT_SIZE_LABEL, this.width / 2 + 154 - this.font.width(DETECT_SIZE_LABEL), 110, 10526880);
+            drawString(param0, this.font, SHOW_AIR_LABEL, this.width / 2 + 154 - this.font.width(SHOW_AIR_LABEL), 70, 10526880);
         }
 
         if (var0 == StructureMode.LOAD) {
-            this.drawString(param0, this.font, I18n.get("structure_block.integrity"), this.width / 2 - 153, 110, 10526880);
+            drawString(param0, this.font, INTEGRITY_LABEL, this.width / 2 - 153, 110, 10526880);
             this.integrityEdit.render(param0, param1, param2, param3);
             this.seedEdit.render(param0, param1, param2, param3);
-            String var7 = I18n.get("structure_block.show_boundingbox");
-            int var8 = this.font.width(var7);
-            this.drawString(param0, this.font, var7, this.width / 2 + 154 - var8, 70, 10526880);
+            drawString(param0, this.font, SHOW_BOUNDING_BOX_LABEL, this.width / 2 + 154 - this.font.width(SHOW_BOUNDING_BOX_LABEL), 70, 10526880);
         }
 
         if (var0 == StructureMode.DATA) {
-            this.drawString(param0, this.font, I18n.get("structure_block.custom_data"), this.width / 2 - 153, 110, 10526880);
+            drawString(param0, this.font, CUSTOM_DATA_LABEL, this.width / 2 - 153, 110, 10526880);
             this.dataEdit.render(param0, param1, param2, param3);
         }
 
-        String var9 = "structure_block.mode_info." + var0.getSerializedName();
-        this.drawString(param0, this.font, I18n.get(var9), this.width / 2 - 153, 174, 10526880);
+        drawString(param0, this.font, var0.getDisplayName(), this.width / 2 - 153, 174, 10526880);
         super.render(param0, param1, param2, param3);
     }
 

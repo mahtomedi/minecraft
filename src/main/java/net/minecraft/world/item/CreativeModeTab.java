@@ -3,6 +3,8 @@ package net.minecraft.world.item;
 import javax.annotation.Nullable;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.Registry;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.item.enchantment.EnchantmentCategory;
@@ -132,6 +134,7 @@ public abstract class CreativeModeTab {
     }).setBackgroundSuffix("inventory.png").hideScroll().hideTitle();
     private final int id;
     private final String langId;
+    private final Component displayName;
     private String recipeFolderName;
     private String backgroundSuffix = "items.png";
     private boolean canScroll = true;
@@ -142,6 +145,7 @@ public abstract class CreativeModeTab {
     public CreativeModeTab(int param0, String param1) {
         this.id = param0;
         this.langId = param1;
+        this.displayName = new TranslatableComponent("itemGroup." + param1);
         this.iconItemStack = ItemStack.EMPTY;
         TABS[param0] = this;
     }
@@ -151,18 +155,13 @@ public abstract class CreativeModeTab {
         return this.id;
     }
 
-    @OnlyIn(Dist.CLIENT)
-    public String getLangId() {
-        return this.langId;
-    }
-
     public String getRecipeFolderName() {
         return this.recipeFolderName == null ? this.langId : this.recipeFolderName;
     }
 
     @OnlyIn(Dist.CLIENT)
-    public String getName() {
-        return "itemGroup." + this.getLangId();
+    public Component getDisplayName() {
+        return this.displayName;
     }
 
     @OnlyIn(Dist.CLIENT)

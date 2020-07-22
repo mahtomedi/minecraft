@@ -39,9 +39,9 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
-import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec2;
 import net.minecraftforge.api.distmarker.Dist;
@@ -67,7 +67,7 @@ public class CommandSuggestions {
     private final int suggestionLineLimit;
     private final boolean anchorToBottom;
     private final int fillColor;
-    private final List<FormattedText> commandUsage = Lists.newArrayList();
+    private final List<FormattedCharSequence> commandUsage = Lists.newArrayList();
     private int commandUsagePosition;
     private int commandUsageWidth;
     private ParseResults<SharedSuggestionProvider> currentParse;
@@ -215,13 +215,15 @@ public class CommandSuggestions {
         }
     }
 
-    private static FormattedText getExceptionMessage(CommandSyntaxException param0) {
+    private static FormattedCharSequence getExceptionMessage(CommandSyntaxException param0) {
         Component var0 = ComponentUtils.fromMessage(param0.getRawMessage());
         String var1 = param0.getContext();
-        return (FormattedText)(var1 == null ? var0 : new TranslatableComponent("command.context.parse_error", var0, param0.getCursor(), var1));
+        return var1 == null
+            ? var0.getVisualOrderText()
+            : new TranslatableComponent("command.context.parse_error", var0, param0.getCursor(), var1).getVisualOrderText();
     }
 
-    public void updateUsageInfo() {
+    private void updateUsageInfo() {
         if (this.input.getCursorPosition() == this.input.getValue().length()) {
             if (this.pendingSuggestions.join().isEmpty() && !this.currentParse.getExceptions().isEmpty()) {
                 int var0 = 0;
@@ -264,13 +266,13 @@ public class CommandSuggestions {
             .connection
             .getCommands()
             .getSmartUsage(var1.parent, this.minecraft.player.connection.getSuggestionsProvider());
-        List<FormattedText> var3 = Lists.newArrayList();
+        List<FormattedCharSequence> var3 = Lists.newArrayList();
         int var4 = 0;
         Style var5 = Style.EMPTY.withColor(param0);
 
         for(Entry<CommandNode<SharedSuggestionProvider>, String> var6 : var2.entrySet()) {
             if (!(var6.getKey() instanceof LiteralCommandNode)) {
-                var3.add(FormattedText.of(var6.getValue(), var5));
+                var3.add(FormattedCharSequence.forward(var6.getValue(), var5));
                 var4 = Math.max(var4, this.font.width(var6.getValue()));
             }
         }
@@ -283,8 +285,8 @@ public class CommandSuggestions {
 
     }
 
-    private FormattedText formatChat(String param0x, int param1x) {
-        return this.currentParse != null ? formatText(this.currentParse, param0x, param1x) : FormattedText.of(param0x);
+    private FormattedCharSequence formatChat(String param0x, int param1x) {
+        return this.currentParse != null ? formatText(this.currentParse, param0x, param1x) : FormattedCharSequence.forward(param0x, Style.EMPTY);
     }
 
     @Nullable
@@ -292,8 +294,8 @@ public class CommandSuggestions {
         return param1.startsWith(param0) ? param1.substring(param0.length()) : null;
     }
 
-    private static FormattedText formatText(ParseResults<SharedSuggestionProvider> param0, String param1, int param2) {
-        List<FormattedText> var0 = Lists.newArrayList();
+    private static FormattedCharSequence formatText(ParseResults<SharedSuggestionProvider> param0, String param1, int param2) {
+        List<FormattedCharSequence> var0 = Lists.newArrayList();
         int var1 = 0;
         int var2 = -1;
         CommandContextBuilder<SharedSuggestionProvider> var3 = param0.getContext().getLastChild();
@@ -310,8 +312,8 @@ public class CommandSuggestions {
 
             int var6 = Math.min(var4.getRange().getEnd() - param2, param1.length());
             if (var6 > 0) {
-                var0.add(FormattedText.of(param1.substring(var1, var5), LITERAL_STYLE));
-                var0.add(FormattedText.of(param1.substring(var5, var6), ARGUMENT_STYLES.get(var2)));
+                var0.add(FormattedCharSequence.forward(param1.substring(var1, var5), LITERAL_STYLE));
+                var0.add(FormattedCharSequence.forward(param1.substring(var5, var6), ARGUMENT_STYLES.get(var2)));
                 var1 = var6;
             }
         }
@@ -320,14 +322,14 @@ public class CommandSuggestions {
             int var7 = Math.max(param0.getReader().getCursor() - param2, 0);
             if (var7 < param1.length()) {
                 int var8 = Math.min(var7 + param0.getReader().getRemainingLength(), param1.length());
-                var0.add(FormattedText.of(param1.substring(var1, var7), LITERAL_STYLE));
-                var0.add(FormattedText.of(param1.substring(var7, var8), UNPARSED_STYLE));
+                var0.add(FormattedCharSequence.forward(param1.substring(var1, var7), LITERAL_STYLE));
+                var0.add(FormattedCharSequence.forward(param1.substring(var7, var8), UNPARSED_STYLE));
                 var1 = var8;
             }
         }
 
-        var0.add(FormattedText.of(param1.substring(var1), LITERAL_STYLE));
-        return FormattedText.composite(var0);
+        var0.add(FormattedCharSequence.forward(param1.substring(var1), LITERAL_STYLE));
+        return FormattedCharSequence.composite(var0);
     }
 
     public void render(PoseStack param0, int param1, int param2) {
@@ -336,7 +338,7 @@ public class CommandSuggestions {
         } else {
             int var0 = 0;
 
-            for(FormattedText var1 : this.commandUsage) {
+            for(FormattedCharSequence var1 : this.commandUsage) {
                 int var2 = this.anchorToBottom ? this.screen.height - 14 - 13 - 12 * var0 : 72 + 12 * var0;
                 GuiComponent.fill(
                     param0, this.commandUsagePosition - 1, var2, this.commandUsagePosition + this.commandUsageWidth + 1, var2 + 12, this.fillColor

@@ -43,7 +43,7 @@ public class TranslatableComponent extends BaseComponent implements ContextAware
             String var1 = var0.getOrDefault(this.key);
 
             try {
-                this.decomposeTemplate(var0.reorder(var1, true), var0);
+                this.decomposeTemplate(var1);
             } catch (TranslatableFormatException var4) {
                 this.decomposedParts.clear();
                 this.decomposedParts.add(FormattedText.of(var1));
@@ -52,7 +52,7 @@ public class TranslatableComponent extends BaseComponent implements ContextAware
         }
     }
 
-    private void decomposeTemplate(String param0, Language param1) {
+    private void decomposeTemplate(String param0) {
         Matcher var0 = FORMAT_PATTERN.matcher(param0);
 
         try {
@@ -84,7 +84,7 @@ public class TranslatableComponent extends BaseComponent implements ContextAware
                     String var8 = var0.group(1);
                     int var9 = var8 != null ? Integer.parseInt(var8) - 1 : var1++;
                     if (var9 < this.args.length) {
-                        this.decomposedParts.add(this.getArgument(var9, param1));
+                        this.decomposedParts.add(this.getArgument(var9));
                     }
                 }
             }
@@ -98,12 +98,12 @@ public class TranslatableComponent extends BaseComponent implements ContextAware
                 this.decomposedParts.add(FormattedText.of(var10));
             }
 
-        } catch (IllegalArgumentException var12) {
-            throw new TranslatableFormatException(this, var12);
+        } catch (IllegalArgumentException var111) {
+            throw new TranslatableFormatException(this, var111);
         }
     }
 
-    private FormattedText getArgument(int param0, Language param1) {
+    private FormattedText getArgument(int param0) {
         if (param0 >= this.args.length) {
             throw new TranslatableFormatException(this, param0);
         } else {
@@ -111,7 +111,7 @@ public class TranslatableComponent extends BaseComponent implements ContextAware
             if (var0 instanceof Component) {
                 return (Component)var0;
             } else {
-                return var0 == null ? TEXT_NULL : FormattedText.of(param1.reorder(var0.toString(), false));
+                return var0 == null ? TEXT_NULL : FormattedText.of(var0.toString());
             }
         }
     }

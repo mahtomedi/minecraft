@@ -7,7 +7,7 @@ import com.mojang.realmsclient.exception.RetryCallException;
 import com.mojang.realmsclient.gui.screens.RealmsDownloadLatestWorldScreen;
 import com.mojang.realmsclient.gui.screens.RealmsGenericErrorScreen;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -27,7 +27,7 @@ public class DownloadTask extends LongRunningTask {
 
     @Override
     public void run() {
-        this.setTitle(I18n.get("mco.download.preparing"));
+        this.setTitle(new TranslatableComponent("mco.download.preparing"));
         RealmsClient var0 = RealmsClient.create();
         int var1 = 0;
 
@@ -37,7 +37,7 @@ public class DownloadTask extends LongRunningTask {
                     return;
                 }
 
-                WorldDownload var2 = var0.download(this.worldId, this.slot);
+                WorldDownload var2 = var0.requestDownloadInfo(this.worldId, this.slot);
                 pause(1);
                 if (this.aborted()) {
                     return;

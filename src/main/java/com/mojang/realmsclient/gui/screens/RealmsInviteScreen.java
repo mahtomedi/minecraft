@@ -3,11 +3,12 @@ package com.mojang.realmsclient.gui.screens;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.realmsclient.client.RealmsClient;
 import com.mojang.realmsclient.dto.RealmsServer;
+import javax.annotation.Nullable;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.realms.NarrationHelper;
 import net.minecraft.realms.RealmsScreen;
@@ -19,12 +20,14 @@ import org.apache.logging.log4j.Logger;
 @OnlyIn(Dist.CLIENT)
 public class RealmsInviteScreen extends RealmsScreen {
     private static final Logger LOGGER = LogManager.getLogger();
+    private static final Component NAME_LABEL = new TranslatableComponent("mco.configure.world.invite.profile.name");
+    private static final Component NO_SUCH_PLAYER_ERROR_TEXT = new TranslatableComponent("mco.configure.world.players.error");
     private EditBox profileName;
     private final RealmsServer serverData;
     private final RealmsConfigureWorldScreen configureScreen;
     private final Screen lastScreen;
-    private String errorMsg;
-    private boolean showError;
+    @Nullable
+    private Component errorMsg;
 
     public RealmsInviteScreen(RealmsConfigureWorldScreen param0, Screen param1, RealmsServer param2) {
         this.configureScreen = param0;
@@ -65,22 +68,21 @@ public class RealmsInviteScreen extends RealmsScreen {
                     this.serverData.players = var1.players;
                     this.minecraft.setScreen(new RealmsPlayerScreen(this.configureScreen, this.serverData));
                 } else {
-                    this.showError(I18n.get("mco.configure.world.players.error"));
+                    this.showError(NO_SUCH_PLAYER_ERROR_TEXT);
                 }
             } catch (Exception var3) {
                 LOGGER.error("Couldn't invite user");
-                this.showError(I18n.get("mco.configure.world.players.error"));
+                this.showError(NO_SUCH_PLAYER_ERROR_TEXT);
             }
 
         } else {
-            this.showError(I18n.get("mco.configure.world.players.error"));
+            this.showError(NO_SUCH_PLAYER_ERROR_TEXT);
         }
     }
 
-    private void showError(String param0) {
-        this.showError = true;
+    private void showError(Component param0) {
         this.errorMsg = param0;
-        NarrationHelper.now(param0);
+        NarrationHelper.now(param0.getString());
     }
 
     @Override
@@ -96,9 +98,9 @@ public class RealmsInviteScreen extends RealmsScreen {
     @Override
     public void render(PoseStack param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
-        this.font.draw(param0, I18n.get("mco.configure.world.invite.profile.name"), (float)(this.width / 2 - 100), (float)row(1), 10526880);
-        if (this.showError) {
-            this.drawCenteredString(param0, this.font, this.errorMsg, this.width / 2, row(5), 16711680);
+        this.font.draw(param0, NAME_LABEL, (float)(this.width / 2 - 100), (float)row(1), 10526880);
+        if (this.errorMsg != null) {
+            drawCenteredString(param0, this.font, this.errorMsg, this.width / 2, row(5), 16711680);
         }
 
         this.profileName.render(param0, param1, param2, param3);

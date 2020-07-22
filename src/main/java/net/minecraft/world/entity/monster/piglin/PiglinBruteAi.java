@@ -49,7 +49,7 @@ public class PiglinBruteAi {
         param1.addActivity(
             Activity.CORE,
             0,
-            ImmutableList.of(new LookAtTargetSink(45, 90), new MoveToTargetSink(200), new InteractWithDoor(), new StopBeingAngryIfTargetDead<>())
+            ImmutableList.of(new LookAtTargetSink(45, 90), new MoveToTargetSink(), new InteractWithDoor(), new StopBeingAngryIfTargetDead<>())
         );
     }
 

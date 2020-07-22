@@ -90,7 +90,7 @@ public interface RegistryAccess {
         WritableRegistry<E> var0 = param0.<E>registry(param1.key()).orElseThrow(() -> new IllegalStateException("Missing registry: " + param1.key()));
 
         for(Entry<ResourceKey<E>, E> var1 : param1.entrySet()) {
-            var0.register(var1.getKey(), var1.getValue());
+            var0.registerMapping(param1.getId(var1.getValue()), var1.getKey(), var1.getValue());
         }
 
     }

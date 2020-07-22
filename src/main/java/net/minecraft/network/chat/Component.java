@@ -23,6 +23,7 @@ import java.util.Map.Entry;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.LowerCaseEnumTypeAdapterFactory;
 import net.minecraftforge.api.distmarker.Dist;
@@ -57,6 +58,9 @@ public interface Component extends Message, FormattedText {
     MutableComponent plainCopy();
 
     MutableComponent copy();
+
+    @OnlyIn(Dist.CLIENT)
+    FormattedCharSequence getVisualOrderText();
 
     @OnlyIn(Dist.CLIENT)
     @Override

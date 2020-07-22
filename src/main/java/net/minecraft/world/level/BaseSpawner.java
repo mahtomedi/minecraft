@@ -154,7 +154,11 @@ public abstract class BaseSpawner {
                                 }
                             }
 
-                            this.addWithPassengers(var15);
+                            if (!var14.tryAddFreshEntityWithPassengers(var15)) {
+                                this.delay();
+                                return;
+                            }
+
                             var0.levelEvent(2004, var1, 0);
                             if (var15 instanceof Mob) {
                                 ((Mob)var15).spawnAnim();
@@ -168,15 +172,6 @@ public abstract class BaseSpawner {
                 if (var5) {
                     this.delay();
                 }
-            }
-
-        }
-    }
-
-    private void addWithPassengers(Entity param0) {
-        if (this.getLevel().addFreshEntity(param0)) {
-            for(Entity var0 : param0.getPassengers()) {
-                this.addWithPassengers(var0);
             }
 
         }

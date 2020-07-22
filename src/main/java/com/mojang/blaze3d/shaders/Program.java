@@ -44,7 +44,7 @@ public class Program {
         return this.name;
     }
 
-    public static Program compileShader(Program.Type param0, String param1, InputStream param2) throws IOException {
+    public static Program compileShader(Program.Type param0, String param1, InputStream param2, String param3) throws IOException {
         RenderSystem.assertThread(RenderSystem::isOnRenderThread);
         String var0 = TextureUtil.readResourceAsString(param2);
         if (var0 == null) {
@@ -55,7 +55,7 @@ public class Program {
             GlStateManager.glCompileShader(var1);
             if (GlStateManager.glGetShaderi(var1, 35713) == 0) {
                 String var2 = StringUtils.trim(GlStateManager.glGetShaderInfoLog(var1, 32768));
-                throw new IOException("Couldn't compile " + param0.getName() + " program: " + var2);
+                throw new IOException("Couldn't compile " + param0.getName() + " program (" + param3 + ", " + param1 + ") : " + var2);
             } else {
                 Program var3 = new Program(param0, var1, param1);
                 param0.getPrograms().put(param1, var3);

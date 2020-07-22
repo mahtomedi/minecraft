@@ -314,7 +314,7 @@ public class TitleScreen extends Screen {
                 float var6 = 1.8F - Mth.abs(Mth.sin((float)(Util.getMillis() % 1000L) / 1000.0F * (float) (Math.PI * 2)) * 0.1F);
                 var6 = var6 * 100.0F / (float)(this.font.width(this.splash) + 32);
                 RenderSystem.scalef(var6, var6, var6);
-                this.drawCenteredString(param0, this.font, this.splash, 0, -8, 16776960 | var5);
+                drawCenteredString(param0, this.font, this.splash, 0, -8, 16776960 | var5);
                 RenderSystem.popMatrix();
             }
 
@@ -329,8 +329,8 @@ public class TitleScreen extends Screen {
                 var7 = var7 + I18n.get("menu.modded");
             }
 
-            this.drawString(param0, this.font, var7, 2, this.height - 10, 16777215 | var5);
-            this.drawString(param0, this.font, "Copyright Mojang AB. Do not distribute!", this.copyrightX, this.height - 10, 16777215 | var5);
+            drawString(param0, this.font, var7, 2, this.height - 10, 16777215 | var5);
+            drawString(param0, this.font, "Copyright Mojang AB. Do not distribute!", this.copyrightX, this.height - 10, 16777215 | var5);
             if (param1 > this.copyrightX && param1 < this.copyrightX + this.copyrightWidth && param2 > this.height - 10 && param2 < this.height) {
                 fill(param0, this.copyrightX, this.height - 1, this.copyrightX + this.copyrightWidth, this.height, 16777215 | var5);
             }

@@ -7,8 +7,8 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CommandSuggestions;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -18,6 +18,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public abstract class AbstractCommandBlockEditScreen extends Screen {
+    private static final Component SET_COMMAND_LABEL = new TranslatableComponent("advMode.setCommand");
+    private static final Component COMMAND_LABEL = new TranslatableComponent("advMode.command");
+    private static final Component PREVIOUS_OUTPUT_LABEL = new TranslatableComponent("advMode.previousOutput");
     protected EditBox commandEdit;
     protected EditBox previousEdit;
     protected Button doneButton;
@@ -147,13 +150,13 @@ public abstract class AbstractCommandBlockEditScreen extends Screen {
     @Override
     public void render(PoseStack param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
-        this.drawCenteredString(param0, this.font, I18n.get("advMode.setCommand"), this.width / 2, 20, 16777215);
-        this.drawString(param0, this.font, I18n.get("advMode.command"), this.width / 2 - 150, 40, 10526880);
+        drawCenteredString(param0, this.font, SET_COMMAND_LABEL, this.width / 2, 20, 16777215);
+        drawString(param0, this.font, COMMAND_LABEL, this.width / 2 - 150, 40, 10526880);
         this.commandEdit.render(param0, param1, param2, param3);
         int var0 = 75;
         if (!this.previousEdit.getValue().isEmpty()) {
             var0 += 5 * 9 + 1 + this.getPreviousY() - 135;
-            this.drawString(param0, this.font, I18n.get("advMode.previousOutput"), this.width / 2 - 150, var0 + 4, 10526880);
+            drawString(param0, this.font, PREVIOUS_OUTPUT_LABEL, this.width / 2 - 150, var0 + 4, 10526880);
             this.previousEdit.render(param0, param1, param2, param3);
         }
 

@@ -83,7 +83,7 @@ public class CatSpawner implements CustomSpawner {
         } else {
             var0.finalizeSpawn(param1, param1.getCurrentDifficultyAt(param0), MobSpawnType.NATURAL, null, null);
             var0.moveTo(param0, 0.0F, 0.0F);
-            param1.addFreshEntity(var0);
+            param1.addFreshEntityWithPassengers(var0);
             return 1;
         }
     }

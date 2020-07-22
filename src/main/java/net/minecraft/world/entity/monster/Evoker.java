@@ -279,15 +279,17 @@ public class Evoker extends SpellcasterIllager {
 
         @Override
         protected void performSpellCasting() {
-            for(int var0 = 0; var0 < 3; ++var0) {
-                BlockPos var1 = Evoker.this.blockPosition().offset(-2 + Evoker.this.random.nextInt(5), 1, -2 + Evoker.this.random.nextInt(5));
-                Vex var2 = EntityType.VEX.create(Evoker.this.level);
-                var2.moveTo(var1, 0.0F, 0.0F);
-                var2.finalizeSpawn((ServerLevel)Evoker.this.level, Evoker.this.level.getCurrentDifficultyAt(var1), MobSpawnType.MOB_SUMMONED, null, null);
-                var2.setOwner(Evoker.this);
-                var2.setBoundOrigin(var1);
-                var2.setLimitedLife(20 * (30 + Evoker.this.random.nextInt(90)));
-                Evoker.this.level.addFreshEntity(var2);
+            ServerLevel var0 = (ServerLevel)Evoker.this.level;
+
+            for(int var1 = 0; var1 < 3; ++var1) {
+                BlockPos var2 = Evoker.this.blockPosition().offset(-2 + Evoker.this.random.nextInt(5), 1, -2 + Evoker.this.random.nextInt(5));
+                Vex var3 = EntityType.VEX.create(Evoker.this.level);
+                var3.moveTo(var2, 0.0F, 0.0F);
+                var3.finalizeSpawn(var0, Evoker.this.level.getCurrentDifficultyAt(var2), MobSpawnType.MOB_SUMMONED, null, null);
+                var3.setOwner(Evoker.this);
+                var3.setBoundOrigin(var2);
+                var3.setLimitedLife(20 * (30 + Evoker.this.random.nextInt(90)));
+                var0.addFreshEntityWithPassengers(var3);
             }
 
         }

@@ -11,6 +11,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class RootSpectatorMenuCategory implements SpectatorMenuCategory {
+    private static final Component PROMPT_TEXT = new TranslatableComponent("spectatorMenu.root.prompt");
     private final List<SpectatorMenuItem> items = Lists.newArrayList();
 
     public RootSpectatorMenuCategory() {
@@ -25,6 +26,6 @@ public class RootSpectatorMenuCategory implements SpectatorMenuCategory {
 
     @Override
     public Component getPrompt() {
-        return new TranslatableComponent("spectatorMenu.root.prompt");
+        return PROMPT_TEXT;
     }
 }

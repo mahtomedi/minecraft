@@ -26,6 +26,7 @@ import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.realms.NarrationHelper;
 import net.minecraft.realms.RealmsObjectSelectionList;
@@ -42,6 +43,8 @@ public class RealmsSelectWorldTemplateScreen extends RealmsScreen {
     private static final ResourceLocation LINK_ICON = new ResourceLocation("realms", "textures/gui/realms/link_icons.png");
     private static final ResourceLocation TRAILER_ICON = new ResourceLocation("realms", "textures/gui/realms/trailer_icons.png");
     private static final ResourceLocation SLOT_FRAME_LOCATION = new ResourceLocation("realms", "textures/gui/realms/slot_frame.png");
+    private static final Component PUBLISHER_LINK_TOOLTIP = new TranslatableComponent("mco.template.info.tooltip");
+    private static final Component TRAILER_LINK_TOOLTIP = new TranslatableComponent("mco.template.trailer.tooltip");
     private final RealmsScreenWithCallback lastScreen;
     private RealmsSelectWorldTemplateScreen.WorldTemplateObjectSelectionList worldTemplateObjectSelectionList;
     private int selectedTemplate = -1;
@@ -49,7 +52,8 @@ public class RealmsSelectWorldTemplateScreen extends RealmsScreen {
     private Button selectButton;
     private Button trailerButton;
     private Button publisherButton;
-    private String toolTip;
+    @Nullable
+    private Component toolTip;
     private String currentLink;
     private final RealmsServer.WorldType worldType;
     private int clicks;
@@ -58,6 +62,7 @@ public class RealmsSelectWorldTemplateScreen extends RealmsScreen {
     private String warningURL;
     private boolean displayWarning;
     private boolean hoverWarning;
+    @Nullable
     private List<TextRenderingUtils.Line> noTemplatesMessage;
 
     public RealmsSelectWorldTemplateScreen(RealmsScreenWithCallback param0, RealmsServer.WorldType param1) {
@@ -281,7 +286,7 @@ public class RealmsSelectWorldTemplateScreen extends RealmsScreen {
             this.renderMultilineMessage(param0, param1, param2, this.noTemplatesMessage);
         }
 
-        this.drawCenteredString(param0, this.font, this.title, this.width / 2, 13, 16777215);
+        drawCenteredString(param0, this.font, this.title, this.width / 2, 13, 16777215);
         if (this.displayWarning) {
             Component[] var0 = this.warning;
 
@@ -306,15 +311,12 @@ public class RealmsSelectWorldTemplateScreen extends RealmsScreen {
                     }
                 }
 
-                this.drawCenteredString(param0, this.font, var6, this.width / 2, row(-1 + var5), var7);
+                drawCenteredString(param0, this.font, var6, this.width / 2, row(-1 + var5), var7);
             }
         }
 
         super.render(param0, param1, param2, param3);
-        if (this.toolTip != null) {
-            this.renderMousehoverTooltip(param0, this.toolTip, param1, param2);
-        }
-
+        this.renderMousehoverTooltip(param0, this.toolTip, param1, param2);
     }
 
     private void renderMultilineMessage(PoseStack param0, int param1, int param2, List<TextRenderingUtils.Line> param3) {
@@ -328,7 +330,7 @@ public class RealmsSelectWorldTemplateScreen extends RealmsScreen {
                 int var6 = var5.isLink() ? 3368635 : 16777215;
                 int var7 = this.font.drawShadow(param0, var5.renderedText(), (float)var4, (float)var2, var6);
                 if (var5.isLink() && param1 > var4 && param1 < var7 && param2 > var2 - 3 && param2 < var2 + 8) {
-                    this.toolTip = var5.getLinkUrl();
+                    this.toolTip = new TextComponent(var5.getLinkUrl());
                     this.currentLink = var5.getLinkUrl();
                 }
 
@@ -338,7 +340,7 @@ public class RealmsSelectWorldTemplateScreen extends RealmsScreen {
 
     }
 
-    protected void renderMousehoverTooltip(PoseStack param0, String param1, int param2, int param3) {
+    protected void renderMousehoverTooltip(PoseStack param0, @Nullable Component param1, int param2, int param3) {
         if (param1 != null) {
             int var0 = param2 + 12;
             int var1 = param3 - 12;
@@ -393,6 +395,7 @@ public class RealmsSelectWorldTemplateScreen extends RealmsScreen {
             int var0 = "".equals(param7) ? 0 : RealmsSelectWorldTemplateScreen.this.font.width(param7) + 2;
             boolean var1 = false;
             boolean var2 = false;
+            boolean var3 = "".equals(param5);
             if (param3 >= param1 + var0
                 && param3 <= param1 + var0 + 32
                 && param4 >= param2
@@ -400,23 +403,23 @@ public class RealmsSelectWorldTemplateScreen extends RealmsScreen {
                 && param4 < RealmsSelectWorldTemplateScreen.this.height - 15
                 && param4 > 32) {
                 if (param3 <= param1 + 15 + var0 && param3 > var0) {
-                    if ("".equals(param5)) {
+                    if (var3) {
                         var2 = true;
                     } else {
                         var1 = true;
                     }
-                } else if (!"".equals(param5)) {
+                } else if (!var3) {
                     var2 = true;
                 }
             }
 
-            if (!"".equals(param5)) {
+            if (!var3) {
                 RealmsSelectWorldTemplateScreen.this.minecraft.getTextureManager().bind(RealmsSelectWorldTemplateScreen.LINK_ICON);
                 RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
                 RenderSystem.pushMatrix();
                 RenderSystem.scalef(1.0F, 1.0F, 1.0F);
-                float var3 = var1 ? 15.0F : 0.0F;
-                GuiComponent.blit(param0, param1 + var0, param2, var3, 0.0F, 15, 15, 30, 15);
+                float var4 = var1 ? 15.0F : 0.0F;
+                GuiComponent.blit(param0, param1 + var0, param2, var4, 0.0F, 15, 15, 30, 15);
                 RenderSystem.popMatrix();
             }
 
@@ -425,17 +428,17 @@ public class RealmsSelectWorldTemplateScreen extends RealmsScreen {
                 RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
                 RenderSystem.pushMatrix();
                 RenderSystem.scalef(1.0F, 1.0F, 1.0F);
-                int var4 = param1 + var0 + ("".equals(param5) ? 0 : 17);
-                float var5 = var2 ? 15.0F : 0.0F;
-                GuiComponent.blit(param0, var4, param2, var5, 0.0F, 15, 15, 30, 15);
+                int var5 = param1 + var0 + (var3 ? 0 : 17);
+                float var6 = var2 ? 15.0F : 0.0F;
+                GuiComponent.blit(param0, var5, param2, var6, 0.0F, 15, 15, 30, 15);
                 RenderSystem.popMatrix();
             }
 
-            if (var1 && !"".equals(param5)) {
-                RealmsSelectWorldTemplateScreen.this.toolTip = I18n.get("mco.template.info.tooltip");
+            if (var1) {
+                RealmsSelectWorldTemplateScreen.this.toolTip = RealmsSelectWorldTemplateScreen.PUBLISHER_LINK_TOOLTIP;
                 RealmsSelectWorldTemplateScreen.this.currentLink = param5;
             } else if (var2 && !"".equals(param6)) {
-                RealmsSelectWorldTemplateScreen.this.toolTip = I18n.get("mco.template.trailer.tooltip");
+                RealmsSelectWorldTemplateScreen.this.toolTip = RealmsSelectWorldTemplateScreen.TRAILER_LINK_TOOLTIP;
                 RealmsSelectWorldTemplateScreen.this.currentLink = param6;
             }
 

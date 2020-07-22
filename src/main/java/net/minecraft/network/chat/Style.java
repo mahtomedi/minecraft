@@ -19,8 +19,8 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class Style {
-    public static final ResourceLocation DEFAULT_FONT = new ResourceLocation("minecraft", "default");
     public static final Style EMPTY = new Style(null, null, null, null, null, null, null, null, null, null);
+    public static final ResourceLocation DEFAULT_FONT = new ResourceLocation("minecraft", "default");
     @Nullable
     private final TextColor color;
     @Nullable
@@ -133,6 +133,13 @@ public class Style {
     public Style withItalic(@Nullable Boolean param0) {
         return new Style(
             this.color, this.bold, param0, this.underlined, this.strikethrough, this.obfuscated, this.clickEvent, this.hoverEvent, this.insertion, this.font
+        );
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public Style withUnderlined(@Nullable Boolean param0) {
+        return new Style(
+            this.color, this.bold, this.italic, param0, this.strikethrough, this.obfuscated, this.clickEvent, this.hoverEvent, this.insertion, this.font
         );
     }
 

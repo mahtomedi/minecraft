@@ -12,6 +12,16 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class RealmsClientOutdatedScreen extends RealmsScreen {
+    private static final Component OUTDATED_TITLE = new TranslatableComponent("mco.client.outdated.title");
+    private static final Component[] OUTDATED_MESSAGES = new Component[]{
+        new TranslatableComponent("mco.client.outdated.msg.line1"), new TranslatableComponent("mco.client.outdated.msg.line2")
+    };
+    private static final Component INCOMPATIBLE_TITLE = new TranslatableComponent("mco.client.incompatible.title");
+    private static final Component[] INCOMPATIBLE_MESSAGES = new Component[]{
+        new TranslatableComponent("mco.client.incompatible.msg.line1"),
+        new TranslatableComponent("mco.client.incompatible.msg.line2"),
+        new TranslatableComponent("mco.client.incompatible.msg.line3")
+    };
     private final Screen lastScreen;
     private final boolean outdated;
 
@@ -28,13 +38,20 @@ public class RealmsClientOutdatedScreen extends RealmsScreen {
     @Override
     public void render(PoseStack param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
-        Component var0 = new TranslatableComponent(this.outdated ? "mco.client.outdated.title" : "mco.client.incompatible.title");
-        this.drawCenteredString(param0, this.font, var0, this.width / 2, row(3), 16711680);
-        int var1 = this.outdated ? 2 : 3;
+        Component var0;
+        Component[] var1;
+        if (this.outdated) {
+            var0 = INCOMPATIBLE_TITLE;
+            var1 = INCOMPATIBLE_MESSAGES;
+        } else {
+            var0 = OUTDATED_TITLE;
+            var1 = OUTDATED_MESSAGES;
+        }
 
-        for(int var2 = 0; var2 < var1; ++var2) {
-            String var3 = (this.outdated ? "mco.client.outdated.msg.line" : "mco.client.incompatible.msg.line") + (var2 + 1);
-            this.drawCenteredString(param0, this.font, new TranslatableComponent(var3), this.width / 2, row(5) + var2 * 12, 16777215);
+        drawCenteredString(param0, this.font, var0, this.width / 2, row(3), 16711680);
+
+        for(int var4 = 0; var4 < var1.length; ++var4) {
+            drawCenteredString(param0, this.font, var1[var4], this.width / 2, row(5) + var4 * 12, 16777215);
         }
 
         super.render(param0, param1, param2, param3);

@@ -187,14 +187,12 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface 
 
             if (var1.enableQuery) {
                 LOGGER.info("Starting GS4 status listener");
-                this.queryThreadGs4 = new QueryThreadGs4(this);
-                this.queryThreadGs4.start();
+                this.queryThreadGs4 = QueryThreadGs4.create(this);
             }
 
             if (var1.enableRcon) {
                 LOGGER.info("Starting remote control listener");
-                this.rconThread = new RconThread(this);
-                this.rconThread.start();
+                this.rconThread = RconThread.create(this);
             }
 
             if (this.getMaxTickLength() > 0L) {

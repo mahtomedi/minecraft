@@ -27,7 +27,7 @@ public class VillagerGoalPackages {
             Pair.of(0, new SetRaidStatus()),
             Pair.of(0, new ValidateNearbyPoi(param0.getJobPoiType(), MemoryModuleType.JOB_SITE)),
             Pair.of(0, new ValidateNearbyPoi(param0.getJobPoiType(), MemoryModuleType.POTENTIAL_JOB_SITE)),
-            Pair.of(1, new MoveToTargetSink(200)),
+            Pair.of(1, new MoveToTargetSink()),
             Pair.of(2, new PoiCompetitorScan(param0)),
             Pair.of(3, new LookAndFollowTradingPlayerSink(param1)),
             Pair.of(5, new GoToWantedItem(param1, false, 4)),
@@ -74,7 +74,7 @@ public class VillagerGoalPackages {
 
     public static ImmutableList<Pair<Integer, ? extends Behavior<? super Villager>>> getPlayPackage(float param0) {
         return ImmutableList.of(
-            Pair.of(0, new MoveToTargetSink(100)),
+            Pair.of(0, new MoveToTargetSink(80, 120)),
             getFullLookBehavior(),
             Pair.of(5, new PlayTagWithOtherKids()),
             Pair.of(

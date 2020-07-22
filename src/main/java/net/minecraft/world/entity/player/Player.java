@@ -1335,19 +1335,19 @@ public abstract class Player extends LivingEntity {
         this.stopSleepInBed(true, true);
     }
 
-    public static Optional<Vec3> findRespawnPositionAndUseSpawnBlock(ServerLevel param0, BlockPos param1, boolean param2, boolean param3) {
+    public static Optional<Vec3> findRespawnPositionAndUseSpawnBlock(ServerLevel param0, BlockPos param1, float param2, boolean param3, boolean param4) {
         BlockState var0 = param0.getBlockState(param1);
         Block var1 = var0.getBlock();
         if (var1 instanceof RespawnAnchorBlock && var0.getValue(RespawnAnchorBlock.CHARGE) > 0 && RespawnAnchorBlock.canSetSpawn(param0)) {
             Optional<Vec3> var2 = RespawnAnchorBlock.findStandUpPosition(EntityType.PLAYER, param0, param1);
-            if (!param3 && var2.isPresent()) {
+            if (!param4 && var2.isPresent()) {
                 param0.setBlock(param1, var0.setValue(RespawnAnchorBlock.CHARGE, Integer.valueOf(var0.getValue(RespawnAnchorBlock.CHARGE) - 1)), 3);
             }
 
             return var2;
         } else if (var1 instanceof BedBlock && BedBlock.canSetSpawn(param0)) {
-            return BedBlock.findStandUpPosition(EntityType.PLAYER, param0, param1, 0);
-        } else if (!param2) {
+            return BedBlock.findStandUpPosition(EntityType.PLAYER, param0, param1, param2);
+        } else if (!param3) {
             return Optional.empty();
         } else {
             boolean var3 = var1.isPossibleToRespawnInThis();

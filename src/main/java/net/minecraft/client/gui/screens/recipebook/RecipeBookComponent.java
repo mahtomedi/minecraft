@@ -22,7 +22,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.LanguageInfo;
 import net.minecraft.client.resources.language.LanguageManager;
 import net.minecraft.client.searchtree.SearchRegistry;
-import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.game.ServerboundRecipeBookChangeSettingsPacket;
@@ -44,6 +43,8 @@ public class RecipeBookComponent extends GuiComponent implements Widget, GuiEven
     private static final Component SEARCH_HINT = new TranslatableComponent("gui.recipebook.search_hint")
         .withStyle(ChatFormatting.ITALIC)
         .withStyle(ChatFormatting.GRAY);
+    private static final Component ONLY_CRAFTABLES_TOOLTIP = new TranslatableComponent("gui.recipebook.toggleRecipes.craftable");
+    private static final Component ALL_RECIPES_TOOLTIP = new TranslatableComponent("gui.recipebook.toggleRecipes.all");
     private int xOffset;
     private int width;
     private int height;
@@ -179,7 +180,7 @@ public class RecipeBookComponent extends GuiComponent implements Widget, GuiEven
         String var2 = this.searchBox.getValue();
         if (!var2.isEmpty()) {
             ObjectSet<RecipeCollection> var3 = new ObjectLinkedOpenHashSet<>(
-                this.minecraft.getSearchTree(SearchRegistry.RECIPE_COLLECTIONS).search(Language.getInstance().reorder(var2.toLowerCase(Locale.ROOT), false))
+                this.minecraft.getSearchTree(SearchRegistry.RECIPE_COLLECTIONS).search(var2.toLowerCase(Locale.ROOT))
             );
             var1.removeIf(param1 -> !var3.contains(param1));
         }
@@ -238,7 +239,7 @@ public class RecipeBookComponent extends GuiComponent implements Widget, GuiEven
             int var1 = (this.height - 166) / 2;
             this.blit(param0, var0, var1, 1, 1, 147, 166);
             if (!this.searchBox.isFocused() && this.searchBox.getValue().isEmpty()) {
-                this.drawString(param0, this.minecraft.font, SEARCH_HINT, var0 + 25, var1 + 14, -1);
+                drawString(param0, this.minecraft.font, SEARCH_HINT, var0 + 25, var1 + 14, -1);
             } else {
                 this.searchBox.render(param0, param1, param2, param3);
             }
@@ -267,8 +268,12 @@ public class RecipeBookComponent extends GuiComponent implements Widget, GuiEven
         }
     }
 
-    protected Component getFilterButtonTooltip() {
-        return new TranslatableComponent(this.filterButton.isStateTriggered() ? "gui.recipebook.toggleRecipes.craftable" : "gui.recipebook.toggleRecipes.all");
+    private Component getFilterButtonTooltip() {
+        return this.filterButton.isStateTriggered() ? this.getRecipeFilterName() : ALL_RECIPES_TOOLTIP;
+    }
+
+    protected Component getRecipeFilterName() {
+        return ONLY_CRAFTABLES_TOOLTIP;
     }
 
     private void renderGhostRecipeTooltip(PoseStack param0, int param1, int param2, int param3, int param4) {
@@ -284,7 +289,7 @@ public class RecipeBookComponent extends GuiComponent implements Widget, GuiEven
         }
 
         if (var0 != null && this.minecraft.screen != null) {
-            this.minecraft.screen.renderTooltip(param0, this.minecraft.screen.getTooltipFromItem(var0), param3, param4);
+            this.minecraft.screen.renderComponentTooltip(param0, this.minecraft.screen.getTooltipFromItem(var0), param3, param4);
         }
 
     }

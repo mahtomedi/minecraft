@@ -10,8 +10,9 @@ import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.math.Matrix4f;
 import java.util.function.BiConsumer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.network.chat.FormattedText;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -112,19 +113,20 @@ public abstract class GuiComponent {
         param1.vertex(param0, (float)param4, (float)param5, (float)param6).color(var5, var6, var7, var4).endVertex();
     }
 
-    public void drawCenteredString(PoseStack param0, Font param1, String param2, int param3, int param4, int param5) {
+    public static void drawCenteredString(PoseStack param0, Font param1, String param2, int param3, int param4, int param5) {
         param1.drawShadow(param0, param2, (float)(param3 - param1.width(param2) / 2), (float)param4, param5);
     }
 
-    public void drawCenteredString(PoseStack param0, Font param1, FormattedText param2, int param3, int param4, int param5) {
-        param1.drawShadow(param0, param2, (float)(param3 - param1.width(param2) / 2), (float)param4, param5);
+    public static void drawCenteredString(PoseStack param0, Font param1, Component param2, int param3, int param4, int param5) {
+        FormattedCharSequence var0 = param2.getVisualOrderText();
+        param1.drawShadow(param0, var0, (float)(param3 - param1.width(var0) / 2), (float)param4, param5);
     }
 
-    public void drawString(PoseStack param0, Font param1, String param2, int param3, int param4, int param5) {
+    public static void drawString(PoseStack param0, Font param1, String param2, int param3, int param4, int param5) {
         param1.drawShadow(param0, param2, (float)param3, (float)param4, param5);
     }
 
-    public void drawString(PoseStack param0, Font param1, FormattedText param2, int param3, int param4, int param5) {
+    public static void drawString(PoseStack param0, Font param1, Component param2, int param3, int param4, int param5) {
         param1.drawShadow(param0, param2, (float)param3, (float)param4, param5);
     }
 

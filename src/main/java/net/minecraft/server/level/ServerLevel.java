@@ -835,11 +835,46 @@ public class ServerLevel extends Level implements WorldGenLevel {
     }
 
     private boolean isUUIDUsed(Entity param0) {
-        Entity var0 = this.entitiesByUuid.get(param0.getUUID());
-        if (var0 == null) {
+        UUID var0 = param0.getUUID();
+        Entity var1 = this.findAddedOrPendingEntity(var0);
+        if (var1 == null) {
             return false;
         } else {
-            LOGGER.warn("Keeping entity {} that already exists with UUID {}", EntityType.getKey(var0.getType()), param0.getUUID().toString());
+            LOGGER.warn(
+                "Trying to add entity with duplicated UUID {}. Existing {}#{}, new: {}#{}",
+                var0,
+                EntityType.getKey(var1.getType()),
+                var1.getId(),
+                EntityType.getKey(param0.getType()),
+                param0.getId()
+            );
+            return true;
+        }
+    }
+
+    @Nullable
+    private Entity findAddedOrPendingEntity(UUID param0) {
+        Entity var0 = this.entitiesByUuid.get(param0);
+        if (var0 != null) {
+            return var0;
+        } else {
+            if (this.tickingEntities) {
+                for(Entity var1 : this.toAddAfterTick) {
+                    if (var1.getUUID().equals(param0)) {
+                        return var1;
+                    }
+                }
+            }
+
+            return null;
+        }
+    }
+
+    public boolean tryAddFreshEntityWithPassengers(Entity param0) {
+        if (param0.getSelfAndPassengers().anyMatch(this::isUUIDUsed)) {
+            return false;
+        } else {
+            this.addFreshEntityWithPassengers(param0);
             return true;
         }
     }
@@ -1464,7 +1499,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
     }
 
     @Override
-    public Level getLevel() {
+    public ServerLevel getLevel() {
         return this;
     }
 

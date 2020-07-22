@@ -22,6 +22,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -51,7 +52,7 @@ public class VideoSettingsScreen extends OptionsSubScreen {
         Option.ENTITY_DISTANCE_SCALING
     };
     @Nullable
-    private List<FormattedText> tooltip;
+    private List<FormattedCharSequence> tooltip;
     private OptionsList list;
     private final GpuWarnlistManager gpuWarnlistManager;
     private final int oldMipmaps;
@@ -158,13 +159,13 @@ public class VideoSettingsScreen extends OptionsSubScreen {
         this.tooltip = null;
         Optional<AbstractWidget> var0 = this.list.getMouseOver((double)param1, (double)param2);
         if (var0.isPresent() && var0.get() instanceof OptionButton) {
-            Optional<List<FormattedText>> var1 = ((OptionButton)var0.get()).getOption().getTooltip();
+            Optional<List<FormattedCharSequence>> var1 = ((OptionButton)var0.get()).getOption().getTooltip();
             var1.ifPresent(param0x -> this.tooltip = param0x);
         }
 
         this.renderBackground(param0);
         this.list.render(param0, param1, param2, param3);
-        this.drawCenteredString(param0, this.font, this.title, this.width / 2, 5, 16777215);
+        drawCenteredString(param0, this.font, this.title, this.width / 2, 5, 16777215);
         super.render(param0, param1, param2, param3);
         if (this.tooltip != null) {
             this.renderTooltip(param0, this.tooltip, param1, param2);

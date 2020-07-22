@@ -1,7 +1,7 @@
 package net.minecraft.world.level.block.entity;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import java.util.function.UnaryOperator;
+import java.util.function.Function;
 import javax.annotation.Nullable;
 import net.minecraft.commands.CommandSource;
 import net.minecraft.commands.CommandSourceStack;
@@ -9,12 +9,12 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
-import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.state.BlockState;
@@ -27,7 +27,7 @@ public class SignBlockEntity extends BlockEntity {
     private final Component[] messages = new Component[]{TextComponent.EMPTY, TextComponent.EMPTY, TextComponent.EMPTY, TextComponent.EMPTY};
     private boolean isEditable = true;
     private Player playerWhoMayEdit;
-    private final FormattedText[] renderMessages = new FormattedText[4];
+    private final FormattedCharSequence[] renderMessages = new FormattedCharSequence[4];
     private DyeColor color = DyeColor.BLACK;
 
     public SignBlockEntity() {
@@ -71,6 +71,11 @@ public class SignBlockEntity extends BlockEntity {
 
     }
 
+    @OnlyIn(Dist.CLIENT)
+    public Component getMessage(int param0) {
+        return this.messages[param0];
+    }
+
     public void setMessage(int param0, Component param1) {
         this.messages[param0] = param1;
         this.renderMessages[param0] = null;
@@ -78,7 +83,7 @@ public class SignBlockEntity extends BlockEntity {
 
     @Nullable
     @OnlyIn(Dist.CLIENT)
-    public FormattedText getRenderMessage(int param0, UnaryOperator<FormattedText> param1) {
+    public FormattedCharSequence getRenderMessage(int param0, Function<Component, FormattedCharSequence> param1) {
         if (this.renderMessages[param0] == null && this.messages[param0] != null) {
             this.renderMessages[param0] = param1.apply(this.messages[param0]);
         }
