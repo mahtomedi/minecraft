@@ -2077,6 +2077,36 @@ public abstract class Player extends LivingEntity {
         return this.abilities.flying || super.shouldRemoveSoulSpeed(param0);
     }
 
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public Vec3 getRopeHoldPosition(float param0) {
+        double var0 = 0.22 * (this.getMainArm() == HumanoidArm.RIGHT ? -1.0 : 1.0);
+        float var1 = Mth.lerp(param0 * 0.5F, this.xRot, this.xRotO) * (float) (Math.PI / 180.0);
+        float var2 = Mth.lerp(param0, this.yBodyRotO, this.yBodyRot) * (float) (Math.PI / 180.0);
+        if (this.isFallFlying() || this.isAutoSpinAttack()) {
+            Vec3 var3 = this.getViewVector(param0);
+            Vec3 var4 = this.getDeltaMovement();
+            double var5 = Entity.getHorizontalDistanceSqr(var4);
+            double var6 = Entity.getHorizontalDistanceSqr(var3);
+            float var9;
+            if (var5 > 0.0 && var6 > 0.0) {
+                double var7 = (var4.x * var3.x + var4.z * var3.z) / Math.sqrt(var5 * var6);
+                double var8 = var4.x * var3.z - var4.z * var3.x;
+                var9 = (float)(Math.signum(var8) * Math.acos(var7));
+            } else {
+                var9 = 0.0F;
+            }
+
+            return this.getPosition(param0).add(new Vec3(var0, -0.11, 0.85).zRot(-var9).xRot(-var1).yRot(-var2));
+        } else if (this.isVisuallySwimming()) {
+            return this.getPosition(param0).add(new Vec3(var0, 0.2, -0.15).xRot(-var1).yRot(-var2));
+        } else {
+            double var11 = this.getBoundingBox().getYsize() - 1.0;
+            double var12 = this.isCrouching() ? -0.2 : 0.07;
+            return this.getPosition(param0).add(new Vec3(var0, var11, var12).yRot(-var2));
+        }
+    }
+
     public static enum BedSleepingProblem {
         NOT_POSSIBLE_HERE,
         NOT_POSSIBLE_NOW(new TranslatableComponent("block.minecraft.bed.no_sleep")),

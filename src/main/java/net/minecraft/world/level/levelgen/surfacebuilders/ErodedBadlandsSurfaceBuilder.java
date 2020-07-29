@@ -50,82 +50,85 @@ public class ErodedBadlandsSurfaceBuilder extends BadlandsSurfaceBuilder {
         int var5 = param3 & 15;
         int var6 = param4 & 15;
         BlockState var7 = WHITE_TERRACOTTA;
-        BlockState var8 = param2.getSurfaceBuilderConfig().getUnderMaterial();
-        int var9 = (int)(param6 / 3.0 + 3.0 + param0.nextDouble() * 0.25);
-        boolean var10 = Math.cos(param6 / 3.0 * Math.PI) > 0.0;
-        int var11 = -1;
-        boolean var12 = false;
-        BlockPos.MutableBlockPos var13 = new BlockPos.MutableBlockPos();
+        SurfaceBuilderConfiguration var8 = param2.getGenerationSettings().getSurfaceBuilderConfig();
+        BlockState var9 = var8.getUnderMaterial();
+        BlockState var10 = var8.getTopMaterial();
+        BlockState var11 = var9;
+        int var12 = (int)(param6 / 3.0 + 3.0 + param0.nextDouble() * 0.25);
+        boolean var13 = Math.cos(param6 / 3.0 * Math.PI) > 0.0;
+        int var14 = -1;
+        boolean var15 = false;
+        BlockPos.MutableBlockPos var16 = new BlockPos.MutableBlockPos();
 
-        for(int var14 = Math.max(param5, (int)var0 + 1); var14 >= 0; --var14) {
-            var13.set(var5, var14, var6);
-            if (param1.getBlockState(var13).isAir() && var14 < (int)var0) {
-                param1.setBlockState(var13, param7, false);
+        for(int var17 = Math.max(param5, (int)var0 + 1); var17 >= 0; --var17) {
+            var16.set(var5, var17, var6);
+            if (param1.getBlockState(var16).isAir() && var17 < (int)var0) {
+                param1.setBlockState(var16, param7, false);
             }
 
-            BlockState var15 = param1.getBlockState(var13);
-            if (var15.isAir()) {
-                var11 = -1;
-            } else if (var15.is(param7.getBlock())) {
-                if (var11 == -1) {
-                    var12 = false;
-                    if (var9 <= 0) {
+            BlockState var18 = param1.getBlockState(var16);
+            if (var18.isAir()) {
+                var14 = -1;
+            } else if (var18.is(param7.getBlock())) {
+                if (var14 == -1) {
+                    var15 = false;
+                    if (var12 <= 0) {
                         var7 = Blocks.AIR.defaultBlockState();
-                        var8 = param7;
-                    } else if (var14 >= param9 - 4 && var14 <= param9 + 1) {
+                        var11 = param7;
+                    } else if (var17 >= param9 - 4 && var17 <= param9 + 1) {
                         var7 = WHITE_TERRACOTTA;
-                        var8 = param2.getSurfaceBuilderConfig().getUnderMaterial();
+                        var11 = var9;
                     }
 
-                    if (var14 < param9 && (var7 == null || var7.isAir())) {
+                    if (var17 < param9 && (var7 == null || var7.isAir())) {
                         var7 = param8;
                     }
 
-                    var11 = var9 + Math.max(0, var14 - param9);
-                    if (var14 >= param9 - 1) {
-                        if (var14 <= param9 + 3 + var9) {
-                            param1.setBlockState(var13, param2.getSurfaceBuilderConfig().getTopMaterial(), false);
-                            var12 = true;
+                    var14 = var12 + Math.max(0, var17 - param9);
+                    if (var17 >= param9 - 1) {
+                        if (var17 <= param9 + 3 + var12) {
+                            param1.setBlockState(var16, var10, false);
+                            var15 = true;
                         } else {
-                            BlockState var16;
-                            if (var14 < 64 || var14 > 127) {
-                                var16 = ORANGE_TERRACOTTA;
-                            } else if (var10) {
-                                var16 = TERRACOTTA;
+                            BlockState var19;
+                            if (var17 < 64 || var17 > 127) {
+                                var19 = ORANGE_TERRACOTTA;
+                            } else if (var13) {
+                                var19 = TERRACOTTA;
                             } else {
-                                var16 = this.getBand(param3, var14, param4);
+                                var19 = this.getBand(param3, var17, param4);
                             }
 
-                            param1.setBlockState(var13, var16, false);
+                            param1.setBlockState(var16, var19, false);
                         }
                     } else {
-                        param1.setBlockState(var13, var8, false);
-                        Block var19 = var8.getBlock();
-                        if (var19 == Blocks.WHITE_TERRACOTTA
-                            || var19 == Blocks.ORANGE_TERRACOTTA
-                            || var19 == Blocks.MAGENTA_TERRACOTTA
-                            || var19 == Blocks.LIGHT_BLUE_TERRACOTTA
-                            || var19 == Blocks.YELLOW_TERRACOTTA
-                            || var19 == Blocks.LIME_TERRACOTTA
-                            || var19 == Blocks.PINK_TERRACOTTA
-                            || var19 == Blocks.GRAY_TERRACOTTA
-                            || var19 == Blocks.LIGHT_GRAY_TERRACOTTA
-                            || var19 == Blocks.CYAN_TERRACOTTA
-                            || var19 == Blocks.PURPLE_TERRACOTTA
-                            || var19 == Blocks.BLUE_TERRACOTTA
-                            || var19 == Blocks.BROWN_TERRACOTTA
-                            || var19 == Blocks.GREEN_TERRACOTTA
-                            || var19 == Blocks.RED_TERRACOTTA
-                            || var19 == Blocks.BLACK_TERRACOTTA) {
-                            param1.setBlockState(var13, ORANGE_TERRACOTTA, false);
+                        param1.setBlockState(var16, var11, false);
+                        Block var22 = var11.getBlock();
+                        if (var22 == Blocks.WHITE_TERRACOTTA
+                            || var22 == Blocks.ORANGE_TERRACOTTA
+                            || var22 == Blocks.MAGENTA_TERRACOTTA
+                            || var22 == Blocks.LIGHT_BLUE_TERRACOTTA
+                            || var22 == Blocks.YELLOW_TERRACOTTA
+                            || var22 == Blocks.LIME_TERRACOTTA
+                            || var22 == Blocks.PINK_TERRACOTTA
+                            || var22 == Blocks.GRAY_TERRACOTTA
+                            || var22 == Blocks.LIGHT_GRAY_TERRACOTTA
+                            || var22 == Blocks.CYAN_TERRACOTTA
+                            || var22 == Blocks.PURPLE_TERRACOTTA
+                            || var22 == Blocks.BLUE_TERRACOTTA
+                            || var22 == Blocks.BROWN_TERRACOTTA
+                            || var22 == Blocks.GREEN_TERRACOTTA
+                            || var22 == Blocks.RED_TERRACOTTA
+                            || var22 == Blocks.BLACK_TERRACOTTA) {
+                            param1.setBlockState(var16, ORANGE_TERRACOTTA, false);
                         }
                     }
-                } else if (var11 > 0) {
-                    --var11;
-                    if (var12) {
-                        param1.setBlockState(var13, ORANGE_TERRACOTTA, false);
+                } else if (var14 > 0) {
+                    --var14;
+                    if (var15) {
+                        param1.setBlockState(var16, ORANGE_TERRACOTTA, false);
                     } else {
-                        param1.setBlockState(var13, this.getBand(param3, var14, param4), false);
+                        param1.setBlockState(var16, this.getBand(param3, var17, param4), false);
                     }
                 }
             }

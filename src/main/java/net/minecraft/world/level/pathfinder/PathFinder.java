@@ -98,10 +98,12 @@ public class PathFinder {
         }
 
         Optional<Path> var12 = !var3.isEmpty()
-            ? var3.stream().map(param1x -> this.reconstructPath(param1x.getBestNode(), param1.get(param1x), true)).min(Comparator.comparingInt(Path::getSize))
+            ? var3.stream()
+                .map(param1x -> this.reconstructPath(param1x.getBestNode(), param1.get(param1x), true))
+                .min(Comparator.comparingInt(Path::getNodeCount))
             : var0.stream()
                 .map(param1x -> this.reconstructPath(param1x.getBestNode(), param1.get(param1x), false))
-                .min(Comparator.comparingDouble(Path::getDistToTarget).thenComparingInt(Path::getSize));
+                .min(Comparator.comparingDouble(Path::getDistToTarget).thenComparingInt(Path::getNodeCount));
         return !var12.isPresent() ? null : var12.get();
     }
 

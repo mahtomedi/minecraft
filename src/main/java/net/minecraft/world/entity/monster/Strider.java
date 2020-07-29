@@ -24,6 +24,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.AgableMob;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ItemBasedSteering;
 import net.minecraft.world.entity.ItemSteerable;
 import net.minecraft.world.entity.LivingEntity;
@@ -37,6 +38,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.BreedGoal;
 import net.minecraft.world.entity.ai.goal.FollowParentGoal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
+import net.minecraft.world.entity.ai.goal.MoveToBlockGoal;
 import net.minecraft.world.entity.ai.goal.PanicGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
@@ -58,6 +60,7 @@ import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
+import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.level.pathfinder.PathFinder;
 import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
 import net.minecraft.world.phys.AABB;
@@ -147,9 +150,10 @@ public class Strider extends Animal implements ItemSteerable, Saddleable {
     protected void registerGoals() {
         this.panicGoal = new PanicGoal(this, 1.65);
         this.goalSelector.addGoal(1, this.panicGoal);
-        this.goalSelector.addGoal(3, new BreedGoal(this, 1.0));
+        this.goalSelector.addGoal(2, new BreedGoal(this, 1.0));
         this.temptGoal = new TemptGoal(this, 1.4, false, TEMPT_ITEMS);
-        this.goalSelector.addGoal(4, this.temptGoal);
+        this.goalSelector.addGoal(3, this.temptGoal);
+        this.goalSelector.addGoal(4, new Strider.StriderGoToLavaGoal(this, 1.5));
         this.goalSelector.addGoal(5, new FollowParentGoal(this, 1.1));
         this.goalSelector.addGoal(7, new RandomStrollGoal(this, 1.0, 60));
         this.goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 8.0F));
@@ -170,22 +174,11 @@ public class Strider extends Animal implements ItemSteerable, Saddleable {
         return param0.is(FluidTags.LAVA);
     }
 
-    @Nullable
-    @Override
-    public AABB getCollideAgainstBox(Entity param0) {
-        return param0.isPushable() ? param0.getBoundingBox() : null;
-    }
-
-    @Override
-    public boolean isPushable() {
-        return true;
-    }
-
     @Override
     public double getPassengersRidingOffset() {
         float var0 = Math.min(0.25F, this.animationSpeed);
         float var1 = this.animationPosition;
-        return (double)this.getBbHeight() - 0.3 + (double)(0.12F * Mth.cos(var1 * 1.5F) * 2.0F * var0);
+        return (double)this.getBbHeight() - 0.19 + (double)(0.12F * Mth.cos(var1 * 1.5F) * 2.0F * var0);
     }
 
     @Override
@@ -382,7 +375,11 @@ public class Strider extends Animal implements ItemSteerable, Saddleable {
 
     @Override
     public float getWalkTargetValue(BlockPos param0, LevelReader param1) {
-        return param1.getBlockState(param0).getFluidState().is(FluidTags.LAVA) ? 10.0F : 0.0F;
+        if (param1.getBlockState(param0).getFluidState().is(FluidTags.LAVA)) {
+            return 10.0F;
+        } else {
+            return this.isInLava() ? Float.NEGATIVE_INFINITY : 0.0F;
+        }
     }
 
     public Strider getBreedOffspring(ServerLevel param0, AgableMob param1) {
@@ -455,6 +452,7 @@ public class Strider extends Animal implements ItemSteerable, Saddleable {
             if (this.random.nextInt(30) == 0) {
                 Mob var0 = EntityType.ZOMBIFIED_PIGLIN.create(param0.getLevel());
                 var7 = this.spawnJockey(param0, param1, var0, new Zombie.ZombieGroupData(Zombie.getSpawnAsBabyOdds(this.random), false));
+                var0.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.WARPED_FUNGUS_ON_A_STICK));
                 this.equipSaddle(null);
             } else if (this.random.nextInt(10) == 0) {
                 AgableMob var1 = EntityType.STRIDER.create(param0.getLevel());
@@ -473,6 +471,41 @@ public class Strider extends Animal implements ItemSteerable, Saddleable {
         param2.finalizeSpawn(param0, param1, MobSpawnType.JOCKEY, param3, null);
         param2.startRiding(this, true);
         return new AgableMob.AgableMobGroupData(0.0F);
+    }
+
+    static class StriderGoToLavaGoal extends MoveToBlockGoal {
+        private final Strider strider;
+
+        private StriderGoToLavaGoal(Strider param0, double param1) {
+            super(param0, param1, 8, 2);
+            this.strider = param0;
+        }
+
+        @Override
+        public BlockPos getMoveToTarget() {
+            return this.blockPos;
+        }
+
+        @Override
+        public boolean canContinueToUse() {
+            return !this.strider.isInLava() && this.isValidTarget(this.strider.level, this.blockPos);
+        }
+
+        @Override
+        public boolean canUse() {
+            return !this.strider.isInLava() && super.canUse();
+        }
+
+        @Override
+        public boolean shouldRecalculatePath() {
+            return this.tryTicks % 20 == 0;
+        }
+
+        @Override
+        protected boolean isValidTarget(LevelReader param0, BlockPos param1) {
+            return param0.getBlockState(param1).is(Blocks.LAVA)
+                && param0.getBlockState(param1.above()).isPathfindable(param0, param1, PathComputationType.LAND);
+        }
     }
 
     static class StriderPathNavigation extends GroundPathNavigation {

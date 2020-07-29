@@ -23,15 +23,13 @@ public class StriderRenderer extends MobRenderer<Strider, StriderModel<Strider>>
     }
 
     protected void scale(Strider param0, PoseStack param1, float param2) {
-        float var0 = 0.9375F;
         if (param0.isBaby()) {
-            var0 *= 0.5F;
+            param1.scale(0.5F, 0.5F, 0.5F);
             this.shadowRadius = 0.25F;
         } else {
             this.shadowRadius = 0.5F;
         }
 
-        param1.scale(var0, var0, var0);
     }
 
     protected boolean isShaking(Strider param0) {

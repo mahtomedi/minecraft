@@ -15,7 +15,7 @@ public class PlayerRespawnLogic {
         BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos(param1, 0, param2);
         Biome var1 = param0.getBiome(var0);
         boolean var2 = param0.dimensionType().hasCeiling();
-        BlockState var3 = var1.getSurfaceBuilderConfig().getTopMaterial();
+        BlockState var3 = var1.getGenerationSettings().getSurfaceBuilderConfig().getTopMaterial();
         if (param3 && !var3.getBlock().is(BlockTags.VALID_SPAWN)) {
             return null;
         } else {

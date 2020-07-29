@@ -60,7 +60,8 @@ public class StonecutterMenu extends AbstractContainerMenu {
                     StonecutterMenu.this.setupResultSlot();
                 }
 
-                param1.getItem().onCraftedBy(param1, param0.level, param0);
+                param1.onCraftedBy(param0.level, param0, param1.getCount());
+                StonecutterMenu.this.resultContainer.awardUsedRecipes(param0);
                 param2.execute((param0x, param1x) -> {
                     long var0x = param0x.getGameTime();
                     if (StonecutterMenu.this.lastSoundTime != var0x) {
@@ -148,6 +149,7 @@ public class StonecutterMenu extends AbstractContainerMenu {
     private void setupResultSlot() {
         if (!this.recipes.isEmpty() && this.isValidRecipeIndex(this.selectedRecipeIndex.get())) {
             StonecutterRecipe var0 = this.recipes.get(this.selectedRecipeIndex.get());
+            this.resultContainer.setRecipeUsed(var0);
             this.resultSlot.set(var0.assemble(this.container));
         } else {
             this.resultSlot.set(ItemStack.EMPTY);

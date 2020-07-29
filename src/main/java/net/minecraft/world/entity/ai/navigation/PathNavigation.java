@@ -164,7 +164,7 @@ public abstract class PathNavigation {
                 return false;
             } else {
                 this.trimPath();
-                if (this.path.getSize() <= 0) {
+                if (this.path.getNodeCount() <= 0) {
                     return false;
                 } else {
                     this.speedModifier = param1;
@@ -191,17 +191,17 @@ public abstract class PathNavigation {
         if (!this.isDone()) {
             if (this.canUpdatePath()) {
                 this.followThePath();
-            } else if (this.path != null && this.path.getIndex() < this.path.getSize()) {
+            } else if (this.path != null && !this.path.isDone()) {
                 Vec3 var0 = this.getTempMobPos();
-                Vec3 var1 = this.path.getPos(this.mob, this.path.getIndex());
+                Vec3 var1 = this.path.getNextEntityPos(this.mob);
                 if (var0.y > var1.y && !this.mob.isOnGround() && Mth.floor(var0.x) == Mth.floor(var1.x) && Mth.floor(var0.z) == Mth.floor(var1.z)) {
-                    this.path.setIndex(this.path.getIndex() + 1);
+                    this.path.advance();
                 }
             }
 
             DebugPackets.sendPathFindingPacket(this.level, this.mob, this.path, this.maxDistanceToWaypoint);
             if (!this.isDone()) {
-                Vec3 var2 = this.path.currentPos(this.mob);
+                Vec3 var2 = this.path.getNextEntityPos(this.mob);
                 BlockPos var3 = new BlockPos(var2);
                 this.mob
                     .getMoveControl()
@@ -218,27 +218,27 @@ public abstract class PathNavigation {
     protected void followThePath() {
         Vec3 var0 = this.getTempMobPos();
         this.maxDistanceToWaypoint = this.mob.getBbWidth() > 0.75F ? this.mob.getBbWidth() / 2.0F : 0.75F - this.mob.getBbWidth() / 2.0F;
-        Vec3i var1 = this.path.currentPos();
+        Vec3i var1 = this.path.getNextNodePos();
         double var2 = Math.abs(this.mob.getX() - ((double)var1.getX() + 0.5));
         double var3 = Math.abs(this.mob.getY() - (double)var1.getY());
         double var4 = Math.abs(this.mob.getZ() - ((double)var1.getZ() + 0.5));
         boolean var5 = var2 < (double)this.maxDistanceToWaypoint && var4 < (double)this.maxDistanceToWaypoint && var3 < 1.0;
-        if (var5 || this.mob.canCutCorner(this.path.currentNode().type) && this.shouldTargetNextNodeInDirection(var0)) {
-            this.path.setIndex(this.path.getIndex() + 1);
+        if (var5 || this.mob.canCutCorner(this.path.getNextNode().type) && this.shouldTargetNextNodeInDirection(var0)) {
+            this.path.advance();
         }
 
         this.doStuckDetection(var0);
     }
 
     private boolean shouldTargetNextNodeInDirection(Vec3 param0) {
-        if (this.path.getSize() <= this.path.getIndex() + 1) {
+        if (this.path.getNextNodeIndex() + 1 >= this.path.getNodeCount()) {
             return false;
         } else {
-            Vec3 var0 = Vec3.atBottomCenterOf(this.path.get(this.path.getIndex()).asBlockPos());
+            Vec3 var0 = Vec3.atBottomCenterOf(this.path.getNextNodePos());
             if (!param0.closerThan(var0, 2.0)) {
                 return false;
             } else {
-                Vec3 var1 = Vec3.atBottomCenterOf(this.path.get(this.path.getIndex() + 1).asBlockPos());
+                Vec3 var1 = Vec3.atBottomCenterOf(this.path.getNodePos(this.path.getNextNodeIndex() + 1));
                 Vec3 var2 = var1.subtract(var0);
                 Vec3 var3 = param0.subtract(var0);
                 return var2.dot(var3) > 0.0;
@@ -257,7 +257,7 @@ public abstract class PathNavigation {
         }
 
         if (this.path != null && !this.path.isDone()) {
-            Vec3i var0 = this.path.currentPos();
+            Vec3i var0 = this.path.getNextNodePos();
             if (var0.equals(this.timeoutCachedNode)) {
                 this.timeoutTimer += Util.getMillis() - this.lastTimeoutCheck;
             } else {
@@ -304,14 +304,14 @@ public abstract class PathNavigation {
 
     protected void trimPath() {
         if (this.path != null) {
-            for(int var0 = 0; var0 < this.path.getSize(); ++var0) {
-                Node var1 = this.path.get(var0);
-                Node var2 = var0 + 1 < this.path.getSize() ? this.path.get(var0 + 1) : null;
+            for(int var0 = 0; var0 < this.path.getNodeCount(); ++var0) {
+                Node var1 = this.path.getNode(var0);
+                Node var2 = var0 + 1 < this.path.getNodeCount() ? this.path.getNode(var0 + 1) : null;
                 BlockState var3 = this.level.getBlockState(new BlockPos(var1.x, var1.y, var1.z));
                 if (var3.is(Blocks.CAULDRON)) {
-                    this.path.set(var0, var1.cloneMove(var1.x, var1.y + 1, var1.z));
+                    this.path.replaceNode(var0, var1.cloneAndMove(var1.x, var1.y + 1, var1.z));
                     if (var2 != null && var1.y >= var2.y) {
-                        this.path.set(var0 + 1, var2.cloneMove(var2.x, var1.y + 1, var2.z));
+                        this.path.replaceNode(var0 + 1, var1.cloneAndMove(var2.x, var1.y + 1, var2.z));
                     }
                 }
             }
@@ -339,10 +339,10 @@ public abstract class PathNavigation {
     }
 
     public void recomputePath(BlockPos param0) {
-        if (this.path != null && !this.path.isDone() && this.path.getSize() != 0) {
-            Node var0 = this.path.last();
+        if (this.path != null && !this.path.isDone() && this.path.getNodeCount() != 0) {
+            Node var0 = this.path.getEndNode();
             Vec3 var1 = new Vec3(((double)var0.x + this.mob.getX()) / 2.0, ((double)var0.y + this.mob.getY()) / 2.0, ((double)var0.z + this.mob.getZ()) / 2.0);
-            if (param0.closerThan(var1, (double)(this.path.getSize() - this.path.getIndex()))) {
+            if (param0.closerThan(var1, (double)(this.path.getNodeCount() - this.path.getNextNodeIndex()))) {
                 this.recomputePath();
             }
 

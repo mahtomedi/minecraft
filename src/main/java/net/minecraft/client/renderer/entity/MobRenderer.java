@@ -12,7 +12,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.decoration.HangingEntity;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
@@ -47,48 +46,32 @@ public abstract class MobRenderer<T extends Mob, M extends EntityModel<T>> exten
 
     private <E extends Entity> void renderLeash(T param0, float param1, PoseStack param2, MultiBufferSource param3, E param4) {
         param2.pushPose();
-        double var0 = (double)(Mth.lerp(param1 * 0.5F, param4.yRot, param4.yRotO) * (float) (Math.PI / 180.0));
-        double var1 = (double)(Mth.lerp(param1 * 0.5F, param4.xRot, param4.xRotO) * (float) (Math.PI / 180.0));
-        double var2 = Math.cos(var0);
-        double var3 = Math.sin(var0);
-        double var4 = Math.sin(var1);
-        if (param4 instanceof HangingEntity) {
-            var2 = 0.0;
-            var3 = 0.0;
-            var4 = -1.0;
-        }
-
-        double var5 = Math.cos(var1);
-        double var6 = Mth.lerp((double)param1, param4.xo, param4.getX()) - var2 * 0.7 - var3 * 0.5 * var5;
-        double var7 = Mth.lerp((double)param1, param4.yo + (double)param4.getEyeHeight() * 0.7, param4.getY() + (double)param4.getEyeHeight() * 0.7)
-            - var4 * 0.5
-            - 0.25;
-        double var8 = Mth.lerp((double)param1, param4.zo, param4.getZ()) - var3 * 0.7 + var2 * 0.5 * var5;
-        double var9 = (double)(Mth.lerp(param1, param0.yBodyRot, param0.yBodyRotO) * (float) (Math.PI / 180.0)) + (Math.PI / 2);
-        Vec3 var10 = param0.getLeashOffset();
-        var2 = Math.cos(var9) * var10.z + Math.sin(var9) * var10.x;
-        var3 = Math.sin(var9) * var10.z - Math.cos(var9) * var10.x;
-        double var11 = Mth.lerp((double)param1, param0.xo, param0.getX()) + var2;
-        double var12 = Mth.lerp((double)param1, param0.yo, param0.getY()) + var10.y;
-        double var13 = Mth.lerp((double)param1, param0.zo, param0.getZ()) + var3;
-        param2.translate(var2, var10.y, var3);
-        float var14 = (float)(var6 - var11);
-        float var15 = (float)(var7 - var12);
-        float var16 = (float)(var8 - var13);
-        float var17 = 0.025F;
-        VertexConsumer var18 = param3.getBuffer(RenderType.leash());
-        Matrix4f var19 = param2.last().pose();
-        float var20 = Mth.fastInvSqrt(var14 * var14 + var16 * var16) * 0.025F / 2.0F;
-        float var21 = var16 * var20;
-        float var22 = var14 * var20;
-        BlockPos var23 = new BlockPos(param0.getEyePosition(param1));
-        BlockPos var24 = new BlockPos(param4.getEyePosition(param1));
-        int var25 = this.getBlockLightLevel(param0, var23);
-        int var26 = this.entityRenderDispatcher.getRenderer(param4).getBlockLightLevel(param4, var24);
-        int var27 = param0.level.getBrightness(LightLayer.SKY, var23);
-        int var28 = param0.level.getBrightness(LightLayer.SKY, var24);
-        renderSide(var18, var19, var14, var15, var16, var25, var26, var27, var28, 0.025F, 0.025F, var21, var22);
-        renderSide(var18, var19, var14, var15, var16, var25, var26, var27, var28, 0.025F, 0.0F, var21, var22);
+        Vec3 var0 = param4.getRopeHoldPosition(param1);
+        double var1 = (double)(Mth.lerp(param1, param0.yBodyRot, param0.yBodyRotO) * (float) (Math.PI / 180.0)) + (Math.PI / 2);
+        Vec3 var2 = param0.getLeashOffset();
+        double var3 = Math.cos(var1) * var2.z + Math.sin(var1) * var2.x;
+        double var4 = Math.sin(var1) * var2.z - Math.cos(var1) * var2.x;
+        double var5 = Mth.lerp((double)param1, param0.xo, param0.getX()) + var3;
+        double var6 = Mth.lerp((double)param1, param0.yo, param0.getY()) + var2.y;
+        double var7 = Mth.lerp((double)param1, param0.zo, param0.getZ()) + var4;
+        param2.translate(var3, var2.y, var4);
+        float var8 = (float)(var0.x - var5);
+        float var9 = (float)(var0.y - var6);
+        float var10 = (float)(var0.z - var7);
+        float var11 = 0.025F;
+        VertexConsumer var12 = param3.getBuffer(RenderType.leash());
+        Matrix4f var13 = param2.last().pose();
+        float var14 = Mth.fastInvSqrt(var8 * var8 + var10 * var10) * 0.025F / 2.0F;
+        float var15 = var10 * var14;
+        float var16 = var8 * var14;
+        BlockPos var17 = new BlockPos(param0.getEyePosition(param1));
+        BlockPos var18 = new BlockPos(param4.getEyePosition(param1));
+        int var19 = this.getBlockLightLevel(param0, var17);
+        int var20 = this.entityRenderDispatcher.getRenderer(param4).getBlockLightLevel(param4, var18);
+        int var21 = param0.level.getBrightness(LightLayer.SKY, var17);
+        int var22 = param0.level.getBrightness(LightLayer.SKY, var18);
+        renderSide(var12, var13, var8, var9, var10, var19, var20, var21, var22, 0.025F, 0.025F, var15, var16);
+        renderSide(var12, var13, var8, var9, var10, var19, var20, var21, var22, 0.025F, 0.0F, var15, var16);
         param2.popPose();
     }
 

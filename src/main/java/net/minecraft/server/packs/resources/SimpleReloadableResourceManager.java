@@ -1,6 +1,5 @@
 package net.minecraft.server.packs.resources;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -85,12 +84,6 @@ public class SimpleReloadableResourceManager implements ReloadableResourceManage
         } else {
             throw new FileNotFoundException(param0.toString());
         }
-    }
-
-    @Override
-    public Collection<ResourceLocation> listResources(ResourceLocation param0, Predicate<String> param1) {
-        ResourceManager var0 = this.namespacedPacks.get(param0.getNamespace());
-        return (Collection<ResourceLocation>)(var0 != null ? var0.listResources(param0.getPath(), param1) : ImmutableSet.of());
     }
 
     @Override

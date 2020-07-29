@@ -3,8 +3,8 @@ package net.minecraft.world.level.dimension;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.Lifecycle;
-import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -21,7 +21,7 @@ import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 
 public final class LevelStem {
-    public static final MapCodec<LevelStem> CODEC = RecordCodecBuilder.mapCodec(
+    public static final Codec<LevelStem> CODEC = RecordCodecBuilder.create(
         param0 -> param0.group(
                     DimensionType.CODEC.fieldOf("type").forGetter(LevelStem::typeSupplier),
                     ChunkGenerator.CODEC.fieldOf("generator").forGetter(LevelStem::generator)
@@ -59,9 +59,6 @@ public final class LevelStem {
             LevelStem var2 = param0.get(var1);
             if (var2 != null) {
                 var0.register(var1, var2);
-                if (param0.persistent(var1)) {
-                    var0.setPersistent(var1);
-                }
             }
         }
 
@@ -69,9 +66,6 @@ public final class LevelStem {
             ResourceKey<LevelStem> var4 = var3.getKey();
             if (!BUILTIN_ORDER.contains(var4)) {
                 var0.register(var4, var3.getValue());
-                if (param0.persistent(var4)) {
-                    var0.setPersistent(var4);
-                }
             }
         }
 

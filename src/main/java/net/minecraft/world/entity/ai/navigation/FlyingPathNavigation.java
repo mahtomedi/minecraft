@@ -48,18 +48,18 @@ public class FlyingPathNavigation extends PathNavigation {
         if (!this.isDone()) {
             if (this.canUpdatePath()) {
                 this.followThePath();
-            } else if (this.path != null && this.path.getIndex() < this.path.getSize()) {
-                Vec3 var0 = this.path.getPos(this.mob, this.path.getIndex());
+            } else if (this.path != null && !this.path.isDone()) {
+                Vec3 var0 = this.path.getNextEntityPos(this.mob);
                 if (Mth.floor(this.mob.getX()) == Mth.floor(var0.x)
                     && Mth.floor(this.mob.getY()) == Mth.floor(var0.y)
                     && Mth.floor(this.mob.getZ()) == Mth.floor(var0.z)) {
-                    this.path.setIndex(this.path.getIndex() + 1);
+                    this.path.advance();
                 }
             }
 
             DebugPackets.sendPathFindingPacket(this.level, this.mob, this.path, this.maxDistanceToWaypoint);
             if (!this.isDone()) {
-                Vec3 var1 = this.path.currentPos(this.mob);
+                Vec3 var1 = this.path.getNextEntityPos(this.mob);
                 this.mob.getMoveControl().setWantedPosition(var1.x, var1.y, var1.z, this.speedModifier);
             }
         }

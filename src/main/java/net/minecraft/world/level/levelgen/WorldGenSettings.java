@@ -110,15 +110,11 @@ public class WorldGenSettings {
     public static MappedRegistry<LevelStem> withOverworld(MappedRegistry<LevelStem> param0, Supplier<DimensionType> param1, ChunkGenerator param2) {
         MappedRegistry<LevelStem> var0 = new MappedRegistry<>(Registry.LEVEL_STEM_REGISTRY, Lifecycle.experimental());
         var0.register(LevelStem.OVERWORLD, new LevelStem(param1, param2));
-        var0.setPersistent(LevelStem.OVERWORLD);
 
         for(Entry<ResourceKey<LevelStem>, LevelStem> var1 : param0.entrySet()) {
             ResourceKey<LevelStem> var2 = var1.getKey();
             if (var2 != LevelStem.OVERWORLD) {
                 var0.register(var2, var1.getValue());
-                if (param0.persistent(var2)) {
-                    var0.setPersistent(var2);
-                }
             }
         }
 
@@ -247,9 +243,6 @@ public class WorldGenSettings {
             for(Entry<ResourceKey<LevelStem>, LevelStem> var3 : this.dimensions.entrySet()) {
                 ResourceKey<LevelStem> var4 = var3.getKey();
                 var1.register(var4, new LevelStem(var3.getValue().typeSupplier(), var3.getValue().generator().withSeed(var2)));
-                if (this.dimensions.persistent(var4)) {
-                    var1.setPersistent(var4);
-                }
             }
         } else {
             var1 = this.dimensions;

@@ -114,16 +114,18 @@ public class Boat extends Entity {
         this.entityData.define(DATA_ID_BUBBLE_TIME, 0);
     }
 
-    @Nullable
     @Override
-    public AABB getCollideAgainstBox(Entity param0) {
-        return param0.isPushable() ? param0.getBoundingBox() : null;
+    public boolean canCollideWith(Entity param0) {
+        return canVehicleCollide(this, param0);
     }
 
-    @Nullable
+    public static boolean canVehicleCollide(Entity param0, Entity param1) {
+        return (param1.canBeCollidedWith() || param1.isPushable()) && !param0.isPassengerOfSameVehicle(param1);
+    }
+
     @Override
-    public AABB getCollideBox() {
-        return this.getBoundingBox();
+    public boolean canBeCollidedWith() {
+        return true;
     }
 
     @Override

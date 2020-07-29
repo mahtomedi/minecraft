@@ -63,7 +63,7 @@ public class FishingHookRenderer extends EntityRenderer<FishingHook> {
             double var21;
             double var22;
             float var23;
-            if ((this.entityRenderDispatcher.options == null || this.entityRenderDispatcher.options.thirdPersonView <= 0)
+            if ((this.entityRenderDispatcher.options == null || this.entityRenderDispatcher.options.getCameraType().isFirstPerson())
                 && var0 == Minecraft.getInstance().player) {
                 double var18 = this.entityRenderDispatcher.options.fov;
                 var18 /= 100.0;

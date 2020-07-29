@@ -27,8 +27,10 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeGenerationSettings;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.biome.BiomeSource;
+import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.minecraft.world.level.levelgen.DebugLevelSource;
 import net.minecraft.world.level.levelgen.FlatLevelSource;
 import net.minecraft.world.level.levelgen.GenerationStep;
@@ -72,7 +74,7 @@ public abstract class ChunkGenerator {
                 List<Biome> var1 = Lists.newArrayList();
 
                 for(Biome var2 : this.biomeSource.possibleBiomes()) {
-                    if (var2.isValidStart(StructureFeature.STRONGHOLD)) {
+                    if (var2.getGenerationSettings().isValidStart(StructureFeature.STRONGHOLD)) {
                         var1.add(var2);
                     }
                 }
@@ -128,7 +130,7 @@ public abstract class ChunkGenerator {
         ChunkPos var3 = param2.getPos();
         int var4 = var3.x;
         int var5 = var3.z;
-        Biome var6 = this.biomeSource.getNoiseBiome(var3.x << 2, 0, var3.z << 2);
+        BiomeGenerationSettings var6 = this.biomeSource.getNoiseBiome(var3.x << 2, 0, var3.z << 2).getGenerationSettings();
         BitSet var7 = ((ProtoChunk)param2).getOrCreateCarvingMask(param3);
 
         for(int var8 = var4 - 8; var8 <= var4 + 8; ++var8) {
@@ -220,8 +222,8 @@ public abstract class ChunkGenerator {
         return 256;
     }
 
-    public List<Biome.SpawnerData> getMobsAt(Biome param0, StructureFeatureManager param1, MobCategory param2, BlockPos param3) {
-        return param0.getMobs(param2);
+    public List<MobSpawnSettings.SpawnerData> getMobsAt(Biome param0, StructureFeatureManager param1, MobCategory param2, BlockPos param3) {
+        return param0.getMobSettings().getMobs(param2);
     }
 
     public void createStructures(RegistryAccess param0, StructureFeatureManager param1, ChunkAccess param2, StructureManager param3, long param4) {
@@ -229,7 +231,7 @@ public abstract class ChunkGenerator {
         Biome var1 = this.biomeSource.getNoiseBiome((var0.x << 2) + 2, 0, (var0.z << 2) + 2);
         this.createStructure(StructureFeatures.STRONGHOLD, param0, param1, param2, param3, param4, var0, var1);
 
-        for(Supplier<ConfiguredStructureFeature<?, ?>> var2 : var1.structures()) {
+        for(Supplier<ConfiguredStructureFeature<?, ?>> var2 : var1.getGenerationSettings().structures()) {
             this.createStructure(var2.get(), param0, param1, param2, param3, param4, var0, var1);
         }
 

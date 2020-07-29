@@ -20,6 +20,7 @@ import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -157,5 +158,11 @@ public class LeashFenceKnotEntity extends HangingEntity {
     @Override
     public Packet<?> getAddEntityPacket() {
         return new ClientboundAddEntityPacket(this, this.getType(), 0, this.getPos());
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public Vec3 getRopeHoldPosition(float param0) {
+        return this.getPosition(param0).add(0.0, 0.2, 0.0);
     }
 }

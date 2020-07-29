@@ -63,7 +63,7 @@ public class DragonLandingApproachPhase extends AbstractDragonPhaseInstance {
             Node var6 = new Node(var1.getX(), var1.getY(), var1.getZ());
             this.currentPath = this.dragon.findPath(var0, var4, var6);
             if (this.currentPath != null) {
-                this.currentPath.next();
+                this.currentPath.advance();
             }
         }
 
@@ -76,8 +76,8 @@ public class DragonLandingApproachPhase extends AbstractDragonPhaseInstance {
 
     private void navigateToNextPathNode() {
         if (this.currentPath != null && !this.currentPath.isDone()) {
-            Vec3i var0 = this.currentPath.currentPos();
-            this.currentPath.next();
+            Vec3i var0 = this.currentPath.getNextNodePos();
+            this.currentPath.advance();
             double var1 = (double)var0.getX();
             double var2 = (double)var0.getZ();
 

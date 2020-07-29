@@ -2,24 +2,21 @@ package net.minecraft.core;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
-import com.google.gson.JsonElement;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
-import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.Lifecycle;
-import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.UnboundedMapCodec;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.resources.RegistryReadOps;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
@@ -29,8 +26,6 @@ import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
 import net.minecraft.world.level.levelgen.feature.structures.StructureTemplatePool;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorType;
 import net.minecraft.world.level.levelgen.surfacebuilders.ConfiguredSurfaceBuilder;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -38,15 +33,15 @@ public interface RegistryAccess {
     Logger LOGGER = LogManager.getLogger();
     Map<ResourceKey<? extends Registry<?>>, RegistryAccess.RegistryData<?>> REGISTRIES = Util.make(() -> {
         Builder<ResourceKey<? extends Registry<?>>, RegistryAccess.RegistryData<?>> var0 = ImmutableMap.builder();
-        put(var0, Registry.DIMENSION_TYPE_REGISTRY, DimensionType.DIRECT_CODEC, true);
-        put(var0, Registry.BIOME_REGISTRY, Biome.DIRECT_CODEC, true);
-        put(var0, Registry.CONFIGURED_SURFACE_BUILDER_REGISTRY, ConfiguredSurfaceBuilder.DIRECT_CODEC, false);
-        put(var0, Registry.CONFIGURED_CARVER_REGISTRY, ConfiguredWorldCarver.DIRECT_CODEC, false);
-        put(var0, Registry.CONFIGURED_FEATURE_REGISTRY, ConfiguredFeature.DIRECT_CODEC, false);
-        put(var0, Registry.CONFIGURED_STRUCTURE_FEATURE_REGISTRY, ConfiguredStructureFeature.DIRECT_CODEC, false);
-        put(var0, Registry.PROCESSOR_LIST_REGISTRY, StructureProcessorType.DIRECT_CODEC, false);
-        put(var0, Registry.TEMPLATE_POOL_REGISTRY, StructureTemplatePool.DIRECT_CODEC, false);
-        put(var0, Registry.NOISE_GENERATOR_SETTINGS_REGISTRY, NoiseGeneratorSettings.DIRECT_CODEC, false);
+        put(var0, Registry.DIMENSION_TYPE_REGISTRY, DimensionType.DIRECT_CODEC, DimensionType.DIRECT_CODEC);
+        put(var0, Registry.BIOME_REGISTRY, Biome.DIRECT_CODEC, Biome.NETWORK_CODEC);
+        put(var0, Registry.CONFIGURED_SURFACE_BUILDER_REGISTRY, ConfiguredSurfaceBuilder.DIRECT_CODEC);
+        put(var0, Registry.CONFIGURED_CARVER_REGISTRY, ConfiguredWorldCarver.DIRECT_CODEC);
+        put(var0, Registry.CONFIGURED_FEATURE_REGISTRY, ConfiguredFeature.DIRECT_CODEC);
+        put(var0, Registry.CONFIGURED_STRUCTURE_FEATURE_REGISTRY, ConfiguredStructureFeature.DIRECT_CODEC);
+        put(var0, Registry.PROCESSOR_LIST_REGISTRY, StructureProcessorType.DIRECT_CODEC);
+        put(var0, Registry.TEMPLATE_POOL_REGISTRY, StructureTemplatePool.DIRECT_CODEC);
+        put(var0, Registry.NOISE_GENERATOR_SETTINGS_REGISTRY, NoiseGeneratorSettings.DIRECT_CODEC);
         return var0.build();
     });
 
@@ -60,13 +55,19 @@ public interface RegistryAccess {
         return this.registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY);
     }
 
-    static <E> Builder<ResourceKey<? extends Registry<?>>, RegistryAccess.RegistryData<?>> put(
+    static <E> void put(
+        Builder<ResourceKey<? extends Registry<?>>, RegistryAccess.RegistryData<?>> param0, ResourceKey<? extends Registry<E>> param1, Codec<E> param2
+    ) {
+        param0.put(param1, new RegistryAccess.RegistryData<>(param1, param2, null));
+    }
+
+    static <E> void put(
         Builder<ResourceKey<? extends Registry<?>>, RegistryAccess.RegistryData<?>> param0,
         ResourceKey<? extends Registry<E>> param1,
-        MapCodec<E> param2,
-        boolean param3
+        Codec<E> param2,
+        Codec<E> param3
     ) {
-        return param0.put(param1, new RegistryAccess.RegistryData<>(param1, param2, param3));
+        param0.put(param1, new RegistryAccess.RegistryData<>(param1, param2, param3));
     }
 
     static RegistryAccess.RegistryHolder builtin() {
@@ -95,20 +96,14 @@ public interface RegistryAccess {
 
     }
 
-    @OnlyIn(Dist.CLIENT)
-    static RegistryAccess.RegistryHolder load(ResourceManager param0) {
-        RegistryAccess.RegistryHolder var0 = builtin();
-        RegistryReadOps<JsonElement> var1 = RegistryReadOps.create(JsonOps.INSTANCE, param0, var0);
-
-        for(RegistryAccess.RegistryData<?> var2 : REGISTRIES.values()) {
-            readRegistry(var1, var0, var2);
+    static void load(RegistryAccess.RegistryHolder param0, RegistryReadOps<?> param1) {
+        for(RegistryAccess.RegistryData<?> var0 : REGISTRIES.values()) {
+            readRegistry(param1, param0, var0);
         }
 
-        return var0;
     }
 
-    @OnlyIn(Dist.CLIENT)
-    static <E> void readRegistry(RegistryReadOps<JsonElement> param0, RegistryAccess.RegistryHolder param1, RegistryAccess.RegistryData<E> param2) {
+    static <E> void readRegistry(RegistryReadOps<?> param0, RegistryAccess.RegistryHolder param1, RegistryAccess.RegistryData<E> param2) {
         ResourceKey<? extends Registry<E>> var0 = param2.key();
         MappedRegistry<E> var1 = (MappedRegistry)Optional.ofNullable(param1.registries.get(var0))
             .map((Function<? super MappedRegistry<?>, ? extends MappedRegistry<?>>)(param0x -> param0x))
@@ -119,39 +114,44 @@ public interface RegistryAccess {
 
     public static final class RegistryData<E> {
         private final ResourceKey<? extends Registry<E>> key;
-        private final MapCodec<E> codec;
-        private final boolean sendToClient;
+        private final Codec<E> codec;
+        @Nullable
+        private final Codec<E> networkCodec;
 
-        public RegistryData(ResourceKey<? extends Registry<E>> param0, MapCodec<E> param1, boolean param2) {
+        public RegistryData(ResourceKey<? extends Registry<E>> param0, Codec<E> param1, @Nullable Codec<E> param2) {
             this.key = param0;
             this.codec = param1;
-            this.sendToClient = param2;
+            this.networkCodec = param2;
         }
 
-        @OnlyIn(Dist.CLIENT)
         public ResourceKey<? extends Registry<E>> key() {
             return this.key;
         }
 
-        public MapCodec<E> codec() {
+        public Codec<E> codec() {
             return this.codec;
         }
 
+        @Nullable
+        public Codec<E> networkCodec() {
+            return this.networkCodec;
+        }
+
         public boolean sendToClient() {
-            return this.sendToClient;
+            return this.networkCodec != null;
         }
     }
 
     public static final class RegistryHolder implements RegistryAccess {
-        public static final Codec<RegistryAccess.RegistryHolder> NETWORK_CODEC = makeDirectCodec();
+        public static final Codec<RegistryAccess.RegistryHolder> NETWORK_CODEC = makeNetworkCodec();
         private final Map<? extends ResourceKey<? extends Registry<?>>, ? extends MappedRegistry<?>> registries;
 
-        private static <E> Codec<RegistryAccess.RegistryHolder> makeDirectCodec() {
+        private static <E> Codec<RegistryAccess.RegistryHolder> makeNetworkCodec() {
             Codec<ResourceKey<? extends Registry<E>>> var0 = ResourceLocation.CODEC.xmap(ResourceKey::createRegistryKey, ResourceKey::location);
             Codec<MappedRegistry<E>> var1 = var0.partialDispatch(
                 "type",
                 param0 -> DataResult.success(param0.key()),
-                param0 -> getCodec(param0).map(param1 -> MappedRegistry.networkCodec(param0, Lifecycle.experimental(), param1))
+                param0 -> getNetworkCodec(param0).map(param1 -> MappedRegistry.networkCodec(param0, Lifecycle.experimental(), param1))
             );
             UnboundedMapCodec<? extends ResourceKey<? extends Registry<?>>, ? extends MappedRegistry<?>> var2 = Codec.unboundedMap(var0, var1);
             return captureMap(var2);
@@ -170,10 +170,11 @@ public interface RegistryAccess {
             );
         }
 
-        private static <E> DataResult<? extends MapCodec<E>> getCodec(ResourceKey<? extends Registry<E>> param0) {
-            return Optional.ofNullable(REGISTRIES.get(param0))
-                .map(param0x -> DataResult.success(((RegistryAccess.RegistryData)param0x).codec()))
-                .orElseGet(() -> DataResult.error("Unknown registry: " + param0));
+        private static <E> DataResult<? extends Codec<E>> getNetworkCodec(ResourceKey<? extends Registry<E>> param0) {
+            return (DataResult<? extends Codec<E>>)Optional.ofNullable(REGISTRIES.get(param0))
+                .map(param0x -> ((RegistryAccess.RegistryData)param0x).networkCodec())
+                .map(DataResult::success)
+                .orElseGet(() -> DataResult.error("Unknown or not serializable registry: " + param0));
         }
 
         public RegistryHolder() {

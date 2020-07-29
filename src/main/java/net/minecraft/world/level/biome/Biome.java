@@ -1,16 +1,13 @@
 package net.minecraft.world.level.biome;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.mojang.datafixers.DataFixUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.longs.Long2FloatLinkedOpenHashMap;
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -33,9 +30,6 @@ import net.minecraft.sounds.Music;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
 import net.minecraft.util.StringRepresentable;
-import net.minecraft.util.WeighedRandom;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.FoliageColor;
 import net.minecraft.world.level.GrassColor;
@@ -49,15 +43,10 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
-import net.minecraft.world.level.levelgen.carver.CarverConfiguration;
-import net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
-import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
-import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.surfacebuilders.ConfiguredSurfaceBuilder;
-import net.minecraft.world.level.levelgen.surfacebuilders.SurfaceBuilderConfiguration;
 import net.minecraft.world.level.levelgen.synth.PerlinSimplexNoise;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
@@ -68,34 +57,52 @@ import org.apache.logging.log4j.Logger;
 
 public final class Biome {
     public static final Logger LOGGER = LogManager.getLogger();
-    public static final MapCodec<Biome> DIRECT_CODEC = RecordCodecBuilder.mapCodec(
+    public static final Codec<Biome> DIRECT_CODEC = RecordCodecBuilder.create(
         param0 -> param0.group(
                     Biome.ClimateSettings.CODEC.forGetter(param0x -> param0x.climateSettings),
                     Biome.BiomeCategory.CODEC.fieldOf("category").forGetter(param0x -> param0x.biomeCategory),
                     Codec.FLOAT.fieldOf("depth").forGetter(param0x -> param0x.depth),
                     Codec.FLOAT.fieldOf("scale").forGetter(param0x -> param0x.scale),
                     BiomeSpecialEffects.CODEC.fieldOf("effects").forGetter(param0x -> param0x.specialEffects),
-                    Biome.WorldGenerationSettings.CODEC.forGetter(param0x -> param0x.worldGenerationSettings),
-                    Biome.MobSettings.CODEC.forGetter(param0x -> param0x.mobSettings),
+                    BiomeGenerationSettings.CODEC.forGetter(param0x -> param0x.generationSettings),
+                    MobSpawnSettings.CODEC.forGetter(param0x -> param0x.mobSettings),
                     Codec.STRING.optionalFieldOf("parent").forGetter(param0x -> Optional.ofNullable(param0x.parent))
                 )
                 .apply(param0, Biome::new)
     );
+    public static final Codec<Biome> NETWORK_CODEC = RecordCodecBuilder.create(
+        param0 -> param0.group(
+                    Biome.ClimateSettings.CODEC.forGetter(param0x -> param0x.climateSettings),
+                    Biome.BiomeCategory.CODEC.fieldOf("category").forGetter(param0x -> param0x.biomeCategory),
+                    Codec.FLOAT.fieldOf("depth").forGetter(param0x -> param0x.depth),
+                    Codec.FLOAT.fieldOf("scale").forGetter(param0x -> param0x.scale),
+                    BiomeSpecialEffects.CODEC.fieldOf("effects").forGetter(param0x -> param0x.specialEffects),
+                    Codec.STRING.optionalFieldOf("parent").forGetter(param0x -> Optional.ofNullable(param0x.parent))
+                )
+                .apply(
+                    param0,
+                    (param0x, param1, param2, param3, param4, param5) -> new Biome(
+                            param0x, param1, param2, param3, param4, BiomeGenerationSettings.EMPTY, MobSpawnSettings.EMPTY, param5
+                        )
+                )
+    );
     public static final Codec<Supplier<Biome>> CODEC = RegistryFileCodec.create(Registry.BIOME_REGISTRY, DIRECT_CODEC);
     public static final Set<Biome> EXPLORABLE_BIOMES = Sets.newHashSet();
+    private final Map<Integer, List<StructureFeature<?>>> structuresByStep = Registry.STRUCTURE_FEATURE
+        .stream()
+        .collect(Collectors.groupingBy(param0x -> param0x.step().ordinal()));
     private static final PerlinSimplexNoise TEMPERATURE_NOISE = new PerlinSimplexNoise(new WorldgenRandom(1234L), ImmutableList.of(0));
     private static final PerlinSimplexNoise FROZEN_TEMPERATURE_NOISE = new PerlinSimplexNoise(new WorldgenRandom(3456L), ImmutableList.of(-2, -1, 0));
     public static final PerlinSimplexNoise BIOME_INFO_NOISE = new PerlinSimplexNoise(new WorldgenRandom(2345L), ImmutableList.of(0));
     private final Biome.ClimateSettings climateSettings;
-    private final Biome.WorldGenerationSettings worldGenerationSettings;
-    private final Biome.MobSettings mobSettings;
+    private final BiomeGenerationSettings generationSettings;
+    private final MobSpawnSettings mobSettings;
     private final float depth;
     private final float scale;
     @Nullable
     protected final String parent;
     private final Biome.BiomeCategory biomeCategory;
     private final BiomeSpecialEffects specialEffects;
-    private final List<ConfiguredFeature<?, ?>> flowerFeatures;
     private final ThreadLocal<Long2FloatLinkedOpenHashMap> temperatureCache = ThreadLocal.withInitial(() -> Util.make(() -> {
             Long2FloatLinkedOpenHashMap var0 = new Long2FloatLinkedOpenHashMap(1024, 0.25F) {
                 @Override
@@ -106,54 +113,24 @@ public final class Biome {
             return var0;
         }));
 
-    public Biome(Biome.BiomeBuilder param0) {
-        if (param0.surfaceBuilder != null
-            && param0.precipitation != null
-            && param0.biomeCategory != null
-            && param0.depth != null
-            && param0.scale != null
-            && param0.temperature != null
-            && param0.downfall != null
-            && param0.specialEffects != null) {
-            this.climateSettings = new Biome.ClimateSettings(param0.precipitation, param0.temperature, param0.temperatureModifier, param0.downfall);
-            this.biomeCategory = param0.biomeCategory;
-            this.depth = param0.depth;
-            this.scale = param0.scale;
-            this.parent = param0.parent;
-            this.specialEffects = param0.specialEffects;
-            this.mobSettings = new Biome.MobSettings(param0.creatureGenerationProbability);
-            this.worldGenerationSettings = new Biome.WorldGenerationSettings(param0.surfaceBuilder);
-            this.flowerFeatures = Lists.newArrayList();
-        } else {
-            throw new IllegalStateException("You are missing parameters to build a proper biome for " + this.getClass().getSimpleName() + "\n" + param0);
-        }
-    }
-
     private Biome(
         Biome.ClimateSettings param0,
         Biome.BiomeCategory param1,
         float param2,
         float param3,
         BiomeSpecialEffects param4,
-        Biome.WorldGenerationSettings param5,
-        Biome.MobSettings param6,
+        BiomeGenerationSettings param5,
+        MobSpawnSettings param6,
         Optional<String> param7
     ) {
         this.climateSettings = param0;
-        this.worldGenerationSettings = param5;
+        this.generationSettings = param5;
         this.mobSettings = param6;
         this.biomeCategory = param1;
         this.depth = param2;
         this.scale = param3;
         this.specialEffects = param4;
         this.parent = param7.orElse(null);
-        this.flowerFeatures = param5.features
-            .stream()
-            .flatMap(Collection::stream)
-            .map(Supplier::get)
-            .flatMap(ConfiguredFeature::getFeatures)
-            .filter(param0x -> param0x.feature == Feature.FLOWER)
-            .collect(Collectors.toList());
     }
 
     public boolean isMutated() {
@@ -165,21 +142,8 @@ public final class Biome {
         return this.specialEffects.getSkyColor();
     }
 
-    public void addSpawn(MobCategory param0, Biome.SpawnerData param1) {
-        this.mobSettings.spawners.get(param0).add(param1);
-    }
-
-    public void addMobCharge(EntityType<?> param0, double param1, double param2) {
-        this.mobSettings.mobSpawnCosts.put(param0, new Biome.MobSpawnCost(param2, param1));
-    }
-
-    public List<Biome.SpawnerData> getMobs(MobCategory param0) {
-        return this.mobSettings.spawners.get(param0);
-    }
-
-    @Nullable
-    public Biome.MobSpawnCost getMobSpawnCost(EntityType<?> param0) {
-        return this.mobSettings.mobSpawnCosts.get(param0);
+    public MobSpawnSettings getMobSettings() {
+        return this.mobSettings;
     }
 
     public Biome.Precipitation getPrecipitation() {
@@ -188,10 +152,6 @@ public final class Biome {
 
     public boolean isHumid() {
         return this.getDownfall() > 0.85F;
-    }
-
-    public float getCreatureProbability() {
-        return this.mobSettings.creatureGenerationProbability;
     }
 
     private float getHeightAdjustedTemperature(BlockPos param0) {
@@ -266,106 +226,59 @@ public final class Biome {
         }
     }
 
-    public void addFeature(GenerationStep.Decoration param0, ConfiguredFeature<?, ?> param1) {
-        this.addFeature(param0.ordinal(), () -> param1);
-    }
-
-    public void addFeature(int param0, Supplier<ConfiguredFeature<?, ?>> param1) {
-        param1.get().getFeatures().filter(param0x -> param0x.feature == Feature.FLOWER).forEach(this.flowerFeatures::add);
-        this.addFeatureStepsUpTo(param0);
-        this.worldGenerationSettings.features.get(param0).add(param1);
-    }
-
-    public <C extends CarverConfiguration> void addCarver(GenerationStep.Carving param0, ConfiguredWorldCarver<C> param1) {
-        this.worldGenerationSettings.carvers.computeIfAbsent(param0, param0x -> Lists.newArrayList()).add(() -> param1);
-    }
-
-    public List<Supplier<ConfiguredWorldCarver<?>>> getCarvers(GenerationStep.Carving param0) {
-        return this.worldGenerationSettings.carvers.getOrDefault(param0, ImmutableList.of());
-    }
-
-    public void addStructureStart(ConfiguredStructureFeature<?, ?> param0) {
-        this.worldGenerationSettings.structureStarts.add(() -> param0);
-        this.addFeatureStepsUpTo(param0.feature.step().ordinal());
-    }
-
-    public boolean isValidStart(StructureFeature<?> param0) {
-        return this.worldGenerationSettings.structureStarts.stream().anyMatch(param1 -> param1.get().feature == param0);
-    }
-
-    public Iterable<Supplier<ConfiguredStructureFeature<?, ?>>> structures() {
-        return this.worldGenerationSettings.structureStarts;
-    }
-
-    private void addFeatureStepsUpTo(int param0) {
-        while(this.worldGenerationSettings.features.size() <= param0) {
-            this.worldGenerationSettings.features.add(Lists.newArrayList());
-        }
-
-    }
-
-    public ConfiguredStructureFeature<?, ?> withBiomeConfig(ConfiguredStructureFeature<?, ?> param0) {
-        return DataFixUtils.orElse(
-            this.worldGenerationSettings.structureStarts.stream().map(Supplier::get).filter(param1 -> param1.feature == param0.feature).findAny(), param0
-        );
-    }
-
-    public List<ConfiguredFeature<?, ?>> getFlowerFeatures() {
-        return this.flowerFeatures;
-    }
-
-    public List<List<Supplier<ConfiguredFeature<?, ?>>>> features() {
-        return this.worldGenerationSettings.features;
+    public BiomeGenerationSettings getGenerationSettings() {
+        return this.generationSettings;
     }
 
     public void generate(StructureFeatureManager param0, ChunkGenerator param1, WorldGenRegion param2, long param3, WorldgenRandom param4, BlockPos param5) {
-        for(int var0 = 0; var0 < this.worldGenerationSettings.features.size(); ++var0) {
-            int var1 = 0;
+        List<List<Supplier<ConfiguredFeature<?, ?>>>> var0 = this.generationSettings.features();
+        int var1 = GenerationStep.Decoration.values().length;
+
+        for(int var2 = 0; var2 < var1; ++var2) {
+            int var3 = 0;
             if (param0.shouldGenerateFeatures()) {
-                for(StructureFeature<?> var2 : Registry.STRUCTURE_FEATURE) {
-                    if (var2.step().ordinal() == var0) {
-                        param4.setFeatureSeed(param3, var1, var0);
-                        int var3 = param5.getX() >> 4;
-                        int var4 = param5.getZ() >> 4;
-                        int var5 = var3 << 4;
-                        int var6 = var4 << 4;
+                for(StructureFeature<?> var5 : this.structuresByStep.getOrDefault(var2, Collections.emptyList())) {
+                    param4.setFeatureSeed(param3, var3, var2);
+                    int var6 = param5.getX() >> 4;
+                    int var7 = param5.getZ() >> 4;
+                    int var8 = var6 << 4;
+                    int var9 = var7 << 4;
 
-                        try {
-                            param0.startsForFeature(SectionPos.of(param5), var2)
-                                .forEach(
-                                    param8 -> param8.placeInChunk(
-                                            param2, param0, param1, param4, new BoundingBox(var5, var6, var5 + 15, var6 + 15), new ChunkPos(var3, var4)
-                                        )
-                                );
-                        } catch (Exception var18) {
-                            CrashReport var8 = CrashReport.forThrowable(var18, "Feature placement");
-                            var8.addCategory("Feature")
-                                .setDetail("Id", Registry.STRUCTURE_FEATURE.getKey(var2))
-                                .setDetail("Description", () -> var2.toString());
-                            throw new ReportedException(var8);
-                        }
-
-                        ++var1;
+                    try {
+                        param0.startsForFeature(SectionPos.of(param5), var5)
+                            .forEach(
+                                param8 -> param8.placeInChunk(
+                                        param2, param0, param1, param4, new BoundingBox(var8, var9, var8 + 15, var9 + 15), new ChunkPos(var6, var7)
+                                    )
+                            );
+                    } catch (Exception var21) {
+                        CrashReport var11 = CrashReport.forThrowable(var21, "Feature placement");
+                        var11.addCategory("Feature").setDetail("Id", Registry.STRUCTURE_FEATURE.getKey(var5)).setDetail("Description", () -> var5.toString());
+                        throw new ReportedException(var11);
                     }
+
+                    ++var3;
                 }
             }
 
-            for(Supplier<ConfiguredFeature<?, ?>> var9 : this.worldGenerationSettings.features.get(var0)) {
-                ConfiguredFeature<?, ?> var10 = var9.get();
-                param4.setFeatureSeed(param3, var1, var0);
+            if (var0.size() > var2) {
+                for(Supplier<ConfiguredFeature<?, ?>> var12 : var0.get(var2)) {
+                    ConfiguredFeature<?, ?> var13 = var12.get();
+                    param4.setFeatureSeed(param3, var3, var2);
 
-                try {
-                    var10.place(param2, param1, param4, param5);
-                } catch (Exception var19) {
-                    CrashReport var12 = CrashReport.forThrowable(var19, "Feature placement");
-                    var12.addCategory("Feature")
-                        .setDetail("Id", Registry.FEATURE.getKey(var10.feature))
-                        .setDetail("Config", var10.config)
-                        .setDetail("Description", () -> var10.feature.toString());
-                    throw new ReportedException(var12);
+                    try {
+                        var13.place(param2, param1, param4, param5);
+                    } catch (Exception var22) {
+                        CrashReport var15 = CrashReport.forThrowable(var22, "Feature placement");
+                        var15.addCategory("Feature")
+                            .setDetail("Id", Registry.FEATURE.getKey(var13.feature))
+                            .setDetail("Config", var13.config)
+                            .setDetail("Description", () -> var13.feature.toString());
+                        throw new ReportedException(var15);
+                    }
+
+                    ++var3;
                 }
-
-                ++var1;
             }
         }
 
@@ -404,7 +317,7 @@ public final class Biome {
     public void buildSurfaceAt(
         Random param0, ChunkAccess param1, int param2, int param3, int param4, double param5, BlockState param6, BlockState param7, int param8, long param9
     ) {
-        ConfiguredSurfaceBuilder<?> var0 = this.worldGenerationSettings.surfaceBuilder.get();
+        ConfiguredSurfaceBuilder<?> var0 = this.generationSettings.getSurfaceBuilder().get();
         var0.initNoise(param9);
         var0.apply(param0, param1, this, param2, param3, param4, param5, param6, param7, param8, param9);
     }
@@ -478,14 +391,6 @@ public final class Biome {
         return this.biomeCategory;
     }
 
-    public Supplier<ConfiguredSurfaceBuilder<?>> getSurfaceBuilder() {
-        return this.worldGenerationSettings.surfaceBuilder;
-    }
-
-    public SurfaceBuilderConfiguration getSurfaceBuilderConfig() {
-        return this.worldGenerationSettings.surfaceBuilder.get().config();
-    }
-
     @Nullable
     public String getParent() {
         return this.parent;
@@ -498,8 +403,6 @@ public final class Biome {
     }
 
     public static class BiomeBuilder {
-        @Nullable
-        private Supplier<ConfiguredSurfaceBuilder<?>> surfaceBuilder;
         @Nullable
         private Biome.Precipitation precipitation;
         @Nullable
@@ -517,16 +420,10 @@ public final class Biome {
         private String parent;
         @Nullable
         private BiomeSpecialEffects specialEffects;
-        private float creatureGenerationProbability = 0.1F;
-
-        public Biome.BiomeBuilder surfaceBuilder(ConfiguredSurfaceBuilder<?> param0) {
-            return this.surfaceBuilder(() -> param0);
-        }
-
-        public Biome.BiomeBuilder surfaceBuilder(Supplier<ConfiguredSurfaceBuilder<?>> param0) {
-            this.surfaceBuilder = param0;
-            return this;
-        }
+        @Nullable
+        private MobSpawnSettings mobSpawnSettings;
+        @Nullable
+        private BiomeGenerationSettings generationSettings;
 
         public Biome.BiomeBuilder precipitation(Biome.Precipitation param0) {
             this.precipitation = param0;
@@ -568,8 +465,13 @@ public final class Biome {
             return this;
         }
 
-        public Biome.BiomeBuilder creatureGenerationProbability(float param0) {
-            this.creatureGenerationProbability = param0;
+        public Biome.BiomeBuilder mobSpawnSettings(MobSpawnSettings param0) {
+            this.mobSpawnSettings = param0;
+            return this;
+        }
+
+        public Biome.BiomeBuilder generationSettings(BiomeGenerationSettings param0) {
+            this.generationSettings = param0;
             return this;
         }
 
@@ -578,11 +480,34 @@ public final class Biome {
             return this;
         }
 
+        public Biome build() {
+            if (this.precipitation != null
+                && this.biomeCategory != null
+                && this.depth != null
+                && this.scale != null
+                && this.temperature != null
+                && this.downfall != null
+                && this.specialEffects != null
+                && this.mobSpawnSettings != null
+                && this.generationSettings != null) {
+                return new Biome(
+                    new Biome.ClimateSettings(this.precipitation, this.temperature, this.temperatureModifier, this.downfall),
+                    this.biomeCategory,
+                    this.depth,
+                    this.scale,
+                    this.specialEffects,
+                    this.generationSettings,
+                    this.mobSpawnSettings,
+                    Optional.ofNullable(this.parent)
+                );
+            } else {
+                throw new IllegalStateException("You are missing parameters to build a proper biome\n" + this);
+            }
+        }
+
         @Override
         public String toString() {
-            return "BiomeBuilder{\nsurfaceBuilder="
-                + this.surfaceBuilder
-                + ",\nprecipitation="
+            return "BiomeBuilder{\nprecipitation="
                 + this.precipitation
                 + ",\nbiomeCategory="
                 + this.biomeCategory
@@ -598,8 +523,10 @@ public final class Biome {
                 + this.downfall
                 + ",\nspecialEffects="
                 + this.specialEffects
-                + ",\ncreatureGenerationProbability="
-                + this.creatureGenerationProbability
+                + ",\nmobSpawnSettings="
+                + this.mobSpawnSettings
+                + ",\ngenerationSettings="
+                + this.generationSettings
                 + ",\nparent='"
                 + this.parent
                 + '\''
@@ -756,70 +683,6 @@ public final class Biome {
         }
     }
 
-    static class MobSettings {
-        public static final MapCodec<Biome.MobSettings> CODEC = RecordCodecBuilder.mapCodec(
-            param0 -> param0.group(
-                        Codec.FLOAT
-                            .optionalFieldOf("creature_spawn_probability", Float.valueOf(0.1F))
-                            .forGetter(param0x -> param0x.creatureGenerationProbability),
-                        Codec.simpleMap(
-                                MobCategory.CODEC,
-                                Biome.SpawnerData.CODEC.listOf().promotePartial(Util.prefix("Spawn data: ", Biome.LOGGER::error)),
-                                StringRepresentable.keys(MobCategory.values())
-                            )
-                            .fieldOf("spawners")
-                            .forGetter(param0x -> param0x.spawners),
-                        Codec.simpleMap(Registry.ENTITY_TYPE, Biome.MobSpawnCost.CODEC, Registry.ENTITY_TYPE)
-                            .fieldOf("spawn_costs")
-                            .forGetter(param0x -> param0x.mobSpawnCosts)
-                    )
-                    .apply(param0, Biome.MobSettings::new)
-        );
-        private final float creatureGenerationProbability;
-        private final Map<MobCategory, List<Biome.SpawnerData>> spawners;
-        private final Map<EntityType<?>, Biome.MobSpawnCost> mobSpawnCosts;
-
-        private MobSettings(float param0, Map<MobCategory, List<Biome.SpawnerData>> param1, Map<EntityType<?>, Biome.MobSpawnCost> param2) {
-            this.creatureGenerationProbability = param0;
-            this.spawners = param1;
-            this.mobSpawnCosts = param2;
-        }
-
-        private MobSettings(float param0) {
-            this(param0, Maps.newLinkedHashMap(), Maps.newLinkedHashMap());
-
-            for(MobCategory var0 : MobCategory.values()) {
-                this.spawners.put(var0, Lists.newArrayList());
-            }
-
-        }
-    }
-
-    public static class MobSpawnCost {
-        public static final Codec<Biome.MobSpawnCost> CODEC = RecordCodecBuilder.create(
-            param0 -> param0.group(
-                        Codec.DOUBLE.fieldOf("energy_budget").forGetter(Biome.MobSpawnCost::getEnergyBudget),
-                        Codec.DOUBLE.fieldOf("charge").forGetter(Biome.MobSpawnCost::getCharge)
-                    )
-                    .apply(param0, Biome.MobSpawnCost::new)
-        );
-        private final double energyBudget;
-        private final double charge;
-
-        public MobSpawnCost(double param0, double param1) {
-            this.energyBudget = param0;
-            this.charge = param1;
-        }
-
-        public double getEnergyBudget() {
-            return this.energyBudget;
-        }
-
-        public double getCharge() {
-            return this.charge;
-        }
-    }
-
     public static enum Precipitation implements StringRepresentable {
         NONE("none"),
         RAIN("rain"),
@@ -845,33 +708,6 @@ public final class Biome {
         @Override
         public String getSerializedName() {
             return this.name;
-        }
-    }
-
-    public static class SpawnerData extends WeighedRandom.WeighedRandomItem {
-        public static final Codec<Biome.SpawnerData> CODEC = RecordCodecBuilder.create(
-            param0 -> param0.group(
-                        Registry.ENTITY_TYPE.fieldOf("type").forGetter(param0x -> param0x.type),
-                        Codec.INT.fieldOf("weight").forGetter(param0x -> param0x.weight),
-                        Codec.INT.fieldOf("minCount").forGetter(param0x -> param0x.minCount),
-                        Codec.INT.fieldOf("maxCount").forGetter(param0x -> param0x.maxCount)
-                    )
-                    .apply(param0, Biome.SpawnerData::new)
-        );
-        public final EntityType<?> type;
-        public final int minCount;
-        public final int maxCount;
-
-        public SpawnerData(EntityType<?> param0, int param1, int param2, int param3) {
-            super(param1);
-            this.type = param0.getCategory() == MobCategory.MISC ? EntityType.PIG : param0;
-            this.minCount = param2;
-            this.maxCount = param3;
-        }
-
-        @Override
-        public String toString() {
-            return EntityType.getKey(this.type) + "*(" + this.minCount + "-" + this.maxCount + "):" + this.weight;
         }
     }
 
@@ -923,53 +759,6 @@ public final class Biome {
 
         public static Biome.TemperatureModifier byName(String param0) {
             return BY_NAME.get(param0);
-        }
-    }
-
-    static class WorldGenerationSettings {
-        public static final MapCodec<Biome.WorldGenerationSettings> CODEC = RecordCodecBuilder.mapCodec(
-            param0 -> param0.group(
-                        ConfiguredSurfaceBuilder.CODEC.fieldOf("surface_builder").forGetter(param0x -> param0x.surfaceBuilder),
-                        Codec.simpleMap(
-                                GenerationStep.Carving.CODEC,
-                                ConfiguredWorldCarver.CODEC.listOf().promotePartial(Util.prefix("Carver: ", Biome.LOGGER::error)),
-                                StringRepresentable.keys(GenerationStep.Carving.values())
-                            )
-                            .fieldOf("carvers")
-                            .forGetter(param0x -> param0x.carvers),
-                        ConfiguredFeature.CODEC
-                            .listOf()
-                            .promotePartial(Util.prefix("Feature: ", Biome.LOGGER::error))
-                            .listOf()
-                            .fieldOf("features")
-                            .forGetter(param0x -> param0x.features),
-                        ConfiguredStructureFeature.CODEC
-                            .listOf()
-                            .promotePartial(Util.prefix("Structure start: ", Biome.LOGGER::error))
-                            .fieldOf("starts")
-                            .forGetter(param0x -> param0x.structureStarts)
-                    )
-                    .apply(param0, Biome.WorldGenerationSettings::new)
-        );
-        private final Supplier<ConfiguredSurfaceBuilder<?>> surfaceBuilder;
-        private final Map<GenerationStep.Carving, List<Supplier<ConfiguredWorldCarver<?>>>> carvers;
-        private final List<List<Supplier<ConfiguredFeature<?, ?>>>> features;
-        private final List<Supplier<ConfiguredStructureFeature<?, ?>>> structureStarts;
-
-        private WorldGenerationSettings(
-            Supplier<ConfiguredSurfaceBuilder<?>> param0,
-            Map<GenerationStep.Carving, List<Supplier<ConfiguredWorldCarver<?>>>> param1,
-            List<List<Supplier<ConfiguredFeature<?, ?>>>> param2,
-            List<Supplier<ConfiguredStructureFeature<?, ?>>> param3
-        ) {
-            this.surfaceBuilder = param0;
-            this.carvers = param1;
-            this.features = param2;
-            this.structureStarts = param3;
-        }
-
-        private WorldGenerationSettings(Supplier<ConfiguredSurfaceBuilder<?>> param0) {
-            this(param0, Maps.newLinkedHashMap(), Lists.newArrayList(), Lists.newArrayList());
         }
     }
 }

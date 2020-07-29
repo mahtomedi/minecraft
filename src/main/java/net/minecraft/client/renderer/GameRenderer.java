@@ -387,7 +387,7 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
             }
 
             boolean var1 = this.minecraft.getCameraEntity() instanceof LivingEntity && ((LivingEntity)this.minecraft.getCameraEntity()).isSleeping();
-            if (this.minecraft.options.thirdPersonView == 0
+            if (this.minecraft.options.getCameraType().isFirstPerson()
                 && !var1
                 && !this.minecraft.options.hideGui
                 && this.minecraft.gameMode.getPlayerMode() != GameType.SPECTATOR) {
@@ -404,7 +404,7 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
             }
 
             param0.popPose();
-            if (this.minecraft.options.thirdPersonView == 0 && !var1) {
+            if (this.minecraft.options.getCameraType().isFirstPerson() && !var1) {
                 ScreenEffectRenderer.renderScreenEffect(this.minecraft, param0);
                 this.bobHurt(param0, param2);
             }
@@ -648,7 +648,9 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
             this.bobView(var2, param0);
         }
 
-        float var3 = Mth.lerp(param0, this.minecraft.player.oPortalTime, this.minecraft.player.portalTime);
+        float var3 = Mth.lerp(param0, this.minecraft.player.oPortalTime, this.minecraft.player.portalTime)
+            * this.minecraft.options.screenEffectScale
+            * this.minecraft.options.screenEffectScale;
         if (var3 > 0.0F) {
             int var4 = 20;
             if (this.minecraft.player.hasEffect(MobEffects.CONFUSION)) {
@@ -669,8 +671,8 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
         var1.setup(
             this.minecraft.level,
             (Entity)(this.minecraft.getCameraEntity() == null ? this.minecraft.player : this.minecraft.getCameraEntity()),
-            this.minecraft.options.thirdPersonView > 0,
-            this.minecraft.options.thirdPersonView == 2,
+            !this.minecraft.options.getCameraType().isFirstPerson(),
+            this.minecraft.options.getCameraType().isMirrored(),
             param0
         );
         param2.mulPose(Vector3f.XP.rotationDegrees(var1.getXRot()));

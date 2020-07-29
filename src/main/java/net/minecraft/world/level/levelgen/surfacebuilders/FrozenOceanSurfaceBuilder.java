@@ -69,67 +69,70 @@ public class FrozenOceanSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBase
 
         int var8 = param3 & 15;
         int var9 = param4 & 15;
-        BlockState var10 = param2.getSurfaceBuilderConfig().getUnderMaterial();
-        BlockState var11 = param2.getSurfaceBuilderConfig().getTopMaterial();
-        int var12 = (int)(param6 / 3.0 + 3.0 + param0.nextDouble() * 0.25);
-        int var13 = -1;
-        int var14 = 0;
-        int var15 = 2 + param0.nextInt(4);
-        int var16 = param9 + 18 + param0.nextInt(10);
+        SurfaceBuilderConfiguration var10 = param2.getGenerationSettings().getSurfaceBuilderConfig();
+        BlockState var11 = var10.getUnderMaterial();
+        BlockState var12 = var10.getTopMaterial();
+        BlockState var13 = var11;
+        BlockState var14 = var12;
+        int var15 = (int)(param6 / 3.0 + 3.0 + param0.nextDouble() * 0.25);
+        int var16 = -1;
+        int var17 = 0;
+        int var18 = 2 + param0.nextInt(4);
+        int var19 = param9 + 18 + param0.nextInt(10);
 
-        for(int var17 = Math.max(param5, (int)var0 + 1); var17 >= 0; --var17) {
-            var2.set(var8, var17, var9);
-            if (param1.getBlockState(var2).isAir() && var17 < (int)var0 && param0.nextDouble() > 0.01) {
+        for(int var20 = Math.max(param5, (int)var0 + 1); var20 >= 0; --var20) {
+            var2.set(var8, var20, var9);
+            if (param1.getBlockState(var2).isAir() && var20 < (int)var0 && param0.nextDouble() > 0.01) {
                 param1.setBlockState(var2, PACKED_ICE, false);
             } else if (param1.getBlockState(var2).getMaterial() == Material.WATER
-                && var17 > (int)var1
-                && var17 < param9
+                && var20 > (int)var1
+                && var20 < param9
                 && var1 != 0.0
                 && param0.nextDouble() > 0.15) {
                 param1.setBlockState(var2, PACKED_ICE, false);
             }
 
-            BlockState var18 = param1.getBlockState(var2);
-            if (var18.isAir()) {
-                var13 = -1;
-            } else if (!var18.is(param7.getBlock())) {
-                if (var18.is(Blocks.PACKED_ICE) && var14 <= var15 && var17 > var16) {
+            BlockState var21 = param1.getBlockState(var2);
+            if (var21.isAir()) {
+                var16 = -1;
+            } else if (!var21.is(param7.getBlock())) {
+                if (var21.is(Blocks.PACKED_ICE) && var17 <= var18 && var20 > var19) {
                     param1.setBlockState(var2, SNOW_BLOCK, false);
-                    ++var14;
+                    ++var17;
                 }
-            } else if (var13 == -1) {
-                if (var12 <= 0) {
-                    var11 = AIR;
-                    var10 = param7;
-                } else if (var17 >= param9 - 4 && var17 <= param9 + 1) {
-                    var11 = param2.getSurfaceBuilderConfig().getTopMaterial();
-                    var10 = param2.getSurfaceBuilderConfig().getUnderMaterial();
+            } else if (var16 == -1) {
+                if (var15 <= 0) {
+                    var14 = AIR;
+                    var13 = param7;
+                } else if (var20 >= param9 - 4 && var20 <= param9 + 1) {
+                    var14 = var12;
+                    var13 = var11;
                 }
 
-                if (var17 < param9 && (var11 == null || var11.isAir())) {
-                    if (param2.getTemperature(var2.set(param3, var17, param4)) < 0.15F) {
-                        var11 = ICE;
+                if (var20 < param9 && (var14 == null || var14.isAir())) {
+                    if (param2.getTemperature(var2.set(param3, var20, param4)) < 0.15F) {
+                        var14 = ICE;
                     } else {
-                        var11 = param8;
+                        var14 = param8;
                     }
                 }
 
-                var13 = var12;
-                if (var17 >= param9 - 1) {
-                    param1.setBlockState(var2, var11, false);
-                } else if (var17 < param9 - 7 - var12) {
-                    var11 = AIR;
-                    var10 = param7;
+                var16 = var15;
+                if (var20 >= param9 - 1) {
+                    param1.setBlockState(var2, var14, false);
+                } else if (var20 < param9 - 7 - var15) {
+                    var14 = AIR;
+                    var13 = param7;
                     param1.setBlockState(var2, GRAVEL, false);
                 } else {
-                    param1.setBlockState(var2, var10, false);
+                    param1.setBlockState(var2, var13, false);
                 }
-            } else if (var13 > 0) {
-                --var13;
-                param1.setBlockState(var2, var10, false);
-                if (var13 == 0 && var10.is(Blocks.SAND) && var12 > 1) {
-                    var13 = param0.nextInt(4) + Math.max(0, var17 - 63);
-                    var10 = var10.is(Blocks.RED_SAND) ? Blocks.RED_SANDSTONE.defaultBlockState() : Blocks.SANDSTONE.defaultBlockState();
+            } else if (var16 > 0) {
+                --var16;
+                param1.setBlockState(var2, var13, false);
+                if (var16 == 0 && var13.is(Blocks.SAND) && var15 > 1) {
+                    var16 = param0.nextInt(4) + Math.max(0, var20 - 63);
+                    var13 = var13.is(Blocks.RED_SAND) ? Blocks.RED_SANDSTONE.defaultBlockState() : Blocks.SANDSTONE.defaultBlockState();
                 }
             }
         }

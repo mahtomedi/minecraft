@@ -11,12 +11,9 @@ import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.player.Player;
 
 public class PlayerSensor extends Sensor<LivingEntity> {
-    private static final TargetingConditions TARGETING = new TargetingConditions().range(16.0).allowSameTeam().allowNonAttackable();
-
     @Override
     public Set<MemoryModuleType<?>> requires() {
         return ImmutableSet.of(MemoryModuleType.NEAREST_PLAYERS, MemoryModuleType.NEAREST_VISIBLE_PLAYER, MemoryModuleType.NEAREST_VISIBLE_TARGETABLE_PLAYER);
@@ -27,12 +24,12 @@ public class PlayerSensor extends Sensor<LivingEntity> {
         List<Player> var0 = param0.players()
             .stream()
             .filter(EntitySelector.NO_SPECTATORS)
-            .filter(param1x -> param1.distanceToSqr(param1x) < 256.0)
+            .filter(param1x -> param1.closerThan(param1x, 16.0))
             .sorted(Comparator.comparingDouble(param1::distanceToSqr))
             .collect(Collectors.toList());
         Brain<?> var1 = param1.getBrain();
         var1.setMemory(MemoryModuleType.NEAREST_PLAYERS, var0);
-        List<Player> var2 = var0.stream().filter(param1x -> TARGETING.test(param1, param1x)).collect(Collectors.toList());
+        List<Player> var2 = var0.stream().filter(param1x -> isEntityTargetable(param1, param1x)).collect(Collectors.toList());
         var1.setMemory(MemoryModuleType.NEAREST_VISIBLE_PLAYER, var2.isEmpty() ? null : var2.get(0));
         Optional<Player> var3 = var2.stream().filter(EntitySelector.ATTACK_ALLOWED).findFirst();
         var1.setMemory(MemoryModuleType.NEAREST_VISIBLE_TARGETABLE_PLAYER, var3);

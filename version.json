@@ -1,10 +1,10 @@
 {
-    "id": "20w30a",
-    "name": "20w30a",
+    "id": "1.16.2-pre1",
+    "name": "1.16.2 Pre-release 1",
     "release_target": "1.16.2",
-    "world_version": 2572,
-    "protocol_version": 743,
+    "world_version": 2573,
+    "protocol_version": 744,
     "pack_version": 5,
-    "build_time": "2020-07-22T15:03:31+00:00",
+    "build_time": "2020-07-29T13:17:20+00:00",
     "stable": false
 }

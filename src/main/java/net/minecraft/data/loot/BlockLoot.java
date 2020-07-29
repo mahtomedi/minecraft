@@ -890,12 +890,10 @@ public class BlockLoot implements Consumer<BiConsumer<ResourceLocation, LootTabl
         this.dropSelf(Blocks.WARPED_HYPHAE);
         this.dropSelf(Blocks.WARPED_FUNGUS);
         this.dropSelf(Blocks.WARPED_WART_BLOCK);
-        this.dropSelf(Blocks.WARPED_ROOTS);
         this.dropSelf(Blocks.CRIMSON_STEM);
         this.dropSelf(Blocks.CRIMSON_HYPHAE);
         this.dropSelf(Blocks.CRIMSON_FUNGUS);
         this.dropSelf(Blocks.SHROOMLIGHT);
-        this.dropSelf(Blocks.CRIMSON_ROOTS);
         this.dropSelf(Blocks.CRIMSON_PLANKS);
         this.dropSelf(Blocks.WARPED_PLANKS);
         this.dropSelf(Blocks.WARPED_PRESSURE_PLATE);
@@ -1336,6 +1334,8 @@ public class BlockLoot implements Consumer<BiConsumer<ResourceLocation, LootTabl
         this.add(Blocks.TALL_SEAGRASS, createDoublePlantShearsDrop(Blocks.SEAGRASS));
         this.add(Blocks.LARGE_FERN, param0x -> createDoublePlantWithSeedDrops(param0x, Blocks.FERN));
         this.add(Blocks.TALL_GRASS, param0x -> createDoublePlantWithSeedDrops(param0x, Blocks.GRASS));
+        this.add(Blocks.WARPED_ROOTS, BlockLoot::createShearsOnlyDrop);
+        this.add(Blocks.CRIMSON_ROOTS, BlockLoot::createShearsOnlyDrop);
         this.add(Blocks.MELON_STEM, param0x -> createStemDrops(param0x, Items.MELON_SEEDS));
         this.add(Blocks.ATTACHED_MELON_STEM, param0x -> createAttachedStemDrops(param0x, Items.MELON_SEEDS));
         this.add(Blocks.PUMPKIN_STEM, param0x -> createStemDrops(param0x, Items.PUMPKIN_SEEDS));

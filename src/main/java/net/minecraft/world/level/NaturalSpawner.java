@@ -27,6 +27,7 @@ import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.minecraft.world.level.biome.NearestNeighborBiomeZoomer;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -76,10 +77,9 @@ public final class NaturalSpawner {
                 BlockPos var5x = var2.blockPosition();
                 long var6 = ChunkPos.asLong(var5x.getX() >> 4, var5x.getZ() >> 4);
                 param2.query(var6, param5 -> {
-                    Biome var0x = getRoughBiome(var5, param5);
-                    Biome.MobSpawnCost var1x = var0x.getMobSpawnCost(var2.getType());
-                    if (var1x != null) {
-                        var0.addCharge(var2.blockPosition(), var1x.getCharge());
+                    MobSpawnSettings.MobSpawnCost var0x = getRoughBiome(var5, param5).getMobSettings().getMobSpawnCost(var2.getType());
+                    if (var0x != null) {
+                        var0.addCharge(var2.blockPosition(), var0x.getCharge());
                     }
 
                     var1.addTo(var4, 1);
@@ -139,7 +139,7 @@ public final class NaturalSpawner {
                 int var7 = param3.getX();
                 int var8 = param3.getZ();
                 int var9 = 6;
-                Biome.SpawnerData var10 = null;
+                MobSpawnSettings.SpawnerData var10 = null;
                 SpawnGroupData var11 = null;
                 int var12 = Mth.ceil(param1.random.nextFloat() * 4.0F);
                 int var13 = 0;
@@ -209,7 +209,7 @@ public final class NaturalSpawner {
         MobCategory param1,
         StructureFeatureManager param2,
         ChunkGenerator param3,
-        Biome.SpawnerData param4,
+        MobSpawnSettings.SpawnerData param4,
         BlockPos.MutableBlockPos param5,
         double param6
     ) {
@@ -257,25 +257,25 @@ public final class NaturalSpawner {
     }
 
     @Nullable
-    private static Biome.SpawnerData getRandomSpawnMobAt(
+    private static MobSpawnSettings.SpawnerData getRandomSpawnMobAt(
         ServerLevel param0, StructureFeatureManager param1, ChunkGenerator param2, MobCategory param3, Random param4, BlockPos param5
     ) {
         Biome var0 = param0.getBiome(param5);
         if (param3 == MobCategory.WATER_AMBIENT && var0.getBiomeCategory() == Biome.BiomeCategory.RIVER && param4.nextFloat() < 0.98F) {
             return null;
         } else {
-            List<Biome.SpawnerData> var1 = mobsAt(param0, param1, param2, param3, param5, var0);
+            List<MobSpawnSettings.SpawnerData> var1 = mobsAt(param0, param1, param2, param3, param5, var0);
             return var1.isEmpty() ? null : WeighedRandom.getRandomItem(param4, var1);
         }
     }
 
     private static boolean canSpawnMobAt(
-        ServerLevel param0, StructureFeatureManager param1, ChunkGenerator param2, MobCategory param3, Biome.SpawnerData param4, BlockPos param5
+        ServerLevel param0, StructureFeatureManager param1, ChunkGenerator param2, MobCategory param3, MobSpawnSettings.SpawnerData param4, BlockPos param5
     ) {
         return mobsAt(param0, param1, param2, param3, param5, null).contains(param4);
     }
 
-    private static List<Biome.SpawnerData> mobsAt(
+    private static List<MobSpawnSettings.SpawnerData> mobsAt(
         ServerLevel param0, StructureFeatureManager param1, ChunkGenerator param2, MobCategory param3, BlockPos param4, @Nullable Biome param5
     ) {
         return param3 == MobCategory.MONSTER
@@ -339,64 +339,65 @@ public final class NaturalSpawner {
     }
 
     public static void spawnMobsForChunkGeneration(ServerLevelAccessor param0, Biome param1, int param2, int param3, Random param4) {
-        List<Biome.SpawnerData> var0 = param1.getMobs(MobCategory.CREATURE);
-        if (!var0.isEmpty()) {
-            int var1 = param2 << 4;
-            int var2 = param3 << 4;
+        MobSpawnSettings var0 = param1.getMobSettings();
+        List<MobSpawnSettings.SpawnerData> var1 = var0.getMobs(MobCategory.CREATURE);
+        if (!var1.isEmpty()) {
+            int var2 = param2 << 4;
+            int var3 = param3 << 4;
 
-            while(param4.nextFloat() < param1.getCreatureProbability()) {
-                Biome.SpawnerData var3 = WeighedRandom.getRandomItem(param4, var0);
-                int var4 = var3.minCount + param4.nextInt(1 + var3.maxCount - var3.minCount);
-                SpawnGroupData var5 = null;
-                int var6 = var1 + param4.nextInt(16);
+            while(param4.nextFloat() < var0.getCreatureProbability()) {
+                MobSpawnSettings.SpawnerData var4 = WeighedRandom.getRandomItem(param4, var1);
+                int var5 = var4.minCount + param4.nextInt(1 + var4.maxCount - var4.minCount);
+                SpawnGroupData var6 = null;
                 int var7 = var2 + param4.nextInt(16);
-                int var8 = var6;
+                int var8 = var3 + param4.nextInt(16);
                 int var9 = var7;
+                int var10 = var8;
 
-                for(int var10 = 0; var10 < var4; ++var10) {
-                    boolean var11 = false;
+                for(int var11 = 0; var11 < var5; ++var11) {
+                    boolean var12 = false;
 
-                    for(int var12 = 0; !var11 && var12 < 4; ++var12) {
-                        BlockPos var13 = getTopNonCollidingPos(param0, var3.type, var6, var7);
-                        if (var3.type.canSummon() && isSpawnPositionOk(SpawnPlacements.getPlacementType(var3.type), param0, var13, var3.type)) {
-                            float var14 = var3.type.getWidth();
-                            double var15 = Mth.clamp((double)var6, (double)var1 + (double)var14, (double)var1 + 16.0 - (double)var14);
-                            double var16 = Mth.clamp((double)var7, (double)var2 + (double)var14, (double)var2 + 16.0 - (double)var14);
-                            if (!param0.noCollision(var3.type.getAABB(var15, (double)var13.getY(), var16))
+                    for(int var13 = 0; !var12 && var13 < 4; ++var13) {
+                        BlockPos var14 = getTopNonCollidingPos(param0, var4.type, var7, var8);
+                        if (var4.type.canSummon() && isSpawnPositionOk(SpawnPlacements.getPlacementType(var4.type), param0, var14, var4.type)) {
+                            float var15 = var4.type.getWidth();
+                            double var16 = Mth.clamp((double)var7, (double)var2 + (double)var15, (double)var2 + 16.0 - (double)var15);
+                            double var17 = Mth.clamp((double)var8, (double)var3 + (double)var15, (double)var3 + 16.0 - (double)var15);
+                            if (!param0.noCollision(var4.type.getAABB(var16, (double)var14.getY(), var17))
                                 || !SpawnPlacements.checkSpawnRules(
-                                    var3.type, param0, MobSpawnType.CHUNK_GENERATION, new BlockPos(var15, (double)var13.getY(), var16), param0.getRandom()
+                                    var4.type, param0, MobSpawnType.CHUNK_GENERATION, new BlockPos(var16, (double)var14.getY(), var17), param0.getRandom()
                                 )) {
                                 continue;
                             }
 
-                            Entity var17;
+                            Entity var18;
                             try {
-                                var17 = var3.type.create(param0.getLevel());
-                            } catch (Exception var26) {
-                                LOGGER.warn("Failed to create mob", (Throwable)var26);
+                                var18 = var4.type.create(param0.getLevel());
+                            } catch (Exception var27) {
+                                LOGGER.warn("Failed to create mob", (Throwable)var27);
                                 continue;
                             }
 
-                            var17.moveTo(var15, (double)var13.getY(), var16, param4.nextFloat() * 360.0F, 0.0F);
-                            if (var17 instanceof Mob) {
-                                Mob var20 = (Mob)var17;
-                                if (var20.checkSpawnRules(param0, MobSpawnType.CHUNK_GENERATION) && var20.checkSpawnObstruction(param0)) {
-                                    var5 = var20.finalizeSpawn(
-                                        param0, param0.getCurrentDifficultyAt(var20.blockPosition()), MobSpawnType.CHUNK_GENERATION, var5, null
+                            var18.moveTo(var16, (double)var14.getY(), var17, param4.nextFloat() * 360.0F, 0.0F);
+                            if (var18 instanceof Mob) {
+                                Mob var21 = (Mob)var18;
+                                if (var21.checkSpawnRules(param0, MobSpawnType.CHUNK_GENERATION) && var21.checkSpawnObstruction(param0)) {
+                                    var6 = var21.finalizeSpawn(
+                                        param0, param0.getCurrentDifficultyAt(var21.blockPosition()), MobSpawnType.CHUNK_GENERATION, var6, null
                                     );
-                                    param0.addFreshEntityWithPassengers(var20);
-                                    var11 = true;
+                                    param0.addFreshEntityWithPassengers(var21);
+                                    var12 = true;
                                 }
                             }
                         }
 
-                        var6 += param4.nextInt(5) - param4.nextInt(5);
+                        var7 += param4.nextInt(5) - param4.nextInt(5);
 
-                        for(var7 += param4.nextInt(5) - param4.nextInt(5);
-                            var6 < var1 || var6 >= var1 + 16 || var7 < var2 || var7 >= var2 + 16;
-                            var7 = var9 + param4.nextInt(5) - param4.nextInt(5)
+                        for(var8 += param4.nextInt(5) - param4.nextInt(5);
+                            var7 < var2 || var7 >= var2 + 16 || var8 < var3 || var8 >= var3 + 16;
+                            var8 = var10 + param4.nextInt(5) - param4.nextInt(5)
                         ) {
-                            var6 = var8 + param4.nextInt(5) - param4.nextInt(5);
+                            var7 = var9 + param4.nextInt(5) - param4.nextInt(5);
                         }
                     }
                 }
@@ -464,16 +465,15 @@ public final class NaturalSpawner {
         private boolean canSpawn(EntityType<?> param0, BlockPos param1, ChunkAccess param2) {
             this.lastCheckedPos = param1;
             this.lastCheckedType = param0;
-            Biome var0 = NaturalSpawner.getRoughBiome(param1, param2);
-            Biome.MobSpawnCost var1 = var0.getMobSpawnCost(param0);
-            if (var1 == null) {
+            MobSpawnSettings.MobSpawnCost var0 = NaturalSpawner.getRoughBiome(param1, param2).getMobSettings().getMobSpawnCost(param0);
+            if (var0 == null) {
                 this.lastCharge = 0.0;
                 return true;
             } else {
-                double var2 = var1.getCharge();
-                this.lastCharge = var2;
-                double var3 = this.spawnPotential.getPotentialEnergyChange(param1, var2);
-                return var3 <= var1.getEnergyBudget();
+                double var1 = var0.getCharge();
+                this.lastCharge = var1;
+                double var2 = this.spawnPotential.getPotentialEnergyChange(param1, var1);
+                return var2 <= var0.getEnergyBudget();
             }
         }
 
@@ -484,10 +484,9 @@ public final class NaturalSpawner {
             if (var1.equals(this.lastCheckedPos) && var0 == this.lastCheckedType) {
                 var2 = this.lastCharge;
             } else {
-                Biome var3 = NaturalSpawner.getRoughBiome(var1, param1);
-                Biome.MobSpawnCost var4 = var3.getMobSpawnCost(var0);
-                if (var4 != null) {
-                    var2 = var4.getCharge();
+                MobSpawnSettings.MobSpawnCost var3 = NaturalSpawner.getRoughBiome(var1, param1).getMobSettings().getMobSpawnCost(var0);
+                if (var3 != null) {
+                    var2 = var3.getCharge();
                 } else {
                     var2 = 0.0;
                 }

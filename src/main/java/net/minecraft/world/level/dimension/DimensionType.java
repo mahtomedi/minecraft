@@ -4,7 +4,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.Lifecycle;
-import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.io.File;
 import java.util.Optional;
@@ -34,7 +33,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class DimensionType {
-    public static final MapCodec<DimensionType> DIRECT_CODEC = RecordCodecBuilder.mapCodec(
+    public static final Codec<DimensionType> DIRECT_CODEC = RecordCodecBuilder.create(
         param0 -> param0.group(
                     Codec.LONG
                         .optionalFieldOf("fixed_time")
@@ -267,8 +266,6 @@ public class DimensionType {
         MappedRegistry<LevelStem> var0 = new MappedRegistry<>(Registry.LEVEL_STEM_REGISTRY, Lifecycle.experimental());
         var0.register(LevelStem.NETHER, new LevelStem(() -> DEFAULT_NETHER, defaultNetherGenerator(param0)));
         var0.register(LevelStem.END, new LevelStem(() -> DEFAULT_END, defaultEndGenerator(param0)));
-        var0.setPersistent(LevelStem.NETHER);
-        var0.setPersistent(LevelStem.END);
         return var0;
     }
 

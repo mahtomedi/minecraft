@@ -2,7 +2,6 @@ package net.minecraft.world.level;
 
 import com.google.common.collect.Lists;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -62,20 +61,19 @@ public interface EntityGetter {
             return Stream.empty();
         } else {
             AABB var0 = param1.inflate(1.0E-7);
-            return this.getEntities(param0, var0, param2.and(param1x -> param0 == null || !param0.isPassengerOfSameVehicle(param1x)))
-                .stream()
-                .flatMap(param2x -> {
-                    if (param0 != null) {
-                        AABB var0x = param0.getCollideAgainstBox(param2x);
-                        if (var0x != null && var0x.intersects(var0)) {
-                            return Stream.of(param2x.getCollideBox(), var0x);
+            return this.getEntities(param0, var0, param2.and(param2x -> {
+                if (param2x.getBoundingBox().intersects(var0)) {
+                    if (param0 == null) {
+                        if (param2x.canBeCollidedWith()) {
+                            return true;
                         }
+                    } else if (param0.canCollideWith(param2x)) {
+                        return true;
                     }
-    
-                    return Stream.of(param2x.getCollideBox());
-                })
-                .filter(Objects::nonNull)
-                .map(Shapes::create);
+                }
+
+                return false;
+            })).stream().map(Entity::getBoundingBox).map(Shapes::create);
         }
     }
 

@@ -25,6 +25,7 @@ import net.minecraft.world.level.NoiseColumn;
 import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
+import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.minecraft.world.level.biome.TheEndBiomeSource;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -609,7 +610,7 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
     }
 
     @Override
-    public List<Biome.SpawnerData> getMobsAt(Biome param0, StructureFeatureManager param1, MobCategory param2, BlockPos param3) {
+    public List<MobSpawnSettings.SpawnerData> getMobsAt(Biome param0, StructureFeatureManager param1, MobCategory param2, BlockPos param3) {
         if (param1.getStructureAt(param3, true, StructureFeature.SWAMP_HUT).isValid()) {
             if (param2 == MobCategory.MONSTER) {
                 return StructureFeature.SWAMP_HUT.getSpecialEnemies();

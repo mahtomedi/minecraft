@@ -78,7 +78,7 @@ public class DragonStrafePlayerPhase extends AbstractDragonPhaseInstance {
                         this.fireballCharge = 0;
                         if (this.currentPath != null) {
                             while(!this.currentPath.isDone()) {
-                                this.currentPath.next();
+                                this.currentPath.advance();
                             }
                         }
 
@@ -122,7 +122,7 @@ public class DragonStrafePlayerPhase extends AbstractDragonPhaseInstance {
 
             this.currentPath = this.dragon.findPath(var0, var1, null);
             if (this.currentPath != null) {
-                this.currentPath.next();
+                this.currentPath.advance();
             }
         }
 
@@ -131,8 +131,8 @@ public class DragonStrafePlayerPhase extends AbstractDragonPhaseInstance {
 
     private void navigateToNextPathNode() {
         if (this.currentPath != null && !this.currentPath.isDone()) {
-            Vec3i var0 = this.currentPath.currentPos();
-            this.currentPath.next();
+            Vec3i var0 = this.currentPath.getNextNodePos();
+            this.currentPath.advance();
             double var1 = (double)var0.getX();
             double var2 = (double)var0.getZ();
 
@@ -168,7 +168,7 @@ public class DragonStrafePlayerPhase extends AbstractDragonPhaseInstance {
         Node var9 = new Node(var2, var8, var3);
         this.currentPath = this.dragon.findPath(var0, var1, var9);
         if (this.currentPath != null) {
-            this.currentPath.next();
+            this.currentPath.advance();
             this.navigateToNextPathNode();
         }
 

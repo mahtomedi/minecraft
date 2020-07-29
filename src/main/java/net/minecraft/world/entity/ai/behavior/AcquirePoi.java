@@ -78,7 +78,7 @@ public class AcquirePoi extends Behavior<PathfinderMob> {
                 return true;
             }
         };
-        Set<BlockPos> var2 = var0.findAll(this.poiType.getPredicate(), var1, param1.blockPosition(), 48, PoiManager.Occupancy.HAS_SPACE)
+        Set<BlockPos> var2 = var0.findAllClosestFirst(this.poiType.getPredicate(), var1, param1.blockPosition(), 48, PoiManager.Occupancy.HAS_SPACE)
             .limit(5L)
             .collect(Collectors.toSet());
         Path var3 = param1.getNavigation().createPath(var2, this.poiType.getValidRange());

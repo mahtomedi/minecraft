@@ -11,7 +11,6 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -82,11 +81,12 @@ public abstract class AbstractHurtingProjectile extends Projectile {
                 this.setSecondsOnFire(1);
             }
 
-            HitResult var1 = ProjectileUtil.getHitResult(this, this::canHitEntity, ClipContext.Block.COLLIDER);
+            HitResult var1 = ProjectileUtil.getHitResult(this, this::canHitEntity);
             if (var1.getType() != HitResult.Type.MISS) {
                 this.onHit(var1);
             }
 
+            this.checkInsideBlocks();
             Vec3 var2 = this.getDeltaMovement();
             double var3 = this.getX() + var2.x;
             double var4 = this.getY() + var2.y;

@@ -104,10 +104,10 @@ public class GroundPathNavigation extends PathNavigation {
                 return;
             }
 
-            for(int var0 = 0; var0 < this.path.getSize(); ++var0) {
-                Node var1 = this.path.get(var0);
+            for(int var0 = 0; var0 < this.path.getNodeCount(); ++var0) {
+                Node var1 = this.path.getNode(var0);
                 if (this.level.canSeeSky(new BlockPos(var1.x, var1.y, var1.z))) {
-                    this.path.truncate(var0);
+                    this.path.truncateNodes(var0);
                     return;
                 }
             }

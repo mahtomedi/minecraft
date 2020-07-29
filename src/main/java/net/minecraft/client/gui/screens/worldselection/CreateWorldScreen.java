@@ -3,6 +3,7 @@ package net.minecraft.client.gui.screens.worldselection;
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.JsonOps;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -33,6 +34,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.RegistryReadOps;
 import net.minecraft.server.ServerResources;
 import net.minecraft.server.packs.repository.FolderRepositorySource;
 import net.minecraft.server.packs.repository.PackRepository;
@@ -504,7 +506,9 @@ public class CreateWorldScreen extends Screen {
                         } else {
                             this.minecraft.tell(() -> {
                                 this.dataPacks = var2;
-                                this.worldGenSettingsComponent.setRegistryHolder(RegistryAccess.load(param1.getResourceManager()));
+                                RegistryAccess.RegistryHolder var0xx = RegistryAccess.builtin();
+                                RegistryReadOps.create(JsonOps.INSTANCE, param1.getResourceManager(), var0xx);
+                                this.worldGenSettingsComponent.setRegistryHolder(var0xx);
                                 param1.close();
                                 this.minecraft.setScreen(this);
                             });

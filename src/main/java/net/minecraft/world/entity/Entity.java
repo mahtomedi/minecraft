@@ -912,11 +912,6 @@ public abstract class Entity implements CommandSource, Nameable {
 
     }
 
-    @Nullable
-    public AABB getCollideBox() {
-        return null;
-    }
-
     public boolean fireImmune() {
         return this.getType().fireImmune();
     }
@@ -1298,6 +1293,14 @@ public abstract class Entity implements CommandSource, Nameable {
         }
     }
 
+    @OnlyIn(Dist.CLIENT)
+    public final Vec3 getPosition(float param0) {
+        double var0 = Mth.lerp((double)param0, this.xo, this.getX());
+        double var1 = Mth.lerp((double)param0, this.yo, this.getY());
+        double var2 = Mth.lerp((double)param0, this.zo, this.getZ());
+        return new Vec3(var0, var1, var2);
+    }
+
     public HitResult pick(double param0, float param1, boolean param2) {
         Vec3 var0 = this.getEyePosition(param1);
         Vec3 var1 = this.getViewVector(param1);
@@ -1584,9 +1587,12 @@ public abstract class Entity implements CommandSource, Nameable {
         return InteractionResult.PASS;
     }
 
-    @Nullable
-    public AABB getCollideAgainstBox(Entity param0) {
-        return null;
+    public boolean canCollideWith(Entity param0) {
+        return param0.canBeCollidedWith() && !this.isPassengerOfSameVehicle(param0);
+    }
+
+    public boolean canBeCollidedWith() {
+        return false;
     }
 
     public void rideTick() {
@@ -2852,6 +2858,11 @@ public abstract class Entity implements CommandSource, Nameable {
     }
 
     public void checkDespawn() {
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public Vec3 getRopeHoldPosition(float param0) {
+        return this.getPosition(param0).add(0.0, (double)this.eyeHeight * 0.7, 0.0);
     }
 
     @FunctionalInterface

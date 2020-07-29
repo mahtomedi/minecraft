@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Set;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Vec3i;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
@@ -19,7 +18,7 @@ public class Path {
     private Node[] closedSet = new Node[0];
     @OnlyIn(Dist.CLIENT)
     private Set<Target> targetNodes;
-    private int index;
+    private int nextNodeIndex;
     private final BlockPos target;
     private final float distToTarget;
     private final boolean reached;
@@ -31,51 +30,51 @@ public class Path {
         this.reached = param2;
     }
 
-    public void next() {
-        ++this.index;
+    public void advance() {
+        ++this.nextNodeIndex;
     }
 
     public boolean notStarted() {
-        return this.index <= 0;
+        return this.nextNodeIndex <= 0;
     }
 
     public boolean isDone() {
-        return this.index >= this.nodes.size();
+        return this.nextNodeIndex >= this.nodes.size();
     }
 
     @Nullable
-    public Node last() {
+    public Node getEndNode() {
         return !this.nodes.isEmpty() ? this.nodes.get(this.nodes.size() - 1) : null;
     }
 
-    public Node get(int param0) {
+    public Node getNode(int param0) {
         return this.nodes.get(param0);
     }
 
-    public void truncate(int param0) {
+    public void truncateNodes(int param0) {
         if (this.nodes.size() > param0) {
             this.nodes.subList(param0, this.nodes.size()).clear();
         }
 
     }
 
-    public void set(int param0, Node param1) {
+    public void replaceNode(int param0, Node param1) {
         this.nodes.set(param0, param1);
     }
 
-    public int getSize() {
+    public int getNodeCount() {
         return this.nodes.size();
     }
 
-    public int getIndex() {
-        return this.index;
+    public int getNextNodeIndex() {
+        return this.nextNodeIndex;
     }
 
-    public void setIndex(int param0) {
-        this.index = param0;
+    public void setNextNodeIndex(int param0) {
+        this.nextNodeIndex = param0;
     }
 
-    public Vec3 getPos(Entity param0, int param1) {
+    public Vec3 getEntityPosAtNode(Entity param0, int param1) {
         Node var0 = this.nodes.get(param1);
         double var1 = (double)var0.x + (double)((int)(param0.getBbWidth() + 1.0F)) * 0.5;
         double var2 = (double)var0.y;
@@ -83,22 +82,25 @@ public class Path {
         return new Vec3(var1, var2, var3);
     }
 
-    public Vec3 currentPos(Entity param0) {
-        return this.getPos(param0, this.index);
+    public BlockPos getNodePos(int param0) {
+        return this.nodes.get(param0).asBlockPos();
     }
 
-    public Vec3i currentPos() {
-        Node var0 = this.currentNode();
-        return new Vec3i(var0.x, var0.y, var0.z);
+    public Vec3 getNextEntityPos(Entity param0) {
+        return this.getEntityPosAtNode(param0, this.nextNodeIndex);
     }
 
-    public Node currentNode() {
-        return this.nodes.get(this.index);
+    public BlockPos getNextNodePos() {
+        return this.nodes.get(this.nextNodeIndex).asBlockPos();
+    }
+
+    public Node getNextNode() {
+        return this.nodes.get(this.nextNodeIndex);
     }
 
     @Nullable
-    public Node previousNode() {
-        return this.index > 0 ? this.nodes.get(this.index - 1) : null;
+    public Node getPreviousNode() {
+        return this.nextNodeIndex > 0 ? this.nodes.get(this.nextNodeIndex - 1) : null;
     }
 
     public boolean sameAs(@Nullable Path param0) {
@@ -168,7 +170,7 @@ public class Path {
         var13.openSet = var9;
         var13.closedSet = var11;
         var13.targetNodes = var3;
-        var13.index = var1;
+        var13.nextNodeIndex = var1;
         return var13;
     }
 

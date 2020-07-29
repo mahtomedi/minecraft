@@ -35,74 +35,77 @@ public class WoodedBadlandsSurfaceBuilder extends BadlandsSurfaceBuilder {
         int var0 = param3 & 15;
         int var1 = param4 & 15;
         BlockState var2 = WHITE_TERRACOTTA;
-        BlockState var3 = param2.getSurfaceBuilderConfig().getUnderMaterial();
-        int var4 = (int)(param6 / 3.0 + 3.0 + param0.nextDouble() * 0.25);
-        boolean var5 = Math.cos(param6 / 3.0 * Math.PI) > 0.0;
-        int var6 = -1;
-        boolean var7 = false;
-        int var8 = 0;
-        BlockPos.MutableBlockPos var9 = new BlockPos.MutableBlockPos();
+        SurfaceBuilderConfiguration var3 = param2.getGenerationSettings().getSurfaceBuilderConfig();
+        BlockState var4 = var3.getUnderMaterial();
+        BlockState var5 = var3.getTopMaterial();
+        BlockState var6 = var4;
+        int var7 = (int)(param6 / 3.0 + 3.0 + param0.nextDouble() * 0.25);
+        boolean var8 = Math.cos(param6 / 3.0 * Math.PI) > 0.0;
+        int var9 = -1;
+        boolean var10 = false;
+        int var11 = 0;
+        BlockPos.MutableBlockPos var12 = new BlockPos.MutableBlockPos();
 
-        for(int var10 = param5; var10 >= 0; --var10) {
-            if (var8 < 15) {
-                var9.set(var0, var10, var1);
-                BlockState var11 = param1.getBlockState(var9);
-                if (var11.isAir()) {
-                    var6 = -1;
-                } else if (var11.is(param7.getBlock())) {
-                    if (var6 == -1) {
-                        var7 = false;
-                        if (var4 <= 0) {
+        for(int var13 = param5; var13 >= 0; --var13) {
+            if (var11 < 15) {
+                var12.set(var0, var13, var1);
+                BlockState var14 = param1.getBlockState(var12);
+                if (var14.isAir()) {
+                    var9 = -1;
+                } else if (var14.is(param7.getBlock())) {
+                    if (var9 == -1) {
+                        var10 = false;
+                        if (var7 <= 0) {
                             var2 = Blocks.AIR.defaultBlockState();
-                            var3 = param7;
-                        } else if (var10 >= param9 - 4 && var10 <= param9 + 1) {
+                            var6 = param7;
+                        } else if (var13 >= param9 - 4 && var13 <= param9 + 1) {
                             var2 = WHITE_TERRACOTTA;
-                            var3 = param2.getSurfaceBuilderConfig().getUnderMaterial();
+                            var6 = var4;
                         }
 
-                        if (var10 < param9 && (var2 == null || var2.isAir())) {
+                        if (var13 < param9 && (var2 == null || var2.isAir())) {
                             var2 = param8;
                         }
 
-                        var6 = var4 + Math.max(0, var10 - param9);
-                        if (var10 >= param9 - 1) {
-                            if (var10 > 86 + var4 * 2) {
-                                if (var5) {
-                                    param1.setBlockState(var9, Blocks.COARSE_DIRT.defaultBlockState(), false);
+                        var9 = var7 + Math.max(0, var13 - param9);
+                        if (var13 >= param9 - 1) {
+                            if (var13 > 86 + var7 * 2) {
+                                if (var8) {
+                                    param1.setBlockState(var12, Blocks.COARSE_DIRT.defaultBlockState(), false);
                                 } else {
-                                    param1.setBlockState(var9, Blocks.GRASS_BLOCK.defaultBlockState(), false);
+                                    param1.setBlockState(var12, Blocks.GRASS_BLOCK.defaultBlockState(), false);
                                 }
-                            } else if (var10 > param9 + 3 + var4) {
-                                BlockState var12;
-                                if (var10 < 64 || var10 > 127) {
-                                    var12 = ORANGE_TERRACOTTA;
-                                } else if (var5) {
-                                    var12 = TERRACOTTA;
+                            } else if (var13 > param9 + 3 + var7) {
+                                BlockState var15;
+                                if (var13 < 64 || var13 > 127) {
+                                    var15 = ORANGE_TERRACOTTA;
+                                } else if (var8) {
+                                    var15 = TERRACOTTA;
                                 } else {
-                                    var12 = this.getBand(param3, var10, param4);
+                                    var15 = this.getBand(param3, var13, param4);
                                 }
 
-                                param1.setBlockState(var9, var12, false);
+                                param1.setBlockState(var12, var15, false);
                             } else {
-                                param1.setBlockState(var9, param2.getSurfaceBuilderConfig().getTopMaterial(), false);
-                                var7 = true;
+                                param1.setBlockState(var12, var5, false);
+                                var10 = true;
                             }
                         } else {
-                            param1.setBlockState(var9, var3, false);
-                            if (var3 == WHITE_TERRACOTTA) {
-                                param1.setBlockState(var9, ORANGE_TERRACOTTA, false);
+                            param1.setBlockState(var12, var6, false);
+                            if (var6 == WHITE_TERRACOTTA) {
+                                param1.setBlockState(var12, ORANGE_TERRACOTTA, false);
                             }
                         }
-                    } else if (var6 > 0) {
-                        --var6;
-                        if (var7) {
-                            param1.setBlockState(var9, ORANGE_TERRACOTTA, false);
+                    } else if (var9 > 0) {
+                        --var9;
+                        if (var10) {
+                            param1.setBlockState(var12, ORANGE_TERRACOTTA, false);
                         } else {
-                            param1.setBlockState(var9, this.getBand(param3, var10, param4), false);
+                            param1.setBlockState(var12, this.getBand(param3, var13, param4), false);
                         }
                     }
 
-                    ++var8;
+                    ++var11;
                 }
             }
         }

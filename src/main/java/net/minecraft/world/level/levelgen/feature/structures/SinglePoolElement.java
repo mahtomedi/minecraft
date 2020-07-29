@@ -1,6 +1,5 @@
 package net.minecraft.world.level.levelgen.feature.structures;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
@@ -14,6 +13,7 @@ import java.util.Random;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import net.minecraft.core.BlockPos;
+import net.minecraft.data.worldgen.ProcessorLists;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.WorldGenLevel;
@@ -26,7 +26,7 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.BlockIgnorePr
 import net.minecraft.world.level.levelgen.structure.templatesystem.JigsawReplacementProcessor;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessor;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorList;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorType;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 
@@ -38,14 +38,14 @@ public class SinglePoolElement extends StructurePoolElement {
         param0 -> param0.group(templateCodec(), processorsCodec(), projectionCodec()).apply(param0, SinglePoolElement::new)
     );
     protected final Either<ResourceLocation, StructureTemplate> template;
-    protected final Supplier<ImmutableList<StructureProcessor>> processors;
+    protected final Supplier<StructureProcessorList> processors;
 
     private static <T> DataResult<T> encodeTemplate(Either<ResourceLocation, StructureTemplate> param0, DynamicOps<T> param1, T param2) {
         Optional<ResourceLocation> var0 = param0.left();
         return !var0.isPresent() ? DataResult.error("Can not serialize a runtime pool element") : ResourceLocation.CODEC.encode(var0.get(), param1, param2);
     }
 
-    protected static <E extends SinglePoolElement> RecordCodecBuilder<E, Supplier<ImmutableList<StructureProcessor>>> processorsCodec() {
+    protected static <E extends SinglePoolElement> RecordCodecBuilder<E, Supplier<StructureProcessorList>> processorsCodec() {
         return StructureProcessorType.LIST_CODEC.fieldOf("processors").forGetter(param0 -> param0.processors);
     }
 
@@ -54,7 +54,7 @@ public class SinglePoolElement extends StructurePoolElement {
     }
 
     protected SinglePoolElement(
-        Either<ResourceLocation, StructureTemplate> param0, Supplier<ImmutableList<StructureProcessor>> param1, StructureTemplatePool.Projection param2
+        Either<ResourceLocation, StructureTemplate> param0, Supplier<StructureProcessorList> param1, StructureTemplatePool.Projection param2
     ) {
         super(param2);
         this.template = param0;
@@ -62,7 +62,7 @@ public class SinglePoolElement extends StructurePoolElement {
     }
 
     public SinglePoolElement(StructureTemplate param0) {
-        this(Either.right(param0), ImmutableList::of, StructureTemplatePool.Projection.RIGID);
+        this(Either.right(param0), () -> ProcessorLists.EMPTY, StructureTemplatePool.Projection.RIGID);
     }
 
     private StructureTemplate getTemplate(StructureManager param0) {
@@ -142,7 +142,7 @@ public class SinglePoolElement extends StructurePoolElement {
             var0.addProcessor(JigsawReplacementProcessor.INSTANCE);
         }
 
-        this.processors.get().forEach(var0::addProcessor);
+        this.processors.get().list().forEach(var0::addProcessor);
         this.getProjection().getProcessors().forEach(var0::addProcessor);
         return var0;
     }

@@ -94,8 +94,8 @@ public class Rabbit extends Animal {
     protected float getJumpPower() {
         if (!this.horizontalCollision && (!this.moveControl.hasWanted() || !(this.moveControl.getWantedY() > this.getY() + 0.5))) {
             Path var0 = this.navigation.getPath();
-            if (var0 != null && var0.getIndex() < var0.getSize()) {
-                Vec3 var1 = var0.currentPos(this);
+            if (var0 != null && !var0.isDone()) {
+                Vec3 var1 = var0.getNextEntityPos(this);
                 if (var1.y > this.getY() + 0.5) {
                     return 0.5F;
                 }
@@ -189,8 +189,8 @@ public class Rabbit extends Animal {
                 if (this.moveControl.hasWanted() && this.jumpDelayTicks == 0) {
                     Path var2 = this.navigation.getPath();
                     Vec3 var3 = new Vec3(this.moveControl.getWantedX(), this.moveControl.getWantedY(), this.moveControl.getWantedZ());
-                    if (var2 != null && var2.getIndex() < var2.getSize()) {
-                        var3 = var2.currentPos(this);
+                    if (var2 != null && !var2.isDone()) {
+                        var3 = var2.getNextEntityPos(this);
                     }
 
                     this.facePoint(var3.x, var3.z);

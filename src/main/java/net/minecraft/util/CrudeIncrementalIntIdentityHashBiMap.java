@@ -37,10 +37,6 @@ public class CrudeIncrementalIntIdentityHashBiMap<K> implements IdMap<K> {
         return param0 == -1 ? -1 : this.values[param0];
     }
 
-    public boolean contains(int param0) {
-        return this.byId(param0) != null;
-    }
-
     public int add(K param0) {
         int var0 = this.nextId();
         this.addMapping(param0, var0);

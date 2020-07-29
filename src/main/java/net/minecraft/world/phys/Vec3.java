@@ -184,6 +184,16 @@ public class Vec3 implements Position {
     }
 
     @OnlyIn(Dist.CLIENT)
+    public Vec3 zRot(float param0) {
+        float var0 = Mth.cos(param0);
+        float var1 = Mth.sin(param0);
+        double var2 = this.x * (double)var0 + this.y * (double)var1;
+        double var3 = this.y * (double)var0 - this.x * (double)var1;
+        double var4 = this.z;
+        return new Vec3(var2, var3, var4);
+    }
+
+    @OnlyIn(Dist.CLIENT)
     public static Vec3 directionFromRotation(Vec2 param0) {
         return directionFromRotation(param0.x, param0.y);
     }

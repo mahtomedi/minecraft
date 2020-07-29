@@ -48,18 +48,18 @@ public class WaterBoundPathNavigation extends PathNavigation {
         if (!this.isDone()) {
             if (this.canUpdatePath()) {
                 this.followThePath();
-            } else if (this.path != null && this.path.getIndex() < this.path.getSize()) {
-                Vec3 var0 = this.path.getPos(this.mob, this.path.getIndex());
+            } else if (this.path != null && !this.path.isDone()) {
+                Vec3 var0 = this.path.getNextEntityPos(this.mob);
                 if (Mth.floor(this.mob.getX()) == Mth.floor(var0.x)
                     && Mth.floor(this.mob.getY()) == Mth.floor(var0.y)
                     && Mth.floor(this.mob.getZ()) == Mth.floor(var0.z)) {
-                    this.path.setIndex(this.path.getIndex() + 1);
+                    this.path.advance();
                 }
             }
 
             DebugPackets.sendPathFindingPacket(this.level, this.mob, this.path, this.maxDistanceToWaypoint);
             if (!this.isDone()) {
-                Vec3 var1 = this.path.currentPos(this.mob);
+                Vec3 var1 = this.path.getNextEntityPos(this.mob);
                 this.mob.getMoveControl().setWantedPosition(var1.x, var1.y, var1.z, this.speedModifier);
             }
         }
@@ -77,17 +77,17 @@ public class WaterBoundPathNavigation extends PathNavigation {
             }
 
             int var4 = 6;
-            Vec3 var5 = Vec3.atBottomCenterOf(this.path.currentPos());
+            Vec3 var5 = Vec3.atBottomCenterOf(this.path.getNextNodePos());
             if (Math.abs(this.mob.getX() - var5.x) < (double)var2
                 && Math.abs(this.mob.getZ() - var5.z) < (double)var2
                 && Math.abs(this.mob.getY() - var5.y) < (double)(var2 * 2.0F)) {
-                this.path.next();
+                this.path.advance();
             }
 
-            for(int var6 = Math.min(this.path.getIndex() + 6, this.path.getSize() - 1); var6 > this.path.getIndex(); --var6) {
-                var5 = this.path.getPos(this.mob, var6);
+            for(int var6 = Math.min(this.path.getNextNodeIndex() + 6, this.path.getNodeCount() - 1); var6 > this.path.getNextNodeIndex(); --var6) {
+                var5 = this.path.getEntityPosAtNode(this.mob, var6);
                 if (!(var5.distanceToSqr(var0) > 36.0) && this.canMoveDirectly(var0, var5, 0, 0, 0)) {
-                    this.path.setIndex(var6);
+                    this.path.setNextNodeIndex(var6);
                     break;
                 }
             }
@@ -108,7 +108,7 @@ public class WaterBoundPathNavigation extends PathNavigation {
         }
 
         if (this.path != null && !this.path.isDone()) {
-            Vec3i var0 = this.path.currentPos();
+            Vec3i var0 = this.path.getNextNodePos();
             if (var0.equals(this.timeoutCachedNode)) {
                 this.timeoutTimer += Util.getMillis() - this.lastTimeoutCheck;
             } else {

@@ -22,7 +22,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
@@ -219,12 +218,13 @@ public class ShulkerBullet extends Projectile {
                 this.setDeltaMovement(var0.add((this.targetDeltaX - var0.x) * 0.2, (this.targetDeltaY - var0.y) * 0.2, (this.targetDeltaZ - var0.z) * 0.2));
             }
 
-            HitResult var1 = ProjectileUtil.getHitResult(this, this::canHitEntity, ClipContext.Block.COLLIDER);
+            HitResult var1 = ProjectileUtil.getHitResult(this, this::canHitEntity);
             if (var1.getType() != HitResult.Type.MISS) {
                 this.onHit(var1);
             }
         }
 
+        this.checkInsideBlocks();
         Vec3 var2 = this.getDeltaMovement();
         this.setPos(this.getX() + var2.x, this.getY() + var2.y, this.getZ() + var2.z);
         ProjectileUtil.rotateTowardsMovement(this, 0.5F);

@@ -15,6 +15,7 @@ import net.minecraft.Util;
 import net.minecraft.data.worldgen.Features;
 import net.minecraft.data.worldgen.StructureFeatures;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeGenerationSettings;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -129,51 +130,52 @@ public class FlatLevelGeneratorSettings {
 
     public Biome getBiomeFromSettings() {
         Biome var0 = this.getBiome();
-        Biome var1 = new Biome(
-            new Biome.BiomeBuilder()
-                .surfaceBuilder(var0.getSurfaceBuilder())
-                .precipitation(var0.getPrecipitation())
-                .biomeCategory(var0.getBiomeCategory())
-                .depth(var0.getDepth())
-                .scale(var0.getScale())
-                .temperature(var0.getBaseTemperature())
-                .downfall(var0.getDownfall())
-                .specialEffects(var0.getSpecialEffects())
-                .parent(var0.getParent())
-        );
+        BiomeGenerationSettings var1 = var0.getGenerationSettings();
+        BiomeGenerationSettings.Builder var2 = new BiomeGenerationSettings.Builder().surfaceBuilder(var1.getSurfaceBuilder());
         if (this.addLakes) {
-            var1.addFeature(GenerationStep.Decoration.LAKES, Features.LAKE_WATER);
-            var1.addFeature(GenerationStep.Decoration.LAKES, Features.LAKE_LAVA);
+            var2.addFeature(GenerationStep.Decoration.LAKES, Features.LAKE_WATER);
+            var2.addFeature(GenerationStep.Decoration.LAKES, Features.LAKE_LAVA);
         }
 
-        for(Entry<StructureFeature<?>, StructureFeatureConfiguration> var2 : this.structureSettings.structureConfig().entrySet()) {
-            var1.addStructureStart(var0.withBiomeConfig(STRUCTURE_FEATURES.get(var2.getKey())));
+        for(Entry<StructureFeature<?>, StructureFeatureConfiguration> var3 : this.structureSettings.structureConfig().entrySet()) {
+            var2.addStructureStart(var1.withBiomeConfig(STRUCTURE_FEATURES.get(var3.getKey())));
         }
 
-        boolean var3 = (!this.voidGen || var0 == Biomes.THE_VOID) && this.decoration;
-        if (var3) {
-            List<List<Supplier<ConfiguredFeature<?, ?>>>> var4 = var0.features();
+        boolean var4 = (!this.voidGen || var0 == Biomes.THE_VOID) && this.decoration;
+        if (var4) {
+            List<List<Supplier<ConfiguredFeature<?, ?>>>> var5 = var1.features();
 
-            for(int var5 = 0; var5 < var4.size(); ++var5) {
-                if (var5 != GenerationStep.Decoration.UNDERGROUND_STRUCTURES.ordinal() && var5 != GenerationStep.Decoration.SURFACE_STRUCTURES.ordinal()) {
-                    for(Supplier<ConfiguredFeature<?, ?>> var7 : var4.get(var5)) {
-                        var1.addFeature(var5, var7);
+            for(int var6 = 0; var6 < var5.size(); ++var6) {
+                if (var6 != GenerationStep.Decoration.UNDERGROUND_STRUCTURES.ordinal() && var6 != GenerationStep.Decoration.SURFACE_STRUCTURES.ordinal()) {
+                    for(Supplier<ConfiguredFeature<?, ?>> var8 : var5.get(var6)) {
+                        var2.addFeature(var6, var8);
                     }
                 }
             }
         }
 
-        BlockState[] var8 = this.getLayers();
+        BlockState[] var9 = this.getLayers();
 
-        for(int var9 = 0; var9 < var8.length; ++var9) {
-            BlockState var10 = var8[var9];
-            if (var10 != null && !Heightmap.Types.MOTION_BLOCKING.isOpaque().test(var10)) {
-                this.layers[var9] = null;
-                var1.addFeature(GenerationStep.Decoration.TOP_LAYER_MODIFICATION, Feature.FILL_LAYER.configured(new LayerConfiguration(var9, var10)));
+        for(int var10 = 0; var10 < var9.length; ++var10) {
+            BlockState var11 = var9[var10];
+            if (var11 != null && !Heightmap.Types.MOTION_BLOCKING.isOpaque().test(var11)) {
+                this.layers[var10] = null;
+                var2.addFeature(GenerationStep.Decoration.TOP_LAYER_MODIFICATION, Feature.FILL_LAYER.configured(new LayerConfiguration(var10, var11)));
             }
         }
 
-        return var1;
+        return new Biome.BiomeBuilder()
+            .precipitation(var0.getPrecipitation())
+            .biomeCategory(var0.getBiomeCategory())
+            .depth(var0.getDepth())
+            .scale(var0.getScale())
+            .temperature(var0.getBaseTemperature())
+            .downfall(var0.getDownfall())
+            .specialEffects(var0.getSpecialEffects())
+            .generationSettings(var2.build())
+            .mobSpawnSettings(var0.getMobSettings())
+            .parent(var0.getParent())
+            .build();
     }
 
     public StructureSettings structureSettings() {

@@ -72,20 +72,20 @@ public abstract class MoveToBlockGoal extends Goal {
         return 1.0;
     }
 
+    protected BlockPos getMoveToTarget() {
+        return this.blockPos.above();
+    }
+
     @Override
     public void tick() {
-        if (!this.blockPos.above().closerThan(this.mob.position(), this.acceptedDistance())) {
+        BlockPos var0 = this.getMoveToTarget();
+        if (!var0.closerThan(this.mob.position(), this.acceptedDistance())) {
             this.reachedTarget = false;
             ++this.tryTicks;
             if (this.shouldRecalculatePath()) {
                 this.mob
                     .getNavigation()
-                    .moveTo(
-                        (double)((float)this.blockPos.getX()) + 0.5,
-                        (double)(this.blockPos.getY() + 1),
-                        (double)((float)this.blockPos.getZ()) + 0.5,
-                        this.speedModifier
-                    );
+                    .moveTo((double)((float)var0.getX()) + 0.5, (double)var0.getY(), (double)((float)var0.getZ()) + 0.5, this.speedModifier);
             }
         } else {
             this.reachedTarget = true;

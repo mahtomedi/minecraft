@@ -81,6 +81,10 @@ public class PoiManager extends SectionStorage<PoiSection> {
         return this.getInRange(param0, param2, param3, param4).map(PoiRecord::getPos).filter(param1);
     }
 
+    public Stream<BlockPos> findAllClosestFirst(Predicate<PoiType> param0, Predicate<BlockPos> param1, BlockPos param2, int param3, PoiManager.Occupancy param4) {
+        return this.findAll(param0, param1, param2, param3, param4).sorted(Comparator.comparingDouble(param1x -> param1x.distSqr(param2)));
+    }
+
     public Optional<BlockPos> find(Predicate<PoiType> param0, Predicate<BlockPos> param1, BlockPos param2, int param3, PoiManager.Occupancy param4) {
         return this.findAll(param0, param1, param2, param3, param4).findFirst();
     }

@@ -9,7 +9,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.horse.Llama;
-import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.phys.BlockHitResult;
@@ -51,7 +50,7 @@ public class LlamaSpit extends Projectile {
     public void tick() {
         super.tick();
         Vec3 var0 = this.getDeltaMovement();
-        HitResult var1 = ProjectileUtil.getHitResult(this, this::canHitEntity, ClipContext.Block.OUTLINE);
+        HitResult var1 = ProjectileUtil.getHitResult(this, this::canHitEntity);
         if (var1 != null) {
             this.onHit(var1);
         }

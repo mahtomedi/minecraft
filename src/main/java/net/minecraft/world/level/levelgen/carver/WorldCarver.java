@@ -199,7 +199,7 @@ public abstract class WorldCarver<C extends CarverConfiguration> {
                     if (param15.isTrue()) {
                         param6.setWithOffset(param4, Direction.DOWN);
                         if (param0.getBlockState(param6).is(Blocks.DIRT)) {
-                            param0.setBlockState(param6, param1.apply(param4).getSurfaceBuilderConfig().getTopMaterial(), false);
+                            param0.setBlockState(param6, param1.apply(param4).getGenerationSettings().getSurfaceBuilderConfig().getTopMaterial(), false);
                         }
                     }
                 }

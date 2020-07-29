@@ -1,7 +1,10 @@
 package net.minecraft.world.level.block;
 
+import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
@@ -30,11 +33,12 @@ public class VineBlock extends Block {
         .stream()
         .filter(param0 -> param0.getKey() != Direction.DOWN)
         .collect(Util.toMap());
-    protected static final VoxelShape UP_AABB = Block.box(0.0, 15.0, 0.0, 16.0, 16.0, 16.0);
-    protected static final VoxelShape EAST_AABB = Block.box(0.0, 0.0, 0.0, 1.0, 16.0, 16.0);
-    protected static final VoxelShape WEST_AABB = Block.box(15.0, 0.0, 0.0, 16.0, 16.0, 16.0);
-    protected static final VoxelShape SOUTH_AABB = Block.box(0.0, 0.0, 0.0, 16.0, 16.0, 1.0);
-    protected static final VoxelShape NORTH_AABB = Block.box(0.0, 0.0, 15.0, 16.0, 16.0, 16.0);
+    private static final VoxelShape UP_AABB = Block.box(0.0, 15.0, 0.0, 16.0, 16.0, 16.0);
+    private static final VoxelShape WEST_AABB = Block.box(0.0, 0.0, 0.0, 1.0, 16.0, 16.0);
+    private static final VoxelShape EAST_AABB = Block.box(15.0, 0.0, 0.0, 16.0, 16.0, 16.0);
+    private static final VoxelShape NORTH_AABB = Block.box(0.0, 0.0, 0.0, 16.0, 16.0, 1.0);
+    private static final VoxelShape SOUTH_AABB = Block.box(0.0, 0.0, 15.0, 16.0, 16.0, 16.0);
+    private final Map<BlockState, VoxelShape> shapesCache;
 
     public VineBlock(BlockBehaviour.Properties param0) {
         super(param0);
@@ -47,32 +51,39 @@ public class VineBlock extends Block {
                 .setValue(SOUTH, Boolean.valueOf(false))
                 .setValue(WEST, Boolean.valueOf(false))
         );
+        this.shapesCache = ImmutableMap.copyOf(
+            this.stateDefinition.getPossibleStates().stream().collect(Collectors.toMap(Function.identity(), VineBlock::calculateShape))
+        );
+    }
+
+    private static VoxelShape calculateShape(BlockState param0x) {
+        VoxelShape var0 = Shapes.empty();
+        if (param0x.getValue(UP)) {
+            var0 = UP_AABB;
+        }
+
+        if (param0x.getValue(NORTH)) {
+            var0 = Shapes.or(var0, NORTH_AABB);
+        }
+
+        if (param0x.getValue(SOUTH)) {
+            var0 = Shapes.or(var0, SOUTH_AABB);
+        }
+
+        if (param0x.getValue(EAST)) {
+            var0 = Shapes.or(var0, EAST_AABB);
+        }
+
+        if (param0x.getValue(WEST)) {
+            var0 = Shapes.or(var0, WEST_AABB);
+        }
+
+        return var0;
     }
 
     @Override
     public VoxelShape getShape(BlockState param0, BlockGetter param1, BlockPos param2, CollisionContext param3) {
-        VoxelShape var0 = Shapes.empty();
-        if (param0.getValue(UP)) {
-            var0 = Shapes.or(var0, UP_AABB);
-        }
-
-        if (param0.getValue(NORTH)) {
-            var0 = Shapes.or(var0, SOUTH_AABB);
-        }
-
-        if (param0.getValue(EAST)) {
-            var0 = Shapes.or(var0, WEST_AABB);
-        }
-
-        if (param0.getValue(SOUTH)) {
-            var0 = Shapes.or(var0, NORTH_AABB);
-        }
-
-        if (param0.getValue(WEST)) {
-            var0 = Shapes.or(var0, EAST_AABB);
-        }
-
-        return var0;
+        return this.shapesCache.get(param0);
     }
 
     @Override

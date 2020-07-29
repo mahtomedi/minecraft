@@ -596,10 +596,15 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
             this.tellWitnessesThatIWasMurdered(var0);
         }
 
+        this.releaseAllPois();
+        super.die(param0);
+    }
+
+    private void releaseAllPois() {
         this.releasePoi(MemoryModuleType.HOME);
         this.releasePoi(MemoryModuleType.JOB_SITE);
+        this.releasePoi(MemoryModuleType.POTENTIAL_JOB_SITE);
         this.releasePoi(MemoryModuleType.MEETING_POINT);
-        super.die(param0);
     }
 
     private void tellWitnessesThatIWasMurdered(Entity param0) {
@@ -768,6 +773,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
 
             var0.setPersistenceRequired();
             param0.addFreshEntityWithPassengers(var0);
+            this.releaseAllPois();
             this.remove();
         } else {
             super.thunderHit(param0, param1);

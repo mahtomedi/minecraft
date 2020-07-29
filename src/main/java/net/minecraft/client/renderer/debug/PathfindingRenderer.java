@@ -84,11 +84,11 @@ public class PathfindingRenderer implements DebugRenderer.SimpleDebugRenderer {
                 0.5F
             );
 
-            for(int var1 = 0; var1 < param0.getSize(); ++var1) {
-                Node var2 = param0.get(var1);
+            for(int var1 = 0; var1 < param0.getNodeCount(); ++var1) {
+                Node var2 = param0.getNode(var1);
                 if (distanceToCamera(var2.asBlockPos(), param4, param5, param6) <= 80.0F) {
-                    float var3 = var1 == param0.getIndex() ? 1.0F : 0.0F;
-                    float var4 = var1 == param0.getIndex() ? 0.0F : 1.0F;
+                    float var3 = var1 == param0.getNextNodeIndex() ? 1.0F : 0.0F;
+                    float var4 = var1 == param0.getNextNodeIndex() ? 0.0F : 1.0F;
                     DebugRenderer.renderFilledBox(
                         new AABB(
                                 (double)((float)var2.x + 0.5F - param1),
@@ -151,8 +151,8 @@ public class PathfindingRenderer implements DebugRenderer.SimpleDebugRenderer {
         }
 
         if (param3) {
-            for(int var7 = 0; var7 < param0.getSize(); ++var7) {
-                Node var8 = param0.get(var7);
+            for(int var7 = 0; var7 < param0.getNodeCount(); ++var7) {
+                Node var8 = param0.getNode(var7);
                 if (distanceToCamera(var8.asBlockPos(), param4, param5, param6) <= 80.0F) {
                     DebugRenderer.renderFloatingText(
                         String.format("%s", var8.type), (double)var8.x + 0.5, (double)var8.y + 0.75, (double)var8.z + 0.5, -1, 0.02F, true, 0.0F, true
@@ -179,10 +179,10 @@ public class PathfindingRenderer implements DebugRenderer.SimpleDebugRenderer {
         BufferBuilder var1 = var0.getBuilder();
         var1.begin(3, DefaultVertexFormat.POSITION_COLOR);
 
-        for(int var2 = 0; var2 < param0.getSize(); ++var2) {
-            Node var3 = param0.get(var2);
+        for(int var2 = 0; var2 < param0.getNodeCount(); ++var2) {
+            Node var3 = param0.getNode(var2);
             if (!(distanceToCamera(var3.asBlockPos(), param1, param2, param3) > 80.0F)) {
-                float var4 = (float)var2 / (float)param0.getSize() * 0.33F;
+                float var4 = (float)var2 / (float)param0.getNodeCount() * 0.33F;
                 int var5 = var2 == 0 ? 0 : Mth.hsvToRgb(var4, 0.9F, 0.9F);
                 int var6 = var5 >> 16 & 0xFF;
                 int var7 = var5 >> 8 & 0xFF;

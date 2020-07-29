@@ -1,17 +1,8 @@
 package net.minecraft.world.level.levelgen.structure.templatesystem;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.mojang.datafixers.util.Pair;
+import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.DataResult;
-import com.mojang.serialization.DynamicOps;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.MapLike;
-import com.mojang.serialization.RecordBuilder;
-import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Stream;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.RegistryFileCodec;
 
@@ -27,58 +18,12 @@ public interface StructureProcessorType<P extends StructureProcessor> {
     StructureProcessorType<LavaSubmergedBlockProcessor> LAVA_SUBMERGED_BLOCK = register("lava_submerged_block", LavaSubmergedBlockProcessor.CODEC);
     Codec<StructureProcessor> SINGLE_CODEC = Registry.STRUCTURE_PROCESSOR
         .dispatch("processor_type", StructureProcessor::getType, StructureProcessorType::codec);
-    MapCodec<ImmutableList<StructureProcessor>> DIRECT_CODEC = handleDefaultField(
-        "processors", SINGLE_CODEC.listOf().xmap(ImmutableList::copyOf, Function.identity())
-    );
-    Codec<Supplier<ImmutableList<StructureProcessor>>> LIST_CODEC = RegistryFileCodec.create(Registry.PROCESSOR_LIST_REGISTRY, DIRECT_CODEC);
+    Codec<StructureProcessorList> LIST_OBJECT_CODEC = SINGLE_CODEC.listOf().xmap(StructureProcessorList::new, StructureProcessorList::list);
+    Codec<StructureProcessorList> DIRECT_CODEC = Codec.either(LIST_OBJECT_CODEC.fieldOf("processors").codec(), LIST_OBJECT_CODEC)
+        .xmap(param0 -> param0.map(param0x -> param0x, param0x -> param0x), Either::left);
+    Codec<Supplier<StructureProcessorList>> LIST_CODEC = RegistryFileCodec.create(Registry.PROCESSOR_LIST_REGISTRY, DIRECT_CODEC);
 
     Codec<P> codec();
-
-    static <E> MapCodec<E> handleDefaultField(final String param0, Codec<E> param1) {
-        final MapCodec<E> var0 = param1.fieldOf(param0);
-        return new MapCodec<E>() {
-            @Override
-            public <O> Stream<O> keys(DynamicOps<O> param0x) {
-                return var0.keys(param0);
-            }
-
-            @Override
-            public <O> DataResult<E> decode(DynamicOps<O> param0x, MapLike<O> param1) {
-                return var0.decode(param0, param1);
-            }
-
-            @Override
-            public <O> RecordBuilder<O> encode(E param0x, DynamicOps<O> param1, RecordBuilder<O> param2) {
-                return var0.encode(param0, param1, param2);
-            }
-
-            @Override
-            public Codec<E> codec() {
-                final Codec<E> var0 = super.codec();
-                return new Codec<E>() {
-                    @Override
-                    public <O> DataResult<Pair<E, O>> decode(DynamicOps<O> param0x, O param1) {
-                        if (param0.compressMaps()) {
-                            return var0.decode(param0, param1);
-                        } else {
-                            DataResult<MapLike<O>> var0 = param0.getMap(param1);
-                            MapLike<O> var1 = var0.get()
-                                .map(
-                                    (Function<? super MapLike<O>, ? extends MapLike<O>>)(param0xx -> param0xx),
-                                    param3 -> MapLike.forMap(ImmutableMap.of(param0.createString(param0), param1), param0)
-                                );
-                            return var0.decode(param0, var1).map(param1x -> Pair.of(param1x, param1));
-                        }
-                    }
-
-                    @Override
-                    public <O> DataResult<O> encode(E param0x, DynamicOps<O> param1, O param2) {
-                        return var0.encode(param0, param1, param2);
-                    }
-                };
-            }
-        };
-    }
 
     static <P extends StructureProcessor> StructureProcessorType<P> register(String param0, Codec<P> param1) {
         return Registry.register(Registry.STRUCTURE_PROCESSOR, param0, () -> param1);

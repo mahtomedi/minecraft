@@ -50,7 +50,7 @@ public class GrassBlock extends SpreadingSnowyDirtBlock implements BonemealableB
             if (var5.isAir()) {
                 BlockState var9;
                 if (param1.nextInt(8) == 0) {
-                    List<ConfiguredFeature<?, ?>> var6 = param0.getBiome(var3).getFlowerFeatures();
+                    List<ConfiguredFeature<?, ?>> var6 = param0.getBiome(var3).getGenerationSettings().getFlowerFeatures();
                     if (var6.isEmpty()) {
                         continue;
                     }

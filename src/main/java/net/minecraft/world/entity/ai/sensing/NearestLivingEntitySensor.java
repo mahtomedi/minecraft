@@ -9,20 +9,19 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.targeting.TargetingConditions;
+import net.minecraft.world.phys.AABB;
 
 public class NearestLivingEntitySensor extends Sensor<LivingEntity> {
-    private static final TargetingConditions TARGETING = new TargetingConditions().range(16.0).allowSameTeam().allowNonAttackable();
-
     @Override
     protected void doTick(ServerLevel param0, LivingEntity param1) {
-        List<LivingEntity> var0 = param0.getEntitiesOfClass(
-            LivingEntity.class, param1.getBoundingBox().inflate(16.0, 16.0, 16.0), param1x -> param1x != param1 && param1x.isAlive()
+        AABB var0 = param1.getBoundingBox().inflate(16.0, 16.0, 16.0);
+        List<LivingEntity> var1 = param0.getEntitiesOfClass(LivingEntity.class, var0, param1x -> param1x != param1 && param1x.isAlive());
+        var1.sort(Comparator.comparingDouble(param1::distanceToSqr));
+        Brain<?> var2 = param1.getBrain();
+        var2.setMemory(MemoryModuleType.LIVING_ENTITIES, var1);
+        var2.setMemory(
+            MemoryModuleType.VISIBLE_LIVING_ENTITIES, var1.stream().filter(param1x -> isEntityTargetable(param1, param1x)).collect(Collectors.toList())
         );
-        var0.sort(Comparator.comparingDouble(param1::distanceToSqr));
-        Brain<?> var1 = param1.getBrain();
-        var1.setMemory(MemoryModuleType.LIVING_ENTITIES, var0);
-        var1.setMemory(MemoryModuleType.VISIBLE_LIVING_ENTITIES, var0.stream().filter(param1x -> TARGETING.test(param1, param1x)).collect(Collectors.toList()));
     }
 
     @Override

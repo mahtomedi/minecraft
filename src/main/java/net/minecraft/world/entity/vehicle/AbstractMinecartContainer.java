@@ -16,6 +16,7 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.monster.piglin.PiglinAi;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -47,6 +48,12 @@ public abstract class AbstractMinecartContainer extends AbstractMinecart impleme
         super.destroy(param0);
         if (this.level.getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
             Containers.dropContents(this.level, this, this);
+            if (!this.level.isClientSide) {
+                Entity var0 = param0.getDirectEntity();
+                if (var0 != null && var0.getType() == EntityType.PLAYER) {
+                    PiglinAi.angerNearbyPiglins((Player)var0, true);
+                }
+            }
         }
 
     }
@@ -165,7 +172,12 @@ public abstract class AbstractMinecartContainer extends AbstractMinecart impleme
     @Override
     public InteractionResult interact(Player param0, InteractionHand param1) {
         param0.openMenu(this);
-        return InteractionResult.sidedSuccess(this.level.isClientSide);
+        if (!param0.level.isClientSide) {
+            PiglinAi.angerNearbyPiglins(param0, true);
+            return InteractionResult.CONSUME;
+        } else {
+            return InteractionResult.SUCCESS;
+        }
     }
 
     @Override

@@ -13,6 +13,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.Mth;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.damagesource.DamageSource;
@@ -31,6 +32,7 @@ import net.minecraft.world.item.trading.MerchantOffers;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -257,5 +259,13 @@ public abstract class AbstractVillager extends AgableMob implements Npc, Merchan
             }
         }
 
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public Vec3 getRopeHoldPosition(float param0) {
+        float var0 = Mth.lerp(param0, this.yBodyRotO, this.yBodyRot) * (float) (Math.PI / 180.0);
+        Vec3 var1 = new Vec3(0.0, this.getBoundingBox().getYsize() - 1.0, 0.2);
+        return this.getPosition(param0).add(var1.yRot(-var0));
     }
 }

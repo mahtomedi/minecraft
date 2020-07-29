@@ -47,34 +47,28 @@ public class SetWalkTargetFromBlockMemory extends Behavior<Villager> {
 
     protected void start(ServerLevel param0, Villager param1, long param2) {
         Brain<?> var0 = param1.getBrain();
-        var0.getMemory(this.memoryType)
-            .ifPresent(
-                param4 -> {
-                    if (this.tiredOfTryingToFindTarget(param0, param1)) {
-                        this.dropPOI(param1, param2);
-                    } else if (this.tooFar(param0, param1, param4)) {
-                        Vec3 var0x = null;
-                        int var1x = 0;
-        
-                        for(int var2x = 1000;
-                            var1x < 1000 && (var0x == null || this.tooFar(param0, param1, GlobalPos.of(param0.dimension(), new BlockPos(var0x))));
-                            ++var1x
-                        ) {
-                            var0x = RandomPos.getPosTowards(param1, 15, 7, Vec3.atBottomCenterOf(param4.pos()));
-                        }
-        
-                        if (var1x == 1000) {
-                            this.dropPOI(param1, param2);
-                            return;
-                        }
-        
-                        var0.setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(var0x, this.speedModifier, this.closeEnoughDist));
-                    } else if (!this.closeEnough(param0, param1, param4)) {
-                        var0.setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(param4.pos(), this.speedModifier, this.closeEnoughDist));
-                    }
-        
+        var0.getMemory(this.memoryType).ifPresent(param4 -> {
+            if (this.wrongDimension(param0, param4) || this.tiredOfTryingToFindTarget(param0, param1)) {
+                this.dropPOI(param1, param2);
+            } else if (this.tooFar(param1, param4)) {
+                Vec3 var0x = null;
+                int var1x = 0;
+
+                for(int var2x = 1000; var1x < 1000 && (var0x == null || this.tooFar(param1, GlobalPos.of(param0.dimension(), new BlockPos(var0x)))); ++var1x) {
+                    var0x = RandomPos.getPosTowards(param1, 15, 7, Vec3.atBottomCenterOf(param4.pos()));
                 }
-            );
+
+                if (var1x == 1000) {
+                    this.dropPOI(param1, param2);
+                    return;
+                }
+
+                var0.setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(var0x, this.speedModifier, this.closeEnoughDist));
+            } else if (!this.closeEnough(param0, param1, param4)) {
+                var0.setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(param4.pos(), this.speedModifier, this.closeEnoughDist));
+            }
+
+        });
     }
 
     private boolean tiredOfTryingToFindTarget(ServerLevel param0, Villager param1) {
@@ -86,8 +80,12 @@ public class SetWalkTargetFromBlockMemory extends Behavior<Villager> {
         }
     }
 
-    private boolean tooFar(ServerLevel param0, Villager param1, GlobalPos param2) {
-        return param2.dimension() != param0.dimension() || param2.pos().distManhattan(param1.blockPosition()) > this.tooFarDistance;
+    private boolean tooFar(Villager param0, GlobalPos param1) {
+        return param1.pos().distManhattan(param0.blockPosition()) > this.tooFarDistance;
+    }
+
+    private boolean wrongDimension(ServerLevel param0, GlobalPos param1) {
+        return param1.dimension() != param0.dimension();
     }
 
     private boolean closeEnough(ServerLevel param0, Villager param1, GlobalPos param2) {

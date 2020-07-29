@@ -4,17 +4,13 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.List;
-import java.util.Optional;
-import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.FullscreenResolutionProgressOption;
 import net.minecraft.client.GraphicsStatus;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Option;
 import net.minecraft.client.Options;
-import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.OptionButton;
 import net.minecraft.client.gui.components.OptionsList;
 import net.minecraft.client.renderer.GpuWarnlistManager;
 import net.minecraft.network.chat.CommonComponents;
@@ -49,10 +45,10 @@ public class VideoSettingsScreen extends OptionsSubScreen {
         Option.PARTICLES,
         Option.MIPMAP_LEVELS,
         Option.ENTITY_SHADOWS,
-        Option.ENTITY_DISTANCE_SCALING
+        Option.SCREEN_EFFECTS_SCALE,
+        Option.ENTITY_DISTANCE_SCALING,
+        Option.FOV_EFFECTS_SCALE
     };
-    @Nullable
-    private List<FormattedCharSequence> tooltip;
     private OptionsList list;
     private final GpuWarnlistManager gpuWarnlistManager;
     private final int oldMipmaps;
@@ -95,33 +91,32 @@ public class VideoSettingsScreen extends OptionsSubScreen {
     @Override
     public boolean mouseClicked(double param0, double param1, int param2) {
         int var0 = this.options.guiScale;
-        GraphicsStatus var1 = this.options.graphicsMode;
         if (super.mouseClicked(param0, param1, param2)) {
             if (this.options.guiScale != var0) {
                 this.minecraft.resizeDisplay();
             }
 
             if (this.gpuWarnlistManager.isShowingWarning()) {
-                List<FormattedText> var2 = Lists.newArrayList(WARNING_MESSAGE, NEW_LINE);
-                String var3 = this.gpuWarnlistManager.getRendererWarnings();
+                List<FormattedText> var1 = Lists.newArrayList(WARNING_MESSAGE, NEW_LINE);
+                String var2 = this.gpuWarnlistManager.getRendererWarnings();
+                if (var2 != null) {
+                    var1.add(NEW_LINE);
+                    var1.add(new TranslatableComponent("options.graphics.warning.renderer", var2).withStyle(ChatFormatting.GRAY));
+                }
+
+                String var3 = this.gpuWarnlistManager.getVendorWarnings();
                 if (var3 != null) {
-                    var2.add(NEW_LINE);
-                    var2.add(new TranslatableComponent("options.graphics.warning.renderer", var3).withStyle(ChatFormatting.GRAY));
+                    var1.add(NEW_LINE);
+                    var1.add(new TranslatableComponent("options.graphics.warning.vendor", var3).withStyle(ChatFormatting.GRAY));
                 }
 
-                String var4 = this.gpuWarnlistManager.getVendorWarnings();
+                String var4 = this.gpuWarnlistManager.getVersionWarnings();
                 if (var4 != null) {
-                    var2.add(NEW_LINE);
-                    var2.add(new TranslatableComponent("options.graphics.warning.vendor", var4).withStyle(ChatFormatting.GRAY));
+                    var1.add(NEW_LINE);
+                    var1.add(new TranslatableComponent("options.graphics.warning.version", var4).withStyle(ChatFormatting.GRAY));
                 }
 
-                String var5 = this.gpuWarnlistManager.getVersionWarnings();
-                if (var5 != null) {
-                    var2.add(NEW_LINE);
-                    var2.add(new TranslatableComponent("options.graphics.warning.version", var5).withStyle(ChatFormatting.GRAY));
-                }
-
-                this.minecraft.setScreen(new PopupScreen(WARNING_TITLE, var2, ImmutableList.of(new PopupScreen.ButtonOption(BUTTON_ACCEPT, param0x -> {
+                this.minecraft.setScreen(new PopupScreen(WARNING_TITLE, var1, ImmutableList.of(new PopupScreen.ButtonOption(BUTTON_ACCEPT, param0x -> {
                     this.options.graphicsMode = GraphicsStatus.FABULOUS;
                     Minecraft.getInstance().levelRenderer.allChanged();
                     this.gpuWarnlistManager.dismissWarning();
@@ -156,19 +151,13 @@ public class VideoSettingsScreen extends OptionsSubScreen {
 
     @Override
     public void render(PoseStack param0, int param1, int param2, float param3) {
-        this.tooltip = null;
-        Optional<AbstractWidget> var0 = this.list.getMouseOver((double)param1, (double)param2);
-        if (var0.isPresent() && var0.get() instanceof OptionButton) {
-            Optional<List<FormattedCharSequence>> var1 = ((OptionButton)var0.get()).getOption().getTooltip();
-            var1.ifPresent(param0x -> this.tooltip = param0x);
-        }
-
         this.renderBackground(param0);
         this.list.render(param0, param1, param2, param3);
         drawCenteredString(param0, this.font, this.title, this.width / 2, 5, 16777215);
         super.render(param0, param1, param2, param3);
-        if (this.tooltip != null) {
-            this.renderTooltip(param0, this.tooltip, param1, param2);
+        List<FormattedCharSequence> var0 = tooltipAt(this.list, param1, param2);
+        if (var0 != null) {
+            this.renderTooltip(param0, var0, param1, param2);
         }
 
     }

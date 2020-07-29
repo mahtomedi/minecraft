@@ -450,7 +450,11 @@ public class EnderMan extends Monster implements NeutralMob {
         }
 
         private boolean canPlaceBlock(LevelReader param0, BlockPos param1, BlockState param2, BlockState param3, BlockState param4, BlockPos param5) {
-            return param3.isAir() && !param4.isAir() && param4.isCollisionShapeFullBlock(param0, param5) && param2.canSurvive(param0, param1);
+            return param3.isAir()
+                && !param4.isAir()
+                && !param4.is(Blocks.BEDROCK)
+                && param4.isCollisionShapeFullBlock(param0, param5)
+                && param2.canSurvive(param0, param1);
         }
     }
 

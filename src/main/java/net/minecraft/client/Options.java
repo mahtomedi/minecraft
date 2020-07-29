@@ -175,13 +175,15 @@ public class Options {
     private final File optionsFile;
     public Difficulty difficulty = Difficulty.NORMAL;
     public boolean hideGui;
-    public int thirdPersonView;
+    private CameraType cameraType = CameraType.FIRST_PERSON;
     public boolean renderDebug;
     public boolean renderDebugCharts;
     public boolean renderFpsChart;
     public String lastMpIp = "";
     public boolean smoothCamera;
     public double fov = 70.0;
+    public float screenEffectScale = 1.0F;
+    public float fovEffectScale = 1.0F;
     public double gamma;
     public int guiScale;
     public ParticleStatus particles = ParticleStatus.ALL;
@@ -336,6 +338,14 @@ public class Options {
 
                     if ("fov".equals(var3)) {
                         this.fov = (double)(readFloat(var4) * 40.0F + 70.0F);
+                    }
+
+                    if ("screenEffectScale".equals(var3)) {
+                        this.screenEffectScale = readFloat(var4);
+                    }
+
+                    if ("fovEffectScale".equals(var3)) {
+                        this.fovEffectScale = readFloat(var4);
                     }
 
                     if ("gamma".equals(var3)) {
@@ -603,6 +613,8 @@ public class Options {
             var0.println("toggleSprint:" + this.toggleSprint);
             var0.println("mouseSensitivity:" + this.sensitivity);
             var0.println("fov:" + (this.fov - 70.0) / 40.0);
+            var0.println("screenEffectScale:" + this.screenEffectScale);
+            var0.println("fovEffectScale:" + this.fovEffectScale);
             var0.println("gamma:" + this.gamma);
             var0.println("renderDistance:" + this.renderDistance);
             var0.println("entityDistanceScaling:" + this.entityDistanceScaling);
@@ -761,5 +773,13 @@ public class Options {
         }
 
         param0.setSelected(var0);
+    }
+
+    public CameraType getCameraType() {
+        return this.cameraType;
+    }
+
+    public void setCameraType(CameraType param0) {
+        this.cameraType = param0;
     }
 }

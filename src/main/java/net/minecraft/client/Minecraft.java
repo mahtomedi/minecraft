@@ -1476,15 +1476,10 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
 
     private void handleKeybinds() {
         for(; this.options.keyTogglePerspective.consumeClick(); this.levelRenderer.needsUpdate()) {
-            ++this.options.thirdPersonView;
-            if (this.options.thirdPersonView > 2) {
-                this.options.thirdPersonView = 0;
-            }
-
-            if (this.options.thirdPersonView == 0) {
-                this.gameRenderer.checkEntityPostEffect(this.getCameraEntity());
-            } else if (this.options.thirdPersonView == 1) {
-                this.gameRenderer.checkEntityPostEffect(null);
+            CameraType var0 = this.options.getCameraType();
+            this.options.setCameraType(this.options.getCameraType().cycle());
+            if (var0.isFirstPerson() != this.options.getCameraType().isFirstPerson()) {
+                this.gameRenderer.checkEntityPostEffect(this.options.getCameraType().isFirstPerson() ? this.getCameraEntity() : null);
             }
         }
 
@@ -1492,16 +1487,16 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
             this.options.smoothCamera = !this.options.smoothCamera;
         }
 
-        for(int var0 = 0; var0 < 9; ++var0) {
-            boolean var1 = this.options.keySaveHotbarActivator.isDown();
-            boolean var2 = this.options.keyLoadHotbarActivator.isDown();
-            if (this.options.keyHotbarSlots[var0].consumeClick()) {
+        for(int var1 = 0; var1 < 9; ++var1) {
+            boolean var2 = this.options.keySaveHotbarActivator.isDown();
+            boolean var3 = this.options.keyLoadHotbarActivator.isDown();
+            if (this.options.keyHotbarSlots[var1].consumeClick()) {
                 if (this.player.isSpectator()) {
-                    this.gui.getSpectatorGui().onHotbarSelected(var0);
-                } else if (!this.player.isCreative() || this.screen != null || !var2 && !var1) {
-                    this.player.inventory.selected = var0;
+                    this.gui.getSpectatorGui().onHotbarSelected(var1);
+                } else if (!this.player.isCreative() || this.screen != null || !var3 && !var2) {
+                    this.player.inventory.selected = var1;
                 } else {
-                    CreativeModeInventoryScreen.handleHotbarLoadOrSave(this, var0, var2, var1);
+                    CreativeModeInventoryScreen.handleHotbarLoadOrSave(this, var1, var3, var2);
                 }
             }
         }
@@ -1532,8 +1527,8 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
             }
         }
 
-        boolean var3 = this.options.chatVisibility != ChatVisiblity.HIDDEN;
-        if (var3) {
+        boolean var4 = this.options.chatVisibility != ChatVisiblity.HIDDEN;
+        if (var4) {
             while(this.options.keyChat.consumeClick()) {
                 this.openChatScreen("");
             }

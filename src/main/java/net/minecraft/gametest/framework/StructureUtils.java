@@ -243,9 +243,9 @@ public class StructureUtils {
                 var0 = var2[param1.getY() - 1];
             }
         } else if (param1.getY() == param0 - 1) {
-            var0 = param2.getBiome(param1).getSurfaceBuilderConfig().getTopMaterial();
+            var0 = param2.getBiome(param1).getGenerationSettings().getSurfaceBuilderConfig().getTopMaterial();
         } else if (param1.getY() < param0 - 1) {
-            var0 = param2.getBiome(param1).getSurfaceBuilderConfig().getUnderMaterial();
+            var0 = param2.getBiome(param1).getGenerationSettings().getSurfaceBuilderConfig().getUnderMaterial();
         }
 
         if (var0 == null) {

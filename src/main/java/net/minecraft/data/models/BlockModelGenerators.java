@@ -968,6 +968,10 @@ public class BlockModelGenerators {
         return MultiVariantGenerator.multiVariant(param0, Variant.variant().with(VariantProperties.MODEL, param1)).with(createRotatedPillar());
     }
 
+    private void createAxisAlignedPillarBlockCustomModel(Block param0, ResourceLocation param1) {
+        this.blockStateOutput.accept(createAxisAlignedPillarBlock(param0, param1));
+    }
+
     private void createAxisAlignedPillarBlock(Block param0, TexturedModel.Provider param1) {
         ResourceLocation var0 = param1.create(param0, this.modelOutput);
         this.blockStateOutput.accept(createAxisAlignedPillarBlock(param0, var0));
@@ -2276,12 +2280,10 @@ public class BlockModelGenerators {
             );
     }
 
-    private void createEndRod() {
+    private void createRotatableColumn(Block param0) {
         this.blockStateOutput
             .accept(
-                MultiVariantGenerator.multiVariant(
-                        Blocks.END_ROD, Variant.variant().with(VariantProperties.MODEL, ModelLocationUtils.getModelLocation(Blocks.END_ROD))
-                    )
+                MultiVariantGenerator.multiVariant(param0, Variant.variant().with(VariantProperties.MODEL, ModelLocationUtils.getModelLocation(param0)))
                     .with(this.createColumnWithFacing())
             );
     }
@@ -3804,7 +3806,6 @@ public class BlockModelGenerators {
         this.createNonTemplateModelBlock(Blocks.WATER);
         this.createNonTemplateModelBlock(Blocks.LAVA);
         this.createNonTemplateModelBlock(Blocks.SLIME_BLOCK);
-        this.createNonTemplateModelBlock(Blocks.CHAIN);
         this.createSimpleFlatItemModel(Items.CHAIN);
         this.createNonTemplateModelBlock(Blocks.POTTED_BAMBOO);
         this.createNonTemplateModelBlock(Blocks.POTTED_CACTUS);
@@ -3886,7 +3887,7 @@ public class BlockModelGenerators {
         this.createComposter();
         this.createDaylightDetector();
         this.createEndPortalFrame();
-        this.createEndRod();
+        this.createRotatableColumn(Blocks.END_ROD);
         this.createFarmland();
         this.createFire();
         this.createSoulFire();
@@ -3933,6 +3934,7 @@ public class BlockModelGenerators {
         this.createDispenserBlock(Blocks.DROPPER);
         this.createLantern(Blocks.LANTERN);
         this.createLantern(Blocks.SOUL_LANTERN);
+        this.createAxisAlignedPillarBlockCustomModel(Blocks.CHAIN, ModelLocationUtils.getModelLocation(Blocks.CHAIN));
         this.createAxisAlignedPillarBlock(Blocks.BASALT, TexturedModel.COLUMN);
         this.createAxisAlignedPillarBlock(Blocks.POLISHED_BASALT, TexturedModel.COLUMN);
         this.createAxisAlignedPillarBlock(Blocks.BONE_BLOCK, TexturedModel.COLUMN);

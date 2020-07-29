@@ -1,5 +1,6 @@
 package net.minecraft.world.level.block.piston;
 
+import java.util.Arrays;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.player.Player;
@@ -48,30 +49,36 @@ public class PistonHeadBlock extends DirectionalBlock {
     protected static final VoxelShape SHORT_NORTH_ARM_AABB = Block.box(6.0, 6.0, 4.0, 10.0, 10.0, 16.0);
     protected static final VoxelShape SHORT_EAST_ARM_AABB = Block.box(0.0, 6.0, 6.0, 12.0, 10.0, 10.0);
     protected static final VoxelShape SHORT_WEST_ARM_AABB = Block.box(4.0, 6.0, 6.0, 16.0, 10.0, 10.0);
+    private static final VoxelShape[] SHAPES_SHORT = makeShapes(true);
+    private static final VoxelShape[] SHAPES_LONG = makeShapes(false);
+
+    private static VoxelShape[] makeShapes(boolean param0) {
+        return Arrays.stream(Direction.values()).map(param1 -> calculateShape(param1, param0)).toArray(param0x -> new VoxelShape[param0x]);
+    }
+
+    private static VoxelShape calculateShape(Direction param0, boolean param1) {
+        switch(param0) {
+            case DOWN:
+            default:
+                return Shapes.or(DOWN_AABB, param1 ? SHORT_DOWN_ARM_AABB : DOWN_ARM_AABB);
+            case UP:
+                return Shapes.or(UP_AABB, param1 ? SHORT_UP_ARM_AABB : UP_ARM_AABB);
+            case NORTH:
+                return Shapes.or(NORTH_AABB, param1 ? SHORT_NORTH_ARM_AABB : NORTH_ARM_AABB);
+            case SOUTH:
+                return Shapes.or(SOUTH_AABB, param1 ? SHORT_SOUTH_ARM_AABB : SOUTH_ARM_AABB);
+            case WEST:
+                return Shapes.or(WEST_AABB, param1 ? SHORT_WEST_ARM_AABB : WEST_ARM_AABB);
+            case EAST:
+                return Shapes.or(EAST_AABB, param1 ? SHORT_EAST_ARM_AABB : EAST_ARM_AABB);
+        }
+    }
 
     public PistonHeadBlock(BlockBehaviour.Properties param0) {
         super(param0);
         this.registerDefaultState(
             this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(TYPE, PistonType.DEFAULT).setValue(SHORT, Boolean.valueOf(false))
         );
-    }
-
-    private VoxelShape getBaseShape(BlockState param0) {
-        switch((Direction)param0.getValue(FACING)) {
-            case DOWN:
-            default:
-                return DOWN_AABB;
-            case UP:
-                return UP_AABB;
-            case NORTH:
-                return NORTH_AABB;
-            case SOUTH:
-                return SOUTH_AABB;
-            case WEST:
-                return WEST_AABB;
-            case EAST:
-                return EAST_AABB;
-        }
     }
 
     @Override
@@ -81,26 +88,7 @@ public class PistonHeadBlock extends DirectionalBlock {
 
     @Override
     public VoxelShape getShape(BlockState param0, BlockGetter param1, BlockPos param2, CollisionContext param3) {
-        return Shapes.or(this.getBaseShape(param0), this.getArmShape(param0));
-    }
-
-    private VoxelShape getArmShape(BlockState param0) {
-        boolean var0 = param0.getValue(SHORT);
-        switch((Direction)param0.getValue(FACING)) {
-            case DOWN:
-            default:
-                return var0 ? SHORT_DOWN_ARM_AABB : DOWN_ARM_AABB;
-            case UP:
-                return var0 ? SHORT_UP_ARM_AABB : UP_ARM_AABB;
-            case NORTH:
-                return var0 ? SHORT_NORTH_ARM_AABB : NORTH_ARM_AABB;
-            case SOUTH:
-                return var0 ? SHORT_SOUTH_ARM_AABB : SOUTH_ARM_AABB;
-            case WEST:
-                return var0 ? SHORT_WEST_ARM_AABB : WEST_ARM_AABB;
-            case EAST:
-                return var0 ? SHORT_EAST_ARM_AABB : EAST_ARM_AABB;
-        }
+        return (param0.getValue(SHORT) ? SHAPES_SHORT : SHAPES_LONG)[param0.getValue(FACING).ordinal()];
     }
 
     private boolean isFittingBase(BlockState param0, BlockState param1) {

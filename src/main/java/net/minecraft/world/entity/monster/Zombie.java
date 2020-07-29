@@ -48,6 +48,7 @@ import net.minecraft.world.entity.ai.goal.ZombieAttackGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
+import net.minecraft.world.entity.ai.util.GoalUtils;
 import net.minecraft.world.entity.animal.Chicken;
 import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.animal.Turtle;
@@ -131,7 +132,7 @@ public class Zombie extends Monster {
     }
 
     public void setCanBreakDoors(boolean param0) {
-        if (this.supportsBreakDoorGoal()) {
+        if (this.supportsBreakDoorGoal() && GoalUtils.hasGroundPathNavigation(this)) {
             if (this.canBreakDoors != param0) {
                 this.canBreakDoors = param0;
                 ((GroundPathNavigation)this.getNavigation()).setCanOpenDoors(param0);
@@ -256,7 +257,7 @@ public class Zombie extends Monster {
     }
 
     protected void convertToZombieType(EntityType<? extends Zombie> param0) {
-        Zombie var0 = this.convertTo(param0);
+        Zombie var0 = this.convertTo(param0, true);
         if (var0 != null) {
             var0.handleAttributes(var0.level.getCurrentDifficultyAt(var0.blockPosition()).getSpecialMultiplier());
             var0.setCanBreakDoors(var0.supportsBreakDoorGoal() && this.canBreakDoors());
@@ -407,9 +408,7 @@ public class Zombie extends Monster {
             }
 
             Villager var0 = (Villager)param1;
-            ZombieVillager var1 = EntityType.ZOMBIE_VILLAGER.create(param0);
-            var1.copyPosition(var0);
-            var0.remove();
+            ZombieVillager var1 = var0.convertTo(EntityType.ZOMBIE_VILLAGER, false);
             var1.finalizeSpawn(
                 param0, param0.getCurrentDifficultyAt(var1.blockPosition()), MobSpawnType.CONVERSION, new Zombie.ZombieGroupData(false, true), null
             );
@@ -417,19 +416,6 @@ public class Zombie extends Monster {
             var1.setGossips(var0.getGossips().store(NbtOps.INSTANCE).getValue());
             var1.setTradeOffers(var0.getOffers().createTag());
             var1.setVillagerXp(var0.getVillagerXp());
-            var1.setBaby(var0.isBaby());
-            var1.setNoAi(var0.isNoAi());
-            if (var0.hasCustomName()) {
-                var1.setCustomName(var0.getCustomName());
-                var1.setCustomNameVisible(var0.isCustomNameVisible());
-            }
-
-            if (var0.isPersistenceRequired()) {
-                var1.setPersistenceRequired();
-            }
-
-            var1.setInvulnerable(this.isInvulnerable());
-            param0.addFreshEntityWithPassengers(var1);
             if (!this.isSilent()) {
                 param0.levelEvent(null, 1026, this.blockPosition(), 0);
             }

@@ -11,6 +11,7 @@ import net.minecraft.client.renderer.texture.HttpTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.util.StringUtil;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
@@ -132,6 +133,6 @@ public abstract class AbstractClientPlayer extends Player {
             var0 *= 1.0F - var2 * 0.15F;
         }
 
-        return var0;
+        return Mth.lerp(Minecraft.getInstance().options.fovEffectScale, 1.0F, var0);
     }
 }

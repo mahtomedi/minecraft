@@ -100,7 +100,7 @@ public class DragonHoldingPatternPhase extends AbstractDragonPhaseInstance {
 
             this.currentPath = this.dragon.findPath(var4, var5, null);
             if (this.currentPath != null) {
-                this.currentPath.next();
+                this.currentPath.advance();
             }
         }
 
@@ -114,8 +114,8 @@ public class DragonHoldingPatternPhase extends AbstractDragonPhaseInstance {
 
     private void navigateToNextPathNode() {
         if (this.currentPath != null && !this.currentPath.isDone()) {
-            Vec3i var0 = this.currentPath.currentPos();
-            this.currentPath.next();
+            Vec3i var0 = this.currentPath.getNextNodePos();
+            this.currentPath.advance();
             double var1 = (double)var0.getX();
             double var2 = (double)var0.getZ();
 

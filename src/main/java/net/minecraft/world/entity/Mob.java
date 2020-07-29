@@ -1145,13 +1145,12 @@ public abstract class Mob extends LivingEntity {
     }
 
     @Nullable
-    protected <T extends Mob> T convertTo(EntityType<T> param0) {
+    public <T extends Mob> T convertTo(EntityType<T> param0, boolean param1) {
         if (this.removed) {
             return null;
         } else {
             T var0 = param0.create(this.level);
             var0.copyPosition(this);
-            var0.setCanPickUpLoot(this.canPickUpLoot());
             var0.setBaby(this.isBaby());
             var0.setNoAi(this.isNoAi());
             if (this.hasCustomName()) {
@@ -1164,17 +1163,26 @@ public abstract class Mob extends LivingEntity {
             }
 
             var0.setInvulnerable(this.isInvulnerable());
+            if (param1) {
+                var0.setCanPickUpLoot(this.canPickUpLoot());
 
-            for(EquipmentSlot var1 : EquipmentSlot.values()) {
-                ItemStack var2 = this.getItemBySlot(var1);
-                if (!var2.isEmpty()) {
-                    var0.setItemSlot(var1, var2.copy());
-                    var0.setDropChance(var1, this.getEquipmentDropChance(var1));
-                    var2.setCount(0);
+                for(EquipmentSlot var1 : EquipmentSlot.values()) {
+                    ItemStack var2 = this.getItemBySlot(var1);
+                    if (!var2.isEmpty()) {
+                        var0.setItemSlot(var1, var2.copy());
+                        var0.setDropChance(var1, this.getEquipmentDropChance(var1));
+                        var2.setCount(0);
+                    }
                 }
             }
 
             this.level.addFreshEntity(var0);
+            if (this.isPassenger()) {
+                Entity var3 = this.getVehicle();
+                this.stopRiding();
+                var0.startRiding(var3, true);
+            }
+
             this.remove();
             return var0;
         }

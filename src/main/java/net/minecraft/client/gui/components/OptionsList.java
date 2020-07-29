@@ -44,6 +44,19 @@ public class OptionsList extends ContainerObjectSelectionList<OptionsList.Entry>
         return super.getScrollbarPosition() + 32;
     }
 
+    @Nullable
+    public AbstractWidget findOption(Option param0) {
+        for(OptionsList.Entry var0 : this.children()) {
+            for(AbstractWidget var1 : var0.children) {
+                if (var1 instanceof OptionButton && ((OptionButton)var1).getOption() == param0) {
+                    return var1;
+                }
+            }
+        }
+
+        return null;
+    }
+
     public Optional<AbstractWidget> getMouseOver(double param0, double param1) {
         for(OptionsList.Entry var0 : this.children()) {
             for(AbstractWidget var1 : var0.children) {

@@ -1,6 +1,6 @@
 package net.minecraft.world.level.levelgen.feature;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import java.util.List;
 import java.util.Random;
@@ -12,6 +12,7 @@ import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
+import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
@@ -21,7 +22,7 @@ import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 
 public class OceanMonumentFeature extends StructureFeature<NoneFeatureConfiguration> {
-    private static final List<Biome.SpawnerData> MONUMENT_ENEMIES = Lists.newArrayList(new Biome.SpawnerData(EntityType.GUARDIAN, 1, 2, 4));
+    private static final List<MobSpawnSettings.SpawnerData> MONUMENT_ENEMIES = ImmutableList.of(new MobSpawnSettings.SpawnerData(EntityType.GUARDIAN, 1, 2, 4));
 
     public OceanMonumentFeature(Codec<NoneFeatureConfiguration> param0) {
         super(param0);
@@ -44,7 +45,7 @@ public class OceanMonumentFeature extends StructureFeature<NoneFeatureConfigurat
         NoneFeatureConfiguration param8
     ) {
         for(Biome var1 : param1.getBiomesWithin(param4 * 16 + 9, param0.getSeaLevel(), param5 * 16 + 9, 16)) {
-            if (!var1.isValidStart(this)) {
+            if (!var1.getGenerationSettings().isValidStart(this)) {
                 return false;
             }
         }
@@ -64,7 +65,7 @@ public class OceanMonumentFeature extends StructureFeature<NoneFeatureConfigurat
     }
 
     @Override
-    public List<Biome.SpawnerData> getSpecialEnemies() {
+    public List<MobSpawnSettings.SpawnerData> getSpecialEnemies() {
         return MONUMENT_ENEMIES;
     }
 

@@ -21,12 +21,12 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public final class ProjectileUtil {
-    public static HitResult getHitResult(Entity param0, Predicate<Entity> param1, ClipContext.Block param2) {
+    public static HitResult getHitResult(Entity param0, Predicate<Entity> param1) {
         Vec3 var0 = param0.getDeltaMovement();
         Level var1 = param0.level;
         Vec3 var2 = param0.position();
         Vec3 var3 = var2.add(var0);
-        HitResult var4 = var1.clip(new ClipContext(var2, var3, param2, ClipContext.Fluid.NONE, param0));
+        HitResult var4 = var1.clip(new ClipContext(var2, var3, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, param0));
         if (var4.getType() != HitResult.Type.MISS) {
             var3 = var4.getLocation();
         }

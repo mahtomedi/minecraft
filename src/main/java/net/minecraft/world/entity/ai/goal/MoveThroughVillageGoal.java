@@ -10,6 +10,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
+import net.minecraft.world.entity.ai.util.GoalUtils;
 import net.minecraft.world.entity.ai.util.RandomPos;
 import net.minecraft.world.entity.ai.village.poi.PoiManager;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
@@ -35,14 +36,14 @@ public class MoveThroughVillageGoal extends Goal {
         this.distanceToPoi = param3;
         this.canDealWithDoors = param4;
         this.setFlags(EnumSet.of(Goal.Flag.MOVE));
-        if (!this.hasGroundPathNavigation()) {
+        if (!GoalUtils.hasGroundPathNavigation(param0)) {
             throw new IllegalArgumentException("Unsupported mob for MoveThroughVillageGoal");
         }
     }
 
     @Override
     public boolean canUse() {
-        if (!this.hasGroundPathNavigation()) {
+        if (!GoalUtils.hasGroundPathNavigation(this.mob)) {
             return false;
         } else {
             this.updateVisited();
@@ -96,8 +97,8 @@ public class MoveThroughVillageGoal extends Goal {
                                 }
                             }
 
-                            for(int var7 = 0; var7 < this.path.getSize(); ++var7) {
-                                Node var8 = this.path.get(var7);
+                            for(int var7 = 0; var7 < this.path.getNodeCount(); ++var7) {
+                                Node var8 = this.path.getNode(var7);
                                 BlockPos var9 = new BlockPos(var8.x, var8.y + 1, var8.z);
                                 if (DoorBlock.isWoodenDoor(this.mob.level, var9)) {
                                     this.path = this.mob.getNavigation().createPath((double)var8.x, (double)var8.y, (double)var8.z, 0);
@@ -150,9 +151,5 @@ public class MoveThroughVillageGoal extends Goal {
             this.visited.remove(0);
         }
 
-    }
-
-    private boolean hasGroundPathNavigation() {
-        return this.mob.getNavigation() instanceof GroundPathNavigation;
     }
 }
