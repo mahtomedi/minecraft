@@ -1,5 +1,7 @@
 package net.minecraft.data.advancements;
 
+import com.google.common.collect.ImmutableList;
+import java.util.List;
 import java.util.function.Consumer;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementRewards;
@@ -24,8 +26,8 @@ import net.minecraft.advancements.critereon.TargetBlockTrigger;
 import net.minecraft.advancements.critereon.TradeTrigger;
 import net.minecraft.advancements.critereon.UsedTotemTrigger;
 import net.minecraft.core.Registry;
-import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.entity.EntityType;
@@ -36,7 +38,7 @@ import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Blocks;
 
 public class AdventureAdvancements implements Consumer<Consumer<Advancement>> {
-    private static final Biome[] EXPLORABLE_BIOMES = new Biome[]{
+    private static final List<ResourceKey<Biome>> EXPLORABLE_BIOMES = ImmutableList.of(
         Biomes.BIRCH_FOREST_HILLS,
         Biomes.RIVER,
         Biomes.SWAMP,
@@ -79,7 +81,7 @@ public class AdventureAdvancements implements Consumer<Consumer<Advancement>> {
         Biomes.DEEP_FROZEN_OCEAN,
         Biomes.BAMBOO_JUNGLE,
         Biomes.BAMBOO_JUNGLE_HILLS
-    };
+    );
     private static final EntityType<?>[] MOBS_TO_KILL = new EntityType[]{
         EntityType.BLAZE,
         EntityType.CAVE_SPIDER,
@@ -455,9 +457,9 @@ public class AdventureAdvancements implements Consumer<Consumer<Advancement>> {
         return param0;
     }
 
-    protected static Advancement.Builder addBiomes(Advancement.Builder param0, Biome[] param1) {
-        for(Biome var0 : param1) {
-            param0.addCriterion(BuiltinRegistries.BIOME.getKey(var0).toString(), LocationTrigger.TriggerInstance.located(LocationPredicate.inBiome(var0)));
+    protected static Advancement.Builder addBiomes(Advancement.Builder param0, List<ResourceKey<Biome>> param1) {
+        for(ResourceKey<Biome> var0 : param1) {
+            param0.addCriterion(var0.location().toString(), LocationTrigger.TriggerInstance.located(LocationPredicate.inBiome(var0)));
         }
 
         return param0;

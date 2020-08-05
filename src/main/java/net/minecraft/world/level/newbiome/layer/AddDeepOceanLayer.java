@@ -27,27 +27,27 @@ public enum AddDeepOceanLayer implements CastleTransformer {
             }
 
             if (var0 > 3) {
-                if (param5 == Layers.WARM_OCEAN) {
-                    return Layers.DEEP_WARM_OCEAN;
+                if (param5 == 44) {
+                    return 47;
                 }
 
-                if (param5 == Layers.LUKEWARM_OCEAN) {
-                    return Layers.DEEP_LUKEWARM_OCEAN;
+                if (param5 == 45) {
+                    return 48;
                 }
 
-                if (param5 == Layers.OCEAN) {
-                    return Layers.DEEP_OCEAN;
+                if (param5 == 0) {
+                    return 24;
                 }
 
-                if (param5 == Layers.COLD_OCEAN) {
-                    return Layers.DEEP_COLD_OCEAN;
+                if (param5 == 46) {
+                    return 49;
                 }
 
-                if (param5 == Layers.FROZEN_OCEAN) {
-                    return Layers.DEEP_FROZEN_OCEAN;
+                if (param5 == 10) {
+                    return 50;
                 }
 
-                return Layers.DEEP_OCEAN;
+                return 24;
             }
         }
 

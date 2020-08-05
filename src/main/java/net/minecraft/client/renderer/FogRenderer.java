@@ -16,9 +16,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeManager;
-import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -183,55 +181,54 @@ public class FogRenderer {
     public static void setupFog(Camera param0, FogRenderer.FogMode param1, float param2, boolean param3) {
         FluidState var0 = param0.getFluidInCamera();
         Entity var1 = param0.getEntity();
-        boolean var2 = var0.getType() != Fluids.EMPTY;
         if (var0.is(FluidTags.WATER)) {
-            float var3 = 1.0F;
-            var3 = 0.05F;
+            float var2 = 1.0F;
+            var2 = 0.05F;
             if (var1 instanceof LocalPlayer) {
-                LocalPlayer var4 = (LocalPlayer)var1;
-                var3 -= var4.getWaterVision() * var4.getWaterVision() * 0.03F;
-                Biome var5 = var4.level.getBiome(var4.blockPosition());
-                if (var5 == Biomes.SWAMP || var5 == Biomes.SWAMP_HILLS) {
-                    var3 += 0.005F;
+                LocalPlayer var3 = (LocalPlayer)var1;
+                var2 -= var3.getWaterVision() * var3.getWaterVision() * 0.03F;
+                Biome var4 = var3.level.getBiome(var3.blockPosition());
+                if (var4.getBiomeCategory() == Biome.BiomeCategory.SWAMP) {
+                    var2 += 0.005F;
                 }
             }
 
-            RenderSystem.fogDensity(var3);
+            RenderSystem.fogDensity(var2);
             RenderSystem.fogMode(GlStateManager.FogMode.EXP2);
         } else {
+            float var5;
             float var6;
-            float var7;
             if (var0.is(FluidTags.LAVA)) {
                 if (var1 instanceof LivingEntity && ((LivingEntity)var1).hasEffect(MobEffects.FIRE_RESISTANCE)) {
-                    var6 = 0.0F;
-                    var7 = 3.0F;
+                    var5 = 0.0F;
+                    var6 = 3.0F;
                 } else {
-                    var6 = 0.25F;
-                    var7 = 1.0F;
+                    var5 = 0.25F;
+                    var6 = 1.0F;
                 }
             } else if (var1 instanceof LivingEntity && ((LivingEntity)var1).hasEffect(MobEffects.BLINDNESS)) {
-                int var10 = ((LivingEntity)var1).getEffect(MobEffects.BLINDNESS).getDuration();
-                float var11 = Mth.lerp(Math.min(1.0F, (float)var10 / 20.0F), param2, 5.0F);
+                int var9 = ((LivingEntity)var1).getEffect(MobEffects.BLINDNESS).getDuration();
+                float var10 = Mth.lerp(Math.min(1.0F, (float)var9 / 20.0F), param2, 5.0F);
                 if (param1 == FogRenderer.FogMode.FOG_SKY) {
-                    var6 = 0.0F;
-                    var7 = var11 * 0.8F;
+                    var5 = 0.0F;
+                    var6 = var10 * 0.8F;
                 } else {
-                    var6 = var11 * 0.25F;
-                    var7 = var11;
+                    var5 = var10 * 0.25F;
+                    var6 = var10;
                 }
             } else if (param3) {
-                var6 = param2 * 0.05F;
-                var7 = Math.min(param2, 192.0F) * 0.5F;
+                var5 = param2 * 0.05F;
+                var6 = Math.min(param2, 192.0F) * 0.5F;
             } else if (param1 == FogRenderer.FogMode.FOG_SKY) {
-                var6 = 0.0F;
-                var7 = param2;
+                var5 = 0.0F;
+                var6 = param2;
             } else {
-                var6 = param2 * 0.75F;
-                var7 = param2;
+                var5 = param2 * 0.75F;
+                var6 = param2;
             }
 
-            RenderSystem.fogStart(var6);
-            RenderSystem.fogEnd(var7);
+            RenderSystem.fogStart(var5);
+            RenderSystem.fogEnd(var6);
             RenderSystem.fogMode(GlStateManager.FogMode.LINEAR);
             RenderSystem.setupNvFogDistance();
         }

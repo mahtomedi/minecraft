@@ -131,7 +131,6 @@ import net.minecraft.client.tutorial.Tutorial;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
@@ -151,6 +150,7 @@ import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.network.protocol.handshake.ClientIntentionPacket;
 import net.minecraft.network.protocol.login.ServerboundHelloPacket;
 import net.minecraft.resources.RegistryReadOps;
+import net.minecraft.resources.RegistryWriteOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.Bootstrap;
 import net.minecraft.server.MinecraftServer;
@@ -214,7 +214,6 @@ import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.SkullBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
 import net.minecraft.world.level.storage.LevelResource;
 import net.minecraft.world.level.storage.LevelStorageSource;
@@ -1599,12 +1598,24 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     }
 
     public void createLevel(String param0, LevelSettings param1, RegistryAccess.RegistryHolder param2, WorldGenSettings param3) {
-        this.doLoadLevel(param0, param2, param1x -> param1.getDataPackConfig(), (param3x, param4, param5, param6) -> {
-            RegistryReadOps<JsonElement> var0 = RegistryReadOps.create(JsonOps.INSTANCE, param5, param2);
-            DataResult<MappedRegistry<LevelStem>> var1x = var0.decodeElements(param3.dimensions(), Registry.LEVEL_STEM_REGISTRY, LevelStem.CODEC);
-            MappedRegistry<LevelStem> var2x = var1x.resultOrPartial(LOGGER::error).orElse(param3.dimensions());
-            return new PrimaryLevelData(param1, param3.withDimensions(var2x), var1x.lifecycle());
-        }, false, Minecraft.ExperimentalDialogType.CREATE);
+        this.doLoadLevel(
+            param0,
+            param2,
+            param1x -> param1.getDataPackConfig(),
+            (param3x, param4, param5, param6) -> {
+                RegistryWriteOps<JsonElement> var0 = RegistryWriteOps.create(JsonOps.INSTANCE, param2);
+                RegistryReadOps<JsonElement> var1x = RegistryReadOps.create(JsonOps.INSTANCE, param5, param2);
+                DataResult<WorldGenSettings> var2x = WorldGenSettings.CODEC
+                    .encodeStart(var0, param3)
+                    .setLifecycle(Lifecycle.stable())
+                    .flatMap(param1x -> WorldGenSettings.CODEC.parse(var1x, param1x));
+                WorldGenSettings var3x = var2x.resultOrPartial(Util.prefix("Error reading worldgen settings after loading data packs: ", LOGGER::error))
+                    .orElse(param3);
+                return new PrimaryLevelData(param1, var3x, var2x.lifecycle());
+            },
+            false,
+            Minecraft.ExperimentalDialogType.CREATE
+        );
     }
 
     private void doLoadLevel(

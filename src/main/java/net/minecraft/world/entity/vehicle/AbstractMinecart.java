@@ -7,6 +7,7 @@ import com.mojang.datafixers.util.Pair;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
+import net.minecraft.BlockUtil;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -144,6 +145,11 @@ public abstract class AbstractMinecart extends Entity {
     @Override
     public boolean isPushable() {
         return true;
+    }
+
+    @Override
+    protected Vec3 getRelativePortalPosition(Direction.Axis param0, BlockUtil.FoundRectangle param1) {
+        return LivingEntity.resetForwardDirectionOfRelativePortalPosition(super.getRelativePortalPosition(param0, param1));
     }
 
     @Override

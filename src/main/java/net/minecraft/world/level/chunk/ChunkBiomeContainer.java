@@ -7,7 +7,6 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.biome.BiomeSource;
-import net.minecraft.world.level.biome.Biomes;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
@@ -41,7 +40,7 @@ public class ChunkBiomeContainer implements BiomeManager.NoiseBiomeSource {
             Biome var2 = param0.byId(var1);
             if (var2 == null) {
                 LOGGER.warn("Received invalid biome id: " + var1);
-                this.biomes[var0] = Biomes.PLAINS;
+                this.biomes[var0] = param0.byId(0);
             } else {
                 this.biomes[var0] = var2;
             }

@@ -58,14 +58,14 @@ public final class LevelStem {
         for(ResourceKey<LevelStem> var1 : BUILTIN_ORDER) {
             LevelStem var2 = param0.get(var1);
             if (var2 != null) {
-                var0.register(var1, var2);
+                var0.register(var1, var2, param0.lifecycle(var2));
             }
         }
 
         for(Entry<ResourceKey<LevelStem>, LevelStem> var3 : param0.entrySet()) {
             ResourceKey<LevelStem> var4 = var3.getKey();
             if (!BUILTIN_ORDER.contains(var4)) {
-                var0.register(var4, var3.getValue());
+                var0.register(var4, var3.getValue(), param0.lifecycle(var3.getValue()));
             }
         }
 
@@ -82,11 +82,11 @@ public final class LevelStem {
             Entry<ResourceKey<LevelStem>, LevelStem> var3 = var0.get(2);
             if (var1.getKey() != OVERWORLD || var2.getKey() != NETHER || var3.getKey() != END) {
                 return false;
-            } else if (var1.getValue().type() != DimensionType.DEFAULT_OVERWORLD && var1.getValue().type() != DimensionType.DEFAULT_OVERWORLD_CAVES) {
+            } else if (!var1.getValue().type().equalTo(DimensionType.DEFAULT_OVERWORLD) && var1.getValue().type() != DimensionType.DEFAULT_OVERWORLD_CAVES) {
                 return false;
-            } else if (var2.getValue().type() != DimensionType.DEFAULT_NETHER) {
+            } else if (!var2.getValue().type().equalTo(DimensionType.DEFAULT_NETHER)) {
                 return false;
-            } else if (var3.getValue().type() != DimensionType.DEFAULT_END) {
+            } else if (!var3.getValue().type().equalTo(DimensionType.DEFAULT_END)) {
                 return false;
             } else if (var2.getValue().generator() instanceof NoiseBasedChunkGenerator && var3.getValue().generator() instanceof NoiseBasedChunkGenerator) {
                 NoiseBasedChunkGenerator var4 = (NoiseBasedChunkGenerator)var2.getValue().generator();

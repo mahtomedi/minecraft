@@ -92,7 +92,7 @@ public abstract class ChunkGenerator {
                     double var11 = (double)(4 * var3 + var3 * var9 * 6) + (var6.nextDouble() - 0.5) * (double)var3 * 2.5;
                     int var12 = (int)Math.round(Math.cos(var7) * var11);
                     int var13 = (int)Math.round(Math.sin(var7) * var11);
-                    BlockPos var14 = this.biomeSource.findBiomeHorizontal((var12 << 4) + 8, 0, (var13 << 4) + 8, 112, var1, var6);
+                    BlockPos var14 = this.biomeSource.findBiomeHorizontal((var12 << 4) + 8, 0, (var13 << 4) + 8, 112, var1::contains, var6);
                     if (var14 != null) {
                         var12 = var14.getX() >> 4;
                         var13 = var14.getZ() >> 4;

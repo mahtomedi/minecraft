@@ -1,9 +1,9 @@
 package net.minecraft.world.level.newbiome.layer;
 
+import it.unimi.dsi.fastutil.ints.Int2IntMap;
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import java.util.function.LongFunction;
-import net.minecraft.data.BuiltinRegistries;
-import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.biome.Biomes;
+import net.minecraft.Util;
 import net.minecraft.world.level.newbiome.area.Area;
 import net.minecraft.world.level.newbiome.area.AreaFactory;
 import net.minecraft.world.level.newbiome.area.LazyArea;
@@ -12,16 +12,76 @@ import net.minecraft.world.level.newbiome.context.LazyAreaContext;
 import net.minecraft.world.level.newbiome.layer.traits.AreaTransformer1;
 
 public class Layers {
-    protected static final int WARM_OCEAN = BuiltinRegistries.BIOME.getId(Biomes.WARM_OCEAN);
-    protected static final int LUKEWARM_OCEAN = BuiltinRegistries.BIOME.getId(Biomes.LUKEWARM_OCEAN);
-    protected static final int OCEAN = BuiltinRegistries.BIOME.getId(Biomes.OCEAN);
-    protected static final int COLD_OCEAN = BuiltinRegistries.BIOME.getId(Biomes.COLD_OCEAN);
-    protected static final int FROZEN_OCEAN = BuiltinRegistries.BIOME.getId(Biomes.FROZEN_OCEAN);
-    protected static final int DEEP_WARM_OCEAN = BuiltinRegistries.BIOME.getId(Biomes.DEEP_WARM_OCEAN);
-    protected static final int DEEP_LUKEWARM_OCEAN = BuiltinRegistries.BIOME.getId(Biomes.DEEP_LUKEWARM_OCEAN);
-    protected static final int DEEP_OCEAN = BuiltinRegistries.BIOME.getId(Biomes.DEEP_OCEAN);
-    protected static final int DEEP_COLD_OCEAN = BuiltinRegistries.BIOME.getId(Biomes.DEEP_COLD_OCEAN);
-    protected static final int DEEP_FROZEN_OCEAN = BuiltinRegistries.BIOME.getId(Biomes.DEEP_FROZEN_OCEAN);
+    private static final Int2IntMap CATEGORIES = Util.make(new Int2IntOpenHashMap(), param0 -> {
+        register(param0, Layers.Category.BEACH, 16);
+        register(param0, Layers.Category.BEACH, 26);
+        register(param0, Layers.Category.DESERT, 2);
+        register(param0, Layers.Category.DESERT, 17);
+        register(param0, Layers.Category.DESERT, 130);
+        register(param0, Layers.Category.EXTREME_HILLS, 131);
+        register(param0, Layers.Category.EXTREME_HILLS, 162);
+        register(param0, Layers.Category.EXTREME_HILLS, 20);
+        register(param0, Layers.Category.EXTREME_HILLS, 3);
+        register(param0, Layers.Category.EXTREME_HILLS, 34);
+        register(param0, Layers.Category.FOREST, 27);
+        register(param0, Layers.Category.FOREST, 28);
+        register(param0, Layers.Category.FOREST, 29);
+        register(param0, Layers.Category.FOREST, 157);
+        register(param0, Layers.Category.FOREST, 132);
+        register(param0, Layers.Category.FOREST, 4);
+        register(param0, Layers.Category.FOREST, 155);
+        register(param0, Layers.Category.FOREST, 156);
+        register(param0, Layers.Category.FOREST, 18);
+        register(param0, Layers.Category.ICY, 140);
+        register(param0, Layers.Category.ICY, 13);
+        register(param0, Layers.Category.ICY, 12);
+        register(param0, Layers.Category.JUNGLE, 168);
+        register(param0, Layers.Category.JUNGLE, 169);
+        register(param0, Layers.Category.JUNGLE, 21);
+        register(param0, Layers.Category.JUNGLE, 23);
+        register(param0, Layers.Category.JUNGLE, 22);
+        register(param0, Layers.Category.JUNGLE, 149);
+        register(param0, Layers.Category.JUNGLE, 151);
+        register(param0, Layers.Category.MESA, 37);
+        register(param0, Layers.Category.MESA, 165);
+        register(param0, Layers.Category.MESA, 167);
+        register(param0, Layers.Category.MESA, 166);
+        register(param0, Layers.Category.BADLANDS_PLATEAU, 39);
+        register(param0, Layers.Category.BADLANDS_PLATEAU, 38);
+        register(param0, Layers.Category.MUSHROOM, 14);
+        register(param0, Layers.Category.MUSHROOM, 15);
+        register(param0, Layers.Category.NONE, 25);
+        register(param0, Layers.Category.OCEAN, 46);
+        register(param0, Layers.Category.OCEAN, 49);
+        register(param0, Layers.Category.OCEAN, 50);
+        register(param0, Layers.Category.OCEAN, 48);
+        register(param0, Layers.Category.OCEAN, 24);
+        register(param0, Layers.Category.OCEAN, 47);
+        register(param0, Layers.Category.OCEAN, 10);
+        register(param0, Layers.Category.OCEAN, 45);
+        register(param0, Layers.Category.OCEAN, 0);
+        register(param0, Layers.Category.OCEAN, 44);
+        register(param0, Layers.Category.PLAINS, 1);
+        register(param0, Layers.Category.PLAINS, 129);
+        register(param0, Layers.Category.RIVER, 11);
+        register(param0, Layers.Category.RIVER, 7);
+        register(param0, Layers.Category.SAVANNA, 35);
+        register(param0, Layers.Category.SAVANNA, 36);
+        register(param0, Layers.Category.SAVANNA, 163);
+        register(param0, Layers.Category.SAVANNA, 164);
+        register(param0, Layers.Category.SWAMP, 6);
+        register(param0, Layers.Category.SWAMP, 134);
+        register(param0, Layers.Category.TAIGA, 160);
+        register(param0, Layers.Category.TAIGA, 161);
+        register(param0, Layers.Category.TAIGA, 32);
+        register(param0, Layers.Category.TAIGA, 33);
+        register(param0, Layers.Category.TAIGA, 30);
+        register(param0, Layers.Category.TAIGA, 31);
+        register(param0, Layers.Category.TAIGA, 158);
+        register(param0, Layers.Category.TAIGA, 5);
+        register(param0, Layers.Category.TAIGA, 19);
+        register(param0, Layers.Category.TAIGA, 133);
+    });
 
     private static <T extends Area, C extends BigContext<T>> AreaFactory<T> zoom(
         long param0, AreaTransformer1 param1, AreaFactory<T> param2, int param3, LongFunction<C> param4
@@ -97,38 +157,47 @@ public class Layers {
         if (param0 == param1) {
             return true;
         } else {
-            Biome var0 = BuiltinRegistries.BIOME.byId(param0);
-            Biome var1 = BuiltinRegistries.BIOME.byId(param1);
-            if (var0 == null || var1 == null) {
-                return false;
-            } else if (var0 != Biomes.WOODED_BADLANDS_PLATEAU && var0 != Biomes.BADLANDS_PLATEAU) {
-                if (var0.getBiomeCategory() != Biome.BiomeCategory.NONE
-                    && var1.getBiomeCategory() != Biome.BiomeCategory.NONE
-                    && var0.getBiomeCategory() == var1.getBiomeCategory()) {
-                    return true;
-                } else {
-                    return var0 == var1;
-                }
-            } else {
-                return var1 == Biomes.WOODED_BADLANDS_PLATEAU || var1 == Biomes.BADLANDS_PLATEAU;
-            }
+            return CATEGORIES.get(param0) == CATEGORIES.get(param1);
         }
     }
 
+    private static void register(Int2IntOpenHashMap param0, Layers.Category param1, int param2) {
+        param0.put(param2, param1.ordinal());
+    }
+
     protected static boolean isOcean(int param0) {
-        return param0 == WARM_OCEAN
-            || param0 == LUKEWARM_OCEAN
-            || param0 == OCEAN
-            || param0 == COLD_OCEAN
-            || param0 == FROZEN_OCEAN
-            || param0 == DEEP_WARM_OCEAN
-            || param0 == DEEP_LUKEWARM_OCEAN
-            || param0 == DEEP_OCEAN
-            || param0 == DEEP_COLD_OCEAN
-            || param0 == DEEP_FROZEN_OCEAN;
+        return param0 == 44
+            || param0 == 45
+            || param0 == 0
+            || param0 == 46
+            || param0 == 10
+            || param0 == 47
+            || param0 == 48
+            || param0 == 24
+            || param0 == 49
+            || param0 == 50;
     }
 
     protected static boolean isShallowOcean(int param0) {
-        return param0 == WARM_OCEAN || param0 == LUKEWARM_OCEAN || param0 == OCEAN || param0 == COLD_OCEAN || param0 == FROZEN_OCEAN;
+        return param0 == 44 || param0 == 45 || param0 == 0 || param0 == 46 || param0 == 10;
+    }
+
+    static enum Category {
+        NONE,
+        TAIGA,
+        EXTREME_HILLS,
+        JUNGLE,
+        MESA,
+        BADLANDS_PLATEAU,
+        PLAINS,
+        SAVANNA,
+        ICY,
+        BEACH,
+        FOREST,
+        OCEAN,
+        DESERT,
+        RIVER,
+        SWAMP,
+        MUSHROOM;
     }
 }

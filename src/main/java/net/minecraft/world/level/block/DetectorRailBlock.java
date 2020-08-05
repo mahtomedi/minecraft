@@ -70,36 +70,38 @@ public class DetectorRailBlock extends BaseRailBlock {
     }
 
     private void checkPressed(Level param0, BlockPos param1, BlockState param2) {
-        boolean var0 = param2.getValue(POWERED);
-        boolean var1 = false;
-        List<AbstractMinecart> var2 = this.getInteractingMinecartOfType(param0, param1, AbstractMinecart.class, null);
-        if (!var2.isEmpty()) {
-            var1 = true;
-        }
+        if (this.canSurvive(param2, param0, param1)) {
+            boolean var0 = param2.getValue(POWERED);
+            boolean var1 = false;
+            List<AbstractMinecart> var2 = this.getInteractingMinecartOfType(param0, param1, AbstractMinecart.class, null);
+            if (!var2.isEmpty()) {
+                var1 = true;
+            }
 
-        if (var1 && !var0) {
-            BlockState var3 = param2.setValue(POWERED, Boolean.valueOf(true));
-            param0.setBlock(param1, var3, 3);
-            this.updatePowerToConnected(param0, param1, var3, true);
-            param0.updateNeighborsAt(param1, this);
-            param0.updateNeighborsAt(param1.below(), this);
-            param0.setBlocksDirty(param1, param2, var3);
-        }
+            if (var1 && !var0) {
+                BlockState var3 = param2.setValue(POWERED, Boolean.valueOf(true));
+                param0.setBlock(param1, var3, 3);
+                this.updatePowerToConnected(param0, param1, var3, true);
+                param0.updateNeighborsAt(param1, this);
+                param0.updateNeighborsAt(param1.below(), this);
+                param0.setBlocksDirty(param1, param2, var3);
+            }
 
-        if (!var1 && var0) {
-            BlockState var4 = param2.setValue(POWERED, Boolean.valueOf(false));
-            param0.setBlock(param1, var4, 3);
-            this.updatePowerToConnected(param0, param1, var4, false);
-            param0.updateNeighborsAt(param1, this);
-            param0.updateNeighborsAt(param1.below(), this);
-            param0.setBlocksDirty(param1, param2, var4);
-        }
+            if (!var1 && var0) {
+                BlockState var4 = param2.setValue(POWERED, Boolean.valueOf(false));
+                param0.setBlock(param1, var4, 3);
+                this.updatePowerToConnected(param0, param1, var4, false);
+                param0.updateNeighborsAt(param1, this);
+                param0.updateNeighborsAt(param1.below(), this);
+                param0.setBlocksDirty(param1, param2, var4);
+            }
 
-        if (var1) {
-            param0.getBlockTicks().scheduleTick(param1, this, 20);
-        }
+            if (var1) {
+                param0.getBlockTicks().scheduleTick(param1, this, 20);
+            }
 
-        param0.updateNeighbourForOutputSignal(param1, this);
+            param0.updateNeighbourForOutputSignal(param1, this);
+        }
     }
 
     protected void updatePowerToConnected(Level param0, BlockPos param1, BlockState param2, boolean param3) {

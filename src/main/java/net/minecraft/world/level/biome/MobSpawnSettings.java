@@ -25,7 +25,7 @@ import org.apache.logging.log4j.Logger;
 public class MobSpawnSettings {
     public static final Logger LOGGER = LogManager.getLogger();
     public static final MobSpawnSettings EMPTY = new MobSpawnSettings(
-        0.1F, Stream.of(MobCategory.values()).collect(ImmutableMap.toImmutableMap(param0 -> param0, param0 -> ImmutableList.of())), ImmutableMap.of()
+        0.1F, Stream.of(MobCategory.values()).collect(ImmutableMap.toImmutableMap(param0 -> param0, param0 -> ImmutableList.of())), ImmutableMap.of(), false
     );
     public static final MapCodec<MobSpawnSettings> CODEC = RecordCodecBuilder.mapCodec(
         param0 -> param0.group(
@@ -39,20 +39,23 @@ public class MobSpawnSettings {
                         .forGetter(param0x -> param0x.spawners),
                     Codec.simpleMap(Registry.ENTITY_TYPE, MobSpawnSettings.MobSpawnCost.CODEC, Registry.ENTITY_TYPE)
                         .fieldOf("spawn_costs")
-                        .forGetter(param0x -> param0x.mobSpawnCosts)
+                        .forGetter(param0x -> param0x.mobSpawnCosts),
+                    Codec.BOOL.fieldOf("player_spawn_friendly").orElse(false).forGetter(MobSpawnSettings::playerSpawnFriendly)
                 )
                 .apply(param0, MobSpawnSettings::new)
     );
     private final float creatureGenerationProbability;
     private final Map<MobCategory, List<MobSpawnSettings.SpawnerData>> spawners;
     private final Map<EntityType<?>, MobSpawnSettings.MobSpawnCost> mobSpawnCosts;
+    private final boolean playerSpawnFriendly;
 
     private MobSpawnSettings(
-        float param0, Map<MobCategory, List<MobSpawnSettings.SpawnerData>> param1, Map<EntityType<?>, MobSpawnSettings.MobSpawnCost> param2
+        float param0, Map<MobCategory, List<MobSpawnSettings.SpawnerData>> param1, Map<EntityType<?>, MobSpawnSettings.MobSpawnCost> param2, boolean param3
     ) {
         this.creatureGenerationProbability = param0;
         this.spawners = param1;
         this.mobSpawnCosts = param2;
+        this.playerSpawnFriendly = param3;
     }
 
     public List<MobSpawnSettings.SpawnerData> getMobs(MobCategory param0) {
@@ -68,11 +71,16 @@ public class MobSpawnSettings {
         return this.creatureGenerationProbability;
     }
 
+    public boolean playerSpawnFriendly() {
+        return this.playerSpawnFriendly;
+    }
+
     public static class Builder {
         private final Map<MobCategory, List<MobSpawnSettings.SpawnerData>> spawners = Stream.of(MobCategory.values())
             .collect(ImmutableMap.toImmutableMap(param0 -> param0, param0 -> Lists.newArrayList()));
         private final Map<EntityType<?>, MobSpawnSettings.MobSpawnCost> mobSpawnCosts = Maps.newLinkedHashMap();
         private float creatureGenerationProbability = 0.1F;
+        private boolean playerCanSpawn;
 
         public MobSpawnSettings.Builder addSpawn(MobCategory param0, MobSpawnSettings.SpawnerData param1) {
             this.spawners.get(param0).add(param1);
@@ -89,6 +97,11 @@ public class MobSpawnSettings {
             return this;
         }
 
+        public MobSpawnSettings.Builder setPlayerCanSpawn() {
+            this.playerCanSpawn = true;
+            return this;
+        }
+
         public MobSpawnSettings build() {
             return new MobSpawnSettings(
                 this.creatureGenerationProbability,
@@ -96,7 +109,8 @@ public class MobSpawnSettings {
                     .entrySet()
                     .stream()
                     .collect(ImmutableMap.toImmutableMap(Entry::getKey, param0 -> ImmutableList.copyOf((Collection)param0.getValue()))),
-                ImmutableMap.copyOf(this.mobSpawnCosts)
+                ImmutableMap.copyOf(this.mobSpawnCosts),
+                this.playerCanSpawn
             );
         }
     }

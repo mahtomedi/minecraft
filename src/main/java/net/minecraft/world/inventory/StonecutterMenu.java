@@ -55,13 +55,13 @@ public class StonecutterMenu extends AbstractContainerMenu {
 
             @Override
             public ItemStack onTake(Player param0, ItemStack param1) {
+                param1.onCraftedBy(param0.level, param0, param1.getCount());
+                StonecutterMenu.this.resultContainer.awardUsedRecipes(param0);
                 ItemStack var0 = StonecutterMenu.this.inputSlot.remove(1);
                 if (!var0.isEmpty()) {
                     StonecutterMenu.this.setupResultSlot();
                 }
 
-                param1.onCraftedBy(param0.level, param0, param1.getCount());
-                StonecutterMenu.this.resultContainer.awardUsedRecipes(param0);
                 param2.execute((param0x, param1x) -> {
                     long var0x = param0x.getGameTime();
                     if (StonecutterMenu.this.lastSoundTime != var0x) {

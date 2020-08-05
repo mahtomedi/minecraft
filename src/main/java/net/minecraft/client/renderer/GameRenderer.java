@@ -1,11 +1,15 @@
 package net.minecraft.client.renderer;
 
 import com.google.gson.JsonSyntaxException;
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
 import java.io.IOException;
@@ -55,6 +59,7 @@ import org.apache.logging.log4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class GameRenderer implements ResourceManagerReloadListener, AutoCloseable {
+    private static final ResourceLocation NAUSEA_LOCATION = new ResourceLocation("textures/misc/nausea.png");
     private static final Logger LOGGER = LogManager.getLogger();
     private final Minecraft minecraft;
     private final ResourceManager resourceManager;
@@ -510,6 +515,13 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
             PoseStack var3 = new PoseStack();
             if (param2 && this.minecraft.level != null) {
                 this.minecraft.getProfiler().popPush("gui");
+                if (this.minecraft.player != null) {
+                    float var4 = Mth.lerp(param0, this.minecraft.player.oPortalTime, this.minecraft.player.portalTime);
+                    if (var4 > 0.0F && this.minecraft.player.hasEffect(MobEffects.CONFUSION) && this.minecraft.options.screenEffectScale < 1.0F) {
+                        this.renderConfusionOverlay(var4 * (1.0F - this.minecraft.options.screenEffectScale));
+                    }
+                }
+
                 if (!this.minecraft.options.hideGui || this.minecraft.screen != null) {
                     RenderSystem.defaultAlphaFunc();
                     this.renderItemActivationAnimation(this.minecraft.getWindow().getGuiScaledWidth(), this.minecraft.getWindow().getGuiScaledHeight(), param0);
@@ -524,19 +536,19 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
                 try {
                     this.minecraft.overlay.render(var3, var0, var1, this.minecraft.getDeltaFrameTime());
                 } catch (Throwable var13) {
-                    CrashReport var5 = CrashReport.forThrowable(var13, "Rendering overlay");
-                    CrashReportCategory var6 = var5.addCategory("Overlay render details");
-                    var6.setDetail("Overlay name", () -> this.minecraft.overlay.getClass().getCanonicalName());
-                    throw new ReportedException(var5);
+                    CrashReport var6 = CrashReport.forThrowable(var13, "Rendering overlay");
+                    CrashReportCategory var7 = var6.addCategory("Overlay render details");
+                    var7.setDetail("Overlay name", () -> this.minecraft.overlay.getClass().getCanonicalName());
+                    throw new ReportedException(var6);
                 }
             } else if (this.minecraft.screen != null) {
                 try {
                     this.minecraft.screen.render(var3, var0, var1, this.minecraft.getDeltaFrameTime());
                 } catch (Throwable var12) {
-                    CrashReport var8 = CrashReport.forThrowable(var12, "Rendering screen");
-                    CrashReportCategory var9 = var8.addCategory("Screen render details");
-                    var9.setDetail("Screen name", () -> this.minecraft.screen.getClass().getCanonicalName());
-                    var9.setDetail(
+                    CrashReport var9 = CrashReport.forThrowable(var12, "Rendering screen");
+                    CrashReportCategory var10 = var9.addCategory("Screen render details");
+                    var10.setDetail("Screen name", () -> this.minecraft.screen.getClass().getCanonicalName());
+                    var10.setDetail(
                         "Mouse location",
                         () -> String.format(
                                 Locale.ROOT,
@@ -547,7 +559,7 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
                                 this.minecraft.mouseHandler.ypos()
                             )
                     );
-                    var9.setDetail(
+                    var10.setDetail(
                         "Screen size",
                         () -> String.format(
                                 Locale.ROOT,
@@ -559,7 +571,7 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
                                 this.minecraft.getWindow().getGuiScale()
                             )
                     );
-                    throw new ReportedException(var8);
+                    throw new ReportedException(var9);
                 }
             }
 
@@ -652,11 +664,7 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
             * this.minecraft.options.screenEffectScale
             * this.minecraft.options.screenEffectScale;
         if (var3 > 0.0F) {
-            int var4 = 20;
-            if (this.minecraft.player.hasEffect(MobEffects.CONFUSION)) {
-                var4 = 7;
-            }
-
+            int var4 = this.minecraft.player.hasEffect(MobEffects.CONFUSION) ? 7 : 20;
             float var5 = 5.0F / (var3 * var3 + 5.0F) - var3 * 0.04F;
             var5 *= var5;
             Vector3f var6 = new Vector3f(0.0F, Mth.SQRT_OF_TWO / 2.0F, Mth.SQRT_OF_TWO / 2.0F);
@@ -742,6 +750,40 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
             RenderSystem.enableCull();
             RenderSystem.disableDepthTest();
         }
+    }
+
+    private void renderConfusionOverlay(float param0) {
+        int var0 = this.minecraft.getWindow().getGuiScaledWidth();
+        int var1 = this.minecraft.getWindow().getGuiScaledHeight();
+        double var2 = Mth.lerp((double)param0, 2.0, 1.0);
+        float var3 = 0.2F * param0;
+        float var4 = 0.4F * param0;
+        float var5 = 0.2F * param0;
+        double var6 = (double)var0 * var2;
+        double var7 = (double)var1 * var2;
+        double var8 = ((double)var0 - var6) / 2.0;
+        double var9 = ((double)var1 - var7) / 2.0;
+        RenderSystem.disableDepthTest();
+        RenderSystem.depthMask(false);
+        RenderSystem.enableBlend();
+        RenderSystem.blendFuncSeparate(
+            GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE
+        );
+        RenderSystem.color4f(var3, var4, var5, 1.0F);
+        this.minecraft.getTextureManager().bind(NAUSEA_LOCATION);
+        Tesselator var10 = Tesselator.getInstance();
+        BufferBuilder var11 = var10.getBuilder();
+        var11.begin(7, DefaultVertexFormat.POSITION_TEX);
+        var11.vertex(var8, var9 + var7, -90.0).uv(0.0F, 1.0F).endVertex();
+        var11.vertex(var8 + var6, var9 + var7, -90.0).uv(1.0F, 1.0F).endVertex();
+        var11.vertex(var8 + var6, var9, -90.0).uv(1.0F, 0.0F).endVertex();
+        var11.vertex(var8, var9, -90.0).uv(0.0F, 0.0F).endVertex();
+        var10.end();
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.disableBlend();
+        RenderSystem.depthMask(true);
+        RenderSystem.enableDepthTest();
     }
 
     public float getDarkenWorldAmount(float param0) {

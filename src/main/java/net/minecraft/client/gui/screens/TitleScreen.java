@@ -208,16 +208,16 @@ public class TitleScreen extends Screen {
     }
 
     private void createDemoMenuOptions(int param0, int param1) {
-        this.addButton(
-            new Button(
-                this.width / 2 - 100,
-                param0,
-                200,
-                20,
-                new TranslatableComponent("menu.playdemo"),
-                param0x -> this.minecraft.createLevel("Demo_World", MinecraftServer.DEMO_SETTINGS, RegistryAccess.builtin(), WorldGenSettings.DEMO_SETTINGS)
-            )
-        );
+        boolean var0 = this.checkDemoWorldPresence();
+        this.addButton(new Button(this.width / 2 - 100, param0, 200, 20, new TranslatableComponent("menu.playdemo"), param1x -> {
+            if (var0) {
+                this.minecraft.loadLevel("Demo_World");
+            } else {
+                RegistryAccess.RegistryHolder var0x = RegistryAccess.builtin();
+                this.minecraft.createLevel("Demo_World", MinecraftServer.DEMO_SETTINGS, var0x, WorldGenSettings.demoSettings(var0x));
+            }
+
+        }));
         this.resetDemoButton = this.addButton(
             new Button(
                 this.width / 2 - 100,
@@ -242,25 +242,25 @@ public class TitleScreen extends Screen {
                                     )
                                 );
                         }
-                    } catch (IOException var16x) {
+                    } catch (IOException var16) {
                         SystemToast.onWorldAccessFailure(this.minecraft, "Demo_World");
-                        LOGGER.warn("Failed to access demo world", (Throwable)var16x);
+                        LOGGER.warn("Failed to access demo world", (Throwable)var16);
                     }
         
                 }
             )
         );
+        this.resetDemoButton.active = var0;
+    }
 
+    private boolean checkDemoWorldPresence() {
         try (LevelStorageSource.LevelStorageAccess var0 = this.minecraft.getLevelSource().createAccess("Demo_World")) {
-            LevelSummary var1 = var0.getSummary();
-            if (var1 == null) {
-                this.resetDemoButton.active = false;
-            }
-        } catch (IOException var16) {
+            return var0.getSummary() != null;
+        } catch (IOException var15) {
             SystemToast.onWorldAccessFailure(this.minecraft, "Demo_World");
-            LOGGER.warn("Failed to read demo world data", (Throwable)var16);
+            LOGGER.warn("Failed to read demo world data", (Throwable)var15);
+            return false;
         }
-
     }
 
     private void realmsButtonClicked() {

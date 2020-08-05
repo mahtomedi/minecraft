@@ -1324,7 +1324,7 @@ public abstract class LivingEntity extends Entity {
         LootContext.Builder var0 = new LootContext.Builder((ServerLevel)this.level)
             .withRandom(this.random)
             .withParameter(LootContextParams.THIS_ENTITY, this)
-            .withParameter(LootContextParams.BLOCK_POS, this.blockPosition())
+            .withParameter(LootContextParams.ORIGIN, this.position())
             .withParameter(LootContextParams.DAMAGE_SOURCE, param1)
             .withOptionalParameter(LootContextParams.KILLER_ENTITY, param1.getEntity())
             .withOptionalParameter(LootContextParams.DIRECT_KILLER_ENTITY, param1.getDirectEntity());
@@ -2717,8 +2717,11 @@ public abstract class LivingEntity extends Entity {
 
     @Override
     protected Vec3 getRelativePortalPosition(Direction.Axis param0, BlockUtil.FoundRectangle param1) {
-        Vec3 var0 = super.getRelativePortalPosition(param0, param1);
-        return new Vec3(var0.x, var0.y, 0.0);
+        return resetForwardDirectionOfRelativePortalPosition(super.getRelativePortalPosition(param0, param1));
+    }
+
+    public static Vec3 resetForwardDirectionOfRelativePortalPosition(Vec3 param0) {
+        return new Vec3(param0.x, param0.y, 0.0);
     }
 
     public float getAbsorptionAmount() {

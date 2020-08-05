@@ -33,12 +33,14 @@ import javax.annotation.Nullable;
 import net.minecraft.FileUtil;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
+import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.RegistryLookupCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.DirectoryLock;
 import net.minecraft.util.ProgressListener;
@@ -48,7 +50,9 @@ import net.minecraft.util.datafix.fixes.References;
 import net.minecraft.world.level.DataPackConfig;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelSettings;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -94,8 +98,8 @@ public class LevelStorageSource {
         return new LevelStorageSource(param0, param0.resolve("../backups"), DataFixers.getDataFixer());
     }
 
-    private static Pair<WorldGenSettings, Lifecycle> readWorldGenSettings(Dynamic<?> param0, DataFixer param1, int param2) {
-        Dynamic<?> var0 = param0.get("WorldGenSettings").orElseEmptyMap();
+    private static <T> Pair<WorldGenSettings, Lifecycle> readWorldGenSettings(Dynamic<T> param0, DataFixer param1, int param2) {
+        Dynamic<T> var0 = param0.get("WorldGenSettings").orElseEmptyMap();
 
         for(String var1 : OLD_SETTINGS_KEYS) {
             Optional<? extends Dynamic<?>> var2 = param0.get(var1).result();
@@ -104,9 +108,32 @@ public class LevelStorageSource {
             }
         }
 
-        Dynamic<?> var3 = param1.update(References.WORLD_GEN_SETTINGS, var0, param2, SharedConstants.getCurrentVersion().getWorldVersion());
+        Dynamic<T> var3 = param1.update(References.WORLD_GEN_SETTINGS, var0, param2, SharedConstants.getCurrentVersion().getWorldVersion());
         DataResult<WorldGenSettings> var4 = WorldGenSettings.CODEC.parse(var3);
-        return Pair.of(var4.resultOrPartial(Util.prefix("WorldGenSettings: ", LOGGER::error)).orElseGet(WorldGenSettings::makeDefault), var4.lifecycle());
+        return Pair.of(
+            var4.resultOrPartial(Util.prefix("WorldGenSettings: ", LOGGER::error))
+                .orElseGet(
+                    () -> {
+                        Registry<DimensionType> var0x = RegistryLookupCodec.create(Registry.DIMENSION_TYPE_REGISTRY)
+                            .codec()
+                            .parse(var3)
+                            .resultOrPartial(Util.prefix("Dimension type registry: ", LOGGER::error))
+                            .orElseThrow(() -> new IllegalStateException("Failed to get dimension registry"));
+                        Registry<Biome> var1x = RegistryLookupCodec.create(Registry.BIOME_REGISTRY)
+                            .codec()
+                            .parse(var3)
+                            .resultOrPartial(Util.prefix("Biome registry: ", LOGGER::error))
+                            .orElseThrow(() -> new IllegalStateException("Failed to get biome registry"));
+                        Registry<NoiseGeneratorSettings> var2x = RegistryLookupCodec.create(Registry.NOISE_GENERATOR_SETTINGS_REGISTRY)
+                            .codec()
+                            .parse(var3)
+                            .resultOrPartial(Util.prefix("Noise settings registry: ", LOGGER::error))
+                            .orElseThrow(() -> new IllegalStateException("Failed to get noise settings registry"));
+                        return WorldGenSettings.makeDefault(var0x, var1x, var2x);
+                    }
+                ),
+            var4.lifecycle()
+        );
     }
 
     private static DataPackConfig readDataPackConfig(Dynamic<?> param0) {

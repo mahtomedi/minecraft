@@ -438,7 +438,7 @@ public class LootCommand {
         BlockState var2 = var1.getBlockState(param1);
         BlockEntity var3 = var1.getBlockEntity(param1);
         LootContext.Builder var4 = new LootContext.Builder(var1)
-            .withParameter(LootContextParams.BLOCK_POS, param1)
+            .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(param1))
             .withParameter(LootContextParams.BLOCK_STATE, var2)
             .withOptionalParameter(LootContextParams.BLOCK_ENTITY, var3)
             .withOptionalParameter(LootContextParams.THIS_ENTITY, var0.getEntity())
@@ -463,7 +463,7 @@ public class LootCommand {
             var2.withOptionalParameter(LootContextParams.DIRECT_KILLER_ENTITY, var3);
             var2.withOptionalParameter(LootContextParams.KILLER_ENTITY, var3);
             var2.withParameter(LootContextParams.THIS_ENTITY, param1);
-            var2.withParameter(LootContextParams.BLOCK_POS, new BlockPos(var1.getPosition()));
+            var2.withParameter(LootContextParams.ORIGIN, var1.getPosition());
             LootTable var4 = var1.getServer().getLootTables().get(var0);
             List<ItemStack> var5 = var4.getRandomItems(var2.create(LootContextParamSets.ENTITY));
             return param2.accept(param0, var5, param2x -> callback(var1, param2x, var0));
@@ -474,7 +474,7 @@ public class LootCommand {
         CommandSourceStack var0 = param0.getSource();
         LootContext.Builder var1 = new LootContext.Builder(var0.getLevel())
             .withOptionalParameter(LootContextParams.THIS_ENTITY, var0.getEntity())
-            .withParameter(LootContextParams.BLOCK_POS, new BlockPos(var0.getPosition()));
+            .withParameter(LootContextParams.ORIGIN, var0.getPosition());
         return drop(param0, param1, var1.create(LootContextParamSets.CHEST), param2);
     }
 
@@ -483,7 +483,7 @@ public class LootCommand {
     ) throws CommandSyntaxException {
         CommandSourceStack var0 = param0.getSource();
         LootContext var1 = new LootContext.Builder(var0.getLevel())
-            .withParameter(LootContextParams.BLOCK_POS, param2)
+            .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(param2))
             .withParameter(LootContextParams.TOOL, param3)
             .withOptionalParameter(LootContextParams.THIS_ENTITY, var0.getEntity())
             .create(LootContextParamSets.FISHING);

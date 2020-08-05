@@ -200,14 +200,14 @@ public class ItemFrame extends HangingEntity {
 
     private void dropItem(@Nullable Entity param0, boolean param1) {
         if (!this.fixed) {
+            ItemStack var0 = this.getItem();
+            this.setItem(ItemStack.EMPTY);
             if (!this.level.getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
                 if (param0 == null) {
-                    this.removeFramedMap(this.getItem());
+                    this.removeFramedMap(var0);
                 }
 
             } else {
-                ItemStack var0 = this.getItem();
-                this.setItem(ItemStack.EMPTY);
                 if (param0 instanceof Player) {
                     Player var1 = (Player)param0;
                     if (var1.abilities.instabuild) {

@@ -14,6 +14,7 @@ import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.MobCategory;
@@ -143,7 +144,7 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
         return new NoiseBasedChunkGenerator(this.biomeSource.withSeed(param0), param0, this.settings);
     }
 
-    public boolean stable(long param0, NoiseGeneratorSettings param1) {
+    public boolean stable(long param0, ResourceKey<NoiseGeneratorSettings> param1) {
         return this.seed == param0 && this.settings.get().stable(param1);
     }
 

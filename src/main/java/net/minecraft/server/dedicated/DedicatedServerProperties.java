@@ -3,6 +3,7 @@ package net.minecraft.server.dedicated;
 import java.nio.file.Path;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.level.GameType;
@@ -60,7 +61,7 @@ public class DedicatedServerProperties extends Settings<DedicatedServerPropertie
     public final Settings<DedicatedServerProperties>.MutableValue<Boolean> whiteList;
     public final WorldGenSettings worldGenSettings;
 
-    public DedicatedServerProperties(Properties param0) {
+    public DedicatedServerProperties(Properties param0, RegistryAccess param1) {
         super(param0);
         if (this.get("snooper-enabled", true)) {
         }
@@ -85,14 +86,14 @@ public class DedicatedServerProperties extends Settings<DedicatedServerPropertie
         this.entityBroadcastRangePercentage = this.get("entity-broadcast-range-percentage", param0x -> Mth.clamp(param0x, 10, 1000), 100);
         this.playerIdleTimeout = this.getMutable("player-idle-timeout", 0);
         this.whiteList = this.getMutable("white-list", false);
-        this.worldGenSettings = WorldGenSettings.create(param0);
+        this.worldGenSettings = WorldGenSettings.create(param1, param0);
     }
 
-    public static DedicatedServerProperties fromFile(Path param0) {
-        return new DedicatedServerProperties(loadFromFile(param0));
+    public static DedicatedServerProperties fromFile(RegistryAccess param0, Path param1) {
+        return new DedicatedServerProperties(loadFromFile(param1), param0);
     }
 
-    protected DedicatedServerProperties reload(Properties param0) {
-        return new DedicatedServerProperties(param0);
+    protected DedicatedServerProperties reload(RegistryAccess param0, Properties param1) {
+        return new DedicatedServerProperties(param1, param0);
     }
 }

@@ -21,6 +21,7 @@ import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -293,7 +294,7 @@ public class Fox extends Animal {
     public SpawnGroupData finalizeSpawn(
         ServerLevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
     ) {
-        Biome var0 = param0.getBiome(this.blockPosition());
+        Optional<ResourceKey<Biome>> var0 = param0.getBiomeName(this.blockPosition());
         Fox.Type var1 = Fox.Type.byBiome(var0);
         boolean var2 = false;
         if (param3 instanceof Fox.FoxGroupData) {
@@ -1480,9 +1481,9 @@ public class Fox extends Animal {
         private static final Map<String, Fox.Type> BY_NAME = Arrays.stream(values()).collect(Collectors.toMap(Fox.Type::getName, param0 -> param0));
         private final int id;
         private final String name;
-        private final List<Biome> biomes;
+        private final List<ResourceKey<Biome>> biomes;
 
-        private Type(int param0, String param1, Biome... param2) {
+        private Type(int param0, String param1, ResourceKey<Biome>... param2) {
             this.id = param0;
             this.name = param1;
             this.biomes = Arrays.asList(param2);
@@ -1490,10 +1491,6 @@ public class Fox extends Animal {
 
         public String getName() {
             return this.name;
-        }
-
-        public List<Biome> getBiomes() {
-            return this.biomes;
         }
 
         public int getId() {
@@ -1512,8 +1509,8 @@ public class Fox extends Animal {
             return BY_ID[param0];
         }
 
-        public static Fox.Type byBiome(Biome param0) {
-            return SNOW.getBiomes().contains(param0) ? SNOW : RED;
+        public static Fox.Type byBiome(Optional<ResourceKey<Biome>> param0) {
+            return param0.isPresent() && SNOW.biomes.contains(param0.get()) ? SNOW : RED;
         }
     }
 }

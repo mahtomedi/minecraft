@@ -114,7 +114,6 @@ import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelSettings;
-import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.block.Block;
@@ -336,8 +335,12 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         ChunkGenerator var9;
         DimensionType var8;
         if (var7 == null) {
-            var8 = DimensionType.defaultOverworld();
-            var9 = WorldGenSettings.makeDefaultOverworld(new Random().nextLong());
+            var8 = this.registryHolder.dimensionTypes().getOrThrow(DimensionType.OVERWORLD_LOCATION);
+            var9 = WorldGenSettings.makeDefaultOverworld(
+                this.registryHolder.registryOrThrow(Registry.BIOME_REGISTRY),
+                this.registryHolder.registryOrThrow(Registry.NOISE_GENERATOR_SETTINGS_REGISTRY),
+                new Random().nextLong()
+            );
         } else {
             var8 = var7.type();
             var9 = var7.generator();
@@ -409,52 +412,51 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
             param1.setSpawn(BlockPos.ZERO.above(), 0.0F);
         } else {
             BiomeSource var1 = var0.getBiomeSource();
-            List<Biome> var2 = var1.getPlayerSpawnBiomes();
-            Random var3 = new Random(param0.getSeed());
-            BlockPos var4 = var1.findBiomeHorizontal(0, param0.getSeaLevel(), 0, 256, var2, var3);
-            ChunkPos var5 = var4 == null ? new ChunkPos(0, 0) : new ChunkPos(var4);
-            if (var4 == null) {
+            Random var2 = new Random(param0.getSeed());
+            BlockPos var3 = var1.findBiomeHorizontal(0, param0.getSeaLevel(), 0, 256, param0x -> param0x.getMobSettings().playerSpawnFriendly(), var2);
+            ChunkPos var4 = var3 == null ? new ChunkPos(0, 0) : new ChunkPos(var3);
+            if (var3 == null) {
                 LOGGER.warn("Unable to find spawn biome");
             }
 
-            boolean var6 = false;
+            boolean var5 = false;
 
-            for(Block var7 : BlockTags.VALID_SPAWN.getValues()) {
-                if (var1.getSurfaceBlocks().contains(var7.defaultBlockState())) {
-                    var6 = true;
+            for(Block var6 : BlockTags.VALID_SPAWN.getValues()) {
+                if (var1.getSurfaceBlocks().contains(var6.defaultBlockState())) {
+                    var5 = true;
                     break;
                 }
             }
 
-            param1.setSpawn(var5.getWorldPosition().offset(8, var0.getSpawnHeight(), 8), 0.0F);
+            param1.setSpawn(var4.getWorldPosition().offset(8, var0.getSpawnHeight(), 8), 0.0F);
+            int var7 = 0;
             int var8 = 0;
             int var9 = 0;
-            int var10 = 0;
-            int var11 = -1;
-            int var12 = 32;
+            int var10 = -1;
+            int var11 = 32;
 
-            for(int var13 = 0; var13 < 1024; ++var13) {
-                if (var8 > -16 && var8 <= 16 && var9 > -16 && var9 <= 16) {
-                    BlockPos var14 = PlayerRespawnLogic.getSpawnPosInChunk(param0, new ChunkPos(var5.x + var8, var5.z + var9), var6);
-                    if (var14 != null) {
-                        param1.setSpawn(var14, 0.0F);
+            for(int var12 = 0; var12 < 1024; ++var12) {
+                if (var7 > -16 && var7 <= 16 && var8 > -16 && var8 <= 16) {
+                    BlockPos var13 = PlayerRespawnLogic.getSpawnPosInChunk(param0, new ChunkPos(var4.x + var7, var4.z + var8), var5);
+                    if (var13 != null) {
+                        param1.setSpawn(var13, 0.0F);
                         break;
                     }
                 }
 
-                if (var8 == var9 || var8 < 0 && var8 == -var9 || var8 > 0 && var8 == 1 - var9) {
-                    int var15 = var10;
-                    var10 = -var11;
-                    var11 = var15;
+                if (var7 == var8 || var7 < 0 && var7 == -var8 || var7 > 0 && var7 == 1 - var8) {
+                    int var14 = var9;
+                    var9 = -var10;
+                    var10 = var14;
                 }
 
+                var7 += var9;
                 var8 += var10;
-                var9 += var11;
             }
 
             if (param2) {
-                ConfiguredFeature<?, ?> var16 = Features.BONUS_CHEST;
-                var16.place(param0, var0, param0.random, new BlockPos(param1.getXSpawn(), param1.getYSpawn(), param1.getZSpawn()));
+                ConfiguredFeature<?, ?> var15 = Features.BONUS_CHEST;
+                var15.place(param0, var0, param0.random, new BlockPos(param1.getXSpawn(), param1.getYSpawn(), param1.getZSpawn()));
             }
 
         }

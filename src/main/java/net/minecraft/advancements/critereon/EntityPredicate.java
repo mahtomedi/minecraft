@@ -227,7 +227,6 @@ public class EntityPredicate {
     public static LootContext createContext(ServerPlayer param0, Entity param1) {
         return new LootContext.Builder(param0.getLevel())
             .withParameter(LootContextParams.THIS_ENTITY, param1)
-            .withParameter(LootContextParams.BLOCK_POS, param1.blockPosition())
             .withParameter(LootContextParams.ORIGIN, param0.position())
             .withRandom(param0.getRandom())
             .create(LootContextParamSets.ADVANCEMENT_ENTITY);

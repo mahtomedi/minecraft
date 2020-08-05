@@ -17,7 +17,6 @@ import net.minecraft.ReportedException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -102,7 +101,7 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         WritableLevelData param0,
         ResourceKey<Level> param1,
         ResourceKey<DimensionType> param2,
-        DimensionType param3,
+        final DimensionType param3,
         Supplier<ProfilerFiller> param4,
         boolean param5,
         boolean param6,
@@ -114,16 +113,16 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         this.dimension = param1;
         this.dimensionTypeKey = param2;
         this.isClientSide = param5;
-        if (param3.shrunk()) {
+        if (param3.coordinateScale() != 1.0) {
             this.worldBorder = new WorldBorder() {
                 @Override
                 public double getCenterX() {
-                    return super.getCenterX() / 8.0;
+                    return super.getCenterX() / param3.coordinateScale();
                 }
 
                 @Override
                 public double getCenterZ() {
-                    return super.getCenterZ() / 8.0;
+                    return super.getCenterZ() / param3.coordinateScale();
                 }
             };
         } else {
@@ -1095,6 +1094,4 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     public final boolean isDebug() {
         return this.isDebug;
     }
-
-    public abstract RegistryAccess registryAccess();
 }

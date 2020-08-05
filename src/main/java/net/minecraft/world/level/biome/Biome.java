@@ -1,7 +1,6 @@
 package net.minecraft.world.level.biome;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Sets;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -12,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
-import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
@@ -65,8 +63,7 @@ public final class Biome {
                     Codec.FLOAT.fieldOf("scale").forGetter(param0x -> param0x.scale),
                     BiomeSpecialEffects.CODEC.fieldOf("effects").forGetter(param0x -> param0x.specialEffects),
                     BiomeGenerationSettings.CODEC.forGetter(param0x -> param0x.generationSettings),
-                    MobSpawnSettings.CODEC.forGetter(param0x -> param0x.mobSettings),
-                    Codec.STRING.optionalFieldOf("parent").forGetter(param0x -> Optional.ofNullable(param0x.parent))
+                    MobSpawnSettings.CODEC.forGetter(param0x -> param0x.mobSettings)
                 )
                 .apply(param0, Biome::new)
     );
@@ -76,18 +73,16 @@ public final class Biome {
                     Biome.BiomeCategory.CODEC.fieldOf("category").forGetter(param0x -> param0x.biomeCategory),
                     Codec.FLOAT.fieldOf("depth").forGetter(param0x -> param0x.depth),
                     Codec.FLOAT.fieldOf("scale").forGetter(param0x -> param0x.scale),
-                    BiomeSpecialEffects.CODEC.fieldOf("effects").forGetter(param0x -> param0x.specialEffects),
-                    Codec.STRING.optionalFieldOf("parent").forGetter(param0x -> Optional.ofNullable(param0x.parent))
+                    BiomeSpecialEffects.CODEC.fieldOf("effects").forGetter(param0x -> param0x.specialEffects)
                 )
                 .apply(
                     param0,
-                    (param0x, param1, param2, param3, param4, param5) -> new Biome(
-                            param0x, param1, param2, param3, param4, BiomeGenerationSettings.EMPTY, MobSpawnSettings.EMPTY, param5
+                    (param0x, param1, param2, param3, param4) -> new Biome(
+                            param0x, param1, param2, param3, param4, BiomeGenerationSettings.EMPTY, MobSpawnSettings.EMPTY
                         )
                 )
     );
     public static final Codec<Supplier<Biome>> CODEC = RegistryFileCodec.create(Registry.BIOME_REGISTRY, DIRECT_CODEC);
-    public static final Set<Biome> EXPLORABLE_BIOMES = Sets.newHashSet();
     private final Map<Integer, List<StructureFeature<?>>> structuresByStep = Registry.STRUCTURE_FEATURE
         .stream()
         .collect(Collectors.groupingBy(param0x -> param0x.step().ordinal()));
@@ -99,8 +94,6 @@ public final class Biome {
     private final MobSpawnSettings mobSettings;
     private final float depth;
     private final float scale;
-    @Nullable
-    protected final String parent;
     private final Biome.BiomeCategory biomeCategory;
     private final BiomeSpecialEffects specialEffects;
     private final ThreadLocal<Long2FloatLinkedOpenHashMap> temperatureCache = ThreadLocal.withInitial(() -> Util.make(() -> {
@@ -120,8 +113,7 @@ public final class Biome {
         float param3,
         BiomeSpecialEffects param4,
         BiomeGenerationSettings param5,
-        MobSpawnSettings param6,
-        Optional<String> param7
+        MobSpawnSettings param6
     ) {
         this.climateSettings = param0;
         this.generationSettings = param5;
@@ -130,11 +122,6 @@ public final class Biome {
         this.depth = param2;
         this.scale = param3;
         this.specialEffects = param4;
-        this.parent = param7.orElse(null);
-    }
-
-    public boolean isMutated() {
-        return this.parent != null;
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -322,16 +309,6 @@ public final class Biome {
         var0.apply(param0, param1, this, param2, param3, param4, param5, param6, param7, param8, param9);
     }
 
-    public Biome.BiomeTempCategory getTemperatureCategory() {
-        if (this.biomeCategory == Biome.BiomeCategory.OCEAN) {
-            return Biome.BiomeTempCategory.OCEAN;
-        } else if ((double)this.getBaseTemperature() < 0.2) {
-            return Biome.BiomeTempCategory.COLD;
-        } else {
-            return (double)this.getBaseTemperature() < 1.0 ? Biome.BiomeTempCategory.MEDIUM : Biome.BiomeTempCategory.WARM;
-        }
-    }
-
     public final float getDepth() {
         return this.depth;
     }
@@ -391,11 +368,6 @@ public final class Biome {
         return this.biomeCategory;
     }
 
-    @Nullable
-    public String getParent() {
-        return this.parent;
-    }
-
     @Override
     public String toString() {
         ResourceLocation var0 = BuiltinRegistries.BIOME.getKey(this);
@@ -416,8 +388,6 @@ public final class Biome {
         private Biome.TemperatureModifier temperatureModifier = Biome.TemperatureModifier.NONE;
         @Nullable
         private Float downfall;
-        @Nullable
-        private String parent;
         @Nullable
         private BiomeSpecialEffects specialEffects;
         @Nullable
@@ -452,11 +422,6 @@ public final class Biome {
 
         public Biome.BiomeBuilder downfall(float param0) {
             this.downfall = param0;
-            return this;
-        }
-
-        public Biome.BiomeBuilder parent(@Nullable String param0) {
-            this.parent = param0;
             return this;
         }
 
@@ -497,8 +462,7 @@ public final class Biome {
                     this.scale,
                     this.specialEffects,
                     this.generationSettings,
-                    this.mobSpawnSettings,
-                    Optional.ofNullable(this.parent)
+                    this.mobSpawnSettings
                 );
             } else {
                 throw new IllegalStateException("You are missing parameters to build a proper biome\n" + this);
@@ -527,10 +491,7 @@ public final class Biome {
                 + this.mobSpawnSettings
                 + ",\ngenerationSettings="
                 + this.generationSettings
-                + ",\nparent='"
-                + this.parent
-                + '\''
-                + "\n"
+                + ",\n"
                 + '}';
         }
     }
@@ -573,25 +534,6 @@ public final class Biome {
 
         @Override
         public String getSerializedName() {
-            return this.name;
-        }
-    }
-
-    public static enum BiomeTempCategory {
-        OCEAN("ocean"),
-        COLD("cold"),
-        MEDIUM("medium"),
-        WARM("warm");
-
-        private static final Map<String, Biome.BiomeTempCategory> BY_NAME = Arrays.stream(values())
-            .collect(Collectors.toMap(Biome.BiomeTempCategory::getName, param0 -> param0));
-        private final String name;
-
-        private BiomeTempCategory(String param0) {
-            this.name = param0;
-        }
-
-        public String getName() {
             return this.name;
         }
     }

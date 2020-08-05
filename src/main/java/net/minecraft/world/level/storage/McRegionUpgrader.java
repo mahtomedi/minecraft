@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
@@ -19,6 +20,7 @@ import net.minecraft.util.ProgressListener;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.DataPackConfig;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.biome.FixedBiomeSource;
@@ -55,16 +57,17 @@ public class McRegionUpgrader {
         RegistryReadOps<Tag> var8 = RegistryReadOps.create(NbtOps.INSTANCE, ResourceManager.Empty.INSTANCE, var7);
         WorldData var9 = param0.getDataTag(var8, DataPackConfig.DEFAULT);
         long var10 = var9 != null ? var9.worldGenSettings().seed() : 0L;
-        BiomeSource var11;
+        Registry<Biome> var11 = var7.registryOrThrow(Registry.BIOME_REGISTRY);
+        BiomeSource var12;
         if (var9 != null && var9.worldGenSettings().isFlatWorld()) {
-            var11 = new FixedBiomeSource(Biomes.PLAINS);
+            var12 = new FixedBiomeSource(var11.getOrThrow(Biomes.PLAINS));
         } else {
-            var11 = new OverworldBiomeSource(var10, false, false);
+            var12 = new OverworldBiomeSource(var10, false, false, var11);
         }
 
-        convertRegions(var7, new File(var3, "region"), var0, var11, 0, var6, param1);
-        convertRegions(var7, new File(var4, "region"), var1, new FixedBiomeSource(Biomes.NETHER_WASTES), var0.size(), var6, param1);
-        convertRegions(var7, new File(var5, "region"), var2, new FixedBiomeSource(Biomes.THE_END), var0.size() + var1.size(), var6, param1);
+        convertRegions(var7, new File(var3, "region"), var0, var12, 0, var6, param1);
+        convertRegions(var7, new File(var4, "region"), var1, new FixedBiomeSource(var11.getOrThrow(Biomes.NETHER_WASTES)), var0.size(), var6, param1);
+        convertRegions(var7, new File(var5, "region"), var2, new FixedBiomeSource(var11.getOrThrow(Biomes.THE_END)), var0.size() + var1.size(), var6, param1);
         makeMcrLevelDatBackup(param0);
         param0.saveDataTag(var7, var9);
         return true;

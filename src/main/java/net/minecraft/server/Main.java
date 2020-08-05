@@ -83,73 +83,73 @@ public class Main {
             Bootstrap.bootStrap();
             Bootstrap.validate();
             Util.startTimerHackThread();
-            Path var16 = Paths.get("server.properties");
-            DedicatedServerSettings var17 = new DedicatedServerSettings(var16);
-            var17.forceSave();
-            Path var18 = Paths.get("eula.txt");
-            Eula var19 = new Eula(var18);
+            RegistryAccess.RegistryHolder var16 = RegistryAccess.builtin();
+            Path var17 = Paths.get("server.properties");
+            DedicatedServerSettings var18 = new DedicatedServerSettings(var16, var17);
+            var18.forceSave();
+            Path var19 = Paths.get("eula.txt");
+            Eula var20 = new Eula(var19);
             if (var15.has(var2)) {
-                LOGGER.info("Initialized '{}' and '{}'", var16.toAbsolutePath(), var18.toAbsolutePath());
+                LOGGER.info("Initialized '{}' and '{}'", var17.toAbsolutePath(), var19.toAbsolutePath());
                 return;
             }
 
-            if (!var19.hasAgreedToEULA()) {
+            if (!var20.hasAgreedToEULA()) {
                 LOGGER.info("You need to agree to the EULA in order to run the server. Go to eula.txt for more info.");
                 return;
             }
 
-            File var20 = new File(var15.valueOf(var10));
-            YggdrasilAuthenticationService var21 = new YggdrasilAuthenticationService(Proxy.NO_PROXY, UUID.randomUUID().toString());
-            MinecraftSessionService var22 = var21.createMinecraftSessionService();
-            GameProfileRepository var23 = var21.createProfileRepository();
-            GameProfileCache var24 = new GameProfileCache(var23, new File(var20, MinecraftServer.USERID_CACHE_FILE.getName()));
-            String var25 = Optional.ofNullable(var15.valueOf(var11)).orElse(var17.getProperties().levelName);
-            LevelStorageSource var26 = LevelStorageSource.createDefault(var20.toPath());
-            LevelStorageSource.LevelStorageAccess var27 = var26.createAccess(var25);
-            MinecraftServer.convertFromRegionFormatIfNeeded(var27);
-            DataPackConfig var28 = var27.getDataPacks();
-            boolean var29 = var15.has(var7);
-            if (var29) {
+            File var21 = new File(var15.valueOf(var10));
+            YggdrasilAuthenticationService var22 = new YggdrasilAuthenticationService(Proxy.NO_PROXY, UUID.randomUUID().toString());
+            MinecraftSessionService var23 = var22.createMinecraftSessionService();
+            GameProfileRepository var24 = var22.createProfileRepository();
+            GameProfileCache var25 = new GameProfileCache(var24, new File(var21, MinecraftServer.USERID_CACHE_FILE.getName()));
+            String var26 = Optional.ofNullable(var15.valueOf(var11)).orElse(var18.getProperties().levelName);
+            LevelStorageSource var27 = LevelStorageSource.createDefault(var21.toPath());
+            LevelStorageSource.LevelStorageAccess var28 = var27.createAccess(var26);
+            MinecraftServer.convertFromRegionFormatIfNeeded(var28);
+            DataPackConfig var29 = var28.getDataPacks();
+            boolean var30 = var15.has(var7);
+            if (var30) {
                 LOGGER.warn("Safe mode active, only vanilla datapack will be loaded");
             }
 
-            PackRepository var30 = new PackRepository(
-                new ServerPacksSource(), new FolderRepositorySource(var27.getLevelPath(LevelResource.DATAPACK_DIR).toFile(), PackSource.WORLD)
+            PackRepository var31 = new PackRepository(
+                new ServerPacksSource(), new FolderRepositorySource(var28.getLevelPath(LevelResource.DATAPACK_DIR).toFile(), PackSource.WORLD)
             );
-            DataPackConfig var31 = MinecraftServer.configurePackRepository(var30, var28 == null ? DataPackConfig.DEFAULT : var28, var29);
-            CompletableFuture<ServerResources> var32 = ServerResources.loadResources(
-                var30.openAllSelected(),
+            DataPackConfig var32 = MinecraftServer.configurePackRepository(var31, var29 == null ? DataPackConfig.DEFAULT : var29, var30);
+            CompletableFuture<ServerResources> var33 = ServerResources.loadResources(
+                var31.openAllSelected(),
                 Commands.CommandSelection.DEDICATED,
-                var17.getProperties().functionPermissionLevel,
+                var18.getProperties().functionPermissionLevel,
                 Util.backgroundExecutor(),
                 Runnable::run
             );
 
-            ServerResources var33;
+            ServerResources var34;
             try {
-                var33 = var32.get();
+                var34 = var33.get();
             } catch (Exception var41) {
                 LOGGER.warn(
                     "Failed to load datapacks, can't proceed with server load. You can either fix your datapacks or reset to vanilla with --safeMode",
                     (Throwable)var41
                 );
-                var30.close();
+                var31.close();
                 return;
             }
 
-            var33.updateGlobals();
-            RegistryAccess.RegistryHolder var36 = RegistryAccess.builtin();
-            RegistryReadOps<Tag> var37 = RegistryReadOps.create(NbtOps.INSTANCE, var33.getResourceManager(), var36);
-            WorldData var38 = var27.getDataTag(var37, var31);
+            var34.updateGlobals();
+            RegistryReadOps<Tag> var37 = RegistryReadOps.create(NbtOps.INSTANCE, var34.getResourceManager(), var16);
+            WorldData var38 = var28.getDataTag(var37, var32);
             if (var38 == null) {
                 LevelSettings var39;
                 WorldGenSettings var40;
                 if (var15.has(var3)) {
                     var39 = MinecraftServer.DEMO_SETTINGS;
-                    var40 = WorldGenSettings.DEMO_SETTINGS;
+                    var40 = WorldGenSettings.demoSettings(var16);
                 } else {
-                    DedicatedServerProperties var41 = var17.getProperties();
-                    var39 = new LevelSettings(var41.levelName, var41.gamemode, var41.hardcore, var41.difficulty, false, new GameRules(), var31);
+                    DedicatedServerProperties var41 = var18.getProperties();
+                    var39 = new LevelSettings(var41.levelName, var41.gamemode, var41.hardcore, var41.difficulty, false, new GameRules(), var32);
                     var40 = var15.has(var4) ? var41.worldGenSettings.withBonusChest() : var41.worldGenSettings;
                 }
 
@@ -157,15 +157,15 @@ public class Main {
             }
 
             if (var15.has(var5)) {
-                forceUpgrade(var27, DataFixers.getDataFixer(), var15.has(var6), () -> true, var38.worldGenSettings().levels());
+                forceUpgrade(var28, DataFixers.getDataFixer(), var15.has(var6), () -> true, var38.worldGenSettings().levels());
             }
 
-            var27.saveDataTag(var36, var38);
+            var28.saveDataTag(var16, var38);
             WorldData var44 = var38;
             final DedicatedServer var45 = MinecraftServer.spin(
                 param16 -> {
                     DedicatedServer var0x = new DedicatedServer(
-                        param16, var36, var27, var30, var33, var44, var17, DataFixers.getDataFixer(), var22, var23, var24, LoggerChunkProgressListener::new
+                        param16, var16, var28, var31, var34, var44, var18, DataFixers.getDataFixer(), var23, var24, var25, LoggerChunkProgressListener::new
                     );
                     var0x.setSingleplayerName(var15.valueOf(var9));
                     var0x.setPort(var15.valueOf(var12));

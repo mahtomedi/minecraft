@@ -518,7 +518,7 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
                     this.killedBy = new TranslatableComponent("stat_type.minecraft.killed_by.none", this.mobName);
                     this.wasKilledBy = false;
                 } else {
-                    this.killedBy = new TranslatableComponent("stat_type.minecraft.killed_by", var0, this.mobName);
+                    this.killedBy = new TranslatableComponent("stat_type.minecraft.killed_by", this.mobName, var0);
                     this.wasKilledBy = true;
                 }
 

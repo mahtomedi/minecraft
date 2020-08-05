@@ -14,9 +14,9 @@ import java.util.function.Supplier;
 import net.minecraft.Util;
 import net.minecraft.data.worldgen.Features;
 import net.minecraft.data.worldgen.StructureFeatures;
+import net.minecraft.data.worldgen.biome.Biomes;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeGenerationSettings;
-import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.GenerationStep;
@@ -174,7 +174,6 @@ public class FlatLevelGeneratorSettings {
             .specialEffects(var0.getSpecialEffects())
             .generationSettings(var2.build())
             .mobSpawnSettings(var0.getMobSettings())
-            .parent(var0.getParent())
             .build();
     }
 

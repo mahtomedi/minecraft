@@ -620,7 +620,7 @@ public class ExecuteCommand {
     private static boolean checkCustomPredicate(CommandSourceStack param0, LootItemCondition param1) {
         ServerLevel var0 = param0.getLevel();
         LootContext.Builder var1 = new LootContext.Builder(var0)
-            .withParameter(LootContextParams.BLOCK_POS, new BlockPos(param0.getPosition()))
+            .withParameter(LootContextParams.ORIGIN, param0.getPosition())
             .withOptionalParameter(LootContextParams.THIS_ENTITY, param0.getEntity());
         return param1.test(var1.create(LootContextParamSets.COMMAND));
     }

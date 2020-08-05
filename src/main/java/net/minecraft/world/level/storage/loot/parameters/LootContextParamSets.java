@@ -11,35 +11,33 @@ public class LootContextParamSets {
     public static final LootContextParamSet EMPTY = register("empty", param0 -> {
     });
     public static final LootContextParamSet CHEST = register(
-        "chest", param0 -> param0.required(LootContextParams.BLOCK_POS).optional(LootContextParams.THIS_ENTITY)
+        "chest", param0 -> param0.required(LootContextParams.ORIGIN).optional(LootContextParams.THIS_ENTITY)
     );
     public static final LootContextParamSet COMMAND = register(
-        "command", param0 -> param0.required(LootContextParams.BLOCK_POS).optional(LootContextParams.THIS_ENTITY)
+        "command", param0 -> param0.required(LootContextParams.ORIGIN).optional(LootContextParams.THIS_ENTITY)
     );
     public static final LootContextParamSet SELECTOR = register(
-        "selector", param0 -> param0.required(LootContextParams.BLOCK_POS).required(LootContextParams.THIS_ENTITY)
+        "selector", param0 -> param0.required(LootContextParams.ORIGIN).required(LootContextParams.THIS_ENTITY)
     );
     public static final LootContextParamSet FISHING = register(
-        "fishing", param0 -> param0.required(LootContextParams.BLOCK_POS).required(LootContextParams.TOOL).optional(LootContextParams.THIS_ENTITY)
+        "fishing", param0 -> param0.required(LootContextParams.ORIGIN).required(LootContextParams.TOOL).optional(LootContextParams.THIS_ENTITY)
     );
     public static final LootContextParamSet ENTITY = register(
         "entity",
         param0 -> param0.required(LootContextParams.THIS_ENTITY)
-                .required(LootContextParams.BLOCK_POS)
+                .required(LootContextParams.ORIGIN)
                 .required(LootContextParams.DAMAGE_SOURCE)
                 .optional(LootContextParams.KILLER_ENTITY)
                 .optional(LootContextParams.DIRECT_KILLER_ENTITY)
                 .optional(LootContextParams.LAST_DAMAGE_PLAYER)
     );
-    public static final LootContextParamSet GIFT = register(
-        "gift", param0 -> param0.required(LootContextParams.BLOCK_POS).required(LootContextParams.THIS_ENTITY)
-    );
+    public static final LootContextParamSet GIFT = register("gift", param0 -> param0.required(LootContextParams.ORIGIN).required(LootContextParams.THIS_ENTITY));
     public static final LootContextParamSet PIGLIN_BARTER = register("barter", param0 -> param0.required(LootContextParams.THIS_ENTITY));
     public static final LootContextParamSet ADVANCEMENT_REWARD = register(
-        "advancement_reward", param0 -> param0.required(LootContextParams.THIS_ENTITY).required(LootContextParams.BLOCK_POS)
+        "advancement_reward", param0 -> param0.required(LootContextParams.THIS_ENTITY).required(LootContextParams.ORIGIN)
     );
     public static final LootContextParamSet ADVANCEMENT_ENTITY = register(
-        "advancement_entity", param0 -> param0.required(LootContextParams.THIS_ENTITY).required(LootContextParams.ORIGIN).required(LootContextParams.BLOCK_POS)
+        "advancement_entity", param0 -> param0.required(LootContextParams.THIS_ENTITY).required(LootContextParams.ORIGIN)
     );
     public static final LootContextParamSet ALL_PARAMS = register(
         "generic",
@@ -48,7 +46,7 @@ public class LootContextParamSets {
                 .required(LootContextParams.DAMAGE_SOURCE)
                 .required(LootContextParams.KILLER_ENTITY)
                 .required(LootContextParams.DIRECT_KILLER_ENTITY)
-                .required(LootContextParams.BLOCK_POS)
+                .required(LootContextParams.ORIGIN)
                 .required(LootContextParams.BLOCK_STATE)
                 .required(LootContextParams.BLOCK_ENTITY)
                 .required(LootContextParams.TOOL)
@@ -57,7 +55,7 @@ public class LootContextParamSets {
     public static final LootContextParamSet BLOCK = register(
         "block",
         param0 -> param0.required(LootContextParams.BLOCK_STATE)
-                .required(LootContextParams.BLOCK_POS)
+                .required(LootContextParams.ORIGIN)
                 .required(LootContextParams.TOOL)
                 .optional(LootContextParams.THIS_ENTITY)
                 .optional(LootContextParams.BLOCK_ENTITY)

@@ -2,6 +2,8 @@ package net.minecraft.world.entity.animal;
 
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Random;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
@@ -12,6 +14,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -59,6 +62,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.pathfinder.PathComputationType;
@@ -348,10 +352,13 @@ public class Dolphin extends WaterAnimal {
     }
 
     public static boolean checkDolphinSpawnRules(EntityType<Dolphin> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, Random param4) {
-        return param3.getY() > 45
-            && param3.getY() < param1.getSeaLevel()
-            && (param1.getBiome(param3) != Biomes.OCEAN || param1.getBiome(param3) != Biomes.DEEP_OCEAN)
-            && param1.getFluidState(param3).is(FluidTags.WATER);
+        if (param3.getY() > 45 && param3.getY() < param1.getSeaLevel()) {
+            Optional<ResourceKey<Biome>> var0 = param1.getBiomeName(param3);
+            return (!Objects.equals(var0, Optional.of(Biomes.OCEAN)) || !Objects.equals(var0, Optional.of(Biomes.DEEP_OCEAN)))
+                && param1.getFluidState(param3).is(FluidTags.WATER);
+        } else {
+            return false;
+        }
     }
 
     @Override

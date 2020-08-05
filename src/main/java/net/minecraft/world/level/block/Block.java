@@ -46,6 +46,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -234,7 +235,7 @@ public class Block extends BlockBehaviour implements ItemLike {
     public static List<ItemStack> getDrops(BlockState param0, ServerLevel param1, BlockPos param2, @Nullable BlockEntity param3) {
         LootContext.Builder var0 = new LootContext.Builder(param1)
             .withRandom(param1.random)
-            .withParameter(LootContextParams.BLOCK_POS, param2)
+            .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(param2))
             .withParameter(LootContextParams.TOOL, ItemStack.EMPTY)
             .withOptionalParameter(LootContextParams.BLOCK_ENTITY, param3);
         return param0.getDrops(var0);
@@ -245,7 +246,7 @@ public class Block extends BlockBehaviour implements ItemLike {
     ) {
         LootContext.Builder var0 = new LootContext.Builder(param1)
             .withRandom(param1.random)
-            .withParameter(LootContextParams.BLOCK_POS, param2)
+            .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(param2))
             .withParameter(LootContextParams.TOOL, param5)
             .withOptionalParameter(LootContextParams.THIS_ENTITY, param4)
             .withOptionalParameter(LootContextParams.BLOCK_ENTITY, param3);

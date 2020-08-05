@@ -2,14 +2,15 @@ package net.minecraft.server.dedicated;
 
 import java.nio.file.Path;
 import java.util.function.UnaryOperator;
+import net.minecraft.core.RegistryAccess;
 
 public class DedicatedServerSettings {
     private final Path source;
     private DedicatedServerProperties properties;
 
-    public DedicatedServerSettings(Path param0) {
-        this.source = param0;
-        this.properties = DedicatedServerProperties.fromFile(param0);
+    public DedicatedServerSettings(RegistryAccess param0, Path param1) {
+        this.source = param1;
+        this.properties = DedicatedServerProperties.fromFile(param0, param1);
     }
 
     public DedicatedServerProperties getProperties() {

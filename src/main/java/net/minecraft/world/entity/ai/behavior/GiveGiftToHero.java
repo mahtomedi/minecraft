@@ -120,7 +120,7 @@ public class GiveGiftToHero extends Behavior<Villager> {
             if (gifts.containsKey(var0)) {
                 LootTable var1 = param0.level.getServer().getLootTables().get(gifts.get(var0));
                 LootContext.Builder var2 = new LootContext.Builder((ServerLevel)param0.level)
-                    .withParameter(LootContextParams.BLOCK_POS, param0.blockPosition())
+                    .withParameter(LootContextParams.ORIGIN, param0.position())
                     .withParameter(LootContextParams.THIS_ENTITY, param0)
                     .withRandom(param0.getRandom());
                 return var1.getRandomItems(var2.create(LootContextParamSets.GIFT));

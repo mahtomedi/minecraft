@@ -5,6 +5,7 @@ import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterators;
+import com.google.common.collect.Maps;
 import com.google.common.collect.ImmutableList.Builder;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.Lifecycle;
@@ -17,8 +18,10 @@ import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.Random;
 import java.util.Set;
 import java.util.Map.Entry;
@@ -27,6 +30,8 @@ import net.minecraft.Util;
 import net.minecraft.resources.RegistryDataPackCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -37,6 +42,8 @@ public class MappedRegistry<T> extends WritableRegistry<T> {
     private final Object2IntMap<T> toId = new Object2IntOpenCustomHashMap<>(Util.identityStrategy());
     private final BiMap<ResourceLocation, T> storage;
     private final BiMap<ResourceKey<T>, T> keyStorage;
+    private final Map<T, Lifecycle> lifecycles;
+    private Lifecycle elementsLifecycle;
     protected Object[] randomCache;
     private int nextId;
 
@@ -45,6 +52,8 @@ public class MappedRegistry<T> extends WritableRegistry<T> {
         this.toId.defaultReturnValue(-1);
         this.storage = HashBiMap.create();
         this.keyStorage = HashBiMap.create();
+        this.lifecycles = Maps.newIdentityHashMap();
+        this.elementsLifecycle = param1;
     }
 
     public static <T> MapCodec<MappedRegistry.RegistryEntry<T>> withNameAndId(ResourceKey<? extends Registry<T>> param0, MapCodec<T> param1) {
@@ -59,18 +68,18 @@ public class MappedRegistry<T> extends WritableRegistry<T> {
     }
 
     @Override
-    public <V extends T> V registerMapping(int param0, ResourceKey<T> param1, V param2) {
-        return this.registerMapping(param0, param1, param2, true);
+    public <V extends T> V registerMapping(int param0, ResourceKey<T> param1, V param2, Lifecycle param3) {
+        return this.registerMapping(param0, param1, param2, param3, true);
     }
 
-    private <V extends T> V registerMapping(int param0, ResourceKey<T> param1, V param2, boolean param3) {
+    private <V extends T> V registerMapping(int param0, ResourceKey<T> param1, V param2, Lifecycle param3, boolean param4) {
         Validate.notNull(param1);
         Validate.notNull((T)param2);
         this.byId.size(Math.max(this.byId.size(), param0 + 1));
         this.byId.set(param0, param2);
         this.toId.put((T)param2, param0);
         this.randomCache = null;
-        if (param3 && this.keyStorage.containsKey(param1)) {
+        if (param4 && this.keyStorage.containsKey(param1)) {
             LOGGER.debug("Adding duplicate key '{}' to registry", param1);
         }
 
@@ -80,6 +89,8 @@ public class MappedRegistry<T> extends WritableRegistry<T> {
 
         this.storage.put(param1.location(), (T)param2);
         this.keyStorage.put(param1, (T)param2);
+        this.lifecycles.put((T)param2, param3);
+        this.elementsLifecycle = this.elementsLifecycle.add(param3);
         if (this.nextId <= param0) {
             this.nextId = param0 + 1;
         }
@@ -88,24 +99,28 @@ public class MappedRegistry<T> extends WritableRegistry<T> {
     }
 
     @Override
-    public <V extends T> V register(ResourceKey<T> param0, V param1) {
-        return this.registerMapping(this.nextId, param0, param1);
+    public <V extends T> V register(ResourceKey<T> param0, V param1, Lifecycle param2) {
+        return this.registerMapping(this.nextId, param0, param1, param2);
     }
 
     @Override
-    public <V extends T> V registerOrOverride(ResourceKey<T> param0, V param1) {
-        Validate.notNull(param0);
-        Validate.notNull((T)param1);
-        T var0 = this.keyStorage.get(param0);
+    public <V extends T> V registerOrOverride(OptionalInt param0, ResourceKey<T> param1, V param2, Lifecycle param3) {
+        Validate.notNull(param1);
+        Validate.notNull((T)param2);
+        T var0 = this.keyStorage.get(param1);
         int var1;
         if (var0 == null) {
-            var1 = this.nextId;
+            var1 = param0.isPresent() ? param0.getAsInt() : this.nextId;
         } else {
             var1 = this.toId.getInt(var0);
+            if (param0.isPresent() && param0.getAsInt() != var1) {
+                throw new IllegalStateException("ID mismatch");
+            }
+
             this.toId.removeInt(var0);
         }
 
-        return this.registerMapping(var1, param0, param1, false);
+        return this.registerMapping(var1, param1, param2, param3, false);
     }
 
     @Nullable
@@ -134,6 +149,16 @@ public class MappedRegistry<T> extends WritableRegistry<T> {
     @Override
     public T byId(int param0) {
         return param0 >= 0 && param0 < this.byId.size() ? this.byId.get(param0) : null;
+    }
+
+    @Override
+    public Lifecycle lifecycle(T param0) {
+        return this.lifecycles.get(param0);
+    }
+
+    @Override
+    public Lifecycle elementsLifecycle() {
+        return this.elementsLifecycle;
     }
 
     @Override
@@ -171,6 +196,7 @@ public class MappedRegistry<T> extends WritableRegistry<T> {
         return Util.getRandom((T[])this.randomCache, param0);
     }
 
+    @OnlyIn(Dist.CLIENT)
     @Override
     public boolean containsKey(ResourceLocation param0) {
         return this.storage.containsKey(param0);
@@ -181,7 +207,7 @@ public class MappedRegistry<T> extends WritableRegistry<T> {
             MappedRegistry<T> var0x = new MappedRegistry<>(param0, param1);
 
             for(MappedRegistry.RegistryEntry<T> var1x : param2x) {
-                var0x.registerMapping(var1x.id, var1x.key, var1x.value);
+                var0x.registerMapping(var1x.id, var1x.key, var1x.value, param1);
             }
 
             return var0x;
@@ -203,7 +229,7 @@ public class MappedRegistry<T> extends WritableRegistry<T> {
     public static <T> Codec<MappedRegistry<T>> directCodec(ResourceKey<? extends Registry<T>> param0, Lifecycle param1, Codec<T> param2) {
         return Codec.unboundedMap(ResourceLocation.CODEC.xmap(ResourceKey.elementKey(param0), ResourceKey::location), param2).xmap(param2x -> {
             MappedRegistry<T> var0x = new MappedRegistry<>(param0, param1);
-            param2x.forEach(var0x::register);
+            param2x.forEach((param2xx, param3) -> var0x.register(param2xx, param3, param1));
             return var0x;
         }, param0x -> ImmutableMap.copyOf(param0x.keyStorage));
     }

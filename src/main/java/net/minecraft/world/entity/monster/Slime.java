@@ -1,6 +1,8 @@
 package net.minecraft.world.entity.monster;
 
 import java.util.EnumSet;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
@@ -38,7 +40,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.WorldGenLevel;
-import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
@@ -279,8 +280,7 @@ public class Slime extends Mob implements Enemy {
 
     public static boolean checkSlimeSpawnRules(EntityType<Slime> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, Random param4) {
         if (param1.getDifficulty() != Difficulty.PEACEFUL) {
-            Biome var0 = param1.getBiome(param3);
-            if (var0 == Biomes.SWAMP
+            if (Objects.equals(param1.getBiomeName(param3), Optional.of(Biomes.SWAMP))
                 && param3.getY() > 50
                 && param3.getY() < 70
                 && param4.nextFloat() < 0.5F
@@ -293,9 +293,9 @@ public class Slime extends Mob implements Enemy {
                 return false;
             }
 
-            ChunkPos var1 = new ChunkPos(param3);
-            boolean var2 = WorldgenRandom.seedSlimeChunk(var1.x, var1.z, ((WorldGenLevel)param1).getSeed(), 987234911L).nextInt(10) == 0;
-            if (param4.nextInt(10) == 0 && var2 && param3.getY() < 40) {
+            ChunkPos var0 = new ChunkPos(param3);
+            boolean var1 = WorldgenRandom.seedSlimeChunk(var0.x, var0.z, ((WorldGenLevel)param1).getSeed(), 987234911L).nextInt(10) == 0;
+            if (param4.nextInt(10) == 0 && var1 && param3.getY() < 40) {
                 return checkMobSpawnRules(param0, param1, param2, param3, param4);
             }
         }

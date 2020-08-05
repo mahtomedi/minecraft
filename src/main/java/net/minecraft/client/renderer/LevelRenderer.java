@@ -1015,10 +1015,8 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
         }
 
         var0.popPush("entities");
-        var0.push("prepare");
         this.renderedEntities = 0;
         this.culledEntities = 0;
-        var0.popPush("entities");
         if (this.itemEntityTarget != null) {
             this.itemEntityTarget.clear(Minecraft.ON_OSX);
             this.itemEntityTarget.copyDepthFrom(this.minecraft.getMainRenderTarget());
@@ -1155,7 +1153,6 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
         }
 
         this.checkPoseStack(param0);
-        var0.pop();
         HitResult var51 = this.minecraft.hitResult;
         if (param3 && var51 != null && var51.getType() == HitResult.Type.BLOCK) {
             var0.popPush("outline");

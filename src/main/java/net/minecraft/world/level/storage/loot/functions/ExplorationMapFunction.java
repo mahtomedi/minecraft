@@ -20,6 +20,7 @@ import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
+import net.minecraft.world.phys.Vec3;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -49,7 +50,7 @@ public class ExplorationMapFunction extends LootItemConditionalFunction {
 
     @Override
     public Set<LootContextParam<?>> getReferencedContextParams() {
-        return ImmutableSet.of(LootContextParams.BLOCK_POS);
+        return ImmutableSet.of(LootContextParams.ORIGIN);
     }
 
     @Override
@@ -57,10 +58,10 @@ public class ExplorationMapFunction extends LootItemConditionalFunction {
         if (param0.getItem() != Items.MAP) {
             return param0;
         } else {
-            BlockPos var0 = param1.getParamOrNull(LootContextParams.BLOCK_POS);
+            Vec3 var0 = param1.getParamOrNull(LootContextParams.ORIGIN);
             if (var0 != null) {
                 ServerLevel var1 = param1.getLevel();
-                BlockPos var2 = var1.findNearestMapFeature(this.destination, var0, this.searchRadius, this.skipKnownStructures);
+                BlockPos var2 = var1.findNearestMapFeature(this.destination, new BlockPos(var0), this.searchRadius, this.skipKnownStructures);
                 if (var2 != null) {
                     ItemStack var3 = MapItem.create(var1, var2.getX(), var2.getZ(), this.zoom, true, true);
                     MapItem.renderBiomePreviewMap(var1, var3);

@@ -2,7 +2,9 @@ package net.minecraft.world.level.biome;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
-import java.util.List;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.RegistryLookupCodec;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.synth.SimplexNoise;
@@ -10,17 +12,44 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class TheEndBiomeSource extends BiomeSource {
-    public static final Codec<TheEndBiomeSource> CODEC = Codec.LONG.fieldOf("seed").xmap(TheEndBiomeSource::new, param0 -> param0.seed).stable().codec();
-    private final SimplexNoise islandNoise;
-    private static final List<Biome> POSSIBLE_BIOMES = ImmutableList.of(
-        Biomes.THE_END, Biomes.END_HIGHLANDS, Biomes.END_MIDLANDS, Biomes.SMALL_END_ISLANDS, Biomes.END_BARRENS
+    public static final Codec<TheEndBiomeSource> CODEC = RecordCodecBuilder.create(
+        param0 -> param0.group(
+                    RegistryLookupCodec.create(Registry.BIOME_REGISTRY).forGetter(param0x -> param0x.biomes),
+                    Codec.LONG.fieldOf("seed").stable().forGetter(param0x -> param0x.seed)
+                )
+                .apply(param0, param0.stable(TheEndBiomeSource::new))
     );
+    private final SimplexNoise islandNoise;
+    private final Registry<Biome> biomes;
     private final long seed;
+    private final Biome end;
+    private final Biome highlands;
+    private final Biome midlands;
+    private final Biome islands;
+    private final Biome barrens;
 
-    public TheEndBiomeSource(long param0) {
-        super(POSSIBLE_BIOMES);
-        this.seed = param0;
-        WorldgenRandom var0 = new WorldgenRandom(param0);
+    public TheEndBiomeSource(Registry<Biome> param0, long param1) {
+        this(
+            param0,
+            param1,
+            param0.getOrThrow(Biomes.THE_END),
+            param0.getOrThrow(Biomes.END_HIGHLANDS),
+            param0.getOrThrow(Biomes.END_MIDLANDS),
+            param0.getOrThrow(Biomes.SMALL_END_ISLANDS),
+            param0.getOrThrow(Biomes.END_BARRENS)
+        );
+    }
+
+    private TheEndBiomeSource(Registry<Biome> param0, long param1, Biome param2, Biome param3, Biome param4, Biome param5, Biome param6) {
+        super(ImmutableList.of(param2, param3, param4, param5, param6));
+        this.biomes = param0;
+        this.seed = param1;
+        this.end = param2;
+        this.highlands = param3;
+        this.midlands = param4;
+        this.islands = param5;
+        this.barrens = param6;
+        WorldgenRandom var0 = new WorldgenRandom(param1);
         var0.consumeCount(17292);
         this.islandNoise = new SimplexNoise(var0);
     }
@@ -33,7 +62,7 @@ public class TheEndBiomeSource extends BiomeSource {
     @OnlyIn(Dist.CLIENT)
     @Override
     public BiomeSource withSeed(long param0) {
-        return new TheEndBiomeSource(param0);
+        return new TheEndBiomeSource(this.biomes, param0, this.end, this.highlands, this.midlands, this.islands, this.barrens);
     }
 
     @Override
@@ -41,15 +70,15 @@ public class TheEndBiomeSource extends BiomeSource {
         int var0 = param0 >> 2;
         int var1 = param2 >> 2;
         if ((long)var0 * (long)var0 + (long)var1 * (long)var1 <= 4096L) {
-            return Biomes.THE_END;
+            return this.end;
         } else {
             float var2 = getHeightValue(this.islandNoise, var0 * 2 + 1, var1 * 2 + 1);
             if (var2 > 40.0F) {
-                return Biomes.END_HIGHLANDS;
+                return this.highlands;
             } else if (var2 >= 0.0F) {
-                return Biomes.END_MIDLANDS;
+                return this.midlands;
             } else {
-                return var2 < -20.0F ? Biomes.SMALL_END_ISLANDS : Biomes.END_BARRENS;
+                return var2 < -20.0F ? this.islands : this.barrens;
             }
         }
     }

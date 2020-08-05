@@ -37,6 +37,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.RegistryReadOps;
+import net.minecraft.resources.RegistryWriteOps;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerResources;
 import net.minecraft.server.packs.repository.FolderRepositorySource;
@@ -254,7 +255,7 @@ public class WorldGenSettingsComponent implements TickableWidget, Widget {
     }
 
     private void importSettings(RegistryAccess.RegistryHolder param0, WorldGenSettings param1) {
-        this.setRegistryHolder(param0);
+        this.registryHolder = param0;
         this.settings = param1;
         this.preset = WorldPreset.of(param1);
         this.seed = OptionalLong.of(param1.seed());
@@ -343,7 +344,16 @@ public class WorldGenSettingsComponent implements TickableWidget, Widget {
         return this.registryHolder;
     }
 
-    protected void setRegistryHolder(RegistryAccess.RegistryHolder param0) {
-        this.registryHolder = param0;
+    void updateDataPacks(ServerResources param0) {
+        RegistryAccess.RegistryHolder var0 = RegistryAccess.builtin();
+        RegistryWriteOps<JsonElement> var1 = RegistryWriteOps.create(JsonOps.INSTANCE, this.registryHolder);
+        RegistryReadOps<JsonElement> var2 = RegistryReadOps.create(JsonOps.INSTANCE, param0.getResourceManager(), var0);
+        DataResult<WorldGenSettings> var3 = WorldGenSettings.CODEC
+            .encodeStart(var1, this.settings)
+            .flatMap(param1 -> WorldGenSettings.CODEC.parse(var2, param1));
+        var3.resultOrPartial(Util.prefix("Error parsing worldgen settings after loading data packs: ", LOGGER::error)).ifPresent(param1 -> {
+            this.settings = param1;
+            this.registryHolder = var0;
+        });
     }
 }

@@ -493,7 +493,7 @@ public class EntitySelectorOptions {
                                 } else {
                                     LootContext var2x = new LootContext.Builder(var0x)
                                         .withParameter(LootContextParams.THIS_ENTITY, param2)
-                                        .withParameter(LootContextParams.BLOCK_POS, param2.blockPosition())
+                                        .withParameter(LootContextParams.ORIGIN, param2.position())
                                         .create(LootContextParamSets.SELECTOR);
                                     return var0 ^ var1x.test(var2x);
                                 }

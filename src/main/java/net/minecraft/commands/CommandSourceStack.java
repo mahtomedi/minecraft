@@ -30,6 +30,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 
@@ -251,11 +252,14 @@ public class CommandSourceStack implements SharedSuggestionProvider {
     }
 
     public CommandSourceStack withLevel(ServerLevel param0) {
-        return param0 == this.level
-            ? this
-            : new CommandSourceStack(
+        if (param0 == this.level) {
+            return this;
+        } else {
+            double var0 = DimensionType.getTeleportationScale(this.level.dimensionType(), param0.dimensionType());
+            Vec3 var1 = new Vec3(this.worldPosition.x * var0, this.worldPosition.y, this.worldPosition.z * var0);
+            return new CommandSourceStack(
                 this.source,
-                this.worldPosition,
+                var1,
                 this.rotation,
                 param0,
                 this.permissionLevel,
@@ -267,6 +271,7 @@ public class CommandSourceStack implements SharedSuggestionProvider {
                 this.consumer,
                 this.anchor
             );
+        }
     }
 
     public CommandSourceStack facing(Entity param0, EntityAnchorArgument.Anchor param1) throws CommandSyntaxException {

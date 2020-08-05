@@ -3,12 +3,10 @@ package net.minecraft.advancements.critereon;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
 import com.mojang.serialization.JsonOps;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
-import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -38,7 +36,7 @@ public class LocationPredicate {
     private final MinMaxBounds.Floats y;
     private final MinMaxBounds.Floats z;
     @Nullable
-    private final Biome biome;
+    private final ResourceKey<Biome> biome;
     @Nullable
     private final StructureFeature<?> feature;
     @Nullable
@@ -53,7 +51,7 @@ public class LocationPredicate {
         MinMaxBounds.Floats param0,
         MinMaxBounds.Floats param1,
         MinMaxBounds.Floats param2,
-        @Nullable Biome param3,
+        @Nullable ResourceKey<Biome> param3,
         @Nullable StructureFeature<?> param4,
         @Nullable ResourceKey<Level> param5,
         @Nullable Boolean param6,
@@ -73,7 +71,7 @@ public class LocationPredicate {
         this.fluid = param9;
     }
 
-    public static LocationPredicate inBiome(Biome param0) {
+    public static LocationPredicate inBiome(ResourceKey<Biome> param0) {
         return new LocationPredicate(
             MinMaxBounds.Floats.ANY,
             MinMaxBounds.Floats.ANY,
@@ -134,7 +132,13 @@ public class LocationPredicate {
         } else {
             BlockPos var0 = new BlockPos((double)param1, (double)param2, (double)param3);
             boolean var1 = param0.isLoaded(var0);
-            if (this.biome == null || var1 && this.biome == param0.getBiome(var0)) {
+            if (this.biome == null
+                || var1
+                    && this.biome
+                        == param0.registryAccess()
+                            .registryOrThrow(Registry.BIOME_REGISTRY)
+                            .getResourceKey(param0.getBiome(var0))
+                            .orElseThrow(() -> new IllegalStateException("Unregistered biome"))) {
                 if (this.feature == null || var1 && param0.structureFeatureManager().getStructureAt(var0, true, this.feature).isValid()) {
                     if (this.smokey == null || var1 && this.smokey == CampfireBlock.isSmokeyPos(param0, var0)) {
                         if (!this.light.matches(param0, var0)) {
@@ -181,7 +185,7 @@ public class LocationPredicate {
             }
 
             if (this.biome != null) {
-                var0.addProperty("biome", BuiltinRegistries.BIOME.getKey(this.biome).toString());
+                var0.addProperty("biome", this.biome.location().toString());
             }
 
             if (this.smokey != null) {
@@ -210,10 +214,10 @@ public class LocationPredicate {
                     .orElse(null)
                 : null;
             StructureFeature<?> var6 = var0.has("feature") ? StructureFeature.STRUCTURES_REGISTRY.get(GsonHelper.getAsString(var0, "feature")) : null;
-            Biome var7 = null;
+            ResourceKey<Biome> var7 = null;
             if (var0.has("biome")) {
                 ResourceLocation var8 = new ResourceLocation(GsonHelper.getAsString(var0, "biome"));
-                var7 = BuiltinRegistries.BIOME.getOptional(var8).orElseThrow(() -> new JsonSyntaxException("Unknown biome '" + var8 + "'"));
+                var7 = ResourceKey.create(Registry.BIOME_REGISTRY, var8);
             }
 
             Boolean var9 = var0.has("smokey") ? var0.get("smokey").getAsBoolean() : null;
@@ -231,7 +235,7 @@ public class LocationPredicate {
         private MinMaxBounds.Floats y = MinMaxBounds.Floats.ANY;
         private MinMaxBounds.Floats z = MinMaxBounds.Floats.ANY;
         @Nullable
-        private Biome biome;
+        private ResourceKey<Biome> biome;
         @Nullable
         private StructureFeature<?> feature;
         @Nullable
@@ -246,7 +250,7 @@ public class LocationPredicate {
             return new LocationPredicate.Builder();
         }
 
-        public LocationPredicate.Builder setBiome(@Nullable Biome param0) {
+        public LocationPredicate.Builder setBiome(@Nullable ResourceKey<Biome> param0) {
             this.biome = param0;
             return this;
         }

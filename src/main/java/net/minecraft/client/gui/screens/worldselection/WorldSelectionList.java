@@ -110,7 +110,7 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.W
         }
 
         if (this.cachedList.isEmpty()) {
-            this.minecraft.setScreen(new CreateWorldScreen(null));
+            this.minecraft.setScreen(CreateWorldScreen.create(null));
         } else {
             String var2 = param0.get().toLowerCase(Locale.ROOT);
 

@@ -404,7 +404,7 @@ public abstract class Entity implements CommandSource, Nameable {
                     this.clearFire();
                 }
             } else {
-                if (this.remainingFireTicks % 20 == 0) {
+                if (this.remainingFireTicks % 20 == 0 && !this.isInLava()) {
                     this.hurt(DamageSource.ON_FIRE, 1.0F);
                 }
 
@@ -2163,7 +2163,7 @@ public abstract class Entity implements CommandSource, Nameable {
                 double var7 = Math.max(-2.9999872E7, var5.getMinZ() + 16.0);
                 double var8 = Math.min(2.9999872E7, var5.getMaxX() - 16.0);
                 double var9 = Math.min(2.9999872E7, var5.getMaxZ() - 16.0);
-                double var10 = getTeleportationScale(this.level.dimensionType(), param0.dimensionType());
+                double var10 = DimensionType.getTeleportationScale(this.level.dimensionType(), param0.dimensionType());
                 BlockPos var11 = new BlockPos(Mth.clamp(this.getX() * var10, var6, var8), this.getY(), Mth.clamp(this.getZ() * var10, var7, var9));
                 return this.getExitPortal(param0, var11, var4)
                     .map(
@@ -2209,16 +2209,6 @@ public abstract class Entity implements CommandSource, Nameable {
 
     protected Optional<BlockUtil.FoundRectangle> getExitPortal(ServerLevel param0, BlockPos param1, boolean param2) {
         return param0.getPortalForcer().findPortalAround(param1, param2);
-    }
-
-    private static double getTeleportationScale(DimensionType param0, DimensionType param1) {
-        boolean var0 = param0.shrunk();
-        boolean var1 = param1.shrunk();
-        if (!var0 && var1) {
-            return 0.125;
-        } else {
-            return var0 && !var1 ? 8.0 : 1.0;
-        }
     }
 
     public boolean canChangeDimensions() {

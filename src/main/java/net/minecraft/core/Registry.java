@@ -88,6 +88,8 @@ import net.minecraft.world.level.storage.loot.functions.LootItemFunctionType;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunctions;
 import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
 import net.minecraft.world.level.storage.loot.predicates.LootItemConditions;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -262,18 +264,20 @@ public abstract class Registry<T> implements Codec<T>, Keyable, IdMap<T> {
     }
 
     private static <T> Registry<T> registerSimple(ResourceKey<? extends Registry<T>> param0, Lifecycle param1, Supplier<T> param2) {
-        return internalRegister(param0, new MappedRegistry<>(param0, param1), param2);
+        return internalRegister(param0, new MappedRegistry<>(param0, param1), param2, param1);
     }
 
     private static <T> DefaultedRegistry<T> registerDefaulted(ResourceKey<? extends Registry<T>> param0, String param1, Lifecycle param2, Supplier<T> param3) {
-        return internalRegister(param0, new DefaultedRegistry<>(param1, param0, param2), param3);
+        return internalRegister(param0, new DefaultedRegistry<>(param1, param0, param2), param3, param2);
     }
 
-    private static <T, R extends WritableRegistry<T>> R internalRegister(ResourceKey<? extends Registry<T>> param0, R param1, Supplier<T> param2) {
+    private static <T, R extends WritableRegistry<T>> R internalRegister(
+        ResourceKey<? extends Registry<T>> param0, R param1, Supplier<T> param2, Lifecycle param3
+    ) {
         ResourceLocation var0 = param0.location();
         LOADERS.put(var0, param2);
         WritableRegistry<R> var1 = WRITABLE_REGISTRY;
-        return var1.register(param0, param1);
+        return var1.register(param0, param1, param3);
     }
 
     protected Registry(ResourceKey<? extends Registry<T>> param0, Lifecycle param1) {
@@ -294,21 +298,18 @@ public abstract class Registry<T> implements Codec<T>, Keyable, IdMap<T> {
     public <U> DataResult<Pair<T, U>> decode(DynamicOps<U> param0, U param1) {
         return param0.compressMaps()
             ? param0.getNumberValue(param1).flatMap(param0x -> {
-                int var0 = param0x.intValue();
-                if (!this.containsId(var0)) {
-                    return DataResult.error("Unknown registry id: " + param0x);
-                } else {
-                    T var1x = this.byId(var0);
-                    return DataResult.success(var1x, this.lifecycle);
-                }
+                T var0 = this.byId(param0x.intValue());
+                return var0 == null ? DataResult.error("Unknown registry id: " + param0x) : DataResult.success(var0, this.lifecycle(var0));
             }).map(param1x -> Pair.of((T)param1x, param0.empty()))
             : ResourceLocation.CODEC
                 .decode(param0, param1)
-                .addLifecycle(this.lifecycle)
                 .flatMap(
-                    param0x -> !this.containsKey(param0x.getFirst())
+                    param0x -> {
+                        T var0 = this.get(param0x.getFirst());
+                        return var0 == null
                             ? DataResult.error("Unknown registry key: " + param0x.getFirst())
-                            : DataResult.success(param0x.mapFirst(this::get), this.lifecycle)
+                            : DataResult.success(Pair.of(var0, param0x.getSecond()), this.lifecycle(var0));
+                    }
                 );
     }
 
@@ -343,8 +344,21 @@ public abstract class Registry<T> implements Codec<T>, Keyable, IdMap<T> {
     @Nullable
     public abstract T get(@Nullable ResourceLocation var1);
 
+    protected abstract Lifecycle lifecycle(T var1);
+
+    public abstract Lifecycle elementsLifecycle();
+
     public Optional<T> getOptional(@Nullable ResourceLocation param0) {
         return Optional.ofNullable(this.get(param0));
+    }
+
+    public T getOrThrow(ResourceKey<T> param0) {
+        T var0 = this.get(param0);
+        if (var0 == null) {
+            throw new IllegalStateException("Missing: " + param0);
+        } else {
+            return var0;
+        }
     }
 
     public abstract Set<ResourceLocation> keySet();
@@ -355,22 +369,19 @@ public abstract class Registry<T> implements Codec<T>, Keyable, IdMap<T> {
         return StreamSupport.stream(this.spliterator(), false);
     }
 
+    @OnlyIn(Dist.CLIENT)
     public abstract boolean containsKey(ResourceLocation var1);
-
-    public boolean containsId(int param0) {
-        return this.byId(param0) != null;
-    }
 
     public static <T> T register(Registry<? super T> param0, String param1, T param2) {
         return register(param0, new ResourceLocation(param1), param2);
     }
 
     public static <V, T extends V> T register(Registry<V> param0, ResourceLocation param1, T param2) {
-        return ((WritableRegistry)param0).register(ResourceKey.create(param0.key, param1), param2);
+        return ((WritableRegistry)param0).register(ResourceKey.create(param0.key, param1), param2, Lifecycle.stable());
     }
 
     public static <V, T extends V> T registerMapping(Registry<V> param0, int param1, String param2, T param3) {
-        return ((WritableRegistry)param0).registerMapping(param1, ResourceKey.create(param0.key, new ResourceLocation(param2)), param3);
+        return ((WritableRegistry)param0).registerMapping(param1, ResourceKey.create(param0.key, new ResourceLocation(param2)), param3, Lifecycle.stable());
     }
 
     static {

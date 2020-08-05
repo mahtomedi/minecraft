@@ -1,9 +1,12 @@
 package net.minecraft.world.item;
 
+import java.util.Objects;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionResult;
@@ -78,35 +81,34 @@ public class BoneMealItem extends Item {
                 label80:
                 for(int var0 = 0; var0 < 128; ++var0) {
                     BlockPos var1 = param2;
-                    Biome var2 = param1.getBiome(param2);
-                    BlockState var3 = Blocks.SEAGRASS.defaultBlockState();
+                    BlockState var2 = Blocks.SEAGRASS.defaultBlockState();
 
-                    for(int var4 = 0; var4 < var0 / 16; ++var4) {
+                    for(int var3 = 0; var3 < var0 / 16; ++var3) {
                         var1 = var1.offset(random.nextInt(3) - 1, (random.nextInt(3) - 1) * random.nextInt(3) / 2, random.nextInt(3) - 1);
-                        var2 = param1.getBiome(var1);
                         if (param1.getBlockState(var1).isCollisionShapeFullBlock(param1, var1)) {
                             continue label80;
                         }
                     }
 
-                    if (var2 == Biomes.WARM_OCEAN || var2 == Biomes.DEEP_WARM_OCEAN) {
+                    Optional<ResourceKey<Biome>> var4 = param1.getBiomeName(var1);
+                    if (Objects.equals(var4, Optional.of(Biomes.WARM_OCEAN)) || Objects.equals(var4, Optional.of(Biomes.DEEP_WARM_OCEAN))) {
                         if (var0 == 0 && param3 != null && param3.getAxis().isHorizontal()) {
-                            var3 = BlockTags.WALL_CORALS.getRandomElement(param1.random).defaultBlockState().setValue(BaseCoralWallFanBlock.FACING, param3);
+                            var2 = BlockTags.WALL_CORALS.getRandomElement(param1.random).defaultBlockState().setValue(BaseCoralWallFanBlock.FACING, param3);
                         } else if (random.nextInt(4) == 0) {
-                            var3 = BlockTags.UNDERWATER_BONEMEALS.getRandomElement(random).defaultBlockState();
+                            var2 = BlockTags.UNDERWATER_BONEMEALS.getRandomElement(random).defaultBlockState();
                         }
                     }
 
-                    if (var3.getBlock().is(BlockTags.WALL_CORALS)) {
-                        for(int var5 = 0; !var3.canSurvive(param1, var1) && var5 < 4; ++var5) {
-                            var3 = var3.setValue(BaseCoralWallFanBlock.FACING, Direction.Plane.HORIZONTAL.getRandomDirection(random));
+                    if (var2.getBlock().is(BlockTags.WALL_CORALS)) {
+                        for(int var5 = 0; !var2.canSurvive(param1, var1) && var5 < 4; ++var5) {
+                            var2 = var2.setValue(BaseCoralWallFanBlock.FACING, Direction.Plane.HORIZONTAL.getRandomDirection(random));
                         }
                     }
 
-                    if (var3.canSurvive(param1, var1)) {
+                    if (var2.canSurvive(param1, var1)) {
                         BlockState var6 = param1.getBlockState(var1);
                         if (var6.is(Blocks.WATER) && param1.getFluidState(var1).getAmount() == 8) {
-                            param1.setBlock(var1, var3, 3);
+                            param1.setBlock(var1, var2, 3);
                         } else if (var6.is(Blocks.SEAGRASS) && random.nextInt(10) == 0) {
                             ((BonemealableBlock)Blocks.SEAGRASS).performBonemeal((ServerLevel)param1, random, var1, var6);
                         }

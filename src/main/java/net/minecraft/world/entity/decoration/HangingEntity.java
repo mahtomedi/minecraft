@@ -186,7 +186,6 @@ public abstract class HangingEntity extends Entity {
 
     @Override
     public void addAdditionalSaveData(CompoundTag param0) {
-        param0.putByte("Facing", (byte)this.direction.get2DDataValue());
         BlockPos var0 = this.getPos();
         param0.putInt("TileX", var0.getX());
         param0.putInt("TileY", var0.getY());
@@ -196,7 +195,6 @@ public abstract class HangingEntity extends Entity {
     @Override
     public void readAdditionalSaveData(CompoundTag param0) {
         this.pos = new BlockPos(param0.getInt("TileX"), param0.getInt("TileY"), param0.getInt("TileZ"));
-        this.direction = Direction.from2DDataValue(param0.getByte("Facing"));
     }
 
     public abstract int getWidth();

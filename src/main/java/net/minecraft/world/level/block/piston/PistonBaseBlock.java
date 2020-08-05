@@ -227,37 +227,35 @@ public class PistonBaseBlock extends DirectionalBlock {
     }
 
     public static boolean isPushable(BlockState param0, Level param1, BlockPos param2, Direction param3, boolean param4, Direction param5) {
-        if (!param0.is(Blocks.OBSIDIAN) && !param0.is(Blocks.CRYING_OBSIDIAN) && !param0.is(Blocks.RESPAWN_ANCHOR)) {
-            if (!param1.getWorldBorder().isWithinBounds(param2)) {
-                return false;
-            } else if (param2.getY() >= 0 && (param3 != Direction.DOWN || param2.getY() != 0)) {
-                if (param2.getY() <= param1.getMaxBuildHeight() - 1 && (param3 != Direction.UP || param2.getY() != param1.getMaxBuildHeight() - 1)) {
-                    if (!param0.is(Blocks.PISTON) && !param0.is(Blocks.STICKY_PISTON)) {
-                        if (param0.getDestroySpeed(param1, param2) == -1.0F) {
-                            return false;
-                        }
-
-                        switch(param0.getPistonPushReaction()) {
-                            case BLOCK:
-                                return false;
-                            case DESTROY:
-                                return param4;
-                            case PUSH_ONLY:
-                                return param3 == param5;
-                        }
-                    } else if (param0.getValue(EXTENDED)) {
-                        return false;
-                    }
-
-                    return !param0.getBlock().isEntityBlock();
-                } else {
+        if (param2.getY() < 0 || param2.getY() > param1.getMaxBuildHeight() - 1 || !param1.getWorldBorder().isWithinBounds(param2)) {
+            return false;
+        } else if (param0.isAir()) {
+            return true;
+        } else if (param0.is(Blocks.OBSIDIAN) || param0.is(Blocks.CRYING_OBSIDIAN) || param0.is(Blocks.RESPAWN_ANCHOR)) {
+            return false;
+        } else if (param3 == Direction.DOWN && param2.getY() == 0) {
+            return false;
+        } else if (param3 == Direction.UP && param2.getY() == param1.getMaxBuildHeight() - 1) {
+            return false;
+        } else {
+            if (!param0.is(Blocks.PISTON) && !param0.is(Blocks.STICKY_PISTON)) {
+                if (param0.getDestroySpeed(param1, param2) == -1.0F) {
                     return false;
                 }
-            } else {
+
+                switch(param0.getPistonPushReaction()) {
+                    case BLOCK:
+                        return false;
+                    case DESTROY:
+                        return param4;
+                    case PUSH_ONLY:
+                        return param3 == param5;
+                }
+            } else if (param0.getValue(EXTENDED)) {
                 return false;
             }
-        } else {
-            return false;
+
+            return !param0.getBlock().isEntityBlock();
         }
     }
 

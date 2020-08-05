@@ -66,13 +66,10 @@ public abstract class BaseRailBlock extends Block {
 
     @Override
     public void neighborChanged(BlockState param0, Level param1, BlockPos param2, Block param3, BlockPos param4, boolean param5) {
-        if (!param1.isClientSide) {
+        if (!param1.isClientSide && param1.getBlockState(param2).is(this)) {
             RailShape var0 = param0.getValue(this.getShapeProperty());
-            if (shouldBeRemoved(param2, param1, var0) && !param1.isEmptyBlock(param2)) {
-                if (!param5) {
-                    dropResources(param0, param1, param2);
-                }
-
+            if (shouldBeRemoved(param2, param1, var0)) {
+                dropResources(param0, param1, param2);
                 param1.removeBlock(param2, param5);
             } else {
                 this.updateState(param0, param1, param2, param3);

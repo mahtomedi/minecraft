@@ -275,7 +275,7 @@ public class Explosion {
                         BlockEntity var6 = var4.isEntityBlock() ? this.level.getBlockEntity(var2) : null;
                         LootContext.Builder var7 = new LootContext.Builder((ServerLevel)this.level)
                             .withRandom(this.level.random)
-                            .withParameter(LootContextParams.BLOCK_POS, var2)
+                            .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(var2))
                             .withParameter(LootContextParams.TOOL, ItemStack.EMPTY)
                             .withOptionalParameter(LootContextParams.BLOCK_ENTITY, var6)
                             .withOptionalParameter(LootContextParams.THIS_ENTITY, this.source);

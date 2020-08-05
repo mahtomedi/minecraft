@@ -20,6 +20,7 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.Tag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeZoomer;
 import net.minecraft.world.level.biome.FuzzyOffsetBiomeZoomer;
 import net.minecraft.world.level.biome.FuzzyOffsetConstantColumnBiomeZoomer;
@@ -29,8 +30,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class DimensionType {
     public static final Codec<DimensionType> DIRECT_CODEC = RecordCodecBuilder.create(
@@ -46,7 +45,7 @@ public class DimensionType {
                     Codec.BOOL.fieldOf("has_ceiling").forGetter(DimensionType::hasCeiling),
                     Codec.BOOL.fieldOf("ultrawarm").forGetter(DimensionType::ultraWarm),
                     Codec.BOOL.fieldOf("natural").forGetter(DimensionType::natural),
-                    Codec.BOOL.fieldOf("shrunk").forGetter(DimensionType::shrunk),
+                    Codec.doubleRange(1.0E-5F, 3.0E7).fieldOf("coordinate_scale").forGetter(DimensionType::coordinateScale),
                     Codec.BOOL.fieldOf("piglin_safe").forGetter(DimensionType::piglinSafe),
                     Codec.BOOL.fieldOf("bed_works").forGetter(DimensionType::bedWorks),
                     Codec.BOOL.fieldOf("respawn_anchor_works").forGetter(DimensionType::respawnAnchorWorks),
@@ -67,7 +66,7 @@ public class DimensionType {
         false,
         false,
         true,
-        false,
+        1.0,
         false,
         false,
         true,
@@ -84,7 +83,7 @@ public class DimensionType {
         true,
         true,
         false,
-        true,
+        8.0,
         false,
         true,
         false,
@@ -101,7 +100,7 @@ public class DimensionType {
         false,
         false,
         false,
-        false,
+        1.0,
         true,
         false,
         false,
@@ -121,7 +120,7 @@ public class DimensionType {
         true,
         false,
         true,
-        false,
+        1.0,
         false,
         false,
         true,
@@ -138,7 +137,7 @@ public class DimensionType {
     private final boolean hasCeiling;
     private final boolean ultraWarm;
     private final boolean natural;
-    private final boolean shrunk;
+    private final double coordinateScale;
     private final boolean createDragonFight;
     private final boolean piglinSafe;
     private final boolean bedWorks;
@@ -150,22 +149,13 @@ public class DimensionType {
     private final float ambientLight;
     private final transient float[] brightnessRamp;
 
-    public static DimensionType defaultOverworld() {
-        return DEFAULT_OVERWORLD;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public static DimensionType defaultOverworldCaves() {
-        return DEFAULT_OVERWORLD_CAVES;
-    }
-
     protected DimensionType(
         OptionalLong param0,
         boolean param1,
         boolean param2,
         boolean param3,
         boolean param4,
-        boolean param5,
+        double param5,
         boolean param6,
         boolean param7,
         boolean param8,
@@ -183,7 +173,7 @@ public class DimensionType {
         boolean param2,
         boolean param3,
         boolean param4,
-        boolean param5,
+        double param5,
         boolean param6,
         boolean param7,
         boolean param8,
@@ -199,7 +189,7 @@ public class DimensionType {
         this.hasCeiling = param2;
         this.ultraWarm = param3;
         this.natural = param4;
-        this.shrunk = param5;
+        this.coordinateScale = param5;
         this.createDragonFight = param6;
         this.piglinSafe = param7;
         this.bedWorks = param8;
@@ -247,31 +237,43 @@ public class DimensionType {
 
     public static RegistryAccess.RegistryHolder registerBuiltin(RegistryAccess.RegistryHolder param0) {
         WritableRegistry<DimensionType> var0 = param0.registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY);
-        var0.register(OVERWORLD_LOCATION, DEFAULT_OVERWORLD);
-        var0.register(OVERWORLD_CAVES_LOCATION, DEFAULT_OVERWORLD_CAVES);
-        var0.register(NETHER_LOCATION, DEFAULT_NETHER);
-        var0.register(END_LOCATION, DEFAULT_END);
+        var0.register(OVERWORLD_LOCATION, DEFAULT_OVERWORLD, Lifecycle.stable());
+        var0.register(OVERWORLD_CAVES_LOCATION, DEFAULT_OVERWORLD_CAVES, Lifecycle.stable());
+        var0.register(NETHER_LOCATION, DEFAULT_NETHER, Lifecycle.stable());
+        var0.register(END_LOCATION, DEFAULT_END, Lifecycle.stable());
         return param0;
     }
 
-    private static ChunkGenerator defaultEndGenerator(long param0) {
-        return new NoiseBasedChunkGenerator(new TheEndBiomeSource(param0), param0, () -> NoiseGeneratorSettings.END);
+    private static ChunkGenerator defaultEndGenerator(Registry<Biome> param0, Registry<NoiseGeneratorSettings> param1, long param2) {
+        return new NoiseBasedChunkGenerator(new TheEndBiomeSource(param0, param2), param2, () -> param1.getOrThrow(NoiseGeneratorSettings.END));
     }
 
-    private static ChunkGenerator defaultNetherGenerator(long param0) {
-        return new NoiseBasedChunkGenerator(MultiNoiseBiomeSource.Preset.NETHER.biomeSource(param0), param0, () -> NoiseGeneratorSettings.NETHER);
+    private static ChunkGenerator defaultNetherGenerator(Registry<Biome> param0, Registry<NoiseGeneratorSettings> param1, long param2) {
+        return new NoiseBasedChunkGenerator(
+            MultiNoiseBiomeSource.Preset.NETHER.biomeSource(param0, param2), param2, () -> param1.getOrThrow(NoiseGeneratorSettings.NETHER)
+        );
     }
 
-    public static MappedRegistry<LevelStem> defaultDimensions(long param0) {
+    public static MappedRegistry<LevelStem> defaultDimensions(
+        Registry<DimensionType> param0, Registry<Biome> param1, Registry<NoiseGeneratorSettings> param2, long param3
+    ) {
         MappedRegistry<LevelStem> var0 = new MappedRegistry<>(Registry.LEVEL_STEM_REGISTRY, Lifecycle.experimental());
-        var0.register(LevelStem.NETHER, new LevelStem(() -> DEFAULT_NETHER, defaultNetherGenerator(param0)));
-        var0.register(LevelStem.END, new LevelStem(() -> DEFAULT_END, defaultEndGenerator(param0)));
+        var0.register(
+            LevelStem.NETHER, new LevelStem(() -> param0.getOrThrow(NETHER_LOCATION), defaultNetherGenerator(param1, param2, param3)), Lifecycle.stable()
+        );
+        var0.register(LevelStem.END, new LevelStem(() -> param0.getOrThrow(END_LOCATION), defaultEndGenerator(param1, param2, param3)), Lifecycle.stable());
         return var0;
+    }
+
+    public static double getTeleportationScale(DimensionType param0, DimensionType param1) {
+        double var0 = param0.coordinateScale();
+        double var1 = param1.coordinateScale();
+        return var0 / var1;
     }
 
     @Deprecated
     public String getFileSuffix() {
-        return this == DEFAULT_END ? "_end" : "";
+        return this.equalTo(DEFAULT_END) ? "_end" : "";
     }
 
     public static File getStorageFolder(ResourceKey<Level> param0, File param1) {
@@ -302,8 +304,8 @@ public class DimensionType {
         return this.natural;
     }
 
-    public boolean shrunk() {
-        return this.shrunk;
+    public double coordinateScale() {
+        return this.coordinateScale;
     }
 
     public boolean piglinSafe() {
@@ -355,5 +357,27 @@ public class DimensionType {
     public Tag<Block> infiniburn() {
         Tag<Block> var0 = BlockTags.getAllTags().getTag(this.infiniburn);
         return (Tag<Block>)(var0 != null ? var0 : BlockTags.INFINIBURN_OVERWORLD);
+    }
+
+    public boolean equalTo(DimensionType param0) {
+        if (this == param0) {
+            return true;
+        } else {
+            return this.hasSkylight == param0.hasSkylight
+                && this.hasCeiling == param0.hasCeiling
+                && this.ultraWarm == param0.ultraWarm
+                && this.natural == param0.natural
+                && this.coordinateScale == param0.coordinateScale
+                && this.createDragonFight == param0.createDragonFight
+                && this.piglinSafe == param0.piglinSafe
+                && this.bedWorks == param0.bedWorks
+                && this.respawnAnchorWorks == param0.respawnAnchorWorks
+                && this.hasRaids == param0.hasRaids
+                && this.logicalHeight == param0.logicalHeight
+                && Float.compare(param0.ambientLight, this.ambientLight) == 0
+                && this.fixedTime.equals(param0.fixedTime)
+                && this.biomeZoomer.equals(param0.biomeZoomer)
+                && this.infiniburn.equals(param0.infiniburn);
+        }
     }
 }

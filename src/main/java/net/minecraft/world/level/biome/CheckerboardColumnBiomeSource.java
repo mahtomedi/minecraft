@@ -1,6 +1,5 @@
 package net.minecraft.world.level.biome;
 
-import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.List;
@@ -21,7 +20,7 @@ public class CheckerboardColumnBiomeSource extends BiomeSource {
     private final int size;
 
     public CheckerboardColumnBiomeSource(List<Supplier<Biome>> param0, int param1) {
-        super(param0.stream().map(Supplier::get).collect(ImmutableList.toImmutableList()));
+        super(param0.stream());
         this.allowedBiomes = param0;
         this.bitShift = param1 + 2;
         this.size = param1;

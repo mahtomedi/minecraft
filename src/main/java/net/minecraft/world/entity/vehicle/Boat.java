@@ -2,6 +2,7 @@ package net.minecraft.world.entity.vehicle;
 
 import java.util.List;
 import javax.annotation.Nullable;
+import net.minecraft.BlockUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
@@ -131,6 +132,11 @@ public class Boat extends Entity {
     @Override
     public boolean isPushable() {
         return true;
+    }
+
+    @Override
+    protected Vec3 getRelativePortalPosition(Direction.Axis param0, BlockUtil.FoundRectangle param1) {
+        return LivingEntity.resetForwardDirectionOfRelativePortalPosition(super.getRelativePortalPosition(param0, param1));
     }
 
     @Override

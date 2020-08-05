@@ -19,6 +19,7 @@ import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import net.minecraft.world.phys.Vec3;
 
 public abstract class RandomizableContainerBlockEntity extends BaseContainerBlockEntity {
     @Nullable
@@ -69,7 +70,7 @@ public abstract class RandomizableContainerBlockEntity extends BaseContainerBloc
 
             this.lootTable = null;
             LootContext.Builder var1 = new LootContext.Builder((ServerLevel)this.level)
-                .withParameter(LootContextParams.BLOCK_POS, new BlockPos(this.worldPosition))
+                .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(this.worldPosition))
                 .withOptionalRandomSeed(this.lootTableSeed);
             if (param0 != null) {
                 var1.withLuck(param0.getLuck()).withParameter(LootContextParams.THIS_ENTITY, param0);
