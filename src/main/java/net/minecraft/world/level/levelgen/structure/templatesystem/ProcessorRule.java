@@ -14,7 +14,7 @@ public class ProcessorRule {
         param0 -> param0.group(
                     RuleTest.CODEC.fieldOf("input_predicate").forGetter(param0x -> param0x.inputPredicate),
                     RuleTest.CODEC.fieldOf("location_predicate").forGetter(param0x -> param0x.locPredicate),
-                    PosRuleTest.CODEC.fieldOf("position_predicate").forGetter(param0x -> param0x.posPredicate),
+                    PosRuleTest.CODEC.optionalFieldOf("position_predicate", PosAlwaysTrueTest.INSTANCE).forGetter(param0x -> param0x.posPredicate),
                     BlockState.CODEC.fieldOf("output_state").forGetter(param0x -> param0x.outputState),
                     CompoundTag.CODEC.optionalFieldOf("output_nbt").forGetter(param0x -> Optional.ofNullable(param0x.outputTag))
                 )

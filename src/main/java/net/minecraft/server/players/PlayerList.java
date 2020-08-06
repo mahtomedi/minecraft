@@ -170,7 +170,7 @@ public abstract class PlayerList {
                 var10.isHardcore(),
                 this.server.levelKeys(),
                 this.registryHolder,
-                var7.dimensionTypeKey(),
+                var7.dimensionType(),
                 var7.dimension(),
                 this.getMaxPlayers(),
                 this.viewDistance,
@@ -501,7 +501,7 @@ public abstract class PlayerList {
         var9.connection
             .send(
                 new ClientboundRespawnPacket(
-                    var9.level.dimensionTypeKey(),
+                    var9.level.dimensionType(),
                     var9.level.dimension(),
                     BiomeManager.obfuscateSeed(var9.getLevel().getSeed()),
                     var9.gameMode.getGameModeForPlayer(),

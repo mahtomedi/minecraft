@@ -22,7 +22,7 @@ public class ClientboundLoginPacket implements Packet<ClientGamePacketListener> 
     private GameType previousGameType;
     private Set<ResourceKey<Level>> levels;
     private RegistryAccess.RegistryHolder registryHolder;
-    private ResourceKey<DimensionType> dimensionType;
+    private DimensionType dimensionType;
     private ResourceKey<Level> dimension;
     private int maxPlayers;
     private int chunkRadius;
@@ -42,7 +42,7 @@ public class ClientboundLoginPacket implements Packet<ClientGamePacketListener> 
         boolean param4,
         Set<ResourceKey<Level>> param5,
         RegistryAccess.RegistryHolder param6,
-        ResourceKey<DimensionType> param7,
+        DimensionType param7,
         ResourceKey<Level> param8,
         int param9,
         int param10,
@@ -82,7 +82,7 @@ public class ClientboundLoginPacket implements Packet<ClientGamePacketListener> 
         }
 
         this.registryHolder = param0.readWithCodec(RegistryAccess.RegistryHolder.NETWORK_CODEC);
-        this.dimensionType = ResourceKey.create(Registry.DIMENSION_TYPE_REGISTRY, param0.readResourceLocation());
+        this.dimensionType = param0.readWithCodec(DimensionType.CODEC).get();
         this.dimension = ResourceKey.create(Registry.DIMENSION_REGISTRY, param0.readResourceLocation());
         this.seed = param0.readLong();
         this.maxPlayers = param0.readVarInt();
@@ -106,7 +106,7 @@ public class ClientboundLoginPacket implements Packet<ClientGamePacketListener> 
         }
 
         param0.writeWithCodec(RegistryAccess.RegistryHolder.NETWORK_CODEC, this.registryHolder);
-        param0.writeResourceLocation(this.dimensionType.location());
+        param0.writeWithCodec(DimensionType.CODEC, () -> this.dimensionType);
         param0.writeResourceLocation(this.dimension.location());
         param0.writeLong(this.seed);
         param0.writeVarInt(this.maxPlayers);
@@ -157,7 +157,7 @@ public class ClientboundLoginPacket implements Packet<ClientGamePacketListener> 
     }
 
     @OnlyIn(Dist.CLIENT)
-    public ResourceKey<DimensionType> getDimensionType() {
+    public DimensionType getDimensionType() {
         return this.dimensionType;
     }
 

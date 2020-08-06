@@ -10,17 +10,21 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunkSection;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundSectionBlocksUpdatePacket implements Packet<ClientGamePacketListener> {
     private SectionPos sectionPos;
     private short[] positions;
     private BlockState[] states;
+    private boolean suppressLightUpdates;
 
     public ClientboundSectionBlocksUpdatePacket() {
     }
 
-    public ClientboundSectionBlocksUpdatePacket(SectionPos param0, ShortSet param1, LevelChunkSection param2) {
+    public ClientboundSectionBlocksUpdatePacket(SectionPos param0, ShortSet param1, LevelChunkSection param2, boolean param3) {
         this.sectionPos = param0;
+        this.suppressLightUpdates = param3;
         this.initFields(param1.size());
         int var0 = 0;
 
@@ -40,6 +44,7 @@ public class ClientboundSectionBlocksUpdatePacket implements Packet<ClientGamePa
     @Override
     public void read(FriendlyByteBuf param0) throws IOException {
         this.sectionPos = SectionPos.of(param0.readLong());
+        this.suppressLightUpdates = param0.readBoolean();
         int var0 = param0.readVarInt();
         this.initFields(var0);
 
@@ -54,6 +59,7 @@ public class ClientboundSectionBlocksUpdatePacket implements Packet<ClientGamePa
     @Override
     public void write(FriendlyByteBuf param0) throws IOException {
         param0.writeLong(this.sectionPos.asLong());
+        param0.writeBoolean(this.suppressLightUpdates);
         param0.writeVarInt(this.positions.length);
 
         for(int var0 = 0; var0 < this.positions.length; ++var0) {
@@ -75,5 +81,10 @@ public class ClientboundSectionBlocksUpdatePacket implements Packet<ClientGamePa
             param0.accept(var0, this.states[var1]);
         }
 
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public boolean shouldSuppressLightUpdates() {
+        return this.suppressLightUpdates;
     }
 }

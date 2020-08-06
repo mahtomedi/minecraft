@@ -116,27 +116,27 @@
   "complianceLevel": 0,
   "downloads": {
     "client": {
-      "sha1": "ce5762620a698b464d07a6c733cd66c7fa8072a1",
-      "size": 17502289,
-      "url": "https://launcher.mojang.com/v1/objects/ce5762620a698b464d07a6c733cd66c7fa8072a1/client.jar"
+      "sha1": "8cfa861961862c263ff80f2f6478535fd1ed7d8b",
+      "size": 17503666,
+      "url": "https://launcher.mojang.com/v1/objects/8cfa861961862c263ff80f2f6478535fd1ed7d8b/client.jar"
     },
     "client_mappings": {
-      "sha1": "9b8d8ea14162eafd94b0186b735e2706e13d053b",
-      "size": 5718726,
-      "url": "https://launcher.mojang.com/v1/objects/9b8d8ea14162eafd94b0186b735e2706e13d053b/client.txt"
+      "sha1": "45b157e878b41c45187fa0a3acee6d2e7ae8a782",
+      "size": 5719808,
+      "url": "https://launcher.mojang.com/v1/objects/45b157e878b41c45187fa0a3acee6d2e7ae8a782/client.txt"
     },
     "server": {
-      "sha1": "d2cae287324631b2b4bfa609dd01c63cd6d4b78d",
-      "size": 37940152,
-      "url": "https://launcher.mojang.com/v1/objects/d2cae287324631b2b4bfa609dd01c63cd6d4b78d/server.jar"
+      "sha1": "bd47f78f185a525388e446aa44975c147057ebbd",
+      "size": 37940973,
+      "url": "https://launcher.mojang.com/v1/objects/bd47f78f185a525388e446aa44975c147057ebbd/server.jar"
     },
     "server_mappings": {
-      "sha1": "538bd1a66a1f971039491607c2e6ba3146ed8a89",
-      "size": 4390373,
-      "url": "https://launcher.mojang.com/v1/objects/538bd1a66a1f971039491607c2e6ba3146ed8a89/server.txt"
+      "sha1": "22d40c5fbd5c97d7df94369c13bc72f28ff2bd61",
+      "size": 4390974,
+      "url": "https://launcher.mojang.com/v1/objects/22d40c5fbd5c97d7df94369c13bc72f28ff2bd61/server.txt"
     }
   },
-  "id": "1.16.2-pre2",
+  "id": "1.16.2-pre3",
   "javaVersion": {
     "component": "jre-legacy",
     "majorVersion": 8
@@ -1548,7 +1548,7 @@
   },
   "mainClass": "net.minecraft.client.main.Main",
   "minimumLauncherVersion": 21,
-  "releaseTime": "2020-08-05T15:30:50+00:00",
-  "time": "2020-08-05T15:30:50+00:00",
+  "releaseTime": "2020-08-06T16:44:52+00:00",
+  "time": "2020-08-06T16:44:52+00:00",
   "type": "snapshot"
 }

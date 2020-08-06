@@ -670,18 +670,7 @@ public class RealmsMainScreen extends RealmsScreen {
                             if (var0 != null) {
                                 RealmsClient var1 = RealmsClient.create();
                                 var1.uninviteMyselfFrom(var0.id);
-                                RealmsMainScreen.REALMS_DATA_FETCHER.removeItem(var0);
-                                RealmsMainScreen.this.realmsServers.remove(var0);
-                                RealmsMainScreen.this.realmSelectionList
-                                    .children()
-                                    .removeIf(
-                                        param0 -> param0 instanceof RealmsMainScreen.ServerEntry
-                                                && ((RealmsMainScreen.ServerEntry)param0).serverData.id == RealmsMainScreen.this.selectedServerId
-                                    );
-                                RealmsMainScreen.this.realmSelectionList.setSelected(null);
-                                RealmsMainScreen.this.updateButtonStates(null);
-                                RealmsMainScreen.this.selectedServerId = -1L;
-                                RealmsMainScreen.this.playButton.active = false;
+                                RealmsMainScreen.this.minecraft.execute(() -> RealmsMainScreen.this.removeServer(var0));
                             }
                         } catch (RealmsServiceException var3) {
                             RealmsMainScreen.LOGGER.error("Couldn't configure world");
@@ -695,6 +684,20 @@ public class RealmsMainScreen extends RealmsScreen {
         }
 
         this.minecraft.setScreen(this);
+    }
+
+    private void removeServer(RealmsServer param0) {
+        REALMS_DATA_FETCHER.removeItem(param0);
+        this.realmsServers.remove(param0);
+        this.realmSelectionList
+            .children()
+            .removeIf(
+                param0x -> param0x instanceof RealmsMainScreen.ServerEntry && ((RealmsMainScreen.ServerEntry)param0x).serverData.id == this.selectedServerId
+            );
+        this.realmSelectionList.setSelected(null);
+        this.updateButtonStates(null);
+        this.selectedServerId = -1L;
+        this.playButton.active = false;
     }
 
     public void removeSelection() {

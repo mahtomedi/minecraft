@@ -1,22 +1,21 @@
 package net.minecraft.world.level.levelgen;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.Decoder;
-import com.mojang.serialization.Encoder;
-import com.mojang.serialization.MapCodec;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
-import net.minecraft.data.worldgen.biome.Biomes;
+import net.minecraft.resources.RegistryLookupCodec;
 import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.NoiseColumn;
 import net.minecraft.world.level.StructureFeatureManager;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeManager;
+import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.biome.FixedBiomeSource;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -26,8 +25,10 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class DebugLevelSource extends ChunkGenerator {
-    public static final DebugLevelSource INSTANCE = new DebugLevelSource();
-    public static final Codec<DebugLevelSource> CODEC = MapCodec.of(Encoder.empty(), Decoder.unit(() -> INSTANCE)).stable().codec();
+    public static final Codec<DebugLevelSource> CODEC = RegistryLookupCodec.create(Registry.BIOME_REGISTRY)
+        .xmap(DebugLevelSource::new, DebugLevelSource::biomes)
+        .stable()
+        .codec();
     private static final List<BlockState> ALL_BLOCKS = StreamSupport.stream(Registry.BLOCK.spliterator(), false)
         .flatMap(param0 -> param0.getStateDefinition().getPossibleStates().stream())
         .collect(Collectors.toList());
@@ -35,9 +36,15 @@ public class DebugLevelSource extends ChunkGenerator {
     private static final int GRID_HEIGHT = Mth.ceil((float)ALL_BLOCKS.size() / (float)GRID_WIDTH);
     protected static final BlockState AIR = Blocks.AIR.defaultBlockState();
     protected static final BlockState BARRIER = Blocks.BARRIER.defaultBlockState();
+    private final Registry<Biome> biomes;
 
-    private DebugLevelSource() {
-        super(new FixedBiomeSource(Biomes.PLAINS), new StructureSettings(false));
+    public DebugLevelSource(Registry<Biome> param0) {
+        super(new FixedBiomeSource(param0.getOrThrow(Biomes.PLAINS)), new StructureSettings(false));
+        this.biomes = param0;
+    }
+
+    public Registry<Biome> biomes() {
+        return this.biomes;
     }
 
     @Override

@@ -175,19 +175,18 @@ public class ServerLevel extends Level implements WorldGenLevel {
         LevelStorageSource.LevelStorageAccess param2,
         ServerLevelData param3,
         ResourceKey<Level> param4,
-        ResourceKey<DimensionType> param5,
-        DimensionType param6,
-        ChunkProgressListener param7,
-        ChunkGenerator param8,
-        boolean param9,
-        long param10,
-        List<CustomSpawner> param11,
-        boolean param12
+        DimensionType param5,
+        ChunkProgressListener param6,
+        ChunkGenerator param7,
+        boolean param8,
+        long param9,
+        List<CustomSpawner> param10,
+        boolean param11
     ) {
-        super(param3, param4, param5, param6, param0::getProfiler, false, param9, param10);
-        this.tickTime = param12;
+        super(param3, param4, param5, param0::getProfiler, false, param8, param9);
+        this.tickTime = param11;
         this.server = param0;
-        this.customSpawners = param11;
+        this.customSpawners = param10;
         this.serverLevelData = param3;
         this.chunkSource = new ServerChunkCache(
             this,
@@ -195,10 +194,10 @@ public class ServerLevel extends Level implements WorldGenLevel {
             param0.getFixerUpper(),
             param0.getStructureManager(),
             param1,
-            param8,
+            param7,
             param0.getPlayerList().getViewDistance(),
             param0.forceSynchronousWrites(),
-            param7,
+            param6,
             () -> param0.overworld().getDataStorage()
         );
         this.portalForcer = new PortalForcer(this);

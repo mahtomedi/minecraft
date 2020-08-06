@@ -118,11 +118,11 @@ public class PresetFlatWorldScreen extends Screen {
     public static FlatLevelGeneratorSettings fromString(Registry<Biome> param0, String param1, FlatLevelGeneratorSettings param2) {
         Iterator<String> var0 = Splitter.on(';').split(param1).iterator();
         if (!var0.hasNext()) {
-            return FlatLevelGeneratorSettings.getDefault();
+            return FlatLevelGeneratorSettings.getDefault(param0);
         } else {
             List<FlatLayerInfo> var1 = getLayersInfoFromString(var0.next());
             if (var1.isEmpty()) {
-                return FlatLevelGeneratorSettings.getDefault();
+                return FlatLevelGeneratorSettings.getDefault(param0);
             } else {
                 FlatLevelGeneratorSettings var2 = param2.withLayers(var1, param2.structureSettings());
                 Biome var3 = param0.getOrThrow(Biomes.PLAINS);
@@ -245,7 +245,7 @@ public class PresetFlatWorldScreen extends Screen {
             }
 
             StructureSettings var2 = new StructureSettings(param4 ? Optional.of(StructureSettings.DEFAULT_STRONGHOLD) : Optional.empty(), var0x);
-            FlatLevelGeneratorSettings var3 = new FlatLevelGeneratorSettings(var2);
+            FlatLevelGeneratorSettings var3 = new FlatLevelGeneratorSettings(var2, param6x);
             if (param5) {
                 var3.setDecoration();
             }

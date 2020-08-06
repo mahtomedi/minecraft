@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.mojang.serialization.JsonOps;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
@@ -132,13 +133,10 @@ public class LocationPredicate {
         } else {
             BlockPos var0 = new BlockPos((double)param1, (double)param2, (double)param3);
             boolean var1 = param0.isLoaded(var0);
-            if (this.biome == null
-                || var1
-                    && this.biome
-                        == param0.registryAccess()
-                            .registryOrThrow(Registry.BIOME_REGISTRY)
-                            .getResourceKey(param0.getBiome(var0))
-                            .orElseThrow(() -> new IllegalStateException("Unregistered biome"))) {
+            Optional<ResourceKey<Biome>> var2 = param0.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY).getResourceKey(param0.getBiome(var0));
+            if (!var2.isPresent()) {
+                return false;
+            } else if (this.biome == null || var1 && this.biome == var2.get()) {
                 if (this.feature == null || var1 && param0.structureFeatureManager().getStructureAt(var0, true, this.feature).isValid()) {
                     if (this.smokey == null || var1 && this.smokey == CampfireBlock.isSmokeyPos(param0, var0)) {
                         if (!this.light.matches(param0, var0)) {

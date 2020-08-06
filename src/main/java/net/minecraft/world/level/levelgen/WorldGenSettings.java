@@ -232,12 +232,15 @@ public class WorldGenSettings {
                         var9,
                         var12,
                         new FlatLevelSource(
-                            FlatLevelGeneratorSettings.CODEC.parse(var14).resultOrPartial(LOGGER::error).orElseGet(FlatLevelGeneratorSettings::getDefault)
+                            FlatLevelGeneratorSettings.CODEC
+                                .parse(var14)
+                                .resultOrPartial(LOGGER::error)
+                                .orElseGet(() -> FlatLevelGeneratorSettings.getDefault(var10))
                         )
                     )
                 );
             case "debug_all_block_states":
-                return new WorldGenSettings(var6, var3, false, withOverworld(var9, var12, DebugLevelSource.INSTANCE));
+                return new WorldGenSettings(var6, var3, false, withOverworld(var9, var12, new DebugLevelSource(var10)));
             case "amplified":
                 return new WorldGenSettings(
                     var6,

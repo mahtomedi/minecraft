@@ -360,16 +360,15 @@ public class ClientPacketListener implements ClientGamePacketListener {
         Collections.shuffle(var0);
         this.levels = Sets.newLinkedHashSet(var0);
         this.registryAccess = param0.registryAccess();
-        ResourceKey<DimensionType> var1 = param0.getDimensionType();
-        ResourceKey<Level> var2 = param0.getDimension();
-        DimensionType var3 = this.registryAccess.dimensionTypes().get(var1);
+        ResourceKey<Level> var1 = param0.getDimension();
+        DimensionType var2 = param0.getDimensionType();
         this.serverChunkRadius = param0.getChunkRadius();
-        boolean var4 = param0.isDebug();
-        boolean var5 = param0.isFlat();
-        ClientLevel.ClientLevelData var6 = new ClientLevel.ClientLevelData(Difficulty.NORMAL, param0.isHardcore(), var5);
-        this.levelData = var6;
+        boolean var3 = param0.isDebug();
+        boolean var4 = param0.isFlat();
+        ClientLevel.ClientLevelData var5 = new ClientLevel.ClientLevelData(Difficulty.NORMAL, param0.isHardcore(), var4);
+        this.levelData = var5;
         this.level = new ClientLevel(
-            this, var6, var2, var1, var3, this.serverChunkRadius, this.minecraft::getProfiler, this.minecraft.levelRenderer, var4, param0.getSeed()
+            this, var5, var1, var2, this.serverChunkRadius, this.minecraft::getProfiler, this.minecraft.levelRenderer, var3, param0.getSeed()
         );
         this.minecraft.setLevel(this.level);
         if (this.minecraft.player == null) {
@@ -382,13 +381,13 @@ public class ClientPacketListener implements ClientGamePacketListener {
 
         this.minecraft.debugRenderer.clear();
         this.minecraft.player.resetPos();
-        int var7 = param0.getPlayerId();
-        this.level.addPlayer(var7, this.minecraft.player);
+        int var6 = param0.getPlayerId();
+        this.level.addPlayer(var6, this.minecraft.player);
         this.minecraft.player.input = new KeyboardInput(this.minecraft.options);
         this.minecraft.gameMode.adjustPlayer(this.minecraft.player);
         this.minecraft.cameraEntity = this.minecraft.player;
         this.minecraft.setScreen(new ReceivingLevelScreen());
-        this.minecraft.player.setId(var7);
+        this.minecraft.player.setId(var6);
         this.minecraft.player.setReducedDebugInfo(param0.isReducedDebugInfo());
         this.minecraft.player.setShowDeathScreen(param0.shouldShowDeathScreen());
         this.minecraft.gameMode.setLocalMode(param0.getGameType());
@@ -726,7 +725,8 @@ public class ClientPacketListener implements ClientGamePacketListener {
     @Override
     public void handleChunkBlocksUpdate(ClientboundSectionBlocksUpdatePacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
-        param0.runUpdates(this.level::setKnownState);
+        int var0 = 19 | (param0.shouldSuppressLightUpdates() ? 128 : 0);
+        param0.runUpdates((param1, param2) -> this.level.setBlock(param1, param2, var0));
     }
 
     @Override
@@ -1031,50 +1031,49 @@ public class ClientPacketListener implements ClientGamePacketListener {
     @Override
     public void handleRespawn(ClientboundRespawnPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
-        ResourceKey<DimensionType> var0 = param0.getDimensionType();
-        ResourceKey<Level> var1 = param0.getDimension();
-        DimensionType var2 = this.registryAccess.dimensionTypes().get(var0);
-        LocalPlayer var3 = this.minecraft.player;
-        int var4 = var3.getId();
+        ResourceKey<Level> var0 = param0.getDimension();
+        DimensionType var1 = param0.getDimensionType();
+        LocalPlayer var2 = this.minecraft.player;
+        int var3 = var2.getId();
         this.started = false;
-        if (var1 != var3.level.dimension()) {
-            Scoreboard var5 = this.level.getScoreboard();
-            boolean var6 = param0.isDebug();
-            boolean var7 = param0.isFlat();
-            ClientLevel.ClientLevelData var8 = new ClientLevel.ClientLevelData(this.levelData.getDifficulty(), this.levelData.isHardcore(), var7);
-            this.levelData = var8;
+        if (var0 != var2.level.dimension()) {
+            Scoreboard var4 = this.level.getScoreboard();
+            boolean var5 = param0.isDebug();
+            boolean var6 = param0.isFlat();
+            ClientLevel.ClientLevelData var7 = new ClientLevel.ClientLevelData(this.levelData.getDifficulty(), this.levelData.isHardcore(), var6);
+            this.levelData = var7;
             this.level = new ClientLevel(
-                this, var8, var1, var0, var2, this.serverChunkRadius, this.minecraft::getProfiler, this.minecraft.levelRenderer, var6, param0.getSeed()
+                this, var7, var0, var1, this.serverChunkRadius, this.minecraft::getProfiler, this.minecraft.levelRenderer, var5, param0.getSeed()
             );
-            this.level.setScoreboard(var5);
+            this.level.setScoreboard(var4);
             this.minecraft.setLevel(this.level);
             this.minecraft.setScreen(new ReceivingLevelScreen());
         }
 
         this.level.removeAllPendingEntityRemovals();
-        String var9 = var3.getServerBrand();
+        String var8 = var2.getServerBrand();
         this.minecraft.cameraEntity = null;
-        LocalPlayer var10 = this.minecraft.gameMode.createPlayer(this.level, var3.getStats(), var3.getRecipeBook(), var3.isShiftKeyDown(), var3.isSprinting());
-        var10.setId(var4);
-        this.minecraft.player = var10;
-        if (var1 != var3.level.dimension()) {
+        LocalPlayer var9 = this.minecraft.gameMode.createPlayer(this.level, var2.getStats(), var2.getRecipeBook(), var2.isShiftKeyDown(), var2.isSprinting());
+        var9.setId(var3);
+        this.minecraft.player = var9;
+        if (var0 != var2.level.dimension()) {
             this.minecraft.getMusicManager().stopPlaying();
         }
 
-        this.minecraft.cameraEntity = var10;
-        var10.getEntityData().assignValues(var3.getEntityData().getAll());
+        this.minecraft.cameraEntity = var9;
+        var9.getEntityData().assignValues(var2.getEntityData().getAll());
         if (param0.shouldKeepAllPlayerData()) {
-            var10.getAttributes().assignValues(var3.getAttributes());
+            var9.getAttributes().assignValues(var2.getAttributes());
         }
 
-        var10.resetPos();
-        var10.setServerBrand(var9);
-        this.level.addPlayer(var4, var10);
-        var10.yRot = -180.0F;
-        var10.input = new KeyboardInput(this.minecraft.options);
-        this.minecraft.gameMode.adjustPlayer(var10);
-        var10.setReducedDebugInfo(var3.isReducedDebugInfo());
-        var10.setShowDeathScreen(var3.shouldShowDeathScreen());
+        var9.resetPos();
+        var9.setServerBrand(var8);
+        this.level.addPlayer(var3, var9);
+        var9.yRot = -180.0F;
+        var9.input = new KeyboardInput(this.minecraft.options);
+        this.minecraft.gameMode.adjustPlayer(var9);
+        var9.setReducedDebugInfo(var2.isReducedDebugInfo());
+        var9.setShowDeathScreen(var2.shouldShowDeathScreen());
         if (this.minecraft.screen instanceof DeathScreen) {
             this.minecraft.setScreen(null);
         }

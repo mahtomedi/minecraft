@@ -346,59 +346,51 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
             var9 = var7.generator();
         }
 
-        ResourceKey<DimensionType> var12 = this.registryHolder
-            .dimensionTypes()
-            .getResourceKey(var8)
-            .orElseThrow(() -> new IllegalStateException("Unregistered dimension type: " + var8));
-        ServerLevel var13 = new ServerLevel(this, this.executor, this.storageSource, var0, Level.OVERWORLD, var12, var8, param0, var9, var2, var4, var5, true);
-        this.levels.put(Level.OVERWORLD, var13);
-        DimensionDataStorage var14 = var13.getDataStorage();
-        this.readScoreboard(var14);
-        this.commandStorage = new CommandStorage(var14);
-        WorldBorder var15 = var13.getWorldBorder();
-        var15.applySettings(var0.getWorldBorder());
+        ServerLevel var12 = new ServerLevel(this, this.executor, this.storageSource, var0, Level.OVERWORLD, var8, param0, var9, var2, var4, var5, true);
+        this.levels.put(Level.OVERWORLD, var12);
+        DimensionDataStorage var13 = var12.getDataStorage();
+        this.readScoreboard(var13);
+        this.commandStorage = new CommandStorage(var13);
+        WorldBorder var14 = var12.getWorldBorder();
+        var14.applySettings(var0.getWorldBorder());
         if (!var0.isInitialized()) {
             try {
-                setInitialSpawn(var13, var0, var1.generateBonusChest(), var2, true);
+                setInitialSpawn(var12, var0, var1.generateBonusChest(), var2, true);
                 var0.setInitialized(true);
                 if (var2) {
                     this.setupDebugLevel(this.worldData);
                 }
-            } catch (Throwable var28) {
-                CrashReport var17 = CrashReport.forThrowable(var28, "Exception initializing level");
+            } catch (Throwable var26) {
+                CrashReport var16 = CrashReport.forThrowable(var26, "Exception initializing level");
 
                 try {
-                    var13.fillReportDetails(var17);
-                } catch (Throwable var27) {
+                    var12.fillReportDetails(var16);
+                } catch (Throwable var25) {
                 }
 
-                throw new ReportedException(var17);
+                throw new ReportedException(var16);
             }
 
             var0.setInitialized(true);
         }
 
-        this.getPlayerList().setLevel(var13);
+        this.getPlayerList().setLevel(var12);
         if (this.worldData.getCustomBossEvents() != null) {
             this.getCustomBossEvents().load(this.worldData.getCustomBossEvents());
         }
 
-        for(Entry<ResourceKey<LevelStem>, LevelStem> var18 : var6.entrySet()) {
-            ResourceKey<LevelStem> var19 = var18.getKey();
-            if (var19 != LevelStem.OVERWORLD) {
-                ResourceKey<Level> var20 = ResourceKey.create(Registry.DIMENSION_REGISTRY, var19.location());
-                DimensionType var21 = var18.getValue().type();
-                ResourceKey<DimensionType> var22 = this.registryHolder
-                    .dimensionTypes()
-                    .getResourceKey(var21)
-                    .orElseThrow(() -> new IllegalStateException("Unregistered dimension type: " + var21));
-                ChunkGenerator var23 = var18.getValue().generator();
-                DerivedLevelData var24 = new DerivedLevelData(this.worldData, var0);
-                ServerLevel var25 = new ServerLevel(
-                    this, this.executor, this.storageSource, var24, var20, var22, var21, param0, var23, var2, var4, ImmutableList.of(), false
+        for(Entry<ResourceKey<LevelStem>, LevelStem> var17 : var6.entrySet()) {
+            ResourceKey<LevelStem> var18 = var17.getKey();
+            if (var18 != LevelStem.OVERWORLD) {
+                ResourceKey<Level> var19 = ResourceKey.create(Registry.DIMENSION_REGISTRY, var18.location());
+                DimensionType var20 = var17.getValue().type();
+                ChunkGenerator var21 = var17.getValue().generator();
+                DerivedLevelData var22 = new DerivedLevelData(this.worldData, var0);
+                ServerLevel var23 = new ServerLevel(
+                    this, this.executor, this.storageSource, var22, var19, var20, param0, var21, var2, var4, ImmutableList.of(), false
                 );
-                var15.addListener(new BorderChangeListener.DelegateBorderChangeListener(var25.getWorldBorder()));
-                this.levels.put(var20, var25);
+                var14.addListener(new BorderChangeListener.DelegateBorderChangeListener(var23.getWorldBorder()));
+                this.levels.put(var19, var23);
             }
         }
 

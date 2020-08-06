@@ -96,20 +96,19 @@ public class ClientLevel extends Level {
         ClientPacketListener param0,
         ClientLevel.ClientLevelData param1,
         ResourceKey<Level> param2,
-        ResourceKey<DimensionType> param3,
-        DimensionType param4,
-        int param5,
-        Supplier<ProfilerFiller> param6,
-        LevelRenderer param7,
-        boolean param8,
-        long param9
+        DimensionType param3,
+        int param4,
+        Supplier<ProfilerFiller> param5,
+        LevelRenderer param6,
+        boolean param7,
+        long param8
     ) {
-        super(param1, param2, param3, param4, param6, true, param8, param9);
+        super(param1, param2, param3, param5, true, param7, param8);
         this.connection = param0;
-        this.chunkSource = new ClientChunkCache(this, param5);
+        this.chunkSource = new ClientChunkCache(this, param4);
         this.clientLevelData = param1;
-        this.levelRenderer = param7;
-        this.effects = DimensionSpecialEffects.forType(param0.registryAccess().dimensionTypes().getResourceKey(param4));
+        this.levelRenderer = param6;
+        this.effects = DimensionSpecialEffects.forType(param0.registryAccess().dimensionTypes().getResourceKey(param3));
         this.setDefaultSpawnPos(new BlockPos(8, 64, 8), 0.0F);
         this.updateSkyBrightness();
         this.prepareWeather();

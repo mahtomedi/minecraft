@@ -198,7 +198,7 @@ public class ChunkHolder {
                         this.broadcastBlockEntityIfNeeded(var0, var6, var7);
                     } else {
                         LevelChunkSection var8 = param0.getSections()[var5.getY()];
-                        ClientboundSectionBlocksUpdatePacket var9 = new ClientboundSectionBlocksUpdatePacket(var5, var4, var8);
+                        ClientboundSectionBlocksUpdatePacket var9 = new ClientboundSectionBlocksUpdatePacket(var5, var4, var8, this.resendLight);
                         this.broadcast(var9, false);
                         var9.runUpdates((param1, param2) -> this.broadcastBlockEntityIfNeeded(var0, param1, param2));
                     }

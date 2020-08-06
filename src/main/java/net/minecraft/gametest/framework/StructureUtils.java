@@ -16,6 +16,7 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import net.minecraft.commands.arguments.blocks.BlockInput;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.resources.ResourceLocation;
@@ -236,7 +237,7 @@ public class StructureUtils {
 
     private static void clearBlock(int param0, BlockPos param1, ServerLevel param2) {
         BlockState var0 = null;
-        FlatLevelGeneratorSettings var1 = FlatLevelGeneratorSettings.getDefault();
+        FlatLevelGeneratorSettings var1 = FlatLevelGeneratorSettings.getDefault(param2.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY));
         if (var1 instanceof FlatLevelGeneratorSettings) {
             BlockState[] var2 = var1.getLayers();
             if (param1.getY() < param0 && param1.getY() <= var2.length) {

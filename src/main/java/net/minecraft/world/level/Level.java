@@ -95,34 +95,31 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     private final WorldBorder worldBorder;
     private final BiomeManager biomeManager;
     private final ResourceKey<Level> dimension;
-    private final ResourceKey<DimensionType> dimensionTypeKey;
 
     protected Level(
         WritableLevelData param0,
         ResourceKey<Level> param1,
-        ResourceKey<DimensionType> param2,
-        final DimensionType param3,
-        Supplier<ProfilerFiller> param4,
+        final DimensionType param2,
+        Supplier<ProfilerFiller> param3,
+        boolean param4,
         boolean param5,
-        boolean param6,
-        long param7
+        long param6
     ) {
-        this.profiler = param4;
+        this.profiler = param3;
         this.levelData = param0;
-        this.dimensionType = param3;
+        this.dimensionType = param2;
         this.dimension = param1;
-        this.dimensionTypeKey = param2;
-        this.isClientSide = param5;
-        if (param3.coordinateScale() != 1.0) {
+        this.isClientSide = param4;
+        if (param2.coordinateScale() != 1.0) {
             this.worldBorder = new WorldBorder() {
                 @Override
                 public double getCenterX() {
-                    return super.getCenterX() / param3.coordinateScale();
+                    return super.getCenterX() / param2.coordinateScale();
                 }
 
                 @Override
                 public double getCenterZ() {
-                    return super.getCenterZ() / param3.coordinateScale();
+                    return super.getCenterZ() / param2.coordinateScale();
                 }
             };
         } else {
@@ -130,8 +127,8 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         }
 
         this.thread = Thread.currentThread();
-        this.biomeManager = new BiomeManager(this, param7, param3.getBiomeZoomer());
-        this.isDebug = param6;
+        this.biomeManager = new BiomeManager(this, param6, param2.getBiomeZoomer());
+        this.isDebug = param5;
     }
 
     @Override
@@ -205,7 +202,8 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
                 return false;
             } else {
                 BlockState var3 = this.getBlockState(param0);
-                if (var3 != var2
+                if ((param2 & 128) == 0
+                    && var3 != var2
                     && (
                         var3.getLightBlock(this, param0) != var2.getLightBlock(this, param0)
                             || var3.getLightEmission() != var2.getLightEmission()
@@ -1044,10 +1042,6 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     @Override
     public DimensionType dimensionType() {
         return this.dimensionType;
-    }
-
-    public ResourceKey<DimensionType> dimensionTypeKey() {
-        return this.dimensionTypeKey;
     }
 
     public ResourceKey<Level> dimension() {

@@ -1294,6 +1294,11 @@ public abstract class Entity implements CommandSource, Nameable {
     }
 
     @OnlyIn(Dist.CLIENT)
+    public Vec3 getLightProbePosition(float param0) {
+        return this.getEyePosition(param0);
+    }
+
+    @OnlyIn(Dist.CLIENT)
     public final Vec3 getPosition(float param0) {
         double var0 = Mth.lerp((double)param0, this.xo, this.getX());
         double var1 = Mth.lerp((double)param0, this.yo, this.getY());
