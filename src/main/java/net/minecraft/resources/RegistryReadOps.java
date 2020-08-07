@@ -68,7 +68,7 @@ public class RegistryReadOps<T> extends DelegatingOps<T> {
         this.jsonOps = param0 == JsonOps.INSTANCE ? this : new RegistryReadOps<>(JsonOps.INSTANCE, param1, param2, param3);
     }
 
-    protected <E> DataResult<Pair<Supplier<E>, T>> decodeElement(T param0, ResourceKey<? extends Registry<E>> param1, Codec<E> param2) {
+    protected <E> DataResult<Pair<Supplier<E>, T>> decodeElement(T param0, ResourceKey<? extends Registry<E>> param1, Codec<E> param2, boolean param3) {
         Optional<WritableRegistry<E>> var0 = this.registryHolder.registry(param1);
         if (!var0.isPresent()) {
             return DataResult.error("Unknown registry: " + param1);
@@ -76,7 +76,9 @@ public class RegistryReadOps<T> extends DelegatingOps<T> {
             WritableRegistry<E> var1 = var0.get();
             DataResult<Pair<ResourceLocation, T>> var2 = ResourceLocation.CODEC.decode(this.delegate, param0);
             if (!var2.result().isPresent()) {
-                return param2.decode(this, param0).map(param0x -> param0x.mapFirst(param0xx -> () -> param0xx));
+                return !param3
+                    ? DataResult.error("Inline definitions not allowed here")
+                    : param2.decode(this, param0).map(param0x -> param0x.mapFirst(param0xx -> () -> param0xx));
             } else {
                 Pair<ResourceLocation, T> var3 = var2.result().get();
                 ResourceLocation var4 = var3.getFirst();
@@ -125,23 +127,21 @@ public class RegistryReadOps<T> extends DelegatingOps<T> {
             });
             var1.values.put(var0, DataResult.success(var3));
             DataResult<Pair<E, OptionalInt>> var4 = this.resources.parseElement(this.jsonOps, param0, var0, param2);
-            DataResult<E> var6;
-            if (var4.result().isPresent()) {
-                Pair<E, OptionalInt> var5 = var4.result().get();
-                param1.registerOrOverride(var5.getSecond(), var0, var5.getFirst(), var4.lifecycle());
-                var6 = var4.map(Pair::getFirst);
-            } else {
-                E var7 = param1.get(var0);
-                if (var7 != null) {
-                    var6 = DataResult.success(var7, Lifecycle.stable());
-                } else {
-                    var6 = var4.map(Pair::getFirst);
-                }
+            Optional<Pair<E, OptionalInt>> var5 = var4.result();
+            if (var5.isPresent()) {
+                Pair<E, OptionalInt> var6 = var5.get();
+                param1.registerOrOverride(var6.getSecond(), var0, var6.getFirst(), var4.lifecycle());
             }
 
-            DataResult<Supplier<E>> var10 = var6.map(param0x -> () -> param0x);
-            var1.values.put(var0, var10);
-            return var10;
+            DataResult<Supplier<E>> var7;
+            if (!var5.isPresent() && param1.get(var0) != null) {
+                var7 = DataResult.success(() -> param1.get(var0), Lifecycle.stable());
+            } else {
+                var7 = var4.map(param2x -> () -> param1.get(var0));
+            }
+
+            var1.values.put(var0, var7);
+            return var7;
         }
     }
 

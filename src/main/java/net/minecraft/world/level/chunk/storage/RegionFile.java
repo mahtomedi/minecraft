@@ -1,5 +1,6 @@
 package net.minecraft.world.level.chunk.storage;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
@@ -32,7 +33,8 @@ public class RegionFile implements AutoCloseable {
     private final ByteBuffer header = ByteBuffer.allocateDirect(8192);
     private final IntBuffer offsets;
     private final IntBuffer timestamps;
-    private final RegionBitmap usedSectors = new RegionBitmap();
+    @VisibleForTesting
+    protected final RegionBitmap usedSectors = new RegionBitmap();
 
     public RegionFile(File param0, File param1, boolean param2) throws IOException {
         this(param0.toPath(), param1.toPath(), RegionFileVersion.VERSION_DEFLATE, param2);
@@ -62,12 +64,25 @@ public class RegionFile implements AutoCloseable {
                     LOGGER.warn("Region file {} has truncated header: {}", param0, var0);
                 }
 
-                for(int var1 = 0; var1 < 1024; ++var1) {
-                    int var2 = this.offsets.get(var1);
-                    if (var2 != 0) {
-                        int var3 = getSectorNumber(var2);
-                        int var4 = getNumSectors(var2);
-                        this.usedSectors.force(var3, var4);
+                long var1 = Files.size(param0);
+
+                for(int var2 = 0; var2 < 1024; ++var2) {
+                    int var3 = this.offsets.get(var2);
+                    if (var3 != 0) {
+                        int var4 = getSectorNumber(var3);
+                        int var5 = getNumSectors(var3);
+                        if (var4 < 2) {
+                            LOGGER.warn("Region file {} has invalid sector at index: {}; sector {} overlaps with header", param0, var2, var4);
+                            this.offsets.put(var2, 0);
+                        } else if (var5 == 0) {
+                            LOGGER.warn("Region file {} has an invalid sector at index: {}; size has to be > 0", param0, var2);
+                            this.offsets.put(var2, 0);
+                        } else if ((long)var4 * 4096L > var1) {
+                            LOGGER.warn("Region file {} has an invalid sector at index: {}; sector {} is out of bounds", param0, var2, var4);
+                            this.offsets.put(var2, 0);
+                        } else {
+                            this.usedSectors.force(var4, var5);
+                        }
                     }
                 }
             }
@@ -166,7 +181,7 @@ public class RegionFile implements AutoCloseable {
     }
 
     private static int getSectorNumber(int param0) {
-        return param0 >> 8;
+        return param0 >> 8 & 16777215;
     }
 
     private static int sizeToSectors(int param0) {

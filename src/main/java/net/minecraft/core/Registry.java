@@ -352,6 +352,11 @@ public abstract class Registry<T> implements Codec<T>, Keyable, IdMap<T> {
         return Optional.ofNullable(this.get(param0));
     }
 
+    @OnlyIn(Dist.CLIENT)
+    public Optional<T> getOptional(@Nullable ResourceKey<T> param0) {
+        return Optional.ofNullable(this.get(param0));
+    }
+
     public T getOrThrow(ResourceKey<T> param0) {
         T var0 = this.get(param0);
         if (var0 == null) {

@@ -30,8 +30,13 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class DimensionType {
+    public static final ResourceLocation OVERWORLD_EFFECTS = new ResourceLocation("overworld");
+    public static final ResourceLocation NETHER_EFFECTS = new ResourceLocation("the_nether");
+    public static final ResourceLocation END_EFFECTS = new ResourceLocation("the_end");
     public static final Codec<DimensionType> DIRECT_CODEC = RecordCodecBuilder.create(
         param0 -> param0.group(
                     Codec.LONG
@@ -52,6 +57,7 @@ public class DimensionType {
                     Codec.BOOL.fieldOf("has_raids").forGetter(DimensionType::hasRaids),
                     Codec.intRange(0, 256).fieldOf("logical_height").forGetter(DimensionType::logicalHeight),
                     ResourceLocation.CODEC.fieldOf("infiniburn").forGetter(param0x -> param0x.infiniburn),
+                    ResourceLocation.CODEC.fieldOf("effects").orElse(OVERWORLD_EFFECTS).forGetter(param0x -> param0x.effectsLocation),
                     Codec.FLOAT.fieldOf("ambient_light").forGetter(param0x -> param0x.ambientLight)
                 )
                 .apply(param0, DimensionType::new)
@@ -75,6 +81,7 @@ public class DimensionType {
         256,
         FuzzyOffsetConstantColumnBiomeZoomer.INSTANCE,
         BlockTags.INFINIBURN_OVERWORLD.getName(),
+        OVERWORLD_EFFECTS,
         0.0F
     );
     protected static final DimensionType DEFAULT_NETHER = new DimensionType(
@@ -92,6 +99,7 @@ public class DimensionType {
         128,
         FuzzyOffsetBiomeZoomer.INSTANCE,
         BlockTags.INFINIBURN_NETHER.getName(),
+        NETHER_EFFECTS,
         0.1F
     );
     protected static final DimensionType DEFAULT_END = new DimensionType(
@@ -109,6 +117,7 @@ public class DimensionType {
         256,
         FuzzyOffsetBiomeZoomer.INSTANCE,
         BlockTags.INFINIBURN_END.getName(),
+        END_EFFECTS,
         0.0F
     );
     public static final ResourceKey<DimensionType> OVERWORLD_CAVES_LOCATION = ResourceKey.create(
@@ -129,6 +138,7 @@ public class DimensionType {
         256,
         FuzzyOffsetConstantColumnBiomeZoomer.INSTANCE,
         BlockTags.INFINIBURN_OVERWORLD.getName(),
+        OVERWORLD_EFFECTS,
         0.0F
     );
     public static final Codec<Supplier<DimensionType>> CODEC = RegistryFileCodec.create(Registry.DIMENSION_TYPE_REGISTRY, DIRECT_CODEC);
@@ -146,6 +156,7 @@ public class DimensionType {
     private final int logicalHeight;
     private final BiomeZoomer biomeZoomer;
     private final ResourceLocation infiniburn;
+    private final ResourceLocation effectsLocation;
     private final float ambientLight;
     private final transient float[] brightnessRamp;
 
@@ -162,9 +173,27 @@ public class DimensionType {
         boolean param9,
         int param10,
         ResourceLocation param11,
-        float param12
+        ResourceLocation param12,
+        float param13
     ) {
-        this(param0, param1, param2, param3, param4, param5, false, param6, param7, param8, param9, param10, FuzzyOffsetBiomeZoomer.INSTANCE, param11, param12);
+        this(
+            param0,
+            param1,
+            param2,
+            param3,
+            param4,
+            param5,
+            false,
+            param6,
+            param7,
+            param8,
+            param9,
+            param10,
+            FuzzyOffsetBiomeZoomer.INSTANCE,
+            param11,
+            param12,
+            param13
+        );
     }
 
     protected DimensionType(
@@ -182,7 +211,8 @@ public class DimensionType {
         int param11,
         BiomeZoomer param12,
         ResourceLocation param13,
-        float param14
+        ResourceLocation param14,
+        float param15
     ) {
         this.fixedTime = param0;
         this.hasSkylight = param1;
@@ -198,8 +228,9 @@ public class DimensionType {
         this.logicalHeight = param11;
         this.biomeZoomer = param12;
         this.infiniburn = param13;
-        this.ambientLight = param14;
-        this.brightnessRamp = fillBrightnessRamp(param14);
+        this.effectsLocation = param14;
+        this.ambientLight = param15;
+        this.brightnessRamp = fillBrightnessRamp(param15);
     }
 
     private static float[] fillBrightnessRamp(float param0) {
@@ -359,6 +390,11 @@ public class DimensionType {
         return (Tag<Block>)(var0 != null ? var0 : BlockTags.INFINIBURN_OVERWORLD);
     }
 
+    @OnlyIn(Dist.CLIENT)
+    public ResourceLocation effectsLocation() {
+        return this.effectsLocation;
+    }
+
     public boolean equalTo(DimensionType param0) {
         if (this == param0) {
             return true;
@@ -377,7 +413,8 @@ public class DimensionType {
                 && Float.compare(param0.ambientLight, this.ambientLight) == 0
                 && this.fixedTime.equals(param0.fixedTime)
                 && this.biomeZoomer.equals(param0.biomeZoomer)
-                && this.infiniburn.equals(param0.infiniburn);
+                && this.infiniburn.equals(param0.infiniburn)
+                && this.effectsLocation.equals(param0.effectsLocation);
         }
     }
 }

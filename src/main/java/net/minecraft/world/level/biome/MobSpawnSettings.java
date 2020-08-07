@@ -59,7 +59,7 @@ public class MobSpawnSettings {
     }
 
     public List<MobSpawnSettings.SpawnerData> getMobs(MobCategory param0) {
-        return this.spawners.get(param0);
+        return this.spawners.getOrDefault(param0, ImmutableList.of());
     }
 
     @Nullable

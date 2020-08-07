@@ -10,7 +10,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class CheckerboardColumnBiomeSource extends BiomeSource {
     public static final Codec<CheckerboardColumnBiomeSource> CODEC = RecordCodecBuilder.create(
         param0 -> param0.group(
-                    Biome.CODEC.listOf().fieldOf("biomes").forGetter(param0x -> param0x.allowedBiomes),
+                    Biome.LIST_CODEC.fieldOf("biomes").forGetter(param0x -> param0x.allowedBiomes),
                     Codec.intRange(0, 62).fieldOf("scale").orElse(2).forGetter(param0x -> param0x.size)
                 )
                 .apply(param0, CheckerboardColumnBiomeSource::new)

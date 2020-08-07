@@ -125,17 +125,19 @@ public class PresetFlatWorldScreen extends Screen {
                 return FlatLevelGeneratorSettings.getDefault(param0);
             } else {
                 FlatLevelGeneratorSettings var2 = param2.withLayers(var1, param2.structureSettings());
-                Biome var3 = param0.getOrThrow(Biomes.PLAINS);
+                ResourceKey<Biome> var3 = Biomes.PLAINS;
                 if (var0.hasNext()) {
                     try {
                         ResourceLocation var4 = new ResourceLocation(var0.next());
-                        var3 = param0.getOptional(var4).orElseThrow(() -> new IllegalArgumentException("Invalid Biome: " + var4));
+                        var3 = ResourceKey.create(Registry.BIOME_REGISTRY, var4);
+                        param0.getOptional(var3).orElseThrow(() -> new IllegalArgumentException("Invalid Biome: " + var4));
                     } catch (Exception var8) {
                         LOGGER.error("Error while parsing flat world string => {}", var8.getMessage());
                     }
                 }
 
-                var2.setBiome(var3);
+                ResourceKey<Biome> var6 = var3;
+                var2.setBiome(() -> param0.getOrThrow(var6));
                 return var2;
             }
         }
@@ -258,7 +260,7 @@ public class PresetFlatWorldScreen extends Screen {
                 var3.getLayersInfo().add(param7[var4x]);
             }
 
-            var3.setBiome(param6x.getOrThrow(param2));
+            var3.setBiome(() -> param6x.getOrThrow(param2));
             var3.updateLayers();
             return var3.withStructureSettings(var2);
         }));

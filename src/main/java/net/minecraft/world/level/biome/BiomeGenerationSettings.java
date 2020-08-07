@@ -39,19 +39,17 @@ public class BiomeGenerationSettings {
                     ConfiguredSurfaceBuilder.CODEC.fieldOf("surface_builder").forGetter(param0x -> param0x.surfaceBuilder),
                     Codec.simpleMap(
                             GenerationStep.Carving.CODEC,
-                            ConfiguredWorldCarver.CODEC.listOf().promotePartial(Util.prefix("Carver: ", LOGGER::error)),
+                            ConfiguredWorldCarver.LIST_CODEC.promotePartial(Util.prefix("Carver: ", LOGGER::error)),
                             StringRepresentable.keys(GenerationStep.Carving.values())
                         )
                         .fieldOf("carvers")
                         .forGetter(param0x -> param0x.carvers),
-                    ConfiguredFeature.CODEC
-                        .listOf()
+                    ConfiguredFeature.LIST_CODEC
                         .promotePartial(Util.prefix("Feature: ", LOGGER::error))
                         .listOf()
                         .fieldOf("features")
                         .forGetter(param0x -> param0x.features),
-                    ConfiguredStructureFeature.CODEC
-                        .listOf()
+                    ConfiguredStructureFeature.LIST_CODEC
                         .promotePartial(Util.prefix("Structure start: ", LOGGER::error))
                         .fieldOf("starts")
                         .forGetter(param0x -> param0x.structureStarts)

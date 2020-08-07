@@ -15,10 +15,10 @@ import net.minecraft.Util;
 import net.minecraft.core.Registry;
 import net.minecraft.data.worldgen.Features;
 import net.minecraft.data.worldgen.StructureFeatures;
-import net.minecraft.data.worldgen.biome.Biomes;
 import net.minecraft.resources.RegistryLookupCodec;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeGenerationSettings;
+import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.GenerationStep;
@@ -44,10 +44,7 @@ public class FlatLevelGeneratorSettings {
                         FlatLayerInfo.CODEC.listOf().fieldOf("layers").forGetter(FlatLevelGeneratorSettings::getLayersInfo),
                         Codec.BOOL.fieldOf("lakes").orElse(false).forGetter(param0x -> param0x.addLakes),
                         Codec.BOOL.fieldOf("features").orElse(false).forGetter(param0x -> param0x.decoration),
-                        Biome.CODEC
-                            .fieldOf("biome")
-                            .orElseGet(Util.prefix("Unknown biome, defaulting to plains", LOGGER::error), () -> () -> Biomes.PLAINS)
-                            .forGetter(param0x -> param0x.biome)
+                        Biome.CODEC.optionalFieldOf("biome").orElseGet(Optional::empty).forGetter(param0x -> Optional.of(param0x.biome))
                     )
                     .apply(param0, FlatLevelGeneratorSettings::new)
         )
@@ -73,14 +70,14 @@ public class FlatLevelGeneratorSettings {
     private final Registry<Biome> biomes;
     private final StructureSettings structureSettings;
     private final List<FlatLayerInfo> layersInfo = Lists.newArrayList();
-    private Supplier<Biome> biome = () -> Biomes.PLAINS;
+    private Supplier<Biome> biome;
     private final BlockState[] layers = new BlockState[256];
     private boolean voidGen;
     private boolean decoration = false;
     private boolean addLakes = false;
 
     public FlatLevelGeneratorSettings(
-        Registry<Biome> param0, StructureSettings param1, List<FlatLayerInfo> param2, boolean param3, boolean param4, Supplier<Biome> param5
+        Registry<Biome> param0, StructureSettings param1, List<FlatLayerInfo> param2, boolean param3, boolean param4, Optional<Supplier<Biome>> param5
     ) {
         this(param1, param0);
         if (param3) {
@@ -93,12 +90,19 @@ public class FlatLevelGeneratorSettings {
 
         this.layersInfo.addAll(param2);
         this.updateLayers();
-        this.biome = param5;
+        if (!param5.isPresent()) {
+            LOGGER.error("Unknown biome, defaulting to plains");
+            this.biome = () -> param0.getOrThrow(Biomes.PLAINS);
+        } else {
+            this.biome = param5.get();
+        }
+
     }
 
     public FlatLevelGeneratorSettings(StructureSettings param0, Registry<Biome> param1) {
         this.biomes = param1;
         this.structureSettings = param0;
+        this.biome = () -> param1.getOrThrow(Biomes.PLAINS);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -115,7 +119,7 @@ public class FlatLevelGeneratorSettings {
             var0.updateLayers();
         }
 
-        var0.setBiome(this.biome.get());
+        var0.setBiome(this.biome);
         if (this.decoration) {
             var0.setDecoration();
         }
@@ -148,8 +152,7 @@ public class FlatLevelGeneratorSettings {
             var2.addStructureStart(var1.withBiomeConfig(STRUCTURE_FEATURES.get(var3.getKey())));
         }
 
-        boolean var4 = (!this.voidGen || this.biomes.getResourceKey(var0).equals(Optional.of(net.minecraft.world.level.biome.Biomes.THE_VOID)))
-            && this.decoration;
+        boolean var4 = (!this.voidGen || this.biomes.getResourceKey(var0).equals(Optional.of(Biomes.THE_VOID))) && this.decoration;
         if (var4) {
             List<List<Supplier<ConfiguredFeature<?, ?>>>> var5 = var1.features();
 
@@ -193,8 +196,9 @@ public class FlatLevelGeneratorSettings {
         return this.biome.get();
     }
 
-    public void setBiome(Biome param0) {
-        this.biome = () -> param0;
+    @OnlyIn(Dist.CLIENT)
+    public void setBiome(Supplier<Biome> param0) {
+        this.biome = param0;
     }
 
     public List<FlatLayerInfo> getLayersInfo() {
@@ -234,7 +238,7 @@ public class FlatLevelGeneratorSettings {
             Maps.newHashMap(ImmutableMap.of(StructureFeature.VILLAGE, StructureSettings.DEFAULTS.get(StructureFeature.VILLAGE)))
         );
         FlatLevelGeneratorSettings var1 = new FlatLevelGeneratorSettings(var0, param0);
-        var1.setBiome(Biomes.PLAINS);
+        var1.biome = () -> param0.getOrThrow(Biomes.PLAINS);
         var1.getLayersInfo().add(new FlatLayerInfo(1, Blocks.BEDROCK));
         var1.getLayersInfo().add(new FlatLayerInfo(2, Blocks.DIRT));
         var1.getLayersInfo().add(new FlatLayerInfo(1, Blocks.GRASS_BLOCK));

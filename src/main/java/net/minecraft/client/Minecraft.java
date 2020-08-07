@@ -545,19 +545,23 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
                 var0 = null;
             }
 
-            LOGGER.info("Caught error loading resourcepacks, removing all selected resourcepacks", param0);
-            this.resourcePackRepository.setSelected(Collections.emptyList());
-            this.options.resourcePacks.clear();
-            this.options.incompatibleResourcePacks.clear();
-            this.options.save();
-            this.reloadResourcePacks().thenRun(() -> {
-                ToastComponent var0x = this.getToasts();
-                SystemToast.addOrUpdate(var0x, SystemToast.SystemToastIds.PACK_LOAD_FAILURE, new TranslatableComponent("resourcePack.load_fail"), var0);
-            });
+            this.clearResourcePacksOnError(param0, var0);
         } else {
             Util.throwAsRuntime(param0);
         }
 
+    }
+
+    public void clearResourcePacksOnError(Throwable param0, @Nullable Component param1) {
+        LOGGER.info("Caught error loading resourcepacks, removing all selected resourcepacks", param0);
+        this.resourcePackRepository.setSelected(Collections.emptyList());
+        this.options.resourcePacks.clear();
+        this.options.incompatibleResourcePacks.clear();
+        this.options.save();
+        this.reloadResourcePacks().thenRun(() -> {
+            ToastComponent var0 = this.getToasts();
+            SystemToast.addOrUpdate(var0, SystemToast.SystemToastIds.PACK_LOAD_FAILURE, new TranslatableComponent("resourcePack.load_fail"), param1);
+        });
     }
 
     public void run() {

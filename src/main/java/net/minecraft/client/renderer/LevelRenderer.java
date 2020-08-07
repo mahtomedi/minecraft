@@ -70,6 +70,8 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.BlockDestructionProgress;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -501,16 +503,28 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
             this.particlesTarget = var4;
             this.weatherTarget = var5;
             this.cloudsTarget = var6;
-        } catch (Exception var81) {
-            String var8 = var81 instanceof JsonSyntaxException ? "parse" : "load";
+        } catch (Exception var91) {
+            String var8 = var91 instanceof JsonSyntaxException ? "parse" : "load";
             String var9 = "Failed to " + var8 + " shader: " + var0;
-            LevelRenderer.TransparencyShaderException var10 = new LevelRenderer.TransparencyShaderException(var9, var81);
-            CrashReport var11 = this.minecraft.fillReport(new CrashReport(var9, var10));
-            this.minecraft.options.graphicsMode = GraphicsStatus.FANCY;
-            this.minecraft.options.save();
-            LOGGER.fatal(var9, (Throwable)var10);
-            this.minecraft.emergencySave();
-            Minecraft.crash(var11);
+            LevelRenderer.TransparencyShaderException var10 = new LevelRenderer.TransparencyShaderException(var9, var91);
+            if (this.minecraft.getResourcePackRepository().getSelectedIds().size() > 1) {
+                Component var11;
+                try {
+                    var11 = new TextComponent(this.minecraft.getResourceManager().getResource(var0).getSourceName());
+                } catch (IOException var81) {
+                    var11 = null;
+                }
+
+                this.minecraft.options.graphicsMode = GraphicsStatus.FANCY;
+                this.minecraft.clearResourcePacksOnError(var10, var11);
+            } else {
+                CrashReport var14 = this.minecraft.fillReport(new CrashReport(var9, var10));
+                this.minecraft.options.graphicsMode = GraphicsStatus.FANCY;
+                this.minecraft.options.save();
+                LOGGER.fatal(var9, (Throwable)var10);
+                this.minecraft.emergencySave();
+                Minecraft.crash(var14);
+            }
         }
 
     }
