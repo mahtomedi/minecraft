@@ -77,7 +77,8 @@ public class MoveToTargetSink extends Behavior<Mob> {
 
     protected void stop(ServerLevel param0, Mob param1, long param2) {
         if (param1.getBrain().hasMemoryValue(MemoryModuleType.WALK_TARGET)
-            && !this.reachedTarget(param1, param1.getBrain().getMemory(MemoryModuleType.WALK_TARGET).get())) {
+            && !this.reachedTarget(param1, param1.getBrain().getMemory(MemoryModuleType.WALK_TARGET).get())
+            && param1.getNavigation().isStuck()) {
             this.remainingCooldown = param0.getRandom().nextInt(40);
         }
 

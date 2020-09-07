@@ -849,6 +849,7 @@ public abstract class Mob extends LivingEntity {
                 }
 
                 this.spawnAtLocation(var1);
+                this.setItemSlot(var0, ItemStack.EMPTY);
             }
         }
 
