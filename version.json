@@ -1,10 +1,10 @@
 {
-    "id": "1.16.3-rc1",
-    "name": "1.16.3 Release Candidate 1",
+    "id": "1.16.3",
+    "name": "1.16.3",
     "release_target": "1.16.3",
-    "world_version": 2579,
-    "protocol_version": 752,
+    "world_version": 2580,
+    "protocol_version": 753,
     "pack_version": 6,
-    "build_time": "2020-09-07T12:32:17+00:00",
-    "stable": false
+    "build_time": "2020-09-10T13:40:50+00:00",
+    "stable": true
 }
