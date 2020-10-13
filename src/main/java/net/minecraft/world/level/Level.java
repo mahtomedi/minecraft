@@ -568,7 +568,6 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         return var0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public String gatherChunkSourceStats() {
         return this.getChunkSource().gatherStats();
     }

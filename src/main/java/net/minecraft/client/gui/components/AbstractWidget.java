@@ -226,7 +226,7 @@ public abstract class AbstractWidget extends GuiComponent implements Widget, Gui
     }
 
     public void setMessage(Component param0) {
-        if (!Objects.equals(param0, this.message)) {
+        if (!Objects.equals(param0.getString(), this.message.getString())) {
             this.queueNarration(250);
         }
 

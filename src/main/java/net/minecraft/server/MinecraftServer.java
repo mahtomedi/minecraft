@@ -80,6 +80,7 @@ import net.minecraft.server.level.TicketType;
 import net.minecraft.server.level.progress.ChunkProgressListener;
 import net.minecraft.server.level.progress.ChunkProgressListenerFactory;
 import net.minecraft.server.network.ServerConnectionListener;
+import net.minecraft.server.network.TextFilter;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackRepository;
 import net.minecraft.server.players.GameProfileCache;
@@ -1609,5 +1610,10 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
 
     public RegistryAccess registryAccess() {
         return this.registryHolder;
+    }
+
+    @Nullable
+    public TextFilter createTextFilterForPlayer(ServerPlayer param0) {
+        return null;
     }
 }

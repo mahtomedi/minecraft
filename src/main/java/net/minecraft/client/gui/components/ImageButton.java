@@ -52,7 +52,25 @@ public class ImageButton extends Button {
         Button.OnPress param10,
         Component param11
     ) {
-        super(param0, param1, param2, param3, param11, param10);
+        this(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, NO_TOOLTIP, param11);
+    }
+
+    public ImageButton(
+        int param0,
+        int param1,
+        int param2,
+        int param3,
+        int param4,
+        int param5,
+        int param6,
+        ResourceLocation param7,
+        int param8,
+        int param9,
+        Button.OnPress param10,
+        Button.OnTooltip param11,
+        Component param12
+    ) {
+        super(param0, param1, param2, param3, param12, param10, param11);
         this.textureWidth = param8;
         this.textureHeight = param9;
         this.xTexStart = param4;
@@ -77,5 +95,9 @@ public class ImageButton extends Button {
 
         RenderSystem.enableDepthTest();
         blit(param0, this.x, this.y, (float)this.xTexStart, (float)var1, this.width, this.height, this.textureWidth, this.textureHeight);
+        if (this.isHovered()) {
+            this.renderToolTip(param0, param1, param2);
+        }
+
     }
 }

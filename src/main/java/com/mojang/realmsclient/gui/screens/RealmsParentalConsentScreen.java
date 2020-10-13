@@ -31,11 +31,9 @@ public class RealmsParentalConsentScreen extends RealmsScreen {
         int var2 = Math.max(this.font.width(var0), this.font.width(var1)) + 30;
         Component var3 = new TranslatableComponent("mco.account.privacy.info");
         int var4 = (int)((double)this.font.width(var3) * 1.2);
+        this.addButton(new Button(this.width / 2 - var4 / 2, row(11), var4, 20, var3, param0 -> Util.getPlatform().openUri("https://aka.ms/MinecraftGDPR")));
         this.addButton(
-            new Button(this.width / 2 - var4 / 2, row(11), var4, 20, var3, param0 -> Util.getPlatform().openUri("https://minecraft.net/privacy/gdpr/"))
-        );
-        this.addButton(
-            new Button(this.width / 2 - (var2 + 5), row(13), var2, 20, var0, param0 -> Util.getPlatform().openUri("https://minecraft.net/update-account"))
+            new Button(this.width / 2 - (var2 + 5), row(13), var2, 20, var0, param0 -> Util.getPlatform().openUri("https://aka.ms/UpdateMojangAccount"))
         );
         this.addButton(new Button(this.width / 2 + 5, row(13), var2, 20, var1, param0 -> this.minecraft.setScreen(this.nextScreen)));
         this.messageLines = MultiLineLabel.create(this.font, MESSAGE, (int)Math.round((double)this.width * 0.9));

@@ -1,5 +1,6 @@
 package net.minecraft.server.network;
 
+import com.google.common.collect.Lists;
 import com.google.common.primitives.Doubles;
 import com.google.common.primitives.Floats;
 import com.mojang.brigadier.ParseResults;
@@ -9,8 +10,13 @@ import io.netty.util.concurrent.GenericFutureListener;
 import it.unimi.dsi.fastutil.ints.Int2ShortMap;
 import it.unimi.dsi.fastutil.ints.Int2ShortOpenHashMap;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
@@ -28,7 +34,6 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
@@ -98,6 +103,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.StringUtil;
+import net.minecraft.util.thread.BlockableEventLoop;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffects;
@@ -187,6 +193,11 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
         param1.setListener(this);
         this.player = param2;
         param2.connection = this;
+        TextFilter var0 = param2.getTextFilter();
+        if (var0 != null) {
+            var0.join();
+        }
+
     }
 
     public void tick() {
@@ -285,6 +296,33 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
         this.connection.send(new ClientboundDisconnectPacket(param0), param1 -> this.connection.disconnect(param0));
         this.connection.setReadOnly();
         this.server.executeBlocking(this.connection::handleDisconnection);
+    }
+
+    private <T> void filterTextPacket(T param0, Consumer<T> param1, BiFunction<TextFilter, T, CompletableFuture<Optional<T>>> param2) {
+        BlockableEventLoop<?> var0 = this.player.getLevel().getServer();
+        Consumer<T> var1 = param1x -> {
+            if (this.getConnection().isConnected()) {
+                param1.accept(param1x);
+            } else {
+                LOGGER.debug("Ignoring packet due to disconnection");
+            }
+
+        };
+        TextFilter var2 = this.player.getTextFilter();
+        if (var2 != null) {
+            param2.apply(var2, param0).thenAcceptAsync(param1x -> param1x.ifPresent(var1), var0);
+        } else {
+            var0.execute(() -> var1.accept(param0));
+        }
+
+    }
+
+    private void filterTextPacket(String param0, Consumer<String> param1) {
+        this.filterTextPacket(param0, param1, TextFilter::processStreamMessage);
+    }
+
+    private void filterTextPacket(List<String> param0, Consumer<List<String>> param1) {
+        this.filterTextPacket(param0, param1, TextFilter::processMessageBundle);
     }
 
     @Override
@@ -680,38 +718,63 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
 
     @Override
     public void handleEditBook(ServerboundEditBookPacket param0) {
-        PacketUtils.ensureRunningOnSameThread(param0, this, this.player.getLevel());
         ItemStack var0 = param0.getBook();
-        if (!var0.isEmpty()) {
-            if (WritableBookItem.makeSureTagIsValid(var0.getTag())) {
-                ItemStack var1 = this.player.getItemInHand(param0.getHand());
-                if (var0.getItem() == Items.WRITABLE_BOOK && var1.getItem() == Items.WRITABLE_BOOK) {
-                    if (param0.isSigning()) {
-                        ItemStack var2 = new ItemStack(Items.WRITTEN_BOOK);
-                        CompoundTag var3 = var1.getTag();
-                        if (var3 != null) {
-                            var2.setTag(var3.copy());
-                        }
-
-                        var2.addTagElement("author", StringTag.valueOf(this.player.getName().getString()));
-                        var2.addTagElement("title", StringTag.valueOf(var0.getTag().getString("title")));
-                        ListTag var4 = var0.getTag().getList("pages", 8);
-
-                        for(int var5 = 0; var5 < var4.size(); ++var5) {
-                            String var6 = var4.getString(var5);
-                            Component var7 = new TextComponent(var6);
-                            var6 = Component.Serializer.toJson(var7);
-                            var4.set(var5, (Tag)StringTag.valueOf(var6));
-                        }
-
-                        var2.addTagElement("pages", var4);
-                        this.player.setItemInHand(param0.getHand(), var2);
-                    } else {
-                        var1.addTagElement("pages", var0.getTag().getList("pages", 8));
-                    }
+        if (var0.getItem() == Items.WRITABLE_BOOK) {
+            CompoundTag var1 = var0.getTag();
+            if (WritableBookItem.makeSureTagIsValid(var1)) {
+                List<String> var2 = Lists.newArrayList();
+                boolean var3 = param0.isSigning();
+                if (var3) {
+                    var2.add(var1.getString("title"));
                 }
 
+                ListTag var4 = var1.getList("pages", 8);
+
+                for(int var5 = 0; var5 < var4.size(); ++var5) {
+                    var2.add(var4.getString(var5));
+                }
+
+                int var6 = param0.getSlot();
+                if (Inventory.isHotbarSlot(var6) || var6 == 40) {
+                    this.filterTextPacket(
+                        var2,
+                        var3 ? param1 -> this.signBook(param1.get(0), param1.subList(1, param1.size()), var6) : param1 -> this.updateBookContents(param1, var6)
+                    );
+                }
             }
+        }
+    }
+
+    private void updateBookContents(List<String> param0, int param1) {
+        ItemStack var0 = this.player.inventory.getItem(param1);
+        if (var0.getItem() == Items.WRITABLE_BOOK) {
+            ListTag var1 = new ListTag();
+            param0.stream().map(StringTag::valueOf).forEach(var1::add);
+            var0.addTagElement("pages", var1);
+        }
+    }
+
+    private void signBook(String param0, List<String> param1, int param2) {
+        ItemStack var0 = this.player.inventory.getItem(param2);
+        if (var0.getItem() == Items.WRITABLE_BOOK) {
+            ItemStack var1 = new ItemStack(Items.WRITTEN_BOOK);
+            CompoundTag var2 = var0.getTag();
+            if (var2 != null) {
+                var1.setTag(var2.copy());
+            }
+
+            var1.addTagElement("author", StringTag.valueOf(this.player.getName().getString()));
+            var1.addTagElement("title", StringTag.valueOf(param0));
+            ListTag var3 = new ListTag();
+
+            for(String var4 : param1) {
+                Component var5 = new TextComponent(var4);
+                String var6 = Component.Serializer.toJson(var5);
+                var3.add(StringTag.valueOf(var6));
+            }
+
+            var1.addTagElement("pages", var3);
+            this.player.inventory.setItem(param2, var1);
         }
     }
 
@@ -1047,6 +1110,11 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
             );
         this.player.disconnect();
         this.server.getPlayerList().remove(this.player);
+        TextFilter var0 = this.player.getTextFilter();
+        if (var0 != null) {
+            var0.leave();
+        }
+
         if (this.isSingleplayerOwner()) {
             LOGGER.info("Stopping singleplayer server as player logged out");
             this.server.halt(false);
@@ -1098,25 +1166,34 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
 
     @Override
     public void handleChat(ServerboundChatPacket param0) {
-        PacketUtils.ensureRunningOnSameThread(param0, this, this.player.getLevel());
+        String var0 = StringUtils.normalizeSpace(param0.getMessage());
+        if (var0.startsWith("/")) {
+            PacketUtils.ensureRunningOnSameThread(param0, this, this.player.getLevel());
+            this.handleChat(var0);
+        } else {
+            this.filterTextPacket(var0, this::handleChat);
+        }
+
+    }
+
+    private void handleChat(String param0x) {
         if (this.player.getChatVisibility() == ChatVisiblity.HIDDEN) {
             this.send(new ClientboundChatPacket(new TranslatableComponent("chat.cannotSend").withStyle(ChatFormatting.RED), ChatType.SYSTEM, Util.NIL_UUID));
         } else {
             this.player.resetLastActionTime();
-            String var0 = StringUtils.normalizeSpace(param0.getMessage());
 
-            for(int var1 = 0; var1 < var0.length(); ++var1) {
-                if (!SharedConstants.isAllowedChatCharacter(var0.charAt(var1))) {
+            for(int var0x = 0; var0x < param0x.length(); ++var0x) {
+                if (!SharedConstants.isAllowedChatCharacter(param0x.charAt(var0x))) {
                     this.disconnect(new TranslatableComponent("multiplayer.disconnect.illegal_characters"));
                     return;
                 }
             }
 
-            if (var0.startsWith("/")) {
-                this.handleCommand(var0);
+            if (param0x.startsWith("/")) {
+                this.handleCommand(param0x);
             } else {
-                Component var2 = new TranslatableComponent("chat.type.text", this.player.getDisplayName(), var0);
-                this.server.getPlayerList().broadcastMessage(var2, ChatType.CHAT, this.player.getUUID());
+                Component var1 = new TranslatableComponent("chat.type.text", this.player.getDisplayName(), param0x);
+                this.server.getPlayerList().broadcastMessage(var1, ChatType.CHAT, this.player.getUUID());
             }
 
             this.chatSpamTickCount += 20;
@@ -1383,7 +1460,11 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
 
     @Override
     public void handleSignUpdate(ServerboundSignUpdatePacket param0) {
-        PacketUtils.ensureRunningOnSameThread(param0, this, this.player.getLevel());
+        List<String> var0 = Stream.of(param0.getLines()).map(ChatFormatting::stripFormatting).collect(Collectors.toList());
+        this.filterTextPacket(var0, param1 -> this.updateSignText(param0, param1));
+    }
+
+    private void updateSignText(ServerboundSignUpdatePacket param0, List<String> param1) {
         this.player.resetLastActionTime();
         ServerLevel var0 = this.player.getLevel();
         BlockPos var1 = param0.getPos();
@@ -1400,10 +1481,8 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
                 return;
             }
 
-            String[] var5 = param0.getLines();
-
-            for(int var6 = 0; var6 < var5.length; ++var6) {
-                var4.setMessage(var6, new TextComponent(ChatFormatting.stripFormatting(var5[var6])));
+            for(int var5 = 0; var5 < param1.size(); ++var5) {
+                var4.setMessage(var5, new TextComponent(param1.get(var5)));
             }
 
             var4.setChanged();

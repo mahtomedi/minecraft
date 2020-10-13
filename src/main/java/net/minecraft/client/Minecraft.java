@@ -59,6 +59,7 @@ import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.client.gui.components.toasts.ToastComponent;
+import net.minecraft.client.gui.components.toasts.TutorialToast;
 import net.minecraft.client.gui.font.FontManager;
 import net.minecraft.client.gui.screens.BackupConfirmScreen;
 import net.minecraft.client.gui.screens.ChatScreen;
@@ -83,6 +84,8 @@ import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.gui.screens.recipebook.RecipeCollection;
+import net.minecraft.client.gui.screens.social.PlayerSocialManager;
+import net.minecraft.client.gui.screens.social.SocialInteractionsScreen;
 import net.minecraft.client.gui.screens.worldselection.EditWorldScreen;
 import net.minecraft.client.main.GameConfig;
 import net.minecraft.client.multiplayer.ClientHandshakePacketListenerImpl;
@@ -236,6 +239,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     public static final ResourceLocation UNIFORM_FONT = new ResourceLocation("uniform");
     public static final ResourceLocation ALT_FONT = new ResourceLocation("alt");
     private static final CompletableFuture<Unit> RESOURCE_RELOAD_INITIAL_TASK = CompletableFuture.completedFuture(Unit.INSTANCE);
+    private static final Component SOCIAL_INTERACTIONS_NOT_AVAILABLE = new TranslatableComponent("multiplayer.socialInteractions.not_available");
     private final File resourcePackDirectory;
     private final PropertyMap profileProperties;
     private final TextureManager textureManager;
@@ -292,6 +296,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     private final ToastComponent toast;
     private final Game game = new Game(this);
     private final Tutorial tutorial;
+    private final PlayerSocialManager playerSocialManager;
     public static byte[] reserve = new byte[10485760];
     @Nullable
     public MultiPlayerGameMode gameMode;
@@ -338,6 +343,8 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     private final Queue<Runnable> progressTasks = Queues.newConcurrentLinkedQueue();
     @Nullable
     private CompletableFuture<Void> pendingReload;
+    @Nullable
+    private TutorialToast socialInteractionsToast;
     private ProfilerFiller profiler = InactiveProfiler.INSTANCE;
     private int fpsPieRenderTicks;
     private final ContinuousProfiler fpsPieProfiler = new ContinuousProfiler(Util.timeSource, () -> this.fpsPieRenderTicks);
@@ -454,6 +461,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         this.renderBuffers = new RenderBuffers();
         this.gameRenderer = new GameRenderer(this, this.resourceManager, this.renderBuffers);
         this.resourceManager.registerReloadListener(this.gameRenderer);
+        this.playerSocialManager = new PlayerSocialManager(this);
         this.blockRenderer = new BlockRenderDispatcher(this.modelManager.getBlockModelShaper(), this.blockColors);
         this.resourceManager.registerReloadListener(this.blockRenderer);
         this.levelRenderer = new LevelRenderer(this, this.renderBuffers);
@@ -1441,20 +1449,29 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         this.soundManager.tick(this.pause);
         if (this.level != null) {
             if (!this.pause) {
+                if (!this.options.joinedFirstServer && this.isMultiplayerServer()) {
+                    Component var0 = new TranslatableComponent("tutorial.socialInteractions.title");
+                    Component var1 = new TranslatableComponent("tutorial.socialInteractions.description", Tutorial.key("socialInteractions"));
+                    this.socialInteractionsToast = new TutorialToast(TutorialToast.Icons.SOCIAL_INTERACTIONS, var0, var1, true);
+                    this.tutorial.addTimedToast(this.socialInteractionsToast, 160);
+                    this.options.joinedFirstServer = true;
+                    this.options.save();
+                }
+
                 this.tutorial.tick();
 
                 try {
                     this.level.tick(() -> true);
-                } catch (Throwable var4) {
-                    CrashReport var1 = CrashReport.forThrowable(var4, "Exception in world tick");
+                } catch (Throwable var41) {
+                    CrashReport var3 = CrashReport.forThrowable(var41, "Exception in world tick");
                     if (this.level == null) {
-                        CrashReportCategory var2 = var1.addCategory("Affected level");
-                        var2.setDetail("Problem", "Level is null!");
+                        CrashReportCategory var4 = var3.addCategory("Affected level");
+                        var4.setDetail("Problem", "Level is null!");
                     } else {
-                        this.level.fillReportDetails(var1);
+                        this.level.fillReportDetails(var3);
                     }
 
-                    throw new ReportedException(var1);
+                    throw new ReportedException(var3);
                 }
             }
 
@@ -1475,6 +1492,10 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         this.profiler.popPush("keyboard");
         this.keyboardHandler.tick();
         this.profiler.pop();
+    }
+
+    private boolean isMultiplayerServer() {
+        return !this.isLocalServer || this.singleplayerServer != null && this.singleplayerServer.isPublished();
     }
 
     private void handleKeybinds() {
@@ -1501,6 +1522,20 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
                 } else {
                     CreativeModeInventoryScreen.handleHotbarLoadOrSave(this, var1, var3, var2);
                 }
+            }
+        }
+
+        while(this.options.keySocialInteractions.consumeClick()) {
+            if (!this.isMultiplayerServer()) {
+                this.player.displayClientMessage(SOCIAL_INTERACTIONS_NOT_AVAILABLE, true);
+                NarratorChatListener.INSTANCE.sayNow(SOCIAL_INTERACTIONS_NOT_AVAILABLE.getString());
+            } else {
+                if (this.socialInteractionsToast != null) {
+                    this.tutorial.removeTimedToast(this.socialInteractionsToast);
+                    this.socialInteractionsToast = null;
+                }
+
+                this.setScreen(new SocialInteractionsScreen());
             }
         }
 
@@ -1900,7 +1935,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
 
     public boolean isBlocked(UUID param0) {
         if (this.allowsChat()) {
-            return false;
+            return this.playerSocialManager.isHidden(param0);
         } else {
             return (this.player == null || !param0.equals(this.player.getUUID())) && !param0.equals(Util.NIL_UUID);
         }
@@ -2420,6 +2455,10 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     @Nullable
     public Overlay getOverlay() {
         return this.overlay;
+    }
+
+    public PlayerSocialManager getPlayerSocialManager() {
+        return this.playerSocialManager;
     }
 
     public boolean renderOnThread() {

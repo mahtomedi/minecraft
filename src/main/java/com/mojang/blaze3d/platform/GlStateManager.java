@@ -43,6 +43,7 @@ public class GlStateManager {
     private static final GlStateManager.ColorLogicState COLOR_LOGIC = new GlStateManager.ColorLogicState();
     private static final GlStateManager.TexGenState TEX_GEN = new GlStateManager.TexGenState();
     private static final GlStateManager.StencilState STENCIL = new GlStateManager.StencilState();
+    private static final GlStateManager.ScissorState SCISSOR = new GlStateManager.ScissorState();
     private static final FloatBuffer FLOAT_ARG_BUFFER = MemoryTracker.createFloatBuffer(4);
     private static int activeTexture;
     private static final GlStateManager.TextureState[] TEXTURES = IntStream.range(0, 12)
@@ -153,6 +154,21 @@ public class GlStateManager {
     public static void _normal3f(float param0, float param1, float param2) {
         RenderSystem.assertThread(RenderSystem::isOnRenderThread);
         GL11.glNormal3f(param0, param1, param2);
+    }
+
+    public static void _disableScissorTest() {
+        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        SCISSOR.mode.disable();
+    }
+
+    public static void _enableScissorTest() {
+        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        SCISSOR.mode.enable();
+    }
+
+    public static void _scissorBox(int param0, int param1, int param2, int param3) {
+        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        GL20.glScissor(param0, param1, param2, param3);
     }
 
     public static void _disableDepthTest() {
@@ -1504,6 +1520,14 @@ public class GlStateManager {
         public float units;
 
         private PolygonOffsetState() {
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    static class ScissorState {
+        public final GlStateManager.BooleanState mode = new GlStateManager.BooleanState(3089);
+
+        private ScissorState() {
         }
     }
 

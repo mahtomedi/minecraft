@@ -2,11 +2,16 @@ package net.minecraft.server.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.Util;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.ChatType;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.TextFilter;
 import net.minecraft.world.entity.Entity;
 
 public class EmoteCommands {
@@ -17,14 +22,28 @@ public class EmoteCommands {
                     Commands.argument("action", StringArgumentType.greedyString())
                         .executes(
                             param0x -> {
-                                TranslatableComponent var0x = new TranslatableComponent(
-                                    "chat.type.emote", param0x.getSource().getDisplayName(), StringArgumentType.getString(param0x, "action")
-                                );
+                                String var0x = StringArgumentType.getString(param0x, "action");
                                 Entity var1 = param0x.getSource().getEntity();
+                                MinecraftServer var2 = param0x.getSource().getServer();
                                 if (var1 != null) {
-                                    param0x.getSource().getServer().getPlayerList().broadcastMessage(var0x, ChatType.CHAT, var1.getUUID());
+                                    if (var1 instanceof ServerPlayer) {
+                                        TextFilter var3 = ((ServerPlayer)var1).getTextFilter();
+                                        if (var3 != null) {
+                                            var3.processStreamMessage(var0x)
+                                                .thenAcceptAsync(
+                                                    param3 -> param3.ifPresent(
+                                                            param3x -> var2.getPlayerList()
+                                                                    .broadcastMessage(createMessage(param0x, param3x), ChatType.CHAT, var1.getUUID())
+                                                        ),
+                                                    var2
+                                                );
+                                            return 1;
+                                        }
+                                    }
+                    
+                                    var2.getPlayerList().broadcastMessage(createMessage(param0x, var0x), ChatType.CHAT, var1.getUUID());
                                 } else {
-                                    param0x.getSource().getServer().getPlayerList().broadcastMessage(var0x, ChatType.SYSTEM, Util.NIL_UUID);
+                                    var2.getPlayerList().broadcastMessage(createMessage(param0x, var0x), ChatType.SYSTEM, Util.NIL_UUID);
                                 }
                     
                                 return 1;
@@ -32,5 +51,9 @@ public class EmoteCommands {
                         )
                 )
         );
+    }
+
+    private static Component createMessage(CommandContext<CommandSourceStack> param0, String param1) {
+        return new TranslatableComponent("chat.type.emote", param0.getSource().getDisplayName(), param1);
     }
 }

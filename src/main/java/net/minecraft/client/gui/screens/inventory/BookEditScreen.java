@@ -217,7 +217,8 @@ public class BookEditScreen extends Screen {
                 this.book.addTagElement("title", StringTag.valueOf(this.title.trim()));
             }
 
-            this.minecraft.getConnection().send(new ServerboundEditBookPacket(this.book, param0, this.hand));
+            int var1 = this.hand == InteractionHand.MAIN_HAND ? this.owner.inventory.selected : 40;
+            this.minecraft.getConnection().send(new ServerboundEditBookPacket(this.book, param0, var1));
         }
     }
 

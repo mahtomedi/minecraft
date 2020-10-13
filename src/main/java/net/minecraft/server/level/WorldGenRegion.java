@@ -21,6 +21,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.TickList;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.biome.Biome;
@@ -64,6 +65,7 @@ public class WorldGenRegion implements WorldGenLevel {
     private final BiomeManager biomeManager;
     private final ChunkPos firstPos;
     private final ChunkPos lastPos;
+    private final StructureFeatureManager structureFeatureManager;
 
     public WorldGenRegion(ServerLevel param0, List<ChunkAccess> param1) {
         int var0 = Mth.floor(Math.sqrt((double)param1.size()));
@@ -83,6 +85,7 @@ public class WorldGenRegion implements WorldGenLevel {
             this.biomeManager = new BiomeManager(this, BiomeManager.obfuscateSeed(this.seed), param0.dimensionType().getBiomeZoomer());
             this.firstPos = param1.get(0).getPos();
             this.lastPos = param1.get(param1.size() - 1).getPos();
+            this.structureFeatureManager = param0.structureFeatureManager().forWorldGenRegion(this);
         }
     }
 
@@ -388,6 +391,6 @@ public class WorldGenRegion implements WorldGenLevel {
 
     @Override
     public Stream<? extends StructureStart<?>> startsForFeature(SectionPos param0, StructureFeature<?> param1) {
-        return this.level.startsForFeature(param0, param1);
+        return this.structureFeatureManager.startsForFeature(param0, param1);
     }
 }

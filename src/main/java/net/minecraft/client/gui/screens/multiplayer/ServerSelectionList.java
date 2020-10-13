@@ -54,8 +54,7 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
     private static final Component SCANNING_LABEL = new TranslatableComponent("lanServer.scanning");
     private static final Component CANT_RESOLVE_TEXT = new TranslatableComponent("multiplayer.status.cannot_resolve").withStyle(ChatFormatting.DARK_RED);
     private static final Component CANT_CONNECT_TEXT = new TranslatableComponent("multiplayer.status.cannot_connect").withStyle(ChatFormatting.DARK_RED);
-    private static final Component CLIENT_OUT_OF_DATE_TOOLTIP = new TranslatableComponent("multiplayer.status.client_out_of_date");
-    private static final Component SERVER_OUT_OF_DATE_TOOLTIP = new TranslatableComponent("multiplayer.status.server_out_of_date");
+    private static final Component INCOMPATIBLE_TOOLTIP = new TranslatableComponent("multiplayer.status.incompatible");
     private static final Component NO_CONNECTION_TOOLTIP = new TranslatableComponent("multiplayer.status.no_connection");
     private static final Component PINGING_TOOLTIP = new TranslatableComponent("multiplayer.status.pinging");
     private final JoinMultiplayerScreen screen;
@@ -251,67 +250,65 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
                 });
             }
 
-            boolean var0 = this.serverData.protocol > SharedConstants.getCurrentVersion().getProtocolVersion();
-            boolean var1 = this.serverData.protocol < SharedConstants.getCurrentVersion().getProtocolVersion();
-            boolean var2 = var0 || var1;
+            boolean var0 = this.serverData.protocol != SharedConstants.getCurrentVersion().getProtocolVersion();
             this.minecraft.font.draw(param0, this.serverData.name, (float)(param3 + 32 + 3), (float)(param2 + 1), 16777215);
-            List<FormattedCharSequence> var3 = this.minecraft.font.split(this.serverData.motd, param4 - 32 - 2);
+            List<FormattedCharSequence> var1 = this.minecraft.font.split(this.serverData.motd, param4 - 32 - 2);
 
-            for(int var4 = 0; var4 < Math.min(var3.size(), 2); ++var4) {
-                this.minecraft.font.draw(param0, var3.get(var4), (float)(param3 + 32 + 3), (float)(param2 + 12 + 9 * var4), 8421504);
+            for(int var2 = 0; var2 < Math.min(var1.size(), 2); ++var2) {
+                this.minecraft.font.draw(param0, var1.get(var2), (float)(param3 + 32 + 3), (float)(param2 + 12 + 9 * var2), 8421504);
             }
 
-            Component var5 = (Component)(var2 ? this.serverData.version.copy().withStyle(ChatFormatting.DARK_RED) : this.serverData.status);
-            int var6 = this.minecraft.font.width(var5);
-            this.minecraft.font.draw(param0, var5, (float)(param3 + param4 - var6 - 15 - 2), (float)(param2 + 1), 8421504);
-            int var7 = 0;
-            int var8;
-            List<Component> var10;
-            Component var9;
-            if (var2) {
-                var8 = 5;
-                var9 = var0 ? ServerSelectionList.CLIENT_OUT_OF_DATE_TOOLTIP : ServerSelectionList.SERVER_OUT_OF_DATE_TOOLTIP;
-                var10 = this.serverData.playerList;
+            Component var3 = (Component)(var0 ? this.serverData.version.copy().withStyle(ChatFormatting.DARK_RED) : this.serverData.status);
+            int var4 = this.minecraft.font.width(var3);
+            this.minecraft.font.draw(param0, var3, (float)(param3 + param4 - var4 - 15 - 2), (float)(param2 + 1), 8421504);
+            int var5 = 0;
+            int var6;
+            List<Component> var8;
+            Component var7;
+            if (var0) {
+                var6 = 5;
+                var7 = ServerSelectionList.INCOMPATIBLE_TOOLTIP;
+                var8 = this.serverData.playerList;
             } else if (this.serverData.pinged && this.serverData.ping != -2L) {
                 if (this.serverData.ping < 0L) {
-                    var8 = 5;
+                    var6 = 5;
                 } else if (this.serverData.ping < 150L) {
-                    var8 = 0;
+                    var6 = 0;
                 } else if (this.serverData.ping < 300L) {
-                    var8 = 1;
+                    var6 = 1;
                 } else if (this.serverData.ping < 600L) {
-                    var8 = 2;
+                    var6 = 2;
                 } else if (this.serverData.ping < 1000L) {
-                    var8 = 3;
+                    var6 = 3;
                 } else {
-                    var8 = 4;
+                    var6 = 4;
                 }
 
                 if (this.serverData.ping < 0L) {
-                    var9 = ServerSelectionList.NO_CONNECTION_TOOLTIP;
-                    var10 = Collections.emptyList();
+                    var7 = ServerSelectionList.NO_CONNECTION_TOOLTIP;
+                    var8 = Collections.emptyList();
                 } else {
-                    var9 = new TranslatableComponent("multiplayer.status.ping", this.serverData.ping);
-                    var10 = this.serverData.playerList;
+                    var7 = new TranslatableComponent("multiplayer.status.ping", this.serverData.ping);
+                    var8 = this.serverData.playerList;
                 }
             } else {
-                var7 = 1;
-                var8 = (int)(Util.getMillis() / 100L + (long)(param1 * 2) & 7L);
-                if (var8 > 4) {
-                    var8 = 8 - var8;
+                var5 = 1;
+                var6 = (int)(Util.getMillis() / 100L + (long)(param1 * 2) & 7L);
+                if (var6 > 4) {
+                    var6 = 8 - var6;
                 }
 
-                var9 = ServerSelectionList.PINGING_TOOLTIP;
-                var10 = Collections.emptyList();
+                var7 = ServerSelectionList.PINGING_TOOLTIP;
+                var8 = Collections.emptyList();
             }
 
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
             this.minecraft.getTextureManager().bind(GuiComponent.GUI_ICONS_LOCATION);
-            GuiComponent.blit(param0, param3 + param4 - 15, param2, (float)(var7 * 10), (float)(176 + var8 * 8), 10, 8, 256, 256);
-            String var24 = this.serverData.getIconB64();
-            if (!Objects.equals(var24, this.lastIconB64)) {
-                if (this.uploadServerIcon(var24)) {
-                    this.lastIconB64 = var24;
+            GuiComponent.blit(param0, param3 + param4 - 15, param2, (float)(var5 * 10), (float)(176 + var6 * 8), 10, 8, 256, 256);
+            String var22 = this.serverData.getIconB64();
+            if (!Objects.equals(var22, this.lastIconB64)) {
+                if (this.uploadServerIcon(var22)) {
+                    this.lastIconB64 = var22;
                 } else {
                     this.serverData.setIconB64(null);
                     this.updateServerList();
@@ -324,22 +321,22 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
                 this.drawIcon(param0, param3, param2, ServerSelectionList.ICON_MISSING);
             }
 
-            int var25 = param6 - param3;
-            int var26 = param7 - param2;
-            if (var25 >= param4 - 15 && var25 <= param4 - 5 && var26 >= 0 && var26 <= 8) {
-                this.screen.setToolTip(Collections.singletonList(var9));
-            } else if (var25 >= param4 - var6 - 15 - 2 && var25 <= param4 - 15 - 2 && var26 >= 0 && var26 <= 8) {
-                this.screen.setToolTip(var10);
+            int var23 = param6 - param3;
+            int var24 = param7 - param2;
+            if (var23 >= param4 - 15 && var23 <= param4 - 5 && var24 >= 0 && var24 <= 8) {
+                this.screen.setToolTip(Collections.singletonList(var7));
+            } else if (var23 >= param4 - var4 - 15 - 2 && var23 <= param4 - 15 - 2 && var24 >= 0 && var24 <= 8) {
+                this.screen.setToolTip(var8);
             }
 
             if (this.minecraft.options.touchscreen || param8) {
                 this.minecraft.getTextureManager().bind(ServerSelectionList.ICON_OVERLAY_LOCATION);
                 GuiComponent.fill(param0, param3, param2, param3 + 32, param2 + 32, -1601138544);
                 RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-                int var27 = param6 - param3;
-                int var28 = param7 - param2;
+                int var25 = param6 - param3;
+                int var26 = param7 - param2;
                 if (this.canJoin()) {
-                    if (var27 < 32 && var27 > 16) {
+                    if (var25 < 32 && var25 > 16) {
                         GuiComponent.blit(param0, param3, param2, 0.0F, 32.0F, 32, 32, 256, 256);
                     } else {
                         GuiComponent.blit(param0, param3, param2, 0.0F, 0.0F, 32, 32, 256, 256);
@@ -347,7 +344,7 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
                 }
 
                 if (param1 > 0) {
-                    if (var27 < 16 && var28 < 16) {
+                    if (var25 < 16 && var26 < 16) {
                         GuiComponent.blit(param0, param3, param2, 96.0F, 32.0F, 32, 32, 256, 256);
                     } else {
                         GuiComponent.blit(param0, param3, param2, 96.0F, 0.0F, 32, 32, 256, 256);
@@ -355,7 +352,7 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
                 }
 
                 if (param1 < this.screen.getServers().size() - 1) {
-                    if (var27 < 16 && var28 > 16) {
+                    if (var25 < 16 && var26 > 16) {
                         GuiComponent.blit(param0, param3, param2, 64.0F, 32.0F, 32, 32, 256, 256);
                     } else {
                         GuiComponent.blit(param0, param3, param2, 64.0F, 0.0F, 32, 32, 256, 256);

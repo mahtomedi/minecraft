@@ -1,10 +1,10 @@
 {
-    "id": "1.16.3",
-    "name": "1.16.3",
-    "release_target": "1.16.3",
-    "world_version": 2580,
-    "protocol_version": 753,
+    "id": "1.16.4-pre1",
+    "name": "1.16.4 Pre-release 1",
+    "release_target": "1.16.4",
+    "world_version": 2581,
+    "protocol_version": 1073741825,
     "pack_version": 6,
-    "build_time": "2020-09-10T13:40:50+00:00",
-    "stable": true
+    "build_time": "2020-10-13T14:34:19+00:00",
+    "stable": false
 }

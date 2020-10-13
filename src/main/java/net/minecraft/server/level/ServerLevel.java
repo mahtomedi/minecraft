@@ -11,12 +11,15 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap.Entry;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import it.unimi.dsi.fastutil.longs.LongSets;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -26,6 +29,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.function.BooleanSupplier;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -54,6 +58,7 @@ import net.minecraft.network.protocol.game.ClientboundSoundEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.network.protocol.game.DebugPackets;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerScoreboard;
 import net.minecraft.server.level.progress.ChunkProgressListener;
@@ -1499,6 +1504,41 @@ public class ServerLevel extends Level implements WorldGenLevel {
     @Override
     public ServerLevel getLevel() {
         return this;
+    }
+
+    @VisibleForTesting
+    public String getWatchdogStats() {
+        return String.format(
+            "players: %s, entities: %d [%s], block_entities: %d [%s], block_ticks: %d, fluid_ticks: %d, chunk_source: %s",
+            this.players.size(),
+            this.entitiesById.size(),
+            getTypeCount(this.entitiesById.values(), param0 -> Registry.ENTITY_TYPE.getKey(param0.getType())),
+            this.tickableBlockEntities.size(),
+            getTypeCount(this.tickableBlockEntities, param0 -> Registry.BLOCK_ENTITY_TYPE.getKey(param0.getType())),
+            this.getBlockTicks().size(),
+            this.getLiquidTicks().size(),
+            this.gatherChunkSourceStats()
+        );
+    }
+
+    private static <T> String getTypeCount(Collection<T> param0, Function<T, ResourceLocation> param1) {
+        try {
+            Object2IntOpenHashMap<ResourceLocation> var0 = new Object2IntOpenHashMap<>();
+
+            for(T var1 : param0) {
+                ResourceLocation var2 = param1.apply(var1);
+                var0.addTo(var2, 1);
+            }
+
+            return var0.object2IntEntrySet()
+                .stream()
+                .sorted(Comparator.comparing(it.unimi.dsi.fastutil.objects.Object2IntMap.Entry::getIntValue).reversed())
+                .limit(5L)
+                .map(param0x -> param0x.getKey() + ":" + param0x.getIntValue())
+                .collect(Collectors.joining(","));
+        } catch (Exception var6) {
+            return "";
+        }
     }
 
     public static void makeObsidianPlatform(ServerLevel param0) {

@@ -1616,12 +1616,14 @@ public class ClientPacketListener implements ClientGamePacketListener {
 
         for(ClientboundPlayerInfoPacket.PlayerUpdate var0 : param0.getEntries()) {
             if (param0.getAction() == ClientboundPlayerInfoPacket.Action.REMOVE_PLAYER) {
+                this.minecraft.getPlayerSocialManager().removePlayer(var0.getProfile().getId());
                 this.playerInfoMap.remove(var0.getProfile().getId());
             } else {
                 PlayerInfo var1 = this.playerInfoMap.get(var0.getProfile().getId());
                 if (param0.getAction() == ClientboundPlayerInfoPacket.Action.ADD_PLAYER) {
                     var1 = new PlayerInfo(var0);
                     this.playerInfoMap.put(var1.getProfile().getId(), var1);
+                    this.minecraft.getPlayerSocialManager().addPlayer(var1);
                 }
 
                 if (var1 != null) {
@@ -2317,6 +2319,10 @@ public class ClientPacketListener implements ClientGamePacketListener {
 
     public Collection<PlayerInfo> getOnlinePlayers() {
         return this.playerInfoMap.values();
+    }
+
+    public Collection<UUID> getOnlinePlayerIds() {
+        return this.playerInfoMap.keySet();
     }
 
     @Nullable
