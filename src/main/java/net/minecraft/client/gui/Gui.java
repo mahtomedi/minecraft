@@ -866,13 +866,13 @@ public class Gui extends GuiComponent {
             }
 
             this.minecraft.getProfiler().popPush("air");
-            int var35 = var0.getAirSupply();
-            int var36 = var0.getMaxAirSupply();
-            if (var0.isEyeInFluid(FluidTags.WATER) || var35 < var36) {
+            int var35 = var0.getMaxAirSupply();
+            int var36 = Math.min(var0.getAirSupply(), var35);
+            if (var0.isEyeInFluid(FluidTags.WATER) || var36 < var35) {
                 int var37 = this.getVisibleVehicleHeartRows(var29) - 1;
                 var15 -= var37 * 10;
-                int var38 = Mth.ceil((double)(var35 - 2) * 10.0 / (double)var36);
-                int var39 = Mth.ceil((double)var35 * 10.0 / (double)var36) - var38;
+                int var38 = Mth.ceil((double)(var36 - 2) * 10.0 / (double)var35);
+                int var39 = Mth.ceil((double)var36 * 10.0 / (double)var35) - var38;
 
                 for(int var40 = 0; var40 < var38 + var39; ++var40) {
                     if (var40 < var38) {

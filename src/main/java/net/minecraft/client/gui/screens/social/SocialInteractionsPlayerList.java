@@ -38,27 +38,22 @@ public class SocialInteractionsPlayerList extends ContainerObjectSelectionList<P
             (int)((double)this.getRowLeft() * var0),
             (int)((double)(this.height - this.y1) * var0),
             (int)((double)(this.getScrollbarPosition() + 6) * var0),
-            (int)((double)(this.height - (this.height - this.y1) - this.y0) * var0)
+            (int)((double)(this.height - (this.height - this.y1) - this.y0 - 4) * var0)
         );
         super.render(param0, param1, param2, param3);
         RenderSystem.disableScissor();
     }
 
-    public void showPage(SocialInteractionsScreen.Page param0, Collection<UUID> param1, double param2) {
+    public void updatePlayerList(Collection<UUID> param0, double param1) {
         this.players.clear();
 
-        for(UUID var0 : param1) {
+        for(UUID var0 : param0) {
             PlayerInfo var1 = this.minecraft.player.connection.getPlayerInfo(var0);
             if (var1 != null) {
                 this.players
                     .add(
                         new PlayerEntry(
-                            this.minecraft,
-                            this.socialInteractionsScreen,
-                            var1.getProfile().getId(),
-                            var1.getProfile().getName(),
-                            var1.getSkinLocation(),
-                            param0
+                            this.minecraft, this.socialInteractionsScreen, var1.getProfile().getId(), var1.getProfile().getName(), var1::getSkinLocation
                         )
                     );
             }
@@ -67,7 +62,7 @@ public class SocialInteractionsPlayerList extends ContainerObjectSelectionList<P
         this.updateFilteredPlayers();
         this.players.sort((param0x, param1x) -> param0x.getPlayerName().compareToIgnoreCase(param1x.getPlayerName()));
         this.replaceEntries(this.players);
-        this.setScrollAmount(param2);
+        this.setScrollAmount(param1);
     }
 
     private void updateFilteredPlayers() {
@@ -96,10 +91,10 @@ public class SocialInteractionsPlayerList extends ContainerObjectSelectionList<P
             }
         }
 
-        if ((param1 == SocialInteractionsScreen.Page.ALL || this.minecraft.getPlayerSocialManager().isHidden(var0))
+        if ((param1 == SocialInteractionsScreen.Page.ALL || this.minecraft.getPlayerSocialManager().shouldHideMessageFrom(var0))
             && (Strings.isNullOrEmpty(this.filter) || param0.getProfile().getName().toLowerCase(Locale.ROOT).startsWith(this.filter))) {
             PlayerEntry var2 = new PlayerEntry(
-                this.minecraft, this.socialInteractionsScreen, param0.getProfile().getId(), param0.getProfile().getName(), param0.getSkinLocation(), param1
+                this.minecraft, this.socialInteractionsScreen, param0.getProfile().getId(), param0.getProfile().getName(), param0::getSkinLocation
             );
             this.addEntry(var2);
             this.players.add(var2);

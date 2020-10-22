@@ -218,6 +218,7 @@ public class RecipeBookComponent extends GuiComponent implements Widget, GuiEven
                 this.timesInventoryChanged = this.minecraft.player.inventory.getTimesChanged();
             }
 
+            this.searchBox.tick();
         }
     }
 

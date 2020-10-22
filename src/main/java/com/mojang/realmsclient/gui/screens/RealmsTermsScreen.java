@@ -100,6 +100,11 @@ public class RealmsTermsScreen extends RealmsScreen {
     }
 
     @Override
+    public String getNarrationMessage() {
+        return super.getNarrationMessage() + ". " + TERMS_STATIC_TEXT.getString() + " " + TERMS_LINK_TEXT.getString();
+    }
+
+    @Override
     public void render(PoseStack param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
         drawCenteredString(param0, this.font, TITLE, this.width / 2, 17, 16777215);

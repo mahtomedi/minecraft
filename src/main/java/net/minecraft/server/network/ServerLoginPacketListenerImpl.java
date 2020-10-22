@@ -12,6 +12,7 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nullable;
+import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import net.minecraft.DefaultUncaughtExceptionHandler;
 import net.minecraft.network.Connection;
@@ -28,6 +29,7 @@ import net.minecraft.network.protocol.login.ServerboundKeyPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Crypt;
+import net.minecraft.util.CryptException;
 import net.minecraft.world.entity.player.Player;
 import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
@@ -134,7 +136,7 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
         this.gameProfile = param0.getGameProfile();
         if (this.server.usesAuthentication() && !this.connection.isMemoryConnection()) {
             this.state = ServerLoginPacketListenerImpl.State.KEY;
-            this.connection.send(new ClientboundHelloPacket("", this.server.getKeyPair().getPublic(), this.nonce));
+            this.connection.send(new ClientboundHelloPacket("", this.server.getKeyPair().getPublic().getEncoded(), this.nonce));
         } else {
             this.state = ServerLoginPacketListenerImpl.State.READY_TO_ACCEPT;
         }
@@ -145,67 +147,71 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
     public void handleKey(ServerboundKeyPacket param0) {
         Validate.validState(this.state == ServerLoginPacketListenerImpl.State.KEY, "Unexpected key packet");
         PrivateKey var0 = this.server.getKeyPair().getPrivate();
-        if (!Arrays.equals(this.nonce, param0.getNonce(var0))) {
-            throw new IllegalStateException("Invalid nonce!");
-        } else {
+
+        final String var3;
+        try {
+            if (!Arrays.equals(this.nonce, param0.getNonce(var0))) {
+                throw new IllegalStateException("Protocol error");
+            }
+
             this.secretKey = param0.getSecretKey(var0);
+            Cipher var1 = Crypt.getCipher(2, this.secretKey);
+            Cipher var2 = Crypt.getCipher(1, this.secretKey);
+            var3 = new BigInteger(Crypt.digestData("", this.server.getKeyPair().getPublic(), this.secretKey)).toString(16);
             this.state = ServerLoginPacketListenerImpl.State.AUTHENTICATING;
-            this.connection.setEncryptionKey(this.secretKey);
-            Thread var1 = new Thread("User Authenticator #" + UNIQUE_THREAD_ID.incrementAndGet()) {
-                @Override
-                public void run() {
-                    GameProfile var0 = ServerLoginPacketListenerImpl.this.gameProfile;
-
-                    try {
-                        String var1 = new BigInteger(
-                                Crypt.digestData(
-                                    "", ServerLoginPacketListenerImpl.this.server.getKeyPair().getPublic(), ServerLoginPacketListenerImpl.this.secretKey
-                                )
-                            )
-                            .toString(16);
-                        ServerLoginPacketListenerImpl.this.gameProfile = ServerLoginPacketListenerImpl.this.server
-                            .getSessionService()
-                            .hasJoinedServer(new GameProfile(null, var0.getName()), var1, this.getAddress());
-                        if (ServerLoginPacketListenerImpl.this.gameProfile != null) {
-                            ServerLoginPacketListenerImpl.LOGGER
-                                .info(
-                                    "UUID of player {} is {}",
-                                    ServerLoginPacketListenerImpl.this.gameProfile.getName(),
-                                    ServerLoginPacketListenerImpl.this.gameProfile.getId()
-                                );
-                            ServerLoginPacketListenerImpl.this.state = ServerLoginPacketListenerImpl.State.READY_TO_ACCEPT;
-                        } else if (ServerLoginPacketListenerImpl.this.server.isSingleplayer()) {
-                            ServerLoginPacketListenerImpl.LOGGER.warn("Failed to verify username but will let them in anyway!");
-                            ServerLoginPacketListenerImpl.this.gameProfile = ServerLoginPacketListenerImpl.this.createFakeProfile(var0);
-                            ServerLoginPacketListenerImpl.this.state = ServerLoginPacketListenerImpl.State.READY_TO_ACCEPT;
-                        } else {
-                            ServerLoginPacketListenerImpl.this.disconnect(new TranslatableComponent("multiplayer.disconnect.unverified_username"));
-                            ServerLoginPacketListenerImpl.LOGGER.error("Username '{}' tried to join with an invalid session", var0.getName());
-                        }
-                    } catch (AuthenticationUnavailableException var3) {
-                        if (ServerLoginPacketListenerImpl.this.server.isSingleplayer()) {
-                            ServerLoginPacketListenerImpl.LOGGER.warn("Authentication servers are down but will let them in anyway!");
-                            ServerLoginPacketListenerImpl.this.gameProfile = ServerLoginPacketListenerImpl.this.createFakeProfile(var0);
-                            ServerLoginPacketListenerImpl.this.state = ServerLoginPacketListenerImpl.State.READY_TO_ACCEPT;
-                        } else {
-                            ServerLoginPacketListenerImpl.this.disconnect(new TranslatableComponent("multiplayer.disconnect.authservers_down"));
-                            ServerLoginPacketListenerImpl.LOGGER.error("Couldn't verify username because servers are unavailable");
-                        }
-                    }
-
-                }
-
-                @Nullable
-                private InetAddress getAddress() {
-                    SocketAddress var0 = ServerLoginPacketListenerImpl.this.connection.getRemoteAddress();
-                    return ServerLoginPacketListenerImpl.this.server.getPreventProxyConnections() && var0 instanceof InetSocketAddress
-                        ? ((InetSocketAddress)var0).getAddress()
-                        : null;
-                }
-            };
-            var1.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(LOGGER));
-            var1.start();
+            this.connection.setEncryptionKey(var1, var2);
+        } catch (CryptException var61) {
+            throw new IllegalStateException("Protocol error", var61);
         }
+
+        Thread var6 = new Thread("User Authenticator #" + UNIQUE_THREAD_ID.incrementAndGet()) {
+            @Override
+            public void run() {
+                GameProfile var0 = ServerLoginPacketListenerImpl.this.gameProfile;
+
+                try {
+                    ServerLoginPacketListenerImpl.this.gameProfile = ServerLoginPacketListenerImpl.this.server
+                        .getSessionService()
+                        .hasJoinedServer(new GameProfile(null, var0.getName()), var3, this.getAddress());
+                    if (ServerLoginPacketListenerImpl.this.gameProfile != null) {
+                        ServerLoginPacketListenerImpl.LOGGER
+                            .info(
+                                "UUID of player {} is {}",
+                                ServerLoginPacketListenerImpl.this.gameProfile.getName(),
+                                ServerLoginPacketListenerImpl.this.gameProfile.getId()
+                            );
+                        ServerLoginPacketListenerImpl.this.state = ServerLoginPacketListenerImpl.State.READY_TO_ACCEPT;
+                    } else if (ServerLoginPacketListenerImpl.this.server.isSingleplayer()) {
+                        ServerLoginPacketListenerImpl.LOGGER.warn("Failed to verify username but will let them in anyway!");
+                        ServerLoginPacketListenerImpl.this.gameProfile = ServerLoginPacketListenerImpl.this.createFakeProfile(var0);
+                        ServerLoginPacketListenerImpl.this.state = ServerLoginPacketListenerImpl.State.READY_TO_ACCEPT;
+                    } else {
+                        ServerLoginPacketListenerImpl.this.disconnect(new TranslatableComponent("multiplayer.disconnect.unverified_username"));
+                        ServerLoginPacketListenerImpl.LOGGER.error("Username '{}' tried to join with an invalid session", var0.getName());
+                    }
+                } catch (AuthenticationUnavailableException var3) {
+                    if (ServerLoginPacketListenerImpl.this.server.isSingleplayer()) {
+                        ServerLoginPacketListenerImpl.LOGGER.warn("Authentication servers are down but will let them in anyway!");
+                        ServerLoginPacketListenerImpl.this.gameProfile = ServerLoginPacketListenerImpl.this.createFakeProfile(var0);
+                        ServerLoginPacketListenerImpl.this.state = ServerLoginPacketListenerImpl.State.READY_TO_ACCEPT;
+                    } else {
+                        ServerLoginPacketListenerImpl.this.disconnect(new TranslatableComponent("multiplayer.disconnect.authservers_down"));
+                        ServerLoginPacketListenerImpl.LOGGER.error("Couldn't verify username because servers are unavailable");
+                    }
+                }
+
+            }
+
+            @Nullable
+            private InetAddress getAddress() {
+                SocketAddress var0 = ServerLoginPacketListenerImpl.this.connection.getRemoteAddress();
+                return ServerLoginPacketListenerImpl.this.server.getPreventProxyConnections() && var0 instanceof InetSocketAddress
+                    ? ((InetSocketAddress)var0).getAddress()
+                    : null;
+            }
+        };
+        var6.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(LOGGER));
+        var6.start();
     }
 
     @Override

@@ -44,7 +44,6 @@ import net.minecraft.server.players.OldUsersConverter;
 import net.minecraft.server.rcon.RconConsoleSource;
 import net.minecraft.server.rcon.thread.QueryThreadGs4;
 import net.minecraft.server.rcon.thread.RconThread;
-import net.minecraft.util.Crypt;
 import net.minecraft.util.Mth;
 import net.minecraft.util.monitoring.jmx.MinecraftServerStatistics;
 import net.minecraft.world.Snooper;
@@ -147,8 +146,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface 
             this.setPort(var1.serverPort);
         }
 
-        LOGGER.info("Generating keypair");
-        this.setKeyPair(Crypt.generateKeyPair());
+        this.initializeKeyPair();
         LOGGER.info("Starting Minecraft server on {}:{}", this.getLocalIp().isEmpty() ? "*" : this.getLocalIp(), this.getPort());
 
         try {

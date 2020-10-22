@@ -3,6 +3,7 @@ package com.mojang.realmsclient.client;
 import com.mojang.realmsclient.dto.BackupList;
 import com.mojang.realmsclient.dto.GuardedSerializer;
 import com.mojang.realmsclient.dto.Ops;
+import com.mojang.realmsclient.dto.PendingInvite;
 import com.mojang.realmsclient.dto.PendingInvitesList;
 import com.mojang.realmsclient.dto.PingResult;
 import com.mojang.realmsclient.dto.PlayerInfo;
@@ -21,9 +22,9 @@ import com.mojang.realmsclient.dto.WorldTemplatePaginatedList;
 import com.mojang.realmsclient.exception.RealmsHttpException;
 import com.mojang.realmsclient.exception.RealmsServiceException;
 import com.mojang.realmsclient.exception.RetryCallException;
-import java.net.Proxy;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.UUID;
 import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
@@ -39,6 +40,7 @@ public class RealmsClient {
     private static final Logger LOGGER = LogManager.getLogger();
     private final String sessionId;
     private final String username;
+    private final Minecraft minecraft;
     private static final GuardedSerializer GSON = new GuardedSerializer();
 
     public static RealmsClient create() {
@@ -61,7 +63,7 @@ public class RealmsClient {
             }
         }
 
-        return new RealmsClient(var2, var1, var0.getProxy());
+        return new RealmsClient(var2, var1, var0);
     }
 
     public static void switchToStage() {
@@ -76,10 +78,11 @@ public class RealmsClient {
         currentEnvironment = RealmsClient.Environment.LOCAL;
     }
 
-    public RealmsClient(String param0, String param1, Proxy param2) {
+    public RealmsClient(String param0, String param1, Minecraft param2) {
         this.sessionId = param0;
         this.username = param1;
-        RealmsClientConfig.setProxy(param2);
+        this.minecraft = param2;
+        RealmsClientConfig.setProxy(param2.getProxy());
     }
 
     public RealmsServerList listWorlds() throws RealmsServiceException {
@@ -242,15 +245,24 @@ public class RealmsClient {
     }
 
     public int pendingInvitesCount() throws RealmsServiceException {
-        String var0 = this.url("invites/count/pending");
-        String var1 = this.execute(Request.get(var0));
-        return Integer.parseInt(var1);
+        return this.pendingInvites().pendingInvites.size();
     }
 
     public PendingInvitesList pendingInvites() throws RealmsServiceException {
         String var0 = this.url("invites/pending");
         String var1 = this.execute(Request.get(var0));
-        return PendingInvitesList.parse(var1);
+        PendingInvitesList var2 = PendingInvitesList.parse(var1);
+        var2.pendingInvites.removeIf(this::isBlocked);
+        return var2;
+    }
+
+    private boolean isBlocked(PendingInvite param0) {
+        try {
+            UUID var0x = UUID.fromString(param0.worldOwnerUuid);
+            return this.minecraft.getPlayerSocialManager().isBlocked(var0x);
+        } catch (IllegalArgumentException var3) {
+            return false;
+        }
     }
 
     public void acceptInvitation(String param0) throws RealmsServiceException {

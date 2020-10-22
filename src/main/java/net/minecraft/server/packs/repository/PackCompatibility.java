@@ -1,5 +1,6 @@
 package net.minecraft.server.packs.repository;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.SharedConstants;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -15,7 +16,7 @@ public enum PackCompatibility {
     private final Component confirmation;
 
     private PackCompatibility(String param0) {
-        this.description = new TranslatableComponent("pack.incompatible." + param0);
+        this.description = new TranslatableComponent("pack.incompatible." + param0).withStyle(ChatFormatting.GRAY);
         this.confirmation = new TranslatableComponent("pack.incompatible.confirm." + param0);
     }
 

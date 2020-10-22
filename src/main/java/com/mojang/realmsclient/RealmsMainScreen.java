@@ -239,6 +239,16 @@ public class RealmsMainScreen extends RealmsScreen {
     }
 
     public void addButtons() {
+        this.leaveButton = this.addButton(
+            new Button(
+                this.width / 2 - 202,
+                this.height - 32,
+                90,
+                20,
+                new TranslatableComponent("mco.selectServer.leave"),
+                param0 -> this.leaveClicked(this.findServer(this.selectedServerId))
+            )
+        );
         this.configureButton = this.addButton(
             new Button(
                 this.width / 2 - 190,
@@ -265,16 +275,6 @@ public class RealmsMainScreen extends RealmsScreen {
         }));
         this.renewButton = this.addButton(
             new Button(this.width / 2 + 100, this.height - 32, 90, 20, new TranslatableComponent("mco.selectServer.expiredRenew"), param0 -> this.onRenew())
-        );
-        this.leaveButton = this.addButton(
-            new Button(
-                this.width / 2 - 202,
-                this.height - 32,
-                90,
-                20,
-                new TranslatableComponent("mco.selectServer.leave"),
-                param0 -> this.leaveClicked(this.findServer(this.selectedServerId))
-            )
         );
         this.pendingInvitesButton = this.addButton(new RealmsMainScreen.PendingInvitesButton());
         this.newsButton = this.addButton(new RealmsMainScreen.NewsButton());
@@ -1334,7 +1334,6 @@ public class RealmsMainScreen extends RealmsScreen {
                 RealmsServer var0;
                 if (this.showingMessage) {
                     if (param0 == 0) {
-                        NarrationHelper.now(I18n.get("mco.trial.message.line1"), I18n.get("mco.trial.message.line2"));
                         var0 = null;
                     } else {
                         if (param0 - 1 >= RealmsMainScreen.this.realmsServers.size()) {
@@ -1357,7 +1356,6 @@ public class RealmsMainScreen extends RealmsScreen {
                 if (var0 == null) {
                     RealmsMainScreen.this.selectedServerId = -1L;
                 } else if (var0.state == RealmsServer.State.UNINITIALIZED) {
-                    NarrationHelper.now(I18n.get("mco.selectServer.uninitialized") + I18n.get("mco.gui.button"));
                     RealmsMainScreen.this.selectedServerId = -1L;
                 } else {
                     RealmsMainScreen.this.selectedServerId = var0.id;
@@ -1365,7 +1363,6 @@ public class RealmsMainScreen extends RealmsScreen {
                         RealmsMainScreen.this.play(RealmsMainScreen.this.findServer(RealmsMainScreen.this.selectedServerId), RealmsMainScreen.this);
                     }
 
-                    NarrationHelper.now(I18n.get("narrator.select", var0.name));
                 }
             }
         }
@@ -1373,10 +1370,17 @@ public class RealmsMainScreen extends RealmsScreen {
         public void setSelected(@Nullable RealmsMainScreen.Entry param0) {
             super.setSelected(param0);
             int var0 = this.children().indexOf(param0);
-            if (!this.showingMessage || var0 > 0) {
+            if (this.showingMessage && var0 == 0) {
+                NarrationHelper.now(I18n.get("mco.trial.message.line1"), I18n.get("mco.trial.message.line2"));
+            } else if (!this.showingMessage || var0 > 0) {
                 RealmsServer var1 = RealmsMainScreen.this.realmsServers.get(var0 - (this.showingMessage ? 1 : 0));
                 RealmsMainScreen.this.selectedServerId = var1.id;
                 RealmsMainScreen.this.updateButtonStates(var1);
+                if (var1.state == RealmsServer.State.UNINITIALIZED) {
+                    NarrationHelper.now(I18n.get("mco.selectServer.uninitialized") + I18n.get("mco.gui.button"));
+                } else {
+                    NarrationHelper.now(I18n.get("narrator.select", var1.name));
+                }
             }
 
         }

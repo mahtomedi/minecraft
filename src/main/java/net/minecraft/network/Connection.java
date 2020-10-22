@@ -30,7 +30,7 @@ import java.net.InetAddress;
 import java.net.SocketAddress;
 import java.util.Queue;
 import javax.annotation.Nullable;
-import javax.crypto.SecretKey;
+import javax.crypto.Cipher;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.Packet;
@@ -39,7 +39,6 @@ import net.minecraft.network.protocol.game.ClientboundDisconnectPacket;
 import net.minecraft.server.RunningOnDifferentThreadException;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.server.network.ServerLoginPacketListenerImpl;
-import net.minecraft.util.Crypt;
 import net.minecraft.util.LazyLoadedValue;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
@@ -314,10 +313,10 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
         return var0;
     }
 
-    public void setEncryptionKey(SecretKey param0) {
+    public void setEncryptionKey(Cipher param0, Cipher param1) {
         this.encrypted = true;
-        this.channel.pipeline().addBefore("splitter", "decrypt", new CipherDecoder(Crypt.getCipher(2, param0)));
-        this.channel.pipeline().addBefore("prepender", "encrypt", new CipherEncoder(Crypt.getCipher(1, param0)));
+        this.channel.pipeline().addBefore("splitter", "decrypt", new CipherDecoder(param0));
+        this.channel.pipeline().addBefore("prepender", "encrypt", new CipherEncoder(param1));
     }
 
     @OnlyIn(Dist.CLIENT)

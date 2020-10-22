@@ -6,7 +6,10 @@ import com.google.gson.JsonElement;
 import com.mojang.authlib.AuthenticationService;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.GameProfileRepository;
+import com.mojang.authlib.exceptions.AuthenticationException;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
+import com.mojang.authlib.minecraft.OfflineSocialInteractions;
+import com.mojang.authlib.minecraft.SocialInteractionsService;
 import com.mojang.authlib.properties.PropertyMap;
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import com.mojang.blaze3d.pipeline.RenderTarget;
@@ -288,6 +291,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     private final SplashManager splashManager;
     private final GpuWarnlistManager gpuWarnlistManager;
     private final MinecraftSessionService minecraftSessionService;
+    private final SocialInteractionsService socialInteractionsService;
     private final SkinManager skinManager;
     private final ModelManager modelManager;
     private final BlockRenderDispatcher blockRenderer;
@@ -366,7 +370,9 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
             Minecraft::createClientPackAdapter, this.clientPackSource, new FolderRepositorySource(this.resourcePackDirectory, PackSource.DEFAULT)
         );
         this.proxy = param0.user.proxy;
-        this.minecraftSessionService = new YggdrasilAuthenticationService(this.proxy, UUID.randomUUID().toString()).createMinecraftSessionService();
+        YggdrasilAuthenticationService var1 = new YggdrasilAuthenticationService(this.proxy);
+        this.minecraftSessionService = var1.createMinecraftSessionService();
+        this.socialInteractionsService = this.createSocialInteractions(var1, param0);
         this.user = param0.user.user;
         LOGGER.info("Setting user: {}", this.user.getName());
         LOGGER.debug("(Session ID is {})", this.user.getSessionId());
@@ -375,14 +381,14 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         this.allowsChat = !param0.game.disableChat;
         this.is64bit = checkIs64Bit();
         this.singleplayerServer = null;
-        String var1;
-        int var2;
-        if (this.allowsMultiplayer && param0.server.hostname != null) {
-            var1 = param0.server.hostname;
-            var2 = param0.server.port;
+        String var2;
+        int var3;
+        if (this.allowsMultiplayer() && param0.server.hostname != null) {
+            var2 = param0.server.hostname;
+            var3 = param0.server.port;
         } else {
-            var1 = null;
-            var2 = 0;
+            var2 = null;
+            var3 = 0;
         }
 
         KeybindComponent.setKeyResolver(KeyMapping::createNameSupplier);
@@ -393,9 +399,9 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         this.options = new Options(this, this.gameDirectory);
         this.hotbarManager = new HotbarManager(this.gameDirectory, this.fixerUpper);
         LOGGER.info("Backend library: {}", RenderSystem.getBackendDescription());
-        DisplayData var5;
+        DisplayData var6;
         if (this.options.overrideHeight > 0 && this.options.overrideWidth > 0) {
-            var5 = new DisplayData(
+            var6 = new DisplayData(
                 this.options.overrideWidth,
                 this.options.overrideHeight,
                 param0.display.fullscreenWidth,
@@ -403,20 +409,20 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
                 param0.display.isFullscreen
             );
         } else {
-            var5 = param0.display;
+            var6 = param0.display;
         }
 
         Util.timeSource = RenderSystem.initBackendSystem();
         this.virtualScreen = new VirtualScreen(this);
-        this.window = this.virtualScreen.newWindow(var5, this.options.fullscreenVideoModeString, this.createTitle());
+        this.window = this.virtualScreen.newWindow(var6, this.options.fullscreenVideoModeString, this.createTitle());
         this.setWindowActive(true);
 
         try {
-            InputStream var7 = this.getClientPackSource().getVanillaPack().getResource(PackType.CLIENT_RESOURCES, new ResourceLocation("icons/icon_16x16.png"));
-            InputStream var8 = this.getClientPackSource().getVanillaPack().getResource(PackType.CLIENT_RESOURCES, new ResourceLocation("icons/icon_32x32.png"));
-            this.window.setIcon(var7, var8);
-        } catch (IOException var81) {
-            LOGGER.error("Couldn't set icon", (Throwable)var81);
+            InputStream var8 = this.getClientPackSource().getVanillaPack().getResource(PackType.CLIENT_RESOURCES, new ResourceLocation("icons/icon_16x16.png"));
+            InputStream var9 = this.getClientPackSource().getVanillaPack().getResource(PackType.CLIENT_RESOURCES, new ResourceLocation("icons/icon_32x32.png"));
+            this.window.setIcon(var8, var9);
+        } catch (IOException var91) {
+            LOGGER.error("Couldn't set icon", (Throwable)var91);
         }
 
         this.window.setFramerateLimit(this.options.framerateLimit);
@@ -461,7 +467,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         this.renderBuffers = new RenderBuffers();
         this.gameRenderer = new GameRenderer(this, this.resourceManager, this.renderBuffers);
         this.resourceManager.registerReloadListener(this.gameRenderer);
-        this.playerSocialManager = new PlayerSocialManager(this);
+        this.playerSocialManager = new PlayerSocialManager(this, this.socialInteractionsService);
         this.blockRenderer = new BlockRenderDispatcher(this.modelManager.getBlockModelShaper(), this.blockColors);
         this.resourceManager.registerReloadListener(this.blockRenderer);
         this.levelRenderer = new LevelRenderer(this, this.renderBuffers);
@@ -488,18 +494,18 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         this.window.updateRawMouseInput(this.options.rawMouseInput);
         this.window.setDefaultErrorCallback();
         this.resizeDisplay();
-        if (var1 != null) {
-            this.setScreen(new ConnectScreen(new TitleScreen(), this, var1, var2));
+        if (var2 != null) {
+            this.setScreen(new ConnectScreen(new TitleScreen(), this, var2, var3));
         } else {
             this.setScreen(new TitleScreen(true));
         }
 
         LoadingOverlay.registerTextures(this);
-        List<PackResources> var10 = this.resourcePackRepository.openAllSelected();
+        List<PackResources> var11 = this.resourcePackRepository.openAllSelected();
         this.setOverlay(
             new LoadingOverlay(
                 this,
-                this.resourceManager.createFullReload(Util.backgroundExecutor(), this, RESOURCE_RELOAD_INITIAL_TASK, var10),
+                this.resourceManager.createFullReload(Util.backgroundExecutor(), this, RESOURCE_RELOAD_INITIAL_TASK, var11),
                 param0x -> Util.ifElse(param0x, this::rollbackResourcePacks, () -> {
                         if (SharedConstants.IS_RUNNING_IN_IDE) {
                             this.selfTest();
@@ -538,6 +544,15 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         }
 
         return var0.toString();
+    }
+
+    private SocialInteractionsService createSocialInteractions(YggdrasilAuthenticationService param0, GameConfig param1) {
+        try {
+            return param0.createSocialInteractionsService(param1.user.user.getAccessToken());
+        } catch (AuthenticationException var4) {
+            LOGGER.error("Failed to verify authentication", (Throwable)var4);
+            return new OfflineSocialInteractions();
+        }
     }
 
     public boolean isProbablyModded() {
@@ -1701,7 +1716,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
             try {
                 var0.saveDataTag(param1, var7);
                 var3.serverResources().updateGlobals();
-                YggdrasilAuthenticationService var11 = new YggdrasilAuthenticationService(this.proxy, UUID.randomUUID().toString());
+                YggdrasilAuthenticationService var11 = new YggdrasilAuthenticationService(this.proxy);
                 MinecraftSessionService var12 = var11.createMinecraftSessionService();
                 GameProfileRepository var13 = var11.createProfileRepository();
                 GameProfileCache var14 = new GameProfileCache(var13, new File(this.gameDirectory, MinecraftServer.USERID_CACHE_FILE.getName()));
@@ -1854,7 +1869,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         this.level = param0;
         this.updateLevelInEngines(param0);
         if (!this.isLocalServer) {
-            AuthenticationService var1 = new YggdrasilAuthenticationService(this.proxy, UUID.randomUUID().toString());
+            AuthenticationService var1 = new YggdrasilAuthenticationService(this.proxy);
             MinecraftSessionService var2 = var1.createMinecraftSessionService();
             GameProfileRepository var3 = var1.createProfileRepository();
             GameProfileCache var4 = new GameProfileCache(var3, new File(this.gameDirectory, MinecraftServer.USERID_CACHE_FILE.getName()));
@@ -1930,19 +1945,19 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     }
 
     public boolean allowsMultiplayer() {
-        return this.allowsMultiplayer;
+        return this.allowsMultiplayer && this.socialInteractionsService.serversAllowed();
     }
 
     public boolean isBlocked(UUID param0) {
         if (this.allowsChat()) {
-            return this.playerSocialManager.isHidden(param0);
+            return this.playerSocialManager.shouldHideMessageFrom(param0);
         } else {
             return (this.player == null || !param0.equals(this.player.getUUID())) && !param0.equals(Util.NIL_UUID);
         }
     }
 
     public boolean allowsChat() {
-        return this.allowsChat;
+        return this.allowsChat && this.socialInteractionsService.chatAllowed();
     }
 
     public final boolean isDemo() {

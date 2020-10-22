@@ -408,7 +408,7 @@ public class EnderDragon extends Mob implements Enemy {
             if (var2 instanceof LivingEntity) {
                 double var3 = var2.getX() - var0;
                 double var4 = var2.getZ() - var1;
-                double var5 = var3 * var3 + var4 * var4;
+                double var5 = Math.max(var3 * var3 + var4 * var4, 0.1);
                 var2.push(var3 / var5 * 4.0, 0.2F, var4 / var5 * 4.0);
                 if (!this.phaseManager.getCurrentPhase().isSitting() && ((LivingEntity)var2).getLastHurtByMobTimestamp() < var2.tickCount - 2) {
                     var2.hurt(DamageSource.mobAttack(this), 5.0F);

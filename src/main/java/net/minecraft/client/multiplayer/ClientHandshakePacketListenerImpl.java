@@ -9,6 +9,7 @@ import java.math.BigInteger;
 import java.security.PublicKey;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
+import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.DisconnectedScreen;
@@ -29,6 +30,7 @@ import net.minecraft.network.protocol.login.ServerboundKeyPacket;
 import net.minecraft.realms.DisconnectedRealmsScreen;
 import net.minecraft.realms.RealmsScreen;
 import net.minecraft.util.Crypt;
+import net.minecraft.util.CryptException;
 import net.minecraft.util.HttpUtil;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -54,10 +56,21 @@ public class ClientHandshakePacketListenerImpl implements ClientLoginPacketListe
 
     @Override
     public void handleHello(ClientboundHelloPacket param0) {
-        SecretKey var0 = Crypt.generateSecretKey();
-        PublicKey var1 = param0.getPublicKey();
-        String var2 = new BigInteger(Crypt.digestData(param0.getServerId(), var1, var0)).toString(16);
-        ServerboundKeyPacket var3 = new ServerboundKeyPacket(var0, var1, param0.getNonce());
+        Cipher var3;
+        Cipher var4;
+        String var2;
+        ServerboundKeyPacket var5;
+        try {
+            SecretKey var0 = Crypt.generateSecretKey();
+            PublicKey var1 = param0.getPublicKey();
+            var2 = new BigInteger(Crypt.digestData(param0.getServerId(), var1, var0)).toString(16);
+            var3 = Crypt.getCipher(2, var0);
+            var4 = Crypt.getCipher(1, var0);
+            var5 = new ServerboundKeyPacket(var0, var1, param0.getNonce());
+        } catch (CryptException var81) {
+            throw new IllegalStateException("Protocol error", var81);
+        }
+
         this.updateStatus.accept(new TranslatableComponent("connect.authorizing"));
         HttpUtil.DOWNLOAD_EXECUTOR.submit(() -> {
             Component var0x = this.authenticateServer(var2);
@@ -71,7 +84,7 @@ public class ClientHandshakePacketListenerImpl implements ClientLoginPacketListe
             }
 
             this.updateStatus.accept(new TranslatableComponent("connect.encrypting"));
-            this.connection.send(var3, param1x -> this.connection.setEncryptionKey(var0));
+            this.connection.send(var5, param2x -> this.connection.setEncryptionKey(var3, var4));
         });
     }
 

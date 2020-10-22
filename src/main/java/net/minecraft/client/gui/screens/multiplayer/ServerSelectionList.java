@@ -258,7 +258,7 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
                 this.minecraft.font.draw(param0, var1.get(var2), (float)(param3 + 32 + 3), (float)(param2 + 12 + 9 * var2), 8421504);
             }
 
-            Component var3 = (Component)(var0 ? this.serverData.version.copy().withStyle(ChatFormatting.DARK_RED) : this.serverData.status);
+            Component var3 = (Component)(var0 ? this.serverData.version.copy().withStyle(ChatFormatting.RED) : this.serverData.status);
             int var4 = this.minecraft.font.width(var3);
             this.minecraft.font.draw(param0, var3, (float)(param3 + param4 - var4 - 15 - 2), (float)(param2 + 1), 8421504);
             int var5 = 0;
