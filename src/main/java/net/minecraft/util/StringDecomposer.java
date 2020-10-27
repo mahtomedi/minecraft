@@ -139,4 +139,13 @@ public class StringDecomposer {
         });
         return var0.toString();
     }
+
+    public static String getPlainText(FormattedText param0) {
+        StringBuilder var0 = new StringBuilder();
+        iterateFormatted(param0, Style.EMPTY, (param1, param2, param3) -> {
+            var0.appendCodePoint(param3);
+            return true;
+        });
+        return var0.toString();
+    }
 }

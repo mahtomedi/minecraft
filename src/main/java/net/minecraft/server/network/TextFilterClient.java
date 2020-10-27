@@ -1,6 +1,5 @@
 package net.minecraft.server.network;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonObject;
 import com.google.gson.internal.Streams;
@@ -12,8 +11,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -21,15 +18,12 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
-import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.thread.ProcessorMailbox;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -49,43 +43,6 @@ public class TextFilterClient implements AutoCloseable {
     private final String serverId;
     private final TextFilterClient.IgnoreStrategy chatIgnoreStrategy;
     private final ExecutorService workerPool;
-
-    private TextFilterClient(URI param0, String param1, int param2, String param3, TextFilterClient.IgnoreStrategy param4, int param5) throws MalformedURLException {
-        this.authKey = param1;
-        this.ruleId = param2;
-        this.serverId = param3;
-        this.chatIgnoreStrategy = param4;
-        this.chatEndpoint = param0.resolve("/v1/chat").toURL();
-        this.joinEndpoint = param0.resolve("/v1/join").toURL();
-        this.leaveEndpoint = param0.resolve("/v1/leave").toURL();
-        this.workerPool = Executors.newFixedThreadPool(param5, THREAD_FACTORY);
-    }
-
-    @Nullable
-    public static TextFilterClient createFromConfig(String param0) {
-        if (Strings.isNullOrEmpty(param0)) {
-            return null;
-        } else {
-            try {
-                JsonObject var0 = GsonHelper.parse(param0);
-                URI var1 = new URI(GsonHelper.getAsString(var0, "apiServer"));
-                String var2 = GsonHelper.getAsString(var0, "apiKey");
-                if (var2.isEmpty()) {
-                    throw new IllegalArgumentException("Missing API key");
-                } else {
-                    int var3 = GsonHelper.getAsInt(var0, "ruleId", 1);
-                    String var4 = GsonHelper.getAsString(var0, "serverId", "");
-                    int var5 = GsonHelper.getAsInt(var0, "hashesToDrop", -1);
-                    int var6 = GsonHelper.getAsInt(var0, "maxConcurrentRequests", 7);
-                    TextFilterClient.IgnoreStrategy var7 = TextFilterClient.IgnoreStrategy.select(var5);
-                    return new TextFilterClient(var1, new Base64().encodeToString(var2.getBytes(StandardCharsets.US_ASCII)), var3, var4, var7, var6);
-                }
-            } catch (Exception var9) {
-                LOGGER.warn("Failed to parse chat filter config {}", param0, var9);
-                return null;
-            }
-        }
-    }
 
     private void processJoinOrLeave(GameProfile param0, URL param1, Executor param2) {
         JsonObject var0 = new JsonObject();
@@ -216,21 +173,6 @@ public class TextFilterClient implements AutoCloseable {
     public interface IgnoreStrategy {
         TextFilterClient.IgnoreStrategy NEVER_IGNORE = (param0, param1) -> false;
         TextFilterClient.IgnoreStrategy IGNORE_FULLY_FILTERED = (param0, param1) -> param0.length() == param1;
-
-        static TextFilterClient.IgnoreStrategy ignoreOverThreshold(int param0) {
-            return (param1, param2) -> param2 >= param0;
-        }
-
-        static TextFilterClient.IgnoreStrategy select(int param0) {
-            switch(param0) {
-                case -1:
-                    return NEVER_IGNORE;
-                case 0:
-                    return IGNORE_FULLY_FILTERED;
-                default:
-                    return ignoreOverThreshold(param0);
-            }
-        }
 
         boolean shouldIgnore(String var1, int var2);
     }

@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Map.Entry;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ServerData;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -285,6 +286,10 @@ public class RealmsServer extends ValueObject {
 
     public String getWorldName(int param0) {
         return this.name + " (" + this.slots.get(param0).getSlotName(param0) + ")";
+    }
+
+    public ServerData toServerData(String param0) {
+        return new ServerData(this.name, param0, false);
     }
 
     @OnlyIn(Dist.CLIENT)

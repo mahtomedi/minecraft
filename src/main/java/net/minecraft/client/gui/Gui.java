@@ -49,6 +49,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
+import net.minecraft.util.StringDecomposer;
 import net.minecraft.util.StringUtil;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.effect.MobEffect;
@@ -74,6 +75,7 @@ import net.minecraft.world.scores.Score;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.apache.commons.lang3.StringUtils;
 
 @OnlyIn(Dist.CLIENT)
 public class Gui extends GuiComponent {
@@ -1117,11 +1119,21 @@ public class Gui extends GuiComponent {
         }
     }
 
-    public void handleChat(ChatType param0, Component param1, UUID param2) {
-        for(ChatListener var0 : this.chatListeners.get(param0)) {
-            var0.handle(param0, param1, param2);
-        }
+    public UUID guessChatUUID(Component param0) {
+        String var0 = StringDecomposer.getPlainText(param0);
+        String var1 = StringUtils.substringBetween(var0, "<", ">");
+        return var1 == null ? Util.NIL_UUID : this.minecraft.getPlayerSocialManager().getDiscoveredUUID(var1);
+    }
 
+    public void handleChat(ChatType param0, Component param1, UUID param2) {
+        if (!this.minecraft.isBlocked(param2)) {
+            if (!this.minecraft.options.hideMatchedNames || !this.minecraft.isBlocked(this.guessChatUUID(param1))) {
+                for(ChatListener var0 : this.chatListeners.get(param0)) {
+                    var0.handle(param0, param1, param2);
+                }
+
+            }
+        }
     }
 
     public ChatComponent getChat() {

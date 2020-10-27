@@ -117,7 +117,9 @@ public class GetServerDetailsTask extends LongRunningTask {
                                                 .downloadAndSelectResourcePack(var11.resourcePackUrl, var11.resourcePackHash)
                                                 .thenRun(
                                                     () -> this.setScreen(
-                                                            new RealmsLongRunningMcoTaskScreen(this.lastScreen, new ConnectTask(this.lastScreen, var11))
+                                                            new RealmsLongRunningMcoTaskScreen(
+                                                                this.lastScreen, new ConnectTask(this.lastScreen, this.server, var11)
+                                                            )
                                                         )
                                                 )
                                                 .exceptionally(var0x);
@@ -142,7 +144,7 @@ public class GetServerDetailsTask extends LongRunningTask {
                         )
                     );
                 } else {
-                    this.setScreen(new RealmsLongRunningMcoTaskScreen(this.lastScreen, new ConnectTask(this.lastScreen, var11)));
+                    this.setScreen(new RealmsLongRunningMcoTaskScreen(this.lastScreen, new ConnectTask(this.lastScreen, this.server, var11)));
                 }
             } else {
                 this.error(new TranslatableComponent("mco.errorMessage.connectionFailure"));

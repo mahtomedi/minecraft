@@ -25,23 +25,21 @@ public class NarratorChatListener implements ChatListener {
 
     @Override
     public void handle(ChatType param0, Component param1, UUID param2) {
-        if (!Minecraft.getInstance().isBlocked(param2)) {
-            NarratorStatus var0 = getStatus();
-            if (var0 != NarratorStatus.OFF && this.narrator.active()) {
-                if (var0 == NarratorStatus.ALL
-                    || var0 == NarratorStatus.CHAT && param0 == ChatType.CHAT
-                    || var0 == NarratorStatus.SYSTEM && param0 == ChatType.SYSTEM) {
-                    Component var1;
-                    if (param1 instanceof TranslatableComponent && "chat.type.text".equals(((TranslatableComponent)param1).getKey())) {
-                        var1 = new TranslatableComponent("chat.type.text.narrate", ((TranslatableComponent)param1).getArgs());
-                    } else {
-                        var1 = param1;
-                    }
-
-                    this.doSay(param0.shouldInterrupt(), var1.getString());
+        NarratorStatus var0 = getStatus();
+        if (var0 != NarratorStatus.OFF && this.narrator.active()) {
+            if (var0 == NarratorStatus.ALL
+                || var0 == NarratorStatus.CHAT && param0 == ChatType.CHAT
+                || var0 == NarratorStatus.SYSTEM && param0 == ChatType.SYSTEM) {
+                Component var1;
+                if (param1 instanceof TranslatableComponent && "chat.type.text".equals(((TranslatableComponent)param1).getKey())) {
+                    var1 = new TranslatableComponent("chat.type.text.narrate", ((TranslatableComponent)param1).getArgs());
+                } else {
+                    var1 = param1;
                 }
 
+                this.doSay(param0.shouldInterrupt(), var1.getString());
             }
+
         }
     }
 

@@ -341,9 +341,13 @@ public abstract class Option {
                 )
             )
     );
+    private static final Component CHAT_TOOLTIP_HIDE_MATCHED_NAMES = new TranslatableComponent("options.hideMatchedNames.tooltip");
     public static final BooleanOption AUTO_JUMP = new BooleanOption("options.autoJump", param0 -> param0.autoJump, (param0, param1) -> param0.autoJump = param1);
     public static final BooleanOption AUTO_SUGGESTIONS = new BooleanOption(
         "options.autoSuggestCommands", param0 -> param0.autoSuggestions, (param0, param1) -> param0.autoSuggestions = param1
+    );
+    public static final BooleanOption HIDE_MATCHED_NAMES = new BooleanOption(
+        "options.hideMatchedNames", CHAT_TOOLTIP_HIDE_MATCHED_NAMES, param0 -> param0.hideMatchedNames, (param0, param1) -> param0.hideMatchedNames = param1
     );
     public static final BooleanOption CHAT_COLOR = new BooleanOption(
         "options.chat.color", param0 -> param0.chatColors, (param0, param1) -> param0.chatColors = param1

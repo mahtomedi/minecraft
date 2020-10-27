@@ -1,5 +1,6 @@
 package com.mojang.realmsclient.util.task;
 
+import com.mojang.realmsclient.dto.RealmsServer;
 import com.mojang.realmsclient.dto.RealmsServerAddress;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -11,10 +12,12 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class ConnectTask extends LongRunningTask {
     private final RealmsConnect realmsConnect;
+    private final RealmsServer server;
     private final RealmsServerAddress address;
 
-    public ConnectTask(Screen param0, RealmsServerAddress param1) {
-        this.address = param1;
+    public ConnectTask(Screen param0, RealmsServer param1, RealmsServerAddress param2) {
+        this.server = param1;
+        this.address = param2;
         this.realmsConnect = new RealmsConnect(param0);
     }
 
@@ -22,7 +25,7 @@ public class ConnectTask extends LongRunningTask {
     public void run() {
         this.setTitle(new TranslatableComponent("mco.connect.connecting"));
         net.minecraft.realms.RealmsServerAddress var0 = net.minecraft.realms.RealmsServerAddress.parseString(this.address.address);
-        this.realmsConnect.connect(var0.getHost(), var0.getPort());
+        this.realmsConnect.connect(this.server, var0.getHost(), var0.getPort());
     }
 
     @Override

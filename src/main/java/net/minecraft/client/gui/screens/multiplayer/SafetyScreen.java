@@ -56,7 +56,7 @@ public class SafetyScreen extends Screen {
     @Override
     public void render(PoseStack param0, int param1, int param2, float param3) {
         this.renderDirtBackground(0);
-        drawCenteredString(param0, this.font, TITLE, this.width / 2, 30, 16777215);
+        drawString(param0, this.font, TITLE, 25, 30, 16777215);
         this.message.renderLeftAligned(param0, 25, 70, 9 * 2, 16777215);
         super.render(param0, param1, param2, param3);
     }

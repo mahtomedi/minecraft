@@ -67,7 +67,7 @@ public class SocialInteractionsPlayerList extends ContainerObjectSelectionList<P
 
     private void updateFilteredPlayers() {
         if (this.filter != null) {
-            this.players.removeIf(param0 -> !param0.getPlayerName().toLowerCase(Locale.ROOT).startsWith(this.filter));
+            this.players.removeIf(param0 -> !param0.getPlayerName().toLowerCase(Locale.ROOT).contains(this.filter));
             this.replaceEntries(this.players);
         }
 
@@ -92,7 +92,7 @@ public class SocialInteractionsPlayerList extends ContainerObjectSelectionList<P
         }
 
         if ((param1 == SocialInteractionsScreen.Page.ALL || this.minecraft.getPlayerSocialManager().shouldHideMessageFrom(var0))
-            && (Strings.isNullOrEmpty(this.filter) || param0.getProfile().getName().toLowerCase(Locale.ROOT).startsWith(this.filter))) {
+            && (Strings.isNullOrEmpty(this.filter) || param0.getProfile().getName().toLowerCase(Locale.ROOT).contains(this.filter))) {
             PlayerEntry var2 = new PlayerEntry(
                 this.minecraft, this.socialInteractionsScreen, param0.getProfile().getId(), param0.getProfile().getName(), param0::getSkinLocation
             );
