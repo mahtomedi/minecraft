@@ -10,6 +10,7 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
 import java.io.IOException;
@@ -381,7 +382,7 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
 
     private void renderItemInHand(PoseStack param0, Camera param1, float param2) {
         if (!this.panoramicMode) {
-            this.resetProjectionMatrix(this.getProjectionMatrix(param1, param2, false));
+            this.resetProjectionMatrix(this.getProjectionMatrix(this.getFov(param1, param2, false)));
             PoseStack.Pose var0 = param0.last();
             var0.pose().setIdentity();
             var0.normal().setIdentity();
@@ -428,7 +429,7 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
         RenderSystem.matrixMode(5888);
     }
 
-    public Matrix4f getProjectionMatrix(Camera param0, float param1, boolean param2) {
+    public Matrix4f getProjectionMatrix(double param0) {
         PoseStack var0 = new PoseStack();
         var0.last().pose().setIdentity();
         if (this.zoom != 1.0F) {
@@ -440,10 +441,7 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
             .pose()
             .multiply(
                 Matrix4f.perspective(
-                    this.getFov(param0, param1, param2),
-                    (float)this.minecraft.getWindow().getWidth() / (float)this.minecraft.getWindow().getHeight(),
-                    0.05F,
-                    this.renderDistance * 4.0F
+                    param0, (float)this.minecraft.getWindow().getWidth() / (float)this.minecraft.getWindow().getHeight(), 0.05F, this.renderDistance * 4.0F
                 )
             );
         return var0.last().pose();
@@ -618,7 +616,7 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
         } else {
             Entity var0 = this.minecraft.getCameraEntity();
             boolean var1 = var0 instanceof Player && !this.minecraft.options.hideGui;
-            if (var1 && !((Player)var0).abilities.mayBuild) {
+            if (var1 && !((Player)var0).getAbilities().mayBuild) {
                 ItemStack var2 = ((LivingEntity)var0).getMainHandItem();
                 HitResult var3 = this.minecraft.hitResult;
                 if (var3 != null && var3.getType() == HitResult.Type.BLOCK) {
@@ -654,28 +652,29 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
         Camera var1 = this.mainCamera;
         this.renderDistance = (float)(this.minecraft.options.renderDistance * 16);
         PoseStack var2 = new PoseStack();
-        var2.last().pose().multiply(this.getProjectionMatrix(var1, param0, true));
+        double var3 = this.getFov(var1, param0, true);
+        var2.last().pose().multiply(this.getProjectionMatrix(var3));
         this.bobHurt(var2, param0);
         if (this.minecraft.options.bobView) {
             this.bobView(var2, param0);
         }
 
-        float var3 = Mth.lerp(param0, this.minecraft.player.oPortalTime, this.minecraft.player.portalTime)
+        float var4 = Mth.lerp(param0, this.minecraft.player.oPortalTime, this.minecraft.player.portalTime)
             * this.minecraft.options.screenEffectScale
             * this.minecraft.options.screenEffectScale;
-        if (var3 > 0.0F) {
-            int var4 = this.minecraft.player.hasEffect(MobEffects.CONFUSION) ? 7 : 20;
-            float var5 = 5.0F / (var3 * var3 + 5.0F) - var3 * 0.04F;
-            var5 *= var5;
-            Vector3f var6 = new Vector3f(0.0F, Mth.SQRT_OF_TWO / 2.0F, Mth.SQRT_OF_TWO / 2.0F);
-            var2.mulPose(var6.rotationDegrees(((float)this.tick + param0) * (float)var4));
-            var2.scale(1.0F / var5, 1.0F, 1.0F);
-            float var7 = -((float)this.tick + param0) * (float)var4;
-            var2.mulPose(var6.rotationDegrees(var7));
+        if (var4 > 0.0F) {
+            int var5 = this.minecraft.player.hasEffect(MobEffects.CONFUSION) ? 7 : 20;
+            float var6 = 5.0F / (var4 * var4 + 5.0F) - var4 * 0.04F;
+            var6 *= var6;
+            Vector3f var7 = new Vector3f(0.0F, Mth.SQRT_OF_TWO / 2.0F, Mth.SQRT_OF_TWO / 2.0F);
+            var2.mulPose(var7.rotationDegrees(((float)this.tick + param0) * (float)var5));
+            var2.scale(1.0F / var6, 1.0F, 1.0F);
+            float var8 = -((float)this.tick + param0) * (float)var5;
+            var2.mulPose(var7.rotationDegrees(var8));
         }
 
-        Matrix4f var8 = var2.last().pose();
-        this.resetProjectionMatrix(var8);
+        Matrix4f var9 = var2.last().pose();
+        this.resetProjectionMatrix(var9);
         var1.setup(
             this.minecraft.level,
             (Entity)(this.minecraft.getCameraEntity() == null ? this.minecraft.player : this.minecraft.getCameraEntity()),
@@ -685,7 +684,8 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
         );
         param2.mulPose(Vector3f.XP.rotationDegrees(var1.getXRot()));
         param2.mulPose(Vector3f.YP.rotationDegrees(var1.getYRot() + 180.0F));
-        this.minecraft.levelRenderer.renderLevel(param2, param0, param1, var0, var1, this, this.lightTexture, var8);
+        this.minecraft.levelRenderer.prepareCullFrustum(param2, var1.getPosition(), this.getProjectionMatrix(Math.max(var3, this.minecraft.options.fov)));
+        this.minecraft.levelRenderer.renderLevel(param2, param0, param1, var0, var1, this, this.lightTexture, var9);
         this.minecraft.getProfiler().popPush("hand");
         if (this.renderHand) {
             RenderSystem.clear(256, Minecraft.ON_OSX);
@@ -773,7 +773,7 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
         this.minecraft.getTextureManager().bind(NAUSEA_LOCATION);
         Tesselator var10 = Tesselator.getInstance();
         BufferBuilder var11 = var10.getBuilder();
-        var11.begin(7, DefaultVertexFormat.POSITION_TEX);
+        var11.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
         var11.vertex(var8, var9 + var7, -90.0).uv(0.0F, 1.0F).endVertex();
         var11.vertex(var8 + var6, var9 + var7, -90.0).uv(1.0F, 1.0F).endVertex();
         var11.vertex(var8 + var6, var9, -90.0).uv(1.0F, 0.0F).endVertex();

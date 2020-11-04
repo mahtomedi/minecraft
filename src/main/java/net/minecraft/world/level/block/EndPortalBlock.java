@@ -29,8 +29,8 @@ public class EndPortalBlock extends BaseEntityBlock {
     }
 
     @Override
-    public BlockEntity newBlockEntity(BlockGetter param0) {
-        return new TheEndPortalBlockEntity();
+    public BlockEntity newBlockEntity(BlockPos param0, BlockState param1) {
+        return new TheEndPortalBlockEntity(param0, param1);
     }
 
     @Override

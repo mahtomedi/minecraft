@@ -22,7 +22,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.server.level.progress.ChunkProgressListener;
-import net.minecraft.util.Mth;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.util.thread.BlockableEventLoop;
 import net.minecraft.world.entity.Entity;
@@ -38,6 +37,7 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.entity.ChunkStatusUpdateListener;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import net.minecraft.world.level.storage.DimensionDataStorage;
 import net.minecraft.world.level.storage.LevelData;
@@ -74,7 +74,8 @@ public class ServerChunkCache extends ChunkSource {
         int param6,
         boolean param7,
         ChunkProgressListener param8,
-        Supplier<DimensionDataStorage> param9
+        ChunkStatusUpdateListener param9,
+        Supplier<DimensionDataStorage> param10
     ) {
         this.level = param0;
         this.mainThreadProcessor = new ServerChunkCache.MainThreadExecutor(param0);
@@ -85,7 +86,7 @@ public class ServerChunkCache extends ChunkSource {
         var1.mkdirs();
         this.dataStorage = new DimensionDataStorage(var1, param2);
         this.chunkMap = new ChunkMap(
-            param0, param1, param2, param3, param4, this.mainThreadProcessor, this, this.getGenerator(), param8, param9, param6, param7
+            param0, param1, param2, param3, param4, this.mainThreadProcessor, this, this.getGenerator(), param8, param9, param10, param6, param7
         );
         this.lightEngine = this.chunkMap.getLightEngine();
         this.distanceManager = this.chunkMap.getDistanceManager();
@@ -292,19 +293,13 @@ public class ServerChunkCache extends ChunkSource {
     }
 
     @Override
-    public boolean isEntityTickingChunk(Entity param0) {
-        long var0 = ChunkPos.asLong(Mth.floor(param0.getX()) >> 4, Mth.floor(param0.getZ()) >> 4);
-        return this.checkChunkFuture(var0, ChunkHolder::getEntityTickingChunkFuture);
-    }
-
-    @Override
     public boolean isEntityTickingChunk(ChunkPos param0) {
         return this.checkChunkFuture(param0.toLong(), ChunkHolder::getEntityTickingChunkFuture);
     }
 
     @Override
     public boolean isTickingChunk(BlockPos param0) {
-        long var0 = ChunkPos.asLong(param0.getX() >> 4, param0.getZ() >> 4);
+        long var0 = ChunkPos.asLong(SectionPos.blockToSectionCoord(param0.getX()), SectionPos.blockToSectionCoord(param0.getZ()));
         return this.checkChunkFuture(var0, ChunkHolder::getTickingChunkFuture);
     }
 
@@ -403,7 +398,7 @@ public class ServerChunkCache extends ChunkSource {
 
     @Override
     public String gatherStats() {
-        return "ServerChunkCache: " + this.getLoadedChunksCount();
+        return Integer.toString(this.getLoadedChunksCount());
     }
 
     @VisibleForTesting
@@ -420,8 +415,8 @@ public class ServerChunkCache extends ChunkSource {
     }
 
     public void blockChanged(BlockPos param0) {
-        int var0 = param0.getX() >> 4;
-        int var1 = param0.getZ() >> 4;
+        int var0 = SectionPos.blockToSectionCoord(param0.getX());
+        int var1 = SectionPos.blockToSectionCoord(param0.getZ());
         ChunkHolder var2 = this.getVisibleChunkIfPresent(ChunkPos.asLong(var0, var1));
         if (var2 != null) {
             var2.blockChanged(param0);

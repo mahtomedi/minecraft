@@ -358,6 +358,10 @@ public class Util {
         return param0[param1.nextInt(param0.length)];
     }
 
+    public static <T> T getRandom(List<T> param0, Random param1) {
+        return param0.get(param1.nextInt(param0.size()));
+    }
+
     private static BooleanSupplier createRenamer(final Path param0, final Path param1) {
         return new BooleanSupplier() {
             @Override

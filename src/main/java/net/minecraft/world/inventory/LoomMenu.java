@@ -219,7 +219,7 @@ public class LoomMenu extends AbstractContainerMenu {
     @Override
     public void removed(Player param0) {
         super.removed(param0);
-        this.access.execute((param1, param2) -> this.clearContainer(param0, param0.level, this.inputContainer));
+        this.access.execute((param1, param2) -> this.clearContainer(param0, this.inputContainer));
     }
 
     private void setupResultSlot() {

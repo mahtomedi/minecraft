@@ -222,7 +222,7 @@ public class DamageSource {
 
     public boolean isCreativePlayer() {
         Entity var0 = this.getEntity();
-        return var0 instanceof Player && ((Player)var0).abilities.instabuild;
+        return var0 instanceof Player && ((Player)var0).getAbilities().instabuild;
     }
 
     @Nullable

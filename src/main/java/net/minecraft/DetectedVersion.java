@@ -3,6 +3,7 @@ package net.minecraft;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.mojang.bridge.game.GameVersion;
+import com.mojang.bridge.game.PackType;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -21,19 +22,21 @@ public class DetectedVersion implements GameVersion {
     private final boolean stable;
     private final int worldVersion;
     private final int protocolVersion;
-    private final int packVersion;
+    private final int resourcePackVersion;
+    private final int dataPackVersion;
     private final Date buildTime;
     private final String releaseTarget;
 
     private DetectedVersion() {
         this.id = UUID.randomUUID().toString().replaceAll("-", "");
-        this.name = "1.16.4";
-        this.stable = true;
-        this.worldVersion = 2584;
+        this.name = "20w45a";
+        this.stable = false;
+        this.worldVersion = 2681;
         this.protocolVersion = SharedConstants.getProtocolVersion();
-        this.packVersion = 6;
+        this.resourcePackVersion = 7;
+        this.dataPackVersion = 6;
         this.buildTime = new Date();
-        this.releaseTarget = "1.16.4";
+        this.releaseTarget = "1.17";
     }
 
     private DetectedVersion(JsonObject param0) {
@@ -43,7 +46,9 @@ public class DetectedVersion implements GameVersion {
         this.stable = GsonHelper.getAsBoolean(param0, "stable");
         this.worldVersion = GsonHelper.getAsInt(param0, "world_version");
         this.protocolVersion = GsonHelper.getAsInt(param0, "protocol_version");
-        this.packVersion = GsonHelper.getAsInt(param0, "pack_version");
+        JsonObject var0 = GsonHelper.getAsJsonObject(param0, "pack_version");
+        this.resourcePackVersion = GsonHelper.getAsInt(var0, "resource");
+        this.dataPackVersion = GsonHelper.getAsInt(var0, "data");
         this.buildTime = Date.from(ZonedDateTime.parse(GsonHelper.getAsString(param0, "build_time")).toInstant());
     }
 
@@ -91,8 +96,8 @@ public class DetectedVersion implements GameVersion {
     }
 
     @Override
-    public int getPackVersion() {
-        return this.packVersion;
+    public int getPackVersion(PackType param0) {
+        return param0 == PackType.DATA ? this.dataPackVersion : this.resourcePackVersion;
     }
 
     @Override

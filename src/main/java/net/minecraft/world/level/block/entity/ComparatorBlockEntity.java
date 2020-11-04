@@ -1,13 +1,14 @@
 package net.minecraft.world.level.block.entity;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class ComparatorBlockEntity extends BlockEntity {
     private int output;
 
-    public ComparatorBlockEntity() {
-        super(BlockEntityType.COMPARATOR);
+    public ComparatorBlockEntity(BlockPos param0, BlockState param1) {
+        super(BlockEntityType.COMPARATOR, param0, param1);
     }
 
     @Override
@@ -18,9 +19,9 @@ public class ComparatorBlockEntity extends BlockEntity {
     }
 
     @Override
-    public void load(BlockState param0, CompoundTag param1) {
-        super.load(param0, param1);
-        this.output = param1.getInt("OutputSignal");
+    public void load(CompoundTag param0) {
+        super.load(param0);
+        this.output = param0.getInt("OutputSignal");
     }
 
     public int getOutputSignal() {

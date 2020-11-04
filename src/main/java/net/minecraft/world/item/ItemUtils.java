@@ -6,16 +6,16 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
 public class ItemUtils {
-    public static InteractionResultHolder<ItemStack> useDrink(Level param0, Player param1, InteractionHand param2) {
+    public static InteractionResultHolder<ItemStack> startUsingInstantly(Level param0, Player param1, InteractionHand param2) {
         param1.startUsingItem(param2);
         return InteractionResultHolder.consume(param1.getItemInHand(param2));
     }
 
     public static ItemStack createFilledResult(ItemStack param0, Player param1, ItemStack param2, boolean param3) {
-        boolean var0 = param1.abilities.instabuild;
+        boolean var0 = param1.getAbilities().instabuild;
         if (param3 && var0) {
-            if (!param1.inventory.contains(param2)) {
-                param1.inventory.add(param2);
+            if (!param1.getInventory().contains(param2)) {
+                param1.getInventory().add(param2);
             }
 
             return param0;
@@ -27,7 +27,7 @@ public class ItemUtils {
             if (param0.isEmpty()) {
                 return param2;
             } else {
-                if (!param1.inventory.add(param2)) {
+                if (!param1.getInventory().add(param2)) {
                     param1.drop(param2, false);
                 }
 

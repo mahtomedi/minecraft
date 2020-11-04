@@ -3,6 +3,7 @@ package net.minecraft.client.renderer.entity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
 import net.minecraft.client.model.PhantomModel;
+import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.entity.layers.PhantomEyesLayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.monster.Phantom;
@@ -13,8 +14,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class PhantomRenderer extends MobRenderer<Phantom, PhantomModel<Phantom>> {
     private static final ResourceLocation PHANTOM_LOCATION = new ResourceLocation("textures/entity/phantom.png");
 
-    public PhantomRenderer(EntityRenderDispatcher param0) {
-        super(param0, new PhantomModel<>(), 0.75F);
+    public PhantomRenderer(EntityRendererProvider.Context param0) {
+        super(param0, new PhantomModel<>(param0.getLayer(ModelLayers.PHANTOM)), 0.75F);
         this.addLayer(new PhantomEyesLayer<>(this));
     }
 

@@ -7,7 +7,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
-import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
@@ -52,7 +51,7 @@ import net.minecraft.world.entity.ai.behavior.StartCelebratingIfTargetDead;
 import net.minecraft.world.entity.ai.behavior.StopAttackingIfTargetInvalid;
 import net.minecraft.world.entity.ai.behavior.StopBeingAngryIfTargetDead;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.util.RandomPos;
+import net.minecraft.world.entity.ai.util.LandRandomPos;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.hoglin.Hoglin;
 import net.minecraft.world.entity.player.Player;
@@ -78,7 +77,6 @@ public class PiglinAi {
     private static final IntRange RETREAT_DURATION = TimeUtil.rangeOfSeconds(5, 20);
     private static final IntRange AVOID_ZOMBIFIED_DURATION = TimeUtil.rangeOfSeconds(5, 7);
     private static final IntRange BABY_AVOID_NEMESIS_DURATION = TimeUtil.rangeOfSeconds(5, 7);
-    private static final Set<Item> FOOD_ITEMS = ImmutableSet.of(Items.PORKCHOP, Items.COOKED_PORKCHOP);
 
     protected static Brain<?> makeBrain(Piglin param0, Brain<Piglin> param1) {
         initCoreActivity(param1);
@@ -285,25 +283,24 @@ public class PiglinAi {
     protected static void pickUpItem(Piglin param0, ItemEntity param1) {
         stopWalking(param0);
         ItemStack var0;
-        if (param1.getItem().getItem() == Items.GOLD_NUGGET) {
+        if (param1.getItem().is(Items.GOLD_NUGGET)) {
             param0.take(param1, param1.getItem().getCount());
             var0 = param1.getItem();
-            param1.remove();
+            param1.discard();
         } else {
             param0.take(param1, 1);
             var0 = removeOneItemFromItemEntity(param1);
         }
 
-        Item var2 = var0.getItem();
-        if (isLovedItem(var2)) {
+        if (isLovedItem(var0)) {
             param0.getBrain().eraseMemory(MemoryModuleType.TIME_TRYING_TO_REACH_ADMIRE_ITEM);
             holdInOffhand(param0, var0);
             admireGoldItem(param0);
-        } else if (isFood(var2) && !hasEatenRecently(param0)) {
+        } else if (isFood(var0) && !hasEatenRecently(param0)) {
             eat(param0);
         } else {
-            boolean var3 = param0.equipItemIfPossible(var0);
-            if (!var3) {
+            boolean var2 = param0.equipItemIfPossible(var0);
+            if (!var2) {
                 putInInventory(param0, var0);
             }
         }
@@ -321,7 +318,7 @@ public class PiglinAi {
         ItemStack var0 = param0.getItem();
         ItemStack var1 = var0.split(1);
         if (var0.isEmpty()) {
-            param0.remove();
+            param0.discard();
         } else {
             param0.setItem(var0);
         }
@@ -333,7 +330,7 @@ public class PiglinAi {
         ItemStack var0 = param0.getItemInHand(InteractionHand.OFF_HAND);
         param0.setItemInHand(InteractionHand.OFF_HAND, ItemStack.EMPTY);
         if (param0.isAdult()) {
-            boolean var1 = isBarterCurrency(var0.getItem());
+            boolean var1 = isBarterCurrency(var0);
             if (param1 && var1) {
                 throwItems(param0, getBarterResponseItems(param0));
             } else if (!var1) {
@@ -346,7 +343,7 @@ public class PiglinAi {
             boolean var3 = param0.equipItemIfPossible(var0);
             if (!var3) {
                 ItemStack var4 = param0.getMainHandItem();
-                if (isLovedItem(var4.getItem())) {
+                if (isLovedItem(var4)) {
                     putInInventory(param0, var4);
                 } else {
                     throwItems(param0, Collections.singletonList(var4));
@@ -419,28 +416,29 @@ public class PiglinAi {
     }
 
     protected static boolean wantsToPickup(Piglin param0, ItemStack param1) {
-        Item var0 = param1.getItem();
-        if (var0.is(ItemTags.PIGLIN_REPELLENTS)) {
+        if (param0.isBaby() && param1.is(ItemTags.IGNORED_BY_PIGLIN_BABIES)) {
+            return false;
+        } else if (param1.is(ItemTags.PIGLIN_REPELLENTS)) {
             return false;
         } else if (isAdmiringDisabled(param0) && param0.getBrain().hasMemoryValue(MemoryModuleType.ATTACK_TARGET)) {
             return false;
-        } else if (isBarterCurrency(var0)) {
+        } else if (isBarterCurrency(param1)) {
             return isNotHoldingLovedItemInOffHand(param0);
         } else {
-            boolean var1 = param0.canAddToInventory(param1);
-            if (var0 == Items.GOLD_NUGGET) {
-                return var1;
-            } else if (isFood(var0)) {
-                return !hasEatenRecently(param0) && var1;
-            } else if (!isLovedItem(var0)) {
+            boolean var0 = param0.canAddToInventory(param1);
+            if (param1.is(Items.GOLD_NUGGET)) {
+                return var0;
+            } else if (isFood(param1)) {
+                return !hasEatenRecently(param0) && var0;
+            } else if (!isLovedItem(param1)) {
                 return param0.canReplaceCurrentItem(param1);
             } else {
-                return isNotHoldingLovedItemInOffHand(param0) && var1;
+                return isNotHoldingLovedItemInOffHand(param0) && var0;
             }
         }
     }
 
-    protected static boolean isLovedItem(Item param0) {
+    protected static boolean isLovedItem(ItemStack param0) {
         return param0.is(ItemTags.PIGLIN_LOVED);
     }
 
@@ -524,7 +522,7 @@ public class PiglinAi {
     }
 
     protected static boolean canAdmire(Piglin param0, ItemStack param1) {
-        return !isAdmiringDisabled(param0) && !isAdmiringItem(param0) && param0.isAdult() && isBarterCurrency(param1.getItem());
+        return !isAdmiringDisabled(param0) && !isAdmiringItem(param0) && param0.isAdult() && isBarterCurrency(param1);
     }
 
     protected static void wasHurtBy(Piglin param0, LivingEntity param1) {
@@ -763,7 +761,7 @@ public class PiglinAi {
     }
 
     private static Vec3 getRandomNearbyPos(Piglin param0) {
-        Vec3 var0 = RandomPos.getLandPos(param0, 4, 2);
+        Vec3 var0 = LandRandomPos.getPos(param0, 4, 2);
         return var0 == null ? param0.position() : var0;
     }
 
@@ -787,12 +785,12 @@ public class PiglinAi {
         return param0.getBrain().hasMemoryValue(MemoryModuleType.ADMIRING_ITEM);
     }
 
-    private static boolean isBarterCurrency(Item param0) {
-        return param0 == BARTERING_ITEM;
+    private static boolean isBarterCurrency(ItemStack param0) {
+        return param0.is(BARTERING_ITEM);
     }
 
-    private static boolean isFood(Item param0) {
-        return FOOD_ITEMS.contains(param0);
+    private static boolean isFood(ItemStack param0) {
+        return param0.is(ItemTags.PIGLIN_FOOD);
     }
 
     private static boolean isAttackAllowed(LivingEntity param0) {
@@ -828,10 +826,10 @@ public class PiglinAi {
     }
 
     private static boolean isNotHoldingLovedItemInOffHand(Piglin param0x) {
-        return param0x.getOffhandItem().isEmpty() || !isLovedItem(param0x.getOffhandItem().getItem());
+        return param0x.getOffhandItem().isEmpty() || !isLovedItem(param0x.getOffhandItem());
     }
 
-    public static boolean isZombified(EntityType param0) {
+    public static boolean isZombified(EntityType<?> param0) {
         return param0 == EntityType.ZOMBIFIED_PIGLIN || param0 == EntityType.ZOGLIN;
     }
 }

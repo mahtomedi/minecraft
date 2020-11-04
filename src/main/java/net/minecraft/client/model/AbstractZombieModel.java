@@ -1,13 +1,14 @@
 package net.minecraft.client.model;
 
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public abstract class AbstractZombieModel<T extends Monster> extends HumanoidModel<T> {
-    protected AbstractZombieModel(float param0, float param1, int param2, int param3) {
-        super(param0, param1, param2, param3);
+    protected AbstractZombieModel(ModelPart param0) {
+        super(param0);
     }
 
     public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5) {

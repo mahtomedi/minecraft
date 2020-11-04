@@ -29,7 +29,6 @@ import net.minecraft.world.level.block.AnvilBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ConcretePowderBlock;
-import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.FallingBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -94,13 +93,13 @@ public class FallingBlockEntity extends Entity {
 
     @Override
     public boolean isPickable() {
-        return !this.removed;
+        return !this.isRemoved();
     }
 
     @Override
     public void tick() {
         if (this.blockState.isAir()) {
-            this.remove();
+            this.discard();
         } else {
             Block var0 = this.blockState.getBlock();
             if (this.time++ == 0) {
@@ -108,7 +107,7 @@ public class FallingBlockEntity extends Entity {
                 if (this.level.getBlockState(var1).is(var0)) {
                     this.level.removeBlock(var1, false);
                 } else if (!this.level.isClientSide) {
-                    this.remove();
+                    this.discard();
                     return;
                 }
             }
@@ -140,7 +139,7 @@ public class FallingBlockEntity extends Entity {
                     BlockState var7 = this.level.getBlockState(var2);
                     this.setDeltaMovement(this.getDeltaMovement().multiply(0.7, -0.5, 0.7));
                     if (!var7.is(Blocks.MOVING_PISTON)) {
-                        this.remove();
+                        this.discard();
                         if (!this.cancelDrop) {
                             boolean var8 = var7.canBeReplaced(new DirectionalPlaceContext(this.level, var2, Direction.DOWN, ItemStack.EMPTY, Direction.UP));
                             boolean var9 = FallingBlock.isFree(this.level.getBlockState(var2.below())) && (!var3 || !var4);
@@ -155,7 +154,7 @@ public class FallingBlockEntity extends Entity {
                                         ((FallingBlock)var0).onLand(this.level, var2, this.blockState, var7, this);
                                     }
 
-                                    if (this.blockData != null && var0 instanceof EntityBlock) {
+                                    if (this.blockData != null && this.blockState.hasBlockEntity()) {
                                         BlockEntity var11 = this.level.getBlockEntity(var2);
                                         if (var11 != null) {
                                             CompoundTag var12 = var11.save(new CompoundTag());
@@ -167,7 +166,7 @@ public class FallingBlockEntity extends Entity {
                                                 }
                                             }
 
-                                            var11.load(this.blockState, var12);
+                                            var11.load(var12);
                                             var11.setChanged();
                                         }
                                     }
@@ -181,12 +180,13 @@ public class FallingBlockEntity extends Entity {
                             ((FallingBlock)var0).onBroken(this.level, var2, this);
                         }
                     }
-                } else if (!this.level.isClientSide && (this.time > 100 && (var2.getY() < 1 || var2.getY() > 256) || this.time > 600)) {
+                } else if (!this.level.isClientSide
+                    && (this.time > 100 && (var2.getY() <= this.level.getMinBuildHeight() || var2.getY() > this.level.getMaxBuildHeight()) || this.time > 600)) {
                     if (this.dropItem && this.level.getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
                         this.spawnAtLocation(var0);
                     }
 
-                    this.remove();
+                    this.discard();
                 }
             }
 
@@ -294,5 +294,18 @@ public class FallingBlockEntity extends Entity {
     @Override
     public Packet<?> getAddEntityPacket() {
         return new ClientboundAddEntityPacket(this, Block.getId(this.getBlockState()));
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public void recreateFromPacket(ClientboundAddEntityPacket param0) {
+        super.recreateFromPacket(param0);
+        this.blockState = Block.stateById(param0.getData());
+        this.blocksBuilding = true;
+        double var0 = param0.getX();
+        double var1 = param0.getY();
+        double var2 = param0.getZ();
+        this.setPos(var0, var1 + (double)((1.0F - this.getBbHeight()) / 2.0F), var2);
+        this.setStartPos(this.blockPosition());
     }
 }

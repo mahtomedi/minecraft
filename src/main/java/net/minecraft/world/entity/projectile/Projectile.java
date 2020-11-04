@@ -3,6 +3,8 @@ package net.minecraft.world.entity.projectile;
 import java.util.UUID;
 import javax.annotation.Nullable;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -173,5 +175,22 @@ public abstract class Projectile extends Entity {
         }
 
         return Mth.lerp(0.2F, param0, param1);
+    }
+
+    @Override
+    public Packet<?> getAddEntityPacket() {
+        Entity var0 = this.getOwner();
+        return new ClientboundAddEntityPacket(this, var0 == null ? 0 : var0.getId());
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public void recreateFromPacket(ClientboundAddEntityPacket param0) {
+        super.recreateFromPacket(param0);
+        Entity var0 = this.level.getEntity(param0.getData());
+        if (var0 != null) {
+            this.setOwner(var0);
+        }
+
     }
 }

@@ -1,6 +1,12 @@
 package net.minecraft.client.model;
 
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.geom.PartPose;
+import net.minecraft.client.model.geom.builders.CubeDeformation;
+import net.minecraft.client.model.geom.builders.CubeListBuilder;
+import net.minecraft.client.model.geom.builders.LayerDefinition;
+import net.minecraft.client.model.geom.builders.MeshDefinition;
+import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -10,36 +16,40 @@ public class EndermanModel<T extends LivingEntity> extends HumanoidModel<T> {
     public boolean carrying;
     public boolean creepy;
 
-    public EndermanModel(float param0) {
-        super(0.0F, -14.0F, 64, 32);
+    public EndermanModel(ModelPart param0) {
+        super(param0);
+    }
+
+    public static LayerDefinition createBodyLayer() {
         float var0 = -14.0F;
-        this.hat = new ModelPart(this, 0, 16);
-        this.hat.addBox(-4.0F, -8.0F, -4.0F, 8.0F, 8.0F, 8.0F, param0 - 0.5F);
-        this.hat.setPos(0.0F, -14.0F, 0.0F);
-        this.body = new ModelPart(this, 32, 16);
-        this.body.addBox(-4.0F, 0.0F, -2.0F, 8.0F, 12.0F, 4.0F, param0);
-        this.body.setPos(0.0F, -14.0F, 0.0F);
-        this.rightArm = new ModelPart(this, 56, 0);
-        this.rightArm.addBox(-1.0F, -2.0F, -1.0F, 2.0F, 30.0F, 2.0F, param0);
-        this.rightArm.setPos(-3.0F, -12.0F, 0.0F);
-        this.leftArm = new ModelPart(this, 56, 0);
-        this.leftArm.mirror = true;
-        this.leftArm.addBox(-1.0F, -2.0F, -1.0F, 2.0F, 30.0F, 2.0F, param0);
-        this.leftArm.setPos(5.0F, -12.0F, 0.0F);
-        this.rightLeg = new ModelPart(this, 56, 0);
-        this.rightLeg.addBox(-1.0F, 0.0F, -1.0F, 2.0F, 30.0F, 2.0F, param0);
-        this.rightLeg.setPos(-2.0F, -2.0F, 0.0F);
-        this.leftLeg = new ModelPart(this, 56, 0);
-        this.leftLeg.mirror = true;
-        this.leftLeg.addBox(-1.0F, 0.0F, -1.0F, 2.0F, 30.0F, 2.0F, param0);
-        this.leftLeg.setPos(2.0F, -2.0F, 0.0F);
+        MeshDefinition var1 = HumanoidModel.createMesh(CubeDeformation.NONE, -14.0F);
+        PartDefinition var2 = var1.getRoot();
+        PartPose var3 = PartPose.offset(0.0F, -13.0F, 0.0F);
+        var2.addOrReplaceChild("hat", CubeListBuilder.create().texOffs(0, 16).addBox(-4.0F, -8.0F, -4.0F, 8.0F, 8.0F, 8.0F, new CubeDeformation(-0.5F)), var3);
+        var2.addOrReplaceChild("head", CubeListBuilder.create().texOffs(0, 0).addBox(-4.0F, -8.0F, -4.0F, 8.0F, 8.0F, 8.0F), var3);
+        var2.addOrReplaceChild(
+            "body", CubeListBuilder.create().texOffs(32, 16).addBox(-4.0F, 0.0F, -2.0F, 8.0F, 12.0F, 4.0F), PartPose.offset(0.0F, -14.0F, 0.0F)
+        );
+        var2.addOrReplaceChild(
+            "right_arm", CubeListBuilder.create().texOffs(56, 0).addBox(-1.0F, -2.0F, -1.0F, 2.0F, 30.0F, 2.0F), PartPose.offset(-5.0F, -12.0F, 0.0F)
+        );
+        var2.addOrReplaceChild(
+            "left_arm", CubeListBuilder.create().texOffs(56, 0).mirror().addBox(-1.0F, -2.0F, -1.0F, 2.0F, 30.0F, 2.0F), PartPose.offset(5.0F, -12.0F, 0.0F)
+        );
+        var2.addOrReplaceChild(
+            "right_leg", CubeListBuilder.create().texOffs(56, 0).addBox(-1.0F, 0.0F, -1.0F, 2.0F, 30.0F, 2.0F), PartPose.offset(-2.0F, -5.0F, 0.0F)
+        );
+        var2.addOrReplaceChild(
+            "left_leg", CubeListBuilder.create().texOffs(56, 0).mirror().addBox(-1.0F, 0.0F, -1.0F, 2.0F, 30.0F, 2.0F), PartPose.offset(2.0F, -5.0F, 0.0F)
+        );
+        return LayerDefinition.create(var1, 64, 32);
     }
 
     @Override
     public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5) {
         super.setupAnim(param0, param1, param2, param3, param4, param5);
         this.head.visible = true;
-        float var0 = -14.0F;
+        int var0 = -14;
         this.body.xRot = 0.0F;
         this.body.y = -14.0F;
         this.body.z = -0.0F;
@@ -89,8 +99,6 @@ public class EndermanModel<T extends LivingEntity> extends HumanoidModel<T> {
             this.leftArm.zRot = -0.05F;
         }
 
-        this.rightArm.z = 0.0F;
-        this.leftArm.z = 0.0F;
         this.rightLeg.z = 0.0F;
         this.leftLeg.z = 0.0F;
         this.rightLeg.y = -5.0F;
@@ -108,7 +116,7 @@ public class EndermanModel<T extends LivingEntity> extends HumanoidModel<T> {
             this.head.y -= 5.0F;
         }
 
-        float var3 = -14.0F;
+        int var3 = -14;
         this.rightArm.setPos(-5.0F, -12.0F, 0.0F);
         this.leftArm.setPos(5.0F, -12.0F, 0.0F);
     }

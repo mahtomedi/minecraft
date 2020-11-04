@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Transformation;
 import java.util.Optional;
@@ -146,7 +147,7 @@ public class DebugRenderer {
     ) {
         Tesselator var0 = Tesselator.getInstance();
         BufferBuilder var1 = var0.getBuilder();
-        var1.begin(5, DefaultVertexFormat.POSITION_COLOR);
+        var1.begin(VertexFormat.Mode.TRIANGLE_STRIP, DefaultVertexFormat.POSITION_COLOR);
         LevelRenderer.addChainedFilledBoxVertices(var1, param0, param1, param2, param3, param4, param5, param6, param7, param8, param9);
         var0.end();
     }

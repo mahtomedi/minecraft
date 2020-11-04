@@ -7,6 +7,7 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.GuardianModel;
 import net.minecraft.client.model.Model;
+import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -19,11 +20,12 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class MobAppearanceParticle extends Particle {
-    private final Model model = new GuardianModel();
+    private final Model model;
     private final RenderType renderType = RenderType.entityTranslucent(ElderGuardianRenderer.GUARDIAN_ELDER_LOCATION);
 
     private MobAppearanceParticle(ClientLevel param0, double param1, double param2, double param3) {
         super(param0, param1, param2, param3);
+        this.model = new GuardianModel(Minecraft.getInstance().getEntityModels().getLayer(ModelLayers.ELDER_GUARDIAN));
         this.gravity = 0.0F;
         this.lifetime = 30;
     }

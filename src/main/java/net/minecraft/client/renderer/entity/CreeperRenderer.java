@@ -2,6 +2,7 @@ package net.minecraft.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.CreeperModel;
+import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.entity.layers.CreeperPowerLayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -13,9 +14,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class CreeperRenderer extends MobRenderer<Creeper, CreeperModel<Creeper>> {
     private static final ResourceLocation CREEPER_LOCATION = new ResourceLocation("textures/entity/creeper/creeper.png");
 
-    public CreeperRenderer(EntityRenderDispatcher param0) {
-        super(param0, new CreeperModel<>(), 0.5F);
-        this.addLayer(new CreeperPowerLayer(this));
+    public CreeperRenderer(EntityRendererProvider.Context param0) {
+        super(param0, new CreeperModel<>(param0.getLayer(ModelLayers.CREEPER)), 0.5F);
+        this.addLayer(new CreeperPowerLayer(this, param0.getModelSet()));
     }
 
     protected void scale(Creeper param0, PoseStack param1, float param2) {

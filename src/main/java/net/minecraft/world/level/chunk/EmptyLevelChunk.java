@@ -1,15 +1,12 @@
 package net.minecraft.world.level.chunk;
 
 import java.util.Arrays;
-import java.util.List;
-import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.data.worldgen.biome.Biomes;
 import net.minecraft.server.level.ChunkHolder;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
@@ -19,7 +16,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.phys.AABB;
 
 public class EmptyLevelChunk extends LevelChunk {
     private static final Biome[] BIOMES = Util.make(new Biome[ChunkBiomeContainer.BIOMES_SIZE], param0 -> Arrays.fill(param0, Biomes.PLAINS));
@@ -55,18 +51,6 @@ public class EmptyLevelChunk extends LevelChunk {
         return 0;
     }
 
-    @Override
-    public void addEntity(Entity param0) {
-    }
-
-    @Override
-    public void removeEntity(Entity param0) {
-    }
-
-    @Override
-    public void removeEntity(Entity param0, int param1) {
-    }
-
     @Nullable
     @Override
     public BlockEntity getBlockEntity(BlockPos param0, LevelChunk.EntityCreationType param1) {
@@ -74,11 +58,11 @@ public class EmptyLevelChunk extends LevelChunk {
     }
 
     @Override
-    public void addBlockEntity(BlockEntity param0) {
+    public void addAndRegisterBlockEntity(BlockEntity param0) {
     }
 
     @Override
-    public void setBlockEntity(BlockPos param0, BlockEntity param1) {
+    public void setBlockEntity(BlockEntity param0) {
     }
 
     @Override
@@ -87,14 +71,6 @@ public class EmptyLevelChunk extends LevelChunk {
 
     @Override
     public void markUnsaved() {
-    }
-
-    @Override
-    public void getEntities(@Nullable Entity param0, AABB param1, List<Entity> param2, Predicate<? super Entity> param3) {
-    }
-
-    @Override
-    public <T extends Entity> void getEntitiesOfClass(Class<? extends T> param0, AABB param1, List<T> param2, Predicate<? super T> param3) {
     }
 
     @Override

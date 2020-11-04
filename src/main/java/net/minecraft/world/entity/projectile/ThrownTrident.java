@@ -43,11 +43,6 @@ public class ThrownTrident extends AbstractArrow {
         this.entityData.set(ID_FOIL, param2.hasFoil());
     }
 
-    @OnlyIn(Dist.CLIENT)
-    public ThrownTrident(Level param0, double param1, double param2, double param3) {
-        super(EntityType.TRIDENT, param1, param2, param3, param0);
-    }
-
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
@@ -69,7 +64,7 @@ public class ThrownTrident extends AbstractArrow {
                     this.spawnAtLocation(this.getPickupItem(), 0.1F);
                 }
 
-                this.remove();
+                this.discard();
             } else if (var1 > 0) {
                 this.setNoPhysics(true);
                 Vec3 var2 = new Vec3(var0.getX() - this.getX(), var0.getEyeY() - this.getY(), var0.getZ() - this.getZ());
@@ -147,7 +142,7 @@ public class ThrownTrident extends AbstractArrow {
 
         this.setDeltaMovement(this.getDeltaMovement().multiply(-0.01, -0.1, -0.01));
         float var7 = 1.0F;
-        if (this.level instanceof ServerLevel && this.level.isThundering() && EnchantmentHelper.hasChanneling(this.tridentItem)) {
+        if (this.level instanceof ServerLevel && this.level.isThundering() && this.isChanneling()) {
             BlockPos var8 = var0.blockPosition();
             if (this.level.canSeeSky(var8)) {
                 LightningBolt var9 = EntityType.LIGHTNING_BOLT.create(this.level);
@@ -160,6 +155,10 @@ public class ThrownTrident extends AbstractArrow {
         }
 
         this.playSound(var5, var7, 1.0F);
+    }
+
+    public boolean isChanneling() {
+        return EnchantmentHelper.hasChanneling(this.tridentItem);
     }
 
     @Override

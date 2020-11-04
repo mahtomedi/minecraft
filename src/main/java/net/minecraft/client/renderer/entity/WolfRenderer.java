@@ -2,6 +2,7 @@ package net.minecraft.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.WolfModel;
+import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.layers.WolfCollarLayer;
 import net.minecraft.resources.ResourceLocation;
@@ -15,8 +16,8 @@ public class WolfRenderer extends MobRenderer<Wolf, WolfModel<Wolf>> {
     private static final ResourceLocation WOLF_TAME_LOCATION = new ResourceLocation("textures/entity/wolf/wolf_tame.png");
     private static final ResourceLocation WOLF_ANGRY_LOCATION = new ResourceLocation("textures/entity/wolf/wolf_angry.png");
 
-    public WolfRenderer(EntityRenderDispatcher param0) {
-        super(param0, new WolfModel<>(), 0.5F);
+    public WolfRenderer(EntityRendererProvider.Context param0) {
+        super(param0, new WolfModel<>(param0.getLayer(ModelLayers.WOLF)), 0.5F);
         this.addLayer(new WolfCollarLayer(this));
     }
 

@@ -84,7 +84,7 @@ public class ItemPredicateArgument implements ArgumentType<ItemPredicateArgument
         }
 
         public boolean test(ItemStack param0) {
-            return param0.getItem() == this.item && NbtUtils.compareNbt(this.nbt, param0.getTag(), true);
+            return param0.is(this.item) && NbtUtils.compareNbt(this.nbt, param0.getTag(), true);
         }
     }
 
@@ -103,7 +103,7 @@ public class ItemPredicateArgument implements ArgumentType<ItemPredicateArgument
         }
 
         public boolean test(ItemStack param0) {
-            return this.tag.contains(param0.getItem()) && NbtUtils.compareNbt(this.nbt, param0.getTag(), true);
+            return param0.is(this.tag) && NbtUtils.compareNbt(this.nbt, param0.getTag(), true);
         }
     }
 }

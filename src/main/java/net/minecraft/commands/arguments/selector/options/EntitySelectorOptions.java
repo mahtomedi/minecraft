@@ -301,7 +301,7 @@ public class EntitySelectorOptions {
 
                     if (param0.isTag()) {
                         ResourceLocation var2 = ResourceLocation.read(param0.getReader());
-                        param0.addPredicate(param2 -> param2.getServer().getTags().getEntityTypes().getTagOrEmpty(var2).contains(param2.getType()) != var1);
+                        param0.addPredicate(param2 -> param2.getType().is(param2.getServer().getTags().getEntityTypes().getTagOrEmpty(var2)) != var1);
                     } else {
                         ResourceLocation var3 = ResourceLocation.read(param0.getReader());
                         EntityType<?> var4 = Registry.ENTITY_TYPE.getOptional(var3).orElseThrow(() -> {
@@ -337,7 +337,7 @@ public class EntitySelectorOptions {
                 param0.addPredicate(param2 -> {
                     CompoundTag var0x = param2.saveWithoutId(new CompoundTag());
                     if (param2 instanceof ServerPlayer) {
-                        ItemStack var1x = ((ServerPlayer)param2).inventory.getSelected();
+                        ItemStack var1x = ((ServerPlayer)param2).getInventory().getSelected();
                         if (!var1x.isEmpty()) {
                             var0x.put("SelectedItem", var1x.save(new CompoundTag()));
                         }

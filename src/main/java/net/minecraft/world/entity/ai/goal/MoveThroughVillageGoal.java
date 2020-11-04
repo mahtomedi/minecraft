@@ -10,8 +10,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
+import net.minecraft.world.entity.ai.util.DefaultRandomPos;
 import net.minecraft.world.entity.ai.util.GoalUtils;
-import net.minecraft.world.entity.ai.util.RandomPos;
+import net.minecraft.world.entity.ai.util.LandRandomPos;
 import net.minecraft.world.entity.ai.village.poi.PoiManager;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
 import net.minecraft.world.level.block.DoorBlock;
@@ -55,7 +56,7 @@ public class MoveThroughVillageGoal extends Goal {
                 if (!var0.isCloseToVillage(var1, 6)) {
                     return false;
                 } else {
-                    Vec3 var2 = RandomPos.getLandPos(
+                    Vec3 var2 = LandRandomPos.getPos(
                         this.mob,
                         15,
                         7,
@@ -84,7 +85,7 @@ public class MoveThroughVillageGoal extends Goal {
                             this.path = var4.createPath(this.poiPos, 0);
                             var4.setCanOpenDoors(var5);
                             if (this.path == null) {
-                                Vec3 var6 = RandomPos.getPosTowards(this.mob, 10, 7, Vec3.atBottomCenterOf(this.poiPos));
+                                Vec3 var6 = DefaultRandomPos.getPosTowards(this.mob, 10, 7, Vec3.atBottomCenterOf(this.poiPos), (float) (Math.PI / 2));
                                 if (var6 == null) {
                                     return false;
                                 }

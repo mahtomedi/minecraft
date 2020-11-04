@@ -10,8 +10,8 @@ public enum CameraType {
     THIRD_PERSON_FRONT(false, true);
 
     private static final CameraType[] VALUES = values();
-    private boolean firstPerson;
-    private boolean mirrored;
+    private final boolean firstPerson;
+    private final boolean mirrored;
 
     private CameraType(boolean param0, boolean param1) {
         this.firstPerson = param0;

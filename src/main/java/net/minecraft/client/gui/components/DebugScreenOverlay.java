@@ -9,6 +9,7 @@ import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.datafixers.DataFixUtils;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Transformation;
@@ -38,6 +39,7 @@ import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
+import net.minecraft.core.SectionPos;
 import net.minecraft.network.Connection;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -253,7 +255,13 @@ public class DebugScreenOverlay extends GuiComponent {
             var17.add(String.format("Block: %d %d %d", var6.getX(), var6.getY(), var6.getZ()));
             var17.add(
                 String.format(
-                    "Chunk: %d %d %d in %d %d %d", var6.getX() & 15, var6.getY() & 15, var6.getZ() & 15, var6.getX() >> 4, var6.getY() >> 4, var6.getZ() >> 4
+                    "Chunk: %d %d %d in %d %d %d",
+                    var6.getX() & 15,
+                    var6.getY() & 15,
+                    var6.getZ() & 15,
+                    SectionPos.blockToSectionCoord(var6.getX()),
+                    SectionPos.blockToSectionCoord(var6.getY()),
+                    SectionPos.blockToSectionCoord(var6.getZ())
                 )
             );
             var17.add(String.format(Locale.ROOT, "Facing: %s (%s) (%.1f / %.1f)", var8, var9, Mth.wrapDegrees(var7.yRot), Mth.wrapDegrees(var7.xRot)));
@@ -305,7 +313,7 @@ public class DebugScreenOverlay extends GuiComponent {
                         }
 
                         var17.add(var25.toString());
-                        if (var6.getY() >= 0 && var6.getY() < 256) {
+                        if (var6.getY() >= this.minecraft.level.getMinBuildHeight() && var6.getY() < this.minecraft.level.getMaxBuildHeight()) {
                             var17.add(
                                 "Biome: "
                                     + this.minecraft
@@ -520,7 +528,7 @@ public class DebugScreenOverlay extends GuiComponent {
         RenderSystem.enableBlend();
         RenderSystem.disableTexture();
         RenderSystem.defaultBlendFunc();
-        var13.begin(7, DefaultVertexFormat.POSITION_COLOR);
+        var13.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
 
         for(Matrix4f var14 = Transformation.identity().getMatrix(); var3 != var1; var3 = param1.wrapIndex(var3 + 1)) {
             int var15 = param1.scaleSampleTo(var2[var3], param4 ? 30 : 60, param4 ? 60 : 20);

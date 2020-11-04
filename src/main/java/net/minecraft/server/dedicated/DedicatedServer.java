@@ -113,7 +113,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface 
         var0.setDaemon(true);
         var0.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(LOGGER));
         var0.start();
-        LOGGER.info("Starting minecraft server version " + SharedConstants.getCurrentVersion().getName());
+        LOGGER.info("Starting minecraft server version {}", SharedConstants.getCurrentVersion().getName());
         if (Runtime.getRuntime().maxMemory() / 1024L / 1024L < 512L) {
             LOGGER.warn("To start the server with more ram, launch it as \"java -Xmx1024M -Xms1024M -jar minecraft_server.jar\"");
         }
@@ -580,5 +580,10 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface 
     @Override
     public TextFilter createTextFilterForPlayer(ServerPlayer param0) {
         return this.textFilterClient != null ? this.textFilterClient.createContext(param0.getGameProfile()) : null;
+    }
+
+    @Override
+    public boolean isResourcePackRequired() {
+        return this.settings.getProperties().requireResourcePack;
     }
 }

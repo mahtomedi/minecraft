@@ -14,9 +14,8 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class CampfireRenderer extends BlockEntityRenderer<CampfireBlockEntity> {
-    public CampfireRenderer(BlockEntityRenderDispatcher param0) {
-        super(param0);
+public class CampfireRenderer implements BlockEntityRenderer<CampfireBlockEntity> {
+    public CampfireRenderer(BlockEntityRendererProvider.Context param0) {
     }
 
     public void render(CampfireBlockEntity param0, float param1, PoseStack param2, MultiBufferSource param3, int param4, int param5) {

@@ -16,16 +16,17 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class TheEndPortalRenderer<T extends TheEndPortalBlockEntity> extends BlockEntityRenderer<T> {
+public class TheEndPortalRenderer<T extends TheEndPortalBlockEntity> implements BlockEntityRenderer<T> {
     public static final ResourceLocation END_SKY_LOCATION = new ResourceLocation("textures/environment/end_sky.png");
     public static final ResourceLocation END_PORTAL_LOCATION = new ResourceLocation("textures/entity/end_portal.png");
     private static final Random RANDOM = new Random(31100L);
     private static final List<RenderType> RENDER_TYPES = IntStream.range(0, 16)
         .mapToObj(param0 -> RenderType.endPortal(param0 + 1))
         .collect(ImmutableList.toImmutableList());
+    private final BlockEntityRenderDispatcher renderer;
 
-    public TheEndPortalRenderer(BlockEntityRenderDispatcher param0) {
-        super(param0);
+    public TheEndPortalRenderer(BlockEntityRendererProvider.Context param0) {
+        this.renderer = param0.getBlockEntityRenderDispatcher();
     }
 
     public void render(T param0, float param1, PoseStack param2, MultiBufferSource param3, int param4, int param5) {

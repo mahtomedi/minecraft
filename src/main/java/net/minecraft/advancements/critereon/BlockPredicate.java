@@ -40,17 +40,16 @@ public class BlockPredicate {
             return false;
         } else {
             BlockState var0 = param0.getBlockState(param1);
-            Block var1 = var0.getBlock();
-            if (this.tag != null && !this.tag.contains(var1)) {
+            if (this.tag != null && !var0.is(this.tag)) {
                 return false;
-            } else if (this.block != null && var1 != this.block) {
+            } else if (this.block != null && !var0.is(this.block)) {
                 return false;
             } else if (!this.properties.matches(var0)) {
                 return false;
             } else {
                 if (this.nbt != NbtPredicate.ANY) {
-                    BlockEntity var2 = param0.getBlockEntity(param1);
-                    if (var2 == null || !this.nbt.matches(var2.save(new CompoundTag()))) {
+                    BlockEntity var1 = param0.getBlockEntity(param1);
+                    if (var1 == null || !this.nbt.matches(var1.save(new CompoundTag()))) {
                         return false;
                     }
                 }

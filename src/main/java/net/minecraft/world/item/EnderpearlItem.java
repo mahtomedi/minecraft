@@ -25,7 +25,7 @@ public class EnderpearlItem extends Item {
             SoundEvents.ENDER_PEARL_THROW,
             SoundSource.NEUTRAL,
             0.5F,
-            0.4F / (random.nextFloat() * 0.4F + 0.8F)
+            0.4F / (param0.getRandom().nextFloat() * 0.4F + 0.8F)
         );
         param1.getCooldowns().addCooldown(this, 20);
         if (!param0.isClientSide) {
@@ -36,7 +36,7 @@ public class EnderpearlItem extends Item {
         }
 
         param1.awardStat(Stats.ITEM_USED.get(this));
-        if (!param1.abilities.instabuild) {
+        if (!param1.getAbilities().instabuild) {
             var0.shrink(1);
         }
 

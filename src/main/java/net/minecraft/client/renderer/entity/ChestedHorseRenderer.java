@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import java.util.Map;
 import net.minecraft.client.model.ChestedHorseModel;
+import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.horse.AbstractChestedHorse;
@@ -21,8 +22,8 @@ public class ChestedHorseRenderer<T extends AbstractChestedHorse> extends Abstra
         )
     );
 
-    public ChestedHorseRenderer(EntityRenderDispatcher param0, float param1) {
-        super(param0, new ChestedHorseModel<>(0.0F), param1);
+    public ChestedHorseRenderer(EntityRendererProvider.Context param0, float param1, ModelLayerLocation param2) {
+        super(param0, new ChestedHorseModel<>(param0.getLayer(param2)), param1);
     }
 
     public ResourceLocation getTextureLocation(T param0) {

@@ -3,6 +3,7 @@ package net.minecraft.client.renderer.entity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
 import net.minecraft.client.model.CatModel;
+import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.entity.layers.CatCollarLayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
@@ -15,9 +16,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class CatRenderer extends MobRenderer<Cat, CatModel<Cat>> {
-    public CatRenderer(EntityRenderDispatcher param0) {
-        super(param0, new CatModel<>(0.0F), 0.4F);
-        this.addLayer(new CatCollarLayer(this));
+    public CatRenderer(EntityRendererProvider.Context param0) {
+        super(param0, new CatModel<>(param0.getLayer(ModelLayers.CAT)), 0.4F);
+        this.addLayer(new CatCollarLayer(this, param0.getModelSet()));
     }
 
     public ResourceLocation getTextureLocation(Cat param0) {

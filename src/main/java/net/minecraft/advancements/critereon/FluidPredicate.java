@@ -37,7 +37,7 @@ public class FluidPredicate {
         } else {
             FluidState var0 = param0.getFluidState(param1);
             Fluid var1 = var0.getType();
-            if (this.tag != null && !this.tag.contains(var1)) {
+            if (this.tag != null && !var1.is(this.tag)) {
                 return false;
             } else if (this.fluid != null && var1 != this.fluid) {
                 return false;

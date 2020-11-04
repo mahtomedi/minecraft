@@ -28,14 +28,14 @@ public class SuspiciousStewRecipe extends CustomRecipe {
         for(int var4 = 0; var4 < param0.getContainerSize(); ++var4) {
             ItemStack var5 = param0.getItem(var4);
             if (!var5.isEmpty()) {
-                if (var5.getItem() == Blocks.BROWN_MUSHROOM.asItem() && !var2) {
+                if (var5.is(Blocks.BROWN_MUSHROOM.asItem()) && !var2) {
                     var2 = true;
-                } else if (var5.getItem() == Blocks.RED_MUSHROOM.asItem() && !var1) {
+                } else if (var5.is(Blocks.RED_MUSHROOM.asItem()) && !var1) {
                     var1 = true;
-                } else if (var5.getItem().is(ItemTags.SMALL_FLOWERS) && !var0) {
+                } else if (var5.is(ItemTags.SMALL_FLOWERS) && !var0) {
                     var0 = true;
                 } else {
-                    if (var5.getItem() != Items.BOWL || var3) {
+                    if (!var5.is(Items.BOWL) || var3) {
                         return false;
                     }
 
@@ -52,7 +52,7 @@ public class SuspiciousStewRecipe extends CustomRecipe {
 
         for(int var1 = 0; var1 < param0.getContainerSize(); ++var1) {
             ItemStack var2 = param0.getItem(var1);
-            if (!var2.isEmpty() && var2.getItem().is(ItemTags.SMALL_FLOWERS)) {
+            if (!var2.isEmpty() && var2.is(ItemTags.SMALL_FLOWERS)) {
                 var0 = var2;
                 break;
             }

@@ -2,6 +2,7 @@ package net.minecraft.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.LavaSlimeModel;
+import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -13,8 +14,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class MagmaCubeRenderer extends MobRenderer<MagmaCube, LavaSlimeModel<MagmaCube>> {
     private static final ResourceLocation MAGMACUBE_LOCATION = new ResourceLocation("textures/entity/slime/magmacube.png");
 
-    public MagmaCubeRenderer(EntityRenderDispatcher param0) {
-        super(param0, new LavaSlimeModel<>(), 0.25F);
+    public MagmaCubeRenderer(EntityRendererProvider.Context param0) {
+        super(param0, new LavaSlimeModel<>(param0.getLayer(ModelLayers.MAGMA_CUBE)), 0.25F);
     }
 
     protected int getBlockLightLevel(MagmaCube param0, BlockPos param1) {

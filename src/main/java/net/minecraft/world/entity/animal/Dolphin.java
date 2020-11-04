@@ -54,7 +54,7 @@ import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.ai.navigation.WaterBoundPathNavigation;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
-import net.minecraft.world.entity.ai.util.RandomPos;
+import net.minecraft.world.entity.ai.util.DefaultRandomPos;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Guardian;
 import net.minecraft.world.entity.player.Player;
@@ -246,7 +246,7 @@ public class Dolphin extends WaterAnimal {
                 this.setItemSlot(EquipmentSlot.MAINHAND, var0);
                 this.handDropChances[EquipmentSlot.MAINHAND.getIndex()] = 2.0F;
                 this.take(param0, var0.getCount());
-                param0.remove();
+                param0.discard();
             }
         }
 
@@ -335,13 +335,13 @@ public class Dolphin extends WaterAnimal {
     @Override
     protected InteractionResult mobInteract(Player param0, InteractionHand param1) {
         ItemStack var0 = param0.getItemInHand(param1);
-        if (!var0.isEmpty() && var0.getItem().is(ItemTags.FISHES)) {
+        if (!var0.isEmpty() && var0.is(ItemTags.FISHES)) {
             if (!this.level.isClientSide) {
                 this.playSound(SoundEvents.DOLPHIN_EAT, 1.0F, 1.0F);
             }
 
             this.setGotFish(true);
-            if (!param0.abilities.instabuild) {
+            if (!param0.getAbilities().instabuild) {
                 var0.shrink(1);
             }
 
@@ -530,15 +530,15 @@ public class Dolphin extends WaterAnimal {
             Level var0 = this.dolphin.level;
             if (this.dolphin.closeToNextPos() || this.dolphin.getNavigation().isDone()) {
                 Vec3 var1 = Vec3.atCenterOf(this.dolphin.getTreasurePos());
-                Vec3 var2 = RandomPos.getPosTowards(this.dolphin, 16, 1, var1, (float) (Math.PI / 8));
+                Vec3 var2 = DefaultRandomPos.getPosTowards(this.dolphin, 16, 1, var1, (float) (Math.PI / 8));
                 if (var2 == null) {
-                    var2 = RandomPos.getPosTowards(this.dolphin, 8, 4, var1);
+                    var2 = DefaultRandomPos.getPosTowards(this.dolphin, 8, 4, var1, (float) (Math.PI / 2));
                 }
 
                 if (var2 != null) {
                     BlockPos var3 = new BlockPos(var2);
                     if (!var0.getFluidState(var3).is(FluidTags.WATER) || !var0.getBlockState(var3).isPathfindable(var0, var3, PathComputationType.WATER)) {
-                        var2 = RandomPos.getPosTowards(this.dolphin, 8, 5, var1);
+                        var2 = DefaultRandomPos.getPosTowards(this.dolphin, 8, 5, var1, (float) (Math.PI / 2));
                     }
                 }
 

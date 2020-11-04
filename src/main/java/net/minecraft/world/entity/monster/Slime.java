@@ -187,7 +187,7 @@ public class Slime extends Mob implements Enemy {
     }
 
     @Override
-    public void remove() {
+    public void remove(Entity.RemovalReason param0) {
         int var0 = this.getSize();
         if (!this.level.isClientSide && var0 > 1 && this.isDeadOrDying()) {
             Component var1 = this.getCustomName();
@@ -213,7 +213,7 @@ public class Slime extends Mob implements Enemy {
             }
         }
 
-        super.remove();
+        super.remove(param0);
     }
 
     @Override
@@ -370,7 +370,9 @@ public class Slime extends Mob implements Enemy {
             } else if (!var0.isAlive()) {
                 return false;
             } else {
-                return var0 instanceof Player && ((Player)var0).abilities.invulnerable ? false : this.slime.getMoveControl() instanceof Slime.SlimeMoveControl;
+                return var0 instanceof Player && ((Player)var0).getAbilities().invulnerable
+                    ? false
+                    : this.slime.getMoveControl() instanceof Slime.SlimeMoveControl;
             }
         }
 
@@ -387,7 +389,7 @@ public class Slime extends Mob implements Enemy {
                 return false;
             } else if (!var0.isAlive()) {
                 return false;
-            } else if (var0 instanceof Player && ((Player)var0).abilities.invulnerable) {
+            } else if (var0 instanceof Player && ((Player)var0).getAbilities().invulnerable) {
                 return false;
             } else {
                 return --this.growTiredTimer > 0;

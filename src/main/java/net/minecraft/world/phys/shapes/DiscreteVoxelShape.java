@@ -12,9 +12,13 @@ public abstract class DiscreteVoxelShape {
     protected final int zSize;
 
     protected DiscreteVoxelShape(int param0, int param1, int param2) {
-        this.xSize = param0;
-        this.ySize = param1;
-        this.zSize = param2;
+        if (param0 >= 0 && param1 >= 0 && param2 >= 0) {
+            this.xSize = param0;
+            this.ySize = param1;
+            this.zSize = param2;
+        } else {
+            throw new IllegalArgumentException("Need all positive sizes: x: " + param0 + ", y: " + param1 + ", z: " + param2);
+        }
     }
 
     public boolean isFullWide(AxisCycle param0, int param1, int param2, int param3) {
@@ -43,7 +47,7 @@ public abstract class DiscreteVoxelShape {
 
     public abstract boolean isFull(int var1, int var2, int var3);
 
-    public abstract void setFull(int var1, int var2, int var3, boolean var4, boolean var5);
+    public abstract void fill(int var1, int var2, int var3);
 
     public boolean isEmpty() {
         for(Direction.Axis var0 : AXIS_VALUES) {
@@ -162,89 +166,8 @@ public abstract class DiscreteVoxelShape {
 
     }
 
-    protected boolean isZStripFull(int param0, int param1, int param2, int param3) {
-        for(int var0 = param0; var0 < param1; ++var0) {
-            if (!this.isFullWide(param2, param3, var0)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    protected void setZStrip(int param0, int param1, int param2, int param3, boolean param4) {
-        for(int var0 = param0; var0 < param1; ++var0) {
-            this.setFull(param2, param3, var0, false, param4);
-        }
-
-    }
-
-    protected boolean isXZRectangleFull(int param0, int param1, int param2, int param3, int param4) {
-        for(int var0 = param0; var0 < param1; ++var0) {
-            if (!this.isZStripFull(param2, param3, var0, param4)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
     public void forAllBoxes(DiscreteVoxelShape.IntLineConsumer param0, boolean param1) {
-        DiscreteVoxelShape var0 = new BitSetDiscreteVoxelShape(this);
-
-        for(int var1 = 0; var1 <= this.xSize; ++var1) {
-            for(int var2 = 0; var2 <= this.ySize; ++var2) {
-                int var3 = -1;
-
-                for(int var4 = 0; var4 <= this.zSize; ++var4) {
-                    if (var0.isFullWide(var1, var2, var4)) {
-                        if (param1) {
-                            if (var3 == -1) {
-                                var3 = var4;
-                            }
-                        } else {
-                            param0.consume(var1, var2, var4, var1 + 1, var2 + 1, var4 + 1);
-                        }
-                    } else if (var3 != -1) {
-                        int var5 = var1;
-                        int var6 = var1;
-                        int var7 = var2;
-                        int var8 = var2;
-                        var0.setZStrip(var3, var4, var1, var2, false);
-
-                        while(var0.isZStripFull(var3, var4, var5 - 1, var7)) {
-                            var0.setZStrip(var3, var4, var5 - 1, var7, false);
-                            --var5;
-                        }
-
-                        while(var0.isZStripFull(var3, var4, var6 + 1, var7)) {
-                            var0.setZStrip(var3, var4, var6 + 1, var7, false);
-                            ++var6;
-                        }
-
-                        while(var0.isXZRectangleFull(var5, var6 + 1, var3, var4, var7 - 1)) {
-                            for(int var9 = var5; var9 <= var6; ++var9) {
-                                var0.setZStrip(var3, var4, var9, var7 - 1, false);
-                            }
-
-                            --var7;
-                        }
-
-                        while(var0.isXZRectangleFull(var5, var6 + 1, var3, var4, var8 + 1)) {
-                            for(int var10 = var5; var10 <= var6; ++var10) {
-                                var0.setZStrip(var3, var4, var10, var8 + 1, false);
-                            }
-
-                            ++var8;
-                        }
-
-                        param0.consume(var5, var7, var3, var6 + 1, var8 + 1, var4);
-                        var3 = -1;
-                    }
-                }
-            }
-        }
-
+        BitSetDiscreteVoxelShape.forAllBoxes(this, param0, param1);
     }
 
     public void forAllFaces(DiscreteVoxelShape.IntFaceConsumer param0) {

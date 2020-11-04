@@ -13,30 +13,36 @@ import javax.annotation.Nullable;
 import net.minecraft.server.level.ServerLevel;
 
 public class GameTestRegistry {
-    private static final Collection<TestFunction> testFunctions = Lists.newArrayList();
-    private static final Set<String> testClassNames = Sets.newHashSet();
-    private static final Map<String, Consumer<ServerLevel>> beforeBatchFunctions = Maps.newHashMap();
-    private static final Collection<TestFunction> lastFailedTests = Sets.newHashSet();
+    private static final Collection<TestFunction> TEST_FUNCTIONS = Lists.newArrayList();
+    private static final Set<String> TEST_CLASS_NAMES = Sets.newHashSet();
+    private static final Map<String, Consumer<ServerLevel>> BEFORE_BATCH_FUNCTIONS = Maps.newHashMap();
+    private static final Map<String, Consumer<ServerLevel>> AFTER_BATCH_FUNCTIONS = Maps.newHashMap();
+    private static final Collection<TestFunction> LAST_FAILED_TESTS = Sets.newHashSet();
 
     public static Collection<TestFunction> getTestFunctionsForClassName(String param0) {
-        return testFunctions.stream().filter(param1 -> isTestFunctionPartOfClass(param1, param0)).collect(Collectors.toList());
+        return TEST_FUNCTIONS.stream().filter(param1 -> isTestFunctionPartOfClass(param1, param0)).collect(Collectors.toList());
     }
 
     public static Collection<TestFunction> getAllTestFunctions() {
-        return testFunctions;
+        return TEST_FUNCTIONS;
     }
 
     public static Collection<String> getAllTestClassNames() {
-        return testClassNames;
+        return TEST_CLASS_NAMES;
     }
 
     public static boolean isTestClass(String param0) {
-        return testClassNames.contains(param0);
+        return TEST_CLASS_NAMES.contains(param0);
     }
 
     @Nullable
     public static Consumer<ServerLevel> getBeforeBatchFunction(String param0) {
-        return beforeBatchFunctions.get(param0);
+        return BEFORE_BATCH_FUNCTIONS.get(param0);
+    }
+
+    @Nullable
+    public static Consumer<ServerLevel> getAfterBatchFunction(String param0) {
+        return AFTER_BATCH_FUNCTIONS.get(param0);
     }
 
     public static Optional<TestFunction> findTestFunction(String param0) {
@@ -57,14 +63,14 @@ public class GameTestRegistry {
     }
 
     public static Collection<TestFunction> getLastFailedTests() {
-        return lastFailedTests;
+        return LAST_FAILED_TESTS;
     }
 
     public static void rememberFailedTest(TestFunction param0) {
-        lastFailedTests.add(param0);
+        LAST_FAILED_TESTS.add(param0);
     }
 
     public static void forgetFailedTests() {
-        lastFailedTests.clear();
+        LAST_FAILED_TESTS.clear();
     }
 }

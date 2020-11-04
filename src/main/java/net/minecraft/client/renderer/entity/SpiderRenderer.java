@@ -1,6 +1,8 @@
 package net.minecraft.client.renderer.entity;
 
 import net.minecraft.client.model.SpiderModel;
+import net.minecraft.client.model.geom.ModelLayerLocation;
+import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.entity.layers.SpiderEyesLayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.monster.Spider;
@@ -11,8 +13,12 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class SpiderRenderer<T extends Spider> extends MobRenderer<T, SpiderModel<T>> {
     private static final ResourceLocation SPIDER_LOCATION = new ResourceLocation("textures/entity/spider/spider.png");
 
-    public SpiderRenderer(EntityRenderDispatcher param0) {
-        super(param0, new SpiderModel<>(), 0.8F);
+    public SpiderRenderer(EntityRendererProvider.Context param0) {
+        this(param0, ModelLayers.SPIDER);
+    }
+
+    public SpiderRenderer(EntityRendererProvider.Context param0, ModelLayerLocation param1) {
+        super(param0, new SpiderModel<>(param0.getLayer(param1)), 0.8F);
         this.addLayer(new SpiderEyesLayer<>(this));
     }
 

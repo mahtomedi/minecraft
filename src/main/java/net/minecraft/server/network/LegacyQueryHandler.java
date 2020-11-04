@@ -20,7 +20,7 @@ public class LegacyQueryHandler extends ChannelInboundHandlerAdapter {
     }
 
     @Override
-    public void channelRead(ChannelHandlerContext param0, Object param1) throws Exception {
+    public void channelRead(ChannelHandlerContext param0, Object param1) {
         ByteBuf var0 = (ByteBuf)param1;
         var0.markReaderIndex();
         boolean var1 = true;

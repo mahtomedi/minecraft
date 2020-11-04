@@ -11,7 +11,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.PrimedTnt;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Explosion;
@@ -84,14 +83,13 @@ public class TntBlock extends Block {
     @Override
     public InteractionResult use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
         ItemStack var0 = param3.getItemInHand(param4);
-        Item var1 = var0.getItem();
-        if (var1 != Items.FLINT_AND_STEEL && var1 != Items.FIRE_CHARGE) {
+        if (!var0.is(Items.FLINT_AND_STEEL) && !var0.is(Items.FIRE_CHARGE)) {
             return super.use(param0, param1, param2, param3, param4, param5);
         } else {
             explode(param1, param2, param3);
             param1.setBlock(param2, Blocks.AIR.defaultBlockState(), 11);
             if (!param3.isCreative()) {
-                if (var1 == Items.FLINT_AND_STEEL) {
+                if (var0.is(Items.FLINT_AND_STEEL)) {
                     var0.hurtAndBreak(1, param3, param1x -> param1x.broadcastBreakEvent(param4));
                 } else {
                     var0.shrink(1);

@@ -14,7 +14,7 @@ import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.AgableMob;
+import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
@@ -35,12 +35,12 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class SpawnEggItem extends Item {
-    private static final Map<EntityType<?>, SpawnEggItem> BY_ID = Maps.newIdentityHashMap();
+    private static final Map<EntityType<? extends Mob>, SpawnEggItem> BY_ID = Maps.newIdentityHashMap();
     private final int color1;
     private final int color2;
     private final EntityType<?> defaultType;
 
-    public SpawnEggItem(EntityType<?> param0, int param1, int param2, Item.Properties param3) {
+    public SpawnEggItem(EntityType<? extends Mob> param0, int param1, int param2, Item.Properties param3) {
         super(param3);
         this.defaultType = param0;
         this.color1 = param1;
@@ -108,7 +108,7 @@ public class SpawnEggItem extends Item {
                 if (var4.spawn((ServerLevel)param0, var0, param1, var3, MobSpawnType.SPAWN_EGG, false, false) == null) {
                     return InteractionResultHolder.pass(var0);
                 } else {
-                    if (!param1.abilities.instabuild) {
+                    if (!param1.getAbilities().instabuild) {
                         var0.shrink(1);
                     }
 
@@ -158,8 +158,8 @@ public class SpawnEggItem extends Item {
             return Optional.empty();
         } else {
             Mob var0;
-            if (param1 instanceof AgableMob) {
-                var0 = ((AgableMob)param1).getBreedOffspring(param3, (AgableMob)param1);
+            if (param1 instanceof AgeableMob) {
+                var0 = ((AgeableMob)param1).getBreedOffspring(param3, (AgeableMob)param1);
             } else {
                 var0 = param2.create(param3);
             }
@@ -177,7 +177,7 @@ public class SpawnEggItem extends Item {
                         var0.setCustomName(param5.getHoverName());
                     }
 
-                    if (!param0.abilities.instabuild) {
+                    if (!param0.getAbilities().instabuild) {
                         param5.shrink(1);
                     }
 

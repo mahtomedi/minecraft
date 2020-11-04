@@ -5,7 +5,6 @@ import com.google.common.collect.Sets;
 import com.mojang.datafixers.DataFixer;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.Lifecycle;
-import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -29,6 +28,7 @@ import net.minecraft.world.Difficulty;
 import net.minecraft.world.level.DataPackConfig;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.LevelSettings;
 import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
@@ -99,7 +99,7 @@ public class PrimaryLevelData implements ServerLevelData, WorldData {
         int param19,
         int param20,
         @Nullable UUID param21,
-        LinkedHashSet<String> param22,
+        Set<String> param22,
         TimerQueue<MinecraftServer> param23,
         @Nullable CompoundTag param24,
         CompoundTag param25,
@@ -513,8 +513,8 @@ public class PrimaryLevelData implements ServerLevelData, WorldData {
     }
 
     @Override
-    public void fillCrashReportCategory(CrashReportCategory param0) {
-        ServerLevelData.super.fillCrashReportCategory(param0);
+    public void fillCrashReportCategory(CrashReportCategory param0, LevelHeightAccessor param1) {
+        ServerLevelData.super.fillCrashReportCategory(param0, param1);
         WorldData.super.fillCrashReportCategory(param0);
     }
 

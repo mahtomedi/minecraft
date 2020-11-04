@@ -34,7 +34,7 @@ import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.entity.ai.navigation.WaterBoundPathNavigation;
-import net.minecraft.world.entity.ai.util.RandomPos;
+import net.minecraft.world.entity.ai.util.DefaultRandomPos;
 import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.animal.Turtle;
 import net.minecraft.world.entity.npc.AbstractVillager;
@@ -161,16 +161,16 @@ public class Drowned extends Zombie implements RangedAttackMob {
 
     @Override
     protected boolean canReplaceCurrentItem(ItemStack param0, ItemStack param1) {
-        if (param1.getItem() == Items.NAUTILUS_SHELL) {
+        if (param1.is(Items.NAUTILUS_SHELL)) {
             return false;
-        } else if (param1.getItem() == Items.TRIDENT) {
-            if (param0.getItem() == Items.TRIDENT) {
+        } else if (param1.is(Items.TRIDENT)) {
+            if (param0.is(Items.TRIDENT)) {
                 return param0.getDamageValue() < param1.getDamageValue();
             } else {
                 return false;
             }
         } else {
-            return param0.getItem() == Items.TRIDENT ? true : super.canReplaceCurrentItem(param0, param1);
+            return param0.is(Items.TRIDENT) ? true : super.canReplaceCurrentItem(param0, param1);
         }
     }
 
@@ -454,7 +454,9 @@ public class Drowned extends Zombie implements RangedAttackMob {
         @Override
         public void tick() {
             if (this.drowned.getY() < (double)(this.seaLevel - 1) && (this.drowned.getNavigation().isDone() || this.drowned.closeToNextPos())) {
-                Vec3 var0 = RandomPos.getPosTowards(this.drowned, 4, 8, new Vec3(this.drowned.getX(), (double)(this.seaLevel - 1), this.drowned.getZ()));
+                Vec3 var0 = DefaultRandomPos.getPosTowards(
+                    this.drowned, 4, 8, new Vec3(this.drowned.getX(), (double)(this.seaLevel - 1), this.drowned.getZ()), (float) (Math.PI / 2)
+                );
                 if (var0 == null) {
                     this.stuck = true;
                     return;
@@ -487,7 +489,7 @@ public class Drowned extends Zombie implements RangedAttackMob {
 
         @Override
         public boolean canUse() {
-            return super.canUse() && this.drowned.getMainHandItem().getItem() == Items.TRIDENT;
+            return super.canUse() && this.drowned.getMainHandItem().is(Items.TRIDENT);
         }
 
         @Override

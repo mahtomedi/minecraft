@@ -1,8 +1,13 @@
 package net.minecraft.client.model;
 
-import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.geom.PartPose;
+import net.minecraft.client.model.geom.builders.CubeDeformation;
+import net.minecraft.client.model.geom.builders.CubeListBuilder;
+import net.minecraft.client.model.geom.builders.LayerDefinition;
+import net.minecraft.client.model.geom.builders.MeshDefinition;
+import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.monster.AbstractIllager;
@@ -10,67 +15,78 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class IllagerModel<T extends AbstractIllager> extends ListModel<T> implements ArmedModel, HeadedModel {
+public class IllagerModel<T extends AbstractIllager> extends HierarchicalModel<T> implements ArmedModel, HeadedModel {
+    private final ModelPart root;
     private final ModelPart head;
     private final ModelPart hat;
-    private final ModelPart body;
     private final ModelPart arms;
     private final ModelPart leftLeg;
     private final ModelPart rightLeg;
     private final ModelPart rightArm;
     private final ModelPart leftArm;
 
-    public IllagerModel(float param0, float param1, int param2, int param3) {
-        this.head = new ModelPart(this).setTexSize(param2, param3);
-        this.head.setPos(0.0F, 0.0F + param1, 0.0F);
-        this.head.texOffs(0, 0).addBox(-4.0F, -10.0F, -4.0F, 8.0F, 10.0F, 8.0F, param0);
-        this.hat = new ModelPart(this, 32, 0).setTexSize(param2, param3);
-        this.hat.addBox(-4.0F, -10.0F, -4.0F, 8.0F, 12.0F, 8.0F, param0 + 0.45F);
-        this.head.addChild(this.hat);
+    public IllagerModel(ModelPart param0) {
+        this.root = param0;
+        this.head = param0.getChild("head");
+        this.hat = this.head.getChild("hat");
         this.hat.visible = false;
-        ModelPart var0 = new ModelPart(this).setTexSize(param2, param3);
-        var0.setPos(0.0F, param1 - 2.0F, 0.0F);
-        var0.texOffs(24, 0).addBox(-1.0F, -1.0F, -6.0F, 2.0F, 4.0F, 2.0F, param0);
-        this.head.addChild(var0);
-        this.body = new ModelPart(this).setTexSize(param2, param3);
-        this.body.setPos(0.0F, 0.0F + param1, 0.0F);
-        this.body.texOffs(16, 20).addBox(-4.0F, 0.0F, -3.0F, 8.0F, 12.0F, 6.0F, param0);
-        this.body.texOffs(0, 38).addBox(-4.0F, 0.0F, -3.0F, 8.0F, 18.0F, 6.0F, param0 + 0.5F);
-        this.arms = new ModelPart(this).setTexSize(param2, param3);
-        this.arms.setPos(0.0F, 0.0F + param1 + 2.0F, 0.0F);
-        this.arms.texOffs(44, 22).addBox(-8.0F, -2.0F, -2.0F, 4.0F, 8.0F, 4.0F, param0);
-        ModelPart var1 = new ModelPart(this, 44, 22).setTexSize(param2, param3);
-        var1.mirror = true;
-        var1.addBox(4.0F, -2.0F, -2.0F, 4.0F, 8.0F, 4.0F, param0);
-        this.arms.addChild(var1);
-        this.arms.texOffs(40, 38).addBox(-4.0F, 2.0F, -2.0F, 8.0F, 4.0F, 4.0F, param0);
-        this.leftLeg = new ModelPart(this, 0, 22).setTexSize(param2, param3);
-        this.leftLeg.setPos(-2.0F, 12.0F + param1, 0.0F);
-        this.leftLeg.addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, param0);
-        this.rightLeg = new ModelPart(this, 0, 22).setTexSize(param2, param3);
-        this.rightLeg.mirror = true;
-        this.rightLeg.setPos(2.0F, 12.0F + param1, 0.0F);
-        this.rightLeg.addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, param0);
-        this.rightArm = new ModelPart(this, 40, 46).setTexSize(param2, param3);
-        this.rightArm.addBox(-3.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, param0);
-        this.rightArm.setPos(-5.0F, 2.0F + param1, 0.0F);
-        this.leftArm = new ModelPart(this, 40, 46).setTexSize(param2, param3);
-        this.leftArm.mirror = true;
-        this.leftArm.addBox(-1.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, param0);
-        this.leftArm.setPos(5.0F, 2.0F + param1, 0.0F);
+        this.arms = param0.getChild("arms");
+        this.leftLeg = param0.getChild("left_leg");
+        this.rightLeg = param0.getChild("right_leg");
+        this.leftArm = param0.getChild("left_arm");
+        this.rightArm = param0.getChild("right_arm");
+    }
+
+    public static LayerDefinition createBodyLayer() {
+        MeshDefinition var0 = new MeshDefinition();
+        PartDefinition var1 = var0.getRoot();
+        PartDefinition var2 = var1.addOrReplaceChild(
+            "head", CubeListBuilder.create().texOffs(0, 0).addBox(-4.0F, -10.0F, -4.0F, 8.0F, 10.0F, 8.0F), PartPose.offset(0.0F, 0.0F, 0.0F)
+        );
+        var2.addOrReplaceChild(
+            "hat", CubeListBuilder.create().texOffs(32, 0).addBox(-4.0F, -10.0F, -4.0F, 8.0F, 12.0F, 8.0F, new CubeDeformation(0.45F)), PartPose.ZERO
+        );
+        var2.addOrReplaceChild(
+            "nose", CubeListBuilder.create().texOffs(24, 0).addBox(-1.0F, -1.0F, -6.0F, 2.0F, 4.0F, 2.0F), PartPose.offset(0.0F, -2.0F, 0.0F)
+        );
+        var1.addOrReplaceChild(
+            "body",
+            CubeListBuilder.create()
+                .texOffs(16, 20)
+                .addBox(-4.0F, 0.0F, -3.0F, 8.0F, 12.0F, 6.0F)
+                .texOffs(0, 38)
+                .addBox(-4.0F, 0.0F, -3.0F, 8.0F, 18.0F, 6.0F, new CubeDeformation(0.5F)),
+            PartPose.offset(0.0F, 0.0F, 0.0F)
+        );
+        PartDefinition var3 = var1.addOrReplaceChild(
+            "arms",
+            CubeListBuilder.create().texOffs(44, 22).addBox(-8.0F, -2.0F, -2.0F, 4.0F, 8.0F, 4.0F).texOffs(40, 38).addBox(-4.0F, 2.0F, -2.0F, 8.0F, 4.0F, 4.0F),
+            PartPose.offsetAndRotation(0.0F, 3.0F, -1.0F, -0.75F, 0.0F, 0.0F)
+        );
+        var3.addOrReplaceChild("left_shoulder", CubeListBuilder.create().texOffs(44, 22).mirror().addBox(4.0F, -2.0F, -2.0F, 4.0F, 8.0F, 4.0F), PartPose.ZERO);
+        var1.addOrReplaceChild(
+            "right_leg", CubeListBuilder.create().texOffs(0, 22).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F), PartPose.offset(-2.0F, 12.0F, 0.0F)
+        );
+        var1.addOrReplaceChild(
+            "left_leg", CubeListBuilder.create().texOffs(0, 22).mirror().addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F), PartPose.offset(2.0F, 12.0F, 0.0F)
+        );
+        var1.addOrReplaceChild(
+            "right_arm", CubeListBuilder.create().texOffs(40, 46).addBox(-3.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F), PartPose.offset(-5.0F, 2.0F, 0.0F)
+        );
+        var1.addOrReplaceChild(
+            "left_arm", CubeListBuilder.create().texOffs(40, 46).mirror().addBox(-1.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F), PartPose.offset(5.0F, 2.0F, 0.0F)
+        );
+        return LayerDefinition.create(var0, 64, 64);
     }
 
     @Override
-    public Iterable<ModelPart> parts() {
-        return ImmutableList.of(this.head, this.body, this.leftLeg, this.rightLeg, this.arms, this.rightArm, this.leftArm);
+    public ModelPart root() {
+        return this.root;
     }
 
     public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5) {
         this.head.yRot = param4 * (float) (Math.PI / 180.0);
         this.head.xRot = param5 * (float) (Math.PI / 180.0);
-        this.arms.y = 3.0F;
-        this.arms.z = -1.0F;
-        this.arms.xRot = -0.75F;
         if (this.riding) {
             this.rightArm.xRot = (float) (-Math.PI / 5);
             this.rightArm.yRot = 0.0F;
@@ -78,12 +94,12 @@ public class IllagerModel<T extends AbstractIllager> extends ListModel<T> implem
             this.leftArm.xRot = (float) (-Math.PI / 5);
             this.leftArm.yRot = 0.0F;
             this.leftArm.zRot = 0.0F;
-            this.leftLeg.xRot = -1.4137167F;
-            this.leftLeg.yRot = (float) (Math.PI / 10);
-            this.leftLeg.zRot = 0.07853982F;
             this.rightLeg.xRot = -1.4137167F;
-            this.rightLeg.yRot = (float) (-Math.PI / 10);
-            this.rightLeg.zRot = -0.07853982F;
+            this.rightLeg.yRot = (float) (Math.PI / 10);
+            this.rightLeg.zRot = 0.07853982F;
+            this.leftLeg.xRot = -1.4137167F;
+            this.leftLeg.yRot = (float) (-Math.PI / 10);
+            this.leftLeg.zRot = -0.07853982F;
         } else {
             this.rightArm.xRot = Mth.cos(param1 * 0.6662F + (float) Math.PI) * 2.0F * param2 * 0.5F;
             this.rightArm.yRot = 0.0F;
@@ -91,12 +107,12 @@ public class IllagerModel<T extends AbstractIllager> extends ListModel<T> implem
             this.leftArm.xRot = Mth.cos(param1 * 0.6662F) * 2.0F * param2 * 0.5F;
             this.leftArm.yRot = 0.0F;
             this.leftArm.zRot = 0.0F;
-            this.leftLeg.xRot = Mth.cos(param1 * 0.6662F) * 1.4F * param2 * 0.5F;
-            this.leftLeg.yRot = 0.0F;
-            this.leftLeg.zRot = 0.0F;
-            this.rightLeg.xRot = Mth.cos(param1 * 0.6662F + (float) Math.PI) * 1.4F * param2 * 0.5F;
+            this.rightLeg.xRot = Mth.cos(param1 * 0.6662F) * 1.4F * param2 * 0.5F;
             this.rightLeg.yRot = 0.0F;
             this.rightLeg.zRot = 0.0F;
+            this.leftLeg.xRot = Mth.cos(param1 * 0.6662F + (float) Math.PI) * 1.4F * param2 * 0.5F;
+            this.leftLeg.yRot = 0.0F;
+            this.leftLeg.zRot = 0.0F;
         }
 
         AbstractIllager.IllagerArmPose var0 = param0.getArmPose();

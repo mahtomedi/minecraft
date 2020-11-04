@@ -343,7 +343,7 @@ public class LootCommand {
     }
 
     private static boolean canMergeItems(ItemStack param0, ItemStack param1) {
-        return param0.getItem() == param1.getItem()
+        return param0.is(param1.getItem())
             && param0.getDamageValue() == param1.getDamageValue()
             && param0.getCount() <= param0.getMaxStackSize()
             && Objects.equals(param0.getTag(), param1.getTag());
@@ -354,7 +354,7 @@ public class LootCommand {
 
         for(ItemStack var1 : param1) {
             for(ServerPlayer var2 : param0) {
-                if (var2.inventory.add(var1.copy())) {
+                if (var2.getInventory().add(var1.copy())) {
                     var0.add(var1);
                 }
             }

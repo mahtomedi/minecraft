@@ -40,6 +40,7 @@ import net.minecraft.resources.RegistryReadOps;
 import net.minecraft.resources.RegistryWriteOps;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerResources;
+import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.repository.FolderRepositorySource;
 import net.minecraft.server.packs.repository.PackRepository;
 import net.minecraft.server.packs.repository.PackSource;
@@ -173,7 +174,7 @@ public class WorldGenSettingsComponent implements TickableWidget, Widget {
                     if (var1x != null) {
                         RegistryAccess.RegistryHolder var2x = RegistryAccess.builtin();
                         PackRepository var3x = new PackRepository(
-                            new ServerPacksSource(), new FolderRepositorySource(param0.getTempDataPackDir().toFile(), PackSource.WORLD)
+                            PackType.SERVER_DATA, new ServerPacksSource(), new FolderRepositorySource(param0.getTempDataPackDir().toFile(), PackSource.WORLD)
                         );
         
                         ServerResources var5;

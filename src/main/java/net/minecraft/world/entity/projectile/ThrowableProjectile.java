@@ -2,8 +2,6 @@ package net.minecraft.world.entity.projectile;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
@@ -58,7 +56,7 @@ public abstract class ThrowableProjectile extends Projectile {
             } else if (var3.is(Blocks.END_GATEWAY)) {
                 BlockEntity var4 = this.level.getBlockEntity(var2);
                 if (var4 instanceof TheEndGatewayBlockEntity && TheEndGatewayBlockEntity.canEntityTeleport(this)) {
-                    ((TheEndGatewayBlockEntity)var4).teleportEntity(this);
+                    TheEndGatewayBlockEntity.teleportEntity(this.level, var2, var3, this, (TheEndGatewayBlockEntity)var4);
                 }
 
                 var1 = true;
@@ -98,10 +96,5 @@ public abstract class ThrowableProjectile extends Projectile {
 
     protected float getGravity() {
         return 0.03F;
-    }
-
-    @Override
-    public Packet<?> getAddEntityPacket() {
-        return new ClientboundAddEntityPacket(this);
     }
 }

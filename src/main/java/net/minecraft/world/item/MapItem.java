@@ -136,15 +136,15 @@ public class MapItem extends ComplexItem {
                                         for(int var27 = 0; var27 < var0; ++var27) {
                                             int var28 = var17.getHeight(Heightmap.Types.WORLD_SURFACE, var26 + var19, var27 + var20) + 1;
                                             BlockState var32;
-                                            if (var28 <= 1) {
+                                            if (var28 <= param0.getMinBuildHeight() + 1) {
                                                 var32 = Blocks.BEDROCK.defaultBlockState();
                                             } else {
                                                 do {
                                                     var24.set(var18.getMinBlockX() + var26 + var19, --var28, var18.getMinBlockZ() + var27 + var20);
                                                     var32 = var17.getBlockState(var24);
-                                                } while(var32.getMapColor(param0, var24) == MaterialColor.NONE && var28 > 0);
+                                                } while(var32.getMapColor(param0, var24) == MaterialColor.NONE && var28 > param0.getMinBuildHeight());
 
-                                                if (var28 > 0 && !var32.getFluidState().isEmpty()) {
+                                                if (var28 > param0.getMinBuildHeight() && !var32.getFluidState().isEmpty()) {
                                                     int var30 = var28 - 1;
                                                     var25.set(var24);
 
@@ -153,7 +153,7 @@ public class MapItem extends ComplexItem {
                                                         var25.setY(var30--);
                                                         var31 = var17.getBlockState(var25);
                                                         ++var21;
-                                                    } while(var30 > 0 && !var31.getFluidState().isEmpty());
+                                                    } while(var30 > param0.getMinBuildHeight() && !var31.getFluidState().isEmpty());
 
                                                     var32 = this.getCorrectStateForFluidBlock(param0, var32, var24);
                                                 }

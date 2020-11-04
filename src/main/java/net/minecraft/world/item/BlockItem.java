@@ -18,6 +18,7 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.ShulkerBoxBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -61,19 +62,18 @@ public class BlockItem extends Item {
                     Player var4 = var0.getPlayer();
                     ItemStack var5 = var0.getItemInHand();
                     BlockState var6 = var3.getBlockState(var2);
-                    Block var7 = var6.getBlock();
-                    if (var7 == var1.getBlock()) {
+                    if (var6.is(var1.getBlock())) {
                         var6 = this.updateBlockStateFromTag(var2, var3, var5, var6);
                         this.updateCustomBlockEntityTag(var2, var3, var4, var5, var6);
-                        var7.setPlacedBy(var3, var2, var6, var4, var5);
+                        var6.getBlock().setPlacedBy(var3, var2, var6, var4, var5);
                         if (var4 instanceof ServerPlayer) {
                             CriteriaTriggers.PLACED_BLOCK.trigger((ServerPlayer)var4, var2, var5);
                         }
                     }
 
-                    SoundType var8 = var6.getSoundType();
-                    var3.playSound(var4, var2, this.getPlaceSound(var6), SoundSource.BLOCKS, (var8.getVolume() + 1.0F) / 2.0F, var8.getPitch() * 0.8F);
-                    if (var4 == null || !var4.abilities.instabuild) {
+                    SoundType var7 = var6.getSoundType();
+                    var3.playSound(var4, var2, this.getPlaceSound(var6), SoundSource.BLOCKS, (var7.getVolume() + 1.0F) / 2.0F, var7.getPitch() * 0.8F);
+                    if (var4 == null || !var4.getAbilities().instabuild) {
                         var5.shrink(1);
                     }
 
@@ -164,7 +164,7 @@ public class BlockItem extends Item {
                     var3.putInt("y", param2.getY());
                     var3.putInt("z", param2.getZ());
                     if (!var3.equals(var4)) {
-                        var2.load(param0.getBlockState(param2), var3);
+                        var2.load(var3);
                         var2.setChanged();
                         return true;
                     }
@@ -201,5 +201,10 @@ public class BlockItem extends Item {
 
     public void registerBlocks(Map<Block, Item> param0, Item param1) {
         param0.put(this.getBlock(), param1);
+    }
+
+    @Override
+    public boolean canFitInsideContainerItems() {
+        return !(this.block instanceof ShulkerBoxBlock);
     }
 }

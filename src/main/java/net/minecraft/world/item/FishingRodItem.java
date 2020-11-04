@@ -32,7 +32,7 @@ public class FishingRodItem extends Item implements Vanishable {
                 SoundEvents.FISHING_BOBBER_RETRIEVE,
                 SoundSource.NEUTRAL,
                 1.0F,
-                0.4F / (random.nextFloat() * 0.4F + 0.8F)
+                0.4F / (param0.getRandom().nextFloat() * 0.4F + 0.8F)
             );
         } else {
             param0.playSound(
@@ -43,7 +43,7 @@ public class FishingRodItem extends Item implements Vanishable {
                 SoundEvents.FISHING_BOBBER_THROW,
                 SoundSource.NEUTRAL,
                 0.5F,
-                0.4F / (random.nextFloat() * 0.4F + 0.8F)
+                0.4F / (param0.getRandom().nextFloat() * 0.4F + 0.8F)
             );
             if (!param0.isClientSide) {
                 int var2 = EnchantmentHelper.getFishingSpeedBonus(var0);

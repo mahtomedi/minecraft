@@ -3,6 +3,8 @@ package net.minecraft.client.renderer.entity.layers;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.SheepFurModel;
 import net.minecraft.client.model.SheepModel;
+import net.minecraft.client.model.geom.EntityModelSet;
+import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.resources.ResourceLocation;
@@ -14,10 +16,11 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class SheepFurLayer extends RenderLayer<Sheep, SheepModel<Sheep>> {
     private static final ResourceLocation SHEEP_FUR_LOCATION = new ResourceLocation("textures/entity/sheep/sheep_fur.png");
-    private final SheepFurModel<Sheep> model = new SheepFurModel<>();
+    private final SheepFurModel<Sheep> model;
 
-    public SheepFurLayer(RenderLayerParent<Sheep, SheepModel<Sheep>> param0) {
+    public SheepFurLayer(RenderLayerParent<Sheep, SheepModel<Sheep>> param0, EntityModelSet param1) {
         super(param0);
+        this.model = new SheepFurModel<>(param1.getLayer(ModelLayers.SHEEP_FUR));
     }
 
     public void render(

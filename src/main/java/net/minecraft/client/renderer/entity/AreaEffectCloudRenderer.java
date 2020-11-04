@@ -8,7 +8,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class AreaEffectCloudRenderer extends EntityRenderer<AreaEffectCloud> {
-    public AreaEffectCloudRenderer(EntityRenderDispatcher param0) {
+    public AreaEffectCloudRenderer(EntityRendererProvider.Context param0) {
         super(param0);
     }
 

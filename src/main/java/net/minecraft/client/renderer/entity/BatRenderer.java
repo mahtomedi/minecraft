@@ -2,6 +2,7 @@ package net.minecraft.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.BatModel;
+import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.ambient.Bat;
@@ -12,8 +13,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class BatRenderer extends MobRenderer<Bat, BatModel> {
     private static final ResourceLocation BAT_LOCATION = new ResourceLocation("textures/entity/bat.png");
 
-    public BatRenderer(EntityRenderDispatcher param0) {
-        super(param0, new BatModel(), 0.25F);
+    public BatRenderer(EntityRendererProvider.Context param0) {
+        super(param0, new BatModel(param0.getLayer(ModelLayers.BAT)), 0.25F);
     }
 
     public ResourceLocation getTextureLocation(Bat param0) {

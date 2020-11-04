@@ -22,6 +22,7 @@ import net.minecraft.commands.arguments.blocks.BlockStateParser;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -266,7 +267,7 @@ public class KeyboardHandler {
             param2.remove("UUID");
             param2.remove("Pos");
             param2.remove("Dimension");
-            String var0 = param2.getPrettyDisplay().getString();
+            String var0 = NbtUtils.toPrettyComponent(param2).getString();
             var1 = String.format(Locale.ROOT, "/summon %s %.2f %.2f %.2f %s", param0.toString(), param1.x, param1.y, param1.z, var0);
         } else {
             var1 = String.format(Locale.ROOT, "/summon %s %.2f %.2f %.2f", param0.toString(), param1.x, param1.y, param1.z);

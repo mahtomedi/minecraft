@@ -22,7 +22,7 @@ public class PoseStack {
 
     public void translate(double param0, double param1, double param2) {
         PoseStack.Pose var0 = this.poseStack.getLast();
-        var0.pose.multiply(Matrix4f.createTranslateMatrix((float)param0, (float)param1, (float)param2));
+        var0.pose.multiplyWithTranslation((float)param0, (float)param1, (float)param2);
     }
 
     public void scale(float param0, float param1, float param2) {

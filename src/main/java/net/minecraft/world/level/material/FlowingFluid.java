@@ -385,10 +385,10 @@ public abstract class FlowingFluid extends Fluid {
         if (var0 instanceof LiquidBlockContainer) {
             return ((LiquidBlockContainer)var0).canPlaceLiquid(param0, param1, param2, param3);
         } else if (!(var0 instanceof DoorBlock)
-            && !var0.is(BlockTags.SIGNS)
-            && var0 != Blocks.LADDER
-            && var0 != Blocks.SUGAR_CANE
-            && var0 != Blocks.BUBBLE_COLUMN) {
+            && !param2.is(BlockTags.SIGNS)
+            && !param2.is(Blocks.LADDER)
+            && !param2.is(Blocks.SUGAR_CANE)
+            && !param2.is(Blocks.BUBBLE_COLUMN)) {
             Material var1 = param2.getMaterial();
             if (var1 != Material.PORTAL && var1 != Material.STRUCTURAL_AIR && var1 != Material.WATER_PLANT && var1 != Material.REPLACEABLE_WATER_PLANT) {
                 return !var1.blocksMotion();

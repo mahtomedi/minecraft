@@ -1,10 +1,14 @@
 package net.minecraft.world.entity;
 
 import com.google.common.collect.ImmutableSet;
+import java.util.List;
 import java.util.Optional;
+import java.util.Spliterator;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
@@ -12,13 +16,13 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.Tag;
 import net.minecraft.util.Mth;
 import net.minecraft.util.datafix.fixes.References;
 import net.minecraft.world.entity.ambient.Bat;
@@ -133,6 +137,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -141,7 +146,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class EntityType<T extends Entity> {
+public class EntityType<T extends Entity> implements EntityTypeTest<Entity, T> {
     private static final Logger LOGGER = LogManager.getLogger();
     public static final EntityType<AreaEffectCloud> AREA_EFFECT_CLOUD = register(
         "area_effect_cloud",
@@ -278,7 +283,7 @@ public class EntityType<T extends Entity> {
         "leash_knot",
         EntityType.Builder.<LeashFenceKnotEntity>of(LeashFenceKnotEntity::new, MobCategory.MISC)
             .noSave()
-            .sized(0.5F, 0.5F)
+            .sized(0.375F, 0.5F)
             .clientTrackingRange(10)
             .updateInterval(Integer.MAX_VALUE)
     );
@@ -509,7 +514,7 @@ public class EntityType<T extends Entity> {
     );
     public static final EntityType<FishingHook> FISHING_BOBBER = register(
         "fishing_bobber",
-        EntityType.Builder.<FishingHook>createNothing(MobCategory.MISC).noSave().noSummon().sized(0.25F, 0.25F).clientTrackingRange(4).updateInterval(5)
+        EntityType.Builder.<FishingHook>of(FishingHook::new, MobCategory.MISC).noSave().noSummon().sized(0.25F, 0.25F).clientTrackingRange(4).updateInterval(5)
     );
     private final EntityType.EntityFactory<T> factory;
     private final MobCategory category;
@@ -796,6 +801,34 @@ public class EntityType<T extends Entity> {
         }).orElse(null);
     }
 
+    public static Stream<Entity> loadEntitiesRecursive(final List<? extends Tag> param0, final Level param1) {
+        final Spliterator<? extends Tag> var0 = param0.spliterator();
+        return StreamSupport.stream(new Spliterator<Entity>() {
+            @Override
+            public boolean tryAdvance(Consumer<? super Entity> param0x) {
+                return var0.tryAdvance(param2 -> EntityType.loadEntityRecursive((CompoundTag)param2, param1, param1xxx -> {
+                        param0.accept(param1xxx);
+                        return param1xxx;
+                    }));
+            }
+
+            @Override
+            public Spliterator<Entity> trySplit() {
+                return null;
+            }
+
+            @Override
+            public long estimateSize() {
+                return (long)param0.size();
+            }
+
+            @Override
+            public int characteristics() {
+                return 1297;
+            }
+        }, false);
+    }
+
     private static Optional<Entity> loadStaticEntity(CompoundTag param0, Level param1) {
         try {
             return create(param0, param1);
@@ -825,8 +858,18 @@ public class EntityType<T extends Entity> {
             && this != EVOKER_FANGS;
     }
 
-    public boolean is(Tag<EntityType<?>> param0) {
+    public boolean is(net.minecraft.tags.Tag<EntityType<?>> param0) {
         return param0.contains(this);
+    }
+
+    @Nullable
+    public T tryCast(Entity param0) {
+        return (T)(param0.getType() == this ? param0 : null);
+    }
+
+    @Override
+    public Class<? extends Entity> getBaseClass() {
+        return Entity.class;
     }
 
     public static class Builder<T extends Entity> {

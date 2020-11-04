@@ -16,9 +16,7 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.CommandBlock;
-import net.minecraft.world.level.block.JigsawBlock;
-import net.minecraft.world.level.block.StructureBlock;
+import net.minecraft.world.level.block.GameMasterBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
@@ -51,7 +49,7 @@ public class ServerPlayerGameMode {
     public void setGameModeForPlayer(GameType param0, GameType param1) {
         this.previousGameModeForPlayer = param1;
         this.gameModeForPlayer = param0;
-        param0.updatePlayerAbilities(this.player.abilities);
+        param0.updatePlayerAbilities(this.player.getAbilities());
         this.player.onUpdateAbilities();
         this.player.server.getPlayerList().broadcastAll(new ClientboundPlayerInfoPacket(ClientboundPlayerInfoPacket.Action.UPDATE_GAME_MODE, this.player));
         this.level.updateSleepingPlayerList();
@@ -209,7 +207,7 @@ public class ServerPlayerGameMode {
             } else if (param1 == ServerboundPlayerActionPacket.Action.ABORT_DESTROY_BLOCK) {
                 this.isDestroyingBlock = false;
                 if (!Objects.equals(this.destroyPos, param0)) {
-                    LOGGER.warn("Mismatch in destroy block pos: " + this.destroyPos + " " + param0);
+                    LOGGER.warn("Mismatch in destroy block pos: {} {}", this.destroyPos, param0);
                     this.level.destroyBlockProgress(this.player.getId(), this.destroyPos, -1);
                     this.player
                         .connection
@@ -243,7 +241,7 @@ public class ServerPlayerGameMode {
         } else {
             BlockEntity var1 = this.level.getBlockEntity(param0);
             Block var2 = var0.getBlock();
-            if ((var2 instanceof CommandBlock || var2 instanceof StructureBlock || var2 instanceof JigsawBlock) && !this.player.canUseGameMasterBlocks()) {
+            if (var2 instanceof GameMasterBlock && !this.player.canUseGameMasterBlocks()) {
                 this.level.sendBlockUpdated(param0, var0, var0, 3);
                 return false;
             } else if (this.player.blockActionRestricted(this.level, param0, this.gameModeForPlayer)) {

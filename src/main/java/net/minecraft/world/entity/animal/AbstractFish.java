@@ -148,7 +148,7 @@ public abstract class AbstractFish extends WaterAnimal {
     @Override
     protected InteractionResult mobInteract(Player param0, InteractionHand param1) {
         ItemStack var0 = param0.getItemInHand(param1);
-        if (var0.getItem() == Items.WATER_BUCKET && this.isAlive()) {
+        if (var0.is(Items.WATER_BUCKET) && this.isAlive()) {
             this.playSound(SoundEvents.BUCKET_FILL_FISH, 1.0F, 1.0F);
             var0.shrink(1);
             ItemStack var1 = this.getBucketItemStack();
@@ -159,11 +159,11 @@ public abstract class AbstractFish extends WaterAnimal {
 
             if (var0.isEmpty()) {
                 param0.setItemInHand(param1, var1);
-            } else if (!param0.inventory.add(var1)) {
+            } else if (!param0.getInventory().add(var1)) {
                 param0.drop(var1, false);
             }
 
-            this.remove();
+            this.discard();
             return InteractionResult.sidedSuccess(this.level.isClientSide);
         } else {
             return super.mobInteract(param0, param1);

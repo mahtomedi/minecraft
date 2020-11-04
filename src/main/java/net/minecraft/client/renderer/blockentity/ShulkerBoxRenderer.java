@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector3f;
 import net.minecraft.client.model.ShulkerModel;
+import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.Sheets;
@@ -17,12 +18,11 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class ShulkerBoxRenderer extends BlockEntityRenderer<ShulkerBoxBlockEntity> {
+public class ShulkerBoxRenderer implements BlockEntityRenderer<ShulkerBoxBlockEntity> {
     private final ShulkerModel<?> model;
 
-    public ShulkerBoxRenderer(ShulkerModel<?> param0, BlockEntityRenderDispatcher param1) {
-        super(param1);
-        this.model = param0;
+    public ShulkerBoxRenderer(BlockEntityRendererProvider.Context param0) {
+        this.model = new ShulkerModel(param0.getLayer(ModelLayers.SHULKER));
     }
 
     public void render(ShulkerBoxBlockEntity param0, float param1, PoseStack param2, MultiBufferSource param3, int param4, int param5) {

@@ -174,9 +174,9 @@ public class MerchantMenu extends AbstractContainerMenu {
                 if (!var0.isEmpty()) {
                     param0.drop(var0, false);
                 }
-            } else {
-                param0.inventory.placeItemBackInInventory(param0.level, this.tradeContainer.removeItemNoUpdate(0));
-                param0.inventory.placeItemBackInInventory(param0.level, this.tradeContainer.removeItemNoUpdate(1));
+            } else if (param0 instanceof ServerPlayer) {
+                param0.getInventory().placeItemBackInInventory(this.tradeContainer.removeItemNoUpdate(0));
+                param0.getInventory().placeItemBackInInventory(this.tradeContainer.removeItemNoUpdate(1));
             }
 
         }
@@ -216,7 +216,7 @@ public class MerchantMenu extends AbstractContainerMenu {
         if (!param1.isEmpty()) {
             for(int var0 = 3; var0 < 39; ++var0) {
                 ItemStack var1 = this.slots.get(var0).getItem();
-                if (!var1.isEmpty() && this.isSameItem(param1, var1)) {
+                if (!var1.isEmpty() && ItemStack.isSameItemSameTags(param1, var1)) {
                     ItemStack var2 = this.tradeContainer.getItem(param0);
                     int var3 = var2.isEmpty() ? 0 : var2.getCount();
                     int var4 = Math.min(param1.getMaxStackSize() - var3, var1.getCount());
@@ -232,10 +232,6 @@ public class MerchantMenu extends AbstractContainerMenu {
             }
         }
 
-    }
-
-    private boolean isSameItem(ItemStack param0, ItemStack param1) {
-        return param0.getItem() == param1.getItem() && ItemStack.tagMatches(param0, param1);
     }
 
     @OnlyIn(Dist.CLIENT)

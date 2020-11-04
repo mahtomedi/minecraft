@@ -12,6 +12,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public interface PackResources extends AutoCloseable {
+    @Nullable
     @OnlyIn(Dist.CLIENT)
     InputStream getRootResource(String var1) throws IOException;
 

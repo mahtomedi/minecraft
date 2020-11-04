@@ -110,7 +110,7 @@ public class BlockPattern {
             this.loadChunks = param1;
         }
 
-        public BlockInWorld load(BlockPos param0) throws Exception {
+        public BlockInWorld load(BlockPos param0) {
             return new BlockInWorld(this.level, param0, this.loadChunks);
         }
     }

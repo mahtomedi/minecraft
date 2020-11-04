@@ -14,6 +14,7 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
@@ -78,7 +79,7 @@ public class ItemEntity extends Entity {
     @Override
     public void tick() {
         if (this.getItem().isEmpty()) {
-            this.remove();
+            this.discard();
         } else {
             super.tick();
             if (this.pickupDelay > 0 && this.pickupDelay != 32767) {
@@ -150,7 +151,7 @@ public class ItemEntity extends Entity {
             }
 
             if (!this.level.isClientSide && this.age >= 6000) {
-                this.remove();
+                this.discard();
             }
 
         }
@@ -172,7 +173,7 @@ public class ItemEntity extends Entity {
                 .getEntitiesOfClass(ItemEntity.class, this.getBoundingBox().inflate(0.5, 0.0, 0.5), param0 -> param0 != this && param0.isMergable())) {
                 if (var1.isMergable()) {
                     this.tryToMerge(var1);
-                    if (this.removed) {
+                    if (this.isRemoved()) {
                         break;
                     }
                 }
@@ -200,7 +201,7 @@ public class ItemEntity extends Entity {
     }
 
     public static boolean areMergable(ItemStack param0, ItemStack param1) {
-        if (param1.getItem() != param0.getItem()) {
+        if (!param1.is(param0.getItem())) {
             return false;
         } else if (param1.getCount() + param0.getCount() > param1.getMaxStackSize()) {
             return false;
@@ -229,7 +230,7 @@ public class ItemEntity extends Entity {
         param0.pickupDelay = Math.max(param0.pickupDelay, param2.pickupDelay);
         param0.age = Math.min(param0.age, param2.age);
         if (param3.isEmpty()) {
-            param2.remove();
+            param2.discard();
         }
 
     }
@@ -243,7 +244,7 @@ public class ItemEntity extends Entity {
     public boolean hurt(DamageSource param0, float param1) {
         if (this.isInvulnerableTo(param0)) {
             return false;
-        } else if (!this.getItem().isEmpty() && this.getItem().getItem() == Items.NETHER_STAR && param0.isExplosion()) {
+        } else if (!this.getItem().isEmpty() && this.getItem().is(Items.NETHER_STAR) && param0.isExplosion()) {
             return false;
         } else if (!this.getItem().getItem().canBeHurtBy(param0)) {
             return false;
@@ -251,7 +252,7 @@ public class ItemEntity extends Entity {
             this.markHurt();
             this.health = (int)((float)this.health - param1);
             if (this.health <= 0) {
-                this.remove();
+                this.discard();
             }
 
             return false;
@@ -296,7 +297,7 @@ public class ItemEntity extends Entity {
         CompoundTag var0 = param0.getCompound("Item");
         this.setItem(ItemStack.of(var0));
         if (this.getItem().isEmpty()) {
-            this.remove();
+            this.discard();
         }
 
     }
@@ -307,10 +308,10 @@ public class ItemEntity extends Entity {
             ItemStack var0 = this.getItem();
             Item var1 = var0.getItem();
             int var2 = var0.getCount();
-            if (this.pickupDelay == 0 && (this.owner == null || this.owner.equals(param0.getUUID())) && param0.inventory.add(var0)) {
+            if (this.pickupDelay == 0 && (this.owner == null || this.owner.equals(param0.getUUID())) && param0.getInventory().add(var0)) {
                 param0.take(this, var2);
                 if (var0.isEmpty()) {
-                    this.remove();
+                    this.discard();
                     var0.setCount(var2);
                 }
 
@@ -425,5 +426,10 @@ public class ItemEntity extends Entity {
     @OnlyIn(Dist.CLIENT)
     public ItemEntity copy() {
         return new ItemEntity(this);
+    }
+
+    @Override
+    public SoundSource getSoundSource() {
+        return SoundSource.AMBIENT;
     }
 }

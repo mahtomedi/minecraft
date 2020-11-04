@@ -1,52 +1,70 @@
 package net.minecraft.client.model;
 
-import java.util.Arrays;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.geom.PartPose;
+import net.minecraft.client.model.geom.builders.CubeListBuilder;
+import net.minecraft.client.model.geom.builders.LayerDefinition;
+import net.minecraft.client.model.geom.builders.MeshDefinition;
+import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.world.entity.Entity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class MinecartModel<T extends Entity> extends ListModel<T> {
-    private final ModelPart[] cubes = new ModelPart[6];
+public class MinecartModel<T extends Entity> extends HierarchicalModel<T> {
+    private final ModelPart root;
+    private final ModelPart contents;
 
-    public MinecartModel() {
-        this.cubes[0] = new ModelPart(this, 0, 10);
-        this.cubes[1] = new ModelPart(this, 0, 0);
-        this.cubes[2] = new ModelPart(this, 0, 0);
-        this.cubes[3] = new ModelPart(this, 0, 0);
-        this.cubes[4] = new ModelPart(this, 0, 0);
-        this.cubes[5] = new ModelPart(this, 44, 10);
-        int var0 = 20;
-        int var1 = 8;
-        int var2 = 16;
-        int var3 = 4;
-        this.cubes[0].addBox(-10.0F, -8.0F, -1.0F, 20.0F, 16.0F, 2.0F, 0.0F);
-        this.cubes[0].setPos(0.0F, 4.0F, 0.0F);
-        this.cubes[5].addBox(-9.0F, -7.0F, -1.0F, 18.0F, 14.0F, 1.0F, 0.0F);
-        this.cubes[5].setPos(0.0F, 4.0F, 0.0F);
-        this.cubes[1].addBox(-8.0F, -9.0F, -1.0F, 16.0F, 8.0F, 2.0F, 0.0F);
-        this.cubes[1].setPos(-9.0F, 4.0F, 0.0F);
-        this.cubes[2].addBox(-8.0F, -9.0F, -1.0F, 16.0F, 8.0F, 2.0F, 0.0F);
-        this.cubes[2].setPos(9.0F, 4.0F, 0.0F);
-        this.cubes[3].addBox(-8.0F, -9.0F, -1.0F, 16.0F, 8.0F, 2.0F, 0.0F);
-        this.cubes[3].setPos(0.0F, 4.0F, -7.0F);
-        this.cubes[4].addBox(-8.0F, -9.0F, -1.0F, 16.0F, 8.0F, 2.0F, 0.0F);
-        this.cubes[4].setPos(0.0F, 4.0F, 7.0F);
-        this.cubes[0].xRot = (float) (Math.PI / 2);
-        this.cubes[1].yRot = (float) (Math.PI * 3.0 / 2.0);
-        this.cubes[2].yRot = (float) (Math.PI / 2);
-        this.cubes[3].yRot = (float) Math.PI;
-        this.cubes[5].xRot = (float) (-Math.PI / 2);
+    public MinecartModel(ModelPart param0) {
+        this.root = param0;
+        this.contents = param0.getChild("contents");
+    }
+
+    public static LayerDefinition createBodyLayer() {
+        MeshDefinition var0 = new MeshDefinition();
+        PartDefinition var1 = var0.getRoot();
+        int var2 = 20;
+        int var3 = 8;
+        int var4 = 16;
+        int var5 = 4;
+        var1.addOrReplaceChild(
+            "bottom",
+            CubeListBuilder.create().texOffs(0, 10).addBox(-10.0F, -8.0F, -1.0F, 20.0F, 16.0F, 2.0F),
+            PartPose.offsetAndRotation(0.0F, 4.0F, 0.0F, (float) (Math.PI / 2), 0.0F, 0.0F)
+        );
+        var1.addOrReplaceChild(
+            "front",
+            CubeListBuilder.create().texOffs(0, 0).addBox(-8.0F, -9.0F, -1.0F, 16.0F, 8.0F, 2.0F),
+            PartPose.offsetAndRotation(-9.0F, 4.0F, 0.0F, 0.0F, (float) (Math.PI * 3.0 / 2.0), 0.0F)
+        );
+        var1.addOrReplaceChild(
+            "back",
+            CubeListBuilder.create().texOffs(0, 0).addBox(-8.0F, -9.0F, -1.0F, 16.0F, 8.0F, 2.0F),
+            PartPose.offsetAndRotation(9.0F, 4.0F, 0.0F, 0.0F, (float) (Math.PI / 2), 0.0F)
+        );
+        var1.addOrReplaceChild(
+            "left",
+            CubeListBuilder.create().texOffs(0, 0).addBox(-8.0F, -9.0F, -1.0F, 16.0F, 8.0F, 2.0F),
+            PartPose.offsetAndRotation(0.0F, 4.0F, -7.0F, 0.0F, (float) Math.PI, 0.0F)
+        );
+        var1.addOrReplaceChild(
+            "right", CubeListBuilder.create().texOffs(0, 0).addBox(-8.0F, -9.0F, -1.0F, 16.0F, 8.0F, 2.0F), PartPose.offset(0.0F, 4.0F, 7.0F)
+        );
+        var1.addOrReplaceChild(
+            "contents",
+            CubeListBuilder.create().texOffs(44, 10).addBox(-9.0F, -7.0F, -1.0F, 18.0F, 14.0F, 1.0F),
+            PartPose.offsetAndRotation(0.0F, 4.0F, 0.0F, (float) (-Math.PI / 2), 0.0F, 0.0F)
+        );
+        return LayerDefinition.create(var0, 64, 32);
     }
 
     @Override
     public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5) {
-        this.cubes[5].y = 4.0F - param3;
+        this.contents.y = 4.0F - param3;
     }
 
     @Override
-    public Iterable<ModelPart> parts() {
-        return Arrays.asList(this.cubes);
+    public ModelPart root() {
+        return this.root;
     }
 }

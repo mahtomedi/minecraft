@@ -13,7 +13,7 @@ import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.AgableMob;
+import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.MobSpawnType;
@@ -29,7 +29,7 @@ import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public abstract class Animal extends AgableMob {
+public abstract class Animal extends AgeableMob {
     private int inLove;
     private UUID loveCause;
 
@@ -124,7 +124,7 @@ public abstract class Animal extends AgableMob {
     }
 
     public boolean isFood(ItemStack param0) {
-        return param0.getItem() == Items.WHEAT;
+        return param0.is(Items.WHEAT);
     }
 
     @Override
@@ -153,7 +153,7 @@ public abstract class Animal extends AgableMob {
     }
 
     protected void usePlayerItem(Player param0, ItemStack param1) {
-        if (!param0.abilities.instabuild) {
+        if (!param0.getAbilities().instabuild) {
             param1.shrink(1);
         }
 
@@ -209,7 +209,7 @@ public abstract class Animal extends AgableMob {
     }
 
     public void spawnChildFromBreeding(ServerLevel param0, Animal param1) {
-        AgableMob var0 = this.getBreedOffspring(param0, param1);
+        AgeableMob var0 = this.getBreedOffspring(param0, param1);
         if (var0 != null) {
             ServerPlayer var1 = this.getLoveCause();
             if (var1 == null && param1.getLoveCause() != null) {

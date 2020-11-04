@@ -8,7 +8,7 @@ public class NonOverlappingMerger extends AbstractDoubleList implements IndexMer
     private final DoubleList upper;
     private final boolean swap;
 
-    public NonOverlappingMerger(DoubleList param0, DoubleList param1, boolean param2) {
+    protected NonOverlappingMerger(DoubleList param0, DoubleList param1, boolean param2) {
         this.lower = param0;
         this.upper = param1;
         this.swap = param2;
@@ -25,7 +25,7 @@ public class NonOverlappingMerger extends AbstractDoubleList implements IndexMer
     }
 
     private boolean forNonSwappedIndexes(IndexMerger.IndexConsumer param0) {
-        int var0 = this.lower.size() - 1;
+        int var0 = this.lower.size();
 
         for(int var1 = 0; var1 < var0; ++var1) {
             if (!param0.merge(var1, -1, var1)) {
@@ -33,17 +33,15 @@ public class NonOverlappingMerger extends AbstractDoubleList implements IndexMer
             }
         }
 
-        if (!param0.merge(var0, -1, var0)) {
-            return false;
-        } else {
-            for(int var2 = 0; var2 < this.upper.size(); ++var2) {
-                if (!param0.merge(var0, var2, var0 + 1 + var2)) {
-                    return false;
-                }
-            }
+        int var2 = this.upper.size() - 1;
 
-            return true;
+        for(int var3 = 0; var3 < var2; ++var3) {
+            if (!param0.merge(var0 - 1, var3, var0 + var3)) {
+                return false;
+            }
         }
+
+        return true;
     }
 
     @Override

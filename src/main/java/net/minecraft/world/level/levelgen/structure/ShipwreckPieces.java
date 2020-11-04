@@ -124,7 +124,7 @@ public class ShipwreckPieces {
         public boolean postProcess(
             WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
-            int var0 = 256;
+            int var0 = param0.getMaxBuildHeight();
             int var1 = 0;
             BlockPos var2 = this.template.getSize();
             Heightmap.Types var3 = this.isBeached ? Heightmap.Types.WORLD_SURFACE_WG : Heightmap.Types.OCEAN_FLOOR_WG;

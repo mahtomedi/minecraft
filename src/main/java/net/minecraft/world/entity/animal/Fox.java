@@ -31,7 +31,7 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.AgableMob;
+import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntitySelector;
@@ -283,7 +283,7 @@ public class Fox extends Animal {
             .add(Attributes.ATTACK_DAMAGE, 2.0);
     }
 
-    public Fox getBreedOffspring(ServerLevel param0, AgableMob param1) {
+    public Fox getBreedOffspring(ServerLevel param0, AgeableMob param1) {
         Fox var0 = EntityType.FOX.create(param0);
         var0.setFoxType(this.random.nextBoolean() ? this.getFoxType() : ((Fox)param1).getFoxType());
         return var0;
@@ -500,7 +500,7 @@ public class Fox extends Animal {
             this.setItemSlot(EquipmentSlot.MAINHAND, var0.split(1));
             this.handDropChances[EquipmentSlot.MAINHAND.getIndex()] = 2.0F;
             this.take(param0, var0.getCount());
-            param0.remove();
+            param0.discard();
             this.ticksSinceEaten = 0;
         }
 
@@ -547,7 +547,7 @@ public class Fox extends Animal {
 
     @Override
     public boolean isFood(ItemStack param0) {
-        return param0.getItem() == Items.SWEET_BERRIES;
+        return param0.is(Items.SWEET_BERRIES);
     }
 
     @Override
@@ -1000,7 +1000,7 @@ public class Fox extends Animal {
         }
     }
 
-    public static class FoxGroupData extends AgableMob.AgableMobGroupData {
+    public static class FoxGroupData extends AgeableMob.AgeableMobGroupData {
         public final Fox.Type type;
 
         public FoxGroupData(Fox.Type param0) {

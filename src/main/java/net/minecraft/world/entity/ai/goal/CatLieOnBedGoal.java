@@ -53,6 +53,6 @@ public class CatLieOnBedGoal extends MoveToBlockGoal {
 
     @Override
     protected boolean isValidTarget(LevelReader param0, BlockPos param1) {
-        return param0.isEmptyBlock(param1.above()) && param0.getBlockState(param1).getBlock().is(BlockTags.BEDS);
+        return param0.isEmptyBlock(param1.above()) && param0.getBlockState(param1).is(BlockTags.BEDS);
     }
 }

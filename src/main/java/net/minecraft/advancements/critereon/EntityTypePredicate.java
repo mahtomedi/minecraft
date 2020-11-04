@@ -70,7 +70,7 @@ public abstract class EntityTypePredicate {
 
         @Override
         public boolean matches(EntityType<?> param0) {
-            return this.tag.contains(param0);
+            return param0.is(this.tag);
         }
 
         @Override

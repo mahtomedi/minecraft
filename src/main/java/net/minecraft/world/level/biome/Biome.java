@@ -177,7 +177,9 @@ public final class Biome {
         if (this.getTemperature(param1) >= 0.15F) {
             return false;
         } else {
-            if (param1.getY() >= 0 && param1.getY() < 256 && param0.getBrightness(LightLayer.BLOCK, param1) < 10) {
+            if (param1.getY() >= param0.getMinBuildHeight()
+                && param1.getY() < param0.getMaxBuildHeight()
+                && param0.getBrightness(LightLayer.BLOCK, param1) < 10) {
                 BlockState var0 = param0.getBlockState(param1);
                 FluidState var1 = param0.getFluidState(param1);
                 if (var1.getType() == Fluids.WATER && var0.getBlock() instanceof LiquidBlock) {
@@ -203,7 +205,9 @@ public final class Biome {
         if (this.getTemperature(param1) >= 0.15F) {
             return false;
         } else {
-            if (param1.getY() >= 0 && param1.getY() < 256 && param0.getBrightness(LightLayer.BLOCK, param1) < 10) {
+            if (param1.getY() >= param0.getMinBuildHeight()
+                && param1.getY() < param0.getMaxBuildHeight()
+                && param0.getBrightness(LightLayer.BLOCK, param1) < 10) {
                 BlockState var0 = param0.getBlockState(param1);
                 if (var0.isAir() && Blocks.SNOW.defaultBlockState().canSurvive(param0, param1)) {
                     return true;
@@ -227,16 +231,21 @@ public final class Biome {
             if (param0.shouldGenerateFeatures()) {
                 for(StructureFeature<?> var5 : this.structuresByStep.getOrDefault(var2, Collections.emptyList())) {
                     param4.setFeatureSeed(param3, var3, var2);
-                    int var6 = param5.getX() >> 4;
-                    int var7 = param5.getZ() >> 4;
-                    int var8 = var6 << 4;
-                    int var9 = var7 << 4;
+                    int var6 = SectionPos.blockToSectionCoord(param5.getX());
+                    int var7 = SectionPos.blockToSectionCoord(param5.getZ());
+                    int var8 = SectionPos.sectionToBlockCoord(var6);
+                    int var9 = SectionPos.sectionToBlockCoord(var7);
 
                     try {
                         param0.startsForFeature(SectionPos.of(param5), var5)
                             .forEach(
                                 param8 -> param8.placeInChunk(
-                                        param2, param0, param1, param4, new BoundingBox(var8, var9, var8 + 15, var9 + 15), new ChunkPos(var6, var7)
+                                        param2,
+                                        param0,
+                                        param1,
+                                        param4,
+                                        new BoundingBox(var8, param2.getMinBuildHeight() + 1, var9, var8 + 15, param2.getMaxBuildHeight(), var9 + 15),
+                                        new ChunkPos(var6, var7)
                                     )
                             );
                     } catch (Exception var21) {

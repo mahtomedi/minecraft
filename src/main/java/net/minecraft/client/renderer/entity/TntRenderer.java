@@ -13,7 +13,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class TntRenderer extends EntityRenderer<PrimedTnt> {
-    public TntRenderer(EntityRenderDispatcher param0) {
+    public TntRenderer(EntityRendererProvider.Context param0) {
         super(param0);
         this.shadowRadius = 0.5F;
     }

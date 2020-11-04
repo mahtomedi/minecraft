@@ -50,6 +50,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.BucketPickup;
 import net.minecraft.world.level.block.CampfireBlock;
+import net.minecraft.world.level.block.CandleBlock;
+import net.minecraft.world.level.block.CandleCakeBlock;
 import net.minecraft.world.level.block.CarvedPumpkinBlock;
 import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.block.RespawnAnchorBlock;
@@ -385,7 +387,7 @@ public interface DispenseItemBehavior {
                 BlockState var3 = var0.getBlockState(var2);
                 if (BaseFireBlock.canBePlacedAt(var0, var2, var1)) {
                     var0.setBlockAndUpdate(var2, BaseFireBlock.getState(var0, var2));
-                } else if (CampfireBlock.canLight(var3)) {
+                } else if (CampfireBlock.canLight(var3) || CandleBlock.canLight(var3) || CandleCakeBlock.canLight(var3)) {
                     var0.setBlockAndUpdate(var2, var3.setValue(BlockStateProperties.LIT, Boolean.valueOf(true)));
                 } else if (var3.getBlock() instanceof TntBlock) {
                     TntBlock.explode(var0, var2);

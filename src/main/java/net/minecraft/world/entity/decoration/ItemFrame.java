@@ -210,7 +210,7 @@ public class ItemFrame extends HangingEntity {
             } else {
                 if (param0 instanceof Player) {
                     Player var1 = (Player)param0;
-                    if (var1.abilities.instabuild) {
+                    if (var1.getAbilities().instabuild) {
                         this.removeFramedMap(var0);
                         return;
                     }
@@ -233,7 +233,7 @@ public class ItemFrame extends HangingEntity {
     }
 
     private void removeFramedMap(ItemStack param0) {
-        if (param0.getItem() == Items.FILLED_MAP) {
+        if (param0.is(Items.FILLED_MAP)) {
             MapItemSavedData var0 = MapItem.getOrCreateSavedData(param0, this.level);
             var0.removedFromFrame(this.pos, this.getId());
             var0.setDirty(true);
@@ -355,9 +355,9 @@ public class ItemFrame extends HangingEntity {
             return InteractionResult.PASS;
         } else if (!this.level.isClientSide) {
             if (!var1) {
-                if (var2 && !this.removed) {
+                if (var2 && !this.isRemoved()) {
                     this.setItem(var0);
-                    if (!param0.abilities.instabuild) {
+                    if (!param0.getAbilities().instabuild) {
                         var0.shrink(1);
                     }
                 }
@@ -379,5 +379,19 @@ public class ItemFrame extends HangingEntity {
     @Override
     public Packet<?> getAddEntityPacket() {
         return new ClientboundAddEntityPacket(this, this.getType(), this.direction.get3DDataValue(), this.getPos());
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public void recreateFromPacket(ClientboundAddEntityPacket param0) {
+        super.recreateFromPacket(param0);
+        this.setDirection(Direction.from3DDataValue(param0.getData()));
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public ItemStack getPickResult() {
+        ItemStack var0 = this.getItem();
+        return var0.isEmpty() ? new ItemStack(Items.ITEM_FRAME) : var0.copy();
     }
 }

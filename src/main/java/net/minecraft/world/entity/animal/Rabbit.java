@@ -17,7 +17,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.AgableMob;
+import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -41,7 +41,6 @@ import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -305,11 +304,11 @@ public class Rabbit extends Animal {
         return this.isInvulnerableTo(param0) ? false : super.hurt(param0, param1);
     }
 
-    private boolean isTemptingItem(Item param0) {
-        return param0 == Items.CARROT || param0 == Items.GOLDEN_CARROT || param0 == Blocks.DANDELION.asItem();
+    private static boolean isTemptingItem(ItemStack param0) {
+        return param0.is(Items.CARROT) || param0.is(Items.GOLDEN_CARROT) || param0.is(Blocks.DANDELION.asItem());
     }
 
-    public Rabbit getBreedOffspring(ServerLevel param0, AgableMob param1) {
+    public Rabbit getBreedOffspring(ServerLevel param0, AgeableMob param1) {
         Rabbit var0 = EntityType.RABBIT.create(param0);
         int var1 = this.getRandomRabbitType(param0);
         if (this.random.nextInt(20) != 0) {
@@ -326,7 +325,7 @@ public class Rabbit extends Animal {
 
     @Override
     public boolean isFood(ItemStack param0) {
-        return this.isTemptingItem(param0.getItem());
+        return isTemptingItem(param0);
     }
 
     public int getRabbitType() {
@@ -429,7 +428,7 @@ public class Rabbit extends Animal {
         }
     }
 
-    public static class RabbitGroupData extends AgableMob.AgableMobGroupData {
+    public static class RabbitGroupData extends AgeableMob.AgeableMobGroupData {
         public final int rabbitType;
 
         public RabbitGroupData(int param0) {
@@ -566,7 +565,7 @@ public class Rabbit extends Animal {
                 BlockState var2 = var0.getBlockState(var1);
                 Block var3 = var2.getBlock();
                 if (this.canRaid && var3 instanceof CarrotBlock) {
-                    Integer var4 = var2.getValue(CarrotBlock.AGE);
+                    int var4 = var2.getValue(CarrotBlock.AGE);
                     if (var4 == 0) {
                         var0.setBlock(var1, Blocks.AIR.defaultBlockState(), 2);
                         var0.destroyBlock(var1, true, this.rabbit);
@@ -586,12 +585,10 @@ public class Rabbit extends Animal {
 
         @Override
         protected boolean isValidTarget(LevelReader param0, BlockPos param1) {
-            Block var0 = param0.getBlockState(param1).getBlock();
-            if (var0 == Blocks.FARMLAND && this.wantsToRaid && !this.canRaid) {
-                param1 = param1.above();
-                BlockState var1 = param0.getBlockState(param1);
-                var0 = var1.getBlock();
-                if (var0 instanceof CarrotBlock && ((CarrotBlock)var0).isMaxAge(var1)) {
+            BlockState var0 = param0.getBlockState(param1);
+            if (var0.is(Blocks.FARMLAND) && this.wantsToRaid && !this.canRaid) {
+                var0 = param0.getBlockState(param1.above());
+                if (var0.getBlock() instanceof CarrotBlock && ((CarrotBlock)var0.getBlock()).isMaxAge(var0)) {
                     this.canRaid = true;
                     return true;
                 }

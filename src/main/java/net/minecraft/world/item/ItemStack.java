@@ -55,7 +55,9 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.decoration.ItemFrame;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ClickAction;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.enchantment.DigDurabilityEnchantment;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -149,7 +151,7 @@ public final class ItemStack {
     public boolean isEmpty() {
         if (this == EMPTY) {
             return true;
-        } else if (this.getItem() == null || this.getItem() == Items.AIR) {
+        } else if (this.getItem() == null || this.is(Items.AIR)) {
             return true;
         } else {
             return this.count <= 0;
@@ -168,11 +170,19 @@ public final class ItemStack {
         return this.emptyCacheFlag ? Items.AIR : this.item;
     }
 
+    public boolean is(Tag<Item> param0) {
+        return param0.contains(this.getItem());
+    }
+
+    public boolean is(Item param0) {
+        return this.getItem() == param0;
+    }
+
     public InteractionResult useOn(UseOnContext param0) {
         Player var0 = param0.getPlayer();
         BlockPos var1 = param0.getClickedPos();
         BlockInWorld var2 = new BlockInWorld(param0.getLevel(), var1, false);
-        if (var0 != null && !var0.abilities.mayBuild && !this.hasAdventureModePlaceTagForBlock(param0.getLevel().getTagManager(), var2)) {
+        if (var0 != null && !var0.getAbilities().mayBuild && !this.hasAdventureModePlaceTagForBlock(param0.getLevel().getTagManager(), var2)) {
             return InteractionResult.PASS;
         } else {
             Item var3 = this.getItem();
@@ -272,7 +282,7 @@ public final class ItemStack {
     }
 
     public <T extends LivingEntity> void hurtAndBreak(int param0, T param1, Consumer<T> param2) {
-        if (!param1.level.isClientSide && (!(param1 instanceof Player) || !((Player)param1).abilities.instabuild)) {
+        if (!param1.level.isClientSide && (!(param1 instanceof Player) || !((Player)param1).getAbilities().instabuild)) {
             if (this.isDamageableItem()) {
                 if (this.hurt(param0, param1.getRandom(), param1 instanceof ServerPlayer ? (ServerPlayer)param1 : null)) {
                     param2.accept(param1);
@@ -287,6 +297,29 @@ public final class ItemStack {
 
             }
         }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public boolean isBarVisible() {
+        return this.item.isBarVisible(this);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public int getBarWidth() {
+        return this.item.getBarWidth(this);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public int getBarColor() {
+        return this.item.getBarColor(this);
+    }
+
+    public boolean overrideStackedOnOther(ItemStack param0, ClickAction param1, Inventory param2) {
+        return this.getItem().overrideStackedOnOther(this, param0, param1, param2);
+    }
+
+    public boolean overrideOtherStackedOnMe(ItemStack param0, ClickAction param1, Inventory param2) {
+        return this.getItem().overrideOtherStackedOnMe(this, param0, param1, param2);
     }
 
     public void hurtEnemy(LivingEntity param0, Player param1) {
@@ -350,7 +383,7 @@ public final class ItemStack {
     private boolean matches(ItemStack param0) {
         if (this.count != param0.count) {
             return false;
-        } else if (this.getItem() != param0.getItem()) {
+        } else if (!this.is(param0.getItem())) {
             return false;
         } else if (this.tag == null && param0.tag != null) {
             return false;
@@ -376,15 +409,19 @@ public final class ItemStack {
     }
 
     public boolean sameItem(ItemStack param0) {
-        return !param0.isEmpty() && this.getItem() == param0.getItem();
+        return !param0.isEmpty() && this.is(param0.getItem());
     }
 
     public boolean sameItemStackIgnoreDurability(ItemStack param0) {
         if (!this.isDamageableItem()) {
             return this.sameItem(param0);
         } else {
-            return !param0.isEmpty() && this.getItem() == param0.getItem();
+            return !param0.isEmpty() && this.is(param0.getItem());
         }
+    }
+
+    public static boolean isSameItemSameTags(ItemStack param0, ItemStack param1) {
+        return param0.is(param1.getItem()) && tagMatches(param0, param1);
     }
 
     public String getDescriptionId() {
@@ -540,7 +577,7 @@ public final class ItemStack {
         }
 
         var0.add(var1);
-        if (!param1.isAdvanced() && !this.hasCustomHoverName() && this.getItem() == Items.FILLED_MAP) {
+        if (!param1.isAdvanced() && !this.hasCustomHoverName() && this.is(Items.FILLED_MAP)) {
             var0.add(new TextComponent("#" + MapItem.getMapId(this)).withStyle(ChatFormatting.GRAY));
         }
 
@@ -979,6 +1016,11 @@ public final class ItemStack {
         return this.getItem().getEatingSound();
     }
 
+    @Nullable
+    public SoundEvent getEquipSound() {
+        return this.getItem().getEquipSound();
+    }
+
     public static enum TooltipPart {
         ENCHANTMENTS,
         MODIFIERS,
@@ -988,7 +1030,7 @@ public final class ItemStack {
         ADDITIONAL,
         DYE;
 
-        private int mask = 1 << this.ordinal();
+        private final int mask = 1 << this.ordinal();
 
         public int getMask() {
             return this.mask;

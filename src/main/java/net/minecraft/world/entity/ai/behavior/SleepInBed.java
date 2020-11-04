@@ -40,7 +40,7 @@ public class SleepInBed extends Behavior<LivingEntity> {
                 }
 
                 BlockState var4 = param0.getBlockState(var1.pos());
-                return var1.pos().closerThan(param1.position(), 2.0) && var4.getBlock().is(BlockTags.BEDS) && !var4.getValue(BedBlock.OCCUPIED);
+                return var1.pos().closerThan(param1.position(), 2.0) && var4.is(BlockTags.BEDS) && !var4.getValue(BedBlock.OCCUPIED);
             }
         }
     }

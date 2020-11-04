@@ -9,6 +9,7 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.math.Matrix4f;
 import java.util.stream.IntStream;
 import net.minecraft.client.gui.components.Button;
@@ -16,6 +17,7 @@ import net.minecraft.client.gui.font.TextFieldHelper;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.blockentity.SignRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.Material;
@@ -27,16 +29,18 @@ import net.minecraft.network.protocol.game.ServerboundSignUpdatePacket;
 import net.minecraft.world.level.block.StandingSignBlock;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class SignEditScreen extends Screen {
-    private final SignRenderer.SignModel signModel = new SignRenderer.SignModel();
     private final SignBlockEntity sign;
     private int frame;
     private int line;
     private TextFieldHelper signField;
+    private WoodType woodType;
+    private SignRenderer.SignModel signModel;
     private final String[] messages;
 
     public SignEditScreen(SignBlockEntity param0) {
@@ -60,6 +64,9 @@ public class SignEditScreen extends Screen {
             TextFieldHelper.createClipboardSetter(this.minecraft),
             param0 -> this.minecraft.font.width(param0) <= 90
         );
+        BlockState var0 = this.sign.getBlockState();
+        this.woodType = SignRenderer.getWoodType(var0.getBlock());
+        this.signModel = SignRenderer.createSignModel(this.minecraft.getEntityModels(), this.woodType);
     }
 
     @Override
@@ -76,7 +83,7 @@ public class SignEditScreen extends Screen {
     @Override
     public void tick() {
         ++this.frame;
-        if (!this.sign.getType().isValid(this.sign.getBlockState().getBlock())) {
+        if (!this.sign.getType().isValid(this.sign.getBlockState())) {
             this.onDone();
         }
 
@@ -134,13 +141,10 @@ public class SignEditScreen extends Screen {
         param0.pushPose();
         param0.scale(0.6666667F, -0.6666667F, -0.6666667F);
         MultiBufferSource.BufferSource var5 = this.minecraft.renderBuffers().bufferSource();
-        Material var6 = SignRenderer.getMaterial(var1.getBlock());
+        Material var6 = Sheets.signTexture(this.woodType);
         VertexConsumer var7 = var6.buffer(var5, this.signModel::renderType);
-        this.signModel.sign.render(param0, var7, 15728880, OverlayTexture.NO_OVERLAY);
-        if (var2) {
-            this.signModel.stick.render(param0, var7, 15728880, OverlayTexture.NO_OVERLAY);
-        }
-
+        this.signModel.stick.visible = var2;
+        this.signModel.root.render(param0, var7, 15728880, OverlayTexture.NO_OVERLAY);
         param0.popPose();
         float var8 = 0.010416667F;
         param0.translate(0.0, 0.33333334F, 0.046666667F);
@@ -195,7 +199,7 @@ public class SignEditScreen extends Screen {
                     RenderSystem.disableTexture();
                     RenderSystem.enableColorLogicOp();
                     RenderSystem.logicOp(GlStateManager.LogicOp.OR_REVERSE);
-                    var30.begin(7, DefaultVertexFormat.POSITION_COLOR);
+                    var30.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
                     var30.vertex(var13, (float)var27, (float)(var12 + 9), 0.0F).color(0, 0, 255, 255).endVertex();
                     var30.vertex(var13, (float)var28, (float)(var12 + 9), 0.0F).color(0, 0, 255, 255).endVertex();
                     var30.vertex(var13, (float)var28, (float)var12, 0.0F).color(0, 0, 255, 255).endVertex();

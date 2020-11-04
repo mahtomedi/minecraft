@@ -40,9 +40,9 @@ public class LightDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
             if (var2.add(var7)) {
                 DebugRenderer.renderFloatingText(
                     var0.getChunkSource().getLightEngine().getDebugData(LightLayer.SKY, SectionPos.of(var7)),
-                    (double)(SectionPos.x(var7) * 16 + 8),
-                    (double)(SectionPos.y(var7) * 16 + 8),
-                    (double)(SectionPos.z(var7) * 16 + 8),
+                    (double)SectionPos.sectionToBlockCoord(SectionPos.x(var7), 8),
+                    (double)SectionPos.sectionToBlockCoord(SectionPos.y(var7), 8),
+                    (double)SectionPos.sectionToBlockCoord(SectionPos.z(var7), 8),
                     16711680,
                     0.3F
                 );

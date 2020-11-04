@@ -7,6 +7,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -248,7 +249,7 @@ public class RenderTarget {
         float var3 = (float)this.viewHeight / (float)this.height;
         Tesselator var4 = RenderSystem.renderThreadTesselator();
         BufferBuilder var5 = var4.getBuilder();
-        var5.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
+        var5.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
         var5.vertex(0.0, (double)var1, 0.0).uv(0.0F, 0.0F).color(255, 255, 255, 255).endVertex();
         var5.vertex((double)var0, (double)var1, 0.0).uv(var2, 0.0F).color(255, 255, 255, 255).endVertex();
         var5.vertex((double)var0, 0.0, 0.0).uv(var2, var3).color(255, 255, 255, 255).endVertex();

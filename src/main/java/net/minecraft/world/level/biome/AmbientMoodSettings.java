@@ -18,10 +18,10 @@ public class AmbientMoodSettings {
                 .apply(param0, AmbientMoodSettings::new)
     );
     public static final AmbientMoodSettings LEGACY_CAVE_SETTINGS = new AmbientMoodSettings(SoundEvents.AMBIENT_CAVE, 6000, 8, 2.0);
-    private SoundEvent soundEvent;
-    private int tickDelay;
-    private int blockSearchExtent;
-    private double soundPositionOffset;
+    private final SoundEvent soundEvent;
+    private final int tickDelay;
+    private final int blockSearchExtent;
+    private final double soundPositionOffset;
 
     public AmbientMoodSettings(SoundEvent param0, int param1, int param2, double param3) {
         this.soundEvent = param0;

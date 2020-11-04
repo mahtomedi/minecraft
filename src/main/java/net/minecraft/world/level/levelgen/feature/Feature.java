@@ -7,7 +7,6 @@ import net.minecraft.core.Registry;
 import net.minecraft.world.level.LevelSimulatedReader;
 import net.minecraft.world.level.LevelWriter;
 import net.minecraft.world.level.WorldGenLevel;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
@@ -21,6 +20,7 @@ import net.minecraft.world.level.levelgen.feature.configurations.DeltaFeatureCon
 import net.minecraft.world.level.levelgen.feature.configurations.DiskConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.EndGatewayConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.GeodeConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.HugeMushroomFeatureConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.LayerConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
@@ -112,6 +112,7 @@ public abstract class Feature<FC extends FeatureConfiguration> {
         "random_boolean_selector", new RandomBooleanSelectorFeature(RandomBooleanFeatureConfiguration.CODEC)
     );
     public static final Feature<DecoratedFeatureConfiguration> DECORATED = register("decorated", new DecoratedFeature(DecoratedFeatureConfiguration.CODEC));
+    public static final Feature<GeodeConfiguration> GEODE = register("geode", new GeodeFeature(GeodeConfiguration.CODEC));
     private final Codec<ConfiguredFeature<FC, Feature<FC>>> configuredCodec;
 
     private static <C extends FeatureConfiguration, F extends Feature<C>> F register(String param0, F param1) {
@@ -136,16 +137,20 @@ public abstract class Feature<FC extends FeatureConfiguration> {
 
     public abstract boolean place(WorldGenLevel var1, ChunkGenerator var2, Random var3, BlockPos var4, FC var5);
 
-    protected static boolean isStone(Block param0) {
-        return param0 == Blocks.STONE || param0 == Blocks.GRANITE || param0 == Blocks.DIORITE || param0 == Blocks.ANDESITE;
+    protected static boolean isStone(BlockState param0) {
+        return param0.is(Blocks.STONE) || param0.is(Blocks.GRANITE) || param0.is(Blocks.DIORITE) || param0.is(Blocks.ANDESITE);
     }
 
-    public static boolean isDirt(Block param0) {
-        return param0 == Blocks.DIRT || param0 == Blocks.GRASS_BLOCK || param0 == Blocks.PODZOL || param0 == Blocks.COARSE_DIRT || param0 == Blocks.MYCELIUM;
+    public static boolean isDirt(BlockState param0) {
+        return param0.is(Blocks.DIRT)
+            || param0.is(Blocks.GRASS_BLOCK)
+            || param0.is(Blocks.PODZOL)
+            || param0.is(Blocks.COARSE_DIRT)
+            || param0.is(Blocks.MYCELIUM);
     }
 
     public static boolean isGrassOrDirt(LevelSimulatedReader param0, BlockPos param1) {
-        return param0.isStateAtPosition(param1, param0x -> isDirt(param0x.getBlock()));
+        return param0.isStateAtPosition(param1, Feature::isDirt);
     }
 
     public static boolean isAir(LevelSimulatedReader param0, BlockPos param1) {

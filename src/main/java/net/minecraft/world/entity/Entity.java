@@ -1,12 +1,12 @@
 package net.minecraft.world.entity;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import it.unimi.dsi.fastutil.objects.Object2DoubleArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -15,6 +15,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.BlockUtil;
@@ -38,6 +39,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -85,6 +87,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.entity.EntityAccess;
+import net.minecraft.world.level.entity.EntityInLevelCallback;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
@@ -106,7 +110,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public abstract class Entity implements CommandSource, Nameable {
+public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     protected static final Logger LOGGER = LogManager.getLogger();
     private static final AtomicInteger ENTITY_COUNTER = new AtomicInteger();
     private static final List<ItemStack> EMPTY_LIST = Collections.emptyList();
@@ -115,7 +119,7 @@ public abstract class Entity implements CommandSource, Nameable {
     private final EntityType<?> type;
     private int id = ENTITY_COUNTER.incrementAndGet();
     public boolean blocksBuilding;
-    private final List<Entity> passengers = Lists.newArrayList();
+    private ImmutableList<Entity> passengers = ImmutableList.of();
     protected int boardingCooldown;
     @Nullable
     private Entity vehicle;
@@ -137,7 +141,8 @@ public abstract class Entity implements CommandSource, Nameable {
     public boolean verticalCollision;
     public boolean hurtMarked;
     protected Vec3 stuckSpeedMultiplier = Vec3.ZERO;
-    public boolean removed;
+    @Nullable
+    private Entity.RemovalReason removalReason;
     public float walkDistO;
     public float walkDist;
     public float moveDist;
@@ -170,11 +175,7 @@ public abstract class Entity implements CommandSource, Nameable {
     private static final EntityDataAccessor<Boolean> DATA_SILENT = SynchedEntityData.defineId(Entity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> DATA_NO_GRAVITY = SynchedEntityData.defineId(Entity.class, EntityDataSerializers.BOOLEAN);
     protected static final EntityDataAccessor<Pose> DATA_POSE = SynchedEntityData.defineId(Entity.class, EntityDataSerializers.POSE);
-    public boolean inChunk;
-    public int xChunk;
-    public int yChunk;
-    public int zChunk;
-    private boolean movedSinceLastChunkCheck;
+    private EntityInLevelCallback levelCallback = EntityInLevelCallback.NULL;
     private Vec3 packetCoordinates;
     public boolean noCulling;
     public boolean hasImpulse;
@@ -187,11 +188,12 @@ public abstract class Entity implements CommandSource, Nameable {
     protected String stringUUID = this.uuid.toString();
     protected boolean glowing;
     private final Set<String> tags = Sets.newHashSet();
-    private boolean forceChunkAddition;
     private final double[] pistonDeltas = new double[]{0.0, 0.0, 0.0};
     private long pistonDeltasGameTime;
     private EntityDimensions dimensions;
     private float eyeHeight;
+    private float crystalSoundIntensity;
+    private int lastCrystalSoundPlayTick;
 
     public Entity(EntityType<?> param0, Level param1) {
         this.type = param0;
@@ -258,6 +260,7 @@ public abstract class Entity implements CommandSource, Nameable {
         return this.type;
     }
 
+    @Override
     public int getId() {
         return this.id;
     }
@@ -279,7 +282,11 @@ public abstract class Entity implements CommandSource, Nameable {
     }
 
     public void kill() {
-        this.remove();
+        this.remove(Entity.RemovalReason.KILLED);
+    }
+
+    public final void discard() {
+        this.remove(Entity.RemovalReason.DISCARDED);
     }
 
     protected abstract void defineSynchedData();
@@ -305,7 +312,7 @@ public abstract class Entity implements CommandSource, Nameable {
     @OnlyIn(Dist.CLIENT)
     protected void resetPos() {
         if (this.level != null) {
-            for(double var0 = this.getY(); var0 > 0.0 && var0 < 256.0; ++var0) {
+            for(double var0 = this.getY(); var0 > (double)this.level.getMinBuildHeight() && var0 < (double)this.level.getMinBuildHeight(); ++var0) {
                 this.setPos(this.getX(), var0, this.getZ());
                 if (this.level.noCollision(this)) {
                     break;
@@ -317,8 +324,8 @@ public abstract class Entity implements CommandSource, Nameable {
         }
     }
 
-    public void remove() {
-        this.removed = true;
+    public void remove(Entity.RemovalReason param0) {
+        this.setRemoved(param0);
     }
 
     public void setPose(Pose param0) {
@@ -376,7 +383,7 @@ public abstract class Entity implements CommandSource, Nameable {
 
     public void baseTick() {
         this.level.getProfiler().push("entityBaseTick");
-        if (this.isPassenger() && this.getVehicle().removed) {
+        if (this.isPassenger() && this.getVehicle().isRemoved()) {
             this.stopRiding();
         }
 
@@ -417,16 +424,20 @@ public abstract class Entity implements CommandSource, Nameable {
             this.fallDistance *= 0.5F;
         }
 
-        if (this.getY() < -64.0) {
-            this.outOfWorld();
-        }
-
+        this.checkOutOfWorld();
         if (!this.level.isClientSide) {
             this.setSharedFlag(0, this.remainingFireTicks > 0);
         }
 
         this.firstTick = false;
         this.level.getProfiler().pop();
+    }
+
+    public void checkOutOfWorld() {
+        if (this.getY() < (double)(this.level.getMinBuildHeight() - 64)) {
+            this.outOfWorld();
+        }
+
     }
 
     public void setPortalCooldown() {
@@ -448,7 +459,7 @@ public abstract class Entity implements CommandSource, Nameable {
         return 0;
     }
 
-    protected void lavaHurt() {
+    public void lavaHurt() {
         if (!this.fireImmune()) {
             this.setSecondsOnFire(15);
             this.hurt(DamageSource.LAVA, 4.0F);
@@ -480,7 +491,7 @@ public abstract class Entity implements CommandSource, Nameable {
     }
 
     protected void outOfWorld() {
-        this.remove();
+        this.discard();
     }
 
     public boolean isFree(double param0, double param1, double param2) {
@@ -555,7 +566,7 @@ public abstract class Entity implements CommandSource, Nameable {
                 double var5 = var0.x;
                 double var6 = var0.y;
                 double var7 = var0.z;
-                if (!var4.is(BlockTags.CLIMBABLE)) {
+                if (!var2.is(BlockTags.CLIMBABLE)) {
                     var6 = 0.0;
                 }
 
@@ -616,8 +627,7 @@ public abstract class Entity implements CommandSource, Nameable {
         if (this.level.getBlockState(var3).isAir()) {
             BlockPos var4 = var3.below();
             BlockState var5 = this.level.getBlockState(var4);
-            Block var6 = var5.getBlock();
-            if (var6.is(BlockTags.FENCES) || var6.is(BlockTags.WALLS) || var6 instanceof FenceGateBlock) {
+            if (var5.is(BlockTags.FENCES) || var5.is(BlockTags.WALLS) || var5.getBlock() instanceof FenceGateBlock) {
                 return var4;
             }
         }
@@ -632,9 +642,9 @@ public abstract class Entity implements CommandSource, Nameable {
     }
 
     protected float getBlockSpeedFactor() {
-        Block var0 = this.level.getBlockState(this.blockPosition()).getBlock();
-        float var1 = var0.getSpeedFactor();
-        if (var0 != Blocks.WATER && var0 != Blocks.BUBBLE_COLUMN) {
+        BlockState var0 = this.level.getBlockState(this.blockPosition());
+        float var1 = var0.getBlock().getSpeedFactor();
+        if (!var0.is(Blocks.WATER) && !var0.is(Blocks.BUBBLE_COLUMN)) {
             return (double)var1 == 1.0 ? this.level.getBlockState(this.getBlockPosBelowThatAffectsMyMovement()).getBlock().getSpeedFactor() : var1;
         } else {
             return var1;
@@ -839,7 +849,7 @@ public abstract class Entity implements CommandSource, Nameable {
                         } catch (Throwable var12) {
                             CrashReport var9 = CrashReport.forThrowable(var12, "Colliding entity with block");
                             CrashReportCategory var10 = var9.addCategory("Block being collided with");
-                            CrashReportCategory.populateBlockDetails(var10, var3, var7);
+                            CrashReportCategory.populateBlockDetails(var10, this.level, var3, var7);
                             throw new ReportedException(var9);
                         }
                     }
@@ -854,9 +864,20 @@ public abstract class Entity implements CommandSource, Nameable {
 
     protected void playStepSound(BlockPos param0, BlockState param1) {
         if (!param1.getMaterial().isLiquid()) {
-            BlockState var0 = this.level.getBlockState(param0.above());
-            SoundType var1 = var0.is(Blocks.SNOW) ? var0.getSoundType() : param1.getSoundType();
-            this.playSound(var1.getStepSound(), var1.getVolume() * 0.15F, var1.getPitch());
+            if (param1.is(BlockTags.CRYSTAL_SOUND_BLOCKS) && this.tickCount >= this.lastCrystalSoundPlayTick + 20) {
+                this.crystalSoundIntensity = (float)(
+                    (double)this.crystalSoundIntensity * Math.pow(0.997F, (double)(this.tickCount - this.lastCrystalSoundPlayTick))
+                );
+                this.crystalSoundIntensity = Math.min(1.0F, this.crystalSoundIntensity + 0.07F);
+                float var0 = 0.5F + this.crystalSoundIntensity * this.random.nextFloat() * 1.2F;
+                float var1 = 0.1F + this.crystalSoundIntensity * 1.2F;
+                this.playSound(SoundEvents.AMETHYST_BLOCK_CHIME, var1, var0);
+                this.lastCrystalSoundPlayTick = this.tickCount;
+            }
+
+            BlockState var2 = this.level.getBlockState(param0.above());
+            SoundType var3 = var2.is(Blocks.SNOW) ? var2.getSoundType() : param1.getSoundType();
+            this.playSound(var3.getStepSound(), var3.getVolume() * 0.15F, var3.getPitch());
         }
     }
 
@@ -1349,13 +1370,17 @@ public abstract class Entity implements CommandSource, Nameable {
     }
 
     public boolean saveAsPassenger(CompoundTag param0) {
-        String var0 = this.getEncodeId();
-        if (!this.removed && var0 != null) {
-            param0.putString("id", var0);
-            this.saveWithoutId(param0);
-            return true;
-        } else {
+        if (this.removalReason != null && !this.removalReason.shouldSave()) {
             return false;
+        } else {
+            String var0 = this.getEncodeId();
+            if (var0 == null) {
+                return false;
+            } else {
+                param0.putString("id", var0);
+                this.saveWithoutId(param0);
+                return true;
+            }
         }
     }
 
@@ -1574,7 +1599,7 @@ public abstract class Entity implements CommandSource, Nameable {
     }
 
     public boolean isAlive() {
-        return !this.removed;
+        return !this.isRemoved();
     }
 
     public boolean isInWall() {
@@ -1693,10 +1718,17 @@ public abstract class Entity implements CommandSource, Nameable {
         if (param0.getVehicle() != this) {
             throw new IllegalStateException("Use x.startRiding(y), not y.addPassenger(x)");
         } else {
-            if (!this.level.isClientSide && param0 instanceof Player && !(this.getControllingPassenger() instanceof Player)) {
-                this.passengers.add(0, param0);
+            if (this.passengers.isEmpty()) {
+                this.passengers = ImmutableList.of(param0);
             } else {
-                this.passengers.add(param0);
+                List<Entity> var0 = Lists.newArrayList(this.passengers);
+                if (!this.level.isClientSide && param0 instanceof Player && !(this.getControllingPassenger() instanceof Player)) {
+                    var0.add(0, param0);
+                } else {
+                    var0.add(param0);
+                }
+
+                this.passengers = ImmutableList.copyOf(var0);
             }
 
         }
@@ -1706,13 +1738,18 @@ public abstract class Entity implements CommandSource, Nameable {
         if (param0.getVehicle() == this) {
             throw new IllegalStateException("Use x.stopRiding(y), not y.removePassenger(x)");
         } else {
-            this.passengers.remove(param0);
+            if (this.passengers.size() == 1 && this.passengers.get(0) == param0) {
+                this.passengers = ImmutableList.of();
+            } else {
+                this.passengers = this.passengers.stream().filter(param1 -> param1 != param0).collect(ImmutableList.toImmutableList());
+            }
+
             param0.boardingCooldown = 60;
         }
     }
 
     protected boolean canAddPassenger(Entity param0) {
-        return this.getPassengers().size() < 1;
+        return this.passengers.isEmpty();
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -1832,7 +1869,7 @@ public abstract class Entity implements CommandSource, Nameable {
     }
 
     public boolean isVehicle() {
-        return !this.getPassengers().isEmpty();
+        return !this.passengers.isEmpty();
     }
 
     public boolean rideableUnderWater() {
@@ -2118,7 +2155,7 @@ public abstract class Entity implements CommandSource, Nameable {
 
     @Nullable
     public Entity changeDimension(ServerLevel param0) {
-        if (this.level instanceof ServerLevel && !this.removed) {
+        if (this.level instanceof ServerLevel && !this.isRemoved()) {
             this.level.getProfiler().push("changeDimension");
             this.unRide();
             this.level.getProfiler().push("reposition");
@@ -2132,7 +2169,7 @@ public abstract class Entity implements CommandSource, Nameable {
                     var1.restoreFrom(this);
                     var1.moveTo(var0.pos.x, var0.pos.y, var0.pos.z, var0.yRot, var1.xRot);
                     var1.setDeltaMovement(var0.speed);
-                    param0.addFromAnotherDimension(var1);
+                    param0.addAndForceLoad(var1);
                     if (param0.dimension() == Level.END) {
                         ServerLevel.makeObsidianPlatform(param0);
                     }
@@ -2151,7 +2188,7 @@ public abstract class Entity implements CommandSource, Nameable {
     }
 
     protected void removeAfterChangingDimensions() {
-        this.removed = true;
+        this.setRemoved(Entity.RemovalReason.CHANGED_DIMENSION);
     }
 
     @Nullable
@@ -2241,7 +2278,9 @@ public abstract class Entity implements CommandSource, Nameable {
         param0.setDetail("Entity ID", this.id);
         param0.setDetail("Entity Name", () -> this.getName().getString());
         param0.setDetail("Entity's Exact location", String.format(Locale.ROOT, "%.2f, %.2f, %.2f", this.getX(), this.getY(), this.getZ()));
-        param0.setDetail("Entity's Block location", CrashReportCategory.formatLocation(Mth.floor(this.getX()), Mth.floor(this.getY()), Mth.floor(this.getZ())));
+        param0.setDetail(
+            "Entity's Block location", CrashReportCategory.formatLocation(this.level, Mth.floor(this.getX()), Mth.floor(this.getY()), Mth.floor(this.getZ()))
+        );
         Vec3 var0 = this.getDeltaMovement();
         param0.setDetail("Entity's Momentum", String.format(Locale.ROOT, "%.2f, %.2f, %.2f", var0.x, var0.y, var0.z));
         param0.setDetail("Entity's Passengers", () -> this.getPassengers().toString());
@@ -2258,6 +2297,7 @@ public abstract class Entity implements CommandSource, Nameable {
         this.stringUUID = this.uuid.toString();
     }
 
+    @Override
     public UUID getUUID() {
         return this.uuid;
     }
@@ -2326,12 +2366,9 @@ public abstract class Entity implements CommandSource, Nameable {
         if (this.level instanceof ServerLevel) {
             ServerLevel var0 = (ServerLevel)this.level;
             this.moveTo(param0, param1, param2, this.yRot, this.xRot);
-            this.getSelfAndPassengers().forEach(param1x -> {
-                var0.updateChunkPos(param1x);
-                param1x.forceChunkAddition = true;
-
-                for(Entity var0x : param1x.passengers) {
-                    param1x.positionRider(var0x, Entity::moveTo);
+            this.getSelfAndPassengers().forEach(param0x -> {
+                for(Entity var0x : param0x.passengers) {
+                    param0x.positionRider(var0x, Entity::moveTo);
                 }
 
             });
@@ -2390,6 +2427,7 @@ public abstract class Entity implements CommandSource, Nameable {
         return true;
     }
 
+    @Override
     public AABB getBoundingBox() {
         return this.bb;
     }
@@ -2498,30 +2536,27 @@ public abstract class Entity implements CommandSource, Nameable {
         return false;
     }
 
-    public boolean checkAndResetForcedChunkAdditionFlag() {
-        boolean var0 = this.forceChunkAddition;
-        this.forceChunkAddition = false;
-        return var0;
-    }
-
-    public boolean checkAndResetUpdateChunkPos() {
-        boolean var0 = this.movedSinceLastChunkCheck;
-        this.movedSinceLastChunkCheck = false;
-        return var0;
-    }
-
     @Nullable
     public Entity getControllingPassenger() {
         return null;
     }
 
-    public List<Entity> getPassengers() {
-        return (List<Entity>)(this.passengers.isEmpty() ? Collections.emptyList() : Lists.newArrayList(this.passengers));
+    public final List<Entity> getPassengers() {
+        return this.passengers;
+    }
+
+    @Nullable
+    public Entity getFirstPassenger() {
+        return this.passengers.isEmpty() ? null : this.passengers.get(0);
     }
 
     public boolean hasPassenger(Entity param0) {
-        for(Entity var0 : this.getPassengers()) {
-            if (var0.equals(param0)) {
+        return this.passengers.contains(param0);
+    }
+
+    public boolean hasPassenger(Predicate<Entity> param0) {
+        for(Entity var0 : this.passengers) {
+            if (param0.test(var0)) {
                 return true;
             }
         }
@@ -2529,46 +2564,25 @@ public abstract class Entity implements CommandSource, Nameable {
         return false;
     }
 
-    public boolean hasPassenger(Class<? extends Entity> param0) {
-        for(Entity var0 : this.getPassengers()) {
-            if (param0.isAssignableFrom(var0.getClass())) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public Collection<Entity> getIndirectPassengers() {
-        Set<Entity> var0 = Sets.newHashSet();
-
-        for(Entity var1 : this.getPassengers()) {
-            var0.add(var1);
-            var1.fillIndirectPassengers(false, var0);
-        }
-
-        return var0;
+    private Stream<Entity> getIndirectPassengersStream() {
+        return this.passengers.stream().flatMap(Entity::getSelfAndPassengers);
     }
 
     public Stream<Entity> getSelfAndPassengers() {
-        return Stream.concat(Stream.of(this), this.passengers.stream().flatMap(Entity::getSelfAndPassengers));
+        return Stream.concat(Stream.of(this), this.getIndirectPassengersStream());
     }
 
-    public boolean hasOnePlayerPassenger() {
-        Set<Entity> var0 = Sets.newHashSet();
-        this.fillIndirectPassengers(true, var0);
-        return var0.size() == 1;
+    @Override
+    public Stream<Entity> getPassengersAndSelf() {
+        return Stream.concat(this.passengers.stream().flatMap(Entity::getPassengersAndSelf), Stream.of(this));
     }
 
-    private void fillIndirectPassengers(boolean param0, Set<Entity> param1) {
-        for(Entity var0 : this.getPassengers()) {
-            if (!param0 || ServerPlayer.class.isAssignableFrom(var0.getClass())) {
-                param1.add(var0);
-            }
+    public Iterable<Entity> getIndirectPassengers() {
+        return () -> this.getIndirectPassengersStream().iterator();
+    }
 
-            var0.fillIndirectPassengers(param0, param1);
-        }
-
+    public boolean hasExactlyOnePlayerPassenger() {
+        return this.getIndirectPassengersStream().filter(param0 -> param0 instanceof Player).count() == 1L;
     }
 
     public Entity getRootVehicle() {
@@ -2587,17 +2601,7 @@ public abstract class Entity implements CommandSource, Nameable {
 
     @OnlyIn(Dist.CLIENT)
     public boolean hasIndirectPassenger(Entity param0) {
-        for(Entity var0 : this.getPassengers()) {
-            if (var0.equals(param0)) {
-                return true;
-            }
-
-            if (var0.hasIndirectPassenger(param0)) {
-                return true;
-            }
-        }
-
-        return false;
+        return this.getIndirectPassengersStream().anyMatch(param1 -> param1 == param0);
     }
 
     public boolean isControlledByLocalInstance() {
@@ -2781,8 +2785,13 @@ public abstract class Entity implements CommandSource, Nameable {
         return this.position;
     }
 
+    @Override
     public BlockPos blockPosition() {
         return this.blockPosition;
+    }
+
+    public ChunkPos chunkPosition() {
+        return new ChunkPos(this.blockPosition);
     }
 
     public Vec3 getDeltaMovement() {
@@ -2797,6 +2806,10 @@ public abstract class Entity implements CommandSource, Nameable {
         this.setDeltaMovement(new Vec3(param0, param1, param2));
     }
 
+    public final int getBlockX() {
+        return this.blockPosition.getX();
+    }
+
     public final double getX() {
         return this.position.x;
     }
@@ -2807,6 +2820,10 @@ public abstract class Entity implements CommandSource, Nameable {
 
     public double getRandomX(double param0) {
         return this.getX((2.0 * this.random.nextDouble() - 1.0) * param0);
+    }
+
+    public final int getBlockY() {
+        return this.blockPosition.getY();
     }
 
     public final double getY() {
@@ -2823,6 +2840,10 @@ public abstract class Entity implements CommandSource, Nameable {
 
     public double getEyeY() {
         return this.position.y + (double)this.eyeHeight;
+    }
+
+    public final int getBlockZ() {
+        return this.blockPosition.getZ();
     }
 
     public final double getZ() {
@@ -2847,7 +2868,7 @@ public abstract class Entity implements CommandSource, Nameable {
                 this.blockPosition = new BlockPos(var0, var1, var2);
             }
 
-            this.movedSinceLastChunkCheck = true;
+            this.levelCallback.onMove();
         }
 
     }
@@ -2860,8 +2881,91 @@ public abstract class Entity implements CommandSource, Nameable {
         return this.getPosition(param0).add(0.0, (double)this.eyeHeight * 0.7, 0.0);
     }
 
+    @OnlyIn(Dist.CLIENT)
+    public void recreateFromPacket(ClientboundAddEntityPacket param0) {
+        int var0 = param0.getId();
+        double var1 = param0.getX();
+        double var2 = param0.getY();
+        double var3 = param0.getZ();
+        this.setPacketCoordinates(var1, var2, var3);
+        this.moveTo(var1, var2, var3);
+        this.xRot = (float)(param0.getxRot() * 360) / 256.0F;
+        this.yRot = (float)(param0.getyRot() * 360) / 256.0F;
+        this.setId(var0);
+        this.setUUID(param0.getUUID());
+    }
+
+    @Nullable
+    @OnlyIn(Dist.CLIENT)
+    public ItemStack getPickResult() {
+        return null;
+    }
+
+    public final boolean isRemoved() {
+        return this.removalReason != null;
+    }
+
+    @Override
+    public void setRemoved(Entity.RemovalReason param0) {
+        if (this.removalReason == null) {
+            this.removalReason = param0;
+        }
+
+        this.getPassengers().forEach(Entity::stopRiding);
+        this.levelCallback.onRemove(param0);
+    }
+
+    protected void unsetRemoved() {
+        this.removalReason = null;
+    }
+
+    @Override
+    public void setLevelCallback(EntityInLevelCallback param0) {
+        this.levelCallback = param0;
+    }
+
+    @Override
+    public boolean shouldBeSaved() {
+        if (this.removalReason != null && !this.removalReason.shouldSave()) {
+            return false;
+        } else if (this.isPassenger()) {
+            return false;
+        } else {
+            return !this.isVehicle() || !this.hasExactlyOnePlayerPassenger();
+        }
+    }
+
+    @Override
+    public boolean isAlwaysTicking() {
+        return false;
+    }
+
     @FunctionalInterface
     public interface MoveFunction {
         void accept(Entity var1, double var2, double var4, double var6);
+    }
+
+    public static enum RemovalReason {
+        KILLED(true, false),
+        DISCARDED(true, false),
+        UNLOADED_TO_CHUNK(false, true),
+        UNLOADED_WITH_PLAYER(false, false),
+        CHANGED_DIMENSION(false, false);
+
+        private final boolean destroy;
+        private final boolean save;
+
+        private RemovalReason(boolean param0, boolean param1) {
+            this.destroy = param0;
+            this.save = param1;
+        }
+
+        public boolean shouldDestroy() {
+            return this.destroy;
+        }
+
+        public boolean shouldSave() {
+            return this.save;
+        }
     }
 }

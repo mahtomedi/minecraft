@@ -30,7 +30,7 @@ public class Layer {
                 if (SharedConstants.IS_RUNNING_IN_IDE) {
                     throw (IllegalStateException)Util.pauseInIde(new IllegalStateException("Unknown biome id: " + var0));
                 } else {
-                    LOGGER.warn("Unknown biome id: ", var0);
+                    LOGGER.warn("Unknown biome id: {}", var0);
                     return param0.get(Biomes.byId(0));
                 }
             } else {

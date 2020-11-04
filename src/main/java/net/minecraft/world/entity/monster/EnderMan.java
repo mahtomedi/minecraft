@@ -198,12 +198,12 @@ public class EnderMan extends Monster implements NeutralMob {
         }
 
         this.setCarriedBlock(var0);
-        this.readPersistentAngerSaveData((ServerLevel)this.level, param0);
+        this.readPersistentAngerSaveData(this.level, param0);
     }
 
     private boolean isLookingAtMe(Player param0) {
-        ItemStack var0 = param0.inventory.armor.get(3);
-        if (var0.getItem() == Blocks.CARVED_PUMPKIN.asItem()) {
+        ItemStack var0 = param0.getInventory().armor.get(3);
+        if (var0.is(Blocks.CARVED_PUMPKIN.asItem())) {
             return false;
         } else {
             Vec3 var1 = param0.getViewVector(1.0F).normalize();
@@ -287,7 +287,7 @@ public class EnderMan extends Monster implements NeutralMob {
     private boolean teleport(double param0, double param1, double param2) {
         BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos(param0, param1, param2);
 
-        while(var0.getY() > 0 && !this.level.getBlockState(var0).getMaterial().blocksMotion()) {
+        while(var0.getY() > this.level.getMinBuildHeight() && !this.level.getBlockState(var0).getMaterial().blocksMotion()) {
             var0.move(Direction.DOWN);
         }
 
@@ -568,12 +568,11 @@ public class EnderMan extends Monster implements NeutralMob {
             int var4 = Mth.floor(this.enderman.getZ() - 2.0 + var0.nextDouble() * 4.0);
             BlockPos var5 = new BlockPos(var2, var3, var4);
             BlockState var6 = var1.getBlockState(var5);
-            Block var7 = var6.getBlock();
-            Vec3 var8 = new Vec3((double)Mth.floor(this.enderman.getX()) + 0.5, (double)var3 + 0.5, (double)Mth.floor(this.enderman.getZ()) + 0.5);
-            Vec3 var9 = new Vec3((double)var2 + 0.5, (double)var3 + 0.5, (double)var4 + 0.5);
-            BlockHitResult var10 = var1.clip(new ClipContext(var8, var9, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, this.enderman));
-            boolean var11 = var10.getBlockPos().equals(var5);
-            if (var7.is(BlockTags.ENDERMAN_HOLDABLE) && var11) {
+            Vec3 var7 = new Vec3((double)this.enderman.getBlockX() + 0.5, (double)var3 + 0.5, (double)this.enderman.getBlockZ() + 0.5);
+            Vec3 var8 = new Vec3((double)var2 + 0.5, (double)var3 + 0.5, (double)var4 + 0.5);
+            BlockHitResult var9 = var1.clip(new ClipContext(var7, var8, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, this.enderman));
+            boolean var10 = var9.getBlockPos().equals(var5);
+            if (var6.is(BlockTags.ENDERMAN_HOLDABLE) && var10) {
                 var1.removeBlock(var5, false);
                 this.enderman.setCarriedBlock(var6.getBlock().defaultBlockState());
             }

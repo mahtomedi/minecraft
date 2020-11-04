@@ -15,6 +15,7 @@ import net.minecraft.util.Mth;
 public class AngleArgument implements ArgumentType<AngleArgument.SingleAngle> {
     private static final Collection<String> EXAMPLES = Arrays.asList("0", "~", "~-5");
     public static final SimpleCommandExceptionType ERROR_NOT_COMPLETE = new SimpleCommandExceptionType(new TranslatableComponent("argument.angle.incomplete"));
+    public static final SimpleCommandExceptionType ERROR_INVALID_ANGLE = new SimpleCommandExceptionType(new TranslatableComponent("argument.angle.invalid"));
 
     public static AngleArgument angle() {
         return new AngleArgument();
@@ -30,7 +31,11 @@ public class AngleArgument implements ArgumentType<AngleArgument.SingleAngle> {
         } else {
             boolean var0 = WorldCoordinate.isRelative(param0);
             float var1 = param0.canRead() && param0.peek() != ' ' ? param0.readFloat() : 0.0F;
-            return new AngleArgument.SingleAngle(var1, var0);
+            if (!Float.isNaN(var1) && !Float.isInfinite(var1)) {
+                return new AngleArgument.SingleAngle(var1, var0);
+            } else {
+                throw ERROR_INVALID_ANGLE.createWithContext(param0);
+            }
         }
     }
 

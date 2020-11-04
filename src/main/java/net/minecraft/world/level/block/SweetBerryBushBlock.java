@@ -86,7 +86,7 @@ public class SweetBerryBushBlock extends BushBlock implements BonemealableBlock 
     public InteractionResult use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
         int var0 = param0.getValue(AGE);
         boolean var1 = var0 == 3;
-        if (!var1 && param3.getItemInHand(param4).getItem() == Items.BONE_MEAL) {
+        if (!var1 && param3.getItemInHand(param4).is(Items.BONE_MEAL)) {
             return InteractionResult.PASS;
         } else if (var0 > 1) {
             int var2 = 1 + param1.random.nextInt(2);

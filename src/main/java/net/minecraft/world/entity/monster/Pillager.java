@@ -39,7 +39,6 @@ import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.raid.Raid;
 import net.minecraft.world.entity.raid.Raider;
 import net.minecraft.world.item.BannerItem;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ProjectileWeaponItem;
@@ -184,7 +183,7 @@ public class Pillager extends AbstractIllager implements CrossbowAttackMob {
         super.enchantSpawnedWeapon(param0);
         if (this.random.nextInt(300) == 0) {
             ItemStack var0 = this.getMainHandItem();
-            if (var0.getItem() == Items.CROSSBOW) {
+            if (var0.is(Items.CROSSBOW)) {
                 Map<Enchantment, Integer> var1 = EnchantmentHelper.getEnchantments(var0);
                 var1.putIfAbsent(Enchantments.PIERCING, 1);
                 EnchantmentHelper.setEnchantments(var1, var0);
@@ -235,23 +234,20 @@ public class Pillager extends AbstractIllager implements CrossbowAttackMob {
         ItemStack var0 = param0.getItem();
         if (var0.getItem() instanceof BannerItem) {
             super.pickUpItem(param0);
-        } else {
-            Item var1 = var0.getItem();
-            if (this.wantsItem(var1)) {
-                this.onItemPickup(param0);
-                ItemStack var2 = this.inventory.addItem(var0);
-                if (var2.isEmpty()) {
-                    param0.remove();
-                } else {
-                    var0.setCount(var2.getCount());
-                }
+        } else if (this.wantsItem(var0)) {
+            this.onItemPickup(param0);
+            ItemStack var1 = this.inventory.addItem(var0);
+            if (var1.isEmpty()) {
+                param0.discard();
+            } else {
+                var0.setCount(var1.getCount());
             }
         }
 
     }
 
-    private boolean wantsItem(Item param0) {
-        return this.hasActiveRaid() && param0 == Items.WHITE_BANNER;
+    private boolean wantsItem(ItemStack param0) {
+        return this.hasActiveRaid() && param0.is(Items.WHITE_BANNER);
     }
 
     @Override

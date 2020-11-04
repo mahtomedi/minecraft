@@ -116,7 +116,7 @@ public class FenceGateBlock extends HorizontalDirectionalBlock {
     }
 
     private boolean isWall(BlockState param0) {
-        return param0.getBlock().is(BlockTags.WALLS);
+        return param0.is(BlockTags.WALLS);
     }
 
     @Override

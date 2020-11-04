@@ -15,9 +15,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class FireworkEntityRenderer extends EntityRenderer<FireworkRocketEntity> {
     private final ItemRenderer itemRenderer;
 
-    public FireworkEntityRenderer(EntityRenderDispatcher param0, ItemRenderer param1) {
+    public FireworkEntityRenderer(EntityRendererProvider.Context param0) {
         super(param0);
-        this.itemRenderer = param1;
+        this.itemRenderer = param0.getItemRenderer();
     }
 
     public void render(FireworkRocketEntity param0, float param1, float param2, PoseStack param3, MultiBufferSource param4, int param5) {

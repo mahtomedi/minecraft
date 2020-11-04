@@ -1,17 +1,14 @@
 package net.minecraft.client.model;
 
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class ArmorStandArmorModel extends HumanoidModel<ArmorStand> {
-    public ArmorStandArmorModel(float param0) {
-        this(param0, 64, 32);
-    }
-
-    protected ArmorStandArmorModel(float param0, int param1, int param2) {
-        super(param0, 0.0F, param1, param2);
+    public ArmorStandArmorModel(ModelPart param0) {
+        super(param0);
     }
 
     public void setupAnim(ArmorStand param0, float param1, float param2, float param3, float param4, float param5) {

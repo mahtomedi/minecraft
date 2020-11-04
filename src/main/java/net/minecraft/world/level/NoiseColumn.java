@@ -30,4 +30,14 @@ public final class NoiseColumn implements BlockGetter {
     public FluidState getFluidState(BlockPos param0) {
         return this.getBlockState(param0).getFluidState();
     }
+
+    @Override
+    public int getSectionsCount() {
+        return 16;
+    }
+
+    @Override
+    public int getMinSection() {
+        return 0;
+    }
 }

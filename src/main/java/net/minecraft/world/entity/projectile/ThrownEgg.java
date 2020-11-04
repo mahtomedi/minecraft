@@ -74,7 +74,7 @@ public class ThrownEgg extends ThrowableItemProjectile {
             }
 
             this.level.broadcastEntityEvent(this, (byte)3);
-            this.remove();
+            this.discard();
         }
 
     }

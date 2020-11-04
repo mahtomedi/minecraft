@@ -15,6 +15,8 @@ import net.minecraft.world.Difficulty;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseFireBlock;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LightningRodBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.api.distmarker.Dist;
@@ -49,6 +51,15 @@ public class LightningBolt extends Entity {
         this.cause = param0;
     }
 
+    private void powerLightningRod() {
+        BlockPos var0 = this.blockPosition().below();
+        BlockState var1 = this.level.getBlockState(var0);
+        if (var1.is(Blocks.LIGHTNING_ROD)) {
+            ((LightningRodBlock)var1.getBlock()).onLightningStrike(var1, this.level, var0);
+        }
+
+    }
+
     @Override
     public void tick() {
         super.tick();
@@ -58,6 +69,7 @@ public class LightningBolt extends Entity {
                 this.spawnFire(4);
             }
 
+            this.powerLightningRod();
             this.level
                 .playSound(
                     null,
@@ -85,7 +97,7 @@ public class LightningBolt extends Entity {
         --this.life;
         if (this.life < 0) {
             if (this.flashes == 0) {
-                this.remove();
+                this.discard();
             } else if (this.life < -this.random.nextInt(10)) {
                 --this.flashes;
                 this.life = 1;

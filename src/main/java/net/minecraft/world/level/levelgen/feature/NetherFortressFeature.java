@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import java.util.List;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.SectionPos;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.biome.Biome;
@@ -63,7 +64,9 @@ public class NetherFortressFeature extends StructureFeature<NoneFeatureConfigura
         public void generatePieces(
             RegistryAccess param0, ChunkGenerator param1, StructureManager param2, int param3, int param4, Biome param5, NoneFeatureConfiguration param6
         ) {
-            NetherBridgePieces.StartPiece var0 = new NetherBridgePieces.StartPiece(this.random, (param3 << 4) + 2, (param4 << 4) + 2);
+            NetherBridgePieces.StartPiece var0 = new NetherBridgePieces.StartPiece(
+                this.random, SectionPos.sectionToBlockCoord(param3, 2), SectionPos.sectionToBlockCoord(param4, 2)
+            );
             this.pieces.add(var0);
             var0.addChildren(var0, this.pieces, this.random);
             List<StructurePiece> var1 = var0.pendingChildren;

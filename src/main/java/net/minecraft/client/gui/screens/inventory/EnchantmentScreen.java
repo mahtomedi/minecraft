@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Random;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.model.BookModel;
+import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.network.chat.Component;
@@ -32,8 +33,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class EnchantmentScreen extends AbstractContainerScreen<EnchantmentMenu> {
     private static final ResourceLocation ENCHANTING_TABLE_LOCATION = new ResourceLocation("textures/gui/container/enchanting_table.png");
     private static final ResourceLocation ENCHANTING_BOOK_LOCATION = new ResourceLocation("textures/entity/enchanting_table_book.png");
-    private static final BookModel BOOK_MODEL = new BookModel();
     private final Random random = new Random();
+    private BookModel bookModel;
     public int time;
     public float flip;
     public float oFlip;
@@ -45,6 +46,12 @@ public class EnchantmentScreen extends AbstractContainerScreen<EnchantmentMenu> 
 
     public EnchantmentScreen(EnchantmentMenu param0, Inventory param1, Component param2) {
         super(param0, param1, param2);
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+        this.bookModel = new BookModel(this.minecraft.getEntityModels().getLayer(ModelLayers.BOOK));
     }
 
     @Override
@@ -121,10 +128,10 @@ public class EnchantmentScreen extends AbstractContainerScreen<EnchantmentMenu> 
         }
 
         RenderSystem.enableRescaleNormal();
-        BOOK_MODEL.setupAnim(0.0F, var7, var8, var5);
+        this.bookModel.setupAnim(0.0F, var7, var8, var5);
         MultiBufferSource.BufferSource var9 = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-        VertexConsumer var10 = var9.getBuffer(BOOK_MODEL.renderType(ENCHANTING_BOOK_LOCATION));
-        BOOK_MODEL.renderToBuffer(param0, var10, 15728880, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
+        VertexConsumer var10 = var9.getBuffer(this.bookModel.renderType(ENCHANTING_BOOK_LOCATION));
+        this.bookModel.renderToBuffer(param0, var10, 15728880, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
         var9.endBatch();
         param0.popPose();
         RenderSystem.matrixMode(5889);
@@ -150,7 +157,7 @@ public class EnchantmentScreen extends AbstractContainerScreen<EnchantmentMenu> 
                 int var17 = 86 - this.font.width(var16);
                 FormattedText var18 = EnchantmentNames.getInstance().getRandomName(this.font, var17);
                 int var19 = 6839882;
-                if ((var11 < var12 + 1 || this.minecraft.player.experienceLevel < var15) && !this.minecraft.player.abilities.instabuild) {
+                if ((var11 < var12 + 1 || this.minecraft.player.experienceLevel < var15) && !this.minecraft.player.getAbilities().instabuild) {
                     this.blit(param0, var13, var1 + 14 + 19 * var12, 0, 185, 108, 19);
                     this.blit(param0, var13 + 1, var1 + 15 + 19 * var12, 16 * var12, 239, 16, 16);
                     this.font.drawWordWrap(var18, var14, var1 + 16 + 19 * var12, var17, (var19 & 16711422) >> 1);
@@ -182,7 +189,7 @@ public class EnchantmentScreen extends AbstractContainerScreen<EnchantmentMenu> 
         this.renderBackground(param0);
         super.render(param0, param1, param2, param3);
         this.renderTooltip(param0, param1, param2);
-        boolean var0 = this.minecraft.player.abilities.instabuild;
+        boolean var0 = this.minecraft.player.getAbilities().instabuild;
         int var1 = this.menu.getGoldCount();
 
         for(int var2 = 0; var2 < 3; ++var2) {

@@ -15,6 +15,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.StringUtil;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameType;
 import net.minecraftforge.api.distmarker.Dist;
@@ -112,25 +113,30 @@ public abstract class AbstractClientPlayer extends Player {
 
     public float getFieldOfViewModifier() {
         float var0 = 1.0F;
-        if (this.abilities.flying) {
+        if (this.getAbilities().flying) {
             var0 *= 1.1F;
         }
 
-        var0 = (float)((double)var0 * ((this.getAttributeValue(Attributes.MOVEMENT_SPEED) / (double)this.abilities.getWalkingSpeed() + 1.0) / 2.0));
-        if (this.abilities.getWalkingSpeed() == 0.0F || Float.isNaN(var0) || Float.isInfinite(var0)) {
+        var0 = (float)((double)var0 * ((this.getAttributeValue(Attributes.MOVEMENT_SPEED) / (double)this.getAbilities().getWalkingSpeed() + 1.0) / 2.0));
+        if (this.getAbilities().getWalkingSpeed() == 0.0F || Float.isNaN(var0) || Float.isInfinite(var0)) {
             var0 = 1.0F;
         }
 
-        if (this.isUsingItem() && this.getUseItem().getItem() == Items.BOW) {
-            int var1 = this.getTicksUsingItem();
-            float var2 = (float)var1 / 20.0F;
-            if (var2 > 1.0F) {
-                var2 = 1.0F;
-            } else {
-                var2 *= var2;
-            }
+        ItemStack var1 = this.getUseItem();
+        if (this.isUsingItem()) {
+            if (var1.is(Items.BOW)) {
+                int var2 = this.getTicksUsingItem();
+                float var3 = (float)var2 / 20.0F;
+                if (var3 > 1.0F) {
+                    var3 = 1.0F;
+                } else {
+                    var3 *= var3;
+                }
 
-            var0 *= 1.0F - var2 * 0.15F;
+                var0 *= 1.0F - var3 * 0.15F;
+            } else if (Minecraft.getInstance().options.getCameraType().isFirstPerson() && this.isScoping()) {
+                return 0.1F;
+            }
         }
 
         return Mth.lerp(Minecraft.getInstance().options.fovEffectScale, 1.0F, var0);

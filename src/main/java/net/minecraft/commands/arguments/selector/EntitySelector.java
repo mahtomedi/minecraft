@@ -18,10 +18,21 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 public class EntitySelector {
+    private static final EntityTypeTest<Entity, ?> ANY_TYPE = new EntityTypeTest<Entity, Entity>() {
+        public Entity tryCast(Entity param0) {
+            return param0;
+        }
+
+        @Override
+        public Class<? extends Entity> getBaseClass() {
+            return Entity.class;
+        }
+    };
     private final int maxResults;
     private final boolean includesEntities;
     private final boolean worldLimited;
@@ -36,8 +47,7 @@ public class EntitySelector {
     private final String playerName;
     @Nullable
     private final UUID entityUUID;
-    @Nullable
-    private final EntityType<?> type;
+    private EntityTypeTest<Entity, ?> type;
     private final boolean usesSelector;
 
     public EntitySelector(
@@ -66,7 +76,7 @@ public class EntitySelector {
         this.currentEntity = param8;
         this.playerName = param9;
         this.entityUUID = param10;
-        this.type = param11;
+        this.type = (EntityTypeTest<Entity, ?>)(param11 == null ? ANY_TYPE : param11);
         this.usesSelector = param12;
     }
 
@@ -184,7 +194,7 @@ public class EntitySelector {
             } else {
                 List<ServerPlayer> var5;
                 if (this.isWorldLimited()) {
-                    var5 = param0.getLevel().getPlayers(var3::test);
+                    var5 = param0.getLevel().getPlayers(var3);
                 } else {
                     var5 = Lists.newArrayList();
 

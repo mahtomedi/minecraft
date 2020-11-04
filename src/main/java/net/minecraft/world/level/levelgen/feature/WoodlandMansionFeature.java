@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.WorldGenLevel;
@@ -44,7 +45,7 @@ public class WoodlandMansionFeature extends StructureFeature<NoneFeatureConfigur
         ChunkPos param7,
         NoneFeatureConfiguration param8
     ) {
-        for(Biome var1 : param1.getBiomesWithin(param4 * 16 + 9, param0.getSeaLevel(), param5 * 16 + 9, 32)) {
+        for(Biome var1 : param1.getBiomesWithin(SectionPos.sectionToBlockCoord(param4, 9), param0.getSeaLevel(), SectionPos.sectionToBlockCoord(param5, 9), 32)) {
             if (!var1.getGenerationSettings().isValidStart(this)) {
                 return false;
             }
@@ -78,15 +79,15 @@ public class WoodlandMansionFeature extends StructureFeature<NoneFeatureConfigur
                 var2 = -5;
             }
 
-            int var3 = (param3 << 4) + 7;
-            int var4 = (param4 << 4) + 7;
+            int var3 = SectionPos.sectionToBlockCoord(param3, 7);
+            int var4 = SectionPos.sectionToBlockCoord(param4, 7);
             int var5 = param1.getFirstOccupiedHeight(var3, var4, Heightmap.Types.WORLD_SURFACE_WG);
             int var6 = param1.getFirstOccupiedHeight(var3, var4 + var2, Heightmap.Types.WORLD_SURFACE_WG);
             int var7 = param1.getFirstOccupiedHeight(var3 + var1, var4, Heightmap.Types.WORLD_SURFACE_WG);
             int var8 = param1.getFirstOccupiedHeight(var3 + var1, var4 + var2, Heightmap.Types.WORLD_SURFACE_WG);
             int var9 = Math.min(Math.min(var5, var6), Math.min(var7, var8));
             if (var9 >= 60) {
-                BlockPos var10 = new BlockPos(param3 * 16 + 8, var9 + 1, param4 * 16 + 8);
+                BlockPos var10 = new BlockPos(SectionPos.sectionToBlockCoord(param3, 8), var9 + 1, SectionPos.sectionToBlockCoord(param4, 8));
                 List<WoodlandMansionPieces.WoodlandMansionPiece> var11 = Lists.newLinkedList();
                 WoodlandMansionPieces.generateMansion(param2, var10, var0, var11, this.random);
                 this.pieces.addAll(var11);

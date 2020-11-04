@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector3f;
 import net.minecraft.client.model.BookModel;
+import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlas;
@@ -15,12 +16,12 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class EnchantTableRenderer extends BlockEntityRenderer<EnchantmentTableBlockEntity> {
+public class EnchantTableRenderer implements BlockEntityRenderer<EnchantmentTableBlockEntity> {
     public static final Material BOOK_LOCATION = new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation("entity/enchanting_table_book"));
-    private final BookModel bookModel = new BookModel();
+    private final BookModel bookModel;
 
-    public EnchantTableRenderer(BlockEntityRenderDispatcher param0) {
-        super(param0);
+    public EnchantTableRenderer(BlockEntityRendererProvider.Context param0) {
+        this.bookModel = new BookModel(param0.getLayer(ModelLayers.BOOK));
     }
 
     public void render(EnchantmentTableBlockEntity param0, float param1, PoseStack param2, MultiBufferSource param3, int param4, int param5) {

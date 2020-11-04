@@ -3,6 +3,7 @@ package net.minecraft.client.renderer.entity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.LeashKnotModel;
+import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
@@ -13,10 +14,11 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class LeashKnotRenderer extends EntityRenderer<LeashFenceKnotEntity> {
     private static final ResourceLocation KNOT_LOCATION = new ResourceLocation("textures/entity/lead_knot.png");
-    private final LeashKnotModel<LeashFenceKnotEntity> model = new LeashKnotModel<>();
+    private final LeashKnotModel<LeashFenceKnotEntity> model;
 
-    public LeashKnotRenderer(EntityRenderDispatcher param0) {
+    public LeashKnotRenderer(EntityRendererProvider.Context param0) {
         super(param0);
+        this.model = new LeashKnotModel<>(param0.getLayer(ModelLayers.LEASH_KNOT));
     }
 
     public void render(LeashFenceKnotEntity param0, float param1, float param2, PoseStack param3, MultiBufferSource param4, int param5) {

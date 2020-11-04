@@ -76,7 +76,7 @@ public class Shulker extends AbstractGolem implements Enemy {
         this.goalSelector.addGoal(4, new Shulker.ShulkerAttackGoal());
         this.goalSelector.addGoal(7, new Shulker.ShulkerPeekGoal());
         this.goalSelector.addGoal(8, new RandomLookAroundGoal(this));
-        this.targetSelector.addGoal(1, new HurtByTargetGoal(this).setAlertOthers());
+        this.targetSelector.addGoal(1, new HurtByTargetGoal(this, this.getClass()).setAlertOthers());
         this.targetSelector.addGoal(2, new Shulker.ShulkerNearestAttackGoal(this));
         this.targetSelector.addGoal(3, new Shulker.ShulkerDefenseAttackGoal(this));
     }
@@ -305,12 +305,13 @@ public class Shulker extends AbstractGolem implements Enemy {
 
             for(int var1 = 0; var1 < 5; ++var1) {
                 BlockPos var2 = var0.offset(8 - this.random.nextInt(17), 8 - this.random.nextInt(17), 8 - this.random.nextInt(17));
-                if (var2.getY() > 0
+                if (var2.getY() > this.level.getMinBuildHeight()
                     && this.level.isEmptyBlock(var2)
                     && this.level.getWorldBorder().isWithinBounds(var2)
                     && this.level.noCollision(this, new AABB(var2))) {
                     Direction var3 = this.findAttachableFace(var2);
                     if (var3 != null) {
+                        this.unRide();
                         this.entityData.set(DATA_ATTACH_FACE_ID, var3);
                         this.playSound(SoundEvents.SHULKER_TELEPORT, 1.0F, 1.0F);
                         this.entityData.set(DATA_ATTACH_POS_ID, Optional.of(var2));
@@ -323,7 +324,7 @@ public class Shulker extends AbstractGolem implements Enemy {
 
             return false;
         } else {
-            return true;
+            return false;
         }
     }
 
@@ -371,19 +372,43 @@ public class Shulker extends AbstractGolem implements Enemy {
             }
         }
 
-        if (super.hurt(param0, param1)) {
+        if (!super.hurt(param0, param1)) {
+            return false;
+        } else {
             if ((double)this.getHealth() < (double)this.getMaxHealth() * 0.5 && this.random.nextInt(4) == 0) {
                 this.teleportSomewhere();
+            } else if (param0.isProjectile()) {
+                Entity var1 = param0.getDirectEntity();
+                if (var1 != null && var1.getType() == EntityType.SHULKER_BULLET) {
+                    this.hitByShulkerBullet();
+                }
             }
 
             return true;
-        } else {
-            return false;
         }
     }
 
     private boolean isClosed() {
         return this.getRawPeekAmount() == 0;
+    }
+
+    private void hitByShulkerBullet() {
+        Vec3 var0 = this.position();
+        AABB var1 = this.getBoundingBox();
+        if (!this.isClosed() && this.teleportSomewhere()) {
+            int var2 = this.level.getEntities(EntityType.SHULKER, var1.inflate(8.0), Entity::isAlive).size();
+            float var3 = (float)(var2 - 1) / 5.0F;
+            if (!(this.level.random.nextFloat() < var3)) {
+                Shulker var4 = EntityType.SHULKER.create(this.level);
+                DyeColor var5 = this.getColor();
+                if (var5 != null) {
+                    var4.setColor(var5);
+                }
+
+                var4.moveTo(var0);
+                this.level.addFreshEntity(var4);
+            }
+        }
     }
 
     @Override
@@ -466,10 +491,13 @@ public class Shulker extends AbstractGolem implements Enemy {
         return this.oldAttachPosition != null && this.getAttachPosition() != null;
     }
 
+    public void setColor(DyeColor param0) {
+        this.entityData.set(DATA_COLOR_ID, (byte)param0.getId());
+    }
+
     @Nullable
-    @OnlyIn(Dist.CLIENT)
     public DyeColor getColor() {
-        Byte var0 = this.entityData.get(DATA_COLOR_ID);
+        byte var0 = this.entityData.get(DATA_COLOR_ID);
         return var0 != 16 && var0 <= 15 ? DyeColor.byId(var0) : null;
     }
 

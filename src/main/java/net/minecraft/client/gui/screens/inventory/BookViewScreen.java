@@ -23,7 +23,6 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.WrittenBookItem;
@@ -267,11 +266,10 @@ public class BookViewScreen extends Screen {
         }
 
         static BookViewScreen.BookAccess fromItem(ItemStack param0) {
-            Item var0 = param0.getItem();
-            if (var0 == Items.WRITTEN_BOOK) {
+            if (param0.is(Items.WRITTEN_BOOK)) {
                 return new BookViewScreen.WrittenBookAccess(param0);
             } else {
-                return (BookViewScreen.BookAccess)(var0 == Items.WRITABLE_BOOK ? new BookViewScreen.WritableBookAccess(param0) : BookViewScreen.EMPTY_ACCESS);
+                return (BookViewScreen.BookAccess)(param0.is(Items.WRITABLE_BOOK) ? new BookViewScreen.WritableBookAccess(param0) : BookViewScreen.EMPTY_ACCESS);
             }
         }
     }

@@ -31,6 +31,7 @@ import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameRules;
@@ -98,7 +99,6 @@ public abstract class AbstractMinecart extends Entity {
     protected AbstractMinecart(EntityType<?> param0, Level param1, double param2, double param3, double param4) {
         this(param0, param1);
         this.setPos(param2, param3, param4);
-        this.setDeltaMovement(Vec3.ZERO);
         this.xo = param2;
         this.yo = param3;
         this.zo = param4;
@@ -210,7 +210,7 @@ public abstract class AbstractMinecart extends Entity {
 
     @Override
     public boolean hurt(DamageSource param0, float param1) {
-        if (this.level.isClientSide || this.removed) {
+        if (this.level.isClientSide || this.isRemoved()) {
             return true;
         } else if (this.isInvulnerableTo(param0)) {
             return false;
@@ -219,11 +219,11 @@ public abstract class AbstractMinecart extends Entity {
             this.setHurtTime(10);
             this.markHurt();
             this.setDamage(this.getDamage() + param1 * 10.0F);
-            boolean var0 = param0.getEntity() instanceof Player && ((Player)param0.getEntity()).abilities.instabuild;
+            boolean var0 = param0.getEntity() instanceof Player && ((Player)param0.getEntity()).getAbilities().instabuild;
             if (var0 || this.getDamage() > 40.0F) {
                 this.ejectPassengers();
                 if (var0 && !this.hasCustomName()) {
-                    this.remove();
+                    this.discard();
                 } else {
                     this.destroy(param0);
                 }
@@ -240,7 +240,7 @@ public abstract class AbstractMinecart extends Entity {
     }
 
     public void destroy(DamageSource param0) {
-        this.remove();
+        this.remove(Entity.RemovalReason.KILLED);
         if (this.level.getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
             ItemStack var0 = new ItemStack(Items.MINECART);
             if (this.hasCustomName()) {
@@ -262,7 +262,7 @@ public abstract class AbstractMinecart extends Entity {
 
     @Override
     public boolean isPickable() {
-        return !this.removed;
+        return !this.isRemoved();
     }
 
     private static Pair<Vec3i, Vec3i> exits(RailShape param0) {
@@ -284,10 +284,7 @@ public abstract class AbstractMinecart extends Entity {
             this.setDamage(this.getDamage() - 1.0F);
         }
 
-        if (this.getY() < -64.0) {
-            this.outOfWorld();
-        }
-
+        this.checkOutOfWorld();
         this.handleNetherPortal();
         if (this.level.isClientSide) {
             if (this.lSteps > 0) {
@@ -307,22 +304,23 @@ public abstract class AbstractMinecart extends Entity {
 
         } else {
             if (!this.isNoGravity()) {
-                this.setDeltaMovement(this.getDeltaMovement().add(0.0, -0.04, 0.0));
+                double var4 = this.isInWater() ? -0.005 : -0.04;
+                this.setDeltaMovement(this.getDeltaMovement().add(0.0, var4, 0.0));
             }
 
-            int var4 = Mth.floor(this.getX());
-            int var5 = Mth.floor(this.getY());
-            int var6 = Mth.floor(this.getZ());
-            if (this.level.getBlockState(new BlockPos(var4, var5 - 1, var6)).is(BlockTags.RAILS)) {
-                --var5;
+            int var5 = Mth.floor(this.getX());
+            int var6 = Mth.floor(this.getY());
+            int var7 = Mth.floor(this.getZ());
+            if (this.level.getBlockState(new BlockPos(var5, var6 - 1, var7)).is(BlockTags.RAILS)) {
+                --var6;
             }
 
-            BlockPos var7 = new BlockPos(var4, var5, var6);
-            BlockState var8 = this.level.getBlockState(var7);
-            if (BaseRailBlock.isRail(var8)) {
-                this.moveAlongTrack(var7, var8);
-                if (var8.is(Blocks.ACTIVATOR_RAIL)) {
-                    this.activateMinecart(var4, var5, var6, var8.getValue(PoweredRailBlock.POWERED));
+            BlockPos var8 = new BlockPos(var5, var6, var7);
+            BlockState var9 = this.level.getBlockState(var8);
+            if (BaseRailBlock.isRail(var9)) {
+                this.moveAlongTrack(var8, var9);
+                if (var9.is(Blocks.ACTIVATOR_RAIL)) {
+                    this.activateMinecart(var5, var6, var7, var9.getValue(PoweredRailBlock.POWERED));
                 }
             } else {
                 this.comeOffTrack();
@@ -330,42 +328,42 @@ public abstract class AbstractMinecart extends Entity {
 
             this.checkInsideBlocks();
             this.xRot = 0.0F;
-            double var9 = this.xo - this.getX();
-            double var10 = this.zo - this.getZ();
-            if (var9 * var9 + var10 * var10 > 0.001) {
-                this.yRot = (float)(Mth.atan2(var10, var9) * 180.0 / Math.PI);
+            double var10 = this.xo - this.getX();
+            double var11 = this.zo - this.getZ();
+            if (var10 * var10 + var11 * var11 > 0.001) {
+                this.yRot = (float)(Mth.atan2(var11, var10) * 180.0 / Math.PI);
                 if (this.flipped) {
                     this.yRot += 180.0F;
                 }
             }
 
-            double var11 = (double)Mth.wrapDegrees(this.yRot - this.yRotO);
-            if (var11 < -170.0 || var11 >= 170.0) {
+            double var12 = (double)Mth.wrapDegrees(this.yRot - this.yRotO);
+            if (var12 < -170.0 || var12 >= 170.0) {
                 this.yRot += 180.0F;
                 this.flipped = !this.flipped;
             }
 
             this.setRot(this.yRot, this.xRot);
             if (this.getMinecartType() == AbstractMinecart.Type.RIDEABLE && getHorizontalDistanceSqr(this.getDeltaMovement()) > 0.01) {
-                List<Entity> var12 = this.level.getEntities(this, this.getBoundingBox().inflate(0.2F, 0.0, 0.2F), EntitySelector.pushableBy(this));
-                if (!var12.isEmpty()) {
-                    for(int var13 = 0; var13 < var12.size(); ++var13) {
-                        Entity var14 = var12.get(var13);
-                        if (!(var14 instanceof Player)
-                            && !(var14 instanceof IronGolem)
-                            && !(var14 instanceof AbstractMinecart)
+                List<Entity> var13 = this.level.getEntities(this, this.getBoundingBox().inflate(0.2F, 0.0, 0.2F), EntitySelector.pushableBy(this));
+                if (!var13.isEmpty()) {
+                    for(int var14 = 0; var14 < var13.size(); ++var14) {
+                        Entity var15 = var13.get(var14);
+                        if (!(var15 instanceof Player)
+                            && !(var15 instanceof IronGolem)
+                            && !(var15 instanceof AbstractMinecart)
                             && !this.isVehicle()
-                            && !var14.isPassenger()) {
-                            var14.startRiding(this);
+                            && !var15.isPassenger()) {
+                            var15.startRiding(this);
                         } else {
-                            var14.push(this);
+                            var15.push(this);
                         }
                     }
                 }
             } else {
-                for(Entity var15 : this.level.getEntities(this, this.getBoundingBox().inflate(0.2F, 0.0, 0.2F))) {
-                    if (!this.hasPassenger(var15) && var15.isPushable() && var15 instanceof AbstractMinecart) {
-                        var15.push(this);
+                for(Entity var16 : this.level.getEntities(this, this.getBoundingBox().inflate(0.2F, 0.0, 0.2F))) {
+                    if (!this.hasPassenger(var16) && var16.isPushable() && var16 instanceof AbstractMinecart) {
+                        var16.push(this);
                     }
                 }
             }
@@ -381,7 +379,7 @@ public abstract class AbstractMinecart extends Entity {
     }
 
     protected double getMaxSpeed() {
-        return 0.4;
+        return (this.isInWater() ? 4.0 : 8.0) / 20.0;
     }
 
     public void activateMinecart(int param0, int param1, int param2, boolean param3) {
@@ -411,149 +409,152 @@ public abstract class AbstractMinecart extends Entity {
         var1 = (double)param0.getY();
         boolean var4 = false;
         boolean var5 = false;
-        BaseRailBlock var6 = (BaseRailBlock)param1.getBlock();
-        if (var6 == Blocks.POWERED_RAIL) {
+        if (param1.is(Blocks.POWERED_RAIL)) {
             var4 = param1.getValue(PoweredRailBlock.POWERED);
             var5 = !var4;
         }
 
-        double var7 = 0.0078125;
-        Vec3 var8 = this.getDeltaMovement();
-        RailShape var9 = param1.getValue(var6.getShapeProperty());
-        switch(var9) {
+        double var6 = 0.0078125;
+        if (this.isInWater()) {
+            var6 *= 0.2;
+        }
+
+        Vec3 var7 = this.getDeltaMovement();
+        RailShape var8 = param1.getValue(((BaseRailBlock)param1.getBlock()).getShapeProperty());
+        switch(var8) {
             case ASCENDING_EAST:
-                this.setDeltaMovement(var8.add(-0.0078125, 0.0, 0.0));
+                this.setDeltaMovement(var7.add(-var6, 0.0, 0.0));
                 ++var1;
                 break;
             case ASCENDING_WEST:
-                this.setDeltaMovement(var8.add(0.0078125, 0.0, 0.0));
+                this.setDeltaMovement(var7.add(var6, 0.0, 0.0));
                 ++var1;
                 break;
             case ASCENDING_NORTH:
-                this.setDeltaMovement(var8.add(0.0, 0.0, 0.0078125));
+                this.setDeltaMovement(var7.add(0.0, 0.0, var6));
                 ++var1;
                 break;
             case ASCENDING_SOUTH:
-                this.setDeltaMovement(var8.add(0.0, 0.0, -0.0078125));
+                this.setDeltaMovement(var7.add(0.0, 0.0, -var6));
                 ++var1;
         }
 
-        var8 = this.getDeltaMovement();
-        Pair<Vec3i, Vec3i> var10 = exits(var9);
-        Vec3i var11 = var10.getFirst();
-        Vec3i var12 = var10.getSecond();
-        double var13 = (double)(var12.getX() - var11.getX());
-        double var14 = (double)(var12.getZ() - var11.getZ());
-        double var15 = Math.sqrt(var13 * var13 + var14 * var14);
-        double var16 = var8.x * var13 + var8.z * var14;
-        if (var16 < 0.0) {
+        var7 = this.getDeltaMovement();
+        Pair<Vec3i, Vec3i> var9 = exits(var8);
+        Vec3i var10 = var9.getFirst();
+        Vec3i var11 = var9.getSecond();
+        double var12 = (double)(var11.getX() - var10.getX());
+        double var13 = (double)(var11.getZ() - var10.getZ());
+        double var14 = Math.sqrt(var12 * var12 + var13 * var13);
+        double var15 = var7.x * var12 + var7.z * var13;
+        if (var15 < 0.0) {
+            var12 = -var12;
             var13 = -var13;
-            var14 = -var14;
         }
 
-        double var17 = Math.min(2.0, Math.sqrt(getHorizontalDistanceSqr(var8)));
-        var8 = new Vec3(var17 * var13 / var15, var8.y, var17 * var14 / var15);
-        this.setDeltaMovement(var8);
-        Entity var18 = this.getPassengers().isEmpty() ? null : this.getPassengers().get(0);
-        if (var18 instanceof Player) {
-            Vec3 var19 = var18.getDeltaMovement();
-            double var20 = getHorizontalDistanceSqr(var19);
-            double var21 = getHorizontalDistanceSqr(this.getDeltaMovement());
-            if (var20 > 1.0E-4 && var21 < 0.01) {
-                this.setDeltaMovement(this.getDeltaMovement().add(var19.x * 0.1, 0.0, var19.z * 0.1));
+        double var16 = Math.min(2.0, Math.sqrt(getHorizontalDistanceSqr(var7)));
+        var7 = new Vec3(var16 * var12 / var14, var7.y, var16 * var13 / var14);
+        this.setDeltaMovement(var7);
+        Entity var17 = this.getFirstPassenger();
+        if (var17 instanceof Player) {
+            Vec3 var18 = var17.getDeltaMovement();
+            double var19 = getHorizontalDistanceSqr(var18);
+            double var20 = getHorizontalDistanceSqr(this.getDeltaMovement());
+            if (var19 > 1.0E-4 && var20 < 0.01) {
+                this.setDeltaMovement(this.getDeltaMovement().add(var18.x * 0.1, 0.0, var18.z * 0.1));
                 var5 = false;
             }
         }
 
         if (var5) {
-            double var22 = Math.sqrt(getHorizontalDistanceSqr(this.getDeltaMovement()));
-            if (var22 < 0.03) {
+            double var21 = Math.sqrt(getHorizontalDistanceSqr(this.getDeltaMovement()));
+            if (var21 < 0.03) {
                 this.setDeltaMovement(Vec3.ZERO);
             } else {
                 this.setDeltaMovement(this.getDeltaMovement().multiply(0.5, 0.0, 0.5));
             }
         }
 
-        double var23 = (double)param0.getX() + 0.5 + (double)var11.getX() * 0.5;
-        double var24 = (double)param0.getZ() + 0.5 + (double)var11.getZ() * 0.5;
-        double var25 = (double)param0.getX() + 0.5 + (double)var12.getX() * 0.5;
-        double var26 = (double)param0.getZ() + 0.5 + (double)var12.getZ() * 0.5;
+        double var22 = (double)param0.getX() + 0.5 + (double)var10.getX() * 0.5;
+        double var23 = (double)param0.getZ() + 0.5 + (double)var10.getZ() * 0.5;
+        double var24 = (double)param0.getX() + 0.5 + (double)var11.getX() * 0.5;
+        double var25 = (double)param0.getZ() + 0.5 + (double)var11.getZ() * 0.5;
+        var12 = var24 - var22;
         var13 = var25 - var23;
-        var14 = var26 - var24;
-        double var27;
-        if (var13 == 0.0) {
-            var27 = var2 - (double)param0.getZ();
-        } else if (var14 == 0.0) {
-            var27 = var0 - (double)param0.getX();
+        double var26;
+        if (var12 == 0.0) {
+            var26 = var2 - (double)param0.getZ();
+        } else if (var13 == 0.0) {
+            var26 = var0 - (double)param0.getX();
         } else {
-            double var29 = var0 - var23;
-            double var30 = var2 - var24;
-            var27 = (var29 * var13 + var30 * var14) * 2.0;
+            double var28 = var0 - var22;
+            double var29 = var2 - var23;
+            var26 = (var28 * var12 + var29 * var13) * 2.0;
         }
 
-        var0 = var23 + var13 * var27;
-        var2 = var24 + var14 * var27;
+        var0 = var22 + var12 * var26;
+        var2 = var23 + var13 * var26;
         this.setPos(var0, var1, var2);
-        double var32 = this.isVehicle() ? 0.75 : 1.0;
-        double var33 = this.getMaxSpeed();
-        var8 = this.getDeltaMovement();
-        this.move(MoverType.SELF, new Vec3(Mth.clamp(var32 * var8.x, -var33, var33), 0.0, Mth.clamp(var32 * var8.z, -var33, var33)));
-        if (var11.getY() != 0 && Mth.floor(this.getX()) - param0.getX() == var11.getX() && Mth.floor(this.getZ()) - param0.getZ() == var11.getZ()) {
+        double var31 = this.isVehicle() ? 0.75 : 1.0;
+        double var32 = this.getMaxSpeed();
+        var7 = this.getDeltaMovement();
+        this.move(MoverType.SELF, new Vec3(Mth.clamp(var31 * var7.x, -var32, var32), 0.0, Mth.clamp(var31 * var7.z, -var32, var32)));
+        if (var10.getY() != 0 && Mth.floor(this.getX()) - param0.getX() == var10.getX() && Mth.floor(this.getZ()) - param0.getZ() == var10.getZ()) {
+            this.setPos(this.getX(), this.getY() + (double)var10.getY(), this.getZ());
+        } else if (var11.getY() != 0 && Mth.floor(this.getX()) - param0.getX() == var11.getX() && Mth.floor(this.getZ()) - param0.getZ() == var11.getZ()) {
             this.setPos(this.getX(), this.getY() + (double)var11.getY(), this.getZ());
-        } else if (var12.getY() != 0 && Mth.floor(this.getX()) - param0.getX() == var12.getX() && Mth.floor(this.getZ()) - param0.getZ() == var12.getZ()) {
-            this.setPos(this.getX(), this.getY() + (double)var12.getY(), this.getZ());
         }
 
         this.applyNaturalSlowdown();
-        Vec3 var34 = this.getPos(this.getX(), this.getY(), this.getZ());
-        if (var34 != null && var3 != null) {
-            double var35 = (var3.y - var34.y) * 0.05;
-            Vec3 var36 = this.getDeltaMovement();
-            double var37 = Math.sqrt(getHorizontalDistanceSqr(var36));
-            if (var37 > 0.0) {
-                this.setDeltaMovement(var36.multiply((var37 + var35) / var37, 1.0, (var37 + var35) / var37));
+        Vec3 var33 = this.getPos(this.getX(), this.getY(), this.getZ());
+        if (var33 != null && var3 != null) {
+            double var34 = (var3.y - var33.y) * 0.05;
+            Vec3 var35 = this.getDeltaMovement();
+            double var36 = Math.sqrt(getHorizontalDistanceSqr(var35));
+            if (var36 > 0.0) {
+                this.setDeltaMovement(var35.multiply((var36 + var34) / var36, 1.0, (var36 + var34) / var36));
             }
 
-            this.setPos(this.getX(), var34.y, this.getZ());
+            this.setPos(this.getX(), var33.y, this.getZ());
         }
 
-        int var38 = Mth.floor(this.getX());
-        int var39 = Mth.floor(this.getZ());
-        if (var38 != param0.getX() || var39 != param0.getZ()) {
-            Vec3 var40 = this.getDeltaMovement();
-            double var41 = Math.sqrt(getHorizontalDistanceSqr(var40));
-            this.setDeltaMovement(var41 * (double)(var38 - param0.getX()), var40.y, var41 * (double)(var39 - param0.getZ()));
+        int var37 = Mth.floor(this.getX());
+        int var38 = Mth.floor(this.getZ());
+        if (var37 != param0.getX() || var38 != param0.getZ()) {
+            Vec3 var39 = this.getDeltaMovement();
+            double var40 = Math.sqrt(getHorizontalDistanceSqr(var39));
+            this.setDeltaMovement(var40 * (double)(var37 - param0.getX()), var39.y, var40 * (double)(var38 - param0.getZ()));
         }
 
         if (var4) {
-            Vec3 var42 = this.getDeltaMovement();
-            double var43 = Math.sqrt(getHorizontalDistanceSqr(var42));
-            if (var43 > 0.01) {
-                double var44 = 0.06;
-                this.setDeltaMovement(var42.add(var42.x / var43 * 0.06, 0.0, var42.z / var43 * 0.06));
+            Vec3 var41 = this.getDeltaMovement();
+            double var42 = Math.sqrt(getHorizontalDistanceSqr(var41));
+            if (var42 > 0.01) {
+                double var43 = 0.06;
+                this.setDeltaMovement(var41.add(var41.x / var42 * 0.06, 0.0, var41.z / var42 * 0.06));
             } else {
-                Vec3 var45 = this.getDeltaMovement();
-                double var46 = var45.x;
-                double var47 = var45.z;
-                if (var9 == RailShape.EAST_WEST) {
+                Vec3 var44 = this.getDeltaMovement();
+                double var45 = var44.x;
+                double var46 = var44.z;
+                if (var8 == RailShape.EAST_WEST) {
                     if (this.isRedstoneConductor(param0.west())) {
-                        var46 = 0.02;
+                        var45 = 0.02;
                     } else if (this.isRedstoneConductor(param0.east())) {
-                        var46 = -0.02;
+                        var45 = -0.02;
                     }
                 } else {
-                    if (var9 != RailShape.NORTH_SOUTH) {
+                    if (var8 != RailShape.NORTH_SOUTH) {
                         return;
                     }
 
                     if (this.isRedstoneConductor(param0.north())) {
-                        var47 = 0.02;
+                        var46 = 0.02;
                     } else if (this.isRedstoneConductor(param0.south())) {
-                        var47 = -0.02;
+                        var46 = -0.02;
                     }
                 }
 
-                this.setDeltaMovement(var46, var45.y, var47);
+                this.setDeltaMovement(var45, var44.y, var46);
             }
         }
 
@@ -565,7 +566,13 @@ public abstract class AbstractMinecart extends Entity {
 
     protected void applyNaturalSlowdown() {
         double var0 = this.isVehicle() ? 0.997 : 0.96;
-        this.setDeltaMovement(this.getDeltaMovement().multiply(var0, 0.0, var0));
+        Vec3 var1 = this.getDeltaMovement();
+        var1 = var1.multiply(var0, 0.0, var0);
+        if (this.isInWater()) {
+            var1 = var1.scale(0.95F);
+        }
+
+        this.setDeltaMovement(var1);
     }
 
     @Nullable
@@ -837,6 +844,33 @@ public abstract class AbstractMinecart extends Entity {
     @Override
     public Packet<?> getAddEntityPacket() {
         return new ClientboundAddEntityPacket(this);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public ItemStack getPickResult() {
+        Item var0;
+        switch(this.getMinecartType()) {
+            case FURNACE:
+                var0 = Items.FURNACE_MINECART;
+                break;
+            case CHEST:
+                var0 = Items.CHEST_MINECART;
+                break;
+            case TNT:
+                var0 = Items.TNT_MINECART;
+                break;
+            case HOPPER:
+                var0 = Items.HOPPER_MINECART;
+                break;
+            case COMMAND_BLOCK:
+                var0 = Items.COMMAND_BLOCK_MINECART;
+                break;
+            default:
+                var0 = Items.MINECART;
+        }
+
+        return new ItemStack(var0);
     }
 
     public static enum Type {

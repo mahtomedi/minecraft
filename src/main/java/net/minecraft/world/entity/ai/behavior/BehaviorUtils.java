@@ -132,7 +132,8 @@ public class BehaviorUtils {
 
     public static Optional<LivingEntity> getLivingEntityFromUUIDMemory(LivingEntity param0, MemoryModuleType<UUID> param1) {
         Optional<UUID> var0 = param0.getBrain().getMemory(param1);
-        return var0.map(param1x -> (LivingEntity)((ServerLevel)param0.level).getEntity(param1x));
+        return var0.<Entity>map(param1x -> ((ServerLevel)param0.level).getEntity(param1x))
+            .map(param0x -> param0x instanceof LivingEntity ? (LivingEntity)param0x : null);
     }
 
     public static Stream<Villager> getNearbyVillagersWithCondition(Villager param0, Predicate<Villager> param1) {

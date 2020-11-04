@@ -31,6 +31,7 @@ public class LootItemFunctions {
     public static final LootItemFunctionType FILL_PLAYER_HEAD = register("fill_player_head", new FillPlayerHead.Serializer());
     public static final LootItemFunctionType COPY_NBT = register("copy_nbt", new CopyNbtFunction.Serializer());
     public static final LootItemFunctionType COPY_STATE = register("copy_state", new CopyBlockState.Serializer());
+    public static final LootItemFunctionType SET_BANNER_PATTERN = register("set_banner_pattern", new SetBannerPatternFunction.Serializer());
 
     private static LootItemFunctionType register(String param0, Serializer<? extends LootItemFunction> param1) {
         return Registry.register(Registry.LOOT_FUNCTION_TYPE, new ResourceLocation(param0), new LootItemFunctionType(param1));

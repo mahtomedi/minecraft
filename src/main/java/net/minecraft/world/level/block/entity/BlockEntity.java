@@ -8,8 +8,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -21,14 +19,14 @@ public abstract class BlockEntity {
     private final BlockEntityType<?> type;
     @Nullable
     protected Level level;
-    protected BlockPos worldPosition = BlockPos.ZERO;
+    protected final BlockPos worldPosition;
     protected boolean remove;
-    @Nullable
     private BlockState blockState;
-    private boolean hasLoggedInvalidStateBefore;
 
-    public BlockEntity(BlockEntityType<?> param0) {
+    public BlockEntity(BlockEntityType<?> param0, BlockPos param1, BlockState param2) {
         this.type = param0;
+        this.worldPosition = param1.immutable();
+        this.blockState = param2;
     }
 
     @Nullable
@@ -36,17 +34,15 @@ public abstract class BlockEntity {
         return this.level;
     }
 
-    public void setLevelAndPosition(Level param0, BlockPos param1) {
+    public void setLevel(Level param0) {
         this.level = param0;
-        this.worldPosition = param1.immutable();
     }
 
     public boolean hasLevel() {
         return this.level != null;
     }
 
-    public void load(BlockState param0, CompoundTag param1) {
-        this.worldPosition = new BlockPos(param1.getInt("x"), param1.getInt("y"), param1.getInt("z"));
+    public void load(CompoundTag param0) {
     }
 
     public CompoundTag save(CompoundTag param0) {
@@ -67,21 +63,21 @@ public abstract class BlockEntity {
     }
 
     @Nullable
-    public static BlockEntity loadStatic(BlockState param0, CompoundTag param1) {
-        String var0 = param1.getString("id");
-        return Registry.BLOCK_ENTITY_TYPE.getOptional(new ResourceLocation(var0)).map(param1x -> {
+    public static BlockEntity loadStatic(BlockPos param0, BlockState param1, CompoundTag param2) {
+        String var0 = param2.getString("id");
+        return Registry.BLOCK_ENTITY_TYPE.getOptional(new ResourceLocation(var0)).map(param3 -> {
             try {
-                return param1x.create();
-            } catch (Throwable var3) {
-                LOGGER.error("Failed to create block entity {}", var0, var3);
+                return param3.create(param0, param1);
+            } catch (Throwable var5) {
+                LOGGER.error("Failed to create block entity {}", var0, var5);
                 return null;
             }
-        }).map(param3 -> {
+        }).map(param2x -> {
             try {
-                param3.load(param0, param1);
-                return param3;
-            } catch (Throwable var5) {
-                LOGGER.error("Failed to load data for block entity {}", var0, var5);
+                param2x.load(param2);
+                return param2x;
+            } catch (Throwable var4) {
+                LOGGER.error("Failed to load data for block entity {}", var0, var4);
                 return null;
             }
         }).orElseGet(() -> {
@@ -92,11 +88,15 @@ public abstract class BlockEntity {
 
     public void setChanged() {
         if (this.level != null) {
-            this.blockState = this.level.getBlockState(this.worldPosition);
-            this.level.blockEntityChanged(this.worldPosition, this);
-            if (!this.blockState.isAir()) {
-                this.level.updateNeighbourForOutputSignal(this.worldPosition, this.blockState.getBlock());
-            }
+            setChanged(this.level, this.worldPosition, this.blockState);
+        }
+
+    }
+
+    protected static void setChanged(Level param0, BlockPos param1, BlockState param2) {
+        param0.blockEntityChanged(param1);
+        if (!param2.isAir()) {
+            param0.updateNeighbourForOutputSignal(param1, param2.getBlock());
         }
 
     }
@@ -111,10 +111,6 @@ public abstract class BlockEntity {
     }
 
     public BlockState getBlockState() {
-        if (this.blockState == null) {
-            this.blockState = this.level.getBlockState(this.worldPosition);
-        }
-
         return this.blockState;
     }
 
@@ -143,40 +139,24 @@ public abstract class BlockEntity {
         return false;
     }
 
-    public void clearCache() {
-        this.blockState = null;
-    }
-
     public void fillCrashReportCategory(CrashReportCategory param0) {
         param0.setDetail("Name", () -> Registry.BLOCK_ENTITY_TYPE.getKey(this.getType()) + " // " + this.getClass().getCanonicalName());
         if (this.level != null) {
-            CrashReportCategory.populateBlockDetails(param0, this.worldPosition, this.getBlockState());
-            CrashReportCategory.populateBlockDetails(param0, this.worldPosition, this.level.getBlockState(this.worldPosition));
+            CrashReportCategory.populateBlockDetails(param0, this.level, this.worldPosition, this.getBlockState());
+            CrashReportCategory.populateBlockDetails(param0, this.level, this.worldPosition, this.level.getBlockState(this.worldPosition));
         }
-    }
-
-    public void setPosition(BlockPos param0) {
-        this.worldPosition = param0.immutable();
     }
 
     public boolean onlyOpCanSetNbt() {
         return false;
     }
 
-    public void rotate(Rotation param0) {
-    }
-
-    public void mirror(Mirror param0) {
-    }
-
     public BlockEntityType<?> getType() {
         return this.type;
     }
 
-    public void logInvalidState() {
-        if (!this.hasLoggedInvalidStateBefore) {
-            this.hasLoggedInvalidStateBefore = true;
-            LOGGER.warn("Block entity invalid: {} @ {}", () -> Registry.BLOCK_ENTITY_TYPE.getKey(this.getType()), this::getBlockPos);
-        }
+    @Deprecated
+    public void setBlockState(BlockState param0) {
+        this.blockState = param0;
     }
 }

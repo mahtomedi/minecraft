@@ -91,7 +91,7 @@ public class CraftingMenu extends RecipeBookMenu<CraftingContainer> {
     @Override
     public void removed(Player param0) {
         super.removed(param0);
-        this.access.execute((param1, param2) -> this.clearContainer(param0, param1, this.craftSlots));
+        this.access.execute((param1, param2) -> this.clearContainer(param0, this.craftSlots));
     }
 
     @Override

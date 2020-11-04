@@ -5,7 +5,6 @@ import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
@@ -27,7 +26,7 @@ public class BasaltPillarFeature extends Feature<NoneFeatureConfiguration> {
             boolean var5 = true;
 
             while(param0.isEmptyBlock(var0)) {
-                if (Level.isOutsideBuildHeight(var0)) {
+                if (param0.isOutsideBuildHeight(var0)) {
                     return true;
                 }
 

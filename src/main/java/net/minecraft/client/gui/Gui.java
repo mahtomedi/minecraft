@@ -10,6 +10,7 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.datafixers.util.Pair;
 import java.util.Collection;
 import java.util.List;
@@ -82,6 +83,7 @@ public class Gui extends GuiComponent {
     private static final ResourceLocation VIGNETTE_LOCATION = new ResourceLocation("textures/misc/vignette.png");
     private static final ResourceLocation WIDGETS_LOCATION = new ResourceLocation("textures/gui/widgets.png");
     private static final ResourceLocation PUMPKIN_BLUR_LOCATION = new ResourceLocation("textures/misc/pumpkinblur.png");
+    private static final ResourceLocation SPYGLASS_SCOPE_LOCATION = new ResourceLocation("textures/misc/spyglass_scope.png");
     private static final Component DEMO_EXPIRED_TEXT = new TranslatableComponent("demo.demoExpired");
     private final Random random = new Random();
     private final Minecraft minecraft;
@@ -157,9 +159,13 @@ public class Gui extends GuiComponent {
             RenderSystem.defaultBlendFunc();
         }
 
-        ItemStack var1 = this.minecraft.player.inventory.getArmor(3);
-        if (this.minecraft.options.getCameraType().isFirstPerson() && var1.getItem() == Blocks.CARVED_PUMPKIN.asItem()) {
-            this.renderPumpkin();
+        ItemStack var1 = this.minecraft.player.getInventory().getArmor(3);
+        if (this.minecraft.options.getCameraType().isFirstPerson()) {
+            if (this.minecraft.player.isScoping()) {
+                this.renderFullScreenOverlay(SPYGLASS_SCOPE_LOCATION, 0.5F, -16777216);
+            } else if (var1.is(Blocks.CARVED_PUMPKIN.asItem())) {
+                this.renderFullScreenOverlay(PUMPKIN_BLUR_LOCATION);
+            }
         }
 
         float var2 = Mth.lerp(param1, this.minecraft.player.oPortalTime, this.minecraft.player.portalTime);
@@ -482,7 +488,7 @@ public class Gui extends GuiComponent {
             int var6 = 91;
             this.setBlitOffset(-90);
             this.blit(param1, var3 - 91, this.screenHeight - 22, 0, 0, 182, 22);
-            this.blit(param1, var3 - 91 - 1 + var0.inventory.selected * 20, this.screenHeight - 22 - 1, 0, 22, 24, 22);
+            this.blit(param1, var3 - 91 - 1 + var0.getInventory().selected * 20, this.screenHeight - 22 - 1, 0, 22, 24, 22);
             if (!var1.isEmpty()) {
                 if (var2 == HumanoidArm.LEFT) {
                     this.blit(param1, var3 - 91 - 29, this.screenHeight - 23, 24, 22, 29, 24);
@@ -499,7 +505,7 @@ public class Gui extends GuiComponent {
             for(int var7 = 0; var7 < 9; ++var7) {
                 int var8 = var3 - 90 + var7 * 20 + 2;
                 int var9 = this.screenHeight - 16 - 3;
-                this.renderSlot(var8, var9, param0, var0, var0.inventory.items.get(var7));
+                this.renderSlot(var8, var9, param0, var0, var0.getInventory().items.get(var7));
             }
 
             if (!var1.isEmpty()) {
@@ -926,21 +932,72 @@ public class Gui extends GuiComponent {
         }
     }
 
-    private void renderPumpkin() {
+    private void renderFullScreenOverlay(ResourceLocation param0) {
+        this.renderFullScreenOverlay(param0, 0.0F, 0);
+    }
+
+    private void renderFullScreenOverlay(ResourceLocation param0, float param1, int param2) {
         RenderSystem.disableDepthTest();
         RenderSystem.depthMask(false);
         RenderSystem.defaultBlendFunc();
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.disableAlphaTest();
-        this.minecraft.getTextureManager().bind(PUMPKIN_BLUR_LOCATION);
+        this.minecraft.getTextureManager().bind(param0);
         Tesselator var0 = Tesselator.getInstance();
         BufferBuilder var1 = var0.getBuilder();
-        var1.begin(7, DefaultVertexFormat.POSITION_TEX);
-        var1.vertex(0.0, (double)this.screenHeight, -90.0).uv(0.0F, 1.0F).endVertex();
-        var1.vertex((double)this.screenWidth, (double)this.screenHeight, -90.0).uv(1.0F, 1.0F).endVertex();
-        var1.vertex((double)this.screenWidth, 0.0, -90.0).uv(1.0F, 0.0F).endVertex();
-        var1.vertex(0.0, 0.0, -90.0).uv(0.0F, 0.0F).endVertex();
-        var0.end();
+        if (param1 == 0.0F) {
+            var1.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+            var1.vertex(0.0, (double)this.screenHeight, -90.0).uv(0.0F, 1.0F).endVertex();
+            var1.vertex((double)this.screenWidth, (double)this.screenHeight, -90.0).uv(1.0F, 1.0F).endVertex();
+            var1.vertex((double)this.screenWidth, 0.0, -90.0).uv(1.0F, 0.0F).endVertex();
+            var1.vertex(0.0, 0.0, -90.0).uv(0.0F, 0.0F).endVertex();
+            var0.end();
+        } else {
+            float var2 = (float)Math.min(this.screenWidth, this.screenHeight);
+            float var3 = var2 * param1;
+            float var4 = Math.min((float)this.screenWidth / var2, (float)this.screenHeight / var3);
+            float var5 = var2 * var4;
+            float var6 = var3 * var4;
+            float var7 = ((float)this.screenWidth - var5) / 2.0F;
+            float var8 = ((float)this.screenHeight - var6) / 2.0F;
+            float var9 = var7 + var5;
+            float var10 = var8 + var6;
+            var1.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+            var1.vertex((double)var7, (double)var10, -90.0).uv(0.0F, 1.0F).endVertex();
+            var1.vertex((double)var9, (double)var10, -90.0).uv(1.0F, 1.0F).endVertex();
+            var1.vertex((double)var9, (double)var8, -90.0).uv(1.0F, 0.0F).endVertex();
+            var1.vertex((double)var7, (double)var8, -90.0).uv(0.0F, 0.0F).endVertex();
+            var0.end();
+            int var11 = FastColor.ARGB32.red(param2);
+            int var12 = FastColor.ARGB32.green(param2);
+            int var13 = FastColor.ARGB32.blue(param2);
+            int var14 = FastColor.ARGB32.alpha(param2);
+            var1.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+            var1.vertex(0.0, (double)this.screenHeight, -90.0).color(var11, var12, var13, var14).endVertex();
+            var1.vertex((double)this.screenWidth, (double)this.screenHeight, -90.0).color(var11, var12, var13, var14).endVertex();
+            var1.vertex((double)this.screenWidth, (double)var10, -90.0).color(var11, var12, var13, var14).endVertex();
+            var1.vertex(0.0, (double)var10, -90.0).color(var11, var12, var13, var14).endVertex();
+            var0.end();
+            var1.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+            var1.vertex(0.0, (double)var8, -90.0).color(var11, var12, var13, var14).endVertex();
+            var1.vertex((double)this.screenWidth, (double)var8, -90.0).color(var11, var12, var13, var14).endVertex();
+            var1.vertex((double)this.screenWidth, 0.0, -90.0).color(var11, var12, var13, var14).endVertex();
+            var1.vertex(0.0, 0.0, -90.0).color(var11, var12, var13, var14).endVertex();
+            var0.end();
+            var1.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+            var1.vertex(0.0, (double)var10, -90.0).color(var11, var12, var13, var14).endVertex();
+            var1.vertex((double)var7, (double)var10, -90.0).color(var11, var12, var13, var14).endVertex();
+            var1.vertex((double)var7, (double)var8, -90.0).color(var11, var12, var13, var14).endVertex();
+            var1.vertex(0.0, (double)var8, -90.0).color(var11, var12, var13, var14).endVertex();
+            var0.end();
+            var1.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+            var1.vertex((double)var9, (double)var10, -90.0).color(var11, var12, var13, var14).endVertex();
+            var1.vertex((double)this.screenWidth, (double)var10, -90.0).color(var11, var12, var13, var14).endVertex();
+            var1.vertex((double)this.screenWidth, (double)var8, -90.0).color(var11, var12, var13, var14).endVertex();
+            var1.vertex((double)var9, (double)var8, -90.0).color(var11, var12, var13, var14).endVertex();
+            var0.end();
+        }
+
         RenderSystem.depthMask(true);
         RenderSystem.enableDepthTest();
         RenderSystem.enableAlphaTest();
@@ -979,7 +1036,7 @@ public class Gui extends GuiComponent {
         this.minecraft.getTextureManager().bind(VIGNETTE_LOCATION);
         Tesselator var4 = Tesselator.getInstance();
         BufferBuilder var5 = var4.getBuilder();
-        var5.begin(7, DefaultVertexFormat.POSITION_TEX);
+        var5.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
         var5.vertex(0.0, (double)this.screenHeight, -90.0).uv(0.0F, 1.0F).endVertex();
         var5.vertex((double)this.screenWidth, (double)this.screenHeight, -90.0).uv(1.0F, 1.0F).endVertex();
         var5.vertex((double)this.screenWidth, 0.0, -90.0).uv(1.0F, 0.0F).endVertex();
@@ -1011,7 +1068,7 @@ public class Gui extends GuiComponent {
         float var4 = var0.getV1();
         Tesselator var5 = Tesselator.getInstance();
         BufferBuilder var6 = var5.getBuilder();
-        var6.begin(7, DefaultVertexFormat.POSITION_TEX);
+        var6.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
         var6.vertex(0.0, (double)this.screenHeight, -90.0).uv(var1, var4).endVertex();
         var6.vertex((double)this.screenWidth, (double)this.screenHeight, -90.0).uv(var3, var4).endVertex();
         var6.vertex((double)this.screenWidth, 0.0, -90.0).uv(var3, var2).endVertex();
@@ -1063,11 +1120,11 @@ public class Gui extends GuiComponent {
         }
 
         if (this.minecraft.player != null) {
-            ItemStack var1 = this.minecraft.player.inventory.getSelected();
+            ItemStack var1 = this.minecraft.player.getInventory().getSelected();
             if (var1.isEmpty()) {
                 this.toolHighlightTimer = 0;
             } else if (this.lastToolHighlight.isEmpty()
-                || var1.getItem() != this.lastToolHighlight.getItem()
+                || !var1.is(this.lastToolHighlight.getItem())
                 || !var1.getHoverName().equals(this.lastToolHighlight.getHoverName())) {
                 this.toolHighlightTimer = 40;
             } else if (this.toolHighlightTimer > 0) {
@@ -1160,6 +1217,8 @@ public class Gui extends GuiComponent {
         this.tabList.reset();
         this.bossOverlay.reset();
         this.minecraft.getToasts().clear();
+        this.minecraft.options.renderDebug = false;
+        this.chat.clearMessages(true);
     }
 
     public BossHealthOverlay getBossOverlay() {

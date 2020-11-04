@@ -16,9 +16,8 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class StructureBlockRenderer extends BlockEntityRenderer<StructureBlockEntity> {
-    public StructureBlockRenderer(BlockEntityRenderDispatcher param0) {
-        super(param0);
+public class StructureBlockRenderer implements BlockEntityRenderer<StructureBlockEntity> {
+    public StructureBlockRenderer(BlockEntityRendererProvider.Context param0) {
     }
 
     public void render(StructureBlockEntity param0, float param1, PoseStack param2, MultiBufferSource param3, int param4, int param5) {

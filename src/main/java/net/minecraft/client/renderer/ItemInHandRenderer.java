@@ -211,7 +211,7 @@ public class ItemInHandRenderer {
         boolean var4 = true;
         if (param3.isUsingItem()) {
             ItemStack var5 = param3.getUseItem();
-            if (var5.getItem() == Items.BOW || var5.getItem() == Items.CROSSBOW) {
+            if (var5.is(Items.BOW) || var5.is(Items.CROSSBOW)) {
                 var3 = param3.getUsedItemHand() == InteractionHand.MAIN_HAND;
                 var4 = !var3;
             }
@@ -219,18 +219,18 @@ public class ItemInHandRenderer {
             InteractionHand var6 = param3.getUsedItemHand();
             if (var6 == InteractionHand.MAIN_HAND) {
                 ItemStack var7 = param3.getOffhandItem();
-                if (var7.getItem() == Items.CROSSBOW && CrossbowItem.isCharged(var7)) {
+                if (var7.is(Items.CROSSBOW) && CrossbowItem.isCharged(var7)) {
                     var4 = false;
                 }
             }
         } else {
             ItemStack var8 = param3.getMainHandItem();
             ItemStack var9 = param3.getOffhandItem();
-            if (var8.getItem() == Items.CROSSBOW && CrossbowItem.isCharged(var8)) {
+            if (var8.is(Items.CROSSBOW) && CrossbowItem.isCharged(var8)) {
                 var4 = !var3;
             }
 
-            if (var9.getItem() == Items.CROSSBOW && CrossbowItem.isCharged(var9)) {
+            if (var9.is(Items.CROSSBOW) && CrossbowItem.isCharged(var9)) {
                 var3 = !var8.isEmpty();
                 var4 = !var3;
             }
@@ -274,13 +274,13 @@ public class ItemInHandRenderer {
             if (var0 && !param0.isInvisible()) {
                 this.renderPlayerArm(param7, param8, param9, param6, param4, var1);
             }
-        } else if (param5.getItem() == Items.FILLED_MAP) {
+        } else if (param5.is(Items.FILLED_MAP)) {
             if (var0 && this.offHandItem.isEmpty()) {
                 this.renderTwoHandedMap(param7, param8, param9, param2, param6, param4);
             } else {
                 this.renderOneHandedMap(param7, param8, param9, param6, var1, param4, param5);
             }
-        } else if (param5.getItem() == Items.CROSSBOW) {
+        } else if (param5.is(Items.CROSSBOW)) {
             boolean var2 = CrossbowItem.isCharged(param5);
             boolean var3 = var1 == HumanoidArm.RIGHT;
             int var4 = var3 ? 1 : -1;

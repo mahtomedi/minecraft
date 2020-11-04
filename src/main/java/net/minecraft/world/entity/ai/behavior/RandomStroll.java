@@ -7,7 +7,7 @@ import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.memory.WalkTarget;
-import net.minecraft.world.entity.ai.util.RandomPos;
+import net.minecraft.world.entity.ai.util.LandRandomPos;
 import net.minecraft.world.phys.Vec3;
 
 public class RandomStroll extends Behavior<PathfinderMob> {
@@ -27,7 +27,7 @@ public class RandomStroll extends Behavior<PathfinderMob> {
     }
 
     protected void start(ServerLevel param0, PathfinderMob param1, long param2) {
-        Optional<Vec3> var0 = Optional.ofNullable(RandomPos.getLandPos(param1, this.maxHorizontalDistance, this.maxVerticalDistance));
+        Optional<Vec3> var0 = Optional.ofNullable(LandRandomPos.getPos(param1, this.maxHorizontalDistance, this.maxVerticalDistance));
         param1.getBrain().setMemory(MemoryModuleType.WALK_TARGET, var0.map(param0x -> new WalkTarget(param0x, this.speedModifier, 0)));
     }
 }

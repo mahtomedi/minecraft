@@ -73,9 +73,9 @@ public class ItemPredicate {
     public boolean matches(ItemStack param0) {
         if (this == ANY) {
             return true;
-        } else if (this.tag != null && !this.tag.contains(param0.getItem())) {
+        } else if (this.tag != null && !param0.is(this.tag)) {
             return false;
-        } else if (this.item != null && param0.getItem() != this.item) {
+        } else if (this.item != null && !param0.is(this.item)) {
             return false;
         } else if (!this.count.matches(param0.getCount())) {
             return false;

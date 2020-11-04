@@ -124,7 +124,7 @@ public class FogRenderer {
             biomeChangedTime = -1L;
         }
 
-        double var31 = param0.getPosition().y * param2.getLevelData().getClearColorScale();
+        double var31 = (param0.getPosition().y - (double)param2.getMinBuildHeight()) * param2.getLevelData().getClearColorScale();
         if (param0.getEntity() instanceof LivingEntity && ((LivingEntity)param0.getEntity()).hasEffect(MobEffects.BLINDNESS)) {
             int var32 = ((LivingEntity)param0.getEntity()).getEffect(MobEffects.BLINDNESS).getDuration();
             if (var32 < 20) {

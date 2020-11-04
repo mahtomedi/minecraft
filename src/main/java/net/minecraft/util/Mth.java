@@ -273,27 +273,10 @@ public class Mth {
         return ceillog2(param0) - (isPowerOfTwo(param0) ? 0 : 1);
     }
 
-    public static int roundUp(int param0, int param1) {
-        if (param1 == 0) {
-            return 0;
-        } else if (param0 == 0) {
-            return param1;
-        } else {
-            if (param0 < 0) {
-                param1 *= -1;
-            }
-
-            int var0 = param0 % param1;
-            return var0 == 0 ? param0 : param0 + param1 - var0;
-        }
-    }
-
-    @OnlyIn(Dist.CLIENT)
     public static int color(float param0, float param1, float param2) {
         return color(floor(param0 * 255.0F), floor(param1 * 255.0F), floor(param2 * 255.0F));
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static int color(int param0, int param1, int param2) {
         int var0 = (param0 << 8) + param1;
         return (var0 << 8) + param2;
@@ -562,6 +545,10 @@ public class Mth {
 
     public static float square(float param0) {
         return param0 * param0;
+    }
+
+    public static int roundToward(int param0, int param1) {
+        return (param0 + param1 - 1) / param1 * param1;
     }
 
     static {

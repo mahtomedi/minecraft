@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -20,7 +21,6 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.Tag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.LivingEntity;
@@ -116,14 +116,6 @@ public class Block extends BlockBehaviour implements ItemLike {
         return Shapes.box(param0 / 16.0, param1 / 16.0, param2 / 16.0, param3 / 16.0, param4 / 16.0, param5 / 16.0);
     }
 
-    public boolean is(Tag<Block> param0) {
-        return param0.contains(this);
-    }
-
-    public boolean is(Block param0) {
-        return this == param0;
-    }
-
     public static BlockState updateFromNeighbourShapes(BlockState param0, LevelAccessor param1, BlockPos param2) {
         BlockState var0 = param0;
         BlockPos.MutableBlockPos var1 = new BlockPos.MutableBlockPos();
@@ -159,15 +151,22 @@ public class Block extends BlockBehaviour implements ItemLike {
         this.createBlockStateDefinition(var0);
         this.stateDefinition = var0.create(Block::defaultBlockState, BlockState::new);
         this.registerDefaultState(this.stateDefinition.any());
+        if (SharedConstants.IS_RUNNING_IN_IDE) {
+            String var1 = this.getClass().getSimpleName();
+            if (!var1.endsWith("Block")) {
+                LOGGER.error("Block classes should end with Block and {} doesn't.", var1);
+            }
+        }
+
     }
 
-    public static boolean isExceptionForConnection(Block param0) {
-        return param0 instanceof LeavesBlock
-            || param0 == Blocks.BARRIER
-            || param0 == Blocks.CARVED_PUMPKIN
-            || param0 == Blocks.JACK_O_LANTERN
-            || param0 == Blocks.MELON
-            || param0 == Blocks.PUMPKIN
+    public static boolean isExceptionForConnection(BlockState param0) {
+        return param0.getBlock() instanceof LeavesBlock
+            || param0.is(Blocks.BARRIER)
+            || param0.is(Blocks.CARVED_PUMPKIN)
+            || param0.is(Blocks.JACK_O_LANTERN)
+            || param0.is(Blocks.MELON)
+            || param0.is(Blocks.PUMPKIN)
             || param0.is(BlockTags.SHULKER_BOXES);
     }
 
@@ -176,27 +175,26 @@ public class Block extends BlockBehaviour implements ItemLike {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static boolean shouldRenderFace(BlockState param0, BlockGetter param1, BlockPos param2, Direction param3) {
-        BlockPos var0 = param2.relative(param3);
-        BlockState var1 = param1.getBlockState(var0);
-        if (param0.skipRendering(var1, param3)) {
+    public static boolean shouldRenderFace(BlockState param0, BlockGetter param1, BlockPos param2, Direction param3, BlockPos param4) {
+        BlockState var0 = param1.getBlockState(param4);
+        if (param0.skipRendering(var0, param3)) {
             return false;
-        } else if (var1.canOcclude()) {
-            Block.BlockStatePairKey var2 = new Block.BlockStatePairKey(param0, var1, param3);
-            Object2ByteLinkedOpenHashMap<Block.BlockStatePairKey> var3 = OCCLUSION_CACHE.get();
-            byte var4 = var3.getAndMoveToFirst(var2);
-            if (var4 != 127) {
-                return var4 != 0;
+        } else if (var0.canOcclude()) {
+            Block.BlockStatePairKey var1 = new Block.BlockStatePairKey(param0, var0, param3);
+            Object2ByteLinkedOpenHashMap<Block.BlockStatePairKey> var2 = OCCLUSION_CACHE.get();
+            byte var3 = var2.getAndMoveToFirst(var1);
+            if (var3 != 127) {
+                return var3 != 0;
             } else {
-                VoxelShape var5 = param0.getFaceOcclusionShape(param1, param2, param3);
-                VoxelShape var6 = var1.getFaceOcclusionShape(param1, var0, param3.getOpposite());
-                boolean var7 = Shapes.joinIsNotEmpty(var5, var6, BooleanOp.ONLY_FIRST);
-                if (var3.size() == 2048) {
-                    var3.removeLastByte();
+                VoxelShape var4 = param0.getFaceOcclusionShape(param1, param2, param3);
+                VoxelShape var5 = var0.getFaceOcclusionShape(param1, param4, param3.getOpposite());
+                boolean var6 = Shapes.joinIsNotEmpty(var4, var5, BooleanOp.ONLY_FIRST);
+                if (var2.size() == 2048) {
+                    var2.removeLastByte();
                 }
 
-                var3.putAndMoveToFirst(var2, (byte)(var7 ? 1 : 0));
-                return var7;
+                var2.putAndMoveToFirst(var1, (byte)(var6 ? 1 : 0));
+                return var6;
             }
         } else {
             return true;
@@ -291,11 +289,7 @@ public class Block extends BlockBehaviour implements ItemLike {
 
     protected void popExperience(ServerLevel param0, BlockPos param1, int param2) {
         if (param0.getGameRules().getBoolean(GameRules.RULE_DOBLOCKDROPS)) {
-            while(param2 > 0) {
-                int var0 = ExperienceOrb.getExperienceValue(param2);
-                param2 -= var0;
-                param0.addFreshEntity(new ExperienceOrb(param0, (double)param1.getX() + 0.5, (double)param1.getY() + 0.5, (double)param1.getZ() + 0.5, var0));
-            }
+            ExperienceOrb.award(param0, Vec3.atCenterOf(param1), param2);
         }
 
     }
@@ -372,13 +366,13 @@ public class Block extends BlockBehaviour implements ItemLike {
 
     public void playerWillDestroy(Level param0, BlockPos param1, BlockState param2, Player param3) {
         param0.levelEvent(param3, 2001, param1, getId(param2));
-        if (this.is(BlockTags.GUARDED_BY_PIGLINS)) {
+        if (param2.is(BlockTags.GUARDED_BY_PIGLINS)) {
             PiglinAi.angerNearbyPiglins(param3, false);
         }
 
     }
 
-    public void handleRain(Level param0, BlockPos param1) {
+    public void handleRain(BlockState param0, Level param1, BlockPos param2) {
     }
 
     public boolean dropFromExplosion(Explosion param0) {

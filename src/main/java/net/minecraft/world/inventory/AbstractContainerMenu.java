@@ -16,7 +16,6 @@ import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.api.distmarker.Dist;
@@ -24,7 +23,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class AbstractContainerMenu {
     private final NonNullList<ItemStack> lastSlots = NonNullList.create();
-    public final List<Slot> slots = Lists.newArrayList();
+    public final NonNullList<Slot> slots = NonNullList.create();
     private final List<DataSlot> dataSlots = Lists.newArrayList();
     @Nullable
     private final MenuType<?> menuType;
@@ -149,8 +148,7 @@ public abstract class AbstractContainerMenu {
     }
 
     public ItemStack quickMoveStack(Player param0, int param1) {
-        Slot var0 = this.slots.get(param1);
-        return var0 != null ? var0.getItem() : ItemStack.EMPTY;
+        return this.slots.get(param1).getItem();
     }
 
     public ItemStack clicked(int param0, int param1, ClickType param2, Player param3) {
@@ -171,7 +169,7 @@ public abstract class AbstractContainerMenu {
 
     private ItemStack doClick(int param0, int param1, ClickType param2, Player param3) {
         ItemStack var0 = ItemStack.EMPTY;
-        Inventory var1 = param3.inventory;
+        Inventory var1 = param3.getInventory();
         if (param2 == ClickType.QUICK_CRAFT) {
             int var2 = this.quickcraftStatus;
             this.quickcraftStatus = getQuickcraftHeader(param1);
@@ -190,8 +188,7 @@ public abstract class AbstractContainerMenu {
             } else if (this.quickcraftStatus == 1) {
                 Slot var3 = this.slots.get(param0);
                 ItemStack var4 = var1.getCarried();
-                if (var3 != null
-                    && canItemQuickReplace(var3, var4, true)
+                if (canItemQuickReplace(var3, var4, true)
                     && var3.mayPlace(var4)
                     && (this.quickcraftType == 2 || var4.getCount() > this.quickcraftSlots.size())
                     && this.canDragTo(var3)) {
@@ -233,14 +230,13 @@ public abstract class AbstractContainerMenu {
         } else if (this.quickcraftStatus != 0) {
             this.resetQuickCraft();
         } else if ((param2 == ClickType.PICKUP || param2 == ClickType.QUICK_MOVE) && (param1 == 0 || param1 == 1)) {
+            ClickAction var12 = param1 == 0 ? ClickAction.PRIMARY : ClickAction.SECONDARY;
             if (param0 == -999) {
                 if (!var1.getCarried().isEmpty()) {
-                    if (param1 == 0) {
+                    if (var12 == ClickAction.PRIMARY) {
                         param3.drop(var1.getCarried(), true);
                         var1.setCarried(ItemStack.EMPTY);
-                    }
-
-                    if (param1 == 1) {
+                    } else {
                         param3.drop(var1.getCarried().split(1), true);
                     }
                 }
@@ -249,159 +245,153 @@ public abstract class AbstractContainerMenu {
                     return ItemStack.EMPTY;
                 }
 
-                Slot var12 = this.slots.get(param0);
-                if (var12 == null || !var12.mayPickup(param3)) {
+                Slot var13 = this.slots.get(param0);
+                if (!var13.mayPickup(param3)) {
                     return ItemStack.EMPTY;
                 }
 
-                for(ItemStack var13 = this.quickMoveStack(param3, param0);
-                    !var13.isEmpty() && ItemStack.isSame(var12.getItem(), var13);
-                    var13 = this.quickMoveStack(param3, param0)
+                for(ItemStack var14 = this.quickMoveStack(param3, param0);
+                    !var14.isEmpty() && ItemStack.isSame(var13.getItem(), var14);
+                    var14 = this.quickMoveStack(param3, param0)
                 ) {
-                    var0 = var13.copy();
+                    var0 = var14.copy();
                 }
             } else {
                 if (param0 < 0) {
                     return ItemStack.EMPTY;
                 }
 
-                Slot var14 = this.slots.get(param0);
-                if (var14 != null) {
-                    ItemStack var15 = var14.getItem();
-                    ItemStack var16 = var1.getCarried();
-                    if (!var15.isEmpty()) {
-                        var0 = var15.copy();
-                    }
-
-                    if (var15.isEmpty()) {
-                        if (!var16.isEmpty() && var14.mayPlace(var16)) {
-                            int var17 = param1 == 0 ? var16.getCount() : 1;
-                            if (var17 > var14.getMaxStackSize(var16)) {
-                                var17 = var14.getMaxStackSize(var16);
-                            }
-
-                            var14.set(var16.split(var17));
-                        }
-                    } else if (var14.mayPickup(param3)) {
-                        if (var16.isEmpty()) {
-                            if (var15.isEmpty()) {
-                                var14.set(ItemStack.EMPTY);
-                                var1.setCarried(ItemStack.EMPTY);
-                            } else {
-                                int var18 = param1 == 0 ? var15.getCount() : (var15.getCount() + 1) / 2;
-                                var1.setCarried(var14.remove(var18));
-                                if (var15.isEmpty()) {
-                                    var14.set(ItemStack.EMPTY);
-                                }
-
-                                var14.onTake(param3, var1.getCarried());
-                            }
-                        } else if (var14.mayPlace(var16)) {
-                            if (consideredTheSameItem(var15, var16)) {
-                                int var19 = param1 == 0 ? var16.getCount() : 1;
-                                if (var19 > var14.getMaxStackSize(var16) - var15.getCount()) {
-                                    var19 = var14.getMaxStackSize(var16) - var15.getCount();
-                                }
-
-                                if (var19 > var16.getMaxStackSize() - var15.getCount()) {
-                                    var19 = var16.getMaxStackSize() - var15.getCount();
-                                }
-
-                                var16.shrink(var19);
-                                var15.grow(var19);
-                            } else if (var16.getCount() <= var14.getMaxStackSize(var16)) {
-                                var14.set(var16);
-                                var1.setCarried(var15);
-                            }
-                        } else if (var16.getMaxStackSize() > 1 && consideredTheSameItem(var15, var16) && !var15.isEmpty()) {
-                            int var20 = var15.getCount();
-                            if (var20 + var16.getCount() <= var16.getMaxStackSize()) {
-                                var16.grow(var20);
-                                var15 = var14.remove(var20);
-                                if (var15.isEmpty()) {
-                                    var14.set(ItemStack.EMPTY);
-                                }
-
-                                var14.onTake(param3, var1.getCarried());
-                            }
-                        }
-                    }
-
-                    var14.setChanged();
+                Slot var15 = this.slots.get(param0);
+                ItemStack var16 = var15.getItem();
+                ItemStack var17 = var1.getCarried();
+                if (!var16.isEmpty()) {
+                    var0 = var16.copy();
                 }
+
+                if (var16.isEmpty()) {
+                    if (!var17.isEmpty() && var15.mayPlace(var17)) {
+                        int var18 = var12 == ClickAction.PRIMARY ? var17.getCount() : 1;
+                        if (var18 > var15.getMaxStackSize(var17)) {
+                            var18 = var15.getMaxStackSize(var17);
+                        }
+
+                        var15.set(var17.split(var18));
+                    }
+                } else if (var15.mayPickup(param3)) {
+                    if (var17.isEmpty()) {
+                        if (!var16.overrideOtherStackedOnMe(var17, var12, var1)) {
+                            int var19 = var12 == ClickAction.PRIMARY ? var16.getCount() : (var16.getCount() + 1) / 2;
+                            var1.setCarried(var15.remove(var19));
+                            if (var16.isEmpty()) {
+                                var15.set(ItemStack.EMPTY);
+                            }
+
+                            var15.onTake(param3, var1.getCarried());
+                        }
+                    } else if (var15.mayPlace(var17)) {
+                        if (!var17.overrideStackedOnOther(var16, var12, var1) && !var16.overrideOtherStackedOnMe(var17, var12, var1)) {
+                            if (consideredTheSameItem(var16, var17)) {
+                                int var20 = var12 == ClickAction.PRIMARY ? var17.getCount() : 1;
+                                if (var20 > var15.getMaxStackSize(var17) - var16.getCount()) {
+                                    var20 = var15.getMaxStackSize(var17) - var16.getCount();
+                                }
+
+                                if (var20 > var17.getMaxStackSize() - var16.getCount()) {
+                                    var20 = var17.getMaxStackSize() - var16.getCount();
+                                }
+
+                                var17.shrink(var20);
+                                var16.grow(var20);
+                            } else if (var17.getCount() <= var15.getMaxStackSize(var17)) {
+                                var15.set(var17);
+                                var1.setCarried(var16);
+                            }
+                        }
+                    } else if (consideredTheSameItem(var16, var17)) {
+                        int var21 = var16.getCount();
+                        if (var21 + var17.getCount() <= var17.getMaxStackSize()) {
+                            var17.grow(var21);
+                            var15.remove(var21);
+                            var15.set(ItemStack.EMPTY);
+                            var15.onTake(param3, var1.getCarried());
+                        }
+                    }
+                }
+
+                var15.setChanged();
             }
         } else if (param2 == ClickType.SWAP) {
-            Slot var21 = this.slots.get(param0);
-            ItemStack var22 = var1.getItem(param1);
-            ItemStack var23 = var21.getItem();
-            if (!var22.isEmpty() || !var23.isEmpty()) {
-                if (var22.isEmpty()) {
-                    if (var21.mayPickup(param3)) {
-                        var1.setItem(param1, var23);
-                        var21.onSwapCraft(var23.getCount());
-                        var21.set(ItemStack.EMPTY);
-                        var21.onTake(param3, var23);
+            Slot var22 = this.slots.get(param0);
+            ItemStack var23 = var1.getItem(param1);
+            ItemStack var24 = var22.getItem();
+            if (!var23.isEmpty() || !var24.isEmpty()) {
+                if (var23.isEmpty()) {
+                    if (var22.mayPickup(param3)) {
+                        var1.setItem(param1, var24);
+                        var22.onSwapCraft(var24.getCount());
+                        var22.set(ItemStack.EMPTY);
+                        var22.onTake(param3, var24);
                     }
-                } else if (var23.isEmpty()) {
-                    if (var21.mayPlace(var22)) {
-                        int var24 = var21.getMaxStackSize(var22);
-                        if (var22.getCount() > var24) {
-                            var21.set(var22.split(var24));
+                } else if (var24.isEmpty()) {
+                    if (var22.mayPlace(var23)) {
+                        int var25 = var22.getMaxStackSize(var23);
+                        if (var23.getCount() > var25) {
+                            var22.set(var23.split(var25));
                         } else {
-                            var21.set(var22);
+                            var22.set(var23);
                             var1.setItem(param1, ItemStack.EMPTY);
                         }
                     }
-                } else if (var21.mayPickup(param3) && var21.mayPlace(var22)) {
-                    int var25 = var21.getMaxStackSize(var22);
-                    if (var22.getCount() > var25) {
-                        var21.set(var22.split(var25));
-                        var21.onTake(param3, var23);
-                        if (!var1.add(var23)) {
-                            param3.drop(var23, true);
+                } else if (var22.mayPickup(param3) && var22.mayPlace(var23)) {
+                    int var26 = var22.getMaxStackSize(var23);
+                    if (var23.getCount() > var26) {
+                        var22.set(var23.split(var26));
+                        var22.onTake(param3, var24);
+                        if (!var1.add(var24)) {
+                            param3.drop(var24, true);
                         }
                     } else {
-                        var21.set(var22);
-                        var1.setItem(param1, var23);
-                        var21.onTake(param3, var23);
+                        var22.set(var23);
+                        var1.setItem(param1, var24);
+                        var22.onTake(param3, var24);
                     }
                 }
             }
-        } else if (param2 == ClickType.CLONE && param3.abilities.instabuild && var1.getCarried().isEmpty() && param0 >= 0) {
-            Slot var26 = this.slots.get(param0);
-            if (var26 != null && var26.hasItem()) {
-                ItemStack var27 = var26.getItem().copy();
-                var27.setCount(var27.getMaxStackSize());
-                var1.setCarried(var27);
+        } else if (param2 == ClickType.CLONE && param3.getAbilities().instabuild && var1.getCarried().isEmpty() && param0 >= 0) {
+            Slot var27 = this.slots.get(param0);
+            if (var27.hasItem()) {
+                ItemStack var28 = var27.getItem().copy();
+                var28.setCount(var28.getMaxStackSize());
+                var1.setCarried(var28);
             }
         } else if (param2 == ClickType.THROW && var1.getCarried().isEmpty() && param0 >= 0) {
-            Slot var28 = this.slots.get(param0);
-            if (var28 != null && var28.hasItem() && var28.mayPickup(param3)) {
-                ItemStack var29 = var28.remove(param1 == 0 ? 1 : var28.getItem().getCount());
-                var28.onTake(param3, var29);
-                param3.drop(var29, true);
+            Slot var29 = this.slots.get(param0);
+            if (var29.hasItem() && var29.mayPickup(param3)) {
+                ItemStack var30 = var29.remove(param1 == 0 ? 1 : var29.getItem().getCount());
+                var29.onTake(param3, var30);
+                param3.drop(var30, true);
             }
         } else if (param2 == ClickType.PICKUP_ALL && param0 >= 0) {
-            Slot var30 = this.slots.get(param0);
-            ItemStack var31 = var1.getCarried();
-            if (!var31.isEmpty() && (var30 == null || !var30.hasItem() || !var30.mayPickup(param3))) {
-                int var32 = param1 == 0 ? 0 : this.slots.size() - 1;
-                int var33 = param1 == 0 ? 1 : -1;
+            Slot var31 = this.slots.get(param0);
+            ItemStack var32 = var1.getCarried();
+            if (!var32.isEmpty() && (!var31.hasItem() || !var31.mayPickup(param3))) {
+                int var33 = param1 == 0 ? 0 : this.slots.size() - 1;
+                int var34 = param1 == 0 ? 1 : -1;
 
-                for(int var34 = 0; var34 < 2; ++var34) {
-                    for(int var35 = var32; var35 >= 0 && var35 < this.slots.size() && var31.getCount() < var31.getMaxStackSize(); var35 += var33) {
-                        Slot var36 = this.slots.get(var35);
-                        if (var36.hasItem() && canItemQuickReplace(var36, var31, true) && var36.mayPickup(param3) && this.canTakeItemForPickAll(var31, var36)) {
-                            ItemStack var37 = var36.getItem();
-                            if (var34 != 0 || var37.getCount() != var37.getMaxStackSize()) {
-                                int var38 = Math.min(var31.getMaxStackSize() - var31.getCount(), var37.getCount());
-                                ItemStack var39 = var36.remove(var38);
-                                var31.grow(var38);
-                                if (var39.isEmpty()) {
-                                    var36.set(ItemStack.EMPTY);
+                for(int var35 = 0; var35 < 2; ++var35) {
+                    for(int var36 = var33; var36 >= 0 && var36 < this.slots.size() && var32.getCount() < var32.getMaxStackSize(); var36 += var34) {
+                        Slot var37 = this.slots.get(var36);
+                        if (var37.hasItem() && canItemQuickReplace(var37, var32, true) && var37.mayPickup(param3) && this.canTakeItemForPickAll(var32, var37)) {
+                            ItemStack var38 = var37.getItem();
+                            if (var35 != 0 || var38.getCount() != var38.getMaxStackSize()) {
+                                int var39 = Math.min(var32.getMaxStackSize() - var32.getCount(), var38.getCount());
+                                ItemStack var40 = var37.remove(var39);
+                                var32.grow(var39);
+                                if (var40.isEmpty()) {
+                                    var37.set(ItemStack.EMPTY);
                                 }
 
-                                var36.onTake(param3, var39);
+                                var37.onTake(param3, var40);
                             }
                         }
                     }
@@ -415,7 +405,7 @@ public abstract class AbstractContainerMenu {
     }
 
     public static boolean consideredTheSameItem(ItemStack param0, ItemStack param1) {
-        return param0.getItem() == param1.getItem() && ItemStack.tagMatches(param0, param1);
+        return param0.is(param1.getItem()) && ItemStack.tagMatches(param0, param1);
     }
 
     public boolean canTakeItemForPickAll(ItemStack param0, Slot param1) {
@@ -423,7 +413,7 @@ public abstract class AbstractContainerMenu {
     }
 
     public void removed(Player param0) {
-        Inventory var0 = param0.inventory;
+        Inventory var0 = param0.getInventory();
         if (!var0.getCarried().isEmpty()) {
             param0.drop(var0.getCarried(), false);
             var0.setCarried(ItemStack.EMPTY);
@@ -431,15 +421,18 @@ public abstract class AbstractContainerMenu {
 
     }
 
-    protected void clearContainer(Player param0, Level param1, Container param2) {
+    protected void clearContainer(Player param0, Container param1) {
         if (!param0.isAlive() || param0 instanceof ServerPlayer && ((ServerPlayer)param0).hasDisconnected()) {
-            for(int var0 = 0; var0 < param2.getContainerSize(); ++var0) {
-                param0.drop(param2.removeItemNoUpdate(var0), false);
+            for(int var0 = 0; var0 < param1.getContainerSize(); ++var0) {
+                param0.drop(param1.removeItemNoUpdate(var0), false);
             }
 
         } else {
-            for(int var1 = 0; var1 < param2.getContainerSize(); ++var1) {
-                param0.inventory.placeItemBackInInventory(param1, param2.removeItemNoUpdate(var1));
+            for(int var1 = 0; var1 < param1.getContainerSize(); ++var1) {
+                Inventory var2 = param0.getInventory();
+                if (var2.player instanceof ServerPlayer) {
+                    var2.placeItemBackInInventory(param1.removeItemNoUpdate(var1));
+                }
             }
 
         }
@@ -588,7 +581,7 @@ public abstract class AbstractContainerMenu {
         } else if (param0 == 1) {
             return true;
         } else {
-            return param0 == 2 && param1.abilities.instabuild;
+            return param0 == 2 && param1.getAbilities().instabuild;
         }
     }
 

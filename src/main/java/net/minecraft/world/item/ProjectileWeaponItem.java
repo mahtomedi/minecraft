@@ -6,8 +6,8 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 
 public abstract class ProjectileWeaponItem extends Item {
-    public static final Predicate<ItemStack> ARROW_ONLY = param0 -> param0.getItem().is(ItemTags.ARROWS);
-    public static final Predicate<ItemStack> ARROW_OR_FIREWORK = ARROW_ONLY.or(param0 -> param0.getItem() == Items.FIREWORK_ROCKET);
+    public static final Predicate<ItemStack> ARROW_ONLY = param0 -> param0.is(ItemTags.ARROWS);
+    public static final Predicate<ItemStack> ARROW_OR_FIREWORK = ARROW_ONLY.or(param0 -> param0.is(Items.FIREWORK_ROCKET));
 
     public ProjectileWeaponItem(Item.Properties param0) {
         super(param0);

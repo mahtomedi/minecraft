@@ -1,6 +1,7 @@
 package net.minecraft.client.renderer.entity;
 
 import net.minecraft.client.model.ChickenModel;
+import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.animal.Chicken;
@@ -11,8 +12,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class ChickenRenderer extends MobRenderer<Chicken, ChickenModel<Chicken>> {
     private static final ResourceLocation CHICKEN_LOCATION = new ResourceLocation("textures/entity/chicken.png");
 
-    public ChickenRenderer(EntityRenderDispatcher param0) {
-        super(param0, new ChickenModel<>(), 0.3F);
+    public ChickenRenderer(EntityRendererProvider.Context param0) {
+        super(param0, new ChickenModel<>(param0.getLayer(ModelLayers.CHICKEN)), 0.3F);
     }
 
     public ResourceLocation getTextureLocation(Chicken param0) {

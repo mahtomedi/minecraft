@@ -252,7 +252,7 @@ public class Commands {
                 );
                 if (SharedConstants.IS_RUNNING_IN_IDE) {
                     param0.sendFailure(new TextComponent(Util.describeError(var15)));
-                    LOGGER.error("'" + param1 + "' threw an exception", (Throwable)var15);
+                    LOGGER.error("'{}' threw an exception", param1, var15);
                 }
 
                 return 0;

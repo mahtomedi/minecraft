@@ -75,7 +75,7 @@ public abstract class ItemCombinerMenu extends AbstractContainerMenu {
     @Override
     public void removed(Player param0) {
         super.removed(param0);
-        this.access.execute((param1, param2) -> this.clearContainer(param0, param1, this.inputSlots));
+        this.access.execute((param1, param2) -> this.clearContainer(param0, this.inputSlots));
     }
 
     @Override

@@ -76,7 +76,6 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.food.FoodProperties;
-import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ElytraItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -90,7 +89,6 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BedBlock;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.HoneyBlock;
 import net.minecraft.world.level.block.LadderBlock;
@@ -320,7 +318,7 @@ public abstract class LivingEntity extends Entity {
             this.clearFire();
         }
 
-        boolean var3 = var0 && ((Player)this).abilities.invulnerable;
+        boolean var3 = var0 && ((Player)this).getAbilities().invulnerable;
         if (this.isAlive()) {
             if (this.isEyeInFluid(FluidTags.WATER)
                 && !this.level.getBlockState(new BlockPos(this.getX(), this.getEyeY(), this.getZ())).is(Blocks.BUBBLE_COLUMN)) {
@@ -507,7 +505,7 @@ public abstract class LivingEntity extends Entity {
     protected void tickDeath() {
         ++this.deathTime;
         if (this.deathTime == 20) {
-            this.remove();
+            this.remove(Entity.RemovalReason.KILLED);
 
             for(int var0 = 0; var0 < 20; ++var0) {
                 double var1 = this.random.nextGaussian() * 0.02;
@@ -595,15 +593,8 @@ public abstract class LivingEntity extends Entity {
     }
 
     protected void playEquipSound(ItemStack param0) {
-        if (!param0.isEmpty()) {
-            SoundEvent var0 = SoundEvents.ARMOR_EQUIP_GENERIC;
-            Item var1 = param0.getItem();
-            if (var1 instanceof ArmorItem) {
-                var0 = ((ArmorItem)var1).getMaterial().getEquipSound();
-            } else if (var1 == Items.ELYTRA) {
-                var0 = SoundEvents.ARMOR_EQUIP_ELYTRA;
-            }
-
+        SoundEvent var0 = param0.getEquipSound();
+        if (!param0.isEmpty() && var0 != null && !this.isSpectator()) {
             this.playSound(var0, 1.0F, 1.0F);
         }
     }
@@ -780,11 +771,10 @@ public abstract class LivingEntity extends Entity {
 
         if (param0 != null) {
             ItemStack var2 = this.getItemBySlot(EquipmentSlot.HEAD);
-            Item var3 = var2.getItem();
-            EntityType<?> var4 = param0.getType();
-            if (var4 == EntityType.SKELETON && var3 == Items.SKELETON_SKULL
-                || var4 == EntityType.ZOMBIE && var3 == Items.ZOMBIE_HEAD
-                || var4 == EntityType.CREEPER && var3 == Items.CREEPER_HEAD) {
+            EntityType<?> var3 = param0.getType();
+            if (var3 == EntityType.SKELETON && var2.is(Items.SKELETON_SKULL)
+                || var3 == EntityType.ZOMBIE && var2.is(Items.ZOMBIE_HEAD)
+                || var3 == EntityType.CREEPER && var2.is(Items.CREEPER_HEAD)) {
                 var0 *= 0.5;
             }
         }
@@ -1127,7 +1117,7 @@ public abstract class LivingEntity extends Entity {
 
             for(InteractionHand var1 : InteractionHand.values()) {
                 ItemStack var2 = this.getItemInHand(var1);
-                if (var2.getItem() == Items.TOTEM_OF_UNDYING) {
+                if (var2.is(Items.TOTEM_OF_UNDYING)) {
                     var0 = var2.copy();
                     var2.shrink(1);
                     break;
@@ -1218,7 +1208,7 @@ public abstract class LivingEntity extends Entity {
     }
 
     public void die(DamageSource param0) {
-        if (!this.removed && !this.dead) {
+        if (!this.isRemoved() && !this.dead) {
             Entity var0 = param0.getEntity();
             LivingEntity var1 = this.getKillCredit();
             if (this.deathScore >= 0 && var1 != null) {
@@ -1290,18 +1280,12 @@ public abstract class LivingEntity extends Entity {
     }
 
     protected void dropExperience() {
-        if (!this.level.isClientSide
+        if (this.level instanceof ServerLevel
             && (
                 this.isAlwaysExperienceDropper()
                     || this.lastHurtByPlayerTime > 0 && this.shouldDropExperience() && this.level.getGameRules().getBoolean(GameRules.RULE_DOMOBLOOT)
             )) {
-            int var0 = this.getExperienceReward(this.lastHurtByPlayer);
-
-            while(var0 > 0) {
-                int var1 = ExperienceOrb.getExperienceValue(var0);
-                var0 -= var1;
-                this.level.addFreshEntity(new ExperienceOrb(this.level, this.getX(), this.getY(), this.getZ(), var1));
-            }
+            ExperienceOrb.award((ServerLevel)this.level, this.position(), this.getExperienceReward(this.lastHurtByPlayer));
         }
 
     }
@@ -1386,11 +1370,10 @@ public abstract class LivingEntity extends Entity {
         } else {
             BlockPos var0 = this.blockPosition();
             BlockState var1 = this.getFeetBlockState();
-            Block var2 = var1.getBlock();
-            if (var2.is(BlockTags.CLIMBABLE)) {
+            if (var1.is(BlockTags.CLIMBABLE)) {
                 this.lastClimbablePos = Optional.of(var0);
                 return true;
-            } else if (var2 instanceof TrapDoorBlock && this.trapdoorUsableAsLadder(var0, var1)) {
+            } else if (var1.getBlock() instanceof TrapDoorBlock && this.trapdoorUsableAsLadder(var0, var1)) {
                 this.lastClimbablePos = Optional.of(var0);
                 return true;
             } else {
@@ -1416,7 +1399,7 @@ public abstract class LivingEntity extends Entity {
 
     @Override
     public boolean isAlive() {
-        return !this.removed && this.getHealth() > 0.0F;
+        return !this.isRemoved() && this.getHealth() > 0.0F;
     }
 
     @Override
@@ -1793,11 +1776,11 @@ public abstract class LivingEntity extends Entity {
     }
 
     public boolean isHolding(Item param0) {
-        return this.isHolding(param1 -> param1 == param0);
+        return this.isHolding(param1 -> param1.is(param0));
     }
 
-    public boolean isHolding(Predicate<Item> param0) {
-        return param0.test(this.getMainHandItem().getItem()) || param0.test(this.getOffhandItem().getItem());
+    public boolean isHolding(Predicate<ItemStack> param0) {
+        return param0.test(this.getMainHandItem()) || param0.test(this.getOffhandItem());
     }
 
     public ItemStack getItemInHand(InteractionHand param0) {
@@ -1889,7 +1872,7 @@ public abstract class LivingEntity extends Entity {
 
     private void dismountVehicle(Entity param0) {
         Vec3 var1;
-        if (!param0.removed && !this.level.getBlockState(param0.blockPosition()).getBlock().is(BlockTags.PORTALS)) {
+        if (!param0.isRemoved() && !this.level.getBlockState(param0.blockPosition()).is(BlockTags.PORTALS)) {
             var1 = param0.getDismountLocationForPassenger(this);
         } else {
             var1 = new Vec3(param0.getX(), param0.getY() + (double)param0.getBbHeight(), param0.getZ());
@@ -2059,7 +2042,7 @@ public abstract class LivingEntity extends Entity {
                     var28 += (0.05 * (double)(this.getEffect(MobEffects.LEVITATION).getAmplifier() + 1) - var27.y) * 0.2;
                     this.fallDistance = 0.0F;
                 } else if (this.level.isClientSide && !this.level.hasChunkAt(var24)) {
-                    if (this.getY() > 0.0) {
+                    if (this.getY() > (double)this.level.getMinBuildHeight()) {
                         var28 = -0.1;
                     } else {
                         var28 = 0.0;
@@ -2514,7 +2497,7 @@ public abstract class LivingEntity extends Entity {
         boolean var0 = this.getSharedFlag(7);
         if (var0 && !this.onGround && !this.isPassenger() && !this.hasEffect(MobEffects.LEVITATION)) {
             ItemStack var1 = this.getItemBySlot(EquipmentSlot.CHEST);
-            if (var1.getItem() == Items.ELYTRA && ElytraItem.isFlyEnabled(var1)) {
+            if (var1.is(Items.ELYTRA) && ElytraItem.isFlyEnabled(var1)) {
                 var0 = true;
                 if (!this.level.isClientSide && (this.fallFlyTicks + 1) % 20 == 0) {
                     var1.hurtAndBreak(1, this, param0 -> param0.broadcastBreakEvent(EquipmentSlot.CHEST));
@@ -2652,9 +2635,9 @@ public abstract class LivingEntity extends Entity {
     }
 
     public void take(Entity param0, int param1) {
-        if (!param0.removed && !this.level.isClientSide && (param0 instanceof ItemEntity || param0 instanceof AbstractArrow || param0 instanceof ExperienceOrb)
-            )
-         {
+        if (!param0.isRemoved()
+            && !this.level.isClientSide
+            && (param0 instanceof ItemEntity || param0 instanceof AbstractArrow || param0 instanceof ExperienceOrb)) {
             ((ServerLevel)this.level).getChunkSource().broadcast(param0, new ClientboundTakeItemEntityPacket(param0.getId(), this.getId(), param1));
         }
 
@@ -2687,7 +2670,7 @@ public abstract class LivingEntity extends Entity {
 
     @Override
     public boolean isPickable() {
-        return !this.removed;
+        return !this.isRemoved();
     }
 
     @Override
@@ -2969,7 +2952,7 @@ public abstract class LivingEntity extends Entity {
         if (var6.hasChunkAt(var5)) {
             boolean var7 = false;
 
-            while(!var7 && var5.getY() > 0) {
+            while(!var7 && var5.getY() > var6.getMinBuildHeight()) {
                 BlockPos var8 = var5.below();
                 BlockState var9 = var6.getBlockState(var8);
                 if (var9.getMaterial().blocksMotion()) {
@@ -3143,7 +3126,7 @@ public abstract class LivingEntity extends Entity {
                 1.0F + (param0.random.nextFloat() - param0.random.nextFloat()) * 0.4F
             );
             this.addEatEffect(param1, param0, this);
-            if (!(this instanceof Player) || !((Player)this).abilities.instabuild) {
+            if (!(this instanceof Player) || !((Player)this).getAbilities().instabuild) {
                 param1.shrink(1);
             }
         }
@@ -3193,7 +3176,7 @@ public abstract class LivingEntity extends Entity {
     @OnlyIn(Dist.CLIENT)
     @Override
     public AABB getBoundingBoxForCulling() {
-        if (this.getItemBySlot(EquipmentSlot.HEAD).getItem() == Items.DRAGON_HEAD) {
+        if (this.getItemBySlot(EquipmentSlot.HEAD).is(Items.DRAGON_HEAD)) {
             float var0 = 0.5F;
             return this.getBoundingBox().inflate(0.5, 0.5, 0.5);
         } else {

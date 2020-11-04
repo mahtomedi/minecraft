@@ -17,7 +17,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.AgableMob;
+import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
@@ -36,7 +36,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public abstract class AbstractVillager extends AgableMob implements Npc, Merchant {
+public abstract class AbstractVillager extends AgeableMob implements Npc, Merchant {
     private static final EntityDataAccessor<Integer> DATA_UNHAPPY_COUNTER = SynchedEntityData.defineId(AbstractVillager.class, EntityDataSerializers.INT);
     @Nullable
     private Player tradingPlayer;
@@ -55,7 +55,7 @@ public abstract class AbstractVillager extends AgableMob implements Npc, Merchan
         ServerLevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
     ) {
         if (param3 == null) {
-            param3 = new AgableMob.AgableMobGroupData(false);
+            param3 = new AgeableMob.AgeableMobGroupData(false);
         }
 
         return super.finalizeSpawn(param0, param1, param2, param3, param4);

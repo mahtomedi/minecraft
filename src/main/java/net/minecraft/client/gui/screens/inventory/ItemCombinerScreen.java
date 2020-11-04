@@ -15,7 +15,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class ItemCombinerScreen<T extends ItemCombinerMenu> extends AbstractContainerScreen<T> implements ContainerListener {
-    private ResourceLocation menuResource;
+    private final ResourceLocation menuResource;
 
     public ItemCombinerScreen(T param0, Inventory param1, Component param2, ResourceLocation param3) {
         super(param0, param1, param2);

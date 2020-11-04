@@ -25,7 +25,7 @@ public class RealmsResetNormalWorldScreen extends RealmsScreen {
     private EditBox seedEdit;
     private Boolean generateStructures = true;
     private Integer levelTypeIndex = 0;
-    private Component buttonTitle;
+    private final Component buttonTitle;
 
     public RealmsResetNormalWorldScreen(RealmsResetWorldScreen param0, Component param1) {
         this.lastScreen = param0;

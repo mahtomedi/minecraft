@@ -43,11 +43,10 @@ public class ArmorStandItem extends Item {
                         return InteractionResult.FAIL;
                     }
 
-                    var7.addFreshEntityWithPassengers(var8);
                     float var9 = (float)Mth.floor((Mth.wrapDegrees(param0.getRotation() - 180.0F) + 22.5F) / 45.0F) * 45.0F;
                     var8.moveTo(var8.getX(), var8.getY(), var8.getZ(), var9, 0.0F);
                     this.randomizePose(var8, var1.random);
-                    var1.addFreshEntity(var8);
+                    var7.addFreshEntityWithPassengers(var8);
                     var1.playSound(null, var8.getX(), var8.getY(), var8.getZ(), SoundEvents.ARMOR_STAND_PLACE, SoundSource.BLOCKS, 0.75F, 0.8F);
                 }
 

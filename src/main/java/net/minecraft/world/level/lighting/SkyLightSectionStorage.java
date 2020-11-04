@@ -30,20 +30,24 @@ public class SkyLightSectionStorage extends LayerLightSectionStorage<SkyLightSec
 
     @Override
     protected int getLightValue(long param0) {
+        return this.getLightValue(param0, false);
+    }
+
+    protected int getLightValue(long param0, boolean param1) {
         long var0 = SectionPos.blockToSection(param0);
         int var1 = SectionPos.y(var0);
-        SkyLightSectionStorage.SkyDataLayerStorageMap var2 = this.visibleSectionData;
+        SkyLightSectionStorage.SkyDataLayerStorageMap var2 = param1 ? this.updatingSectionData : this.visibleSectionData;
         int var3 = var2.topSections.get(SectionPos.getZeroNode(var0));
         if (var3 != var2.currentLowestY && var1 < var3) {
             DataLayer var4 = this.getDataLayer(var2, var0);
             if (var4 == null) {
                 for(param0 = BlockPos.getFlatIndex(param0); var4 == null; var4 = this.getDataLayer(var2, var0)) {
-                    var0 = SectionPos.offset(var0, Direction.UP);
                     if (++var1 >= var3) {
                         return 15;
                     }
 
                     param0 = BlockPos.offset(param0, 0, 16, 0);
+                    var0 = SectionPos.offset(var0, Direction.UP);
                 }
             }
 
@@ -53,7 +57,7 @@ public class SkyLightSectionStorage extends LayerLightSectionStorage<SkyLightSec
                 SectionPos.sectionRelative(BlockPos.getZ(param0))
             );
         } else {
-            return 15;
+            return param1 && !this.lightOnInSection(var0) ? 0 : 15;
         }
     }
 
@@ -226,14 +230,14 @@ public class SkyLightSectionStorage extends LayerLightSectionStorage<SkyLightSec
                             for(int var17 = 0; var17 < 16; ++var17) {
                                 for(int var18 = 0; var18 < 16; ++var18) {
                                     long var19 = BlockPos.asLong(
-                                        SectionPos.sectionToBlockCoord(SectionPos.x(var0)) + var17,
+                                        SectionPos.sectionToBlockCoord(SectionPos.x(var0), var17),
                                         SectionPos.sectionToBlockCoord(SectionPos.y(var0)),
-                                        SectionPos.sectionToBlockCoord(SectionPos.z(var0)) + var18
+                                        SectionPos.sectionToBlockCoord(SectionPos.z(var0), var18)
                                     );
                                     long var20 = BlockPos.asLong(
-                                        SectionPos.sectionToBlockCoord(SectionPos.x(var0)) + var17,
+                                        SectionPos.sectionToBlockCoord(SectionPos.x(var0), var17),
                                         SectionPos.sectionToBlockCoord(SectionPos.y(var0)) - 1,
-                                        SectionPos.sectionToBlockCoord(SectionPos.z(var0)) + var18
+                                        SectionPos.sectionToBlockCoord(SectionPos.z(var0), var18)
                                     );
                                     param0.checkEdge(var19, var20, param0.computeLevelFromNeighbor(var19, var20, 0), true);
                                 }
@@ -242,9 +246,9 @@ public class SkyLightSectionStorage extends LayerLightSectionStorage<SkyLightSec
                             for(int var21 = 0; var21 < 16; ++var21) {
                                 for(int var22 = 0; var22 < 16; ++var22) {
                                     long var23 = BlockPos.asLong(
-                                        SectionPos.sectionToBlockCoord(SectionPos.x(var0)) + var21,
-                                        SectionPos.sectionToBlockCoord(SectionPos.y(var0)) + 16 - 1,
-                                        SectionPos.sectionToBlockCoord(SectionPos.z(var0)) + var22
+                                        SectionPos.sectionToBlockCoord(SectionPos.x(var0), var21),
+                                        SectionPos.sectionToBlockCoord(SectionPos.y(var0), 15),
+                                        SectionPos.sectionToBlockCoord(SectionPos.z(var0), var22)
                                     );
                                     param0.checkEdge(Long.MAX_VALUE, var23, 0, true);
                                 }
@@ -261,9 +265,9 @@ public class SkyLightSectionStorage extends LayerLightSectionStorage<SkyLightSec
                         for(int var25 = 0; var25 < 16; ++var25) {
                             for(int var26 = 0; var26 < 16; ++var26) {
                                 long var27 = BlockPos.asLong(
-                                    SectionPos.sectionToBlockCoord(SectionPos.x(var24)) + var25,
-                                    SectionPos.sectionToBlockCoord(SectionPos.y(var24)) + 16 - 1,
-                                    SectionPos.sectionToBlockCoord(SectionPos.z(var24)) + var26
+                                    SectionPos.sectionToBlockCoord(SectionPos.x(var24), var25),
+                                    SectionPos.sectionToBlockCoord(SectionPos.y(var24), 15),
+                                    SectionPos.sectionToBlockCoord(SectionPos.z(var24), var26)
                                 );
                                 param0.checkEdge(Long.MAX_VALUE, var27, 15, false);
                             }
@@ -279,22 +283,6 @@ public class SkyLightSectionStorage extends LayerLightSectionStorage<SkyLightSec
 
     protected boolean hasSectionsBelow(int param0) {
         return param0 >= this.updatingSectionData.currentLowestY;
-    }
-
-    protected boolean hasLightSource(long param0) {
-        int var0 = BlockPos.getY(param0);
-        if ((var0 & 15) != 15) {
-            return false;
-        } else {
-            long var1 = SectionPos.blockToSection(param0);
-            long var2 = SectionPos.getZeroNode(var1);
-            if (!this.columnsWithSkySources.contains(var2)) {
-                return false;
-            } else {
-                int var3 = this.updatingSectionData.topSections.get(var2);
-                return SectionPos.sectionToBlockCoord(var3) == var0 + 16;
-            }
-        }
     }
 
     protected boolean isAboveData(long param0) {

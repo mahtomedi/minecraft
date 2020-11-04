@@ -34,12 +34,8 @@ public class JigsawBlockEntity extends BlockEntity {
     private JigsawBlockEntity.JointType joint = JigsawBlockEntity.JointType.ROLLABLE;
     private String finalState = "minecraft:air";
 
-    public JigsawBlockEntity(BlockEntityType<?> param0) {
-        super(param0);
-    }
-
-    public JigsawBlockEntity() {
-        this(BlockEntityType.JIGSAW);
+    public JigsawBlockEntity(BlockPos param0, BlockState param1) {
+        super(BlockEntityType.JIGSAW, param0, param1);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -99,15 +95,17 @@ public class JigsawBlockEntity extends BlockEntity {
     }
 
     @Override
-    public void load(BlockState param0, CompoundTag param1) {
-        super.load(param0, param1);
-        this.name = new ResourceLocation(param1.getString("name"));
-        this.target = new ResourceLocation(param1.getString("target"));
-        this.pool = new ResourceLocation(param1.getString("pool"));
-        this.finalState = param1.getString("final_state");
-        this.joint = JigsawBlockEntity.JointType.byName(param1.getString("joint"))
+    public void load(CompoundTag param0) {
+        super.load(param0);
+        this.name = new ResourceLocation(param0.getString("name"));
+        this.target = new ResourceLocation(param0.getString("target"));
+        this.pool = new ResourceLocation(param0.getString("pool"));
+        this.finalState = param0.getString("final_state");
+        this.joint = JigsawBlockEntity.JointType.byName(param0.getString("joint"))
             .orElseGet(
-                () -> JigsawBlock.getFrontFacing(param0).getAxis().isHorizontal() ? JigsawBlockEntity.JointType.ALIGNED : JigsawBlockEntity.JointType.ROLLABLE
+                () -> JigsawBlock.getFrontFacing(this.getBlockState()).getAxis().isHorizontal()
+                        ? JigsawBlockEntity.JointType.ALIGNED
+                        : JigsawBlockEntity.JointType.ROLLABLE
             );
     }
 

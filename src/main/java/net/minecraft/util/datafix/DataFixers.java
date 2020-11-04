@@ -32,8 +32,10 @@ import net.minecraft.util.datafix.fixes.BlockEntitySignTextStrictJsonFix;
 import net.minecraft.util.datafix.fixes.BlockEntityUUIDFix;
 import net.minecraft.util.datafix.fixes.BlockNameFlatteningFix;
 import net.minecraft.util.datafix.fixes.BlockRenameFix;
+import net.minecraft.util.datafix.fixes.BlockRenameFixWithJigsaw;
 import net.minecraft.util.datafix.fixes.BlockStateStructureTemplateFix;
 import net.minecraft.util.datafix.fixes.CatTypeFix;
+import net.minecraft.util.datafix.fixes.CauldronRenameFix;
 import net.minecraft.util.datafix.fixes.ChunkBiomeFix;
 import net.minecraft.util.datafix.fixes.ChunkLightRemoveFix;
 import net.minecraft.util.datafix.fixes.ChunkPalettedStorageFix;
@@ -670,6 +672,13 @@ public class DataFixers {
         param0.addFixer(new OptionsRenameFieldFix(var123, false, "Rename swapHands setting", "key_key.swapHands", "key_key.swapOffhand"));
         Schema var124 = param0.addSchema(2568, V2568::new);
         param0.addFixer(new AddNewChoices(var124, "Added Piglin Brute", References.ENTITY));
+        Schema var125 = param0.addSchema(2679, SAME_NAMESPACED);
+        param0.addFixer(new CauldronRenameFix(var125, false));
+        Schema var126 = param0.addSchema(2680, SAME_NAMESPACED);
+        param0.addFixer(ItemRenameFix.create(var126, "Renamed grass path item to dirt path", createRenamer("minecraft:grass_path", "minecraft:dirt_path")));
+        param0.addFixer(
+            BlockRenameFixWithJigsaw.create(var126, "Renamed grass path block to dirt path", createRenamer("minecraft:grass_path", "minecraft:dirt_path"))
+        );
     }
 
     private static UnaryOperator<String> createRenamer(Map<String, String> param0) {

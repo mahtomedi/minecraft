@@ -1,8 +1,9 @@
 package net.minecraft.world.level.pathfinder;
 
-import com.google.common.collect.Sets;
+import com.google.common.collect.ImmutableSet;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import java.util.EnumSet;
-import java.util.Set;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
@@ -10,20 +11,23 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.PathNavigationRegion;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class FlyNodeEvaluator extends WalkNodeEvaluator {
+    private final Long2ObjectMap<BlockPathTypes> pathTypeByPosCache = new Long2ObjectOpenHashMap<>();
+
     @Override
     public void prepare(PathNavigationRegion param0, Mob param1) {
         super.prepare(param0, param1);
+        this.pathTypeByPosCache.clear();
         this.oldWaterCost = param1.getPathfindingMalus(BlockPathTypes.WATER);
     }
 
     @Override
     public void done() {
         this.mob.setPathfindingMalus(BlockPathTypes.WATER, this.oldWaterCost);
+        this.pathTypeByPosCache.clear();
         super.done();
     }
 
@@ -31,10 +35,10 @@ public class FlyNodeEvaluator extends WalkNodeEvaluator {
     public Node getStart() {
         int var0;
         if (this.canFloat() && this.mob.isInWater()) {
-            var0 = Mth.floor(this.mob.getY());
+            var0 = this.mob.getBlockY();
             BlockPos.MutableBlockPos var1 = new BlockPos.MutableBlockPos(this.mob.getX(), (double)var0, this.mob.getZ());
 
-            for(Block var2 = this.level.getBlockState(var1).getBlock(); var2 == Blocks.WATER; var2 = this.level.getBlockState(var1).getBlock()) {
+            for(BlockState var2 = this.level.getBlockState(var1); var2.is(Blocks.WATER); var2 = this.level.getBlockState(var1)) {
                 var1.set(this.mob.getX(), (double)(++var0), this.mob.getZ());
             }
         } else {
@@ -42,16 +46,15 @@ public class FlyNodeEvaluator extends WalkNodeEvaluator {
         }
 
         BlockPos var4 = this.mob.blockPosition();
-        BlockPathTypes var5 = this.getBlockPathType(this.mob, var4.getX(), var0, var4.getZ());
+        BlockPathTypes var5 = this.getCachedBlockPathType(var4.getX(), var0, var4.getZ());
         if (this.mob.getPathfindingMalus(var5) < 0.0F) {
-            Set<BlockPos> var6 = Sets.newHashSet();
-            var6.add(new BlockPos(this.mob.getBoundingBox().minX, (double)var0, this.mob.getBoundingBox().minZ));
-            var6.add(new BlockPos(this.mob.getBoundingBox().minX, (double)var0, this.mob.getBoundingBox().maxZ));
-            var6.add(new BlockPos(this.mob.getBoundingBox().maxX, (double)var0, this.mob.getBoundingBox().minZ));
-            var6.add(new BlockPos(this.mob.getBoundingBox().maxX, (double)var0, this.mob.getBoundingBox().maxZ));
-
-            for(BlockPos var7 : var6) {
-                BlockPathTypes var8 = this.getBlockPathType(this.mob, var7);
+            for(BlockPos var7 : ImmutableSet.of(
+                new BlockPos(this.mob.getBoundingBox().minX, (double)var0, this.mob.getBoundingBox().minZ),
+                new BlockPos(this.mob.getBoundingBox().minX, (double)var0, this.mob.getBoundingBox().maxZ),
+                new BlockPos(this.mob.getBoundingBox().maxX, (double)var0, this.mob.getBoundingBox().minZ),
+                new BlockPos(this.mob.getBoundingBox().maxX, (double)var0, this.mob.getBoundingBox().maxZ)
+            )) {
+                BlockPathTypes var8 = this.getCachedBlockPathType(var4.getX(), var0, var4.getZ());
                 if (this.mob.getPathfindingMalus(var8) >= 0.0F) {
                     return super.getNode(var7.getX(), var7.getY(), var7.getZ());
                 }
@@ -260,7 +263,7 @@ public class FlyNodeEvaluator extends WalkNodeEvaluator {
     @Override
     protected Node getNode(int param0, int param1, int param2) {
         Node var0 = null;
-        BlockPathTypes var1 = this.getBlockPathType(this.mob, param0, param1, param2);
+        BlockPathTypes var1 = this.getCachedBlockPathType(param0, param1, param2);
         float var2 = this.mob.getPathfindingMalus(var1);
         if (var2 >= 0.0F) {
             var0 = super.getNode(param0, param1, param2);
@@ -271,7 +274,26 @@ public class FlyNodeEvaluator extends WalkNodeEvaluator {
             }
         }
 
-        return var1 != BlockPathTypes.OPEN && var1 != BlockPathTypes.WALKABLE ? var0 : var0;
+        return var0;
+    }
+
+    private BlockPathTypes getCachedBlockPathType(int param0, int param1, int param2) {
+        return this.pathTypeByPosCache
+            .computeIfAbsent(
+                BlockPos.asLong(param0, param1, param2),
+                param3 -> this.getBlockPathType(
+                        this.level,
+                        param0,
+                        param1,
+                        param2,
+                        this.mob,
+                        this.entityWidth,
+                        this.entityHeight,
+                        this.entityDepth,
+                        this.canOpenDoors(),
+                        this.canPassDoors()
+                    )
+            );
     }
 
     @Override
@@ -281,7 +303,7 @@ public class FlyNodeEvaluator extends WalkNodeEvaluator {
         EnumSet<BlockPathTypes> var0 = EnumSet.noneOf(BlockPathTypes.class);
         BlockPathTypes var1 = BlockPathTypes.BLOCKED;
         BlockPos var2 = param4.blockPosition();
-        var1 = this.getBlockPathTypes(param0, param1, param2, param3, param5, param6, param7, param8, param9, var0, var1, var2);
+        var1 = super.getBlockPathTypes(param0, param1, param2, param3, param5, param6, param7, param8, param9, var0, var1, var2);
         if (var0.contains(BlockPathTypes.FENCE)) {
             return BlockPathTypes.FENCE;
         } else {
@@ -305,7 +327,7 @@ public class FlyNodeEvaluator extends WalkNodeEvaluator {
     public BlockPathTypes getBlockPathType(BlockGetter param0, int param1, int param2, int param3) {
         BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos();
         BlockPathTypes var1 = getBlockPathTypeRaw(param0, var0.set(param1, param2, param3));
-        if (var1 == BlockPathTypes.OPEN && param2 >= 1) {
+        if (var1 == BlockPathTypes.OPEN && param2 >= param0.getMinBuildHeight() + 1) {
             BlockState var2 = param0.getBlockState(var0.set(param1, param2 - 1, param3));
             BlockPathTypes var3 = getBlockPathTypeRaw(param0, var0.set(param1, param2 - 1, param3));
             if (var3 == BlockPathTypes.DAMAGE_FIRE || var2.is(Blocks.MAGMA_BLOCK) || var3 == BlockPathTypes.LAVA || var2.is(BlockTags.CAMPFIRES)) {
@@ -330,15 +352,5 @@ public class FlyNodeEvaluator extends WalkNodeEvaluator {
         }
 
         return var1;
-    }
-
-    private BlockPathTypes getBlockPathType(Mob param0, BlockPos param1) {
-        return this.getBlockPathType(param0, param1.getX(), param1.getY(), param1.getZ());
-    }
-
-    private BlockPathTypes getBlockPathType(Mob param0, int param1, int param2, int param3) {
-        return this.getBlockPathType(
-            this.level, param1, param2, param3, param0, this.entityWidth, this.entityHeight, this.entityDepth, this.canOpenDoors(), this.canPassDoors()
-        );
     }
 }
