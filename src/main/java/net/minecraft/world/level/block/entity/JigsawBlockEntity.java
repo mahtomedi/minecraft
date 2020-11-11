@@ -8,6 +8,8 @@ import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -156,6 +158,11 @@ public class JigsawBlockEntity extends BlockEntity {
 
         public static Optional<JigsawBlockEntity.JointType> byName(String param0) {
             return Arrays.stream(values()).filter(param1 -> param1.getSerializedName().equals(param0)).findFirst();
+        }
+
+        @OnlyIn(Dist.CLIENT)
+        public Component getTranslatedName() {
+            return new TranslatableComponent("jigsaw_block.joint." + this.name);
         }
     }
 }

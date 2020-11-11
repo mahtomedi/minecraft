@@ -302,6 +302,10 @@ public class Inventory implements Container, Nameable {
     }
 
     public void placeItemBackInInventory(ItemStack param0) {
+        this.placeItemBackInInventory(param0, true);
+    }
+
+    public void placeItemBackInInventory(ItemStack param0, boolean param1) {
         while(!param0.isEmpty()) {
             int var0 = this.getSlotWithRemainingSpace(param0);
             if (var0 == -1) {
@@ -314,7 +318,7 @@ public class Inventory implements Container, Nameable {
             }
 
             int var1 = param0.getMaxStackSize() - this.getItem(var0).getCount();
-            if (this.add(var0, param0.split(var1)) && this.player instanceof ServerPlayer) {
+            if (this.add(var0, param0.split(var1)) && param1 && this.player instanceof ServerPlayer) {
                 ((ServerPlayer)this.player).connection.send(new ClientboundContainerSetSlotPacket(-2, var0, this.getItem(var0)));
             }
         }

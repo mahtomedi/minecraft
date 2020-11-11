@@ -40,6 +40,7 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
@@ -187,14 +188,18 @@ public class Block extends BlockBehaviour implements ItemLike {
                 return var3 != 0;
             } else {
                 VoxelShape var4 = param0.getFaceOcclusionShape(param1, param2, param3);
-                VoxelShape var5 = var0.getFaceOcclusionShape(param1, param4, param3.getOpposite());
-                boolean var6 = Shapes.joinIsNotEmpty(var4, var5, BooleanOp.ONLY_FIRST);
-                if (var2.size() == 2048) {
-                    var2.removeLastByte();
-                }
+                if (var4.isEmpty()) {
+                    return true;
+                } else {
+                    VoxelShape var5 = var0.getFaceOcclusionShape(param1, param4, param3.getOpposite());
+                    boolean var6 = Shapes.joinIsNotEmpty(var4, var5, BooleanOp.ONLY_FIRST);
+                    if (var2.size() == 2048) {
+                        var2.removeLastByte();
+                    }
 
-                var2.putAndMoveToFirst(var1, (byte)(var6 ? 1 : 0));
-                return var6;
+                    var2.putAndMoveToFirst(var1, (byte)(var6 ? 1 : 0));
+                    return var6;
+                }
             }
         } else {
             return true;
@@ -372,7 +377,7 @@ public class Block extends BlockBehaviour implements ItemLike {
 
     }
 
-    public void handleRain(BlockState param0, Level param1, BlockPos param2) {
+    public void handlePrecipitation(BlockState param0, Level param1, BlockPos param2, Biome.Precipitation param3) {
     }
 
     public boolean dropFromExplosion(Explosion param0) {

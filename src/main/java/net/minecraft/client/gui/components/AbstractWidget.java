@@ -96,7 +96,11 @@ public abstract class AbstractWidget extends GuiComponent implements Widget, Gui
     }
 
     protected MutableComponent createNarrationMessage() {
-        return new TranslatableComponent("gui.narrate.button", this.getMessage());
+        return wrapDefaultNarrationMessage(this.getMessage());
+    }
+
+    public static MutableComponent wrapDefaultNarrationMessage(Component param0) {
+        return new TranslatableComponent("gui.narrate.button", param0);
     }
 
     public void renderButton(PoseStack param0, int param1, int param2, float param3) {

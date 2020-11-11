@@ -33,7 +33,7 @@ public class OcelotModel<T extends Entity> extends AgeableListModel<T> {
         this.leftHindLeg = param0.getChild("left_hind_leg");
         this.rightHindLeg = param0.getChild("right_hind_leg");
         this.leftFrontLeg = param0.getChild("left_front_leg");
-        this.rightFrontLeg = param0.getChild("left_front_leg");
+        this.rightFrontLeg = param0.getChild("right_front_leg");
     }
 
     public static MeshDefinition createBodyMesh(CubeDeformation param0) {

@@ -18,7 +18,9 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
@@ -31,6 +33,7 @@ import net.minecraft.client.gui.components.TickableWidget;
 import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.components.events.AbstractContainerEventHandler;
 import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.network.chat.ClickEvent;
@@ -38,6 +41,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraftforge.api.distmarker.Dist;
@@ -117,7 +121,13 @@ public abstract class Screen extends AbstractContainerEventHandler implements Ti
     }
 
     protected void renderTooltip(PoseStack param0, ItemStack param1, int param2, int param3) {
-        this.renderComponentTooltip(param0, this.getTooltipFromItem(param1), param2, param3);
+        this.renderTooltip(param0, this.getTooltipFromItem(param1), param1.getTooltipImage(), param2, param3);
+    }
+
+    public void renderTooltip(PoseStack param0, List<Component> param1, Optional<TooltipComponent> param2, int param3, int param4) {
+        List<ClientTooltipComponent> var0 = param1.stream().map(Component::getVisualOrderText).map(ClientTooltipComponent::create).collect(Collectors.toList());
+        param2.ifPresent(param1x -> var0.add(1, ClientTooltipComponent.create(param1x)));
+        this.renderTooltipInternal(param0, var0, param3, param4);
     }
 
     public List<Component> getTooltipFromItem(ItemStack param0) {
@@ -135,77 +145,84 @@ public abstract class Screen extends AbstractContainerEventHandler implements Ti
     }
 
     public void renderTooltip(PoseStack param0, List<? extends FormattedCharSequence> param1, int param2, int param3) {
+        this.renderTooltipInternal(param0, param1.stream().map(ClientTooltipComponent::create).collect(Collectors.toList()), param2, param3);
+    }
+
+    private void renderTooltipInternal(PoseStack param0, List<ClientTooltipComponent> param1, int param2, int param3) {
         if (!param1.isEmpty()) {
             int var0 = 0;
+            int var1 = param1.size() == 1 ? -2 : 0;
 
-            for(FormattedCharSequence var1 : param1) {
-                int var2 = this.font.width(var1);
-                if (var2 > var0) {
-                    var0 = var2;
+            for(ClientTooltipComponent var2 : param1) {
+                int var3 = var2.getWidth(this.font);
+                if (var3 > var0) {
+                    var0 = var3;
                 }
+
+                var1 += var2.getHeight();
             }
 
-            int var3 = param2 + 12;
-            int var4 = param3 - 12;
-            int var6 = 8;
-            if (param1.size() > 1) {
-                var6 += 2 + (param1.size() - 1) * 10;
+            int var4 = param2 + 12;
+            int var5 = param3 - 12;
+            if (var4 + var0 > this.width) {
+                var4 -= 28 + var0;
             }
 
-            if (var3 + var0 > this.width) {
-                var3 -= 28 + var0;
-            }
-
-            if (var4 + var6 + 6 > this.height) {
-                var4 = this.height - var6 - 6;
+            if (var5 + var1 + 6 > this.height) {
+                var5 = this.height - var1 - 6;
             }
 
             param0.pushPose();
-            int var7 = -267386864;
-            int var8 = 1347420415;
-            int var9 = 1344798847;
-            int var10 = 400;
-            Tesselator var11 = Tesselator.getInstance();
-            BufferBuilder var12 = var11.getBuilder();
-            var12.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-            Matrix4f var13 = param0.last().pose();
-            fillGradient(var13, var12, var3 - 3, var4 - 4, var3 + var0 + 3, var4 - 3, 400, -267386864, -267386864);
-            fillGradient(var13, var12, var3 - 3, var4 + var6 + 3, var3 + var0 + 3, var4 + var6 + 4, 400, -267386864, -267386864);
-            fillGradient(var13, var12, var3 - 3, var4 - 3, var3 + var0 + 3, var4 + var6 + 3, 400, -267386864, -267386864);
-            fillGradient(var13, var12, var3 - 4, var4 - 3, var3 - 3, var4 + var6 + 3, 400, -267386864, -267386864);
-            fillGradient(var13, var12, var3 + var0 + 3, var4 - 3, var3 + var0 + 4, var4 + var6 + 3, 400, -267386864, -267386864);
-            fillGradient(var13, var12, var3 - 3, var4 - 3 + 1, var3 - 3 + 1, var4 + var6 + 3 - 1, 400, 1347420415, 1344798847);
-            fillGradient(var13, var12, var3 + var0 + 2, var4 - 3 + 1, var3 + var0 + 3, var4 + var6 + 3 - 1, 400, 1347420415, 1344798847);
-            fillGradient(var13, var12, var3 - 3, var4 - 3, var3 + var0 + 3, var4 - 3 + 1, 400, 1347420415, 1347420415);
-            fillGradient(var13, var12, var3 - 3, var4 + var6 + 2, var3 + var0 + 3, var4 + var6 + 3, 400, 1344798847, 1344798847);
+            int var8 = -267386864;
+            int var9 = 1347420415;
+            int var10 = 1344798847;
+            int var11 = 400;
+            float var12 = this.itemRenderer.blitOffset;
+            this.itemRenderer.blitOffset = 400.0F;
+            Tesselator var13 = Tesselator.getInstance();
+            BufferBuilder var14 = var13.getBuilder();
+            var14.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+            Matrix4f var15 = param0.last().pose();
+            fillGradient(var15, var14, var4 - 3, var5 - 4, var4 + var0 + 3, var5 - 3, 400, -267386864, -267386864);
+            fillGradient(var15, var14, var4 - 3, var5 + var1 + 3, var4 + var0 + 3, var5 + var1 + 4, 400, -267386864, -267386864);
+            fillGradient(var15, var14, var4 - 3, var5 - 3, var4 + var0 + 3, var5 + var1 + 3, 400, -267386864, -267386864);
+            fillGradient(var15, var14, var4 - 4, var5 - 3, var4 - 3, var5 + var1 + 3, 400, -267386864, -267386864);
+            fillGradient(var15, var14, var4 + var0 + 3, var5 - 3, var4 + var0 + 4, var5 + var1 + 3, 400, -267386864, -267386864);
+            fillGradient(var15, var14, var4 - 3, var5 - 3 + 1, var4 - 3 + 1, var5 + var1 + 3 - 1, 400, 1347420415, 1344798847);
+            fillGradient(var15, var14, var4 + var0 + 2, var5 - 3 + 1, var4 + var0 + 3, var5 + var1 + 3 - 1, 400, 1347420415, 1344798847);
+            fillGradient(var15, var14, var4 - 3, var5 - 3, var4 + var0 + 3, var5 - 3 + 1, 400, 1347420415, 1347420415);
+            fillGradient(var15, var14, var4 - 3, var5 + var1 + 2, var4 + var0 + 3, var5 + var1 + 3, 400, 1344798847, 1344798847);
             RenderSystem.enableDepthTest();
             RenderSystem.disableTexture();
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
             RenderSystem.shadeModel(7425);
-            var12.end();
-            BufferUploader.end(var12);
+            var14.end();
+            BufferUploader.end(var14);
             RenderSystem.shadeModel(7424);
             RenderSystem.disableBlend();
             RenderSystem.enableTexture();
-            MultiBufferSource.BufferSource var14 = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
+            MultiBufferSource.BufferSource var16 = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
             param0.translate(0.0, 0.0, 400.0);
+            int var17 = var5;
 
-            for(int var15 = 0; var15 < param1.size(); ++var15) {
-                FormattedCharSequence var16 = param1.get(var15);
-                if (var16 != null) {
-                    this.font.drawInBatch(var16, (float)var3, (float)var4, -1, true, var13, var14, false, 0, 15728880);
-                }
-
-                if (var15 == 0) {
-                    var4 += 2;
-                }
-
-                var4 += 10;
+            for(int var18 = 0; var18 < param1.size(); ++var18) {
+                ClientTooltipComponent var19 = param1.get(var18);
+                var19.renderText(this.font, var4, var17, var15, var16);
+                var17 += var19.getHeight() + (var18 == 0 ? 2 : 0);
             }
 
-            var14.endBatch();
+            var16.endBatch();
             param0.popPose();
+            var17 = var5;
+
+            for(int var20 = 0; var20 < param1.size(); ++var20) {
+                ClientTooltipComponent var21 = param1.get(var20);
+                var21.renderImage(this.font, var4, var17, param0, this.itemRenderer, 400, this.minecraft.getTextureManager());
+                var17 += var21.getHeight() + (var20 == 0 ? 2 : 0);
+            }
+
+            this.itemRenderer.blitOffset = var12;
         }
     }
 

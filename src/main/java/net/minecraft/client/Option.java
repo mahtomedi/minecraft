@@ -1,10 +1,14 @@
 package net.minecraft.client;
 
+import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.Window;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -17,6 +21,7 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.player.ChatVisiblity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -118,10 +123,10 @@ public abstract class Option {
         param0 -> Math.pow((double)param0.fovEffectScale, 2.0),
         (param0, param1) -> param0.fovEffectScale = Mth.sqrt(param1),
         (param0, param1) -> {
-            param1.setTooltip(Minecraft.getInstance().font.split(ACCESSIBILITY_TOOLTIP_FOV_EFFECT, 200));
             double var0 = param1.toPct(param1.get(param0));
-            return var0 == 0.0 ? param1.genericValueLabel(new TranslatableComponent("options.fovEffectScale.off")) : param1.percentValueLabel(var0);
-        }
+            return var0 == 0.0 ? param1.genericValueLabel(CommonComponents.OPTION_OFF) : param1.percentValueLabel(var0);
+        },
+        param0 -> param0.font.split(ACCESSIBILITY_TOOLTIP_FOV_EFFECT, 200)
     );
     private static final Component ACCESSIBILITY_TOOLTIP_SCREEN_EFFECT = new TranslatableComponent("options.screenEffectScale.tooltip");
     public static final ProgressOption SCREEN_EFFECTS_SCALE = new ProgressOption(
@@ -132,10 +137,10 @@ public abstract class Option {
         param0 -> (double)param0.screenEffectScale,
         (param0, param1) -> param0.screenEffectScale = param1.floatValue(),
         (param0, param1) -> {
-            param1.setTooltip(Minecraft.getInstance().font.split(ACCESSIBILITY_TOOLTIP_SCREEN_EFFECT, 200));
             double var0 = param1.toPct(param1.get(param0));
-            return var0 == 0.0 ? param1.genericValueLabel(new TranslatableComponent("options.screenEffectScale.off")) : param1.percentValueLabel(var0);
-        }
+            return var0 == 0.0 ? param1.genericValueLabel(CommonComponents.OPTION_OFF) : param1.percentValueLabel(var0);
+        },
+        param0 -> param0.font.split(ACCESSIBILITY_TOOLTIP_SCREEN_EFFECT, 200)
     );
     public static final ProgressOption FRAMERATE_LIMIT = new ProgressOption(
         "options.framerateLimit",
@@ -190,14 +195,16 @@ public abstract class Option {
             return param1.genericValueLabel(new TextComponent(String.format("%.2f", param1.toValue(var0))));
         }
     );
-    public static final BooleanOption RAW_MOUSE_INPUT = new BooleanOption("options.rawMouseInput", param0 -> param0.rawMouseInput, (param0, param1) -> {
-        param0.rawMouseInput = param1;
-        Window var0 = Minecraft.getInstance().getWindow();
-        if (var0 != null) {
-            var0.updateRawMouseInput(param1);
+    public static final CycleOption<Boolean> RAW_MOUSE_INPUT = CycleOption.createOnOff(
+        "options.rawMouseInput", param0 -> param0.rawMouseInput, (param0, param1, param2) -> {
+            param0.rawMouseInput = param2;
+            Window var0 = Minecraft.getInstance().getWindow();
+            if (var0 != null) {
+                var0.updateRawMouseInput(param2);
+            }
+    
         }
-
-    });
+    );
     public static final ProgressOption RENDER_DISTANCE = new ProgressOption(
         "options.renderDistance", 2.0, 16.0, 1.0F, param0 -> (double)param0.renderDistance, (param0, param1) -> {
             param0.renderDistance = (int)param1.doubleValue();
@@ -235,197 +242,219 @@ public abstract class Option {
             Minecraft.getInstance().gui.getChat().rescaleChat();
         }, (param0, param1) -> param1.percentValueLabel(param1.toPct(param1.get(param0)))
     );
-    public static final CycleOption AMBIENT_OCCLUSION = new CycleOption("options.ao", (param0, param1) -> {
-        param0.ambientOcclusion = AmbientOcclusionStatus.byId(param0.ambientOcclusion.getId() + param1);
-        Minecraft.getInstance().levelRenderer.allChanged();
-    }, (param0, param1) -> param1.genericValueLabel(new TranslatableComponent(param0.ambientOcclusion.getKey())));
-    public static final CycleOption ATTACK_INDICATOR = new CycleOption(
-        "options.attackIndicator",
-        (param0, param1) -> param0.attackIndicator = AttackIndicatorStatus.byId(param0.attackIndicator.getId() + param1),
-        (param0, param1) -> param1.genericValueLabel(new TranslatableComponent(param0.attackIndicator.getKey()))
+    public static final CycleOption<AmbientOcclusionStatus> AMBIENT_OCCLUSION = CycleOption.create(
+        "options.ao",
+        AmbientOcclusionStatus.values(),
+        param0 -> new TranslatableComponent(param0.getKey()),
+        param0 -> param0.ambientOcclusion,
+        (param0, param1, param2) -> {
+            param0.ambientOcclusion = param2;
+            Minecraft.getInstance().levelRenderer.allChanged();
+        }
     );
-    public static final CycleOption CHAT_VISIBILITY = new CycleOption(
+    public static final CycleOption<AttackIndicatorStatus> ATTACK_INDICATOR = CycleOption.create(
+        "options.attackIndicator",
+        AttackIndicatorStatus.values(),
+        param0 -> new TranslatableComponent(param0.getKey()),
+        param0 -> param0.attackIndicator,
+        (param0, param1, param2) -> param0.attackIndicator = param2
+    );
+    public static final CycleOption<ChatVisiblity> CHAT_VISIBILITY = CycleOption.create(
         "options.chat.visibility",
-        (param0, param1) -> param0.chatVisibility = ChatVisiblity.byId((param0.chatVisibility.getId() + param1) % 3),
-        (param0, param1) -> param1.genericValueLabel(new TranslatableComponent(param0.chatVisibility.getKey()))
+        ChatVisiblity.values(),
+        param0 -> new TranslatableComponent(param0.getKey()),
+        param0 -> param0.chatVisibility,
+        (param0, param1, param2) -> param0.chatVisibility = param2
     );
     private static final Component GRAPHICS_TOOLTIP_FAST = new TranslatableComponent("options.graphics.fast.tooltip");
     private static final Component GRAPHICS_TOOLTIP_FABULOUS = new TranslatableComponent(
         "options.graphics.fabulous.tooltip", new TranslatableComponent("options.graphics.fabulous").withStyle(ChatFormatting.ITALIC)
     );
     private static final Component GRAPHICS_TOOLTIP_FANCY = new TranslatableComponent("options.graphics.fancy.tooltip");
-    public static final CycleOption GRAPHICS = new CycleOption(
-        "options.graphics",
-        (param0, param1) -> {
-            Minecraft var0 = Minecraft.getInstance();
-            GpuWarnlistManager var1 = var0.getGpuWarnlistManager();
-            if (param0.graphicsMode == GraphicsStatus.FANCY && var1.willShowWarning()) {
-                var1.showWarning();
-            } else {
-                param0.graphicsMode = param0.graphicsMode.cycleNext();
-                if (param0.graphicsMode == GraphicsStatus.FABULOUS && (!GlStateManager.supportsFramebufferBlit() || var1.isSkippingFabulous())) {
-                    param0.graphicsMode = GraphicsStatus.FAST;
+    public static final CycleOption<GraphicsStatus> GRAPHICS = CycleOption.<GraphicsStatus>create(
+            "options.graphics",
+            Arrays.asList(GraphicsStatus.values()),
+            Stream.of(GraphicsStatus.values()).filter(param0 -> param0 != GraphicsStatus.FABULOUS).collect(Collectors.toList()),
+            () -> !GlStateManager.supportsFramebufferBlit() || Minecraft.getInstance().getGpuWarnlistManager().isSkippingFabulous(),
+            param0 -> {
+                MutableComponent var0 = new TranslatableComponent(param0.getKey());
+                return param0 == GraphicsStatus.FABULOUS ? var0.withStyle(ChatFormatting.ITALIC) : var0;
+            },
+            param0 -> param0.graphicsMode,
+            (param0, param1, param2) -> {
+                Minecraft var0 = Minecraft.getInstance();
+                GpuWarnlistManager var1 = var0.getGpuWarnlistManager();
+                if (param2 == GraphicsStatus.FANCY && var1.willShowWarning()) {
+                    var1.showWarning();
+                } else {
+                    param0.graphicsMode = param2;
+                    var0.levelRenderer.allChanged();
                 }
-    
-                var0.levelRenderer.allChanged();
             }
-        },
-        (param0, param1) -> {
-            switch(param0.graphicsMode) {
-                case FAST:
-                    param1.setTooltip(Minecraft.getInstance().font.split(GRAPHICS_TOOLTIP_FAST, 200));
-                    break;
-                case FANCY:
-                    param1.setTooltip(Minecraft.getInstance().font.split(GRAPHICS_TOOLTIP_FANCY, 200));
-                    break;
-                case FABULOUS:
-                    param1.setTooltip(Minecraft.getInstance().font.split(GRAPHICS_TOOLTIP_FABULOUS, 200));
-            }
-    
-            MutableComponent var0 = new TranslatableComponent(param0.graphicsMode.getKey());
-            return param0.graphicsMode == GraphicsStatus.FABULOUS
-                ? param1.genericValueLabel(var0.withStyle(ChatFormatting.ITALIC))
-                : param1.genericValueLabel(var0);
-        }
-    );
-    public static final CycleOption GUI_SCALE = new CycleOption(
+        )
+        .setTooltip(param0 -> {
+            List<FormattedCharSequence> var0 = param0.font.split(GRAPHICS_TOOLTIP_FAST, 200);
+            List<FormattedCharSequence> var1 = param0.font.split(GRAPHICS_TOOLTIP_FANCY, 200);
+            List<FormattedCharSequence> var2 = param0.font.split(GRAPHICS_TOOLTIP_FABULOUS, 200);
+            return param3 -> {
+                switch(param3) {
+                    case FANCY:
+                        return var1;
+                    case FAST:
+                        return var0;
+                    case FABULOUS:
+                        return var2;
+                    default:
+                        return ImmutableList.of();
+                }
+            };
+        });
+    public static final CycleOption GUI_SCALE = CycleOption.create(
         "options.guiScale",
-        (param0, param1) -> param0.guiScale = Integer.remainderUnsigned(
-                param0.guiScale + param1, Minecraft.getInstance().getWindow().calculateScale(0, Minecraft.getInstance().isEnforceUnicode()) + 1
-            ),
-        (param0, param1) -> param0.guiScale == 0
-                ? param1.genericValueLabel(new TranslatableComponent("options.guiScale.auto"))
-                : param1.genericValueLabel(param0.guiScale)
+        () -> IntStream.rangeClosed(0, Minecraft.getInstance().getWindow().calculateScale(0, Minecraft.getInstance().isEnforceUnicode()))
+                .boxed()
+                .collect(Collectors.toList()),
+        param0 -> (Component)(param0 == 0 ? new TranslatableComponent("options.guiScale.auto") : new TextComponent(Integer.toString(param0))),
+        param0 -> param0.guiScale,
+        (param0, param1, param2) -> param0.guiScale = param2
     );
-    public static final CycleOption MAIN_HAND = new CycleOption(
-        "options.mainHand",
-        (param0, param1) -> param0.mainHand = param0.mainHand.getOpposite(),
-        (param0, param1) -> param1.genericValueLabel(param0.mainHand.getName())
+    public static final CycleOption<HumanoidArm> MAIN_HAND = CycleOption.create(
+        "options.mainHand", HumanoidArm.values(), HumanoidArm::getName, param0 -> param0.mainHand, (param0, param1, param2) -> {
+            param0.mainHand = param2;
+            param0.broadcastOptions();
+        }
     );
-    public static final CycleOption NARRATOR = new CycleOption(
+    public static final CycleOption<NarratorStatus> NARRATOR = CycleOption.create(
         "options.narrator",
-        (param0, param1) -> {
-            if (NarratorChatListener.INSTANCE.isActive()) {
-                param0.narratorStatus = NarratorStatus.byId(param0.narratorStatus.getId() + param1);
-            } else {
-                param0.narratorStatus = NarratorStatus.OFF;
+        NarratorStatus.values(),
+        param0 -> (Component)(NarratorChatListener.INSTANCE.isActive() ? param0.getName() : new TranslatableComponent("options.narrator.notavailable")),
+        param0 -> param0.narratorStatus,
+        (param0, param1, param2) -> {
+            param0.narratorStatus = param2;
+            NarratorChatListener.INSTANCE.updateNarratorStatus(param2);
+        }
+    );
+    public static final CycleOption<ParticleStatus> PARTICLES = CycleOption.create(
+        "options.particles",
+        ParticleStatus.values(),
+        param0 -> new TranslatableComponent(param0.getKey()),
+        param0 -> param0.particles,
+        (param0, param1, param2) -> param0.particles = param2
+    );
+    public static final CycleOption<CloudStatus> RENDER_CLOUDS = CycleOption.create(
+        "options.renderClouds",
+        CloudStatus.values(),
+        param0 -> new TranslatableComponent(param0.getKey()),
+        param0 -> param0.renderClouds,
+        (param0, param1, param2) -> {
+            param0.renderClouds = param2;
+            if (Minecraft.useShaderTransparency()) {
+                RenderTarget var0 = Minecraft.getInstance().levelRenderer.getCloudsTarget();
+                if (var0 != null) {
+                    var0.clear(Minecraft.ON_OSX);
+                }
             }
     
-            NarratorChatListener.INSTANCE.updateNarratorStatus(param0.narratorStatus);
-        },
-        (param0, param1) -> NarratorChatListener.INSTANCE.isActive()
-                ? param1.genericValueLabel(param0.narratorStatus.getName())
-                : param1.genericValueLabel(new TranslatableComponent("options.narrator.notavailable"))
-    );
-    public static final CycleOption PARTICLES = new CycleOption(
-        "options.particles",
-        (param0, param1) -> param0.particles = ParticleStatus.byId(param0.particles.getId() + param1),
-        (param0, param1) -> param1.genericValueLabel(new TranslatableComponent(param0.particles.getKey()))
-    );
-    public static final CycleOption RENDER_CLOUDS = new CycleOption("options.renderClouds", (param0, param1) -> {
-        param0.renderClouds = CloudStatus.byId(param0.renderClouds.getId() + param1);
-        if (Minecraft.useShaderTransparency()) {
-            RenderTarget var0 = Minecraft.getInstance().levelRenderer.getCloudsTarget();
-            if (var0 != null) {
-                var0.clear(Minecraft.ON_OSX);
-            }
         }
-
-    }, (param0, param1) -> param1.genericValueLabel(new TranslatableComponent(param0.renderClouds.getKey())));
-    public static final CycleOption TEXT_BACKGROUND = new CycleOption(
+    );
+    public static final CycleOption<Boolean> TEXT_BACKGROUND = CycleOption.createBinaryOption(
         "options.accessibility.text_background",
-        (param0, param1) -> param0.backgroundForChatOnly = !param0.backgroundForChatOnly,
-        (param0, param1) -> param1.genericValueLabel(
-                new TranslatableComponent(
-                    param0.backgroundForChatOnly ? "options.accessibility.text_background.chat" : "options.accessibility.text_background.everywhere"
-                )
-            )
+        new TranslatableComponent("options.accessibility.text_background.chat"),
+        new TranslatableComponent("options.accessibility.text_background.everywhere"),
+        param0 -> param0.backgroundForChatOnly,
+        (param0, param1, param2) -> param0.backgroundForChatOnly = param2
     );
     private static final Component CHAT_TOOLTIP_HIDE_MATCHED_NAMES = new TranslatableComponent("options.hideMatchedNames.tooltip");
-    public static final BooleanOption AUTO_JUMP = new BooleanOption("options.autoJump", param0 -> param0.autoJump, (param0, param1) -> param0.autoJump = param1);
-    public static final BooleanOption AUTO_SUGGESTIONS = new BooleanOption(
-        "options.autoSuggestCommands", param0 -> param0.autoSuggestions, (param0, param1) -> param0.autoSuggestions = param1
+    public static final CycleOption<Boolean> AUTO_JUMP = CycleOption.createOnOff(
+        "options.autoJump", param0 -> param0.autoJump, (param0, param1, param2) -> param0.autoJump = param2
     );
-    public static final BooleanOption HIDE_MATCHED_NAMES = new BooleanOption(
-        "options.hideMatchedNames", CHAT_TOOLTIP_HIDE_MATCHED_NAMES, param0 -> param0.hideMatchedNames, (param0, param1) -> param0.hideMatchedNames = param1
+    public static final CycleOption<Boolean> AUTO_SUGGESTIONS = CycleOption.createOnOff(
+        "options.autoSuggestCommands", param0 -> param0.autoSuggestions, (param0, param1, param2) -> param0.autoSuggestions = param2
     );
-    public static final BooleanOption CHAT_COLOR = new BooleanOption(
-        "options.chat.color", param0 -> param0.chatColors, (param0, param1) -> param0.chatColors = param1
+    public static final CycleOption<Boolean> CHAT_COLOR = CycleOption.createOnOff(
+        "options.chat.color", param0 -> param0.chatColors, (param0, param1, param2) -> param0.chatColors = param2
     );
-    public static final BooleanOption CHAT_LINKS = new BooleanOption(
-        "options.chat.links", param0 -> param0.chatLinks, (param0, param1) -> param0.chatLinks = param1
+    public static final CycleOption<Boolean> HIDE_MATCHED_NAMES = CycleOption.createOnOff(
+        "options.hideMatchedNames",
+        CHAT_TOOLTIP_HIDE_MATCHED_NAMES,
+        param0 -> param0.hideMatchedNames,
+        (param0, param1, param2) -> param0.hideMatchedNames = param2
     );
-    public static final BooleanOption CHAT_LINKS_PROMPT = new BooleanOption(
-        "options.chat.links.prompt", param0 -> param0.chatLinksPrompt, (param0, param1) -> param0.chatLinksPrompt = param1
+    public static final CycleOption<Boolean> CHAT_LINKS = CycleOption.createOnOff(
+        "options.chat.links", param0 -> param0.chatLinks, (param0, param1, param2) -> param0.chatLinks = param2
     );
-    public static final BooleanOption DISCRETE_MOUSE_SCROLL = new BooleanOption(
-        "options.discrete_mouse_scroll", param0 -> param0.discreteMouseScroll, (param0, param1) -> param0.discreteMouseScroll = param1
+    public static final CycleOption<Boolean> CHAT_LINKS_PROMPT = CycleOption.createOnOff(
+        "options.chat.links.prompt", param0 -> param0.chatLinksPrompt, (param0, param1, param2) -> param0.chatLinksPrompt = param2
     );
-    public static final BooleanOption ENABLE_VSYNC = new BooleanOption("options.vsync", param0 -> param0.enableVsync, (param0, param1) -> {
-        param0.enableVsync = param1;
-        if (Minecraft.getInstance().getWindow() != null) {
-            Minecraft.getInstance().getWindow().updateVsync(param0.enableVsync);
-        }
-
-    });
-    public static final BooleanOption ENTITY_SHADOWS = new BooleanOption(
-        "options.entityShadows", param0 -> param0.entityShadows, (param0, param1) -> param0.entityShadows = param1
+    public static final CycleOption<Boolean> DISCRETE_MOUSE_SCROLL = CycleOption.createOnOff(
+        "options.discrete_mouse_scroll", param0 -> param0.discreteMouseScroll, (param0, param1, param2) -> param0.discreteMouseScroll = param2
     );
-    public static final BooleanOption FORCE_UNICODE_FONT = new BooleanOption(
-        "options.forceUnicodeFont", param0 -> param0.forceUnicodeFont, (param0, param1) -> {
-            param0.forceUnicodeFont = param1;
-            Minecraft var0 = Minecraft.getInstance();
-            if (var0.getWindow() != null) {
-                var0.selectMainFont(param1);
+    public static final CycleOption<Boolean> ENABLE_VSYNC = CycleOption.createOnOff(
+        "options.vsync", param0 -> param0.enableVsync, (param0, param1, param2) -> {
+            param0.enableVsync = param2;
+            if (Minecraft.getInstance().getWindow() != null) {
+                Minecraft.getInstance().getWindow().updateVsync(param0.enableVsync);
             }
     
         }
     );
-    public static final BooleanOption INVERT_MOUSE = new BooleanOption(
-        "options.invertMouse", param0 -> param0.invertYMouse, (param0, param1) -> param0.invertYMouse = param1
+    public static final CycleOption<Boolean> ENTITY_SHADOWS = CycleOption.createOnOff(
+        "options.entityShadows", param0 -> param0.entityShadows, (param0, param1, param2) -> param0.entityShadows = param2
     );
-    public static final BooleanOption REALMS_NOTIFICATIONS = new BooleanOption(
-        "options.realmsNotifications", param0 -> param0.realmsNotifications, (param0, param1) -> param0.realmsNotifications = param1
+    public static final CycleOption<Boolean> FORCE_UNICODE_FONT = CycleOption.createOnOff(
+        "options.forceUnicodeFont", param0 -> param0.forceUnicodeFont, (param0, param1, param2) -> {
+            param0.forceUnicodeFont = param2;
+            Minecraft var0 = Minecraft.getInstance();
+            if (var0.getWindow() != null) {
+                var0.selectMainFont(param2);
+            }
+    
+        }
     );
-    public static final BooleanOption REDUCED_DEBUG_INFO = new BooleanOption(
-        "options.reducedDebugInfo", param0 -> param0.reducedDebugInfo, (param0, param1) -> param0.reducedDebugInfo = param1
+    public static final CycleOption<Boolean> INVERT_MOUSE = CycleOption.createOnOff(
+        "options.invertMouse", param0 -> param0.invertYMouse, (param0, param1, param2) -> param0.invertYMouse = param2
     );
-    public static final BooleanOption SHOW_SUBTITLES = new BooleanOption(
-        "options.showSubtitles", param0 -> param0.showSubtitles, (param0, param1) -> param0.showSubtitles = param1
+    public static final CycleOption<Boolean> REALMS_NOTIFICATIONS = CycleOption.createOnOff(
+        "options.realmsNotifications", param0 -> param0.realmsNotifications, (param0, param1, param2) -> param0.realmsNotifications = param2
     );
-    public static final BooleanOption SNOOPER_ENABLED = new BooleanOption("options.snooper", param0 -> {
+    public static final CycleOption<Boolean> REDUCED_DEBUG_INFO = CycleOption.createOnOff(
+        "options.reducedDebugInfo", param0 -> param0.reducedDebugInfo, (param0, param1, param2) -> param0.reducedDebugInfo = param2
+    );
+    public static final CycleOption<Boolean> SHOW_SUBTITLES = CycleOption.createOnOff(
+        "options.showSubtitles", param0 -> param0.showSubtitles, (param0, param1, param2) -> param0.showSubtitles = param2
+    );
+    public static final CycleOption<Boolean> SNOOPER_ENABLED = CycleOption.createOnOff("options.snooper", param0 -> {
         if (param0.snooperEnabled) {
         }
 
         return false;
-    }, (param0, param1) -> param0.snooperEnabled = param1);
-    public static final CycleOption TOGGLE_CROUCH = new CycleOption(
-        "key.sneak",
-        (param0, param1) -> param0.toggleCrouch = !param0.toggleCrouch,
-        (param0, param1) -> param1.genericValueLabel(new TranslatableComponent(param0.toggleCrouch ? "options.key.toggle" : "options.key.hold"))
+    }, (param0, param1, param2) -> param0.snooperEnabled = param2);
+    private static final Component MOVEMENT_TOGGLE = new TranslatableComponent("options.key.toggle");
+    private static final Component MOVEMENT_HOLD = new TranslatableComponent("options.key.hold");
+    public static final CycleOption<Boolean> TOGGLE_CROUCH = CycleOption.createBinaryOption(
+        "key.sneak", MOVEMENT_TOGGLE, MOVEMENT_HOLD, param0 -> param0.toggleCrouch, (param0, param1, param2) -> param0.toggleCrouch = param2
     );
-    public static final CycleOption TOGGLE_SPRINT = new CycleOption(
-        "key.sprint",
-        (param0, param1) -> param0.toggleSprint = !param0.toggleSprint,
-        (param0, param1) -> param1.genericValueLabel(new TranslatableComponent(param0.toggleSprint ? "options.key.toggle" : "options.key.hold"))
+    public static final CycleOption<Boolean> TOGGLE_SPRINT = CycleOption.createBinaryOption(
+        "key.sprint", MOVEMENT_TOGGLE, MOVEMENT_HOLD, param0 -> param0.toggleSprint, (param0, param1, param2) -> param0.toggleSprint = param2
     );
-    public static final BooleanOption TOUCHSCREEN = new BooleanOption(
-        "options.touchscreen", param0 -> param0.touchscreen, (param0, param1) -> param0.touchscreen = param1
+    public static final CycleOption<Boolean> TOUCHSCREEN = CycleOption.createOnOff(
+        "options.touchscreen", param0 -> param0.touchscreen, (param0, param1, param2) -> param0.touchscreen = param2
     );
-    public static final BooleanOption USE_FULLSCREEN = new BooleanOption("options.fullscreen", param0 -> param0.fullscreen, (param0, param1) -> {
-        param0.fullscreen = param1;
-        Minecraft var0 = Minecraft.getInstance();
-        if (var0.getWindow() != null && var0.getWindow().isFullscreen() != param0.fullscreen) {
-            var0.getWindow().toggleFullScreen();
-            param0.fullscreen = var0.getWindow().isFullscreen();
+    public static final CycleOption<Boolean> USE_FULLSCREEN = CycleOption.createOnOff(
+        "options.fullscreen", param0 -> param0.fullscreen, (param0, param1, param2) -> {
+            param0.fullscreen = param2;
+            Minecraft var0 = Minecraft.getInstance();
+            if (var0.getWindow() != null && var0.getWindow().isFullscreen() != param0.fullscreen) {
+                var0.getWindow().toggleFullScreen();
+                param0.fullscreen = var0.getWindow().isFullscreen();
+            }
+    
         }
-
-    });
-    public static final BooleanOption VIEW_BOBBING = new BooleanOption(
-        "options.viewBobbing", param0 -> param0.bobView, (param0, param1) -> param0.bobView = param1
+    );
+    public static final CycleOption<Boolean> VIEW_BOBBING = CycleOption.createOnOff(
+        "options.viewBobbing", param0 -> param0.bobView, (param0, param1, param2) -> param0.bobView = param2
     );
     private final Component caption;
-    private Optional<List<FormattedCharSequence>> toolTip = Optional.empty();
 
     public Option(String param0) {
         this.caption = new TranslatableComponent(param0);
@@ -435,14 +464,6 @@ public abstract class Option {
 
     protected Component getCaption() {
         return this.caption;
-    }
-
-    public void setTooltip(List<FormattedCharSequence> param0) {
-        this.toolTip = Optional.of(param0);
-    }
-
-    public Optional<List<FormattedCharSequence>> getTooltip() {
-        return this.toolTip;
     }
 
     protected Component pixelValueLabel(int param0) {

@@ -17,13 +17,13 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ContainerObjectSelectionList;
+import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.FormattedCharSequence;
@@ -105,20 +105,14 @@ public class EditGameRulesScreen extends Screen {
 
     @OnlyIn(Dist.CLIENT)
     public class BooleanRuleEntry extends EditGameRulesScreen.GameRuleEntry {
-        private final Button checkbox;
+        private final CycleButton<Boolean> checkbox;
 
-        public BooleanRuleEntry(final Component param1, List<FormattedCharSequence> param2, final String param3, final GameRules.BooleanValue param4) {
+        public BooleanRuleEntry(Component param1, List<FormattedCharSequence> param2, String param3, GameRules.BooleanValue param4) {
             super(param2, param1);
-            this.checkbox = new Button(10, 5, 44, 20, CommonComponents.optionStatus(param4.get()), param1x -> {
-                boolean var0 = !param4.get();
-                param4.set(var0, null);
-                param1x.setMessage(CommonComponents.optionStatus(param4.get()));
-            }) {
-                @Override
-                protected MutableComponent createNarrationMessage() {
-                    return CommonComponents.optionStatus(param1, param4.get()).append("\n").append(param3);
-                }
-            };
+            this.checkbox = CycleButton.onOffBuilder(param4.get())
+                .displayOnlyValue()
+                .withCustomNarration(param1x -> param1x.createDefaultNarrationMessage().append("\n").append(param3))
+                .create(10, 5, 44, 20, param1, (param1x, param2x) -> param4.set(param2x, null));
             this.children.add(this.checkbox);
         }
 

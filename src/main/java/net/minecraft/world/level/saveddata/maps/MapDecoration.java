@@ -9,9 +9,10 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class MapDecoration {
     private final MapDecoration.Type type;
-    private byte x;
-    private byte y;
-    private byte rot;
+    private final byte x;
+    private final byte y;
+    private final byte rot;
+    @Nullable
     private final Component name;
 
     public MapDecoration(MapDecoration.Type param0, byte param1, byte param2, byte param3, @Nullable Component param4) {
@@ -61,17 +62,7 @@ public class MapDecoration {
             return false;
         } else {
             MapDecoration var0 = (MapDecoration)param0;
-            if (this.type != var0.type) {
-                return false;
-            } else if (this.rot != var0.rot) {
-                return false;
-            } else if (this.x != var0.x) {
-                return false;
-            } else if (this.y != var0.y) {
-                return false;
-            } else {
-                return Objects.equals(this.name, var0.name);
-            }
+            return this.type == var0.type && this.rot == var0.rot && this.x == var0.x && this.y == var0.y && Objects.equals(this.name, var0.name);
         }
     }
 

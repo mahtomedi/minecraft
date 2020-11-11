@@ -152,7 +152,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
+public class ServerGamePacketListenerImpl implements ServerGamePacketListener, ServerPlayerConnection {
     private static final Logger LOGGER = LogManager.getLogger();
     public final Connection connection;
     private final MinecraftServer server;
@@ -1124,6 +1124,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
 
     }
 
+    @Override
     public void send(Packet<?> param0) {
         this.send(param0, null);
     }
@@ -1535,5 +1536,10 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
         if (this.player.hasPermissions(2) || this.isSingleplayerOwner()) {
             this.server.setDifficultyLocked(param0.isLocked());
         }
+    }
+
+    @Override
+    public ServerPlayer getPlayer() {
+        return this.player;
     }
 }

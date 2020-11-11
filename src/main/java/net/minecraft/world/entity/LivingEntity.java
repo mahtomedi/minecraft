@@ -76,6 +76,8 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ElytraItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -88,10 +90,12 @@ import net.minecraft.world.item.enchantment.FrostWalkerEnchantment;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.AbstractSkullBlock;
 import net.minecraft.world.level.block.BedBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.HoneyBlock;
 import net.minecraft.world.level.block.LadderBlock;
+import net.minecraft.world.level.block.PowderSnowBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.TrapDoorBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -111,6 +115,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public abstract class LivingEntity extends Entity {
     private static final UUID SPEED_MODIFIER_SPRINTING_UUID = UUID.fromString("662A6B8D-DA3E-4C1C-8813-96EA6097278D");
     private static final UUID SPEED_MODIFIER_SOUL_SPEED_UUID = UUID.fromString("87f46a96-686f-4796-b035-22e16ee9e038");
+    private static final UUID SPEED_MODIFIER_POWDER_SNOW_UUID = UUID.fromString("1eaf83ff-7207-4596-b37a-d7a07b3ec4ce");
     private static final AttributeModifier SPEED_MODIFIER_SPRINTING = new AttributeModifier(
         SPEED_MODIFIER_SPRINTING_UUID, "Sprinting speed boost", 0.3F, AttributeModifier.Operation.MULTIPLY_TOTAL
     );
@@ -355,7 +360,7 @@ public abstract class LivingEntity extends Entity {
             }
         }
 
-        if (this.isAlive() && this.isInWaterRainOrBubble()) {
+        if (this.isAlive() && (this.isInWaterRainOrBubble() || this.bodyIsInPowderSnow)) {
             this.clearFire();
         }
 
@@ -467,6 +472,34 @@ public abstract class LivingEntity extends Entity {
                     ItemStack var2 = this.getItemBySlot(EquipmentSlot.FEET);
                     var2.hurtAndBreak(1, this, param0 -> param0.broadcastBreakEvent(EquipmentSlot.FEET));
                 }
+            }
+        }
+
+    }
+
+    protected void removeFrost() {
+        AttributeInstance var0 = this.getAttribute(Attributes.MOVEMENT_SPEED);
+        if (var0 != null) {
+            if (var0.getModifier(SPEED_MODIFIER_POWDER_SNOW_UUID) != null) {
+                var0.removeModifier(SPEED_MODIFIER_POWDER_SNOW_UUID);
+            }
+
+        }
+    }
+
+    protected void tryAddFrost() {
+        if (!this.getBlockStateOn().isAir()) {
+            int var0 = this.getTicksFrozen();
+            if (var0 > 0) {
+                AttributeInstance var1 = this.getAttribute(Attributes.MOVEMENT_SPEED);
+                if (var1 == null) {
+                    return;
+                }
+
+                float var2 = -0.05F * this.getPercentFrozen();
+                var1.addTransientModifier(
+                    new AttributeModifier(SPEED_MODIFIER_POWDER_SNOW_UUID, "Powder snow slow", (double)var2, AttributeModifier.Operation.ADDITION)
+                );
             }
         }
 
@@ -1041,6 +1074,8 @@ public abstract class LivingEntity extends Entity {
                         var8 = 37;
                     } else if (param0 == DamageSource.SWEET_BERRY_BUSH) {
                         var8 = 44;
+                    } else if (param0 == DamageSource.FREEZE) {
+                        var8 = 57;
                     } else {
                         var8 = 2;
                     }
@@ -1053,15 +1088,15 @@ public abstract class LivingEntity extends Entity {
                 }
 
                 if (var5 != null) {
-                    double var12 = var5.getX() - this.getX();
+                    double var13 = var5.getX() - this.getX();
 
-                    double var13;
-                    for(var13 = var5.getZ() - this.getZ(); var12 * var12 + var13 * var13 < 1.0E-4; var13 = (Math.random() - Math.random()) * 0.01) {
-                        var12 = (Math.random() - Math.random()) * 0.01;
+                    double var14;
+                    for(var14 = var5.getZ() - this.getZ(); var13 * var13 + var14 * var14 < 1.0E-4; var14 = (Math.random() - Math.random()) * 0.01) {
+                        var13 = (Math.random() - Math.random()) * 0.01;
                     }
 
-                    this.hurtDir = (float)(Mth.atan2(var13, var12) * 180.0F / (float)Math.PI - (double)this.yRot);
-                    this.knockback(0.4F, var12, var13);
+                    this.hurtDir = (float)(Mth.atan2(var14, var13) * 180.0F / (float)Math.PI - (double)this.yRot);
+                    this.knockback(0.4F, var13, var14);
                 } else {
                     this.hurtDir = (float)((int)(Math.random() * 2.0) * 180);
                 }
@@ -1069,9 +1104,9 @@ public abstract class LivingEntity extends Entity {
 
             if (this.isDeadOrDying()) {
                 if (!this.checkTotemDeathProtection(param0)) {
-                    SoundEvent var14 = this.getDeathSound();
-                    if (var4 && var14 != null) {
-                        this.playSound(var14, this.getSoundVolume(), this.getVoicePitch());
+                    SoundEvent var15 = this.getDeathSound();
+                    if (var4 && var15 != null) {
+                        this.playSound(var15, this.getSoundVolume(), this.getVoicePitch());
                     }
 
                     this.die(param0);
@@ -1080,8 +1115,8 @@ public abstract class LivingEntity extends Entity {
                 this.playHurtSound(param0);
             }
 
-            boolean var15 = !var1 || param1 > 0.0F;
-            if (var15) {
+            boolean var16 = !var1 || param1 > 0.0F;
+            if (var16) {
                 this.lastDamageSource = param0;
                 this.lastDamageStamp = this.level.getGameTime();
             }
@@ -1097,7 +1132,7 @@ public abstract class LivingEntity extends Entity {
                 CriteriaTriggers.PLAYER_HURT_ENTITY.trigger((ServerPlayer)var5, this, param0, var0, param1, var1);
             }
 
-            return var15;
+            return var16;
         }
     }
 
@@ -1590,10 +1625,12 @@ public abstract class LivingEntity extends Entity {
             case 36:
             case 37:
             case 44:
+            case 57:
                 boolean var0 = param0 == 33;
                 boolean var1 = param0 == 36;
                 boolean var2 = param0 == 37;
                 boolean var3 = param0 == 44;
+                boolean var4 = param0 == 57;
                 this.animationSpeed = 1.5F;
                 this.invulnerableTime = 20;
                 this.hurtDuration = 10;
@@ -1603,28 +1640,30 @@ public abstract class LivingEntity extends Entity {
                     this.playSound(SoundEvents.THORNS_HIT, this.getSoundVolume(), (this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F);
                 }
 
-                DamageSource var4;
+                DamageSource var5;
                 if (var2) {
-                    var4 = DamageSource.ON_FIRE;
+                    var5 = DamageSource.ON_FIRE;
                 } else if (var1) {
-                    var4 = DamageSource.DROWN;
+                    var5 = DamageSource.DROWN;
                 } else if (var3) {
-                    var4 = DamageSource.SWEET_BERRY_BUSH;
+                    var5 = DamageSource.SWEET_BERRY_BUSH;
+                } else if (var4) {
+                    var5 = DamageSource.FREEZE;
                 } else {
-                    var4 = DamageSource.GENERIC;
+                    var5 = DamageSource.GENERIC;
                 }
 
-                SoundEvent var8 = this.getHurtSound(var4);
-                if (var8 != null) {
-                    this.playSound(var8, this.getSoundVolume(), (this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F);
+                SoundEvent var10 = this.getHurtSound(var5);
+                if (var10 != null) {
+                    this.playSound(var10, this.getSoundVolume(), (this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F);
                 }
 
                 this.hurt(DamageSource.GENERIC, 0.0F);
                 break;
             case 3:
-                SoundEvent var9 = this.getDeathSound();
-                if (var9 != null) {
-                    this.playSound(var9, this.getSoundVolume(), (this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F);
+                SoundEvent var11 = this.getDeathSound();
+                if (var11 != null) {
+                    this.playSound(var11, this.getSoundVolume(), (this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F);
                 }
 
                 if (!(this instanceof Player)) {
@@ -1669,6 +1708,7 @@ public abstract class LivingEntity extends Entity {
             case 43:
             case 45:
             case 53:
+            case 56:
             default:
                 super.handleEntityEvent(param0);
                 break;
@@ -1679,17 +1719,17 @@ public abstract class LivingEntity extends Entity {
                 this.playSound(SoundEvents.SHIELD_BREAK, 0.8F, 0.8F + this.level.random.nextFloat() * 0.4F);
                 break;
             case 46:
-                int var10 = 128;
+                int var12 = 128;
 
-                for(int var11 = 0; var11 < 128; ++var11) {
-                    double var12 = (double)var11 / 127.0;
-                    float var13 = (this.random.nextFloat() - 0.5F) * 0.2F;
-                    float var14 = (this.random.nextFloat() - 0.5F) * 0.2F;
+                for(int var13 = 0; var13 < 128; ++var13) {
+                    double var14 = (double)var13 / 127.0;
                     float var15 = (this.random.nextFloat() - 0.5F) * 0.2F;
-                    double var16 = Mth.lerp(var12, this.xo, this.getX()) + (this.random.nextDouble() - 0.5) * (double)this.getBbWidth() * 2.0;
-                    double var17 = Mth.lerp(var12, this.yo, this.getY()) + this.random.nextDouble() * (double)this.getBbHeight();
-                    double var18 = Mth.lerp(var12, this.zo, this.getZ()) + (this.random.nextDouble() - 0.5) * (double)this.getBbWidth() * 2.0;
-                    this.level.addParticle(ParticleTypes.PORTAL, var16, var17, var18, (double)var13, (double)var14, (double)var15);
+                    float var16 = (this.random.nextFloat() - 0.5F) * 0.2F;
+                    float var17 = (this.random.nextFloat() - 0.5F) * 0.2F;
+                    double var18 = Mth.lerp(var14, this.xo, this.getX()) + (this.random.nextDouble() - 0.5) * (double)this.getBbWidth() * 2.0;
+                    double var19 = Mth.lerp(var14, this.yo, this.getY()) + this.random.nextDouble() * (double)this.getBbHeight();
+                    double var20 = Mth.lerp(var14, this.zo, this.getZ()) + (this.random.nextDouble() - 0.5) * (double)this.getBbWidth() * 2.0;
+                    this.level.addParticle(ParticleTypes.PORTAL, var18, var19, var20, (double)var15, (double)var16, (double)var17);
                 }
                 break;
             case 47:
@@ -2077,7 +2117,8 @@ public abstract class LivingEntity extends Entity {
         this.setDeltaMovement(this.handleOnClimbable(this.getDeltaMovement()));
         this.move(MoverType.SELF, this.getDeltaMovement());
         Vec3 var0 = this.getDeltaMovement();
-        if ((this.horizontalCollision || this.jumping) && this.onClimbable()) {
+        if ((this.horizontalCollision || this.jumping)
+            && (this.onClimbable() || this.getFeetBlockState().is(Blocks.POWDER_SNOW) && PowderSnowBlock.canEntityWalkOnPowderSnow(this))) {
             var0 = new Vec3(var0.x, 0.2, var0.z);
         }
 
@@ -2474,6 +2515,21 @@ public abstract class LivingEntity extends Entity {
         this.updateFallFlying();
         AABB var12 = this.getBoundingBox();
         this.travel(new Vec3((double)this.xxa, (double)this.yya, (double)this.zza));
+        this.level.getProfiler().pop();
+        this.level.getProfiler().push("freezing");
+        int var13 = this.getTicksFrozen();
+        if (this.bodyIsInPowderSnow && this.canFreeze()) {
+            this.setTicksFrozen(Math.min(this.getTicksRequiredToFreeze(), var13 + 1));
+        } else {
+            this.setTicksFrozen(Math.max(0, var13 - 2));
+        }
+
+        this.removeFrost();
+        this.tryAddFrost();
+        if (this.tickCount % 60 == 0 && this.isFullyFrozen() && this.canFreeze()) {
+            this.hurt(DamageSource.FREEZE, 1.0F);
+        }
+
         this.level.getProfiler().pop();
         this.level.getProfiler().push("push");
         if (this.autoSpinAttackTicks > 0) {
@@ -3182,5 +3238,54 @@ public abstract class LivingEntity extends Entity {
         } else {
             return super.getBoundingBoxForCulling();
         }
+    }
+
+    public static EquipmentSlot getEquipmentSlotForItem(ItemStack param0) {
+        Item var0 = param0.getItem();
+        if (!param0.is(Items.CARVED_PUMPKIN) && (!(var0 instanceof BlockItem) || !(((BlockItem)var0).getBlock() instanceof AbstractSkullBlock))) {
+            if (var0 instanceof ArmorItem) {
+                return ((ArmorItem)var0).getSlot();
+            } else if (param0.is(Items.ELYTRA)) {
+                return EquipmentSlot.CHEST;
+            } else {
+                return param0.is(Items.SHIELD) ? EquipmentSlot.OFFHAND : EquipmentSlot.MAINHAND;
+            }
+        } else {
+            return EquipmentSlot.HEAD;
+        }
+    }
+
+    private static SlotAccess createEquipmentSlotAccess(LivingEntity param0, EquipmentSlot param1) {
+        return param1 != EquipmentSlot.HEAD && param1 != EquipmentSlot.MAINHAND && param1 != EquipmentSlot.OFFHAND
+            ? SlotAccess.forEquipmentSlot(param0, param1, param1x -> param1x.isEmpty() || Mob.getEquipmentSlotForItem(param1x) == param1)
+            : SlotAccess.forEquipmentSlot(param0, param1);
+    }
+
+    @Nullable
+    private static EquipmentSlot getEquipmentSlot(int param0) {
+        if (param0 == 100 + EquipmentSlot.HEAD.getIndex()) {
+            return EquipmentSlot.HEAD;
+        } else if (param0 == 100 + EquipmentSlot.CHEST.getIndex()) {
+            return EquipmentSlot.CHEST;
+        } else if (param0 == 100 + EquipmentSlot.LEGS.getIndex()) {
+            return EquipmentSlot.LEGS;
+        } else if (param0 == 100 + EquipmentSlot.FEET.getIndex()) {
+            return EquipmentSlot.FEET;
+        } else if (param0 == 98) {
+            return EquipmentSlot.MAINHAND;
+        } else {
+            return param0 == 99 ? EquipmentSlot.OFFHAND : null;
+        }
+    }
+
+    @Override
+    public SlotAccess getSlot(int param0) {
+        EquipmentSlot var0 = getEquipmentSlot(param0);
+        return var0 != null ? createEquipmentSlotAccess(this, var0) : super.getSlot(param0);
+    }
+
+    @Override
+    public boolean canFreeze() {
+        return !this.isSpectator();
     }
 }

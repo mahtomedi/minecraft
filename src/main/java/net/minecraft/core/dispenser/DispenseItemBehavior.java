@@ -34,7 +34,7 @@ import net.minecraft.world.entity.projectile.ThrownPotion;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.BoneMealItem;
-import net.minecraft.world.item.BucketItem;
+import net.minecraft.world.item.DispensibleContainerItem;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -65,8 +65,6 @@ import net.minecraft.world.level.block.entity.DispenserBlockEntity;
 import net.minecraft.world.level.block.entity.SkullBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.material.FlowingFluid;
-import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.AABB;
 
 public interface DispenseItemBehavior {
@@ -229,7 +227,7 @@ public interface DispenseItemBehavior {
                 for(AbstractHorse var2 : param0.getLevel()
                     .getEntitiesOfClass(AbstractHorse.class, new AABB(var0), param0x -> param0x.isAlive() && param0x.canWearArmor())) {
                     if (var2.isArmor(param1) && !var2.isWearingArmor() && var2.isTamed()) {
-                        var2.setSlot(401, param1.split(1));
+                        var2.getSlot(401).set(param1.split(1));
                         this.setSuccess(true);
                         return param1;
                     }
@@ -267,7 +265,7 @@ public interface DispenseItemBehavior {
     
                     for(AbstractChestedHorse var2 : param0.getLevel()
                         .getEntitiesOfClass(AbstractChestedHorse.class, new AABB(var0), param0x -> param0x.isAlive() && !param0x.hasChest())) {
-                        if (var2.isTamed() && var2.setSlot(499, param1)) {
+                        if (var2.isTamed() && var2.getSlot(499).set(param1)) {
                             param1.shrink(1);
                             this.setSuccess(true);
                             return param1;
@@ -329,10 +327,10 @@ public interface DispenseItemBehavior {
 
             @Override
             public ItemStack execute(BlockSource param0, ItemStack param1) {
-                BucketItem var0 = (BucketItem)param1.getItem();
+                DispensibleContainerItem var0 = (DispensibleContainerItem)param1.getItem();
                 BlockPos var1 = param0.getPos().relative(param0.getBlockState().getValue(DispenserBlock.FACING));
                 Level var2 = param0.getLevel();
-                if (var0.emptyBucket(null, var2, var1, null)) {
+                if (var0.emptyContents(null, var2, var1, null)) {
                     var0.checkExtraContent(var2, param1, var1);
                     return new ItemStack(Items.BUCKET);
                 } else {
@@ -342,6 +340,7 @@ public interface DispenseItemBehavior {
         };
         DispenserBlock.registerBehavior(Items.LAVA_BUCKET, var3);
         DispenserBlock.registerBehavior(Items.WATER_BUCKET, var3);
+        DispenserBlock.registerBehavior(Items.POWDER_SNOW_BUCKET, var3);
         DispenserBlock.registerBehavior(Items.SALMON_BUCKET, var3);
         DispenserBlock.registerBehavior(Items.COD_BUCKET, var3);
         DispenserBlock.registerBehavior(Items.PUFFERFISH_BUCKET, var3);
@@ -356,11 +355,11 @@ public interface DispenseItemBehavior {
                 BlockState var2 = var0.getBlockState(var1);
                 Block var3 = var2.getBlock();
                 if (var3 instanceof BucketPickup) {
-                    Fluid var4 = ((BucketPickup)var3).takeLiquid(var0, var1, var2);
-                    if (!(var4 instanceof FlowingFluid)) {
+                    ItemStack var4 = ((BucketPickup)var3).pickupBlock(var0, var1, var2);
+                    if (var4.isEmpty()) {
                         return super.execute(param0, param1);
                     } else {
-                        Item var5 = var4.getBucket();
+                        Item var5 = var4.getItem();
                         param1.shrink(1);
                         if (param1.isEmpty()) {
                             return new ItemStack(var5);

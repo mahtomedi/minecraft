@@ -1,6 +1,10 @@
 package net.minecraft.world.level.block;
 
+import java.util.Optional;
 import net.minecraft.core.BlockPos;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
@@ -30,12 +34,17 @@ public interface SimpleWaterloggedBlock extends BucketPickup, LiquidBlockContain
     }
 
     @Override
-    default Fluid takeLiquid(LevelAccessor param0, BlockPos param1, BlockState param2) {
+    default ItemStack pickupBlock(LevelAccessor param0, BlockPos param1, BlockState param2) {
         if (param2.getValue(BlockStateProperties.WATERLOGGED)) {
             param0.setBlock(param1, param2.setValue(BlockStateProperties.WATERLOGGED, Boolean.valueOf(false)), 3);
-            return Fluids.WATER;
+            return new ItemStack(Items.WATER_BUCKET);
         } else {
-            return Fluids.EMPTY;
+            return ItemStack.EMPTY;
         }
+    }
+
+    @Override
+    default Optional<SoundEvent> getPickupSound() {
+        return Fluids.WATER.getPickupSound();
     }
 }

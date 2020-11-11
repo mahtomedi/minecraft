@@ -37,6 +37,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagContainer;
+import net.minecraft.util.CubicSampler;
 import net.minecraft.util.Mth;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.Difficulty;
@@ -53,6 +54,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.TickList;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -461,8 +463,8 @@ public class ClientLevel extends Level {
     }
 
     @Override
-    public void setMapData(MapItemSavedData param0) {
-        this.mapData.put(param0.getId(), param0);
+    public void setMapData(String param0, MapItemSavedData param1) {
+        this.mapData.put(param0, param1);
     }
 
     @Override
@@ -566,49 +568,49 @@ public class ClientLevel extends Level {
         return var1 * 0.8F + 0.2F;
     }
 
-    public Vec3 getSkyColor(BlockPos param0, float param1) {
+    public Vec3 getSkyColor(Vec3 param0, float param1) {
         float var0 = this.getTimeOfDay(param1);
-        float var1 = Mth.cos(var0 * (float) (Math.PI * 2)) * 2.0F + 0.5F;
-        var1 = Mth.clamp(var1, 0.0F, 1.0F);
-        Biome var2 = this.getBiome(param0);
-        int var3 = var2.getSkyColor();
-        float var4 = (float)(var3 >> 16 & 0xFF) / 255.0F;
-        float var5 = (float)(var3 >> 8 & 0xFF) / 255.0F;
-        float var6 = (float)(var3 & 0xFF) / 255.0F;
-        var4 *= var1;
-        var5 *= var1;
-        var6 *= var1;
-        float var7 = this.getRainLevel(param1);
-        if (var7 > 0.0F) {
-            float var8 = (var4 * 0.3F + var5 * 0.59F + var6 * 0.11F) * 0.6F;
-            float var9 = 1.0F - var7 * 0.75F;
-            var4 = var4 * var9 + var8 * (1.0F - var9);
-            var5 = var5 * var9 + var8 * (1.0F - var9);
-            var6 = var6 * var9 + var8 * (1.0F - var9);
+        Vec3 var1 = param0.subtract(2.0, 2.0, 2.0).scale(0.25);
+        BiomeManager var2 = this.getBiomeManager();
+        Vec3 var3 = CubicSampler.gaussianSampleVec3(
+            var1, (param1x, param2, param3) -> Vec3.fromRGB24(var2.getNoiseBiomeAtQuart(param1x, param2, param3).getSkyColor())
+        );
+        float var4 = Mth.cos(var0 * (float) (Math.PI * 2)) * 2.0F + 0.5F;
+        var4 = Mth.clamp(var4, 0.0F, 1.0F);
+        float var5 = (float)var3.x * var4;
+        float var6 = (float)var3.y * var4;
+        float var7 = (float)var3.z * var4;
+        float var8 = this.getRainLevel(param1);
+        if (var8 > 0.0F) {
+            float var9 = (var5 * 0.3F + var6 * 0.59F + var7 * 0.11F) * 0.6F;
+            float var10 = 1.0F - var8 * 0.75F;
+            var5 = var5 * var10 + var9 * (1.0F - var10);
+            var6 = var6 * var10 + var9 * (1.0F - var10);
+            var7 = var7 * var10 + var9 * (1.0F - var10);
         }
 
-        float var10 = this.getThunderLevel(param1);
-        if (var10 > 0.0F) {
-            float var11 = (var4 * 0.3F + var5 * 0.59F + var6 * 0.11F) * 0.2F;
-            float var12 = 1.0F - var10 * 0.75F;
-            var4 = var4 * var12 + var11 * (1.0F - var12);
-            var5 = var5 * var12 + var11 * (1.0F - var12);
-            var6 = var6 * var12 + var11 * (1.0F - var12);
+        float var11 = this.getThunderLevel(param1);
+        if (var11 > 0.0F) {
+            float var12 = (var5 * 0.3F + var6 * 0.59F + var7 * 0.11F) * 0.2F;
+            float var13 = 1.0F - var11 * 0.75F;
+            var5 = var5 * var13 + var12 * (1.0F - var13);
+            var6 = var6 * var13 + var12 * (1.0F - var13);
+            var7 = var7 * var13 + var12 * (1.0F - var13);
         }
 
         if (this.skyFlashTime > 0) {
-            float var13 = (float)this.skyFlashTime - param1;
-            if (var13 > 1.0F) {
-                var13 = 1.0F;
+            float var14 = (float)this.skyFlashTime - param1;
+            if (var14 > 1.0F) {
+                var14 = 1.0F;
             }
 
-            var13 *= 0.45F;
-            var4 = var4 * (1.0F - var13) + 0.8F * var13;
-            var5 = var5 * (1.0F - var13) + 0.8F * var13;
-            var6 = var6 * (1.0F - var13) + 1.0F * var13;
+            var14 *= 0.45F;
+            var5 = var5 * (1.0F - var14) + 0.8F * var14;
+            var6 = var6 * (1.0F - var14) + 0.8F * var14;
+            var7 = var7 * (1.0F - var14) + 1.0F * var14;
         }
 
-        return new Vec3((double)var4, (double)var5, (double)var6);
+        return new Vec3((double)var5, (double)var6, (double)var7);
     }
 
     public Vec3 getCloudColor(float param0) {

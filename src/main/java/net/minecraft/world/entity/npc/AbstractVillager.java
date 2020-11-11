@@ -23,6 +23,7 @@ import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -218,18 +219,9 @@ public abstract class AbstractVillager extends AgeableMob implements Npc, Mercha
     }
 
     @Override
-    public boolean setSlot(int param0, ItemStack param1) {
-        if (super.setSlot(param0, param1)) {
-            return true;
-        } else {
-            int var0 = param0 - 300;
-            if (var0 >= 0 && var0 < this.inventory.getContainerSize()) {
-                this.inventory.setItem(var0, param1);
-                return true;
-            } else {
-                return false;
-            }
-        }
+    public SlotAccess getSlot(int param0) {
+        int var0 = param0 - 300;
+        return var0 >= 0 && var0 < this.inventory.getContainerSize() ? SlotAccess.forContainer(this.inventory, var0) : super.getSlot(param0);
     }
 
     @Override

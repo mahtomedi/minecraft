@@ -62,7 +62,7 @@ public class StructureBlock extends BaseEntityBlock implements GameMasterBlock {
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext param0) {
-        return this.defaultBlockState().setValue(MODE, StructureMode.DATA);
+        return this.defaultBlockState().setValue(MODE, StructureMode.LOAD);
     }
 
     @Override

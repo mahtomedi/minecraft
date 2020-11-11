@@ -21,7 +21,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class PlayerMenuItem implements SpectatorMenuItem {
     private final GameProfile profile;
     private final ResourceLocation location;
-    private final TextComponent name;
+    private final Component name;
 
     public PlayerMenuItem(GameProfile param0) {
         this.profile = param0;

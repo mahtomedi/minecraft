@@ -41,7 +41,7 @@ public class CloseServerTask extends LongRunningTask {
                     return;
                 }
 
-                pause(var41.delaySeconds);
+                pause((long)var41.delaySeconds);
             } catch (Exception var5) {
                 if (this.aborted()) {
                     return;

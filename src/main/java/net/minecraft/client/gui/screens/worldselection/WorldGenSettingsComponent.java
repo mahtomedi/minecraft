@@ -13,27 +13,26 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.client.gui.components.TickableWidget;
 import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.client.gui.screens.ConfirmScreen;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.RegistryReadOps;
@@ -59,13 +58,15 @@ public class WorldGenSettingsComponent implements TickableWidget, Widget {
     private static final Component CUSTOM_WORLD_DESCRIPTION = new TranslatableComponent("generator.custom");
     private static final Component AMPLIFIED_HELP_TEXT = new TranslatableComponent("generator.amplified.info");
     private static final Component MAP_FEATURES_INFO = new TranslatableComponent("selectWorld.mapFeatures.info");
+    private static final Component SELECT_FILE_PROMPT = new TranslatableComponent("selectWorld.import_worldgen_settings.select_file");
     private MultiLineLabel amplifiedWorldInfo = MultiLineLabel.EMPTY;
     private Font font;
     private int width;
     private EditBox seedEdit;
-    private Button featuresButton;
-    public Button bonusItemsButton;
-    private Button typeButton;
+    private CycleButton<Boolean> featuresButton;
+    private CycleButton<Boolean> bonusItemsButton;
+    private CycleButton<WorldPreset> typeButton;
+    private Button customWorldDummyButton;
     private Button customizeTypeButton;
     private Button importSettingsButton;
     private RegistryAccess.RegistryHolder registryHolder;
@@ -80,7 +81,7 @@ public class WorldGenSettingsComponent implements TickableWidget, Widget {
         this.seed = param3;
     }
 
-    public void init(final CreateWorldScreen param0, Minecraft param1, Font param2) {
+    public void init(CreateWorldScreen param0, Minecraft param1, Font param2) {
         this.font = param2;
         this.width = param0.width;
         this.seedEdit = new EditBox(this.font, this.width / 2 - 100, 60, 200, 20, new TranslatableComponent("selectWorld.enterSeed"));
@@ -89,60 +90,47 @@ public class WorldGenSettingsComponent implements TickableWidget, Widget {
         param0.addWidget(this.seedEdit);
         int var0 = this.width / 2 - 155;
         int var1 = this.width / 2 + 5;
-        this.featuresButton = param0.addButton(new Button(var0, 100, 150, 20, new TranslatableComponent("selectWorld.mapFeatures"), param0x -> {
-            this.settings = this.settings.withFeaturesToggled();
-            param0x.queueNarration(250);
-        }) {
-            @Override
-            public Component getMessage() {
-                return CommonComponents.optionStatus(super.getMessage(), WorldGenSettingsComponent.this.settings.generateFeatures());
-            }
-
-            @Override
-            protected MutableComponent createNarrationMessage() {
-                return super.createNarrationMessage().append(". ").append(new TranslatableComponent("selectWorld.mapFeatures.info"));
-            }
-        });
+        this.featuresButton = param0.addButton(
+            CycleButton.onOffBuilder(this.settings.generateFeatures())
+                .withCustomNarration(
+                    param0x -> param0x.createDefaultNarrationMessage().append(". ").append(new TranslatableComponent("selectWorld.mapFeatures.info"))
+                )
+                .create(
+                    var0,
+                    100,
+                    150,
+                    20,
+                    new TranslatableComponent("selectWorld.mapFeatures"),
+                    (param0x, param1x) -> this.settings = this.settings.withFeaturesToggled()
+                )
+        );
         this.featuresButton.visible = false;
         this.typeButton = param0.addButton(
-            new Button(var1, 100, 150, 20, new TranslatableComponent("selectWorld.mapType"), param1x -> {
-                while(this.preset.isPresent()) {
-                    int var0x = WorldPreset.PRESETS.indexOf(this.preset.get()) + 1;
-                    if (var0x >= WorldPreset.PRESETS.size()) {
-                        var0x = 0;
-                    }
-    
-                    WorldPreset var1x = WorldPreset.PRESETS.get(var0x);
-                    this.preset = Optional.of(var1x);
-                    this.settings = var1x.create(
+            CycleButton.builder(WorldPreset::description)
+                .withValues(WorldPreset.PRESETS.stream().filter(WorldPreset::isVisibleByDefault).collect(Collectors.toList()), WorldPreset.PRESETS)
+                .withCustomNarration(
+                    param0x -> param0x.getValue() == WorldPreset.AMPLIFIED
+                            ? param0x.createDefaultNarrationMessage().append(". ").append(AMPLIFIED_HELP_TEXT)
+                            : param0x.createDefaultNarrationMessage()
+                )
+                .create(var1, 100, 150, 20, new TranslatableComponent("selectWorld.mapType"), (param1x, param2x) -> {
+                    this.preset = Optional.of(param2x);
+                    this.settings = param2x.create(
                         this.registryHolder, this.settings.seed(), this.settings.generateFeatures(), this.settings.generateBonusChest()
                     );
-                    if (!this.settings.isDebug() || Screen.hasShiftDown()) {
-                        break;
-                    }
-                }
-    
-                param0.updateDisplayOptions();
-                param1x.queueNarration(250);
-            }) {
-                @Override
-                public Component getMessage() {
-                    return super.getMessage()
-                        .copy()
-                        .append(" ")
-                        .append(WorldGenSettingsComponent.this.preset.map(WorldPreset::description).orElse(WorldGenSettingsComponent.CUSTOM_WORLD_DESCRIPTION));
-                }
-    
-                @Override
-                protected MutableComponent createNarrationMessage() {
-                    return Objects.equals(WorldGenSettingsComponent.this.preset, Optional.of(WorldPreset.AMPLIFIED))
-                        ? super.createNarrationMessage().append(". ").append(WorldGenSettingsComponent.AMPLIFIED_HELP_TEXT)
-                        : super.createNarrationMessage();
-                }
-            }
+                    param0.refreshWorldGenSettingsVisibility();
+                })
         );
+        this.preset.ifPresent(this.typeButton::setValue);
         this.typeButton.visible = false;
-        this.typeButton.active = this.preset.isPresent();
+        this.customWorldDummyButton = param0.addButton(
+            new Button(
+                var1, 100, 150, 20, CommonComponents.optionNameValue(new TranslatableComponent("selectWorld.mapType"), CUSTOM_WORLD_DESCRIPTION), param0x -> {
+                }
+            )
+        );
+        this.customWorldDummyButton.active = false;
+        this.customWorldDummyButton.visible = false;
         this.customizeTypeButton = param0.addButton(new Button(var1, 120, 150, 20, new TranslatableComponent("selectWorld.customizeType"), param2x -> {
             WorldPreset.PresetEditor var0x = WorldPreset.EDITORS.get(this.preset);
             if (var0x != null) {
@@ -151,15 +139,17 @@ public class WorldGenSettingsComponent implements TickableWidget, Widget {
 
         }));
         this.customizeTypeButton.visible = false;
-        this.bonusItemsButton = param0.addButton(new Button(var0, 151, 150, 20, new TranslatableComponent("selectWorld.bonusItems"), param0x -> {
-            this.settings = this.settings.withBonusChestToggled();
-            param0x.queueNarration(250);
-        }) {
-            @Override
-            public Component getMessage() {
-                return CommonComponents.optionStatus(super.getMessage(), WorldGenSettingsComponent.this.settings.generateBonusChest() && !param0.hardCore);
-            }
-        });
+        this.bonusItemsButton = param0.addButton(
+            CycleButton.onOffBuilder(this.settings.generateBonusChest() && !param0.hardCore)
+                .create(
+                    var0,
+                    151,
+                    150,
+                    20,
+                    new TranslatableComponent("selectWorld.bonusItems"),
+                    (param0x, param1x) -> this.settings = this.settings.withBonusChestToggled()
+                )
+        );
         this.bonusItemsButton.visible = false;
         this.importSettingsButton = param0.addButton(
             new Button(
@@ -169,65 +159,64 @@ public class WorldGenSettingsComponent implements TickableWidget, Widget {
                 20,
                 new TranslatableComponent("selectWorld.import_worldgen_settings"),
                 param2x -> {
-                    TranslatableComponent var0x = new TranslatableComponent("selectWorld.import_worldgen_settings.select_file");
-                    String var1x = TinyFileDialogs.tinyfd_openFileDialog(var0x.getString(), null, null, null, false);
-                    if (var1x != null) {
-                        RegistryAccess.RegistryHolder var2x = RegistryAccess.builtin();
-                        PackRepository var3x = new PackRepository(
+                    String var0x = TinyFileDialogs.tinyfd_openFileDialog(SELECT_FILE_PROMPT.getString(), null, null, null, false);
+                    if (var0x != null) {
+                        RegistryAccess.RegistryHolder var1x = RegistryAccess.builtin();
+                        PackRepository var2x = new PackRepository(
                             PackType.SERVER_DATA, new ServerPacksSource(), new FolderRepositorySource(param0.getTempDataPackDir().toFile(), PackSource.WORLD)
                         );
         
-                        ServerResources var5;
+                        ServerResources var4;
                         try {
-                            MinecraftServer.configurePackRepository(var3x, param0.dataPacks, false);
-                            CompletableFuture<ServerResources> var4 = ServerResources.loadResources(
-                                var3x.openAllSelected(), Commands.CommandSelection.INTEGRATED, 2, Util.backgroundExecutor(), param1
+                            MinecraftServer.configurePackRepository(var2x, param0.dataPacks, false);
+                            CompletableFuture<ServerResources> var3 = ServerResources.loadResources(
+                                var2x.openAllSelected(), Commands.CommandSelection.INTEGRATED, 2, Util.backgroundExecutor(), param1
                             );
-                            param1.managedBlock(var4::isDone);
-                            var5 = var4.get();
-                        } catch (ExecutionException | InterruptedException var25) {
-                            LOGGER.error("Error loading data packs when importing world settings", (Throwable)var25);
-                            Component var7 = new TranslatableComponent("selectWorld.import_worldgen_settings.failure");
-                            Component var8 = new TextComponent(var25.getMessage());
-                            param1.getToasts().addToast(SystemToast.multiline(param1, SystemToast.SystemToastIds.WORLD_GEN_SETTINGS_TRANSFER, var7, var8));
-                            var3x.close();
+                            param1.managedBlock(var3::isDone);
+                            var4 = var3.get();
+                        } catch (ExecutionException | InterruptedException var24) {
+                            LOGGER.error("Error loading data packs when importing world settings", (Throwable)var24);
+                            Component var6 = new TranslatableComponent("selectWorld.import_worldgen_settings.failure");
+                            Component var7 = new TextComponent(var24.getMessage());
+                            param1.getToasts().addToast(SystemToast.multiline(param1, SystemToast.SystemToastIds.WORLD_GEN_SETTINGS_TRANSFER, var6, var7));
+                            var2x.close();
                             return;
                         }
         
-                        RegistryReadOps<JsonElement> var10 = RegistryReadOps.create(JsonOps.INSTANCE, var5.getResourceManager(), var2x);
-                        JsonParser var11 = new JsonParser();
+                        RegistryReadOps<JsonElement> var9 = RegistryReadOps.create(JsonOps.INSTANCE, var4.getResourceManager(), var1x);
+                        JsonParser var10 = new JsonParser();
         
-                        DataResult<WorldGenSettings> var14;
-                        try (BufferedReader var12 = Files.newBufferedReader(Paths.get(var1x))) {
-                            JsonElement var13 = var11.parse(var12);
-                            var14 = WorldGenSettings.CODEC.parse(var10, var13);
-                        } catch (JsonIOException | JsonSyntaxException | IOException var27) {
-                            var14 = DataResult.error("Failed to parse file: " + var27.getMessage());
+                        DataResult<WorldGenSettings> var13;
+                        try (BufferedReader var11 = Files.newBufferedReader(Paths.get(var0x))) {
+                            JsonElement var12 = var10.parse(var11);
+                            var13 = WorldGenSettings.CODEC.parse(var9, var12);
+                        } catch (JsonIOException | JsonSyntaxException | IOException var26) {
+                            var13 = DataResult.error("Failed to parse file: " + var26.getMessage());
                         }
         
-                        if (var14.error().isPresent()) {
-                            Component var18 = new TranslatableComponent("selectWorld.import_worldgen_settings.failure");
-                            String var19 = var14.error().get().message();
-                            LOGGER.error("Error parsing world settings: {}", var19);
-                            Component var20 = new TextComponent(var19);
-                            param1.getToasts().addToast(SystemToast.multiline(param1, SystemToast.SystemToastIds.WORLD_GEN_SETTINGS_TRANSFER, var18, var20));
+                        if (var13.error().isPresent()) {
+                            Component var17 = new TranslatableComponent("selectWorld.import_worldgen_settings.failure");
+                            String var18 = var13.error().get().message();
+                            LOGGER.error("Error parsing world settings: {}", var18);
+                            Component var19 = new TextComponent(var18);
+                            param1.getToasts().addToast(SystemToast.multiline(param1, SystemToast.SystemToastIds.WORLD_GEN_SETTINGS_TRANSFER, var17, var19));
                         }
         
-                        var5.close();
-                        Lifecycle var21 = var14.lifecycle();
-                        var14.resultOrPartial(LOGGER::error)
+                        var4.close();
+                        Lifecycle var20 = var13.lifecycle();
+                        var13.resultOrPartial(LOGGER::error)
                             .ifPresent(
                                 param4 -> {
                                     BooleanConsumer var0xx = param4x -> {
                                         param1.setScreen(param0);
                                         if (param4x) {
-                                            this.importSettings(var2x, param4);
+                                            this.importSettings(var1x, param4);
                                         }
                 
                                     };
-                                    if (var21 == Lifecycle.stable()) {
-                                        this.importSettings(var2x, param4);
-                                    } else if (var21 == Lifecycle.experimental()) {
+                                    if (var20 == Lifecycle.stable()) {
+                                        this.importSettings(var1x, param4);
+                                    } else if (var20 == Lifecycle.experimental()) {
                                         param1.setScreen(
                                             new ConfirmScreen(
                                                 var0xx,
@@ -259,9 +248,9 @@ public class WorldGenSettingsComponent implements TickableWidget, Widget {
         this.registryHolder = param0;
         this.settings = param1;
         this.preset = WorldPreset.of(param1);
+        this.selectWorldTypeButton(true);
         this.seed = OptionalLong.of(param1.seed());
         this.seedEdit.setValue(toString(this.seed));
-        this.typeButton.active = this.preset.isPresent();
     }
 
     @Override
@@ -324,8 +313,8 @@ public class WorldGenSettingsComponent implements TickableWidget, Widget {
         return this.settings.isDebug();
     }
 
-    public void setDisplayOptions(boolean param0) {
-        this.typeButton.visible = param0;
+    public void setVisibility(boolean param0) {
+        this.selectWorldTypeButton(param0);
         if (this.settings.isDebug()) {
             this.featuresButton.visible = false;
             this.bonusItemsButton.visible = false;
@@ -339,6 +328,17 @@ public class WorldGenSettingsComponent implements TickableWidget, Widget {
         }
 
         this.seedEdit.setVisible(param0);
+    }
+
+    private void selectWorldTypeButton(boolean param0) {
+        if (this.preset.isPresent()) {
+            this.typeButton.visible = param0;
+            this.customWorldDummyButton.visible = false;
+        } else {
+            this.typeButton.visible = false;
+            this.customWorldDummyButton.visible = param0;
+        }
+
     }
 
     public RegistryAccess.RegistryHolder registryHolder() {
@@ -356,5 +356,15 @@ public class WorldGenSettingsComponent implements TickableWidget, Widget {
             this.settings = param1;
             this.registryHolder = var0;
         });
+    }
+
+    public void switchToHardcore() {
+        this.bonusItemsButton.active = false;
+        this.bonusItemsButton.setValue(false);
+    }
+
+    public void switchOutOfHardcode() {
+        this.bonusItemsButton.active = true;
+        this.bonusItemsButton.setValue(this.settings.generateBonusChest());
     }
 }

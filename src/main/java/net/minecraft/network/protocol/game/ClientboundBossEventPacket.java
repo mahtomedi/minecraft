@@ -27,7 +27,7 @@ public class ClientboundBossEventPacket implements Packet<ClientGamePacketListen
         this.operation = param0;
         this.id = param1.getId();
         this.name = param1.getName();
-        this.pct = param1.getPercent();
+        this.pct = param1.getProgress();
         this.color = param1.getColor();
         this.overlay = param1.getOverlay();
         this.darkenScreen = param1.shouldDarkenScreen();
@@ -49,7 +49,7 @@ public class ClientboundBossEventPacket implements Packet<ClientGamePacketListen
             case REMOVE:
             default:
                 break;
-            case UPDATE_PCT:
+            case UPDATE_PROGRESS:
                 this.pct = param0.readFloat();
                 break;
             case UPDATE_NAME:
@@ -85,7 +85,7 @@ public class ClientboundBossEventPacket implements Packet<ClientGamePacketListen
             case REMOVE:
             default:
                 break;
-            case UPDATE_PCT:
+            case UPDATE_PROGRESS:
                 param0.writeFloat(this.pct);
                 break;
             case UPDATE_NAME:
@@ -170,7 +170,7 @@ public class ClientboundBossEventPacket implements Packet<ClientGamePacketListen
     public static enum Operation {
         ADD,
         REMOVE,
-        UPDATE_PCT,
+        UPDATE_PROGRESS,
         UPDATE_NAME,
         UPDATE_STYLE,
         UPDATE_PROPERTIES;

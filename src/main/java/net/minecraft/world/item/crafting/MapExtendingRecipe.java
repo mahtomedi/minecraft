@@ -7,7 +7,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.MapItem;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.saveddata.maps.MapDecoration;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 
 public class MapExtendingRecipe extends ShapedRecipe {
@@ -50,28 +49,16 @@ public class MapExtendingRecipe extends ShapedRecipe {
             if (var0.isEmpty()) {
                 return false;
             } else {
-                MapItemSavedData var3 = MapItem.getOrCreateSavedData(var0, param1);
+                MapItemSavedData var3 = MapItem.getSavedData(var0, param1);
                 if (var3 == null) {
                     return false;
-                } else if (this.isExplorationMap(var3)) {
+                } else if (var3.isExplorationMap()) {
                     return false;
                 } else {
                     return var3.scale < 4;
                 }
             }
         }
-    }
-
-    private boolean isExplorationMap(MapItemSavedData param0) {
-        if (param0.decorations != null) {
-            for(MapDecoration var0 : param0.decorations.values()) {
-                if (var0.getType() == MapDecoration.Type.MANSION || var0.getType() == MapDecoration.Type.MONUMENT) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
     }
 
     @Override

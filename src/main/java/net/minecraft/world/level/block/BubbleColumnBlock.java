@@ -1,13 +1,17 @@
 package net.minecraft.world.level.block;
 
+import java.util.Optional;
 import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
@@ -17,7 +21,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -194,8 +197,13 @@ public class BubbleColumnBlock extends Block implements BucketPickup {
     }
 
     @Override
-    public Fluid takeLiquid(LevelAccessor param0, BlockPos param1, BlockState param2) {
+    public ItemStack pickupBlock(LevelAccessor param0, BlockPos param1, BlockState param2) {
         param0.setBlock(param1, Blocks.AIR.defaultBlockState(), 11);
-        return Fluids.WATER;
+        return new ItemStack(Items.WATER_BUCKET);
+    }
+
+    @Override
+    public Optional<SoundEvent> getPickupSound() {
+        return Fluids.WATER.getPickupSound();
     }
 }

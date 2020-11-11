@@ -84,6 +84,7 @@ public class Gui extends GuiComponent {
     private static final ResourceLocation WIDGETS_LOCATION = new ResourceLocation("textures/gui/widgets.png");
     private static final ResourceLocation PUMPKIN_BLUR_LOCATION = new ResourceLocation("textures/misc/pumpkinblur.png");
     private static final ResourceLocation SPYGLASS_SCOPE_LOCATION = new ResourceLocation("textures/misc/spyglass_scope.png");
+    private static final ResourceLocation POWDER_SNOW_OUTLINE_LOCATION = new ResourceLocation("textures/misc/powder_snow_outline.png");
     private static final Component DEMO_EXPIRED_TEXT = new TranslatableComponent("demo.demoExpired");
     private final Random random = new Random();
     private final Minecraft minecraft;
@@ -117,6 +118,7 @@ public class Gui extends GuiComponent {
     private int screenWidth;
     private int screenHeight;
     private final Map<ChatType, List<ChatListener>> chatListeners = Maps.newHashMap();
+    private float scopeScale;
 
     public Gui(Minecraft param0) {
         this.minecraft = param0;
@@ -159,18 +161,27 @@ public class Gui extends GuiComponent {
             RenderSystem.defaultBlendFunc();
         }
 
-        ItemStack var1 = this.minecraft.player.getInventory().getArmor(3);
+        float var1 = this.minecraft.getDeltaFrameTime();
+        this.scopeScale = Mth.lerp(0.5F * var1, this.scopeScale, 1.125F);
         if (this.minecraft.options.getCameraType().isFirstPerson()) {
             if (this.minecraft.player.isScoping()) {
-                this.renderFullScreenOverlay(SPYGLASS_SCOPE_LOCATION, 0.5F, -16777216);
-            } else if (var1.is(Blocks.CARVED_PUMPKIN.asItem())) {
-                this.renderFullScreenOverlay(PUMPKIN_BLUR_LOCATION);
+                this.renderSpyglassOverlay(this.scopeScale);
+            } else {
+                this.scopeScale = 0.5F;
+                ItemStack var2 = this.minecraft.player.getInventory().getArmor(3);
+                if (var2.is(Blocks.CARVED_PUMPKIN.asItem())) {
+                    this.renderTextureOverlay(PUMPKIN_BLUR_LOCATION, 1.0F);
+                }
             }
         }
 
-        float var2 = Mth.lerp(param1, this.minecraft.player.oPortalTime, this.minecraft.player.portalTime);
-        if (var2 > 0.0F && !this.minecraft.player.hasEffect(MobEffects.CONFUSION)) {
-            this.renderPortalOverlay(var2);
+        if (this.minecraft.player.getTicksFrozen() > 0) {
+            this.renderTextureOverlay(POWDER_SNOW_OUTLINE_LOCATION, this.minecraft.player.getPercentFrozen());
+        }
+
+        float var3 = Mth.lerp(param1, this.minecraft.player.oPortalTime, this.minecraft.player.portalTime);
+        if (var3 > 0.0F && !this.minecraft.player.hasEffect(MobEffects.CONFUSION)) {
+            this.renderPortalOverlay(var3);
         }
 
         if (this.minecraft.gameMode.getPlayerMode() == GameType.SPECTATOR) {
@@ -197,11 +208,11 @@ public class Gui extends GuiComponent {
 
             this.renderVehicleHealth(param0);
             RenderSystem.disableBlend();
-            int var3 = this.screenWidth / 2 - 91;
+            int var4 = this.screenWidth / 2 - 91;
             if (this.minecraft.player.isRidingJumpable()) {
-                this.renderJumpMeter(param0, var3);
+                this.renderJumpMeter(param0, var4);
             } else if (this.minecraft.gameMode.hasExperience()) {
-                this.renderExperienceBar(param0, var3);
+                this.renderExperienceBar(param0, var4);
             }
 
             if (this.minecraft.options.heldItemTooltips && this.minecraft.gameMode.getPlayerMode() != GameType.SPECTATOR) {
@@ -215,14 +226,14 @@ public class Gui extends GuiComponent {
             this.minecraft.getProfiler().push("sleep");
             RenderSystem.disableDepthTest();
             RenderSystem.disableAlphaTest();
-            float var4 = (float)this.minecraft.player.getSleepTimer();
-            float var5 = var4 / 100.0F;
-            if (var5 > 1.0F) {
-                var5 = 1.0F - (var4 - 100.0F) / 10.0F;
+            float var5 = (float)this.minecraft.player.getSleepTimer();
+            float var6 = var5 / 100.0F;
+            if (var6 > 1.0F) {
+                var6 = 1.0F - (var5 - 100.0F) / 10.0F;
             }
 
-            int var6 = (int)(220.0F * var5) << 24 | 1052704;
-            fill(param0, 0, 0, this.screenWidth, this.screenHeight, var6);
+            int var7 = (int)(220.0F * var6) << 24 | 1052704;
+            fill(param0, 0, 0, this.screenWidth, this.screenHeight, var7);
             RenderSystem.enableAlphaTest();
             RenderSystem.enableDepthTest();
             this.minecraft.getProfiler().pop();
@@ -241,26 +252,26 @@ public class Gui extends GuiComponent {
         if (!this.minecraft.options.hideGui) {
             if (this.overlayMessageString != null && this.overlayMessageTime > 0) {
                 this.minecraft.getProfiler().push("overlayMessage");
-                float var7 = (float)this.overlayMessageTime - param1;
-                int var8 = (int)(var7 * 255.0F / 20.0F);
-                if (var8 > 255) {
-                    var8 = 255;
+                float var8 = (float)this.overlayMessageTime - param1;
+                int var9 = (int)(var8 * 255.0F / 20.0F);
+                if (var9 > 255) {
+                    var9 = 255;
                 }
 
-                if (var8 > 8) {
+                if (var9 > 8) {
                     RenderSystem.pushMatrix();
                     RenderSystem.translatef((float)(this.screenWidth / 2), (float)(this.screenHeight - 68), 0.0F);
                     RenderSystem.enableBlend();
                     RenderSystem.defaultBlendFunc();
-                    int var9 = 16777215;
+                    int var10 = 16777215;
                     if (this.animateOverlayMessageColor) {
-                        var9 = Mth.hsvToRgb(var7 / 50.0F, 0.7F, 0.6F) & 16777215;
+                        var10 = Mth.hsvToRgb(var8 / 50.0F, 0.7F, 0.6F) & 16777215;
                     }
 
-                    int var10 = var8 << 24 & 0xFF000000;
-                    int var11 = var0.width(this.overlayMessageString);
-                    this.drawBackdrop(param0, var0, -4, var11, 16777215 | var10);
-                    var0.draw(param0, this.overlayMessageString, (float)(-var11 / 2), -4.0F, var9 | var10);
+                    int var11 = var9 << 24 & 0xFF000000;
+                    int var12 = var0.width(this.overlayMessageString);
+                    this.drawBackdrop(param0, var0, -4, var12, 16777215 | var11);
+                    var0.draw(param0, this.overlayMessageString, (float)(-var12 / 2), -4.0F, var10 | var11);
                     RenderSystem.disableBlend();
                     RenderSystem.popMatrix();
                 }
@@ -270,36 +281,36 @@ public class Gui extends GuiComponent {
 
             if (this.title != null && this.titleTime > 0) {
                 this.minecraft.getProfiler().push("titleAndSubtitle");
-                float var12 = (float)this.titleTime - param1;
-                int var13 = 255;
+                float var13 = (float)this.titleTime - param1;
+                int var14 = 255;
                 if (this.titleTime > this.titleFadeOutTime + this.titleStayTime) {
-                    float var14 = (float)(this.titleFadeInTime + this.titleStayTime + this.titleFadeOutTime) - var12;
-                    var13 = (int)(var14 * 255.0F / (float)this.titleFadeInTime);
+                    float var15 = (float)(this.titleFadeInTime + this.titleStayTime + this.titleFadeOutTime) - var13;
+                    var14 = (int)(var15 * 255.0F / (float)this.titleFadeInTime);
                 }
 
                 if (this.titleTime <= this.titleFadeOutTime) {
-                    var13 = (int)(var12 * 255.0F / (float)this.titleFadeOutTime);
+                    var14 = (int)(var13 * 255.0F / (float)this.titleFadeOutTime);
                 }
 
-                var13 = Mth.clamp(var13, 0, 255);
-                if (var13 > 8) {
+                var14 = Mth.clamp(var14, 0, 255);
+                if (var14 > 8) {
                     RenderSystem.pushMatrix();
                     RenderSystem.translatef((float)(this.screenWidth / 2), (float)(this.screenHeight / 2), 0.0F);
                     RenderSystem.enableBlend();
                     RenderSystem.defaultBlendFunc();
                     RenderSystem.pushMatrix();
                     RenderSystem.scalef(4.0F, 4.0F, 4.0F);
-                    int var15 = var13 << 24 & 0xFF000000;
-                    int var16 = var0.width(this.title);
-                    this.drawBackdrop(param0, var0, -10, var16, 16777215 | var15);
-                    var0.drawShadow(param0, this.title, (float)(-var16 / 2), -10.0F, 16777215 | var15);
+                    int var16 = var14 << 24 & 0xFF000000;
+                    int var17 = var0.width(this.title);
+                    this.drawBackdrop(param0, var0, -10, var17, 16777215 | var16);
+                    var0.drawShadow(param0, this.title, (float)(-var17 / 2), -10.0F, 16777215 | var16);
                     RenderSystem.popMatrix();
                     if (this.subtitle != null) {
                         RenderSystem.pushMatrix();
                         RenderSystem.scalef(2.0F, 2.0F, 2.0F);
-                        int var17 = var0.width(this.subtitle);
-                        this.drawBackdrop(param0, var0, 5, var17, 16777215 | var15);
-                        var0.drawShadow(param0, this.subtitle, (float)(-var17 / 2), 5.0F, 16777215 | var15);
+                        int var18 = var0.width(this.subtitle);
+                        this.drawBackdrop(param0, var0, 5, var18, 16777215 | var16);
+                        var0.drawShadow(param0, this.subtitle, (float)(-var18 / 2), 5.0F, 16777215 | var16);
                         RenderSystem.popMatrix();
                     }
 
@@ -311,19 +322,19 @@ public class Gui extends GuiComponent {
             }
 
             this.subtitleOverlay.render(param0);
-            Scoreboard var18 = this.minecraft.level.getScoreboard();
-            Objective var19 = null;
-            PlayerTeam var20 = var18.getPlayersTeam(this.minecraft.player.getScoreboardName());
-            if (var20 != null) {
-                int var21 = var20.getColor().getId();
-                if (var21 >= 0) {
-                    var19 = var18.getDisplayObjective(3 + var21);
+            Scoreboard var19 = this.minecraft.level.getScoreboard();
+            Objective var20 = null;
+            PlayerTeam var21 = var19.getPlayersTeam(this.minecraft.player.getScoreboardName());
+            if (var21 != null) {
+                int var22 = var21.getColor().getId();
+                if (var22 >= 0) {
+                    var20 = var19.getDisplayObjective(3 + var22);
                 }
             }
 
-            Objective var22 = var19 != null ? var19 : var18.getDisplayObjective(1);
-            if (var22 != null) {
-                this.displayScoreboardSidebar(param0, var22);
+            Objective var23 = var20 != null ? var20 : var19.getDisplayObjective(1);
+            if (var23 != null) {
+                this.displayScoreboardSidebar(param0, var23);
             }
 
             RenderSystem.enableBlend();
@@ -335,13 +346,13 @@ public class Gui extends GuiComponent {
             this.chat.render(param0, this.tickCount);
             this.minecraft.getProfiler().pop();
             RenderSystem.popMatrix();
-            var22 = var18.getDisplayObjective(0);
+            var23 = var19.getDisplayObjective(0);
             if (!this.minecraft.options.keyPlayerList.isDown()
-                || this.minecraft.isLocalServer() && this.minecraft.player.connection.getOnlinePlayers().size() <= 1 && var22 == null) {
+                || this.minecraft.isLocalServer() && this.minecraft.player.connection.getOnlinePlayers().size() <= 1 && var23 == null) {
                 this.tabList.setVisible(false);
             } else {
                 this.tabList.setVisible(true);
-                this.tabList.render(param0, this.screenWidth, var18, var22);
+                this.tabList.render(param0, this.screenWidth, var19, var23);
             }
         }
 
@@ -788,6 +799,8 @@ public class Gui extends GuiComponent {
                     var22 += 36;
                 } else if (var0.hasEffect(MobEffects.WITHER)) {
                     var22 += 72;
+                } else if (var0.isFullyFrozen()) {
+                    var22 += 126;
                 }
 
                 int var23 = 0;
@@ -932,72 +945,69 @@ public class Gui extends GuiComponent {
         }
     }
 
-    private void renderFullScreenOverlay(ResourceLocation param0) {
-        this.renderFullScreenOverlay(param0, 0.0F, 0);
-    }
-
-    private void renderFullScreenOverlay(ResourceLocation param0, float param1, int param2) {
+    private void renderTextureOverlay(ResourceLocation param0, float param1) {
         RenderSystem.disableDepthTest();
         RenderSystem.depthMask(false);
         RenderSystem.defaultBlendFunc();
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, param1);
         RenderSystem.disableAlphaTest();
         this.minecraft.getTextureManager().bind(param0);
         Tesselator var0 = Tesselator.getInstance();
         BufferBuilder var1 = var0.getBuilder();
-        if (param1 == 0.0F) {
-            var1.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-            var1.vertex(0.0, (double)this.screenHeight, -90.0).uv(0.0F, 1.0F).endVertex();
-            var1.vertex((double)this.screenWidth, (double)this.screenHeight, -90.0).uv(1.0F, 1.0F).endVertex();
-            var1.vertex((double)this.screenWidth, 0.0, -90.0).uv(1.0F, 0.0F).endVertex();
-            var1.vertex(0.0, 0.0, -90.0).uv(0.0F, 0.0F).endVertex();
-            var0.end();
-        } else {
-            float var2 = (float)Math.min(this.screenWidth, this.screenHeight);
-            float var3 = var2 * param1;
-            float var4 = Math.min((float)this.screenWidth / var2, (float)this.screenHeight / var3);
-            float var5 = var2 * var4;
-            float var6 = var3 * var4;
-            float var7 = ((float)this.screenWidth - var5) / 2.0F;
-            float var8 = ((float)this.screenHeight - var6) / 2.0F;
-            float var9 = var7 + var5;
-            float var10 = var8 + var6;
-            var1.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-            var1.vertex((double)var7, (double)var10, -90.0).uv(0.0F, 1.0F).endVertex();
-            var1.vertex((double)var9, (double)var10, -90.0).uv(1.0F, 1.0F).endVertex();
-            var1.vertex((double)var9, (double)var8, -90.0).uv(1.0F, 0.0F).endVertex();
-            var1.vertex((double)var7, (double)var8, -90.0).uv(0.0F, 0.0F).endVertex();
-            var0.end();
-            int var11 = FastColor.ARGB32.red(param2);
-            int var12 = FastColor.ARGB32.green(param2);
-            int var13 = FastColor.ARGB32.blue(param2);
-            int var14 = FastColor.ARGB32.alpha(param2);
-            var1.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-            var1.vertex(0.0, (double)this.screenHeight, -90.0).color(var11, var12, var13, var14).endVertex();
-            var1.vertex((double)this.screenWidth, (double)this.screenHeight, -90.0).color(var11, var12, var13, var14).endVertex();
-            var1.vertex((double)this.screenWidth, (double)var10, -90.0).color(var11, var12, var13, var14).endVertex();
-            var1.vertex(0.0, (double)var10, -90.0).color(var11, var12, var13, var14).endVertex();
-            var0.end();
-            var1.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-            var1.vertex(0.0, (double)var8, -90.0).color(var11, var12, var13, var14).endVertex();
-            var1.vertex((double)this.screenWidth, (double)var8, -90.0).color(var11, var12, var13, var14).endVertex();
-            var1.vertex((double)this.screenWidth, 0.0, -90.0).color(var11, var12, var13, var14).endVertex();
-            var1.vertex(0.0, 0.0, -90.0).color(var11, var12, var13, var14).endVertex();
-            var0.end();
-            var1.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-            var1.vertex(0.0, (double)var10, -90.0).color(var11, var12, var13, var14).endVertex();
-            var1.vertex((double)var7, (double)var10, -90.0).color(var11, var12, var13, var14).endVertex();
-            var1.vertex((double)var7, (double)var8, -90.0).color(var11, var12, var13, var14).endVertex();
-            var1.vertex(0.0, (double)var8, -90.0).color(var11, var12, var13, var14).endVertex();
-            var0.end();
-            var1.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-            var1.vertex((double)var9, (double)var10, -90.0).color(var11, var12, var13, var14).endVertex();
-            var1.vertex((double)this.screenWidth, (double)var10, -90.0).color(var11, var12, var13, var14).endVertex();
-            var1.vertex((double)this.screenWidth, (double)var8, -90.0).color(var11, var12, var13, var14).endVertex();
-            var1.vertex((double)var9, (double)var8, -90.0).color(var11, var12, var13, var14).endVertex();
-            var0.end();
-        }
+        var1.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        var1.vertex(0.0, (double)this.screenHeight, -90.0).uv(0.0F, 1.0F).endVertex();
+        var1.vertex((double)this.screenWidth, (double)this.screenHeight, -90.0).uv(1.0F, 1.0F).endVertex();
+        var1.vertex((double)this.screenWidth, 0.0, -90.0).uv(1.0F, 0.0F).endVertex();
+        var1.vertex(0.0, 0.0, -90.0).uv(0.0F, 0.0F).endVertex();
+        var0.end();
+        RenderSystem.depthMask(true);
+        RenderSystem.enableDepthTest();
+        RenderSystem.enableAlphaTest();
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+    }
 
+    private void renderSpyglassOverlay(float param0) {
+        RenderSystem.disableDepthTest();
+        RenderSystem.depthMask(false);
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.disableAlphaTest();
+        this.minecraft.getTextureManager().bind(SPYGLASS_SCOPE_LOCATION);
+        Tesselator var0 = Tesselator.getInstance();
+        BufferBuilder var1 = var0.getBuilder();
+        float var2 = (float)Math.min(this.screenWidth, this.screenHeight);
+        float var4 = Math.min((float)this.screenWidth / var2, (float)this.screenHeight / var2) * param0;
+        float var5 = var2 * var4;
+        float var6 = var2 * var4;
+        float var7 = ((float)this.screenWidth - var5) / 2.0F;
+        float var8 = ((float)this.screenHeight - var6) / 2.0F;
+        float var9 = var7 + var5;
+        float var10 = var8 + var6;
+        var1.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        var1.vertex((double)var7, (double)var10, -90.0).uv(0.0F, 1.0F).endVertex();
+        var1.vertex((double)var9, (double)var10, -90.0).uv(1.0F, 1.0F).endVertex();
+        var1.vertex((double)var9, (double)var8, -90.0).uv(1.0F, 0.0F).endVertex();
+        var1.vertex((double)var7, (double)var8, -90.0).uv(0.0F, 0.0F).endVertex();
+        var0.end();
+        RenderSystem.disableTexture();
+        var1.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+        var1.vertex(0.0, (double)this.screenHeight, -90.0).color(0, 0, 0, 255).endVertex();
+        var1.vertex((double)this.screenWidth, (double)this.screenHeight, -90.0).color(0, 0, 0, 255).endVertex();
+        var1.vertex((double)this.screenWidth, (double)var10, -90.0).color(0, 0, 0, 255).endVertex();
+        var1.vertex(0.0, (double)var10, -90.0).color(0, 0, 0, 255).endVertex();
+        var1.vertex(0.0, (double)var8, -90.0).color(0, 0, 0, 255).endVertex();
+        var1.vertex((double)this.screenWidth, (double)var8, -90.0).color(0, 0, 0, 255).endVertex();
+        var1.vertex((double)this.screenWidth, 0.0, -90.0).color(0, 0, 0, 255).endVertex();
+        var1.vertex(0.0, 0.0, -90.0).color(0, 0, 0, 255).endVertex();
+        var1.vertex(0.0, (double)var10, -90.0).color(0, 0, 0, 255).endVertex();
+        var1.vertex((double)var7, (double)var10, -90.0).color(0, 0, 0, 255).endVertex();
+        var1.vertex((double)var7, (double)var8, -90.0).color(0, 0, 0, 255).endVertex();
+        var1.vertex(0.0, (double)var8, -90.0).color(0, 0, 0, 255).endVertex();
+        var1.vertex((double)var9, (double)var10, -90.0).color(0, 0, 0, 255).endVertex();
+        var1.vertex((double)this.screenWidth, (double)var10, -90.0).color(0, 0, 0, 255).endVertex();
+        var1.vertex((double)this.screenWidth, (double)var8, -90.0).color(0, 0, 0, 255).endVertex();
+        var1.vertex((double)var9, (double)var8, -90.0).color(0, 0, 0, 255).endVertex();
+        var0.end();
+        RenderSystem.enableTexture();
         RenderSystem.depthMask(true);
         RenderSystem.enableDepthTest();
         RenderSystem.enableAlphaTest();

@@ -35,7 +35,7 @@ public class ArmorStandModel extends ArmorStandArmorModel {
     public static LayerDefinition createBodyLayer() {
         MeshDefinition var0 = HumanoidModel.createMesh(CubeDeformation.NONE, 0.0F);
         PartDefinition var1 = var0.getRoot();
-        var1.addOrReplaceChild("head", CubeListBuilder.create().texOffs(0, 0).addBox(-1.0F, -7.0F, -1.0F, 2.0F, 7.0F, 2.0F), PartPose.ZERO);
+        var1.addOrReplaceChild("head", CubeListBuilder.create().texOffs(0, 0).addBox(-1.0F, -7.0F, -1.0F, 2.0F, 7.0F, 2.0F), PartPose.offset(0.0F, 1.0F, 0.0F));
         var1.addOrReplaceChild("body", CubeListBuilder.create().texOffs(0, 26).addBox(-6.0F, 0.0F, -1.5F, 12.0F, 3.0F, 3.0F), PartPose.ZERO);
         var1.addOrReplaceChild(
             "right_arm", CubeListBuilder.create().texOffs(24, 0).addBox(-2.0F, -2.0F, -1.0F, 2.0F, 12.0F, 2.0F), PartPose.offset(-5.0F, 2.0F, 0.0F)

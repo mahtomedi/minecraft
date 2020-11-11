@@ -250,6 +250,7 @@ public class WitherBoss extends Monster implements PowerableMob, RangedAttackMob
     protected void customServerAiStep() {
         if (this.getInvulnerableTicks() > 0) {
             int var0 = this.getInvulnerableTicks() - 1;
+            this.bossEvent.setProgress(1.0F - (float)var0 / 220.0F);
             if (var0 <= 0) {
                 Explosion.BlockInteraction var1 = this.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)
                     ? Explosion.BlockInteraction.DESTROY
@@ -356,7 +357,7 @@ public class WitherBoss extends Monster implements PowerableMob, RangedAttackMob
                 this.heal(1.0F);
             }
 
-            this.bossEvent.setPercent(this.getHealth() / this.getMaxHealth());
+            this.bossEvent.setProgress(this.getHealth() / this.getMaxHealth());
         }
     }
 
@@ -366,6 +367,7 @@ public class WitherBoss extends Monster implements PowerableMob, RangedAttackMob
 
     public void makeInvulnerable() {
         this.setInvulnerableTicks(220);
+        this.bossEvent.setProgress(0.0F);
         this.setHealth(this.getMaxHealth() / 3.0F);
     }
 

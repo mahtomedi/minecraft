@@ -62,6 +62,7 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobType;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -79,7 +80,6 @@ import net.minecraft.world.food.FoodData;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.PlayerEnderChestContainer;
-import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.ElytraItem;
 import net.minecraft.world.item.ItemCooldowns;
@@ -646,8 +646,10 @@ public abstract class Player extends LivingEntity {
             return SoundEvents.PLAYER_HURT_ON_FIRE;
         } else if (param0 == DamageSource.DROWN) {
             return SoundEvents.PLAYER_HURT_DROWN;
+        } else if (param0 == DamageSource.SWEET_BERRY_BUSH) {
+            return SoundEvents.PLAYER_HURT_SWEET_BERRY_BUSH;
         } else {
-            return param0 == DamageSource.SWEET_BERRY_BUSH ? SoundEvents.PLAYER_HURT_SWEET_BERRY_BUSH : SoundEvents.PLAYER_HURT;
+            return param0 == DamageSource.FREEZE ? SoundEvents.PLAYER_HURT_FREEZE : SoundEvents.PLAYER_HURT;
         }
     }
 
@@ -1916,52 +1918,14 @@ public abstract class Player extends LivingEntity {
     }
 
     @Override
-    public boolean setSlot(int param0, ItemStack param1) {
+    public SlotAccess getSlot(int param0) {
         if (param0 >= 0 && param0 < this.inventory.items.size()) {
-            this.inventory.setItem(param0, param1);
-            return true;
+            return SlotAccess.forContainer(this.inventory, param0);
         } else {
-            EquipmentSlot var0;
-            if (param0 == 100 + EquipmentSlot.HEAD.getIndex()) {
-                var0 = EquipmentSlot.HEAD;
-            } else if (param0 == 100 + EquipmentSlot.CHEST.getIndex()) {
-                var0 = EquipmentSlot.CHEST;
-            } else if (param0 == 100 + EquipmentSlot.LEGS.getIndex()) {
-                var0 = EquipmentSlot.LEGS;
-            } else if (param0 == 100 + EquipmentSlot.FEET.getIndex()) {
-                var0 = EquipmentSlot.FEET;
-            } else {
-                var0 = null;
-            }
-
-            if (param0 == 98) {
-                this.setItemSlot(EquipmentSlot.MAINHAND, param1);
-                return true;
-            } else if (param0 == 99) {
-                this.setItemSlot(EquipmentSlot.OFFHAND, param1);
-                return true;
-            } else if (var0 == null) {
-                int var5 = param0 - 200;
-                if (var5 >= 0 && var5 < this.enderChestInventory.getContainerSize()) {
-                    this.enderChestInventory.setItem(var5, param1);
-                    return true;
-                } else {
-                    return false;
-                }
-            } else {
-                if (!param1.isEmpty()) {
-                    if (!(param1.getItem() instanceof ArmorItem) && !(param1.getItem() instanceof ElytraItem)) {
-                        if (var0 != EquipmentSlot.HEAD) {
-                            return false;
-                        }
-                    } else if (Mob.getEquipmentSlotForItem(param1) != var0) {
-                        return false;
-                    }
-                }
-
-                this.inventory.setItem(var0.getIndex() + this.inventory.items.size(), param1);
-                return true;
-            }
+            int var0 = param0 - 200;
+            return var0 >= 0 && var0 < this.enderChestInventory.getContainerSize()
+                ? SlotAccess.forContainer(this.enderChestInventory, var0)
+                : super.getSlot(param0);
         }
     }
 
@@ -2131,6 +2095,11 @@ public abstract class Player extends LivingEntity {
     @OnlyIn(Dist.CLIENT)
     public boolean isScoping() {
         return this.isUsingItem() && this.getUseItem().is(Items.SPYGLASS);
+    }
+
+    @Override
+    public boolean canFreeze() {
+        return super.canFreeze() && !this.isCreative();
     }
 
     public static enum BedSleepingProblem {

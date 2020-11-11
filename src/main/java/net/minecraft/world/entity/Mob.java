@@ -64,8 +64,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraft.world.level.block.AbstractSkullBlock;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.level.storage.loot.LootContext;
@@ -909,21 +907,6 @@ public abstract class Mob extends LivingEntity {
 
     }
 
-    public static EquipmentSlot getEquipmentSlotForItem(ItemStack param0) {
-        Item var0 = param0.getItem();
-        if (!param0.is(Blocks.CARVED_PUMPKIN.asItem()) && (!(var0 instanceof BlockItem) || !(((BlockItem)var0).getBlock() instanceof AbstractSkullBlock))) {
-            if (var0 instanceof ArmorItem) {
-                return ((ArmorItem)var0).getSlot();
-            } else if (param0.is(Items.ELYTRA)) {
-                return EquipmentSlot.CHEST;
-            } else {
-                return param0.is(Items.SHIELD) ? EquipmentSlot.OFFHAND : EquipmentSlot.MAINHAND;
-            }
-        } else {
-            return EquipmentSlot.HEAD;
-        }
-    }
-
     @Nullable
     public static Item getEquipmentForSlot(EquipmentSlot param0, int param1) {
         switch(param0) {
@@ -1297,44 +1280,8 @@ public abstract class Mob extends LivingEntity {
     }
 
     @Override
-    public boolean setSlot(int param0, ItemStack param1) {
-        EquipmentSlot var0;
-        if (param0 == 98) {
-            var0 = EquipmentSlot.MAINHAND;
-        } else if (param0 == 99) {
-            var0 = EquipmentSlot.OFFHAND;
-        } else if (param0 == 100 + EquipmentSlot.HEAD.getIndex()) {
-            var0 = EquipmentSlot.HEAD;
-        } else if (param0 == 100 + EquipmentSlot.CHEST.getIndex()) {
-            var0 = EquipmentSlot.CHEST;
-        } else if (param0 == 100 + EquipmentSlot.LEGS.getIndex()) {
-            var0 = EquipmentSlot.LEGS;
-        } else {
-            if (param0 != 100 + EquipmentSlot.FEET.getIndex()) {
-                return false;
-            }
-
-            var0 = EquipmentSlot.FEET;
-        }
-
-        if (!param1.isEmpty() && !isValidSlotForItem(var0, param1) && var0 != EquipmentSlot.HEAD) {
-            return false;
-        } else {
-            this.setItemSlot(var0, param1);
-            return true;
-        }
-    }
-
-    @Override
     public boolean isControlledByLocalInstance() {
         return this.canBeControlledByRider() && super.isControlledByLocalInstance();
-    }
-
-    public static boolean isValidSlotForItem(EquipmentSlot param0, ItemStack param1) {
-        EquipmentSlot var0 = getEquipmentSlotForItem(param1);
-        return var0 == param0
-            || var0 == EquipmentSlot.MAINHAND && param0 == EquipmentSlot.OFFHAND
-            || var0 == EquipmentSlot.OFFHAND && param0 == EquipmentSlot.MAINHAND;
     }
 
     @Override
@@ -1431,7 +1378,8 @@ public abstract class Mob extends LivingEntity {
         if (this.level.isDay() && !this.level.isClientSide) {
             float var0 = this.getBrightness();
             BlockPos var1 = new BlockPos(this.getX(), this.getEyeY(), this.getZ());
-            if (var0 > 0.5F && this.random.nextFloat() * 30.0F < (var0 - 0.4F) * 2.0F && !this.isInWaterRainOrBubble() && this.level.canSeeSky(var1)) {
+            boolean var2 = this.isInWaterRainOrBubble() || this.bodyIsInPowderSnow;
+            if (var0 > 0.5F && this.random.nextFloat() * 30.0F < (var0 - 0.4F) * 2.0F && !var2 && this.level.canSeeSky(var1)) {
                 return true;
             }
         }

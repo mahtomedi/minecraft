@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableMap.Builder;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import net.minecraft.client.model.ArmorStandArmorModel;
 import net.minecraft.client.model.ArmorStandModel;
 import net.minecraft.client.model.BatModel;
 import net.minecraft.client.model.BeeModel;
@@ -118,8 +119,8 @@ public class LayerDefinitions {
         LayerDefinition var17 = LayerDefinition.create(VillagerModel.createBodyModel(), 64, 64);
         LayerDefinition var18 = SpiderModel.createSpiderBodyLayer();
         var0.put(ModelLayers.ARMOR_STAND, ArmorStandModel.createBodyLayer());
-        var0.put(ModelLayers.ARMOR_STAND_INNER_ARMOR, var4);
-        var0.put(ModelLayers.ARMOR_STAND_OUTER_ARMOR, var2);
+        var0.put(ModelLayers.ARMOR_STAND_INNER_ARMOR, ArmorStandArmorModel.createBodyLayer(INNER_ARMOR_DEFORMATION));
+        var0.put(ModelLayers.ARMOR_STAND_OUTER_ARMOR, ArmorStandArmorModel.createBodyLayer(OUTER_ARMOR_DEFORMATION));
         var0.put(ModelLayers.BANNER, BannerRenderer.createBodyLayer());
         var0.put(ModelLayers.BAT, BatModel.createBodyLayer());
         var0.put(ModelLayers.BED_FOOT, BedRenderer.createFootLayer());

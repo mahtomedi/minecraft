@@ -130,7 +130,6 @@ import net.minecraft.world.level.levelgen.PhantomSpawner;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
-import net.minecraft.world.level.saveddata.SaveDataDirtyRunnable;
 import net.minecraft.world.level.storage.CommandStorage;
 import net.minecraft.world.level.storage.DerivedLevelData;
 import net.minecraft.world.level.storage.DimensionDataStorage;
@@ -140,11 +139,11 @@ import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.level.storage.PlayerDataStorage;
 import net.minecraft.world.level.storage.ServerLevelData;
 import net.minecraft.world.level.storage.WorldData;
+import net.minecraft.world.level.storage.loot.ItemModifierManager;
 import net.minecraft.world.level.storage.loot.LootTables;
 import net.minecraft.world.level.storage.loot.PredicateManager;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.scores.ScoreboardSaveData;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.Validate;
@@ -268,9 +267,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
     }
 
     private void readScoreboard(DimensionDataStorage param0) {
-        ScoreboardSaveData var0 = param0.computeIfAbsent(ScoreboardSaveData::new, "scoreboard");
-        var0.setScoreboard(this.getScoreboard());
-        this.getScoreboard().addDirtyListener(new SaveDataDirtyRunnable(var0));
+        param0.computeIfAbsent(this.getScoreboard()::createData, this.getScoreboard()::createData, "scoreboard");
     }
 
     protected abstract boolean initServer() throws IOException;
@@ -487,7 +484,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         this.waitUntilNextTick();
 
         for(ServerLevel var3 : this.levels.values()) {
-            ForcedChunksSavedData var4 = var3.getDataStorage().get(ForcedChunksSavedData::new, "chunks");
+            ForcedChunksSavedData var4 = var3.getDataStorage().get(ForcedChunksSavedData::load, "chunks");
             if (var4 != null) {
                 LongIterator var5 = var4.getChunks().iterator();
 
@@ -1437,6 +1434,10 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
 
     public PredicateManager getPredicateManager() {
         return this.resources.getPredicateManager();
+    }
+
+    public ItemModifierManager getItemModifierManager() {
+        return this.resources.getItemModifierManager();
     }
 
     public GameRules getGameRules() {

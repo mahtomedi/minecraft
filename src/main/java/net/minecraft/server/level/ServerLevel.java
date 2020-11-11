@@ -210,7 +210,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
         this.updateSkyBrightness();
         this.prepareWeather();
         this.getWorldBorder().setAbsoluteMaxSize(param0.getAbsoluteMaxWorldSize());
-        this.raids = this.getDataStorage().computeIfAbsent(() -> new Raids(this), Raids.getFileId(this.dimensionType()));
+        this.raids = this.getDataStorage().computeIfAbsent(param0x -> Raids.load(this, param0x), () -> new Raids(this), Raids.getFileId(this.dimensionType()));
         if (!param0.isSingleplayer()) {
             param3.setGameType(param0.getDefaultGameType());
         }
@@ -477,33 +477,34 @@ public class ServerLevel extends Level implements WorldGenLevel {
                 this.setBlockAndUpdate(var11, Blocks.ICE.defaultBlockState());
             }
 
-            if (var1 && var12.shouldSnow(this, var10)) {
-                this.setBlockAndUpdate(var10, Blocks.SNOW.defaultBlockState());
-            }
+            if (var1) {
+                if (var12.shouldSnow(this, var10)) {
+                    this.setBlockAndUpdate(var10, Blocks.SNOW.defaultBlockState());
+                }
 
-            if (var1 && this.getBiome(var11).getPrecipitation() == Biome.Precipitation.RAIN) {
                 BlockState var13 = this.getBlockState(var11);
-                var13.getBlock().handleRain(var13, this, var11);
+                Biome.Precipitation var14 = this.getBiome(var11).getPrecipitation();
+                var13.getBlock().handlePrecipitation(var13, this, var11, var14);
             }
         }
 
         var4.popPush("tickBlocks");
         if (param1 > 0) {
-            for(LevelChunkSection var14 : param0.getSections()) {
-                if (var14 != LevelChunk.EMPTY_SECTION && var14.isRandomlyTicking()) {
-                    int var15 = var14.bottomBlockY();
+            for(LevelChunkSection var15 : param0.getSections()) {
+                if (var15 != LevelChunk.EMPTY_SECTION && var15.isRandomlyTicking()) {
+                    int var16 = var15.bottomBlockY();
 
-                    for(int var16 = 0; var16 < param1; ++var16) {
-                        BlockPos var17 = this.getBlockRandomPos(var2, var15, var3, 15);
+                    for(int var17 = 0; var17 < param1; ++var17) {
+                        BlockPos var18 = this.getBlockRandomPos(var2, var16, var3, 15);
                         var4.push("randomTick");
-                        BlockState var18 = var14.getBlockState(var17.getX() - var2, var17.getY() - var15, var17.getZ() - var3);
-                        if (var18.isRandomlyTicking()) {
-                            var18.randomTick(this, var17, this.random);
+                        BlockState var19 = var15.getBlockState(var18.getX() - var2, var18.getY() - var16, var18.getZ() - var3);
+                        if (var19.isRandomlyTicking()) {
+                            var19.randomTick(this, var18, this.random);
                         }
 
-                        FluidState var19 = var18.getFluidState();
-                        if (var19.isRandomlyTicking()) {
-                            var19.randomTick(this, var17, this.random);
+                        FluidState var20 = var19.getFluidState();
+                        if (var20.isRandomlyTicking()) {
+                            var20.randomTick(this, var18, this.random);
                         }
 
                         var4.pop();
@@ -516,7 +517,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
     }
 
     private Optional<BlockPos> findLightningRod(BlockPos param0) {
-        Optional<BlockPos> var0 = this.getPoiManager().findClosest(param0x -> param0x == PoiType.LIGHTNING_ROD, param0, 64, PoiManager.Occupancy.ANY);
+        Optional<BlockPos> var0 = this.getPoiManager().findClosest(param0x -> param0x == PoiType.LIGHTNING_ROD, param0, 128, PoiManager.Occupancy.ANY);
         if (var0.isPresent()) {
             BlockPos var1 = var0.get();
             int var2 = this.getLevel().getHeight(Heightmap.Types.WORLD_SURFACE, var1.getX(), var1.getZ()) - 1;
@@ -1067,17 +1068,17 @@ public class ServerLevel extends Level implements WorldGenLevel {
     @Nullable
     @Override
     public MapItemSavedData getMapData(String param0) {
-        return this.getServer().overworld().getDataStorage().get(() -> new MapItemSavedData(param0), param0);
+        return this.getServer().overworld().getDataStorage().get(MapItemSavedData::load, param0);
     }
 
     @Override
-    public void setMapData(MapItemSavedData param0) {
-        this.getServer().overworld().getDataStorage().set(param0);
+    public void setMapData(String param0, MapItemSavedData param1) {
+        this.getServer().overworld().getDataStorage().set(param0, param1);
     }
 
     @Override
     public int getFreeMapId() {
-        return this.getServer().overworld().getDataStorage().computeIfAbsent(MapIndex::new, "idcounts").getFreeAuxValueForMap();
+        return this.getServer().overworld().getDataStorage().computeIfAbsent(MapIndex::load, MapIndex::new, "idcounts").getFreeAuxValueForMap();
     }
 
     public void setDefaultSpawnPos(BlockPos param0, float param1) {
@@ -1104,12 +1105,12 @@ public class ServerLevel extends Level implements WorldGenLevel {
     }
 
     public LongSet getForcedChunks() {
-        ForcedChunksSavedData var0 = this.getDataStorage().get(ForcedChunksSavedData::new, "chunks");
+        ForcedChunksSavedData var0 = this.getDataStorage().get(ForcedChunksSavedData::load, "chunks");
         return (LongSet)(var0 != null ? LongSets.unmodifiable(var0.getChunks()) : LongSets.EMPTY_SET);
     }
 
     public boolean setChunkForced(int param0, int param1, boolean param2) {
-        ForcedChunksSavedData var0 = this.getDataStorage().computeIfAbsent(ForcedChunksSavedData::new, "chunks");
+        ForcedChunksSavedData var0 = this.getDataStorage().computeIfAbsent(ForcedChunksSavedData::load, ForcedChunksSavedData::new, "chunks");
         ChunkPos var1 = new ChunkPos(param0, param1);
         long var2 = var1.toLong();
         boolean var3;

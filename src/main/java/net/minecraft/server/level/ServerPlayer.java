@@ -3,8 +3,9 @@ package net.minecraft.server.level;
 import com.google.common.collect.Lists;
 import com.mojang.authlib.GameProfile;
 import com.mojang.datafixers.util.Either;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -136,7 +137,7 @@ public class ServerPlayer extends Player implements ContainerListener {
     public ServerGamePacketListenerImpl connection;
     public final MinecraftServer server;
     public final ServerPlayerGameMode gameMode;
-    private final List<Integer> entitiesToRemove = Lists.newLinkedList();
+    private final IntList entitiesToRemove = new IntArrayList();
     private final PlayerAdvancements advancements;
     private final ServerStatsCounter stats;
     private float lastRecordedHealthAndAbsorption = Float.MIN_VALUE;
@@ -380,24 +381,15 @@ public class ServerPlayer extends Player implements ContainerListener {
             this.containerMenu = this.inventoryMenu;
         }
 
-        while(!this.entitiesToRemove.isEmpty()) {
-            int var0 = Math.min(this.entitiesToRemove.size(), Integer.MAX_VALUE);
-            int[] var1 = new int[var0];
-            Iterator<Integer> var2 = this.entitiesToRemove.iterator();
-            int var3 = 0;
-
-            while(var2.hasNext() && var3 < var0) {
-                var1[var3++] = var2.next();
-                var2.remove();
-            }
-
-            this.connection.send(new ClientboundRemoveEntitiesPacket(var1));
+        if (!this.entitiesToRemove.isEmpty()) {
+            this.connection.send(new ClientboundRemoveEntitiesPacket(this.entitiesToRemove.toIntArray()));
+            this.entitiesToRemove.clear();
         }
 
-        Entity var4 = this.getCamera();
-        if (var4 != this) {
-            if (var4.isAlive()) {
-                this.absMoveTo(var4.getX(), var4.getY(), var4.getZ(), var4.yRot, var4.xRot);
+        Entity var0 = this.getCamera();
+        if (var0 != this) {
+            if (var0.isAlive()) {
+                this.absMoveTo(var0.getX(), var0.getY(), var0.getZ(), var0.yRot, var0.xRot);
                 this.getLevel().getChunkSource().move(this);
                 if (this.wantsToStopRiding()) {
                     this.setCamera(this);
@@ -1318,7 +1310,7 @@ public class ServerPlayer extends Player implements ContainerListener {
     }
 
     public void cancelRemoveEntity(Entity param0) {
-        this.entitiesToRemove.remove(Integer.valueOf(param0.getId()));
+        this.entitiesToRemove.rem(param0.getId());
     }
 
     @Override

@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
@@ -294,7 +295,7 @@ public class RealmsBrokenWorldScreen extends RealmsScreen {
         String param6,
         int param7,
         long param8,
-        String param9,
+        @Nullable String param9,
         boolean param10
     ) {
         if (param10) {

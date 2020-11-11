@@ -1205,22 +1205,20 @@ public class ClientPacketListener implements ClientGamePacketListener {
     public void handleMapItemData(ClientboundMapItemDataPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
         MapRenderer var0 = this.minecraft.gameRenderer.getMapRenderer();
-        String var1 = MapItem.makeKey(param0.getMapId());
-        MapItemSavedData var2 = this.minecraft.level.getMapData(var1);
-        if (var2 == null) {
-            var2 = new MapItemSavedData(var1);
-            if (var0.getMapInstanceIfExists(var1) != null) {
-                MapItemSavedData var3 = var0.getData(var0.getMapInstanceIfExists(var1));
-                if (var3 != null) {
-                    var2 = var3;
-                }
+        int var1 = param0.getMapId();
+        String var2 = MapItem.makeKey(var1);
+        MapItemSavedData var3 = this.minecraft.level.getMapData(var2);
+        if (var3 == null) {
+            var3 = var0.retrieveMapFromRenderer(var1);
+            if (var3 == null) {
+                var3 = MapItemSavedData.createForClient(param0.getScale(), param0.isLocked(), this.minecraft.level.dimension());
             }
 
-            this.minecraft.level.setMapData(var2);
+            this.minecraft.level.setMapData(var2, var3);
         }
 
-        param0.applyToMap(var2);
-        var0.update(var2);
+        param0.applyToMap(var3);
+        var0.update(var1, var3);
     }
 
     @Override

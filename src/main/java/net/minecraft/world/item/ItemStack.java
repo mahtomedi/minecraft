@@ -58,6 +58,7 @@ import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ClickAction;
+import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.enchantment.DigDurabilityEnchantment;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -99,6 +100,11 @@ public final class ItemStack {
     private boolean cachedBreakBlockResult;
     private BlockInWorld cachedPlaceBlock;
     private boolean cachedPlaceBlockResult;
+
+    @OnlyIn(Dist.CLIENT)
+    public Optional<TooltipComponent> getTooltipImage() {
+        return this.getItem().getTooltipImage(this);
+    }
 
     public ItemStack(ItemLike param0) {
         this(param0, 1);
@@ -578,108 +584,111 @@ public final class ItemStack {
 
         var0.add(var1);
         if (!param1.isAdvanced() && !this.hasCustomHoverName() && this.is(Items.FILLED_MAP)) {
-            var0.add(new TextComponent("#" + MapItem.getMapId(this)).withStyle(ChatFormatting.GRAY));
+            Integer var2 = MapItem.getMapId(this);
+            if (var2 != null) {
+                var0.add(new TextComponent("#" + var2).withStyle(ChatFormatting.GRAY));
+            }
         }
 
-        int var2 = this.getHideFlags();
-        if (shouldShowInTooltip(var2, ItemStack.TooltipPart.ADDITIONAL)) {
+        int var3 = this.getHideFlags();
+        if (shouldShowInTooltip(var3, ItemStack.TooltipPart.ADDITIONAL)) {
             this.getItem().appendHoverText(this, param0 == null ? null : param0.level, var0, param1);
         }
 
         if (this.hasTag()) {
-            if (shouldShowInTooltip(var2, ItemStack.TooltipPart.ENCHANTMENTS)) {
+            if (shouldShowInTooltip(var3, ItemStack.TooltipPart.ENCHANTMENTS)) {
                 appendEnchantmentNames(var0, this.getEnchantmentTags());
             }
 
             if (this.tag.contains("display", 10)) {
-                CompoundTag var3 = this.tag.getCompound("display");
-                if (shouldShowInTooltip(var2, ItemStack.TooltipPart.DYE) && var3.contains("color", 99)) {
+                CompoundTag var4 = this.tag.getCompound("display");
+                if (shouldShowInTooltip(var3, ItemStack.TooltipPart.DYE) && var4.contains("color", 99)) {
                     if (param1.isAdvanced()) {
-                        var0.add(new TranslatableComponent("item.color", String.format("#%06X", var3.getInt("color"))).withStyle(ChatFormatting.GRAY));
+                        var0.add(new TranslatableComponent("item.color", String.format("#%06X", var4.getInt("color"))).withStyle(ChatFormatting.GRAY));
                     } else {
                         var0.add(new TranslatableComponent("item.dyed").withStyle(new ChatFormatting[]{ChatFormatting.GRAY, ChatFormatting.ITALIC}));
                     }
                 }
 
-                if (var3.getTagType("Lore") == 9) {
-                    ListTag var4 = var3.getList("Lore", 8);
+                if (var4.getTagType("Lore") == 9) {
+                    ListTag var5 = var4.getList("Lore", 8);
 
-                    for(int var5 = 0; var5 < var4.size(); ++var5) {
-                        String var6 = var4.getString(var5);
+                    for(int var6 = 0; var6 < var5.size(); ++var6) {
+                        String var7 = var5.getString(var6);
 
                         try {
-                            MutableComponent var7 = Component.Serializer.fromJson(var6);
-                            if (var7 != null) {
-                                var0.add(ComponentUtils.mergeStyles(var7, LORE_STYLE));
+                            MutableComponent var8 = Component.Serializer.fromJson(var7);
+                            if (var8 != null) {
+                                var0.add(ComponentUtils.mergeStyles(var8, LORE_STYLE));
                             }
                         } catch (JsonParseException var19) {
-                            var3.remove("Lore");
+                            var4.remove("Lore");
                         }
                     }
                 }
             }
         }
 
-        if (shouldShowInTooltip(var2, ItemStack.TooltipPart.MODIFIERS)) {
-            for(EquipmentSlot var9 : EquipmentSlot.values()) {
-                Multimap<Attribute, AttributeModifier> var10 = this.getAttributeModifiers(var9);
-                if (!var10.isEmpty()) {
+        if (shouldShowInTooltip(var3, ItemStack.TooltipPart.MODIFIERS)) {
+            for(EquipmentSlot var10 : EquipmentSlot.values()) {
+                Multimap<Attribute, AttributeModifier> var11 = this.getAttributeModifiers(var10);
+                if (!var11.isEmpty()) {
                     var0.add(TextComponent.EMPTY);
-                    var0.add(new TranslatableComponent("item.modifiers." + var9.getName()).withStyle(ChatFormatting.GRAY));
+                    var0.add(new TranslatableComponent("item.modifiers." + var10.getName()).withStyle(ChatFormatting.GRAY));
 
-                    for(Entry<Attribute, AttributeModifier> var11 : var10.entries()) {
-                        AttributeModifier var12 = var11.getValue();
-                        double var13 = var12.getAmount();
-                        boolean var14 = false;
+                    for(Entry<Attribute, AttributeModifier> var12 : var11.entries()) {
+                        AttributeModifier var13 = var12.getValue();
+                        double var14 = var13.getAmount();
+                        boolean var15 = false;
                         if (param0 != null) {
-                            if (var12.getId() == Item.BASE_ATTACK_DAMAGE_UUID) {
-                                var13 += param0.getAttributeBaseValue(Attributes.ATTACK_DAMAGE);
-                                var13 += (double)EnchantmentHelper.getDamageBonus(this, MobType.UNDEFINED);
-                                var14 = true;
-                            } else if (var12.getId() == Item.BASE_ATTACK_SPEED_UUID) {
-                                var13 += param0.getAttributeBaseValue(Attributes.ATTACK_SPEED);
-                                var14 = true;
+                            if (var13.getId() == Item.BASE_ATTACK_DAMAGE_UUID) {
+                                var14 += param0.getAttributeBaseValue(Attributes.ATTACK_DAMAGE);
+                                var14 += (double)EnchantmentHelper.getDamageBonus(this, MobType.UNDEFINED);
+                                var15 = true;
+                            } else if (var13.getId() == Item.BASE_ATTACK_SPEED_UUID) {
+                                var14 += param0.getAttributeBaseValue(Attributes.ATTACK_SPEED);
+                                var15 = true;
                             }
                         }
 
-                        double var15;
-                        if (var12.getOperation() == AttributeModifier.Operation.MULTIPLY_BASE
-                            || var12.getOperation() == AttributeModifier.Operation.MULTIPLY_TOTAL) {
-                            var15 = var13 * 100.0;
-                        } else if (var11.getKey().equals(Attributes.KNOCKBACK_RESISTANCE)) {
-                            var15 = var13 * 10.0;
+                        double var16;
+                        if (var13.getOperation() == AttributeModifier.Operation.MULTIPLY_BASE
+                            || var13.getOperation() == AttributeModifier.Operation.MULTIPLY_TOTAL) {
+                            var16 = var14 * 100.0;
+                        } else if (var12.getKey().equals(Attributes.KNOCKBACK_RESISTANCE)) {
+                            var16 = var14 * 10.0;
                         } else {
-                            var15 = var13;
+                            var16 = var14;
                         }
 
-                        if (var14) {
+                        if (var15) {
                             var0.add(
                                 new TextComponent(" ")
                                     .append(
                                         new TranslatableComponent(
-                                            "attribute.modifier.equals." + var12.getOperation().toValue(),
-                                            ATTRIBUTE_MODIFIER_FORMAT.format(var15),
-                                            new TranslatableComponent(var11.getKey().getDescriptionId())
+                                            "attribute.modifier.equals." + var13.getOperation().toValue(),
+                                            ATTRIBUTE_MODIFIER_FORMAT.format(var16),
+                                            new TranslatableComponent(var12.getKey().getDescriptionId())
                                         )
                                     )
                                     .withStyle(ChatFormatting.DARK_GREEN)
                             );
-                        } else if (var13 > 0.0) {
+                        } else if (var14 > 0.0) {
                             var0.add(
                                 new TranslatableComponent(
-                                        "attribute.modifier.plus." + var12.getOperation().toValue(),
-                                        ATTRIBUTE_MODIFIER_FORMAT.format(var15),
-                                        new TranslatableComponent(var11.getKey().getDescriptionId())
+                                        "attribute.modifier.plus." + var13.getOperation().toValue(),
+                                        ATTRIBUTE_MODIFIER_FORMAT.format(var16),
+                                        new TranslatableComponent(var12.getKey().getDescriptionId())
                                     )
                                     .withStyle(ChatFormatting.BLUE)
                             );
-                        } else if (var13 < 0.0) {
-                            var15 *= -1.0;
+                        } else if (var14 < 0.0) {
+                            var16 *= -1.0;
                             var0.add(
                                 new TranslatableComponent(
-                                        "attribute.modifier.take." + var12.getOperation().toValue(),
-                                        ATTRIBUTE_MODIFIER_FORMAT.format(var15),
-                                        new TranslatableComponent(var11.getKey().getDescriptionId())
+                                        "attribute.modifier.take." + var13.getOperation().toValue(),
+                                        ATTRIBUTE_MODIFIER_FORMAT.format(var16),
+                                        new TranslatableComponent(var12.getKey().getDescriptionId())
                                     )
                                     .withStyle(ChatFormatting.RED)
                             );
@@ -690,30 +699,30 @@ public final class ItemStack {
         }
 
         if (this.hasTag()) {
-            if (shouldShowInTooltip(var2, ItemStack.TooltipPart.UNBREAKABLE) && this.tag.getBoolean("Unbreakable")) {
+            if (shouldShowInTooltip(var3, ItemStack.TooltipPart.UNBREAKABLE) && this.tag.getBoolean("Unbreakable")) {
                 var0.add(new TranslatableComponent("item.unbreakable").withStyle(ChatFormatting.BLUE));
             }
 
-            if (shouldShowInTooltip(var2, ItemStack.TooltipPart.CAN_DESTROY) && this.tag.contains("CanDestroy", 9)) {
-                ListTag var18 = this.tag.getList("CanDestroy", 8);
-                if (!var18.isEmpty()) {
+            if (shouldShowInTooltip(var3, ItemStack.TooltipPart.CAN_DESTROY) && this.tag.contains("CanDestroy", 9)) {
+                ListTag var19 = this.tag.getList("CanDestroy", 8);
+                if (!var19.isEmpty()) {
                     var0.add(TextComponent.EMPTY);
                     var0.add(new TranslatableComponent("item.canBreak").withStyle(ChatFormatting.GRAY));
 
-                    for(int var19 = 0; var19 < var18.size(); ++var19) {
-                        var0.addAll(expandBlockState(var18.getString(var19)));
+                    for(int var20 = 0; var20 < var19.size(); ++var20) {
+                        var0.addAll(expandBlockState(var19.getString(var20)));
                     }
                 }
             }
 
-            if (shouldShowInTooltip(var2, ItemStack.TooltipPart.CAN_PLACE) && this.tag.contains("CanPlaceOn", 9)) {
-                ListTag var20 = this.tag.getList("CanPlaceOn", 8);
-                if (!var20.isEmpty()) {
+            if (shouldShowInTooltip(var3, ItemStack.TooltipPart.CAN_PLACE) && this.tag.contains("CanPlaceOn", 9)) {
+                ListTag var21 = this.tag.getList("CanPlaceOn", 8);
+                if (!var21.isEmpty()) {
                     var0.add(TextComponent.EMPTY);
                     var0.add(new TranslatableComponent("item.canPlace").withStyle(ChatFormatting.GRAY));
 
-                    for(int var21 = 0; var21 < var20.size(); ++var21) {
-                        var0.addAll(expandBlockState(var20.getString(var21)));
+                    for(int var22 = 0; var22 < var21.size(); ++var22) {
+                        var0.addAll(expandBlockState(var21.getString(var22)));
                     }
                 }
             }

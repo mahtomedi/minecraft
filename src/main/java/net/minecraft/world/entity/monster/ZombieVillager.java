@@ -206,7 +206,7 @@ public class ZombieVillager extends Zombie implements VillagerDataHolder {
             ItemStack var2 = this.getItemBySlot(var1);
             if (!var2.isEmpty()) {
                 if (EnchantmentHelper.hasBindingCurse(var2)) {
-                    var0.setSlot(var1.getIndex() + 300, var2);
+                    var0.getSlot(var1.getIndex() + 300).set(var2);
                 } else {
                     double var3 = (double)this.getEquipmentDropChance(var1);
                     if (var3 > 1.0) {

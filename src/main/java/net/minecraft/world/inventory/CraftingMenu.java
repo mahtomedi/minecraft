@@ -166,7 +166,6 @@ public class CraftingMenu extends RecipeBookMenu<CraftingContainer> {
         return this.craftSlots.getHeight();
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public int getSize() {
         return 10;
@@ -176,5 +175,10 @@ public class CraftingMenu extends RecipeBookMenu<CraftingContainer> {
     @Override
     public RecipeBookType getRecipeBookType() {
         return RecipeBookType.CRAFTING;
+    }
+
+    @Override
+    public boolean shouldMoveToInventory(int param0) {
+        return param0 != this.getResultSlotIndex();
     }
 }

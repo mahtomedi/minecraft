@@ -5,6 +5,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CommandSuggestions;
+import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
@@ -25,7 +26,7 @@ public abstract class AbstractCommandBlockEditScreen extends Screen {
     protected EditBox previousEdit;
     protected Button doneButton;
     protected Button cancelButton;
-    protected Button outputButton;
+    protected CycleButton<Boolean> outputButton;
     protected boolean trackOutput;
     private CommandSuggestions commandSuggestions;
 
@@ -51,11 +52,17 @@ public abstract class AbstractCommandBlockEditScreen extends Screen {
         this.cancelButton = this.addButton(
             new Button(this.width / 2 + 4, this.height / 4 + 120 + 12, 150, 20, CommonComponents.GUI_CANCEL, param0 -> this.onClose())
         );
-        this.outputButton = this.addButton(new Button(this.width / 2 + 150 - 20, this.getPreviousY(), 20, 20, new TextComponent("O"), param0 -> {
-            BaseCommandBlock var0 = this.getCommandBlock();
-            var0.setTrackOutput(!var0.isTrackOutput());
-            this.updateCommandOutput();
-        }));
+        boolean var0 = this.getCommandBlock().isTrackOutput();
+        this.outputButton = this.addButton(
+            CycleButton.booleanBuilder(new TextComponent("O"), new TextComponent("X"))
+                .withInitialValue(var0)
+                .displayOnlyValue()
+                .create(this.width / 2 + 150 - 20, this.getPreviousY(), 20, 20, new TranslatableComponent("advMode.trackOutput"), (param0, param1) -> {
+                    BaseCommandBlock var0x = this.getCommandBlock();
+                    var0x.setTrackOutput(param1);
+                    this.updatePreviousOutput(param1);
+                })
+        );
         this.commandEdit = new EditBox(this.font, this.width / 2 - 150, 50, 300, 20, new TranslatableComponent("advMode.command")) {
             @Override
             protected MutableComponent createNarrationMessage() {
@@ -75,6 +82,7 @@ public abstract class AbstractCommandBlockEditScreen extends Screen {
         this.commandSuggestions = new CommandSuggestions(this.minecraft, this, this.commandEdit, this.font, true, true, 0, 7, false, Integer.MIN_VALUE);
         this.commandSuggestions.setAllowSuggestions(true);
         this.commandSuggestions.updateCommandInfo();
+        this.updatePreviousOutput(var0);
     }
 
     @Override
@@ -85,15 +93,8 @@ public abstract class AbstractCommandBlockEditScreen extends Screen {
         this.commandSuggestions.updateCommandInfo();
     }
 
-    protected void updateCommandOutput() {
-        if (this.getCommandBlock().isTrackOutput()) {
-            this.outputButton.setMessage(new TextComponent("O"));
-            this.previousEdit.setValue(this.getCommandBlock().getLastOutput().getString());
-        } else {
-            this.outputButton.setMessage(new TextComponent("X"));
-            this.previousEdit.setValue("-");
-        }
-
+    private void updatePreviousOutput(boolean param0) {
+        this.previousEdit.setValue(param0 ? this.getCommandBlock().getLastOutput().getString() : "-");
     }
 
     protected void onDone() {

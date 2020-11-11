@@ -9,6 +9,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
@@ -114,22 +115,34 @@ public abstract class AbstractChestedHorse extends AbstractHorse {
     }
 
     @Override
-    public boolean setSlot(int param0, ItemStack param1) {
-        if (param0 == 499) {
-            if (this.hasChest() && param1.isEmpty()) {
-                this.setChest(false);
-                this.createInventory();
-                return true;
+    public SlotAccess getSlot(int param0) {
+        return param0 == 499 ? new SlotAccess() {
+            @Override
+            public ItemStack get() {
+                return AbstractChestedHorse.this.hasChest() ? new ItemStack(Items.CHEST) : ItemStack.EMPTY;
             }
 
-            if (!this.hasChest() && param1.is(Blocks.CHEST.asItem())) {
-                this.setChest(true);
-                this.createInventory();
-                return true;
-            }
-        }
+            @Override
+            public boolean set(ItemStack param0) {
+                if (param0.isEmpty()) {
+                    if (AbstractChestedHorse.this.hasChest()) {
+                        AbstractChestedHorse.this.setChest(false);
+                        AbstractChestedHorse.this.createInventory();
+                    }
 
-        return super.setSlot(param0, param1);
+                    return true;
+                } else if (param0.is(Items.CHEST)) {
+                    if (!AbstractChestedHorse.this.hasChest()) {
+                        AbstractChestedHorse.this.setChest(true);
+                        AbstractChestedHorse.this.createInventory();
+                    }
+
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        } : super.getSlot(param0);
     }
 
     @Override

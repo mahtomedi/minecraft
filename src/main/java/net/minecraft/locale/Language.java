@@ -105,6 +105,6 @@ public abstract class Language {
 
     @OnlyIn(Dist.CLIENT)
     public List<FormattedCharSequence> getVisualOrder(List<FormattedText> param0) {
-        return param0.stream().map(getInstance()::getVisualOrder).collect(ImmutableList.toImmutableList());
+        return param0.stream().map(this::getVisualOrder).collect(ImmutableList.toImmutableList());
     }
 }

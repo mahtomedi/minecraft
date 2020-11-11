@@ -75,10 +75,11 @@ public class ItemFrameRenderer extends EntityRenderer<ItemFrame> {
                 float var10 = 0.0078125F;
                 param3.scale(0.0078125F, 0.0078125F, 0.0078125F);
                 param3.translate(-64.0, -64.0, 0.0);
-                MapItemSavedData var11 = MapItem.getOrCreateSavedData(var4, param0.level);
+                Integer var11 = MapItem.getMapId(var4);
+                MapItemSavedData var12 = MapItem.getSavedData(var11, param0.level);
                 param3.translate(0.0, 0.0, -1.0);
-                if (var11 != null) {
-                    this.minecraft.gameRenderer.getMapRenderer().render(param3, param4, var11, true, param5);
+                if (var12 != null) {
+                    this.minecraft.gameRenderer.getMapRenderer().render(param3, param4, var11, var12, true, param5);
                 }
             } else {
                 param3.scale(0.5F, 0.5F, 0.5F);

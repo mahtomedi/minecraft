@@ -28,7 +28,7 @@ import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 
-public class BucketItem extends Item {
+public class BucketItem extends Item implements DispensibleContainerItem {
     private final Fluid content;
 
     public BucketItem(Fluid param0, Item.Properties param1) {
@@ -39,28 +39,28 @@ public class BucketItem extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level param0, Player param1, InteractionHand param2) {
         ItemStack var0 = param1.getItemInHand(param2);
-        HitResult var1 = getPlayerPOVHitResult(param0, param1, this.content == Fluids.EMPTY ? ClipContext.Fluid.SOURCE_ONLY : ClipContext.Fluid.NONE);
+        BlockHitResult var1 = getPlayerPOVHitResult(param0, param1, this.content == Fluids.EMPTY ? ClipContext.Fluid.SOURCE_ONLY : ClipContext.Fluid.NONE);
         if (var1.getType() == HitResult.Type.MISS) {
             return InteractionResultHolder.pass(var0);
         } else if (var1.getType() != HitResult.Type.BLOCK) {
             return InteractionResultHolder.pass(var0);
         } else {
-            BlockHitResult var2 = (BlockHitResult)var1;
-            BlockPos var3 = var2.getBlockPos();
-            Direction var4 = var2.getDirection();
-            BlockPos var5 = var3.relative(var4);
-            if (!param0.mayInteract(param1, var3) || !param1.mayUseItemAt(var5, var4, var0)) {
+            BlockPos var2 = var1.getBlockPos();
+            Direction var3 = var1.getDirection();
+            BlockPos var4 = var2.relative(var3);
+            if (!param0.mayInteract(param1, var2) || !param1.mayUseItemAt(var4, var3, var0)) {
                 return InteractionResultHolder.fail(var0);
             } else if (this.content == Fluids.EMPTY) {
-                BlockState var6 = param0.getBlockState(var3);
-                if (var6.getBlock() instanceof BucketPickup) {
-                    Fluid var7 = ((BucketPickup)var6.getBlock()).takeLiquid(param0, var3, var6);
-                    if (var7 != Fluids.EMPTY) {
+                BlockState var5 = param0.getBlockState(var2);
+                if (var5.getBlock() instanceof BucketPickup) {
+                    BucketPickup var6 = (BucketPickup)var5.getBlock();
+                    ItemStack var7 = var6.pickupBlock(param0, var2, var5);
+                    if (!var7.isEmpty()) {
                         param1.awardStat(Stats.ITEM_USED.get(this));
-                        param1.playSound(var7.is(FluidTags.LAVA) ? SoundEvents.BUCKET_FILL_LAVA : SoundEvents.BUCKET_FILL, 1.0F, 1.0F);
-                        ItemStack var8 = ItemUtils.createFilledResult(var0, param1, new ItemStack(var7.getBucket()));
+                        var6.getPickupSound().ifPresent(param1x -> param1.playSound(param1x, 1.0F, 1.0F));
+                        ItemStack var8 = ItemUtils.createFilledResult(var0, param1, var7);
                         if (!param0.isClientSide) {
-                            CriteriaTriggers.FILLED_BUCKET.trigger((ServerPlayer)param1, new ItemStack(var7.getBucket()));
+                            CriteriaTriggers.FILLED_BUCKET.trigger((ServerPlayer)param1, var7);
                         }
 
                         return InteractionResultHolder.sidedSuccess(var8, param0.isClientSide());
@@ -69,9 +69,9 @@ public class BucketItem extends Item {
 
                 return InteractionResultHolder.fail(var0);
             } else {
-                BlockState var9 = param0.getBlockState(var3);
-                BlockPos var10 = var9.getBlock() instanceof LiquidBlockContainer && this.content == Fluids.WATER ? var3 : var5;
-                if (this.emptyBucket(param1, param0, var10, var2)) {
+                BlockState var9 = param0.getBlockState(var2);
+                BlockPos var10 = var9.getBlock() instanceof LiquidBlockContainer && this.content == Fluids.WATER ? var2 : var4;
+                if (this.emptyContents(param1, param0, var10, var1)) {
                     this.checkExtraContent(param0, var0, var10);
                     if (param1 instanceof ServerPlayer) {
                         CriteriaTriggers.PLACED_BLOCK.trigger((ServerPlayer)param1, var10, var0);
@@ -90,10 +90,12 @@ public class BucketItem extends Item {
         return !param1.getAbilities().instabuild ? new ItemStack(Items.BUCKET) : param0;
     }
 
+    @Override
     public void checkExtraContent(Level param0, ItemStack param1, BlockPos param2) {
     }
 
-    public boolean emptyBucket(@Nullable Player param0, Level param1, BlockPos param2, @Nullable BlockHitResult param3) {
+    @Override
+    public boolean emptyContents(@Nullable Player param0, Level param1, BlockPos param2, @Nullable BlockHitResult param3) {
         if (!(this.content instanceof FlowingFluid)) {
             return false;
         } else {
@@ -105,7 +107,7 @@ public class BucketItem extends Item {
                 || var3
                 || var1 instanceof LiquidBlockContainer && ((LiquidBlockContainer)var1).canPlaceLiquid(param1, param2, var0, this.content);
             if (!var4) {
-                return param3 != null && this.emptyBucket(param0, param1, param3.getBlockPos().relative(param3.getDirection()), null);
+                return param3 != null && this.emptyContents(param0, param1, param3.getBlockPos().relative(param3.getDirection()), null);
             } else if (param1.dimensionType().ultraWarm() && this.content.is(FluidTags.WATER)) {
                 int var5 = param2.getX();
                 int var6 = param2.getY();

@@ -22,6 +22,7 @@ import com.mojang.realmsclient.dto.WorldTemplatePaginatedList;
 import com.mojang.realmsclient.exception.RealmsHttpException;
 import com.mojang.realmsclient.exception.RealmsServiceException;
 import com.mojang.realmsclient.exception.RetryCallException;
+import com.mojang.realmsclient.util.WorldGenerationInfo;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.UUID;
@@ -224,8 +225,8 @@ public class RealmsClient {
         return Boolean.valueOf(var1);
     }
 
-    public Boolean resetWorldWithSeed(long param0, String param1, Integer param2, boolean param3) throws RealmsServiceException {
-        RealmsWorldResetDto var0 = new RealmsWorldResetDto(param1, -1L, param2, param3);
+    public Boolean resetWorldWithSeed(long param0, WorldGenerationInfo param1) throws RealmsServiceException {
+        RealmsWorldResetDto var0 = new RealmsWorldResetDto(param1.getSeed(), -1L, param1.getLevelType().getDtoIndex(), param1.shouldGenerateStructures());
         String var1 = this.url("worlds" + "/$WORLD_ID/reset".replace("$WORLD_ID", String.valueOf(param0)));
         String var2 = this.execute(Request.post(var1, GSON.toJson(var0), 30000, 80000));
         return Boolean.valueOf(var2);

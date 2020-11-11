@@ -175,6 +175,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     private static final EntityDataAccessor<Boolean> DATA_SILENT = SynchedEntityData.defineId(Entity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> DATA_NO_GRAVITY = SynchedEntityData.defineId(Entity.class, EntityDataSerializers.BOOLEAN);
     protected static final EntityDataAccessor<Pose> DATA_POSE = SynchedEntityData.defineId(Entity.class, EntityDataSerializers.POSE);
+    private static final EntityDataAccessor<Integer> DATA_TICKS_FROZEN = SynchedEntityData.defineId(Entity.class, EntityDataSerializers.INT);
     private EntityInLevelCallback levelCallback = EntityInLevelCallback.NULL;
     private Vec3 packetCoordinates;
     public boolean noCulling;
@@ -192,6 +193,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     private long pistonDeltasGameTime;
     private EntityDimensions dimensions;
     private float eyeHeight;
+    protected boolean bodyIsInPowderSnow;
     private float crystalSoundIntensity;
     private int lastCrystalSoundPlayTick;
 
@@ -211,6 +213,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         this.entityData.define(DATA_SILENT, false);
         this.entityData.define(DATA_NO_GRAVITY, false);
         this.entityData.define(DATA_POSE, Pose.STANDING);
+        this.entityData.define(DATA_TICKS_FROZEN, 0);
         this.defineSynchedData();
         this.eyeHeight = this.getEyeHeight(Pose.STANDING, this.dimensions);
     }
@@ -399,6 +402,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
             this.spawnSprintParticle();
         }
 
+        this.bodyIsInPowderSnow = false;
         this.updateInWaterStateAndDoFluidPushing();
         this.updateFluidOnEyes();
         this.updateSwimming();
@@ -417,6 +421,8 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
 
                 this.setRemainingFireTicks(this.remainingFireTicks - 1);
             }
+
+            this.setTicksFrozen(0);
         }
 
         if (this.isInLava()) {
@@ -566,7 +572,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
                 double var5 = var0.x;
                 double var6 = var0.y;
                 double var7 = var0.z;
-                if (!var2.is(BlockTags.CLIMBABLE)) {
+                if (!var2.is(BlockTags.CLIMBABLE) && !var2.is(Blocks.POWDER_SNOW)) {
                     var6 = 0.0;
                 }
 
@@ -610,7 +616,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
                 this.setRemainingFireTicks(-this.getFireImmuneTicks());
             }
 
-            if (this.isInWaterRainOrBubble() && this.isOnFire()) {
+            if ((this.isInWaterRainOrBubble() || this.bodyIsInPowderSnow) && this.isOnFire()) {
                 this.playSound(SoundEvents.GENERIC_EXTINGUISH_FIRE, 0.7F, 1.6F + (this.random.nextFloat() - this.random.nextFloat()) * 0.4F);
                 this.setRemainingFireTicks(-this.getFireImmuneTicks());
             }
@@ -876,7 +882,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
             }
 
             BlockState var2 = this.level.getBlockState(param0.above());
-            SoundType var3 = var2.is(Blocks.SNOW) ? var2.getSoundType() : param1.getSoundType();
+            SoundType var3 = var2.is(BlockTags.SNOW_STEP_SOUND_BLOCKS) ? var2.getSoundType() : param1.getSoundType();
             this.playSound(var3.getStepSound(), var3.getVolume() * 0.15F, var3.getPitch());
         }
     }
@@ -1427,38 +1433,43 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
                 param0.putBoolean("Glowing", this.glowing);
             }
 
-            if (!this.tags.isEmpty()) {
-                ListTag var2 = new ListTag();
+            int var2 = this.getTicksFrozen();
+            if (var2 > 0) {
+                param0.putInt("TicksFrozen", this.getTicksFrozen());
+            }
 
-                for(String var3 : this.tags) {
-                    var2.add(StringTag.valueOf(var3));
+            if (!this.tags.isEmpty()) {
+                ListTag var3 = new ListTag();
+
+                for(String var4 : this.tags) {
+                    var3.add(StringTag.valueOf(var4));
                 }
 
-                param0.put("Tags", var2);
+                param0.put("Tags", var3);
             }
 
             this.addAdditionalSaveData(param0);
             if (this.isVehicle()) {
-                ListTag var4 = new ListTag();
+                ListTag var5 = new ListTag();
 
-                for(Entity var5 : this.getPassengers()) {
-                    CompoundTag var6 = new CompoundTag();
-                    if (var5.saveAsPassenger(var6)) {
-                        var4.add(var6);
+                for(Entity var6 : this.getPassengers()) {
+                    CompoundTag var7 = new CompoundTag();
+                    if (var6.saveAsPassenger(var7)) {
+                        var5.add(var7);
                     }
                 }
 
-                if (!var4.isEmpty()) {
-                    param0.put("Passengers", var4);
+                if (!var5.isEmpty()) {
+                    param0.put("Passengers", var5);
                 }
             }
 
             return param0;
-        } catch (Throwable var81) {
-            CrashReport var8 = CrashReport.forThrowable(var81, "Saving entity NBT");
-            CrashReportCategory var9 = var8.addCategory("Entity being saved");
-            this.fillCrashReportCategory(var9);
-            throw new ReportedException(var8);
+        } catch (Throwable var91) {
+            CrashReport var9 = CrashReport.forThrowable(var91, "Saving entity NBT");
+            CrashReportCategory var10 = var9.addCategory("Entity being saved");
+            this.fillCrashReportCategory(var10);
+            throw new ReportedException(var9);
         }
     }
 
@@ -1508,6 +1519,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
                 this.setSilent(param0.getBoolean("Silent"));
                 this.setNoGravity(param0.getBoolean("NoGravity"));
                 this.setGlowing(param0.getBoolean("Glowing"));
+                this.setTicksFrozen(param0.getInt("TicksFrozen"));
                 if (param0.contains("Tags", 9)) {
                     this.tags.clear();
                     ListTag var8 = param0.getList("Tags", 8);
@@ -1998,6 +2010,27 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         this.entityData.set(DATA_AIR_SUPPLY_ID, param0);
     }
 
+    public int getTicksFrozen() {
+        return this.entityData.get(DATA_TICKS_FROZEN);
+    }
+
+    public void setTicksFrozen(int param0) {
+        this.entityData.set(DATA_TICKS_FROZEN, param0);
+    }
+
+    public float getPercentFrozen() {
+        int var0 = this.getTicksRequiredToFreeze();
+        return (float)Math.min(this.getTicksFrozen(), var0) / (float)var0;
+    }
+
+    public boolean isFullyFrozen() {
+        return this.getTicksFrozen() >= this.getTicksRequiredToFreeze();
+    }
+
+    public int getTicksRequiredToFreeze() {
+        return 300;
+    }
+
     public void thunderHit(ServerLevel param0, LightningBolt param1) {
         this.setRemainingFireTicks(this.remainingFireTicks + 1);
         if (this.remainingFireTicks == 0) {
@@ -2467,8 +2500,8 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         return new Vec3(0.0, (double)this.getEyeHeight(), (double)(this.getBbWidth() * 0.4F));
     }
 
-    public boolean setSlot(int param0, ItemStack param1) {
-        return false;
+    public SlotAccess getSlot(int param0) {
+        return SlotAccess.NULL;
     }
 
     @Override
@@ -2899,6 +2932,14 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     @OnlyIn(Dist.CLIENT)
     public ItemStack getPickResult() {
         return null;
+    }
+
+    public void setBodyIsInPowderSnow(boolean param0) {
+        this.bodyIsInPowderSnow = param0;
+    }
+
+    public boolean canFreeze() {
+        return false;
     }
 
     public final boolean isRemoved() {

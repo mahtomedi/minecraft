@@ -5,6 +5,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
@@ -31,6 +32,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.inventory.ClickAction;
+import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.ItemLike;
@@ -250,6 +252,11 @@ public class Item implements ItemLike {
 
     @OnlyIn(Dist.CLIENT)
     public void appendHoverText(ItemStack param0, @Nullable Level param1, List<Component> param2, TooltipFlag param3) {
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public Optional<TooltipComponent> getTooltipImage(ItemStack param0) {
+        return Optional.empty();
     }
 
     public Component getName(ItemStack param0) {

@@ -8,7 +8,6 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
-import net.minecraft.tags.FluidTags;
 import net.minecraft.util.CubicSampler;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffects;
@@ -16,7 +15,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeManager;
-import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.FogType;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -31,118 +30,125 @@ public class FogRenderer {
     private static long biomeChangedTime = -1L;
 
     public static void setupColor(Camera param0, float param1, ClientLevel param2, int param3, float param4) {
-        FluidState var0 = param0.getFluidInCamera();
-        if (var0.is(FluidTags.WATER)) {
-            long var1 = Util.getMillis();
-            int var2 = param2.getBiome(new BlockPos(param0.getPosition())).getWaterFogColor();
+        FogType var0 = param0.getFluidInCamera();
+        Entity var1 = param0.getEntity();
+        if (var0 == FogType.WATER) {
+            long var2 = Util.getMillis();
+            int var3 = param2.getBiome(new BlockPos(param0.getPosition())).getWaterFogColor();
             if (biomeChangedTime < 0L) {
-                targetBiomeFog = var2;
-                previousBiomeFog = var2;
-                biomeChangedTime = var1;
+                targetBiomeFog = var3;
+                previousBiomeFog = var3;
+                biomeChangedTime = var2;
             }
 
-            int var3 = targetBiomeFog >> 16 & 0xFF;
-            int var4 = targetBiomeFog >> 8 & 0xFF;
-            int var5 = targetBiomeFog & 0xFF;
-            int var6 = previousBiomeFog >> 16 & 0xFF;
-            int var7 = previousBiomeFog >> 8 & 0xFF;
-            int var8 = previousBiomeFog & 0xFF;
-            float var9 = Mth.clamp((float)(var1 - biomeChangedTime) / 5000.0F, 0.0F, 1.0F);
-            float var10 = Mth.lerp(var9, (float)var6, (float)var3);
-            float var11 = Mth.lerp(var9, (float)var7, (float)var4);
-            float var12 = Mth.lerp(var9, (float)var8, (float)var5);
-            fogRed = var10 / 255.0F;
-            fogGreen = var11 / 255.0F;
-            fogBlue = var12 / 255.0F;
-            if (targetBiomeFog != var2) {
-                targetBiomeFog = var2;
-                previousBiomeFog = Mth.floor(var10) << 16 | Mth.floor(var11) << 8 | Mth.floor(var12);
-                biomeChangedTime = var1;
+            int var4 = targetBiomeFog >> 16 & 0xFF;
+            int var5 = targetBiomeFog >> 8 & 0xFF;
+            int var6 = targetBiomeFog & 0xFF;
+            int var7 = previousBiomeFog >> 16 & 0xFF;
+            int var8 = previousBiomeFog >> 8 & 0xFF;
+            int var9 = previousBiomeFog & 0xFF;
+            float var10 = Mth.clamp((float)(var2 - biomeChangedTime) / 5000.0F, 0.0F, 1.0F);
+            float var11 = Mth.lerp(var10, (float)var7, (float)var4);
+            float var12 = Mth.lerp(var10, (float)var8, (float)var5);
+            float var13 = Mth.lerp(var10, (float)var9, (float)var6);
+            fogRed = var11 / 255.0F;
+            fogGreen = var12 / 255.0F;
+            fogBlue = var13 / 255.0F;
+            if (targetBiomeFog != var3) {
+                targetBiomeFog = var3;
+                previousBiomeFog = Mth.floor(var11) << 16 | Mth.floor(var12) << 8 | Mth.floor(var13);
+                biomeChangedTime = var2;
             }
-        } else if (var0.is(FluidTags.LAVA)) {
+        } else if (var0 == FogType.LAVA) {
             fogRed = 0.6F;
             fogGreen = 0.1F;
             fogBlue = 0.0F;
             biomeChangedTime = -1L;
+        } else if (var0 == FogType.POWDER_SNOW) {
+            fogRed = 0.623F;
+            fogGreen = 0.734F;
+            fogBlue = 0.785F;
+            biomeChangedTime = -1L;
+            RenderSystem.clearColor(fogRed, fogGreen, fogBlue, 0.0F);
         } else {
-            float var13 = 0.25F + 0.75F * (float)param3 / 32.0F;
-            var13 = 1.0F - (float)Math.pow((double)var13, 0.25);
-            Vec3 var14 = param2.getSkyColor(param0.getBlockPosition(), param1);
-            float var15 = (float)var14.x;
-            float var16 = (float)var14.y;
-            float var17 = (float)var14.z;
-            float var18 = Mth.clamp(Mth.cos(param2.getTimeOfDay(param1) * (float) (Math.PI * 2)) * 2.0F + 0.5F, 0.0F, 1.0F);
-            BiomeManager var19 = param2.getBiomeManager();
-            Vec3 var20 = param0.getPosition().subtract(2.0, 2.0, 2.0).scale(0.25);
-            Vec3 var21 = CubicSampler.gaussianSampleVec3(
-                var20,
+            float var14 = 0.25F + 0.75F * (float)param3 / 32.0F;
+            var14 = 1.0F - (float)Math.pow((double)var14, 0.25);
+            Vec3 var15 = param2.getSkyColor(param0.getPosition(), param1);
+            float var16 = (float)var15.x;
+            float var17 = (float)var15.y;
+            float var18 = (float)var15.z;
+            float var19 = Mth.clamp(Mth.cos(param2.getTimeOfDay(param1) * (float) (Math.PI * 2)) * 2.0F + 0.5F, 0.0F, 1.0F);
+            BiomeManager var20 = param2.getBiomeManager();
+            Vec3 var21 = param0.getPosition().subtract(2.0, 2.0, 2.0).scale(0.25);
+            Vec3 var22 = CubicSampler.gaussianSampleVec3(
+                var21,
                 (param3x, param4x, param5) -> param2.effects()
-                        .getBrightnessDependentFogColor(Vec3.fromRGB24(var19.getNoiseBiomeAtQuart(param3x, param4x, param5).getFogColor()), var18)
+                        .getBrightnessDependentFogColor(Vec3.fromRGB24(var20.getNoiseBiomeAtQuart(param3x, param4x, param5).getFogColor()), var19)
             );
-            fogRed = (float)var21.x();
-            fogGreen = (float)var21.y();
-            fogBlue = (float)var21.z();
+            fogRed = (float)var22.x();
+            fogGreen = (float)var22.y();
+            fogBlue = (float)var22.z();
             if (param3 >= 4) {
-                float var22 = Mth.sin(param2.getSunAngle(param1)) > 0.0F ? -1.0F : 1.0F;
-                Vector3f var23 = new Vector3f(var22, 0.0F, 0.0F);
-                float var24 = param0.getLookVector().dot(var23);
-                if (var24 < 0.0F) {
-                    var24 = 0.0F;
+                float var23 = Mth.sin(param2.getSunAngle(param1)) > 0.0F ? -1.0F : 1.0F;
+                Vector3f var24 = new Vector3f(var23, 0.0F, 0.0F);
+                float var25 = param0.getLookVector().dot(var24);
+                if (var25 < 0.0F) {
+                    var25 = 0.0F;
                 }
 
-                if (var24 > 0.0F) {
-                    float[] var25 = param2.effects().getSunriseColor(param2.getTimeOfDay(param1), param1);
-                    if (var25 != null) {
-                        var24 *= var25[3];
-                        fogRed = fogRed * (1.0F - var24) + var25[0] * var24;
-                        fogGreen = fogGreen * (1.0F - var24) + var25[1] * var24;
-                        fogBlue = fogBlue * (1.0F - var24) + var25[2] * var24;
+                if (var25 > 0.0F) {
+                    float[] var26 = param2.effects().getSunriseColor(param2.getTimeOfDay(param1), param1);
+                    if (var26 != null) {
+                        var25 *= var26[3];
+                        fogRed = fogRed * (1.0F - var25) + var26[0] * var25;
+                        fogGreen = fogGreen * (1.0F - var25) + var26[1] * var25;
+                        fogBlue = fogBlue * (1.0F - var25) + var26[2] * var25;
                     }
                 }
             }
 
-            fogRed += (var15 - fogRed) * var13;
-            fogGreen += (var16 - fogGreen) * var13;
-            fogBlue += (var17 - fogBlue) * var13;
-            float var26 = param2.getRainLevel(param1);
-            if (var26 > 0.0F) {
-                float var27 = 1.0F - var26 * 0.5F;
-                float var28 = 1.0F - var26 * 0.4F;
-                fogRed *= var27;
-                fogGreen *= var27;
-                fogBlue *= var28;
+            fogRed += (var16 - fogRed) * var14;
+            fogGreen += (var17 - fogGreen) * var14;
+            fogBlue += (var18 - fogBlue) * var14;
+            float var27 = param2.getRainLevel(param1);
+            if (var27 > 0.0F) {
+                float var28 = 1.0F - var27 * 0.5F;
+                float var29 = 1.0F - var27 * 0.4F;
+                fogRed *= var28;
+                fogGreen *= var28;
+                fogBlue *= var29;
             }
 
-            float var29 = param2.getThunderLevel(param1);
-            if (var29 > 0.0F) {
-                float var30 = 1.0F - var29 * 0.5F;
-                fogRed *= var30;
-                fogGreen *= var30;
-                fogBlue *= var30;
+            float var30 = param2.getThunderLevel(param1);
+            if (var30 > 0.0F) {
+                float var31 = 1.0F - var30 * 0.5F;
+                fogRed *= var31;
+                fogGreen *= var31;
+                fogBlue *= var31;
             }
 
             biomeChangedTime = -1L;
         }
 
-        double var31 = (param0.getPosition().y - (double)param2.getMinBuildHeight()) * param2.getLevelData().getClearColorScale();
+        double var32 = (param0.getPosition().y - (double)param2.getMinBuildHeight()) * param2.getLevelData().getClearColorScale();
         if (param0.getEntity() instanceof LivingEntity && ((LivingEntity)param0.getEntity()).hasEffect(MobEffects.BLINDNESS)) {
-            int var32 = ((LivingEntity)param0.getEntity()).getEffect(MobEffects.BLINDNESS).getDuration();
-            if (var32 < 20) {
-                var31 *= (double)(1.0F - (float)var32 / 20.0F);
+            int var33 = ((LivingEntity)param0.getEntity()).getEffect(MobEffects.BLINDNESS).getDuration();
+            if (var33 < 20) {
+                var32 *= (double)(1.0F - (float)var33 / 20.0F);
             } else {
-                var31 = 0.0;
+                var32 = 0.0;
             }
         }
 
-        if (var31 < 1.0 && !var0.is(FluidTags.LAVA)) {
-            if (var31 < 0.0) {
-                var31 = 0.0;
+        if (var32 < 1.0 && var0 != FogType.LAVA) {
+            if (var32 < 0.0) {
+                var32 = 0.0;
             }
 
-            var31 *= var31;
-            fogRed = (float)((double)fogRed * var31);
-            fogGreen = (float)((double)fogGreen * var31);
-            fogBlue = (float)((double)fogBlue * var31);
+            var32 *= var32;
+            fogRed = (float)((double)fogRed * var32);
+            fogGreen = (float)((double)fogGreen * var32);
+            fogBlue = (float)((double)fogBlue * var32);
         }
 
         if (param4 > 0.0F) {
@@ -151,23 +157,23 @@ public class FogRenderer {
             fogBlue = fogBlue * (1.0F - param4) + fogBlue * 0.6F * param4;
         }
 
-        if (var0.is(FluidTags.WATER)) {
-            float var33 = 0.0F;
-            if (param0.getEntity() instanceof LocalPlayer) {
-                LocalPlayer var34 = (LocalPlayer)param0.getEntity();
-                var33 = var34.getWaterVision();
+        if (var0 == FogType.WATER) {
+            float var34 = 0.0F;
+            if (var1 instanceof LocalPlayer) {
+                LocalPlayer var35 = (LocalPlayer)var1;
+                var34 = var35.getWaterVision();
             }
 
-            float var35 = Math.min(1.0F / fogRed, Math.min(1.0F / fogGreen, 1.0F / fogBlue));
-            fogRed = fogRed * (1.0F - var33) + fogRed * var35 * var33;
-            fogGreen = fogGreen * (1.0F - var33) + fogGreen * var35 * var33;
-            fogBlue = fogBlue * (1.0F - var33) + fogBlue * var35 * var33;
-        } else if (param0.getEntity() instanceof LivingEntity && ((LivingEntity)param0.getEntity()).hasEffect(MobEffects.NIGHT_VISION)) {
-            float var36 = GameRenderer.getNightVisionScale((LivingEntity)param0.getEntity(), param1);
-            float var37 = Math.min(1.0F / fogRed, Math.min(1.0F / fogGreen, 1.0F / fogBlue));
-            fogRed = fogRed * (1.0F - var36) + fogRed * var37 * var36;
-            fogGreen = fogGreen * (1.0F - var36) + fogGreen * var37 * var36;
-            fogBlue = fogBlue * (1.0F - var36) + fogBlue * var37 * var36;
+            float var36 = Math.min(1.0F / fogRed, Math.min(1.0F / fogGreen, 1.0F / fogBlue));
+            fogRed = fogRed * (1.0F - var34) + fogRed * var36 * var34;
+            fogGreen = fogGreen * (1.0F - var34) + fogGreen * var36 * var34;
+            fogBlue = fogBlue * (1.0F - var34) + fogBlue * var36 * var34;
+        } else if (var1 instanceof LivingEntity && ((LivingEntity)var1).hasEffect(MobEffects.NIGHT_VISION)) {
+            float var37 = GameRenderer.getNightVisionScale((LivingEntity)var1, param1);
+            float var38 = Math.min(1.0F / fogRed, Math.min(1.0F / fogGreen, 1.0F / fogBlue));
+            fogRed = fogRed * (1.0F - var37) + fogRed * var38 * var37;
+            fogGreen = fogGreen * (1.0F - var37) + fogGreen * var38 * var37;
+            fogBlue = fogBlue * (1.0F - var37) + fogBlue * var38 * var37;
         }
 
         RenderSystem.clearColor(fogRed, fogGreen, fogBlue, 0.0F);
@@ -179,9 +185,9 @@ public class FogRenderer {
     }
 
     public static void setupFog(Camera param0, FogRenderer.FogMode param1, float param2, boolean param3) {
-        FluidState var0 = param0.getFluidInCamera();
+        FogType var0 = param0.getFluidInCamera();
         Entity var1 = param0.getEntity();
-        if (var0.is(FluidTags.WATER)) {
+        if (var0 == FogType.WATER) {
             float var2 = 1.0F;
             var2 = 0.05F;
             if (var1 instanceof LocalPlayer) {
@@ -198,7 +204,7 @@ public class FogRenderer {
         } else {
             float var5;
             float var6;
-            if (var0.is(FluidTags.LAVA)) {
+            if (var0 == FogType.LAVA) {
                 if (var1 instanceof LivingEntity && ((LivingEntity)var1).hasEffect(MobEffects.FIRE_RESISTANCE)) {
                     var5 = 0.0F;
                     var6 = 3.0F;
@@ -216,6 +222,9 @@ public class FogRenderer {
                     var5 = var10 * 0.25F;
                     var6 = var10;
                 }
+            } else if (var0 == FogType.POWDER_SNOW) {
+                var5 = 0.0F;
+                var6 = 2.0F;
             } else if (param3) {
                 var5 = param2 * 0.05F;
                 var6 = Math.min(param2, 192.0F) * 0.5F;

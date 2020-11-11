@@ -40,7 +40,7 @@ public class StructureBlockEntity extends BlockEntity {
     private BlockPos structureSize = BlockPos.ZERO;
     private Mirror mirror = Mirror.NONE;
     private Rotation rotation = Rotation.NONE;
-    private StructureMode mode = StructureMode.DATA;
+    private StructureMode mode;
     private boolean ignoreEntities = true;
     private boolean powered;
     private boolean showAir;
@@ -50,6 +50,7 @@ public class StructureBlockEntity extends BlockEntity {
 
     public StructureBlockEntity(BlockPos param0, BlockState param1) {
         super(BlockEntityType.STRUCTURE_BLOCK, param0, param1);
+        this.mode = param1.getValue(StructureBlock.MODE);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -239,24 +240,6 @@ public class StructureBlockEntity extends BlockEntity {
         BlockState var0 = this.level.getBlockState(this.getBlockPos());
         if (var0.is(Blocks.STRUCTURE_BLOCK)) {
             this.level.setBlock(this.getBlockPos(), var0.setValue(StructureBlock.MODE, param0), 2);
-        }
-
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public void nextMode() {
-        switch(this.getMode()) {
-            case SAVE:
-                this.setMode(StructureMode.LOAD);
-                break;
-            case LOAD:
-                this.setMode(StructureMode.CORNER);
-                break;
-            case CORNER:
-                this.setMode(StructureMode.DATA);
-                break;
-            case DATA:
-                this.setMode(StructureMode.SAVE);
         }
 
     }

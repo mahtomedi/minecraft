@@ -4,9 +4,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Option;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.OptionButton;
+import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.network.chat.CommonComponents;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraftforge.api.distmarker.Dist;
@@ -23,29 +22,21 @@ public class SkinCustomizationScreen extends OptionsSubScreen {
         int var0 = 0;
 
         for(PlayerModelPart var1 : PlayerModelPart.values()) {
-            this.addButton(new Button(this.width / 2 - 155 + var0 % 2 * 160, this.height / 6 + 24 * (var0 >> 1), 150, 20, this.getMessage(var1), param1 -> {
-                this.options.toggleModelPart(var1);
-                param1.setMessage(this.getMessage(var1));
-            }));
+            this.addButton(
+                CycleButton.onOffBuilder(this.options.isModelPartEnabled(var1))
+                    .create(
+                        this.width / 2 - 155 + var0 % 2 * 160,
+                        this.height / 6 + 24 * (var0 >> 1),
+                        150,
+                        20,
+                        var1.getName(),
+                        (param1, param2) -> this.options.toggleModelPart(var1, param2)
+                    )
+            );
             ++var0;
         }
 
-        this.addButton(
-            new OptionButton(
-                this.width / 2 - 155 + var0 % 2 * 160,
-                this.height / 6 + 24 * (var0 >> 1),
-                150,
-                20,
-                Option.MAIN_HAND,
-                Option.MAIN_HAND.getMessage(this.options),
-                param0 -> {
-                    Option.MAIN_HAND.toggle(this.options, 1);
-                    this.options.save();
-                    param0.setMessage(Option.MAIN_HAND.getMessage(this.options));
-                    this.options.broadcastOptions();
-                }
-            )
-        );
+        this.addButton(Option.MAIN_HAND.createButton(this.options, this.width / 2 - 155 + var0 % 2 * 160, this.height / 6 + 24 * (var0 >> 1), 150));
         if (++var0 % 2 == 1) {
             ++var0;
         }
@@ -67,9 +58,5 @@ public class SkinCustomizationScreen extends OptionsSubScreen {
         this.renderBackground(param0);
         drawCenteredString(param0, this.font, this.title, this.width / 2, 20, 16777215);
         super.render(param0, param1, param2, param3);
-    }
-
-    private Component getMessage(PlayerModelPart param0) {
-        return CommonComponents.optionStatus(param0.getName(), this.options.getModelParts().contains(param0));
     }
 }

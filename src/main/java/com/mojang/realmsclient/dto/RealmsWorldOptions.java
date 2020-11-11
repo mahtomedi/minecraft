@@ -3,39 +3,41 @@ package com.mojang.realmsclient.dto;
 import com.google.gson.JsonObject;
 import com.mojang.realmsclient.util.JsonUtils;
 import java.util.Objects;
+import javax.annotation.Nullable;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class RealmsWorldOptions extends ValueObject {
-    public Boolean pvp;
-    public Boolean spawnAnimals;
-    public Boolean spawnMonsters;
-    public Boolean spawnNPCs;
-    public Integer spawnProtection;
-    public Boolean commandBlocks;
-    public Boolean forceGameMode;
-    public Integer difficulty;
-    public Integer gameMode;
-    public String slotName;
+    public final boolean pvp;
+    public final boolean spawnAnimals;
+    public final boolean spawnMonsters;
+    public final boolean spawnNPCs;
+    public final int spawnProtection;
+    public final boolean commandBlocks;
+    public final boolean forceGameMode;
+    public final int difficulty;
+    public final int gameMode;
+    @Nullable
+    private final String slotName;
     public long templateId;
+    @Nullable
     public String templateImage;
-    public boolean adventureMap;
     public boolean empty;
     private static final String DEFAULT_TEMPLATE_IMAGE = null;
 
     public RealmsWorldOptions(
-        Boolean param0,
-        Boolean param1,
-        Boolean param2,
-        Boolean param3,
-        Integer param4,
-        Boolean param5,
-        Integer param6,
-        Integer param7,
-        Boolean param8,
-        String param9
+        boolean param0,
+        boolean param1,
+        boolean param2,
+        boolean param3,
+        int param4,
+        boolean param5,
+        int param6,
+        int param7,
+        boolean param8,
+        @Nullable String param9
     ) {
         this.pvp = param0;
         this.spawnAnimals = param1;
@@ -78,7 +80,6 @@ public class RealmsWorldOptions extends ValueObject {
         );
         var0.templateId = JsonUtils.getLongOr("worldTemplateId", param0, -1L);
         var0.templateImage = JsonUtils.getStringOr("worldTemplateImage", param0, DEFAULT_TEMPLATE_IMAGE);
-        var0.adventureMap = JsonUtils.getBooleanOr("adventureMap", param0, false);
         return var0;
     }
 

@@ -39,6 +39,7 @@ import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.PlayerRideableJumping;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.Saddleable;
+import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -990,26 +991,49 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
         return false;
     }
 
-    @Override
-    public boolean setSlot(int param0, ItemStack param1) {
-        int var0 = param0 - 400;
-        if (var0 < 0 || var0 >= 2 || var0 >= this.inventory.getContainerSize()) {
-            int var1 = param0 - 500 + 2;
-            if (var1 >= 2 && var1 < this.inventory.getContainerSize()) {
-                this.inventory.setItem(var1, param1);
-                return true;
-            } else {
-                return false;
+    private SlotAccess createEquipmentSlotAccess(final int param0, final Predicate<ItemStack> param1) {
+        return new SlotAccess() {
+            @Override
+            public ItemStack get() {
+                return AbstractHorse.this.inventory.getItem(param0);
             }
-        } else if (var0 == 0 && !param1.is(Items.SADDLE)) {
-            return false;
-        } else if (var0 != 1 || this.canWearArmor() && this.isArmor(param1)) {
-            this.inventory.setItem(var0, param1);
-            this.updateContainerEquipment();
-            return true;
-        } else {
-            return false;
+
+            @Override
+            public boolean set(ItemStack param0x) {
+                if (!param1.test(param0)) {
+                    return false;
+                } else {
+                    AbstractHorse.this.inventory.setItem(param0, param0);
+                    AbstractHorse.this.updateContainerEquipment();
+                    return true;
+                }
+            }
+        };
+    }
+
+    @Override
+    public SlotAccess getSlot(int param0) {
+        int var0 = param0 - 400;
+        if (var0 >= 0 && var0 < 2 && var0 < this.inventory.getContainerSize()) {
+            if (var0 == 0) {
+                if (!this.canWearArmor()) {
+                    return SlotAccess.NULL;
+                }
+
+                return this.createEquipmentSlotAccess(var0, param0x -> param0x.isEmpty() || param0x.is(Items.SADDLE));
+            }
+
+            if (var0 == 1) {
+                if (!this.canWearArmor()) {
+                    return SlotAccess.NULL;
+                }
+
+                return this.createEquipmentSlotAccess(var0, param0x -> param0x.isEmpty() || this.isArmor(param0x));
+            }
         }
+
+        int var1 = param0 - 500 + 2;
+        return var1 >= 2 && var1 < this.inventory.getContainerSize() ? SlotAccess.forContainer(this.inventory, var1) : super.getSlot(param0);
     }
 
     @Nullable

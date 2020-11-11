@@ -152,7 +152,10 @@ public class PickaxeItem extends DiggerItem {
                 Blocks.GOLD_ORE,
                 Blocks.REDSTONE_ORE,
                 Blocks.AMETHYST_BLOCK,
-                Blocks.AMETHYST_CLUSTER
+                Blocks.AMETHYST_CLUSTER,
+                Blocks.SMALL_AMETHYST_BUD,
+                Blocks.MEDIUM_AMETHYST_BUD,
+                Blocks.LARGE_AMETHYST_BUD
             )) {
                 param0.put(var1, 2);
             }

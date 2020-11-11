@@ -3,18 +3,20 @@ package net.minecraft.world.level.storage.loot.predicates;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
+import java.util.Set;
 import javax.annotation.Nullable;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.GsonHelper;
+import net.minecraft.world.level.storage.loot.IntRange;
 import net.minecraft.world.level.storage.loot.LootContext;
-import net.minecraft.world.level.storage.loot.RandomValueBounds;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
 
 public class TimeCheck implements LootItemCondition {
     @Nullable
     private final Long period;
-    private final RandomValueBounds value;
+    private final IntRange value;
 
-    private TimeCheck(@Nullable Long param0, RandomValueBounds param1) {
+    private TimeCheck(@Nullable Long param0, IntRange param1) {
         this.period = param0;
         this.value = param1;
     }
@@ -24,6 +26,11 @@ public class TimeCheck implements LootItemCondition {
         return LootItemConditions.TIME_CHECK;
     }
 
+    @Override
+    public Set<LootContextParam<?>> getReferencedContextParams() {
+        return this.value.getReferencedContextParams();
+    }
+
     public boolean test(LootContext param0) {
         ServerLevel var0 = param0.getLevel();
         long var1 = var0.getDayTime();
@@ -31,7 +38,7 @@ public class TimeCheck implements LootItemCondition {
             var1 %= this.period;
         }
 
-        return this.value.matchesValue((int)var1);
+        return this.value.test(param0, (int)var1);
     }
 
     public static class Serializer implements net.minecraft.world.level.storage.loot.Serializer<TimeCheck> {
@@ -42,7 +49,7 @@ public class TimeCheck implements LootItemCondition {
 
         public TimeCheck deserialize(JsonObject param0, JsonDeserializationContext param1) {
             Long var0 = param0.has("period") ? GsonHelper.getAsLong(param0, "period") : null;
-            RandomValueBounds var1 = GsonHelper.getAsObject(param0, "value", param1, RandomValueBounds.class);
+            IntRange var1 = GsonHelper.getAsObject(param0, "value", param1, IntRange.class);
             return new TimeCheck(var0, var1);
         }
     }

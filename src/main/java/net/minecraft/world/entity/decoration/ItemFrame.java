@@ -18,6 +18,7 @@ import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -234,9 +235,11 @@ public class ItemFrame extends HangingEntity {
 
     private void removeFramedMap(ItemStack param0) {
         if (param0.is(Items.FILLED_MAP)) {
-            MapItemSavedData var0 = MapItem.getOrCreateSavedData(param0, this.level);
-            var0.removedFromFrame(this.pos, this.getId());
-            var0.setDirty(true);
+            MapItemSavedData var0 = MapItem.getSavedData(param0, this.level);
+            if (var0 != null) {
+                var0.removedFromFrame(this.pos, this.getId());
+                var0.setDirty(true);
+            }
         }
 
         param0.setEntityRepresentation(null);
@@ -269,13 +272,19 @@ public class ItemFrame extends HangingEntity {
     }
 
     @Override
-    public boolean setSlot(int param0, ItemStack param1) {
-        if (param0 == 0) {
-            this.setItem(param1);
-            return true;
-        } else {
-            return false;
-        }
+    public SlotAccess getSlot(int param0) {
+        return param0 == 0 ? new SlotAccess() {
+            @Override
+            public ItemStack get() {
+                return ItemFrame.this.getItem();
+            }
+
+            @Override
+            public boolean set(ItemStack param0) {
+                ItemFrame.this.setItem(param0);
+                return true;
+            }
+        } : super.getSlot(param0);
     }
 
     @Override

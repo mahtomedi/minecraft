@@ -141,7 +141,7 @@ public abstract class LivingEntityRenderer<T extends LivingEntity, M extends Ent
     }
 
     public static int getOverlayCoords(LivingEntity param0, float param1) {
-        return OverlayTexture.pack(OverlayTexture.u(param1), OverlayTexture.v(param0.hurtTime > 0 || param0.deathTime > 0));
+        return OverlayTexture.pack(OverlayTexture.u(param1), OverlayTexture.v(param0.hurtTime > 0 || param0.deathTime > 0, param0.getLastDamageSource()));
     }
 
     protected boolean isBodyVisible(T param0) {

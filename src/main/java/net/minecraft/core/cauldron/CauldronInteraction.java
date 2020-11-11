@@ -6,6 +6,7 @@ import java.util.function.Predicate;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
@@ -22,8 +23,8 @@ import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.ShulkerBoxBlock;
-import net.minecraft.world.level.block.WaterCauldronBlock;
 import net.minecraft.world.level.block.entity.BannerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -31,11 +32,27 @@ public interface CauldronInteraction {
     Map<Item, CauldronInteraction> EMPTY = newInteractionMap();
     Map<Item, CauldronInteraction> WATER = newInteractionMap();
     Map<Item, CauldronInteraction> LAVA = newInteractionMap();
+    Map<Item, CauldronInteraction> POWDER_SNOW = newInteractionMap();
     CauldronInteraction FILL_WATER = (param0, param1, param2, param3, param4, param5) -> emptyBucket(
-            param1, param2, param3, param4, param5, Blocks.WATER_CAULDRON.defaultBlockState().setValue(WaterCauldronBlock.LEVEL, Integer.valueOf(3))
+            param1,
+            param2,
+            param3,
+            param4,
+            param5,
+            Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, Integer.valueOf(3)),
+            SoundEvents.BUCKET_EMPTY
         );
     CauldronInteraction FILL_LAVA = (param0, param1, param2, param3, param4, param5) -> emptyBucket(
-            param1, param2, param3, param4, param5, Blocks.LAVA_CAULDRON.defaultBlockState()
+            param1, param2, param3, param4, param5, Blocks.LAVA_CAULDRON.defaultBlockState(), SoundEvents.BUCKET_EMPTY_LAVA
+        );
+    CauldronInteraction FILL_POWDER_SNOW = (param0, param1, param2, param3, param4, param5) -> emptyBucket(
+            param1,
+            param2,
+            param3,
+            param4,
+            param5,
+            Blocks.POWDER_SNOW_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, Integer.valueOf(3)),
+            SoundEvents.BUCKET_EMPTY_POWDER_SNOW
         );
     CauldronInteraction SHULKER_BOX = (param0, param1, param2, param3, param4, param5) -> {
         Block var0 = Block.byItem(param5.getItem());
@@ -50,7 +67,7 @@ public interface CauldronInteraction {
 
                 param3.setItemInHand(param4, var1);
                 param3.awardStat(Stats.CLEAN_SHULKER_BOX);
-                WaterCauldronBlock.lowerWaterLevel(param0, param1, param2);
+                LayeredCauldronBlock.lowerFillLevel(param0, param1, param2);
             }
 
             return InteractionResult.sidedSuccess(param1.isClientSide);
@@ -77,7 +94,7 @@ public interface CauldronInteraction {
                 }
 
                 param3.awardStat(Stats.CLEAN_BANNER);
-                WaterCauldronBlock.lowerWaterLevel(param0, param1, param2);
+                LayeredCauldronBlock.lowerFillLevel(param0, param1, param2);
             }
 
             return InteractionResult.sidedSuccess(param1.isClientSide);
@@ -95,7 +112,7 @@ public interface CauldronInteraction {
                 if (!param1.isClientSide) {
                     var1.clearColor(param5);
                     param3.awardStat(Stats.CLEAN_ARMOR);
-                    WaterCauldronBlock.lowerWaterLevel(param0, param1, param2);
+                    LayeredCauldronBlock.lowerFillLevel(param0, param1, param2);
                 }
 
                 return InteractionResult.sidedSuccess(param1.isClientSide);
@@ -114,6 +131,7 @@ public interface CauldronInteraction {
     static void bootStrap() {
         EMPTY.put(Items.WATER_BUCKET, FILL_WATER);
         EMPTY.put(Items.LAVA_BUCKET, FILL_LAVA);
+        EMPTY.put(Items.POWDER_SNOW_BUCKET, FILL_POWDER_SNOW);
         EMPTY.put(Items.POTION, (param0, param1, param2, param3, param4, param5) -> {
             if (PotionUtils.getPotion(param5) != Potions.WATER) {
                 return InteractionResult.PASS;
@@ -130,6 +148,7 @@ public interface CauldronInteraction {
         });
         WATER.put(Items.LAVA_BUCKET, FILL_LAVA);
         WATER.put(Items.WATER_BUCKET, FILL_WATER);
+        WATER.put(Items.POWDER_SNOW_BUCKET, FILL_POWDER_SNOW);
         WATER.put(
             Items.BUCKET,
             (param0, param1, param2, param3, param4, param5) -> fillBucket(
@@ -140,25 +159,26 @@ public interface CauldronInteraction {
                     param4,
                     param5,
                     new ItemStack(Items.WATER_BUCKET),
-                    param0x -> param0x.getValue(WaterCauldronBlock.LEVEL) == 3
+                    param0x -> param0x.getValue(LayeredCauldronBlock.LEVEL) == 3,
+                    SoundEvents.BUCKET_FILL
                 )
         );
         WATER.put(Items.GLASS_BOTTLE, (param0, param1, param2, param3, param4, param5) -> {
             if (!param1.isClientSide) {
                 param3.setItemInHand(param4, ItemUtils.createFilledResult(param5, param3, PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.WATER)));
                 param3.awardStat(Stats.USE_CAULDRON);
-                WaterCauldronBlock.lowerWaterLevel(param0, param1, param2);
+                LayeredCauldronBlock.lowerFillLevel(param0, param1, param2);
                 param1.playSound(null, param2, SoundEvents.BOTTLE_FILL, SoundSource.BLOCKS, 1.0F, 1.0F);
             }
 
             return InteractionResult.sidedSuccess(param1.isClientSide);
         });
         WATER.put(Items.POTION, (param0, param1, param2, param3, param4, param5) -> {
-            if (param0.getValue(WaterCauldronBlock.LEVEL) != 3 && PotionUtils.getPotion(param5) == Potions.WATER) {
+            if (param0.getValue(LayeredCauldronBlock.LEVEL) != 3 && PotionUtils.getPotion(param5) == Potions.WATER) {
                 if (!param1.isClientSide) {
                     param3.setItemInHand(param4, ItemUtils.createFilledResult(param5, param3, new ItemStack(Items.GLASS_BOTTLE)));
                     param3.awardStat(Stats.USE_CAULDRON);
-                    param1.setBlockAndUpdate(param2, param0.cycle(WaterCauldronBlock.LEVEL));
+                    param1.setBlockAndUpdate(param2, param0.cycle(LayeredCauldronBlock.LEVEL));
                     param1.playSound(null, param2, SoundEvents.BOTTLE_EMPTY, SoundSource.BLOCKS, 1.0F, 1.0F);
                 }
 
@@ -207,10 +227,27 @@ public interface CauldronInteraction {
         LAVA.put(
             Items.BUCKET,
             (param0, param1, param2, param3, param4, param5) -> fillBucket(
-                    param0, param1, param2, param3, param4, param5, new ItemStack(Items.LAVA_BUCKET), param0x -> true
+                    param0, param1, param2, param3, param4, param5, new ItemStack(Items.LAVA_BUCKET), param0x -> true, SoundEvents.BUCKET_FILL_LAVA
                 )
         );
         LAVA.put(Items.WATER_BUCKET, FILL_WATER);
+        LAVA.put(Items.POWDER_SNOW_BUCKET, FILL_POWDER_SNOW);
+        POWDER_SNOW.put(
+            Items.BUCKET,
+            (param0, param1, param2, param3, param4, param5) -> fillBucket(
+                    param0,
+                    param1,
+                    param2,
+                    param3,
+                    param4,
+                    param5,
+                    new ItemStack(Items.POWDER_SNOW_BUCKET),
+                    param0x -> param0x.getValue(LayeredCauldronBlock.LEVEL) == 3,
+                    SoundEvents.BUCKET_FILL_POWDER_SNOW
+                )
+        );
+        POWDER_SNOW.put(Items.WATER_BUCKET, FILL_WATER);
+        POWDER_SNOW.put(Items.LAVA_BUCKET, FILL_LAVA);
     }
 
     static InteractionResult fillBucket(
@@ -221,7 +258,8 @@ public interface CauldronInteraction {
         InteractionHand param4,
         ItemStack param5,
         ItemStack param6,
-        Predicate<BlockState> param7
+        Predicate<BlockState> param7,
+        SoundEvent param8
     ) {
         if (!param7.test(param0)) {
             return InteractionResult.PASS;
@@ -230,19 +268,21 @@ public interface CauldronInteraction {
                 param3.setItemInHand(param4, ItemUtils.createFilledResult(param5, param3, param6));
                 param3.awardStat(Stats.USE_CAULDRON);
                 param1.setBlockAndUpdate(param2, Blocks.CAULDRON.defaultBlockState());
-                param1.playSound(null, param2, SoundEvents.BUCKET_FILL, SoundSource.BLOCKS, 1.0F, 1.0F);
+                param1.playSound(null, param2, param8, SoundSource.BLOCKS, 1.0F, 1.0F);
             }
 
             return InteractionResult.sidedSuccess(param1.isClientSide);
         }
     }
 
-    static InteractionResult emptyBucket(Level param0, BlockPos param1, Player param2, InteractionHand param3, ItemStack param4, BlockState param5) {
+    static InteractionResult emptyBucket(
+        Level param0, BlockPos param1, Player param2, InteractionHand param3, ItemStack param4, BlockState param5, SoundEvent param6
+    ) {
         if (!param0.isClientSide) {
             param2.setItemInHand(param3, ItemUtils.createFilledResult(param4, param2, new ItemStack(Items.BUCKET)));
             param2.awardStat(Stats.FILL_CAULDRON);
             param0.setBlockAndUpdate(param1, param5);
-            param0.playSound(null, param1, SoundEvents.BUCKET_EMPTY, SoundSource.BLOCKS, 1.0F, 1.0F);
+            param0.playSound(null, param1, param6, SoundSource.BLOCKS, 1.0F, 1.0F);
         }
 
         return InteractionResult.sidedSuccess(param0.isClientSide);

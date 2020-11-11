@@ -21,7 +21,6 @@ public class PrimedTnt extends Entity {
     private static final EntityDataAccessor<Integer> DATA_FUSE_ID = SynchedEntityData.defineId(PrimedTnt.class, EntityDataSerializers.INT);
     @Nullable
     private LivingEntity owner;
-    private int life = 80;
 
     public PrimedTnt(EntityType<? extends PrimedTnt> param0, Level param1) {
         super(param0, param1);
@@ -67,8 +66,9 @@ public class PrimedTnt extends Entity {
             this.setDeltaMovement(this.getDeltaMovement().multiply(0.7, -0.5, 0.7));
         }
 
-        --this.life;
-        if (this.life <= 0) {
+        int var0 = this.getFuse() - 1;
+        this.setFuse(var0);
+        if (var0 <= 0) {
             this.discard();
             if (!this.level.isClientSide) {
                 this.explode();
@@ -89,7 +89,7 @@ public class PrimedTnt extends Entity {
 
     @Override
     protected void addAdditionalSaveData(CompoundTag param0) {
-        param0.putShort("Fuse", (short)this.getLife());
+        param0.putShort("Fuse", (short)this.getFuse());
     }
 
     @Override
@@ -109,23 +109,10 @@ public class PrimedTnt extends Entity {
 
     public void setFuse(int param0) {
         this.entityData.set(DATA_FUSE_ID, param0);
-        this.life = param0;
-    }
-
-    @Override
-    public void onSyncedDataUpdated(EntityDataAccessor<?> param0) {
-        if (DATA_FUSE_ID.equals(param0)) {
-            this.life = this.getFuse();
-        }
-
     }
 
     public int getFuse() {
         return this.entityData.get(DATA_FUSE_ID);
-    }
-
-    public int getLife() {
-        return this.life;
     }
 
     @Override

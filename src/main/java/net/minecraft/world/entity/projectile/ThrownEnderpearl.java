@@ -61,7 +61,6 @@ public class ThrownEnderpearl extends ThrowableItemProjectile {
                 if (var2.connection.getConnection().isConnected() && var2.level == this.level && !var2.isSleeping()) {
                     if (this.random.nextFloat() < 0.05F && this.level.getGameRules().getBoolean(GameRules.RULE_DOMOBSPAWNING)) {
                         Endermite var3 = EntityType.ENDERMITE.create(this.level);
-                        var3.setPlayerSpawned(true);
                         var3.moveTo(var0.getX(), var0.getY(), var0.getZ(), var0.yRot, var0.xRot);
                         this.level.addFreshEntity(var3);
                     }
