@@ -27,7 +27,7 @@ public class PandaRenderer extends MobRenderer<Panda, PandaModel<Panda>> {
     });
 
     public PandaRenderer(EntityRendererProvider.Context param0) {
-        super(param0, new PandaModel<>(param0.getLayer(ModelLayers.PANDA)), 0.9F);
+        super(param0, new PandaModel<>(param0.bakeLayer(ModelLayers.PANDA)), 0.9F);
         this.addLayer(new PandaHoldsItemLayer(this));
     }
 

@@ -14,7 +14,7 @@ public class TurtleRenderer extends MobRenderer<Turtle, TurtleModel<Turtle>> {
     private static final ResourceLocation TURTLE_LOCATION = new ResourceLocation("textures/entity/turtle/big_sea_turtle.png");
 
     public TurtleRenderer(EntityRendererProvider.Context param0) {
-        super(param0, new TurtleModel<>(param0.getLayer(ModelLayers.TURTLE)), 0.7F);
+        super(param0, new TurtleModel<>(param0.bakeLayer(ModelLayers.TURTLE)), 0.7F);
     }
 
     public void render(Turtle param0, float param1, float param2, PoseStack param3, MultiBufferSource param4, int param5) {

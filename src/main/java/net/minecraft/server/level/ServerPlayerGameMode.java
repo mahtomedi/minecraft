@@ -1,6 +1,7 @@
 package net.minecraft.server.level;
 
 import java.util.Objects;
+import javax.annotation.Nullable;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -25,10 +26,11 @@ import org.apache.logging.log4j.Logger;
 
 public class ServerPlayerGameMode {
     private static final Logger LOGGER = LogManager.getLogger();
-    public ServerLevel level;
-    public ServerPlayer player;
-    private GameType gameModeForPlayer = GameType.NOT_SET;
-    private GameType previousGameModeForPlayer = GameType.NOT_SET;
+    protected ServerLevel level;
+    protected final ServerPlayer player;
+    private GameType gameModeForPlayer = GameType.DEFAULT_MODE;
+    @Nullable
+    private GameType previousGameModeForPlayer;
     private boolean isDestroyingBlock;
     private int destroyProgressStart;
     private BlockPos destroyPos = BlockPos.ZERO;
@@ -38,15 +40,21 @@ public class ServerPlayerGameMode {
     private int delayedTickStart;
     private int lastSentState = -1;
 
-    public ServerPlayerGameMode(ServerLevel param0) {
-        this.level = param0;
+    public ServerPlayerGameMode(ServerPlayer param0) {
+        this.player = param0;
+        this.level = param0.getLevel();
     }
 
-    public void setGameModeForPlayer(GameType param0) {
-        this.setGameModeForPlayer(param0, param0 != this.gameModeForPlayer ? this.gameModeForPlayer : this.previousGameModeForPlayer);
+    public boolean changeGameModeForPlayer(GameType param0) {
+        if (param0 == this.gameModeForPlayer) {
+            return false;
+        } else {
+            this.setGameModeForPlayer(param0, this.gameModeForPlayer);
+            return true;
+        }
     }
 
-    public void setGameModeForPlayer(GameType param0, GameType param1) {
+    protected void setGameModeForPlayer(GameType param0, @Nullable GameType param1) {
         this.previousGameModeForPlayer = param1;
         this.gameModeForPlayer = param0;
         param0.updatePlayerAbilities(this.player.getAbilities());
@@ -59,6 +67,7 @@ public class ServerPlayerGameMode {
         return this.gameModeForPlayer;
     }
 
+    @Nullable
     public GameType getPreviousGameModeForPlayer() {
         return this.previousGameModeForPlayer;
     }
@@ -69,14 +78,6 @@ public class ServerPlayerGameMode {
 
     public boolean isCreative() {
         return this.gameModeForPlayer.isCreative();
-    }
-
-    public void updateGameMode(GameType param0) {
-        if (this.gameModeForPlayer == GameType.NOT_SET) {
-            this.gameModeForPlayer = param0;
-        }
-
-        this.setGameModeForPlayer(this.gameModeForPlayer);
     }
 
     public void tick() {

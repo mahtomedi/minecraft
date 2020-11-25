@@ -132,7 +132,6 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface 
         this.setFlightAllowed(var1.allowFlight);
         this.setResourcePack(var1.resourcePack, this.getPackHash());
         this.setMotd(var1.motd);
-        this.setForceGameType(var1.forceGameMode);
         super.setPlayerIdleTimeout(var1.playerIdleTimeout.get());
         this.setEnforceWhitelist(var1.enforceWhitelist);
         this.worldData.setGameType(var1.gamemode);
@@ -390,11 +389,6 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface 
     }
 
     @Override
-    public boolean publishServer(GameType param0, boolean param1, int param2) {
-        return false;
-    }
-
-    @Override
     public boolean isCommandBlockEnabled() {
         return this.getProperties().enableCommandBlock;
     }
@@ -585,5 +579,11 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface 
     @Override
     public boolean isResourcePackRequired() {
         return this.settings.getProperties().requireResourcePack;
+    }
+
+    @Nullable
+    @Override
+    public GameType getForcedGameType() {
+        return this.settings.getProperties().forceGameMode ? this.worldData.getGameType() : null;
     }
 }

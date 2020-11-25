@@ -35,12 +35,12 @@ public class ItemOverride {
         return this.model;
     }
 
-    boolean test(ItemStack param0, @Nullable ClientLevel param1, @Nullable LivingEntity param2) {
+    boolean test(ItemStack param0, @Nullable ClientLevel param1, @Nullable LivingEntity param2, int param3) {
         Item var0 = param0.getItem();
 
         for(Entry<ResourceLocation, Float> var1 : this.predicates.entrySet()) {
             ItemPropertyFunction var2 = ItemProperties.getProperty(var0, var1.getKey());
-            if (var2 == null || var2.call(param0, param1, param2) < var1.getValue()) {
+            if (var2 == null || var2.call(param0, param1, param2, param3) < var1.getValue()) {
                 return false;
             }
         }

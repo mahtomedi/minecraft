@@ -20,7 +20,7 @@ public class LlamaSpitRenderer extends EntityRenderer<LlamaSpit> {
 
     public LlamaSpitRenderer(EntityRendererProvider.Context param0) {
         super(param0);
-        this.model = new LlamaSpitModel<>(param0.getLayer(ModelLayers.LLAMA_SPIT));
+        this.model = new LlamaSpitModel<>(param0.bakeLayer(ModelLayers.LLAMA_SPIT));
     }
 
     public void render(LlamaSpit param0, float param1, float param2, PoseStack param3, MultiBufferSource param4, int param5) {

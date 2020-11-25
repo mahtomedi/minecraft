@@ -35,7 +35,7 @@ public class BannerRenderer implements BlockEntityRenderer<BannerBlockEntity> {
     private final ModelPart bar;
 
     public BannerRenderer(BlockEntityRendererProvider.Context param0) {
-        ModelPart var0 = param0.getLayer(ModelLayers.BANNER);
+        ModelPart var0 = param0.bakeLayer(ModelLayers.BANNER);
         this.flag = var0.getChild("flag");
         this.pole = var0.getChild("pole");
         this.bar = var0.getChild("bar");

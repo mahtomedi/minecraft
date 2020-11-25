@@ -51,7 +51,8 @@ public class SnowGolemHeadLayer extends RenderLayer<SnowGolem, SnowGolemModel<Sn
                     param1,
                     param3.level,
                     param2,
-                    LivingEntityRenderer.getOverlayCoords(param3, 0.0F)
+                    LivingEntityRenderer.getOverlayCoords(param3, 0.0F),
+                    param3.getId()
                 );
             param0.popPose();
         }

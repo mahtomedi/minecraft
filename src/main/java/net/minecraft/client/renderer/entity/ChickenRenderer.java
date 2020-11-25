@@ -13,7 +13,7 @@ public class ChickenRenderer extends MobRenderer<Chicken, ChickenModel<Chicken>>
     private static final ResourceLocation CHICKEN_LOCATION = new ResourceLocation("textures/entity/chicken.png");
 
     public ChickenRenderer(EntityRendererProvider.Context param0) {
-        super(param0, new ChickenModel<>(param0.getLayer(ModelLayers.CHICKEN)), 0.3F);
+        super(param0, new ChickenModel<>(param0.bakeLayer(ModelLayers.CHICKEN)), 0.3F);
     }
 
     public ResourceLocation getTextureLocation(Chicken param0) {

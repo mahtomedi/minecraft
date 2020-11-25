@@ -14,7 +14,7 @@ public class BatRenderer extends MobRenderer<Bat, BatModel> {
     private static final ResourceLocation BAT_LOCATION = new ResourceLocation("textures/entity/bat.png");
 
     public BatRenderer(EntityRendererProvider.Context param0) {
-        super(param0, new BatModel(param0.getLayer(ModelLayers.BAT)), 0.25F);
+        super(param0, new BatModel(param0.bakeLayer(ModelLayers.BAT)), 0.25F);
     }
 
     public ResourceLocation getTextureLocation(Bat param0) {

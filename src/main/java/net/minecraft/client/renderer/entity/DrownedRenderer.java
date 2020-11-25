@@ -19,9 +19,9 @@ public class DrownedRenderer extends AbstractZombieRenderer<Drowned, DrownedMode
     public DrownedRenderer(EntityRendererProvider.Context param0) {
         super(
             param0,
-            new DrownedModel<>(param0.getLayer(ModelLayers.DROWNED)),
-            new DrownedModel<>(param0.getLayer(ModelLayers.DROWNED_INNER_ARMOR)),
-            new DrownedModel<>(param0.getLayer(ModelLayers.DROWNED_OUTER_ARMOR))
+            new DrownedModel<>(param0.bakeLayer(ModelLayers.DROWNED)),
+            new DrownedModel<>(param0.bakeLayer(ModelLayers.DROWNED_INNER_ARMOR)),
+            new DrownedModel<>(param0.bakeLayer(ModelLayers.DROWNED_OUTER_ARMOR))
         );
         this.addLayer(new DrownedOuterLayer<>(this, param0.getModelSet()));
     }

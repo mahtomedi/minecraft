@@ -1,8 +1,10 @@
 package net.minecraft.world.level.block;
 
 import java.util.Map;
+import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.cauldron.CauldronInteraction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -13,6 +15,8 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.BooleanOp;
@@ -67,5 +71,24 @@ public abstract class AbstractCauldronBlock extends Block {
     @Override
     public boolean isPathfindable(BlockState param0, BlockGetter param1, BlockPos param2, PathComputationType param3) {
         return false;
+    }
+
+    @Override
+    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+        BlockPos var0 = PointedDripstoneBlock.findStalactiteTipAboveCauldron(param1, param2);
+        if (var0 != null) {
+            Fluid var1 = PointedDripstoneBlock.getCauldronFillFluidType(param1, var0);
+            if (var1 != Fluids.EMPTY && this.canReceiveStalactiteDrip(var1)) {
+                this.receiveStalactiteDrip(param0, param1, param2, var1);
+            }
+
+        }
+    }
+
+    protected boolean canReceiveStalactiteDrip(Fluid param0) {
+        return false;
+    }
+
+    protected void receiveStalactiteDrip(BlockState param0, Level param1, BlockPos param2, Fluid param3) {
     }
 }

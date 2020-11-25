@@ -7,6 +7,7 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.HttpUtil;
+import net.minecraft.world.level.GameType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -16,7 +17,7 @@ public class ShareToLanScreen extends Screen {
     private static final Component GAME_MODE_LABEL = new TranslatableComponent("selectWorld.gameMode");
     private static final Component INFO_TEXT = new TranslatableComponent("lanServer.otherPlayers");
     private final Screen lastScreen;
-    private SelectedGameMode gameMode = SelectedGameMode.SURVIVAL;
+    private GameType gameMode = GameType.SURVIVAL;
     private boolean commands;
 
     public ShareToLanScreen(Screen param0) {
@@ -27,8 +28,8 @@ public class ShareToLanScreen extends Screen {
     @Override
     protected void init() {
         this.addButton(
-            CycleButton.builder(SelectedGameMode::getDisplayName)
-                .withValues(SelectedGameMode.SURVIVAL, SelectedGameMode.SPECTATOR, SelectedGameMode.CREATIVE, SelectedGameMode.ADVENTURE)
+            CycleButton.builder(GameType::getShortDisplayName)
+                .withValues(GameType.SURVIVAL, GameType.SPECTATOR, GameType.CREATIVE, GameType.ADVENTURE)
                 .withInitialValue(this.gameMode)
                 .create(this.width / 2 - 155, 100, 150, 20, GAME_MODE_LABEL, (param0, param1) -> this.gameMode = param1)
         );
@@ -39,7 +40,7 @@ public class ShareToLanScreen extends Screen {
             this.minecraft.setScreen(null);
             int var0 = HttpUtil.getAvailablePort();
             Component var1;
-            if (this.minecraft.getSingleplayerServer().publishServer(this.gameMode.getGameType(), this.commands, var0)) {
+            if (this.minecraft.getSingleplayerServer().publishServer(this.gameMode, this.commands, var0)) {
                 var1 = new TranslatableComponent("commands.publish.started", var0);
             } else {
                 var1 = new TranslatableComponent("commands.publish.failed");

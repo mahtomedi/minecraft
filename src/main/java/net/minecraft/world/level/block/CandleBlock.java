@@ -17,6 +17,7 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -152,5 +153,10 @@ public class CandleBlock extends AbstractCandleBlock implements SimpleWaterlogge
     @Override
     protected Iterable<Vec3> getParticleOffsets(BlockState param0) {
         return PARTICLE_OFFSETS.get(param0.getValue(CANDLES).intValue());
+    }
+
+    @Override
+    public boolean canSurvive(BlockState param0, LevelReader param1, BlockPos param2) {
+        return Block.canSupportCenter(param1, param2.below(), Direction.UP);
     }
 }

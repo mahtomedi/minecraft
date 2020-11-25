@@ -9,7 +9,6 @@ import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.screens.SelectedGameMode;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
@@ -18,13 +17,14 @@ import net.minecraft.realms.RealmsLabel;
 import net.minecraft.realms.RealmsScreen;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Difficulty;
+import net.minecraft.world.level.GameType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class RealmsSlotOptionsScreen extends RealmsScreen {
     public static final List<Difficulty> DIFFICULTIES = ImmutableList.of(Difficulty.PEACEFUL, Difficulty.EASY, Difficulty.NORMAL, Difficulty.HARD);
-    public static final List<SelectedGameMode> GAME_MODES = ImmutableList.of(SelectedGameMode.SURVIVAL, SelectedGameMode.CREATIVE, SelectedGameMode.ADVENTURE);
+    public static final List<GameType> GAME_MODES = ImmutableList.of(GameType.SURVIVAL, GameType.CREATIVE, GameType.ADVENTURE);
     private static final Component NAME_LABEL = new TranslatableComponent("mco.configure.world.edit.slot.name");
     private static final Component SPAWN_PROTECTION_TEXT = new TranslatableComponent("mco.configure.world.spawnProtection");
     private EditBox nameEdit;
@@ -35,7 +35,7 @@ public class RealmsSlotOptionsScreen extends RealmsScreen {
     private final RealmsServer.WorldType worldType;
     private final int activeSlot;
     private Difficulty difficulty;
-    private SelectedGameMode gameMode;
+    private GameType gameMode;
     private boolean pvp;
     private boolean spawnNPCs;
     private boolean spawnAnimals;
@@ -133,8 +133,8 @@ public class RealmsSlotOptionsScreen extends RealmsScreen {
                 .create(var0, row(1), this.columnWidth, 20, new TranslatableComponent("mco.configure.world.pvp"), (param0, param1) -> this.pvp = param1)
         );
         this.addButton(
-            CycleButton.builder(SelectedGameMode::getDisplayName)
-                .withValues(SelectedGameMode.values())
+            CycleButton.builder(GameType::getShortDisplayName)
+                .withValues(GAME_MODES)
                 .withInitialValue(this.gameMode)
                 .create(
                     this.column1X, row(3), this.columnWidth, 20, new TranslatableComponent("selectWorld.gameMode"), (param0, param1) -> this.gameMode = param1

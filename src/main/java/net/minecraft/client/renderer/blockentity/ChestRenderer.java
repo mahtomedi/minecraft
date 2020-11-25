@@ -51,15 +51,15 @@ public class ChestRenderer<T extends BlockEntity & LidBlockEntity> implements Bl
             this.xmasTextures = true;
         }
 
-        ModelPart var1 = param0.getLayer(ModelLayers.CHEST);
+        ModelPart var1 = param0.bakeLayer(ModelLayers.CHEST);
         this.bottom = var1.getChild("bottom");
         this.lid = var1.getChild("lid");
         this.lock = var1.getChild("lock");
-        ModelPart var2 = param0.getLayer(ModelLayers.DOUBLE_CHEST_LEFT);
+        ModelPart var2 = param0.bakeLayer(ModelLayers.DOUBLE_CHEST_LEFT);
         this.doubleLeftBottom = var2.getChild("bottom");
         this.doubleLeftLid = var2.getChild("lid");
         this.doubleLeftLock = var2.getChild("lock");
-        ModelPart var3 = param0.getLayer(ModelLayers.DOUBLE_CHEST_RIGHT);
+        ModelPart var3 = param0.bakeLayer(ModelLayers.DOUBLE_CHEST_RIGHT);
         this.doubleRightBottom = var3.getChild("bottom");
         this.doubleRightLid = var3.getChild("lid");
         this.doubleRightLock = var3.getChild("lock");

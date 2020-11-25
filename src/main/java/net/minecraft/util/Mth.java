@@ -551,6 +551,15 @@ public class Mth {
         return (param0 + param1 - 1) / param1 * param1;
     }
 
+    public static int randomBetweenInclusive(Random param0, int param1, int param2) {
+        return param0.nextInt(param2 - param1 + 1) + param1;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static float randomBetween(Random param0, float param1, float param2) {
+        return param0.nextFloat() * (param2 - param1) + param1;
+    }
+
     static {
         for(int var0 = 0; var0 < 257; ++var0) {
             double var1 = (double)var0 / 256.0;

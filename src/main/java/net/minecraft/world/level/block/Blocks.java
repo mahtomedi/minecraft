@@ -3542,6 +3542,25 @@ public class Blocks {
                 .noOcclusion()
         )
     );
+    public static final Block POINTED_DRIPSTONE = register(
+        "pointed_dripstone",
+        new PointedDripstoneBlock(
+            BlockBehaviour.Properties.of(Material.STONE, MaterialColor.TERRACOTTA_BROWN)
+                .noOcclusion()
+                .sound(SoundType.POINTED_DRIPSTONE)
+                .randomTicks()
+                .strength(1.5F, 3.0F)
+        )
+    );
+    public static final Block DRIPSTONE_BLOCK = register(
+        "dripstone_block",
+        new Block(
+            BlockBehaviour.Properties.of(Material.STONE, MaterialColor.TERRACOTTA_BROWN)
+                .sound(SoundType.DRIPSTONE_BLOCK)
+                .requiresCorrectToolForDrops()
+                .strength(1.5F, 1.0F)
+        )
+    );
 
     private static ToIntFunction<BlockState> litBlockEmission(int param0) {
         return param1 -> param1.getValue(BlockStateProperties.LIT) ? param0 : 0;

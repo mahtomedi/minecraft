@@ -203,11 +203,6 @@ public class ZombifiedPiglin extends Zombie implements NeutralMob {
     }
 
     @Override
-    public boolean hurt(DamageSource param0, float param1) {
-        return this.isInvulnerableTo(param0) ? false : super.hurt(param0, param1);
-    }
-
-    @Override
     protected SoundEvent getAmbientSound() {
         return this.isAngry() ? SoundEvents.ZOMBIFIED_PIGLIN_ANGRY : SoundEvents.ZOMBIFIED_PIGLIN_AMBIENT;
     }

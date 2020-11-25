@@ -18,7 +18,7 @@ public class WitherArmorLayer extends EnergySwirlLayer<WitherBoss, WitherBossMod
 
     public WitherArmorLayer(RenderLayerParent<WitherBoss, WitherBossModel<WitherBoss>> param0, EntityModelSet param1) {
         super(param0);
-        this.model = new WitherBossModel<>(param1.getLayer(ModelLayers.WITHER_ARMOR));
+        this.model = new WitherBossModel<>(param1.bakeLayer(ModelLayers.WITHER_ARMOR));
     }
 
     @Override

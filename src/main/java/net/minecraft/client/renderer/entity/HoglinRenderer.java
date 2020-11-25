@@ -12,7 +12,7 @@ public class HoglinRenderer extends MobRenderer<Hoglin, HoglinModel<Hoglin>> {
     private static final ResourceLocation HOGLIN_LOCATION = new ResourceLocation("textures/entity/hoglin/hoglin.png");
 
     public HoglinRenderer(EntityRendererProvider.Context param0) {
-        super(param0, new HoglinModel<>(param0.getLayer(ModelLayers.HOGLIN)), 0.7F);
+        super(param0, new HoglinModel<>(param0.bakeLayer(ModelLayers.HOGLIN)), 0.7F);
     }
 
     public ResourceLocation getTextureLocation(Hoglin param0) {

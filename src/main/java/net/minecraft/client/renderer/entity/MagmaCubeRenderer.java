@@ -15,7 +15,7 @@ public class MagmaCubeRenderer extends MobRenderer<MagmaCube, LavaSlimeModel<Mag
     private static final ResourceLocation MAGMACUBE_LOCATION = new ResourceLocation("textures/entity/slime/magmacube.png");
 
     public MagmaCubeRenderer(EntityRendererProvider.Context param0) {
-        super(param0, new LavaSlimeModel<>(param0.getLayer(ModelLayers.MAGMA_CUBE)), 0.25F);
+        super(param0, new LavaSlimeModel<>(param0.bakeLayer(ModelLayers.MAGMA_CUBE)), 0.25F);
     }
 
     protected int getBlockLightLevel(MagmaCube param0, BlockPos param1) {

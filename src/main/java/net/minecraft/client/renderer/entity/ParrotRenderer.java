@@ -19,7 +19,7 @@ public class ParrotRenderer extends MobRenderer<Parrot, ParrotModel> {
     };
 
     public ParrotRenderer(EntityRendererProvider.Context param0) {
-        super(param0, new ParrotModel(param0.getLayer(ModelLayers.PARROT)), 0.3F);
+        super(param0, new ParrotModel(param0.bakeLayer(ModelLayers.PARROT)), 0.3F);
     }
 
     public ResourceLocation getTextureLocation(Parrot param0) {

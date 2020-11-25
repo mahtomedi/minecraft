@@ -22,12 +22,12 @@ public class ArmorStandRenderer extends LivingEntityRenderer<ArmorStand, ArmorSt
     public static final ResourceLocation DEFAULT_SKIN_LOCATION = new ResourceLocation("textures/entity/armorstand/wood.png");
 
     public ArmorStandRenderer(EntityRendererProvider.Context param0) {
-        super(param0, new ArmorStandModel(param0.getLayer(ModelLayers.ARMOR_STAND)), 0.0F);
+        super(param0, new ArmorStandModel(param0.bakeLayer(ModelLayers.ARMOR_STAND)), 0.0F);
         this.addLayer(
             new HumanoidArmorLayer<>(
                 this,
-                new ArmorStandArmorModel(param0.getLayer(ModelLayers.ARMOR_STAND_INNER_ARMOR)),
-                new ArmorStandArmorModel(param0.getLayer(ModelLayers.ARMOR_STAND_OUTER_ARMOR))
+                new ArmorStandArmorModel(param0.bakeLayer(ModelLayers.ARMOR_STAND_INNER_ARMOR)),
+                new ArmorStandArmorModel(param0.bakeLayer(ModelLayers.ARMOR_STAND_OUTER_ARMOR))
             )
         );
         this.addLayer(new ItemInHandLayer<>(this));

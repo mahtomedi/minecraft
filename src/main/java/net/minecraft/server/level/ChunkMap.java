@@ -1168,16 +1168,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
                     && var0.z <= (double)var1
                     && this.entity.broadcastToPlayer(param0);
                 if (var2) {
-                    boolean var3 = this.entity.forcedLoading;
-                    if (!var3) {
-                        ChunkPos var4 = this.entity.chunkPosition();
-                        ChunkHolder var5 = ChunkMap.this.getVisibleChunkIfPresent(var4.toLong());
-                        if (var5 != null && var5.getTickingChunk() != null) {
-                            var3 = ChunkMap.checkerboardDistance(var4, param0, false) <= ChunkMap.this.viewDistance;
-                        }
-                    }
-
-                    if (var3 && this.seenBy.add(param0.connection)) {
+                    if (this.seenBy.add(param0.connection)) {
                         this.serverEntity.addPairing(param0);
                     }
                 } else if (this.seenBy.remove(param0.connection)) {

@@ -13,6 +13,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
 
 public class LayeredCauldronBlock extends AbstractCauldronBlock {
     public static final IntegerProperty LEVEL = BlockStateProperties.LEVEL_CAULDRON;
@@ -24,6 +26,15 @@ public class LayeredCauldronBlock extends AbstractCauldronBlock {
         super(param0, param2);
         this.fillPredicate = param1;
         this.registerDefaultState(this.stateDefinition.any().setValue(LEVEL, Integer.valueOf(1)));
+    }
+
+    public boolean isFull(BlockState param0) {
+        return param0.getValue(LEVEL) == 3;
+    }
+
+    @Override
+    protected boolean canReceiveStalactiteDrip(Fluid param0) {
+        return param0 == Fluids.WATER && this.fillPredicate == RAIN;
     }
 
     @Override
@@ -60,5 +71,13 @@ public class LayeredCauldronBlock extends AbstractCauldronBlock {
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> param0) {
         param0.add(LEVEL);
+    }
+
+    @Override
+    protected void receiveStalactiteDrip(BlockState param0, Level param1, BlockPos param2, Fluid param3) {
+        if (!this.isFull(param0)) {
+            param1.setBlockAndUpdate(param2, param0.setValue(LEVEL, Integer.valueOf(param0.getValue(LEVEL) + 1)));
+            param1.levelEvent(1047, param2, 0);
+        }
     }
 }

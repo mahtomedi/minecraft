@@ -1,22 +1,29 @@
 package net.minecraft.world.level;
 
+import javax.annotation.Nullable;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.player.Abilities;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public enum GameType {
-    NOT_SET(-1, ""),
     SURVIVAL(0, "survival"),
     CREATIVE(1, "creative"),
     ADVENTURE(2, "adventure"),
     SPECTATOR(3, "spectator");
 
+    public static final GameType DEFAULT_MODE = SURVIVAL;
     private final int id;
     private final String name;
+    private final Component shortName;
+    private final Component longName;
 
     private GameType(int param0, String param1) {
         this.id = param0;
         this.name = param1;
+        this.shortName = new TranslatableComponent("selectWorld.gameMode." + param1);
+        this.longName = new TranslatableComponent("gameMode." + param1);
     }
 
     public int getId() {
@@ -27,8 +34,13 @@ public enum GameType {
         return this.name;
     }
 
-    public Component getDisplayName() {
-        return new TranslatableComponent("gameMode." + this.name);
+    public Component getLongDisplayName() {
+        return this.longName;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public Component getShortDisplayName() {
+        return this.shortName;
     }
 
     public void updatePlayerAbilities(Abilities param0) {
@@ -64,7 +76,7 @@ public enum GameType {
     }
 
     public static GameType byId(int param0) {
-        return byId(param0, SURVIVAL);
+        return byId(param0, DEFAULT_MODE);
     }
 
     public static GameType byId(int param0, GameType param1) {
@@ -89,5 +101,14 @@ public enum GameType {
         }
 
         return param1;
+    }
+
+    public static int getNullableId(@Nullable GameType param0) {
+        return param0 != null ? param0.id : -1;
+    }
+
+    @Nullable
+    public static GameType byNullableId(int param0) {
+        return param0 == -1 ? null : byId(param0);
     }
 }

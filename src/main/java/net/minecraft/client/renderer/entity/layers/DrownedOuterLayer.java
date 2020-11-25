@@ -18,7 +18,7 @@ public class DrownedOuterLayer<T extends Drowned> extends RenderLayer<T, Drowned
 
     public DrownedOuterLayer(RenderLayerParent<T, DrownedModel<T>> param0, EntityModelSet param1) {
         super(param0);
-        this.model = new DrownedModel<>(param1.getLayer(ModelLayers.DROWNED_OUTER_LAYER));
+        this.model = new DrownedModel<>(param1.bakeLayer(ModelLayers.DROWNED_OUTER_LAYER));
     }
 
     public void render(

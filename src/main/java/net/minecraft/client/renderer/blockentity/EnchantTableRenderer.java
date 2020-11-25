@@ -21,7 +21,7 @@ public class EnchantTableRenderer implements BlockEntityRenderer<EnchantmentTabl
     private final BookModel bookModel;
 
     public EnchantTableRenderer(BlockEntityRendererProvider.Context param0) {
-        this.bookModel = new BookModel(param0.getLayer(ModelLayers.BOOK));
+        this.bookModel = new BookModel(param0.bakeLayer(ModelLayers.BOOK));
     }
 
     public void render(EnchantmentTableBlockEntity param0, float param1, PoseStack param2, MultiBufferSource param3, int param4, int param5) {

@@ -23,7 +23,7 @@ public class ShulkerBulletRenderer extends EntityRenderer<ShulkerBullet> {
 
     public ShulkerBulletRenderer(EntityRendererProvider.Context param0) {
         super(param0);
-        this.model = new ShulkerBulletModel<>(param0.getLayer(ModelLayers.SHULKER_BULLET));
+        this.model = new ShulkerBulletModel<>(param0.bakeLayer(ModelLayers.SHULKER_BULLET));
     }
 
     protected int getBlockLightLevel(ShulkerBullet param0, BlockPos param1) {

@@ -284,7 +284,7 @@ public abstract class Option {
             (param0, param1, param2) -> {
                 Minecraft var0 = Minecraft.getInstance();
                 GpuWarnlistManager var1 = var0.getGpuWarnlistManager();
-                if (param2 == GraphicsStatus.FANCY && var1.willShowWarning()) {
+                if (param2 == GraphicsStatus.FABULOUS && var1.willShowWarning()) {
                     var1.showWarning();
                 } else {
                     param0.graphicsMode = param2;

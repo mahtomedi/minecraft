@@ -33,8 +33,8 @@ public class BedRenderer implements BlockEntityRenderer<BedBlockEntity> {
     private final ModelPart footRoot;
 
     public BedRenderer(BlockEntityRendererProvider.Context param0) {
-        this.headRoot = param0.getLayer(ModelLayers.BED_HEAD);
-        this.footRoot = param0.getLayer(ModelLayers.BED_FOOT);
+        this.headRoot = param0.bakeLayer(ModelLayers.BED_HEAD);
+        this.footRoot = param0.bakeLayer(ModelLayers.BED_FOOT);
     }
 
     public static LayerDefinition createHeadLayer() {

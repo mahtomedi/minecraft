@@ -28,7 +28,7 @@ public class SpinAttackEffectLayer<T extends LivingEntity> extends RenderLayer<T
 
     public SpinAttackEffectLayer(RenderLayerParent<T, PlayerModel<T>> param0, EntityModelSet param1) {
         super(param0);
-        ModelPart var0 = param1.getLayer(ModelLayers.PLAYER_SPIN_ATTACK);
+        ModelPart var0 = param1.bakeLayer(ModelLayers.PLAYER_SPIN_ATTACK);
         this.box = var0.getChild("box");
     }
 

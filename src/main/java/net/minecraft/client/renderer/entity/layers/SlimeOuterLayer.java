@@ -20,7 +20,7 @@ public class SlimeOuterLayer<T extends LivingEntity> extends RenderLayer<T, Slim
 
     public SlimeOuterLayer(RenderLayerParent<T, SlimeModel<T>> param0, EntityModelSet param1) {
         super(param0);
-        this.model = new SlimeModel<>(param1.getLayer(ModelLayers.SLIME_OUTER));
+        this.model = new SlimeModel<>(param1.bakeLayer(ModelLayers.SLIME_OUTER));
     }
 
     public void render(

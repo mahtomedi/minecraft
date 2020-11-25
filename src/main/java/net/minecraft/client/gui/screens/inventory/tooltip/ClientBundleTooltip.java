@@ -43,10 +43,11 @@ public class ClientBundleTooltip implements ClientTooltipComponent {
         int var1 = 0;
         int var2 = this.itemsPerRow();
 
-        for(ItemStack var3 : this.items) {
+        for(int var3 = 0; var3 < this.items.size(); ++var3) {
+            ItemStack var4 = this.items.get(var3);
             this.blitSlotBg(param3, var0 + param1 - 1, var1 + param2 - 1, param5, param6, false);
-            param4.renderAndDecorateItem(var3, param1 + var0, param2 + var1);
-            param4.renderGuiItemDecorations(param0, var3, param1 + var0, param2 + var1);
+            param4.renderAndDecorateItem(var4, param1 + var0, param2 + var1, var3);
+            param4.renderGuiItemDecorations(param0, var4, param1 + var0, param2 + var1);
             var0 += 18;
             if (var0 >= 18 * var2) {
                 var0 = 0;

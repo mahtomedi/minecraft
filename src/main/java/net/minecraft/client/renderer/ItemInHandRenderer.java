@@ -50,7 +50,10 @@ public class ItemInHandRenderer {
         LivingEntity param0, ItemStack param1, ItemTransforms.TransformType param2, boolean param3, PoseStack param4, MultiBufferSource param5, int param6
     ) {
         if (!param1.isEmpty()) {
-            this.itemRenderer.renderStatic(param0, param1, param2, param3, param4, param5, param0.level, param6, OverlayTexture.NO_OVERLAY);
+            this.itemRenderer
+                .renderStatic(
+                    param0, param1, param2, param3, param4, param5, param0.level, param6, OverlayTexture.NO_OVERLAY, param0.getId() + param2.ordinal()
+                );
         }
     }
 

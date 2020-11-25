@@ -95,18 +95,22 @@ public class CustomHeadLayer<T extends LivingEntity, M extends EntityModel<T> & 
                 RenderType var11 = SkullBlockRenderer.getRenderType(var9, var6);
                 SkullBlockRenderer.renderSkull(null, 180.0F, param4, param0, param1, param2, var10, var11);
             } else if (!(var1 instanceof ArmorItem) || ((ArmorItem)var1).getSlot() != EquipmentSlot.HEAD) {
-                float var12 = 0.625F;
-                param0.translate(0.0, -0.25, 0.0);
-                param0.mulPose(Vector3f.YP.rotationDegrees(180.0F));
-                param0.scale(0.625F, -0.625F, -0.625F);
-                if (var2) {
-                    param0.translate(0.0, 0.1875, 0.0);
-                }
-
+                translateToHead(param0, var2);
                 Minecraft.getInstance().getItemInHandRenderer().renderItem(param3, var0, ItemTransforms.TransformType.HEAD, false, param0, param1, param2);
             }
 
             param0.popPose();
         }
+    }
+
+    public static void translateToHead(PoseStack param0, boolean param1) {
+        float var0 = 0.625F;
+        param0.translate(0.0, -0.25, 0.0);
+        param0.mulPose(Vector3f.YP.rotationDegrees(180.0F));
+        param0.scale(0.625F, -0.625F, -0.625F);
+        if (param1) {
+            param0.translate(0.0, 0.1875, 0.0);
+        }
+
     }
 }

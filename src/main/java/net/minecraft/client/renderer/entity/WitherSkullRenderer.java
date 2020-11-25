@@ -26,7 +26,7 @@ public class WitherSkullRenderer extends EntityRenderer<WitherSkull> {
 
     public WitherSkullRenderer(EntityRendererProvider.Context param0) {
         super(param0);
-        this.model = new SkullModel(param0.getLayer(ModelLayers.WITHER_SKULL));
+        this.model = new SkullModel(param0.bakeLayer(ModelLayers.WITHER_SKULL));
     }
 
     public static LayerDefinition createSkullLayer() {

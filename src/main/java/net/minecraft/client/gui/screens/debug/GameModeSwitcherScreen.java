@@ -11,6 +11,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.network.chat.Component;
@@ -43,17 +44,13 @@ public class GameModeSwitcherScreen extends Screen {
     }
 
     private GameType getDefaultSelected() {
-        GameType var0 = Minecraft.getInstance().gameMode.getPlayerMode();
-        GameType var1 = Minecraft.getInstance().gameMode.getPreviousPlayerMode();
-        if (var1 == GameType.NOT_SET) {
-            if (var0 == GameType.CREATIVE) {
-                var1 = GameType.SURVIVAL;
-            } else {
-                var1 = GameType.CREATIVE;
-            }
+        MultiPlayerGameMode var0 = Minecraft.getInstance().gameMode;
+        GameType var1 = var0.getPreviousPlayerMode();
+        if (var1 != null) {
+            return var1;
+        } else {
+            return var0.getPlayerMode() == GameType.CREATIVE ? GameType.SURVIVAL : GameType.CREATIVE;
         }
-
-        return var1;
     }
 
     @Override

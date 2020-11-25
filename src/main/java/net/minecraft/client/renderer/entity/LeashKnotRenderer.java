@@ -18,7 +18,7 @@ public class LeashKnotRenderer extends EntityRenderer<LeashFenceKnotEntity> {
 
     public LeashKnotRenderer(EntityRendererProvider.Context param0) {
         super(param0);
-        this.model = new LeashKnotModel<>(param0.getLayer(ModelLayers.LEASH_KNOT));
+        this.model = new LeashKnotModel<>(param0.bakeLayer(ModelLayers.LEASH_KNOT));
     }
 
     public void render(LeashFenceKnotEntity param0, float param1, float param2, PoseStack param3, MultiBufferSource param4, int param5) {

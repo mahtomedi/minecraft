@@ -58,6 +58,7 @@ import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ClickAction;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.enchantment.DigDurabilityEnchantment;
@@ -320,12 +321,12 @@ public final class ItemStack {
         return this.item.getBarColor(this);
     }
 
-    public boolean overrideStackedOnOther(ItemStack param0, ClickAction param1, Inventory param2) {
+    public boolean overrideStackedOnOther(Slot param0, ClickAction param1, Inventory param2) {
         return this.getItem().overrideStackedOnOther(this, param0, param1, param2);
     }
 
-    public boolean overrideOtherStackedOnMe(ItemStack param0, ClickAction param1, Inventory param2) {
-        return this.getItem().overrideOtherStackedOnMe(this, param0, param1, param2);
+    public boolean overrideOtherStackedOnMe(ItemStack param0, Slot param1, ClickAction param2, Inventory param3) {
+        return this.getItem().overrideOtherStackedOnMe(this, param0, param1, param2, param3);
     }
 
     public void hurtEnemy(LivingEntity param0, Player param1) {

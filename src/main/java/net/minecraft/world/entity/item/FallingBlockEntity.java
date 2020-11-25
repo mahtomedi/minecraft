@@ -29,6 +29,7 @@ import net.minecraft.world.level.block.AnvilBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ConcretePowderBlock;
+import net.minecraft.world.level.block.Fallable;
 import net.minecraft.world.level.block.FallingBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -150,8 +151,8 @@ public class FallingBlockEntity extends Entity {
                                 }
 
                                 if (this.level.setBlock(var2, this.blockState, 3)) {
-                                    if (var0 instanceof FallingBlock) {
-                                        ((FallingBlock)var0).onLand(this.level, var2, this.blockState, var7, this);
+                                    if (var0 instanceof Fallable) {
+                                        ((Fallable)var0).onLand(this.level, var2, this.blockState, var7, this);
                                     }
 
                                     if (this.blockData != null && this.blockState.hasBlockEntity()) {
@@ -171,13 +172,15 @@ public class FallingBlockEntity extends Entity {
                                         }
                                     }
                                 } else if (this.dropItem && this.level.getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
+                                    this.callOnBrokenAfterFall(var0, var2);
                                     this.spawnAtLocation(var0);
                                 }
                             } else if (this.dropItem && this.level.getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
+                                this.callOnBrokenAfterFall(var0, var2);
                                 this.spawnAtLocation(var0);
                             }
-                        } else if (var0 instanceof FallingBlock) {
-                            ((FallingBlock)var0).onBroken(this.level, var2, this);
+                        } else {
+                            this.callOnBrokenAfterFall(var0, var2);
                         }
                     }
                 } else if (!this.level.isClientSide
@@ -192,6 +195,13 @@ public class FallingBlockEntity extends Entity {
 
             this.setDeltaMovement(this.getDeltaMovement().scale(0.98));
         }
+    }
+
+    public void callOnBrokenAfterFall(Block param0, BlockPos param1) {
+        if (param0 instanceof Fallable) {
+            ((Fallable)param0).onBrokenAfterFall(this.level, param1, this);
+        }
+
     }
 
     @Override

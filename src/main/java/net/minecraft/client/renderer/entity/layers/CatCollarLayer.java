@@ -18,7 +18,7 @@ public class CatCollarLayer extends RenderLayer<Cat, CatModel<Cat>> {
 
     public CatCollarLayer(RenderLayerParent<Cat, CatModel<Cat>> param0, EntityModelSet param1) {
         super(param0);
-        this.catModel = new CatModel<>(param1.getLayer(ModelLayers.CAT_COLLAR));
+        this.catModel = new CatModel<>(param1.bakeLayer(ModelLayers.CAT_COLLAR));
     }
 
     public void render(

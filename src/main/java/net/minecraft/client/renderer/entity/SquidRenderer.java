@@ -15,7 +15,7 @@ public class SquidRenderer extends MobRenderer<Squid, SquidModel<Squid>> {
     private static final ResourceLocation SQUID_LOCATION = new ResourceLocation("textures/entity/squid.png");
 
     public SquidRenderer(EntityRendererProvider.Context param0) {
-        super(param0, new SquidModel<>(param0.getLayer(ModelLayers.SQUID)), 0.7F);
+        super(param0, new SquidModel<>(param0.bakeLayer(ModelLayers.SQUID)), 0.7F);
     }
 
     public ResourceLocation getTextureLocation(Squid param0) {

@@ -216,7 +216,7 @@ public class EntitySelectorOptions {
                     }
 
                     for(GameType var3x : GameType.values()) {
-                        if (var3x != GameType.NOT_SET && var3x.getName().toLowerCase(Locale.ROOT).startsWith(var0x)) {
+                        if (var3x.getName().toLowerCase(Locale.ROOT).startsWith(var0x)) {
                             if (var2x) {
                                 param1.suggest('!' + var3x.getName());
                             }
@@ -236,8 +236,8 @@ public class EntitySelectorOptions {
                     throw ERROR_INAPPLICABLE_OPTION.createWithContext(param0.getReader(), "gamemode");
                 } else {
                     String var2 = param0.getReader().readUnquotedString();
-                    GameType var3 = GameType.byName(var2, GameType.NOT_SET);
-                    if (var3 == GameType.NOT_SET) {
+                    GameType var3 = GameType.byName(var2, null);
+                    if (var3 == null) {
                         param0.getReader().setCursor(var0);
                         throw ERROR_GAME_MODE_INVALID.createWithContext(param0.getReader(), var2);
                     } else {

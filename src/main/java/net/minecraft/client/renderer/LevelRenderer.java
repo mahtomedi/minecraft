@@ -100,6 +100,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.block.ComposterBlock;
+import net.minecraft.world.level.block.PointedDripstoneBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -1256,7 +1257,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
             RenderStateShard.WEATHER_TARGET.setupRenderState();
             var0.popPush("weather");
             this.renderSnowAndRain(param6, param1, var2, var3, var4);
-            this.renderWorldBounds(param4);
+            this.renderWorldBorder(param4);
             RenderStateShard.WEATHER_TARGET.clearRenderState();
             this.transparencyChain.process(param1);
             this.minecraft.getMainRenderTarget().bindWrite(false);
@@ -1264,7 +1265,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
             RenderSystem.depthMask(false);
             var0.popPush("weather");
             this.renderSnowAndRain(param6, param1, var2, var3, var4);
-            this.renderWorldBounds(param4);
+            this.renderWorldBorder(param4);
             RenderSystem.depthMask(true);
         }
 
@@ -2068,7 +2069,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
 
     }
 
-    private void renderWorldBounds(Camera param0) {
+    private void renderWorldBorder(Camera param0) {
         BufferBuilder var0 = Tesselator.getInstance().getBuilder();
         WorldBorder var1 = this.level.getWorldBorder();
         double var2 = (double)(this.minecraft.options.renderDistance * 16);
@@ -2079,8 +2080,8 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
             double var3 = 1.0 - var1.getDistanceToBorder(param0.getPosition().x, param0.getPosition().z) / var2;
             var3 = Math.pow(var3, 4.0);
             double var4 = param0.getPosition().x;
-            double var5 = param0.getPosition().y;
-            double var6 = param0.getPosition().z;
+            double var5 = param0.getPosition().z;
+            double var6 = (double)this.minecraft.gameRenderer.getDepthFar();
             RenderSystem.enableBlend();
             RenderSystem.enableDepthTest();
             RenderSystem.blendFuncSeparate(
@@ -2102,20 +2103,20 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
             float var11 = (float)(Util.getMillis() % 3000L) / 3000.0F;
             float var12 = 0.0F;
             float var13 = 0.0F;
-            float var14 = (float)this.level.getMaxBuildHeight() * 0.5F;
+            float var14 = (float)var6;
             var0.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-            double var15 = Math.max((double)Mth.floor(var6 - var2), var1.getMinZ());
-            double var16 = Math.min((double)Mth.ceil(var6 + var2), var1.getMaxZ());
+            double var15 = Math.max((double)Mth.floor(var5 - var2), var1.getMinZ());
+            double var16 = Math.min((double)Mth.ceil(var5 + var2), var1.getMaxZ());
             if (var4 > var1.getMaxX() - var2) {
                 float var17 = 0.0F;
 
                 for(double var18 = var15; var18 < var16; var17 += 0.5F) {
                     double var19 = Math.min(1.0, var16 - var18);
                     float var20 = (float)var19 * 0.5F;
-                    this.vertex(var0, var4, var5, var6, var1.getMaxX(), this.level.getMaxBuildHeight(), var18, var11 + var17, var11 + 0.0F);
-                    this.vertex(var0, var4, var5, var6, var1.getMaxX(), this.level.getMaxBuildHeight(), var18 + var19, var11 + var20 + var17, var11 + 0.0F);
-                    this.vertex(var0, var4, var5, var6, var1.getMaxX(), 0, var18 + var19, var11 + var20 + var17, var11 + var14);
-                    this.vertex(var0, var4, var5, var6, var1.getMaxX(), 0, var18, var11 + var17, var11 + var14);
+                    var0.vertex(var1.getMaxX() - var4, -var6, var18 - var5).uv(var11 + var17, var11 + 0.0F).endVertex();
+                    var0.vertex(var1.getMaxX() - var4, -var6, var18 + var19 - var5).uv(var11 + var20 + var17, var11 + 0.0F).endVertex();
+                    var0.vertex(var1.getMaxX() - var4, var6, var18 + var19 - var5).uv(var11 + var20 + var17, var11 + var14).endVertex();
+                    var0.vertex(var1.getMaxX() - var4, var6, var18 - var5).uv(var11 + var17, var11 + var14).endVertex();
                     ++var18;
                 }
             }
@@ -2126,40 +2127,40 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                 for(double var22 = var15; var22 < var16; var21 += 0.5F) {
                     double var23 = Math.min(1.0, var16 - var22);
                     float var24 = (float)var23 * 0.5F;
-                    this.vertex(var0, var4, var5, var6, var1.getMinX(), this.level.getMaxBuildHeight(), var22, var11 + var21, var11 + 0.0F);
-                    this.vertex(var0, var4, var5, var6, var1.getMinX(), this.level.getMaxBuildHeight(), var22 + var23, var11 + var24 + var21, var11 + 0.0F);
-                    this.vertex(var0, var4, var5, var6, var1.getMinX(), 0, var22 + var23, var11 + var24 + var21, var11 + var14);
-                    this.vertex(var0, var4, var5, var6, var1.getMinX(), 0, var22, var11 + var21, var11 + var14);
+                    var0.vertex(var1.getMinX() - var4, -var6, var22 - var5).uv(var11 + var21, var11 + 0.0F).endVertex();
+                    var0.vertex(var1.getMinX() - var4, -var6, var22 + var23 - var5).uv(var11 + var24 + var21, var11 + 0.0F).endVertex();
+                    var0.vertex(var1.getMinX() - var4, var6, var22 + var23 - var5).uv(var11 + var24 + var21, var11 + var14).endVertex();
+                    var0.vertex(var1.getMinX() - var4, var6, var22 - var5).uv(var11 + var21, var11 + var14).endVertex();
                     ++var22;
                 }
             }
 
             var15 = Math.max((double)Mth.floor(var4 - var2), var1.getMinX());
             var16 = Math.min((double)Mth.ceil(var4 + var2), var1.getMaxX());
-            if (var6 > var1.getMaxZ() - var2) {
+            if (var5 > var1.getMaxZ() - var2) {
                 float var25 = 0.0F;
 
                 for(double var26 = var15; var26 < var16; var25 += 0.5F) {
                     double var27 = Math.min(1.0, var16 - var26);
                     float var28 = (float)var27 * 0.5F;
-                    this.vertex(var0, var4, var5, var6, var26, this.level.getMaxBuildHeight(), var1.getMaxZ(), var11 + var25, var11 + 0.0F);
-                    this.vertex(var0, var4, var5, var6, var26 + var27, this.level.getMaxBuildHeight(), var1.getMaxZ(), var11 + var28 + var25, var11 + 0.0F);
-                    this.vertex(var0, var4, var5, var6, var26 + var27, 0, var1.getMaxZ(), var11 + var28 + var25, var11 + var14);
-                    this.vertex(var0, var4, var5, var6, var26, 0, var1.getMaxZ(), var11 + var25, var11 + var14);
+                    var0.vertex(var26 - var4, -var6, var1.getMaxZ() - var5).uv(var11 + var25, var11 + 0.0F).endVertex();
+                    var0.vertex(var26 + var27 - var4, -var6, var1.getMaxZ() - var5).uv(var11 + var28 + var25, var11 + 0.0F).endVertex();
+                    var0.vertex(var26 + var27 - var4, var6, var1.getMaxZ() - var5).uv(var11 + var28 + var25, var11 + var14).endVertex();
+                    var0.vertex(var26 - var4, var6, var1.getMaxZ() - var5).uv(var11 + var25, var11 + var14).endVertex();
                     ++var26;
                 }
             }
 
-            if (var6 < var1.getMinZ() + var2) {
+            if (var5 < var1.getMinZ() + var2) {
                 float var29 = 0.0F;
 
                 for(double var30 = var15; var30 < var16; var29 += 0.5F) {
                     double var31 = Math.min(1.0, var16 - var30);
                     float var32 = (float)var31 * 0.5F;
-                    this.vertex(var0, var4, var5, var6, var30, this.level.getMaxBuildHeight(), var1.getMinZ(), var11 + var29, var11 + 0.0F);
-                    this.vertex(var0, var4, var5, var6, var30 + var31, this.level.getMaxBuildHeight(), var1.getMinZ(), var11 + var32 + var29, var11 + 0.0F);
-                    this.vertex(var0, var4, var5, var6, var30 + var31, 0, var1.getMinZ(), var11 + var32 + var29, var11 + var14);
-                    this.vertex(var0, var4, var5, var6, var30, 0, var1.getMinZ(), var11 + var29, var11 + var14);
+                    var0.vertex(var30 - var4, -var6, var1.getMinZ() - var5).uv(var11 + var29, var11 + 0.0F).endVertex();
+                    var0.vertex(var30 + var31 - var4, -var6, var1.getMinZ() - var5).uv(var11 + var32 + var29, var11 + 0.0F).endVertex();
+                    var0.vertex(var30 + var31 - var4, var6, var1.getMinZ() - var5).uv(var11 + var32 + var29, var11 + var14).endVertex();
+                    var0.vertex(var30 - var4, var6, var1.getMinZ() - var5).uv(var11 + var29, var11 + var14).endVertex();
                     ++var30;
                 }
             }
@@ -2175,10 +2176,6 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
             RenderSystem.popMatrix();
             RenderSystem.depthMask(true);
         }
-    }
-
-    private void vertex(BufferBuilder param0, double param1, double param2, double param3, double param4, int param5, double param6, float param7, float param8) {
-        param0.vertex(param4 - param1, (double)param5 - param2, param6 - param3).uv(param7, param8).endVertex();
     }
 
     private void renderHitOutline(
@@ -2726,6 +2723,32 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
             case 1044:
                 this.level.playLocalSound(param2, SoundEvents.SMITHING_TABLE_USE, SoundSource.BLOCKS, 1.0F, this.level.random.nextFloat() * 0.1F + 0.9F, false);
                 break;
+            case 1045:
+                this.level
+                    .playLocalSound(param2, SoundEvents.POINTED_DRIPSTONE_LAND, SoundSource.BLOCKS, 2.0F, this.level.random.nextFloat() * 0.1F + 0.9F, false);
+                break;
+            case 1046:
+                this.level
+                    .playLocalSound(
+                        param2,
+                        SoundEvents.POINTED_DRIPSTONE_DRIP_LAVA_INTO_CAULDRON,
+                        SoundSource.BLOCKS,
+                        2.0F,
+                        this.level.random.nextFloat() * 0.1F + 0.9F,
+                        false
+                    );
+                break;
+            case 1047:
+                this.level
+                    .playLocalSound(
+                        param2,
+                        SoundEvents.POINTED_DRIPSTONE_DRIP_WATER_INTO_CAULDRON,
+                        SoundSource.BLOCKS,
+                        2.0F,
+                        this.level.random.nextFloat() * 0.1F + 0.9F,
+                        false
+                    );
+                break;
             case 1500:
                 ComposterBlock.handleFill(this.level, param2, param3 > 0);
                 break;
@@ -2768,6 +2791,9 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                     double var49 = (double)param2.getZ() + (5.0 + var0.nextDouble() * 6.0) / 16.0;
                     this.level.addParticle(ParticleTypes.SMOKE, var47, var48, var49, 0.0, 0.0, 0.0);
                 }
+                break;
+            case 1504:
+                PointedDripstoneBlock.spawnDripParticle(this.level, param2, this.level.getBlockState(param2));
                 break;
             case 2000:
                 Direction var1 = Direction.from3DDataValue(param3);

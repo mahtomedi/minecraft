@@ -25,7 +25,7 @@ public class MobAppearanceParticle extends Particle {
 
     private MobAppearanceParticle(ClientLevel param0, double param1, double param2, double param3) {
         super(param0, param1, param2, param3);
-        this.model = new GuardianModel(Minecraft.getInstance().getEntityModels().getLayer(ModelLayers.ELDER_GUARDIAN));
+        this.model = new GuardianModel(Minecraft.getInstance().getEntityModels().bakeLayer(ModelLayers.ELDER_GUARDIAN));
         this.gravity = 0.0F;
         this.lifetime = 30;
     }

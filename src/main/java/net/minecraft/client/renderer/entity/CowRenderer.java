@@ -12,7 +12,7 @@ public class CowRenderer extends MobRenderer<Cow, CowModel<Cow>> {
     private static final ResourceLocation COW_LOCATION = new ResourceLocation("textures/entity/cow/cow.png");
 
     public CowRenderer(EntityRendererProvider.Context param0) {
-        super(param0, new CowModel<>(param0.getLayer(ModelLayers.COW)), 0.7F);
+        super(param0, new CowModel<>(param0.bakeLayer(ModelLayers.COW)), 0.7F);
     }
 
     public ResourceLocation getTextureLocation(Cow param0) {

@@ -40,7 +40,7 @@ public class LlamaDecorLayer extends RenderLayer<Llama, LlamaModel<Llama>> {
 
     public LlamaDecorLayer(RenderLayerParent<Llama, LlamaModel<Llama>> param0, EntityModelSet param1) {
         super(param0);
-        this.model = new LlamaModel<>(param1.getLayer(ModelLayers.LLAMA_DECOR));
+        this.model = new LlamaModel<>(param1.bakeLayer(ModelLayers.LLAMA_DECOR));
     }
 
     public void render(

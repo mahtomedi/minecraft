@@ -17,7 +17,7 @@ public class CreeperPowerLayer extends EnergySwirlLayer<Creeper, CreeperModel<Cr
 
     public CreeperPowerLayer(RenderLayerParent<Creeper, CreeperModel<Creeper>> param0, EntityModelSet param1) {
         super(param0);
-        this.model = new CreeperModel<>(param1.getLayer(ModelLayers.CREEPER_ARMOR));
+        this.model = new CreeperModel<>(param1.bakeLayer(ModelLayers.CREEPER_ARMOR));
     }
 
     @Override

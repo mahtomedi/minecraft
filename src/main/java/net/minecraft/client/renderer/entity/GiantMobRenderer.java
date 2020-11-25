@@ -17,14 +17,14 @@ public class GiantMobRenderer extends MobRenderer<Giant, HumanoidModel<Giant>> {
     private final float scale;
 
     public GiantMobRenderer(EntityRendererProvider.Context param0, float param1) {
-        super(param0, new GiantZombieModel(param0.getLayer(ModelLayers.GIANT)), 0.5F * param1);
+        super(param0, new GiantZombieModel(param0.bakeLayer(ModelLayers.GIANT)), 0.5F * param1);
         this.scale = param1;
         this.addLayer(new ItemInHandLayer<>(this));
         this.addLayer(
             new HumanoidArmorLayer<>(
                 this,
-                new GiantZombieModel(param0.getLayer(ModelLayers.GIANT_INNER_ARMOR)),
-                new GiantZombieModel(param0.getLayer(ModelLayers.GIANT_OUTER_ARMOR))
+                new GiantZombieModel(param0.bakeLayer(ModelLayers.GIANT_INNER_ARMOR)),
+                new GiantZombieModel(param0.bakeLayer(ModelLayers.GIANT_OUTER_ARMOR))
             )
         );
     }

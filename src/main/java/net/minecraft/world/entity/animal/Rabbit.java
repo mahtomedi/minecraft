@@ -299,11 +299,6 @@ public class Rabbit extends Animal {
         return this.getRabbitType() == 99 ? SoundSource.HOSTILE : SoundSource.NEUTRAL;
     }
 
-    @Override
-    public boolean hurt(DamageSource param0, float param1) {
-        return this.isInvulnerableTo(param0) ? false : super.hurt(param0, param1);
-    }
-
     private static boolean isTemptingItem(ItemStack param0) {
         return param0.is(Items.CARROT) || param0.is(Items.GOLDEN_CARROT) || param0.is(Blocks.DANDELION.asItem());
     }

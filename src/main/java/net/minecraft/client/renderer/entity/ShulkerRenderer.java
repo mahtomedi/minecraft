@@ -25,7 +25,7 @@ public class ShulkerRenderer extends MobRenderer<Shulker, ShulkerModel<Shulker>>
         .toArray(param0 -> new ResourceLocation[param0]);
 
     public ShulkerRenderer(EntityRendererProvider.Context param0) {
-        super(param0, new ShulkerModel<>(param0.getLayer(ModelLayers.SHULKER)), 0.0F);
+        super(param0, new ShulkerModel<>(param0.bakeLayer(ModelLayers.SHULKER)), 0.0F);
         this.addLayer(new ShulkerHeadLayer(this));
     }
 

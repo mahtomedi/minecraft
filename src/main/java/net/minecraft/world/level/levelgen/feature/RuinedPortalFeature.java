@@ -12,6 +12,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.Vec3i;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ChunkPos;
@@ -64,11 +65,11 @@ public class RuinedPortalFeature extends StructureFeature<RuinedPortalConfigurat
         int var0;
         if (param2 == RuinedPortalPiece.VerticalPlacement.IN_NETHER) {
             if (param3) {
-                var0 = randomIntInclusive(param0, 32, 100);
+                var0 = Mth.randomBetweenInclusive(param0, 32, 100);
             } else if (param0.nextFloat() < 0.5F) {
-                var0 = randomIntInclusive(param0, 27, 29);
+                var0 = Mth.randomBetweenInclusive(param0, 27, 29);
             } else {
-                var0 = randomIntInclusive(param0, 29, 100);
+                var0 = Mth.randomBetweenInclusive(param0, 29, 100);
             }
         } else if (param2 == RuinedPortalPiece.VerticalPlacement.IN_MOUNTAIN) {
             int var3 = param4 - param5;
@@ -77,7 +78,7 @@ public class RuinedPortalFeature extends StructureFeature<RuinedPortalConfigurat
             int var5 = param4 - param5;
             var0 = getRandomWithinInterval(param0, 15, var5);
         } else if (param2 == RuinedPortalPiece.VerticalPlacement.PARTLY_BURIED) {
-            var0 = param4 - param5 + randomIntInclusive(param0, 2, 8);
+            var0 = param4 - param5 + Mth.randomBetweenInclusive(param0, 2, 8);
         } else {
             var0 = param4;
         }
@@ -112,12 +113,8 @@ public class RuinedPortalFeature extends StructureFeature<RuinedPortalConfigurat
         return var13;
     }
 
-    private static int randomIntInclusive(Random param0, int param1, int param2) {
-        return param0.nextInt(param2 - param1 + 1) + param1;
-    }
-
     private static int getRandomWithinInterval(Random param0, int param1, int param2) {
-        return param1 < param2 ? randomIntInclusive(param0, param1, param2) : param2;
+        return param1 < param2 ? Mth.randomBetweenInclusive(param0, param1, param2) : param2;
     }
 
     public static class FeatureStart extends StructureStart<RuinedPortalConfiguration> {

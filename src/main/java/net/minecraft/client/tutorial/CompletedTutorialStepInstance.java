@@ -5,9 +5,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class CompletedTutorialStepInstance implements TutorialStepInstance {
-    private final Tutorial tutorial;
-
     public CompletedTutorialStepInstance(Tutorial param0) {
-        this.tutorial = param0;
     }
 }

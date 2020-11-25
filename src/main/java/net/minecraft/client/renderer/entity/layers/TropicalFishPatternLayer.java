@@ -20,8 +20,8 @@ public class TropicalFishPatternLayer extends RenderLayer<TropicalFish, Colorabl
 
     public TropicalFishPatternLayer(RenderLayerParent<TropicalFish, ColorableHierarchicalModel<TropicalFish>> param0, EntityModelSet param1) {
         super(param0);
-        this.modelA = new TropicalFishModelA<>(param1.getLayer(ModelLayers.TROPICAL_FISH_SMALL_PATTERN));
-        this.modelB = new TropicalFishModelB<>(param1.getLayer(ModelLayers.TROPICAL_FISH_LARGE_PATTERN));
+        this.modelA = new TropicalFishModelA<>(param1.bakeLayer(ModelLayers.TROPICAL_FISH_SMALL_PATTERN));
+        this.modelB = new TropicalFishModelB<>(param1.bakeLayer(ModelLayers.TROPICAL_FISH_LARGE_PATTERN));
     }
 
     public void render(

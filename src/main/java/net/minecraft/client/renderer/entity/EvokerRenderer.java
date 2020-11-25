@@ -15,7 +15,7 @@ public class EvokerRenderer<T extends SpellcasterIllager> extends IllagerRendere
     private static final ResourceLocation EVOKER_ILLAGER = new ResourceLocation("textures/entity/illager/evoker.png");
 
     public EvokerRenderer(EntityRendererProvider.Context param0) {
-        super(param0, new IllagerModel<>(param0.getLayer(ModelLayers.EVOKER)), 0.5F);
+        super(param0, new IllagerModel<>(param0.bakeLayer(ModelLayers.EVOKER)), 0.5F);
         this.addLayer(
             new ItemInHandLayer<T, IllagerModel<T>>(this) {
                 public void render(

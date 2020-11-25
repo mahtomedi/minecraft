@@ -87,7 +87,7 @@ public class RealmsBackupInfoScreen extends RealmsScreen {
 
     private Component gameModeMetadata(String param0) {
         try {
-            return RealmsSlotOptionsScreen.GAME_MODES.get(Integer.parseInt(param0)).getDisplayName();
+            return RealmsSlotOptionsScreen.GAME_MODES.get(Integer.parseInt(param0)).getShortDisplayName();
         } catch (Exception var3) {
             return TEXT_UNKNOWN;
         }

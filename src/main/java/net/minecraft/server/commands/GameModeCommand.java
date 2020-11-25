@@ -20,16 +20,14 @@ public class GameModeCommand {
         LiteralArgumentBuilder<CommandSourceStack> var0 = Commands.literal("gamemode").requires(param0x -> param0x.hasPermission(2));
 
         for(GameType var1 : GameType.values()) {
-            if (var1 != GameType.NOT_SET) {
-                var0.then(
-                    Commands.literal(var1.getName())
-                        .executes(param1 -> setMode(param1, Collections.singleton(param1.getSource().getPlayerOrException()), var1))
-                        .then(
-                            Commands.argument("target", EntityArgument.players())
-                                .executes(param1 -> setMode(param1, EntityArgument.getPlayers(param1, "target"), var1))
-                        )
-                );
-            }
+            var0.then(
+                Commands.literal(var1.getName())
+                    .executes(param1 -> setMode(param1, Collections.singleton(param1.getSource().getPlayerOrException()), var1))
+                    .then(
+                        Commands.argument("target", EntityArgument.players())
+                            .executes(param1 -> setMode(param1, EntityArgument.getPlayers(param1, "target"), var1))
+                    )
+            );
         }
 
         param0.register(var0);
@@ -53,8 +51,7 @@ public class GameModeCommand {
         int var0 = 0;
 
         for(ServerPlayer var1 : param1) {
-            if (var1.gameMode.getGameModeForPlayer() != param2) {
-                var1.setGameMode(param2);
+            if (var1.setGameMode(param2)) {
                 logGamemodeChange(param0.getSource(), var1, param2);
                 ++var0;
             }

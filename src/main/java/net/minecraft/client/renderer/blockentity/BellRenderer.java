@@ -26,7 +26,7 @@ public class BellRenderer implements BlockEntityRenderer<BellBlockEntity> {
     private final ModelPart bellBody;
 
     public BellRenderer(BlockEntityRendererProvider.Context param0) {
-        ModelPart var0 = param0.getLayer(ModelLayers.BELL);
+        ModelPart var0 = param0.bakeLayer(ModelLayers.BELL);
         this.bellBody = var0.getChild("bell_body");
     }
 

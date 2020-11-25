@@ -574,6 +574,20 @@ public final class Biome {
         }
 
         @Override
+        public String toString() {
+            return "temp: "
+                + this.temperature
+                + ", hum: "
+                + this.humidity
+                + ", alt: "
+                + this.altitude
+                + ", weird: "
+                + this.weirdness
+                + ", offset: "
+                + this.offset;
+        }
+
+        @Override
         public boolean equals(Object param0) {
             if (this == param0) {
                 return true;

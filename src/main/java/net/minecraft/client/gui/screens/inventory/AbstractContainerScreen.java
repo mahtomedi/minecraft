@@ -232,7 +232,7 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
             }
 
             RenderSystem.enableDepthTest();
-            this.itemRenderer.renderAndDecorateItem(this.minecraft.player, var2, var0, var1);
+            this.itemRenderer.renderAndDecorateItem(this.minecraft.player, var2, var0, var1, param1.x + param1.y * this.imageWidth);
             this.itemRenderer.renderGuiItemDecorations(this.font, var2, var0, var1, var6);
         }
 

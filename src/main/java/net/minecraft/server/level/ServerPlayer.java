@@ -176,10 +176,9 @@ public class ServerPlayer extends Player implements ContainerListener {
     public int latency;
     public boolean wonGame;
 
-    public ServerPlayer(MinecraftServer param0, ServerLevel param1, GameProfile param2, ServerPlayerGameMode param3) {
+    public ServerPlayer(MinecraftServer param0, ServerLevel param1, GameProfile param2) {
         super(param1, param1.getSharedSpawnPos(), param1.getSharedSpawnAngle(), param2);
-        param3.player = this;
-        this.gameMode = param3;
+        this.gameMode = param0.createGameModeForPlayer(this);
         this.server = param0;
         this.stats = param0.getPlayerList().getPlayerStats(this);
         this.advancements = param0.getPlayerList().getPlayerAdvancements(this);
@@ -236,18 +235,6 @@ public class ServerPlayer extends Player implements ContainerListener {
     @Override
     public void readAdditionalSaveData(CompoundTag param0) {
         super.readAdditionalSaveData(param0);
-        if (param0.contains("playerGameType", 99)) {
-            if (this.getServer().getForceGameType()) {
-                this.gameMode.setGameModeForPlayer(this.getServer().getDefaultGameType(), GameType.NOT_SET);
-            } else {
-                this.gameMode
-                    .setGameModeForPlayer(
-                        GameType.byId(param0.getInt("playerGameType")),
-                        param0.contains("previousPlayerGameType", 3) ? GameType.byId(param0.getInt("previousPlayerGameType")) : GameType.NOT_SET
-                    );
-            }
-        }
-
         if (param0.contains("enteredNetherPosition", 10)) {
             CompoundTag var0 = param0.getCompound("enteredNetherPosition");
             this.enteredNetherPosition = new Vec3(var0.getDouble("x"), var0.getDouble("y"), var0.getDouble("z"));
@@ -279,8 +266,7 @@ public class ServerPlayer extends Player implements ContainerListener {
     @Override
     public void addAdditionalSaveData(CompoundTag param0) {
         super.addAdditionalSaveData(param0);
-        param0.putInt("playerGameType", this.gameMode.getGameModeForPlayer().getId());
-        param0.putInt("previousPlayerGameType", this.gameMode.getPreviousGameModeForPlayer().getId());
+        this.storeGameTypes(param0);
         param0.putBoolean("seenCredits", this.seenCredits);
         if (this.enteredNetherPosition != null) {
             CompoundTag var0 = new CompoundTag();
@@ -688,7 +674,6 @@ public class ServerPlayer extends Player implements ContainerListener {
                 this.moveTo(var4.pos.x, var4.pos.y, var4.pos.z);
                 var0.getProfiler().pop();
                 this.triggerDimensionChangeTriggers(var0);
-                this.gameMode.setLevel(param0);
                 this.connection.send(new ClientboundPlayerAbilitiesPacket(this.getAbilities()));
                 var3.sendLevelInfo(this, param0);
                 var3.sendAllPlayerInfo(this);
@@ -1115,6 +1100,7 @@ public class ServerPlayer extends Player implements ContainerListener {
     }
 
     public void restoreFrom(ServerPlayer param0, boolean param1) {
+        this.gameMode.setGameModeForPlayer(param0.gameMode.getGameModeForPlayer(), param0.gameMode.getPreviousGameModeForPlayer());
         if (param1) {
             this.getInventory().replaceWith(param0.getInventory());
             this.setHealth(param0.getHealth());
@@ -1209,19 +1195,22 @@ public class ServerPlayer extends Player implements ContainerListener {
         return (ServerLevel)this.level;
     }
 
-    @Override
-    public void setGameMode(GameType param0) {
-        this.gameMode.setGameModeForPlayer(param0);
-        this.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.CHANGE_GAME_MODE, (float)param0.getId()));
-        if (param0 == GameType.SPECTATOR) {
-            this.removeEntitiesOnShoulder();
-            this.stopRiding();
+    public boolean setGameMode(GameType param0) {
+        if (!this.gameMode.changeGameModeForPlayer(param0)) {
+            return false;
         } else {
-            this.setCamera(this);
-        }
+            this.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.CHANGE_GAME_MODE, (float)param0.getId()));
+            if (param0 == GameType.SPECTATOR) {
+                this.removeEntitiesOnShoulder();
+                this.stopRiding();
+            } else {
+                this.setCamera(this);
+            }
 
-        this.onUpdateAbilities();
-        this.updateEffectVisibility();
+            this.onUpdateAbilities();
+            this.updateEffectVisibility();
+            return true;
+        }
     }
 
     @Override
@@ -1413,7 +1402,6 @@ public class ServerPlayer extends Player implements ContainerListener {
             param0.addDuringCommandTeleport(this);
             this.triggerDimensionChangeTriggers(var0);
             this.connection.teleport(param1, param2, param3, param4, param5);
-            this.gameMode.setLevel(param0);
             this.server.getPlayerList().sendLevelInfo(this, param0);
             this.server.getPlayerList().sendAllPlayerInfo(this);
         }
@@ -1510,5 +1498,40 @@ public class ServerPlayer extends Player implements ContainerListener {
     @Nullable
     public TextFilter getTextFilter() {
         return this.textFilter;
+    }
+
+    public void setLevel(ServerLevel param0) {
+        this.level = param0;
+        this.gameMode.setLevel(param0);
+    }
+
+    @Nullable
+    private static GameType readPlayerMode(@Nullable CompoundTag param0, String param1) {
+        return param0 != null && param0.contains(param1, 99) ? GameType.byId(param0.getInt(param1)) : null;
+    }
+
+    private GameType calculateGameModeForNewPlayer(@Nullable GameType param0) {
+        GameType var0 = this.server.getForcedGameType();
+        if (var0 != null) {
+            return var0;
+        } else {
+            return param0 != null ? param0 : this.server.getDefaultGameType();
+        }
+    }
+
+    public void loadGameTypes(@Nullable CompoundTag param0) {
+        this.gameMode
+            .setGameModeForPlayer(
+                this.calculateGameModeForNewPlayer(readPlayerMode(param0, "playerGameType")), readPlayerMode(param0, "previousPlayerGameType")
+            );
+    }
+
+    private void storeGameTypes(CompoundTag param0) {
+        param0.putInt("playerGameType", this.gameMode.getGameModeForPlayer().getId());
+        GameType var0 = this.gameMode.getPreviousGameModeForPlayer();
+        if (var0 != null) {
+            param0.putInt("previousPlayerGameType", var0.getId());
+        }
+
     }
 }

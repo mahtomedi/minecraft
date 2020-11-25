@@ -17,7 +17,7 @@ public class WolfRenderer extends MobRenderer<Wolf, WolfModel<Wolf>> {
     private static final ResourceLocation WOLF_ANGRY_LOCATION = new ResourceLocation("textures/entity/wolf/wolf_angry.png");
 
     public WolfRenderer(EntityRendererProvider.Context param0) {
-        super(param0, new WolfModel<>(param0.getLayer(ModelLayers.WOLF)), 0.5F);
+        super(param0, new WolfModel<>(param0.bakeLayer(ModelLayers.WOLF)), 0.5F);
         this.addLayer(new WolfCollarLayer(this));
     }
 

@@ -63,7 +63,7 @@ public class StructureBlockEditScreen extends Screen {
     private Button rot180Button;
     private Button rot270Button;
     private Button detectButton;
-    private CycleButton<Boolean> entitiesButton;
+    private CycleButton<Boolean> includeEntitiesButton;
     private CycleButton<Mirror> mirrorButton;
     private CycleButton<Boolean> toggleAirButton;
     private CycleButton<Boolean> toggleBoundingBox;
@@ -154,10 +154,10 @@ public class StructureBlockEditScreen extends Screen {
     
             })
         );
-        this.entitiesButton = this.addButton(
-            CycleButton.onOffBuilder(this.structure.isIgnoreEntities())
+        this.includeEntitiesButton = this.addButton(
+            CycleButton.onOffBuilder(!this.structure.isIgnoreEntities())
                 .displayOnlyValue()
-                .create(this.width / 2 + 4 + 100, 160, 50, 20, INCLUDE_ENTITIES_LABEL, (param0, param1) -> this.structure.setIgnoreEntities(param1))
+                .create(this.width / 2 + 4 + 100, 160, 50, 20, INCLUDE_ENTITIES_LABEL, (param0, param1) -> this.structure.setIgnoreEntities(!param1))
         );
         this.mirrorButton = this.addButton(
             CycleButton.builder(Mirror::symbol)
@@ -311,7 +311,7 @@ public class StructureBlockEditScreen extends Screen {
         this.saveButton.visible = false;
         this.loadButton.visible = false;
         this.detectButton.visible = false;
-        this.entitiesButton.visible = false;
+        this.includeEntitiesButton.visible = false;
         this.mirrorButton.visible = false;
         this.rot0Button.visible = false;
         this.rot90Button.visible = false;
@@ -330,7 +330,7 @@ public class StructureBlockEditScreen extends Screen {
                 this.sizeZEdit.setVisible(true);
                 this.saveButton.visible = true;
                 this.detectButton.visible = true;
-                this.entitiesButton.visible = true;
+                this.includeEntitiesButton.visible = true;
                 this.toggleAirButton.visible = true;
                 break;
             case LOAD:
@@ -341,7 +341,7 @@ public class StructureBlockEditScreen extends Screen {
                 this.integrityEdit.setVisible(true);
                 this.seedEdit.setVisible(true);
                 this.loadButton.visible = true;
-                this.entitiesButton.visible = true;
+                this.includeEntitiesButton.visible = true;
                 this.mirrorButton.visible = true;
                 this.rot0Button.visible = true;
                 this.rot90Button.visible = true;

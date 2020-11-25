@@ -18,8 +18,8 @@ import net.minecraft.client.renderer.entity.layers.CustomHeadLayer;
 import net.minecraft.client.renderer.entity.layers.Deadmau5EarsLayer;
 import net.minecraft.client.renderer.entity.layers.ElytraLayer;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
-import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.client.renderer.entity.layers.ParrotOnShoulderLayer;
+import net.minecraft.client.renderer.entity.layers.PlayerItemInHandLayer;
 import net.minecraft.client.renderer.entity.layers.SpinAttackEffectLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.network.chat.Component;
@@ -44,15 +44,15 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class PlayerRenderer extends LivingEntityRenderer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> {
     public PlayerRenderer(EntityRendererProvider.Context param0, boolean param1) {
-        super(param0, new PlayerModel<>(param0.getLayer(param1 ? ModelLayers.PLAYER_SLIM : ModelLayers.PLAYER), param1), 0.5F);
+        super(param0, new PlayerModel<>(param0.bakeLayer(param1 ? ModelLayers.PLAYER_SLIM : ModelLayers.PLAYER), param1), 0.5F);
         this.addLayer(
             new HumanoidArmorLayer<>(
                 this,
-                new HumanoidModel(param0.getLayer(param1 ? ModelLayers.PLAYER_SLIM_INNER_ARMOR : ModelLayers.PLAYER_INNER_ARMOR)),
-                new HumanoidModel(param0.getLayer(param1 ? ModelLayers.PLAYER_SLIM_OUTER_ARMOR : ModelLayers.PLAYER_OUTER_ARMOR))
+                new HumanoidModel(param0.bakeLayer(param1 ? ModelLayers.PLAYER_SLIM_INNER_ARMOR : ModelLayers.PLAYER_INNER_ARMOR)),
+                new HumanoidModel(param0.bakeLayer(param1 ? ModelLayers.PLAYER_SLIM_OUTER_ARMOR : ModelLayers.PLAYER_OUTER_ARMOR))
             )
         );
-        this.addLayer(new ItemInHandLayer<>(this));
+        this.addLayer(new PlayerItemInHandLayer<>(this));
         this.addLayer(new ArrowLayer<>(param0, this));
         this.addLayer(new Deadmau5EarsLayer(this));
         this.addLayer(new CapeLayer(this));

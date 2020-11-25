@@ -50,6 +50,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.CombatRules;
@@ -195,6 +196,7 @@ public abstract class LivingEntity extends Entity {
     protected int fallFlyTicks;
     private BlockPos lastPos;
     private Optional<BlockPos> lastClimbablePos = Optional.empty();
+    @Nullable
     private DamageSource lastDamageSource;
     private long lastDamageStamp;
     protected int autoSpinAttackTicks;
@@ -1626,44 +1628,41 @@ public abstract class LivingEntity extends Entity {
             case 37:
             case 44:
             case 57:
-                boolean var0 = param0 == 33;
-                boolean var1 = param0 == 36;
-                boolean var2 = param0 == 37;
-                boolean var3 = param0 == 44;
-                boolean var4 = param0 == 57;
                 this.animationSpeed = 1.5F;
                 this.invulnerableTime = 20;
                 this.hurtDuration = 10;
                 this.hurtTime = this.hurtDuration;
                 this.hurtDir = 0.0F;
-                if (var0) {
+                if (param0 == 33) {
                     this.playSound(SoundEvents.THORNS_HIT, this.getSoundVolume(), (this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F);
                 }
 
-                DamageSource var5;
-                if (var2) {
-                    var5 = DamageSource.ON_FIRE;
-                } else if (var1) {
-                    var5 = DamageSource.DROWN;
-                } else if (var3) {
-                    var5 = DamageSource.SWEET_BERRY_BUSH;
-                } else if (var4) {
-                    var5 = DamageSource.FREEZE;
+                DamageSource var0;
+                if (param0 == 37) {
+                    var0 = DamageSource.ON_FIRE;
+                } else if (param0 == 36) {
+                    var0 = DamageSource.DROWN;
+                } else if (param0 == 44) {
+                    var0 = DamageSource.SWEET_BERRY_BUSH;
+                } else if (param0 == 57) {
+                    var0 = DamageSource.FREEZE;
                 } else {
-                    var5 = DamageSource.GENERIC;
+                    var0 = DamageSource.GENERIC;
                 }
 
-                SoundEvent var10 = this.getHurtSound(var5);
-                if (var10 != null) {
-                    this.playSound(var10, this.getSoundVolume(), (this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F);
+                SoundEvent var5 = this.getHurtSound(var0);
+                if (var5 != null) {
+                    this.playSound(var5, this.getSoundVolume(), (this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F);
                 }
 
                 this.hurt(DamageSource.GENERIC, 0.0F);
+                this.lastDamageSource = var0;
+                this.lastDamageStamp = this.level.getGameTime();
                 break;
             case 3:
-                SoundEvent var11 = this.getDeathSound();
-                if (var11 != null) {
-                    this.playSound(var11, this.getSoundVolume(), (this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F);
+                SoundEvent var6 = this.getDeathSound();
+                if (var6 != null) {
+                    this.playSound(var6, this.getSoundVolume(), (this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F);
                 }
 
                 if (!(this instanceof Player)) {
@@ -1719,17 +1718,17 @@ public abstract class LivingEntity extends Entity {
                 this.playSound(SoundEvents.SHIELD_BREAK, 0.8F, 0.8F + this.level.random.nextFloat() * 0.4F);
                 break;
             case 46:
-                int var12 = 128;
+                int var7 = 128;
 
-                for(int var13 = 0; var13 < 128; ++var13) {
-                    double var14 = (double)var13 / 127.0;
-                    float var15 = (this.random.nextFloat() - 0.5F) * 0.2F;
-                    float var16 = (this.random.nextFloat() - 0.5F) * 0.2F;
-                    float var17 = (this.random.nextFloat() - 0.5F) * 0.2F;
-                    double var18 = Mth.lerp(var14, this.xo, this.getX()) + (this.random.nextDouble() - 0.5) * (double)this.getBbWidth() * 2.0;
-                    double var19 = Mth.lerp(var14, this.yo, this.getY()) + this.random.nextDouble() * (double)this.getBbHeight();
-                    double var20 = Mth.lerp(var14, this.zo, this.getZ()) + (this.random.nextDouble() - 0.5) * (double)this.getBbWidth() * 2.0;
-                    this.level.addParticle(ParticleTypes.PORTAL, var18, var19, var20, (double)var15, (double)var16, (double)var17);
+                for(int var8 = 0; var8 < 128; ++var8) {
+                    double var9 = (double)var8 / 127.0;
+                    float var10 = (this.random.nextFloat() - 0.5F) * 0.2F;
+                    float var11 = (this.random.nextFloat() - 0.5F) * 0.2F;
+                    float var12 = (this.random.nextFloat() - 0.5F) * 0.2F;
+                    double var13 = Mth.lerp(var9, this.xo, this.getX()) + (this.random.nextDouble() - 0.5) * (double)this.getBbWidth() * 2.0;
+                    double var14 = Mth.lerp(var9, this.yo, this.getY()) + this.random.nextDouble() * (double)this.getBbHeight();
+                    double var15 = Mth.lerp(var9, this.zo, this.getZ()) + (this.random.nextDouble() - 0.5) * (double)this.getBbWidth() * 2.0;
+                    this.level.addParticle(ParticleTypes.PORTAL, var13, var14, var15, (double)var10, (double)var11, (double)var12);
                 }
                 break;
             case 47:
@@ -3286,6 +3285,13 @@ public abstract class LivingEntity extends Entity {
 
     @Override
     public boolean canFreeze() {
-        return !this.isSpectator();
+        if (this.isSpectator()) {
+            return false;
+        } else {
+            return !this.getItemBySlot(EquipmentSlot.HEAD).is(ItemTags.FREEZE_IMMUNE_WEARABLES)
+                && !this.getItemBySlot(EquipmentSlot.CHEST).is(ItemTags.FREEZE_IMMUNE_WEARABLES)
+                && !this.getItemBySlot(EquipmentSlot.LEGS).is(ItemTags.FREEZE_IMMUNE_WEARABLES)
+                && !this.getItemBySlot(EquipmentSlot.FEET).is(ItemTags.FREEZE_IMMUNE_WEARABLES);
+        }
     }
 }

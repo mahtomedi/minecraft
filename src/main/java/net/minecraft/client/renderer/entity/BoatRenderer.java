@@ -32,7 +32,7 @@ public class BoatRenderer extends EntityRenderer<Boat> {
                     param0x -> param0x,
                     param1 -> Pair.of(
                             new ResourceLocation("textures/entity/boat/" + param1.getName() + ".png"),
-                            new BoatModel(param0.getLayer(ModelLayers.createBoatModelName(param1)))
+                            new BoatModel(param0.bakeLayer(ModelLayers.createBoatModelName(param1)))
                         )
                 )
             );

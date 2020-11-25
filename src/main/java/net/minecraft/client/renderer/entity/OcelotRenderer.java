@@ -12,7 +12,7 @@ public class OcelotRenderer extends MobRenderer<Ocelot, OcelotModel<Ocelot>> {
     private static final ResourceLocation CAT_OCELOT_LOCATION = new ResourceLocation("textures/entity/cat/ocelot.png");
 
     public OcelotRenderer(EntityRendererProvider.Context param0) {
-        super(param0, new OcelotModel<>(param0.getLayer(ModelLayers.OCELOT)), 0.4F);
+        super(param0, new OcelotModel<>(param0.bakeLayer(ModelLayers.OCELOT)), 0.4F);
     }
 
     public ResourceLocation getTextureLocation(Ocelot param0) {

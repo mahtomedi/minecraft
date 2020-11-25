@@ -15,7 +15,7 @@ public class WitchRenderer extends MobRenderer<Witch, WitchModel<Witch>> {
     private static final ResourceLocation WITCH_LOCATION = new ResourceLocation("textures/entity/witch.png");
 
     public WitchRenderer(EntityRendererProvider.Context param0) {
-        super(param0, new WitchModel<>(param0.getLayer(ModelLayers.WITCH)), 0.5F);
+        super(param0, new WitchModel<>(param0.bakeLayer(ModelLayers.WITCH)), 0.5F);
         this.addLayer(new WitchItemLayer<>(this));
     }
 

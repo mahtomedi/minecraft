@@ -18,7 +18,7 @@ public class LlamaRenderer extends MobRenderer<Llama, LlamaModel<Llama>> {
     };
 
     public LlamaRenderer(EntityRendererProvider.Context param0, ModelLayerLocation param1) {
-        super(param0, new LlamaModel<>(param0.getLayer(param1)), 0.7F);
+        super(param0, new LlamaModel<>(param0.bakeLayer(param1)), 0.7F);
         this.addLayer(new LlamaDecorLayer(this, param0.getModelSet()));
     }
 

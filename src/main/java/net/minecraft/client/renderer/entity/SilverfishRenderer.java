@@ -12,7 +12,7 @@ public class SilverfishRenderer extends MobRenderer<Silverfish, SilverfishModel<
     private static final ResourceLocation SILVERFISH_LOCATION = new ResourceLocation("textures/entity/silverfish.png");
 
     public SilverfishRenderer(EntityRendererProvider.Context param0) {
-        super(param0, new SilverfishModel<>(param0.getLayer(ModelLayers.SILVERFISH)), 0.3F);
+        super(param0, new SilverfishModel<>(param0.bakeLayer(ModelLayers.SILVERFISH)), 0.3F);
     }
 
     protected float getFlipDegrees(Silverfish param0) {

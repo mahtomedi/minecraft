@@ -212,7 +212,7 @@ public class ItemRenderer implements ResourceManagerReloadListener {
 
     }
 
-    public BakedModel getModel(ItemStack param0, @Nullable Level param1, @Nullable LivingEntity param2) {
+    public BakedModel getModel(ItemStack param0, @Nullable Level param1, @Nullable LivingEntity param2, int param3) {
         BakedModel var0;
         if (param0.is(Items.TRIDENT)) {
             var0 = this.itemModelShaper.getModelManager().getModel(new ModelResourceLocation("minecraft:trident_in_hand#inventory"));
@@ -221,12 +221,14 @@ public class ItemRenderer implements ResourceManagerReloadListener {
         }
 
         ClientLevel var2 = param1 instanceof ClientLevel ? (ClientLevel)param1 : null;
-        BakedModel var3 = var0.getOverrides().resolve(var0, param0, var2, param2);
+        BakedModel var3 = var0.getOverrides().resolve(var0, param0, var2, param2, param3);
         return var3 == null ? this.itemModelShaper.getModelManager().getMissingModel() : var3;
     }
 
-    public void renderStatic(ItemStack param0, ItemTransforms.TransformType param1, int param2, int param3, PoseStack param4, MultiBufferSource param5) {
-        this.renderStatic(null, param0, param1, false, param4, param5, null, param2, param3);
+    public void renderStatic(
+        ItemStack param0, ItemTransforms.TransformType param1, int param2, int param3, PoseStack param4, MultiBufferSource param5, int param6
+    ) {
+        this.renderStatic(null, param0, param1, false, param4, param5, null, param2, param3, param6);
     }
 
     public void renderStatic(
@@ -238,16 +240,17 @@ public class ItemRenderer implements ResourceManagerReloadListener {
         MultiBufferSource param5,
         @Nullable Level param6,
         int param7,
-        int param8
+        int param8,
+        int param9
     ) {
         if (!param1.isEmpty()) {
-            BakedModel var0 = this.getModel(param1, param6, param0);
+            BakedModel var0 = this.getModel(param1, param6, param0, param9);
             this.render(param1, param2, param3, param4, param5, param7, param8, var0);
         }
     }
 
     public void renderGuiItem(ItemStack param0, int param1, int param2) {
-        this.renderGuiItem(param0, param1, param2, this.getModel(param0, null, null));
+        this.renderGuiItem(param0, param1, param2, this.getModel(param0, null, null, 0));
     }
 
     protected void renderGuiItem(ItemStack param0, int param1, int param2, BakedModel param3) {
@@ -284,25 +287,29 @@ public class ItemRenderer implements ResourceManagerReloadListener {
     }
 
     public void renderAndDecorateItem(ItemStack param0, int param1, int param2) {
-        this.tryRenderGuiItem(Minecraft.getInstance().player, param0, param1, param2);
+        this.tryRenderGuiItem(Minecraft.getInstance().player, param0, param1, param2, 0);
+    }
+
+    public void renderAndDecorateItem(ItemStack param0, int param1, int param2, int param3) {
+        this.tryRenderGuiItem(Minecraft.getInstance().player, param0, param1, param2, param3);
     }
 
     public void renderAndDecorateFakeItem(ItemStack param0, int param1, int param2) {
-        this.tryRenderGuiItem(null, param0, param1, param2);
+        this.tryRenderGuiItem(null, param0, param1, param2, 0);
     }
 
-    public void renderAndDecorateItem(LivingEntity param0, ItemStack param1, int param2, int param3) {
-        this.tryRenderGuiItem(param0, param1, param2, param3);
+    public void renderAndDecorateItem(LivingEntity param0, ItemStack param1, int param2, int param3, int param4) {
+        this.tryRenderGuiItem(param0, param1, param2, param3, param4);
     }
 
-    private void tryRenderGuiItem(@Nullable LivingEntity param0, ItemStack param1, int param2, int param3) {
+    private void tryRenderGuiItem(@Nullable LivingEntity param0, ItemStack param1, int param2, int param3, int param4) {
         if (!param1.isEmpty()) {
             this.blitOffset += 50.0F;
 
             try {
-                this.renderGuiItem(param1, param2, param3, this.getModel(param1, null, param0));
-            } catch (Throwable var8) {
-                CrashReport var1 = CrashReport.forThrowable(var8, "Rendering item");
+                this.renderGuiItem(param1, param2, param3, this.getModel(param1, null, param0, param4));
+            } catch (Throwable var9) {
+                CrashReport var1 = CrashReport.forThrowable(var9, "Rendering item");
                 CrashReportCategory var2 = var1.addCategory("Item being rendered");
                 var2.setDetail("Item Type", () -> String.valueOf(param1.getItem()));
                 var2.setDetail("Item Damage", () -> String.valueOf(param1.getDamageValue()));

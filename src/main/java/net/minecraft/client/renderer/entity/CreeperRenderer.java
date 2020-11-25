@@ -15,7 +15,7 @@ public class CreeperRenderer extends MobRenderer<Creeper, CreeperModel<Creeper>>
     private static final ResourceLocation CREEPER_LOCATION = new ResourceLocation("textures/entity/creeper/creeper.png");
 
     public CreeperRenderer(EntityRendererProvider.Context param0) {
-        super(param0, new CreeperModel<>(param0.getLayer(ModelLayers.CREEPER)), 0.5F);
+        super(param0, new CreeperModel<>(param0.bakeLayer(ModelLayers.CREEPER)), 0.5F);
         this.addLayer(new CreeperPowerLayer(this, param0.getModelSet()));
     }
 

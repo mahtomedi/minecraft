@@ -123,7 +123,6 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     protected int boardingCooldown;
     @Nullable
     private Entity vehicle;
-    public boolean forcedLoading;
     public Level level;
     public double xo;
     public double yo;
@@ -882,7 +881,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
             }
 
             BlockState var2 = this.level.getBlockState(param0.above());
-            SoundType var3 = var2.is(BlockTags.SNOW_STEP_SOUND_BLOCKS) ? var2.getSoundType() : param1.getSoundType();
+            SoundType var3 = var2.is(BlockTags.INSIDE_STEP_SOUND_BLOCKS) ? var2.getSoundType() : param1.getSoundType();
             this.playSound(var3.getStepSound(), var3.getVolume() * 0.15F, var3.getPitch());
         }
     }
@@ -1147,10 +1146,6 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         } else {
             return 0.0F;
         }
-    }
-
-    public void setLevel(Level param0) {
-        this.level = param0;
     }
 
     public void absMoveTo(double param0, double param1, double param2, float param3, float param4) {
@@ -2202,7 +2197,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
                     var1.restoreFrom(this);
                     var1.moveTo(var0.pos.x, var0.pos.y, var0.pos.z, var0.yRot, var1.xRot);
                     var1.setDeltaMovement(var0.speed);
-                    param0.addAndForceLoad(var1);
+                    param0.addDuringTeleport(var1);
                     if (param0.dimension() == Level.END) {
                         ServerLevel.makeObsidianPlatform(param0);
                     }

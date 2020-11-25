@@ -32,6 +32,7 @@ import net.minecraft.world.level.GameType;
 public class PlayerPredicate {
     public static final PlayerPredicate ANY = new PlayerPredicate.Builder().build();
     private final MinMaxBounds.Ints level;
+    @Nullable
     private final GameType gameType;
     private final Map<Stat<?>, MinMaxBounds.Ints> stats;
     private final Object2BooleanMap<ResourceLocation> recipes;
@@ -54,7 +55,7 @@ public class PlayerPredicate {
 
     private PlayerPredicate(
         MinMaxBounds.Ints param0,
-        GameType param1,
+        @Nullable GameType param1,
         Map<Stat<?>, MinMaxBounds.Ints> param2,
         Object2BooleanMap<ResourceLocation> param3,
         Map<ResourceLocation, PlayerPredicate.AdvancementPredicate> param4
@@ -75,7 +76,7 @@ public class PlayerPredicate {
             ServerPlayer var0 = (ServerPlayer)param0;
             if (!this.level.matches(var0.experienceLevel)) {
                 return false;
-            } else if (this.gameType != GameType.NOT_SET && this.gameType != var0.gameMode.getGameModeForPlayer()) {
+            } else if (this.gameType != var0.gameMode.getGameModeForPlayer()) {
                 return false;
             } else {
                 StatsCounter var1 = var0.getStats();
@@ -117,7 +118,7 @@ public class PlayerPredicate {
             JsonObject var0 = GsonHelper.convertToJsonObject(param0, "player");
             MinMaxBounds.Ints var1 = MinMaxBounds.Ints.fromJson(var0.get("level"));
             String var2 = GsonHelper.getAsString(var0, "gamemode", "");
-            GameType var3 = GameType.byName(var2, GameType.NOT_SET);
+            GameType var3 = GameType.byName(var2, null);
             Map<Stat<?>, MinMaxBounds.Ints> var4 = Maps.newHashMap();
             JsonArray var5 = GsonHelper.getAsJsonArray(var0, "stats", null);
             if (var5 != null) {
@@ -180,7 +181,7 @@ public class PlayerPredicate {
         } else {
             JsonObject var0 = new JsonObject();
             var0.add("level", this.level.serializeToJson());
-            if (this.gameType != GameType.NOT_SET) {
+            if (this.gameType != null) {
                 var0.addProperty("gamemode", this.gameType.getName());
             }
 
@@ -261,7 +262,8 @@ public class PlayerPredicate {
 
     public static class Builder {
         private MinMaxBounds.Ints level = MinMaxBounds.Ints.ANY;
-        private GameType gameType = GameType.NOT_SET;
+        @Nullable
+        private GameType gameType;
         private final Map<Stat<?>, MinMaxBounds.Ints> stats = Maps.newHashMap();
         private final Object2BooleanMap<ResourceLocation> recipes = new Object2BooleanOpenHashMap<>();
         private final Map<ResourceLocation, PlayerPredicate.AdvancementPredicate> advancements = Maps.newHashMap();

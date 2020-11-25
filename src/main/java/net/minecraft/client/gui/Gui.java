@@ -512,36 +512,37 @@ public class Gui extends GuiComponent {
             RenderSystem.enableRescaleNormal();
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
+            int var7 = 1;
 
-            for(int var7 = 0; var7 < 9; ++var7) {
-                int var8 = var3 - 90 + var7 * 20 + 2;
-                int var9 = this.screenHeight - 16 - 3;
-                this.renderSlot(var8, var9, param0, var0, var0.getInventory().items.get(var7));
+            for(int var8 = 0; var8 < 9; ++var8) {
+                int var9 = var3 - 90 + var8 * 20 + 2;
+                int var10 = this.screenHeight - 16 - 3;
+                this.renderSlot(var9, var10, param0, var0, var0.getInventory().items.get(var8), var7++);
             }
 
             if (!var1.isEmpty()) {
-                int var10 = this.screenHeight - 16 - 3;
+                int var11 = this.screenHeight - 16 - 3;
                 if (var2 == HumanoidArm.LEFT) {
-                    this.renderSlot(var3 - 91 - 26, var10, param0, var0, var1);
+                    this.renderSlot(var3 - 91 - 26, var11, param0, var0, var1, var7++);
                 } else {
-                    this.renderSlot(var3 + 91 + 10, var10, param0, var0, var1);
+                    this.renderSlot(var3 + 91 + 10, var11, param0, var0, var1, var7++);
                 }
             }
 
             if (this.minecraft.options.attackIndicator == AttackIndicatorStatus.HOTBAR) {
-                float var11 = this.minecraft.player.getAttackStrengthScale(0.0F);
-                if (var11 < 1.0F) {
-                    int var12 = this.screenHeight - 20;
-                    int var13 = var3 + 91 + 6;
+                float var12 = this.minecraft.player.getAttackStrengthScale(0.0F);
+                if (var12 < 1.0F) {
+                    int var13 = this.screenHeight - 20;
+                    int var14 = var3 + 91 + 6;
                     if (var2 == HumanoidArm.RIGHT) {
-                        var13 = var3 - 91 - 22;
+                        var14 = var3 - 91 - 22;
                     }
 
                     this.minecraft.getTextureManager().bind(GuiComponent.GUI_ICONS_LOCATION);
-                    int var14 = (int)(var11 * 19.0F);
+                    int var15 = (int)(var12 * 19.0F);
                     RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-                    this.blit(param1, var13, var12, 0, 94, 18, 18);
-                    this.blit(param1, var13, var12 + 18 - var14, 18, 112 - var14, 18, var14);
+                    this.blit(param1, var14, var13, 0, 94, 18, 18);
+                    this.blit(param1, var14, var13 + 18 - var15, 18, 112 - var15, 18, var15);
                 }
             }
 
@@ -1090,7 +1091,7 @@ public class Gui extends GuiComponent {
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
     }
 
-    private void renderSlot(int param0, int param1, float param2, Player param3, ItemStack param4) {
+    private void renderSlot(int param0, int param1, float param2, Player param3, ItemStack param4, int param5) {
         if (!param4.isEmpty()) {
             float var0 = (float)param4.getPopTime() - param2;
             if (var0 > 0.0F) {
@@ -1101,7 +1102,7 @@ public class Gui extends GuiComponent {
                 RenderSystem.translatef((float)(-(param0 + 8)), (float)(-(param1 + 12)), 0.0F);
             }
 
-            this.itemRenderer.renderAndDecorateItem(param3, param4, param0, param1);
+            this.itemRenderer.renderAndDecorateItem(param3, param4, param0, param1, param5);
             if (var0 > 0.0F) {
                 RenderSystem.popMatrix();
             }

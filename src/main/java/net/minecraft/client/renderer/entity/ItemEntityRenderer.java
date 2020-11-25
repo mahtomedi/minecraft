@@ -48,7 +48,7 @@ public class ItemEntityRenderer extends EntityRenderer<ItemEntity> {
         ItemStack var0 = param0.getItem();
         int var1 = var0.isEmpty() ? 187 : Item.getId(var0.getItem()) + var0.getDamageValue();
         this.random.setSeed((long)var1);
-        BakedModel var2 = this.itemRenderer.getModel(var0, param0.level, null);
+        BakedModel var2 = this.itemRenderer.getModel(var0, param0.level, null, param0.getId());
         boolean var3 = var2.isGui3d();
         int var4 = this.getRenderAmount(var0);
         float var5 = 0.25F;

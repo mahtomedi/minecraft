@@ -9,7 +9,6 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.Tag;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.GameType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -28,7 +27,7 @@ public class CraftPlanksTutorialStep implements TutorialStepInstance {
     @Override
     public void tick() {
         ++this.timeWaiting;
-        if (this.tutorial.getGameMode() != GameType.SURVIVAL) {
+        if (!this.tutorial.isSurvival()) {
             this.tutorial.setStep(TutorialSteps.NONE);
         } else {
             if (this.timeWaiting == 1) {

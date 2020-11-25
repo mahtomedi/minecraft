@@ -15,7 +15,7 @@ public class CodRenderer extends MobRenderer<Cod, CodModel<Cod>> {
     private static final ResourceLocation COD_LOCATION = new ResourceLocation("textures/entity/fish/cod.png");
 
     public CodRenderer(EntityRendererProvider.Context param0) {
-        super(param0, new CodModel<>(param0.getLayer(ModelLayers.COD)), 0.3F);
+        super(param0, new CodModel<>(param0.bakeLayer(ModelLayers.COD)), 0.3F);
     }
 
     public ResourceLocation getTextureLocation(Cod param0) {

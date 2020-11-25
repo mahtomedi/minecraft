@@ -325,10 +325,12 @@ public class ItemCommands {
 
             SlotAccess var2 = var1.getSlot(param2);
             if (var2 != SlotAccess.NULL) {
-                ItemStack var3 = applyModifier(param0, param3, var2.get());
-                var0.put(var1, var3);
-                if (var1 instanceof ServerPlayer) {
-                    ((ServerPlayer)var1).inventoryMenu.broadcastChanges();
+                ItemStack var3 = applyModifier(param0, param3, var2.get().copy());
+                if (var2.set(var3)) {
+                    var0.put(var1, var3);
+                    if (var1 instanceof ServerPlayer) {
+                        ((ServerPlayer)var1).inventoryMenu.broadcastChanges();
+                    }
                 }
             }
         }

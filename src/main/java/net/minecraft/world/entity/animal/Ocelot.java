@@ -169,11 +169,6 @@ public class Ocelot extends Animal {
     }
 
     @Override
-    public boolean hurt(DamageSource param0, float param1) {
-        return this.isInvulnerableTo(param0) ? false : super.hurt(param0, param1);
-    }
-
-    @Override
     public InteractionResult mobInteract(Player param0, InteractionHand param1) {
         ItemStack var0 = param0.getItemInHand(param1);
         if ((this.temptGoal == null || this.temptGoal.isRunning()) && !this.isTrusting() && this.isFood(var0) && param0.distanceToSqr(this) < 9.0) {

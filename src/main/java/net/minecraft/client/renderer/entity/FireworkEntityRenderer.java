@@ -30,7 +30,8 @@ public class FireworkEntityRenderer extends EntityRenderer<FireworkRocketEntity>
             param3.mulPose(Vector3f.XP.rotationDegrees(90.0F));
         }
 
-        this.itemRenderer.renderStatic(param0.getItem(), ItemTransforms.TransformType.GROUND, param5, OverlayTexture.NO_OVERLAY, param3, param4);
+        this.itemRenderer
+            .renderStatic(param0.getItem(), ItemTransforms.TransformType.GROUND, param5, OverlayTexture.NO_OVERLAY, param3, param4, param0.getId());
         param3.popPose();
         super.render(param0, param1, param2, param3, param4, param5);
     }

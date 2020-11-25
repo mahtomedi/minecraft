@@ -22,7 +22,7 @@ public class ShulkerBoxRenderer implements BlockEntityRenderer<ShulkerBoxBlockEn
     private final ShulkerModel<?> model;
 
     public ShulkerBoxRenderer(BlockEntityRendererProvider.Context param0) {
-        this.model = new ShulkerModel(param0.getLayer(ModelLayers.SHULKER));
+        this.model = new ShulkerModel(param0.bakeLayer(ModelLayers.SHULKER));
     }
 
     public void render(ShulkerBoxBlockEntity param0, float param1, PoseStack param2, MultiBufferSource param3, int param4, int param5) {

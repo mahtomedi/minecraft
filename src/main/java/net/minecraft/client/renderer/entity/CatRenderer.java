@@ -17,7 +17,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class CatRenderer extends MobRenderer<Cat, CatModel<Cat>> {
     public CatRenderer(EntityRendererProvider.Context param0) {
-        super(param0, new CatModel<>(param0.getLayer(ModelLayers.CAT)), 0.4F);
+        super(param0, new CatModel<>(param0.bakeLayer(ModelLayers.CAT)), 0.4F);
         this.addLayer(new CatCollarLayer(this, param0.getModelSet()));
     }
 

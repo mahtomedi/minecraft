@@ -1016,10 +1016,6 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
         int var0 = param0 - 400;
         if (var0 >= 0 && var0 < 2 && var0 < this.inventory.getContainerSize()) {
             if (var0 == 0) {
-                if (!this.canWearArmor()) {
-                    return SlotAccess.NULL;
-                }
-
                 return this.createEquipmentSlotAccess(var0, param0x -> param0x.isEmpty() || param0x.is(Items.SADDLE));
             }
 

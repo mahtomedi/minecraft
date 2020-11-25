@@ -83,7 +83,7 @@ public class ItemFrameRenderer extends EntityRenderer<ItemFrame> {
                 }
             } else {
                 param3.scale(0.5F, 0.5F, 0.5F);
-                this.itemRenderer.renderStatic(var4, ItemTransforms.TransformType.FIXED, param5, OverlayTexture.NO_OVERLAY, param3, param4);
+                this.itemRenderer.renderStatic(var4, ItemTransforms.TransformType.FIXED, param5, OverlayTexture.NO_OVERLAY, param3, param4, param0.getId());
             }
         }
 

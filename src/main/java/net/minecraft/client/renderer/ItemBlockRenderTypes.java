@@ -223,6 +223,7 @@ public class ItemBlockRenderTypes {
         param0.put(Blocks.POTTED_WARPED_ROOTS, var2);
         param0.put(Blocks.CRIMSON_DOOR, var2);
         param0.put(Blocks.WARPED_DOOR, var2);
+        param0.put(Blocks.POINTED_DRIPSTONE, var2);
         param0.put(Blocks.SMALL_AMETHYST_BUD, var2);
         param0.put(Blocks.MEDIUM_AMETHYST_BUD, var2);
         param0.put(Blocks.LARGE_AMETHYST_BUD, var2);

@@ -51,7 +51,6 @@ public class WanderingTrader extends AbstractVillager {
 
     public WanderingTrader(EntityType<? extends WanderingTrader> param0, Level param1) {
         super(param0, param1);
-        this.forcedLoading = true;
     }
 
     @Override

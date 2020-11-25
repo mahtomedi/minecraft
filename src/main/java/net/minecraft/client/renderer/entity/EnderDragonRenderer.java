@@ -40,7 +40,7 @@ public class EnderDragonRenderer extends EntityRenderer<EnderDragon> {
     public EnderDragonRenderer(EntityRendererProvider.Context param0) {
         super(param0);
         this.shadowRadius = 0.5F;
-        this.model = new EnderDragonRenderer.DragonModel(param0.getLayer(ModelLayers.ENDER_DRAGON));
+        this.model = new EnderDragonRenderer.DragonModel(param0.bakeLayer(ModelLayers.ENDER_DRAGON));
     }
 
     public void render(EnderDragon param0, float param1, float param2, PoseStack param3, MultiBufferSource param4, int param5) {

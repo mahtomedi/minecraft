@@ -288,7 +288,7 @@ public class TeleportCommand {
                     param1.restoreFrom(var5);
                     param1.moveTo(param3, param4, param5, var1, var4);
                     param1.setYHeadRot(var1);
-                    param2.addAndForceLoad(param1);
+                    param2.addDuringTeleport(param1);
                     var5.setRemoved(Entity.RemovalReason.CHANGED_DIMENSION);
                 }
             }

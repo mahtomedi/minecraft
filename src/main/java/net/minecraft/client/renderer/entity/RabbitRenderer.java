@@ -20,7 +20,7 @@ public class RabbitRenderer extends MobRenderer<Rabbit, RabbitModel<Rabbit>> {
     private static final ResourceLocation RABBIT_EVIL_LOCATION = new ResourceLocation("textures/entity/rabbit/caerbannog.png");
 
     public RabbitRenderer(EntityRendererProvider.Context param0) {
-        super(param0, new RabbitModel<>(param0.getLayer(ModelLayers.RABBIT)), 0.3F);
+        super(param0, new RabbitModel<>(param0.bakeLayer(ModelLayers.RABBIT)), 0.3F);
     }
 
     public ResourceLocation getTextureLocation(Rabbit param0) {
