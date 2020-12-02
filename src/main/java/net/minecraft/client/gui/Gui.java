@@ -796,12 +796,14 @@ public class Gui extends GuiComponent {
 
             for(int var21 = Mth.ceil((var10 + (float)var11) / 2.0F) - 1; var21 >= 0; --var21) {
                 int var22 = 16;
-                if (var0.hasEffect(MobEffects.POISON)) {
-                    var22 += 36;
-                } else if (var0.hasEffect(MobEffects.WITHER)) {
-                    var22 += 72;
-                } else if (var0.isFullyFrozen()) {
-                    var22 += 126;
+                if (var16 <= 0) {
+                    if (var0.hasEffect(MobEffects.POISON)) {
+                        var22 += 36;
+                    } else if (var0.hasEffect(MobEffects.WITHER)) {
+                        var22 += 72;
+                    } else if (var0.isFullyFrozen()) {
+                        var22 += 126;
+                    }
                 }
 
                 int var23 = 0;

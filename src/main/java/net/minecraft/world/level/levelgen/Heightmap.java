@@ -12,6 +12,7 @@ import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.BitStorage;
+import net.minecraft.util.Mth;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LeavesBlock;
@@ -30,7 +31,7 @@ public class Heightmap {
     public Heightmap(ChunkAccess param0, Heightmap.Types param1) {
         this.isOpaque = param1.isOpaque();
         this.chunk = param0;
-        int var0 = (int)Math.ceil(Math.log((double)(param0.getHeight() + 1)) / Math.log(2.0));
+        int var0 = Mth.ceillog2(param0.getHeight() + 1);
         this.data = new BitStorage(var0, 256);
     }
 

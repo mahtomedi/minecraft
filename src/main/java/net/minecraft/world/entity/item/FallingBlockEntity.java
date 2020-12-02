@@ -1,7 +1,6 @@
 package net.minecraft.world.entity.item;
 
-import com.google.common.collect.Lists;
-import java.util.List;
+import java.util.function.Predicate;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -18,6 +17,7 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.item.ItemStack;
@@ -48,7 +48,7 @@ public class FallingBlockEntity extends Entity {
     private boolean cancelDrop;
     private boolean hurtEntities;
     private int fallDamageMax = 40;
-    private float fallDamageAmount = 2.0F;
+    private float fallDamagePerDistance;
     public CompoundTag blockData;
     protected static final EntityDataAccessor<BlockPos> DATA_START_POS = SynchedEntityData.defineId(FallingBlockEntity.class, EntityDataSerializers.BLOCK_POS);
 
@@ -206,29 +206,39 @@ public class FallingBlockEntity extends Entity {
 
     @Override
     public boolean causeFallDamage(float param0, float param1) {
-        if (this.hurtEntities) {
+        if (!this.hurtEntities) {
+            return false;
+        } else {
             int var0 = Mth.ceil(param0 - 1.0F);
-            if (var0 > 0) {
-                List<Entity> var1 = Lists.newArrayList(this.level.getEntities(this, this.getBoundingBox()));
-                boolean var2 = this.blockState.is(BlockTags.ANVIL);
-                DamageSource var3 = var2 ? DamageSource.ANVIL : DamageSource.FALLING_BLOCK;
-
-                for(Entity var4 : var1) {
-                    var4.hurt(var3, (float)Math.min(Mth.floor((float)var0 * this.fallDamageAmount), this.fallDamageMax));
+            if (var0 < 0) {
+                return false;
+            } else {
+                Predicate<Entity> var2;
+                DamageSource var3;
+                if (this.blockState.getBlock() instanceof Fallable) {
+                    Fallable var1 = (Fallable)this.blockState.getBlock();
+                    var2 = var1.getHurtsEntitySelector();
+                    var3 = var1.getFallDamageSource();
+                } else {
+                    var2 = EntitySelector.NO_SPECTATORS;
+                    var3 = DamageSource.FALLING_BLOCK;
                 }
 
-                if (var2 && (double)this.random.nextFloat() < 0.05F + (double)var0 * 0.05) {
-                    BlockState var5 = AnvilBlock.damage(this.blockState);
-                    if (var5 == null) {
+                float var6 = (float)Math.min(Mth.floor((float)var0 * this.fallDamagePerDistance), this.fallDamageMax);
+                this.level.getEntities(this, this.getBoundingBox(), var2).forEach(param2 -> param2.hurt(var3, var6));
+                boolean var7 = this.blockState.is(BlockTags.ANVIL);
+                if (var7 && (double)this.random.nextFloat() < 0.05F + (double)var0 * 0.05) {
+                    BlockState var8 = AnvilBlock.damage(this.blockState);
+                    if (var8 == null) {
                         this.cancelDrop = true;
                     } else {
-                        this.blockState = var5;
+                        this.blockState = var8;
                     }
                 }
+
+                return false;
             }
         }
-
-        return false;
     }
 
     @Override
@@ -237,7 +247,7 @@ public class FallingBlockEntity extends Entity {
         param0.putInt("Time", this.time);
         param0.putBoolean("DropItem", this.dropItem);
         param0.putBoolean("HurtEntities", this.hurtEntities);
-        param0.putFloat("FallHurtAmount", this.fallDamageAmount);
+        param0.putFloat("FallHurtAmount", this.fallDamagePerDistance);
         param0.putInt("FallHurtMax", this.fallDamageMax);
         if (this.blockData != null) {
             param0.put("TileEntityData", this.blockData);
@@ -251,7 +261,7 @@ public class FallingBlockEntity extends Entity {
         this.time = param0.getInt("Time");
         if (param0.contains("HurtEntities", 99)) {
             this.hurtEntities = param0.getBoolean("HurtEntities");
-            this.fallDamageAmount = param0.getFloat("FallHurtAmount");
+            this.fallDamagePerDistance = param0.getFloat("FallHurtAmount");
             this.fallDamageMax = param0.getInt("FallHurtMax");
         } else if (this.blockState.is(BlockTags.ANVIL)) {
             this.hurtEntities = true;
@@ -276,8 +286,10 @@ public class FallingBlockEntity extends Entity {
         return this.level;
     }
 
-    public void setHurtsEntities(boolean param0) {
-        this.hurtEntities = param0;
+    public void setHurtsEntities(float param0, int param1) {
+        this.hurtEntities = true;
+        this.fallDamagePerDistance = param0;
+        this.fallDamageMax = param1;
     }
 
     @OnlyIn(Dist.CLIENT)

@@ -100,6 +100,7 @@ import net.minecraft.world.level.block.PowderSnowBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.TrapDoorBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.storage.loot.LootContext;
@@ -997,7 +998,7 @@ public abstract class LivingEntity extends Entity {
 
             this.noActionTime = 0;
             float var0 = param1;
-            if ((param0 == DamageSource.ANVIL || param0 == DamageSource.FALLING_BLOCK) && !this.getItemBySlot(EquipmentSlot.HEAD).isEmpty()) {
+            if (param0.isDamageHelmet() && !this.getItemBySlot(EquipmentSlot.HEAD).isEmpty()) {
                 this.getItemBySlot(EquipmentSlot.HEAD)
                     .hurtAndBreak(
                         (int)(param1 * 4.0F + this.random.nextFloat() * param1 * 2.0F), this, param0x -> param0x.broadcastBreakEvent(EquipmentSlot.HEAD)
@@ -1134,6 +1135,7 @@ public abstract class LivingEntity extends Entity {
                 CriteriaTriggers.PLAYER_HURT_ENTITY.trigger((ServerPlayer)var5, this, param0, var0, param1, var1);
             }
 
+            this.gameEvent(param0.getEntity(), GameEvent.ENTITY_HIT);
             return var16;
         }
     }
@@ -2554,8 +2556,14 @@ public abstract class LivingEntity extends Entity {
             ItemStack var1 = this.getItemBySlot(EquipmentSlot.CHEST);
             if (var1.is(Items.ELYTRA) && ElytraItem.isFlyEnabled(var1)) {
                 var0 = true;
-                if (!this.level.isClientSide && (this.fallFlyTicks + 1) % 20 == 0) {
-                    var1.hurtAndBreak(1, this, param0 -> param0.broadcastBreakEvent(EquipmentSlot.CHEST));
+                int var2 = this.fallFlyTicks + 1;
+                if (!this.level.isClientSide && var2 % 10 == 0) {
+                    int var3 = var2 / 10;
+                    if (var3 % 2 == 0) {
+                        var1.hurtAndBreak(1, this, param0 -> param0.broadcastBreakEvent(EquipmentSlot.CHEST));
+                    }
+
+                    this.gameEvent(GameEvent.ELYTRA_FREE_FALL);
                 }
             } else {
                 var0 = false;

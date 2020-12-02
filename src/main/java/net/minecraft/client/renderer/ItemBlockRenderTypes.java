@@ -229,6 +229,7 @@ public class ItemBlockRenderTypes {
         param0.put(Blocks.LARGE_AMETHYST_BUD, var2);
         param0.put(Blocks.AMETHYST_CLUSTER, var2);
         param0.put(Blocks.LIGHTNING_ROD, var2);
+        param0.put(Blocks.SCULK_SENSOR, var2);
         RenderType var3 = RenderType.translucent();
         param0.put(Blocks.ICE, var3);
         param0.put(Blocks.NETHER_PORTAL, var3);

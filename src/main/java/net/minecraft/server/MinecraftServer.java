@@ -184,7 +184,6 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
     private boolean allowFlight;
     @Nullable
     private String motd;
-    private int maxBuildHeight;
     private int playerIdleTimeout;
     public final long[] tickTimes = new long[100];
     @Nullable
@@ -1088,7 +1087,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
                 param0.setDynamicData("world[" + var0 + "][mode]", this.worldData.getGameType());
                 param0.setDynamicData("world[" + var0 + "][difficulty]", var1.getDifficulty());
                 param0.setDynamicData("world[" + var0 + "][hardcore]", this.worldData.isHardcore());
-                param0.setDynamicData("world[" + var0 + "][height]", this.maxBuildHeight);
+                param0.setDynamicData("world[" + var0 + "][height]", var1.getMaxBuildHeight());
                 param0.setDynamicData("world[" + var0 + "][chunks_loaded]", var1.getChunkSource().getLoadedChunksCount());
                 ++var0;
             }
@@ -1151,14 +1150,6 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
 
     public void setMotd(String param0) {
         this.motd = param0;
-    }
-
-    public int getMaxBuildHeight() {
-        return this.maxBuildHeight;
-    }
-
-    public void setMaxBuildHeight(int param0) {
-        this.maxBuildHeight = param0;
     }
 
     public boolean isStopped() {

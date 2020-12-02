@@ -3,6 +3,8 @@ package net.minecraft.world.level.chunk;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import it.unimi.dsi.fastutil.shorts.ShortList;
@@ -41,11 +43,13 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.TickingBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.EuclideanGameEventDispatcher;
+import net.minecraft.world.level.gameevent.GameEventDispatcher;
+import net.minecraft.world.level.gameevent.GameEventListener;
 import net.minecraft.world.level.levelgen.DebugLevelSource;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
-import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
@@ -100,6 +104,7 @@ public class LevelChunk implements ChunkAccess {
     private Consumer<LevelChunk> postLoad;
     private final ChunkPos chunkPos;
     private volatile boolean isLightCorrect;
+    private final Int2ObjectMap<GameEventDispatcher> gameEventDispatcherSections;
 
     public LevelChunk(Level param0, ChunkPos param1, ChunkBiomeContainer param2) {
         this(param0, param1, param2, UpgradeData.EMPTY, EmptyTickList.empty(), EmptyTickList.empty(), 0L, null, null);
@@ -119,6 +124,7 @@ public class LevelChunk implements ChunkAccess {
         this.level = param0;
         this.chunkPos = param1;
         this.upgradeData = param3;
+        this.gameEventDispatcherSections = new Int2ObjectOpenHashMap<>();
 
         for(Heightmap.Types var0 : Heightmap.Types.values()) {
             if (ChunkStatus.FULL.heightmapsAfter().contains(var0)) {
@@ -177,6 +183,11 @@ public class LevelChunk implements ChunkAccess {
 
         this.setLightCorrect(param1.isLightCorrect());
         this.unsaved = true;
+    }
+
+    @Override
+    public GameEventDispatcher getEventDispatcher(int param0) {
+        return this.gameEventDispatcherSections.computeIfAbsent(param0, param0x -> new EuclideanGameEventDispatcher(this.level));
     }
 
     @Override
@@ -322,11 +333,6 @@ public class LevelChunk implements ChunkAccess {
         }
     }
 
-    @Nullable
-    public LevelLightEngine getLightEngine() {
-        return this.level.getChunkSource().getLightEngine();
-    }
-
     @Deprecated
     @Override
     public void addEntity(Entity param0) {
@@ -385,6 +391,7 @@ public class LevelChunk implements ChunkAccess {
     public void addAndRegisterBlockEntity(BlockEntity param0) {
         this.setBlockEntity(param0);
         if (this.isInLevel()) {
+            this.addGameEventListener(param0);
             this.updateBlockEntityTicker(param0);
         }
 
@@ -442,11 +449,30 @@ public class LevelChunk implements ChunkAccess {
         if (this.isInLevel()) {
             BlockEntity var0 = this.blockEntities.remove(param0);
             if (var0 != null) {
+                this.removeGameEventListener(var0);
                 var0.setRemoved();
             }
         }
 
         this.removeBlockEntityTicker(param0);
+    }
+
+    private <T extends BlockEntity> void removeGameEventListener(T param0) {
+        if (!this.level.isClientSide) {
+            Block var0 = param0.getBlockState().getBlock();
+            if (var0 instanceof EntityBlock) {
+                GameEventListener var1 = ((EntityBlock)var0).getListener(this.level, param0);
+                if (var1 != null) {
+                    int var2 = SectionPos.blockToSectionCoord(param0.getBlockPos().getY());
+                    GameEventDispatcher var3 = this.getEventDispatcher(var2);
+                    var3.unregister(var1);
+                    if (var3.isEmpty()) {
+                        this.gameEventDispatcherSections.remove(var2);
+                    }
+                }
+            }
+
+        }
     }
 
     private void removeBlockEntityTicker(BlockPos param0) {
@@ -566,7 +592,7 @@ public class LevelChunk implements ChunkAccess {
         return StreamSupport.stream(
                 BlockPos.betweenClosed(
                         this.chunkPos.getMinBlockX(),
-                        0,
+                        this.getMinBuildHeight(),
                         this.chunkPos.getMinBlockZ(),
                         this.chunkPos.getMaxBlockX(),
                         this.getMaxBuildHeight() - 1,
@@ -749,13 +775,13 @@ public class LevelChunk implements ChunkAccess {
     }
 
     @Override
-    public int getSectionsCount() {
-        return this.level.getSectionsCount();
+    public int getMinBuildHeight() {
+        return this.level.getMinBuildHeight();
     }
 
     @Override
-    public int getMinSection() {
-        return this.level.getMinSection();
+    public int getHeight() {
+        return this.level.getHeight();
     }
 
     @Override
@@ -787,7 +813,24 @@ public class LevelChunk implements ChunkAccess {
     }
 
     public void registerAllBlockEntitiesAfterLevelLoad() {
-        this.blockEntities.values().forEach(this::updateBlockEntityTicker);
+        this.blockEntities.values().forEach(param0 -> {
+            this.addGameEventListener(param0);
+            this.updateBlockEntityTicker(param0);
+        });
+    }
+
+    private <T extends BlockEntity> void addGameEventListener(T param0) {
+        if (!this.level.isClientSide) {
+            Block var0 = param0.getBlockState().getBlock();
+            if (var0 instanceof EntityBlock) {
+                GameEventListener var1 = ((EntityBlock)var0).getListener(this.level, param0);
+                if (var1 != null) {
+                    GameEventDispatcher var2 = this.getEventDispatcher(SectionPos.blockToSectionCoord(param0.getBlockPos().getY()));
+                    var2.register(var1);
+                }
+            }
+
+        }
     }
 
     private <T extends BlockEntity> void updateBlockEntityTicker(T param0) {

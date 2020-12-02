@@ -3,6 +3,7 @@ package net.minecraft.server.level;
 import com.mojang.datafixers.util.Either;
 import it.unimi.dsi.fastutil.shorts.ShortArraySet;
 import it.unimi.dsi.fastutil.shorts.ShortSet;
+import java.util.BitSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -62,8 +63,8 @@ public class ChunkHolder {
     private final ChunkPos pos;
     private boolean hasChangedSections;
     private final ShortSet[] changedBlocksPerSection;
-    private int blockChangedLightSectionFilter;
-    private int skyChangedLightSectionFilter;
+    private final BitSet blockChangedLightSectionFilter = new BitSet();
+    private final BitSet skyChangedLightSectionFilter = new BitSet();
     private final LevelLightEngine lightEngine;
     private final ChunkHolder.LevelChangeListener onLevelChange;
     private final ChunkHolder.PlayerProvider playerProvider;
@@ -170,17 +171,22 @@ public class ChunkHolder {
         LevelChunk var0 = this.getTickingChunk();
         if (var0 != null) {
             var0.setUnsaved(true);
-            if (param0 == LightLayer.SKY) {
-                this.skyChangedLightSectionFilter |= 1 << param1 - this.lightEngine.getMinLightSection();
-            } else {
-                this.blockChangedLightSectionFilter |= 1 << param1 - this.lightEngine.getMinLightSection();
-            }
+            int var1 = this.lightEngine.getMinLightSection();
+            int var2 = this.lightEngine.getMaxLightSection();
+            if (param1 >= var1 && param1 <= var2) {
+                int var3 = param1 - var1;
+                if (param0 == LightLayer.SKY) {
+                    this.skyChangedLightSectionFilter.set(var3);
+                } else {
+                    this.blockChangedLightSectionFilter.set(var3);
+                }
 
+            }
         }
     }
 
     public void broadcastChanges(LevelChunk param0) {
-        if (this.hasChangedSections || this.skyChangedLightSectionFilter != 0 || this.blockChangedLightSectionFilter != 0) {
+        if (this.hasChangedSections || !this.skyChangedLightSectionFilter.isEmpty() || !this.blockChangedLightSectionFilter.isEmpty()) {
             Level var0 = param0.getLevel();
             int var1 = 0;
 
@@ -189,15 +195,15 @@ public class ChunkHolder {
             }
 
             this.resendLight |= var1 >= 64;
-            if (this.skyChangedLightSectionFilter != 0 || this.blockChangedLightSectionFilter != 0) {
+            if (!this.skyChangedLightSectionFilter.isEmpty() || !this.blockChangedLightSectionFilter.isEmpty()) {
                 this.broadcast(
                     new ClientboundLightUpdatePacket(
                         param0.getPos(), this.lightEngine, this.skyChangedLightSectionFilter, this.blockChangedLightSectionFilter, true
                     ),
                     !this.resendLight
                 );
-                this.skyChangedLightSectionFilter = 0;
-                this.blockChangedLightSectionFilter = 0;
+                this.skyChangedLightSectionFilter.clear();
+                this.blockChangedLightSectionFilter.clear();
             }
 
             for(int var3 = 0; var3 < this.changedBlocksPerSection.length; ++var3) {

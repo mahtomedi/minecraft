@@ -24,6 +24,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
@@ -172,6 +173,7 @@ public abstract class AbstractMinecartContainer extends AbstractMinecart impleme
     public InteractionResult interact(Player param0, InteractionHand param1) {
         param0.openMenu(this);
         if (!param0.level.isClientSide) {
+            this.gameEvent(param0, GameEvent.CONTAINER_OPEN);
             PiglinAi.angerNearbyPiglins(param0, true);
             return InteractionResult.CONSUME;
         } else {

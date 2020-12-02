@@ -18,7 +18,6 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.NaturalSpawner;
@@ -259,29 +258,31 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
         double var37 = var0.randomDensityOffset() ? this.getRandomDensity(param1, param2) : 0.0;
         double var38 = var0.densityFactor();
         double var39 = var0.densityOffset();
+        int var40 = Mth.intFloorDiv(var0.minY(), this.chunkHeight);
 
-        for(int var40 = 0; var40 <= this.chunkCountY; ++var40) {
-            double var41 = this.sampleAndClampNoise(param1, var40, param2, var27, var28, var29, var30);
-            double var42 = 1.0 - (double)var40 * 2.0 / (double)this.chunkCountY + var37;
-            double var43 = var42 * var38 + var39;
-            double var44 = (var43 + var1) * var2;
-            if (var44 > 0.0) {
-                var41 += var44 * 4.0;
+        for(int var41 = 0; var41 <= this.chunkCountY; ++var41) {
+            int var42 = var41 + var40;
+            double var43 = this.sampleAndClampNoise(param1, var42, param2, var27, var28, var29, var30);
+            double var44 = 1.0 - (double)var42 * 2.0 / (double)this.chunkCountY + var37;
+            double var45 = var44 * var38 + var39;
+            double var46 = (var45 + var1) * var2;
+            if (var46 > 0.0) {
+                var43 += var46 * 4.0;
             } else {
-                var41 += var44;
+                var43 += var46;
             }
 
             if (var32 > 0.0) {
-                double var45 = ((double)(this.chunkCountY - var40) - var33) / var32;
-                var41 = Mth.clampedLerp(var31, var41, var45);
+                double var47 = ((double)(this.chunkCountY - var41) - var33) / var32;
+                var43 = Mth.clampedLerp(var31, var43, var47);
             }
 
             if (var35 > 0.0) {
-                double var46 = ((double)var40 - var36) / var35;
-                var41 = Mth.clampedLerp(var34, var41, var46);
+                double var48 = ((double)var41 - var36) / var35;
+                var43 = Mth.clampedLerp(var34, var43, var48);
             }
 
-            param0[var40] = var41;
+            param0[var41] = var43;
         }
 
     }
@@ -305,10 +306,10 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
     }
 
     @Override
-    public BlockGetter getBaseColumn(int param0, int param1) {
+    public NoiseColumn getBaseColumn(int param0, int param1) {
         BlockState[] var0 = new BlockState[this.chunkCountY * this.chunkHeight];
         this.iterateNoiseColumn(param0, param1, var0, null);
-        return new NoiseColumn(var0);
+        return new NoiseColumn(this.settings.get().noiseSettings().minY(), var0);
     }
 
     private int iterateNoiseColumn(int param0, int param1, @Nullable BlockState[] param2, @Nullable Predicate<BlockState> param3) {
@@ -339,13 +340,14 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
                 double var17 = (double)var16 / (double)this.chunkHeight;
                 double var18 = Mth.lerp3(var17, var4, var5, var8, var12, var10, var14, var9, var13, var11, var15);
                 int var19 = var7 * this.chunkHeight + var16;
-                BlockState var20 = this.generateBaseState(var18, var19);
+                int var20 = var19 + this.settings.get().noiseSettings().minY();
+                BlockState var21 = this.generateBaseState(var18, var20);
                 if (param2 != null) {
-                    param2[var19] = var20;
+                    param2[var19] = var21;
                 }
 
-                if (param3 != null && param3.test(var20)) {
-                    return var19 + 1;
+                if (param3 != null && param3.test(var21)) {
+                    return var20 + 1;
                 }
             }
         }
@@ -401,8 +403,8 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
         int var4 = var3.getBedrockFloorPosition();
         int var5 = this.height - 1 - var3.getBedrockRoofPosition();
         int var6 = 5;
-        boolean var7 = var5 + 5 - 1 >= 0 && var5 < this.height;
-        boolean var8 = var4 + 5 - 1 >= 0 && var4 < this.height;
+        boolean var7 = var5 + 5 - 1 >= param0.getMinBuildHeight() && var5 < param0.getMaxBuildHeight();
+        boolean var8 = var4 + 5 - 1 >= param0.getMinBuildHeight() && var4 < param0.getMaxBuildHeight();
         if (var7 || var8) {
             for(BlockPos var9 : BlockPos.betweenClosed(var1, 0, var2, var1 + 15, 0, var2 + 15)) {
                 if (var7) {
@@ -497,7 +499,7 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
                     double var28 = var8[1][var18 + 1][var20 + 1];
 
                     for(int var29 = this.chunkHeight - 1; var29 >= 0; --var29) {
-                        int var30 = var20 * this.chunkHeight + var29;
+                        int var30 = var20 * this.chunkHeight + var29 + this.settings.get().noiseSettings().minY();
                         int var31 = var30 & 15;
                         int var32 = var10.getSectionIndex(var30);
                         if (var10.getSectionIndex(var19.bottomBlockY()) != var32) {

@@ -187,6 +187,10 @@ public abstract class BlockBehaviour {
         return BlockBehaviour.OffsetType.NONE;
     }
 
+    public float getMaxHorizontalOffset() {
+        return 0.25F;
+    }
+
     @Deprecated
     public BlockState rotate(BlockState param0, Rotation param1) {
         return param0;
@@ -555,16 +559,17 @@ public abstract class BlockBehaviour {
         }
 
         public Vec3 getOffset(BlockGetter param0, BlockPos param1) {
-            BlockBehaviour.OffsetType var0 = this.getBlock().getOffsetType();
-            if (var0 == BlockBehaviour.OffsetType.NONE) {
+            Block var0 = this.getBlock();
+            BlockBehaviour.OffsetType var1 = var0.getOffsetType();
+            if (var1 == BlockBehaviour.OffsetType.NONE) {
                 return Vec3.ZERO;
             } else {
-                long var1 = Mth.getSeed(param1.getX(), 0, param1.getZ());
-                return new Vec3(
-                    ((double)((float)(var1 & 15L) / 15.0F) - 0.5) * 0.5,
-                    var0 == BlockBehaviour.OffsetType.XYZ ? ((double)((float)(var1 >> 4 & 15L) / 15.0F) - 1.0) * 0.2 : 0.0,
-                    ((double)((float)(var1 >> 8 & 15L) / 15.0F) - 0.5) * 0.5
-                );
+                long var2 = Mth.getSeed(param1.getX(), 0, param1.getZ());
+                float var3 = var0.getMaxHorizontalOffset();
+                double var4 = Mth.clamp(((double)((float)(var2 & 15L) / 15.0F) - 0.5) * 0.5, (double)(-var3), (double)var3);
+                double var5 = var1 == BlockBehaviour.OffsetType.XYZ ? ((double)((float)(var2 >> 4 & 15L) / 15.0F) - 1.0) * 0.2 : 0.0;
+                double var6 = Mth.clamp(((double)((float)(var2 >> 8 & 15L) / 15.0F) - 0.5) * 0.5, (double)(-var3), (double)var3);
+                return new Vec3(var4, var5, var6);
             }
         }
 

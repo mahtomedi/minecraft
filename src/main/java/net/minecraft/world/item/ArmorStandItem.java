@@ -15,6 +15,7 @@ import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -48,6 +49,7 @@ public class ArmorStandItem extends Item {
                     this.randomizePose(var8, var1.random);
                     var7.addFreshEntityWithPassengers(var8);
                     var1.playSound(null, var8.getX(), var8.getY(), var8.getZ(), SoundEvents.ARMOR_STAND_PLACE, SoundSource.BLOCKS, 0.75F, 0.8F);
+                    var1.gameEvent(param0.getPlayer(), GameEvent.BLOCK_PLACE, var8);
                 }
 
                 var4.shrink(1);

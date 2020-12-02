@@ -508,7 +508,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         this.setOverlay(
             new LoadingOverlay(
                 this,
-                this.resourceManager.createFullReload(Util.backgroundExecutor(), this, RESOURCE_RELOAD_INITIAL_TASK, var12),
+                this.resourceManager.createReload(Util.backgroundExecutor(), this, RESOURCE_RELOAD_INITIAL_TASK, var12),
                 param0x -> Util.ifElse(param0x, this::rollbackResourcePacks, () -> {
                         if (SharedConstants.IS_RUNNING_IN_IDE) {
                             this.selfTest();
@@ -741,7 +741,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
                 this.setOverlay(
                     new LoadingOverlay(
                         this,
-                        this.resourceManager.createFullReload(Util.backgroundExecutor(), this, RESOURCE_RELOAD_INITIAL_TASK, var1),
+                        this.resourceManager.createReload(Util.backgroundExecutor(), this, RESOURCE_RELOAD_INITIAL_TASK, var1),
                         param1 -> Util.ifElse(param1, this::rollbackResourcePacks, () -> {
                                 this.levelRenderer.allChanged();
                                 var0.complete(null);

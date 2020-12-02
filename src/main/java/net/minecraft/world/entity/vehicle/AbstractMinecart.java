@@ -42,6 +42,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.PoweredRailBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.RailShape;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
@@ -215,6 +216,7 @@ public abstract class AbstractMinecart extends Entity {
         } else if (this.isInvulnerableTo(param0)) {
             return false;
         } else {
+            this.gameEvent(param0.getEntity(), GameEvent.ENTITY_HIT);
             this.setHurtDir(-this.getHurtDir());
             this.setHurtTime(10);
             this.markHurt();

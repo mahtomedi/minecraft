@@ -31,7 +31,7 @@ public class BlockPos extends Vec3i {
     public static final BlockPos ZERO = new BlockPos(0, 0, 0);
     private static final int PACKED_X_LENGTH = 1 + Mth.log2(Mth.smallestEncompassingPowerOfTwo(30000000));
     private static final int PACKED_Z_LENGTH = PACKED_X_LENGTH;
-    private static final int PACKED_Y_LENGTH = 64 - PACKED_X_LENGTH - PACKED_Z_LENGTH;
+    public static final int PACKED_Y_LENGTH = 64 - PACKED_X_LENGTH - PACKED_Z_LENGTH;
     private static final long PACKED_X_MASK = (1L << PACKED_X_LENGTH) - 1L;
     private static final long PACKED_Y_MASK = (1L << PACKED_Y_LENGTH) - 1L;
     private static final long PACKED_Z_MASK = (1L << PACKED_Z_LENGTH) - 1L;
@@ -204,6 +204,10 @@ public class BlockPos extends Vec3i {
             this.getZ() * param0.getX() - this.getX() * param0.getZ(),
             this.getX() * param0.getY() - this.getY() * param0.getX()
         );
+    }
+
+    public BlockPos atY(int param0) {
+        return new BlockPos(this.getX(), param0, this.getZ());
     }
 
     public BlockPos immutable() {
@@ -491,19 +495,19 @@ public class BlockPos extends Vec3i {
             }
         }
 
-        @Override
-        public void setX(int param0) {
+        public BlockPos.MutableBlockPos setX(int param0) {
             super.setX(param0);
+            return this;
         }
 
-        @Override
-        public void setY(int param0) {
+        public BlockPos.MutableBlockPos setY(int param0) {
             super.setY(param0);
+            return this;
         }
 
-        @Override
-        public void setZ(int param0) {
+        public BlockPos.MutableBlockPos setZ(int param0) {
             super.setZ(param0);
+            return this;
         }
 
         @Override

@@ -39,6 +39,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.WaterlilyBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -149,6 +150,7 @@ public class Boat extends Entity {
         if (this.isInvulnerableTo(param0)) {
             return false;
         } else if (!this.level.isClientSide && !this.isRemoved()) {
+            this.gameEvent(param0.getEntity(), GameEvent.ENTITY_HIT);
             this.setHurtDir(-this.getHurtDir());
             this.setHurtTime(10);
             this.setDamage(this.getDamage() + param1 * 10.0F);
@@ -195,6 +197,7 @@ public class Boat extends Entity {
                 );
         }
 
+        this.gameEvent(this.getControllingPassenger(), GameEvent.SPLASH);
     }
 
     @Override
@@ -319,6 +322,8 @@ public class Boat extends Entity {
                                 1.0F,
                                 0.8F + 0.4F * this.random.nextFloat()
                             );
+                        this.level
+                            .gameEvent(this.getControllingPassenger(), GameEvent.SPLASH, new BlockPos(this.getX() + var3, this.getY(), this.getZ() + var4));
                     }
                 }
 

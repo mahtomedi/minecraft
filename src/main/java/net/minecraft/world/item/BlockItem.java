@@ -24,6 +24,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -73,6 +74,7 @@ public class BlockItem extends Item {
 
                     SoundType var7 = var6.getSoundType();
                     var3.playSound(var4, var2, this.getPlaceSound(var6), SoundSource.BLOCKS, (var7.getVolume() + 1.0F) / 2.0F, var7.getPitch() * 0.8F);
+                    var3.gameEvent(var4, GameEvent.BLOCK_PLACE, var2);
                     if (var4 == null || !var4.getAbilities().instabuild) {
                         var5.shrink(1);
                     }

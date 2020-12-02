@@ -1,8 +1,6 @@
 package net.minecraft.world.level.chunk;
 
-import java.util.Arrays;
 import javax.annotation.Nullable;
-import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.data.worldgen.biome.Biomes;
@@ -13,15 +11,12 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 
 public class EmptyLevelChunk extends LevelChunk {
-    private static final Biome[] BIOMES = Util.make(new Biome[ChunkBiomeContainer.BIOMES_SIZE], param0 -> Arrays.fill(param0, Biomes.PLAINS));
-
     public EmptyLevelChunk(Level param0, ChunkPos param1) {
-        super(param0, param1, new ChunkBiomeContainer(param0.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY), BIOMES));
+        super(param0, param1, new EmptyLevelChunk.EmptyChunkBiomeContainer(param0));
     }
 
     @Override
@@ -38,12 +33,6 @@ public class EmptyLevelChunk extends LevelChunk {
     @Override
     public FluidState getFluidState(BlockPos param0) {
         return Fluids.EMPTY.defaultFluidState();
-    }
-
-    @Nullable
-    @Override
-    public LevelLightEngine getLightEngine() {
-        return null;
     }
 
     @Override
@@ -86,5 +75,23 @@ public class EmptyLevelChunk extends LevelChunk {
     @Override
     public ChunkHolder.FullChunkStatus getFullStatus() {
         return ChunkHolder.FullChunkStatus.BORDER;
+    }
+
+    static class EmptyChunkBiomeContainer extends ChunkBiomeContainer {
+        private static final Biome[] EMPTY_BIOMES = new Biome[0];
+
+        public EmptyChunkBiomeContainer(Level param0) {
+            super(param0.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY), param0, EMPTY_BIOMES);
+        }
+
+        @Override
+        public int[] writeBiomes() {
+            throw new UnsupportedOperationException("Can not write biomes of an empty chunk");
+        }
+
+        @Override
+        public Biome getNoiseBiome(int param0, int param1, int param2) {
+            return Biomes.PLAINS;
+        }
     }
 }

@@ -175,7 +175,6 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface 
         } else {
             this.setPlayerList(new DedicatedPlayerList(this, this.registryHolder, this.playerDataStorage));
             long var4 = Util.getNanos();
-            this.setMaxBuildHeight(var1.maxBuildHeight);
             SkullBlockEntity.setProfileCache(this.getProfileCache());
             SkullBlockEntity.setSessionService(this.getSessionService());
             GameProfileCache.setUsesAuthentication(this.usesAuthentication());
@@ -209,6 +208,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface 
             Items.AIR.fillItemCategory(CreativeModeTab.TAB_SEARCH, NonNullList.create());
             if (var1.enableJmxMonitoring) {
                 MinecraftServerStatistics.registerJmxMonitoring(this);
+                LOGGER.info("JMX monitoring enabled");
             }
 
             return true;

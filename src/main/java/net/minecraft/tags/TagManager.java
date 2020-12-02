@@ -13,6 +13,7 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluid;
 
 public class TagManager implements PreparableReloadListener {
@@ -20,6 +21,7 @@ public class TagManager implements PreparableReloadListener {
     private final TagLoader<Item> items = new TagLoader<>(Registry.ITEM::getOptional, "tags/items", "item");
     private final TagLoader<Fluid> fluids = new TagLoader<>(Registry.FLUID::getOptional, "tags/fluids", "fluid");
     private final TagLoader<EntityType<?>> entityTypes = new TagLoader<>(Registry.ENTITY_TYPE::getOptional, "tags/entity_types", "entity_type");
+    private final TagLoader<GameEvent> gameEvents = new TagLoader<>(Registry.GAME_EVENT::getOptional, "tags/game_events", "game_event");
     private TagContainer tags = TagContainer.EMPTY;
 
     public TagContainer getTags() {
@@ -39,28 +41,30 @@ public class TagManager implements PreparableReloadListener {
         CompletableFuture<Map<ResourceLocation, Tag.Builder>> var1 = this.items.prepare(param1, param4);
         CompletableFuture<Map<ResourceLocation, Tag.Builder>> var2 = this.fluids.prepare(param1, param4);
         CompletableFuture<Map<ResourceLocation, Tag.Builder>> var3 = this.entityTypes.prepare(param1, param4);
+        CompletableFuture<Map<ResourceLocation, Tag.Builder>> var4 = this.gameEvents.prepare(param1, param4);
         return CompletableFuture.allOf(var0, var1, var2, var3)
             .thenCompose(param0::wait)
             .thenAcceptAsync(
-                param4x -> {
+                param5x -> {
                     TagCollection<Block> var0x = this.blocks.load(var0.join());
                     TagCollection<Item> var1x = this.items.load(var1.join());
                     TagCollection<Fluid> var2x = this.fluids.load(var2.join());
                     TagCollection<EntityType<?>> var3x = this.entityTypes.load(var3.join());
-                    TagContainer var4x = TagContainer.of(var0x, var1x, var2x, var3x);
-                    Multimap<ResourceLocation, ResourceLocation> var5x = StaticTags.getAllMissingTags(var4x);
-                    if (!var5x.isEmpty()) {
+                    TagCollection<GameEvent> var4x = this.gameEvents.load(var4.join());
+                    TagContainer var5x = TagContainer.of(var0x, var1x, var2x, var3x, var4x);
+                    Multimap<ResourceLocation, ResourceLocation> var6x = StaticTags.getAllMissingTags(var5x);
+                    if (!var6x.isEmpty()) {
                         throw new IllegalStateException(
                             "Missing required tags: "
-                                + (String)var5x.entries()
+                                + (String)var6x.entries()
                                     .stream()
                                     .map(param0x -> param0x.getKey() + ":" + param0x.getValue())
                                     .sorted()
                                     .collect(Collectors.joining(","))
                         );
                     } else {
-                        SerializationTags.bind(var4x);
-                        this.tags = var4x;
+                        SerializationTags.bind(var5x);
+                        this.tags = var5x;
                     }
                 },
                 param5

@@ -52,6 +52,7 @@ import net.minecraft.world.level.block.state.properties.PistonType;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.block.state.properties.RailShape;
 import net.minecraft.world.level.block.state.properties.RedstoneSide;
+import net.minecraft.world.level.block.state.properties.SculkSensorPhase;
 import net.minecraft.world.level.block.state.properties.SlabType;
 import net.minecraft.world.level.block.state.properties.StairsShape;
 import net.minecraft.world.level.block.state.properties.WallSide;
@@ -2961,6 +2962,20 @@ public class BlockModelGenerators {
             );
     }
 
+    private void createSculkSensor() {
+        ResourceLocation var0 = ModelLocationUtils.getModelLocation(Blocks.SCULK_SENSOR, "_inactive");
+        ResourceLocation var1 = ModelLocationUtils.getModelLocation(Blocks.SCULK_SENSOR, "_active");
+        this.delegateItemModel(Blocks.SCULK_SENSOR, var0);
+        this.blockStateOutput
+            .accept(
+                MultiVariantGenerator.multiVariant(Blocks.SCULK_SENSOR)
+                    .with(
+                        PropertyDispatch.property(BlockStateProperties.SCULK_SENSOR_PHASE)
+                            .generate(param2 -> Variant.variant().with(VariantProperties.MODEL, param2 == SculkSensorPhase.ACTIVE ? var1 : var0))
+                    )
+            );
+    }
+
     private void createScaffolding() {
         ResourceLocation var0 = ModelLocationUtils.getModelLocation(Blocks.SCAFFOLDING, "_stable");
         ResourceLocation var1 = ModelLocationUtils.getModelLocation(Blocks.SCAFFOLDING, "_unstable");
@@ -4108,6 +4123,7 @@ public class BlockModelGenerators {
         this.createVine();
         this.createMagmaBlock();
         this.createJigsaw();
+        this.createSculkSensor();
         this.createNonTemplateHorizontalBlock(Blocks.LADDER);
         this.createSimpleFlatItemModel(Blocks.LADDER);
         this.createNonTemplateHorizontalBlock(Blocks.LECTERN);

@@ -52,6 +52,7 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.entity.LevelEntityGetter;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraft.world.level.material.FluidState;
@@ -264,7 +265,12 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
                 Block.dropResources(var0, this, param0, var2, param2, ItemStack.EMPTY);
             }
 
-            return this.setBlock(param0, var1.createLegacyBlock(), 3, param3);
+            boolean var3 = this.setBlock(param0, var1.createLegacyBlock(), 3, param3);
+            if (var3) {
+                this.gameEvent(param2, GameEvent.BLOCK_DESTROY, param0);
+            }
+
+            return var3;
         }
     }
 
@@ -916,15 +922,26 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         return this.isDebug;
     }
 
-    @Override
-    public int getSectionsCount() {
-        return 16;
-    }
-
-    @Override
-    public int getMinSection() {
-        return 0;
-    }
-
     protected abstract LevelEntityGetter<Entity> getEntities();
+
+    protected void postGameEventInRadius(@Nullable Entity param0, GameEvent param1, BlockPos param2, int param3) {
+        int var0 = SectionPos.blockToSectionCoord(param2.getX() - param3);
+        int var1 = SectionPos.blockToSectionCoord(param2.getZ() - param3);
+        int var2 = SectionPos.blockToSectionCoord(param2.getX() + param3);
+        int var3 = SectionPos.blockToSectionCoord(param2.getZ() + param3);
+        int var4 = SectionPos.blockToSectionCoord(param2.getY() - param3);
+        int var5 = SectionPos.blockToSectionCoord(param2.getY() + param3);
+
+        for(int var6 = var0; var6 <= var2; ++var6) {
+            for(int var7 = var1; var7 <= var3; ++var7) {
+                ChunkAccess var8 = this.getChunkSource().getChunkNow(var6, var7);
+                if (var8 != null) {
+                    for(int var9 = var4; var9 <= var5; ++var9) {
+                        var8.getEventDispatcher(var9).post(param1, param0, param2);
+                    }
+                }
+            }
+        }
+
+    }
 }

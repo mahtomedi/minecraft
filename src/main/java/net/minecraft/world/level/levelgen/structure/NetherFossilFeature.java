@@ -4,8 +4,9 @@ import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.EmptyBlockGetter;
+import net.minecraft.world.level.NoiseColumn;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -37,13 +38,13 @@ public class NetherFossilFeature extends StructureFeature<NoneFeatureConfigurati
             int var2 = var0.getMinBlockZ() + this.random.nextInt(16);
             int var3 = param1.getSeaLevel();
             int var4 = var3 + this.random.nextInt(param1.getGenDepth() - 2 - var3);
-            BlockGetter var5 = param1.getBaseColumn(var1, var2);
+            NoiseColumn var5 = param1.getBaseColumn(var1, var2);
 
             for(BlockPos.MutableBlockPos var6 = new BlockPos.MutableBlockPos(var1, var4, var2); var4 > var3; --var4) {
                 BlockState var7 = var5.getBlockState(var6);
                 var6.move(Direction.DOWN);
                 BlockState var8 = var5.getBlockState(var6);
-                if (var7.isAir() && (var8.is(Blocks.SOUL_SAND) || var8.isFaceSturdy(var5, var6, Direction.UP))) {
+                if (var7.isAir() && (var8.is(Blocks.SOUL_SAND) || var8.isFaceSturdy(EmptyBlockGetter.INSTANCE, var6, Direction.UP))) {
                     break;
                 }
             }

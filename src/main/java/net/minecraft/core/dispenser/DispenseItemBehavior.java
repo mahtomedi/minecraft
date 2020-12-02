@@ -65,6 +65,7 @@ import net.minecraft.world.level.block.entity.DispenserBlockEntity;
 import net.minecraft.world.level.block.entity.SkullBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 
 public interface DispenseItemBehavior {
@@ -359,6 +360,7 @@ public interface DispenseItemBehavior {
                     if (var4.isEmpty()) {
                         return super.execute(param0, param1);
                     } else {
+                        var0.gameEvent(null, GameEvent.FLUID_PICKUP, var1);
                         Item var5 = var4.getItem();
                         param1.shrink(1);
                         if (param1.isEmpty()) {
@@ -395,8 +397,11 @@ public interface DispenseItemBehavior {
                     this.setSuccess(false);
                 }
 
-                if (this.isSuccess() && param1.hurt(1, var0.random, null)) {
-                    param1.setCount(0);
+                if (this.isSuccess()) {
+                    var0.gameEvent(null, GameEvent.FLINT_AND_STEEL_USE, var2);
+                    if (param1.hurt(1, var0.random, null)) {
+                        param1.setCount(0);
+                    }
                 }
 
                 return param1;

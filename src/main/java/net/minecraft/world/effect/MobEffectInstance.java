@@ -14,7 +14,6 @@ public class MobEffectInstance implements Comparable<MobEffectInstance> {
     private final MobEffect effect;
     private int duration;
     private int amplifier;
-    private boolean splash;
     private boolean ambient;
     @OnlyIn(Dist.CLIENT)
     private boolean noCounter;
@@ -180,10 +179,6 @@ public class MobEffectInstance implements Comparable<MobEffectInstance> {
             var0 = this.getDescriptionId() + ", Duration: " + this.duration;
         }
 
-        if (this.splash) {
-            var0 = var0 + ", Splash: true";
-        }
-
         if (!this.visible) {
             var0 = var0 + ", Particles: false";
         }
@@ -203,11 +198,7 @@ public class MobEffectInstance implements Comparable<MobEffectInstance> {
             return false;
         } else {
             MobEffectInstance var0 = (MobEffectInstance)param0;
-            return this.duration == var0.duration
-                && this.amplifier == var0.amplifier
-                && this.splash == var0.splash
-                && this.ambient == var0.ambient
-                && this.effect.equals(var0.effect);
+            return this.duration == var0.duration && this.amplifier == var0.amplifier && this.ambient == var0.ambient && this.effect.equals(var0.effect);
         }
     }
 
@@ -216,7 +207,6 @@ public class MobEffectInstance implements Comparable<MobEffectInstance> {
         int var0 = this.effect.hashCode();
         var0 = 31 * var0 + this.duration;
         var0 = 31 * var0 + this.amplifier;
-        var0 = 31 * var0 + (this.splash ? 1 : 0);
         return 31 * var0 + (this.ambient ? 1 : 0);
     }
 
@@ -240,6 +230,7 @@ public class MobEffectInstance implements Comparable<MobEffectInstance> {
 
     }
 
+    @Nullable
     public static MobEffectInstance load(CompoundTag param0) {
         int var0 = param0.getByte("Id");
         MobEffect var1 = MobEffect.byId(var0);

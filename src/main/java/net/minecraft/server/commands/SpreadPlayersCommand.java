@@ -261,6 +261,9 @@ public class SpreadPlayersCommand {
         private double x;
         private double z;
 
+        private Position() {
+        }
+
         double dist(SpreadPlayersCommand.Position param0) {
             double var0 = this.x - param0.x;
             double var1 = this.z - param0.z;

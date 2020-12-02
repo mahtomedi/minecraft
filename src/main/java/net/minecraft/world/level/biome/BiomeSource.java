@@ -14,6 +14,7 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.QuartPos;
 import net.minecraft.core.Registry;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
@@ -44,12 +45,12 @@ public abstract class BiomeSource implements BiomeManager.NoiseBiomeSource {
     }
 
     public Set<Biome> getBiomesWithin(int param0, int param1, int param2, int param3) {
-        int var0 = param0 - param3 >> 2;
-        int var1 = param1 - param3 >> 2;
-        int var2 = param2 - param3 >> 2;
-        int var3 = param0 + param3 >> 2;
-        int var4 = param1 + param3 >> 2;
-        int var5 = param2 + param3 >> 2;
+        int var0 = QuartPos.fromBlock(param0 - param3);
+        int var1 = QuartPos.fromBlock(param1 - param3);
+        int var2 = QuartPos.fromBlock(param2 - param3);
+        int var3 = QuartPos.fromBlock(param0 + param3);
+        int var4 = QuartPos.fromBlock(param1 + param3);
+        int var5 = QuartPos.fromBlock(param2 + param3);
         int var6 = var3 - var0 + 1;
         int var7 = var4 - var1 + 1;
         int var8 = var5 - var2 + 1;
@@ -76,10 +77,10 @@ public abstract class BiomeSource implements BiomeManager.NoiseBiomeSource {
 
     @Nullable
     public BlockPos findBiomeHorizontal(int param0, int param1, int param2, int param3, int param4, Predicate<Biome> param5, Random param6, boolean param7) {
-        int var0 = param0 >> 2;
-        int var1 = param2 >> 2;
-        int var2 = param3 >> 2;
-        int var3 = param1 >> 2;
+        int var0 = QuartPos.fromBlock(param0);
+        int var1 = QuartPos.fromBlock(param2);
+        int var2 = QuartPos.fromBlock(param3);
+        int var3 = QuartPos.fromBlock(param1);
         BlockPos var4 = null;
         int var5 = 0;
         int var6 = param7 ? 0 : var2;
@@ -100,7 +101,7 @@ public abstract class BiomeSource implements BiomeManager.NoiseBiomeSource {
                     int var13 = var1 + var8;
                     if (param5.test(this.getNoiseBiome(var12, var3, var13))) {
                         if (var4 == null || param6.nextInt(var5 + 1) == 0) {
-                            var4 = new BlockPos(var12 << 2, param1, var13 << 2);
+                            var4 = new BlockPos(QuartPos.toBlock(var12), param1, QuartPos.toBlock(var13));
                             if (param7) {
                                 return var4;
                             }

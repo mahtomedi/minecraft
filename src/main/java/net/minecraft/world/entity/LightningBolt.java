@@ -18,6 +18,7 @@ import net.minecraft.world.level.block.BaseFireBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LightningRodBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -92,6 +93,7 @@ public class LightningBolt extends Entity {
                     2.0F,
                     0.5F + this.random.nextFloat() * 0.2F
                 );
+            this.gameEvent(GameEvent.LIGHTNING_STRIKE);
         }
 
         --this.life;

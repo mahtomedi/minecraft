@@ -65,6 +65,7 @@ import net.minecraft.world.level.entity.EntityTickList;
 import net.minecraft.world.level.entity.LevelCallback;
 import net.minecraft.world.level.entity.LevelEntityGetter;
 import net.minecraft.world.level.entity.TransientEntitySectionManager;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
@@ -738,6 +739,10 @@ public class ClientLevel extends Level {
 
     public ClientLevel.ClientLevelData getLevelData() {
         return this.clientLevelData;
+    }
+
+    @Override
+    public void gameEvent(@Nullable Entity param0, GameEvent param1, BlockPos param2) {
     }
 
     @Override

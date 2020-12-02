@@ -55,6 +55,14 @@ public class UniformInt {
         return this.spread == 0 ? this.baseValue : this.baseValue + param0.nextInt(this.spread + 1);
     }
 
+    public int getBaseValue() {
+        return this.baseValue;
+    }
+
+    public int getMaxValue() {
+        return this.baseValue + this.spread;
+    }
+
     @Override
     public boolean equals(Object param0) {
         if (this == param0) {

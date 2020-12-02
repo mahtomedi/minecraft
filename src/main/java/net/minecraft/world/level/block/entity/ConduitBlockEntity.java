@@ -177,7 +177,7 @@ public class ConduitBlockEntity extends BlockEntity {
         int var4 = param1.getZ();
         AABB var5 = new AABB((double)var2, (double)var3, (double)var4, (double)(var2 + 1), (double)(var3 + 1), (double)(var4 + 1))
             .inflate((double)var1)
-            .expandTowards(0.0, (double)param0.getMaxBuildHeight(), 0.0);
+            .expandTowards(0.0, (double)param0.getHeight(), 0.0);
         List<Player> var6 = param0.getEntitiesOfClass(Player.class, var5);
         if (!var6.isEmpty()) {
             for(Player var7 : var6) {

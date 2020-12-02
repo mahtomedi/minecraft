@@ -547,6 +547,10 @@ public class Mth {
         return param0 * param0;
     }
 
+    public static double clampedMap(double param0, double param1, double param2, double param3, double param4) {
+        return clampedLerp(param3, param4, inverseLerp(param0, param1, param2));
+    }
+
     public static int roundToward(int param0, int param1) {
         return (param0 + param1 - 1) / param1 * param1;
     }
@@ -555,9 +559,12 @@ public class Mth {
         return param0.nextInt(param2 - param1 + 1) + param1;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static float randomBetween(Random param0, float param1, float param2) {
         return param0.nextFloat() * (param2 - param1) + param1;
+    }
+
+    public static float normal(Random param0, float param1, float param2) {
+        return param1 + (float)param0.nextGaussian() * param2;
     }
 
     static {

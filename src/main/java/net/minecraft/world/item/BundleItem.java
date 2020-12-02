@@ -76,14 +76,13 @@ public class BundleItem extends Item {
     @OnlyIn(Dist.CLIENT)
     @Override
     public boolean isBarVisible(ItemStack param0) {
-        int var0 = getContentWeight(param0);
-        return var0 > 0 && var0 < 64;
+        return getContentWeight(param0) > 0;
     }
 
     @OnlyIn(Dist.CLIENT)
     @Override
     public int getBarWidth(ItemStack param0) {
-        return 13 * getContentWeight(param0) / 64 + 1;
+        return Math.min(13 * getContentWeight(param0) / 64, 13);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -206,9 +205,6 @@ public class BundleItem extends Item {
     @OnlyIn(Dist.CLIENT)
     @Override
     public void appendHoverText(ItemStack param0, Level param1, List<Component> param2, TooltipFlag param3) {
-        if (param3.isAdvanced()) {
-            param2.add(new TranslatableComponent("item.minecraft.bundle.fullness", getContentWeight(param0), 64).withStyle(ChatFormatting.GRAY));
-        }
-
+        param2.add(new TranslatableComponent("item.minecraft.bundle.fullness", getContentWeight(param0), 64).withStyle(ChatFormatting.GRAY));
     }
 }

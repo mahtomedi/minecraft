@@ -1,21 +1,30 @@
 package net.minecraft.world.phys;
 
 import com.mojang.math.Vector3f;
+import com.mojang.serialization.Codec;
 import java.util.EnumSet;
+import java.util.stream.DoubleStream;
+import net.minecraft.Util;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Position;
 import net.minecraft.core.Vec3i;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class Vec3 implements Position {
+    public static final Codec<Vec3> CODEC = ExtraCodecs.DOUBLE_STREAM
+        .<Vec3>comapFlatMap(
+            param0 -> Util.fixedSize(param0, 3).map(param0x -> new Vec3(param0x[0], param0x[1], param0x[2])),
+            param0 -> DoubleStream.of(param0.x, param0.y, param0.z)
+        )
+        .stable();
     public static final Vec3 ZERO = new Vec3(0.0, 0.0, 0.0);
     public final double x;
     public final double y;
     public final double z;
 
-    @OnlyIn(Dist.CLIENT)
     public static Vec3 fromRGB24(int param0) {
         double var0 = (double)(param0 >> 16 & 0xFF) / 255.0;
         double var1 = (double)(param0 >> 8 & 0xFF) / 255.0;
@@ -163,6 +172,11 @@ public class Vec3 implements Position {
     @Override
     public String toString() {
         return "(" + this.x + ", " + this.y + ", " + this.z + ")";
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public Vec3 lerp(Vec3 param0, double param1) {
+        return new Vec3(Mth.lerp(param1, this.x, param0.x), Mth.lerp(param1, this.y, param0.y), Mth.lerp(param1, this.z, param0.z));
     }
 
     public Vec3 xRot(float param0) {

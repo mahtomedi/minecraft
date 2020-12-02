@@ -36,8 +36,27 @@ public interface BlockGetter extends LevelHeightAccessor {
         return BlockPos.betweenClosedStream(param0).map(this::getBlockState);
     }
 
+    default BlockHitResult isBlockInLine(ClipBlockStateContext param0) {
+        return traverseBlocks(
+            param0.getFrom(),
+            param0.getTo(),
+            param0,
+            (param0x, param1) -> {
+                BlockState var0 = this.getBlockState(param1);
+                Vec3 var1x = param0x.getFrom().subtract(param0x.getTo());
+                return param0x.isTargetBlock().test(var0)
+                    ? new BlockHitResult(param0x.getTo(), Direction.getNearest(var1x.x, var1x.y, var1x.z), new BlockPos(param0x.getTo()), false)
+                    : null;
+            },
+            param0x -> {
+                Vec3 var0 = param0x.getFrom().subtract(param0x.getTo());
+                return BlockHitResult.miss(param0x.getTo(), Direction.getNearest(var0.x, var0.y, var0.z), new BlockPos(param0x.getTo()));
+            }
+        );
+    }
+
     default BlockHitResult clip(ClipContext param0) {
-        return traverseBlocks(param0, (param0x, param1) -> {
+        return traverseBlocks(param0.getFrom(), param0.getTo(), param0, (param0x, param1) -> {
             BlockState var0 = this.getBlockState(param1);
             FluidState var1x = this.getFluidState(param1);
             Vec3 var2 = param0x.getFrom();
@@ -84,63 +103,61 @@ public interface BlockGetter extends LevelHeightAccessor {
         });
     }
 
-    static <T> T traverseBlocks(ClipContext param0, BiFunction<ClipContext, BlockPos, T> param1, Function<ClipContext, T> param2) {
-        Vec3 var0 = param0.getFrom();
-        Vec3 var1 = param0.getTo();
-        if (var0.equals(var1)) {
-            return param2.apply(param0);
+    static <T, C> T traverseBlocks(Vec3 param0, Vec3 param1, C param2, BiFunction<C, BlockPos, T> param3, Function<C, T> param4) {
+        if (param0.equals(param1)) {
+            return param4.apply(param2);
         } else {
-            double var2 = Mth.lerp(-1.0E-7, var1.x, var0.x);
-            double var3 = Mth.lerp(-1.0E-7, var1.y, var0.y);
-            double var4 = Mth.lerp(-1.0E-7, var1.z, var0.z);
-            double var5 = Mth.lerp(-1.0E-7, var0.x, var1.x);
-            double var6 = Mth.lerp(-1.0E-7, var0.y, var1.y);
-            double var7 = Mth.lerp(-1.0E-7, var0.z, var1.z);
+            double var0 = Mth.lerp(-1.0E-7, param1.x, param0.x);
+            double var1 = Mth.lerp(-1.0E-7, param1.y, param0.y);
+            double var2 = Mth.lerp(-1.0E-7, param1.z, param0.z);
+            double var3 = Mth.lerp(-1.0E-7, param0.x, param1.x);
+            double var4 = Mth.lerp(-1.0E-7, param0.y, param1.y);
+            double var5 = Mth.lerp(-1.0E-7, param0.z, param1.z);
+            int var6 = Mth.floor(var3);
+            int var7 = Mth.floor(var4);
             int var8 = Mth.floor(var5);
-            int var9 = Mth.floor(var6);
-            int var10 = Mth.floor(var7);
-            BlockPos.MutableBlockPos var11 = new BlockPos.MutableBlockPos(var8, var9, var10);
-            T var12 = param1.apply(param0, var11);
-            if (var12 != null) {
-                return var12;
+            BlockPos.MutableBlockPos var9 = new BlockPos.MutableBlockPos(var6, var7, var8);
+            T var10 = param3.apply(param2, var9);
+            if (var10 != null) {
+                return var10;
             } else {
+                double var11 = var0 - var3;
+                double var12 = var1 - var4;
                 double var13 = var2 - var5;
-                double var14 = var3 - var6;
-                double var15 = var4 - var7;
+                int var14 = Mth.sign(var11);
+                int var15 = Mth.sign(var12);
                 int var16 = Mth.sign(var13);
-                int var17 = Mth.sign(var14);
-                int var18 = Mth.sign(var15);
+                double var17 = var14 == 0 ? Double.MAX_VALUE : (double)var14 / var11;
+                double var18 = var15 == 0 ? Double.MAX_VALUE : (double)var15 / var12;
                 double var19 = var16 == 0 ? Double.MAX_VALUE : (double)var16 / var13;
-                double var20 = var17 == 0 ? Double.MAX_VALUE : (double)var17 / var14;
-                double var21 = var18 == 0 ? Double.MAX_VALUE : (double)var18 / var15;
+                double var20 = var17 * (var14 > 0 ? 1.0 - Mth.frac(var3) : Mth.frac(var3));
+                double var21 = var18 * (var15 > 0 ? 1.0 - Mth.frac(var4) : Mth.frac(var4));
                 double var22 = var19 * (var16 > 0 ? 1.0 - Mth.frac(var5) : Mth.frac(var5));
-                double var23 = var20 * (var17 > 0 ? 1.0 - Mth.frac(var6) : Mth.frac(var6));
-                double var24 = var21 * (var18 > 0 ? 1.0 - Mth.frac(var7) : Mth.frac(var7));
 
-                while(var22 <= 1.0 || var23 <= 1.0 || var24 <= 1.0) {
-                    if (var22 < var23) {
-                        if (var22 < var24) {
+                while(var20 <= 1.0 || var21 <= 1.0 || var22 <= 1.0) {
+                    if (var20 < var21) {
+                        if (var20 < var22) {
+                            var6 += var14;
+                            var20 += var17;
+                        } else {
                             var8 += var16;
                             var22 += var19;
-                        } else {
-                            var10 += var18;
-                            var24 += var21;
                         }
-                    } else if (var23 < var24) {
-                        var9 += var17;
-                        var23 += var20;
+                    } else if (var21 < var22) {
+                        var7 += var15;
+                        var21 += var18;
                     } else {
-                        var10 += var18;
-                        var24 += var21;
+                        var8 += var16;
+                        var22 += var19;
                     }
 
-                    T var25 = param1.apply(param0, var11.set(var8, var9, var10));
-                    if (var25 != null) {
-                        return var25;
+                    T var23 = param3.apply(param2, var9.set(var6, var7, var8));
+                    if (var23 != null) {
+                        return var23;
                     }
                 }
 
-                return param2.apply(param0);
+                return param4.apply(param2);
             }
         }
     }

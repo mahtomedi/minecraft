@@ -141,7 +141,7 @@ public class SignEditScreen extends Screen {
         param0.pushPose();
         param0.scale(0.6666667F, -0.6666667F, -0.6666667F);
         MultiBufferSource.BufferSource var5 = this.minecraft.renderBuffers().bufferSource();
-        Material var6 = Sheets.signTexture(this.woodType);
+        Material var6 = Sheets.getSignMaterial(this.woodType);
         VertexConsumer var7 = var6.buffer(var5, this.signModel::renderType);
         this.signModel.stick.visible = var2;
         this.signModel.root.render(param0, var7, 15728880, OverlayTexture.NO_OVERLAY);

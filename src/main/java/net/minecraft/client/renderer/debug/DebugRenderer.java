@@ -45,6 +45,7 @@ public class DebugRenderer {
     public final RaidDebugRenderer raidDebugRenderer;
     public final GoalSelectorDebugRenderer goalSelectorRenderer;
     public final GameTestDebugRenderer gameTestDebugRenderer;
+    public final GameEventListenerRenderer gameEventListenerRenderer;
     private boolean renderChunkborder;
 
     public DebugRenderer(Minecraft param0) {
@@ -65,6 +66,7 @@ public class DebugRenderer {
         this.raidDebugRenderer = new RaidDebugRenderer(param0);
         this.goalSelectorRenderer = new GoalSelectorDebugRenderer(param0);
         this.gameTestDebugRenderer = new GameTestDebugRenderer();
+        this.gameEventListenerRenderer = new GameEventListenerRenderer(param0);
     }
 
     public void clear() {
@@ -86,6 +88,7 @@ public class DebugRenderer {
         this.raidDebugRenderer.clear();
         this.goalSelectorRenderer.clear();
         this.gameTestDebugRenderer.clear();
+        this.gameEventListenerRenderer.clear();
     }
 
     public boolean switchRenderChunkborder() {

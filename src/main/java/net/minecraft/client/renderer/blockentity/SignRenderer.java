@@ -66,7 +66,7 @@ public class SignRenderer implements BlockEntityRenderer<SignBlockEntity> {
 
         param2.pushPose();
         param2.scale(0.6666667F, -0.6666667F, -0.6666667F);
-        Material var6 = Sheets.signTexture(var2);
+        Material var6 = Sheets.getSignMaterial(var2);
         VertexConsumer var7 = var6.buffer(param3, var3::renderType);
         var3.root.render(param2, var7, param4, param5);
         param2.popPose();

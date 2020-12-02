@@ -40,6 +40,7 @@ import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientboundAddVibrationSignalPacket;
 import net.minecraft.network.protocol.game.ClientboundBlockDestructionPacket;
 import net.minecraft.network.protocol.game.ClientboundBlockEventPacket;
 import net.minecraft.network.protocol.game.ClientboundEntityEventPacket;
@@ -116,6 +117,9 @@ import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.entity.LevelCallback;
 import net.minecraft.world.level.entity.LevelEntityGetter;
 import net.minecraft.world.level.entity.PersistentEntitySectionManager;
+import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.gameevent.GameEventListenerRegistrar;
+import net.minecraft.world.level.gameevent.vibrations.VibrationPath;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
@@ -849,6 +853,15 @@ public class ServerLevel extends Level implements WorldGenLevel {
             );
     }
 
+    public int getLogicalHeight() {
+        return this.dimensionType().logicalHeight();
+    }
+
+    @Override
+    public void gameEvent(@Nullable Entity param0, GameEvent param1, BlockPos param2) {
+        this.postGameEventInRadius(param0, param1, param2, param1.getNotificationRadius());
+    }
+
     @Override
     public void sendBlockUpdated(BlockPos param0, BlockState param1, BlockState param2, int param3) {
         this.getChunkSource().blockChanged(param0);
@@ -952,6 +965,12 @@ public class ServerLevel extends Level implements WorldGenLevel {
 
     public StructureManager getStructureManager() {
         return this.server.getStructureManager();
+    }
+
+    public void sendVibrationParticle(VibrationPath param0) {
+        BlockPos var0 = param0.getOrigin();
+        ClientboundAddVibrationSignalPacket var1 = new ClientboundAddVibrationSignalPacket(param0);
+        this.players.forEach(param2 -> this.sendParticles(param2, false, (double)var0.getX(), (double)var0.getY(), (double)var0.getZ(), var1));
     }
 
     public <T extends ParticleOptions> int sendParticles(
@@ -1458,6 +1477,11 @@ public class ServerLevel extends Level implements WorldGenLevel {
                 for(EnderDragonPart var1 : ((EnderDragon)param0).getSubEntities()) {
                     ServerLevel.this.dragonParts.remove(var1.getId());
                 }
+            }
+
+            GameEventListenerRegistrar var2 = param0.getGameEventListenerRegistrar();
+            if (var2 != null) {
+                var2.onListenerRemoved(param0.level);
             }
 
         }

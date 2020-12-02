@@ -13,6 +13,7 @@ import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.QuartPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.SectionPos;
@@ -21,9 +22,9 @@ import net.minecraft.network.protocol.game.DebugPackets;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.NoiseColumn;
 import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.biome.Biome;
@@ -121,7 +122,7 @@ public abstract class ChunkGenerator {
 
     public void createBiomes(Registry<Biome> param0, ChunkAccess param1) {
         ChunkPos var0 = param1.getPos();
-        ((ProtoChunk)param1).setBiomes(new ChunkBiomeContainer(param0, var0, this.runtimeBiomeSource));
+        ((ProtoChunk)param1).setBiomes(new ChunkBiomeContainer(param0, param1, var0, this.runtimeBiomeSource));
     }
 
     public void applyCarvers(long param0, BiomeManager param1, ChunkAccess param2, GenerationStep.Carving param3) {
@@ -131,7 +132,9 @@ public abstract class ChunkGenerator {
         ChunkPos var3 = param2.getPos();
         int var4 = var3.x;
         int var5 = var3.z;
-        BiomeGenerationSettings var6 = this.biomeSource.getNoiseBiome(var3.x << 2, 0, var3.z << 2).getGenerationSettings();
+        BiomeGenerationSettings var6 = this.biomeSource
+            .getNoiseBiome(QuartPos.fromBlock(var3.getMinBlockX()), 0, QuartPos.fromBlock(var3.getMinBlockZ()))
+            .getGenerationSettings();
         BitSet var7 = ((ProtoChunk)param2).getOrCreateCarvingMask(param3);
 
         for(int var8 = var4 - 8; var8 <= var4 + 8; ++var8) {
@@ -298,7 +301,7 @@ public abstract class ChunkGenerator {
 
     public abstract int getBaseHeight(int var1, int var2, Heightmap.Types var3);
 
-    public abstract BlockGetter getBaseColumn(int var1, int var2);
+    public abstract NoiseColumn getBaseColumn(int var1, int var2);
 
     public int getFirstFreeHeight(int param0, int param1, Heightmap.Types param2) {
         return this.getBaseHeight(param0, param1, param2);

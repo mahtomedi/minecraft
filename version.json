@@ -1,13 +1,13 @@
 {
-    "id": "20w48a",
-    "name": "20w48a",
+    "id": "20w49a",
+    "name": "20w49a",
     "release_target": "1.17",
-    "world_version": 2683,
-    "protocol_version": 1073741831,
+    "world_version": 2685,
+    "protocol_version": 1073741832,
     "pack_version": {
         "resource": 7,
         "data": 7
     },
-    "build_time": "2020-11-25T15:40:33+00:00",
+    "build_time": "2020-12-02T16:45:27+00:00",
     "stable": false
 }

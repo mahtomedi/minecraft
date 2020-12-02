@@ -4,6 +4,7 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.QuartPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
@@ -53,7 +54,7 @@ public interface LevelReader extends BlockAndTintGetter, CollisionGetter, BiomeM
 
     @Override
     default Biome getNoiseBiome(int param0, int param1, int param2) {
-        ChunkAccess var0 = this.getChunk(param0 >> 2, param2 >> 2, ChunkStatus.BIOMES, false);
+        ChunkAccess var0 = this.getChunk(QuartPos.toSection(param0), QuartPos.toSection(param2), ChunkStatus.BIOMES, false);
         return var0 != null && var0.getBiomes() != null
             ? var0.getBiomes().getNoiseBiome(param0, param1, param2)
             : this.getUncachedNoiseBiome(param0, param1, param2);
@@ -67,6 +68,16 @@ public interface LevelReader extends BlockAndTintGetter, CollisionGetter, BiomeM
     int getSeaLevel();
 
     DimensionType dimensionType();
+
+    @Override
+    default int getMinBuildHeight() {
+        return this.dimensionType().minY();
+    }
+
+    @Override
+    default int getHeight() {
+        return this.dimensionType().height();
+    }
 
     default BlockPos getHeightmapPos(Heightmap.Types param0, BlockPos param1) {
         return new BlockPos(param1.getX(), this.getHeight(param0, param1.getX(), param1.getZ()), param1.getZ());

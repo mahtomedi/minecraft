@@ -23,6 +23,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.IronBarsBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.feature.configurations.SpikeConfiguration;
 import net.minecraft.world.phys.AABB;
 
@@ -132,7 +133,12 @@ public class SpikeFeature extends Feature<SpikeConfiguration> {
             this.height = param3;
             this.guarded = param4;
             this.topBoundingBox = new AABB(
-                (double)(param0 - param2), 0.0, (double)(param1 - param2), (double)(param0 + param2), 256.0, (double)(param1 + param2)
+                (double)(param0 - param2),
+                (double)DimensionType.MIN_Y,
+                (double)(param1 - param2),
+                (double)(param0 + param2),
+                (double)DimensionType.MAX_Y,
+                (double)(param1 + param2)
             );
         }
 

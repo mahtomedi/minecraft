@@ -66,7 +66,11 @@ public class ChunkSerializer {
         }
 
         ChunkBiomeContainer var4 = new ChunkBiomeContainer(
-            param0.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY), param3, var1, var2.contains("Biomes", 11) ? var2.getIntArray("Biomes") : null
+            param0.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY),
+            param0,
+            param3,
+            var1,
+            var2.contains("Biomes", 11) ? var2.getIntArray("Biomes") : null
         );
         UpgradeData var5 = var2.contains("UpgradeData", 10) ? new UpgradeData(var2.getCompound("UpgradeData"), param0) : UpgradeData.EMPTY;
         ProtoTickList<Block> var6 = new ProtoTickList<>(

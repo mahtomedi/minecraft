@@ -4,88 +4,37 @@ import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import java.util.Locale;
-import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.util.Mth;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.world.phys.Vec3;
 
-public class DustParticleOptions implements ParticleOptions {
-    public static final DustParticleOptions REDSTONE = new DustParticleOptions(1.0F, 0.0F, 0.0F, 1.0F);
+public class DustParticleOptions extends DustParticleOptionsBase {
+    public static final Vec3 REDSTONE_PARTICLE_COLOR = Vec3.fromRGB24(16711680);
+    public static final DustParticleOptions REDSTONE = new DustParticleOptions(REDSTONE_PARTICLE_COLOR, 1.0F);
     public static final Codec<DustParticleOptions> CODEC = RecordCodecBuilder.create(
         param0 -> param0.group(
-                    Codec.FLOAT.fieldOf("r").forGetter(param0x -> param0x.r),
-                    Codec.FLOAT.fieldOf("g").forGetter(param0x -> param0x.g),
-                    Codec.FLOAT.fieldOf("b").forGetter(param0x -> param0x.b),
-                    Codec.FLOAT.fieldOf("scale").forGetter(param0x -> param0x.scale)
+                    Vec3.CODEC.fieldOf("color").forGetter(param0x -> param0x.color), Codec.FLOAT.fieldOf("scale").forGetter(param0x -> param0x.scale)
                 )
                 .apply(param0, DustParticleOptions::new)
     );
     public static final ParticleOptions.Deserializer<DustParticleOptions> DESERIALIZER = new ParticleOptions.Deserializer<DustParticleOptions>() {
         public DustParticleOptions fromCommand(ParticleType<DustParticleOptions> param0, StringReader param1) throws CommandSyntaxException {
-            param1.expect(' ');
-            float var0 = (float)param1.readDouble();
+            Vec3 var0 = DustParticleOptionsBase.readVec3(param1);
             param1.expect(' ');
             float var1 = (float)param1.readDouble();
-            param1.expect(' ');
-            float var2 = (float)param1.readDouble();
-            param1.expect(' ');
-            float var3 = (float)param1.readDouble();
-            return new DustParticleOptions(var0, var1, var2, var3);
+            return new DustParticleOptions(var0, var1);
         }
 
         public DustParticleOptions fromNetwork(ParticleType<DustParticleOptions> param0, FriendlyByteBuf param1) {
-            return new DustParticleOptions(param1.readFloat(), param1.readFloat(), param1.readFloat(), param1.readFloat());
+            return new DustParticleOptions(new Vec3((double)param1.readFloat(), (double)param1.readFloat(), (double)param1.readFloat()), param1.readFloat());
         }
     };
-    private final float r;
-    private final float g;
-    private final float b;
-    private final float scale;
 
-    public DustParticleOptions(float param0, float param1, float param2, float param3) {
-        this.r = param0;
-        this.g = param1;
-        this.b = param2;
-        this.scale = Mth.clamp(param3, 0.01F, 4.0F);
-    }
-
-    @Override
-    public void writeToNetwork(FriendlyByteBuf param0) {
-        param0.writeFloat(this.r);
-        param0.writeFloat(this.g);
-        param0.writeFloat(this.b);
-        param0.writeFloat(this.scale);
-    }
-
-    @Override
-    public String writeToString() {
-        return String.format(Locale.ROOT, "%s %.2f %.2f %.2f %.2f", Registry.PARTICLE_TYPE.getKey(this.getType()), this.r, this.g, this.b, this.scale);
+    public DustParticleOptions(Vec3 param0, float param1) {
+        super(param0, param1);
     }
 
     @Override
     public ParticleType<DustParticleOptions> getType() {
         return ParticleTypes.DUST;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public float getR() {
-        return this.r;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public float getG() {
-        return this.g;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public float getB() {
-        return this.b;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public float getScale() {
-        return this.scale;
     }
 }

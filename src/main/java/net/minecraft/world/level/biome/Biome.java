@@ -237,21 +237,22 @@ public final class Biome {
                     int var9 = SectionPos.sectionToBlockCoord(var7);
 
                     try {
+                        int var10 = param2.getMinBuildHeight() + 1;
                         param0.startsForFeature(SectionPos.of(param5), var5)
                             .forEach(
-                                param8 -> param8.placeInChunk(
+                                param9 -> param9.placeInChunk(
                                         param2,
                                         param0,
                                         param1,
                                         param4,
-                                        new BoundingBox(var8, param2.getMinBuildHeight() + 1, var9, var8 + 15, param2.getMaxBuildHeight(), var9 + 15),
+                                        new BoundingBox(var8, var10, var9, var8 + 15, param2.getMaxBuildHeight(), var9 + 15),
                                         new ChunkPos(var6, var7)
                                     )
                             );
                     } catch (Exception var21) {
-                        CrashReport var11 = CrashReport.forThrowable(var21, "Feature placement");
-                        var11.addCategory("Feature").setDetail("Id", Registry.STRUCTURE_FEATURE.getKey(var5)).setDetail("Description", () -> var5.toString());
-                        throw new ReportedException(var11);
+                        CrashReport var12 = CrashReport.forThrowable(var21, "Feature placement");
+                        var12.addCategory("Feature").setDetail("Id", Registry.STRUCTURE_FEATURE.getKey(var5)).setDetail("Description", () -> var5.toString());
+                        throw new ReportedException(var12);
                     }
 
                     ++var3;
@@ -259,19 +260,19 @@ public final class Biome {
             }
 
             if (var0.size() > var2) {
-                for(Supplier<ConfiguredFeature<?, ?>> var12 : var0.get(var2)) {
-                    ConfiguredFeature<?, ?> var13 = var12.get();
+                for(Supplier<ConfiguredFeature<?, ?>> var13 : var0.get(var2)) {
+                    ConfiguredFeature<?, ?> var14 = var13.get();
                     param4.setFeatureSeed(param3, var3, var2);
 
                     try {
-                        var13.place(param2, param1, param4, param5);
+                        var14.place(param2, param1, param4, param5);
                     } catch (Exception var22) {
-                        CrashReport var15 = CrashReport.forThrowable(var22, "Feature placement");
-                        var15.addCategory("Feature")
-                            .setDetail("Id", Registry.FEATURE.getKey(var13.feature))
-                            .setDetail("Config", var13.config)
-                            .setDetail("Description", () -> var13.feature.toString());
-                        throw new ReportedException(var15);
+                        CrashReport var16 = CrashReport.forThrowable(var22, "Feature placement");
+                        var16.addCategory("Feature")
+                            .setDetail("Id", Registry.FEATURE.getKey(var14.feature))
+                            .setDetail("Config", var14.config)
+                            .setDetail("Description", () -> var14.feature.toString());
+                        throw new ReportedException(var16);
                     }
 
                     ++var3;

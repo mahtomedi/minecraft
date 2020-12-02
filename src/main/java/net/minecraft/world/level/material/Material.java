@@ -69,6 +69,7 @@ public final class Material {
         .build();
     public static final Material DECORATION = new Material.Builder(MaterialColor.NONE).noCollider().notSolidBlocking().nonSolid().destroyOnPush().build();
     public static final Material WEB = new Material.Builder(MaterialColor.WOOL).noCollider().notSolidBlocking().destroyOnPush().build();
+    public static final Material SCULK = new Material.Builder(MaterialColor.COLOR_BLACK).build();
     public static final Material BUILDABLE_GLASS = new Material.Builder(MaterialColor.NONE).build();
     public static final Material CLAY = new Material.Builder(MaterialColor.CLAY).build();
     public static final Material DIRT = new Material.Builder(MaterialColor.DIRT).build();

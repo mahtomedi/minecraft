@@ -14,8 +14,8 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.util.StringRepresentable;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.NoiseColumn;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
@@ -89,7 +89,7 @@ public class RuinedPortalFeature extends StructureFeature<RuinedPortalConfigurat
             new BlockPos(param6.x0, 0, param6.z1),
             new BlockPos(param6.x1, 0, param6.z1)
         );
-        List<BlockGetter> var10 = var9.stream().map(param1x -> param1.getBaseColumn(param1x.getX(), param1x.getZ())).collect(Collectors.toList());
+        List<NoiseColumn> var10 = var9.stream().map(param1x -> param1.getBaseColumn(param1x.getX(), param1x.getZ())).collect(Collectors.toList());
         Heightmap.Types var11 = param2 == RuinedPortalPiece.VerticalPlacement.ON_OCEAN_FLOOR
             ? Heightmap.Types.OCEAN_FLOOR_WG
             : Heightmap.Types.WORLD_SURFACE_WG;
@@ -100,7 +100,7 @@ public class RuinedPortalFeature extends StructureFeature<RuinedPortalConfigurat
             int var14 = 0;
             var12.set(0, var13, 0);
 
-            for(BlockGetter var15 : var10) {
+            for(NoiseColumn var15 : var10) {
                 BlockState var16 = var15.getBlockState(var12);
                 if (var16 != null && var11.isOpaque().test(var16)) {
                     if (++var14 == 3) {

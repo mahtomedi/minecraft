@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
-import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
@@ -24,7 +23,6 @@ public class CompoundTag implements Tag {
         Tag var0 = param0.convert(NbtOps.INSTANCE).getValue();
         return var0 instanceof CompoundTag ? DataResult.success((CompoundTag)var0) : DataResult.error("Not a compound tag: " + var0);
     }, param0 -> new Dynamic<>(NbtOps.INSTANCE, param0));
-    private static final Pattern SIMPLE_VALUE = Pattern.compile("[A-Za-z0-9._+-]+");
     public static final TagType<CompoundTag> TYPE = new TagType<CompoundTag>() {
         public CompoundTag load(DataInput param0, int param1, NbtAccounter param2) throws IOException {
             param2.accountBits(384L);

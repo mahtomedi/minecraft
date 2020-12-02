@@ -74,16 +74,19 @@ public class Vec3i implements Comparable<Vec3i> {
         return this.z;
     }
 
-    protected void setX(int param0) {
+    protected Vec3i setX(int param0) {
         this.x = param0;
+        return this;
     }
 
-    protected void setY(int param0) {
+    protected Vec3i setY(int param0) {
         this.y = param0;
+        return this;
     }
 
-    protected void setZ(int param0) {
+    protected Vec3i setZ(int param0) {
         this.z = param0;
+        return this;
     }
 
     public Vec3i above() {
@@ -130,6 +133,10 @@ public class Vec3i implements Comparable<Vec3i> {
 
     public double distSqr(Position param0, boolean param1) {
         return this.distSqr(param0.x(), param0.y(), param0.z(), param1);
+    }
+
+    public double distSqr(Vec3i param0, boolean param1) {
+        return this.distSqr((double)param0.x, (double)param0.y, (double)param0.z, param1);
     }
 
     public double distSqr(double param0, double param1, double param2, boolean param3) {

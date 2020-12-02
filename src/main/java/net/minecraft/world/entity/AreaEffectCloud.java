@@ -4,11 +4,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.Map.Entry;
 import javax.annotation.Nullable;
 import net.minecraft.commands.arguments.ParticleArgument;
 import net.minecraft.core.Registry;
@@ -48,7 +46,9 @@ public class AreaEffectCloud extends Entity {
     private int durationOnUse;
     private float radiusOnUse;
     private float radiusPerTick;
+    @Nullable
     private LivingEntity owner;
+    @Nullable
     private UUID ownerUUID;
 
     public AreaEffectCloud(EntityType<? extends AreaEffectCloud> param0, Level param1) {
@@ -245,40 +245,32 @@ public class AreaEffectCloud extends Entity {
             }
 
             if (this.tickCount % 5 == 0) {
-                Iterator<Entry<Entity, Integer>> var23 = this.victims.entrySet().iterator();
+                this.victims.entrySet().removeIf(param0 -> this.tickCount >= param0.getValue());
+                List<MobEffectInstance> var23 = Lists.newArrayList();
 
-                while(var23.hasNext()) {
-                    Entry<Entity, Integer> var24 = var23.next();
-                    if (this.tickCount >= var24.getValue()) {
-                        var23.remove();
-                    }
+                for(MobEffectInstance var24 : this.potion.getEffects()) {
+                    var23.add(new MobEffectInstance(var24.getEffect(), var24.getDuration() / 4, var24.getAmplifier(), var24.isAmbient(), var24.isVisible()));
                 }
 
-                List<MobEffectInstance> var25 = Lists.newArrayList();
-
-                for(MobEffectInstance var26 : this.potion.getEffects()) {
-                    var25.add(new MobEffectInstance(var26.getEffect(), var26.getDuration() / 4, var26.getAmplifier(), var26.isAmbient(), var26.isVisible()));
-                }
-
-                var25.addAll(this.effects);
-                if (var25.isEmpty()) {
+                var23.addAll(this.effects);
+                if (var23.isEmpty()) {
                     this.victims.clear();
                 } else {
-                    List<LivingEntity> var27 = this.level.getEntitiesOfClass(LivingEntity.class, this.getBoundingBox());
-                    if (!var27.isEmpty()) {
-                        for(LivingEntity var28 : var27) {
-                            if (!this.victims.containsKey(var28) && var28.isAffectedByPotions()) {
-                                double var29 = var28.getX() - this.getX();
-                                double var30 = var28.getZ() - this.getZ();
-                                double var31 = var29 * var29 + var30 * var30;
-                                if (var31 <= (double)(var1 * var1)) {
-                                    this.victims.put(var28, this.tickCount + this.reapplicationDelay);
+                    List<LivingEntity> var25 = this.level.getEntitiesOfClass(LivingEntity.class, this.getBoundingBox());
+                    if (!var25.isEmpty()) {
+                        for(LivingEntity var26 : var25) {
+                            if (!this.victims.containsKey(var26) && var26.isAffectedByPotions()) {
+                                double var27 = var26.getX() - this.getX();
+                                double var28 = var26.getZ() - this.getZ();
+                                double var29 = var27 * var27 + var28 * var28;
+                                if (var29 <= (double)(var1 * var1)) {
+                                    this.victims.put(var26, this.tickCount + this.reapplicationDelay);
 
-                                    for(MobEffectInstance var32 : var25) {
-                                        if (var32.getEffect().isInstantenous()) {
-                                            var32.getEffect().applyInstantenousEffect(this, this.getOwner(), var28, var32.getAmplifier(), 0.5);
+                                    for(MobEffectInstance var30 : var23) {
+                                        if (var30.getEffect().isInstantenous()) {
+                                            var30.getEffect().applyInstantenousEffect(this, this.getOwner(), var26, var30.getAmplifier(), 0.5);
                                         } else {
-                                            var28.addEffect(new MobEffectInstance(var32));
+                                            var26.addEffect(new MobEffectInstance(var30));
                                         }
                                     }
 
@@ -401,7 +393,7 @@ public class AreaEffectCloud extends Entity {
             param0.putInt("Color", this.getColor());
         }
 
-        if (this.potion != Potions.EMPTY && this.potion != null) {
+        if (this.potion != Potions.EMPTY) {
             param0.putString("Potion", Registry.POTION.getKey(this.potion).toString());
         }
 

@@ -3,6 +3,7 @@ package net.minecraft.server.players;
 import com.google.gson.JsonObject;
 import com.mojang.authlib.GameProfile;
 import java.io.File;
+import java.util.Objects;
 
 public class ServerOpList extends StoredUserList<GameProfile, ServerOpListEntry> {
     public ServerOpList(File param0) {
@@ -16,14 +17,12 @@ public class ServerOpList extends StoredUserList<GameProfile, ServerOpListEntry>
 
     @Override
     public String[] getUserList() {
-        String[] var0 = new String[this.getEntries().size()];
-        int var1 = 0;
-
-        for(StoredUserEntry<GameProfile> var2 : this.getEntries()) {
-            var0[var1++] = var2.getUser().getName();
-        }
-
-        return var0;
+        return this.getEntries()
+            .stream()
+            .map(StoredUserEntry::getUser)
+            .filter(Objects::nonNull)
+            .map(GameProfile::getName)
+            .toArray(param0 -> new String[param0]);
     }
 
     public boolean canBypassPlayerLimit(GameProfile param0) {

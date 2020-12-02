@@ -998,7 +998,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
             case START_DESTROY_BLOCK:
             case ABORT_DESTROY_BLOCK:
             case STOP_DESTROY_BLOCK:
-                this.player.gameMode.handleBlockBreakAction(var0, var1, param0.getDirection(), this.server.getMaxBuildHeight());
+                this.player.gameMode.handleBlockBreakAction(var0, var1, param0.getDirection(), this.player.level.getMaxBuildHeight());
                 return;
             default:
                 throw new IllegalArgumentException("Invalid player action");
@@ -1024,24 +1024,22 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
         BlockPos var4 = var3.getBlockPos();
         Direction var5 = var3.getDirection();
         this.player.resetLastActionTime();
-        if (var4.getY() < this.server.getMaxBuildHeight()) {
+        int var6 = this.player.level.getMaxBuildHeight();
+        if (var4.getY() < var6) {
             if (this.awaitingPositionFromClient == null
                 && this.player.distanceToSqr((double)var4.getX() + 0.5, (double)var4.getY() + 0.5, (double)var4.getZ() + 0.5) < 64.0
                 && var0.mayInteract(this.player, var4)) {
-                InteractionResult var6 = this.player.gameMode.useItemOn(this.player, var0, var2, var1, var3);
-                if (var5 == Direction.UP
-                    && !var6.consumesAction()
-                    && var4.getY() >= this.server.getMaxBuildHeight() - 1
-                    && wasBlockPlacementAttempt(this.player, var2)) {
-                    Component var7 = new TranslatableComponent("build.tooHigh", this.server.getMaxBuildHeight()).withStyle(ChatFormatting.RED);
-                    this.player.connection.send(new ClientboundChatPacket(var7, ChatType.GAME_INFO, Util.NIL_UUID));
-                } else if (var6.shouldSwing()) {
+                InteractionResult var7 = this.player.gameMode.useItemOn(this.player, var0, var2, var1, var3);
+                if (var5 == Direction.UP && !var7.consumesAction() && var4.getY() >= var6 - 1 && wasBlockPlacementAttempt(this.player, var2)) {
+                    Component var8 = new TranslatableComponent("build.tooHigh", var6).withStyle(ChatFormatting.RED);
+                    this.player.connection.send(new ClientboundChatPacket(var8, ChatType.GAME_INFO, Util.NIL_UUID));
+                } else if (var7.shouldSwing()) {
                     this.player.swing(var1, true);
                 }
             }
         } else {
-            Component var8 = new TranslatableComponent("build.tooHigh", this.server.getMaxBuildHeight()).withStyle(ChatFormatting.RED);
-            this.player.connection.send(new ClientboundChatPacket(var8, ChatType.GAME_INFO, Util.NIL_UUID));
+            Component var9 = new TranslatableComponent("build.tooHigh", var6).withStyle(ChatFormatting.RED);
+            this.player.connection.send(new ClientboundChatPacket(var9, ChatType.GAME_INFO, Util.NIL_UUID));
         }
 
         this.player.connection.send(new ClientboundBlockUpdatePacket(var0, var4));

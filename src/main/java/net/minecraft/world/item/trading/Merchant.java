@@ -21,7 +21,7 @@ public interface Merchant {
     MerchantOffers getOffers();
 
     @OnlyIn(Dist.CLIENT)
-    void overrideOffers(@Nullable MerchantOffers var1);
+    void overrideOffers(MerchantOffers var1);
 
     void notifyTrade(MerchantOffer var1);
 

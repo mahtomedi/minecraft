@@ -3,7 +3,6 @@ package net.minecraft.world.level.block;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.mojang.math.Vector3f;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -29,6 +28,7 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.block.state.properties.RedstoneSide;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -70,13 +70,13 @@ public class RedStoneWireBlock extends Block {
         )
     );
     private static final Map<BlockState, VoxelShape> SHAPES_CACHE = Maps.newHashMap();
-    private static final Vector3f[] COLORS = Util.make(new Vector3f[16], param0 -> {
+    private static final Vec3[] COLORS = Util.make(new Vec3[16], param0 -> {
         for(int var0 = 0; var0 <= 15; ++var0) {
             float var1 = (float)var0 / 15.0F;
             float var2 = var1 * 0.6F + (var1 > 0.0F ? 0.4F : 0.3F);
             float var3 = Mth.clamp(var1 * var1 * 0.7F - 0.5F, 0.0F, 1.0F);
             float var4 = Mth.clamp(var1 * var1 * 0.6F - 0.7F, 0.0F, 1.0F);
-            param0[var0] = new Vector3f(var2, var3, var4);
+            param0[var0] = new Vec3((double)var2, (double)var3, (double)var4);
         }
 
     });
@@ -430,13 +430,13 @@ public class RedStoneWireBlock extends Block {
 
     @OnlyIn(Dist.CLIENT)
     public static int getColorForPower(int param0) {
-        Vector3f var0 = COLORS[param0];
-        return Mth.color(var0.x(), var0.y(), var0.z());
+        Vec3 var0 = COLORS[param0];
+        return Mth.color((float)var0.x(), (float)var0.y(), (float)var0.z());
     }
 
     @OnlyIn(Dist.CLIENT)
     private void spawnParticlesAlongLine(
-        Level param0, Random param1, BlockPos param2, Vector3f param3, Direction param4, Direction param5, float param6, float param7
+        Level param0, Random param1, BlockPos param2, Vec3 param3, Direction param4, Direction param5, float param6, float param7
     ) {
         float var0 = param7 - param6;
         if (!(param1.nextFloat() >= 0.2F * var0)) {
@@ -446,13 +446,7 @@ public class RedStoneWireBlock extends Block {
             double var4 = 0.5 + (double)(0.4375F * (float)param4.getStepY()) + (double)(var2 * (float)param5.getStepY());
             double var5 = 0.5 + (double)(0.4375F * (float)param4.getStepZ()) + (double)(var2 * (float)param5.getStepZ());
             param0.addParticle(
-                new DustParticleOptions(param3.x(), param3.y(), param3.z(), 1.0F),
-                (double)param2.getX() + var3,
-                (double)param2.getY() + var4,
-                (double)param2.getZ() + var5,
-                0.0,
-                0.0,
-                0.0
+                new DustParticleOptions(param3, 1.0F), (double)param2.getX() + var3, (double)param2.getY() + var4, (double)param2.getZ() + var5, 0.0, 0.0, 0.0
             );
         }
     }

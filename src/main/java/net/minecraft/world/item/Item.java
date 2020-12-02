@@ -40,6 +40,7 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
@@ -121,6 +122,7 @@ public class Item implements ItemLike {
         if (this.isEdible()) {
             ItemStack var0 = param1.getItemInHand(param2);
             if (param1.canEat(this.getFoodProperties().canAlwaysEat())) {
+                param0.gameEvent(param1, GameEvent.EATING_START, param1);
                 param1.startUsingItem(param2);
                 return InteractionResultHolder.consume(var0);
             } else {
@@ -132,7 +134,12 @@ public class Item implements ItemLike {
     }
 
     public ItemStack finishUsingItem(ItemStack param0, Level param1, LivingEntity param2) {
-        return this.isEdible() ? param2.eat(param1, param0) : param0;
+        if (this.isEdible()) {
+            param1.gameEvent(param2, GameEvent.EATING_FINISH, param2);
+            return param2.eat(param1, param0);
+        } else {
+            return param0;
+        }
     }
 
     public final int getMaxStackSize() {

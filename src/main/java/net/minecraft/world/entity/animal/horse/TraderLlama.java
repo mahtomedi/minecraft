@@ -117,14 +117,14 @@ public class TraderLlama extends Llama {
         return super.finalizeSpawn(param0, param1, param2, param3, param4);
     }
 
-    public class TraderLlamaDefendWanderingTraderGoal extends TargetGoal {
+    public static class TraderLlamaDefendWanderingTraderGoal extends TargetGoal {
         private final Llama llama;
         private LivingEntity ownerLastHurtBy;
         private int timestamp;
 
-        public TraderLlamaDefendWanderingTraderGoal(Llama param1) {
-            super(param1, false);
-            this.llama = param1;
+        public TraderLlamaDefendWanderingTraderGoal(Llama param0) {
+            super(param0, false);
+            this.llama = param0;
             this.setFlags(EnumSet.of(Goal.Flag.TARGET));
         }
 

@@ -20,6 +20,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.entity.BeehiveBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.gameevent.GameEventListener;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.pathfinder.Path;
 import org.apache.logging.log4j.LogManager;
@@ -82,6 +84,12 @@ public class DebugPackets {
     }
 
     public static void sendBeeInfo(Bee param0) {
+    }
+
+    public static void sendGameEventInfo(Level param0, GameEvent param1, BlockPos param2) {
+    }
+
+    public static void sendGameEventListenerInfo(Level param0, GameEventListener param1) {
     }
 
     public static void sendHiveInfo(Level param0, BlockPos param1, BlockState param2, BeehiveBlockEntity param3) {

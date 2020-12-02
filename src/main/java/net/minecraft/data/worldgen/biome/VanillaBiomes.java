@@ -1508,4 +1508,44 @@ public class VanillaBiomes {
             .generationSettings(var1.build())
             .build();
     }
+
+    public static Biome dripstoneCaves() {
+        MobSpawnSettings var0 = new MobSpawnSettings.Builder().build();
+        BiomeGenerationSettings.Builder var1 = new BiomeGenerationSettings.Builder().surfaceBuilder(SurfaceBuilders.GRASS);
+        BiomeDefaultFeatures.addDefaultOverworldLandStructures(var1);
+        var1.addStructureStart(StructureFeatures.RUINED_PORTAL_STANDARD);
+        BiomeDefaultFeatures.addDefaultCarvers(var1);
+        BiomeDefaultFeatures.addDefaultLakes(var1);
+        BiomeDefaultFeatures.addDefaultCrystalFormations(var1);
+        BiomeDefaultFeatures.addDefaultMonsterRoom(var1);
+        BiomeDefaultFeatures.addPlainGrass(var1);
+        BiomeDefaultFeatures.addDefaultUndergroundVariety(var1);
+        BiomeDefaultFeatures.addDefaultOres(var1);
+        BiomeDefaultFeatures.addDefaultSoftDisks(var1);
+        BiomeDefaultFeatures.addPlainVegetation(var1);
+        BiomeDefaultFeatures.addDefaultMushrooms(var1);
+        BiomeDefaultFeatures.addDefaultExtraVegetation(var1);
+        BiomeDefaultFeatures.addDefaultSprings(var1);
+        BiomeDefaultFeatures.addSurfaceFreezing(var1);
+        BiomeDefaultFeatures.addDripstone(var1);
+        return new Biome.BiomeBuilder()
+            .precipitation(Biome.Precipitation.RAIN)
+            .biomeCategory(Biome.BiomeCategory.PLAINS)
+            .depth(0.125F)
+            .scale(0.05F)
+            .temperature(0.8F)
+            .downfall(0.4F)
+            .specialEffects(
+                new BiomeSpecialEffects.Builder()
+                    .waterColor(4159204)
+                    .waterFogColor(329011)
+                    .fogColor(12638463)
+                    .skyColor(calculateSkyColor(0.8F))
+                    .ambientMoodSound(AmbientMoodSettings.LEGACY_CAVE_SETTINGS)
+                    .build()
+            )
+            .mobSpawnSettings(var0)
+            .generationSettings(var1.build())
+            .build();
+    }
 }

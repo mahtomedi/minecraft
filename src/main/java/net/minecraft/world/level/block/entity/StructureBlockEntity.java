@@ -429,17 +429,13 @@ public class StructureBlockEntity extends BlockEntity {
         if (param1 && !var2) {
             return false;
         } else {
-            StructurePlaceSettings var4 = new StructurePlaceSettings()
-                .setMirror(this.mirror)
-                .setRotation(this.rotation)
-                .setIgnoreEntities(this.ignoreEntities)
-                .setChunkPos(null);
+            StructurePlaceSettings var4 = new StructurePlaceSettings().setMirror(this.mirror).setRotation(this.rotation).setIgnoreEntities(this.ignoreEntities);
             if (this.integrity < 1.0F) {
                 var4.clearProcessors().addProcessor(new BlockRotProcessor(Mth.clamp(this.integrity, 0.0F, 1.0F))).setRandom(createRandom(this.seed));
             }
 
             BlockPos var5 = var0.offset(this.structurePos);
-            param2.placeInWorldChunk(param0, var5, var4, createRandom(this.seed));
+            param2.placeInWorld(param0, var5, var5, var4, createRandom(this.seed), 2);
             return true;
         }
     }

@@ -4,7 +4,6 @@ import com.mojang.serialization.Codec;
 import java.util.Arrays;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.WorldGenRegion;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.NoiseColumn;
 import net.minecraft.world.level.StructureFeatureManager;
@@ -59,7 +58,7 @@ public class FlatLevelSource extends ChunkGenerator {
             }
         }
 
-        return var0.length;
+        return this.settings.getMinBuildHeight() + var0.length;
     }
 
     @Override
@@ -101,8 +100,9 @@ public class FlatLevelSource extends ChunkGenerator {
     }
 
     @Override
-    public BlockGetter getBaseColumn(int param0, int param1) {
+    public NoiseColumn getBaseColumn(int param0, int param1) {
         return new NoiseColumn(
+            0,
             Arrays.stream(this.settings.getLayers())
                 .map(param0x -> param0x == null ? Blocks.AIR.defaultBlockState() : param0x)
                 .toArray(param0x -> new BlockState[param0x])

@@ -13,6 +13,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -77,6 +78,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.particles.VibrationParticleOption;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.FriendlyByteBuf;
@@ -92,6 +94,7 @@ import net.minecraft.network.protocol.game.ClientboundAddExperienceOrbPacket;
 import net.minecraft.network.protocol.game.ClientboundAddMobPacket;
 import net.minecraft.network.protocol.game.ClientboundAddPaintingPacket;
 import net.minecraft.network.protocol.game.ClientboundAddPlayerPacket;
+import net.minecraft.network.protocol.game.ClientboundAddVibrationSignalPacket;
 import net.minecraft.network.protocol.game.ClientboundAnimatePacket;
 import net.minecraft.network.protocol.game.ClientboundAwardStatsPacket;
 import net.minecraft.network.protocol.game.ClientboundBlockBreakAckPacket;
@@ -252,6 +255,9 @@ import net.minecraft.world.level.chunk.ChunkBiomeContainer;
 import net.minecraft.world.level.chunk.DataLayer;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.gameevent.PositionSource;
+import net.minecraft.world.level.gameevent.vibrations.VibrationPath;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraft.world.level.pathfinder.Path;
@@ -394,6 +400,17 @@ public class ClientPacketListener implements ClientGamePacketListener {
         var3.xRot = 0.0F;
         var3.setId(param0.getId());
         this.level.putNonPlayerEntity(param0.getId(), var3);
+    }
+
+    @Override
+    public void handleAddVibrationSignal(ClientboundAddVibrationSignalPacket param0) {
+        PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
+        VibrationPath var0 = param0.getVibrationPath();
+        BlockPos var1 = var0.getOrigin();
+        this.level
+            .addAlwaysVisibleParticle(
+                new VibrationParticleOption(var0), true, (double)var1.getX() + 0.5, (double)var1.getY() + 0.5, (double)var1.getZ() + 0.5, 0.0, 0.0, 0.0
+            );
     }
 
     @Override
@@ -601,7 +618,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
         int var1 = param0.getZ();
         ChunkBiomeContainer var2 = param0.getBiomes() == null
             ? null
-            : new ChunkBiomeContainer(this.registryAccess.registryOrThrow(Registry.BIOME_REGISTRY), param0.getBiomes());
+            : new ChunkBiomeContainer(this.registryAccess.registryOrThrow(Registry.BIOME_REGISTRY), this.level, param0.getBiomes());
         LevelChunk var3 = this.level
             .getChunkSource()
             .replaceWithPacketData(var0, var1, var2, param0.getReadBuffer(), param0.getHeightmaps(), param0.getAvailableSections());
@@ -1942,6 +1959,18 @@ public class ClientPacketListener implements ClientGamePacketListener {
                 String var103 = var1.readUtf();
                 int var104 = var1.readInt();
                 this.minecraft.debugRenderer.gameTestDebugRenderer.addMarker(var101, var102, var103, var104);
+            } else if (ClientboundCustomPayloadPacket.DEBUG_GAME_EVENT.equals(var0)) {
+                GameEvent var105 = Registry.GAME_EVENT.get(new ResourceLocation(var1.readUtf()));
+                BlockPos var106 = var1.readBlockPos();
+                this.minecraft.debugRenderer.gameEventListenerRenderer.trackGameEvent(var105, var106);
+            } else if (ClientboundCustomPayloadPacket.DEBUG_GAME_EVENT_LISTENER.equals(var0)) {
+                ResourceLocation var107 = var1.readResourceLocation();
+                PositionSource var108 = Registry.POSITION_SOURCE_TYPE
+                    .getOptional(var107)
+                    .orElseThrow(() -> new IllegalArgumentException("Unknown position source type " + var107))
+                    .read(var1);
+                int var109 = var1.readVarInt();
+                this.minecraft.debugRenderer.gameEventListenerRenderer.trackListener(var108, var109);
             } else {
                 LOGGER.warn("Unknown custom packed identifier: {}", var0);
             }
@@ -2138,12 +2167,12 @@ public class ClientPacketListener implements ClientGamePacketListener {
         int var0 = param0.getX();
         int var1 = param0.getZ();
         LevelLightEngine var2 = this.level.getChunkSource().getLightEngine();
-        long var3 = param0.getSkyYMask();
-        long var4 = param0.getEmptySkyYMask();
+        BitSet var3 = param0.getSkyYMask();
+        BitSet var4 = param0.getEmptySkyYMask();
         Iterator<byte[]> var5 = param0.getSkyUpdates().iterator();
         this.readSectionList(var0, var1, var2, LightLayer.SKY, var3, var4, var5, param0.getTrustEdges());
-        long var6 = param0.getBlockYMask();
-        long var7 = param0.getEmptyBlockYMask();
+        BitSet var6 = param0.getBlockYMask();
+        BitSet var7 = param0.getEmptyBlockYMask();
         Iterator<byte[]> var8 = param0.getBlockUpdates().iterator();
         this.readSectionList(var0, var1, var2, LightLayer.BLOCK, var6, var7, var8, param0.getTrustEdges());
     }
@@ -2153,11 +2182,12 @@ public class ClientPacketListener implements ClientGamePacketListener {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
         AbstractContainerMenu var0 = this.minecraft.player.containerMenu;
         if (param0.getContainerId() == var0.containerId && var0 instanceof MerchantMenu) {
-            ((MerchantMenu)var0).setOffers(new MerchantOffers(param0.getOffers().createTag()));
-            ((MerchantMenu)var0).setXp(param0.getVillagerXp());
-            ((MerchantMenu)var0).setMerchantLevel(param0.getVillagerLevel());
-            ((MerchantMenu)var0).setShowProgressBar(param0.showProgress());
-            ((MerchantMenu)var0).setCanRestock(param0.canRestock());
+            MerchantMenu var1 = (MerchantMenu)var0;
+            var1.setOffers(new MerchantOffers(param0.getOffers().createTag()));
+            var1.setXp(param0.getVillagerXp());
+            var1.setMerchantLevel(param0.getVillagerLevel());
+            var1.setShowProgressBar(param0.showProgress());
+            var1.setCanRestock(param0.canRestock());
         }
 
     }
@@ -2182,12 +2212,12 @@ public class ClientPacketListener implements ClientGamePacketListener {
     }
 
     private void readSectionList(
-        int param0, int param1, LevelLightEngine param2, LightLayer param3, long param4, long param5, Iterator<byte[]> param6, boolean param7
+        int param0, int param1, LevelLightEngine param2, LightLayer param3, BitSet param4, BitSet param5, Iterator<byte[]> param6, boolean param7
     ) {
         for(int var0 = 0; var0 < param2.getLightSectionCount(); ++var0) {
             int var1 = param2.getMinLightSection() + var0;
-            boolean var2 = (param4 & 1L << var0) != 0L;
-            boolean var3 = (param5 & 1L << var0) != 0L;
+            boolean var2 = param4.get(var0);
+            boolean var3 = param5.get(var0);
             if (var2 || var3) {
                 param2.queueSectionData(
                     param3, SectionPos.of(param0, var1, param1), var2 ? new DataLayer((byte[])param6.next().clone()) : new DataLayer(), param7

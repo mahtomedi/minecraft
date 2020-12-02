@@ -70,7 +70,7 @@ public class FossilFeature extends Feature<NoneFeatureConfiguration> {
             }
         }
 
-        int var14 = Math.max(var11 - param0.getMinBuildHeight() - 15 - param2.nextInt(10), 10);
+        int var14 = Math.max(var11 - 15 - param2.nextInt(10), param0.getMinBuildHeight() + 10);
         BlockPos var15 = var3.getZeroPositionWithTransform(param3.offset(var9, var14, var10), Mirror.NONE, var0);
         BlockRotProcessor var16 = new BlockRotProcessor(0.9F);
         var7.clearProcessors().addProcessor(var16);

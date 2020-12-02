@@ -89,6 +89,8 @@ import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.entity.EntityAccess;
 import net.minecraft.world.level.entity.EntityInLevelCallback;
+import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.gameevent.GameEventListenerRegistrar;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
@@ -314,7 +316,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     @OnlyIn(Dist.CLIENT)
     protected void resetPos() {
         if (this.level != null) {
-            for(double var0 = this.getY(); var0 > (double)this.level.getMinBuildHeight() && var0 < (double)this.level.getMinBuildHeight(); ++var0) {
+            for(double var0 = this.getY(); var0 > (double)this.level.getMinBuildHeight() && var0 < (double)this.level.getMaxBuildHeight(); ++var0) {
                 this.setPos(this.getX(), var0, this.getZ());
                 if (this.level.noCollision(this)) {
                     break;
@@ -589,11 +591,14 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
                         }
 
                         this.playSwimSound(var11);
+                        this.gameEvent(GameEvent.SWIM);
                     } else {
                         this.playStepSound(var1, var2);
+                        this.gameEvent(GameEvent.STEP);
                     }
                 } else if (this.moveDist > this.nextFlap && this.makeFlySound() && var2.isAir()) {
                     this.nextFlap = this.playFlySound(this.moveDist);
+                    this.gameEvent(GameEvent.FLAP);
                 }
             }
 
@@ -867,6 +872,14 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     protected void onInsideBlock(BlockState param0) {
     }
 
+    protected void gameEvent(@Nullable Entity param0, GameEvent param1) {
+        this.level.gameEvent(param0, param1, this.blockPosition);
+    }
+
+    protected void gameEvent(GameEvent param0) {
+        this.level.gameEvent(this, param0, this.blockPosition);
+    }
+
     protected void playStepSound(BlockPos param0, BlockState param1) {
         if (!param1.getMaterial().isLiquid()) {
             if (param1.is(BlockTags.CRYSTAL_SOUND_BLOCKS) && this.tickCount >= this.lastCrystalSoundPlayTick + 20) {
@@ -929,6 +942,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         if (param1) {
             if (this.fallDistance > 0.0F) {
                 param2.getBlock().fallOn(this.level, param3, this, this.fallDistance);
+                this.gameEvent(GameEvent.HIT_GROUND);
             }
 
             this.fallDistance = 0.0F;
@@ -1081,6 +1095,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
             this.level.addParticle(ParticleTypes.SPLASH, this.getX() + var9, (double)(var4 + 1.0F), this.getZ() + var10, var2.x, var2.y, var2.z);
         }
 
+        this.gameEvent(GameEvent.SPLASH);
     }
 
     protected BlockState getBlockStateOn() {
@@ -1269,6 +1284,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         if (this.isInvulnerableTo(param0)) {
             return false;
         } else {
+            this.gameEvent(param0.getEntity(), GameEvent.ENTITY_HIT);
             this.markHurt();
             return false;
         }
@@ -1960,6 +1976,11 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
             Team var0 = this.getTeam();
             return var0 != null && param0 != null && param0.getTeam() == var0 && var0.canSeeFriendlyInvisibles() ? false : this.isInvisible();
         }
+    }
+
+    @Nullable
+    public GameEventListenerRegistrar getGameEventListenerRegistrar() {
+        return null;
     }
 
     @Nullable
@@ -2897,6 +2918,10 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
             }
 
             this.levelCallback.onMove();
+            GameEventListenerRegistrar var3 = this.getGameEventListenerRegistrar();
+            if (var3 != null) {
+                var3.onListenerMove(this.level);
+            }
         }
 
     }

@@ -5,6 +5,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.entity.EntityTypeTest;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 
 public abstract class ContainerOpenersCounter {
@@ -18,23 +19,25 @@ public abstract class ContainerOpenersCounter {
 
     protected abstract boolean isOwnContainer(Player var1);
 
-    public void incrementOpeners(Level param0, BlockPos param1, BlockState param2) {
+    public void incrementOpeners(Player param0, Level param1, BlockPos param2, BlockState param3) {
         int var0 = this.openCount++;
         if (var0 == 0) {
-            this.onOpen(param0, param1, param2);
-            scheduleRecheck(param0, param1, param2);
+            this.onOpen(param1, param2, param3);
+            param1.gameEvent(param0, GameEvent.CONTAINER_OPEN, param2);
+            scheduleRecheck(param1, param2, param3);
         }
 
-        this.openerCountChanged(param0, param1, param2, var0, this.openCount);
+        this.openerCountChanged(param1, param2, param3, var0, this.openCount);
     }
 
-    public void decrementOpeners(Level param0, BlockPos param1, BlockState param2) {
+    public void decrementOpeners(Player param0, Level param1, BlockPos param2, BlockState param3) {
         int var0 = this.openCount--;
         if (this.openCount == 0) {
-            this.onClose(param0, param1, param2);
+            this.onClose(param1, param2, param3);
+            param1.gameEvent(param0, GameEvent.CONTAINER_CLOSE, param2);
         }
 
-        this.openerCountChanged(param0, param1, param2, var0, this.openCount);
+        this.openerCountChanged(param1, param2, param3, var0, this.openCount);
     }
 
     private int getOpenCount(Level param0, BlockPos param1) {
@@ -61,8 +64,10 @@ public abstract class ContainerOpenersCounter {
             boolean var3 = var1 != 0;
             if (var2 && !var3) {
                 this.onOpen(param0, param1, param2);
+                param0.gameEvent(null, GameEvent.CONTAINER_OPEN, param1);
             } else if (!var2) {
                 this.onClose(param0, param1, param2);
+                param0.gameEvent(null, GameEvent.CONTAINER_CLOSE, param1);
             }
 
             this.openCount = var0;

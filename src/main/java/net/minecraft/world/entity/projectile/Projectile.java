@@ -11,6 +11,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -105,6 +106,7 @@ public abstract class Projectile extends Entity {
         this.xRot = (float)(Mth.atan2(var0.y, (double)var1) * 180.0F / (float)Math.PI);
         this.yRotO = this.yRot;
         this.xRotO = this.xRot;
+        this.gameEvent(this.getOwner(), GameEvent.PROJECTILE_SHOOT);
     }
 
     public void shootFromRotation(Entity param0, float param1, float param2, float param3, float param4, float param5) {
@@ -122,6 +124,10 @@ public abstract class Projectile extends Entity {
             this.onHitEntity((EntityHitResult)param0);
         } else if (var0 == HitResult.Type.BLOCK) {
             this.onHitBlock((BlockHitResult)param0);
+        }
+
+        if (var0 != HitResult.Type.MISS) {
+            this.gameEvent(this.getOwner(), GameEvent.PROJECTILE_LAND);
         }
 
     }

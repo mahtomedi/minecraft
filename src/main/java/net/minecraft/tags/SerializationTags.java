@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluid;
 
 public class SerializationTags {
@@ -30,6 +31,11 @@ public class SerializationTags {
                 .collect(
                     Collectors.toMap(Tag.Named::getName, (Function<? super Tag.Named<EntityType<?>>, ? extends Tag.Named<EntityType<?>>>)(param0 -> param0))
                 )
+        ),
+        TagCollection.of(
+            GameEventTags.getWrappers()
+                .stream()
+                .collect(Collectors.toMap(Tag.Named::getName, (Function<? super Tag.Named<GameEvent>, ? extends Tag.Named<GameEvent>>)(param0 -> param0)))
         )
     );
 

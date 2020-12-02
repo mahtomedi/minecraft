@@ -230,7 +230,7 @@ public class BeaconBlockEntity extends BlockEntity implements MenuProvider {
             }
 
             int var2 = (9 + param2 * 2) * 20;
-            AABB var3 = new AABB(param1).inflate(var0).expandTowards(0.0, (double)param0.getMaxBuildHeight(), 0.0);
+            AABB var3 = new AABB(param1).inflate(var0).expandTowards(0.0, (double)param0.getHeight(), 0.0);
             List<Player> var4 = param0.getEntitiesOfClass(Player.class, var3);
 
             for(Player var5 : var4) {

@@ -221,7 +221,7 @@ public class ServerPlayer extends Player implements ContainerListener {
         } else {
             this.moveTo(var0, 0.0F, 0.0F);
 
-            while(!param0.noCollision(this) && this.getY() < 255.0) {
+            while(!param0.noCollision(this) && this.getY() < (double)(param0.getMaxBuildHeight() - 1)) {
                 this.setPos(this.getX(), this.getY() + 1.0, this.getZ());
             }
         }
