@@ -8,18 +8,18 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class BundleTooltip implements TooltipComponent {
     private final NonNullList<ItemStack> items;
-    private final boolean showEmptySlot;
+    private final int weight;
 
-    public BundleTooltip(NonNullList<ItemStack> param0, boolean param1) {
+    public BundleTooltip(NonNullList<ItemStack> param0, int param1) {
         this.items = param0;
-        this.showEmptySlot = param1;
+        this.weight = param1;
     }
 
     public NonNullList<ItemStack> getItems() {
         return this.items;
     }
 
-    public boolean showEmptySlot() {
-        return this.showEmptySlot;
+    public int getWeight() {
+        return this.weight;
     }
 }

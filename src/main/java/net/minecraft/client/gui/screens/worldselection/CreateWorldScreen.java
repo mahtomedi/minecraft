@@ -465,7 +465,14 @@ public class CreateWorldScreen extends Screen {
             this.dataPacks = var2;
         } else {
             this.minecraft.tell(() -> this.minecraft.setScreen(new GenericDirtMessageScreen(new TranslatableComponent("dataPack.validation.working"))));
-            ServerResources.loadResources(param0.openAllSelected(), Commands.CommandSelection.INTEGRATED, 2, Util.backgroundExecutor(), this.minecraft)
+            ServerResources.loadResources(
+                    param0.openAllSelected(),
+                    this.worldGenSettingsComponent.registryHolder(),
+                    Commands.CommandSelection.INTEGRATED,
+                    2,
+                    Util.backgroundExecutor(),
+                    this.minecraft
+                )
                 .handle(
                     (param1, param2) -> {
                         if (param2 != null) {

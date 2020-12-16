@@ -490,6 +490,11 @@ public class TestCommand {
         }
 
         @Override
+        public void testPassed(GameTestInfo param0) {
+            TestCommand.showTestSummaryIfAllDone(this.level, this.tracker);
+        }
+
+        @Override
         public void testFailed(GameTestInfo param0) {
             TestCommand.showTestSummaryIfAllDone(this.level, this.tracker);
         }

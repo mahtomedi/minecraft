@@ -184,7 +184,7 @@ public abstract class PlayerList {
         var11.send(new ClientboundPlayerAbilitiesPacket(param1.getAbilities()));
         var11.send(new ClientboundSetCarriedItemPacket(param1.getInventory().selected));
         var11.send(new ClientboundUpdateRecipesPacket(this.server.getRecipeManager().getRecipes()));
-        var11.send(new ClientboundUpdateTagsPacket(this.server.getTags()));
+        var11.send(new ClientboundUpdateTagsPacket(this.server.getTags().serializeToNetwork(this.registryHolder)));
         this.sendPlayerPermissionLevel(param1);
         param1.getStats().markAllDirty();
         param1.getRecipeBook().sendInitialRecipeBook(param1);
@@ -820,7 +820,7 @@ public abstract class PlayerList {
             var0.reload(this.server.getAdvancements());
         }
 
-        this.broadcastAll(new ClientboundUpdateTagsPacket(this.server.getTags()));
+        this.broadcastAll(new ClientboundUpdateTagsPacket(this.server.getTags().serializeToNetwork(this.registryHolder)));
         ClientboundUpdateRecipesPacket var1 = new ClientboundUpdateRecipesPacket(this.server.getRecipeManager().getRecipes());
 
         for(ServerPlayer var2 : this.players) {

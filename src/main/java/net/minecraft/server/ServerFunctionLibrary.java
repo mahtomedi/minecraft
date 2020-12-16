@@ -37,7 +37,7 @@ public class ServerFunctionLibrary implements PreparableReloadListener {
     private static final int PATH_PREFIX_LENGTH = "functions/".length();
     private static final int PATH_SUFFIX_LENGTH = ".mcfunction".length();
     private volatile Map<ResourceLocation, CommandFunction> functions = ImmutableMap.of();
-    private final TagLoader<CommandFunction> tagsLoader = new TagLoader<>(this::getFunction, "tags/functions", "function");
+    private final TagLoader<CommandFunction> tagsLoader = new TagLoader<>(this::getFunction, "tags/functions");
     private volatile TagCollection<CommandFunction> tags = TagCollection.empty();
     private final int functionCompilationLevel;
     private final CommandDispatcher<CommandSourceStack> dispatcher;
@@ -72,7 +72,7 @@ public class ServerFunctionLibrary implements PreparableReloadListener {
         Executor param4,
         Executor param5
     ) {
-        CompletableFuture<Map<ResourceLocation, Tag.Builder>> var0 = this.tagsLoader.prepare(param1, param4);
+        CompletableFuture<Map<ResourceLocation, Tag.Builder>> var0 = CompletableFuture.supplyAsync(() -> this.tagsLoader.load(param1), param4);
         CompletableFuture<Map<ResourceLocation, CompletableFuture<CommandFunction>>> var1 = CompletableFuture.<Collection<ResourceLocation>>supplyAsync(
                 () -> param1.listResources("functions", param0x -> param0x.endsWith(".mcfunction")), param4
             )
@@ -111,7 +111,7 @@ public class ServerFunctionLibrary implements PreparableReloadListener {
                     return null;
                 }).join());
             this.functions = var1x.build();
-            this.tags = this.tagsLoader.load((Map<ResourceLocation, Tag.Builder>)param0x.getFirst());
+            this.tags = this.tagsLoader.build((Map<ResourceLocation, Tag.Builder>)param0x.getFirst());
         }, param5);
     }
 

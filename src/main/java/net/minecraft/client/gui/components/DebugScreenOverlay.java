@@ -457,7 +457,7 @@ public class DebugScreenOverlay extends GuiComponent {
                     var4.add(this.getPropertyValueString(var7));
                 }
 
-                for(ResourceLocation var8 : this.minecraft.getConnection().getTags().getBlocks().getMatchingTags(var6.getBlock())) {
+                for(ResourceLocation var8 : this.minecraft.getConnection().getTags().getOrEmpty(Registry.BLOCK_REGISTRY).getMatchingTags(var6.getBlock())) {
                     var4.add("#" + var8);
                 }
             }
@@ -473,7 +473,7 @@ public class DebugScreenOverlay extends GuiComponent {
                     var4.add(this.getPropertyValueString(var11));
                 }
 
-                for(ResourceLocation var12 : this.minecraft.getConnection().getTags().getFluids().getMatchingTags(var10.getType())) {
+                for(ResourceLocation var12 : this.minecraft.getConnection().getTags().getOrEmpty(Registry.FLUID_REGISTRY).getMatchingTags(var10.getType())) {
                     var4.add("#" + var12);
                 }
             }

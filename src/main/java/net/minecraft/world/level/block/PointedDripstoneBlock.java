@@ -1,6 +1,7 @@
 package net.minecraft.world.level.block;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.util.Optional;
 import java.util.Random;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
@@ -29,7 +30,6 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.DripstoneThickness;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
-import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
@@ -89,17 +89,17 @@ public class PointedDripstoneBlock extends Block implements Fallable, SimpleWate
             if (param1 != var0.getOpposite() || isValidPointedDripstonePlacement(param3, param4, var0)) {
                 boolean var1 = param0.getValue(THICKNESS) == DripstoneThickness.TIP_MERGE;
                 DripstoneThickness var2 = calculateDripstoneThickness(param3, param4, var0, var1);
-                return var2 == null ? this.getAirOrWater(param0) : param0.setValue(THICKNESS, var2);
+                return var2 == null ? getAirOrWater(param0) : param0.setValue(THICKNESS, var2);
             } else if (var0 == Direction.DOWN) {
                 this.scheduleStalactiteFallTicks(param0, param3, param4);
                 return param0;
             } else {
-                return this.getAirOrWater(param0);
+                return getAirOrWater(param0);
             }
         }
     }
 
-    private BlockState getAirOrWater(BlockState param0) {
+    private static BlockState getAirOrWater(BlockState param0) {
         return param0.getValue(WATERLOGGED) ? Blocks.WATER.defaultBlockState() : Blocks.AIR.defaultBlockState();
     }
 
@@ -128,13 +128,9 @@ public class PointedDripstoneBlock extends Block implements Fallable, SimpleWate
         if (canDrip(param0)) {
             float var0 = param3.nextFloat();
             if (!(var0 > 0.12F)) {
-                PointedDripstoneBlock.DripType var1 = getDripType(param1, param2, param0);
-                if (var1 != null) {
-                    if (var0 < 0.02F || var1.canFillCauldron()) {
-                        spawnDripParticle(param1, param2, param0, var1);
-                    }
-
-                }
+                getFluidAboveStalactite(param1, param2, param0)
+                    .filter(param1x -> var0 < 0.02F || canFillCauldron(param1x))
+                    .ifPresent(param3x -> spawnDripParticle(param1, param2, param0, param3x));
             }
         }
     }
@@ -154,20 +150,27 @@ public class PointedDripstoneBlock extends Block implements Fallable, SimpleWate
         if (!(param3 > 0.17578125F) || !(param3 > 0.05859375F)) {
             if (isStalactiteStartPos(param0, param1, param2)) {
                 Fluid var0 = getCauldronFillFluidType(param1, param2);
-                if (var0 != Fluids.EMPTY) {
-                    BlockPos var1 = findTip(param0, param1, param2, 10);
-                    if (var1 != null) {
-                        BlockPos var2 = null;
-                        if (var0 == Fluids.WATER && param3 < 0.17578125F || var0 == Fluids.LAVA && param3 < 0.05859375F) {
-                            var2 = findFillableCauldronBelowStalactiteTip(param1, var1, var0);
-                        }
+                float var1;
+                if (var0 == Fluids.WATER) {
+                    var1 = 0.17578125F;
+                } else {
+                    if (var0 != Fluids.LAVA) {
+                        return;
+                    }
 
-                        if (var2 != null) {
-                            param1.levelEvent(1504, var1, 0);
-                            int var3 = var1.getY() - var2.getY();
-                            int var4 = 50 + var3;
-                            BlockState var5 = param1.getBlockState(var2);
-                            param1.getBlockTicks().scheduleTick(var2, var5.getBlock(), var4);
+                    var1 = 0.05859375F;
+                }
+
+                if (!(param3 >= var1)) {
+                    BlockPos var4 = findTip(param0, param1, param2, 10);
+                    if (var4 != null) {
+                        BlockPos var5 = findFillableCauldronBelowStalactiteTip(param1, var4, var0);
+                        if (var5 != null) {
+                            param1.levelEvent(1504, var4, 0);
+                            int var6 = var4.getY() - var5.getY();
+                            int var7 = 50 + var6;
+                            BlockState var8 = param1.getBlockState(var5);
+                            param1.getBlockTicks().scheduleTick(var5, var8.getBlock(), var7);
                         }
                     }
                 }
@@ -302,43 +305,30 @@ public class PointedDripstoneBlock extends Block implements Fallable, SimpleWate
 
     @OnlyIn(Dist.CLIENT)
     public static void spawnDripParticle(Level param0, BlockPos param1, BlockState param2) {
-        PointedDripstoneBlock.DripType var0 = getDripType(param0, param1, param2);
-        if (var0 != null) {
-            spawnDripParticle(param0, param1, param2, var0);
-        }
+        getFluidAboveStalactite(param0, param1, param2).ifPresent(param3 -> spawnDripParticle(param0, param1, param2, param3));
     }
 
     @OnlyIn(Dist.CLIENT)
-    private static void spawnDripParticle(Level param0, BlockPos param1, BlockState param2, PointedDripstoneBlock.DripType param3) {
+    private static void spawnDripParticle(Level param0, BlockPos param1, BlockState param2, Fluid param3) {
         Vec3 var0 = param2.getOffset(param0, param1);
         double var1 = 0.0625;
         double var2 = (double)param1.getX() + 0.5 + var0.x;
         double var3 = (double)((float)(param1.getY() + 1) - 0.6875F) - 0.0625;
         double var4 = (double)param1.getZ() + 0.5 + var0.z;
-        param0.addParticle(param3.getDripParticle(), var2, var3, var4, 0.0, 0.0, 0.0);
+        Fluid var5 = getDripFluid(param0, param3);
+        ParticleOptions var6 = var5.is(FluidTags.LAVA) ? ParticleTypes.DRIPPING_DRIPSTONE_LAVA : ParticleTypes.DRIPPING_DRIPSTONE_WATER;
+        param0.addParticle(var6, var2, var3, var4, 0.0, 0.0, 0.0);
     }
 
     @Nullable
     private static BlockPos findTip(BlockState param0, LevelAccessor param1, BlockPos param2, int param3) {
-        Direction var0 = param0.getValue(TIP_DIRECTION);
-        BlockPos.MutableBlockPos var1 = param2.mutable();
-        BlockState var2 = param0;
-        int var3 = param1.getMinBuildHeight();
-
-        for(int var4 = 0; var4 < param3 && var1.getY() > var3; ++var4) {
-            if (isTip(var2)) {
-                return var1;
-            }
-
-            if (!var2.is(Blocks.POINTED_DRIPSTONE) || var2.getValue(TIP_DIRECTION) != var0) {
-                return null;
-            }
-
-            var1.move(var0);
-            var2 = param1.getBlockState(var1);
+        if (isTip(param0)) {
+            return param2;
+        } else {
+            Direction var0 = param0.getValue(TIP_DIRECTION);
+            Predicate<BlockState> var1 = param1x -> param1x.is(Blocks.POINTED_DRIPSTONE) && param1x.getValue(TIP_DIRECTION) == var0;
+            return findBlockVertical(param1, param2, var0.getAxisDirection(), var1, PointedDripstoneBlock::isTip, param3).orElse(null);
         }
-
-        return null;
     }
 
     @Nullable
@@ -384,20 +374,10 @@ public class PointedDripstoneBlock extends Block implements Fallable, SimpleWate
         return isStalactite(param0) && param0.getValue(THICKNESS) == DripstoneThickness.TIP && !param0.getValue(WATERLOGGED);
     }
 
-    @Nullable
-    private static BlockPos findRootBlock(Level param0, BlockPos param1, BlockState param2, int param3) {
-        Direction var0 = param2.getValue(TIP_DIRECTION).getOpposite();
-        BlockPos.MutableBlockPos var1 = param1.mutable();
-
-        for(int var2 = 0; var2 < param3; ++var2) {
-            var1.move(var0);
-            BlockState var3 = param0.getBlockState(var1);
-            if (!var3.is(Blocks.POINTED_DRIPSTONE)) {
-                return var1;
-            }
-        }
-
-        return null;
+    private static Optional<BlockPos> findRootBlock(Level param0, BlockPos param1, BlockState param2, int param3) {
+        Direction var0 = param2.getValue(TIP_DIRECTION);
+        Predicate<BlockState> var1 = param1x -> param1x.is(Blocks.POINTED_DRIPSTONE) && param1x.getValue(TIP_DIRECTION) == var0;
+        return findBlockVertical(param0, param1, var0.getOpposite().getAxisDirection(), var1, param0x -> !param0x.is(Blocks.POINTED_DRIPSTONE), param3);
     }
 
     private static boolean isValidPointedDripstonePlacement(LevelReader param0, BlockPos param1, Direction param2) {
@@ -406,12 +386,12 @@ public class PointedDripstoneBlock extends Block implements Fallable, SimpleWate
         return var1.isFaceSturdy(param0, var0, param2) || isPointedDripstoneWithDirection(var1, param2);
     }
 
-    private static boolean isTip(BlockState param0) {
-        if (!param0.is(Blocks.POINTED_DRIPSTONE)) {
+    private static boolean isTip(BlockState param0x) {
+        if (!param0x.is(Blocks.POINTED_DRIPSTONE)) {
             return false;
         } else {
-            DripstoneThickness var0 = param0.getValue(THICKNESS);
-            return var0 == DripstoneThickness.TIP || var0 == DripstoneThickness.TIP_MERGE;
+            DripstoneThickness var0x = param0x.getValue(THICKNESS);
+            return var0x == DripstoneThickness.TIP || var0x == DripstoneThickness.TIP_MERGE;
         }
     }
 
@@ -429,85 +409,58 @@ public class PointedDripstoneBlock extends Block implements Fallable, SimpleWate
 
     @Nullable
     private static BlockPos findFillableCauldronBelowStalactiteTip(Level param0, BlockPos param1, Fluid param2) {
-        BlockPos.MutableBlockPos var0 = param1.mutable();
-
-        for(int var1 = 0; var1 < 10; ++var1) {
-            var0.move(Direction.DOWN);
-            BlockState var2 = param0.getBlockState(var0);
-            if (!var2.isAir()) {
-                if (var2.getBlock() instanceof AbstractCauldronBlock) {
-                    AbstractCauldronBlock var3 = (AbstractCauldronBlock)var2.getBlock();
-                    if (var3.canReceiveStalactiteDrip(param2)) {
-                        return var0;
-                    }
-                }
-
-                return null;
-            }
-        }
-
-        return null;
+        Predicate<BlockState> var0 = param1x -> param1x.getBlock() instanceof AbstractCauldronBlock
+                && ((AbstractCauldronBlock)param1x.getBlock()).canReceiveStalactiteDrip(param2);
+        return findBlockVertical(param0, param1, Direction.DOWN.getAxisDirection(), BlockBehaviour.BlockStateBase::isAir, var0, 10).orElse(null);
     }
 
     @Nullable
     public static BlockPos findStalactiteTipAboveCauldron(Level param0, BlockPos param1) {
-        BlockPos.MutableBlockPos var0 = param1.mutable();
-
-        for(int var1 = 0; var1 < 10; ++var1) {
-            var0.move(Direction.UP);
-            BlockState var2 = param0.getBlockState(var0);
-            if (!var2.isAir()) {
-                if (canDrip(var2)) {
-                    return var0;
-                }
-
-                return null;
-            }
-        }
-
-        return null;
+        return findBlockVertical(param0, param1, Direction.UP.getAxisDirection(), BlockBehaviour.BlockStateBase::isAir, PointedDripstoneBlock::canDrip, 10)
+            .orElse(null);
     }
 
     public static Fluid getCauldronFillFluidType(Level param0, BlockPos param1) {
-        PointedDripstoneBlock.DripType var0 = getDripType(param0, param1, param0.getBlockState(param1));
-        return var0 != null && var0.canFillCauldron() ? var0.getDripFluid() : Fluids.EMPTY;
+        return getFluidAboveStalactite(param0, param1, param0.getBlockState(param1)).filter(PointedDripstoneBlock::canFillCauldron).orElse(Fluids.EMPTY);
     }
 
-    @Nullable
-    private static PointedDripstoneBlock.DripType getDripType(Level param0, BlockPos param1, BlockState param2) {
-        if (!isStalactite(param2)) {
-            return null;
+    private static Optional<Fluid> getFluidAboveStalactite(Level param0, BlockPos param1, BlockState param2) {
+        return !isStalactite(param2)
+            ? Optional.empty()
+            : findRootBlock(param0, param1, param2, 10).map(param1x -> param0.getFluidState(param1x.above()).getType());
+    }
+
+    private static boolean canFillCauldron(Fluid param0x) {
+        return param0x == Fluids.LAVA || param0x == Fluids.WATER;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private static Fluid getDripFluid(Level param0, Fluid param1) {
+        if (param1.isSame(Fluids.EMPTY)) {
+            return param0.dimensionType().ultraWarm() ? Fluids.LAVA : Fluids.WATER;
         } else {
-            BlockPos var0 = findRootBlock(param0, param1, param2, 10);
-            if (var0 == null) {
-                return null;
-            } else {
-                FluidState var1 = param0.getFluidState(var0.above());
-                return new PointedDripstoneBlock.DripType(var1.getType(), param0.dimensionType());
+            return param1;
+        }
+    }
+
+    private static Optional<BlockPos> findBlockVertical(
+        LevelAccessor param0, BlockPos param1, Direction.AxisDirection param2, Predicate<BlockState> param3, Predicate<BlockState> param4, int param5
+    ) {
+        Direction var0 = Direction.get(param2, Direction.Axis.Y);
+        BlockPos.MutableBlockPos var1 = param1.mutable();
+
+        for(int var2 = 0; var2 < param5; ++var2) {
+            var1.move(var0);
+            BlockState var3 = param0.getBlockState(var1);
+            if (param4.test(var3)) {
+                return Optional.of(var1);
+            }
+
+            if (param0.isOutsideBuildHeight(var1.getY()) || !param3.test(var3)) {
+                return Optional.empty();
             }
         }
-    }
 
-    static class DripType {
-        private final Fluid fluidAboveRootBlock;
-        private final DimensionType dimensionType;
-
-        DripType(Fluid param0, DimensionType param1) {
-            this.fluidAboveRootBlock = param0;
-            this.dimensionType = param1;
-        }
-
-        Fluid getDripFluid() {
-            return !this.fluidAboveRootBlock.is(FluidTags.LAVA) && !this.dimensionType.ultraWarm() ? Fluids.WATER : Fluids.LAVA;
-        }
-
-        boolean canFillCauldron() {
-            return this.fluidAboveRootBlock == Fluids.LAVA || this.fluidAboveRootBlock == Fluids.WATER;
-        }
-
-        @OnlyIn(Dist.CLIENT)
-        ParticleOptions getDripParticle() {
-            return this.getDripFluid() == Fluids.WATER ? ParticleTypes.DRIPPING_DRIPSTONE_WATER : ParticleTypes.DRIPPING_DRIPSTONE_LAVA;
-        }
+        return Optional.empty();
     }
 }

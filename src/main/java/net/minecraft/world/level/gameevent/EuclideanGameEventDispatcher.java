@@ -35,7 +35,14 @@ public class EuclideanGameEventDispatcher implements GameEventDispatcher {
 
     @Override
     public void post(GameEvent param0, @Nullable Entity param1, BlockPos param2) {
-        boolean var0 = this.listeners.stream().filter(param3 -> this.postToListener(this.level, param0, param1, param2, param3)).count() > 0L;
+        boolean var0 = false;
+
+        for(GameEventListener var1 : this.listeners) {
+            if (this.postToListener(this.level, param0, param1, param2, var1)) {
+                var0 = true;
+            }
+        }
+
         if (var0) {
             DebugPackets.sendGameEventInfo(this.level, param0, param2);
         }

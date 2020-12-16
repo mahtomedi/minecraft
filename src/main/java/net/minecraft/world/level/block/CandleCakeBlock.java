@@ -62,8 +62,12 @@ public class CandleCakeBlock extends AbstractCandleBlock {
             extinguish(param0, param1, param2);
             return InteractionResult.sidedSuccess(param1.isClientSide);
         } else {
-            dropResources(param0, param1, param2);
-            return CakeBlock.eat(param1, param2, Blocks.CAKE.defaultBlockState(), param3);
+            InteractionResult var1 = CakeBlock.eat(param1, param2, Blocks.CAKE.defaultBlockState(), param3);
+            if (var1.consumesAction()) {
+                dropResources(param0, param1, param2);
+            }
+
+            return var1;
         }
     }
 

@@ -50,30 +50,29 @@ public class SculkSensorBlock extends BaseEntityBlock implements SimpleWaterlogg
             param0.put(GameEvent.WOLF_SHAKING, 6);
             param0.put(GameEvent.PROJECTILE_SHOOT, 7);
             param0.put(GameEvent.PROJECTILE_LAND, 8);
-            param0.put(GameEvent.EATING_START, 7);
             param0.put(GameEvent.EATING_FINISH, 8);
-            param0.put(GameEvent.ENTITY_HIT, 9);
+            param0.put(GameEvent.ENTITY_HIT, 8);
             param0.put(GameEvent.ARMOR_STAND_ADD_ITEM, 9);
-            param0.put(GameEvent.BLOCK_OPEN, 11);
             param0.put(GameEvent.BLOCK_CLOSE, 10);
-            param0.put(GameEvent.BLOCK_SWITCH, 11);
             param0.put(GameEvent.BLOCK_UNSWITCH, 10);
-            param0.put(GameEvent.BLOCK_PRESS, 11);
             param0.put(GameEvent.BLOCK_UNPRESS, 10);
-            param0.put(GameEvent.BLOCK_ATTACH, 11);
             param0.put(GameEvent.BLOCK_DETACH, 10);
-            param0.put(GameEvent.CONTAINER_OPEN, 11);
-            param0.put(GameEvent.CONTAINER_CLOSE, 10);
             param0.put(GameEvent.DISPENSE_FAIL, 10);
+            param0.put(GameEvent.BLOCK_OPEN, 11);
+            param0.put(GameEvent.BLOCK_SWITCH, 11);
+            param0.put(GameEvent.BLOCK_PRESS, 11);
+            param0.put(GameEvent.BLOCK_ATTACH, 11);
             param0.put(GameEvent.FLINT_AND_STEEL_USE, 12);
             param0.put(GameEvent.BLOCK_PLACE, 12);
-            param0.put(GameEvent.BLOCK_DESTROY, 13);
             param0.put(GameEvent.FLUID_PLACE, 12);
+            param0.put(GameEvent.BLOCK_DESTROY, 13);
             param0.put(GameEvent.FLUID_PICKUP, 13);
-            param0.put(GameEvent.FISHING_ROD_CAST, 15);
             param0.put(GameEvent.FISHING_ROD_REEL_IN, 14);
-            param0.put(GameEvent.PISTON_EXTEND, 15);
+            param0.put(GameEvent.CONTAINER_CLOSE, 14);
             param0.put(GameEvent.PISTON_CONTRACT, 14);
+            param0.put(GameEvent.PISTON_EXTEND, 15);
+            param0.put(GameEvent.CONTAINER_OPEN, 15);
+            param0.put(GameEvent.FISHING_ROD_CAST, 15);
             param0.put(GameEvent.EXPLODE, 15);
             param0.put(GameEvent.LIGHTNING_STRIKE, 15);
         })
@@ -212,7 +211,10 @@ public class SculkSensorBlock extends BaseEntityBlock implements SimpleWaterlogg
     public static void deactivate(Level param0, BlockPos param1, BlockState param2) {
         param0.setBlock(param1, param2.setValue(PHASE, SculkSensorPhase.COOLDOWN).setValue(POWER, Integer.valueOf(0)), 3);
         param0.getBlockTicks().scheduleTick(new BlockPos(param1), param2.getBlock(), 1);
-        param0.playSound(null, param1, SoundEvents.SCULK_CLICKING_STOP, SoundSource.BLOCKS, 1.0F, param0.random.nextFloat() * 0.2F + 0.8F);
+        if (!param2.getValue(WATERLOGGED)) {
+            param0.playSound(null, param1, SoundEvents.SCULK_CLICKING_STOP, SoundSource.BLOCKS, 1.0F, param0.random.nextFloat() * 0.2F + 0.8F);
+        }
+
         updateNeighbours(param0, param1);
     }
 
@@ -220,16 +222,19 @@ public class SculkSensorBlock extends BaseEntityBlock implements SimpleWaterlogg
         param0.setBlock(param1, param2.setValue(PHASE, SculkSensorPhase.ACTIVE).setValue(POWER, Integer.valueOf(param3)), 3);
         param0.getBlockTicks().scheduleTick(new BlockPos(param1), param2.getBlock(), 40);
         updateNeighbours(param0, param1);
-        param0.playSound(
-            null,
-            (double)param1.getX() + 0.5,
-            (double)param1.getY() + 0.5,
-            (double)param1.getZ() + 0.5,
-            SoundEvents.SCULK_CLICKING,
-            SoundSource.BLOCKS,
-            1.0F,
-            param0.random.nextFloat() * 0.2F + 0.8F
-        );
+        if (!param2.getValue(WATERLOGGED)) {
+            param0.playSound(
+                null,
+                (double)param1.getX() + 0.5,
+                (double)param1.getY() + 0.5,
+                (double)param1.getZ() + 0.5,
+                SoundEvents.SCULK_CLICKING,
+                SoundSource.BLOCKS,
+                1.0F,
+                param0.random.nextFloat() * 0.2F + 0.8F
+            );
+        }
+
     }
 
     @OnlyIn(Dist.CLIENT)

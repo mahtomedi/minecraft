@@ -1,5 +1,6 @@
 package net.minecraft.client.renderer;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -211,52 +212,59 @@ public class ItemInHandRenderer {
         float var0 = param3.getAttackAnim(param0);
         InteractionHand var1 = MoreObjects.firstNonNull(param3.swingingArm, InteractionHand.MAIN_HAND);
         float var2 = Mth.lerp(param0, param3.xRotO, param3.xRot);
-        boolean var3 = true;
-        boolean var4 = true;
-        if (param3.isUsingItem()) {
-            ItemStack var5 = param3.getUseItem();
-            if (var5.is(Items.BOW) || var5.is(Items.CROSSBOW)) {
-                var3 = param3.getUsedItemHand() == InteractionHand.MAIN_HAND;
-                var4 = !var3;
-            }
-
-            InteractionHand var6 = param3.getUsedItemHand();
-            if (var6 == InteractionHand.MAIN_HAND) {
-                ItemStack var7 = param3.getOffhandItem();
-                if (var7.is(Items.CROSSBOW) && CrossbowItem.isCharged(var7)) {
-                    var4 = false;
-                }
-            }
-        } else {
-            ItemStack var8 = param3.getMainHandItem();
-            ItemStack var9 = param3.getOffhandItem();
-            if (var8.is(Items.CROSSBOW) && CrossbowItem.isCharged(var8)) {
-                var4 = !var3;
-            }
-
-            if (var9.is(Items.CROSSBOW) && CrossbowItem.isCharged(var9)) {
-                var3 = !var8.isEmpty();
-                var4 = !var3;
-            }
+        ItemInHandRenderer.HandRenderSelection var3 = evaluateWhichHandsToRender(param3);
+        float var4 = Mth.lerp(param0, param3.xBobO, param3.xBob);
+        float var5 = Mth.lerp(param0, param3.yBobO, param3.yBob);
+        param1.mulPose(Vector3f.XP.rotationDegrees((param3.getViewXRot(param0) - var4) * 0.1F));
+        param1.mulPose(Vector3f.YP.rotationDegrees((param3.getViewYRot(param0) - var5) * 0.1F));
+        if (var3.renderMainHand) {
+            float var6 = var1 == InteractionHand.MAIN_HAND ? var0 : 0.0F;
+            float var7 = 1.0F - Mth.lerp(param0, this.oMainHandHeight, this.mainHandHeight);
+            this.renderArmWithItem(param3, param0, var2, InteractionHand.MAIN_HAND, var6, this.mainHandItem, var7, param1, param2, param4);
         }
 
-        float var10 = Mth.lerp(param0, param3.xBobO, param3.xBob);
-        float var11 = Mth.lerp(param0, param3.yBobO, param3.yBob);
-        param1.mulPose(Vector3f.XP.rotationDegrees((param3.getViewXRot(param0) - var10) * 0.1F));
-        param1.mulPose(Vector3f.YP.rotationDegrees((param3.getViewYRot(param0) - var11) * 0.1F));
-        if (var3) {
-            float var12 = var1 == InteractionHand.MAIN_HAND ? var0 : 0.0F;
-            float var13 = 1.0F - Mth.lerp(param0, this.oMainHandHeight, this.mainHandHeight);
-            this.renderArmWithItem(param3, param0, var2, InteractionHand.MAIN_HAND, var12, this.mainHandItem, var13, param1, param2, param4);
-        }
-
-        if (var4) {
-            float var14 = var1 == InteractionHand.OFF_HAND ? var0 : 0.0F;
-            float var15 = 1.0F - Mth.lerp(param0, this.oOffHandHeight, this.offHandHeight);
-            this.renderArmWithItem(param3, param0, var2, InteractionHand.OFF_HAND, var14, this.offHandItem, var15, param1, param2, param4);
+        if (var3.renderOffHand) {
+            float var8 = var1 == InteractionHand.OFF_HAND ? var0 : 0.0F;
+            float var9 = 1.0F - Mth.lerp(param0, this.oOffHandHeight, this.offHandHeight);
+            this.renderArmWithItem(param3, param0, var2, InteractionHand.OFF_HAND, var8, this.offHandItem, var9, param1, param2, param4);
         }
 
         param2.endBatch();
+    }
+
+    @VisibleForTesting
+    static ItemInHandRenderer.HandRenderSelection evaluateWhichHandsToRender(LocalPlayer param0) {
+        ItemStack var0 = param0.getMainHandItem();
+        ItemStack var1 = param0.getOffhandItem();
+        boolean var2 = var0.is(Items.BOW) || var1.is(Items.BOW);
+        boolean var3 = var0.is(Items.CROSSBOW) || var1.is(Items.CROSSBOW);
+        if (!var2 && !var3) {
+            return ItemInHandRenderer.HandRenderSelection.RENDER_BOTH_HANDS;
+        } else if (param0.isUsingItem()) {
+            return selectionUsingItemWhileHoldingBowLike(param0);
+        } else if (isChargedCrossbow(var0)) {
+            return ItemInHandRenderer.HandRenderSelection.RENDER_MAIN_HAND_ONLY;
+        } else if (isChargedCrossbow(var1)) {
+            return var0.isEmpty() ? ItemInHandRenderer.HandRenderSelection.RENDER_OFF_HAND_ONLY : ItemInHandRenderer.HandRenderSelection.RENDER_BOTH_HANDS;
+        } else {
+            return ItemInHandRenderer.HandRenderSelection.RENDER_BOTH_HANDS;
+        }
+    }
+
+    private static ItemInHandRenderer.HandRenderSelection selectionUsingItemWhileHoldingBowLike(LocalPlayer param0) {
+        ItemStack var0 = param0.getUseItem();
+        InteractionHand var1 = param0.getUsedItemHand();
+        if (!var0.is(Items.BOW) && !var0.is(Items.CROSSBOW)) {
+            return var1 == InteractionHand.MAIN_HAND && isChargedCrossbow(param0.getOffhandItem())
+                ? ItemInHandRenderer.HandRenderSelection.RENDER_MAIN_HAND_ONLY
+                : ItemInHandRenderer.HandRenderSelection.RENDER_BOTH_HANDS;
+        } else {
+            return ItemInHandRenderer.HandRenderSelection.onlyForHand(var1);
+        }
+    }
+
+    private static boolean isChargedCrossbow(ItemStack param0) {
+        return param0.is(Items.CROSSBOW) && CrossbowItem.isCharged(param0);
     }
 
     private void renderArmWithItem(
@@ -318,7 +326,7 @@ public class ItemInHandRenderer {
                     param7.translate((double)((float)var4 * var10), (double)var11, (double)var12);
                     this.applyItemArmTransform(param7, var1, param6);
                     this.applyItemArmAttackTransform(param7, var1, param4);
-                    if (var2 && param4 < 0.001F) {
+                    if (var2 && param4 < 0.001F && var0) {
                         param7.translate((double)((float)var4 * -0.641864F), 0.0, 0.0);
                         param7.mulPose(Vector3f.YP.rotationDegrees((float)var4 * 10.0F));
                     }
@@ -467,5 +475,25 @@ public class ItemInHandRenderer {
             this.offHandHeight = 0.0F;
         }
 
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @VisibleForTesting
+    static enum HandRenderSelection {
+        RENDER_BOTH_HANDS(true, true),
+        RENDER_MAIN_HAND_ONLY(true, false),
+        RENDER_OFF_HAND_ONLY(false, true);
+
+        final boolean renderMainHand;
+        final boolean renderOffHand;
+
+        private HandRenderSelection(boolean param0, boolean param1) {
+            this.renderMainHand = param0;
+            this.renderOffHand = param1;
+        }
+
+        public static ItemInHandRenderer.HandRenderSelection onlyForHand(InteractionHand param0) {
+            return param0 == InteractionHand.MAIN_HAND ? RENDER_MAIN_HAND_ONLY : RENDER_OFF_HAND_ONLY;
+        }
     }
 }

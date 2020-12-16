@@ -122,6 +122,7 @@ public class Main {
             DataPackConfig var32 = MinecraftServer.configurePackRepository(var31, var29 == null ? DataPackConfig.DEFAULT : var29, var30);
             CompletableFuture<ServerResources> var33 = ServerResources.loadResources(
                 var31.openAllSelected(),
+                var16,
                 Commands.CommandSelection.DEDICATED,
                 var18.getProperties().functionPermissionLevel,
                 Util.backgroundExecutor(),

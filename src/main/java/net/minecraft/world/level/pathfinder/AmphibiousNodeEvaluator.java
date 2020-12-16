@@ -14,9 +14,14 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class TurtleNodeEvaluator extends WalkNodeEvaluator {
+public class AmphibiousNodeEvaluator extends WalkNodeEvaluator {
+    private final boolean prefersShallowSwimming;
     private float oldWalkableCost;
     private float oldWaterBorderCost;
+
+    public AmphibiousNodeEvaluator(boolean param0) {
+        this.prefersShallowSwimming = param0;
+    }
 
     @Override
     public void prepare(PathNavigationRegion param0, Mob param1) {
@@ -209,7 +214,7 @@ public class TurtleNodeEvaluator extends WalkNodeEvaluator {
 
                 return var0;
             } else {
-                if (param1 < this.mob.level.getSeaLevel() - 10 && var0 != null) {
+                if (this.prefersShallowSwimming && param1 < this.mob.level.getSeaLevel() - 10 && var0 != null) {
                     ++var0.costMalus;
                 }
 

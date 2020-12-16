@@ -133,13 +133,13 @@ public abstract class Animal extends AgeableMob {
         if (this.isFood(var0)) {
             int var1 = this.getAge();
             if (!this.level.isClientSide && var1 == 0 && this.canFallInLove()) {
-                this.usePlayerItem(param0, var0);
+                this.usePlayerItem(param0, param1, var0);
                 this.setInLove(param0);
                 return InteractionResult.SUCCESS;
             }
 
             if (this.isBaby()) {
-                this.usePlayerItem(param0, var0);
+                this.usePlayerItem(param0, param1, var0);
                 this.ageUp((int)((float)(-var1 / 20) * 0.1F), true);
                 return InteractionResult.sidedSuccess(this.level.isClientSide);
             }
@@ -152,9 +152,9 @@ public abstract class Animal extends AgeableMob {
         return super.mobInteract(param0, param1);
     }
 
-    protected void usePlayerItem(Player param0, ItemStack param1) {
+    protected void usePlayerItem(Player param0, InteractionHand param1, ItemStack param2) {
         if (!param0.getAbilities().instabuild) {
-            param1.shrink(1);
+            param2.shrink(1);
         }
 
     }

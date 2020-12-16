@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import net.minecraft.client.model.ArmorStandArmorModel;
 import net.minecraft.client.model.ArmorStandModel;
+import net.minecraft.client.model.AxolotlModel;
 import net.minecraft.client.model.BatModel;
 import net.minecraft.client.model.BeeModel;
 import net.minecraft.client.model.BlazeModel;
@@ -120,6 +121,7 @@ public class LayerDefinitions {
         var0.put(ModelLayers.ARMOR_STAND, ArmorStandModel.createBodyLayer());
         var0.put(ModelLayers.ARMOR_STAND_INNER_ARMOR, ArmorStandArmorModel.createBodyLayer(INNER_ARMOR_DEFORMATION));
         var0.put(ModelLayers.ARMOR_STAND_OUTER_ARMOR, ArmorStandArmorModel.createBodyLayer(OUTER_ARMOR_DEFORMATION));
+        var0.put(ModelLayers.AXOLOTL, AxolotlModel.createBodyLayer());
         var0.put(ModelLayers.BANNER, BannerRenderer.createBodyLayer());
         var0.put(ModelLayers.BAT, BatModel.createBodyLayer());
         var0.put(ModelLayers.BED_FOOT, BedRenderer.createFootLayer());

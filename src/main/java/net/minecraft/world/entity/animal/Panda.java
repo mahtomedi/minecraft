@@ -620,10 +620,10 @@ public class Panda extends Animal {
             }
 
             if (this.isBaby()) {
-                this.usePlayerItem(param0, var0);
+                this.usePlayerItem(param0, param1, var0);
                 this.ageUp((int)((float)(-this.getAge() / 20) * 0.1F), true);
             } else if (!this.level.isClientSide && this.getAge() == 0 && this.canFallInLove()) {
-                this.usePlayerItem(param0, var0);
+                this.usePlayerItem(param0, param1, var0);
                 this.setInLove(param0);
             } else {
                 if (this.level.isClientSide || this.isSitting() || this.isInWater()) {
@@ -638,7 +638,7 @@ public class Panda extends Animal {
                 }
 
                 this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(var0.getItem(), 1));
-                this.usePlayerItem(param0, var0);
+                this.usePlayerItem(param0, param1, var0);
             }
 
             return InteractionResult.SUCCESS;

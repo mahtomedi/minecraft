@@ -52,9 +52,13 @@ public class CakeBlock extends Block {
     public InteractionResult use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
         ItemStack var0 = param3.getItemInHand(param4);
         Item var1 = var0.getItem();
-        if (!param1.isClientSide && var0.is(ItemTags.CANDLES) && param0.getValue(BITES) == 0) {
+        if (var0.is(ItemTags.CANDLES) && param0.getValue(BITES) == 0) {
             Block var2 = Block.byItem(var1);
             if (var2 instanceof CandleBlock) {
+                if (!param3.isCreative()) {
+                    var0.shrink(1);
+                }
+
                 param1.playSound(null, param2, SoundEvents.CAKE_ADD_CANDLE, SoundSource.BLOCKS, 1.0F, 1.0F);
                 param1.setBlockAndUpdate(param2, CandleCakeBlock.byCandle(var2));
                 return InteractionResult.SUCCESS;

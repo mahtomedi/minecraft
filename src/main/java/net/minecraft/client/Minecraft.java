@@ -1851,7 +1851,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         try {
             DataPackConfig var2 = MinecraftServer.configurePackRepository(var1, var0, param3);
             CompletableFuture<ServerResources> var3 = ServerResources.loadResources(
-                var1.openAllSelected(), Commands.CommandSelection.INTEGRATED, 2, Util.backgroundExecutor(), this
+                var1.openAllSelected(), param0, Commands.CommandSelection.INTEGRATED, 2, Util.backgroundExecutor(), this
             );
             this.managedBlock(var3::isDone);
             ServerResources var4 = var3.get();

@@ -17,6 +17,7 @@ import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -154,7 +155,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
     private final EntityTickList entityTickList = new EntityTickList();
     private final PersistentEntitySectionManager<Entity> entityManager;
     public boolean noSave;
-    private boolean allPlayersSleeping;
+    private float percentageSleepingPlayers;
     private int emptyTime;
     private final PortalForcer portalForcer;
     private final ServerTickList<Block> blockTicks = new ServerTickList<>(
@@ -335,11 +336,11 @@ public class ServerLevel extends Level implements WorldGenLevel {
             this.server.getPlayerList().broadcastAll(new ClientboundGameEventPacket(ClientboundGameEventPacket.THUNDER_LEVEL_CHANGE, this.thunderLevel));
         }
 
-        if (this.allPlayersSleeping && this.players.stream().noneMatch(param0x -> !param0x.isSpectator() && !param0x.isSleepingLongEnough())) {
-            this.allPlayersSleeping = false;
+        int var7 = this.getGameRules().getInt(GameRules.RULE_PLAYERS_SLEEPING_PERCENTAGE);
+        if (this.percentageSleepingPlayers > 0.0F && this.percentageSleepingPlayers >= (float)var7 && this.getPercentSleepingPlayers(true) >= (float)var7) {
             if (this.getGameRules().getBoolean(GameRules.RULE_DAYLIGHT)) {
-                long var7 = this.levelData.getDayTime() + 24000L;
-                this.setDayTime(var7 - var7 % 24000L);
+                long var8 = this.levelData.getDayTime() + 24000L;
+                this.setDayTime(var8 - var8 % 24000L);
             }
 
             this.wakeUpAllPlayers();
@@ -364,12 +365,12 @@ public class ServerLevel extends Level implements WorldGenLevel {
         this.runBlockEvents();
         this.handlingTick = false;
         var0.pop();
-        boolean var8 = !this.players.isEmpty() || !this.getForcedChunks().isEmpty();
-        if (var8) {
+        boolean var9 = !this.players.isEmpty() || !this.getForcedChunks().isEmpty();
+        if (var9) {
             this.resetEmptyTime();
         }
 
-        if (var8 || this.emptyTime++ < 300) {
+        if (var9 || this.emptyTime++ < 300) {
             var0.push("entities");
             if (this.dragonFight != null) {
                 var0.push("dragonFight");
@@ -441,6 +442,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
     }
 
     private void wakeUpAllPlayers() {
+        this.percentageSleepingPlayers = 0.0F;
         this.players.stream().filter(LivingEntity::isSleeping).collect(Collectors.toList()).forEach(param0 -> param0.stopSleepInBed(false, false));
     }
 
@@ -564,23 +566,81 @@ public class ServerLevel extends Level implements WorldGenLevel {
         return this.handlingTick;
     }
 
-    public void updateSleepingPlayerList() {
-        this.allPlayersSleeping = false;
-        if (!this.players.isEmpty()) {
-            int var0 = 0;
-            int var1 = 0;
+    public boolean canSleepThroughNights() {
+        return this.getGameRules().getInt(GameRules.RULE_PLAYERS_SLEEPING_PERCENTAGE) <= 100;
+    }
 
-            for(ServerPlayer var2 : this.players) {
-                if (var2.isSpectator()) {
+    private void announceSleepStatus() {
+        if (this.canSleepThroughNights()) {
+            int var0 = this.getGameRules().getInt(GameRules.RULE_PLAYERS_SLEEPING_PERCENTAGE);
+            Component var1;
+            if (this.percentageSleepingPlayers >= (float)var0) {
+                var1 = new TranslatableComponent("sleep.skipping_night");
+            } else {
+                int var2 = 0;
+                int var3 = 0;
+
+                for(ServerPlayer var4 : this.players) {
+                    if (!var4.isSpectator()) {
+                        ++var3;
+                        if (var4.isSleeping()) {
+                            ++var2;
+                        }
+                    }
+                }
+
+                var3 = Math.max(var3 * var0 / 100, 1);
+                var1 = new TranslatableComponent("sleep.players_sleeping", var2, var3);
+            }
+
+            for(ServerPlayer var6 : this.players) {
+                var6.displayClientMessage(var1, true);
+            }
+
+        }
+    }
+
+    public void updateSleepingPlayerList() {
+        if (!this.players.isEmpty()) {
+            float var0 = this.percentageSleepingPlayers;
+            this.percentageSleepingPlayers = this.getPercentSleepingPlayers(false);
+            if (var0 != this.percentageSleepingPlayers) {
+                this.announceSleepStatus();
+            }
+        }
+
+    }
+
+    private float getPercentSleepingPlayers(boolean param0) {
+        int var0 = 0;
+        int var1 = 0;
+        Iterator var4 = this.players.iterator();
+
+        while(true) {
+            while(true) {
+                if (!var4.hasNext()) {
+                    if (var0 == 0) {
+                        return 0.0F;
+                    }
+
+                    return 100.0F * (float)var1 / (float)var0;
+                }
+
+                ServerPlayer var2 = (ServerPlayer)var4.next();
+                if (!var2.isSpectator()) {
                     ++var0;
-                } else if (var2.isSleeping()) {
-                    ++var1;
+                    if (param0) {
+                        if (var2.isSleepingLongEnough()) {
+                            break;
+                        }
+                    } else if (var2.isSleeping()) {
+                        break;
+                    }
                 }
             }
 
-            this.allPlayersSleeping = var1 > 0 && var1 >= this.players.size() - var0;
+            ++var1;
         }
-
     }
 
     public ServerScoreboard getScoreboard() {

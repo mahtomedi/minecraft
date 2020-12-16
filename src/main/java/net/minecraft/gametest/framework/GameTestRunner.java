@@ -1,10 +1,10 @@
 package net.minecraft.gametest.framework;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Streams;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -40,19 +40,21 @@ public class GameTestRunner {
     }
 
     public static Collection<GameTestBatch> groupTestsIntoBatches(Collection<TestFunction> param0) {
-        Map<String, Collection<TestFunction>> var0 = Maps.newHashMap();
-        param0.forEach(param1 -> {
-            String var0x = param1.getBatchName();
-            Collection<TestFunction> var1x = var0.computeIfAbsent(var0x, param0x -> Lists.newArrayList());
-            var1x.add(param1);
-        });
-        return var0.keySet().stream().flatMap(param1 -> {
-            Collection<TestFunction> var0x = var0.get(param1);
-            Consumer<ServerLevel> var1x = GameTestRegistry.getBeforeBatchFunction(param1);
-            Consumer<ServerLevel> var2 = GameTestRegistry.getAfterBatchFunction(param1);
-            MutableInt var3 = new MutableInt();
-            return Streams.stream(Iterables.partition(var0x, 100)).map(param4 -> new GameTestBatch(param1 + ":" + var3.incrementAndGet(), param4, var1x, var2));
-        }).collect(Collectors.toList());
+        Map<String, List<TestFunction>> var0 = param0.stream().collect(Collectors.groupingBy(TestFunction::getBatchName));
+        return var0.entrySet()
+            .stream()
+            .flatMap(
+                param0x -> {
+                    String var0x = param0x.getKey();
+                    Consumer<ServerLevel> var1x = GameTestRegistry.getBeforeBatchFunction(var0x);
+                    Consumer<ServerLevel> var2 = GameTestRegistry.getAfterBatchFunction(var0x);
+                    MutableInt var3 = new MutableInt();
+                    Collection<TestFunction> var4 = param0x.getValue();
+                    return Streams.stream(Iterables.partition(var4, 100))
+                        .map(param4 -> new GameTestBatch(var0x + ":" + var3.incrementAndGet(), ImmutableList.copyOf(param4), var1x, var2));
+                }
+            )
+            .collect(ImmutableList.toImmutableList());
     }
 
     public static void clearAllTests(ServerLevel param0, BlockPos param1, GameTestTicker param2, int param3) {

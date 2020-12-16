@@ -16,4 +16,8 @@ public class LogTestReporter implements TestReporter {
         }
 
     }
+
+    @Override
+    public void onTestSuccess(GameTestInfo param0) {
+    }
 }

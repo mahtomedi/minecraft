@@ -72,10 +72,8 @@ public class BlockPredicate {
             Tag<Block> var4 = null;
             if (var0.has("tag")) {
                 ResourceLocation var5 = new ResourceLocation(GsonHelper.getAsString(var0, "tag"));
-                var4 = SerializationTags.getInstance().getBlocks().getTag(var5);
-                if (var4 == null) {
-                    throw new JsonSyntaxException("Unknown block tag '" + var5 + "'");
-                }
+                var4 = SerializationTags.getInstance()
+                    .getTagOrThrow(Registry.BLOCK_REGISTRY, var5, param0x -> new JsonSyntaxException("Unknown block tag '" + param0x + "'"));
             }
 
             StatePropertiesPredicate var6 = StatePropertiesPredicate.fromJson(var0.get("state"));
@@ -95,7 +93,12 @@ public class BlockPredicate {
             }
 
             if (this.tag != null) {
-                var0.addProperty("tag", SerializationTags.getInstance().getBlocks().getIdOrThrow(this.tag).toString());
+                var0.addProperty(
+                    "tag",
+                    SerializationTags.getInstance()
+                        .getIdOrThrow(Registry.BLOCK_REGISTRY, this.tag, () -> new IllegalStateException("Unknown block tag"))
+                        .toString()
+                );
             }
 
             var0.add("nbt", this.nbt.serializeToJson());

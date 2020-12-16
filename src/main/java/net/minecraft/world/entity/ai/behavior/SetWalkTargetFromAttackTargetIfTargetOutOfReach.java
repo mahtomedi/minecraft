@@ -1,6 +1,7 @@
 package net.minecraft.world.entity.ai.behavior;
 
 import com.google.common.collect.ImmutableMap;
+import java.util.function.Function;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -10,9 +11,13 @@ import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.memory.WalkTarget;
 
 public class SetWalkTargetFromAttackTargetIfTargetOutOfReach extends Behavior<Mob> {
-    private final float speedModifier;
+    private final Function<LivingEntity, Float> speedModifier;
 
     public SetWalkTargetFromAttackTargetIfTargetOutOfReach(float param0) {
+        this(param1 -> param0);
+    }
+
+    public SetWalkTargetFromAttackTargetIfTargetOutOfReach(Function<LivingEntity, Float> param0) {
         super(
             ImmutableMap.of(
                 MemoryModuleType.WALK_TARGET,
@@ -41,7 +46,7 @@ public class SetWalkTargetFromAttackTargetIfTargetOutOfReach extends Behavior<Mo
     private void setWalkAndLookTarget(LivingEntity param0, LivingEntity param1) {
         Brain<?> var0 = param0.getBrain();
         var0.setMemory(MemoryModuleType.LOOK_TARGET, new EntityTracker(param1, true));
-        WalkTarget var1 = new WalkTarget(new EntityTracker(param1, false), this.speedModifier, 0);
+        WalkTarget var1 = new WalkTarget(new EntityTracker(param1, false), this.speedModifier.apply(param0), 0);
         var0.setMemory(MemoryModuleType.WALK_TARGET, var1);
     }
 

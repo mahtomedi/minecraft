@@ -79,9 +79,17 @@ public class VibrationListener implements GameEventListener {
             return false;
         } else if (!GameEventTags.VIBRATIONS.contains(param0)) {
             return false;
-        } else if (param1 != null && GameEventTags.IGNORE_VIBRATIONS_STEPPING_CAREFULLY.contains(param0) && param1.isSteppingCarefully()) {
-            return false;
         } else {
+            if (param1 != null) {
+                if (GameEventTags.IGNORE_VIBRATIONS_STEPPING_CAREFULLY.contains(param0) && param1.isSteppingCarefully()) {
+                    return false;
+                }
+
+                if (param1.occludesVibrations()) {
+                    return false;
+                }
+            }
+
             return param1 == null || !param1.isSpectator();
         }
     }

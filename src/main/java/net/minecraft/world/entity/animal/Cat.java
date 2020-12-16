@@ -250,12 +250,12 @@ public class Cat extends TamableAnimal {
     }
 
     @Override
-    protected void usePlayerItem(Player param0, ItemStack param1) {
-        if (this.isFood(param1)) {
+    protected void usePlayerItem(Player param0, InteractionHand param1, ItemStack param2) {
+        if (this.isFood(param2)) {
             this.playSound(SoundEvents.CAT_EAT, 1.0F, 1.0F);
         }
 
-        super.usePlayerItem(param0, param1);
+        super.usePlayerItem(param0, param1, param2);
     }
 
     private float getAttackDamage() {
@@ -396,7 +396,7 @@ public class Cat extends TamableAnimal {
                 if (this.isOwnedBy(param0)) {
                     if (!(var1 instanceof DyeItem)) {
                         if (var1.isEdible() && this.isFood(var0) && this.getHealth() < this.getMaxHealth()) {
-                            this.usePlayerItem(param0, var0);
+                            this.usePlayerItem(param0, param1, var0);
                             this.heal((float)var1.getFoodProperties().getNutrition());
                             return InteractionResult.CONSUME;
                         }
@@ -421,7 +421,7 @@ public class Cat extends TamableAnimal {
                     }
                 }
             } else if (this.isFood(var0)) {
-                this.usePlayerItem(param0, var0);
+                this.usePlayerItem(param0, param1, var0);
                 if (this.random.nextInt(3) == 0) {
                     this.tame(param0);
                     this.setOrderedToSit(true);

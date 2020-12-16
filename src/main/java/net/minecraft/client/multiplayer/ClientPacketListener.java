@@ -1393,8 +1393,8 @@ public class ClientPacketListener implements ClientGamePacketListener {
     @Override
     public void handleUpdateTags(ClientboundUpdateTagsPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
-        TagContainer var0 = param0.getTags();
-        Multimap<ResourceLocation, ResourceLocation> var1 = StaticTags.getAllMissingTags(var0);
+        TagContainer var0 = TagContainer.deserializeFromNetwork(this.registryAccess, param0.getTags());
+        Multimap<ResourceKey<? extends Registry<?>>, ResourceLocation> var1 = StaticTags.getAllMissingTags(var0);
         if (!var1.isEmpty()) {
             LOGGER.warn("Incomplete server tags, disconnecting. Missing: {}", var1);
             this.connection.disconnect(new TranslatableComponent("multiplayer.disconnect.missing_tags"));
@@ -1770,7 +1770,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
 
                 this.minecraft.debugRenderer.caveRenderer.addTunnel(var7, var9, var10);
             } else if (ClientboundCustomPayloadPacket.DEBUG_STRUCTURES_PACKET.equals(var0)) {
-                DimensionType var12 = this.registryAccess.dimensionTypes().get(var1.readResourceLocation());
+                DimensionType var12 = this.registryAccess.registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY).get(var1.readResourceLocation());
                 BoundingBox var13 = new BoundingBox(var1.readInt(), var1.readInt(), var1.readInt(), var1.readInt(), var1.readInt(), var1.readInt());
                 int var14 = var1.readInt();
                 List<BoundingBox> var15 = Lists.newArrayList();

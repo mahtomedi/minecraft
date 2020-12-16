@@ -108,13 +108,9 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
 
             if (this.isHovering(var5, (double)param1, (double)param2) && var5.isActive()) {
                 this.hoveredSlot = var5;
-                RenderSystem.disableDepthTest();
                 int var6 = var5.x;
                 int var7 = var5.y;
-                RenderSystem.colorMask(true, true, true, false);
-                this.fillGradient(param0, var6, var7, var6 + 16, var7 + 16, -2130706433, -2130706433);
-                RenderSystem.colorMask(true, true, true, true);
-                RenderSystem.enableDepthTest();
+                renderSlotHighlight(param0, var6, var7, this.getBlitOffset());
             }
         }
 
@@ -154,6 +150,14 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
         }
 
         RenderSystem.popMatrix();
+        RenderSystem.enableDepthTest();
+    }
+
+    public static void renderSlotHighlight(PoseStack param0, int param1, int param2, int param3) {
+        RenderSystem.disableDepthTest();
+        RenderSystem.colorMask(true, true, true, false);
+        fillGradient(param0, param1, param2, param1 + 16, param2 + 16, -2130706433, -2130706433, param3);
+        RenderSystem.colorMask(true, true, true, true);
         RenderSystem.enableDepthTest();
     }
 

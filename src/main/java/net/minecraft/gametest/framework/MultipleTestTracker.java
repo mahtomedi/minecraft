@@ -34,6 +34,10 @@ public class MultipleTestTracker {
             }
 
             @Override
+            public void testPassed(GameTestInfo param0x) {
+            }
+
+            @Override
             public void testFailed(GameTestInfo param0x) {
                 param0.accept(param0);
             }

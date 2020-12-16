@@ -52,41 +52,53 @@ public class GameTestInfo {
 
     public void tick() {
         if (!this.isDone()) {
-            this.tickCount = this.level.getGameTime() - this.startTick;
-            if (this.tickCount >= 0L) {
-                if (this.tickCount == 0L) {
-                    this.startTest();
-                }
-
-                ObjectIterator<Entry<Runnable>> var0 = this.runAtTickTimeMap.object2LongEntrySet().iterator();
-
-                while(var0.hasNext()) {
-                    Entry<Runnable> var1 = var0.next();
-                    if (var1.getLongValue() <= this.tickCount) {
-                        try {
-                            var1.getKey().run();
-                        } catch (Exception var4) {
-                            this.fail(var4);
-                        }
-
-                        var0.remove();
-                    }
-                }
-
-                if (this.tickCount > (long)this.timeoutTicks) {
-                    if (this.sequences.isEmpty()) {
-                        this.fail(new GameTestTimeoutException("Didn't succeed or fail within " + this.testFunction.getMaxTicks() + " ticks"));
-                    } else {
-                        this.sequences.forEach(param0 -> param0.tickAndFailIfNotComplete(this.tickCount));
-                        if (this.error == null) {
-                            this.fail(new GameTestTimeoutException("No sequences finished"));
-                        }
-                    }
+            this.tickInternal();
+            if (this.isDone()) {
+                if (this.error != null) {
+                    this.listeners.forEach(param0 -> param0.testFailed(this));
                 } else {
-                    this.sequences.forEach(param0 -> param0.tickAndContinue(this.tickCount));
+                    this.listeners.forEach(param0 -> param0.testPassed(this));
                 }
-
             }
+
+        }
+    }
+
+    private void tickInternal() {
+        this.tickCount = this.level.getGameTime() - this.startTick;
+        if (this.tickCount >= 0L) {
+            if (this.tickCount == 0L) {
+                this.startTest();
+            }
+
+            ObjectIterator<Entry<Runnable>> var0 = this.runAtTickTimeMap.object2LongEntrySet().iterator();
+
+            while(var0.hasNext()) {
+                Entry<Runnable> var1 = var0.next();
+                if (var1.getLongValue() <= this.tickCount) {
+                    try {
+                        var1.getKey().run();
+                    } catch (Exception var4) {
+                        this.fail(var4);
+                    }
+
+                    var0.remove();
+                }
+            }
+
+            if (this.tickCount > (long)this.timeoutTicks) {
+                if (this.sequences.isEmpty()) {
+                    this.fail(new GameTestTimeoutException("Didn't succeed or fail within " + this.testFunction.getMaxTicks() + " ticks"));
+                } else {
+                    this.sequences.forEach(param0 -> param0.tickAndFailIfNotComplete(this.tickCount));
+                    if (this.error == null) {
+                        this.fail(new GameTestTimeoutException("No sequences finished"));
+                    }
+                }
+            } else {
+                this.sequences.forEach(param0 -> param0.tickAndContinue(this.tickCount));
+            }
+
         }
     }
 
@@ -142,9 +154,8 @@ public class GameTestInfo {
     }
 
     public void fail(Throwable param0) {
-        this.finish();
         this.error = param0;
-        this.listeners.forEach(param0x -> param0x.testFailed(this));
+        this.finish();
     }
 
     @Nullable

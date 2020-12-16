@@ -13,6 +13,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ClickAction;
@@ -82,7 +83,7 @@ public class BundleItem extends Item {
     @OnlyIn(Dist.CLIENT)
     @Override
     public int getBarWidth(ItemStack param0) {
-        return Math.min(13 * getContentWeight(param0) / 64, 13);
+        return Math.min(1 + 12 * getContentWeight(param0) / 64, 13);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -199,12 +200,17 @@ public class BundleItem extends Item {
     public Optional<TooltipComponent> getTooltipImage(ItemStack param0) {
         NonNullList<ItemStack> var0 = NonNullList.create();
         getContents(param0).forEach(var0::add);
-        return Optional.of(new BundleTooltip(var0, getContentWeight(param0) < 64));
+        return Optional.of(new BundleTooltip(var0, getContentWeight(param0)));
     }
 
     @OnlyIn(Dist.CLIENT)
     @Override
     public void appendHoverText(ItemStack param0, Level param1, List<Component> param2, TooltipFlag param3) {
         param2.add(new TranslatableComponent("item.minecraft.bundle.fullness", getContentWeight(param0), 64).withStyle(ChatFormatting.GRAY));
+    }
+
+    @Override
+    public void onDestroyed(ItemEntity param0) {
+        ItemUtils.onContainerDestroyed(param0, getContents(param0.getItem()));
     }
 }

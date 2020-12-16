@@ -18,8 +18,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -37,58 +35,43 @@ public class TagLoader<T> {
     private static final int PATH_SUFFIX_LENGTH = ".json".length();
     private final Function<ResourceLocation, Optional<T>> idToValue;
     private final String directory;
-    private final String name;
 
-    public TagLoader(Function<ResourceLocation, Optional<T>> param0, String param1, String param2) {
+    public TagLoader(Function<ResourceLocation, Optional<T>> param0, String param1) {
         this.idToValue = param0;
         this.directory = param1;
-        this.name = param2;
     }
 
-    public CompletableFuture<Map<ResourceLocation, Tag.Builder>> prepare(ResourceManager param0, Executor param1) {
-        return CompletableFuture.supplyAsync(
-            () -> {
-                Map<ResourceLocation, Tag.Builder> var0 = Maps.newHashMap();
-    
-                for(ResourceLocation var1x : param0.listResources(this.directory, param0x -> param0x.endsWith(".json"))) {
-                    String var2x = var1x.getPath();
-                    ResourceLocation var3 = new ResourceLocation(
-                        var1x.getNamespace(), var2x.substring(this.directory.length() + 1, var2x.length() - PATH_SUFFIX_LENGTH)
-                    );
-    
-                    try {
-                        for(Resource var4 : param0.getResources(var1x)) {
-                            try (
-                                InputStream var5 = var4.getInputStream();
-                                Reader var6 = new BufferedReader(new InputStreamReader(var5, StandardCharsets.UTF_8));
-                            ) {
-                                JsonObject var7 = GsonHelper.fromJson(GSON, var6, JsonObject.class);
-                                if (var7 == null) {
-                                    LOGGER.error(
-                                        "Couldn't load {} tag list {} from {} in data pack {} as it is empty or null",
-                                        this.name,
-                                        var3,
-                                        var1x,
-                                        var4.getSourceName()
-                                    );
-                                } else {
-                                    var0.computeIfAbsent(var3, param0x -> Tag.Builder.tag()).addFromJson(var7, var4.getSourceName());
-                                }
-                            } catch (RuntimeException | IOException var57) {
-                                LOGGER.error("Couldn't read {} tag list {} from {} in data pack {}", this.name, var3, var1x, var4.getSourceName(), var57);
-                            } finally {
-                                IOUtils.closeQuietly((Closeable)var4);
-                            }
+    public Map<ResourceLocation, Tag.Builder> load(ResourceManager param0) {
+        Map<ResourceLocation, Tag.Builder> var0 = Maps.newHashMap();
+
+        for(ResourceLocation var1 : param0.listResources(this.directory, param0x -> param0x.endsWith(".json"))) {
+            String var2 = var1.getPath();
+            ResourceLocation var3 = new ResourceLocation(var1.getNamespace(), var2.substring(this.directory.length() + 1, var2.length() - PATH_SUFFIX_LENGTH));
+
+            try {
+                for(Resource var4 : param0.getResources(var1)) {
+                    try (
+                        InputStream var5 = var4.getInputStream();
+                        Reader var6 = new BufferedReader(new InputStreamReader(var5, StandardCharsets.UTF_8));
+                    ) {
+                        JsonObject var7 = GsonHelper.fromJson(GSON, var6, JsonObject.class);
+                        if (var7 == null) {
+                            LOGGER.error("Couldn't load tag list {} from {} in data pack {} as it is empty or null", var3, var1, var4.getSourceName());
+                        } else {
+                            var0.computeIfAbsent(var3, param0x -> Tag.Builder.tag()).addFromJson(var7, var4.getSourceName());
                         }
-                    } catch (IOException var59) {
-                        LOGGER.error("Couldn't read {} tag list {} from {}", this.name, var3, var1x, var59);
+                    } catch (RuntimeException | IOException var57) {
+                        LOGGER.error("Couldn't read tag list {} from {} in data pack {}", var3, var1, var4.getSourceName(), var57);
+                    } finally {
+                        IOUtils.closeQuietly((Closeable)var4);
                     }
                 }
-    
-                return var0;
-            },
-            param1
-        );
+            } catch (IOException var59) {
+                LOGGER.error("Couldn't read tag list {} from {}", var3, var1, var59);
+            }
+        }
+
+        return var0;
     }
 
     private static void visitDependenciesAndElement(
@@ -120,7 +103,7 @@ public class TagLoader<T> {
 
     }
 
-    public TagCollection<T> load(Map<ResourceLocation, Tag.Builder> param0) {
+    public TagCollection<T> build(Map<ResourceLocation, Tag.Builder> param0) {
         Map<ResourceLocation, Tag<T>> var0 = Maps.newHashMap();
         Function<ResourceLocation, Tag<T>> var1 = var0::get;
         Function<ResourceLocation, T> var2 = param0x -> this.idToValue.apply(param0x).orElse((T)null);
@@ -138,8 +121,7 @@ public class TagLoader<T> {
                         (param3x, param4x) -> param4x.build(var1, var2)
                                 .ifLeft(
                                     param1x -> LOGGER.error(
-                                            "Couldn't load {} tag {} as it is missing following references: {}",
-                                            this.name,
+                                            "Couldn't load tag {} as it is missing following references: {}",
                                             param3x,
                                             param1x.stream().map(Objects::toString).collect(Collectors.joining(","))
                                         )
@@ -149,5 +131,9 @@ public class TagLoader<T> {
                     )
             );
         return TagCollection.of(var0);
+    }
+
+    public TagCollection<T> loadAndBuild(ResourceManager param0) {
+        return this.build(this.load(param0));
     }
 }

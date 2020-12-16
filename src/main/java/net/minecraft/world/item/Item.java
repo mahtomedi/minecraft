@@ -28,6 +28,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
@@ -40,7 +41,6 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
@@ -97,6 +97,9 @@ public class Item implements ItemLike {
     public void onUseTick(Level param0, LivingEntity param1, ItemStack param2, int param3) {
     }
 
+    public void onDestroyed(ItemEntity param0) {
+    }
+
     public boolean verifyTagAfterLoad(CompoundTag param0) {
         return false;
     }
@@ -122,7 +125,6 @@ public class Item implements ItemLike {
         if (this.isEdible()) {
             ItemStack var0 = param1.getItemInHand(param2);
             if (param1.canEat(this.getFoodProperties().canAlwaysEat())) {
-                param0.gameEvent(param1, GameEvent.EATING_START, param1);
                 param1.startUsingItem(param2);
                 return InteractionResultHolder.consume(var0);
             } else {
@@ -134,12 +136,7 @@ public class Item implements ItemLike {
     }
 
     public ItemStack finishUsingItem(ItemStack param0, Level param1, LivingEntity param2) {
-        if (this.isEdible()) {
-            param1.gameEvent(param2, GameEvent.EATING_FINISH, param2);
-            return param2.eat(param1, param0);
-        } else {
-            return param0;
-        }
+        return this.isEdible() ? param2.eat(param1, param0) : param0;
     }
 
     public final int getMaxStackSize() {

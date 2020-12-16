@@ -877,6 +877,11 @@ public abstract class Player extends LivingEntity {
 
     }
 
+    @Override
+    public boolean canBeTargeted() {
+        return !this.getAbilities().invulnerable && super.canBeTargeted();
+    }
+
     public boolean canHarmPlayer(Player param0) {
         Team var0 = this.getTeam();
         Team var1 = param0.getTeam();

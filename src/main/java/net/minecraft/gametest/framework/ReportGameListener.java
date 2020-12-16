@@ -42,6 +42,26 @@ class ReportGameListener implements GameTestListener {
     }
 
     @Override
+    public void testPassed(GameTestInfo param0) {
+        ++this.successes;
+        if (!param0.isFlaky()) {
+            reportPassed(param0, param0.getTestName() + " passed!");
+        } else {
+            if (this.successes >= param0.requiredSuccesses()) {
+                reportPassed(param0, param0 + " passed " + this.successes + " times of " + this.attempts + " attempts.");
+            } else {
+                say(
+                    this.originalTestInfo.getLevel(),
+                    ChatFormatting.GREEN,
+                    "Flaky test " + this.originalTestInfo + " succeeded, attempt: " + this.attempts + " successes: " + this.successes
+                );
+                this.rerunTest();
+            }
+
+        }
+    }
+
+    @Override
     public void testFailed(GameTestInfo param0) {
         if (!param0.isFlaky()) {
             reportFailure(param0, param0.getError());
@@ -60,6 +80,16 @@ class ReportGameListener implements GameTestListener {
             }
 
         }
+    }
+
+    public static void reportPassed(GameTestInfo param0, String param1) {
+        spawnBeacon(param0, Blocks.LIME_STAINED_GLASS);
+        visualizePassedTest(param0, param1);
+    }
+
+    private static void visualizePassedTest(GameTestInfo param0, String param1) {
+        say(param0.getLevel(), ChatFormatting.GREEN, param1);
+        GlobalTestReporter.onTestSuccess(param0);
     }
 
     protected static void reportFailure(GameTestInfo param0, Throwable param1) {

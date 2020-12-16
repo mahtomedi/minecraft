@@ -30,6 +30,7 @@ import net.minecraft.stats.Stats;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.Entity;
@@ -333,12 +334,12 @@ public class Fox extends Animal {
     }
 
     @Override
-    protected void usePlayerItem(Player param0, ItemStack param1) {
-        if (this.isFood(param1)) {
-            this.playSound(this.getEatingSound(param1), 1.0F, 1.0F);
+    protected void usePlayerItem(Player param0, InteractionHand param1, ItemStack param2) {
+        if (this.isFood(param2)) {
+            this.playSound(this.getEatingSound(param2), 1.0F, 1.0F);
         }
 
-        super.usePlayerItem(param0, param1);
+        super.usePlayerItem(param0, param1, param2);
     }
 
     @Override

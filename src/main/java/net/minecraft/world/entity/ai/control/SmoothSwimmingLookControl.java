@@ -3,10 +3,10 @@ package net.minecraft.world.entity.ai.control;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Mob;
 
-public class DolphinLookControl extends LookControl {
+public class SmoothSwimmingLookControl extends LookControl {
     private final int maxYRotFromCenter;
 
-    public DolphinLookControl(Mob param0, int param1) {
+    public SmoothSwimmingLookControl(Mob param0, int param1) {
         super(param0);
         this.maxYRotFromCenter = param1;
     }

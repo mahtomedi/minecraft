@@ -9,12 +9,12 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
-import net.minecraft.world.entity.animal.AbstractFish;
+import net.minecraft.world.entity.animal.Bucketable;
 import net.minecraft.world.entity.animal.TropicalFish;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -23,12 +23,14 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class FishBucketItem extends BucketItem {
+public class MobBucketItem extends BucketItem {
     private final EntityType<?> type;
+    private final SoundEvent emptySound;
 
-    public FishBucketItem(EntityType<?> param0, Fluid param1, Item.Properties param2) {
-        super(param1, param2);
+    public MobBucketItem(EntityType<?> param0, Fluid param1, SoundEvent param2, Item.Properties param3) {
+        super(param1, param3);
         this.type = param0;
+        this.emptySound = param2;
     }
 
     @Override
@@ -41,13 +43,13 @@ public class FishBucketItem extends BucketItem {
 
     @Override
     protected void playEmptySound(@Nullable Player param0, LevelAccessor param1, BlockPos param2) {
-        param1.playSound(param0, param2, SoundEvents.BUCKET_EMPTY_FISH, SoundSource.NEUTRAL, 1.0F, 1.0F);
+        param1.playSound(param0, param2, this.emptySound, SoundSource.NEUTRAL, 1.0F, 1.0F);
     }
 
     private void spawn(ServerLevel param0, ItemStack param1, BlockPos param2) {
         Entity var0 = this.type.spawn(param0, param1, null, param2, MobSpawnType.BUCKET, true, false);
-        if (var0 != null) {
-            ((AbstractFish)var0).setFromBucket(true);
+        if (var0 instanceof Bucketable) {
+            ((Bucketable)var0).setFromBucket(true);
         }
 
     }

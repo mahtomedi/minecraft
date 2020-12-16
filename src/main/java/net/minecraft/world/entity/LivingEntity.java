@@ -826,6 +826,10 @@ public abstract class LivingEntity extends Entity {
         return param1.test(this, param0);
     }
 
+    public boolean canBeTargeted() {
+        return true;
+    }
+
     public static boolean areAllEffectsAmbient(Collection<MobEffectInstance> param0) {
         for(MobEffectInstance var0 : param0) {
             if (!var0.isAmbient()) {
@@ -3192,6 +3196,8 @@ public abstract class LivingEntity extends Entity {
             if (!(this instanceof Player) || !((Player)this).getAbilities().instabuild) {
                 param1.shrink(1);
             }
+
+            this.gameEvent(GameEvent.EATING_FINISH);
         }
 
         return param1;
