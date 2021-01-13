@@ -52,6 +52,6 @@ public final class GlobalPos {
 
     @Override
     public String toString() {
-        return this.dimension + " " + this.pos;
+        return this.dimension.toString() + " " + this.pos;
     }
 }

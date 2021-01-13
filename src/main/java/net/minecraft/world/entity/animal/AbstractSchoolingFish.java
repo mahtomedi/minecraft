@@ -71,7 +71,7 @@ public abstract class AbstractSchoolingFish extends AbstractFish {
     public void tick() {
         super.tick();
         if (this.hasFollowers() && this.level.random.nextInt(200) == 1) {
-            List<? extends AbstractFish> var0 = this.level.getEntitiesOfClass(this.getClass(), this.getBoundingBox().inflate(8.0, 8.0, 8.0));
+            List<AbstractFish> var0 = this.level.getEntitiesOfClass(this.getClass(), this.getBoundingBox().inflate(8.0, 8.0, 8.0));
             if (var0.size() <= 1) {
                 this.schoolSize = 1;
             }
@@ -94,7 +94,7 @@ public abstract class AbstractSchoolingFish extends AbstractFish {
 
     }
 
-    public void addFollowers(Stream<? extends AbstractSchoolingFish> param0) {
+    public void addFollowers(Stream<AbstractSchoolingFish> param0) {
         param0.limit((long)(this.getMaxSchoolSize() - this.schoolSize)).filter(param0x -> param0x != this).forEach(param0x -> param0x.startFollowing(this));
     }
 

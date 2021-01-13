@@ -1,35 +1,26 @@
 package net.minecraft.client.model;
 
+import com.google.common.collect.ImmutableList;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.model.geom.PartPose;
-import net.minecraft.client.model.geom.builders.CubeListBuilder;
-import net.minecraft.client.model.geom.builders.LayerDefinition;
-import net.minecraft.client.model.geom.builders.MeshDefinition;
-import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.world.entity.Entity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class LeashKnotModel<T extends Entity> extends HierarchicalModel<T> {
-    private final ModelPart root;
+public class LeashKnotModel<T extends Entity> extends ListModel<T> {
     private final ModelPart knot;
 
-    public LeashKnotModel(ModelPart param0) {
-        this.root = param0;
-        this.knot = param0.getChild("knot");
-    }
-
-    public static LayerDefinition createBodyLayer() {
-        MeshDefinition var0 = new MeshDefinition();
-        PartDefinition var1 = var0.getRoot();
-        var1.addOrReplaceChild("knot", CubeListBuilder.create().texOffs(0, 0).addBox(-3.0F, -8.0F, -3.0F, 6.0F, 8.0F, 6.0F), PartPose.ZERO);
-        return LayerDefinition.create(var0, 32, 32);
+    public LeashKnotModel() {
+        this.texWidth = 32;
+        this.texHeight = 32;
+        this.knot = new ModelPart(this, 0, 0);
+        this.knot.addBox(-3.0F, -6.0F, -3.0F, 6.0F, 8.0F, 6.0F, 0.0F);
+        this.knot.setPos(0.0F, 0.0F, 0.0F);
     }
 
     @Override
-    public ModelPart root() {
-        return this.root;
+    public Iterable<ModelPart> parts() {
+        return ImmutableList.of(this.knot);
     }
 
     @Override

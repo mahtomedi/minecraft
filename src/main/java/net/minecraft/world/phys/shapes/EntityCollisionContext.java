@@ -1,22 +1,18 @@
 package net.minecraft.world.phys.shapes;
 
-import java.util.Optional;
 import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 
 public class EntityCollisionContext implements CollisionContext {
-    protected static final CollisionContext EMPTY = new EntityCollisionContext(
-        false, -Double.MAX_VALUE, ItemStack.EMPTY, ItemStack.EMPTY, param0 -> false, Optional.empty()
-    ) {
+    protected static final CollisionContext EMPTY = new EntityCollisionContext(false, -Double.MAX_VALUE, Items.AIR, param0 -> false) {
         @Override
         public boolean isAbove(VoxelShape param0, BlockPos param1, boolean param2) {
             return param2;
@@ -24,18 +20,14 @@ public class EntityCollisionContext implements CollisionContext {
     };
     private final boolean descending;
     private final double entityBottom;
-    private final ItemStack heldItem;
-    private final ItemStack footItem;
+    private final Item heldItem;
     private final Predicate<Fluid> canStandOnFluid;
-    private final Optional<Entity> entity;
 
-    protected EntityCollisionContext(boolean param0, double param1, ItemStack param2, ItemStack param3, Predicate<Fluid> param4, Optional<Entity> param5) {
+    protected EntityCollisionContext(boolean param0, double param1, Item param2, Predicate<Fluid> param3) {
         this.descending = param0;
         this.entityBottom = param1;
-        this.footItem = param2;
-        this.heldItem = param3;
-        this.canStandOnFluid = param4;
-        this.entity = param5;
+        this.heldItem = param2;
+        this.canStandOnFluid = param3;
     }
 
     @Deprecated
@@ -43,16 +35,14 @@ public class EntityCollisionContext implements CollisionContext {
         this(
             param0.isDescending(),
             param0.getY(),
-            param0 instanceof LivingEntity ? ((LivingEntity)param0).getItemBySlot(EquipmentSlot.FEET) : ItemStack.EMPTY,
-            param0 instanceof LivingEntity ? ((LivingEntity)param0).getMainHandItem() : ItemStack.EMPTY,
-            param0 instanceof LivingEntity ? ((LivingEntity)param0)::canStandOnFluid : param0x -> false,
-            Optional.of(param0)
+            param0 instanceof LivingEntity ? ((LivingEntity)param0).getMainHandItem().getItem() : Items.AIR,
+            param0 instanceof LivingEntity ? ((LivingEntity)param0)::canStandOnFluid : param0x -> false
         );
     }
 
     @Override
     public boolean isHoldingItem(Item param0) {
-        return this.heldItem.is(param0);
+        return this.heldItem == param0;
     }
 
     @Override
@@ -68,9 +58,5 @@ public class EntityCollisionContext implements CollisionContext {
     @Override
     public boolean isAbove(VoxelShape param0, BlockPos param1, boolean param2) {
         return this.entityBottom > (double)param1.getY() + param0.max(Direction.Axis.Y) - 1.0E-5F;
-    }
-
-    public Optional<Entity> getEntity() {
-        return this.entity;
     }
 }

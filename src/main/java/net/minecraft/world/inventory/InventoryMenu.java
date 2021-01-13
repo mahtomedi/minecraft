@@ -114,7 +114,7 @@ public class InventoryMenu extends RecipeBookMenu<CraftingContainer> {
         super.removed(param0);
         this.resultSlots.clearContent();
         if (!param0.level.isClientSide) {
-            this.clearContainer(param0, this.craftSlots);
+            this.clearContainer(param0, param0.level, this.craftSlots);
         }
     }
 
@@ -205,6 +205,7 @@ public class InventoryMenu extends RecipeBookMenu<CraftingContainer> {
         return this.craftSlots.getHeight();
     }
 
+    @OnlyIn(Dist.CLIENT)
     @Override
     public int getSize() {
         return 5;
@@ -218,10 +219,5 @@ public class InventoryMenu extends RecipeBookMenu<CraftingContainer> {
     @Override
     public RecipeBookType getRecipeBookType() {
         return RecipeBookType.CRAFTING;
-    }
-
-    @Override
-    public boolean shouldMoveToInventory(int param0) {
-        return param0 != this.getResultSlotIndex();
     }
 }

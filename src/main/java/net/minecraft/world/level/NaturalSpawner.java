@@ -13,7 +13,6 @@ import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
-import net.minecraft.core.SectionPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.FluidTags;
@@ -76,7 +75,7 @@ public final class NaturalSpawner {
             MobCategory var4 = var2.getType().getCategory();
             if (var4 != MobCategory.MISC) {
                 BlockPos var5x = var2.blockPosition();
-                long var6 = ChunkPos.asLong(SectionPos.blockToSectionCoord(var5x.getX()), SectionPos.blockToSectionCoord(var5x.getZ()));
+                long var6 = ChunkPos.asLong(var5x.getX() >> 4, var5x.getZ() >> 4);
                 param2.query(var6, param5 -> {
                     MobSpawnSettings.MobSpawnCost var0x = getRoughBiome(var5, param5).getMobSettings().getMobSpawnCost(var2.getType());
                     if (var0x != null) {
@@ -115,7 +114,7 @@ public final class NaturalSpawner {
         MobCategory param0, ServerLevel param1, LevelChunk param2, NaturalSpawner.SpawnPredicate param3, NaturalSpawner.AfterSpawnCallback param4
     ) {
         BlockPos var0 = getRandomPosWithin(param1, param2);
-        if (var0.getY() >= param1.getMinBuildHeight() + 1) {
+        if (var0.getY() >= 1) {
             spawnCategoryForPosition(param0, param1, param2, var0, param3, param4);
         }
     }
@@ -280,7 +279,7 @@ public final class NaturalSpawner {
         ServerLevel param0, StructureFeatureManager param1, ChunkGenerator param2, MobCategory param3, BlockPos param4, @Nullable Biome param5
     ) {
         return param3 == MobCategory.MONSTER
-                && param0.getBlockState(param4.below()).is(Blocks.NETHER_BRICKS)
+                && param0.getBlockState(param4.below()).getBlock() == Blocks.NETHER_BRICKS
                 && param1.getStructureAt(param4, false, StructureFeature.NETHER_BRIDGE).isValid()
             ? StructureFeature.NETHER_BRIDGE.getSpecialEnemies()
             : param2.getMobsAt(param5 != null ? param5 : param0.getBiome(param4), param1, param3, param4);
@@ -291,7 +290,7 @@ public final class NaturalSpawner {
         int var1 = var0.getMinBlockX() + param0.random.nextInt(16);
         int var2 = var0.getMinBlockZ() + param0.random.nextInt(16);
         int var3 = param1.getHeight(Heightmap.Types.WORLD_SURFACE, var1, var2) + 1;
-        int var4 = param0.random.nextInt(var3 - param0.getMinBuildHeight() + 1) + param0.getMinBuildHeight();
+        int var4 = param0.random.nextInt(var3 + 1);
         return new BlockPos(var1, var4, var2);
     }
 
@@ -343,8 +342,8 @@ public final class NaturalSpawner {
         MobSpawnSettings var0 = param1.getMobSettings();
         List<MobSpawnSettings.SpawnerData> var1 = var0.getMobs(MobCategory.CREATURE);
         if (!var1.isEmpty()) {
-            int var2 = SectionPos.sectionToBlockCoord(param2);
-            int var3 = SectionPos.sectionToBlockCoord(param3);
+            int var2 = param2 << 4;
+            int var3 = param3 << 4;
 
             while(param4.nextFloat() < var0.getCreatureProbability()) {
                 MobSpawnSettings.SpawnerData var4 = WeighedRandom.getRandomItem(param4, var1);
@@ -417,7 +416,7 @@ public final class NaturalSpawner {
 
             do {
                 var1.move(Direction.DOWN);
-            } while(param0.getBlockState(var1).isAir() && var1.getY() > param0.getMinBuildHeight());
+            } while(param0.getBlockState(var1).isAir() && var1.getY() > 0);
         }
 
         if (SpawnPlacements.getPlacementType(param1) == SpawnPlacements.Type.ON_GROUND) {

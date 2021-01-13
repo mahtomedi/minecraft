@@ -21,6 +21,7 @@ public abstract class AbstractSoundInstance implements SoundInstance {
     protected boolean looping;
     protected int delay;
     protected SoundInstance.Attenuation attenuation = SoundInstance.Attenuation.LINEAR;
+    protected boolean priority;
     protected boolean relative;
 
     protected AbstractSoundInstance(SoundEvent param0, SoundSource param1) {

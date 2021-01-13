@@ -7,10 +7,16 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public interface BlockEntityRenderer<T extends BlockEntity> {
-    void render(T var1, float var2, PoseStack var3, MultiBufferSource var4, int var5, int var6);
+public abstract class BlockEntityRenderer<T extends BlockEntity> {
+    protected final BlockEntityRenderDispatcher renderer;
 
-    default boolean shouldRenderOffScreen(T param0) {
+    public BlockEntityRenderer(BlockEntityRenderDispatcher param0) {
+        this.renderer = param0;
+    }
+
+    public abstract void render(T var1, float var2, PoseStack var3, MultiBufferSource var4, int var5, int var6);
+
+    public boolean shouldRenderOffScreen(T param0) {
         return false;
     }
 }

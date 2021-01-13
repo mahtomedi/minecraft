@@ -22,7 +22,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.MobType;
-import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -40,6 +39,7 @@ import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.raid.Raid;
 import net.minecraft.world.entity.raid.Raider;
 import net.minecraft.world.item.BannerItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ProjectileWeaponItem;
@@ -184,7 +184,7 @@ public class Pillager extends AbstractIllager implements CrossbowAttackMob {
         super.enchantSpawnedWeapon(param0);
         if (this.random.nextInt(300) == 0) {
             ItemStack var0 = this.getMainHandItem();
-            if (var0.is(Items.CROSSBOW)) {
+            if (var0.getItem() == Items.CROSSBOW) {
                 Map<Enchantment, Integer> var1 = EnchantmentHelper.getEnchantments(var0);
                 var1.putIfAbsent(Enchantments.PIERCING, 1);
                 EnchantmentHelper.setEnchantments(var1, var0);
@@ -235,26 +235,38 @@ public class Pillager extends AbstractIllager implements CrossbowAttackMob {
         ItemStack var0 = param0.getItem();
         if (var0.getItem() instanceof BannerItem) {
             super.pickUpItem(param0);
-        } else if (this.wantsItem(var0)) {
-            this.onItemPickup(param0);
-            ItemStack var1 = this.inventory.addItem(var0);
-            if (var1.isEmpty()) {
-                param0.discard();
-            } else {
-                var0.setCount(var1.getCount());
+        } else {
+            Item var1 = var0.getItem();
+            if (this.wantsItem(var1)) {
+                this.onItemPickup(param0);
+                ItemStack var2 = this.inventory.addItem(var0);
+                if (var2.isEmpty()) {
+                    param0.remove();
+                } else {
+                    var0.setCount(var2.getCount());
+                }
             }
         }
 
     }
 
-    private boolean wantsItem(ItemStack param0) {
-        return this.hasActiveRaid() && param0.is(Items.WHITE_BANNER);
+    private boolean wantsItem(Item param0) {
+        return this.hasActiveRaid() && param0 == Items.WHITE_BANNER;
     }
 
     @Override
-    public SlotAccess getSlot(int param0) {
-        int var0 = param0 - 300;
-        return var0 >= 0 && var0 < this.inventory.getContainerSize() ? SlotAccess.forContainer(this.inventory, var0) : super.getSlot(param0);
+    public boolean setSlot(int param0, ItemStack param1) {
+        if (super.setSlot(param0, param1)) {
+            return true;
+        } else {
+            int var0 = param0 - 300;
+            if (var0 >= 0 && var0 < this.inventory.getContainerSize()) {
+                this.inventory.setItem(var0, param1);
+                return true;
+            } else {
+                return false;
+            }
+        }
     }
 
     @Override

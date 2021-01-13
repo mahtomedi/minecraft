@@ -21,10 +21,10 @@ public class ServerBossEvent extends BossEvent {
     }
 
     @Override
-    public void setProgress(float param0) {
-        if (param0 != this.progress) {
-            super.setProgress(param0);
-            this.broadcast(ClientboundBossEventPacket.Operation.UPDATE_PROGRESS);
+    public void setPercent(float param0) {
+        if (param0 != this.percent) {
+            super.setPercent(param0);
+            this.broadcast(ClientboundBossEventPacket.Operation.UPDATE_PCT);
         }
 
     }

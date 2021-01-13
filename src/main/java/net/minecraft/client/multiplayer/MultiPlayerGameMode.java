@@ -2,7 +2,6 @@ package net.minecraft.client.multiplayer;
 
 import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
-import javax.annotation.Nullable;
 import net.minecraft.client.ClientRecipeBook;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -35,8 +34,10 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.GameMasterBlock;
+import net.minecraft.world.level.block.CommandBlock;
+import net.minecraft.world.level.block.JigsawBlock;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.StructureBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.BlockHitResult;
@@ -58,9 +59,8 @@ public class MultiPlayerGameMode {
     private float destroyTicks;
     private int destroyDelay;
     private boolean isDestroying;
-    private GameType localPlayerMode = GameType.DEFAULT_MODE;
-    @Nullable
-    private GameType previousLocalPlayerMode;
+    private GameType localPlayerMode = GameType.SURVIVAL;
+    private GameType previousLocalPlayerMode = GameType.NOT_SET;
     private final Object2ObjectLinkedOpenHashMap<Pair<BlockPos, ServerboundPlayerActionPacket.Action>, Vec3> unAckedActions = new Object2ObjectLinkedOpenHashMap<>(
         
     );
@@ -72,13 +72,11 @@ public class MultiPlayerGameMode {
     }
 
     public void adjustPlayer(Player param0) {
-        this.localPlayerMode.updatePlayerAbilities(param0.getAbilities());
+        this.localPlayerMode.updatePlayerAbilities(param0.abilities);
     }
 
-    public void setLocalMode(GameType param0, @Nullable GameType param1) {
-        this.localPlayerMode = param0;
-        this.previousLocalPlayerMode = param1;
-        this.localPlayerMode.updatePlayerAbilities(this.minecraft.player.getAbilities());
+    public void setPreviousLocalMode(GameType param0) {
+        this.previousLocalPlayerMode = param0;
     }
 
     public void setLocalMode(GameType param0) {
@@ -87,7 +85,7 @@ public class MultiPlayerGameMode {
         }
 
         this.localPlayerMode = param0;
-        this.localPlayerMode.updatePlayerAbilities(this.minecraft.player.getAbilities());
+        this.localPlayerMode.updatePlayerAbilities(this.minecraft.player.abilities);
     }
 
     public boolean canHurtPlayer() {
@@ -104,7 +102,8 @@ public class MultiPlayerGameMode {
                 return false;
             } else {
                 Block var2 = var1.getBlock();
-                if (var2 instanceof GameMasterBlock && !this.minecraft.player.canUseGameMasterBlocks()) {
+                if ((var2 instanceof CommandBlock || var2 instanceof StructureBlock || var2 instanceof JigsawBlock)
+                    && !this.minecraft.player.canUseGameMasterBlocks()) {
                     return false;
                 } else if (var1.isAir()) {
                     return false;
@@ -239,7 +238,7 @@ public class MultiPlayerGameMode {
         ItemStack var0 = this.minecraft.player.getMainHandItem();
         boolean var1 = this.destroyingItem.isEmpty() && var0.isEmpty();
         if (!this.destroyingItem.isEmpty() && !var0.isEmpty()) {
-            var1 = var0.is(this.destroyingItem.getItem())
+            var1 = var0.getItem() == this.destroyingItem.getItem()
                 && ItemStack.tagMatches(var0, this.destroyingItem)
                 && (var0.isDamageableItem() || var0.getDamageValue() == this.destroyingItem.getDamageValue());
         }
@@ -248,7 +247,7 @@ public class MultiPlayerGameMode {
     }
 
     private void ensureHasSentCarriedItem() {
-        int var0 = this.minecraft.player.getInventory().selected;
+        int var0 = this.minecraft.player.inventory.selected;
         if (var0 != this.carriedIndex) {
             this.carriedIndex = var0;
             this.connection.send(new ServerboundSetCarriedItemPacket(this.carriedIndex));
@@ -351,7 +350,7 @@ public class MultiPlayerGameMode {
     }
 
     public ItemStack handleInventoryMouseClick(int param0, int param1, int param2, ClickType param3, Player param4) {
-        short var0 = param4.containerMenu.backup(param4.getInventory());
+        short var0 = param4.containerMenu.backup(param4.inventory);
         ItemStack var1 = param4.containerMenu.clicked(param1, param2, param3, param4);
         this.connection.send(new ServerboundContainerClickPacket(param0, param1, param2, param3, var1, var0));
         return var1;
@@ -409,7 +408,6 @@ public class MultiPlayerGameMode {
         return this.localPlayerMode == GameType.SPECTATOR;
     }
 
-    @Nullable
     public GameType getPreviousPlayerMode() {
         return this.previousLocalPlayerMode;
     }
@@ -446,7 +444,7 @@ public class MultiPlayerGameMode {
         while(this.unAckedActions.size() >= 50) {
             Pair<BlockPos, ServerboundPlayerActionPacket.Action> var3 = this.unAckedActions.firstKey();
             this.unAckedActions.removeFirst();
-            LOGGER.error("Too many unacked block actions, dropping {}", var3);
+            LOGGER.error("Too many unacked block actions, dropping " + var3);
         }
 
     }

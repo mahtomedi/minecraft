@@ -23,7 +23,7 @@ public class PumpkinBlock extends StemGrownBlock {
     @Override
     public InteractionResult use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
         ItemStack var0 = param3.getItemInHand(param4);
-        if (var0.is(Items.SHEARS)) {
+        if (var0.getItem() == Items.SHEARS) {
             if (!param1.isClientSide) {
                 Direction var1 = param5.getDirection();
                 Direction var2 = var1.getAxis() == Direction.Axis.Y ? param3.getDirection().getOpposite() : var1;

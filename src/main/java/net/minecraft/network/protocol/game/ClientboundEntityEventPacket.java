@@ -1,7 +1,6 @@
 package net.minecraft.network.protocol.game;
 
 import java.io.IOException;
-import javax.annotation.Nullable;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.entity.Entity;
@@ -37,7 +36,6 @@ public class ClientboundEntityEventPacket implements Packet<ClientGamePacketList
         param0.handleEntityEvent(this);
     }
 
-    @Nullable
     @OnlyIn(Dist.CLIENT)
     public Entity getEntity(Level param0) {
         return param0.getEntity(this.entityId);

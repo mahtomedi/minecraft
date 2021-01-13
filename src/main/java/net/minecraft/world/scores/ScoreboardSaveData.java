@@ -7,29 +7,45 @@ import net.minecraft.nbt.StringTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.scores.criteria.ObjectiveCriteria;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class ScoreboardSaveData extends SavedData {
-    private final Scoreboard scoreboard;
+    private static final Logger LOGGER = LogManager.getLogger();
+    private Scoreboard scoreboard;
+    private CompoundTag delayLoad;
 
-    public ScoreboardSaveData(Scoreboard param0) {
+    public ScoreboardSaveData() {
+        super("scoreboard");
+    }
+
+    public void setScoreboard(Scoreboard param0) {
         this.scoreboard = param0;
-    }
-
-    public ScoreboardSaveData load(CompoundTag param0) {
-        this.loadObjectives(param0.getList("Objectives", 10));
-        this.scoreboard.loadPlayerScores(param0.getList("PlayerScores", 10));
-        if (param0.contains("DisplaySlots", 10)) {
-            this.loadDisplaySlots(param0.getCompound("DisplaySlots"));
+        if (this.delayLoad != null) {
+            this.load(this.delayLoad);
         }
 
-        if (param0.contains("Teams", 9)) {
-            this.loadTeams(param0.getList("Teams", 10));
-        }
-
-        return this;
     }
 
-    private void loadTeams(ListTag param0) {
+    @Override
+    public void load(CompoundTag param0) {
+        if (this.scoreboard == null) {
+            this.delayLoad = param0;
+        } else {
+            this.loadObjectives(param0.getList("Objectives", 10));
+            this.scoreboard.loadPlayerScores(param0.getList("PlayerScores", 10));
+            if (param0.contains("DisplaySlots", 10)) {
+                this.loadDisplaySlots(param0.getCompound("DisplaySlots"));
+            }
+
+            if (param0.contains("Teams", 9)) {
+                this.loadTeams(param0.getList("Teams", 10));
+            }
+
+        }
+    }
+
+    protected void loadTeams(ListTag param0) {
         for(int var0 = 0; var0 < param0.size(); ++var0) {
             CompoundTag var1 = param0.getCompound(var0);
             String var2 = var1.getString("Name");
@@ -95,14 +111,14 @@ public class ScoreboardSaveData extends SavedData {
 
     }
 
-    private void loadTeamPlayers(PlayerTeam param0, ListTag param1) {
+    protected void loadTeamPlayers(PlayerTeam param0, ListTag param1) {
         for(int var0 = 0; var0 < param1.size(); ++var0) {
             this.scoreboard.addPlayerToTeam(param1.getString(var0), param0);
         }
 
     }
 
-    private void loadDisplaySlots(CompoundTag param0) {
+    protected void loadDisplaySlots(CompoundTag param0) {
         for(int var0 = 0; var0 < 19; ++var0) {
             if (param0.contains("slot_" + var0, 8)) {
                 String var1 = param0.getString("slot_" + var0);
@@ -113,7 +129,7 @@ public class ScoreboardSaveData extends SavedData {
 
     }
 
-    private void loadObjectives(ListTag param0) {
+    protected void loadObjectives(ListTag param0) {
         for(int var0 = 0; var0 < param0.size(); ++var0) {
             CompoundTag var1 = param0.getCompound(var0);
             ObjectiveCriteria.byName(var1.getString("CriteriaName")).ifPresent(param1 -> {
@@ -132,14 +148,19 @@ public class ScoreboardSaveData extends SavedData {
 
     @Override
     public CompoundTag save(CompoundTag param0) {
-        param0.put("Objectives", this.saveObjectives());
-        param0.put("PlayerScores", this.scoreboard.savePlayerScores());
-        param0.put("Teams", this.saveTeams());
-        this.saveDisplaySlots(param0);
-        return param0;
+        if (this.scoreboard == null) {
+            LOGGER.warn("Tried to save scoreboard without having a scoreboard...");
+            return param0;
+        } else {
+            param0.put("Objectives", this.saveObjectives());
+            param0.put("PlayerScores", this.scoreboard.savePlayerScores());
+            param0.put("Teams", this.saveTeams());
+            this.saveDisplaySlots(param0);
+            return param0;
+        }
     }
 
-    private ListTag saveTeams() {
+    protected ListTag saveTeams() {
         ListTag var0 = new ListTag();
 
         for(PlayerTeam var2 : this.scoreboard.getPlayerTeams()) {
@@ -170,7 +191,7 @@ public class ScoreboardSaveData extends SavedData {
         return var0;
     }
 
-    private void saveDisplaySlots(CompoundTag param0) {
+    protected void saveDisplaySlots(CompoundTag param0) {
         CompoundTag var0 = new CompoundTag();
         boolean var1 = false;
 
@@ -188,7 +209,7 @@ public class ScoreboardSaveData extends SavedData {
 
     }
 
-    private ListTag saveObjectives() {
+    protected ListTag saveObjectives() {
         ListTag var0 = new ListTag();
 
         for(Objective var2 : this.scoreboard.getObjectives()) {

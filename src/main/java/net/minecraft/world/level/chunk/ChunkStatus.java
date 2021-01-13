@@ -247,7 +247,7 @@ public class ChunkStatus {
         return param1.getStatus().isOrAfter(param0) && param1.isLightCorrect();
     }
 
-    public static ChunkStatus getStatusAroundFullChunk(int param0) {
+    public static ChunkStatus getStatus(int param0) {
         if (param0 >= STATUS_BY_RANGE.size()) {
             return EMPTY;
         } else {

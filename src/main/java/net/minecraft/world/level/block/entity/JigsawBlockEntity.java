@@ -8,8 +8,6 @@ import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -36,8 +34,12 @@ public class JigsawBlockEntity extends BlockEntity {
     private JigsawBlockEntity.JointType joint = JigsawBlockEntity.JointType.ROLLABLE;
     private String finalState = "minecraft:air";
 
-    public JigsawBlockEntity(BlockPos param0, BlockState param1) {
-        super(BlockEntityType.JIGSAW, param0, param1);
+    public JigsawBlockEntity(BlockEntityType<?> param0) {
+        super(param0);
+    }
+
+    public JigsawBlockEntity() {
+        this(BlockEntityType.JIGSAW);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -97,17 +99,15 @@ public class JigsawBlockEntity extends BlockEntity {
     }
 
     @Override
-    public void load(CompoundTag param0) {
-        super.load(param0);
-        this.name = new ResourceLocation(param0.getString("name"));
-        this.target = new ResourceLocation(param0.getString("target"));
-        this.pool = new ResourceLocation(param0.getString("pool"));
-        this.finalState = param0.getString("final_state");
-        this.joint = JigsawBlockEntity.JointType.byName(param0.getString("joint"))
+    public void load(BlockState param0, CompoundTag param1) {
+        super.load(param0, param1);
+        this.name = new ResourceLocation(param1.getString("name"));
+        this.target = new ResourceLocation(param1.getString("target"));
+        this.pool = new ResourceLocation(param1.getString("pool"));
+        this.finalState = param1.getString("final_state");
+        this.joint = JigsawBlockEntity.JointType.byName(param1.getString("joint"))
             .orElseGet(
-                () -> JigsawBlock.getFrontFacing(this.getBlockState()).getAxis().isHorizontal()
-                        ? JigsawBlockEntity.JointType.ALIGNED
-                        : JigsawBlockEntity.JointType.ROLLABLE
+                () -> JigsawBlock.getFrontFacing(param0).getAxis().isHorizontal() ? JigsawBlockEntity.JointType.ALIGNED : JigsawBlockEntity.JointType.ROLLABLE
             );
     }
 
@@ -158,11 +158,6 @@ public class JigsawBlockEntity extends BlockEntity {
 
         public static Optional<JigsawBlockEntity.JointType> byName(String param0) {
             return Arrays.stream(values()).filter(param1 -> param1.getSerializedName().equals(param0)).findFirst();
-        }
-
-        @OnlyIn(Dist.CLIENT)
-        public Component getTranslatedName() {
-            return new TranslatableComponent("jigsaw_block.joint." + this.name);
         }
     }
 }

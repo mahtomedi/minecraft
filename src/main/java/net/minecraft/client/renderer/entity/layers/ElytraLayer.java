@@ -4,8 +4,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.ElytraModel;
 import net.minecraft.client.model.EntityModel;
-import net.minecraft.client.model.geom.EntityModelSet;
-import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -24,18 +22,17 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class ElytraLayer<T extends LivingEntity, M extends EntityModel<T>> extends RenderLayer<T, M> {
     private static final ResourceLocation WINGS_LOCATION = new ResourceLocation("textures/entity/elytra.png");
-    private final ElytraModel<T> elytraModel;
+    private final ElytraModel<T> elytraModel = new ElytraModel<>();
 
-    public ElytraLayer(RenderLayerParent<T, M> param0, EntityModelSet param1) {
+    public ElytraLayer(RenderLayerParent<T, M> param0) {
         super(param0);
-        this.elytraModel = new ElytraModel<>(param1.bakeLayer(ModelLayers.ELYTRA));
     }
 
     public void render(
         PoseStack param0, MultiBufferSource param1, int param2, T param3, float param4, float param5, float param6, float param7, float param8, float param9
     ) {
         ItemStack var0 = param3.getItemBySlot(EquipmentSlot.CHEST);
-        if (var0.is(Items.ELYTRA)) {
+        if (var0.getItem() == Items.ELYTRA) {
             ResourceLocation var2;
             if (param3 instanceof AbstractClientPlayer) {
                 AbstractClientPlayer var1 = (AbstractClientPlayer)param3;

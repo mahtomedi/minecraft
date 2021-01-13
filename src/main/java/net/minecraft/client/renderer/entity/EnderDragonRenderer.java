@@ -8,13 +8,7 @@ import com.mojang.math.Vector3f;
 import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.client.model.EntityModel;
-import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.model.geom.PartPose;
-import net.minecraft.client.model.geom.builders.CubeListBuilder;
-import net.minecraft.client.model.geom.builders.LayerDefinition;
-import net.minecraft.client.model.geom.builders.MeshDefinition;
-import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -35,12 +29,11 @@ public class EnderDragonRenderer extends EntityRenderer<EnderDragon> {
     private static final RenderType EYES = RenderType.eyes(DRAGON_EYES_LOCATION);
     private static final RenderType BEAM = RenderType.entitySmoothCutout(CRYSTAL_BEAM_LOCATION);
     private static final float HALF_SQRT_3 = (float)(Math.sqrt(3.0) / 2.0);
-    private final EnderDragonRenderer.DragonModel model;
+    private final EnderDragonRenderer.DragonModel model = new EnderDragonRenderer.DragonModel();
 
-    public EnderDragonRenderer(EntityRendererProvider.Context param0) {
+    public EnderDragonRenderer(EntityRenderDispatcher param0) {
         super(param0);
         this.shadowRadius = 0.5F;
-        this.model = new EnderDragonRenderer.DragonModel(param0.bakeLayer(ModelLayers.ENDER_DRAGON));
     }
 
     public void render(EnderDragon param0, float param1, float param2, PoseStack param3, MultiBufferSource param4, int param5) {
@@ -114,6 +107,7 @@ public class EnderDragonRenderer extends EntityRenderer<EnderDragon> {
     }
 
     private static void vertex01(VertexConsumer param0, Matrix4f param1, int param2) {
+        param0.vertex(param1, 0.0F, 0.0F, 0.0F).color(255, 255, 255, param2).endVertex();
         param0.vertex(param1, 0.0F, 0.0F, 0.0F).color(255, 255, 255, param2).endVertex();
     }
 
@@ -193,144 +187,122 @@ public class EnderDragonRenderer extends EntityRenderer<EnderDragon> {
         return DRAGON_LOCATION;
     }
 
-    public static LayerDefinition createBodyLayer() {
-        MeshDefinition var0 = new MeshDefinition();
-        PartDefinition var1 = var0.getRoot();
-        float var2 = -16.0F;
-        PartDefinition var3 = var1.addOrReplaceChild(
-            "head",
-            CubeListBuilder.create()
-                .addBox("upperlip", -6.0F, -1.0F, -24.0F, 12, 5, 16, 176, 44)
-                .addBox("upperhead", -8.0F, -8.0F, -10.0F, 16, 16, 16, 112, 30)
-                .mirror()
-                .addBox("scale", -5.0F, -12.0F, -4.0F, 2, 4, 6, 0, 0)
-                .addBox("nostril", -5.0F, -3.0F, -22.0F, 2, 2, 4, 112, 0)
-                .mirror()
-                .addBox("scale", 3.0F, -12.0F, -4.0F, 2, 4, 6, 0, 0)
-                .addBox("nostril", 3.0F, -3.0F, -22.0F, 2, 2, 4, 112, 0),
-            PartPose.ZERO
-        );
-        var3.addOrReplaceChild("jaw", CubeListBuilder.create().addBox("jaw", -6.0F, 0.0F, -16.0F, 12, 4, 16, 176, 65), PartPose.offset(0.0F, 4.0F, -8.0F));
-        var1.addOrReplaceChild(
-            "neck",
-            CubeListBuilder.create().addBox("box", -5.0F, -5.0F, -5.0F, 10, 10, 10, 192, 104).addBox("scale", -1.0F, -9.0F, -3.0F, 2, 4, 6, 48, 0),
-            PartPose.ZERO
-        );
-        var1.addOrReplaceChild(
-            "body",
-            CubeListBuilder.create()
-                .addBox("body", -12.0F, 0.0F, -16.0F, 24, 24, 64, 0, 0)
-                .addBox("scale", -1.0F, -6.0F, -10.0F, 2, 6, 12, 220, 53)
-                .addBox("scale", -1.0F, -6.0F, 10.0F, 2, 6, 12, 220, 53)
-                .addBox("scale", -1.0F, -6.0F, 30.0F, 2, 6, 12, 220, 53),
-            PartPose.offset(0.0F, 4.0F, 8.0F)
-        );
-        PartDefinition var4 = var1.addOrReplaceChild(
-            "left_wing",
-            CubeListBuilder.create().mirror().addBox("bone", 0.0F, -4.0F, -4.0F, 56, 8, 8, 112, 88).addBox("skin", 0.0F, 0.0F, 2.0F, 56, 0, 56, -56, 88),
-            PartPose.offset(12.0F, 5.0F, 2.0F)
-        );
-        var4.addOrReplaceChild(
-            "left_wing_tip",
-            CubeListBuilder.create().mirror().addBox("bone", 0.0F, -2.0F, -2.0F, 56, 4, 4, 112, 136).addBox("skin", 0.0F, 0.0F, 2.0F, 56, 0, 56, -56, 144),
-            PartPose.offset(56.0F, 0.0F, 0.0F)
-        );
-        PartDefinition var5 = var1.addOrReplaceChild(
-            "left_front_leg", CubeListBuilder.create().addBox("main", -4.0F, -4.0F, -4.0F, 8, 24, 8, 112, 104), PartPose.offset(12.0F, 20.0F, 2.0F)
-        );
-        PartDefinition var6 = var5.addOrReplaceChild(
-            "left_front_leg_tip", CubeListBuilder.create().addBox("main", -3.0F, -1.0F, -3.0F, 6, 24, 6, 226, 138), PartPose.offset(0.0F, 20.0F, -1.0F)
-        );
-        var6.addOrReplaceChild(
-            "left_front_foot", CubeListBuilder.create().addBox("main", -4.0F, 0.0F, -12.0F, 8, 4, 16, 144, 104), PartPose.offset(0.0F, 23.0F, 0.0F)
-        );
-        PartDefinition var7 = var1.addOrReplaceChild(
-            "left_hind_leg", CubeListBuilder.create().addBox("main", -8.0F, -4.0F, -8.0F, 16, 32, 16, 0, 0), PartPose.offset(16.0F, 16.0F, 42.0F)
-        );
-        PartDefinition var8 = var7.addOrReplaceChild(
-            "left_hind_leg_tip", CubeListBuilder.create().addBox("main", -6.0F, -2.0F, 0.0F, 12, 32, 12, 196, 0), PartPose.offset(0.0F, 32.0F, -4.0F)
-        );
-        var8.addOrReplaceChild(
-            "left_hind_foot", CubeListBuilder.create().addBox("main", -9.0F, 0.0F, -20.0F, 18, 6, 24, 112, 0), PartPose.offset(0.0F, 31.0F, 4.0F)
-        );
-        PartDefinition var9 = var1.addOrReplaceChild(
-            "right_wing",
-            CubeListBuilder.create().addBox("bone", -56.0F, -4.0F, -4.0F, 56, 8, 8, 112, 88).addBox("skin", -56.0F, 0.0F, 2.0F, 56, 0, 56, -56, 88),
-            PartPose.offset(-12.0F, 5.0F, 2.0F)
-        );
-        var9.addOrReplaceChild(
-            "right_wing_tip",
-            CubeListBuilder.create().addBox("bone", -56.0F, -2.0F, -2.0F, 56, 4, 4, 112, 136).addBox("skin", -56.0F, 0.0F, 2.0F, 56, 0, 56, -56, 144),
-            PartPose.offset(-56.0F, 0.0F, 0.0F)
-        );
-        PartDefinition var10 = var1.addOrReplaceChild(
-            "right_front_leg", CubeListBuilder.create().addBox("main", -4.0F, -4.0F, -4.0F, 8, 24, 8, 112, 104), PartPose.offset(-12.0F, 20.0F, 2.0F)
-        );
-        PartDefinition var11 = var10.addOrReplaceChild(
-            "right_front_leg_tip", CubeListBuilder.create().addBox("main", -3.0F, -1.0F, -3.0F, 6, 24, 6, 226, 138), PartPose.offset(0.0F, 20.0F, -1.0F)
-        );
-        var11.addOrReplaceChild(
-            "right_front_foot", CubeListBuilder.create().addBox("main", -4.0F, 0.0F, -12.0F, 8, 4, 16, 144, 104), PartPose.offset(0.0F, 23.0F, 0.0F)
-        );
-        PartDefinition var12 = var1.addOrReplaceChild(
-            "right_hind_leg", CubeListBuilder.create().addBox("main", -8.0F, -4.0F, -8.0F, 16, 32, 16, 0, 0), PartPose.offset(-16.0F, 16.0F, 42.0F)
-        );
-        PartDefinition var13 = var12.addOrReplaceChild(
-            "right_hind_leg_tip", CubeListBuilder.create().addBox("main", -6.0F, -2.0F, 0.0F, 12, 32, 12, 196, 0), PartPose.offset(0.0F, 32.0F, -4.0F)
-        );
-        var13.addOrReplaceChild(
-            "right_hind_foot", CubeListBuilder.create().addBox("main", -9.0F, 0.0F, -20.0F, 18, 6, 24, 112, 0), PartPose.offset(0.0F, 31.0F, 4.0F)
-        );
-        return LayerDefinition.create(var0, 256, 256);
-    }
-
     @OnlyIn(Dist.CLIENT)
     public static class DragonModel extends EntityModel<EnderDragon> {
         private final ModelPart head;
         private final ModelPart neck;
         private final ModelPart jaw;
         private final ModelPart body;
-        private final ModelPart leftWing;
-        private final ModelPart leftWingTip;
-        private final ModelPart leftFrontLeg;
-        private final ModelPart leftFrontLegTip;
-        private final ModelPart leftFrontFoot;
-        private final ModelPart leftRearLeg;
-        private final ModelPart leftRearLegTip;
-        private final ModelPart leftRearFoot;
-        private final ModelPart rightWing;
-        private final ModelPart rightWingTip;
-        private final ModelPart rightFrontLeg;
-        private final ModelPart rightFrontLegTip;
-        private final ModelPart rightFrontFoot;
-        private final ModelPart rightRearLeg;
-        private final ModelPart rightRearLegTip;
-        private final ModelPart rightRearFoot;
+        private ModelPart leftWing;
+        private ModelPart leftWingTip;
+        private ModelPart leftFrontLeg;
+        private ModelPart leftFrontLegTip;
+        private ModelPart leftFrontFoot;
+        private ModelPart leftRearLeg;
+        private ModelPart leftRearLegTip;
+        private ModelPart leftRearFoot;
+        private ModelPart rightWing;
+        private ModelPart rightWingTip;
+        private ModelPart rightFrontLeg;
+        private ModelPart rightFrontLegTip;
+        private ModelPart rightFrontFoot;
+        private ModelPart rightRearLeg;
+        private ModelPart rightRearLegTip;
+        private ModelPart rightRearFoot;
         @Nullable
         private EnderDragon entity;
         private float a;
 
-        public DragonModel(ModelPart param0) {
-            this.head = param0.getChild("head");
-            this.jaw = this.head.getChild("jaw");
-            this.neck = param0.getChild("neck");
-            this.body = param0.getChild("body");
-            this.leftWing = param0.getChild("left_wing");
-            this.leftWingTip = this.leftWing.getChild("left_wing_tip");
-            this.leftFrontLeg = param0.getChild("left_front_leg");
-            this.leftFrontLegTip = this.leftFrontLeg.getChild("left_front_leg_tip");
-            this.leftFrontFoot = this.leftFrontLegTip.getChild("left_front_foot");
-            this.leftRearLeg = param0.getChild("left_hind_leg");
-            this.leftRearLegTip = this.leftRearLeg.getChild("left_hind_leg_tip");
-            this.leftRearFoot = this.leftRearLegTip.getChild("left_hind_foot");
-            this.rightWing = param0.getChild("right_wing");
-            this.rightWingTip = this.rightWing.getChild("right_wing_tip");
-            this.rightFrontLeg = param0.getChild("right_front_leg");
-            this.rightFrontLegTip = this.rightFrontLeg.getChild("right_front_leg_tip");
-            this.rightFrontFoot = this.rightFrontLegTip.getChild("right_front_foot");
-            this.rightRearLeg = param0.getChild("right_hind_leg");
-            this.rightRearLegTip = this.rightRearLeg.getChild("right_hind_leg_tip");
-            this.rightRearFoot = this.rightRearLegTip.getChild("right_hind_foot");
+        public DragonModel() {
+            this.texWidth = 256;
+            this.texHeight = 256;
+            float var0 = -16.0F;
+            this.head = new ModelPart(this);
+            this.head.addBox("upperlip", -6.0F, -1.0F, -24.0F, 12, 5, 16, 0.0F, 176, 44);
+            this.head.addBox("upperhead", -8.0F, -8.0F, -10.0F, 16, 16, 16, 0.0F, 112, 30);
+            this.head.mirror = true;
+            this.head.addBox("scale", -5.0F, -12.0F, -4.0F, 2, 4, 6, 0.0F, 0, 0);
+            this.head.addBox("nostril", -5.0F, -3.0F, -22.0F, 2, 2, 4, 0.0F, 112, 0);
+            this.head.mirror = false;
+            this.head.addBox("scale", 3.0F, -12.0F, -4.0F, 2, 4, 6, 0.0F, 0, 0);
+            this.head.addBox("nostril", 3.0F, -3.0F, -22.0F, 2, 2, 4, 0.0F, 112, 0);
+            this.jaw = new ModelPart(this);
+            this.jaw.setPos(0.0F, 4.0F, -8.0F);
+            this.jaw.addBox("jaw", -6.0F, 0.0F, -16.0F, 12, 4, 16, 0.0F, 176, 65);
+            this.head.addChild(this.jaw);
+            this.neck = new ModelPart(this);
+            this.neck.addBox("box", -5.0F, -5.0F, -5.0F, 10, 10, 10, 0.0F, 192, 104);
+            this.neck.addBox("scale", -1.0F, -9.0F, -3.0F, 2, 4, 6, 0.0F, 48, 0);
+            this.body = new ModelPart(this);
+            this.body.setPos(0.0F, 4.0F, 8.0F);
+            this.body.addBox("body", -12.0F, 0.0F, -16.0F, 24, 24, 64, 0.0F, 0, 0);
+            this.body.addBox("scale", -1.0F, -6.0F, -10.0F, 2, 6, 12, 0.0F, 220, 53);
+            this.body.addBox("scale", -1.0F, -6.0F, 10.0F, 2, 6, 12, 0.0F, 220, 53);
+            this.body.addBox("scale", -1.0F, -6.0F, 30.0F, 2, 6, 12, 0.0F, 220, 53);
+            this.leftWing = new ModelPart(this);
+            this.leftWing.mirror = true;
+            this.leftWing.setPos(12.0F, 5.0F, 2.0F);
+            this.leftWing.addBox("bone", 0.0F, -4.0F, -4.0F, 56, 8, 8, 0.0F, 112, 88);
+            this.leftWing.addBox("skin", 0.0F, 0.0F, 2.0F, 56, 0, 56, 0.0F, -56, 88);
+            this.leftWingTip = new ModelPart(this);
+            this.leftWingTip.mirror = true;
+            this.leftWingTip.setPos(56.0F, 0.0F, 0.0F);
+            this.leftWingTip.addBox("bone", 0.0F, -2.0F, -2.0F, 56, 4, 4, 0.0F, 112, 136);
+            this.leftWingTip.addBox("skin", 0.0F, 0.0F, 2.0F, 56, 0, 56, 0.0F, -56, 144);
+            this.leftWing.addChild(this.leftWingTip);
+            this.leftFrontLeg = new ModelPart(this);
+            this.leftFrontLeg.setPos(12.0F, 20.0F, 2.0F);
+            this.leftFrontLeg.addBox("main", -4.0F, -4.0F, -4.0F, 8, 24, 8, 0.0F, 112, 104);
+            this.leftFrontLegTip = new ModelPart(this);
+            this.leftFrontLegTip.setPos(0.0F, 20.0F, -1.0F);
+            this.leftFrontLegTip.addBox("main", -3.0F, -1.0F, -3.0F, 6, 24, 6, 0.0F, 226, 138);
+            this.leftFrontLeg.addChild(this.leftFrontLegTip);
+            this.leftFrontFoot = new ModelPart(this);
+            this.leftFrontFoot.setPos(0.0F, 23.0F, 0.0F);
+            this.leftFrontFoot.addBox("main", -4.0F, 0.0F, -12.0F, 8, 4, 16, 0.0F, 144, 104);
+            this.leftFrontLegTip.addChild(this.leftFrontFoot);
+            this.leftRearLeg = new ModelPart(this);
+            this.leftRearLeg.setPos(16.0F, 16.0F, 42.0F);
+            this.leftRearLeg.addBox("main", -8.0F, -4.0F, -8.0F, 16, 32, 16, 0.0F, 0, 0);
+            this.leftRearLegTip = new ModelPart(this);
+            this.leftRearLegTip.setPos(0.0F, 32.0F, -4.0F);
+            this.leftRearLegTip.addBox("main", -6.0F, -2.0F, 0.0F, 12, 32, 12, 0.0F, 196, 0);
+            this.leftRearLeg.addChild(this.leftRearLegTip);
+            this.leftRearFoot = new ModelPart(this);
+            this.leftRearFoot.setPos(0.0F, 31.0F, 4.0F);
+            this.leftRearFoot.addBox("main", -9.0F, 0.0F, -20.0F, 18, 6, 24, 0.0F, 112, 0);
+            this.leftRearLegTip.addChild(this.leftRearFoot);
+            this.rightWing = new ModelPart(this);
+            this.rightWing.setPos(-12.0F, 5.0F, 2.0F);
+            this.rightWing.addBox("bone", -56.0F, -4.0F, -4.0F, 56, 8, 8, 0.0F, 112, 88);
+            this.rightWing.addBox("skin", -56.0F, 0.0F, 2.0F, 56, 0, 56, 0.0F, -56, 88);
+            this.rightWingTip = new ModelPart(this);
+            this.rightWingTip.setPos(-56.0F, 0.0F, 0.0F);
+            this.rightWingTip.addBox("bone", -56.0F, -2.0F, -2.0F, 56, 4, 4, 0.0F, 112, 136);
+            this.rightWingTip.addBox("skin", -56.0F, 0.0F, 2.0F, 56, 0, 56, 0.0F, -56, 144);
+            this.rightWing.addChild(this.rightWingTip);
+            this.rightFrontLeg = new ModelPart(this);
+            this.rightFrontLeg.setPos(-12.0F, 20.0F, 2.0F);
+            this.rightFrontLeg.addBox("main", -4.0F, -4.0F, -4.0F, 8, 24, 8, 0.0F, 112, 104);
+            this.rightFrontLegTip = new ModelPart(this);
+            this.rightFrontLegTip.setPos(0.0F, 20.0F, -1.0F);
+            this.rightFrontLegTip.addBox("main", -3.0F, -1.0F, -3.0F, 6, 24, 6, 0.0F, 226, 138);
+            this.rightFrontLeg.addChild(this.rightFrontLegTip);
+            this.rightFrontFoot = new ModelPart(this);
+            this.rightFrontFoot.setPos(0.0F, 23.0F, 0.0F);
+            this.rightFrontFoot.addBox("main", -4.0F, 0.0F, -12.0F, 8, 4, 16, 0.0F, 144, 104);
+            this.rightFrontLegTip.addChild(this.rightFrontFoot);
+            this.rightRearLeg = new ModelPart(this);
+            this.rightRearLeg.setPos(-16.0F, 16.0F, 42.0F);
+            this.rightRearLeg.addBox("main", -8.0F, -4.0F, -8.0F, 16, 32, 16, 0.0F, 0, 0);
+            this.rightRearLegTip = new ModelPart(this);
+            this.rightRearLegTip.setPos(0.0F, 32.0F, -4.0F);
+            this.rightRearLegTip.addBox("main", -6.0F, -2.0F, 0.0F, 12, 32, 12, 0.0F, 196, 0);
+            this.rightRearLeg.addChild(this.rightRearLegTip);
+            this.rightRearFoot = new ModelPart(this);
+            this.rightRearFoot.setPos(0.0F, 31.0F, 4.0F);
+            this.rightRearFoot.addBox("main", -9.0F, 0.0F, -20.0F, 18, 6, 24, 0.0F, 112, 0);
+            this.rightRearLegTip.addChild(this.rightRearFoot);
         }
 
         public void prepareMobModel(EnderDragon param0, float param1, float param2, float param3) {

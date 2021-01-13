@@ -69,7 +69,7 @@ public class RecipeBookComponent extends GuiComponent implements Widget, GuiEven
         this.menu = param4;
         param2.player.containerMenu = param4;
         this.book = param2.player.getRecipeBook();
-        this.timesInventoryChanged = param2.player.getInventory().getTimesChanged();
+        this.timesInventoryChanged = param2.player.inventory.getTimesChanged();
         if (this.isVisible()) {
             this.initVisuals(param3);
         }
@@ -82,7 +82,7 @@ public class RecipeBookComponent extends GuiComponent implements Widget, GuiEven
         int var0 = (this.width - 147) / 2 - this.xOffset;
         int var1 = (this.height - 166) / 2;
         this.stackedContents.clear();
-        this.minecraft.player.getInventory().fillStackedContents(this.stackedContents);
+        this.minecraft.player.inventory.fillStackedContents(this.stackedContents);
         this.menu.fillCraftSlotsStackedContents(this.stackedContents);
         String var2 = this.searchBox != null ? this.searchBox.getValue() : "";
         this.searchBox = new EditBox(this.minecraft.font, var0 + 25, var1 + 14, 80, 9 + 5, new TranslatableComponent("itemGroup.search"));
@@ -213,9 +213,9 @@ public class RecipeBookComponent extends GuiComponent implements Widget, GuiEven
 
     public void tick() {
         if (this.isVisible()) {
-            if (this.timesInventoryChanged != this.minecraft.player.getInventory().getTimesChanged()) {
+            if (this.timesInventoryChanged != this.minecraft.player.inventory.getTimesChanged()) {
                 this.updateStackedContents();
-                this.timesInventoryChanged = this.minecraft.player.getInventory().getTimesChanged();
+                this.timesInventoryChanged = this.minecraft.player.inventory.getTimesChanged();
             }
 
             this.searchBox.tick();
@@ -224,7 +224,7 @@ public class RecipeBookComponent extends GuiComponent implements Widget, GuiEven
 
     private void updateStackedContents() {
         this.stackedContents.clear();
-        this.minecraft.player.getInventory().fillStackedContents(this.stackedContents);
+        this.minecraft.player.inventory.fillStackedContents(this.stackedContents);
         this.menu.fillCraftSlotsStackedContents(this.stackedContents);
         this.updateCollections(false);
     }

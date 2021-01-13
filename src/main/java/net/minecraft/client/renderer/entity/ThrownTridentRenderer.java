@@ -4,7 +4,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector3f;
 import net.minecraft.client.model.TridentModel;
-import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
@@ -16,11 +15,10 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class ThrownTridentRenderer extends EntityRenderer<ThrownTrident> {
     public static final ResourceLocation TRIDENT_LOCATION = new ResourceLocation("textures/entity/trident.png");
-    private final TridentModel model;
+    private final TridentModel model = new TridentModel();
 
-    public ThrownTridentRenderer(EntityRendererProvider.Context param0) {
+    public ThrownTridentRenderer(EntityRenderDispatcher param0) {
         super(param0);
-        this.model = new TridentModel(param0.bakeLayer(ModelLayers.TRIDENT));
     }
 
     public void render(ThrownTrident param0, float param1, float param2, PoseStack param3, MultiBufferSource param4, int param5) {

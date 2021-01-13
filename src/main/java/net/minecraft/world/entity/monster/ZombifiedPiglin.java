@@ -13,7 +13,6 @@ import net.minecraft.util.TimeUtil;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -138,7 +137,7 @@ public class ZombifiedPiglin extends Zombie implements NeutralMob {
         double var0 = this.getAttributeValue(Attributes.FOLLOW_RANGE);
         AABB var1 = AABB.unitCubeFromLowerCorner(this.position()).inflate(var0, 10.0, var0);
         this.level
-            .getEntitiesOfClass(ZombifiedPiglin.class, var1, EntitySelector.NO_SPECTATORS)
+            .getLoadedEntitiesOfClass(ZombifiedPiglin.class, var1)
             .stream()
             .filter(param0 -> param0 != this)
             .filter(param0 -> param0.getTarget() == null)
@@ -172,7 +171,7 @@ public class ZombifiedPiglin extends Zombie implements NeutralMob {
     public static boolean checkZombifiedPiglinSpawnRules(
         EntityType<ZombifiedPiglin> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, Random param4
     ) {
-        return param1.getDifficulty() != Difficulty.PEACEFUL && !param1.getBlockState(param3.below()).is(Blocks.NETHER_WART_BLOCK);
+        return param1.getDifficulty() != Difficulty.PEACEFUL && param1.getBlockState(param3.below()).getBlock() != Blocks.NETHER_WART_BLOCK;
     }
 
     @Override
@@ -189,7 +188,7 @@ public class ZombifiedPiglin extends Zombie implements NeutralMob {
     @Override
     public void readAdditionalSaveData(CompoundTag param0) {
         super.readAdditionalSaveData(param0);
-        this.readPersistentAngerSaveData(this.level, param0);
+        this.readPersistentAngerSaveData((ServerLevel)this.level, param0);
     }
 
     @Override
@@ -200,6 +199,11 @@ public class ZombifiedPiglin extends Zombie implements NeutralMob {
     @Override
     public int getRemainingPersistentAngerTime() {
         return this.remainingPersistentAngerTime;
+    }
+
+    @Override
+    public boolean hurt(DamageSource param0, float param1) {
+        return this.isInvulnerableTo(param0) ? false : super.hurt(param0, param1);
     }
 
     @Override

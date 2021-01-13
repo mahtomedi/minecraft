@@ -219,7 +219,7 @@ public class Uniform extends AbstractUniform implements AutoCloseable {
     }
 
     private void uploadAsInteger() {
-        ((Buffer)this.intValues).rewind();
+        ((Buffer)this.floatValues).clear();
         switch(this.type) {
             case 0:
                 RenderSystem.glUniform1(this.location, this.intValues);
@@ -240,7 +240,7 @@ public class Uniform extends AbstractUniform implements AutoCloseable {
     }
 
     private void uploadAsFloat() {
-        ((Buffer)this.floatValues).rewind();
+        ((Buffer)this.floatValues).clear();
         switch(this.type) {
             case 4:
                 RenderSystem.glUniform1(this.location, this.floatValues);

@@ -18,7 +18,7 @@ public class DemoMode extends ServerPlayerGameMode {
     private int demoEndedReminder;
     private int gameModeTicks;
 
-    public DemoMode(ServerPlayer param0) {
+    public DemoMode(ServerLevel param0) {
         super(param0);
     }
 

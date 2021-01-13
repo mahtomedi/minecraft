@@ -137,7 +137,7 @@ public class SnowGolem extends AbstractGolem implements Shearable, RangedAttackM
     @Override
     protected InteractionResult mobInteract(Player param0, InteractionHand param1) {
         ItemStack var0 = param0.getItemInHand(param1);
-        if (var0.is(Items.SHEARS) && this.readyForShearing()) {
+        if (var0.getItem() == Items.SHEARS && this.readyForShearing()) {
             this.shear(SoundSource.PLAYERS);
             if (!this.level.isClientSide) {
                 var0.hurtAndBreak(1, param0, param1x -> param1x.broadcastBreakEvent(param1));

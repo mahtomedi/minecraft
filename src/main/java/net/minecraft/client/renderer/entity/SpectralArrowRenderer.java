@@ -9,7 +9,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class SpectralArrowRenderer extends ArrowRenderer<SpectralArrow> {
     public static final ResourceLocation SPECTRAL_ARROW_LOCATION = new ResourceLocation("textures/entity/projectiles/spectral_arrow.png");
 
-    public SpectralArrowRenderer(EntityRendererProvider.Context param0) {
+    public SpectralArrowRenderer(EntityRenderDispatcher param0) {
         super(param0);
     }
 

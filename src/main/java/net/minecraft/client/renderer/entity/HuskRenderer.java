@@ -1,7 +1,6 @@
 package net.minecraft.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraftforge.api.distmarker.Dist;
@@ -11,8 +10,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class HuskRenderer extends ZombieRenderer {
     private static final ResourceLocation HUSK_LOCATION = new ResourceLocation("textures/entity/zombie/husk.png");
 
-    public HuskRenderer(EntityRendererProvider.Context param0) {
-        super(param0, ModelLayers.HUSK, ModelLayers.HUSK_INNER_ARMOR, ModelLayers.HUSK_OUTER_ARMOR);
+    public HuskRenderer(EntityRenderDispatcher param0) {
+        super(param0);
     }
 
     protected void scale(Zombie param0, PoseStack param1, float param2) {

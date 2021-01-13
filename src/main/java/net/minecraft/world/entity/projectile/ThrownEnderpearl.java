@@ -16,6 +16,8 @@ import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ThrownEnderpearl extends ThrowableItemProjectile {
     public ThrownEnderpearl(EntityType<? extends ThrownEnderpearl> param0, Level param1) {
@@ -24,6 +26,11 @@ public class ThrownEnderpearl extends ThrowableItemProjectile {
 
     public ThrownEnderpearl(Level param0, LivingEntity param1) {
         super(EntityType.ENDER_PEARL, param1, param0);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public ThrownEnderpearl(Level param0, double param1, double param2, double param3) {
+        super(EntityType.ENDER_PEARL, param1, param2, param3, param0);
     }
 
     @Override
@@ -55,12 +62,13 @@ public class ThrownEnderpearl extends ThrowableItemProjectile {
                 );
         }
 
-        if (!this.level.isClientSide && !this.isRemoved()) {
+        if (!this.level.isClientSide && !this.removed) {
             if (var0 instanceof ServerPlayer) {
                 ServerPlayer var2 = (ServerPlayer)var0;
                 if (var2.connection.getConnection().isConnected() && var2.level == this.level && !var2.isSleeping()) {
                     if (this.random.nextFloat() < 0.05F && this.level.getGameRules().getBoolean(GameRules.RULE_DOMOBSPAWNING)) {
                         Endermite var3 = EntityType.ENDERMITE.create(this.level);
+                        var3.setPlayerSpawned(true);
                         var3.moveTo(var0.getX(), var0.getY(), var0.getZ(), var0.yRot, var0.xRot);
                         this.level.addFreshEntity(var3);
                     }
@@ -78,7 +86,7 @@ public class ThrownEnderpearl extends ThrowableItemProjectile {
                 var0.fallDistance = 0.0F;
             }
 
-            this.discard();
+            this.remove();
         }
 
     }
@@ -87,7 +95,7 @@ public class ThrownEnderpearl extends ThrowableItemProjectile {
     public void tick() {
         Entity var0 = this.getOwner();
         if (var0 instanceof Player && !var0.isAlive()) {
-            this.discard();
+            this.remove();
         } else {
             super.tick();
         }

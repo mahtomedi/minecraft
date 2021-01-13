@@ -29,15 +29,18 @@ public abstract class GrowingPlantBodyBlock extends GrowingPlantBlock implements
         }
 
         GrowingPlantHeadBlock var0 = this.getHeadBlock();
-        if (param1 == this.growthDirection && !param2.is(this) && !param2.is(var0)) {
-            return var0.getStateForPlacement(param3);
-        } else {
-            if (this.scheduleFluidTicks) {
-                param3.getLiquidTicks().scheduleTick(param4, Fluids.WATER, Fluids.WATER.getTickDelay(param3));
+        if (param1 == this.growthDirection) {
+            Block var1 = param2.getBlock();
+            if (var1 != this && var1 != var0) {
+                return var0.getStateForPlacement(param3);
             }
-
-            return super.updateShape(param0, param1, param2, param3, param4, param5);
         }
+
+        if (this.scheduleFluidTicks) {
+            param3.getLiquidTicks().scheduleTick(param4, Fluids.WATER, Fluids.WATER.getTickDelay(param3));
+        }
+
+        return super.updateShape(param0, param1, param2, param3, param4, param5);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -70,19 +73,19 @@ public abstract class GrowingPlantBodyBlock extends GrowingPlantBlock implements
     private Optional<BlockPos> getHeadPos(BlockGetter param0, BlockPos param1, BlockState param2) {
         BlockPos var0 = param1;
 
-        BlockState var1;
+        Block var1;
         do {
             var0 = var0.relative(this.growthDirection);
-            var1 = param0.getBlockState(var0);
-        } while(var1.is(param2.getBlock()));
+            var1 = param0.getBlockState(var0).getBlock();
+        } while(var1 == param2.getBlock());
 
-        return var1.is(this.getHeadBlock()) ? Optional.of(var0) : Optional.empty();
+        return var1 == this.getHeadBlock() ? Optional.of(var0) : Optional.empty();
     }
 
     @Override
     public boolean canBeReplaced(BlockState param0, BlockPlaceContext param1) {
         boolean var0 = super.canBeReplaced(param0, param1);
-        return var0 && param1.getItemInHand().is(this.getHeadBlock().asItem()) ? false : var0;
+        return var0 && param1.getItemInHand().getItem() == this.getHeadBlock().asItem() ? false : var0;
     }
 
     @Override

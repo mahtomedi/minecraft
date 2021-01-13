@@ -21,7 +21,6 @@ import net.minecraft.data.structures.StructureUpdater;
 import net.minecraft.data.tags.BlockTagsProvider;
 import net.minecraft.data.tags.EntityTypeTagsProvider;
 import net.minecraft.data.tags.FluidTagsProvider;
-import net.minecraft.data.tags.GameEventTagsProvider;
 import net.minecraft.data.tags.ItemTagsProvider;
 import net.minecraft.data.worldgen.biome.BiomeReport;
 
@@ -76,7 +75,6 @@ public class Main {
             var0.addProvider(new RecipeProvider(var0));
             var0.addProvider(new AdvancementProvider(var0));
             var0.addProvider(new LootTableProvider(var0));
-            var0.addProvider(new GameEventTagsProvider(var0));
         }
 
         if (param4) {

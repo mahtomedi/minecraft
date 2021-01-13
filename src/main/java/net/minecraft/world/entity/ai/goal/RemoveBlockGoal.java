@@ -3,7 +3,6 @@ package net.minecraft.world.entity.ai.goal;
 import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.SectionPos;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
@@ -147,9 +146,7 @@ public class RemoveBlockGoal extends MoveToBlockGoal {
 
     @Override
     protected boolean isValidTarget(LevelReader param0, BlockPos param1) {
-        ChunkAccess var0 = param0.getChunk(
-            SectionPos.blockToSectionCoord(param1.getX()), SectionPos.blockToSectionCoord(param1.getZ()), ChunkStatus.FULL, false
-        );
+        ChunkAccess var0 = param0.getChunk(param1.getX() >> 4, param1.getZ() >> 4, ChunkStatus.FULL, false);
         if (var0 == null) {
             return false;
         } else {

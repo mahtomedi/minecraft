@@ -11,7 +11,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.network.chat.Component;
@@ -27,7 +26,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class GameModeSwitcherScreen extends Screen {
     private static final ResourceLocation GAMEMODE_SWITCHER_LOCATION = new ResourceLocation("textures/gui/container/gamemode_switcher.png");
-    private static final int ALL_SLOTS_WIDTH = GameModeSwitcherScreen.GameModeIcon.values().length * 31 - 5;
+    private static final int ALL_SLOTS_WIDTH = GameModeSwitcherScreen.GameModeIcon.values().length * 30 - 5;
     private static final Component SELECT_KEY = new TranslatableComponent(
         "debug.gamemodes.select_next", new TranslatableComponent("debug.gamemodes.press_f4").withStyle(ChatFormatting.AQUA)
     );
@@ -44,13 +43,17 @@ public class GameModeSwitcherScreen extends Screen {
     }
 
     private GameType getDefaultSelected() {
-        MultiPlayerGameMode var0 = Minecraft.getInstance().gameMode;
-        GameType var1 = var0.getPreviousPlayerMode();
-        if (var1 != null) {
-            return var1;
-        } else {
-            return var0.getPlayerMode() == GameType.CREATIVE ? GameType.SURVIVAL : GameType.CREATIVE;
+        GameType var0 = Minecraft.getInstance().gameMode.getPlayerMode();
+        GameType var1 = Minecraft.getInstance().gameMode.getPreviousPlayerMode();
+        if (var1 == GameType.NOT_SET) {
+            if (var0 == GameType.CREATIVE) {
+                var1 = GameType.SURVIVAL;
+            } else {
+                var1 = GameType.CREATIVE;
+            }
         }
+
+        return var1;
     }
 
     @Override
@@ -62,7 +65,7 @@ public class GameModeSwitcherScreen extends Screen {
 
         for(int var0 = 0; var0 < GameModeSwitcherScreen.GameModeIcon.VALUES.length; ++var0) {
             GameModeSwitcherScreen.GameModeIcon var1 = GameModeSwitcherScreen.GameModeIcon.VALUES[var0];
-            this.slots.add(new GameModeSwitcherScreen.GameModeSlot(var1, this.width / 2 - ALL_SLOTS_WIDTH / 2 + var0 * 31, this.height / 2 - 31));
+            this.slots.add(new GameModeSwitcherScreen.GameModeSlot(var1, this.width / 2 - ALL_SLOTS_WIDTH / 2 + var0 * 30, this.height / 2 - 30));
         }
 
     }
@@ -74,11 +77,11 @@ public class GameModeSwitcherScreen extends Screen {
             RenderSystem.enableBlend();
             this.minecraft.getTextureManager().bind(GAMEMODE_SWITCHER_LOCATION);
             int var0 = this.width / 2 - 62;
-            int var1 = this.height / 2 - 31 - 27;
+            int var1 = this.height / 2 - 30 - 27;
             blit(param0, var0, var1, 0.0F, 0.0F, 125, 75, 128, 128);
             param0.popPose();
             super.render(param0, param1, param2, param3);
-            this.currentlyHovered.ifPresent(param1x -> drawCenteredString(param0, this.font, param1x.getName(), this.width / 2, this.height / 2 - 31 - 20, -1));
+            this.currentlyHovered.ifPresent(param1x -> drawCenteredString(param0, this.font, param1x.getName(), this.width / 2, this.height / 2 - 30 - 20, -1));
             drawCenteredString(param0, this.font, SELECT_KEY, this.width / 2, this.height / 2 + 5, 16777215);
             if (!this.setFirstMousePos) {
                 this.firstMouseX = param1;
@@ -205,7 +208,7 @@ public class GameModeSwitcherScreen extends Screen {
         private boolean isSelected;
 
         public GameModeSlot(GameModeSwitcherScreen.GameModeIcon param1, int param2, int param3) {
-            super(param2, param3, 26, 26, param1.getName());
+            super(param2, param3, 25, 25, param1.getName());
             this.icon = param1;
         }
 
@@ -234,7 +237,7 @@ public class GameModeSwitcherScreen extends Screen {
             param1.bind(GameModeSwitcherScreen.GAMEMODE_SWITCHER_LOCATION);
             param0.pushPose();
             param0.translate((double)this.x, (double)this.y, 0.0);
-            blit(param0, 0, 0, 0.0F, 75.0F, 26, 26, 128, 128);
+            blit(param0, 0, 0, 0.0F, 75.0F, 25, 25, 128, 128);
             param0.popPose();
         }
 
@@ -242,7 +245,7 @@ public class GameModeSwitcherScreen extends Screen {
             param1.bind(GameModeSwitcherScreen.GAMEMODE_SWITCHER_LOCATION);
             param0.pushPose();
             param0.translate((double)this.x, (double)this.y, 0.0);
-            blit(param0, 0, 0, 26.0F, 75.0F, 26, 26, 128, 128);
+            blit(param0, 0, 0, 25.0F, 75.0F, 25, 25, 128, 128);
             param0.popPose();
         }
     }

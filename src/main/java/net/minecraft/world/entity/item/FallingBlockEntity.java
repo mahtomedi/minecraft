@@ -1,6 +1,7 @@
 package net.minecraft.world.entity.item;
 
-import java.util.function.Predicate;
+import com.google.common.collect.Lists;
+import java.util.List;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -17,7 +18,6 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.item.ItemStack;
@@ -29,7 +29,7 @@ import net.minecraft.world.level.block.AnvilBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ConcretePowderBlock;
-import net.minecraft.world.level.block.Fallable;
+import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.FallingBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -48,7 +48,7 @@ public class FallingBlockEntity extends Entity {
     private boolean cancelDrop;
     private boolean hurtEntities;
     private int fallDamageMax = 40;
-    private float fallDamagePerDistance;
+    private float fallDamageAmount = 2.0F;
     public CompoundTag blockData;
     protected static final EntityDataAccessor<BlockPos> DATA_START_POS = SynchedEntityData.defineId(FallingBlockEntity.class, EntityDataSerializers.BLOCK_POS);
 
@@ -94,13 +94,13 @@ public class FallingBlockEntity extends Entity {
 
     @Override
     public boolean isPickable() {
-        return !this.isRemoved();
+        return !this.removed;
     }
 
     @Override
     public void tick() {
         if (this.blockState.isAir()) {
-            this.discard();
+            this.remove();
         } else {
             Block var0 = this.blockState.getBlock();
             if (this.time++ == 0) {
@@ -108,7 +108,7 @@ public class FallingBlockEntity extends Entity {
                 if (this.level.getBlockState(var1).is(var0)) {
                     this.level.removeBlock(var1, false);
                 } else if (!this.level.isClientSide) {
-                    this.discard();
+                    this.remove();
                     return;
                 }
             }
@@ -140,7 +140,7 @@ public class FallingBlockEntity extends Entity {
                     BlockState var7 = this.level.getBlockState(var2);
                     this.setDeltaMovement(this.getDeltaMovement().multiply(0.7, -0.5, 0.7));
                     if (!var7.is(Blocks.MOVING_PISTON)) {
-                        this.discard();
+                        this.remove();
                         if (!this.cancelDrop) {
                             boolean var8 = var7.canBeReplaced(new DirectionalPlaceContext(this.level, var2, Direction.DOWN, ItemStack.EMPTY, Direction.UP));
                             boolean var9 = FallingBlock.isFree(this.level.getBlockState(var2.below())) && (!var3 || !var4);
@@ -151,11 +151,11 @@ public class FallingBlockEntity extends Entity {
                                 }
 
                                 if (this.level.setBlock(var2, this.blockState, 3)) {
-                                    if (var0 instanceof Fallable) {
-                                        ((Fallable)var0).onLand(this.level, var2, this.blockState, var7, this);
+                                    if (var0 instanceof FallingBlock) {
+                                        ((FallingBlock)var0).onLand(this.level, var2, this.blockState, var7, this);
                                     }
 
-                                    if (this.blockData != null && this.blockState.hasBlockEntity()) {
+                                    if (this.blockData != null && var0 instanceof EntityBlock) {
                                         BlockEntity var11 = this.level.getBlockEntity(var2);
                                         if (var11 != null) {
                                             CompoundTag var12 = var11.save(new CompoundTag());
@@ -167,29 +167,26 @@ public class FallingBlockEntity extends Entity {
                                                 }
                                             }
 
-                                            var11.load(var12);
+                                            var11.load(this.blockState, var12);
                                             var11.setChanged();
                                         }
                                     }
                                 } else if (this.dropItem && this.level.getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
-                                    this.callOnBrokenAfterFall(var0, var2);
                                     this.spawnAtLocation(var0);
                                 }
                             } else if (this.dropItem && this.level.getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
-                                this.callOnBrokenAfterFall(var0, var2);
                                 this.spawnAtLocation(var0);
                             }
-                        } else {
-                            this.callOnBrokenAfterFall(var0, var2);
+                        } else if (var0 instanceof FallingBlock) {
+                            ((FallingBlock)var0).onBroken(this.level, var2, this);
                         }
                     }
-                } else if (!this.level.isClientSide
-                    && (this.time > 100 && (var2.getY() <= this.level.getMinBuildHeight() || var2.getY() > this.level.getMaxBuildHeight()) || this.time > 600)) {
+                } else if (!this.level.isClientSide && (this.time > 100 && (var2.getY() < 1 || var2.getY() > 256) || this.time > 600)) {
                     if (this.dropItem && this.level.getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
                         this.spawnAtLocation(var0);
                     }
 
-                    this.discard();
+                    this.remove();
                 }
             }
 
@@ -197,48 +194,31 @@ public class FallingBlockEntity extends Entity {
         }
     }
 
-    public void callOnBrokenAfterFall(Block param0, BlockPos param1) {
-        if (param0 instanceof Fallable) {
-            ((Fallable)param0).onBrokenAfterFall(this.level, param1, this);
-        }
-
-    }
-
     @Override
     public boolean causeFallDamage(float param0, float param1) {
-        if (!this.hurtEntities) {
-            return false;
-        } else {
+        if (this.hurtEntities) {
             int var0 = Mth.ceil(param0 - 1.0F);
-            if (var0 < 0) {
-                return false;
-            } else {
-                Predicate<Entity> var2;
-                DamageSource var3;
-                if (this.blockState.getBlock() instanceof Fallable) {
-                    Fallable var1 = (Fallable)this.blockState.getBlock();
-                    var2 = var1.getHurtsEntitySelector();
-                    var3 = var1.getFallDamageSource();
-                } else {
-                    var2 = EntitySelector.NO_SPECTATORS;
-                    var3 = DamageSource.FALLING_BLOCK;
+            if (var0 > 0) {
+                List<Entity> var1 = Lists.newArrayList(this.level.getEntities(this, this.getBoundingBox()));
+                boolean var2 = this.blockState.is(BlockTags.ANVIL);
+                DamageSource var3 = var2 ? DamageSource.ANVIL : DamageSource.FALLING_BLOCK;
+
+                for(Entity var4 : var1) {
+                    var4.hurt(var3, (float)Math.min(Mth.floor((float)var0 * this.fallDamageAmount), this.fallDamageMax));
                 }
 
-                float var6 = (float)Math.min(Mth.floor((float)var0 * this.fallDamagePerDistance), this.fallDamageMax);
-                this.level.getEntities(this, this.getBoundingBox(), var2).forEach(param2 -> param2.hurt(var3, var6));
-                boolean var7 = this.blockState.is(BlockTags.ANVIL);
-                if (var7 && (double)this.random.nextFloat() < 0.05F + (double)var0 * 0.05) {
-                    BlockState var8 = AnvilBlock.damage(this.blockState);
-                    if (var8 == null) {
+                if (var2 && (double)this.random.nextFloat() < 0.05F + (double)var0 * 0.05) {
+                    BlockState var5 = AnvilBlock.damage(this.blockState);
+                    if (var5 == null) {
                         this.cancelDrop = true;
                     } else {
-                        this.blockState = var8;
+                        this.blockState = var5;
                     }
                 }
-
-                return false;
             }
         }
+
+        return false;
     }
 
     @Override
@@ -247,7 +227,7 @@ public class FallingBlockEntity extends Entity {
         param0.putInt("Time", this.time);
         param0.putBoolean("DropItem", this.dropItem);
         param0.putBoolean("HurtEntities", this.hurtEntities);
-        param0.putFloat("FallHurtAmount", this.fallDamagePerDistance);
+        param0.putFloat("FallHurtAmount", this.fallDamageAmount);
         param0.putInt("FallHurtMax", this.fallDamageMax);
         if (this.blockData != null) {
             param0.put("TileEntityData", this.blockData);
@@ -261,7 +241,7 @@ public class FallingBlockEntity extends Entity {
         this.time = param0.getInt("Time");
         if (param0.contains("HurtEntities", 99)) {
             this.hurtEntities = param0.getBoolean("HurtEntities");
-            this.fallDamagePerDistance = param0.getFloat("FallHurtAmount");
+            this.fallDamageAmount = param0.getFloat("FallHurtAmount");
             this.fallDamageMax = param0.getInt("FallHurtMax");
         } else if (this.blockState.is(BlockTags.ANVIL)) {
             this.hurtEntities = true;
@@ -286,10 +266,8 @@ public class FallingBlockEntity extends Entity {
         return this.level;
     }
 
-    public void setHurtsEntities(float param0, int param1) {
-        this.hurtEntities = true;
-        this.fallDamagePerDistance = param0;
-        this.fallDamageMax = param1;
+    public void setHurtsEntities(boolean param0) {
+        this.hurtEntities = param0;
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -316,18 +294,5 @@ public class FallingBlockEntity extends Entity {
     @Override
     public Packet<?> getAddEntityPacket() {
         return new ClientboundAddEntityPacket(this, Block.getId(this.getBlockState()));
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    @Override
-    public void recreateFromPacket(ClientboundAddEntityPacket param0) {
-        super.recreateFromPacket(param0);
-        this.blockState = Block.stateById(param0.getData());
-        this.blocksBuilding = true;
-        double var0 = param0.getX();
-        double var1 = param0.getY();
-        double var2 = param0.getZ();
-        this.setPos(var0, var1 + (double)((1.0F - this.getBbHeight()) / 2.0F), var2);
-        this.setStartPos(this.blockPosition());
     }
 }

@@ -11,7 +11,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public abstract class AbstractZombieRenderer<T extends Zombie, M extends ZombieModel<T>> extends HumanoidMobRenderer<T, M> {
     private static final ResourceLocation ZOMBIE_LOCATION = new ResourceLocation("textures/entity/zombie/zombie.png");
 
-    protected AbstractZombieRenderer(EntityRendererProvider.Context param0, M param1, M param2, M param3) {
+    protected AbstractZombieRenderer(EntityRenderDispatcher param0, M param1, M param2, M param3) {
         super(param0, param1, 0.5F);
         this.addLayer(new HumanoidArmorLayer<>(this, param2, param3));
     }

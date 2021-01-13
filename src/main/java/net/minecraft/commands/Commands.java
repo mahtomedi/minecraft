@@ -55,7 +55,6 @@ import net.minecraft.server.commands.GameModeCommand;
 import net.minecraft.server.commands.GameRuleCommand;
 import net.minecraft.server.commands.GiveCommand;
 import net.minecraft.server.commands.HelpCommand;
-import net.minecraft.server.commands.ItemCommands;
 import net.minecraft.server.commands.KickCommand;
 import net.minecraft.server.commands.KillCommand;
 import net.minecraft.server.commands.ListPlayersCommand;
@@ -71,6 +70,7 @@ import net.minecraft.server.commands.PlaySoundCommand;
 import net.minecraft.server.commands.PublishCommand;
 import net.minecraft.server.commands.RecipeCommand;
 import net.minecraft.server.commands.ReloadCommand;
+import net.minecraft.server.commands.ReplaceItemCommand;
 import net.minecraft.server.commands.SaveAllCommand;
 import net.minecraft.server.commands.SaveOffCommand;
 import net.minecraft.server.commands.SaveOnCommand;
@@ -130,7 +130,6 @@ public class Commands {
         GameRuleCommand.register(this.dispatcher);
         GiveCommand.register(this.dispatcher);
         HelpCommand.register(this.dispatcher);
-        ItemCommands.register(this.dispatcher);
         KickCommand.register(this.dispatcher);
         KillCommand.register(this.dispatcher);
         ListPlayersCommand.register(this.dispatcher);
@@ -142,6 +141,7 @@ public class Commands {
         PlaySoundCommand.register(this.dispatcher);
         ReloadCommand.register(this.dispatcher);
         RecipeCommand.register(this.dispatcher);
+        ReplaceItemCommand.register(this.dispatcher);
         SayCommand.register(this.dispatcher);
         ScheduleCommand.register(this.dispatcher);
         ScoreboardCommand.register(this.dispatcher);
@@ -252,7 +252,7 @@ public class Commands {
                 );
                 if (SharedConstants.IS_RUNNING_IN_IDE) {
                     param0.sendFailure(new TextComponent(Util.describeError(var15)));
-                    LOGGER.error("'{}' threw an exception", param1, var15);
+                    LOGGER.error("'" + param1 + "' threw an exception", (Throwable)var15);
                 }
 
                 return 0;

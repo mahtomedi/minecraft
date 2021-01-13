@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Random;
 import net.minecraft.core.Direction;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.core.SectionPos;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.StructureFeatureManager;
@@ -45,13 +44,13 @@ public class OceanMonumentFeature extends StructureFeature<NoneFeatureConfigurat
         ChunkPos param7,
         NoneFeatureConfiguration param8
     ) {
-        for(Biome var1 : param1.getBiomesWithin(SectionPos.sectionToBlockCoord(param4, 9), param0.getSeaLevel(), SectionPos.sectionToBlockCoord(param5, 9), 16)) {
+        for(Biome var1 : param1.getBiomesWithin(param4 * 16 + 9, param0.getSeaLevel(), param5 * 16 + 9, 16)) {
             if (!var1.getGenerationSettings().isValidStart(this)) {
                 return false;
             }
         }
 
-        for(Biome var3 : param1.getBiomesWithin(SectionPos.sectionToBlockCoord(param4, 9), param0.getSeaLevel(), SectionPos.sectionToBlockCoord(param5, 9), 29)) {
+        for(Biome var3 : param1.getBiomesWithin(param4 * 16 + 9, param0.getSeaLevel(), param5 * 16 + 9, 29)) {
             if (var3.getBiomeCategory() != Biome.BiomeCategory.OCEAN && var3.getBiomeCategory() != Biome.BiomeCategory.RIVER) {
                 return false;
             }
@@ -84,8 +83,8 @@ public class OceanMonumentFeature extends StructureFeature<NoneFeatureConfigurat
         }
 
         private void generatePieces(int param0, int param1) {
-            int var0 = SectionPos.sectionToBlockCoord(param0) - 29;
-            int var1 = SectionPos.sectionToBlockCoord(param1) - 29;
+            int var0 = param0 * 16 - 29;
+            int var1 = param1 * 16 - 29;
             Direction var2 = Direction.Plane.HORIZONTAL.getRandomDirection(this.random);
             this.pieces.add(new OceanMonumentPieces.MonumentBuilding(this.random, var0, var1, var2));
             this.calculateBoundingBox();

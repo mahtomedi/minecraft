@@ -1,7 +1,6 @@
 package net.minecraft.world.level.block.entity;
 
 import com.google.common.collect.Lists;
-import com.mojang.datafixers.util.Pair;
 import java.util.Arrays;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -11,6 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.DyeColor;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.apache.commons.lang3.tuple.Pair;
 
 public enum BannerPattern {
     BASE("base", "b", false),
@@ -79,6 +79,7 @@ public enum BannerPattern {
         return new ResourceLocation("entity/" + var0 + "/" + this.getFilename());
     }
 
+    @OnlyIn(Dist.CLIENT)
     public String getFilename() {
         return this.filename;
     }
@@ -99,26 +100,11 @@ public enum BannerPattern {
         return null;
     }
 
-    @Nullable
-    public static BannerPattern byFilename(String param0) {
-        for(BannerPattern var0 : values()) {
-            if (var0.filename.equals(param0)) {
-                return var0;
-            }
-        }
-
-        return null;
-    }
-
     public static class Builder {
         private final List<Pair<BannerPattern, DyeColor>> patterns = Lists.newArrayList();
 
         public BannerPattern.Builder addPattern(BannerPattern param0, DyeColor param1) {
-            return this.addPattern(Pair.of(param0, param1));
-        }
-
-        public BannerPattern.Builder addPattern(Pair<BannerPattern, DyeColor> param0) {
-            this.patterns.add(param0);
+            this.patterns.add(Pair.of(param0, param1));
             return this;
         }
 
@@ -127,8 +113,8 @@ public enum BannerPattern {
 
             for(Pair<BannerPattern, DyeColor> var1 : this.patterns) {
                 CompoundTag var2 = new CompoundTag();
-                var2.putString("Pattern", var1.getFirst().hashname);
-                var2.putInt("Color", var1.getSecond().getId());
+                var2.putString("Pattern", var1.getLeft().hashname);
+                var2.putInt("Color", var1.getRight().getId());
                 var0.add(var2);
             }
 

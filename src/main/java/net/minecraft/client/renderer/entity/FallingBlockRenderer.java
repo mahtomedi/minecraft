@@ -19,7 +19,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class FallingBlockRenderer extends EntityRenderer<FallingBlockEntity> {
-    public FallingBlockRenderer(EntityRendererProvider.Context param0) {
+    public FallingBlockRenderer(EntityRenderDispatcher param0) {
         super(param0);
         this.shadowRadius = 0.5F;
     }

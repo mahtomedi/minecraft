@@ -2,8 +2,6 @@ package net.minecraft.client.renderer.entity.layers;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.CatModel;
-import net.minecraft.client.model.geom.EntityModelSet;
-import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.resources.ResourceLocation;
@@ -14,11 +12,10 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class CatCollarLayer extends RenderLayer<Cat, CatModel<Cat>> {
     private static final ResourceLocation CAT_COLLAR_LOCATION = new ResourceLocation("textures/entity/cat/cat_collar.png");
-    private final CatModel<Cat> catModel;
+    private final CatModel<Cat> catModel = new CatModel<>(0.01F);
 
-    public CatCollarLayer(RenderLayerParent<Cat, CatModel<Cat>> param0, EntityModelSet param1) {
+    public CatCollarLayer(RenderLayerParent<Cat, CatModel<Cat>> param0) {
         super(param0);
-        this.catModel = new CatModel<>(param1.bakeLayer(ModelLayers.CAT_COLLAR));
     }
 
     public void render(

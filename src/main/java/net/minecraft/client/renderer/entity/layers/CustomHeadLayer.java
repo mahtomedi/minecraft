@@ -3,14 +3,10 @@ package net.minecraft.client.renderer.entity.layers;
 import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
-import java.util.Map;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HeadedModel;
-import net.minecraft.client.model.SkullModelBase;
-import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.blockentity.SkullBlockRenderer;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
@@ -25,7 +21,6 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.AbstractSkullBlock;
-import net.minecraft.world.level.block.SkullBlock;
 import net.minecraft.world.level.block.entity.SkullBlockEntity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -36,18 +31,16 @@ public class CustomHeadLayer<T extends LivingEntity, M extends EntityModel<T> & 
     private final float scaleX;
     private final float scaleY;
     private final float scaleZ;
-    private final Map<SkullBlock.Type, SkullModelBase> skullModels;
 
-    public CustomHeadLayer(RenderLayerParent<T, M> param0, EntityModelSet param1) {
-        this(param0, param1, 1.0F, 1.0F, 1.0F);
+    public CustomHeadLayer(RenderLayerParent<T, M> param0) {
+        this(param0, 1.0F, 1.0F, 1.0F);
     }
 
-    public CustomHeadLayer(RenderLayerParent<T, M> param0, EntityModelSet param1, float param2, float param3, float param4) {
+    public CustomHeadLayer(RenderLayerParent<T, M> param0, float param1, float param2, float param3) {
         super(param0);
-        this.scaleX = param2;
-        this.scaleY = param3;
-        this.scaleZ = param4;
-        this.skullModels = SkullBlockRenderer.createSkullRenderers(param1);
+        this.scaleX = param1;
+        this.scaleY = param2;
+        this.scaleZ = param3;
     }
 
     public void render(
@@ -90,27 +83,20 @@ public class CustomHeadLayer<T extends LivingEntity, M extends EntityModel<T> & 
                 }
 
                 param0.translate(-0.5, 0.0, -0.5);
-                SkullBlock.Type var9 = ((AbstractSkullBlock)((BlockItem)var1).getBlock()).getType();
-                SkullModelBase var10 = this.skullModels.get(var9);
-                RenderType var11 = SkullBlockRenderer.getRenderType(var9, var6);
-                SkullBlockRenderer.renderSkull(null, 180.0F, param4, param0, param1, param2, var10, var11);
+                SkullBlockRenderer.renderSkull(null, 180.0F, ((AbstractSkullBlock)((BlockItem)var1).getBlock()).getType(), var6, param4, param0, param1, param2);
             } else if (!(var1 instanceof ArmorItem) || ((ArmorItem)var1).getSlot() != EquipmentSlot.HEAD) {
-                translateToHead(param0, var2);
+                float var9 = 0.625F;
+                param0.translate(0.0, -0.25, 0.0);
+                param0.mulPose(Vector3f.YP.rotationDegrees(180.0F));
+                param0.scale(0.625F, -0.625F, -0.625F);
+                if (var2) {
+                    param0.translate(0.0, 0.1875, 0.0);
+                }
+
                 Minecraft.getInstance().getItemInHandRenderer().renderItem(param3, var0, ItemTransforms.TransformType.HEAD, false, param0, param1, param2);
             }
 
             param0.popPose();
         }
-    }
-
-    public static void translateToHead(PoseStack param0, boolean param1) {
-        float var0 = 0.625F;
-        param0.translate(0.0, -0.25, 0.0);
-        param0.mulPose(Vector3f.YP.rotationDegrees(180.0F));
-        param0.scale(0.625F, -0.625F, -0.625F);
-        if (param1) {
-            param0.translate(0.0, 0.1875, 0.0);
-        }
-
     }
 }

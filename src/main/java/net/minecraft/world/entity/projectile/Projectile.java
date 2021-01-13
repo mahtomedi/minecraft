@@ -3,15 +3,12 @@ package net.minecraft.world.entity.projectile;
 import java.util.UUID;
 import javax.annotation.Nullable;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -106,7 +103,6 @@ public abstract class Projectile extends Entity {
         this.xRot = (float)(Mth.atan2(var0.y, (double)var1) * 180.0F / (float)Math.PI);
         this.yRotO = this.yRot;
         this.xRotO = this.xRot;
-        this.gameEvent(this.getOwner(), GameEvent.PROJECTILE_SHOOT);
     }
 
     public void shootFromRotation(Entity param0, float param1, float param2, float param3, float param4, float param5) {
@@ -124,10 +120,6 @@ public abstract class Projectile extends Entity {
             this.onHitEntity((EntityHitResult)param0);
         } else if (var0 == HitResult.Type.BLOCK) {
             this.onHitBlock((BlockHitResult)param0);
-        }
-
-        if (var0 != HitResult.Type.MISS) {
-            this.gameEvent(this.getOwner(), GameEvent.PROJECTILE_LAND);
         }
 
     }
@@ -181,22 +173,5 @@ public abstract class Projectile extends Entity {
         }
 
         return Mth.lerp(0.2F, param0, param1);
-    }
-
-    @Override
-    public Packet<?> getAddEntityPacket() {
-        Entity var0 = this.getOwner();
-        return new ClientboundAddEntityPacket(this, var0 == null ? 0 : var0.getId());
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    @Override
-    public void recreateFromPacket(ClientboundAddEntityPacket param0) {
-        super.recreateFromPacket(param0);
-        Entity var0 = this.level.getEntity(param0.getData());
-        if (var0 != null) {
-            this.setOwner(var0);
-        }
-
     }
 }

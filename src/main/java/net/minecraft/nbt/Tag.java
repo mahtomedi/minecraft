@@ -2,8 +2,15 @@ package net.minecraft.nbt;
 
 import java.io.DataOutput;
 import java.io.IOException;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 
 public interface Tag {
+    ChatFormatting SYNTAX_HIGHLIGHTING_KEY = ChatFormatting.AQUA;
+    ChatFormatting SYNTAX_HIGHLIGHTING_STRING = ChatFormatting.GREEN;
+    ChatFormatting SYNTAX_HIGHLIGHTING_NUMBER = ChatFormatting.GOLD;
+    ChatFormatting SYNTAX_HIGHLIGHTING_NUMBER_TYPE = ChatFormatting.RED;
+
     void write(DataOutput var1) throws IOException;
 
     @Override
@@ -16,8 +23,12 @@ public interface Tag {
     Tag copy();
 
     default String getAsString() {
-        return new StringTagVisitor().visit(this);
+        return this.toString();
     }
 
-    void accept(TagVisitor var1);
+    default Component getPrettyDisplay() {
+        return this.getPrettyDisplay("", 0);
+    }
+
+    Component getPrettyDisplay(String var1, int var2);
 }

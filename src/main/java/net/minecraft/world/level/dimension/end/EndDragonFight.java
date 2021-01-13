@@ -198,7 +198,7 @@ public class EndDragonFight {
             }
         }
 
-        List<? extends EnderDragon> var1 = this.level.getDragons();
+        List<EnderDragon> var1 = this.level.getDragons();
         if (var1.isEmpty()) {
             this.dragonKilled = true;
         } else {
@@ -208,7 +208,7 @@ public class EndDragonFight {
             this.dragonKilled = false;
             if (!var0) {
                 LOGGER.info("But we didn't have a portal, let's remove it.");
-                var2.discard();
+                var2.remove();
                 this.dragonUUID = null;
             }
         }
@@ -220,7 +220,7 @@ public class EndDragonFight {
     }
 
     private void findOrCreateDragon() {
-        List<? extends EnderDragon> var0 = this.level.getDragons();
+        List<EnderDragon> var0 = this.level.getDragons();
         if (var0.isEmpty()) {
             LOGGER.debug("Haven't seen the dragon, respawning it");
             this.createNewDragon();
@@ -291,7 +291,7 @@ public class EndDragonFight {
 
         int var6 = this.level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, EndPodiumFeature.END_PODIUM_LOCATION).getY();
 
-        for(int var7 = var6; var7 >= this.level.getMinBuildHeight(); --var7) {
+        for(int var7 = var6; var7 >= 0; --var7) {
             BlockPattern.BlockPatternMatch var8 = this.exitPortalPattern
                 .find(this.level, new BlockPos(EndPodiumFeature.END_PODIUM_LOCATION.getX(), var7, EndPodiumFeature.END_PODIUM_LOCATION.getZ()));
             if (var8 != null) {
@@ -354,7 +354,7 @@ public class EndDragonFight {
 
     public void setDragonKilled(EnderDragon param0) {
         if (param0.getUUID().equals(this.dragonUUID)) {
-            this.dragonEvent.setProgress(0.0F);
+            this.dragonEvent.setPercent(0.0F);
             this.dragonEvent.setVisible(false);
             this.spawnExitPortal(true);
             this.spawnNewGateway();
@@ -411,7 +411,7 @@ public class EndDragonFight {
 
     public void updateDragon(EnderDragon param0) {
         if (param0.getUUID().equals(this.dragonUUID)) {
-            this.dragonEvent.setProgress(param0.getHealth() / param0.getMaxHealth());
+            this.dragonEvent.setPercent(param0.getHealth() / param0.getMaxHealth());
             this.ticksSinceDragonSeen = 0;
             if (param0.hasCustomName()) {
                 this.dragonEvent.setName(param0.getDisplayName());

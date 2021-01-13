@@ -1,12 +1,19 @@
 package net.minecraft.nbt;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import it.unimi.dsi.fastutil.bytes.ByteOpenHashSet;
+import it.unimi.dsi.fastutil.bytes.ByteSet;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TextComponent;
 
 public class ListTag extends CollectionTag<Tag> {
     public static final TagType<ListTag> TYPE = new TagType<ListTag>() {
@@ -43,6 +50,7 @@ public class ListTag extends CollectionTag<Tag> {
             return "TAG_List";
         }
     };
+    private static final ByteSet INLINE_ELEMENT_TYPES = new ByteOpenHashSet(Arrays.asList((byte)1, (byte)2, (byte)3, (byte)4, (byte)5, (byte)6));
     private final List<Tag> list;
     private byte type;
 
@@ -84,7 +92,17 @@ public class ListTag extends CollectionTag<Tag> {
 
     @Override
     public String toString() {
-        return this.getAsString();
+        StringBuilder var0 = new StringBuilder("[");
+
+        for(int var1 = 0; var1 < this.list.size(); ++var1) {
+            if (var1 != 0) {
+                var0.append(',');
+            }
+
+            var0.append(this.list.get(var1));
+        }
+
+        return var0.append(']').toString();
     }
 
     private void updateTypeAfterRemove() {
@@ -270,8 +288,48 @@ public class ListTag extends CollectionTag<Tag> {
     }
 
     @Override
-    public void accept(TagVisitor param0) {
-        param0.visitList(this);
+    public Component getPrettyDisplay(String param0, int param1) {
+        if (this.isEmpty()) {
+            return new TextComponent("[]");
+        } else if (INLINE_ELEMENT_TYPES.contains(this.type) && this.size() <= 8) {
+            String var0 = ", ";
+            MutableComponent var1 = new TextComponent("[");
+
+            for(int var2 = 0; var2 < this.list.size(); ++var2) {
+                if (var2 != 0) {
+                    var1.append(", ");
+                }
+
+                var1.append(this.list.get(var2).getPrettyDisplay());
+            }
+
+            var1.append("]");
+            return var1;
+        } else {
+            MutableComponent var3 = new TextComponent("[");
+            if (!param0.isEmpty()) {
+                var3.append("\n");
+            }
+
+            String var4 = String.valueOf(',');
+
+            for(int var5 = 0; var5 < this.list.size(); ++var5) {
+                MutableComponent var6 = new TextComponent(Strings.repeat(param0, param1 + 1));
+                var6.append(this.list.get(var5).getPrettyDisplay(param0, param1 + 1));
+                if (var5 != this.list.size() - 1) {
+                    var6.append(var4).append(param0.isEmpty() ? " " : "\n");
+                }
+
+                var3.append(var6);
+            }
+
+            if (!param0.isEmpty()) {
+                var3.append("\n").append(Strings.repeat(param0, param1));
+            }
+
+            var3.append("]");
+            return var3;
+        }
     }
 
     @Override

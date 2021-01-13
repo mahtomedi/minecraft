@@ -1,5 +1,6 @@
 package net.minecraft.world.level.block;
 
+import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.FrontAndTop;
@@ -7,6 +8,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.JigsawBlockEntity;
@@ -18,7 +20,7 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.phys.BlockHitResult;
 
-public class JigsawBlock extends Block implements EntityBlock, GameMasterBlock {
+public class JigsawBlock extends Block implements EntityBlock {
     public static final EnumProperty<FrontAndTop> ORIENTATION = BlockStateProperties.ORIENTATION;
 
     protected JigsawBlock(BlockBehaviour.Properties param0) {
@@ -54,9 +56,10 @@ public class JigsawBlock extends Block implements EntityBlock, GameMasterBlock {
         return this.defaultBlockState().setValue(ORIENTATION, FrontAndTop.fromFrontAndTop(var0, var1));
     }
 
+    @Nullable
     @Override
-    public BlockEntity newBlockEntity(BlockPos param0, BlockState param1) {
-        return new JigsawBlockEntity(param0, param1);
+    public BlockEntity newBlockEntity(BlockGetter param0) {
+        return new JigsawBlockEntity();
     }
 
     @Override

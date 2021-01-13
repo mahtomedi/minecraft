@@ -55,15 +55,15 @@ public class LecternBlock extends BaseEntityBlock {
         SHAPE_COMMON
     );
     public static final VoxelShape SHAPE_EAST = Shapes.or(
-        Block.box(10.666667, 10.0, 0.0, 15.0, 14.0, 16.0),
-        Block.box(6.333333, 12.0, 0.0, 10.666667, 16.0, 16.0),
-        Block.box(2.0, 14.0, 0.0, 6.333333, 18.0, 16.0),
+        Block.box(15.0, 10.0, 0.0, 10.666667, 14.0, 16.0),
+        Block.box(10.666667, 12.0, 0.0, 6.333333, 16.0, 16.0),
+        Block.box(6.333333, 14.0, 0.0, 2.0, 18.0, 16.0),
         SHAPE_COMMON
     );
     public static final VoxelShape SHAPE_SOUTH = Shapes.or(
-        Block.box(0.0, 10.0, 10.666667, 16.0, 14.0, 15.0),
-        Block.box(0.0, 12.0, 6.333333, 16.0, 16.0, 10.666667),
-        Block.box(0.0, 14.0, 2.0, 16.0, 18.0, 6.333333),
+        Block.box(0.0, 10.0, 15.0, 16.0, 14.0, 10.666667),
+        Block.box(0.0, 12.0, 10.666667, 16.0, 16.0, 6.333333),
+        Block.box(0.0, 14.0, 6.333333, 16.0, 18.0, 2.0),
         SHAPE_COMMON
     );
 
@@ -142,9 +142,10 @@ public class LecternBlock extends BaseEntityBlock {
         param0.add(FACING, POWERED, HAS_BOOK);
     }
 
+    @Nullable
     @Override
-    public BlockEntity newBlockEntity(BlockPos param0, BlockState param1) {
-        return new LecternBlockEntity(param0, param1);
+    public BlockEntity newBlockEntity(BlockGetter param0) {
+        return new LecternBlockEntity();
     }
 
     public static boolean tryPlaceBook(Level param0, BlockPos param1, BlockState param2, ItemStack param3) {
@@ -270,7 +271,7 @@ public class LecternBlock extends BaseEntityBlock {
             return InteractionResult.sidedSuccess(param1.isClientSide);
         } else {
             ItemStack var0 = param3.getItemInHand(param4);
-            return !var0.isEmpty() && !var0.is(ItemTags.LECTERN_BOOKS) ? InteractionResult.CONSUME : InteractionResult.PASS;
+            return !var0.isEmpty() && !var0.getItem().is(ItemTags.LECTERN_BOOKS) ? InteractionResult.CONSUME : InteractionResult.PASS;
         }
     }
 

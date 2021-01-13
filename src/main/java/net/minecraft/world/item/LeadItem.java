@@ -8,7 +8,7 @@ import net.minecraft.world.entity.decoration.LeashFenceKnotEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.AABB;
 
 public class LeadItem extends Item {
@@ -20,7 +20,7 @@ public class LeadItem extends Item {
     public InteractionResult useOn(UseOnContext param0) {
         Level var0 = param0.getLevel();
         BlockPos var1 = param0.getClickedPos();
-        BlockState var2 = var0.getBlockState(var1);
+        Block var2 = var0.getBlockState(var1).getBlock();
         if (var2.is(BlockTags.FENCES)) {
             Player var3 = param0.getPlayer();
             if (!var0.isClientSide && var3 != null) {

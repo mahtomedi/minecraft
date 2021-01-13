@@ -31,7 +31,6 @@ import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.WaterAnimal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
@@ -39,7 +38,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.WaterlilyBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -90,6 +88,7 @@ public class Boat extends Entity {
     public Boat(Level param0, double param1, double param2, double param3) {
         this(EntityType.BOAT, param0);
         this.setPos(param1, param2, param3);
+        this.setDeltaMovement(Vec3.ZERO);
         this.xo = param1;
         this.yo = param2;
         this.zo = param3;
@@ -149,19 +148,18 @@ public class Boat extends Entity {
     public boolean hurt(DamageSource param0, float param1) {
         if (this.isInvulnerableTo(param0)) {
             return false;
-        } else if (!this.level.isClientSide && !this.isRemoved()) {
-            this.gameEvent(param0.getEntity(), GameEvent.ENTITY_HIT);
+        } else if (!this.level.isClientSide && !this.removed) {
             this.setHurtDir(-this.getHurtDir());
             this.setHurtTime(10);
             this.setDamage(this.getDamage() + param1 * 10.0F);
             this.markHurt();
-            boolean var0 = param0.getEntity() instanceof Player && ((Player)param0.getEntity()).getAbilities().instabuild;
+            boolean var0 = param0.getEntity() instanceof Player && ((Player)param0.getEntity()).abilities.instabuild;
             if (var0 || this.getDamage() > 40.0F) {
                 if (!var0 && this.level.getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
                     this.spawnAtLocation(this.getDropItem());
                 }
 
-                this.discard();
+                this.remove();
             }
 
             return true;
@@ -197,7 +195,6 @@ public class Boat extends Entity {
                 );
         }
 
-        this.gameEvent(this.getControllingPassenger(), GameEvent.SPLASH);
     }
 
     @Override
@@ -240,7 +237,7 @@ public class Boat extends Entity {
 
     @Override
     public boolean isPickable() {
-        return !this.isRemoved();
+        return !this.removed;
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -284,7 +281,7 @@ public class Boat extends Entity {
         super.tick();
         this.tickLerp();
         if (this.isControlledByLocalInstance()) {
-            if (!(this.getFirstPassenger() instanceof Player)) {
+            if (this.getPassengers().isEmpty() || !(this.getPassengers().get(0) instanceof Player)) {
                 this.setPaddleState(false, false);
             }
 
@@ -322,8 +319,6 @@ public class Boat extends Entity {
                                 1.0F,
                                 0.8F + 0.4F * this.random.nextFloat()
                             );
-                        this.level
-                            .gameEvent(this.getControllingPassenger(), GameEvent.SPLASH, new BlockPos(this.getX() + var3, this.getY(), this.getZ() + var4));
                     }
                 }
 
@@ -386,7 +381,7 @@ public class Boat extends Entity {
                         this.setDeltaMovement(var3.add(0.0, -0.7, 0.0));
                         this.ejectPassengers();
                     } else {
-                        this.setDeltaMovement(var3.x, this.hasPassenger(param0 -> param0 instanceof Player) ? 2.7 : 0.6, var3.z);
+                        this.setDeltaMovement(var3.x, this.hasPassenger(Player.class) ? 2.7 : 0.6, var3.z);
                     }
                 }
 
@@ -672,7 +667,7 @@ public class Boat extends Entity {
     public void positionRider(Entity param0) {
         if (this.hasPassenger(param0)) {
             float var0 = 0.0F;
-            float var1 = (float)((this.isRemoved() ? 0.01F : this.getPassengersRidingOffset()) + param0.getMyRidingOffset());
+            float var1 = (float)((this.removed ? 0.01F : this.getPassengersRidingOffset()) + param0.getMyRidingOffset());
             if (this.getPassengers().size() > 1) {
                 int var2 = this.getPassengers().indexOf(param0);
                 if (var2 == 0) {
@@ -784,8 +779,8 @@ public class Boat extends Entity {
                     }
 
                     this.causeFallDamage(this.fallDistance, 1.0F);
-                    if (!this.level.isClientSide && !this.isRemoved()) {
-                        this.kill();
+                    if (!this.level.isClientSide && !this.removed) {
+                        this.remove();
                         if (this.level.getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
                             for(int var0 = 0; var0 < 3; ++var0) {
                                 this.spawnAtLocation(this.getBoatType().getPlanks());
@@ -863,7 +858,8 @@ public class Boat extends Entity {
     @Nullable
     @Override
     public Entity getControllingPassenger() {
-        return this.getFirstPassenger();
+        List<Entity> var0 = this.getPassengers();
+        return var0.isEmpty() ? null : var0.get(0);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -882,12 +878,6 @@ public class Boat extends Entity {
     @Override
     public boolean isUnderWater() {
         return this.status == Boat.Status.UNDER_WATER || this.status == Boat.Status.UNDER_FLOWING_WATER;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    @Override
-    public ItemStack getPickResult() {
-        return new ItemStack(this.getDropItem());
     }
 
     public static enum Status {

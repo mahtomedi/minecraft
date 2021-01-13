@@ -193,8 +193,8 @@ public abstract class StructureFeature<C extends FeatureConfiguration> {
         LevelReader param0, StructureFeatureManager param1, BlockPos param2, int param3, boolean param4, long param5, StructureFeatureConfiguration param6
     ) {
         int var0 = param6.spacing();
-        int var1 = SectionPos.blockToSectionCoord(param2.getX());
-        int var2 = SectionPos.blockToSectionCoord(param2.getZ());
+        int var1 = param2.getX() >> 4;
+        int var2 = param2.getZ() >> 4;
         int var3 = 0;
 
         for(WorldgenRandom var4 = new WorldgenRandom(); var3 <= param3; ++var3) {
@@ -207,19 +207,16 @@ public abstract class StructureFeature<C extends FeatureConfiguration> {
                         int var9 = var1 + var0 * var5;
                         int var10 = var2 + var0 * var7;
                         ChunkPos var11 = this.getPotentialFeatureChunk(param6, param5, var4, var9, var10);
-                        boolean var12 = param0.getBiomeManager().getPrimaryBiomeAtChunk(var11.x, var11.z).getGenerationSettings().isValidStart(this);
-                        if (var12) {
-                            ChunkAccess var13 = param0.getChunk(var11.x, var11.z, ChunkStatus.STRUCTURE_STARTS);
-                            StructureStart<?> var14 = param1.getStartForFeature(SectionPos.of(var13.getPos(), 0), this, var13);
-                            if (var14 != null && var14.isValid()) {
-                                if (param4 && var14.canBeReferenced()) {
-                                    var14.addReference();
-                                    return var14.getLocatePos();
-                                }
+                        ChunkAccess var12 = param0.getChunk(var11.x, var11.z, ChunkStatus.STRUCTURE_STARTS);
+                        StructureStart<?> var13 = param1.getStartForFeature(SectionPos.of(var12.getPos(), 0), this, var12);
+                        if (var13 != null && var13.isValid()) {
+                            if (param4 && var13.canBeReferenced()) {
+                                var13.addReference();
+                                return var13.getLocatePos();
+                            }
 
-                                if (!param4) {
-                                    return var14.getLocatePos();
-                                }
+                            if (!param4) {
+                                return var13.getLocatePos();
                             }
                         }
 

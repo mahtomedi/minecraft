@@ -13,7 +13,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -41,11 +40,12 @@ public class ItemPredicateArgument implements ArgumentType<ItemPredicateArgument
         } else {
             ResourceLocation var2 = var0.getTag();
             return param2 -> {
-                Tag<Item> var0x = param2.getSource()
-                    .getServer()
-                    .getTags()
-                    .getTagOrThrow(Registry.ITEM_REGISTRY, var2, param0x -> ERROR_UNKNOWN_TAG.create(param0x.toString()));
-                return new ItemPredicateArgument.TagPredicate(var0x, var0.getNbt());
+                Tag<Item> var0x = param2.getSource().getServer().getTags().getItems().getTag(var2);
+                if (var0x == null) {
+                    throw ERROR_UNKNOWN_TAG.create(var2.toString());
+                } else {
+                    return new ItemPredicateArgument.TagPredicate(var0x, var0.getNbt());
+                }
             };
         }
     }
@@ -84,7 +84,7 @@ public class ItemPredicateArgument implements ArgumentType<ItemPredicateArgument
         }
 
         public boolean test(ItemStack param0) {
-            return param0.is(this.item) && NbtUtils.compareNbt(this.nbt, param0.getTag(), true);
+            return param0.getItem() == this.item && NbtUtils.compareNbt(this.nbt, param0.getTag(), true);
         }
     }
 
@@ -103,7 +103,7 @@ public class ItemPredicateArgument implements ArgumentType<ItemPredicateArgument
         }
 
         public boolean test(ItemStack param0) {
-            return param0.is(this.tag) && NbtUtils.compareNbt(this.nbt, param0.getTag(), true);
+            return this.tag.contains(param0.getItem()) && NbtUtils.compareNbt(this.nbt, param0.getTag(), true);
         }
     }
 }

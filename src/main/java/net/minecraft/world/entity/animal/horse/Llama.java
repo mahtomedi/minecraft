@@ -15,7 +15,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.Container;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.AgeableMob;
+import net.minecraft.world.entity.AgableMob;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -41,6 +41,7 @@ import net.minecraft.world.entity.monster.RangedAttackMob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.LlamaSpit;
 import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -186,11 +187,12 @@ public class Llama extends AbstractChestedHorse implements RangedAttackMob {
         int var1 = 0;
         float var2 = 0.0F;
         boolean var3 = false;
-        if (param1.is(Items.WHEAT)) {
+        Item var4 = param1.getItem();
+        if (var4 == Items.WHEAT) {
             var0 = 10;
             var1 = 3;
             var2 = 2.0F;
-        } else if (param1.is(Blocks.HAY_BLOCK.asItem())) {
+        } else if (var4 == Blocks.HAY_BLOCK.asItem()) {
             var0 = 90;
             var1 = 6;
             var2 = 10.0F;
@@ -222,8 +224,8 @@ public class Llama extends AbstractChestedHorse implements RangedAttackMob {
         }
 
         if (var3 && !this.isSilent()) {
-            SoundEvent var4 = this.getEatingSound();
-            if (var4 != null) {
+            SoundEvent var5 = this.getEatingSound();
+            if (var5 != null) {
                 this.level
                     .playSound(
                         null,
@@ -326,7 +328,8 @@ public class Llama extends AbstractChestedHorse implements RangedAttackMob {
 
     @Override
     public boolean isArmor(ItemStack param0) {
-        return param0.is(ItemTags.CARPETS);
+        Item var0 = param0.getItem();
+        return ItemTags.CARPETS.contains(var0);
     }
 
     @Override
@@ -379,7 +382,7 @@ public class Llama extends AbstractChestedHorse implements RangedAttackMob {
         return param0 != this && param0 instanceof Llama && this.canParent() && ((Llama)param0).canParent();
     }
 
-    public Llama getBreedOffspring(ServerLevel param0, AgeableMob param1) {
+    public Llama getBreedOffspring(ServerLevel param0, AgableMob param1) {
         Llama var0 = this.makeBabyLlama();
         this.setOffspringAttributes(param1, var0);
         Llama var1 = (Llama)param1;
@@ -512,7 +515,7 @@ public class Llama extends AbstractChestedHorse implements RangedAttackMob {
         }
     }
 
-    static class LlamaGroupData extends AgeableMob.AgeableMobGroupData {
+    static class LlamaGroupData extends AgableMob.AgableMobGroupData {
         public final int variant;
 
         private LlamaGroupData(int param0) {

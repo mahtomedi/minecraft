@@ -1,5 +1,6 @@
 package net.minecraft.util;
 
+import javax.annotation.Nonnull;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -7,6 +8,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class CubicSampler {
     private static final double[] GAUSSIAN_SAMPLE_KERNEL = new double[]{0.0, 1.0, 4.0, 6.0, 4.0, 1.0, 0.0};
 
+    @Nonnull
     @OnlyIn(Dist.CLIENT)
     public static Vec3 gaussianSampleVec3(Vec3 param0, CubicSampler.Vec3Fetcher param1) {
         int var0 = Mth.floor(param0.x());

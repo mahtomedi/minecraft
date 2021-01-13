@@ -41,13 +41,13 @@ public class TimerCallbacks<C> {
         ResourceLocation var0 = ResourceLocation.tryParse(param0.getString("Type"));
         TimerCallback.Serializer<C, ?> var1 = this.idToSerializer.get(var0);
         if (var1 == null) {
-            LOGGER.error("Failed to deserialize timer callback: {}", param0);
+            LOGGER.error("Failed to deserialize timer callback: " + param0);
             return null;
         } else {
             try {
                 return var1.deserialize(param0);
             } catch (Exception var5) {
-                LOGGER.error("Failed to deserialize timer callback: {}", param0, var5);
+                LOGGER.error("Failed to deserialize timer callback: " + param0, (Throwable)var5);
                 return null;
             }
         }

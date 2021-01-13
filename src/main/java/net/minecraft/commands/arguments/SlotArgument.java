@@ -48,13 +48,13 @@ public class SlotArgument implements ArgumentType<Integer> {
             param0.put("horse." + var5, 500 + var5);
         }
 
-        param0.put("weapon", EquipmentSlot.MAINHAND.getIndex(98));
-        param0.put("weapon.mainhand", EquipmentSlot.MAINHAND.getIndex(98));
-        param0.put("weapon.offhand", EquipmentSlot.OFFHAND.getIndex(98));
-        param0.put("armor.head", EquipmentSlot.HEAD.getIndex(100));
-        param0.put("armor.chest", EquipmentSlot.CHEST.getIndex(100));
-        param0.put("armor.legs", EquipmentSlot.LEGS.getIndex(100));
-        param0.put("armor.feet", EquipmentSlot.FEET.getIndex(100));
+        param0.put("weapon", 98);
+        param0.put("weapon.mainhand", 98);
+        param0.put("weapon.offhand", 99);
+        param0.put("armor.head", 100 + EquipmentSlot.HEAD.getIndex());
+        param0.put("armor.chest", 100 + EquipmentSlot.CHEST.getIndex());
+        param0.put("armor.legs", 100 + EquipmentSlot.LEGS.getIndex());
+        param0.put("armor.feet", 100 + EquipmentSlot.FEET.getIndex());
         param0.put("horse.saddle", 400);
         param0.put("horse.armor", 401);
         param0.put("horse.chest", 499);

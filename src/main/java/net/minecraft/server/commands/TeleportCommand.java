@@ -255,41 +255,41 @@ public class TeleportCommand {
         if (!Level.isInSpawnableBounds(var0)) {
             throw INVALID_POSITION.create();
         } else {
-            float var1 = Mth.wrapDegrees(param7);
-            float var2 = Mth.wrapDegrees(param8);
             if (param1 instanceof ServerPlayer) {
-                ChunkPos var3 = new ChunkPos(new BlockPos(param3, param4, param5));
-                param2.getChunkSource().addRegionTicket(TicketType.POST_TELEPORT, var3, 1, param1.getId());
+                ChunkPos var1 = new ChunkPos(new BlockPos(param3, param4, param5));
+                param2.getChunkSource().addRegionTicket(TicketType.POST_TELEPORT, var1, 1, param1.getId());
                 param1.stopRiding();
                 if (((ServerPlayer)param1).isSleeping()) {
                     ((ServerPlayer)param1).stopSleepInBed(true, true);
                 }
 
                 if (param2 == param1.level) {
-                    ((ServerPlayer)param1).connection.teleport(param3, param4, param5, var1, var2, param6);
+                    ((ServerPlayer)param1).connection.teleport(param3, param4, param5, param7, param8, param6);
                 } else {
-                    ((ServerPlayer)param1).teleportTo(param2, param3, param4, param5, var1, var2);
+                    ((ServerPlayer)param1).teleportTo(param2, param3, param4, param5, param7, param8);
                 }
 
-                param1.setYHeadRot(var1);
+                param1.setYHeadRot(param7);
             } else {
-                float var4 = Mth.clamp(var2, -90.0F, 90.0F);
+                float var2 = Mth.wrapDegrees(param7);
+                float var3 = Mth.wrapDegrees(param8);
+                var3 = Mth.clamp(var3, -90.0F, 90.0F);
                 if (param2 == param1.level) {
-                    param1.moveTo(param3, param4, param5, var1, var4);
-                    param1.setYHeadRot(var1);
+                    param1.moveTo(param3, param4, param5, var2, var3);
+                    param1.setYHeadRot(var2);
                 } else {
                     param1.unRide();
-                    Entity var5 = param1;
+                    Entity var4 = param1;
                     param1 = param1.getType().create(param2);
                     if (param1 == null) {
                         return;
                     }
 
-                    param1.restoreFrom(var5);
-                    param1.moveTo(param3, param4, param5, var1, var4);
-                    param1.setYHeadRot(var1);
-                    param2.addDuringTeleport(param1);
-                    var5.setRemoved(Entity.RemovalReason.CHANGED_DIMENSION);
+                    param1.restoreFrom(var4);
+                    param1.moveTo(param3, param4, param5, var2, var3);
+                    param1.setYHeadRot(var2);
+                    param2.addFromAnotherDimension(param1);
+                    var4.removed = true;
                 }
             }
 

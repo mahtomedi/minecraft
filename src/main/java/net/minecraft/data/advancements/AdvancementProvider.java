@@ -30,7 +30,7 @@ public class AdvancementProvider implements DataProvider {
     }
 
     @Override
-    public void run(HashCache param0) {
+    public void run(HashCache param0) throws IOException {
         Path var0 = this.generator.getOutputFolder();
         Set<ResourceLocation> var1 = Sets.newHashSet();
         Consumer<Advancement> var2 = param3 -> {

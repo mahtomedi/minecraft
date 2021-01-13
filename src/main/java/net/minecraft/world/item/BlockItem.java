@@ -7,26 +7,22 @@ import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.ShulkerBoxBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.Property;
-import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -65,19 +61,19 @@ public class BlockItem extends Item {
                     Player var4 = var0.getPlayer();
                     ItemStack var5 = var0.getItemInHand();
                     BlockState var6 = var3.getBlockState(var2);
-                    if (var6.is(var1.getBlock())) {
+                    Block var7 = var6.getBlock();
+                    if (var7 == var1.getBlock()) {
                         var6 = this.updateBlockStateFromTag(var2, var3, var5, var6);
                         this.updateCustomBlockEntityTag(var2, var3, var4, var5, var6);
-                        var6.getBlock().setPlacedBy(var3, var2, var6, var4, var5);
+                        var7.setPlacedBy(var3, var2, var6, var4, var5);
                         if (var4 instanceof ServerPlayer) {
                             CriteriaTriggers.PLACED_BLOCK.trigger((ServerPlayer)var4, var2, var5);
                         }
                     }
 
-                    SoundType var7 = var6.getSoundType();
-                    var3.playSound(var4, var2, this.getPlaceSound(var6), SoundSource.BLOCKS, (var7.getVolume() + 1.0F) / 2.0F, var7.getPitch() * 0.8F);
-                    var3.gameEvent(var4, GameEvent.BLOCK_PLACE, var2);
-                    if (var4 == null || !var4.getAbilities().instabuild) {
+                    SoundType var8 = var6.getSoundType();
+                    var3.playSound(var4, var2, this.getPlaceSound(var6), SoundSource.BLOCKS, (var8.getVolume() + 1.0F) / 2.0F, var8.getPitch() * 0.8F);
+                    if (var4 == null || !var4.abilities.instabuild) {
                         var5.shrink(1);
                     }
 
@@ -168,7 +164,7 @@ public class BlockItem extends Item {
                     var3.putInt("y", param2.getY());
                     var3.putInt("z", param2.getZ());
                     if (!var3.equals(var4)) {
-                        var2.load(var3);
+                        var2.load(param0.getBlockState(param2), var3);
                         var2.setChanged();
                         return true;
                     }
@@ -205,22 +201,5 @@ public class BlockItem extends Item {
 
     public void registerBlocks(Map<Block, Item> param0, Item param1) {
         param0.put(this.getBlock(), param1);
-    }
-
-    @Override
-    public boolean canFitInsideContainerItems() {
-        return !(this.block instanceof ShulkerBoxBlock);
-    }
-
-    @Override
-    public void onDestroyed(ItemEntity param0) {
-        if (this.block instanceof ShulkerBoxBlock) {
-            CompoundTag var0 = param0.getItem().getTag();
-            if (var0 != null) {
-                ListTag var1 = var0.getCompound("BlockEntityTag").getList("Items", 10);
-                ItemUtils.onContainerDestroyed(param0, var1.stream().map(CompoundTag.class::cast).map(ItemStack::of));
-            }
-        }
-
     }
 }

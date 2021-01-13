@@ -35,7 +35,7 @@ public class MapBanner {
         BlockEntity var0 = param0.getBlockEntity(param1);
         if (var0 instanceof BannerBlockEntity) {
             BannerBlockEntity var1 = (BannerBlockEntity)var0;
-            DyeColor var2 = var1.getBaseColor();
+            DyeColor var2 = var1.getBaseColor(() -> param0.getBlockState(param1));
             Component var3 = var1.hasCustomName() ? var1.getCustomName() : null;
             return new MapBanner(param1, var2, var3);
         } else {

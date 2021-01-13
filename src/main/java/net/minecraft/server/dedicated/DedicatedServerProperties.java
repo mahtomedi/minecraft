@@ -18,7 +18,6 @@ public class DedicatedServerProperties extends Settings<DedicatedServerPropertie
     public final boolean pvp = this.get("pvp", true);
     public final boolean allowFlight = this.get("allow-flight", false);
     public final String resourcePack = this.get("resource-pack", "");
-    public final boolean requireResourcePack = this.get("require-resource-pack", false);
     public final String motd = this.get("motd", "A Minecraft Server");
     public final boolean forceGameMode = this.get("force-gamemode", false);
     public final boolean enforceWhitelist = this.get("enforce-whitelist", false);
@@ -28,6 +27,7 @@ public class DedicatedServerProperties extends Settings<DedicatedServerPropertie
     public final GameType gamemode = this.get("gamemode", dispatchNumberOrString(GameType::byId, GameType::byName), GameType::getName, GameType.SURVIVAL);
     public final String levelName = this.get("level-name", "world");
     public final int serverPort = this.get("server-port", 25565);
+    public final int maxBuildHeight = this.get("max-build-height", param0x -> Mth.clamp((param0x + 8) / 16 * 16, 64, 256), 256);
     public final Boolean announcePlayerAchievements = this.getLegacyBoolean("announce-player-achievements");
     public final boolean enableQuery = this.get("enable-query", false);
     public final int queryPort = this.get("query.port", 25565);

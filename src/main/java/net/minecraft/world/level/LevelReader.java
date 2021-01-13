@@ -4,8 +4,6 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.QuartPos;
-import net.minecraft.core.SectionPos;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.biome.Biome;
@@ -54,7 +52,7 @@ public interface LevelReader extends BlockAndTintGetter, CollisionGetter, BiomeM
 
     @Override
     default Biome getNoiseBiome(int param0, int param1, int param2) {
-        ChunkAccess var0 = this.getChunk(QuartPos.toSection(param0), QuartPos.toSection(param2), ChunkStatus.BIOMES, false);
+        ChunkAccess var0 = this.getChunk(param0 >> 2, param2 >> 2, ChunkStatus.BIOMES, false);
         return var0 != null && var0.getBiomes() != null
             ? var0.getBiomes().getNoiseBiome(param0, param1, param2)
             : this.getUncachedNoiseBiome(param0, param1, param2);
@@ -68,16 +66,6 @@ public interface LevelReader extends BlockAndTintGetter, CollisionGetter, BiomeM
     int getSeaLevel();
 
     DimensionType dimensionType();
-
-    @Override
-    default int getMinBuildHeight() {
-        return this.dimensionType().minY();
-    }
-
-    @Override
-    default int getHeight() {
-        return this.dimensionType().height();
-    }
 
     default BlockPos getHeightmapPos(Heightmap.Types param0, BlockPos param1) {
         return new BlockPos(param1.getX(), this.getHeight(param0, param1.getX(), param1.getZ()), param1.getZ());
@@ -117,7 +105,7 @@ public interface LevelReader extends BlockAndTintGetter, CollisionGetter, BiomeM
     }
 
     default ChunkAccess getChunk(BlockPos param0) {
-        return this.getChunk(SectionPos.blockToSectionCoord(param0.getX()), SectionPos.blockToSectionCoord(param0.getZ()));
+        return this.getChunk(param0.getX() >> 4, param0.getZ() >> 4);
     }
 
     default ChunkAccess getChunk(int param0, int param1) {
@@ -173,7 +161,7 @@ public interface LevelReader extends BlockAndTintGetter, CollisionGetter, BiomeM
 
     @Deprecated
     default boolean hasChunkAt(BlockPos param0) {
-        return this.hasChunk(SectionPos.blockToSectionCoord(param0.getX()), SectionPos.blockToSectionCoord(param0.getZ()));
+        return this.hasChunk(param0.getX() >> 4, param0.getZ() >> 4);
     }
 
     @Deprecated
@@ -183,7 +171,7 @@ public interface LevelReader extends BlockAndTintGetter, CollisionGetter, BiomeM
 
     @Deprecated
     default boolean hasChunksAt(int param0, int param1, int param2, int param3, int param4, int param5) {
-        if (param4 >= this.getMinBuildHeight() && param1 < this.getMaxBuildHeight()) {
+        if (param4 >= 0 && param1 < 256) {
             param0 >>= 4;
             param2 >>= 4;
             param3 >>= 4;

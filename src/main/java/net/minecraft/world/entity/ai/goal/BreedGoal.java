@@ -63,8 +63,7 @@ public class BreedGoal extends Goal {
 
     @Nullable
     private Animal getFreePartner() {
-        List<? extends Animal> var0 = this.level
-            .getNearbyEntities(this.partnerClass, PARTNER_TARGETING, this.animal, this.animal.getBoundingBox().inflate(8.0));
+        List<Animal> var0 = this.level.getNearbyEntities(this.partnerClass, PARTNER_TARGETING, this.animal, this.animal.getBoundingBox().inflate(8.0));
         double var1 = Double.MAX_VALUE;
         Animal var2 = null;
 

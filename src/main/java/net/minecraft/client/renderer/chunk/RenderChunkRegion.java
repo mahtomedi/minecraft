@@ -3,7 +3,6 @@ package net.minecraft.client.renderer.chunk;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.ColorResolver;
 import net.minecraft.world.level.Level;
@@ -30,10 +29,10 @@ public class RenderChunkRegion implements BlockAndTintGetter {
 
     @Nullable
     public static RenderChunkRegion createIfNotEmpty(Level param0, BlockPos param1, BlockPos param2, int param3) {
-        int var0 = SectionPos.blockToSectionCoord(param1.getX() - param3);
-        int var1 = SectionPos.blockToSectionCoord(param1.getZ() - param3);
-        int var2 = SectionPos.blockToSectionCoord(param2.getX() + param3);
-        int var3 = SectionPos.blockToSectionCoord(param2.getZ() + param3);
+        int var0 = param1.getX() - param3 >> 4;
+        int var1 = param1.getZ() - param3 >> 4;
+        int var2 = param2.getX() + param3 >> 4;
+        int var3 = param2.getZ() + param3 >> 4;
         LevelChunk[][] var4 = new LevelChunk[var2 - var0 + 1][var3 - var1 + 1];
 
         for(int var5 = var0; var5 <= var2; ++var5) {
@@ -53,8 +52,8 @@ public class RenderChunkRegion implements BlockAndTintGetter {
     }
 
     public static boolean isAllEmpty(BlockPos param0, BlockPos param1, int param2, int param3, LevelChunk[][] param4) {
-        for(int var0 = SectionPos.blockToSectionCoord(param0.getX()); var0 <= SectionPos.blockToSectionCoord(param1.getX()); ++var0) {
-            for(int var1 = SectionPos.blockToSectionCoord(param0.getZ()); var1 <= SectionPos.blockToSectionCoord(param1.getZ()); ++var1) {
+        for(int var0 = param0.getX() >> 4; var0 <= param1.getX() >> 4; ++var0) {
+            for(int var1 = param0.getZ() >> 4; var1 <= param1.getZ() >> 4; ++var1) {
                 LevelChunk var2 = param4[var0 - param2][var1 - param3];
                 if (!var2.isYSpaceEmpty(param0.getY(), param1.getY())) {
                     return false;
@@ -78,8 +77,8 @@ public class RenderChunkRegion implements BlockAndTintGetter {
         this.fluidStates = new FluidState[this.xLength * this.yLength * this.zLength];
 
         for(BlockPos var0 : BlockPos.betweenClosed(param4, param5)) {
-            int var1 = SectionPos.blockToSectionCoord(var0.getX()) - param1;
-            int var2 = SectionPos.blockToSectionCoord(var0.getZ()) - param2;
+            int var1 = (var0.getX() >> 4) - param1;
+            int var2 = (var0.getZ() >> 4) - param2;
             LevelChunk var3 = param3[var1][var2];
             int var4 = this.index(var0);
             this.blockStates[var4] = var3.getBlockState(var0);
@@ -127,23 +126,13 @@ public class RenderChunkRegion implements BlockAndTintGetter {
 
     @Nullable
     public BlockEntity getBlockEntity(BlockPos param0, LevelChunk.EntityCreationType param1) {
-        int var0 = SectionPos.blockToSectionCoord(param0.getX()) - this.centerX;
-        int var1 = SectionPos.blockToSectionCoord(param0.getZ()) - this.centerZ;
+        int var0 = (param0.getX() >> 4) - this.centerX;
+        int var1 = (param0.getZ() >> 4) - this.centerZ;
         return this.chunks[var0][var1].getBlockEntity(param0, param1);
     }
 
     @Override
     public int getBlockTint(BlockPos param0, ColorResolver param1) {
         return this.level.getBlockTint(param0, param1);
-    }
-
-    @Override
-    public int getMinBuildHeight() {
-        return this.level.getMinBuildHeight();
-    }
-
-    @Override
-    public int getHeight() {
-        return this.level.getHeight();
     }
 }

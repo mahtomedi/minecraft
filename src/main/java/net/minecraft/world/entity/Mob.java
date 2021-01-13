@@ -40,7 +40,6 @@ import net.minecraft.world.entity.ai.goal.GoalSelector;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.ai.sensing.Sensing;
-import net.minecraft.world.entity.animal.axolotl.Axolotl;
 import net.minecraft.world.entity.decoration.HangingEntity;
 import net.minecraft.world.entity.decoration.LeashFenceKnotEntity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -65,6 +64,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.block.AbstractSkullBlock;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.level.storage.loot.LootContext;
@@ -510,7 +511,7 @@ public abstract class Mob extends LivingEntity {
             && !this.dead
             && this.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)) {
             for(ItemEntity var1 : this.level.getEntitiesOfClass(ItemEntity.class, this.getBoundingBox().inflate(1.0, 0.0, 1.0))) {
-                if (!var1.isRemoved() && !var1.getItem().isEmpty() && !var1.hasPickUpDelay() && this.wantsToPickUp(var1.getItem())) {
+                if (!var1.removed && !var1.getItem().isEmpty() && !var1.hasPickUpDelay() && this.wantsToPickUp(var1.getItem())) {
                     this.pickUpItem(var1);
                 }
             }
@@ -524,7 +525,7 @@ public abstract class Mob extends LivingEntity {
         if (this.equipItemIfPossible(var0)) {
             this.onItemPickup(param0);
             this.take(param0, var0.getCount());
-            param0.discard();
+            param0.remove();
         }
 
     }
@@ -656,7 +657,7 @@ public abstract class Mob extends LivingEntity {
     @Override
     public void checkDespawn() {
         if (this.level.getDifficulty() == Difficulty.PEACEFUL && this.shouldDespawnInPeaceful()) {
-            this.discard();
+            this.remove();
         } else if (!this.isPersistenceRequired() && !this.requiresCustomPersistence()) {
             Entity var0 = this.level.getNearestPlayer(this, -1.0);
             if (var0 != null) {
@@ -664,13 +665,13 @@ public abstract class Mob extends LivingEntity {
                 int var2 = this.getType().getCategory().getDespawnDistance();
                 int var3 = var2 * var2;
                 if (var1 > (double)var3 && this.removeWhenFarAway(var1)) {
-                    this.discard();
+                    this.remove();
                 }
 
                 int var4 = this.getType().getCategory().getNoDespawnDistance();
                 int var5 = var4 * var4;
                 if (this.noActionTime > 600 && this.random.nextInt(800) == 0 && var1 > (double)var5 && this.removeWhenFarAway(var1)) {
-                    this.discard();
+                    this.remove();
                 } else if (var1 < (double)var5) {
                     this.noActionTime = 0;
                 }
@@ -908,6 +909,21 @@ public abstract class Mob extends LivingEntity {
 
     }
 
+    public static EquipmentSlot getEquipmentSlotForItem(ItemStack param0) {
+        Item var0 = param0.getItem();
+        if (var0 != Blocks.CARVED_PUMPKIN.asItem() && (!(var0 instanceof BlockItem) || !(((BlockItem)var0).getBlock() instanceof AbstractSkullBlock))) {
+            if (var0 instanceof ArmorItem) {
+                return ((ArmorItem)var0).getSlot();
+            } else if (var0 == Items.ELYTRA) {
+                return EquipmentSlot.CHEST;
+            } else {
+                return var0 == Items.SHIELD ? EquipmentSlot.OFFHAND : EquipmentSlot.MAINHAND;
+            }
+        } else {
+            return EquipmentSlot.HEAD;
+        }
+    }
+
     @Nullable
     public static Item getEquipmentForSlot(EquipmentSlot param0, int param1) {
         switch(param0) {
@@ -1051,7 +1067,7 @@ public abstract class Mob extends LivingEntity {
         if (!this.isAlive()) {
             return InteractionResult.PASS;
         } else if (this.getLeashHolder() == param0) {
-            this.dropLeash(true, !param0.getAbilities().instabuild);
+            this.dropLeash(true, !param0.abilities.instabuild);
             return InteractionResult.sidedSuccess(this.level.isClientSide);
         } else {
             InteractionResult var0 = this.checkAndHandleImportantInteractions(param0, param1);
@@ -1066,12 +1082,12 @@ public abstract class Mob extends LivingEntity {
 
     private InteractionResult checkAndHandleImportantInteractions(Player param0, InteractionHand param1) {
         ItemStack var0 = param0.getItemInHand(param1);
-        if (var0.is(Items.LEAD) && this.canBeLeashed(param0)) {
+        if (var0.getItem() == Items.LEAD && this.canBeLeashed(param0)) {
             this.setLeashedTo(param0, true);
             var0.shrink(1);
             return InteractionResult.sidedSuccess(this.level.isClientSide);
         } else {
-            if (var0.is(Items.NAME_TAG)) {
+            if (var0.getItem() == Items.NAME_TAG) {
                 InteractionResult var1 = var0.interactLivingEntity(param0, this, param1);
                 if (var1.consumesAction()) {
                     return var1;
@@ -1131,7 +1147,7 @@ public abstract class Mob extends LivingEntity {
 
     @Nullable
     public <T extends Mob> T convertTo(EntityType<T> param0, boolean param1) {
-        if (this.isRemoved()) {
+        if (this.removed) {
             return null;
         } else {
             T var0 = param0.create(this.level);
@@ -1168,7 +1184,7 @@ public abstract class Mob extends LivingEntity {
                 var0.startRiding(var3, true);
             }
 
-            this.discard();
+            this.remove();
             return var0;
         }
     }
@@ -1188,6 +1204,11 @@ public abstract class Mob extends LivingEntity {
 
     public void dropLeash(boolean param0, boolean param1) {
         if (this.leashHolder != null) {
+            this.forcedLoading = false;
+            if (!(this.leashHolder instanceof Player)) {
+                this.leashHolder.forcedLoading = false;
+            }
+
             this.leashHolder = null;
             this.leashInfoTag = null;
             if (!this.level.isClientSide && param1) {
@@ -1221,6 +1242,11 @@ public abstract class Mob extends LivingEntity {
     public void setLeashedTo(Entity param0, boolean param1) {
         this.leashHolder = param0;
         this.leashInfoTag = null;
+        this.forcedLoading = true;
+        if (!(this.leashHolder instanceof Player)) {
+            this.leashHolder.forcedLoading = true;
+        }
+
         if (!this.level.isClientSide && param1 && this.level instanceof ServerLevel) {
             ((ServerLevel)this.level).getChunkSource().broadcast(this, new ClientboundSetEntityLinkPacket(this, this.leashHolder));
         }
@@ -1271,8 +1297,44 @@ public abstract class Mob extends LivingEntity {
     }
 
     @Override
+    public boolean setSlot(int param0, ItemStack param1) {
+        EquipmentSlot var0;
+        if (param0 == 98) {
+            var0 = EquipmentSlot.MAINHAND;
+        } else if (param0 == 99) {
+            var0 = EquipmentSlot.OFFHAND;
+        } else if (param0 == 100 + EquipmentSlot.HEAD.getIndex()) {
+            var0 = EquipmentSlot.HEAD;
+        } else if (param0 == 100 + EquipmentSlot.CHEST.getIndex()) {
+            var0 = EquipmentSlot.CHEST;
+        } else if (param0 == 100 + EquipmentSlot.LEGS.getIndex()) {
+            var0 = EquipmentSlot.LEGS;
+        } else {
+            if (param0 != 100 + EquipmentSlot.FEET.getIndex()) {
+                return false;
+            }
+
+            var0 = EquipmentSlot.FEET;
+        }
+
+        if (!param1.isEmpty() && !isValidSlotForItem(var0, param1) && var0 != EquipmentSlot.HEAD) {
+            return false;
+        } else {
+            this.setItemSlot(var0, param1);
+            return true;
+        }
+    }
+
+    @Override
     public boolean isControlledByLocalInstance() {
         return this.canBeControlledByRider() && super.isControlledByLocalInstance();
+    }
+
+    public static boolean isValidSlotForItem(EquipmentSlot param0, ItemStack param1) {
+        EquipmentSlot var0 = getEquipmentSlotForItem(param1);
+        return var0 == param0
+            || var0 == EquipmentSlot.MAINHAND && param0 == EquipmentSlot.OFFHAND
+            || var0 == EquipmentSlot.OFFHAND && param0 == EquipmentSlot.MAINHAND;
     }
 
     @Override
@@ -1315,17 +1377,9 @@ public abstract class Mob extends LivingEntity {
         return this.isLeftHanded() ? HumanoidArm.LEFT : HumanoidArm.RIGHT;
     }
 
-    public double getMeleeAttackRangeSqr(LivingEntity param0) {
-        return (double)(this.getBbWidth() * 2.0F * this.getBbWidth() * 2.0F + param0.getBbWidth());
-    }
-
     @Override
     public boolean canAttack(LivingEntity param0) {
-        if (param0.getType() == EntityType.PLAYER && ((Player)param0).getAbilities().invulnerable) {
-            return false;
-        } else {
-            return param0.getType() == EntityType.AXOLOTL && ((Axolotl)param0).isPlayingDead() ? false : super.canAttack(param0);
-        }
+        return param0.getType() == EntityType.PLAYER && ((Player)param0).abilities.invulnerable ? false : super.canAttack(param0);
     }
 
     @Override
@@ -1363,7 +1417,7 @@ public abstract class Mob extends LivingEntity {
     }
 
     private void maybeDisableShield(Player param0, ItemStack param1, ItemStack param2) {
-        if (!param1.isEmpty() && !param2.isEmpty() && param1.getItem() instanceof AxeItem && param2.is(Items.SHIELD)) {
+        if (!param1.isEmpty() && !param2.isEmpty() && param1.getItem() instanceof AxeItem && param2.getItem() == Items.SHIELD) {
             float var0 = 0.25F + (float)EnchantmentHelper.getBlockEfficiency(this) * 0.05F;
             if (this.random.nextFloat() < var0) {
                 param0.getCooldowns().addCooldown(Items.SHIELD, 100);
@@ -1376,9 +1430,10 @@ public abstract class Mob extends LivingEntity {
     protected boolean isSunBurnTick() {
         if (this.level.isDay() && !this.level.isClientSide) {
             float var0 = this.getBrightness();
-            BlockPos var1 = new BlockPos(this.getX(), this.getEyeY(), this.getZ());
-            boolean var2 = this.isInWaterRainOrBubble() || this.bodyIsInPowderSnow;
-            if (var0 > 0.5F && this.random.nextFloat() * 30.0F < (var0 - 0.4F) * 2.0F && !var2 && this.level.canSeeSky(var1)) {
+            BlockPos var1 = this.getVehicle() instanceof Boat
+                ? new BlockPos(this.getX(), (double)Math.round(this.getY()), this.getZ()).above()
+                : new BlockPos(this.getX(), (double)Math.round(this.getY()), this.getZ());
+            if (var0 > 0.5F && this.random.nextFloat() * 30.0F < (var0 - 0.4F) * 2.0F && this.level.canSeeSky(var1)) {
                 return true;
             }
         }
@@ -1400,13 +1455,5 @@ public abstract class Mob extends LivingEntity {
     protected void removeAfterChangingDimensions() {
         super.removeAfterChangingDimensions();
         this.dropLeash(true, false);
-    }
-
-    @Nullable
-    @OnlyIn(Dist.CLIENT)
-    @Override
-    public ItemStack getPickResult() {
-        SpawnEggItem var0 = SpawnEggItem.byId(this.getType());
-        return var0 == null ? null : new ItemStack(var0);
     }
 }

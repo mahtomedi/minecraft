@@ -15,7 +15,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
@@ -100,7 +99,7 @@ public class Painting extends HangingEntity {
             this.playSound(SoundEvents.PAINTING_BREAK, 1.0F, 1.0F);
             if (param0 instanceof Player) {
                 Player var0 = (Player)param0;
-                if (var0.getAbilities().instabuild) {
+                if (var0.abilities.instabuild) {
                     return;
                 }
             }
@@ -129,11 +128,5 @@ public class Painting extends HangingEntity {
     @Override
     public Packet<?> getAddEntityPacket() {
         return new ClientboundAddPaintingPacket(this);
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    @Override
-    public ItemStack getPickResult() {
-        return new ItemStack(Items.PAINTING);
     }
 }

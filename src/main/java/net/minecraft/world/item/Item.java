@@ -5,10 +5,9 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Random;
 import java.util.UUID;
 import javax.annotation.Nullable;
-import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
@@ -18,6 +17,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.tags.Tag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -28,13 +28,8 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
-import net.minecraft.world.inventory.ClickAction;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.ItemLike;
@@ -45,14 +40,12 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 public class Item implements ItemLike {
-    private static final Logger LOGGER = LogManager.getLogger();
     public static final Map<Block, Item> BY_BLOCK = Maps.newHashMap();
     protected static final UUID BASE_ATTACK_DAMAGE_UUID = UUID.fromString("CB3F55D3-645C-4F38-A497-9C13A33DB5CF");
     protected static final UUID BASE_ATTACK_SPEED_UUID = UUID.fromString("FA233E1C-4180-4865-B01B-BCCE9785ACA3");
+    protected static final Random random = new Random();
     protected final CreativeModeTab category;
     private final Rarity rarity;
     private final int maxStackSize;
@@ -85,19 +78,9 @@ public class Item implements ItemLike {
         this.maxStackSize = param0.maxStackSize;
         this.foodProperties = param0.foodProperties;
         this.isFireResistant = param0.isFireResistant;
-        if (SharedConstants.IS_RUNNING_IN_IDE) {
-            String var0 = this.getClass().getSimpleName();
-            if (!var0.endsWith("Item")) {
-                LOGGER.error("Item classes should end with Item and {} doesn't.", var0);
-            }
-        }
-
     }
 
     public void onUseTick(Level param0, LivingEntity param1, ItemStack param2, int param3) {
-    }
-
-    public void onDestroyed(ItemEntity param0) {
     }
 
     public boolean verifyTagAfterLoad(CompoundTag param0) {
@@ -149,30 +132,6 @@ public class Item implements ItemLike {
 
     public boolean canBeDepleted() {
         return this.maxDamage > 0;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public boolean isBarVisible(ItemStack param0) {
-        return param0.isDamaged();
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public int getBarWidth(ItemStack param0) {
-        return Math.round(13.0F - (float)param0.getDamageValue() * 13.0F / (float)this.maxDamage);
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public int getBarColor(ItemStack param0) {
-        float var0 = Math.max(0.0F, ((float)this.maxDamage - (float)param0.getDamageValue()) / (float)this.maxDamage);
-        return Mth.hsvToRgb(var0 / 3.0F, 1.0F, 1.0F);
-    }
-
-    public boolean overrideStackedOnOther(ItemStack param0, Slot param1, ClickAction param2, Inventory param3) {
-        return false;
-    }
-
-    public boolean overrideOtherStackedOnMe(ItemStack param0, ItemStack param1, Slot param2, ClickAction param3, Inventory param4) {
-        return false;
     }
 
     public boolean hurtEnemy(ItemStack param0, LivingEntity param1, LivingEntity param2) {
@@ -259,11 +218,6 @@ public class Item implements ItemLike {
     public void appendHoverText(ItemStack param0, @Nullable Level param1, List<Component> param2, TooltipFlag param3) {
     }
 
-    @OnlyIn(Dist.CLIENT)
-    public Optional<TooltipComponent> getTooltipImage(ItemStack param0) {
-        return Optional.empty();
-    }
-
     public Component getName(ItemStack param0) {
         return new TranslatableComponent(this.getDescriptionId(param0));
     }
@@ -338,11 +292,15 @@ public class Item implements ItemLike {
     }
 
     public boolean useOnRelease(ItemStack param0) {
-        return false;
+        return param0.getItem() == Items.CROSSBOW;
     }
 
     public ItemStack getDefaultInstance() {
         return new ItemStack(this);
+    }
+
+    public boolean is(Tag<Item> param0) {
+        return param0.contains(this);
     }
 
     public boolean isEdible() {
@@ -368,15 +326,6 @@ public class Item implements ItemLike {
 
     public boolean canBeHurtBy(DamageSource param0) {
         return !this.isFireResistant || !param0.isFire();
-    }
-
-    @Nullable
-    public SoundEvent getEquipSound() {
-        return null;
-    }
-
-    public boolean canFitInsideContainerItems() {
-        return true;
     }
 
     public static class Properties {

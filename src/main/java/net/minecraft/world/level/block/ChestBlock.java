@@ -3,7 +3,6 @@ package net.minecraft.world.level.block;
 import it.unimi.dsi.fastutil.floats.Float2FloatFunction;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 import java.util.function.BiPredicate;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
@@ -12,7 +11,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.stats.Stat;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.CompoundContainer;
@@ -34,7 +32,6 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.entity.LidBlockEntity;
@@ -265,10 +262,6 @@ public class ChestBlock extends AbstractChestBlock<ChestBlockEntity> implements 
         return Stats.CUSTOM.get(Stats.OPEN_CHEST);
     }
 
-    public BlockEntityType<? extends ChestBlockEntity> blockEntityType() {
-        return this.blockEntityType.get();
-    }
-
     @Nullable
     public static Container getContainer(ChestBlock param0, BlockState param1, Level param2, BlockPos param3, boolean param4) {
         return param0.combine(param1, param2, param3, param4).<Optional<Container>>apply(CHEST_COMBINER).orElse(null);
@@ -312,14 +305,8 @@ public class ChestBlock extends AbstractChestBlock<ChestBlockEntity> implements 
     }
 
     @Override
-    public BlockEntity newBlockEntity(BlockPos param0, BlockState param1) {
-        return new ChestBlockEntity(param0, param1);
-    }
-
-    @Nullable
-    @Override
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level param0, BlockState param1, BlockEntityType<T> param2) {
-        return param0.isClientSide ? createTickerHelper(param2, this.blockEntityType(), ChestBlockEntity::lidAnimateTick) : null;
+    public BlockEntity newBlockEntity(BlockGetter param0) {
+        return new ChestBlockEntity();
     }
 
     public static boolean isChestBlockedAt(LevelAccessor param0x, BlockPos param1x) {
@@ -382,14 +369,5 @@ public class ChestBlock extends AbstractChestBlock<ChestBlockEntity> implements 
     @Override
     public boolean isPathfindable(BlockState param0, BlockGetter param1, BlockPos param2, PathComputationType param3) {
         return false;
-    }
-
-    @Override
-    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
-        BlockEntity var0 = param1.getBlockEntity(param2);
-        if (var0 instanceof ChestBlockEntity) {
-            ((ChestBlockEntity)var0).recheckOpen();
-        }
-
     }
 }

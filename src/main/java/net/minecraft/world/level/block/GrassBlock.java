@@ -10,7 +10,6 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.AbstractFlowerFeature;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
-import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 
 public class GrassBlock extends SpreadingSnowyDirtBlock implements BonemealableBlock {
     public GrassBlock(BlockBehaviour.Properties param0) {
@@ -49,28 +48,25 @@ public class GrassBlock extends SpreadingSnowyDirtBlock implements BonemealableB
             }
 
             if (var5.isAir()) {
-                BlockState var7;
+                BlockState var9;
                 if (param1.nextInt(8) == 0) {
                     List<ConfiguredFeature<?, ?>> var6 = param0.getBiome(var3).getGenerationSettings().getFlowerFeatures();
                     if (var6.isEmpty()) {
                         continue;
                     }
 
-                    var7 = getBlockState(param1, var3, var6.get(0));
+                    ConfiguredFeature<?, ?> var7 = var6.get(0);
+                    AbstractFlowerFeature var8 = (AbstractFlowerFeature)var7.feature;
+                    var9 = var8.getRandomFlower(param1, var3, var7.config());
                 } else {
-                    var7 = var1;
+                    var9 = var1;
                 }
 
-                if (var7.canSurvive(param0, var3)) {
-                    param0.setBlock(var3, var7, 3);
+                if (var9.canSurvive(param0, var3)) {
+                    param0.setBlock(var3, var9, 3);
                 }
             }
         }
 
-    }
-
-    private static <U extends FeatureConfiguration> BlockState getBlockState(Random param0, BlockPos param1, ConfiguredFeature<U, ?> param2) {
-        AbstractFlowerFeature<U> var0 = (AbstractFlowerFeature)param2.feature;
-        return var0.getRandomFlower(param0, param1, param2.config());
     }
 }

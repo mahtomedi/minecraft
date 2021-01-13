@@ -15,7 +15,7 @@ public class IcePatchFeature extends BaseDiskFeature {
 
     @Override
     public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, DiskConfiguration param4) {
-        while(param0.isEmptyBlock(param3) && param3.getY() > param0.getMinBuildHeight() + 2) {
+        while(param0.isEmptyBlock(param3) && param3.getY() > 2) {
             param3 = param3.below();
         }
 

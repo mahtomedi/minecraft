@@ -6,11 +6,7 @@ public class CubePointRange extends AbstractDoubleList {
     private final int parts;
 
     CubePointRange(int param0) {
-        if (param0 <= 0) {
-            throw new IllegalArgumentException("Need at least 1 part");
-        } else {
-            this.parts = param0;
-        }
+        this.parts = param0;
     }
 
     @Override

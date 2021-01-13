@@ -113,7 +113,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface 
         var0.setDaemon(true);
         var0.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(LOGGER));
         var0.start();
-        LOGGER.info("Starting minecraft server version {}", SharedConstants.getCurrentVersion().getName());
+        LOGGER.info("Starting minecraft server version " + SharedConstants.getCurrentVersion().getName());
         if (Runtime.getRuntime().maxMemory() / 1024L / 1024L < 512L) {
             LOGGER.warn("To start the server with more ram, launch it as \"java -Xmx1024M -Xms1024M -jar minecraft_server.jar\"");
         }
@@ -132,6 +132,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface 
         this.setFlightAllowed(var1.allowFlight);
         this.setResourcePack(var1.resourcePack, this.getPackHash());
         this.setMotd(var1.motd);
+        this.setForceGameType(var1.forceGameMode);
         super.setPlayerIdleTimeout(var1.playerIdleTimeout.get());
         this.setEnforceWhitelist(var1.enforceWhitelist);
         this.worldData.setGameType(var1.gamemode);
@@ -175,6 +176,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface 
         } else {
             this.setPlayerList(new DedicatedPlayerList(this, this.registryHolder, this.playerDataStorage));
             long var4 = Util.getNanos();
+            this.setMaxBuildHeight(var1.maxBuildHeight);
             SkullBlockEntity.setProfileCache(this.getProfileCache());
             SkullBlockEntity.setSessionService(this.getSessionService());
             GameProfileCache.setUsesAuthentication(this.usesAuthentication());
@@ -208,7 +210,6 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface 
             Items.AIR.fillItemCategory(CreativeModeTab.TAB_SEARCH, NonNullList.create());
             if (var1.enableJmxMonitoring) {
                 MinecraftServerStatistics.registerJmxMonitoring(this);
-                LOGGER.info("JMX monitoring enabled");
             }
 
             return true;
@@ -386,6 +387,11 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface 
     @Override
     public boolean hasGui() {
         return this.gui != null;
+    }
+
+    @Override
+    public boolean publishServer(GameType param0, boolean param1, int param2) {
+        return false;
     }
 
     @Override
@@ -574,16 +580,5 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface 
     @Override
     public TextFilter createTextFilterForPlayer(ServerPlayer param0) {
         return this.textFilterClient != null ? this.textFilterClient.createContext(param0.getGameProfile()) : null;
-    }
-
-    @Override
-    public boolean isResourcePackRequired() {
-        return this.settings.getProperties().requireResourcePack;
-    }
-
-    @Nullable
-    @Override
-    public GameType getForcedGameType() {
-        return this.settings.getProperties().forceGameMode ? this.worldData.getGameType() : null;
     }
 }

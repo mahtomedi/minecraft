@@ -6,9 +6,9 @@ import net.minecraft.core.Direction;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.PathfinderMob;
-import net.minecraft.world.entity.ai.util.LandRandomPos;
+import net.minecraft.world.entity.ai.util.RandomPos;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.LeavesBlock;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
 public class WaterAvoidingRandomFlyingGoal extends WaterAvoidingRandomStrollGoal {
@@ -21,7 +21,7 @@ public class WaterAvoidingRandomFlyingGoal extends WaterAvoidingRandomStrollGoal
     protected Vec3 getPosition() {
         Vec3 var0 = null;
         if (this.mob.isInWater()) {
-            var0 = LandRandomPos.getPos(this.mob, 15, 15);
+            var0 = RandomPos.getLandPos(this.mob, 15, 15);
         }
 
         if (this.mob.getRandom().nextFloat() >= this.probability) {
@@ -46,8 +46,8 @@ public class WaterAvoidingRandomFlyingGoal extends WaterAvoidingRandomStrollGoal
             Mth.floor(this.mob.getZ() + 3.0)
         )) {
             if (!var0.equals(var4)) {
-                BlockState var5 = this.mob.level.getBlockState(var2.setWithOffset(var4, Direction.DOWN));
-                boolean var6 = var5.getBlock() instanceof LeavesBlock || var5.is(BlockTags.LOGS);
+                Block var5 = this.mob.level.getBlockState(var2.setWithOffset(var4, Direction.DOWN)).getBlock();
+                boolean var6 = var5 instanceof LeavesBlock || var5.is(BlockTags.LOGS);
                 if (var6 && this.mob.level.isEmptyBlock(var4) && this.mob.level.isEmptyBlock(var1.setWithOffset(var4, Direction.UP))) {
                     return Vec3.atBottomCenterOf(var4);
                 }

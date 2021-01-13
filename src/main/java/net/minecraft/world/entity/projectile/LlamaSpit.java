@@ -1,6 +1,7 @@
 package net.minecraft.world.entity.projectile;
 
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
@@ -32,6 +33,19 @@ public class LlamaSpit extends Projectile {
         );
     }
 
+    @OnlyIn(Dist.CLIENT)
+    public LlamaSpit(Level param0, double param1, double param2, double param3, double param4, double param5, double param6) {
+        this(EntityType.LLAMA_SPIT, param0);
+        this.setPos(param1, param2, param3);
+
+        for(int var0 = 0; var0 < 7; ++var0) {
+            double var1 = 0.4 + 0.1 * (double)var0;
+            param0.addParticle(ParticleTypes.SPIT, param1, param2, param3, param4 * var1, param5, param6 * var1);
+        }
+
+        this.setDeltaMovement(param4, param5, param6);
+    }
+
     @Override
     public void tick() {
         super.tick();
@@ -48,9 +62,9 @@ public class LlamaSpit extends Projectile {
         float var5 = 0.99F;
         float var6 = 0.06F;
         if (this.level.getBlockStates(this.getBoundingBox()).noneMatch(BlockBehaviour.BlockStateBase::isAir)) {
-            this.discard();
+            this.remove();
         } else if (this.isInWaterOrBubble()) {
-            this.discard();
+            this.remove();
         } else {
             this.setDeltaMovement(var0.scale(0.99F));
             if (!this.isNoGravity()) {
@@ -75,7 +89,7 @@ public class LlamaSpit extends Projectile {
     protected void onHitBlock(BlockHitResult param0) {
         super.onHitBlock(param0);
         if (!this.level.isClientSide) {
-            this.discard();
+            this.remove();
         }
 
     }
@@ -84,19 +98,8 @@ public class LlamaSpit extends Projectile {
     protected void defineSynchedData() {
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
-    public void recreateFromPacket(ClientboundAddEntityPacket param0) {
-        super.recreateFromPacket(param0);
-        double var0 = param0.getXa();
-        double var1 = param0.getYa();
-        double var2 = param0.getZa();
-
-        for(int var3 = 0; var3 < 7; ++var3) {
-            double var4 = 0.4 + 0.1 * (double)var3;
-            this.level.addParticle(ParticleTypes.SPIT, this.getX(), this.getY(), this.getZ(), var0 * var4, var1, var2 * var4);
-        }
-
-        this.setDeltaMovement(var0, var1, var2);
+    public Packet<?> getAddEntityPacket() {
+        return new ClientboundAddEntityPacket(this);
     }
 }

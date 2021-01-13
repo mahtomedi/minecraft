@@ -4,20 +4,19 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
 import java.util.Random;
-import java.util.Set;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.storage.loot.LootContext;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
+import net.minecraft.world.level.storage.loot.RandomIntGenerator;
+import net.minecraft.world.level.storage.loot.RandomIntGenerators;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
-import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
 
 public class EnchantWithLevelsFunction extends LootItemConditionalFunction {
-    private final NumberProvider levels;
+    private final RandomIntGenerator levels;
     private final boolean treasure;
 
-    private EnchantWithLevelsFunction(LootItemCondition[] param0, NumberProvider param1, boolean param2) {
+    private EnchantWithLevelsFunction(LootItemCondition[] param0, RandomIntGenerator param1, boolean param2) {
         super(param0);
         this.levels = param1;
         this.treasure = param2;
@@ -29,25 +28,20 @@ public class EnchantWithLevelsFunction extends LootItemConditionalFunction {
     }
 
     @Override
-    public Set<LootContextParam<?>> getReferencedContextParams() {
-        return this.levels.getReferencedContextParams();
-    }
-
-    @Override
     public ItemStack run(ItemStack param0, LootContext param1) {
         Random var0 = param1.getRandom();
-        return EnchantmentHelper.enchantItem(var0, param0, this.levels.getInt(param1), this.treasure);
+        return EnchantmentHelper.enchantItem(var0, param0, this.levels.getInt(var0), this.treasure);
     }
 
-    public static EnchantWithLevelsFunction.Builder enchantWithLevels(NumberProvider param0) {
+    public static EnchantWithLevelsFunction.Builder enchantWithLevels(RandomIntGenerator param0) {
         return new EnchantWithLevelsFunction.Builder(param0);
     }
 
     public static class Builder extends LootItemConditionalFunction.Builder<EnchantWithLevelsFunction.Builder> {
-        private final NumberProvider levels;
+        private final RandomIntGenerator levels;
         private boolean treasure;
 
-        public Builder(NumberProvider param0) {
+        public Builder(RandomIntGenerator param0) {
             this.levels = param0;
         }
 
@@ -69,12 +63,12 @@ public class EnchantWithLevelsFunction extends LootItemConditionalFunction {
     public static class Serializer extends LootItemConditionalFunction.Serializer<EnchantWithLevelsFunction> {
         public void serialize(JsonObject param0, EnchantWithLevelsFunction param1, JsonSerializationContext param2) {
             super.serialize(param0, param1, param2);
-            param0.add("levels", param2.serialize(param1.levels));
+            param0.add("levels", RandomIntGenerators.serialize(param1.levels, param2));
             param0.addProperty("treasure", param1.treasure);
         }
 
         public EnchantWithLevelsFunction deserialize(JsonObject param0, JsonDeserializationContext param1, LootItemCondition[] param2) {
-            NumberProvider var0 = GsonHelper.getAsObject(param0, "levels", param1, NumberProvider.class);
+            RandomIntGenerator var0 = RandomIntGenerators.deserialize(param0.get("levels"), param1);
             boolean var1 = GsonHelper.getAsBoolean(param0, "treasure", false);
             return new EnchantWithLevelsFunction(param2, var0, var1);
         }

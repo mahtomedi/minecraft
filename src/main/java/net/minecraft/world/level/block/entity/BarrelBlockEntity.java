@@ -1,6 +1,5 @@
 package net.minecraft.world.level.block.entity;
 
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
@@ -9,49 +8,26 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ChestMenu;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BarrelBlock;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class BarrelBlockEntity extends RandomizableContainerBlockEntity {
     private NonNullList<ItemStack> items = NonNullList.withSize(27, ItemStack.EMPTY);
-    private ContainerOpenersCounter openersCounter = new ContainerOpenersCounter() {
-        @Override
-        protected void onOpen(Level param0, BlockPos param1, BlockState param2) {
-            BarrelBlockEntity.this.playSound(param2, SoundEvents.BARREL_OPEN);
-            BarrelBlockEntity.this.updateBlockState(param2, true);
-        }
+    private int openCount;
 
-        @Override
-        protected void onClose(Level param0, BlockPos param1, BlockState param2) {
-            BarrelBlockEntity.this.playSound(param2, SoundEvents.BARREL_CLOSE);
-            BarrelBlockEntity.this.updateBlockState(param2, false);
-        }
+    private BarrelBlockEntity(BlockEntityType<?> param0) {
+        super(param0);
+    }
 
-        @Override
-        protected void openerCountChanged(Level param0, BlockPos param1, BlockState param2, int param3, int param4) {
-        }
-
-        @Override
-        protected boolean isOwnContainer(Player param0) {
-            if (param0.containerMenu instanceof ChestMenu) {
-                Container var0 = ((ChestMenu)param0.containerMenu).getContainer();
-                return var0 == BarrelBlockEntity.this;
-            } else {
-                return false;
-            }
-        }
-    };
-
-    public BarrelBlockEntity(BlockPos param0, BlockState param1) {
-        super(BlockEntityType.BARREL, param0, param1);
+    public BarrelBlockEntity() {
+        this(BlockEntityType.BARREL);
     }
 
     @Override
@@ -65,11 +41,11 @@ public class BarrelBlockEntity extends RandomizableContainerBlockEntity {
     }
 
     @Override
-    public void load(CompoundTag param0) {
-        super.load(param0);
+    public void load(BlockState param0, CompoundTag param1) {
+        super.load(param0, param1);
         this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
-        if (!this.tryLoadLootTable(param0)) {
-            ContainerHelper.loadAllItems(param0, this.items);
+        if (!this.tryLoadLootTable(param1)) {
+            ContainerHelper.loadAllItems(param1, this.items);
         }
 
     }
@@ -102,7 +78,46 @@ public class BarrelBlockEntity extends RandomizableContainerBlockEntity {
     @Override
     public void startOpen(Player param0) {
         if (!param0.isSpectator()) {
-            this.openersCounter.incrementOpeners(param0, this.getLevel(), this.getBlockPos(), this.getBlockState());
+            if (this.openCount < 0) {
+                this.openCount = 0;
+            }
+
+            ++this.openCount;
+            BlockState var0 = this.getBlockState();
+            boolean var1 = var0.getValue(BarrelBlock.OPEN);
+            if (!var1) {
+                this.playSound(var0, SoundEvents.BARREL_OPEN);
+                this.updateBlockState(var0, true);
+            }
+
+            this.scheduleRecheck();
+        }
+
+    }
+
+    private void scheduleRecheck() {
+        this.level.getBlockTicks().scheduleTick(this.getBlockPos(), this.getBlockState().getBlock(), 5);
+    }
+
+    public void recheckOpen() {
+        int var0 = this.worldPosition.getX();
+        int var1 = this.worldPosition.getY();
+        int var2 = this.worldPosition.getZ();
+        this.openCount = ChestBlockEntity.getOpenCount(this.level, this, var0, var1, var2);
+        if (this.openCount > 0) {
+            this.scheduleRecheck();
+        } else {
+            BlockState var3 = this.getBlockState();
+            if (!var3.is(Blocks.BARREL)) {
+                this.setRemoved();
+                return;
+            }
+
+            boolean var4 = var3.getValue(BarrelBlock.OPEN);
+            if (var4) {
+                this.playSound(var3, SoundEvents.BARREL_CLOSE);
+                this.updateBlockState(var3, false);
+            }
         }
 
     }
@@ -110,13 +125,9 @@ public class BarrelBlockEntity extends RandomizableContainerBlockEntity {
     @Override
     public void stopOpen(Player param0) {
         if (!param0.isSpectator()) {
-            this.openersCounter.decrementOpeners(param0, this.getLevel(), this.getBlockPos(), this.getBlockState());
+            --this.openCount;
         }
 
-    }
-
-    public void recheckOpen() {
-        this.openersCounter.recheckOpeners(this.getLevel(), this.getBlockPos(), this.getBlockState());
     }
 
     private void updateBlockState(BlockState param0, boolean param1) {

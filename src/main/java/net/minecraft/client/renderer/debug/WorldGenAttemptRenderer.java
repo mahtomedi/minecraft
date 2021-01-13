@@ -6,7 +6,6 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
 import java.util.List;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -40,7 +39,7 @@ public class WorldGenAttemptRenderer implements DebugRenderer.SimpleDebugRendere
         RenderSystem.disableTexture();
         Tesselator var0 = Tesselator.getInstance();
         BufferBuilder var1 = var0.getBuilder();
-        var1.begin(VertexFormat.Mode.TRIANGLE_STRIP, DefaultVertexFormat.POSITION_COLOR);
+        var1.begin(5, DefaultVertexFormat.POSITION_COLOR);
 
         for(int var2 = 0; var2 < this.toRender.size(); ++var2) {
             BlockPos var3 = this.toRender.get(var2);

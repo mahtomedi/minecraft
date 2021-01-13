@@ -202,7 +202,7 @@ public class VineBlock extends Block {
 
                 }
             } else {
-                if (var0 == Direction.UP && param2.getY() < param1.getMaxBuildHeight() - 1) {
+                if (var0 == Direction.UP && param2.getY() < 255) {
                     if (this.canSupportAtFace(param1, param2, var0)) {
                         param1.setBlock(param2, param0.setValue(UP, Boolean.valueOf(true)), 2);
                         return;
@@ -229,7 +229,7 @@ public class VineBlock extends Block {
                     }
                 }
 
-                if (param2.getY() > param1.getMinBuildHeight()) {
+                if (param2.getY() > 0) {
                     BlockPos var13 = param2.below();
                     BlockState var14 = param1.getBlockState(var13);
                     if (var14.isAir() || var14.is(this)) {

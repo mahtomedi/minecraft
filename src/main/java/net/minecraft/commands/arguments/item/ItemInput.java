@@ -29,7 +29,7 @@ public class ItemInput implements Predicate<ItemStack> {
     }
 
     public boolean test(ItemStack param0) {
-        return param0.is(this.item) && NbtUtils.compareNbt(this.tag, param0.getTag(), true);
+        return param0.getItem() == this.item && NbtUtils.compareNbt(this.tag, param0.getTag(), true);
     }
 
     public ItemStack createItemStack(int param0, boolean param1) throws CommandSyntaxException {

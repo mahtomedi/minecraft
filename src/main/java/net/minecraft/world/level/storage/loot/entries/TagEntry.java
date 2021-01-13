@@ -5,7 +5,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import java.util.function.Consumer;
-import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.SerializationTags;
 import net.minecraft.tags.Tag;
@@ -65,12 +64,7 @@ public class TagEntry extends LootPoolSingletonContainer {
     public static class Serializer extends LootPoolSingletonContainer.Serializer<TagEntry> {
         public void serializeCustom(JsonObject param0, TagEntry param1, JsonSerializationContext param2) {
             super.serializeCustom(param0, param1, param2);
-            param0.addProperty(
-                "name",
-                SerializationTags.getInstance()
-                    .getIdOrThrow(Registry.ITEM_REGISTRY, param1.tag, () -> new IllegalStateException("Unknown item tag"))
-                    .toString()
-            );
+            param0.addProperty("name", SerializationTags.getInstance().getItems().getIdOrThrow(param1.tag).toString());
             param0.addProperty("expand", param1.expand);
         }
 
@@ -78,10 +72,13 @@ public class TagEntry extends LootPoolSingletonContainer {
             JsonObject param0, JsonDeserializationContext param1, int param2, int param3, LootItemCondition[] param4, LootItemFunction[] param5
         ) {
             ResourceLocation var0 = new ResourceLocation(GsonHelper.getAsString(param0, "name"));
-            Tag<Item> var1 = SerializationTags.getInstance()
-                .getTagOrThrow(Registry.ITEM_REGISTRY, var0, param0x -> new JsonParseException("Can't find tag: " + param0x));
-            boolean var2 = GsonHelper.getAsBoolean(param0, "expand");
-            return new TagEntry(var1, var2, param2, param3, param4, param5);
+            Tag<Item> var1 = SerializationTags.getInstance().getItems().getTag(var0);
+            if (var1 == null) {
+                throw new JsonParseException("Can't find tag: " + var0);
+            } else {
+                boolean var2 = GsonHelper.getAsBoolean(param0, "expand");
+                return new TagEntry(var1, var2, param2, param3, param4, param5);
+            }
         }
     }
 }

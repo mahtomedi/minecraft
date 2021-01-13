@@ -41,8 +41,8 @@ import net.minecraft.world.item.trading.MerchantOffers;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.BedBlock;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -134,9 +134,9 @@ public class ZombieVillager extends Zombie implements VillagerDataHolder {
     @Override
     public InteractionResult mobInteract(Player param0, InteractionHand param1) {
         ItemStack var0 = param0.getItemInHand(param1);
-        if (var0.is(Items.GOLDEN_APPLE)) {
+        if (var0.getItem() == Items.GOLDEN_APPLE) {
             if (this.hasEffect(MobEffects.WEAKNESS)) {
-                if (!param0.getAbilities().instabuild) {
+                if (!param0.abilities.instabuild) {
                     var0.shrink(1);
                 }
 
@@ -206,7 +206,7 @@ public class ZombieVillager extends Zombie implements VillagerDataHolder {
             ItemStack var2 = this.getItemBySlot(var1);
             if (!var2.isEmpty()) {
                 if (EnchantmentHelper.hasBindingCurse(var2)) {
-                    var0.getSlot(var1.getIndex() + 300).set(var2);
+                    var0.setSlot(var1.getIndex() + 300, var2);
                 } else {
                     double var3 = (double)this.getEquipmentDropChance(var1);
                     if (var3 > 1.0) {
@@ -251,8 +251,8 @@ public class ZombieVillager extends Zombie implements VillagerDataHolder {
             for(int var3 = (int)this.getX() - 4; var3 < (int)this.getX() + 4 && var1 < 14; ++var3) {
                 for(int var4 = (int)this.getY() - 4; var4 < (int)this.getY() + 4 && var1 < 14; ++var4) {
                     for(int var5 = (int)this.getZ() - 4; var5 < (int)this.getZ() + 4 && var1 < 14; ++var5) {
-                        BlockState var6 = this.level.getBlockState(var2.set(var3, var4, var5));
-                        if (var6.is(Blocks.IRON_BARS) || var6.getBlock() instanceof BedBlock) {
+                        Block var6 = this.level.getBlockState(var2.set(var3, var4, var5)).getBlock();
+                        if (var6 == Blocks.IRON_BARS || var6 instanceof BedBlock) {
                             if (this.random.nextFloat() < 0.3F) {
                                 ++var0;
                             }

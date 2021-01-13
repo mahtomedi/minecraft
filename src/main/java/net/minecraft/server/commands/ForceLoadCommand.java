@@ -10,7 +10,6 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.commands.arguments.coordinates.ColumnPosArgument;
-import net.minecraft.core.SectionPos;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ColumnPos;
@@ -99,7 +98,7 @@ public class ForceLoadCommand {
     }
 
     private static int queryForceLoad(CommandSourceStack param0, ColumnPos param1) throws CommandSyntaxException {
-        ChunkPos var0 = new ChunkPos(SectionPos.blockToSectionCoord(param1.x), SectionPos.blockToSectionCoord(param1.z));
+        ChunkPos var0 = new ChunkPos(param1.x >> 4, param1.z >> 4);
         ServerLevel var1 = param0.getLevel();
         ResourceKey<Level> var2 = var1.dimension();
         boolean var3 = var1.getForcedChunks().contains(var0.toLong());
@@ -145,10 +144,10 @@ public class ForceLoadCommand {
         int var2 = Math.max(param1.x, param2.x);
         int var3 = Math.max(param1.z, param2.z);
         if (var0 >= -30000000 && var1 >= -30000000 && var2 < 30000000 && var3 < 30000000) {
-            int var4 = SectionPos.blockToSectionCoord(var0);
-            int var5 = SectionPos.blockToSectionCoord(var1);
-            int var6 = SectionPos.blockToSectionCoord(var2);
-            int var7 = SectionPos.blockToSectionCoord(var3);
+            int var4 = var0 >> 4;
+            int var5 = var1 >> 4;
+            int var6 = var2 >> 4;
+            int var7 = var3 >> 4;
             long var8 = ((long)(var6 - var4) + 1L) * ((long)(var7 - var5) + 1L);
             if (var8 > 256L) {
                 throw ERROR_TOO_MANY_CHUNKS.create(256, var8);

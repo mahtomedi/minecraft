@@ -74,7 +74,7 @@ public class ResultSlot extends Slot {
                 } else if (ItemStack.isSame(var2, var3) && ItemStack.tagMatches(var2, var3)) {
                     var3.grow(var2.getCount());
                     this.craftSlots.setItem(var1, var3);
-                } else if (!this.player.getInventory().add(var3)) {
+                } else if (!this.player.inventory.add(var3)) {
                     this.player.drop(var3, false);
                 }
             }

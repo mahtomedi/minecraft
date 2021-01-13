@@ -1,11 +1,7 @@
 package net.minecraft.world.item;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import java.util.Set;
-import net.minecraft.Util;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -96,113 +92,7 @@ public class PickaxeItem extends DiggerItem {
         Blocks.YELLOW_SHULKER_BOX,
         Blocks.PISTON,
         Blocks.STICKY_PISTON,
-        Blocks.PISTON_HEAD,
-        Blocks.AMETHYST_CLUSTER,
-        Blocks.SMALL_AMETHYST_BUD,
-        Blocks.MEDIUM_AMETHYST_BUD,
-        Blocks.LARGE_AMETHYST_BUD,
-        Blocks.AMETHYST_BLOCK,
-        Blocks.BUDDING_AMETHYST,
-        Blocks.COPPER_ORE,
-        Blocks.COPPER_BLOCK,
-        Blocks.CUT_COPPER_SLAB,
-        Blocks.CUT_COPPER_STAIRS,
-        Blocks.CUT_COPPER,
-        Blocks.WEATHERED_COPPER_BLOCK,
-        Blocks.WEATHERED_CUT_COPPER,
-        Blocks.WEATHERED_CUT_COPPER_SLAB,
-        Blocks.WEATHERED_CUT_COPPER_STAIRS,
-        Blocks.SEMI_WEATHERED_COPPER_BLOCK,
-        Blocks.SEMI_WEATHERED_CUT_COPPER,
-        Blocks.SEMI_WEATHERED_CUT_COPPER_SLAB,
-        Blocks.SEMI_WEATHERED_CUT_COPPER_STAIRS,
-        Blocks.LIGHTLY_WEATHERED_COPPER_BLOCK,
-        Blocks.LIGHTLY_WEATHERED_CUT_COPPER_SLAB,
-        Blocks.LIGHTLY_WEATHERED_CUT_COPPER_STAIRS,
-        Blocks.LIGHTLY_WEATHERED_CUT_COPPER,
-        Blocks.WAXED_COPPER,
-        Blocks.WAXED_CUT_COPPER_SLAB,
-        Blocks.WAXED_CUT_COPPER_STAIRS,
-        Blocks.WAXED_CUT_COPPER,
-        Blocks.WAXED_SEMI_WEATHERED_COPPER,
-        Blocks.WAXED_SEMI_WEATHERED_CUT_COPPER,
-        Blocks.WAXED_SEMI_WEATHERED_CUT_COPPER_SLAB,
-        Blocks.WAXED_SEMI_WEATHERED_CUT_COPPER_STAIRS,
-        Blocks.WAXED_LIGHTLY_WEATHERED_COPPER,
-        Blocks.WAXED_LIGHTLY_WEATHERED_CUT_COPPER_SLAB,
-        Blocks.WAXED_LIGHTLY_WEATHERED_CUT_COPPER_STAIRS,
-        Blocks.WAXED_LIGHTLY_WEATHERED_CUT_COPPER,
-        Blocks.LIGHTNING_ROD
-    );
-    private static final Object2IntMap<Block> MIN_LEVEL_FOR_DROPS = Util.make(
-        new Object2IntOpenHashMap<>(),
-        param0 -> {
-            param0.defaultReturnValue(-1);
-    
-            for(Block var0 : ImmutableList.of(Blocks.OBSIDIAN, Blocks.CRYING_OBSIDIAN, Blocks.NETHERITE_BLOCK, Blocks.RESPAWN_ANCHOR, Blocks.ANCIENT_DEBRIS)) {
-                param0.put(var0, 3);
-            }
-    
-            for(Block var1 : ImmutableList.of(
-                Blocks.DIAMOND_BLOCK,
-                Blocks.DIAMOND_ORE,
-                Blocks.EMERALD_ORE,
-                Blocks.EMERALD_BLOCK,
-                Blocks.GOLD_BLOCK,
-                Blocks.GOLD_ORE,
-                Blocks.REDSTONE_ORE,
-                Blocks.AMETHYST_BLOCK,
-                Blocks.AMETHYST_CLUSTER,
-                Blocks.SMALL_AMETHYST_BUD,
-                Blocks.MEDIUM_AMETHYST_BUD,
-                Blocks.LARGE_AMETHYST_BUD
-            )) {
-                param0.put(var1, 2);
-            }
-    
-            for(Block var2 : ImmutableList.of(
-                Blocks.IRON_BLOCK,
-                Blocks.IRON_ORE,
-                Blocks.LAPIS_BLOCK,
-                Blocks.LAPIS_ORE,
-                Blocks.COPPER_BLOCK,
-                Blocks.COPPER_ORE,
-                Blocks.CUT_COPPER_SLAB,
-                Blocks.CUT_COPPER_STAIRS,
-                Blocks.CUT_COPPER,
-                Blocks.WEATHERED_COPPER_BLOCK,
-                Blocks.WEATHERED_CUT_COPPER_SLAB,
-                Blocks.WEATHERED_CUT_COPPER_STAIRS,
-                Blocks.WEATHERED_CUT_COPPER,
-                Blocks.SEMI_WEATHERED_COPPER_BLOCK,
-                Blocks.SEMI_WEATHERED_CUT_COPPER_SLAB,
-                Blocks.SEMI_WEATHERED_CUT_COPPER_STAIRS,
-                Blocks.SEMI_WEATHERED_CUT_COPPER,
-                Blocks.LIGHTLY_WEATHERED_COPPER_BLOCK,
-                Blocks.LIGHTLY_WEATHERED_CUT_COPPER_SLAB,
-                Blocks.LIGHTLY_WEATHERED_CUT_COPPER_STAIRS,
-                Blocks.LIGHTLY_WEATHERED_CUT_COPPER,
-                Blocks.WAXED_COPPER,
-                Blocks.WAXED_CUT_COPPER_SLAB,
-                Blocks.WAXED_CUT_COPPER_STAIRS,
-                Blocks.WAXED_CUT_COPPER,
-                Blocks.WAXED_SEMI_WEATHERED_COPPER,
-                Blocks.WAXED_SEMI_WEATHERED_CUT_COPPER_SLAB,
-                Blocks.WAXED_SEMI_WEATHERED_CUT_COPPER_STAIRS,
-                Blocks.WAXED_SEMI_WEATHERED_CUT_COPPER,
-                Blocks.WAXED_LIGHTLY_WEATHERED_COPPER,
-                Blocks.WAXED_LIGHTLY_WEATHERED_CUT_COPPER_SLAB,
-                Blocks.WAXED_LIGHTLY_WEATHERED_CUT_COPPER_STAIRS,
-                Blocks.WAXED_LIGHTLY_WEATHERED_CUT_COPPER
-            )) {
-                param0.put(var2, 1);
-            }
-    
-            for(Block var3 : ImmutableList.of(Blocks.NETHER_GOLD_ORE)) {
-                param0.put(var3, 0);
-            }
-    
-        }
+        Blocks.PISTON_HEAD
     );
 
     protected PickaxeItem(Tier param0, int param1, float param2, Item.Properties param3) {
@@ -212,12 +102,25 @@ public class PickaxeItem extends DiggerItem {
     @Override
     public boolean isCorrectToolForDrops(BlockState param0) {
         int var0 = this.getTier().getLevel();
-        int var1 = MIN_LEVEL_FOR_DROPS.getInt(param0.getBlock());
-        if (var1 != -1) {
-            return var0 >= var1;
+        if (param0.is(Blocks.OBSIDIAN)
+            || param0.is(Blocks.CRYING_OBSIDIAN)
+            || param0.is(Blocks.NETHERITE_BLOCK)
+            || param0.is(Blocks.RESPAWN_ANCHOR)
+            || param0.is(Blocks.ANCIENT_DEBRIS)) {
+            return var0 >= 3;
+        } else if (param0.is(Blocks.DIAMOND_BLOCK)
+            || param0.is(Blocks.DIAMOND_ORE)
+            || param0.is(Blocks.EMERALD_ORE)
+            || param0.is(Blocks.EMERALD_BLOCK)
+            || param0.is(Blocks.GOLD_BLOCK)
+            || param0.is(Blocks.GOLD_ORE)
+            || param0.is(Blocks.REDSTONE_ORE)) {
+            return var0 >= 2;
+        } else if (!param0.is(Blocks.IRON_BLOCK) && !param0.is(Blocks.IRON_ORE) && !param0.is(Blocks.LAPIS_BLOCK) && !param0.is(Blocks.LAPIS_ORE)) {
+            Material var1 = param0.getMaterial();
+            return var1 == Material.STONE || var1 == Material.METAL || var1 == Material.HEAVY_METAL || param0.is(Blocks.NETHER_GOLD_ORE);
         } else {
-            Material var2 = param0.getMaterial();
-            return var2 == Material.STONE || var2 == Material.METAL || var2 == Material.HEAVY_METAL;
+            return var0 >= 1;
         }
     }
 

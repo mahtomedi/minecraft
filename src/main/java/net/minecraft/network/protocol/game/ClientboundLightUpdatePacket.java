@@ -2,9 +2,7 @@ package net.minecraft.network.protocol.game;
 
 import com.google.common.collect.Lists;
 import java.io.IOException;
-import java.util.BitSet;
 import java.util.List;
-import javax.annotation.Nullable;
 import net.minecraft.core.SectionPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
@@ -18,44 +16,80 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class ClientboundLightUpdatePacket implements Packet<ClientGamePacketListener> {
     private int x;
     private int z;
-    private BitSet skyYMask = new BitSet();
-    private BitSet blockYMask = new BitSet();
-    private BitSet emptySkyYMask = new BitSet();
-    private BitSet emptyBlockYMask = new BitSet();
-    private final List<byte[]> skyUpdates = Lists.newArrayList();
-    private final List<byte[]> blockUpdates = Lists.newArrayList();
+    private int skyYMask;
+    private int blockYMask;
+    private int emptySkyYMask;
+    private int emptyBlockYMask;
+    private List<byte[]> skyUpdates;
+    private List<byte[]> blockUpdates;
     private boolean trustEdges;
 
     public ClientboundLightUpdatePacket() {
     }
 
-    public ClientboundLightUpdatePacket(ChunkPos param0, LevelLightEngine param1, @Nullable BitSet param2, @Nullable BitSet param3, boolean param4) {
+    public ClientboundLightUpdatePacket(ChunkPos param0, LevelLightEngine param1, boolean param2) {
         this.x = param0.x;
         this.z = param0.z;
-        this.trustEdges = param4;
+        this.trustEdges = param2;
+        this.skyUpdates = Lists.newArrayList();
+        this.blockUpdates = Lists.newArrayList();
 
-        for(int var0 = 0; var0 < param1.getLightSectionCount(); ++var0) {
-            if (param2 == null || param2.get(var0)) {
-                prepareSectionData(param0, param1, LightLayer.SKY, var0, this.skyYMask, this.emptySkyYMask, this.skyUpdates);
+        for(int var0 = 0; var0 < 18; ++var0) {
+            DataLayer var1 = param1.getLayerListener(LightLayer.SKY).getDataLayerData(SectionPos.of(param0, -1 + var0));
+            DataLayer var2 = param1.getLayerListener(LightLayer.BLOCK).getDataLayerData(SectionPos.of(param0, -1 + var0));
+            if (var1 != null) {
+                if (var1.isEmpty()) {
+                    this.emptySkyYMask |= 1 << var0;
+                } else {
+                    this.skyYMask |= 1 << var0;
+                    this.skyUpdates.add((byte[])var1.getData().clone());
+                }
             }
 
-            if (param3 == null || param3.get(var0)) {
-                prepareSectionData(param0, param1, LightLayer.BLOCK, var0, this.blockYMask, this.emptyBlockYMask, this.blockUpdates);
+            if (var2 != null) {
+                if (var2.isEmpty()) {
+                    this.emptyBlockYMask |= 1 << var0;
+                } else {
+                    this.blockYMask |= 1 << var0;
+                    this.blockUpdates.add((byte[])var2.getData().clone());
+                }
             }
         }
 
     }
 
-    private static void prepareSectionData(
-        ChunkPos param0, LevelLightEngine param1, LightLayer param2, int param3, BitSet param4, BitSet param5, List<byte[]> param6
-    ) {
-        DataLayer var0 = param1.getLayerListener(param2).getDataLayerData(SectionPos.of(param0, param1.getMinLightSection() + param3));
-        if (var0 != null) {
-            if (var0.isEmpty()) {
-                param5.set(param3);
-            } else {
-                param4.set(param3);
-                param6.add((byte[])var0.getData().clone());
+    public ClientboundLightUpdatePacket(ChunkPos param0, LevelLightEngine param1, int param2, int param3, boolean param4) {
+        this.x = param0.x;
+        this.z = param0.z;
+        this.trustEdges = param4;
+        this.skyYMask = param2;
+        this.blockYMask = param3;
+        this.skyUpdates = Lists.newArrayList();
+        this.blockUpdates = Lists.newArrayList();
+
+        for(int var0 = 0; var0 < 18; ++var0) {
+            if ((this.skyYMask & 1 << var0) != 0) {
+                DataLayer var1 = param1.getLayerListener(LightLayer.SKY).getDataLayerData(SectionPos.of(param0, -1 + var0));
+                if (var1 != null && !var1.isEmpty()) {
+                    this.skyUpdates.add((byte[])var1.getData().clone());
+                } else {
+                    this.skyYMask &= ~(1 << var0);
+                    if (var1 != null) {
+                        this.emptySkyYMask |= 1 << var0;
+                    }
+                }
+            }
+
+            if ((this.blockYMask & 1 << var0) != 0) {
+                DataLayer var2 = param1.getLayerListener(LightLayer.BLOCK).getDataLayerData(SectionPos.of(param0, -1 + var0));
+                if (var2 != null && !var2.isEmpty()) {
+                    this.blockUpdates.add((byte[])var2.getData().clone());
+                } else {
+                    this.blockYMask &= ~(1 << var0);
+                    if (var2 != null) {
+                        this.emptyBlockYMask |= 1 << var0;
+                    }
+                }
             }
         }
 
@@ -66,20 +100,24 @@ public class ClientboundLightUpdatePacket implements Packet<ClientGamePacketList
         this.x = param0.readVarInt();
         this.z = param0.readVarInt();
         this.trustEdges = param0.readBoolean();
-        this.skyYMask = BitSet.valueOf(param0.readLongArray());
-        this.blockYMask = BitSet.valueOf(param0.readLongArray());
-        this.emptySkyYMask = BitSet.valueOf(param0.readLongArray());
-        this.emptyBlockYMask = BitSet.valueOf(param0.readLongArray());
-        int var0 = param0.readVarInt();
+        this.skyYMask = param0.readVarInt();
+        this.blockYMask = param0.readVarInt();
+        this.emptySkyYMask = param0.readVarInt();
+        this.emptyBlockYMask = param0.readVarInt();
+        this.skyUpdates = Lists.newArrayList();
 
-        for(int var1 = 0; var1 < var0; ++var1) {
-            this.skyUpdates.add(param0.readByteArray(2048));
+        for(int var0 = 0; var0 < 18; ++var0) {
+            if ((this.skyYMask & 1 << var0) != 0) {
+                this.skyUpdates.add(param0.readByteArray(2048));
+            }
         }
 
-        int var2 = param0.readVarInt();
+        this.blockUpdates = Lists.newArrayList();
 
-        for(int var3 = 0; var3 < var2; ++var3) {
-            this.blockUpdates.add(param0.readByteArray(2048));
+        for(int var1 = 0; var1 < 18; ++var1) {
+            if ((this.blockYMask & 1 << var1) != 0) {
+                this.blockUpdates.add(param0.readByteArray(2048));
+            }
         }
 
     }
@@ -89,17 +127,14 @@ public class ClientboundLightUpdatePacket implements Packet<ClientGamePacketList
         param0.writeVarInt(this.x);
         param0.writeVarInt(this.z);
         param0.writeBoolean(this.trustEdges);
-        param0.writeLongArray(this.skyYMask.toLongArray());
-        param0.writeLongArray(this.blockYMask.toLongArray());
-        param0.writeLongArray(this.emptySkyYMask.toLongArray());
-        param0.writeLongArray(this.emptyBlockYMask.toLongArray());
-        param0.writeVarInt(this.skyUpdates.size());
+        param0.writeVarInt(this.skyYMask);
+        param0.writeVarInt(this.blockYMask);
+        param0.writeVarInt(this.emptySkyYMask);
+        param0.writeVarInt(this.emptyBlockYMask);
 
         for(byte[] var0 : this.skyUpdates) {
             param0.writeByteArray(var0);
         }
-
-        param0.writeVarInt(this.blockUpdates.size());
 
         for(byte[] var1 : this.blockUpdates) {
             param0.writeByteArray(var1);
@@ -122,12 +157,12 @@ public class ClientboundLightUpdatePacket implements Packet<ClientGamePacketList
     }
 
     @OnlyIn(Dist.CLIENT)
-    public BitSet getSkyYMask() {
+    public int getSkyYMask() {
         return this.skyYMask;
     }
 
     @OnlyIn(Dist.CLIENT)
-    public BitSet getEmptySkyYMask() {
+    public int getEmptySkyYMask() {
         return this.emptySkyYMask;
     }
 
@@ -137,12 +172,12 @@ public class ClientboundLightUpdatePacket implements Packet<ClientGamePacketList
     }
 
     @OnlyIn(Dist.CLIENT)
-    public BitSet getBlockYMask() {
+    public int getBlockYMask() {
         return this.blockYMask;
     }
 
     @OnlyIn(Dist.CLIENT)
-    public BitSet getEmptyBlockYMask() {
+    public int getEmptyBlockYMask() {
         return this.emptyBlockYMask;
     }
 

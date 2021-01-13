@@ -4,7 +4,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector3f;
 import net.minecraft.client.model.ShulkerBulletModel;
-import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -19,11 +18,10 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class ShulkerBulletRenderer extends EntityRenderer<ShulkerBullet> {
     private static final ResourceLocation TEXTURE_LOCATION = new ResourceLocation("textures/entity/shulker/spark.png");
     private static final RenderType RENDER_TYPE = RenderType.entityTranslucent(TEXTURE_LOCATION);
-    private final ShulkerBulletModel<ShulkerBullet> model;
+    private final ShulkerBulletModel<ShulkerBullet> model = new ShulkerBulletModel<>();
 
-    public ShulkerBulletRenderer(EntityRendererProvider.Context param0) {
+    public ShulkerBulletRenderer(EntityRenderDispatcher param0) {
         super(param0);
-        this.model = new ShulkerBulletModel<>(param0.bakeLayer(ModelLayers.SHULKER_BULLET));
     }
 
     protected int getBlockLightLevel(ShulkerBullet param0, BlockPos param1) {

@@ -11,7 +11,7 @@ public class GameTestSequence {
     public void tickAndContinue(long param0) {
         try {
             this.tick(param0);
-        } catch (GameTestAssertException var4) {
+        } catch (Exception var4) {
         }
 
     }
@@ -19,7 +19,7 @@ public class GameTestSequence {
     public void tickAndFailIfNotComplete(long param0) {
         try {
             this.tick(param0);
-        } catch (GameTestAssertException var4) {
+        } catch (Exception var4) {
             this.parent.fail(var4);
         }
 

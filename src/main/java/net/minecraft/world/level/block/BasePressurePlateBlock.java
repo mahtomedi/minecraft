@@ -1,7 +1,6 @@
 package net.minecraft.world.level.block;
 
 import java.util.Random;
-import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -12,7 +11,6 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -58,7 +56,7 @@ public abstract class BasePressurePlateBlock extends Block {
     public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
         int var0 = this.getSignalForState(param0);
         if (var0 > 0) {
-            this.checkPressed(null, param1, param2, param0, var0);
+            this.checkPressed(param1, param2, param0, var0);
         }
 
     }
@@ -68,33 +66,31 @@ public abstract class BasePressurePlateBlock extends Block {
         if (!param1.isClientSide) {
             int var0 = this.getSignalForState(param0);
             if (var0 == 0) {
-                this.checkPressed(param3, param1, param2, param0, var0);
+                this.checkPressed(param1, param2, param0, var0);
             }
 
         }
     }
 
-    protected void checkPressed(@Nullable Entity param0, Level param1, BlockPos param2, BlockState param3, int param4) {
-        int var0 = this.getSignalStrength(param1, param2);
-        boolean var1 = param4 > 0;
+    protected void checkPressed(Level param0, BlockPos param1, BlockState param2, int param3) {
+        int var0 = this.getSignalStrength(param0, param1);
+        boolean var1 = param3 > 0;
         boolean var2 = var0 > 0;
-        if (param4 != var0) {
-            BlockState var3 = this.setSignalForState(param3, var0);
-            param1.setBlock(param2, var3, 2);
-            this.updateNeighbours(param1, param2);
-            param1.setBlocksDirty(param2, param3, var3);
+        if (param3 != var0) {
+            BlockState var3 = this.setSignalForState(param2, var0);
+            param0.setBlock(param1, var3, 2);
+            this.updateNeighbours(param0, param1);
+            param0.setBlocksDirty(param1, param2, var3);
         }
 
         if (!var2 && var1) {
-            this.playOffSound(param1, param2);
-            param1.gameEvent(param0, GameEvent.BLOCK_UNPRESS, param2);
+            this.playOffSound(param0, param1);
         } else if (var2 && !var1) {
-            this.playOnSound(param1, param2);
-            param1.gameEvent(param0, GameEvent.BLOCK_PRESS, param2);
+            this.playOnSound(param0, param1);
         }
 
         if (var2) {
-            param1.getBlockTicks().scheduleTick(new BlockPos(param2), this, this.getPressedTime());
+            param0.getBlockTicks().scheduleTick(new BlockPos(param1), this, this.getPressedTime());
         }
 
     }

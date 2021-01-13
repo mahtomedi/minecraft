@@ -60,22 +60,4 @@ public class FlameParticle extends RisingParticle {
             return var0;
         }
     }
-
-    @OnlyIn(Dist.CLIENT)
-    public static class SmallFlameProvider implements ParticleProvider<SimpleParticleType> {
-        private final SpriteSet sprite;
-
-        public SmallFlameProvider(SpriteSet param0) {
-            this.sprite = param0;
-        }
-
-        public Particle createParticle(
-            SimpleParticleType param0, ClientLevel param1, double param2, double param3, double param4, double param5, double param6, double param7
-        ) {
-            FlameParticle var0 = new FlameParticle(param1, param2, param3, param4, param5, param6, param7);
-            var0.pickSprite(this.sprite);
-            var0.scale(0.5F);
-            return var0;
-        }
-    }
 }

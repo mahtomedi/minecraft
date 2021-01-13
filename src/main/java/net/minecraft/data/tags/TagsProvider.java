@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import net.minecraft.core.Registry;
@@ -19,6 +20,7 @@ import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.HashCache;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.SetTag;
 import net.minecraft.tags.Tag;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -41,38 +43,39 @@ public abstract class TagsProvider<T> implements DataProvider {
     public void run(HashCache param0) {
         this.builders.clear();
         this.addTags();
+        Tag<T> var0 = SetTag.empty();
+        Function<ResourceLocation, Tag<T>> var1 = param1 -> this.builders.containsKey(param1) ? var0 : null;
+        Function<ResourceLocation, T> var2 = param0x -> this.registry.getOptional(param0x).orElse((T)null);
         this.builders
             .forEach(
-                (param1, param2) -> {
-                    List<Tag.BuilderEntry> var0 = param2.getEntries()
-                        .filter(param0x -> !param0x.getEntry().verifyIfPresent(this.registry::containsKey, this.builders::containsKey))
-                        .collect(Collectors.toList());
-                    if (!var0.isEmpty()) {
+                (param3, param4) -> {
+                    List<Tag.BuilderEntry> var0x = param4.getUnresolvedEntries(var1, var2).collect(Collectors.toList());
+                    if (!var0x.isEmpty()) {
                         throw new IllegalArgumentException(
                             String.format(
                                 "Couldn't define tag %s as it is missing following references: %s",
-                                param1,
-                                var0.stream().map(Objects::toString).collect(Collectors.joining(","))
+                                param3,
+                                var0x.stream().map(Objects::toString).collect(Collectors.joining(","))
                             )
                         );
                     } else {
-                        JsonObject var1x = param2.serializeToJson();
-                        Path var2 = this.getPath(param1);
+                        JsonObject var1x = param4.serializeToJson();
+                        Path var2x = this.getPath(param3);
         
                         try {
                             String var3 = GSON.toJson((JsonElement)var1x);
-                            String var4 = SHA1.hashUnencodedChars(var3).toString();
-                            if (!Objects.equals(param0.getHash(var2), var4) || !Files.exists(var2)) {
-                                Files.createDirectories(var2.getParent());
+                            String var4x = SHA1.hashUnencodedChars(var3).toString();
+                            if (!Objects.equals(param0.getHash(var2x), var4x) || !Files.exists(var2x)) {
+                                Files.createDirectories(var2x.getParent());
         
-                                try (BufferedWriter var5 = Files.newBufferedWriter(var2)) {
+                                try (BufferedWriter var5 = Files.newBufferedWriter(var2x)) {
                                     var5.write(var3);
                                 }
                             }
         
-                            param0.putNew(var2, var4);
-                        } catch (IOException var22) {
-                            LOGGER.error("Couldn't save tags to {}", var2, var22);
+                            param0.putNew(var2x, var4x);
+                        } catch (IOException var24) {
+                            LOGGER.error("Couldn't save tags to {}", var2x, var24);
                         }
         
                     }

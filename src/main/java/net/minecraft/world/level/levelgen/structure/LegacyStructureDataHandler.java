@@ -180,11 +180,11 @@ public class LegacyStructureDataHandler {
                 }
 
                 String var9 = var0 + "_index";
-                StructureFeatureIndexSavedData var10 = param0.computeIfAbsent(StructureFeatureIndexSavedData::load, StructureFeatureIndexSavedData::new, var9);
+                StructureFeatureIndexSavedData var10 = param0.computeIfAbsent(() -> new StructureFeatureIndexSavedData(var9), var9);
                 if (!var10.getAll().isEmpty()) {
                     this.indexMap.put(var0, var10);
                 } else {
-                    StructureFeatureIndexSavedData var11 = new StructureFeatureIndexSavedData();
+                    StructureFeatureIndexSavedData var11 = new StructureFeatureIndexSavedData(var9);
                     this.indexMap.put(var0, var11);
 
                     for(String var12 : var1.getAllKeys()) {

@@ -106,7 +106,6 @@ public class ParticleEngine implements PreparableReloadListener {
         this.register(ParticleTypes.DRIPPING_WATER, DripParticle.WaterHangProvider::new);
         this.register(ParticleTypes.FALLING_WATER, DripParticle.WaterFallProvider::new);
         this.register(ParticleTypes.DUST, DustParticle.Provider::new);
-        this.register(ParticleTypes.DUST_COLOR_TRANSITION, DustColorTransitionParticle.Provider::new);
         this.register(ParticleTypes.EFFECT, SpellParticle.Provider::new);
         this.register(ParticleTypes.ELDER_GUARDIAN, new MobAppearanceParticle.Provider());
         this.register(ParticleTypes.ENCHANTED_HIT, CritParticle.MagicProvider::new);
@@ -138,7 +137,6 @@ public class ParticleEngine implements PreparableReloadListener {
         this.register(ParticleTypes.RAIN, WaterDropParticle.Provider::new);
         this.register(ParticleTypes.SMOKE, SmokeParticle.Provider::new);
         this.register(ParticleTypes.SNEEZE, PlayerCloudParticle.SneezeProvider::new);
-        this.register(ParticleTypes.SNOWFLAKE, SnowflakeParticle.Provider::new);
         this.register(ParticleTypes.SPIT, SpitParticle.Provider::new);
         this.register(ParticleTypes.SWEEP_ATTACK, AttackSweepParticle.Provider::new);
         this.register(ParticleTypes.TOTEM_OF_UNDYING, TotemParticle.Provider::new);
@@ -158,12 +156,6 @@ public class ParticleEngine implements PreparableReloadListener {
         this.register(ParticleTypes.LANDING_OBSIDIAN_TEAR, DripParticle.ObsidianTearLandProvider::new);
         this.register(ParticleTypes.REVERSE_PORTAL, ReversePortalParticle.ReversePortalProvider::new);
         this.register(ParticleTypes.WHITE_ASH, WhiteAshParticle.Provider::new);
-        this.register(ParticleTypes.SMALL_FLAME, FlameParticle.SmallFlameProvider::new);
-        this.register(ParticleTypes.DRIPPING_DRIPSTONE_WATER, DripParticle.DripstoneWaterHangProvider::new);
-        this.register(ParticleTypes.FALLING_DRIPSTONE_WATER, DripParticle.DripstoneWaterFallProvider::new);
-        this.register(ParticleTypes.DRIPPING_DRIPSTONE_LAVA, DripParticle.DripstoneLavaHangProvider::new);
-        this.register(ParticleTypes.FALLING_DRIPSTONE_LAVA, DripParticle.DripstoneLavaFallProvider::new);
-        this.register(ParticleTypes.VIBRATION, VibrationSignalParticle.Provider::new);
     }
 
     private <T extends ParticleOptions> void register(ParticleType<T> param0, ParticleProvider<T> param1) {

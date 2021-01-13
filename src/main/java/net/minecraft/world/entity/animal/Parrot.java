@@ -28,7 +28,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.AgeableMob;
+import net.minecraft.world.entity.AgableMob;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
@@ -130,7 +130,7 @@ public class Parrot extends ShoulderRidingEntity implements FlyingAnimal {
     ) {
         this.setVariant(this.random.nextInt(5));
         if (param3 == null) {
-            param3 = new AgeableMob.AgeableMobGroupData(false);
+            param3 = new AgableMob.AgableMobGroupData(false);
         }
 
         return super.finalizeSpawn(param0, param1, param2, param3, param4);
@@ -238,7 +238,7 @@ public class Parrot extends ShoulderRidingEntity implements FlyingAnimal {
     public InteractionResult mobInteract(Player param0, InteractionHand param1) {
         ItemStack var0 = param0.getItemInHand(param1);
         if (!this.isTame() && TAME_FOOD.contains(var0.getItem())) {
-            if (!param0.getAbilities().instabuild) {
+            if (!param0.abilities.instabuild) {
                 var0.shrink(1);
             }
 
@@ -266,8 +266,8 @@ public class Parrot extends ShoulderRidingEntity implements FlyingAnimal {
             }
 
             return InteractionResult.sidedSuccess(this.level.isClientSide);
-        } else if (var0.is(POISONOUS_FOOD)) {
-            if (!param0.getAbilities().instabuild) {
+        } else if (var0.getItem() == POISONOUS_FOOD) {
+            if (!param0.abilities.instabuild) {
                 var0.shrink(1);
             }
 
@@ -315,7 +315,7 @@ public class Parrot extends ShoulderRidingEntity implements FlyingAnimal {
 
     @Nullable
     @Override
-    public AgeableMob getBreedOffspring(ServerLevel param0, AgeableMob param1) {
+    public AgableMob getBreedOffspring(ServerLevel param0, AgableMob param1) {
         return null;
     }
 

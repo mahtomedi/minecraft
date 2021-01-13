@@ -15,21 +15,23 @@ public class CommandStorage {
         this.storage = param0;
     }
 
-    private CommandStorage.Container newStorage(String param0) {
-        CommandStorage.Container var0 = new CommandStorage.Container();
+    private CommandStorage.Container newStorage(String param0, String param1) {
+        CommandStorage.Container var0 = new CommandStorage.Container(param1);
         this.namespaces.put(param0, var0);
         return var0;
     }
 
     public CompoundTag get(ResourceLocation param0) {
         String var0 = param0.getNamespace();
-        CommandStorage.Container var1 = this.storage.get(param1 -> this.newStorage(var0).load(param1), createId(var0));
-        return var1 != null ? var1.get(param0.getPath()) : new CompoundTag();
+        String var1 = createId(var0);
+        CommandStorage.Container var2 = this.storage.get(() -> this.newStorage(var0, var1), var1);
+        return var2 != null ? var2.get(param0.getPath()) : new CompoundTag();
     }
 
     public void set(ResourceLocation param0, CompoundTag param1) {
         String var0 = param0.getNamespace();
-        this.storage.computeIfAbsent(param1x -> this.newStorage(var0).load(param1x), () -> this.newStorage(var0), createId(var0)).put(param0.getPath(), param1);
+        String var1 = createId(var0);
+        this.storage.computeIfAbsent(() -> this.newStorage(var0, var1), var1).put(param0.getPath(), param1);
     }
 
     public Stream<ResourceLocation> keys() {
@@ -43,17 +45,18 @@ public class CommandStorage {
     static class Container extends SavedData {
         private final Map<String, CompoundTag> storage = Maps.newHashMap();
 
-        private Container() {
+        public Container(String param0) {
+            super(param0);
         }
 
-        private CommandStorage.Container load(CompoundTag param0) {
+        @Override
+        public void load(CompoundTag param0) {
             CompoundTag var0 = param0.getCompound("contents");
 
             for(String var1 : var0.getAllKeys()) {
                 this.storage.put(var1, var0.getCompound(var1));
             }
 
-            return this;
         }
 
         @Override

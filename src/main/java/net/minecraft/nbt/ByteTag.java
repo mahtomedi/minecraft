@@ -3,6 +3,8 @@ package net.minecraft.nbt;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 
 public class ByteTag extends NumericTag {
     public static final TagType<ByteTag> TYPE = new TagType<ByteTag>() {
@@ -57,6 +59,11 @@ public class ByteTag extends NumericTag {
         return TYPE;
     }
 
+    @Override
+    public String toString() {
+        return this.data + "b";
+    }
+
     public ByteTag copy() {
         return this;
     }
@@ -76,8 +83,9 @@ public class ByteTag extends NumericTag {
     }
 
     @Override
-    public void accept(TagVisitor param0) {
-        param0.visitByte(this);
+    public Component getPrettyDisplay(String param0, int param1) {
+        Component var0 = new TextComponent("b").withStyle(SYNTAX_HIGHLIGHTING_NUMBER_TYPE);
+        return new TextComponent(String.valueOf(this.data)).append(var0).withStyle(SYNTAX_HIGHLIGHTING_NUMBER);
     }
 
     @Override

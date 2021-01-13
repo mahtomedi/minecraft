@@ -48,17 +48,9 @@ public class ComparatorBlock extends DiodeBlock implements EntityBlock {
     }
 
     private int calculateOutputSignal(Level param0, BlockPos param1, BlockState param2) {
-        int var0 = this.getInputSignal(param0, param1, param2);
-        if (var0 == 0) {
-            return 0;
-        } else {
-            int var1 = this.getAlternateSignal(param0, param1, param2);
-            if (var1 > var0) {
-                return 0;
-            } else {
-                return param2.getValue(MODE) == ComparatorMode.SUBTRACT ? var0 - var1 : var0;
-            }
-        }
+        return param2.getValue(MODE) == ComparatorMode.SUBTRACT
+            ? Math.max(this.getInputSignal(param0, param1, param2) - this.getAlternateSignal(param0, param1, param2), 0)
+            : this.getInputSignal(param0, param1, param2);
     }
 
     @Override
@@ -119,7 +111,7 @@ public class ComparatorBlock extends DiodeBlock implements EntityBlock {
 
     @Override
     public InteractionResult use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
-        if (!param3.getAbilities().mayBuild) {
+        if (!param3.abilities.mayBuild) {
             return InteractionResult.PASS;
         } else {
             param0 = param0.cycle(MODE);
@@ -182,8 +174,8 @@ public class ComparatorBlock extends DiodeBlock implements EntityBlock {
     }
 
     @Override
-    public BlockEntity newBlockEntity(BlockPos param0, BlockState param1) {
-        return new ComparatorBlockEntity(param0, param1);
+    public BlockEntity newBlockEntity(BlockGetter param0) {
+        return new ComparatorBlockEntity();
     }
 
     @Override

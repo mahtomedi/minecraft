@@ -8,7 +8,7 @@ import javax.annotation.Nullable;
 public class MultipleTestTracker {
     private final Collection<GameTestInfo> tests = Lists.newArrayList();
     @Nullable
-    private final Collection<GameTestListener> listeners = Lists.newArrayList();
+    private Collection<GameTestListener> listeners = Lists.newArrayList();
 
     public MultipleTestTracker() {
     }
@@ -31,10 +31,6 @@ public class MultipleTestTracker {
         this.addListener(new GameTestListener() {
             @Override
             public void testStructureLoaded(GameTestInfo param0x) {
-            }
-
-            @Override
-            public void testPassed(GameTestInfo param0x) {
             }
 
             @Override

@@ -26,7 +26,7 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 
 public class GiveGiftToHero extends Behavior<Villager> {
-    private static final Map<VillagerProfession, ResourceLocation> GIFTS = Util.make(Maps.newHashMap(), param0 -> {
+    private static final Map<VillagerProfession, ResourceLocation> gifts = Util.make(Maps.newHashMap(), param0 -> {
         param0.put(VillagerProfession.ARMORER, BuiltInLootTables.ARMORER_GIFT);
         param0.put(VillagerProfession.BUTCHER, BuiltInLootTables.BUTCHER_GIFT);
         param0.put(VillagerProfession.CARTOGRAPHER, BuiltInLootTables.CARTOGRAPHER_GIFT);
@@ -117,8 +117,8 @@ public class GiveGiftToHero extends Behavior<Villager> {
             return ImmutableList.of(new ItemStack(Items.POPPY));
         } else {
             VillagerProfession var0 = param0.getVillagerData().getProfession();
-            if (GIFTS.containsKey(var0)) {
-                LootTable var1 = param0.level.getServer().getLootTables().get(GIFTS.get(var0));
+            if (gifts.containsKey(var0)) {
+                LootTable var1 = param0.level.getServer().getLootTables().get(gifts.get(var0));
                 LootContext.Builder var2 = new LootContext.Builder((ServerLevel)param0.level)
                     .withParameter(LootContextParams.ORIGIN, param0.position())
                     .withParameter(LootContextParams.THIS_ENTITY, param0)

@@ -40,16 +40,17 @@ public class BlockPredicate {
             return false;
         } else {
             BlockState var0 = param0.getBlockState(param1);
-            if (this.tag != null && !var0.is(this.tag)) {
+            Block var1 = var0.getBlock();
+            if (this.tag != null && !this.tag.contains(var1)) {
                 return false;
-            } else if (this.block != null && !var0.is(this.block)) {
+            } else if (this.block != null && var1 != this.block) {
                 return false;
             } else if (!this.properties.matches(var0)) {
                 return false;
             } else {
                 if (this.nbt != NbtPredicate.ANY) {
-                    BlockEntity var1 = param0.getBlockEntity(param1);
-                    if (var1 == null || !this.nbt.matches(var1.save(new CompoundTag()))) {
+                    BlockEntity var2 = param0.getBlockEntity(param1);
+                    if (var2 == null || !this.nbt.matches(var2.save(new CompoundTag()))) {
                         return false;
                     }
                 }
@@ -72,8 +73,10 @@ public class BlockPredicate {
             Tag<Block> var4 = null;
             if (var0.has("tag")) {
                 ResourceLocation var5 = new ResourceLocation(GsonHelper.getAsString(var0, "tag"));
-                var4 = SerializationTags.getInstance()
-                    .getTagOrThrow(Registry.BLOCK_REGISTRY, var5, param0x -> new JsonSyntaxException("Unknown block tag '" + param0x + "'"));
+                var4 = SerializationTags.getInstance().getBlocks().getTag(var5);
+                if (var4 == null) {
+                    throw new JsonSyntaxException("Unknown block tag '" + var5 + "'");
+                }
             }
 
             StatePropertiesPredicate var6 = StatePropertiesPredicate.fromJson(var0.get("state"));
@@ -93,12 +96,7 @@ public class BlockPredicate {
             }
 
             if (this.tag != null) {
-                var0.addProperty(
-                    "tag",
-                    SerializationTags.getInstance()
-                        .getIdOrThrow(Registry.BLOCK_REGISTRY, this.tag, () -> new IllegalStateException("Unknown block tag"))
-                        .toString()
-                );
+                var0.addProperty("tag", SerializationTags.getInstance().getBlocks().getIdOrThrow(this.tag).toString());
             }
 
             var0.add("nbt", this.nbt.serializeToJson());

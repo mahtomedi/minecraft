@@ -6,13 +6,7 @@ import com.mojang.math.Vector3f;
 import it.unimi.dsi.fastutil.floats.Float2FloatFunction;
 import it.unimi.dsi.fastutil.ints.Int2IntFunction;
 import java.util.Calendar;
-import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.model.geom.PartPose;
-import net.minecraft.client.model.geom.builders.CubeListBuilder;
-import net.minecraft.client.model.geom.builders.LayerDefinition;
-import net.minecraft.client.model.geom.builders.MeshDefinition;
-import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.Sheets;
@@ -33,7 +27,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class ChestRenderer<T extends BlockEntity & LidBlockEntity> implements BlockEntityRenderer<T> {
+public class ChestRenderer<T extends BlockEntity & LidBlockEntity> extends BlockEntityRenderer<T> {
     private final ModelPart lid;
     private final ModelPart bottom;
     private final ModelPart lock;
@@ -45,51 +39,40 @@ public class ChestRenderer<T extends BlockEntity & LidBlockEntity> implements Bl
     private final ModelPart doubleRightLock;
     private boolean xmasTextures;
 
-    public ChestRenderer(BlockEntityRendererProvider.Context param0) {
+    public ChestRenderer(BlockEntityRenderDispatcher param0) {
+        super(param0);
         Calendar var0 = Calendar.getInstance();
         if (var0.get(2) + 1 == 12 && var0.get(5) >= 24 && var0.get(5) <= 26) {
             this.xmasTextures = true;
         }
 
-        ModelPart var1 = param0.bakeLayer(ModelLayers.CHEST);
-        this.bottom = var1.getChild("bottom");
-        this.lid = var1.getChild("lid");
-        this.lock = var1.getChild("lock");
-        ModelPart var2 = param0.bakeLayer(ModelLayers.DOUBLE_CHEST_LEFT);
-        this.doubleLeftBottom = var2.getChild("bottom");
-        this.doubleLeftLid = var2.getChild("lid");
-        this.doubleLeftLock = var2.getChild("lock");
-        ModelPart var3 = param0.bakeLayer(ModelLayers.DOUBLE_CHEST_RIGHT);
-        this.doubleRightBottom = var3.getChild("bottom");
-        this.doubleRightLid = var3.getChild("lid");
-        this.doubleRightLock = var3.getChild("lock");
-    }
-
-    public static LayerDefinition createSingleBodyLayer() {
-        MeshDefinition var0 = new MeshDefinition();
-        PartDefinition var1 = var0.getRoot();
-        var1.addOrReplaceChild("bottom", CubeListBuilder.create().texOffs(0, 19).addBox(1.0F, 0.0F, 1.0F, 14.0F, 10.0F, 14.0F), PartPose.ZERO);
-        var1.addOrReplaceChild("lid", CubeListBuilder.create().texOffs(0, 0).addBox(1.0F, 0.0F, 0.0F, 14.0F, 5.0F, 14.0F), PartPose.offset(0.0F, 9.0F, 1.0F));
-        var1.addOrReplaceChild("lock", CubeListBuilder.create().texOffs(0, 0).addBox(7.0F, -1.0F, 15.0F, 2.0F, 4.0F, 1.0F), PartPose.offset(0.0F, 8.0F, 0.0F));
-        return LayerDefinition.create(var0, 64, 64);
-    }
-
-    public static LayerDefinition createDoubleBodyRightLayer() {
-        MeshDefinition var0 = new MeshDefinition();
-        PartDefinition var1 = var0.getRoot();
-        var1.addOrReplaceChild("bottom", CubeListBuilder.create().texOffs(0, 19).addBox(1.0F, 0.0F, 1.0F, 15.0F, 10.0F, 14.0F), PartPose.ZERO);
-        var1.addOrReplaceChild("lid", CubeListBuilder.create().texOffs(0, 0).addBox(1.0F, 0.0F, 0.0F, 15.0F, 5.0F, 14.0F), PartPose.offset(0.0F, 9.0F, 1.0F));
-        var1.addOrReplaceChild("lock", CubeListBuilder.create().texOffs(0, 0).addBox(15.0F, -1.0F, 15.0F, 1.0F, 4.0F, 1.0F), PartPose.offset(0.0F, 8.0F, 0.0F));
-        return LayerDefinition.create(var0, 64, 64);
-    }
-
-    public static LayerDefinition createDoubleBodyLeftLayer() {
-        MeshDefinition var0 = new MeshDefinition();
-        PartDefinition var1 = var0.getRoot();
-        var1.addOrReplaceChild("bottom", CubeListBuilder.create().texOffs(0, 19).addBox(0.0F, 0.0F, 1.0F, 15.0F, 10.0F, 14.0F), PartPose.ZERO);
-        var1.addOrReplaceChild("lid", CubeListBuilder.create().texOffs(0, 0).addBox(0.0F, 0.0F, 0.0F, 15.0F, 5.0F, 14.0F), PartPose.offset(0.0F, 9.0F, 1.0F));
-        var1.addOrReplaceChild("lock", CubeListBuilder.create().texOffs(0, 0).addBox(0.0F, -1.0F, 15.0F, 1.0F, 4.0F, 1.0F), PartPose.offset(0.0F, 8.0F, 0.0F));
-        return LayerDefinition.create(var0, 64, 64);
+        this.bottom = new ModelPart(64, 64, 0, 19);
+        this.bottom.addBox(1.0F, 0.0F, 1.0F, 14.0F, 10.0F, 14.0F, 0.0F);
+        this.lid = new ModelPart(64, 64, 0, 0);
+        this.lid.addBox(1.0F, 0.0F, 0.0F, 14.0F, 5.0F, 14.0F, 0.0F);
+        this.lid.y = 9.0F;
+        this.lid.z = 1.0F;
+        this.lock = new ModelPart(64, 64, 0, 0);
+        this.lock.addBox(7.0F, -1.0F, 15.0F, 2.0F, 4.0F, 1.0F, 0.0F);
+        this.lock.y = 8.0F;
+        this.doubleLeftBottom = new ModelPart(64, 64, 0, 19);
+        this.doubleLeftBottom.addBox(1.0F, 0.0F, 1.0F, 15.0F, 10.0F, 14.0F, 0.0F);
+        this.doubleLeftLid = new ModelPart(64, 64, 0, 0);
+        this.doubleLeftLid.addBox(1.0F, 0.0F, 0.0F, 15.0F, 5.0F, 14.0F, 0.0F);
+        this.doubleLeftLid.y = 9.0F;
+        this.doubleLeftLid.z = 1.0F;
+        this.doubleLeftLock = new ModelPart(64, 64, 0, 0);
+        this.doubleLeftLock.addBox(15.0F, -1.0F, 15.0F, 1.0F, 4.0F, 1.0F, 0.0F);
+        this.doubleLeftLock.y = 8.0F;
+        this.doubleRightBottom = new ModelPart(64, 64, 0, 19);
+        this.doubleRightBottom.addBox(0.0F, 0.0F, 1.0F, 15.0F, 10.0F, 14.0F, 0.0F);
+        this.doubleRightLid = new ModelPart(64, 64, 0, 0);
+        this.doubleRightLid.addBox(0.0F, 0.0F, 0.0F, 15.0F, 5.0F, 14.0F, 0.0F);
+        this.doubleRightLid.y = 9.0F;
+        this.doubleRightLid.z = 1.0F;
+        this.doubleRightLock = new ModelPart(64, 64, 0, 0);
+        this.doubleRightLock.addBox(0.0F, -1.0F, 15.0F, 1.0F, 4.0F, 1.0F, 0.0F);
+        this.doubleRightLock.y = 8.0F;
     }
 
     @Override
@@ -122,9 +105,9 @@ public class ChestRenderer<T extends BlockEntity & LidBlockEntity> implements Bl
             VertexConsumer var13 = var12.buffer(param3, RenderType::entityCutout);
             if (var6) {
                 if (var3 == ChestType.LEFT) {
-                    this.render(param2, var13, this.doubleLeftLid, this.doubleLeftLock, this.doubleLeftBottom, var10, var11, param5);
-                } else {
                     this.render(param2, var13, this.doubleRightLid, this.doubleRightLock, this.doubleRightBottom, var10, var11, param5);
+                } else {
+                    this.render(param2, var13, this.doubleLeftLid, this.doubleLeftLock, this.doubleLeftBottom, var10, var11, param5);
                 }
             } else {
                 this.render(param2, var13, this.lid, this.lock, this.bottom, var10, var11, param5);

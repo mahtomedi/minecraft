@@ -31,7 +31,7 @@ public class EntityBoundSoundInstance extends AbstractTickableSoundInstance {
 
     @Override
     public void tick() {
-        if (this.entity.isRemoved()) {
+        if (this.entity.removed) {
             this.stop();
         } else {
             this.x = (double)((float)this.entity.getX());

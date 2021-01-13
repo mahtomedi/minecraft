@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.IntSupplier;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -17,8 +16,8 @@ public class BlockTintCache {
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
     public int getColor(BlockPos param0, IntSupplier param1) {
-        int var0 = SectionPos.blockToSectionCoord(param0.getX());
-        int var1 = SectionPos.blockToSectionCoord(param0.getZ());
+        int var0 = param0.getX() >> 4;
+        int var1 = param0.getZ() >> 4;
         BlockTintCache.LatestCacheInfo var2 = this.latestChunkOnThread.get();
         if (var2.x != var0 || var2.z != var1) {
             var2.x = var0;

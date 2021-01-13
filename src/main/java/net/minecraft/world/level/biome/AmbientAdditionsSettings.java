@@ -14,8 +14,8 @@ public class AmbientAdditionsSettings {
                 )
                 .apply(param0, AmbientAdditionsSettings::new)
     );
-    private final SoundEvent soundEvent;
-    private final double tickChance;
+    private SoundEvent soundEvent;
+    private double tickChance;
 
     public AmbientAdditionsSettings(SoundEvent param0, double param1) {
         this.soundEvent = param0;

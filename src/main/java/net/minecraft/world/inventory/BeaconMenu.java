@@ -15,7 +15,7 @@ public class BeaconMenu extends AbstractContainerMenu {
     private final Container beacon = new SimpleContainer(1) {
         @Override
         public boolean canPlaceItem(int param0, ItemStack param1) {
-            return param1.is(ItemTags.BEACON_PAYMENT_ITEMS);
+            return param1.getItem().is(ItemTags.BEACON_PAYMENT_ITEMS);
         }
 
         @Override
@@ -160,7 +160,7 @@ public class BeaconMenu extends AbstractContainerMenu {
 
         @Override
         public boolean mayPlace(ItemStack param0) {
-            return param0.is(ItemTags.BEACON_PAYMENT_ITEMS);
+            return param0.getItem().is(ItemTags.BEACON_PAYMENT_ITEMS);
         }
 
         @Override

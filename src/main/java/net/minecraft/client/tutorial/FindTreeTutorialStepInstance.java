@@ -9,6 +9,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -58,14 +59,14 @@ public class FindTreeTutorialStepInstance implements TutorialStepInstance {
     @Override
     public void tick() {
         ++this.timeWaiting;
-        if (!this.tutorial.isSurvival()) {
+        if (this.tutorial.getGameMode() != GameType.SURVIVAL) {
             this.tutorial.setStep(TutorialSteps.NONE);
         } else {
             if (this.timeWaiting == 1) {
                 LocalPlayer var0 = this.tutorial.getMinecraft().player;
                 if (var0 != null) {
                     for(Block var1 : TREE_BLOCKS) {
-                        if (var0.getInventory().contains(new ItemStack(var1))) {
+                        if (var0.inventory.contains(new ItemStack(var1))) {
                             this.tutorial.setStep(TutorialSteps.CRAFT_PLANKS);
                             return;
                         }
@@ -109,7 +110,7 @@ public class FindTreeTutorialStepInstance implements TutorialStepInstance {
     @Override
     public void onGetItem(ItemStack param0) {
         for(Block var0 : TREE_BLOCKS) {
-            if (param0.is(var0.asItem())) {
+            if (param0.getItem() == var0.asItem()) {
                 this.tutorial.setStep(TutorialSteps.CRAFT_PLANKS);
                 return;
             }

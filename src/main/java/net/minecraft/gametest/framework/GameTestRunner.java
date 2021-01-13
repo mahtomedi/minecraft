@@ -1,27 +1,54 @@
 package net.minecraft.gametest.framework;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Streams;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.protocol.game.DebugPackets;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LecternBlock;
+import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.StructureBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import org.apache.commons.lang3.mutable.MutableInt;
 
 public class GameTestRunner {
+    public static TestReporter TEST_REPORTER = new LogTestReporter();
+
     public static void runTest(GameTestInfo param0, BlockPos param1, GameTestTicker param2) {
         param0.startExecution();
         param2.add(param0);
-        param0.addListener(new ReportGameListener(param0, param2, param1));
+        param0.addListener(new GameTestListener() {
+            @Override
+            public void testStructureLoaded(GameTestInfo param0) {
+                GameTestRunner.spawnBeacon(param0, Blocks.LIGHT_GRAY_STAINED_GLASS);
+            }
+
+            @Override
+            public void testFailed(GameTestInfo param0) {
+                GameTestRunner.spawnBeacon(param0, param0.isRequired() ? Blocks.RED_STAINED_GLASS : Blocks.ORANGE_STAINED_GLASS);
+                GameTestRunner.spawnLectern(param0, Util.describeError(param0.getError()));
+                GameTestRunner.visualizeFailedTest(param0);
+            }
+        });
         param0.spawnStructure(param1, 2);
     }
 
@@ -40,21 +67,86 @@ public class GameTestRunner {
     }
 
     public static Collection<GameTestBatch> groupTestsIntoBatches(Collection<TestFunction> param0) {
-        Map<String, List<TestFunction>> var0 = param0.stream().collect(Collectors.groupingBy(TestFunction::getBatchName));
-        return var0.entrySet()
-            .stream()
-            .flatMap(
-                param0x -> {
-                    String var0x = param0x.getKey();
-                    Consumer<ServerLevel> var1x = GameTestRegistry.getBeforeBatchFunction(var0x);
-                    Consumer<ServerLevel> var2 = GameTestRegistry.getAfterBatchFunction(var0x);
-                    MutableInt var3 = new MutableInt();
-                    Collection<TestFunction> var4 = param0x.getValue();
-                    return Streams.stream(Iterables.partition(var4, 100))
-                        .map(param4 -> new GameTestBatch(var0x + ":" + var3.incrementAndGet(), ImmutableList.copyOf(param4), var1x, var2));
-                }
-            )
-            .collect(ImmutableList.toImmutableList());
+        Map<String, Collection<TestFunction>> var0 = Maps.newHashMap();
+        param0.forEach(param1 -> {
+            String var0x = param1.getBatchName();
+            Collection<TestFunction> var1x = var0.computeIfAbsent(var0x, param0x -> Lists.newArrayList());
+            var1x.add(param1);
+        });
+        return var0.keySet().stream().flatMap(param1 -> {
+            Collection<TestFunction> var0x = var0.get(param1);
+            Consumer<ServerLevel> var1x = GameTestRegistry.getBeforeBatchFunction(param1);
+            MutableInt var2 = new MutableInt();
+            return Streams.stream(Iterables.partition(var0x, 100)).map(param4 -> new GameTestBatch(param1 + ":" + var2.incrementAndGet(), var0x, var1x));
+        }).collect(Collectors.toList());
+    }
+
+    private static void visualizeFailedTest(GameTestInfo param0) {
+        Throwable var0 = param0.getError();
+        String var1 = (param0.isRequired() ? "" : "(optional) ") + param0.getTestName() + " failed! " + Util.describeError(var0);
+        say(param0.getLevel(), param0.isRequired() ? ChatFormatting.RED : ChatFormatting.YELLOW, var1);
+        if (var0 instanceof GameTestAssertPosException) {
+            GameTestAssertPosException var2 = (GameTestAssertPosException)var0;
+            showRedBox(param0.getLevel(), var2.getAbsolutePos(), var2.getMessageToShowAtBlock());
+        }
+
+        TEST_REPORTER.onTestFailed(param0);
+    }
+
+    private static void spawnBeacon(GameTestInfo param0, Block param1) {
+        ServerLevel var0 = param0.getLevel();
+        BlockPos var1 = param0.getStructureBlockPos();
+        BlockPos var2 = new BlockPos(-1, -1, -1);
+        BlockPos var3 = StructureTemplate.transform(var1.offset(var2), Mirror.NONE, param0.getRotation(), var1);
+        var0.setBlockAndUpdate(var3, Blocks.BEACON.defaultBlockState().rotate(param0.getRotation()));
+        BlockPos var4 = var3.offset(0, 1, 0);
+        var0.setBlockAndUpdate(var4, param1.defaultBlockState());
+
+        for(int var5 = -1; var5 <= 1; ++var5) {
+            for(int var6 = -1; var6 <= 1; ++var6) {
+                BlockPos var7 = var3.offset(var5, -1, var6);
+                var0.setBlockAndUpdate(var7, Blocks.IRON_BLOCK.defaultBlockState());
+            }
+        }
+
+    }
+
+    private static void spawnLectern(GameTestInfo param0, String param1) {
+        ServerLevel var0 = param0.getLevel();
+        BlockPos var1 = param0.getStructureBlockPos();
+        BlockPos var2 = new BlockPos(-1, 1, -1);
+        BlockPos var3 = StructureTemplate.transform(var1.offset(var2), Mirror.NONE, param0.getRotation(), var1);
+        var0.setBlockAndUpdate(var3, Blocks.LECTERN.defaultBlockState().rotate(param0.getRotation()));
+        BlockState var4 = var0.getBlockState(var3);
+        ItemStack var5 = createBook(param0.getTestName(), param0.isRequired(), param1);
+        LecternBlock.tryPlaceBook(var0, var3, var4, var5);
+    }
+
+    private static ItemStack createBook(String param0, boolean param1, String param2) {
+        ItemStack var0 = new ItemStack(Items.WRITABLE_BOOK);
+        ListTag var1 = new ListTag();
+        StringBuffer var2 = new StringBuffer();
+        Arrays.stream(param0.split("\\.")).forEach(param1x -> var2.append(param1x).append('\n'));
+        if (!param1) {
+            var2.append("(optional)\n");
+        }
+
+        var2.append("-------------------\n");
+        var1.add(StringTag.valueOf(var2.toString() + param2));
+        var0.addTagElement("pages", var1);
+        return var0;
+    }
+
+    private static void say(ServerLevel param0, ChatFormatting param1, String param2) {
+        param0.getPlayers(param0x -> true).forEach(param2x -> param2x.sendMessage(new TextComponent(param2).withStyle(param1), Util.NIL_UUID));
+    }
+
+    public static void clearMarkers(ServerLevel param0) {
+        DebugPackets.sendGameTestClearPacket(param0);
+    }
+
+    private static void showRedBox(ServerLevel param0, BlockPos param1, String param2) {
+        DebugPackets.sendGameTestAddMarker(param0, param1, param2, -2130771968, Integer.MAX_VALUE);
     }
 
     public static void clearAllTests(ServerLevel param0, BlockPos param1, GameTestTicker param2, int param3) {
@@ -67,9 +159,5 @@ public class GameTestRunner {
             BoundingBox var2x = StructureUtils.getStructureBoundingBox(var0x);
             StructureUtils.clearSpaceForStructure(var2x, var1x.getY(), param0);
         });
-    }
-
-    public static void clearMarkers(ServerLevel param0) {
-        DebugPackets.sendGameTestClearPacket(param0);
     }
 }

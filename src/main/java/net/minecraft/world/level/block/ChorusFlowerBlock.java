@@ -43,30 +43,31 @@ public class ChorusFlowerBlock extends Block {
     @Override
     public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
         BlockPos var0 = param2.above();
-        if (param1.isEmptyBlock(var0) && var0.getY() < param1.getMaxBuildHeight()) {
+        if (param1.isEmptyBlock(var0) && var0.getY() < 256) {
             int var1 = param0.getValue(AGE);
             if (var1 < 5) {
                 boolean var2 = false;
                 boolean var3 = false;
                 BlockState var4 = param1.getBlockState(param2.below());
-                if (var4.is(Blocks.END_STONE)) {
+                Block var5 = var4.getBlock();
+                if (var5 == Blocks.END_STONE) {
                     var2 = true;
-                } else if (var4.is(this.plant)) {
-                    int var5 = 1;
+                } else if (var5 == this.plant) {
+                    int var6 = 1;
 
-                    for(int var6 = 0; var6 < 4; ++var6) {
-                        BlockState var7 = param1.getBlockState(param2.below(var5 + 1));
-                        if (!var7.is(this.plant)) {
-                            if (var7.is(Blocks.END_STONE)) {
+                    for(int var7 = 0; var7 < 4; ++var7) {
+                        Block var8 = param1.getBlockState(param2.below(var6 + 1)).getBlock();
+                        if (var8 != this.plant) {
+                            if (var8 == Blocks.END_STONE) {
                                 var3 = true;
                             }
                             break;
                         }
 
-                        ++var5;
+                        ++var6;
                     }
 
-                    if (var5 < 2 || var5 <= param3.nextInt(var3 ? 5 : 4)) {
+                    if (var6 < 2 || var6 <= param3.nextInt(var3 ? 5 : 4)) {
                         var2 = true;
                     }
                 } else if (var4.isAir()) {
@@ -77,23 +78,23 @@ public class ChorusFlowerBlock extends Block {
                     param1.setBlock(param2, this.plant.getStateForPlacement(param1, param2), 2);
                     this.placeGrownFlower(param1, var0, var1);
                 } else if (var1 < 4) {
-                    int var8 = param3.nextInt(4);
+                    int var9 = param3.nextInt(4);
                     if (var3) {
-                        ++var8;
+                        ++var9;
                     }
 
-                    boolean var9 = false;
+                    boolean var10 = false;
 
-                    for(int var10 = 0; var10 < var8; ++var10) {
-                        Direction var11 = Direction.Plane.HORIZONTAL.getRandomDirection(param3);
-                        BlockPos var12 = param2.relative(var11);
-                        if (param1.isEmptyBlock(var12) && param1.isEmptyBlock(var12.below()) && allNeighborsEmpty(param1, var12, var11.getOpposite())) {
-                            this.placeGrownFlower(param1, var12, var1 + 1);
-                            var9 = true;
+                    for(int var11 = 0; var11 < var9; ++var11) {
+                        Direction var12 = Direction.Plane.HORIZONTAL.getRandomDirection(param3);
+                        BlockPos var13 = param2.relative(var12);
+                        if (param1.isEmptyBlock(var13) && param1.isEmptyBlock(var13.below()) && allNeighborsEmpty(param1, var13, var12.getOpposite())) {
+                            this.placeGrownFlower(param1, var13, var1 + 1);
+                            var10 = true;
                         }
                     }
 
-                    if (var9) {
+                    if (var10) {
                         param1.setBlock(param2, this.plant.getStateForPlacement(param1, param2), 2);
                     } else {
                         this.placeDeadFlower(param1, param2);
@@ -138,7 +139,7 @@ public class ChorusFlowerBlock extends Block {
     @Override
     public boolean canSurvive(BlockState param0, LevelReader param1, BlockPos param2) {
         BlockState var0 = param1.getBlockState(param2.below());
-        if (!var0.is(this.plant) && !var0.is(Blocks.END_STONE)) {
+        if (var0.getBlock() != this.plant && !var0.is(Blocks.END_STONE)) {
             if (!var0.isAir()) {
                 return false;
             } else {

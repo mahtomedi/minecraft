@@ -31,7 +31,7 @@ public class BreakingItemParticle extends TextureSheetParticle {
 
     protected BreakingItemParticle(ClientLevel param0, double param1, double param2, double param3, ItemStack param4) {
         super(param0, param1, param2, param3, 0.0, 0.0, 0.0);
-        this.setSprite(Minecraft.getInstance().getItemRenderer().getModel(param4, param0, null, 0).getParticleIcon());
+        this.setSprite(Minecraft.getInstance().getItemRenderer().getModel(param4, param0, null).getParticleIcon());
         this.gravity = 1.0F;
         this.quadSize /= 2.0F;
         this.uo = this.random.nextFloat() * 3.0F;

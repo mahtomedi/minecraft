@@ -381,6 +381,5 @@ public class V1460 extends NamespacedSchema {
         param0.registerType(false, References.ENTITY_NAME, () -> DSL.constType(namespacedString()));
         param0.registerType(false, References.POI_CHUNK, DSL::remainder);
         param0.registerType(true, References.WORLD_GEN_SETTINGS, DSL::remainder);
-        param0.registerType(false, References.ENTITY_CHUNK, () -> DSL.optionalFields("Entities", DSL.list(References.ENTITY_TREE.in(param0))));
     }
 }

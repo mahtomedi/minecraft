@@ -2,22 +2,16 @@ package net.minecraft.world.level.block;
 
 import com.mojang.math.OctahedralGroup;
 import net.minecraft.core.Direction;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public enum Mirror {
-    NONE(new TranslatableComponent("mirror.none"), OctahedralGroup.IDENTITY),
-    LEFT_RIGHT(new TranslatableComponent("mirror.left_right"), OctahedralGroup.INVERT_Z),
-    FRONT_BACK(new TranslatableComponent("mirror.front_back"), OctahedralGroup.INVERT_X);
+    NONE(OctahedralGroup.IDENTITY),
+    LEFT_RIGHT(OctahedralGroup.INVERT_Z),
+    FRONT_BACK(OctahedralGroup.INVERT_X);
 
-    private final Component symbol;
     private final OctahedralGroup rotation;
 
-    private Mirror(Component param0, OctahedralGroup param1) {
-        this.symbol = param0;
-        this.rotation = param1;
+    private Mirror(OctahedralGroup param0) {
+        this.rotation = param0;
     }
 
     public int mirror(int param0, int param1) {
@@ -48,10 +42,5 @@ public enum Mirror {
 
     public OctahedralGroup rotation() {
         return this.rotation;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public Component symbol() {
-        return this.symbol;
     }
 }

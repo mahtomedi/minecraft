@@ -19,7 +19,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.TimeUtil;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.AgeableMob;
+import net.minecraft.world.entity.AgableMob;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
@@ -67,7 +67,7 @@ public class PolarBear extends Animal implements NeutralMob {
     }
 
     @Override
-    public AgeableMob getBreedOffspring(ServerLevel param0, AgeableMob param1) {
+    public AgableMob getBreedOffspring(ServerLevel param0, AgableMob param1) {
         return EntityType.POLAR_BEAR.create(param0);
     }
 
@@ -113,7 +113,7 @@ public class PolarBear extends Animal implements NeutralMob {
     @Override
     public void readAdditionalSaveData(CompoundTag param0) {
         super.readAdditionalSaveData(param0);
-        this.readPersistentAngerSaveData(this.level, param0);
+        this.readPersistentAngerSaveData((ServerLevel)this.level, param0);
     }
 
     @Override
@@ -251,7 +251,7 @@ public class PolarBear extends Animal implements NeutralMob {
         ServerLevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
     ) {
         if (param3 == null) {
-            param3 = new AgeableMob.AgeableMobGroupData(1.0F);
+            param3 = new AgableMob.AgableMobGroupData(1.0F);
         }
 
         return super.finalizeSpawn(param0, param1, param2, param3, param4);

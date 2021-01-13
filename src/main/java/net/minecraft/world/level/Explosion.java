@@ -32,7 +32,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
@@ -150,7 +149,6 @@ public class Explosion {
     }
 
     public void explode() {
-        this.level.gameEvent(this.source, GameEvent.EXPLODE, new BlockPos(this.x, this.y, this.z));
         Set<BlockPos> var0 = Sets.newHashSet();
         int var1 = 16;
 
@@ -228,7 +226,7 @@ public class Explosion {
                         var28.setDeltaMovement(var28.getDeltaMovement().add(var30 * var36, var31 * var36, var32 * var36));
                         if (var28 instanceof Player) {
                             Player var37 = (Player)var28;
-                            if (!var37.isSpectator() && (!var37.isCreative() || !var37.getAbilities().flying)) {
+                            if (!var37.isSpectator() && (!var37.isCreative() || !var37.abilities.flying)) {
                                 this.hitPlayers.put(var37, new Vec3(var30 * var35, var31 * var35, var32 * var35));
                             }
                         }
@@ -274,7 +272,7 @@ public class Explosion {
                     BlockPos var5 = var2.immutable();
                     this.level.getProfiler().push("explosion_blocks");
                     if (var4.dropFromExplosion(this) && this.level instanceof ServerLevel) {
-                        BlockEntity var6 = var3.hasBlockEntity() ? this.level.getBlockEntity(var2) : null;
+                        BlockEntity var6 = var4.isEntityBlock() ? this.level.getBlockEntity(var2) : null;
                         LootContext.Builder var7 = new LootContext.Builder((ServerLevel)this.level)
                             .withRandom(this.level.random)
                             .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(var2))

@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import java.util.Collection;
 
 public class GameTestTicker {
-    public static final GameTestTicker SINGLETON = new GameTestTicker();
+    public static final GameTestTicker singleton = new GameTestTicker();
     private final Collection<GameTestInfo> testInfos = Lists.newCopyOnWriteArrayList();
 
     public void add(GameTestInfo param0) {

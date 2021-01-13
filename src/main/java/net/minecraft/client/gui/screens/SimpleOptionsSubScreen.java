@@ -8,7 +8,6 @@ import net.minecraft.client.Options;
 import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.OptionsList;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -54,12 +53,15 @@ public abstract class SimpleOptionsSubScreen extends OptionsSubScreen {
         drawCenteredString(param0, this.font, this.title, this.width / 2, 20, 16777215);
         super.render(param0, param1, param2, param3);
         List<FormattedCharSequence> var0 = tooltipAt(this.list, param1, param2);
-        this.renderTooltip(param0, var0, param1, param2);
+        if (var0 != null) {
+            this.renderTooltip(param0, var0, param1, param2);
+        }
+
     }
 
     public void updateNarratorButton() {
-        if (this.narratorButton instanceof CycleButton) {
-            ((CycleButton)this.narratorButton).setValue(this.options.narratorStatus);
+        if (this.narratorButton != null) {
+            this.narratorButton.setMessage(Option.NARRATOR.getMessage(this.options));
         }
 
     }

@@ -305,7 +305,6 @@ public class V99 extends Schema {
         param0.registerType(true, References.UNTAGGED_SPAWNER, DSL::remainder);
         param0.registerType(false, References.POI_CHUNK, DSL::remainder);
         param0.registerType(true, References.WORLD_GEN_SETTINGS, DSL::remainder);
-        param0.registerType(false, References.ENTITY_CHUNK, () -> DSL.optionalFields("Entities", DSL.list(References.ENTITY_TREE.in(param0))));
     }
 
     protected static <T> T addNames(Dynamic<T> param0, Map<String, String> param1, String param2) {

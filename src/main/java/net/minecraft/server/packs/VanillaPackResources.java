@@ -28,7 +28,6 @@ import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.metadata.MetadataSectionSerializer;
-import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -60,12 +59,10 @@ public class VanillaPackResources implements PackResources {
 
         }
     });
-    public final PackMetadataSection packMetadata;
     public final Set<String> namespaces;
 
-    public VanillaPackResources(PackMetadataSection param0, String... param1) {
-        this.packMetadata = param0;
-        this.namespaces = ImmutableSet.copyOf(param1);
+    public VanillaPackResources(String... param0) {
+        this.namespaces = ImmutableSet.copyOf(param0);
     }
 
     @Override
@@ -221,16 +218,10 @@ public class VanillaPackResources implements PackResources {
     @Override
     public <T> T getMetadataSection(MetadataSectionSerializer<T> param0) throws IOException {
         try (InputStream var0 = this.getRootResource("pack.mcmeta")) {
-            if (var0 != null) {
-                T var1 = AbstractPackResources.getMetadataFromStream(param0, var0);
-                if (var1 != null) {
-                    return var1;
-                }
-            }
-        } catch (FileNotFoundException | RuntimeException var18) {
+            return AbstractPackResources.getMetadataFromStream(param0, var0);
+        } catch (FileNotFoundException | RuntimeException var16) {
+            return null;
         }
-
-        return (T)(param0 == PackMetadataSection.SERIALIZER ? this.packMetadata : null);
     }
 
     @Override

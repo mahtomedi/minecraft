@@ -2,7 +2,6 @@ package net.minecraft.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.VexModel;
-import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.monster.Vex;
@@ -14,8 +13,8 @@ public class VexRenderer extends HumanoidMobRenderer<Vex, VexModel> {
     private static final ResourceLocation VEX_LOCATION = new ResourceLocation("textures/entity/illager/vex.png");
     private static final ResourceLocation VEX_CHARGING_LOCATION = new ResourceLocation("textures/entity/illager/vex_charging.png");
 
-    public VexRenderer(EntityRendererProvider.Context param0) {
-        super(param0, new VexModel(param0.bakeLayer(ModelLayers.VEX)), 0.3F);
+    public VexRenderer(EntityRenderDispatcher param0) {
+        super(param0, new VexModel(), 0.3F);
     }
 
     protected int getBlockLightLevel(Vex param0, BlockPos param1) {

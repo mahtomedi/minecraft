@@ -12,6 +12,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BaseCommandBlock;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -26,22 +27,20 @@ import net.minecraft.world.phys.BlockHitResult;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class CommandBlock extends BaseEntityBlock implements GameMasterBlock {
+public class CommandBlock extends BaseEntityBlock {
     private static final Logger LOGGER = LogManager.getLogger();
     public static final DirectionProperty FACING = DirectionalBlock.FACING;
     public static final BooleanProperty CONDITIONAL = BlockStateProperties.CONDITIONAL;
-    private final boolean automatic;
 
-    public CommandBlock(BlockBehaviour.Properties param0, boolean param1) {
+    public CommandBlock(BlockBehaviour.Properties param0) {
         super(param0);
         this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(CONDITIONAL, Boolean.valueOf(false)));
-        this.automatic = param1;
     }
 
     @Override
-    public BlockEntity newBlockEntity(BlockPos param0, BlockState param1) {
-        CommandBlockEntity var0 = new CommandBlockEntity(param0, param1);
-        var0.setAutomatic(this.automatic);
+    public BlockEntity newBlockEntity(BlockGetter param0) {
+        CommandBlockEntity var0 = new CommandBlockEntity();
+        var0.setAutomatic(this == Blocks.CHAIN_COMMAND_BLOCK);
         return var0;
     }
 
@@ -143,7 +142,7 @@ public class CommandBlock extends BaseEntityBlock implements GameMasterBlock {
             if (!param0.isClientSide) {
                 if (param4.getTagElement("BlockEntityTag") == null) {
                     var2.setTrackOutput(param0.getGameRules().getBoolean(GameRules.RULE_SENDCOMMANDFEEDBACK));
-                    var1.setAutomatic(this.automatic);
+                    var1.setAutomatic(this == Blocks.CHAIN_COMMAND_BLOCK);
                 }
 
                 if (var1.getMode() == CommandBlockEntity.Mode.SEQUENCE) {

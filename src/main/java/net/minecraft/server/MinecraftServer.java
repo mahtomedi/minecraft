@@ -72,12 +72,10 @@ import net.minecraft.network.protocol.status.ServerStatus;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.bossevents.CustomBossEvents;
-import net.minecraft.server.level.DemoMode;
 import net.minecraft.server.level.PlayerRespawnLogic;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.level.ServerPlayerGameMode;
 import net.minecraft.server.level.TicketType;
 import net.minecraft.server.level.progress.ChunkProgressListener;
 import net.minecraft.server.level.progress.ChunkProgressListenerFactory;
@@ -132,6 +130,7 @@ import net.minecraft.world.level.levelgen.PhantomSpawner;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
+import net.minecraft.world.level.saveddata.SaveDataDirtyRunnable;
 import net.minecraft.world.level.storage.CommandStorage;
 import net.minecraft.world.level.storage.DerivedLevelData;
 import net.minecraft.world.level.storage.DimensionDataStorage;
@@ -141,11 +140,11 @@ import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.level.storage.PlayerDataStorage;
 import net.minecraft.world.level.storage.ServerLevelData;
 import net.minecraft.world.level.storage.WorldData;
-import net.minecraft.world.level.storage.loot.ItemModifierManager;
 import net.minecraft.world.level.storage.loot.LootTables;
 import net.minecraft.world.level.storage.loot.PredicateManager;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.scores.ScoreboardSaveData;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.Validate;
@@ -184,6 +183,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
     private boolean allowFlight;
     @Nullable
     private String motd;
+    private int maxBuildHeight;
     private int playerIdleTimeout;
     public final long[] tickTimes = new long[100];
     @Nullable
@@ -196,6 +196,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
     private volatile boolean isReady;
     private long lastOverloadWarning;
     private boolean delayProfilerStart;
+    private boolean forceGameType;
     private final MinecraftSessionService sessionService;
     private final GameProfileRepository profileRepository;
     private final GameProfileCache profileCache;
@@ -267,7 +268,9 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
     }
 
     private void readScoreboard(DimensionDataStorage param0) {
-        param0.computeIfAbsent(this.getScoreboard()::createData, this.getScoreboard()::createData, "scoreboard");
+        ScoreboardSaveData var0 = param0.computeIfAbsent(ScoreboardSaveData::new, "scoreboard");
+        var0.setScoreboard(this.getScoreboard());
+        this.getScoreboard().addDirtyListener(new SaveDataDirtyRunnable(var0));
     }
 
     protected abstract boolean initServer() throws IOException;
@@ -335,7 +338,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         ChunkGenerator var9;
         DimensionType var8;
         if (var7 == null) {
-            var8 = this.registryHolder.<DimensionType>registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY).getOrThrow(DimensionType.OVERWORLD_LOCATION);
+            var8 = this.registryHolder.dimensionTypes().getOrThrow(DimensionType.OVERWORLD_LOCATION);
             var9 = WorldGenSettings.makeDefaultOverworld(
                 this.registryHolder.registryOrThrow(Registry.BIOME_REGISTRY),
                 this.registryHolder.registryOrThrow(Registry.NOISE_GENERATOR_SETTINGS_REGISTRY),
@@ -484,7 +487,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         this.waitUntilNextTick();
 
         for(ServerLevel var3 : this.levels.values()) {
-            ForcedChunksSavedData var4 = var3.getDataStorage().get(ForcedChunksSavedData::load, "chunks");
+            ForcedChunksSavedData var4 = var3.getDataStorage().get(ForcedChunksSavedData::new, "chunks");
             if (var4 != null) {
                 LongIterator var5 = var4.getChunks().iterator();
 
@@ -869,7 +872,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         this.profiler.popPush("players");
         this.playerList.tick();
         if (SharedConstants.IS_RUNNING_IN_IDE) {
-            GameTestTicker.SINGLETON.tick();
+            GameTestTicker.singleton.tick();
         }
 
         this.profiler.popPush("server gui refresh");
@@ -1087,7 +1090,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
                 param0.setDynamicData("world[" + var0 + "][mode]", this.worldData.getGameType());
                 param0.setDynamicData("world[" + var0 + "][difficulty]", var1.getDifficulty());
                 param0.setDynamicData("world[" + var0 + "][hardcore]", this.worldData.isHardcore());
-                param0.setDynamicData("world[" + var0 + "][height]", var1.getMaxBuildHeight());
+                param0.setDynamicData("world[" + var0 + "][height]", this.maxBuildHeight);
                 param0.setDynamicData("world[" + var0 + "][chunks_loaded]", var1.getChunkSource().getLoadedChunksCount());
                 ++var0;
             }
@@ -1152,6 +1155,14 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         this.motd = param0;
     }
 
+    public int getMaxBuildHeight() {
+        return this.maxBuildHeight;
+    }
+
+    public void setMaxBuildHeight(int param0) {
+        this.maxBuildHeight = param0;
+    }
+
     public boolean isStopped() {
         return this.stopped;
     }
@@ -1184,9 +1195,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         return false;
     }
 
-    public boolean publishServer(@Nullable GameType param0, boolean param1, int param2) {
-        return false;
-    }
+    public abstract boolean publishServer(GameType var1, boolean var2, int var3);
 
     public int getTickCount() {
         return this.tickCount;
@@ -1203,6 +1212,14 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
 
     public boolean isUnderSpawnProtection(ServerLevel param0, BlockPos param1, Player param2) {
         return false;
+    }
+
+    public void setForceGameType(boolean param0) {
+        this.forceGameType = param0;
+    }
+
+    public boolean getForceGameType() {
+        return this.forceGameType;
     }
 
     public boolean repliesToStatus() {
@@ -1282,7 +1299,6 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
             .thenCompose(
                 param0x -> ServerResources.loadResources(
                         param0x,
-                        this.registryHolder,
                         this.isDedicatedServer() ? Commands.CommandSelection.DEDICATED : Commands.CommandSelection.INTEGRATED,
                         this.getFunctionCompilationLevel(),
                         this.executor,
@@ -1423,10 +1439,6 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         return this.resources.getPredicateManager();
     }
 
-    public ItemModifierManager getItemModifierManager() {
-        return this.resources.getItemModifierManager();
-    }
-
     public GameRules getGameRules() {
         return this.overworld().getGameRules();
     }
@@ -1519,7 +1531,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
             GameRules.visitGameRuleTypes(new GameRules.GameRuleTypeVisitor() {
                 @Override
                 public <T extends GameRules.Value<T>> void visit(GameRules.Key<T> param0, GameRules.Type<T> param1) {
-                    var1.add(String.format("%s=%s\n", param0.getId(), var2.<T>getRule(param0)));
+                    var1.add(String.format("%s=%s\n", param0.getId(), var2.<T>getRule(param0).toString()));
                 }
             });
 
@@ -1610,19 +1622,6 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
 
     @Nullable
     public TextFilter createTextFilterForPlayer(ServerPlayer param0) {
-        return null;
-    }
-
-    public boolean isResourcePackRequired() {
-        return false;
-    }
-
-    public ServerPlayerGameMode createGameModeForPlayer(ServerPlayer param0) {
-        return (ServerPlayerGameMode)(this.isDemo() ? new DemoMode(param0) : new ServerPlayerGameMode(param0));
-    }
-
-    @Nullable
-    public GameType getForcedGameType() {
         return null;
     }
 }

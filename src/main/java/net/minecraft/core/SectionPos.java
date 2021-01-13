@@ -26,7 +26,9 @@ public class SectionPos extends Vec3i {
     }
 
     public static SectionPos of(Entity param0) {
-        return new SectionPos(blockToSectionCoord(param0.getBlockX()), blockToSectionCoord(param0.getBlockY()), blockToSectionCoord(param0.getBlockZ()));
+        return new SectionPos(
+            blockToSectionCoord(Mth.floor(param0.getX())), blockToSectionCoord(Mth.floor(param0.getY())), blockToSectionCoord(Mth.floor(param0.getZ()))
+        );
     }
 
     public static SectionPos of(long param0) {
@@ -39,10 +41,6 @@ public class SectionPos extends Vec3i {
 
     public static long offset(long param0, int param1, int param2, int param3) {
         return asLong(x(param0) + param1, y(param0) + param2, z(param0) + param3);
-    }
-
-    public static int posToSectionCoord(double param0) {
-        return blockToSectionCoord(Mth.floor(param0));
     }
 
     public static int blockToSectionCoord(int param0) {
@@ -92,10 +90,6 @@ public class SectionPos extends Vec3i {
         return param0 << 4;
     }
 
-    public static int sectionToBlockCoord(int param0, int param1) {
-        return sectionToBlockCoord(param0) + param1;
-    }
-
     public static int x(long param0) {
         return (int)(param0 << 0 >> 42);
     }
@@ -121,27 +115,27 @@ public class SectionPos extends Vec3i {
     }
 
     public int minBlockX() {
-        return sectionToBlockCoord(this.x());
+        return this.x() << 4;
     }
 
     public int minBlockY() {
-        return sectionToBlockCoord(this.y());
+        return this.y() << 4;
     }
 
     public int minBlockZ() {
-        return sectionToBlockCoord(this.z());
+        return this.z() << 4;
     }
 
     public int maxBlockX() {
-        return sectionToBlockCoord(this.x(), 15);
+        return (this.x() << 4) + 15;
     }
 
     public int maxBlockY() {
-        return sectionToBlockCoord(this.y(), 15);
+        return (this.y() << 4) + 15;
     }
 
     public int maxBlockZ() {
-        return sectionToBlockCoord(this.z(), 15);
+        return (this.z() << 4) + 15;
     }
 
     public static long blockToSection(long param0) {
@@ -187,10 +181,10 @@ public class SectionPos extends Vec3i {
         return betweenClosedStream(var0 - param1, var1 - param1, var2 - param1, var0 + param1, var1 + param1, var2 + param1);
     }
 
-    public static Stream<SectionPos> aroundChunk(ChunkPos param0, int param1, int param2, int param3) {
+    public static Stream<SectionPos> aroundChunk(ChunkPos param0, int param1) {
         int var0 = param0.x;
         int var1 = param0.z;
-        return betweenClosedStream(var0 - param1, param2, var1 - param1, var0 + param1, param3 - 1, var1 + param1);
+        return betweenClosedStream(var0 - param1, 0, var1 - param1, var0 + param1, 15, var1 + param1);
     }
 
     public static Stream<SectionPos> betweenClosedStream(

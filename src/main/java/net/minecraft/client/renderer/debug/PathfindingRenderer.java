@@ -6,7 +6,6 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
 import java.util.Locale;
 import java.util.Map;
 import net.minecraft.Util;
@@ -178,7 +177,7 @@ public class PathfindingRenderer implements DebugRenderer.SimpleDebugRenderer {
     public static void renderPathLine(Path param0, double param1, double param2, double param3) {
         Tesselator var0 = Tesselator.getInstance();
         BufferBuilder var1 = var0.getBuilder();
-        var1.begin(VertexFormat.Mode.LINE_STRIP, DefaultVertexFormat.POSITION_COLOR);
+        var1.begin(3, DefaultVertexFormat.POSITION_COLOR);
 
         for(int var2 = 0; var2 < param0.getNodeCount(); ++var2) {
             Node var3 = param0.getNode(var2);

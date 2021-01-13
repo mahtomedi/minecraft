@@ -36,15 +36,6 @@ public class SoundType {
     public static final SoundType SNOW = new SoundType(
         1.0F, 1.0F, SoundEvents.SNOW_BREAK, SoundEvents.SNOW_STEP, SoundEvents.SNOW_PLACE, SoundEvents.SNOW_HIT, SoundEvents.SNOW_FALL
     );
-    public static final SoundType POWDER_SNOW = new SoundType(
-        1.0F,
-        1.0F,
-        SoundEvents.POWDER_SNOW_BREAK,
-        SoundEvents.POWDER_SNOW_STEP,
-        SoundEvents.POWDER_SNOW_PLACE,
-        SoundEvents.POWDER_SNOW_HIT,
-        SoundEvents.POWDER_SNOW_FALL
-    );
     public static final SoundType LADDER = new SoundType(
         1.0F, 1.0F, SoundEvents.LADDER_BREAK, SoundEvents.LADDER_STEP, SoundEvents.LADDER_PLACE, SoundEvents.LADDER_HIT, SoundEvents.LADDER_FALL
     );
@@ -269,90 +260,6 @@ public class SoundType {
         SoundEvents.GILDED_BLACKSTONE_PLACE,
         SoundEvents.GILDED_BLACKSTONE_HIT,
         SoundEvents.GILDED_BLACKSTONE_FALL
-    );
-    public static final SoundType CANDLE = new SoundType(
-        1.0F, 1.0F, SoundEvents.CANDLE_BREAK, SoundEvents.CANDLE_STEP, SoundEvents.CANDLE_PLACE, SoundEvents.CANDLE_HIT, SoundEvents.CANDLE_FALL
-    );
-    public static final SoundType AMETHYST = new SoundType(
-        1.0F,
-        1.0F,
-        SoundEvents.AMETHYST_BLOCK_BREAK,
-        SoundEvents.AMETHYST_BLOCK_STEP,
-        SoundEvents.AMETHYST_BLOCK_PLACE,
-        SoundEvents.AMETHYST_BLOCK_HIT,
-        SoundEvents.AMETHYST_BLOCK_FALL
-    );
-    public static final SoundType AMETHYST_CLUSTER = new SoundType(
-        1.0F,
-        1.0F,
-        SoundEvents.AMETHYST_CLUSTER_BREAK,
-        SoundEvents.AMETHYST_CLUSTER_STEP,
-        SoundEvents.AMETHYST_CLUSTER_PLACE,
-        SoundEvents.AMETHYST_CLUSTER_HIT,
-        SoundEvents.AMETHYST_CLUSTER_FALL
-    );
-    public static final SoundType SMALL_AMETHYST_BUD = new SoundType(
-        1.0F,
-        1.0F,
-        SoundEvents.SMALL_AMETHYST_BUD_BREAK,
-        SoundEvents.AMETHYST_CLUSTER_STEP,
-        SoundEvents.SMALL_AMETHYST_BUD_PLACE,
-        SoundEvents.AMETHYST_CLUSTER_HIT,
-        SoundEvents.AMETHYST_CLUSTER_FALL
-    );
-    public static final SoundType MEDIUM_AMETHYST_BUD = new SoundType(
-        1.0F,
-        1.0F,
-        SoundEvents.MEDIUM_AMETHYST_BUD_BREAK,
-        SoundEvents.AMETHYST_CLUSTER_STEP,
-        SoundEvents.MEDIUM_AMETHYST_BUD_PLACE,
-        SoundEvents.AMETHYST_CLUSTER_HIT,
-        SoundEvents.AMETHYST_CLUSTER_FALL
-    );
-    public static final SoundType LARGE_AMETHYST_BUD = new SoundType(
-        1.0F,
-        1.0F,
-        SoundEvents.LARGE_AMETHYST_BUD_BREAK,
-        SoundEvents.AMETHYST_CLUSTER_STEP,
-        SoundEvents.LARGE_AMETHYST_BUD_PLACE,
-        SoundEvents.AMETHYST_CLUSTER_HIT,
-        SoundEvents.AMETHYST_CLUSTER_FALL
-    );
-    public static final SoundType TUFF = new SoundType(
-        1.0F, 1.0F, SoundEvents.TUFF_BREAK, SoundEvents.TUFF_STEP, SoundEvents.TUFF_PLACE, SoundEvents.TUFF_HIT, SoundEvents.TUFF_FALL
-    );
-    public static final SoundType CALCITE = new SoundType(
-        1.0F, 1.0F, SoundEvents.CALCITE_BREAK, SoundEvents.CALCITE_STEP, SoundEvents.CALCITE_PLACE, SoundEvents.CALCITE_HIT, SoundEvents.CALCITE_FALL
-    );
-    public static final SoundType DRIPSTONE_BLOCK = new SoundType(
-        1.0F,
-        1.0F,
-        SoundEvents.DRIPSTONE_BLOCK_BREAK,
-        SoundEvents.DRIPSTONE_BLOCK_STEP,
-        SoundEvents.DRIPSTONE_BLOCK_PLACE,
-        SoundEvents.DRIPSTONE_BLOCK_HIT,
-        SoundEvents.DRIPSTONE_BLOCK_FALL
-    );
-    public static final SoundType POINTED_DRIPSTONE = new SoundType(
-        1.0F,
-        1.0F,
-        SoundEvents.POINTED_DRIPSTONE_BREAK,
-        SoundEvents.POINTED_DRIPSTONE_STEP,
-        SoundEvents.POINTED_DRIPSTONE_PLACE,
-        SoundEvents.POINTED_DRIPSTONE_HIT,
-        SoundEvents.POINTED_DRIPSTONE_FALL
-    );
-    public static final SoundType COPPER = new SoundType(
-        1.0F, 1.0F, SoundEvents.COPPER_BREAK, SoundEvents.COPPER_STEP, SoundEvents.COPPER_PLACE, SoundEvents.COPPER_HIT, SoundEvents.COPPER_FALL
-    );
-    public static final SoundType SCULK_SENSOR = new SoundType(
-        1.0F,
-        1.0F,
-        SoundEvents.SCULK_SENSOR_BREAK,
-        SoundEvents.SCULK_SENSOR_STEP,
-        SoundEvents.SCULK_SENSOR_PLACE,
-        SoundEvents.SCULK_SENSOR_HIT,
-        SoundEvents.SCULK_SENSOR_FALL
     );
     public final float volume;
     public final float pitch;

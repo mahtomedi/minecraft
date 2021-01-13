@@ -51,12 +51,12 @@ public class WalkNodeEvaluator extends NodeEvaluator {
     @Override
     public Node getStart() {
         BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos();
-        int var1 = this.mob.getBlockY();
+        int var1 = Mth.floor(this.mob.getY());
         BlockState var2 = this.level.getBlockState(var0.set(this.mob.getX(), (double)var1, this.mob.getZ()));
         if (!this.mob.canStandOnFluid(var2.getFluidState().getType())) {
             if (this.canFloat() && this.mob.isInWater()) {
                 while(true) {
-                    if (!var2.is(Blocks.WATER) && var2.getFluidState() != Fluids.WATER.getSource(false)) {
+                    if (var2.getBlock() != Blocks.WATER && var2.getFluidState() != Fluids.WATER.getSource(false)) {
                         --var1;
                         break;
                     }
@@ -70,7 +70,7 @@ public class WalkNodeEvaluator extends NodeEvaluator {
 
                 while(
                     (this.level.getBlockState(var3).isAir() || this.level.getBlockState(var3).isPathfindable(this.level, var3, PathComputationType.LAND))
-                        && var3.getY() > this.mob.level.getMinBuildHeight()
+                        && var3.getY() > 0
                 ) {
                     var3 = var3.below();
                 }
@@ -265,7 +265,7 @@ public class WalkNodeEvaluator extends NodeEvaluator {
                         return var0;
                     }
 
-                    while(param1 > this.mob.level.getMinBuildHeight()) {
+                    while(param1 > 0) {
                         var3 = this.getCachedBlockType(this.mob, param0, --param1, param2);
                         if (var3 != BlockPathTypes.WATER) {
                             return var0;
@@ -282,7 +282,7 @@ public class WalkNodeEvaluator extends NodeEvaluator {
                     int var10 = param1;
 
                     while(var3 == BlockPathTypes.OPEN) {
-                        if (--param1 < this.mob.level.getMinBuildHeight()) {
+                        if (--param1 < 0) {
                             Node var11 = this.getNode(param0, var10, param2);
                             var11.type = BlockPathTypes.BLOCKED;
                             var11.costMalus = -1.0F;
@@ -448,7 +448,7 @@ public class WalkNodeEvaluator extends NodeEvaluator {
         int var1 = param1.getY();
         int var2 = param1.getZ();
         BlockPathTypes var3 = getBlockPathTypeRaw(param0, param1);
-        if (var3 == BlockPathTypes.OPEN && var1 >= param0.getMinBuildHeight() + 1) {
+        if (var3 == BlockPathTypes.OPEN && var1 >= 1) {
             BlockPathTypes var4 = getBlockPathTypeRaw(param0, param1.set(var0, var1 - 1, var2));
             var3 = var4 != BlockPathTypes.WALKABLE && var4 != BlockPathTypes.OPEN && var4 != BlockPathTypes.WATER && var4 != BlockPathTypes.LAVA
                 ? BlockPathTypes.WALKABLE
@@ -545,7 +545,7 @@ public class WalkNodeEvaluator extends NodeEvaluator {
                 return BlockPathTypes.RAIL;
             } else if (var1 instanceof LeavesBlock) {
                 return BlockPathTypes.LEAVES;
-            } else if (!var0.is(BlockTags.FENCES) && !var0.is(BlockTags.WALLS) && (!(var1 instanceof FenceGateBlock) || var0.getValue(FenceGateBlock.OPEN))) {
+            } else if (!var1.is(BlockTags.FENCES) && !var1.is(BlockTags.WALLS) && (!(var1 instanceof FenceGateBlock) || var0.getValue(FenceGateBlock.OPEN))) {
                 return !var0.isPathfindable(param0, param1, PathComputationType.LAND) ? BlockPathTypes.BLOCKED : BlockPathTypes.OPEN;
             } else {
                 return BlockPathTypes.FENCE;

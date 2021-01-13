@@ -1,6 +1,5 @@
 package net.minecraft.client;
 
-import com.google.common.base.MoreObjects;
 import com.mojang.blaze3d.Blaze3D;
 import com.mojang.blaze3d.platform.ClipboardManager;
 import com.mojang.blaze3d.platform.InputConstants;
@@ -10,7 +9,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.CrashReport;
 import net.minecraft.ReportedException;
 import net.minecraft.Util;
-import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.events.ContainerEventHandler;
@@ -24,13 +22,11 @@ import net.minecraft.commands.arguments.blocks.BlockStateParser;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
@@ -155,9 +151,7 @@ public class KeyboardHandler {
                     } else if (!this.minecraft.player.isSpectator()) {
                         this.minecraft.player.chat("/gamemode spectator");
                     } else {
-                        this.minecraft
-                            .player
-                            .chat("/gamemode " + MoreObjects.firstNonNull(this.minecraft.gameMode.getPreviousPlayerMode(), GameType.CREATIVE).getName());
+                        this.minecraft.player.chat("/gamemode " + this.minecraft.gameMode.getPreviousPlayerMode().getName());
                     }
 
                     return true;
@@ -272,7 +266,7 @@ public class KeyboardHandler {
             param2.remove("UUID");
             param2.remove("Pos");
             param2.remove("Dimension");
-            String var0 = NbtUtils.toPrettyComponent(param2).getString();
+            String var0 = param2.getPrettyDisplay().getString();
             var1 = String.format(Locale.ROOT, "/summon %s %.2f %.2f %.2f %s", param0.toString(), param1.x, param1.y, param1.z, var0);
         } else {
             var1 = String.format(Locale.ROOT, "/summon %s %.2f %.2f %.2f", param0.toString(), param1.x, param1.y, param1.z);
@@ -320,14 +314,11 @@ public class KeyboardHandler {
                 }
             }
 
-            if (NarratorChatListener.INSTANCE.isActive()) {
-                boolean var1 = var0 == null || !(var0.getFocused() instanceof EditBox) || !((EditBox)var0.getFocused()).canConsumeInput();
-                if (param3 != 0 && param1 == 66 && Screen.hasControlDown() && var1) {
-                    this.minecraft.options.narratorStatus = NarratorStatus.byId(this.minecraft.options.narratorStatus.getId() + 1);
-                    NarratorChatListener.INSTANCE.updateNarratorStatus(this.minecraft.options.narratorStatus);
-                    if (var0 instanceof SimpleOptionsSubScreen) {
-                        ((SimpleOptionsSubScreen)var0).updateNarratorButton();
-                    }
+            boolean var1 = var0 == null || !(var0.getFocused() instanceof EditBox) || !((EditBox)var0.getFocused()).canConsumeInput();
+            if (param3 != 0 && param1 == 66 && Screen.hasControlDown() && var1) {
+                Option.NARRATOR.toggle(this.minecraft.options, 1);
+                if (var0 instanceof SimpleOptionsSubScreen) {
+                    ((SimpleOptionsSubScreen)var0).updateNarratorButton();
                 }
             }
 

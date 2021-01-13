@@ -23,7 +23,7 @@ public class WitchItemLayer<T extends LivingEntity> extends CrossedArmsItemLayer
     ) {
         ItemStack var0 = param3.getMainHandItem();
         param0.pushPose();
-        if (var0.is(Items.POTION)) {
+        if (var0.getItem() == Items.POTION) {
             this.getParentModel().getHead().translateAndRotate(param0);
             this.getParentModel().getNose().translateAndRotate(param0);
             param0.translate(0.0625, 0.25, 0.0);

@@ -6,6 +6,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -20,7 +22,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -179,9 +180,8 @@ public class FireworkRocketEntity extends Projectile implements ItemSupplier {
 
     private void explode() {
         this.level.broadcastEntityEvent(this, (byte)17);
-        this.gameEvent(this.getOwner(), GameEvent.EXPLODE);
         this.dealExplosionDamage();
-        this.discard();
+        this.remove();
     }
 
     @Override
@@ -325,5 +325,10 @@ public class FireworkRocketEntity extends Projectile implements ItemSupplier {
     @Override
     public boolean isAttackable() {
         return false;
+    }
+
+    @Override
+    public Packet<?> getAddEntityPacket() {
+        return new ClientboundAddEntityPacket(this);
     }
 }

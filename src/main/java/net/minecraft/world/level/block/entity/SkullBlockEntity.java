@@ -5,18 +5,17 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.authlib.properties.Property;
 import javax.annotation.Nullable;
-import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.players.GameProfileCache;
 import net.minecraft.util.StringUtil;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class SkullBlockEntity extends BlockEntity {
+public class SkullBlockEntity extends BlockEntity implements TickableBlockEntity {
     @Nullable
     private static GameProfileCache profileCache;
     @Nullable
@@ -26,8 +25,8 @@ public class SkullBlockEntity extends BlockEntity {
     private int mouthTickCount;
     private boolean isMovingMouth;
 
-    public SkullBlockEntity(BlockPos param0, BlockState param1) {
-        super(BlockEntityType.SKULL, param0, param1);
+    public SkullBlockEntity() {
+        super(BlockEntityType.SKULL);
     }
 
     public static void setProfileCache(GameProfileCache param0) {
@@ -51,12 +50,12 @@ public class SkullBlockEntity extends BlockEntity {
     }
 
     @Override
-    public void load(CompoundTag param0) {
-        super.load(param0);
-        if (param0.contains("SkullOwner", 10)) {
-            this.setOwner(NbtUtils.readGameProfile(param0.getCompound("SkullOwner")));
-        } else if (param0.contains("ExtraType", 8)) {
-            String var0 = param0.getString("ExtraType");
+    public void load(BlockState param0, CompoundTag param1) {
+        super.load(param0, param1);
+        if (param1.contains("SkullOwner", 10)) {
+            this.setOwner(NbtUtils.readGameProfile(param1.getCompound("SkullOwner")));
+        } else if (param1.contains("ExtraType", 8)) {
+            String var0 = param1.getString("ExtraType");
             if (!StringUtil.isNullOrEmpty(var0)) {
                 this.setOwner(new GameProfile(null, var0));
             }
@@ -64,12 +63,16 @@ public class SkullBlockEntity extends BlockEntity {
 
     }
 
-    public static void dragonHeadAnimation(Level param0, BlockPos param1, BlockState param2, SkullBlockEntity param3) {
-        if (param0.hasNeighborSignal(param1)) {
-            param3.isMovingMouth = true;
-            ++param3.mouthTickCount;
-        } else {
-            param3.isMovingMouth = false;
+    @Override
+    public void tick() {
+        BlockState var0 = this.getBlockState();
+        if (var0.is(Blocks.DRAGON_HEAD) || var0.is(Blocks.DRAGON_WALL_HEAD)) {
+            if (this.level.hasNeighborSignal(this.worldPosition)) {
+                this.isMovingMouth = true;
+                ++this.mouthTickCount;
+            } else {
+                this.isMovingMouth = false;
+            }
         }
 
     }

@@ -84,7 +84,7 @@ public class SnowLayerBlock extends Block {
         if (var0.is(Blocks.ICE) || var0.is(Blocks.PACKED_ICE) || var0.is(Blocks.BARRIER)) {
             return false;
         } else if (!var0.is(Blocks.HONEY_BLOCK) && !var0.is(Blocks.SOUL_SAND)) {
-            return Block.isFaceFull(var0.getCollisionShape(param1, param2.below()), Direction.UP) || var0.is(this) && var0.getValue(LAYERS) == 8;
+            return Block.isFaceFull(var0.getCollisionShape(param1, param2.below()), Direction.UP) || var0.getBlock() == this && var0.getValue(LAYERS) == 8;
         } else {
             return true;
         }
@@ -107,7 +107,7 @@ public class SnowLayerBlock extends Block {
     @Override
     public boolean canBeReplaced(BlockState param0, BlockPlaceContext param1) {
         int var0 = param0.getValue(LAYERS);
-        if (!param1.getItemInHand().is(this.asItem()) || var0 >= 8) {
+        if (param1.getItemInHand().getItem() != this.asItem() || var0 >= 8) {
             return var0 == 1;
         } else if (param1.replacingClickedOnBlock()) {
             return param1.getClickedFace() == Direction.UP;

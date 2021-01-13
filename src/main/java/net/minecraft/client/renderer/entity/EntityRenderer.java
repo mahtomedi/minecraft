@@ -20,13 +20,11 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public abstract class EntityRenderer<T extends Entity> {
     protected final EntityRenderDispatcher entityRenderDispatcher;
-    private final Font font;
     protected float shadowRadius;
     protected float shadowStrength = 1.0F;
 
-    protected EntityRenderer(EntityRendererProvider.Context param0) {
-        this.entityRenderDispatcher = param0.getEntityRenderDispatcher();
-        this.font = param0.getFont();
+    protected EntityRenderer(EntityRenderDispatcher param0) {
+        this.entityRenderDispatcher = param0;
     }
 
     public final int getPackedLightCoords(T param0, float param1) {
@@ -74,7 +72,7 @@ public abstract class EntityRenderer<T extends Entity> {
     public abstract ResourceLocation getTextureLocation(T var1);
 
     public Font getFont() {
-        return this.font;
+        return this.entityRenderDispatcher.getFont();
     }
 
     protected void renderNameTag(T param0, Component param1, PoseStack param2, MultiBufferSource param3, int param4) {
@@ -99,5 +97,9 @@ public abstract class EntityRenderer<T extends Entity> {
 
             param2.popPose();
         }
+    }
+
+    public EntityRenderDispatcher getDispatcher() {
+        return this.entityRenderDispatcher;
     }
 }

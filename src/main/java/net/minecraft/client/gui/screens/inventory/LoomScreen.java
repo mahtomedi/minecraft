@@ -6,7 +6,6 @@ import com.mojang.datafixers.util.Pair;
 import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BannerRenderer;
@@ -35,7 +34,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class LoomScreen extends AbstractContainerScreen<LoomMenu> {
     private static final ResourceLocation BG_LOCATION = new ResourceLocation("textures/gui/container/loom.png");
     private static final int TOTAL_PATTERN_ROWS = (BannerPattern.COUNT - BannerPattern.PATTERN_ITEM_COUNT - 1 + 4 - 1) / 4;
-    private ModelPart flag;
+    private final ModelPart flag;
     @Nullable
     private List<Pair<BannerPattern, DyeColor>> resultBannerPatterns;
     private ItemStack bannerStack = ItemStack.EMPTY;
@@ -50,14 +49,9 @@ public class LoomScreen extends AbstractContainerScreen<LoomMenu> {
 
     public LoomScreen(LoomMenu param0, Inventory param1, Component param2) {
         super(param0, param1, param2);
+        this.flag = BannerRenderer.makeFlag();
         param0.registerUpdateListener(this::containerChanged);
         this.titleLabelY -= 2;
-    }
-
-    @Override
-    protected void init() {
-        super.init();
-        this.flag = this.minecraft.getEntityModels().bakeLayer(ModelLayers.BANNER).getChild("flag");
     }
 
     @Override

@@ -18,7 +18,7 @@ import net.minecraft.commands.arguments.blocks.BlockInput;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtUtils;
+import net.minecraft.nbt.TagParser;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -38,11 +38,8 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.io.IOUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 public class StructureUtils {
-    private static final Logger LOGGER = LogManager.getLogger();
     public static String testStructuresDir = "gameteststructures";
 
     public static Rotation getRotationForRotationSteps(int param0) {
@@ -141,7 +138,7 @@ public class StructureUtils {
         param2.clearBlockEvents(var0);
         AABB var1 = new AABB((double)var0.x0, (double)var0.y0, (double)var0.z0, (double)var0.x1, (double)var0.y1, (double)var0.z1);
         List<Entity> var2 = param2.getEntitiesOfClass(Entity.class, var1, param0x -> !(param0x instanceof Player));
-        var2.forEach(Entity::discard);
+        var2.forEach(Entity::remove);
     }
 
     public static BoundingBox getStructureBoundingBox(BlockPos param0, BlockPos param1, Rotation param2) {
@@ -230,7 +227,7 @@ public class StructureUtils {
         try {
             BufferedReader var0 = Files.newBufferedReader(param0);
             String var1 = IOUtils.toString((Reader)var0);
-            return NbtUtils.snbtToStructure(var1);
+            return TagParser.parseTag(var1);
         } catch (IOException var31) {
             return null;
         } catch (CommandSyntaxException var4) {
@@ -243,9 +240,8 @@ public class StructureUtils {
         FlatLevelGeneratorSettings var1 = FlatLevelGeneratorSettings.getDefault(param2.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY));
         if (var1 instanceof FlatLevelGeneratorSettings) {
             BlockState[] var2 = var1.getLayers();
-            int var3 = var1.getLayerIndex(param1.getY());
-            if (param1.getY() < param0 && var3 > 0 && var3 <= var2.length) {
-                var0 = var2[var3 - 1];
+            if (param1.getY() < param0 && param1.getY() <= var2.length) {
+                var0 = var2[param1.getY() - 1];
             }
         } else if (param1.getY() == param0 - 1) {
             var0 = param2.getBiome(param1).getGenerationSettings().getSurfaceBuilderConfig().getTopMaterial();
@@ -257,8 +253,8 @@ public class StructureUtils {
             var0 = Blocks.AIR.defaultBlockState();
         }
 
-        BlockInput var4 = new BlockInput(var0, Collections.emptySet(), null);
-        var4.place(param2, param1, 2);
+        BlockInput var3 = new BlockInput(var0, Collections.emptySet(), null);
+        var3.place(param2, param1, 2);
         param2.blockUpdated(param1, var0.getBlock());
     }
 

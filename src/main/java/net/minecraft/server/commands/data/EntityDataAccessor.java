@@ -13,7 +13,6 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.NbtPathArgument;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -66,7 +65,7 @@ public class EntityDataAccessor implements DataAccessor {
 
     @Override
     public Component getPrintSuccess(Tag param0) {
-        return new TranslatableComponent("commands.data.entity.query", this.entity.getDisplayName(), NbtUtils.toPrettyComponent(param0));
+        return new TranslatableComponent("commands.data.entity.query", this.entity.getDisplayName(), param0.getPrettyDisplay());
     }
 
     @Override

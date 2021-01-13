@@ -122,7 +122,7 @@ public class Witch extends Raider implements RangedAttackMob {
                     this.setUsingItem(false);
                     ItemStack var0 = this.getMainHandItem();
                     this.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
-                    if (var0.is(Items.POTION)) {
+                    if (var0.getItem() == Items.POTION) {
                         List<MobEffectInstance> var1 = PotionUtils.getMobEffects(var0);
                         if (var1 != null) {
                             for(MobEffectInstance var2 : var1) {

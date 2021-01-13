@@ -6,7 +6,6 @@ import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.TickList;
 import net.minecraft.world.level.TickPriority;
 import net.minecraft.world.level.chunk.storage.ChunkSerializer;
@@ -14,18 +13,15 @@ import net.minecraft.world.level.chunk.storage.ChunkSerializer;
 public class ProtoTickList<T> implements TickList<T> {
     protected final Predicate<T> ignore;
     private final ChunkPos chunkPos;
-    private final ShortList[] toBeTicked;
-    private LevelHeightAccessor levelHeightAccessor;
+    private final ShortList[] toBeTicked = new ShortList[16];
 
-    public ProtoTickList(Predicate<T> param0, ChunkPos param1, LevelHeightAccessor param2) {
-        this(param0, param1, new ListTag(), param2);
+    public ProtoTickList(Predicate<T> param0, ChunkPos param1) {
+        this(param0, param1, new ListTag());
     }
 
-    public ProtoTickList(Predicate<T> param0, ChunkPos param1, ListTag param2, LevelHeightAccessor param3) {
+    public ProtoTickList(Predicate<T> param0, ChunkPos param1, ListTag param2) {
         this.ignore = param0;
         this.chunkPos = param1;
-        this.levelHeightAccessor = param3;
-        this.toBeTicked = new ShortList[param3.getSectionsCount()];
 
         for(int var0 = 0; var0 < param2.size(); ++var0) {
             ListTag var1 = param2.getList(var0);
@@ -45,7 +41,7 @@ public class ProtoTickList<T> implements TickList<T> {
         for(int var0 = 0; var0 < this.toBeTicked.length; ++var0) {
             if (this.toBeTicked[var0] != null) {
                 for(Short var1 : this.toBeTicked[var0]) {
-                    BlockPos var2 = ProtoChunk.unpackOffsetCoordinates(var1, this.levelHeightAccessor.getSectionYFromSectionIndex(var0), this.chunkPos);
+                    BlockPos var2 = ProtoChunk.unpackOffsetCoordinates(var1, var0, this.chunkPos);
                     param0.scheduleTick(var2, param1.apply(var2), 0);
                 }
 
@@ -62,8 +58,7 @@ public class ProtoTickList<T> implements TickList<T> {
 
     @Override
     public void scheduleTick(BlockPos param0, T param1, int param2, TickPriority param3) {
-        ChunkAccess.getOrCreateOffsetList(this.toBeTicked, this.levelHeightAccessor.getSectionIndex(param0.getY()))
-            .add(ProtoChunk.packOffsetCoordinates(param0));
+        ChunkAccess.getOrCreateOffsetList(this.toBeTicked, param0.getY() >> 4).add(ProtoChunk.packOffsetCoordinates(param0));
     }
 
     @Override

@@ -4,7 +4,7 @@ import java.util.EnumSet;
 import javax.annotation.Nullable;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.DifficultyInstance;
-import net.minecraft.world.entity.AgeableMob;
+import net.minecraft.world.entity.AgableMob;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -83,14 +83,14 @@ public class TraderLlama extends Llama {
             this.despawnDelay = this.isLeashedToWanderingTrader() ? ((WanderingTrader)this.getLeashHolder()).getDespawnDelay() - 1 : this.despawnDelay - 1;
             if (this.despawnDelay <= 0) {
                 this.dropLeash(true, false);
-                this.discard();
+                this.remove();
             }
 
         }
     }
 
     private boolean canDespawn() {
-        return !this.isTamed() && !this.isLeashedToSomethingOtherThanTheWanderingTrader() && !this.hasExactlyOnePlayerPassenger();
+        return !this.isTamed() && !this.isLeashedToSomethingOtherThanTheWanderingTrader() && !this.hasOnePlayerPassenger();
     }
 
     private boolean isLeashedToWanderingTrader() {
@@ -111,20 +111,20 @@ public class TraderLlama extends Llama {
         }
 
         if (param3 == null) {
-            param3 = new AgeableMob.AgeableMobGroupData(false);
+            param3 = new AgableMob.AgableMobGroupData(false);
         }
 
         return super.finalizeSpawn(param0, param1, param2, param3, param4);
     }
 
-    public static class TraderLlamaDefendWanderingTraderGoal extends TargetGoal {
+    public class TraderLlamaDefendWanderingTraderGoal extends TargetGoal {
         private final Llama llama;
         private LivingEntity ownerLastHurtBy;
         private int timestamp;
 
-        public TraderLlamaDefendWanderingTraderGoal(Llama param0) {
-            super(param0, false);
-            this.llama = param0;
+        public TraderLlamaDefendWanderingTraderGoal(Llama param1) {
+            super(param1, false);
+            this.llama = param1;
             this.setFlags(EnumSet.of(Goal.Flag.TARGET));
         }
 

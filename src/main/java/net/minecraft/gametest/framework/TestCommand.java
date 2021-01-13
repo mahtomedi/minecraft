@@ -26,7 +26,7 @@ import net.minecraft.commands.arguments.blocks.BlockInput;
 import net.minecraft.core.BlockPos;
 import net.minecraft.data.structures.NbtToSnbt;
 import net.minecraft.nbt.NbtIo;
-import net.minecraft.nbt.NbtUtils;
+import net.minecraft.nbt.TagParser;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
@@ -223,7 +223,7 @@ public class TestCommand {
                 for(int var4 = 0; var4 < param4; ++var4) {
                     BlockPos var5 = new BlockPos(var2.getX() + var3, var2.getY() + 1, var2.getZ() + var4);
                     Block var6 = Blocks.POLISHED_ANDESITE;
-                    BlockInput var7 = new BlockInput(var6.defaultBlockState(), Collections.emptySet(), null);
+                    BlockInput var7 = new BlockInput(var6.defaultBlockState(), Collections.EMPTY_SET, null);
                     var7.place(var0, var5, 2);
                 }
             }
@@ -309,7 +309,7 @@ public class TestCommand {
         runTestPreparation(var2, param0);
         AABB var4 = StructureUtils.getStructureBounds(var0);
         BlockPos var5 = new BlockPos(var4.minX, var4.minY, var4.minZ);
-        GameTestRunner.runTest(var3, var5, GameTestTicker.SINGLETON);
+        GameTestRunner.runTest(var3, var5, GameTestTicker.singleton);
     }
 
     private static void showTestSummaryIfAllDone(ServerLevel param0, MultipleTestTracker param1) {
@@ -336,7 +336,7 @@ public class TestCommand {
             (double)param0.getLevel().getHeightmapPos(Heightmap.Types.WORLD_SURFACE, new BlockPos(param0.getPosition())).getY(),
             param0.getPosition().z
         );
-        GameTestRunner.clearAllTests(var0, var1, GameTestTicker.SINGLETON, Mth.clamp(param1, 0, 1024));
+        GameTestRunner.clearAllTests(var0, var1, GameTestTicker.singleton, Mth.clamp(param1, 0, 1024));
         return 1;
     }
 
@@ -349,7 +349,7 @@ public class TestCommand {
         runTestPreparation(param1, var0);
         Rotation var4 = StructureUtils.getRotationForRotationSteps(param2);
         GameTestInfo var5 = new GameTestInfo(param1, var4, var0);
-        GameTestRunner.runTest(var5, var3, GameTestTicker.SINGLETON);
+        GameTestRunner.runTest(var5, var3, GameTestTicker.singleton);
         return 1;
     }
 
@@ -403,7 +403,7 @@ public class TestCommand {
         BlockPos var1 = new BlockPos(var0.getX(), param0.getLevel().getHeightmapPos(Heightmap.Types.WORLD_SURFACE, var0).getY(), var0.getZ() + 3);
         ServerLevel var2 = param0.getLevel();
         Rotation var3 = StructureUtils.getRotationForRotationSteps(param2);
-        Collection<GameTestInfo> var4 = GameTestRunner.runTests(param1, var1, var3, var2, GameTestTicker.SINGLETON, param3);
+        Collection<GameTestInfo> var4 = GameTestRunner.runTests(param1, var1, var3, var2, GameTestTicker.singleton, param3);
         MultipleTestTracker var5 = new MultipleTestTracker(var4);
         var5.addListener(new TestCommand.TestSummaryDisplayer(var2, var5));
         var5.addFailureListener(param0x -> GameTestRegistry.rememberFailedTest(param0x.getTestFunction()));
@@ -460,7 +460,7 @@ public class TestCommand {
             Files.createDirectories(var2.getParent());
 
             try (OutputStream var5 = Files.newOutputStream(var2)) {
-                NbtIo.writeCompressed(NbtUtils.snbtToStructure(var4), var5);
+                NbtIo.writeCompressed(TagParser.parseTag(var4), var5);
             }
 
             say(param0, "Imported to " + var2.toAbsolutePath());
@@ -487,11 +487,6 @@ public class TestCommand {
 
         @Override
         public void testStructureLoaded(GameTestInfo param0) {
-        }
-
-        @Override
-        public void testPassed(GameTestInfo param0) {
-            TestCommand.showTestSummaryIfAllDone(this.level, this.tracker);
         }
 
         @Override

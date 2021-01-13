@@ -8,8 +8,9 @@ import javax.annotation.Nullable;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.HashCache;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
-import net.minecraft.nbt.NbtUtils;
+import net.minecraft.network.chat.Component;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -46,22 +47,21 @@ public class NbtToSnbt implements DataProvider {
     @Nullable
     public static Path convertStructure(Path param0, String param1, Path param2) {
         try {
-            writeSnbt(param2.resolve(param1 + ".snbt"), NbtUtils.structureToSnbt(NbtIo.readCompressed(Files.newInputStream(param0))));
+            CompoundTag var0 = NbtIo.readCompressed(Files.newInputStream(param0));
+            Component var1 = var0.getPrettyDisplay("    ", 0);
+            String var2 = var1.getString() + "\n";
+            Path var3 = param2.resolve(param1 + ".snbt");
+            Files.createDirectories(var3.getParent());
+
+            try (BufferedWriter var4 = Files.newBufferedWriter(var3)) {
+                var4.write(var2);
+            }
+
             LOGGER.info("Converted {} from NBT to SNBT", param1);
-            return param2.resolve(param1 + ".snbt");
-        } catch (IOException var4) {
-            LOGGER.error("Couldn't convert {} from NBT to SNBT at {}", param1, param0, var4);
+            return var3;
+        } catch (IOException var20) {
+            LOGGER.error("Couldn't convert {} from NBT to SNBT at {}", param1, param0, var20);
             return null;
         }
-    }
-
-    public static void writeSnbt(Path param0, String param1) throws IOException {
-        Files.createDirectories(param0.getParent());
-
-        try (BufferedWriter var0 = Files.newBufferedWriter(param0)) {
-            var0.write(param1);
-            var0.write(10);
-        }
-
     }
 }

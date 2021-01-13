@@ -330,9 +330,12 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.W
             
                                 },
                                 new TranslatableComponent("selectWorld.versionQuestion"),
-                                new TranslatableComponent("selectWorld.versionWarning", this.summary.getWorldVersionName()),
-                                new TranslatableComponent("selectWorld.versionJoinButton"),
-                                CommonComponents.GUI_CANCEL
+                                new TranslatableComponent(
+                                    "selectWorld.versionWarning",
+                                    this.summary.getWorldVersionName(),
+                                    new TranslatableComponent("selectWorld.versionJoinButton"),
+                                    CommonComponents.GUI_CANCEL
+                                )
                             )
                         );
                 } else {

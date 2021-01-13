@@ -7,7 +7,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.AgeableMob;
+import net.minecraft.world.entity.AgableMob;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
@@ -79,7 +79,7 @@ public class Cow extends Animal {
     @Override
     public InteractionResult mobInteract(Player param0, InteractionHand param1) {
         ItemStack var0 = param0.getItemInHand(param1);
-        if (var0.is(Items.BUCKET) && !this.isBaby()) {
+        if (var0.getItem() == Items.BUCKET && !this.isBaby()) {
             param0.playSound(SoundEvents.COW_MILK, 1.0F, 1.0F);
             ItemStack var1 = ItemUtils.createFilledResult(var0, param0, Items.MILK_BUCKET.getDefaultInstance());
             param0.setItemInHand(param1, var1);
@@ -89,7 +89,7 @@ public class Cow extends Animal {
         }
     }
 
-    public Cow getBreedOffspring(ServerLevel param0, AgeableMob param1) {
+    public Cow getBreedOffspring(ServerLevel param0, AgableMob param1) {
         return EntityType.COW.create(param0);
     }
 

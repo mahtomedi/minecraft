@@ -21,7 +21,7 @@ public abstract class AbstractFlowerFeature<U extends FeatureConfiguration> exte
 
         for(int var2 = 0; var2 < this.getCount(param4); ++var2) {
             BlockPos var3 = this.getPos(param2, param3, param4);
-            if (param0.isEmptyBlock(var3) && var0.canSurvive(param0, var3) && this.isValid(param0, var3, param4)) {
+            if (param0.isEmptyBlock(var3) && var3.getY() < 255 && var0.canSurvive(param0, var3) && this.isValid(param0, var3, param4)) {
                 param0.setBlock(var3, var0, 2);
                 ++var1;
             }

@@ -36,7 +36,6 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.game.ClientboundDisconnectPacket;
-import net.minecraft.network.protocol.login.ClientboundLoginDisconnectPacket;
 import net.minecraft.server.RunningOnDifferentThreadException;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.server.network.ServerLoginPacketListenerImpl;
@@ -104,7 +103,7 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
     }
 
     @Override
-    public void channelInactive(ChannelHandlerContext param0) {
+    public void channelInactive(ChannelHandlerContext param0) throws Exception {
         this.disconnect(new TranslatableComponent("disconnect.endOfStream"));
     }
 
@@ -123,11 +122,7 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
                     Component var1 = new TranslatableComponent("disconnect.genericReason", "Internal Exception: " + param1);
                     if (var0) {
                         LOGGER.debug("Failed to sent packet", param1);
-                        ConnectionProtocol var2 = this.getCurrentProtocol();
-                        Packet<?> var3 = (Packet<?>)(var2 == ConnectionProtocol.LOGIN
-                            ? new ClientboundLoginDisconnectPacket(var1)
-                            : new ClientboundDisconnectPacket(var1));
-                        this.send(var3, param1x -> this.disconnect(var1));
+                        this.send(new ClientboundDisconnectPacket(var1), param1x -> this.disconnect(var1));
                         this.setReadOnly();
                     } else {
                         LOGGER.debug("Double fault", param1);
@@ -139,7 +134,7 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
         }
     }
 
-    protected void channelRead0(ChannelHandlerContext param0, Packet<?> param1) {
+    protected void channelRead0(ChannelHandlerContext param0, Packet<?> param1) throws Exception {
         if (this.channel.isOpen()) {
             try {
                 genericsFtw(param1, this.packetListener);
@@ -176,7 +171,7 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
 
     private void sendPacket(Packet<?> param0, @Nullable GenericFutureListener<? extends Future<? super Void>> param1) {
         ConnectionProtocol var0 = ConnectionProtocol.getProtocolForPacket(param0);
-        ConnectionProtocol var1 = this.getCurrentProtocol();
+        ConnectionProtocol var1 = this.channel.attr(ATTRIBUTE_PROTOCOL).get();
         ++this.sentPackets;
         if (var1 != var0) {
             LOGGER.debug("Disabled auto read");
@@ -209,10 +204,6 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
             });
         }
 
-    }
-
-    private ConnectionProtocol getCurrentProtocol() {
-        return this.channel.attr(ATTRIBUTE_PROTOCOL).get();
     }
 
     private void flushQueue() {
@@ -288,7 +279,7 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
             .handler(
                 new ChannelInitializer<Channel>() {
                     @Override
-                    protected void initChannel(Channel param0) {
+                    protected void initChannel(Channel param0) throws Exception {
                         try {
                             param0.config().setOption(ChannelOption.TCP_NODELAY, true);
                         } catch (ChannelException var3) {
@@ -315,7 +306,7 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
         final Connection var0 = new Connection(PacketFlow.CLIENTBOUND);
         new Bootstrap().group(LOCAL_WORKER_GROUP.get()).handler(new ChannelInitializer<Channel>() {
             @Override
-            protected void initChannel(Channel param0) {
+            protected void initChannel(Channel param0) throws Exception {
                 param0.pipeline().addLast("packet_handler", var0);
             }
         }).channel(LocalChannel.class).connect(param0).syncUninterruptibly();

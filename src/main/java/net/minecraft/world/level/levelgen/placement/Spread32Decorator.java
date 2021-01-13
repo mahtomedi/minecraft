@@ -12,7 +12,7 @@ public class Spread32Decorator extends FeatureDecorator<NoneDecoratorConfigurati
     }
 
     public Stream<BlockPos> getPositions(DecorationContext param0, Random param1, NoneDecoratorConfiguration param2, BlockPos param3) {
-        int var0 = param1.nextInt(Math.max(param3.getY(), 0) + 32);
+        int var0 = param1.nextInt(param3.getY() + 32);
         return Stream.of(new BlockPos(param3.getX(), var0, param3.getZ()));
     }
 }

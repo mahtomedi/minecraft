@@ -13,7 +13,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.SectionPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.boss.enderdragon.EndCrystal;
@@ -23,7 +22,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.IronBarsBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.feature.configurations.SpikeConfiguration;
 import net.minecraft.world.phys.AABB;
 
@@ -61,7 +59,7 @@ public class SpikeFeature extends Feature<SpikeConfiguration> {
         int var0 = param3.getRadius();
 
         for(BlockPos var1 : BlockPos.betweenClosed(
-            new BlockPos(param3.getCenterX() - var0, param0.getMinBuildHeight(), param3.getCenterZ() - var0),
+            new BlockPos(param3.getCenterX() - var0, 0, param3.getCenterZ() - var0),
             new BlockPos(param3.getCenterX() + var0, param3.getHeight() + 10, param3.getCenterZ() + var0)
         )) {
             if (var1.distSqr((double)param3.getCenterX(), (double)var1.getY(), (double)param3.getCenterZ(), false) <= (double)(var0 * var0 + 1)
@@ -133,18 +131,12 @@ public class SpikeFeature extends Feature<SpikeConfiguration> {
             this.height = param3;
             this.guarded = param4;
             this.topBoundingBox = new AABB(
-                (double)(param0 - param2),
-                (double)DimensionType.MIN_Y,
-                (double)(param1 - param2),
-                (double)(param0 + param2),
-                (double)DimensionType.MAX_Y,
-                (double)(param1 + param2)
+                (double)(param0 - param2), 0.0, (double)(param1 - param2), (double)(param0 + param2), 256.0, (double)(param1 + param2)
             );
         }
 
         public boolean isCenterWithinChunk(BlockPos param0) {
-            return SectionPos.blockToSectionCoord(param0.getX()) == SectionPos.blockToSectionCoord(this.centerX)
-                && SectionPos.blockToSectionCoord(param0.getZ()) == SectionPos.blockToSectionCoord(this.centerZ);
+            return param0.getX() >> 4 == this.centerX >> 4 && param0.getZ() >> 4 == this.centerZ >> 4;
         }
 
         public int getCenterX() {

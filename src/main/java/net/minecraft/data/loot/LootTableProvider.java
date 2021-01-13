@@ -62,7 +62,7 @@ public class LootTableProvider implements DataProvider {
         var1.forEach((param1, param2) -> LootTables.validate(var2, param1, param2));
         Multimap<String, String> var5 = var2.getProblems();
         if (!var5.isEmpty()) {
-            var5.forEach((param0x, param1) -> LOGGER.warn("Found validation problem in {}: {}", param0x, param1));
+            var5.forEach((param0x, param1) -> LOGGER.warn("Found validation problem in " + param0x + ": " + param1));
             throw new IllegalStateException("Failed to validate loot tables, see logs");
         } else {
             var1.forEach((param2, param3) -> {

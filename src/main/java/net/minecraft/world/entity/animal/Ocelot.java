@@ -17,7 +17,7 @@ import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.AgeableMob;
+import net.minecraft.world.entity.AgableMob;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EntityType;
@@ -169,10 +169,15 @@ public class Ocelot extends Animal {
     }
 
     @Override
+    public boolean hurt(DamageSource param0, float param1) {
+        return this.isInvulnerableTo(param0) ? false : super.hurt(param0, param1);
+    }
+
+    @Override
     public InteractionResult mobInteract(Player param0, InteractionHand param1) {
         ItemStack var0 = param0.getItemInHand(param1);
         if ((this.temptGoal == null || this.temptGoal.isRunning()) && !this.isTrusting() && this.isFood(var0) && param0.distanceToSqr(this) < 9.0) {
-            this.usePlayerItem(param0, param1, var0);
+            this.usePlayerItem(param0, var0);
             if (!this.level.isClientSide) {
                 if (this.random.nextInt(3) == 0) {
                     this.setTrusting(true);
@@ -230,7 +235,7 @@ public class Ocelot extends Animal {
 
     }
 
-    public Ocelot getBreedOffspring(ServerLevel param0, AgeableMob param1) {
+    public Ocelot getBreedOffspring(ServerLevel param0, AgableMob param1) {
         return EntityType.OCELOT.create(param0);
     }
 
@@ -266,7 +271,7 @@ public class Ocelot extends Animal {
         ServerLevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
     ) {
         if (param3 == null) {
-            param3 = new AgeableMob.AgeableMobGroupData(1.0F);
+            param3 = new AgableMob.AgableMobGroupData(1.0F);
         }
 
         return super.finalizeSpawn(param0, param1, param2, param3, param4);

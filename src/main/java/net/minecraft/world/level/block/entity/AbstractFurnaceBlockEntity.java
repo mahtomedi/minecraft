@@ -9,17 +9,13 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.Tag;
 import net.minecraft.util.Mth;
-import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.entity.ExperienceOrb;
@@ -41,7 +37,12 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
-public abstract class AbstractFurnaceBlockEntity extends BaseContainerBlockEntity implements WorldlyContainer, RecipeHolder, StackedContentsCompatible {
+public abstract class AbstractFurnaceBlockEntity
+    extends BaseContainerBlockEntity
+    implements WorldlyContainer,
+    RecipeHolder,
+    StackedContentsCompatible,
+    TickableBlockEntity {
     private static final int[] SLOTS_FOR_UP = new int[]{0};
     private static final int[] SLOTS_FOR_DOWN = new int[]{2, 1};
     private static final int[] SLOTS_FOR_SIDES = new int[]{1};
@@ -91,11 +92,11 @@ public abstract class AbstractFurnaceBlockEntity extends BaseContainerBlockEntit
         }
     };
     private final Object2IntOpenHashMap<ResourceLocation> recipesUsed = new Object2IntOpenHashMap<>();
-    private final RecipeType<? extends AbstractCookingRecipe> recipeType;
+    protected final RecipeType<? extends AbstractCookingRecipe> recipeType;
 
-    protected AbstractFurnaceBlockEntity(BlockEntityType<?> param0, BlockPos param1, BlockState param2, RecipeType<? extends AbstractCookingRecipe> param3) {
-        super(param0, param1, param2);
-        this.recipeType = param3;
+    protected AbstractFurnaceBlockEntity(BlockEntityType<?> param0, RecipeType<? extends AbstractCookingRecipe> param1) {
+        super(param0);
+        this.recipeType = param1;
     }
 
     public static Map<Item, Integer> getFuel() {
@@ -196,15 +197,15 @@ public abstract class AbstractFurnaceBlockEntity extends BaseContainerBlockEntit
     }
 
     @Override
-    public void load(CompoundTag param0) {
-        super.load(param0);
+    public void load(BlockState param0, CompoundTag param1) {
+        super.load(param0, param1);
         this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
-        ContainerHelper.loadAllItems(param0, this.items);
-        this.litTime = param0.getShort("BurnTime");
-        this.cookingProgress = param0.getShort("CookTime");
-        this.cookingTotalTime = param0.getShort("CookTimeTotal");
+        ContainerHelper.loadAllItems(param1, this.items);
+        this.litTime = param1.getShort("BurnTime");
+        this.cookingProgress = param1.getShort("CookTime");
+        this.cookingTotalTime = param1.getShort("CookTimeTotal");
         this.litDuration = this.getBurnDuration(this.items.get(1));
-        CompoundTag var0 = param0.getCompound("RecipesUsed");
+        CompoundTag var0 = param1.getCompound("RecipesUsed");
 
         for(String var1 : var0.getAllKeys()) {
             this.recipesUsed.put(new ResourceLocation(var1), var0.getInt(var1));
@@ -225,75 +226,76 @@ public abstract class AbstractFurnaceBlockEntity extends BaseContainerBlockEntit
         return param0;
     }
 
-    public static void serverTick(Level param0, BlockPos param1, BlockState param2, AbstractFurnaceBlockEntity param3) {
-        boolean var0 = param3.isLit();
+    @Override
+    public void tick() {
+        boolean var0 = this.isLit();
         boolean var1 = false;
-        if (param3.isLit()) {
-            --param3.litTime;
+        if (this.isLit()) {
+            --this.litTime;
         }
 
-        ItemStack var2 = param3.items.get(1);
-        if (param3.isLit() || !var2.isEmpty() && !param3.items.get(0).isEmpty()) {
-            Recipe<?> var3 = (Recipe)param0.getRecipeManager().getRecipeFor(param3.recipeType, param3, param0).orElse(null);
-            int var4 = param3.getMaxStackSize();
-            if (!param3.isLit() && canBurn(var3, param3.items, var4)) {
-                param3.litTime = param3.getBurnDuration(var2);
-                param3.litDuration = param3.litTime;
-                if (param3.isLit()) {
-                    var1 = true;
-                    if (!var2.isEmpty()) {
-                        Item var5 = var2.getItem();
-                        var2.shrink(1);
-                        if (var2.isEmpty()) {
-                            Item var6 = var5.getCraftingRemainingItem();
-                            param3.items.set(1, var6 == null ? ItemStack.EMPTY : new ItemStack(var6));
+        if (!this.level.isClientSide) {
+            ItemStack var2 = this.items.get(1);
+            if (this.isLit() || !var2.isEmpty() && !this.items.get(0).isEmpty()) {
+                Recipe<?> var3 = (Recipe)this.level.getRecipeManager().getRecipeFor(this.recipeType, this, this.level).orElse(null);
+                if (!this.isLit() && this.canBurn(var3)) {
+                    this.litTime = this.getBurnDuration(var2);
+                    this.litDuration = this.litTime;
+                    if (this.isLit()) {
+                        var1 = true;
+                        if (!var2.isEmpty()) {
+                            Item var4 = var2.getItem();
+                            var2.shrink(1);
+                            if (var2.isEmpty()) {
+                                Item var5 = var4.getCraftingRemainingItem();
+                                this.items.set(1, var5 == null ? ItemStack.EMPTY : new ItemStack(var5));
+                            }
                         }
                     }
                 }
-            }
 
-            if (param3.isLit() && canBurn(var3, param3.items, var4)) {
-                ++param3.cookingProgress;
-                if (param3.cookingProgress == param3.cookingTotalTime) {
-                    param3.cookingProgress = 0;
-                    param3.cookingTotalTime = getTotalCookTime(param0, param3.recipeType, param3);
-                    if (burn(var3, param3.items, var4)) {
-                        param3.setRecipeUsed(var3);
+                if (this.isLit() && this.canBurn(var3)) {
+                    ++this.cookingProgress;
+                    if (this.cookingProgress == this.cookingTotalTime) {
+                        this.cookingProgress = 0;
+                        this.cookingTotalTime = this.getTotalCookTime();
+                        this.burn(var3);
+                        var1 = true;
                     }
-
-                    var1 = true;
+                } else {
+                    this.cookingProgress = 0;
                 }
-            } else {
-                param3.cookingProgress = 0;
+            } else if (!this.isLit() && this.cookingProgress > 0) {
+                this.cookingProgress = Mth.clamp(this.cookingProgress - 2, 0, this.cookingTotalTime);
             }
-        } else if (!param3.isLit() && param3.cookingProgress > 0) {
-            param3.cookingProgress = Mth.clamp(param3.cookingProgress - 2, 0, param3.cookingTotalTime);
-        }
 
-        if (var0 != param3.isLit()) {
-            var1 = true;
-            param2 = param2.setValue(AbstractFurnaceBlock.LIT, Boolean.valueOf(param3.isLit()));
-            param0.setBlock(param1, param2, 3);
+            if (var0 != this.isLit()) {
+                var1 = true;
+                this.level
+                    .setBlock(
+                        this.worldPosition, this.level.getBlockState(this.worldPosition).setValue(AbstractFurnaceBlock.LIT, Boolean.valueOf(this.isLit())), 3
+                    );
+            }
         }
 
         if (var1) {
-            setChanged(param0, param1, param2);
+            this.setChanged();
         }
 
     }
 
-    private static boolean canBurn(@Nullable Recipe<?> param0, NonNullList<ItemStack> param1, int param2) {
-        if (!param1.get(0).isEmpty() && param0 != null) {
+    protected boolean canBurn(@Nullable Recipe<?> param0) {
+        if (!this.items.get(0).isEmpty() && param0 != null) {
             ItemStack var0 = param0.getResultItem();
             if (var0.isEmpty()) {
                 return false;
             } else {
-                ItemStack var1 = param1.get(2);
+                ItemStack var1 = this.items.get(2);
                 if (var1.isEmpty()) {
                     return true;
                 } else if (!var1.sameItem(var0)) {
                     return false;
-                } else if (var1.getCount() < param2 && var1.getCount() < var1.getMaxStackSize()) {
+                } else if (var1.getCount() < this.getMaxStackSize() && var1.getCount() < var1.getMaxStackSize()) {
                     return true;
                 } else {
                     return var1.getCount() < var0.getMaxStackSize();
@@ -304,25 +306,26 @@ public abstract class AbstractFurnaceBlockEntity extends BaseContainerBlockEntit
         }
     }
 
-    private static boolean burn(@Nullable Recipe<?> param0, NonNullList<ItemStack> param1, int param2) {
-        if (param0 != null && canBurn(param0, param1, param2)) {
-            ItemStack var0 = param1.get(0);
+    private void burn(@Nullable Recipe<?> param0) {
+        if (param0 != null && this.canBurn(param0)) {
+            ItemStack var0 = this.items.get(0);
             ItemStack var1 = param0.getResultItem();
-            ItemStack var2 = param1.get(2);
+            ItemStack var2 = this.items.get(2);
             if (var2.isEmpty()) {
-                param1.set(2, var1.copy());
-            } else if (var2.is(var1.getItem())) {
+                this.items.set(2, var1.copy());
+            } else if (var2.getItem() == var1.getItem()) {
                 var2.grow(1);
             }
 
-            if (var0.is(Blocks.WET_SPONGE.asItem()) && !param1.get(1).isEmpty() && param1.get(1).is(Items.BUCKET)) {
-                param1.set(1, new ItemStack(Items.WATER_BUCKET));
+            if (!this.level.isClientSide) {
+                this.setRecipeUsed(param0);
+            }
+
+            if (var0.getItem() == Blocks.WET_SPONGE.asItem() && !this.items.get(1).isEmpty() && this.items.get(1).getItem() == Items.BUCKET) {
+                this.items.set(1, new ItemStack(Items.WATER_BUCKET));
             }
 
             var0.shrink(1);
-            return true;
-        } else {
-            return false;
         }
     }
 
@@ -335,8 +338,8 @@ public abstract class AbstractFurnaceBlockEntity extends BaseContainerBlockEntit
         }
     }
 
-    private static int getTotalCookTime(Level param0, RecipeType<? extends AbstractCookingRecipe> param1, Container param2) {
-        return param0.getRecipeManager().getRecipeFor(param1, param2, param0).map(AbstractCookingRecipe::getCookingTime).orElse(200);
+    protected int getTotalCookTime() {
+        return this.level.getRecipeManager().getRecipeFor(this.recipeType, this, this.level).map(AbstractCookingRecipe::getCookingTime).orElse(200);
     }
 
     public static boolean isFuel(ItemStack param0) {
@@ -360,10 +363,13 @@ public abstract class AbstractFurnaceBlockEntity extends BaseContainerBlockEntit
     @Override
     public boolean canTakeItemThroughFace(int param0, ItemStack param1, Direction param2) {
         if (param2 == Direction.DOWN && param0 == 1) {
-            return param1.is(Items.WATER_BUCKET) || param1.is(Items.BUCKET);
-        } else {
-            return true;
+            Item var0 = param1.getItem();
+            if (var0 != Items.WATER_BUCKET && var0 != Items.BUCKET) {
+                return false;
+            }
         }
+
+        return true;
     }
 
     @Override
@@ -407,7 +413,7 @@ public abstract class AbstractFurnaceBlockEntity extends BaseContainerBlockEntit
         }
 
         if (param0 == 0 && !var1) {
-            this.cookingTotalTime = getTotalCookTime(this.level, this.recipeType, this);
+            this.cookingTotalTime = this.getTotalCookTime();
             this.cookingProgress = 0;
             this.setChanged();
         }
@@ -434,7 +440,7 @@ public abstract class AbstractFurnaceBlockEntity extends BaseContainerBlockEntit
             return true;
         } else {
             ItemStack var0 = this.items.get(1);
-            return isFuel(param1) || param1.is(Items.BUCKET) && !var0.is(Items.BUCKET);
+            return isFuel(param1) || param1.getItem() == Items.BUCKET && var0.getItem() != Items.BUCKET;
         }
     }
 
@@ -462,13 +468,13 @@ public abstract class AbstractFurnaceBlockEntity extends BaseContainerBlockEntit
     public void awardUsedRecipes(Player param0) {
     }
 
-    public void awardUsedRecipesAndPopExperience(ServerPlayer param0) {
-        List<Recipe<?>> var0 = this.getRecipesToAwardAndPopExperience(param0.getLevel(), param0.position());
+    public void awardUsedRecipesAndPopExperience(Player param0) {
+        List<Recipe<?>> var0 = this.getRecipesToAwardAndPopExperience(param0.level, param0.position());
         param0.awardRecipes(var0);
         this.recipesUsed.clear();
     }
 
-    public List<Recipe<?>> getRecipesToAwardAndPopExperience(ServerLevel param0, Vec3 param1) {
+    public List<Recipe<?>> getRecipesToAwardAndPopExperience(Level param0, Vec3 param1) {
         List<Recipe<?>> var0 = Lists.newArrayList();
 
         for(Entry<ResourceLocation> var1 : this.recipesUsed.object2IntEntrySet()) {
@@ -481,14 +487,19 @@ public abstract class AbstractFurnaceBlockEntity extends BaseContainerBlockEntit
         return var0;
     }
 
-    private static void createExperience(ServerLevel param0, Vec3 param1, int param2, float param3) {
+    private static void createExperience(Level param0, Vec3 param1, int param2, float param3) {
         int var0 = Mth.floor((float)param2 * param3);
         float var1 = Mth.frac((float)param2 * param3);
         if (var1 != 0.0F && Math.random() < (double)var1) {
             ++var0;
         }
 
-        ExperienceOrb.award(param0, param1, var0);
+        while(var0 > 0) {
+            int var2 = ExperienceOrb.getExperienceValue(var0);
+            var0 -= var2;
+            param0.addFreshEntity(new ExperienceOrb(param0, param1.x, param1.y, param1.z, var2));
+        }
+
     }
 
     @Override

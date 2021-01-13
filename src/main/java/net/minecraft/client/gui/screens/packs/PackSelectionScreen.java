@@ -201,20 +201,16 @@ public class PackSelectionScreen extends Screen {
             PackResources var0 = param1.open();
             InputStream var1 = var0.getRootResource("pack.png");
         ) {
-            if (var1 != null) {
-                String var2 = param1.getId();
-                ResourceLocation var3 = new ResourceLocation(
-                    "minecraft", "pack/" + Util.sanitizeName(var2, ResourceLocation::validPathChar) + "/" + Hashing.sha1().hashUnencodedChars(var2) + "/icon"
-                );
-                NativeImage var4 = NativeImage.read(var1);
-                param0.register(var3, new DynamicTexture(var4));
-                return var3;
-            }
-
-            return DEFAULT_ICON;
-        } catch (FileNotFoundException var44) {
-        } catch (Exception var45) {
-            LOGGER.warn("Failed to load icon from pack {}", param1.getId(), var45);
+            String var2 = param1.getId();
+            ResourceLocation var3 = new ResourceLocation(
+                "minecraft", "pack/" + Util.sanitizeName(var2, ResourceLocation::validPathChar) + "/" + Hashing.sha1().hashUnencodedChars(var2) + "/icon"
+            );
+            NativeImage var4 = NativeImage.read(var1);
+            param0.register(var3, new DynamicTexture(var4));
+            return var3;
+        } catch (FileNotFoundException var41) {
+        } catch (Exception var42) {
+            LOGGER.warn("Failed to load icon from pack {}", param1.getId(), var42);
         }
 
         return DEFAULT_ICON;

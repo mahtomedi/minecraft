@@ -6,7 +6,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import java.util.List;
-import javax.annotation.Nullable;
 import net.minecraft.server.packs.metadata.MetadataSectionSerializer;
 import net.minecraft.util.GsonHelper;
 import net.minecraftforge.api.distmarker.Dist;
@@ -52,7 +51,6 @@ public class AnimationMetadataSectionSerializer implements MetadataSectionSerial
         return new AnimationMetadataSection(var0, var7, var8, var1, var9);
     }
 
-    @Nullable
     private AnimationFrame getFrame(int param0, JsonElement param1) {
         if (param1.isJsonPrimitive()) {
             return new AnimationFrame(GsonHelper.convertToInt(param1, "frames[" + param0 + "]"));

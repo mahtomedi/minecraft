@@ -36,8 +36,6 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.dimension.DimensionType;
-import net.minecraft.world.level.entity.EntityTypeTest;
-import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
@@ -145,7 +143,7 @@ public class WorldGenRegion implements WorldGenLevel {
 
     @Override
     public BlockState getBlockState(BlockPos param0) {
-        return this.getChunk(SectionPos.blockToSectionCoord(param0.getX()), SectionPos.blockToSectionCoord(param0.getZ())).getBlockState(param0);
+        return this.getChunk(param0.getX() >> 4, param0.getZ() >> 4).getBlockState(param0);
     }
 
     @Override
@@ -192,7 +190,7 @@ public class WorldGenRegion implements WorldGenLevel {
             return false;
         } else {
             if (param1) {
-                BlockEntity var1 = var0.hasBlockEntity() ? this.getBlockEntity(param0) : null;
+                BlockEntity var1 = var0.getBlock().isEntityBlock() ? this.getBlockEntity(param0) : null;
                 Block.dropResources(var0, this.level, param0, var1, param2, ItemStack.EMPTY);
             }
 
@@ -212,22 +210,23 @@ public class WorldGenRegion implements WorldGenLevel {
             BlockState var3 = var0.getBlockState(param0);
             if (var2 != null) {
                 if ("DUMMY".equals(var2.getString("id"))) {
-                    if (!var3.hasBlockEntity()) {
+                    Block var4 = var3.getBlock();
+                    if (!(var4 instanceof EntityBlock)) {
                         return null;
                     }
 
-                    var1 = ((EntityBlock)var3.getBlock()).newBlockEntity(param0, var3);
+                    var1 = ((EntityBlock)var4).newBlockEntity(this.level);
                 } else {
-                    var1 = BlockEntity.loadStatic(param0, var3, var2);
+                    var1 = BlockEntity.loadStatic(var3, var2);
                 }
 
                 if (var1 != null) {
-                    var0.setBlockEntity(var1);
+                    var0.setBlockEntity(param0, var1);
                     return var1;
                 }
             }
 
-            if (var3.hasBlockEntity()) {
+            if (var3.getBlock() instanceof EntityBlock) {
                 LOGGER.warn("Tried to access a block entity before it was created. {}", param0);
             }
 
@@ -243,14 +242,10 @@ public class WorldGenRegion implements WorldGenLevel {
             this.level.onBlockStateChange(param0, var1, param1);
         }
 
-        if (param1.hasBlockEntity()) {
+        Block var2 = param1.getBlock();
+        if (var2.isEntityBlock()) {
             if (var0.getStatus().getChunkType() == ChunkStatus.ChunkType.LEVELCHUNK) {
-                BlockEntity var2 = ((EntityBlock)param1.getBlock()).newBlockEntity(param0, param1);
-                if (var2 != null) {
-                    var0.setBlockEntity(var2);
-                } else {
-                    var0.removeBlockEntity(param0);
-                }
+                var0.setBlockEntity(param0, ((EntityBlock)var2).newBlockEntity(this));
             } else {
                 CompoundTag var3 = new CompoundTag();
                 var3.putInt("x", param0.getX());
@@ -259,7 +254,7 @@ public class WorldGenRegion implements WorldGenLevel {
                 var3.putString("id", "DUMMY");
                 var0.setBlockEntityNbt(var3);
             }
-        } else if (var1 != null && var1.hasBlockEntity()) {
+        } else if (var1 != null && var1.getBlock().isEntityBlock()) {
             var0.removeBlockEntity(param0);
         }
 
@@ -276,8 +271,8 @@ public class WorldGenRegion implements WorldGenLevel {
 
     @Override
     public boolean addFreshEntity(Entity param0) {
-        int var0 = SectionPos.blockToSectionCoord(param0.getBlockX());
-        int var1 = SectionPos.blockToSectionCoord(param0.getBlockZ());
+        int var0 = Mth.floor(param0.getX() / 16.0);
+        int var1 = Mth.floor(param0.getZ() / 16.0);
         this.getChunk(var0, var1).addEntity(param0);
         return true;
     }
@@ -315,7 +310,7 @@ public class WorldGenRegion implements WorldGenLevel {
 
     @Override
     public DifficultyInstance getCurrentDifficultyAt(BlockPos param0) {
-        if (!this.hasChunk(SectionPos.blockToSectionCoord(param0.getX()), SectionPos.blockToSectionCoord(param0.getZ()))) {
+        if (!this.hasChunk(param0.getX() >> 4, param0.getZ() >> 4)) {
             throw new RuntimeException("We are asking a region for a chunk out of bound");
         } else {
             return new DifficultyInstance(this.level.getDifficulty(), this.level.getDayTime(), 0L, this.level.getMoonBrightness());
@@ -354,7 +349,7 @@ public class WorldGenRegion implements WorldGenLevel {
 
     @Override
     public int getHeight(Heightmap.Types param0, int param1, int param2) {
-        return this.getChunk(SectionPos.blockToSectionCoord(param1), SectionPos.blockToSectionCoord(param2)).getHeight(param0, param1 & 15, param2 & 15) + 1;
+        return this.getChunk(param1 >> 4, param2 >> 4).getHeight(param0, param1 & 15, param2 & 15) + 1;
     }
 
     @Override
@@ -370,10 +365,6 @@ public class WorldGenRegion implements WorldGenLevel {
     }
 
     @Override
-    public void gameEvent(@Nullable Entity param0, GameEvent param1, BlockPos param2) {
-    }
-
-    @Override
     public DimensionType dimensionType() {
         return this.dimensionType;
     }
@@ -384,7 +375,7 @@ public class WorldGenRegion implements WorldGenLevel {
     }
 
     @Override
-    public <T extends Entity> List<T> getEntities(EntityTypeTest<Entity, T> param0, AABB param1, Predicate<? super T> param2) {
+    public <T extends Entity> List<T> getEntitiesOfClass(Class<? extends T> param0, AABB param1, @Nullable Predicate<? super T> param2) {
         return Collections.emptyList();
     }
 
@@ -401,15 +392,5 @@ public class WorldGenRegion implements WorldGenLevel {
     @Override
     public Stream<? extends StructureStart<?>> startsForFeature(SectionPos param0, StructureFeature<?> param1) {
         return this.structureFeatureManager.startsForFeature(param0, param1);
-    }
-
-    @Override
-    public int getMinBuildHeight() {
-        return this.level.getMinBuildHeight();
-    }
-
-    @Override
-    public int getHeight() {
-        return this.level.getHeight();
     }
 }

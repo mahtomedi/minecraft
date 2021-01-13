@@ -11,6 +11,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.PrimedTnt;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Explosion;
@@ -63,8 +64,7 @@ public class TntBlock extends Block {
     public void wasExploded(Level param0, BlockPos param1, Explosion param2) {
         if (!param0.isClientSide) {
             PrimedTnt var0 = new PrimedTnt(param0, (double)param1.getX() + 0.5, (double)param1.getY(), (double)param1.getZ() + 0.5, param2.getSourceMob());
-            int var1 = var0.getFuse();
-            var0.setFuse((short)(param0.random.nextInt(var1 / 4) + var1 / 8));
+            var0.setFuse((short)(param0.random.nextInt(var0.getLife() / 4) + var0.getLife() / 8));
             param0.addFreshEntity(var0);
         }
     }
@@ -84,13 +84,14 @@ public class TntBlock extends Block {
     @Override
     public InteractionResult use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
         ItemStack var0 = param3.getItemInHand(param4);
-        if (!var0.is(Items.FLINT_AND_STEEL) && !var0.is(Items.FIRE_CHARGE)) {
+        Item var1 = var0.getItem();
+        if (var1 != Items.FLINT_AND_STEEL && var1 != Items.FIRE_CHARGE) {
             return super.use(param0, param1, param2, param3, param4, param5);
         } else {
             explode(param1, param2, param3);
             param1.setBlock(param2, Blocks.AIR.defaultBlockState(), 11);
             if (!param3.isCreative()) {
-                if (var0.is(Items.FLINT_AND_STEEL)) {
+                if (var1 == Items.FLINT_AND_STEEL) {
                     var0.hurtAndBreak(1, param3, param1x -> param1x.broadcastBreakEvent(param4));
                 } else {
                     var0.shrink(1);

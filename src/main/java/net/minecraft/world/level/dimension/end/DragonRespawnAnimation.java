@@ -92,7 +92,7 @@ public enum DragonRespawnAnimation {
                 for(EndCrystal var0 : param2) {
                     var0.setBeamTarget(null);
                     param0.explode(var0, var0.getX(), var0.getY(), var0.getZ(), 6.0F, Explosion.BlockInteraction.NONE);
-                    var0.discard();
+                    var0.remove();
                 }
             } else if (param3 >= 80) {
                 param0.levelEvent(3001, new BlockPos(0, 128, 0), 0);

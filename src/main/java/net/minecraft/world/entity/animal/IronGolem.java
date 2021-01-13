@@ -43,6 +43,7 @@ import net.minecraft.world.entity.ai.goal.target.ResetUniversalAngerTargetGoal;
 import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
@@ -168,7 +169,7 @@ public class IronGolem extends AbstractGolem implements NeutralMob {
     public void readAdditionalSaveData(CompoundTag param0) {
         super.readAdditionalSaveData(param0);
         this.setPlayerCreated(param0.getBoolean("PlayerCreated"));
-        this.readPersistentAngerSaveData(this.level, param0);
+        this.readPersistentAngerSaveData((ServerLevel)this.level, param0);
     }
 
     @Override
@@ -276,17 +277,18 @@ public class IronGolem extends AbstractGolem implements NeutralMob {
     @Override
     protected InteractionResult mobInteract(Player param0, InteractionHand param1) {
         ItemStack var0 = param0.getItemInHand(param1);
-        if (!var0.is(Items.IRON_INGOT)) {
+        Item var1 = var0.getItem();
+        if (var1 != Items.IRON_INGOT) {
             return InteractionResult.PASS;
         } else {
-            float var1 = this.getHealth();
+            float var2 = this.getHealth();
             this.heal(25.0F);
-            if (this.getHealth() == var1) {
+            if (this.getHealth() == var2) {
                 return InteractionResult.PASS;
             } else {
-                float var2 = 1.0F + (this.random.nextFloat() - this.random.nextFloat()) * 0.2F;
-                this.playSound(SoundEvents.IRON_GOLEM_REPAIR, 1.0F, var2);
-                if (!param0.getAbilities().instabuild) {
+                float var3 = 1.0F + (this.random.nextFloat() - this.random.nextFloat()) * 0.2F;
+                this.playSound(SoundEvents.IRON_GOLEM_REPAIR, 1.0F, var3);
+                if (!param0.abilities.instabuild) {
                     var0.shrink(1);
                 }
 

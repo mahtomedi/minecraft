@@ -12,6 +12,6 @@ public class BowlFoodItem extends Item {
     @Override
     public ItemStack finishUsingItem(ItemStack param0, Level param1, LivingEntity param2) {
         ItemStack var0 = super.finishUsingItem(param0, param1, param2);
-        return param2 instanceof Player && ((Player)param2).getAbilities().instabuild ? var0 : new ItemStack(Items.BOWL);
+        return param2 instanceof Player && ((Player)param2).abilities.instabuild ? var0 : new ItemStack(Items.BOWL);
     }
 }

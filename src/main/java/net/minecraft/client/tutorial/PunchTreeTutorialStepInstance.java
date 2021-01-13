@@ -9,6 +9,7 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -29,13 +30,13 @@ public class PunchTreeTutorialStepInstance implements TutorialStepInstance {
     @Override
     public void tick() {
         ++this.timeWaiting;
-        if (!this.tutorial.isSurvival()) {
+        if (this.tutorial.getGameMode() != GameType.SURVIVAL) {
             this.tutorial.setStep(TutorialSteps.NONE);
         } else {
             if (this.timeWaiting == 1) {
                 LocalPlayer var0 = this.tutorial.getMinecraft().player;
                 if (var0 != null) {
-                    if (var0.getInventory().contains(ItemTags.LOGS)) {
+                    if (var0.inventory.contains(ItemTags.LOGS)) {
                         this.tutorial.setStep(TutorialSteps.CRAFT_PLANKS);
                         return;
                     }
@@ -85,7 +86,7 @@ public class PunchTreeTutorialStepInstance implements TutorialStepInstance {
 
     @Override
     public void onGetItem(ItemStack param0) {
-        if (param0.is(ItemTags.LOGS)) {
+        if (ItemTags.LOGS.contains(param0.getItem())) {
             this.tutorial.setStep(TutorialSteps.CRAFT_PLANKS);
         }
     }

@@ -28,10 +28,6 @@ public enum EquipmentSlot {
         return this.index;
     }
 
-    public int getIndex(int param0) {
-        return param0 + this.index;
-    }
-
     public int getFilterFlag() {
         return this.filterFlag;
     }

@@ -39,12 +39,12 @@ public class HugeMushroomBlock extends Block {
         BlockGetter var0 = param0.getLevel();
         BlockPos var1 = param0.getClickedPos();
         return this.defaultBlockState()
-            .setValue(DOWN, Boolean.valueOf(!var0.getBlockState(var1.below()).is(this)))
-            .setValue(UP, Boolean.valueOf(!var0.getBlockState(var1.above()).is(this)))
-            .setValue(NORTH, Boolean.valueOf(!var0.getBlockState(var1.north()).is(this)))
-            .setValue(EAST, Boolean.valueOf(!var0.getBlockState(var1.east()).is(this)))
-            .setValue(SOUTH, Boolean.valueOf(!var0.getBlockState(var1.south()).is(this)))
-            .setValue(WEST, Boolean.valueOf(!var0.getBlockState(var1.west()).is(this)));
+            .setValue(DOWN, Boolean.valueOf(this != var0.getBlockState(var1.below()).getBlock()))
+            .setValue(UP, Boolean.valueOf(this != var0.getBlockState(var1.above()).getBlock()))
+            .setValue(NORTH, Boolean.valueOf(this != var0.getBlockState(var1.north()).getBlock()))
+            .setValue(EAST, Boolean.valueOf(this != var0.getBlockState(var1.east()).getBlock()))
+            .setValue(SOUTH, Boolean.valueOf(this != var0.getBlockState(var1.south()).getBlock()))
+            .setValue(WEST, Boolean.valueOf(this != var0.getBlockState(var1.west()).getBlock()));
     }
 
     @Override

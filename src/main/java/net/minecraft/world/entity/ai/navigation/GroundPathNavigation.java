@@ -5,8 +5,8 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.level.pathfinder.Node;
 import net.minecraft.world.level.pathfinder.Path;
@@ -44,11 +44,11 @@ public class GroundPathNavigation extends PathNavigation {
         if (this.level.getBlockState(param0).isAir()) {
             BlockPos var0 = param0.below();
 
-            while(var0.getY() > this.level.getMinBuildHeight() && this.level.getBlockState(var0).isAir()) {
+            while(var0.getY() > 0 && this.level.getBlockState(var0).isAir()) {
                 var0 = var0.below();
             }
 
-            if (var0.getY() > this.level.getMinBuildHeight()) {
+            if (var0.getY() > 0) {
                 return super.createPath(var0.above(), param1);
             }
 
@@ -79,14 +79,14 @@ public class GroundPathNavigation extends PathNavigation {
 
     private int getSurfaceY() {
         if (this.mob.isInWater() && this.canFloat()) {
-            int var0 = this.mob.getBlockY();
-            BlockState var1 = this.level.getBlockState(new BlockPos(this.mob.getX(), (double)var0, this.mob.getZ()));
+            int var0 = Mth.floor(this.mob.getY());
+            Block var1 = this.level.getBlockState(new BlockPos(this.mob.getX(), (double)var0, this.mob.getZ())).getBlock();
             int var2 = 0;
 
-            while(var1.is(Blocks.WATER)) {
-                var1 = this.level.getBlockState(new BlockPos(this.mob.getX(), (double)(++var0), this.mob.getZ()));
+            while(var1 == Blocks.WATER) {
+                var1 = this.level.getBlockState(new BlockPos(this.mob.getX(), (double)(++var0), this.mob.getZ())).getBlock();
                 if (++var2 > 16) {
-                    return this.mob.getBlockY();
+                    return Mth.floor(this.mob.getY());
                 }
             }
 

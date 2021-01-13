@@ -43,7 +43,7 @@ public final class ImprovedNoise {
         double var11 = Mth.smoothstep(var8);
         double var13;
         if (param3 != 0.0) {
-            double var12 = param4 < 0.0 ? 0.0 : Math.min(param4, var7);
+            double var12 = Math.min(param4, var7);
             var13 = (double)Mth.floor(var12 / param3) * param3;
         } else {
             var13 = 0.0;

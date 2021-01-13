@@ -55,14 +55,11 @@ public class AnimationUtils {
         bobArms(param0, param1, param4);
     }
 
-    public static void bobModelPart(ModelPart param0, float param1, float param2) {
-        param0.zRot += param2 * (Mth.cos(param1 * 0.09F) * 0.05F + 0.05F);
-        param0.xRot += param2 * Mth.sin(param1 * 0.067F) * 0.05F;
-    }
-
     public static void bobArms(ModelPart param0, ModelPart param1, float param2) {
-        bobModelPart(param0, param2, 1.0F);
-        bobModelPart(param1, param2, -1.0F);
+        param0.zRot += Mth.cos(param2 * 0.09F) * 0.05F + 0.05F;
+        param1.zRot -= Mth.cos(param2 * 0.09F) * 0.05F + 0.05F;
+        param0.xRot += Mth.sin(param2 * 0.067F) * 0.05F;
+        param1.xRot -= Mth.sin(param2 * 0.067F) * 0.05F;
     }
 
     public static void animateZombieArms(ModelPart param0, ModelPart param1, boolean param2, float param3, float param4) {

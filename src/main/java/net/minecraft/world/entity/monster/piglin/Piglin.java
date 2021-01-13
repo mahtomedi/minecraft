@@ -61,7 +61,7 @@ public class Piglin extends AbstractPiglin implements CrossbowAttackMob {
         SPEED_MODIFIER_BABY_UUID, "Baby speed boost", 0.2F, AttributeModifier.Operation.MULTIPLY_BASE
     );
     private final SimpleContainer inventory = new SimpleContainer(8);
-    private boolean cannotHunt;
+    private boolean cannotHunt = false;
     protected static final ImmutableList<SensorType<? extends Sensor<? super Piglin>>> SENSOR_TYPES = ImmutableList.of(
         SensorType.NEAREST_LIVING_ENTITIES, SensorType.NEAREST_PLAYERS, SensorType.NEAREST_ITEMS, SensorType.HURT_BY, SensorType.PIGLIN_SPECIFIC_SENSOR
     );
@@ -327,7 +327,7 @@ public class Piglin extends AbstractPiglin implements CrossbowAttackMob {
     public PiglinArmPose getArmPose() {
         if (this.isDancing()) {
             return PiglinArmPose.DANCING;
-        } else if (PiglinAi.isLovedItem(this.getOffhandItem())) {
+        } else if (PiglinAi.isLovedItem(this.getOffhandItem().getItem())) {
             return PiglinArmPose.ADMIRING_ITEM;
         } else if (this.isAggressive() && this.isHoldingMeleeWeapon()) {
             return PiglinArmPose.ATTACKING_WITH_MELEE_WEAPON;
@@ -380,7 +380,7 @@ public class Piglin extends AbstractPiglin implements CrossbowAttackMob {
     }
 
     protected void holdInOffHand(ItemStack param0) {
-        if (param0.is(PiglinAi.BARTERING_ITEM)) {
+        if (param0.getItem() == PiglinAi.BARTERING_ITEM) {
             this.setItemSlot(EquipmentSlot.OFFHAND, param0);
             this.setGuaranteedDrop(EquipmentSlot.OFFHAND);
         } else {
@@ -405,14 +405,16 @@ public class Piglin extends AbstractPiglin implements CrossbowAttackMob {
         if (EnchantmentHelper.hasBindingCurse(param1)) {
             return false;
         } else {
-            boolean var0 = PiglinAi.isLovedItem(param0) || param0.is(Items.CROSSBOW);
-            boolean var1 = PiglinAi.isLovedItem(param1) || param1.is(Items.CROSSBOW);
+            boolean var0 = PiglinAi.isLovedItem(param0.getItem()) || param0.getItem() == Items.CROSSBOW;
+            boolean var1 = PiglinAi.isLovedItem(param1.getItem()) || param1.getItem() == Items.CROSSBOW;
             if (var0 && !var1) {
                 return true;
             } else if (!var0 && var1) {
                 return false;
             } else {
-                return this.isAdult() && !param0.is(Items.CROSSBOW) && param1.is(Items.CROSSBOW) ? false : super.canReplaceCurrentItem(param0, param1);
+                return this.isAdult() && param0.getItem() != Items.CROSSBOW && param1.getItem() == Items.CROSSBOW
+                    ? false
+                    : super.canReplaceCurrentItem(param0, param1);
             }
         }
     }

@@ -1,10 +1,11 @@
 package net.minecraft.tags;
 
-import net.minecraft.core.Registry;
+import java.util.List;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 
 public final class BlockTags {
-    protected static final StaticTagHelper<Block> HELPER = StaticTags.create(Registry.BLOCK_REGISTRY, "tags/blocks");
+    protected static final StaticTagHelper<Block> HELPER = StaticTags.create(new ResourceLocation("block"), TagContainer::getBlocks);
     public static final Tag.Named<Block> WOOL = bind("wool");
     public static final Tag.Named<Block> PLANKS = bind("planks");
     public static final Tag.Named<Block> STONE_BRICKS = bind("stone_bricks");
@@ -48,7 +49,6 @@ public final class BlockTags {
     public static final Tag.Named<Block> PIGLIN_REPELLENTS = bind("piglin_repellents");
     public static final Tag.Named<Block> GOLD_ORES = bind("gold_ores");
     public static final Tag.Named<Block> NON_FLAMMABLE_WOOD = bind("non_flammable_wood");
-    public static final Tag.Named<Block> CANDLES = bind("candles");
     public static final Tag.Named<Block> FLOWER_POTS = bind("flower_pots");
     public static final Tag.Named<Block> ENDERMAN_HOLDABLE = bind("enderman_holdable");
     public static final Tag.Named<Block> ICE = bind("ice");
@@ -92,12 +92,6 @@ public final class BlockTags {
     public static final Tag.Named<Block> INFINIBURN_END = bind("infiniburn_end");
     public static final Tag.Named<Block> BASE_STONE_OVERWORLD = bind("base_stone_overworld");
     public static final Tag.Named<Block> BASE_STONE_NETHER = bind("base_stone_nether");
-    public static final Tag.Named<Block> CANDLE_CAKES = bind("candle_cakes");
-    public static final Tag.Named<Block> CAULDRONS = bind("cauldrons");
-    public static final Tag.Named<Block> CRYSTAL_SOUND_BLOCKS = bind("crystal_sound_blocks");
-    public static final Tag.Named<Block> INSIDE_STEP_SOUND_BLOCKS = bind("inside_step_sound_blocks");
-    public static final Tag.Named<Block> OCCLUDES_VIBRATION_SIGNALS = bind("occludes_vibration_signals");
-    public static final Tag.Named<Block> DRIPSTONE_REPLACEABLE = bind("dripstone_replaceable_blocks");
 
     private static Tag.Named<Block> bind(String param0) {
         return HELPER.bind(param0);
@@ -105,5 +99,9 @@ public final class BlockTags {
 
     public static TagCollection<Block> getAllTags() {
         return HELPER.getAllTags();
+    }
+
+    public static List<? extends Tag.Named<Block>> getWrappers() {
+        return HELPER.getWrappers();
     }
 }

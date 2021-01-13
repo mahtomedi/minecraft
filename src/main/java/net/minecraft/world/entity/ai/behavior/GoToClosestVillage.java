@@ -7,7 +7,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.memory.WalkTarget;
-import net.minecraft.world.entity.ai.util.LandRandomPos;
+import net.minecraft.world.entity.ai.util.RandomPos;
 import net.minecraft.world.entity.ai.village.poi.PoiManager;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.phys.Vec3;
@@ -32,7 +32,7 @@ public class GoToClosestVillage extends Behavior<Villager> {
         Vec3 var2 = null;
 
         for(int var3 = 0; var3 < 5; ++var3) {
-            Vec3 var4 = LandRandomPos.getPos(param1, 15, 7, param1x -> (double)(-param0.sectionsToVillage(SectionPos.of(param1x))));
+            Vec3 var4 = RandomPos.getLandPos(param1, 15, 7, param1x -> (double)(-param0.sectionsToVillage(SectionPos.of(param1x))));
             if (var4 != null) {
                 int var5 = var0.sectionsToVillage(SectionPos.of(new BlockPos(var4)));
                 if (var5 < var1) {

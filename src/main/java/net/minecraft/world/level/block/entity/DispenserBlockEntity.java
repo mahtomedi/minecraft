@@ -1,7 +1,6 @@
 package net.minecraft.world.level.block.entity;
 
 import java.util.Random;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -17,12 +16,12 @@ public class DispenserBlockEntity extends RandomizableContainerBlockEntity {
     private static final Random RANDOM = new Random();
     private NonNullList<ItemStack> items = NonNullList.withSize(9, ItemStack.EMPTY);
 
-    protected DispenserBlockEntity(BlockEntityType<?> param0, BlockPos param1, BlockState param2) {
-        super(param0, param1, param2);
+    protected DispenserBlockEntity(BlockEntityType<?> param0) {
+        super(param0);
     }
 
-    public DispenserBlockEntity(BlockPos param0, BlockState param1) {
-        this(BlockEntityType.DISPENSER, param0, param1);
+    public DispenserBlockEntity() {
+        this(BlockEntityType.DISPENSER);
     }
 
     @Override
@@ -61,11 +60,11 @@ public class DispenserBlockEntity extends RandomizableContainerBlockEntity {
     }
 
     @Override
-    public void load(CompoundTag param0) {
-        super.load(param0);
+    public void load(BlockState param0, CompoundTag param1) {
+        super.load(param0, param1);
         this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
-        if (!this.tryLoadLootTable(param0)) {
-            ContainerHelper.loadAllItems(param0, this.items);
+        if (!this.tryLoadLootTable(param1)) {
+            ContainerHelper.loadAllItems(param1, this.items);
         }
 
     }

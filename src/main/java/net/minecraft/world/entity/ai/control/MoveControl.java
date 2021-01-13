@@ -7,6 +7,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.level.pathfinder.NodeEvaluator;
@@ -95,12 +96,13 @@ public class MoveControl {
             this.mob.setSpeed((float)(this.speedModifier * this.mob.getAttributeValue(Attributes.MOVEMENT_SPEED)));
             BlockPos var14 = this.mob.blockPosition();
             BlockState var15 = this.mob.level.getBlockState(var14);
-            VoxelShape var16 = var15.getCollisionShape(this.mob.level, var14);
+            Block var16 = var15.getBlock();
+            VoxelShape var17 = var15.getCollisionShape(this.mob.level, var14);
             if (var11 > (double)this.mob.maxUpStep && var9 * var9 + var10 * var10 < (double)Math.max(1.0F, this.mob.getBbWidth())
-                || !var16.isEmpty()
-                    && this.mob.getY() < var16.max(Direction.Axis.Y) + (double)var14.getY()
-                    && !var15.is(BlockTags.DOORS)
-                    && !var15.is(BlockTags.FENCES)) {
+                || !var17.isEmpty()
+                    && this.mob.getY() < var17.max(Direction.Axis.Y) + (double)var14.getY()
+                    && !var16.is(BlockTags.DOORS)
+                    && !var16.is(BlockTags.FENCES)) {
                 this.mob.getJumpControl().jump();
                 this.operation = MoveControl.Operation.JUMPING;
             }
@@ -121,7 +123,7 @@ public class MoveControl {
             NodeEvaluator var1 = var0.getNodeEvaluator();
             if (var1 != null
                 && var1.getBlockPathType(
-                        this.mob.level, Mth.floor(this.mob.getX() + (double)param0), this.mob.getBlockY(), Mth.floor(this.mob.getZ() + (double)param1)
+                        this.mob.level, Mth.floor(this.mob.getX() + (double)param0), Mth.floor(this.mob.getY()), Mth.floor(this.mob.getZ() + (double)param1)
                     )
                     != BlockPathTypes.WALKABLE) {
                 return false;

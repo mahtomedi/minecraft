@@ -26,7 +26,7 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.LevelHeightAccessor;
+import net.minecraft.world.level.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -39,22 +39,12 @@ public class SectionStorage<R> implements AutoCloseable {
     private final Function<Runnable, R> factory;
     private final DataFixer fixerUpper;
     private final DataFixTypes type;
-    protected final LevelHeightAccessor levelHeightAccessor;
 
-    public SectionStorage(
-        File param0,
-        Function<Runnable, Codec<R>> param1,
-        Function<Runnable, R> param2,
-        DataFixer param3,
-        DataFixTypes param4,
-        boolean param5,
-        LevelHeightAccessor param6
-    ) {
+    public SectionStorage(File param0, Function<Runnable, Codec<R>> param1, Function<Runnable, R> param2, DataFixer param3, DataFixTypes param4, boolean param5) {
         this.codec = param1;
         this.factory = param2;
         this.fixerUpper = param3;
         this.type = param4;
-        this.levelHeightAccessor = param6;
         this.worker = new IOWorker(param0, param5, param0.getName());
     }
 
@@ -92,8 +82,7 @@ public class SectionStorage<R> implements AutoCloseable {
     }
 
     protected boolean outsideStoredRange(SectionPos param0) {
-        int var0 = SectionPos.sectionToBlockCoord(param0.y());
-        return this.levelHeightAccessor.isOutsideBuildHeight(var0);
+        return Level.isOutsideBuildHeight(SectionPos.sectionToBlockCoord(param0.y()));
     }
 
     protected R getOrCreate(long param0) {
@@ -123,7 +112,7 @@ public class SectionStorage<R> implements AutoCloseable {
 
     private <T> void readColumn(ChunkPos param0, DynamicOps<T> param1, @Nullable T param2) {
         if (param2 == null) {
-            for(int var0 = this.levelHeightAccessor.getMinSection(); var0 < this.levelHeightAccessor.getMaxSection(); ++var0) {
+            for(int var0 = 0; var0 < 16; ++var0) {
                 this.storage.put(SectionPos.of(param0, var0).asLong(), Optional.empty());
             }
         } else {
@@ -134,7 +123,7 @@ public class SectionStorage<R> implements AutoCloseable {
             Dynamic<T> var5 = this.fixerUpper.update(this.type.getType(), var1, var2, var3);
             OptionalDynamic<T> var6 = var5.get("Sections");
 
-            for(int var7 = this.levelHeightAccessor.getMinSection(); var7 < this.levelHeightAccessor.getMaxSection(); ++var7) {
+            for(int var7 = 0; var7 < 16; ++var7) {
                 long var8 = SectionPos.of(param0, var7).asLong();
                 Optional<R> var9 = var6.get(Integer.toString(var7))
                     .result()
@@ -166,7 +155,7 @@ public class SectionStorage<R> implements AutoCloseable {
     private <T> Dynamic<T> writeColumn(ChunkPos param0, DynamicOps<T> param1) {
         Map<T, T> var0 = Maps.newHashMap();
 
-        for(int var1 = this.levelHeightAccessor.getMinSection(); var1 < this.levelHeightAccessor.getMaxSection(); ++var1) {
+        for(int var1 = 0; var1 < 16; ++var1) {
             long var2 = SectionPos.of(param0, var1).asLong();
             this.dirty.remove(var2);
             Optional<R> var3 = this.storage.get(var2);
@@ -208,7 +197,7 @@ public class SectionStorage<R> implements AutoCloseable {
 
     public void flush(ChunkPos param0) {
         if (!this.dirty.isEmpty()) {
-            for(int var0 = this.levelHeightAccessor.getMinSection(); var0 < this.levelHeightAccessor.getMaxSection(); ++var0) {
+            for(int var0 = 0; var0 < 16; ++var0) {
                 long var1 = SectionPos.of(param0, var0).asLong();
                 if (this.dirty.contains(var1)) {
                     this.writeColumn(param0);

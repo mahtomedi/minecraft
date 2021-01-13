@@ -66,6 +66,11 @@ public abstract class Monster extends PathfinderMob implements Enemy {
     }
 
     @Override
+    public boolean hurt(DamageSource param0, float param1) {
+        return this.isInvulnerableTo(param0) ? false : super.hurt(param0, param1);
+    }
+
+    @Override
     protected SoundEvent getHurtSound(DamageSource param0) {
         return SoundEvents.HOSTILE_HURT;
     }

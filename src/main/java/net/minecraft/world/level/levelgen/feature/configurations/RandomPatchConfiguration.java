@@ -110,7 +110,7 @@ public class RandomPatchConfiguration implements FeatureConfiguration {
         private int zspread = 7;
         private boolean canReplace;
         private boolean project = true;
-        private boolean needWater;
+        private boolean needWater = false;
 
         public GrassConfigurationBuilder(BlockStateProvider param0, BlockPlacer param1) {
             this.stateProvider = param0;

@@ -42,11 +42,11 @@ public class ItemOverrides {
     }
 
     @Nullable
-    public BakedModel resolve(BakedModel param0, ItemStack param1, @Nullable ClientLevel param2, @Nullable LivingEntity param3, int param4) {
+    public BakedModel resolve(BakedModel param0, ItemStack param1, @Nullable ClientLevel param2, @Nullable LivingEntity param3) {
         if (!this.overrides.isEmpty()) {
             for(int var0 = 0; var0 < this.overrides.size(); ++var0) {
                 ItemOverride var1 = this.overrides.get(var0);
-                if (var1.test(param1, param2, param3, param4)) {
+                if (var1.test(param1, param2, param3)) {
                     BakedModel var2 = this.overrideModels.get(var0);
                     if (var2 == null) {
                         return param0;

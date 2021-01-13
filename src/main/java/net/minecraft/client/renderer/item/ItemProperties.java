@@ -18,7 +18,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.BundleItem;
 import net.minecraft.world.item.CompassItem;
 import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.ElytraItem;
@@ -36,8 +35,8 @@ public class ItemProperties {
     private static final Map<ResourceLocation, ItemPropertyFunction> GENERIC_PROPERTIES = Maps.newHashMap();
     private static final ResourceLocation DAMAGED = new ResourceLocation("damaged");
     private static final ResourceLocation DAMAGE = new ResourceLocation("damage");
-    private static final ItemPropertyFunction PROPERTY_DAMAGED = (param0, param1, param2, param3) -> param0.isDamaged() ? 1.0F : 0.0F;
-    private static final ItemPropertyFunction PROPERTY_DAMAGE = (param0, param1, param2, param3) -> Mth.clamp(
+    private static final ItemPropertyFunction PROPERTY_DAMAGED = (param0, param1, param2) -> param0.isDamaged() ? 1.0F : 0.0F;
+    private static final ItemPropertyFunction PROPERTY_DAMAGE = (param0, param1, param2) -> Mth.clamp(
             (float)param0.getDamageValue() / (float)param0.getMaxDamage(), 0.0F, 1.0F
         );
     private static final Map<Item, Map<ResourceLocation, ItemPropertyFunction>> PROPERTIES = Maps.newHashMap();
@@ -74,17 +73,16 @@ public class ItemProperties {
 
     static {
         registerGeneric(
-            new ResourceLocation("lefthanded"), (param0, param1, param2, param3) -> param2 != null && param2.getMainArm() != HumanoidArm.RIGHT ? 1.0F : 0.0F
+            new ResourceLocation("lefthanded"), (param0, param1, param2) -> param2 != null && param2.getMainArm() != HumanoidArm.RIGHT ? 1.0F : 0.0F
         );
         registerGeneric(
             new ResourceLocation("cooldown"),
-            (param0, param1, param2, param3) -> param2 instanceof Player ? ((Player)param2).getCooldowns().getCooldownPercent(param0.getItem(), 0.0F) : 0.0F
+            (param0, param1, param2) -> param2 instanceof Player ? ((Player)param2).getCooldowns().getCooldownPercent(param0.getItem(), 0.0F) : 0.0F
         );
         registerGeneric(
-            new ResourceLocation("custom_model_data"),
-            (param0, param1, param2, param3) -> param0.hasTag() ? (float)param0.getTag().getInt("CustomModelData") : 0.0F
+            new ResourceLocation("custom_model_data"), (param0, param1, param2) -> param0.hasTag() ? (float)param0.getTag().getInt("CustomModelData") : 0.0F
         );
-        register(Items.BOW, new ResourceLocation("pull"), (param0, param1, param2, param3) -> {
+        register(Items.BOW, new ResourceLocation("pull"), (param0, param1, param2) -> {
             if (param2 == null) {
                 return 0.0F;
             } else {
@@ -94,16 +92,15 @@ public class ItemProperties {
         register(
             Items.BOW,
             new ResourceLocation("pulling"),
-            (param0, param1, param2, param3) -> param2 != null && param2.isUsingItem() && param2.getUseItem() == param0 ? 1.0F : 0.0F
+            (param0, param1, param2) -> param2 != null && param2.isUsingItem() && param2.getUseItem() == param0 ? 1.0F : 0.0F
         );
-        register(Items.BUNDLE, new ResourceLocation("filled"), (param0, param1, param2, param3) -> BundleItem.getFullnessDisplay(param0));
         register(Items.CLOCK, new ResourceLocation("time"), new ItemPropertyFunction() {
             private double rotation;
             private double rota;
             private long lastUpdateTick;
 
             @Override
-            public float call(ItemStack param0, @Nullable ClientLevel param1, @Nullable LivingEntity param2, int param3) {
+            public float call(ItemStack param0, @Nullable ClientLevel param1, @Nullable LivingEntity param2) {
                 Entity var0 = (Entity)(param2 != null ? param2 : param0.getEntityRepresentation());
                 if (var0 == null) {
                     return 0.0F;
@@ -149,7 +146,7 @@ public class ItemProperties {
                 private final ItemProperties.CompassWobble wobbleRandom = new ItemProperties.CompassWobble();
     
                 @Override
-                public float call(ItemStack param0, @Nullable ClientLevel param1, @Nullable LivingEntity param2, int param3) {
+                public float call(ItemStack param0, @Nullable ClientLevel param1, @Nullable LivingEntity param2) {
                     Entity var0 = (Entity)(param2 != null ? param2 : param0.getEntityRepresentation());
                     if (var0 == null) {
                         return 0.0F;
@@ -195,14 +192,10 @@ public class ItemProperties {
                                 this.wobbleRandom.update(var2, Math.random());
                             }
     
-                            double var3 = this.wobbleRandom.rotation + (double)((float)this.hash(param3) / 2.14748365E9F);
+                            double var3 = this.wobbleRandom.rotation + (double)((float)param0.hashCode() / 2.14748365E9F);
                             return Mth.positiveModulo((float)var3, 1.0F);
                         }
                     }
-                }
-    
-                private int hash(int param0) {
-                    return param0 * 1327217883;
                 }
     
                 @Nullable
@@ -238,7 +231,7 @@ public class ItemProperties {
         register(
             Items.CROSSBOW,
             new ResourceLocation("pull"),
-            (param0, param1, param2, param3) -> {
+            (param0, param1, param2) -> {
                 if (param2 == null) {
                     return 0.0F;
                 } else {
@@ -251,24 +244,22 @@ public class ItemProperties {
         register(
             Items.CROSSBOW,
             new ResourceLocation("pulling"),
-            (param0, param1, param2, param3) -> param2 != null && param2.isUsingItem() && param2.getUseItem() == param0 && !CrossbowItem.isCharged(param0)
+            (param0, param1, param2) -> param2 != null && param2.isUsingItem() && param2.getUseItem() == param0 && !CrossbowItem.isCharged(param0)
                     ? 1.0F
                     : 0.0F
         );
-        register(
-            Items.CROSSBOW, new ResourceLocation("charged"), (param0, param1, param2, param3) -> param2 != null && CrossbowItem.isCharged(param0) ? 1.0F : 0.0F
-        );
+        register(Items.CROSSBOW, new ResourceLocation("charged"), (param0, param1, param2) -> param2 != null && CrossbowItem.isCharged(param0) ? 1.0F : 0.0F);
         register(
             Items.CROSSBOW,
             new ResourceLocation("firework"),
-            (param0, param1, param2, param3) -> param2 != null
+            (param0, param1, param2) -> param2 != null
                         && CrossbowItem.isCharged(param0)
                         && CrossbowItem.containsChargedProjectile(param0, Items.FIREWORK_ROCKET)
                     ? 1.0F
                     : 0.0F
         );
-        register(Items.ELYTRA, new ResourceLocation("broken"), (param0, param1, param2, param3) -> ElytraItem.isFlyEnabled(param0) ? 0.0F : 1.0F);
-        register(Items.FISHING_ROD, new ResourceLocation("cast"), (param0, param1, param2, param3) -> {
+        register(Items.ELYTRA, new ResourceLocation("broken"), (param0, param1, param2) -> ElytraItem.isFlyEnabled(param0) ? 0.0F : 1.0F);
+        register(Items.FISHING_ROD, new ResourceLocation("cast"), (param0, param1, param2) -> {
             if (param2 == null) {
                 return 0.0F;
             } else {
@@ -284,12 +275,12 @@ public class ItemProperties {
         register(
             Items.SHIELD,
             new ResourceLocation("blocking"),
-            (param0, param1, param2, param3) -> param2 != null && param2.isUsingItem() && param2.getUseItem() == param0 ? 1.0F : 0.0F
+            (param0, param1, param2) -> param2 != null && param2.isUsingItem() && param2.getUseItem() == param0 ? 1.0F : 0.0F
         );
         register(
             Items.TRIDENT,
             new ResourceLocation("throwing"),
-            (param0, param1, param2, param3) -> param2 != null && param2.isUsingItem() && param2.getUseItem() == param0 ? 1.0F : 0.0F
+            (param0, param1, param2) -> param2 != null && param2.isUsingItem() && param2.getUseItem() == param0 ? 1.0F : 0.0F
         );
     }
 

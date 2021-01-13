@@ -55,7 +55,6 @@ public class ModelTemplates {
     public static final ModelTemplate ORIENTABLE_TRAPDOOR_TOP = create("template_orientable_trapdoor_top", "_top", TextureSlot.TEXTURE);
     public static final ModelTemplate ORIENTABLE_TRAPDOOR_BOTTOM = create("template_orientable_trapdoor_bottom", "_bottom", TextureSlot.TEXTURE);
     public static final ModelTemplate ORIENTABLE_TRAPDOOR_OPEN = create("template_orientable_trapdoor_open", "_open", TextureSlot.TEXTURE);
-    public static final ModelTemplate POINTED_DRIPSTONE = create("pointed_dripstone", TextureSlot.CROSS);
     public static final ModelTemplate CROSS = create("cross", TextureSlot.CROSS);
     public static final ModelTemplate TINTED_CROSS = create("tinted_cross", TextureSlot.CROSS);
     public static final ModelTemplate FLOWER_POT_CROSS = create("flower_pot_cross", TextureSlot.PLANT);
@@ -102,15 +101,6 @@ public class ModelTemplates {
     public static final ModelTemplate THREE_TURTLE_EGGS = create("template_three_turtle_eggs", TextureSlot.ALL);
     public static final ModelTemplate FOUR_TURTLE_EGGS = create("template_four_turtle_eggs", TextureSlot.ALL);
     public static final ModelTemplate SINGLE_FACE = create("template_single_face", TextureSlot.TEXTURE);
-    public static final ModelTemplate CAULDRON_LEVEL1 = create(
-        "template_cauldron_level1", TextureSlot.CONTENT, TextureSlot.INSIDE, TextureSlot.PARTICLE, TextureSlot.TOP, TextureSlot.BOTTOM, TextureSlot.SIDE
-    );
-    public static final ModelTemplate CAULDRON_LEVEL2 = create(
-        "template_cauldron_level2", TextureSlot.CONTENT, TextureSlot.INSIDE, TextureSlot.PARTICLE, TextureSlot.TOP, TextureSlot.BOTTOM, TextureSlot.SIDE
-    );
-    public static final ModelTemplate CAULDRON_FULL = create(
-        "template_cauldron_full", TextureSlot.CONTENT, TextureSlot.INSIDE, TextureSlot.PARTICLE, TextureSlot.TOP, TextureSlot.BOTTOM, TextureSlot.SIDE
-    );
     public static final ModelTemplate FLAT_ITEM = createItem("generated", TextureSlot.LAYER0);
     public static final ModelTemplate FLAT_HANDHELD_ITEM = createItem("handheld", TextureSlot.LAYER0);
     public static final ModelTemplate FLAT_HANDHELD_ROD_ITEM = createItem("handheld_rod", TextureSlot.LAYER0);
@@ -118,13 +108,6 @@ public class ModelTemplates {
     public static final ModelTemplate BED_INVENTORY = createItem("template_bed", TextureSlot.PARTICLE);
     public static final ModelTemplate BANNER_INVENTORY = createItem("template_banner");
     public static final ModelTemplate SKULL_INVENTORY = createItem("template_skull");
-    public static final ModelTemplate CANDLE = create("template_candle", TextureSlot.ALL, TextureSlot.PARTICLE);
-    public static final ModelTemplate TWO_CANDLES = create("template_two_candles", TextureSlot.ALL, TextureSlot.PARTICLE);
-    public static final ModelTemplate THREE_CANDLES = create("template_three_candles", TextureSlot.ALL, TextureSlot.PARTICLE);
-    public static final ModelTemplate FOUR_CANDLES = create("template_four_candles", TextureSlot.ALL, TextureSlot.PARTICLE);
-    public static final ModelTemplate CANDLE_CAKE = create(
-        "template_cake_with_candle", TextureSlot.CANDLE, TextureSlot.BOTTOM, TextureSlot.SIDE, TextureSlot.TOP, TextureSlot.PARTICLE
-    );
 
     private static ModelTemplate create(TextureSlot... param0) {
         return new ModelTemplate(Optional.empty(), Optional.empty(), param0);

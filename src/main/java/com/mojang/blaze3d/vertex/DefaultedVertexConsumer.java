@@ -5,7 +5,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public abstract class DefaultedVertexConsumer implements VertexConsumer {
-    protected boolean defaultColorSet;
+    protected boolean defaultColorSet = false;
     protected int defaultR = 255;
     protected int defaultG = 255;
     protected int defaultB = 255;

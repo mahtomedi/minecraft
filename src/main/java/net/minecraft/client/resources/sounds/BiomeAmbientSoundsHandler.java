@@ -24,7 +24,7 @@ public class BiomeAmbientSoundsHandler implements AmbientSoundHandler {
     private final SoundManager soundManager;
     private final BiomeManager biomeManager;
     private final Random random;
-    private final Object2ObjectArrayMap<Biome, BiomeAmbientSoundsHandler.LoopSoundInstance> loopSounds = new Object2ObjectArrayMap<>();
+    private Object2ObjectArrayMap<Biome, BiomeAmbientSoundsHandler.LoopSoundInstance> loopSounds = new Object2ObjectArrayMap<>();
     private Optional<AmbientMoodSettings> moodSettings = Optional.empty();
     private Optional<AmbientAdditionsSettings> additionsSettings = Optional.empty();
     private float moodiness;

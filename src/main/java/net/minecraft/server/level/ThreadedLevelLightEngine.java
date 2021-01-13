@@ -63,8 +63,8 @@ public class ThreadedLevelLightEngine extends LevelLightEngine implements AutoCl
     public void checkBlock(BlockPos param0) {
         BlockPos var0 = param0.immutable();
         this.addTask(
-            SectionPos.blockToSectionCoord(param0.getX()),
-            SectionPos.blockToSectionCoord(param0.getZ()),
+            param0.getX() >> 4,
+            param0.getZ() >> 4,
             ThreadedLevelLightEngine.TaskType.POST_UPDATE,
             Util.name(() -> super.checkBlock(var0), () -> "checkBlock " + var0)
         );
@@ -75,12 +75,12 @@ public class ThreadedLevelLightEngine extends LevelLightEngine implements AutoCl
             super.retainData(param0, false);
             super.enableLightSources(param0, false);
 
-            for(int var1x = this.getMinLightSection(); var1x < this.getMaxLightSection(); ++var1x) {
+            for(int var1x = -1; var1x < 17; ++var1x) {
                 super.queueSectionData(LightLayer.BLOCK, SectionPos.of(param0, var1x), null, true);
                 super.queueSectionData(LightLayer.SKY, SectionPos.of(param0, var1x), null, true);
             }
 
-            for(int var1 = this.levelHeightAccessor.getMinSection(); var1 < this.levelHeightAccessor.getMaxSection(); ++var1) {
+            for(int var1 = 0; var1 < 16; ++var1) {
                 super.updateSectionStatus(SectionPos.of(param0, var1), true);
             }
 
@@ -150,11 +150,10 @@ public class ThreadedLevelLightEngine extends LevelLightEngine implements AutoCl
         this.addTask(var0.x, var0.z, ThreadedLevelLightEngine.TaskType.PRE_UPDATE, Util.name(() -> {
             LevelChunkSection[] var0x = param0.getSections();
 
-            for(int var1x = 0; var1x < param0.getSectionsCount(); ++var1x) {
+            for(int var1x = 0; var1x < 16; ++var1x) {
                 LevelChunkSection var2x = var0x[var1x];
                 if (!LevelChunkSection.isEmpty(var2x)) {
-                    int var3x = this.levelHeightAccessor.getSectionYFromSectionIndex(var1x);
-                    super.updateSectionStatus(SectionPos.of(var0, var3x), false);
+                    super.updateSectionStatus(SectionPos.of(var0, var1x), false);
                 }
             }
 

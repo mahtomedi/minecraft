@@ -17,7 +17,7 @@ import net.minecraft.world.level.material.Material;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class FallingBlock extends Block implements Fallable {
+public class FallingBlock extends Block {
     public FallingBlock(BlockBehaviour.Properties param0) {
         super(param0);
     }
@@ -35,7 +35,7 @@ public class FallingBlock extends Block implements Fallable {
 
     @Override
     public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
-        if (isFree(param1.getBlockState(param2.below())) && param2.getY() >= param1.getMinBuildHeight()) {
+        if (isFree(param1.getBlockState(param2.below())) && param2.getY() >= 0) {
             FallingBlockEntity var0 = new FallingBlockEntity(
                 param1, (double)param2.getX() + 0.5, (double)param2.getY(), (double)param2.getZ() + 0.5, param1.getBlockState(param2)
             );
@@ -54,6 +54,12 @@ public class FallingBlock extends Block implements Fallable {
     public static boolean isFree(BlockState param0) {
         Material var0 = param0.getMaterial();
         return param0.isAir() || param0.is(BlockTags.FIRE) || var0.isLiquid() || var0.isReplaceable();
+    }
+
+    public void onLand(Level param0, BlockPos param1, BlockState param2, BlockState param3, FallingBlockEntity param4) {
+    }
+
+    public void onBroken(Level param0, BlockPos param1, FallingBlockEntity param2) {
     }
 
     @OnlyIn(Dist.CLIENT)

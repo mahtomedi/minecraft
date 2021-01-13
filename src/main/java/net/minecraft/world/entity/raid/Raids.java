@@ -31,6 +31,7 @@ public class Raids extends SavedData {
     private int tick;
 
     public Raids(ServerLevel param0) {
+        super(getFileId(param0.dimensionType()));
         this.level = param0;
         this.nextAvailableID = 1;
         this.setDirty();
@@ -144,19 +145,18 @@ public class Raids extends SavedData {
         return var0 != null ? var0 : new Raid(this.getUniqueId(), param0, param1);
     }
 
-    public static Raids load(ServerLevel param0, CompoundTag param1) {
-        Raids var0 = new Raids(param0);
-        var0.nextAvailableID = param1.getInt("NextAvailableID");
-        var0.tick = param1.getInt("Tick");
-        ListTag var1 = param1.getList("Raids", 10);
+    @Override
+    public void load(CompoundTag param0) {
+        this.nextAvailableID = param0.getInt("NextAvailableID");
+        this.tick = param0.getInt("Tick");
+        ListTag var0 = param0.getList("Raids", 10);
 
-        for(int var2 = 0; var2 < var1.size(); ++var2) {
-            CompoundTag var3 = var1.getCompound(var2);
-            Raid var4 = new Raid(param0, var3);
-            var0.raidMap.put(var4.getId(), var4);
+        for(int var1 = 0; var1 < var0.size(); ++var1) {
+            CompoundTag var2 = var0.getCompound(var1);
+            Raid var3 = new Raid(this.level, var2);
+            this.raidMap.put(var3.getId(), var3);
         }
 
-        return var0;
     }
 
     @Override

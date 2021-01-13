@@ -1,11 +1,6 @@
 package net.minecraft.client.model;
 
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.model.geom.PartPose;
-import net.minecraft.client.model.geom.builders.CubeDeformation;
-import net.minecraft.client.model.geom.builders.CubeListBuilder;
-import net.minecraft.client.model.geom.builders.MeshDefinition;
-import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
@@ -17,66 +12,57 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class PiglinModel<T extends Mob> extends PlayerModel<T> {
-    public final ModelPart rightEar = this.head.getChild("right_ear");
-    private final ModelPart leftEar = this.head.getChild("left_ear");
-    private final PartPose bodyDefault = this.body.storePose();
-    private final PartPose headDefault = this.head.storePose();
-    private final PartPose leftArmDefault = this.leftArm.storePose();
-    private final PartPose rightArmDefault = this.rightArm.storePose();
+    public final ModelPart earRight;
+    public final ModelPart earLeft;
+    private final ModelPart bodyDefault;
+    private final ModelPart headDefault;
+    private final ModelPart leftArmDefault;
+    private final ModelPart rightArmDefault;
 
-    public PiglinModel(ModelPart param0) {
+    public PiglinModel(float param0, int param1, int param2) {
         super(param0, false);
-    }
-
-    public static MeshDefinition createMesh(CubeDeformation param0) {
-        MeshDefinition var0 = PlayerModel.createMesh(param0, false);
-        PartDefinition var1 = var0.getRoot();
-        var1.addOrReplaceChild("body", CubeListBuilder.create().texOffs(16, 16).addBox(-4.0F, 0.0F, -2.0F, 8.0F, 12.0F, 4.0F, param0), PartPose.ZERO);
-        PartDefinition var2 = var1.addOrReplaceChild(
-            "head",
-            CubeListBuilder.create()
-                .texOffs(0, 0)
-                .addBox(-5.0F, -8.0F, -4.0F, 10.0F, 8.0F, 8.0F, param0)
-                .texOffs(31, 1)
-                .addBox(-2.0F, -4.0F, -5.0F, 4.0F, 4.0F, 1.0F, param0)
-                .texOffs(2, 4)
-                .addBox(2.0F, -2.0F, -5.0F, 1.0F, 2.0F, 1.0F, param0)
-                .texOffs(2, 0)
-                .addBox(-3.0F, -2.0F, -5.0F, 1.0F, 2.0F, 1.0F, param0),
-            PartPose.ZERO
-        );
-        var2.addOrReplaceChild(
-            "left_ear",
-            CubeListBuilder.create().texOffs(51, 6).addBox(0.0F, 0.0F, -2.0F, 1.0F, 5.0F, 4.0F, param0),
-            PartPose.offsetAndRotation(4.5F, -6.0F, 0.0F, 0.0F, 0.0F, (float) (-Math.PI / 6))
-        );
-        var2.addOrReplaceChild(
-            "right_ear",
-            CubeListBuilder.create().texOffs(39, 6).addBox(-1.0F, 0.0F, -2.0F, 1.0F, 5.0F, 4.0F, param0),
-            PartPose.offsetAndRotation(-4.5F, -6.0F, 0.0F, 0.0F, 0.0F, (float) (Math.PI / 6))
-        );
-        var1.addOrReplaceChild("hat", CubeListBuilder.create(), PartPose.ZERO);
-        return var0;
+        this.texWidth = param1;
+        this.texHeight = param2;
+        this.body = new ModelPart(this, 16, 16);
+        this.body.addBox(-4.0F, 0.0F, -2.0F, 8.0F, 12.0F, 4.0F, param0);
+        this.head = new ModelPart(this);
+        this.head.texOffs(0, 0).addBox(-5.0F, -8.0F, -4.0F, 10.0F, 8.0F, 8.0F, param0);
+        this.head.texOffs(31, 1).addBox(-2.0F, -4.0F, -5.0F, 4.0F, 4.0F, 1.0F, param0);
+        this.head.texOffs(2, 4).addBox(2.0F, -2.0F, -5.0F, 1.0F, 2.0F, 1.0F, param0);
+        this.head.texOffs(2, 0).addBox(-3.0F, -2.0F, -5.0F, 1.0F, 2.0F, 1.0F, param0);
+        this.earRight = new ModelPart(this);
+        this.earRight.setPos(4.5F, -6.0F, 0.0F);
+        this.earRight.texOffs(51, 6).addBox(0.0F, 0.0F, -2.0F, 1.0F, 5.0F, 4.0F, param0);
+        this.head.addChild(this.earRight);
+        this.earLeft = new ModelPart(this);
+        this.earLeft.setPos(-4.5F, -6.0F, 0.0F);
+        this.earLeft.texOffs(39, 6).addBox(-1.0F, 0.0F, -2.0F, 1.0F, 5.0F, 4.0F, param0);
+        this.head.addChild(this.earLeft);
+        this.hat = new ModelPart(this);
+        this.bodyDefault = this.body.createShallowCopy();
+        this.headDefault = this.head.createShallowCopy();
+        this.leftArmDefault = this.leftArm.createShallowCopy();
+        this.rightArmDefault = this.leftArm.createShallowCopy();
     }
 
     public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5) {
-        this.body.loadPose(this.bodyDefault);
-        this.head.loadPose(this.headDefault);
-        this.leftArm.loadPose(this.leftArmDefault);
-        this.rightArm.loadPose(this.rightArmDefault);
+        this.body.copyFrom(this.bodyDefault);
+        this.head.copyFrom(this.headDefault);
+        this.leftArm.copyFrom(this.leftArmDefault);
+        this.rightArm.copyFrom(this.rightArmDefault);
         super.setupAnim(param0, param1, param2, param3, param4, param5);
         float var0 = (float) (Math.PI / 6);
         float var1 = param3 * 0.1F + param1 * 0.5F;
         float var2 = 0.08F + param2 * 0.4F;
-        this.leftEar.zRot = (float) (-Math.PI / 6) - Mth.cos(var1 * 1.2F) * var2;
-        this.rightEar.zRot = (float) (Math.PI / 6) + Mth.cos(var1) * var2;
+        this.earRight.zRot = (float) (-Math.PI / 6) - Mth.cos(var1 * 1.2F) * var2;
+        this.earLeft.zRot = (float) (Math.PI / 6) + Mth.cos(var1) * var2;
         if (param0 instanceof AbstractPiglin) {
             AbstractPiglin var3 = (AbstractPiglin)param0;
             PiglinArmPose var4 = var3.getArmPose();
             if (var4 == PiglinArmPose.DANCING) {
                 float var5 = param3 / 60.0F;
-                this.rightEar.zRot = (float) (Math.PI / 6) + (float) (Math.PI / 180.0) * Mth.sin(var5 * 30.0F) * 10.0F;
-                this.leftEar.zRot = (float) (-Math.PI / 6) - (float) (Math.PI / 180.0) * Mth.cos(var5 * 30.0F) * 10.0F;
+                this.earLeft.zRot = (float) (Math.PI / 6) + (float) (Math.PI / 180.0) * Mth.sin(var5 * 30.0F) * 10.0F;
+                this.earRight.zRot = (float) (-Math.PI / 6) - (float) (Math.PI / 180.0) * Mth.cos(var5 * 30.0F) * 10.0F;
                 this.head.x = Mth.sin(var5 * 10.0F);
                 this.head.y = Mth.sin(var5 * 40.0F) + 0.4F;
                 this.rightArm.zRot = (float) (Math.PI / 180.0) * (70.0F + Mth.cos(var5 * 40.0F) * 10.0F);

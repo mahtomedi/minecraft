@@ -37,7 +37,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.state.properties.AttachFace;
 import net.minecraft.world.level.block.state.properties.BambooLeaves;
 import net.minecraft.world.level.block.state.properties.BellAttachType;
@@ -46,13 +45,11 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.ComparatorMode;
 import net.minecraft.world.level.block.state.properties.DoorHingeSide;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
-import net.minecraft.world.level.block.state.properties.DripstoneThickness;
 import net.minecraft.world.level.block.state.properties.Half;
 import net.minecraft.world.level.block.state.properties.PistonType;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.block.state.properties.RailShape;
 import net.minecraft.world.level.block.state.properties.RedstoneSide;
-import net.minecraft.world.level.block.state.properties.SculkSensorPhase;
 import net.minecraft.world.level.block.state.properties.SlabType;
 import net.minecraft.world.level.block.state.properties.StairsShape;
 import net.minecraft.world.level.block.state.properties.WallSide;
@@ -1965,113 +1962,17 @@ public class BlockModelGenerators {
             .accept(MultiVariantGenerator.multiVariant(param0, Variant.variant().with(VariantProperties.MODEL, var0)).with(createHorizontalFacingDispatch()));
     }
 
-    private void createCauldrons() {
+    private void createCauldron() {
         this.createSimpleFlatItemModel(Items.CAULDRON);
-        this.createNonTemplateModelBlock(Blocks.CAULDRON);
         this.blockStateOutput
             .accept(
-                createSimpleBlock(
-                    Blocks.LAVA_CAULDRON,
-                    ModelTemplates.CAULDRON_FULL
-                        .create(Blocks.LAVA_CAULDRON, TextureMapping.cauldron(TextureMapping.getBlockTexture(Blocks.LAVA, "_still")), this.modelOutput)
-                )
-            );
-        this.blockStateOutput
-            .accept(
-                MultiVariantGenerator.multiVariant(Blocks.WATER_CAULDRON)
+                MultiVariantGenerator.multiVariant(Blocks.CAULDRON)
                     .with(
-                        PropertyDispatch.property(LayeredCauldronBlock.LEVEL)
-                            .select(
-                                1,
-                                Variant.variant()
-                                    .with(
-                                        VariantProperties.MODEL,
-                                        ModelTemplates.CAULDRON_LEVEL1
-                                            .createWithSuffix(
-                                                Blocks.WATER_CAULDRON,
-                                                "_level1",
-                                                TextureMapping.cauldron(TextureMapping.getBlockTexture(Blocks.WATER, "_still")),
-                                                this.modelOutput
-                                            )
-                                    )
-                            )
-                            .select(
-                                2,
-                                Variant.variant()
-                                    .with(
-                                        VariantProperties.MODEL,
-                                        ModelTemplates.CAULDRON_LEVEL2
-                                            .createWithSuffix(
-                                                Blocks.WATER_CAULDRON,
-                                                "_level2",
-                                                TextureMapping.cauldron(TextureMapping.getBlockTexture(Blocks.WATER, "_still")),
-                                                this.modelOutput
-                                            )
-                                    )
-                            )
-                            .select(
-                                3,
-                                Variant.variant()
-                                    .with(
-                                        VariantProperties.MODEL,
-                                        ModelTemplates.CAULDRON_FULL
-                                            .createWithSuffix(
-                                                Blocks.WATER_CAULDRON,
-                                                "_full",
-                                                TextureMapping.cauldron(TextureMapping.getBlockTexture(Blocks.WATER, "_still")),
-                                                this.modelOutput
-                                            )
-                                    )
-                            )
-                    )
-            );
-        this.blockStateOutput
-            .accept(
-                MultiVariantGenerator.multiVariant(Blocks.POWDER_SNOW_CAULDRON)
-                    .with(
-                        PropertyDispatch.property(LayeredCauldronBlock.LEVEL)
-                            .select(
-                                1,
-                                Variant.variant()
-                                    .with(
-                                        VariantProperties.MODEL,
-                                        ModelTemplates.CAULDRON_LEVEL1
-                                            .createWithSuffix(
-                                                Blocks.POWDER_SNOW_CAULDRON,
-                                                "_level1",
-                                                TextureMapping.cauldron(TextureMapping.getBlockTexture(Blocks.POWDER_SNOW)),
-                                                this.modelOutput
-                                            )
-                                    )
-                            )
-                            .select(
-                                2,
-                                Variant.variant()
-                                    .with(
-                                        VariantProperties.MODEL,
-                                        ModelTemplates.CAULDRON_LEVEL2
-                                            .createWithSuffix(
-                                                Blocks.POWDER_SNOW_CAULDRON,
-                                                "_level2",
-                                                TextureMapping.cauldron(TextureMapping.getBlockTexture(Blocks.POWDER_SNOW)),
-                                                this.modelOutput
-                                            )
-                                    )
-                            )
-                            .select(
-                                3,
-                                Variant.variant()
-                                    .with(
-                                        VariantProperties.MODEL,
-                                        ModelTemplates.CAULDRON_FULL
-                                            .createWithSuffix(
-                                                Blocks.POWDER_SNOW_CAULDRON,
-                                                "_full",
-                                                TextureMapping.cauldron(TextureMapping.getBlockTexture(Blocks.POWDER_SNOW)),
-                                                this.modelOutput
-                                            )
-                                    )
-                            )
+                        PropertyDispatch.property(BlockStateProperties.LEVEL_CAULDRON)
+                            .select(0, Variant.variant().with(VariantProperties.MODEL, ModelLocationUtils.getModelLocation(Blocks.CAULDRON)))
+                            .select(1, Variant.variant().with(VariantProperties.MODEL, ModelLocationUtils.getModelLocation(Blocks.CAULDRON, "_level1")))
+                            .select(2, Variant.variant().with(VariantProperties.MODEL, ModelLocationUtils.getModelLocation(Blocks.CAULDRON, "_level2")))
+                            .select(3, Variant.variant().with(VariantProperties.MODEL, ModelLocationUtils.getModelLocation(Blocks.CAULDRON, "_level3")))
                     )
             );
     }
@@ -2340,49 +2241,6 @@ public class BlockModelGenerators {
             );
     }
 
-    private void createAmethystCluster(Block param0) {
-        this.createSimpleFlatItemModel(param0);
-        this.blockStateOutput
-            .accept(
-                MultiVariantGenerator.multiVariant(
-                        param0,
-                        Variant.variant().with(VariantProperties.MODEL, ModelTemplates.CROSS.create(param0, TextureMapping.cross(param0), this.modelOutput))
-                    )
-                    .with(this.createColumnWithFacing())
-            );
-    }
-
-    private void createAmethystClusters() {
-        this.createAmethystCluster(Blocks.SMALL_AMETHYST_BUD);
-        this.createAmethystCluster(Blocks.MEDIUM_AMETHYST_BUD);
-        this.createAmethystCluster(Blocks.LARGE_AMETHYST_BUD);
-        this.createAmethystCluster(Blocks.AMETHYST_CLUSTER);
-    }
-
-    private void createPointedDripstone() {
-        this.createSimpleFlatItemModel(Blocks.POINTED_DRIPSTONE.asItem());
-        PropertyDispatch.C2<Direction, DripstoneThickness> var0 = PropertyDispatch.properties(
-            BlockStateProperties.VERTICAL_DIRECTION, BlockStateProperties.DRIPSTONE_THICKNESS
-        );
-
-        for(DripstoneThickness var1 : DripstoneThickness.values()) {
-            var0.select(Direction.UP, var1, this.createPointedDripstoneVariant(Direction.UP, var1));
-        }
-
-        for(DripstoneThickness var2 : DripstoneThickness.values()) {
-            var0.select(Direction.DOWN, var2, this.createPointedDripstoneVariant(Direction.DOWN, var2));
-        }
-
-        this.blockStateOutput.accept(MultiVariantGenerator.multiVariant(Blocks.POINTED_DRIPSTONE).with(var0));
-    }
-
-    private Variant createPointedDripstoneVariant(Direction param0, DripstoneThickness param1) {
-        String var0 = "_" + param0.getSerializedName() + "_" + param1.getSerializedName();
-        TextureMapping var1 = TextureMapping.cross(TextureMapping.getBlockTexture(Blocks.POINTED_DRIPSTONE, var0));
-        return Variant.variant()
-            .with(VariantProperties.MODEL, ModelTemplates.POINTED_DRIPSTONE.createWithSuffix(Blocks.POINTED_DRIPSTONE, var0, var1, this.modelOutput));
-    }
-
     private void createNyliumBlock(Block param0) {
         TextureMapping var0 = new TextureMapping()
             .put(TextureSlot.BOTTOM, TextureMapping.getBlockTexture(Blocks.NETHERRACK))
@@ -2618,8 +2476,8 @@ public class BlockModelGenerators {
             );
     }
 
-    private void createDirtPath() {
-        this.blockStateOutput.accept(createRotatedVariant(Blocks.DIRT_PATH, ModelLocationUtils.getModelLocation(Blocks.DIRT_PATH)));
+    private void createGrassPath() {
+        this.blockStateOutput.accept(createRotatedVariant(Blocks.GRASS_PATH, ModelLocationUtils.getModelLocation(Blocks.GRASS_PATH)));
     }
 
     private void createWeightedPressurePlate(Block param0, Block param1) {
@@ -2959,20 +2817,6 @@ public class BlockModelGenerators {
                             )
                     )
                     .with(createFacingDispatch())
-            );
-    }
-
-    private void createSculkSensor() {
-        ResourceLocation var0 = ModelLocationUtils.getModelLocation(Blocks.SCULK_SENSOR, "_inactive");
-        ResourceLocation var1 = ModelLocationUtils.getModelLocation(Blocks.SCULK_SENSOR, "_active");
-        this.delegateItemModel(Blocks.SCULK_SENSOR, var0);
-        this.blockStateOutput
-            .accept(
-                MultiVariantGenerator.multiVariant(Blocks.SCULK_SENSOR)
-                    .with(
-                        PropertyDispatch.property(BlockStateProperties.SCULK_SENSOR_PHASE)
-                            .generate(param2 -> Variant.variant().with(VariantProperties.MODEL, param2 == SculkSensorPhase.ACTIVE ? var1 : var0))
-                    )
             );
     }
 
@@ -3963,26 +3807,8 @@ public class BlockModelGenerators {
         this.createNonTemplateModelBlock(Blocks.LAVA);
         this.createNonTemplateModelBlock(Blocks.SLIME_BLOCK);
         this.createSimpleFlatItemModel(Items.CHAIN);
-        this.createCandleAndCandleCake(Blocks.WHITE_CANDLE, Blocks.WHITE_CANDLE_CAKE);
-        this.createCandleAndCandleCake(Blocks.ORANGE_CANDLE, Blocks.ORANGE_CANDLE_CAKE);
-        this.createCandleAndCandleCake(Blocks.MAGENTA_CANDLE, Blocks.MAGENTA_CANDLE_CAKE);
-        this.createCandleAndCandleCake(Blocks.LIGHT_BLUE_CANDLE, Blocks.LIGHT_BLUE_CANDLE_CAKE);
-        this.createCandleAndCandleCake(Blocks.YELLOW_CANDLE, Blocks.YELLOW_CANDLE_CAKE);
-        this.createCandleAndCandleCake(Blocks.LIME_CANDLE, Blocks.LIME_CANDLE_CAKE);
-        this.createCandleAndCandleCake(Blocks.PINK_CANDLE, Blocks.PINK_CANDLE_CAKE);
-        this.createCandleAndCandleCake(Blocks.GRAY_CANDLE, Blocks.GRAY_CANDLE_CAKE);
-        this.createCandleAndCandleCake(Blocks.LIGHT_GRAY_CANDLE, Blocks.LIGHT_GRAY_CANDLE_CAKE);
-        this.createCandleAndCandleCake(Blocks.CYAN_CANDLE, Blocks.CYAN_CANDLE_CAKE);
-        this.createCandleAndCandleCake(Blocks.PURPLE_CANDLE, Blocks.PURPLE_CANDLE_CAKE);
-        this.createCandleAndCandleCake(Blocks.BLUE_CANDLE, Blocks.BLUE_CANDLE_CAKE);
-        this.createCandleAndCandleCake(Blocks.BROWN_CANDLE, Blocks.BROWN_CANDLE_CAKE);
-        this.createCandleAndCandleCake(Blocks.GREEN_CANDLE, Blocks.GREEN_CANDLE_CAKE);
-        this.createCandleAndCandleCake(Blocks.RED_CANDLE, Blocks.RED_CANDLE_CAKE);
-        this.createCandleAndCandleCake(Blocks.BLACK_CANDLE, Blocks.BLACK_CANDLE_CAKE);
-        this.createCandleAndCandleCake(Blocks.CANDLE, Blocks.CANDLE_CAKE);
         this.createNonTemplateModelBlock(Blocks.POTTED_BAMBOO);
         this.createNonTemplateModelBlock(Blocks.POTTED_CACTUS);
-        this.createNonTemplateModelBlock(Blocks.POWDER_SNOW);
         this.createAirLikeBlock(Blocks.BARRIER, Items.BARRIER);
         this.createSimpleFlatItemModel(Items.BARRIER);
         this.createAirLikeBlock(Blocks.STRUCTURE_VOID, Items.STRUCTURE_VOID);
@@ -4048,55 +3874,27 @@ public class BlockModelGenerators {
         this.createChiseledSandsone(Blocks.CHISELED_SANDSTONE, Blocks.SANDSTONE);
         this.createChiseledSandsone(Blocks.CHISELED_RED_SANDSTONE, Blocks.RED_SANDSTONE);
         this.createTrivialBlock(Blocks.CHISELED_POLISHED_BLACKSTONE, TexturedModel.CUBE);
-        this.createTrivialBlock(Blocks.AMETHYST_BLOCK, TexturedModel.CUBE);
-        this.createTrivialBlock(Blocks.BUDDING_AMETHYST, TexturedModel.CUBE);
-        this.createTrivialBlock(Blocks.CALCITE, TexturedModel.CUBE);
-        this.createTrivialBlock(Blocks.TUFF, TexturedModel.CUBE);
-        this.createTrivialBlock(Blocks.DRIPSTONE_BLOCK, TexturedModel.CUBE);
-        this.createTrivialCube(Blocks.COPPER_ORE);
-        this.createTrivialCube(Blocks.COPPER_BLOCK);
-        this.createTrivialCube(Blocks.LIGHTLY_WEATHERED_COPPER_BLOCK);
-        this.createTrivialCube(Blocks.SEMI_WEATHERED_COPPER_BLOCK);
-        this.createTrivialCube(Blocks.WEATHERED_COPPER_BLOCK);
-        this.copyModel(Blocks.COPPER_BLOCK, Blocks.WAXED_COPPER);
-        this.copyModel(Blocks.LIGHTLY_WEATHERED_COPPER_BLOCK, Blocks.WAXED_LIGHTLY_WEATHERED_COPPER);
-        this.copyModel(Blocks.SEMI_WEATHERED_COPPER_BLOCK, Blocks.WAXED_SEMI_WEATHERED_COPPER);
-        this.family(Blocks.CUT_COPPER)
-            .fullBlockCopies(Blocks.WAXED_CUT_COPPER)
-            .slab(Blocks.CUT_COPPER_SLAB, Blocks.WAXED_CUT_COPPER_SLAB)
-            .stairs(Blocks.CUT_COPPER_STAIRS, Blocks.WAXED_CUT_COPPER_STAIRS);
-        this.family(Blocks.LIGHTLY_WEATHERED_CUT_COPPER)
-            .fullBlockCopies(Blocks.WAXED_LIGHTLY_WEATHERED_CUT_COPPER)
-            .slab(Blocks.LIGHTLY_WEATHERED_CUT_COPPER_SLAB, Blocks.WAXED_LIGHTLY_WEATHERED_CUT_COPPER_SLAB)
-            .stairs(Blocks.LIGHTLY_WEATHERED_CUT_COPPER_STAIRS, Blocks.WAXED_LIGHTLY_WEATHERED_CUT_COPPER_STAIRS);
-        this.family(Blocks.SEMI_WEATHERED_CUT_COPPER)
-            .fullBlockCopies(Blocks.WAXED_SEMI_WEATHERED_CUT_COPPER)
-            .slab(Blocks.SEMI_WEATHERED_CUT_COPPER_SLAB, Blocks.WAXED_SEMI_WEATHERED_CUT_COPPER_SLAB)
-            .stairs(Blocks.SEMI_WEATHERED_CUT_COPPER_STAIRS, Blocks.WAXED_SEMI_WEATHERED_CUT_COPPER_STAIRS);
-        this.family(Blocks.WEATHERED_CUT_COPPER).slab(Blocks.WEATHERED_CUT_COPPER_SLAB).stairs(Blocks.WEATHERED_CUT_COPPER_STAIRS);
         this.createWeightedPressurePlate(Blocks.LIGHT_WEIGHTED_PRESSURE_PLATE, Blocks.GOLD_BLOCK);
         this.createWeightedPressurePlate(Blocks.HEAVY_WEIGHTED_PRESSURE_PLATE, Blocks.IRON_BLOCK);
-        this.createAmethystClusters();
         this.createBookshelf();
         this.createBrewingStand();
         this.createCakeBlock();
         this.createCampfires(Blocks.CAMPFIRE, Blocks.SOUL_CAMPFIRE);
         this.createCartographyTable();
-        this.createCauldrons();
+        this.createCauldron();
         this.createChorusFlower();
         this.createChorusPlant();
         this.createComposter();
         this.createDaylightDetector();
         this.createEndPortalFrame();
         this.createRotatableColumn(Blocks.END_ROD);
-        this.createRotatableColumn(Blocks.LIGHTNING_ROD);
         this.createFarmland();
         this.createFire();
         this.createSoulFire();
         this.createFrostedIce();
         this.createGrassBlocks();
         this.createCocoa();
-        this.createDirtPath();
+        this.createGrassPath();
         this.createGrindstone();
         this.createHopper();
         this.createIronBars();
@@ -4123,7 +3921,6 @@ public class BlockModelGenerators {
         this.createVine();
         this.createMagmaBlock();
         this.createJigsaw();
-        this.createSculkSensor();
         this.createNonTemplateHorizontalBlock(Blocks.LADDER);
         this.createSimpleFlatItemModel(Blocks.LADDER);
         this.createNonTemplateHorizontalBlock(Blocks.LECTERN);
@@ -4323,7 +4120,6 @@ public class BlockModelGenerators {
         this.createTrivialCube(Blocks.GREEN_TERRACOTTA);
         this.createTrivialCube(Blocks.RED_TERRACOTTA);
         this.createTrivialCube(Blocks.BLACK_TERRACOTTA);
-        this.createTrivialCube(Blocks.TINTED_GLASS);
         this.createGlassBlocks(Blocks.GLASS, Blocks.GLASS_PANE);
         this.createGlassBlocks(Blocks.WHITE_STAINED_GLASS, Blocks.WHITE_STAINED_GLASS_PANE);
         this.createGlassBlocks(Blocks.ORANGE_STAINED_GLASS, Blocks.ORANGE_STAINED_GLASS_PANE);
@@ -4393,7 +4189,6 @@ public class BlockModelGenerators {
         this.createPlant(Blocks.RED_MUSHROOM, Blocks.POTTED_RED_MUSHROOM, BlockModelGenerators.TintState.NOT_TINTED);
         this.createPlant(Blocks.BROWN_MUSHROOM, Blocks.POTTED_BROWN_MUSHROOM, BlockModelGenerators.TintState.NOT_TINTED);
         this.createPlant(Blocks.DEAD_BUSH, Blocks.POTTED_DEAD_BUSH, BlockModelGenerators.TintState.NOT_TINTED);
-        this.createPointedDripstone();
         this.createMushroomBlock(Blocks.BROWN_MUSHROOM_BLOCK);
         this.createMushroomBlock(Blocks.RED_MUSHROOM_BLOCK);
         this.createMushroomBlock(Blocks.MUSHROOM_STEM);
@@ -4692,44 +4487,6 @@ public class BlockModelGenerators {
         SpawnEggItem.eggs().forEach(param0 -> this.delegateItemModel(param0, ModelLocationUtils.decorateItemModelLocation("template_spawn_egg")));
     }
 
-    private void createCandleAndCandleCake(Block param0, Block param1) {
-        this.createSimpleFlatItemModel(param0.asItem());
-        TextureMapping var0 = TextureMapping.cube(TextureMapping.getBlockTexture(param0));
-        this.blockStateOutput
-            .accept(
-                MultiVariantGenerator.multiVariant(param0)
-                    .with(
-                        PropertyDispatch.property(BlockStateProperties.CANDLES)
-                            .select(
-                                1,
-                                Variant.variant()
-                                    .with(VariantProperties.MODEL, ModelTemplates.CANDLE.createWithSuffix(param0, "_one_candle", var0, this.modelOutput))
-                            )
-                            .select(
-                                2,
-                                Variant.variant()
-                                    .with(VariantProperties.MODEL, ModelTemplates.TWO_CANDLES.createWithSuffix(param0, "_two_candles", var0, this.modelOutput))
-                            )
-                            .select(
-                                3,
-                                Variant.variant()
-                                    .with(
-                                        VariantProperties.MODEL,
-                                        ModelTemplates.THREE_CANDLES.createWithSuffix(param0, "_three_candles", var0, this.modelOutput)
-                                    )
-                            )
-                            .select(
-                                4,
-                                Variant.variant()
-                                    .with(
-                                        VariantProperties.MODEL, ModelTemplates.FOUR_CANDLES.createWithSuffix(param0, "_four_candles", var0, this.modelOutput)
-                                    )
-                            )
-                    )
-            );
-        this.blockStateOutput.accept(createSimpleBlock(param1, ModelTemplates.CANDLE_CAKE.create(param1, TextureMapping.candleCake(param0), this.modelOutput)));
-    }
-
     class BlockEntityModelGenerator {
         private final ResourceLocation baseModel;
 
@@ -4780,19 +4537,6 @@ public class BlockModelGenerators {
         public BlockModelGenerators.BlockFamilyProvider fullBlock(Function<TextureMapping, ResourceLocation> param0) {
             this.fullBlock = param0.apply(this.mapping);
             return this;
-        }
-
-        public BlockModelGenerators.BlockFamilyProvider fullBlockCopies(Block... param0) {
-            if (this.fullBlock == null) {
-                throw new IllegalStateException("Full block not generated yet");
-            } else {
-                for(Block var0 : param0) {
-                    BlockModelGenerators.this.blockStateOutput.accept(BlockModelGenerators.createSimpleBlock(var0, this.fullBlock));
-                    BlockModelGenerators.this.delegateItemModel(var0, this.fullBlock);
-                }
-
-                return this;
-            }
         }
 
         public BlockModelGenerators.BlockFamilyProvider button(Block param0) {
@@ -4848,34 +4592,22 @@ public class BlockModelGenerators {
             return this;
         }
 
-        public BlockModelGenerators.BlockFamilyProvider slab(Block param0, Block... param1) {
+        public BlockModelGenerators.BlockFamilyProvider slab(Block param0) {
             if (this.fullBlock == null) {
                 throw new IllegalStateException("Full block not generated yet");
             } else {
                 ResourceLocation var0 = ModelTemplates.SLAB_BOTTOM.create(param0, this.mapping, BlockModelGenerators.this.modelOutput);
                 ResourceLocation var1 = ModelTemplates.SLAB_TOP.create(param0, this.mapping, BlockModelGenerators.this.modelOutput);
                 BlockModelGenerators.this.blockStateOutput.accept(BlockModelGenerators.createSlab(param0, var0, var1, this.fullBlock));
-
-                for(Block var2 : param1) {
-                    BlockModelGenerators.this.blockStateOutput.accept(BlockModelGenerators.createSlab(var2, var0, var1, this.fullBlock));
-                    BlockModelGenerators.this.delegateItemModel(var2, var0);
-                }
-
                 return this;
             }
         }
 
-        public BlockModelGenerators.BlockFamilyProvider stairs(Block param0, Block... param1) {
+        public BlockModelGenerators.BlockFamilyProvider stairs(Block param0) {
             ResourceLocation var0 = ModelTemplates.STAIRS_INNER.create(param0, this.mapping, BlockModelGenerators.this.modelOutput);
             ResourceLocation var1 = ModelTemplates.STAIRS_STRAIGHT.create(param0, this.mapping, BlockModelGenerators.this.modelOutput);
             ResourceLocation var2 = ModelTemplates.STAIRS_OUTER.create(param0, this.mapping, BlockModelGenerators.this.modelOutput);
             BlockModelGenerators.this.blockStateOutput.accept(BlockModelGenerators.createStairs(param0, var0, var1, var2));
-
-            for(Block var3 : param1) {
-                BlockModelGenerators.this.blockStateOutput.accept(BlockModelGenerators.createStairs(var3, var0, var1, var2));
-                BlockModelGenerators.this.delegateItemModel(var3, var1);
-            }
-
             return this;
         }
     }

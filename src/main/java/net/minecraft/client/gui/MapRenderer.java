@@ -1,11 +1,11 @@
 package net.minecraft.client.gui;
 
+import com.google.common.collect.Maps;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import java.util.Map;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -26,28 +26,33 @@ public class MapRenderer implements AutoCloseable {
     private static final ResourceLocation MAP_ICONS_LOCATION = new ResourceLocation("textures/map/map_icons.png");
     private static final RenderType MAP_ICONS = RenderType.text(MAP_ICONS_LOCATION);
     private final TextureManager textureManager;
-    private final Int2ObjectMap<MapRenderer.MapInstance> maps = new Int2ObjectOpenHashMap<>();
+    private final Map<String, MapRenderer.MapInstance> maps = Maps.newHashMap();
 
     public MapRenderer(TextureManager param0) {
         this.textureManager = param0;
     }
 
-    public void update(int param0, MapItemSavedData param1) {
-        this.getOrCreateMapInstance(param0, param1).updateTexture();
+    public void update(MapItemSavedData param0) {
+        this.getMapInstance(param0).updateTexture();
     }
 
-    public void render(PoseStack param0, MultiBufferSource param1, int param2, MapItemSavedData param3, boolean param4, int param5) {
-        this.getOrCreateMapInstance(param2, param3).draw(param0, param1, param4, param5);
+    public void render(PoseStack param0, MultiBufferSource param1, MapItemSavedData param2, boolean param3, int param4) {
+        this.getMapInstance(param2).draw(param0, param1, param3, param4);
     }
 
-    private MapRenderer.MapInstance getOrCreateMapInstance(int param0, MapItemSavedData param1) {
-        return this.maps.computeIfAbsent(param0, param1x -> new MapRenderer.MapInstance(param1x, param1));
+    private MapRenderer.MapInstance getMapInstance(MapItemSavedData param0) {
+        MapRenderer.MapInstance var0 = this.maps.get(param0.getId());
+        if (var0 == null) {
+            var0 = new MapRenderer.MapInstance(param0);
+            this.maps.put(param0.getId(), var0);
+        }
+
+        return var0;
     }
 
     @Nullable
-    public MapItemSavedData retrieveMapFromRenderer(int param0) {
-        MapRenderer.MapInstance var0 = this.maps.get(param0);
-        return var0 != null ? var0.data : null;
+    public MapRenderer.MapInstance getMapInstanceIfExists(String param0) {
+        return this.maps.get(param0);
     }
 
     public void resetData() {
@@ -56,6 +61,11 @@ public class MapRenderer implements AutoCloseable {
         }
 
         this.maps.clear();
+    }
+
+    @Nullable
+    public MapItemSavedData getData(@Nullable MapRenderer.MapInstance param0) {
+        return param0 != null ? param0.data : null;
     }
 
     @Override
@@ -69,11 +79,11 @@ public class MapRenderer implements AutoCloseable {
         private final DynamicTexture texture;
         private final RenderType renderType;
 
-        private MapInstance(int param0, MapItemSavedData param1) {
-            this.data = param1;
+        private MapInstance(MapItemSavedData param0) {
+            this.data = param0;
             this.texture = new DynamicTexture(128, 128, true);
-            ResourceLocation param2 = MapRenderer.this.textureManager.register("map/" + param0, this.texture);
-            this.renderType = RenderType.text(param2);
+            ResourceLocation param1 = MapRenderer.this.textureManager.register("map/" + param0.getId(), this.texture);
+            this.renderType = RenderType.text(param1);
         }
 
         private void updateTexture() {
@@ -104,7 +114,7 @@ public class MapRenderer implements AutoCloseable {
             var4.vertex(var3, 0.0F, 0.0F, -0.01F).color(255, 255, 255, 255).uv(0.0F, 0.0F).uv2(param3).endVertex();
             int var5 = 0;
 
-            for(MapDecoration var6 : this.data.getDecorations()) {
+            for(MapDecoration var6 : this.data.decorations.values()) {
                 if (!param2 || var6.renderOnFrame()) {
                     param0.pushPose();
                     param0.translate((double)(0.0F + (float)var6.getX() / 2.0F + 64.0F), (double)(0.0F + (float)var6.getY() / 2.0F + 64.0F), -0.02F);

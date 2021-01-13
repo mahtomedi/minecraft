@@ -31,8 +31,6 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityTicker;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.ShulkerBoxBlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
@@ -61,14 +59,8 @@ public class ShulkerBoxBlock extends BaseEntityBlock {
     }
 
     @Override
-    public BlockEntity newBlockEntity(BlockPos param0, BlockState param1) {
-        return new ShulkerBoxBlockEntity(this.color, param0, param1);
-    }
-
-    @Nullable
-    @Override
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level param0, BlockState param1, BlockEntityType<T> param2) {
-        return createTickerHelper(param2, BlockEntityType.SHULKER_BOX, ShulkerBoxBlockEntity::tick);
+    public BlockEntity newBlockEntity(BlockGetter param0) {
+        return new ShulkerBoxBlockEntity(this.color);
     }
 
     @Override
@@ -260,6 +252,7 @@ public class ShulkerBoxBlock extends BaseEntityBlock {
     }
 
     @Nullable
+    @OnlyIn(Dist.CLIENT)
     public static DyeColor getColorFromBlock(Block param0) {
         return param0 instanceof ShulkerBoxBlock ? ((ShulkerBoxBlock)param0).getColor() : null;
     }

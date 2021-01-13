@@ -7,7 +7,6 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.realmsclient.Unit;
 import com.mojang.realmsclient.client.FileUpload;
 import com.mojang.realmsclient.client.RealmsClient;
@@ -173,7 +172,7 @@ public class RealmsUploadScreen extends RealmsScreen {
         double var2 = 0.5;
         Tesselator var3 = Tesselator.getInstance();
         BufferBuilder var4 = var3.getBuilder();
-        var4.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+        var4.begin(7, DefaultVertexFormat.POSITION_COLOR);
         var4.vertex(var1 - 0.5, 95.5, 0.0).color(217, 210, 210, 255).endVertex();
         var4.vertex(var1 + 200.0 * var0 + 0.5, 95.5, 0.0).color(217, 210, 210, 255).endVertex();
         var4.vertex(var1 + 200.0 * var0 + 0.5, 79.5, 0.0).color(217, 210, 210, 255).endVertex();
@@ -377,7 +376,7 @@ public class RealmsUploadScreen extends RealmsScreen {
                             this.backButton.visible = true;
                             this.cancelButton.visible = false;
                             if (var0 != null) {
-                                LOGGER.debug("Deleting file {}", var0.getAbsolutePath());
+                                LOGGER.debug("Deleting file " + var0.getAbsolutePath());
                                 var0.delete();
                             }
         

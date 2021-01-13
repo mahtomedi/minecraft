@@ -15,7 +15,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -117,7 +116,7 @@ public class FenceGateBlock extends HorizontalDirectionalBlock {
     }
 
     private boolean isWall(BlockState param0) {
-        return param0.is(BlockTags.WALLS);
+        return param0.getBlock().is(BlockTags.WALLS);
     }
 
     @Override
@@ -135,9 +134,7 @@ public class FenceGateBlock extends HorizontalDirectionalBlock {
             param1.setBlock(param2, param0, 10);
         }
 
-        boolean var1 = param0.getValue(OPEN);
-        param1.levelEvent(param3, var1 ? 1008 : 1014, param2, 0);
-        param1.gameEvent(param3, var1 ? GameEvent.BLOCK_OPEN : GameEvent.BLOCK_CLOSE, param2);
+        param1.levelEvent(param3, param0.getValue(OPEN) ? 1008 : 1014, param2, 0);
         return InteractionResult.sidedSuccess(param1.isClientSide);
     }
 
@@ -149,7 +146,6 @@ public class FenceGateBlock extends HorizontalDirectionalBlock {
                 param1.setBlock(param2, param0.setValue(POWERED, Boolean.valueOf(var0)).setValue(OPEN, Boolean.valueOf(var0)), 2);
                 if (param0.getValue(OPEN) != var0) {
                     param1.levelEvent(null, var0 ? 1008 : 1014, param2, 0);
-                    param1.gameEvent(var0 ? GameEvent.BLOCK_OPEN : GameEvent.BLOCK_CLOSE, param2);
                 }
             }
 

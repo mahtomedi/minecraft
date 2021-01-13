@@ -6,6 +6,7 @@ import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.Potion;
@@ -129,7 +130,7 @@ public class BrewingStandMenu extends AbstractContainerMenu {
         }
 
         public static boolean mayPlaceItem(ItemStack param0) {
-            return param0.is(Items.BLAZE_POWDER);
+            return param0.getItem() == Items.BLAZE_POWDER;
         }
 
         @Override
@@ -181,7 +182,8 @@ public class BrewingStandMenu extends AbstractContainerMenu {
         }
 
         public static boolean mayPlaceItem(ItemStack param0) {
-            return param0.is(Items.POTION) || param0.is(Items.SPLASH_POTION) || param0.is(Items.LINGERING_POTION) || param0.is(Items.GLASS_BOTTLE);
+            Item var0 = param0.getItem();
+            return var0 == Items.POTION || var0 == Items.SPLASH_POTION || var0 == Items.LINGERING_POTION || var0 == Items.GLASS_BOTTLE;
         }
     }
 }

@@ -30,6 +30,8 @@ import net.minecraft.Util;
 import net.minecraft.resources.RegistryDataPackCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -195,6 +197,7 @@ public class MappedRegistry<T> extends WritableRegistry<T> {
         return Util.getRandom((T[])this.randomCache, param0);
     }
 
+    @OnlyIn(Dist.CLIENT)
     @Override
     public boolean containsKey(ResourceLocation param0) {
         return this.storage.containsKey(param0);

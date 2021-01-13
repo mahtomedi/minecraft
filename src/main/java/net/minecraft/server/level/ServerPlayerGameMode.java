@@ -1,7 +1,6 @@
 package net.minecraft.server.level;
 
 import java.util.Objects;
-import javax.annotation.Nullable;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -17,7 +16,9 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.GameMasterBlock;
+import net.minecraft.world.level.block.CommandBlock;
+import net.minecraft.world.level.block.JigsawBlock;
+import net.minecraft.world.level.block.StructureBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
@@ -26,11 +27,10 @@ import org.apache.logging.log4j.Logger;
 
 public class ServerPlayerGameMode {
     private static final Logger LOGGER = LogManager.getLogger();
-    protected ServerLevel level;
-    protected final ServerPlayer player;
-    private GameType gameModeForPlayer = GameType.DEFAULT_MODE;
-    @Nullable
-    private GameType previousGameModeForPlayer;
+    public ServerLevel level;
+    public ServerPlayer player;
+    private GameType gameModeForPlayer = GameType.NOT_SET;
+    private GameType previousGameModeForPlayer = GameType.NOT_SET;
     private boolean isDestroyingBlock;
     private int destroyProgressStart;
     private BlockPos destroyPos = BlockPos.ZERO;
@@ -40,24 +40,18 @@ public class ServerPlayerGameMode {
     private int delayedTickStart;
     private int lastSentState = -1;
 
-    public ServerPlayerGameMode(ServerPlayer param0) {
-        this.player = param0;
-        this.level = param0.getLevel();
+    public ServerPlayerGameMode(ServerLevel param0) {
+        this.level = param0;
     }
 
-    public boolean changeGameModeForPlayer(GameType param0) {
-        if (param0 == this.gameModeForPlayer) {
-            return false;
-        } else {
-            this.setGameModeForPlayer(param0, this.gameModeForPlayer);
-            return true;
-        }
+    public void setGameModeForPlayer(GameType param0) {
+        this.setGameModeForPlayer(param0, param0 != this.gameModeForPlayer ? this.gameModeForPlayer : this.previousGameModeForPlayer);
     }
 
-    protected void setGameModeForPlayer(GameType param0, @Nullable GameType param1) {
+    public void setGameModeForPlayer(GameType param0, GameType param1) {
         this.previousGameModeForPlayer = param1;
         this.gameModeForPlayer = param0;
-        param0.updatePlayerAbilities(this.player.getAbilities());
+        param0.updatePlayerAbilities(this.player.abilities);
         this.player.onUpdateAbilities();
         this.player.server.getPlayerList().broadcastAll(new ClientboundPlayerInfoPacket(ClientboundPlayerInfoPacket.Action.UPDATE_GAME_MODE, this.player));
         this.level.updateSleepingPlayerList();
@@ -67,7 +61,6 @@ public class ServerPlayerGameMode {
         return this.gameModeForPlayer;
     }
 
-    @Nullable
     public GameType getPreviousGameModeForPlayer() {
         return this.previousGameModeForPlayer;
     }
@@ -78,6 +71,14 @@ public class ServerPlayerGameMode {
 
     public boolean isCreative() {
         return this.gameModeForPlayer.isCreative();
+    }
+
+    public void updateGameMode(GameType param0) {
+        if (this.gameModeForPlayer == GameType.NOT_SET) {
+            this.gameModeForPlayer = param0;
+        }
+
+        this.setGameModeForPlayer(this.gameModeForPlayer);
     }
 
     public void tick() {
@@ -208,7 +209,7 @@ public class ServerPlayerGameMode {
             } else if (param1 == ServerboundPlayerActionPacket.Action.ABORT_DESTROY_BLOCK) {
                 this.isDestroyingBlock = false;
                 if (!Objects.equals(this.destroyPos, param0)) {
-                    LOGGER.warn("Mismatch in destroy block pos: {} {}", this.destroyPos, param0);
+                    LOGGER.warn("Mismatch in destroy block pos: " + this.destroyPos + " " + param0);
                     this.level.destroyBlockProgress(this.player.getId(), this.destroyPos, -1);
                     this.player
                         .connection
@@ -242,7 +243,7 @@ public class ServerPlayerGameMode {
         } else {
             BlockEntity var1 = this.level.getBlockEntity(param0);
             Block var2 = var0.getBlock();
-            if (var2 instanceof GameMasterBlock && !this.player.canUseGameMasterBlocks()) {
+            if ((var2 instanceof CommandBlock || var2 instanceof StructureBlock || var2 instanceof JigsawBlock) && !this.player.canUseGameMasterBlocks()) {
                 this.level.sendBlockUpdated(param0, var0, var0, 3);
                 return false;
             } else if (this.player.blockActionRestricted(this.level, param0, this.gameModeForPlayer)) {

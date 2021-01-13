@@ -1,6 +1,7 @@
 package net.minecraft.world.level.storage.loot.functions;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
@@ -12,23 +13,29 @@ import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Supplier;
+import net.minecraft.advancements.critereon.NbtPredicate;
 import net.minecraft.commands.arguments.NbtPathArgument;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.util.GsonHelper;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
-import net.minecraft.world.level.storage.loot.providers.nbt.NbtProvider;
 
 public class CopyNbtFunction extends LootItemConditionalFunction {
-    private final NbtProvider source;
+    private final CopyNbtFunction.DataSource source;
     private final List<CopyNbtFunction.CopyOperation> operations;
+    private static final Function<Entity, Tag> ENTITY_GETTER = NbtPredicate::getEntityTagToCompare;
+    private static final Function<BlockEntity, Tag> BLOCK_ENTITY_GETTER = param0 -> param0.save(new CompoundTag());
 
-    private CopyNbtFunction(LootItemCondition[] param0, NbtProvider param1, List<CopyNbtFunction.CopyOperation> param2) {
+    private CopyNbtFunction(LootItemCondition[] param0, CopyNbtFunction.DataSource param1, List<CopyNbtFunction.CopyOperation> param2) {
         super(param0);
         this.source = param1;
         this.operations = ImmutableList.copyOf(param2);
@@ -49,12 +56,12 @@ public class CopyNbtFunction extends LootItemConditionalFunction {
 
     @Override
     public Set<LootContextParam<?>> getReferencedContextParams() {
-        return this.source.getReferencedContextParams();
+        return ImmutableSet.of(this.source.param);
     }
 
     @Override
     public ItemStack run(ItemStack param0, LootContext param1) {
-        Tag var0 = this.source.get(param1);
+        Tag var0 = this.source.getter.apply(param1);
         if (var0 != null) {
             this.operations.forEach(param2 -> param2.apply(param0::getOrCreateTag, var0));
         }
@@ -62,15 +69,15 @@ public class CopyNbtFunction extends LootItemConditionalFunction {
         return param0;
     }
 
-    public static CopyNbtFunction.Builder copyData(NbtProvider param0) {
+    public static CopyNbtFunction.Builder copyData(CopyNbtFunction.DataSource param0) {
         return new CopyNbtFunction.Builder(param0);
     }
 
     public static class Builder extends LootItemConditionalFunction.Builder<CopyNbtFunction.Builder> {
-        private final NbtProvider source;
+        private final CopyNbtFunction.DataSource source;
         private final List<CopyNbtFunction.CopyOperation> ops = Lists.newArrayList();
 
-        private Builder(NbtProvider param0) {
+        private Builder(CopyNbtFunction.DataSource param0) {
             this.source = param0;
         }
 
@@ -135,6 +142,36 @@ public class CopyNbtFunction extends LootItemConditionalFunction {
         }
     }
 
+    public static enum DataSource {
+        THIS("this", LootContextParams.THIS_ENTITY, CopyNbtFunction.ENTITY_GETTER),
+        KILLER("killer", LootContextParams.KILLER_ENTITY, CopyNbtFunction.ENTITY_GETTER),
+        KILLER_PLAYER("killer_player", LootContextParams.LAST_DAMAGE_PLAYER, CopyNbtFunction.ENTITY_GETTER),
+        BLOCK_ENTITY("block_entity", LootContextParams.BLOCK_ENTITY, CopyNbtFunction.BLOCK_ENTITY_GETTER);
+
+        public final String name;
+        public final LootContextParam<?> param;
+        public final Function<LootContext, Tag> getter;
+
+        private <T> DataSource(String param0, LootContextParam<T> param1, Function<? super T, Tag> param2) {
+            this.name = param0;
+            this.param = param1;
+            this.getter = param2x -> {
+                T var0 = param2x.getParamOrNull(param1);
+                return var0 != null ? param2.apply(var0) : null;
+            };
+        }
+
+        public static CopyNbtFunction.DataSource getByName(String param0) {
+            for(CopyNbtFunction.DataSource var0 : values()) {
+                if (var0.name.equals(param0)) {
+                    return var0;
+                }
+            }
+
+            throw new IllegalArgumentException("Invalid tag source " + param0);
+        }
+    }
+
     public static enum MergeStrategy {
         REPLACE("replace") {
             @Override
@@ -194,14 +231,14 @@ public class CopyNbtFunction extends LootItemConditionalFunction {
     public static class Serializer extends LootItemConditionalFunction.Serializer<CopyNbtFunction> {
         public void serialize(JsonObject param0, CopyNbtFunction param1, JsonSerializationContext param2) {
             super.serialize(param0, param1, param2);
-            param0.add("source", param2.serialize(param1.source));
+            param0.addProperty("source", param1.source.name);
             JsonArray var0 = new JsonArray();
             param1.operations.stream().map(CopyNbtFunction.CopyOperation::toJson).forEach(var0::add);
             param0.add("ops", var0);
         }
 
         public CopyNbtFunction deserialize(JsonObject param0, JsonDeserializationContext param1, LootItemCondition[] param2) {
-            NbtProvider var0 = GsonHelper.getAsObject(param0, "source", param1, NbtProvider.class);
+            CopyNbtFunction.DataSource var0 = CopyNbtFunction.DataSource.getByName(GsonHelper.getAsString(param0, "source"));
             List<CopyNbtFunction.CopyOperation> var1 = Lists.newArrayList();
 
             for(JsonElement var3 : GsonHelper.getAsJsonArray(param0, "ops")) {

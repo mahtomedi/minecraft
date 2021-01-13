@@ -12,7 +12,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.StructureBlockEntity;
-import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 public class GameTestInfo {
     private final TestFunction testFunction;
@@ -22,17 +21,15 @@ public class GameTestInfo {
     private final Collection<GameTestListener> listeners = Lists.newArrayList();
     private final int timeoutTicks;
     private final Collection<GameTestSequence> sequences = Lists.newCopyOnWriteArrayList();
-    private final Object2LongMap<Runnable> runAtTickTimeMap = new Object2LongOpenHashMap<>();
+    private Object2LongMap<Runnable> runAtTickTimeMap = new Object2LongOpenHashMap<>();
     private long startTick;
     private long tickCount;
-    private boolean started;
+    private boolean started = false;
     private final Stopwatch timer = Stopwatch.createUnstarted();
-    private boolean done;
+    private boolean done = false;
     private final Rotation rotation;
     @Nullable
     private Throwable error;
-    @Nullable
-    private StructureBlockEntity structureBlockEntity;
 
     public GameTestInfo(TestFunction param0, Rotation param1, ServerLevel param2) {
         this.testFunction = param0;
@@ -52,53 +49,41 @@ public class GameTestInfo {
 
     public void tick() {
         if (!this.isDone()) {
-            this.tickInternal();
-            if (this.isDone()) {
-                if (this.error != null) {
-                    this.listeners.forEach(param0 -> param0.testFailed(this));
-                } else {
-                    this.listeners.forEach(param0 -> param0.testPassed(this));
+            this.tickCount = this.level.getGameTime() - this.startTick;
+            if (this.tickCount >= 0L) {
+                if (this.tickCount == 0L) {
+                    this.startTest();
                 }
-            }
 
-        }
-    }
+                ObjectIterator<Entry<Runnable>> var0 = this.runAtTickTimeMap.object2LongEntrySet().iterator();
 
-    private void tickInternal() {
-        this.tickCount = this.level.getGameTime() - this.startTick;
-        if (this.tickCount >= 0L) {
-            if (this.tickCount == 0L) {
-                this.startTest();
-            }
+                while(var0.hasNext()) {
+                    Entry<Runnable> var1 = var0.next();
+                    if (var1.getLongValue() <= this.tickCount) {
+                        try {
+                            var1.getKey().run();
+                        } catch (Exception var4) {
+                            this.fail(var4);
+                        }
 
-            ObjectIterator<Entry<Runnable>> var0 = this.runAtTickTimeMap.object2LongEntrySet().iterator();
-
-            while(var0.hasNext()) {
-                Entry<Runnable> var1 = var0.next();
-                if (var1.getLongValue() <= this.tickCount) {
-                    try {
-                        var1.getKey().run();
-                    } catch (Exception var4) {
-                        this.fail(var4);
-                    }
-
-                    var0.remove();
-                }
-            }
-
-            if (this.tickCount > (long)this.timeoutTicks) {
-                if (this.sequences.isEmpty()) {
-                    this.fail(new GameTestTimeoutException("Didn't succeed or fail within " + this.testFunction.getMaxTicks() + " ticks"));
-                } else {
-                    this.sequences.forEach(param0 -> param0.tickAndFailIfNotComplete(this.tickCount));
-                    if (this.error == null) {
-                        this.fail(new GameTestTimeoutException("No sequences finished"));
+                        var0.remove();
                     }
                 }
-            } else {
-                this.sequences.forEach(param0 -> param0.tickAndContinue(this.tickCount));
-            }
 
+                if (this.tickCount > (long)this.timeoutTicks) {
+                    if (this.sequences.isEmpty()) {
+                        this.fail(new GameTestTimeoutException("Didn't succeed or fail within " + this.testFunction.getMaxTicks() + " ticks"));
+                    } else {
+                        this.sequences.forEach(param0 -> param0.tickAndFailIfNotComplete(this.tickCount));
+                        if (this.error == null) {
+                            this.fail(new GameTestTimeoutException("No sequences finished"));
+                        }
+                    }
+                } else {
+                    this.sequences.forEach(param0 -> param0.tickAndContinue(this.tickCount));
+                }
+
+            }
         }
     }
 
@@ -154,8 +139,9 @@ public class GameTestInfo {
     }
 
     public void fail(Throwable param0) {
-        this.error = param0;
         this.finish();
+        this.error = param0;
+        this.listeners.forEach(param0x -> param0x.testFailed(this));
     }
 
     @Nullable
@@ -173,20 +159,11 @@ public class GameTestInfo {
     }
 
     public void spawnStructure(BlockPos param0, int param1) {
-        this.structureBlockEntity = StructureUtils.spawnStructure(this.getStructureName(), param0, this.getRotation(), param1, this.level, false);
-        this.structureBlockPos = this.structureBlockEntity.getBlockPos();
-        this.structureBlockEntity.setStructureName(this.getTestName());
+        StructureBlockEntity var0 = StructureUtils.spawnStructure(this.getStructureName(), param0, this.getRotation(), param1, this.level, false);
+        this.setStructureBlockPos(var0.getBlockPos());
+        var0.setStructureName(this.getTestName());
         StructureUtils.addCommandBlockAndButtonToStartTest(this.structureBlockPos, new BlockPos(1, 0, -1), this.getRotation(), this.level);
         this.listeners.forEach(param0x -> param0x.testStructureLoaded(this));
-    }
-
-    public void clearStructure() {
-        if (this.structureBlockEntity == null) {
-            throw new IllegalStateException("Expected structure to be initialized, but it was null");
-        } else {
-            BoundingBox var0 = StructureUtils.getStructureBoundingBox(this.structureBlockEntity);
-            StructureUtils.clearSpaceForStructure(var0, this.structureBlockPos.getY(), this.level);
-        }
     }
 
     public boolean isRequired() {
@@ -207,17 +184,5 @@ public class GameTestInfo {
 
     public TestFunction getTestFunction() {
         return this.testFunction;
-    }
-
-    public boolean isFlaky() {
-        return this.testFunction.isFlaky();
-    }
-
-    public int maxAttempts() {
-        return this.testFunction.getMaxAttempts();
-    }
-
-    public int requiredSuccesses() {
-        return this.testFunction.getRequiredSuccesses();
     }
 }

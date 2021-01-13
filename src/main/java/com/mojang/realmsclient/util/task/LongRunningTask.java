@@ -15,12 +15,11 @@ public abstract class LongRunningTask implements ErrorCallback, Runnable {
     public static final Logger LOGGER = LogManager.getLogger();
     protected RealmsLongRunningMcoTaskScreen longRunningMcoTaskScreen;
 
-    protected static void pause(long param0) {
+    protected static void pause(int param0) {
         try {
-            Thread.sleep(param0 * 1000L);
-        } catch (InterruptedException var3) {
-            Thread.currentThread().interrupt();
-            LOGGER.error("", (Throwable)var3);
+            Thread.sleep((long)(param0 * 1000));
+        } catch (InterruptedException var2) {
+            LOGGER.error("", (Throwable)var2);
         }
 
     }

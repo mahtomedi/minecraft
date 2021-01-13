@@ -18,7 +18,6 @@ import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.Pose;
-import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -211,7 +210,7 @@ public class ItemFrame extends HangingEntity {
             } else {
                 if (param0 instanceof Player) {
                     Player var1 = (Player)param0;
-                    if (var1.getAbilities().instabuild) {
+                    if (var1.abilities.instabuild) {
                         this.removeFramedMap(var0);
                         return;
                     }
@@ -234,12 +233,10 @@ public class ItemFrame extends HangingEntity {
     }
 
     private void removeFramedMap(ItemStack param0) {
-        if (param0.is(Items.FILLED_MAP)) {
-            MapItemSavedData var0 = MapItem.getSavedData(param0, this.level);
-            if (var0 != null) {
-                var0.removedFromFrame(this.pos, this.getId());
-                var0.setDirty(true);
-            }
+        if (param0.getItem() == Items.FILLED_MAP) {
+            MapItemSavedData var0 = MapItem.getOrCreateSavedData(param0, this.level);
+            var0.removedFromFrame(this.pos, this.getId());
+            var0.setDirty(true);
         }
 
         param0.setEntityRepresentation(null);
@@ -272,19 +269,13 @@ public class ItemFrame extends HangingEntity {
     }
 
     @Override
-    public SlotAccess getSlot(int param0) {
-        return param0 == 0 ? new SlotAccess() {
-            @Override
-            public ItemStack get() {
-                return ItemFrame.this.getItem();
-            }
-
-            @Override
-            public boolean set(ItemStack param0) {
-                ItemFrame.this.setItem(param0);
-                return true;
-            }
-        } : super.getSlot(param0);
+    public boolean setSlot(int param0, ItemStack param1) {
+        if (param0 == 0) {
+            this.setItem(param1);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @Override
@@ -364,9 +355,9 @@ public class ItemFrame extends HangingEntity {
             return InteractionResult.PASS;
         } else if (!this.level.isClientSide) {
             if (!var1) {
-                if (var2 && !this.isRemoved()) {
+                if (var2 && !this.removed) {
                     this.setItem(var0);
-                    if (!param0.getAbilities().instabuild) {
+                    if (!param0.abilities.instabuild) {
                         var0.shrink(1);
                     }
                 }
@@ -388,19 +379,5 @@ public class ItemFrame extends HangingEntity {
     @Override
     public Packet<?> getAddEntityPacket() {
         return new ClientboundAddEntityPacket(this, this.getType(), this.direction.get3DDataValue(), this.getPos());
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    @Override
-    public void recreateFromPacket(ClientboundAddEntityPacket param0) {
-        super.recreateFromPacket(param0);
-        this.setDirection(Direction.from3DDataValue(param0.getData()));
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    @Override
-    public ItemStack getPickResult() {
-        ItemStack var0 = this.getItem();
-        return var0.isEmpty() ? new ItemStack(Items.ITEM_FRAME) : var0.copy();
     }
 }

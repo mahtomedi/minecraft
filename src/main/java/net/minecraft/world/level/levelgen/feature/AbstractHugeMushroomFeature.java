@@ -7,6 +7,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.configurations.HugeMushroomFeatureConfiguration;
@@ -41,8 +42,8 @@ public abstract class AbstractHugeMushroomFeature extends Feature<HugeMushroomFe
         LevelAccessor param0, BlockPos param1, int param2, BlockPos.MutableBlockPos param3, HugeMushroomFeatureConfiguration param4
     ) {
         int var0 = param1.getY();
-        if (var0 >= param0.getMinBuildHeight() + 1 && var0 + param2 + 1 < param0.getMaxBuildHeight()) {
-            BlockState var1 = param0.getBlockState(param1.below());
+        if (var0 >= 1 && var0 + param2 + 1 < 256) {
+            Block var1 = param0.getBlockState(param1.below()).getBlock();
             if (!isDirt(var1) && !var1.is(BlockTags.MUSHROOM_GROW_BLOCK)) {
                 return false;
             } else {

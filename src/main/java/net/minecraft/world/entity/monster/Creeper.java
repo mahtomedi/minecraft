@@ -213,7 +213,7 @@ public class Creeper extends Monster implements PowerableMob {
     @Override
     protected InteractionResult mobInteract(Player param0, InteractionHand param1) {
         ItemStack var0 = param0.getItemInHand(param1);
-        if (var0.is(Items.FLINT_AND_STEEL)) {
+        if (var0.getItem() == Items.FLINT_AND_STEEL) {
             this.level
                 .playSound(
                     param0,
@@ -244,7 +244,7 @@ public class Creeper extends Monster implements PowerableMob {
             float var1 = this.isPowered() ? 2.0F : 1.0F;
             this.dead = true;
             this.level.explode(this, this.getX(), this.getY(), this.getZ(), (float)this.explosionRadius * var1, var0);
-            this.discard();
+            this.remove();
             this.spawnLingeringCloud();
         }
 

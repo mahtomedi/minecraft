@@ -17,8 +17,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityTicker;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -46,18 +44,12 @@ public class MovingPistonBlock extends BaseEntityBlock {
 
     @Nullable
     @Override
-    public BlockEntity newBlockEntity(BlockPos param0, BlockState param1) {
+    public BlockEntity newBlockEntity(BlockGetter param0) {
         return null;
     }
 
-    public static BlockEntity newMovingBlockEntity(BlockPos param0, BlockState param1, BlockState param2, Direction param3, boolean param4, boolean param5) {
-        return new PistonMovingBlockEntity(param0, param1, param2, param3, param4, param5);
-    }
-
-    @Nullable
-    @Override
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level param0, BlockState param1, BlockEntityType<T> param2) {
-        return createTickerHelper(param2, BlockEntityType.PISTON, PistonMovingBlockEntity::tick);
+    public static BlockEntity newMovingBlockEntity(BlockState param0, Direction param1, boolean param2, boolean param3) {
+        return new PistonMovingBlockEntity(param0, param1, param2, param3);
     }
 
     @Override

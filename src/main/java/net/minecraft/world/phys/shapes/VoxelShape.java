@@ -65,9 +65,9 @@ public abstract class VoxelShape {
             ? Shapes.empty()
             : new ArrayVoxelShape(
                 this.shape,
-                new OffsetDoubleList(this.getCoords(Direction.Axis.X), param0),
-                new OffsetDoubleList(this.getCoords(Direction.Axis.Y), param1),
-                new OffsetDoubleList(this.getCoords(Direction.Axis.Z), param2)
+                (DoubleList)(new OffsetDoubleList(this.getCoords(Direction.Axis.X), param0)),
+                (DoubleList)(new OffsetDoubleList(this.getCoords(Direction.Axis.Y), param1)),
+                (DoubleList)(new OffsetDoubleList(this.getCoords(Direction.Axis.Z), param2))
             ));
     }
 
@@ -132,7 +132,20 @@ public abstract class VoxelShape {
     }
 
     protected int findIndex(Direction.Axis param0, double param1) {
-        return Mth.binarySearch(0, this.shape.getSize(param0) + 1, param2 -> param1 < this.get(param0, param2)) - 1;
+        return Mth.binarySearch(0, this.shape.getSize(param0) + 1, param2 -> {
+            if (param2 < 0) {
+                return false;
+            } else if (param2 > this.shape.getSize(param0)) {
+                return true;
+            } else {
+                return param1 < this.get(param0, param2);
+            }
+        }) - 1;
+    }
+
+    protected boolean isFullWide(double param0, double param1, double param2) {
+        return this.shape
+            .isFullWide(this.findIndex(Direction.Axis.X, param0), this.findIndex(Direction.Axis.Y, param1), this.findIndex(Direction.Axis.Z, param2));
     }
 
     @Nullable
@@ -145,12 +158,7 @@ public abstract class VoxelShape {
                 return null;
             } else {
                 Vec3 var1 = param0.add(var0.scale(0.001));
-                return this.shape
-                        .isFullWide(
-                            this.findIndex(Direction.Axis.X, var1.x - (double)param2.getX()),
-                            this.findIndex(Direction.Axis.Y, var1.y - (double)param2.getY()),
-                            this.findIndex(Direction.Axis.Z, var1.z - (double)param2.getZ())
-                        )
+                return this.isFullWide(var1.x - (double)param2.getX(), var1.y - (double)param2.getY(), var1.z - (double)param2.getZ())
                     ? new BlockHitResult(var1, Direction.getNearest(var0.x, var0.y, var0.z).getOpposite(), param2, true)
                     : AABB.clip(this.toAabbs(), param0, param1, param2);
             }
@@ -178,12 +186,12 @@ public abstract class VoxelShape {
 
     private VoxelShape calculateFace(Direction param0) {
         Direction.Axis var0 = param0.getAxis();
-        DoubleList var1 = this.getCoords(var0);
-        if (var1.size() == 2 && DoubleMath.fuzzyEquals(var1.getDouble(0), 0.0, 1.0E-7) && DoubleMath.fuzzyEquals(var1.getDouble(1), 1.0, 1.0E-7)) {
+        Direction.AxisDirection var1 = param0.getAxisDirection();
+        DoubleList var2 = this.getCoords(var0);
+        if (var2.size() == 2 && DoubleMath.fuzzyEquals(var2.getDouble(0), 0.0, 1.0E-7) && DoubleMath.fuzzyEquals(var2.getDouble(1), 1.0, 1.0E-7)) {
             return this;
         } else {
-            Direction.AxisDirection var2 = param0.getAxisDirection();
-            int var3 = this.findIndex(var0, var2 == Direction.AxisDirection.POSITIVE ? 0.9999999 : 1.0E-7);
+            int var3 = this.findIndex(var0, var1 == Direction.AxisDirection.POSITIVE ? 0.9999999 : 1.0E-7);
             return new SliceShape(this, var0, var3);
         }
     }

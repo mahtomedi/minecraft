@@ -42,7 +42,7 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.AgeableMob;
+import net.minecraft.world.entity.AgableMob;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ExperienceOrb;
@@ -295,7 +295,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
     @Override
     public InteractionResult mobInteract(Player param0, InteractionHand param1) {
         ItemStack var0 = param0.getItemInHand(param1);
-        if (var0.is(Items.VILLAGER_SPAWN_EGG) || !this.isAlive() || this.isTrading() || this.isSleeping()) {
+        if (var0.getItem() == Items.VILLAGER_SPAWN_EGG || !this.isAlive() || this.isTrading() || this.isSleeping()) {
             return super.mobInteract(param0, param1);
         } else if (this.isBaby()) {
             this.setUnhappy();
@@ -742,7 +742,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
         return super.finalizeSpawn(param0, param1, param2, param3, param4);
     }
 
-    public Villager getBreedOffspring(ServerLevel param0, AgeableMob param1) {
+    public Villager getBreedOffspring(ServerLevel param0, AgableMob param1) {
         double var0 = this.random.nextDouble();
         VillagerType var1;
         if (var0 < 0.5) {
@@ -774,7 +774,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
             var0.setPersistenceRequired();
             param0.addFreshEntityWithPassengers(var0);
             this.releaseAllPois();
-            this.discard();
+            this.remove();
         } else {
             super.thunderHit(param0, param1);
         }
@@ -795,7 +795,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
             this.take(param0, var0.getCount());
             ItemStack var3 = var1.addItem(var0);
             if (var3.isEmpty()) {
-                param0.discard();
+                param0.remove();
             } else {
                 var0.setCount(var3.getCount());
             }
@@ -898,7 +898,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
                         return var5;
                     }
 
-                    var5.discard();
+                    var5.remove();
                 }
             }
         }

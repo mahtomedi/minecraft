@@ -38,7 +38,9 @@ public abstract class BaseFireBlock extends Block {
     public static BlockState getState(BlockGetter param0, BlockPos param1) {
         BlockPos var0 = param1.below();
         BlockState var1 = param0.getBlockState(var0);
-        return SoulFireBlock.canSurviveOnBlock(var1) ? Blocks.SOUL_FIRE.defaultBlockState() : ((FireBlock)Blocks.FIRE).getStateForPlacement(param0, param1);
+        return SoulFireBlock.canSurviveOnBlock(var1.getBlock())
+            ? Blocks.SOUL_FIRE.defaultBlockState()
+            : ((FireBlock)Blocks.FIRE).getStateForPlacement(param0, param1);
     }
 
     @Override
@@ -189,7 +191,14 @@ public abstract class BaseFireBlock extends Block {
                 }
             }
 
-            return var1 && PortalShape.findEmptyPortalShape(param0, param1, param2.getCounterClockWise().getAxis()).isPresent();
+            if (!var1) {
+                return false;
+            } else {
+                Direction.Axis var3 = param2.getAxis().isHorizontal()
+                    ? param2.getCounterClockWise().getAxis()
+                    : Direction.Plane.HORIZONTAL.getRandomAxis(param0.random);
+                return PortalShape.findEmptyPortalShape(param0, param1, var3).isPresent();
+            }
         }
     }
 }

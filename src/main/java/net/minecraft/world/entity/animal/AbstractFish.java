@@ -1,11 +1,13 @@
 package net.minecraft.world.entity.animal;
 
 import java.util.Random;
+import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.FluidTags;
@@ -29,14 +31,14 @@ import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.ai.navigation.WaterBoundPathNavigation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ItemUtils;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
-public abstract class AbstractFish extends WaterAnimal implements Bucketable {
+public abstract class AbstractFish extends WaterAnimal {
     private static final EntityDataAccessor<Boolean> FROM_BUCKET = SynchedEntityData.defineId(AbstractFish.class, EntityDataSerializers.BOOLEAN);
 
     public AbstractFish(EntityType<? extends AbstractFish> param0, Level param1) {
@@ -80,11 +82,10 @@ public abstract class AbstractFish extends WaterAnimal implements Bucketable {
         this.entityData.define(FROM_BUCKET, false);
     }
 
-    public boolean fromBucket() {
+    private boolean fromBucket() {
         return this.entityData.get(FROM_BUCKET);
     }
 
-    @Override
     public void setFromBucket(boolean param0) {
         this.entityData.set(FROM_BUCKET, param0);
     }
@@ -146,11 +147,27 @@ public abstract class AbstractFish extends WaterAnimal implements Bucketable {
 
     @Override
     protected InteractionResult mobInteract(Player param0, InteractionHand param1) {
-        return ItemUtils.bucketMobPickup(param0, param1, this, SoundEvents.BUCKET_FILL_FISH, () -> {
-            ItemStack var0 = this.getBucketItemStack();
-            this.saveToBucketTag(var0);
-            return var0;
-        }).orElse(super.mobInteract(param0, param1));
+        ItemStack var0 = param0.getItemInHand(param1);
+        if (var0.getItem() == Items.WATER_BUCKET && this.isAlive()) {
+            this.playSound(SoundEvents.BUCKET_FILL_FISH, 1.0F, 1.0F);
+            var0.shrink(1);
+            ItemStack var1 = this.getBucketItemStack();
+            this.saveToBucketTag(var1);
+            if (!this.level.isClientSide) {
+                CriteriaTriggers.FILLED_BUCKET.trigger((ServerPlayer)param0, var1);
+            }
+
+            if (var0.isEmpty()) {
+                param0.setItemInHand(param1, var1);
+            } else if (!param0.inventory.add(var1)) {
+                param0.drop(var1, false);
+            }
+
+            this.remove();
+            return InteractionResult.sidedSuccess(this.level.isClientSide);
+        } else {
+            return super.mobInteract(param0, param1);
+        }
     }
 
     protected void saveToBucketTag(ItemStack param0) {

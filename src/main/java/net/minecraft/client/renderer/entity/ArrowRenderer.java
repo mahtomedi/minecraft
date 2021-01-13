@@ -15,7 +15,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public abstract class ArrowRenderer<T extends AbstractArrow> extends EntityRenderer<T> {
-    public ArrowRenderer(EntityRendererProvider.Context param0) {
+    public ArrowRenderer(EntityRenderDispatcher param0) {
         super(param0);
     }
 

@@ -6,7 +6,6 @@ import java.net.IDN;
 import java.util.function.Predicate;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.network.chat.CommonComponents;
@@ -25,6 +24,7 @@ public class EditServerScreen extends Screen {
     private final ServerData serverData;
     private EditBox ipEdit;
     private EditBox nameEdit;
+    private Button serverPackButton;
     private final Screen lastScreen;
     private final Predicate<String> addressFilter = param0x -> {
         if (StringUtil.isNullOrEmpty(param0x)) {
@@ -71,18 +71,22 @@ public class EditServerScreen extends Screen {
         this.ipEdit.setFilter(this.addressFilter);
         this.ipEdit.setResponder(this::onEdited);
         this.children.add(this.ipEdit);
-        this.addButton(
-            CycleButton.builder(ServerData.ServerPackStatus::getName)
-                .withValues(ServerData.ServerPackStatus.values())
-                .withInitialValue(this.serverData.getResourcePackStatus())
-                .create(
-                    this.width / 2 - 100,
-                    this.height / 4 + 72,
-                    200,
-                    20,
-                    new TranslatableComponent("addServer.resourcePack"),
-                    (param0, param1) -> this.serverData.setResourcePackStatus(param1)
-                )
+        this.serverPackButton = this.addButton(
+            new Button(
+                this.width / 2 - 100,
+                this.height / 4 + 72,
+                200,
+                20,
+                createServerButtonText(this.serverData.getResourcePackStatus()),
+                param0 -> {
+                    this.serverData
+                        .setResourcePackStatus(
+                            ServerData.ServerPackStatus.values()[(this.serverData.getResourcePackStatus().ordinal() + 1)
+                                % ServerData.ServerPackStatus.values().length]
+                        );
+                    this.serverPackButton.setMessage(createServerButtonText(this.serverData.getResourcePackStatus()));
+                }
+            )
         );
         this.addButton = this.addButton(
             new Button(this.width / 2 - 100, this.height / 4 + 96 + 18, 200, 20, new TranslatableComponent("addServer.add"), param0 -> this.onAdd())
@@ -91,6 +95,10 @@ public class EditServerScreen extends Screen {
             new Button(this.width / 2 - 100, this.height / 4 + 120 + 18, 200, 20, CommonComponents.GUI_CANCEL, param0 -> this.callback.accept(false))
         );
         this.cleanUp();
+    }
+
+    private static Component createServerButtonText(ServerData.ServerPackStatus param0) {
+        return new TranslatableComponent("addServer.resourcePack").append(": ").append(param0.getName());
     }
 
     @Override

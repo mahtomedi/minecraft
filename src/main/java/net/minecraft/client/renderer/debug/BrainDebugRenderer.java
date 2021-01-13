@@ -58,7 +58,7 @@ public class BrainDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
     public void setFreeTicketCount(BlockPos param0, int param1) {
         BrainDebugRenderer.PoiInfo var0 = this.pois.get(param0);
         if (var0 == null) {
-            LOGGER.warn("Strange, setFreeTicketCount was called for an unknown POI: {}", param0);
+            LOGGER.warn("Strange, setFreeTicketCount was called for an unknown POI: " + param0);
         } else {
             var0.freeTicketCount = param1;
         }
@@ -88,7 +88,7 @@ public class BrainDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
     private void clearRemovedEntities() {
         this.brainDumpsPerEntity.entrySet().removeIf(param0 -> {
             Entity var0 = this.minecraft.level.getEntity(param0.getValue().id);
-            return var0 == null || var0.isRemoved();
+            return var0 == null || var0.removed;
         });
     }
 

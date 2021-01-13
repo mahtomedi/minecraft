@@ -22,88 +22,94 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class CampfireBlockEntity extends BlockEntity implements Clearable {
+public class CampfireBlockEntity extends BlockEntity implements Clearable, TickableBlockEntity {
     private final NonNullList<ItemStack> items = NonNullList.withSize(4, ItemStack.EMPTY);
     private final int[] cookingProgress = new int[4];
     private final int[] cookingTime = new int[4];
 
-    public CampfireBlockEntity(BlockPos param0, BlockState param1) {
-        super(BlockEntityType.CAMPFIRE, param0, param1);
+    public CampfireBlockEntity() {
+        super(BlockEntityType.CAMPFIRE);
     }
 
-    public static void cookTick(Level param0, BlockPos param1, BlockState param2, CampfireBlockEntity param3) {
-        boolean var0 = false;
+    @Override
+    public void tick() {
+        boolean var0 = this.getBlockState().getValue(CampfireBlock.LIT);
+        boolean var1 = this.level.isClientSide;
+        if (var1) {
+            if (var0) {
+                this.makeParticles();
+            }
 
-        for(int var1 = 0; var1 < param3.items.size(); ++var1) {
-            ItemStack var2 = param3.items.get(var1);
-            if (!var2.isEmpty()) {
-                var0 = true;
-                param3.cookingProgress[var1]++;
-                if (param3.cookingProgress[var1] >= param3.cookingTime[var1]) {
-                    Container var3 = new SimpleContainer(var2);
-                    ItemStack var4 = param0.getRecipeManager()
-                        .getRecipeFor(RecipeType.CAMPFIRE_COOKING, var3, param0)
-                        .map(param1x -> param1x.assemble(var3))
-                        .orElse(var2);
-                    Containers.dropItemStack(param0, (double)param1.getX(), (double)param1.getY(), (double)param1.getZ(), var4);
-                    param3.items.set(var1, ItemStack.EMPTY);
-                    param0.sendBlockUpdated(param1, param2, param2, 3);
+        } else {
+            if (var0) {
+                this.cook();
+            } else {
+                for(int var2 = 0; var2 < this.items.size(); ++var2) {
+                    if (this.cookingProgress[var2] > 0) {
+                        this.cookingProgress[var2] = Mth.clamp(this.cookingProgress[var2] - 2, 0, this.cookingTime[var2]);
+                    }
+                }
+            }
+
+        }
+    }
+
+    private void cook() {
+        for(int var0 = 0; var0 < this.items.size(); ++var0) {
+            ItemStack var1 = this.items.get(var0);
+            if (!var1.isEmpty()) {
+                this.cookingProgress[var0]++;
+                if (this.cookingProgress[var0] >= this.cookingTime[var0]) {
+                    Container var2 = new SimpleContainer(var1);
+                    ItemStack var3 = this.level
+                        .getRecipeManager()
+                        .getRecipeFor(RecipeType.CAMPFIRE_COOKING, var2, this.level)
+                        .map(param1 -> param1.assemble(var2))
+                        .orElse(var1);
+                    BlockPos var4 = this.getBlockPos();
+                    Containers.dropItemStack(this.level, (double)var4.getX(), (double)var4.getY(), (double)var4.getZ(), var3);
+                    this.items.set(var0, ItemStack.EMPTY);
+                    this.markUpdated();
                 }
             }
         }
 
-        if (var0) {
-            setChanged(param0, param1, param2);
-        }
-
     }
 
-    public static void cooldownTick(Level param0, BlockPos param1, BlockState param2, CampfireBlockEntity param3) {
-        boolean var0 = false;
-
-        for(int var1 = 0; var1 < param3.items.size(); ++var1) {
-            if (param3.cookingProgress[var1] > 0) {
-                var0 = true;
-                param3.cookingProgress[var1] = Mth.clamp(param3.cookingProgress[var1] - 2, 0, param3.cookingTime[var1]);
-            }
-        }
-
-        if (var0) {
-            setChanged(param0, param1, param2);
-        }
-
-    }
-
-    public static void particleTick(Level param0, BlockPos param1, BlockState param2, CampfireBlockEntity param3) {
-        Random var0 = param0.random;
-        if (var0.nextFloat() < 0.11F) {
-            for(int var1 = 0; var1 < var0.nextInt(2) + 2; ++var1) {
-                CampfireBlock.makeParticles(param0, param1, param2.getValue(CampfireBlock.SIGNAL_FIRE), false);
-            }
-        }
-
-        int var2 = param2.getValue(CampfireBlock.FACING).get2DDataValue();
-
-        for(int var3 = 0; var3 < param3.items.size(); ++var3) {
-            if (!param3.items.get(var3).isEmpty() && var0.nextFloat() < 0.2F) {
-                Direction var4 = Direction.from2DDataValue(Math.floorMod(var3 + var2, 4));
-                float var5 = 0.3125F;
-                double var6 = (double)param1.getX()
-                    + 0.5
-                    - (double)((float)var4.getStepX() * 0.3125F)
-                    + (double)((float)var4.getClockWise().getStepX() * 0.3125F);
-                double var7 = (double)param1.getY() + 0.5;
-                double var8 = (double)param1.getZ()
-                    + 0.5
-                    - (double)((float)var4.getStepZ() * 0.3125F)
-                    + (double)((float)var4.getClockWise().getStepZ() * 0.3125F);
-
-                for(int var9 = 0; var9 < 4; ++var9) {
-                    param0.addParticle(ParticleTypes.SMOKE, var6, var7, var8, 0.0, 5.0E-4, 0.0);
+    private void makeParticles() {
+        Level var0 = this.getLevel();
+        if (var0 != null) {
+            BlockPos var1 = this.getBlockPos();
+            Random var2 = var0.random;
+            if (var2.nextFloat() < 0.11F) {
+                for(int var3 = 0; var3 < var2.nextInt(2) + 2; ++var3) {
+                    CampfireBlock.makeParticles(var0, var1, this.getBlockState().getValue(CampfireBlock.SIGNAL_FIRE), false);
                 }
             }
-        }
 
+            int var4 = this.getBlockState().getValue(CampfireBlock.FACING).get2DDataValue();
+
+            for(int var5 = 0; var5 < this.items.size(); ++var5) {
+                if (!this.items.get(var5).isEmpty() && var2.nextFloat() < 0.2F) {
+                    Direction var6 = Direction.from2DDataValue(Math.floorMod(var5 + var4, 4));
+                    float var7 = 0.3125F;
+                    double var8 = (double)var1.getX()
+                        + 0.5
+                        - (double)((float)var6.getStepX() * 0.3125F)
+                        + (double)((float)var6.getClockWise().getStepX() * 0.3125F);
+                    double var9 = (double)var1.getY() + 0.5;
+                    double var10 = (double)var1.getZ()
+                        + 0.5
+                        - (double)((float)var6.getStepZ() * 0.3125F)
+                        + (double)((float)var6.getClockWise().getStepZ() * 0.3125F);
+
+                    for(int var11 = 0; var11 < 4; ++var11) {
+                        var0.addParticle(ParticleTypes.SMOKE, var8, var9, var10, 0.0, 5.0E-4, 0.0);
+                    }
+                }
+            }
+
+        }
     }
 
     public NonNullList<ItemStack> getItems() {
@@ -111,17 +117,17 @@ public class CampfireBlockEntity extends BlockEntity implements Clearable {
     }
 
     @Override
-    public void load(CompoundTag param0) {
-        super.load(param0);
+    public void load(BlockState param0, CompoundTag param1) {
+        super.load(param0, param1);
         this.items.clear();
-        ContainerHelper.loadAllItems(param0, this.items);
-        if (param0.contains("CookingTimes", 11)) {
-            int[] var0 = param0.getIntArray("CookingTimes");
+        ContainerHelper.loadAllItems(param1, this.items);
+        if (param1.contains("CookingTimes", 11)) {
+            int[] var0 = param1.getIntArray("CookingTimes");
             System.arraycopy(var0, 0, this.cookingProgress, 0, Math.min(this.cookingTime.length, var0.length));
         }
 
-        if (param0.contains("CookingTotalTimes", 11)) {
-            int[] var1 = param0.getIntArray("CookingTotalTimes");
+        if (param1.contains("CookingTotalTimes", 11)) {
+            int[] var1 = param1.getIntArray("CookingTotalTimes");
             System.arraycopy(var1, 0, this.cookingTime, 0, Math.min(this.cookingTime.length, var1.length));
         }
 
@@ -185,6 +191,10 @@ public class CampfireBlockEntity extends BlockEntity implements Clearable {
 
     public void dowse() {
         if (this.level != null) {
+            if (!this.level.isClientSide) {
+                Containers.dropContents(this.level, this.getBlockPos(), this.getItems());
+            }
+
             this.markUpdated();
         }
 

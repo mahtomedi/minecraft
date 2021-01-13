@@ -5,10 +5,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.particles.SimpleParticleType;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.Mth;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
@@ -25,10 +23,6 @@ public class DripParticle extends TextureSheetParticle {
         this.setSize(0.01F, 0.01F);
         this.gravity = 0.06F;
         this.type = param4;
-    }
-
-    protected Fluid getType() {
-        return this.type;
     }
 
     @Override
@@ -127,96 +121,6 @@ public class DripParticle extends TextureSheetParticle {
     }
 
     @OnlyIn(Dist.CLIENT)
-    static class DripstoneFallAndLandParticle extends DripParticle.FallAndLandParticle {
-        private DripstoneFallAndLandParticle(ClientLevel param0, double param1, double param2, double param3, Fluid param4, ParticleOptions param5) {
-            super(param0, param1, param2, param3, param4, param5);
-        }
-
-        @Override
-        protected void postMoveUpdate() {
-            if (this.onGround) {
-                this.remove();
-                this.level.addParticle(this.landParticle, this.x, this.y, this.z, 0.0, 0.0, 0.0);
-                SoundEvent var0 = this.getType() == Fluids.LAVA ? SoundEvents.POINTED_DRIPSTONE_DRIP_LAVA : SoundEvents.POINTED_DRIPSTONE_DRIP_WATER;
-                float var1 = Mth.randomBetween(this.random, 0.3F, 1.0F);
-                this.level.playLocalSound(this.x, this.y, this.z, var0, SoundSource.BLOCKS, var1, 1.0F, false);
-            }
-
-        }
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public static class DripstoneLavaFallProvider implements ParticleProvider<SimpleParticleType> {
-        protected final SpriteSet sprite;
-
-        public DripstoneLavaFallProvider(SpriteSet param0) {
-            this.sprite = param0;
-        }
-
-        public Particle createParticle(
-            SimpleParticleType param0, ClientLevel param1, double param2, double param3, double param4, double param5, double param6, double param7
-        ) {
-            DripParticle var0 = new DripParticle.DripstoneFallAndLandParticle(param1, param2, param3, param4, Fluids.LAVA, ParticleTypes.LANDING_LAVA);
-            var0.setColor(1.0F, 0.2857143F, 0.083333336F);
-            var0.pickSprite(this.sprite);
-            return var0;
-        }
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public static class DripstoneLavaHangProvider implements ParticleProvider<SimpleParticleType> {
-        protected final SpriteSet sprite;
-
-        public DripstoneLavaHangProvider(SpriteSet param0) {
-            this.sprite = param0;
-        }
-
-        public Particle createParticle(
-            SimpleParticleType param0, ClientLevel param1, double param2, double param3, double param4, double param5, double param6, double param7
-        ) {
-            DripParticle var0 = new DripParticle.CoolingDripHangParticle(param1, param2, param3, param4, Fluids.LAVA, ParticleTypes.FALLING_DRIPSTONE_LAVA);
-            var0.pickSprite(this.sprite);
-            return var0;
-        }
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public static class DripstoneWaterFallProvider implements ParticleProvider<SimpleParticleType> {
-        protected final SpriteSet sprite;
-
-        public DripstoneWaterFallProvider(SpriteSet param0) {
-            this.sprite = param0;
-        }
-
-        public Particle createParticle(
-            SimpleParticleType param0, ClientLevel param1, double param2, double param3, double param4, double param5, double param6, double param7
-        ) {
-            DripParticle var0 = new DripParticle.DripstoneFallAndLandParticle(param1, param2, param3, param4, Fluids.WATER, ParticleTypes.SPLASH);
-            var0.setColor(0.2F, 0.3F, 1.0F);
-            var0.pickSprite(this.sprite);
-            return var0;
-        }
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public static class DripstoneWaterHangProvider implements ParticleProvider<SimpleParticleType> {
-        protected final SpriteSet sprite;
-
-        public DripstoneWaterHangProvider(SpriteSet param0) {
-            this.sprite = param0;
-        }
-
-        public Particle createParticle(
-            SimpleParticleType param0, ClientLevel param1, double param2, double param3, double param4, double param5, double param6, double param7
-        ) {
-            DripParticle var0 = new DripParticle.DripHangParticle(param1, param2, param3, param4, Fluids.WATER, ParticleTypes.FALLING_DRIPSTONE_WATER);
-            var0.setColor(0.2F, 0.3F, 1.0F);
-            var0.pickSprite(this.sprite);
-            return var0;
-        }
-    }
-
-    @OnlyIn(Dist.CLIENT)
     static class FallAndLandParticle extends DripParticle.FallingParticle {
         protected final ParticleOptions landParticle;
 
@@ -262,8 +166,17 @@ public class DripParticle extends TextureSheetParticle {
             if (this.onGround) {
                 this.remove();
                 this.level.addParticle(this.landParticle, this.x, this.y, this.z, 0.0, 0.0, 0.0);
-                float var0 = Mth.randomBetween(this.random, 0.3F, 1.0F);
-                this.level.playLocalSound(this.x, this.y, this.z, SoundEvents.BEEHIVE_DRIP, SoundSource.BLOCKS, var0, 1.0F, false);
+                this.level
+                    .playLocalSound(
+                        this.x + 0.5,
+                        this.y,
+                        this.z + 0.5,
+                        SoundEvents.BEEHIVE_DRIP,
+                        SoundSource.BLOCKS,
+                        0.3F + this.level.random.nextFloat() * 2.0F / 3.0F,
+                        1.0F,
+                        false
+                    );
             }
 
         }

@@ -12,13 +12,10 @@ import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction8;
-import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.EmptyBlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ChestBlock;
@@ -35,19 +32,18 @@ import org.apache.logging.log4j.Logger;
 
 public class UpgradeData {
     private static final Logger LOGGER = LogManager.getLogger();
-    public static final UpgradeData EMPTY = new UpgradeData(EmptyBlockGetter.INSTANCE);
+    public static final UpgradeData EMPTY = new UpgradeData();
     private static final Direction8[] DIRECTIONS = Direction8.values();
     private final EnumSet<Direction8> sides = EnumSet.noneOf(Direction8.class);
-    private final int[][] index;
+    private final int[][] index = new int[16][];
     private static final Map<Block, UpgradeData.BlockFixer> MAP = new IdentityHashMap<>();
     private static final Set<UpgradeData.BlockFixer> CHUNKY_FIXERS = Sets.newHashSet();
 
-    private UpgradeData(LevelHeightAccessor param0) {
-        this.index = new int[param0.getSectionsCount()][];
+    private UpgradeData() {
     }
 
-    public UpgradeData(CompoundTag param0, LevelHeightAccessor param1) {
-        this(param1);
+    public UpgradeData(CompoundTag param0) {
+        this();
         if (param0.contains("Indices", 10)) {
             CompoundTag var0 = param0.getCompound("Indices");
 
@@ -99,7 +95,7 @@ public class UpgradeData {
             Direction[] var14 = Direction.values();
             BlockPos.MutableBlockPos var15 = new BlockPos.MutableBlockPos();
 
-            for(BlockPos var16 : BlockPos.betweenClosed(var10, var0.getMinBuildHeight(), var12, var11, var0.getMaxBuildHeight() - 1, var13)) {
+            for(BlockPos var16 : BlockPos.betweenClosed(var10, 0, var12, var11, var0.getMaxBuildHeight() - 1, var13)) {
                 BlockState var17 = var0.getBlockState(var16);
                 BlockState var18 = var17;
 
@@ -125,7 +121,7 @@ public class UpgradeData {
         ChunkPos var2 = param0.getPos();
         LevelAccessor var3 = param0.getLevel();
 
-        for(int var4 = 0; var4 < this.index.length; ++var4) {
+        for(int var4 = 0; var4 < 16; ++var4) {
             LevelChunkSection var5 = param0.getSections()[var4];
             int[] var6 = this.index[var4];
             this.index[var4] = null;
@@ -137,13 +133,13 @@ public class UpgradeData {
                     int var10 = var9 & 15;
                     int var11 = var9 >> 8 & 15;
                     int var12 = var9 >> 4 & 15;
-                    var0.set(var2.getMinBlockX() + var10, var5.bottomBlockY() + var11, var2.getMinBlockZ() + var12);
+                    var0.set(var2.getMinBlockX() + var10, (var4 << 4) + var11, var2.getMinBlockZ() + var12);
                     BlockState var13 = var8.get(var9);
                     BlockState var14 = var13;
 
                     for(Direction var15 : var7) {
                         var1.setWithOffset(var0, var15);
-                        if (SectionPos.blockToSectionCoord(var0.getX()) == var2.x && SectionPos.blockToSectionCoord(var0.getZ()) == var2.z) {
+                        if (var0.getX() >> 4 == var2.x && var0.getZ() >> 4 == var2.z) {
                             var14 = updateState(var14, var15, var3, var0, var1);
                         }
                     }
@@ -155,7 +151,7 @@ public class UpgradeData {
 
         for(int var16 = 0; var16 < this.index.length; ++var16) {
             if (this.index[var16] != null) {
-                LOGGER.warn("Discarding update data for section {} for chunk ({} {})", var3.getSectionYFromSectionIndex(var16), var2.x, var2.z);
+                LOGGER.warn("Discarding update data for section {} for chunk ({} {})", var16, var2.x, var2.z);
             }
 
             this.index[var16] = null;

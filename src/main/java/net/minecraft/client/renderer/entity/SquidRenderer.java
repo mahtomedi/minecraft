@@ -3,7 +3,6 @@ package net.minecraft.client.renderer.entity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
 import net.minecraft.client.model.SquidModel;
-import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.animal.Squid;
@@ -14,8 +13,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class SquidRenderer extends MobRenderer<Squid, SquidModel<Squid>> {
     private static final ResourceLocation SQUID_LOCATION = new ResourceLocation("textures/entity/squid.png");
 
-    public SquidRenderer(EntityRendererProvider.Context param0) {
-        super(param0, new SquidModel<>(param0.bakeLayer(ModelLayers.SQUID)), 0.7F);
+    public SquidRenderer(EntityRenderDispatcher param0) {
+        super(param0, new SquidModel<>(), 0.7F);
     }
 
     public ResourceLocation getTextureLocation(Squid param0) {

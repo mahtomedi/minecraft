@@ -1,14 +1,11 @@
 package net.minecraft.client;
 
-import com.google.common.collect.ImmutableList;
-import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.SliderButton;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -21,27 +18,6 @@ public class ProgressOption extends Option {
     private final Function<Options, Double> getter;
     private final BiConsumer<Options, Double> setter;
     private final BiFunction<Options, ProgressOption, Component> toString;
-    private final Function<Minecraft, List<FormattedCharSequence>> tooltipSupplier;
-
-    public ProgressOption(
-        String param0,
-        double param1,
-        double param2,
-        float param3,
-        Function<Options, Double> param4,
-        BiConsumer<Options, Double> param5,
-        BiFunction<Options, ProgressOption, Component> param6,
-        Function<Minecraft, List<FormattedCharSequence>> param7
-    ) {
-        super(param0);
-        this.minValue = param1;
-        this.maxValue = param2;
-        this.steps = param3;
-        this.getter = param4;
-        this.setter = param5;
-        this.toString = param6;
-        this.tooltipSupplier = param7;
-    }
 
     public ProgressOption(
         String param0,
@@ -52,13 +28,18 @@ public class ProgressOption extends Option {
         BiConsumer<Options, Double> param5,
         BiFunction<Options, ProgressOption, Component> param6
     ) {
-        this(param0, param1, param2, param3, param4, param5, param6, param0x -> ImmutableList.of());
+        super(param0);
+        this.minValue = param1;
+        this.maxValue = param2;
+        this.steps = param3;
+        this.getter = param4;
+        this.setter = param5;
+        this.toString = param6;
     }
 
     @Override
     public AbstractWidget createButton(Options param0, int param1, int param2, int param3) {
-        List<FormattedCharSequence> var0 = this.tooltipSupplier.apply(Minecraft.getInstance());
-        return new SliderButton(param0, param1, param2, param3, 20, this, var0);
+        return new SliderButton(param0, param1, param2, param3, 20, this);
     }
 
     public double toPct(double param0) {

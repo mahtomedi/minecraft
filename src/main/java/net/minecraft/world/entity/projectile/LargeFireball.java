@@ -10,12 +10,19 @@ import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class LargeFireball extends Fireball {
     public int explosionPower = 1;
 
     public LargeFireball(EntityType<? extends LargeFireball> param0, Level param1) {
         super(param0, param1);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public LargeFireball(Level param0, double param1, double param2, double param3, double param4, double param5, double param6) {
+        super(EntityType.FIREBALL, param1, param2, param3, param4, param5, param6, param0);
     }
 
     public LargeFireball(Level param0, LivingEntity param1, double param2, double param3, double param4) {
@@ -37,7 +44,7 @@ public class LargeFireball extends Fireball {
                     var0,
                     var0 ? Explosion.BlockInteraction.DESTROY : Explosion.BlockInteraction.NONE
                 );
-            this.discard();
+            this.remove();
         }
 
     }

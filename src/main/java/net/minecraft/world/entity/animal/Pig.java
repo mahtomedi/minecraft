@@ -15,7 +15,7 @@ import net.minecraft.world.Difficulty;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.AgeableMob;
+import net.minecraft.world.entity.AgableMob;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -79,7 +79,7 @@ public class Pig extends Animal implements ItemSteerable, Saddleable {
     @Nullable
     @Override
     public Entity getControllingPassenger() {
-        return this.getFirstPassenger();
+        return this.getPassengers().isEmpty() ? null : this.getPassengers().get(0);
     }
 
     @Override
@@ -89,7 +89,7 @@ public class Pig extends Animal implements ItemSteerable, Saddleable {
             return false;
         } else {
             Player var1 = (Player)var0;
-            return var1.getMainHandItem().is(Items.CARROT_ON_A_STICK) || var1.getOffhandItem().is(Items.CARROT_ON_A_STICK);
+            return var1.getMainHandItem().getItem() == Items.CARROT_ON_A_STICK || var1.getOffhandItem().getItem() == Items.CARROT_ON_A_STICK;
         }
     }
 
@@ -154,7 +154,7 @@ public class Pig extends Animal implements ItemSteerable, Saddleable {
             InteractionResult var1 = super.mobInteract(param0, param1);
             if (!var1.consumesAction()) {
                 ItemStack var2 = param0.getItemInHand(param1);
-                return var2.is(Items.SADDLE) ? var2.interactLivingEntity(param0, this, param1) : InteractionResult.PASS;
+                return var2.getItem() == Items.SADDLE ? var2.interactLivingEntity(param0, this, param1) : InteractionResult.PASS;
             } else {
                 return var1;
             }
@@ -234,7 +234,7 @@ public class Pig extends Animal implements ItemSteerable, Saddleable {
 
             var0.setPersistenceRequired();
             param0.addFreshEntity(var0);
-            this.discard();
+            this.remove();
         } else {
             super.thunderHit(param0, param1);
         }
@@ -261,7 +261,7 @@ public class Pig extends Animal implements ItemSteerable, Saddleable {
         return this.steering.boost(this.getRandom());
     }
 
-    public Pig getBreedOffspring(ServerLevel param0, AgeableMob param1) {
+    public Pig getBreedOffspring(ServerLevel param0, AgableMob param1) {
         return EntityType.PIG.create(param0);
     }
 

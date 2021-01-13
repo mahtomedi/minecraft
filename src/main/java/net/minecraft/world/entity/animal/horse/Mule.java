@@ -5,7 +5,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.AgeableMob;
+import net.minecraft.world.entity.AgableMob;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 
@@ -50,7 +50,7 @@ public class Mule extends AbstractChestedHorse {
     }
 
     @Override
-    public AgeableMob getBreedOffspring(ServerLevel param0, AgeableMob param1) {
+    public AgableMob getBreedOffspring(ServerLevel param0, AgableMob param1) {
         return EntityType.MULE.create(param0);
     }
 }

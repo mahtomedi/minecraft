@@ -18,8 +18,6 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.entity.BellBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityTicker;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -258,14 +256,8 @@ public class BellBlock extends BaseEntityBlock {
 
     @Nullable
     @Override
-    public BlockEntity newBlockEntity(BlockPos param0, BlockState param1) {
-        return new BellBlockEntity(param0, param1);
-    }
-
-    @Nullable
-    @Override
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level param0, BlockState param1, BlockEntityType<T> param2) {
-        return createTickerHelper(param2, BlockEntityType.BELL, param0.isClientSide ? BellBlockEntity::clientTick : BellBlockEntity::serverTick);
+    public BlockEntity newBlockEntity(BlockGetter param0) {
+        return new BellBlockEntity();
     }
 
     @Override

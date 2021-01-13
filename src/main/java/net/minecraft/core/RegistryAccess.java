@@ -52,19 +52,14 @@ public abstract class RegistryAccess {
         return var0;
     });
 
-    public abstract <E> Optional<WritableRegistry<E>> ownedRegistry(ResourceKey<? extends Registry<? extends E>> var1);
+    public abstract <E> Optional<WritableRegistry<E>> registry(ResourceKey<? extends Registry<E>> var1);
 
-    public <E> WritableRegistry<E> ownedRegistryOrThrow(ResourceKey<? extends Registry<? extends E>> param0) {
-        return this.ownedRegistry(param0).orElseThrow(() -> new IllegalStateException("Missing registry: " + param0));
-    }
-
-    public <E> Optional<? extends Registry<E>> registry(ResourceKey<? extends Registry<? extends E>> param0) {
-        Optional<? extends Registry<E>> var0 = this.ownedRegistry(param0);
-        return var0.isPresent() ? var0 : Registry.REGISTRY.getOptional(param0.location());
-    }
-
-    public <E> Registry<E> registryOrThrow(ResourceKey<? extends Registry<? extends E>> param0) {
+    public <E> WritableRegistry<E> registryOrThrow(ResourceKey<? extends Registry<E>> param0) {
         return this.registry(param0).orElseThrow(() -> new IllegalStateException("Missing registry: " + param0));
+    }
+
+    public Registry<DimensionType> dimensionTypes() {
+        return this.registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY);
     }
 
     private static <E> void put(
@@ -100,15 +95,14 @@ public abstract class RegistryAccess {
         ResourceKey<? extends Registry<E>> var0 = param2.key();
         boolean var1 = !var0.equals(Registry.NOISE_GENERATOR_SETTINGS_REGISTRY) && !var0.equals(Registry.DIMENSION_TYPE_REGISTRY);
         Registry<E> var2 = BUILTIN.registryOrThrow(var0);
-        WritableRegistry<E> var3 = param0.ownedRegistryOrThrow(var0);
+        WritableRegistry<E> var3 = param0.registryOrThrow(var0);
 
         for(Entry<ResourceKey<E>, E> var4 : var2.entrySet()) {
-            ResourceKey<E> var5 = var4.getKey();
-            E var6 = var4.getValue();
+            E var5 = var4.getValue();
             if (var1) {
-                param1.add(BUILTIN, var5, param2.codec(), var2.getId(var6), var6, var2.lifecycle(var6));
+                param1.add(BUILTIN, var4.getKey(), param2.codec(), var2.getId(var5), var5, var2.lifecycle(var5));
             } else {
-                var3.registerMapping(var2.getId(var6), var5, var6, var2.lifecycle(var6));
+                var3.registerMapping(var2.getId(var5), var4.getKey(), var5, var2.lifecycle(var5));
             }
         }
 
@@ -116,12 +110,16 @@ public abstract class RegistryAccess {
 
     private static <R extends Registry<?>> void copyBuiltin(RegistryAccess.RegistryHolder param0, ResourceKey<R> param1) {
         Registry<R> var0 = BuiltinRegistries.REGISTRY;
-        Registry<?> var1 = var0.getOrThrow(param1);
-        copy(param0, var1);
+        Registry<?> var1 = var0.get(param1);
+        if (var1 == null) {
+            throw new IllegalStateException("Missing builtin registry: " + param1);
+        } else {
+            copy(param0, var1);
+        }
     }
 
     private static <E> void copy(RegistryAccess.RegistryHolder param0, Registry<E> param1) {
-        WritableRegistry<E> var0 = param0.ownedRegistryOrThrow(param1.key());
+        WritableRegistry<E> var0 = param0.<E>registry(param1.key()).orElseThrow(() -> new IllegalStateException("Missing registry: " + param1.key()));
 
         for(Entry<ResourceKey<E>, E> var1 : param1.entrySet()) {
             E var2 = var1.getValue();
@@ -224,7 +222,7 @@ public abstract class RegistryAccess {
         }
 
         @Override
-        public <E> Optional<WritableRegistry<E>> ownedRegistry(ResourceKey<? extends Registry<? extends E>> param0) {
+        public <E> Optional<WritableRegistry<E>> registry(ResourceKey<? extends Registry<E>> param0) {
             return Optional.ofNullable(this.registries.get(param0)).map(param0x -> param0x);
         }
     }

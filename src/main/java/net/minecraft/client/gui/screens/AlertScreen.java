@@ -1,6 +1,7 @@
 package net.minecraft.client.gui.screens;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.network.chat.CommonComponents;
@@ -14,6 +15,7 @@ public class AlertScreen extends Screen {
     protected final Component text;
     private MultiLineLabel message = MultiLineLabel.EMPTY;
     protected final Component okButton;
+    private int delayTicker;
 
     public AlertScreen(Runnable param0, Component param1, Component param2) {
         this(param0, param1, param2, CommonComponents.GUI_BACK);
@@ -39,5 +41,16 @@ public class AlertScreen extends Screen {
         drawCenteredString(param0, this.font, this.title, this.width / 2, 70, 16777215);
         this.message.renderCentered(param0, this.width / 2, 90);
         super.render(param0, param1, param2, param3);
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        if (--this.delayTicker == 0) {
+            for(AbstractWidget var0 : this.buttons) {
+                var0.active = true;
+            }
+        }
+
     }
 }

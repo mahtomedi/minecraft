@@ -21,27 +21,28 @@ public class DeadBushBlock extends BushBlock {
 
     @Override
     protected boolean mayPlaceOn(BlockState param0, BlockGetter param1, BlockPos param2) {
-        return param0.is(Blocks.SAND)
-            || param0.is(Blocks.RED_SAND)
-            || param0.is(Blocks.TERRACOTTA)
-            || param0.is(Blocks.WHITE_TERRACOTTA)
-            || param0.is(Blocks.ORANGE_TERRACOTTA)
-            || param0.is(Blocks.MAGENTA_TERRACOTTA)
-            || param0.is(Blocks.LIGHT_BLUE_TERRACOTTA)
-            || param0.is(Blocks.YELLOW_TERRACOTTA)
-            || param0.is(Blocks.LIME_TERRACOTTA)
-            || param0.is(Blocks.PINK_TERRACOTTA)
-            || param0.is(Blocks.GRAY_TERRACOTTA)
-            || param0.is(Blocks.LIGHT_GRAY_TERRACOTTA)
-            || param0.is(Blocks.CYAN_TERRACOTTA)
-            || param0.is(Blocks.PURPLE_TERRACOTTA)
-            || param0.is(Blocks.BLUE_TERRACOTTA)
-            || param0.is(Blocks.BROWN_TERRACOTTA)
-            || param0.is(Blocks.GREEN_TERRACOTTA)
-            || param0.is(Blocks.RED_TERRACOTTA)
-            || param0.is(Blocks.BLACK_TERRACOTTA)
-            || param0.is(Blocks.DIRT)
-            || param0.is(Blocks.COARSE_DIRT)
-            || param0.is(Blocks.PODZOL);
+        Block var0 = param0.getBlock();
+        return var0 == Blocks.SAND
+            || var0 == Blocks.RED_SAND
+            || var0 == Blocks.TERRACOTTA
+            || var0 == Blocks.WHITE_TERRACOTTA
+            || var0 == Blocks.ORANGE_TERRACOTTA
+            || var0 == Blocks.MAGENTA_TERRACOTTA
+            || var0 == Blocks.LIGHT_BLUE_TERRACOTTA
+            || var0 == Blocks.YELLOW_TERRACOTTA
+            || var0 == Blocks.LIME_TERRACOTTA
+            || var0 == Blocks.PINK_TERRACOTTA
+            || var0 == Blocks.GRAY_TERRACOTTA
+            || var0 == Blocks.LIGHT_GRAY_TERRACOTTA
+            || var0 == Blocks.CYAN_TERRACOTTA
+            || var0 == Blocks.PURPLE_TERRACOTTA
+            || var0 == Blocks.BLUE_TERRACOTTA
+            || var0 == Blocks.BROWN_TERRACOTTA
+            || var0 == Blocks.GREEN_TERRACOTTA
+            || var0 == Blocks.RED_TERRACOTTA
+            || var0 == Blocks.BLACK_TERRACOTTA
+            || var0 == Blocks.DIRT
+            || var0 == Blocks.COARSE_DIRT
+            || var0 == Blocks.PODZOL;
     }
 }

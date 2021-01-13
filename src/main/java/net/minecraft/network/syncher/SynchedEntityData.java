@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.EncoderException;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -129,7 +130,7 @@ public class SynchedEntityData {
         return this.isDirty;
     }
 
-    public static void pack(List<SynchedEntityData.DataItem<?>> param0, FriendlyByteBuf param1) {
+    public static void pack(List<SynchedEntityData.DataItem<?>> param0, FriendlyByteBuf param1) throws IOException {
         if (param0 != null) {
             int var0 = 0;
 
@@ -182,7 +183,7 @@ public class SynchedEntityData {
         return var0;
     }
 
-    private static <T> void writeDataItem(FriendlyByteBuf param0, SynchedEntityData.DataItem<T> param1) {
+    private static <T> void writeDataItem(FriendlyByteBuf param0, SynchedEntityData.DataItem<T> param1) throws IOException {
         EntityDataAccessor<T> var0 = param1.getAccessor();
         int var1 = EntityDataSerializers.getSerializedId(var0.getSerializer());
         if (var1 < 0) {
@@ -195,7 +196,7 @@ public class SynchedEntityData {
     }
 
     @Nullable
-    public static List<SynchedEntityData.DataItem<?>> unpack(FriendlyByteBuf param0) {
+    public static List<SynchedEntityData.DataItem<?>> unpack(FriendlyByteBuf param0) throws IOException {
         List<SynchedEntityData.DataItem<?>> var0 = null;
 
         int var1;

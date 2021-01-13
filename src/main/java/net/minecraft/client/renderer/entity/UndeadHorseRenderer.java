@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import java.util.Map;
 import net.minecraft.client.model.HorseModel;
-import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
@@ -22,8 +21,8 @@ public class UndeadHorseRenderer extends AbstractHorseRenderer<AbstractHorse, Ho
         )
     );
 
-    public UndeadHorseRenderer(EntityRendererProvider.Context param0, ModelLayerLocation param1) {
-        super(param0, new HorseModel<>(param0.bakeLayer(param1)), 1.0F);
+    public UndeadHorseRenderer(EntityRenderDispatcher param0) {
+        super(param0, new HorseModel<>(0.0F), 1.0F);
     }
 
     public ResourceLocation getTextureLocation(AbstractHorse param0) {

@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.Nullable;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundSetDisplayObjectivePacket;
 import net.minecraft.network.protocol.game.ClientboundSetObjectivePacket;
@@ -17,12 +16,11 @@ import net.minecraft.world.scores.Objective;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Score;
 import net.minecraft.world.scores.Scoreboard;
-import net.minecraft.world.scores.ScoreboardSaveData;
 
 public class ServerScoreboard extends Scoreboard {
     private final MinecraftServer server;
     private final Set<Objective> trackedObjectives = Sets.newHashSet();
-    private final List<Runnable> dirtyListeners = Lists.newArrayList();
+    private Runnable[] dirtyListeners = new Runnable[0];
 
     public ServerScoreboard(MinecraftServer param0) {
         this.server = param0;
@@ -148,7 +146,8 @@ public class ServerScoreboard extends Scoreboard {
     }
 
     public void addDirtyListener(Runnable param0) {
-        this.dirtyListeners.add(param0);
+        this.dirtyListeners = Arrays.copyOf(this.dirtyListeners, this.dirtyListeners.length + 1);
+        this.dirtyListeners[this.dirtyListeners.length - 1] = param0;
     }
 
     protected void setDirty() {
@@ -222,16 +221,6 @@ public class ServerScoreboard extends Scoreboard {
         }
 
         return var0;
-    }
-
-    public ScoreboardSaveData createData() {
-        ScoreboardSaveData var0 = new ScoreboardSaveData(this);
-        this.addDirtyListener(var0::setDirty);
-        return var0;
-    }
-
-    public ScoreboardSaveData createData(CompoundTag param0) {
-        return this.createData().load(param0);
     }
 
     public static enum Method {

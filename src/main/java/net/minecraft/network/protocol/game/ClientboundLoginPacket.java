@@ -3,7 +3,6 @@ package net.minecraft.network.protocol.game;
 import com.google.common.collect.Sets;
 import java.io.IOException;
 import java.util.Set;
-import javax.annotation.Nullable;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.FriendlyByteBuf;
@@ -20,7 +19,6 @@ public class ClientboundLoginPacket implements Packet<ClientGamePacketListener> 
     private long seed;
     private boolean hardcore;
     private GameType gameType;
-    @Nullable
     private GameType previousGameType;
     private Set<ResourceKey<Level>> levels;
     private RegistryAccess.RegistryHolder registryHolder;
@@ -39,7 +37,7 @@ public class ClientboundLoginPacket implements Packet<ClientGamePacketListener> 
     public ClientboundLoginPacket(
         int param0,
         GameType param1,
-        @Nullable GameType param2,
+        GameType param2,
         long param3,
         boolean param4,
         Set<ResourceKey<Level>> param5,
@@ -75,7 +73,7 @@ public class ClientboundLoginPacket implements Packet<ClientGamePacketListener> 
         this.playerId = param0.readInt();
         this.hardcore = param0.readBoolean();
         this.gameType = GameType.byId(param0.readByte());
-        this.previousGameType = GameType.byNullableId(param0.readByte());
+        this.previousGameType = GameType.byId(param0.readByte());
         int var0 = param0.readVarInt();
         this.levels = Sets.newHashSet();
 
@@ -100,7 +98,7 @@ public class ClientboundLoginPacket implements Packet<ClientGamePacketListener> 
         param0.writeInt(this.playerId);
         param0.writeBoolean(this.hardcore);
         param0.writeByte(this.gameType.getId());
-        param0.writeByte(GameType.getNullableId(this.previousGameType));
+        param0.writeByte(this.previousGameType.getId());
         param0.writeVarInt(this.levels.size());
 
         for(ResourceKey<Level> var0 : this.levels) {

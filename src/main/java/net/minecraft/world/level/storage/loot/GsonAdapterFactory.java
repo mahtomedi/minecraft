@@ -38,11 +38,6 @@ public class GsonAdapterFactory {
             this.typeGetter = param3;
         }
 
-        public GsonAdapterFactory.Builder<E, T> withDefaultSerializer(T param0, GsonAdapterFactory.DefaultSerializer<? extends E> param1) {
-            this.defaultType = Pair.of(param0, param1);
-            return this;
-        }
-
         public Object build() {
             return new GsonAdapterFactory.JsonAdapter(this.registry, this.elementName, this.typeKey, this.typeGetter, this.defaultType);
         }

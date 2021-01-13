@@ -8,10 +8,10 @@ import net.minecraft.util.Unit;
 
 public interface ReloadableResourceManager extends AutoCloseable, ResourceManager {
     default CompletableFuture<Unit> reload(Executor param0, Executor param1, List<PackResources> param2, CompletableFuture<Unit> param3) {
-        return this.createReload(param0, param1, param3, param2).done();
+        return this.createFullReload(param0, param1, param3, param2).done();
     }
 
-    ReloadInstance createReload(Executor var1, Executor var2, CompletableFuture<Unit> var3, List<PackResources> var4);
+    ReloadInstance createFullReload(Executor var1, Executor var2, CompletableFuture<Unit> var3, List<PackResources> var4);
 
     void registerReloadListener(PreparableReloadListener var1);
 

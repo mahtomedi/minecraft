@@ -388,7 +388,7 @@ public class EntityPredicate {
         private static EntityPredicate.Composite fromElement(String param0, DeserializationContext param1, @Nullable JsonElement param2) {
             if (param2 != null && param2.isJsonArray()) {
                 LootItemCondition[] var0 = param1.deserializeConditions(
-                    param2.getAsJsonArray(), param1.getAdvancementId() + "/" + param0, LootContextParamSets.ADVANCEMENT_ENTITY
+                    param2.getAsJsonArray(), param1.getAdvancementId().toString() + "/" + param0, LootContextParamSets.ADVANCEMENT_ENTITY
                 );
                 return new EntityPredicate.Composite(var0);
             } else {

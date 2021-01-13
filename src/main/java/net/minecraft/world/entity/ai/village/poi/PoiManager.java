@@ -24,7 +24,6 @@ import net.minecraft.core.SectionPos;
 import net.minecraft.server.level.SectionTracker;
 import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkStatus;
@@ -35,8 +34,8 @@ public class PoiManager extends SectionStorage<PoiSection> {
     private final PoiManager.DistanceTracker distanceTracker;
     private final LongSet loadedChunks = new LongOpenHashSet();
 
-    public PoiManager(File param0, DataFixer param1, boolean param2, LevelHeightAccessor param3) {
-        super(param0, PoiSection::codec, PoiSection::new, param1, DataFixTypes.POI_CHUNK, param2, param3);
+    public PoiManager(File param0, DataFixer param1, boolean param2) {
+        super(param0, PoiSection::codec, PoiSection::new, param1, DataFixTypes.POI_CHUNK, param2);
         this.distanceTracker = new PoiManager.DistanceTracker();
     }
 
@@ -71,7 +70,7 @@ public class PoiManager extends SectionStorage<PoiSection> {
     }
 
     public Stream<PoiRecord> getInChunk(Predicate<PoiType> param0, ChunkPos param1, PoiManager.Occupancy param2) {
-        return IntStream.range(this.levelHeightAccessor.getMinSection(), this.levelHeightAccessor.getMaxSection())
+        return IntStream.range(0, 16)
             .boxed()
             .map(param1x -> this.getOrLoad(SectionPos.of(param1, param1x).asLong()))
             .filter(Optional::isPresent)
@@ -155,7 +154,7 @@ public class PoiManager extends SectionStorage<PoiSection> {
     }
 
     public void checkConsistencyWithBlocks(ChunkPos param0, LevelChunkSection param1) {
-        SectionPos var0 = SectionPos.of(param0, SectionPos.blockToSectionCoord(param1.bottomBlockY()));
+        SectionPos var0 = SectionPos.of(param0, param1.bottomBlockY() >> 4);
         Util.ifElse(this.getOrLoad(var0.asLong()), param2 -> param2.refresh(param2x -> {
                 if (mayHavePoi(param1)) {
                     this.updateFromSection(param1, var0, param2x);
@@ -187,9 +186,7 @@ public class PoiManager extends SectionStorage<PoiSection> {
     }
 
     public void ensureLoadedAndValid(LevelReader param0, BlockPos param1, int param2) {
-        SectionPos.aroundChunk(
-                new ChunkPos(param1), Math.floorDiv(param2, 16), this.levelHeightAccessor.getMinSection(), this.levelHeightAccessor.getMaxSection()
-            )
+        SectionPos.aroundChunk(new ChunkPos(param1), Math.floorDiv(param2, 16))
             .map(param0x -> Pair.of(param0x, this.getOrLoad(param0x.asLong())))
             .filter(param0x -> !param0x.getSecond().map(PoiSection::isValid).orElse(false))
             .map(param0x -> param0x.getFirst().chunk())

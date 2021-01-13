@@ -17,7 +17,7 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffect;
-import net.minecraft.world.entity.AgeableMob;
+import net.minecraft.world.entity.AgableMob;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.MobSpawnType;
@@ -80,7 +80,7 @@ public class MushroomCow extends Cow implements Shearable {
     @Override
     public InteractionResult mobInteract(Player param0, InteractionHand param1) {
         ItemStack var0 = param0.getItemInHand(param1);
-        if (var0.is(Items.BOWL) && !this.isBaby()) {
+        if (var0.getItem() == Items.BOWL && !this.isBaby()) {
             boolean var1 = false;
             ItemStack var2;
             if (this.effect != null) {
@@ -104,14 +104,14 @@ public class MushroomCow extends Cow implements Shearable {
 
             this.playSound(var5, 1.0F, 1.0F);
             return InteractionResult.sidedSuccess(this.level.isClientSide);
-        } else if (var0.is(Items.SHEARS) && this.readyForShearing()) {
+        } else if (var0.getItem() == Items.SHEARS && this.readyForShearing()) {
             this.shear(SoundSource.PLAYERS);
             if (!this.level.isClientSide) {
                 var0.hurtAndBreak(1, param0, param1x -> param1x.broadcastBreakEvent(param1));
             }
 
             return InteractionResult.sidedSuccess(this.level.isClientSide);
-        } else if (this.getMushroomType() == MushroomCow.MushroomType.BROWN && var0.is(ItemTags.SMALL_FLOWERS)) {
+        } else if (this.getMushroomType() == MushroomCow.MushroomType.BROWN && var0.getItem().is(ItemTags.SMALL_FLOWERS)) {
             if (this.effect != null) {
                 for(int var7 = 0; var7 < 2; ++var7) {
                     this.level
@@ -132,7 +132,7 @@ public class MushroomCow extends Cow implements Shearable {
                 }
 
                 Pair<MobEffect, Integer> var9 = var8.get();
-                if (!param0.getAbilities().instabuild) {
+                if (!param0.abilities.instabuild) {
                     var0.shrink(1);
                 }
 
@@ -165,7 +165,7 @@ public class MushroomCow extends Cow implements Shearable {
         this.level.playSound(null, this, SoundEvents.MOOSHROOM_SHEAR, param0, 1.0F, 1.0F);
         if (!this.level.isClientSide()) {
             ((ServerLevel)this.level).sendParticles(ParticleTypes.EXPLOSION, this.getX(), this.getY(0.5), this.getZ(), 1, 0.0, 0.0, 0.0, 0.0);
-            this.discard();
+            this.remove();
             Cow var0 = EntityType.COW.create(this.level);
             var0.moveTo(this.getX(), this.getY(), this.getZ(), this.yRot, this.xRot);
             var0.setHealth(this.getHealth());
@@ -243,7 +243,7 @@ public class MushroomCow extends Cow implements Shearable {
         return MushroomCow.MushroomType.byType(this.entityData.get(DATA_TYPE));
     }
 
-    public MushroomCow getBreedOffspring(ServerLevel param0, AgeableMob param1) {
+    public MushroomCow getBreedOffspring(ServerLevel param0, AgableMob param1) {
         MushroomCow var0 = EntityType.MOOSHROOM.create(param0);
         var0.setMushroomType(this.getOffspringType((MushroomCow)param1));
         return var0;

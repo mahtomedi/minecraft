@@ -10,19 +10,20 @@ public class MapIndex extends SavedData {
     private final Object2IntMap<String> usedAuxIds = new Object2IntOpenHashMap<>();
 
     public MapIndex() {
+        super("idcounts");
         this.usedAuxIds.defaultReturnValue(-1);
     }
 
-    public static MapIndex load(CompoundTag param0) {
-        MapIndex var0 = new MapIndex();
+    @Override
+    public void load(CompoundTag param0) {
+        this.usedAuxIds.clear();
 
-        for(String var1 : param0.getAllKeys()) {
-            if (param0.contains(var1, 99)) {
-                var0.usedAuxIds.put(var1, param0.getInt(var1));
+        for(String var0 : param0.getAllKeys()) {
+            if (param0.contains(var0, 99)) {
+                this.usedAuxIds.put(var0, param0.getInt(var0));
             }
         }
 
-        return var0;
     }
 
     @Override

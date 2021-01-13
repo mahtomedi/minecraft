@@ -3,7 +3,6 @@ package net.minecraft.world.level.levelgen.placement;
 import java.util.BitSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -11,7 +10,7 @@ import net.minecraft.world.level.chunk.ProtoChunk;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.Heightmap;
 
-public class DecorationContext implements LevelHeightAccessor {
+public class DecorationContext {
     private final WorldGenLevel level;
     private final ChunkGenerator generator;
 
@@ -38,15 +37,5 @@ public class DecorationContext implements LevelHeightAccessor {
 
     public BlockState getBlockState(BlockPos param0) {
         return this.level.getBlockState(param0);
-    }
-
-    @Override
-    public int getMinBuildHeight() {
-        return this.level.getMinBuildHeight();
-    }
-
-    @Override
-    public int getHeight() {
-        return this.level.getHeight();
     }
 }

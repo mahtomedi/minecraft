@@ -19,35 +19,32 @@ public class ReplaceBlobsFeature extends Feature<ReplaceSphereConfiguration> {
 
     public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, ReplaceSphereConfiguration param4) {
         Block var0 = param4.targetState.getBlock();
-        BlockPos var1 = findTarget(param0, param3.mutable().clamp(Direction.Axis.Y, param0.getMinBuildHeight() + 1, param0.getMaxBuildHeight() - 1), var0);
+        BlockPos var1 = findTarget(param0, param3.mutable().clamp(Direction.Axis.Y, 1, param0.getMaxBuildHeight() - 1), var0);
         if (var1 == null) {
             return false;
         } else {
             int var2 = param4.radius().sample(param2);
-            int var3 = param4.radius().sample(param2);
-            int var4 = param4.radius().sample(param2);
-            int var5 = Math.max(var2, Math.max(var3, var4));
-            boolean var6 = false;
+            boolean var3 = false;
 
-            for(BlockPos var7 : BlockPos.withinManhattan(var1, var2, var3, var4)) {
-                if (var7.distManhattan(var1) > var5) {
+            for(BlockPos var4 : BlockPos.withinManhattan(var1, var2, var2, var2)) {
+                if (var4.distManhattan(var1) > var2) {
                     break;
                 }
 
-                BlockState var8 = param0.getBlockState(var7);
-                if (var8.is(var0)) {
-                    this.setBlock(param0, var7, param4.replaceState);
-                    var6 = true;
+                BlockState var5 = param0.getBlockState(var4);
+                if (var5.is(var0)) {
+                    this.setBlock(param0, var4, param4.replaceState);
+                    var3 = true;
                 }
             }
 
-            return var6;
+            return var3;
         }
     }
 
     @Nullable
     private static BlockPos findTarget(LevelAccessor param0, BlockPos.MutableBlockPos param1, Block param2) {
-        while(param1.getY() > param0.getMinBuildHeight() + 1) {
+        while(param1.getY() > 1) {
             BlockState var0 = param0.getBlockState(param1);
             if (var0.is(param2)) {
                 return param1;

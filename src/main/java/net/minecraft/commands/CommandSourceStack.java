@@ -274,11 +274,11 @@ public class CommandSourceStack implements SharedSuggestionProvider {
         }
     }
 
-    public CommandSourceStack facing(Entity param0, EntityAnchorArgument.Anchor param1) {
+    public CommandSourceStack facing(Entity param0, EntityAnchorArgument.Anchor param1) throws CommandSyntaxException {
         return this.facing(param1.apply(param0));
     }
 
-    public CommandSourceStack facing(Vec3 param0) {
+    public CommandSourceStack facing(Vec3 param0) throws CommandSyntaxException {
         Vec3 var0 = this.anchor.apply(this);
         double var1 = param0.x - var0.x;
         double var2 = param0.y - var0.y;

@@ -83,7 +83,7 @@ public class ServerConnectionListener {
                         .childHandler(
                             new ChannelInitializer<Channel>() {
                                 @Override
-                                protected void initChannel(Channel param0) {
+                                protected void initChannel(Channel param0) throws Exception {
                                     try {
                                         param0.config().setOption(ChannelOption.TCP_NODELAY, true);
                                     } catch (ChannelException var4) {
@@ -118,7 +118,7 @@ public class ServerConnectionListener {
         synchronized(this.channels) {
             var0 = new ServerBootstrap().channel(LocalServerChannel.class).childHandler(new ChannelInitializer<Channel>() {
                 @Override
-                protected void initChannel(Channel param0) {
+                protected void initChannel(Channel param0) throws Exception {
                     Connection var0 = new Connection(PacketFlow.SERVERBOUND);
                     var0.setListener(new MemoryServerHandshakePacketListenerImpl(ServerConnectionListener.this.server, var0));
                     ServerConnectionListener.this.connections.add(var0);

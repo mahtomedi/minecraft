@@ -5,18 +5,49 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.material.PushReaction;
+import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class EndRodBlock extends RodBlock {
+public class EndRodBlock extends DirectionalBlock {
+    protected static final VoxelShape Y_AXIS_AABB = Block.box(6.0, 0.0, 6.0, 10.0, 16.0, 10.0);
+    protected static final VoxelShape Z_AXIS_AABB = Block.box(6.0, 6.0, 0.0, 10.0, 10.0, 16.0);
+    protected static final VoxelShape X_AXIS_AABB = Block.box(0.0, 6.0, 6.0, 16.0, 10.0, 10.0);
+
     protected EndRodBlock(BlockBehaviour.Properties param0) {
         super(param0);
         this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.UP));
+    }
+
+    @Override
+    public BlockState rotate(BlockState param0, Rotation param1) {
+        return param0.setValue(FACING, param1.rotate(param0.getValue(FACING)));
+    }
+
+    @Override
+    public BlockState mirror(BlockState param0, Mirror param1) {
+        return param0.setValue(FACING, param1.mirror(param0.getValue(FACING)));
+    }
+
+    @Override
+    public VoxelShape getShape(BlockState param0, BlockGetter param1, BlockPos param2, CollisionContext param3) {
+        switch(param0.getValue(FACING).getAxis()) {
+            case X:
+            default:
+                return X_AXIS_AABB;
+            case Z:
+                return Z_AXIS_AABB;
+            case Y:
+                return Y_AXIS_AABB;
+        }
     }
 
     @Override
@@ -58,5 +89,10 @@ public class EndRodBlock extends RodBlock {
     @Override
     public PushReaction getPistonPushReaction(BlockState param0) {
         return PushReaction.NORMAL;
+    }
+
+    @Override
+    public boolean isPathfindable(BlockState param0, BlockGetter param1, BlockPos param2, PathComputationType param3) {
+        return false;
     }
 }

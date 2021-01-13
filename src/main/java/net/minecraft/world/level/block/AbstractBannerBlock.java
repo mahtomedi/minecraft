@@ -28,8 +28,8 @@ public abstract class AbstractBannerBlock extends BaseEntityBlock {
     }
 
     @Override
-    public BlockEntity newBlockEntity(BlockPos param0, BlockState param1) {
-        return new BannerBlockEntity(param0, param1, this.color);
+    public BlockEntity newBlockEntity(BlockGetter param0) {
+        return new BannerBlockEntity(this.color);
     }
 
     @Override
@@ -47,7 +47,7 @@ public abstract class AbstractBannerBlock extends BaseEntityBlock {
     @Override
     public ItemStack getCloneItemStack(BlockGetter param0, BlockPos param1, BlockState param2) {
         BlockEntity var0 = param0.getBlockEntity(param1);
-        return var0 instanceof BannerBlockEntity ? ((BannerBlockEntity)var0).getItem() : super.getCloneItemStack(param0, param1, param2);
+        return var0 instanceof BannerBlockEntity ? ((BannerBlockEntity)var0).getItem(param2) : super.getCloneItemStack(param0, param1, param2);
     }
 
     public DyeColor getColor() {

@@ -2,9 +2,8 @@ package net.minecraft.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Vector3f;
 import net.minecraft.client.model.ShulkerModel;
-import net.minecraft.client.model.geom.ModelLayers;
-import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.Sheets;
@@ -18,11 +17,12 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class ShulkerBoxRenderer implements BlockEntityRenderer<ShulkerBoxBlockEntity> {
+public class ShulkerBoxRenderer extends BlockEntityRenderer<ShulkerBoxBlockEntity> {
     private final ShulkerModel<?> model;
 
-    public ShulkerBoxRenderer(BlockEntityRendererProvider.Context param0) {
-        this.model = new ShulkerModel(param0.bakeLayer(ModelLayers.SHULKER));
+    public ShulkerBoxRenderer(ShulkerModel<?> param0, BlockEntityRenderDispatcher param1) {
+        super(param1);
+        this.model = param0;
     }
 
     public void render(ShulkerBoxBlockEntity param0, float param1, PoseStack param2, MultiBufferSource param3, int param4, int param5) {
@@ -49,11 +49,11 @@ public class ShulkerBoxRenderer implements BlockEntityRenderer<ShulkerBoxBlockEn
         param2.mulPose(var0.getRotation());
         param2.scale(1.0F, -1.0F, -1.0F);
         param2.translate(0.0, -1.0, 0.0);
-        ModelPart var6 = this.model.getLid();
-        var6.setPos(0.0F, 24.0F - param0.getProgress(param1) * 0.5F * 16.0F, 0.0F);
-        var6.yRot = 270.0F * param0.getProgress(param1) * (float) (Math.PI / 180.0);
-        VertexConsumer var7 = var3.buffer(param3, RenderType::entityCutoutNoCull);
-        this.model.renderToBuffer(param2, var7, param4, param5, 1.0F, 1.0F, 1.0F, 1.0F);
+        VertexConsumer var6 = var3.buffer(param3, RenderType::entityCutoutNoCull);
+        this.model.getBase().render(param2, var6, param4, param5);
+        param2.translate(0.0, (double)(-param0.getProgress(param1) * 0.5F), 0.0);
+        param2.mulPose(Vector3f.YP.rotationDegrees(270.0F * param0.getProgress(param1)));
+        this.model.getLid().render(param2, var6, param4, param5);
         param2.popPose();
     }
 }

@@ -1,13 +1,11 @@
 package net.minecraft.world.level.material;
 
-import java.util.Optional;
 import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.IdMapper;
 import net.minecraft.core.particles.ParticleOptions;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.Tag;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.BlockGetter;
@@ -100,8 +98,4 @@ public abstract class Fluid {
     }
 
     public abstract VoxelShape getShape(FluidState var1, BlockGetter var2, BlockPos var3);
-
-    public Optional<SoundEvent> getPickupSound() {
-        return Optional.empty();
-    }
 }

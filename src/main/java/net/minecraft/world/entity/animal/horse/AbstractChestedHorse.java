@@ -9,7 +9,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
@@ -115,34 +114,22 @@ public abstract class AbstractChestedHorse extends AbstractHorse {
     }
 
     @Override
-    public SlotAccess getSlot(int param0) {
-        return param0 == 499 ? new SlotAccess() {
-            @Override
-            public ItemStack get() {
-                return AbstractChestedHorse.this.hasChest() ? new ItemStack(Items.CHEST) : ItemStack.EMPTY;
+    public boolean setSlot(int param0, ItemStack param1) {
+        if (param0 == 499) {
+            if (this.hasChest() && param1.isEmpty()) {
+                this.setChest(false);
+                this.createInventory();
+                return true;
             }
 
-            @Override
-            public boolean set(ItemStack param0) {
-                if (param0.isEmpty()) {
-                    if (AbstractChestedHorse.this.hasChest()) {
-                        AbstractChestedHorse.this.setChest(false);
-                        AbstractChestedHorse.this.createInventory();
-                    }
-
-                    return true;
-                } else if (param0.is(Items.CHEST)) {
-                    if (!AbstractChestedHorse.this.hasChest()) {
-                        AbstractChestedHorse.this.setChest(true);
-                        AbstractChestedHorse.this.createInventory();
-                    }
-
-                    return true;
-                } else {
-                    return false;
-                }
+            if (!this.hasChest() && param1.getItem() == Blocks.CHEST.asItem()) {
+                this.setChest(true);
+                this.createInventory();
+                return true;
             }
-        } : super.getSlot(param0);
+        }
+
+        return super.setSlot(param0, param1);
     }
 
     @Override
@@ -169,10 +156,10 @@ public abstract class AbstractChestedHorse extends AbstractHorse {
                 return InteractionResult.sidedSuccess(this.level.isClientSide);
             }
 
-            if (!this.hasChest() && var0.is(Blocks.CHEST.asItem())) {
+            if (!this.hasChest() && var0.getItem() == Blocks.CHEST.asItem()) {
                 this.setChest(true);
                 this.playChestEquipsSound();
-                if (!param0.getAbilities().instabuild) {
+                if (!param0.abilities.instabuild) {
                     var0.shrink(1);
                 }
 
@@ -180,7 +167,7 @@ public abstract class AbstractChestedHorse extends AbstractHorse {
                 return InteractionResult.sidedSuccess(this.level.isClientSide);
             }
 
-            if (!this.isBaby() && !this.isSaddled() && var0.is(Items.SADDLE)) {
+            if (!this.isBaby() && !this.isSaddled() && var0.getItem() == Items.SADDLE) {
                 this.openInventory(param0);
                 return InteractionResult.sidedSuccess(this.level.isClientSide);
             }

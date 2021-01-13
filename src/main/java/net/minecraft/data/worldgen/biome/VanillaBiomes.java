@@ -48,7 +48,6 @@ public class VanillaBiomes {
         var1.addStructureStart(StructureFeatures.RUINED_PORTAL_STANDARD);
         BiomeDefaultFeatures.addDefaultCarvers(var1);
         BiomeDefaultFeatures.addDefaultLakes(var1);
-        BiomeDefaultFeatures.addDefaultCrystalFormations(var1);
         BiomeDefaultFeatures.addDefaultMonsterRoom(var1);
         BiomeDefaultFeatures.addMossyStoneBlock(var1);
         BiomeDefaultFeatures.addFerns(var1);
@@ -93,7 +92,6 @@ public class VanillaBiomes {
         var1.addStructureStart(StructureFeatures.RUINED_PORTAL_STANDARD);
         BiomeDefaultFeatures.addDefaultCarvers(var1);
         BiomeDefaultFeatures.addDefaultLakes(var1);
-        BiomeDefaultFeatures.addDefaultCrystalFormations(var1);
         BiomeDefaultFeatures.addDefaultMonsterRoom(var1);
         BiomeDefaultFeatures.addForestFlowers(var1);
         BiomeDefaultFeatures.addDefaultUndergroundVariety(var1);
@@ -199,7 +197,6 @@ public class VanillaBiomes {
         var0.addStructureStart(StructureFeatures.RUINED_PORTAL_JUNGLE);
         BiomeDefaultFeatures.addDefaultCarvers(var0);
         BiomeDefaultFeatures.addDefaultLakes(var0);
-        BiomeDefaultFeatures.addDefaultCrystalFormations(var0);
         BiomeDefaultFeatures.addDefaultMonsterRoom(var0);
         BiomeDefaultFeatures.addDefaultUndergroundVariety(var0);
         BiomeDefaultFeatures.addDefaultOres(var0);
@@ -256,7 +253,6 @@ public class VanillaBiomes {
         var1.addStructureStart(StructureFeatures.RUINED_PORTAL_MOUNTAIN);
         BiomeDefaultFeatures.addDefaultCarvers(var1);
         BiomeDefaultFeatures.addDefaultLakes(var1);
-        BiomeDefaultFeatures.addDefaultCrystalFormations(var1);
         BiomeDefaultFeatures.addDefaultMonsterRoom(var1);
         BiomeDefaultFeatures.addDefaultUndergroundVariety(var1);
         BiomeDefaultFeatures.addDefaultOres(var1);
@@ -317,7 +313,6 @@ public class VanillaBiomes {
         var1.addStructureStart(StructureFeatures.RUINED_PORTAL_DESERT);
         BiomeDefaultFeatures.addDefaultCarvers(var1);
         BiomeDefaultFeatures.addDesertLakes(var1);
-        BiomeDefaultFeatures.addDefaultCrystalFormations(var1);
         BiomeDefaultFeatures.addDefaultMonsterRoom(var1);
         BiomeDefaultFeatures.addDefaultUndergroundVariety(var1);
         BiomeDefaultFeatures.addDefaultOres(var1);
@@ -367,7 +362,6 @@ public class VanillaBiomes {
         var1.addStructureStart(StructureFeatures.RUINED_PORTAL_STANDARD);
         BiomeDefaultFeatures.addDefaultCarvers(var1);
         BiomeDefaultFeatures.addDefaultLakes(var1);
-        BiomeDefaultFeatures.addDefaultCrystalFormations(var1);
         BiomeDefaultFeatures.addDefaultMonsterRoom(var1);
         BiomeDefaultFeatures.addPlainGrass(var1);
         if (param0) {
@@ -479,7 +473,6 @@ public class VanillaBiomes {
         var1.addStructureStart(StructureFeatures.RUINED_PORTAL_STANDARD);
         BiomeDefaultFeatures.addDefaultCarvers(var1);
         BiomeDefaultFeatures.addDefaultLakes(var1);
-        BiomeDefaultFeatures.addDefaultCrystalFormations(var1);
         BiomeDefaultFeatures.addDefaultMonsterRoom(var1);
         BiomeDefaultFeatures.addDefaultUndergroundVariety(var1);
         BiomeDefaultFeatures.addDefaultOres(var1);
@@ -521,7 +514,6 @@ public class VanillaBiomes {
         var0.addStructureStart(param3 ? StructureFeatures.RUINED_PORTAL_MOUNTAIN : StructureFeatures.RUINED_PORTAL_STANDARD);
         BiomeDefaultFeatures.addDefaultCarvers(var0);
         BiomeDefaultFeatures.addDefaultLakes(var0);
-        BiomeDefaultFeatures.addDefaultCrystalFormations(var0);
         BiomeDefaultFeatures.addDefaultMonsterRoom(var0);
         if (!param4) {
             BiomeDefaultFeatures.addSavannaGrass(var0);
@@ -595,7 +587,6 @@ public class VanillaBiomes {
         var1.addStructureStart(param3 ? StructureFeatures.RUINED_PORTAL_MOUNTAIN : StructureFeatures.RUINED_PORTAL_STANDARD);
         BiomeDefaultFeatures.addDefaultCarvers(var1);
         BiomeDefaultFeatures.addDefaultLakes(var1);
-        BiomeDefaultFeatures.addDefaultCrystalFormations(var1);
         BiomeDefaultFeatures.addDefaultMonsterRoom(var1);
         BiomeDefaultFeatures.addDefaultUndergroundVariety(var1);
         BiomeDefaultFeatures.addDefaultOres(var1);
@@ -691,7 +682,6 @@ public class VanillaBiomes {
         var0.addStructureStart(StructureFeatures.RUINED_PORTAL_OCEAN);
         BiomeDefaultFeatures.addOceanCarvers(var0);
         BiomeDefaultFeatures.addDefaultLakes(var0);
-        BiomeDefaultFeatures.addDefaultCrystalFormations(var0);
         BiomeDefaultFeatures.addDefaultMonsterRoom(var0);
         BiomeDefaultFeatures.addDefaultUndergroundVariety(var0);
         BiomeDefaultFeatures.addDefaultOres(var0);
@@ -794,7 +784,6 @@ public class VanillaBiomes {
         BiomeDefaultFeatures.addOceanCarvers(var2);
         BiomeDefaultFeatures.addDefaultLakes(var2);
         BiomeDefaultFeatures.addIcebergs(var2);
-        BiomeDefaultFeatures.addDefaultCrystalFormations(var2);
         BiomeDefaultFeatures.addDefaultMonsterRoom(var2);
         BiomeDefaultFeatures.addBlueIce(var2);
         BiomeDefaultFeatures.addDefaultUndergroundVariety(var2);
@@ -835,7 +824,6 @@ public class VanillaBiomes {
         var0.addStructureStart(StructureFeatures.RUINED_PORTAL_STANDARD);
         BiomeDefaultFeatures.addDefaultCarvers(var0);
         BiomeDefaultFeatures.addDefaultLakes(var0);
-        BiomeDefaultFeatures.addDefaultCrystalFormations(var0);
         BiomeDefaultFeatures.addDefaultMonsterRoom(var0);
         if (param2) {
             var0.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, Features.FOREST_FLOWER_VEGETATION_COMMON);
@@ -926,7 +914,6 @@ public class VanillaBiomes {
         var2.addStructureStart(param3 ? StructureFeatures.RUINED_PORTAL_MOUNTAIN : StructureFeatures.RUINED_PORTAL_STANDARD);
         BiomeDefaultFeatures.addDefaultCarvers(var2);
         BiomeDefaultFeatures.addDefaultLakes(var2);
-        BiomeDefaultFeatures.addDefaultCrystalFormations(var2);
         BiomeDefaultFeatures.addDefaultMonsterRoom(var2);
         BiomeDefaultFeatures.addFerns(var2);
         BiomeDefaultFeatures.addDefaultUndergroundVariety(var2);
@@ -976,7 +963,6 @@ public class VanillaBiomes {
         var1.addStructureStart(StructureFeatures.RUINED_PORTAL_STANDARD);
         BiomeDefaultFeatures.addDefaultCarvers(var1);
         BiomeDefaultFeatures.addDefaultLakes(var1);
-        BiomeDefaultFeatures.addDefaultCrystalFormations(var1);
         BiomeDefaultFeatures.addDefaultMonsterRoom(var1);
         var1.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, param2 ? Features.DARK_FOREST_VEGETATION_RED : Features.DARK_FOREST_VEGETATION_BROWN);
         BiomeDefaultFeatures.addForestFlowers(var1);
@@ -1029,7 +1015,6 @@ public class VanillaBiomes {
         }
 
         BiomeDefaultFeatures.addDefaultLakes(var1);
-        BiomeDefaultFeatures.addDefaultCrystalFormations(var1);
         BiomeDefaultFeatures.addDefaultMonsterRoom(var1);
         BiomeDefaultFeatures.addDefaultUndergroundVariety(var1);
         BiomeDefaultFeatures.addDefaultOres(var1);
@@ -1085,7 +1070,6 @@ public class VanillaBiomes {
         var1.addStructureStart(param3 ? StructureFeatures.RUINED_PORTAL_MOUNTAIN : StructureFeatures.RUINED_PORTAL_STANDARD);
         BiomeDefaultFeatures.addDefaultCarvers(var1);
         BiomeDefaultFeatures.addDefaultLakes(var1);
-        BiomeDefaultFeatures.addDefaultCrystalFormations(var1);
         BiomeDefaultFeatures.addDefaultMonsterRoom(var1);
         if (param2) {
             var1.addFeature(GenerationStep.Decoration.SURFACE_STRUCTURES, Features.ICE_SPIKE);
@@ -1134,7 +1118,6 @@ public class VanillaBiomes {
         var1.addStructureStart(StructureFeatures.RUINED_PORTAL_STANDARD);
         BiomeDefaultFeatures.addDefaultCarvers(var1);
         BiomeDefaultFeatures.addDefaultLakes(var1);
-        BiomeDefaultFeatures.addDefaultCrystalFormations(var1);
         BiomeDefaultFeatures.addDefaultMonsterRoom(var1);
         BiomeDefaultFeatures.addDefaultUndergroundVariety(var1);
         BiomeDefaultFeatures.addDefaultOres(var1);
@@ -1190,7 +1173,6 @@ public class VanillaBiomes {
         var1.addStructureStart(param6 ? StructureFeatures.RUINED_PORTAL_MOUNTAIN : StructureFeatures.RUINED_PORTAL_STANDARD);
         BiomeDefaultFeatures.addDefaultCarvers(var1);
         BiomeDefaultFeatures.addDefaultLakes(var1);
-        BiomeDefaultFeatures.addDefaultCrystalFormations(var1);
         BiomeDefaultFeatures.addDefaultMonsterRoom(var1);
         BiomeDefaultFeatures.addDefaultUndergroundVariety(var1);
         BiomeDefaultFeatures.addDefaultOres(var1);
@@ -1502,46 +1484,6 @@ public class VanillaBiomes {
                     .ambientMoodSound(new AmbientMoodSettings(SoundEvents.AMBIENT_WARPED_FOREST_MOOD, 6000, 8, 2.0))
                     .ambientAdditionsSound(new AmbientAdditionsSettings(SoundEvents.AMBIENT_WARPED_FOREST_ADDITIONS, 0.0111))
                     .backgroundMusic(Musics.createGameMusic(SoundEvents.MUSIC_BIOME_WARPED_FOREST))
-                    .build()
-            )
-            .mobSpawnSettings(var0)
-            .generationSettings(var1.build())
-            .build();
-    }
-
-    public static Biome dripstoneCaves() {
-        MobSpawnSettings var0 = new MobSpawnSettings.Builder().build();
-        BiomeGenerationSettings.Builder var1 = new BiomeGenerationSettings.Builder().surfaceBuilder(SurfaceBuilders.GRASS);
-        BiomeDefaultFeatures.addDefaultOverworldLandStructures(var1);
-        var1.addStructureStart(StructureFeatures.RUINED_PORTAL_STANDARD);
-        BiomeDefaultFeatures.addDefaultCarvers(var1);
-        BiomeDefaultFeatures.addDefaultLakes(var1);
-        BiomeDefaultFeatures.addDefaultCrystalFormations(var1);
-        BiomeDefaultFeatures.addDefaultMonsterRoom(var1);
-        BiomeDefaultFeatures.addPlainGrass(var1);
-        BiomeDefaultFeatures.addDefaultUndergroundVariety(var1);
-        BiomeDefaultFeatures.addDefaultOres(var1);
-        BiomeDefaultFeatures.addDefaultSoftDisks(var1);
-        BiomeDefaultFeatures.addPlainVegetation(var1);
-        BiomeDefaultFeatures.addDefaultMushrooms(var1);
-        BiomeDefaultFeatures.addDefaultExtraVegetation(var1);
-        BiomeDefaultFeatures.addDefaultSprings(var1);
-        BiomeDefaultFeatures.addSurfaceFreezing(var1);
-        BiomeDefaultFeatures.addDripstone(var1);
-        return new Biome.BiomeBuilder()
-            .precipitation(Biome.Precipitation.RAIN)
-            .biomeCategory(Biome.BiomeCategory.PLAINS)
-            .depth(0.125F)
-            .scale(0.05F)
-            .temperature(0.8F)
-            .downfall(0.4F)
-            .specialEffects(
-                new BiomeSpecialEffects.Builder()
-                    .waterColor(4159204)
-                    .waterFogColor(329011)
-                    .fogColor(12638463)
-                    .skyColor(calculateSkyColor(0.8F))
-                    .ambientMoodSound(AmbientMoodSettings.LEGACY_CAVE_SETTINGS)
                     .build()
             )
             .mobSpawnSettings(var0)

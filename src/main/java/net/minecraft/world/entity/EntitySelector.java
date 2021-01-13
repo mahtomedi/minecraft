@@ -11,7 +11,7 @@ import net.minecraft.world.scores.Team;
 
 public final class EntitySelector {
     public static final Predicate<Entity> ENTITY_STILL_ALIVE = Entity::isAlive;
-    public static final Predicate<Entity> LIVING_ENTITY_STILL_ALIVE = param0 -> param0.isAlive() && param0 instanceof LivingEntity;
+    public static final Predicate<LivingEntity> LIVING_ENTITY_STILL_ALIVE = LivingEntity::isAlive;
     public static final Predicate<Entity> ENTITY_NOT_BEING_RIDDEN = param0 -> param0.isAlive() && !param0.isVehicle() && !param0.isPassenger();
     public static final Predicate<Entity> CONTAINER_ENTITY_SELECTOR = param0 -> param0 instanceof Container && param0.isAlive();
     public static final Predicate<Entity> NO_CREATIVE_OR_SPECTATOR = param0 -> !(param0 instanceof Player)

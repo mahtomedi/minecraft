@@ -1,13 +1,11 @@
 package net.minecraft.client.gui.screens.inventory;
 
-import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
@@ -35,10 +33,6 @@ public class StructureBlockEditScreen extends Screen {
     private static final Component DETECT_SIZE_LABEL = new TranslatableComponent("structure_block.detect_size");
     private static final Component SHOW_AIR_LABEL = new TranslatableComponent("structure_block.show_air");
     private static final Component SHOW_BOUNDING_BOX_LABEL = new TranslatableComponent("structure_block.show_boundingbox");
-    private static final ImmutableList<StructureMode> ALL_MODES = ImmutableList.copyOf(StructureMode.values());
-    private static final ImmutableList<StructureMode> DEFAULT_MODES = ALL_MODES.stream()
-        .filter(param0 -> param0 != StructureMode.DATA)
-        .collect(ImmutableList.toImmutableList());
     private final StructureBlockEntity structure;
     private Mirror initialMirror = Mirror.NONE;
     private Rotation initialRotation = Rotation.NONE;
@@ -56,17 +50,20 @@ public class StructureBlockEditScreen extends Screen {
     private EditBox integrityEdit;
     private EditBox seedEdit;
     private EditBox dataEdit;
+    private Button doneButton;
+    private Button cancelButton;
     private Button saveButton;
     private Button loadButton;
     private Button rot0Button;
     private Button rot90Button;
     private Button rot180Button;
     private Button rot270Button;
+    private Button modeButton;
     private Button detectButton;
-    private CycleButton<Boolean> includeEntitiesButton;
-    private CycleButton<Mirror> mirrorButton;
-    private CycleButton<Boolean> toggleAirButton;
-    private CycleButton<Boolean> toggleBoundingBox;
+    private Button entitiesButton;
+    private Button mirrorButton;
+    private Button toggleAirButton;
+    private Button toggleBoundingBox;
     private final DecimalFormat decimalFormat = new DecimalFormat("0.0###");
 
     public StructureBlockEditScreen(StructureBlockEntity param0) {
@@ -109,14 +106,8 @@ public class StructureBlockEditScreen extends Screen {
     @Override
     protected void init() {
         this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
-        this.addButton(new Button(this.width / 2 - 4 - 150, 210, 150, 20, CommonComponents.GUI_DONE, param0 -> this.onDone()));
-        this.addButton(new Button(this.width / 2 + 4, 210, 150, 20, CommonComponents.GUI_CANCEL, param0 -> this.onCancel()));
-        this.initialMirror = this.structure.getMirror();
-        this.initialRotation = this.structure.getRotation();
-        this.initialMode = this.structure.getMode();
-        this.initialEntityIgnoring = this.structure.isIgnoreEntities();
-        this.initialShowAir = this.structure.getShowAir();
-        this.initialShowBoundingBox = this.structure.getShowBoundingBox();
+        this.doneButton = this.addButton(new Button(this.width / 2 - 4 - 150, 210, 150, 20, CommonComponents.GUI_DONE, param0 -> this.onDone()));
+        this.cancelButton = this.addButton(new Button(this.width / 2 + 4, 210, 150, 20, CommonComponents.GUI_CANCEL, param0 -> this.onCancel()));
         this.saveButton = this.addButton(
             new Button(this.width / 2 + 4 + 100, 185, 50, 20, new TranslatableComponent("structure_block.button.save"), param0 -> {
                 if (this.structure.getMode() == StructureMode.SAVE) {
@@ -135,16 +126,10 @@ public class StructureBlockEditScreen extends Screen {
     
             })
         );
-        this.addButton(
-            CycleButton.<StructureMode>builder(param0 -> new TranslatableComponent("structure_block.mode." + param0.getSerializedName()))
-                .withValues(DEFAULT_MODES, ALL_MODES)
-                .displayOnlyValue()
-                .withInitialValue(this.initialMode)
-                .create(this.width / 2 - 4 - 150, 185, 50, 20, new TextComponent("MODE"), (param0, param1) -> {
-                    this.structure.setMode(param1);
-                    this.updateMode(param1);
-                })
-        );
+        this.modeButton = this.addButton(new Button(this.width / 2 - 4 - 150, 185, 50, 20, new TextComponent("MODE"), param0 -> {
+            this.structure.nextMode();
+            this.updateMode();
+        }));
         this.detectButton = this.addButton(
             new Button(this.width / 2 + 4 + 100, 120, 50, 20, new TranslatableComponent("structure_block.button.detect_size"), param0 -> {
                 if (this.structure.getMode() == StructureMode.SAVE) {
@@ -154,28 +139,32 @@ public class StructureBlockEditScreen extends Screen {
     
             })
         );
-        this.includeEntitiesButton = this.addButton(
-            CycleButton.onOffBuilder(!this.structure.isIgnoreEntities())
-                .displayOnlyValue()
-                .create(this.width / 2 + 4 + 100, 160, 50, 20, INCLUDE_ENTITIES_LABEL, (param0, param1) -> this.structure.setIgnoreEntities(!param1))
-        );
-        this.mirrorButton = this.addButton(
-            CycleButton.builder(Mirror::symbol)
-                .withValues(Mirror.values())
-                .displayOnlyValue()
-                .withInitialValue(this.initialMirror)
-                .create(this.width / 2 - 20, 185, 40, 20, new TextComponent("MIRROR"), (param0, param1) -> this.structure.setMirror(param1))
-        );
-        this.toggleAirButton = this.addButton(
-            CycleButton.onOffBuilder(this.structure.getShowAir())
-                .displayOnlyValue()
-                .create(this.width / 2 + 4 + 100, 80, 50, 20, SHOW_AIR_LABEL, (param0, param1) -> this.structure.setShowAir(param1))
-        );
-        this.toggleBoundingBox = this.addButton(
-            CycleButton.onOffBuilder(this.structure.getShowBoundingBox())
-                .displayOnlyValue()
-                .create(this.width / 2 + 4 + 100, 80, 50, 20, SHOW_BOUNDING_BOX_LABEL, (param0, param1) -> this.structure.setShowBoundingBox(param1))
-        );
+        this.entitiesButton = this.addButton(new Button(this.width / 2 + 4 + 100, 160, 50, 20, new TextComponent("ENTITIES"), param0 -> {
+            this.structure.setIgnoreEntities(!this.structure.isIgnoreEntities());
+            this.updateEntitiesButton();
+        }));
+        this.mirrorButton = this.addButton(new Button(this.width / 2 - 20, 185, 40, 20, new TextComponent("MIRROR"), param0 -> {
+            switch(this.structure.getMirror()) {
+                case NONE:
+                    this.structure.setMirror(Mirror.LEFT_RIGHT);
+                    break;
+                case LEFT_RIGHT:
+                    this.structure.setMirror(Mirror.FRONT_BACK);
+                    break;
+                case FRONT_BACK:
+                    this.structure.setMirror(Mirror.NONE);
+            }
+
+            this.updateMirrorButton();
+        }));
+        this.toggleAirButton = this.addButton(new Button(this.width / 2 + 4 + 100, 80, 50, 20, new TextComponent("SHOWAIR"), param0 -> {
+            this.structure.setShowAir(!this.structure.getShowAir());
+            this.updateToggleAirButton();
+        }));
+        this.toggleBoundingBox = this.addButton(new Button(this.width / 2 + 4 + 100, 80, 50, 20, new TextComponent("SHOWBB"), param0 -> {
+            this.structure.setShowBoundingBox(!this.structure.getShowBoundingBox());
+            this.updateToggleBoundingBox();
+        }));
         this.rot0Button = this.addButton(new Button(this.width / 2 - 1 - 40 - 1 - 40 - 20, 185, 40, 20, new TextComponent("0"), param0 -> {
             this.structure.setRotation(Rotation.NONE);
             this.updateDirectionButtons();
@@ -241,8 +230,18 @@ public class StructureBlockEditScreen extends Screen {
         this.dataEdit.setMaxLength(128);
         this.dataEdit.setValue(this.structure.getMetaData());
         this.children.add(this.dataEdit);
+        this.initialMirror = this.structure.getMirror();
+        this.updateMirrorButton();
+        this.initialRotation = this.structure.getRotation();
         this.updateDirectionButtons();
-        this.updateMode(this.initialMode);
+        this.initialMode = this.structure.getMode();
+        this.updateMode();
+        this.initialEntityIgnoring = this.structure.isIgnoreEntities();
+        this.updateEntitiesButton();
+        this.initialShowAir = this.structure.getShowAir();
+        this.updateToggleAirButton();
+        this.initialShowBoundingBox = this.structure.getShowBoundingBox();
+        this.updateToggleBoundingBox();
         this.setInitialFocus(this.nameEdit);
     }
 
@@ -276,6 +275,33 @@ public class StructureBlockEditScreen extends Screen {
         this.minecraft.keyboardHandler.setSendRepeatsToGui(false);
     }
 
+    private void updateEntitiesButton() {
+        this.entitiesButton.setMessage(CommonComponents.optionStatus(!this.structure.isIgnoreEntities()));
+    }
+
+    private void updateToggleAirButton() {
+        this.toggleAirButton.setMessage(CommonComponents.optionStatus(this.structure.getShowAir()));
+    }
+
+    private void updateToggleBoundingBox() {
+        this.toggleBoundingBox.setMessage(CommonComponents.optionStatus(this.structure.getShowBoundingBox()));
+    }
+
+    private void updateMirrorButton() {
+        Mirror var0 = this.structure.getMirror();
+        switch(var0) {
+            case NONE:
+                this.mirrorButton.setMessage(new TextComponent("|"));
+                break;
+            case LEFT_RIGHT:
+                this.mirrorButton.setMessage(new TextComponent("< >"));
+                break;
+            case FRONT_BACK:
+                this.mirrorButton.setMessage(new TextComponent("^ v"));
+        }
+
+    }
+
     private void updateDirectionButtons() {
         this.rot0Button.active = true;
         this.rot90Button.active = true;
@@ -297,7 +323,7 @@ public class StructureBlockEditScreen extends Screen {
 
     }
 
-    private void updateMode(StructureMode param0) {
+    private void updateMode() {
         this.nameEdit.setVisible(false);
         this.posXEdit.setVisible(false);
         this.posYEdit.setVisible(false);
@@ -311,7 +337,7 @@ public class StructureBlockEditScreen extends Screen {
         this.saveButton.visible = false;
         this.loadButton.visible = false;
         this.detectButton.visible = false;
-        this.includeEntitiesButton.visible = false;
+        this.entitiesButton.visible = false;
         this.mirrorButton.visible = false;
         this.rot0Button.visible = false;
         this.rot90Button.visible = false;
@@ -319,7 +345,7 @@ public class StructureBlockEditScreen extends Screen {
         this.rot270Button.visible = false;
         this.toggleAirButton.visible = false;
         this.toggleBoundingBox.visible = false;
-        switch(param0) {
+        switch(this.structure.getMode()) {
             case SAVE:
                 this.nameEdit.setVisible(true);
                 this.posXEdit.setVisible(true);
@@ -330,7 +356,7 @@ public class StructureBlockEditScreen extends Screen {
                 this.sizeZEdit.setVisible(true);
                 this.saveButton.visible = true;
                 this.detectButton.visible = true;
-                this.includeEntitiesButton.visible = true;
+                this.entitiesButton.visible = true;
                 this.toggleAirButton.visible = true;
                 break;
             case LOAD:
@@ -341,7 +367,7 @@ public class StructureBlockEditScreen extends Screen {
                 this.integrityEdit.setVisible(true);
                 this.seedEdit.setVisible(true);
                 this.loadButton.visible = true;
-                this.includeEntitiesButton.visible = true;
+                this.entitiesButton.visible = true;
                 this.mirrorButton.visible = true;
                 this.rot0Button.visible = true;
                 this.rot90Button.visible = true;
@@ -357,6 +383,7 @@ public class StructureBlockEditScreen extends Screen {
                 this.dataEdit.setVisible(true);
         }
 
+        this.modeButton.setMessage(new TranslatableComponent("structure_block.mode." + this.structure.getMode().getSerializedName()));
     }
 
     private boolean sendToServer(StructureBlockEntity.UpdateType param0) {

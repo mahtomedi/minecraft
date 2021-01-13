@@ -1414,7 +1414,7 @@ public class OceanMonumentPieces {
         protected static final int GRIDROOM_RIGHTWING_CONNECT_INDEX = getRoomIndex(4, 1, 0);
         protected OceanMonumentPieces.RoomDefinition roomDefinition;
 
-        protected static int getRoomIndex(int param0, int param1, int param2) {
+        protected static final int getRoomIndex(int param0, int param1, int param2) {
             return param1 * 25 + param2 * 5 + param0;
         }
 

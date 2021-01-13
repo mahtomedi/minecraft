@@ -15,9 +15,6 @@ import net.minecraft.world.level.block.state.properties.Half;
 
 public class BlockAgeProcessor extends StructureProcessor {
     public static final Codec<BlockAgeProcessor> CODEC = Codec.FLOAT.fieldOf("mossiness").xmap(BlockAgeProcessor::new, param0 -> param0.mossiness).codec();
-    private static final BlockState[] NON_MOSSY_REPLACEMENTS = new BlockState[]{
-        Blocks.STONE_SLAB.defaultBlockState(), Blocks.STONE_BRICK_SLAB.defaultBlockState()
-    };
     private final float mossiness;
 
     public BlockAgeProcessor(float param0) {
@@ -71,11 +68,12 @@ public class BlockAgeProcessor extends StructureProcessor {
         if (param0.nextFloat() >= 0.5F) {
             return null;
         } else {
-            BlockState[] var2 = new BlockState[]{
+            BlockState[] var2 = new BlockState[]{Blocks.STONE_SLAB.defaultBlockState(), Blocks.STONE_BRICK_SLAB.defaultBlockState()};
+            BlockState[] var3 = new BlockState[]{
                 Blocks.MOSSY_STONE_BRICK_STAIRS.defaultBlockState().setValue(StairBlock.FACING, var0).setValue(StairBlock.HALF, var1),
                 Blocks.MOSSY_STONE_BRICK_SLAB.defaultBlockState()
             };
-            return this.getRandomBlock(param0, NON_MOSSY_REPLACEMENTS, var2);
+            return this.getRandomBlock(param0, var2, var3);
         }
     }
 

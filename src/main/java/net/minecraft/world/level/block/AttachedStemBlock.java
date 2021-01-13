@@ -3,11 +3,11 @@ package net.minecraft.world.level.block;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import java.util.Map;
-import java.util.function.Supplier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -21,6 +21,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class AttachedStemBlock extends BushBlock {
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
+    private final StemGrownBlock fruit;
     private static final Map<Direction, VoxelShape> AABBS = Maps.newEnumMap(
         ImmutableMap.of(
             Direction.SOUTH,
@@ -33,14 +34,11 @@ public class AttachedStemBlock extends BushBlock {
             Block.box(6.0, 0.0, 6.0, 16.0, 10.0, 10.0)
         )
     );
-    private final StemGrownBlock fruit;
-    private final Supplier<Item> seedSupplier;
 
-    protected AttachedStemBlock(StemGrownBlock param0, Supplier<Item> param1, BlockBehaviour.Properties param2) {
-        super(param2);
+    protected AttachedStemBlock(StemGrownBlock param0, BlockBehaviour.Properties param1) {
+        super(param1);
         this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH));
         this.fruit = param0;
-        this.seedSupplier = param1;
     }
 
     @Override
@@ -61,9 +59,18 @@ public class AttachedStemBlock extends BushBlock {
     }
 
     @OnlyIn(Dist.CLIENT)
+    protected Item getSeedItem() {
+        if (this.fruit == Blocks.PUMPKIN) {
+            return Items.PUMPKIN_SEEDS;
+        } else {
+            return this.fruit == Blocks.MELON ? Items.MELON_SEEDS : Items.AIR;
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
     @Override
     public ItemStack getCloneItemStack(BlockGetter param0, BlockPos param1, BlockState param2) {
-        return new ItemStack(this.seedSupplier.get());
+        return new ItemStack(this.getSeedItem());
     }
 
     @Override

@@ -1,25 +1,38 @@
 package com.mojang.realmsclient.util.task;
 
 import com.mojang.realmsclient.client.RealmsClient;
-import com.mojang.realmsclient.exception.RealmsServiceException;
+import com.mojang.realmsclient.dto.WorldTemplate;
 import com.mojang.realmsclient.exception.RetryCallException;
+import javax.annotation.Nullable;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public abstract class ResettingWorldTask extends LongRunningTask {
+public class ResettingWorldTask extends LongRunningTask {
+    private final String seed;
+    private final WorldTemplate worldTemplate;
+    private final int levelType;
+    private final boolean generateStructures;
     private final long serverId;
-    private final Component title;
+    private Component title = new TranslatableComponent("mco.reset.world.resetting.screen.title");
     private final Runnable callback;
 
-    public ResettingWorldTask(long param0, Component param1, Runnable param2) {
-        this.serverId = param0;
-        this.title = param1;
-        this.callback = param2;
-    }
+    public ResettingWorldTask(
+        @Nullable String param0, @Nullable WorldTemplate param1, int param2, boolean param3, long param4, @Nullable Component param5, Runnable param6
+    ) {
+        this.seed = param0;
+        this.worldTemplate = param1;
+        this.levelType = param2;
+        this.generateStructures = param3;
+        this.serverId = param4;
+        if (param5 != null) {
+            this.title = param5;
+        }
 
-    protected abstract void sendResetRequest(RealmsClient var1, long var2) throws RealmsServiceException;
+        this.callback = param6;
+    }
 
     @Override
     public void run() {
@@ -33,7 +46,12 @@ public abstract class ResettingWorldTask extends LongRunningTask {
                     return;
                 }
 
-                this.sendResetRequest(var0, this.serverId);
+                if (this.worldTemplate != null) {
+                    var0.resetWorldWithTemplate(this.serverId, this.worldTemplate.id);
+                } else {
+                    var0.resetWorldWithSeed(this.serverId, this.seed, this.levelType, this.generateStructures);
+                }
+
                 if (this.aborted()) {
                     return;
                 }
@@ -45,7 +63,7 @@ public abstract class ResettingWorldTask extends LongRunningTask {
                     return;
                 }
 
-                pause((long)var4.delaySeconds);
+                pause(var4.delaySeconds);
                 ++var1;
             } catch (Exception var5) {
                 if (this.aborted()) {

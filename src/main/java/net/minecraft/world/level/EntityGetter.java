@@ -11,19 +11,18 @@ import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public interface EntityGetter {
-    List<Entity> getEntities(@Nullable Entity var1, AABB var2, Predicate<? super Entity> var3);
+    List<Entity> getEntities(@Nullable Entity var1, AABB var2, @Nullable Predicate<? super Entity> var3);
 
-    <T extends Entity> List<T> getEntities(EntityTypeTest<Entity, T> var1, AABB var2, Predicate<? super T> var3);
+    <T extends Entity> List<T> getEntitiesOfClass(Class<? extends T> var1, AABB var2, @Nullable Predicate<? super T> var3);
 
-    default <T extends Entity> List<T> getEntitiesOfClass(Class<T> param0, AABB param1, Predicate<? super T> param2) {
-        return this.getEntities(EntityTypeTest.forClass(param0), param1, param2);
+    default <T extends Entity> List<T> getLoadedEntitiesOfClass(Class<? extends T> param0, AABB param1, @Nullable Predicate<? super T> param2) {
+        return this.getEntitiesOfClass(param0, param1, param2);
     }
 
     List<? extends Player> players();
@@ -37,7 +36,7 @@ public interface EntityGetter {
             return true;
         } else {
             for(Entity var0 : this.getEntities(param0, param1.bounds())) {
-                if (!var0.isRemoved()
+                if (!var0.removed
                     && var0.blocksBuilding
                     && (param0 == null || !var0.isPassengerOfSameVehicle(param0))
                     && Shapes.joinIsNotEmpty(param1, Shapes.create(var0.getBoundingBox()), BooleanOp.AND)) {
@@ -49,8 +48,12 @@ public interface EntityGetter {
         }
     }
 
-    default <T extends Entity> List<T> getEntitiesOfClass(Class<T> param0, AABB param1) {
+    default <T extends Entity> List<T> getEntitiesOfClass(Class<? extends T> param0, AABB param1) {
         return this.getEntitiesOfClass(param0, param1, EntitySelector.NO_SPECTATORS);
+    }
+
+    default <T extends Entity> List<T> getLoadedEntitiesOfClass(Class<? extends T> param0, AABB param1) {
+        return this.getLoadedEntitiesOfClass(param0, param1, EntitySelector.NO_SPECTATORS);
     }
 
     default Stream<VoxelShape> getEntityCollisions(@Nullable Entity param0, AABB param1, Predicate<Entity> param2) {
@@ -135,7 +138,14 @@ public interface EntityGetter {
     default <T extends LivingEntity> T getNearestEntity(
         Class<? extends T> param0, TargetingConditions param1, @Nullable LivingEntity param2, double param3, double param4, double param5, AABB param6
     ) {
-        return this.getNearestEntity(this.getEntitiesOfClass(param0, param6, param0x -> true), param1, param2, param3, param4, param5);
+        return this.getNearestEntity(this.getEntitiesOfClass(param0, param6, null), param1, param2, param3, param4, param5);
+    }
+
+    @Nullable
+    default <T extends LivingEntity> T getNearestLoadedEntity(
+        Class<? extends T> param0, TargetingConditions param1, @Nullable LivingEntity param2, double param3, double param4, double param5, AABB param6
+    ) {
+        return this.getNearestEntity(this.getLoadedEntitiesOfClass(param0, param6, null), param1, param2, param3, param4, param5);
     }
 
     @Nullable
@@ -170,8 +180,8 @@ public interface EntityGetter {
         return var0;
     }
 
-    default <T extends LivingEntity> List<T> getNearbyEntities(Class<T> param0, TargetingConditions param1, LivingEntity param2, AABB param3) {
-        List<T> var0 = this.getEntitiesOfClass(param0, param3, param0x -> true);
+    default <T extends LivingEntity> List<T> getNearbyEntities(Class<? extends T> param0, TargetingConditions param1, LivingEntity param2, AABB param3) {
+        List<T> var0 = this.getEntitiesOfClass(param0, param3, null);
         List<T> var1 = Lists.newArrayList();
 
         for(T var2 : var0) {

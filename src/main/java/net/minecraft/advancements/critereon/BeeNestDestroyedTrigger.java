@@ -9,7 +9,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
 
 public class BeeNestDestroyedTrigger extends SimpleCriterionTrigger<BeeNestDestroyedTrigger.TriggerInstance> {
     private static final ResourceLocation ID = new ResourceLocation("bee_nest_destroyed");
@@ -36,7 +35,7 @@ public class BeeNestDestroyedTrigger extends SimpleCriterionTrigger<BeeNestDestr
         }
     }
 
-    public void trigger(ServerPlayer param0, BlockState param1, ItemStack param2, int param3) {
+    public void trigger(ServerPlayer param0, Block param1, ItemStack param2, int param3) {
         this.trigger(param0, param3x -> param3x.matches(param1, param2, param3));
     }
 
@@ -57,8 +56,8 @@ public class BeeNestDestroyedTrigger extends SimpleCriterionTrigger<BeeNestDestr
             return new BeeNestDestroyedTrigger.TriggerInstance(EntityPredicate.Composite.ANY, param0, param1.build(), param2);
         }
 
-        public boolean matches(BlockState param0, ItemStack param1, int param2) {
-            if (this.block != null && !param0.is(this.block)) {
+        public boolean matches(Block param0, ItemStack param1, int param2) {
+            if (this.block != null && param0 != this.block) {
                 return false;
             } else {
                 return !this.item.matches(param1) ? false : this.numBees.matches(param2);

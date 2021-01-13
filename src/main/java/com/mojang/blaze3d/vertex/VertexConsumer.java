@@ -77,48 +77,46 @@ public interface VertexConsumer {
     default void putBulkData(
         PoseStack.Pose param0, BakedQuad param1, float[] param2, float param3, float param4, float param5, int[] param6, int param7, boolean param8
     ) {
-        float[] var0 = new float[]{param2[0], param2[1], param2[2], param2[3]};
-        int[] var1 = new int[]{param6[0], param6[1], param6[2], param6[3]};
-        int[] var2 = param1.getVertices();
-        Vec3i var3 = param1.getDirection().getNormal();
-        Vector3f var4 = new Vector3f((float)var3.getX(), (float)var3.getY(), (float)var3.getZ());
-        Matrix4f var5 = param0.pose();
-        var4.transform(param0.normal());
-        int var6 = 8;
-        int var7 = var2.length / 8;
+        int[] var0 = param1.getVertices();
+        Vec3i var1 = param1.getDirection().getNormal();
+        Vector3f var2 = new Vector3f((float)var1.getX(), (float)var1.getY(), (float)var1.getZ());
+        Matrix4f var3 = param0.pose();
+        var2.transform(param0.normal());
+        int var4 = 8;
+        int var5 = var0.length / 8;
 
-        try (MemoryStack var8 = MemoryStack.stackPush()) {
-            ByteBuffer var9 = var8.malloc(DefaultVertexFormat.BLOCK.getVertexSize());
-            IntBuffer var10 = var9.asIntBuffer();
+        try (MemoryStack var6 = MemoryStack.stackPush()) {
+            ByteBuffer var7 = var6.malloc(DefaultVertexFormat.BLOCK.getVertexSize());
+            IntBuffer var8 = var7.asIntBuffer();
 
-            for(int var11 = 0; var11 < var7; ++var11) {
-                ((Buffer)var10).clear();
-                var10.put(var2, var11 * 8, 8);
-                float var12 = var9.getFloat(0);
-                float var13 = var9.getFloat(4);
-                float var14 = var9.getFloat(8);
+            for(int var9 = 0; var9 < var5; ++var9) {
+                ((Buffer)var8).clear();
+                var8.put(var0, var9 * 8, 8);
+                float var10 = var7.getFloat(0);
+                float var11 = var7.getFloat(4);
+                float var12 = var7.getFloat(8);
+                float var16;
+                float var17;
                 float var18;
-                float var19;
-                float var20;
                 if (param8) {
-                    float var15 = (float)(var9.get(12) & 255) / 255.0F;
-                    float var16 = (float)(var9.get(13) & 255) / 255.0F;
-                    float var17 = (float)(var9.get(14) & 255) / 255.0F;
-                    var18 = var15 * var0[var11] * param3;
-                    var19 = var16 * var0[var11] * param4;
-                    var20 = var17 * var0[var11] * param5;
+                    float var13 = (float)(var7.get(12) & 255) / 255.0F;
+                    float var14 = (float)(var7.get(13) & 255) / 255.0F;
+                    float var15 = (float)(var7.get(14) & 255) / 255.0F;
+                    var16 = var13 * param2[var9] * param3;
+                    var17 = var14 * param2[var9] * param4;
+                    var18 = var15 * param2[var9] * param5;
                 } else {
-                    var18 = var0[var11] * param3;
-                    var19 = var0[var11] * param4;
-                    var20 = var0[var11] * param5;
+                    var16 = param2[var9] * param3;
+                    var17 = param2[var9] * param4;
+                    var18 = param2[var9] * param5;
                 }
 
-                int var24 = var1[var11];
-                float var25 = var9.getFloat(16);
-                float var26 = var9.getFloat(20);
-                Vector4f var27 = new Vector4f(var12, var13, var14, 1.0F);
-                var27.transform(var5);
-                this.vertex(var27.x(), var27.y(), var27.z(), var18, var19, var20, 1.0F, var25, var26, param7, var24, var4.x(), var4.y(), var4.z());
+                int var22 = param6[var9];
+                float var23 = var7.getFloat(16);
+                float var24 = var7.getFloat(20);
+                Vector4f var25 = new Vector4f(var10, var11, var12, 1.0F);
+                var25.transform(var3);
+                this.vertex(var25.x(), var25.y(), var25.z(), var16, var17, var18, 1.0F, var23, var24, param7, var22, var2.x(), var2.y(), var2.z());
             }
         }
 

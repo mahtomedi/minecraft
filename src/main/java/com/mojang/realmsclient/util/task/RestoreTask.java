@@ -35,7 +35,7 @@ public class RestoreTask extends LongRunningTask {
                 }
 
                 var0.restoreWorld(this.worldId, this.backup.backupId);
-                pause(1L);
+                pause(1);
                 if (this.aborted()) {
                     return;
                 }
@@ -47,7 +47,7 @@ public class RestoreTask extends LongRunningTask {
                     return;
                 }
 
-                pause((long)var4.delaySeconds);
+                pause(var4.delaySeconds);
                 ++var1;
             } catch (RealmsServiceException var5) {
                 if (this.aborted()) {

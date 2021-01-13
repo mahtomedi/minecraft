@@ -17,9 +17,4 @@ public abstract class NumericTag implements Tag {
     public abstract float getAsFloat();
 
     public abstract Number getAsNumber();
-
-    @Override
-    public String toString() {
-        return this.getAsString();
-    }
 }

@@ -1,10 +1,8 @@
 package net.minecraft.client.gui.components;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
@@ -49,9 +47,10 @@ public class OptionsList extends ContainerObjectSelectionList<OptionsList.Entry>
     @Nullable
     public AbstractWidget findOption(Option param0) {
         for(OptionsList.Entry var0 : this.children()) {
-            AbstractWidget var1 = var0.options.get(param0);
-            if (var1 != null) {
-                return var1;
+            for(AbstractWidget var1 : var0.children) {
+                if (var1 instanceof OptionButton && ((OptionButton)var1).getOption() == param0) {
+                    return var1;
+                }
             }
         }
 
@@ -72,23 +71,21 @@ public class OptionsList extends ContainerObjectSelectionList<OptionsList.Entry>
 
     @OnlyIn(Dist.CLIENT)
     public static class Entry extends ContainerObjectSelectionList.Entry<OptionsList.Entry> {
-        private final Map<Option, AbstractWidget> options;
         private final List<AbstractWidget> children;
 
-        private Entry(Map<Option, AbstractWidget> param0) {
-            this.options = param0;
-            this.children = ImmutableList.copyOf(param0.values());
+        private Entry(List<AbstractWidget> param0) {
+            this.children = param0;
         }
 
         public static OptionsList.Entry big(Options param0, int param1, Option param2) {
-            return new OptionsList.Entry(ImmutableMap.of(param2, param2.createButton(param0, param1 / 2 - 155, 0, 310)));
+            return new OptionsList.Entry(ImmutableList.of(param2.createButton(param0, param1 / 2 - 155, 0, 310)));
         }
 
         public static OptionsList.Entry small(Options param0, int param1, Option param2, @Nullable Option param3) {
             AbstractWidget var0 = param2.createButton(param0, param1 / 2 - 155, 0, 150);
             return param3 == null
-                ? new OptionsList.Entry(ImmutableMap.of(param2, var0))
-                : new OptionsList.Entry(ImmutableMap.of(param2, var0, param3, param3.createButton(param0, param1 / 2 - 155 + 160, 0, 150)));
+                ? new OptionsList.Entry(ImmutableList.of(var0))
+                : new OptionsList.Entry(ImmutableList.of(var0, param3.createButton(param0, param1 / 2 - 155 + 160, 0, 150)));
         }
 
         @Override

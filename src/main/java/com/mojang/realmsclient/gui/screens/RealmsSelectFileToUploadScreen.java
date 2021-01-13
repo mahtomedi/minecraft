@@ -141,7 +141,7 @@ public class RealmsSelectFileToUploadScreen extends RealmsScreen {
     }
 
     private static Component gameModeName(LevelSummary param0) {
-        return param0.getGameMode().getLongDisplayName();
+        return param0.getGameMode().getDisplayName();
     }
 
     private static String formatLastPlayed(LevelSummary param0) {

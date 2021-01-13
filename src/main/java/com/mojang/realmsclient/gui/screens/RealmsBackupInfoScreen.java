@@ -18,7 +18,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class RealmsBackupInfoScreen extends RealmsScreen {
-    private static final Component TEXT_UNKNOWN = new TextComponent("UNKNOWN");
     private final Screen lastScreen;
     private final Backup backup;
     private RealmsBackupInfoScreen.BackupInfoList backupInfoList;
@@ -79,17 +78,17 @@ public class RealmsBackupInfoScreen extends RealmsScreen {
 
     private Component gameDifficultyMetadata(String param0) {
         try {
-            return RealmsSlotOptionsScreen.DIFFICULTIES.get(Integer.parseInt(param0)).getDisplayName();
+            return RealmsSlotOptionsScreen.DIFFICULTIES[Integer.parseInt(param0)];
         } catch (Exception var3) {
-            return TEXT_UNKNOWN;
+            return new TextComponent("UNKNOWN");
         }
     }
 
     private Component gameModeMetadata(String param0) {
         try {
-            return RealmsSlotOptionsScreen.GAME_MODES.get(Integer.parseInt(param0)).getShortDisplayName();
+            return RealmsSlotOptionsScreen.GAME_MODES[Integer.parseInt(param0)];
         } catch (Exception var3) {
-            return TEXT_UNKNOWN;
+            return new TextComponent("UNKNOWN");
         }
     }
 

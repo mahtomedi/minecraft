@@ -2,7 +2,6 @@ package net.minecraft.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.GhastModel;
-import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.monster.Ghast;
 import net.minecraftforge.api.distmarker.Dist;
@@ -13,8 +12,8 @@ public class GhastRenderer extends MobRenderer<Ghast, GhastModel<Ghast>> {
     private static final ResourceLocation GHAST_LOCATION = new ResourceLocation("textures/entity/ghast/ghast.png");
     private static final ResourceLocation GHAST_SHOOTING_LOCATION = new ResourceLocation("textures/entity/ghast/ghast_shooting.png");
 
-    public GhastRenderer(EntityRendererProvider.Context param0) {
-        super(param0, new GhastModel<>(param0.bakeLayer(ModelLayers.GHAST)), 1.5F);
+    public GhastRenderer(EntityRenderDispatcher param0) {
+        super(param0, new GhastModel<>(), 1.5F);
     }
 
     public ResourceLocation getTextureLocation(Ghast param0) {

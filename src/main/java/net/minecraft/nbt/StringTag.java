@@ -4,6 +4,8 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Objects;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 
 public class StringTag implements Tag {
     public static final TagType<StringTag> TYPE = new TagType<StringTag>() {
@@ -58,7 +60,7 @@ public class StringTag implements Tag {
 
     @Override
     public String toString() {
-        return Tag.super.getAsString();
+        return quoteAndEscape(this.data);
     }
 
     public StringTag copy() {
@@ -85,8 +87,11 @@ public class StringTag implements Tag {
     }
 
     @Override
-    public void accept(TagVisitor param0) {
-        param0.visitString(this);
+    public Component getPrettyDisplay(String param0, int param1) {
+        String var0 = quoteAndEscape(this.data);
+        String var1 = var0.substring(0, 1);
+        Component var2 = new TextComponent(var0.substring(1, var0.length() - 1)).withStyle(SYNTAX_HIGHLIGHTING_STRING);
+        return new TextComponent(var1).append(var2).append(var1);
     }
 
     public static String quoteAndEscape(String param0) {

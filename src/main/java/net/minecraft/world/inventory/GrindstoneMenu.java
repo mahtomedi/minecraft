@@ -3,7 +3,6 @@ package net.minecraft.world.inventory;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.ExperienceOrb;
@@ -16,7 +15,6 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.phys.Vec3;
 
 public class GrindstoneMenu extends AbstractContainerMenu {
     private final Container resultSlots = new ResultContainer();
@@ -39,62 +37,72 @@ public class GrindstoneMenu extends AbstractContainerMenu {
         this.addSlot(new Slot(this.repairSlots, 0, 49, 19) {
             @Override
             public boolean mayPlace(ItemStack param0) {
-                return param0.isDamageableItem() || param0.is(Items.ENCHANTED_BOOK) || param0.isEnchanted();
+                return param0.isDamageableItem() || param0.getItem() == Items.ENCHANTED_BOOK || param0.isEnchanted();
             }
         });
         this.addSlot(new Slot(this.repairSlots, 1, 49, 40) {
             @Override
             public boolean mayPlace(ItemStack param0) {
-                return param0.isDamageableItem() || param0.is(Items.ENCHANTED_BOOK) || param0.isEnchanted();
+                return param0.isDamageableItem() || param0.getItem() == Items.ENCHANTED_BOOK || param0.isEnchanted();
             }
         });
-        this.addSlot(new Slot(this.resultSlots, 2, 129, 34) {
-            @Override
-            public boolean mayPlace(ItemStack param0) {
-                return false;
-            }
-
-            @Override
-            public ItemStack onTake(Player param0, ItemStack param1) {
-                param2.execute((param0x, param1x) -> {
-                    if (param0x instanceof ServerLevel) {
-                        ExperienceOrb.award((ServerLevel)param0x, Vec3.atCenterOf(param1x), this.getExperienceAmount(param0x));
-                    }
-
-                    param0x.levelEvent(1042, param1x, 0);
-                });
-                GrindstoneMenu.this.repairSlots.setItem(0, ItemStack.EMPTY);
-                GrindstoneMenu.this.repairSlots.setItem(1, ItemStack.EMPTY);
-                return param1;
-            }
-
-            private int getExperienceAmount(Level param0) {
-                int var0 = 0;
-                var0 += this.getExperienceFromItem(GrindstoneMenu.this.repairSlots.getItem(0));
-                var0 += this.getExperienceFromItem(GrindstoneMenu.this.repairSlots.getItem(1));
-                if (var0 > 0) {
-                    int var1 = (int)Math.ceil((double)var0 / 2.0);
-                    return var1 + param0.random.nextInt(var1);
-                } else {
-                    return 0;
+        this.addSlot(
+            new Slot(this.resultSlots, 2, 129, 34) {
+                @Override
+                public boolean mayPlace(ItemStack param0) {
+                    return false;
                 }
-            }
-
-            private int getExperienceFromItem(ItemStack param0) {
-                int var0 = 0;
-                Map<Enchantment, Integer> var1 = EnchantmentHelper.getEnchantments(param0);
-
-                for(Entry<Enchantment, Integer> var2 : var1.entrySet()) {
-                    Enchantment var3 = var2.getKey();
-                    Integer var4 = var2.getValue();
-                    if (!var3.isCurse()) {
-                        var0 += var3.getMinCost(var4);
+    
+                @Override
+                public ItemStack onTake(Player param0, ItemStack param1) {
+                    param2.execute(
+                        (param0x, param1x) -> {
+                            int var0 = this.getExperienceAmount(param0x);
+        
+                            while(var0 > 0) {
+                                int var1x = ExperienceOrb.getExperienceValue(var0);
+                                var0 -= var1x;
+                                param0x.addFreshEntity(
+                                    new ExperienceOrb(param0x, (double)param1x.getX(), (double)param1x.getY() + 0.5, (double)param1x.getZ() + 0.5, var1x)
+                                );
+                            }
+        
+                            param0x.levelEvent(1042, param1x, 0);
+                        }
+                    );
+                    GrindstoneMenu.this.repairSlots.setItem(0, ItemStack.EMPTY);
+                    GrindstoneMenu.this.repairSlots.setItem(1, ItemStack.EMPTY);
+                    return param1;
+                }
+    
+                private int getExperienceAmount(Level param0) {
+                    int var0 = 0;
+                    var0 += this.getExperienceFromItem(GrindstoneMenu.this.repairSlots.getItem(0));
+                    var0 += this.getExperienceFromItem(GrindstoneMenu.this.repairSlots.getItem(1));
+                    if (var0 > 0) {
+                        int var1 = (int)Math.ceil((double)var0 / 2.0);
+                        return var1 + param0.random.nextInt(var1);
+                    } else {
+                        return 0;
                     }
                 }
-
-                return var0;
+    
+                private int getExperienceFromItem(ItemStack param0) {
+                    int var0 = 0;
+                    Map<Enchantment, Integer> var1 = EnchantmentHelper.getEnchantments(param0);
+    
+                    for(Entry<Enchantment, Integer> var2 : var1.entrySet()) {
+                        Enchantment var3 = var2.getKey();
+                        Integer var4 = var2.getValue();
+                        if (!var3.isCurse()) {
+                            var0 += var3.getMinCost(var4);
+                        }
+                    }
+    
+                    return var0;
+                }
             }
-        });
+        );
 
         for(int var0 = 0; var0 < 3; ++var0) {
             for(int var1 = 0; var1 < 9; ++var1) {
@@ -125,8 +133,8 @@ public class GrindstoneMenu extends AbstractContainerMenu {
         if (!var2) {
             this.resultSlots.setItem(0, ItemStack.EMPTY);
         } else {
-            boolean var4 = !var0.isEmpty() && !var0.is(Items.ENCHANTED_BOOK) && !var0.isEnchanted()
-                || !var1.isEmpty() && !var1.is(Items.ENCHANTED_BOOK) && !var1.isEnchanted();
+            boolean var4 = !var0.isEmpty() && var0.getItem() != Items.ENCHANTED_BOOK && !var0.isEnchanted()
+                || !var1.isEmpty() && var1.getItem() != Items.ENCHANTED_BOOK && !var1.isEnchanted();
             if (var0.getCount() > 1 || var1.getCount() > 1 || !var3 && var4) {
                 this.resultSlots.setItem(0, ItemStack.EMPTY);
                 this.broadcastChanges();
@@ -137,7 +145,7 @@ public class GrindstoneMenu extends AbstractContainerMenu {
             int var10;
             ItemStack var11;
             if (var3) {
-                if (!var0.is(var1.getItem())) {
+                if (var0.getItem() != var1.getItem()) {
                     this.resultSlots.setItem(0, ItemStack.EMPTY);
                     this.broadcastChanges();
                     return;
@@ -202,7 +210,7 @@ public class GrindstoneMenu extends AbstractContainerMenu {
             .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
         EnchantmentHelper.setEnchantments(var1, var0);
         var0.setRepairCost(0);
-        if (var0.is(Items.ENCHANTED_BOOK) && var1.size() == 0) {
+        if (var0.getItem() == Items.ENCHANTED_BOOK && var1.size() == 0) {
             var0 = new ItemStack(Items.BOOK);
             if (param0.hasCustomHoverName()) {
                 var0.setHoverName(param0.getHoverName());
@@ -219,7 +227,7 @@ public class GrindstoneMenu extends AbstractContainerMenu {
     @Override
     public void removed(Player param0) {
         super.removed(param0);
-        this.access.execute((param1, param2) -> this.clearContainer(param0, this.repairSlots));
+        this.access.execute((param1, param2) -> this.clearContainer(param0, param1, this.repairSlots));
     }
 
     @Override

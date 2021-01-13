@@ -11,7 +11,7 @@ import net.minecraft.world.entity.projectile.FishingHook;
 
 public class FishingHookPredicate {
     public static final FishingHookPredicate ANY = new FishingHookPredicate(false);
-    private final boolean inOpenWater;
+    private boolean inOpenWater;
 
     private FishingHookPredicate(boolean param0) {
         this.inOpenWater = param0;

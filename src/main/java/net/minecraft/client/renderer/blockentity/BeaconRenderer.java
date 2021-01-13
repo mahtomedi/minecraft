@@ -16,10 +16,11 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class BeaconRenderer implements BlockEntityRenderer<BeaconBlockEntity> {
+public class BeaconRenderer extends BlockEntityRenderer<BeaconBlockEntity> {
     public static final ResourceLocation BEAM_LOCATION = new ResourceLocation("textures/entity/beacon_beam.png");
 
-    public BeaconRenderer(BlockEntityRendererProvider.Context param0) {
+    public BeaconRenderer(BlockEntityRenderDispatcher param0) {
+        super(param0);
     }
 
     public void render(BeaconBlockEntity param0, float param1, PoseStack param2, MultiBufferSource param3, int param4, int param5) {

@@ -1,13 +1,10 @@
 {
-    "id": "20w51a",
-    "name": "20w51a",
-    "release_target": "1.17",
-    "world_version": 2687,
-    "protocol_version": 1073741833,
-    "pack_version": {
-        "resource": 7,
-        "data": 7
-    },
-    "build_time": "2020-12-16T16:26:05+00:00",
+    "id": "1.16.5-rc1",
+    "name": "1.16.5 Release Candidate 1",
+    "release_target": "1.16.5",
+    "world_version": 2585,
+    "protocol_version": 1073741834,
+    "pack_version": 6,
+    "build_time": "2021-01-13T15:57:07+00:00",
     "stable": false
 }

@@ -64,10 +64,6 @@ public class BlockPlaceContext extends UseOnContext {
         return Direction.orderedByNearest(this.getPlayer())[0];
     }
 
-    public Direction getNearestLookingVerticalDirection() {
-        return Direction.getFacingAxis(this.getPlayer(), Direction.Axis.Y);
-    }
-
     public Direction[] getNearestLookingDirections() {
         Direction[] var0 = Direction.orderedByNearest(this.getPlayer());
         if (this.replaceClicked) {

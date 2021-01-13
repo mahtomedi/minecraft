@@ -48,7 +48,7 @@ public class ShieldItem extends Item {
 
     @Override
     public boolean isValidRepairItem(ItemStack param0, ItemStack param1) {
-        return param1.is(ItemTags.PLANKS) || super.isValidRepairItem(param0, param1);
+        return ItemTags.PLANKS.contains(param1.getItem()) || super.isValidRepairItem(param0, param1);
     }
 
     public static DyeColor getColor(ItemStack param0) {

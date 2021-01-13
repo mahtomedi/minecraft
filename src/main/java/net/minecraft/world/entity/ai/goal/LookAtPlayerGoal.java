@@ -54,17 +54,14 @@ public class LookAtPlayerGoal extends Goal {
             } else {
                 this.lookAt = this.mob
                     .level
-                    .getNearestEntity(
-                        this.mob
-                            .level
-                            .getEntitiesOfClass(
-                                this.lookAtType, this.mob.getBoundingBox().inflate((double)this.lookDistance, 3.0, (double)this.lookDistance), param0 -> true
-                            ),
+                    .getNearestLoadedEntity(
+                        this.lookAtType,
                         this.lookAtContext,
                         this.mob,
                         this.mob.getX(),
                         this.mob.getEyeY(),
-                        this.mob.getZ()
+                        this.mob.getZ(),
+                        this.mob.getBoundingBox().inflate((double)this.lookDistance, 3.0, (double)this.lookDistance)
                     );
             }
 

@@ -2,75 +2,55 @@ package net.minecraft.world.phys.shapes;
 
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import it.unimi.dsi.fastutil.doubles.DoubleList;
-import it.unimi.dsi.fastutil.doubles.DoubleLists;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 
-public class IndirectMerger implements IndexMerger {
-    private static final DoubleList EMPTY = DoubleLists.unmodifiable(DoubleArrayList.wrap(new double[]{0.0}));
-    private final double[] result;
-    private final int[] firstIndices;
-    private final int[] secondIndices;
-    private final int resultLength;
+public final class IndirectMerger implements IndexMerger {
+    private final DoubleArrayList result;
+    private final IntArrayList firstIndices;
+    private final IntArrayList secondIndices;
 
-    public IndirectMerger(DoubleList param0, DoubleList param1, boolean param2, boolean param3) {
-        double var0 = Double.NaN;
-        int var1 = param0.size();
-        int var2 = param1.size();
-        int var3 = var1 + var2;
-        this.result = new double[var3];
-        this.firstIndices = new int[var3];
-        this.secondIndices = new int[var3];
-        boolean var4 = !param2;
-        boolean var5 = !param3;
-        int var6 = 0;
-        int var7 = 0;
-        int var8 = 0;
+    protected IndirectMerger(DoubleList param0, DoubleList param1, boolean param2, boolean param3) {
+        int var0 = 0;
+        int var1 = 0;
+        double var2 = Double.NaN;
+        int var3 = param0.size();
+        int var4 = param1.size();
+        int var5 = var3 + var4;
+        this.result = new DoubleArrayList(var5);
+        this.firstIndices = new IntArrayList(var5);
+        this.secondIndices = new IntArrayList(var5);
 
         while(true) {
-            boolean var11;
-            while(true) {
-                boolean var9 = var7 >= var1;
-                boolean var10 = var8 >= var2;
-                if (var9 && var10) {
-                    this.resultLength = Math.max(1, var6);
-                    return;
+            boolean var6 = var0 < var3;
+            boolean var7 = var1 < var4;
+            if (!var6 && !var7) {
+                if (this.result.isEmpty()) {
+                    this.result.add(Math.min(param0.getDouble(var3 - 1), param1.getDouble(var4 - 1)));
                 }
 
-                var11 = !var9 && (var10 || param0.getDouble(var7) < param1.getDouble(var8) + 1.0E-7);
-                if (var11) {
-                    ++var7;
-                    if (!var4 || var8 != 0 && !var10) {
-                        break;
-                    }
-                } else {
-                    ++var8;
-                    if (!var5 || var7 != 0 && !var9) {
-                        break;
-                    }
-                }
+                return;
             }
 
-            int var12 = var7 - 1;
-            int var13 = var8 - 1;
-            double var14 = var11 ? param0.getDouble(var12) : param1.getDouble(var13);
-            if (!(var0 >= var14 - 1.0E-7)) {
-                this.firstIndices[var6] = var12;
-                this.secondIndices[var6] = var13;
-                this.result[var6] = var14;
-                ++var6;
-                var0 = var14;
-            } else {
-                this.firstIndices[var6 - 1] = var12;
-                this.secondIndices[var6 - 1] = var13;
+            boolean var8 = var6 && (!var7 || param0.getDouble(var0) < param1.getDouble(var1) + 1.0E-7);
+            double var9 = var8 ? param0.getDouble(var0++) : param1.getDouble(var1++);
+            if ((var0 != 0 && var6 || var8 || param3) && (var1 != 0 && var7 || !var8 || param2)) {
+                if (!(var2 >= var9 - 1.0E-7)) {
+                    this.firstIndices.add(var0 - 1);
+                    this.secondIndices.add(var1 - 1);
+                    this.result.add(var9);
+                    var2 = var9;
+                } else if (!this.result.isEmpty()) {
+                    this.firstIndices.set(this.firstIndices.size() - 1, var0 - 1);
+                    this.secondIndices.set(this.secondIndices.size() - 1, var1 - 1);
+                }
             }
         }
     }
 
     @Override
     public boolean forMergedIndexes(IndexMerger.IndexConsumer param0) {
-        int var0 = this.resultLength - 1;
-
-        for(int var1 = 0; var1 < var0; ++var1) {
-            if (!param0.merge(this.firstIndices[var1], this.secondIndices[var1], var1)) {
+        for(int var0 = 0; var0 < this.result.size() - 1; ++var0) {
+            if (!param0.merge(this.firstIndices.getInt(var0), this.secondIndices.getInt(var0), var0)) {
                 return false;
             }
         }
@@ -79,12 +59,7 @@ public class IndirectMerger implements IndexMerger {
     }
 
     @Override
-    public int size() {
-        return this.resultLength;
-    }
-
-    @Override
     public DoubleList getList() {
-        return (DoubleList)(this.resultLength <= 1 ? EMPTY : DoubleArrayList.wrap(this.result, this.resultLength));
+        return this.result;
     }
 }

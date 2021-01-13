@@ -5,25 +5,12 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.chunk.ChunkBiomeContainer;
 import net.minecraft.world.level.chunk.DataLayer;
 import net.minecraft.world.level.chunk.OldDataLayer;
 
 public class OldChunkStorage {
-    private static final LevelHeightAccessor OLD_LEVEL_HEIGHT = new LevelHeightAccessor() {
-        @Override
-        public int getMinBuildHeight() {
-            return 0;
-        }
-
-        @Override
-        public int getHeight() {
-            return 128;
-        }
-    };
-
     public static OldChunkStorage.OldLevelChunk load(CompoundTag param0) {
         int var0 = param0.getInt("xPos");
         int var1 = param0.getInt("zPos");
@@ -108,8 +95,7 @@ public class OldChunkStorage {
 
         param2.put("Sections", var2);
         param2.putIntArray(
-            "Biomes",
-            new ChunkBiomeContainer(param0.registryOrThrow(Registry.BIOME_REGISTRY), OLD_LEVEL_HEIGHT, new ChunkPos(param1.x, param1.z), param3).writeBiomes()
+            "Biomes", new ChunkBiomeContainer(param0.registryOrThrow(Registry.BIOME_REGISTRY), new ChunkPos(param1.x, param1.z), param3).writeBiomes()
         );
         param2.put("Entities", param1.entities);
         param2.put("TileEntities", param1.blockEntities);

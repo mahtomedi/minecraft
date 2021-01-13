@@ -73,9 +73,9 @@ public class ItemPredicate {
     public boolean matches(ItemStack param0) {
         if (this == ANY) {
             return true;
-        } else if (this.tag != null && !param0.is(this.tag)) {
+        } else if (this.tag != null && !this.tag.contains(param0.getItem())) {
             return false;
-        } else if (this.item != null && !param0.is(this.item)) {
+        } else if (this.item != null && param0.getItem() != this.item) {
             return false;
         } else if (!this.count.matches(param0.getCount())) {
             return false;
@@ -129,8 +129,10 @@ public class ItemPredicate {
                 Tag<Item> var6 = null;
                 if (var0.has("tag")) {
                     ResourceLocation var7 = new ResourceLocation(GsonHelper.getAsString(var0, "tag"));
-                    var6 = SerializationTags.getInstance()
-                        .getTagOrThrow(Registry.ITEM_REGISTRY, var7, param0x -> new JsonSyntaxException("Unknown item tag '" + param0x + "'"));
+                    var6 = SerializationTags.getInstance().getItems().getTag(var7);
+                    if (var6 == null) {
+                        throw new JsonSyntaxException("Unknown item tag '" + var7 + "'");
+                    }
                 }
 
                 Potion var8 = null;
@@ -158,12 +160,7 @@ public class ItemPredicate {
             }
 
             if (this.tag != null) {
-                var0.addProperty(
-                    "tag",
-                    SerializationTags.getInstance()
-                        .getIdOrThrow(Registry.ITEM_REGISTRY, this.tag, () -> new IllegalStateException("Unknown item tag"))
-                        .toString()
-                );
+                var0.addProperty("tag", SerializationTags.getInstance().getItems().getIdOrThrow(this.tag).toString());
             }
 
             var0.add("count", this.count.serializeToJson());

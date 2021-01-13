@@ -21,7 +21,7 @@ import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.AgeableMob;
+import net.minecraft.world.entity.AgableMob;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -188,7 +188,7 @@ public class Strider extends Animal implements ItemSteerable, Saddleable {
             return false;
         } else {
             Player var1 = (Player)var0;
-            return var1.getMainHandItem().is(Items.WARPED_FUNGUS_ON_A_STICK) || var1.getOffhandItem().is(Items.WARPED_FUNGUS_ON_A_STICK);
+            return var1.getMainHandItem().getItem() == Items.WARPED_FUNGUS_ON_A_STICK || var1.getOffhandItem().getItem() == Items.WARPED_FUNGUS_ON_A_STICK;
         }
     }
 
@@ -200,7 +200,7 @@ public class Strider extends Animal implements ItemSteerable, Saddleable {
     @Nullable
     @Override
     public Entity getControllingPassenger() {
-        return this.getFirstPassenger();
+        return this.getPassengers().isEmpty() ? null : this.getPassengers().get(0);
     }
 
     @Override
@@ -355,7 +355,7 @@ public class Strider extends Animal implements ItemSteerable, Saddleable {
 
     @Override
     protected boolean canAddPassenger(Entity param0) {
-        return !this.isVehicle() && !this.isEyeInFluid(FluidTags.LAVA);
+        return this.getPassengers().isEmpty() && !this.isEyeInFluid(FluidTags.LAVA);
     }
 
     @Override
@@ -382,7 +382,7 @@ public class Strider extends Animal implements ItemSteerable, Saddleable {
         }
     }
 
-    public Strider getBreedOffspring(ServerLevel param0, AgeableMob param1) {
+    public Strider getBreedOffspring(ServerLevel param0, AgableMob param1) {
         return EntityType.STRIDER.create(param0);
     }
 
@@ -413,7 +413,7 @@ public class Strider extends Animal implements ItemSteerable, Saddleable {
             InteractionResult var1 = super.mobInteract(param0, param1);
             if (!var1.consumesAction()) {
                 ItemStack var2 = param0.getItemInHand(param1);
-                return var2.is(Items.SADDLE) ? var2.interactLivingEntity(param0, this, param1) : InteractionResult.PASS;
+                return var2.getItem() == Items.SADDLE ? var2.interactLivingEntity(param0, this, param1) : InteractionResult.PASS;
             } else {
                 if (var0 && !this.isSilent()) {
                     this.level
@@ -455,11 +455,11 @@ public class Strider extends Animal implements ItemSteerable, Saddleable {
                 var0.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.WARPED_FUNGUS_ON_A_STICK));
                 this.equipSaddle(null);
             } else if (this.random.nextInt(10) == 0) {
-                AgeableMob var1 = EntityType.STRIDER.create(param0.getLevel());
+                AgableMob var1 = EntityType.STRIDER.create(param0.getLevel());
                 var1.setAge(-24000);
                 var7 = this.spawnJockey(param0, param1, var1, null);
             } else {
-                var7 = new AgeableMob.AgeableMobGroupData(0.5F);
+                var7 = new AgableMob.AgableMobGroupData(0.5F);
             }
 
             return super.finalizeSpawn(param0, param1, param2, (SpawnGroupData)var7, param4);
@@ -470,7 +470,7 @@ public class Strider extends Animal implements ItemSteerable, Saddleable {
         param2.moveTo(this.getX(), this.getY(), this.getZ(), this.yRot, 0.0F);
         param2.finalizeSpawn(param0, param1, MobSpawnType.JOCKEY, param3, null);
         param2.startRiding(this, true);
-        return new AgeableMob.AgeableMobGroupData(0.0F);
+        return new AgableMob.AgableMobGroupData(0.0F);
     }
 
     static class StriderGoToLavaGoal extends MoveToBlockGoal {

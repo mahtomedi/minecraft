@@ -12,15 +12,16 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class SpawnerRenderer implements BlockEntityRenderer<SpawnerBlockEntity> {
-    public SpawnerRenderer(BlockEntityRendererProvider.Context param0) {
+public class SpawnerRenderer extends BlockEntityRenderer<SpawnerBlockEntity> {
+    public SpawnerRenderer(BlockEntityRenderDispatcher param0) {
+        super(param0);
     }
 
     public void render(SpawnerBlockEntity param0, float param1, PoseStack param2, MultiBufferSource param3, int param4, int param5) {
         param2.pushPose();
         param2.translate(0.5, 0.0, 0.5);
         BaseSpawner var0 = param0.getSpawner();
-        Entity var1 = var0.getOrCreateDisplayEntity(param0.getLevel());
+        Entity var1 = var0.getOrCreateDisplayEntity();
         if (var1 != null) {
             float var2 = 0.53125F;
             float var3 = Math.max(var1.getBbWidth(), var1.getBbHeight());

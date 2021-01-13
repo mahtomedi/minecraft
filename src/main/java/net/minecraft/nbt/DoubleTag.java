@@ -3,6 +3,8 @@ package net.minecraft.nbt;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.util.Mth;
 
 public class DoubleTag extends NumericTag {
@@ -53,6 +55,11 @@ public class DoubleTag extends NumericTag {
         return TYPE;
     }
 
+    @Override
+    public String toString() {
+        return this.data + "d";
+    }
+
     public DoubleTag copy() {
         return this;
     }
@@ -73,8 +80,9 @@ public class DoubleTag extends NumericTag {
     }
 
     @Override
-    public void accept(TagVisitor param0) {
-        param0.visitDouble(this);
+    public Component getPrettyDisplay(String param0, int param1) {
+        Component var0 = new TextComponent("d").withStyle(SYNTAX_HIGHLIGHTING_NUMBER_TYPE);
+        return new TextComponent(String.valueOf(this.data)).append(var0).withStyle(SYNTAX_HIGHLIGHTING_NUMBER);
     }
 
     @Override

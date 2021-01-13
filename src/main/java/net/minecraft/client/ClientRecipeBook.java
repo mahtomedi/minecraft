@@ -45,7 +45,7 @@ public class ClientRecipeBook extends RecipeBook {
         Table<RecipeBookCategories, String, List<Recipe<?>>> var1 = HashBasedTable.create();
 
         for(Recipe<?> var2 : param0) {
-            if (!var2.isSpecial() && !var2.isIncomplete()) {
+            if (!var2.isSpecial()) {
                 RecipeBookCategories var3 = getCategory(var2);
                 String var4 = var2.getGroup();
                 if (var4.isEmpty()) {

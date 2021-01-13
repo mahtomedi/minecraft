@@ -23,7 +23,7 @@ public class ThrowablePotionItem extends PotionItem {
         }
 
         param1.awardStat(Stats.ITEM_USED.get(this));
-        if (!param1.getAbilities().instabuild) {
+        if (!param1.abilities.instabuild) {
             var0.shrink(1);
         }
 

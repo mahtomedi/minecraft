@@ -13,7 +13,6 @@ public class LootItemFunctions {
     public static final LootItemFunctionType SET_COUNT = register("set_count", new SetItemCountFunction.Serializer());
     public static final LootItemFunctionType ENCHANT_WITH_LEVELS = register("enchant_with_levels", new EnchantWithLevelsFunction.Serializer());
     public static final LootItemFunctionType ENCHANT_RANDOMLY = register("enchant_randomly", new EnchantRandomlyFunction.Serializer());
-    public static final LootItemFunctionType SET_ENCHANTMENTS = register("set_enchantments", new SetEnchantmentsFunction.Serializer());
     public static final LootItemFunctionType SET_NBT = register("set_nbt", new SetNbtFunction.Serializer());
     public static final LootItemFunctionType FURNACE_SMELT = register("furnace_smelt", new SmeltItemFunction.Serializer());
     public static final LootItemFunctionType LOOTING_ENCHANT = register("looting_enchant", new LootingEnchantFunction.Serializer());
@@ -32,7 +31,6 @@ public class LootItemFunctions {
     public static final LootItemFunctionType FILL_PLAYER_HEAD = register("fill_player_head", new FillPlayerHead.Serializer());
     public static final LootItemFunctionType COPY_NBT = register("copy_nbt", new CopyNbtFunction.Serializer());
     public static final LootItemFunctionType COPY_STATE = register("copy_state", new CopyBlockState.Serializer());
-    public static final LootItemFunctionType SET_BANNER_PATTERN = register("set_banner_pattern", new SetBannerPatternFunction.Serializer());
 
     private static LootItemFunctionType register(String param0, Serializer<? extends LootItemFunction> param1) {
         return Registry.register(Registry.LOOT_FUNCTION_TYPE, new ResourceLocation(param0), new LootItemFunctionType(param1));

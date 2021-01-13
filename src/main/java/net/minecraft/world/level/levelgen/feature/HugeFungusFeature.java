@@ -21,8 +21,8 @@ public class HugeFungusFeature extends Feature<HugeFungusConfiguration> {
     public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, HugeFungusConfiguration param4) {
         Block var0 = param4.validBaseState.getBlock();
         BlockPos var1 = null;
-        BlockState var2 = param0.getBlockState(param3.below());
-        if (var2.is(var0)) {
+        Block var2 = param0.getBlockState(param3.below()).getBlock();
+        if (var2 == var0) {
             var1 = param3;
         }
 

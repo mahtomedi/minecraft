@@ -7,13 +7,13 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
+import net.minecraft.world.level.storage.loot.ConstantIntValue;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.RandomValueBounds;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.functions.SetNbtFunction;
-import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
-import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 
 public class GiftLoot implements Consumer<BiConsumer<ResourceLocation, LootTable.Builder>> {
     public void accept(BiConsumer<ResourceLocation, LootTable.Builder> param0) {
@@ -22,7 +22,7 @@ public class GiftLoot implements Consumer<BiConsumer<ResourceLocation, LootTable
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantValue.exactly(1.0F))
+                        .setRolls(ConstantIntValue.exactly(1))
                         .add(LootItem.lootTableItem(Items.RABBIT_HIDE).setWeight(10))
                         .add(LootItem.lootTableItem(Items.RABBIT_FOOT).setWeight(10))
                         .add(LootItem.lootTableItem(Items.CHICKEN).setWeight(10))
@@ -37,7 +37,7 @@ public class GiftLoot implements Consumer<BiConsumer<ResourceLocation, LootTable
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantValue.exactly(1.0F))
+                        .setRolls(ConstantIntValue.exactly(1))
                         .add(LootItem.lootTableItem(Items.CHAINMAIL_HELMET))
                         .add(LootItem.lootTableItem(Items.CHAINMAIL_CHESTPLATE))
                         .add(LootItem.lootTableItem(Items.CHAINMAIL_LEGGINGS))
@@ -49,7 +49,7 @@ public class GiftLoot implements Consumer<BiConsumer<ResourceLocation, LootTable
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantValue.exactly(1.0F))
+                        .setRolls(ConstantIntValue.exactly(1))
                         .add(LootItem.lootTableItem(Items.COOKED_RABBIT))
                         .add(LootItem.lootTableItem(Items.COOKED_CHICKEN))
                         .add(LootItem.lootTableItem(Items.COOKED_PORKCHOP))
@@ -61,7 +61,7 @@ public class GiftLoot implements Consumer<BiConsumer<ResourceLocation, LootTable
             BuiltInLootTables.CARTOGRAPHER_GIFT,
             LootTable.lootTable()
                 .withPool(
-                    LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F)).add(LootItem.lootTableItem(Items.MAP)).add(LootItem.lootTableItem(Items.PAPER))
+                    LootPool.lootPool().setRolls(ConstantIntValue.exactly(1)).add(LootItem.lootTableItem(Items.MAP)).add(LootItem.lootTableItem(Items.PAPER))
                 )
         );
         param0.accept(
@@ -69,7 +69,7 @@ public class GiftLoot implements Consumer<BiConsumer<ResourceLocation, LootTable
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantValue.exactly(1.0F))
+                        .setRolls(ConstantIntValue.exactly(1))
                         .add(LootItem.lootTableItem(Items.REDSTONE))
                         .add(LootItem.lootTableItem(Items.LAPIS_LAZULI))
                 )
@@ -79,7 +79,7 @@ public class GiftLoot implements Consumer<BiConsumer<ResourceLocation, LootTable
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantValue.exactly(1.0F))
+                        .setRolls(ConstantIntValue.exactly(1))
                         .add(LootItem.lootTableItem(Items.BREAD))
                         .add(LootItem.lootTableItem(Items.PUMPKIN_PIE))
                         .add(LootItem.lootTableItem(Items.COOKIE))
@@ -89,7 +89,7 @@ public class GiftLoot implements Consumer<BiConsumer<ResourceLocation, LootTable
             BuiltInLootTables.FISHERMAN_GIFT,
             LootTable.lootTable()
                 .withPool(
-                    LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F)).add(LootItem.lootTableItem(Items.COD)).add(LootItem.lootTableItem(Items.SALMON))
+                    LootPool.lootPool().setRolls(ConstantIntValue.exactly(1)).add(LootItem.lootTableItem(Items.COD)).add(LootItem.lootTableItem(Items.SALMON))
                 )
         );
         param0.accept(
@@ -97,93 +97,93 @@ public class GiftLoot implements Consumer<BiConsumer<ResourceLocation, LootTable
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantValue.exactly(1.0F))
+                        .setRolls(ConstantIntValue.exactly(1))
                         .add(LootItem.lootTableItem(Items.ARROW).setWeight(26))
                         .add(
                             LootItem.lootTableItem(Items.TIPPED_ARROW)
-                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 1.0F)))
                                 .apply(SetNbtFunction.setTag(Util.make(new CompoundTag(), param0x -> param0x.putString("Potion", "minecraft:swiftness"))))
                         )
                         .add(
                             LootItem.lootTableItem(Items.TIPPED_ARROW)
-                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 1.0F)))
                                 .apply(SetNbtFunction.setTag(Util.make(new CompoundTag(), param0x -> param0x.putString("Potion", "minecraft:slowness"))))
                         )
                         .add(
                             LootItem.lootTableItem(Items.TIPPED_ARROW)
-                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 1.0F)))
                                 .apply(SetNbtFunction.setTag(Util.make(new CompoundTag(), param0x -> param0x.putString("Potion", "minecraft:strength"))))
                         )
                         .add(
                             LootItem.lootTableItem(Items.TIPPED_ARROW)
-                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 1.0F)))
                                 .apply(SetNbtFunction.setTag(Util.make(new CompoundTag(), param0x -> param0x.putString("Potion", "minecraft:healing"))))
                         )
                         .add(
                             LootItem.lootTableItem(Items.TIPPED_ARROW)
-                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 1.0F)))
                                 .apply(SetNbtFunction.setTag(Util.make(new CompoundTag(), param0x -> param0x.putString("Potion", "minecraft:harming"))))
                         )
                         .add(
                             LootItem.lootTableItem(Items.TIPPED_ARROW)
-                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 1.0F)))
                                 .apply(SetNbtFunction.setTag(Util.make(new CompoundTag(), param0x -> param0x.putString("Potion", "minecraft:leaping"))))
                         )
                         .add(
                             LootItem.lootTableItem(Items.TIPPED_ARROW)
-                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 1.0F)))
                                 .apply(SetNbtFunction.setTag(Util.make(new CompoundTag(), param0x -> param0x.putString("Potion", "minecraft:regeneration"))))
                         )
                         .add(
                             LootItem.lootTableItem(Items.TIPPED_ARROW)
-                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 1.0F)))
                                 .apply(SetNbtFunction.setTag(Util.make(new CompoundTag(), param0x -> param0x.putString("Potion", "minecraft:fire_resistance"))))
                         )
                         .add(
                             LootItem.lootTableItem(Items.TIPPED_ARROW)
-                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 1.0F)))
                                 .apply(SetNbtFunction.setTag(Util.make(new CompoundTag(), param0x -> param0x.putString("Potion", "minecraft:water_breathing"))))
                         )
                         .add(
                             LootItem.lootTableItem(Items.TIPPED_ARROW)
-                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 1.0F)))
                                 .apply(SetNbtFunction.setTag(Util.make(new CompoundTag(), param0x -> param0x.putString("Potion", "minecraft:invisibility"))))
                         )
                         .add(
                             LootItem.lootTableItem(Items.TIPPED_ARROW)
-                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 1.0F)))
                                 .apply(SetNbtFunction.setTag(Util.make(new CompoundTag(), param0x -> param0x.putString("Potion", "minecraft:night_vision"))))
                         )
                         .add(
                             LootItem.lootTableItem(Items.TIPPED_ARROW)
-                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 1.0F)))
                                 .apply(SetNbtFunction.setTag(Util.make(new CompoundTag(), param0x -> param0x.putString("Potion", "minecraft:weakness"))))
                         )
                         .add(
                             LootItem.lootTableItem(Items.TIPPED_ARROW)
-                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 1.0F)))
                                 .apply(SetNbtFunction.setTag(Util.make(new CompoundTag(), param0x -> param0x.putString("Potion", "minecraft:poison"))))
                         )
                 )
         );
         param0.accept(
             BuiltInLootTables.LEATHERWORKER_GIFT,
-            LootTable.lootTable().withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F)).add(LootItem.lootTableItem(Items.LEATHER)))
+            LootTable.lootTable().withPool(LootPool.lootPool().setRolls(ConstantIntValue.exactly(1)).add(LootItem.lootTableItem(Items.LEATHER)))
         );
         param0.accept(
             BuiltInLootTables.LIBRARIAN_GIFT,
-            LootTable.lootTable().withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F)).add(LootItem.lootTableItem(Items.BOOK)))
+            LootTable.lootTable().withPool(LootPool.lootPool().setRolls(ConstantIntValue.exactly(1)).add(LootItem.lootTableItem(Items.BOOK)))
         );
         param0.accept(
             BuiltInLootTables.MASON_GIFT,
-            LootTable.lootTable().withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F)).add(LootItem.lootTableItem(Items.CLAY)))
+            LootTable.lootTable().withPool(LootPool.lootPool().setRolls(ConstantIntValue.exactly(1)).add(LootItem.lootTableItem(Items.CLAY)))
         );
         param0.accept(
             BuiltInLootTables.SHEPHERD_GIFT,
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantValue.exactly(1.0F))
+                        .setRolls(ConstantIntValue.exactly(1))
                         .add(LootItem.lootTableItem(Items.WHITE_WOOL))
                         .add(LootItem.lootTableItem(Items.ORANGE_WOOL))
                         .add(LootItem.lootTableItem(Items.MAGENTA_WOOL))
@@ -207,7 +207,7 @@ public class GiftLoot implements Consumer<BiConsumer<ResourceLocation, LootTable
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantValue.exactly(1.0F))
+                        .setRolls(ConstantIntValue.exactly(1))
                         .add(LootItem.lootTableItem(Items.STONE_PICKAXE))
                         .add(LootItem.lootTableItem(Items.STONE_AXE))
                         .add(LootItem.lootTableItem(Items.STONE_HOE))
@@ -219,7 +219,7 @@ public class GiftLoot implements Consumer<BiConsumer<ResourceLocation, LootTable
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantValue.exactly(1.0F))
+                        .setRolls(ConstantIntValue.exactly(1))
                         .add(LootItem.lootTableItem(Items.STONE_AXE))
                         .add(LootItem.lootTableItem(Items.GOLDEN_AXE))
                         .add(LootItem.lootTableItem(Items.IRON_AXE))

@@ -2,7 +2,6 @@ package net.minecraft.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.WitherBossModel;
-import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.entity.layers.WitherArmorLayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
@@ -15,9 +14,9 @@ public class WitherBossRenderer extends MobRenderer<WitherBoss, WitherBossModel<
     private static final ResourceLocation WITHER_INVULNERABLE_LOCATION = new ResourceLocation("textures/entity/wither/wither_invulnerable.png");
     private static final ResourceLocation WITHER_LOCATION = new ResourceLocation("textures/entity/wither/wither.png");
 
-    public WitherBossRenderer(EntityRendererProvider.Context param0) {
-        super(param0, new WitherBossModel<>(param0.bakeLayer(ModelLayers.WITHER)), 1.0F);
-        this.addLayer(new WitherArmorLayer(this, param0.getModelSet()));
+    public WitherBossRenderer(EntityRenderDispatcher param0) {
+        super(param0, new WitherBossModel<>(0.0F), 1.0F);
+        this.addLayer(new WitherArmorLayer(this));
     }
 
     protected int getBlockLightLevel(WitherBoss param0, BlockPos param1) {

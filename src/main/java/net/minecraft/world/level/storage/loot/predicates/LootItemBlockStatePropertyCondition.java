@@ -37,7 +37,7 @@ public class LootItemBlockStatePropertyCondition implements LootItemCondition {
 
     public boolean test(LootContext param0) {
         BlockState var0 = param0.getParamOrNull(LootContextParams.BLOCK_STATE);
-        return var0 != null && var0.is(this.block) && this.properties.matches(var0);
+        return var0 != null && this.block == var0.getBlock() && this.properties.matches(var0);
     }
 
     public static LootItemBlockStatePropertyCondition.Builder hasBlockStateProperties(Block param0) {

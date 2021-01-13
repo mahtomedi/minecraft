@@ -71,7 +71,7 @@ public class Slot {
     }
 
     public int getMaxStackSize(ItemStack param0) {
-        return Math.min(this.getMaxStackSize(), param0.getMaxStackSize());
+        return this.getMaxStackSize();
     }
 
     @Nullable
@@ -91,52 +91,5 @@ public class Slot {
     @OnlyIn(Dist.CLIENT)
     public boolean isActive() {
         return true;
-    }
-
-    public ItemStack safeTake(int param0, int param1, Player param2) {
-        if (!this.mayPickup(param2)) {
-            return ItemStack.EMPTY;
-        } else if (!this.allowModification(param2) && param1 < this.getItem().getCount()) {
-            return ItemStack.EMPTY;
-        } else {
-            if (!this.allowModification(param2)) {
-                param0 = this.getItem().getCount();
-            }
-
-            param0 = Math.min(param0, param1);
-            ItemStack var0 = this.remove(param0);
-            if (this.getItem().isEmpty()) {
-                this.set(ItemStack.EMPTY);
-            }
-
-            this.onTake(param2, var0);
-            return var0;
-        }
-    }
-
-    public ItemStack safeInsert(ItemStack param0) {
-        return this.safeInsert(param0, param0.getCount());
-    }
-
-    public ItemStack safeInsert(ItemStack param0, int param1) {
-        if (!param0.isEmpty() && this.mayPlace(param0)) {
-            ItemStack var0 = this.getItem();
-            int var1 = Math.min(Math.min(param1, param0.getCount()), this.getMaxStackSize(param0) - var0.getCount());
-            if (var0.isEmpty()) {
-                this.set(param0.split(var1));
-            } else if (ItemStack.isSameItemSameTags(var0, param0)) {
-                param0.shrink(var1);
-                var0.grow(var1);
-                this.set(var0);
-            }
-
-            return param0;
-        } else {
-            return param0;
-        }
-    }
-
-    public boolean allowModification(Player param0) {
-        return this.mayPickup(param0) && this.mayPlace(this.getItem());
     }
 }

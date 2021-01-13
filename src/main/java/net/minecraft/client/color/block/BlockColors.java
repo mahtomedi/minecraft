@@ -63,7 +63,7 @@ public class BlockColors {
             (param0, param1, param2, param3) -> param1 != null && param2 != null ? BiomeColors.getAverageWaterColor(param1, param2) : -1,
             Blocks.WATER,
             Blocks.BUBBLE_COLUMN,
-            Blocks.WATER_CAULDRON
+            Blocks.CAULDRON
         );
         var0.register((param0, param1, param2, param3) -> RedStoneWireBlock.getColorForPower(param0.getValue(RedStoneWireBlock.POWER)), Blocks.REDSTONE_WIRE);
         var0.addColoringState(RedStoneWireBlock.POWER, Blocks.REDSTONE_WIRE);

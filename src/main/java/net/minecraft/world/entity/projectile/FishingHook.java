@@ -61,20 +61,26 @@ public class FishingHook extends Projectile {
     private final int luck;
     private final int lureSpeed;
 
-    private FishingHook(EntityType<? extends FishingHook> param0, Level param1, int param2, int param3) {
-        super(param0, param1);
+    private FishingHook(Level param0, Player param1, int param2, int param3) {
+        super(EntityType.FISHING_BOBBER, param0);
         this.noCulling = true;
+        this.setOwner(param1);
+        param1.fishing = this;
         this.luck = Math.max(0, param2);
         this.lureSpeed = Math.max(0, param3);
     }
 
-    public FishingHook(EntityType<? extends FishingHook> param0, Level param1) {
+    @OnlyIn(Dist.CLIENT)
+    public FishingHook(Level param0, Player param1, double param2, double param3, double param4) {
         this(param0, param1, 0, 0);
+        this.setPos(param2, param3, param4);
+        this.xo = this.getX();
+        this.yo = this.getY();
+        this.zo = this.getZ();
     }
 
     public FishingHook(Player param0, Level param1, int param2, int param3) {
-        this(EntityType.FISHING_BOBBER, param1, param2, param3);
-        this.setOwner(param0);
+        this(param1, param0, param2, param3);
         float var0 = param0.xRot;
         float var1 = param0.yRot;
         float var2 = Mth.cos(-var1 * (float) (Math.PI / 180.0) - (float) Math.PI);
@@ -140,12 +146,12 @@ public class FishingHook extends Projectile {
         super.tick();
         Player var0 = this.getPlayerOwner();
         if (var0 == null) {
-            this.discard();
+            this.remove();
         } else if (this.level.isClientSide || !this.shouldStopFishing(var0)) {
             if (this.onGround) {
                 ++this.life;
                 if (this.life >= 1200) {
-                    this.discard();
+                    this.remove();
                     return;
                 }
             } else {
@@ -177,7 +183,7 @@ public class FishingHook extends Projectile {
             } else {
                 if (this.currentState == FishingHook.FishHookState.HOOKED_IN_ENTITY) {
                     if (this.hookedIn != null) {
-                        if (this.hookedIn.isRemoved()) {
+                        if (this.hookedIn.removed) {
                             this.hookedIn = null;
                             this.currentState = FishingHook.FishHookState.FLYING;
                         } else {
@@ -239,12 +245,12 @@ public class FishingHook extends Projectile {
     private boolean shouldStopFishing(Player param0) {
         ItemStack var0 = param0.getMainHandItem();
         ItemStack var1 = param0.getOffhandItem();
-        boolean var2 = var0.is(Items.FISHING_ROD);
-        boolean var3 = var1.is(Items.FISHING_ROD);
-        if (!param0.isRemoved() && param0.isAlive() && (var2 || var3) && !(this.distanceToSqr(param0) > 1024.0)) {
+        boolean var2 = var0.getItem() == Items.FISHING_ROD;
+        boolean var3 = var1.getItem() == Items.FISHING_ROD;
+        if (!param0.removed && param0.isAlive() && (var2 || var3) && !(this.distanceToSqr(param0) > 1024.0)) {
             return false;
         } else {
-            this.discard();
+            this.remove();
             return true;
         }
     }
@@ -466,7 +472,7 @@ public class FishingHook extends Projectile {
                     var6.setDeltaMovement(var7 * 0.1, var8 * 0.1 + Math.sqrt(Math.sqrt(var7 * var7 + var8 * var8 + var9 * var9)) * 0.08, var9 * 0.1);
                     this.level.addFreshEntity(var6);
                     var0.level.addFreshEntity(new ExperienceOrb(var0.level, var0.getX(), var0.getY() + 0.5, var0.getZ() + 0.5, this.random.nextInt(6) + 1));
-                    if (var5.is(ItemTags.FISHES)) {
+                    if (var5.getItem().is(ItemTags.FISHES)) {
                         var0.awardStat(Stats.FISH_CAUGHT, 1);
                     }
                 }
@@ -478,7 +484,7 @@ public class FishingHook extends Projectile {
                 var1 = 2;
             }
 
-            this.discard();
+            this.remove();
             return var1;
         } else {
             return 0;
@@ -509,21 +515,11 @@ public class FishingHook extends Projectile {
     }
 
     @Override
-    public void remove(Entity.RemovalReason param0) {
-        super.remove(param0);
+    public void remove() {
+        super.remove();
         Player var0 = this.getPlayerOwner();
         if (var0 != null) {
             var0.fishing = null;
-        }
-
-    }
-
-    @Override
-    public void setOwner(@Nullable Entity param0) {
-        super.setOwner(param0);
-        Player var0 = this.getPlayerOwner();
-        if (var0 != null) {
-            var0.fishing = this;
         }
 
     }
@@ -548,18 +544,6 @@ public class FishingHook extends Projectile {
     public Packet<?> getAddEntityPacket() {
         Entity var0 = this.getOwner();
         return new ClientboundAddEntityPacket(this, var0 == null ? this.getId() : var0.getId());
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    @Override
-    public void recreateFromPacket(ClientboundAddEntityPacket param0) {
-        super.recreateFromPacket(param0);
-        if (this.getPlayerOwner() == null) {
-            int var0 = param0.getData();
-            LOGGER.error("Failed to recreate fishing hook on client. {} (id: {}) is not a valid owner.", this.level.getEntity(var0), var0);
-            this.kill();
-        }
-
     }
 
     static enum FishHookState {

@@ -72,10 +72,6 @@ public class CrossbowItem extends ProjectileWeaponItem implements Vanishable {
         }
     }
 
-    private static float getShootingPower(ItemStack param0) {
-        return containsChargedProjectile(param0, Items.FIREWORK_ROCKET) ? 1.6F : 3.15F;
-    }
-
     @Override
     public void releaseUsing(ItemStack param0, Level param1, LivingEntity param2, int param3) {
         int var0 = this.getUseDuration(param0) - param3;
@@ -91,7 +87,7 @@ public class CrossbowItem extends ProjectileWeaponItem implements Vanishable {
                 SoundEvents.CROSSBOW_LOADING_END,
                 var2,
                 1.0F,
-                1.0F / (param1.getRandom().nextFloat() * 0.5F + 1.0F) + 0.2F
+                1.0F / (random.nextFloat() * 0.5F + 1.0F) + 0.2F
             );
         }
 
@@ -100,7 +96,7 @@ public class CrossbowItem extends ProjectileWeaponItem implements Vanishable {
     private static boolean tryLoadProjectiles(LivingEntity param0, ItemStack param1) {
         int var0 = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.MULTISHOT, param1);
         int var1 = var0 == 0 ? 1 : 3;
-        boolean var2 = param0 instanceof Player && ((Player)param0).getAbilities().instabuild;
+        boolean var2 = param0 instanceof Player && ((Player)param0).abilities.instabuild;
         ItemStack var3 = param0.getProjectile(param1);
         ItemStack var4 = var3.copy();
 
@@ -131,7 +127,7 @@ public class CrossbowItem extends ProjectileWeaponItem implements Vanishable {
             if (!var0 && !param4 && !param3) {
                 var1 = param2.split(1);
                 if (param2.isEmpty() && param0 instanceof Player) {
-                    ((Player)param0).getInventory().removeItem(param2);
+                    ((Player)param0).inventory.removeItem(param2);
                 }
             } else {
                 var1 = param2.copy();
@@ -194,7 +190,7 @@ public class CrossbowItem extends ProjectileWeaponItem implements Vanishable {
     }
 
     public static boolean containsChargedProjectile(ItemStack param0, Item param1) {
-        return getChargedProjectiles(param0).stream().anyMatch(param1x -> param1x.is(param1));
+        return getChargedProjectiles(param0).stream().anyMatch(param1x -> param1x.getItem() == param1);
     }
 
     private static void shootProjectile(
@@ -210,7 +206,7 @@ public class CrossbowItem extends ProjectileWeaponItem implements Vanishable {
         float param9
     ) {
         if (!param0.isClientSide) {
-            boolean var0 = param4.is(Items.FIREWORK_ROCKET);
+            boolean var0 = param4.getItem() == Items.FIREWORK_ROCKET;
             Projectile var1;
             if (var0) {
                 var1 = new FireworkRocketEntity(param0, param4, param1, param1.getX(), param1.getEyeY() - 0.15F, param1.getZ(), true);
@@ -262,7 +258,7 @@ public class CrossbowItem extends ProjectileWeaponItem implements Vanishable {
 
         for(int var2 = 0; var2 < var0.size(); ++var2) {
             ItemStack var3 = var0.get(var2);
-            boolean var4 = param1 instanceof Player && ((Player)param1).getAbilities().instabuild;
+            boolean var4 = param1 instanceof Player && ((Player)param1).abilities.instabuild;
             if (!var3.isEmpty()) {
                 if (var2 == 0) {
                     shootProjectile(param0, param1, param2, param3, var3, var1[var2], var4, param4, param5, 0.0F);
@@ -279,12 +275,12 @@ public class CrossbowItem extends ProjectileWeaponItem implements Vanishable {
 
     private static float[] getShotPitches(Random param0) {
         boolean var0 = param0.nextBoolean();
-        return new float[]{1.0F, getRandomShotPitch(var0, param0), getRandomShotPitch(!var0, param0)};
+        return new float[]{1.0F, getRandomShotPitch(var0), getRandomShotPitch(!var0)};
     }
 
-    private static float getRandomShotPitch(boolean param0, Random param1) {
+    private static float getRandomShotPitch(boolean param0) {
         float var0 = param0 ? 0.63F : 0.43F;
-        return 1.0F / (param1.nextFloat() * 0.5F + 1.8F) + var0;
+        return 1.0F / (random.nextFloat() * 0.5F + 1.8F) + var0;
     }
 
     private static void onCrossbowShot(Level param0, LivingEntity param1, ItemStack param2) {
@@ -369,7 +365,7 @@ public class CrossbowItem extends ProjectileWeaponItem implements Vanishable {
         if (isCharged(param0) && !var0.isEmpty()) {
             ItemStack var1 = var0.get(0);
             param2.add(new TranslatableComponent("item.minecraft.crossbow.projectile").append(" ").append(var1.getDisplayName()));
-            if (param3.isAdvanced() && var1.is(Items.FIREWORK_ROCKET)) {
+            if (param3.isAdvanced() && var1.getItem() == Items.FIREWORK_ROCKET) {
                 List<Component> var2 = Lists.newArrayList();
                 Items.FIREWORK_ROCKET.appendHoverText(var1, param1, var2, param3);
                 if (!var2.isEmpty()) {
@@ -384,9 +380,8 @@ public class CrossbowItem extends ProjectileWeaponItem implements Vanishable {
         }
     }
 
-    @Override
-    public boolean useOnRelease(ItemStack param0) {
-        return param0.is(this);
+    private static float getShootingPower(ItemStack param0) {
+        return param0.getItem() == Items.CROSSBOW && containsChargedProjectile(param0, Items.FIREWORK_ROCKET) ? 1.6F : 3.15F;
     }
 
     @Override

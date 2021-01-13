@@ -17,7 +17,6 @@ import net.minecraft.world.level.TickList;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.gameevent.GameEventDispatcher;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
@@ -25,14 +24,10 @@ import net.minecraft.world.level.material.Fluid;
 import org.apache.logging.log4j.LogManager;
 
 public interface ChunkAccess extends BlockGetter, FeatureAccess {
-    default GameEventDispatcher getEventDispatcher(int param0) {
-        return GameEventDispatcher.NOOP;
-    }
-
     @Nullable
     BlockState setBlockState(BlockPos var1, BlockState var2, boolean var3);
 
-    void setBlockEntity(BlockEntity var1);
+    void setBlockEntity(BlockPos var1, BlockEntity var2);
 
     void addEntity(Entity var1);
 
@@ -52,7 +47,7 @@ public interface ChunkAccess extends BlockGetter, FeatureAccess {
 
     default int getHighestSectionPosition() {
         LevelChunkSection var0 = this.getHighestSection();
-        return var0 == null ? this.getMinBuildHeight() : var0.bottomBlockY();
+        return var0 == null ? 0 : var0.bottomBlockY();
     }
 
     Set<BlockPos> getBlockEntitiesPos();
@@ -69,21 +64,23 @@ public interface ChunkAccess extends BlockGetter, FeatureAccess {
 
     ChunkPos getPos();
 
+    void setLastSaveTime(long var1);
+
     Map<StructureFeature<?>, StructureStart<?>> getAllStarts();
 
     void setAllStarts(Map<StructureFeature<?>, StructureStart<?>> var1);
 
     default boolean isYSpaceEmpty(int param0, int param1) {
-        if (param0 < this.getMinBuildHeight()) {
-            param0 = this.getMinBuildHeight();
+        if (param0 < 0) {
+            param0 = 0;
         }
 
-        if (param1 >= this.getMaxBuildHeight()) {
-            param1 = this.getMaxBuildHeight() - 1;
+        if (param1 >= 256) {
+            param1 = 255;
         }
 
         for(int var0 = param0; var0 <= param1; var0 += 16) {
-            if (!LevelChunkSection.isEmpty(this.getSections()[this.getSectionIndex(var0)])) {
+            if (!LevelChunkSection.isEmpty(this.getSections()[var0 >> 4])) {
                 return false;
             }
         }

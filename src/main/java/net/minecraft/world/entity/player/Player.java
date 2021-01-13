@@ -15,7 +15,6 @@ import java.util.UUID;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
-import net.minecraft.Util;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -62,7 +61,6 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobType;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.Pose;
-import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -80,6 +78,7 @@ import net.minecraft.world.food.FoodData;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.PlayerEnderChestContainer;
+import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.ElytraItem;
 import net.minecraft.world.item.ItemCooldowns;
@@ -129,7 +128,7 @@ public abstract class Player extends LivingEntity {
     protected static final EntityDataAccessor<CompoundTag> DATA_SHOULDER_LEFT = SynchedEntityData.defineId(Player.class, EntityDataSerializers.COMPOUND_TAG);
     protected static final EntityDataAccessor<CompoundTag> DATA_SHOULDER_RIGHT = SynchedEntityData.defineId(Player.class, EntityDataSerializers.COMPOUND_TAG);
     private long timeEntitySatOnShoulder;
-    private final Inventory inventory = new Inventory(this);
+    public final Inventory inventory = new Inventory(this);
     protected PlayerEnderChestContainer enderChestInventory = new PlayerEnderChestContainer();
     public final InventoryMenu inventoryMenu;
     public AbstractContainerMenu containerMenu;
@@ -146,7 +145,7 @@ public abstract class Player extends LivingEntity {
     public double zCloak;
     private int sleepCounter;
     protected boolean wasUnderwater;
-    private final Abilities abilities = new Abilities();
+    public final Abilities abilities = new Abilities();
     public int experienceLevel;
     public int totalExperience;
     public float experienceProgress;
@@ -295,7 +294,7 @@ public abstract class Player extends LivingEntity {
 
     private void turtleHelmetTick() {
         ItemStack var0 = this.getItemBySlot(EquipmentSlot.HEAD);
-        if (var0.is(Items.TURTLE_HELMET) && !this.isEyeInFluid(FluidTags.WATER)) {
+        if (var0.getItem() == Items.TURTLE_HELMET && !this.isEyeInFluid(FluidTags.WATER)) {
             this.addEffect(new MobEffectInstance(MobEffects.WATER_BREATHING, 200, 0, false, false, true));
         }
 
@@ -520,26 +519,19 @@ public abstract class Player extends LivingEntity {
         this.bob += (var1 - this.bob) * 0.4F;
         if (this.getHealth() > 0.0F && !this.isSpectator()) {
             AABB var2;
-            if (this.isPassenger() && !this.getVehicle().isRemoved()) {
+            if (this.isPassenger() && !this.getVehicle().removed) {
                 var2 = this.getBoundingBox().minmax(this.getVehicle().getBoundingBox()).inflate(1.0, 0.0, 1.0);
             } else {
                 var2 = this.getBoundingBox().inflate(1.0, 0.5, 1.0);
             }
 
             List<Entity> var4 = this.level.getEntities(this, var2);
-            List<Entity> var5 = Lists.newArrayList();
 
-            for(int var6 = 0; var6 < var4.size(); ++var6) {
-                Entity var7 = var4.get(var6);
-                if (var7.getType() == EntityType.EXPERIENCE_ORB) {
-                    var5.add(var7);
-                } else if (!var7.isRemoved()) {
-                    this.touch(var7);
+            for(int var5 = 0; var5 < var4.size(); ++var5) {
+                Entity var6 = var4.get(var5);
+                if (!var6.removed) {
+                    this.touch(var6);
                 }
-            }
-
-            if (!var5.isEmpty()) {
-                this.touch(Util.getRandom(var5, this.random));
             }
         }
 
@@ -646,10 +638,8 @@ public abstract class Player extends LivingEntity {
             return SoundEvents.PLAYER_HURT_ON_FIRE;
         } else if (param0 == DamageSource.DROWN) {
             return SoundEvents.PLAYER_HURT_DROWN;
-        } else if (param0 == DamageSource.SWEET_BERRY_BUSH) {
-            return SoundEvents.PLAYER_HURT_SWEET_BERRY_BUSH;
         } else {
-            return param0 == DamageSource.FREEZE ? SoundEvents.PLAYER_HURT_FREEZE : SoundEvents.PLAYER_HURT;
+            return param0 == DamageSource.SWEET_BERRY_BUSH ? SoundEvents.PLAYER_HURT_SWEET_BERRY_BUSH : SoundEvents.PLAYER_HURT;
         }
     }
 
@@ -830,8 +820,6 @@ public abstract class Player extends LivingEntity {
             return !this.level.getGameRules().getBoolean(GameRules.RULE_FALL_DAMAGE);
         } else if (param0.isFire()) {
             return !this.level.getGameRules().getBoolean(GameRules.RULE_FIRE_DAMAGE);
-        } else if (param0 == DamageSource.FREEZE) {
-            return !this.level.getGameRules().getBoolean(GameRules.RULE_FREEZE_DAMAGE);
         } else {
             return false;
         }
@@ -877,11 +865,6 @@ public abstract class Player extends LivingEntity {
 
     }
 
-    @Override
-    public boolean canBeTargeted() {
-        return !this.getAbilities().invulnerable && super.canBeTargeted();
-    }
-
     public boolean canHarmPlayer(Player param0) {
         Team var0 = this.getTeam();
         Team var1 = param0.getTeam();
@@ -899,7 +882,7 @@ public abstract class Player extends LivingEntity {
 
     @Override
     protected void hurtCurrentlyUsedShield(float param0) {
-        if (this.useItem.is(Items.SHIELD)) {
+        if (this.useItem.getItem() == Items.SHIELD) {
             if (!this.level.isClientSide) {
                 this.awardStat(Stats.ITEM_USED.get(this.useItem.getItem()));
             }
@@ -1315,8 +1298,8 @@ public abstract class Player extends LivingEntity {
     }
 
     @Override
-    public void remove(Entity.RemovalReason param0) {
-        super.remove(param0);
+    public void remove() {
+        super.remove();
         this.inventoryMenu.removed(this);
         if (this.containerMenu != null) {
             this.containerMenu.removed(this);
@@ -1330,14 +1313,6 @@ public abstract class Player extends LivingEntity {
 
     public GameProfile getGameProfile() {
         return this.gameProfile;
-    }
-
-    public Inventory getInventory() {
-        return this.inventory;
-    }
-
-    public Abilities getAbilities() {
-        return this.abilities;
     }
 
     public Either<Player.BedSleepingProblem, Unit> startSleepInBed(BlockPos param0) {
@@ -1575,7 +1550,7 @@ public abstract class Player extends LivingEntity {
     public boolean tryToStartFallFlying() {
         if (!this.onGround && !this.isFallFlying() && !this.isInWater() && !this.hasEffect(MobEffects.LEVITATION)) {
             ItemStack var0 = this.getItemBySlot(EquipmentSlot.CHEST);
-            if (var0.is(Items.ELYTRA) && ElytraItem.isFlyEnabled(var0)) {
+            if (var0.getItem() == Items.ELYTRA && ElytraItem.isFlyEnabled(var0)) {
                 this.startFallFlying();
                 return true;
             }
@@ -1744,6 +1719,9 @@ public abstract class Player extends LivingEntity {
     }
 
     public void onUpdateAbilities() {
+    }
+
+    public void setGameMode(GameType param0) {
     }
 
     @Override
@@ -1922,14 +1900,52 @@ public abstract class Player extends LivingEntity {
     }
 
     @Override
-    public SlotAccess getSlot(int param0) {
+    public boolean setSlot(int param0, ItemStack param1) {
         if (param0 >= 0 && param0 < this.inventory.items.size()) {
-            return SlotAccess.forContainer(this.inventory, param0);
+            this.inventory.setItem(param0, param1);
+            return true;
         } else {
-            int var0 = param0 - 200;
-            return var0 >= 0 && var0 < this.enderChestInventory.getContainerSize()
-                ? SlotAccess.forContainer(this.enderChestInventory, var0)
-                : super.getSlot(param0);
+            EquipmentSlot var0;
+            if (param0 == 100 + EquipmentSlot.HEAD.getIndex()) {
+                var0 = EquipmentSlot.HEAD;
+            } else if (param0 == 100 + EquipmentSlot.CHEST.getIndex()) {
+                var0 = EquipmentSlot.CHEST;
+            } else if (param0 == 100 + EquipmentSlot.LEGS.getIndex()) {
+                var0 = EquipmentSlot.LEGS;
+            } else if (param0 == 100 + EquipmentSlot.FEET.getIndex()) {
+                var0 = EquipmentSlot.FEET;
+            } else {
+                var0 = null;
+            }
+
+            if (param0 == 98) {
+                this.setItemSlot(EquipmentSlot.MAINHAND, param1);
+                return true;
+            } else if (param0 == 99) {
+                this.setItemSlot(EquipmentSlot.OFFHAND, param1);
+                return true;
+            } else if (var0 == null) {
+                int var5 = param0 - 200;
+                if (var5 >= 0 && var5 < this.enderChestInventory.getContainerSize()) {
+                    this.enderChestInventory.setItem(var5, param1);
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                if (!param1.isEmpty()) {
+                    if (!(param1.getItem() instanceof ArmorItem) && !(param1.getItem() instanceof ElytraItem)) {
+                        if (var0 != EquipmentSlot.HEAD) {
+                            return false;
+                        }
+                    } else if (Mob.getEquipmentSlotForItem(param1) != var0) {
+                        return false;
+                    }
+                }
+
+                this.inventory.setItem(var0.getIndex() + this.inventory.items.size(), param1);
+                return true;
+            }
         }
     }
 
@@ -2089,16 +2105,6 @@ public abstract class Player extends LivingEntity {
             double var12 = this.isCrouching() ? -0.2 : 0.07;
             return this.getPosition(param0).add(new Vec3(var0, var11, var12).yRot(-var2));
         }
-    }
-
-    @Override
-    public boolean isAlwaysTicking() {
-        return true;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public boolean isScoping() {
-        return this.isUsingItem() && this.getUseItem().is(Items.SPYGLASS);
     }
 
     public static enum BedSleepingProblem {

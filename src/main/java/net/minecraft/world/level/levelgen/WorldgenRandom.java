@@ -3,6 +3,8 @@ package net.minecraft.world.level.levelgen;
 import java.util.Random;
 
 public class WorldgenRandom extends Random {
+    private int count;
+
     public WorldgenRandom() {
     }
 
@@ -15,6 +17,12 @@ public class WorldgenRandom extends Random {
             this.next(1);
         }
 
+    }
+
+    @Override
+    protected int next(int param0) {
+        ++this.count;
+        return super.next(param0);
     }
 
     public long setBaseChunkSeed(int param0, int param1) {

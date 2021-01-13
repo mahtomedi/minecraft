@@ -1,11 +1,7 @@
 package com.mojang.realmsclient.gui.screens;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.realmsclient.util.LevelType;
-import com.mojang.realmsclient.util.WorldGenerationInfo;
-import java.util.function.Consumer;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -18,15 +14,21 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class RealmsResetNormalWorldScreen extends RealmsScreen {
     private static final Component SEED_LABEL = new TranslatableComponent("mco.reset.world.seed");
-    private final Consumer<WorldGenerationInfo> callback;
+    private static final Component[] LEVEL_TYPES = new Component[]{
+        new TranslatableComponent("generator.default"),
+        new TranslatableComponent("generator.flat"),
+        new TranslatableComponent("generator.large_biomes"),
+        new TranslatableComponent("generator.amplified")
+    };
+    private final RealmsResetWorldScreen lastScreen;
     private RealmsLabel titleLabel;
     private EditBox seedEdit;
-    private LevelType levelType = LevelType.DEFAULT;
-    private boolean generateStructures = true;
-    private final Component buttonTitle;
+    private Boolean generateStructures = true;
+    private Integer levelTypeIndex = 0;
+    private Component buttonTitle;
 
-    public RealmsResetNormalWorldScreen(Consumer<WorldGenerationInfo> param0, Component param1) {
-        this.callback = param0;
+    public RealmsResetNormalWorldScreen(RealmsResetWorldScreen param0, Component param1) {
+        this.lastScreen = param0;
         this.buttonTitle = param1;
     }
 
@@ -45,23 +47,14 @@ public class RealmsResetNormalWorldScreen extends RealmsScreen {
         this.seedEdit.setMaxLength(32);
         this.addWidget(this.seedEdit);
         this.setInitialFocus(this.seedEdit);
-        this.addButton(
-            CycleButton.builder(LevelType::getName)
-                .withValues(LevelType.values())
-                .withInitialValue(this.levelType)
-                .create(this.width / 2 - 102, row(4), 205, 20, new TranslatableComponent("selectWorld.mapType"), (param0, param1) -> this.levelType = param1)
-        );
-        this.addButton(
-            CycleButton.onOffBuilder(this.generateStructures)
-                .create(
-                    this.width / 2 - 102,
-                    row(6) - 2,
-                    205,
-                    20,
-                    new TranslatableComponent("selectWorld.mapFeatures"),
-                    (param0, param1) -> this.generateStructures = param1
-                )
-        );
+        this.addButton(new Button(this.width / 2 - 102, row(4), 205, 20, this.levelTypeTitle(), param0 -> {
+            this.levelTypeIndex = (this.levelTypeIndex + 1) % LEVEL_TYPES.length;
+            param0.setMessage(this.levelTypeTitle());
+        }));
+        this.addButton(new Button(this.width / 2 - 102, row(6) - 2, 205, 20, this.generateStructuresTitle(), param0 -> {
+            this.generateStructures = !this.generateStructures;
+            param0.setMessage(this.generateStructuresTitle());
+        }));
         this.addButton(
             new Button(
                 this.width / 2 - 102,
@@ -69,10 +62,11 @@ public class RealmsResetNormalWorldScreen extends RealmsScreen {
                 97,
                 20,
                 this.buttonTitle,
-                param0 -> this.callback.accept(new WorldGenerationInfo(this.seedEdit.getValue(), this.levelType, this.generateStructures))
+                param0 -> this.lastScreen
+                        .resetWorld(new RealmsResetWorldScreen.ResetWorldInfo(this.seedEdit.getValue(), this.levelTypeIndex, this.generateStructures))
             )
         );
-        this.addButton(new Button(this.width / 2 + 8, row(12), 97, 20, CommonComponents.GUI_BACK, param0 -> this.onClose()));
+        this.addButton(new Button(this.width / 2 + 8, row(12), 97, 20, CommonComponents.GUI_BACK, param0 -> this.minecraft.setScreen(this.lastScreen)));
         this.narrateLabels();
     }
 
@@ -82,8 +76,13 @@ public class RealmsResetNormalWorldScreen extends RealmsScreen {
     }
 
     @Override
-    public void onClose() {
-        this.callback.accept(null);
+    public boolean keyPressed(int param0, int param1, int param2) {
+        if (param0 == 256) {
+            this.minecraft.setScreen(this.lastScreen);
+            return true;
+        } else {
+            return super.keyPressed(param0, param1, param2);
+        }
     }
 
     @Override
@@ -93,5 +92,13 @@ public class RealmsResetNormalWorldScreen extends RealmsScreen {
         this.font.draw(param0, SEED_LABEL, (float)(this.width / 2 - 100), (float)row(1), 10526880);
         this.seedEdit.render(param0, param1, param2, param3);
         super.render(param0, param1, param2, param3);
+    }
+
+    private Component levelTypeTitle() {
+        return new TranslatableComponent("selectWorld.mapType").append(" ").append(LEVEL_TYPES[this.levelTypeIndex]);
+    }
+
+    private Component generateStructuresTitle() {
+        return CommonComponents.optionStatus(new TranslatableComponent("selectWorld.mapFeatures"), this.generateStructures);
     }
 }

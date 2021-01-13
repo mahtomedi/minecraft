@@ -27,6 +27,8 @@ public class MinecartCommandBlockEditScreen extends AbstractCommandBlockEditScre
     @Override
     protected void init() {
         super.init();
+        this.trackOutput = this.getCommandBlock().isTrackOutput();
+        this.updateCommandOutput();
         this.commandEdit.setValue(this.getCommandBlock().getCommand());
     }
 

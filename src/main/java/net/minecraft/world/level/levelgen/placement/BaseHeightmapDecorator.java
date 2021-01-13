@@ -16,6 +16,6 @@ public abstract class BaseHeightmapDecorator<DC extends DecoratorConfiguration> 
         int var0 = param3.getX();
         int var1 = param3.getZ();
         int var2 = param0.getHeight(this.type(param2), var0, var1);
-        return var2 > param0.getMinBuildHeight() ? Stream.of(new BlockPos(var0, var2, var1)) : Stream.of();
+        return var2 > 0 ? Stream.of(new BlockPos(var0, var2, var1)) : Stream.of();
     }
 }

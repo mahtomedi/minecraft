@@ -26,7 +26,7 @@ public class CustomBossEvent extends ServerBossEvent {
     public CustomBossEvent(ResourceLocation param0, Component param1) {
         super(param1, BossEvent.BossBarColor.WHITE, BossEvent.BossBarOverlay.PROGRESS);
         this.id = param0;
-        this.setProgress(0.0F);
+        this.setPercent(0.0F);
     }
 
     public ResourceLocation getTextId() {
@@ -65,12 +65,12 @@ public class CustomBossEvent extends ServerBossEvent {
 
     public void setValue(int param0) {
         this.value = param0;
-        this.setProgress(Mth.clamp((float)param0 / (float)this.max, 0.0F, 1.0F));
+        this.setPercent(Mth.clamp((float)param0 / (float)this.max, 0.0F, 1.0F));
     }
 
     public void setMax(int param0) {
         this.max = param0;
-        this.setProgress(Mth.clamp((float)this.value / (float)param0, 0.0F, 1.0F));
+        this.setPercent(Mth.clamp((float)this.value / (float)param0, 0.0F, 1.0F));
     }
 
     public final Component getDisplayName() {

@@ -30,9 +30,9 @@ public class ItemFrameRenderer extends EntityRenderer<ItemFrame> {
     private final Minecraft minecraft = Minecraft.getInstance();
     private final ItemRenderer itemRenderer;
 
-    public ItemFrameRenderer(EntityRendererProvider.Context param0) {
+    public ItemFrameRenderer(EntityRenderDispatcher param0, ItemRenderer param1) {
         super(param0);
-        this.itemRenderer = param0.getItemRenderer();
+        this.itemRenderer = param1;
     }
 
     public void render(ItemFrame param0, float param1, float param2, PoseStack param3, MultiBufferSource param4, int param5) {
@@ -46,22 +46,22 @@ public class ItemFrameRenderer extends EntityRenderer<ItemFrame> {
         param3.mulPose(Vector3f.XP.rotationDegrees(param0.xRot));
         param3.mulPose(Vector3f.YP.rotationDegrees(180.0F - param0.yRot));
         boolean var3 = param0.isInvisible();
-        ItemStack var4 = param0.getItem();
         if (!var3) {
-            BlockRenderDispatcher var5 = this.minecraft.getBlockRenderer();
-            ModelManager var6 = var5.getBlockModelShaper().getModelManager();
-            ModelResourceLocation var7 = var4.is(Items.FILLED_MAP) ? MAP_FRAME_LOCATION : FRAME_LOCATION;
+            BlockRenderDispatcher var4 = this.minecraft.getBlockRenderer();
+            ModelManager var5 = var4.getBlockModelShaper().getModelManager();
+            ModelResourceLocation var6 = param0.getItem().getItem() == Items.FILLED_MAP ? MAP_FRAME_LOCATION : FRAME_LOCATION;
             param3.pushPose();
             param3.translate(-0.5, -0.5, -0.5);
-            var5.getModelRenderer()
+            var4.getModelRenderer()
                 .renderModel(
-                    param3.last(), param4.getBuffer(Sheets.solidBlockSheet()), null, var6.getModel(var7), 1.0F, 1.0F, 1.0F, param5, OverlayTexture.NO_OVERLAY
+                    param3.last(), param4.getBuffer(Sheets.solidBlockSheet()), null, var5.getModel(var6), 1.0F, 1.0F, 1.0F, param5, OverlayTexture.NO_OVERLAY
                 );
             param3.popPose();
         }
 
-        if (!var4.isEmpty()) {
-            boolean var8 = var4.is(Items.FILLED_MAP);
+        ItemStack var7 = param0.getItem();
+        if (!var7.isEmpty()) {
+            boolean var8 = var7.getItem() == Items.FILLED_MAP;
             if (var3) {
                 param3.translate(0.0, 0.0, 0.5);
             } else {
@@ -75,15 +75,14 @@ public class ItemFrameRenderer extends EntityRenderer<ItemFrame> {
                 float var10 = 0.0078125F;
                 param3.scale(0.0078125F, 0.0078125F, 0.0078125F);
                 param3.translate(-64.0, -64.0, 0.0);
-                Integer var11 = MapItem.getMapId(var4);
-                MapItemSavedData var12 = MapItem.getSavedData(var11, param0.level);
+                MapItemSavedData var11 = MapItem.getOrCreateSavedData(var7, param0.level);
                 param3.translate(0.0, 0.0, -1.0);
-                if (var12 != null) {
-                    this.minecraft.gameRenderer.getMapRenderer().render(param3, param4, var11, var12, true, param5);
+                if (var11 != null) {
+                    this.minecraft.gameRenderer.getMapRenderer().render(param3, param4, var11, true, param5);
                 }
             } else {
                 param3.scale(0.5F, 0.5F, 0.5F);
-                this.itemRenderer.renderStatic(var4, ItemTransforms.TransformType.FIXED, param5, OverlayTexture.NO_OVERLAY, param3, param4, param0.getId());
+                this.itemRenderer.renderStatic(var7, ItemTransforms.TransformType.FIXED, param5, OverlayTexture.NO_OVERLAY, param3, param4);
             }
         }
 

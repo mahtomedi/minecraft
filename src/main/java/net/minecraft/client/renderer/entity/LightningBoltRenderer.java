@@ -14,7 +14,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class LightningBoltRenderer extends EntityRenderer<LightningBolt> {
-    public LightningBoltRenderer(EntityRendererProvider.Context param0) {
+    public LightningBoltRenderer(EntityRenderDispatcher param0) {
         super(param0);
     }
 

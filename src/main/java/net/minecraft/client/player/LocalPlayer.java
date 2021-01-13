@@ -60,6 +60,7 @@ import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.vehicle.AbstractMinecart;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.ElytraItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Recipe;
@@ -147,8 +148,7 @@ public class LocalPlayer extends AbstractClientPlayer {
             return false;
         } else {
             if (param0 instanceof AbstractMinecart) {
-                this.minecraft.getSoundManager().play(new RidingMinecartSoundInstance(this, (AbstractMinecart)param0, true));
-                this.minecraft.getSoundManager().play(new RidingMinecartSoundInstance(this, (AbstractMinecart)param0, false));
+                this.minecraft.getSoundManager().play(new RidingMinecartSoundInstance(this, (AbstractMinecart)param0));
             }
 
             if (param0 instanceof Boat) {
@@ -275,10 +275,8 @@ public class LocalPlayer extends AbstractClientPlayer {
             ? ServerboundPlayerActionPacket.Action.DROP_ALL_ITEMS
             : ServerboundPlayerActionPacket.Action.DROP_ITEM;
         this.connection.send(new ServerboundPlayerActionPacket(var0, BlockPos.ZERO, Direction.DOWN));
-        return this.getInventory()
-                .removeItem(
-                    this.getInventory().selected, param0 && !this.getInventory().getSelected().isEmpty() ? this.getInventory().getSelected().getCount() : 1
-                )
+        return this.inventory
+                .removeItem(this.inventory.selected, param0 && !this.inventory.getSelected().isEmpty() ? this.inventory.getSelected().getCount() : 1)
             != ItemStack.EMPTY;
     }
 
@@ -311,7 +309,7 @@ public class LocalPlayer extends AbstractClientPlayer {
     }
 
     public void clientSideCloseContainer() {
-        this.getInventory().setCarried(ItemStack.EMPTY);
+        this.inventory.setCarried(ItemStack.EMPTY);
         super.closeContainer();
         this.minecraft.setScreen(null);
     }
@@ -341,7 +339,7 @@ public class LocalPlayer extends AbstractClientPlayer {
 
     @Override
     public void onUpdateAbilities() {
-        this.connection.send(new ServerboundPlayerAbilitiesPacket(this.getAbilities()));
+        this.connection.send(new ServerboundPlayerAbilitiesPacket(this.abilities));
     }
 
     @Override
@@ -351,17 +349,17 @@ public class LocalPlayer extends AbstractClientPlayer {
 
     @Override
     public boolean isSuppressingSlidingDownLadder() {
-        return !this.getAbilities().flying && super.isSuppressingSlidingDownLadder();
+        return !this.abilities.flying && super.isSuppressingSlidingDownLadder();
     }
 
     @Override
     public boolean canSpawnSprintParticle() {
-        return !this.getAbilities().flying && super.canSpawnSprintParticle();
+        return !this.abilities.flying && super.canSpawnSprintParticle();
     }
 
     @Override
     public boolean canSpawnSoulSpeedParticle() {
-        return !this.getAbilities().flying && super.canSpawnSoulSpeedParticle();
+        return !this.abilities.flying && super.canSpawnSoulSpeedParticle();
     }
 
     protected void sendRidingJump() {
@@ -586,7 +584,8 @@ public class LocalPlayer extends AbstractClientPlayer {
 
     @Override
     public void openItemGui(ItemStack param0, InteractionHand param1) {
-        if (param0.is(Items.WRITABLE_BOOK)) {
+        Item var0 = param0.getItem();
+        if (var0 == Items.WRITABLE_BOOK) {
             this.minecraft.setScreen(new BookEditScreen(this, param0, param1));
         }
 
@@ -646,7 +645,7 @@ public class LocalPlayer extends AbstractClientPlayer {
         boolean var0 = this.input.jumping;
         boolean var1 = this.input.shiftKeyDown;
         boolean var2 = this.hasEnoughImpulseToStartSprinting();
-        this.crouching = !this.getAbilities().flying
+        this.crouching = !this.abilities.flying
             && !this.isSwimming()
             && this.canEnterPose(Pose.CROUCHING)
             && (this.isShiftKeyDown() || !this.isSleeping() && !this.canEnterPose(Pose.STANDING));
@@ -676,7 +675,7 @@ public class LocalPlayer extends AbstractClientPlayer {
             this.sprintTriggerTime = 0;
         }
 
-        boolean var4 = (float)this.getFoodData().getFoodLevel() > 6.0F || this.getAbilities().mayfly;
+        boolean var4 = (float)this.getFoodData().getFoodLevel() > 6.0F || this.abilities.mayfly;
         if ((this.onGround || this.isUnderWater())
             && !var1
             && !var2
@@ -715,10 +714,10 @@ public class LocalPlayer extends AbstractClientPlayer {
         }
 
         boolean var7 = false;
-        if (this.getAbilities().mayfly) {
+        if (this.abilities.mayfly) {
             if (this.minecraft.gameMode.isAlwaysFlying()) {
-                if (!this.getAbilities().flying) {
-                    this.getAbilities().flying = true;
+                if (!this.abilities.flying) {
+                    this.abilities.flying = true;
                     var7 = true;
                     this.onUpdateAbilities();
                 }
@@ -726,7 +725,7 @@ public class LocalPlayer extends AbstractClientPlayer {
                 if (this.jumpTriggerTime == 0) {
                     this.jumpTriggerTime = 7;
                 } else if (!this.isSwimming()) {
-                    this.getAbilities().flying = !this.getAbilities().flying;
+                    this.abilities.flying = !this.abilities.flying;
                     var7 = true;
                     this.onUpdateAbilities();
                     this.jumpTriggerTime = 0;
@@ -734,9 +733,9 @@ public class LocalPlayer extends AbstractClientPlayer {
             }
         }
 
-        if (this.input.jumping && !var7 && !var0 && !this.getAbilities().flying && !this.isPassenger() && !this.onClimbable()) {
+        if (this.input.jumping && !var7 && !var0 && !this.abilities.flying && !this.isPassenger() && !this.onClimbable()) {
             ItemStack var8 = this.getItemBySlot(EquipmentSlot.CHEST);
-            if (var8.is(Items.ELYTRA) && ElytraItem.isFlyEnabled(var8) && this.tryToStartFallFlying()) {
+            if (var8.getItem() == Items.ELYTRA && ElytraItem.isFlyEnabled(var8) && this.tryToStartFallFlying()) {
                 this.connection.send(new ServerboundPlayerCommandPacket(this, ServerboundPlayerCommandPacket.Action.START_FALL_FLYING));
             }
         }
@@ -754,7 +753,7 @@ public class LocalPlayer extends AbstractClientPlayer {
             this.waterVisionTime = Mth.clamp(this.waterVisionTime - 10, 0, 600);
         }
 
-        if (this.getAbilities().flying && this.isControlledCamera()) {
+        if (this.abilities.flying && this.isControlledCamera()) {
             int var10 = 0;
             if (this.input.shiftKeyDown) {
                 --var10;
@@ -765,7 +764,7 @@ public class LocalPlayer extends AbstractClientPlayer {
             }
 
             if (var10 != 0) {
-                this.setDeltaMovement(this.getDeltaMovement().add(0.0, (double)((float)var10 * this.getAbilities().getFlyingSpeed() * 3.0F), 0.0));
+                this.setDeltaMovement(this.getDeltaMovement().add(0.0, (double)((float)var10 * this.abilities.getFlyingSpeed() * 3.0F), 0.0));
             }
         }
 
@@ -798,8 +797,8 @@ public class LocalPlayer extends AbstractClientPlayer {
         }
 
         super.aiStep();
-        if (this.onGround && this.getAbilities().flying && !this.minecraft.gameMode.isAlwaysFlying()) {
-            this.getAbilities().flying = false;
+        if (this.onGround && this.abilities.flying && !this.minecraft.gameMode.isAlwaysFlying()) {
+            this.abilities.flying = false;
             this.onUpdateAbilities();
         }
 

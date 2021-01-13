@@ -58,7 +58,7 @@ public class CocoaBlock extends HorizontalDirectionalBlock implements Bonemealab
 
     @Override
     public boolean canSurvive(BlockState param0, LevelReader param1, BlockPos param2) {
-        BlockState var0 = param1.getBlockState(param2.relative(param0.getValue(FACING)));
+        Block var0 = param1.getBlockState(param2.relative(param0.getValue(FACING))).getBlock();
         return var0.is(BlockTags.JUNGLE_LOGS);
     }
 

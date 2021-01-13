@@ -1,12 +1,9 @@
 package net.minecraft.client.renderer.entity.layers;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.model.ColorableHierarchicalModel;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.TropicalFishModelA;
 import net.minecraft.client.model.TropicalFishModelB;
-import net.minecraft.client.model.geom.EntityModelSet;
-import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.world.entity.animal.TropicalFish;
@@ -14,14 +11,12 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class TropicalFishPatternLayer extends RenderLayer<TropicalFish, ColorableHierarchicalModel<TropicalFish>> {
-    private final TropicalFishModelA<TropicalFish> modelA;
-    private final TropicalFishModelB<TropicalFish> modelB;
+public class TropicalFishPatternLayer extends RenderLayer<TropicalFish, EntityModel<TropicalFish>> {
+    private final TropicalFishModelA<TropicalFish> modelA = new TropicalFishModelA<>(0.008F);
+    private final TropicalFishModelB<TropicalFish> modelB = new TropicalFishModelB<>(0.008F);
 
-    public TropicalFishPatternLayer(RenderLayerParent<TropicalFish, ColorableHierarchicalModel<TropicalFish>> param0, EntityModelSet param1) {
+    public TropicalFishPatternLayer(RenderLayerParent<TropicalFish, EntityModel<TropicalFish>> param0) {
         super(param0);
-        this.modelA = new TropicalFishModelA<>(param1.bakeLayer(ModelLayers.TROPICAL_FISH_SMALL_PATTERN));
-        this.modelB = new TropicalFishModelB<>(param1.bakeLayer(ModelLayers.TROPICAL_FISH_LARGE_PATTERN));
     }
 
     public void render(

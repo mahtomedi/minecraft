@@ -4,8 +4,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.SlimeModel;
-import net.minecraft.client.model.geom.EntityModelSet;
-import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
@@ -16,11 +14,10 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class SlimeOuterLayer<T extends LivingEntity> extends RenderLayer<T, SlimeModel<T>> {
-    private final EntityModel<T> model;
+    private final EntityModel<T> model = new SlimeModel<>(0);
 
-    public SlimeOuterLayer(RenderLayerParent<T, SlimeModel<T>> param0, EntityModelSet param1) {
+    public SlimeOuterLayer(RenderLayerParent<T, SlimeModel<T>> param0) {
         super(param0);
-        this.model = new SlimeModel<>(param1.bakeLayer(ModelLayers.SLIME_OUTER));
     }
 
     public void render(

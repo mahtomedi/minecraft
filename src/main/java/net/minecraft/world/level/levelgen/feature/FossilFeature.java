@@ -51,9 +51,7 @@ public class FossilFeature extends Feature<NoneFeatureConfiguration> {
         StructureTemplate var3 = var2.getOrCreate(fossils[var1]);
         StructureTemplate var4 = var2.getOrCreate(fossilsCoal[var1]);
         ChunkPos var5 = new ChunkPos(param3);
-        BoundingBox var6 = new BoundingBox(
-            var5.getMinBlockX(), param0.getMinBuildHeight(), var5.getMinBlockZ(), var5.getMaxBlockX(), param0.getMaxBuildHeight(), var5.getMaxBlockZ()
-        );
+        BoundingBox var6 = new BoundingBox(var5.getMinBlockX(), 0, var5.getMinBlockZ(), var5.getMaxBlockX(), 256, var5.getMaxBlockZ());
         StructurePlaceSettings var7 = new StructurePlaceSettings()
             .setRotation(var0)
             .setBoundingBox(var6)
@@ -62,7 +60,7 @@ public class FossilFeature extends Feature<NoneFeatureConfiguration> {
         BlockPos var8 = var3.getSize(var0);
         int var9 = param2.nextInt(16 - var8.getX());
         int var10 = param2.nextInt(16 - var8.getZ());
-        int var11 = param0.getMaxBuildHeight();
+        int var11 = 256;
 
         for(int var12 = 0; var12 < var8.getX(); ++var12) {
             for(int var13 = 0; var13 < var8.getZ(); ++var13) {
@@ -70,7 +68,7 @@ public class FossilFeature extends Feature<NoneFeatureConfiguration> {
             }
         }
 
-        int var14 = Math.max(var11 - 15 - param2.nextInt(10), param0.getMinBuildHeight() + 10);
+        int var14 = Math.max(var11 - 15 - param2.nextInt(10), 10);
         BlockPos var15 = var3.getZeroPositionWithTransform(param3.offset(var9, var14, var10), Mirror.NONE, var0);
         BlockRotProcessor var16 = new BlockRotProcessor(0.9F);
         var7.clearProcessors().addProcessor(var16);

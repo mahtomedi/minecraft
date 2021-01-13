@@ -266,7 +266,7 @@ public class ModelBakery {
 
         Block var7 = param0.getOwner();
         return param2 -> {
-            if (param2 != null && param2.is(var7)) {
+            if (param2 != null && var7 == param2.getBlock()) {
                 for(Entry<Property<?>, Comparable<?>> var0x : var0.entrySet()) {
                     if (!Objects.equals(param2.getValue(var0x.getKey()), var0x.getValue())) {
                         return false;

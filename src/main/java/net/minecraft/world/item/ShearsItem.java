@@ -15,7 +15,7 @@ public class ShearsItem extends Item {
 
     @Override
     public boolean mineBlock(ItemStack param0, Level param1, BlockState param2, BlockPos param3, LivingEntity param4) {
-        if (!param1.isClientSide && !param2.is(BlockTags.FIRE)) {
+        if (!param1.isClientSide && !param2.getBlock().is(BlockTags.FIRE)) {
             param0.hurtAndBreak(1, param4, param0x -> param0x.broadcastBreakEvent(EquipmentSlot.MAINHAND));
         }
 

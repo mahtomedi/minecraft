@@ -11,6 +11,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.WritableRegistry;
 import net.minecraft.data.worldgen.Pools;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.JigsawBlock;
@@ -47,7 +48,7 @@ public class JigsawPlacement {
         boolean param9
     ) {
         StructureFeature.bootstrap();
-        Registry<StructureTemplatePool> var0 = param0.registryOrThrow(Registry.TEMPLATE_POOL_REGISTRY);
+        WritableRegistry<StructureTemplatePool> var0 = param0.registryOrThrow(Registry.TEMPLATE_POOL_REGISTRY);
         Rotation var1 = Rotation.getRandom(param7);
         StructureTemplatePool var2 = param1.startPool().get();
         StructurePoolElement var3 = var2.getRandomTemplate(param7);
@@ -96,7 +97,7 @@ public class JigsawPlacement {
         List<? super PoolElementStructurePiece> param6,
         Random param7
     ) {
-        Registry<StructureTemplatePool> var0 = param0.registryOrThrow(Registry.TEMPLATE_POOL_REGISTRY);
+        WritableRegistry<StructureTemplatePool> var0 = param0.registryOrThrow(Registry.TEMPLATE_POOL_REGISTRY);
         JigsawPlacement.Placer var1 = new JigsawPlacement.Placer(var0, param2, param3, param4, param5, param6, param7);
         var1.placing.addLast(new JigsawPlacement.PieceState(param1, new MutableObject<>(Shapes.INFINITY), 0, 0));
 

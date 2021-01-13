@@ -16,7 +16,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -50,8 +49,12 @@ public class BlockPredicateArgument implements ArgumentType<BlockPredicateArgume
         } else {
             ResourceLocation var2 = var0.getTag();
             return param2 -> {
-                Tag<Block> var0x = param2.getTagOrThrow(Registry.BLOCK_REGISTRY, var2, param0x -> ERROR_UNKNOWN_TAG.create(param0x.toString()));
-                return new BlockPredicateArgument.TagPredicate(var0x, var0.getVagueProperties(), var0.getNbt());
+                Tag<Block> var0x = param2.getBlocks().getTag(var2);
+                if (var0x == null) {
+                    throw ERROR_UNKNOWN_TAG.create(var2.toString());
+                } else {
+                    return new BlockPredicateArgument.TagPredicate(var0x, var0.getVagueProperties(), var0.getNbt());
+                }
             };
         }
     }

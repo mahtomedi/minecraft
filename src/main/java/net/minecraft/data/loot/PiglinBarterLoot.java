@@ -8,14 +8,14 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
+import net.minecraft.world.level.storage.loot.ConstantIntValue;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.RandomValueBounds;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.functions.EnchantRandomlyFunction;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.functions.SetNbtFunction;
-import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
-import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 
 public class PiglinBarterLoot implements Consumer<BiConsumer<ResourceLocation, LootTable.Builder>> {
     public void accept(BiConsumer<ResourceLocation, LootTable.Builder> param0) {
@@ -24,7 +24,7 @@ public class PiglinBarterLoot implements Consumer<BiConsumer<ResourceLocation, L
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantValue.exactly(1.0F))
+                        .setRolls(ConstantIntValue.exactly(1))
                         .add(
                             LootItem.lootTableItem(Items.BOOK)
                                 .setWeight(5)
@@ -53,30 +53,36 @@ public class PiglinBarterLoot implements Consumer<BiConsumer<ResourceLocation, L
                         .add(
                             LootItem.lootTableItem(Items.IRON_NUGGET)
                                 .setWeight(10)
-                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(10.0F, 36.0F)))
+                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(10.0F, 36.0F)))
                         )
-                        .add(LootItem.lootTableItem(Items.ENDER_PEARL).setWeight(10).apply(SetItemCountFunction.setCount(UniformGenerator.between(2.0F, 4.0F))))
-                        .add(LootItem.lootTableItem(Items.STRING).setWeight(20).apply(SetItemCountFunction.setCount(UniformGenerator.between(3.0F, 9.0F))))
-                        .add(LootItem.lootTableItem(Items.QUARTZ).setWeight(20).apply(SetItemCountFunction.setCount(UniformGenerator.between(5.0F, 12.0F))))
+                        .add(
+                            LootItem.lootTableItem(Items.ENDER_PEARL).setWeight(10).apply(SetItemCountFunction.setCount(RandomValueBounds.between(2.0F, 4.0F)))
+                        )
+                        .add(LootItem.lootTableItem(Items.STRING).setWeight(20).apply(SetItemCountFunction.setCount(RandomValueBounds.between(3.0F, 9.0F))))
+                        .add(LootItem.lootTableItem(Items.QUARTZ).setWeight(20).apply(SetItemCountFunction.setCount(RandomValueBounds.between(5.0F, 12.0F))))
                         .add(LootItem.lootTableItem(Items.OBSIDIAN).setWeight(40))
                         .add(
                             LootItem.lootTableItem(Items.CRYING_OBSIDIAN)
                                 .setWeight(40)
-                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 3.0F)))
+                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(1.0F, 3.0F)))
                         )
                         .add(LootItem.lootTableItem(Items.FIRE_CHARGE).setWeight(40))
-                        .add(LootItem.lootTableItem(Items.LEATHER).setWeight(40).apply(SetItemCountFunction.setCount(UniformGenerator.between(2.0F, 4.0F))))
-                        .add(LootItem.lootTableItem(Items.SOUL_SAND).setWeight(40).apply(SetItemCountFunction.setCount(UniformGenerator.between(2.0F, 8.0F))))
+                        .add(LootItem.lootTableItem(Items.LEATHER).setWeight(40).apply(SetItemCountFunction.setCount(RandomValueBounds.between(2.0F, 4.0F))))
+                        .add(LootItem.lootTableItem(Items.SOUL_SAND).setWeight(40).apply(SetItemCountFunction.setCount(RandomValueBounds.between(2.0F, 8.0F))))
                         .add(
-                            LootItem.lootTableItem(Items.NETHER_BRICK).setWeight(40).apply(SetItemCountFunction.setCount(UniformGenerator.between(2.0F, 8.0F)))
+                            LootItem.lootTableItem(Items.NETHER_BRICK)
+                                .setWeight(40)
+                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(2.0F, 8.0F)))
                         )
                         .add(
                             LootItem.lootTableItem(Items.SPECTRAL_ARROW)
                                 .setWeight(40)
-                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(6.0F, 12.0F)))
+                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(6.0F, 12.0F)))
                         )
-                        .add(LootItem.lootTableItem(Items.GRAVEL).setWeight(40).apply(SetItemCountFunction.setCount(UniformGenerator.between(8.0F, 16.0F))))
-                        .add(LootItem.lootTableItem(Items.BLACKSTONE).setWeight(40).apply(SetItemCountFunction.setCount(UniformGenerator.between(8.0F, 16.0F))))
+                        .add(LootItem.lootTableItem(Items.GRAVEL).setWeight(40).apply(SetItemCountFunction.setCount(RandomValueBounds.between(8.0F, 16.0F))))
+                        .add(
+                            LootItem.lootTableItem(Items.BLACKSTONE).setWeight(40).apply(SetItemCountFunction.setCount(RandomValueBounds.between(8.0F, 16.0F)))
+                        )
                 )
         );
     }

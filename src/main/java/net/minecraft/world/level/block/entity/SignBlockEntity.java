@@ -5,7 +5,6 @@ import java.util.function.Function;
 import javax.annotation.Nullable;
 import net.minecraft.commands.CommandSource;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
@@ -31,8 +30,8 @@ public class SignBlockEntity extends BlockEntity {
     private final FormattedCharSequence[] renderMessages = new FormattedCharSequence[4];
     private DyeColor color = DyeColor.BLACK;
 
-    public SignBlockEntity(BlockPos param0, BlockState param1) {
-        super(BlockEntityType.SIGN, param0, param1);
+    public SignBlockEntity() {
+        super(BlockEntityType.SIGN);
     }
 
     @Override
@@ -49,18 +48,18 @@ public class SignBlockEntity extends BlockEntity {
     }
 
     @Override
-    public void load(CompoundTag param0) {
+    public void load(BlockState param0, CompoundTag param1) {
         this.isEditable = false;
-        super.load(param0);
-        this.color = DyeColor.byName(param0.getString("Color"), DyeColor.BLACK);
+        super.load(param0, param1);
+        this.color = DyeColor.byName(param1.getString("Color"), DyeColor.BLACK);
 
         for(int var0 = 0; var0 < 4; ++var0) {
-            String var1 = param0.getString("Text" + (var0 + 1));
+            String var1 = param1.getString("Text" + (var0 + 1));
             Component var2 = Component.Serializer.fromJson(var1.isEmpty() ? "\"\"" : var1);
             if (this.level instanceof ServerLevel) {
                 try {
                     this.messages[var0] = ComponentUtils.updateForEntity(this.createCommandSourceStack(null), var2, null, 0);
-                } catch (CommandSyntaxException var6) {
+                } catch (CommandSyntaxException var7) {
                     this.messages[var0] = var2;
                 }
             } else {
