@@ -135,9 +135,9 @@ public class CreateFlatWorldScreen extends Screen {
                 FlatLayerInfo var0 = CreateFlatWorldScreen.this.generator
                     .getLayersInfo()
                     .get(CreateFlatWorldScreen.this.generator.getLayersInfo().size() - this.children().indexOf(param0) - 1);
-                Item var1 = var0.getBlockState().getBlock().asItem();
-                if (var1 != Items.AIR) {
-                    NarratorChatListener.INSTANCE.sayNow(new TranslatableComponent("narrator.select", var1.getName(new ItemStack(var1))).getString());
+                ItemStack var1 = new ItemStack(var0.getBlockState().getBlock());
+                if (!var1.isEmpty()) {
+                    NarratorChatListener.INSTANCE.sayNow(new TranslatableComponent("narrator.select", var1.getItem().getName(var1)).getString());
                 }
             }
 

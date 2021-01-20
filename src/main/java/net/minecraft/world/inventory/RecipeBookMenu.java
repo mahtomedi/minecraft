@@ -29,9 +29,10 @@ public abstract class RecipeBookMenu<C extends Container> extends AbstractContai
 
     public abstract int getGridHeight();
 
-    @OnlyIn(Dist.CLIENT)
     public abstract int getSize();
 
     @OnlyIn(Dist.CLIENT)
     public abstract RecipeBookType getRecipeBookType();
+
+    public abstract boolean shouldMoveToInventory(int var1);
 }

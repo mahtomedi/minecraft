@@ -1,7 +1,7 @@
 package net.minecraft.client.gui.screens.inventory;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.game.ServerboundSetCommandBlockPacket;
@@ -13,9 +13,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class CommandBlockEditScreen extends AbstractCommandBlockEditScreen {
     private final CommandBlockEntity autoCommandBlock;
-    private Button modeButton;
-    private Button conditionalButton;
-    private Button autoexecButton;
+    private CycleButton<CommandBlockEntity.Mode> modeButton;
+    private CycleButton<Boolean> conditionalButton;
+    private CycleButton<Boolean> autoexecButton;
     private CommandBlockEntity.Mode mode = CommandBlockEntity.Mode.REDSTONE;
     private boolean conditional;
     private boolean autoexec;
@@ -38,28 +38,43 @@ public class CommandBlockEditScreen extends AbstractCommandBlockEditScreen {
     protected void init() {
         super.init();
         this.modeButton = this.addButton(
-            new Button(this.width / 2 - 50 - 100 - 4, 165, 100, 20, new TranslatableComponent("advMode.mode.sequence"), param0 -> {
-                this.nextMode();
-                this.updateMode();
-            })
+            CycleButton.<CommandBlockEntity.Mode>builder(param0 -> {
+                    switch(param0) {
+                        case SEQUENCE:
+                            return new TranslatableComponent("advMode.mode.sequence");
+                        case AUTO:
+                            return new TranslatableComponent("advMode.mode.auto");
+                        case REDSTONE:
+                        default:
+                            return new TranslatableComponent("advMode.mode.redstone");
+                    }
+                })
+                .withValues(CommandBlockEntity.Mode.values())
+                .displayOnlyValue()
+                .withInitialValue(this.mode)
+                .create(this.width / 2 - 50 - 100 - 4, 165, 100, 20, new TranslatableComponent("advMode.mode"), (param0, param1) -> this.mode = param1)
         );
         this.conditionalButton = this.addButton(
-            new Button(this.width / 2 - 50, 165, 100, 20, new TranslatableComponent("advMode.mode.unconditional"), param0 -> {
-                this.conditional = !this.conditional;
-                this.updateConditional();
-            })
+            CycleButton.booleanBuilder(new TranslatableComponent("advMode.mode.conditional"), new TranslatableComponent("advMode.mode.unconditional"))
+                .displayOnlyValue()
+                .withInitialValue(this.conditional)
+                .create(this.width / 2 - 50, 165, 100, 20, new TranslatableComponent("advMode.type"), (param0, param1) -> this.conditional = param1)
         );
         this.autoexecButton = this.addButton(
-            new Button(this.width / 2 + 50 + 4, 165, 100, 20, new TranslatableComponent("advMode.mode.redstoneTriggered"), param0 -> {
-                this.autoexec = !this.autoexec;
-                this.updateAutoexec();
-            })
+            CycleButton.booleanBuilder(new TranslatableComponent("advMode.mode.autoexec.bat"), new TranslatableComponent("advMode.mode.redstoneTriggered"))
+                .displayOnlyValue()
+                .withInitialValue(this.autoexec)
+                .create(this.width / 2 + 50 + 4, 165, 100, 20, new TranslatableComponent("advMode.triggering"), (param0, param1) -> this.autoexec = param1)
         );
-        this.doneButton.active = false;
-        this.outputButton.active = false;
-        this.modeButton.active = false;
-        this.conditionalButton.active = false;
-        this.autoexecButton.active = false;
+        this.enableControls(false);
+    }
+
+    private void enableControls(boolean param0) {
+        this.doneButton.active = param0;
+        this.outputButton.active = param0;
+        this.modeButton.active = param0;
+        this.conditionalButton.active = param0;
+        this.autoexecButton.active = param0;
     }
 
     public void updateGui() {
@@ -69,29 +84,17 @@ public class CommandBlockEditScreen extends AbstractCommandBlockEditScreen {
         this.mode = this.autoCommandBlock.getMode();
         this.conditional = this.autoCommandBlock.isConditional();
         this.autoexec = this.autoCommandBlock.isAutomatic();
-        this.updateCommandOutput();
-        this.updateMode();
-        this.updateConditional();
-        this.updateAutoexec();
-        this.doneButton.active = true;
-        this.outputButton.active = true;
-        this.modeButton.active = true;
-        this.conditionalButton.active = true;
-        this.autoexecButton.active = true;
+        this.outputButton.setValue(this.trackOutput);
+        this.modeButton.setValue(this.mode);
+        this.conditionalButton.setValue(this.conditional);
+        this.autoexecButton.setValue(this.autoexec);
+        this.enableControls(true);
     }
 
     @Override
     public void resize(Minecraft param0, int param1, int param2) {
         super.resize(param0, param1, param2);
-        this.updateCommandOutput();
-        this.updateMode();
-        this.updateConditional();
-        this.updateAutoexec();
-        this.doneButton.active = true;
-        this.outputButton.active = true;
-        this.modeButton.active = true;
-        this.conditionalButton.active = true;
-        this.autoexecButton.active = true;
+        this.enableControls(true);
     }
 
     @Override
@@ -103,51 +106,5 @@ public class CommandBlockEditScreen extends AbstractCommandBlockEditScreen {
                     new BlockPos(param0.getPosition()), this.commandEdit.getValue(), this.mode, param0.isTrackOutput(), this.conditional, this.autoexec
                 )
             );
-    }
-
-    private void updateMode() {
-        switch(this.mode) {
-            case SEQUENCE:
-                this.modeButton.setMessage(new TranslatableComponent("advMode.mode.sequence"));
-                break;
-            case AUTO:
-                this.modeButton.setMessage(new TranslatableComponent("advMode.mode.auto"));
-                break;
-            case REDSTONE:
-                this.modeButton.setMessage(new TranslatableComponent("advMode.mode.redstone"));
-        }
-
-    }
-
-    private void nextMode() {
-        switch(this.mode) {
-            case SEQUENCE:
-                this.mode = CommandBlockEntity.Mode.AUTO;
-                break;
-            case AUTO:
-                this.mode = CommandBlockEntity.Mode.REDSTONE;
-                break;
-            case REDSTONE:
-                this.mode = CommandBlockEntity.Mode.SEQUENCE;
-        }
-
-    }
-
-    private void updateConditional() {
-        if (this.conditional) {
-            this.conditionalButton.setMessage(new TranslatableComponent("advMode.mode.conditional"));
-        } else {
-            this.conditionalButton.setMessage(new TranslatableComponent("advMode.mode.unconditional"));
-        }
-
-    }
-
-    private void updateAutoexec() {
-        if (this.autoexec) {
-            this.autoexecButton.setMessage(new TranslatableComponent("advMode.mode.autoexec.bat"));
-        } else {
-            this.autoexecButton.setMessage(new TranslatableComponent("advMode.mode.redstoneTriggered"));
-        }
-
     }
 }

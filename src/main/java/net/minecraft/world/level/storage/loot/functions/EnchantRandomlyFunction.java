@@ -48,7 +48,7 @@ public class EnchantRandomlyFunction extends LootItemConditionalFunction {
         Random var0 = param1.getRandom();
         Enchantment var3;
         if (this.enchantments.isEmpty()) {
-            boolean var1 = param0.getItem() == Items.BOOK;
+            boolean var1 = param0.is(Items.BOOK);
             List<Enchantment> var2 = Registry.ENCHANTMENT
                 .stream()
                 .filter(Enchantment::isDiscoverable)
@@ -69,7 +69,7 @@ public class EnchantRandomlyFunction extends LootItemConditionalFunction {
 
     private static ItemStack enchantItem(ItemStack param0, Enchantment param1, Random param2) {
         int var0 = Mth.nextInt(param2, param1.getMinLevel(), param1.getMaxLevel());
-        if (param0.getItem() == Items.BOOK) {
+        if (param0.is(Items.BOOK)) {
             param0 = new ItemStack(Items.ENCHANTED_BOOK);
             EnchantedBookItem.addEnchantment(param0, new EnchantmentInstance(param1, var0));
         } else {

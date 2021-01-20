@@ -63,7 +63,7 @@ public class ScaffoldingBlock extends Block implements SimpleWaterloggedBlock {
 
     @Override
     public boolean canBeReplaced(BlockState param0, BlockPlaceContext param1) {
-        return param1.getItemInHand().getItem() == this.asItem();
+        return param1.getItemInHand().is(this.asItem());
     }
 
     @Override

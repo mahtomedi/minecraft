@@ -78,7 +78,7 @@ public class SlabBlock extends Block implements SimpleWaterloggedBlock {
     public boolean canBeReplaced(BlockState param0, BlockPlaceContext param1) {
         ItemStack var0 = param1.getItemInHand();
         SlabType var1 = param0.getValue(TYPE);
-        if (var1 == SlabType.DOUBLE || var0.getItem() != this.asItem()) {
+        if (var1 == SlabType.DOUBLE || !var0.is(this.asItem())) {
             return false;
         } else if (param1.replacingClickedOnBlock()) {
             boolean var2 = param1.getClickLocation().y - (double)param1.getClickedPos().getY() > 0.5;

@@ -383,6 +383,14 @@ public final class Matrix4f {
     }
 
     @OnlyIn(Dist.CLIENT)
+    public void multiplyWithTranslation(float param0, float param1, float param2) {
+        this.m03 += this.m00 * param0 + this.m01 * param1 + this.m02 * param2;
+        this.m13 += this.m10 * param0 + this.m11 * param1 + this.m12 * param2;
+        this.m23 += this.m20 * param0 + this.m21 * param1 + this.m22 * param2;
+        this.m33 += this.m30 * param0 + this.m31 * param1 + this.m32 * param2;
+    }
+
+    @OnlyIn(Dist.CLIENT)
     public static Matrix4f createScaleMatrix(float param0, float param1, float param2) {
         Matrix4f var0 = new Matrix4f();
         var0.m00 = param0;

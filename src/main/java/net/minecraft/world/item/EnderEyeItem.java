@@ -92,10 +92,10 @@ public class EnderEyeItem extends Item {
                         SoundEvents.ENDER_EYE_LAUNCH,
                         SoundSource.NEUTRAL,
                         0.5F,
-                        0.4F / (random.nextFloat() * 0.4F + 0.8F)
+                        0.4F / (param0.getRandom().nextFloat() * 0.4F + 0.8F)
                     );
                     param0.levelEvent(null, 1003, param1.blockPosition(), 0);
-                    if (!param1.abilities.instabuild) {
+                    if (!param1.getAbilities().instabuild) {
                         var0.shrink(1);
                     }
 

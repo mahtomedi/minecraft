@@ -9,7 +9,7 @@ import java.util.List;
 
 public class Varint21FrameDecoder extends ByteToMessageDecoder {
     @Override
-    protected void decode(ChannelHandlerContext param0, ByteBuf param1, List<Object> param2) throws Exception {
+    protected void decode(ChannelHandlerContext param0, ByteBuf param1, List<Object> param2) {
         param1.markReaderIndex();
         byte[] var0 = new byte[3];
 

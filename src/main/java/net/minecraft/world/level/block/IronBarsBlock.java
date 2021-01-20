@@ -87,8 +87,7 @@ public class IronBarsBlock extends CrossCollisionBlock {
     }
 
     public final boolean attachsTo(BlockState param0, boolean param1) {
-        Block var0 = param0.getBlock();
-        return !isExceptionForConnection(var0) && param1 || var0 instanceof IronBarsBlock || var0.is(BlockTags.WALLS);
+        return !isExceptionForConnection(param0) && param1 || param0.getBlock() instanceof IronBarsBlock || param0.is(BlockTags.WALLS);
     }
 
     @Override

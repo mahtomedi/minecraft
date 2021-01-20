@@ -17,9 +17,9 @@ import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ShulkerSharedHelper;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.monster.Shulker;
 import net.minecraft.world.entity.monster.piglin.PiglinAi;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -31,6 +31,8 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.ShulkerBoxBlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
@@ -39,6 +41,7 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -59,8 +62,14 @@ public class ShulkerBoxBlock extends BaseEntityBlock {
     }
 
     @Override
-    public BlockEntity newBlockEntity(BlockGetter param0) {
-        return new ShulkerBoxBlockEntity(this.color);
+    public BlockEntity newBlockEntity(BlockPos param0, BlockState param1) {
+        return new ShulkerBoxBlockEntity(this.color, param0, param1);
+    }
+
+    @Nullable
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level param0, BlockState param1, BlockEntityType<T> param2) {
+        return createTickerHelper(param2, BlockEntityType.SHULKER_BOX, ShulkerBoxBlockEntity::tick);
     }
 
     @Override
@@ -78,15 +87,7 @@ public class ShulkerBoxBlock extends BaseEntityBlock {
             BlockEntity var0 = param1.getBlockEntity(param2);
             if (var0 instanceof ShulkerBoxBlockEntity) {
                 ShulkerBoxBlockEntity var1 = (ShulkerBoxBlockEntity)var0;
-                boolean var3;
-                if (var1.getAnimationStatus() == ShulkerBoxBlockEntity.AnimationStatus.CLOSED) {
-                    Direction var2 = param0.getValue(FACING);
-                    var3 = param1.noCollision(ShulkerSharedHelper.openBoundingBox(param2, var2));
-                } else {
-                    var3 = true;
-                }
-
-                if (var3) {
+                if (canOpen(param0, param1, param2, var1)) {
                     param3.openMenu(var1);
                     param3.awardStat(Stats.OPEN_SHULKER_BOX);
                     PiglinAi.angerNearbyPiglins(param3, true);
@@ -96,6 +97,15 @@ public class ShulkerBoxBlock extends BaseEntityBlock {
             } else {
                 return InteractionResult.PASS;
             }
+        }
+    }
+
+    private static boolean canOpen(BlockState param0, Level param1, BlockPos param2, ShulkerBoxBlockEntity param3) {
+        if (param3.getAnimationStatus() != ShulkerBoxBlockEntity.AnimationStatus.CLOSED) {
+            return true;
+        } else {
+            AABB var0 = Shulker.getProgressDeltaAabb(param0.getValue(FACING), 0.0F, 0.5F).move(param2).deflate(1.0E-6);
+            return param1.noCollision(var0);
         }
     }
 
@@ -252,7 +262,6 @@ public class ShulkerBoxBlock extends BaseEntityBlock {
     }
 
     @Nullable
-    @OnlyIn(Dist.CLIENT)
     public static DyeColor getColorFromBlock(Block param0) {
         return param0 instanceof ShulkerBoxBlock ? ((ShulkerBoxBlock)param0).getColor() : null;
     }

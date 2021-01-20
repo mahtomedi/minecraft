@@ -1,16 +1,18 @@
 package net.minecraft.world.level.block.entity;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class TheEndPortalBlockEntity extends BlockEntity {
-    public TheEndPortalBlockEntity(BlockEntityType<?> param0) {
-        super(param0);
+    protected TheEndPortalBlockEntity(BlockEntityType<?> param0, BlockPos param1, BlockState param2) {
+        super(param0, param1, param2);
     }
 
-    public TheEndPortalBlockEntity() {
-        this(BlockEntityType.END_PORTAL);
+    public TheEndPortalBlockEntity(BlockPos param0, BlockState param1) {
+        this(BlockEntityType.END_PORTAL, param0, param1);
     }
 
     @OnlyIn(Dist.CLIENT)

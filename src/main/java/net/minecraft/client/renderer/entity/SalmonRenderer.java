@@ -3,6 +3,7 @@ package net.minecraft.client.renderer.entity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
 import net.minecraft.client.model.SalmonModel;
+import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.animal.Salmon;
@@ -13,8 +14,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class SalmonRenderer extends MobRenderer<Salmon, SalmonModel<Salmon>> {
     private static final ResourceLocation SALMON_LOCATION = new ResourceLocation("textures/entity/fish/salmon.png");
 
-    public SalmonRenderer(EntityRenderDispatcher param0) {
-        super(param0, new SalmonModel<>(), 0.4F);
+    public SalmonRenderer(EntityRendererProvider.Context param0) {
+        super(param0, new SalmonModel<>(param0.bakeLayer(ModelLayers.SALMON)), 0.4F);
     }
 
     public ResourceLocation getTextureLocation(Salmon param0) {

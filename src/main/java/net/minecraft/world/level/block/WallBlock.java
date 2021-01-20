@@ -130,7 +130,7 @@ public class WallBlock extends Block implements SimpleWaterloggedBlock {
     private boolean connectsTo(BlockState param0, boolean param1, Direction param2) {
         Block var0 = param0.getBlock();
         boolean var1 = var0 instanceof FenceGateBlock && FenceGateBlock.connectsToDirection(param0, param2);
-        return param0.is(BlockTags.WALLS) || !isExceptionForConnection(var0) && param1 || var0 instanceof IronBarsBlock || var1;
+        return param0.is(BlockTags.WALLS) || !isExceptionForConnection(param0) && param1 || var0 instanceof IronBarsBlock || var1;
     }
 
     @Override
@@ -225,7 +225,7 @@ public class WallBlock extends Block implements SimpleWaterloggedBlock {
                 if (var10) {
                     return false;
                 } else {
-                    return param1.getBlock().is(BlockTags.WALL_POST_OVERRIDE) || isCovered(param2, POST_TEST);
+                    return param1.is(BlockTags.WALL_POST_OVERRIDE) || isCovered(param2, POST_TEST);
                 }
             }
         }

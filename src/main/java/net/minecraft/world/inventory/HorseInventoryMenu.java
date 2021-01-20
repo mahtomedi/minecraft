@@ -24,7 +24,7 @@ public class HorseInventoryMenu extends AbstractContainerMenu {
         this.addSlot(new Slot(param2, 0, 8, 18) {
             @Override
             public boolean mayPlace(ItemStack param0) {
-                return param0.getItem() == Items.SADDLE && !this.hasItem() && param3.isSaddleable();
+                return param0.is(Items.SADDLE) && !this.hasItem() && param3.isSaddleable();
             }
 
             @OnlyIn(Dist.CLIENT)
@@ -50,7 +50,7 @@ public class HorseInventoryMenu extends AbstractContainerMenu {
                 return 1;
             }
         });
-        if (param3 instanceof AbstractChestedHorse && ((AbstractChestedHorse)param3).hasChest()) {
+        if (this.hasChest(param3)) {
             for(int var2 = 0; var2 < 3; ++var2) {
                 for(int var3 = 0; var3 < ((AbstractChestedHorse)param3).getInventoryColumns(); ++var3) {
                     this.addSlot(new Slot(param2, 2 + var3 + var2 * ((AbstractChestedHorse)param3).getInventoryColumns(), 80 + var3 * 18, 18 + var2 * 18));
@@ -72,7 +72,14 @@ public class HorseInventoryMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player param0) {
-        return this.horseContainer.stillValid(param0) && this.horse.isAlive() && this.horse.distanceTo(param0) < 8.0F;
+        return !this.horse.hasInventoryChanged(this.horseContainer)
+            && this.horseContainer.stillValid(param0)
+            && this.horse.isAlive()
+            && this.horse.distanceTo(param0) < 8.0F;
+    }
+
+    private boolean hasChest(AbstractHorse param0) {
+        return param0 instanceof AbstractChestedHorse && ((AbstractChestedHorse)param0).hasChest();
     }
 
     @Override

@@ -3,6 +3,7 @@ package net.minecraft.client.renderer.entity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.Random;
 import net.minecraft.client.model.EndermanModel;
+import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.layers.CarriedBlockLayer;
 import net.minecraft.client.renderer.entity.layers.EnderEyesLayer;
@@ -18,8 +19,8 @@ public class EndermanRenderer extends MobRenderer<EnderMan, EndermanModel<EnderM
     private static final ResourceLocation ENDERMAN_LOCATION = new ResourceLocation("textures/entity/enderman/enderman.png");
     private final Random random = new Random();
 
-    public EndermanRenderer(EntityRenderDispatcher param0) {
-        super(param0, new EndermanModel<>(0.0F), 0.5F);
+    public EndermanRenderer(EntityRendererProvider.Context param0) {
+        super(param0, new EndermanModel<>(param0.bakeLayer(ModelLayers.ENDERMAN)), 0.5F);
         this.addLayer(new EnderEyesLayer<>(this));
         this.addLayer(new CarriedBlockLayer(this));
     }

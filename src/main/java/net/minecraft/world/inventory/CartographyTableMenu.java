@@ -6,7 +6,6 @@ import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.MapItem;
@@ -41,14 +40,13 @@ public class CartographyTableMenu extends AbstractContainerMenu {
         this.addSlot(new Slot(this.container, 0, 15, 15) {
             @Override
             public boolean mayPlace(ItemStack param0) {
-                return param0.getItem() == Items.FILLED_MAP;
+                return param0.is(Items.FILLED_MAP);
             }
         });
         this.addSlot(new Slot(this.container, 1, 15, 52) {
             @Override
             public boolean mayPlace(ItemStack param0) {
-                Item var0 = param0.getItem();
-                return var0 == Items.PAPER || var0 == Items.MAP || var0 == Items.GLASS_PANE;
+                return param0.is(Items.PAPER) || param0.is(Items.MAP) || param0.is(Items.GLASS_PANE);
             }
         });
         this.addSlot(new Slot(this.resultContainer, 2, 145, 39) {
@@ -108,34 +106,33 @@ public class CartographyTableMenu extends AbstractContainerMenu {
 
     private void setupResultSlot(ItemStack param0, ItemStack param1, ItemStack param2) {
         this.access.execute((param3, param4) -> {
-            Item var0 = param1.getItem();
-            MapItemSavedData var1x = MapItem.getSavedData(param0, param3);
-            if (var1x != null) {
-                ItemStack var2;
-                if (var0 == Items.PAPER && !var1x.locked && var1x.scale < 4) {
-                    var2 = param0.copy();
-                    var2.setCount(1);
-                    var2.getOrCreateTag().putInt("map_scale_direction", 1);
+            MapItemSavedData var0 = MapItem.getSavedData(param0, param3);
+            if (var0 != null) {
+                ItemStack var1;
+                if (param1.is(Items.PAPER) && !var0.locked && var0.scale < 4) {
+                    var1 = param0.copy();
+                    var1.setCount(1);
+                    var1.getOrCreateTag().putInt("map_scale_direction", 1);
                     this.broadcastChanges();
-                } else if (var0 == Items.GLASS_PANE && !var1x.locked) {
-                    var2 = param0.copy();
-                    var2.setCount(1);
-                    var2.getOrCreateTag().putBoolean("map_to_lock", true);
+                } else if (param1.is(Items.GLASS_PANE) && !var0.locked) {
+                    var1 = param0.copy();
+                    var1.setCount(1);
+                    var1.getOrCreateTag().putBoolean("map_to_lock", true);
                     this.broadcastChanges();
                 } else {
-                    if (var0 != Items.MAP) {
+                    if (!param1.is(Items.MAP)) {
                         this.resultContainer.removeItemNoUpdate(2);
                         this.broadcastChanges();
                         return;
                     }
 
-                    var2 = param0.copy();
-                    var2.setCount(2);
+                    var1 = param0.copy();
+                    var1.setCount(2);
                     this.broadcastChanges();
                 }
 
-                if (!ItemStack.matches(var2, param2)) {
-                    this.resultContainer.setItem(2, var2);
+                if (!ItemStack.matches(var1, param2)) {
+                    this.resultContainer.setItem(2, var1);
                     this.broadcastChanges();
                 }
 
@@ -154,21 +151,20 @@ public class CartographyTableMenu extends AbstractContainerMenu {
         Slot var1 = this.slots.get(param1);
         if (var1 != null && var1.hasItem()) {
             ItemStack var2 = var1.getItem();
-            Item var4 = var2.getItem();
             var0 = var2.copy();
             if (param1 == 2) {
-                var4.onCraftedBy(var2, param0.level, param0);
+                var2.getItem().onCraftedBy(var2, param0.level, param0);
                 if (!this.moveItemStackTo(var2, 3, 39, true)) {
                     return ItemStack.EMPTY;
                 }
 
                 var1.onQuickCraft(var2, var0);
             } else if (param1 != 1 && param1 != 0) {
-                if (var4 == Items.FILLED_MAP) {
+                if (var2.is(Items.FILLED_MAP)) {
                     if (!this.moveItemStackTo(var2, 0, 1, false)) {
                         return ItemStack.EMPTY;
                     }
-                } else if (var4 != Items.PAPER && var4 != Items.MAP && var4 != Items.GLASS_PANE) {
+                } else if (!var2.is(Items.PAPER) && !var2.is(Items.MAP) && !var2.is(Items.GLASS_PANE)) {
                     if (param1 >= 3 && param1 < 30) {
                         if (!this.moveItemStackTo(var2, 30, 39, false)) {
                             return ItemStack.EMPTY;
@@ -203,6 +199,6 @@ public class CartographyTableMenu extends AbstractContainerMenu {
     public void removed(Player param0) {
         super.removed(param0);
         this.resultContainer.removeItemNoUpdate(2);
-        this.access.execute((param1, param2) -> this.clearContainer(param0, param0.level, this.container));
+        this.access.execute((param1, param2) -> this.clearContainer(param0, this.container));
     }
 }

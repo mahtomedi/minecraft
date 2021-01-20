@@ -165,7 +165,7 @@ public class ServerStatusPinger {
         final ServerAddress var0 = ServerAddress.parseString(param0.ip);
         new Bootstrap().group(Connection.NETWORK_WORKER_GROUP.get()).handler(new ChannelInitializer<Channel>() {
             @Override
-            protected void initChannel(Channel param0x) throws Exception {
+            protected void initChannel(Channel param0x) {
                 try {
                     param0.config().setOption(ChannelOption.TCP_NODELAY, true);
                 } catch (ChannelException var3) {
@@ -205,7 +205,7 @@ public class ServerStatusPinger {
 
                     }
 
-                    protected void channelRead0(ChannelHandlerContext param0x, ByteBuf param1) throws Exception {
+                    protected void channelRead0(ChannelHandlerContext param0x, ByteBuf param1) {
                         short var0 = param1.readUnsignedByte();
                         if (var0 == 255) {
                             String var1 = new String(param1.readBytes(param1.readShort() * 2).array(), StandardCharsets.UTF_16BE);
@@ -227,7 +227,7 @@ public class ServerStatusPinger {
                     }
 
                     @Override
-                    public void exceptionCaught(ChannelHandlerContext param0x, Throwable param1) throws Exception {
+                    public void exceptionCaught(ChannelHandlerContext param0x, Throwable param1) {
                         param0.close();
                     }
                 });

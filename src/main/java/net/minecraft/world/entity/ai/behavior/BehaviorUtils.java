@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.server.level.ServerLevel;
@@ -12,14 +13,17 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.WalkTarget;
+import net.minecraft.world.entity.ai.util.DefaultRandomPos;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ProjectileWeaponItem;
+import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.Vec3;
 
 public class BehaviorUtils {
@@ -96,10 +100,9 @@ public class BehaviorUtils {
         }
     }
 
-    public static boolean isWithinMeleeAttackRange(LivingEntity param0, LivingEntity param1) {
+    public static boolean isWithinMeleeAttackRange(Mob param0, LivingEntity param1) {
         double var0 = param0.distanceToSqr(param1.getX(), param1.getY(), param1.getZ());
-        double var1 = (double)(param0.getBbWidth() * 2.0F * param0.getBbWidth() * 2.0F + param1.getBbWidth());
-        return var0 <= var1;
+        return var0 <= param0.getMeleeAttackRangeSqr(param1);
     }
 
     public static boolean isOtherTargetMuchFurtherAwayThanCurrentAttackTarget(LivingEntity param0, LivingEntity param1, double param2) {
@@ -132,7 +135,8 @@ public class BehaviorUtils {
 
     public static Optional<LivingEntity> getLivingEntityFromUUIDMemory(LivingEntity param0, MemoryModuleType<UUID> param1) {
         Optional<UUID> var0 = param0.getBrain().getMemory(param1);
-        return var0.map(param1x -> (LivingEntity)((ServerLevel)param0.level).getEntity(param1x));
+        return var0.<Entity>map(param1x -> ((ServerLevel)param0.level).getEntity(param1x))
+            .map(param0x -> param0x instanceof LivingEntity ? (LivingEntity)param0x : null);
     }
 
     public static Stream<Villager> getNearbyVillagersWithCondition(Villager param0, Predicate<Villager> param1) {
@@ -146,5 +150,21 @@ public class BehaviorUtils {
                         .filter(param1)
             )
             .orElseGet(Stream::empty);
+    }
+
+    @Nullable
+    public static Vec3 getRandomSwimmablePos(PathfinderMob param0, int param1, int param2) {
+        Vec3 var0 = DefaultRandomPos.getPos(param0, param1, param2);
+        int var1 = 0;
+
+        while(
+            var0 != null
+                && !param0.level.getBlockState(new BlockPos(var0)).isPathfindable(param0.level, new BlockPos(var0), PathComputationType.WATER)
+                && var1++ < 10
+        ) {
+            var0 = DefaultRandomPos.getPos(param0, param1, param2);
+        }
+
+        return var0;
     }
 }

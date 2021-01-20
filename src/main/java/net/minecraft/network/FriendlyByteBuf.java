@@ -19,6 +19,7 @@ import java.nio.channels.GatheringByteChannel;
 import java.nio.channels.ScatteringByteChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.BitSet;
 import java.util.Date;
 import java.util.UUID;
 import javax.annotation.Nullable;
@@ -135,12 +136,14 @@ public class FriendlyByteBuf extends ByteBuf {
         return this;
     }
 
-    @OnlyIn(Dist.CLIENT)
+    public long[] readLongArray() {
+        return this.readLongArray(null);
+    }
+
     public long[] readLongArray(@Nullable long[] param0) {
         return this.readLongArray(param0, this.readableBytes() / 8);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public long[] readLongArray(@Nullable long[] param0, int param1) {
         int var0 = this.readVarInt();
         if (param0 == null || param0.length != var0) {
@@ -398,6 +401,14 @@ public class FriendlyByteBuf extends ByteBuf {
         this.writeFloat((float)(var1.y - (double)var0.getY()));
         this.writeFloat((float)(var1.z - (double)var0.getZ()));
         this.writeBoolean(param0.isInside());
+    }
+
+    public BitSet readBitSet() {
+        return BitSet.valueOf(this.readLongArray());
+    }
+
+    public void writeBitSet(BitSet param0) {
+        this.writeLongArray(param0.toLongArray());
     }
 
     @Override

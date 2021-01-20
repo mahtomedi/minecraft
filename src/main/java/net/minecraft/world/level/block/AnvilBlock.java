@@ -10,6 +10,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleMenuProvider;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AnvilMenu;
@@ -77,7 +78,7 @@ public class AnvilBlock extends FallingBlock {
 
     @Override
     protected void falling(FallingBlockEntity param0) {
-        param0.setHurtsEntities(true);
+        param0.setHurtsEntities(2.0F, 40);
     }
 
     @Override
@@ -89,11 +90,16 @@ public class AnvilBlock extends FallingBlock {
     }
 
     @Override
-    public void onBroken(Level param0, BlockPos param1, FallingBlockEntity param2) {
+    public void onBrokenAfterFall(Level param0, BlockPos param1, FallingBlockEntity param2) {
         if (!param2.isSilent()) {
             param0.levelEvent(1029, param1, 0);
         }
 
+    }
+
+    @Override
+    public DamageSource getFallDamageSource() {
+        return DamageSource.ANVIL;
     }
 
     @Nullable

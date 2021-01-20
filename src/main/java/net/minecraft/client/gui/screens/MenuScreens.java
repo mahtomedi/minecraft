@@ -109,7 +109,7 @@ public class MenuScreens {
     @OnlyIn(Dist.CLIENT)
     interface ScreenConstructor<T extends AbstractContainerMenu, U extends Screen & MenuAccess<T>> {
         default void fromPacket(Component param0, MenuType<T> param1, Minecraft param2, int param3) {
-            U var0 = this.create(param1.create(param3, param2.player.inventory), param2.player.inventory, param0);
+            U var0 = this.create(param1.create(param3, param2.player.getInventory()), param2.player.getInventory(), param0);
             param2.player.containerMenu = var0.getMenu();
             param2.setScreen(var0);
         }

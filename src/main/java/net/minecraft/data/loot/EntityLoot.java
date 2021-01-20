@@ -22,11 +22,9 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
-import net.minecraft.world.level.storage.loot.ConstantIntValue;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.world.level.storage.loot.RandomValueBounds;
 import net.minecraft.world.level.storage.loot.entries.EmptyLootItem;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.entries.LootTableReference;
@@ -40,6 +38,8 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemEntityPropertyC
 import net.minecraft.world.level.storage.loot.predicates.LootItemKilledByPlayerCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceWithLootingCondition;
+import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
+import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 
 public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTable.Builder>> {
     private static final EntityPredicate.Builder ENTITY_ON_FIRE = EntityPredicate.Builder.entity()
@@ -51,14 +51,15 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
 
     private static LootTable.Builder createSheepTable(ItemLike param0) {
         return LootTable.lootTable()
-            .withPool(LootPool.lootPool().setRolls(ConstantIntValue.exactly(1)).add(LootItem.lootTableItem(param0)))
+            .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F)).add(LootItem.lootTableItem(param0)))
             .withPool(
-                LootPool.lootPool().setRolls(ConstantIntValue.exactly(1)).add(LootTableReference.lootTableReference(EntityType.SHEEP.getDefaultLootTable()))
+                LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F)).add(LootTableReference.lootTableReference(EntityType.SHEEP.getDefaultLootTable()))
             );
     }
 
     public void accept(BiConsumer<ResourceLocation, LootTable.Builder> param0) {
         this.add(EntityType.ARMOR_STAND, LootTable.lootTable());
+        this.add(EntityType.AXOLOTL, LootTable.lootTable());
         this.add(EntityType.BAT, LootTable.lootTable());
         this.add(EntityType.BEE, LootTable.lootTable());
         this.add(
@@ -66,11 +67,11 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.BLAZE_ROD)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 1.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 1.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                         .when(LootItemKilledByPlayerCondition.killedByPlayer())
                 )
@@ -80,8 +81,8 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
-                        .add(LootItem.lootTableItem(Items.STRING).apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 2.0F))))
+                        .setRolls(ConstantValue.exactly(1.0F))
+                        .add(LootItem.lootTableItem(Items.STRING).apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 2.0F))))
                 )
         );
         this.add(
@@ -89,20 +90,20 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.STRING)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 2.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 2.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                 )
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.SPIDER_EYE)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(-1.0F, 1.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(-1.0F, 1.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                         .when(LootItemKilledByPlayerCondition.killedByPlayer())
                 )
@@ -112,23 +113,23 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.FEATHER)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 2.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 2.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                 )
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.CHICKEN)
                                 .apply(
                                     SmeltItemFunction.smelted()
                                         .when(LootItemEntityPropertyCondition.hasProperties(LootContext.EntityTarget.THIS, ENTITY_ON_FIRE))
                                 )
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                 )
         );
@@ -137,7 +138,7 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.COD)
                                 .apply(
@@ -148,7 +149,7 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
                 )
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(LootItem.lootTableItem(Items.BONE_MEAL))
                         .when(LootItemRandomChanceCondition.randomChance(0.05F))
                 )
@@ -158,24 +159,24 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.LEATHER)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 2.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 2.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                 )
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.BEEF)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(1.0F, 3.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 3.0F)))
                                 .apply(
                                     SmeltItemFunction.smelted()
                                         .when(LootItemEntityPropertyCondition.hasProperties(LootContext.EntityTarget.THIS, ENTITY_ON_FIRE))
                                 )
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                 )
         );
@@ -184,11 +185,11 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.GUNPOWDER)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 2.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 2.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                 )
                 .withPool(
@@ -206,11 +207,11 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.COD)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 1.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 1.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                                 .apply(
                                     SmeltItemFunction.smelted()
                                         .when(LootItemEntityPropertyCondition.hasProperties(LootContext.EntityTarget.THIS, ENTITY_ON_FIRE))
@@ -223,11 +224,11 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.LEATHER)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 2.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 2.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                 )
         );
@@ -236,16 +237,16 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.ROTTEN_FLESH)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 2.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 2.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                 )
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(LootItem.lootTableItem(Items.GOLD_INGOT))
                         .when(LootItemKilledByPlayerCondition.killedByPlayer())
                         .when(LootItemRandomChanceWithLootingCondition.randomChanceAndLootingBoost(0.05F, 0.01F))
@@ -256,20 +257,20 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.PRISMARINE_SHARD)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 2.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 2.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                 )
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.COD)
                                 .setWeight(3)
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                                 .apply(
                                     SmeltItemFunction.smelted()
                                         .when(LootItemEntityPropertyCondition.hasProperties(LootContext.EntityTarget.THIS, ENTITY_ON_FIRE))
@@ -278,19 +279,19 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
                         .add(
                             LootItem.lootTableItem(Items.PRISMARINE_CRYSTALS)
                                 .setWeight(2)
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                         .add(EmptyLootItem.emptyItem())
                 )
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(LootItem.lootTableItem(Blocks.WET_SPONGE))
                         .when(LootItemKilledByPlayerCondition.killedByPlayer())
                 )
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(LootTableReference.lootTableReference(BuiltInLootTables.FISHING_FISH))
                         .when(LootItemKilledByPlayerCondition.killedByPlayer())
                         .when(LootItemRandomChanceWithLootingCondition.randomChanceAndLootingBoost(0.025F, 0.01F))
@@ -302,11 +303,11 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.ENDER_PEARL)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 1.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 1.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                 )
         );
@@ -314,14 +315,14 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
         this.add(
             EntityType.EVOKER,
             LootTable.lootTable()
-                .withPool(LootPool.lootPool().setRolls(ConstantIntValue.exactly(1)).add(LootItem.lootTableItem(Items.TOTEM_OF_UNDYING)))
+                .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F)).add(LootItem.lootTableItem(Items.TOTEM_OF_UNDYING)))
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.EMERALD)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 1.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 1.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                         .when(LootItemKilledByPlayerCondition.killedByPlayer())
                 )
@@ -332,43 +333,56 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.GHAST_TEAR)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 1.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 1.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                 )
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.GUNPOWDER)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 2.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 2.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                 )
         );
         this.add(EntityType.GIANT, LootTable.lootTable());
         this.add(
+            EntityType.GLOW_SQUID,
+            LootTable.lootTable()
+                .withPool(
+                    LootPool.lootPool()
+                        .setRolls(ConstantValue.exactly(1.0F))
+                        .add(
+                            LootItem.lootTableItem(Items.GLOW_INK_SAC)
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 3.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
+                        )
+                )
+        );
+        this.add(
             EntityType.GUARDIAN,
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.PRISMARINE_SHARD)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 2.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 2.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                 )
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.COD)
                                 .setWeight(2)
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                                 .apply(
                                     SmeltItemFunction.smelted()
                                         .when(LootItemEntityPropertyCondition.hasProperties(LootContext.EntityTarget.THIS, ENTITY_ON_FIRE))
@@ -377,13 +391,13 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
                         .add(
                             LootItem.lootTableItem(Items.PRISMARINE_CRYSTALS)
                                 .setWeight(2)
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                         .add(EmptyLootItem.emptyItem())
                 )
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(LootTableReference.lootTableReference(BuiltInLootTables.FISHING_FISH))
                         .when(LootItemKilledByPlayerCondition.killedByPlayer())
                         .when(LootItemRandomChanceWithLootingCondition.randomChanceAndLootingBoost(0.025F, 0.01F))
@@ -394,11 +408,11 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.LEATHER)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 2.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 2.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                 )
         );
@@ -407,16 +421,16 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.ROTTEN_FLESH)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 2.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 2.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                 )
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(LootItem.lootTableItem(Items.IRON_INGOT))
                         .add(LootItem.lootTableItem(Items.CARROT))
                         .add(LootItem.lootTableItem(Items.POTATO))
@@ -429,8 +443,8 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
-                        .add(LootItem.lootTableItem(Items.SADDLE).apply(SetItemCountFunction.setCount(ConstantIntValue.exactly(1))))
+                        .setRolls(ConstantValue.exactly(1.0F))
+                        .add(LootItem.lootTableItem(Items.SADDLE).apply(SetItemCountFunction.setCount(ConstantValue.exactly(1.0F))))
                 )
         );
         this.add(EntityType.ILLUSIONER, LootTable.lootTable());
@@ -439,13 +453,13 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
-                        .add(LootItem.lootTableItem(Blocks.POPPY).apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 2.0F))))
+                        .setRolls(ConstantValue.exactly(1.0F))
+                        .add(LootItem.lootTableItem(Blocks.POPPY).apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 2.0F))))
                 )
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
-                        .add(LootItem.lootTableItem(Items.IRON_INGOT).apply(SetItemCountFunction.setCount(RandomValueBounds.between(3.0F, 5.0F))))
+                        .setRolls(ConstantValue.exactly(1.0F))
+                        .add(LootItem.lootTableItem(Items.IRON_INGOT).apply(SetItemCountFunction.setCount(UniformGenerator.between(3.0F, 5.0F))))
                 )
         );
         this.add(
@@ -453,11 +467,11 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.LEATHER)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 2.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 2.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                 )
         );
@@ -466,11 +480,11 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.MAGMA_CREAM)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(-2.0F, 1.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(-2.0F, 1.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                 )
         );
@@ -479,11 +493,11 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.LEATHER)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 2.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 2.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                 )
         );
@@ -492,24 +506,24 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.LEATHER)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 2.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 2.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                 )
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.BEEF)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(1.0F, 3.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 3.0F)))
                                 .apply(
                                     SmeltItemFunction.smelted()
                                         .when(LootItemEntityPropertyCondition.hasProperties(LootContext.EntityTarget.THIS, ENTITY_ON_FIRE))
                                 )
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                 )
         );
@@ -519,8 +533,8 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
-                        .add(LootItem.lootTableItem(Blocks.BAMBOO).apply(SetItemCountFunction.setCount(ConstantIntValue.exactly(1))))
+                        .setRolls(ConstantValue.exactly(1.0F))
+                        .add(LootItem.lootTableItem(Blocks.BAMBOO).apply(SetItemCountFunction.setCount(ConstantValue.exactly(1.0F))))
                 )
         );
         this.add(
@@ -528,11 +542,11 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.FEATHER)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(1.0F, 2.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 2.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                 )
         );
@@ -541,11 +555,11 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.PHANTOM_MEMBRANE)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 1.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 1.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                         .when(LootItemKilledByPlayerCondition.killedByPlayer())
                 )
@@ -555,15 +569,15 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.PORKCHOP)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(1.0F, 3.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 3.0F)))
                                 .apply(
                                     SmeltItemFunction.smelted()
                                         .when(LootItemEntityPropertyCondition.hasProperties(LootContext.EntityTarget.THIS, ENTITY_ON_FIRE))
                                 )
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                 )
         );
@@ -574,17 +588,17 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.COD)
                                 .setWeight(3)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 2.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 2.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                         .add(
                             LootItem.lootTableItem(Items.SALMON)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 2.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 2.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                 )
         );
@@ -593,12 +607,12 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
-                        .add(LootItem.lootTableItem(Items.PUFFERFISH).apply(SetItemCountFunction.setCount(ConstantIntValue.exactly(1))))
+                        .setRolls(ConstantValue.exactly(1.0F))
+                        .add(LootItem.lootTableItem(Items.PUFFERFISH).apply(SetItemCountFunction.setCount(ConstantValue.exactly(1.0F))))
                 )
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(LootItem.lootTableItem(Items.BONE_MEAL))
                         .when(LootItemRandomChanceCondition.randomChance(0.05F))
                 )
@@ -608,29 +622,29 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.RABBIT_HIDE)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 1.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 1.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                 )
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.RABBIT)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 1.0F)))
                                 .apply(
                                     SmeltItemFunction.smelted()
                                         .when(LootItemEntityPropertyCondition.hasProperties(LootContext.EntityTarget.THIS, ENTITY_ON_FIRE))
                                 )
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                 )
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(LootItem.lootTableItem(Items.RABBIT_FOOT))
                         .when(LootItemKilledByPlayerCondition.killedByPlayer())
                         .when(LootItemRandomChanceWithLootingCondition.randomChanceAndLootingBoost(0.1F, 0.03F))
@@ -641,7 +655,7 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.SALMON)
                                 .apply(
@@ -652,7 +666,7 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
                 )
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(LootItem.lootTableItem(Items.BONE_MEAL))
                         .when(LootItemRandomChanceCondition.randomChance(0.05F))
                 )
@@ -662,15 +676,15 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.MUTTON)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(1.0F, 2.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 2.0F)))
                                 .apply(
                                     SmeltItemFunction.smelted()
                                         .when(LootItemEntityPropertyCondition.hasProperties(LootContext.EntityTarget.THIS, ENTITY_ON_FIRE))
                                 )
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                 )
         );
@@ -695,7 +709,7 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(LootItem.lootTableItem(Items.SHULKER_SHELL))
                         .when(LootItemRandomChanceWithLootingCondition.randomChanceAndLootingBoost(0.5F, 0.0625F))
                 )
@@ -706,20 +720,20 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.ARROW)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 2.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 2.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                 )
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.BONE)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 2.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 2.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                 )
         );
@@ -728,11 +742,11 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.BONE)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 2.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 2.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                 )
         );
@@ -741,11 +755,11 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.SLIME_BALL)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 2.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 2.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                 )
         );
@@ -754,8 +768,8 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
-                        .add(LootItem.lootTableItem(Items.SNOWBALL).apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 15.0F))))
+                        .setRolls(ConstantValue.exactly(1.0F))
+                        .add(LootItem.lootTableItem(Items.SNOWBALL).apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 15.0F))))
                 )
         );
         this.add(
@@ -763,20 +777,20 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.STRING)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 2.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 2.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                 )
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.SPIDER_EYE)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(-1.0F, 1.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(-1.0F, 1.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                         .when(LootItemKilledByPlayerCondition.killedByPlayer())
                 )
@@ -786,11 +800,11 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.INK_SAC)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(1.0F, 3.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 3.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                 )
         );
@@ -799,29 +813,29 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.ARROW)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 2.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 2.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                 )
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.BONE)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 2.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 2.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                 )
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.TIPPED_ARROW)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 1.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)).setLimit(1))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 1.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)).setLimit(1))
                                 .apply(SetNbtFunction.setTag(Util.make(new CompoundTag(), param0x -> param0x.putString("Potion", "minecraft:slowness"))))
                         )
                         .when(LootItemKilledByPlayerCondition.killedByPlayer())
@@ -832,11 +846,11 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.STRING)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(2.0F, 5.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(2.0F, 5.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                 )
         );
@@ -845,11 +859,11 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.LEATHER)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 2.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 2.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                 )
         );
@@ -858,12 +872,12 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
-                        .add(LootItem.lootTableItem(Items.TROPICAL_FISH).apply(SetItemCountFunction.setCount(ConstantIntValue.exactly(1))))
+                        .setRolls(ConstantValue.exactly(1.0F))
+                        .add(LootItem.lootTableItem(Items.TROPICAL_FISH).apply(SetItemCountFunction.setCount(ConstantValue.exactly(1.0F))))
                 )
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(LootItem.lootTableItem(Items.BONE_MEAL))
                         .when(LootItemRandomChanceCondition.randomChance(0.05F))
                 )
@@ -873,17 +887,17 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Blocks.SEAGRASS)
                                 .setWeight(3)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 2.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 2.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                 )
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(LootItem.lootTableItem(Items.BOWL))
                         .when(DamageSourceCondition.hasDamageSource(DamageSourcePredicate.Builder.damageType().isLightning(true)))
                 )
@@ -896,11 +910,11 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.EMERALD)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 1.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 1.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                         .when(LootItemKilledByPlayerCondition.killedByPlayer())
                 )
@@ -910,42 +924,42 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(RandomValueBounds.between(1.0F, 3.0F))
+                        .setRolls(UniformGenerator.between(1.0F, 3.0F))
                         .add(
                             LootItem.lootTableItem(Items.GLOWSTONE_DUST)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 2.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 2.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                         .add(
                             LootItem.lootTableItem(Items.SUGAR)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 2.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 2.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                         .add(
                             LootItem.lootTableItem(Items.REDSTONE)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 2.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 2.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                         .add(
                             LootItem.lootTableItem(Items.SPIDER_EYE)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 2.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 2.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                         .add(
                             LootItem.lootTableItem(Items.GLASS_BOTTLE)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 2.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 2.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                         .add(
                             LootItem.lootTableItem(Items.GUNPOWDER)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 2.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 2.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                         .add(
                             LootItem.lootTableItem(Items.STICK)
                                 .setWeight(2)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 2.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 2.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                 )
         );
@@ -955,25 +969,25 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.COAL)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(-1.0F, 1.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(-1.0F, 1.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                 )
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.BONE)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 2.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 2.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                 )
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(LootItem.lootTableItem(Blocks.WITHER_SKELETON_SKULL))
                         .when(LootItemKilledByPlayerCondition.killedByPlayer())
                         .when(LootItemRandomChanceWithLootingCondition.randomChanceAndLootingBoost(0.025F, 0.01F))
@@ -985,11 +999,11 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.ROTTEN_FLESH)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(1.0F, 3.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 3.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                 )
         );
@@ -998,16 +1012,16 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.ROTTEN_FLESH)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 2.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 2.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                 )
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(LootItem.lootTableItem(Items.IRON_INGOT))
                         .add(LootItem.lootTableItem(Items.CARROT))
                         .add(LootItem.lootTableItem(Items.POTATO))
@@ -1020,11 +1034,11 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.ROTTEN_FLESH)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 2.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 2.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                 )
         );
@@ -1033,25 +1047,25 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.ROTTEN_FLESH)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 1.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 1.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                 )
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.GOLD_NUGGET)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 1.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 1.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                 )
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(LootItem.lootTableItem(Items.GOLD_INGOT))
                         .when(LootItemKilledByPlayerCondition.killedByPlayer())
                         .when(LootItemRandomChanceWithLootingCondition.randomChanceAndLootingBoost(0.025F, 0.01F))
@@ -1062,24 +1076,24 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.PORKCHOP)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(2.0F, 4.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(2.0F, 4.0F)))
                                 .apply(
                                     SmeltItemFunction.smelted()
                                         .when(LootItemEntityPropertyCondition.hasProperties(LootContext.EntityTarget.THIS, ENTITY_ON_FIRE))
                                 )
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                 )
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.LEATHER)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 1.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 1.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                 )
         );
@@ -1090,16 +1104,16 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.ROTTEN_FLESH)
-                                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(0.0F, 2.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(RandomValueBounds.between(0.0F, 1.0F)))
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 2.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                 )
                 .withPool(
                     LootPool.lootPool()
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(LootItem.lootTableItem(Items.IRON_INGOT))
                         .add(LootItem.lootTableItem(Items.CARROT))
                         .add(LootItem.lootTableItem(Items.POTATO))

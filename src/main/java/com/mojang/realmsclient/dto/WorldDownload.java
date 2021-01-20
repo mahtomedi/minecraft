@@ -25,7 +25,7 @@ public class WorldDownload extends ValueObject {
             var2.resourcePackUrl = JsonUtils.getStringOr("resourcePackUrl", var1, "");
             var2.resourcePackHash = JsonUtils.getStringOr("resourcePackHash", var1, "");
         } catch (Exception var5) {
-            LOGGER.error("Could not parse WorldDownload: " + var5.getMessage());
+            LOGGER.error("Could not parse WorldDownload: {}", var5.getMessage());
         }
 
         return var2;

@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -41,7 +42,7 @@ public class TextureAtlas extends AbstractTexture implements Tickable {
     public static final ResourceLocation LOCATION_BLOCKS = InventoryMenu.BLOCK_ATLAS;
     @Deprecated
     public static final ResourceLocation LOCATION_PARTICLES = new ResourceLocation("textures/atlas/particles.png");
-    private final List<TextureAtlasSprite> animatedTextures = Lists.newArrayList();
+    private final List<Tickable> animatedTextures = Lists.newArrayList();
     private final Set<ResourceLocation> sprites = Sets.newHashSet();
     private final Map<ResourceLocation, TextureAtlasSprite> texturesByName = Maps.newHashMap();
     private final ResourceLocation location;
@@ -53,7 +54,7 @@ public class TextureAtlas extends AbstractTexture implements Tickable {
     }
 
     @Override
-    public void load(ResourceManager param0) throws IOException {
+    public void load(ResourceManager param0) {
     }
 
     public void reload(TextureAtlas.Preparations param0) {
@@ -76,8 +77,9 @@ public class TextureAtlas extends AbstractTexture implements Tickable {
                 throw new ReportedException(var2);
             }
 
-            if (var0.isAnimation()) {
-                this.animatedTextures.add(var0);
+            Tickable var4 = var0.getAnimationTicker();
+            if (var4 != null) {
+                this.animatedTextures.add(var4);
             }
         }
 
@@ -147,7 +149,7 @@ public class TextureAtlas extends AbstractTexture implements Tickable {
 
     private Collection<TextureAtlasSprite.Info> getBasicSpriteInfos(ResourceManager param0, Set<ResourceLocation> param1) {
         List<CompletableFuture<?>> var0 = Lists.newArrayList();
-        ConcurrentLinkedQueue<TextureAtlasSprite.Info> var1 = new ConcurrentLinkedQueue<>();
+        Queue<TextureAtlasSprite.Info> var1 = new ConcurrentLinkedQueue<>();
 
         for(ResourceLocation var2 : param1) {
             if (!MissingTextureAtlasSprite.getLocation().equals(var2)) {
@@ -182,7 +184,7 @@ public class TextureAtlas extends AbstractTexture implements Tickable {
     }
 
     private List<TextureAtlasSprite> getLoadedSprites(ResourceManager param0, Stitcher param1, int param2) {
-        ConcurrentLinkedQueue<TextureAtlasSprite> var0 = new ConcurrentLinkedQueue<>();
+        Queue<TextureAtlasSprite> var0 = new ConcurrentLinkedQueue<>();
         List<CompletableFuture<?>> var1 = Lists.newArrayList();
         param1.gatherSprites((param4, param5, param6, param7, param8) -> {
             if (param4 == MissingTextureAtlasSprite.info()) {
@@ -226,8 +228,8 @@ public class TextureAtlas extends AbstractTexture implements Tickable {
     public void cycleAnimationFrames() {
         this.bind();
 
-        for(TextureAtlasSprite var0 : this.animatedTextures) {
-            var0.cycleFrames();
+        for(Tickable var0 : this.animatedTextures) {
+            var0.tick();
         }
 
     }

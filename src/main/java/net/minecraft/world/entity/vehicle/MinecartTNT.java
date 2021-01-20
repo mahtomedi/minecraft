@@ -100,19 +100,19 @@ public class MinecartTNT extends AbstractMinecart {
 
             this.level
                 .explode(this, this.getX(), this.getY(), this.getZ(), (float)(4.0 + this.random.nextDouble() * 1.5 * var0), Explosion.BlockInteraction.BREAK);
-            this.remove();
+            this.discard();
         }
 
     }
 
     @Override
-    public boolean causeFallDamage(float param0, float param1) {
+    public boolean causeFallDamage(float param0, float param1, DamageSource param2) {
         if (param0 >= 3.0F) {
             float var0 = param0 / 10.0F;
             this.explode((double)(var0 * var0));
         }
 
-        return super.causeFallDamage(param0, param1);
+        return super.causeFallDamage(param0, param1, param2);
     }
 
     @Override

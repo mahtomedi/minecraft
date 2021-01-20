@@ -7,6 +7,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.achievement.StatsScreen;
 import net.minecraft.client.gui.screens.advancements.AdvancementsScreen;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.realms.RealmsBridge;
 import net.minecraftforge.api.distmarker.Dist;
@@ -110,33 +111,28 @@ public class PauseScreen extends Screen {
             )
         );
         var3.active = this.minecraft.hasSingleplayerServer() && !this.minecraft.getSingleplayerServer().isPublished();
-        Button var4 = this.addButton(
-            new Button(this.width / 2 - 102, this.height / 4 + 120 + -16, 204, 20, new TranslatableComponent("menu.returnToMenu"), param0 -> {
-                boolean var0x = this.minecraft.isLocalServer();
-                boolean var1x = this.minecraft.isConnectedToRealms();
-                param0.active = false;
-                this.minecraft.level.disconnect();
-                if (var0x) {
-                    this.minecraft.clearLevel(new GenericDirtMessageScreen(new TranslatableComponent("menu.savingLevel")));
-                } else {
-                    this.minecraft.clearLevel();
-                }
-    
-                if (var0x) {
-                    this.minecraft.setScreen(new TitleScreen());
-                } else if (var1x) {
-                    RealmsBridge var2x = new RealmsBridge();
-                    var2x.switchToRealms(new TitleScreen());
-                } else {
-                    this.minecraft.setScreen(new JoinMultiplayerScreen(new TitleScreen()));
-                }
-    
-            })
-        );
-        if (!this.minecraft.isLocalServer()) {
-            var4.setMessage(new TranslatableComponent("menu.disconnect"));
-        }
+        Component var4 = this.minecraft.isLocalServer() ? new TranslatableComponent("menu.returnToMenu") : new TranslatableComponent("menu.disconnect");
+        this.addButton(new Button(this.width / 2 - 102, this.height / 4 + 120 + -16, 204, 20, var4, param0 -> {
+            boolean var0x = this.minecraft.isLocalServer();
+            boolean var1x = this.minecraft.isConnectedToRealms();
+            param0.active = false;
+            this.minecraft.level.disconnect();
+            if (var0x) {
+                this.minecraft.clearLevel(new GenericDirtMessageScreen(new TranslatableComponent("menu.savingLevel")));
+            } else {
+                this.minecraft.clearLevel();
+            }
 
+            if (var0x) {
+                this.minecraft.setScreen(new TitleScreen());
+            } else if (var1x) {
+                RealmsBridge var2x = new RealmsBridge();
+                var2x.switchToRealms(new TitleScreen());
+            } else {
+                this.minecraft.setScreen(new JoinMultiplayerScreen(new TitleScreen()));
+            }
+
+        }));
     }
 
     @Override

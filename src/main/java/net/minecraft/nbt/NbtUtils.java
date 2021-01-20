@@ -1,18 +1,28 @@
 package net.minecraft.nbt;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.authlib.GameProfile;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.datafixers.DataFixer;
 import com.mojang.serialization.Dynamic;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.Map.Entry;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.SerializableUUID;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringUtil;
 import net.minecraft.util.datafix.DataFixTypes;
@@ -26,6 +36,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public final class NbtUtils {
+    private static final Comparator<ListTag> YXZ_LISTTAG_INT_COMPARATOR = Comparator.<ListTag>comparingInt(param0 -> param0.getInt(1))
+        .thenComparingInt(param0 -> param0.getInt(0))
+        .thenComparingInt(param0 -> param0.getInt(2));
+    private static final Comparator<ListTag> YXZ_LISTTAG_DOUBLE_COMPARATOR = Comparator.<ListTag>comparingDouble(param0 -> param0.getDouble(1))
+        .thenComparingDouble(param0 -> param0.getDouble(0))
+        .thenComparingDouble(param0 -> param0.getDouble(2));
+    private static final Splitter COMMA_SPLITTER = Splitter.on(",");
+    private static final Splitter COLON_SPLITTER = Splitter.on(':').limit(2);
     private static final Logger LOGGER = LogManager.getLogger();
 
     @Nullable
@@ -244,5 +262,158 @@ public final class NbtUtils {
 
     public static CompoundTag update(DataFixer param0, DataFixTypes param1, CompoundTag param2, int param3, int param4) {
         return param0.update(param1.getType(), new Dynamic<>(NbtOps.INSTANCE, param2), param3, param4).getValue();
+    }
+
+    public static Component toPrettyComponent(Tag param0) {
+        return new TextComponentTagVisitor("", 0).visit(param0);
+    }
+
+    public static String structureToSnbt(CompoundTag param0) {
+        return new SnbtPrinterTagVisitor().visit(packStructureTemplate(param0));
+    }
+
+    public static CompoundTag snbtToStructure(String param0) throws CommandSyntaxException {
+        return unpackStructureTemplate(TagParser.parseTag(param0));
+    }
+
+    @VisibleForTesting
+    static CompoundTag packStructureTemplate(CompoundTag param0) {
+        boolean var0 = param0.contains("palettes", 9);
+        ListTag var1;
+        if (var0) {
+            var1 = param0.getList("palettes", 9).getList(0);
+        } else {
+            var1 = param0.getList("palette", 10);
+        }
+
+        ListTag var3 = var1.stream()
+            .map(CompoundTag.class::cast)
+            .map(NbtUtils::packBlockState)
+            .map(StringTag::valueOf)
+            .collect(Collectors.toCollection(ListTag::new));
+        param0.put("palette", var3);
+        if (var0) {
+            ListTag var4 = new ListTag();
+            ListTag var5 = param0.getList("palettes", 9);
+            var5.stream().map(ListTag.class::cast).forEach(param2 -> {
+                CompoundTag var0x = new CompoundTag();
+
+                for(int var1x = 0; var1x < param2.size(); ++var1x) {
+                    var0x.putString(var3.getString(var1x), packBlockState(param2.getCompound(var1x)));
+                }
+
+                var4.add(var0x);
+            });
+            param0.put("palettes", var4);
+        }
+
+        if (param0.contains("entities", 10)) {
+            ListTag var6 = param0.getList("entities", 10);
+            ListTag var7 = var6.stream()
+                .map(CompoundTag.class::cast)
+                .sorted(Comparator.comparing(param0x -> param0x.getList("pos", 6), YXZ_LISTTAG_DOUBLE_COMPARATOR))
+                .collect(Collectors.toCollection(ListTag::new));
+            param0.put("entities", var7);
+        }
+
+        ListTag var8 = param0.getList("blocks", 10)
+            .stream()
+            .map(CompoundTag.class::cast)
+            .sorted(Comparator.comparing(param0x -> param0x.getList("pos", 3), YXZ_LISTTAG_INT_COMPARATOR))
+            .peek(param1 -> param1.putString("state", var3.getString(param1.getInt("state"))))
+            .collect(Collectors.toCollection(ListTag::new));
+        param0.put("data", var8);
+        param0.remove("blocks");
+        return param0;
+    }
+
+    @VisibleForTesting
+    static CompoundTag unpackStructureTemplate(CompoundTag param0) {
+        ListTag var0 = param0.getList("palette", 8);
+        Map<String, Tag> var1 = var0.stream()
+            .map(StringTag.class::cast)
+            .map(StringTag::getAsString)
+            .collect(ImmutableMap.toImmutableMap(Function.identity(), NbtUtils::unpackBlockState));
+        if (param0.contains("palettes", 9)) {
+            param0.put(
+                "palettes",
+                param0.getList("palettes", 10)
+                    .stream()
+                    .map(CompoundTag.class::cast)
+                    .map(param1 -> var1.keySet().stream().map(param1::getString).map(NbtUtils::unpackBlockState).collect(Collectors.toCollection(ListTag::new)))
+                    .collect(Collectors.toCollection(ListTag::new))
+            );
+            param0.remove("palette");
+        } else {
+            param0.put("palette", var1.values().stream().collect(Collectors.toCollection(ListTag::new)));
+        }
+
+        if (param0.contains("data", 9)) {
+            Object2IntMap<String> var2 = new Object2IntOpenHashMap<>();
+            var2.defaultReturnValue(-1);
+
+            for(int var3 = 0; var3 < var0.size(); ++var3) {
+                var2.put(var0.getString(var3), var3);
+            }
+
+            ListTag var4 = param0.getList("data", 10);
+
+            for(int var5 = 0; var5 < var4.size(); ++var5) {
+                CompoundTag var6 = var4.getCompound(var5);
+                String var7 = var6.getString("state");
+                int var8 = var2.getInt(var7);
+                if (var8 == -1) {
+                    throw new IllegalStateException("Entry " + var7 + " missing from palette");
+                }
+
+                var6.putInt("state", var8);
+            }
+
+            param0.put("blocks", var4);
+            param0.remove("data");
+        }
+
+        return param0;
+    }
+
+    @VisibleForTesting
+    static String packBlockState(CompoundTag param0x) {
+        StringBuilder var0x = new StringBuilder(param0x.getString("Name"));
+        if (param0x.contains("Properties", 10)) {
+            CompoundTag var1x = param0x.getCompound("Properties");
+            String var2x = var1x.getAllKeys().stream().sorted().map(param1 -> param1 + ':' + var1x.get(param1).getAsString()).collect(Collectors.joining(","));
+            var0x.append('{').append(var2x).append('}');
+        }
+
+        return var0x.toString();
+    }
+
+    @VisibleForTesting
+    static CompoundTag unpackBlockState(String param0x) {
+        CompoundTag var0x = new CompoundTag();
+        int var1x = param0x.indexOf(123);
+        String var2x;
+        if (var1x >= 0) {
+            var2x = param0x.substring(0, var1x);
+            CompoundTag var3x = new CompoundTag();
+            if (var1x + 2 <= param0x.length()) {
+                String var4x = param0x.substring(var1x + 1, param0x.indexOf(125, var1x));
+                COMMA_SPLITTER.split(var4x).forEach(param2 -> {
+                    List<String> var0xx = COLON_SPLITTER.splitToList(param2);
+                    if (var0xx.size() == 2) {
+                        var3x.putString((String)var0xx.get(0), (String)var0xx.get(1));
+                    } else {
+                        LOGGER.error("Something went wrong parsing: '{}' -- incorrect gamedata!", param0x);
+                    }
+
+                });
+                var0x.put("Properties", var3x);
+            }
+        } else {
+            var2x = param0x;
+        }
+
+        var0x.putString("Name", var2x);
+        return var0x;
     }
 }

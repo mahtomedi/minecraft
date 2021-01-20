@@ -19,13 +19,12 @@ public class UnderwaterAmbientSoundInstances {
             this.looping = false;
             this.delay = 0;
             this.volume = 1.0F;
-            this.priority = true;
             this.relative = true;
         }
 
         @Override
         public void tick() {
-            if (this.player.removed || !this.player.isUnderWater()) {
+            if (this.player.isRemoved() || !this.player.isUnderWater()) {
                 this.stop();
             }
 
@@ -43,13 +42,12 @@ public class UnderwaterAmbientSoundInstances {
             this.looping = true;
             this.delay = 0;
             this.volume = 1.0F;
-            this.priority = true;
             this.relative = true;
         }
 
         @Override
         public void tick() {
-            if (!this.player.removed && this.fade >= 0) {
+            if (!this.player.isRemoved() && this.fade >= 0) {
                 if (this.player.isUnderWater()) {
                     ++this.fade;
                 } else {

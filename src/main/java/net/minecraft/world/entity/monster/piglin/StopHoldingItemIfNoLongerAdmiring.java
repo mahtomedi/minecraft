@@ -13,7 +13,7 @@ public class StopHoldingItemIfNoLongerAdmiring<E extends Piglin> extends Behavio
     }
 
     protected boolean checkExtraStartConditions(ServerLevel param0, E param1) {
-        return !param1.getOffhandItem().isEmpty() && param1.getOffhandItem().getItem() != Items.SHIELD;
+        return !param1.getOffhandItem().isEmpty() && !param1.getOffhandItem().is(Items.SHIELD);
     }
 
     protected void start(ServerLevel param0, E param1, long param2) {

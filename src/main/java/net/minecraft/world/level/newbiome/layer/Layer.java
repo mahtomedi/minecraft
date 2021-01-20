@@ -1,6 +1,5 @@
 package net.minecraft.world.level.newbiome.layer;
 
-import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.core.Registry;
 import net.minecraft.data.worldgen.biome.Biomes;
@@ -27,12 +26,8 @@ public class Layer {
         } else {
             Biome var2 = param0.get(var1);
             if (var2 == null) {
-                if (SharedConstants.IS_RUNNING_IN_IDE) {
-                    throw (IllegalStateException)Util.pauseInIde(new IllegalStateException("Unknown biome id: " + var0));
-                } else {
-                    LOGGER.warn("Unknown biome id: ", var0);
-                    return param0.get(Biomes.byId(0));
-                }
+                Util.logAndPauseIfInIde("Unknown biome id: " + var0);
+                return param0.get(Biomes.byId(0));
             } else {
                 return var2;
             }

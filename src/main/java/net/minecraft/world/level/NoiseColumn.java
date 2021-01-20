@@ -1,33 +1,20 @@
 package net.minecraft.world.level;
 
-import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.FluidState;
 
-public final class NoiseColumn implements BlockGetter {
+public final class NoiseColumn {
+    private final int minY;
     private final BlockState[] column;
 
-    public NoiseColumn(BlockState[] param0) {
-        this.column = param0;
+    public NoiseColumn(int param0, BlockState[] param1) {
+        this.minY = param0;
+        this.column = param1;
     }
 
-    @Nullable
-    @Override
-    public BlockEntity getBlockEntity(BlockPos param0) {
-        return null;
-    }
-
-    @Override
     public BlockState getBlockState(BlockPos param0) {
-        int var0 = param0.getY();
+        int var0 = param0.getY() - this.minY;
         return var0 >= 0 && var0 < this.column.length ? this.column[var0] : Blocks.AIR.defaultBlockState();
-    }
-
-    @Override
-    public FluidState getFluidState(BlockPos param0) {
-        return this.getBlockState(param0).getFluidState();
     }
 }

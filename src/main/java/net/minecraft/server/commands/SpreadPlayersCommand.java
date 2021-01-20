@@ -58,7 +58,7 @@ public class SpreadPlayersCommand {
                                                                     Vec2Argument.getVec2(param0x, "center"),
                                                                     FloatArgumentType.getFloat(param0x, "spreadDistance"),
                                                                     FloatArgumentType.getFloat(param0x, "maxRange"),
-                                                                    256,
+                                                                    param0x.getSource().getLevel().getMaxBuildHeight(),
                                                                     BoolArgumentType.getBool(param0x, "respectTeams"),
                                                                     EntityArgument.getEntities(param0x, "targets")
                                                                 )
@@ -261,6 +261,9 @@ public class SpreadPlayersCommand {
         private double x;
         private double z;
 
+        private Position() {
+        }
+
         double dist(SpreadPlayersCommand.Position param0) {
             double var0 = this.x - param0.x;
             double var1 = this.z - param0.z;
@@ -309,7 +312,7 @@ public class SpreadPlayersCommand {
             var0.move(Direction.DOWN);
 
             boolean var3;
-            for(boolean var2 = param0.getBlockState(var0).isAir(); var0.getY() > 0; var2 = var3) {
+            for(boolean var2 = param0.getBlockState(var0).isAir(); var0.getY() > param0.getMinBuildHeight(); var2 = var3) {
                 var0.move(Direction.DOWN);
                 var3 = param0.getBlockState(var0).isAir();
                 if (!var3 && var2 && var1) {

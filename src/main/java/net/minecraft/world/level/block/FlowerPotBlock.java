@@ -48,14 +48,15 @@ public class FlowerPotBlock extends Block {
     public InteractionResult use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
         ItemStack var0 = param3.getItemInHand(param4);
         Item var1 = var0.getItem();
-        Block var2 = var1 instanceof BlockItem ? POTTED_BY_CONTENT.getOrDefault(((BlockItem)var1).getBlock(), Blocks.AIR) : Blocks.AIR;
-        boolean var3 = var2 == Blocks.AIR;
-        boolean var4 = this.content == Blocks.AIR;
+        BlockState var2 = (var1 instanceof BlockItem ? POTTED_BY_CONTENT.getOrDefault(((BlockItem)var1).getBlock(), Blocks.AIR) : Blocks.AIR)
+            .defaultBlockState();
+        boolean var3 = var2.is(Blocks.AIR);
+        boolean var4 = this.isEmpty();
         if (var3 != var4) {
             if (var4) {
-                param1.setBlock(param2, var2.defaultBlockState(), 3);
+                param1.setBlock(param2, var2, 3);
                 param3.awardStat(Stats.POT_FLOWER);
-                if (!param3.abilities.instabuild) {
+                if (!param3.getAbilities().instabuild) {
                     var0.shrink(1);
                 }
             } else {
@@ -78,7 +79,11 @@ public class FlowerPotBlock extends Block {
     @OnlyIn(Dist.CLIENT)
     @Override
     public ItemStack getCloneItemStack(BlockGetter param0, BlockPos param1, BlockState param2) {
-        return this.content == Blocks.AIR ? super.getCloneItemStack(param0, param1, param2) : new ItemStack(this.content);
+        return this.isEmpty() ? super.getCloneItemStack(param0, param1, param2) : new ItemStack(this.content);
+    }
+
+    private boolean isEmpty() {
+        return this.content == Blocks.AIR;
     }
 
     @Override

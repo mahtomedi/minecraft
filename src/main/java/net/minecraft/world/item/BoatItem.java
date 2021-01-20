@@ -54,7 +54,7 @@ public class BoatItem extends Item {
                 } else {
                     if (!param0.isClientSide) {
                         param0.addFreshEntity(var8);
-                        if (!param1.abilities.instabuild) {
+                        if (!param1.getAbilities().instabuild) {
                             var0.shrink(1);
                         }
                     }

@@ -2,11 +2,12 @@ package net.minecraft.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.ShulkerModel;
+import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.layers.ShulkerHeadLayer;
-import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.monster.Shulker;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -23,41 +24,32 @@ public class ShulkerRenderer extends MobRenderer<Shulker, ShulkerModel<Shulker>>
         .map(param0 -> new ResourceLocation("textures/" + param0.texture().getPath() + ".png"))
         .toArray(param0 -> new ResourceLocation[param0]);
 
-    public ShulkerRenderer(EntityRenderDispatcher param0) {
-        super(param0, new ShulkerModel<>(), 0.0F);
+    public ShulkerRenderer(EntityRendererProvider.Context param0) {
+        super(param0, new ShulkerModel<>(param0.bakeLayer(ModelLayers.SHULKER)), 0.0F);
         this.addLayer(new ShulkerHeadLayer(this));
     }
 
     public Vec3 getRenderOffset(Shulker param0, float param1) {
-        int var0 = param0.getClientSideTeleportInterpolation();
-        if (var0 > 0 && param0.hasValidInterpolationPositions()) {
-            BlockPos var1 = param0.getAttachPosition();
-            BlockPos var2 = param0.getOldAttachPosition();
-            double var3 = (double)((float)var0 - param1) / 6.0;
-            var3 *= var3;
-            double var4 = (double)(var1.getX() - var2.getX()) * var3;
-            double var5 = (double)(var1.getY() - var2.getY()) * var3;
-            double var6 = (double)(var1.getZ() - var2.getZ()) * var3;
-            return new Vec3(-var4, -var5, -var6);
-        } else {
-            return super.getRenderOffset(param0, param1);
-        }
+        return param0.getRenderPosition(param1).orElse(super.getRenderOffset(param0, param1));
     }
 
     public boolean shouldRender(Shulker param0, Frustum param1, double param2, double param3, double param4) {
-        if (super.shouldRender(param0, param1, param2, param3, param4)) {
-            return true;
-        } else {
-            if (param0.getClientSideTeleportInterpolation() > 0 && param0.hasValidInterpolationPositions()) {
-                Vec3 var0 = Vec3.atLowerCornerOf(param0.getAttachPosition());
-                Vec3 var1 = Vec3.atLowerCornerOf(param0.getOldAttachPosition());
-                if (param1.isVisible(new AABB(var1.x, var1.y, var1.z, var0.x, var0.y, var0.z))) {
-                    return true;
-                }
-            }
-
-            return false;
-        }
+        return super.shouldRender(param0, param1, param2, param3, param4)
+            ? true
+            : param0.getRenderPosition(0.0F)
+                .filter(
+                    param2x -> {
+                        EntityType<?> var0 = param0.getType();
+                        float var1x = var0.getHeight() / 2.0F;
+                        float var2x = var0.getWidth() / 2.0F;
+                        Vec3 var3x = Vec3.atBottomCenterOf(param0.blockPosition());
+                        return param1.isVisible(
+                            new AABB(param2x.x, param2x.y + (double)var1x, param2x.z, var3x.x, var3x.y + (double)var1x, var3x.z)
+                                .inflate((double)var2x, (double)var1x, (double)var2x)
+                        );
+                    }
+                )
+                .isPresent();
     }
 
     public ResourceLocation getTextureLocation(Shulker param0) {

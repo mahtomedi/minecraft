@@ -17,12 +17,13 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.AgableMob;
+import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -36,7 +37,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public abstract class AbstractVillager extends AgableMob implements Npc, Merchant {
+public abstract class AbstractVillager extends AgeableMob implements Npc, Merchant {
     private static final EntityDataAccessor<Integer> DATA_UNHAPPY_COUNTER = SynchedEntityData.defineId(AbstractVillager.class, EntityDataSerializers.INT);
     @Nullable
     private Player tradingPlayer;
@@ -55,7 +56,7 @@ public abstract class AbstractVillager extends AgableMob implements Npc, Merchan
         ServerLevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
     ) {
         if (param3 == null) {
-            param3 = new AgableMob.AgableMobGroupData(false);
+            param3 = new AgeableMob.AgeableMobGroupData(false);
         }
 
         return super.finalizeSpawn(param0, param1, param2, param3, param4);
@@ -218,18 +219,9 @@ public abstract class AbstractVillager extends AgableMob implements Npc, Merchan
     }
 
     @Override
-    public boolean setSlot(int param0, ItemStack param1) {
-        if (super.setSlot(param0, param1)) {
-            return true;
-        } else {
-            int var0 = param0 - 300;
-            if (var0 >= 0 && var0 < this.inventory.getContainerSize()) {
-                this.inventory.setItem(var0, param1);
-                return true;
-            } else {
-                return false;
-            }
-        }
+    public SlotAccess getSlot(int param0) {
+        int var0 = param0 - 300;
+        return var0 >= 0 && var0 < this.inventory.getContainerSize() ? SlotAccess.forContainer(this.inventory, var0) : super.getSlot(param0);
     }
 
     @Override

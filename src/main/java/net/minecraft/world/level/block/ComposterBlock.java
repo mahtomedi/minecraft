@@ -213,7 +213,7 @@ public class ComposterBlock extends Block implements WorldlyContainerHolder {
             if (var0 < 7 && !param1.isClientSide) {
                 BlockState var2 = addItem(param0, param1, param2, var1);
                 param1.levelEvent(1500, param2, param0 != var2 ? 1 : 0);
-                if (!param3.abilities.instabuild) {
+                if (!param3.getAbilities().instabuild) {
                     var1.shrink(1);
                 }
             }
@@ -415,7 +415,7 @@ public class ComposterBlock extends Block implements WorldlyContainerHolder {
 
         @Override
         public boolean canTakeItemThroughFace(int param0, ItemStack param1, Direction param2) {
-            return !this.changed && param2 == Direction.DOWN && param1.getItem() == Items.BONE_MEAL;
+            return !this.changed && param2 == Direction.DOWN && param1.is(Items.BONE_MEAL);
         }
 
         @Override

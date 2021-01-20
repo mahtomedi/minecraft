@@ -53,6 +53,13 @@ public class BiomeDefaultFeatures {
         param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_GRANITE);
         param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_DIORITE);
         param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_ANDESITE);
+        param0.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, Features.GLOW_LICHEN);
+    }
+
+    public static void addDripstone(BiomeGenerationSettings.Builder param0) {
+        param0.addFeature(GenerationStep.Decoration.LOCAL_MODIFICATIONS, Features.LARGE_DRIPSTONE_FEATURE);
+        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_DECORATION, Features.DRIPSTONE_CLUSTER_FEATURE);
+        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_DECORATION, Features.SMALL_DRIPSTONE_FEATURE);
     }
 
     public static void addDefaultOres(BiomeGenerationSettings.Builder param0) {
@@ -62,6 +69,7 @@ public class BiomeDefaultFeatures {
         param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_REDSTONE);
         param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_DIAMOND);
         param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_LAPIS);
+        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_COPPER);
     }
 
     public static void addExtraGold(BiomeGenerationSettings.Builder param0) {
@@ -328,6 +336,10 @@ public class BiomeDefaultFeatures {
     public static void addAncientDebris(BiomeGenerationSettings.Builder param0) {
         param0.addFeature(GenerationStep.Decoration.UNDERGROUND_DECORATION, Features.ORE_DEBRIS_LARGE);
         param0.addFeature(GenerationStep.Decoration.UNDERGROUND_DECORATION, Features.ORE_DEBRIS_SMALL);
+    }
+
+    public static void addDefaultCrystalFormations(BiomeGenerationSettings.Builder param0) {
+        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_STRUCTURES, Features.AMETHYST_GEODE);
     }
 
     public static void farmAnimals(MobSpawnSettings.Builder param0) {

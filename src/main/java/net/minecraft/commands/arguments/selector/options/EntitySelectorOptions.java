@@ -216,7 +216,7 @@ public class EntitySelectorOptions {
                     }
 
                     for(GameType var3x : GameType.values()) {
-                        if (var3x != GameType.NOT_SET && var3x.getName().toLowerCase(Locale.ROOT).startsWith(var0x)) {
+                        if (var3x.getName().toLowerCase(Locale.ROOT).startsWith(var0x)) {
                             if (var2x) {
                                 param1.suggest('!' + var3x.getName());
                             }
@@ -236,8 +236,8 @@ public class EntitySelectorOptions {
                     throw ERROR_INAPPLICABLE_OPTION.createWithContext(param0.getReader(), "gamemode");
                 } else {
                     String var2 = param0.getReader().readUnquotedString();
-                    GameType var3 = GameType.byName(var2, GameType.NOT_SET);
-                    if (var3 == GameType.NOT_SET) {
+                    GameType var3 = GameType.byName(var2, null);
+                    if (var3 == null) {
                         param0.getReader().setCursor(var0);
                         throw ERROR_GAME_MODE_INVALID.createWithContext(param0.getReader(), var2);
                     } else {
@@ -278,48 +278,56 @@ public class EntitySelectorOptions {
                 }
 
             }, param0 -> !param0.hasTeamEquals(), new TranslatableComponent("argument.entity.options.team.description"));
-            register("type", param0 -> {
-                param0.setSuggestions((param1, param2) -> {
-                    SharedSuggestionProvider.suggestResource(Registry.ENTITY_TYPE.keySet(), param1, String.valueOf('!'));
-                    SharedSuggestionProvider.suggestResource(EntityTypeTags.getAllTags().getAvailableTags(), param1, "!#");
-                    if (!param0.isTypeLimitedInversely()) {
-                        SharedSuggestionProvider.suggestResource(Registry.ENTITY_TYPE.keySet(), param1);
-                        SharedSuggestionProvider.suggestResource(EntityTypeTags.getAllTags().getAvailableTags(), param1, String.valueOf('#'));
-                    }
-
-                    return param1.buildFuture();
-                });
-                int var0 = param0.getReader().getCursor();
-                boolean var1 = param0.shouldInvertValue();
-                if (param0.isTypeLimitedInversely() && !var1) {
-                    param0.getReader().setCursor(var0);
-                    throw ERROR_INAPPLICABLE_OPTION.createWithContext(param0.getReader(), "type");
-                } else {
-                    if (var1) {
-                        param0.setTypeLimitedInversely();
-                    }
-
-                    if (param0.isTag()) {
-                        ResourceLocation var2 = ResourceLocation.read(param0.getReader());
-                        param0.addPredicate(param2 -> param2.getServer().getTags().getEntityTypes().getTagOrEmpty(var2).contains(param2.getType()) != var1);
+            register(
+                "type",
+                param0 -> {
+                    param0.setSuggestions((param1, param2) -> {
+                        SharedSuggestionProvider.suggestResource(Registry.ENTITY_TYPE.keySet(), param1, String.valueOf('!'));
+                        SharedSuggestionProvider.suggestResource(EntityTypeTags.getAllTags().getAvailableTags(), param1, "!#");
+                        if (!param0.isTypeLimitedInversely()) {
+                            SharedSuggestionProvider.suggestResource(Registry.ENTITY_TYPE.keySet(), param1);
+                            SharedSuggestionProvider.suggestResource(EntityTypeTags.getAllTags().getAvailableTags(), param1, String.valueOf('#'));
+                        }
+    
+                        return param1.buildFuture();
+                    });
+                    int var0 = param0.getReader().getCursor();
+                    boolean var1 = param0.shouldInvertValue();
+                    if (param0.isTypeLimitedInversely() && !var1) {
+                        param0.getReader().setCursor(var0);
+                        throw ERROR_INAPPLICABLE_OPTION.createWithContext(param0.getReader(), "type");
                     } else {
-                        ResourceLocation var3 = ResourceLocation.read(param0.getReader());
-                        EntityType<?> var4 = Registry.ENTITY_TYPE.getOptional(var3).orElseThrow(() -> {
-                            param0.getReader().setCursor(var0);
-                            return ERROR_ENTITY_TYPE_INVALID.createWithContext(param0.getReader(), var3.toString());
-                        });
-                        if (Objects.equals(EntityType.PLAYER, var4) && !var1) {
-                            param0.setIncludesEntities(false);
+                        if (var1) {
+                            param0.setTypeLimitedInversely();
                         }
-
-                        param0.addPredicate(param2 -> Objects.equals(var4, param2.getType()) != var1);
-                        if (!var1) {
-                            param0.limitToType(var4);
+    
+                        if (param0.isTag()) {
+                            ResourceLocation var2 = ResourceLocation.read(param0.getReader());
+                            param0.addPredicate(
+                                param2 -> param2.getType().is(param2.getServer().getTags().getOrEmpty(Registry.ENTITY_TYPE_REGISTRY).getTagOrEmpty(var2))
+                                        != var1
+                            );
+                        } else {
+                            ResourceLocation var3 = ResourceLocation.read(param0.getReader());
+                            EntityType<?> var4 = Registry.ENTITY_TYPE.getOptional(var3).orElseThrow(() -> {
+                                param0.getReader().setCursor(var0);
+                                return ERROR_ENTITY_TYPE_INVALID.createWithContext(param0.getReader(), var3.toString());
+                            });
+                            if (Objects.equals(EntityType.PLAYER, var4) && !var1) {
+                                param0.setIncludesEntities(false);
+                            }
+    
+                            param0.addPredicate(param2 -> Objects.equals(var4, param2.getType()) != var1);
+                            if (!var1) {
+                                param0.limitToType(var4);
+                            }
                         }
+    
                     }
-
-                }
-            }, param0 -> !param0.isTypeLimited(), new TranslatableComponent("argument.entity.options.type.description"));
+                },
+                param0 -> !param0.isTypeLimited(),
+                new TranslatableComponent("argument.entity.options.type.description")
+            );
             register("tag", param0 -> {
                 boolean var0 = param0.shouldInvertValue();
                 String var1 = param0.getReader().readUnquotedString();
@@ -337,7 +345,7 @@ public class EntitySelectorOptions {
                 param0.addPredicate(param2 -> {
                     CompoundTag var0x = param2.saveWithoutId(new CompoundTag());
                     if (param2 instanceof ServerPlayer) {
-                        ItemStack var1x = ((ServerPlayer)param2).inventory.getSelected();
+                        ItemStack var1x = ((ServerPlayer)param2).getInventory().getSelected();
                         if (!var1x.isEmpty()) {
                             var0x.put("SelectedItem", var1x.save(new CompoundTag()));
                         }

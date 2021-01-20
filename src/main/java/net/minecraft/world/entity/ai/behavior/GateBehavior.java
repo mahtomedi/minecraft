@@ -70,7 +70,7 @@ public class GateBehavior<E extends LivingEntity> extends Behavior<E> {
         return "(" + this.getClass().getSimpleName() + "): " + var0;
     }
 
-    static enum OrderPolicy {
+    public static enum OrderPolicy {
         ORDERED(param0 -> {
         }),
         SHUFFLED(WeightedList::shuffle);
@@ -86,7 +86,7 @@ public class GateBehavior<E extends LivingEntity> extends Behavior<E> {
         }
     }
 
-    static enum RunningPolicy {
+    public static enum RunningPolicy {
         RUN_ONE {
             @Override
             public <E extends LivingEntity> void apply(WeightedList<Behavior<? super E>> param0, ServerLevel param1, E param2, long param3) {

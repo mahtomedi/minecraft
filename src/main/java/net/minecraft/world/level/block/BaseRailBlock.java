@@ -6,18 +6,24 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.block.state.properties.RailShape;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public abstract class BaseRailBlock extends Block {
+public abstract class BaseRailBlock extends Block implements SimpleWaterloggedBlock {
     protected static final VoxelShape FLAT_AABB = Block.box(0.0, 0.0, 0.0, 16.0, 2.0, 16.0);
     protected static final VoxelShape HALF_BLOCK_AABB = Block.box(0.0, 0.0, 0.0, 16.0, 8.0, 16.0);
+    public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     private final boolean isStraight;
 
     public static boolean isRail(Level param0, BlockPos param1) {
@@ -132,11 +138,27 @@ public abstract class BaseRailBlock extends Block {
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext param0) {
-        BlockState var0 = super.defaultBlockState();
-        Direction var1 = param0.getHorizontalDirection();
-        boolean var2 = var1 == Direction.EAST || var1 == Direction.WEST;
-        return var0.setValue(this.getShapeProperty(), var2 ? RailShape.EAST_WEST : RailShape.NORTH_SOUTH);
+        FluidState var0 = param0.getLevel().getFluidState(param0.getClickedPos());
+        boolean var1 = var0.getType() == Fluids.WATER;
+        BlockState var2 = super.defaultBlockState();
+        Direction var3 = param0.getHorizontalDirection();
+        boolean var4 = var3 == Direction.EAST || var3 == Direction.WEST;
+        return var2.setValue(this.getShapeProperty(), var4 ? RailShape.EAST_WEST : RailShape.NORTH_SOUTH).setValue(WATERLOGGED, Boolean.valueOf(var1));
     }
 
     public abstract Property<RailShape> getShapeProperty();
+
+    @Override
+    public BlockState updateShape(BlockState param0, Direction param1, BlockState param2, LevelAccessor param3, BlockPos param4, BlockPos param5) {
+        if (param0.getValue(WATERLOGGED)) {
+            param3.getLiquidTicks().scheduleTick(param4, Fluids.WATER, Fluids.WATER.getTickDelay(param3));
+        }
+
+        return super.updateShape(param0, param1, param2, param3, param4, param5);
+    }
+
+    @Override
+    public FluidState getFluidState(BlockState param0) {
+        return param0.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(param0);
+    }
 }

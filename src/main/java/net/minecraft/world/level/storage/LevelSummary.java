@@ -1,5 +1,6 @@
 package net.minecraft.world.level.storage;
 
+import com.mojang.bridge.game.GameVersion;
 import java.io.File;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
@@ -96,7 +97,7 @@ public class LevelSummary implements Comparable<LevelSummary> {
 
     @OnlyIn(Dist.CLIENT)
     public boolean markVersionInList() {
-        return this.askToOpenWorld() || !SharedConstants.getCurrentVersion().isStable() && !this.levelVersion.snapshot() || this.shouldBackup();
+        return this.askToOpenWorld() || !SharedConstants.getCurrentVersion().isStable() && !this.levelVersion.snapshot() || this.backupStatus().shouldBackup();
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -105,8 +106,15 @@ public class LevelSummary implements Comparable<LevelSummary> {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public boolean shouldBackup() {
-        return this.levelVersion.minecraftVersion() < SharedConstants.getCurrentVersion().getWorldVersion();
+    public LevelSummary.BackupStatus backupStatus() {
+        GameVersion var0 = SharedConstants.getCurrentVersion();
+        int var1 = var0.getWorldVersion();
+        int var2 = this.levelVersion.minecraftVersion();
+        if (!var0.isStable() && var2 < var1) {
+            return LevelSummary.BackupStatus.UPGRADE_TO_SNAPSHOT;
+        } else {
+            return var2 > var1 ? LevelSummary.BackupStatus.DOWNGRADE : LevelSummary.BackupStatus.NONE;
+        }
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -147,6 +155,35 @@ public class LevelSummary implements Comparable<LevelSummary> {
 
             var0.append(var2);
             return var0;
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static enum BackupStatus {
+        NONE(false, false, ""),
+        DOWNGRADE(true, true, "downgrade"),
+        UPGRADE_TO_SNAPSHOT(true, false, "snapshot");
+
+        private final boolean shouldBackup;
+        private final boolean severe;
+        private final String translationKey;
+
+        private BackupStatus(boolean param0, boolean param1, String param2) {
+            this.shouldBackup = param0;
+            this.severe = param1;
+            this.translationKey = param2;
+        }
+
+        public boolean shouldBackup() {
+            return this.shouldBackup;
+        }
+
+        public boolean isSevere() {
+            return this.severe;
+        }
+
+        public String getTranslationKey() {
+            return this.translationKey;
         }
     }
 }

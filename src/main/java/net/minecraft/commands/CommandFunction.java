@@ -5,7 +5,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
@@ -112,7 +112,7 @@ public class CommandFunction {
         }
 
         @Override
-        public void execute(ServerFunctionManager param0, CommandSourceStack param1, ArrayDeque<ServerFunctionManager.QueuedCommand> param2, int param3) throws CommandSyntaxException {
+        public void execute(ServerFunctionManager param0, CommandSourceStack param1, Deque<ServerFunctionManager.QueuedCommand> param2, int param3) throws CommandSyntaxException {
             param0.getDispatcher().execute(new ParseResults<>(this.parse.getContext().withSource(param1), this.parse.getReader(), this.parse.getExceptions()));
         }
 
@@ -123,7 +123,7 @@ public class CommandFunction {
     }
 
     public interface Entry {
-        void execute(ServerFunctionManager var1, CommandSourceStack var2, ArrayDeque<ServerFunctionManager.QueuedCommand> var3, int var4) throws CommandSyntaxException;
+        void execute(ServerFunctionManager var1, CommandSourceStack var2, Deque<ServerFunctionManager.QueuedCommand> var3, int var4) throws CommandSyntaxException;
     }
 
     public static class FunctionEntry implements CommandFunction.Entry {
@@ -134,7 +134,7 @@ public class CommandFunction {
         }
 
         @Override
-        public void execute(ServerFunctionManager param0, CommandSourceStack param1, ArrayDeque<ServerFunctionManager.QueuedCommand> param2, int param3) {
+        public void execute(ServerFunctionManager param0, CommandSourceStack param1, Deque<ServerFunctionManager.QueuedCommand> param2, int param3) {
             this.function.get(param0).ifPresent(param4 -> {
                 CommandFunction.Entry[] var0 = param4.getEntries();
                 int var1x = param3 - param2.size();

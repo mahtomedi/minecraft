@@ -27,7 +27,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.AgableMob;
+import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
@@ -39,6 +39,7 @@ import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.PlayerRideableJumping;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.Saddleable;
+import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -54,7 +55,6 @@ import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.DismountHelper;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -255,7 +255,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
     }
 
     @Override
-    public boolean causeFallDamage(float param0, float param1) {
+    public boolean causeFallDamage(float param0, float param1, DamageSource param2) {
         if (param0 > 1.0F) {
             this.playSound(SoundEvents.HORSE_LAND, 0.4F, 1.0F);
         }
@@ -264,10 +264,10 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
         if (var0 <= 0) {
             return false;
         } else {
-            this.hurt(DamageSource.FALL, (float)var0);
+            this.hurt(param2, (float)var0);
             if (this.isVehicle()) {
                 for(Entity var1 : this.getIndirectPassengers()) {
-                    var1.hurt(DamageSource.FALL, (float)var0);
+                    var1.hurt(param2, (float)var0);
                 }
             }
 
@@ -422,7 +422,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
 
     public InteractionResult fedFood(Player param0, ItemStack param1) {
         boolean var0 = this.handleEating(param0, param1);
-        if (!param0.abilities.instabuild) {
+        if (!param0.getAbilities().instabuild) {
             param1.shrink(1);
         }
 
@@ -438,23 +438,22 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
         float var1 = 0.0F;
         int var2 = 0;
         int var3 = 0;
-        Item var4 = param1.getItem();
-        if (var4 == Items.WHEAT) {
+        if (param1.is(Items.WHEAT)) {
             var1 = 2.0F;
             var2 = 20;
             var3 = 3;
-        } else if (var4 == Items.SUGAR) {
+        } else if (param1.is(Items.SUGAR)) {
             var1 = 1.0F;
             var2 = 30;
             var3 = 3;
-        } else if (var4 == Blocks.HAY_BLOCK.asItem()) {
+        } else if (param1.is(Blocks.HAY_BLOCK.asItem())) {
             var1 = 20.0F;
             var2 = 180;
-        } else if (var4 == Items.APPLE) {
+        } else if (param1.is(Items.APPLE)) {
             var1 = 3.0F;
             var2 = 60;
             var3 = 3;
-        } else if (var4 == Items.GOLDEN_CARROT) {
+        } else if (param1.is(Items.GOLDEN_CARROT)) {
             var1 = 4.0F;
             var2 = 60;
             var3 = 5;
@@ -462,7 +461,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
                 var0 = true;
                 this.setInLove(param0);
             }
-        } else if (var4 == Items.GOLDEN_APPLE || var4 == Items.ENCHANTED_GOLDEN_APPLE) {
+        } else if (param1.is(Items.GOLDEN_APPLE) || param1.is(Items.ENCHANTED_GOLDEN_APPLE)) {
             var1 = 10.0F;
             var2 = 240;
             var3 = 10;
@@ -813,7 +812,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
 
         if (param0.contains("SaddleItem", 10)) {
             ItemStack var3 = ItemStack.of(param0.getCompound("SaddleItem"));
-            if (var3.getItem() == Items.SADDLE) {
+            if (var3.is(Items.SADDLE)) {
                 this.inventory.setItem(0, var3);
             }
         }
@@ -832,11 +831,11 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
 
     @Nullable
     @Override
-    public AgableMob getBreedOffspring(ServerLevel param0, AgableMob param1) {
+    public AgeableMob getBreedOffspring(ServerLevel param0, AgeableMob param1) {
         return null;
     }
 
-    protected void setOffspringAttributes(AgableMob param0, AbstractHorse param1) {
+    protected void setOffspringAttributes(AgeableMob param0, AbstractHorse param1) {
         double var0 = this.getAttributeBaseValue(Attributes.MAX_HEALTH)
             + param0.getAttributeBaseValue(Attributes.MAX_HEALTH)
             + (double)this.generateRandomMaxHealth();
@@ -992,34 +991,51 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
         return false;
     }
 
+    private SlotAccess createEquipmentSlotAccess(final int param0, final Predicate<ItemStack> param1) {
+        return new SlotAccess() {
+            @Override
+            public ItemStack get() {
+                return AbstractHorse.this.inventory.getItem(param0);
+            }
+
+            @Override
+            public boolean set(ItemStack param0x) {
+                if (!param1.test(param0)) {
+                    return false;
+                } else {
+                    AbstractHorse.this.inventory.setItem(param0, param0);
+                    AbstractHorse.this.updateContainerEquipment();
+                    return true;
+                }
+            }
+        };
+    }
+
     @Override
-    public boolean setSlot(int param0, ItemStack param1) {
+    public SlotAccess getSlot(int param0) {
         int var0 = param0 - 400;
         if (var0 >= 0 && var0 < 2 && var0 < this.inventory.getContainerSize()) {
-            if (var0 == 0 && param1.getItem() != Items.SADDLE) {
-                return false;
-            } else if (var0 != 1 || this.canWearArmor() && this.isArmor(param1)) {
-                this.inventory.setItem(var0, param1);
-                this.updateContainerEquipment();
-                return true;
-            } else {
-                return false;
+            if (var0 == 0) {
+                return this.createEquipmentSlotAccess(var0, param0x -> param0x.isEmpty() || param0x.is(Items.SADDLE));
             }
-        } else {
-            int var1 = param0 - 500 + 2;
-            if (var1 >= 2 && var1 < this.inventory.getContainerSize()) {
-                this.inventory.setItem(var1, param1);
-                return true;
-            } else {
-                return false;
+
+            if (var0 == 1) {
+                if (!this.canWearArmor()) {
+                    return SlotAccess.NULL;
+                }
+
+                return this.createEquipmentSlotAccess(var0, param0x -> param0x.isEmpty() || this.isArmor(param0x));
             }
         }
+
+        int var1 = param0 - 500 + 2;
+        return var1 >= 2 && var1 < this.inventory.getContainerSize() ? SlotAccess.forContainer(this.inventory, var1) : super.getSlot(param0);
     }
 
     @Nullable
     @Override
     public Entity getControllingPassenger() {
-        return this.getPassengers().isEmpty() ? null : this.getPassengers().get(0);
+        return this.getFirstPassenger();
     }
 
     @Nullable
@@ -1081,10 +1097,14 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
         ServerLevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
     ) {
         if (param3 == null) {
-            param3 = new AgableMob.AgableMobGroupData(0.2F);
+            param3 = new AgeableMob.AgeableMobGroupData(0.2F);
         }
 
         this.randomizeAttributes();
         return super.finalizeSpawn(param0, param1, param2, param3, param4);
+    }
+
+    public boolean hasInventoryChanged(Container param0) {
+        return this.inventory != param0;
     }
 }

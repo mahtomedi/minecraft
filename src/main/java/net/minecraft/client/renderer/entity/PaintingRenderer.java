@@ -23,7 +23,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class PaintingRenderer extends EntityRenderer<Painting> {
-    public PaintingRenderer(EntityRenderDispatcher param0) {
+    public PaintingRenderer(EntityRendererProvider.Context param0) {
         super(param0);
     }
 
@@ -76,9 +76,9 @@ public class PaintingRenderer extends EntityRenderer<Painting> {
                 float var25 = var3 + (float)(var22 * 16);
                 float var26 = var4 + (float)((var23 + 1) * 16);
                 float var27 = var4 + (float)(var23 * 16);
-                int var28 = Mth.floor(param2.getX());
+                int var28 = param2.getBlockX();
                 int var29 = Mth.floor(param2.getY() + (double)((var26 + var27) / 2.0F / 16.0F));
-                int var30 = Mth.floor(param2.getZ());
+                int var30 = param2.getBlockZ();
                 Direction var31 = param2.getDirection();
                 if (var31 == Direction.NORTH) {
                     var28 = Mth.floor(param2.getX() + (double)((var24 + var25) / 2.0F / 16.0F));

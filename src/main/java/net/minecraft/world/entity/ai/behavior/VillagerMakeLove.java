@@ -6,7 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.network.protocol.game.DebugPackets;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.AgableMob;
+import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
@@ -35,7 +35,7 @@ public class VillagerMakeLove extends Behavior<Villager> {
     }
 
     protected void start(ServerLevel param0, Villager param1, long param2) {
-        AgableMob var0 = param1.getBrain().getMemory(MemoryModuleType.BREED_TARGET).get();
+        AgeableMob var0 = param1.getBrain().getMemory(MemoryModuleType.BREED_TARGET).get();
         BehaviorUtils.lockGazeAndWalkToEachOther(param1, var0, 0.5F);
         param0.broadcastEntityEvent(var0, (byte)18);
         param0.broadcastEntityEvent(param1, (byte)18);
@@ -82,7 +82,7 @@ public class VillagerMakeLove extends Behavior<Villager> {
 
     private boolean isBreedingPossible(Villager param0) {
         Brain<Villager> var0 = param0.getBrain();
-        Optional<AgableMob> var1 = var0.getMemory(MemoryModuleType.BREED_TARGET).filter(param0x -> param0x.getType() == EntityType.VILLAGER);
+        Optional<AgeableMob> var1 = var0.getMemory(MemoryModuleType.BREED_TARGET).filter(param0x -> param0x.getType() == EntityType.VILLAGER);
         if (!var1.isPresent()) {
             return false;
         } else {

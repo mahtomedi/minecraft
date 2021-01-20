@@ -43,11 +43,10 @@ public abstract class GrowingPlantBlock extends Block {
     public boolean canSurvive(BlockState param0, LevelReader param1, BlockPos param2) {
         BlockPos var0 = param2.relative(this.growthDirection.getOpposite());
         BlockState var1 = param1.getBlockState(var0);
-        Block var2 = var1.getBlock();
-        if (!this.canAttachToBlock(var2)) {
+        if (!this.canAttachTo(var1)) {
             return false;
         } else {
-            return var2 == this.getHeadBlock() || var2 == this.getBodyBlock() || var1.isFaceSturdy(param1, var0, this.growthDirection);
+            return var1.is(this.getHeadBlock()) || var1.is(this.getBodyBlock()) || var1.isFaceSturdy(param1, var0, this.growthDirection);
         }
     }
 
@@ -59,7 +58,7 @@ public abstract class GrowingPlantBlock extends Block {
 
     }
 
-    protected boolean canAttachToBlock(Block param0) {
+    protected boolean canAttachTo(BlockState param0) {
         return true;
     }
 

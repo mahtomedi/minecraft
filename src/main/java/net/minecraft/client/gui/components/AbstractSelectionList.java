@@ -7,6 +7,7 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import java.util.AbstractList;
 import java.util.Collection;
 import java.util.List;
@@ -182,7 +183,7 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
             this.minecraft.getTextureManager().bind(GuiComponent.BACKGROUND_LOCATION);
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
             float var4 = 32.0F;
-            var3.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
+            var3.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
             var3.vertex((double)this.x0, (double)this.y1, 0.0)
                 .uv((float)this.x0 / 32.0F, (float)(this.y1 + (int)this.getScrollAmount()) / 32.0F)
                 .color(32, 32, 32, 255)
@@ -215,7 +216,7 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
             RenderSystem.depthFunc(519);
             float var7 = 32.0F;
             int var8 = -100;
-            var3.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
+            var3.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
             var3.vertex((double)this.x0, (double)this.y0, -100.0).uv(0.0F, (float)this.y0 / 32.0F).color(64, 64, 64, 255).endVertex();
             var3.vertex((double)(this.x0 + this.width), (double)this.y0, -100.0)
                 .uv((float)this.width / 32.0F, (float)this.y0 / 32.0F)
@@ -247,7 +248,7 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
             RenderSystem.shadeModel(7425);
             RenderSystem.disableTexture();
             int var9 = 4;
-            var3.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
+            var3.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
             var3.vertex((double)this.x0, (double)(this.y0 + 4), 0.0).uv(0.0F, 1.0F).color(0, 0, 0, 0).endVertex();
             var3.vertex((double)this.x1, (double)(this.y0 + 4), 0.0).uv(1.0F, 1.0F).color(0, 0, 0, 0).endVertex();
             var3.vertex((double)this.x1, (double)this.y0, 0.0).uv(1.0F, 0.0F).color(0, 0, 0, 255).endVertex();
@@ -269,7 +270,7 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
                 var12 = this.y0;
             }
 
-            var3.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
+            var3.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
             var3.vertex((double)var0, (double)this.y1, 0.0).uv(0.0F, 1.0F).color(0, 0, 0, 255).endVertex();
             var3.vertex((double)var1, (double)this.y1, 0.0).uv(1.0F, 1.0F).color(0, 0, 0, 255).endVertex();
             var3.vertex((double)var1, (double)this.y0, 0.0).uv(1.0F, 0.0F).color(0, 0, 0, 255).endVertex();
@@ -473,14 +474,14 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
                     RenderSystem.disableTexture();
                     float var12 = this.isFocused() ? 1.0F : 0.5F;
                     RenderSystem.color4f(var12, var12, var12, 1.0F);
-                    var2.begin(7, DefaultVertexFormat.POSITION);
+                    var2.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
                     var2.vertex((double)var10, (double)(var6 + var7 + 2), 0.0).endVertex();
                     var2.vertex((double)var11, (double)(var6 + var7 + 2), 0.0).endVertex();
                     var2.vertex((double)var11, (double)(var6 - 2), 0.0).endVertex();
                     var2.vertex((double)var10, (double)(var6 - 2), 0.0).endVertex();
                     var1.end();
                     RenderSystem.color4f(0.0F, 0.0F, 0.0F, 1.0F);
-                    var2.begin(7, DefaultVertexFormat.POSITION);
+                    var2.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
                     var2.vertex((double)(var10 + 1), (double)(var6 + var7 + 1), 0.0).endVertex();
                     var2.vertex((double)(var11 - 1), (double)(var6 + var7 + 1), 0.0).endVertex();
                     var2.vertex((double)(var11 - 1), (double)(var6 - 1), 0.0).endVertex();

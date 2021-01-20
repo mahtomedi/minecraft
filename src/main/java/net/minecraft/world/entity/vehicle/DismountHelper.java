@@ -42,16 +42,8 @@ public class DismountHelper {
         return param0.getBlockCollisions(param1, param2).allMatch(VoxelShape::isEmpty);
     }
 
-    @Nullable
-    public static Vec3 findDismountLocation(CollisionGetter param0, double param1, double param2, double param3, LivingEntity param4, Pose param5) {
-        if (isBlockFloorValid(param2)) {
-            Vec3 var0 = new Vec3(param1, param2, param3);
-            if (canDismountTo(param0, param4, param4.getLocalBoundsForPose(param5).move(var0))) {
-                return var0;
-            }
-        }
-
-        return null;
+    public static boolean canDismountTo(CollisionGetter param0, Vec3 param1, LivingEntity param2, Pose param3) {
+        return canDismountTo(param0, param2, param2.getLocalBoundsForPose(param3).move(param1));
     }
 
     public static VoxelShape nonClimbableShape(BlockGetter param0, BlockPos param1) {

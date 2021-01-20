@@ -1,6 +1,12 @@
 package net.minecraft.client.model;
 
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.geom.PartPose;
+import net.minecraft.client.model.geom.builders.CubeDeformation;
+import net.minecraft.client.model.geom.builders.CubeListBuilder;
+import net.minecraft.client.model.geom.builders.LayerDefinition;
+import net.minecraft.client.model.geom.builders.MeshDefinition;
+import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
@@ -12,25 +18,27 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class DrownedModel<T extends Zombie> extends ZombieModel<T> {
-    public DrownedModel(float param0, float param1, int param2, int param3) {
-        super(param0, param1, param2, param3);
-        this.rightArm = new ModelPart(this, 32, 48);
-        this.rightArm.addBox(-3.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, param0);
-        this.rightArm.setPos(-5.0F, 2.0F + param1, 0.0F);
-        this.rightLeg = new ModelPart(this, 16, 48);
-        this.rightLeg.addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, param0);
-        this.rightLeg.setPos(-1.9F, 12.0F + param1, 0.0F);
+    public DrownedModel(ModelPart param0) {
+        super(param0);
     }
 
-    public DrownedModel(float param0, boolean param1) {
-        super(param0, 0.0F, 64, param1 ? 32 : 64);
+    public static LayerDefinition createBodyLayer(CubeDeformation param0) {
+        MeshDefinition var0 = HumanoidModel.createMesh(param0, 0.0F);
+        PartDefinition var1 = var0.getRoot();
+        var1.addOrReplaceChild(
+            "left_arm", CubeListBuilder.create().texOffs(32, 48).addBox(-1.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, param0), PartPose.offset(5.0F, 2.0F, 0.0F)
+        );
+        var1.addOrReplaceChild(
+            "left_leg", CubeListBuilder.create().texOffs(16, 48).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, param0), PartPose.offset(1.9F, 12.0F, 0.0F)
+        );
+        return LayerDefinition.create(var0, 64, 64);
     }
 
     public void prepareMobModel(T param0, float param1, float param2, float param3) {
         this.rightArmPose = HumanoidModel.ArmPose.EMPTY;
         this.leftArmPose = HumanoidModel.ArmPose.EMPTY;
         ItemStack var0 = param0.getItemInHand(InteractionHand.MAIN_HAND);
-        if (var0.getItem() == Items.TRIDENT && param0.isAggressive()) {
+        if (var0.is(Items.TRIDENT) && param0.isAggressive()) {
             if (param0.getMainArm() == HumanoidArm.RIGHT) {
                 this.rightArmPose = HumanoidModel.ArmPose.THROW_SPEAR;
             } else {

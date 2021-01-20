@@ -1,5 +1,6 @@
 package net.minecraft.client.multiplayer;
 
+import java.util.BitSet;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.function.BooleanSupplier;
 import javax.annotation.Nullable;
@@ -8,8 +9,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.util.Mth;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LightLayer;
@@ -84,7 +83,7 @@ public class ClientChunkCache extends ChunkSource {
 
     @Nullable
     public LevelChunk replaceWithPacketData(
-        int param0, int param1, @Nullable ChunkBiomeContainer param2, FriendlyByteBuf param3, CompoundTag param4, int param5, boolean param6
+        int param0, int param1, @Nullable ChunkBiomeContainer param2, FriendlyByteBuf param3, CompoundTag param4, BitSet param5
     ) {
         if (!this.storage.inRange(param0, param1)) {
             LOGGER.warn("Ignoring chunk since it's not in the view range: {}, {}", param0, param1);
@@ -92,29 +91,31 @@ public class ClientChunkCache extends ChunkSource {
         } else {
             int var0 = this.storage.getIndex(param0, param1);
             LevelChunk var1 = this.storage.chunks.get(var0);
-            if (!param6 && isValidChunk(var1, param0, param1)) {
-                var1.replaceWithPacketData(param2, param3, param4, param5);
-            } else {
+            ChunkPos var2 = new ChunkPos(param0, param1);
+            if (!isValidChunk(var1, param0, param1)) {
                 if (param2 == null) {
                     LOGGER.warn("Ignoring chunk since we don't have complete data: {}, {}", param0, param1);
                     return null;
                 }
 
-                var1 = new LevelChunk(this.level, new ChunkPos(param0, param1), param2);
+                var1 = new LevelChunk(this.level, var2, param2);
                 var1.replaceWithPacketData(param2, param3, param4, param5);
                 this.storage.replace(var0, var1);
+            } else {
+                var1.replaceWithPacketData(param2, param3, param4, param5);
             }
 
-            LevelChunkSection[] var2 = var1.getSections();
-            LevelLightEngine var3 = this.getLightEngine();
-            var3.enableLightSources(new ChunkPos(param0, param1), true);
+            LevelChunkSection[] var3 = var1.getSections();
+            LevelLightEngine var4 = this.getLightEngine();
+            var4.enableLightSources(var2, true);
 
-            for(int var4 = 0; var4 < var2.length; ++var4) {
-                LevelChunkSection var5 = var2[var4];
-                var3.updateSectionStatus(SectionPos.of(param0, var4, param1), LevelChunkSection.isEmpty(var5));
+            for(int var5 = 0; var5 < var3.length; ++var5) {
+                LevelChunkSection var6 = var3[var5];
+                int var7 = this.level.getSectionYFromSectionIndex(var5);
+                var4.updateSectionStatus(SectionPos.of(param0, var7, param1), LevelChunkSection.isEmpty(var6));
             }
 
-            this.level.onChunkLoaded(param0, param1);
+            this.level.onChunkLoaded(var2);
             return var1;
         }
     }
@@ -156,7 +157,7 @@ public class ClientChunkCache extends ChunkSource {
 
     @Override
     public String gatherStats() {
-        return "Client Chunk Cache: " + this.storage.chunks.length() + ", " + this.getLoadedChunksCount();
+        return this.storage.chunks.length() + ", " + this.getLoadedChunksCount();
     }
 
     public int getLoadedChunksCount() {
@@ -170,17 +171,12 @@ public class ClientChunkCache extends ChunkSource {
 
     @Override
     public boolean isTickingChunk(BlockPos param0) {
-        return this.hasChunk(param0.getX() >> 4, param0.getZ() >> 4);
+        return this.hasChunk(SectionPos.blockToSectionCoord(param0.getX()), SectionPos.blockToSectionCoord(param0.getZ()));
     }
 
     @Override
     public boolean isEntityTickingChunk(ChunkPos param0) {
         return this.hasChunk(param0.x, param0.z);
-    }
-
-    @Override
-    public boolean isEntityTickingChunk(Entity param0) {
-        return this.hasChunk(Mth.floor(param0.getX()) >> 4, Mth.floor(param0.getZ()) >> 4);
     }
 
     @OnlyIn(Dist.CLIENT)

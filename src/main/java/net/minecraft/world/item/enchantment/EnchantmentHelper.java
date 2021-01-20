@@ -51,7 +51,7 @@ public class EnchantmentHelper {
     }
 
     public static Map<Enchantment, Integer> getEnchantments(ItemStack param0) {
-        ListTag var0 = param0.getItem() == Items.ENCHANTED_BOOK ? EnchantedBookItem.getEnchantments(param0) : param0.getEnchantmentTags();
+        ListTag var0 = param0.is(Items.ENCHANTED_BOOK) ? EnchantedBookItem.getEnchantments(param0) : param0.getEnchantmentTags();
         return deserializeEnchantments(var0);
     }
 
@@ -78,7 +78,7 @@ public class EnchantmentHelper {
                 var4.putString("id", String.valueOf(Registry.ENCHANTMENT.getKey(var2)));
                 var4.putShort("lvl", (short)var3);
                 var0.add(var4);
-                if (param1.getItem() == Items.ENCHANTED_BOOK) {
+                if (param1.is(Items.ENCHANTED_BOOK)) {
                     EnchantedBookItem.addEnchantment(param1, new EnchantmentInstance(var2, var3));
                 }
             }
@@ -86,7 +86,7 @@ public class EnchantmentHelper {
 
         if (var0.isEmpty()) {
             param1.removeTagKey("Enchantments");
-        } else if (param1.getItem() != Items.ENCHANTED_BOOK) {
+        } else if (!param1.is(Items.ENCHANTED_BOOK)) {
             param1.addTagElement("Enchantments", var0);
         }
 
@@ -280,7 +280,7 @@ public class EnchantmentHelper {
 
     public static ItemStack enchantItem(Random param0, ItemStack param1, int param2, boolean param3) {
         List<EnchantmentInstance> var0 = selectEnchantment(param0, param1, param2, param3);
-        boolean var1 = param1.getItem() == Items.BOOK;
+        boolean var1 = param1.is(Items.BOOK);
         if (var1) {
             param1 = new ItemStack(Items.ENCHANTED_BOOK);
         }
@@ -308,15 +308,18 @@ public class EnchantmentHelper {
             param2 = Mth.clamp(Math.round((float)param2 + (float)param2 * var3), 1, Integer.MAX_VALUE);
             List<EnchantmentInstance> var4 = getAvailableEnchantmentResults(param2, param1, param3);
             if (!var4.isEmpty()) {
-                var0.add(WeighedRandom.getRandomItem(param0, var4));
+                WeighedRandom.getRandomItem(param0, var4).ifPresent(var0::add);
 
                 while(param0.nextInt(50) <= param2) {
-                    filterCompatibleEnchantments(var4, Util.lastOf(var0));
+                    if (!var0.isEmpty()) {
+                        filterCompatibleEnchantments(var4, Util.lastOf(var0));
+                    }
+
                     if (var4.isEmpty()) {
                         break;
                     }
 
-                    var0.add(WeighedRandom.getRandomItem(param0, var4));
+                    WeighedRandom.getRandomItem(param0, var4).ifPresent(var0::add);
                     param2 /= 2;
                 }
             }
@@ -349,7 +352,7 @@ public class EnchantmentHelper {
     public static List<EnchantmentInstance> getAvailableEnchantmentResults(int param0, ItemStack param1, boolean param2) {
         List<EnchantmentInstance> var0 = Lists.newArrayList();
         Item var1 = param1.getItem();
-        boolean var2 = param1.getItem() == Items.BOOK;
+        boolean var2 = param1.is(Items.BOOK);
 
         for(Enchantment var3 : Registry.ENCHANTMENT) {
             if ((!var3.isTreasureOnly() || param2) && var3.isDiscoverable() && (var3.category.canEnchant(var1) || var2)) {

@@ -37,6 +37,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -140,42 +141,15 @@ public class ArmorStand extends LivingEntity {
         switch(param0.getType()) {
             case HAND:
                 this.playEquipSound(param1);
+                this.gameEvent(null, GameEvent.ARMOR_STAND_ADD_ITEM);
                 this.handItems.set(param0.getIndex(), param1);
                 break;
             case ARMOR:
                 this.playEquipSound(param1);
+                this.gameEvent(null, GameEvent.ARMOR_STAND_ADD_ITEM);
                 this.armorItems.set(param0.getIndex(), param1);
         }
 
-    }
-
-    @Override
-    public boolean setSlot(int param0, ItemStack param1) {
-        EquipmentSlot var0;
-        if (param0 == 98) {
-            var0 = EquipmentSlot.MAINHAND;
-        } else if (param0 == 99) {
-            var0 = EquipmentSlot.OFFHAND;
-        } else if (param0 == 100 + EquipmentSlot.HEAD.getIndex()) {
-            var0 = EquipmentSlot.HEAD;
-        } else if (param0 == 100 + EquipmentSlot.CHEST.getIndex()) {
-            var0 = EquipmentSlot.CHEST;
-        } else if (param0 == 100 + EquipmentSlot.LEGS.getIndex()) {
-            var0 = EquipmentSlot.LEGS;
-        } else {
-            if (param0 != 100 + EquipmentSlot.FEET.getIndex()) {
-                return false;
-            }
-
-            var0 = EquipmentSlot.FEET;
-        }
-
-        if (!param1.isEmpty() && !Mob.isValidSlotForItem(var0, param1) && var0 != EquipmentSlot.HEAD) {
-            return false;
-        } else {
-            this.setItemSlot(var0, param1);
-            return true;
-        }
     }
 
     @Override
@@ -322,7 +296,7 @@ public class ArmorStand extends LivingEntity {
     @Override
     public InteractionResult interactAt(Player param0, Vec3 param1, InteractionHand param2) {
         ItemStack var0 = param0.getItemInHand(param2);
-        if (this.isMarker() || var0.getItem() == Items.NAME_TAG) {
+        if (this.isMarker() || var0.is(Items.NAME_TAG)) {
             return InteractionResult.PASS;
         } else if (param0.isSpectator()) {
             return InteractionResult.SUCCESS;
@@ -384,7 +358,7 @@ public class ArmorStand extends LivingEntity {
             return false;
         } else if (var0.isEmpty() && (this.disabledSlots & 1 << param1.getFilterFlag() + 16) != 0) {
             return false;
-        } else if (param0.abilities.instabuild && var0.isEmpty() && !param2.isEmpty()) {
+        } else if (param0.getAbilities().instabuild && var0.isEmpty() && !param2.isEmpty()) {
             ItemStack var1 = param2.copy();
             var1.setCount(1);
             this.setItemSlot(param1, var1);
@@ -406,16 +380,16 @@ public class ArmorStand extends LivingEntity {
 
     @Override
     public boolean hurt(DamageSource param0, float param1) {
-        if (this.level.isClientSide || this.removed) {
+        if (this.level.isClientSide || this.isRemoved()) {
             return false;
         } else if (DamageSource.OUT_OF_WORLD.equals(param0)) {
-            this.remove();
+            this.kill();
             return false;
         } else if (this.isInvulnerableTo(param0) || this.invisible || this.isMarker()) {
             return false;
         } else if (param0.isExplosion()) {
             this.brokenByAnything(param0);
-            this.remove();
+            this.kill();
             return false;
         } else if (DamageSource.IN_FIRE.equals(param0)) {
             if (this.isOnFire()) {
@@ -434,22 +408,24 @@ public class ArmorStand extends LivingEntity {
             boolean var2 = "player".equals(param0.getMsgId());
             if (!var2 && !var0) {
                 return false;
-            } else if (param0.getEntity() instanceof Player && !((Player)param0.getEntity()).abilities.mayBuild) {
+            } else if (param0.getEntity() instanceof Player && !((Player)param0.getEntity()).getAbilities().mayBuild) {
                 return false;
             } else if (param0.isCreativePlayer()) {
                 this.playBrokenSound();
+                this.gameEvent(param0.getEntity(), GameEvent.ENTITY_HIT);
                 this.showBreakingParticles();
-                this.remove();
+                this.kill();
                 return var1;
             } else {
                 long var3 = this.level.getGameTime();
                 if (var3 - this.lastHit > 5L && !var0) {
                     this.level.broadcastEntityEvent(this, (byte)32);
+                    this.gameEvent(param0.getEntity(), GameEvent.ENTITY_HIT);
                     this.lastHit = var3;
                 } else {
                     this.brokenByPlayer(param0);
                     this.showBreakingParticles();
-                    this.remove();
+                    this.kill();
                 }
 
                 return true;
@@ -506,7 +482,7 @@ public class ArmorStand extends LivingEntity {
         var0 -= param1;
         if (var0 <= 0.5F) {
             this.brokenByAnything(param0);
-            this.remove();
+            this.kill();
         } else {
             this.setHealth(var0);
         }
@@ -520,6 +496,7 @@ public class ArmorStand extends LivingEntity {
 
     private void brokenByAnything(DamageSource param0) {
         this.playBrokenSound();
+        this.gameEvent(param0.getEntity(), GameEvent.BLOCK_DESTROY);
         this.dropAllDeathLoot(param0);
 
         for(int var0 = 0; var0 < this.handItems.size(); ++var0) {
@@ -633,7 +610,7 @@ public class ArmorStand extends LivingEntity {
 
     @Override
     public void kill() {
-        this.remove();
+        this.remove(Entity.RemovalReason.KILLED);
     }
 
     @Override
@@ -839,5 +816,11 @@ public class ArmorStand extends LivingEntity {
         } else {
             return super.getLightProbePosition(param0);
         }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public ItemStack getPickResult() {
+        return new ItemStack(Items.ARMOR_STAND);
     }
 }

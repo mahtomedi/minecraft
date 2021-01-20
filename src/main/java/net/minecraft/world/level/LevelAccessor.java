@@ -8,9 +8,11 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.chunk.ChunkSource;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.storage.LevelData;
 
@@ -50,11 +52,17 @@ public interface LevelAccessor extends CommonLevelAccessor, LevelTimeAccess {
 
     void levelEvent(@Nullable Player var1, int var2, BlockPos var3, int var4);
 
-    default int getHeight() {
-        return this.dimensionType().logicalHeight();
-    }
-
     default void levelEvent(int param0, BlockPos param1, int param2) {
         this.levelEvent(null, param0, param1, param2);
+    }
+
+    void gameEvent(@Nullable Entity var1, GameEvent var2, BlockPos var3);
+
+    default void gameEvent(GameEvent param0, BlockPos param1) {
+        this.gameEvent(null, param0, param1);
+    }
+
+    default void gameEvent(@Nullable Entity param0, GameEvent param1, Entity param2) {
+        this.gameEvent(param0, param1, param2.blockPosition());
     }
 }

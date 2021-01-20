@@ -2,6 +2,7 @@ package net.minecraft.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.VillagerModel;
+import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.entity.layers.CrossedArmsItemLayer;
 import net.minecraft.client.renderer.entity.layers.CustomHeadLayer;
 import net.minecraft.resources.ResourceLocation;
@@ -13,9 +14,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class WanderingTraderRenderer extends MobRenderer<WanderingTrader, VillagerModel<WanderingTrader>> {
     private static final ResourceLocation VILLAGER_BASE_SKIN = new ResourceLocation("textures/entity/wandering_trader.png");
 
-    public WanderingTraderRenderer(EntityRenderDispatcher param0) {
-        super(param0, new VillagerModel<>(0.0F), 0.5F);
-        this.addLayer(new CustomHeadLayer<>(this));
+    public WanderingTraderRenderer(EntityRendererProvider.Context param0) {
+        super(param0, new VillagerModel<>(param0.bakeLayer(ModelLayers.WANDERING_TRADER)), 0.5F);
+        this.addLayer(new CustomHeadLayer<>(this, param0.getModelSet()));
         this.addLayer(new CrossedArmsItemLayer<>(this));
     }
 

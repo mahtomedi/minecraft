@@ -26,4 +26,14 @@ public enum EmptyBlockGetter implements BlockGetter {
     public FluidState getFluidState(BlockPos param0) {
         return Fluids.EMPTY.defaultFluidState();
     }
+
+    @Override
+    public int getMinBuildHeight() {
+        return 0;
+    }
+
+    @Override
+    public int getHeight() {
+        return 0;
+    }
 }

@@ -40,7 +40,7 @@ public class ItemInHandLayer<T extends LivingEntity, M extends EntityModel<T> & 
         }
     }
 
-    private void renderArmWithItem(
+    protected void renderArmWithItem(
         LivingEntity param0, ItemStack param1, ItemTransforms.TransformType param2, HumanoidArm param3, PoseStack param4, MultiBufferSource param5, int param6
     ) {
         if (!param1.isEmpty()) {

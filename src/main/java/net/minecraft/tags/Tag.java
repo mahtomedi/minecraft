@@ -5,14 +5,17 @@ import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 import net.minecraft.resources.ResourceLocation;
@@ -64,25 +67,29 @@ public interface Tag<T> {
             return this.add(new Tag.TagEntry(param0), param1);
         }
 
-        public <T> Optional<Tag<T>> build(Function<ResourceLocation, Tag<T>> param0, Function<ResourceLocation, T> param1) {
+        public <T> Either<Collection<Tag.BuilderEntry>, Tag<T>> build(Function<ResourceLocation, Tag<T>> param0, Function<ResourceLocation, T> param1) {
             ImmutableSet.Builder<T> var0 = ImmutableSet.builder();
+            List<Tag.BuilderEntry> var1 = Lists.newArrayList();
 
-            for(Tag.BuilderEntry var1 : this.entries) {
-                if (!var1.getEntry().build(param0, param1, var0::add)) {
-                    return Optional.empty();
+            for(Tag.BuilderEntry var2 : this.entries) {
+                if (!var2.getEntry().build(param0, param1, var0::add)) {
+                    var1.add(var2);
                 }
             }
 
-            return Optional.of(Tag.fromSet(var0.build()));
+            return var1.isEmpty() ? Either.right(Tag.fromSet(var0.build())) : Either.left(var1);
         }
 
         public Stream<Tag.BuilderEntry> getEntries() {
             return this.entries.stream();
         }
 
-        public <T> Stream<Tag.BuilderEntry> getUnresolvedEntries(Function<ResourceLocation, Tag<T>> param0, Function<ResourceLocation, T> param1) {
-            return this.getEntries().filter(param2 -> !param2.getEntry().build(param0, param1, param0x -> {
-                }));
+        public void visitRequiredDependencies(Consumer<ResourceLocation> param0) {
+            this.entries.forEach(param1 -> param1.entry.visitRequiredDependencies(param0));
+        }
+
+        public void visitOptionalDependencies(Consumer<ResourceLocation> param0) {
+            this.entries.forEach(param1 -> param1.entry.visitOptionalDependencies(param0));
         }
 
         public Tag.Builder addFromJson(JsonObject param0, String param1) {
@@ -151,7 +158,7 @@ public interface Tag<T> {
 
         @Override
         public String toString() {
-            return this.entry.toString() + " (from " + this.source + ")";
+            return this.entry + " (from " + this.source + ")";
         }
     }
 
@@ -179,6 +186,11 @@ public interface Tag<T> {
         }
 
         @Override
+        public boolean verifyIfPresent(Predicate<ResourceLocation> param0, Predicate<ResourceLocation> param1) {
+            return param0.test(this.id);
+        }
+
+        @Override
         public String toString() {
             return this.id.toString();
         }
@@ -188,6 +200,14 @@ public interface Tag<T> {
         <T> boolean build(Function<ResourceLocation, Tag<T>> var1, Function<ResourceLocation, T> var2, Consumer<T> var3);
 
         void serializeTo(JsonArray var1);
+
+        default void visitRequiredDependencies(Consumer<ResourceLocation> param0) {
+        }
+
+        default void visitOptionalDependencies(Consumer<ResourceLocation> param0) {
+        }
+
+        boolean verifyIfPresent(Predicate<ResourceLocation> var1, Predicate<ResourceLocation> var2);
     }
 
     public interface Named<T> extends Tag<T> {
@@ -220,8 +240,13 @@ public interface Tag<T> {
         }
 
         @Override
+        public boolean verifyIfPresent(Predicate<ResourceLocation> param0, Predicate<ResourceLocation> param1) {
+            return true;
+        }
+
+        @Override
         public String toString() {
-            return this.id.toString() + "?";
+            return this.id + "?";
         }
     }
 
@@ -254,6 +279,16 @@ public interface Tag<T> {
         public String toString() {
             return "#" + this.id + "?";
         }
+
+        @Override
+        public void visitOptionalDependencies(Consumer<ResourceLocation> param0) {
+            param0.accept(this.id);
+        }
+
+        @Override
+        public boolean verifyIfPresent(Predicate<ResourceLocation> param0, Predicate<ResourceLocation> param1) {
+            return true;
+        }
     }
 
     public static class TagEntry implements Tag.Entry {
@@ -282,6 +317,16 @@ public interface Tag<T> {
         @Override
         public String toString() {
             return "#" + this.id;
+        }
+
+        @Override
+        public boolean verifyIfPresent(Predicate<ResourceLocation> param0, Predicate<ResourceLocation> param1) {
+            return param1.test(this.id);
+        }
+
+        @Override
+        public void visitRequiredDependencies(Consumer<ResourceLocation> param0) {
+            param0.accept(this.id);
         }
     }
 }

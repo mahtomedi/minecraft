@@ -5,7 +5,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.ai.util.RandomPos;
+import net.minecraft.world.entity.ai.util.DefaultRandomPos;
 import net.minecraft.world.entity.raid.Raid;
 import net.minecraft.world.entity.raid.Raider;
 import net.minecraft.world.entity.raid.Raids;
@@ -45,7 +45,7 @@ public class PathfindToRaidGoal<T extends Raider> extends Goal {
             }
 
             if (!this.mob.isPathFinding()) {
-                Vec3 var1 = RandomPos.getPosTowards(this.mob, 15, 4, Vec3.atBottomCenterOf(var0.getCenter()));
+                Vec3 var1 = DefaultRandomPos.getPosTowards(this.mob, 15, 4, Vec3.atBottomCenterOf(var0.getCenter()), (float) (Math.PI / 2));
                 if (var1 != null) {
                     this.mob.getNavigation().moveTo(var1.x, var1.y, var1.z, 1.0);
                 }

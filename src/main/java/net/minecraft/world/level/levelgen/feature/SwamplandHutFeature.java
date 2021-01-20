@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import java.util.List;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.SectionPos;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.MobSpawnSettings;
@@ -45,7 +46,7 @@ public class SwamplandHutFeature extends StructureFeature<NoneFeatureConfigurati
         public void generatePieces(
             RegistryAccess param0, ChunkGenerator param1, StructureManager param2, int param3, int param4, Biome param5, NoneFeatureConfiguration param6
         ) {
-            SwamplandHutPiece var0 = new SwamplandHutPiece(this.random, param3 * 16, param4 * 16);
+            SwamplandHutPiece var0 = new SwamplandHutPiece(this.random, SectionPos.sectionToBlockCoord(param3), SectionPos.sectionToBlockCoord(param4));
             this.pieces.add(var0);
             this.calculateBoundingBox();
         }

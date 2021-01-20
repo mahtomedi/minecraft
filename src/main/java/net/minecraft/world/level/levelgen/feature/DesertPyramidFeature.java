@@ -2,6 +2,7 @@ package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
@@ -28,7 +29,7 @@ public class DesertPyramidFeature extends StructureFeature<NoneFeatureConfigurat
         public void generatePieces(
             RegistryAccess param0, ChunkGenerator param1, StructureManager param2, int param3, int param4, Biome param5, NoneFeatureConfiguration param6
         ) {
-            DesertPyramidPiece var0 = new DesertPyramidPiece(this.random, param3 * 16, param4 * 16);
+            DesertPyramidPiece var0 = new DesertPyramidPiece(this.random, SectionPos.sectionToBlockCoord(param3), SectionPos.sectionToBlockCoord(param4));
             this.pieces.add(var0);
             this.calculateBoundingBox();
         }

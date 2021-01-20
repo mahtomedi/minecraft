@@ -11,13 +11,20 @@ public class IdenticalMerger implements IndexMerger {
 
     @Override
     public boolean forMergedIndexes(IndexMerger.IndexConsumer param0) {
-        for(int var0 = 0; var0 <= this.coords.size(); ++var0) {
-            if (!param0.merge(var0, var0, var0)) {
+        int var0 = this.coords.size() - 1;
+
+        for(int var1 = 0; var1 < var0; ++var1) {
+            if (!param0.merge(var1, var1, var1)) {
                 return false;
             }
         }
 
         return true;
+    }
+
+    @Override
+    public int size() {
+        return this.coords.size();
     }
 
     @Override

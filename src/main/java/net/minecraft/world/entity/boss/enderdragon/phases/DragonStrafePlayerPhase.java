@@ -158,8 +158,8 @@ public class DragonStrafePlayerPhase extends AbstractDragonPhaseInstance {
         this.attackTarget = param0;
         int var0 = this.dragon.findClosestNode();
         int var1 = this.dragon.findClosestNode(this.attackTarget.getX(), this.attackTarget.getY(), this.attackTarget.getZ());
-        int var2 = Mth.floor(this.attackTarget.getX());
-        int var3 = Mth.floor(this.attackTarget.getZ());
+        int var2 = this.attackTarget.getBlockX();
+        int var3 = this.attackTarget.getBlockZ();
         double var4 = (double)var2 - this.dragon.getX();
         double var5 = (double)var3 - this.dragon.getZ();
         double var6 = (double)Mth.sqrt(var4 * var4 + var5 * var5);

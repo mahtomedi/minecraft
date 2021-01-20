@@ -42,7 +42,7 @@ public class ScaffoldingBlockItem extends BlockItem {
             BlockPos.MutableBlockPos var7 = var0.mutable().move(var4);
 
             while(var6 < 7) {
-                if (!var1.isClientSide && !Level.isInWorldBounds(var7)) {
+                if (!var1.isClientSide && !var1.isInWorldBounds(var7)) {
                     Player var8 = param0.getPlayer();
                     int var9 = var1.getMaxBuildHeight();
                     if (var8 instanceof ServerPlayer && var7.getY() >= var9) {

@@ -5,12 +5,14 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.math.Vector3f;
 import java.util.Map.Entry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.chunk.ChunkAccess;
@@ -36,11 +38,11 @@ public class HeightMapRenderer implements DebugRenderer.SimpleDebugRenderer {
         BlockPos var1 = new BlockPos(param2, 0.0, param4);
         Tesselator var2 = Tesselator.getInstance();
         BufferBuilder var3 = var2.getBuilder();
-        var3.begin(5, DefaultVertexFormat.POSITION_COLOR);
+        var3.begin(VertexFormat.Mode.TRIANGLE_STRIP, DefaultVertexFormat.POSITION_COLOR);
 
-        for(int var4 = -32; var4 <= 32; var4 += 16) {
-            for(int var5 = -32; var5 <= 32; var5 += 16) {
-                ChunkAccess var6 = var0.getChunk(var1.offset(var4, 0, var5));
+        for(int var4 = -2; var4 <= 2; ++var4) {
+            for(int var5 = -2; var5 <= 2; ++var5) {
+                ChunkAccess var6 = var0.getChunk(var1.offset(var4 * 16, 0, var5 * 16));
 
                 for(Entry<Heightmap.Types, Heightmap> var7 : var6.getHeightmaps()) {
                     Heightmap.Types var8 = var7.getKey();
@@ -49,8 +51,8 @@ public class HeightMapRenderer implements DebugRenderer.SimpleDebugRenderer {
 
                     for(int var11 = 0; var11 < 16; ++var11) {
                         for(int var12 = 0; var12 < 16; ++var12) {
-                            int var13 = var9.x * 16 + var11;
-                            int var14 = var9.z * 16 + var12;
+                            int var13 = SectionPos.sectionToBlockCoord(var9.x, var11);
+                            int var14 = SectionPos.sectionToBlockCoord(var9.z, var12);
                             float var15 = (float)((double)((float)var0.getHeight(var8, var13, var14) + (float)var8.ordinal() * 0.09375F) - param3);
                             LevelRenderer.addChainedFilledBoxVertices(
                                 var3,

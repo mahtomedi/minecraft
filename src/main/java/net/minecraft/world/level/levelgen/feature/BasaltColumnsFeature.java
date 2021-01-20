@@ -88,7 +88,7 @@ public class BasaltColumnsFeature extends Feature<ColumnFeatureConfiguration> {
 
     @Nullable
     private static BlockPos findSurface(LevelAccessor param0, int param1, BlockPos.MutableBlockPos param2, int param3) {
-        while(param2.getY() > 1 && param3 > 0) {
+        while(param2.getY() > param0.getMinBuildHeight() + 1 && param3 > 0) {
             --param3;
             if (canPlaceAt(param0, param1, param2)) {
                 return param2;

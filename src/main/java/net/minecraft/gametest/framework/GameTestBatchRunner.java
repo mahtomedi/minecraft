@@ -1,6 +1,6 @@
 package net.minecraft.gametest.framework;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.mojang.datafixers.util.Pair;
 import java.util.Collection;
@@ -20,12 +20,9 @@ public class GameTestBatchRunner {
     private final ServerLevel level;
     private final GameTestTicker testTicker;
     private final int testsPerRow;
-    private final List<GameTestInfo> allTestInfos = Lists.newArrayList();
-    private final Map<GameTestInfo, BlockPos> northWestCorners = Maps.newHashMap();
-    private final List<Pair<GameTestBatch, Collection<GameTestInfo>>> batches = Lists.newArrayList();
-    private MultipleTestTracker currentBatchTracker;
-    private int currentBatchIndex = 0;
-    private BlockPos.MutableBlockPos nextTestNorthWestCorner;
+    private final List<GameTestInfo> allTestInfos;
+    private final List<Pair<GameTestBatch, Collection<GameTestInfo>>> batches;
+    private final BlockPos.MutableBlockPos nextTestNorthWestCorner;
 
     public GameTestBatchRunner(Collection<GameTestBatch> param0, BlockPos param1, Rotation param2, ServerLevel param3, GameTestTicker param4, int param5) {
         this.nextTestNorthWestCorner = param1.mutable();
@@ -33,17 +30,18 @@ public class GameTestBatchRunner {
         this.level = param3;
         this.testTicker = param4;
         this.testsPerRow = param5;
-        param0.forEach(param2x -> {
-            Collection<GameTestInfo> var0 = Lists.newArrayList();
-
-            for(TestFunction var2x : param2x.getTestFunctions()) {
-                GameTestInfo var3x = new GameTestInfo(var2x, param2, param3);
-                var0.add(var3x);
-                this.allTestInfos.add(var3x);
-            }
-
-            this.batches.add(Pair.of(param2x, var0));
-        });
+        this.batches = param0.stream()
+            .map(
+                param2x -> {
+                    Collection<GameTestInfo> var0 = param2x.getTestFunctions()
+                        .stream()
+                        .map(param2xx -> new GameTestInfo(param2xx, param2, param3))
+                        .collect(ImmutableList.toImmutableList());
+                    return Pair.of(param2x, var0);
+                }
+            )
+            .collect(ImmutableList.toImmutableList());
+        this.allTestInfos = this.batches.stream().flatMap(param0x -> param0x.getSecond().stream()).collect(ImmutableList.toImmutableList());
     }
 
     public List<GameTestInfo> getTestInfos() {
@@ -54,60 +52,67 @@ public class GameTestBatchRunner {
         this.runBatch(0);
     }
 
-    private void runBatch(int param0) {
-        this.currentBatchIndex = param0;
-        this.currentBatchTracker = new MultipleTestTracker();
+    private void runBatch(final int param0) {
         if (param0 < this.batches.size()) {
-            Pair<GameTestBatch, Collection<GameTestInfo>> var0 = this.batches.get(this.currentBatchIndex);
-            GameTestBatch var1 = var0.getFirst();
+            Pair<GameTestBatch, Collection<GameTestInfo>> var0 = this.batches.get(param0);
+            final GameTestBatch var1 = var0.getFirst();
             Collection<GameTestInfo> var2 = var0.getSecond();
-            this.createStructuresForBatch(var2);
+            Map<GameTestInfo, BlockPos> var3 = this.createStructuresForBatch(var2);
+            String var4 = var1.getName();
+            LOGGER.info("Running test batch '{}' ({} tests)...", var4, var2.size());
             var1.runBeforeBatchFunction(this.level);
-            String var3 = var1.getName();
-            LOGGER.info("Running test batch '" + var3 + "' (" + var2.size() + " tests)...");
-            var2.forEach(param0x -> {
-                this.currentBatchTracker.addTestToTrack(param0x);
-                this.currentBatchTracker.addListener(new GameTestListener() {
-                    @Override
-                    public void testStructureLoaded(GameTestInfo param0) {
+            final MultipleTestTracker var5 = new MultipleTestTracker();
+            var2.forEach(var5::addTestToTrack);
+            var5.addListener(new GameTestListener() {
+                private void testCompleted() {
+                    if (var5.isDone()) {
+                        var1.runAfterBatchFunction(GameTestBatchRunner.this.level);
+                        GameTestBatchRunner.this.runBatch(param0 + 1);
                     }
 
-                    @Override
-                    public void testFailed(GameTestInfo param0) {
-                        GameTestBatchRunner.this.testCompleted(param0);
-                    }
-                });
-                BlockPos var0x = this.northWestCorners.get(param0x);
-                GameTestRunner.runTest(param0x, var0x, this.testTicker);
+                }
+
+                @Override
+                public void testStructureLoaded(GameTestInfo param0x) {
+                }
+
+                @Override
+                public void testPassed(GameTestInfo param0x) {
+                    this.testCompleted();
+                }
+
+                @Override
+                public void testFailed(GameTestInfo param0x) {
+                    this.testCompleted();
+                }
+            });
+            var2.forEach(param1 -> {
+                BlockPos var0x = var3.get(param1);
+                GameTestRunner.runTest(param1, var0x, this.testTicker);
             });
         }
     }
 
-    private void testCompleted(GameTestInfo param0) {
-        if (this.currentBatchTracker.isDone()) {
-            this.runBatch(this.currentBatchIndex + 1);
-        }
+    private Map<GameTestInfo, BlockPos> createStructuresForBatch(Collection<GameTestInfo> param0) {
+        Map<GameTestInfo, BlockPos> var0 = Maps.newHashMap();
+        int var1 = 0;
+        AABB var2 = new AABB(this.nextTestNorthWestCorner);
 
-    }
-
-    private void createStructuresForBatch(Collection<GameTestInfo> param0) {
-        int var0 = 0;
-        AABB var1 = new AABB(this.nextTestNorthWestCorner);
-
-        for(GameTestInfo var2 : param0) {
-            BlockPos var3 = new BlockPos(this.nextTestNorthWestCorner);
-            StructureBlockEntity var4 = StructureUtils.spawnStructure(var2.getStructureName(), var3, var2.getRotation(), 2, this.level, true);
-            AABB var5 = StructureUtils.getStructureBounds(var4);
-            var2.setStructureBlockPos(var4.getBlockPos());
-            this.northWestCorners.put(var2, new BlockPos(this.nextTestNorthWestCorner));
-            var1 = var1.minmax(var5);
-            this.nextTestNorthWestCorner.move((int)var5.getXsize() + 5, 0, 0);
-            if (var0++ % this.testsPerRow == this.testsPerRow - 1) {
-                this.nextTestNorthWestCorner.move(0, 0, (int)var1.getZsize() + 6);
+        for(GameTestInfo var3 : param0) {
+            BlockPos var4 = new BlockPos(this.nextTestNorthWestCorner);
+            StructureBlockEntity var5 = StructureUtils.spawnStructure(var3.getStructureName(), var4, var3.getRotation(), 2, this.level, true);
+            AABB var6 = StructureUtils.getStructureBounds(var5);
+            var3.setStructureBlockPos(var5.getBlockPos());
+            var0.put(var3, new BlockPos(this.nextTestNorthWestCorner));
+            var2 = var2.minmax(var6);
+            this.nextTestNorthWestCorner.move((int)var6.getXsize() + 5, 0, 0);
+            if (var1++ % this.testsPerRow == this.testsPerRow - 1) {
+                this.nextTestNorthWestCorner.move(0, 0, (int)var2.getZsize() + 6);
                 this.nextTestNorthWestCorner.setX(this.firstTestNorthWestCorner.getX());
-                var1 = new AABB(this.nextTestNorthWestCorner);
+                var2 = new AABB(this.nextTestNorthWestCorner);
             }
         }
 
+        return var0;
     }
 }

@@ -10,10 +10,14 @@ public class LogTestReporter implements TestReporter {
     @Override
     public void onTestFailed(GameTestInfo param0) {
         if (param0.isRequired()) {
-            LOGGER.error(param0.getTestName() + " failed! " + Util.describeError(param0.getError()));
+            LOGGER.error("{} failed! {}", param0.getTestName(), Util.describeError(param0.getError()));
         } else {
-            LOGGER.warn("(optional) " + param0.getTestName() + " failed. " + Util.describeError(param0.getError()));
+            LOGGER.warn("(optional) {} failed. {}", param0.getTestName(), Util.describeError(param0.getError()));
         }
 
+    }
+
+    @Override
+    public void onTestSuccess(GameTestInfo param0) {
     }
 }

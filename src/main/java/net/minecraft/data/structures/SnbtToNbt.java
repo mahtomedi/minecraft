@@ -1,13 +1,11 @@
 package net.minecraft.data.structures;
 
 import com.google.common.collect.Lists;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Reader;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -20,15 +18,14 @@ import net.minecraft.data.DataProvider;
 import net.minecraft.data.HashCache;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
-import net.minecraft.nbt.TagParser;
-import org.apache.commons.io.FileUtils;
+import net.minecraft.nbt.NbtUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class SnbtToNbt implements DataProvider {
     @Nullable
-    private static final Path dumpSnbtTo = null;
+    private static final Path DUMP_SNBT_TO = null;
     private static final Logger LOGGER = LogManager.getLogger();
     private final DataGenerator generator;
     private final List<SnbtToNbt.Filter> filters = Lists.newArrayList();
@@ -65,7 +62,20 @@ public class SnbtToNbt implements DataProvider {
                 );
         }
 
-        Util.sequence(var1).join().stream().filter(Objects::nonNull).forEach(param2 -> this.storeStructureIfChanged(param0, param2, var0));
+        boolean var3 = false;
+
+        for(CompletableFuture<SnbtToNbt.TaskResult> var4 : var1) {
+            try {
+                this.storeStructureIfChanged(param0, var4.get(), var0);
+            } catch (Exception var8) {
+                LOGGER.error("Failed to process structure", (Throwable)var8);
+                var3 = true;
+            }
+        }
+
+        if (var3) {
+            throw new IllegalStateException("Failed to convert all structures, aborting");
+        }
     }
 
     @Override
@@ -78,38 +88,33 @@ public class SnbtToNbt implements DataProvider {
         return var0.substring(0, var0.length() - ".snbt".length());
     }
 
-    @Nullable
     private SnbtToNbt.TaskResult readStructure(Path param0, String param1) {
         try (BufferedReader var0 = Files.newBufferedReader(param0)) {
             String var1 = IOUtils.toString((Reader)var0);
-            CompoundTag var2 = this.applyFilters(param1, TagParser.parseTag(var1));
+            CompoundTag var2 = this.applyFilters(param1, NbtUtils.snbtToStructure(var1));
             ByteArrayOutputStream var3 = new ByteArrayOutputStream();
             NbtIo.writeCompressed(var2, var3);
             byte[] var4 = var3.toByteArray();
             String var5 = SHA1.hashBytes(var4).toString();
             String var6;
-            if (dumpSnbtTo != null) {
-                var6 = var2.getPrettyDisplay("    ", 0).getString() + "\n";
+            if (DUMP_SNBT_TO != null) {
+                var6 = NbtUtils.structureToSnbt(var2);
             } else {
                 var6 = null;
             }
 
             return new SnbtToNbt.TaskResult(param1, var4, var6, var5);
-        } catch (CommandSyntaxException var24) {
-            LOGGER.error("Couldn't convert {} from SNBT to NBT at {} as it's invalid SNBT", param1, param0, var24);
-        } catch (IOException var25) {
-            LOGGER.error("Couldn't convert {} from SNBT to NBT at {}", param1, param0, var25);
+        } catch (Throwable var23) {
+            throw new SnbtToNbt.StructureConversionException(param0, var23);
         }
-
-        return null;
     }
 
     private void storeStructureIfChanged(HashCache param0, SnbtToNbt.TaskResult param1, Path param2) {
         if (param1.snbtPayload != null) {
-            Path var0 = dumpSnbtTo.resolve(param1.name + ".snbt");
+            Path var0 = DUMP_SNBT_TO.resolve(param1.name + ".snbt");
 
             try {
-                FileUtils.write(var0.toFile(), param1.snbtPayload, StandardCharsets.UTF_8);
+                NbtToSnbt.writeSnbt(var0, param1.snbtPayload);
             } catch (IOException var18) {
                 LOGGER.error("Couldn't write structure SNBT {} at {}", param1.name, var0, var18);
             }
@@ -136,6 +141,12 @@ public class SnbtToNbt implements DataProvider {
     @FunctionalInterface
     public interface Filter {
         CompoundTag apply(String var1, CompoundTag var2);
+    }
+
+    static class StructureConversionException extends RuntimeException {
+        public StructureConversionException(Path param0, Throwable param1) {
+            super(param0.toAbsolutePath().toString(), param1);
+        }
     }
 
     static class TaskResult {

@@ -50,7 +50,7 @@ public class WorldTemplatePaginatedList extends ValueObject {
             var0.size = JsonUtils.getIntOr("size", var2, 0);
             var0.total = JsonUtils.getIntOr("total", var2, 0);
         } catch (Exception var5) {
-            LOGGER.error("Could not parse WorldTemplatePaginatedList: " + var5.getMessage());
+            LOGGER.error("Could not parse WorldTemplatePaginatedList: {}", var5.getMessage());
         }
 
         return var0;

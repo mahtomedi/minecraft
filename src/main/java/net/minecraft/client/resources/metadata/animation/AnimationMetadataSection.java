@@ -1,10 +1,8 @@
 package net.minecraft.client.resources.metadata.animation;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.mojang.datafixers.util.Pair;
 import java.util.List;
-import java.util.Set;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -65,10 +63,6 @@ public class AnimationMetadataSection {
         return this.frameWidth == -1 ? param0 : this.frameWidth;
     }
 
-    public int getFrameCount() {
-        return this.frames.size();
-    }
-
     public int getDefaultFrameTime() {
         return this.defaultFrameTime;
     }
@@ -77,26 +71,16 @@ public class AnimationMetadataSection {
         return this.interpolatedFrames;
     }
 
-    private AnimationFrame getFrame(int param0) {
-        return this.frames.get(param0);
-    }
-
-    public int getFrameTime(int param0) {
-        AnimationFrame var0 = this.getFrame(param0);
-        return var0.isTimeUnknown() ? this.defaultFrameTime : var0.getTime();
-    }
-
-    public int getFrameIndex(int param0) {
-        return this.frames.get(param0).getIndex();
-    }
-
-    public Set<Integer> getUniqueFrameIndices() {
-        Set<Integer> var0 = Sets.newHashSet();
-
-        for(AnimationFrame var1 : this.frames) {
-            var0.add(var1.getIndex());
+    public void forEachFrame(AnimationMetadataSection.FrameOutput param0) {
+        for(AnimationFrame var0 : this.frames) {
+            param0.accept(var0.getIndex(), var0.getTime(this.defaultFrameTime));
         }
 
-        return var0;
+    }
+
+    @FunctionalInterface
+    @OnlyIn(Dist.CLIENT)
+    public interface FrameOutput {
+        void accept(int var1, int var2);
     }
 }

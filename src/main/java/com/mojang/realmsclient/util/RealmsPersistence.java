@@ -15,12 +15,22 @@ import org.apache.commons.io.FileUtils;
 public class RealmsPersistence {
     private static final GuardedSerializer GSON = new GuardedSerializer();
 
+    public RealmsPersistence.RealmsPersistenceData read() {
+        return readFile();
+    }
+
+    public void save(RealmsPersistence.RealmsPersistenceData param0) {
+        writeFile(param0);
+    }
+
     public static RealmsPersistence.RealmsPersistenceData readFile() {
         File var0 = getPathToData();
 
         try {
-            return GSON.fromJson(FileUtils.readFileToString(var0, StandardCharsets.UTF_8), RealmsPersistence.RealmsPersistenceData.class);
-        } catch (IOException var2) {
+            String var1 = FileUtils.readFileToString(var0, StandardCharsets.UTF_8);
+            RealmsPersistence.RealmsPersistenceData var2 = GSON.fromJson(var1, RealmsPersistence.RealmsPersistenceData.class);
+            return var2 != null ? var2 : new RealmsPersistence.RealmsPersistenceData();
+        } catch (IOException var31) {
             return new RealmsPersistence.RealmsPersistenceData();
         }
     }

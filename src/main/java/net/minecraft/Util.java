@@ -46,6 +46,7 @@ import java.util.function.LongSupplier;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
@@ -325,20 +326,31 @@ public class Util {
         return param0;
     }
 
+    public static final void logAndPauseIfInIde(String param0) {
+        LOGGER.error(param0);
+        if (SharedConstants.IS_RUNNING_IN_IDE) {
+            doPause();
+        }
+
+    }
+
     public static <T extends Throwable> T pauseInIde(T param0) {
         if (SharedConstants.IS_RUNNING_IN_IDE) {
             LOGGER.error("Trying to throw a fatal exception, pausing in IDE", param0);
+            doPause();
+        }
 
-            while(true) {
-                try {
-                    Thread.sleep(1000L);
-                    LOGGER.error("paused");
-                } catch (InterruptedException var2) {
-                    return param0;
-                }
+        return param0;
+    }
+
+    private static void doPause() {
+        while(true) {
+            try {
+                Thread.sleep(1000L);
+                LOGGER.error("paused");
+            } catch (InterruptedException var1) {
+                return;
             }
-        } else {
-            return param0;
         }
     }
 
@@ -356,6 +368,10 @@ public class Util {
 
     public static int getRandom(int[] param0, Random param1) {
         return param0[param1.nextInt(param0.length)];
+    }
+
+    public static <T> T getRandom(List<T> param0, Random param1) {
+        return param0.get(param1.nextInt(param0.size()));
     }
 
     private static BooleanSupplier createRenamer(final Path param0, final Path param1) {
@@ -496,6 +512,16 @@ public class Util {
         int[] var0 = param0.limit((long)(param1 + 1)).toArray();
         if (var0.length != param1) {
             String var1 = "Input is not a list of " + param1 + " ints";
+            return var0.length >= param1 ? DataResult.error(var1, Arrays.copyOf(var0, param1)) : DataResult.error(var1);
+        } else {
+            return DataResult.success(var0);
+        }
+    }
+
+    public static DataResult<double[]> fixedSize(DoubleStream param0, int param1) {
+        double[] var0 = param0.limit((long)(param1 + 1)).toArray();
+        if (var0.length != param1) {
+            String var1 = "Input is not a list of " + param1 + " doubles";
             return var0.length >= param1 ? DataResult.error(var1, Arrays.copyOf(var0, param1)) : DataResult.error(var1);
         } else {
             return DataResult.success(var0);

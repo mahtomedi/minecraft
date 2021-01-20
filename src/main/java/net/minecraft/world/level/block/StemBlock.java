@@ -1,14 +1,13 @@
 package net.minecraft.world.level.block;
 
 import java.util.Random;
-import javax.annotation.Nullable;
+import java.util.function.Supplier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -34,10 +33,12 @@ public class StemBlock extends BushBlock implements BonemealableBlock {
         Block.box(7.0, 0.0, 7.0, 9.0, 16.0, 9.0)
     };
     private final StemGrownBlock fruit;
+    private final Supplier<Item> seedSupplier;
 
-    protected StemBlock(StemGrownBlock param0, BlockBehaviour.Properties param1) {
-        super(param1);
+    protected StemBlock(StemGrownBlock param0, Supplier<Item> param1, BlockBehaviour.Properties param2) {
+        super(param2);
         this.fruit = param0;
+        this.seedSupplier = param1;
         this.registerDefaultState(this.stateDefinition.any().setValue(AGE, Integer.valueOf(0)));
     }
 
@@ -81,21 +82,10 @@ public class StemBlock extends BushBlock implements BonemealableBlock {
         }
     }
 
-    @Nullable
-    @OnlyIn(Dist.CLIENT)
-    protected Item getSeedItem() {
-        if (this.fruit == Blocks.PUMPKIN) {
-            return Items.PUMPKIN_SEEDS;
-        } else {
-            return this.fruit == Blocks.MELON ? Items.MELON_SEEDS : null;
-        }
-    }
-
     @OnlyIn(Dist.CLIENT)
     @Override
     public ItemStack getCloneItemStack(BlockGetter param0, BlockPos param1, BlockState param2) {
-        Item var0 = this.getSeedItem();
-        return var0 == null ? ItemStack.EMPTY : new ItemStack(var0);
+        return new ItemStack(this.seedSupplier.get());
     }
 
     @Override

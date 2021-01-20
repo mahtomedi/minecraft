@@ -1,5 +1,6 @@
 package net.minecraft.world.item;
 
+import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -8,7 +9,10 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseFireBlock;
 import net.minecraft.world.level.block.CampfireBlock;
+import net.minecraft.world.level.block.CandleBlock;
+import net.minecraft.world.level.block.CandleCakeBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
 public class FireChargeItem extends Item {
     public FireChargeItem(Item.Properties param0) {
@@ -21,17 +25,17 @@ public class FireChargeItem extends Item {
         BlockPos var1 = param0.getClickedPos();
         BlockState var2 = var0.getBlockState(var1);
         boolean var3 = false;
-        if (CampfireBlock.canLight(var2)) {
-            this.playSound(var0, var1);
-            var0.setBlockAndUpdate(var1, var2.setValue(CampfireBlock.LIT, Boolean.valueOf(true)));
-            var3 = true;
-        } else {
+        if (!CampfireBlock.canLight(var2) && !CandleBlock.canLight(var2) && !CandleCakeBlock.canLight(var2)) {
             var1 = var1.relative(param0.getClickedFace());
             if (BaseFireBlock.canBePlacedAt(var0, var1, param0.getHorizontalDirection())) {
                 this.playSound(var0, var1);
                 var0.setBlockAndUpdate(var1, BaseFireBlock.getState(var0, var1));
                 var3 = true;
             }
+        } else {
+            this.playSound(var0, var1);
+            var0.setBlockAndUpdate(var1, var2.setValue(BlockStateProperties.LIT, Boolean.valueOf(true)));
+            var3 = true;
         }
 
         if (var3) {
@@ -43,6 +47,7 @@ public class FireChargeItem extends Item {
     }
 
     private void playSound(Level param0, BlockPos param1) {
-        param0.playSound(null, param1, SoundEvents.FIRECHARGE_USE, SoundSource.BLOCKS, 1.0F, (random.nextFloat() - random.nextFloat()) * 0.2F + 1.0F);
+        Random var0 = param0.getRandom();
+        param0.playSound(null, param1, SoundEvents.FIRECHARGE_USE, SoundSource.BLOCKS, 1.0F, (var0.nextFloat() - var0.nextFloat()) * 0.2F + 1.0F);
     }
 }

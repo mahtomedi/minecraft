@@ -18,6 +18,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.EnchantmentTableBlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
@@ -87,8 +89,14 @@ public class EnchantmentTableBlock extends BaseEntityBlock {
     }
 
     @Override
-    public BlockEntity newBlockEntity(BlockGetter param0) {
-        return new EnchantmentTableBlockEntity();
+    public BlockEntity newBlockEntity(BlockPos param0, BlockState param1) {
+        return new EnchantmentTableBlockEntity(param0, param1);
+    }
+
+    @Nullable
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level param0, BlockState param1, BlockEntityType<T> param2) {
+        return param0.isClientSide ? createTickerHelper(param2, BlockEntityType.ENCHANTING_TABLE, EnchantmentTableBlockEntity::bookAnimationTick) : null;
     }
 
     @Override

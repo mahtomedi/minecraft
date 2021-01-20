@@ -10,7 +10,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public abstract class AbstractHorseRenderer<T extends AbstractHorse, M extends HorseModel<T>> extends MobRenderer<T, M> {
     private final float scale;
 
-    public AbstractHorseRenderer(EntityRenderDispatcher param0, M param1, float param2) {
+    public AbstractHorseRenderer(EntityRendererProvider.Context param0, M param1, float param2) {
         super(param0, param1, 0.75F);
         this.scale = param2;
     }

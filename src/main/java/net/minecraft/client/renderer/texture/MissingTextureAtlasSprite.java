@@ -1,6 +1,6 @@
 package net.minecraft.client.renderer.texture;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.platform.NativeImage;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
@@ -35,7 +35,7 @@ public final class MissingTextureAtlasSprite extends TextureAtlasSprite {
         return var0;
     });
     private static final TextureAtlasSprite.Info INFO = new TextureAtlasSprite.Info(
-        MISSING_TEXTURE_LOCATION, 16, 16, new AnimationMetadataSection(Lists.newArrayList(new AnimationFrame(0, -1)), 16, 16, 1, false)
+        MISSING_TEXTURE_LOCATION, 16, 16, new AnimationMetadataSection(ImmutableList.of(new AnimationFrame(0, -1)), 16, 16, 1, false)
     );
 
     private MissingTextureAtlasSprite(TextureAtlas param0, int param1, int param2, int param3, int param4, int param5) {

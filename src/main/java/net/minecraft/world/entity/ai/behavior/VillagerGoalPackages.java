@@ -5,7 +5,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Pair;
 import java.util.Optional;
-import net.minecraft.world.entity.AgableMob;
+import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobCategory;
@@ -150,7 +150,7 @@ public class VillagerGoalPackages {
                     ImmutableList.of(
                         Pair.of(InteractWith.of(EntityType.VILLAGER, 8, MemoryModuleType.INTERACTION_TARGET, param1, 2), 2),
                         Pair.of(
-                            new InteractWith<>(EntityType.VILLAGER, 8, AgableMob::canBreed, AgableMob::canBreed, MemoryModuleType.BREED_TARGET, param1, 2), 1
+                            new InteractWith<>(EntityType.VILLAGER, 8, AgeableMob::canBreed, AgeableMob::canBreed, MemoryModuleType.BREED_TARGET, param1, 2), 1
                         ),
                         Pair.of(InteractWith.of(EntityType.CAT, 8, MemoryModuleType.INTERACTION_TARGET, param1, 2), 1),
                         Pair.of(new VillageBoundRandomStroll(param1), 1),

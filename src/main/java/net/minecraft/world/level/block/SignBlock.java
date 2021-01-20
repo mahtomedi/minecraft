@@ -2,11 +2,14 @@ package net.minecraft.world.level.block;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
@@ -27,6 +30,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class SignBlock extends BaseEntityBlock implements SimpleWaterloggedBlock {
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
+    public static final BooleanProperty LIT = BlockStateProperties.LIT;
     protected static final VoxelShape SHAPE = Block.box(4.0, 0.0, 4.0, 12.0, 16.0, 12.0);
     private final WoodType type;
 
@@ -55,31 +59,52 @@ public abstract class SignBlock extends BaseEntityBlock implements SimpleWaterlo
     }
 
     @Override
-    public BlockEntity newBlockEntity(BlockGetter param0) {
-        return new SignBlockEntity();
+    public BlockEntity newBlockEntity(BlockPos param0, BlockState param1) {
+        return new SignBlockEntity(param0, param1);
     }
 
     @Override
     public InteractionResult use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
         ItemStack var0 = param3.getItemInHand(param4);
-        boolean var1 = var0.getItem() instanceof DyeItem && param3.abilities.mayBuild;
-        if (param1.isClientSide) {
-            return var1 ? InteractionResult.SUCCESS : InteractionResult.CONSUME;
-        } else {
-            BlockEntity var2 = param1.getBlockEntity(param2);
-            if (var2 instanceof SignBlockEntity) {
-                SignBlockEntity var3 = (SignBlockEntity)var2;
-                if (var1) {
-                    boolean var4 = var3.setColor(((DyeItem)var0.getItem()).getDyeColor());
-                    if (var4 && !param3.isCreative()) {
-                        var0.shrink(1);
-                    }
-                }
-
-                return var3.executeClickCommands(param3) ? InteractionResult.SUCCESS : InteractionResult.PASS;
+        boolean var1 = var0.getItem() instanceof DyeItem;
+        boolean var2 = var0.is(Items.GLOW_INK_SAC);
+        boolean var3 = var0.is(Items.INK_SAC);
+        boolean var4 = (var2 || var1 || var3) && param3.getAbilities().mayBuild;
+        boolean var5 = param0.getValue(LIT);
+        if ((!var2 || !var5) && (!var3 || var5)) {
+            if (param1.isClientSide) {
+                return var4 ? InteractionResult.SUCCESS : InteractionResult.CONSUME;
             } else {
-                return InteractionResult.PASS;
+                BlockEntity var6 = param1.getBlockEntity(param2);
+                if (var6 instanceof SignBlockEntity) {
+                    SignBlockEntity var7 = (SignBlockEntity)var6;
+                    if (var4) {
+                        boolean var8;
+                        if (var2) {
+                            param1.playSound(null, param2, SoundEvents.GLOW_INK_SAC_USE, SoundSource.BLOCKS, 1.0F, 1.0F);
+                            param1.setBlockAndUpdate(param2, param0.setValue(LIT, Boolean.valueOf(true)));
+                            var8 = true;
+                        } else if (var3) {
+                            param1.playSound(null, param2, SoundEvents.INK_SAC_USE, SoundSource.BLOCKS, 1.0F, 1.0F);
+                            param1.setBlockAndUpdate(param2, param0.setValue(LIT, Boolean.valueOf(false)));
+                            var8 = true;
+                        } else {
+                            param1.playSound(null, param2, SoundEvents.DYE_USE, SoundSource.BLOCKS, 1.0F, 1.0F);
+                            var8 = var7.setColor(((DyeItem)var0.getItem()).getDyeColor());
+                        }
+
+                        if (var8 && !param3.isCreative()) {
+                            var0.shrink(1);
+                        }
+                    }
+
+                    return var7.executeClickCommands(param3) ? InteractionResult.SUCCESS : InteractionResult.PASS;
+                } else {
+                    return InteractionResult.PASS;
+                }
             }
+        } else {
+            return InteractionResult.PASS;
         }
     }
 

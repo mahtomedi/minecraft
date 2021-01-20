@@ -137,7 +137,7 @@ public class Bat extends AmbientCreature {
                 }
             }
         } else {
-            if (this.targetPosition != null && (!this.level.isEmptyBlock(this.targetPosition) || this.targetPosition.getY() < 1)) {
+            if (this.targetPosition != null && (!this.level.isEmptyBlock(this.targetPosition) || this.targetPosition.getY() <= this.level.getMinBuildHeight())) {
                 this.targetPosition = null;
             }
 
@@ -174,7 +174,7 @@ public class Bat extends AmbientCreature {
     }
 
     @Override
-    public boolean causeFallDamage(float param0, float param1) {
+    public boolean causeFallDamage(float param0, float param1, DamageSource param2) {
         return false;
     }
 

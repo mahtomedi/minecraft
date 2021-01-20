@@ -5,7 +5,13 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.math.Vector3f;
 import java.util.List;
+import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.geom.PartPose;
+import net.minecraft.client.model.geom.builders.CubeListBuilder;
+import net.minecraft.client.model.geom.builders.LayerDefinition;
+import net.minecraft.client.model.geom.builders.MeshDefinition;
+import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.Sheets;
@@ -23,22 +29,25 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class BannerRenderer extends BlockEntityRenderer<BannerBlockEntity> {
-    private final ModelPart flag = makeFlag();
-    private final ModelPart pole = new ModelPart(64, 64, 44, 0);
+public class BannerRenderer implements BlockEntityRenderer<BannerBlockEntity> {
+    private final ModelPart flag;
+    private final ModelPart pole;
     private final ModelPart bar;
 
-    public BannerRenderer(BlockEntityRenderDispatcher param0) {
-        super(param0);
-        this.pole.addBox(-1.0F, -30.0F, -1.0F, 2.0F, 42.0F, 2.0F, 0.0F);
-        this.bar = new ModelPart(64, 64, 0, 42);
-        this.bar.addBox(-10.0F, -32.0F, -1.0F, 20.0F, 2.0F, 2.0F, 0.0F);
+    public BannerRenderer(BlockEntityRendererProvider.Context param0) {
+        ModelPart var0 = param0.bakeLayer(ModelLayers.BANNER);
+        this.flag = var0.getChild("flag");
+        this.pole = var0.getChild("pole");
+        this.bar = var0.getChild("bar");
     }
 
-    public static ModelPart makeFlag() {
-        ModelPart var0 = new ModelPart(64, 64, 0, 0);
-        var0.addBox(-10.0F, 0.0F, -2.0F, 20.0F, 40.0F, 1.0F, 0.0F);
-        return var0;
+    public static LayerDefinition createBodyLayer() {
+        MeshDefinition var0 = new MeshDefinition();
+        PartDefinition var1 = var0.getRoot();
+        var1.addOrReplaceChild("flag", CubeListBuilder.create().texOffs(0, 0).addBox(-10.0F, 0.0F, -2.0F, 20.0F, 40.0F, 1.0F), PartPose.ZERO);
+        var1.addOrReplaceChild("pole", CubeListBuilder.create().texOffs(44, 0).addBox(-1.0F, -30.0F, -1.0F, 2.0F, 42.0F, 2.0F), PartPose.ZERO);
+        var1.addOrReplaceChild("bar", CubeListBuilder.create().texOffs(0, 42).addBox(-10.0F, -32.0F, -1.0F, 20.0F, 2.0F, 2.0F), PartPose.ZERO);
+        return LayerDefinition.create(var0, 64, 64);
     }
 
     public void render(BannerBlockEntity param0, float param1, PoseStack param2, MultiBufferSource param3, int param4, int param5) {
@@ -113,8 +122,9 @@ public class BannerRenderer extends BlockEntityRenderer<BannerBlockEntity> {
         for(int var0 = 0; var0 < 17 && var0 < param7.size(); ++var0) {
             Pair<BannerPattern, DyeColor> var1 = param7.get(var0);
             float[] var2 = var1.getSecond().getTextureDiffuseColors();
-            Material var3 = new Material(param6 ? Sheets.BANNER_SHEET : Sheets.SHIELD_SHEET, var1.getFirst().location(param6));
-            param4.render(param0, var3.buffer(param1, RenderType::entityNoOutline), param2, param3, var2[0], var2[1], var2[2], 1.0F);
+            BannerPattern var3 = var1.getFirst();
+            Material var4 = param6 ? Sheets.getBannerMaterial(var3) : Sheets.getShieldMaterial(var3);
+            param4.render(param0, var4.buffer(param1, RenderType::entityNoOutline), param2, param3, var2[0], var2[1], var2[2], 1.0F);
         }
 
     }

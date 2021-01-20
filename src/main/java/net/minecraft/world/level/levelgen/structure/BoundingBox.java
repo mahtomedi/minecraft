@@ -75,15 +75,6 @@ public class BoundingBox {
         );
     }
 
-    public BoundingBox(BoundingBox param0) {
-        this.x0 = param0.x0;
-        this.y0 = param0.y0;
-        this.z0 = param0.z0;
-        this.x1 = param0.x1;
-        this.y1 = param0.y1;
-        this.z1 = param0.z1;
-    }
-
     public BoundingBox(int param0, int param1, int param2, int param3, int param4, int param5) {
         this.x0 = param0;
         this.y0 = param1;
@@ -100,15 +91,6 @@ public class BoundingBox {
         this.x1 = Math.max(param0.getX(), param1.getX());
         this.y1 = Math.max(param0.getY(), param1.getY());
         this.z1 = Math.max(param0.getZ(), param1.getZ());
-    }
-
-    public BoundingBox(int param0, int param1, int param2, int param3) {
-        this.x0 = param0;
-        this.z0 = param1;
-        this.x1 = param2;
-        this.z1 = param3;
-        this.y0 = 1;
-        this.y1 = 512;
     }
 
     public boolean intersects(BoundingBox param0) {

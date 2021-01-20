@@ -10,19 +10,20 @@ import com.google.gson.JsonSerializationContext;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+import java.util.stream.Stream;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.storage.loot.IntRange;
 import net.minecraft.world.level.storage.loot.LootContext;
-import net.minecraft.world.level.storage.loot.RandomValueBounds;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
 import net.minecraft.world.scores.Objective;
 import net.minecraft.world.scores.Scoreboard;
 
 public class EntityHasScoreCondition implements LootItemCondition {
-    private final Map<String, RandomValueBounds> scores;
+    private final Map<String, IntRange> scores;
     private final LootContext.EntityTarget entityTarget;
 
-    private EntityHasScoreCondition(Map<String, RandomValueBounds> param0, LootContext.EntityTarget param1) {
+    private EntityHasScoreCondition(Map<String, IntRange> param0, LootContext.EntityTarget param1) {
         this.scores = ImmutableMap.copyOf(param0);
         this.entityTarget = param1;
     }
@@ -34,7 +35,10 @@ public class EntityHasScoreCondition implements LootItemCondition {
 
     @Override
     public Set<LootContextParam<?>> getReferencedContextParams() {
-        return ImmutableSet.of(this.entityTarget.getParam());
+        return Stream.concat(
+                Stream.of(this.entityTarget.getParam()), this.scores.values().stream().flatMap(param0 -> param0.getReferencedContextParams().stream())
+            )
+            .collect(ImmutableSet.toImmutableSet());
     }
 
     public boolean test(LootContext param0) {
@@ -44,8 +48,8 @@ public class EntityHasScoreCondition implements LootItemCondition {
         } else {
             Scoreboard var1 = var0.level.getScoreboard();
 
-            for(Entry<String, RandomValueBounds> var2 : this.scores.entrySet()) {
-                if (!this.hasScore(var0, var1, var2.getKey(), var2.getValue())) {
+            for(Entry<String, IntRange> var2 : this.scores.entrySet()) {
+                if (!this.hasScore(param0, var0, var1, var2.getKey(), var2.getValue())) {
                     return false;
                 }
             }
@@ -54,13 +58,13 @@ public class EntityHasScoreCondition implements LootItemCondition {
         }
     }
 
-    protected boolean hasScore(Entity param0, Scoreboard param1, String param2, RandomValueBounds param3) {
-        Objective var0 = param1.getObjective(param2);
+    protected boolean hasScore(LootContext param0, Entity param1, Scoreboard param2, String param3, IntRange param4) {
+        Objective var0 = param2.getObjective(param3);
         if (var0 == null) {
             return false;
         } else {
-            String var1 = param0.getScoreboardName();
-            return !param1.hasPlayerScore(var1, var0) ? false : param3.matchesValue(param1.getOrCreatePlayerScore(var1, var0).getScore());
+            String var1 = param1.getScoreboardName();
+            return !param2.hasPlayerScore(var1, var0) ? false : param4.test(param0, param2.getOrCreatePlayerScore(var1, var0).getScore());
         }
     }
 
@@ -68,7 +72,7 @@ public class EntityHasScoreCondition implements LootItemCondition {
         public void serialize(JsonObject param0, EntityHasScoreCondition param1, JsonSerializationContext param2) {
             JsonObject var0 = new JsonObject();
 
-            for(Entry<String, RandomValueBounds> var1 : param1.scores.entrySet()) {
+            for(Entry<String, IntRange> var1 : param1.scores.entrySet()) {
                 var0.add(var1.getKey(), param2.serialize(var1.getValue()));
             }
 
@@ -78,10 +82,10 @@ public class EntityHasScoreCondition implements LootItemCondition {
 
         public EntityHasScoreCondition deserialize(JsonObject param0, JsonDeserializationContext param1) {
             Set<Entry<String, JsonElement>> var0 = GsonHelper.getAsJsonObject(param0, "scores").entrySet();
-            Map<String, RandomValueBounds> var1 = Maps.newLinkedHashMap();
+            Map<String, IntRange> var1 = Maps.newLinkedHashMap();
 
             for(Entry<String, JsonElement> var2 : var0) {
-                var1.put(var2.getKey(), GsonHelper.convertToObject(var2.getValue(), "score", param1, RandomValueBounds.class));
+                var1.put(var2.getKey(), GsonHelper.convertToObject(var2.getValue(), "score", param1, IntRange.class));
             }
 
             return new EntityHasScoreCondition(var1, GsonHelper.getAsObject(param0, "entity", param1, LootContext.EntityTarget.class));

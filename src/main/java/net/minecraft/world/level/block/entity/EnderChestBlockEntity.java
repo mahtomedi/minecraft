@@ -1,10 +1,12 @@
 package net.minecraft.world.level.block.entity;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -12,96 +14,78 @@ import net.minecraftforge.api.distmarker.OnlyIn;
     value = Dist.CLIENT,
     _interface = LidBlockEntity.class
 )
-public class EnderChestBlockEntity extends BlockEntity implements LidBlockEntity, TickableBlockEntity {
-    public float openness;
-    public float oOpenness;
-    public int openCount;
-    private int tickInterval;
+public class EnderChestBlockEntity extends BlockEntity implements LidBlockEntity {
+    private final ChestLidController chestLidController = new ChestLidController();
+    private final ContainerOpenersCounter openersCounter = new ContainerOpenersCounter() {
+        @Override
+        protected void onOpen(Level param0, BlockPos param1, BlockState param2) {
+            param0.playSound(
+                null,
+                (double)param1.getX() + 0.5,
+                (double)param1.getY() + 0.5,
+                (double)param1.getZ() + 0.5,
+                SoundEvents.ENDER_CHEST_OPEN,
+                SoundSource.BLOCKS,
+                0.5F,
+                param0.random.nextFloat() * 0.1F + 0.9F
+            );
+        }
 
-    public EnderChestBlockEntity() {
-        super(BlockEntityType.ENDER_CHEST);
+        @Override
+        protected void onClose(Level param0, BlockPos param1, BlockState param2) {
+            param0.playSound(
+                null,
+                (double)param1.getX() + 0.5,
+                (double)param1.getY() + 0.5,
+                (double)param1.getZ() + 0.5,
+                SoundEvents.ENDER_CHEST_CLOSE,
+                SoundSource.BLOCKS,
+                0.5F,
+                param0.random.nextFloat() * 0.1F + 0.9F
+            );
+        }
+
+        @Override
+        protected void openerCountChanged(Level param0, BlockPos param1, BlockState param2, int param3, int param4) {
+            param0.blockEvent(EnderChestBlockEntity.this.worldPosition, Blocks.ENDER_CHEST, 1, param4);
+        }
+
+        @Override
+        protected boolean isOwnContainer(Player param0) {
+            return param0.getEnderChestInventory().isActiveChest(EnderChestBlockEntity.this);
+        }
+    };
+
+    public EnderChestBlockEntity(BlockPos param0, BlockState param1) {
+        super(BlockEntityType.ENDER_CHEST, param0, param1);
     }
 
-    @Override
-    public void tick() {
-        if (++this.tickInterval % 20 * 4 == 0) {
-            this.level.blockEvent(this.worldPosition, Blocks.ENDER_CHEST, 1, this.openCount);
-        }
-
-        this.oOpenness = this.openness;
-        int var0 = this.worldPosition.getX();
-        int var1 = this.worldPosition.getY();
-        int var2 = this.worldPosition.getZ();
-        float var3 = 0.1F;
-        if (this.openCount > 0 && this.openness == 0.0F) {
-            double var4 = (double)var0 + 0.5;
-            double var5 = (double)var2 + 0.5;
-            this.level
-                .playSound(
-                    null, var4, (double)var1 + 0.5, var5, SoundEvents.ENDER_CHEST_OPEN, SoundSource.BLOCKS, 0.5F, this.level.random.nextFloat() * 0.1F + 0.9F
-                );
-        }
-
-        if (this.openCount == 0 && this.openness > 0.0F || this.openCount > 0 && this.openness < 1.0F) {
-            float var6 = this.openness;
-            if (this.openCount > 0) {
-                this.openness += 0.1F;
-            } else {
-                this.openness -= 0.1F;
-            }
-
-            if (this.openness > 1.0F) {
-                this.openness = 1.0F;
-            }
-
-            float var7 = 0.5F;
-            if (this.openness < 0.5F && var6 >= 0.5F) {
-                double var8 = (double)var0 + 0.5;
-                double var9 = (double)var2 + 0.5;
-                this.level
-                    .playSound(
-                        null,
-                        var8,
-                        (double)var1 + 0.5,
-                        var9,
-                        SoundEvents.ENDER_CHEST_CLOSE,
-                        SoundSource.BLOCKS,
-                        0.5F,
-                        this.level.random.nextFloat() * 0.1F + 0.9F
-                    );
-            }
-
-            if (this.openness < 0.0F) {
-                this.openness = 0.0F;
-            }
-        }
-
+    public static void lidAnimateTick(Level param0, BlockPos param1, BlockState param2, EnderChestBlockEntity param3) {
+        param3.chestLidController.tickLid();
     }
 
     @Override
     public boolean triggerEvent(int param0, int param1) {
         if (param0 == 1) {
-            this.openCount = param1;
+            this.chestLidController.shouldBeOpen(param1 > 0);
             return true;
         } else {
             return super.triggerEvent(param0, param1);
         }
     }
 
-    @Override
-    public void setRemoved() {
-        this.clearCache();
-        super.setRemoved();
+    public void startOpen(Player param0) {
+        if (!param0.isSpectator()) {
+            this.openersCounter.incrementOpeners(param0, this.getLevel(), this.getBlockPos(), this.getBlockState());
+        }
+
     }
 
-    public void startOpen() {
-        ++this.openCount;
-        this.level.blockEvent(this.worldPosition, Blocks.ENDER_CHEST, 1, this.openCount);
-    }
+    public void stopOpen(Player param0) {
+        if (!param0.isSpectator()) {
+            this.openersCounter.decrementOpeners(param0, this.getLevel(), this.getBlockPos(), this.getBlockState());
+        }
 
-    public void stopOpen() {
-        --this.openCount;
-        this.level.blockEvent(this.worldPosition, Blocks.ENDER_CHEST, 1, this.openCount);
     }
 
     public boolean stillValid(Player param0) {
@@ -115,9 +99,13 @@ public class EnderChestBlockEntity extends BlockEntity implements LidBlockEntity
         }
     }
 
+    public void recheckOpen() {
+        this.openersCounter.recheckOpeners(this.getLevel(), this.getBlockPos(), this.getBlockState());
+    }
+
     @OnlyIn(Dist.CLIENT)
     @Override
     public float getOpenNess(float param0) {
-        return Mth.lerp(param0, this.oOpenness, this.openness);
+        return this.chestLidController.getOpenness(param0);
     }
 }

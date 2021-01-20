@@ -2,6 +2,8 @@ package net.minecraft.client.renderer.entity.layers;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.DrownedModel;
+import net.minecraft.client.model.geom.EntityModelSet;
+import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.resources.ResourceLocation;
@@ -12,10 +14,11 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class DrownedOuterLayer<T extends Drowned> extends RenderLayer<T, DrownedModel<T>> {
     private static final ResourceLocation DROWNED_OUTER_LAYER_LOCATION = new ResourceLocation("textures/entity/zombie/drowned_outer_layer.png");
-    private final DrownedModel<T> model = new DrownedModel<>(0.25F, 0.0F, 64, 64);
+    private final DrownedModel<T> model;
 
-    public DrownedOuterLayer(RenderLayerParent<T, DrownedModel<T>> param0) {
+    public DrownedOuterLayer(RenderLayerParent<T, DrownedModel<T>> param0, EntityModelSet param1) {
         super(param0);
+        this.model = new DrownedModel<>(param1.bakeLayer(ModelLayers.DROWNED_OUTER_LAYER));
     }
 
     public void render(

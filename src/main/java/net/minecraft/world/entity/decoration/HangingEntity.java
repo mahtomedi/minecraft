@@ -90,14 +90,11 @@ public abstract class HangingEntity extends Entity {
     @Override
     public void tick() {
         if (!this.level.isClientSide) {
-            if (this.getY() < -64.0) {
-                this.outOfWorld();
-            }
-
+            this.checkOutOfWorld();
             if (this.checkInterval++ == 100) {
                 this.checkInterval = 0;
-                if (!this.removed && !this.survives()) {
-                    this.remove();
+                if (!this.isRemoved() && !this.survives()) {
+                    this.discard();
                     this.dropItem(null);
                 }
             }
@@ -156,8 +153,8 @@ public abstract class HangingEntity extends Entity {
         if (this.isInvulnerableTo(param0)) {
             return false;
         } else {
-            if (!this.removed && !this.level.isClientSide) {
-                this.remove();
+            if (!this.isRemoved() && !this.level.isClientSide) {
+                this.kill();
                 this.markHurt();
                 this.dropItem(param0.getEntity());
             }
@@ -168,8 +165,8 @@ public abstract class HangingEntity extends Entity {
 
     @Override
     public void move(MoverType param0, Vec3 param1) {
-        if (!this.level.isClientSide && !this.removed && param1.lengthSqr() > 0.0) {
-            this.remove();
+        if (!this.level.isClientSide && !this.isRemoved() && param1.lengthSqr() > 0.0) {
+            this.kill();
             this.dropItem(null);
         }
 
@@ -177,8 +174,8 @@ public abstract class HangingEntity extends Entity {
 
     @Override
     public void push(double param0, double param1, double param2) {
-        if (!this.level.isClientSide && !this.removed && param0 * param0 + param1 * param1 + param2 * param2 > 0.0) {
-            this.remove();
+        if (!this.level.isClientSide && !this.isRemoved() && param0 * param0 + param1 * param1 + param2 * param2 > 0.0) {
+            this.kill();
             this.dropItem(null);
         }
 

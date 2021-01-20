@@ -1,7 +1,5 @@
 package net.minecraft.nbt;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
@@ -9,32 +7,22 @@ import com.mojang.serialization.Dynamic;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
-import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 public class CompoundTag implements Tag {
     public static final Codec<CompoundTag> CODEC = Codec.PASSTHROUGH.comapFlatMap(param0 -> {
         Tag var0 = param0.convert(NbtOps.INSTANCE).getValue();
         return var0 instanceof CompoundTag ? DataResult.success((CompoundTag)var0) : DataResult.error("Not a compound tag: " + var0);
     }, param0 -> new Dynamic<>(NbtOps.INSTANCE, param0));
-    private static final Logger LOGGER = LogManager.getLogger();
-    private static final Pattern SIMPLE_VALUE = Pattern.compile("[A-Za-z0-9._+-]+");
     public static final TagType<CompoundTag> TYPE = new TagType<CompoundTag>() {
         public CompoundTag load(DataInput param0, int param1, NbtAccounter param2) throws IOException {
             param2.accountBits(384L);
@@ -352,23 +340,7 @@ public class CompoundTag implements Tag {
 
     @Override
     public String toString() {
-        StringBuilder var0 = new StringBuilder("{");
-        Collection<String> var1 = this.tags.keySet();
-        if (LOGGER.isDebugEnabled()) {
-            List<String> var2 = Lists.newArrayList(this.tags.keySet());
-            Collections.sort(var2);
-            var1 = var2;
-        }
-
-        for(String var3 : var1) {
-            if (var0.length() != 1) {
-                var0.append(',');
-            }
-
-            var0.append(handleEscape(var3)).append(':').append(this.tags.get(var3));
-        }
-
-        return var0.append('}').toString();
+        return this.getAsString();
     }
 
     public boolean isEmpty() {
@@ -449,58 +421,9 @@ public class CompoundTag implements Tag {
         return this;
     }
 
-    protected static String handleEscape(String param0) {
-        return SIMPLE_VALUE.matcher(param0).matches() ? param0 : StringTag.quoteAndEscape(param0);
-    }
-
-    protected static Component handleEscapePretty(String param0) {
-        if (SIMPLE_VALUE.matcher(param0).matches()) {
-            return new TextComponent(param0).withStyle(SYNTAX_HIGHLIGHTING_KEY);
-        } else {
-            String var0 = StringTag.quoteAndEscape(param0);
-            String var1 = var0.substring(0, 1);
-            Component var2 = new TextComponent(var0.substring(1, var0.length() - 1)).withStyle(SYNTAX_HIGHLIGHTING_KEY);
-            return new TextComponent(var1).append(var2).append(var1);
-        }
-    }
-
     @Override
-    public Component getPrettyDisplay(String param0, int param1) {
-        if (this.tags.isEmpty()) {
-            return new TextComponent("{}");
-        } else {
-            MutableComponent var0 = new TextComponent("{");
-            Collection<String> var1 = this.tags.keySet();
-            if (LOGGER.isDebugEnabled()) {
-                List<String> var2 = Lists.newArrayList(this.tags.keySet());
-                Collections.sort(var2);
-                var1 = var2;
-            }
-
-            if (!param0.isEmpty()) {
-                var0.append("\n");
-            }
-
-            MutableComponent var5;
-            for(Iterator<String> var3 = var1.iterator(); var3.hasNext(); var0.append(var5)) {
-                String var4 = var3.next();
-                var5 = new TextComponent(Strings.repeat(param0, param1 + 1))
-                    .append(handleEscapePretty(var4))
-                    .append(String.valueOf(':'))
-                    .append(" ")
-                    .append(this.tags.get(var4).getPrettyDisplay(param0, param1 + 1));
-                if (var3.hasNext()) {
-                    var5.append(String.valueOf(',')).append(param0.isEmpty() ? " " : "\n");
-                }
-            }
-
-            if (!param0.isEmpty()) {
-                var0.append("\n").append(Strings.repeat(param0, param1));
-            }
-
-            var0.append("}");
-            return var0;
-        }
+    public void accept(TagVisitor param0) {
+        param0.visitCompound(this);
     }
 
     protected Map<String, Tag> entries() {

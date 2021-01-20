@@ -93,7 +93,7 @@ public abstract class DistanceManager {
         }
 
         if (!this.chunksToUpdateFutures.isEmpty()) {
-            this.chunksToUpdateFutures.forEach(param1 -> param1.updateFutures(param0));
+            this.chunksToUpdateFutures.forEach(param1 -> param1.updateFutures(param0, this.mainThreadExecutor));
             this.chunksToUpdateFutures.clear();
             return true;
         } else {

@@ -16,35 +16,30 @@ public enum FuzzyOffsetBiomeZoomer implements BiomeZoomer {
         double var6 = (double)(var0 & 3) / 4.0;
         double var7 = (double)(var1 & 3) / 4.0;
         double var8 = (double)(var2 & 3) / 4.0;
-        double[] var9 = new double[8];
+        int var9 = 0;
+        double var10 = Double.POSITIVE_INFINITY;
 
-        for(int var10 = 0; var10 < 8; ++var10) {
-            boolean var11 = (var10 & 4) == 0;
-            boolean var12 = (var10 & 2) == 0;
-            boolean var13 = (var10 & 1) == 0;
-            int var14 = var11 ? var3 : var3 + 1;
-            int var15 = var12 ? var4 : var4 + 1;
-            int var16 = var13 ? var5 : var5 + 1;
-            double var17 = var11 ? var6 : var6 - 1.0;
-            double var18 = var12 ? var7 : var7 - 1.0;
-            double var19 = var13 ? var8 : var8 - 1.0;
-            var9[var10] = getFiddledDistance(param0, var14, var15, var16, var17, var18, var19);
-        }
-
-        int var20 = 0;
-        double var21 = var9[0];
-
-        for(int var22 = 1; var22 < 8; ++var22) {
-            if (var21 > var9[var22]) {
-                var20 = var22;
-                var21 = var9[var22];
+        for(int var11 = 0; var11 < 8; ++var11) {
+            boolean var12 = (var11 & 4) == 0;
+            boolean var13 = (var11 & 2) == 0;
+            boolean var14 = (var11 & 1) == 0;
+            int var15 = var12 ? var3 : var3 + 1;
+            int var16 = var13 ? var4 : var4 + 1;
+            int var17 = var14 ? var5 : var5 + 1;
+            double var18 = var12 ? var6 : var6 - 1.0;
+            double var19 = var13 ? var7 : var7 - 1.0;
+            double var20 = var14 ? var8 : var8 - 1.0;
+            double var21 = getFiddledDistance(param0, var15, var16, var17, var18, var19, var20);
+            if (var10 > var21) {
+                var9 = var11;
+                var10 = var21;
             }
         }
 
-        int var23 = (var20 & 4) == 0 ? var3 : var3 + 1;
-        int var24 = (var20 & 2) == 0 ? var4 : var4 + 1;
-        int var25 = (var20 & 1) == 0 ? var5 : var5 + 1;
-        return param4.getNoiseBiome(var23, var24, var25);
+        int var22 = (var9 & 4) == 0 ? var3 : var3 + 1;
+        int var23 = (var9 & 2) == 0 ? var4 : var4 + 1;
+        int var24 = (var9 & 1) == 0 ? var5 : var5 + 1;
+        return param4.getNoiseBiome(var22, var23, var24);
     }
 
     private static double getFiddledDistance(long param0, int param1, int param2, int param3, double param4, double param5, double param6) {

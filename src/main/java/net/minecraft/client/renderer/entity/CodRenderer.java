@@ -3,6 +3,7 @@ package net.minecraft.client.renderer.entity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
 import net.minecraft.client.model.CodModel;
+import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.animal.Cod;
@@ -13,8 +14,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class CodRenderer extends MobRenderer<Cod, CodModel<Cod>> {
     private static final ResourceLocation COD_LOCATION = new ResourceLocation("textures/entity/fish/cod.png");
 
-    public CodRenderer(EntityRenderDispatcher param0) {
-        super(param0, new CodModel<>(), 0.3F);
+    public CodRenderer(EntityRendererProvider.Context param0) {
+        super(param0, new CodModel<>(param0.bakeLayer(ModelLayers.COD)), 0.3F);
     }
 
     public ResourceLocation getTextureLocation(Cod param0) {

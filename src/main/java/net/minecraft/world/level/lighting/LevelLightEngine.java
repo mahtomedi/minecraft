@@ -4,6 +4,7 @@ import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.chunk.DataLayer;
 import net.minecraft.world.level.chunk.LightChunkGetter;
@@ -11,12 +12,14 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class LevelLightEngine implements LightEventListener {
+    protected final LevelHeightAccessor levelHeightAccessor;
     @Nullable
     private final LayerLightEngine<?, ?> blockEngine;
     @Nullable
     private final LayerLightEngine<?, ?> skyEngine;
 
     public LevelLightEngine(LightChunkGetter param0, boolean param1, boolean param2) {
+        this.levelHeightAccessor = param0.getLevel();
         this.blockEngine = param1 ? new BlockLightEngine(param0) : null;
         this.skyEngine = param2 ? new SkyLightEngine(param0) : null;
     }
@@ -131,5 +134,17 @@ public class LevelLightEngine implements LightEventListener {
         int var0 = this.skyEngine == null ? 0 : this.skyEngine.getLightValue(param0) - param1;
         int var1 = this.blockEngine == null ? 0 : this.blockEngine.getLightValue(param0);
         return Math.max(var1, var0);
+    }
+
+    public int getLightSectionCount() {
+        return this.levelHeightAccessor.getSectionsCount() + 2;
+    }
+
+    public int getMinLightSection() {
+        return this.levelHeightAccessor.getMinSection() - 1;
+    }
+
+    public int getMaxLightSection() {
+        return this.getMinLightSection() + this.getLightSectionCount();
     }
 }

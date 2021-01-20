@@ -29,7 +29,9 @@ public class MobSpawnSettings {
     );
     public static final MapCodec<MobSpawnSettings> CODEC = RecordCodecBuilder.mapCodec(
         param0 -> param0.group(
-                    Codec.FLOAT.optionalFieldOf("creature_spawn_probability", Float.valueOf(0.1F)).forGetter(param0x -> param0x.creatureGenerationProbability),
+                    Codec.floatRange(0.0F, 0.9999999F)
+                        .optionalFieldOf("creature_spawn_probability", 0.1F)
+                        .forGetter(param0x -> param0x.creatureGenerationProbability),
                     Codec.simpleMap(
                             MobCategory.CODEC,
                             MobSpawnSettings.SpawnerData.CODEC.listOf().promotePartial(Util.prefix("Spawn data: ", LOGGER::error)),

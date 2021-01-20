@@ -37,7 +37,7 @@ public class CapeLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<Abs
     ) {
         if (param3.isCapeLoaded() && !param3.isInvisible() && param3.isModelPartShown(PlayerModelPart.CAPE) && param3.getCloakTextureLocation() != null) {
             ItemStack var0 = param3.getItemBySlot(EquipmentSlot.CHEST);
-            if (var0.getItem() != Items.ELYTRA) {
+            if (!var0.is(Items.ELYTRA)) {
                 param0.pushPose();
                 param0.translate(0.0, 0.0, 0.125);
                 double var1 = Mth.lerp((double)param6, param3.xCloakO, param3.xCloak) - Mth.lerp((double)param6, param3.xo, param3.getX());

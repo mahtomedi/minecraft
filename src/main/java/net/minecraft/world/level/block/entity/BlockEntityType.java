@@ -3,7 +3,6 @@ package net.minecraft.world.level.block.entity;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.types.Type;
 import java.util.Set;
-import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
@@ -14,6 +13,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.piston.PistonMovingBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -202,7 +202,10 @@ public class BlockEntityType<T extends BlockEntity> {
     public static final BlockEntityType<BeehiveBlockEntity> BEEHIVE = register(
         "beehive", BlockEntityType.Builder.of(BeehiveBlockEntity::new, Blocks.BEE_NEST, Blocks.BEEHIVE)
     );
-    private final Supplier<? extends T> factory;
+    public static final BlockEntityType<SculkSensorBlockEntity> SCULK_SENSOR = register(
+        "sculk_sensor", BlockEntityType.Builder.of(SculkSensorBlockEntity::new, Blocks.SCULK_SENSOR)
+    );
+    private final BlockEntityType.BlockEntitySupplier<? extends T> factory;
     private final Set<Block> validBlocks;
     private final Type<?> dataType;
 
@@ -220,19 +223,19 @@ public class BlockEntityType<T extends BlockEntity> {
         return Registry.register(Registry.BLOCK_ENTITY_TYPE, param0, param1.build(var0));
     }
 
-    public BlockEntityType(Supplier<? extends T> param0, Set<Block> param1, Type<?> param2) {
+    public BlockEntityType(BlockEntityType.BlockEntitySupplier<? extends T> param0, Set<Block> param1, Type<?> param2) {
         this.factory = param0;
         this.validBlocks = param1;
         this.dataType = param2;
     }
 
     @Nullable
-    public T create() {
-        return this.factory.get();
+    public T create(BlockPos param0, BlockState param1) {
+        return this.factory.create(param0, param1);
     }
 
-    public boolean isValid(Block param0) {
-        return this.validBlocks.contains(param0);
+    public boolean isValid(BlockState param0) {
+        return this.validBlocks.contains(param0.getBlock());
     }
 
     @Nullable
@@ -241,16 +244,21 @@ public class BlockEntityType<T extends BlockEntity> {
         return (T)(var0 != null && var0.getType() == this ? var0 : null);
     }
 
+    @FunctionalInterface
+    interface BlockEntitySupplier<T extends BlockEntity> {
+        T create(BlockPos var1, BlockState var2);
+    }
+
     public static final class Builder<T extends BlockEntity> {
-        private final Supplier<? extends T> factory;
+        private final BlockEntityType.BlockEntitySupplier<? extends T> factory;
         private final Set<Block> validBlocks;
 
-        private Builder(Supplier<? extends T> param0, Set<Block> param1) {
+        private Builder(BlockEntityType.BlockEntitySupplier<? extends T> param0, Set<Block> param1) {
             this.factory = param0;
             this.validBlocks = param1;
         }
 
-        public static <T extends BlockEntity> BlockEntityType.Builder<T> of(Supplier<? extends T> param0, Block... param1) {
+        public static <T extends BlockEntity> BlockEntityType.Builder<T> of(BlockEntityType.BlockEntitySupplier<? extends T> param0, Block... param1) {
             return new BlockEntityType.Builder<>(param0, ImmutableSet.copyOf(param1));
         }
 

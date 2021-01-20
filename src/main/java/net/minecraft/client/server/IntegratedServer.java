@@ -1,5 +1,6 @@
 package net.minecraft.client.server;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.collect.Lists;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.GameProfileRepository;
@@ -9,6 +10,7 @@ import java.io.IOException;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BooleanSupplier;
+import javax.annotation.Nullable;
 import net.minecraft.CrashReport;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.ClientBrandRetriever;
@@ -36,6 +38,8 @@ public class IntegratedServer extends MinecraftServer {
     private final Minecraft minecraft;
     private boolean paused;
     private int publishedPort = -1;
+    @Nullable
+    private GameType publishedGameType;
     private LanServerPinger lanPinger;
     private UUID uuid;
 
@@ -55,14 +59,13 @@ public class IntegratedServer extends MinecraftServer {
         super(param0, param2, param3, param6, param4, param1.getProxy(), param1.getFixerUpper(), param5, param7, param8, param9, param10);
         this.setSingleplayerName(param1.getUser().getName());
         this.setDemo(param1.isDemo());
-        this.setMaxBuildHeight(256);
         this.setPlayerList(new IntegratedPlayerList(this, this.registryHolder, this.playerDataStorage));
         this.minecraft = param1;
     }
 
     @Override
     public boolean initServer() {
-        LOGGER.info("Starting integrated minecraft server version " + SharedConstants.getCurrentVersion().getName());
+        LOGGER.info("Starting integrated minecraft server version {}", SharedConstants.getCurrentVersion().getName());
         this.setUsesAuthentication(true);
         this.setPvpAllowed(true);
         this.setFlightAllowed(true);
@@ -162,14 +165,14 @@ public class IntegratedServer extends MinecraftServer {
     }
 
     @Override
-    public boolean publishServer(GameType param0, boolean param1, int param2) {
+    public boolean publishServer(@Nullable GameType param0, boolean param1, int param2) {
         try {
             this.getConnection().startTcpServerListener(null, param2);
             LOGGER.info("Started serving on {}", param2);
             this.publishedPort = param2;
             this.lanPinger = new LanServerPinger(this.getMotd(), param2 + "");
             this.lanPinger.start();
-            this.getPlayerList().setOverrideGameMode(param0);
+            this.publishedGameType = param0;
             this.getPlayerList().setAllowCheatsForAllPlayers(param1);
             int var0 = this.getProfilePermissions(this.minecraft.player.getGameProfile());
             this.minecraft.player.setPermissionLevel(var0);
@@ -225,7 +228,7 @@ public class IntegratedServer extends MinecraftServer {
     @Override
     public void setDefaultGameType(GameType param0) {
         super.setDefaultGameType(param0);
-        this.getPlayerList().setOverrideGameMode(param0);
+        this.publishedGameType = null;
     }
 
     @Override
@@ -260,5 +263,11 @@ public class IntegratedServer extends MinecraftServer {
     @Override
     public boolean forceSynchronousWrites() {
         return this.minecraft.options.syncWrites;
+    }
+
+    @Nullable
+    @Override
+    public GameType getForcedGameType() {
+        return this.isPublished() ? MoreObjects.firstNonNull(this.publishedGameType, this.worldData.getGameType()) : null;
     }
 }

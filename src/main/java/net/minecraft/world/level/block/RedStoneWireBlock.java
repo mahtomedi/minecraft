@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import javax.annotation.Nullable;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.DustParticleOptions;
@@ -28,6 +29,7 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.block.state.properties.RedstoneSide;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -68,8 +70,17 @@ public class RedStoneWireBlock extends Block {
             Shapes.or(SHAPES_FLOOR.get(Direction.WEST), Block.box(0.0, 0.0, 3.0, 1.0, 16.0, 13.0))
         )
     );
-    private final Map<BlockState, VoxelShape> SHAPES_CACHE = Maps.newHashMap();
-    private static final Vector3f[] COLORS = new Vector3f[16];
+    private static final Map<BlockState, VoxelShape> SHAPES_CACHE = Maps.newHashMap();
+    private static final Vec3[] COLORS = Util.make(new Vec3[16], param0 -> {
+        for(int var0 = 0; var0 <= 15; ++var0) {
+            float var1 = (float)var0 / 15.0F;
+            float var2 = var1 * 0.6F + (var1 > 0.0F ? 0.4F : 0.3F);
+            float var3 = Mth.clamp(var1 * var1 * 0.7F - 0.5F, 0.0F, 1.0F);
+            float var4 = Mth.clamp(var1 * var1 * 0.6F - 0.7F, 0.0F, 1.0F);
+            param0[var0] = new Vec3((double)var2, (double)var3, (double)var4);
+        }
+
+    });
     private final BlockState crossState;
     private boolean shouldSignal = true;
 
@@ -92,7 +103,7 @@ public class RedStoneWireBlock extends Block {
 
         for(BlockState var0 : this.getStateDefinition().getPossibleStates()) {
             if (var0.getValue(POWER) == 0) {
-                this.SHAPES_CACHE.put(var0, this.calculateShape(var0));
+                SHAPES_CACHE.put(var0, this.calculateShape(var0));
             }
         }
 
@@ -115,7 +126,7 @@ public class RedStoneWireBlock extends Block {
 
     @Override
     public VoxelShape getShape(BlockState param0, BlockGetter param1, BlockPos param2, CollisionContext param3) {
-        return this.SHAPES_CACHE.get(param0.setValue(POWER, Integer.valueOf(0)));
+        return SHAPES_CACHE.get(param0.setValue(POWER, Integer.valueOf(0)));
     }
 
     @Override
@@ -420,13 +431,13 @@ public class RedStoneWireBlock extends Block {
 
     @OnlyIn(Dist.CLIENT)
     public static int getColorForPower(int param0) {
-        Vector3f var0 = COLORS[param0];
-        return Mth.color(var0.x(), var0.y(), var0.z());
+        Vec3 var0 = COLORS[param0];
+        return Mth.color((float)var0.x(), (float)var0.y(), (float)var0.z());
     }
 
     @OnlyIn(Dist.CLIENT)
     private void spawnParticlesAlongLine(
-        Level param0, Random param1, BlockPos param2, Vector3f param3, Direction param4, Direction param5, float param6, float param7
+        Level param0, Random param1, BlockPos param2, Vec3 param3, Direction param4, Direction param5, float param6, float param7
     ) {
         float var0 = param7 - param6;
         if (!(param1.nextFloat() >= 0.2F * var0)) {
@@ -436,7 +447,7 @@ public class RedStoneWireBlock extends Block {
             double var4 = 0.5 + (double)(0.4375F * (float)param4.getStepY()) + (double)(var2 * (float)param5.getStepY());
             double var5 = 0.5 + (double)(0.4375F * (float)param4.getStepZ()) + (double)(var2 * (float)param5.getStepZ());
             param0.addParticle(
-                new DustParticleOptions(param3.x(), param3.y(), param3.z(), 1.0F),
+                new DustParticleOptions(new Vector3f(param3), 1.0F),
                 (double)param2.getX() + var3,
                 (double)param2.getY() + var4,
                 (double)param2.getZ() + var5,
@@ -511,7 +522,7 @@ public class RedStoneWireBlock extends Block {
 
     @Override
     public InteractionResult use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
-        if (!param3.abilities.mayBuild) {
+        if (!param3.getAbilities().mayBuild) {
             return InteractionResult.PASS;
         } else {
             if (isCross(param0) || isDot(param0)) {
@@ -536,17 +547,6 @@ public class RedStoneWireBlock extends Block {
                 && param0.getBlockState(var1).isRedstoneConductor(param0, var1)) {
                 param0.updateNeighborsAtExceptFromFacing(var1, param3.getBlock(), var0.getOpposite());
             }
-        }
-
-    }
-
-    static {
-        for(int var0 = 0; var0 <= 15; ++var0) {
-            float var1 = (float)var0 / 15.0F;
-            float var2 = var1 * 0.6F + (var1 > 0.0F ? 0.4F : 0.3F);
-            float var3 = Mth.clamp(var1 * var1 * 0.7F - 0.5F, 0.0F, 1.0F);
-            float var4 = Mth.clamp(var1 * var1 * 0.6F - 0.7F, 0.0F, 1.0F);
-            COLORS[var0] = new Vector3f(var2, var3, var4);
         }
 
     }

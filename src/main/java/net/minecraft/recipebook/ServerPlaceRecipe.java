@@ -11,8 +11,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.StackedContents;
-import net.minecraft.world.inventory.CraftingMenu;
-import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.RecipeBookMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -32,50 +30,33 @@ public class ServerPlaceRecipe<C extends Container> implements PlaceRecipe<Integ
 
     public void recipeClicked(ServerPlayer param0, @Nullable Recipe<C> param1, boolean param2) {
         if (param1 != null && param0.getRecipeBook().contains(param1)) {
-            this.inventory = param0.inventory;
+            this.inventory = param0.getInventory();
             if (this.testClearGrid() || param0.isCreative()) {
                 this.stackedContents.clear();
-                param0.inventory.fillStackedContents(this.stackedContents);
+                param0.getInventory().fillStackedContents(this.stackedContents);
                 this.menu.fillCraftSlotsStackedContents(this.stackedContents);
                 if (this.stackedContents.canCraft(param1, null)) {
                     this.handleRecipeClicked(param1, param2);
                 } else {
-                    this.clearGrid();
+                    this.clearGrid(true);
                     param0.connection.send(new ClientboundPlaceGhostRecipePacket(param0.containerMenu.containerId, param1));
                 }
 
-                param0.inventory.setChanged();
+                param0.getInventory().setChanged();
             }
         }
     }
 
-    protected void clearGrid() {
-        for(int var0 = 0; var0 < this.menu.getGridWidth() * this.menu.getGridHeight() + 1; ++var0) {
-            if (var0 != this.menu.getResultSlotIndex() || !(this.menu instanceof CraftingMenu) && !(this.menu instanceof InventoryMenu)) {
-                this.moveItemToInventory(var0);
+    protected void clearGrid(boolean param0) {
+        for(int var0 = 0; var0 < this.menu.getSize(); ++var0) {
+            if (this.menu.shouldMoveToInventory(var0)) {
+                ItemStack var1 = this.menu.getSlot(var0).getItem().copy();
+                this.inventory.placeItemBackInInventory(var1, false);
+                this.menu.getSlot(var0).set(var1);
             }
         }
 
         this.menu.clearCraftingContent();
-    }
-
-    protected void moveItemToInventory(int param0) {
-        ItemStack var0 = this.menu.getSlot(param0).getItem();
-        if (!var0.isEmpty()) {
-            for(; var0.getCount() > 0; this.menu.getSlot(param0).remove(1)) {
-                int var1 = this.inventory.getSlotWithRemainingSpace(var0);
-                if (var1 == -1) {
-                    var1 = this.inventory.getFreeSlot();
-                }
-
-                ItemStack var2 = var0.copy();
-                var2.setCount(1);
-                if (!this.inventory.add(var1, var2)) {
-                    LOGGER.error("Can't find any space for item in the inventory");
-                }
-            }
-
-        }
     }
 
     protected void handleRecipeClicked(Recipe<C> param0, boolean param1) {
@@ -105,7 +86,7 @@ public class ServerPlaceRecipe<C extends Container> implements PlaceRecipe<Integ
             }
 
             if (this.stackedContents.canCraft(param0, var5, var6)) {
-                this.clearGrid();
+                this.clearGrid(false);
                 this.placeRecipe(this.menu.getGridWidth(), this.menu.getGridHeight(), this.menu.getResultSlotIndex(), param0, var5.iterator(), var6);
             }
         }

@@ -15,7 +15,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.world.level.storage.loot.ItemModifierManager;
 import net.minecraft.world.level.storage.loot.PredicateManager;
+import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
 public class ResourceLocationArgument implements ArgumentType<ResourceLocation> {
@@ -31,6 +33,9 @@ public class ResourceLocationArgument implements ArgumentType<ResourceLocation> 
     );
     private static final DynamicCommandExceptionType ERROR_UNKNOWN_ATTRIBUTE = new DynamicCommandExceptionType(
         param0 -> new TranslatableComponent("attribute.unknown", param0)
+    );
+    private static final DynamicCommandExceptionType ERROR_UNKNOWN_ITEM_MODIFIER = new DynamicCommandExceptionType(
+        param0 -> new TranslatableComponent("item_modifier.unknown", param0)
     );
 
     public static ResourceLocationArgument id() {
@@ -59,6 +64,17 @@ public class ResourceLocationArgument implements ArgumentType<ResourceLocation> 
         LootItemCondition var2 = var1.get(var0);
         if (var2 == null) {
             throw ERROR_UNKNOWN_PREDICATE.create(var0);
+        } else {
+            return var2;
+        }
+    }
+
+    public static LootItemFunction getItemModifier(CommandContext<CommandSourceStack> param0, String param1) throws CommandSyntaxException {
+        ResourceLocation var0 = param0.getArgument(param1, ResourceLocation.class);
+        ItemModifierManager var1 = param0.getSource().getServer().getItemModifierManager();
+        LootItemFunction var2 = var1.get(var0);
+        if (var2 == null) {
+            throw ERROR_UNKNOWN_ITEM_MODIFIER.create(var0);
         } else {
             return var2;
         }

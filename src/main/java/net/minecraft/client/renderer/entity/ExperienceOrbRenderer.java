@@ -20,7 +20,7 @@ public class ExperienceOrbRenderer extends EntityRenderer<ExperienceOrb> {
     private static final ResourceLocation EXPERIENCE_ORB_LOCATION = new ResourceLocation("textures/entity/experience_orb.png");
     private static final RenderType RENDER_TYPE = RenderType.itemEntityTranslucentCull(EXPERIENCE_ORB_LOCATION);
 
-    public ExperienceOrbRenderer(EntityRenderDispatcher param0) {
+    public ExperienceOrbRenderer(EntityRendererProvider.Context param0) {
         super(param0);
         this.shadowRadius = 0.15F;
         this.shadowStrength = 0.75F;

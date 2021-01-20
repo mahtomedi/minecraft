@@ -3,6 +3,8 @@ package net.minecraft.client.renderer.entity.layers;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.LlamaModel;
+import net.minecraft.client.model.geom.EntityModelSet;
+import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
@@ -34,10 +36,11 @@ public class LlamaDecorLayer extends RenderLayer<Llama, LlamaModel<Llama>> {
         new ResourceLocation("textures/entity/llama/decor/black.png")
     };
     private static final ResourceLocation TRADER_LLAMA = new ResourceLocation("textures/entity/llama/decor/trader_llama.png");
-    private final LlamaModel<Llama> model = new LlamaModel<>(0.5F);
+    private final LlamaModel<Llama> model;
 
-    public LlamaDecorLayer(RenderLayerParent<Llama, LlamaModel<Llama>> param0) {
+    public LlamaDecorLayer(RenderLayerParent<Llama, LlamaModel<Llama>> param0, EntityModelSet param1) {
         super(param0);
+        this.model = new LlamaModel<>(param1.bakeLayer(ModelLayers.LLAMA_DECOR));
     }
 
     public void render(

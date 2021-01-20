@@ -16,6 +16,7 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.monster.piglin.PiglinAi;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -23,6 +24,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
@@ -30,7 +32,6 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 
 public abstract class AbstractMinecartContainer extends AbstractMinecart implements Container, MenuProvider {
     private NonNullList<ItemStack> itemStacks = NonNullList.withSize(36, ItemStack.EMPTY);
-    private boolean dropEquipment = true;
     @Nullable
     private ResourceLocation lootTable;
     private long lootTableSeed;
@@ -104,13 +105,19 @@ public abstract class AbstractMinecartContainer extends AbstractMinecart impleme
     }
 
     @Override
-    public boolean setSlot(int param0, ItemStack param1) {
-        if (param0 >= 0 && param0 < this.getContainerSize()) {
-            this.setItem(param0, param1);
-            return true;
-        } else {
-            return false;
-        }
+    public SlotAccess getSlot(final int param0) {
+        return param0 >= 0 && param0 < this.getContainerSize() ? new SlotAccess() {
+            @Override
+            public ItemStack get() {
+                return AbstractMinecartContainer.this.getItem(param0);
+            }
+
+            @Override
+            public boolean set(ItemStack param0x) {
+                AbstractMinecartContainer.this.setItem(param0, param0);
+                return true;
+            }
+        } : super.getSlot(param0);
     }
 
     @Override
@@ -119,27 +126,20 @@ public abstract class AbstractMinecartContainer extends AbstractMinecart impleme
 
     @Override
     public boolean stillValid(Player param0) {
-        if (this.removed) {
+        if (this.isRemoved()) {
             return false;
         } else {
             return !(param0.distanceToSqr(this) > 64.0);
         }
     }
 
-    @Nullable
     @Override
-    public Entity changeDimension(ServerLevel param0) {
-        this.dropEquipment = false;
-        return super.changeDimension(param0);
-    }
-
-    @Override
-    public void remove() {
-        if (!this.level.isClientSide && this.dropEquipment) {
+    public void remove(Entity.RemovalReason param0) {
+        if (!this.level.isClientSide && param0.shouldDestroy()) {
             Containers.dropContents(this.level, this, this);
         }
 
-        super.remove();
+        super.remove(param0);
     }
 
     @Override
@@ -173,6 +173,7 @@ public abstract class AbstractMinecartContainer extends AbstractMinecart impleme
     public InteractionResult interact(Player param0, InteractionHand param1) {
         param0.openMenu(this);
         if (!param0.level.isClientSide) {
+            this.gameEvent(param0, GameEvent.CONTAINER_OPEN);
             PiglinAi.angerNearbyPiglins(param0, true);
             return InteractionResult.CONSUME;
         } else {
@@ -186,6 +187,10 @@ public abstract class AbstractMinecartContainer extends AbstractMinecart impleme
         if (this.lootTable == null) {
             int var1 = 15 - AbstractContainerMenu.getRedstoneSignalFromContainer(this);
             var0 += (float)var1 * 0.001F;
+        }
+
+        if (this.isInWater()) {
+            var0 *= 0.95F;
         }
 
         this.setDeltaMovement(this.getDeltaMovement().multiply((double)var0, 0.0, (double)var0));

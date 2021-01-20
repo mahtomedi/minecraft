@@ -5,6 +5,7 @@ import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.PufferfishBigModel;
 import net.minecraft.client.model.PufferfishMidModel;
 import net.minecraft.client.model.PufferfishSmallModel;
+import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -15,14 +16,15 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class PufferfishRenderer extends MobRenderer<Pufferfish, EntityModel<Pufferfish>> {
     private static final ResourceLocation PUFFER_LOCATION = new ResourceLocation("textures/entity/fish/pufferfish.png");
-    private int puffStateO;
-    private final PufferfishSmallModel<Pufferfish> small = new PufferfishSmallModel<>();
-    private final PufferfishMidModel<Pufferfish> mid = new PufferfishMidModel<>();
-    private final PufferfishBigModel<Pufferfish> big = new PufferfishBigModel<>();
+    private int puffStateO = 3;
+    private final EntityModel<Pufferfish> small;
+    private final EntityModel<Pufferfish> mid;
+    private final EntityModel<Pufferfish> big = this.getModel();
 
-    public PufferfishRenderer(EntityRenderDispatcher param0) {
-        super(param0, new PufferfishBigModel<>(), 0.2F);
-        this.puffStateO = 3;
+    public PufferfishRenderer(EntityRendererProvider.Context param0) {
+        super(param0, new PufferfishBigModel<>(param0.bakeLayer(ModelLayers.PUFFERFISH_BIG)), 0.2F);
+        this.mid = new PufferfishMidModel<>(param0.bakeLayer(ModelLayers.PUFFERFISH_MEDIUM));
+        this.small = new PufferfishSmallModel<>(param0.bakeLayer(ModelLayers.PUFFERFISH_SMALL));
     }
 
     public ResourceLocation getTextureLocation(Pufferfish param0) {

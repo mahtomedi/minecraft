@@ -10,18 +10,18 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class SquidRenderer extends MobRenderer<Squid, SquidModel<Squid>> {
-    private static final ResourceLocation SQUID_LOCATION = new ResourceLocation("textures/entity/squid.png");
+public class SquidRenderer<T extends Squid> extends MobRenderer<T, SquidModel<T>> {
+    private static final ResourceLocation SQUID_LOCATION = new ResourceLocation("textures/entity/squid/squid.png");
 
-    public SquidRenderer(EntityRenderDispatcher param0) {
-        super(param0, new SquidModel<>(), 0.7F);
+    public SquidRenderer(EntityRendererProvider.Context param0, SquidModel<T> param1) {
+        super(param0, param1, 0.7F);
     }
 
-    public ResourceLocation getTextureLocation(Squid param0) {
+    public ResourceLocation getTextureLocation(T param0) {
         return SQUID_LOCATION;
     }
 
-    protected void setupRotations(Squid param0, PoseStack param1, float param2, float param3, float param4) {
+    protected void setupRotations(T param0, PoseStack param1, float param2, float param3, float param4) {
         float var0 = Mth.lerp(param4, param0.xBodyRotO, param0.xBodyRot);
         float var1 = Mth.lerp(param4, param0.zBodyRotO, param0.zBodyRot);
         param1.translate(0.0, 0.5, 0.0);
@@ -31,7 +31,7 @@ public class SquidRenderer extends MobRenderer<Squid, SquidModel<Squid>> {
         param1.translate(0.0, -1.2F, 0.0);
     }
 
-    protected float getBob(Squid param0, float param1) {
+    protected float getBob(T param0, float param1) {
         return Mth.lerp(param1, param0.oldTentacleAngle, param0.tentacleAngle);
     }
 }

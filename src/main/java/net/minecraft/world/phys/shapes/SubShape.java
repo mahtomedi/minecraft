@@ -1,6 +1,7 @@
 package net.minecraft.world.phys.shapes;
 
 import net.minecraft.core.Direction;
+import net.minecraft.util.Mth;
 
 public final class SubShape extends DiscreteVoxelShape {
     private final DiscreteVoxelShape parent;
@@ -28,17 +29,23 @@ public final class SubShape extends DiscreteVoxelShape {
     }
 
     @Override
-    public void setFull(int param0, int param1, int param2, boolean param3, boolean param4) {
-        this.parent.setFull(this.startX + param0, this.startY + param1, this.startZ + param2, param3, param4);
+    public void fill(int param0, int param1, int param2) {
+        this.parent.fill(this.startX + param0, this.startY + param1, this.startZ + param2);
     }
 
     @Override
     public int firstFull(Direction.Axis param0) {
-        return Math.max(0, this.parent.firstFull(param0) - param0.choose(this.startX, this.startY, this.startZ));
+        return this.clampToShape(param0, this.parent.firstFull(param0));
     }
 
     @Override
     public int lastFull(Direction.Axis param0) {
-        return Math.min(param0.choose(this.endX, this.endY, this.endZ), this.parent.lastFull(param0) - param0.choose(this.startX, this.startY, this.startZ));
+        return this.clampToShape(param0, this.parent.lastFull(param0));
+    }
+
+    private int clampToShape(Direction.Axis param0, int param1) {
+        int var0 = param0.choose(this.startX, this.startY, this.startZ);
+        int var1 = param0.choose(this.endX, this.endY, this.endZ);
+        return Mth.clamp(param1, var0, var1) - var0;
     }
 }

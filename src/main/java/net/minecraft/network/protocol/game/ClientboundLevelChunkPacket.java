@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.io.IOException;
+import java.util.BitSet;
 import java.util.List;
 import java.util.Map.Entry;
 import javax.annotation.Nullable;
@@ -24,22 +25,20 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class ClientboundLevelChunkPacket implements Packet<ClientGamePacketListener> {
     private int x;
     private int z;
-    private int availableSections;
+    private BitSet availableSections;
     private CompoundTag heightmaps;
     @Nullable
     private int[] biomes;
     private byte[] buffer;
     private List<CompoundTag> blockEntitiesTags;
-    private boolean fullChunk;
 
     public ClientboundLevelChunkPacket() {
     }
 
-    public ClientboundLevelChunkPacket(LevelChunk param0, int param1) {
+    public ClientboundLevelChunkPacket(LevelChunk param0) {
         ChunkPos var0 = param0.getPos();
         this.x = var0.x;
         this.z = var0.z;
-        this.fullChunk = param1 == 65535;
         this.heightmaps = new CompoundTag();
 
         for(Entry<Heightmap.Types, Heightmap> var1 : param0.getHeightmaps()) {
@@ -48,22 +47,15 @@ public class ClientboundLevelChunkPacket implements Packet<ClientGamePacketListe
             }
         }
 
-        if (this.fullChunk) {
-            this.biomes = param0.getBiomes().writeBiomes();
-        }
-
-        this.buffer = new byte[this.calculateChunkSize(param0, param1)];
-        this.availableSections = this.extractChunkData(new FriendlyByteBuf(this.getWriteBuffer()), param0, param1);
+        this.biomes = param0.getBiomes().writeBiomes();
+        this.buffer = new byte[this.calculateChunkSize(param0)];
+        this.availableSections = this.extractChunkData(new FriendlyByteBuf(this.getWriteBuffer()), param0);
         this.blockEntitiesTags = Lists.newArrayList();
 
         for(Entry<BlockPos, BlockEntity> var2 : param0.getBlockEntities().entrySet()) {
-            BlockPos var3 = var2.getKey();
-            BlockEntity var4 = var2.getValue();
-            int var5 = var3.getY() >> 4;
-            if (this.isFullChunk() || (param1 & 1 << var5) != 0) {
-                CompoundTag var6 = var4.getUpdateTag();
-                this.blockEntitiesTags.add(var6);
-            }
+            BlockEntity var3 = var2.getValue();
+            CompoundTag var4 = var3.getUpdateTag();
+            this.blockEntitiesTags.add(var4);
         }
 
     }
@@ -72,13 +64,9 @@ public class ClientboundLevelChunkPacket implements Packet<ClientGamePacketListe
     public void read(FriendlyByteBuf param0) throws IOException {
         this.x = param0.readInt();
         this.z = param0.readInt();
-        this.fullChunk = param0.readBoolean();
-        this.availableSections = param0.readVarInt();
+        this.availableSections = param0.readBitSet();
         this.heightmaps = param0.readNbt();
-        if (this.fullChunk) {
-            this.biomes = param0.readVarIntArray(ChunkBiomeContainer.BIOMES_SIZE);
-        }
-
+        this.biomes = param0.readVarIntArray(ChunkBiomeContainer.MAX_SIZE);
         int var0 = param0.readVarInt();
         if (var0 > 2097152) {
             throw new RuntimeException("Chunk Packet trying to allocate too much memory on read.");
@@ -99,8 +87,7 @@ public class ClientboundLevelChunkPacket implements Packet<ClientGamePacketListe
     public void write(FriendlyByteBuf param0) throws IOException {
         param0.writeInt(this.x);
         param0.writeInt(this.z);
-        param0.writeBoolean(this.fullChunk);
-        param0.writeVarInt(this.availableSections);
+        param0.writeBitSet(this.availableSections);
         param0.writeNbt(this.heightmaps);
         if (this.biomes != null) {
             param0.writeVarIntArray(this.biomes);
@@ -131,15 +118,15 @@ public class ClientboundLevelChunkPacket implements Packet<ClientGamePacketListe
         return var0;
     }
 
-    public int extractChunkData(FriendlyByteBuf param0, LevelChunk param1, int param2) {
-        int var0 = 0;
+    public BitSet extractChunkData(FriendlyByteBuf param0, LevelChunk param1) {
+        BitSet var0 = new BitSet();
         LevelChunkSection[] var1 = param1.getSections();
         int var2 = 0;
 
         for(int var3 = var1.length; var2 < var3; ++var2) {
             LevelChunkSection var4 = var1[var2];
-            if (var4 != LevelChunk.EMPTY_SECTION && (!this.isFullChunk() || !var4.isEmpty()) && (param2 & 1 << var2) != 0) {
-                var0 |= 1 << var2;
+            if (var4 != LevelChunk.EMPTY_SECTION && !var4.isEmpty()) {
+                var0.set(var2);
                 var4.write(param0);
             }
         }
@@ -147,14 +134,14 @@ public class ClientboundLevelChunkPacket implements Packet<ClientGamePacketListe
         return var0;
     }
 
-    protected int calculateChunkSize(LevelChunk param0, int param1) {
+    protected int calculateChunkSize(LevelChunk param0) {
         int var0 = 0;
         LevelChunkSection[] var1 = param0.getSections();
         int var2 = 0;
 
         for(int var3 = var1.length; var2 < var3; ++var2) {
             LevelChunkSection var4 = var1[var2];
-            if (var4 != LevelChunk.EMPTY_SECTION && (!this.isFullChunk() || !var4.isEmpty()) && (param1 & 1 << var2) != 0) {
+            if (var4 != LevelChunk.EMPTY_SECTION && !var4.isEmpty()) {
                 var0 += var4.getSerializedSize();
             }
         }
@@ -173,12 +160,8 @@ public class ClientboundLevelChunkPacket implements Packet<ClientGamePacketListe
     }
 
     @OnlyIn(Dist.CLIENT)
-    public int getAvailableSections() {
+    public BitSet getAvailableSections() {
         return this.availableSections;
-    }
-
-    public boolean isFullChunk() {
-        return this.fullChunk;
     }
 
     @OnlyIn(Dist.CLIENT)

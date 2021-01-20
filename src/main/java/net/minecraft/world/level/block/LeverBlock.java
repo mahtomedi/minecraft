@@ -18,6 +18,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.AttachFace;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -90,6 +91,7 @@ public class LeverBlock extends FaceAttachedHorizontalDirectionalBlock {
             BlockState var1 = this.pull(param0, param1, param2);
             float var2 = var1.getValue(POWERED) ? 0.6F : 0.5F;
             param1.playSound(null, param2, SoundEvents.LEVER_CLICK, SoundSource.BLOCKS, 0.3F, var2);
+            param1.gameEvent(param3, var1.getValue(POWERED) ? GameEvent.BLOCK_SWITCH : GameEvent.BLOCK_UNSWITCH, param2);
             return InteractionResult.CONSUME;
         }
     }
@@ -107,7 +109,7 @@ public class LeverBlock extends FaceAttachedHorizontalDirectionalBlock {
         double var2 = (double)param2.getX() + 0.5 + 0.1 * (double)var0.getStepX() + 0.2 * (double)var1.getStepX();
         double var3 = (double)param2.getY() + 0.5 + 0.1 * (double)var0.getStepY() + 0.2 * (double)var1.getStepY();
         double var4 = (double)param2.getZ() + 0.5 + 0.1 * (double)var0.getStepZ() + 0.2 * (double)var1.getStepZ();
-        param1.addParticle(new DustParticleOptions(1.0F, 0.0F, 0.0F, param3), var2, var3, var4, 0.0, 0.0, 0.0);
+        param1.addParticle(new DustParticleOptions(DustParticleOptions.REDSTONE_PARTICLE_COLOR, param3), var2, var3, var4, 0.0, 0.0, 0.0);
     }
 
     @OnlyIn(Dist.CLIENT)

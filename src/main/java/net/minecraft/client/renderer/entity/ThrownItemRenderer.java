@@ -19,15 +19,15 @@ public class ThrownItemRenderer<T extends Entity & ItemSupplier> extends EntityR
     private final float scale;
     private final boolean fullBright;
 
-    public ThrownItemRenderer(EntityRenderDispatcher param0, ItemRenderer param1, float param2, boolean param3) {
+    public ThrownItemRenderer(EntityRendererProvider.Context param0, float param1, boolean param2) {
         super(param0);
-        this.itemRenderer = param1;
-        this.scale = param2;
-        this.fullBright = param3;
+        this.itemRenderer = param0.getItemRenderer();
+        this.scale = param1;
+        this.fullBright = param2;
     }
 
-    public ThrownItemRenderer(EntityRenderDispatcher param0, ItemRenderer param1) {
-        this(param0, param1, 1.0F, false);
+    public ThrownItemRenderer(EntityRendererProvider.Context param0) {
+        this(param0, 1.0F, false);
     }
 
     @Override
@@ -42,7 +42,8 @@ public class ThrownItemRenderer<T extends Entity & ItemSupplier> extends EntityR
             param3.scale(this.scale, this.scale, this.scale);
             param3.mulPose(this.entityRenderDispatcher.cameraOrientation());
             param3.mulPose(Vector3f.YP.rotationDegrees(180.0F));
-            this.itemRenderer.renderStatic(param0.getItem(), ItemTransforms.TransformType.GROUND, param5, OverlayTexture.NO_OVERLAY, param3, param4);
+            this.itemRenderer
+                .renderStatic(param0.getItem(), ItemTransforms.TransformType.GROUND, param5, OverlayTexture.NO_OVERLAY, param3, param4, param0.getId());
             param3.popPose();
             super.render(param0, param1, param2, param3, param4, param5);
         }

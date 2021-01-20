@@ -3,8 +3,6 @@ package net.minecraft.nbt;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 
 public class ShortTag extends NumericTag {
     public static final TagType<ShortTag> TYPE = new TagType<ShortTag>() {
@@ -35,7 +33,7 @@ public class ShortTag extends NumericTag {
     }
 
     public static ShortTag valueOf(short param0) {
-        return param0 >= -128 && param0 <= 1024 ? ShortTag.Cache.cache[param0 + 128] : new ShortTag(param0);
+        return param0 >= -128 && param0 <= 1024 ? ShortTag.Cache.cache[param0 - -128] : new ShortTag(param0);
     }
 
     @Override
@@ -51,11 +49,6 @@ public class ShortTag extends NumericTag {
     @Override
     public TagType<ShortTag> getType() {
         return TYPE;
-    }
-
-    @Override
-    public String toString() {
-        return this.data + "s";
     }
 
     public ShortTag copy() {
@@ -77,9 +70,8 @@ public class ShortTag extends NumericTag {
     }
 
     @Override
-    public Component getPrettyDisplay(String param0, int param1) {
-        Component var0 = new TextComponent("s").withStyle(SYNTAX_HIGHLIGHTING_NUMBER_TYPE);
-        return new TextComponent(String.valueOf(this.data)).append(var0).withStyle(SYNTAX_HIGHLIGHTING_NUMBER);
+    public void accept(TagVisitor param0) {
+        param0.visitShort(this);
     }
 
     @Override

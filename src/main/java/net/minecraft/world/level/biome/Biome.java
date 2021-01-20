@@ -177,7 +177,9 @@ public final class Biome {
         if (this.getTemperature(param1) >= 0.15F) {
             return false;
         } else {
-            if (param1.getY() >= 0 && param1.getY() < 256 && param0.getBrightness(LightLayer.BLOCK, param1) < 10) {
+            if (param1.getY() >= param0.getMinBuildHeight()
+                && param1.getY() < param0.getMaxBuildHeight()
+                && param0.getBrightness(LightLayer.BLOCK, param1) < 10) {
                 BlockState var0 = param0.getBlockState(param1);
                 FluidState var1 = param0.getFluidState(param1);
                 if (var1.getType() == Fluids.WATER && var0.getBlock() instanceof LiquidBlock) {
@@ -203,7 +205,9 @@ public final class Biome {
         if (this.getTemperature(param1) >= 0.15F) {
             return false;
         } else {
-            if (param1.getY() >= 0 && param1.getY() < 256 && param0.getBrightness(LightLayer.BLOCK, param1) < 10) {
+            if (param1.getY() >= param0.getMinBuildHeight()
+                && param1.getY() < param0.getMaxBuildHeight()
+                && param0.getBrightness(LightLayer.BLOCK, param1) < 10) {
                 BlockState var0 = param0.getBlockState(param1);
                 if (var0.isAir() && Blocks.SNOW.defaultBlockState().canSurvive(param0, param1)) {
                     return true;
@@ -227,22 +231,28 @@ public final class Biome {
             if (param0.shouldGenerateFeatures()) {
                 for(StructureFeature<?> var5 : this.structuresByStep.getOrDefault(var2, Collections.emptyList())) {
                     param4.setFeatureSeed(param3, var3, var2);
-                    int var6 = param5.getX() >> 4;
-                    int var7 = param5.getZ() >> 4;
-                    int var8 = var6 << 4;
-                    int var9 = var7 << 4;
+                    int var6 = SectionPos.blockToSectionCoord(param5.getX());
+                    int var7 = SectionPos.blockToSectionCoord(param5.getZ());
+                    int var8 = SectionPos.sectionToBlockCoord(var6);
+                    int var9 = SectionPos.sectionToBlockCoord(var7);
 
                     try {
+                        int var10 = param2.getMinBuildHeight() + 1;
                         param0.startsForFeature(SectionPos.of(param5), var5)
                             .forEach(
-                                param8 -> param8.placeInChunk(
-                                        param2, param0, param1, param4, new BoundingBox(var8, var9, var8 + 15, var9 + 15), new ChunkPos(var6, var7)
+                                param9 -> param9.placeInChunk(
+                                        param2,
+                                        param0,
+                                        param1,
+                                        param4,
+                                        new BoundingBox(var8, var10, var9, var8 + 15, param2.getMaxBuildHeight(), var9 + 15),
+                                        new ChunkPos(var6, var7)
                                     )
                             );
                     } catch (Exception var21) {
-                        CrashReport var11 = CrashReport.forThrowable(var21, "Feature placement");
-                        var11.addCategory("Feature").setDetail("Id", Registry.STRUCTURE_FEATURE.getKey(var5)).setDetail("Description", () -> var5.toString());
-                        throw new ReportedException(var11);
+                        CrashReport var12 = CrashReport.forThrowable(var21, "Feature placement");
+                        var12.addCategory("Feature").setDetail("Id", Registry.STRUCTURE_FEATURE.getKey(var5)).setDetail("Description", () -> var5.toString());
+                        throw new ReportedException(var12);
                     }
 
                     ++var3;
@@ -250,19 +260,19 @@ public final class Biome {
             }
 
             if (var0.size() > var2) {
-                for(Supplier<ConfiguredFeature<?, ?>> var12 : var0.get(var2)) {
-                    ConfiguredFeature<?, ?> var13 = var12.get();
+                for(Supplier<ConfiguredFeature<?, ?>> var13 : var0.get(var2)) {
+                    ConfiguredFeature<?, ?> var14 = var13.get();
                     param4.setFeatureSeed(param3, var3, var2);
 
                     try {
-                        var13.place(param2, param1, param4, param5);
+                        var14.place(param2, param1, param4, param5);
                     } catch (Exception var22) {
-                        CrashReport var15 = CrashReport.forThrowable(var22, "Feature placement");
-                        var15.addCategory("Feature")
-                            .setDetail("Id", Registry.FEATURE.getKey(var13.feature))
-                            .setDetail("Config", var13.config)
-                            .setDetail("Description", () -> var13.feature.toString());
-                        throw new ReportedException(var15);
+                        CrashReport var16 = CrashReport.forThrowable(var22, "Feature placement");
+                        var16.addCategory("Feature")
+                            .setDetail("Id", Registry.FEATURE.getKey(var14.feature))
+                            .setDetail("Config", var14.config)
+                            .setDetail("Description", () -> var14.feature.toString());
+                        throw new ReportedException(var16);
                     }
 
                     ++var3;
@@ -562,6 +572,20 @@ public final class Biome {
             this.altitude = param2;
             this.weirdness = param3;
             this.offset = param4;
+        }
+
+        @Override
+        public String toString() {
+            return "temp: "
+                + this.temperature
+                + ", hum: "
+                + this.humidity
+                + ", alt: "
+                + this.altitude
+                + ", weird: "
+                + this.weirdness
+                + ", offset: "
+                + this.offset;
         }
 
         @Override

@@ -42,6 +42,9 @@ import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.SupportType;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
@@ -134,7 +137,7 @@ public abstract class BlockBehaviour {
 
     @Deprecated
     public void onRemove(BlockState param0, Level param1, BlockPos param2, BlockState param3, boolean param4) {
-        if (this.isEntityBlock() && !param0.is(param3.getBlock())) {
+        if (param0.hasBlockEntity() && !param0.is(param3.getBlock())) {
             param1.removeBlockEntity(param2);
         }
 
@@ -184,6 +187,10 @@ public abstract class BlockBehaviour {
         return BlockBehaviour.OffsetType.NONE;
     }
 
+    public float getMaxHorizontalOffset() {
+        return 0.25F;
+    }
+
     @Deprecated
     public BlockState rotate(BlockState param0, Rotation param1) {
         return param0;
@@ -196,7 +203,7 @@ public abstract class BlockBehaviour {
 
     @Deprecated
     public boolean canBeReplaced(BlockState param0, BlockPlaceContext param1) {
-        return this.material.isReplaceable() && (param1.getItemInHand().isEmpty() || param1.getItemInHand().getItem() != this.asItem());
+        return this.material.isReplaceable() && (param1.getItemInHand().isEmpty() || !param1.getItemInHand().is(this.asItem()));
     }
 
     @Deprecated
@@ -324,10 +331,6 @@ public abstract class BlockBehaviour {
     @Deprecated
     public int getDirectSignal(BlockState param0, BlockGetter param1, BlockPos param2, Direction param3) {
         return 0;
-    }
-
-    public final boolean isEntityBlock() {
-        return this instanceof EntityBlock;
     }
 
     public final ResourceLocation getLootTable() {
@@ -556,16 +559,17 @@ public abstract class BlockBehaviour {
         }
 
         public Vec3 getOffset(BlockGetter param0, BlockPos param1) {
-            BlockBehaviour.OffsetType var0 = this.getBlock().getOffsetType();
-            if (var0 == BlockBehaviour.OffsetType.NONE) {
+            Block var0 = this.getBlock();
+            BlockBehaviour.OffsetType var1 = var0.getOffsetType();
+            if (var1 == BlockBehaviour.OffsetType.NONE) {
                 return Vec3.ZERO;
             } else {
-                long var1 = Mth.getSeed(param1.getX(), 0, param1.getZ());
-                return new Vec3(
-                    ((double)((float)(var1 & 15L) / 15.0F) - 0.5) * 0.5,
-                    var0 == BlockBehaviour.OffsetType.XYZ ? ((double)((float)(var1 >> 4 & 15L) / 15.0F) - 1.0) * 0.2 : 0.0,
-                    ((double)((float)(var1 >> 8 & 15L) / 15.0F) - 0.5) * 0.5
-                );
+                long var2 = Mth.getSeed(param1.getX(), 0, param1.getZ());
+                float var3 = var0.getMaxHorizontalOffset();
+                double var4 = Mth.clamp(((double)((float)(var2 & 15L) / 15.0F) - 0.5) * 0.5, (double)(-var3), (double)var3);
+                double var5 = var1 == BlockBehaviour.OffsetType.XYZ ? ((double)((float)(var2 >> 4 & 15L) / 15.0F) - 1.0) * 0.2 : 0.0;
+                double var6 = Mth.clamp(((double)((float)(var2 >> 8 & 15L) / 15.0F) - 0.5) * 0.5, (double)(-var3), (double)var3);
+                return new Vec3(var4, var5, var6);
             }
         }
 
@@ -677,15 +681,24 @@ public abstract class BlockBehaviour {
         }
 
         public boolean is(Tag<Block> param0) {
-            return this.getBlock().is(param0);
+            return param0.contains(this.getBlock());
         }
 
         public boolean is(Tag<Block> param0, Predicate<BlockBehaviour.BlockStateBase> param1) {
-            return this.getBlock().is(param0) && param1.test(this);
+            return this.is(param0) && param1.test(this);
+        }
+
+        public boolean hasBlockEntity() {
+            return this.getBlock() instanceof EntityBlock;
+        }
+
+        @Nullable
+        public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level param0, BlockEntityType<T> param1) {
+            return this.getBlock() instanceof EntityBlock ? ((EntityBlock)this.getBlock()).getTicker(param0, this.asState(), param1) : null;
         }
 
         public boolean is(Block param0) {
-            return this.getBlock().is(param0);
+            return this.getBlock() == param0;
         }
 
         public FluidState getFluidState() {
@@ -967,6 +980,11 @@ public abstract class BlockBehaviour {
 
         public BlockBehaviour.Properties requiresCorrectToolForDrops() {
             this.requiresCorrectToolForDrops = true;
+            return this;
+        }
+
+        public BlockBehaviour.Properties color(MaterialColor param0) {
+            this.materialColor = param1 -> param0;
             return this;
         }
     }

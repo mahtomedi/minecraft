@@ -250,6 +250,7 @@ public class WitherBoss extends Monster implements PowerableMob, RangedAttackMob
     protected void customServerAiStep() {
         if (this.getInvulnerableTicks() > 0) {
             int var0 = this.getInvulnerableTicks() - 1;
+            this.bossEvent.setProgress(1.0F - (float)var0 / 220.0F);
             if (var0 <= 0) {
                 Explosion.BlockInteraction var1 = this.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)
                     ? Explosion.BlockInteraction.DESTROY
@@ -287,7 +288,7 @@ public class WitherBoss extends Monster implements PowerableMob, RangedAttackMob
                         Entity var9 = this.level.getEntity(var8);
                         if (var9 == null || !var9.isAlive() || this.distanceToSqr(var9) > 900.0 || !this.canSee(var9)) {
                             this.setAlternativeTarget(var2, 0);
-                        } else if (var9 instanceof Player && ((Player)var9).abilities.invulnerable) {
+                        } else if (var9 instanceof Player && ((Player)var9).getAbilities().invulnerable) {
                             this.setAlternativeTarget(var2, 0);
                         } else {
                             this.performRangedAttack(var2 + 1, (LivingEntity)var9);
@@ -302,7 +303,7 @@ public class WitherBoss extends Monster implements PowerableMob, RangedAttackMob
                             LivingEntity var12 = var10.get(this.random.nextInt(var10.size()));
                             if (var12 != this && var12.isAlive() && this.canSee(var12)) {
                                 if (var12 instanceof Player) {
-                                    if (!((Player)var12).abilities.invulnerable) {
+                                    if (!((Player)var12).getAbilities().invulnerable) {
                                         this.setAlternativeTarget(var2, var12.getId());
                                     }
                                 } else {
@@ -356,16 +357,17 @@ public class WitherBoss extends Monster implements PowerableMob, RangedAttackMob
                 this.heal(1.0F);
             }
 
-            this.bossEvent.setPercent(this.getHealth() / this.getMaxHealth());
+            this.bossEvent.setProgress(this.getHealth() / this.getMaxHealth());
         }
     }
 
     public static boolean canDestroy(BlockState param0) {
-        return !param0.isAir() && !BlockTags.WITHER_IMMUNE.contains(param0.getBlock());
+        return !param0.isAir() && !param0.is(BlockTags.WITHER_IMMUNE);
     }
 
     public void makeInvulnerable() {
         this.setInvulnerableTicks(220);
+        this.bossEvent.setProgress(0.0F);
         this.setHealth(this.getMaxHealth() / 3.0F);
     }
 
@@ -500,14 +502,14 @@ public class WitherBoss extends Monster implements PowerableMob, RangedAttackMob
     @Override
     public void checkDespawn() {
         if (this.level.getDifficulty() == Difficulty.PEACEFUL && this.shouldDespawnInPeaceful()) {
-            this.remove();
+            this.discard();
         } else {
             this.noActionTime = 0;
         }
     }
 
     @Override
-    public boolean causeFallDamage(float param0, float param1) {
+    public boolean causeFallDamage(float param0, float param1, DamageSource param2) {
         return false;
     }
 

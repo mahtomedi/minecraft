@@ -20,7 +20,7 @@ import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.AgableMob;
+import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntitySelector;
@@ -245,17 +245,17 @@ public class Cat extends TamableAnimal {
     }
 
     @Override
-    public boolean causeFallDamage(float param0, float param1) {
+    public boolean causeFallDamage(float param0, float param1, DamageSource param2) {
         return false;
     }
 
     @Override
-    protected void usePlayerItem(Player param0, ItemStack param1) {
-        if (this.isFood(param1)) {
+    protected void usePlayerItem(Player param0, InteractionHand param1, ItemStack param2) {
+        if (this.isFood(param2)) {
             this.playSound(SoundEvents.CAT_EAT, 1.0F, 1.0F);
         }
 
-        super.usePlayerItem(param0, param1);
+        super.usePlayerItem(param0, param1, param2);
     }
 
     private float getAttackDamage() {
@@ -324,7 +324,7 @@ public class Cat extends TamableAnimal {
         return Mth.lerp(param0, this.relaxStateOneAmountO, this.relaxStateOneAmount);
     }
 
-    public Cat getBreedOffspring(ServerLevel param0, AgableMob param1) {
+    public Cat getBreedOffspring(ServerLevel param0, AgeableMob param1) {
         Cat var0 = EntityType.CAT.create(param0);
         if (param1 instanceof Cat) {
             if (this.random.nextBoolean()) {
@@ -396,7 +396,7 @@ public class Cat extends TamableAnimal {
                 if (this.isOwnedBy(param0)) {
                     if (!(var1 instanceof DyeItem)) {
                         if (var1.isEdible() && this.isFood(var0) && this.getHealth() < this.getMaxHealth()) {
-                            this.usePlayerItem(param0, var0);
+                            this.usePlayerItem(param0, param1, var0);
                             this.heal((float)var1.getFoodProperties().getNutrition());
                             return InteractionResult.CONSUME;
                         }
@@ -412,7 +412,7 @@ public class Cat extends TamableAnimal {
                     DyeColor var2 = ((DyeItem)var1).getDyeColor();
                     if (var2 != this.getCollarColor()) {
                         this.setCollarColor(var2);
-                        if (!param0.abilities.instabuild) {
+                        if (!param0.getAbilities().instabuild) {
                             var0.shrink(1);
                         }
 
@@ -421,7 +421,7 @@ public class Cat extends TamableAnimal {
                     }
                 }
             } else if (this.isFood(var0)) {
-                this.usePlayerItem(param0, var0);
+                this.usePlayerItem(param0, param1, var0);
                 if (this.random.nextInt(3) == 0) {
                     this.tame(param0);
                     this.setOrderedToSit(true);
@@ -520,7 +520,7 @@ public class Cat extends TamableAnimal {
 
                     BlockPos var1 = this.ownerPlayer.blockPosition();
                     BlockState var2 = this.cat.level.getBlockState(var1);
-                    if (var2.getBlock().is(BlockTags.BEDS)) {
+                    if (var2.is(BlockTags.BEDS)) {
                         this.goalPos = var2.getOptionalValue(BedBlock.FACING)
                             .map(param1 -> var1.relative(param1.getOpposite()))
                             .orElseGet(() -> new BlockPos(var1));

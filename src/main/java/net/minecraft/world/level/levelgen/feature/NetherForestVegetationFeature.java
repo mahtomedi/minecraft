@@ -6,7 +6,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.WorldGenLevel;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.configurations.BlockPileConfiguration;
@@ -21,12 +20,12 @@ public class NetherForestVegetationFeature extends Feature<BlockPileConfiguratio
     }
 
     public static boolean place(LevelAccessor param0, Random param1, BlockPos param2, BlockPileConfiguration param3, int param4, int param5) {
-        Block var0 = param0.getBlockState(param2.below()).getBlock();
+        BlockState var0 = param0.getBlockState(param2.below());
         if (!var0.is(BlockTags.NYLIUM)) {
             return false;
         } else {
             int var1 = param2.getY();
-            if (var1 >= 1 && var1 + 1 < 256) {
+            if (var1 >= param0.getMinBuildHeight() + 1 && var1 + 1 < param0.getMaxBuildHeight()) {
                 int var2 = 0;
 
                 for(int var3 = 0; var3 < param4 * param4; ++var3) {
@@ -36,7 +35,7 @@ public class NetherForestVegetationFeature extends Feature<BlockPileConfiguratio
                         param1.nextInt(param4) - param1.nextInt(param4)
                     );
                     BlockState var5 = param3.stateProvider.getState(param1, var4);
-                    if (param0.isEmptyBlock(var4) && var4.getY() > 0 && var5.canSurvive(param0, var4)) {
+                    if (param0.isEmptyBlock(var4) && var4.getY() > param0.getMinBuildHeight() && var5.canSurvive(param0, var4)) {
                         param0.setBlock(var4, var5, 2);
                         ++var2;
                     }

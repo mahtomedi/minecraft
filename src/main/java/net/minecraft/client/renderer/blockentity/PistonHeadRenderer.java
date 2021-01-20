@@ -3,7 +3,6 @@ package net.minecraft.client.renderer.blockentity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import java.util.Random;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -21,11 +20,11 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class PistonHeadRenderer extends BlockEntityRenderer<PistonMovingBlockEntity> {
-    private final BlockRenderDispatcher blockRenderer = Minecraft.getInstance().getBlockRenderer();
+public class PistonHeadRenderer implements BlockEntityRenderer<PistonMovingBlockEntity> {
+    private final BlockRenderDispatcher blockRenderer;
 
-    public PistonHeadRenderer(BlockEntityRenderDispatcher param0) {
-        super(param0);
+    public PistonHeadRenderer(BlockEntityRendererProvider.Context param0) {
+        this.blockRenderer = param0.getBlockRenderDispatcher();
     }
 
     public void render(PistonMovingBlockEntity param0, float param1, PoseStack param2, MultiBufferSource param3, int param4, int param5) {

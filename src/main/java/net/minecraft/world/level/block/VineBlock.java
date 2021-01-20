@@ -168,7 +168,7 @@ public class VineBlock extends Block {
 
     @Override
     public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
-        if (param1.random.nextInt(4) == 0) {
+        if (param3.nextInt(4) == 0) {
             Direction var0 = Direction.getRandom(param3);
             BlockPos var1 = param2.above();
             if (var0.getAxis().isHorizontal() && !param0.getValue(getPropertyForFace(var0))) {
@@ -192,7 +192,7 @@ public class VineBlock extends Block {
                                 param1.setBlock(var8, this.defaultBlockState().setValue(getPropertyForFace(var10), Boolean.valueOf(true)), 2);
                             } else if (var7 && param1.isEmptyBlock(var9) && isAcceptableNeighbour(param1, param2.relative(var5), var10)) {
                                 param1.setBlock(var9, this.defaultBlockState().setValue(getPropertyForFace(var10), Boolean.valueOf(true)), 2);
-                            } else if ((double)param1.random.nextFloat() < 0.05 && isAcceptableNeighbour(param1, var2.above(), Direction.UP)) {
+                            } else if ((double)param3.nextFloat() < 0.05 && isAcceptableNeighbour(param1, var2.above(), Direction.UP)) {
                                 param1.setBlock(var2, this.defaultBlockState().setValue(UP, Boolean.valueOf(true)), 2);
                             }
                         }
@@ -202,7 +202,7 @@ public class VineBlock extends Block {
 
                 }
             } else {
-                if (var0 == Direction.UP && param2.getY() < 255) {
+                if (var0 == Direction.UP && param2.getY() < param1.getMaxBuildHeight() - 1) {
                     if (this.canSupportAtFace(param1, param2, var0)) {
                         param1.setBlock(param2, param0.setValue(UP, Boolean.valueOf(true)), 2);
                         return;
@@ -229,7 +229,7 @@ public class VineBlock extends Block {
                     }
                 }
 
-                if (param2.getY() > 0) {
+                if (param2.getY() > param1.getMinBuildHeight()) {
                     BlockPos var13 = param2.below();
                     BlockState var14 = param1.getBlockState(var13);
                     if (var14.isAir() || var14.is(this)) {

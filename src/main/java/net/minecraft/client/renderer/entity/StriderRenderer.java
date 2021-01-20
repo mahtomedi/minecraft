@@ -2,6 +2,7 @@ package net.minecraft.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.StriderModel;
+import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.entity.layers.SaddleLayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.monster.Strider;
@@ -13,9 +14,13 @@ public class StriderRenderer extends MobRenderer<Strider, StriderModel<Strider>>
     private static final ResourceLocation STRIDER_LOCATION = new ResourceLocation("textures/entity/strider/strider.png");
     private static final ResourceLocation COLD_LOCATION = new ResourceLocation("textures/entity/strider/strider_cold.png");
 
-    public StriderRenderer(EntityRenderDispatcher param0) {
-        super(param0, new StriderModel<>(), 0.5F);
-        this.addLayer(new SaddleLayer<>(this, new StriderModel<>(), new ResourceLocation("textures/entity/strider/strider_saddle.png")));
+    public StriderRenderer(EntityRendererProvider.Context param0) {
+        super(param0, new StriderModel<>(param0.bakeLayer(ModelLayers.STRIDER)), 0.5F);
+        this.addLayer(
+            new SaddleLayer<>(
+                this, new StriderModel<>(param0.bakeLayer(ModelLayers.STRIDER_SADDLE)), new ResourceLocation("textures/entity/strider/strider_saddle.png")
+            )
+        );
     }
 
     public ResourceLocation getTextureLocation(Strider param0) {

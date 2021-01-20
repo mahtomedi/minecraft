@@ -40,7 +40,7 @@ public class StructureBlockEntity extends BlockEntity {
     private BlockPos structureSize = BlockPos.ZERO;
     private Mirror mirror = Mirror.NONE;
     private Rotation rotation = Rotation.NONE;
-    private StructureMode mode = StructureMode.DATA;
+    private StructureMode mode;
     private boolean ignoreEntities = true;
     private boolean powered;
     private boolean showAir;
@@ -48,8 +48,9 @@ public class StructureBlockEntity extends BlockEntity {
     private float integrity = 1.0F;
     private long seed;
 
-    public StructureBlockEntity() {
-        super(BlockEntityType.STRUCTURE_BLOCK);
+    public StructureBlockEntity(BlockPos param0, BlockState param1) {
+        super(BlockEntityType.STRUCTURE_BLOCK, param0, param1);
+        this.mode = param1.getValue(StructureBlock.MODE);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -83,49 +84,49 @@ public class StructureBlockEntity extends BlockEntity {
     }
 
     @Override
-    public void load(BlockState param0, CompoundTag param1) {
-        super.load(param0, param1);
-        this.setStructureName(param1.getString("name"));
-        this.author = param1.getString("author");
-        this.metaData = param1.getString("metadata");
-        int var0 = Mth.clamp(param1.getInt("posX"), -48, 48);
-        int var1 = Mth.clamp(param1.getInt("posY"), -48, 48);
-        int var2 = Mth.clamp(param1.getInt("posZ"), -48, 48);
+    public void load(CompoundTag param0) {
+        super.load(param0);
+        this.setStructureName(param0.getString("name"));
+        this.author = param0.getString("author");
+        this.metaData = param0.getString("metadata");
+        int var0 = Mth.clamp(param0.getInt("posX"), -48, 48);
+        int var1 = Mth.clamp(param0.getInt("posY"), -48, 48);
+        int var2 = Mth.clamp(param0.getInt("posZ"), -48, 48);
         this.structurePos = new BlockPos(var0, var1, var2);
-        int var3 = Mth.clamp(param1.getInt("sizeX"), 0, 48);
-        int var4 = Mth.clamp(param1.getInt("sizeY"), 0, 48);
-        int var5 = Mth.clamp(param1.getInt("sizeZ"), 0, 48);
+        int var3 = Mth.clamp(param0.getInt("sizeX"), 0, 48);
+        int var4 = Mth.clamp(param0.getInt("sizeY"), 0, 48);
+        int var5 = Mth.clamp(param0.getInt("sizeZ"), 0, 48);
         this.structureSize = new BlockPos(var3, var4, var5);
 
         try {
-            this.rotation = Rotation.valueOf(param1.getString("rotation"));
-        } catch (IllegalArgumentException var12) {
+            this.rotation = Rotation.valueOf(param0.getString("rotation"));
+        } catch (IllegalArgumentException var11) {
             this.rotation = Rotation.NONE;
         }
 
         try {
-            this.mirror = Mirror.valueOf(param1.getString("mirror"));
-        } catch (IllegalArgumentException var11) {
+            this.mirror = Mirror.valueOf(param0.getString("mirror"));
+        } catch (IllegalArgumentException var10) {
             this.mirror = Mirror.NONE;
         }
 
         try {
-            this.mode = StructureMode.valueOf(param1.getString("mode"));
-        } catch (IllegalArgumentException var10) {
+            this.mode = StructureMode.valueOf(param0.getString("mode"));
+        } catch (IllegalArgumentException var9) {
             this.mode = StructureMode.DATA;
         }
 
-        this.ignoreEntities = param1.getBoolean("ignoreEntities");
-        this.powered = param1.getBoolean("powered");
-        this.showAir = param1.getBoolean("showair");
-        this.showBoundingBox = param1.getBoolean("showboundingbox");
-        if (param1.contains("integrity")) {
-            this.integrity = param1.getFloat("integrity");
+        this.ignoreEntities = param0.getBoolean("ignoreEntities");
+        this.powered = param0.getBoolean("powered");
+        this.showAir = param0.getBoolean("showair");
+        this.showBoundingBox = param0.getBoolean("showboundingbox");
+        if (param0.contains("integrity")) {
+            this.integrity = param0.getFloat("integrity");
         } else {
             this.integrity = 1.0F;
         }
 
-        this.seed = param1.getLong("seed");
+        this.seed = param0.getLong("seed");
         this.updateBlockState();
     }
 
@@ -244,24 +245,6 @@ public class StructureBlockEntity extends BlockEntity {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void nextMode() {
-        switch(this.getMode()) {
-            case SAVE:
-                this.setMode(StructureMode.LOAD);
-                break;
-            case LOAD:
-                this.setMode(StructureMode.CORNER);
-                break;
-            case CORNER:
-                this.setMode(StructureMode.DATA);
-                break;
-            case DATA:
-                this.setMode(StructureMode.SAVE);
-        }
-
-    }
-
-    @OnlyIn(Dist.CLIENT)
     public boolean isIgnoreEntities() {
         return this.ignoreEntities;
     }
@@ -295,7 +278,7 @@ public class StructureBlockEntity extends BlockEntity {
             BlockPos var0 = this.getBlockPos();
             int var1 = 80;
             BlockPos var2 = new BlockPos(var0.getX() - 80, 0, var0.getZ() - 80);
-            BlockPos var3 = new BlockPos(var0.getX() + 80, 255, var0.getZ() + 80);
+            BlockPos var3 = new BlockPos(var0.getX() + 80, this.level.getMaxBuildHeight() - 1, var0.getZ() + 80);
             List<StructureBlockEntity> var4 = this.getNearbyCornerBlocks(var2, var3);
             List<StructureBlockEntity> var5 = this.filterRelatedCornerBlocks(var4);
             if (var5.size() < 1) {
@@ -446,17 +429,13 @@ public class StructureBlockEntity extends BlockEntity {
         if (param1 && !var2) {
             return false;
         } else {
-            StructurePlaceSettings var4 = new StructurePlaceSettings()
-                .setMirror(this.mirror)
-                .setRotation(this.rotation)
-                .setIgnoreEntities(this.ignoreEntities)
-                .setChunkPos(null);
+            StructurePlaceSettings var4 = new StructurePlaceSettings().setMirror(this.mirror).setRotation(this.rotation).setIgnoreEntities(this.ignoreEntities);
             if (this.integrity < 1.0F) {
                 var4.clearProcessors().addProcessor(new BlockRotProcessor(Mth.clamp(this.integrity, 0.0F, 1.0F))).setRandom(createRandom(this.seed));
             }
 
             BlockPos var5 = var0.offset(this.structurePos);
-            param2.placeInWorldChunk(param0, var5, var4, createRandom(this.seed));
+            param2.placeInWorld(param0, var5, var5, var4, createRandom(this.seed), 2);
             return true;
         }
     }

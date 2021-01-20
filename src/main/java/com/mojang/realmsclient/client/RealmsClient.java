@@ -22,6 +22,7 @@ import com.mojang.realmsclient.dto.WorldTemplatePaginatedList;
 import com.mojang.realmsclient.exception.RealmsHttpException;
 import com.mojang.realmsclient.exception.RealmsServiceException;
 import com.mojang.realmsclient.exception.RetryCallException;
+import com.mojang.realmsclient.util.WorldGenerationInfo;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.UUID;
@@ -224,8 +225,8 @@ public class RealmsClient {
         return Boolean.valueOf(var1);
     }
 
-    public Boolean resetWorldWithSeed(long param0, String param1, Integer param2, boolean param3) throws RealmsServiceException {
-        RealmsWorldResetDto var0 = new RealmsWorldResetDto(param1, -1L, param2, param3);
+    public Boolean resetWorldWithSeed(long param0, WorldGenerationInfo param1) throws RealmsServiceException {
+        RealmsWorldResetDto var0 = new RealmsWorldResetDto(param1.getSeed(), -1L, param1.getLevelType().getDtoIndex(), param1.shouldGenerateStructures());
         String var1 = this.url("worlds" + "/$WORLD_ID/reset".replace("$WORLD_ID", String.valueOf(param0)));
         String var2 = this.execute(Request.post(var1, GSON.toJson(var0), 30000, 80000));
         return Boolean.valueOf(var2);
@@ -344,23 +345,16 @@ public class RealmsClient {
                     return var2;
                 } else if (var0 == 401) {
                     String var3 = param0.getHeader("WWW-Authenticate");
-                    LOGGER.info("Could not authorize you against Realms server: " + var3);
+                    LOGGER.info("Could not authorize you against Realms server: {}", var3);
                     throw new RealmsServiceException(var0, var3, -1, var3);
                 } else if (var2 != null && var2.length() != 0) {
                     RealmsError var4 = RealmsError.create(var2);
                     LOGGER.error(
-                        "Realms http code: "
-                            + var0
-                            + " -  error code: "
-                            + var4.getErrorCode()
-                            + " -  message: "
-                            + var4.getErrorMessage()
-                            + " - raw body: "
-                            + var2
+                        "Realms http code: {} -  error code: {} -  message: {} - raw body: {}", var0, var4.getErrorCode(), var4.getErrorMessage(), var2
                     );
                     throw new RealmsServiceException(var0, var2, var4);
                 } else {
-                    LOGGER.error("Realms error code: " + var0 + " message: " + var2);
+                    LOGGER.error("Realms error code: {} message: {}", var0, var2);
                     throw new RealmsServiceException(var0, var2, var0, "");
                 }
             } else {

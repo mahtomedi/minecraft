@@ -3,6 +3,7 @@ package net.minecraft.world.level.block.entity;
 import javax.annotation.Nullable;
 import net.minecraft.commands.CommandSource;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
@@ -17,7 +18,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.LecternMenu;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.WrittenBookItem;
@@ -131,8 +131,8 @@ public class LecternBlockEntity extends BlockEntity implements Clearable, MenuPr
     private int page;
     private int pageCount;
 
-    public LecternBlockEntity() {
-        super(BlockEntityType.LECTERN);
+    public LecternBlockEntity(BlockPos param0, BlockState param1) {
+        super(BlockEntityType.LECTERN, param0, param1);
     }
 
     public ItemStack getBook() {
@@ -140,8 +140,7 @@ public class LecternBlockEntity extends BlockEntity implements Clearable, MenuPr
     }
 
     public boolean hasBook() {
-        Item var0 = this.book.getItem();
-        return var0 == Items.WRITABLE_BOOK || var0 == Items.WRITTEN_BOOK;
+        return this.book.is(Items.WRITABLE_BOOK) || this.book.is(Items.WRITTEN_BOOK);
     }
 
     public void setBook(ItemStack param0) {
@@ -181,7 +180,7 @@ public class LecternBlockEntity extends BlockEntity implements Clearable, MenuPr
     }
 
     private ItemStack resolveBook(ItemStack param0, @Nullable Player param1) {
-        if (this.level instanceof ServerLevel && param0.getItem() == Items.WRITTEN_BOOK) {
+        if (this.level instanceof ServerLevel && param0.is(Items.WRITTEN_BOOK)) {
             WrittenBookItem.resolveBookComponents(param0, this.createCommandSourceStack(param1), param1);
         }
 
@@ -209,16 +208,16 @@ public class LecternBlockEntity extends BlockEntity implements Clearable, MenuPr
     }
 
     @Override
-    public void load(BlockState param0, CompoundTag param1) {
-        super.load(param0, param1);
-        if (param1.contains("Book", 10)) {
-            this.book = this.resolveBook(ItemStack.of(param1.getCompound("Book")), null);
+    public void load(CompoundTag param0) {
+        super.load(param0);
+        if (param0.contains("Book", 10)) {
+            this.book = this.resolveBook(ItemStack.of(param0.getCompound("Book")), null);
         } else {
             this.book = ItemStack.EMPTY;
         }
 
         this.pageCount = WrittenBookItem.getPageCount(this.book);
-        this.page = Mth.clamp(param1.getInt("Page"), 0, this.pageCount - 1);
+        this.page = Mth.clamp(param0.getInt("Page"), 0, this.pageCount - 1);
     }
 
     @Override

@@ -10,7 +10,7 @@ public class PackedBitStorage {
     private final int size;
 
     public PackedBitStorage(int param0, int param1) {
-        this(param0, param1, new long[Mth.roundUp(param1 * param0, 64) / 64]);
+        this(param0, param1, new long[Mth.roundToward(param1 * param0, 64) / 64]);
     }
 
     public PackedBitStorage(int param0, int param1, long[] param2) {
@@ -19,7 +19,7 @@ public class PackedBitStorage {
         this.bits = param0;
         this.data = param2;
         this.mask = (1L << param0) - 1L;
-        int var0 = Mth.roundUp(param1 * param0, 64) / 64;
+        int var0 = Mth.roundToward(param1 * param0, 64) / 64;
         if (param2.length != var0) {
             throw new IllegalArgumentException("Invalid length given for storage, got: " + param2.length + " but expected: " + var0);
         }

@@ -14,9 +14,7 @@ public class DefaultGameModeCommands {
         LiteralArgumentBuilder<CommandSourceStack> var0 = Commands.literal("defaultgamemode").requires(param0x -> param0x.hasPermission(2));
 
         for(GameType var1 : GameType.values()) {
-            if (var1 != GameType.NOT_SET) {
-                var0.then(Commands.literal(var1.getName()).executes(param1 -> setMode(param1.getSource(), var1)));
-            }
+            var0.then(Commands.literal(var1.getName()).executes(param1 -> setMode(param1.getSource(), var1)));
         }
 
         param0.register(var0);
@@ -26,16 +24,16 @@ public class DefaultGameModeCommands {
         int var0 = 0;
         MinecraftServer var1 = param0.getServer();
         var1.setDefaultGameType(param1);
-        if (var1.getForceGameType()) {
-            for(ServerPlayer var2 : var1.getPlayerList().getPlayers()) {
-                if (var2.gameMode.getGameModeForPlayer() != param1) {
-                    var2.setGameMode(param1);
+        GameType var2 = var1.getForcedGameType();
+        if (var2 != null) {
+            for(ServerPlayer var3 : var1.getPlayerList().getPlayers()) {
+                if (var3.setGameMode(var2)) {
                     ++var0;
                 }
             }
         }
 
-        param0.sendSuccess(new TranslatableComponent("commands.defaultgamemode.success", param1.getDisplayName()), true);
+        param0.sendSuccess(new TranslatableComponent("commands.defaultgamemode.success", param1.getLongDisplayName()), true);
         return var0;
     }
 }

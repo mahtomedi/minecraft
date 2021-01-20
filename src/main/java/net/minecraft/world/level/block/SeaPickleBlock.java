@@ -79,7 +79,7 @@ public class SeaPickleBlock extends BushBlock implements BonemealableBlock, Simp
 
     @Override
     public boolean canBeReplaced(BlockState param0, BlockPlaceContext param1) {
-        return param1.getItemInHand().getItem() == this.asItem() && param0.getValue(PICKLES) < 4 ? true : super.canBeReplaced(param0, param1);
+        return param1.getItemInHand().is(this.asItem()) && param0.getValue(PICKLES) < 4 ? true : super.canBeReplaced(param0, param1);
     }
 
     @Override

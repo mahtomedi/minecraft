@@ -23,14 +23,14 @@ public class BookCloningRecipe extends CustomRecipe {
         for(int var2 = 0; var2 < param0.getContainerSize(); ++var2) {
             ItemStack var3 = param0.getItem(var2);
             if (!var3.isEmpty()) {
-                if (var3.getItem() == Items.WRITTEN_BOOK) {
+                if (var3.is(Items.WRITTEN_BOOK)) {
                     if (!var1.isEmpty()) {
                         return false;
                     }
 
                     var1 = var3;
                 } else {
-                    if (var3.getItem() != Items.WRITABLE_BOOK) {
+                    if (!var3.is(Items.WRITABLE_BOOK)) {
                         return false;
                     }
 
@@ -49,14 +49,14 @@ public class BookCloningRecipe extends CustomRecipe {
         for(int var2 = 0; var2 < param0.getContainerSize(); ++var2) {
             ItemStack var3 = param0.getItem(var2);
             if (!var3.isEmpty()) {
-                if (var3.getItem() == Items.WRITTEN_BOOK) {
+                if (var3.is(Items.WRITTEN_BOOK)) {
                     if (!var1.isEmpty()) {
                         return ItemStack.EMPTY;
                     }
 
                     var1 = var3;
                 } else {
-                    if (var3.getItem() != Items.WRITABLE_BOOK) {
+                    if (!var3.is(Items.WRITABLE_BOOK)) {
                         return ItemStack.EMPTY;
                     }
 

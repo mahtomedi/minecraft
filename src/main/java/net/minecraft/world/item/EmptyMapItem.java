@@ -2,7 +2,6 @@ package net.minecraft.world.item;
 
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.stats.Stats;
-import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
@@ -15,22 +14,26 @@ public class EmptyMapItem extends ComplexItem {
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level param0, Player param1, InteractionHand param2) {
-        ItemStack var0 = MapItem.create(param0, Mth.floor(param1.getX()), Mth.floor(param1.getZ()), (byte)0, true, false);
-        ItemStack var1 = param1.getItemInHand(param2);
-        if (!param1.abilities.instabuild) {
-            var1.shrink(1);
-        }
-
-        param1.awardStat(Stats.ITEM_USED.get(this));
-        param1.playSound(SoundEvents.UI_CARTOGRAPHY_TABLE_TAKE_RESULT, 1.0F, 1.0F);
-        if (var1.isEmpty()) {
-            return InteractionResultHolder.sidedSuccess(var0, param0.isClientSide());
+        ItemStack var0 = param1.getItemInHand(param2);
+        if (param0.isClientSide) {
+            return InteractionResultHolder.success(var0);
         } else {
-            if (!param1.inventory.add(var0.copy())) {
-                param1.drop(var0, false);
+            if (!param1.getAbilities().instabuild) {
+                var0.shrink(1);
             }
 
-            return InteractionResultHolder.sidedSuccess(var1, param0.isClientSide());
+            param1.awardStat(Stats.ITEM_USED.get(this));
+            param1.level.playSound(null, param1, SoundEvents.UI_CARTOGRAPHY_TABLE_TAKE_RESULT, param1.getSoundSource(), 1.0F, 1.0F);
+            ItemStack var1 = MapItem.create(param0, param1.getBlockX(), param1.getBlockZ(), (byte)0, true, false);
+            if (var0.isEmpty()) {
+                return InteractionResultHolder.consume(var1);
+            } else {
+                if (!param1.getInventory().add(var1.copy())) {
+                    param1.drop(var1, false);
+                }
+
+                return InteractionResultHolder.consume(var0);
+            }
         }
     }
 }

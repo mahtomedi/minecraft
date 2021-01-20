@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector3f;
 import net.minecraft.client.model.BookModel;
+import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.level.block.LecternBlock;
@@ -13,11 +14,11 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class LecternRenderer extends BlockEntityRenderer<LecternBlockEntity> {
-    private final BookModel bookModel = new BookModel();
+public class LecternRenderer implements BlockEntityRenderer<LecternBlockEntity> {
+    private final BookModel bookModel;
 
-    public LecternRenderer(BlockEntityRenderDispatcher param0) {
-        super(param0);
+    public LecternRenderer(BlockEntityRendererProvider.Context param0) {
+        this.bookModel = new BookModel(param0.bakeLayer(ModelLayers.BOOK));
     }
 
     public void render(LecternBlockEntity param0, float param1, PoseStack param2, MultiBufferSource param3, int param4, int param5) {

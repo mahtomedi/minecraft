@@ -10,6 +10,7 @@ import javax.annotation.Nullable;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.VanillaPackResources;
+import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -17,9 +18,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class DefaultClientPackResources extends VanillaPackResources {
     private final AssetIndex assetIndex;
 
-    public DefaultClientPackResources(AssetIndex param0) {
-        super("minecraft", "realms");
-        this.assetIndex = param0;
+    public DefaultClientPackResources(PackMetadataSection param0, AssetIndex param1) {
+        super(param0, "minecraft", "realms");
+        this.assetIndex = param1;
     }
 
     @Nullable

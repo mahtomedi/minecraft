@@ -319,7 +319,7 @@ public class Brain<E extends LivingEntity> {
         this.addActivityAndRemoveMemoriesWhenStopped(param0, param1, param2, Sets.newHashSet());
     }
 
-    private void addActivityAndRemoveMemoriesWhenStopped(
+    public void addActivityAndRemoveMemoriesWhenStopped(
         Activity param0,
         ImmutableList<? extends Pair<Integer, ? extends Behavior<? super E>>> param1,
         Set<Pair<MemoryModuleType<?>, MemoryStatus>> param2,

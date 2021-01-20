@@ -7,12 +7,16 @@ import java.util.function.Supplier;
 import net.minecraft.core.Registry;
 import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.UniformFloat;
 import net.minecraft.util.UniformInt;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.HugeMushroomBlock;
 import net.minecraft.world.level.block.SweetBerryBushBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.GenerationStep;
+import net.minecraft.world.level.levelgen.GeodeBlockSettings;
+import net.minecraft.world.level.levelgen.GeodeCrackSettings;
+import net.minecraft.world.level.levelgen.GeodeLayerSettings;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
@@ -27,9 +31,13 @@ import net.minecraft.world.level.levelgen.feature.configurations.CountConfigurat
 import net.minecraft.world.level.levelgen.feature.configurations.DecoratorConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.DeltaFeatureConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.DiskConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.DripstoneClusterConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.EndGatewayConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.GeodeConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.GlowLichenConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.HugeMushroomFeatureConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.LargeDripstoneConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.NoiseDependantDecoratorConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneDecoratorConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.OreConfiguration;
@@ -42,6 +50,7 @@ import net.minecraft.world.level.levelgen.feature.configurations.ReplaceBlockCon
 import net.minecraft.world.level.levelgen.feature.configurations.ReplaceSphereConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.SimpleBlockConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.SimpleRandomFeatureConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.SmallDripstoneConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.SpikeConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.SpringConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
@@ -203,7 +212,7 @@ public class Features {
         Feature.SEAGRASS.configured(new ProbabilityFeatureConfiguration(0.8F)).count(80).decorated(Features.Decorators.TOP_SOLID_HEIGHTMAP_SQUARE)
     );
     public static final ConfiguredFeature<?, ?> SEA_PICKLE = register(
-        "sea_pickle", Feature.SEA_PICKLE.configured(new CountConfiguration(20)).decorated(Features.Decorators.TOP_SOLID_HEIGHTMAP_SQUARE).chance(16)
+        "sea_pickle", Feature.SEA_PICKLE.configured(new CountConfiguration(20)).decorated(Features.Decorators.TOP_SOLID_HEIGHTMAP_SQUARE).rarity(16)
     );
     public static final ConfiguredFeature<?, ?> ICE_SPIKE = register(
         "ice_spike", Feature.ICE_SPIKE.configured(FeatureConfiguration.NONE).decorated(Features.Decorators.HEIGHTMAP_SQUARE).count(3)
@@ -255,14 +264,14 @@ public class Features {
         Feature.ICEBERG
             .configured(new BlockStateConfiguration(Features.States.PACKED_ICE))
             .decorated(FeatureDecorator.ICEBERG.configured(NoneDecoratorConfiguration.INSTANCE))
-            .chance(16)
+            .rarity(16)
     );
     public static final ConfiguredFeature<?, ?> ICEBERG_BLUE = register(
         "iceberg_blue",
         Feature.ICEBERG
             .configured(new BlockStateConfiguration(Features.States.BLUE_ICE))
             .decorated(FeatureDecorator.ICEBERG.configured(NoneDecoratorConfiguration.INSTANCE))
-            .chance(200)
+            .rarity(200)
     );
     public static final ConfiguredFeature<?, ?> KELP_COLD = register(
         "kelp_cold",
@@ -344,9 +353,9 @@ public class Features {
         "monster_room", Feature.MONSTER_ROOM.configured(FeatureConfiguration.NONE).range(256).squared().count(8)
     );
     public static final ConfiguredFeature<?, ?> WELL = register(
-        "desert_well", Feature.DESERT_WELL.configured(FeatureConfiguration.NONE).decorated(Features.Decorators.HEIGHTMAP_SQUARE).chance(1000)
+        "desert_well", Feature.DESERT_WELL.configured(FeatureConfiguration.NONE).decorated(Features.Decorators.HEIGHTMAP_SQUARE).rarity(1000)
     );
-    public static final ConfiguredFeature<?, ?> FOSSIL = register("fossil", Feature.FOSSIL.configured(FeatureConfiguration.NONE).chance(64));
+    public static final ConfiguredFeature<?, ?> FOSSIL = register("fossil", Feature.FOSSIL.configured(FeatureConfiguration.NONE).rarity(64));
     public static final ConfiguredFeature<?, ?> SPRING_LAVA_DOUBLE = register(
         "spring_lava_double",
         Feature.SPRING
@@ -503,7 +512,7 @@ public class Features {
                     .build()
             )
             .decorated(Features.Decorators.HEIGHTMAP_DOUBLE_SQUARE)
-            .chance(32)
+            .rarity(32)
     );
     public static final ConfiguredFeature<?, ?> PATCH_TAIGA_GRASS = register(
         "patch_taiga_grass", Feature.RANDOM_PATCH.configured(Features.Configs.TAIGA_GRASS_CONFIG)
@@ -571,7 +580,7 @@ public class Features {
         "patch_berry_sparse", PATCH_BERRY_BUSH.decorated(Features.Decorators.HEIGHTMAP_DOUBLE_SQUARE)
     );
     public static final ConfiguredFeature<?, ?> PATCH_BERRY_DECORATED = register(
-        "patch_berry_decorated", PATCH_BERRY_BUSH.decorated(Features.Decorators.HEIGHTMAP_DOUBLE_SQUARE).chance(12)
+        "patch_berry_decorated", PATCH_BERRY_BUSH.decorated(Features.Decorators.HEIGHTMAP_DOUBLE_SQUARE).rarity(12)
     );
     public static final ConfiguredFeature<?, ?> PATCH_WATERLILLY = register(
         "patch_waterlilly",
@@ -646,19 +655,19 @@ public class Features {
         "patch_sugar_cane",
         Feature.RANDOM_PATCH.configured(Features.Configs.SUGAR_CANE_CONFIG).decorated(Features.Decorators.HEIGHTMAP_DOUBLE_SQUARE).count(10)
     );
-    public static final ConfiguredFeature<?, ?> BROWN_MUSHROOM_NETHER = register("brown_mushroom_nether", PATCH_BROWN_MUSHROOM.range(128).chance(2));
-    public static final ConfiguredFeature<?, ?> RED_MUSHROOM_NETHER = register("red_mushroom_nether", PATCH_RED_MUSHROOM.range(128).chance(2));
+    public static final ConfiguredFeature<?, ?> BROWN_MUSHROOM_NETHER = register("brown_mushroom_nether", PATCH_BROWN_MUSHROOM.range(128).rarity(2));
+    public static final ConfiguredFeature<?, ?> RED_MUSHROOM_NETHER = register("red_mushroom_nether", PATCH_RED_MUSHROOM.range(128).rarity(2));
     public static final ConfiguredFeature<?, ?> BROWN_MUSHROOM_NORMAL = register(
-        "brown_mushroom_normal", PATCH_BROWN_MUSHROOM.decorated(Features.Decorators.HEIGHTMAP_DOUBLE_SQUARE).chance(4)
+        "brown_mushroom_normal", PATCH_BROWN_MUSHROOM.decorated(Features.Decorators.HEIGHTMAP_DOUBLE_SQUARE).rarity(4)
     );
     public static final ConfiguredFeature<?, ?> RED_MUSHROOM_NORMAL = register(
-        "red_mushroom_normal", PATCH_RED_MUSHROOM.decorated(Features.Decorators.HEIGHTMAP_DOUBLE_SQUARE).chance(8)
+        "red_mushroom_normal", PATCH_RED_MUSHROOM.decorated(Features.Decorators.HEIGHTMAP_DOUBLE_SQUARE).rarity(8)
     );
     public static final ConfiguredFeature<?, ?> BROWN_MUSHROOM_TAIGA = register(
-        "brown_mushroom_taiga", PATCH_BROWN_MUSHROOM.chance(4).decorated(Features.Decorators.HEIGHTMAP_SQUARE)
+        "brown_mushroom_taiga", PATCH_BROWN_MUSHROOM.rarity(4).decorated(Features.Decorators.HEIGHTMAP_SQUARE)
     );
     public static final ConfiguredFeature<?, ?> RED_MUSHROOM_TAIGA = register(
-        "red_mushroom_taiga", PATCH_RED_MUSHROOM.chance(8).decorated(Features.Decorators.HEIGHTMAP_DOUBLE_SQUARE)
+        "red_mushroom_taiga", PATCH_RED_MUSHROOM.rarity(8).decorated(Features.Decorators.HEIGHTMAP_DOUBLE_SQUARE)
     );
     public static final ConfiguredFeature<?, ?> BROWN_MUSHROOM_GIANT = register("brown_mushroom_giant", BROWN_MUSHROOM_TAIGA.count(3));
     public static final ConfiguredFeature<?, ?> RED_MUSHROOM_GIANT = register("red_mushroom_giant", RED_MUSHROOM_TAIGA.count(3));
@@ -802,6 +811,82 @@ public class Features {
             .configured(new OreConfiguration(OreConfiguration.Predicates.NETHER_ORE_REPLACEABLES, Features.States.ANCIENT_DEBRIS, 2))
             .decorated(FeatureDecorator.RANGE.configured(new RangeDecoratorConfiguration(8, 16, 128)))
             .squared()
+    );
+    public static final ConfiguredFeature<?, ?> ORE_COPPER = register(
+        "ore_copper",
+        Feature.ORE.configured(new OreConfiguration(OreConfiguration.Predicates.NATURAL_STONE, Features.States.COPPER_ORE, 10)).range(64).squared().count(10)
+    );
+    public static final ConfiguredFeature<?, ?> DRIPSTONE_CLUSTER_FEATURE = register(
+        "dripstone_cluster",
+        Feature.DRIPSTONE_CLUSTER
+            .configured(
+                new DripstoneClusterConfiguration(
+                    12,
+                    UniformInt.of(3, 3),
+                    UniformInt.of(2, 6),
+                    1,
+                    3,
+                    UniformInt.of(2, 2),
+                    UniformFloat.of(0.3F, 0.4F),
+                    UniformFloat.of(0.1F, 0.9F),
+                    0.1F,
+                    0.3F,
+                    0.1F,
+                    3,
+                    8
+                )
+            )
+            .range(60)
+            .squared()
+            .count(UniformInt.of(5, 10))
+    );
+    public static final ConfiguredFeature<?, ?> LARGE_DRIPSTONE_FEATURE = register(
+        "large_dripstone",
+        Feature.LARGE_DRIPSTONE
+            .configured(
+                new LargeDripstoneConfiguration(
+                    30,
+                    UniformInt.of(3, 16),
+                    UniformFloat.of(0.4F, 1.6F),
+                    0.33F,
+                    UniformFloat.of(0.3F, 0.6F),
+                    UniformFloat.of(0.4F, 0.6F),
+                    UniformFloat.of(0.0F, 0.3F),
+                    4,
+                    0.6F
+                )
+            )
+            .range(60)
+            .squared()
+            .count(UniformInt.of(1, 4))
+    );
+    public static final ConfiguredFeature<?, ?> SMALL_DRIPSTONE_FEATURE = register(
+        "small_dripstone", Feature.SMALL_DRIPSTONE.configured(new SmallDripstoneConfiguration(5, 10, 2, 0.2F)).range(60).squared().count(UniformInt.of(20, 40))
+    );
+    public static final ConfiguredFeature<?, ?> GLOW_LICHEN = register(
+        "glow_lichen",
+        Feature.GLOW_LICHEN
+            .configured(
+                new GlowLichenConfiguration(
+                    10,
+                    false,
+                    true,
+                    true,
+                    0.5F,
+                    ImmutableList.of(
+                        Blocks.STONE.defaultBlockState(),
+                        Blocks.ANDESITE.defaultBlockState(),
+                        Blocks.DIORITE.defaultBlockState(),
+                        Blocks.GRANITE.defaultBlockState(),
+                        Blocks.DRIPSTONE_BLOCK.defaultBlockState(),
+                        Blocks.CALCITE.defaultBlockState(),
+                        Blocks.TUFF.defaultBlockState()
+                    )
+                )
+            )
+            .squared()
+            .range(55)
+            .count(UniformInt.of(5, 5))
     );
     public static final ConfiguredFeature<?, ?> CRIMSON_FUNGI = register(
         "crimson_fungi",
@@ -1384,6 +1469,44 @@ public class Features {
             .configured(new RandomBooleanFeatureConfiguration(() -> HUGE_RED_MUSHROOM, () -> HUGE_BROWN_MUSHROOM))
             .decorated(Features.Decorators.HEIGHTMAP_SQUARE)
     );
+    public static final ConfiguredFeature<?, ?> AMETHYST_GEODE = register(
+        "amethyst_geode",
+        Feature.GEODE
+            .configured(
+                new GeodeConfiguration(
+                    new GeodeBlockSettings(
+                        new SimpleStateProvider(Features.States.AIR),
+                        new SimpleStateProvider(Features.States.AMETHYST_BLOCK),
+                        new SimpleStateProvider(Features.States.BUDDING_AMETHYST),
+                        new SimpleStateProvider(Features.States.CALCITE),
+                        new SimpleStateProvider(Features.States.TUFF),
+                        ImmutableList.of(
+                            Blocks.SMALL_AMETHYST_BUD.defaultBlockState(),
+                            Blocks.MEDIUM_AMETHYST_BUD.defaultBlockState(),
+                            Blocks.LARGE_AMETHYST_BUD.defaultBlockState(),
+                            Blocks.AMETHYST_CLUSTER.defaultBlockState()
+                        )
+                    ),
+                    new GeodeLayerSettings(1.7, 2.2, 3.2, 4.2),
+                    new GeodeCrackSettings(0.95, 2.0, 2),
+                    0.35,
+                    0.083,
+                    true,
+                    4,
+                    7,
+                    3,
+                    5,
+                    1,
+                    3,
+                    -16,
+                    16,
+                    0.05
+                )
+            )
+            .decorated(FeatureDecorator.RANGE.configured(new RangeDecoratorConfiguration(6, 0, 47)))
+            .squared()
+            .rarity(48)
+    );
 
     private static <FC extends FeatureConfiguration> ConfiguredFeature<FC, ?> register(String param0, ConfiguredFeature<FC, ?> param1) {
         return Registry.register(BuiltinRegistries.CONFIGURED_FEATURE, param0, param1);
@@ -1550,6 +1673,7 @@ public class Features {
         protected static final BlockState DIORITE = Blocks.DIORITE.defaultBlockState();
         protected static final BlockState ANDESITE = Blocks.ANDESITE.defaultBlockState();
         protected static final BlockState COAL_ORE = Blocks.COAL_ORE.defaultBlockState();
+        protected static final BlockState COPPER_ORE = Blocks.COPPER_ORE.defaultBlockState();
         protected static final BlockState IRON_ORE = Blocks.IRON_ORE.defaultBlockState();
         protected static final BlockState GOLD_ORE = Blocks.GOLD_ORE.defaultBlockState();
         protected static final BlockState REDSTONE_ORE = Blocks.REDSTONE_ORE.defaultBlockState();
@@ -1573,5 +1697,10 @@ public class Features {
         protected static final BlockState WARPED_FUNGUS = Blocks.WARPED_FUNGUS.defaultBlockState();
         protected static final BlockState WARPED_ROOTS = Blocks.WARPED_ROOTS.defaultBlockState();
         protected static final BlockState NETHER_SPROUTS = Blocks.NETHER_SPROUTS.defaultBlockState();
+        protected static final BlockState AIR = Blocks.AIR.defaultBlockState();
+        protected static final BlockState AMETHYST_BLOCK = Blocks.AMETHYST_BLOCK.defaultBlockState();
+        protected static final BlockState BUDDING_AMETHYST = Blocks.BUDDING_AMETHYST.defaultBlockState();
+        protected static final BlockState CALCITE = Blocks.CALCITE.defaultBlockState();
+        protected static final BlockState TUFF = Blocks.TUFF.defaultBlockState();
     }
 }

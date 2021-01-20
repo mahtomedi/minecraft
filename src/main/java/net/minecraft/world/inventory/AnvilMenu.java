@@ -40,12 +40,12 @@ public class AnvilMenu extends ItemCombinerMenu {
 
     @Override
     protected boolean mayPickup(Player param0, boolean param1) {
-        return (param0.abilities.instabuild || param0.experienceLevel >= this.cost.get()) && this.cost.get() > 0;
+        return (param0.getAbilities().instabuild || param0.experienceLevel >= this.cost.get()) && this.cost.get() > 0;
     }
 
     @Override
     protected ItemStack onTake(Player param0, ItemStack param1) {
-        if (!param0.abilities.instabuild) {
+        if (!param0.getAbilities().instabuild) {
             param0.giveExperienceLevels(-this.cost.get());
         }
 
@@ -65,7 +65,7 @@ public class AnvilMenu extends ItemCombinerMenu {
         this.cost.set(0);
         this.access.execute((param1x, param2) -> {
             BlockState var0x = param1x.getBlockState(param2);
-            if (!param0.abilities.instabuild && var0x.is(BlockTags.ANVIL) && param0.getRandom().nextFloat() < 0.12F) {
+            if (!param0.getAbilities().instabuild && var0x.is(BlockTags.ANVIL) && param0.getRandom().nextFloat() < 0.12F) {
                 BlockState var1x = AnvilBlock.damage(var0x);
                 if (var1x == null) {
                     param1x.removeBlock(param2, false);
@@ -99,7 +99,7 @@ public class AnvilMenu extends ItemCombinerMenu {
             var2 += var0.getBaseRepairCost() + (var5.isEmpty() ? 0 : var5.getBaseRepairCost());
             this.repairItemCountCost = 0;
             if (!var5.isEmpty()) {
-                boolean var7 = var5.getItem() == Items.ENCHANTED_BOOK && !EnchantedBookItem.getEnchantments(var5).isEmpty();
+                boolean var7 = var5.is(Items.ENCHANTED_BOOK) && !EnchantedBookItem.getEnchantments(var5).isEmpty();
                 if (var4.isDamageableItem() && var4.getItem().isValidRepairItem(var0, var5)) {
                     int var8 = Math.min(var4.getDamageValue(), var4.getMaxDamage() / 4);
                     if (var8 <= 0) {
@@ -118,7 +118,7 @@ public class AnvilMenu extends ItemCombinerMenu {
 
                     this.repairItemCountCost = var9;
                 } else {
-                    if (!var7 && (var4.getItem() != var5.getItem() || !var4.isDamageableItem())) {
+                    if (!var7 && (!var4.is(var5.getItem()) || !var4.isDamageableItem())) {
                         this.resultSlots.setItem(0, ItemStack.EMPTY);
                         this.cost.set(0);
                         return;
@@ -150,7 +150,7 @@ public class AnvilMenu extends ItemCombinerMenu {
                             int var21 = var16.get(var19);
                             var21 = var20 == var21 ? var21 + 1 : Math.max(var21, var20);
                             boolean var22 = var19.canEnchant(var0);
-                            if (this.player.abilities.instabuild || var0.getItem() == Items.ENCHANTED_BOOK) {
+                            if (this.player.getAbilities().instabuild || var0.is(Items.ENCHANTED_BOOK)) {
                                 var22 = true;
                             }
 
@@ -226,7 +226,7 @@ public class AnvilMenu extends ItemCombinerMenu {
                 this.cost.set(39);
             }
 
-            if (this.cost.get() >= 40 && !this.player.abilities.instabuild) {
+            if (this.cost.get() >= 40 && !this.player.getAbilities().instabuild) {
                 var4 = ItemStack.EMPTY;
             }
 

@@ -23,6 +23,6 @@ public class FurnaceFuelSlot extends Slot {
     }
 
     public static boolean isBucket(ItemStack param0) {
-        return param0.getItem() == Items.BUCKET;
+        return param0.is(Items.BUCKET);
     }
 }

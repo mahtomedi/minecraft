@@ -13,7 +13,7 @@ public abstract class AbstractGolem extends PathfinderMob {
     }
 
     @Override
-    public boolean causeFallDamage(float param0, float param1) {
+    public boolean causeFallDamage(float param0, float param1, DamageSource param2) {
         return false;
     }
 

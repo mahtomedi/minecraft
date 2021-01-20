@@ -6,6 +6,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -23,6 +24,7 @@ import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.DoorHingeSide;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.pathfinder.PathComputationType;
@@ -127,8 +129,8 @@ public class DoorBlock extends Block {
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext param0) {
         BlockPos var0 = param0.getClickedPos();
-        if (var0.getY() < 255 && param0.getLevel().getBlockState(var0.above()).canBeReplaced(param0)) {
-            Level var1 = param0.getLevel();
+        Level var1 = param0.getLevel();
+        if (var0.getY() < var1.getMaxBuildHeight() - 1 && var1.getBlockState(var0.above()).canBeReplaced(param0)) {
             boolean var2 = var1.hasNeighborSignal(var0) || var1.hasNeighborSignal(var0.above());
             return this.defaultBlockState()
                 .setValue(FACING, param0.getHorizontalDirection())
@@ -193,6 +195,7 @@ public class DoorBlock extends Block {
             param0 = param0.cycle(OPEN);
             param1.setBlock(param2, param0, 10);
             param1.levelEvent(param3, param0.getValue(OPEN) ? this.getOpenSound() : this.getCloseSound(), param2, 0);
+            param1.gameEvent(param3, this.isOpen(param0) ? GameEvent.BLOCK_OPEN : GameEvent.BLOCK_CLOSE, param2);
             return InteractionResult.sidedSuccess(param1.isClientSide);
         }
     }
@@ -201,10 +204,11 @@ public class DoorBlock extends Block {
         return param0.getValue(OPEN);
     }
 
-    public void setOpen(Level param0, BlockState param1, BlockPos param2, boolean param3) {
-        if (param1.is(this) && param1.getValue(OPEN) != param3) {
-            param0.setBlock(param2, param1.setValue(OPEN, Boolean.valueOf(param3)), 10);
-            this.playSound(param0, param2, param3);
+    public void setOpen(@Nullable Entity param0, Level param1, BlockState param2, BlockPos param3, boolean param4) {
+        if (param2.is(this) && param2.getValue(OPEN) != param4) {
+            param1.setBlock(param3, param2.setValue(OPEN, Boolean.valueOf(param4)), 10);
+            this.playSound(param1, param3, param4);
+            param1.gameEvent(param0, param4 ? GameEvent.BLOCK_OPEN : GameEvent.BLOCK_CLOSE, param3);
         }
     }
 
@@ -212,9 +216,10 @@ public class DoorBlock extends Block {
     public void neighborChanged(BlockState param0, Level param1, BlockPos param2, Block param3, BlockPos param4, boolean param5) {
         boolean var0 = param1.hasNeighborSignal(param2)
             || param1.hasNeighborSignal(param2.relative(param0.getValue(HALF) == DoubleBlockHalf.LOWER ? Direction.UP : Direction.DOWN));
-        if (param3 != this && var0 != param0.getValue(POWERED)) {
+        if (!this.defaultBlockState().is(param3) && var0 != param0.getValue(POWERED)) {
             if (var0 != param0.getValue(OPEN)) {
                 this.playSound(param1, param2, var0);
+                param1.gameEvent(var0 ? GameEvent.BLOCK_OPEN : GameEvent.BLOCK_CLOSE, param2);
             }
 
             param1.setBlock(param2, param0.setValue(POWERED, Boolean.valueOf(var0)).setValue(OPEN, Boolean.valueOf(var0)), 2);

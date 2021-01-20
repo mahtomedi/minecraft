@@ -184,6 +184,13 @@ public class ShapedRecipe implements CraftingRecipe {
         }
     }
 
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public boolean isIncomplete() {
+        NonNullList<Ingredient> var0 = this.getIngredients();
+        return var0.isEmpty() || var0.stream().filter(param0 -> !param0.isEmpty()).anyMatch(param0 -> param0.getItems().length == 0);
+    }
+
     private static int firstNonSpace(String param0) {
         int var0 = 0;
 

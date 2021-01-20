@@ -87,7 +87,7 @@ public class Raid {
         this.level = param1;
         this.active = true;
         this.raidCooldownTicks = 300;
-        this.raidEvent.setPercent(0.0F);
+        this.raidEvent.setProgress(0.0F);
         this.center = param2;
         this.numGroups = this.getNumGroups(param1.getDifficulty());
         this.status = Raid.RaidStatus.ONGOING;
@@ -269,7 +269,7 @@ public class Raid {
                         }
 
                         --this.raidCooldownTicks;
-                        this.raidEvent.setPercent(Mth.clamp((float)(300 - this.raidCooldownTicks) / 300.0F, 0.0F, 1.0F));
+                        this.raidEvent.setProgress(Mth.clamp((float)(300 - this.raidCooldownTicks) / 300.0F, 0.0F, 1.0F));
                     }
                 }
 
@@ -345,7 +345,7 @@ public class Raid {
                     this.updatePlayers();
                     this.raidEvent.setVisible(true);
                     if (this.isVictory()) {
-                        this.raidEvent.setPercent(0.0F);
+                        this.raidEvent.setProgress(0.0F);
                         this.raidEvent.setName(RAID_BAR_VICTORY_COMPONENT);
                     } else {
                         this.raidEvent.setName(RAID_BAR_DEFEAT_COMPONENT);
@@ -408,7 +408,7 @@ public class Raid {
 
             for(Raider var3 : var2) {
                 BlockPos var4 = var3.blockPosition();
-                if (var3.removed || var3.level.dimension() != this.level.dimension() || this.center.distSqr(var4) >= 12544.0) {
+                if (var3.isRemoved() || var3.level.dimension() != this.level.dimension() || this.center.distSqr(var4) >= 12544.0) {
                     var1.add(var3);
                 } else if (var3.tickCount > 600) {
                     if (this.level.getEntity(var3.getUUID()) == null) {
@@ -517,7 +517,7 @@ public class Raid {
     }
 
     public void updateBossbar() {
-        this.raidEvent.setPercent(Mth.clamp(this.getHealthOfLivingRaiders() / this.totalHealth, 0.0F, 1.0F));
+        this.raidEvent.setProgress(Mth.clamp(this.getHealthOfLivingRaiders() / this.totalHealth, 0.0F, 1.0F));
     }
 
     public float getHealthOfLivingRaiders() {

@@ -2,10 +2,14 @@ package net.minecraft.world.level.block;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -23,6 +27,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class CakeBlock extends Block {
     public static final IntegerProperty BITES = BlockStateProperties.BITES;
+    public static final int FULL_CAKE_SIGNAL = getOutputSignal(0);
     protected static final VoxelShape[] SHAPE_BY_BITE = new VoxelShape[]{
         Block.box(1.0, 0.0, 1.0, 15.0, 8.0, 15.0),
         Block.box(3.0, 0.0, 1.0, 15.0, 8.0, 15.0),
@@ -45,9 +50,23 @@ public class CakeBlock extends Block {
 
     @Override
     public InteractionResult use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
+        ItemStack var0 = param3.getItemInHand(param4);
+        Item var1 = var0.getItem();
+        if (var0.is(ItemTags.CANDLES) && param0.getValue(BITES) == 0) {
+            Block var2 = Block.byItem(var1);
+            if (var2 instanceof CandleBlock) {
+                if (!param3.isCreative()) {
+                    var0.shrink(1);
+                }
+
+                param1.playSound(null, param2, SoundEvents.CAKE_ADD_CANDLE, SoundSource.BLOCKS, 1.0F, 1.0F);
+                param1.setBlockAndUpdate(param2, CandleCakeBlock.byCandle(var2));
+                return InteractionResult.SUCCESS;
+            }
+        }
+
         if (param1.isClientSide) {
-            ItemStack var0 = param3.getItemInHand(param4);
-            if (this.eat(param1, param2, param0, param3).consumesAction()) {
+            if (eat(param1, param2, param0, param3).consumesAction()) {
                 return InteractionResult.SUCCESS;
             }
 
@@ -56,10 +75,10 @@ public class CakeBlock extends Block {
             }
         }
 
-        return this.eat(param1, param2, param0, param3);
+        return eat(param1, param2, param0, param3);
     }
 
-    private InteractionResult eat(LevelAccessor param0, BlockPos param1, BlockState param2, Player param3) {
+    protected static InteractionResult eat(LevelAccessor param0, BlockPos param1, BlockState param2, Player param3) {
         if (!param3.canEat(false)) {
             return InteractionResult.PASS;
         } else {
@@ -95,7 +114,11 @@ public class CakeBlock extends Block {
 
     @Override
     public int getAnalogOutputSignal(BlockState param0, Level param1, BlockPos param2) {
-        return (7 - param0.getValue(BITES)) * 2;
+        return getOutputSignal(param0.getValue(BITES));
+    }
+
+    public static int getOutputSignal(int param0) {
+        return (7 - param0) * 2;
     }
 
     @Override

@@ -1,12 +1,10 @@
 package net.minecraft.world.entity.ai.goal;
 
 import java.util.EnumSet;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.PathfinderMob;
-import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
-import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 
 public class TemptGoal extends Goal {
@@ -16,6 +14,7 @@ public class TemptGoal extends Goal {
         .allowSameTeam()
         .allowNonAttackable()
         .allowUnseeable();
+    private final TargetingConditions targetingConditions;
     protected final PathfinderMob mob;
     private final double speedModifier;
     private double px;
@@ -30,18 +29,12 @@ public class TemptGoal extends Goal {
     private final boolean canScare;
 
     public TemptGoal(PathfinderMob param0, double param1, Ingredient param2, boolean param3) {
-        this(param0, param1, param3, param2);
-    }
-
-    public TemptGoal(PathfinderMob param0, double param1, boolean param2, Ingredient param3) {
         this.mob = param0;
         this.speedModifier = param1;
-        this.items = param3;
-        this.canScare = param2;
+        this.items = param2;
+        this.canScare = param3;
         this.setFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK));
-        if (!(param0.getNavigation() instanceof GroundPathNavigation) && !(param0.getNavigation() instanceof FlyingPathNavigation)) {
-            throw new IllegalArgumentException("Unsupported mob type for TemptGoal");
-        }
+        this.targetingConditions = TEMP_TARGETING.copy().selector(this::shouldFollow);
     }
 
     @Override
@@ -50,17 +43,13 @@ public class TemptGoal extends Goal {
             --this.calmDown;
             return false;
         } else {
-            this.player = this.mob.level.getNearestPlayer(TEMP_TARGETING, this.mob);
-            if (this.player == null) {
-                return false;
-            } else {
-                return this.shouldFollowItem(this.player.getMainHandItem()) || this.shouldFollowItem(this.player.getOffhandItem());
-            }
+            this.player = this.mob.level.getNearestPlayer(this.targetingConditions, this.mob);
+            return this.player != null;
         }
     }
 
-    protected boolean shouldFollowItem(ItemStack param0) {
-        return this.items.test(param0);
+    private boolean shouldFollow(LivingEntity param0x) {
+        return this.items.test(param0x.getMainHandItem()) || this.items.test(param0x.getOffhandItem());
     }
 
     @Override

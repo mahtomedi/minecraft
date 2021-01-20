@@ -100,7 +100,7 @@ public class RealmsMainScreen extends RealmsScreen {
     private static final Component SERVER_INFO_TOOLTIP = new TranslatableComponent("mco.selectServer.info");
     private static final Component NEWS_TOOLTIP = new TranslatableComponent("mco.news");
     private static List<ResourceLocation> teaserImages = ImmutableList.of();
-    private static final RealmsDataFetcher REALMS_DATA_FETCHER = new RealmsDataFetcher();
+    private static final RealmsDataFetcher REALMS_DATA_FETCHER = new RealmsDataFetcher(Minecraft.getInstance(), RealmsClient.create());
     private static boolean overrideConfigure;
     private static int lastScrollYPosition = -1;
     private static volatile boolean hasParentalConsent;
@@ -585,7 +585,7 @@ public class RealmsMainScreen extends RealmsScreen {
                             RealmsMainScreen.REALMS_DATA_FETCHER.forceUpdate();
                         }
                     } catch (RealmsServiceException var3) {
-                        RealmsMainScreen.LOGGER.error("Couldn't connect to Realms: " + var3);
+                        RealmsMainScreen.LOGGER.error("Couldn't connect to Realms: {}", var3.toString());
                     }
 
                 }
@@ -609,7 +609,7 @@ public class RealmsMainScreen extends RealmsScreen {
                             RealmsMainScreen.REALMS_DATA_FETCHER.forceUpdate();
                         }
                     } catch (RealmsServiceException var3) {
-                        RealmsMainScreen.LOGGER.error("Couldn't connect to Realms: " + var3);
+                        RealmsMainScreen.LOGGER.error("Couldn't connect to Realms: {}", var3.toString());
                     }
 
                 }
@@ -828,7 +828,7 @@ public class RealmsMainScreen extends RealmsScreen {
             if (this.children.contains(this.realmSelectionList)) {
                 GuiEventListener var2 = this.realmSelectionList;
                 if (!this.children.remove(var2)) {
-                    LOGGER.error("Unable to remove widget: " + var2);
+                    LOGGER.error("Unable to remove widget: {}", var2);
                 }
             }
 
@@ -1236,7 +1236,7 @@ public class RealmsMainScreen extends RealmsScreen {
     @OnlyIn(Dist.CLIENT)
     class NewsButton extends Button {
         public NewsButton() {
-            super(RealmsMainScreen.this.width - 62, 6, 20, 20, TextComponent.EMPTY, param1 -> {
+            super(RealmsMainScreen.this.width - 62, 6, 20, 20, new TranslatableComponent("mco.news"), param1 -> {
                 if (RealmsMainScreen.this.newsLink != null) {
                     Util.getPlatform().openUri(RealmsMainScreen.this.newsLink);
                     if (RealmsMainScreen.this.hasUnreadNews) {
@@ -1248,7 +1248,6 @@ public class RealmsMainScreen extends RealmsScreen {
 
                 }
             });
-            this.setMessage(new TranslatableComponent("mco.news"));
         }
 
         @Override
@@ -1265,7 +1264,9 @@ public class RealmsMainScreen extends RealmsScreen {
 
         @Override
         public void tick() {
-            this.setMessage(new TranslatableComponent(RealmsMainScreen.this.numberOfPendingInvites == 0 ? "mco.invites.nopending" : "mco.invites.pending"));
+            this.setMessage(
+                RealmsMainScreen.this.numberOfPendingInvites == 0 ? RealmsMainScreen.NO_PENDING_INVITES_TEXT : RealmsMainScreen.PENDING_INVITES_TEXT
+            );
         }
 
         @Override
@@ -1303,7 +1304,7 @@ public class RealmsMainScreen extends RealmsScreen {
             if (param0 != 257 && param0 != 32 && param0 != 335) {
                 return super.keyPressed(param0, param1, param2);
             } else {
-                ObjectSelectionList.Entry var0 = this.getSelected();
+                RealmsMainScreen.Entry var0 = this.getSelected();
                 return var0 == null ? super.keyPressed(param0, param1, param2) : var0.mouseClicked(0.0, 0.0, 0);
             }
         }

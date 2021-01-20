@@ -6,6 +6,8 @@ import com.mojang.math.Matrix3f;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
 import net.minecraft.client.model.GuardianModel;
+import net.minecraft.client.model.geom.ModelLayerLocation;
+import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.culling.Frustum;
@@ -25,12 +27,12 @@ public class GuardianRenderer extends MobRenderer<Guardian, GuardianModel> {
     private static final ResourceLocation GUARDIAN_BEAM_LOCATION = new ResourceLocation("textures/entity/guardian_beam.png");
     private static final RenderType BEAM_RENDER_TYPE = RenderType.entityCutoutNoCull(GUARDIAN_BEAM_LOCATION);
 
-    public GuardianRenderer(EntityRenderDispatcher param0) {
-        this(param0, 0.5F);
+    public GuardianRenderer(EntityRendererProvider.Context param0) {
+        this(param0, 0.5F, ModelLayers.GUARDIAN);
     }
 
-    protected GuardianRenderer(EntityRenderDispatcher param0, float param1) {
-        super(param0, new GuardianModel(), param1);
+    protected GuardianRenderer(EntityRendererProvider.Context param0, float param1, ModelLayerLocation param2) {
+        super(param0, new GuardianModel(param0.bakeLayer(param2)), param1);
     }
 
     public boolean shouldRender(Guardian param0, Frustum param1, double param2, double param3, double param4) {

@@ -73,7 +73,7 @@ public class MinecartFurnace extends AbstractMinecart {
 
     @Override
     protected double getMaxSpeed() {
-        return 0.2;
+        return (this.isInWater() ? 3.0 : 4.0) / 20.0;
     }
 
     @Override
@@ -109,7 +109,12 @@ public class MinecartFurnace extends AbstractMinecart {
             var0 = (double)Mth.sqrt(var0);
             this.xPush /= var0;
             this.zPush /= var0;
-            this.setDeltaMovement(this.getDeltaMovement().multiply(0.8, 0.0, 0.8).add(this.xPush, 0.0, this.zPush));
+            Vec3 var1 = this.getDeltaMovement().multiply(0.8, 0.0, 0.8).add(this.xPush, 0.0, this.zPush);
+            if (this.isInWater()) {
+                var1 = var1.scale(0.1);
+            }
+
+            this.setDeltaMovement(var1);
         } else {
             this.setDeltaMovement(this.getDeltaMovement().multiply(0.98, 0.0, 0.98));
         }
@@ -121,7 +126,7 @@ public class MinecartFurnace extends AbstractMinecart {
     public InteractionResult interact(Player param0, InteractionHand param1) {
         ItemStack var0 = param0.getItemInHand(param1);
         if (INGREDIENT.test(var0) && this.fuel + 3600 <= 32000) {
-            if (!param0.abilities.instabuild) {
+            if (!param0.getAbilities().instabuild) {
                 var0.shrink(1);
             }
 

@@ -15,6 +15,18 @@ public class TargetingConditions {
     private boolean testInvisible = true;
     private Predicate<LivingEntity> selector;
 
+    public TargetingConditions copy() {
+        TargetingConditions var0 = new TargetingConditions();
+        var0.range = this.range;
+        var0.allowInvulnerable = this.allowInvulnerable;
+        var0.allowSameTeam = this.allowSameTeam;
+        var0.allowUnseeable = this.allowUnseeable;
+        var0.allowNonAttackable = this.allowNonAttackable;
+        var0.testInvisible = this.testInvisible;
+        var0.selector = this.selector;
+        return var0;
+    }
+
     public TargetingConditions range(double param0) {
         this.range = param0;
         return this;

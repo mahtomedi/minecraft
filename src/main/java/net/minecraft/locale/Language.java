@@ -36,23 +36,24 @@ public abstract class Language {
     private static Language loadDefault() {
         Builder<String, String> var0 = ImmutableMap.builder();
         BiConsumer<String, String> var1 = var0::put;
+        String var2 = "/assets/minecraft/lang/en_us.json";
 
-        try (InputStream var2 = Language.class.getResourceAsStream("/assets/minecraft/lang/en_us.json")) {
-            loadFromJson(var2, var1);
-        } catch (JsonParseException | IOException var15) {
-            LOGGER.error("Couldn't read strings from /assets/minecraft/lang/en_us.json", (Throwable)var15);
+        try (InputStream var3 = Language.class.getResourceAsStream("/assets/minecraft/lang/en_us.json")) {
+            loadFromJson(var3, var1);
+        } catch (JsonParseException | IOException var16) {
+            LOGGER.error("Couldn't read strings from {}", "/assets/minecraft/lang/en_us.json", var16);
         }
 
-        final Map<String, String> var4 = var0.build();
+        final Map<String, String> var5 = var0.build();
         return new Language() {
             @Override
             public String getOrDefault(String param0) {
-                return var4.getOrDefault(param0, param0);
+                return var5.getOrDefault(param0, param0);
             }
 
             @Override
             public boolean has(String param0) {
-                return var4.containsKey(param0);
+                return var5.containsKey(param0);
             }
 
             @OnlyIn(Dist.CLIENT)
@@ -104,6 +105,6 @@ public abstract class Language {
 
     @OnlyIn(Dist.CLIENT)
     public List<FormattedCharSequence> getVisualOrder(List<FormattedText> param0) {
-        return param0.stream().map(getInstance()::getVisualOrder).collect(ImmutableList.toImmutableList());
+        return param0.stream().map(this::getVisualOrder).collect(ImmutableList.toImmutableList());
     }
 }

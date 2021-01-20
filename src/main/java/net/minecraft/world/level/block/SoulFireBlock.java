@@ -20,10 +20,10 @@ public class SoulFireBlock extends BaseFireBlock {
 
     @Override
     public boolean canSurvive(BlockState param0, LevelReader param1, BlockPos param2) {
-        return canSurviveOnBlock(param1.getBlockState(param2.below()).getBlock());
+        return canSurviveOnBlock(param1.getBlockState(param2.below()));
     }
 
-    public static boolean canSurviveOnBlock(Block param0) {
+    public static boolean canSurviveOnBlock(BlockState param0) {
         return param0.is(BlockTags.SOUL_FIRE_BASE_BLOCKS);
     }
 

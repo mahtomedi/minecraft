@@ -50,9 +50,7 @@ public class FlyingPathNavigation extends PathNavigation {
                 this.followThePath();
             } else if (this.path != null && !this.path.isDone()) {
                 Vec3 var0 = this.path.getNextEntityPos(this.mob);
-                if (Mth.floor(this.mob.getX()) == Mth.floor(var0.x)
-                    && Mth.floor(this.mob.getY()) == Mth.floor(var0.y)
-                    && Mth.floor(this.mob.getZ()) == Mth.floor(var0.z)) {
+                if (this.mob.getBlockX() == Mth.floor(var0.x) && this.mob.getBlockY() == Mth.floor(var0.y) && this.mob.getBlockZ() == Mth.floor(var0.z)) {
                     this.path.advance();
                 }
             }

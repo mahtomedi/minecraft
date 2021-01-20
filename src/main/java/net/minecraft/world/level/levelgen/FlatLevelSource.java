@@ -4,7 +4,6 @@ import com.mojang.serialization.Codec;
 import java.util.Arrays;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.WorldGenRegion;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.NoiseColumn;
 import net.minecraft.world.level.StructureFeatureManager;
@@ -55,11 +54,11 @@ public class FlatLevelSource extends ChunkGenerator {
         for(int var1 = 0; var1 < var0.length; ++var1) {
             BlockState var2 = var0[var1] == null ? Blocks.AIR.defaultBlockState() : var0[var1];
             if (!Heightmap.Types.MOTION_BLOCKING.isOpaque().test(var2)) {
-                return var1 - 1;
+                return this.settings.getMinBuildHeight() + var1 - 1;
             }
         }
 
-        return var0.length;
+        return this.settings.getMinBuildHeight() + var0.length;
     }
 
     @Override
@@ -72,11 +71,13 @@ public class FlatLevelSource extends ChunkGenerator {
         for(int var4 = 0; var4 < var0.length; ++var4) {
             BlockState var5 = var0[var4];
             if (var5 != null) {
-                for(int var6 = 0; var6 < 16; ++var6) {
-                    for(int var7 = 0; var7 < 16; ++var7) {
-                        param2.setBlockState(var1.set(var6, var4, var7), var5, false);
-                        var2.update(var6, var4, var7, var5);
-                        var3.update(var6, var4, var7, var5);
+                int var6 = param0.getMinBuildHeight() + var4;
+
+                for(int var7 = 0; var7 < 16; ++var7) {
+                    for(int var8 = 0; var8 < 16; ++var8) {
+                        param2.setBlockState(var1.set(var7, var6, var8), var5, false);
+                        var2.update(var7, var6, var8, var5);
+                        var3.update(var7, var6, var8, var5);
                     }
                 }
             }
@@ -91,7 +92,7 @@ public class FlatLevelSource extends ChunkGenerator {
         for(int var1 = var0.length - 1; var1 >= 0; --var1) {
             BlockState var2 = var0[var1];
             if (var2 != null && param2.isOpaque().test(var2)) {
-                return var1 + 1;
+                return this.settings.getMinBuildHeight() + var1 + 1;
             }
         }
 
@@ -99,8 +100,9 @@ public class FlatLevelSource extends ChunkGenerator {
     }
 
     @Override
-    public BlockGetter getBaseColumn(int param0, int param1) {
+    public NoiseColumn getBaseColumn(int param0, int param1) {
         return new NoiseColumn(
+            0,
             Arrays.stream(this.settings.getLayers())
                 .map(param0x -> param0x == null ? Blocks.AIR.defaultBlockState() : param0x)
                 .toArray(param0x -> new BlockState[param0x])

@@ -5,8 +5,6 @@ import java.util.Comparator;
 import javax.annotation.Nullable;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public enum Difficulty {
     PEACEFUL(0, "peaceful"),
@@ -50,10 +48,5 @@ public enum Difficulty {
 
     public String getKey() {
         return this.key;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public Difficulty nextById() {
-        return BY_ID[(this.id + 1) % BY_ID.length];
     }
 }

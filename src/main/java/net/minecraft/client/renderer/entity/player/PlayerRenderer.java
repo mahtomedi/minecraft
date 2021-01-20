@@ -4,11 +4,12 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.ArrowLayer;
 import net.minecraft.client.renderer.entity.layers.BeeStingerLayer;
@@ -17,8 +18,8 @@ import net.minecraft.client.renderer.entity.layers.CustomHeadLayer;
 import net.minecraft.client.renderer.entity.layers.Deadmau5EarsLayer;
 import net.minecraft.client.renderer.entity.layers.ElytraLayer;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
-import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.client.renderer.entity.layers.ParrotOnShoulderLayer;
+import net.minecraft.client.renderer.entity.layers.PlayerItemInHandLayer;
 import net.minecraft.client.renderer.entity.layers.SpinAttackEffectLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.network.chat.Component;
@@ -42,21 +43,23 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class PlayerRenderer extends LivingEntityRenderer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> {
-    public PlayerRenderer(EntityRenderDispatcher param0) {
-        this(param0, false);
-    }
-
-    public PlayerRenderer(EntityRenderDispatcher param0, boolean param1) {
-        super(param0, new PlayerModel<>(0.0F, param1), 0.5F);
-        this.addLayer(new HumanoidArmorLayer<>(this, new HumanoidModel(0.5F), new HumanoidModel(1.0F)));
-        this.addLayer(new ItemInHandLayer<>(this));
-        this.addLayer(new ArrowLayer<>(this));
+    public PlayerRenderer(EntityRendererProvider.Context param0, boolean param1) {
+        super(param0, new PlayerModel<>(param0.bakeLayer(param1 ? ModelLayers.PLAYER_SLIM : ModelLayers.PLAYER), param1), 0.5F);
+        this.addLayer(
+            new HumanoidArmorLayer<>(
+                this,
+                new HumanoidModel(param0.bakeLayer(param1 ? ModelLayers.PLAYER_SLIM_INNER_ARMOR : ModelLayers.PLAYER_INNER_ARMOR)),
+                new HumanoidModel(param0.bakeLayer(param1 ? ModelLayers.PLAYER_SLIM_OUTER_ARMOR : ModelLayers.PLAYER_OUTER_ARMOR))
+            )
+        );
+        this.addLayer(new PlayerItemInHandLayer<>(this));
+        this.addLayer(new ArrowLayer<>(param0, this));
         this.addLayer(new Deadmau5EarsLayer(this));
         this.addLayer(new CapeLayer(this));
-        this.addLayer(new CustomHeadLayer<>(this));
-        this.addLayer(new ElytraLayer<>(this));
-        this.addLayer(new ParrotOnShoulderLayer<>(this));
-        this.addLayer(new SpinAttackEffectLayer<>(this));
+        this.addLayer(new CustomHeadLayer<>(this, param0.getModelSet()));
+        this.addLayer(new ElytraLayer<>(this, param0.getModelSet()));
+        this.addLayer(new ParrotOnShoulderLayer<>(this, param0.getModelSet()));
+        this.addLayer(new SpinAttackEffectLayer<>(this, param0.getModelSet()));
         this.addLayer(new BeeStingerLayer<>(this));
     }
 
@@ -123,7 +126,11 @@ public class PlayerRenderer extends LivingEntityRenderer<AbstractClientPlayer, P
                 if (var1 == UseAnim.CROSSBOW && param1 == param0.getUsedItemHand()) {
                     return HumanoidModel.ArmPose.CROSSBOW_CHARGE;
                 }
-            } else if (!param0.swinging && var0.getItem() == Items.CROSSBOW && CrossbowItem.isCharged(var0)) {
+
+                if (var1 == UseAnim.SPYGLASS) {
+                    return HumanoidModel.ArmPose.SPYGLASS;
+                }
+            } else if (!param0.swinging && var0.is(Items.CROSSBOW) && CrossbowItem.isCharged(var0)) {
                 return HumanoidModel.ArmPose.CROSSBOW_HOLD;
             }
 

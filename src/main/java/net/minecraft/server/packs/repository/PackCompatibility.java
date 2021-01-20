@@ -4,6 +4,8 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.SharedConstants;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -24,12 +26,17 @@ public enum PackCompatibility {
         return this == COMPATIBLE;
     }
 
-    public static PackCompatibility forFormat(int param0) {
-        if (param0 < SharedConstants.getCurrentVersion().getPackVersion()) {
+    public static PackCompatibility forFormat(int param0, PackType param1) {
+        int var0 = param1.getVersion(SharedConstants.getCurrentVersion());
+        if (param0 < var0) {
             return TOO_OLD;
         } else {
-            return param0 > SharedConstants.getCurrentVersion().getPackVersion() ? TOO_NEW : COMPATIBLE;
+            return param0 > var0 ? TOO_NEW : COMPATIBLE;
         }
+    }
+
+    public static PackCompatibility forMetadata(PackMetadataSection param0, PackType param1) {
+        return forFormat(param0.getPackFormat(), param1);
     }
 
     @OnlyIn(Dist.CLIENT)

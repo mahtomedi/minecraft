@@ -36,7 +36,7 @@ public class ProtectionEnchantment extends Enchantment {
             return param0;
         } else if (this.type == ProtectionEnchantment.Type.FIRE && param1.isFire()) {
             return param0 * 2;
-        } else if (this.type == ProtectionEnchantment.Type.FALL && param1 == DamageSource.FALL) {
+        } else if (this.type == ProtectionEnchantment.Type.FALL && param1.isFall()) {
             return param0 * 3;
         } else if (this.type == ProtectionEnchantment.Type.EXPLOSION && param1.isExplosion()) {
             return param0 * 2;
@@ -78,20 +78,18 @@ public class ProtectionEnchantment extends Enchantment {
     }
 
     public static enum Type {
-        ALL("all", 1, 11),
-        FIRE("fire", 10, 8),
-        FALL("fall", 5, 6),
-        EXPLOSION("explosion", 5, 8),
-        PROJECTILE("projectile", 3, 6);
+        ALL(1, 11),
+        FIRE(10, 8),
+        FALL(5, 6),
+        EXPLOSION(5, 8),
+        PROJECTILE(3, 6);
 
-        private final String name;
         private final int minCost;
         private final int levelCost;
 
-        private Type(String param0, int param1, int param2) {
-            this.name = param0;
-            this.minCost = param1;
-            this.levelCost = param2;
+        private Type(int param0, int param1) {
+            this.minCost = param0;
+            this.levelCost = param1;
         }
 
         public int getMinCost() {

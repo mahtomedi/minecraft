@@ -2,7 +2,6 @@ package com.mojang.realmsclient.gui.screens;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
-import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -15,7 +14,6 @@ public class RealmsConfirmScreen extends RealmsScreen {
     protected BooleanConsumer callback;
     private final Component title1;
     private final Component title2;
-    private int delayTicker;
 
     public RealmsConfirmScreen(BooleanConsumer param0, Component param1, Component param2) {
         this.callback = param0;
@@ -35,16 +33,5 @@ public class RealmsConfirmScreen extends RealmsScreen {
         drawCenteredString(param0, this.font, this.title1, this.width / 2, row(3), 16777215);
         drawCenteredString(param0, this.font, this.title2, this.width / 2, row(5), 16777215);
         super.render(param0, param1, param2, param3);
-    }
-
-    @Override
-    public void tick() {
-        super.tick();
-        if (--this.delayTicker == 0) {
-            for(AbstractWidget var0 : this.buttons) {
-                var0.active = true;
-            }
-        }
-
     }
 }

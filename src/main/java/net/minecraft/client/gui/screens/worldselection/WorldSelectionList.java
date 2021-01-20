@@ -41,6 +41,7 @@ import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -286,17 +287,22 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.W
 
         public void joinWorld() {
             if (!this.summary.isLocked()) {
-                if (this.summary.shouldBackup()) {
-                    Component var0 = new TranslatableComponent("selectWorld.backupQuestion");
-                    Component var1 = new TranslatableComponent(
-                        "selectWorld.backupWarning", this.summary.getWorldVersionName(), SharedConstants.getCurrentVersion().getName()
-                    );
+                LevelSummary.BackupStatus var0 = this.summary.backupStatus();
+                if (var0.shouldBackup()) {
+                    String var1 = "selectWorld.backupQuestion." + var0.getTranslationKey();
+                    String var2 = "selectWorld.backupWarning." + var0.getTranslationKey();
+                    MutableComponent var3 = new TranslatableComponent(var1);
+                    if (var0.isSevere()) {
+                        var3.withStyle(ChatFormatting.BOLD, ChatFormatting.RED);
+                    }
+
+                    Component var4 = new TranslatableComponent(var2, this.summary.getWorldVersionName(), SharedConstants.getCurrentVersion().getName());
                     this.minecraft.setScreen(new BackupConfirmScreen(this.screen, (param0, param1) -> {
                         if (param0) {
                             String var0x = this.summary.getLevelId();
 
-                            try (LevelStorageSource.LevelStorageAccess var2x = this.minecraft.getLevelSource().createAccess(var0x)) {
-                                EditWorldScreen.makeBackupAndShowToast(var2x);
+                            try (LevelStorageSource.LevelStorageAccess var1x = this.minecraft.getLevelSource().createAccess(var0x)) {
+                                EditWorldScreen.makeBackupAndShowToast(var1x);
                             } catch (IOException var17) {
                                 SystemToast.onWorldAccessFailure(this.minecraft, var0x);
                                 WorldSelectionList.LOGGER.error("Failed to backup level {}", var0x, var17);
@@ -304,7 +310,7 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.W
                         }
 
                         this.loadWorld();
-                    }, var0, var1, false));
+                    }, var3, var4, false));
                 } else if (this.summary.askToOpenWorld()) {
                     this.minecraft
                         .setScreen(
@@ -313,8 +319,8 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.W
                                     if (param0) {
                                         try {
                                             this.loadWorld();
-                                        } catch (Exception var3) {
-                                            WorldSelectionList.LOGGER.error("Failure to open 'future world'", (Throwable)var3);
+                                        } catch (Exception var3x) {
+                                            WorldSelectionList.LOGGER.error("Failure to open 'future world'", (Throwable)var3x);
                                             this.minecraft
                                                 .setScreen(
                                                     new AlertScreen(
@@ -330,12 +336,9 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.W
             
                                 },
                                 new TranslatableComponent("selectWorld.versionQuestion"),
-                                new TranslatableComponent(
-                                    "selectWorld.versionWarning",
-                                    this.summary.getWorldVersionName(),
-                                    new TranslatableComponent("selectWorld.versionJoinButton"),
-                                    CommonComponents.GUI_CANCEL
-                                )
+                                new TranslatableComponent("selectWorld.versionWarning", this.summary.getWorldVersionName()),
+                                new TranslatableComponent("selectWorld.versionJoinButton"),
+                                CommonComponents.GUI_CANCEL
                             )
                         );
                 } else {

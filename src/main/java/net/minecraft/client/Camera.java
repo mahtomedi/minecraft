@@ -2,15 +2,19 @@ package net.minecraft.client;
 
 import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
+import java.util.Arrays;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.level.material.FogType;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
@@ -30,7 +34,6 @@ public class Camera {
     private float yRot;
     private final Quaternion rotation = new Quaternion(0.0F, 0.0F, 0.0F, 1.0F);
     private boolean detached;
-    private boolean mirror;
     private float eyeHeight;
     private float eyeHeightOld;
 
@@ -39,7 +42,6 @@ public class Camera {
         this.level = param0;
         this.entity = param1;
         this.detached = param2;
-        this.mirror = param3;
         this.setRotation(param1.getViewYRot(param4), param1.getViewXRot(param4));
         this.setPosition(
             Mth.lerp((double)param4, param1.xo, param1.getX()),
@@ -156,14 +158,45 @@ public class Camera {
         return this.detached;
     }
 
-    public FluidState getFluidInCamera() {
+    public FogType getFluidInCamera() {
         if (!this.initialized) {
-            return Fluids.EMPTY.defaultFluidState();
+            return FogType.NONE;
         } else {
             FluidState var0 = this.level.getFluidState(this.blockPosition);
-            return !var0.isEmpty() && this.position.y >= (double)((float)this.blockPosition.getY() + var0.getHeight(this.level, this.blockPosition))
-                ? Fluids.EMPTY.defaultFluidState()
-                : var0;
+            if (var0.is(FluidTags.WATER) && this.position.y < (double)((float)this.blockPosition.getY() + var0.getHeight(this.level, this.blockPosition))) {
+                return FogType.WATER;
+            } else {
+                Minecraft var1 = Minecraft.getInstance();
+                double var2 = (double)var1.getWindow().getWidth() / (double)var1.getWindow().getHeight();
+                double var3 = Math.tan(var1.options.fov * (float) (Math.PI / 180.0) / 2.0) * 0.05F;
+                double var4 = var3 * var2;
+                Vec3 var5 = new Vec3(this.forwards).scale(0.05F);
+                Vec3 var6 = new Vec3(this.left).scale(var4);
+                Vec3 var7 = new Vec3(this.up).scale(var3);
+                Vec3 var8 = var5.add(var7).add(var6);
+                Vec3 var9 = var5.add(var7).subtract(var6);
+                Vec3 var10 = var5.subtract(var7).add(var6);
+                Vec3 var11 = var5.subtract(var7).subtract(var6);
+
+                for(Vec3 var13 : Arrays.asList(var5, var8, var9, var10, var11)) {
+                    Vec3 var14 = this.position.add(var13);
+                    BlockPos var15 = new BlockPos(var14);
+                    FluidState var16 = this.level.getFluidState(var15);
+                    if (!var16.isEmpty()) {
+                        if (!(var14.y >= (double)((float)this.blockPosition.getY() + var16.getHeight(this.level, this.blockPosition)))
+                            && var16.is(FluidTags.LAVA)) {
+                            return FogType.LAVA;
+                        }
+                    } else {
+                        BlockState var17 = this.level.getBlockState(var15);
+                        if (var17.is(Blocks.POWDER_SNOW)) {
+                            return FogType.POWDER_SNOW;
+                        }
+                    }
+                }
+
+                return FogType.NONE;
+            }
         }
     }
 

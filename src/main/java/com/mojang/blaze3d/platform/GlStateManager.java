@@ -431,6 +431,22 @@ public class GlStateManager {
         GL15.glBufferData(param0, param1, param2);
     }
 
+    public static void _glBufferData(int param0, long param1, int param2) {
+        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        GL15.glBufferData(param0, param1, param2);
+    }
+
+    @Nullable
+    public static ByteBuffer _glMapBuffer(int param0, int param1) {
+        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        return GL15.glMapBuffer(param0, param1);
+    }
+
+    public static void _glUnmapBuffer(int param0) {
+        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        GL15.glUnmapBuffer(param0);
+    }
+
     public static void _glDeleteBuffers(int param0) {
         RenderSystem.assertThread(RenderSystem::isOnRenderThread);
         GL15.glDeleteBuffers(param0);
@@ -1253,9 +1269,9 @@ public class GlStateManager {
         GL20.glEnableVertexAttribArray(param0);
     }
 
-    public static void _drawArrays(int param0, int param1, int param2) {
+    public static void _drawElements(int param0, int param1, int param2, long param3) {
         RenderSystem.assertThread(RenderSystem::isOnRenderThread);
-        GL11.glDrawArrays(param0, param1, param2);
+        GL11.glDrawElements(param0, param1, param2, param3);
     }
 
     public static void _lineWidth(float param0) {

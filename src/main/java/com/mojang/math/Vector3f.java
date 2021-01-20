@@ -1,12 +1,22 @@
 package com.mojang.math;
 
+import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.floats.Float2FloatFunction;
+import java.util.stream.DoubleStream;
+import net.minecraft.Util;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public final class Vector3f {
+    public static final Codec<Vector3f> CODEC = ExtraCodecs.DOUBLE_STREAM
+        .<Vector3f>comapFlatMap(
+            param0 -> Util.fixedSize(param0, 3).map(param0x -> new Vector3f((float)param0x[0], (float)param0x[1], (float)param0x[2])),
+            param0 -> DoubleStream.of((double)param0.x, (double)param0.y, (double)param0.z)
+        )
+        .stable();
     public static Vector3f XN = new Vector3f(-1.0F, 0.0F, 0.0F);
     public static Vector3f XP = new Vector3f(1.0F, 0.0F, 0.0F);
     public static Vector3f YN = new Vector3f(0.0F, -1.0F, 0.0F);

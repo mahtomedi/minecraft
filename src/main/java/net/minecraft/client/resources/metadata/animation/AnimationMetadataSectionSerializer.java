@@ -1,11 +1,12 @@
 package net.minecraft.client.resources.metadata.animation;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import java.util.List;
+import javax.annotation.Nullable;
 import net.minecraft.server.packs.metadata.MetadataSectionSerializer;
 import net.minecraft.util.GsonHelper;
 import net.minecraftforge.api.distmarker.Dist;
@@ -15,7 +16,7 @@ import org.apache.commons.lang3.Validate;
 @OnlyIn(Dist.CLIENT)
 public class AnimationMetadataSectionSerializer implements MetadataSectionSerializer<AnimationMetadataSection> {
     public AnimationMetadataSection fromJson(JsonObject param0) {
-        List<AnimationFrame> var0 = Lists.newArrayList();
+        Builder<AnimationFrame> var0 = ImmutableList.builder();
         int var1 = GsonHelper.getAsInt(param0, "frametime", 1);
         if (var1 != 1) {
             Validate.inclusiveBetween(1L, 2147483647L, (long)var1, "Invalid default frame time");
@@ -48,9 +49,10 @@ public class AnimationMetadataSectionSerializer implements MetadataSectionSerial
         }
 
         boolean var9 = GsonHelper.getAsBoolean(param0, "interpolate", false);
-        return new AnimationMetadataSection(var0, var7, var8, var1, var9);
+        return new AnimationMetadataSection(var0.build(), var7, var8, var1, var9);
     }
 
+    @Nullable
     private AnimationFrame getFrame(int param0, JsonElement param1) {
         if (param1.isJsonPrimitive()) {
             return new AnimationFrame(GsonHelper.convertToInt(param1, "frames[" + param0 + "]"));

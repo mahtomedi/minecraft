@@ -142,6 +142,18 @@ public enum Direction implements StringRepresentable {
         return this.axisDirection;
     }
 
+    public static Direction getFacingAxis(Entity param0, Direction.Axis param1) {
+        switch(param1) {
+            case X:
+                return EAST.isFacingAngle(param0.getViewYRot(1.0F)) ? EAST : WEST;
+            case Z:
+                return SOUTH.isFacingAngle(param0.getViewYRot(1.0F)) ? SOUTH : NORTH;
+            case Y:
+            default:
+                return param0.getViewXRot(1.0F) < 0.0F ? UP : DOWN;
+        }
+    }
+
     public Direction getOpposite() {
         return from3DDataValue(this.oppositeIndex);
     }
@@ -228,11 +240,11 @@ public enum Direction implements StringRepresentable {
         switch(param0) {
             case X:
                 return param1 == Direction.AxisDirection.POSITIVE ? EAST : WEST;
-            case Y:
-                return param1 == Direction.AxisDirection.POSITIVE ? UP : DOWN;
             case Z:
             default:
                 return param1 == Direction.AxisDirection.POSITIVE ? SOUTH : NORTH;
+            case Y:
+                return param1 == Direction.AxisDirection.POSITIVE ? UP : DOWN;
         }
     }
 

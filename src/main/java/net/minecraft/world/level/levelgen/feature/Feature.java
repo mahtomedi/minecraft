@@ -4,10 +4,10 @@ import com.mojang.serialization.Codec;
 import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.LevelSimulatedReader;
 import net.minecraft.world.level.LevelWriter;
 import net.minecraft.world.level.WorldGenLevel;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
@@ -19,9 +19,13 @@ import net.minecraft.world.level.levelgen.feature.configurations.CountConfigurat
 import net.minecraft.world.level.levelgen.feature.configurations.DecoratedFeatureConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.DeltaFeatureConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.DiskConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.DripstoneClusterConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.EndGatewayConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.GeodeConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.GlowLichenConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.HugeMushroomFeatureConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.LargeDripstoneConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.LayerConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.OreConfiguration;
@@ -33,6 +37,7 @@ import net.minecraft.world.level.levelgen.feature.configurations.ReplaceBlockCon
 import net.minecraft.world.level.levelgen.feature.configurations.ReplaceSphereConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.SimpleBlockConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.SimpleRandomFeatureConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.SmallDripstoneConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.SpikeConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.SpringConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
@@ -66,6 +71,7 @@ public abstract class Feature<FC extends FeatureConfiguration> {
         "freeze_top_layer", new SnowAndFreezeFeature(NoneFeatureConfiguration.CODEC)
     );
     public static final Feature<NoneFeatureConfiguration> VINES = register("vines", new VinesFeature(NoneFeatureConfiguration.CODEC));
+    public static final Feature<GlowLichenConfiguration> GLOW_LICHEN = register("glow_lichen", new GlowLichenFeature(GlowLichenConfiguration.CODEC));
     public static final Feature<NoneFeatureConfiguration> MONSTER_ROOM = register("monster_room", new MonsterRoomFeature(NoneFeatureConfiguration.CODEC));
     public static final Feature<NoneFeatureConfiguration> BLUE_ICE = register("blue_ice", new BlueIceFeature(NoneFeatureConfiguration.CODEC));
     public static final Feature<BlockStateConfiguration> ICEBERG = register("iceberg", new IcebergFeature(BlockStateConfiguration.CODEC));
@@ -112,6 +118,16 @@ public abstract class Feature<FC extends FeatureConfiguration> {
         "random_boolean_selector", new RandomBooleanSelectorFeature(RandomBooleanFeatureConfiguration.CODEC)
     );
     public static final Feature<DecoratedFeatureConfiguration> DECORATED = register("decorated", new DecoratedFeature(DecoratedFeatureConfiguration.CODEC));
+    public static final Feature<GeodeConfiguration> GEODE = register("geode", new GeodeFeature(GeodeConfiguration.CODEC));
+    public static final Feature<DripstoneClusterConfiguration> DRIPSTONE_CLUSTER = register(
+        "dripstone_cluster", new DripstoneClusterFeature(DripstoneClusterConfiguration.CODEC)
+    );
+    public static final Feature<LargeDripstoneConfiguration> LARGE_DRIPSTONE = register(
+        "large_dripstone", new LargeDripstoneFeature(LargeDripstoneConfiguration.CODEC)
+    );
+    public static final Feature<SmallDripstoneConfiguration> SMALL_DRIPSTONE = register(
+        "small_dripstone", new SmallDripstoneFeature(SmallDripstoneConfiguration.CODEC)
+    );
     private final Codec<ConfiguredFeature<FC, Feature<FC>>> configuredCodec;
 
     private static <C extends FeatureConfiguration, F extends Feature<C>> F register(String param0, F param1) {
@@ -136,16 +152,20 @@ public abstract class Feature<FC extends FeatureConfiguration> {
 
     public abstract boolean place(WorldGenLevel var1, ChunkGenerator var2, Random var3, BlockPos var4, FC var5);
 
-    protected static boolean isStone(Block param0) {
-        return param0 == Blocks.STONE || param0 == Blocks.GRANITE || param0 == Blocks.DIORITE || param0 == Blocks.ANDESITE;
+    protected static boolean isStone(BlockState param0) {
+        return param0.is(BlockTags.BASE_STONE_OVERWORLD);
     }
 
-    public static boolean isDirt(Block param0) {
-        return param0 == Blocks.DIRT || param0 == Blocks.GRASS_BLOCK || param0 == Blocks.PODZOL || param0 == Blocks.COARSE_DIRT || param0 == Blocks.MYCELIUM;
+    public static boolean isDirt(BlockState param0) {
+        return param0.is(Blocks.DIRT)
+            || param0.is(Blocks.GRASS_BLOCK)
+            || param0.is(Blocks.PODZOL)
+            || param0.is(Blocks.COARSE_DIRT)
+            || param0.is(Blocks.MYCELIUM);
     }
 
     public static boolean isGrassOrDirt(LevelSimulatedReader param0, BlockPos param1) {
-        return param0.isStateAtPosition(param1, param0x -> isDirt(param0x.getBlock()));
+        return param0.isStateAtPosition(param1, Feature::isDirt);
     }
 
     public static boolean isAir(LevelSimulatedReader param0, BlockPos param1) {

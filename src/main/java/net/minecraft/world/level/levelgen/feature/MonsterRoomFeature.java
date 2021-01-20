@@ -71,18 +71,18 @@ public class MonsterRoomFeature extends Feature<NoneFeatureConfiguration> {
                     for(int var18 = var7; var18 <= var8; ++var18) {
                         BlockPos var19 = param3.offset(var16, var17, var18);
                         BlockState var20 = param0.getBlockState(var19);
-                        if (var16 != var2 && var17 != -1 && var18 != var7 && var16 != var3 && var17 != 4 && var18 != var8) {
-                            if (!var20.is(Blocks.CHEST) && !var20.is(Blocks.SPAWNER)) {
+                        if (var16 == var2 || var17 == -1 || var18 == var7 || var16 == var3 || var17 == 4 || var18 == var8) {
+                            if (var19.getY() >= param0.getMinBuildHeight() && !param0.getBlockState(var19.below()).getMaterial().isSolid()) {
                                 param0.setBlock(var19, AIR, 2);
+                            } else if (var20.getMaterial().isSolid() && !var20.is(Blocks.CHEST)) {
+                                if (var17 == -1 && param2.nextInt(4) != 0) {
+                                    param0.setBlock(var19, Blocks.MOSSY_COBBLESTONE.defaultBlockState(), 2);
+                                } else {
+                                    param0.setBlock(var19, Blocks.COBBLESTONE.defaultBlockState(), 2);
+                                }
                             }
-                        } else if (var19.getY() >= 0 && !param0.getBlockState(var19.below()).getMaterial().isSolid()) {
+                        } else if (!var20.is(Blocks.CHEST) && !var20.is(Blocks.SPAWNER)) {
                             param0.setBlock(var19, AIR, 2);
-                        } else if (var20.getMaterial().isSolid() && !var20.is(Blocks.CHEST)) {
-                            if (var17 == -1 && param2.nextInt(4) != 0) {
-                                param0.setBlock(var19, Blocks.MOSSY_COBBLESTONE.defaultBlockState(), 2);
-                            } else {
-                                param0.setBlock(var19, Blocks.COBBLESTONE.defaultBlockState(), 2);
-                            }
                         }
                     }
                 }

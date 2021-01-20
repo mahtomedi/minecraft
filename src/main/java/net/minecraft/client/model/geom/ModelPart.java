@@ -6,53 +6,43 @@ import com.mojang.math.Matrix3f;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
 import com.mojang.math.Vector4f;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectList;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Random;
-import net.minecraft.client.model.Model;
+import java.util.stream.Stream;
 import net.minecraft.core.Direction;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class ModelPart {
-    private float xTexSize = 64.0F;
-    private float yTexSize = 32.0F;
-    private int xTexOffs;
-    private int yTexOffs;
+public final class ModelPart {
     public float x;
     public float y;
     public float z;
     public float xRot;
     public float yRot;
     public float zRot;
-    public boolean mirror;
     public boolean visible = true;
-    private final ObjectList<ModelPart.Cube> cubes = new ObjectArrayList<>();
-    private final ObjectList<ModelPart> children = new ObjectArrayList<>();
+    private final List<ModelPart.Cube> cubes;
+    private final Map<String, ModelPart> children;
 
-    public ModelPart(Model param0) {
-        param0.accept(this);
-        this.setTexSize(param0.texWidth, param0.texHeight);
+    public ModelPart(List<ModelPart.Cube> param0, Map<String, ModelPart> param1) {
+        this.cubes = param0;
+        this.children = param1;
     }
 
-    public ModelPart(Model param0, int param1, int param2) {
-        this(param0.texWidth, param0.texHeight, param1, param2);
-        param0.accept(this);
+    public PartPose storePose() {
+        return PartPose.offsetAndRotation(this.x, this.y, this.z, this.xRot, this.yRot, this.zRot);
     }
 
-    public ModelPart(int param0, int param1, int param2, int param3) {
-        this.setTexSize(param0, param1);
-        this.texOffs(param2, param3);
-    }
-
-    private ModelPart() {
-    }
-
-    public ModelPart createShallowCopy() {
-        ModelPart var0 = new ModelPart();
-        var0.copyFrom(this);
-        return var0;
+    public void loadPose(PartPose param0) {
+        this.x = param0.x;
+        this.y = param0.y;
+        this.z = param0.z;
+        this.xRot = param0.xRot;
+        this.yRot = param0.yRot;
+        this.zRot = param0.zRot;
     }
 
     public void copyFrom(ModelPart param0) {
@@ -64,73 +54,25 @@ public class ModelPart {
         this.z = param0.z;
     }
 
-    public void addChild(ModelPart param0) {
-        this.children.add(param0);
-    }
-
-    public ModelPart texOffs(int param0, int param1) {
-        this.xTexOffs = param0;
-        this.yTexOffs = param1;
-        return this;
-    }
-
-    public ModelPart addBox(String param0, float param1, float param2, float param3, int param4, int param5, int param6, float param7, int param8, int param9) {
-        this.texOffs(param8, param9);
-        this.addBox(
-            this.xTexOffs, this.yTexOffs, param1, param2, param3, (float)param4, (float)param5, (float)param6, param7, param7, param7, this.mirror, false
-        );
-        return this;
-    }
-
-    public ModelPart addBox(float param0, float param1, float param2, float param3, float param4, float param5) {
-        this.addBox(this.xTexOffs, this.yTexOffs, param0, param1, param2, param3, param4, param5, 0.0F, 0.0F, 0.0F, this.mirror, false);
-        return this;
-    }
-
-    public ModelPart addBox(float param0, float param1, float param2, float param3, float param4, float param5, boolean param6) {
-        this.addBox(this.xTexOffs, this.yTexOffs, param0, param1, param2, param3, param4, param5, 0.0F, 0.0F, 0.0F, param6, false);
-        return this;
-    }
-
-    public void addBox(float param0, float param1, float param2, float param3, float param4, float param5, float param6) {
-        this.addBox(this.xTexOffs, this.yTexOffs, param0, param1, param2, param3, param4, param5, param6, param6, param6, this.mirror, false);
-    }
-
-    public void addBox(float param0, float param1, float param2, float param3, float param4, float param5, float param6, float param7, float param8) {
-        this.addBox(this.xTexOffs, this.yTexOffs, param0, param1, param2, param3, param4, param5, param6, param7, param8, this.mirror, false);
-    }
-
-    public void addBox(float param0, float param1, float param2, float param3, float param4, float param5, float param6, boolean param7) {
-        this.addBox(this.xTexOffs, this.yTexOffs, param0, param1, param2, param3, param4, param5, param6, param6, param6, param7, false);
-    }
-
-    private void addBox(
-        int param0,
-        int param1,
-        float param2,
-        float param3,
-        float param4,
-        float param5,
-        float param6,
-        float param7,
-        float param8,
-        float param9,
-        float param10,
-        boolean param11,
-        boolean param12
-    ) {
-        this.cubes
-            .add(
-                new ModelPart.Cube(
-                    param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11, this.xTexSize, this.yTexSize
-                )
-            );
+    public ModelPart getChild(String param0) {
+        ModelPart var0 = this.children.get(param0);
+        if (var0 == null) {
+            throw new NoSuchElementException("Can't find part " + param0);
+        } else {
+            return var0;
+        }
     }
 
     public void setPos(float param0, float param1, float param2) {
         this.x = param0;
         this.y = param1;
         this.z = param2;
+    }
+
+    public void setRotation(float param0, float param1, float param2) {
+        this.xRot = param0;
+        this.yRot = param1;
+        this.zRot = param2;
     }
 
     public void render(PoseStack param0, VertexConsumer param1, int param2, int param3) {
@@ -144,7 +86,7 @@ public class ModelPart {
                 this.translateAndRotate(param0);
                 this.compile(param0.last(), param1, param2, param3, param4, param5, param6, param7);
 
-                for(ModelPart var0 : this.children) {
+                for(ModelPart var0 : this.children.values()) {
                     var0.render(param0, param1, param2, param3, param4, param5, param6, param7);
                 }
 
@@ -170,39 +112,22 @@ public class ModelPart {
     }
 
     private void compile(PoseStack.Pose param0, VertexConsumer param1, int param2, int param3, float param4, float param5, float param6, float param7) {
-        Matrix4f var0 = param0.pose();
-        Matrix3f var1 = param0.normal();
-
-        for(ModelPart.Cube var2 : this.cubes) {
-            for(ModelPart.Polygon var3 : var2.polygons) {
-                Vector3f var4 = var3.normal.copy();
-                var4.transform(var1);
-                float var5 = var4.x();
-                float var6 = var4.y();
-                float var7 = var4.z();
-
-                for(int var8 = 0; var8 < 4; ++var8) {
-                    ModelPart.Vertex var9 = var3.vertices[var8];
-                    float var10 = var9.pos.x() / 16.0F;
-                    float var11 = var9.pos.y() / 16.0F;
-                    float var12 = var9.pos.z() / 16.0F;
-                    Vector4f var13 = new Vector4f(var10, var11, var12, 1.0F);
-                    var13.transform(var0);
-                    param1.vertex(var13.x(), var13.y(), var13.z(), param4, param5, param6, param7, var9.u, var9.v, param3, param2, var5, var6, var7);
-                }
-            }
+        for(ModelPart.Cube var0 : this.cubes) {
+            var0.compile(param0, param1, param2, param3, param4, param5, param6, param7);
         }
 
     }
 
-    public ModelPart setTexSize(int param0, int param1) {
-        this.xTexSize = (float)param0;
-        this.yTexSize = (float)param1;
-        return this;
-    }
-
     public ModelPart.Cube getRandomCube(Random param0) {
         return this.cubes.get(param0.nextInt(this.cubes.size()));
+    }
+
+    public boolean isEmpty() {
+        return this.cubes.isEmpty();
+    }
+
+    public Stream<ModelPart> getAllParts() {
+        return Stream.concat(Stream.of(this), this.children.values().stream().flatMap(ModelPart::getAllParts));
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -288,6 +213,29 @@ public class ModelPart {
             this.polygons[5] = new ModelPart.Polygon(
                 new ModelPart.Vertex[]{var8, var9, var10, var11}, var16, var19, var17, var20, param12, param13, param11, Direction.SOUTH
             );
+        }
+
+        public void compile(PoseStack.Pose param0, VertexConsumer param1, int param2, int param3, float param4, float param5, float param6, float param7) {
+            Matrix4f var0 = param0.pose();
+            Matrix3f var1 = param0.normal();
+
+            for(ModelPart.Polygon var2 : this.polygons) {
+                Vector3f var3 = var2.normal.copy();
+                var3.transform(var1);
+                float var4 = var3.x();
+                float var5 = var3.y();
+                float var6 = var3.z();
+
+                for(ModelPart.Vertex var7 : var2.vertices) {
+                    float var8 = var7.pos.x() / 16.0F;
+                    float var9 = var7.pos.y() / 16.0F;
+                    float var10 = var7.pos.z() / 16.0F;
+                    Vector4f var11 = new Vector4f(var8, var9, var10, 1.0F);
+                    var11.transform(var0);
+                    param1.vertex(var11.x(), var11.y(), var11.z(), param4, param5, param6, param7, var7.u, var7.v, param3, param2, var4, var5, var6);
+                }
+            }
+
         }
     }
 

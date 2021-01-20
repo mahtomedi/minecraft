@@ -27,6 +27,11 @@ public class KelpPlantBlock extends GrowingPlantBodyBlock implements LiquidBlock
     }
 
     @Override
+    protected boolean canAttachTo(BlockState param0) {
+        return this.getHeadBlock().canAttachTo(param0);
+    }
+
+    @Override
     public boolean canPlaceLiquid(BlockGetter param0, BlockPos param1, BlockState param2, Fluid param3) {
         return false;
     }

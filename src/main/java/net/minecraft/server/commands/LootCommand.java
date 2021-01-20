@@ -30,6 +30,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -274,7 +275,7 @@ public class LootCommand {
     private static Container getContainer(CommandSourceStack param0, BlockPos param1) throws CommandSyntaxException {
         BlockEntity var0 = param0.getLevel().getBlockEntity(param1);
         if (!(var0 instanceof Container)) {
-            throw ReplaceItemCommand.ERROR_NOT_A_CONTAINER.create();
+            throw ItemCommands.ERROR_TARGET_NOT_A_CONTAINER.create(param1.getX(), param1.getY(), param1.getZ());
         } else {
             return (Container)var0;
         }
@@ -338,12 +339,12 @@ public class LootCommand {
             param5.accept(var2);
             return var2.size();
         } else {
-            throw ReplaceItemCommand.ERROR_INAPPLICABLE_SLOT.create(param2);
+            throw ItemCommands.ERROR_TARGET_INAPPLICABLE_SLOT.create(param2);
         }
     }
 
     private static boolean canMergeItems(ItemStack param0, ItemStack param1) {
-        return param0.getItem() == param1.getItem()
+        return param0.is(param1.getItem())
             && param0.getDamageValue() == param1.getDamageValue()
             && param0.getCount() <= param0.getMaxStackSize()
             && Objects.equals(param0.getTag(), param1.getTag());
@@ -354,7 +355,7 @@ public class LootCommand {
 
         for(ItemStack var1 : param1) {
             for(ServerPlayer var2 : param0) {
-                if (var2.inventory.add(var1.copy())) {
+                if (var2.getInventory().add(var1.copy())) {
                     var0.add(var1);
                 }
             }
@@ -367,7 +368,8 @@ public class LootCommand {
     private static void setSlots(Entity param0, List<ItemStack> param1, int param2, int param3, List<ItemStack> param4) {
         for(int var0 = 0; var0 < param3; ++var0) {
             ItemStack var1 = var0 < param1.size() ? param1.get(var0) : ItemStack.EMPTY;
-            if (param0.setSlot(param2 + var0, var1.copy())) {
+            SlotAccess var2 = param0.getSlot(param2 + var0);
+            if (var2 != SlotAccess.NULL && var2.set(var1.copy())) {
                 param4.add(var1);
             }
         }

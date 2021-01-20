@@ -7,6 +7,7 @@ import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.math.Matrix4f;
 import java.util.function.BiConsumer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -68,7 +69,7 @@ public abstract class GuiComponent {
         RenderSystem.enableBlend();
         RenderSystem.disableTexture();
         RenderSystem.defaultBlendFunc();
-        var6.begin(7, DefaultVertexFormat.POSITION_COLOR);
+        var6.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
         var6.vertex(param0, (float)param1, (float)param4, 0.0F).color(var3, var4, var5, var2).endVertex();
         var6.vertex(param0, (float)param3, (float)param4, 0.0F).color(var3, var4, var5, var2).endVertex();
         var6.vertex(param0, (float)param3, (float)param2, 0.0F).color(var3, var4, var5, var2).endVertex();
@@ -80,6 +81,10 @@ public abstract class GuiComponent {
     }
 
     protected void fillGradient(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6) {
+        fillGradient(param0, param1, param2, param3, param4, param5, param6, this.blitOffset);
+    }
+
+    protected static void fillGradient(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7) {
         RenderSystem.disableTexture();
         RenderSystem.enableBlend();
         RenderSystem.disableAlphaTest();
@@ -87,8 +92,8 @@ public abstract class GuiComponent {
         RenderSystem.shadeModel(7425);
         Tesselator var0 = Tesselator.getInstance();
         BufferBuilder var1 = var0.getBuilder();
-        var1.begin(7, DefaultVertexFormat.POSITION_COLOR);
-        fillGradient(param0.last().pose(), var1, param1, param2, param3, param4, this.blitOffset, param5, param6);
+        var1.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+        fillGradient(param0.last().pose(), var1, param1, param2, param3, param4, param7, param5, param6);
         var0.end();
         RenderSystem.shadeModel(7424);
         RenderSystem.disableBlend();
@@ -201,7 +206,7 @@ public abstract class GuiComponent {
         Matrix4f param0, int param1, int param2, int param3, int param4, int param5, float param6, float param7, float param8, float param9
     ) {
         BufferBuilder var0 = Tesselator.getInstance().getBuilder();
-        var0.begin(7, DefaultVertexFormat.POSITION_TEX);
+        var0.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
         var0.vertex(param0, (float)param1, (float)param4, (float)param5).uv(param6, param9).endVertex();
         var0.vertex(param0, (float)param2, (float)param4, (float)param5).uv(param7, param9).endVertex();
         var0.vertex(param0, (float)param2, (float)param3, (float)param5).uv(param7, param8).endVertex();

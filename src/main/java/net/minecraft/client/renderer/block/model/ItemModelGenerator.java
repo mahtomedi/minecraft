@@ -141,19 +141,18 @@ public class ItemModelGenerator {
         int var0 = param0.getWidth();
         int var1 = param0.getHeight();
         List<ItemModelGenerator.Span> var2 = Lists.newArrayList();
-
-        for(int var3 = 0; var3 < param0.getFrameCount(); ++var3) {
-            for(int var4 = 0; var4 < var1; ++var4) {
-                for(int var5 = 0; var5 < var0; ++var5) {
-                    boolean var6 = !this.isTransparent(param0, var3, var5, var4, var0, var1);
-                    this.checkTransition(ItemModelGenerator.SpanFacing.UP, var2, param0, var3, var5, var4, var0, var1, var6);
-                    this.checkTransition(ItemModelGenerator.SpanFacing.DOWN, var2, param0, var3, var5, var4, var0, var1, var6);
-                    this.checkTransition(ItemModelGenerator.SpanFacing.LEFT, var2, param0, var3, var5, var4, var0, var1, var6);
-                    this.checkTransition(ItemModelGenerator.SpanFacing.RIGHT, var2, param0, var3, var5, var4, var0, var1, var6);
+        param0.getUniqueFrames().forEach(param4 -> {
+            for(int var0x = 0; var0x < var1; ++var0x) {
+                for(int var1x = 0; var1x < var0; ++var1x) {
+                    boolean var2x = !this.isTransparent(param0, param4, var1x, var0x, var0, var1);
+                    this.checkTransition(ItemModelGenerator.SpanFacing.UP, var2, param0, param4, var1x, var0x, var0, var1, var2x);
+                    this.checkTransition(ItemModelGenerator.SpanFacing.DOWN, var2, param0, param4, var1x, var0x, var0, var1, var2x);
+                    this.checkTransition(ItemModelGenerator.SpanFacing.LEFT, var2, param0, param4, var1x, var0x, var0, var1, var2x);
+                    this.checkTransition(ItemModelGenerator.SpanFacing.RIGHT, var2, param0, param4, var1x, var0x, var0, var1, var2x);
                 }
             }
-        }
 
+        });
         return var2;
     }
 

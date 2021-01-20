@@ -1,5 +1,6 @@
 package net.minecraft.world.level.block;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import java.util.Map;
 import net.minecraft.Util;
@@ -22,14 +23,14 @@ public class PipeBlock extends Block {
     public static final BooleanProperty WEST = BlockStateProperties.WEST;
     public static final BooleanProperty UP = BlockStateProperties.UP;
     public static final BooleanProperty DOWN = BlockStateProperties.DOWN;
-    public static final Map<Direction, BooleanProperty> PROPERTY_BY_DIRECTION = Util.make(Maps.newEnumMap(Direction.class), param0 -> {
+    public static final Map<Direction, BooleanProperty> PROPERTY_BY_DIRECTION = ImmutableMap.copyOf(Util.make(Maps.newEnumMap(Direction.class), param0 -> {
         param0.put(Direction.NORTH, NORTH);
         param0.put(Direction.EAST, EAST);
         param0.put(Direction.SOUTH, SOUTH);
         param0.put(Direction.WEST, WEST);
         param0.put(Direction.UP, UP);
         param0.put(Direction.DOWN, DOWN);
-    });
+    }));
     protected final VoxelShape[] shapeByIndex;
 
     protected PipeBlock(float param0, BlockBehaviour.Properties param1) {

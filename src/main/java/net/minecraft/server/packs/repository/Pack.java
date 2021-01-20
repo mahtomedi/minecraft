@@ -7,13 +7,12 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
-import net.minecraft.SharedConstants;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.packs.PackResources;
+import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -22,10 +21,6 @@ import org.apache.logging.log4j.Logger;
 
 public class Pack implements AutoCloseable {
     private static final Logger LOGGER = LogManager.getLogger();
-    private static final PackMetadataSection BROKEN_ASSETS_FALLBACK = new PackMetadataSection(
-        new TranslatableComponent("resourcePack.broken_assets").withStyle(new ChatFormatting[]{ChatFormatting.RED, ChatFormatting.ITALIC}),
-        SharedConstants.getCurrentVersion().getPackVersion()
-    );
     private final String id;
     private final Supplier<PackResources> supplier;
     private final Component title;
@@ -42,15 +37,8 @@ public class Pack implements AutoCloseable {
     ) {
         try (PackResources var0 = param2.get()) {
             PackMetadataSection var1 = var0.getMetadataSection(PackMetadataSection.SERIALIZER);
-            if (param1 && var1 == null) {
-                LOGGER.error(
-                    "Broken/missing pack.mcmeta detected, fudging it into existance. Please check that your launcher has downloaded all assets for the game correctly!"
-                );
-                var1 = BROKEN_ASSETS_FALLBACK;
-            }
-
             if (var1 != null) {
-                return param3.create(param0, param1, param2, var0, var1, param4, param5);
+                return param3.create(param0, new TextComponent(var0.getName()), param1, param2, var1, param4, param5);
             }
 
             LOGGER.warn("Couldn't find pack meta for pack {}", param0);
@@ -85,24 +73,15 @@ public class Pack implements AutoCloseable {
 
     public Pack(
         String param0,
-        boolean param1,
-        Supplier<PackResources> param2,
-        PackResources param3,
+        Component param1,
+        boolean param2,
+        Supplier<PackResources> param3,
         PackMetadataSection param4,
-        Pack.Position param5,
-        PackSource param6
+        PackType param5,
+        Pack.Position param6,
+        PackSource param7
     ) {
-        this(
-            param0,
-            param1,
-            param2,
-            new TextComponent(param3.getName()),
-            param4.getDescription(),
-            PackCompatibility.forFormat(param4.getPackFormat()),
-            param5,
-            false,
-            param6
-        );
+        this(param0, param2, param3, param1, param4.getDescription(), PackCompatibility.forMetadata(param4, param5), param6, false, param7);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -179,7 +158,7 @@ public class Pack implements AutoCloseable {
     @FunctionalInterface
     public interface PackConstructor {
         @Nullable
-        Pack create(String var1, boolean var2, Supplier<PackResources> var3, PackResources var4, PackMetadataSection var5, Pack.Position var6, PackSource var7);
+        Pack create(String var1, Component var2, boolean var3, Supplier<PackResources> var4, PackMetadataSection var5, Pack.Position var6, PackSource var7);
     }
 
     public static enum Position {

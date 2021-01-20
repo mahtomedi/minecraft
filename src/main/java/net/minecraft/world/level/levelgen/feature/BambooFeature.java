@@ -44,7 +44,7 @@ public class BambooFeature extends Feature<ProbabilityFeatureConfiguration> {
                             int var8 = var6 - param3.getZ();
                             if (var7 * var7 + var8 * var8 <= var4 * var4) {
                                 var2.set(var5, param0.getHeight(Heightmap.Types.WORLD_SURFACE, var5, var6) - 1, var6);
-                                if (isDirt(param0.getBlockState(var2).getBlock())) {
+                                if (isDirt(param0.getBlockState(var2))) {
                                     param0.setBlock(var2, Blocks.PODZOL.defaultBlockState(), 2);
                                 }
                             }

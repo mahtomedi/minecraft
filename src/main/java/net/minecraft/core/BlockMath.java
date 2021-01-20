@@ -5,7 +5,7 @@ import com.mojang.math.Matrix4f;
 import com.mojang.math.Quaternion;
 import com.mojang.math.Transformation;
 import com.mojang.math.Vector3f;
-import java.util.EnumMap;
+import java.util.Map;
 import java.util.function.Supplier;
 import net.minecraft.Util;
 import net.minecraftforge.api.distmarker.Dist;
@@ -16,7 +16,7 @@ import org.apache.logging.log4j.Logger;
 @OnlyIn(Dist.CLIENT)
 public class BlockMath {
     private static final Logger LOGGER = LogManager.getLogger();
-    public static final EnumMap<Direction, Transformation> vanillaUvTransformLocalToGlobal = Util.make(Maps.newEnumMap(Direction.class), param0 -> {
+    public static final Map<Direction, Transformation> VANILLA_UV_TRANSFORM_LOCAL_TO_GLOBAL = Util.make(Maps.newEnumMap(Direction.class), param0 -> {
         param0.put(Direction.SOUTH, Transformation.identity());
         param0.put(Direction.EAST, new Transformation(null, new Quaternion(new Vector3f(0.0F, 1.0F, 0.0F), 90.0F, true), null, null));
         param0.put(Direction.WEST, new Transformation(null, new Quaternion(new Vector3f(0.0F, 1.0F, 0.0F), -90.0F, true), null, null));
@@ -24,9 +24,9 @@ public class BlockMath {
         param0.put(Direction.UP, new Transformation(null, new Quaternion(new Vector3f(1.0F, 0.0F, 0.0F), -90.0F, true), null, null));
         param0.put(Direction.DOWN, new Transformation(null, new Quaternion(new Vector3f(1.0F, 0.0F, 0.0F), 90.0F, true), null, null));
     });
-    public static final EnumMap<Direction, Transformation> vanillaUvTransformGlobalToLocal = Util.make(Maps.newEnumMap(Direction.class), param0 -> {
+    public static final Map<Direction, Transformation> VANILLA_UV_TRANSFORM_GLOBAL_TO_LOCAL = Util.make(Maps.newEnumMap(Direction.class), param0 -> {
         for(Direction var0 : Direction.values()) {
-            param0.put(var0, vanillaUvTransformLocalToGlobal.get(var0).inverse());
+            param0.put(var0, VANILLA_UV_TRANSFORM_LOCAL_TO_GLOBAL.get(var0).inverse());
         }
 
     });
@@ -45,7 +45,7 @@ public class BlockMath {
             LOGGER.warn(param2.get());
             return new Transformation(null, null, new Vector3f(0.0F, 0.0F, 0.0F), null);
         } else {
-            Transformation var2 = vanillaUvTransformGlobalToLocal.get(param1).compose(var1).compose(vanillaUvTransformLocalToGlobal.get(var0));
+            Transformation var2 = VANILLA_UV_TRANSFORM_GLOBAL_TO_LOCAL.get(param1).compose(var1).compose(VANILLA_UV_TRANSFORM_LOCAL_TO_GLOBAL.get(var0));
             return blockCenterToCorner(var2);
         }
     }

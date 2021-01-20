@@ -34,7 +34,7 @@ public class IOWorker implements AutoCloseable {
         this.mailbox = new ProcessorMailbox<>(new StrictQueue.FixedPriorityQueue(IOWorker.Priority.values().length), Util.ioPool(), "IOWorker-" + param2);
     }
 
-    public CompletableFuture<Void> store(ChunkPos param0, CompoundTag param1) {
+    public CompletableFuture<Void> store(ChunkPos param0, @Nullable CompoundTag param1) {
         return this.<CompletableFuture<Void>>submitTask(() -> {
             IOWorker.PendingStore var0 = this.pendingWrites.computeIfAbsent(param0, param1x -> new IOWorker.PendingStore(param1));
             var0.data = param1;
@@ -44,20 +44,7 @@ public class IOWorker implements AutoCloseable {
 
     @Nullable
     public CompoundTag load(ChunkPos param0) throws IOException {
-        CompletableFuture<CompoundTag> var0 = this.submitTask(() -> {
-            IOWorker.PendingStore var0x = this.pendingWrites.get(param0);
-            if (var0x != null) {
-                return Either.left(var0x.data);
-            } else {
-                try {
-                    CompoundTag var2x = this.storage.read(param0);
-                    return Either.left(var2x);
-                } catch (Exception var4x) {
-                    LOGGER.warn("Failed to read chunk {}", param0, var4x);
-                    return Either.right(var4x);
-                }
-            }
-        });
+        CompletableFuture<CompoundTag> var0 = this.loadAsync(param0);
 
         try {
             return var0.join();
@@ -68,6 +55,23 @@ public class IOWorker implements AutoCloseable {
                 throw var4;
             }
         }
+    }
+
+    protected CompletableFuture<CompoundTag> loadAsync(ChunkPos param0) {
+        return this.submitTask(() -> {
+            IOWorker.PendingStore var0 = this.pendingWrites.get(param0);
+            if (var0 != null) {
+                return Either.left(var0.data);
+            } else {
+                try {
+                    CompoundTag var1 = this.storage.read(param0);
+                    return Either.left(var1);
+                } catch (Exception var4) {
+                    LOGGER.warn("Failed to read chunk {}", param0, var4);
+                    return Either.right(var4);
+                }
+            }
+        });
     }
 
     public CompletableFuture<Void> synchronize() {
@@ -91,7 +95,7 @@ public class IOWorker implements AutoCloseable {
     }
 
     private <T> CompletableFuture<T> submitTask(Supplier<Either<T, Exception>> param0) {
-        return this.mailbox.askEither(param1 -> new StrictQueue.IntRunnable(IOWorker.Priority.HIGH.ordinal(), () -> {
+        return this.mailbox.askEither(param1 -> new StrictQueue.IntRunnable(IOWorker.Priority.FOREGROUND.ordinal(), () -> {
                 if (!this.shutdownRequested.get()) {
                     param1.tell(param0.get());
                 }
@@ -111,7 +115,7 @@ public class IOWorker implements AutoCloseable {
     }
 
     private void tellStorePending() {
-        this.mailbox.tell(new StrictQueue.IntRunnable(IOWorker.Priority.LOW.ordinal(), this::storePendingChunk));
+        this.mailbox.tell(new StrictQueue.IntRunnable(IOWorker.Priority.BACKGROUND.ordinal(), this::storePendingChunk));
     }
 
     private void runStore(ChunkPos param0, IOWorker.PendingStore param1) {
@@ -128,43 +132,31 @@ public class IOWorker implements AutoCloseable {
     @Override
     public void close() throws IOException {
         if (this.shutdownRequested.compareAndSet(false, true)) {
-            CompletableFuture<Unit> var0 = this.mailbox
-                .ask(param0 -> new StrictQueue.IntRunnable(IOWorker.Priority.HIGH.ordinal(), () -> param0.tell(Unit.INSTANCE)));
-
-            try {
-                var0.join();
-            } catch (CompletionException var4) {
-                if (var4.getCause() instanceof IOException) {
-                    throw (IOException)var4.getCause();
-                }
-
-                throw var4;
-            }
-
+            this.mailbox.ask(param0 -> new StrictQueue.IntRunnable(IOWorker.Priority.SHUTDOWN.ordinal(), () -> param0.tell(Unit.INSTANCE))).join();
             this.mailbox.close();
-            this.pendingWrites.forEach(this::runStore);
-            this.pendingWrites.clear();
 
             try {
                 this.storage.close();
-            } catch (Exception var3) {
-                LOGGER.error("Failed to close storage", (Throwable)var3);
+            } catch (Exception var2) {
+                LOGGER.error("Failed to close storage", (Throwable)var2);
             }
 
         }
     }
 
     static class PendingStore {
+        @Nullable
         private CompoundTag data;
         private final CompletableFuture<Void> result = new CompletableFuture<>();
 
-        public PendingStore(CompoundTag param0) {
+        public PendingStore(@Nullable CompoundTag param0) {
             this.data = param0;
         }
     }
 
     static enum Priority {
-        HIGH,
-        LOW;
+        FOREGROUND,
+        BACKGROUND,
+        SHUTDOWN;
     }
 }

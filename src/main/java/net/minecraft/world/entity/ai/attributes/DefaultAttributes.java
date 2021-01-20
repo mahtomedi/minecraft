@@ -2,9 +2,10 @@ package net.minecraft.world.entity.ai.attributes;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
-import net.minecraft.SharedConstants;
+import net.minecraft.Util;
 import net.minecraft.core.Registry;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.GlowSquid;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobCategory;
@@ -28,6 +29,7 @@ import net.minecraft.world.entity.animal.SnowGolem;
 import net.minecraft.world.entity.animal.Squid;
 import net.minecraft.world.entity.animal.Turtle;
 import net.minecraft.world.entity.animal.Wolf;
+import net.minecraft.world.entity.animal.axolotl.Axolotl;
 import net.minecraft.world.entity.animal.horse.AbstractChestedHorse;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraft.world.entity.animal.horse.Llama;
@@ -75,6 +77,7 @@ public class DefaultAttributes {
             
         )
         .put(EntityType.ARMOR_STAND, LivingEntity.createLivingAttributes().build())
+        .put(EntityType.AXOLOTL, Axolotl.createAttributes().build())
         .put(EntityType.BAT, Bat.createAttributes().build())
         .put(EntityType.BEE, Bee.createAttributes().build())
         .put(EntityType.BLAZE, Blaze.createAttributes().build())
@@ -95,6 +98,7 @@ public class DefaultAttributes {
         .put(EntityType.FOX, Fox.createAttributes().build())
         .put(EntityType.GHAST, Ghast.createAttributes().build())
         .put(EntityType.GIANT, Giant.createAttributes().build())
+        .put(EntityType.GLOW_SQUID, GlowSquid.createAttributes().build())
         .put(EntityType.GUARDIAN, Guardian.createAttributes().build())
         .put(EntityType.HOGLIN, Hoglin.createAttributes().build())
         .put(EntityType.HORSE, AbstractHorse.createBaseHorseAttributes().build())
@@ -162,12 +166,6 @@ public class DefaultAttributes {
             .filter(param0 -> param0.getCategory() != MobCategory.MISC)
             .filter(param0 -> !hasSupplier(param0))
             .map(Registry.ENTITY_TYPE::getKey)
-            .forEach(param0 -> {
-                if (SharedConstants.IS_RUNNING_IN_IDE) {
-                    throw new IllegalStateException("Entity " + param0 + " has no attributes");
-                } else {
-                    LOGGER.error("Entity {} has no attributes", param0);
-                }
-            });
+            .forEach(param0 -> Util.logAndPauseIfInIde("Entity " + param0 + " has no attributes"));
     }
 }

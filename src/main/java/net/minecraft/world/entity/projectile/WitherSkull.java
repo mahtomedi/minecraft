@@ -20,8 +20,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class WitherSkull extends AbstractHurtingProjectile {
     private static final EntityDataAccessor<Boolean> DATA_DANGEROUS = SynchedEntityData.defineId(WitherSkull.class, EntityDataSerializers.BOOLEAN);
@@ -32,11 +30,6 @@ public class WitherSkull extends AbstractHurtingProjectile {
 
     public WitherSkull(Level param0, LivingEntity param1, double param2, double param3, double param4) {
         super(EntityType.WITHER_SKULL, param1, param2, param3, param4, param0);
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public WitherSkull(Level param0, double param1, double param2, double param3, double param4, double param5, double param6) {
-        super(EntityType.WITHER_SKULL, param1, param2, param3, param4, param5, param6, param0);
     }
 
     @Override
@@ -99,7 +92,7 @@ public class WitherSkull extends AbstractHurtingProjectile {
                 ? Explosion.BlockInteraction.DESTROY
                 : Explosion.BlockInteraction.NONE;
             this.level.explode(this, this.getX(), this.getY(), this.getZ(), 1.0F, false, var0);
-            this.remove();
+            this.discard();
         }
 
     }

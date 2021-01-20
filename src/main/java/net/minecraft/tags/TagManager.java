@@ -1,26 +1,31 @@
 package net.minecraft.tags;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
-import java.util.Map;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.material.Fluid;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class TagManager implements PreparableReloadListener {
-    private final TagLoader<Block> blocks = new TagLoader<>(Registry.BLOCK::getOptional, "tags/blocks", "block");
-    private final TagLoader<Item> items = new TagLoader<>(Registry.ITEM::getOptional, "tags/items", "item");
-    private final TagLoader<Fluid> fluids = new TagLoader<>(Registry.FLUID::getOptional, "tags/fluids", "fluid");
-    private final TagLoader<EntityType<?>> entityTypes = new TagLoader<>(Registry.ENTITY_TYPE::getOptional, "tags/entity_types", "entity_type");
+    private static final Logger LOGGER = LogManager.getLogger();
+    private final RegistryAccess registryAccess;
     private TagContainer tags = TagContainer.EMPTY;
+
+    public TagManager(RegistryAccess param0) {
+        this.registryAccess = param0;
+    }
 
     public TagContainer getTags() {
         return this.tags;
@@ -35,35 +40,65 @@ public class TagManager implements PreparableReloadListener {
         Executor param4,
         Executor param5
     ) {
-        CompletableFuture<Map<ResourceLocation, Tag.Builder>> var0 = this.blocks.prepare(param1, param4);
-        CompletableFuture<Map<ResourceLocation, Tag.Builder>> var1 = this.items.prepare(param1, param4);
-        CompletableFuture<Map<ResourceLocation, Tag.Builder>> var2 = this.fluids.prepare(param1, param4);
-        CompletableFuture<Map<ResourceLocation, Tag.Builder>> var3 = this.entityTypes.prepare(param1, param4);
-        return CompletableFuture.allOf(var0, var1, var2, var3)
+        List<TagManager.LoaderInfo<?>> var0 = Lists.newArrayList();
+        StaticTags.visitHelpers(param3x -> {
+            TagManager.LoaderInfo<?> var0x = this.createLoader(param1, param4, param3x);
+            if (var0x != null) {
+                var0.add(var0x);
+            }
+
+        });
+        return CompletableFuture.allOf(var0.stream().map(param0x -> param0x.pendingLoad).toArray(param0x -> new CompletableFuture[param0x]))
             .thenCompose(param0::wait)
             .thenAcceptAsync(
-                param4x -> {
-                    TagCollection<Block> var0x = this.blocks.load(var0.join());
-                    TagCollection<Item> var1x = this.items.load(var1.join());
-                    TagCollection<Fluid> var2x = this.fluids.load(var2.join());
-                    TagCollection<EntityType<?>> var3x = this.entityTypes.load(var3.join());
-                    TagContainer var4x = TagContainer.of(var0x, var1x, var2x, var3x);
-                    Multimap<ResourceLocation, ResourceLocation> var5x = StaticTags.getAllMissingTags(var4x);
-                    if (!var5x.isEmpty()) {
+                param1x -> {
+                    TagContainer.Builder var0x = new TagContainer.Builder();
+                    var0.forEach(param1xx -> param1xx.addToBuilder(var0x));
+                    TagContainer var1x = var0x.build();
+                    Multimap<ResourceKey<? extends Registry<?>>, ResourceLocation> var2x = StaticTags.getAllMissingTags(var1x);
+                    if (!var2x.isEmpty()) {
                         throw new IllegalStateException(
                             "Missing required tags: "
-                                + (String)var5x.entries()
+                                + (String)var2x.entries()
                                     .stream()
                                     .map(param0x -> param0x.getKey() + ":" + param0x.getValue())
                                     .sorted()
                                     .collect(Collectors.joining(","))
                         );
                     } else {
-                        SerializationTags.bind(var4x);
-                        this.tags = var4x;
+                        SerializationTags.bind(var1x);
+                        this.tags = var1x;
                     }
                 },
                 param5
             );
+    }
+
+    @Nullable
+    private <T> TagManager.LoaderInfo<T> createLoader(ResourceManager param0, Executor param1, StaticTagHelper<T> param2) {
+        Optional<? extends Registry<T>> var0 = this.registryAccess.registry(param2.getKey());
+        if (var0.isPresent()) {
+            Registry<T> var1 = var0.get();
+            TagLoader<T> var2 = new TagLoader<>(var1::getOptional, param2.getDirectory());
+            CompletableFuture<? extends TagCollection<T>> var3 = CompletableFuture.supplyAsync(() -> var2.loadAndBuild(param0), param1);
+            return new TagManager.LoaderInfo<>(param2, var3);
+        } else {
+            LOGGER.warn("Can't find registry for {}", param2.getKey());
+            return null;
+        }
+    }
+
+    static class LoaderInfo<T> {
+        private final StaticTagHelper<T> helper;
+        private final CompletableFuture<? extends TagCollection<T>> pendingLoad;
+
+        private LoaderInfo(StaticTagHelper<T> param0, CompletableFuture<? extends TagCollection<T>> param1) {
+            this.helper = param0;
+            this.pendingLoad = param1;
+        }
+
+        public void addToBuilder(TagContainer.Builder param0) {
+            param0.add(this.helper.getKey(), this.pendingLoad.join());
+        }
     }
 }

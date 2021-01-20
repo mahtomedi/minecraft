@@ -1,13 +1,11 @@
 package net.minecraft.world.entity.ai.goal.target;
 
 import javax.annotation.Nullable;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.pathfinder.Node;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.scores.Team;
@@ -61,7 +59,7 @@ public abstract class TargetGoal extends Goal {
                         }
                     }
 
-                    if (var0 instanceof Player && ((Player)var0).abilities.invulnerable) {
+                    if (!var0.canBeTargeted()) {
                         return false;
                     } else {
                         this.mob.setTarget(var0);
@@ -125,8 +123,8 @@ public abstract class TargetGoal extends Goal {
             if (var1 == null) {
                 return false;
             } else {
-                int var2 = var1.x - Mth.floor(param0.getX());
-                int var3 = var1.z - Mth.floor(param0.getZ());
+                int var2 = var1.x - param0.getBlockX();
+                int var3 = var1.z - param0.getBlockZ();
                 return (double)(var2 * var2 + var3 * var3) <= 2.25;
             }
         }

@@ -57,7 +57,7 @@ public class InteractWithDoor extends Behavior<LivingEntity> {
         if (var4.is(BlockTags.WOODEN_DOORS)) {
             DoorBlock var5 = (DoorBlock)var4.getBlock();
             if (!var5.isOpen(var4)) {
-                var5.setOpen(param0, var4, var3, true);
+                var5.setOpen(param1, param0, var4, var3, true);
             }
 
             this.rememberDoorToClose(param0, param1, var3);
@@ -68,7 +68,7 @@ public class InteractWithDoor extends Behavior<LivingEntity> {
         if (var7.is(BlockTags.WOODEN_DOORS)) {
             DoorBlock var8 = (DoorBlock)var7.getBlock();
             if (!var8.isOpen(var7)) {
-                var8.setOpen(param0, var7, var6, true);
+                var8.setOpen(param1, param0, var7, var6, true);
                 this.rememberDoorToClose(param0, param1, var6);
             }
         }
@@ -98,7 +98,7 @@ public class InteractWithDoor extends Behavior<LivingEntity> {
                             } else if (areOtherMobsComingThroughDoor(param0, param1, var3)) {
                                 var1.remove();
                             } else {
-                                var5.setOpen(param0, var4, var3, false);
+                                var5.setOpen(param1, param0, var4, var3, false);
                                 var1.remove();
                             }
                         }

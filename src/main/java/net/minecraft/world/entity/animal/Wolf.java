@@ -18,7 +18,7 @@ import net.minecraft.util.TimeUtil;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.AgableMob;
+import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
@@ -60,6 +60,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -140,7 +141,7 @@ public class Wolf extends TamableAnimal implements NeutralMob {
             this.setCollarColor(DyeColor.byId(param0.getInt("CollarColor")));
         }
 
-        this.readPersistentAngerSaveData((ServerLevel)this.level, param0);
+        this.readPersistentAngerSaveData(this.level, param0);
     }
 
     @Override
@@ -205,6 +206,7 @@ public class Wolf extends TamableAnimal implements NeutralMob {
             } else if ((this.isWet || this.isShaking) && this.isShaking) {
                 if (this.shakeAnim == 0.0F) {
                     this.playSound(SoundEvents.WOLF_SHAKE, this.getSoundVolume(), (this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F);
+                    this.gameEvent(GameEvent.WOLF_SHAKING);
                 }
 
                 this.shakeAnimO = this.shakeAnim;
@@ -330,12 +332,12 @@ public class Wolf extends TamableAnimal implements NeutralMob {
         ItemStack var0 = param0.getItemInHand(param1);
         Item var1 = var0.getItem();
         if (this.level.isClientSide) {
-            boolean var2 = this.isOwnedBy(param0) || this.isTame() || var1 == Items.BONE && !this.isTame() && !this.isAngry();
+            boolean var2 = this.isOwnedBy(param0) || this.isTame() || var0.is(Items.BONE) && !this.isTame() && !this.isAngry();
             return var2 ? InteractionResult.CONSUME : InteractionResult.PASS;
         } else {
             if (this.isTame()) {
                 if (this.isFood(var0) && this.getHealth() < this.getMaxHealth()) {
-                    if (!param0.abilities.instabuild) {
+                    if (!param0.getAbilities().instabuild) {
                         var0.shrink(1);
                     }
 
@@ -359,14 +361,14 @@ public class Wolf extends TamableAnimal implements NeutralMob {
                 DyeColor var3 = ((DyeItem)var1).getDyeColor();
                 if (var3 != this.getCollarColor()) {
                     this.setCollarColor(var3);
-                    if (!param0.abilities.instabuild) {
+                    if (!param0.getAbilities().instabuild) {
                         var0.shrink(1);
                     }
 
                     return InteractionResult.SUCCESS;
                 }
-            } else if (var1 == Items.BONE && !this.isAngry()) {
-                if (!param0.abilities.instabuild) {
+            } else if (var0.is(Items.BONE) && !this.isAngry()) {
+                if (!param0.getAbilities().instabuild) {
                     var0.shrink(1);
                 }
 
@@ -456,7 +458,7 @@ public class Wolf extends TamableAnimal implements NeutralMob {
         this.entityData.set(DATA_COLLAR_COLOR, param0.getId());
     }
 
-    public Wolf getBreedOffspring(ServerLevel param0, AgableMob param1) {
+    public Wolf getBreedOffspring(ServerLevel param0, AgeableMob param1) {
         Wolf var0 = EntityType.WOLF.create(param0);
         UUID var1 = this.getOwnerUUID();
         if (var1 != null) {

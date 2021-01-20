@@ -8,6 +8,7 @@ import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
+import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.BlockGetter;
@@ -98,8 +99,8 @@ public abstract class StructurePiece {
     }
 
     public boolean isCloseToChunk(ChunkPos param0, int param1) {
-        int var0 = param0.x << 4;
-        int var1 = param0.z << 4;
+        int var0 = SectionPos.sectionToBlockCoord(param0.x);
+        int var1 = SectionPos.sectionToBlockCoord(param0.z);
         return this.boundingBox.intersects(var0 - param1, var1 - param1, var0 + 15 + param1, var1 + 15 + param1);
     }
 
@@ -394,7 +395,7 @@ public abstract class StructurePiece {
         if (param5.isInside(new BlockPos(var0, var1, var2))) {
             while(
                 (param0.isEmptyBlock(new BlockPos(var0, var1, var2)) || param0.getBlockState(new BlockPos(var0, var1, var2)).getMaterial().isLiquid())
-                    && var1 > 1
+                    && var1 > param0.getMinBuildHeight() + 1
             ) {
                 param0.setBlock(new BlockPos(var0, var1, var2), param1, 2);
                 --var1;

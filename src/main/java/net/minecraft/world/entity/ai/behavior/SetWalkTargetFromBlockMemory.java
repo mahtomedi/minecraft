@@ -9,7 +9,7 @@ import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.memory.WalkTarget;
-import net.minecraft.world.entity.ai.util.RandomPos;
+import net.minecraft.world.entity.ai.util.DefaultRandomPos;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.phys.Vec3;
 
@@ -55,7 +55,7 @@ public class SetWalkTargetFromBlockMemory extends Behavior<Villager> {
                 int var1x = 0;
 
                 for(int var2x = 1000; var1x < 1000 && (var0x == null || this.tooFar(param1, GlobalPos.of(param0.dimension(), new BlockPos(var0x)))); ++var1x) {
-                    var0x = RandomPos.getPosTowards(param1, 15, 7, Vec3.atBottomCenterOf(param4.pos()));
+                    var0x = DefaultRandomPos.getPosTowards(param1, 15, 7, Vec3.atBottomCenterOf(param4.pos()), (float) (Math.PI / 2));
                 }
 
                 if (var1x == 1000) {

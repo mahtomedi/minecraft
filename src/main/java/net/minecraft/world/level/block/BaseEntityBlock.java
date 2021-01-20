@@ -5,6 +5,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -30,5 +32,12 @@ public abstract class BaseEntityBlock extends Block implements EntityBlock {
     public MenuProvider getMenuProvider(BlockState param0, Level param1, BlockPos param2) {
         BlockEntity var0 = param1.getBlockEntity(param2);
         return var0 instanceof MenuProvider ? (MenuProvider)var0 : null;
+    }
+
+    @Nullable
+    protected static <E extends BlockEntity, A extends BlockEntity> BlockEntityTicker<A> createTickerHelper(
+        BlockEntityType<A> param0, BlockEntityType<E> param1, BlockEntityTicker<? super E> param2
+    ) {
+        return param1 == param0 ? param2 : null;
     }
 }

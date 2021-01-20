@@ -69,6 +69,7 @@ public final class Material {
         .build();
     public static final Material DECORATION = new Material.Builder(MaterialColor.NONE).noCollider().notSolidBlocking().nonSolid().destroyOnPush().build();
     public static final Material WEB = new Material.Builder(MaterialColor.WOOL).noCollider().notSolidBlocking().destroyOnPush().build();
+    public static final Material SCULK = new Material.Builder(MaterialColor.COLOR_BLACK).build();
     public static final Material BUILDABLE_GLASS = new Material.Builder(MaterialColor.NONE).build();
     public static final Material CLAY = new Material.Builder(MaterialColor.CLAY).build();
     public static final Material DIRT = new Material.Builder(MaterialColor.DIRT).build();
@@ -97,6 +98,8 @@ public final class Material {
     public static final Material VEGETABLE = new Material.Builder(MaterialColor.PLANT).destroyOnPush().build();
     public static final Material EGG = new Material.Builder(MaterialColor.PLANT).destroyOnPush().build();
     public static final Material CAKE = new Material.Builder(MaterialColor.NONE).destroyOnPush().build();
+    public static final Material AMETHYST = new Material.Builder(MaterialColor.COLOR_PURPLE).notSolidBlocking().destroyOnPush().build();
+    public static final Material POWDER_SNOW = new Material.Builder(MaterialColor.SNOW).nonSolid().noCollider().destroyOnPush().build();
     private final MaterialColor color;
     private final PushReaction pushReaction;
     private final boolean blocksMotion;

@@ -2,11 +2,13 @@ package net.minecraft.world.level.biome;
 
 import com.google.common.hash.Hashing;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.QuartPos;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class BiomeManager {
+    private static final int CHUNK_CENTER_QUART = QuartPos.fromBlock(8);
     private final BiomeManager.NoiseBiomeSource noiseBiomeSource;
     private final long biomeZoomSeed;
     private final BiomeZoomer zoomer;
@@ -31,17 +33,17 @@ public class BiomeManager {
 
     @OnlyIn(Dist.CLIENT)
     public Biome getNoiseBiomeAtPosition(double param0, double param1, double param2) {
-        int var0 = Mth.floor(param0) >> 2;
-        int var1 = Mth.floor(param1) >> 2;
-        int var2 = Mth.floor(param2) >> 2;
+        int var0 = QuartPos.fromBlock(Mth.floor(param0));
+        int var1 = QuartPos.fromBlock(Mth.floor(param1));
+        int var2 = QuartPos.fromBlock(Mth.floor(param2));
         return this.getNoiseBiomeAtQuart(var0, var1, var2);
     }
 
     @OnlyIn(Dist.CLIENT)
     public Biome getNoiseBiomeAtPosition(BlockPos param0) {
-        int var0 = param0.getX() >> 2;
-        int var1 = param0.getY() >> 2;
-        int var2 = param0.getZ() >> 2;
+        int var0 = QuartPos.fromBlock(param0.getX());
+        int var1 = QuartPos.fromBlock(param0.getY());
+        int var2 = QuartPos.fromBlock(param0.getZ());
         return this.getNoiseBiomeAtQuart(var0, var1, var2);
     }
 
@@ -50,7 +52,17 @@ public class BiomeManager {
         return this.noiseBiomeSource.getNoiseBiome(param0, param1, param2);
     }
 
+    public Biome getPrimaryBiomeAtChunk(int param0, int param1) {
+        return this.noiseBiomeSource.getPrimaryBiome(param0, param1);
+    }
+
     public interface NoiseBiomeSource {
         Biome getNoiseBiome(int var1, int var2, int var3);
+
+        default Biome getPrimaryBiome(int param0, int param1) {
+            return this.getNoiseBiome(
+                QuartPos.fromSection(param0) + BiomeManager.CHUNK_CENTER_QUART, 0, QuartPos.fromSection(param1) + BiomeManager.CHUNK_CENTER_QUART
+            );
+        }
     }
 }
