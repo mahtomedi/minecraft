@@ -95,7 +95,7 @@ public class ShovelItem extends DiggerItem {
                     var0.levelEvent(null, 1009, var1, 0);
                 }
 
-                CampfireBlock.dowse(var0, var1, var2);
+                CampfireBlock.dowse(param0.getPlayer(), var0, var1, var2);
                 var5 = var2.setValue(CampfireBlock.LIT, Boolean.valueOf(false));
             }
 

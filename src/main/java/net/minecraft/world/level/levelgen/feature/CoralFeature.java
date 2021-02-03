@@ -11,7 +11,6 @@ import net.minecraft.world.level.block.BaseCoralWallFanBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SeaPickleBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 
 public abstract class CoralFeature extends Feature<NoneFeatureConfiguration> {
@@ -19,9 +18,13 @@ public abstract class CoralFeature extends Feature<NoneFeatureConfiguration> {
         super(param0);
     }
 
-    public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, NoneFeatureConfiguration param4) {
-        BlockState var0 = BlockTags.CORAL_BLOCKS.getRandomElement(param2).defaultBlockState();
-        return this.placeFeature(param0, param2, param3, var0);
+    @Override
+    public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> param0) {
+        Random var0 = param0.random();
+        WorldGenLevel var1 = param0.level();
+        BlockPos var2 = param0.origin();
+        BlockState var3 = BlockTags.CORAL_BLOCKS.getRandomElement(var0).defaultBlockState();
+        return this.placeFeature(var1, var0, var2, var3);
     }
 
     protected abstract boolean placeFeature(LevelAccessor var1, Random var2, BlockPos var3, BlockState var4);

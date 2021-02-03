@@ -41,11 +41,11 @@ public class PoiManager extends SectionStorage<PoiSection> {
     }
 
     public void add(BlockPos param0, PoiType param1) {
-        this.getOrCreate(SectionPos.of(param0).asLong()).add(param0, param1);
+        this.getOrCreate(SectionPos.asLong(param0)).add(param0, param1);
     }
 
     public void remove(BlockPos param0) {
-        this.getOrCreate(SectionPos.of(param0).asLong()).remove(param0);
+        this.getOrLoad(SectionPos.asLong(param0)).ifPresent(param1 -> param1.remove(param0));
     }
 
     public long getCountInRange(Predicate<PoiType> param0, BlockPos param1, int param2, PoiManager.Occupancy param3) {
@@ -53,8 +53,7 @@ public class PoiManager extends SectionStorage<PoiSection> {
     }
 
     public boolean existsAtPosition(PoiType param0, BlockPos param1) {
-        Optional<PoiType> var0 = this.getOrCreate(SectionPos.of(param1).asLong()).getType(param1);
-        return var0.isPresent() && var0.get().equals(param0);
+        return this.exists(param1, param0::equals);
     }
 
     public Stream<PoiRecord> getInSquare(Predicate<PoiType> param0, BlockPos param1, int param2, PoiManager.Occupancy param3) {
@@ -113,16 +112,17 @@ public class PoiManager extends SectionStorage<PoiSection> {
     }
 
     public boolean release(BlockPos param0) {
-        return this.getOrCreate(SectionPos.of(param0).asLong()).release(param0);
+        return this.getOrLoad(SectionPos.asLong(param0))
+            .map(param1 -> param1.release(param0))
+            .orElseThrow(() -> Util.pauseInIde(new IllegalStateException("POI never registered at " + param0)));
     }
 
     public boolean exists(BlockPos param0, Predicate<PoiType> param1) {
-        return this.getOrLoad(SectionPos.of(param0).asLong()).map(param2 -> param2.exists(param0, param1)).orElse(false);
+        return this.getOrLoad(SectionPos.asLong(param0)).map(param2 -> param2.exists(param0, param1)).orElse(false);
     }
 
     public Optional<PoiType> getType(BlockPos param0) {
-        PoiSection var0 = this.getOrCreate(SectionPos.of(param0).asLong());
-        return var0.getType(param0);
+        return this.getOrLoad(SectionPos.asLong(param0)).flatMap(param1 -> param1.getType(param0));
     }
 
     public int sectionsToVillage(SectionPos param0) {

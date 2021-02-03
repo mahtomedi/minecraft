@@ -43,6 +43,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class Phantom extends FlyingMob implements Enemy {
+    public static final int TICKS_PER_FLAP = Mth.ceil(24.166098F);
     private static final EntityDataAccessor<Integer> ID_SIZE = SynchedEntityData.defineId(Phantom.class, EntityDataSerializers.INT);
     private Vec3 moveTargetPoint = Vec3.ZERO;
     private BlockPos anchorPoint = BlockPos.ZERO;
@@ -53,6 +54,11 @@ public class Phantom extends FlyingMob implements Enemy {
         this.xpReward = 5;
         this.moveControl = new Phantom.PhantomMoveControl(this);
         this.lookControl = new Phantom.PhantomLookControl(this);
+    }
+
+    @Override
+    public boolean isFlapping() {
+        return (this.getUniqueFlapTickOffset() + this.tickCount) % TICKS_PER_FLAP == 0;
     }
 
     @Override
@@ -101,6 +107,10 @@ public class Phantom extends FlyingMob implements Enemy {
         super.onSyncedDataUpdated(param0);
     }
 
+    public int getUniqueFlapTickOffset() {
+        return this.getId() * 3;
+    }
+
     @Override
     protected boolean shouldDespawnInPeaceful() {
         return true;
@@ -110,8 +120,8 @@ public class Phantom extends FlyingMob implements Enemy {
     public void tick() {
         super.tick();
         if (this.level.isClientSide) {
-            float var0 = Mth.cos((float)(this.getId() * 3 + this.tickCount) * 0.13F + (float) Math.PI);
-            float var1 = Mth.cos((float)(this.getId() * 3 + this.tickCount + 1) * 0.13F + (float) Math.PI);
+            float var0 = Mth.cos((float)(this.getUniqueFlapTickOffset() + this.tickCount) * 7.448451F + (float) Math.PI);
+            float var1 = Mth.cos((float)(this.getUniqueFlapTickOffset() + this.tickCount + 1) * 7.448451F + (float) Math.PI);
             if (var0 > 0.0F && var1 <= 0.0F) {
                 this.level
                     .playLocalSound(

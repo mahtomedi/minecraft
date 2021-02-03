@@ -8,6 +8,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.biome.Biome;
@@ -43,7 +44,8 @@ public class WoodlandMansionFeature extends StructureFeature<NoneFeatureConfigur
         int param5,
         Biome param6,
         ChunkPos param7,
-        NoneFeatureConfiguration param8
+        NoneFeatureConfiguration param8,
+        LevelHeightAccessor param9
     ) {
         for(Biome var1 : param1.getBiomesWithin(SectionPos.sectionToBlockCoord(param4, 9), param0.getSeaLevel(), SectionPos.sectionToBlockCoord(param5, 9), 32)) {
             if (!var1.getGenerationSettings().isValidStart(this)) {
@@ -65,7 +67,14 @@ public class WoodlandMansionFeature extends StructureFeature<NoneFeatureConfigur
         }
 
         public void generatePieces(
-            RegistryAccess param0, ChunkGenerator param1, StructureManager param2, int param3, int param4, Biome param5, NoneFeatureConfiguration param6
+            RegistryAccess param0,
+            ChunkGenerator param1,
+            StructureManager param2,
+            int param3,
+            int param4,
+            Biome param5,
+            NoneFeatureConfiguration param6,
+            LevelHeightAccessor param7
         ) {
             Rotation var0 = Rotation.getRandom(this.random);
             int var1 = 5;
@@ -81,10 +90,10 @@ public class WoodlandMansionFeature extends StructureFeature<NoneFeatureConfigur
 
             int var3 = SectionPos.sectionToBlockCoord(param3, 7);
             int var4 = SectionPos.sectionToBlockCoord(param4, 7);
-            int var5 = param1.getFirstOccupiedHeight(var3, var4, Heightmap.Types.WORLD_SURFACE_WG);
-            int var6 = param1.getFirstOccupiedHeight(var3, var4 + var2, Heightmap.Types.WORLD_SURFACE_WG);
-            int var7 = param1.getFirstOccupiedHeight(var3 + var1, var4, Heightmap.Types.WORLD_SURFACE_WG);
-            int var8 = param1.getFirstOccupiedHeight(var3 + var1, var4 + var2, Heightmap.Types.WORLD_SURFACE_WG);
+            int var5 = param1.getFirstOccupiedHeight(var3, var4, Heightmap.Types.WORLD_SURFACE_WG, param7);
+            int var6 = param1.getFirstOccupiedHeight(var3, var4 + var2, Heightmap.Types.WORLD_SURFACE_WG, param7);
+            int var7 = param1.getFirstOccupiedHeight(var3 + var1, var4, Heightmap.Types.WORLD_SURFACE_WG, param7);
+            int var8 = param1.getFirstOccupiedHeight(var3 + var1, var4 + var2, Heightmap.Types.WORLD_SURFACE_WG, param7);
             int var9 = Math.min(Math.min(var5, var6), Math.min(var7, var8));
             if (var9 >= 60) {
                 BlockPos var10 = new BlockPos(SectionPos.sectionToBlockCoord(param3, 8), var9 + 1, SectionPos.sectionToBlockCoord(param4, 8));

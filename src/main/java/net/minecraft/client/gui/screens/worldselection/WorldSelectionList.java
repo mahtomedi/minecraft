@@ -355,17 +355,7 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.W
                         param0 -> {
                             if (param0) {
                                 this.minecraft.setScreen(new ProgressScreen());
-                                LevelStorageSource var0 = this.minecraft.getLevelSource();
-                                String var1 = this.summary.getLevelId();
-            
-                                try (LevelStorageSource.LevelStorageAccess var2 = var0.createAccess(var1)) {
-                                    var2.deleteLevel();
-                                } catch (IOException var17) {
-                                    SystemToast.onWorldDeleteFailure(this.minecraft, var1);
-                                    WorldSelectionList.LOGGER.error("Failed to delete world {}", var1, var17);
-                                }
-            
-                                WorldSelectionList.this.refreshList(() -> this.screen.searchBox.getValue(), true);
+                                this.doDeleteWorld();
                             }
             
                             this.minecraft.setScreen(this.screen);
@@ -376,6 +366,20 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.W
                         CommonComponents.GUI_CANCEL
                     )
                 );
+        }
+
+        public void doDeleteWorld() {
+            LevelStorageSource var0 = this.minecraft.getLevelSource();
+            String var1 = this.summary.getLevelId();
+
+            try (LevelStorageSource.LevelStorageAccess var2 = var0.createAccess(var1)) {
+                var2.deleteLevel();
+            } catch (IOException var16) {
+                SystemToast.onWorldDeleteFailure(this.minecraft, var1);
+                WorldSelectionList.LOGGER.error("Failed to delete world {}", var1, var16);
+            }
+
+            WorldSelectionList.this.refreshList(() -> this.screen.searchBox.getValue(), true);
         }
 
         public void editWorld() {

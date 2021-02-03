@@ -2749,6 +2749,12 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                         false
                     );
                 break;
+            case 1048:
+                this.level
+                    .playLocalSound(
+                        param2, SoundEvents.SKELETON_CONVERTED_TO_STRAY, SoundSource.NEUTRAL, 2.0F, (var0.nextFloat() - var0.nextFloat()) * 0.2F + 1.0F, false
+                    );
+                break;
             case 1500:
                 ComposterBlock.handleFill(this.level, param2, param3 > 0);
                 break;

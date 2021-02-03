@@ -66,10 +66,11 @@ public class ThrownEnderpearl extends ThrowableItemProjectile {
                     }
 
                     if (var0.isPassenger()) {
-                        var0.stopRiding();
+                        var2.dismountTo(this.getX(), this.getY(), this.getZ());
+                    } else {
+                        var0.teleportTo(this.getX(), this.getY(), this.getZ());
                     }
 
-                    var0.teleportTo(this.getX(), this.getY(), this.getZ());
                     var0.fallDistance = 0.0F;
                     var0.hurt(DamageSource.FALL, 5.0F);
                 }

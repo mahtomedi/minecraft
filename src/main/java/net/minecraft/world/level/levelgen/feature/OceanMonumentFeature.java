@@ -9,6 +9,7 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.SectionPos;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.biome.Biome;
@@ -43,7 +44,8 @@ public class OceanMonumentFeature extends StructureFeature<NoneFeatureConfigurat
         int param5,
         Biome param6,
         ChunkPos param7,
-        NoneFeatureConfiguration param8
+        NoneFeatureConfiguration param8,
+        LevelHeightAccessor param9
     ) {
         for(Biome var1 : param1.getBiomesWithin(SectionPos.sectionToBlockCoord(param4, 9), param0.getSeaLevel(), SectionPos.sectionToBlockCoord(param5, 9), 16)) {
             if (!var1.getGenerationSettings().isValidStart(this)) {
@@ -78,7 +80,14 @@ public class OceanMonumentFeature extends StructureFeature<NoneFeatureConfigurat
         }
 
         public void generatePieces(
-            RegistryAccess param0, ChunkGenerator param1, StructureManager param2, int param3, int param4, Biome param5, NoneFeatureConfiguration param6
+            RegistryAccess param0,
+            ChunkGenerator param1,
+            StructureManager param2,
+            int param3,
+            int param4,
+            Biome param5,
+            NoneFeatureConfiguration param6,
+            LevelHeightAccessor param7
         ) {
             this.generatePieces(param3, param4);
         }

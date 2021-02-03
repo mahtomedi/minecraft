@@ -19,7 +19,6 @@ import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
 import net.minecraft.world.level.levelgen.feature.foliageplacers.FoliagePlacer;
@@ -139,23 +138,28 @@ public class TreeFeature extends Feature<TreeConfiguration> {
         setBlockKnownShape(param0, param1, param2);
     }
 
-    public final boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, TreeConfiguration param4) {
-        Set<BlockPos> var0 = Sets.newHashSet();
-        Set<BlockPos> var1 = Sets.newHashSet();
-        Set<BlockPos> var2 = Sets.newHashSet();
-        BoundingBox var3 = BoundingBox.getUnknownBox();
-        boolean var4 = this.doPlace(param0, param2, param3, var0, var1, var3, param4);
-        if (var3.x0 <= var3.x1 && var4 && !var0.isEmpty()) {
-            if (!param4.decorators.isEmpty()) {
-                List<BlockPos> var5 = Lists.newArrayList(var0);
-                List<BlockPos> var6 = Lists.newArrayList(var1);
-                var5.sort(Comparator.comparingInt(Vec3i::getY));
-                var6.sort(Comparator.comparingInt(Vec3i::getY));
-                param4.decorators.forEach(param6 -> param6.place(param0, param2, var5, var6, var2, var3));
+    @Override
+    public final boolean place(FeaturePlaceContext<TreeConfiguration> param0) {
+        WorldGenLevel var0 = param0.level();
+        Random var1 = param0.random();
+        BlockPos var2 = param0.origin();
+        TreeConfiguration var3 = param0.config();
+        Set<BlockPos> var4 = Sets.newHashSet();
+        Set<BlockPos> var5 = Sets.newHashSet();
+        Set<BlockPos> var6 = Sets.newHashSet();
+        BoundingBox var7 = BoundingBox.getUnknownBox();
+        boolean var8 = this.doPlace(var0, var1, var2, var4, var5, var7, var3);
+        if (var7.x0 <= var7.x1 && var8 && !var4.isEmpty()) {
+            if (!var3.decorators.isEmpty()) {
+                List<BlockPos> var9 = Lists.newArrayList(var4);
+                List<BlockPos> var10 = Lists.newArrayList(var5);
+                var9.sort(Comparator.comparingInt(Vec3i::getY));
+                var10.sort(Comparator.comparingInt(Vec3i::getY));
+                var3.decorators.forEach(param6 -> param6.place(var0, var1, var9, var10, var6, var7));
             }
 
-            DiscreteVoxelShape var7 = this.updateLeaves(param0, var3, var0, var2);
-            StructureTemplate.updateShapeAtEdge(param0, 3, var7, var3.x0, var3.y0, var3.z0);
+            DiscreteVoxelShape var11 = this.updateLeaves(var0, var7, var4, var6);
+            StructureTemplate.updateShapeAtEdge(var0, 3, var11, var7.x0, var7.y0, var7.z0);
             return true;
         } else {
             return false;

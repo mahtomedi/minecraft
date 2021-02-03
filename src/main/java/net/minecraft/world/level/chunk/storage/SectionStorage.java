@@ -72,38 +72,41 @@ public class SectionStorage<R> implements AutoCloseable {
     }
 
     protected Optional<R> getOrLoad(long param0) {
-        SectionPos var0 = SectionPos.of(param0);
-        if (this.outsideStoredRange(var0)) {
+        if (this.outsideStoredRange(param0)) {
             return Optional.empty();
         } else {
-            Optional<R> var1 = this.get(param0);
-            if (var1 != null) {
-                return var1;
+            Optional<R> var0 = this.get(param0);
+            if (var0 != null) {
+                return var0;
             } else {
-                this.readColumn(var0.chunk());
-                var1 = this.get(param0);
-                if (var1 == null) {
+                this.readColumn(SectionPos.of(param0).chunk());
+                var0 = this.get(param0);
+                if (var0 == null) {
                     throw (IllegalStateException)Util.pauseInIde(new IllegalStateException());
                 } else {
-                    return var1;
+                    return var0;
                 }
             }
         }
     }
 
-    protected boolean outsideStoredRange(SectionPos param0) {
-        int var0 = SectionPos.sectionToBlockCoord(param0.y());
+    protected boolean outsideStoredRange(long param0) {
+        int var0 = SectionPos.sectionToBlockCoord(SectionPos.y(param0));
         return this.levelHeightAccessor.isOutsideBuildHeight(var0);
     }
 
     protected R getOrCreate(long param0) {
-        Optional<R> var0 = this.getOrLoad(param0);
-        if (var0.isPresent()) {
-            return var0.get();
+        if (this.outsideStoredRange(param0)) {
+            throw (IllegalArgumentException)Util.pauseInIde(new IllegalArgumentException("sectionPos out of bounds"));
         } else {
-            R var1 = this.factory.apply(() -> this.setDirty(param0));
-            this.storage.put(param0, Optional.of(var1));
-            return var1;
+            Optional<R> var0 = this.getOrLoad(param0);
+            if (var0.isPresent()) {
+                return var0.get();
+            } else {
+                R var1 = this.factory.apply(() -> this.setDirty(param0));
+                this.storage.put(param0, Optional.of(var1));
+                return var1;
+            }
         }
     }
 
@@ -124,7 +127,7 @@ public class SectionStorage<R> implements AutoCloseable {
     private <T> void readColumn(ChunkPos param0, DynamicOps<T> param1, @Nullable T param2) {
         if (param2 == null) {
             for(int var0 = this.levelHeightAccessor.getMinSection(); var0 < this.levelHeightAccessor.getMaxSection(); ++var0) {
-                this.storage.put(SectionPos.of(param0, var0).asLong(), Optional.empty());
+                this.storage.put(getKey(param0, var0), Optional.empty());
             }
         } else {
             Dynamic<T> var1 = new Dynamic<>(param1, param2);
@@ -135,7 +138,7 @@ public class SectionStorage<R> implements AutoCloseable {
             OptionalDynamic<T> var6 = var5.get("Sections");
 
             for(int var7 = this.levelHeightAccessor.getMinSection(); var7 < this.levelHeightAccessor.getMaxSection(); ++var7) {
-                long var8 = SectionPos.of(param0, var7).asLong();
+                long var8 = getKey(param0, var7);
                 Optional<R> var9 = var6.get(Integer.toString(var7))
                     .result()
                     .flatMap(param1x -> this.codec.apply(() -> this.setDirty(var8)).parse(param1x).resultOrPartial(LOGGER::error));
@@ -167,7 +170,7 @@ public class SectionStorage<R> implements AutoCloseable {
         Map<T, T> var0 = Maps.newHashMap();
 
         for(int var1 = this.levelHeightAccessor.getMinSection(); var1 < this.levelHeightAccessor.getMaxSection(); ++var1) {
-            long var2 = SectionPos.of(param0, var1).asLong();
+            long var2 = getKey(param0, var1);
             this.dirty.remove(var2);
             Optional<R> var3 = this.storage.get(var2);
             if (var3 != null && var3.isPresent()) {
@@ -190,6 +193,10 @@ public class SectionStorage<R> implements AutoCloseable {
         );
     }
 
+    private static long getKey(ChunkPos param0, int param1) {
+        return SectionPos.asLong(param0.x, param1, param0.z);
+    }
+
     protected void onSectionLoad(long param0) {
     }
 
@@ -209,7 +216,7 @@ public class SectionStorage<R> implements AutoCloseable {
     public void flush(ChunkPos param0) {
         if (!this.dirty.isEmpty()) {
             for(int var0 = this.levelHeightAccessor.getMinSection(); var0 < this.levelHeightAccessor.getMaxSection(); ++var0) {
-                long var1 = SectionPos.of(param0, var0).asLong();
+                long var1 = getKey(param0, var0);
                 if (this.dirty.contains(var1)) {
                     this.writeColumn(param0);
                     return;

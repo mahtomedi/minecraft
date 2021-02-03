@@ -6,7 +6,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.WorldGenLevel;
-import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.configurations.OreConfiguration;
 
 public class NoSurfaceOreFeature extends Feature<OreConfiguration> {
@@ -14,14 +13,19 @@ public class NoSurfaceOreFeature extends Feature<OreConfiguration> {
         super(param0);
     }
 
-    public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, OreConfiguration param4) {
-        int var0 = param2.nextInt(param4.size + 1);
-        BlockPos.MutableBlockPos var1 = new BlockPos.MutableBlockPos();
+    @Override
+    public boolean place(FeaturePlaceContext<OreConfiguration> param0) {
+        WorldGenLevel var0 = param0.level();
+        Random var1 = param0.random();
+        OreConfiguration var2 = param0.config();
+        BlockPos var3 = param0.origin();
+        int var4 = var1.nextInt(var2.size + 1);
+        BlockPos.MutableBlockPos var5 = new BlockPos.MutableBlockPos();
 
-        for(int var2 = 0; var2 < var0; ++var2) {
-            this.offsetTargetPos(var1, param2, param3, Math.min(var2, 7));
-            if (param4.target.test(param0.getBlockState(var1), param2) && !this.isFacingAir(param0, var1)) {
-                param0.setBlock(var1, param4.state, 2);
+        for(int var6 = 0; var6 < var4; ++var6) {
+            this.offsetTargetPos(var5, var1, var3, Math.min(var6, 7));
+            if (var2.target.test(var0.getBlockState(var5), var1) && !this.isFacingAir(var0, var5)) {
+                var0.setBlock(var5, var2.state, 2);
             }
         }
 

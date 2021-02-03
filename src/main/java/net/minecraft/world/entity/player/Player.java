@@ -78,6 +78,7 @@ import net.minecraft.world.entity.vehicle.AbstractMinecart;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.food.FoodData;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ClickAction;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.PlayerEnderChestContainer;
 import net.minecraft.world.item.AxeItem;
@@ -469,15 +470,6 @@ public abstract class Player extends LivingEntity {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
-    @Override
-    public void resetPos() {
-        this.setPose(Pose.STANDING);
-        super.resetPos();
-        this.setHealth(this.getMaxHealth());
-        this.deathTime = 0;
-    }
-
     @Override
     protected void serverAiStep() {
         super.serverAiStep();
@@ -617,7 +609,7 @@ public abstract class Player extends LivingEntity {
         this.resetStat(Stats.CUSTOM.get(Stats.TIME_SINCE_DEATH));
         this.resetStat(Stats.CUSTOM.get(Stats.TIME_SINCE_REST));
         this.clearFire();
-        this.setSharedFlag(0, false);
+        this.setSharedFlagOnFire(false);
     }
 
     @Override
@@ -1340,6 +1332,9 @@ public abstract class Player extends LivingEntity {
         return this.abilities;
     }
 
+    public void updateTutorialInventoryAction(ItemStack param0, ItemStack param1, ClickAction param2) {
+    }
+
     public Either<Player.BedSleepingProblem, Unit> startSleepInBed(BlockPos param0) {
         this.startSleeping(param0);
         this.sleepCounter = 0;
@@ -1739,8 +1734,8 @@ public abstract class Player extends LivingEntity {
     }
 
     @Override
-    protected boolean isMovementNoisy() {
-        return !this.abilities.flying && (!this.onGround || !this.isDiscrete());
+    protected Entity.MovementEmission getMovementEmission() {
+        return this.abilities.flying || this.onGround && this.isDiscrete() ? Entity.MovementEmission.NONE : Entity.MovementEmission.ALL;
     }
 
     public void onUpdateAbilities() {
@@ -1769,20 +1764,20 @@ public abstract class Player extends LivingEntity {
     @Override
     public void setItemSlot(EquipmentSlot param0, ItemStack param1) {
         if (param0 == EquipmentSlot.MAINHAND) {
-            this.playEquipSound(param1);
+            this.equipEventAndSound(param1);
             this.inventory.items.set(this.inventory.selected, param1);
         } else if (param0 == EquipmentSlot.OFFHAND) {
-            this.playEquipSound(param1);
+            this.equipEventAndSound(param1);
             this.inventory.offhand.set(0, param1);
         } else if (param0.getType() == EquipmentSlot.Type.ARMOR) {
-            this.playEquipSound(param1);
+            this.equipEventAndSound(param1);
             this.inventory.armor.set(param0.getIndex(), param1);
         }
 
     }
 
     public boolean addItem(ItemStack param0) {
-        this.playEquipSound(param0);
+        this.equipEventAndSound(param0);
         return this.inventory.add(param0);
     }
 

@@ -124,8 +124,8 @@ public abstract class AbstractMinecart extends Entity {
     }
 
     @Override
-    protected boolean isMovementNoisy() {
-        return false;
+    protected Entity.MovementEmission getMovementEmission() {
+        return Entity.MovementEmission.EVENTS;
     }
 
     @Override
@@ -216,11 +216,11 @@ public abstract class AbstractMinecart extends Entity {
         } else if (this.isInvulnerableTo(param0)) {
             return false;
         } else {
-            this.gameEvent(param0.getEntity(), GameEvent.ENTITY_HIT);
             this.setHurtDir(-this.getHurtDir());
             this.setHurtTime(10);
             this.markHurt();
             this.setDamage(this.getDamage() + param1 * 10.0F);
+            this.gameEvent(GameEvent.ENTITY_DAMAGED, param0.getEntity());
             boolean var0 = param0.getEntity() instanceof Player && ((Player)param0.getEntity()).getAbilities().instabuild;
             if (var0 || this.getDamage() > 40.0F) {
                 this.ejectPassengers();

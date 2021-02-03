@@ -5,6 +5,7 @@ import java.util.Arrays;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.NoiseColumn;
 import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.biome.FixedBiomeSource;
@@ -86,21 +87,21 @@ public class FlatLevelSource extends ChunkGenerator {
     }
 
     @Override
-    public int getBaseHeight(int param0, int param1, Heightmap.Types param2) {
+    public int getBaseHeight(int param0, int param1, Heightmap.Types param2, LevelHeightAccessor param3) {
         BlockState[] var0 = this.settings.getLayers();
 
         for(int var1 = var0.length - 1; var1 >= 0; --var1) {
             BlockState var2 = var0[var1];
             if (var2 != null && param2.isOpaque().test(var2)) {
-                return this.settings.getMinBuildHeight() + var1 + 1;
+                return param3.getMinBuildHeight() + var1 + 1;
             }
         }
 
-        return 0;
+        return param3.getMinBuildHeight();
     }
 
     @Override
-    public NoiseColumn getBaseColumn(int param0, int param1) {
+    public NoiseColumn getBaseColumn(int param0, int param1, LevelHeightAccessor param2) {
         return new NoiseColumn(
             0,
             Arrays.stream(this.settings.getLayers())

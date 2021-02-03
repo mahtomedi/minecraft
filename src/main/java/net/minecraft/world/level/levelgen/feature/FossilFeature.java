@@ -8,7 +8,6 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
-import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
@@ -44,41 +43,45 @@ public class FossilFeature extends Feature<NoneFeatureConfiguration> {
         super(param0);
     }
 
-    public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, NoneFeatureConfiguration param4) {
-        Rotation var0 = Rotation.getRandom(param2);
-        int var1 = param2.nextInt(fossils.length);
-        StructureManager var2 = param0.getLevel().getServer().getStructureManager();
-        StructureTemplate var3 = var2.getOrCreate(fossils[var1]);
-        StructureTemplate var4 = var2.getOrCreate(fossilsCoal[var1]);
-        ChunkPos var5 = new ChunkPos(param3);
-        BoundingBox var6 = new BoundingBox(
-            var5.getMinBlockX(), param0.getMinBuildHeight(), var5.getMinBlockZ(), var5.getMaxBlockX(), param0.getMaxBuildHeight(), var5.getMaxBlockZ()
+    @Override
+    public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> param0) {
+        Random var0 = param0.random();
+        WorldGenLevel var1 = param0.level();
+        BlockPos var2 = param0.origin();
+        Rotation var3 = Rotation.getRandom(var0);
+        int var4 = var0.nextInt(fossils.length);
+        StructureManager var5 = var1.getLevel().getServer().getStructureManager();
+        StructureTemplate var6 = var5.getOrCreate(fossils[var4]);
+        StructureTemplate var7 = var5.getOrCreate(fossilsCoal[var4]);
+        ChunkPos var8 = new ChunkPos(var2);
+        BoundingBox var9 = new BoundingBox(
+            var8.getMinBlockX(), var1.getMinBuildHeight(), var8.getMinBlockZ(), var8.getMaxBlockX(), var1.getMaxBuildHeight(), var8.getMaxBlockZ()
         );
-        StructurePlaceSettings var7 = new StructurePlaceSettings()
-            .setRotation(var0)
-            .setBoundingBox(var6)
-            .setRandom(param2)
+        StructurePlaceSettings var10 = new StructurePlaceSettings()
+            .setRotation(var3)
+            .setBoundingBox(var9)
+            .setRandom(var0)
             .addProcessor(BlockIgnoreProcessor.STRUCTURE_AND_AIR);
-        BlockPos var8 = var3.getSize(var0);
-        int var9 = param2.nextInt(16 - var8.getX());
-        int var10 = param2.nextInt(16 - var8.getZ());
-        int var11 = param0.getMaxBuildHeight();
+        BlockPos var11 = var6.getSize(var3);
+        int var12 = var0.nextInt(16 - var11.getX());
+        int var13 = var0.nextInt(16 - var11.getZ());
+        int var14 = var1.getMaxBuildHeight();
 
-        for(int var12 = 0; var12 < var8.getX(); ++var12) {
-            for(int var13 = 0; var13 < var8.getZ(); ++var13) {
-                var11 = Math.min(var11, param0.getHeight(Heightmap.Types.OCEAN_FLOOR_WG, param3.getX() + var12 + var9, param3.getZ() + var13 + var10));
+        for(int var15 = 0; var15 < var11.getX(); ++var15) {
+            for(int var16 = 0; var16 < var11.getZ(); ++var16) {
+                var14 = Math.min(var14, var1.getHeight(Heightmap.Types.OCEAN_FLOOR_WG, var2.getX() + var15 + var12, var2.getZ() + var16 + var13));
             }
         }
 
-        int var14 = Math.max(var11 - 15 - param2.nextInt(10), param0.getMinBuildHeight() + 10);
-        BlockPos var15 = var3.getZeroPositionWithTransform(param3.offset(var9, var14, var10), Mirror.NONE, var0);
-        BlockRotProcessor var16 = new BlockRotProcessor(0.9F);
-        var7.clearProcessors().addProcessor(var16);
-        var3.placeInWorld(param0, var15, var15, var7, param2, 4);
-        var7.popProcessor(var16);
-        BlockRotProcessor var17 = new BlockRotProcessor(0.1F);
-        var7.clearProcessors().addProcessor(var17);
-        var4.placeInWorld(param0, var15, var15, var7, param2, 4);
+        int var17 = Math.max(var14 - 15 - var0.nextInt(10), var1.getMinBuildHeight() + 10);
+        BlockPos var18 = var6.getZeroPositionWithTransform(var2.offset(var12, var17, var13), Mirror.NONE, var3);
+        BlockRotProcessor var19 = new BlockRotProcessor(0.9F);
+        var10.clearProcessors().addProcessor(var19);
+        var6.placeInWorld(var1, var18, var18, var10, var0, 4);
+        var10.popProcessor(var19);
+        BlockRotProcessor var20 = new BlockRotProcessor(0.1F);
+        var10.clearProcessors().addProcessor(var20);
+        var7.placeInWorld(var1, var18, var18, var10, var0, 4);
         return true;
     }
 }

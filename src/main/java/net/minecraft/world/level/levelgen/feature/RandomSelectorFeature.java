@@ -12,13 +12,20 @@ public class RandomSelectorFeature extends Feature<RandomFeatureConfiguration> {
         super(param0);
     }
 
-    public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, RandomFeatureConfiguration param4) {
-        for(WeightedConfiguredFeature var0 : param4.features) {
-            if (param2.nextFloat() < var0.chance) {
-                return var0.place(param0, param1, param2, param3);
+    @Override
+    public boolean place(FeaturePlaceContext<RandomFeatureConfiguration> param0) {
+        RandomFeatureConfiguration var0 = param0.config();
+        Random var1 = param0.random();
+        WorldGenLevel var2 = param0.level();
+        ChunkGenerator var3 = param0.chunkGenerator();
+        BlockPos var4 = param0.origin();
+
+        for(WeightedConfiguredFeature var5 : var0.features) {
+            if (var1.nextFloat() < var5.chance) {
+                return var5.place(var2, var3, var1, var4);
             }
         }
 
-        return param4.defaultFeature.get().place(param0, param1, param2, param3);
+        return var0.defaultFeature.get().place(var2, var3, var1, var4);
     }
 }

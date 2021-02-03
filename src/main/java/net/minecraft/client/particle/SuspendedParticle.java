@@ -3,6 +3,7 @@ package net.minecraft.client.particle;
 import java.util.Random;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -63,6 +64,28 @@ public class SuspendedParticle extends TextureSheetParticle {
             var4.pickSprite(this.sprite);
             var4.setColor(0.9F, 0.4F, 0.5F);
             return var4;
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static class SporeBlossomAirProvider implements ParticleProvider<SimpleParticleType> {
+        private final SpriteSet sprite;
+        private final Random random;
+
+        public SporeBlossomAirProvider(SpriteSet param0) {
+            this.sprite = param0;
+            this.random = new Random();
+        }
+
+        public Particle createParticle(
+            SimpleParticleType param0, ClientLevel param1, double param2, double param3, double param4, double param5, double param6, double param7
+        ) {
+            SuspendedParticle var0 = new SuspendedParticle(param1, param2, param3, param4);
+            var0.lifetime = Mth.randomBetweenInclusive(this.random, 1000, 2000);
+            var0.pickSprite(this.sprite);
+            var0.gravity = 0.001F;
+            var0.setColor(0.32F, 0.5F, 0.22F);
+            return var0;
         }
     }
 

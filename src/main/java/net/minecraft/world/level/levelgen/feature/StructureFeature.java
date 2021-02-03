@@ -18,6 +18,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.biome.Biome;
@@ -207,10 +208,10 @@ public abstract class StructureFeature<C extends FeatureConfiguration> {
                         int var9 = var1 + var0 * var5;
                         int var10 = var2 + var0 * var7;
                         ChunkPos var11 = this.getPotentialFeatureChunk(param6, param5, var4, var9, var10);
-                        boolean var12 = param0.getBiomeManager().getPrimaryBiomeAtChunk(var11.x, var11.z).getGenerationSettings().isValidStart(this);
+                        boolean var12 = param0.getBiomeManager().getPrimaryBiomeAtChunk(var11).getGenerationSettings().isValidStart(this);
                         if (var12) {
                             ChunkAccess var13 = param0.getChunk(var11.x, var11.z, ChunkStatus.STRUCTURE_STARTS);
-                            StructureStart<?> var14 = param1.getStartForFeature(SectionPos.of(var13.getPos(), 0), this, var13);
+                            StructureStart<?> var14 = param1.getStartForFeature(SectionPos.bottomOf(var13), this, var13);
                             if (var14 != null && var14.isValid()) {
                                 if (param4 && var14.canBeReferenced()) {
                                     var14.addReference();
@@ -262,7 +263,16 @@ public abstract class StructureFeature<C extends FeatureConfiguration> {
     }
 
     protected boolean isFeatureChunk(
-        ChunkGenerator param0, BiomeSource param1, long param2, WorldgenRandom param3, int param4, int param5, Biome param6, ChunkPos param7, C param8
+        ChunkGenerator param0,
+        BiomeSource param1,
+        long param2,
+        WorldgenRandom param3,
+        int param4,
+        int param5,
+        Biome param6,
+        ChunkPos param7,
+        C param8,
+        LevelHeightAccessor param9
     ) {
         return true;
     }
@@ -282,12 +292,15 @@ public abstract class StructureFeature<C extends FeatureConfiguration> {
         int param7,
         WorldgenRandom param8,
         StructureFeatureConfiguration param9,
-        C param10
+        C param10,
+        LevelHeightAccessor param11
     ) {
         ChunkPos var0 = this.getPotentialFeatureChunk(param9, param4, param8, param5.x, param5.z);
-        if (param5.x == var0.x && param5.z == var0.z && this.isFeatureChunk(param1, param2, param4, param8, param5.x, param5.z, param6, var0, param10)) {
+        if (param5.x == var0.x && param5.z == var0.z && this.isFeatureChunk(param1, param2, param4, param8, param5.x, param5.z, param6, var0, param10, param11)
+            )
+         {
             StructureStart<C> var1 = this.createStart(param5.x, param5.z, BoundingBox.getUnknownBox(), param7, param4);
-            var1.generatePieces(param0, param1, param3, param5.x, param5.z, param6, param10);
+            var1.generatePieces(param0, param1, param3, param5.x, param5.z, param6, param10, param11);
             if (var1.isValid()) {
                 return var1;
             }

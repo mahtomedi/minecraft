@@ -1,10 +1,8 @@
 package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.WorldGenLevel;
-import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.configurations.LayerConfiguration;
 
 public class FillLayerFeature extends Feature<LayerConfiguration> {
@@ -12,17 +10,21 @@ public class FillLayerFeature extends Feature<LayerConfiguration> {
         super(param0);
     }
 
-    public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, LayerConfiguration param4) {
-        BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos();
+    @Override
+    public boolean place(FeaturePlaceContext<LayerConfiguration> param0) {
+        BlockPos var0 = param0.origin();
+        LayerConfiguration var1 = param0.config();
+        WorldGenLevel var2 = param0.level();
+        BlockPos.MutableBlockPos var3 = new BlockPos.MutableBlockPos();
 
-        for(int var1 = 0; var1 < 16; ++var1) {
-            for(int var2 = 0; var2 < 16; ++var2) {
-                int var3 = param3.getX() + var1;
-                int var4 = param3.getZ() + var2;
-                int var5 = param4.height;
-                var0.set(var3, var5, var4);
-                if (param0.getBlockState(var0).isAir()) {
-                    param0.setBlock(var0, param4.state, 2);
+        for(int var4 = 0; var4 < 16; ++var4) {
+            for(int var5 = 0; var5 < 16; ++var5) {
+                int var6 = var0.getX() + var4;
+                int var7 = var0.getZ() + var5;
+                int var8 = var1.height;
+                var3.set(var6, var8, var7);
+                if (var2.getBlockState(var3).isAir()) {
+                    var2.setBlock(var3, var1.state, 2);
                 }
             }
         }

@@ -1,8 +1,8 @@
 package net.minecraft.world.level.newbiome.context;
 
 import it.unimi.dsi.fastutil.longs.Long2IntLinkedOpenHashMap;
-import java.util.Random;
 import net.minecraft.util.LinearCongruentialGenerator;
+import net.minecraft.world.level.levelgen.SimpleRandomSource;
 import net.minecraft.world.level.levelgen.synth.ImprovedNoise;
 import net.minecraft.world.level.newbiome.area.LazyArea;
 import net.minecraft.world.level.newbiome.layer.traits.PixelTransformer;
@@ -16,7 +16,7 @@ public class LazyAreaContext implements BigContext<LazyArea> {
 
     public LazyAreaContext(int param0, long param1, long param2) {
         this.seed = mixSeed(param1, param2);
-        this.biomeNoise = new ImprovedNoise(new Random(param1));
+        this.biomeNoise = new ImprovedNoise(new SimpleRandomSource(param1));
         this.cache = new Long2IntLinkedOpenHashMap(16, 0.25F);
         this.cache.defaultReturnValue(Integer.MIN_VALUE);
         this.maxCache = param0;

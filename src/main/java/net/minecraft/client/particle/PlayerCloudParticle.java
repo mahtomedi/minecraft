@@ -13,6 +13,7 @@ public class PlayerCloudParticle extends TextureSheetParticle {
 
     private PlayerCloudParticle(ClientLevel param0, double param1, double param2, double param3, double param4, double param5, double param6, SpriteSet param7) {
         super(param0, param1, param2, param3, 0.0, 0.0, 0.0);
+        this.friction = 0.96F;
         this.sprites = param7;
         float var0 = 2.5F;
         this.xd *= 0.1F;
@@ -44,17 +45,9 @@ public class PlayerCloudParticle extends TextureSheetParticle {
 
     @Override
     public void tick() {
-        this.xo = this.x;
-        this.yo = this.y;
-        this.zo = this.z;
-        if (this.age++ >= this.lifetime) {
-            this.remove();
-        } else {
+        super.tick();
+        if (!this.removed) {
             this.setSpriteFromAge(this.sprites);
-            this.move(this.xd, this.yd, this.zd);
-            this.xd *= 0.96F;
-            this.yd *= 0.96F;
-            this.zd *= 0.96F;
             Player var0 = this.level.getNearestPlayer(this.x, this.y, this.z, 2.0, false);
             if (var0 != null) {
                 double var1 = var0.getY();
@@ -64,13 +57,8 @@ public class PlayerCloudParticle extends TextureSheetParticle {
                     this.setPos(this.x, this.y, this.z);
                 }
             }
-
-            if (this.onGround) {
-                this.xd *= 0.7F;
-                this.zd *= 0.7F;
-            }
-
         }
+
     }
 
     @OnlyIn(Dist.CLIENT)

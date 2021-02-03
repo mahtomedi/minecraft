@@ -58,6 +58,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -385,6 +386,7 @@ public class Panda extends Animal {
                 if (this.getEatCounter() > 100 && this.isFoodOrCake(this.getItemBySlot(EquipmentSlot.MAINHAND))) {
                     if (!this.level.isClientSide) {
                         this.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
+                        this.gameEvent(GameEvent.EAT, this.eyeBlockPosition());
                     }
 
                     this.sit(false);
@@ -622,9 +624,11 @@ public class Panda extends Animal {
             if (this.isBaby()) {
                 this.usePlayerItem(param0, param1, var0);
                 this.ageUp((int)((float)(-this.getAge() / 20) * 0.1F), true);
+                this.gameEvent(GameEvent.MOB_INTERACT, this.eyeBlockPosition());
             } else if (!this.level.isClientSide && this.getAge() == 0 && this.canFallInLove()) {
                 this.usePlayerItem(param0, param1, var0);
                 this.setInLove(param0);
+                this.gameEvent(GameEvent.MOB_INTERACT, this.eyeBlockPosition());
             } else {
                 if (this.level.isClientSide || this.isSitting() || this.isInWater()) {
                     return InteractionResult.PASS;

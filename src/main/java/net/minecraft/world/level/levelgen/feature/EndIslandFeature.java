@@ -6,7 +6,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 
 public class EndIslandFeature extends Feature<NoneFeatureConfiguration> {
@@ -14,19 +13,23 @@ public class EndIslandFeature extends Feature<NoneFeatureConfiguration> {
         super(param0);
     }
 
-    public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, NoneFeatureConfiguration param4) {
-        float var0 = (float)(param2.nextInt(3) + 4);
+    @Override
+    public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> param0) {
+        WorldGenLevel var0 = param0.level();
+        Random var1 = param0.random();
+        BlockPos var2 = param0.origin();
+        float var3 = (float)(var1.nextInt(3) + 4);
 
-        for(int var1 = 0; var0 > 0.5F; --var1) {
-            for(int var2 = Mth.floor(-var0); var2 <= Mth.ceil(var0); ++var2) {
-                for(int var3 = Mth.floor(-var0); var3 <= Mth.ceil(var0); ++var3) {
-                    if ((float)(var2 * var2 + var3 * var3) <= (var0 + 1.0F) * (var0 + 1.0F)) {
-                        this.setBlock(param0, param3.offset(var2, var1, var3), Blocks.END_STONE.defaultBlockState());
+        for(int var4 = 0; var3 > 0.5F; --var4) {
+            for(int var5 = Mth.floor(-var3); var5 <= Mth.ceil(var3); ++var5) {
+                for(int var6 = Mth.floor(-var3); var6 <= Mth.ceil(var3); ++var6) {
+                    if ((float)(var5 * var5 + var6 * var6) <= (var3 + 1.0F) * (var3 + 1.0F)) {
+                        this.setBlock(var0, var2.offset(var5, var4, var6), Blocks.END_STONE.defaultBlockState());
                     }
                 }
             }
 
-            var0 = (float)((double)var0 - ((double)param2.nextInt(2) + 0.5));
+            var3 = (float)((double)var3 - ((double)var1.nextInt(2) + 0.5));
         }
 
         return true;

@@ -12,9 +12,15 @@ public class SimpleRandomSelectorFeature extends Feature<SimpleRandomFeatureConf
         super(param0);
     }
 
-    public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, SimpleRandomFeatureConfiguration param4) {
-        int var0 = param2.nextInt(param4.features.size());
-        ConfiguredFeature<?, ?> var1 = param4.features.get(var0).get();
-        return var1.place(param0, param1, param2, param3);
+    @Override
+    public boolean place(FeaturePlaceContext<SimpleRandomFeatureConfiguration> param0) {
+        Random var0 = param0.random();
+        SimpleRandomFeatureConfiguration var1 = param0.config();
+        WorldGenLevel var2 = param0.level();
+        BlockPos var3 = param0.origin();
+        ChunkGenerator var4 = param0.chunkGenerator();
+        int var5 = var0.nextInt(var1.features.size());
+        ConfiguredFeature<?, ?> var6 = var1.features.get(var5).get();
+        return var6.place(var2, var4, var0, var3);
     }
 }

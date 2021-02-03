@@ -435,5 +435,16 @@ public class FireBlock extends BaseFireBlock {
         var0.setFlammable(Blocks.SWEET_BERRY_BUSH, 60, 100);
         var0.setFlammable(Blocks.BEEHIVE, 5, 20);
         var0.setFlammable(Blocks.BEE_NEST, 30, 20);
+        var0.setFlammable(Blocks.AZALEA_LEAVES, 30, 60);
+        var0.setFlammable(Blocks.AZALEA_LEAVES_FLOWERS, 30, 60);
+        var0.setFlammable(Blocks.CAVE_VINES_HEAD, 15, 60);
+        var0.setFlammable(Blocks.CAVE_VINES_BODY, 15, 60);
+        var0.setFlammable(Blocks.SPORE_BLOSSOM, 60, 100);
+        var0.setFlammable(Blocks.AZALEA, 30, 60);
+        var0.setFlammable(Blocks.FLOWERING_AZALEA, 30, 60);
+        var0.setFlammable(Blocks.BIG_DRIPLEAF, 60, 100);
+        var0.setFlammable(Blocks.BIG_DRIPLEAF_STEM, 60, 100);
+        var0.setFlammable(Blocks.SMALL_DRIPLEAF, 60, 100);
+        var0.setFlammable(Blocks.HANGING_ROOTS, 30, 60);
     }
 }

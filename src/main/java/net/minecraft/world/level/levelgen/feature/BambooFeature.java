@@ -9,7 +9,6 @@ import net.minecraft.world.level.block.BambooBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BambooLeaves;
-import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.configurations.ProbabilityFeatureConfiguration;
 
@@ -28,39 +27,44 @@ public class BambooFeature extends Feature<ProbabilityFeatureConfiguration> {
         super(param0);
     }
 
-    public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, ProbabilityFeatureConfiguration param4) {
+    @Override
+    public boolean place(FeaturePlaceContext<ProbabilityFeatureConfiguration> param0) {
         int var0 = 0;
-        BlockPos.MutableBlockPos var1 = param3.mutable();
-        BlockPos.MutableBlockPos var2 = param3.mutable();
-        if (param0.isEmptyBlock(var1)) {
-            if (Blocks.BAMBOO.defaultBlockState().canSurvive(param0, var1)) {
-                int var3 = param2.nextInt(12) + 5;
-                if (param2.nextFloat() < param4.probability) {
-                    int var4 = param2.nextInt(4) + 1;
+        BlockPos var1 = param0.origin();
+        WorldGenLevel var2 = param0.level();
+        Random var3 = param0.random();
+        ProbabilityFeatureConfiguration var4 = param0.config();
+        BlockPos.MutableBlockPos var5 = var1.mutable();
+        BlockPos.MutableBlockPos var6 = var1.mutable();
+        if (var2.isEmptyBlock(var5)) {
+            if (Blocks.BAMBOO.defaultBlockState().canSurvive(var2, var5)) {
+                int var7 = var3.nextInt(12) + 5;
+                if (var3.nextFloat() < var4.probability) {
+                    int var8 = var3.nextInt(4) + 1;
 
-                    for(int var5 = param3.getX() - var4; var5 <= param3.getX() + var4; ++var5) {
-                        for(int var6 = param3.getZ() - var4; var6 <= param3.getZ() + var4; ++var6) {
-                            int var7 = var5 - param3.getX();
-                            int var8 = var6 - param3.getZ();
-                            if (var7 * var7 + var8 * var8 <= var4 * var4) {
-                                var2.set(var5, param0.getHeight(Heightmap.Types.WORLD_SURFACE, var5, var6) - 1, var6);
-                                if (isDirt(param0.getBlockState(var2))) {
-                                    param0.setBlock(var2, Blocks.PODZOL.defaultBlockState(), 2);
+                    for(int var9 = var1.getX() - var8; var9 <= var1.getX() + var8; ++var9) {
+                        for(int var10 = var1.getZ() - var8; var10 <= var1.getZ() + var8; ++var10) {
+                            int var11 = var9 - var1.getX();
+                            int var12 = var10 - var1.getZ();
+                            if (var11 * var11 + var12 * var12 <= var8 * var8) {
+                                var6.set(var9, var2.getHeight(Heightmap.Types.WORLD_SURFACE, var9, var10) - 1, var10);
+                                if (isDirt(var2.getBlockState(var6))) {
+                                    var2.setBlock(var6, Blocks.PODZOL.defaultBlockState(), 2);
                                 }
                             }
                         }
                     }
                 }
 
-                for(int var9 = 0; var9 < var3 && param0.isEmptyBlock(var1); ++var9) {
-                    param0.setBlock(var1, BAMBOO_TRUNK, 2);
-                    var1.move(Direction.UP, 1);
+                for(int var13 = 0; var13 < var7 && var2.isEmptyBlock(var5); ++var13) {
+                    var2.setBlock(var5, BAMBOO_TRUNK, 2);
+                    var5.move(Direction.UP, 1);
                 }
 
-                if (var1.getY() - param3.getY() >= 3) {
-                    param0.setBlock(var1, BAMBOO_FINAL_LARGE, 2);
-                    param0.setBlock(var1.move(Direction.DOWN, 1), BAMBOO_TOP_LARGE, 2);
-                    param0.setBlock(var1.move(Direction.DOWN, 1), BAMBOO_TOP_SMALL, 2);
+                if (var5.getY() - var1.getY() >= 3) {
+                    var2.setBlock(var5, BAMBOO_FINAL_LARGE, 2);
+                    var2.setBlock(var5.move(Direction.DOWN, 1), BAMBOO_TOP_LARGE, 2);
+                    var2.setBlock(var5.move(Direction.DOWN, 1), BAMBOO_TOP_SMALL, 2);
                 }
             }
 

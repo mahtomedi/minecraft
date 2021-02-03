@@ -24,6 +24,7 @@ import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.NoiseColumn;
 import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.WorldGenLevel;
@@ -187,21 +188,20 @@ public abstract class ChunkGenerator {
     }
 
     public void applyBiomeDecoration(WorldGenRegion param0, StructureFeatureManager param1) {
-        int var0 = param0.getCenterX();
-        int var1 = param0.getCenterZ();
-        int var2 = SectionPos.sectionToBlockCoord(var0);
-        int var3 = SectionPos.sectionToBlockCoord(var1);
-        BlockPos var4 = new BlockPos(var2, 0, var3);
-        Biome var5 = this.biomeSource.getPrimaryBiome(var0, var1);
-        WorldgenRandom var6 = new WorldgenRandom();
-        long var7 = var6.setDecorationSeed(param0.getSeed(), var2, var3);
+        ChunkPos var0 = param0.getCenter();
+        int var1 = var0.getMinBlockX();
+        int var2 = var0.getMinBlockZ();
+        BlockPos var3 = new BlockPos(var1, param0.getMinBuildHeight(), var2);
+        Biome var4 = this.biomeSource.getPrimaryBiome(var0);
+        WorldgenRandom var5 = new WorldgenRandom();
+        long var6 = var5.setDecorationSeed(param0.getSeed(), var1, var2);
 
         try {
-            var5.generate(param1, this, param0, var7, var6, var4);
-        } catch (Exception var14) {
-            CrashReport var9 = CrashReport.forThrowable(var14, "Biome decoration");
-            var9.addCategory("Generation").setDetail("CenterX", var0).setDetail("CenterZ", var1).setDetail("Seed", var7).setDetail("Biome", var5);
-            throw new ReportedException(var9);
+            var4.generate(param1, this, param0, var6, var5, var3);
+        } catch (Exception var13) {
+            CrashReport var8 = CrashReport.forThrowable(var13, "Biome decoration");
+            var8.addCategory("Generation").setDetail("CenterX", var0.x).setDetail("CenterZ", var0.z).setDetail("Seed", var6).setDetail("Biome", var4);
+            throw new ReportedException(var8);
         }
     }
 
@@ -231,12 +231,11 @@ public abstract class ChunkGenerator {
     }
 
     public void createStructures(RegistryAccess param0, StructureFeatureManager param1, ChunkAccess param2, StructureManager param3, long param4) {
-        ChunkPos var0 = param2.getPos();
-        Biome var1 = this.biomeSource.getPrimaryBiome(var0.x, var0.z);
-        this.createStructure(StructureFeatures.STRONGHOLD, param0, param1, param2, param3, param4, var0, var1);
+        Biome var0 = this.biomeSource.getPrimaryBiome(param2.getPos());
+        this.createStructure(StructureFeatures.STRONGHOLD, param0, param1, param2, param3, param4, var0);
 
-        for(Supplier<ConfiguredStructureFeature<?, ?>> var2 : var1.getGenerationSettings().structures()) {
-            this.createStructure(var2.get(), param0, param1, param2, param3, param4, var0, var1);
+        for(Supplier<ConfiguredStructureFeature<?, ?>> var1 : var0.getGenerationSettings().structures()) {
+            this.createStructure(var1.get(), param0, param1, param2, param3, param4, var0);
         }
 
     }
@@ -248,44 +247,46 @@ public abstract class ChunkGenerator {
         ChunkAccess param3,
         StructureManager param4,
         long param5,
-        ChunkPos param6,
-        Biome param7
+        Biome param6
     ) {
-        StructureStart<?> var0 = param2.getStartForFeature(SectionPos.of(param3.getPos(), 0), param0.feature, param3);
-        int var1 = var0 != null ? var0.getReferences() : 0;
-        StructureFeatureConfiguration var2 = this.settings.getConfig(param0.feature);
-        if (var2 != null) {
-            StructureStart<?> var3 = param0.generate(param1, this, this.biomeSource, param4, param5, param6, param7, var1, var2);
-            param2.setStartForFeature(SectionPos.of(param3.getPos(), 0), param0.feature, var3, param3);
+        ChunkPos var0 = param3.getPos();
+        SectionPos var1 = SectionPos.bottomOf(param3);
+        StructureStart<?> var2 = param2.getStartForFeature(var1, param0.feature, param3);
+        int var3 = var2 != null ? var2.getReferences() : 0;
+        StructureFeatureConfiguration var4 = this.settings.getConfig(param0.feature);
+        if (var4 != null) {
+            StructureStart<?> var5 = param0.generate(param1, this, this.biomeSource, param4, param5, var0, param6, var3, var4, param3);
+            param2.setStartForFeature(var1, param0.feature, var5, param3);
         }
 
     }
 
     public void createReferences(WorldGenLevel param0, StructureFeatureManager param1, ChunkAccess param2) {
         int var0 = 8;
-        int var1 = param2.getPos().x;
-        int var2 = param2.getPos().z;
-        int var3 = SectionPos.sectionToBlockCoord(var1);
-        int var4 = SectionPos.sectionToBlockCoord(var2);
-        SectionPos var5 = SectionPos.of(param2.getPos(), 0);
+        ChunkPos var1 = param2.getPos();
+        int var2 = var1.x;
+        int var3 = var1.z;
+        int var4 = var1.getMinBlockX();
+        int var5 = var1.getMinBlockZ();
+        SectionPos var6 = SectionPos.bottomOf(param2);
 
-        for(int var6 = var1 - 8; var6 <= var1 + 8; ++var6) {
-            for(int var7 = var2 - 8; var7 <= var2 + 8; ++var7) {
-                long var8 = ChunkPos.asLong(var6, var7);
+        for(int var7 = var2 - 8; var7 <= var2 + 8; ++var7) {
+            for(int var8 = var3 - 8; var8 <= var3 + 8; ++var8) {
+                long var9 = ChunkPos.asLong(var7, var8);
 
-                for(StructureStart<?> var9 : param0.getChunk(var6, var7).getAllStarts().values()) {
+                for(StructureStart<?> var10 : param0.getChunk(var7, var8).getAllStarts().values()) {
                     try {
-                        if (var9 != StructureStart.INVALID_START && var9.getBoundingBox().intersects(var3, var4, var3 + 15, var4 + 15)) {
-                            param1.addReferenceForFeature(var5, var9.getFeature(), var8, param2);
-                            DebugPackets.sendStructurePacket(param0, var9);
+                        if (var10 != StructureStart.INVALID_START && var10.getBoundingBox().intersects(var4, var5, var4 + 15, var5 + 15)) {
+                            param1.addReferenceForFeature(var6, var10.getFeature(), var9, param2);
+                            DebugPackets.sendStructurePacket(param0, var10);
                         }
-                    } catch (Exception var19) {
-                        CrashReport var11 = CrashReport.forThrowable(var19, "Generating structure reference");
-                        CrashReportCategory var12 = var11.addCategory("Structure");
-                        var12.setDetail("Id", () -> Registry.STRUCTURE_FEATURE.getKey(var9.getFeature()).toString());
-                        var12.setDetail("Name", () -> var9.getFeature().getFeatureName());
-                        var12.setDetail("Class", () -> var9.getFeature().getClass().getCanonicalName());
-                        throw new ReportedException(var11);
+                    } catch (Exception var20) {
+                        CrashReport var12 = CrashReport.forThrowable(var20, "Generating structure reference");
+                        CrashReportCategory var13 = var12.addCategory("Structure");
+                        var13.setDetail("Id", () -> Registry.STRUCTURE_FEATURE.getKey(var10.getFeature()).toString());
+                        var13.setDetail("Name", () -> var10.getFeature().getFeatureName());
+                        var13.setDetail("Class", () -> var10.getFeature().getClass().getCanonicalName());
+                        throw new ReportedException(var12);
                     }
                 }
             }
@@ -299,16 +300,16 @@ public abstract class ChunkGenerator {
         return 63;
     }
 
-    public abstract int getBaseHeight(int var1, int var2, Heightmap.Types var3);
+    public abstract int getBaseHeight(int var1, int var2, Heightmap.Types var3, LevelHeightAccessor var4);
 
-    public abstract NoiseColumn getBaseColumn(int var1, int var2);
+    public abstract NoiseColumn getBaseColumn(int var1, int var2, LevelHeightAccessor var3);
 
-    public int getFirstFreeHeight(int param0, int param1, Heightmap.Types param2) {
-        return this.getBaseHeight(param0, param1, param2);
+    public int getFirstFreeHeight(int param0, int param1, Heightmap.Types param2, LevelHeightAccessor param3) {
+        return this.getBaseHeight(param0, param1, param2, param3);
     }
 
-    public int getFirstOccupiedHeight(int param0, int param1, Heightmap.Types param2) {
-        return this.getBaseHeight(param0, param1, param2) - 1;
+    public int getFirstOccupiedHeight(int param0, int param1, Heightmap.Types param2, LevelHeightAccessor param3) {
+        return this.getBaseHeight(param0, param1, param2, param3) - 1;
     }
 
     public boolean hasStronghold(ChunkPos param0) {

@@ -150,6 +150,8 @@ public class ParticleEngine implements PreparableReloadListener {
         this.register(ParticleTypes.FALLING_HONEY, DripParticle.HoneyFallProvider::new);
         this.register(ParticleTypes.LANDING_HONEY, DripParticle.HoneyLandProvider::new);
         this.register(ParticleTypes.FALLING_NECTAR, DripParticle.NectarFallProvider::new);
+        this.register(ParticleTypes.FALLING_SPORE_BLOSSOM, DripParticle.SporeBlossomFallProvider::new);
+        this.register(ParticleTypes.SPORE_BLOSSOM_AIR, SuspendedParticle.SporeBlossomAirProvider::new);
         this.register(ParticleTypes.ASH, AshParticle.Provider::new);
         this.register(ParticleTypes.CRIMSON_SPORE, SuspendedParticle.CrimsonSporeProvider::new);
         this.register(ParticleTypes.WARPED_SPORE, SuspendedParticle.WarpedSporeProvider::new);
@@ -418,16 +420,16 @@ public class ParticleEngine implements PreparableReloadListener {
                                 double var14 = var11 * var2x + param4;
                                 this.add(
                                     new TerrainParticle(
-                                            this.level,
-                                            (double)param0.getX() + var12,
-                                            (double)param0.getY() + var13,
-                                            (double)param0.getZ() + var14,
-                                            var9 - 0.5,
-                                            var10 - 0.5,
-                                            var11 - 0.5,
-                                            param1
-                                        )
-                                        .init(param0)
+                                        this.level,
+                                        (double)param0.getX() + var12,
+                                        (double)param0.getY() + var13,
+                                        (double)param0.getZ() + var14,
+                                        var9 - 0.5,
+                                        var10 - 0.5,
+                                        var11 - 0.5,
+                                        param1,
+                                        param0
+                                    )
                                 );
                             }
                         }
@@ -473,7 +475,7 @@ public class ParticleEngine implements PreparableReloadListener {
                 var6 = (double)var1 + var5.maxX + 0.1F;
             }
 
-            this.add(new TerrainParticle(this.level, var6, var7, var8, 0.0, 0.0, 0.0, var0).init(param0).setPower(0.2F).scale(0.6F));
+            this.add(new TerrainParticle(this.level, var6, var7, var8, 0.0, 0.0, 0.0, var0, param0).setPower(0.2F).scale(0.6F));
         }
     }
 

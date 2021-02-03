@@ -12,12 +12,6 @@ public class SpitParticle extends ExplodeParticle {
         this.gravity = 0.5F;
     }
 
-    @Override
-    public void tick() {
-        super.tick();
-        this.yd -= 0.004 + 0.04 * (double)this.gravity;
-    }
-
     @OnlyIn(Dist.CLIENT)
     public static class Provider implements ParticleProvider<SimpleParticleType> {
         private final SpriteSet sprites;

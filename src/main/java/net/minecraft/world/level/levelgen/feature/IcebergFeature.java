@@ -9,7 +9,6 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.configurations.BlockStateConfiguration;
 import net.minecraft.world.level.material.Material;
 
@@ -18,52 +17,56 @@ public class IcebergFeature extends Feature<BlockStateConfiguration> {
         super(param0);
     }
 
-    public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, BlockStateConfiguration param4) {
-        param3 = new BlockPos(param3.getX(), param1.getSeaLevel(), param3.getZ());
-        boolean var0 = param2.nextDouble() > 0.7;
-        BlockState var1 = param4.state;
-        double var2 = param2.nextDouble() * 2.0 * Math.PI;
-        int var3 = 11 - param2.nextInt(5);
-        int var4 = 3 + param2.nextInt(3);
-        boolean var5 = param2.nextDouble() > 0.7;
-        int var6 = 11;
-        int var7 = var5 ? param2.nextInt(6) + 6 : param2.nextInt(15) + 3;
-        if (!var5 && param2.nextDouble() > 0.9) {
-            var7 += param2.nextInt(19) + 7;
+    @Override
+    public boolean place(FeaturePlaceContext<BlockStateConfiguration> param0) {
+        BlockPos var0 = param0.origin();
+        WorldGenLevel var1 = param0.level();
+        var0 = new BlockPos(var0.getX(), param0.chunkGenerator().getSeaLevel(), var0.getZ());
+        Random var2 = param0.random();
+        boolean var3 = var2.nextDouble() > 0.7;
+        BlockState var4 = param0.config().state;
+        double var5 = var2.nextDouble() * 2.0 * Math.PI;
+        int var6 = 11 - var2.nextInt(5);
+        int var7 = 3 + var2.nextInt(3);
+        boolean var8 = var2.nextDouble() > 0.7;
+        int var9 = 11;
+        int var10 = var8 ? var2.nextInt(6) + 6 : var2.nextInt(15) + 3;
+        if (!var8 && var2.nextDouble() > 0.9) {
+            var10 += var2.nextInt(19) + 7;
         }
 
-        int var8 = Math.min(var7 + param2.nextInt(11), 18);
-        int var9 = Math.min(var7 + param2.nextInt(7) - param2.nextInt(5), 11);
-        int var10 = var5 ? var3 : 11;
+        int var11 = Math.min(var10 + var2.nextInt(11), 18);
+        int var12 = Math.min(var10 + var2.nextInt(7) - var2.nextInt(5), 11);
+        int var13 = var8 ? var6 : 11;
 
-        for(int var11 = -var10; var11 < var10; ++var11) {
-            for(int var12 = -var10; var12 < var10; ++var12) {
-                for(int var13 = 0; var13 < var7; ++var13) {
-                    int var14 = var5 ? this.heightDependentRadiusEllipse(var13, var7, var9) : this.heightDependentRadiusRound(param2, var13, var7, var9);
-                    if (var5 || var11 < var14) {
-                        this.generateIcebergBlock(param0, param2, param3, var7, var11, var13, var12, var14, var10, var5, var4, var2, var0, var1);
+        for(int var14 = -var13; var14 < var13; ++var14) {
+            for(int var15 = -var13; var15 < var13; ++var15) {
+                for(int var16 = 0; var16 < var10; ++var16) {
+                    int var17 = var8 ? this.heightDependentRadiusEllipse(var16, var10, var12) : this.heightDependentRadiusRound(var2, var16, var10, var12);
+                    if (var8 || var14 < var17) {
+                        this.generateIcebergBlock(var1, var2, var0, var10, var14, var16, var15, var17, var13, var8, var7, var5, var3, var4);
                     }
                 }
             }
         }
 
-        this.smooth(param0, param3, var9, var7, var5, var3);
+        this.smooth(var1, var0, var12, var10, var8, var6);
 
-        for(int var15 = -var10; var15 < var10; ++var15) {
-            for(int var16 = -var10; var16 < var10; ++var16) {
-                for(int var17 = -1; var17 > -var8; --var17) {
-                    int var18 = var5 ? Mth.ceil((float)var10 * (1.0F - (float)Math.pow((double)var17, 2.0) / ((float)var8 * 8.0F))) : var10;
-                    int var19 = this.heightDependentRadiusSteep(param2, -var17, var8, var9);
-                    if (var15 < var19) {
-                        this.generateIcebergBlock(param0, param2, param3, var8, var15, var17, var16, var19, var18, var5, var4, var2, var0, var1);
+        for(int var18 = -var13; var18 < var13; ++var18) {
+            for(int var19 = -var13; var19 < var13; ++var19) {
+                for(int var20 = -1; var20 > -var11; --var20) {
+                    int var21 = var8 ? Mth.ceil((float)var13 * (1.0F - (float)Math.pow((double)var20, 2.0) / ((float)var11 * 8.0F))) : var13;
+                    int var22 = this.heightDependentRadiusSteep(var2, -var20, var11, var12);
+                    if (var18 < var22) {
+                        this.generateIcebergBlock(var1, var2, var0, var11, var18, var20, var19, var22, var21, var8, var7, var5, var3, var4);
                     }
                 }
             }
         }
 
-        boolean var20 = var5 ? param2.nextDouble() > 0.1 : param2.nextDouble() > 0.7;
-        if (var20) {
-            this.generateCutOut(param2, param0, var9, var7, param3, var5, var3, var2, var4);
+        boolean var23 = var8 ? var2.nextDouble() > 0.1 : var2.nextDouble() > 0.7;
+        if (var23) {
+            this.generateCutOut(var2, var1, var12, var10, var0, var8, var6, var5, var7);
         }
 
         return true;

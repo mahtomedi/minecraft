@@ -14,6 +14,7 @@ import net.minecraft.world.level.block.BaseRailBlock;
 import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.RailShape;
+import net.minecraft.world.level.gameevent.GameEvent;
 
 public class MinecartItem extends Item {
     private static final DispenseItemBehavior DISPENSE_ITEM_BEHAVIOR = new DefaultDispenseItemBehavior() {
@@ -103,6 +104,7 @@ public class MinecartItem extends Item {
                 }
 
                 var0.addFreshEntity(var6);
+                var0.gameEvent(param0.getPlayer(), GameEvent.ENTITY_PLACE, var1);
             }
 
             var3.shrink(1);

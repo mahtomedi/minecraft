@@ -74,7 +74,7 @@ public class BucketItem extends Item implements DispensibleContainerItem {
                 BlockState var9 = param0.getBlockState(var2);
                 BlockPos var10 = var9.getBlock() instanceof LiquidBlockContainer && this.content == Fluids.WATER ? var2 : var4;
                 if (this.emptyContents(param1, param0, var10, var1)) {
-                    this.checkExtraContent(param0, var0, var10);
+                    this.checkExtraContent(param1, param0, var0, var10);
                     if (param1 instanceof ServerPlayer) {
                         CriteriaTriggers.PLACED_BLOCK.trigger((ServerPlayer)param1, var10, var0);
                     }
@@ -93,7 +93,7 @@ public class BucketItem extends Item implements DispensibleContainerItem {
     }
 
     @Override
-    public void checkExtraContent(Level param0, ItemStack param1, BlockPos param2) {
+    public void checkExtraContent(@Nullable Player param0, Level param1, ItemStack param2, BlockPos param3) {
     }
 
     @Override

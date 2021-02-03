@@ -37,6 +37,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.pathfinder.PathComputationType;
@@ -185,18 +186,19 @@ public class CampfireBlock extends BaseEntityBlock implements SimpleWaterloggedB
         }
     }
 
-    public static void dowse(LevelAccessor param0, BlockPos param1, BlockState param2) {
-        if (param0.isClientSide()) {
+    public static void dowse(@Nullable Entity param0, LevelAccessor param1, BlockPos param2, BlockState param3) {
+        if (param1.isClientSide()) {
             for(int var0 = 0; var0 < 20; ++var0) {
-                makeParticles((Level)param0, param1, param2.getValue(SIGNAL_FIRE), true);
+                makeParticles((Level)param1, param2, param3.getValue(SIGNAL_FIRE), true);
             }
         }
 
-        BlockEntity var1 = param0.getBlockEntity(param1);
+        BlockEntity var1 = param1.getBlockEntity(param2);
         if (var1 instanceof CampfireBlockEntity) {
             ((CampfireBlockEntity)var1).dowse();
         }
 
+        param1.gameEvent(param0, GameEvent.BLOCK_CHANGE, param2);
     }
 
     @Override
@@ -208,7 +210,7 @@ public class CampfireBlock extends BaseEntityBlock implements SimpleWaterloggedB
                     param0.playSound(null, param1, SoundEvents.GENERIC_EXTINGUISH_FIRE, SoundSource.BLOCKS, 1.0F, 1.0F);
                 }
 
-                dowse(param0, param1, param2);
+                dowse(null, param0, param1, param2);
             }
 
             param0.setBlock(param1, param2.setValue(WATERLOGGED, Boolean.valueOf(true)).setValue(LIT, Boolean.valueOf(false)), 3);

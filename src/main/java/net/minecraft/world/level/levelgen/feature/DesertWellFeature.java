@@ -1,14 +1,12 @@
 package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.predicate.BlockStatePredicate;
-import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 
 public class DesertWellFeature extends Feature<NoneFeatureConfiguration> {
@@ -21,66 +19,69 @@ public class DesertWellFeature extends Feature<NoneFeatureConfiguration> {
         super(param0);
     }
 
-    public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, NoneFeatureConfiguration param4) {
-        param3 = param3.above();
+    @Override
+    public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> param0) {
+        WorldGenLevel var0 = param0.level();
+        BlockPos var1 = param0.origin();
+        var1 = var1.above();
 
-        while(param0.isEmptyBlock(param3) && param3.getY() > param0.getMinBuildHeight() + 2) {
-            param3 = param3.below();
+        while(var0.isEmptyBlock(var1) && var1.getY() > var0.getMinBuildHeight() + 2) {
+            var1 = var1.below();
         }
 
-        if (!IS_SAND.test(param0.getBlockState(param3))) {
+        if (!IS_SAND.test(var0.getBlockState(var1))) {
             return false;
         } else {
-            for(int var0 = -2; var0 <= 2; ++var0) {
-                for(int var1 = -2; var1 <= 2; ++var1) {
-                    if (param0.isEmptyBlock(param3.offset(var0, -1, var1)) && param0.isEmptyBlock(param3.offset(var0, -2, var1))) {
+            for(int var2 = -2; var2 <= 2; ++var2) {
+                for(int var3 = -2; var3 <= 2; ++var3) {
+                    if (var0.isEmptyBlock(var1.offset(var2, -1, var3)) && var0.isEmptyBlock(var1.offset(var2, -2, var3))) {
                         return false;
                     }
                 }
             }
 
-            for(int var2 = -1; var2 <= 0; ++var2) {
-                for(int var3 = -2; var3 <= 2; ++var3) {
-                    for(int var4 = -2; var4 <= 2; ++var4) {
-                        param0.setBlock(param3.offset(var3, var2, var4), this.sandstone, 2);
+            for(int var4 = -1; var4 <= 0; ++var4) {
+                for(int var5 = -2; var5 <= 2; ++var5) {
+                    for(int var6 = -2; var6 <= 2; ++var6) {
+                        var0.setBlock(var1.offset(var5, var4, var6), this.sandstone, 2);
                     }
                 }
             }
 
-            param0.setBlock(param3, this.water, 2);
+            var0.setBlock(var1, this.water, 2);
 
-            for(Direction var5 : Direction.Plane.HORIZONTAL) {
-                param0.setBlock(param3.relative(var5), this.water, 2);
+            for(Direction var7 : Direction.Plane.HORIZONTAL) {
+                var0.setBlock(var1.relative(var7), this.water, 2);
             }
 
-            for(int var6 = -2; var6 <= 2; ++var6) {
-                for(int var7 = -2; var7 <= 2; ++var7) {
-                    if (var6 == -2 || var6 == 2 || var7 == -2 || var7 == 2) {
-                        param0.setBlock(param3.offset(var6, 1, var7), this.sandstone, 2);
+            for(int var8 = -2; var8 <= 2; ++var8) {
+                for(int var9 = -2; var9 <= 2; ++var9) {
+                    if (var8 == -2 || var8 == 2 || var9 == -2 || var9 == 2) {
+                        var0.setBlock(var1.offset(var8, 1, var9), this.sandstone, 2);
                     }
                 }
             }
 
-            param0.setBlock(param3.offset(2, 1, 0), this.sandSlab, 2);
-            param0.setBlock(param3.offset(-2, 1, 0), this.sandSlab, 2);
-            param0.setBlock(param3.offset(0, 1, 2), this.sandSlab, 2);
-            param0.setBlock(param3.offset(0, 1, -2), this.sandSlab, 2);
+            var0.setBlock(var1.offset(2, 1, 0), this.sandSlab, 2);
+            var0.setBlock(var1.offset(-2, 1, 0), this.sandSlab, 2);
+            var0.setBlock(var1.offset(0, 1, 2), this.sandSlab, 2);
+            var0.setBlock(var1.offset(0, 1, -2), this.sandSlab, 2);
 
-            for(int var8 = -1; var8 <= 1; ++var8) {
-                for(int var9 = -1; var9 <= 1; ++var9) {
-                    if (var8 == 0 && var9 == 0) {
-                        param0.setBlock(param3.offset(var8, 4, var9), this.sandstone, 2);
+            for(int var10 = -1; var10 <= 1; ++var10) {
+                for(int var11 = -1; var11 <= 1; ++var11) {
+                    if (var10 == 0 && var11 == 0) {
+                        var0.setBlock(var1.offset(var10, 4, var11), this.sandstone, 2);
                     } else {
-                        param0.setBlock(param3.offset(var8, 4, var9), this.sandSlab, 2);
+                        var0.setBlock(var1.offset(var10, 4, var11), this.sandSlab, 2);
                     }
                 }
             }
 
-            for(int var10 = 1; var10 <= 3; ++var10) {
-                param0.setBlock(param3.offset(-1, var10, -1), this.sandstone, 2);
-                param0.setBlock(param3.offset(-1, var10, 1), this.sandstone, 2);
-                param0.setBlock(param3.offset(1, var10, -1), this.sandstone, 2);
-                param0.setBlock(param3.offset(1, var10, 1), this.sandstone, 2);
+            for(int var12 = 1; var12 <= 3; ++var12) {
+                var0.setBlock(var1.offset(-1, var12, -1), this.sandstone, 2);
+                var0.setBlock(var1.offset(-1, var12, 1), this.sandstone, 2);
+                var0.setBlock(var1.offset(1, var12, -1), this.sandstone, 2);
+                var0.setBlock(var1.offset(1, var12, 1), this.sandstone, 2);
             }
 
             return true;

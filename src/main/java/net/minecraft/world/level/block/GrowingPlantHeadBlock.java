@@ -40,10 +40,18 @@ public abstract class GrowingPlantHeadBlock extends GrowingPlantBlock implements
         if (param0.getValue(AGE) < 25 && param3.nextDouble() < this.growPerTickProbability) {
             BlockPos var0 = param2.relative(this.growthDirection);
             if (this.canGrowInto(param1.getBlockState(var0))) {
-                param1.setBlockAndUpdate(var0, param0.cycle(AGE));
+                param1.setBlockAndUpdate(var0, this.getGrowIntoState(param0, param1.random));
             }
         }
 
+    }
+
+    protected BlockState getGrowIntoState(BlockState param0, Random param1) {
+        return param0.cycle(AGE);
+    }
+
+    protected BlockState updateBodyAfterConvertedFromHead(BlockState param0, BlockState param1) {
+        return param1;
     }
 
     @Override
@@ -59,7 +67,7 @@ public abstract class GrowingPlantHeadBlock extends GrowingPlantBlock implements
 
             return super.updateShape(param0, param1, param2, param3, param4, param5);
         } else {
-            return this.getBodyBlock().defaultBlockState();
+            return this.updateBodyAfterConvertedFromHead(param0, this.getBodyBlock().defaultBlockState());
         }
     }
 

@@ -22,8 +22,8 @@ public class DripstoneClusterConfiguration implements FeatureConfiguration {
                         .fieldOf("chance_of_dripstone_column_at_max_distance_from_center")
                         .forGetter(param0x -> param0x.chanceOfDripstoneColumnAtMaxDistanceFromCenter),
                     Codec.intRange(1, 64)
-                        .fieldOf("max_distance_from_center_affecting_chance_of_dripstone_column")
-                        .forGetter(param0x -> param0x.maxDistanceFromCenterAffectingChanceOfDripstoneColumn),
+                        .fieldOf("max_distance_from_edge_affecting_chance_of_dripstone_column")
+                        .forGetter(param0x -> param0x.maxDistanceFromEdgeAffectingChanceOfDripstoneColumn),
                     Codec.intRange(1, 64)
                         .fieldOf("max_distance_from_center_affecting_height_bias")
                         .forGetter(param0x -> param0x.maxDistanceFromCenterAffectingHeightBias)
@@ -41,7 +41,7 @@ public class DripstoneClusterConfiguration implements FeatureConfiguration {
     public final float wetnessMean;
     public final float wetnessDeviation;
     public final float chanceOfDripstoneColumnAtMaxDistanceFromCenter;
-    public final int maxDistanceFromCenterAffectingChanceOfDripstoneColumn;
+    public final int maxDistanceFromEdgeAffectingChanceOfDripstoneColumn;
     public final int maxDistanceFromCenterAffectingHeightBias;
 
     public DripstoneClusterConfiguration(
@@ -70,7 +70,7 @@ public class DripstoneClusterConfiguration implements FeatureConfiguration {
         this.wetnessMean = param8;
         this.wetnessDeviation = param9;
         this.chanceOfDripstoneColumnAtMaxDistanceFromCenter = param10;
-        this.maxDistanceFromCenterAffectingChanceOfDripstoneColumn = param11;
+        this.maxDistanceFromEdgeAffectingChanceOfDripstoneColumn = param11;
         this.maxDistanceFromCenterAffectingHeightBias = param12;
     }
 }

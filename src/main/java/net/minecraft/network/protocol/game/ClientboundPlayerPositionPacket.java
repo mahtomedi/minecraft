@@ -16,12 +16,20 @@ public class ClientboundPlayerPositionPacket implements Packet<ClientGamePacketL
     private float xRot;
     private Set<ClientboundPlayerPositionPacket.RelativeArgument> relativeArguments;
     private int id;
+    private boolean dismountVehicle;
 
     public ClientboundPlayerPositionPacket() {
     }
 
     public ClientboundPlayerPositionPacket(
-        double param0, double param1, double param2, float param3, float param4, Set<ClientboundPlayerPositionPacket.RelativeArgument> param5, int param6
+        double param0,
+        double param1,
+        double param2,
+        float param3,
+        float param4,
+        Set<ClientboundPlayerPositionPacket.RelativeArgument> param5,
+        int param6,
+        boolean param7
     ) {
         this.x = param0;
         this.y = param1;
@@ -30,6 +38,7 @@ public class ClientboundPlayerPositionPacket implements Packet<ClientGamePacketL
         this.xRot = param4;
         this.relativeArguments = param5;
         this.id = param6;
+        this.dismountVehicle = param7;
     }
 
     @Override
@@ -41,6 +50,7 @@ public class ClientboundPlayerPositionPacket implements Packet<ClientGamePacketL
         this.xRot = param0.readFloat();
         this.relativeArguments = ClientboundPlayerPositionPacket.RelativeArgument.unpack(param0.readUnsignedByte());
         this.id = param0.readVarInt();
+        this.dismountVehicle = param0.readBoolean();
     }
 
     @Override
@@ -52,6 +62,7 @@ public class ClientboundPlayerPositionPacket implements Packet<ClientGamePacketL
         param0.writeFloat(this.xRot);
         param0.writeByte(ClientboundPlayerPositionPacket.RelativeArgument.pack(this.relativeArguments));
         param0.writeVarInt(this.id);
+        param0.writeBoolean(this.dismountVehicle);
     }
 
     public void handle(ClientGamePacketListener param0) {
@@ -86,6 +97,11 @@ public class ClientboundPlayerPositionPacket implements Packet<ClientGamePacketL
     @OnlyIn(Dist.CLIENT)
     public int getId() {
         return this.id;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public boolean requestDismountVehicle() {
+        return this.dismountVehicle;
     }
 
     @OnlyIn(Dist.CLIENT)

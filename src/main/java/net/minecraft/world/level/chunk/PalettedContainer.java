@@ -2,21 +2,16 @@ package net.minecraft.world.level.chunk;
 
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
-import java.util.Arrays;
-import java.util.Objects;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import net.minecraft.CrashReport;
-import net.minecraft.CrashReportCategory;
-import net.minecraft.ReportedException;
 import net.minecraft.core.IdMapper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.BitStorage;
 import net.minecraft.util.Mth;
+import net.minecraft.util.ThreadingDetector;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -33,24 +28,7 @@ public class PalettedContainer<T> implements PaletteResize<T> {
     private final ReentrantLock lock = new ReentrantLock();
 
     public void acquire() {
-        if (this.lock.isLocked() && !this.lock.isHeldByCurrentThread()) {
-            String var0 = Thread.getAllStackTraces()
-                .keySet()
-                .stream()
-                .filter(Objects::nonNull)
-                .map(
-                    param0 -> param0.getName()
-                            + ": \n\tat "
-                            + (String)Arrays.stream(param0.getStackTrace()).map(Object::toString).collect(Collectors.joining("\n\tat "))
-                )
-                .collect(Collectors.joining("\n"));
-            CrashReport var1 = new CrashReport("Writing into PalettedContainer from multiple threads", new IllegalStateException());
-            CrashReportCategory var2 = var1.addCategory("Thread dumps");
-            var2.setDetail("Thread dumps", var0);
-            throw new ReportedException(var1);
-        } else {
-            this.lock.lock();
-        }
+        ThreadingDetector.checkAndLock(this.lock, "PalettedContainer");
     }
 
     public void release() {

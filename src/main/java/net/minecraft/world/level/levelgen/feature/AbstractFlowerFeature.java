@@ -6,7 +6,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 
 public abstract class AbstractFlowerFeature<U extends FeatureConfiguration> extends Feature<U> {
@@ -15,19 +14,23 @@ public abstract class AbstractFlowerFeature<U extends FeatureConfiguration> exte
     }
 
     @Override
-    public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, U param4) {
-        BlockState var0 = this.getRandomFlower(param2, param3, param4);
-        int var1 = 0;
+    public boolean place(FeaturePlaceContext<U> param0) {
+        Random var0 = param0.random();
+        BlockPos var1 = param0.origin();
+        WorldGenLevel var2 = param0.level();
+        U var3 = param0.config();
+        BlockState var4 = this.getRandomFlower(var0, var1, var3);
+        int var5 = 0;
 
-        for(int var2 = 0; var2 < this.getCount(param4); ++var2) {
-            BlockPos var3 = this.getPos(param2, param3, param4);
-            if (param0.isEmptyBlock(var3) && var0.canSurvive(param0, var3) && this.isValid(param0, var3, param4)) {
-                param0.setBlock(var3, var0, 2);
-                ++var1;
+        for(int var6 = 0; var6 < this.getCount(var3); ++var6) {
+            BlockPos var7 = this.getPos(var0, var1, var3);
+            if (var2.isEmptyBlock(var7) && var4.canSurvive(var2, var7) && this.isValid(var2, var7, var3)) {
+                var2.setBlock(var7, var4, 2);
+                ++var5;
             }
         }
 
-        return var1 > 0;
+        return var5 > 0;
     }
 
     public abstract boolean isValid(LevelAccessor var1, BlockPos var2, U var3);

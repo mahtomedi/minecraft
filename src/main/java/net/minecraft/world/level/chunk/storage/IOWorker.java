@@ -105,8 +105,8 @@ public class IOWorker implements AutoCloseable {
     }
 
     private void storePendingChunk() {
-        Iterator<Entry<ChunkPos, IOWorker.PendingStore>> var0 = this.pendingWrites.entrySet().iterator();
-        if (var0.hasNext()) {
+        if (!this.pendingWrites.isEmpty()) {
+            Iterator<Entry<ChunkPos, IOWorker.PendingStore>> var0 = this.pendingWrites.entrySet().iterator();
             Entry<ChunkPos, IOWorker.PendingStore> var1 = var0.next();
             var0.remove();
             this.runStore(var1.getKey(), var1.getValue());

@@ -85,7 +85,7 @@ public class RespawnAnchorBlock extends Block {
         } else {
             if (!param1.isClientSide) {
                 ServerPlayer var1 = (ServerPlayer)param3;
-                if (var1.getRespawnDimension() != param1.dimension() || !var1.getRespawnPosition().equals(param2)) {
+                if (var1.getRespawnDimension() != param1.dimension() || !param2.equals(var1.getRespawnPosition())) {
                     var1.setRespawnPosition(param1.dimension(), param2, 0.0F, false, true);
                     param1.playSound(
                         null,

@@ -15,10 +15,17 @@ public class DecoratedFeature extends Feature<DecoratedFeatureConfiguration> {
         super(param0);
     }
 
-    public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, DecoratedFeatureConfiguration param4) {
+    @Override
+    public boolean place(FeaturePlaceContext<DecoratedFeatureConfiguration> param0) {
         MutableBoolean var0 = new MutableBoolean();
-        param4.decorator.getPositions(new DecorationContext(param0, param1), param2, param3).forEach(param5 -> {
-            if (param4.feature.get().place(param0, param1, param2, param5)) {
+        WorldGenLevel var1 = param0.level();
+        DecoratedFeatureConfiguration var2 = param0.config();
+        ChunkGenerator var3 = param0.chunkGenerator();
+        Random var4 = param0.random();
+        BlockPos var5 = param0.origin();
+        ConfiguredFeature<?, ?> var6 = var2.feature.get();
+        var2.decorator.getPositions(new DecorationContext(var1, var3), var4, var5).forEach(param5 -> {
+            if (var6.place(var1, var3, var4, param5)) {
                 var0.setTrue();
             }
 

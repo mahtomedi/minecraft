@@ -165,6 +165,7 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         return (LevelChunk)this.getChunk(param0, param1, ChunkStatus.FULL);
     }
 
+    @Nullable
     @Override
     public ChunkAccess getChunk(int param0, int param1, ChunkStatus param2, boolean param3) {
         ChunkAccess var0 = this.getChunkSource().getChunk(param0, param1, param2, param3);

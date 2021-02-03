@@ -146,7 +146,7 @@ class ReportGameListener implements GameTestListener {
         var0.setBlockAndUpdate(var3, Blocks.LECTERN.defaultBlockState().rotate(param0.getRotation()));
         BlockState var4 = var0.getBlockState(var3);
         ItemStack var5 = createBook(param0.getTestName(), param0.isRequired(), param1);
-        LecternBlock.tryPlaceBook(var0, var3, var4, var5);
+        LecternBlock.tryPlaceBook(null, var0, var3, var4, var5);
     }
 
     private static ItemStack createBook(String param0, boolean param1, String param2) {

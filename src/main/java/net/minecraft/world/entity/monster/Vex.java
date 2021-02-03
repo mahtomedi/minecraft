@@ -39,6 +39,7 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.phys.Vec3;
 
 public class Vex extends Monster {
+    public static final int TICKS_PER_FLAP = Mth.ceil((float) (Math.PI * 5.0 / 4.0));
     protected static final EntityDataAccessor<Byte> DATA_FLAGS_ID = SynchedEntityData.defineId(Vex.class, EntityDataSerializers.BYTE);
     private Mob owner;
     @Nullable
@@ -50,6 +51,11 @@ public class Vex extends Monster {
         super(param0, param1);
         this.moveControl = new Vex.VexMoveControl(this);
         this.xpReward = 3;
+    }
+
+    @Override
+    public boolean isFlapping() {
+        return this.tickCount % TICKS_PER_FLAP == 0;
     }
 
     @Override
@@ -226,7 +232,7 @@ public class Vex extends Monster {
         @Override
         public void start() {
             LivingEntity var0 = Vex.this.getTarget();
-            Vec3 var1 = var0.getEyePosition(1.0F);
+            Vec3 var1 = var0.getEyePosition();
             Vex.this.moveControl.setWantedPosition(var1.x, var1.y, var1.z, 1.0);
             Vex.this.setIsCharging(true);
             Vex.this.playSound(SoundEvents.VEX_CHARGE, 1.0F, 1.0F);
@@ -246,7 +252,7 @@ public class Vex extends Monster {
             } else {
                 double var1 = Vex.this.distanceToSqr(var0);
                 if (var1 < 9.0) {
-                    Vec3 var2 = var0.getEyePosition(1.0F);
+                    Vec3 var2 = var0.getEyePosition();
                     Vex.this.moveControl.setWantedPosition(var2.x, var2.y, var2.z, 1.0);
                 }
             }

@@ -37,6 +37,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FlowerBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.tuple.Pair;
@@ -106,6 +107,7 @@ public class MushroomCow extends Cow implements Shearable {
             return InteractionResult.sidedSuccess(this.level.isClientSide);
         } else if (var0.is(Items.SHEARS) && this.readyForShearing()) {
             this.shear(SoundSource.PLAYERS);
+            this.gameEvent(GameEvent.SHEAR, param0);
             if (!this.level.isClientSide) {
                 var0.hurtAndBreak(1, param0, param1x -> param1x.broadcastBreakEvent(param1));
             }

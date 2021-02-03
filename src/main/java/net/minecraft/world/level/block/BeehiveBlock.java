@@ -43,6 +43,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.AABB;
@@ -117,6 +118,7 @@ public class BeehiveBlock extends BaseEntityBlock {
                 dropHoneycomb(param1, param2);
                 var0.hurtAndBreak(1, param3, param1x -> param1x.broadcastBreakEvent(param4));
                 var2 = true;
+                param1.gameEvent(param3, GameEvent.SHEAR, param2);
             } else if (var0.is(Items.GLASS_BOTTLE)) {
                 var0.shrink(1);
                 param1.playSound(param3, param3.getX(), param3.getY(), param3.getZ(), SoundEvents.BOTTLE_FILL, SoundSource.NEUTRAL, 1.0F, 1.0F);
@@ -127,6 +129,7 @@ public class BeehiveBlock extends BaseEntityBlock {
                 }
 
                 var2 = true;
+                param1.gameEvent(param3, GameEvent.FLUID_PICKUP, param2);
             }
         }
 
@@ -268,22 +271,20 @@ public class BeehiveBlock extends BaseEntityBlock {
                 ItemStack var2 = new ItemStack(this);
                 int var3 = param2.getValue(HONEY_LEVEL);
                 boolean var4 = !var1.isEmpty();
-                if (!var4 && var3 == 0) {
-                    return;
-                }
+                if (var4 || var3 > 0) {
+                    if (var4) {
+                        CompoundTag var5 = new CompoundTag();
+                        var5.put("Bees", var1.writeBees());
+                        var2.addTagElement("BlockEntityTag", var5);
+                    }
 
-                if (var4) {
-                    CompoundTag var5 = new CompoundTag();
-                    var5.put("Bees", var1.writeBees());
-                    var2.addTagElement("BlockEntityTag", var5);
+                    CompoundTag var6 = new CompoundTag();
+                    var6.putInt("honey_level", var3);
+                    var2.addTagElement("BlockStateTag", var6);
+                    ItemEntity var7 = new ItemEntity(param0, (double)param1.getX(), (double)param1.getY(), (double)param1.getZ(), var2);
+                    var7.setDefaultPickUpDelay();
+                    param0.addFreshEntity(var7);
                 }
-
-                CompoundTag var6 = new CompoundTag();
-                var6.putInt("honey_level", var3);
-                var2.addTagElement("BlockStateTag", var6);
-                ItemEntity var7 = new ItemEntity(param0, (double)param1.getX(), (double)param1.getY(), (double)param1.getZ(), var2);
-                var7.setDefaultPickUpDelay();
-                param0.addFreshEntity(var7);
             }
         }
 

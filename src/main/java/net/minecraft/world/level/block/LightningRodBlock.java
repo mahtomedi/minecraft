@@ -41,14 +41,36 @@ public class LightningRodBlock extends RodBlock {
         return param0.getValue(POWERED) ? 15 : 0;
     }
 
+    @Override
+    public int getDirectSignal(BlockState param0, BlockGetter param1, BlockPos param2, Direction param3) {
+        return param0.getValue(POWERED) && param0.getValue(FACING) == param3 ? 15 : 0;
+    }
+
     public void onLightningStrike(BlockState param0, Level param1, BlockPos param2) {
         param1.setBlock(param2, param0.setValue(POWERED, Boolean.valueOf(true)), 3);
+        this.updateNeighbours(param0, param1, param2);
         param1.getBlockTicks().scheduleTick(param2, this, 8);
+    }
+
+    private void updateNeighbours(BlockState param0, Level param1, BlockPos param2) {
+        param1.updateNeighborsAt(param2.relative(param0.getValue(FACING).getOpposite()), this);
     }
 
     @Override
     public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
         param1.setBlock(param2, param0.setValue(POWERED, Boolean.valueOf(false)), 3);
+        this.updateNeighbours(param0, param1, param2);
+    }
+
+    @Override
+    public void onRemove(BlockState param0, Level param1, BlockPos param2, BlockState param3, boolean param4) {
+        if (!param4 && !param0.is(param3.getBlock())) {
+            if (param0.getValue(POWERED)) {
+                this.updateNeighbours(param0, param1, param2);
+            }
+
+            super.onRemove(param0, param1, param2, param3, param4);
+        }
     }
 
     @Override
@@ -57,7 +79,7 @@ public class LightningRodBlock extends RodBlock {
             BlockPos var0 = param2.getBlockPos();
             if (param0.canSeeSky(var0)) {
                 LightningBolt var1 = EntityType.LIGHTNING_BOLT.create(param0);
-                var1.moveTo(Vec3.atBottomCenterOf(var0));
+                var1.moveTo(Vec3.atBottomCenterOf(var0.above()));
                 Entity var2 = param3.getOwner();
                 var1.setCause(var2 instanceof ServerPlayer ? (ServerPlayer)var2 : null);
                 param0.addFreshEntity(var1);

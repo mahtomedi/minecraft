@@ -35,6 +35,8 @@ public class ItemBlockRenderTypes {
         param0.put(Blocks.ACACIA_LEAVES, var1);
         param0.put(Blocks.BIRCH_LEAVES, var1);
         param0.put(Blocks.DARK_OAK_LEAVES, var1);
+        param0.put(Blocks.AZALEA_LEAVES, var1);
+        param0.put(Blocks.AZALEA_LEAVES_FLOWERS, var1);
         RenderType var2 = RenderType.cutout();
         param0.put(Blocks.OAK_SAPLING, var2);
         param0.put(Blocks.SPRUCE_SAPLING, var2);
@@ -230,6 +232,16 @@ public class ItemBlockRenderTypes {
         param0.put(Blocks.LARGE_AMETHYST_BUD, var2);
         param0.put(Blocks.AMETHYST_CLUSTER, var2);
         param0.put(Blocks.LIGHTNING_ROD, var2);
+        param0.put(Blocks.CAVE_VINES_HEAD, var2);
+        param0.put(Blocks.CAVE_VINES_BODY, var2);
+        param0.put(Blocks.SPORE_BLOSSOM, var2);
+        param0.put(Blocks.FLOWERING_AZALEA, var2);
+        param0.put(Blocks.AZALEA, var2);
+        param0.put(Blocks.MOSS_CARPET, var2);
+        param0.put(Blocks.BIG_DRIPLEAF, var2);
+        param0.put(Blocks.BIG_DRIPLEAF_STEM, var2);
+        param0.put(Blocks.SMALL_DRIPLEAF, var2);
+        param0.put(Blocks.HANGING_ROOTS, var2);
         param0.put(Blocks.SCULK_SENSOR, var2);
         RenderType var3 = RenderType.translucent();
         param0.put(Blocks.ICE, var3);

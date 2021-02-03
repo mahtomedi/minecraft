@@ -59,6 +59,7 @@ import net.minecraft.world.entity.PlayerRideableJumping;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.vehicle.AbstractMinecart;
 import net.minecraft.world.entity.vehicle.Boat;
+import net.minecraft.world.inventory.ClickAction;
 import net.minecraft.world.item.ElytraItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -179,7 +180,7 @@ public class LocalPlayer extends AbstractClientPlayer {
 
     @Override
     public void tick() {
-        if (this.level.hasChunkAt(new BlockPos(this.getX(), 0.0, this.getZ()))) {
+        if (this.level.hasChunkAt(this.getBlockX(), this.getBlockZ())) {
             super.tick();
             if (this.isPassenger()) {
                 this.connection.send(new ServerboundMovePlayerPacket.Rot(this.yRot, this.xRot, this.onGround));
@@ -452,7 +453,7 @@ public class LocalPlayer extends AbstractClientPlayer {
         AABB var0 = this.getBoundingBox();
         AABB var1 = new AABB((double)param0.getX(), var0.minY, (double)param0.getZ(), (double)param0.getX() + 1.0, var0.maxY, (double)param0.getZ() + 1.0)
             .deflate(1.0E-7);
-        return !this.level.noBlockCollision(this, var1, (param0x, param1) -> param0x.isSuffocating(this.level, param1));
+        return this.level.hasBlockCollision(this, var1, (param0x, param1) -> param0x.isSuffocating(this.level, param1));
     }
 
     @Override
@@ -633,6 +634,24 @@ public class LocalPlayer extends AbstractClientPlayer {
 
     protected boolean isControlledCamera() {
         return this.minecraft.getCameraEntity() == this;
+    }
+
+    public void resetPos() {
+        this.setPose(Pose.STANDING);
+        if (this.level != null) {
+            for(double var0 = this.getY(); var0 > (double)this.level.getMinBuildHeight() && var0 < (double)this.level.getMaxBuildHeight(); ++var0) {
+                this.setPos(this.getX(), var0, this.getZ());
+                if (this.level.noCollision(this)) {
+                    break;
+                }
+            }
+
+            this.setDeltaMovement(Vec3.ZERO);
+            this.xRot = 0.0F;
+        }
+
+        this.setHealth(this.getMaxHealth());
+        this.deathTime = 0;
     }
 
     @Override
@@ -1053,5 +1072,10 @@ public class LocalPlayer extends AbstractClientPlayer {
         } else {
             return super.getRopeHoldPosition(param0);
         }
+    }
+
+    @Override
+    public void updateTutorialInventoryAction(ItemStack param0, ItemStack param1, ClickAction param2) {
+        this.minecraft.getTutorial().onInventoryAction(param0, param1, param2);
     }
 }

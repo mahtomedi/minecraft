@@ -17,7 +17,6 @@ import java.util.stream.LongStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.phys.AABB;
@@ -31,12 +30,6 @@ public class EntitySectionStorage<T extends EntityAccess> {
     public EntitySectionStorage(Class<T> param0, Long2ObjectFunction<Visibility> param1) {
         this.entityClass = param0;
         this.intialSectionVisibility = param1;
-    }
-
-    public static long entityPosToSectionKey(BlockPos param0) {
-        return SectionPos.asLong(
-            SectionPos.blockToSectionCoord(param0.getX()), SectionPos.blockToSectionCoord(param0.getY()), SectionPos.blockToSectionCoord(param0.getZ())
-        );
     }
 
     public void forEachAccessibleSection(AABB param0, Consumer<EntitySection<T>> param1) {

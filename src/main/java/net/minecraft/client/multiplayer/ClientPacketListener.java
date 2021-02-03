@@ -214,8 +214,6 @@ import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.animal.Bee;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
-import net.minecraft.world.entity.boss.EnderDragonPart;
-import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.entity.decoration.Painting;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Guardian;
@@ -535,6 +533,10 @@ public class ClientPacketListener implements ClientGamePacketListener {
     public void handleMovePlayer(ClientboundPlayerPositionPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
         Player var0 = this.minecraft.player;
+        if (param0.requestDismountVehicle()) {
+            var0.removeVehicle();
+        }
+
         Vec3 var1 = var0.getDeltaMovement();
         boolean var2 = param0.getRelativeArguments().contains(ClientboundPlayerPositionPacket.RelativeArgument.X);
         boolean var3 = param0.getRelativeArguments().contains(ClientboundPlayerPositionPacket.RelativeArgument.Y);
@@ -573,10 +575,6 @@ public class ClientPacketListener implements ClientGamePacketListener {
             var13 = 0.0;
             var14 = param0.getZ();
             var0.zOld = var14;
-        }
-
-        if (var0.tickCount > 0 && var0.getVehicle() != null) {
-            var0.removeVehicle();
         }
 
         var0.setPosRaw(var6, var10, var14);
@@ -773,41 +771,20 @@ public class ClientPacketListener implements ClientGamePacketListener {
     @Override
     public void handleAddMob(ClientboundAddMobPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
-        double var0 = param0.getX();
-        double var1 = param0.getY();
-        double var2 = param0.getZ();
-        float var3 = (float)(param0.getyRot() * 360) / 256.0F;
-        float var4 = (float)(param0.getxRot() * 360) / 256.0F;
-        LivingEntity var5 = (LivingEntity)EntityType.create(param0.getType(), this.minecraft.level);
-        if (var5 != null) {
-            var5.setPacketCoordinates(var0, var1, var2);
-            var5.yBodyRot = (float)(param0.getyHeadRot() * 360) / 256.0F;
-            var5.yHeadRot = (float)(param0.getyHeadRot() * 360) / 256.0F;
-            if (var5 instanceof EnderDragon) {
-                EnderDragonPart[] var6 = ((EnderDragon)var5).getSubEntities();
-
-                for(int var7 = 0; var7 < var6.length; ++var7) {
-                    var6[var7].setId(var7 + param0.getId());
-                }
-            }
-
-            var5.setId(param0.getId());
-            var5.setUUID(param0.getUUID());
-            var5.absMoveTo(var0, var1, var2, var3, var4);
-            var5.setDeltaMovement(
-                (double)((float)param0.getXd() / 8000.0F), (double)((float)param0.getYd() / 8000.0F), (double)((float)param0.getZd() / 8000.0F)
-            );
-            this.level.putNonPlayerEntity(param0.getId(), var5);
-            if (var5 instanceof Bee) {
-                boolean var8 = ((Bee)var5).isAngry();
-                BeeSoundInstance var9;
-                if (var8) {
-                    var9 = new BeeAggressiveSoundInstance((Bee)var5);
+        LivingEntity var0 = (LivingEntity)EntityType.create(param0.getType(), this.level);
+        if (var0 != null) {
+            var0.recreateFromPacket(param0);
+            this.level.putNonPlayerEntity(param0.getId(), var0);
+            if (var0 instanceof Bee) {
+                boolean var1 = ((Bee)var0).isAngry();
+                BeeSoundInstance var2;
+                if (var1) {
+                    var2 = new BeeAggressiveSoundInstance((Bee)var0);
                 } else {
-                    var9 = new BeeFlyingSoundInstance((Bee)var5);
+                    var2 = new BeeFlyingSoundInstance((Bee)var0);
                 }
 
-                this.minecraft.getSoundManager().queueTickingSound(var9);
+                this.minecraft.getSoundManager().queueTickingSound(var2);
             }
         } else {
             LOGGER.warn("Skipping Entity with id {}", param0.getType());

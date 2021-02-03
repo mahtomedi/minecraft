@@ -16,6 +16,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -70,6 +71,7 @@ public class FlowerPotBlock extends Block {
                 param1.setBlock(param2, Blocks.FLOWER_POT.defaultBlockState(), 3);
             }
 
+            param1.gameEvent(param3, GameEvent.BLOCK_CHANGE, param2);
             return InteractionResult.sidedSuccess(param1.isClientSide);
         } else {
             return InteractionResult.CONSUME;

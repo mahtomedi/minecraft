@@ -13,6 +13,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
 
 public class PumpkinBlock extends StemGrownBlock {
@@ -43,6 +44,7 @@ public class PumpkinBlock extends StemGrownBlock {
                 );
                 param1.addFreshEntity(var3);
                 var0.hurtAndBreak(1, param3, param1x -> param1x.broadcastBreakEvent(param4));
+                param1.gameEvent(param3, GameEvent.SHEAR, param2);
             }
 
             return InteractionResult.sidedSuccess(param1.isClientSide);

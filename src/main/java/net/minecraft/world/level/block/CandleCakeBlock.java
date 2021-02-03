@@ -59,7 +59,7 @@ public class CandleCakeBlock extends AbstractCandleBlock {
         if (var0.is(Items.FLINT_AND_STEEL) || var0.is(Items.FIRE_CHARGE)) {
             return InteractionResult.PASS;
         } else if (candleHit(param5) && param3.getItemInHand(param4).isEmpty() && param0.getValue(LIT)) {
-            extinguish(param0, param1, param2);
+            extinguish(param3, param0, param1, param2);
             return InteractionResult.sidedSuccess(param1.isClientSide);
         } else {
             InteractionResult var1 = CakeBlock.eat(param1, param2, Blocks.CAKE.defaultBlockState(), param3);

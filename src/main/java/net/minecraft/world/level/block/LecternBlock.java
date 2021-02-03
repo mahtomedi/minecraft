@@ -27,6 +27,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -147,10 +148,10 @@ public class LecternBlock extends BaseEntityBlock {
         return new LecternBlockEntity(param0, param1);
     }
 
-    public static boolean tryPlaceBook(Level param0, BlockPos param1, BlockState param2, ItemStack param3) {
-        if (!param2.getValue(HAS_BOOK)) {
-            if (!param0.isClientSide) {
-                placeBook(param0, param1, param2, param3);
+    public static boolean tryPlaceBook(@Nullable Player param0, Level param1, BlockPos param2, BlockState param3, ItemStack param4) {
+        if (!param3.getValue(HAS_BOOK)) {
+            if (!param1.isClientSide) {
+                placeBook(param0, param1, param2, param3, param4);
             }
 
             return true;
@@ -159,13 +160,14 @@ public class LecternBlock extends BaseEntityBlock {
         }
     }
 
-    private static void placeBook(Level param0, BlockPos param1, BlockState param2, ItemStack param3) {
-        BlockEntity var0 = param0.getBlockEntity(param1);
+    private static void placeBook(@Nullable Player param0, Level param1, BlockPos param2, BlockState param3, ItemStack param4) {
+        BlockEntity var0 = param1.getBlockEntity(param2);
         if (var0 instanceof LecternBlockEntity) {
             LecternBlockEntity var1 = (LecternBlockEntity)var0;
-            var1.setBook(param3.split(1));
-            resetBookState(param0, param1, param2, true);
-            param0.playSound(null, param1, SoundEvents.BOOK_PUT, SoundSource.BLOCKS, 1.0F, 1.0F);
+            var1.setBook(param4.split(1));
+            resetBookState(param1, param2, param3, true);
+            param1.playSound(null, param2, SoundEvents.BOOK_PUT, SoundSource.BLOCKS, 1.0F, 1.0F);
+            param1.gameEvent(param0, GameEvent.BLOCK_CHANGE, param2);
         }
 
     }

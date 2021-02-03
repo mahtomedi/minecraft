@@ -133,7 +133,7 @@ public class JigsawBlockEntity extends BlockEntity {
         var6.fillFromWorld(param0, var4, new BlockPos(1, 1, 1), false, null);
         StructurePoolElement var7 = new SinglePoolElement(var6);
         PoolElementStructurePiece var8 = new PoolElementStructurePiece(var1, var7, var4, 1, Rotation.NONE, new BoundingBox(var4, var4));
-        JigsawPlacement.addPieces(param0.registryAccess(), var8, param1, PoolElementStructurePiece::new, var0, var1, var5, var3);
+        JigsawPlacement.addPieces(param0.registryAccess(), var8, param1, PoolElementStructurePiece::new, var0, var1, var5, var3, param0);
 
         for(PoolElementStructurePiece var9 : var5) {
             var9.place(param0, var2, var0, var3, BoundingBox.infinite(), var4, param2);

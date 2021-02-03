@@ -292,7 +292,7 @@ public final class NaturalSpawner {
         int var1 = var0.getMinBlockX() + param0.random.nextInt(16);
         int var2 = var0.getMinBlockZ() + param0.random.nextInt(16);
         int var3 = param1.getHeight(Heightmap.Types.WORLD_SURFACE, var1, var2) + 1;
-        int var4 = param0.random.nextInt(var3 - param0.getMinBuildHeight() + 1) + param0.getMinBuildHeight();
+        int var4 = Mth.randomBetweenInclusive(param0.random, param0.getMinBuildHeight(), var3);
         return new BlockPos(var1, var4, var2);
     }
 
@@ -340,21 +340,21 @@ public final class NaturalSpawner {
         }
     }
 
-    public static void spawnMobsForChunkGeneration(ServerLevelAccessor param0, Biome param1, int param2, int param3, Random param4) {
+    public static void spawnMobsForChunkGeneration(ServerLevelAccessor param0, Biome param1, ChunkPos param2, Random param3) {
         MobSpawnSettings var0 = param1.getMobSettings();
         List<MobSpawnSettings.SpawnerData> var1 = var0.getMobs(MobCategory.CREATURE);
         if (!var1.isEmpty()) {
-            int var2 = SectionPos.sectionToBlockCoord(param2);
-            int var3 = SectionPos.sectionToBlockCoord(param3);
+            int var2 = param2.getMinBlockX();
+            int var3 = param2.getMinBlockZ();
 
-            while(param4.nextFloat() < var0.getCreatureProbability()) {
-                Optional<MobSpawnSettings.SpawnerData> var4 = WeighedRandom.getRandomItem(param4, var1);
+            while(param3.nextFloat() < var0.getCreatureProbability()) {
+                Optional<MobSpawnSettings.SpawnerData> var4 = WeighedRandom.getRandomItem(param3, var1);
                 if (var4.isPresent()) {
                     MobSpawnSettings.SpawnerData var5 = var4.get();
-                    int var6 = var5.minCount + param4.nextInt(1 + var5.maxCount - var5.minCount);
+                    int var6 = var5.minCount + param3.nextInt(1 + var5.maxCount - var5.minCount);
                     SpawnGroupData var7 = null;
-                    int var8 = var2 + param4.nextInt(16);
-                    int var9 = var3 + param4.nextInt(16);
+                    int var8 = var2 + param3.nextInt(16);
+                    int var9 = var3 + param3.nextInt(16);
                     int var10 = var8;
                     int var11 = var9;
 
@@ -377,12 +377,12 @@ public final class NaturalSpawner {
                                 Entity var19;
                                 try {
                                     var19 = var5.type.create(param0.getLevel());
-                                } catch (Exception var28) {
-                                    LOGGER.warn("Failed to create mob", (Throwable)var28);
+                                } catch (Exception var27) {
+                                    LOGGER.warn("Failed to create mob", (Throwable)var27);
                                     continue;
                                 }
 
-                                var19.moveTo(var17, (double)var15.getY(), var18, param4.nextFloat() * 360.0F, 0.0F);
+                                var19.moveTo(var17, (double)var15.getY(), var18, param3.nextFloat() * 360.0F, 0.0F);
                                 if (var19 instanceof Mob) {
                                     Mob var22 = (Mob)var19;
                                     if (var22.checkSpawnRules(param0, MobSpawnType.CHUNK_GENERATION) && var22.checkSpawnObstruction(param0)) {
@@ -395,13 +395,13 @@ public final class NaturalSpawner {
                                 }
                             }
 
-                            var8 += param4.nextInt(5) - param4.nextInt(5);
+                            var8 += param3.nextInt(5) - param3.nextInt(5);
 
-                            for(var9 += param4.nextInt(5) - param4.nextInt(5);
+                            for(var9 += param3.nextInt(5) - param3.nextInt(5);
                                 var8 < var2 || var8 >= var2 + 16 || var9 < var3 || var9 >= var3 + 16;
-                                var9 = var11 + param4.nextInt(5) - param4.nextInt(5)
+                                var9 = var11 + param3.nextInt(5) - param3.nextInt(5)
                             ) {
-                                var8 = var10 + param4.nextInt(5) - param4.nextInt(5);
+                                var8 = var10 + param3.nextInt(5) - param3.nextInt(5);
                             }
                         }
                     }

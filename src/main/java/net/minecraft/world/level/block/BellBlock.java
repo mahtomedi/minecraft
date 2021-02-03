@@ -28,6 +28,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
@@ -89,7 +90,7 @@ public class BellBlock extends BaseEntityBlock {
         BlockPos var1 = param2.getBlockPos();
         boolean var2 = !param4 || this.isProperHit(param1, var0, param2.getLocation().y - (double)var1.getY());
         if (var2) {
-            boolean var3 = this.attemptToRing(param0, var1, var0);
+            boolean var3 = this.attemptToRing(param3, param0, var1, var0);
             if (var3 && param3 != null) {
                 param3.awardStat(Stats.BELL_RING);
             }
@@ -121,14 +122,19 @@ public class BellBlock extends BaseEntityBlock {
     }
 
     public boolean attemptToRing(Level param0, BlockPos param1, @Nullable Direction param2) {
-        BlockEntity var0 = param0.getBlockEntity(param1);
-        if (!param0.isClientSide && var0 instanceof BellBlockEntity) {
-            if (param2 == null) {
-                param2 = param0.getBlockState(param1).getValue(FACING);
+        return this.attemptToRing(null, param0, param1, param2);
+    }
+
+    public boolean attemptToRing(@Nullable Entity param0, Level param1, BlockPos param2, @Nullable Direction param3) {
+        BlockEntity var0 = param1.getBlockEntity(param2);
+        if (!param1.isClientSide && var0 instanceof BellBlockEntity) {
+            if (param3 == null) {
+                param3 = param1.getBlockState(param2).getValue(FACING);
             }
 
-            ((BellBlockEntity)var0).onHit(param2);
-            param0.playSound(null, param1, SoundEvents.BELL_BLOCK, SoundSource.BLOCKS, 2.0F, 1.0F);
+            ((BellBlockEntity)var0).onHit(param3);
+            param1.playSound(null, param2, SoundEvents.BELL_BLOCK, SoundSource.BLOCKS, 2.0F, 1.0F);
+            param1.gameEvent(param0, GameEvent.RING_BELL, param2);
             return true;
         } else {
             return false;

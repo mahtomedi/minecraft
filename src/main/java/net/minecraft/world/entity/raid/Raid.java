@@ -596,14 +596,16 @@ public class Raid {
             int var5 = this.center.getZ() + Mth.floor(Mth.sin(var3) * 32.0F * (float)var0) + this.level.random.nextInt(5);
             int var6 = this.level.getHeight(Heightmap.Types.WORLD_SURFACE, var4, var5);
             var1.set(var4, var6, var5);
-            if ((!this.level.isVillage(var1) || param0 >= 2)
-                && this.level.hasChunksAt(var1.getX() - 10, var1.getY() - 10, var1.getZ() - 10, var1.getX() + 10, var1.getY() + 10, var1.getZ() + 10)
-                && this.level.getChunkSource().isEntityTickingChunk(new ChunkPos(var1))
-                && (
-                    NaturalSpawner.isSpawnPositionOk(SpawnPlacements.Type.ON_GROUND, this.level, var1, EntityType.RAVAGER)
-                        || this.level.getBlockState(var1.below()).is(Blocks.SNOW) && this.level.getBlockState(var1).isAir()
-                )) {
-                return var1;
+            if (!this.level.isVillage(var1) || param0 >= 2) {
+                int var7 = 10;
+                if (this.level.hasChunksAt(var1.getX() - 10, var1.getZ() - 10, var1.getX() + 10, var1.getZ() + 10)
+                    && this.level.getChunkSource().isEntityTickingChunk(new ChunkPos(var1))
+                    && (
+                        NaturalSpawner.isSpawnPositionOk(SpawnPlacements.Type.ON_GROUND, this.level, var1, EntityType.RAVAGER)
+                            || this.level.getBlockState(var1.below()).is(Blocks.SNOW) && this.level.getBlockState(var1).isAir()
+                    )) {
+                    return var1;
+                }
             }
         }
 

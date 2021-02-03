@@ -274,6 +274,7 @@ public abstract class AbstractContainerMenu {
                     var0 = var17.copy();
                 }
 
+                param3.updateTutorialInventoryAction(var18, var16.getItem(), var13);
                 if (!var18.overrideStackedOnOther(var16, var13, var1) && !var17.overrideOtherStackedOnMe(var18, var16, var13, var1)) {
                     if (var17.isEmpty()) {
                         if (!var18.isEmpty()) {

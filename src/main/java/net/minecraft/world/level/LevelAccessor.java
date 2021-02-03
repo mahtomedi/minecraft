@@ -62,6 +62,10 @@ public interface LevelAccessor extends CommonLevelAccessor, LevelTimeAccess {
         this.gameEvent(null, param0, param1);
     }
 
+    default void gameEvent(GameEvent param0, Entity param1) {
+        this.gameEvent(null, param0, param1.blockPosition());
+    }
+
     default void gameEvent(@Nullable Entity param0, GameEvent param1, Entity param2) {
         this.gameEvent(param0, param1, param2.blockPosition());
     }

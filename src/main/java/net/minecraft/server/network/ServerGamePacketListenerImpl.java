@@ -942,11 +942,21 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
         return var0.anyMatch(param1x -> !Shapes.joinIsNotEmpty(param1x, var1, BooleanOp.AND));
     }
 
+    public void dismount(double param0, double param1, double param2, float param3, float param4) {
+        this.teleport(param0, param1, param2, param3, param4, Collections.emptySet(), true);
+    }
+
     public void teleport(double param0, double param1, double param2, float param3, float param4) {
-        this.teleport(param0, param1, param2, param3, param4, Collections.emptySet());
+        this.teleport(param0, param1, param2, param3, param4, Collections.emptySet(), false);
     }
 
     public void teleport(double param0, double param1, double param2, float param3, float param4, Set<ClientboundPlayerPositionPacket.RelativeArgument> param5) {
+        this.teleport(param0, param1, param2, param3, param4, param5, false);
+    }
+
+    public void teleport(
+        double param0, double param1, double param2, float param3, float param4, Set<ClientboundPlayerPositionPacket.RelativeArgument> param5, boolean param6
+    ) {
         double var0 = param5.contains(ClientboundPlayerPositionPacket.RelativeArgument.X) ? this.player.getX() : 0.0;
         double var1 = param5.contains(ClientboundPlayerPositionPacket.RelativeArgument.Y) ? this.player.getY() : 0.0;
         double var2 = param5.contains(ClientboundPlayerPositionPacket.RelativeArgument.Z) ? this.player.getZ() : 0.0;
@@ -961,7 +971,11 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
         this.player.absMoveTo(param0, param1, param2, param3, param4);
         this.player
             .connection
-            .send(new ClientboundPlayerPositionPacket(param0 - var0, param1 - var1, param2 - var2, param3 - var3, param4 - var4, param5, this.awaitingTeleport));
+            .send(
+                new ClientboundPlayerPositionPacket(
+                    param0 - var0, param1 - var1, param2 - var2, param3 - var3, param4 - var4, param5, this.awaitingTeleport, param6
+                )
+            );
     }
 
     @Override

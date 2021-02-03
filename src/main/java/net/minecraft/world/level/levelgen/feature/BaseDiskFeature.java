@@ -1,12 +1,12 @@
 package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.FallingBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.configurations.DiskConfiguration;
 
 public class BaseDiskFeature extends Feature<DiskConfiguration> {
@@ -14,31 +14,52 @@ public class BaseDiskFeature extends Feature<DiskConfiguration> {
         super(param0);
     }
 
-    public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, DiskConfiguration param4) {
-        boolean var0 = false;
-        int var1 = param4.radius.sample(param2);
+    @Override
+    public boolean place(FeaturePlaceContext<DiskConfiguration> param0) {
+        DiskConfiguration var0 = param0.config();
+        BlockPos var1 = param0.origin();
+        WorldGenLevel var2 = param0.level();
+        boolean var3 = false;
+        int var4 = var1.getY();
+        int var5 = var4 + var0.halfHeight;
+        int var6 = var4 - var0.halfHeight - 1;
+        boolean var7 = var0.state.getBlock() instanceof FallingBlock;
+        int var8 = var0.radius.sample(param0.random());
 
-        for(int var2 = param3.getX() - var1; var2 <= param3.getX() + var1; ++var2) {
-            for(int var3 = param3.getZ() - var1; var3 <= param3.getZ() + var1; ++var3) {
-                int var4 = var2 - param3.getX();
-                int var5 = var3 - param3.getZ();
-                if (var4 * var4 + var5 * var5 <= var1 * var1) {
-                    for(int var6 = param3.getY() - param4.halfHeight; var6 <= param3.getY() + param4.halfHeight; ++var6) {
-                        BlockPos var7 = new BlockPos(var2, var6, var3);
-                        Block var8 = param0.getBlockState(var7).getBlock();
+        for(int var9 = var1.getX() - var8; var9 <= var1.getX() + var8; ++var9) {
+            for(int var10 = var1.getZ() - var8; var10 <= var1.getZ() + var8; ++var10) {
+                int var11 = var9 - var1.getX();
+                int var12 = var10 - var1.getZ();
+                if (var11 * var11 + var12 * var12 <= var8 * var8) {
+                    boolean var13 = false;
 
-                        for(BlockState var9 : param4.targets) {
-                            if (var9.is(var8)) {
-                                param0.setBlock(var7, param4.state, 2);
-                                var0 = true;
-                                break;
+                    for(int var14 = var5; var14 >= var6; --var14) {
+                        BlockPos var15 = new BlockPos(var9, var14, var10);
+                        BlockState var16 = var2.getBlockState(var15);
+                        Block var17 = var16.getBlock();
+                        boolean var18 = false;
+                        if (var14 > var6) {
+                            for(BlockState var19 : var0.targets) {
+                                if (var19.is(var17)) {
+                                    var2.setBlock(var15, var0.state, 2);
+                                    var3 = true;
+                                    var18 = true;
+                                    break;
+                                }
                             }
                         }
+
+                        if (var7 && var13 && var16.isAir()) {
+                            BlockState var20 = var0.state.is(Blocks.RED_SAND) ? Blocks.RED_SANDSTONE.defaultBlockState() : Blocks.SANDSTONE.defaultBlockState();
+                            var2.setBlock(new BlockPos(var9, var14 + 1, var10), var20, 2);
+                        }
+
+                        var13 = var18;
                     }
                 }
             }
         }
 
-        return var0;
+        return var3;
     }
 }

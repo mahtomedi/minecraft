@@ -6,6 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.block.Rotation;
@@ -37,9 +38,10 @@ public class EndCityFeature extends StructureFeature<NoneFeatureConfiguration> {
         int param5,
         Biome param6,
         ChunkPos param7,
-        NoneFeatureConfiguration param8
+        NoneFeatureConfiguration param8,
+        LevelHeightAccessor param9
     ) {
-        return getYPositionForFeature(param4, param5, param0) >= 60;
+        return getYPositionForFeature(param4, param5, param0, param9) >= 60;
     }
 
     @Override
@@ -47,7 +49,7 @@ public class EndCityFeature extends StructureFeature<NoneFeatureConfiguration> {
         return EndCityFeature.EndCityStart::new;
     }
 
-    private static int getYPositionForFeature(int param0, int param1, ChunkGenerator param2) {
+    private static int getYPositionForFeature(int param0, int param1, ChunkGenerator param2, LevelHeightAccessor param3) {
         Random var0 = new Random((long)(param0 + param1 * 10387313));
         Rotation var1 = Rotation.getRandom(var0);
         int var2 = 5;
@@ -63,10 +65,10 @@ public class EndCityFeature extends StructureFeature<NoneFeatureConfiguration> {
 
         int var4 = SectionPos.sectionToBlockCoord(param0, 7);
         int var5 = SectionPos.sectionToBlockCoord(param1, 7);
-        int var6 = param2.getFirstOccupiedHeight(var4, var5, Heightmap.Types.WORLD_SURFACE_WG);
-        int var7 = param2.getFirstOccupiedHeight(var4, var5 + var3, Heightmap.Types.WORLD_SURFACE_WG);
-        int var8 = param2.getFirstOccupiedHeight(var4 + var2, var5, Heightmap.Types.WORLD_SURFACE_WG);
-        int var9 = param2.getFirstOccupiedHeight(var4 + var2, var5 + var3, Heightmap.Types.WORLD_SURFACE_WG);
+        int var6 = param2.getFirstOccupiedHeight(var4, var5, Heightmap.Types.WORLD_SURFACE_WG, param3);
+        int var7 = param2.getFirstOccupiedHeight(var4, var5 + var3, Heightmap.Types.WORLD_SURFACE_WG, param3);
+        int var8 = param2.getFirstOccupiedHeight(var4 + var2, var5, Heightmap.Types.WORLD_SURFACE_WG, param3);
+        int var9 = param2.getFirstOccupiedHeight(var4 + var2, var5 + var3, Heightmap.Types.WORLD_SURFACE_WG, param3);
         return Math.min(Math.min(var6, var7), Math.min(var8, var9));
     }
 
@@ -76,10 +78,17 @@ public class EndCityFeature extends StructureFeature<NoneFeatureConfiguration> {
         }
 
         public void generatePieces(
-            RegistryAccess param0, ChunkGenerator param1, StructureManager param2, int param3, int param4, Biome param5, NoneFeatureConfiguration param6
+            RegistryAccess param0,
+            ChunkGenerator param1,
+            StructureManager param2,
+            int param3,
+            int param4,
+            Biome param5,
+            NoneFeatureConfiguration param6,
+            LevelHeightAccessor param7
         ) {
             Rotation var0 = Rotation.getRandom(this.random);
-            int var1 = EndCityFeature.getYPositionForFeature(param3, param4, param1);
+            int var1 = EndCityFeature.getYPositionForFeature(param3, param4, param1, param7);
             if (var1 >= 60) {
                 BlockPos var2 = new BlockPos(SectionPos.sectionToBlockCoord(param3, 8), var1, SectionPos.sectionToBlockCoord(param4, 8));
                 EndCityPieces.startHouseTower(param2, var2, var0, this.pieces, this.random);

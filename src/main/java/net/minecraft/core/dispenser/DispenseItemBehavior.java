@@ -176,6 +176,7 @@ public interface DispenseItemBehavior {
                 EntityType<?> var1 = ((SpawnEggItem)param1.getItem()).getType(param1.getTag());
                 var1.spawn(param0.getLevel(), param1, null, param0.getPos().relative(var0), MobSpawnType.DISPENSER, var0 != Direction.UP, false);
                 param1.shrink(1);
+                param0.getLevel().gameEvent(GameEvent.ENTITY_PLACE, param0.getPos());
                 return param1;
             }
         };
@@ -307,7 +308,8 @@ public interface DispenseItemBehavior {
                 double var7 = var6.nextGaussian() * 0.05 + (double)var0.getStepX();
                 double var8 = var6.nextGaussian() * 0.05 + (double)var0.getStepY();
                 double var9 = var6.nextGaussian() * 0.05 + (double)var0.getStepZ();
-                var5.addFreshEntity(Util.make(new SmallFireball(var5, var2, var3, var4, var7, var8, var9), param1x -> param1x.setItem(param1)));
+                SmallFireball var10 = new SmallFireball(var5, var2, var3, var4, var7, var8, var9);
+                var5.addFreshEntity(Util.make(var10, param1x -> param1x.setItem(param1)));
                 param1.shrink(1);
                 return param1;
             }
@@ -332,7 +334,7 @@ public interface DispenseItemBehavior {
                 BlockPos var1 = param0.getPos().relative(param0.getBlockState().getValue(DispenserBlock.FACING));
                 Level var2 = param0.getLevel();
                 if (var0.emptyContents(null, var2, var1, null)) {
-                    var0.checkExtraContent(var2, param1, var1);
+                    var0.checkExtraContent(null, var2, param1, var1);
                     return new ItemStack(Items.BUCKET);
                 } else {
                     return this.defaultDispenseItemBehavior.dispense(param0, param1);
@@ -389,8 +391,10 @@ public interface DispenseItemBehavior {
                 BlockState var3 = var0.getBlockState(var2);
                 if (BaseFireBlock.canBePlacedAt(var0, var2, var1)) {
                     var0.setBlockAndUpdate(var2, BaseFireBlock.getState(var0, var2));
+                    var0.gameEvent(null, GameEvent.BLOCK_PLACE, var2);
                 } else if (CampfireBlock.canLight(var3) || CandleBlock.canLight(var3) || CandleCakeBlock.canLight(var3)) {
                     var0.setBlockAndUpdate(var2, var3.setValue(BlockStateProperties.LIT, Boolean.valueOf(true)));
+                    var0.gameEvent(null, GameEvent.BLOCK_CHANGE, var2);
                 } else if (var3.getBlock() instanceof TntBlock) {
                     TntBlock.explode(var0, var2);
                     var0.removeBlock(var2, false);
@@ -398,11 +402,8 @@ public interface DispenseItemBehavior {
                     this.setSuccess(false);
                 }
 
-                if (this.isSuccess()) {
-                    var0.gameEvent(null, GameEvent.FLINT_AND_STEEL_USE, var2);
-                    if (param1.hurt(1, var0.random, null)) {
-                        param1.setCount(0);
-                    }
+                if (this.isSuccess() && param1.hurt(1, var0.random, null)) {
+                    param1.setCount(0);
                 }
 
                 return param1;
@@ -431,6 +432,7 @@ public interface DispenseItemBehavior {
                 PrimedTnt var2 = new PrimedTnt(var0, (double)var1.getX() + 0.5, (double)var1.getY(), (double)var1.getZ() + 0.5, null);
                 var0.addFreshEntity(var2);
                 var0.playSound(null, var2.getX(), var2.getY(), var2.getZ(), SoundEvents.TNT_PRIMED, SoundSource.BLOCKS, 1.0F, 1.0F);
+                var0.gameEvent(null, GameEvent.ENTITY_PLACE, var1);
                 param1.shrink(1);
                 return param1;
             }
@@ -465,6 +467,7 @@ public interface DispenseItemBehavior {
                                 ),
                             3
                         );
+                        var0.gameEvent(null, GameEvent.BLOCK_PLACE, var2);
                         BlockEntity var3 = var0.getBlockEntity(var2);
                         if (var3 instanceof SkullBlockEntity) {
                             WitherSkullBlock.checkSpawn(var0, var2, (SkullBlockEntity)var3);
@@ -489,6 +492,7 @@ public interface DispenseItemBehavior {
                 if (var0.isEmptyBlock(var1) && var2.canSpawnGolem(var0, var1)) {
                     if (!var0.isClientSide) {
                         var0.setBlock(var1, var2.defaultBlockState(), 3);
+                        var0.gameEvent(null, GameEvent.BLOCK_PLACE, var1);
                     }
 
                     param1.shrink(1);
@@ -512,6 +516,7 @@ public interface DispenseItemBehavior {
             private ItemStack takeLiquid(BlockSource param0, ItemStack param1, ItemStack param2) {
                 param1.shrink(1);
                 if (param1.isEmpty()) {
+                    param0.getLevel().gameEvent(null, GameEvent.FLUID_PICKUP, param0.getPos());
                     return param2.copy();
                 } else {
                     if (param0.<DispenserBlockEntity>getEntity().addItem(param2.copy()) < 0) {

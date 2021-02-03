@@ -81,7 +81,7 @@ public class VibrationListener implements GameEventListener {
             return false;
         } else {
             if (param1 != null) {
-                if (GameEventTags.IGNORE_VIBRATIONS_STEPPING_CAREFULLY.contains(param0) && param1.isSteppingCarefully()) {
+                if (GameEventTags.IGNORE_VIBRATIONS_SNEAKING.contains(param0) && param1.isSteppingCarefully()) {
                     return false;
                 }
 

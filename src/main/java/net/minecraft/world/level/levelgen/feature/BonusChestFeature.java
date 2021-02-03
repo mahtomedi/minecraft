@@ -13,7 +13,6 @@ import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
@@ -23,27 +22,30 @@ public class BonusChestFeature extends Feature<NoneFeatureConfiguration> {
         super(param0);
     }
 
-    public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, NoneFeatureConfiguration param4) {
-        ChunkPos var0 = new ChunkPos(param3);
-        List<Integer> var1 = IntStream.rangeClosed(var0.getMinBlockX(), var0.getMaxBlockX()).boxed().collect(Collectors.toList());
-        Collections.shuffle(var1, param2);
-        List<Integer> var2 = IntStream.rangeClosed(var0.getMinBlockZ(), var0.getMaxBlockZ()).boxed().collect(Collectors.toList());
-        Collections.shuffle(var2, param2);
-        BlockPos.MutableBlockPos var3 = new BlockPos.MutableBlockPos();
+    @Override
+    public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> param0) {
+        Random var0 = param0.random();
+        WorldGenLevel var1 = param0.level();
+        ChunkPos var2 = new ChunkPos(param0.origin());
+        List<Integer> var3 = IntStream.rangeClosed(var2.getMinBlockX(), var2.getMaxBlockX()).boxed().collect(Collectors.toList());
+        Collections.shuffle(var3, var0);
+        List<Integer> var4 = IntStream.rangeClosed(var2.getMinBlockZ(), var2.getMaxBlockZ()).boxed().collect(Collectors.toList());
+        Collections.shuffle(var4, var0);
+        BlockPos.MutableBlockPos var5 = new BlockPos.MutableBlockPos();
 
-        for(Integer var4 : var1) {
-            for(Integer var5 : var2) {
-                var3.set(var4, 0, var5);
-                BlockPos var6 = param0.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, var3);
-                if (param0.isEmptyBlock(var6) || param0.getBlockState(var6).getCollisionShape(param0, var6).isEmpty()) {
-                    param0.setBlock(var6, Blocks.CHEST.defaultBlockState(), 2);
-                    RandomizableContainerBlockEntity.setLootTable(param0, param2, var6, BuiltInLootTables.SPAWN_BONUS_CHEST);
-                    BlockState var7 = Blocks.TORCH.defaultBlockState();
+        for(Integer var6 : var3) {
+            for(Integer var7 : var4) {
+                var5.set(var6, 0, var7);
+                BlockPos var8 = var1.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, var5);
+                if (var1.isEmptyBlock(var8) || var1.getBlockState(var8).getCollisionShape(var1, var8).isEmpty()) {
+                    var1.setBlock(var8, Blocks.CHEST.defaultBlockState(), 2);
+                    RandomizableContainerBlockEntity.setLootTable(var1, var0, var8, BuiltInLootTables.SPAWN_BONUS_CHEST);
+                    BlockState var9 = Blocks.TORCH.defaultBlockState();
 
-                    for(Direction var8 : Direction.Plane.HORIZONTAL) {
-                        BlockPos var9 = var6.relative(var8);
-                        if (var7.canSurvive(param0, var9)) {
-                            param0.setBlock(var9, var7, 2);
+                    for(Direction var10 : Direction.Plane.HORIZONTAL) {
+                        BlockPos var11 = var8.relative(var10);
+                        if (var9.canSurvive(var1, var11)) {
+                            var1.setBlock(var11, var9, 2);
                         }
                     }
 

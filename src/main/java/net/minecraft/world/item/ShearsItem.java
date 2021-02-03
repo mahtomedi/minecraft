@@ -24,6 +24,7 @@ public class ShearsItem extends Item {
                 && !param2.is(Blocks.GRASS)
                 && !param2.is(Blocks.FERN)
                 && !param2.is(Blocks.DEAD_BUSH)
+                && !param2.is(Blocks.HANGING_ROOTS)
                 && !param2.is(Blocks.VINE)
                 && !param2.is(Blocks.TRIPWIRE)
                 && !param2.is(BlockTags.WOOL)
@@ -40,8 +41,10 @@ public class ShearsItem extends Item {
     public float getDestroySpeed(ItemStack param0, BlockState param1) {
         if (param1.is(Blocks.COBWEB) || param1.is(BlockTags.LEAVES)) {
             return 15.0F;
+        } else if (param1.is(BlockTags.WOOL)) {
+            return 5.0F;
         } else {
-            return param1.is(BlockTags.WOOL) ? 5.0F : super.getDestroySpeed(param0, param1);
+            return !param1.is(Blocks.VINE) && !param1.is(Blocks.GLOW_LICHEN) ? super.getDestroySpeed(param0, param1) : 2.0F;
         }
     }
 }

@@ -17,6 +17,7 @@ import net.minecraft.world.item.alchemy.Potion;
 import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -64,6 +65,7 @@ public class PotionItem extends Item {
             }
         }
 
+        param1.gameEvent(param2, GameEvent.DRINKING_FINISH, param2.eyeBlockPosition());
         return param0;
     }
 

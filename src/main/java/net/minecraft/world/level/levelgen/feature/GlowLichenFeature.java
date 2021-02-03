@@ -12,7 +12,6 @@ import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.GlowLichenBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.configurations.GlowLichenConfiguration;
 
 public class GlowLichenFeature extends Feature<GlowLichenConfiguration> {
@@ -20,28 +19,33 @@ public class GlowLichenFeature extends Feature<GlowLichenConfiguration> {
         super(param0);
     }
 
-    public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, GlowLichenConfiguration param4) {
-        if (!isAirOrWater(param0.getBlockState(param3))) {
+    @Override
+    public boolean place(FeaturePlaceContext<GlowLichenConfiguration> param0) {
+        WorldGenLevel var0 = param0.level();
+        BlockPos var1 = param0.origin();
+        Random var2 = param0.random();
+        GlowLichenConfiguration var3 = param0.config();
+        if (!isAirOrWater(var0.getBlockState(var1))) {
             return false;
         } else {
-            List<Direction> var0 = getShuffledDirections(param4, param2);
-            if (placeGlowLichenIfPossible(param0, param3, param0.getBlockState(param3), param4, param2, var0)) {
+            List<Direction> var4 = getShuffledDirections(var3, var2);
+            if (placeGlowLichenIfPossible(var0, var1, var0.getBlockState(var1), var3, var2, var4)) {
                 return true;
             } else {
-                BlockPos.MutableBlockPos var1 = param3.mutable();
+                BlockPos.MutableBlockPos var5 = var1.mutable();
 
-                for(Direction var2 : var0) {
-                    var1.set(param3);
-                    List<Direction> var3 = getShuffledDirectionsExcept(param4, param2, var2.getOpposite());
+                for(Direction var6 : var4) {
+                    var5.set(var1);
+                    List<Direction> var7 = getShuffledDirectionsExcept(var3, var2, var6.getOpposite());
 
-                    for(int var4 = 0; var4 < param4.searchRange; ++var4) {
-                        var1.setWithOffset(param3, var2);
-                        BlockState var5 = param0.getBlockState(var1);
-                        if (!isAirOrWater(var5) && !var5.is(Blocks.GLOW_LICHEN)) {
+                    for(int var8 = 0; var8 < var3.searchRange; ++var8) {
+                        var5.setWithOffset(var1, var6);
+                        BlockState var9 = var0.getBlockState(var5);
+                        if (!isAirOrWater(var9) && !var9.is(Blocks.GLOW_LICHEN)) {
                             break;
                         }
 
-                        if (placeGlowLichenIfPossible(param0, var1, var5, param4, param2, var3)) {
+                        if (placeGlowLichenIfPossible(var0, var5, var9, var3, var2, var7)) {
                             return true;
                         }
                     }

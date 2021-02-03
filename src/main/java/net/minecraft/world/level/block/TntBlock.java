@@ -20,6 +20,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
 
 public class TntBlock extends Block {
@@ -78,6 +79,7 @@ public class TntBlock extends Block {
             PrimedTnt var0 = new PrimedTnt(param0, (double)param1.getX() + 0.5, (double)param1.getY(), (double)param1.getZ() + 0.5, param2);
             param0.addFreshEntity(var0);
             param0.playSound(null, var0.getX(), var0.getY(), var0.getZ(), SoundEvents.TNT_PRIMED, SoundSource.BLOCKS, 1.0F, 1.0F);
+            param0.gameEvent(param2, GameEvent.PRIME_FUSE, param1);
         }
     }
 

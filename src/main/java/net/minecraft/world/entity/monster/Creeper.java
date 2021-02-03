@@ -37,6 +37,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -141,6 +142,7 @@ public class Creeper extends Monster implements PowerableMob {
             int var0 = this.getSwellDir();
             if (var0 > 0 && this.swell == 0) {
                 this.playSound(SoundEvents.CREEPER_PRIMED, 1.0F, 0.5F);
+                this.gameEvent(GameEvent.PRIME_FUSE);
             }
 
             this.swell += var0;

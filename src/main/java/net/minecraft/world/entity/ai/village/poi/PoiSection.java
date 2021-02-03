@@ -108,15 +108,15 @@ public class PoiSection {
     }
 
     public boolean exists(BlockPos param0, Predicate<PoiType> param1) {
-        short var0 = SectionPos.sectionRelativePos(param0);
-        PoiRecord var1 = this.records.get(var0);
-        return var1 != null && param1.test(var1.getPoiType());
+        return this.getType(param0).filter(param1).isPresent();
     }
 
     public Optional<PoiType> getType(BlockPos param0) {
-        short var0 = SectionPos.sectionRelativePos(param0);
-        PoiRecord var1 = this.records.get(var0);
-        return var1 != null ? Optional.of(var1.getPoiType()) : Optional.empty();
+        return this.getPoiRecord(param0).map(PoiRecord::getPoiType);
+    }
+
+    private Optional<PoiRecord> getPoiRecord(BlockPos param0) {
+        return Optional.ofNullable(this.records.get(SectionPos.sectionRelativePos(param0)));
     }
 
     public void refresh(Consumer<BiConsumer<BlockPos, PoiType>> param0) {

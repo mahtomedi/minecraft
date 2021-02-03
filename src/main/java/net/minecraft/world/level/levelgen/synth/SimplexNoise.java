@@ -1,7 +1,7 @@
 package net.minecraft.world.level.levelgen.synth;
 
-import java.util.Random;
 import net.minecraft.util.Mth;
+import net.minecraft.world.level.levelgen.RandomSource;
 
 public class SimplexNoise {
     protected static final int[][] GRADIENT = new int[][]{
@@ -30,7 +30,7 @@ public class SimplexNoise {
     public final double yo;
     public final double zo;
 
-    public SimplexNoise(Random param0) {
+    public SimplexNoise(RandomSource param0) {
         this.xo = param0.nextDouble() * 256.0;
         this.yo = param0.nextDouble() * 256.0;
         this.zo = param0.nextDouble() * 256.0;

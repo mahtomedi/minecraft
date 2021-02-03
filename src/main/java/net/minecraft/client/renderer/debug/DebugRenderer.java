@@ -108,7 +108,7 @@ public class DebugRenderer {
         if (param0 == null) {
             return Optional.empty();
         } else {
-            Vec3 var0 = param0.getEyePosition(1.0F);
+            Vec3 var0 = param0.getEyePosition();
             Vec3 var1 = param0.getViewVector(1.0F).scale((double)param1);
             Vec3 var2 = var0.add(var1);
             AABB var3 = param0.getBoundingBox().expandTowards(var1).inflate(1.0);

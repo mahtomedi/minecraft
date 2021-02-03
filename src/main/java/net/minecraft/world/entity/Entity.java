@@ -147,9 +147,9 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     public float walkDistO;
     public float walkDist;
     public float moveDist;
+    public float flyDist;
     public float fallDistance;
     private float nextStep = 1.0F;
-    private float nextFlap = 1.0F;
     public double xOld;
     public double yOld;
     public double zOld;
@@ -194,7 +194,9 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     private long pistonDeltasGameTime;
     private EntityDimensions dimensions;
     private float eyeHeight;
-    protected boolean bodyIsInPowderSnow;
+    public boolean isInPowderSnow;
+    public boolean wasInPowderSnow;
+    public boolean wasOnFire;
     private float crystalSoundIntensity;
     private int lastCrystalSoundPlayTick;
 
@@ -313,23 +315,12 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         return this.id;
     }
 
-    @OnlyIn(Dist.CLIENT)
-    protected void resetPos() {
-        if (this.level != null) {
-            for(double var0 = this.getY(); var0 > (double)this.level.getMinBuildHeight() && var0 < (double)this.level.getMaxBuildHeight(); ++var0) {
-                this.setPos(this.getX(), var0, this.getZ());
-                if (this.level.noCollision(this)) {
-                    break;
-                }
-            }
-
-            this.setDeltaMovement(Vec3.ZERO);
-            this.xRot = 0.0F;
-        }
-    }
-
     public void remove(Entity.RemovalReason param0) {
         this.setRemoved(param0);
+        if (param0 == Entity.RemovalReason.KILLED) {
+            this.gameEvent(GameEvent.ENTITY_KILLED);
+        }
+
     }
 
     public void setPose(Pose param0) {
@@ -350,6 +341,10 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     protected void setRot(float param0, float param1) {
         this.yRot = param0 % 360.0F;
         this.xRot = param1 % 360.0F;
+    }
+
+    public final void setPos(Vec3 param0) {
+        this.setPos(param0.x(), param0.y(), param0.z());
     }
 
     public void setPos(double param0, double param1, double param2) {
@@ -407,7 +402,8 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
             this.spawnSprintParticle();
         }
 
-        this.bodyIsInPowderSnow = false;
+        this.wasInPowderSnow = this.isInPowderSnow;
+        this.isInPowderSnow = false;
         this.updateInWaterStateAndDoFluidPushing();
         this.updateFluidOnEyes();
         this.updateSwimming();
@@ -437,11 +433,15 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
 
         this.checkOutOfWorld();
         if (!this.level.isClientSide) {
-            this.setSharedFlag(0, this.remainingFireTicks > 0);
+            this.setSharedFlagOnFire(this.remainingFireTicks > 0);
         }
 
         this.firstTick = false;
         this.level.getProfiler().pop();
+    }
+
+    public void setSharedFlagOnFire(boolean param0) {
+        this.setSharedFlag(0, param0);
     }
 
     public void checkOutOfWorld() {
@@ -472,7 +472,10 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
 
     public void lavaHurt() {
         if (!this.fireImmune()) {
-            this.setSecondsOnFire(15);
+            if (!this.isInWaterRainOrBubble() && !this.isInPowderSnow) {
+                this.setSecondsOnFire(15);
+            }
+
             this.hurt(DamageSource.LAVA, 4.0F);
         }
     }
@@ -525,6 +528,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         if (this.noPhysics) {
             this.setPos(this.getX() + param1.x, this.getY() + param1.y, this.getZ() + param1.z);
         } else {
+            this.wasOnFire = this.isOnFire();
             if (param0 == MoverType.PISTON) {
                 param1 = this.limitPistonMovement(param1);
                 if (param1.equals(Vec3.ZERO)) {
@@ -571,66 +575,88 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
                 var4.stepOn(this.level, var1, this);
             }
 
-            if (this.isMovementNoisy() && !this.isPassenger()) {
-                double var5 = var0.x;
-                double var6 = var0.y;
-                double var7 = var0.z;
+            Entity.MovementEmission var5 = this.getMovementEmission();
+            if (var5.emitsAnything() && !this.isPassenger()) {
+                double var6 = var0.x;
+                double var7 = var0.y;
+                double var8 = var0.z;
+                this.flyDist = (float)((double)this.flyDist + var0.length() * 0.6);
                 if (!var2.is(BlockTags.CLIMBABLE) && !var2.is(Blocks.POWDER_SNOW)) {
-                    var6 = 0.0;
+                    var7 = 0.0;
                 }
 
                 this.walkDist = (float)((double)this.walkDist + (double)Mth.sqrt(getHorizontalDistanceSqr(var0)) * 0.6);
-                this.moveDist = (float)((double)this.moveDist + (double)Mth.sqrt(var5 * var5 + var6 * var6 + var7 * var7) * 0.6);
+                this.moveDist = (float)((double)this.moveDist + (double)Mth.sqrt(var6 * var6 + var7 * var7 + var8 * var8) * 0.6);
                 if (this.moveDist > this.nextStep && !var2.isAir()) {
                     this.nextStep = this.nextStep();
                     if (this.isInWater()) {
-                        Entity var8 = this.isVehicle() && this.getControllingPassenger() != null ? this.getControllingPassenger() : this;
-                        float var9 = var8 == this ? 0.35F : 0.4F;
-                        Vec3 var10 = var8.getDeltaMovement();
-                        float var11 = Mth.sqrt(var10.x * var10.x * 0.2F + var10.y * var10.y + var10.z * var10.z * 0.2F) * var9;
-                        if (var11 > 1.0F) {
-                            var11 = 1.0F;
+                        if (var5.emitsSounds()) {
+                            Entity var9 = this.isVehicle() && this.getControllingPassenger() != null ? this.getControllingPassenger() : this;
+                            float var10 = var9 == this ? 0.35F : 0.4F;
+                            Vec3 var11 = var9.getDeltaMovement();
+                            float var12 = Mth.sqrt(var11.x * var11.x * 0.2F + var11.y * var11.y + var11.z * var11.z * 0.2F) * var10;
+                            if (var12 > 1.0F) {
+                                var12 = 1.0F;
+                            }
+
+                            this.playSwimSound(var12);
                         }
 
-                        this.playSwimSound(var11);
-                        this.gameEvent(GameEvent.SWIM);
+                        if (var5.emitsEvents()) {
+                            this.gameEvent(GameEvent.SWIM);
+                        }
                     } else {
-                        this.playStepSound(var1, var2);
-                        if (!var2.is(BlockTags.OCCLUDES_VIBRATION_SIGNALS)) {
+                        if (var5.emitsSounds()) {
+                            this.playStepSound(var1, var2);
+                        }
+
+                        if (var5.emitsEvents() && !var2.is(BlockTags.OCCLUDES_VIBRATION_SIGNALS)) {
                             this.gameEvent(GameEvent.STEP);
                         }
                     }
-                } else if (this.moveDist > this.nextFlap && this.makeFlySound() && var2.isAir()) {
-                    this.nextFlap = this.playFlySound(this.moveDist);
-                    this.gameEvent(GameEvent.FLAP);
+                } else if (var2.isAir()) {
+                    this.processFlappingMovement();
                 }
             }
 
             try {
                 this.checkInsideBlocks();
-            } catch (Throwable var18) {
-                CrashReport var13 = CrashReport.forThrowable(var18, "Checking entity block collision");
-                CrashReportCategory var14 = var13.addCategory("Entity being checked for collision");
-                this.fillCrashReportCategory(var14);
-                throw new ReportedException(var13);
+            } catch (Throwable var19) {
+                CrashReport var14 = CrashReport.forThrowable(var19, "Checking entity block collision");
+                CrashReportCategory var15 = var14.addCategory("Entity being checked for collision");
+                this.fillCrashReportCategory(var15);
+                throw new ReportedException(var14);
             }
 
-            float var15 = this.getBlockSpeedFactor();
-            this.setDeltaMovement(this.getDeltaMovement().multiply((double)var15, 1.0, (double)var15));
+            float var16 = this.getBlockSpeedFactor();
+            this.setDeltaMovement(this.getDeltaMovement().multiply((double)var16, 1.0, (double)var16));
             if (this.level
-                    .getBlockStatesIfLoaded(this.getBoundingBox().deflate(0.001))
+                    .getBlockStatesIfLoaded(this.getBoundingBox().deflate(1.0E-6))
                     .noneMatch(param0x -> param0x.is(BlockTags.FIRE) || param0x.is(Blocks.LAVA))
                 && this.remainingFireTicks <= 0) {
                 this.setRemainingFireTicks(-this.getFireImmuneTicks());
             }
 
-            if ((this.isInWaterRainOrBubble() || this.bodyIsInPowderSnow) && this.isOnFire()) {
-                this.playSound(SoundEvents.GENERIC_EXTINGUISH_FIRE, 0.7F, 1.6F + (this.random.nextFloat() - this.random.nextFloat()) * 0.4F);
+            if ((this.isInWaterRainOrBubble() || this.isInPowderSnow) && this.isOnFire()) {
+                if (this.wasOnFire) {
+                    this.playSound(SoundEvents.GENERIC_EXTINGUISH_FIRE, 0.7F, 1.6F + (this.random.nextFloat() - this.random.nextFloat()) * 0.4F);
+                }
+
                 this.setRemainingFireTicks(-this.getFireImmuneTicks());
             }
 
             this.level.getProfiler().pop();
         }
+    }
+
+    protected void processFlappingMovement() {
+        if (this.isFlapping()) {
+            this.onFlap();
+            if (this.getMovementEmission().emitsEvents()) {
+                this.gameEvent(GameEvent.FLAP);
+            }
+        }
+
     }
 
     protected BlockPos getOnPos() {
@@ -844,8 +870,9 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         AABB var0 = this.getBoundingBox();
         BlockPos var1 = new BlockPos(var0.minX + 0.001, var0.minY + 0.001, var0.minZ + 0.001);
         BlockPos var2 = new BlockPos(var0.maxX - 0.001, var0.maxY - 0.001, var0.maxZ - 0.001);
-        BlockPos.MutableBlockPos var3 = new BlockPos.MutableBlockPos();
         if (this.level.hasChunksAt(var1, var2)) {
+            BlockPos.MutableBlockPos var3 = new BlockPos.MutableBlockPos();
+
             for(int var4 = var1.getX(); var4 <= var2.getX(); ++var4) {
                 for(int var5 = var1.getY(); var5 <= var2.getY(); ++var5) {
                     for(int var6 = var1.getZ(); var6 <= var2.getZ(); ++var6) {
@@ -871,12 +898,20 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     protected void onInsideBlock(BlockState param0) {
     }
 
-    protected void gameEvent(@Nullable Entity param0, GameEvent param1) {
-        this.level.gameEvent(param0, param1, this.blockPosition);
+    public void gameEvent(GameEvent param0, @Nullable Entity param1, BlockPos param2) {
+        this.level.gameEvent(param1, param0, param2);
     }
 
-    protected void gameEvent(GameEvent param0) {
-        this.level.gameEvent(this, param0, this.blockPosition);
+    public void gameEvent(GameEvent param0, @Nullable Entity param1) {
+        this.gameEvent(param0, param1, this.blockPosition);
+    }
+
+    public void gameEvent(GameEvent param0, BlockPos param1) {
+        this.gameEvent(param0, this, param1);
+    }
+
+    public void gameEvent(GameEvent param0) {
+        this.gameEvent(param0, this.blockPosition);
     }
 
     protected void playStepSound(BlockPos param0, BlockState param1) {
@@ -902,11 +937,10 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         this.playSound(this.getSwimSound(), param0, 1.0F + (this.random.nextFloat() - this.random.nextFloat()) * 0.4F);
     }
 
-    protected float playFlySound(float param0) {
-        return 0.0F;
+    protected void onFlap() {
     }
 
-    protected boolean makeFlySound() {
+    protected boolean isFlapping() {
         return false;
     }
 
@@ -933,8 +967,8 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         this.entityData.set(DATA_NO_GRAVITY, param0);
     }
 
-    protected boolean isMovementNoisy() {
-        return true;
+    protected Entity.MovementEmission getMovementEmission() {
+        return Entity.MovementEmission.ALL;
     }
 
     public boolean occludesVibrations() {
@@ -1159,13 +1193,9 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     }
 
     public float getBrightness() {
-        BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos(this.getX(), 0.0, this.getZ());
-        if (this.level.hasChunkAt(var0)) {
-            var0.setY(Mth.floor(this.getEyeY()));
-            return this.level.getBrightness(var0);
-        } else {
-            return 0.0F;
-        }
+        return this.level.hasChunkAt(this.getBlockX(), this.getBlockZ())
+            ? this.level.getBrightness(new BlockPos(this.getX(), this.getEyeY(), this.getZ()))
+            : 0.0F;
     }
 
     public void absMoveTo(double param0, double param1, double param2, float param3, float param4) {
@@ -1294,7 +1324,6 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         if (this.isInvulnerableTo(param0)) {
             return false;
         } else {
-            this.gameEvent(param0.getEntity(), GameEvent.ENTITY_HIT);
             this.markHurt();
             return false;
         }
@@ -1330,15 +1359,15 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         return this.calculateViewVector(param0 - 90.0F, param1);
     }
 
+    public final Vec3 getEyePosition() {
+        return new Vec3(this.getX(), this.getEyeY(), this.getZ());
+    }
+
     public final Vec3 getEyePosition(float param0) {
-        if (param0 == 1.0F) {
-            return new Vec3(this.getX(), this.getEyeY(), this.getZ());
-        } else {
-            double var0 = Mth.lerp((double)param0, this.xo, this.getX());
-            double var1 = Mth.lerp((double)param0, this.yo, this.getY()) + (double)this.getEyeHeight();
-            double var2 = Mth.lerp((double)param0, this.zo, this.getZ());
-            return new Vec3(var0, var1, var2);
-        }
+        double var0 = Mth.lerp((double)param0, this.xo, this.getX());
+        double var1 = Mth.lerp((double)param0, this.yo, this.getY()) + (double)this.getEyeHeight();
+        double var2 = Mth.lerp((double)param0, this.zo, this.getZ());
+        return new Vec3(var0, var1, var2);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -1511,7 +1540,10 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
             this.setYBodyRot(this.yRot);
             this.fallDistance = param0.getFloat("FallDistance");
             this.remainingFireTicks = param0.getShort("Fire");
-            this.setAirSupply(param0.getShort("Air"));
+            if (param0.contains("Air")) {
+                this.setAirSupply(param0.getShort("Air"));
+            }
+
             this.onGround = param0.getBoolean("OnGround");
             this.invulnerable = param0.getBoolean("Invulnerable");
             this.portalCooldown = param0.getInt("PortalCooldown");
@@ -1638,10 +1670,9 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         if (this.noPhysics) {
             return false;
         } else {
-            float var0 = 0.1F;
-            float var1 = this.dimensions.width * 0.8F;
-            AABB var2 = AABB.ofSize((double)var1, 0.1F, (double)var1).move(this.getX(), this.getEyeY(), this.getZ());
-            return this.level.getBlockCollisions(this, var2, (param0, param1) -> param0.isSuffocating(this.level, param1)).findAny().isPresent();
+            float var0 = this.dimensions.width * 0.8F;
+            AABB var1 = AABB.ofSize(this.getEyePosition(), (double)var0, 1.0E-6, (double)var0);
+            return this.level.getBlockCollisions(this, var1, (param0, param1) -> param0.isSuffocating(this.level, param1)).findAny().isPresent();
         }
     }
 
@@ -2420,13 +2451,16 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         }
     }
 
+    public void dismountTo(double param0, double param1, double param2) {
+        this.teleportTo(param0, param1, param2);
+    }
+
     public void teleportTo(double param0, double param1, double param2) {
         if (this.level instanceof ServerLevel) {
-            ServerLevel var0 = (ServerLevel)this.level;
             this.moveTo(param0, param1, param2, this.yRot, this.xRot);
             this.getSelfAndPassengers().forEach(param0x -> {
-                for(Entity var0x : param0x.passengers) {
-                    param0x.positionRider(var0x, Entity::moveTo);
+                for(Entity var0 : param0x.passengers) {
+                    param0x.positionRider(var0, Entity::moveTo);
                 }
 
             });
@@ -2452,13 +2486,14 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         this.dimensions = var2;
         this.eyeHeight = this.getEyeHeight(var1, var2);
         this.reapplyPosition();
-        if (!this.level.isClientSide
-            && !this.firstTick
-            && var2.width > var0.width
-            && this.level.noBlockCollision(this, this.getBoundingBox(), (param0, param1) -> true)) {
-            float var3 = var0.width - var2.width;
-            this.setPos(this.getX() - (double)var3 / 2.0, this.getY(), this.getZ() - (double)var3 / 2.0);
-            this.move(MoverType.SELF, new Vec3((double)var3, 0.0, (double)var3));
+        if (!this.level.isClientSide && !this.firstTick && (var2.width > var0.width || var2.height > var0.height) && !(this instanceof Player)) {
+            Vec3 var3 = this.position().add(0.0, (double)var0.height / 2.0, 0.0);
+            double var4 = (double)Math.max(0.0F, var2.width - var0.width) + 1.0E-6;
+            double var5 = (double)Math.max(0.0F, var2.height - var0.height) + 1.0E-6;
+            VoxelShape var6 = Shapes.create(AABB.ofSize(var3, var4, var5, var4));
+            this.level
+                .findFreePosition(this, var6, var3, (double)var2.width, (double)var2.height, (double)var2.width)
+                .ifPresent(param1 -> this.setPos(param1.add(0.0, (double)(-var2.height) / 2.0, 0.0)));
         }
 
     }
@@ -2842,6 +2877,10 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         return this.blockPosition;
     }
 
+    public BlockPos eyeBlockPosition() {
+        return new BlockPos(this.getEyePosition(1.0F));
+    }
+
     public ChunkPos chunkPosition() {
         return new ChunkPos(this.blockPosition);
     }
@@ -2957,8 +2996,8 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         return null;
     }
 
-    public void setBodyIsInPowderSnow(boolean param0) {
-        this.bodyIsInPowderSnow = param0;
+    public void setIsInPowderSnow(boolean param0) {
+        this.isInPowderSnow = param0;
     }
 
     public boolean canFreeze() {
@@ -3007,6 +3046,33 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     @FunctionalInterface
     public interface MoveFunction {
         void accept(Entity var1, double var2, double var4, double var6);
+    }
+
+    public static enum MovementEmission {
+        NONE(false, false),
+        SOUNDS(true, false),
+        EVENTS(false, true),
+        ALL(true, true);
+
+        final boolean sounds;
+        final boolean events;
+
+        private MovementEmission(boolean param0, boolean param1) {
+            this.sounds = param0;
+            this.events = param1;
+        }
+
+        public boolean emitsAnything() {
+            return this.events || this.sounds;
+        }
+
+        public boolean emitsEvents() {
+            return this.events;
+        }
+
+        public boolean emitsSounds() {
+            return this.sounds;
+        }
     }
 
     public static enum RemovalReason {

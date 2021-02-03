@@ -7,7 +7,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.WorldGenLevel;
-import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.configurations.OreConfiguration;
 
@@ -16,27 +15,32 @@ public class OreFeature extends Feature<OreConfiguration> {
         super(param0);
     }
 
-    public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, OreConfiguration param4) {
-        float var0 = param2.nextFloat() * (float) Math.PI;
-        float var1 = (float)param4.size / 8.0F;
-        int var2 = Mth.ceil(((float)param4.size / 16.0F * 2.0F + 1.0F) / 2.0F);
-        double var3 = (double)param3.getX() + Math.sin((double)var0) * (double)var1;
-        double var4 = (double)param3.getX() - Math.sin((double)var0) * (double)var1;
-        double var5 = (double)param3.getZ() + Math.cos((double)var0) * (double)var1;
-        double var6 = (double)param3.getZ() - Math.cos((double)var0) * (double)var1;
-        int var7 = 2;
-        double var8 = (double)(param3.getY() + param2.nextInt(3) - 2);
-        double var9 = (double)(param3.getY() + param2.nextInt(3) - 2);
-        int var10 = param3.getX() - Mth.ceil(var1) - var2;
-        int var11 = param3.getY() - 2 - var2;
-        int var12 = param3.getZ() - Mth.ceil(var1) - var2;
-        int var13 = 2 * (Mth.ceil(var1) + var2);
-        int var14 = 2 * (2 + var2);
+    @Override
+    public boolean place(FeaturePlaceContext<OreConfiguration> param0) {
+        Random var0 = param0.random();
+        BlockPos var1 = param0.origin();
+        WorldGenLevel var2 = param0.level();
+        OreConfiguration var3 = param0.config();
+        float var4 = var0.nextFloat() * (float) Math.PI;
+        float var5 = (float)var3.size / 8.0F;
+        int var6 = Mth.ceil(((float)var3.size / 16.0F * 2.0F + 1.0F) / 2.0F);
+        double var7 = (double)var1.getX() + Math.sin((double)var4) * (double)var5;
+        double var8 = (double)var1.getX() - Math.sin((double)var4) * (double)var5;
+        double var9 = (double)var1.getZ() + Math.cos((double)var4) * (double)var5;
+        double var10 = (double)var1.getZ() - Math.cos((double)var4) * (double)var5;
+        int var11 = 2;
+        double var12 = (double)(var1.getY() + var0.nextInt(3) - 2);
+        double var13 = (double)(var1.getY() + var0.nextInt(3) - 2);
+        int var14 = var1.getX() - Mth.ceil(var5) - var6;
+        int var15 = var1.getY() - 2 - var6;
+        int var16 = var1.getZ() - Mth.ceil(var5) - var6;
+        int var17 = 2 * (Mth.ceil(var5) + var6);
+        int var18 = 2 * (2 + var6);
 
-        for(int var15 = var10; var15 <= var10 + var13; ++var15) {
-            for(int var16 = var12; var16 <= var12 + var13; ++var16) {
-                if (var11 <= param0.getHeight(Heightmap.Types.OCEAN_FLOOR_WG, var15, var16)) {
-                    return this.doPlace(param0, param2, param4, var3, var4, var5, var6, var8, var9, var10, var11, var12, var13, var14);
+        for(int var19 = var14; var19 <= var14 + var17; ++var19) {
+            for(int var20 = var16; var20 <= var16 + var17; ++var20) {
+                if (var15 <= var2.getHeight(Heightmap.Types.OCEAN_FLOOR_WG, var19, var20)) {
+                    return this.doPlace(var2, var0, var3, var7, var8, var9, var10, var12, var13, var14, var15, var16, var17, var18);
                 }
             }
         }

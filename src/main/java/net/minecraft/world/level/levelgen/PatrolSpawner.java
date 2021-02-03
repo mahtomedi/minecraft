@@ -48,23 +48,22 @@ public class PatrolSpawner implements CustomSpawner {
                             int var4 = (24 + var0.nextInt(24)) * (var0.nextBoolean() ? -1 : 1);
                             int var5 = (24 + var0.nextInt(24)) * (var0.nextBoolean() ? -1 : 1);
                             BlockPos.MutableBlockPos var6 = var3.blockPosition().mutable().move(var4, 0, var5);
-                            if (!param0.hasChunksAt(var6.getX() - 10, var6.getY() - 10, var6.getZ() - 10, var6.getX() + 10, var6.getY() + 10, var6.getZ() + 10)
-                                )
-                             {
+                            int var7 = 10;
+                            if (!param0.hasChunksAt(var6.getX() - 10, var6.getZ() - 10, var6.getX() + 10, var6.getZ() + 10)) {
                                 return 0;
                             } else {
-                                Biome var7 = param0.getBiome(var6);
-                                Biome.BiomeCategory var8 = var7.getBiomeCategory();
-                                if (var8 == Biome.BiomeCategory.MUSHROOM) {
+                                Biome var8 = param0.getBiome(var6);
+                                Biome.BiomeCategory var9 = var8.getBiomeCategory();
+                                if (var9 == Biome.BiomeCategory.MUSHROOM) {
                                     return 0;
                                 } else {
-                                    int var9 = 0;
-                                    int var10 = (int)Math.ceil((double)param0.getCurrentDifficultyAt(var6).getEffectiveDifficulty()) + 1;
+                                    int var10 = 0;
+                                    int var11 = (int)Math.ceil((double)param0.getCurrentDifficultyAt(var6).getEffectiveDifficulty()) + 1;
 
-                                    for(int var11 = 0; var11 < var10; ++var11) {
-                                        ++var9;
+                                    for(int var12 = 0; var12 < var11; ++var12) {
+                                        ++var10;
                                         var6.setY(param0.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, var6).getY());
-                                        if (var11 == 0) {
+                                        if (var12 == 0) {
                                             if (!this.spawnPatrolMember(param0, var6, var0, true)) {
                                                 break;
                                             }
@@ -76,7 +75,7 @@ public class PatrolSpawner implements CustomSpawner {
                                         var6.setZ(var6.getZ() + var0.nextInt(5) - var0.nextInt(5));
                                     }
 
-                                    return var9;
+                                    return var10;
                                 }
                             }
                         }

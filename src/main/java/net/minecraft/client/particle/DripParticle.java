@@ -1,5 +1,6 @@
 package net.minecraft.client.particle;
 
+import java.util.Random;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleOptions;
@@ -238,8 +239,12 @@ public class DripParticle extends TextureSheetParticle {
     @OnlyIn(Dist.CLIENT)
     static class FallingParticle extends DripParticle {
         private FallingParticle(ClientLevel param0, double param1, double param2, double param3, Fluid param4) {
+            this(param0, param1, param2, param3, param4, (int)(64.0 / (Math.random() * 0.8 + 0.2)));
+        }
+
+        private FallingParticle(ClientLevel param0, double param1, double param2, double param3, Fluid param4, int param5) {
             super(param0, param1, param2, param3, param4);
-            this.lifetime = (int)(64.0 / (Math.random() * 0.8 + 0.2));
+            this.lifetime = param5;
         }
 
         @Override
@@ -462,6 +467,28 @@ public class DripParticle extends TextureSheetParticle {
             var0.setColor(0.51171875F, 0.03125F, 0.890625F);
             var0.pickSprite(this.sprite);
             return var0;
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static class SporeBlossomFallProvider implements ParticleProvider<SimpleParticleType> {
+        protected final SpriteSet sprite;
+        private final Random random;
+
+        public SporeBlossomFallProvider(SpriteSet param0) {
+            this.sprite = param0;
+            this.random = new Random();
+        }
+
+        public Particle createParticle(
+            SimpleParticleType param0, ClientLevel param1, double param2, double param3, double param4, double param5, double param6, double param7
+        ) {
+            int var0 = (int)(64.0F / Mth.randomBetween(this.random, 0.1F, 0.9F));
+            DripParticle var1 = new DripParticle.FallingParticle(param1, param2, param3, param4, Fluids.EMPTY, var0);
+            var1.gravity = 0.005F;
+            var1.setColor(0.32F, 0.5F, 0.22F);
+            var1.pickSprite(this.sprite);
+            return var1;
         }
     }
 

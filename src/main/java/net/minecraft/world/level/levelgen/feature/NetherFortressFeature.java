@@ -7,6 +7,7 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.SectionPos;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.biome.MobSpawnSettings;
@@ -41,7 +42,8 @@ public class NetherFortressFeature extends StructureFeature<NoneFeatureConfigura
         int param5,
         Biome param6,
         ChunkPos param7,
-        NoneFeatureConfiguration param8
+        NoneFeatureConfiguration param8,
+        LevelHeightAccessor param9
     ) {
         return param3.nextInt(5) < 2;
     }
@@ -62,7 +64,14 @@ public class NetherFortressFeature extends StructureFeature<NoneFeatureConfigura
         }
 
         public void generatePieces(
-            RegistryAccess param0, ChunkGenerator param1, StructureManager param2, int param3, int param4, Biome param5, NoneFeatureConfiguration param6
+            RegistryAccess param0,
+            ChunkGenerator param1,
+            StructureManager param2,
+            int param3,
+            int param4,
+            Biome param5,
+            NoneFeatureConfiguration param6,
+            LevelHeightAccessor param7
         ) {
             NetherBridgePieces.StartPiece var0 = new NetherBridgePieces.StartPiece(
                 this.random, SectionPos.sectionToBlockCoord(param3, 2), SectionPos.sectionToBlockCoord(param4, 2)

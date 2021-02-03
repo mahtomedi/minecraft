@@ -363,7 +363,7 @@ public abstract class LivingEntity extends Entity {
             }
         }
 
-        if (this.isAlive() && (this.isInWaterRainOrBubble() || this.bodyIsInPowderSnow)) {
+        if (this.isAlive() && (this.isInWaterRainOrBubble() || this.isInPowderSnow)) {
             this.clearFire();
         }
 
@@ -628,9 +628,10 @@ public abstract class LivingEntity extends Entity {
         this.noActionTime = param0;
     }
 
-    protected void playEquipSound(ItemStack param0) {
+    protected void equipEventAndSound(ItemStack param0) {
         SoundEvent var0 = param0.getEquipSound();
         if (!param0.isEmpty() && var0 != null && !this.isSpectator()) {
+            this.gameEvent(GameEvent.EQUIP);
             this.playSound(var0, 1.0F, 1.0F);
         }
     }
@@ -1139,7 +1140,6 @@ public abstract class LivingEntity extends Entity {
                 CriteriaTriggers.PLAYER_HURT_ENTITY.trigger((ServerPlayer)var5, this, param0, var0, param1, var1);
             }
 
-            this.gameEvent(param0.getEntity(), GameEvent.ENTITY_HIT);
             return var16;
         }
     }
@@ -1555,6 +1555,7 @@ public abstract class LivingEntity extends Entity {
                 this.setHealth(var2 - var8);
                 this.getCombatTracker().recordDamage(param0, var2, var8);
                 this.setAbsorptionAmount(this.getAbsorptionAmount() - var8);
+                this.gameEvent(GameEvent.ENTITY_DAMAGED, param0.getEntity());
             }
         }
     }
@@ -1923,7 +1924,7 @@ public abstract class LivingEntity extends Entity {
             var1 = new Vec3(param0.getX(), param0.getY() + (double)param0.getBbHeight(), param0.getZ());
         }
 
-        this.teleportTo(var1.x, var1.y, var1.z);
+        this.dismountTo(var1.x, var1.y, var1.z);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -2523,7 +2524,7 @@ public abstract class LivingEntity extends Entity {
         this.level.getProfiler().pop();
         this.level.getProfiler().push("freezing");
         int var13 = this.getTicksFrozen();
-        if (this.bodyIsInPowderSnow && this.canFreeze()) {
+        if (this.isInPowderSnow && this.canFreeze()) {
             this.setTicksFrozen(Math.min(this.getTicksRequiredToFreeze(), var13 + 1));
         } else {
             this.setTicksFrozen(Math.max(0, var13 - 2));
@@ -3182,6 +3183,7 @@ public abstract class LivingEntity extends Entity {
 
     public ItemStack eat(Level param0, ItemStack param1) {
         if (param1.isEdible()) {
+            param0.gameEvent(this, GameEvent.EAT, this.eyeBlockPosition());
             param0.playSound(
                 null,
                 this.getX(),
@@ -3197,7 +3199,7 @@ public abstract class LivingEntity extends Entity {
                 param1.shrink(1);
             }
 
-            this.gameEvent(GameEvent.EATING_FINISH);
+            this.gameEvent(GameEvent.EAT);
         }
 
         return param1;
@@ -3307,5 +3309,21 @@ public abstract class LivingEntity extends Entity {
                 && !this.getItemBySlot(EquipmentSlot.LEGS).is(ItemTags.FREEZE_IMMUNE_WEARABLES)
                 && !this.getItemBySlot(EquipmentSlot.FEET).is(ItemTags.FREEZE_IMMUNE_WEARABLES);
         }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public void recreateFromPacket(ClientboundAddMobPacket param0) {
+        double var0 = param0.getX();
+        double var1 = param0.getY();
+        double var2 = param0.getZ();
+        float var3 = (float)(param0.getyRot() * 360) / 256.0F;
+        float var4 = (float)(param0.getxRot() * 360) / 256.0F;
+        this.setPacketCoordinates(var0, var1, var2);
+        this.yBodyRot = (float)(param0.getyHeadRot() * 360) / 256.0F;
+        this.yHeadRot = (float)(param0.getyHeadRot() * 360) / 256.0F;
+        this.setId(param0.getId());
+        this.setUUID(param0.getUUID());
+        this.absMoveTo(var0, var1, var2, var3, var4);
+        this.setDeltaMovement((double)((float)param0.getXd() / 8000.0F), (double)((float)param0.getYd() / 8000.0F), (double)((float)param0.getZd() / 8000.0F));
     }
 }

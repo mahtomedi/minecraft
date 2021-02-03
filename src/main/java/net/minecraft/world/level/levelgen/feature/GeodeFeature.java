@@ -13,7 +13,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.BuddingAmethystBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.GeodeBlockSettings;
 import net.minecraft.world.level.levelgen.GeodeCrackSettings;
 import net.minecraft.world.level.levelgen.GeodeLayerSettings;
@@ -28,116 +27,121 @@ public class GeodeFeature extends Feature<GeodeConfiguration> {
         super(param0);
     }
 
-    public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, GeodeConfiguration param4) {
-        int var0 = param4.minGenOffset;
-        int var1 = param4.maxGenOffset;
-        if (param0.getFluidState(param3.offset(0, var1 / 3, 0)).isSource()) {
+    @Override
+    public boolean place(FeaturePlaceContext<GeodeConfiguration> param0) {
+        GeodeConfiguration var0 = param0.config();
+        Random var1 = param0.random();
+        BlockPos var2 = param0.origin();
+        WorldGenLevel var3 = param0.level();
+        int var4 = var0.minGenOffset;
+        int var5 = var0.maxGenOffset;
+        if (var3.getFluidState(var2.offset(0, var5 / 3, 0)).isSource()) {
             return false;
         } else {
-            List<Pair<BlockPos, Integer>> var2 = Lists.newLinkedList();
-            int var3 = param4.minDistributionPoints + param2.nextInt(param4.maxDistributionPoints - param4.minDistributionPoints);
-            WorldgenRandom var4 = new WorldgenRandom(param0.getSeed());
-            NormalNoise var5 = NormalNoise.create(var4, -4, 1.0);
-            List<BlockPos> var6 = Lists.newLinkedList();
-            double var7 = (double)var3 / (double)param4.maxOuterWallDistance;
-            GeodeLayerSettings var8 = param4.geodeLayerSettings;
-            GeodeBlockSettings var9 = param4.geodeBlockSettings;
-            GeodeCrackSettings var10 = param4.geodeCrackSettings;
-            double var11 = 1.0 / Math.sqrt(var8.filling);
-            double var12 = 1.0 / Math.sqrt(var8.innerLayer + var7);
-            double var13 = 1.0 / Math.sqrt(var8.middleLayer + var7);
-            double var14 = 1.0 / Math.sqrt(var8.outerLayer + var7);
-            double var15 = 1.0 / Math.sqrt(var10.baseCrackSize + param2.nextDouble() / 2.0 + (var3 > 3 ? var7 : 0.0));
-            boolean var16 = (double)param2.nextFloat() < var10.generateCrackChance;
+            List<Pair<BlockPos, Integer>> var6 = Lists.newLinkedList();
+            int var7 = var0.minDistributionPoints + var1.nextInt(var0.maxDistributionPoints - var0.minDistributionPoints);
+            WorldgenRandom var8 = new WorldgenRandom(var3.getSeed());
+            NormalNoise var9 = NormalNoise.create(var8, -4, 1.0);
+            List<BlockPos> var10 = Lists.newLinkedList();
+            double var11 = (double)var7 / (double)var0.maxOuterWallDistance;
+            GeodeLayerSettings var12 = var0.geodeLayerSettings;
+            GeodeBlockSettings var13 = var0.geodeBlockSettings;
+            GeodeCrackSettings var14 = var0.geodeCrackSettings;
+            double var15 = 1.0 / Math.sqrt(var12.filling);
+            double var16 = 1.0 / Math.sqrt(var12.innerLayer + var11);
+            double var17 = 1.0 / Math.sqrt(var12.middleLayer + var11);
+            double var18 = 1.0 / Math.sqrt(var12.outerLayer + var11);
+            double var19 = 1.0 / Math.sqrt(var14.baseCrackSize + var1.nextDouble() / 2.0 + (var7 > 3 ? var11 : 0.0));
+            boolean var20 = (double)var1.nextFloat() < var14.generateCrackChance;
 
-            for(int var17 = 0; var17 < var3; ++var17) {
-                int var18 = param4.minOuterWallDistance + param2.nextInt(param4.maxOuterWallDistance - param4.minOuterWallDistance);
-                int var19 = param4.minOuterWallDistance + param2.nextInt(param4.maxOuterWallDistance - param4.minOuterWallDistance);
-                int var20 = param4.minOuterWallDistance + param2.nextInt(param4.maxOuterWallDistance - param4.minOuterWallDistance);
-                var2.add(Pair.of(param3.offset(var18, var19, var20), param4.minPointOffset + param2.nextInt(param4.maxPointOffset - param4.minPointOffset)));
+            for(int var21 = 0; var21 < var7; ++var21) {
+                int var22 = var0.minOuterWallDistance + var1.nextInt(var0.maxOuterWallDistance - var0.minOuterWallDistance);
+                int var23 = var0.minOuterWallDistance + var1.nextInt(var0.maxOuterWallDistance - var0.minOuterWallDistance);
+                int var24 = var0.minOuterWallDistance + var1.nextInt(var0.maxOuterWallDistance - var0.minOuterWallDistance);
+                var6.add(Pair.of(var2.offset(var22, var23, var24), var0.minPointOffset + var1.nextInt(var0.maxPointOffset - var0.minPointOffset)));
             }
 
-            if (var16) {
-                int var21 = param2.nextInt(4);
-                int var22 = var3 * 2 + 1;
-                if (var21 == 0) {
-                    var6.add(param3.offset(var22, 7, 0));
-                    var6.add(param3.offset(var22, 5, 0));
-                    var6.add(param3.offset(var22, 1, 0));
-                } else if (var21 == 1) {
-                    var6.add(param3.offset(0, 7, var22));
-                    var6.add(param3.offset(0, 5, var22));
-                    var6.add(param3.offset(0, 1, var22));
-                } else if (var21 == 2) {
-                    var6.add(param3.offset(var22, 7, var22));
-                    var6.add(param3.offset(var22, 5, var22));
-                    var6.add(param3.offset(var22, 1, var22));
+            if (var20) {
+                int var25 = var1.nextInt(4);
+                int var26 = var7 * 2 + 1;
+                if (var25 == 0) {
+                    var10.add(var2.offset(var26, 7, 0));
+                    var10.add(var2.offset(var26, 5, 0));
+                    var10.add(var2.offset(var26, 1, 0));
+                } else if (var25 == 1) {
+                    var10.add(var2.offset(0, 7, var26));
+                    var10.add(var2.offset(0, 5, var26));
+                    var10.add(var2.offset(0, 1, var26));
+                } else if (var25 == 2) {
+                    var10.add(var2.offset(var26, 7, var26));
+                    var10.add(var2.offset(var26, 5, var26));
+                    var10.add(var2.offset(var26, 1, var26));
                 } else {
-                    var6.add(param3.offset(0, 7, 0));
-                    var6.add(param3.offset(0, 5, 0));
-                    var6.add(param3.offset(0, 1, 0));
+                    var10.add(var2.offset(0, 7, 0));
+                    var10.add(var2.offset(0, 5, 0));
+                    var10.add(var2.offset(0, 1, 0));
                 }
             }
 
-            List<BlockPos> var23 = Lists.newArrayList();
+            List<BlockPos> var27 = Lists.newArrayList();
 
-            for(BlockPos var24 : BlockPos.betweenClosed(param3.offset(var0, var0, var0), param3.offset(var1, var1, var1))) {
-                double var25 = var5.getValue((double)var24.getX(), (double)var24.getY(), (double)var24.getZ()) * param4.noiseMultiplier;
-                double var26 = 0.0;
-                double var27 = 0.0;
+            for(BlockPos var28 : BlockPos.betweenClosed(var2.offset(var4, var4, var4), var2.offset(var5, var5, var5))) {
+                double var29 = var9.getValue((double)var28.getX(), (double)var28.getY(), (double)var28.getZ()) * var0.noiseMultiplier;
+                double var30 = 0.0;
+                double var31 = 0.0;
 
-                for(Pair<BlockPos, Integer> var28 : var2) {
-                    var26 += Mth.fastInvSqrt(var24.distSqr(var28.getFirst()) + (double)var28.getSecond().intValue()) + var25;
+                for(Pair<BlockPos, Integer> var32 : var6) {
+                    var30 += Mth.fastInvSqrt(var28.distSqr(var32.getFirst()) + (double)var32.getSecond().intValue()) + var29;
                 }
 
-                for(BlockPos var29 : var6) {
-                    var27 += Mth.fastInvSqrt(var24.distSqr(var29) + (double)var10.crackPointOffset) + var25;
+                for(BlockPos var33 : var10) {
+                    var31 += Mth.fastInvSqrt(var28.distSqr(var33) + (double)var14.crackPointOffset) + var29;
                 }
 
-                if (!(var26 < var14)) {
-                    if (var16 && var27 >= var15 && var26 < var11) {
-                        if (param0.getFluidState(var24).isEmpty()) {
-                            param0.setBlock(var24, Blocks.AIR.defaultBlockState(), 2);
+                if (!(var30 < var18)) {
+                    if (var20 && var31 >= var19 && var30 < var15) {
+                        if (var3.getFluidState(var28).isEmpty()) {
+                            var3.setBlock(var28, Blocks.AIR.defaultBlockState(), 2);
                         }
-                    } else if (var26 >= var11) {
-                        param0.setBlock(var24, var9.fillingProvider.getState(param2, var24), 2);
-                    } else if (var26 >= var12) {
-                        boolean var30 = (double)param2.nextFloat() < param4.useAlternateLayer0Chance;
-                        if (var30) {
-                            param0.setBlock(var24, var9.alternateInnerLayerProvider.getState(param2, var24), 2);
+                    } else if (var30 >= var15) {
+                        var3.setBlock(var28, var13.fillingProvider.getState(var1, var28), 2);
+                    } else if (var30 >= var16) {
+                        boolean var34 = (double)var1.nextFloat() < var0.useAlternateLayer0Chance;
+                        if (var34) {
+                            var3.setBlock(var28, var13.alternateInnerLayerProvider.getState(var1, var28), 2);
                         } else {
-                            param0.setBlock(var24, var9.innerLayerProvider.getState(param2, var24), 2);
+                            var3.setBlock(var28, var13.innerLayerProvider.getState(var1, var28), 2);
                         }
 
-                        if ((!param4.placementsRequireLayer0Alternate || var30) && (double)param2.nextFloat() < param4.usePotentialPlacementsChance) {
-                            var23.add(var24.immutable());
+                        if ((!var0.placementsRequireLayer0Alternate || var34) && (double)var1.nextFloat() < var0.usePotentialPlacementsChance) {
+                            var27.add(var28.immutable());
                         }
-                    } else if (var26 >= var13) {
-                        param0.setBlock(var24, var9.middleLayerProvider.getState(param2, var24), 2);
-                    } else if (var26 >= var14) {
-                        param0.setBlock(var24, var9.outerLayerProvider.getState(param2, var24), 2);
+                    } else if (var30 >= var17) {
+                        var3.setBlock(var28, var13.middleLayerProvider.getState(var1, var28), 2);
+                    } else if (var30 >= var18) {
+                        var3.setBlock(var28, var13.outerLayerProvider.getState(var1, var28), 2);
                     }
                 }
             }
 
-            List<BlockState> var31 = var9.innerPlacements;
+            List<BlockState> var35 = var13.innerPlacements;
 
-            for(BlockPos var32 : var23) {
-                BlockState var33 = var31.get(param2.nextInt(var31.size()));
+            for(BlockPos var36 : var27) {
+                BlockState var37 = var35.get(var1.nextInt(var35.size()));
 
-                for(Direction var34 : DIRECTIONS) {
-                    if (var33.hasProperty(BlockStateProperties.FACING)) {
-                        var33 = var33.setValue(BlockStateProperties.FACING, var34);
+                for(Direction var38 : DIRECTIONS) {
+                    if (var37.hasProperty(BlockStateProperties.FACING)) {
+                        var37 = var37.setValue(BlockStateProperties.FACING, var38);
                     }
 
-                    BlockPos var35 = var32.relative(var34);
-                    BlockState var36 = param0.getBlockState(var35);
-                    if (var33.hasProperty(BlockStateProperties.WATERLOGGED)) {
-                        var33 = var33.setValue(BlockStateProperties.WATERLOGGED, Boolean.valueOf(var36.getFluidState().isSource()));
+                    BlockPos var39 = var36.relative(var38);
+                    BlockState var40 = var3.getBlockState(var39);
+                    if (var37.hasProperty(BlockStateProperties.WATERLOGGED)) {
+                        var37 = var37.setValue(BlockStateProperties.WATERLOGGED, Boolean.valueOf(var40.getFluidState().isSource()));
                     }
 
-                    if (BuddingAmethystBlock.canClusterGrowAtState(var36)) {
-                        param0.setBlock(var35, var33, 2);
+                    if (BuddingAmethystBlock.canClusterGrowAtState(var40)) {
+                        var3.setBlock(var39, var37, 2);
                         break;
                     }
                 }

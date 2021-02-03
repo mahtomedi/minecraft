@@ -11,6 +11,7 @@ import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
@@ -48,7 +49,13 @@ public class PowderSnowBlock extends Block implements BucketPickup {
             param3.makeStuckInBlock(param0, new Vec3(0.9F, 0.99F, 0.9F));
         }
 
-        param3.setBodyIsInPowderSnow(true);
+        param3.setIsInPowderSnow(true);
+        if (param1.isClientSide) {
+            param3.clearFire();
+        } else {
+            param3.setSharedFlagOnFire(false);
+        }
+
         if (!param3.isSpectator() && (param3.xOld != param3.getX() || param3.zOld != param3.getZ()) && param1.random.nextBoolean()) {
             spawnPowderSnowParticles(param1, new Vec3(param3.getX(), (double)param2.getY(), param3.getZ()));
         }
@@ -60,7 +67,8 @@ public class PowderSnowBlock extends Block implements BucketPickup {
         if (param3 instanceof EntityCollisionContext) {
             EntityCollisionContext var0 = (EntityCollisionContext)param3;
             Optional<Entity> var1 = var0.getEntity();
-            if (var1.isPresent() && canEntityWalkOnPowderSnow(var1.get()) && param3.isAbove(Shapes.block(), param2, false) && !param3.isDescending()) {
+            boolean var2 = var1.isPresent() && var1.get() instanceof FallingBlockEntity;
+            if (var2 || var1.isPresent() && canEntityWalkOnPowderSnow(var1.get()) && param3.isAbove(Shapes.block(), param2, false) && !param3.isDescending()) {
                 return super.getCollisionShape(param0, param1, param2, param3);
             }
         }

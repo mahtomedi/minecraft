@@ -27,6 +27,7 @@ import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.ShulkerBoxBlock;
 import net.minecraft.world.level.block.entity.BannerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 
 public interface CauldronInteraction {
     Map<Item, CauldronInteraction> EMPTY = newInteractionMap();
@@ -141,6 +142,7 @@ public interface CauldronInteraction {
                     param3.awardStat(Stats.USE_CAULDRON);
                     param1.setBlockAndUpdate(param2, Blocks.WATER_CAULDRON.defaultBlockState());
                     param1.playSound(null, param2, SoundEvents.BOTTLE_EMPTY, SoundSource.BLOCKS, 1.0F, 1.0F);
+                    param1.gameEvent(null, GameEvent.FLUID_PLACE, param2);
                 }
 
                 return InteractionResult.sidedSuccess(param1.isClientSide);
@@ -169,6 +171,7 @@ public interface CauldronInteraction {
                 param3.awardStat(Stats.USE_CAULDRON);
                 LayeredCauldronBlock.lowerFillLevel(param0, param1, param2);
                 param1.playSound(null, param2, SoundEvents.BOTTLE_FILL, SoundSource.BLOCKS, 1.0F, 1.0F);
+                param1.gameEvent(null, GameEvent.FLUID_PICKUP, param2);
             }
 
             return InteractionResult.sidedSuccess(param1.isClientSide);
@@ -180,6 +183,7 @@ public interface CauldronInteraction {
                     param3.awardStat(Stats.USE_CAULDRON);
                     param1.setBlockAndUpdate(param2, param0.cycle(LayeredCauldronBlock.LEVEL));
                     param1.playSound(null, param2, SoundEvents.BOTTLE_EMPTY, SoundSource.BLOCKS, 1.0F, 1.0F);
+                    param1.gameEvent(null, GameEvent.FLUID_PLACE, param2);
                 }
 
                 return InteractionResult.sidedSuccess(param1.isClientSide);
@@ -269,6 +273,7 @@ public interface CauldronInteraction {
                 param3.awardStat(Stats.USE_CAULDRON);
                 param1.setBlockAndUpdate(param2, Blocks.CAULDRON.defaultBlockState());
                 param1.playSound(null, param2, param8, SoundSource.BLOCKS, 1.0F, 1.0F);
+                param1.gameEvent(null, GameEvent.FLUID_PICKUP, param2);
             }
 
             return InteractionResult.sidedSuccess(param1.isClientSide);
@@ -283,6 +288,7 @@ public interface CauldronInteraction {
             param2.awardStat(Stats.FILL_CAULDRON);
             param0.setBlockAndUpdate(param1, param5);
             param0.playSound(null, param1, param6, SoundSource.BLOCKS, 1.0F, 1.0F);
+            param0.gameEvent(null, GameEvent.FLUID_PLACE, param1);
         }
 
         return InteractionResult.sidedSuccess(param0.isClientSide);

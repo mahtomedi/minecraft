@@ -9,7 +9,6 @@ import com.mojang.datafixers.types.templates.Hook.HookFunction;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.DynamicOps;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Supplier;
 import net.minecraft.util.datafix.fixes.References;
 import org.apache.logging.log4j.LogManager;
@@ -309,28 +308,21 @@ public class V99 extends Schema {
     }
 
     protected static <T> T addNames(Dynamic<T> param0, Map<String, String> param1, String param2) {
-        return param0.update(
-                "tag",
-                param3 -> param3.update("BlockEntityTag", param2x -> {
-                            String var0x = param0.get("id").asString("");
-                            String var1x = param1.get(NamespacedSchema.ensureNamespaced(var0x));
-                            if (var1x == null) {
-                                LOGGER.warn("Unable to resolve BlockEntity for ItemStack: {}", var0x);
-                                return param2x;
-                            } else {
-                                return param2x.set("id", param0.createString(var1x));
-                            }
-                        })
-                        .update(
-                            "EntityTag",
-                            param2x -> {
-                                String var0x = param0.get("id").asString("");
-                                return Objects.equals(NamespacedSchema.ensureNamespaced(var0x), "minecraft:armor_stand")
-                                    ? param2x.set("id", param0.createString(param2))
-                                    : param2x;
-                            }
-                        )
-            )
-            .getValue();
+        return param0.update("tag", param3 -> param3.update("BlockEntityTag", param2x -> {
+                String var0x = param0.get("id").asString().result().map(NamespacedSchema::ensureNamespaced).orElse("minecraft:air");
+                if (!"minecraft:air".equals(var0x)) {
+                    String var1x = param1.get(var0x);
+                    if (var1x != null) {
+                        return param2x.set("id", param0.createString(var1x));
+                    }
+
+                    LOGGER.warn("Unable to resolve BlockEntity for ItemStack: {}", var0x);
+                }
+
+                return param2x;
+            }).update("EntityTag", param2x -> {
+                String var0x = param0.get("id").asString("");
+                return "minecraft:armor_stand".equals(NamespacedSchema.ensureNamespaced(var0x)) ? param2x.set("id", param0.createString(param2)) : param2x;
+            })).getValue();
     }
 }

@@ -27,6 +27,7 @@ public class V704 extends Schema {
         param0.put("minecraft:dropper", "minecraft:dropper");
         param0.put("minecraft:sign", "minecraft:sign");
         param0.put("minecraft:mob_spawner", "minecraft:mob_spawner");
+        param0.put("minecraft:spawner", "minecraft:mob_spawner");
         param0.put("minecraft:noteblock", "minecraft:noteblock");
         param0.put("minecraft:brewing_stand", "minecraft:brewing_stand");
         param0.put("minecraft:enhanting_table", "minecraft:enchanting_table");

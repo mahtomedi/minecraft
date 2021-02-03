@@ -10,7 +10,9 @@ import net.minecraft.core.SectionPos;
 import net.minecraft.resources.RegistryLookupCodec;
 import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.util.Mth;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.NoiseColumn;
 import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.biome.Biome;
@@ -69,17 +71,16 @@ public class DebugLevelSource extends ChunkGenerator {
     @Override
     public void applyBiomeDecoration(WorldGenRegion param0, StructureFeatureManager param1) {
         BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos();
-        int var1 = param0.getCenterX();
-        int var2 = param0.getCenterZ();
+        ChunkPos var1 = param0.getCenter();
 
-        for(int var3 = 0; var3 < 16; ++var3) {
-            for(int var4 = 0; var4 < 16; ++var4) {
-                int var5 = SectionPos.sectionToBlockCoord(var1, var3);
-                int var6 = SectionPos.sectionToBlockCoord(var2, var4);
-                param0.setBlock(var0.set(var5, 60, var6), BARRIER, 2);
-                BlockState var7 = getBlockStateFor(var5, var6);
-                if (var7 != null) {
-                    param0.setBlock(var0.set(var5, 70, var6), var7, 2);
+        for(int var2 = 0; var2 < 16; ++var2) {
+            for(int var3 = 0; var3 < 16; ++var3) {
+                int var4 = SectionPos.sectionToBlockCoord(var1.x, var2);
+                int var5 = SectionPos.sectionToBlockCoord(var1.z, var3);
+                param0.setBlock(var0.set(var4, 60, var5), BARRIER, 2);
+                BlockState var6 = getBlockStateFor(var4, var5);
+                if (var6 != null) {
+                    param0.setBlock(var0.set(var4, 70, var5), var6, 2);
                 }
             }
         }
@@ -91,12 +92,12 @@ public class DebugLevelSource extends ChunkGenerator {
     }
 
     @Override
-    public int getBaseHeight(int param0, int param1, Heightmap.Types param2) {
+    public int getBaseHeight(int param0, int param1, Heightmap.Types param2, LevelHeightAccessor param3) {
         return 0;
     }
 
     @Override
-    public NoiseColumn getBaseColumn(int param0, int param1) {
+    public NoiseColumn getBaseColumn(int param0, int param1, LevelHeightAccessor param2) {
         return new NoiseColumn(0, new BlockState[0]);
     }
 

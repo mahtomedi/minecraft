@@ -19,6 +19,7 @@ import net.minecraft.world.entity.animal.TropicalFish;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -34,9 +35,10 @@ public class MobBucketItem extends BucketItem {
     }
 
     @Override
-    public void checkExtraContent(Level param0, ItemStack param1, BlockPos param2) {
-        if (param0 instanceof ServerLevel) {
-            this.spawn((ServerLevel)param0, param1, param2);
+    public void checkExtraContent(@Nullable Player param0, Level param1, ItemStack param2, BlockPos param3) {
+        if (param1 instanceof ServerLevel) {
+            this.spawn((ServerLevel)param1, param2, param3);
+            param1.gameEvent(param0, GameEvent.ENTITY_PLACE, param3);
         }
 
     }

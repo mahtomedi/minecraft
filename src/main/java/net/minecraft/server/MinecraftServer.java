@@ -127,6 +127,7 @@ import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.PatrolSpawner;
 import net.minecraft.world.level.levelgen.PhantomSpawner;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
@@ -355,7 +356,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         var14.applySettings(var0.getWorldBorder());
         if (!var0.isInitialized()) {
             try {
-                setInitialSpawn(var12, var0, var1.generateBonusChest(), var2, true);
+                setInitialSpawn(var12, var0, var1.generateBonusChest(), var2);
                 var0.setInitialized(true);
                 if (var2) {
                     this.setupDebugLevel(this.worldData);
@@ -396,13 +397,11 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
 
     }
 
-    private static void setInitialSpawn(ServerLevel param0, ServerLevelData param1, boolean param2, boolean param3, boolean param4) {
-        ChunkGenerator var0 = param0.getChunkSource().getGenerator();
-        if (!param4) {
-            param1.setSpawn(BlockPos.ZERO.above(var0.getSpawnHeight()), 0.0F);
-        } else if (param3) {
-            param1.setSpawn(BlockPos.ZERO.above(), 0.0F);
+    private static void setInitialSpawn(ServerLevel param0, ServerLevelData param1, boolean param2, boolean param3) {
+        if (param3) {
+            param1.setSpawn(BlockPos.ZERO.above(80), 0.0F);
         } else {
+            ChunkGenerator var0 = param0.getChunkSource().getGenerator();
             BiomeSource var1 = var0.getBiomeSource();
             Random var2 = new Random(param0.getSeed());
             BlockPos var3 = var1.findBiomeHorizontal(0, param0.getSeaLevel(), 0, 256, param0x -> param0x.getMobSettings().playerSpawnFriendly(), var2);
@@ -420,35 +419,41 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
                 }
             }
 
-            param1.setSpawn(var4.getWorldPosition().offset(8, var0.getSpawnHeight(), 8), 0.0F);
-            int var7 = 0;
-            int var8 = 0;
-            int var9 = 0;
-            int var10 = -1;
-            int var11 = 32;
+            int var7 = var0.getSpawnHeight();
+            if (var7 < param0.getMinBuildHeight()) {
+                BlockPos var8 = var4.getWorldPosition();
+                var7 = param0.getHeight(Heightmap.Types.WORLD_SURFACE, var8.getX() + 8, var8.getZ() + 8);
+            }
 
-            for(int var12 = 0; var12 < 1024; ++var12) {
-                if (var7 > -16 && var7 <= 16 && var8 > -16 && var8 <= 16) {
-                    BlockPos var13 = PlayerRespawnLogic.getSpawnPosInChunk(param0, new ChunkPos(var4.x + var7, var4.z + var8), var5);
-                    if (var13 != null) {
-                        param1.setSpawn(var13, 0.0F);
+            param1.setSpawn(var4.getWorldPosition().offset(8, var7, 8), 0.0F);
+            int var9 = 0;
+            int var10 = 0;
+            int var11 = 0;
+            int var12 = -1;
+            int var13 = 32;
+
+            for(int var14 = 0; var14 < 1024; ++var14) {
+                if (var9 > -16 && var9 <= 16 && var10 > -16 && var10 <= 16) {
+                    BlockPos var15 = PlayerRespawnLogic.getSpawnPosInChunk(param0, new ChunkPos(var4.x + var9, var4.z + var10), var5);
+                    if (var15 != null) {
+                        param1.setSpawn(var15, 0.0F);
                         break;
                     }
                 }
 
-                if (var7 == var8 || var7 < 0 && var7 == -var8 || var7 > 0 && var7 == 1 - var8) {
-                    int var14 = var9;
-                    var9 = -var10;
-                    var10 = var14;
+                if (var9 == var10 || var9 < 0 && var9 == -var10 || var9 > 0 && var9 == 1 - var10) {
+                    int var16 = var11;
+                    var11 = -var12;
+                    var12 = var16;
                 }
 
-                var7 += var9;
-                var8 += var10;
+                var9 += var11;
+                var10 += var12;
             }
 
             if (param2) {
-                ConfiguredFeature<?, ?> var15 = Features.BONUS_CHEST;
-                var15.place(param0, var0, param0.random, new BlockPos(param1.getXSpawn(), param1.getYSpawn(), param1.getZSpawn()));
+                ConfiguredFeature<?, ?> var17 = Features.BONUS_CHEST;
+                var17.place(param0, var0, param0.random, new BlockPos(param1.getXSpawn(), param1.getYSpawn(), param1.getZSpawn()));
             }
 
         }

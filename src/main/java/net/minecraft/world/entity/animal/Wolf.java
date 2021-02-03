@@ -342,6 +342,7 @@ public class Wolf extends TamableAnimal implements NeutralMob {
                     }
 
                     this.heal((float)var1.getFoodProperties().getNutrition());
+                    this.gameEvent(GameEvent.MOB_INTERACT, this.eyeBlockPosition());
                     return InteractionResult.SUCCESS;
                 }
 

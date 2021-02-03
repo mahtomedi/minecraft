@@ -8,6 +8,7 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.SectionPos;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -33,7 +34,8 @@ public class MineshaftFeature extends StructureFeature<MineshaftConfiguration> {
         int param5,
         Biome param6,
         ChunkPos param7,
-        MineshaftConfiguration param8
+        MineshaftConfiguration param8,
+        LevelHeightAccessor param9
     ) {
         param3.setLargeFeatureSeed(param2, param4, param5);
         double var0 = (double)param8.probability;
@@ -51,7 +53,14 @@ public class MineshaftFeature extends StructureFeature<MineshaftConfiguration> {
         }
 
         public void generatePieces(
-            RegistryAccess param0, ChunkGenerator param1, StructureManager param2, int param3, int param4, Biome param5, MineshaftConfiguration param6
+            RegistryAccess param0,
+            ChunkGenerator param1,
+            StructureManager param2,
+            int param3,
+            int param4,
+            Biome param5,
+            MineshaftConfiguration param6,
+            LevelHeightAccessor param7
         ) {
             MineShaftPieces.MineShaftRoom var0 = new MineShaftPieces.MineShaftRoom(
                 0, this.random, SectionPos.sectionToBlockCoord(param3, 2), SectionPos.sectionToBlockCoord(param4, 2), param6.type

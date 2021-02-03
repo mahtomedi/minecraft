@@ -14,7 +14,6 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.Column;
 import net.minecraft.world.level.levelgen.feature.configurations.DripstoneClusterConfiguration;
 
@@ -23,21 +22,26 @@ public class DripstoneClusterFeature extends Feature<DripstoneClusterConfigurati
         super(param0);
     }
 
-    public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, DripstoneClusterConfiguration param4) {
-        if (!DripstoneUtils.isEmptyOrWater(param0, param3)) {
+    @Override
+    public boolean place(FeaturePlaceContext<DripstoneClusterConfiguration> param0) {
+        WorldGenLevel var0 = param0.level();
+        BlockPos var1 = param0.origin();
+        DripstoneClusterConfiguration var2 = param0.config();
+        Random var3 = param0.random();
+        if (!DripstoneUtils.isEmptyOrWater(var0, var1)) {
             return false;
         } else {
-            int var0 = param4.height.sample(param2);
-            float var1 = randomBetweenBiased(param2, param4.wetness.getBaseValue(), param4.wetness.getMaxValue(), param4.wetnessMean, param4.wetnessDeviation);
-            float var2 = param4.density.sample(param2);
-            int var3 = param4.radius.sample(param2);
-            int var4 = param4.radius.sample(param2);
+            int var4 = var2.height.sample(var3);
+            float var5 = randomBetweenBiased(var3, var2.wetness.getBaseValue(), var2.wetness.getMaxValue(), var2.wetnessMean, var2.wetnessDeviation);
+            float var6 = var2.density.sample(var3);
+            int var7 = var2.radius.sample(var3);
+            int var8 = var2.radius.sample(var3);
 
-            for(int var5 = -var3; var5 <= var3; ++var5) {
-                for(int var6 = -var4; var6 <= var4; ++var6) {
-                    double var7 = this.getChanceOfStalagmiteOrStalactite(var3, var4, var5, var6, param4);
-                    BlockPos var8 = param3.offset(var5, 0, var6);
-                    this.placeColumn(param0, param2, var8, var5, var6, var1, var7, var0, var2, param4);
+            for(int var9 = -var7; var9 <= var7; ++var9) {
+                for(int var10 = -var8; var10 <= var8; ++var10) {
+                    double var11 = this.getChanceOfStalagmiteOrStalactite(var7, var8, var9, var10, var2);
+                    BlockPos var12 = var1.offset(var9, 0, var10);
+                    this.placeColumn(var0, var3, var12, var9, var10, var5, var11, var4, var6, var2);
                 }
             }
 
@@ -187,7 +191,7 @@ public class DripstoneClusterFeature extends Feature<DripstoneClusterConfigurati
         return Mth.clampedMap(
             (double)var2,
             0.0,
-            (double)param4.maxDistanceFromCenterAffectingChanceOfDripstoneColumn,
+            (double)param4.maxDistanceFromEdgeAffectingChanceOfDripstoneColumn,
             (double)param4.chanceOfDripstoneColumnAtMaxDistanceFromCenter,
             1.0
         );

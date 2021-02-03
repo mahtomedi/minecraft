@@ -23,6 +23,7 @@ public abstract class Projectile extends Entity {
     private UUID ownerUUID;
     private int ownerNetworkId;
     private boolean leftOwner;
+    private boolean hasBeenShot;
 
     Projectile(EntityType<? extends Projectile> param0, Level param1) {
         super(param0, param1);
@@ -55,6 +56,7 @@ public abstract class Projectile extends Entity {
             param0.putBoolean("LeftOwner", true);
         }
 
+        param0.putBoolean("HasBeenShot", this.hasBeenShot);
     }
 
     @Override
@@ -64,10 +66,16 @@ public abstract class Projectile extends Entity {
         }
 
         this.leftOwner = param0.getBoolean("LeftOwner");
+        this.hasBeenShot = param0.getBoolean("HasBeenShot");
     }
 
     @Override
     public void tick() {
+        if (!this.hasBeenShot) {
+            this.gameEvent(GameEvent.PROJECTILE_SHOOT, this.getOwner(), this.blockPosition());
+            this.hasBeenShot = true;
+        }
+
         if (!this.leftOwner) {
             this.leftOwner = this.checkLeftOwner();
         }
@@ -106,7 +114,6 @@ public abstract class Projectile extends Entity {
         this.xRot = (float)(Mth.atan2(var0.y, (double)var1) * 180.0F / (float)Math.PI);
         this.yRotO = this.yRot;
         this.xRotO = this.xRot;
-        this.gameEvent(this.getOwner(), GameEvent.PROJECTILE_SHOOT);
     }
 
     public void shootFromRotation(Entity param0, float param1, float param2, float param3, float param4, float param5) {
@@ -127,7 +134,7 @@ public abstract class Projectile extends Entity {
         }
 
         if (var0 != HitResult.Type.MISS) {
-            this.gameEvent(this.getOwner(), GameEvent.PROJECTILE_LAND);
+            this.gameEvent(GameEvent.PROJECTILE_LAND, this.getOwner());
         }
 
     }

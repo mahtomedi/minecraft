@@ -684,7 +684,7 @@ public class Turtle extends Animal {
                     int var2 = Mth.floor(var1.x);
                     int var3 = Mth.floor(var1.z);
                     int var4 = 34;
-                    if (!this.turtle.level.hasChunksAt(var2 - 34, 0, var3 - 34, var2 + 34, 0, var3 + 34)) {
+                    if (!this.turtle.level.hasChunksAt(var2 - 34, var3 - 34, var2 + 34, var3 + 34)) {
                         var1 = null;
                     }
                 }

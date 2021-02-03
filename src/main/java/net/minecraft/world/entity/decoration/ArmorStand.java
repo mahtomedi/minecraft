@@ -140,13 +140,11 @@ public class ArmorStand extends LivingEntity {
     public void setItemSlot(EquipmentSlot param0, ItemStack param1) {
         switch(param0.getType()) {
             case HAND:
-                this.playEquipSound(param1);
-                this.gameEvent(null, GameEvent.ARMOR_STAND_ADD_ITEM);
+                this.equipEventAndSound(param1);
                 this.handItems.set(param0.getIndex(), param1);
                 break;
             case ARMOR:
-                this.playEquipSound(param1);
-                this.gameEvent(null, GameEvent.ARMOR_STAND_ADD_ITEM);
+                this.equipEventAndSound(param1);
                 this.armorItems.set(param0.getIndex(), param1);
         }
 
@@ -412,7 +410,6 @@ public class ArmorStand extends LivingEntity {
                 return false;
             } else if (param0.isCreativePlayer()) {
                 this.playBrokenSound();
-                this.gameEvent(param0.getEntity(), GameEvent.ENTITY_HIT);
                 this.showBreakingParticles();
                 this.kill();
                 return var1;
@@ -420,7 +417,7 @@ public class ArmorStand extends LivingEntity {
                 long var3 = this.level.getGameTime();
                 if (var3 - this.lastHit > 5L && !var0) {
                     this.level.broadcastEntityEvent(this, (byte)32);
-                    this.gameEvent(param0.getEntity(), GameEvent.ENTITY_HIT);
+                    this.gameEvent(GameEvent.ENTITY_DAMAGED, param0.getEntity());
                     this.lastHit = var3;
                 } else {
                     this.brokenByPlayer(param0);
@@ -485,6 +482,7 @@ public class ArmorStand extends LivingEntity {
             this.kill();
         } else {
             this.setHealth(var0);
+            this.gameEvent(GameEvent.ENTITY_DAMAGED, param0.getEntity());
         }
 
     }
@@ -496,7 +494,6 @@ public class ArmorStand extends LivingEntity {
 
     private void brokenByAnything(DamageSource param0) {
         this.playBrokenSound();
-        this.gameEvent(param0.getEntity(), GameEvent.BLOCK_DESTROY);
         this.dropAllDeathLoot(param0);
 
         for(int var0 = 0; var0 < this.handItems.size(); ++var0) {

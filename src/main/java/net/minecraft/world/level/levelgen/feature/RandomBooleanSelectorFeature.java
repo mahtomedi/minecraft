@@ -12,8 +12,14 @@ public class RandomBooleanSelectorFeature extends Feature<RandomBooleanFeatureCo
         super(param0);
     }
 
-    public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, RandomBooleanFeatureConfiguration param4) {
-        boolean var0 = param2.nextBoolean();
-        return var0 ? param4.featureTrue.get().place(param0, param1, param2, param3) : param4.featureFalse.get().place(param0, param1, param2, param3);
+    @Override
+    public boolean place(FeaturePlaceContext<RandomBooleanFeatureConfiguration> param0) {
+        Random var0 = param0.random();
+        RandomBooleanFeatureConfiguration var1 = param0.config();
+        WorldGenLevel var2 = param0.level();
+        ChunkGenerator var3 = param0.chunkGenerator();
+        BlockPos var4 = param0.origin();
+        boolean var5 = var0.nextBoolean();
+        return var5 ? var1.featureTrue.get().place(var2, var3, var0, var4) : var1.featureFalse.get().place(var2, var3, var0, var4);
     }
 }

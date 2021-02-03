@@ -5,6 +5,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.SectionPos;
 import net.minecraft.data.worldgen.Pools;
+import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.configurations.JigsawConfiguration;
@@ -40,7 +41,14 @@ public class JigsawFeature extends StructureFeature<JigsawConfiguration> {
         }
 
         public void generatePieces(
-            RegistryAccess param0, ChunkGenerator param1, StructureManager param2, int param3, int param4, Biome param5, JigsawConfiguration param6
+            RegistryAccess param0,
+            ChunkGenerator param1,
+            StructureManager param2,
+            int param3,
+            int param4,
+            Biome param5,
+            JigsawConfiguration param6,
+            LevelHeightAccessor param7
         ) {
             BlockPos var0 = new BlockPos(SectionPos.sectionToBlockCoord(param3), this.feature.startY, SectionPos.sectionToBlockCoord(param4));
             Pools.bootstrap();
@@ -54,7 +62,8 @@ public class JigsawFeature extends StructureFeature<JigsawConfiguration> {
                 this.pieces,
                 this.random,
                 this.feature.doExpansionHack,
-                this.feature.projectStartToHeightmap
+                this.feature.projectStartToHeightmap,
+                param7
             );
             this.calculateBoundingBox();
         }

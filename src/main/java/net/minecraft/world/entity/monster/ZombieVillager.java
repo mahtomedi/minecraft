@@ -43,6 +43,7 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.BedBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -144,6 +145,7 @@ public class ZombieVillager extends Zombie implements VillagerDataHolder {
                     this.startConverting(param0.getUUID(), this.random.nextInt(2401) + 3600);
                 }
 
+                this.gameEvent(GameEvent.MOB_INTERACT, this.eyeBlockPosition());
                 return InteractionResult.SUCCESS;
             } else {
                 return InteractionResult.CONSUME;

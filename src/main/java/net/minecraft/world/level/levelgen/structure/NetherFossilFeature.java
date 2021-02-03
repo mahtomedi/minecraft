@@ -6,6 +6,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.EmptyBlockGetter;
+import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.NoiseColumn;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Blocks;
@@ -31,14 +32,21 @@ public class NetherFossilFeature extends StructureFeature<NoneFeatureConfigurati
         }
 
         public void generatePieces(
-            RegistryAccess param0, ChunkGenerator param1, StructureManager param2, int param3, int param4, Biome param5, NoneFeatureConfiguration param6
+            RegistryAccess param0,
+            ChunkGenerator param1,
+            StructureManager param2,
+            int param3,
+            int param4,
+            Biome param5,
+            NoneFeatureConfiguration param6,
+            LevelHeightAccessor param7
         ) {
             ChunkPos var0 = new ChunkPos(param3, param4);
             int var1 = var0.getMinBlockX() + this.random.nextInt(16);
             int var2 = var0.getMinBlockZ() + this.random.nextInt(16);
             int var3 = param1.getSeaLevel();
             int var4 = var3 + this.random.nextInt(param1.getGenDepth() - 2 - var3);
-            NoiseColumn var5 = param1.getBaseColumn(var1, var2);
+            NoiseColumn var5 = param1.getBaseColumn(var1, var2, param7);
 
             for(BlockPos.MutableBlockPos var6 = new BlockPos.MutableBlockPos(var1, var4, var2); var4 > var3; --var4) {
                 BlockState var7 = var5.getBlockState(var6);

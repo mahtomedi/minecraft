@@ -8,7 +8,6 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.configurations.BlockPileConfiguration;
 
 public class BlockPileFeature extends Feature<BlockPileConfiguration> {
@@ -16,20 +15,25 @@ public class BlockPileFeature extends Feature<BlockPileConfiguration> {
         super(param0);
     }
 
-    public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, BlockPileConfiguration param4) {
-        if (param3.getY() < param0.getMinBuildHeight() + 5) {
+    @Override
+    public boolean place(FeaturePlaceContext<BlockPileConfiguration> param0) {
+        BlockPos var0 = param0.origin();
+        WorldGenLevel var1 = param0.level();
+        Random var2 = param0.random();
+        BlockPileConfiguration var3 = param0.config();
+        if (var0.getY() < var1.getMinBuildHeight() + 5) {
             return false;
         } else {
-            int var0 = 2 + param2.nextInt(2);
-            int var1 = 2 + param2.nextInt(2);
+            int var4 = 2 + var2.nextInt(2);
+            int var5 = 2 + var2.nextInt(2);
 
-            for(BlockPos var2 : BlockPos.betweenClosed(param3.offset(-var0, 0, -var1), param3.offset(var0, 1, var1))) {
-                int var3 = param3.getX() - var2.getX();
-                int var4 = param3.getZ() - var2.getZ();
-                if ((float)(var3 * var3 + var4 * var4) <= param2.nextFloat() * 10.0F - param2.nextFloat() * 6.0F) {
-                    this.tryPlaceBlock(param0, var2, param2, param4);
-                } else if ((double)param2.nextFloat() < 0.031) {
-                    this.tryPlaceBlock(param0, var2, param2, param4);
+            for(BlockPos var6 : BlockPos.betweenClosed(var0.offset(-var4, 0, -var5), var0.offset(var4, 1, var5))) {
+                int var7 = var0.getX() - var6.getX();
+                int var8 = var0.getZ() - var6.getZ();
+                if ((float)(var7 * var7 + var8 * var8) <= var2.nextFloat() * 10.0F - var2.nextFloat() * 6.0F) {
+                    this.tryPlaceBlock(var1, var6, var2, var3);
+                } else if ((double)var2.nextFloat() < 0.031) {
+                    this.tryPlaceBlock(var1, var6, var2, var3);
                 }
             }
 

@@ -7,6 +7,7 @@ import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.game.ClientboundAddMobPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -45,6 +46,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
@@ -81,8 +83,8 @@ public class Shulker extends AbstractGolem implements Enemy {
     }
 
     @Override
-    protected boolean isMovementNoisy() {
-        return false;
+    protected Entity.MovementEmission getMovementEmission() {
+        return Entity.MovementEmission.NONE;
     }
 
     @Override
@@ -218,7 +220,7 @@ public class Shulker extends AbstractGolem implements Enemy {
             for(Entity var5 : this.level
                 .getEntities(
                     this,
-                    getProgressDeltaAabb(var2, var1, var0).move(this.getX(), this.getY(), this.getZ()),
+                    getProgressDeltaAabb(var2, var1, var0).move(this.getX() - 0.5, this.getY(), this.getZ() - 0.5),
                     EntitySelector.NO_SPECTATORS.and(param0 -> !param0.isPassengerOfSameVehicle(this))
                 )) {
                 if (!(var5 instanceof Shulker) && !var5.noPhysics) {
@@ -470,8 +472,10 @@ public class Shulker extends AbstractGolem implements Enemy {
             if (param0 == 0) {
                 this.getAttribute(Attributes.ARMOR).addPermanentModifier(COVERED_ARMOR_MODIFIER);
                 this.playSound(SoundEvents.SHULKER_CLOSE, 1.0F, 1.0F);
+                this.gameEvent(GameEvent.SHULKER_CLOSE);
             } else {
                 this.playSound(SoundEvents.SHULKER_OPEN, 1.0F, 1.0F);
+                this.gameEvent(GameEvent.SHULKER_OPEN);
             }
         }
 
@@ -486,6 +490,13 @@ public class Shulker extends AbstractGolem implements Enemy {
     @Override
     protected float getStandingEyeHeight(Pose param0, EntityDimensions param1) {
         return 0.5F;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public void recreateFromPacket(ClientboundAddMobPacket param0) {
+        super.recreateFromPacket(param0);
+        this.yBodyRot = 0.0F;
     }
 
     @Override

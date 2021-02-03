@@ -13,6 +13,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.data.worldgen.Pools;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.block.JigsawBlock;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -44,7 +45,8 @@ public class JigsawPlacement {
         List<? super PoolElementStructurePiece> param6,
         Random param7,
         boolean param8,
-        boolean param9
+        boolean param9,
+        LevelHeightAccessor param10
     ) {
         StructureFeature.bootstrap();
         Registry<StructureTemplatePool> var0 = param0.registryOrThrow(Registry.TEMPLATE_POOL_REGISTRY);
@@ -57,7 +59,7 @@ public class JigsawPlacement {
         int var7 = (var5.z1 + var5.z0) / 2;
         int var8;
         if (param9) {
-            var8 = param5.getY() + param3.getFirstFreeHeight(var6, var7, Heightmap.Types.WORLD_SURFACE_WG);
+            var8 = param5.getY() + param3.getFirstFreeHeight(var6, var7, Heightmap.Types.WORLD_SURFACE_WG, param10);
         } else {
             var8 = param5.getY();
         }
@@ -80,7 +82,7 @@ public class JigsawPlacement {
 
             while(!var13.placing.isEmpty()) {
                 JigsawPlacement.PieceState var14 = var13.placing.removeFirst();
-                var13.tryPlacingChildren(var14.piece, var14.free, var14.boundsTop, var14.depth, param8);
+                var13.tryPlacingChildren(var14.piece, var14.free, var14.boundsTop, var14.depth, param8, param10);
             }
 
         }
@@ -94,7 +96,8 @@ public class JigsawPlacement {
         ChunkGenerator param4,
         StructureManager param5,
         List<? super PoolElementStructurePiece> param6,
-        Random param7
+        Random param7,
+        LevelHeightAccessor param8
     ) {
         Registry<StructureTemplatePool> var0 = param0.registryOrThrow(Registry.TEMPLATE_POOL_REGISTRY);
         JigsawPlacement.Placer var1 = new JigsawPlacement.Placer(var0, param2, param3, param4, param5, param6, param7);
@@ -102,7 +105,7 @@ public class JigsawPlacement {
 
         while(!var1.placing.isEmpty()) {
             JigsawPlacement.PieceState var2 = var1.placing.removeFirst();
-            var1.tryPlacingChildren(var2.piece, var2.free, var2.boundsTop, var2.depth, false);
+            var1.tryPlacingChildren(var2.piece, var2.free, var2.boundsTop, var2.depth, false, param8);
         }
 
     }
@@ -153,7 +156,9 @@ public class JigsawPlacement {
             this.random = param6;
         }
 
-        private void tryPlacingChildren(PoolElementStructurePiece param0, MutableObject<VoxelShape> param1, int param2, int param3, boolean param4) {
+        private void tryPlacingChildren(
+            PoolElementStructurePiece param0, MutableObject<VoxelShape> param1, int param2, int param3, boolean param4, LevelHeightAccessor param5
+        ) {
             StructurePoolElement var0 = param0.getElement();
             BlockPos var1 = param0.getPosition();
             Rotation var2 = param0.getRotation();
@@ -240,7 +245,8 @@ public class JigsawPlacement {
                                             var39 = var7 + var38;
                                         } else {
                                             if (var13 == -1) {
-                                                var13 = this.chunkGenerator.getFirstFreeHeight(var10.getX(), var10.getZ(), Heightmap.Types.WORLD_SURFACE_WG);
+                                                var13 = this.chunkGenerator
+                                                    .getFirstFreeHeight(var10.getX(), var10.getZ(), Heightmap.Types.WORLD_SURFACE_WG, param5);
                                             }
 
                                             var39 = var13 - var37;
@@ -273,7 +279,7 @@ public class JigsawPlacement {
                                             } else {
                                                 if (var13 == -1) {
                                                     var13 = this.chunkGenerator
-                                                        .getFirstFreeHeight(var10.getX(), var10.getZ(), Heightmap.Types.WORLD_SURFACE_WG);
+                                                        .getFirstFreeHeight(var10.getX(), var10.getZ(), Heightmap.Types.WORLD_SURFACE_WG, param5);
                                                 }
 
                                                 var49 = var13 + var38 / 2;

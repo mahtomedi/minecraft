@@ -7,7 +7,6 @@ import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.KelpBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 
@@ -16,33 +15,37 @@ public class KelpFeature extends Feature<NoneFeatureConfiguration> {
         super(param0);
     }
 
-    public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, NoneFeatureConfiguration param4) {
+    @Override
+    public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> param0) {
         int var0 = 0;
-        int var1 = param0.getHeight(Heightmap.Types.OCEAN_FLOOR, param3.getX(), param3.getZ());
-        BlockPos var2 = new BlockPos(param3.getX(), var1, param3.getZ());
-        if (param0.getBlockState(var2).is(Blocks.WATER)) {
-            BlockState var3 = Blocks.KELP.defaultBlockState();
-            BlockState var4 = Blocks.KELP_PLANT.defaultBlockState();
-            int var5 = 1 + param2.nextInt(10);
+        WorldGenLevel var1 = param0.level();
+        BlockPos var2 = param0.origin();
+        Random var3 = param0.random();
+        int var4 = var1.getHeight(Heightmap.Types.OCEAN_FLOOR, var2.getX(), var2.getZ());
+        BlockPos var5 = new BlockPos(var2.getX(), var4, var2.getZ());
+        if (var1.getBlockState(var5).is(Blocks.WATER)) {
+            BlockState var6 = Blocks.KELP.defaultBlockState();
+            BlockState var7 = Blocks.KELP_PLANT.defaultBlockState();
+            int var8 = 1 + var3.nextInt(10);
 
-            for(int var6 = 0; var6 <= var5; ++var6) {
-                if (param0.getBlockState(var2).is(Blocks.WATER) && param0.getBlockState(var2.above()).is(Blocks.WATER) && var4.canSurvive(param0, var2)) {
-                    if (var6 == var5) {
-                        param0.setBlock(var2, var3.setValue(KelpBlock.AGE, Integer.valueOf(param2.nextInt(4) + 20)), 2);
+            for(int var9 = 0; var9 <= var8; ++var9) {
+                if (var1.getBlockState(var5).is(Blocks.WATER) && var1.getBlockState(var5.above()).is(Blocks.WATER) && var7.canSurvive(var1, var5)) {
+                    if (var9 == var8) {
+                        var1.setBlock(var5, var6.setValue(KelpBlock.AGE, Integer.valueOf(var3.nextInt(4) + 20)), 2);
                         ++var0;
                     } else {
-                        param0.setBlock(var2, var4, 2);
+                        var1.setBlock(var5, var7, 2);
                     }
-                } else if (var6 > 0) {
-                    BlockPos var7 = var2.below();
-                    if (var3.canSurvive(param0, var7) && !param0.getBlockState(var7.below()).is(Blocks.KELP)) {
-                        param0.setBlock(var7, var3.setValue(KelpBlock.AGE, Integer.valueOf(param2.nextInt(4) + 20)), 2);
+                } else if (var9 > 0) {
+                    BlockPos var10 = var5.below();
+                    if (var6.canSurvive(var1, var10) && !var1.getBlockState(var10.below()).is(Blocks.KELP)) {
+                        var1.setBlock(var10, var6.setValue(KelpBlock.AGE, Integer.valueOf(var3.nextInt(4) + 20)), 2);
                         ++var0;
                     }
                     break;
                 }
 
-                var2 = var2.above();
+                var5 = var5.above();
             }
         }
 

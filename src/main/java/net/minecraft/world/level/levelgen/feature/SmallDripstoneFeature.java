@@ -7,7 +7,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.configurations.SmallDripstoneConfiguration;
 
 public class SmallDripstoneFeature extends Feature<SmallDripstoneConfiguration> {
@@ -15,21 +14,26 @@ public class SmallDripstoneFeature extends Feature<SmallDripstoneConfiguration> 
         super(param0);
     }
 
-    public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, SmallDripstoneConfiguration param4) {
-        if (!DripstoneUtils.isEmptyOrWater(param0, param3)) {
+    @Override
+    public boolean place(FeaturePlaceContext<SmallDripstoneConfiguration> param0) {
+        WorldGenLevel var0 = param0.level();
+        BlockPos var1 = param0.origin();
+        Random var2 = param0.random();
+        SmallDripstoneConfiguration var3 = param0.config();
+        if (!DripstoneUtils.isEmptyOrWater(var0, var1)) {
             return false;
         } else {
-            int var0 = Mth.randomBetweenInclusive(param2, 1, param4.maxPlacements);
-            boolean var1 = false;
+            int var4 = Mth.randomBetweenInclusive(var2, 1, var3.maxPlacements);
+            boolean var5 = false;
 
-            for(int var2 = 0; var2 < var0; ++var2) {
-                BlockPos var3 = randomOffset(param2, param3, param4);
-                if (searchAndTryToPlaceDripstone(param0, param2, var3, param4)) {
-                    var1 = true;
+            for(int var6 = 0; var6 < var4; ++var6) {
+                BlockPos var7 = randomOffset(var2, var1, var3);
+                if (searchAndTryToPlaceDripstone(var0, var2, var7, var3)) {
+                    var5 = true;
                 }
             }
 
-            return var1;
+            return var5;
         }
     }
 

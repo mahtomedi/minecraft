@@ -7,7 +7,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 import net.minecraft.world.level.material.Material;
 
@@ -16,41 +15,45 @@ public class BlueIceFeature extends Feature<NoneFeatureConfiguration> {
         super(param0);
     }
 
-    public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, NoneFeatureConfiguration param4) {
-        if (param3.getY() > param0.getSeaLevel() - 1) {
+    @Override
+    public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> param0) {
+        BlockPos var0 = param0.origin();
+        WorldGenLevel var1 = param0.level();
+        Random var2 = param0.random();
+        if (var0.getY() > var1.getSeaLevel() - 1) {
             return false;
-        } else if (!param0.getBlockState(param3).is(Blocks.WATER) && !param0.getBlockState(param3.below()).is(Blocks.WATER)) {
+        } else if (!var1.getBlockState(var0).is(Blocks.WATER) && !var1.getBlockState(var0.below()).is(Blocks.WATER)) {
             return false;
         } else {
-            boolean var0 = false;
+            boolean var3 = false;
 
-            for(Direction var1 : Direction.values()) {
-                if (var1 != Direction.DOWN && param0.getBlockState(param3.relative(var1)).is(Blocks.PACKED_ICE)) {
-                    var0 = true;
+            for(Direction var4 : Direction.values()) {
+                if (var4 != Direction.DOWN && var1.getBlockState(var0.relative(var4)).is(Blocks.PACKED_ICE)) {
+                    var3 = true;
                     break;
                 }
             }
 
-            if (!var0) {
+            if (!var3) {
                 return false;
             } else {
-                param0.setBlock(param3, Blocks.BLUE_ICE.defaultBlockState(), 2);
+                var1.setBlock(var0, Blocks.BLUE_ICE.defaultBlockState(), 2);
 
-                for(int var2 = 0; var2 < 200; ++var2) {
-                    int var3 = param2.nextInt(5) - param2.nextInt(6);
-                    int var4 = 3;
-                    if (var3 < 2) {
-                        var4 += var3 / 2;
+                for(int var5 = 0; var5 < 200; ++var5) {
+                    int var6 = var2.nextInt(5) - var2.nextInt(6);
+                    int var7 = 3;
+                    if (var6 < 2) {
+                        var7 += var6 / 2;
                     }
 
-                    if (var4 >= 1) {
-                        BlockPos var5 = param3.offset(param2.nextInt(var4) - param2.nextInt(var4), var3, param2.nextInt(var4) - param2.nextInt(var4));
-                        BlockState var6 = param0.getBlockState(var5);
-                        if (var6.getMaterial() == Material.AIR || var6.is(Blocks.WATER) || var6.is(Blocks.PACKED_ICE) || var6.is(Blocks.ICE)) {
-                            for(Direction var7 : Direction.values()) {
-                                BlockState var8 = param0.getBlockState(var5.relative(var7));
-                                if (var8.is(Blocks.BLUE_ICE)) {
-                                    param0.setBlock(var5, Blocks.BLUE_ICE.defaultBlockState(), 2);
+                    if (var7 >= 1) {
+                        BlockPos var8 = var0.offset(var2.nextInt(var7) - var2.nextInt(var7), var6, var2.nextInt(var7) - var2.nextInt(var7));
+                        BlockState var9 = var1.getBlockState(var8);
+                        if (var9.getMaterial() == Material.AIR || var9.is(Blocks.WATER) || var9.is(Blocks.PACKED_ICE) || var9.is(Blocks.ICE)) {
+                            for(Direction var10 : Direction.values()) {
+                                BlockState var11 = var1.getBlockState(var8.relative(var10));
+                                if (var11.is(Blocks.BLUE_ICE)) {
+                                    var1.setBlock(var8, Blocks.BLUE_ICE.defaultBlockState(), 2);
                                     break;
                                 }
                             }

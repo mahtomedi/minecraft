@@ -7,7 +7,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.VineBlock;
-import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 
 public class VinesFeature extends Feature<NoneFeatureConfiguration> {
@@ -17,17 +16,21 @@ public class VinesFeature extends Feature<NoneFeatureConfiguration> {
         super(param0);
     }
 
-    public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, NoneFeatureConfiguration param4) {
-        BlockPos.MutableBlockPos var0 = param3.mutable();
+    @Override
+    public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> param0) {
+        Random var0 = param0.random();
+        WorldGenLevel var1 = param0.level();
+        BlockPos var2 = param0.origin();
+        BlockPos.MutableBlockPos var3 = var2.mutable();
 
-        for(int var1 = 64; var1 < 256; ++var1) {
-            var0.set(param3);
-            var0.move(param2.nextInt(4) - param2.nextInt(4), 0, param2.nextInt(4) - param2.nextInt(4));
-            var0.setY(var1);
-            if (param0.isEmptyBlock(var0)) {
-                for(Direction var2 : DIRECTIONS) {
-                    if (var2 != Direction.DOWN && VineBlock.isAcceptableNeighbour(param0, var0, var2)) {
-                        param0.setBlock(var0, Blocks.VINE.defaultBlockState().setValue(VineBlock.getPropertyForFace(var2), Boolean.valueOf(true)), 2);
+        for(int var4 = 64; var4 < 256; ++var4) {
+            var3.set(var2);
+            var3.move(var0.nextInt(4) - var0.nextInt(4), 0, var0.nextInt(4) - var0.nextInt(4));
+            var3.setY(var4);
+            if (var1.isEmptyBlock(var3)) {
+                for(Direction var5 : DIRECTIONS) {
+                    if (var5 != Direction.DOWN && VineBlock.isAcceptableNeighbour(var1, var3, var5)) {
+                        var1.setBlock(var3, Blocks.VINE.defaultBlockState().setValue(VineBlock.getPropertyForFace(var5), Boolean.valueOf(true)), 2);
                         break;
                     }
                 }

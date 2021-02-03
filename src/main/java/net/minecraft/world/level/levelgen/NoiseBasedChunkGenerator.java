@@ -2,31 +2,28 @@ package net.minecraft.world.level.levelgen;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectList;
-import it.unimi.dsi.fastutil.objects.ObjectListIterator;
 import java.util.List;
+import java.util.OptionalInt;
 import java.util.Random;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import javax.annotation.Nullable;
-import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.SectionPos;
+import net.minecraft.core.QuartPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.NaturalSpawner;
 import net.minecraft.world.level.NoiseColumn;
 import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.biome.MobSpawnSettings;
-import net.minecraft.world.level.biome.TheEndBiomeSource;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
@@ -34,12 +31,7 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.chunk.ProtoChunk;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
-import net.minecraft.world.level.levelgen.feature.structures.JigsawJunction;
-import net.minecraft.world.level.levelgen.feature.structures.StructureTemplatePool;
-import net.minecraft.world.level.levelgen.structure.BoundingBox;
-import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
-import net.minecraft.world.level.levelgen.structure.StructurePiece;
-import net.minecraft.world.level.levelgen.synth.ImprovedNoise;
+import net.minecraft.world.level.levelgen.synth.BlendedNoise;
 import net.minecraft.world.level.levelgen.synth.PerlinNoise;
 import net.minecraft.world.level.levelgen.synth.PerlinSimplexNoise;
 import net.minecraft.world.level.levelgen.synth.SimplexNoise;
@@ -56,44 +48,21 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
                 )
                 .apply(param0, param0.stable(NoiseBasedChunkGenerator::new))
     );
-    private static final float[] BEARD_KERNEL = Util.make(new float[13824], param0 -> {
-        for(int var0 = 0; var0 < 24; ++var0) {
-            for(int var1 = 0; var1 < 24; ++var1) {
-                for(int var2 = 0; var2 < 24; ++var2) {
-                    param0[var0 * 24 * 24 + var1 * 24 + var2] = (float)computeContribution(var1 - 12, var2 - 12, var0 - 12);
-                }
-            }
-        }
-
-    });
-    private static final float[] BIOME_WEIGHTS = Util.make(new float[25], param0 -> {
-        for(int var0 = -2; var0 <= 2; ++var0) {
-            for(int var1 = -2; var1 <= 2; ++var1) {
-                float var2 = 10.0F / Mth.sqrt((float)(var0 * var0 + var1 * var1) + 0.2F);
-                param0[var0 + 2 + (var1 + 2) * 5] = var2;
-            }
-        }
-
-    });
     private static final BlockState AIR = Blocks.AIR.defaultBlockState();
-    private final int chunkHeight;
-    private final int chunkWidth;
-    private final int chunkCountX;
-    private final int chunkCountY;
-    private final int chunkCountZ;
-    protected final WorldgenRandom random;
-    private final PerlinNoise minLimitPerlinNoise;
-    private final PerlinNoise maxLimitPerlinNoise;
-    private final PerlinNoise mainPerlinNoise;
+    private static final BlockState[] EMPTY_COLUMN = new BlockState[0];
+    private final int cellHeight;
+    private final int cellWidth;
+    private final int cellCountX;
+    private final int cellCountY;
+    private final int cellCountZ;
+    protected final RandomSource random;
     private final SurfaceNoise surfaceNoise;
-    private final PerlinNoise depthNoise;
-    @Nullable
-    private final SimplexNoise islandNoise;
     protected final BlockState defaultBlock;
     protected final BlockState defaultFluid;
     private final long seed;
     protected final Supplier<NoiseGeneratorSettings> settings;
     private final int height;
+    private final NoiseSampler sampler;
 
     public NoiseBasedChunkGenerator(BiomeSource param0, long param1, Supplier<NoiseGeneratorSettings> param2) {
         this(param0, param0, param1, param2);
@@ -106,30 +75,30 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
         this.settings = param3;
         NoiseSettings var1 = var0.noiseSettings();
         this.height = var1.height();
-        this.chunkHeight = var1.noiseSizeVertical() * 4;
-        this.chunkWidth = var1.noiseSizeHorizontal() * 4;
+        this.cellHeight = QuartPos.toBlock(var1.noiseSizeVertical());
+        this.cellWidth = QuartPos.toBlock(var1.noiseSizeHorizontal());
         this.defaultBlock = var0.getDefaultBlock();
         this.defaultFluid = var0.getDefaultFluid();
-        this.chunkCountX = 16 / this.chunkWidth;
-        this.chunkCountY = var1.height() / this.chunkHeight;
-        this.chunkCountZ = 16 / this.chunkWidth;
+        this.cellCountX = 16 / this.cellWidth;
+        this.cellCountY = var1.height() / this.cellHeight;
+        this.cellCountZ = 16 / this.cellWidth;
         this.random = new WorldgenRandom(param2);
-        this.minLimitPerlinNoise = new PerlinNoise(this.random, IntStream.rangeClosed(-15, 0));
-        this.maxLimitPerlinNoise = new PerlinNoise(this.random, IntStream.rangeClosed(-15, 0));
-        this.mainPerlinNoise = new PerlinNoise(this.random, IntStream.rangeClosed(-7, 0));
+        BlendedNoise var2 = new BlendedNoise(this.random);
         this.surfaceNoise = (SurfaceNoise)(var1.useSimplexSurfaceNoise()
             ? new PerlinSimplexNoise(this.random, IntStream.rangeClosed(-3, 0))
             : new PerlinNoise(this.random, IntStream.rangeClosed(-3, 0)));
         this.random.consumeCount(2620);
-        this.depthNoise = new PerlinNoise(this.random, IntStream.rangeClosed(-15, 0));
+        PerlinNoise var3 = new PerlinNoise(this.random, IntStream.rangeClosed(-15, 0));
+        SimplexNoise var5;
         if (var1.islandNoiseOverride()) {
-            WorldgenRandom var2 = new WorldgenRandom(param2);
-            var2.consumeCount(17292);
-            this.islandNoise = new SimplexNoise(var2);
+            WorldgenRandom var4 = new WorldgenRandom(param2);
+            var4.consumeCount(17292);
+            var5 = new SimplexNoise(var4);
         } else {
-            this.islandNoise = null;
+            var5 = null;
         }
 
+        this.sampler = new NoiseSampler(param0, this.cellWidth, this.cellHeight, this.cellCountY, var1, var2, var5, var3);
     }
 
     @Override
@@ -147,186 +116,55 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
         return this.seed == param0 && this.settings.get().stable(param1);
     }
 
-    private double sampleAndClampNoise(int param0, int param1, int param2, double param3, double param4, double param5, double param6) {
-        double var0 = 0.0;
-        double var1 = 0.0;
-        double var2 = 0.0;
-        boolean var3 = true;
-        double var4 = 1.0;
-
-        for(int var5 = 0; var5 < 16; ++var5) {
-            double var6 = PerlinNoise.wrap((double)param0 * param3 * var4);
-            double var7 = PerlinNoise.wrap((double)param1 * param4 * var4);
-            double var8 = PerlinNoise.wrap((double)param2 * param3 * var4);
-            double var9 = param4 * var4;
-            ImprovedNoise var10 = this.minLimitPerlinNoise.getOctaveNoise(var5);
-            if (var10 != null) {
-                var0 += var10.noise(var6, var7, var8, var9, (double)param1 * var9) / var4;
-            }
-
-            ImprovedNoise var11 = this.maxLimitPerlinNoise.getOctaveNoise(var5);
-            if (var11 != null) {
-                var1 += var11.noise(var6, var7, var8, var9, (double)param1 * var9) / var4;
-            }
-
-            if (var5 < 8) {
-                ImprovedNoise var12 = this.mainPerlinNoise.getOctaveNoise(var5);
-                if (var12 != null) {
-                    var2 += var12.noise(
-                            PerlinNoise.wrap((double)param0 * param5 * var4),
-                            PerlinNoise.wrap((double)param1 * param6 * var4),
-                            PerlinNoise.wrap((double)param2 * param5 * var4),
-                            param6 * var4,
-                            (double)param1 * param6 * var4
-                        )
-                        / var4;
-                }
-            }
-
-            var4 /= 2.0;
-        }
-
-        return Mth.clampedLerp(var0 / 512.0, var1 / 512.0, (var2 / 10.0 + 1.0) / 2.0);
-    }
-
-    private double[] makeAndFillNoiseColumn(int param0, int param1) {
-        double[] var0 = new double[this.chunkCountY + 1];
-        this.fillNoiseColumn(var0, param0, param1);
+    private double[] makeAndFillNoiseColumn(int param0, int param1, int param2, int param3) {
+        double[] var0 = new double[param3 + 1];
+        this.sampler.fillNoiseColumn(var0, param0, param1, this.settings.get().noiseSettings(), this.getSeaLevel(), param2, param3);
         return var0;
     }
 
-    private void fillNoiseColumn(double[] param0, int param1, int param2) {
-        NoiseSettings var0 = this.settings.get().noiseSettings();
-        double var1;
-        double var2;
-        if (this.islandNoise != null) {
-            var1 = (double)(TheEndBiomeSource.getHeightValue(this.islandNoise, param1, param2) - 8.0F);
-            if (var1 > 0.0) {
-                var2 = 0.25;
-            } else {
-                var2 = 1.0;
-            }
-        } else {
-            float var4 = 0.0F;
-            float var5 = 0.0F;
-            float var6 = 0.0F;
-            int var7 = 2;
-            int var8 = this.getSeaLevel();
-            float var9 = this.biomeSource.getNoiseBiome(param1, var8, param2).getDepth();
-
-            for(int var10 = -2; var10 <= 2; ++var10) {
-                for(int var11 = -2; var11 <= 2; ++var11) {
-                    Biome var12 = this.biomeSource.getNoiseBiome(param1 + var10, var8, param2 + var11);
-                    float var13 = var12.getDepth();
-                    float var14 = var12.getScale();
-                    float var15;
-                    float var16;
-                    if (var0.isAmplified() && var13 > 0.0F) {
-                        var15 = 1.0F + var13 * 2.0F;
-                        var16 = 1.0F + var14 * 4.0F;
-                    } else {
-                        var15 = var13;
-                        var16 = var14;
-                    }
-
-                    float var19 = var13 > var9 ? 0.5F : 1.0F;
-                    float var20 = var19 * BIOME_WEIGHTS[var10 + 2 + (var11 + 2) * 5] / (var15 + 2.0F);
-                    var4 += var16 * var20;
-                    var5 += var15 * var20;
-                    var6 += var20;
-                }
-            }
-
-            float var21 = var5 / var6;
-            float var22 = var4 / var6;
-            double var23 = (double)(var21 * 0.5F - 0.125F);
-            double var24 = (double)(var22 * 0.9F + 0.1F);
-            var1 = var23 * 0.265625;
-            var2 = 96.0 / var24;
-        }
-
-        double var27 = 684.412 * var0.noiseSamplingSettings().xzScale();
-        double var28 = 684.412 * var0.noiseSamplingSettings().yScale();
-        double var29 = var27 / var0.noiseSamplingSettings().xzFactor();
-        double var30 = var28 / var0.noiseSamplingSettings().yFactor();
-        double var31 = (double)var0.topSlideSettings().target();
-        double var32 = (double)var0.topSlideSettings().size();
-        double var33 = (double)var0.topSlideSettings().offset();
-        double var34 = (double)var0.bottomSlideSettings().target();
-        double var35 = (double)var0.bottomSlideSettings().size();
-        double var36 = (double)var0.bottomSlideSettings().offset();
-        double var37 = var0.randomDensityOffset() ? this.getRandomDensity(param1, param2) : 0.0;
-        double var38 = var0.densityFactor();
-        double var39 = var0.densityOffset();
-        int var40 = Mth.intFloorDiv(var0.minY(), this.chunkHeight);
-
-        for(int var41 = 0; var41 <= this.chunkCountY; ++var41) {
-            int var42 = var41 + var40;
-            double var43 = this.sampleAndClampNoise(param1, var42, param2, var27, var28, var29, var30);
-            double var44 = 1.0 - (double)var42 * 2.0 / (double)this.chunkCountY + var37;
-            double var45 = var44 * var38 + var39;
-            double var46 = (var45 + var1) * var2;
-            if (var46 > 0.0) {
-                var43 += var46 * 4.0;
-            } else {
-                var43 += var46;
-            }
-
-            if (var32 > 0.0) {
-                double var47 = ((double)(this.chunkCountY - var41) - var33) / var32;
-                var43 = Mth.clampedLerp(var31, var43, var47);
-            }
-
-            if (var35 > 0.0) {
-                double var48 = ((double)var41 - var36) / var35;
-                var43 = Mth.clampedLerp(var34, var43, var48);
-            }
-
-            param0[var41] = var43;
-        }
-
-    }
-
-    private double getRandomDensity(int param0, int param1) {
-        double var0 = this.depthNoise.getValue((double)(param0 * 200), 10.0, (double)(param1 * 200), 1.0, 0.0, true);
-        double var1;
-        if (var0 < 0.0) {
-            var1 = -var0 * 0.3;
-        } else {
-            var1 = var0;
-        }
-
-        double var3 = var1 * 24.575625 - 2.0;
-        return var3 < 0.0 ? var3 * 0.009486607142857142 : Math.min(var3, 1.0) * 0.006640625;
+    @Override
+    public int getBaseHeight(int param0, int param1, Heightmap.Types param2, LevelHeightAccessor param3) {
+        int var0 = Math.max(this.settings.get().noiseSettings().minY(), param3.getMinBuildHeight());
+        int var1 = Math.min(this.settings.get().noiseSettings().minY() + this.settings.get().noiseSettings().height(), param3.getMaxBuildHeight());
+        int var2 = Mth.intFloorDiv(var0, this.cellHeight);
+        int var3 = Mth.intFloorDiv(var1 - var0, this.cellHeight);
+        return var3 <= 0
+            ? param3.getMinBuildHeight()
+            : this.iterateNoiseColumn(param0, param1, null, param2.isOpaque(), var2, var3).orElse(param3.getMinBuildHeight());
     }
 
     @Override
-    public int getBaseHeight(int param0, int param1, Heightmap.Types param2) {
-        return this.iterateNoiseColumn(param0, param1, null, param2.isOpaque());
+    public NoiseColumn getBaseColumn(int param0, int param1, LevelHeightAccessor param2) {
+        int var0 = Math.max(this.settings.get().noiseSettings().minY(), param2.getMinBuildHeight());
+        int var1 = Math.min(this.settings.get().noiseSettings().minY() + this.settings.get().noiseSettings().height(), param2.getMaxBuildHeight());
+        int var2 = Mth.intFloorDiv(var0, this.cellHeight);
+        int var3 = Mth.intFloorDiv(var1 - var0, this.cellHeight);
+        if (var3 <= 0) {
+            return new NoiseColumn(var0, EMPTY_COLUMN);
+        } else {
+            BlockState[] var4 = new BlockState[var3 * this.cellHeight];
+            this.iterateNoiseColumn(param0, param1, var4, null, var2, var3);
+            return new NoiseColumn(var0, var4);
+        }
     }
 
-    @Override
-    public NoiseColumn getBaseColumn(int param0, int param1) {
-        BlockState[] var0 = new BlockState[this.chunkCountY * this.chunkHeight];
-        this.iterateNoiseColumn(param0, param1, var0, null);
-        return new NoiseColumn(this.settings.get().noiseSettings().minY(), var0);
-    }
-
-    private int iterateNoiseColumn(int param0, int param1, @Nullable BlockState[] param2, @Nullable Predicate<BlockState> param3) {
-        int var0 = Math.floorDiv(param0, this.chunkWidth);
-        int var1 = Math.floorDiv(param1, this.chunkWidth);
-        int var2 = Math.floorMod(param0, this.chunkWidth);
-        int var3 = Math.floorMod(param1, this.chunkWidth);
-        double var4 = (double)var2 / (double)this.chunkWidth;
-        double var5 = (double)var3 / (double)this.chunkWidth;
+    private OptionalInt iterateNoiseColumn(
+        int param0, int param1, @Nullable BlockState[] param2, @Nullable Predicate<BlockState> param3, int param4, int param5
+    ) {
+        int var0 = Math.floorDiv(param0, this.cellWidth);
+        int var1 = Math.floorDiv(param1, this.cellWidth);
+        int var2 = Math.floorMod(param0, this.cellWidth);
+        int var3 = Math.floorMod(param1, this.cellWidth);
+        double var4 = (double)var2 / (double)this.cellWidth;
+        double var5 = (double)var3 / (double)this.cellWidth;
         double[][] var6 = new double[][]{
-            this.makeAndFillNoiseColumn(var0, var1),
-            this.makeAndFillNoiseColumn(var0, var1 + 1),
-            this.makeAndFillNoiseColumn(var0 + 1, var1),
-            this.makeAndFillNoiseColumn(var0 + 1, var1 + 1)
+            this.makeAndFillNoiseColumn(var0, var1, param4, param5),
+            this.makeAndFillNoiseColumn(var0, var1 + 1, param4, param5),
+            this.makeAndFillNoiseColumn(var0 + 1, var1, param4, param5),
+            this.makeAndFillNoiseColumn(var0 + 1, var1 + 1, param4, param5)
         };
 
-        for(int var7 = this.chunkCountY - 1; var7 >= 0; --var7) {
+        for(int var7 = param5 - 1; var7 >= 0; --var7) {
             double var8 = var6[0][var7];
             double var9 = var6[1][var7];
             double var10 = var6[2][var7];
@@ -336,36 +174,39 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
             double var14 = var6[2][var7 + 1];
             double var15 = var6[3][var7 + 1];
 
-            for(int var16 = this.chunkHeight - 1; var16 >= 0; --var16) {
-                double var17 = (double)var16 / (double)this.chunkHeight;
+            for(int var16 = this.cellHeight - 1; var16 >= 0; --var16) {
+                double var17 = (double)var16 / (double)this.cellHeight;
                 double var18 = Mth.lerp3(var17, var4, var5, var8, var12, var10, var14, var9, var13, var11, var15);
-                int var19 = var7 * this.chunkHeight + var16;
-                int var20 = var19 + this.settings.get().noiseSettings().minY();
-                BlockState var21 = this.generateBaseState(var18, var20);
+                int var19 = var7 * this.cellHeight + var16;
+                int var20 = var19 + param4 * this.cellHeight;
+                BlockState var21 = this.updateNoiseAndGenerateBaseState(Beardifier.NO_BEARDS, param0, var20, param1, var18);
                 if (param2 != null) {
                     param2[var19] = var21;
                 }
 
                 if (param3 != null && param3.test(var21)) {
-                    return var20 + 1;
+                    return OptionalInt.of(var20 + 1);
                 }
             }
         }
 
-        return 0;
+        return OptionalInt.empty();
     }
 
-    protected BlockState generateBaseState(double param0, int param1) {
-        BlockState var0;
-        if (param0 > 0.0) {
-            var0 = this.defaultBlock;
-        } else if (param1 < this.getSeaLevel()) {
-            var0 = this.defaultFluid;
+    protected BlockState updateNoiseAndGenerateBaseState(Beardifier param0, int param1, int param2, int param3, double param4) {
+        double var0 = Mth.clamp(param4 / 200.0, -1.0, 1.0);
+        var0 = var0 / 2.0 - var0 * var0 * var0 / 24.0;
+        var0 += param0.beardify(param1, param2, param3);
+        BlockState var1;
+        if (var0 > 0.0) {
+            var1 = this.defaultBlock;
+        } else if (param2 < this.getSeaLevel()) {
+            var1 = this.defaultFluid;
         } else {
-            var0 = AIR;
+            var1 = AIR;
         }
 
-        return var0;
+        return var1;
     }
 
     @Override
@@ -429,177 +270,114 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
 
     @Override
     public void fillFromNoise(LevelAccessor param0, StructureFeatureManager param1, ChunkAccess param2) {
-        ObjectList<StructurePiece> var0 = new ObjectArrayList<>(10);
-        ObjectList<JigsawJunction> var1 = new ObjectArrayList<>(32);
-        ChunkPos var2 = param2.getPos();
-        int var3 = var2.x;
-        int var4 = var2.z;
-        int var5 = SectionPos.sectionToBlockCoord(var3);
-        int var6 = SectionPos.sectionToBlockCoord(var4);
+        ChunkPos var0 = param2.getPos();
+        ProtoChunk var1 = (ProtoChunk)param2;
+        Heightmap var2 = var1.getOrCreateHeightmapUnprimed(Heightmap.Types.OCEAN_FLOOR_WG);
+        Heightmap var3 = var1.getOrCreateHeightmapUnprimed(Heightmap.Types.WORLD_SURFACE_WG);
+        int var4 = Math.max(this.settings.get().noiseSettings().minY(), param2.getMinBuildHeight());
+        int var5 = Math.min(this.settings.get().noiseSettings().minY() + this.settings.get().noiseSettings().height(), param2.getMaxBuildHeight());
+        int var6 = Mth.intFloorDiv(var4, this.cellHeight);
+        int var7 = Mth.intFloorDiv(var5 - var4, this.cellHeight);
+        if (var7 > 0) {
+            int var8 = var0.x;
+            int var9 = var0.z;
+            int var10 = var0.getMinBlockX();
+            int var11 = var0.getMinBlockZ();
+            Beardifier var12 = new Beardifier(param1, param2);
+            double[][][] var13 = new double[2][this.cellCountZ + 1][var7 + 1];
+            NoiseSettings var14 = this.settings.get().noiseSettings();
 
-        for(StructureFeature<?> var7 : StructureFeature.NOISE_AFFECTING_FEATURES) {
-            param1.startsForFeature(SectionPos.of(var2, 0), var7).forEach(param5 -> {
-                for(StructurePiece var0x : param5.getPieces()) {
-                    if (var0x.isCloseToChunk(var2, 12)) {
-                        if (var0x instanceof PoolElementStructurePiece) {
-                            PoolElementStructurePiece var1x = (PoolElementStructurePiece)var0x;
-                            StructureTemplatePool.Projection var2x = var1x.getElement().getProjection();
-                            if (var2x == StructureTemplatePool.Projection.RIGID) {
-                                var0.add(var1x);
-                            }
-
-                            for(JigsawJunction var3x : var1x.getJunctions()) {
-                                int var4x = var3x.getSourceX();
-                                int var5x = var3x.getSourceZ();
-                                if (var4x > var5 - 12 && var5x > var6 - 12 && var4x < var5 + 15 + 12 && var5x < var6 + 15 + 12) {
-                                    var1.add(var3x);
-                                }
-                            }
-                        } else {
-                            var0.add(var0x);
-                        }
-                    }
-                }
-
-            });
-        }
-
-        double[][][] var8 = new double[2][this.chunkCountZ + 1][this.chunkCountY + 1];
-
-        for(int var9 = 0; var9 < this.chunkCountZ + 1; ++var9) {
-            var8[0][var9] = new double[this.chunkCountY + 1];
-            this.fillNoiseColumn(var8[0][var9], var3 * this.chunkCountX, var4 * this.chunkCountZ + var9);
-            var8[1][var9] = new double[this.chunkCountY + 1];
-        }
-
-        ProtoChunk var10 = (ProtoChunk)param2;
-        Heightmap var11 = var10.getOrCreateHeightmapUnprimed(Heightmap.Types.OCEAN_FLOOR_WG);
-        Heightmap var12 = var10.getOrCreateHeightmapUnprimed(Heightmap.Types.WORLD_SURFACE_WG);
-        BlockPos.MutableBlockPos var13 = new BlockPos.MutableBlockPos();
-        ObjectListIterator<StructurePiece> var14 = var0.iterator();
-        ObjectListIterator<JigsawJunction> var15 = var1.iterator();
-
-        for(int var16 = 0; var16 < this.chunkCountX; ++var16) {
-            for(int var17 = 0; var17 < this.chunkCountZ + 1; ++var17) {
-                this.fillNoiseColumn(var8[1][var17], var3 * this.chunkCountX + var16 + 1, var4 * this.chunkCountZ + var17);
+            for(int var15 = 0; var15 < this.cellCountZ + 1; ++var15) {
+                var13[0][var15] = new double[var7 + 1];
+                double[] var16 = var13[0][var15];
+                int var17 = var8 * this.cellCountX;
+                int var18 = var9 * this.cellCountZ + var15;
+                this.sampler.fillNoiseColumn(var16, var17, var18, var14, this.getSeaLevel(), var6, var7);
+                var13[1][var15] = new double[var7 + 1];
             }
 
-            for(int var18 = 0; var18 < this.chunkCountZ; ++var18) {
-                LevelChunkSection var19 = var10.getOrCreateSection(var10.getSectionsCount() - 1);
-                var19.acquire();
+            BlockPos.MutableBlockPos var19 = new BlockPos.MutableBlockPos();
 
-                for(int var20 = this.chunkCountY - 1; var20 >= 0; --var20) {
-                    double var21 = var8[0][var18][var20];
-                    double var22 = var8[0][var18 + 1][var20];
-                    double var23 = var8[1][var18][var20];
-                    double var24 = var8[1][var18 + 1][var20];
-                    double var25 = var8[0][var18][var20 + 1];
-                    double var26 = var8[0][var18 + 1][var20 + 1];
-                    double var27 = var8[1][var18][var20 + 1];
-                    double var28 = var8[1][var18 + 1][var20 + 1];
+            for(int var20 = 0; var20 < this.cellCountX; ++var20) {
+                int var21 = var8 * this.cellCountX + var20 + 1;
 
-                    for(int var29 = this.chunkHeight - 1; var29 >= 0; --var29) {
-                        int var30 = var20 * this.chunkHeight + var29 + this.settings.get().noiseSettings().minY();
-                        int var31 = var30 & 15;
-                        int var32 = var10.getSectionIndex(var30);
-                        if (var10.getSectionIndex(var19.bottomBlockY()) != var32) {
-                            var19.release();
-                            var19 = var10.getOrCreateSection(var32);
-                            var19.acquire();
-                        }
+                for(int var22 = 0; var22 < this.cellCountZ + 1; ++var22) {
+                    double[] var23 = var13[1][var22];
+                    int var24 = var9 * this.cellCountZ + var22;
+                    this.sampler.fillNoiseColumn(var23, var21, var24, var14, this.getSeaLevel(), var6, var7);
+                }
 
-                        double var33 = (double)var29 / (double)this.chunkHeight;
-                        double var34 = Mth.lerp(var33, var21, var25);
-                        double var35 = Mth.lerp(var33, var23, var27);
-                        double var36 = Mth.lerp(var33, var22, var26);
-                        double var37 = Mth.lerp(var33, var24, var28);
+                for(int var25 = 0; var25 < this.cellCountZ; ++var25) {
+                    LevelChunkSection var26 = var1.getOrCreateSection(var1.getSectionsCount() - 1);
+                    var26.acquire();
 
-                        for(int var38 = 0; var38 < this.chunkWidth; ++var38) {
-                            int var39 = var5 + var16 * this.chunkWidth + var38;
-                            int var40 = var39 & 15;
-                            double var41 = (double)var38 / (double)this.chunkWidth;
-                            double var42 = Mth.lerp(var41, var34, var35);
-                            double var43 = Mth.lerp(var41, var36, var37);
+                    for(int var27 = var7 - 1; var27 >= 0; --var27) {
+                        double var28 = var13[0][var25][var27];
+                        double var29 = var13[0][var25 + 1][var27];
+                        double var30 = var13[1][var25][var27];
+                        double var31 = var13[1][var25 + 1][var27];
+                        double var32 = var13[0][var25][var27 + 1];
+                        double var33 = var13[0][var25 + 1][var27 + 1];
+                        double var34 = var13[1][var25][var27 + 1];
+                        double var35 = var13[1][var25 + 1][var27 + 1];
 
-                            for(int var44 = 0; var44 < this.chunkWidth; ++var44) {
-                                int var45 = var6 + var18 * this.chunkWidth + var44;
-                                int var46 = var45 & 15;
-                                double var47 = (double)var44 / (double)this.chunkWidth;
-                                double var48 = Mth.lerp(var47, var42, var43);
-                                double var49 = Mth.clamp(var48 / 200.0, -1.0, 1.0);
+                        for(int var36 = this.cellHeight - 1; var36 >= 0; --var36) {
+                            int var37 = var27 * this.cellHeight + var36 + this.settings.get().noiseSettings().minY();
+                            int var38 = var37 & 15;
+                            int var39 = var1.getSectionIndex(var37);
+                            if (var1.getSectionIndex(var26.bottomBlockY()) != var39) {
+                                var26.release();
+                                var26 = var1.getOrCreateSection(var39);
+                                var26.acquire();
+                            }
 
-                                int var52;
-                                int var53;
-                                int var54;
-                                for(var49 = var49 / 2.0 - var49 * var49 * var49 / 24.0; var14.hasNext(); var49 += getContribution(var52, var53, var54) * 0.8) {
-                                    StructurePiece var50 = var14.next();
-                                    BoundingBox var51 = var50.getBoundingBox();
-                                    var52 = Math.max(0, Math.max(var51.x0 - var39, var39 - var51.x1));
-                                    var53 = var30
-                                        - (
-                                            var51.y0
-                                                + (var50 instanceof PoolElementStructurePiece ? ((PoolElementStructurePiece)var50).getGroundLevelDelta() : 0)
-                                        );
-                                    var54 = Math.max(0, Math.max(var51.z0 - var45, var45 - var51.z1));
-                                }
+                            double var40 = (double)var36 / (double)this.cellHeight;
+                            double var41 = Mth.lerp(var40, var28, var32);
+                            double var42 = Mth.lerp(var40, var30, var34);
+                            double var43 = Mth.lerp(var40, var29, var33);
+                            double var44 = Mth.lerp(var40, var31, var35);
 
-                                var14.back(var0.size());
+                            for(int var45 = 0; var45 < this.cellWidth; ++var45) {
+                                int var46 = var10 + var20 * this.cellWidth + var45;
+                                int var47 = var46 & 15;
+                                double var48 = (double)var45 / (double)this.cellWidth;
+                                double var49 = Mth.lerp(var48, var41, var42);
+                                double var50 = Mth.lerp(var48, var43, var44);
 
-                                while(var15.hasNext()) {
-                                    JigsawJunction var55 = var15.next();
-                                    int var56 = var39 - var55.getSourceX();
-                                    var52 = var30 - var55.getSourceGroundY();
-                                    var53 = var45 - var55.getSourceZ();
-                                    var49 += getContribution(var56, var52, var53) * 0.4;
-                                }
+                                for(int var51 = 0; var51 < this.cellWidth; ++var51) {
+                                    int var52 = var11 + var25 * this.cellWidth + var51;
+                                    int var53 = var52 & 15;
+                                    double var54 = (double)var51 / (double)this.cellWidth;
+                                    double var55 = Mth.lerp(var54, var49, var50);
+                                    BlockState var56 = this.updateNoiseAndGenerateBaseState(var12, var46, var37, var52, var55);
+                                    if (var56 != AIR) {
+                                        if (var56.getLightEmission() != 0) {
+                                            var19.set(var46, var37, var52);
+                                            var1.addLight(var19);
+                                        }
 
-                                var15.back(var1.size());
-                                BlockState var59 = this.generateBaseState(var49, var30);
-                                if (var59 != AIR) {
-                                    if (var59.getLightEmission() != 0) {
-                                        var13.set(var39, var30, var45);
-                                        var10.addLight(var13);
+                                        var26.setBlockState(var47, var38, var53, var56, false);
+                                        var2.update(var47, var37, var53, var56);
+                                        var3.update(var47, var37, var53, var56);
                                     }
-
-                                    var19.setBlockState(var40, var31, var46, var59, false);
-                                    var11.update(var40, var30, var46, var59);
-                                    var12.update(var40, var30, var46, var59);
                                 }
                             }
                         }
                     }
+
+                    var26.release();
                 }
 
-                var19.release();
+                this.swapFirstTwoElements(var13);
             }
 
-            double[][] var60 = var8[0];
-            var8[0] = var8[1];
-            var8[1] = var60;
-        }
-
-    }
-
-    private static double getContribution(int param0, int param1, int param2) {
-        int var0 = param0 + 12;
-        int var1 = param1 + 12;
-        int var2 = param2 + 12;
-        if (var0 < 0 || var0 >= 24) {
-            return 0.0;
-        } else if (var1 < 0 || var1 >= 24) {
-            return 0.0;
-        } else {
-            return var2 >= 0 && var2 < 24 ? (double)BEARD_KERNEL[var2 * 24 * 24 + var0 * 24 + var1] : 0.0;
         }
     }
 
-    private static double computeContribution(int param0, int param1, int param2) {
-        double var0 = (double)(param0 * param0 + param2 * param2);
-        double var1 = (double)param1 + 0.5;
-        double var2 = var1 * var1;
-        double var3 = Math.pow(Math.E, -(var2 / 16.0 + var0 / 16.0));
-        double var4 = -var1 * Mth.fastInvSqrt(var2 / 2.0 + var0 / 2.0) / 2.0;
-        return var4 * var3;
+    public <T> void swapFirstTwoElements(T[] param0) {
+        T var0 = param0[0];
+        param0[0] = param0[1];
+        param0[1] = var0;
     }
 
     @Override
@@ -644,12 +422,11 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
     @Override
     public void spawnOriginalMobs(WorldGenRegion param0) {
         if (!this.settings.get().disableMobGeneration()) {
-            int var0 = param0.getCenterX();
-            int var1 = param0.getCenterZ();
-            Biome var2 = param0.getBiome(new ChunkPos(var0, var1).getWorldPosition());
-            WorldgenRandom var3 = new WorldgenRandom();
-            var3.setDecorationSeed(param0.getSeed(), SectionPos.sectionToBlockCoord(var0), SectionPos.sectionToBlockCoord(var1));
-            NaturalSpawner.spawnMobsForChunkGeneration(param0, var2, var0, var1, var3);
+            ChunkPos var0 = param0.getCenter();
+            Biome var1 = param0.getBiome(var0.getWorldPosition());
+            WorldgenRandom var2 = new WorldgenRandom();
+            var2.setDecorationSeed(param0.getSeed(), var0.getMinBlockX(), var0.getMinBlockZ());
+            NaturalSpawner.spawnMobsForChunkGeneration(param0, var1, var0, var2);
         }
     }
 }

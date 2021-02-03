@@ -1,5 +1,6 @@
 package net.minecraft.world.level;
 
+import java.util.Optional;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -10,9 +11,13 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public interface CollisionGetter extends BlockGetter {
     WorldBorder getWorldBorder();
@@ -59,11 +64,27 @@ public interface CollisionGetter extends BlockGetter {
         return StreamSupport.stream(new CollisionSpliterator(this, param0, param1), false);
     }
 
-    default boolean noBlockCollision(@Nullable Entity param0, AABB param1, BiPredicate<BlockState, BlockPos> param2) {
-        return this.getBlockCollisions(param0, param1, param2).allMatch(VoxelShape::isEmpty);
+    @OnlyIn(Dist.CLIENT)
+    default boolean hasBlockCollision(@Nullable Entity param0, AABB param1, BiPredicate<BlockState, BlockPos> param2) {
+        return !this.getBlockCollisions(param0, param1, param2).allMatch(VoxelShape::isEmpty);
     }
 
     default Stream<VoxelShape> getBlockCollisions(@Nullable Entity param0, AABB param1, BiPredicate<BlockState, BlockPos> param2) {
         return StreamSupport.stream(new CollisionSpliterator(this, param0, param1, param2), false);
+    }
+
+    default Optional<Vec3> findFreePosition(@Nullable Entity param0, VoxelShape param1, Vec3 param2, double param3, double param4, double param5) {
+        if (param1.isEmpty()) {
+            return Optional.empty();
+        } else {
+            AABB var0 = AABB.minmax(param1.toAabbs()).inflate(param3, param4, param5);
+            VoxelShape var1 = this.getBlockCollisions(param0, var0)
+                .flatMap(param0x -> param0x.toAabbs().stream())
+                .map(param3x -> param3x.inflate(param3 / 2.0, param4 / 2.0, param5 / 2.0))
+                .map(Shapes::create)
+                .reduce(Shapes.empty(), Shapes::or);
+            VoxelShape var2 = Shapes.join(param1, var1, BooleanOp.ONLY_FIRST);
+            return var2.closestPointTo(param2);
+        }
     }
 }

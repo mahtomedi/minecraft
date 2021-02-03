@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.math.DoubleMath;
 import it.unimi.dsi.fastutil.doubles.DoubleList;
 import java.util.List;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.core.AxisCycle;
@@ -154,6 +155,24 @@ public abstract class VoxelShape {
                     ? new BlockHitResult(var1, Direction.getNearest(var0.x, var0.y, var0.z).getOpposite(), param2, true)
                     : AABB.clip(this.toAabbs(), param0, param1, param2);
             }
+        }
+    }
+
+    public Optional<Vec3> closestPointTo(Vec3 param0) {
+        if (this.isEmpty()) {
+            return Optional.empty();
+        } else {
+            Vec3[] var0 = new Vec3[1];
+            this.forAllBoxes((param2, param3, param4, param5, param6, param7) -> {
+                double var0x = Mth.clamp(param0.x(), param2, param5);
+                double var1x = Mth.clamp(param0.y(), param3, param6);
+                double var2x = Mth.clamp(param0.z(), param4, param7);
+                if (var0[0] == null || param0.distanceToSqr(var0x, var1x, var2x) < param0.distanceToSqr(var0[0])) {
+                    var0[0] = new Vec3(var0x, var1x, var2x);
+                }
+
+            });
+            return Optional.of(var0[0]);
         }
     }
 

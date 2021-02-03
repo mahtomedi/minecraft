@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import net.minecraft.util.Mth;
+import net.minecraft.world.level.levelgen.RandomSource;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 
 public class PerlinNoise implements SurfaceNoise {
@@ -19,15 +20,15 @@ public class PerlinNoise implements SurfaceNoise {
     private final double lowestFreqValueFactor;
     private final double lowestFreqInputFactor;
 
-    public PerlinNoise(WorldgenRandom param0, IntStream param1) {
+    public PerlinNoise(RandomSource param0, IntStream param1) {
         this(param0, param1.boxed().collect(ImmutableList.toImmutableList()));
     }
 
-    public PerlinNoise(WorldgenRandom param0, List<Integer> param1) {
+    public PerlinNoise(RandomSource param0, List<Integer> param1) {
         this(param0, new IntRBTreeSet(param1));
     }
 
-    public static PerlinNoise create(WorldgenRandom param0, int param1, DoubleList param2) {
+    public static PerlinNoise create(RandomSource param0, int param1, DoubleList param2) {
         return new PerlinNoise(param0, Pair.of(param1, param2));
     }
 
@@ -54,11 +55,11 @@ public class PerlinNoise implements SurfaceNoise {
         }
     }
 
-    private PerlinNoise(WorldgenRandom param0, IntSortedSet param1) {
+    private PerlinNoise(RandomSource param0, IntSortedSet param1) {
         this(param0, makeAmplitudes(param1));
     }
 
-    private PerlinNoise(WorldgenRandom param0, Pair<Integer, DoubleList> param1) {
+    private PerlinNoise(RandomSource param0, Pair<Integer, DoubleList> param1) {
         int var0 = param1.getFirst();
         this.amplitudes = param1.getSecond();
         ImprovedNoise var1 = new ImprovedNoise(param0);
@@ -86,8 +87,8 @@ public class PerlinNoise implements SurfaceNoise {
         }
 
         if (var3 < var2 - 1) {
-            long var7 = (long)(var1.noise(0.0, 0.0, 0.0, 0.0, 0.0) * 9.223372E18F);
-            WorldgenRandom var8 = new WorldgenRandom(var7);
+            long var7 = (long)(var1.noise(0.0, 0.0, 0.0) * 9.223372E18F);
+            RandomSource var8 = new WorldgenRandom(var7);
 
             for(int var9 = var3 + 1; var9 < var2; ++var9) {
                 if (var9 >= 0) {
@@ -111,6 +112,7 @@ public class PerlinNoise implements SurfaceNoise {
         return this.getValue(param0, param1, param2, 0.0, 0.0, false);
     }
 
+    @Deprecated
     public double getValue(double param0, double param1, double param2, double param3, double param4, boolean param5) {
         double var0 = 0.0;
         double var1 = this.lowestFreqInputFactor;

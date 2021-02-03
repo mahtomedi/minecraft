@@ -50,6 +50,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.WoolCarpetBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -221,20 +222,23 @@ public class Llama extends AbstractChestedHorse implements RangedAttackMob {
             }
         }
 
-        if (var3 && !this.isSilent()) {
-            SoundEvent var4 = this.getEatingSound();
-            if (var4 != null) {
-                this.level
-                    .playSound(
-                        null,
-                        this.getX(),
-                        this.getY(),
-                        this.getZ(),
-                        this.getEatingSound(),
-                        this.getSoundSource(),
-                        1.0F,
-                        1.0F + (this.random.nextFloat() - this.random.nextFloat()) * 0.2F
-                    );
+        if (var3) {
+            this.gameEvent(GameEvent.MOB_INTERACT, this.eyeBlockPosition());
+            if (!this.isSilent()) {
+                SoundEvent var4 = this.getEatingSound();
+                if (var4 != null) {
+                    this.level
+                        .playSound(
+                            null,
+                            this.getX(),
+                            this.getY(),
+                            this.getZ(),
+                            this.getEatingSound(),
+                            this.getSoundSource(),
+                            1.0F,
+                            1.0F + (this.random.nextFloat() - this.random.nextFloat()) * 0.2F
+                        );
+                }
             }
         }
 

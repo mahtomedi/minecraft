@@ -10,9 +10,12 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class SelectWorldScreen extends Screen {
+    private static final Logger LOGGER = LogManager.getLogger();
     protected final Screen lastScreen;
     private List<FormattedCharSequence> toolTip;
     private Button deleteButton;

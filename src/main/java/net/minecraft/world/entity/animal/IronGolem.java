@@ -49,6 +49,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.NaturalSpawner;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
@@ -286,6 +287,7 @@ public class IronGolem extends AbstractGolem implements NeutralMob {
             } else {
                 float var2 = 1.0F + (this.random.nextFloat() - this.random.nextFloat()) * 0.2F;
                 this.playSound(SoundEvents.IRON_GOLEM_REPAIR, 1.0F, var2);
+                this.gameEvent(GameEvent.MOB_INTERACT, this.eyeBlockPosition());
                 if (!param0.getAbilities().instabuild) {
                     var0.shrink(1);
                 }

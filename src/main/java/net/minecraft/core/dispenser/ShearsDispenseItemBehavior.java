@@ -15,6 +15,7 @@ import net.minecraft.world.level.block.BeehiveBlock;
 import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.block.entity.BeehiveBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 
 public class ShearsDispenseItemBehavior extends OptionalDispenseItemBehavior {
@@ -40,6 +41,7 @@ public class ShearsDispenseItemBehavior extends OptionalDispenseItemBehavior {
                 param0.playSound(null, param1, SoundEvents.BEEHIVE_SHEAR, SoundSource.BLOCKS, 1.0F, 1.0F);
                 BeehiveBlock.dropHoneycomb(param0, param1);
                 ((BeehiveBlock)var0.getBlock()).releaseBeesAndResetHoneyLevel(param0, var0, param1, null, BeehiveBlockEntity.BeeReleaseStatus.BEE_RELEASED);
+                param0.gameEvent(null, GameEvent.SHEAR, param1);
                 return true;
             }
         }
@@ -53,6 +55,7 @@ public class ShearsDispenseItemBehavior extends OptionalDispenseItemBehavior {
                 Shearable var2 = (Shearable)var1;
                 if (var2.readyForShearing()) {
                     var2.shear(SoundSource.BLOCKS);
+                    param0.gameEvent(null, GameEvent.SHEAR, param1);
                     return true;
                 }
             }

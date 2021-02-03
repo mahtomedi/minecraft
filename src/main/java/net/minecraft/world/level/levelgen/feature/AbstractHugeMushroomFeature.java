@@ -8,7 +8,6 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.configurations.HugeMushroomFeatureConfiguration;
 
 public abstract class AbstractHugeMushroomFeature extends Feature<HugeMushroomFeatureConfiguration> {
@@ -66,14 +65,19 @@ public abstract class AbstractHugeMushroomFeature extends Feature<HugeMushroomFe
         }
     }
 
-    public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, HugeMushroomFeatureConfiguration param4) {
-        int var0 = this.getTreeHeight(param2);
-        BlockPos.MutableBlockPos var1 = new BlockPos.MutableBlockPos();
-        if (!this.isValidPosition(param0, param3, var0, var1, param4)) {
+    @Override
+    public boolean place(FeaturePlaceContext<HugeMushroomFeatureConfiguration> param0) {
+        WorldGenLevel var0 = param0.level();
+        BlockPos var1 = param0.origin();
+        Random var2 = param0.random();
+        HugeMushroomFeatureConfiguration var3 = param0.config();
+        int var4 = this.getTreeHeight(var2);
+        BlockPos.MutableBlockPos var5 = new BlockPos.MutableBlockPos();
+        if (!this.isValidPosition(var0, var1, var4, var5, var3)) {
             return false;
         } else {
-            this.makeCap(param0, param2, param3, var0, var1, param4);
-            this.placeTrunk(param0, param2, param3, param4, var0, var1);
+            this.makeCap(var0, var2, var1, var4, var5, var3);
+            this.placeTrunk(var0, var2, var1, var3, var4, var5);
             return true;
         }
     }

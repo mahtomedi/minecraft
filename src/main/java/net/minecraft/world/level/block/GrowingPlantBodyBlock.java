@@ -22,6 +22,10 @@ public abstract class GrowingPlantBodyBlock extends GrowingPlantBlock implements
         super(param0, param1, param2, param3);
     }
 
+    protected BlockState updateHeadAfterConvertedFromBody(BlockState param0, BlockState param1) {
+        return param1;
+    }
+
     @Override
     public BlockState updateShape(BlockState param0, Direction param1, BlockState param2, LevelAccessor param3, BlockPos param4, BlockPos param5) {
         if (param1 == this.growthDirection.getOpposite() && !param0.canSurvive(param3, param4)) {
@@ -30,7 +34,7 @@ public abstract class GrowingPlantBodyBlock extends GrowingPlantBlock implements
 
         GrowingPlantHeadBlock var0 = this.getHeadBlock();
         if (param1 == this.growthDirection && !param2.is(this) && !param2.is(var0)) {
-            return var0.getStateForPlacement(param3);
+            return this.updateHeadAfterConvertedFromBody(param0, var0.getStateForPlacement(param3));
         } else {
             if (this.scheduleFluidTicks) {
                 param3.getLiquidTicks().scheduleTick(param4, Fluids.WATER, Fluids.WATER.getTickDelay(param3));

@@ -83,7 +83,7 @@ public class FireworkParticles {
             ParticleEngine param7,
             SpriteSet param8
         ) {
-            super(param0, param1, param2, param3, param8, -0.004F);
+            super(param0, param1, param2, param3, param8, 0.1F);
             this.xd = param4;
             this.yd = param5;
             this.zd = param6;

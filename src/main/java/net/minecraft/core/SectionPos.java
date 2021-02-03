@@ -7,6 +7,7 @@ import java.util.stream.StreamSupport;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.chunk.ChunkAccess;
 
 public class SectionPos extends Vec3i {
     private SectionPos(int param0, int param1, int param2) {
@@ -31,6 +32,10 @@ public class SectionPos extends Vec3i {
 
     public static SectionPos of(long param0) {
         return new SectionPos(x(param0), y(param0), z(param0));
+    }
+
+    public static SectionPos bottomOf(ChunkAccess param0) {
+        return of(param0.getPos(), param0.getMinSection());
     }
 
     public static long offset(long param0, Direction param1) {
@@ -163,6 +168,10 @@ public class SectionPos extends Vec3i {
 
     public ChunkPos chunk() {
         return new ChunkPos(this.x(), this.z());
+    }
+
+    public static long asLong(BlockPos param0) {
+        return asLong(blockToSectionCoord(param0.getX()), blockToSectionCoord(param0.getY()), blockToSectionCoord(param0.getZ()));
     }
 
     public static long asLong(int param0, int param1, int param2) {

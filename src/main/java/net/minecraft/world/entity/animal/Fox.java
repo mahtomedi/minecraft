@@ -28,6 +28,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
@@ -79,6 +80,7 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.CaveVinesBlock;
 import net.minecraft.world.level.block.SweetBerryBushBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
@@ -156,7 +158,7 @@ public class Fox extends Animal {
         this.goalSelector.addGoal(7, new Fox.SleepGoal());
         this.goalSelector.addGoal(8, new Fox.FoxFollowParentGoal(this, 1.25));
         this.goalSelector.addGoal(9, new Fox.FoxStrollThroughVillageGoal(32, 200));
-        this.goalSelector.addGoal(10, new Fox.FoxEatBerriesGoal(1.2F, 12, 2));
+        this.goalSelector.addGoal(10, new Fox.FoxEatBerriesGoal(1.2F, 12, 1));
         this.goalSelector.addGoal(10, new LeapAtTargetGoal(this, 0.4F));
         this.goalSelector.addGoal(11, new WaterAvoidingRandomStrollGoal(this, 1.0));
         this.goalSelector.addGoal(11, new Fox.FoxSearchForItemsGoal());
@@ -548,7 +550,7 @@ public class Fox extends Animal {
 
     @Override
     public boolean isFood(ItemStack param0) {
-        return param0.is(Items.SWEET_BERRIES);
+        return param0.is(ItemTags.FOX_FOOD);
     }
 
     @Override
@@ -905,7 +907,7 @@ public class Fox extends Animal {
         @Override
         protected boolean isValidTarget(LevelReader param0, BlockPos param1) {
             BlockState var0 = param0.getBlockState(param1);
-            return var0.is(Blocks.SWEET_BERRY_BUSH) && var0.getValue(SweetBerryBushBlock.AGE) >= 2;
+            return var0.is(Blocks.SWEET_BERRY_BUSH) && var0.getValue(SweetBerryBushBlock.AGE) >= 2 || CaveVinesBlock.hasGlowBerries(var0);
         }
 
         @Override
@@ -927,23 +929,34 @@ public class Fox extends Animal {
             if (Fox.this.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)) {
                 BlockState var0 = Fox.this.level.getBlockState(this.blockPos);
                 if (var0.is(Blocks.SWEET_BERRY_BUSH)) {
-                    int var1 = var0.getValue(SweetBerryBushBlock.AGE);
-                    var0.setValue(SweetBerryBushBlock.AGE, Integer.valueOf(1));
-                    int var2 = 1 + Fox.this.level.random.nextInt(2) + (var1 == 3 ? 1 : 0);
-                    ItemStack var3 = Fox.this.getItemBySlot(EquipmentSlot.MAINHAND);
-                    if (var3.isEmpty()) {
-                        Fox.this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.SWEET_BERRIES));
-                        --var2;
-                    }
-
-                    if (var2 > 0) {
-                        Block.popResource(Fox.this.level, this.blockPos, new ItemStack(Items.SWEET_BERRIES, var2));
-                    }
-
-                    Fox.this.playSound(SoundEvents.SWEET_BERRY_BUSH_PICK_BERRIES, 1.0F, 1.0F);
-                    Fox.this.level.setBlock(this.blockPos, var0.setValue(SweetBerryBushBlock.AGE, Integer.valueOf(1)), 2);
+                    this.pickSweetBerries(var0);
+                } else if (CaveVinesBlock.hasGlowBerries(var0)) {
+                    this.pickGlowBerry(var0);
                 }
+
             }
+        }
+
+        private void pickGlowBerry(BlockState param0) {
+            CaveVinesBlock.use(param0, Fox.this.level, this.blockPos);
+        }
+
+        private void pickSweetBerries(BlockState param0) {
+            int var0 = param0.getValue(SweetBerryBushBlock.AGE);
+            param0.setValue(SweetBerryBushBlock.AGE, Integer.valueOf(1));
+            int var1 = 1 + Fox.this.level.random.nextInt(2) + (var0 == 3 ? 1 : 0);
+            ItemStack var2 = Fox.this.getItemBySlot(EquipmentSlot.MAINHAND);
+            if (var2.isEmpty()) {
+                Fox.this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.SWEET_BERRIES));
+                --var1;
+            }
+
+            if (var1 > 0) {
+                Block.popResource(Fox.this.level, this.blockPos, new ItemStack(Items.SWEET_BERRIES, var1));
+            }
+
+            Fox.this.playSound(SoundEvents.SWEET_BERRY_BUSH_PICK_BERRIES, 1.0F, 1.0F);
+            Fox.this.level.setBlock(this.blockPos, param0.setValue(SweetBerryBushBlock.AGE, Integer.valueOf(1)), 2);
         }
 
         @Override

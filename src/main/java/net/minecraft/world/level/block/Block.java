@@ -3,9 +3,11 @@ package net.minecraft.world.level.block;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.collect.ImmutableMap;
 import it.unimi.dsi.fastutil.objects.Object2ByteLinkedOpenHashMap;
 import java.util.List;
 import java.util.Random;
+import java.util.function.Function;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
@@ -106,13 +108,16 @@ public class Block extends BlockBehaviour implements ItemLike {
     public static BlockState pushEntitiesUp(BlockState param0, BlockState param1, Level param2, BlockPos param3) {
         VoxelShape var0 = Shapes.joinUnoptimized(param0.getCollisionShape(param2, param3), param1.getCollisionShape(param2, param3), BooleanOp.ONLY_SECOND)
             .move((double)param3.getX(), (double)param3.getY(), (double)param3.getZ());
+        if (var0.isEmpty()) {
+            return param1;
+        } else {
+            for(Entity var2 : param2.getEntities(null, var0.bounds())) {
+                double var3 = Shapes.collide(Direction.Axis.Y, var2.getBoundingBox().move(0.0, 1.0, 0.0), Stream.of(var0), -1.0);
+                var2.teleportTo(var2.getX(), var2.getY() + 1.0 + var3, var2.getZ());
+            }
 
-        for(Entity var2 : param2.getEntities(null, var0.bounds())) {
-            double var3 = Shapes.collide(Direction.Axis.Y, var2.getBoundingBox().move(0.0, 1.0, 0.0), Stream.of(var0), -1.0);
-            var2.teleportTo(var2.getX(), var2.getY() + 1.0 + var3, var2.getZ());
+            return param1;
         }
-
-        return param1;
     }
 
     public static VoxelShape box(double param0, double param1, double param2, double param3, double param4, double param5) {
@@ -371,8 +376,12 @@ public class Block extends BlockBehaviour implements ItemLike {
         return this.jumpFactor;
     }
 
+    protected void spawnDestroyParticles(Level param0, Player param1, BlockPos param2, BlockState param3) {
+        param0.levelEvent(param1, 2001, param2, getId(param3));
+    }
+
     public void playerWillDestroy(Level param0, BlockPos param1, BlockState param2, Player param3) {
-        param0.levelEvent(param3, 2001, param1, getId(param2));
+        this.spawnDestroyParticles(param0, param3, param1, param2);
         if (param2.is(BlockTags.GUARDED_BY_PIGLINS)) {
             PiglinAi.angerNearbyPiglins(param3, false);
         }
@@ -431,6 +440,10 @@ public class Block extends BlockBehaviour implements ItemLike {
     @Override
     protected Block asBlock() {
         return this;
+    }
+
+    protected ImmutableMap<BlockState, VoxelShape> getShapeForEachState(Function<BlockState, VoxelShape> param0) {
+        return this.stateDefinition.getPossibleStates().stream().collect(ImmutableMap.toImmutableMap(Function.identity(), param0));
     }
 
     public static final class BlockStatePairKey {

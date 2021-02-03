@@ -157,7 +157,7 @@ public class ChunkHolder {
     public void blockChanged(BlockPos param0) {
         LevelChunk var0 = this.getTickingChunk();
         if (var0 != null) {
-            byte var1 = (byte)this.levelHeightAccessor.getSectionIndex(param0.getY());
+            int var1 = this.levelHeightAccessor.getSectionIndex(param0.getY());
             if (this.changedBlocksPerSection[var1] == null) {
                 this.hasChangedSections = true;
                 this.changedBlocksPerSection[var1] = new ShortArraySet();

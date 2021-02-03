@@ -6,7 +6,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ChorusFlowerBlock;
-import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 
 public class ChorusPlantFeature extends Feature<NoneFeatureConfiguration> {
@@ -14,9 +13,13 @@ public class ChorusPlantFeature extends Feature<NoneFeatureConfiguration> {
         super(param0);
     }
 
-    public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, NoneFeatureConfiguration param4) {
-        if (param0.isEmptyBlock(param3) && param0.getBlockState(param3.below()).is(Blocks.END_STONE)) {
-            ChorusFlowerBlock.generatePlant(param0, param3, param2, 8);
+    @Override
+    public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> param0) {
+        WorldGenLevel var0 = param0.level();
+        BlockPos var1 = param0.origin();
+        Random var2 = param0.random();
+        if (var0.isEmptyBlock(var1) && var0.getBlockState(var1.below()).is(Blocks.END_STONE)) {
+            ChorusFlowerBlock.generatePlant(var0, var1, var2, 8);
             return true;
         } else {
             return false;

@@ -22,7 +22,6 @@ import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.IronBarsBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.feature.configurations.SpikeConfiguration;
 import net.minecraft.world.phys.AABB;
@@ -42,15 +41,20 @@ public class SpikeFeature extends Feature<SpikeConfiguration> {
         return SPIKE_CACHE.getUnchecked(var1);
     }
 
-    public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, SpikeConfiguration param4) {
-        List<SpikeFeature.EndSpike> var0 = param4.getSpikes();
-        if (var0.isEmpty()) {
-            var0 = getSpikesForLevel(param0);
+    @Override
+    public boolean place(FeaturePlaceContext<SpikeConfiguration> param0) {
+        SpikeConfiguration var0 = param0.config();
+        WorldGenLevel var1 = param0.level();
+        Random var2 = param0.random();
+        BlockPos var3 = param0.origin();
+        List<SpikeFeature.EndSpike> var4 = var0.getSpikes();
+        if (var4.isEmpty()) {
+            var4 = getSpikesForLevel(var1);
         }
 
-        for(SpikeFeature.EndSpike var1 : var0) {
-            if (var1.isCenterWithinChunk(param3)) {
-                this.placeSpike(param0, param2, param4, var1);
+        for(SpikeFeature.EndSpike var5 : var4) {
+            if (var5.isCenterWithinChunk(var3)) {
+                this.placeSpike(var1, var2, var0, var5);
             }
         }
 

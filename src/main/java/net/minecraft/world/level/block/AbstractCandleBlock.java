@@ -1,10 +1,12 @@
 package net.minecraft.world.level.block;
 
 import java.util.Random;
+import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
@@ -12,6 +14,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
@@ -66,10 +69,11 @@ public abstract class AbstractCandleBlock extends Block {
         param0.addParticle(ParticleTypes.SMALL_FLAME, param1.x, param1.y, param1.z, 0.0, 0.0, 0.0);
     }
 
-    protected static void extinguish(BlockState param0, LevelAccessor param1, BlockPos param2) {
-        setLit(param1, param0, param2, false);
-        param1.addParticle(ParticleTypes.SMOKE, (double)param2.getX(), (double)param2.getY(), (double)param2.getZ(), 0.0, 0.1F, 0.0);
-        param1.playSound(null, param2, SoundEvents.CANDLE_EXTINGUISH, SoundSource.BLOCKS, 1.0F, 1.0F);
+    protected static void extinguish(@Nullable Player param0, BlockState param1, LevelAccessor param2, BlockPos param3) {
+        setLit(param2, param1, param3, false);
+        param2.addParticle(ParticleTypes.SMOKE, (double)param3.getX(), (double)param3.getY(), (double)param3.getZ(), 0.0, 0.1F, 0.0);
+        param2.playSound(null, param3, SoundEvents.CANDLE_EXTINGUISH, SoundSource.BLOCKS, 1.0F, 1.0F);
+        param2.gameEvent(param0, GameEvent.BLOCK_CHANGE, param3);
     }
 
     private static void setLit(LevelAccessor param0, BlockState param1, BlockPos param2, boolean param3) {

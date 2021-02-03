@@ -1,13 +1,11 @@
 package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.TheEndGatewayBlockEntity;
-import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.configurations.EndGatewayConfiguration;
 
 public class EndGatewayFeature extends Feature<EndGatewayConfiguration> {
@@ -15,32 +13,37 @@ public class EndGatewayFeature extends Feature<EndGatewayConfiguration> {
         super(param0);
     }
 
-    public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, EndGatewayConfiguration param4) {
-        for(BlockPos var0 : BlockPos.betweenClosed(param3.offset(-1, -2, -1), param3.offset(1, 2, 1))) {
-            boolean var1 = var0.getX() == param3.getX();
-            boolean var2 = var0.getY() == param3.getY();
-            boolean var3 = var0.getZ() == param3.getZ();
-            boolean var4 = Math.abs(var0.getY() - param3.getY()) == 2;
-            if (var1 && var2 && var3) {
-                BlockPos var5 = var0.immutable();
-                this.setBlock(param0, var5, Blocks.END_GATEWAY.defaultBlockState());
-                param4.getExit().ifPresent(param3x -> {
-                    BlockEntity var0x = param0.getBlockEntity(var5);
+    @Override
+    public boolean place(FeaturePlaceContext<EndGatewayConfiguration> param0) {
+        BlockPos var0 = param0.origin();
+        WorldGenLevel var1 = param0.level();
+        EndGatewayConfiguration var2 = param0.config();
+
+        for(BlockPos var3 : BlockPos.betweenClosed(var0.offset(-1, -2, -1), var0.offset(1, 2, 1))) {
+            boolean var4 = var3.getX() == var0.getX();
+            boolean var5 = var3.getY() == var0.getY();
+            boolean var6 = var3.getZ() == var0.getZ();
+            boolean var7 = Math.abs(var3.getY() - var0.getY()) == 2;
+            if (var4 && var5 && var6) {
+                BlockPos var8 = var3.immutable();
+                this.setBlock(var1, var8, Blocks.END_GATEWAY.defaultBlockState());
+                var2.getExit().ifPresent(param3 -> {
+                    BlockEntity var0x = var1.getBlockEntity(var8);
                     if (var0x instanceof TheEndGatewayBlockEntity) {
                         TheEndGatewayBlockEntity var1x = (TheEndGatewayBlockEntity)var0x;
-                        var1x.setExitPosition(param3x, param4.isExitExact());
+                        var1x.setExitPosition(param3, var2.isExitExact());
                         var0x.setChanged();
                     }
 
                 });
-            } else if (var2) {
-                this.setBlock(param0, var0, Blocks.AIR.defaultBlockState());
-            } else if (var4 && var1 && var3) {
-                this.setBlock(param0, var0, Blocks.BEDROCK.defaultBlockState());
-            } else if ((var1 || var3) && !var4) {
-                this.setBlock(param0, var0, Blocks.BEDROCK.defaultBlockState());
+            } else if (var5) {
+                this.setBlock(var1, var3, Blocks.AIR.defaultBlockState());
+            } else if (var7 && var4 && var6) {
+                this.setBlock(var1, var3, Blocks.BEDROCK.defaultBlockState());
+            } else if ((var4 || var6) && !var7) {
+                this.setBlock(var1, var3, Blocks.BEDROCK.defaultBlockState());
             } else {
-                this.setBlock(param0, var0, Blocks.AIR.defaultBlockState());
+                this.setBlock(var1, var3, Blocks.AIR.defaultBlockState());
             }
         }
 

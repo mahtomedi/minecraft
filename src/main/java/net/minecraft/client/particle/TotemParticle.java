@@ -8,7 +8,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class TotemParticle extends SimpleAnimatedParticle {
     private TotemParticle(ClientLevel param0, double param1, double param2, double param3, double param4, double param5, double param6, SpriteSet param7) {
-        super(param0, param1, param2, param3, param7, -0.05F);
+        super(param0, param1, param2, param3, param7, 1.25F);
+        this.friction = 0.6F;
         this.xd = param4;
         this.yd = param5;
         this.zd = param6;
@@ -21,7 +22,6 @@ public class TotemParticle extends SimpleAnimatedParticle {
             this.setColor(0.1F + this.random.nextFloat() * 0.2F, 0.4F + this.random.nextFloat() * 0.3F, this.random.nextFloat() * 0.2F);
         }
 
-        this.setBaseAirFriction(0.6F);
     }
 
     @OnlyIn(Dist.CLIENT)

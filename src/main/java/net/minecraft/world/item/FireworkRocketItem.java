@@ -55,7 +55,8 @@ public class FireworkRocketItem extends Item {
         if (param1.isFallFlying()) {
             ItemStack var0 = param1.getItemInHand(param2);
             if (!param0.isClientSide) {
-                param0.addFreshEntity(new FireworkRocketEntity(param0, var0, param1));
+                FireworkRocketEntity var1 = new FireworkRocketEntity(param0, var0, param1);
+                param0.addFreshEntity(var1);
                 if (!param1.getAbilities().instabuild) {
                     var0.shrink(1);
                 }

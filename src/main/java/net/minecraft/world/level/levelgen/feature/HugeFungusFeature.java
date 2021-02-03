@@ -18,33 +18,39 @@ public class HugeFungusFeature extends Feature<HugeFungusConfiguration> {
         super(param0);
     }
 
-    public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, HugeFungusConfiguration param4) {
-        Block var0 = param4.validBaseState.getBlock();
-        BlockPos var1 = null;
-        BlockState var2 = param0.getBlockState(param3.below());
-        if (var2.is(var0)) {
-            var1 = param3;
+    @Override
+    public boolean place(FeaturePlaceContext<HugeFungusConfiguration> param0) {
+        WorldGenLevel var0 = param0.level();
+        BlockPos var1 = param0.origin();
+        Random var2 = param0.random();
+        ChunkGenerator var3 = param0.chunkGenerator();
+        HugeFungusConfiguration var4 = param0.config();
+        Block var5 = var4.validBaseState.getBlock();
+        BlockPos var6 = null;
+        BlockState var7 = var0.getBlockState(var1.below());
+        if (var7.is(var5)) {
+            var6 = var1;
         }
 
-        if (var1 == null) {
+        if (var6 == null) {
             return false;
         } else {
-            int var3 = Mth.nextInt(param2, 4, 13);
-            if (param2.nextInt(12) == 0) {
-                var3 *= 2;
+            int var8 = Mth.nextInt(var2, 4, 13);
+            if (var2.nextInt(12) == 0) {
+                var8 *= 2;
             }
 
-            if (!param4.planted) {
-                int var4 = param1.getGenDepth();
-                if (var1.getY() + var3 + 1 >= var4) {
+            if (!var4.planted) {
+                int var9 = var3.getGenDepth();
+                if (var6.getY() + var8 + 1 >= var9) {
                     return false;
                 }
             }
 
-            boolean var5 = !param4.planted && param2.nextFloat() < 0.06F;
-            param0.setBlock(param3, Blocks.AIR.defaultBlockState(), 4);
-            this.placeStem(param0, param2, param4, var1, var3, var5);
-            this.placeHat(param0, param2, param4, var1, var3, var5);
+            boolean var10 = !var4.planted && var2.nextFloat() < 0.06F;
+            var0.setBlock(var1, Blocks.AIR.defaultBlockState(), 4);
+            this.placeStem(var0, var2, var4, var6, var8, var10);
+            this.placeHat(var0, var2, var4, var6, var8, var10);
             return true;
         }
     }

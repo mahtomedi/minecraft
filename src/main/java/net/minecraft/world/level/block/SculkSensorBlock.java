@@ -48,11 +48,19 @@ public class SculkSensorBlock extends BaseEntityBlock implements SimpleWaterlogg
             param0.put(GameEvent.HIT_GROUND, 5);
             param0.put(GameEvent.SPLASH, 6);
             param0.put(GameEvent.WOLF_SHAKING, 6);
+            param0.put(GameEvent.MINECART_MOVING, 6);
+            param0.put(GameEvent.RING_BELL, 6);
+            param0.put(GameEvent.BLOCK_CHANGE, 6);
             param0.put(GameEvent.PROJECTILE_SHOOT, 7);
+            param0.put(GameEvent.DRINKING_FINISH, 7);
+            param0.put(GameEvent.PRIME_FUSE, 7);
             param0.put(GameEvent.PROJECTILE_LAND, 8);
-            param0.put(GameEvent.EATING_FINISH, 8);
-            param0.put(GameEvent.ENTITY_HIT, 8);
-            param0.put(GameEvent.ARMOR_STAND_ADD_ITEM, 9);
+            param0.put(GameEvent.EAT, 8);
+            param0.put(GameEvent.MOB_INTERACT, 8);
+            param0.put(GameEvent.ENTITY_DAMAGED, 8);
+            param0.put(GameEvent.EQUIP, 9);
+            param0.put(GameEvent.SHEAR, 9);
+            param0.put(GameEvent.RAVAGER_ROAR, 9);
             param0.put(GameEvent.BLOCK_CLOSE, 10);
             param0.put(GameEvent.BLOCK_UNSWITCH, 10);
             param0.put(GameEvent.BLOCK_UNPRESS, 10);
@@ -62,19 +70,22 @@ public class SculkSensorBlock extends BaseEntityBlock implements SimpleWaterlogg
             param0.put(GameEvent.BLOCK_SWITCH, 11);
             param0.put(GameEvent.BLOCK_PRESS, 11);
             param0.put(GameEvent.BLOCK_ATTACH, 11);
-            param0.put(GameEvent.FLINT_AND_STEEL_USE, 12);
+            param0.put(GameEvent.ENTITY_PLACE, 12);
             param0.put(GameEvent.BLOCK_PLACE, 12);
             param0.put(GameEvent.FLUID_PLACE, 12);
+            param0.put(GameEvent.ENTITY_KILLED, 13);
             param0.put(GameEvent.BLOCK_DESTROY, 13);
             param0.put(GameEvent.FLUID_PICKUP, 13);
             param0.put(GameEvent.FISHING_ROD_REEL_IN, 14);
             param0.put(GameEvent.CONTAINER_CLOSE, 14);
             param0.put(GameEvent.PISTON_CONTRACT, 14);
+            param0.put(GameEvent.SHULKER_CLOSE, 14);
             param0.put(GameEvent.PISTON_EXTEND, 15);
             param0.put(GameEvent.CONTAINER_OPEN, 15);
             param0.put(GameEvent.FISHING_ROD_CAST, 15);
             param0.put(GameEvent.EXPLODE, 15);
             param0.put(GameEvent.LIGHTNING_STRIKE, 15);
+            param0.put(GameEvent.SHULKER_OPEN, 15);
         })
     );
     public static final EnumProperty<SculkSensorPhase> PHASE = BlockStateProperties.SCULK_SENSOR_PHASE;
@@ -88,7 +99,7 @@ public class SculkSensorBlock extends BaseEntityBlock implements SimpleWaterlogg
         this.registerDefaultState(
             this.stateDefinition
                 .any()
-                .setValue(PHASE, SculkSensorPhase.COOLDOWN)
+                .setValue(PHASE, SculkSensorPhase.INACTIVE)
                 .setValue(POWER, Integer.valueOf(0))
                 .setValue(WATERLOGGED, Boolean.valueOf(false))
         );

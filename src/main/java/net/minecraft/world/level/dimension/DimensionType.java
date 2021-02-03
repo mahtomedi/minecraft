@@ -37,9 +37,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class DimensionType {
     public static final int BITS_FOR_Y = BlockPos.PACKED_Y_LENGTH;
-    public static final int Y_SIZE = 1 << BITS_FOR_Y;
+    public static final int Y_SIZE = (1 << BITS_FOR_Y) - 32;
     public static final int MAX_Y = (Y_SIZE >> 1) - 1;
-    public static final int MIN_Y = ~MAX_Y;
+    public static final int MIN_Y = MAX_Y - Y_SIZE + 1;
     public static final ResourceLocation OVERWORLD_EFFECTS = new ResourceLocation("overworld");
     public static final ResourceLocation NETHER_EFFECTS = new ResourceLocation("the_nether");
     public static final ResourceLocation END_EFFECTS = new ResourceLocation("the_end");
@@ -180,8 +180,8 @@ public class DimensionType {
     private final transient float[] brightnessRamp;
 
     private static DataResult<DimensionType> guardY(DimensionType param0) {
-        if (param0.minY() + param0.height() > MAX_Y) {
-            return DataResult.error("min_y + height cannot be higher than: " + MAX_Y);
+        if (param0.minY() + param0.height() > MAX_Y + 1) {
+            return DataResult.error("min_y + height cannot be higher than: " + (MAX_Y + 1));
         } else if (param0.logicalHeight() > param0.height()) {
             return DataResult.error("logical_height cannot be higher than height");
         } else if (param0.height() % 16 != 0) {

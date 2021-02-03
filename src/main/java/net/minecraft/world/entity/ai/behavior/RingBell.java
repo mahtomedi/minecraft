@@ -29,7 +29,7 @@ public class RingBell extends Behavior<LivingEntity> {
             BlockState var2 = param0.getBlockState(var1);
             if (var2.is(Blocks.BELL)) {
                 BellBlock var3 = (BellBlock)var2.getBlock();
-                var3.attemptToRing(param0, var1, null);
+                var3.attemptToRing(param1, param0, var1, null);
             }
         }
 

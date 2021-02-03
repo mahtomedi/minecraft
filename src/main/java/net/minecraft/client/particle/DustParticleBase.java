@@ -14,6 +14,8 @@ public class DustParticleBase<T extends DustParticleOptionsBase> extends Texture
         ClientLevel param0, double param1, double param2, double param3, double param4, double param5, double param6, T param7, SpriteSet param8
     ) {
         super(param0, param1, param2, param3, param4, param5, param6);
+        this.friction = 0.96F;
+        this.speedUpWhenYMotionIsBlocked = true;
         this.sprites = param8;
         this.xd *= 0.1F;
         this.yd *= 0.1F;
@@ -44,27 +46,7 @@ public class DustParticleBase<T extends DustParticleOptionsBase> extends Texture
 
     @Override
     public void tick() {
-        this.xo = this.x;
-        this.yo = this.y;
-        this.zo = this.z;
-        if (this.age++ >= this.lifetime) {
-            this.remove();
-        } else {
-            this.setSpriteFromAge(this.sprites);
-            this.move(this.xd, this.yd, this.zd);
-            if (this.y == this.yo) {
-                this.xd *= 1.1;
-                this.zd *= 1.1;
-            }
-
-            this.xd *= 0.96F;
-            this.yd *= 0.96F;
-            this.zd *= 0.96F;
-            if (this.onGround) {
-                this.xd *= 0.7F;
-                this.zd *= 0.7F;
-            }
-
-        }
+        super.tick();
+        this.setSpriteFromAge(this.sprites);
     }
 }

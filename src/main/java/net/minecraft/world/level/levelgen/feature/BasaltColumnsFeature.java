@@ -11,7 +11,6 @@ import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.configurations.ColumnFeatureConfiguration;
 
 public class BasaltColumnsFeature extends Feature<ColumnFeatureConfiguration> {
@@ -32,27 +31,32 @@ public class BasaltColumnsFeature extends Feature<ColumnFeatureConfiguration> {
         super(param0);
     }
 
-    public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, ColumnFeatureConfiguration param4) {
-        int var0 = param1.getSeaLevel();
-        if (!canPlaceAt(param0, var0, param3.mutable())) {
+    @Override
+    public boolean place(FeaturePlaceContext<ColumnFeatureConfiguration> param0) {
+        int var0 = param0.chunkGenerator().getSeaLevel();
+        BlockPos var1 = param0.origin();
+        WorldGenLevel var2 = param0.level();
+        Random var3 = param0.random();
+        ColumnFeatureConfiguration var4 = param0.config();
+        if (!canPlaceAt(var2, var0, var1.mutable())) {
             return false;
         } else {
-            int var1 = param4.height().sample(param2);
-            boolean var2 = param2.nextFloat() < 0.9F;
-            int var3 = Math.min(var1, var2 ? 5 : 8);
-            int var4 = var2 ? 50 : 15;
-            boolean var5 = false;
+            int var5 = var4.height().sample(var3);
+            boolean var6 = var3.nextFloat() < 0.9F;
+            int var7 = Math.min(var5, var6 ? 5 : 8);
+            int var8 = var6 ? 50 : 15;
+            boolean var9 = false;
 
-            for(BlockPos var6 : BlockPos.randomBetweenClosed(
-                param2, var4, param3.getX() - var3, param3.getY(), param3.getZ() - var3, param3.getX() + var3, param3.getY(), param3.getZ() + var3
+            for(BlockPos var10 : BlockPos.randomBetweenClosed(
+                var3, var8, var1.getX() - var7, var1.getY(), var1.getZ() - var7, var1.getX() + var7, var1.getY(), var1.getZ() + var7
             )) {
-                int var7 = var1 - var6.distManhattan(param3);
-                if (var7 >= 0) {
-                    var5 |= this.placeColumn(param0, var0, var6, var7, param4.reach().sample(param2));
+                int var11 = var5 - var10.distManhattan(var1);
+                if (var11 >= 0) {
+                    var9 |= this.placeColumn(var2, var0, var10, var11, var4.reach().sample(var3));
                 }
             }
 
-            return var5;
+            return var9;
         }
     }
 

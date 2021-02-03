@@ -5,12 +5,14 @@ import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.Options;
 import net.minecraft.client.gui.components.toasts.TutorialToast;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.Input;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.KeybindComponent;
+import net.minecraft.world.inventory.ClickAction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -23,10 +25,12 @@ public class Tutorial {
     private final Minecraft minecraft;
     @Nullable
     private TutorialStepInstance instance;
-    private List<Tutorial.TimedToast> timedToasts = Lists.newArrayList();
+    private final List<Tutorial.TimedToast> timedToasts = Lists.newArrayList();
+    private final BundleTutorial bundleTutorial;
 
-    public Tutorial(Minecraft param0) {
+    public Tutorial(Minecraft param0, Options param1) {
         this.minecraft = param0;
+        this.bundleTutorial = new BundleTutorial(this, param1);
     }
 
     public void onInput(Input param0) {
@@ -134,6 +138,10 @@ public class Tutorial {
 
     public static Component key(String param0) {
         return new KeybindComponent("key." + param0).withStyle(ChatFormatting.BOLD);
+    }
+
+    public void onInventoryAction(ItemStack param0, ItemStack param1, ClickAction param2) {
+        this.bundleTutorial.onInventoryAction(param0, param1, param2);
     }
 
     @OnlyIn(Dist.CLIENT)

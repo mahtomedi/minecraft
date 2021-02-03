@@ -5,7 +5,6 @@ import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.configurations.BlockStateConfiguration;
 
 public class BlockBlobFeature extends Feature<BlockStateConfiguration> {
@@ -13,32 +12,38 @@ public class BlockBlobFeature extends Feature<BlockStateConfiguration> {
         super(param0);
     }
 
-    public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, BlockStateConfiguration param4) {
-        for(; param3.getY() > param0.getMinBuildHeight() + 3; param3 = param3.below()) {
-            if (!param0.isEmptyBlock(param3.below())) {
-                BlockState var0 = param0.getBlockState(param3.below());
-                if (isDirt(var0) || isStone(var0)) {
+    @Override
+    public boolean place(FeaturePlaceContext<BlockStateConfiguration> param0) {
+        BlockPos var0 = param0.origin();
+        WorldGenLevel var1 = param0.level();
+        Random var2 = param0.random();
+
+        BlockStateConfiguration var3;
+        for(var3 = param0.config(); var0.getY() > var1.getMinBuildHeight() + 3; var0 = var0.below()) {
+            if (!var1.isEmptyBlock(var0.below())) {
+                BlockState var4 = var1.getBlockState(var0.below());
+                if (isDirt(var4) || isStone(var4)) {
                     break;
                 }
             }
         }
 
-        if (param3.getY() <= param0.getMinBuildHeight() + 3) {
+        if (var0.getY() <= var1.getMinBuildHeight() + 3) {
             return false;
         } else {
-            for(int var1 = 0; var1 < 3; ++var1) {
-                int var2 = param2.nextInt(2);
-                int var3 = param2.nextInt(2);
-                int var4 = param2.nextInt(2);
-                float var5 = (float)(var2 + var3 + var4) * 0.333F + 0.5F;
+            for(int var5 = 0; var5 < 3; ++var5) {
+                int var6 = var2.nextInt(2);
+                int var7 = var2.nextInt(2);
+                int var8 = var2.nextInt(2);
+                float var9 = (float)(var6 + var7 + var8) * 0.333F + 0.5F;
 
-                for(BlockPos var6 : BlockPos.betweenClosed(param3.offset(-var2, -var3, -var4), param3.offset(var2, var3, var4))) {
-                    if (var6.distSqr(param3) <= (double)(var5 * var5)) {
-                        param0.setBlock(var6, param4.state, 4);
+                for(BlockPos var10 : BlockPos.betweenClosed(var0.offset(-var6, -var7, -var8), var0.offset(var6, var7, var8))) {
+                    if (var10.distSqr(var0) <= (double)(var9 * var9)) {
+                        var1.setBlock(var10, var3.state, 4);
                     }
                 }
 
-                param3 = param3.offset(-1 + param2.nextInt(2), -param2.nextInt(2), -1 + param2.nextInt(2));
+                var0 = var0.offset(-1 + var2.nextInt(2), -var2.nextInt(2), -1 + var2.nextInt(2));
             }
 
             return true;

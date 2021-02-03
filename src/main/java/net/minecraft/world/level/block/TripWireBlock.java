@@ -18,6 +18,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
@@ -91,6 +92,7 @@ public class TripWireBlock extends Block {
     public void playerWillDestroy(Level param0, BlockPos param1, BlockState param2, Player param3) {
         if (!param0.isClientSide && !param3.getMainHandItem().isEmpty() && param3.getMainHandItem().is(Items.SHEARS)) {
             param0.setBlock(param1, param2.setValue(DISARMED, Boolean.valueOf(true)), 4);
+            param0.gameEvent(param3, GameEvent.SHEAR, param1);
         }
 
         super.playerWillDestroy(param0, param1, param2, param3);

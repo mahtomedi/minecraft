@@ -7,7 +7,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 
 public class GlowstoneFeature extends Feature<NoneFeatureConfiguration> {
@@ -15,33 +14,37 @@ public class GlowstoneFeature extends Feature<NoneFeatureConfiguration> {
         super(param0);
     }
 
-    public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, NoneFeatureConfiguration param4) {
-        if (!param0.isEmptyBlock(param3)) {
+    @Override
+    public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> param0) {
+        WorldGenLevel var0 = param0.level();
+        BlockPos var1 = param0.origin();
+        Random var2 = param0.random();
+        if (!var0.isEmptyBlock(var1)) {
             return false;
         } else {
-            BlockState var0 = param0.getBlockState(param3.above());
-            if (!var0.is(Blocks.NETHERRACK) && !var0.is(Blocks.BASALT) && !var0.is(Blocks.BLACKSTONE)) {
+            BlockState var3 = var0.getBlockState(var1.above());
+            if (!var3.is(Blocks.NETHERRACK) && !var3.is(Blocks.BASALT) && !var3.is(Blocks.BLACKSTONE)) {
                 return false;
             } else {
-                param0.setBlock(param3, Blocks.GLOWSTONE.defaultBlockState(), 2);
+                var0.setBlock(var1, Blocks.GLOWSTONE.defaultBlockState(), 2);
 
-                for(int var1 = 0; var1 < 1500; ++var1) {
-                    BlockPos var2 = param3.offset(param2.nextInt(8) - param2.nextInt(8), -param2.nextInt(12), param2.nextInt(8) - param2.nextInt(8));
-                    if (param0.getBlockState(var2).isAir()) {
-                        int var3 = 0;
+                for(int var4 = 0; var4 < 1500; ++var4) {
+                    BlockPos var5 = var1.offset(var2.nextInt(8) - var2.nextInt(8), -var2.nextInt(12), var2.nextInt(8) - var2.nextInt(8));
+                    if (var0.getBlockState(var5).isAir()) {
+                        int var6 = 0;
 
-                        for(Direction var4 : Direction.values()) {
-                            if (param0.getBlockState(var2.relative(var4)).is(Blocks.GLOWSTONE)) {
-                                ++var3;
+                        for(Direction var7 : Direction.values()) {
+                            if (var0.getBlockState(var5.relative(var7)).is(Blocks.GLOWSTONE)) {
+                                ++var6;
                             }
 
-                            if (var3 > 1) {
+                            if (var6 > 1) {
                                 break;
                             }
                         }
 
-                        if (var3 == 1) {
-                            param0.setBlock(var2, Blocks.GLOWSTONE.defaultBlockState(), 2);
+                        if (var6 == 1) {
+                            var0.setBlock(var5, Blocks.GLOWSTONE.defaultBlockState(), 2);
                         }
                     }
                 }

@@ -2,21 +2,61 @@ package net.minecraft.world.level.block;
 
 import java.util.Random;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.state.BlockState;
 
-public interface ChangeOverTimeBlock {
-    default int getChangeInterval(Random param0) {
-        return 1200000 + param0.nextInt(768000);
-    }
-
+public interface ChangeOverTimeBlock<T extends Enum<T>> {
     BlockState getChangeTo(BlockState var1);
 
-    default void scheduleChange(Level param0, Block param1, BlockPos param2) {
-        param0.getBlockTicks().scheduleTick(param2, param1, this.getChangeInterval(param0.getRandom()));
+    float getChanceModifier();
+
+    default void onRandomTick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+        float var0 = 0.05688889F;
+        if (param3.nextFloat() < 0.05688889F) {
+            this.applyChangeOverTime(param0, param1, param2, param3);
+        }
+
     }
 
-    default void change(Level param0, BlockState param1, BlockPos param2) {
-        param0.setBlockAndUpdate(param2, this.getChangeTo(param1));
+    T getAge();
+
+    default void applyChangeOverTime(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+        int var0 = this.getAge().ordinal();
+        int var1 = 0;
+        int var2 = 0;
+
+        for(BlockPos var3 : BlockPos.withinManhattan(param2, 4, 4, 4)) {
+            int var4 = var3.distManhattan(param2);
+            if (var4 > 4) {
+                break;
+            }
+
+            if (!var3.equals(param2)) {
+                BlockState var5 = param1.getBlockState(var3);
+                Block var6 = var5.getBlock();
+                if (var6 instanceof ChangeOverTimeBlock) {
+                    Enum<?> var7 = ((ChangeOverTimeBlock)var6).getAge();
+                    if (this.getAge().getClass() == var7.getClass()) {
+                        int var8 = var7.ordinal();
+                        if (var8 < var0) {
+                            return;
+                        }
+
+                        if (var8 > var0) {
+                            ++var2;
+                        } else {
+                            ++var1;
+                        }
+                    }
+                }
+            }
+        }
+
+        float var9 = (float)(var2 + 1) / (float)(var2 + var1 + 1);
+        float var10 = var9 * var9 * this.getChanceModifier();
+        if (param3.nextFloat() < var10) {
+            param1.setBlockAndUpdate(param2, this.getChangeTo(param0));
+        }
+
     }
 }

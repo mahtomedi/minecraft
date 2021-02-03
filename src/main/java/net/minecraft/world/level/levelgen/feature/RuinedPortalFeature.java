@@ -15,6 +15,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.NoiseColumn;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Mirror;
@@ -60,7 +61,14 @@ public class RuinedPortalFeature extends StructureFeature<RuinedPortalConfigurat
     }
 
     private static int findSuitableY(
-        Random param0, ChunkGenerator param1, RuinedPortalPiece.VerticalPlacement param2, boolean param3, int param4, int param5, BoundingBox param6
+        Random param0,
+        ChunkGenerator param1,
+        RuinedPortalPiece.VerticalPlacement param2,
+        boolean param3,
+        int param4,
+        int param5,
+        BoundingBox param6,
+        LevelHeightAccessor param7
     ) {
         int var0;
         if (param2 == RuinedPortalPiece.VerticalPlacement.IN_NETHER) {
@@ -89,7 +97,7 @@ public class RuinedPortalFeature extends StructureFeature<RuinedPortalConfigurat
             new BlockPos(param6.x0, 0, param6.z1),
             new BlockPos(param6.x1, 0, param6.z1)
         );
-        List<NoiseColumn> var10 = var9.stream().map(param1x -> param1.getBaseColumn(param1x.getX(), param1x.getZ())).collect(Collectors.toList());
+        List<NoiseColumn> var10 = var9.stream().map(param2x -> param1.getBaseColumn(param2x.getX(), param2x.getZ(), param7)).collect(Collectors.toList());
         Heightmap.Types var11 = param2 == RuinedPortalPiece.VerticalPlacement.ON_OCEAN_FLOOR
             ? Heightmap.Types.OCEAN_FLOOR_WG
             : Heightmap.Types.WORLD_SURFACE_WG;
@@ -102,7 +110,7 @@ public class RuinedPortalFeature extends StructureFeature<RuinedPortalConfigurat
 
             for(NoiseColumn var15 : var10) {
                 BlockState var16 = var15.getBlockState(var12);
-                if (var16 != null && var11.isOpaque().test(var16)) {
+                if (var11.isOpaque().test(var16)) {
                     if (++var14 == 3) {
                         return var13;
                     }
@@ -123,7 +131,14 @@ public class RuinedPortalFeature extends StructureFeature<RuinedPortalConfigurat
         }
 
         public void generatePieces(
-            RegistryAccess param0, ChunkGenerator param1, StructureManager param2, int param3, int param4, Biome param5, RuinedPortalConfiguration param6
+            RegistryAccess param0,
+            ChunkGenerator param1,
+            StructureManager param2,
+            int param3,
+            int param4,
+            Biome param5,
+            RuinedPortalConfiguration param6,
+            LevelHeightAccessor param7
         ) {
             RuinedPortalPiece.Properties var0 = new RuinedPortalPiece.Properties();
             RuinedPortalPiece.VerticalPlacement var1;
@@ -181,8 +196,8 @@ public class RuinedPortalFeature extends StructureFeature<RuinedPortalConfigurat
             Vec3i var18 = var17.getCenter();
             int var19 = var18.getX();
             int var20 = var18.getZ();
-            int var21 = param1.getBaseHeight(var19, var20, RuinedPortalPiece.getHeightMapType(var1)) - 1;
-            int var22 = RuinedPortalFeature.findSuitableY(this.random, param1, var1, var0.airPocket, var21, var17.getYSpan(), var17);
+            int var21 = param1.getBaseHeight(var19, var20, RuinedPortalPiece.getHeightMapType(var1), param7) - 1;
+            int var22 = RuinedPortalFeature.findSuitableY(this.random, param1, var1, var0.airPocket, var21, var17.getYSpan(), var17, param7);
             BlockPos var23 = new BlockPos(var16.getX(), var22, var16.getZ());
             if (param6.portalType == RuinedPortalFeature.Type.MOUNTAIN
                 || param6.portalType == RuinedPortalFeature.Type.OCEAN

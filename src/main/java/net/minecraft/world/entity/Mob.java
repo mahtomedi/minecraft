@@ -540,7 +540,7 @@ public abstract class Mob extends LivingEntity {
             }
 
             this.setItemSlotAndDropWhenKilled(var0, param0);
-            this.playEquipSound(param0);
+            this.equipEventAndSound(param0);
             return true;
         } else {
             return false;
@@ -1377,7 +1377,7 @@ public abstract class Mob extends LivingEntity {
         if (this.level.isDay() && !this.level.isClientSide) {
             float var0 = this.getBrightness();
             BlockPos var1 = new BlockPos(this.getX(), this.getEyeY(), this.getZ());
-            boolean var2 = this.isInWaterRainOrBubble() || this.bodyIsInPowderSnow;
+            boolean var2 = this.isInWaterRainOrBubble() || this.isInPowderSnow || this.wasInPowderSnow;
             if (var0 > 0.5F && this.random.nextFloat() * 30.0F < (var0 - 0.4F) * 2.0F && !var2 && this.level.canSeeSky(var1)) {
                 return true;
             }

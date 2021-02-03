@@ -7,8 +7,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class SimpleAnimatedParticle extends TextureSheetParticle {
     protected final SpriteSet sprites;
-    private final float baseGravity;
-    private float baseAirFriction = 0.91F;
     private float fadeR;
     private float fadeG;
     private float fadeB;
@@ -16,8 +14,9 @@ public class SimpleAnimatedParticle extends TextureSheetParticle {
 
     protected SimpleAnimatedParticle(ClientLevel param0, double param1, double param2, double param3, SpriteSet param4, float param5) {
         super(param0, param1, param2, param3);
+        this.friction = 0.91F;
+        this.gravity = param5;
         this.sprites = param4;
-        this.baseGravity = param5;
     }
 
     public void setColor(int param0) {
@@ -42,41 +41,21 @@ public class SimpleAnimatedParticle extends TextureSheetParticle {
 
     @Override
     public void tick() {
-        this.xo = this.x;
-        this.yo = this.y;
-        this.zo = this.z;
-        if (this.age++ >= this.lifetime) {
-            this.remove();
-        } else {
-            this.setSpriteFromAge(this.sprites);
-            if (this.age > this.lifetime / 2) {
-                this.setAlpha(1.0F - ((float)this.age - (float)(this.lifetime / 2)) / (float)this.lifetime);
-                if (this.hasFade) {
-                    this.rCol += (this.fadeR - this.rCol) * 0.2F;
-                    this.gCol += (this.fadeG - this.gCol) * 0.2F;
-                    this.bCol += (this.fadeB - this.bCol) * 0.2F;
-                }
+        super.tick();
+        this.setSpriteFromAge(this.sprites);
+        if (this.age > this.lifetime / 2) {
+            this.setAlpha(1.0F - ((float)this.age - (float)(this.lifetime / 2)) / (float)this.lifetime);
+            if (this.hasFade) {
+                this.rCol += (this.fadeR - this.rCol) * 0.2F;
+                this.gCol += (this.fadeG - this.gCol) * 0.2F;
+                this.bCol += (this.fadeB - this.bCol) * 0.2F;
             }
-
-            this.yd += (double)this.baseGravity;
-            this.move(this.xd, this.yd, this.zd);
-            this.xd *= (double)this.baseAirFriction;
-            this.yd *= (double)this.baseAirFriction;
-            this.zd *= (double)this.baseAirFriction;
-            if (this.onGround) {
-                this.xd *= 0.7F;
-                this.zd *= 0.7F;
-            }
-
         }
+
     }
 
     @Override
     public int getLightColor(float param0) {
         return 15728880;
-    }
-
-    protected void setBaseAirFriction(float param0) {
-        this.baseAirFriction = param0;
     }
 }

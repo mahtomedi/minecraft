@@ -8,7 +8,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class BaseAshSmokeParticle extends TextureSheetParticle {
     private final SpriteSet sprites;
-    private final double fallSpeed;
 
     protected BaseAshSmokeParticle(
         ClientLevel param0,
@@ -25,11 +24,13 @@ public class BaseAshSmokeParticle extends TextureSheetParticle {
         SpriteSet param11,
         float param12,
         int param13,
-        double param14,
+        float param14,
         boolean param15
     ) {
         super(param0, param1, param2, param3, 0.0, 0.0, 0.0);
-        this.fallSpeed = param14;
+        this.friction = 0.96F;
+        this.gravity = param14;
+        this.speedUpWhenYMotionIsBlocked = true;
         this.sprites = param11;
         this.xd *= (double)param4;
         this.yd *= (double)param5;
@@ -61,28 +62,7 @@ public class BaseAshSmokeParticle extends TextureSheetParticle {
 
     @Override
     public void tick() {
-        this.xo = this.x;
-        this.yo = this.y;
-        this.zo = this.z;
-        if (this.age++ >= this.lifetime) {
-            this.remove();
-        } else {
-            this.setSpriteFromAge(this.sprites);
-            this.yd += this.fallSpeed;
-            this.move(this.xd, this.yd, this.zd);
-            if (this.y == this.yo) {
-                this.xd *= 1.1;
-                this.zd *= 1.1;
-            }
-
-            this.xd *= 0.96F;
-            this.yd *= 0.96F;
-            this.zd *= 0.96F;
-            if (this.onGround) {
-                this.xd *= 0.7F;
-                this.zd *= 0.7F;
-            }
-
-        }
+        super.tick();
+        this.setSpriteFromAge(this.sprites);
     }
 }

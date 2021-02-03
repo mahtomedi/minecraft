@@ -41,6 +41,7 @@ public class Pufferfish extends AbstractFish {
 
     public Pufferfish(EntityType<? extends Pufferfish> param0, Level param1) {
         super(param0, param1);
+        this.refreshDimensions();
     }
 
     @Override

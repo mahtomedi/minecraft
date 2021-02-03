@@ -49,7 +49,7 @@ public class ConfiguredFeature<FC extends FeatureConfiguration, F extends Featur
     }
 
     public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3) {
-        return this.feature.place(param0, param1, param2, param3, this.config);
+        return this.feature.place(new FeaturePlaceContext<>(param0, param1, param2, param3, this.config));
     }
 
     public Stream<ConfiguredFeature<?, ?>> getFeatures() {

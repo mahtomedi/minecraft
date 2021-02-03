@@ -2,6 +2,7 @@ package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -22,7 +23,8 @@ public class BastionFeature extends JigsawFeature {
         int param5,
         Biome param6,
         ChunkPos param7,
-        JigsawConfiguration param8
+        JigsawConfiguration param8,
+        LevelHeightAccessor param9
     ) {
         return param3.nextInt(5) >= 2;
     }

@@ -46,6 +46,9 @@ public abstract class TextureSheetParticle extends SingleQuadParticle {
     }
 
     public void setSpriteFromAge(SpriteSet param0) {
-        this.setSprite(param0.get(this.age, this.lifetime));
+        if (!this.removed) {
+            this.setSprite(param0.get(this.age, this.lifetime));
+        }
+
     }
 }

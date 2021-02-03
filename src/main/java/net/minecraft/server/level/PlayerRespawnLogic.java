@@ -13,7 +13,7 @@ import net.minecraft.world.level.levelgen.Heightmap;
 public class PlayerRespawnLogic {
     @Nullable
     protected static BlockPos getOverworldRespawnPos(ServerLevel param0, int param1, int param2, boolean param3) {
-        BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos(param1, 0, param2);
+        BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos(param1, param0.getMinBuildHeight(), param2);
         Biome var1 = param0.getBiome(var0);
         boolean var2 = param0.dimensionType().hasCeiling();
         BlockState var3 = var1.getGenerationSettings().getSurfaceBuilderConfig().getTopMaterial();

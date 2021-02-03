@@ -10,7 +10,6 @@ import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.configurations.DeltaFeatureConfiguration;
 
 public class DeltaFeature extends Feature<DeltaFeatureConfiguration> {
@@ -23,31 +22,36 @@ public class DeltaFeature extends Feature<DeltaFeatureConfiguration> {
         super(param0);
     }
 
-    public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, DeltaFeatureConfiguration param4) {
+    @Override
+    public boolean place(FeaturePlaceContext<DeltaFeatureConfiguration> param0) {
         boolean var0 = false;
-        boolean var1 = param2.nextDouble() < 0.9;
-        int var2 = var1 ? param4.rimSize().sample(param2) : 0;
-        int var3 = var1 ? param4.rimSize().sample(param2) : 0;
-        boolean var4 = var1 && var2 != 0 && var3 != 0;
-        int var5 = param4.size().sample(param2);
-        int var6 = param4.size().sample(param2);
-        int var7 = Math.max(var5, var6);
+        Random var1 = param0.random();
+        WorldGenLevel var2 = param0.level();
+        DeltaFeatureConfiguration var3 = param0.config();
+        BlockPos var4 = param0.origin();
+        boolean var5 = var1.nextDouble() < 0.9;
+        int var6 = var5 ? var3.rimSize().sample(var1) : 0;
+        int var7 = var5 ? var3.rimSize().sample(var1) : 0;
+        boolean var8 = var5 && var6 != 0 && var7 != 0;
+        int var9 = var3.size().sample(var1);
+        int var10 = var3.size().sample(var1);
+        int var11 = Math.max(var9, var10);
 
-        for(BlockPos var8 : BlockPos.withinManhattan(param3, var5, 0, var6)) {
-            if (var8.distManhattan(param3) > var7) {
+        for(BlockPos var12 : BlockPos.withinManhattan(var4, var9, 0, var10)) {
+            if (var12.distManhattan(var4) > var11) {
                 break;
             }
 
-            if (isClear(param0, var8, param4)) {
-                if (var4) {
+            if (isClear(var2, var12, var3)) {
+                if (var8) {
                     var0 = true;
-                    this.setBlock(param0, var8, param4.rim());
+                    this.setBlock(var2, var12, var3.rim());
                 }
 
-                BlockPos var9 = var8.offset(var2, 0, var3);
-                if (isClear(param0, var9, param4)) {
+                BlockPos var13 = var12.offset(var6, 0, var7);
+                if (isClear(var2, var13, var3)) {
                     var0 = true;
-                    this.setBlock(param0, var9, param4.contents());
+                    this.setBlock(var2, var13, var3.contents());
                 }
             }
         }

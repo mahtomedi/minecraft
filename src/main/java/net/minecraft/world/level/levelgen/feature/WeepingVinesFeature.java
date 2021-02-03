@@ -10,7 +10,6 @@ import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.GrowingPlantHeadBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 
 public class WeepingVinesFeature extends Feature<NoneFeatureConfiguration> {
@@ -20,16 +19,20 @@ public class WeepingVinesFeature extends Feature<NoneFeatureConfiguration> {
         super(param0);
     }
 
-    public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, NoneFeatureConfiguration param4) {
-        if (!param0.isEmptyBlock(param3)) {
+    @Override
+    public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> param0) {
+        WorldGenLevel var0 = param0.level();
+        BlockPos var1 = param0.origin();
+        Random var2 = param0.random();
+        if (!var0.isEmptyBlock(var1)) {
             return false;
         } else {
-            BlockState var0 = param0.getBlockState(param3.above());
-            if (!var0.is(Blocks.NETHERRACK) && !var0.is(Blocks.NETHER_WART_BLOCK)) {
+            BlockState var3 = var0.getBlockState(var1.above());
+            if (!var3.is(Blocks.NETHERRACK) && !var3.is(Blocks.NETHER_WART_BLOCK)) {
                 return false;
             } else {
-                this.placeRoofNetherWart(param0, param2, param3);
-                this.placeRoofWeepingVines(param0, param2, param3);
+                this.placeRoofNetherWart(var0, var2, var1);
+                this.placeRoofWeepingVines(var0, var2, var1);
                 return true;
             }
         }

@@ -10,6 +10,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class CritParticle extends TextureSheetParticle {
     private CritParticle(ClientLevel param0, double param1, double param2, double param3, double param4, double param5, double param6) {
         super(param0, param1, param2, param3, 0.0, 0.0, 0.0);
+        this.friction = 0.7F;
+        this.gravity = 0.5F;
         this.xd *= 0.1F;
         this.yd *= 0.1F;
         this.zd *= 0.1F;
@@ -33,25 +35,9 @@ public class CritParticle extends TextureSheetParticle {
 
     @Override
     public void tick() {
-        this.xo = this.x;
-        this.yo = this.y;
-        this.zo = this.z;
-        if (this.age++ >= this.lifetime) {
-            this.remove();
-        } else {
-            this.move(this.xd, this.yd, this.zd);
-            this.gCol = (float)((double)this.gCol * 0.96);
-            this.bCol = (float)((double)this.bCol * 0.9);
-            this.xd *= 0.7F;
-            this.yd *= 0.7F;
-            this.zd *= 0.7F;
-            this.yd -= 0.02F;
-            if (this.onGround) {
-                this.xd *= 0.7F;
-                this.zd *= 0.7F;
-            }
-
-        }
+        super.tick();
+        this.gCol = (float)((double)this.gCol * 0.96);
+        this.bCol = (float)((double)this.bCol * 0.9);
     }
 
     @Override

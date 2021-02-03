@@ -1,24 +1,29 @@
 package net.minecraft.client;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.io.Files;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.mojang.blaze3d.platform.InputConstants;
+import it.unimi.dsi.fastutil.objects.Object2FloatMap;
+import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.function.IntFunction;
+import java.util.function.ToIntFunction;
 import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
@@ -49,7 +54,7 @@ public class Options {
     };
     private static final Splitter OPTION_SPLITTER = Splitter.on(':').limit(2);
     public double sensitivity = 0.5;
-    public int renderDistance = -1;
+    public int renderDistance;
     public float entityDistanceScaling = 1.0F;
     public int framerateLimit = 120;
     public CloudStatus renderClouds = CloudStatus.FANCY;
@@ -66,7 +71,7 @@ public class Options {
     public boolean hideServerAddress;
     public boolean advancedItemTooltips;
     public boolean pauseOnLostFocus = true;
-    private final Set<PlayerModelPart> modelParts = Sets.newHashSet(PlayerModelPart.values());
+    private final Set<PlayerModelPart> modelParts = EnumSet.allOf(PlayerModelPart.class);
     public HumanoidArm mainHand = HumanoidArm.RIGHT;
     public int overrideWidth;
     public int overrideHeight;
@@ -77,11 +82,12 @@ public class Options {
     public double chatHeightFocused = 1.0;
     public double chatDelay;
     public int mipmapLevels = 4;
-    private final Map<SoundSource, Float> sourceVolumes = Maps.newEnumMap(SoundSource.class);
+    private final Object2FloatMap<SoundSource> sourceVolumes = Util.make(new Object2FloatOpenHashMap<>(), param0x -> param0x.defaultReturnValue(1.0F));
     public boolean useNativeTransport = true;
     public AttackIndicatorStatus attackIndicator = AttackIndicatorStatus.CROSSHAIR;
     public TutorialSteps tutorialStep = TutorialSteps.MOVEMENT;
     public boolean joinedFirstServer = false;
+    public boolean hideBundleTutorial = false;
     public int biomeBlendRadius = 2;
     public double mouseWheelSensitivity = 1.0;
     public boolean rawMouseInput = true;
@@ -225,6 +231,98 @@ public class Options {
         this.save();
     }
 
+    private void processOptions(Options.FieldAccess param0) {
+        this.autoJump = param0.process("autoJump", this.autoJump);
+        this.autoSuggestions = param0.process("autoSuggestions", this.autoSuggestions);
+        this.chatColors = param0.process("chatColors", this.chatColors);
+        this.chatLinks = param0.process("chatLinks", this.chatLinks);
+        this.chatLinksPrompt = param0.process("chatLinksPrompt", this.chatLinksPrompt);
+        this.enableVsync = param0.process("enableVsync", this.enableVsync);
+        this.entityShadows = param0.process("entityShadows", this.entityShadows);
+        this.forceUnicodeFont = param0.process("forceUnicodeFont", this.forceUnicodeFont);
+        this.discreteMouseScroll = param0.process("discrete_mouse_scroll", this.discreteMouseScroll);
+        this.invertYMouse = param0.process("invertYMouse", this.invertYMouse);
+        this.realmsNotifications = param0.process("realmsNotifications", this.realmsNotifications);
+        this.reducedDebugInfo = param0.process("reducedDebugInfo", this.reducedDebugInfo);
+        this.snooperEnabled = param0.process("snooperEnabled", this.snooperEnabled);
+        this.showSubtitles = param0.process("showSubtitles", this.showSubtitles);
+        this.touchscreen = param0.process("touchscreen", this.touchscreen);
+        this.fullscreen = param0.process("fullscreen", this.fullscreen);
+        this.bobView = param0.process("bobView", this.bobView);
+        this.toggleCrouch = param0.process("toggleCrouch", this.toggleCrouch);
+        this.toggleSprint = param0.process("toggleSprint", this.toggleSprint);
+        this.sensitivity = param0.process("mouseSensitivity", this.sensitivity);
+        this.fov = param0.process("fov", (this.fov - 70.0) / 40.0) * 40.0 + 70.0;
+        this.screenEffectScale = param0.process("screenEffectScale", this.screenEffectScale);
+        this.fovEffectScale = param0.process("fovEffectScale", this.fovEffectScale);
+        this.gamma = param0.process("gamma", this.gamma);
+        this.renderDistance = param0.process("renderDistance", this.renderDistance);
+        this.entityDistanceScaling = param0.process("entityDistanceScaling", this.entityDistanceScaling);
+        this.guiScale = param0.process("guiScale", this.guiScale);
+        this.particles = param0.process("particles", this.particles, ParticleStatus::byId, ParticleStatus::getId);
+        this.framerateLimit = param0.process("maxFps", this.framerateLimit);
+        this.difficulty = param0.process("difficulty", this.difficulty, Difficulty::byId, Difficulty::getId);
+        this.graphicsMode = param0.process("graphicsMode", this.graphicsMode, GraphicsStatus::byId, GraphicsStatus::getId);
+        this.ambientOcclusion = param0.process("ao", this.ambientOcclusion, Options::readAmbientOcclusion, param0x -> Integer.toString(param0x.getId()));
+        this.biomeBlendRadius = param0.process("biomeBlendRadius", this.biomeBlendRadius);
+        this.renderClouds = param0.process("renderClouds", this.renderClouds, Options::readCloudStatus, Options::writeCloudStatus);
+        this.resourcePacks = param0.process("resourcePacks", this.resourcePacks, Options::readPackList, GSON::toJson);
+        this.incompatibleResourcePacks = param0.process("incompatibleResourcePacks", this.incompatibleResourcePacks, Options::readPackList, GSON::toJson);
+        this.lastMpIp = param0.process("lastServer", this.lastMpIp);
+        this.languageCode = param0.process("lang", this.languageCode);
+        this.chatVisibility = param0.process("chatVisibility", this.chatVisibility, ChatVisiblity::byId, ChatVisiblity::getId);
+        this.chatOpacity = param0.process("chatOpacity", this.chatOpacity);
+        this.chatLineSpacing = param0.process("chatLineSpacing", this.chatLineSpacing);
+        this.textBackgroundOpacity = param0.process("textBackgroundOpacity", this.textBackgroundOpacity);
+        this.backgroundForChatOnly = param0.process("backgroundForChatOnly", this.backgroundForChatOnly);
+        this.hideServerAddress = param0.process("hideServerAddress", this.hideServerAddress);
+        this.advancedItemTooltips = param0.process("advancedItemTooltips", this.advancedItemTooltips);
+        this.pauseOnLostFocus = param0.process("pauseOnLostFocus", this.pauseOnLostFocus);
+        this.overrideWidth = param0.process("overrideWidth", this.overrideWidth);
+        this.overrideHeight = param0.process("overrideHeight", this.overrideHeight);
+        this.heldItemTooltips = param0.process("heldItemTooltips", this.heldItemTooltips);
+        this.chatHeightFocused = param0.process("chatHeightFocused", this.chatHeightFocused);
+        this.chatDelay = param0.process("chatDelay", this.chatDelay);
+        this.chatHeightUnfocused = param0.process("chatHeightUnfocused", this.chatHeightUnfocused);
+        this.chatScale = param0.process("chatScale", this.chatScale);
+        this.chatWidth = param0.process("chatWidth", this.chatWidth);
+        this.mipmapLevels = param0.process("mipmapLevels", this.mipmapLevels);
+        this.useNativeTransport = param0.process("useNativeTransport", this.useNativeTransport);
+        this.mainHand = param0.process("mainHand", this.mainHand, Options::readMainHand, Options::writeMainHand);
+        this.attackIndicator = param0.process("attackIndicator", this.attackIndicator, AttackIndicatorStatus::byId, AttackIndicatorStatus::getId);
+        this.narratorStatus = param0.process("narrator", this.narratorStatus, NarratorStatus::byId, NarratorStatus::getId);
+        this.tutorialStep = param0.process("tutorialStep", this.tutorialStep, TutorialSteps::getByName, TutorialSteps::getName);
+        this.mouseWheelSensitivity = param0.process("mouseWheelSensitivity", this.mouseWheelSensitivity);
+        this.rawMouseInput = param0.process("rawMouseInput", this.rawMouseInput);
+        this.glDebugVerbosity = param0.process("glDebugVerbosity", this.glDebugVerbosity);
+        this.skipMultiplayerWarning = param0.process("skipMultiplayerWarning", this.skipMultiplayerWarning);
+        this.hideMatchedNames = param0.process("hideMatchedNames", this.hideMatchedNames);
+        this.joinedFirstServer = param0.process("joinedFirstServer", this.joinedFirstServer);
+        this.hideBundleTutorial = param0.process("hideBundleTutorial", this.hideBundleTutorial);
+        this.syncWrites = param0.process("syncChunkWrites", this.syncWrites);
+
+        for(KeyMapping var0 : this.keyMappings) {
+            String var1 = var0.saveString();
+            String var2 = param0.process("key_" + var0.getName(), var1);
+            if (!var1.equals(var2)) {
+                var0.setKey(InputConstants.getKey(var2));
+            }
+        }
+
+        for(SoundSource var3 : SoundSource.values()) {
+            this.sourceVolumes.computeFloat(var3, (param1, param2) -> param0.process("soundCategory_" + param1.getName(), param2 != null ? param2 : 1.0F));
+        }
+
+        for(PlayerModelPart var4 : PlayerModelPart.values()) {
+            boolean var5 = this.modelParts.contains(var4);
+            boolean var6 = param0.process("modelPart_" + var4.getId(), var5);
+            if (var6 != var5) {
+                this.setModelPart(var4, var6);
+            }
+        }
+
+    }
+
     public void load() {
         try {
             if (!this.optionsFile.exists()) {
@@ -246,7 +344,7 @@ public class Options {
                 });
             }
 
-            CompoundTag var2 = this.dataFix(var0);
+            final CompoundTag var2 = this.dataFix(var0);
             if (!var2.contains("graphicsMode") && var2.contains("fancyGraphics")) {
                 if (isTrue(var2.getString("fancyGraphics"))) {
                     this.graphicsMode = GraphicsStatus.FANCY;
@@ -255,328 +353,106 @@ public class Options {
                 }
             }
 
-            for(String var3 : var2.getAllKeys()) {
-                String var4 = var2.getString(var3);
-
-                try {
-                    if ("autoJump".equals(var3)) {
-                        this.autoJump = isTrue(var4);
-                    }
-
-                    if ("autoSuggestions".equals(var3)) {
-                        this.autoSuggestions = isTrue(var4);
-                    }
-
-                    if ("chatColors".equals(var3)) {
-                        this.chatColors = isTrue(var4);
-                    }
-
-                    if ("chatLinks".equals(var3)) {
-                        this.chatLinks = isTrue(var4);
-                    }
-
-                    if ("chatLinksPrompt".equals(var3)) {
-                        this.chatLinksPrompt = isTrue(var4);
-                    }
-
-                    if ("enableVsync".equals(var3)) {
-                        this.enableVsync = isTrue(var4);
-                    }
-
-                    if ("entityShadows".equals(var3)) {
-                        this.entityShadows = isTrue(var4);
-                    }
-
-                    if ("forceUnicodeFont".equals(var3)) {
-                        this.forceUnicodeFont = isTrue(var4);
-                    }
-
-                    if ("discrete_mouse_scroll".equals(var3)) {
-                        this.discreteMouseScroll = isTrue(var4);
-                    }
-
-                    if ("invertYMouse".equals(var3)) {
-                        this.invertYMouse = isTrue(var4);
-                    }
-
-                    if ("realmsNotifications".equals(var3)) {
-                        this.realmsNotifications = isTrue(var4);
-                    }
-
-                    if ("reducedDebugInfo".equals(var3)) {
-                        this.reducedDebugInfo = isTrue(var4);
-                    }
-
-                    if ("showSubtitles".equals(var3)) {
-                        this.showSubtitles = isTrue(var4);
-                    }
-
-                    if ("snooperEnabled".equals(var3)) {
-                        this.snooperEnabled = isTrue(var4);
-                    }
-
-                    if ("touchscreen".equals(var3)) {
-                        this.touchscreen = isTrue(var4);
-                    }
-
-                    if ("fullscreen".equals(var3)) {
-                        this.fullscreen = isTrue(var4);
-                    }
-
-                    if ("bobView".equals(var3)) {
-                        this.bobView = isTrue(var4);
-                    }
-
-                    if ("toggleCrouch".equals(var3)) {
-                        this.toggleCrouch = isTrue(var4);
-                    }
-
-                    if ("toggleSprint".equals(var3)) {
-                        this.toggleSprint = isTrue(var4);
-                    }
-
-                    if ("mouseSensitivity".equals(var3)) {
-                        this.sensitivity = (double)readFloat(var4);
-                    }
-
-                    if ("fov".equals(var3)) {
-                        this.fov = (double)(readFloat(var4) * 40.0F + 70.0F);
-                    }
-
-                    if ("screenEffectScale".equals(var3)) {
-                        this.screenEffectScale = readFloat(var4);
-                    }
-
-                    if ("fovEffectScale".equals(var3)) {
-                        this.fovEffectScale = readFloat(var4);
-                    }
-
-                    if ("gamma".equals(var3)) {
-                        this.gamma = (double)readFloat(var4);
-                    }
-
-                    if ("renderDistance".equals(var3)) {
-                        this.renderDistance = Integer.parseInt(var4);
-                    }
-
-                    if ("entityDistanceScaling".equals(var3)) {
-                        this.entityDistanceScaling = Float.parseFloat(var4);
-                    }
-
-                    if ("guiScale".equals(var3)) {
-                        this.guiScale = Integer.parseInt(var4);
-                    }
-
-                    if ("particles".equals(var3)) {
-                        this.particles = ParticleStatus.byId(Integer.parseInt(var4));
-                    }
-
-                    if ("maxFps".equals(var3)) {
-                        this.framerateLimit = Integer.parseInt(var4);
-                        if (this.minecraft.getWindow() != null) {
-                            this.minecraft.getWindow().setFramerateLimit(this.framerateLimit);
-                        }
-                    }
-
-                    if ("difficulty".equals(var3)) {
-                        this.difficulty = Difficulty.byId(Integer.parseInt(var4));
-                    }
-
-                    if ("graphicsMode".equals(var3)) {
-                        this.graphicsMode = GraphicsStatus.byId(Integer.parseInt(var4));
-                    }
-
-                    if ("tutorialStep".equals(var3)) {
-                        this.tutorialStep = TutorialSteps.getByName(var4);
-                    }
-
-                    if ("ao".equals(var3)) {
-                        if (isTrue(var4)) {
-                            this.ambientOcclusion = AmbientOcclusionStatus.MAX;
-                        } else if (isFalse(var4)) {
-                            this.ambientOcclusion = AmbientOcclusionStatus.OFF;
-                        } else {
-                            this.ambientOcclusion = AmbientOcclusionStatus.byId(Integer.parseInt(var4));
-                        }
-                    }
-
-                    if ("renderClouds".equals(var3)) {
-                        if (isTrue(var4)) {
-                            this.renderClouds = CloudStatus.FANCY;
-                        } else if (isFalse(var4)) {
-                            this.renderClouds = CloudStatus.OFF;
-                        } else if ("fast".equals(var4)) {
-                            this.renderClouds = CloudStatus.FAST;
-                        }
-                    }
-
-                    if ("attackIndicator".equals(var3)) {
-                        this.attackIndicator = AttackIndicatorStatus.byId(Integer.parseInt(var4));
-                    }
-
-                    if ("resourcePacks".equals(var3)) {
-                        this.resourcePacks = GsonHelper.fromJson(GSON, var4, RESOURCE_PACK_TYPE);
-                        if (this.resourcePacks == null) {
-                            this.resourcePacks = Lists.newArrayList();
-                        }
-                    }
-
-                    if ("incompatibleResourcePacks".equals(var3)) {
-                        this.incompatibleResourcePacks = GsonHelper.fromJson(GSON, var4, RESOURCE_PACK_TYPE);
-                        if (this.incompatibleResourcePacks == null) {
-                            this.incompatibleResourcePacks = Lists.newArrayList();
-                        }
-                    }
-
-                    if ("lastServer".equals(var3)) {
-                        this.lastMpIp = var4;
-                    }
-
-                    if ("lang".equals(var3)) {
-                        this.languageCode = var4;
-                    }
-
-                    if ("chatVisibility".equals(var3)) {
-                        this.chatVisibility = ChatVisiblity.byId(Integer.parseInt(var4));
-                    }
-
-                    if ("chatOpacity".equals(var3)) {
-                        this.chatOpacity = (double)readFloat(var4);
-                    }
-
-                    if ("chatLineSpacing".equals(var3)) {
-                        this.chatLineSpacing = (double)readFloat(var4);
-                    }
-
-                    if ("textBackgroundOpacity".equals(var3)) {
-                        this.textBackgroundOpacity = (double)readFloat(var4);
-                    }
-
-                    if ("backgroundForChatOnly".equals(var3)) {
-                        this.backgroundForChatOnly = isTrue(var4);
-                    }
-
-                    if ("fullscreenResolution".equals(var3)) {
-                        this.fullscreenVideoModeString = var4;
-                    }
-
-                    if ("hideServerAddress".equals(var3)) {
-                        this.hideServerAddress = isTrue(var4);
-                    }
-
-                    if ("advancedItemTooltips".equals(var3)) {
-                        this.advancedItemTooltips = isTrue(var4);
-                    }
-
-                    if ("pauseOnLostFocus".equals(var3)) {
-                        this.pauseOnLostFocus = isTrue(var4);
-                    }
-
-                    if ("overrideHeight".equals(var3)) {
-                        this.overrideHeight = Integer.parseInt(var4);
-                    }
-
-                    if ("overrideWidth".equals(var3)) {
-                        this.overrideWidth = Integer.parseInt(var4);
-                    }
-
-                    if ("heldItemTooltips".equals(var3)) {
-                        this.heldItemTooltips = isTrue(var4);
-                    }
-
-                    if ("chatHeightFocused".equals(var3)) {
-                        this.chatHeightFocused = (double)readFloat(var4);
-                    }
-
-                    if ("chatDelay".equals(var3)) {
-                        this.chatDelay = (double)readFloat(var4);
-                    }
-
-                    if ("chatHeightUnfocused".equals(var3)) {
-                        this.chatHeightUnfocused = (double)readFloat(var4);
-                    }
-
-                    if ("chatScale".equals(var3)) {
-                        this.chatScale = (double)readFloat(var4);
-                    }
-
-                    if ("chatWidth".equals(var3)) {
-                        this.chatWidth = (double)readFloat(var4);
-                    }
-
-                    if ("mipmapLevels".equals(var3)) {
-                        this.mipmapLevels = Integer.parseInt(var4);
-                    }
-
-                    if ("useNativeTransport".equals(var3)) {
-                        this.useNativeTransport = isTrue(var4);
-                    }
-
-                    if ("mainHand".equals(var3)) {
-                        this.mainHand = "left".equals(var4) ? HumanoidArm.LEFT : HumanoidArm.RIGHT;
-                    }
-
-                    if ("narrator".equals(var3)) {
-                        this.narratorStatus = NarratorStatus.byId(Integer.parseInt(var4));
-                    }
-
-                    if ("biomeBlendRadius".equals(var3)) {
-                        this.biomeBlendRadius = Integer.parseInt(var4);
-                    }
-
-                    if ("mouseWheelSensitivity".equals(var3)) {
-                        this.mouseWheelSensitivity = (double)readFloat(var4);
-                    }
-
-                    if ("rawMouseInput".equals(var3)) {
-                        this.rawMouseInput = isTrue(var4);
-                    }
-
-                    if ("glDebugVerbosity".equals(var3)) {
-                        this.glDebugVerbosity = Integer.parseInt(var4);
-                    }
-
-                    if ("skipMultiplayerWarning".equals(var3)) {
-                        this.skipMultiplayerWarning = isTrue(var4);
-                    }
-
-                    if ("hideMatchedNames".equals(var3)) {
-                        this.hideMatchedNames = "true".equals(var4);
-                    }
-
-                    if ("joinedFirstServer".equals(var3)) {
-                        this.joinedFirstServer = "true".equals(var4);
-                    }
-
-                    if ("syncChunkWrites".equals(var3)) {
-                        this.syncWrites = isTrue(var4);
-                    }
-
-                    for(KeyMapping var5 : this.keyMappings) {
-                        if (var3.equals("key_" + var5.getName())) {
-                            var5.setKey(InputConstants.getKey(var4));
-                        }
-                    }
-
-                    for(SoundSource var6 : SoundSource.values()) {
-                        if (var3.equals("soundCategory_" + var6.getName())) {
-                            this.sourceVolumes.put(var6, readFloat(var4));
-                        }
-                    }
-
-                    for(PlayerModelPart var7 : PlayerModelPart.values()) {
-                        if (var3.equals("modelPart_" + var7.getId())) {
-                            this.setModelPart(var7, isTrue(var4));
-                        }
-                    }
-                } catch (Exception var19) {
-                    LOGGER.warn("Skipping bad option: {}:{}", var3, var4);
+            this.processOptions(new Options.FieldAccess() {
+                @Nullable
+                private String getValueOrNull(String param0) {
+                    return var2.contains(param0) ? var2.getString(param0) : null;
                 }
+
+                @Override
+                public int process(String param0, int param1) {
+                    String var0 = this.getValueOrNull(param0);
+                    if (var0 != null) {
+                        try {
+                            return Integer.parseInt(var0);
+                        } catch (NumberFormatException var5) {
+                            Options.LOGGER.warn("Invalid integer value for option {} = {}", param0, var0, var5);
+                        }
+                    }
+
+                    return param1;
+                }
+
+                @Override
+                public boolean process(String param0, boolean param1) {
+                    String var0 = this.getValueOrNull(param0);
+                    return var0 != null ? Options.isTrue(var0) : param1;
+                }
+
+                @Override
+                public String process(String param0, String param1) {
+                    return MoreObjects.firstNonNull(this.getValueOrNull(param0), param1);
+                }
+
+                @Override
+                public double process(String param0, double param1) {
+                    String var0 = this.getValueOrNull(param0);
+                    if (var0 == null) {
+                        return param1;
+                    } else if (Options.isTrue(var0)) {
+                        return 1.0;
+                    } else if (Options.isFalse(var0)) {
+                        return 0.0;
+                    } else {
+                        try {
+                            return Double.parseDouble(var0);
+                        } catch (NumberFormatException var6) {
+                            Options.LOGGER.warn("Invalid floating point value for option {} = {}", param0, var0, var6);
+                            return param1;
+                        }
+                    }
+                }
+
+                @Override
+                public float process(String param0, float param1) {
+                    String var0 = this.getValueOrNull(param0);
+                    if (var0 == null) {
+                        return param1;
+                    } else if (Options.isTrue(var0)) {
+                        return 1.0F;
+                    } else if (Options.isFalse(var0)) {
+                        return 0.0F;
+                    } else {
+                        try {
+                            return Float.parseFloat(var0);
+                        } catch (NumberFormatException var5) {
+                            Options.LOGGER.warn("Invalid floating point value for option {} = {}", param0, var0, var5);
+                            return param1;
+                        }
+                    }
+                }
+
+                @Override
+                public <T> T process(String param0, T param1, Function<String, T> param2, Function<T, String> param3) {
+                    String var0 = this.getValueOrNull(param0);
+                    return (T)(var0 == null ? param1 : param2.apply(var0));
+                }
+
+                @Override
+                public <T> T process(String param0, T param1, IntFunction<T> param2, ToIntFunction<T> param3) {
+                    String var0 = this.getValueOrNull(param0);
+                    if (var0 != null) {
+                        try {
+                            return param2.apply(Integer.parseInt(var0));
+                        } catch (Exception var7) {
+                            Options.LOGGER.warn("Invalid integer value for option {} = {}", param0, var0, var7);
+                        }
+                    }
+
+                    return param1;
+                }
+            });
+            if (var2.contains("fullscreenResolution")) {
+                this.fullscreenVideoModeString = var2.getString("fullscreenResolution");
+            }
+
+            if (this.minecraft.getWindow() != null) {
+                this.minecraft.getWindow().setFramerateLimit(this.framerateLimit);
             }
 
             KeyMapping.resetMapping();
-        } catch (Exception var20) {
-            LOGGER.error("Failed to load options", (Throwable)var20);
+        } catch (Exception var15) {
+            LOGGER.error("Failed to load options", (Throwable)var15);
         }
 
     }
@@ -600,119 +476,76 @@ public class Options {
         return NbtUtils.update(this.minecraft.getFixerUpper(), DataFixTypes.OPTIONS, param0, var0);
     }
 
-    private static float readFloat(String param0) {
-        if (isTrue(param0)) {
-            return 1.0F;
-        } else {
-            return isFalse(param0) ? 0.0F : Float.parseFloat(param0);
-        }
-    }
-
     public void save() {
-        try (PrintWriter var0 = new PrintWriter(new OutputStreamWriter(new FileOutputStream(this.optionsFile), StandardCharsets.UTF_8))) {
+        try (final PrintWriter var0 = new PrintWriter(new OutputStreamWriter(new FileOutputStream(this.optionsFile), StandardCharsets.UTF_8))) {
             var0.println("version:" + SharedConstants.getCurrentVersion().getWorldVersion());
-            var0.println("autoJump:" + this.autoJump);
-            var0.println("autoSuggestions:" + this.autoSuggestions);
-            var0.println("chatColors:" + this.chatColors);
-            var0.println("chatLinks:" + this.chatLinks);
-            var0.println("chatLinksPrompt:" + this.chatLinksPrompt);
-            var0.println("enableVsync:" + this.enableVsync);
-            var0.println("entityShadows:" + this.entityShadows);
-            var0.println("forceUnicodeFont:" + this.forceUnicodeFont);
-            var0.println("discrete_mouse_scroll:" + this.discreteMouseScroll);
-            var0.println("invertYMouse:" + this.invertYMouse);
-            var0.println("realmsNotifications:" + this.realmsNotifications);
-            var0.println("reducedDebugInfo:" + this.reducedDebugInfo);
-            var0.println("snooperEnabled:" + this.snooperEnabled);
-            var0.println("showSubtitles:" + this.showSubtitles);
-            var0.println("touchscreen:" + this.touchscreen);
-            var0.println("fullscreen:" + this.fullscreen);
-            var0.println("bobView:" + this.bobView);
-            var0.println("toggleCrouch:" + this.toggleCrouch);
-            var0.println("toggleSprint:" + this.toggleSprint);
-            var0.println("mouseSensitivity:" + this.sensitivity);
-            var0.println("fov:" + (this.fov - 70.0) / 40.0);
-            var0.println("screenEffectScale:" + this.screenEffectScale);
-            var0.println("fovEffectScale:" + this.fovEffectScale);
-            var0.println("gamma:" + this.gamma);
-            var0.println("renderDistance:" + this.renderDistance);
-            var0.println("entityDistanceScaling:" + this.entityDistanceScaling);
-            var0.println("guiScale:" + this.guiScale);
-            var0.println("particles:" + this.particles.getId());
-            var0.println("maxFps:" + this.framerateLimit);
-            var0.println("difficulty:" + this.difficulty.getId());
-            var0.println("graphicsMode:" + this.graphicsMode.getId());
-            var0.println("ao:" + this.ambientOcclusion.getId());
-            var0.println("biomeBlendRadius:" + this.biomeBlendRadius);
-            switch(this.renderClouds) {
-                case FANCY:
-                    var0.println("renderClouds:true");
-                    break;
-                case FAST:
-                    var0.println("renderClouds:fast");
-                    break;
-                case OFF:
-                    var0.println("renderClouds:false");
-            }
+            this.processOptions(new Options.FieldAccess() {
+                public void writePrefix(String param0) {
+                    var0.print(param0);
+                    var0.print(':');
+                }
 
-            var0.println("resourcePacks:" + GSON.toJson(this.resourcePacks));
-            var0.println("incompatibleResourcePacks:" + GSON.toJson(this.incompatibleResourcePacks));
-            var0.println("lastServer:" + this.lastMpIp);
-            var0.println("lang:" + this.languageCode);
-            var0.println("chatVisibility:" + this.chatVisibility.getId());
-            var0.println("chatOpacity:" + this.chatOpacity);
-            var0.println("chatLineSpacing:" + this.chatLineSpacing);
-            var0.println("textBackgroundOpacity:" + this.textBackgroundOpacity);
-            var0.println("backgroundForChatOnly:" + this.backgroundForChatOnly);
+                @Override
+                public int process(String param0, int param1) {
+                    this.writePrefix(param0);
+                    var0.println(param1);
+                    return param1;
+                }
+
+                @Override
+                public boolean process(String param0, boolean param1) {
+                    this.writePrefix(param0);
+                    var0.println(param1);
+                    return param1;
+                }
+
+                @Override
+                public String process(String param0, String param1) {
+                    this.writePrefix(param0);
+                    var0.println(param1);
+                    return param1;
+                }
+
+                @Override
+                public double process(String param0, double param1) {
+                    this.writePrefix(param0);
+                    var0.println(param1);
+                    return param1;
+                }
+
+                @Override
+                public float process(String param0, float param1) {
+                    this.writePrefix(param0);
+                    var0.println(param1);
+                    return param1;
+                }
+
+                @Override
+                public <T> T process(String param0, T param1, Function<String, T> param2, Function<T, String> param3) {
+                    this.writePrefix(param0);
+                    var0.println(param3.apply(param1));
+                    return param1;
+                }
+
+                @Override
+                public <T> T process(String param0, T param1, IntFunction<T> param2, ToIntFunction<T> param3) {
+                    this.writePrefix(param0);
+                    var0.println(param3.applyAsInt(param1));
+                    return param1;
+                }
+            });
             if (this.minecraft.getWindow().getPreferredFullscreenVideoMode().isPresent()) {
                 var0.println("fullscreenResolution:" + this.minecraft.getWindow().getPreferredFullscreenVideoMode().get().write());
             }
-
-            var0.println("hideServerAddress:" + this.hideServerAddress);
-            var0.println("advancedItemTooltips:" + this.advancedItemTooltips);
-            var0.println("pauseOnLostFocus:" + this.pauseOnLostFocus);
-            var0.println("overrideWidth:" + this.overrideWidth);
-            var0.println("overrideHeight:" + this.overrideHeight);
-            var0.println("heldItemTooltips:" + this.heldItemTooltips);
-            var0.println("chatHeightFocused:" + this.chatHeightFocused);
-            var0.println("chatDelay: " + this.chatDelay);
-            var0.println("chatHeightUnfocused:" + this.chatHeightUnfocused);
-            var0.println("chatScale:" + this.chatScale);
-            var0.println("chatWidth:" + this.chatWidth);
-            var0.println("mipmapLevels:" + this.mipmapLevels);
-            var0.println("useNativeTransport:" + this.useNativeTransport);
-            var0.println("mainHand:" + (this.mainHand == HumanoidArm.LEFT ? "left" : "right"));
-            var0.println("attackIndicator:" + this.attackIndicator.getId());
-            var0.println("narrator:" + this.narratorStatus.getId());
-            var0.println("tutorialStep:" + this.tutorialStep.getName());
-            var0.println("mouseWheelSensitivity:" + this.mouseWheelSensitivity);
-            var0.println("rawMouseInput:" + this.rawMouseInput);
-            var0.println("glDebugVerbosity:" + this.glDebugVerbosity);
-            var0.println("skipMultiplayerWarning:" + this.skipMultiplayerWarning);
-            var0.println("hideMatchedNames:" + this.hideMatchedNames);
-            var0.println("joinedFirstServer:" + this.joinedFirstServer);
-            var0.println("syncChunkWrites:" + this.syncWrites);
-
-            for(KeyMapping var1 : this.keyMappings) {
-                var0.println("key_" + var1.getName() + ":" + var1.saveString());
-            }
-
-            for(SoundSource var2 : SoundSource.values()) {
-                var0.println("soundCategory_" + var2.getName() + ":" + this.getSoundSourceVolume(var2));
-            }
-
-            for(PlayerModelPart var3 : PlayerModelPart.values()) {
-                var0.println("modelPart_" + var3.getId() + ":" + this.modelParts.contains(var3));
-            }
-        } catch (Exception var17) {
-            LOGGER.error("Failed to save options", (Throwable)var17);
+        } catch (Exception var14) {
+            LOGGER.error("Failed to save options", (Throwable)var14);
         }
 
         this.broadcastOptions();
     }
 
     public float getSoundSourceVolume(SoundSource param0) {
-        return this.sourceVolumes.containsKey(param0) ? this.sourceVolumes.get(param0) : 1.0F;
+        return this.sourceVolumes.getFloat(param0);
     }
 
     public void setSoundCategoryVolume(SoundSource param0, float param1) {
@@ -736,14 +569,13 @@ public class Options {
 
     }
 
-    public void setModelPart(PlayerModelPart param0, boolean param1) {
+    private void setModelPart(PlayerModelPart param0, boolean param1) {
         if (param1) {
             this.modelParts.add(param0);
         } else {
             this.modelParts.remove(param0);
         }
 
-        this.broadcastOptions();
     }
 
     public boolean isModelPartEnabled(PlayerModelPart param0) {
@@ -751,12 +583,7 @@ public class Options {
     }
 
     public void toggleModelPart(PlayerModelPart param0, boolean param1) {
-        if (!param1) {
-            this.modelParts.remove(param0);
-        } else {
-            this.modelParts.add(param0);
-        }
-
+        this.setModelPart(param0, param1);
         this.broadcastOptions();
     }
 
@@ -802,5 +629,67 @@ public class Options {
 
     public void setCameraType(CameraType param0) {
         this.cameraType = param0;
+    }
+
+    private static List<String> readPackList(String param0x) {
+        List<String> var0x = GsonHelper.fromJson(GSON, param0x, RESOURCE_PACK_TYPE);
+        return (List<String>)(var0x != null ? var0x : Lists.newArrayList());
+    }
+
+    private static CloudStatus readCloudStatus(String param0x) {
+        switch(param0x) {
+            case "true":
+                return CloudStatus.FANCY;
+            case "fast":
+                return CloudStatus.FAST;
+            case "false":
+            default:
+                return CloudStatus.OFF;
+        }
+    }
+
+    private static String writeCloudStatus(CloudStatus param0x) {
+        switch(param0x) {
+            case FANCY:
+                return "true";
+            case FAST:
+                return "fast";
+            case OFF:
+            default:
+                return "false";
+        }
+    }
+
+    private static AmbientOcclusionStatus readAmbientOcclusion(String param0x) {
+        if (isTrue(param0x)) {
+            return AmbientOcclusionStatus.MAX;
+        } else {
+            return isFalse(param0x) ? AmbientOcclusionStatus.OFF : AmbientOcclusionStatus.byId(Integer.parseInt(param0x));
+        }
+    }
+
+    private static HumanoidArm readMainHand(String param0x) {
+        return "left".equals(param0x) ? HumanoidArm.LEFT : HumanoidArm.RIGHT;
+    }
+
+    private static String writeMainHand(HumanoidArm param0x) {
+        return param0x == HumanoidArm.LEFT ? "left" : "right";
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    interface FieldAccess {
+        int process(String var1, int var2);
+
+        boolean process(String var1, boolean var2);
+
+        String process(String var1, String var2);
+
+        double process(String var1, double var2);
+
+        float process(String var1, float var2);
+
+        <T> T process(String var1, T var2, Function<String, T> var3, Function<T, String> var4);
+
+        <T> T process(String var1, T var2, IntFunction<T> var3, ToIntFunction<T> var4);
     }
 }

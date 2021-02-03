@@ -4,6 +4,7 @@ import com.google.common.hash.Hashing;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.QuartPos;
 import net.minecraft.util.Mth;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -52,16 +53,16 @@ public class BiomeManager {
         return this.noiseBiomeSource.getNoiseBiome(param0, param1, param2);
     }
 
-    public Biome getPrimaryBiomeAtChunk(int param0, int param1) {
-        return this.noiseBiomeSource.getPrimaryBiome(param0, param1);
+    public Biome getPrimaryBiomeAtChunk(ChunkPos param0) {
+        return this.noiseBiomeSource.getPrimaryBiome(param0);
     }
 
     public interface NoiseBiomeSource {
         Biome getNoiseBiome(int var1, int var2, int var3);
 
-        default Biome getPrimaryBiome(int param0, int param1) {
+        default Biome getPrimaryBiome(ChunkPos param0) {
             return this.getNoiseBiome(
-                QuartPos.fromSection(param0) + BiomeManager.CHUNK_CENTER_QUART, 0, QuartPos.fromSection(param1) + BiomeManager.CHUNK_CENTER_QUART
+                QuartPos.fromSection(param0.x) + BiomeManager.CHUNK_CENTER_QUART, 0, QuartPos.fromSection(param0.z) + BiomeManager.CHUNK_CENTER_QUART
             );
         }
     }

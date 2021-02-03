@@ -6,7 +6,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.configurations.RandomPatchConfiguration;
 
@@ -15,43 +14,48 @@ public class RandomPatchFeature extends Feature<RandomPatchConfiguration> {
         super(param0);
     }
 
-    public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, RandomPatchConfiguration param4) {
-        BlockState var0 = param4.stateProvider.getState(param2, param3);
-        BlockPos var1;
-        if (param4.project) {
-            var1 = param0.getHeightmapPos(Heightmap.Types.WORLD_SURFACE_WG, param3);
+    @Override
+    public boolean place(FeaturePlaceContext<RandomPatchConfiguration> param0) {
+        RandomPatchConfiguration var0 = param0.config();
+        Random var1 = param0.random();
+        BlockPos var2 = param0.origin();
+        WorldGenLevel var3 = param0.level();
+        BlockState var4 = var0.stateProvider.getState(var1, var2);
+        BlockPos var5;
+        if (var0.project) {
+            var5 = var3.getHeightmapPos(Heightmap.Types.WORLD_SURFACE_WG, var2);
         } else {
-            var1 = param3;
+            var5 = var2;
         }
 
-        int var3 = 0;
-        BlockPos.MutableBlockPos var4 = new BlockPos.MutableBlockPos();
+        int var7 = 0;
+        BlockPos.MutableBlockPos var8 = new BlockPos.MutableBlockPos();
 
-        for(int var5 = 0; var5 < param4.tries; ++var5) {
-            var4.setWithOffset(
-                var1,
-                param2.nextInt(param4.xspread + 1) - param2.nextInt(param4.xspread + 1),
-                param2.nextInt(param4.yspread + 1) - param2.nextInt(param4.yspread + 1),
-                param2.nextInt(param4.zspread + 1) - param2.nextInt(param4.zspread + 1)
+        for(int var9 = 0; var9 < var0.tries; ++var9) {
+            var8.setWithOffset(
+                var5,
+                var1.nextInt(var0.xspread + 1) - var1.nextInt(var0.xspread + 1),
+                var1.nextInt(var0.yspread + 1) - var1.nextInt(var0.yspread + 1),
+                var1.nextInt(var0.zspread + 1) - var1.nextInt(var0.zspread + 1)
             );
-            BlockPos var6 = var4.below();
-            BlockState var7 = param0.getBlockState(var6);
-            if ((param0.isEmptyBlock(var4) || param4.canReplace && param0.getBlockState(var4).getMaterial().isReplaceable())
-                && var0.canSurvive(param0, var4)
-                && (param4.whitelist.isEmpty() || param4.whitelist.contains(var7.getBlock()))
-                && !param4.blacklist.contains(var7)
+            BlockPos var10 = var8.below();
+            BlockState var11 = var3.getBlockState(var10);
+            if ((var3.isEmptyBlock(var8) || var0.canReplace && var3.getBlockState(var8).getMaterial().isReplaceable())
+                && var4.canSurvive(var3, var8)
+                && (var0.whitelist.isEmpty() || var0.whitelist.contains(var11.getBlock()))
+                && !var0.blacklist.contains(var11)
                 && (
-                    !param4.needWater
-                        || param0.getFluidState(var6.west()).is(FluidTags.WATER)
-                        || param0.getFluidState(var6.east()).is(FluidTags.WATER)
-                        || param0.getFluidState(var6.north()).is(FluidTags.WATER)
-                        || param0.getFluidState(var6.south()).is(FluidTags.WATER)
+                    !var0.needWater
+                        || var3.getFluidState(var10.west()).is(FluidTags.WATER)
+                        || var3.getFluidState(var10.east()).is(FluidTags.WATER)
+                        || var3.getFluidState(var10.north()).is(FluidTags.WATER)
+                        || var3.getFluidState(var10.south()).is(FluidTags.WATER)
                 )) {
-                param4.blockPlacer.place(param0, var4, var0, param2);
-                ++var3;
+                var0.blockPlacer.place(var3, var8, var4, var1);
+                ++var7;
             }
         }
 
-        return var3 > 0;
+        return var7 > 0;
     }
 }

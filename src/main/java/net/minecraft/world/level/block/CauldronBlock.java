@@ -6,6 +6,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 
@@ -23,8 +24,10 @@ public class CauldronBlock extends AbstractCauldronBlock {
         if (shouldHandlePrecipitation(param1)) {
             if (param3 == Biome.Precipitation.RAIN) {
                 param1.setBlockAndUpdate(param2, Blocks.WATER_CAULDRON.defaultBlockState());
+                param1.gameEvent(null, GameEvent.FLUID_PLACE, param2);
             } else if (param3 == Biome.Precipitation.SNOW) {
                 param1.setBlockAndUpdate(param2, Blocks.POWDER_SNOW_CAULDRON.defaultBlockState());
+                param1.gameEvent(null, GameEvent.FLUID_PLACE, param2);
             }
 
         }
@@ -40,9 +43,11 @@ public class CauldronBlock extends AbstractCauldronBlock {
         if (param3 == Fluids.WATER) {
             param1.setBlockAndUpdate(param2, Blocks.WATER_CAULDRON.defaultBlockState());
             param1.levelEvent(1047, param2, 0);
+            param1.gameEvent(null, GameEvent.FLUID_PLACE, param2);
         } else if (param3 == Fluids.LAVA) {
             param1.setBlockAndUpdate(param2, Blocks.LAVA_CAULDRON.defaultBlockState());
             param1.levelEvent(1046, param2, 0);
+            param1.gameEvent(null, GameEvent.FLUID_PLACE, param2);
         }
 
     }

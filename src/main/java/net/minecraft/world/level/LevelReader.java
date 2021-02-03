@@ -172,8 +172,13 @@ public interface LevelReader extends BlockAndTintGetter, CollisionGetter, BiomeM
     }
 
     @Deprecated
+    default boolean hasChunkAt(int param0, int param1) {
+        return this.hasChunk(SectionPos.blockToSectionCoord(param0), SectionPos.blockToSectionCoord(param1));
+    }
+
+    @Deprecated
     default boolean hasChunkAt(BlockPos param0) {
-        return this.hasChunk(SectionPos.blockToSectionCoord(param0.getX()), SectionPos.blockToSectionCoord(param0.getZ()));
+        return this.hasChunkAt(param0.getX(), param0.getZ());
     }
 
     @Deprecated
@@ -183,23 +188,24 @@ public interface LevelReader extends BlockAndTintGetter, CollisionGetter, BiomeM
 
     @Deprecated
     default boolean hasChunksAt(int param0, int param1, int param2, int param3, int param4, int param5) {
-        if (param4 >= this.getMinBuildHeight() && param1 < this.getMaxBuildHeight()) {
-            param0 >>= 4;
-            param2 >>= 4;
-            param3 >>= 4;
-            param5 >>= 4;
+        return param4 >= this.getMinBuildHeight() && param1 < this.getMaxBuildHeight() ? this.hasChunksAt(param0, param2, param3, param5) : false;
+    }
 
-            for(int var0 = param0; var0 <= param3; ++var0) {
-                for(int var1 = param2; var1 <= param5; ++var1) {
-                    if (!this.hasChunk(var0, var1)) {
-                        return false;
-                    }
+    @Deprecated
+    default boolean hasChunksAt(int param0, int param1, int param2, int param3) {
+        int var0 = SectionPos.blockToSectionCoord(param0);
+        int var1 = SectionPos.blockToSectionCoord(param2);
+        int var2 = SectionPos.blockToSectionCoord(param1);
+        int var3 = SectionPos.blockToSectionCoord(param3);
+
+        for(int var4 = var0; var4 <= var1; ++var4) {
+            for(int var5 = var2; var5 <= var3; ++var5) {
+                if (!this.hasChunk(var4, var5)) {
+                    return false;
                 }
             }
-
-            return true;
-        } else {
-            return false;
         }
+
+        return true;
     }
 }

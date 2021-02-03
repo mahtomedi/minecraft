@@ -12,7 +12,6 @@ import net.minecraft.util.UniformFloat;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.Column;
 import net.minecraft.world.level.levelgen.feature.configurations.LargeDripstoneConfiguration;
 import net.minecraft.world.phys.Vec3;
@@ -22,42 +21,47 @@ public class LargeDripstoneFeature extends Feature<LargeDripstoneConfiguration> 
         super(param0);
     }
 
-    public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3, LargeDripstoneConfiguration param4) {
-        if (!DripstoneUtils.isEmptyOrWater(param0, param3)) {
+    @Override
+    public boolean place(FeaturePlaceContext<LargeDripstoneConfiguration> param0) {
+        WorldGenLevel var0 = param0.level();
+        BlockPos var1 = param0.origin();
+        LargeDripstoneConfiguration var2 = param0.config();
+        Random var3 = param0.random();
+        if (!DripstoneUtils.isEmptyOrWater(var0, var1)) {
             return false;
         } else {
-            Optional<Column> var0 = Column.scan(
-                param0, param3, param4.floorToCeilingSearchRange, DripstoneUtils::isEmptyOrWater, DripstoneUtils::isDripstoneBaseOrLava
+            Optional<Column> var4 = Column.scan(
+                var0, var1, var2.floorToCeilingSearchRange, DripstoneUtils::isEmptyOrWater, DripstoneUtils::isDripstoneBaseOrLava
             );
-            if (var0.isPresent() && var0.get() instanceof Column.Range) {
-                Column.Range var1 = (Column.Range)var0.get();
-                if (var1.height() < 4) {
+            if (var4.isPresent() && var4.get() instanceof Column.Range) {
+                Column.Range var5 = (Column.Range)var4.get();
+                if (var5.height() < 4) {
                     return false;
                 } else {
-                    int var2 = (int)((float)var1.height() * param4.maxColumnRadiusToCaveHeightRatio);
-                    int var3 = Mth.clamp(var2, param4.columnRadius.getBaseValue(), param4.columnRadius.getMaxValue());
-                    int var4 = Mth.randomBetweenInclusive(param2, param4.columnRadius.getBaseValue(), var3);
-                    LargeDripstoneFeature.LargeDripstone var5 = makeDripstone(
-                        param3.atY(var1.ceiling() - 1), false, param2, var4, param4.stalactiteBluntness, param4.heightScale
+                    int var6 = (int)((float)var5.height() * var2.maxColumnRadiusToCaveHeightRatio);
+                    int var7 = Mth.clamp(var6, var2.columnRadius.getBaseValue(), var2.columnRadius.getMaxValue());
+                    int var8 = Mth.randomBetweenInclusive(var3, var2.columnRadius.getBaseValue(), var7);
+                    LargeDripstoneFeature.LargeDripstone var9 = makeDripstone(
+                        var1.atY(var5.ceiling() - 1), false, var3, var8, var2.stalactiteBluntness, var2.heightScale
                     );
-                    LargeDripstoneFeature.LargeDripstone var6 = makeDripstone(
-                        param3.atY(var1.floor() + 1), true, param2, var4, param4.stalagmiteBluntness, param4.heightScale
+                    LargeDripstoneFeature.LargeDripstone var10 = makeDripstone(
+                        var1.atY(var5.floor() + 1), true, var3, var8, var2.stalagmiteBluntness, var2.heightScale
                     );
-                    LargeDripstoneFeature.WindOffsetter var7;
-                    if (var5.isSuitableForWind(param4) && var6.isSuitableForWind(param4)) {
-                        var7 = new LargeDripstoneFeature.WindOffsetter(param3.getY(), param2, param4.windSpeed);
+                    LargeDripstoneFeature.WindOffsetter var11;
+                    if (var9.isSuitableForWind(var2) && var10.isSuitableForWind(var2)) {
+                        var11 = new LargeDripstoneFeature.WindOffsetter(var1.getY(), var3, var2.windSpeed);
                     } else {
-                        var7 = LargeDripstoneFeature.WindOffsetter.noWind();
+                        var11 = LargeDripstoneFeature.WindOffsetter.noWind();
                     }
 
-                    boolean var9 = var5.moveBackUntilBaseIsInsideStoneAndShrinkRadiusIfNecessary(param0, var7);
-                    boolean var10 = var6.moveBackUntilBaseIsInsideStoneAndShrinkRadiusIfNecessary(param0, var7);
-                    if (var9 && var5.getMinY() > 0) {
-                        var5.placeBlocks(param0, param2, var7);
+                    boolean var13 = var9.moveBackUntilBaseIsInsideStoneAndShrinkRadiusIfNecessary(var0, var11);
+                    boolean var14 = var10.moveBackUntilBaseIsInsideStoneAndShrinkRadiusIfNecessary(var0, var11);
+                    if (var13 && var9.getMinY() > 0) {
+                        var9.placeBlocks(var0, var3, var11);
                     }
 
-                    if (var10 && var6.getMaxY() < 55) {
-                        var6.placeBlocks(param0, param2, var7);
+                    if (var14 && var10.getMaxY() < 55) {
+                        var10.placeBlocks(var0, var3, var11);
                     }
 
                     return true;

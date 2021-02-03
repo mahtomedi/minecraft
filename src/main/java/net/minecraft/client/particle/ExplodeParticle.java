@@ -11,6 +11,8 @@ public class ExplodeParticle extends TextureSheetParticle {
 
     protected ExplodeParticle(ClientLevel param0, double param1, double param2, double param3, double param4, double param5, double param6, SpriteSet param7) {
         super(param0, param1, param2, param3);
+        this.gravity = -0.1F;
+        this.friction = 0.9F;
         this.sprites = param7;
         this.xd = param4 + (Math.random() * 2.0 - 1.0) * 0.05F;
         this.yd = param5 + (Math.random() * 2.0 - 1.0) * 0.05F;
@@ -31,24 +33,8 @@ public class ExplodeParticle extends TextureSheetParticle {
 
     @Override
     public void tick() {
-        this.xo = this.x;
-        this.yo = this.y;
-        this.zo = this.z;
-        if (this.age++ >= this.lifetime) {
-            this.remove();
-        } else {
-            this.setSpriteFromAge(this.sprites);
-            this.yd += 0.004;
-            this.move(this.xd, this.yd, this.zd);
-            this.xd *= 0.9F;
-            this.yd *= 0.9F;
-            this.zd *= 0.9F;
-            if (this.onGround) {
-                this.xd *= 0.7F;
-                this.zd *= 0.7F;
-            }
-
-        }
+        super.tick();
+        this.setSpriteFromAge(this.sprites);
     }
 
     @OnlyIn(Dist.CLIENT)
