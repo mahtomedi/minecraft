@@ -1,13 +1,13 @@
 {
-    "id": "21w05a",
-    "name": "21w05a",
+    "id": "21w05b",
+    "name": "21w05b",
     "release_target": "1.17",
-    "world_version": 2690,
-    "protocol_version": 1073741836,
+    "world_version": 2692,
+    "protocol_version": 1073741837,
     "pack_version": {
         "resource": 7,
         "data": 7
     },
-    "build_time": "2021-02-03T15:54:58+00:00",
+    "build_time": "2021-02-04T15:07:36+00:00",
     "stable": false
 }

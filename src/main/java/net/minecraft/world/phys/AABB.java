@@ -195,43 +195,6 @@ public class AABB {
         return new AABB(var0, var1, var2, var3, var4, var5);
     }
 
-    public static AABB minmax(Iterable<AABB> param0) {
-        double var0 = Double.MAX_VALUE;
-        double var1 = Double.MAX_VALUE;
-        double var2 = Double.MAX_VALUE;
-        double var3 = Double.MIN_VALUE;
-        double var4 = Double.MIN_VALUE;
-        double var5 = Double.MIN_VALUE;
-
-        for(AABB var6 : param0) {
-            if (var6.minX < var0) {
-                var0 = var6.minX;
-            }
-
-            if (var6.minY < var1) {
-                var1 = var6.minY;
-            }
-
-            if (var6.minZ < var2) {
-                var2 = var6.minZ;
-            }
-
-            if (var6.maxX > var3) {
-                var3 = var6.maxX;
-            }
-
-            if (var6.maxY > var4) {
-                var4 = var6.maxY;
-            }
-
-            if (var6.maxZ > var5) {
-                var5 = var6.maxZ;
-            }
-        }
-
-        return new AABB(var0, var1, var2, var3, var4, var5);
-    }
-
     public AABB move(double param0, double param1, double param2) {
         return new AABB(this.minX + param0, this.minY + param1, this.minZ + param2, this.maxX + param0, this.maxY + param1, this.maxZ + param2);
     }
