@@ -475,7 +475,7 @@ public class ChunkRenderDispatcher {
                             .forEach(
                                 param2 -> var6.add(ChunkRenderDispatcher.this.uploadChunkLayer(param0.builder(param2), RenderChunk.this.getBuffer(param2)))
                             );
-                        return Util.sequence(var6).handle((param1, param2) -> {
+                        return Util.sequenceFailFast(var6).handle((param1, param2) -> {
                             if (param2 != null && !(param2 instanceof CancellationException) && !(param2 instanceof InterruptedException)) {
                                 Minecraft.getInstance().delayCrash(CrashReport.forThrowable(param2, "Rendering chunk"));
                             }

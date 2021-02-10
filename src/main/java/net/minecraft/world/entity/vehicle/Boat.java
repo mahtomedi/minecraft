@@ -544,7 +544,7 @@ public class Boat extends Entity {
         int var5 = Mth.floor(var0.minZ);
         int var6 = Mth.ceil(var0.maxZ);
         boolean var7 = false;
-        this.waterLevel = Double.MIN_VALUE;
+        this.waterLevel = -Double.MAX_VALUE;
         BlockPos.MutableBlockPos var8 = new BlockPos.MutableBlockPos();
 
         for(int var9 = var1; var9 < var2; ++var9) {

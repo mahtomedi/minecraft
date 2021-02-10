@@ -13,6 +13,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.vehicle.MinecartChest;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
@@ -320,7 +321,7 @@ public class MineShaftPieces {
         public boolean postProcess(
             WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
-            if (this.edgesLiquid(param0, param4)) {
+            if (this.edgesLiquidOrFloatingInAir(param0, param4)) {
                 return false;
             } else {
                 int var0 = 0;
@@ -328,7 +329,7 @@ public class MineShaftPieces {
                 int var2 = 0;
                 int var3 = 2;
                 int var4 = this.numSections * 5 - 1;
-                BlockState var5 = this.getPlanksBlock();
+                BlockState var5 = this.type.getPlanksState();
                 this.generateBox(param0, param4, 0, 0, 0, 2, 1, var4, CAVE_AIR, CAVE_AIR, false);
                 this.generateMaybeBox(param0, param4, param3, 0.8F, 0, 2, 0, 2, 2, var4, CAVE_AIR, CAVE_AIR, false, false);
                 if (this.spiderCorridor) {
@@ -382,16 +383,23 @@ public class MineShaftPieces {
                     }
                 }
 
-                if (this.hasRails) {
-                    BlockState var19 = Blocks.RAIL.defaultBlockState().setValue(RailBlock.SHAPE, RailShape.NORTH_SOUTH);
+                int var19 = 2;
+                this.placeDoubleLowerSupport(param0, param4, 0, -1, 2);
+                if (this.numSections > 1) {
+                    int var20 = var4 - 2;
+                    this.placeDoubleLowerSupport(param0, param4, 0, -1, var20);
+                }
 
-                    for(int var20 = 0; var20 <= var4; ++var20) {
-                        BlockState var21 = this.getBlock(param0, 1, -1, var20, param4);
-                        if (!var21.isAir() && var21.isSolidRender(param0, new BlockPos(this.getWorldX(1, var20), this.getWorldY(-1), this.getWorldZ(1, var20)))
+                if (this.hasRails) {
+                    BlockState var21 = Blocks.RAIL.defaultBlockState().setValue(RailBlock.SHAPE, RailShape.NORTH_SOUTH);
+
+                    for(int var22 = 0; var22 <= var4; ++var22) {
+                        BlockState var23 = this.getBlock(param0, 1, -1, var22, param4);
+                        if (!var23.isAir() && var23.isSolidRender(param0, new BlockPos(this.getWorldX(1, var22), this.getWorldY(-1), this.getWorldZ(1, var22)))
                             )
                          {
-                            float var22 = this.isInterior(param0, 1, 0, var20, param4) ? 0.7F : 0.9F;
-                            this.maybeGenerateBlock(param0, param4, param3, var22, 1, 0, var20, var19);
+                            float var24 = this.isInterior(param0, 1, 0, var22, param4) ? 0.7F : 0.9F;
+                            this.maybeGenerateBlock(param0, param4, param3, var24, 1, 0, var22, var21, false);
                         }
                     }
                 }
@@ -400,10 +408,53 @@ public class MineShaftPieces {
             }
         }
 
+        private void placeDoubleLowerSupport(WorldGenLevel param0, BoundingBox param1, int param2, int param3, int param4) {
+            BlockState var0 = this.type.getWoodState();
+            BlockState var1 = this.type.getPlanksState();
+            if (this.getBlock(param0, param2, param3, param4, param1).is(var1.getBlock())) {
+                this.fillColumnDown(param0, var0, param2, param3 - 1, param4, param1);
+            }
+
+            if (this.getBlock(param0, param2 + 2, param3, param4, param1).is(var1.getBlock())) {
+                this.fillColumnDown(param0, var0, param2 + 2, param3 - 1, param4, param1);
+            }
+
+        }
+
+        @Override
+        protected void fillColumnDown(WorldGenLevel param0, BlockState param1, int param2, int param3, int param4, BoundingBox param5) {
+            int var0 = this.getWorldX(param2, param4);
+            int var1 = this.getWorldY(param3);
+            int var2 = this.getWorldZ(param2, param4);
+            BlockPos.MutableBlockPos var3 = new BlockPos.MutableBlockPos(var0, var1, var2);
+            if (param5.isInside(var3)) {
+                while(this.isEmptyOrWater(param0, var3) && var3.getY() > param0.getMinBuildHeight() + 1) {
+                    var3.move(Direction.DOWN);
+                }
+
+                if (this.canPlaceColumnOnTopOf(param0.getBlockState(var3))) {
+                    while(var3.getY() < var1) {
+                        var3.move(Direction.UP);
+                        param0.setBlock(var3, param1, 2);
+                    }
+
+                }
+            }
+        }
+
+        private boolean canPlaceColumnOnTopOf(BlockState param0) {
+            return !param0.is(Blocks.RAIL) && !param0.is(Blocks.LAVA);
+        }
+
+        private boolean isEmptyOrWater(LevelReader param0, BlockPos param1) {
+            BlockState var0 = param0.getBlockState(param1);
+            return var0.isAir() || var0.is(Blocks.WATER);
+        }
+
         private void placeSupport(WorldGenLevel param0, BoundingBox param1, int param2, int param3, int param4, int param5, int param6, Random param7) {
             if (this.isSupportingBox(param0, param1, param2, param6, param5, param4)) {
-                BlockState var0 = this.getPlanksBlock();
-                BlockState var1 = this.getFenceBlock();
+                BlockState var0 = this.type.getPlanksState();
+                BlockState var1 = this.type.getFenceState();
                 this.generateBox(
                     param0, param1, param2, param3, param4, param2, param5 - 1, param4, var1.setValue(FenceBlock.WEST, Boolean.valueOf(true)), CAVE_AIR, false
                 );
@@ -423,7 +474,8 @@ public class MineShaftPieces {
                         param2 + 1,
                         param5,
                         param4 - 1,
-                        Blocks.WALL_TORCH.defaultBlockState().setValue(WallTorchBlock.FACING, Direction.NORTH)
+                        Blocks.WALL_TORCH.defaultBlockState().setValue(WallTorchBlock.FACING, Direction.NORTH),
+                        false
                     );
                     this.maybeGenerateBlock(
                         param0,
@@ -433,7 +485,8 @@ public class MineShaftPieces {
                         param2 + 1,
                         param5,
                         param4 + 1,
-                        Blocks.WALL_TORCH.defaultBlockState().setValue(WallTorchBlock.FACING, Direction.SOUTH)
+                        Blocks.WALL_TORCH.defaultBlockState().setValue(WallTorchBlock.FACING, Direction.SOUTH),
+                        false
                     );
                 }
 
@@ -442,7 +495,7 @@ public class MineShaftPieces {
 
         private void placeCobWeb(WorldGenLevel param0, BoundingBox param1, Random param2, float param3, int param4, int param5, int param6) {
             if (this.isInterior(param0, param4, param5, param6, param1)) {
-                this.maybeGenerateBlock(param0, param1, param2, param3, param4, param5, param6, Blocks.COBWEB.defaultBlockState());
+                this.maybeGenerateBlock(param0, param1, param2, param3, param4, param5, param6, Blocks.COBWEB.defaultBlockState(), true);
             }
 
         }
@@ -586,10 +639,10 @@ public class MineShaftPieces {
         public boolean postProcess(
             WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
-            if (this.edgesLiquid(param0, param4)) {
+            if (this.edgesLiquidOrFloatingInAir(param0, param4)) {
                 return false;
             } else {
-                BlockState var0 = this.getPlanksBlock();
+                BlockState var0 = this.type.getPlanksState();
                 if (this.isTwoFloored) {
                     this.generateBox(
                         param0,
@@ -705,7 +758,7 @@ public class MineShaftPieces {
 
         private void placeSupportPillar(WorldGenLevel param0, BoundingBox param1, int param2, int param3, int param4, int param5) {
             if (!this.getBlock(param0, param2, param5 + 1, param4, param1).isAir()) {
-                this.generateBox(param0, param1, param2, param3, param4, param2, param5, param4, this.getPlanksBlock(), CAVE_AIR, false);
+                this.generateBox(param0, param1, param2, param3, param4, param2, param5, param4, this.type.getPlanksState(), CAVE_AIR, false);
             }
 
         }
@@ -725,28 +778,16 @@ public class MineShaftPieces {
         }
 
         @Override
+        protected boolean canBeReplaced(LevelReader param0, int param1, int param2, int param3, BoundingBox param4) {
+            BlockState var0 = this.getBlock(param0, param1, param2, param3, param4);
+            return !var0.is(this.type.getPlanksState().getBlock())
+                && !var0.is(this.type.getWoodState().getBlock())
+                && !var0.is(this.type.getFenceState().getBlock());
+        }
+
+        @Override
         protected void addAdditionalSaveData(CompoundTag param0) {
             param0.putInt("MST", this.type.ordinal());
-        }
-
-        protected BlockState getPlanksBlock() {
-            switch(this.type) {
-                case NORMAL:
-                default:
-                    return Blocks.OAK_PLANKS.defaultBlockState();
-                case MESA:
-                    return Blocks.DARK_OAK_PLANKS.defaultBlockState();
-            }
-        }
-
-        protected BlockState getFenceBlock() {
-            switch(this.type) {
-                case NORMAL:
-                default:
-                    return Blocks.OAK_FENCE.defaultBlockState();
-                case MESA:
-                    return Blocks.DARK_OAK_FENCE.defaultBlockState();
-            }
         }
 
         protected boolean isSupportingBox(BlockGetter param0, BoundingBox param1, int param2, int param3, int param4, int param5) {
@@ -757,6 +798,65 @@ public class MineShaftPieces {
             }
 
             return true;
+        }
+
+        protected boolean edgesLiquidOrFloatingInAir(BlockGetter param0, BoundingBox param1) {
+            int var0 = Math.max(this.boundingBox.x0 - 1, param1.x0);
+            int var1 = Math.max(this.boundingBox.y0 - 1, param1.y0);
+            int var2 = Math.max(this.boundingBox.z0 - 1, param1.z0);
+            int var3 = Math.min(this.boundingBox.x1 + 1, param1.x1);
+            int var4 = Math.min(this.boundingBox.y1 + 1, param1.y1);
+            int var5 = Math.min(this.boundingBox.z1 + 1, param1.z1);
+            BlockPos.MutableBlockPos var6 = new BlockPos.MutableBlockPos();
+            if (this.air(param0, var6, var0, var1, var2)
+                && this.air(param0, var6, var0, var1, var5)
+                && this.air(param0, var6, var3, var1, var2)
+                && this.air(param0, var6, var3, var1, var5)) {
+                return true;
+            } else {
+                for(int var7 = var0; var7 <= var3; ++var7) {
+                    for(int var8 = var2; var8 <= var5; ++var8) {
+                        if (param0.getBlockState(var6.set(var7, var1, var8)).getMaterial().isLiquid()) {
+                            return true;
+                        }
+
+                        if (param0.getBlockState(var6.set(var7, var4, var8)).getMaterial().isLiquid()) {
+                            return true;
+                        }
+                    }
+                }
+
+                for(int var9 = var0; var9 <= var3; ++var9) {
+                    for(int var10 = var1; var10 <= var4; ++var10) {
+                        if (param0.getBlockState(var6.set(var9, var10, var2)).getMaterial().isLiquid()) {
+                            return true;
+                        }
+
+                        if (param0.getBlockState(var6.set(var9, var10, var5)).getMaterial().isLiquid()) {
+                            return true;
+                        }
+                    }
+                }
+
+                for(int var11 = var2; var11 <= var5; ++var11) {
+                    for(int var12 = var1; var12 <= var4; ++var12) {
+                        if (param0.getBlockState(var6.set(var0, var12, var11)).getMaterial().isLiquid()) {
+                            return true;
+                        }
+
+                        if (param0.getBlockState(var6.set(var3, var12, var11)).getMaterial().isLiquid()) {
+                            return true;
+                        }
+                    }
+                }
+
+                return false;
+            }
+        }
+
+        private boolean air(BlockGetter param0, BlockPos.MutableBlockPos param1, int param2, int param3, int param4) {
+            param1.set(param2, param3, param4);
+            return param0.getBlockState(param1).isAir();
         }
     }
 
@@ -882,7 +982,7 @@ public class MineShaftPieces {
         public boolean postProcess(
             WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
-            if (this.edgesLiquid(param0, param4)) {
+            if (this.edgesLiquidOrFloatingInAir(param0, param4)) {
                 return false;
             } else {
                 this.generateBox(
@@ -1025,7 +1125,7 @@ public class MineShaftPieces {
         public boolean postProcess(
             WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
-            if (this.edgesLiquid(param0, param4)) {
+            if (this.edgesLiquidOrFloatingInAir(param0, param4)) {
                 return false;
             } else {
                 this.generateBox(param0, param4, 0, 5, 0, 2, 7, 1, CAVE_AIR, CAVE_AIR, false);

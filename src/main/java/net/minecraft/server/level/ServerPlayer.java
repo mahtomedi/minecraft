@@ -395,7 +395,7 @@ public class ServerPlayer extends Player implements ContainerListener {
 
     public void doTick() {
         try {
-            if (!this.isSpectator() || this.level.hasChunkAt(this.blockPosition())) {
+            if (!this.isSpectator() || !this.touchingUnloadedChunk()) {
                 super.tick();
             }
 
@@ -892,8 +892,8 @@ public class ServerPlayer extends Player implements ContainerListener {
     }
 
     public void doCheckFallDamage(double param0, boolean param1) {
-        BlockPos var0 = this.getOnPos();
-        if (this.level.hasChunkAt(var0)) {
+        if (!this.touchingUnloadedChunk()) {
+            BlockPos var0 = this.getOnPos();
             super.checkFallDamage(param0, param1, this.level.getBlockState(var0), var0);
         }
     }

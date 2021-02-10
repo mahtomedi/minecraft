@@ -2,9 +2,10 @@ package net.minecraft.world.level.levelgen;
 
 import com.mojang.serialization.Codec;
 import java.util.Arrays;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.WorldGenRegion;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.NoiseColumn;
 import net.minecraft.world.level.StructureFeatureManager;
@@ -63,7 +64,7 @@ public class FlatLevelSource extends ChunkGenerator {
     }
 
     @Override
-    public void fillFromNoise(LevelAccessor param0, StructureFeatureManager param1, ChunkAccess param2) {
+    public CompletableFuture<ChunkAccess> fillFromNoise(Executor param0, StructureFeatureManager param1, ChunkAccess param2) {
         BlockState[] var0 = this.settings.getLayers();
         BlockPos.MutableBlockPos var1 = new BlockPos.MutableBlockPos();
         Heightmap var2 = param2.getOrCreateHeightmapUnprimed(Heightmap.Types.OCEAN_FLOOR_WG);
@@ -72,7 +73,7 @@ public class FlatLevelSource extends ChunkGenerator {
         for(int var4 = 0; var4 < var0.length; ++var4) {
             BlockState var5 = var0[var4];
             if (var5 != null) {
-                int var6 = param0.getMinBuildHeight() + var4;
+                int var6 = param2.getMinBuildHeight() + var4;
 
                 for(int var7 = 0; var7 < 16; ++var7) {
                     for(int var8 = 0; var8 < 16; ++var8) {
@@ -84,6 +85,7 @@ public class FlatLevelSource extends ChunkGenerator {
             }
         }
 
+        return CompletableFuture.completedFuture(param2);
     }
 
     @Override

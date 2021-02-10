@@ -206,7 +206,7 @@ public class TextFilterClient implements AutoCloseable {
                         )
                 )
                 .collect(ImmutableList.toImmutableList());
-            return Util.sequence(var0)
+            return Util.sequenceFailFast(var0)
                 .thenApply(param0x -> Optional.of(param0x.stream().map(param0xx -> param0xx.orElse("")).collect(ImmutableList.toImmutableList())))
                 .exceptionally(param0x -> Optional.empty());
         }

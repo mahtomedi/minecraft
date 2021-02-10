@@ -1370,10 +1370,10 @@ public class StrongholdPieces {
             this.generateSmallDoor(param0, param3, param4, StrongholdPieces.StrongholdPiece.SmallDoorType.OPENING, 1, 1, 6);
             BlockState var0 = Blocks.WALL_TORCH.defaultBlockState().setValue(WallTorchBlock.FACING, Direction.EAST);
             BlockState var1 = Blocks.WALL_TORCH.defaultBlockState().setValue(WallTorchBlock.FACING, Direction.WEST);
-            this.maybeGenerateBlock(param0, param4, param3, 0.1F, 1, 2, 1, var0);
-            this.maybeGenerateBlock(param0, param4, param3, 0.1F, 3, 2, 1, var1);
-            this.maybeGenerateBlock(param0, param4, param3, 0.1F, 1, 2, 5, var0);
-            this.maybeGenerateBlock(param0, param4, param3, 0.1F, 3, 2, 5, var1);
+            this.maybeGenerateBlock(param0, param4, param3, 0.1F, 1, 2, 1, var0, false);
+            this.maybeGenerateBlock(param0, param4, param3, 0.1F, 3, 2, 1, var1, false);
+            this.maybeGenerateBlock(param0, param4, param3, 0.1F, 1, 2, 5, var0, false);
+            this.maybeGenerateBlock(param0, param4, param3, 0.1F, 3, 2, 5, var1, false);
             if (this.leftChild) {
                 this.generateBox(param0, param4, 0, 1, 2, 0, 3, 4, CAVE_AIR, CAVE_AIR, false);
             }

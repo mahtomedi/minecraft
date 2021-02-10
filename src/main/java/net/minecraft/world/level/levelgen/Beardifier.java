@@ -35,15 +35,13 @@ public class Beardifier {
 
     protected Beardifier(StructureFeatureManager param0, ChunkAccess param1) {
         ChunkPos var0 = param1.getPos();
-        int var1 = var0.x;
-        int var2 = var0.z;
-        int var3 = var0.getMinBlockX();
-        int var4 = var0.getMinBlockZ();
+        int var1 = var0.getMinBlockX();
+        int var2 = var0.getMinBlockZ();
         this.junctions = new ObjectArrayList<>(32);
         this.rigids = new ObjectArrayList<>(10);
 
-        for(StructureFeature<?> var5 : StructureFeature.NOISE_AFFECTING_FEATURES) {
-            param0.startsForFeature(SectionPos.bottomOf(param1), var5).forEach(param3 -> {
+        for(StructureFeature<?> var3 : StructureFeature.NOISE_AFFECTING_FEATURES) {
+            param0.startsForFeature(SectionPos.bottomOf(param1), var3).forEach(param3 -> {
                 for(StructurePiece var0x : param3.getPieces()) {
                     if (var0x.isCloseToChunk(var0, 12)) {
                         if (var0x instanceof PoolElementStructurePiece) {
@@ -56,7 +54,7 @@ public class Beardifier {
                             for(JigsawJunction var3x : var1x.getJunctions()) {
                                 int var4x = var3x.getSourceX();
                                 int var5x = var3x.getSourceZ();
-                                if (var4x > var3 - 12 && var5x > var4 - 12 && var4x < var3 + 15 + 12 && var5x < var4 + 15 + 12) {
+                                if (var4x > var1 - 12 && var5x > var2 - 12 && var4x < var1 + 15 + 12 && var5x < var2 + 15 + 12) {
                                     this.junctions.add(var3x);
                                 }
                             }

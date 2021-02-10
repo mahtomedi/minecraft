@@ -202,14 +202,6 @@ public class ProtoChunk implements ChunkAccess {
         }
     }
 
-    public LevelChunkSection getOrCreateSection(int param0) {
-        if (this.sections[param0] == LevelChunk.EMPTY_SECTION) {
-            this.sections[param0] = new LevelChunkSection(this.getSectionYFromSectionIndex(param0));
-        }
-
-        return this.sections[param0];
-    }
-
     @Override
     public void setBlockEntity(BlockEntity param0) {
         this.blockEntities.put(param0.getBlockPos(), param0);
@@ -453,7 +445,7 @@ public class ProtoChunk implements ChunkAccess {
     }
 
     public BitSet getOrCreateCarvingMask(GenerationStep.Carving param0) {
-        return this.carvingMasks.computeIfAbsent(param0, param0x -> new BitSet(65536));
+        return this.carvingMasks.computeIfAbsent(param0, param0x -> new BitSet(98304));
     }
 
     public void setCarvingMask(GenerationStep.Carving param0, BitSet param1) {

@@ -23,7 +23,7 @@ public class VinesFeature extends Feature<NoneFeatureConfiguration> {
         BlockPos var2 = param0.origin();
         BlockPos.MutableBlockPos var3 = var2.mutable();
 
-        for(int var4 = 64; var4 < 256; ++var4) {
+        for(int var4 = 64; var4 < 384; ++var4) {
             var3.set(var2);
             var3.move(var0.nextInt(4) - var0.nextInt(4), 0, var0.nextInt(4) - var0.nextInt(4));
             var3.setY(var4);

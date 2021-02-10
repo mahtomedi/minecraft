@@ -547,8 +547,16 @@ public class Mth {
         return param0 * param0;
     }
 
+    public static double square(double param0) {
+        return param0 * param0;
+    }
+
     public static double clampedMap(double param0, double param1, double param2, double param3, double param4) {
         return clampedLerp(param3, param4, inverseLerp(param0, param1, param2));
+    }
+
+    public static double map(double param0, double param1, double param2, double param3, double param4) {
+        return lerp(inverseLerp(param0, param1, param2), param3, param4);
     }
 
     public static int roundToward(int param0, int param1) {

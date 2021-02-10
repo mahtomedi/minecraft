@@ -86,7 +86,7 @@ public class SimpleReloadInstance<S> implements ReloadInstance {
             var1 = var4;
         }
 
-        this.allDone = Util.sequence(var0);
+        this.allDone = Util.sequenceFailFast(var0);
     }
 
     @Override

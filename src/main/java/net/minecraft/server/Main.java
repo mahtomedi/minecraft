@@ -47,6 +47,7 @@ import net.minecraft.world.level.LevelSettings;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
 import net.minecraft.world.level.storage.LevelResource;
 import net.minecraft.world.level.storage.LevelStorageSource;
+import net.minecraft.world.level.storage.LevelSummary;
 import net.minecraft.world.level.storage.PrimaryLevelData;
 import net.minecraft.world.level.storage.WorldData;
 import org.apache.logging.log4j.LogManager;
@@ -108,20 +109,26 @@ public class Main {
             LevelStorageSource var27 = LevelStorageSource.createDefault(var21.toPath());
             LevelStorageSource.LevelStorageAccess var28 = var27.createAccess(var26);
             MinecraftServer.convertFromRegionFormatIfNeeded(var28);
-            DataPackConfig var29 = var28.getDataPacks();
-            boolean var30 = var15.has(var7);
-            if (var30) {
+            LevelSummary var29 = var28.getSummary();
+            if (var29 != null && var29.isPreWorldheight()) {
+                LOGGER.info("Loading of old worlds is temporarily disabled.");
+                return;
+            }
+
+            DataPackConfig var30 = var28.getDataPacks();
+            boolean var31 = var15.has(var7);
+            if (var31) {
                 LOGGER.warn("Safe mode active, only vanilla datapack will be loaded");
             }
 
-            PackRepository var31 = new PackRepository(
+            PackRepository var32 = new PackRepository(
                 PackType.SERVER_DATA,
                 new ServerPacksSource(),
                 new FolderRepositorySource(var28.getLevelPath(LevelResource.DATAPACK_DIR).toFile(), PackSource.WORLD)
             );
-            DataPackConfig var32 = MinecraftServer.configurePackRepository(var31, var29 == null ? DataPackConfig.DEFAULT : var29, var30);
-            CompletableFuture<ServerResources> var33 = ServerResources.loadResources(
-                var31.openAllSelected(),
+            DataPackConfig var33 = MinecraftServer.configurePackRepository(var32, var30 == null ? DataPackConfig.DEFAULT : var30, var31);
+            CompletableFuture<ServerResources> var34 = ServerResources.loadResources(
+                var32.openAllSelected(),
                 var16,
                 Commands.CommandSelection.DEDICATED,
                 var18.getProperties().functionPermissionLevel,
@@ -129,46 +136,46 @@ public class Main {
                 Runnable::run
             );
 
-            ServerResources var34;
+            ServerResources var35;
             try {
-                var34 = var33.get();
-            } catch (Exception var41) {
+                var35 = var34.get();
+            } catch (Exception var42) {
                 LOGGER.warn(
                     "Failed to load datapacks, can't proceed with server load. You can either fix your datapacks or reset to vanilla with --safeMode",
-                    (Throwable)var41
+                    (Throwable)var42
                 );
-                var31.close();
+                var32.close();
                 return;
             }
 
-            var34.updateGlobals();
-            RegistryReadOps<Tag> var37 = RegistryReadOps.create(NbtOps.INSTANCE, var34.getResourceManager(), var16);
-            WorldData var38 = var28.getDataTag(var37, var32);
-            if (var38 == null) {
-                LevelSettings var39;
-                WorldGenSettings var40;
+            var35.updateGlobals();
+            RegistryReadOps<Tag> var38 = RegistryReadOps.create(NbtOps.INSTANCE, var35.getResourceManager(), var16);
+            WorldData var39 = var28.getDataTag(var38, var33);
+            if (var39 == null) {
+                LevelSettings var40;
+                WorldGenSettings var41;
                 if (var15.has(var3)) {
-                    var39 = MinecraftServer.DEMO_SETTINGS;
-                    var40 = WorldGenSettings.demoSettings(var16);
+                    var40 = MinecraftServer.DEMO_SETTINGS;
+                    var41 = WorldGenSettings.demoSettings(var16);
                 } else {
-                    DedicatedServerProperties var41 = var18.getProperties();
-                    var39 = new LevelSettings(var41.levelName, var41.gamemode, var41.hardcore, var41.difficulty, false, new GameRules(), var32);
-                    var40 = var15.has(var4) ? var41.worldGenSettings.withBonusChest() : var41.worldGenSettings;
+                    DedicatedServerProperties var42 = var18.getProperties();
+                    var40 = new LevelSettings(var42.levelName, var42.gamemode, var42.hardcore, var42.difficulty, false, new GameRules(), var33);
+                    var41 = var15.has(var4) ? var42.worldGenSettings.withBonusChest() : var42.worldGenSettings;
                 }
 
-                var38 = new PrimaryLevelData(var39, var40, Lifecycle.stable());
+                var39 = new PrimaryLevelData(var40, var41, Lifecycle.stable());
             }
 
             if (var15.has(var5)) {
-                forceUpgrade(var28, DataFixers.getDataFixer(), var15.has(var6), () -> true, var38.worldGenSettings().levels());
+                forceUpgrade(var28, DataFixers.getDataFixer(), var15.has(var6), () -> true, var39.worldGenSettings().levels());
             }
 
-            var28.saveDataTag(var16, var38);
-            WorldData var44 = var38;
-            final DedicatedServer var45 = MinecraftServer.spin(
+            var28.saveDataTag(var16, var39);
+            WorldData var45 = var39;
+            final DedicatedServer var46 = MinecraftServer.spin(
                 param16 -> {
                     DedicatedServer var0x = new DedicatedServer(
-                        param16, var16, var28, var31, var34, var44, var18, DataFixers.getDataFixer(), var23, var24, var25, LoggerChunkProgressListener::new
+                        param16, var16, var28, var32, var35, var45, var18, DataFixers.getDataFixer(), var23, var24, var25, LoggerChunkProgressListener::new
                     );
                     var0x.setSingleplayerName(var15.valueOf(var9));
                     var0x.setPort(var15.valueOf(var12));
@@ -182,16 +189,16 @@ public class Main {
                     return var0x;
                 }
             );
-            Thread var46 = new Thread("Server Shutdown Thread") {
+            Thread var47 = new Thread("Server Shutdown Thread") {
                 @Override
                 public void run() {
-                    var45.halt(true);
+                    var46.halt(true);
                 }
             };
-            var46.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(LOGGER));
-            Runtime.getRuntime().addShutdownHook(var46);
-        } catch (Exception var42) {
-            LOGGER.fatal("Failed to start the minecraft server", (Throwable)var42);
+            var47.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(LOGGER));
+            Runtime.getRuntime().addShutdownHook(var47);
+        } catch (Exception var43) {
+            LOGGER.fatal("Failed to start the minecraft server", (Throwable)var43);
         }
 
     }

@@ -212,6 +212,21 @@ public class Util {
         return var0;
     }
 
+    public static Runnable wrapThreadWithTaskName(String param0, Runnable param1) {
+        return SharedConstants.IS_RUNNING_IN_IDE ? () -> {
+            Thread var0x = Thread.currentThread();
+            String var1x = var0x.getName();
+            var0x.setName(param0);
+
+            try {
+                param1.run();
+            } finally {
+                var0x.setName(var1x);
+            }
+
+        } : param1;
+    }
+
     public static Util.OS getPlatform() {
         String var0 = System.getProperty("os.name").toLowerCase(Locale.ROOT);
         if (var0.contains("win")) {
@@ -290,6 +305,21 @@ public class Util {
     }
 
     public static <V> CompletableFuture<List<V>> sequence(List<? extends CompletableFuture<? extends V>> param0) {
+        return param0.stream()
+            .reduce(CompletableFuture.completedFuture(Lists.newArrayList()), (param0x, param1) -> param1.thenCombine(param0x, (param0xx, param1x) -> {
+                    List<V> var0x = Lists.newArrayListWithCapacity(param1x.size() + 1);
+                    var0x.addAll(param1x);
+                    var0x.add(param0xx);
+                    return var0x;
+                }), (param0x, param1) -> param0x.thenCombine(param1, (param0xx, param1x) -> {
+                    List<V> var0x = Lists.newArrayListWithCapacity(param0xx.size() + param1x.size());
+                    var0x.addAll(param0xx);
+                    var0x.addAll(param1x);
+                    return var0x;
+                }));
+    }
+
+    public static <V> CompletableFuture<List<V>> sequenceFailFast(List<? extends CompletableFuture<? extends V>> param0) {
         List<V> var0 = Lists.newArrayListWithCapacity(param0.size());
         CompletableFuture<?>[] var1 = new CompletableFuture[param0.size()];
         CompletableFuture<Void> var2 = new CompletableFuture<>();

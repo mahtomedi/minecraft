@@ -67,7 +67,7 @@ public class DefaultSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBaseConf
         int var5 = param3 & 15;
         int var6 = param4 & 15;
 
-        for(int var7 = param5; var7 >= 0; --var7) {
+        for(int var7 = param5; var7 >= 50; --var7) {
             var2.set(var5, var7, var6);
             BlockState var8 = param1.getBlockState(var2);
             if (var8.isAir()) {

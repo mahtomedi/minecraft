@@ -5,7 +5,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
-import net.minecraft.SharedConstants;
+import net.minecraft.Util;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -75,22 +75,7 @@ public class ProcessorMailbox<T> implements ProcessorHandle<T>, AutoCloseable, R
             if (var0 == null) {
                 return false;
             } else {
-                String var2;
-                Thread var1;
-                if (SharedConstants.IS_RUNNING_IN_IDE) {
-                    var1 = Thread.currentThread();
-                    var2 = var1.getName();
-                    var1.setName(this.name);
-                } else {
-                    var1 = null;
-                    var2 = null;
-                }
-
-                var0.run();
-                if (var1 != null) {
-                    var1.setName(var2);
-                }
-
+                Util.wrapThreadWithTaskName(this.name, var0).run();
                 return true;
             }
         }

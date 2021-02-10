@@ -27,8 +27,8 @@ public interface Decoratable<R> {
         return this.count(UniformInt.of(0, param0));
     }
 
-    default R range(int param0) {
-        return this.decorated(FeatureDecorator.RANGE.configured(new RangeDecoratorConfiguration(0, 0, param0)));
+    default R range(int param0, int param1) {
+        return this.decorated(FeatureDecorator.RANGE.configured(new RangeDecoratorConfiguration(param0, param0, param1)));
     }
 
     default R squared() {

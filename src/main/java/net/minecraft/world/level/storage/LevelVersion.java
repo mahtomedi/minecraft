@@ -49,7 +49,6 @@ public class LevelVersion {
         return this.minecraftVersionName;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int minecraftVersion() {
         return this.minecraftVersion;
     }

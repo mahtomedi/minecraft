@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.function.Function;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
@@ -39,18 +40,23 @@ public class ChunkStatus {
         }
     );
     public static final ChunkStatus STRUCTURE_STARTS = register(
-        "structure_starts", EMPTY, 0, PRE_FEATURES, ChunkStatus.ChunkType.PROTOCHUNK, (param0, param1, param2, param3, param4, param5, param6, param7) -> {
-            if (!param7.getStatus().isOrAfter(param0)) {
-                if (param1.getServer().getWorldData().worldGenSettings().generateFeatures()) {
-                    param2.createStructures(param1.registryAccess(), param1.structureFeatureManager(), param7, param3, param1.getSeed());
+        "structure_starts",
+        EMPTY,
+        0,
+        PRE_FEATURES,
+        ChunkStatus.ChunkType.PROTOCHUNK,
+        (param0, param1, param2, param3, param4, param5, param6, param7, param8) -> {
+            if (!param8.getStatus().isOrAfter(param0)) {
+                if (param2.getServer().getWorldData().worldGenSettings().generateFeatures()) {
+                    param3.createStructures(param2.registryAccess(), param2.structureFeatureManager(), param8, param4, param2.getSeed());
                 }
     
-                if (param7 instanceof ProtoChunk) {
-                    ((ProtoChunk)param7).setStatus(param0);
+                if (param8 instanceof ProtoChunk) {
+                    ((ProtoChunk)param8).setStatus(param0);
                 }
             }
     
-            return CompletableFuture.completedFuture(Either.left(param7));
+            return CompletableFuture.completedFuture(Either.left(param8));
         }
     );
     public static final ChunkStatus STRUCTURE_REFERENCES = registerSimple(
@@ -67,10 +73,20 @@ public class ChunkStatus {
         ChunkStatus.ChunkType.PROTOCHUNK,
         (param0, param1, param2, param3) -> param1.createBiomes(param0.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY), param3)
     );
-    public static final ChunkStatus NOISE = registerSimple(
-        "noise", BIOMES, 8, PRE_FEATURES, ChunkStatus.ChunkType.PROTOCHUNK, (param0, param1, param2, param3) -> {
-            WorldGenRegion var0 = new WorldGenRegion(param0, param2);
-            param1.fillFromNoise(var0, param0.structureFeatureManager().forWorldGenRegion(var0), param3);
+    public static final ChunkStatus NOISE = register(
+        "noise", BIOMES, 8, PRE_FEATURES, ChunkStatus.ChunkType.PROTOCHUNK, (param0, param1, param2, param3, param4, param5, param6, param7, param8) -> {
+            if (!param8.getStatus().isOrAfter(param0)) {
+                WorldGenRegion var0 = new WorldGenRegion(param2, param7);
+                return param3.fillFromNoise(param1, param2.structureFeatureManager().forWorldGenRegion(var0), param8).thenApply(param1x -> {
+                    if (param1x instanceof ProtoChunk) {
+                        ((ProtoChunk)param1x).setStatus(param0);
+                    }
+    
+                    return Either.left(param1x);
+                });
+            } else {
+                return CompletableFuture.completedFuture(Either.left(param8));
+            }
         }
     );
     public static final ChunkStatus SURFACE = registerSimple(
@@ -103,22 +119,22 @@ public class ChunkStatus {
         8,
         POST_FEATURES,
         ChunkStatus.ChunkType.PROTOCHUNK,
-        (param0, param1, param2, param3, param4, param5, param6, param7) -> {
-            ProtoChunk var0 = (ProtoChunk)param7;
-            var0.setLightEngine(param4);
-            if (!param7.getStatus().isOrAfter(param0)) {
+        (param0, param1, param2, param3, param4, param5, param6, param7, param8) -> {
+            ProtoChunk var0 = (ProtoChunk)param8;
+            var0.setLightEngine(param5);
+            if (!param8.getStatus().isOrAfter(param0)) {
                 Heightmap.primeHeightmaps(
-                    param7,
+                    param8,
                     EnumSet.of(
                         Heightmap.Types.MOTION_BLOCKING, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Heightmap.Types.OCEAN_FLOOR, Heightmap.Types.WORLD_SURFACE
                     )
                 );
-                WorldGenRegion var1 = new WorldGenRegion(param1, param6);
-                param2.applyBiomeDecoration(var1, param1.structureFeatureManager().forWorldGenRegion(var1));
+                WorldGenRegion var1 = new WorldGenRegion(param2, param7);
+                param3.applyBiomeDecoration(var1, param2.structureFeatureManager().forWorldGenRegion(var1));
                 var0.setStatus(param0);
             }
     
-            return CompletableFuture.completedFuture(Either.left(param7));
+            return CompletableFuture.completedFuture(Either.left(param8));
         }
     );
     public static final ChunkStatus LIGHT = register(
@@ -127,7 +143,7 @@ public class ChunkStatus {
         1,
         POST_FEATURES,
         ChunkStatus.ChunkType.PROTOCHUNK,
-        (param0, param1, param2, param3, param4, param5, param6, param7) -> lightChunk(param0, param4, param7),
+        (param0, param1, param2, param3, param4, param5, param6, param7, param8) -> lightChunk(param0, param5, param8),
         (param0, param1, param2, param3, param4, param5) -> lightChunk(param0, param3, param5)
     );
     public static final ChunkStatus SPAWN = registerSimple(
@@ -148,7 +164,7 @@ public class ChunkStatus {
         0,
         POST_FEATURES,
         ChunkStatus.ChunkType.LEVELCHUNK,
-        (param0, param1, param2, param3, param4, param5, param6, param7) -> param5.apply(param7),
+        (param0, param1, param2, param3, param4, param5, param6, param7, param8) -> param6.apply(param8),
         (param0, param1, param2, param3, param4, param5) -> param4.apply(param5)
     );
     private static final List<ChunkStatus> STATUS_BY_RANGE = ImmutableList.of(
@@ -295,14 +311,15 @@ public class ChunkStatus {
     }
 
     public CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> generate(
-        ServerLevel param0,
-        ChunkGenerator param1,
-        StructureManager param2,
-        ThreadedLevelLightEngine param3,
-        Function<ChunkAccess, CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>>> param4,
-        List<ChunkAccess> param5
+        Executor param0,
+        ServerLevel param1,
+        ChunkGenerator param2,
+        StructureManager param3,
+        ThreadedLevelLightEngine param4,
+        Function<ChunkAccess, CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>>> param5,
+        List<ChunkAccess> param6
     ) {
-        return this.generationTask.doWork(this, param0, param1, param2, param3, param4, param5, param5.get(param5.size() / 2));
+        return this.generationTask.doWork(this, param0, param1, param2, param3, param4, param5, param6, param6.get(param6.size() / 2));
     }
 
     public CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> load(
@@ -348,13 +365,14 @@ public class ChunkStatus {
     interface GenerationTask {
         CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> doWork(
             ChunkStatus var1,
-            ServerLevel var2,
-            ChunkGenerator var3,
-            StructureManager var4,
-            ThreadedLevelLightEngine var5,
-            Function<ChunkAccess, CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>>> var6,
-            List<ChunkAccess> var7,
-            ChunkAccess var8
+            Executor var2,
+            ServerLevel var3,
+            ChunkGenerator var4,
+            StructureManager var5,
+            ThreadedLevelLightEngine var6,
+            Function<ChunkAccess, CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>>> var7,
+            List<ChunkAccess> var8,
+            ChunkAccess var9
         );
     }
 
@@ -373,22 +391,23 @@ public class ChunkStatus {
         @Override
         default CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> doWork(
             ChunkStatus param0,
-            ServerLevel param1,
-            ChunkGenerator param2,
-            StructureManager param3,
-            ThreadedLevelLightEngine param4,
-            Function<ChunkAccess, CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>>> param5,
-            List<ChunkAccess> param6,
-            ChunkAccess param7
+            Executor param1,
+            ServerLevel param2,
+            ChunkGenerator param3,
+            StructureManager param4,
+            ThreadedLevelLightEngine param5,
+            Function<ChunkAccess, CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>>> param6,
+            List<ChunkAccess> param7,
+            ChunkAccess param8
         ) {
-            if (!param7.getStatus().isOrAfter(param0)) {
-                this.doWork(param1, param2, param6, param7);
-                if (param7 instanceof ProtoChunk) {
-                    ((ProtoChunk)param7).setStatus(param0);
+            if (!param8.getStatus().isOrAfter(param0)) {
+                this.doWork(param2, param3, param7, param8);
+                if (param8 instanceof ProtoChunk) {
+                    ((ProtoChunk)param8).setStatus(param0);
                 }
             }
 
-            return CompletableFuture.completedFuture(Either.left(param7));
+            return CompletableFuture.completedFuture(Either.left(param8));
         }
 
         void doWork(ServerLevel var1, ChunkGenerator var2, List<ChunkAccess> var3, ChunkAccess var4);

@@ -13,7 +13,7 @@ public class SimpleRandomSource implements RandomSource {
 
     public void setSeed(long param0) {
         if (!this.seed.compareAndSet(this.seed.get(), (param0 ^ 25214903917L) & 281474976710655L)) {
-            throw ThreadingDetector.makeThreadingException("SimpleRandomSource");
+            throw ThreadingDetector.makeThreadingException("SimpleRandomSource", null);
         }
     }
 
@@ -21,7 +21,7 @@ public class SimpleRandomSource implements RandomSource {
         long var0 = this.seed.get();
         long var1 = var0 * 25214903917L + 11L & 281474976710655L;
         if (!this.seed.compareAndSet(var0, var1)) {
-            throw ThreadingDetector.makeThreadingException("SimpleRandomSource");
+            throw ThreadingDetector.makeThreadingException("SimpleRandomSource", null);
         } else {
             return (int)(var1 >> 48 - param0);
         }
@@ -48,6 +48,11 @@ public class SimpleRandomSource implements RandomSource {
 
             return var1;
         }
+    }
+
+    @Override
+    public long nextLong() {
+        return ((long)this.nextInt() << 32) + (long)this.nextInt();
     }
 
     @Override

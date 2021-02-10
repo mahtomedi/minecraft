@@ -1,15 +1,18 @@
 package net.minecraft.world.level.chunk;
 
+import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.Semaphore;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import javax.annotation.Nullable;
 import net.minecraft.core.IdMapper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.BitStorage;
+import net.minecraft.util.DebugBuffer;
 import net.minecraft.util.Mth;
 import net.minecraft.util.ThreadingDetector;
 import net.minecraftforge.api.distmarker.Dist;
@@ -25,14 +28,21 @@ public class PalettedContainer<T> implements PaletteResize<T> {
     protected BitStorage storage;
     private Palette<T> palette;
     private int bits;
-    private final ReentrantLock lock = new ReentrantLock();
+    private final Semaphore lock = new Semaphore(1);
+    @Nullable
+    private final DebugBuffer<Pair<Thread, StackTraceElement[]>> traces = null;
 
     public void acquire() {
-        ThreadingDetector.checkAndLock(this.lock, "PalettedContainer");
+        if (this.traces != null) {
+            Thread var0 = Thread.currentThread();
+            this.traces.push(Pair.of(var0, var0.getStackTrace()));
+        }
+
+        ThreadingDetector.checkAndLock(this.lock, this.traces, "PalettedContainer");
     }
 
     public void release() {
-        this.lock.unlock();
+        this.lock.release();
     }
 
     public PalettedContainer(Palette<T> param0, IdMapper<T> param1, Function<CompoundTag, T> param2, Function<T, CompoundTag> param3, T param4) {
@@ -68,7 +78,6 @@ public class PalettedContainer<T> implements PaletteResize<T> {
 
     @Override
     public int onResize(int param0, T param1) {
-        this.acquire();
         BitStorage var0 = this.storage;
         Palette<T> var1 = this.palette;
         this.setBits(param0);
@@ -80,9 +89,7 @@ public class PalettedContainer<T> implements PaletteResize<T> {
             }
         }
 
-        int var4 = this.palette.idFor(param1);
-        this.release();
-        return var4;
+        return this.palette.idFor(param1);
     }
 
     public T getAndSet(int param0, int param1, int param2, T param3) {
@@ -96,14 +103,14 @@ public class PalettedContainer<T> implements PaletteResize<T> {
         return this.getAndSet(getIndex(param0, param1, param2), param3);
     }
 
-    protected T getAndSet(int param0, T param1) {
+    private T getAndSet(int param0, T param1) {
         int var0 = this.palette.idFor(param1);
         int var1 = this.storage.getAndSet(param0, var0);
         T var2 = this.palette.valueFor(var1);
         return (T)(var2 == null ? this.defaultValue : var2);
     }
 
-    protected void set(int param0, T param1) {
+    private void set(int param0, T param1) {
         int var0 = this.palette.idFor(param1);
         this.storage.set(param0, var0);
     }

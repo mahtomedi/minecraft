@@ -2780,16 +2780,16 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     }
 
     public boolean updateFluidHeightAndDoFluidPushing(Tag<Fluid> param0, double param1) {
-        AABB var0 = this.getBoundingBox().deflate(0.001);
-        int var1 = Mth.floor(var0.minX);
-        int var2 = Mth.ceil(var0.maxX);
-        int var3 = Mth.floor(var0.minY);
-        int var4 = Mth.ceil(var0.maxY);
-        int var5 = Mth.floor(var0.minZ);
-        int var6 = Mth.ceil(var0.maxZ);
-        if (!this.level.hasChunksAt(var1, var3, var5, var2, var4, var6)) {
+        if (this.touchingUnloadedChunk()) {
             return false;
         } else {
+            AABB var0 = this.getBoundingBox().deflate(0.001);
+            int var1 = Mth.floor(var0.minX);
+            int var2 = Mth.ceil(var0.maxX);
+            int var3 = Mth.floor(var0.minY);
+            int var4 = Mth.ceil(var0.maxY);
+            int var5 = Mth.floor(var0.minZ);
+            int var6 = Mth.ceil(var0.maxZ);
             double var7 = 0.0;
             boolean var8 = this.isPushedByFluid();
             boolean var9 = false;
@@ -2844,6 +2844,17 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
             this.fluidHeight.put(param0, var7);
             return var9;
         }
+    }
+
+    public boolean touchingUnloadedChunk() {
+        AABB var0 = this.getBoundingBox().inflate(1.0);
+        int var1 = Mth.floor(var0.minX);
+        int var2 = Mth.ceil(var0.maxX);
+        int var3 = Mth.floor(var0.minY);
+        int var4 = Mth.ceil(var0.maxY);
+        int var5 = Mth.floor(var0.minZ);
+        int var6 = Mth.ceil(var0.maxZ);
+        return !this.level.hasChunksAt(var1, var3, var5, var2, var4, var6);
     }
 
     public double getFluidHeight(Tag<Fluid> param0) {

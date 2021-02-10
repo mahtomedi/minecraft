@@ -11,6 +11,9 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.feature.configurations.MineshaftConfiguration;
@@ -77,23 +80,29 @@ public class MineshaftFeature extends StructureFeature<MineshaftConfiguration> {
                     var3.move(0, var2, 0);
                 }
             } else {
-                this.moveBelowSeaLevel(param1.getSeaLevel(), this.random, 10);
+                this.moveBelowSeaLevel(param1.getSeaLevel(), param1.getMinY(), this.random, 10);
             }
 
         }
     }
 
     public static enum Type implements StringRepresentable {
-        NORMAL("normal"),
-        MESA("mesa");
+        NORMAL("normal", Blocks.OAK_WOOD, Blocks.OAK_PLANKS, Blocks.OAK_FENCE),
+        MESA("mesa", Blocks.DARK_OAK_WOOD, Blocks.DARK_OAK_PLANKS, Blocks.DARK_OAK_FENCE);
 
         public static final Codec<MineshaftFeature.Type> CODEC = StringRepresentable.fromEnum(MineshaftFeature.Type::values, MineshaftFeature.Type::byName);
         private static final Map<String, MineshaftFeature.Type> BY_NAME = Arrays.stream(values())
             .collect(Collectors.toMap(MineshaftFeature.Type::getName, param0 -> param0));
         private final String name;
+        private final BlockState woodState;
+        private final BlockState planksState;
+        private final BlockState fenceState;
 
-        private Type(String param0) {
+        private Type(String param0, Block param1, Block param2, Block param3) {
             this.name = param0;
+            this.woodState = param1.defaultBlockState();
+            this.planksState = param2.defaultBlockState();
+            this.fenceState = param3.defaultBlockState();
         }
 
         public String getName() {
@@ -106,6 +115,18 @@ public class MineshaftFeature extends StructureFeature<MineshaftConfiguration> {
 
         public static MineshaftFeature.Type byId(int param0) {
             return param0 >= 0 && param0 < values().length ? values()[param0] : NORMAL;
+        }
+
+        public BlockState getWoodState() {
+            return this.woodState;
+        }
+
+        public BlockState getPlanksState() {
+            return this.planksState;
+        }
+
+        public BlockState getFenceState() {
+            return this.fenceState;
         }
 
         @Override

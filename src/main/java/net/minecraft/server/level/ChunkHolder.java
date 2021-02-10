@@ -21,6 +21,7 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundLightUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundSectionBlocksUpdatePacket;
+import net.minecraft.util.DebugBuffer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
@@ -57,6 +58,8 @@ public class ChunkHolder {
     private volatile CompletableFuture<Either<LevelChunk, ChunkHolder.ChunkLoadingFailure>> tickingChunkFuture = UNLOADED_LEVEL_CHUNK_FUTURE;
     private volatile CompletableFuture<Either<LevelChunk, ChunkHolder.ChunkLoadingFailure>> entityTickingChunkFuture = UNLOADED_LEVEL_CHUNK_FUTURE;
     private CompletableFuture<ChunkAccess> chunkToSave = CompletableFuture.completedFuture(null);
+    @Nullable
+    private final DebugBuffer<ChunkHolder.ChunkSaveDebug> chunkToSaveHistory = null;
     private int oldTicketLevel;
     private int ticketLevel;
     private int queueLevel;
@@ -265,7 +268,7 @@ public class ChunkHolder {
 
         if (getStatus(this.ticketLevel).isOrAfter(param0)) {
             CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> var3 = param1.schedule(this, param0);
-            this.updateChunkToSave(var3);
+            this.updateChunkToSave(var3, "schedule " + param0);
             this.futures.set(var0, var3);
             return var3;
         } else {
@@ -273,8 +276,12 @@ public class ChunkHolder {
         }
     }
 
-    private void updateChunkToSave(CompletableFuture<? extends Either<? extends ChunkAccess, ChunkHolder.ChunkLoadingFailure>> param0) {
-        this.chunkToSave = this.chunkToSave.thenCombine(param0, (param0x, param1) -> param1.map(param0xx -> param0xx, param1x -> param0x));
+    private void updateChunkToSave(CompletableFuture<? extends Either<? extends ChunkAccess, ChunkHolder.ChunkLoadingFailure>> param0, String param1) {
+        if (this.chunkToSaveHistory != null) {
+            this.chunkToSaveHistory.push(new ChunkHolder.ChunkSaveDebug(Thread.currentThread(), param0, param1));
+        }
+
+        this.chunkToSave = this.chunkToSave.thenCombine(param0, (param0x, param1x) -> param1x.map(param0xx -> param0xx, param1xx -> param0x));
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -335,7 +342,7 @@ public class ChunkHolder {
             for(int var7 = var3 ? var1.getIndex() + 1 : 0; var7 <= var0.getIndex(); ++var7) {
                 CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> var8 = this.futures.get(var7);
                 if (var8 != null) {
-                    var8.complete(var6);
+                    this.futures.set(var7, var8.thenApply(param1x -> var6));
                 } else {
                     this.futures.set(var7, CompletableFuture.completedFuture(var6));
                 }
@@ -348,13 +355,13 @@ public class ChunkHolder {
         if (!var9 && var10) {
             this.fullChunkFuture = param0.prepareAccessibleChunk(this);
             this.scheduleFullChunkPromotion(param0, this.fullChunkFuture, param1, ChunkHolder.FullChunkStatus.BORDER);
-            this.updateChunkToSave(this.fullChunkFuture);
+            this.updateChunkToSave(this.fullChunkFuture, "full");
         }
 
         if (var9 && !var10) {
             CompletableFuture<Either<LevelChunk, ChunkHolder.ChunkLoadingFailure>> var11 = this.fullChunkFuture;
             this.fullChunkFuture = UNLOADED_LEVEL_CHUNK_FUTURE;
-            this.updateChunkToSave(var11.thenApply(param1x -> param1x.ifLeft(param0::packTicks)));
+            this.updateChunkToSave(var11.thenApply(param1x -> param1x.ifLeft(param0::packTicks)), "unfull");
         }
 
         boolean var12 = var4.isOrAfter(ChunkHolder.FullChunkStatus.TICKING);
@@ -362,7 +369,7 @@ public class ChunkHolder {
         if (!var12 && var13) {
             this.tickingChunkFuture = param0.prepareTickingChunk(this);
             this.scheduleFullChunkPromotion(param0, this.tickingChunkFuture, param1, ChunkHolder.FullChunkStatus.TICKING);
-            this.updateChunkToSave(this.tickingChunkFuture);
+            this.updateChunkToSave(this.tickingChunkFuture, "ticking");
         }
 
         if (var12 && !var13) {
@@ -379,7 +386,7 @@ public class ChunkHolder {
 
             this.entityTickingChunkFuture = param0.prepareEntityTickingChunk(this.pos);
             this.scheduleFullChunkPromotion(param0, this.entityTickingChunkFuture, param1, ChunkHolder.FullChunkStatus.ENTITY_TICKING);
-            this.updateChunkToSave(this.entityTickingChunkFuture);
+            this.updateChunkToSave(this.entityTickingChunkFuture, "entity ticking");
         }
 
         if (var14 && !var15) {
@@ -422,7 +429,7 @@ public class ChunkHolder {
             }
         }
 
-        this.updateChunkToSave(CompletableFuture.completedFuture(Either.left(param0.getWrapped())));
+        this.updateChunkToSave(CompletableFuture.completedFuture(Either.left(param0.getWrapped())), "replaceProto");
     }
 
     public interface ChunkLoadingFailure {
@@ -432,6 +439,18 @@ public class ChunkHolder {
                 return "UNLOADED";
             }
         };
+    }
+
+    static final class ChunkSaveDebug {
+        private final Thread thread;
+        private final CompletableFuture<? extends Either<? extends ChunkAccess, ChunkHolder.ChunkLoadingFailure>> future;
+        private final String source;
+
+        private ChunkSaveDebug(Thread param0, CompletableFuture<? extends Either<? extends ChunkAccess, ChunkHolder.ChunkLoadingFailure>> param1, String param2) {
+            this.thread = param0;
+            this.future = param1;
+            this.source = param2;
+        }
     }
 
     public static enum FullChunkStatus {

@@ -528,17 +528,24 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
             var0, param1.getRange(), param1x -> this.getDependencyStatus(param1, param1x)
         );
         this.level.getProfiler().incrementCounter(() -> "chunkGenerate " + param1.getName());
+        Executor var2 = param1x -> this.worldgenMailbox.tell(ChunkTaskPriorityQueueSorter.message(param0, param1x));
         return var1.thenComposeAsync(
-            param3 -> param3.map(
-                    param3x -> {
+            param4 -> param4.map(
+                    param4x -> {
                         try {
                             CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> var0x = param1.generate(
-                                this.level, this.generator, this.structureManager, this.lightEngine, param1x -> this.protoChunkToFullChunk(param0), param3x
+                                var2,
+                                this.level,
+                                this.generator,
+                                this.structureManager,
+                                this.lightEngine,
+                                param1x -> this.protoChunkToFullChunk(param0),
+                                param4x
                             );
                             this.progressListener.onStatusChange(var0, param1);
                             return var0x;
-                        } catch (Exception var8) {
-                            CrashReport var2x = CrashReport.forThrowable(var8, "Exception generating new chunk");
+                        } catch (Exception var9) {
+                            CrashReport var2x = CrashReport.forThrowable(var9, "Exception generating new chunk");
                             CrashReportCategory var3x = var2x.addCategory("Chunk to be generated");
                             var3x.setDetail("Location", String.format("%d,%d", var0.x, var0.z));
                             var3x.setDetail("Position hash", ChunkPos.asLong(var0.x, var0.z));
@@ -551,7 +558,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
                         return CompletableFuture.completedFuture(Either.right(param1x));
                     }
                 ),
-            param1x -> this.worldgenMailbox.tell(ChunkTaskPriorityQueueSorter.message(param0, param1x))
+            var2
         );
     }
 

@@ -106,7 +106,7 @@ public class SmallDripleafBlock extends DoublePlantBlock implements Bonemealable
     @Override
     public void performBonemeal(ServerLevel param0, Random param1, BlockPos param2, BlockState param3) {
         if (param3.getValue(DoublePlantBlock.HALF) == DoubleBlockHalf.LOWER) {
-            BigDripleafBlock.place(param0, param1, param2);
+            BigDripleafBlock.placeWithRandomHeight(param0, param1, param2);
         } else {
             BlockPos var0 = param2.below();
             this.performBonemeal(param0, param1, var0, param0.getBlockState(var0));

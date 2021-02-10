@@ -121,11 +121,11 @@ public abstract class StructureStart<C extends FeatureConfiguration> {
         }
     }
 
-    protected void moveBelowSeaLevel(int param0, Random param1, int param2) {
-        int var0 = param0 - param2;
-        int var1 = this.boundingBox.getYSpan() + 1;
+    protected void moveBelowSeaLevel(int param0, int param1, Random param2, int param3) {
+        int var0 = param0 - param3;
+        int var1 = this.boundingBox.getYSpan() + param1 + 1;
         if (var1 < var0) {
-            var1 += param1.nextInt(var0 - var1);
+            var1 += param2.nextInt(var0 - var1);
         }
 
         int var2 = var1 - this.boundingBox.y1;

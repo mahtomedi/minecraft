@@ -71,6 +71,7 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.W
     private static final Component SNAPSHOT_TOOLTIP_1 = new TranslatableComponent("selectWorld.tooltip.snapshot1").withStyle(ChatFormatting.GOLD);
     private static final Component SNAPSHOT_TOOLTIP_2 = new TranslatableComponent("selectWorld.tooltip.snapshot2").withStyle(ChatFormatting.GOLD);
     private static final Component WORLD_LOCKED_TOOLTIP = new TranslatableComponent("selectWorld.locked").withStyle(ChatFormatting.RED);
+    private static final Component WORLD_PRE_WORLDHEIGHT_TOOLTIP = new TranslatableComponent("selectWorld.pre_worldheight").withStyle(ChatFormatting.RED);
     private final SelectWorldScreen screen;
     @Nullable
     private List<LevelSummary> cachedList;
@@ -162,12 +163,12 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.W
                 );
         }
 
-        this.screen.updateButtonStatus(param0 != null && !param0.summary.isLocked());
+        this.screen.updateButtonStatus(param0 != null && !param0.summary.isDisabled());
     }
 
     @Override
     protected void moveSelection(AbstractSelectionList.SelectionDirection param0) {
-        this.moveSelection(param0, param0x -> !param0x.summary.isLocked());
+        this.moveSelection(param0, param0x -> !param0x.summary.isDisabled());
     }
 
     public Optional<WorldSelectionList.WorldListEntry> getSelectedOpt() {
@@ -234,6 +235,11 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.W
                     if (var4) {
                         this.screen.setToolTip(this.minecraft.font.split(WorldSelectionList.WORLD_LOCKED_TOOLTIP, 175));
                     }
+                } else if (this.summary.isPreWorldheight()) {
+                    GuiComponent.blit(param0, param3, param2, 96.0F, 32.0F, 32, 32, 256, 256);
+                    if (var4) {
+                        this.screen.setToolTip(this.minecraft.font.split(WorldSelectionList.WORLD_PRE_WORLDHEIGHT_TOOLTIP, 175));
+                    }
                 } else if (this.summary.markVersionInList()) {
                     GuiComponent.blit(param0, param3, param2, 32.0F, (float)var5, 32, 32, 256, 256);
                     if (this.summary.askToOpenWorld()) {
@@ -267,7 +273,7 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.W
 
         @Override
         public boolean mouseClicked(double param0, double param1, int param2) {
-            if (this.summary.isLocked()) {
+            if (this.summary.isDisabled()) {
                 return true;
             } else {
                 WorldSelectionList.this.setSelected(this);
@@ -286,7 +292,7 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.W
         }
 
         public void joinWorld() {
-            if (!this.summary.isLocked()) {
+            if (!this.summary.isDisabled()) {
                 LevelSummary.BackupStatus var0 = this.summary.backupStatus();
                 if (var0.shouldBackup()) {
                     String var1 = "selectWorld.backupQuestion." + var0.getTranslationKey();

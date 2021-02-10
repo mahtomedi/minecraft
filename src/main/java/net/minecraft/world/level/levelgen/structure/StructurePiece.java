@@ -113,52 +113,8 @@ public abstract class StructurePiece {
         return null;
     }
 
-    protected boolean edgesLiquid(BlockGetter param0, BoundingBox param1) {
-        int var0 = Math.max(this.boundingBox.x0 - 1, param1.x0);
-        int var1 = Math.max(this.boundingBox.y0 - 1, param1.y0);
-        int var2 = Math.max(this.boundingBox.z0 - 1, param1.z0);
-        int var3 = Math.min(this.boundingBox.x1 + 1, param1.x1);
-        int var4 = Math.min(this.boundingBox.y1 + 1, param1.y1);
-        int var5 = Math.min(this.boundingBox.z1 + 1, param1.z1);
-        BlockPos.MutableBlockPos var6 = new BlockPos.MutableBlockPos();
-
-        for(int var7 = var0; var7 <= var3; ++var7) {
-            for(int var8 = var2; var8 <= var5; ++var8) {
-                if (param0.getBlockState(var6.set(var7, var1, var8)).getMaterial().isLiquid()) {
-                    return true;
-                }
-
-                if (param0.getBlockState(var6.set(var7, var4, var8)).getMaterial().isLiquid()) {
-                    return true;
-                }
-            }
-        }
-
-        for(int var9 = var0; var9 <= var3; ++var9) {
-            for(int var10 = var1; var10 <= var4; ++var10) {
-                if (param0.getBlockState(var6.set(var9, var10, var2)).getMaterial().isLiquid()) {
-                    return true;
-                }
-
-                if (param0.getBlockState(var6.set(var9, var10, var5)).getMaterial().isLiquid()) {
-                    return true;
-                }
-            }
-        }
-
-        for(int var11 = var2; var11 <= var5; ++var11) {
-            for(int var12 = var1; var12 <= var4; ++var12) {
-                if (param0.getBlockState(var6.set(var0, var12, var11)).getMaterial().isLiquid()) {
-                    return true;
-                }
-
-                if (param0.getBlockState(var6.set(var3, var12, var11)).getMaterial().isLiquid()) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
+    protected BlockPos getWorldPos(int param0, int param1, int param2) {
+        return new BlockPos(this.getWorldX(param0, param2), this.getWorldY(param1), this.getWorldZ(param0, param2));
     }
 
     protected int getWorldX(int param0, int param1) {
@@ -206,25 +162,31 @@ public abstract class StructurePiece {
     protected void placeBlock(WorldGenLevel param0, BlockState param1, int param2, int param3, int param4, BoundingBox param5) {
         BlockPos var0 = new BlockPos(this.getWorldX(param2, param4), this.getWorldY(param3), this.getWorldZ(param2, param4));
         if (param5.isInside(var0)) {
-            if (this.mirror != Mirror.NONE) {
-                param1 = param1.mirror(this.mirror);
-            }
+            if (this.canBeReplaced(param0, param2, param3, param4, param5)) {
+                if (this.mirror != Mirror.NONE) {
+                    param1 = param1.mirror(this.mirror);
+                }
 
-            if (this.rotation != Rotation.NONE) {
-                param1 = param1.rotate(this.rotation);
-            }
+                if (this.rotation != Rotation.NONE) {
+                    param1 = param1.rotate(this.rotation);
+                }
 
-            param0.setBlock(var0, param1, 2);
-            FluidState var1 = param0.getFluidState(var0);
-            if (!var1.isEmpty()) {
-                param0.getLiquidTicks().scheduleTick(var0, var1.getType(), 0);
-            }
+                param0.setBlock(var0, param1, 2);
+                FluidState var1 = param0.getFluidState(var0);
+                if (!var1.isEmpty()) {
+                    param0.getLiquidTicks().scheduleTick(var0, var1.getType(), 0);
+                }
 
-            if (SHAPE_CHECK_BLOCKS.contains(param1.getBlock())) {
-                param0.getChunk(var0).markPosForPostprocessing(var0);
-            }
+                if (SHAPE_CHECK_BLOCKS.contains(param1.getBlock())) {
+                    param0.getChunk(var0).markPosForPostprocessing(var0);
+                }
 
+            }
         }
+    }
+
+    protected boolean canBeReplaced(LevelReader param0, int param1, int param2, int param3, BoundingBox param4) {
+        return true;
     }
 
     protected BlockState getBlock(BlockGetter param0, int param1, int param2, int param3, BoundingBox param4) {
@@ -350,10 +312,26 @@ public abstract class StructurePiece {
     }
 
     protected void maybeGenerateBlock(
-        WorldGenLevel param0, BoundingBox param1, Random param2, float param3, int param4, int param5, int param6, BlockState param7
+        WorldGenLevel param0, BoundingBox param1, Random param2, float param3, int param4, int param5, int param6, BlockState param7, boolean param8
     ) {
         if (param2.nextFloat() < param3) {
-            this.placeBlock(param0, param7, param4, param5, param6, param1);
+            if (!param8) {
+                this.placeBlock(param0, param7, param4, param5, param6, param1);
+                return;
+            }
+
+            Direction[] var0 = Direction.values();
+            BlockPos.MutableBlockPos var1 = this.getWorldPos(param4, param5, param6).mutable();
+
+            for(Direction var2 : var0) {
+                var1.move(var2);
+                if (param1.isInside(var1) && !param0.isEmptyBlock(var1)) {
+                    this.placeBlock(param0, param7, param4, param5, param6, param1);
+                    return;
+                }
+
+                var1.move(var2.getOpposite());
+            }
         }
 
     }
