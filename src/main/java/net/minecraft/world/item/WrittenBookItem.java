@@ -54,8 +54,8 @@ public class WrittenBookItem extends Item {
 
     @Override
     public Component getName(ItemStack param0) {
-        if (param0.hasTag()) {
-            CompoundTag var0 = param0.getTag();
+        CompoundTag var0 = param0.getTag();
+        if (var0 != null) {
             String var1 = var0.getString("title");
             if (!StringUtil.isNullOrEmpty(var1)) {
                 return new TextComponent(var1);
@@ -112,25 +112,34 @@ public class WrittenBookItem extends Item {
                 ListTag var1 = var0.getList("pages", 8);
 
                 for(int var2 = 0; var2 < var1.size(); ++var2) {
-                    String var3 = var1.getString(var2);
-
-                    Component var6;
-                    try {
-                        var6 = Component.Serializer.fromJsonLenient(var3);
-                        var6 = ComponentUtils.updateForEntity(param1, var6, param2, 0);
-                    } catch (Exception var9) {
-                        var6 = new TextComponent(var3);
-                    }
-
-                    var1.set(var2, (Tag)StringTag.valueOf(Component.Serializer.toJson(var6)));
+                    var1.set(var2, (Tag)StringTag.valueOf(resolvePage(param1, param2, var1.getString(var2))));
                 }
 
-                var0.put("pages", var1);
+                if (var0.contains("filtered_pages", 10)) {
+                    CompoundTag var3 = var0.getCompound("filtered_pages");
+
+                    for(String var4 : var3.getAllKeys()) {
+                        var3.putString(var4, resolvePage(param1, param2, var3.getString(var4)));
+                    }
+                }
+
                 return true;
             }
         } else {
             return false;
         }
+    }
+
+    private static String resolvePage(@Nullable CommandSourceStack param0, @Nullable Player param1, String param2) {
+        Component var2;
+        try {
+            var2 = Component.Serializer.fromJsonLenient(param2);
+            var2 = ComponentUtils.updateForEntity(param0, var2, param1, 0);
+        } catch (Exception var5) {
+            var2 = new TextComponent(param2);
+        }
+
+        return Component.Serializer.toJson(var2);
     }
 
     @Override

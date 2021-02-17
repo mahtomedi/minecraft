@@ -6,6 +6,7 @@ import net.minecraft.world.level.levelgen.feature.configurations.NoneDecoratorCo
 import net.minecraft.world.level.levelgen.feature.configurations.RangeDecoratorConfiguration;
 import net.minecraft.world.level.levelgen.placement.ChanceDecoratorConfiguration;
 import net.minecraft.world.level.levelgen.placement.ConfiguredDecorator;
+import net.minecraft.world.level.levelgen.placement.DepthAverageConfiguration;
 import net.minecraft.world.level.levelgen.placement.FeatureDecorator;
 
 public interface Decoratable<R> {
@@ -27,11 +28,19 @@ public interface Decoratable<R> {
         return this.count(UniformInt.of(0, param0));
     }
 
-    default R range(int param0, int param1) {
-        return this.decorated(FeatureDecorator.RANGE.configured(new RangeDecoratorConfiguration(param0, param0, param1)));
+    default R range(VerticalAnchor param0, VerticalAnchor param1) {
+        return this.range(new RangeDecoratorConfiguration(param0, param1));
+    }
+
+    default R range(RangeDecoratorConfiguration param0) {
+        return this.decorated(FeatureDecorator.RANGE.configured(param0));
     }
 
     default R squared() {
         return this.decorated(FeatureDecorator.SQUARE.configured(NoneDecoratorConfiguration.INSTANCE));
+    }
+
+    default R depthAverage(VerticalAnchor param0, int param1) {
+        return this.decorated(FeatureDecorator.DEPTH_AVERAGE.configured(new DepthAverageConfiguration(param0, param1)));
     }
 }

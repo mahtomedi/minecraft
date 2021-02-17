@@ -61,7 +61,6 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
     private final int cellCountX;
     private final int cellCountY;
     private final int cellCountZ;
-    protected final RandomSource random;
     private final SurfaceNoise surfaceNoise;
     private final NormalNoise barrierNoise;
     private final NormalNoise waterLevelNoise;
@@ -72,6 +71,7 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
     private final int height;
     private final NoiseSampler sampler;
     private final boolean aquifersEnabled;
+    private final BaseStoneSource baseStoneSource;
 
     public NoiseBasedChunkGenerator(BiomeSource param0, long param1, Supplier<NoiseGeneratorSettings> param2) {
         this(param0, param0, param1, param2);
@@ -91,27 +91,28 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
         this.cellCountX = 16 / this.cellWidth;
         this.cellCountY = var1.height() / this.cellHeight;
         this.cellCountZ = 16 / this.cellWidth;
-        this.random = new WorldgenRandom(param2);
-        BlendedNoise var2 = new BlendedNoise(this.random);
+        WorldgenRandom var2 = new WorldgenRandom(param2);
+        BlendedNoise var3 = new BlendedNoise(var2);
         this.surfaceNoise = (SurfaceNoise)(var1.useSimplexSurfaceNoise()
-            ? new PerlinSimplexNoise(this.random, IntStream.rangeClosed(-3, 0))
-            : new PerlinNoise(this.random, IntStream.rangeClosed(-3, 0)));
-        this.random.consumeCount(2620);
-        PerlinNoise var3 = new PerlinNoise(this.random, IntStream.rangeClosed(-15, 0));
-        SimplexNoise var5;
+            ? new PerlinSimplexNoise(var2, IntStream.rangeClosed(-3, 0))
+            : new PerlinNoise(var2, IntStream.rangeClosed(-3, 0)));
+        var2.consumeCount(2620);
+        PerlinNoise var4 = new PerlinNoise(var2, IntStream.rangeClosed(-15, 0));
+        SimplexNoise var6;
         if (var1.islandNoiseOverride()) {
-            WorldgenRandom var4 = new WorldgenRandom(param2);
-            var4.consumeCount(17292);
-            var5 = new SimplexNoise(var4);
+            WorldgenRandom var5 = new WorldgenRandom(param2);
+            var5.consumeCount(17292);
+            var6 = new SimplexNoise(var5);
         } else {
-            var5 = null;
+            var6 = null;
         }
 
-        this.barrierNoise = NormalNoise.create(new SimpleRandomSource(this.random.nextLong()), -3, 1.0);
-        this.waterLevelNoise = NormalNoise.create(new SimpleRandomSource(this.random.nextLong()), -3, 1.0, 0.0, 2.0);
-        Cavifier var7 = var0.isNoiseCavesEnabled() ? new Cavifier(this.random, var1.minY() / this.cellHeight) : null;
-        this.sampler = new NoiseSampler(param0, this.cellWidth, this.cellHeight, this.cellCountY, var1, var2, var5, var3, var7);
+        this.barrierNoise = NormalNoise.create(new SimpleRandomSource(var2.nextLong()), -3, 1.0);
+        this.waterLevelNoise = NormalNoise.create(new SimpleRandomSource(var2.nextLong()), -3, 1.0, 0.0, 2.0);
+        Cavifier var8 = var0.isNoiseCavesEnabled() ? new Cavifier(var2, var1.minY() / this.cellHeight) : null;
+        this.sampler = new NoiseSampler(param0, this.cellWidth, this.cellHeight, this.cellCountY, var1, var3, var6, var4, var8);
         this.aquifersEnabled = var0.isAquifersEnabled();
+        this.baseStoneSource = new DepthBasedReplacingBaseStoneSource(param2, this.defaultBlock, Blocks.GRIMSTONE.defaultBlockState());
     }
 
     @Override
@@ -197,7 +198,7 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
                 double var21 = Mth.lerp3(var20, var6, var7, var11, var15, var13, var17, var12, var16, var14, var18);
                 int var22 = var10 * this.cellHeight + var19;
                 int var23 = var22 + param4 * this.cellHeight;
-                BlockState var24 = this.updateNoiseAndGenerateBaseState(Beardifier.NO_BEARDS, var9, param0, var23, param1, var21);
+                BlockState var24 = this.updateNoiseAndGenerateBaseState(Beardifier.NO_BEARDS, var9, this.baseStoneSource, param0, var23, param1, var21);
                 if (param2 != null) {
                     param2[var22] = var24;
                 }
@@ -211,21 +212,23 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
         return OptionalInt.empty();
     }
 
-    protected BlockState updateNoiseAndGenerateBaseState(Beardifier param0, @Nullable Aquifer param1, int param2, int param3, int param4, double param5) {
-        double var0 = Mth.clamp(param5 / 200.0, -1.0, 1.0);
+    protected BlockState updateNoiseAndGenerateBaseState(
+        Beardifier param0, @Nullable Aquifer param1, BaseStoneSource param2, int param3, int param4, int param5, double param6
+    ) {
+        double var0 = Mth.clamp(param6 / 200.0, -1.0, 1.0);
         var0 = var0 / 2.0 - var0 * var0 * var0 / 24.0;
-        var0 += param0.beardify(param2, param3, param4);
+        var0 += param0.beardifyOrBury(param3, param4, param5);
         if (param1 != null) {
-            param1.computeAt(param2, param3, param4);
+            param1.computeAt(param3, param4, param5);
             var0 += param1.getLastBarrierDensity();
         }
 
         BlockState var1;
         if (var0 > 0.0) {
-            var1 = this.defaultBlock;
+            var1 = param2.getBaseStone(param3, param4, param5, this.settings.get());
         } else {
             int var2 = param1 == null ? this.getSeaLevel() : param1.getLastWaterLevel();
-            if (param3 < var2) {
+            if (param4 < var2) {
                 var1 = this.defaultFluid;
             } else {
                 var1 = AIR;
@@ -300,27 +303,26 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
     @Override
     public CompletableFuture<ChunkAccess> fillFromNoise(Executor param0, StructureFeatureManager param1, ChunkAccess param2) {
         NoiseSettings var0 = this.settings.get().noiseSettings();
-        int var1 = var0.minY();
-        int var2 = Math.max(var1, param2.getMinBuildHeight());
-        int var3 = Math.min(var1 + var0.height(), param2.getMaxBuildHeight());
-        int var4 = Mth.intFloorDiv(var2, this.cellHeight);
-        int var5 = Mth.intFloorDiv(var3 - var2, this.cellHeight);
-        if (var5 <= 0) {
+        int var1 = Math.max(var0.minY(), param2.getMinBuildHeight());
+        int var2 = Math.min(var0.minY() + var0.height(), param2.getMaxBuildHeight());
+        int var3 = Mth.intFloorDiv(var1, this.cellHeight);
+        int var4 = Mth.intFloorDiv(var2 - var1, this.cellHeight);
+        if (var4 <= 0) {
             return CompletableFuture.completedFuture(param2);
         } else {
-            int var6 = param2.getSectionIndex(var5 * this.cellHeight - 1 + var1);
-            int var7 = param2.getSectionIndex(var1);
-            Set<LevelChunkSection> var8 = Sets.newHashSet();
+            int var5 = param2.getSectionIndex(var4 * this.cellHeight - 1 + var1);
+            int var6 = param2.getSectionIndex(var1);
+            Set<LevelChunkSection> var7 = Sets.newHashSet();
 
-            for(int var9 = var6; var9 >= var7; --var9) {
-                LevelChunkSection var10 = param2.getOrCreateSection(var9);
-                var10.acquire();
-                var8.add(var10);
+            for(int var8 = var5; var8 >= var6; --var8) {
+                LevelChunkSection var9 = param2.getOrCreateSection(var8);
+                var9.acquire();
+                var7.add(var9);
             }
 
-            return CompletableFuture.<ChunkAccess>supplyAsync(() -> this.doFill(param1, param2, var4, var5), Util.backgroundExecutor())
+            return CompletableFuture.<ChunkAccess>supplyAsync(() -> this.doFill(param1, param2, var3, var4), Util.backgroundExecutor())
                 .thenApplyAsync(param1x -> {
-                    for(LevelChunkSection var0x : var8) {
+                    for(LevelChunkSection var0x : var7) {
                         var0x.release();
                     }
     
@@ -404,7 +406,7 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
                                 int var50 = var49 & 15;
                                 double var51 = (double)var48 / (double)this.cellWidth;
                                 double var52 = Mth.lerp(var51, var46, var47);
-                                BlockState var53 = this.updateNoiseAndGenerateBaseState(var9, var10, var43, var34, var49, var52);
+                                BlockState var53 = this.updateNoiseAndGenerateBaseState(var9, var10, this.baseStoneSource, var43, var34, var49, var52);
                                 if (var53 != AIR) {
                                     if (var53.getLightEmission() != 0 && param1 instanceof ProtoChunk) {
                                         var16.set(var43, var34, var49);

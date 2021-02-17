@@ -374,10 +374,4 @@ public class PistonMovingBlockEntity extends BlockEntity {
     public long getLastTicked() {
         return this.lastTicked;
     }
-
-    @OnlyIn(Dist.CLIENT)
-    @Override
-    public double getViewDistance() {
-        return 68.0;
-    }
 }

@@ -48,6 +48,16 @@ public class WorldgenRandom extends Random implements RandomSource {
         return var2;
     }
 
+    public long setBaseStoneSeed(long param0, int param1, int param2, int param3) {
+        this.setSeed(param0);
+        long var0 = this.nextLong();
+        long var1 = this.nextLong();
+        long var2 = this.nextLong();
+        long var3 = (long)param1 * var0 ^ (long)param2 * var1 ^ (long)param3 * var2 ^ param0;
+        this.setSeed(var3);
+        return var3;
+    }
+
     public long setLargeFeatureWithSalt(long param0, int param1, int param2, int param3) {
         long var0 = (long)param1 * 341873128712L + (long)param2 * 132897987541L + param0 + (long)param3;
         this.setSeed(var0);

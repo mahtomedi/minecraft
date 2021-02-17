@@ -16,7 +16,7 @@ public class CarvingMaskDecorator extends FeatureDecorator<CarvingMaskDecoratorC
     public Stream<BlockPos> getPositions(DecorationContext param0, Random param1, CarvingMaskDecoratorConfiguration param2, BlockPos param3) {
         ChunkPos var0 = new ChunkPos(param3);
         BitSet var1 = param0.getCarvingMask(var0, param2.step);
-        return IntStream.range(0, var1.length()).filter(param3x -> var1.get(param3x) && param1.nextFloat() < param2.probability).mapToObj(param1x -> {
+        return IntStream.range(0, var1.length()).filter(var1::get).mapToObj(param1x -> {
             int var0x = param1x & 15;
             int var1x = param1x >> 4 & 15;
             int var2x = param1x >> 8;

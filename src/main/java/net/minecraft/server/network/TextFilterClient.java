@@ -1,5 +1,6 @@
 package net.minecraft.server.network;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonObject;
 import com.google.gson.internal.Streams;
@@ -11,19 +12,23 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
+import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.thread.ProcessorMailbox;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -44,6 +49,43 @@ public class TextFilterClient implements AutoCloseable {
     private final TextFilterClient.IgnoreStrategy chatIgnoreStrategy;
     private final ExecutorService workerPool;
 
+    private TextFilterClient(URI param0, String param1, int param2, String param3, TextFilterClient.IgnoreStrategy param4, int param5) throws MalformedURLException {
+        this.authKey = param1;
+        this.ruleId = param2;
+        this.serverId = param3;
+        this.chatIgnoreStrategy = param4;
+        this.chatEndpoint = param0.resolve("/v1/chat").toURL();
+        this.joinEndpoint = param0.resolve("/v1/join").toURL();
+        this.leaveEndpoint = param0.resolve("/v1/leave").toURL();
+        this.workerPool = Executors.newFixedThreadPool(param5, THREAD_FACTORY);
+    }
+
+    @Nullable
+    public static TextFilterClient createFromConfig(String param0) {
+        if (Strings.isNullOrEmpty(param0)) {
+            return null;
+        } else {
+            try {
+                JsonObject var0 = GsonHelper.parse(param0);
+                URI var1 = new URI(GsonHelper.getAsString(var0, "apiServer"));
+                String var2 = GsonHelper.getAsString(var0, "apiKey");
+                if (var2.isEmpty()) {
+                    throw new IllegalArgumentException("Missing API key");
+                } else {
+                    int var3 = GsonHelper.getAsInt(var0, "ruleId", 1);
+                    String var4 = GsonHelper.getAsString(var0, "serverId", "");
+                    int var5 = GsonHelper.getAsInt(var0, "hashesToDrop", -1);
+                    int var6 = GsonHelper.getAsInt(var0, "maxConcurrentRequests", 7);
+                    TextFilterClient.IgnoreStrategy var7 = TextFilterClient.IgnoreStrategy.select(var5);
+                    return new TextFilterClient(var1, new Base64().encodeToString(var2.getBytes(StandardCharsets.US_ASCII)), var3, var4, var7, var6);
+                }
+            } catch (Exception var9) {
+                LOGGER.warn("Failed to parse chat filter config {}", param0, var9);
+                return null;
+            }
+        }
+    }
+
     private void processJoinOrLeave(GameProfile param0, URL param1, Executor param2) {
         JsonObject var0 = new JsonObject();
         var0.addProperty("server", this.serverId);
@@ -60,11 +102,11 @@ public class TextFilterClient implements AutoCloseable {
         });
     }
 
-    private CompletableFuture<Optional<String>> requestMessageProcessing(
+    private CompletableFuture<TextFilter.FilteredText> requestMessageProcessing(
         GameProfile param0, String param1, TextFilterClient.IgnoreStrategy param2, Executor param3
     ) {
         if (param1.isEmpty()) {
-            return CompletableFuture.completedFuture(Optional.of(""));
+            return CompletableFuture.completedFuture(TextFilter.FilteredText.EMPTY);
         } else {
             JsonObject var0 = new JsonObject();
             var0.addProperty("rule", this.ruleId);
@@ -73,26 +115,31 @@ public class TextFilterClient implements AutoCloseable {
             var0.addProperty("player", param0.getId().toString());
             var0.addProperty("player_display_name", param0.getName());
             var0.addProperty("text", param1);
-            return CompletableFuture.supplyAsync(() -> {
-                try {
-                    JsonObject var4x = this.processRequestResponse(var0, this.chatEndpoint);
-                    boolean var1x = GsonHelper.getAsBoolean(var4x, "response", false);
-                    if (var1x) {
-                        return Optional.of(param1);
-                    } else {
-                        String var2x = GsonHelper.getAsString(var4x, "hashed", null);
-                        if (var2x == null) {
-                            return Optional.empty();
+            return CompletableFuture.supplyAsync(
+                () -> {
+                    try {
+                        JsonObject var4x = this.processRequestResponse(var0, this.chatEndpoint);
+                        boolean var1x = GsonHelper.getAsBoolean(var4x, "response", false);
+                        if (var1x) {
+                            return TextFilter.FilteredText.passThrough(param1);
                         } else {
-                            int var3x = GsonHelper.getAsJsonArray(var4x, "hashes").size();
-                            return param2.shouldIgnore(var2x, var3x) ? Optional.empty() : Optional.of(var2x);
+                            String var2x = GsonHelper.getAsString(var4x, "hashed", null);
+                            if (var2x == null) {
+                                return TextFilter.FilteredText.fullyFiltered(param1);
+                            } else {
+                                int var3x = GsonHelper.getAsJsonArray(var4x, "hashes").size();
+                                return param2.shouldIgnore(var2x, var3x)
+                                    ? TextFilter.FilteredText.fullyFiltered(param1)
+                                    : new TextFilter.FilteredText(param1, var2x);
+                            }
                         }
+                    } catch (Exception var8) {
+                        LOGGER.warn("Failed to validate message '{}'", param1, var8);
+                        return TextFilter.FilteredText.fullyFiltered(param1);
                     }
-                } catch (Exception var8) {
-                    LOGGER.warn("Failed to validate message '{}'", param1, var8);
-                    return Optional.empty();
-                }
-            }, param3);
+                },
+                param3
+            );
         }
     }
 
@@ -174,6 +221,21 @@ public class TextFilterClient implements AutoCloseable {
         TextFilterClient.IgnoreStrategy NEVER_IGNORE = (param0, param1) -> false;
         TextFilterClient.IgnoreStrategy IGNORE_FULLY_FILTERED = (param0, param1) -> param0.length() == param1;
 
+        static TextFilterClient.IgnoreStrategy ignoreOverThreshold(int param0) {
+            return (param1, param2) -> param2 >= param0;
+        }
+
+        static TextFilterClient.IgnoreStrategy select(int param0) {
+            switch(param0) {
+                case -1:
+                    return NEVER_IGNORE;
+                case 0:
+                    return IGNORE_FULLY_FILTERED;
+                default:
+                    return ignoreOverThreshold(param0);
+            }
+        }
+
         boolean shouldIgnore(String var1, int var2);
     }
 
@@ -198,21 +260,19 @@ public class TextFilterClient implements AutoCloseable {
         }
 
         @Override
-        public CompletableFuture<Optional<List<String>>> processMessageBundle(List<String> param0) {
-            List<CompletableFuture<Optional<String>>> var0 = param0.stream()
+        public CompletableFuture<List<TextFilter.FilteredText>> processMessageBundle(List<String> param0) {
+            List<CompletableFuture<TextFilter.FilteredText>> var0 = param0.stream()
                 .map(
                     param0x -> TextFilterClient.this.requestMessageProcessing(
                             this.profile, param0x, TextFilterClient.this.chatIgnoreStrategy, this.streamExecutor
                         )
                 )
                 .collect(ImmutableList.toImmutableList());
-            return Util.sequenceFailFast(var0)
-                .thenApply(param0x -> Optional.of(param0x.stream().map(param0xx -> param0xx.orElse("")).collect(ImmutableList.toImmutableList())))
-                .exceptionally(param0x -> Optional.empty());
+            return Util.sequenceFailFast(var0).exceptionally(param0x -> ImmutableList.of());
         }
 
         @Override
-        public CompletableFuture<Optional<String>> processStreamMessage(String param0) {
+        public CompletableFuture<TextFilter.FilteredText> processStreamMessage(String param0) {
             return TextFilterClient.this.requestMessageProcessing(this.profile, param0, TextFilterClient.this.chatIgnoreStrategy, this.streamExecutor);
         }
     }

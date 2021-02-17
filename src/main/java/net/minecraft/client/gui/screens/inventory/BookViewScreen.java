@@ -6,8 +6,11 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.IntFunction;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
@@ -244,15 +247,29 @@ public class BookViewScreen extends Screen {
         }
     }
 
-    public static List<String> convertPages(CompoundTag param0) {
-        ListTag var0 = param0.getList("pages", 8).copy();
-        Builder<String> var1 = ImmutableList.builder();
+    private static List<String> loadPages(CompoundTag param0) {
+        Builder<String> var0 = ImmutableList.builder();
+        loadPages(param0, var0::add);
+        return var0.build();
+    }
 
-        for(int var2 = 0; var2 < var0.size(); ++var2) {
-            var1.add(var0.getString(var2));
+    public static void loadPages(CompoundTag param0, Consumer<String> param1) {
+        ListTag var0 = param0.getList("pages", 8).copy();
+        IntFunction<String> var2;
+        if (Minecraft.getInstance().isTextFilteringEnabled() && param0.contains("filtered_pages", 10)) {
+            CompoundTag var1 = param0.getCompound("filtered_pages");
+            var2 = param2 -> {
+                String var0x = String.valueOf(param2);
+                return var1.contains(var0x) ? var1.getString(var0x) : var0.getString(param2);
+            };
+        } else {
+            var2 = var0::getString;
         }
 
-        return var1.build();
+        for(int var4 = 0; var4 < var0.size(); ++var4) {
+            param1.accept(var2.apply(var4));
+        }
+
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -284,7 +301,7 @@ public class BookViewScreen extends Screen {
 
         private static List<String> readPages(ItemStack param0) {
             CompoundTag var0 = param0.getTag();
-            return (List<String>)(var0 != null ? BookViewScreen.convertPages(var0) : ImmutableList.of());
+            return (List<String>)(var0 != null ? BookViewScreen.loadPages(var0) : ImmutableList.of());
         }
 
         @Override
@@ -309,7 +326,7 @@ public class BookViewScreen extends Screen {
         private static List<String> readPages(ItemStack param0) {
             CompoundTag var0 = param0.getTag();
             return (List<String>)(var0 != null && WrittenBookItem.makeSureTagIsValid(var0)
-                ? BookViewScreen.convertPages(var0)
+                ? BookViewScreen.loadPages(var0)
                 : ImmutableList.of(Component.Serializer.toJson(new TranslatableComponent("book.invalid.tag").withStyle(ChatFormatting.DARK_RED))));
         }
 

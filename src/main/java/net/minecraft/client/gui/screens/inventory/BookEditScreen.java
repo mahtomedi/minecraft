@@ -89,11 +89,7 @@ public class BookEditScreen extends Screen {
         this.hand = param2;
         CompoundTag var0 = param1.getTag();
         if (var0 != null) {
-            ListTag var1 = var0.getList("pages", 8).copy();
-
-            for(int var2 = 0; var2 < var1.size(); ++var2) {
-                this.pages.add(var1.getString(var2));
-            }
+            BookViewScreen.loadPages(var0, this.pages::add);
         }
 
         if (this.pages.isEmpty()) {

@@ -151,7 +151,7 @@ public class ServerPlayer extends Player implements ContainerListener {
     private boolean lastFoodSaturationZero = true;
     private int lastSentExp = -99999999;
     private int spawnInvulnerableTime = 60;
-    private ChatVisiblity chatVisibility;
+    private ChatVisiblity chatVisibility = ChatVisiblity.FULL;
     private boolean canChatColor = true;
     private long lastActionTime = Util.getMillis();
     private Entity camera;
@@ -169,8 +169,8 @@ public class ServerPlayer extends Player implements ContainerListener {
     private BlockPos respawnPosition;
     private boolean respawnForced;
     private float respawnAngle;
-    @Nullable
     private final TextFilter textFilter;
+    private boolean textFilteringEnabled = true;
     private int containerCounter;
     public boolean ignoreSlotUpdateHack;
     public int latency;
@@ -178,13 +178,13 @@ public class ServerPlayer extends Player implements ContainerListener {
 
     public ServerPlayer(MinecraftServer param0, ServerLevel param1, GameProfile param2) {
         super(param1, param1.getSharedSpawnPos(), param1.getSharedSpawnAngle(), param2);
+        this.textFilter = param0.createTextFilterForPlayer(this);
         this.gameMode = param0.createGameModeForPlayer(this);
         this.server = param0;
         this.stats = param0.getPlayerList().getPlayerStats(this);
         this.advancements = param0.getPlayerList().getPlayerAdvancements(this);
         this.maxUpStep = 1.0F;
         this.fudgeSpawnLocation(param1);
-        this.textFilter = param0.createTextFilterForPlayer(this);
     }
 
     private void fudgeSpawnLocation(ServerLevel param0) {
@@ -1088,7 +1088,7 @@ public class ServerPlayer extends Player implements ContainerListener {
 
     @Override
     public void displayClientMessage(Component param0, boolean param1) {
-        this.connection.send(new ClientboundChatPacket(param0, param1 ? ChatType.GAME_INFO : ChatType.CHAT, Util.NIL_UUID));
+        this.sendMessage(param0, param1 ? ChatType.GAME_INFO : ChatType.CHAT, Util.NIL_UUID);
     }
 
     @Override
@@ -1113,6 +1113,7 @@ public class ServerPlayer extends Player implements ContainerListener {
     }
 
     public void restoreFrom(ServerPlayer param0, boolean param1) {
+        this.textFilteringEnabled = param0.textFilteringEnabled;
         this.gameMode.setGameModeForPlayer(param0.gameMode.getGameModeForPlayer(), param0.gameMode.getPreviousGameModeForPlayer());
         if (param1) {
             this.getInventory().replaceWith(param0.getInventory());
@@ -1242,26 +1243,28 @@ public class ServerPlayer extends Player implements ContainerListener {
     }
 
     public void sendMessage(Component param0, ChatType param1, UUID param2) {
-        this.connection
-            .send(
-                new ClientboundChatPacket(param0, param1, param2),
-                param3 -> {
-                    if (!param3.isSuccess() && (param1 == ChatType.GAME_INFO || param1 == ChatType.SYSTEM)) {
-                        int var0 = 256;
-                        String var1x = param0.getString(256);
-                        Component var2x = new TextComponent(var1x).withStyle(ChatFormatting.YELLOW);
-                        this.connection
-                            .send(
-                                new ClientboundChatPacket(
-                                    new TranslatableComponent("multiplayer.message_not_delivered", var2x).withStyle(ChatFormatting.RED),
-                                    ChatType.SYSTEM,
-                                    param2
-                                )
-                            );
-                    }
+        if (this.acceptsChat(param1)) {
+            this.connection
+                .send(
+                    new ClientboundChatPacket(param0, param1, param2),
+                    param3 -> {
+                        if (!param3.isSuccess() && (param1 == ChatType.GAME_INFO || param1 == ChatType.SYSTEM) && this.acceptsChat(ChatType.SYSTEM)) {
+                            int var0 = 256;
+                            String var1x = param0.getString(256);
+                            Component var2x = new TextComponent(var1x).withStyle(ChatFormatting.YELLOW);
+                            this.connection
+                                .send(
+                                    new ClientboundChatPacket(
+                                        new TranslatableComponent("multiplayer.message_not_delivered", var2x).withStyle(ChatFormatting.RED),
+                                        ChatType.SYSTEM,
+                                        param2
+                                    )
+                                );
+                        }
         
-                }
-            );
+                    }
+                );
+        }
     }
 
     public String getIpAddress() {
@@ -1273,12 +1276,25 @@ public class ServerPlayer extends Player implements ContainerListener {
     public void updateOptions(ServerboundClientInformationPacket param0) {
         this.chatVisibility = param0.getChatVisibility();
         this.canChatColor = param0.getChatColors();
+        this.textFilteringEnabled = param0.isTextFilteringEnabled();
         this.getEntityData().set(DATA_PLAYER_MODE_CUSTOMISATION, (byte)param0.getModelCustomisation());
         this.getEntityData().set(DATA_PLAYER_MAIN_HAND, (byte)(param0.getMainHand() == HumanoidArm.LEFT ? 0 : 1));
     }
 
     public ChatVisiblity getChatVisibility() {
         return this.chatVisibility;
+    }
+
+    private boolean acceptsChat(ChatType param0) {
+        switch(this.chatVisibility) {
+            case HIDDEN:
+                return param0 == ChatType.GAME_INFO;
+            case SYSTEM:
+                return param0 == ChatType.SYSTEM || param0 == ChatType.GAME_INFO;
+            case FULL:
+            default:
+                return true;
+        }
     }
 
     public void sendTexturePack(String param0, String param1, boolean param2) {
@@ -1508,7 +1524,6 @@ public class ServerPlayer extends Player implements ContainerListener {
         }
     }
 
-    @Nullable
     public TextFilter getTextFilter() {
         return this.textFilter;
     }
@@ -1546,5 +1561,17 @@ public class ServerPlayer extends Player implements ContainerListener {
             param0.putInt("previousPlayerGameType", var0.getId());
         }
 
+    }
+
+    public boolean isTextFilteringEnabled() {
+        return this.textFilteringEnabled;
+    }
+
+    public boolean shouldFilterMessageTo(ServerPlayer param0) {
+        if (param0 == this) {
+            return false;
+        } else {
+            return this.textFilteringEnabled || param0.textFilteringEnabled;
+        }
     }
 }

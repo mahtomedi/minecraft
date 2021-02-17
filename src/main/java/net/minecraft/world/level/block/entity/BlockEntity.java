@@ -9,8 +9,6 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -99,11 +97,6 @@ public abstract class BlockEntity {
             param0.updateNeighbourForOutputSignal(param1, param2.getBlock());
         }
 
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public double getViewDistance() {
-        return 64.0;
     }
 
     public BlockPos getBlockPos() {

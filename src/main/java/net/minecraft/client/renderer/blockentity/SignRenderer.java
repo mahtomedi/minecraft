@@ -7,6 +7,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector3f;
 import java.util.List;
 import java.util.Map;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.EntityModelSet;
@@ -80,17 +81,16 @@ public class SignRenderer implements BlockEntityRenderer<SignBlockEntity> {
         int var13 = (int)((double)NativeImage.getB(var9) * 0.4);
         int var14 = NativeImage.combine(0, var13, var12, var11);
         int var15 = 20;
+        FormattedCharSequence[] var16 = param0.getRenderMessages(Minecraft.getInstance().isTextFilteringEnabled(), param0x -> {
+            List<FormattedCharSequence> var0x = this.font.split(param0x, 90);
+            return var0x.isEmpty() ? FormattedCharSequence.EMPTY : var0x.get(0);
+        });
 
-        for(int var16 = 0; var16 < 4; ++var16) {
-            FormattedCharSequence var17 = param0.getRenderMessage(var16, param0x -> {
-                List<FormattedCharSequence> var0x = this.font.split(param0x, 90);
-                return var0x.isEmpty() ? FormattedCharSequence.EMPTY : var0x.get(0);
-            });
-            if (var17 != null) {
-                float var18 = (float)(-this.font.width(var17) / 2);
-                int var19 = var0.getValue(SignBlock.LIT) ? 15728880 : param4;
-                this.font.drawInBatch(var17, var18, (float)(var16 * 10 - 20), var14, false, param2.last().pose(), param3, false, 0, var19);
-            }
+        for(int var17 = 0; var17 < 4; ++var17) {
+            FormattedCharSequence var18 = var16[var17];
+            float var19 = (float)(-this.font.width(var18) / 2);
+            int var20 = var0.getValue(SignBlock.LIT) ? 15728880 : param4;
+            this.font.drawInBatch(var18, var19, (float)(var17 * 10 - 20), var14, false, param2.last().pose(), param3, false, 0, var20);
         }
 
         param2.popPose();

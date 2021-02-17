@@ -9,6 +9,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.levelgen.feature.NoiseEffect;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.levelgen.feature.structures.JigsawJunction;
 import net.minecraft.world.level.levelgen.feature.structures.StructureTemplatePool;
@@ -78,34 +79,43 @@ public class Beardifier {
         this.junctionIterator = this.junctions.iterator();
     }
 
-    protected double beardify(int param0, int param1, int param2) {
-        double var0;
-        int var3;
-        int var4;
-        int var5;
-        for(var0 = 0.0; this.pieceIterator.hasNext(); var0 += getContribution(var3, var4, var5) * 0.8) {
+    protected double beardifyOrBury(int param0, int param1, int param2) {
+        double var0 = 0.0;
+
+        while(this.pieceIterator.hasNext()) {
             StructurePiece var1 = this.pieceIterator.next();
             BoundingBox var2 = var1.getBoundingBox();
-            var3 = Math.max(0, Math.max(var2.x0 - param0, param0 - var2.x1));
-            var4 = param1 - (var2.y0 + (var1 instanceof PoolElementStructurePiece ? ((PoolElementStructurePiece)var1).getGroundLevelDelta() : 0));
-            var5 = Math.max(0, Math.max(var2.z0 - param2, param2 - var2.z1));
+            int var3 = Math.max(0, Math.max(var2.x0 - param0, param0 - var2.x1));
+            int var4 = param1 - (var2.y0 + (var1 instanceof PoolElementStructurePiece ? ((PoolElementStructurePiece)var1).getGroundLevelDelta() : 0));
+            int var5 = Math.max(0, Math.max(var2.z0 - param2, param2 - var2.z1));
+            NoiseEffect var6 = var1.getNoiseEffect();
+            if (var6 == NoiseEffect.BURY) {
+                var0 += getBuryContribution(var3, var4, var5);
+            } else if (var6 == NoiseEffect.BEARD) {
+                var0 += getBeardContribution(var3, var4, var5) * 0.8;
+            }
         }
 
         this.pieceIterator.back(this.rigids.size());
 
         while(this.junctionIterator.hasNext()) {
-            JigsawJunction var6 = this.junctionIterator.next();
-            int var7 = param0 - var6.getSourceX();
-            var3 = param1 - var6.getSourceGroundY();
-            var4 = param2 - var6.getSourceZ();
-            var0 += getContribution(var7, var3, var4) * 0.4;
+            JigsawJunction var7 = this.junctionIterator.next();
+            int var8 = param0 - var7.getSourceX();
+            int var9 = param1 - var7.getSourceGroundY();
+            int var10 = param2 - var7.getSourceZ();
+            var0 += getBeardContribution(var8, var9, var10) * 0.4;
         }
 
         this.junctionIterator.back(this.junctions.size());
         return var0;
     }
 
-    private static double getContribution(int param0, int param1, int param2) {
+    private static double getBuryContribution(int param0, int param1, int param2) {
+        double var0 = Mth.length(param0, (double)param1 / 2.0, param2);
+        return Mth.clampedMap(var0, 0.0, 6.0, 1.0, 0.0);
+    }
+
+    private static double getBeardContribution(int param0, int param1, int param2) {
         int var0 = param0 + 12;
         int var1 = param1 + 12;
         int var2 = param2 + 12;

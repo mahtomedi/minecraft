@@ -45,7 +45,7 @@ public class SolidBucketItem extends BlockItem implements DispensibleContainerIt
 
     @Override
     public boolean emptyContents(@Nullable Player param0, Level param1, BlockPos param2, @Nullable BlockHitResult param3) {
-        if (param1.isEmptyBlock(param2)) {
+        if (param1.isInWorldBounds(param2) && param1.isEmptyBlock(param2)) {
             if (!param1.isClientSide) {
                 param1.setBlock(param2, this.getBlock().defaultBlockState(), 3);
             }

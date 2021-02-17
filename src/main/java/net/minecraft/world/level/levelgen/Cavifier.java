@@ -47,7 +47,7 @@ public class Cavifier {
         double var2 = this.getSpaghetti3d(param0, param1, param2);
         if (var0) {
             double var3 = param3 / 128.0;
-            double var4 = Mth.clamp(var3 + 0.2, -1.0, 1.0);
+            double var4 = Mth.clamp(var3 + 0.35, -1.0, 1.0);
             double var5 = this.getLayerizedCaverns(param0, param1, param2);
             double var6 = this.getSpaghetti2d(param0, param1, param2);
             double var7 = var4 + var5;
@@ -81,10 +81,10 @@ public class Cavifier {
 
     private double getSpaghetti3d(int param0, int param1, int param2) {
         double var0 = this.spaghetti3dRarityModulator.getValue((double)(param0 * 2), (double)param1, (double)(param2 * 2));
-        double var1 = this.getQuantizedSpaghettiRarity(var0);
+        double var1 = Cavifier.QuantizedSpaghettiRarity.getSpaghettiRarity3D(var0);
         double var2 = 0.065;
-        double var3 = 0.09;
-        double var4 = NoiseUtils.sampleNoiseAndMapToRange(this.spaghetti3dThicknessModulator, (double)param0, (double)param1, (double)param2, 0.065, 0.09);
+        double var3 = 0.085;
+        double var4 = NoiseUtils.sampleNoiseAndMapToRange(this.spaghetti3dThicknessModulator, (double)param0, (double)param1, (double)param2, 0.065, 0.085);
         double var5 = sampleWithRarity(this.spaghetti3dNoiseSource1, (double)param0, (double)param1, (double)param2, var1);
         double var6 = Math.abs(var1 * var5) - var4;
         double var7 = sampleWithRarity(this.spaghetti3dNoiseSource2, (double)param0, (double)param1, (double)param2, var1);
@@ -94,7 +94,7 @@ public class Cavifier {
 
     private double getSpaghetti2d(int param0, int param1, int param2) {
         double var0 = this.spaghetti2dRarityModulator.getValue((double)(param0 * 2), (double)param1, (double)(param2 * 2));
-        double var1 = this.getQuantizedSpaghettiRarity(var0);
+        double var1 = Cavifier.QuantizedSpaghettiRarity.getSphaghettiRarity2D(var0);
         double var2 = 0.6;
         double var3 = 1.3;
         double var4 = NoiseUtils.sampleNoiseAndMapToRange(
@@ -116,23 +116,35 @@ public class Cavifier {
         return (0.4 - Math.abs(this.spaghettiRoughnessNoise.getValue((double)param0, (double)param1, (double)param2))) * var0;
     }
 
-    private double getQuantizedSpaghettiRarity(double param0) {
-        if (param0 < -0.75) {
-            return 0.5;
-        } else if (param0 < -0.5) {
-            return 0.75;
-        } else if (param0 < 0.5) {
-            return 1.0;
-        } else {
-            return param0 < 0.75 ? 2.0 : 3.0;
-        }
-    }
-
     private static double clampToUnit(double param0) {
         return Mth.clamp(param0, -1.0, 1.0);
     }
 
     private static double sampleWithRarity(NormalNoise param0, double param1, double param2, double param3, double param4) {
         return param0.getValue(param1 / param4, param2 / param4, param3 / param4);
+    }
+
+    static final class QuantizedSpaghettiRarity {
+        private static double getSphaghettiRarity2D(double param0) {
+            if (param0 < -0.75) {
+                return 0.5;
+            } else if (param0 < -0.5) {
+                return 0.75;
+            } else if (param0 < 0.5) {
+                return 1.0;
+            } else {
+                return param0 < 0.75 ? 2.0 : 3.0;
+            }
+        }
+
+        private static double getSpaghettiRarity3D(double param0) {
+            if (param0 < -0.5) {
+                return 0.75;
+            } else if (param0 < 0.0) {
+                return 1.0;
+            } else {
+                return param0 < 0.5 ? 2.0 : 3.0;
+            }
+        }
     }
 }

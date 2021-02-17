@@ -2,6 +2,7 @@ package net.minecraft.world.level.block;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -98,7 +99,7 @@ public abstract class SignBlock extends BaseEntityBlock implements SimpleWaterlo
                         }
                     }
 
-                    return var7.executeClickCommands(param3) ? InteractionResult.SUCCESS : InteractionResult.PASS;
+                    return var7.executeClickCommands((ServerPlayer)param3) ? InteractionResult.SUCCESS : InteractionResult.PASS;
                 } else {
                     return InteractionResult.PASS;
                 }

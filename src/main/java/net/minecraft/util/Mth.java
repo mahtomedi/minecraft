@@ -575,6 +575,10 @@ public class Mth {
         return param1 + (float)param0.nextGaussian() * param2;
     }
 
+    public static double length(int param0, double param1, int param2) {
+        return (double)sqrt((double)(param0 * param0) + param1 * param1 + (double)(param2 * param2));
+    }
+
     static {
         for(int var0 = 0; var0 < 257; ++var0) {
             double var1 = (double)var0 / 256.0;

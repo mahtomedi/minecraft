@@ -1613,9 +1613,8 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         return this.registryHolder;
     }
 
-    @Nullable
     public TextFilter createTextFilterForPlayer(ServerPlayer param0) {
-        return null;
+        return TextFilter.DUMMY;
     }
 
     public boolean isResourcePackRequired() {

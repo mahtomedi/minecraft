@@ -59,55 +59,71 @@ public class DefaultSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBaseConf
         BlockState param11,
         int param12
     ) {
-        BlockState var0 = param9;
-        BlockState var1 = param10;
-        BlockPos.MutableBlockPos var2 = new BlockPos.MutableBlockPos();
-        int var3 = -1;
-        int var4 = (int)(param6 / 3.0 + 3.0 + param0.nextDouble() * 0.25);
-        int var5 = param3 & 15;
-        int var6 = param4 & 15;
+        BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos();
+        int var1 = (int)(param6 / 3.0 + 3.0 + param0.nextDouble() * 0.25);
+        if (var1 == 0) {
+            boolean var2 = false;
 
-        for(int var7 = param5; var7 >= 50; --var7) {
-            var2.set(var5, var7, var6);
-            BlockState var8 = param1.getBlockState(var2);
-            if (var8.isAir()) {
-                var3 = -1;
-            } else if (var8.is(param7.getBlock())) {
-                if (var3 == -1) {
-                    if (var4 <= 0) {
-                        var0 = Blocks.AIR.defaultBlockState();
-                        var1 = param7;
-                    } else if (var7 >= param12 - 4 && var7 <= param12 + 1) {
-                        var0 = param9;
-                        var1 = param10;
-                    }
-
-                    if (var7 < param12 && (var0 == null || var0.isAir())) {
-                        if (param2.getTemperature(var2.set(param3, var7, param4)) < 0.15F) {
-                            var0 = Blocks.ICE.defaultBlockState();
+            for(int var3 = param5; var3 >= 50; --var3) {
+                var0.set(param3, var3, param4);
+                BlockState var4 = param1.getBlockState(var0);
+                if (var4.isAir()) {
+                    var2 = false;
+                } else if (var4.is(param7.getBlock())) {
+                    if (!var2) {
+                        BlockState var5;
+                        if (var3 >= param12) {
+                            var5 = Blocks.AIR.defaultBlockState();
+                        } else if (var3 == param12 - 1) {
+                            var5 = param2.getTemperature(var0) < 0.15F ? Blocks.ICE.defaultBlockState() : param8;
+                        } else if (var3 >= param12 - (7 + var1)) {
+                            var5 = param7;
                         } else {
-                            var0 = param8;
+                            var5 = param11;
                         }
 
-                        var2.set(var5, var7, var6);
+                        param1.setBlockState(var0, var5, false);
                     }
 
-                    var3 = var4;
-                    if (var7 >= param12 - 1) {
-                        param1.setBlockState(var2, var0, false);
-                    } else if (var7 < param12 - 7 - var4) {
-                        var0 = Blocks.AIR.defaultBlockState();
-                        var1 = param7;
-                        param1.setBlockState(var2, param11, false);
-                    } else {
-                        param1.setBlockState(var2, var1, false);
-                    }
-                } else if (var3 > 0) {
-                    --var3;
-                    param1.setBlockState(var2, var1, false);
-                    if (var3 == 0 && var1.is(Blocks.SAND) && var4 > 1) {
-                        var3 = param0.nextInt(4) + Math.max(0, var7 - 63);
-                        var1 = var1.is(Blocks.RED_SAND) ? Blocks.RED_SANDSTONE.defaultBlockState() : Blocks.SANDSTONE.defaultBlockState();
+                    var2 = true;
+                }
+            }
+        } else {
+            BlockState var9 = param10;
+            int var10 = -1;
+
+            for(int var11 = param5; var11 >= 50; --var11) {
+                var0.set(param3, var11, param4);
+                BlockState var12 = param1.getBlockState(var0);
+                if (var12.isAir()) {
+                    var10 = -1;
+                } else if (var12.is(param7.getBlock())) {
+                    if (var10 == -1) {
+                        var10 = var1;
+                        BlockState var13;
+                        if (var11 >= param12 + 2) {
+                            var13 = param9;
+                        } else if (var11 >= param12 - 1) {
+                            var9 = param10;
+                            var13 = param9;
+                        } else if (var11 >= param12 - 4) {
+                            var9 = param10;
+                            var13 = param10;
+                        } else if (var11 >= param12 - (7 + var1)) {
+                            var13 = var9;
+                        } else {
+                            var9 = param7;
+                            var13 = param11;
+                        }
+
+                        param1.setBlockState(var0, var13, false);
+                    } else if (var10 > 0) {
+                        --var10;
+                        param1.setBlockState(var0, var9, false);
+                        if (var10 == 0 && var9.is(Blocks.SAND) && var1 > 1) {
+                            var10 = param0.nextInt(4) + Math.max(0, var11 - param12);
+                            var9 = var9.is(Blocks.RED_SAND) ? Blocks.RED_SANDSTONE.defaultBlockState() : Blocks.SANDSTONE.defaultBlockState();
+                        }
                     }
                 }
             }

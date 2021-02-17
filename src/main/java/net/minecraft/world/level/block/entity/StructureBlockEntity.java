@@ -53,12 +53,6 @@ public class StructureBlockEntity extends BlockEntity {
         this.mode = param1.getValue(StructureBlock.MODE);
     }
 
-    @OnlyIn(Dist.CLIENT)
-    @Override
-    public double getViewDistance() {
-        return 96.0;
-    }
-
     @Override
     public CompoundTag save(CompoundTag param0) {
         super.save(param0);

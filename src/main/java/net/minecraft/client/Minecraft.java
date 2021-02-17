@@ -810,10 +810,11 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     }
 
     private void openChatScreen(String param0) {
-        if (this.isLocalServer() || this.allowsChat()) {
+        Minecraft.ChatStatus var0 = this.getChatStatus();
+        if (!var0.isChatAllowed(this.isLocalServer())) {
+            this.gui.setOverlayMessage(var0.getMessage(), false);
+        } else {
             this.setScreen(new ChatScreen(param0));
-        } else if (this.player != null) {
-            this.player.sendMessage(new TranslatableComponent("chat.cannotSend").withStyle(ChatFormatting.RED), Util.NIL_UUID);
         }
 
     }
@@ -1579,15 +1580,12 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
             }
         }
 
-        boolean var4 = this.options.chatVisibility != ChatVisiblity.HIDDEN;
-        if (var4) {
-            while(this.options.keyChat.consumeClick()) {
-                this.openChatScreen("");
-            }
+        while(this.options.keyChat.consumeClick()) {
+            this.openChatScreen("");
+        }
 
-            if (this.screen == null && this.overlay == null && this.options.keyCommand.consumeClick()) {
-                this.openChatScreen("/");
-            }
+        if (this.screen == null && this.overlay == null && this.options.keyCommand.consumeClick()) {
+            this.openChatScreen("/");
         }
 
         if (this.player.isUsingItem()) {
@@ -1950,15 +1948,21 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     }
 
     public boolean isBlocked(UUID param0) {
-        if (this.allowsChat()) {
+        if (this.getChatStatus().isChatAllowed(false)) {
             return this.playerSocialManager.shouldHideMessageFrom(param0);
         } else {
             return (this.player == null || !param0.equals(this.player.getUUID())) && !param0.equals(Util.NIL_UUID);
         }
     }
 
-    public boolean allowsChat() {
-        return this.allowsChat && this.socialInteractionsService.chatAllowed();
+    public Minecraft.ChatStatus getChatStatus() {
+        if (this.options.chatVisibility == ChatVisiblity.HIDDEN) {
+            return Minecraft.ChatStatus.DISABLED_BY_OPTIONS;
+        } else if (!this.allowsChat) {
+            return Minecraft.ChatStatus.DISABLED_BY_LAUNCHER;
+        } else {
+            return !this.socialInteractionsService.chatAllowed() ? Minecraft.ChatStatus.DISABLED_BY_PROFILE : Minecraft.ChatStatus.ENABLED;
+        }
     }
 
     public final boolean isDemo() {
@@ -2477,6 +2481,50 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
 
     public EntityModelSet getEntityModels() {
         return this.entityModels;
+    }
+
+    public boolean isTextFilteringEnabled() {
+        return true;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static enum ChatStatus {
+        ENABLED(TextComponent.EMPTY) {
+            @Override
+            public boolean isChatAllowed(boolean param0) {
+                return true;
+            }
+        },
+        DISABLED_BY_OPTIONS(new TranslatableComponent("chat.disabled.options").withStyle(ChatFormatting.RED)) {
+            @Override
+            public boolean isChatAllowed(boolean param0) {
+                return false;
+            }
+        },
+        DISABLED_BY_LAUNCHER(new TranslatableComponent("chat.disabled.launcher").withStyle(ChatFormatting.RED)) {
+            @Override
+            public boolean isChatAllowed(boolean param0) {
+                return param0;
+            }
+        },
+        DISABLED_BY_PROFILE(new TranslatableComponent("chat.disabled.profile").withStyle(ChatFormatting.RED)) {
+            @Override
+            public boolean isChatAllowed(boolean param0) {
+                return param0;
+            }
+        };
+
+        private final Component message;
+
+        private ChatStatus(Component param0) {
+            this.message = param0;
+        }
+
+        public Component getMessage() {
+            return this.message;
+        }
+
+        public abstract boolean isChatAllowed(boolean var1);
     }
 
     @OnlyIn(Dist.CLIENT)

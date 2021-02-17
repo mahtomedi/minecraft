@@ -28,6 +28,7 @@ import net.minecraft.world.level.block.entity.DispenserBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.levelgen.feature.NoiseEffect;
 import net.minecraft.world.level.levelgen.feature.StructurePieceType;
 import net.minecraft.world.level.material.FluidState;
 
@@ -81,6 +82,10 @@ public abstract class StructurePiece {
     }
 
     protected abstract void addAdditionalSaveData(CompoundTag var1);
+
+    public NoiseEffect getNoiseEffect() {
+        return NoiseEffect.BEARD;
+    }
 
     public void addChildren(StructurePiece param0, List<StructurePiece> param1, Random param2) {
     }
@@ -369,16 +374,22 @@ public abstract class StructurePiece {
         int var0 = this.getWorldX(param2, param4);
         int var1 = this.getWorldY(param3);
         int var2 = this.getWorldZ(param2, param4);
-        if (param5.isInside(new BlockPos(var0, var1, var2))) {
-            while(
-                (param0.isEmptyBlock(new BlockPos(var0, var1, var2)) || param0.getBlockState(new BlockPos(var0, var1, var2)).getMaterial().isLiquid())
-                    && var1 > param0.getMinBuildHeight() + 1
-            ) {
-                param0.setBlock(new BlockPos(var0, var1, var2), param1, 2);
-                --var1;
+        BlockPos.MutableBlockPos var3 = new BlockPos.MutableBlockPos(var0, var1, var2);
+        if (param5.isInside(var3)) {
+            while(this.isReplaceableByStructures(param0.getBlockState(var3)) && var3.getY() > param0.getMinBuildHeight() + 1) {
+                param0.setBlock(var3, param1, 2);
+                var3.move(Direction.DOWN);
             }
 
         }
+    }
+
+    protected boolean isReplaceableByStructures(BlockState param0) {
+        return param0.isAir()
+            || param0.getMaterial().isLiquid()
+            || param0.is(Blocks.GLOW_LICHEN)
+            || param0.is(Blocks.SEAGRASS)
+            || param0.is(Blocks.TALL_SEAGRASS);
     }
 
     protected boolean createChest(WorldGenLevel param0, BoundingBox param1, Random param2, int param3, int param4, int param5, ResourceLocation param6) {

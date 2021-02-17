@@ -25,10 +25,16 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class SignBlockEntity extends BlockEntity {
+    private static final String[] RAW_TEXT_FIELD_NAMES = new String[]{"Text1", "Text2", "Text3", "Text4"};
+    private static final String[] FILTERED_TEXT_FIELD_NAMES = new String[]{"FilteredText1", "FilteredText2", "FilteredText3", "FilteredText4"};
     private final Component[] messages = new Component[]{TextComponent.EMPTY, TextComponent.EMPTY, TextComponent.EMPTY, TextComponent.EMPTY};
+    private final Component[] filteredMessages = new Component[]{TextComponent.EMPTY, TextComponent.EMPTY, TextComponent.EMPTY, TextComponent.EMPTY};
     private boolean isEditable = true;
     private Player playerWhoMayEdit;
-    private final FormattedCharSequence[] renderMessages = new FormattedCharSequence[4];
+    @Nullable
+    private FormattedCharSequence[] renderMessages;
+    @OnlyIn(Dist.CLIENT)
+    private boolean renderMessagedFiltered;
     private DyeColor color = DyeColor.BLACK;
 
     public SignBlockEntity(BlockPos param0, BlockState param1) {
@@ -40,8 +46,13 @@ public class SignBlockEntity extends BlockEntity {
         super.save(param0);
 
         for(int var0 = 0; var0 < 4; ++var0) {
-            String var1 = Component.Serializer.toJson(this.messages[var0]);
-            param0.putString("Text" + (var0 + 1), var1);
+            Component var1 = this.messages[var0];
+            String var2 = Component.Serializer.toJson(var1);
+            param0.putString(RAW_TEXT_FIELD_NAMES[var0], var2);
+            Component var3 = this.filteredMessages[var0];
+            if (!var3.equals(var1)) {
+                param0.putString(FILTERED_TEXT_FIELD_NAMES[var0], Component.Serializer.toJson(var3));
+            }
         }
 
         param0.putString("Color", this.color.getName());
@@ -55,21 +66,30 @@ public class SignBlockEntity extends BlockEntity {
         this.color = DyeColor.byName(param0.getString("Color"), DyeColor.BLACK);
 
         for(int var0 = 0; var0 < 4; ++var0) {
-            String var1 = param0.getString("Text" + (var0 + 1));
-            Component var2 = this.deserializeTextSafe(var1);
-            if (this.level instanceof ServerLevel) {
-                try {
-                    this.messages[var0] = ComponentUtils.updateForEntity(this.createCommandSourceStack(null), var2, null, 0);
-                } catch (CommandSyntaxException var6) {
-                    this.messages[var0] = var2;
-                }
+            String var1 = param0.getString(RAW_TEXT_FIELD_NAMES[var0]);
+            Component var2 = this.loadLine(var1);
+            this.messages[var0] = var2;
+            String var3 = FILTERED_TEXT_FIELD_NAMES[var0];
+            if (param0.contains(var3, 8)) {
+                this.filteredMessages[var0] = this.loadLine(param0.getString(var3));
             } else {
-                this.messages[var0] = var2;
+                this.filteredMessages[var0] = var2;
             }
-
-            this.renderMessages[var0] = null;
         }
 
+        this.renderMessages = null;
+    }
+
+    private Component loadLine(String param0) {
+        Component var0 = this.deserializeTextSafe(param0);
+        if (this.level instanceof ServerLevel) {
+            try {
+                return ComponentUtils.updateForEntity(this.createCommandSourceStack(null), var0, null, 0);
+            } catch (CommandSyntaxException var4) {
+            }
+        }
+
+        return var0;
     }
 
     private Component deserializeTextSafe(String param0) {
@@ -85,23 +105,36 @@ public class SignBlockEntity extends BlockEntity {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public Component getMessage(int param0) {
-        return this.messages[param0];
+    public Component getMessage(int param0, boolean param1) {
+        return this.getMessages(param1)[param0];
     }
 
     public void setMessage(int param0, Component param1) {
-        this.messages[param0] = param1;
-        this.renderMessages[param0] = null;
+        this.setMessage(param0, param1, param1);
     }
 
-    @Nullable
+    public void setMessage(int param0, Component param1, Component param2) {
+        this.messages[param0] = param1;
+        this.filteredMessages[param0] = param2;
+        this.renderMessages = null;
+    }
+
     @OnlyIn(Dist.CLIENT)
-    public FormattedCharSequence getRenderMessage(int param0, Function<Component, FormattedCharSequence> param1) {
-        if (this.renderMessages[param0] == null && this.messages[param0] != null) {
-            this.renderMessages[param0] = param1.apply(this.messages[param0]);
+    public FormattedCharSequence[] getRenderMessages(boolean param0, Function<Component, FormattedCharSequence> param1) {
+        if (this.renderMessages == null || this.renderMessagedFiltered != param0) {
+            this.renderMessagedFiltered = param0;
+            this.renderMessages = new FormattedCharSequence[4];
+
+            for(int var0 = 0; var0 < 4; ++var0) {
+                this.renderMessages[var0] = param1.apply(this.getMessage(var0, param0));
+            }
         }
 
-        return this.renderMessages[param0];
+        return this.renderMessages;
+    }
+
+    private Component[] getMessages(boolean param0) {
+        return param0 ? this.filteredMessages : this.messages;
     }
 
     @Nullable
@@ -141,14 +174,12 @@ public class SignBlockEntity extends BlockEntity {
         return this.playerWhoMayEdit;
     }
 
-    public boolean executeClickCommands(Player param0) {
-        for(Component var0 : this.messages) {
-            Style var1 = var0 == null ? null : var0.getStyle();
-            if (var1 != null && var1.getClickEvent() != null) {
-                ClickEvent var2 = var1.getClickEvent();
-                if (var2.getAction() == ClickEvent.Action.RUN_COMMAND) {
-                    param0.getServer().getCommands().performCommand(this.createCommandSourceStack((ServerPlayer)param0), var2.getValue());
-                }
+    public boolean executeClickCommands(ServerPlayer param0) {
+        for(Component var0 : this.getMessages(param0.isTextFilteringEnabled())) {
+            Style var1 = var0.getStyle();
+            ClickEvent var2 = var1.getClickEvent();
+            if (var2 != null && var2.getAction() == ClickEvent.Action.RUN_COMMAND) {
+                param0.getServer().getCommands().performCommand(this.createCommandSourceStack(param0), var2.getValue());
             }
         }
 

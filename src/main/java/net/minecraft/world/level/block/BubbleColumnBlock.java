@@ -77,11 +77,6 @@ public class BubbleColumnBlock extends Block implements BucketPickup {
     }
 
     @Override
-    public void onPlace(BlockState param0, Level param1, BlockPos param2, BlockState param3, boolean param4) {
-        growColumn(param1, param2.above(), getDrag(param1, param2.below()));
-    }
-
-    @Override
     public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
         growColumn(param1, param2.above(), getDrag(param1, param2));
     }
@@ -92,8 +87,11 @@ public class BubbleColumnBlock extends Block implements BucketPickup {
     }
 
     public static void growColumn(LevelAccessor param0, BlockPos param1, boolean param2) {
-        if (canExistIn(param0, param1)) {
-            param0.setBlock(param1, Blocks.BUBBLE_COLUMN.defaultBlockState().setValue(DRAG_DOWN, Boolean.valueOf(param2)), 2);
+        BlockPos.MutableBlockPos var0 = param1.mutable();
+
+        while(canExistIn(param0, var0)) {
+            param0.setBlock(var0, Blocks.BUBBLE_COLUMN.defaultBlockState().setValue(DRAG_DOWN, Boolean.valueOf(param2)), 2);
+            var0.move(Direction.UP);
         }
 
     }

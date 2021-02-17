@@ -11,7 +11,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.network.TextFilter;
 import net.minecraft.world.entity.Entity;
 
 public class EmoteCommands {
@@ -27,18 +26,25 @@ public class EmoteCommands {
                                 MinecraftServer var2 = param0x.getSource().getServer();
                                 if (var1 != null) {
                                     if (var1 instanceof ServerPlayer) {
-                                        TextFilter var3 = ((ServerPlayer)var1).getTextFilter();
-                                        if (var3 != null) {
-                                            var3.processStreamMessage(var0x)
-                                                .thenAcceptAsync(
-                                                    param3 -> param3.ifPresent(
-                                                            param3x -> var2.getPlayerList()
-                                                                    .broadcastMessage(createMessage(param0x, param3x), ChatType.CHAT, var1.getUUID())
-                                                        ),
-                                                    var2
-                                                );
-                                            return 1;
-                                        }
+                                        ServerPlayer var3 = (ServerPlayer)var1;
+                                        var3.getTextFilter()
+                                            .processStreamMessage(var0x)
+                                            .thenAcceptAsync(
+                                                param4 -> {
+                                                    String var0xx = param4.getFiltered();
+                                                    Component var1x = var0xx.isEmpty() ? null : createMessage(param0x, var0xx);
+                                                    Component var2x = createMessage(param0x, param4.getRaw());
+                                                    var2.getPlayerList()
+                                                        .broadcastMessage(
+                                                            var2x,
+                                                            param3x -> var3.shouldFilterMessageTo(param3x) ? var1x : var2x,
+                                                            ChatType.CHAT,
+                                                            var1.getUUID()
+                                                        );
+                                                },
+                                                var2
+                                            );
+                                        return 1;
                                     }
                     
                                     var2.getPlayerList().broadcastMessage(createMessage(param0x, var0x), ChatType.CHAT, var1.getUUID());

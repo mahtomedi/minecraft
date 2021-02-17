@@ -70,12 +70,6 @@ public class TheEndGatewayBlockEntity extends TheEndPortalBlockEntity {
         this.exactTeleport = param0.getBoolean("ExactTeleport");
     }
 
-    @OnlyIn(Dist.CLIENT)
-    @Override
-    public double getViewDistance() {
-        return 256.0;
-    }
-
     public static void beamAnimationTick(Level param0, BlockPos param1, BlockState param2, TheEndGatewayBlockEntity param3) {
         ++param3.age;
         if (param3.isCoolingDown()) {

@@ -2,23 +2,29 @@ package net.minecraft.world.level.levelgen.feature.configurations;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.world.level.levelgen.VerticalAnchor;
 
 public class RangeDecoratorConfiguration implements DecoratorConfiguration {
     public static final Codec<RangeDecoratorConfiguration> CODEC = RecordCodecBuilder.create(
         param0 -> param0.group(
-                    Codec.INT.fieldOf("bottom_offset").orElse(0).forGetter(param0x -> param0x.bottomOffset),
-                    Codec.INT.fieldOf("top_offset").orElse(0).forGetter(param0x -> param0x.topOffset),
-                    Codec.INT.fieldOf("maximum").orElse(0).forGetter(param0x -> param0x.maximum)
+                    VerticalAnchor.CODEC.fieldOf("bottom_inclusive").forGetter(RangeDecoratorConfiguration::bottomInclusive),
+                    VerticalAnchor.CODEC.fieldOf("top_inclusive").forGetter(RangeDecoratorConfiguration::topInclusive)
                 )
                 .apply(param0, RangeDecoratorConfiguration::new)
     );
-    public final int bottomOffset;
-    public final int topOffset;
-    public final int maximum;
+    private final VerticalAnchor bottomInclusive;
+    private final VerticalAnchor topInclusive;
 
-    public RangeDecoratorConfiguration(int param0, int param1, int param2) {
-        this.bottomOffset = param0;
-        this.topOffset = param1;
-        this.maximum = param2;
+    public RangeDecoratorConfiguration(VerticalAnchor param0, VerticalAnchor param1) {
+        this.bottomInclusive = param0;
+        this.topInclusive = param1;
+    }
+
+    public VerticalAnchor bottomInclusive() {
+        return this.bottomInclusive;
+    }
+
+    public VerticalAnchor topInclusive() {
+        return this.topInclusive;
     }
 }

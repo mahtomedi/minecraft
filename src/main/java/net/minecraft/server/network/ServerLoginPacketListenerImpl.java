@@ -44,9 +44,10 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
     public final Connection connection;
     private ServerLoginPacketListenerImpl.State state = ServerLoginPacketListenerImpl.State.HELLO;
     private int tick;
+    @Nullable
     private GameProfile gameProfile;
     private final String serverId = "";
-    private SecretKey secretKey;
+    @Nullable
     private ServerPlayer delayedAcceptPlayer;
 
     public ServerLoginPacketListenerImpl(MinecraftServer param0, Connection param1) {
@@ -62,7 +63,7 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
             ServerPlayer var0 = this.server.getPlayerList().getPlayer(this.gameProfile.getId());
             if (var0 == null) {
                 this.state = ServerLoginPacketListenerImpl.State.READY_TO_ACCEPT;
-                this.server.getPlayerList().placeNewPlayer(this.connection, this.delayedAcceptPlayer);
+                this.placeNewPlayer(this.delayedAcceptPlayer);
                 this.delayedAcceptPlayer = null;
             }
         }
@@ -113,10 +114,14 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
                 this.state = ServerLoginPacketListenerImpl.State.DELAY_ACCEPT;
                 this.delayedAcceptPlayer = this.server.getPlayerList().getPlayerForLogin(this.gameProfile);
             } else {
-                this.server.getPlayerList().placeNewPlayer(this.connection, this.server.getPlayerList().getPlayerForLogin(this.gameProfile));
+                this.placeNewPlayer(this.server.getPlayerList().getPlayerForLogin(this.gameProfile));
             }
         }
 
+    }
+
+    private void placeNewPlayer(ServerPlayer param0) {
+        this.server.getPlayerList().placeNewPlayer(this.connection, param0);
     }
 
     @Override
@@ -148,23 +153,23 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
         Validate.validState(this.state == ServerLoginPacketListenerImpl.State.KEY, "Unexpected key packet");
         PrivateKey var0 = this.server.getKeyPair().getPrivate();
 
-        final String var3;
+        final String var4;
         try {
             if (!Arrays.equals(this.nonce, param0.getNonce(var0))) {
                 throw new IllegalStateException("Protocol error");
             }
 
-            this.secretKey = param0.getSecretKey(var0);
-            Cipher var1 = Crypt.getCipher(2, this.secretKey);
-            Cipher var2 = Crypt.getCipher(1, this.secretKey);
-            var3 = new BigInteger(Crypt.digestData("", this.server.getKeyPair().getPublic(), this.secretKey)).toString(16);
+            SecretKey var1 = param0.getSecretKey(var0);
+            Cipher var2 = Crypt.getCipher(2, var1);
+            Cipher var3 = Crypt.getCipher(1, var1);
+            var4 = new BigInteger(Crypt.digestData("", this.server.getKeyPair().getPublic(), var1)).toString(16);
             this.state = ServerLoginPacketListenerImpl.State.AUTHENTICATING;
-            this.connection.setEncryptionKey(var1, var2);
-        } catch (CryptException var61) {
-            throw new IllegalStateException("Protocol error", var61);
+            this.connection.setEncryptionKey(var2, var3);
+        } catch (CryptException var71) {
+            throw new IllegalStateException("Protocol error", var71);
         }
 
-        Thread var6 = new Thread("User Authenticator #" + UNIQUE_THREAD_ID.incrementAndGet()) {
+        Thread var7 = new Thread("User Authenticator #" + UNIQUE_THREAD_ID.incrementAndGet()) {
             @Override
             public void run() {
                 GameProfile var0 = ServerLoginPacketListenerImpl.this.gameProfile;
@@ -172,7 +177,7 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
                 try {
                     ServerLoginPacketListenerImpl.this.gameProfile = ServerLoginPacketListenerImpl.this.server
                         .getSessionService()
-                        .hasJoinedServer(new GameProfile(null, var0.getName()), var3, this.getAddress());
+                        .hasJoinedServer(new GameProfile(null, var0.getName()), var4, this.getAddress());
                     if (ServerLoginPacketListenerImpl.this.gameProfile != null) {
                         ServerLoginPacketListenerImpl.LOGGER
                             .info(
@@ -210,8 +215,8 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
                     : null;
             }
         };
-        var6.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(LOGGER));
-        var6.start();
+        var7.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(LOGGER));
+        var7.start();
     }
 
     @Override

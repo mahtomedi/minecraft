@@ -15,18 +15,20 @@ public class ServerboundClientInformationPacket implements Packet<ServerGamePack
     private boolean chatColors;
     private int modelCustomisation;
     private HumanoidArm mainHand;
+    private boolean textFilteringEnabled;
 
     public ServerboundClientInformationPacket() {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public ServerboundClientInformationPacket(String param0, int param1, ChatVisiblity param2, boolean param3, int param4, HumanoidArm param5) {
+    public ServerboundClientInformationPacket(String param0, int param1, ChatVisiblity param2, boolean param3, int param4, HumanoidArm param5, boolean param6) {
         this.language = param0;
         this.viewDistance = param1;
         this.chatVisibility = param2;
         this.chatColors = param3;
         this.modelCustomisation = param4;
         this.mainHand = param5;
+        this.textFilteringEnabled = param6;
     }
 
     @Override
@@ -37,6 +39,7 @@ public class ServerboundClientInformationPacket implements Packet<ServerGamePack
         this.chatColors = param0.readBoolean();
         this.modelCustomisation = param0.readUnsignedByte();
         this.mainHand = param0.readEnum(HumanoidArm.class);
+        this.textFilteringEnabled = param0.readBoolean();
     }
 
     @Override
@@ -47,6 +50,7 @@ public class ServerboundClientInformationPacket implements Packet<ServerGamePack
         param0.writeBoolean(this.chatColors);
         param0.writeByte(this.modelCustomisation);
         param0.writeEnum(this.mainHand);
+        param0.writeBoolean(this.textFilteringEnabled);
     }
 
     public void handle(ServerGamePacketListener param0) {
@@ -67,5 +71,9 @@ public class ServerboundClientInformationPacket implements Packet<ServerGamePack
 
     public HumanoidArm getMainHand() {
         return this.mainHand;
+    }
+
+    public boolean isTextFilteringEnabled() {
+        return this.textFilteringEnabled;
     }
 }

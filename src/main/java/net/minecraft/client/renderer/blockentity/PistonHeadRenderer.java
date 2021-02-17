@@ -71,4 +71,9 @@ public class PistonHeadRenderer implements BlockEntityRenderer<PistonMovingBlock
                 param4, this.blockRenderer.getBlockModel(param1), param1, param0, param2, var1, param5, new Random(), param1.getSeed(param0), param6
             );
     }
+
+    @Override
+    public int getViewDistance() {
+        return 68;
+    }
 }

@@ -6,12 +6,12 @@ import java.util.stream.Stream;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneDecoratorConfiguration;
 
-public class NopePlacementDecorator extends SimpleFeatureDecorator<NoneDecoratorConfiguration> {
+public class NopePlacementDecorator extends FeatureDecorator<NoneDecoratorConfiguration> {
     public NopePlacementDecorator(Codec<NoneDecoratorConfiguration> param0) {
         super(param0);
     }
 
-    public Stream<BlockPos> place(Random param0, NoneDecoratorConfiguration param1, BlockPos param2) {
-        return Stream.of(param2);
+    public Stream<BlockPos> getPositions(DecorationContext param0, Random param1, NoneDecoratorConfiguration param2, BlockPos param3) {
+        return Stream.of(param3);
     }
 }

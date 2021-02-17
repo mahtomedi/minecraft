@@ -564,7 +564,17 @@ public class Options {
             this.minecraft
                 .player
                 .connection
-                .send(new ServerboundClientInformationPacket(this.languageCode, this.renderDistance, this.chatVisibility, this.chatColors, var0, this.mainHand));
+                .send(
+                    new ServerboundClientInformationPacket(
+                        this.languageCode,
+                        this.renderDistance,
+                        this.chatVisibility,
+                        this.chatColors,
+                        var0,
+                        this.mainHand,
+                        this.minecraft.isTextFilteringEnabled()
+                    )
+                );
         }
 
     }

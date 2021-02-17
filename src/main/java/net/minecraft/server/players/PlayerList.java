@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Function;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
@@ -29,7 +30,6 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundChangeDifficultyPacket;
-import net.minecraft.network.protocol.game.ClientboundChatPacket;
 import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
 import net.minecraft.network.protocol.game.ClientboundEntityEventPacket;
 import net.minecraft.network.protocol.game.ClientboundGameEventPacket;
@@ -520,17 +520,16 @@ public abstract class PlayerList {
     }
 
     public void broadcastAll(Packet<?> param0) {
-        for(int var0 = 0; var0 < this.players.size(); ++var0) {
-            this.players.get(var0).connection.send(param0);
+        for(ServerPlayer var0 : this.players) {
+            var0.connection.send(param0);
         }
 
     }
 
     public void broadcastAll(Packet<?> param0, ResourceKey<Level> param1) {
-        for(int var0 = 0; var0 < this.players.size(); ++var0) {
-            ServerPlayer var1 = this.players.get(var0);
-            if (var1.level.dimension() == param1) {
-                var1.connection.send(param0);
+        for(ServerPlayer var0 : this.players) {
+            if (var0.level.dimension() == param1) {
+                var0.connection.send(param0);
             }
         }
 
@@ -753,7 +752,23 @@ public abstract class PlayerList {
 
     public void broadcastMessage(Component param0, ChatType param1, UUID param2) {
         this.server.sendMessage(param0, param2);
-        this.broadcastAll(new ClientboundChatPacket(param0, param1, param2));
+
+        for(ServerPlayer var0 : this.players) {
+            var0.sendMessage(param0, param1, param2);
+        }
+
+    }
+
+    public void broadcastMessage(Component param0, Function<ServerPlayer, Component> param1, ChatType param2, UUID param3) {
+        this.server.sendMessage(param0, param3);
+
+        for(ServerPlayer var0 : this.players) {
+            Component var1 = param1.apply(var0);
+            if (var1 != null) {
+                var0.sendMessage(var1, param2, param3);
+            }
+        }
+
     }
 
     public ServerStatsCounter getPlayerStats(Player param0) {
