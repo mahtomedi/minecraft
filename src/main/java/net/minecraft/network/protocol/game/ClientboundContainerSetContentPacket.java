@@ -1,6 +1,5 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import java.util.List;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.FriendlyByteBuf;
@@ -10,11 +9,8 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundContainerSetContentPacket implements Packet<ClientGamePacketListener> {
-    private int containerId;
-    private List<ItemStack> items;
-
-    public ClientboundContainerSetContentPacket() {
-    }
+    private final int containerId;
+    private final List<ItemStack> items;
 
     public ClientboundContainerSetContentPacket(int param0, NonNullList<ItemStack> param1) {
         this.containerId = param0;
@@ -26,8 +22,7 @@ public class ClientboundContainerSetContentPacket implements Packet<ClientGamePa
 
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ClientboundContainerSetContentPacket(FriendlyByteBuf param0) {
         this.containerId = param0.readUnsignedByte();
         int var0 = param0.readShort();
         this.items = NonNullList.withSize(var0, ItemStack.EMPTY);
@@ -39,7 +34,7 @@ public class ClientboundContainerSetContentPacket implements Packet<ClientGamePa
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeByte(this.containerId);
         param0.writeShort(this.items.size());
 

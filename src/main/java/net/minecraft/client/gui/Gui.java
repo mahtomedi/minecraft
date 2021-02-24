@@ -1159,34 +1159,38 @@ public class Gui extends GuiComponent {
         this.animateOverlayMessageColor = param1;
     }
 
-    public void setTitles(@Nullable Component param0, @Nullable Component param1, int param2, int param3, int param4) {
-        if (param0 == null && param1 == null && param2 < 0 && param3 < 0 && param4 < 0) {
-            this.title = null;
-            this.subtitle = null;
-            this.titleTime = 0;
-        } else if (param0 != null) {
-            this.title = param0;
-            this.titleTime = this.titleFadeInTime + this.titleStayTime + this.titleFadeOutTime;
-        } else if (param1 != null) {
-            this.subtitle = param1;
-        } else {
-            if (param2 >= 0) {
-                this.titleFadeInTime = param2;
-            }
-
-            if (param3 >= 0) {
-                this.titleStayTime = param3;
-            }
-
-            if (param4 >= 0) {
-                this.titleFadeOutTime = param4;
-            }
-
-            if (this.titleTime > 0) {
-                this.titleTime = this.titleFadeInTime + this.titleStayTime + this.titleFadeOutTime;
-            }
-
+    public void setTimes(int param0, int param1, int param2) {
+        if (param0 >= 0) {
+            this.titleFadeInTime = param0;
         }
+
+        if (param1 >= 0) {
+            this.titleStayTime = param1;
+        }
+
+        if (param2 >= 0) {
+            this.titleFadeOutTime = param2;
+        }
+
+        if (this.titleTime > 0) {
+            this.titleTime = this.titleFadeInTime + this.titleStayTime + this.titleFadeOutTime;
+        }
+
+    }
+
+    public void setSubtitle(Component param0) {
+        this.subtitle = param0;
+    }
+
+    public void setTitle(Component param0) {
+        this.title = param0;
+        this.titleTime = this.titleFadeInTime + this.titleStayTime + this.titleFadeOutTime;
+    }
+
+    public void clear() {
+        this.title = null;
+        this.subtitle = null;
+        this.titleTime = 0;
     }
 
     public UUID guessChatUUID(Component param0) {

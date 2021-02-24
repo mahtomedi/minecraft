@@ -1,6 +1,5 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
@@ -10,13 +9,10 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundBlockEventPacket implements Packet<ClientGamePacketListener> {
-    private BlockPos pos;
-    private int b0;
-    private int b1;
-    private Block block;
-
-    public ClientboundBlockEventPacket() {
-    }
+    private final BlockPos pos;
+    private final int b0;
+    private final int b1;
+    private final Block block;
 
     public ClientboundBlockEventPacket(BlockPos param0, Block param1, int param2, int param3) {
         this.pos = param0;
@@ -25,8 +21,7 @@ public class ClientboundBlockEventPacket implements Packet<ClientGamePacketListe
         this.b1 = param3;
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ClientboundBlockEventPacket(FriendlyByteBuf param0) {
         this.pos = param0.readBlockPos();
         this.b0 = param0.readUnsignedByte();
         this.b1 = param0.readUnsignedByte();
@@ -34,7 +29,7 @@ public class ClientboundBlockEventPacket implements Packet<ClientGamePacketListe
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeBlockPos(this.pos);
         param0.writeByte(this.b0);
         param0.writeByte(this.b1);

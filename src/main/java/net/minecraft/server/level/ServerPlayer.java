@@ -51,7 +51,9 @@ import net.minecraft.network.protocol.game.ClientboundOpenBookPacket;
 import net.minecraft.network.protocol.game.ClientboundOpenScreenPacket;
 import net.minecraft.network.protocol.game.ClientboundOpenSignEditorPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerAbilitiesPacket;
-import net.minecraft.network.protocol.game.ClientboundPlayerCombatPacket;
+import net.minecraft.network.protocol.game.ClientboundPlayerCombatEndPacket;
+import net.minecraft.network.protocol.game.ClientboundPlayerCombatEnterPacket;
+import net.minecraft.network.protocol.game.ClientboundPlayerCombatKillPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerLookAtPacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveMobEffectPacket;
@@ -334,13 +336,13 @@ public class ServerPlayer extends Player implements ContainerListener {
     @Override
     public void onEnterCombat() {
         super.onEnterCombat();
-        this.connection.send(new ClientboundPlayerCombatPacket(this.getCombatTracker(), ClientboundPlayerCombatPacket.Event.ENTER_COMBAT));
+        this.connection.send(new ClientboundPlayerCombatEnterPacket());
     }
 
     @Override
     public void onLeaveCombat() {
         super.onLeaveCombat();
-        this.connection.send(new ClientboundPlayerCombatPacket(this.getCombatTracker(), ClientboundPlayerCombatPacket.Event.END_COMBAT));
+        this.connection.send(new ClientboundPlayerCombatEndPacket(this.getCombatTracker()));
     }
 
     @Override
@@ -368,7 +370,7 @@ public class ServerPlayer extends Player implements ContainerListener {
         }
 
         if (!this.entitiesToRemove.isEmpty()) {
-            this.connection.send(new ClientboundRemoveEntitiesPacket(this.entitiesToRemove.toIntArray()));
+            this.connection.send(new ClientboundRemoveEntitiesPacket(this.entitiesToRemove));
             this.entitiesToRemove.clear();
         }
 
@@ -476,7 +478,7 @@ public class ServerPlayer extends Player implements ContainerListener {
             Component var1 = this.getCombatTracker().getDeathMessage();
             this.connection
                 .send(
-                    new ClientboundPlayerCombatPacket(this.getCombatTracker(), ClientboundPlayerCombatPacket.Event.ENTITY_DIED, var1),
+                    new ClientboundPlayerCombatKillPacket(this.getCombatTracker(), var1),
                     param1 -> {
                         if (!param1.isSuccess()) {
                             int var0x = 256;
@@ -486,8 +488,7 @@ public class ServerPlayer extends Player implements ContainerListener {
                             );
                             Component var3x = new TranslatableComponent("death.attack.even_more_magic", this.getDisplayName())
                                 .withStyle(param1x -> param1x.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, var2x)));
-                            this.connection
-                                .send(new ClientboundPlayerCombatPacket(this.getCombatTracker(), ClientboundPlayerCombatPacket.Event.ENTITY_DIED, var3x));
+                            this.connection.send(new ClientboundPlayerCombatKillPacket(this.getCombatTracker(), var3x));
                         }
         
                     }
@@ -501,7 +502,7 @@ public class ServerPlayer extends Player implements ContainerListener {
                 this.server.getPlayerList().broadcastToAllExceptTeam(this, var1);
             }
         } else {
-            this.connection.send(new ClientboundPlayerCombatPacket(this.getCombatTracker(), ClientboundPlayerCombatPacket.Event.ENTITY_DIED));
+            this.connection.send(new ClientboundPlayerCombatKillPacket(this.getCombatTracker(), TextComponent.EMPTY));
         }
 
         this.removeEntitiesOnShoulder();

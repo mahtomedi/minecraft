@@ -1,39 +1,30 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundRemoveEntitiesPacket implements Packet<ClientGamePacketListener> {
-    private int[] entityIds;
+    private final IntList entityIds;
 
-    public ClientboundRemoveEntitiesPacket() {
+    public ClientboundRemoveEntitiesPacket(IntList param0) {
+        this.entityIds = new IntArrayList(param0);
     }
 
     public ClientboundRemoveEntitiesPacket(int... param0) {
-        this.entityIds = param0;
+        this.entityIds = new IntArrayList(param0);
+    }
+
+    public ClientboundRemoveEntitiesPacket(FriendlyByteBuf param0) {
+        this.entityIds = param0.readIntIdList();
     }
 
     @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
-        this.entityIds = new int[param0.readVarInt()];
-
-        for(int var0 = 0; var0 < this.entityIds.length; ++var0) {
-            this.entityIds[var0] = param0.readVarInt();
-        }
-
-    }
-
-    @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
-        param0.writeVarInt(this.entityIds.length);
-
-        for(int var0 : this.entityIds) {
-            param0.writeVarInt(var0);
-        }
-
+    public void write(FriendlyByteBuf param0) {
+        param0.writeIntIdList(this.entityIds);
     }
 
     public void handle(ClientGamePacketListener param0) {
@@ -41,7 +32,7 @@ public class ClientboundRemoveEntitiesPacket implements Packet<ClientGamePacketL
     }
 
     @OnlyIn(Dist.CLIENT)
-    public int[] getEntityIds() {
+    public IntList getEntityIds() {
         return this.entityIds;
     }
 }

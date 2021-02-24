@@ -1,6 +1,5 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import javax.annotation.Nullable;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.network.FriendlyByteBuf;
@@ -10,11 +9,9 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ServerboundSeenAdvancementsPacket implements Packet<ServerGamePacketListener> {
-    private ServerboundSeenAdvancementsPacket.Action action;
-    private ResourceLocation tab;
-
-    public ServerboundSeenAdvancementsPacket() {
-    }
+    private final ServerboundSeenAdvancementsPacket.Action action;
+    @Nullable
+    private final ResourceLocation tab;
 
     @OnlyIn(Dist.CLIENT)
     public ServerboundSeenAdvancementsPacket(ServerboundSeenAdvancementsPacket.Action param0, @Nullable ResourceLocation param1) {
@@ -32,17 +29,18 @@ public class ServerboundSeenAdvancementsPacket implements Packet<ServerGamePacke
         return new ServerboundSeenAdvancementsPacket(ServerboundSeenAdvancementsPacket.Action.CLOSED_SCREEN, null);
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ServerboundSeenAdvancementsPacket(FriendlyByteBuf param0) {
         this.action = param0.readEnum(ServerboundSeenAdvancementsPacket.Action.class);
         if (this.action == ServerboundSeenAdvancementsPacket.Action.OPENED_TAB) {
             this.tab = param0.readResourceLocation();
+        } else {
+            this.tab = null;
         }
 
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeEnum(this.action);
         if (this.action == ServerboundSeenAdvancementsPacket.Action.OPENED_TAB) {
             param0.writeResourceLocation(this.tab);
@@ -58,6 +56,7 @@ public class ServerboundSeenAdvancementsPacket implements Packet<ServerGamePacke
         return this.action;
     }
 
+    @Nullable
     public ResourceLocation getTab() {
         return this.tab;
     }

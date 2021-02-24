@@ -1,6 +1,5 @@
 package net.minecraft.advancements;
 
-import com.google.common.base.Functions;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import java.util.Collection;
@@ -8,7 +7,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
-import java.util.function.Function;
 import javax.annotation.Nullable;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
@@ -59,17 +57,17 @@ public class AdvancementList {
     }
 
     public void add(Map<ResourceLocation, Advancement.Builder> param0) {
-        Function<ResourceLocation, Advancement> var0 = Functions.forMap(this.advancements, null);
+        Map<ResourceLocation, Advancement.Builder> var0 = Maps.newHashMap(param0);
 
-        while(!param0.isEmpty()) {
+        while(!var0.isEmpty()) {
             boolean var1 = false;
-            Iterator<Entry<ResourceLocation, Advancement.Builder>> var2 = param0.entrySet().iterator();
+            Iterator<Entry<ResourceLocation, Advancement.Builder>> var2 = var0.entrySet().iterator();
 
             while(var2.hasNext()) {
                 Entry<ResourceLocation, Advancement.Builder> var3 = var2.next();
                 ResourceLocation var4 = var3.getKey();
                 Advancement.Builder var5 = var3.getValue();
-                if (var5.canBuild(var0)) {
+                if (var5.canBuild(this.advancements::get)) {
                     Advancement var6 = var5.build(var4);
                     this.advancements.put(var4, var6);
                     var1 = true;
@@ -89,7 +87,7 @@ public class AdvancementList {
             }
 
             if (!var1) {
-                for(Entry<ResourceLocation, Advancement.Builder> var7 : param0.entrySet()) {
+                for(Entry<ResourceLocation, Advancement.Builder> var7 : var0.entrySet()) {
                     LOGGER.error("Couldn't load advancement {}: {}", var7.getKey(), var7.getValue());
                 }
                 break;

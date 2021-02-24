@@ -1,6 +1,5 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import java.util.Objects;
 import javax.annotation.Nullable;
 import net.minecraft.network.FriendlyByteBuf;
@@ -10,11 +9,8 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundSetDisplayObjectivePacket implements Packet<ClientGamePacketListener> {
-    private int slot;
-    private String objectiveName;
-
-    public ClientboundSetDisplayObjectivePacket() {
-    }
+    private final int slot;
+    private final String objectiveName;
 
     public ClientboundSetDisplayObjectivePacket(int param0, @Nullable Objective param1) {
         this.slot = param0;
@@ -26,14 +22,13 @@ public class ClientboundSetDisplayObjectivePacket implements Packet<ClientGamePa
 
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ClientboundSetDisplayObjectivePacket(FriendlyByteBuf param0) {
         this.slot = param0.readByte();
         this.objectiveName = param0.readUtf(16);
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeByte(this.slot);
         param0.writeUtf(this.objectiveName);
     }

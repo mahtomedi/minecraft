@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.StructureFeatureManager;
@@ -40,14 +39,13 @@ public class WoodlandMansionFeature extends StructureFeature<NoneFeatureConfigur
         BiomeSource param1,
         long param2,
         WorldgenRandom param3,
-        int param4,
-        int param5,
-        Biome param6,
-        ChunkPos param7,
-        NoneFeatureConfiguration param8,
-        LevelHeightAccessor param9
+        ChunkPos param4,
+        Biome param5,
+        ChunkPos param6,
+        NoneFeatureConfiguration param7,
+        LevelHeightAccessor param8
     ) {
-        for(Biome var1 : param1.getBiomesWithin(SectionPos.sectionToBlockCoord(param4, 9), param0.getSeaLevel(), SectionPos.sectionToBlockCoord(param5, 9), 32)) {
+        for(Biome var1 : param1.getBiomesWithin(param4.getBlockX(9), param0.getSeaLevel(), param4.getBlockZ(9), 32)) {
             if (!var1.getGenerationSettings().isValidStart(this)) {
                 return false;
             }
@@ -62,19 +60,18 @@ public class WoodlandMansionFeature extends StructureFeature<NoneFeatureConfigur
     }
 
     public static class WoodlandMansionStart extends StructureStart<NoneFeatureConfiguration> {
-        public WoodlandMansionStart(StructureFeature<NoneFeatureConfiguration> param0, int param1, int param2, BoundingBox param3, int param4, long param5) {
-            super(param0, param1, param2, param3, param4, param5);
+        public WoodlandMansionStart(StructureFeature<NoneFeatureConfiguration> param0, ChunkPos param1, BoundingBox param2, int param3, long param4) {
+            super(param0, param1, param2, param3, param4);
         }
 
         public void generatePieces(
             RegistryAccess param0,
             ChunkGenerator param1,
             StructureManager param2,
-            int param3,
-            int param4,
-            Biome param5,
-            NoneFeatureConfiguration param6,
-            LevelHeightAccessor param7
+            ChunkPos param3,
+            Biome param4,
+            NoneFeatureConfiguration param5,
+            LevelHeightAccessor param6
         ) {
             Rotation var0 = Rotation.getRandom(this.random);
             int var1 = 5;
@@ -88,15 +85,15 @@ public class WoodlandMansionFeature extends StructureFeature<NoneFeatureConfigur
                 var2 = -5;
             }
 
-            int var3 = SectionPos.sectionToBlockCoord(param3, 7);
-            int var4 = SectionPos.sectionToBlockCoord(param4, 7);
-            int var5 = param1.getFirstOccupiedHeight(var3, var4, Heightmap.Types.WORLD_SURFACE_WG, param7);
-            int var6 = param1.getFirstOccupiedHeight(var3, var4 + var2, Heightmap.Types.WORLD_SURFACE_WG, param7);
-            int var7 = param1.getFirstOccupiedHeight(var3 + var1, var4, Heightmap.Types.WORLD_SURFACE_WG, param7);
-            int var8 = param1.getFirstOccupiedHeight(var3 + var1, var4 + var2, Heightmap.Types.WORLD_SURFACE_WG, param7);
+            int var3 = param3.getBlockX(7);
+            int var4 = param3.getBlockZ(7);
+            int var5 = param1.getFirstOccupiedHeight(var3, var4, Heightmap.Types.WORLD_SURFACE_WG, param6);
+            int var6 = param1.getFirstOccupiedHeight(var3, var4 + var2, Heightmap.Types.WORLD_SURFACE_WG, param6);
+            int var7 = param1.getFirstOccupiedHeight(var3 + var1, var4, Heightmap.Types.WORLD_SURFACE_WG, param6);
+            int var8 = param1.getFirstOccupiedHeight(var3 + var1, var4 + var2, Heightmap.Types.WORLD_SURFACE_WG, param6);
             int var9 = Math.min(Math.min(var5, var6), Math.min(var7, var8));
             if (var9 >= 60) {
-                BlockPos var10 = new BlockPos(SectionPos.sectionToBlockCoord(param3, 8), var9 + 1, SectionPos.sectionToBlockCoord(param4, 8));
+                BlockPos var10 = new BlockPos(param3.getBlockX(8), var9 + 1, param3.getBlockZ(8));
                 List<WoodlandMansionPieces.WoodlandMansionPiece> var11 = Lists.newLinkedList();
                 WoodlandMansionPieces.generateMansion(param2, var10, var0, var11, this.random);
                 this.pieces.addAll(var11);

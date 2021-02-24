@@ -1,29 +1,24 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ServerboundAcceptTeleportationPacket implements Packet<ServerGamePacketListener> {
-    private int id;
-
-    public ServerboundAcceptTeleportationPacket() {
-    }
+    private final int id;
 
     @OnlyIn(Dist.CLIENT)
     public ServerboundAcceptTeleportationPacket(int param0) {
         this.id = param0;
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ServerboundAcceptTeleportationPacket(FriendlyByteBuf param0) {
         this.id = param0.readVarInt();
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeVarInt(this.id);
     }
 

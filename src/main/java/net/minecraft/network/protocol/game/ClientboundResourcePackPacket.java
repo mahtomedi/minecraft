@@ -1,18 +1,14 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundResourcePackPacket implements Packet<ClientGamePacketListener> {
-    private String url;
-    private String hash;
-    private boolean required;
-
-    public ClientboundResourcePackPacket() {
-    }
+    private final String url;
+    private final String hash;
+    private final boolean required;
 
     public ClientboundResourcePackPacket(String param0, String param1, boolean param2) {
         if (param1.length() > 40) {
@@ -24,15 +20,14 @@ public class ClientboundResourcePackPacket implements Packet<ClientGamePacketLis
         }
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
-        this.url = param0.readUtf(32767);
+    public ClientboundResourcePackPacket(FriendlyByteBuf param0) {
+        this.url = param0.readUtf();
         this.hash = param0.readUtf(40);
         this.required = param0.readBoolean();
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeUtf(this.url);
         param0.writeUtf(this.hash);
         param0.writeBoolean(this.required);

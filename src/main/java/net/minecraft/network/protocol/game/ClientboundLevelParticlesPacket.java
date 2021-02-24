@@ -1,6 +1,5 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
@@ -11,19 +10,16 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundLevelParticlesPacket implements Packet<ClientGamePacketListener> {
-    private double x;
-    private double y;
-    private double z;
-    private float xDist;
-    private float yDist;
-    private float zDist;
-    private float maxSpeed;
-    private int count;
-    private boolean overrideLimiter;
-    private ParticleOptions particle;
-
-    public ClientboundLevelParticlesPacket() {
-    }
+    private final double x;
+    private final double y;
+    private final double z;
+    private final float xDist;
+    private final float yDist;
+    private final float zDist;
+    private final float maxSpeed;
+    private final int count;
+    private final boolean overrideLimiter;
+    private final ParticleOptions particle;
 
     public <T extends ParticleOptions> ClientboundLevelParticlesPacket(
         T param0, boolean param1, double param2, double param3, double param4, float param5, float param6, float param7, float param8, int param9
@@ -40,8 +36,7 @@ public class ClientboundLevelParticlesPacket implements Packet<ClientGamePacketL
         this.count = param9;
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ClientboundLevelParticlesPacket(FriendlyByteBuf param0) {
         ParticleType<?> var0 = Registry.PARTICLE_TYPE.byId(param0.readInt());
         if (var0 == null) {
             var0 = ParticleTypes.BARRIER;
@@ -64,7 +59,7 @@ public class ClientboundLevelParticlesPacket implements Packet<ClientGamePacketL
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeInt(Registry.PARTICLE_TYPE.getId(this.particle.getType()));
         param0.writeBoolean(this.overrideLimiter);
         param0.writeDouble(this.x);

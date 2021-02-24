@@ -19,12 +19,11 @@ public class BastionFeature extends JigsawFeature {
         BiomeSource param1,
         long param2,
         WorldgenRandom param3,
-        int param4,
-        int param5,
-        Biome param6,
-        ChunkPos param7,
-        JigsawConfiguration param8,
-        LevelHeightAccessor param9
+        ChunkPos param4,
+        Biome param5,
+        ChunkPos param6,
+        JigsawConfiguration param7,
+        LevelHeightAccessor param8
     ) {
         return param3.nextInt(5) >= 2;
     }

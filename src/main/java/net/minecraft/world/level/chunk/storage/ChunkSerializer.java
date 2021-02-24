@@ -389,7 +389,7 @@ public class ChunkSerializer {
         CompoundTag var1 = new CompoundTag();
 
         for(Entry<StructureFeature<?>, StructureStart<?>> var2 : param1.entrySet()) {
-            var1.put(var2.getKey().getFeatureName(), var2.getValue().createTag(param0.x, param0.z));
+            var1.put(var2.getKey().getFeatureName(), var2.getValue().createTag(param0));
         }
 
         var0.put("Starts", var1);

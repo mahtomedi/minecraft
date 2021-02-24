@@ -1,6 +1,5 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.entity.player.Abilities;
@@ -8,15 +7,12 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundPlayerAbilitiesPacket implements Packet<ClientGamePacketListener> {
-    private boolean invulnerable;
-    private boolean isFlying;
-    private boolean canFly;
-    private boolean instabuild;
-    private float flyingSpeed;
-    private float walkingSpeed;
-
-    public ClientboundPlayerAbilitiesPacket() {
-    }
+    private final boolean invulnerable;
+    private final boolean isFlying;
+    private final boolean canFly;
+    private final boolean instabuild;
+    private final float flyingSpeed;
+    private final float walkingSpeed;
 
     public ClientboundPlayerAbilitiesPacket(Abilities param0) {
         this.invulnerable = param0.invulnerable;
@@ -27,8 +23,7 @@ public class ClientboundPlayerAbilitiesPacket implements Packet<ClientGamePacket
         this.walkingSpeed = param0.getWalkingSpeed();
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ClientboundPlayerAbilitiesPacket(FriendlyByteBuf param0) {
         byte var0 = param0.readByte();
         this.invulnerable = (var0 & 1) != 0;
         this.isFlying = (var0 & 2) != 0;
@@ -39,7 +34,7 @@ public class ClientboundPlayerAbilitiesPacket implements Packet<ClientGamePacket
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         byte var0 = 0;
         if (this.invulnerable) {
             var0 = (byte)(var0 | 1);

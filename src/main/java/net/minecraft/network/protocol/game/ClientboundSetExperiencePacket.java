@@ -1,18 +1,14 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundSetExperiencePacket implements Packet<ClientGamePacketListener> {
-    private float experienceProgress;
-    private int totalExperience;
-    private int experienceLevel;
-
-    public ClientboundSetExperiencePacket() {
-    }
+    private final float experienceProgress;
+    private final int totalExperience;
+    private final int experienceLevel;
 
     public ClientboundSetExperiencePacket(float param0, int param1, int param2) {
         this.experienceProgress = param0;
@@ -20,15 +16,14 @@ public class ClientboundSetExperiencePacket implements Packet<ClientGamePacketLi
         this.experienceLevel = param2;
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ClientboundSetExperiencePacket(FriendlyByteBuf param0) {
         this.experienceProgress = param0.readFloat();
         this.experienceLevel = param0.readVarInt();
         this.totalExperience = param0.readVarInt();
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeFloat(this.experienceProgress);
         param0.writeVarInt(this.experienceLevel);
         param0.writeVarInt(this.totalExperience);

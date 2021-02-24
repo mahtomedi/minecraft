@@ -1,6 +1,5 @@
 package net.minecraft.network.protocol.login;
 
-import java.io.IOException;
 import java.security.PublicKey;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
@@ -10,12 +9,9 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundHelloPacket implements Packet<ClientLoginPacketListener> {
-    private String serverId;
-    private byte[] publicKey;
-    private byte[] nonce;
-
-    public ClientboundHelloPacket() {
-    }
+    private final String serverId;
+    private final byte[] publicKey;
+    private final byte[] nonce;
 
     public ClientboundHelloPacket(String param0, byte[] param1, byte[] param2) {
         this.serverId = param0;
@@ -23,15 +19,14 @@ public class ClientboundHelloPacket implements Packet<ClientLoginPacketListener>
         this.nonce = param2;
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ClientboundHelloPacket(FriendlyByteBuf param0) {
         this.serverId = param0.readUtf(20);
         this.publicKey = param0.readByteArray();
         this.nonce = param0.readByteArray();
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeUtf(this.serverId);
         param0.writeByteArray(this.publicKey);
         param0.writeByteArray(this.nonce);

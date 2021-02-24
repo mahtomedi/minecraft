@@ -1,18 +1,14 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundHorseScreenOpenPacket implements Packet<ClientGamePacketListener> {
-    private int containerId;
-    private int size;
-    private int entityId;
-
-    public ClientboundHorseScreenOpenPacket() {
-    }
+    private final int containerId;
+    private final int size;
+    private final int entityId;
 
     public ClientboundHorseScreenOpenPacket(int param0, int param1, int param2) {
         this.containerId = param0;
@@ -20,22 +16,21 @@ public class ClientboundHorseScreenOpenPacket implements Packet<ClientGamePacket
         this.entityId = param2;
     }
 
-    public void handle(ClientGamePacketListener param0) {
-        param0.handleHorseScreenOpen(this);
-    }
-
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ClientboundHorseScreenOpenPacket(FriendlyByteBuf param0) {
         this.containerId = param0.readUnsignedByte();
         this.size = param0.readVarInt();
         this.entityId = param0.readInt();
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeByte(this.containerId);
         param0.writeVarInt(this.size);
         param0.writeInt(this.entityId);
+    }
+
+    public void handle(ClientGamePacketListener param0) {
+        param0.handleHorseScreenOpen(this);
     }
 
     @OnlyIn(Dist.CLIENT)

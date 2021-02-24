@@ -173,12 +173,12 @@ public class Aquifer {
             return var0;
         } else {
             int var1 = 64;
-            int var2 = -12;
+            int var2 = -10;
             int var3 = 40;
             double var4 = this.waterLevelNoise
                         .getValue((double)Math.floorDiv(param0, 64), (double)Math.floorDiv(param1, 40) / 1.4, (double)Math.floorDiv(param2, 64))
                     * 30.0
-                + -12.0;
+                + -10.0;
             if (Math.abs(var4) > 8.0) {
                 var4 *= 4.0;
             }

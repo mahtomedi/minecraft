@@ -1,6 +1,5 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import java.util.List;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
@@ -9,11 +8,8 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundSetPassengersPacket implements Packet<ClientGamePacketListener> {
-    private int vehicle;
-    private int[] passengers;
-
-    public ClientboundSetPassengersPacket() {
-    }
+    private final int vehicle;
+    private final int[] passengers;
 
     public ClientboundSetPassengersPacket(Entity param0) {
         this.vehicle = param0.getId();
@@ -26,14 +22,13 @@ public class ClientboundSetPassengersPacket implements Packet<ClientGamePacketLi
 
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ClientboundSetPassengersPacket(FriendlyByteBuf param0) {
         this.vehicle = param0.readVarInt();
         this.passengers = param0.readVarIntArray();
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeVarInt(this.vehicle);
         param0.writeVarIntArray(this.passengers);
     }

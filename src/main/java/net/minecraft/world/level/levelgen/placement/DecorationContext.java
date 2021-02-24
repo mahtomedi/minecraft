@@ -9,8 +9,9 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.chunk.ProtoChunk;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.levelgen.WorldGenerationContext;
 
-public class DecorationContext {
+public class DecorationContext implements WorldGenerationContext {
     private final WorldGenLevel level;
     private final ChunkGenerator generator;
 
@@ -23,10 +24,12 @@ public class DecorationContext {
         return this.level.getHeight(param0, param1, param2);
     }
 
+    @Override
     public int getMinGenY() {
         return this.generator.getMinY();
     }
 
+    @Override
     public int getGenDepth() {
         return this.generator.getGenDepth();
     }

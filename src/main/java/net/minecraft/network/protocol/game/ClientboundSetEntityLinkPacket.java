@@ -1,6 +1,5 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import javax.annotation.Nullable;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
@@ -9,25 +8,21 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundSetEntityLinkPacket implements Packet<ClientGamePacketListener> {
-    private int sourceId;
-    private int destId;
-
-    public ClientboundSetEntityLinkPacket() {
-    }
+    private final int sourceId;
+    private final int destId;
 
     public ClientboundSetEntityLinkPacket(Entity param0, @Nullable Entity param1) {
         this.sourceId = param0.getId();
         this.destId = param1 != null ? param1.getId() : 0;
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ClientboundSetEntityLinkPacket(FriendlyByteBuf param0) {
         this.sourceId = param0.readInt();
         this.destId = param0.readInt();
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeInt(this.sourceId);
         param0.writeInt(this.destId);
     }

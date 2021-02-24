@@ -32,7 +32,7 @@ public class SimpleCookingSerializer<T extends AbstractCookingRecipe> implements
     }
 
     public T fromNetwork(ResourceLocation param0, FriendlyByteBuf param1) {
-        String var0 = param1.readUtf(32767);
+        String var0 = param1.readUtf();
         Ingredient var1 = Ingredient.fromNetwork(param1);
         ItemStack var2 = param1.readItem();
         float var3 = param1.readFloat();

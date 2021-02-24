@@ -1,29 +1,24 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ServerboundSelectTradePacket implements Packet<ServerGamePacketListener> {
-    private int item;
-
-    public ServerboundSelectTradePacket() {
-    }
+    private final int item;
 
     @OnlyIn(Dist.CLIENT)
     public ServerboundSelectTradePacket(int param0) {
         this.item = param0;
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ServerboundSelectTradePacket(FriendlyByteBuf param0) {
         this.item = param0.readVarInt();
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeVarInt(this.item);
     }
 

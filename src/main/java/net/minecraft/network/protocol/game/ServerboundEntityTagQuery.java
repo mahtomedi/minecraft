@@ -1,17 +1,13 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ServerboundEntityTagQuery implements Packet<ServerGamePacketListener> {
-    private int transactionId;
-    private int entityId;
-
-    public ServerboundEntityTagQuery() {
-    }
+    private final int transactionId;
+    private final int entityId;
 
     @OnlyIn(Dist.CLIENT)
     public ServerboundEntityTagQuery(int param0, int param1) {
@@ -19,14 +15,13 @@ public class ServerboundEntityTagQuery implements Packet<ServerGamePacketListene
         this.entityId = param1;
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ServerboundEntityTagQuery(FriendlyByteBuf param0) {
         this.transactionId = param0.readVarInt();
         this.entityId = param0.readVarInt();
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeVarInt(this.transactionId);
         param0.writeVarInt(this.entityId);
     }

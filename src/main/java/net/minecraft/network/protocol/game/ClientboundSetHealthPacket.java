@@ -1,18 +1,14 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundSetHealthPacket implements Packet<ClientGamePacketListener> {
-    private float health;
-    private int food;
-    private float saturation;
-
-    public ClientboundSetHealthPacket() {
-    }
+    private final float health;
+    private final int food;
+    private final float saturation;
 
     public ClientboundSetHealthPacket(float param0, int param1, float param2) {
         this.health = param0;
@@ -20,15 +16,14 @@ public class ClientboundSetHealthPacket implements Packet<ClientGamePacketListen
         this.saturation = param2;
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ClientboundSetHealthPacket(FriendlyByteBuf param0) {
         this.health = param0.readFloat();
         this.food = param0.readVarInt();
         this.saturation = param0.readFloat();
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeFloat(this.health);
         param0.writeVarInt(this.food);
         param0.writeFloat(this.saturation);

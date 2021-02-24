@@ -1,12 +1,14 @@
 package net.minecraft.client.particle;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Stream;
 import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleGroup;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RewindableStream;
 import net.minecraft.world.entity.Entity;
@@ -233,5 +235,9 @@ public abstract class Particle {
 
     public void setBoundingBox(AABB param0) {
         this.bb = param0;
+    }
+
+    public Optional<ParticleGroup> getParticleGroup() {
+        return Optional.empty();
     }
 }

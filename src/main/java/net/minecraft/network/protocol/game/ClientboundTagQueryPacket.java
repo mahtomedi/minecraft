@@ -1,6 +1,5 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import javax.annotation.Nullable;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -9,26 +8,22 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundTagQueryPacket implements Packet<ClientGamePacketListener> {
-    private int transactionId;
+    private final int transactionId;
     @Nullable
-    private CompoundTag tag;
-
-    public ClientboundTagQueryPacket() {
-    }
+    private final CompoundTag tag;
 
     public ClientboundTagQueryPacket(int param0, @Nullable CompoundTag param1) {
         this.transactionId = param0;
         this.tag = param1;
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ClientboundTagQueryPacket(FriendlyByteBuf param0) {
         this.transactionId = param0.readVarInt();
         this.tag = param0.readNbt();
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeVarInt(this.transactionId);
         param0.writeNbt(this.tag);
     }

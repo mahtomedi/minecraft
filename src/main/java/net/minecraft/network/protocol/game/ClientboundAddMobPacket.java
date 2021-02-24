@@ -1,6 +1,5 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import java.util.UUID;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
@@ -12,21 +11,18 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundAddMobPacket implements Packet<ClientGamePacketListener> {
-    private int id;
-    private UUID uuid;
-    private int type;
-    private double x;
-    private double y;
-    private double z;
-    private int xd;
-    private int yd;
-    private int zd;
-    private byte yRot;
-    private byte xRot;
-    private byte yHeadRot;
-
-    public ClientboundAddMobPacket() {
-    }
+    private final int id;
+    private final UUID uuid;
+    private final int type;
+    private final double x;
+    private final double y;
+    private final double z;
+    private final int xd;
+    private final int yd;
+    private final int zd;
+    private final byte yRot;
+    private final byte xRot;
+    private final byte yHeadRot;
 
     public ClientboundAddMobPacket(LivingEntity param0) {
         this.id = param0.getId();
@@ -48,8 +44,7 @@ public class ClientboundAddMobPacket implements Packet<ClientGamePacketListener>
         this.zd = (int)(var4 * 8000.0);
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ClientboundAddMobPacket(FriendlyByteBuf param0) {
         this.id = param0.readVarInt();
         this.uuid = param0.readUUID();
         this.type = param0.readVarInt();
@@ -65,7 +60,7 @@ public class ClientboundAddMobPacket implements Packet<ClientGamePacketListener>
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeVarInt(this.id);
         param0.writeUUID(this.uuid);
         param0.writeVarInt(this.type);

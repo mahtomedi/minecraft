@@ -1,6 +1,5 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import java.util.EnumSet;
 import java.util.Set;
 import net.minecraft.network.FriendlyByteBuf;
@@ -9,17 +8,14 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundPlayerPositionPacket implements Packet<ClientGamePacketListener> {
-    private double x;
-    private double y;
-    private double z;
-    private float yRot;
-    private float xRot;
-    private Set<ClientboundPlayerPositionPacket.RelativeArgument> relativeArguments;
-    private int id;
-    private boolean dismountVehicle;
-
-    public ClientboundPlayerPositionPacket() {
-    }
+    private final double x;
+    private final double y;
+    private final double z;
+    private final float yRot;
+    private final float xRot;
+    private final Set<ClientboundPlayerPositionPacket.RelativeArgument> relativeArguments;
+    private final int id;
+    private final boolean dismountVehicle;
 
     public ClientboundPlayerPositionPacket(
         double param0,
@@ -41,8 +37,7 @@ public class ClientboundPlayerPositionPacket implements Packet<ClientGamePacketL
         this.dismountVehicle = param7;
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ClientboundPlayerPositionPacket(FriendlyByteBuf param0) {
         this.x = param0.readDouble();
         this.y = param0.readDouble();
         this.z = param0.readDouble();
@@ -54,7 +49,7 @@ public class ClientboundPlayerPositionPacket implements Packet<ClientGamePacketL
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeDouble(this.x);
         param0.writeDouble(this.y);
         param0.writeDouble(this.z);

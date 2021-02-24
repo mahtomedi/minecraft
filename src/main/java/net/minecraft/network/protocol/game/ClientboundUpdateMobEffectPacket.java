@@ -1,6 +1,5 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.effect.MobEffect;
@@ -9,14 +8,11 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundUpdateMobEffectPacket implements Packet<ClientGamePacketListener> {
-    private int entityId;
-    private byte effectId;
-    private byte effectAmplifier;
-    private int effectDurationTicks;
-    private byte flags;
-
-    public ClientboundUpdateMobEffectPacket() {
-    }
+    private final int entityId;
+    private final byte effectId;
+    private final byte effectAmplifier;
+    private final int effectDurationTicks;
+    private final byte flags;
 
     public ClientboundUpdateMobEffectPacket(int param0, MobEffectInstance param1) {
         this.entityId = param0;
@@ -28,23 +24,23 @@ public class ClientboundUpdateMobEffectPacket implements Packet<ClientGamePacket
             this.effectDurationTicks = param1.getDuration();
         }
 
-        this.flags = 0;
+        byte var0 = 0;
         if (param1.isAmbient()) {
-            this.flags = (byte)(this.flags | 1);
+            var0 = (byte)(var0 | 1);
         }
 
         if (param1.isVisible()) {
-            this.flags = (byte)(this.flags | 2);
+            var0 = (byte)(var0 | 2);
         }
 
         if (param1.showIcon()) {
-            this.flags = (byte)(this.flags | 4);
+            var0 = (byte)(var0 | 4);
         }
 
+        this.flags = var0;
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ClientboundUpdateMobEffectPacket(FriendlyByteBuf param0) {
         this.entityId = param0.readVarInt();
         this.effectId = param0.readByte();
         this.effectAmplifier = param0.readByte();
@@ -53,7 +49,7 @@ public class ClientboundUpdateMobEffectPacket implements Packet<ClientGamePacket
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeVarInt(this.entityId);
         param0.writeByte(this.effectId);
         param0.writeByte(this.effectAmplifier);

@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Random;
 import net.minecraft.core.Direction;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.core.SectionPos;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
@@ -40,21 +39,23 @@ public class OceanMonumentFeature extends StructureFeature<NoneFeatureConfigurat
         BiomeSource param1,
         long param2,
         WorldgenRandom param3,
-        int param4,
-        int param5,
-        Biome param6,
-        ChunkPos param7,
-        NoneFeatureConfiguration param8,
-        LevelHeightAccessor param9
+        ChunkPos param4,
+        Biome param5,
+        ChunkPos param6,
+        NoneFeatureConfiguration param7,
+        LevelHeightAccessor param8
     ) {
-        for(Biome var1 : param1.getBiomesWithin(SectionPos.sectionToBlockCoord(param4, 9), param0.getSeaLevel(), SectionPos.sectionToBlockCoord(param5, 9), 16)) {
-            if (!var1.getGenerationSettings().isValidStart(this)) {
+        int var0 = param4.getBlockX(9);
+        int var1 = param4.getBlockZ(9);
+
+        for(Biome var3 : param1.getBiomesWithin(var0, param0.getSeaLevel(), var1, 16)) {
+            if (!var3.getGenerationSettings().isValidStart(this)) {
                 return false;
             }
         }
 
-        for(Biome var3 : param1.getBiomesWithin(SectionPos.sectionToBlockCoord(param4, 9), param0.getSeaLevel(), SectionPos.sectionToBlockCoord(param5, 9), 29)) {
-            if (var3.getBiomeCategory() != Biome.BiomeCategory.OCEAN && var3.getBiomeCategory() != Biome.BiomeCategory.RIVER) {
+        for(Biome var5 : param1.getBiomesWithin(var0, param0.getSeaLevel(), var1, 29)) {
+            if (var5.getBiomeCategory() != Biome.BiomeCategory.OCEAN && var5.getBiomeCategory() != Biome.BiomeCategory.RIVER) {
                 return false;
             }
         }
@@ -75,26 +76,25 @@ public class OceanMonumentFeature extends StructureFeature<NoneFeatureConfigurat
     public static class OceanMonumentStart extends StructureStart<NoneFeatureConfiguration> {
         private boolean isCreated;
 
-        public OceanMonumentStart(StructureFeature<NoneFeatureConfiguration> param0, int param1, int param2, BoundingBox param3, int param4, long param5) {
-            super(param0, param1, param2, param3, param4, param5);
+        public OceanMonumentStart(StructureFeature<NoneFeatureConfiguration> param0, ChunkPos param1, BoundingBox param2, int param3, long param4) {
+            super(param0, param1, param2, param3, param4);
         }
 
         public void generatePieces(
             RegistryAccess param0,
             ChunkGenerator param1,
             StructureManager param2,
-            int param3,
-            int param4,
-            Biome param5,
-            NoneFeatureConfiguration param6,
-            LevelHeightAccessor param7
+            ChunkPos param3,
+            Biome param4,
+            NoneFeatureConfiguration param5,
+            LevelHeightAccessor param6
         ) {
-            this.generatePieces(param3, param4);
+            this.generatePieces(param3);
         }
 
-        private void generatePieces(int param0, int param1) {
-            int var0 = SectionPos.sectionToBlockCoord(param0) - 29;
-            int var1 = SectionPos.sectionToBlockCoord(param1) - 29;
+        private void generatePieces(ChunkPos param0) {
+            int var0 = param0.getMinBlockX() - 29;
+            int var1 = param0.getMinBlockZ() - 29;
             Direction var2 = Direction.Plane.HORIZONTAL.getRandomDirection(this.random);
             this.pieces.add(new OceanMonumentPieces.MonumentBuilding(this.random, var0, var1, var2));
             this.calculateBoundingBox();
@@ -107,7 +107,7 @@ public class OceanMonumentFeature extends StructureFeature<NoneFeatureConfigurat
         ) {
             if (!this.isCreated) {
                 this.pieces.clear();
-                this.generatePieces(this.getChunkX(), this.getChunkZ());
+                this.generatePieces(this.getChunkPos());
             }
 
             super.placeInChunk(param0, param1, param2, param3, param4, param5);

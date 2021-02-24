@@ -2,7 +2,6 @@ package net.minecraft.server;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.Nullable;
@@ -85,7 +84,9 @@ public class ServerScoreboard extends Scoreboard {
     @Override
     public boolean addPlayerToTeam(String param0, PlayerTeam param1) {
         if (super.addPlayerToTeam(param0, param1)) {
-            this.server.getPlayerList().broadcastAll(new ClientboundSetPlayerTeamPacket(param1, Arrays.asList(param0), 3));
+            this.server
+                .getPlayerList()
+                .broadcastAll(ClientboundSetPlayerTeamPacket.createPlayerPacket(param1, param0, ClientboundSetPlayerTeamPacket.Action.ADD));
             this.setDirty();
             return true;
         } else {
@@ -96,7 +97,9 @@ public class ServerScoreboard extends Scoreboard {
     @Override
     public void removePlayerFromTeam(String param0, PlayerTeam param1) {
         super.removePlayerFromTeam(param0, param1);
-        this.server.getPlayerList().broadcastAll(new ClientboundSetPlayerTeamPacket(param1, Arrays.asList(param0), 4));
+        this.server
+            .getPlayerList()
+            .broadcastAll(ClientboundSetPlayerTeamPacket.createPlayerPacket(param1, param0, ClientboundSetPlayerTeamPacket.Action.REMOVE));
         this.setDirty();
     }
 
@@ -129,21 +132,21 @@ public class ServerScoreboard extends Scoreboard {
     @Override
     public void onTeamAdded(PlayerTeam param0) {
         super.onTeamAdded(param0);
-        this.server.getPlayerList().broadcastAll(new ClientboundSetPlayerTeamPacket(param0, 0));
+        this.server.getPlayerList().broadcastAll(ClientboundSetPlayerTeamPacket.createAddOrModifyPacket(param0, true));
         this.setDirty();
     }
 
     @Override
     public void onTeamChanged(PlayerTeam param0) {
         super.onTeamChanged(param0);
-        this.server.getPlayerList().broadcastAll(new ClientboundSetPlayerTeamPacket(param0, 2));
+        this.server.getPlayerList().broadcastAll(ClientboundSetPlayerTeamPacket.createAddOrModifyPacket(param0, false));
         this.setDirty();
     }
 
     @Override
     public void onTeamRemoved(PlayerTeam param0) {
         super.onTeamRemoved(param0);
-        this.server.getPlayerList().broadcastAll(new ClientboundSetPlayerTeamPacket(param0, 1));
+        this.server.getPlayerList().broadcastAll(ClientboundSetPlayerTeamPacket.createRemovePacket(param0));
         this.setDirty();
     }
 

@@ -1,17 +1,13 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ServerboundContainerButtonClickPacket implements Packet<ServerGamePacketListener> {
-    private int containerId;
-    private int buttonId;
-
-    public ServerboundContainerButtonClickPacket() {
-    }
+    private final int containerId;
+    private final int buttonId;
 
     @OnlyIn(Dist.CLIENT)
     public ServerboundContainerButtonClickPacket(int param0, int param1) {
@@ -23,14 +19,13 @@ public class ServerboundContainerButtonClickPacket implements Packet<ServerGameP
         param0.handleContainerButtonClick(this);
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ServerboundContainerButtonClickPacket(FriendlyByteBuf param0) {
         this.containerId = param0.readByte();
         this.buttonId = param0.readByte();
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeByte(this.containerId);
         param0.writeByte(this.buttonId);
     }

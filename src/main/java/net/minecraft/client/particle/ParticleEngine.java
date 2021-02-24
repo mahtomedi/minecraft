@@ -12,6 +12,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -19,6 +20,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Queue;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
@@ -39,6 +41,7 @@ import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
+import net.minecraft.core.particles.ParticleGroup;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.ParticleTypes;
@@ -74,9 +77,11 @@ public class ParticleEngine implements PreparableReloadListener {
     private final Int2ObjectMap<ParticleProvider<?>> providers = new Int2ObjectOpenHashMap<>();
     private final Queue<Particle> particlesToAdd = Queues.newArrayDeque();
     private final Map<ResourceLocation, ParticleEngine.MutableSpriteSet> spriteSets = Maps.newHashMap();
-    private final TextureAtlas textureAtlas = new TextureAtlas(TextureAtlas.LOCATION_PARTICLES);
+    private final TextureAtlas textureAtlas;
+    private final Object2IntOpenHashMap<ParticleGroup> trackedParticleCounts = new Object2IntOpenHashMap<>();
 
     public ParticleEngine(ClientLevel param0, TextureManager param1) {
+        this.textureAtlas = new TextureAtlas(TextureAtlas.LOCATION_PARTICLES);
         param1.register(this.textureAtlas.location(), this.textureAtlas);
         this.level = param0;
         this.textureManager = param1;
@@ -290,7 +295,16 @@ public class ParticleEngine implements PreparableReloadListener {
     }
 
     public void add(Particle param0) {
-        this.particlesToAdd.add(param0);
+        Optional<ParticleGroup> var0 = param0.getParticleGroup();
+        if (var0.isPresent()) {
+            if (this.hasSpaceInParticleLimit(var0.get())) {
+                this.particlesToAdd.add(param0);
+                this.updateCount(var0.get(), 1);
+            }
+        } else {
+            this.particlesToAdd.add(param0);
+        }
+
     }
 
     public void tick() {
@@ -329,11 +343,16 @@ public class ParticleEngine implements PreparableReloadListener {
                 Particle var1 = var0.next();
                 this.tickParticle(var1);
                 if (!var1.isAlive()) {
+                    var1.getParticleGroup().ifPresent(param0x -> this.updateCount(param0x, -1));
                     var0.remove();
                 }
             }
         }
 
+    }
+
+    private void updateCount(ParticleGroup param0, int param1) {
+        this.trackedParticleCounts.addTo(param0, param1);
     }
 
     private void tickParticle(Particle param0) {
@@ -394,6 +413,7 @@ public class ParticleEngine implements PreparableReloadListener {
         this.level = param0;
         this.particles.clear();
         this.trackingEmitters.clear();
+        this.trackedParticleCounts.clear();
     }
 
     public void destroy(BlockPos param0, BlockState param1) {
@@ -481,6 +501,10 @@ public class ParticleEngine implements PreparableReloadListener {
 
     public String countParticles() {
         return String.valueOf(this.particles.values().stream().mapToInt(Collection::size).sum());
+    }
+
+    private boolean hasSpaceInParticleLimit(ParticleGroup param0) {
+        return this.trackedParticleCounts.getInt(param0) < param0.getLimit();
     }
 
     @OnlyIn(Dist.CLIENT)

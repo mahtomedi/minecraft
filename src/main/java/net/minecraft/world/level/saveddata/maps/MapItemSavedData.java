@@ -420,11 +420,11 @@ public class MapItemSavedData extends SavedData {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void addClientSideDecorations(MapDecoration[] param0) {
+    public void addClientSideDecorations(List<MapDecoration> param0) {
         this.decorations.clear();
 
-        for(int var0 = 0; var0 < param0.length; ++var0) {
-            MapDecoration var1 = param0[var0];
+        for(int var0 = 0; var0 < param0.size(); ++var0) {
+            MapDecoration var1 = param0.get(var0);
             this.decorations.put("icon-" + var0, var1);
         }
 

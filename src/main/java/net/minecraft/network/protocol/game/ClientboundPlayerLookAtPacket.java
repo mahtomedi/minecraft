@@ -1,6 +1,5 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import javax.annotation.Nullable;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.network.FriendlyByteBuf;
@@ -12,22 +11,22 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundPlayerLookAtPacket implements Packet<ClientGamePacketListener> {
-    private double x;
-    private double y;
-    private double z;
-    private int entity;
-    private EntityAnchorArgument.Anchor fromAnchor;
-    private EntityAnchorArgument.Anchor toAnchor;
-    private boolean atEntity;
-
-    public ClientboundPlayerLookAtPacket() {
-    }
+    private final double x;
+    private final double y;
+    private final double z;
+    private final int entity;
+    private final EntityAnchorArgument.Anchor fromAnchor;
+    private final EntityAnchorArgument.Anchor toAnchor;
+    private final boolean atEntity;
 
     public ClientboundPlayerLookAtPacket(EntityAnchorArgument.Anchor param0, double param1, double param2, double param3) {
         this.fromAnchor = param0;
         this.x = param1;
         this.y = param2;
         this.z = param3;
+        this.entity = 0;
+        this.atEntity = false;
+        this.toAnchor = null;
     }
 
     public ClientboundPlayerLookAtPacket(EntityAnchorArgument.Anchor param0, Entity param1, EntityAnchorArgument.Anchor param2) {
@@ -41,22 +40,24 @@ public class ClientboundPlayerLookAtPacket implements Packet<ClientGamePacketLis
         this.atEntity = true;
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ClientboundPlayerLookAtPacket(FriendlyByteBuf param0) {
         this.fromAnchor = param0.readEnum(EntityAnchorArgument.Anchor.class);
         this.x = param0.readDouble();
         this.y = param0.readDouble();
         this.z = param0.readDouble();
-        if (param0.readBoolean()) {
-            this.atEntity = true;
+        this.atEntity = param0.readBoolean();
+        if (this.atEntity) {
             this.entity = param0.readVarInt();
             this.toAnchor = param0.readEnum(EntityAnchorArgument.Anchor.class);
+        } else {
+            this.entity = 0;
+            this.toAnchor = null;
         }
 
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeEnum(this.fromAnchor);
         param0.writeDouble(this.x);
         param0.writeDouble(this.y);

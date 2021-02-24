@@ -1,6 +1,5 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.inventory.ClickType;
@@ -9,15 +8,12 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ServerboundContainerClickPacket implements Packet<ServerGamePacketListener> {
-    private int containerId;
-    private int slotNum;
-    private int buttonNum;
-    private short uid;
-    private ItemStack itemStack = ItemStack.EMPTY;
-    private ClickType clickType;
-
-    public ServerboundContainerClickPacket() {
-    }
+    private final int containerId;
+    private final int slotNum;
+    private final int buttonNum;
+    private final short uid;
+    private final ItemStack itemStack;
+    private final ClickType clickType;
 
     @OnlyIn(Dist.CLIENT)
     public ServerboundContainerClickPacket(int param0, int param1, int param2, ClickType param3, ItemStack param4, short param5) {
@@ -33,8 +29,7 @@ public class ServerboundContainerClickPacket implements Packet<ServerGamePacketL
         param0.handleContainerClick(this);
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ServerboundContainerClickPacket(FriendlyByteBuf param0) {
         this.containerId = param0.readByte();
         this.slotNum = param0.readShort();
         this.buttonNum = param0.readByte();
@@ -44,7 +39,7 @@ public class ServerboundContainerClickPacket implements Packet<ServerGamePacketL
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeByte(this.containerId);
         param0.writeShort(this.slotNum);
         param0.writeByte(this.buttonNum);

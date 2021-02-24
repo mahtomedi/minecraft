@@ -1,6 +1,5 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
@@ -13,23 +12,20 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ServerboundSetStructureBlockPacket implements Packet<ServerGamePacketListener> {
-    private BlockPos pos;
-    private StructureBlockEntity.UpdateType updateType;
-    private StructureMode mode;
-    private String name;
-    private BlockPos offset;
-    private BlockPos size;
-    private Mirror mirror;
-    private Rotation rotation;
-    private String data;
-    private boolean ignoreEntities;
-    private boolean showAir;
-    private boolean showBoundingBox;
-    private float integrity;
-    private long seed;
-
-    public ServerboundSetStructureBlockPacket() {
-    }
+    private final BlockPos pos;
+    private final StructureBlockEntity.UpdateType updateType;
+    private final StructureMode mode;
+    private final String name;
+    private final BlockPos offset;
+    private final BlockPos size;
+    private final Mirror mirror;
+    private final Rotation rotation;
+    private final String data;
+    private final boolean ignoreEntities;
+    private final boolean showAir;
+    private final boolean showBoundingBox;
+    private final float integrity;
+    private final long seed;
 
     @OnlyIn(Dist.CLIENT)
     public ServerboundSetStructureBlockPacket(
@@ -64,12 +60,11 @@ public class ServerboundSetStructureBlockPacket implements Packet<ServerGamePack
         this.seed = param13;
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ServerboundSetStructureBlockPacket(FriendlyByteBuf param0) {
         this.pos = param0.readBlockPos();
         this.updateType = param0.readEnum(StructureBlockEntity.UpdateType.class);
         this.mode = param0.readEnum(StructureMode.class);
-        this.name = param0.readUtf(32767);
+        this.name = param0.readUtf();
         int var0 = 48;
         this.offset = new BlockPos(Mth.clamp(param0.readByte(), -48, 48), Mth.clamp(param0.readByte(), -48, 48), Mth.clamp(param0.readByte(), -48, 48));
         int var1 = 48;
@@ -86,7 +81,7 @@ public class ServerboundSetStructureBlockPacket implements Packet<ServerGamePack
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeBlockPos(this.pos);
         param0.writeEnum(this.updateType);
         param0.writeEnum(this.mode);

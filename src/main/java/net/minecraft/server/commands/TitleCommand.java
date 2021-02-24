@@ -4,7 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import java.util.Collection;
-import java.util.Locale;
+import java.util.function.Function;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.ComponentArgument;
@@ -12,7 +12,12 @@ import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.network.protocol.game.ClientboundSetTitlesPacket;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientboundClearTitlesPacket;
+import net.minecraft.network.protocol.game.ClientboundSetActionBarTextPacket;
+import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket;
+import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
+import net.minecraft.network.protocol.game.ClientboundSetTitlesAnimationPacket;
 import net.minecraft.server.level.ServerPlayer;
 
 public class TitleCommand {
@@ -33,7 +38,8 @@ public class TitleCommand {
                                                     param0x.getSource(),
                                                     EntityArgument.getPlayers(param0x, "targets"),
                                                     ComponentArgument.getComponent(param0x, "title"),
-                                                    ClientboundSetTitlesPacket.Type.TITLE
+                                                    "title",
+                                                    ClientboundSetTitleTextPacket::new
                                                 )
                                         )
                                 )
@@ -47,7 +53,8 @@ public class TitleCommand {
                                                     param0x.getSource(),
                                                     EntityArgument.getPlayers(param0x, "targets"),
                                                     ComponentArgument.getComponent(param0x, "title"),
-                                                    ClientboundSetTitlesPacket.Type.SUBTITLE
+                                                    "subtitle",
+                                                    ClientboundSetSubtitleTextPacket::new
                                                 )
                                         )
                                 )
@@ -61,7 +68,8 @@ public class TitleCommand {
                                                     param0x.getSource(),
                                                     EntityArgument.getPlayers(param0x, "targets"),
                                                     ComponentArgument.getComponent(param0x, "title"),
-                                                    ClientboundSetTitlesPacket.Type.ACTIONBAR
+                                                    "actionbar",
+                                                    ClientboundSetActionBarTextPacket::new
                                                 )
                                         )
                                 )
@@ -92,7 +100,7 @@ public class TitleCommand {
     }
 
     private static int clearTitle(CommandSourceStack param0, Collection<ServerPlayer> param1) {
-        ClientboundSetTitlesPacket var0 = new ClientboundSetTitlesPacket(ClientboundSetTitlesPacket.Type.CLEAR, null);
+        ClientboundClearTitlesPacket var0 = new ClientboundClearTitlesPacket(false);
 
         for(ServerPlayer var1 : param1) {
             var1.connection.send(var0);
@@ -108,7 +116,7 @@ public class TitleCommand {
     }
 
     private static int resetTitle(CommandSourceStack param0, Collection<ServerPlayer> param1) {
-        ClientboundSetTitlesPacket var0 = new ClientboundSetTitlesPacket(ClientboundSetTitlesPacket.Type.RESET, null);
+        ClientboundClearTitlesPacket var0 = new ClientboundClearTitlesPacket(true);
 
         for(ServerPlayer var1 : param1) {
             var1.connection.send(var0);
@@ -123,27 +131,24 @@ public class TitleCommand {
         return param1.size();
     }
 
-    private static int showTitle(CommandSourceStack param0, Collection<ServerPlayer> param1, Component param2, ClientboundSetTitlesPacket.Type param3) throws CommandSyntaxException {
+    private static int showTitle(
+        CommandSourceStack param0, Collection<ServerPlayer> param1, Component param2, String param3, Function<Component, Packet<?>> param4
+    ) throws CommandSyntaxException {
         for(ServerPlayer var0 : param1) {
-            var0.connection.send(new ClientboundSetTitlesPacket(param3, ComponentUtils.updateForEntity(param0, param2, var0, 0)));
+            var0.connection.send(param4.apply(ComponentUtils.updateForEntity(param0, param2, var0, 0)));
         }
 
         if (param1.size() == 1) {
-            param0.sendSuccess(
-                new TranslatableComponent(
-                    "commands.title.show." + param3.name().toLowerCase(Locale.ROOT) + ".single", param1.iterator().next().getDisplayName()
-                ),
-                true
-            );
+            param0.sendSuccess(new TranslatableComponent("commands.title.show." + param3 + ".single", param1.iterator().next().getDisplayName()), true);
         } else {
-            param0.sendSuccess(new TranslatableComponent("commands.title.show." + param3.name().toLowerCase(Locale.ROOT) + ".multiple", param1.size()), true);
+            param0.sendSuccess(new TranslatableComponent("commands.title.show." + param3 + ".multiple", param1.size()), true);
         }
 
         return param1.size();
     }
 
     private static int setTimes(CommandSourceStack param0, Collection<ServerPlayer> param1, int param2, int param3, int param4) {
-        ClientboundSetTitlesPacket var0 = new ClientboundSetTitlesPacket(param2, param3, param4);
+        ClientboundSetTitlesAnimationPacket var0 = new ClientboundSetTitlesAnimationPacket(param2, param3, param4);
 
         for(ServerPlayer var1 : param1) {
             var1.connection.send(var0);

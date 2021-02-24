@@ -1,6 +1,5 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import javax.annotation.Nullable;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
@@ -13,18 +12,15 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundRespawnPacket implements Packet<ClientGamePacketListener> {
-    private DimensionType dimensionType;
-    private ResourceKey<Level> dimension;
-    private long seed;
-    private GameType playerGameType;
+    private final DimensionType dimensionType;
+    private final ResourceKey<Level> dimension;
+    private final long seed;
+    private final GameType playerGameType;
     @Nullable
-    private GameType previousPlayerGameType;
-    private boolean isDebug;
-    private boolean isFlat;
-    private boolean keepAllPlayerData;
-
-    public ClientboundRespawnPacket() {
-    }
+    private final GameType previousPlayerGameType;
+    private final boolean isDebug;
+    private final boolean isFlat;
+    private final boolean keepAllPlayerData;
 
     public ClientboundRespawnPacket(
         DimensionType param0,
@@ -46,12 +42,7 @@ public class ClientboundRespawnPacket implements Packet<ClientGamePacketListener
         this.keepAllPlayerData = param7;
     }
 
-    public void handle(ClientGamePacketListener param0) {
-        param0.handleRespawn(this);
-    }
-
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ClientboundRespawnPacket(FriendlyByteBuf param0) {
         this.dimensionType = param0.readWithCodec(DimensionType.CODEC).get();
         this.dimension = ResourceKey.create(Registry.DIMENSION_REGISTRY, param0.readResourceLocation());
         this.seed = param0.readLong();
@@ -63,7 +54,7 @@ public class ClientboundRespawnPacket implements Packet<ClientGamePacketListener
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeWithCodec(DimensionType.CODEC, () -> this.dimensionType);
         param0.writeResourceLocation(this.dimension.location());
         param0.writeLong(this.seed);
@@ -72,6 +63,10 @@ public class ClientboundRespawnPacket implements Packet<ClientGamePacketListener
         param0.writeBoolean(this.isDebug);
         param0.writeBoolean(this.isFlat);
         param0.writeBoolean(this.keepAllPlayerData);
+    }
+
+    public void handle(ClientGamePacketListener param0) {
+        param0.handleRespawn(this);
     }
 
     @OnlyIn(Dist.CLIENT)

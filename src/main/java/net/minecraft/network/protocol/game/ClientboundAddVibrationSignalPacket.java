@@ -1,6 +1,5 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.level.gameevent.vibrations.VibrationPath;
@@ -8,22 +7,18 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundAddVibrationSignalPacket implements Packet<ClientGamePacketListener> {
-    private VibrationPath vibrationPath;
-
-    public ClientboundAddVibrationSignalPacket() {
-    }
+    private final VibrationPath vibrationPath;
 
     public ClientboundAddVibrationSignalPacket(VibrationPath param0) {
         this.vibrationPath = param0;
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ClientboundAddVibrationSignalPacket(FriendlyByteBuf param0) {
         this.vibrationPath = VibrationPath.read(param0);
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         VibrationPath.write(param0, this.vibrationPath);
     }
 

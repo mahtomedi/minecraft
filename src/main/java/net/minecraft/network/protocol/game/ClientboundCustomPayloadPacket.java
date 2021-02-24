@@ -1,6 +1,5 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceLocation;
@@ -11,7 +10,6 @@ public class ClientboundCustomPayloadPacket implements Packet<ClientGamePacketLi
     public static final ResourceLocation BRAND = new ResourceLocation("brand");
     public static final ResourceLocation DEBUG_PATHFINDING_PACKET = new ResourceLocation("debug/path");
     public static final ResourceLocation DEBUG_NEIGHBORSUPDATE_PACKET = new ResourceLocation("debug/neighbors_update");
-    public static final ResourceLocation DEBUG_CAVES_PACKET = new ResourceLocation("debug/caves");
     public static final ResourceLocation DEBUG_STRUCTURES_PACKET = new ResourceLocation("debug/structures");
     public static final ResourceLocation DEBUG_WORLDGENATTEMPT_PACKET = new ResourceLocation("debug/worldgen_attempt");
     public static final ResourceLocation DEBUG_POI_TICKET_COUNT_PACKET = new ResourceLocation("debug/poi_ticket_count");
@@ -27,11 +25,8 @@ public class ClientboundCustomPayloadPacket implements Packet<ClientGamePacketLi
     public static final ResourceLocation DEBUG_RAIDS = new ResourceLocation("debug/raids");
     public static final ResourceLocation DEBUG_GAME_EVENT = new ResourceLocation("debug/game_event");
     public static final ResourceLocation DEBUG_GAME_EVENT_LISTENER = new ResourceLocation("debug/game_event_listeners");
-    private ResourceLocation identifier;
-    private FriendlyByteBuf data;
-
-    public ClientboundCustomPayloadPacket() {
-    }
+    private final ResourceLocation identifier;
+    private final FriendlyByteBuf data;
 
     public ClientboundCustomPayloadPacket(ResourceLocation param0, FriendlyByteBuf param1) {
         this.identifier = param0;
@@ -41,19 +36,18 @@ public class ClientboundCustomPayloadPacket implements Packet<ClientGamePacketLi
         }
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ClientboundCustomPayloadPacket(FriendlyByteBuf param0) {
         this.identifier = param0.readResourceLocation();
         int var0 = param0.readableBytes();
         if (var0 >= 0 && var0 <= 1048576) {
             this.data = new FriendlyByteBuf(param0.readBytes(var0));
         } else {
-            throw new IOException("Payload may not be larger than 1048576 bytes");
+            throw new IllegalArgumentException("Payload may not be larger than 1048576 bytes");
         }
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeResourceLocation(this.identifier);
         param0.writeBytes(this.data.copy());
     }

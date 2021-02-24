@@ -1,6 +1,5 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import javax.annotation.Nullable;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
@@ -11,12 +10,9 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundOpenScreenPacket implements Packet<ClientGamePacketListener> {
-    private int containerId;
-    private int type;
-    private Component title;
-
-    public ClientboundOpenScreenPacket() {
-    }
+    private final int containerId;
+    private final int type;
+    private final Component title;
 
     public ClientboundOpenScreenPacket(int param0, MenuType<?> param1, Component param2) {
         this.containerId = param0;
@@ -24,15 +20,14 @@ public class ClientboundOpenScreenPacket implements Packet<ClientGamePacketListe
         this.title = param2;
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ClientboundOpenScreenPacket(FriendlyByteBuf param0) {
         this.containerId = param0.readVarInt();
         this.type = param0.readVarInt();
         this.title = param0.readComponent();
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeVarInt(this.containerId);
         param0.writeVarInt(this.type);
         param0.writeComponent(this.title);

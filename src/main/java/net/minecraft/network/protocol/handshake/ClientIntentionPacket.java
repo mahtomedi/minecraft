@@ -1,6 +1,5 @@
 package net.minecraft.network.protocol.handshake;
 
-import java.io.IOException;
 import net.minecraft.SharedConstants;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.FriendlyByteBuf;
@@ -9,13 +8,10 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientIntentionPacket implements Packet<ServerHandshakePacketListener> {
-    private int protocolVersion;
-    private String hostName;
-    private int port;
-    private ConnectionProtocol intention;
-
-    public ClientIntentionPacket() {
-    }
+    private final int protocolVersion;
+    private final String hostName;
+    private final int port;
+    private final ConnectionProtocol intention;
 
     @OnlyIn(Dist.CLIENT)
     public ClientIntentionPacket(String param0, int param1, ConnectionProtocol param2) {
@@ -25,8 +21,7 @@ public class ClientIntentionPacket implements Packet<ServerHandshakePacketListen
         this.intention = param2;
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ClientIntentionPacket(FriendlyByteBuf param0) {
         this.protocolVersion = param0.readVarInt();
         this.hostName = param0.readUtf(255);
         this.port = param0.readUnsignedShort();
@@ -34,7 +29,7 @@ public class ClientIntentionPacket implements Packet<ServerHandshakePacketListen
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeVarInt(this.protocolVersion);
         param0.writeUtf(this.hostName);
         param0.writeShort(this.port);

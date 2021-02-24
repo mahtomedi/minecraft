@@ -1,6 +1,5 @@
 package net.minecraft.network.protocol.login;
 
-import java.io.IOException;
 import javax.annotation.Nullable;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
@@ -8,11 +7,8 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ServerboundCustomQueryPacket implements Packet<ServerLoginPacketListener> {
-    private int transactionId;
-    private FriendlyByteBuf data;
-
-    public ServerboundCustomQueryPacket() {
-    }
+    private final int transactionId;
+    private final FriendlyByteBuf data;
 
     @OnlyIn(Dist.CLIENT)
     public ServerboundCustomQueryPacket(int param0, @Nullable FriendlyByteBuf param1) {
@@ -20,13 +16,12 @@ public class ServerboundCustomQueryPacket implements Packet<ServerLoginPacketLis
         this.data = param1;
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ServerboundCustomQueryPacket(FriendlyByteBuf param0) {
         this.transactionId = param0.readVarInt();
         if (param0.readBoolean()) {
             int var0 = param0.readableBytes();
             if (var0 < 0 || var0 > 1048576) {
-                throw new IOException("Payload may not be larger than 1048576 bytes");
+                throw new IllegalArgumentException("Payload may not be larger than 1048576 bytes");
             }
 
             this.data = new FriendlyByteBuf(param0.readBytes(var0));
@@ -37,7 +32,7 @@ public class ServerboundCustomQueryPacket implements Packet<ServerLoginPacketLis
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeVarInt(this.transactionId);
         if (this.data != null) {
             param0.writeBoolean(true);

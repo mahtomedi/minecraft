@@ -67,7 +67,7 @@ public class EntityDataSerializers {
         }
 
         public String read(FriendlyByteBuf param0) {
-            return param0.readUtf(32767);
+            return param0.readUtf();
         }
 
         public String copy(String param0) {

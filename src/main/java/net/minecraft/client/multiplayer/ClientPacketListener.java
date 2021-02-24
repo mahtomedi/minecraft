@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
@@ -84,7 +85,6 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketUtils;
@@ -105,6 +105,7 @@ import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundBossEventPacket;
 import net.minecraft.network.protocol.game.ClientboundChangeDifficultyPacket;
 import net.minecraft.network.protocol.game.ClientboundChatPacket;
+import net.minecraft.network.protocol.game.ClientboundClearTitlesPacket;
 import net.minecraft.network.protocol.game.ClientboundCommandSuggestionsPacket;
 import net.minecraft.network.protocol.game.ClientboundCommandsPacket;
 import net.minecraft.network.protocol.game.ClientboundContainerAckPacket;
@@ -121,6 +122,7 @@ import net.minecraft.network.protocol.game.ClientboundExplodePacket;
 import net.minecraft.network.protocol.game.ClientboundForgetLevelChunkPacket;
 import net.minecraft.network.protocol.game.ClientboundGameEventPacket;
 import net.minecraft.network.protocol.game.ClientboundHorseScreenOpenPacket;
+import net.minecraft.network.protocol.game.ClientboundInitializeBorderPacket;
 import net.minecraft.network.protocol.game.ClientboundKeepAlivePacket;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkPacket;
 import net.minecraft.network.protocol.game.ClientboundLevelEventPacket;
@@ -136,7 +138,9 @@ import net.minecraft.network.protocol.game.ClientboundOpenScreenPacket;
 import net.minecraft.network.protocol.game.ClientboundOpenSignEditorPacket;
 import net.minecraft.network.protocol.game.ClientboundPlaceGhostRecipePacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerAbilitiesPacket;
-import net.minecraft.network.protocol.game.ClientboundPlayerCombatPacket;
+import net.minecraft.network.protocol.game.ClientboundPlayerCombatEndPacket;
+import net.minecraft.network.protocol.game.ClientboundPlayerCombatEnterPacket;
+import net.minecraft.network.protocol.game.ClientboundPlayerCombatKillPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerLookAtPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
@@ -148,7 +152,12 @@ import net.minecraft.network.protocol.game.ClientboundRespawnPacket;
 import net.minecraft.network.protocol.game.ClientboundRotateHeadPacket;
 import net.minecraft.network.protocol.game.ClientboundSectionBlocksUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundSelectAdvancementsTabPacket;
-import net.minecraft.network.protocol.game.ClientboundSetBorderPacket;
+import net.minecraft.network.protocol.game.ClientboundSetActionBarTextPacket;
+import net.minecraft.network.protocol.game.ClientboundSetBorderCenterPacket;
+import net.minecraft.network.protocol.game.ClientboundSetBorderLerpSizePacket;
+import net.minecraft.network.protocol.game.ClientboundSetBorderSizePacket;
+import net.minecraft.network.protocol.game.ClientboundSetBorderWarningDelayPacket;
+import net.minecraft.network.protocol.game.ClientboundSetBorderWarningDistancePacket;
 import net.minecraft.network.protocol.game.ClientboundSetCameraPacket;
 import net.minecraft.network.protocol.game.ClientboundSetCarriedItemPacket;
 import net.minecraft.network.protocol.game.ClientboundSetChunkCacheCenterPacket;
@@ -165,8 +174,10 @@ import net.minecraft.network.protocol.game.ClientboundSetObjectivePacket;
 import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
 import net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket;
 import net.minecraft.network.protocol.game.ClientboundSetScorePacket;
+import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket;
 import net.minecraft.network.protocol.game.ClientboundSetTimePacket;
-import net.minecraft.network.protocol.game.ClientboundSetTitlesPacket;
+import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
+import net.minecraft.network.protocol.game.ClientboundSetTitlesAnimationPacket;
 import net.minecraft.network.protocol.game.ClientboundSoundEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.network.protocol.game.ClientboundStopSoundPacket;
@@ -249,6 +260,7 @@ import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
 import net.minecraft.world.level.block.entity.StructureBlockEntity;
 import net.minecraft.world.level.block.entity.TheEndGatewayBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.level.chunk.ChunkBiomeContainer;
 import net.minecraft.world.level.chunk.DataLayer;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -521,12 +533,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
     @Override
     public void handleRemoveEntity(ClientboundRemoveEntitiesPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
-
-        for(int var0 = 0; var0 < param0.getEntityIds().length; ++var0) {
-            int var1 = param0.getEntityIds()[var0];
-            this.level.removeEntity(var1, Entity.RemovalReason.DISCARDED);
-        }
-
+        param0.getEntityIds().forEach(param0x -> this.level.removeEntity(param0x, Entity.RemovalReason.DISCARDED));
     }
 
     @Override
@@ -614,9 +621,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
         int var0 = param0.getX();
         int var1 = param0.getZ();
-        ChunkBiomeContainer var2 = param0.getBiomes() == null
-            ? null
-            : new ChunkBiomeContainer(this.registryAccess.registryOrThrow(Registry.BIOME_REGISTRY), this.level, param0.getBiomes());
+        ChunkBiomeContainer var2 = new ChunkBiomeContainer(this.registryAccess.registryOrThrow(Registry.BIOME_REGISTRY), this.level, param0.getBiomes());
         LevelChunk var3 = this.level
             .getChunkSource()
             .replaceWithPacketData(var0, var1, var2, param0.getReadBuffer(), param0.getHeightmaps(), param0.getAvailableSections());
@@ -1386,16 +1391,22 @@ public class ClientPacketListener implements ClientGamePacketListener {
     }
 
     @Override
-    public void handlePlayerCombat(ClientboundPlayerCombatPacket param0) {
+    public void handlePlayerCombatEnd(ClientboundPlayerCombatEndPacket param0) {
+    }
+
+    @Override
+    public void handlePlayerCombatEnter(ClientboundPlayerCombatEnterPacket param0) {
+    }
+
+    @Override
+    public void handlePlayerCombatKill(ClientboundPlayerCombatKillPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
-        if (param0.event == ClientboundPlayerCombatPacket.Event.ENTITY_DIED) {
-            Entity var0 = this.level.getEntity(param0.playerId);
-            if (var0 == this.minecraft.player) {
-                if (this.minecraft.player.shouldShowDeathScreen()) {
-                    this.minecraft.setScreen(new DeathScreen(param0.message, this.level.getLevelData().isHardcore()));
-                } else {
-                    this.minecraft.player.respawn();
-                }
+        Entity var0 = this.level.getEntity(param0.getPlayerId());
+        if (var0 == this.minecraft.player) {
+            if (this.minecraft.player.shouldShowDeathScreen()) {
+                this.minecraft.setScreen(new DeathScreen(param0.getMessage(), this.level.getLevelData().isHardcore()));
+            } else {
+                this.minecraft.player.respawn();
             }
         }
 
@@ -1419,35 +1430,79 @@ public class ClientPacketListener implements ClientGamePacketListener {
     }
 
     @Override
-    public void handleSetBorder(ClientboundSetBorderPacket param0) {
+    public void handleInitializeBorder(ClientboundInitializeBorderPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
-        param0.applyChanges(this.level.getWorldBorder());
+        WorldBorder var0 = this.level.getWorldBorder();
+        var0.setCenter(param0.getNewCenterX(), param0.getNewCenterZ());
+        long var1 = param0.getLerpTime();
+        if (var1 > 0L) {
+            var0.lerpSizeBetween(param0.getOldSize(), param0.getNewSize(), var1);
+        } else {
+            var0.setSize(param0.getNewSize());
+        }
+
+        var0.setAbsoluteMaxSize(param0.getNewAbsoluteMaxSize());
+        var0.setWarningBlocks(param0.getWarningBlocks());
+        var0.setWarningTime(param0.getWarningTime());
     }
 
     @Override
-    public void handleSetTitles(ClientboundSetTitlesPacket param0) {
+    public void handleSetBorderCenter(ClientboundSetBorderCenterPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
-        ClientboundSetTitlesPacket.Type var0 = param0.getType();
-        Component var1 = null;
-        Component var2 = null;
-        Component var3 = param0.getText() != null ? param0.getText() : TextComponent.EMPTY;
-        switch(var0) {
-            case TITLE:
-                var1 = var3;
-                break;
-            case SUBTITLE:
-                var2 = var3;
-                break;
-            case ACTIONBAR:
-                this.minecraft.gui.setOverlayMessage(var3, false);
-                return;
-            case RESET:
-                this.minecraft.gui.setTitles(null, null, -1, -1, -1);
-                this.minecraft.gui.resetTitleTimes();
-                return;
+        this.level.getWorldBorder().setCenter(param0.getNewCenterX(), param0.getNewCenterZ());
+    }
+
+    @Override
+    public void handleSetBorderLerpSize(ClientboundSetBorderLerpSizePacket param0) {
+        PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
+        this.level.getWorldBorder().lerpSizeBetween(param0.getOldSize(), param0.getNewSize(), param0.getLerpTime());
+    }
+
+    @Override
+    public void handleSetBorderSize(ClientboundSetBorderSizePacket param0) {
+        PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
+        this.level.getWorldBorder().setSize(param0.getSize());
+    }
+
+    @Override
+    public void handleSetBorderWarningDistance(ClientboundSetBorderWarningDistancePacket param0) {
+        PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
+        this.level.getWorldBorder().setWarningBlocks(param0.getWarningBlocks());
+    }
+
+    @Override
+    public void handleSetBorderWarningDelay(ClientboundSetBorderWarningDelayPacket param0) {
+        PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
+        this.level.getWorldBorder().setWarningTime(param0.getWarningDelay());
+    }
+
+    @Override
+    public void handleTitlesClear(ClientboundClearTitlesPacket param0) {
+        this.minecraft.gui.clear();
+        if (param0.shouldResetTimes()) {
+            this.minecraft.gui.resetTitleTimes();
         }
 
-        this.minecraft.gui.setTitles(var1, var2, param0.getFadeInTime(), param0.getStayTime(), param0.getFadeOutTime());
+    }
+
+    @Override
+    public void setActionBarText(ClientboundSetActionBarTextPacket param0) {
+        this.minecraft.gui.setOverlayMessage(param0.getText(), false);
+    }
+
+    @Override
+    public void setTitleText(ClientboundSetTitleTextPacket param0) {
+        this.minecraft.gui.setTitle(param0.getText());
+    }
+
+    @Override
+    public void setSubtitleText(ClientboundSetSubtitleTextPacket param0) {
+        this.minecraft.gui.setSubtitle(param0.getText());
+    }
+
+    @Override
+    public void setTitlesAnimation(ClientboundSetTitlesAnimationPacket param0) {
+        this.minecraft.gui.setTimes(param0.getFadeIn(), param0.getStay(), param0.getFadeOut());
     }
 
     @Override
@@ -1724,7 +1779,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
         try {
             var1 = param0.getData();
             if (ClientboundCustomPayloadPacket.BRAND.equals(var0)) {
-                this.minecraft.player.setServerBrand(var1.readUtf(32767));
+                this.minecraft.player.setServerBrand(var1.readUtf());
             } else if (ClientboundCustomPayloadPacket.DEBUG_PATHFINDING_PACKET.equals(var0)) {
                 int var2 = var1.readInt();
                 float var3 = var1.readFloat();
@@ -1734,220 +1789,208 @@ public class ClientPacketListener implements ClientGamePacketListener {
                 long var5 = var1.readVarLong();
                 BlockPos var6 = var1.readBlockPos();
                 ((NeighborsUpdateRenderer)this.minecraft.debugRenderer.neighborsUpdateRenderer).addUpdate(var5, var6);
-            } else if (ClientboundCustomPayloadPacket.DEBUG_CAVES_PACKET.equals(var0)) {
-                BlockPos var7 = var1.readBlockPos();
-                int var8 = var1.readInt();
-                List<BlockPos> var9 = Lists.newArrayList();
-                List<Float> var10 = Lists.newArrayList();
-
-                for(int var11 = 0; var11 < var8; ++var11) {
-                    var9.add(var1.readBlockPos());
-                    var10.add(var1.readFloat());
-                }
-
-                this.minecraft.debugRenderer.caveRenderer.addTunnel(var7, var9, var10);
             } else if (ClientboundCustomPayloadPacket.DEBUG_STRUCTURES_PACKET.equals(var0)) {
-                DimensionType var12 = this.registryAccess.registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY).get(var1.readResourceLocation());
-                BoundingBox var13 = new BoundingBox(var1.readInt(), var1.readInt(), var1.readInt(), var1.readInt(), var1.readInt(), var1.readInt());
-                int var14 = var1.readInt();
-                List<BoundingBox> var15 = Lists.newArrayList();
-                List<Boolean> var16 = Lists.newArrayList();
+                DimensionType var7 = this.registryAccess.registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY).get(var1.readResourceLocation());
+                BoundingBox var8 = new BoundingBox(var1.readInt(), var1.readInt(), var1.readInt(), var1.readInt(), var1.readInt(), var1.readInt());
+                int var9 = var1.readInt();
+                List<BoundingBox> var10 = Lists.newArrayList();
+                List<Boolean> var11 = Lists.newArrayList();
 
-                for(int var17 = 0; var17 < var14; ++var17) {
-                    var15.add(new BoundingBox(var1.readInt(), var1.readInt(), var1.readInt(), var1.readInt(), var1.readInt(), var1.readInt()));
-                    var16.add(var1.readBoolean());
+                for(int var12 = 0; var12 < var9; ++var12) {
+                    var10.add(new BoundingBox(var1.readInt(), var1.readInt(), var1.readInt(), var1.readInt(), var1.readInt(), var1.readInt()));
+                    var11.add(var1.readBoolean());
                 }
 
-                this.minecraft.debugRenderer.structureRenderer.addBoundingBox(var13, var15, var16, var12);
+                this.minecraft.debugRenderer.structureRenderer.addBoundingBox(var8, var10, var11, var7);
             } else if (ClientboundCustomPayloadPacket.DEBUG_WORLDGENATTEMPT_PACKET.equals(var0)) {
                 ((WorldGenAttemptRenderer)this.minecraft.debugRenderer.worldGenAttemptRenderer)
                     .addPos(var1.readBlockPos(), var1.readFloat(), var1.readFloat(), var1.readFloat(), var1.readFloat(), var1.readFloat());
             } else if (ClientboundCustomPayloadPacket.DEBUG_VILLAGE_SECTIONS.equals(var0)) {
-                int var18 = var1.readInt();
+                int var13 = var1.readInt();
 
-                for(int var19 = 0; var19 < var18; ++var19) {
+                for(int var14 = 0; var14 < var13; ++var14) {
                     this.minecraft.debugRenderer.villageSectionsDebugRenderer.setVillageSection(var1.readSectionPos());
                 }
 
-                int var20 = var1.readInt();
+                int var15 = var1.readInt();
 
-                for(int var21 = 0; var21 < var20; ++var21) {
+                for(int var16 = 0; var16 < var15; ++var16) {
                     this.minecraft.debugRenderer.villageSectionsDebugRenderer.setNotVillageSection(var1.readSectionPos());
                 }
             } else if (ClientboundCustomPayloadPacket.DEBUG_POI_ADDED_PACKET.equals(var0)) {
-                BlockPos var22 = var1.readBlockPos();
-                String var23 = var1.readUtf();
-                int var24 = var1.readInt();
-                BrainDebugRenderer.PoiInfo var25 = new BrainDebugRenderer.PoiInfo(var22, var23, var24);
-                this.minecraft.debugRenderer.brainDebugRenderer.addPoi(var25);
+                BlockPos var17 = var1.readBlockPos();
+                String var18 = var1.readUtf();
+                int var19 = var1.readInt();
+                BrainDebugRenderer.PoiInfo var20 = new BrainDebugRenderer.PoiInfo(var17, var18, var19);
+                this.minecraft.debugRenderer.brainDebugRenderer.addPoi(var20);
             } else if (ClientboundCustomPayloadPacket.DEBUG_POI_REMOVED_PACKET.equals(var0)) {
-                BlockPos var26 = var1.readBlockPos();
-                this.minecraft.debugRenderer.brainDebugRenderer.removePoi(var26);
+                BlockPos var21 = var1.readBlockPos();
+                this.minecraft.debugRenderer.brainDebugRenderer.removePoi(var21);
             } else if (ClientboundCustomPayloadPacket.DEBUG_POI_TICKET_COUNT_PACKET.equals(var0)) {
-                BlockPos var27 = var1.readBlockPos();
-                int var28 = var1.readInt();
-                this.minecraft.debugRenderer.brainDebugRenderer.setFreeTicketCount(var27, var28);
+                BlockPos var22 = var1.readBlockPos();
+                int var23 = var1.readInt();
+                this.minecraft.debugRenderer.brainDebugRenderer.setFreeTicketCount(var22, var23);
             } else if (ClientboundCustomPayloadPacket.DEBUG_GOAL_SELECTOR.equals(var0)) {
-                BlockPos var29 = var1.readBlockPos();
-                int var30 = var1.readInt();
-                int var31 = var1.readInt();
-                List<GoalSelectorDebugRenderer.DebugGoal> var32 = Lists.newArrayList();
+                BlockPos var24 = var1.readBlockPos();
+                int var25 = var1.readInt();
+                int var26 = var1.readInt();
+                List<GoalSelectorDebugRenderer.DebugGoal> var27 = Lists.newArrayList();
 
-                for(int var33 = 0; var33 < var31; ++var33) {
-                    int var34 = var1.readInt();
-                    boolean var35 = var1.readBoolean();
-                    String var36 = var1.readUtf(255);
-                    var32.add(new GoalSelectorDebugRenderer.DebugGoal(var29, var34, var36, var35));
+                for(int var28 = 0; var28 < var26; ++var28) {
+                    int var29 = var1.readInt();
+                    boolean var30 = var1.readBoolean();
+                    String var31 = var1.readUtf(255);
+                    var27.add(new GoalSelectorDebugRenderer.DebugGoal(var24, var29, var31, var30));
                 }
 
-                this.minecraft.debugRenderer.goalSelectorRenderer.addGoalSelector(var30, var32);
+                this.minecraft.debugRenderer.goalSelectorRenderer.addGoalSelector(var25, var27);
             } else if (ClientboundCustomPayloadPacket.DEBUG_RAIDS.equals(var0)) {
-                int var37 = var1.readInt();
-                Collection<BlockPos> var38 = Lists.newArrayList();
+                int var32 = var1.readInt();
+                Collection<BlockPos> var33 = Lists.newArrayList();
 
-                for(int var39 = 0; var39 < var37; ++var39) {
-                    var38.add(var1.readBlockPos());
+                for(int var34 = 0; var34 < var32; ++var34) {
+                    var33.add(var1.readBlockPos());
                 }
 
-                this.minecraft.debugRenderer.raidDebugRenderer.setRaidCenters(var38);
+                this.minecraft.debugRenderer.raidDebugRenderer.setRaidCenters(var33);
             } else if (ClientboundCustomPayloadPacket.DEBUG_BRAIN.equals(var0)) {
-                double var40 = var1.readDouble();
-                double var41 = var1.readDouble();
-                double var42 = var1.readDouble();
-                Position var43 = new PositionImpl(var40, var41, var42);
-                UUID var44 = var1.readUUID();
-                int var45 = var1.readInt();
+                double var35 = var1.readDouble();
+                double var36 = var1.readDouble();
+                double var37 = var1.readDouble();
+                Position var38 = new PositionImpl(var35, var36, var37);
+                UUID var39 = var1.readUUID();
+                int var40 = var1.readInt();
+                String var41 = var1.readUtf();
+                String var42 = var1.readUtf();
+                int var43 = var1.readInt();
+                float var44 = var1.readFloat();
+                float var45 = var1.readFloat();
                 String var46 = var1.readUtf();
-                String var47 = var1.readUtf();
-                int var48 = var1.readInt();
-                float var49 = var1.readFloat();
-                float var50 = var1.readFloat();
-                String var51 = var1.readUtf();
-                boolean var52 = var1.readBoolean();
-                Path var53;
-                if (var52) {
-                    var53 = Path.createFromStream(var1);
+                boolean var47 = var1.readBoolean();
+                Path var48;
+                if (var47) {
+                    var48 = Path.createFromStream(var1);
                 } else {
-                    var53 = null;
+                    var48 = null;
                 }
 
-                boolean var55 = var1.readBoolean();
-                BrainDebugRenderer.BrainDump var56 = new BrainDebugRenderer.BrainDump(
-                    var44, var45, var46, var47, var48, var49, var50, var43, var51, var53, var55
+                boolean var50 = var1.readBoolean();
+                BrainDebugRenderer.BrainDump var51 = new BrainDebugRenderer.BrainDump(
+                    var39, var40, var41, var42, var43, var44, var45, var38, var46, var48, var50
                 );
-                int var57 = var1.readInt();
+                int var52 = var1.readInt();
 
-                for(int var58 = 0; var58 < var57; ++var58) {
-                    String var59 = var1.readUtf();
-                    var56.activities.add(var59);
+                for(int var53 = 0; var53 < var52; ++var53) {
+                    String var54 = var1.readUtf();
+                    var51.activities.add(var54);
                 }
 
-                int var60 = var1.readInt();
+                int var55 = var1.readInt();
 
-                for(int var61 = 0; var61 < var60; ++var61) {
-                    String var62 = var1.readUtf();
-                    var56.behaviors.add(var62);
+                for(int var56 = 0; var56 < var55; ++var56) {
+                    String var57 = var1.readUtf();
+                    var51.behaviors.add(var57);
                 }
 
-                int var63 = var1.readInt();
+                int var58 = var1.readInt();
 
-                for(int var64 = 0; var64 < var63; ++var64) {
-                    String var65 = var1.readUtf();
-                    var56.memories.add(var65);
+                for(int var59 = 0; var59 < var58; ++var59) {
+                    String var60 = var1.readUtf();
+                    var51.memories.add(var60);
                 }
 
-                int var66 = var1.readInt();
+                int var61 = var1.readInt();
 
-                for(int var67 = 0; var67 < var66; ++var67) {
-                    BlockPos var68 = var1.readBlockPos();
-                    var56.pois.add(var68);
+                for(int var62 = 0; var62 < var61; ++var62) {
+                    BlockPos var63 = var1.readBlockPos();
+                    var51.pois.add(var63);
                 }
 
-                int var69 = var1.readInt();
+                int var64 = var1.readInt();
 
-                for(int var70 = 0; var70 < var69; ++var70) {
-                    BlockPos var71 = var1.readBlockPos();
-                    var56.potentialPois.add(var71);
+                for(int var65 = 0; var65 < var64; ++var65) {
+                    BlockPos var66 = var1.readBlockPos();
+                    var51.potentialPois.add(var66);
                 }
 
-                int var72 = var1.readInt();
+                int var67 = var1.readInt();
 
-                for(int var73 = 0; var73 < var72; ++var73) {
-                    String var74 = var1.readUtf();
-                    var56.gossips.add(var74);
+                for(int var68 = 0; var68 < var67; ++var68) {
+                    String var69 = var1.readUtf();
+                    var51.gossips.add(var69);
                 }
 
-                this.minecraft.debugRenderer.brainDebugRenderer.addOrUpdateBrainDump(var56);
+                this.minecraft.debugRenderer.brainDebugRenderer.addOrUpdateBrainDump(var51);
             } else if (ClientboundCustomPayloadPacket.DEBUG_BEE.equals(var0)) {
-                double var75 = var1.readDouble();
-                double var76 = var1.readDouble();
-                double var77 = var1.readDouble();
-                Position var78 = new PositionImpl(var75, var76, var77);
-                UUID var79 = var1.readUUID();
+                double var70 = var1.readDouble();
+                double var71 = var1.readDouble();
+                double var72 = var1.readDouble();
+                Position var73 = new PositionImpl(var70, var71, var72);
+                UUID var74 = var1.readUUID();
+                int var75 = var1.readInt();
+                boolean var76 = var1.readBoolean();
+                BlockPos var77 = null;
+                if (var76) {
+                    var77 = var1.readBlockPos();
+                }
+
+                boolean var78 = var1.readBoolean();
+                BlockPos var79 = null;
+                if (var78) {
+                    var79 = var1.readBlockPos();
+                }
+
                 int var80 = var1.readInt();
                 boolean var81 = var1.readBoolean();
-                BlockPos var82 = null;
+                Path var82 = null;
                 if (var81) {
-                    var82 = var1.readBlockPos();
+                    var82 = Path.createFromStream(var1);
                 }
 
-                boolean var83 = var1.readBoolean();
-                BlockPos var84 = null;
-                if (var83) {
-                    var84 = var1.readBlockPos();
+                BeeDebugRenderer.BeeInfo var83 = new BeeDebugRenderer.BeeInfo(var74, var75, var73, var82, var77, var79, var80);
+                int var84 = var1.readInt();
+
+                for(int var85 = 0; var85 < var84; ++var85) {
+                    String var86 = var1.readUtf();
+                    var83.goals.add(var86);
                 }
 
-                int var85 = var1.readInt();
-                boolean var86 = var1.readBoolean();
-                Path var87 = null;
-                if (var86) {
-                    var87 = Path.createFromStream(var1);
+                int var87 = var1.readInt();
+
+                for(int var88 = 0; var88 < var87; ++var88) {
+                    BlockPos var89 = var1.readBlockPos();
+                    var83.blacklistedHives.add(var89);
                 }
 
-                BeeDebugRenderer.BeeInfo var88 = new BeeDebugRenderer.BeeInfo(var79, var80, var78, var87, var82, var84, var85);
-                int var89 = var1.readInt();
-
-                for(int var90 = 0; var90 < var89; ++var90) {
-                    String var91 = var1.readUtf();
-                    var88.goals.add(var91);
-                }
-
-                int var92 = var1.readInt();
-
-                for(int var93 = 0; var93 < var92; ++var93) {
-                    BlockPos var94 = var1.readBlockPos();
-                    var88.blacklistedHives.add(var94);
-                }
-
-                this.minecraft.debugRenderer.beeDebugRenderer.addOrUpdateBeeInfo(var88);
+                this.minecraft.debugRenderer.beeDebugRenderer.addOrUpdateBeeInfo(var83);
             } else if (ClientboundCustomPayloadPacket.DEBUG_HIVE.equals(var0)) {
-                BlockPos var95 = var1.readBlockPos();
-                String var96 = var1.readUtf();
-                int var97 = var1.readInt();
-                int var98 = var1.readInt();
-                boolean var99 = var1.readBoolean();
-                BeeDebugRenderer.HiveInfo var100 = new BeeDebugRenderer.HiveInfo(var95, var96, var97, var98, var99, this.level.getGameTime());
-                this.minecraft.debugRenderer.beeDebugRenderer.addOrUpdateHiveInfo(var100);
+                BlockPos var90 = var1.readBlockPos();
+                String var91 = var1.readUtf();
+                int var92 = var1.readInt();
+                int var93 = var1.readInt();
+                boolean var94 = var1.readBoolean();
+                BeeDebugRenderer.HiveInfo var95 = new BeeDebugRenderer.HiveInfo(var90, var91, var92, var93, var94, this.level.getGameTime());
+                this.minecraft.debugRenderer.beeDebugRenderer.addOrUpdateHiveInfo(var95);
             } else if (ClientboundCustomPayloadPacket.DEBUG_GAME_TEST_CLEAR.equals(var0)) {
                 this.minecraft.debugRenderer.gameTestDebugRenderer.clear();
             } else if (ClientboundCustomPayloadPacket.DEBUG_GAME_TEST_ADD_MARKER.equals(var0)) {
-                BlockPos var101 = var1.readBlockPos();
-                int var102 = var1.readInt();
-                String var103 = var1.readUtf();
-                int var104 = var1.readInt();
-                this.minecraft.debugRenderer.gameTestDebugRenderer.addMarker(var101, var102, var103, var104);
+                BlockPos var96 = var1.readBlockPos();
+                int var97 = var1.readInt();
+                String var98 = var1.readUtf();
+                int var99 = var1.readInt();
+                this.minecraft.debugRenderer.gameTestDebugRenderer.addMarker(var96, var97, var98, var99);
             } else if (ClientboundCustomPayloadPacket.DEBUG_GAME_EVENT.equals(var0)) {
-                GameEvent var105 = Registry.GAME_EVENT.get(new ResourceLocation(var1.readUtf()));
-                BlockPos var106 = var1.readBlockPos();
-                this.minecraft.debugRenderer.gameEventListenerRenderer.trackGameEvent(var105, var106);
+                GameEvent var100 = Registry.GAME_EVENT.get(new ResourceLocation(var1.readUtf()));
+                BlockPos var101 = var1.readBlockPos();
+                this.minecraft.debugRenderer.gameEventListenerRenderer.trackGameEvent(var100, var101);
             } else if (ClientboundCustomPayloadPacket.DEBUG_GAME_EVENT_LISTENER.equals(var0)) {
-                ResourceLocation var107 = var1.readResourceLocation();
-                PositionSource var108 = Registry.POSITION_SOURCE_TYPE
-                    .getOptional(var107)
-                    .orElseThrow(() -> new IllegalArgumentException("Unknown position source type " + var107))
+                ResourceLocation var102 = var1.readResourceLocation();
+                PositionSource var103 = Registry.POSITION_SOURCE_TYPE
+                    .getOptional(var102)
+                    .orElseThrow(() -> new IllegalArgumentException("Unknown position source type " + var102))
                     .read(var1);
-                int var109 = var1.readVarInt();
-                this.minecraft.debugRenderer.gameEventListenerRenderer.trackListener(var108, var109);
+                int var104 = var1.readVarInt();
+                this.minecraft.debugRenderer.gameEventListenerRenderer.trackListener(var103, var104);
             } else {
                 LOGGER.warn("Unknown custom packed identifier: {}", var0);
             }
@@ -2009,45 +2052,45 @@ public class ClientPacketListener implements ClientGamePacketListener {
     public void handleSetPlayerTeamPacket(ClientboundSetPlayerTeamPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
         Scoreboard var0 = this.level.getScoreboard();
-        PlayerTeam var1;
-        if (param0.getMethod() == 0) {
-            var1 = var0.addPlayerTeam(param0.getName());
+        ClientboundSetPlayerTeamPacket.Action var1 = param0.getTeamAction();
+        PlayerTeam var2;
+        if (var1 == ClientboundSetPlayerTeamPacket.Action.ADD) {
+            var2 = var0.addPlayerTeam(param0.getName());
         } else {
-            var1 = var0.getPlayerTeam(param0.getName());
+            var2 = var0.getPlayerTeam(param0.getName());
         }
 
-        if (param0.getMethod() == 0 || param0.getMethod() == 2) {
-            var1.setDisplayName(param0.getDisplayName());
-            var1.setColor(param0.getColor());
-            var1.unpackOptions(param0.getOptions());
-            Team.Visibility var3 = Team.Visibility.byName(param0.getNametagVisibility());
-            if (var3 != null) {
-                var1.setNameTagVisibility(var3);
+        Optional<ClientboundSetPlayerTeamPacket.Parameters> var4 = param0.getParameters();
+        var4.ifPresent(param1 -> {
+            var2.setDisplayName(param1.getDisplayName());
+            var2.setColor(param1.getColor());
+            var2.unpackOptions(param1.getOptions());
+            Team.Visibility var0x = Team.Visibility.byName(param1.getNametagVisibility());
+            if (var0x != null) {
+                var2.setNameTagVisibility(var0x);
             }
 
-            Team.CollisionRule var4 = Team.CollisionRule.byName(param0.getCollisionRule());
-            if (var4 != null) {
-                var1.setCollisionRule(var4);
+            Team.CollisionRule var1x = Team.CollisionRule.byName(param1.getCollisionRule());
+            if (var1x != null) {
+                var2.setCollisionRule(var1x);
             }
 
-            var1.setPlayerPrefix(param0.getPlayerPrefix());
-            var1.setPlayerSuffix(param0.getPlayerSuffix());
-        }
-
-        if (param0.getMethod() == 0 || param0.getMethod() == 3) {
-            for(String var5 : param0.getPlayers()) {
-                var0.addPlayerToTeam(var5, var1);
-            }
-        }
-
-        if (param0.getMethod() == 4) {
+            var2.setPlayerPrefix(param1.getPlayerPrefix());
+            var2.setPlayerSuffix(param1.getPlayerSuffix());
+        });
+        ClientboundSetPlayerTeamPacket.Action var5 = param0.getPlayerAction();
+        if (var5 == ClientboundSetPlayerTeamPacket.Action.ADD) {
             for(String var6 : param0.getPlayers()) {
-                var0.removePlayerFromTeam(var6, var1);
+                var0.addPlayerToTeam(var6, var2);
+            }
+        } else if (var5 == ClientboundSetPlayerTeamPacket.Action.REMOVE) {
+            for(String var7 : param0.getPlayers()) {
+                var0.removePlayerFromTeam(var7, var2);
             }
         }
 
-        if (param0.getMethod() == 1) {
-            var0.removePlayerTeam(var1);
+        if (var1 == ClientboundSetPlayerTeamPacket.Action.REMOVE) {
+            var0.removePlayerTeam(var2);
         }
 
     }

@@ -65,14 +65,53 @@ public class BossHealthOverlay extends GuiComponent {
     }
 
     public void update(ClientboundBossEventPacket param0) {
-        if (param0.getOperation() == ClientboundBossEventPacket.Operation.ADD) {
-            this.events.put(param0.getId(), new LerpingBossEvent(param0));
-        } else if (param0.getOperation() == ClientboundBossEventPacket.Operation.REMOVE) {
-            this.events.remove(param0.getId());
-        } else {
-            this.events.get(param0.getId()).update(param0);
-        }
-
+        param0.dispatch(
+            new ClientboundBossEventPacket.Handler() {
+                @Override
+                public void add(
+                    UUID param0,
+                    Component param1,
+                    float param2,
+                    BossEvent.BossBarColor param3,
+                    BossEvent.BossBarOverlay param4,
+                    boolean param5,
+                    boolean param6,
+                    boolean param7
+                ) {
+                    BossHealthOverlay.this.events.put(param0, new LerpingBossEvent(param0, param1, param2, param3, param4, param5, param6, param7));
+                }
+    
+                @Override
+                public void remove(UUID param0) {
+                    BossHealthOverlay.this.events.remove(param0);
+                }
+    
+                @Override
+                public void updateProgress(UUID param0, float param1) {
+                    BossHealthOverlay.this.events.get(param0).setProgress(param1);
+                }
+    
+                @Override
+                public void updateName(UUID param0, Component param1) {
+                    BossHealthOverlay.this.events.get(param0).setName(param1);
+                }
+    
+                @Override
+                public void updateStyle(UUID param0, BossEvent.BossBarColor param1, BossEvent.BossBarOverlay param2) {
+                    LerpingBossEvent var0 = BossHealthOverlay.this.events.get(param0);
+                    var0.setColor(param1);
+                    var0.setOverlay(param2);
+                }
+    
+                @Override
+                public void updateProperties(UUID param0, boolean param1, boolean param2, boolean param3) {
+                    LerpingBossEvent var0 = BossHealthOverlay.this.events.get(param0);
+                    var0.setDarkenScreen(param1);
+                    var0.setPlayBossMusic(param2);
+                    var0.setCreateWorldFog(param3);
+                }
+            }
+        );
     }
 
     public void reset() {

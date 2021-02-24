@@ -145,36 +145,35 @@ public abstract class StructureFeature<C extends FeatureConfiguration> {
                 LOGGER.error("Unknown feature id: {}", var0);
                 return null;
             } else {
-                int var2 = param1.getInt("ChunkX");
-                int var3 = param1.getInt("ChunkZ");
-                int var4 = param1.getInt("references");
-                BoundingBox var5 = param1.contains("BB") ? new BoundingBox(param1.getIntArray("BB")) : BoundingBox.getUnknownBox();
-                ListTag var6 = param1.getList("Children", 10);
+                ChunkPos var2 = new ChunkPos(param1.getInt("ChunkX"), param1.getInt("ChunkZ"));
+                int var3 = param1.getInt("references");
+                BoundingBox var4 = param1.contains("BB") ? new BoundingBox(param1.getIntArray("BB")) : BoundingBox.getUnknownBox();
+                ListTag var5 = param1.getList("Children", 10);
 
                 try {
-                    StructureStart<?> var7 = var1.createStart(var2, var3, var5, var4, param2);
+                    StructureStart<?> var6 = var1.createStart(var2, var4, var3, param2);
 
-                    for(int var8 = 0; var8 < var6.size(); ++var8) {
-                        CompoundTag var9 = var6.getCompound(var8);
-                        String var10 = var9.getString("id").toLowerCase(Locale.ROOT);
-                        ResourceLocation var11 = new ResourceLocation(var10);
-                        ResourceLocation var12 = RENAMES.getOrDefault(var11, var11);
-                        StructurePieceType var13 = Registry.STRUCTURE_PIECE.get(var12);
-                        if (var13 == null) {
-                            LOGGER.error("Unknown structure piece id: {}", var12);
+                    for(int var7 = 0; var7 < var5.size(); ++var7) {
+                        CompoundTag var8 = var5.getCompound(var7);
+                        String var9 = var8.getString("id").toLowerCase(Locale.ROOT);
+                        ResourceLocation var10 = new ResourceLocation(var9);
+                        ResourceLocation var11 = RENAMES.getOrDefault(var10, var10);
+                        StructurePieceType var12 = Registry.STRUCTURE_PIECE.get(var11);
+                        if (var12 == null) {
+                            LOGGER.error("Unknown structure piece id: {}", var11);
                         } else {
                             try {
-                                StructurePiece var14 = var13.load(param0, var9);
-                                var7.getPieces().add(var14);
-                            } catch (Exception var19) {
-                                LOGGER.error("Exception loading structure piece with id {}", var12, var19);
+                                StructurePiece var13 = var12.load(param0, var8);
+                                var6.getPieces().add(var13);
+                            } catch (Exception var18) {
+                                LOGGER.error("Exception loading structure piece with id {}", var11, var18);
                             }
                         }
                     }
 
-                    return var7;
-                } catch (Exception var20) {
-                    LOGGER.error("Failed Start with id {}", var0, var20);
+                    return var6;
+                } catch (Exception var19) {
+                    LOGGER.error("Failed Start with id {}", var0, var19);
                     return null;
                 }
             }
@@ -267,18 +266,17 @@ public abstract class StructureFeature<C extends FeatureConfiguration> {
         BiomeSource param1,
         long param2,
         WorldgenRandom param3,
-        int param4,
-        int param5,
-        Biome param6,
-        ChunkPos param7,
-        C param8,
-        LevelHeightAccessor param9
+        ChunkPos param4,
+        Biome param5,
+        ChunkPos param6,
+        C param7,
+        LevelHeightAccessor param8
     ) {
         return true;
     }
 
-    private StructureStart<C> createStart(int param0, int param1, BoundingBox param2, int param3, long param4) {
-        return this.getStartFactory().create(this, param0, param1, param2, param3, param4);
+    private StructureStart<C> createStart(ChunkPos param0, BoundingBox param1, int param2, long param3) {
+        return this.getStartFactory().create(this, param0, param1, param2, param3);
     }
 
     public StructureStart<?> generate(
@@ -296,11 +294,9 @@ public abstract class StructureFeature<C extends FeatureConfiguration> {
         LevelHeightAccessor param11
     ) {
         ChunkPos var0 = this.getPotentialFeatureChunk(param9, param4, param8, param5.x, param5.z);
-        if (param5.x == var0.x && param5.z == var0.z && this.isFeatureChunk(param1, param2, param4, param8, param5.x, param5.z, param6, var0, param10, param11)
-            )
-         {
-            StructureStart<C> var1 = this.createStart(param5.x, param5.z, BoundingBox.getUnknownBox(), param7, param4);
-            var1.generatePieces(param0, param1, param3, param5.x, param5.z, param6, param10, param11);
+        if (param5.x == var0.x && param5.z == var0.z && this.isFeatureChunk(param1, param2, param4, param8, param5, param6, var0, param10, param11)) {
+            StructureStart<C> var1 = this.createStart(param5, BoundingBox.getUnknownBox(), param7, param4);
+            var1.generatePieces(param0, param1, param3, param5, param6, param10, param11);
             if (var1.isValid()) {
                 return var1;
             }
@@ -324,6 +320,6 @@ public abstract class StructureFeature<C extends FeatureConfiguration> {
     }
 
     public interface StructureStartFactory<C extends FeatureConfiguration> {
-        StructureStart<C> create(StructureFeature<C> var1, int var2, int var3, BoundingBox var4, int var5, long var6);
+        StructureStart<C> create(StructureFeature<C> var1, ChunkPos var2, BoundingBox var3, int var4, long var5);
     }
 }

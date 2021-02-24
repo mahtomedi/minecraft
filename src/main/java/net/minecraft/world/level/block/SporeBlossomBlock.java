@@ -4,6 +4,7 @@ import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.util.Mth;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
@@ -36,6 +37,24 @@ public class SporeBlossomBlock extends Block {
         double var4 = (double)var1 + 0.7;
         double var5 = (double)var2 + param3.nextDouble();
         param1.addParticle(ParticleTypes.FALLING_SPORE_BLOSSOM, var3, var4, var5, 0.0, 0.0, 0.0);
+        BlockPos.MutableBlockPos var6 = new BlockPos.MutableBlockPos();
+
+        for(int var7 = 0; var7 < 14; ++var7) {
+            var6.set(var0 + Mth.nextInt(param3, -10, 10), var1 - param3.nextInt(10), var2 + Mth.nextInt(param3, -10, 10));
+            BlockState var8 = param1.getBlockState(var6);
+            if (!var8.isCollisionShapeFullBlock(param1, var6)) {
+                param1.addParticle(
+                    ParticleTypes.SPORE_BLOSSOM_AIR,
+                    (double)var6.getX() + param3.nextDouble(),
+                    (double)var6.getY() + param3.nextDouble(),
+                    (double)var6.getZ() + param3.nextDouble(),
+                    0.0,
+                    0.0,
+                    0.0
+                );
+            }
+        }
+
     }
 
     @Override

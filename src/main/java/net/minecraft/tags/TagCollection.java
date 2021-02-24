@@ -115,33 +115,11 @@ public interface TagCollection<T> {
         }
 
         public void write(FriendlyByteBuf param0) {
-            param0.writeVarInt(this.tags.size());
-
-            for(Entry<ResourceLocation, IntList> var0 : this.tags.entrySet()) {
-                param0.writeResourceLocation(var0.getKey());
-                param0.writeVarInt(var0.getValue().size());
-                var0.getValue().forEach(param0::writeVarInt);
-            }
-
+            param0.writeMap(this.tags, FriendlyByteBuf::writeResourceLocation, FriendlyByteBuf::writeIntIdList);
         }
 
         public static TagCollection.NetworkPayload read(FriendlyByteBuf param0) {
-            Map<ResourceLocation, IntList> var0 = Maps.newHashMap();
-            int var1 = param0.readVarInt();
-
-            for(int var2 = 0; var2 < var1; ++var2) {
-                ResourceLocation var3 = param0.readResourceLocation();
-                int var4 = param0.readVarInt();
-                IntList var5 = new IntArrayList(var4);
-
-                for(int var6 = 0; var6 < var4; ++var6) {
-                    var5.add(param0.readVarInt());
-                }
-
-                var0.put(var3, var5);
-            }
-
-            return new TagCollection.NetworkPayload(var0);
+            return new TagCollection.NetworkPayload(param0.readMap(FriendlyByteBuf::readResourceLocation, FriendlyByteBuf::readIntIdList));
         }
     }
 }

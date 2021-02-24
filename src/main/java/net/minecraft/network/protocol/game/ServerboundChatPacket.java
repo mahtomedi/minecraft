@@ -1,14 +1,10 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 
 public class ServerboundChatPacket implements Packet<ServerGamePacketListener> {
-    private String message;
-
-    public ServerboundChatPacket() {
-    }
+    private final String message;
 
     public ServerboundChatPacket(String param0) {
         if (param0.length() > 256) {
@@ -18,13 +14,12 @@ public class ServerboundChatPacket implements Packet<ServerGamePacketListener> {
         this.message = param0;
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ServerboundChatPacket(FriendlyByteBuf param0) {
         this.message = param0.readUtf(256);
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeUtf(this.message);
     }
 

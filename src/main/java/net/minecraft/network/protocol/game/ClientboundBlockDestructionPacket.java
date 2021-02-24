@@ -1,6 +1,5 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
@@ -8,12 +7,9 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundBlockDestructionPacket implements Packet<ClientGamePacketListener> {
-    private int id;
-    private BlockPos pos;
-    private int progress;
-
-    public ClientboundBlockDestructionPacket() {
-    }
+    private final int id;
+    private final BlockPos pos;
+    private final int progress;
 
     public ClientboundBlockDestructionPacket(int param0, BlockPos param1, int param2) {
         this.id = param0;
@@ -21,15 +17,14 @@ public class ClientboundBlockDestructionPacket implements Packet<ClientGamePacke
         this.progress = param2;
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ClientboundBlockDestructionPacket(FriendlyByteBuf param0) {
         this.id = param0.readVarInt();
         this.pos = param0.readBlockPos();
         this.progress = param0.readUnsignedByte();
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeVarInt(this.id);
         param0.writeBlockPos(this.pos);
         param0.writeByte(this.progress);

@@ -95,7 +95,7 @@ public abstract class SingleItemRecipe implements Recipe<Container> {
         }
 
         public T fromNetwork(ResourceLocation param0, FriendlyByteBuf param1) {
-            String var0 = param1.readUtf(32767);
+            String var0 = param1.readUtf();
             Ingredient var1 = Ingredient.fromNetwork(param1);
             ItemStack var2 = param1.readItem();
             return this.factory.create(param0, var0, var1, var2);

@@ -2,7 +2,6 @@ package net.minecraft.network.protocol.game;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import java.io.IOException;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraftforge.api.distmarker.Dist;
@@ -21,25 +20,21 @@ public class ClientboundGameEventPacket implements Packet<ClientGamePacketListen
     public static final ClientboundGameEventPacket.Type PUFFER_FISH_STING = new ClientboundGameEventPacket.Type(9);
     public static final ClientboundGameEventPacket.Type GUARDIAN_ELDER_EFFECT = new ClientboundGameEventPacket.Type(10);
     public static final ClientboundGameEventPacket.Type IMMEDIATE_RESPAWN = new ClientboundGameEventPacket.Type(11);
-    private ClientboundGameEventPacket.Type event;
-    private float param;
-
-    public ClientboundGameEventPacket() {
-    }
+    private final ClientboundGameEventPacket.Type event;
+    private final float param;
 
     public ClientboundGameEventPacket(ClientboundGameEventPacket.Type param0, float param1) {
         this.event = param0;
         this.param = param1;
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ClientboundGameEventPacket(FriendlyByteBuf param0) {
         this.event = ClientboundGameEventPacket.Type.TYPES.get(param0.readUnsignedByte());
         this.param = param0.readFloat();
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeByte(this.event.id);
         param0.writeFloat(this.param);
     }

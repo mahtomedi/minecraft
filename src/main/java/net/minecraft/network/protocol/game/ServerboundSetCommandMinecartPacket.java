@@ -1,6 +1,5 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import javax.annotation.Nullable;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
@@ -12,12 +11,9 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ServerboundSetCommandMinecartPacket implements Packet<ServerGamePacketListener> {
-    private int entity;
-    private String command;
-    private boolean trackOutput;
-
-    public ServerboundSetCommandMinecartPacket() {
-    }
+    private final int entity;
+    private final String command;
+    private final boolean trackOutput;
 
     @OnlyIn(Dist.CLIENT)
     public ServerboundSetCommandMinecartPacket(int param0, String param1, boolean param2) {
@@ -26,15 +22,14 @@ public class ServerboundSetCommandMinecartPacket implements Packet<ServerGamePac
         this.trackOutput = param2;
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ServerboundSetCommandMinecartPacket(FriendlyByteBuf param0) {
         this.entity = param0.readVarInt();
-        this.command = param0.readUtf(32767);
+        this.command = param0.readUtf();
         this.trackOutput = param0.readBoolean();
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeVarInt(this.entity);
         param0.writeUtf(this.command);
         param0.writeBoolean(this.trackOutput);

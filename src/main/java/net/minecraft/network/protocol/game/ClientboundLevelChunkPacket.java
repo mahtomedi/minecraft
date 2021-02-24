@@ -3,11 +3,9 @@ package net.minecraft.network.protocol.game;
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.io.IOException;
 import java.util.BitSet;
 import java.util.List;
 import java.util.Map.Entry;
-import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.LongArrayTag;
@@ -23,17 +21,13 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundLevelChunkPacket implements Packet<ClientGamePacketListener> {
-    private int x;
-    private int z;
-    private BitSet availableSections;
-    private CompoundTag heightmaps;
-    @Nullable
-    private int[] biomes;
-    private byte[] buffer;
-    private List<CompoundTag> blockEntitiesTags;
-
-    public ClientboundLevelChunkPacket() {
-    }
+    private final int x;
+    private final int z;
+    private final BitSet availableSections;
+    private final CompoundTag heightmaps;
+    private final int[] biomes;
+    private final byte[] buffer;
+    private final List<CompoundTag> blockEntitiesTags;
 
     public ClientboundLevelChunkPacket(LevelChunk param0) {
         ChunkPos var0 = param0.getPos();
@@ -60,8 +54,7 @@ public class ClientboundLevelChunkPacket implements Packet<ClientGamePacketListe
 
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ClientboundLevelChunkPacket(FriendlyByteBuf param0) {
         this.x = param0.readInt();
         this.z = param0.readInt();
         this.availableSections = param0.readBitSet();
@@ -73,34 +66,20 @@ public class ClientboundLevelChunkPacket implements Packet<ClientGamePacketListe
         } else {
             this.buffer = new byte[var0];
             param0.readBytes(this.buffer);
-            int var1 = param0.readVarInt();
-            this.blockEntitiesTags = Lists.newArrayList();
-
-            for(int var2 = 0; var2 < var1; ++var2) {
-                this.blockEntitiesTags.add(param0.readNbt());
-            }
-
+            this.blockEntitiesTags = param0.readList(FriendlyByteBuf::readNbt);
         }
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeInt(this.x);
         param0.writeInt(this.z);
         param0.writeBitSet(this.availableSections);
         param0.writeNbt(this.heightmaps);
-        if (this.biomes != null) {
-            param0.writeVarIntArray(this.biomes);
-        }
-
+        param0.writeVarIntArray(this.biomes);
         param0.writeVarInt(this.buffer.length);
         param0.writeBytes(this.buffer);
-        param0.writeVarInt(this.blockEntitiesTags.size());
-
-        for(CompoundTag var0 : this.blockEntitiesTags) {
-            param0.writeNbt(var0);
-        }
-
+        param0.writeCollection(this.blockEntitiesTags, FriendlyByteBuf::writeNbt);
     }
 
     public void handle(ClientGamePacketListener param0) {
@@ -174,7 +153,6 @@ public class ClientboundLevelChunkPacket implements Packet<ClientGamePacketListe
         return this.blockEntitiesTags;
     }
 
-    @Nullable
     @OnlyIn(Dist.CLIENT)
     public int[] getBiomes() {
         return this.biomes;

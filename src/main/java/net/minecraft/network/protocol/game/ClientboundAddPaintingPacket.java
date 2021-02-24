@@ -1,6 +1,5 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -13,14 +12,11 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundAddPaintingPacket implements Packet<ClientGamePacketListener> {
-    private int id;
-    private UUID uuid;
-    private BlockPos pos;
-    private Direction direction;
-    private int motive;
-
-    public ClientboundAddPaintingPacket() {
-    }
+    private final int id;
+    private final UUID uuid;
+    private final BlockPos pos;
+    private final Direction direction;
+    private final int motive;
 
     public ClientboundAddPaintingPacket(Painting param0) {
         this.id = param0.getId();
@@ -30,8 +26,7 @@ public class ClientboundAddPaintingPacket implements Packet<ClientGamePacketList
         this.motive = Registry.MOTIVE.getId(param0.motive);
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ClientboundAddPaintingPacket(FriendlyByteBuf param0) {
         this.id = param0.readVarInt();
         this.uuid = param0.readUUID();
         this.motive = param0.readVarInt();
@@ -40,7 +35,7 @@ public class ClientboundAddPaintingPacket implements Packet<ClientGamePacketList
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeVarInt(this.id);
         param0.writeUUID(this.uuid);
         param0.writeVarInt(this.motive);

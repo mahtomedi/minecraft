@@ -1,29 +1,24 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 
 public class ServerboundPaddleBoatPacket implements Packet<ServerGamePacketListener> {
-    private boolean left;
-    private boolean right;
-
-    public ServerboundPaddleBoatPacket() {
-    }
+    private final boolean left;
+    private final boolean right;
 
     public ServerboundPaddleBoatPacket(boolean param0, boolean param1) {
         this.left = param0;
         this.right = param1;
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ServerboundPaddleBoatPacket(FriendlyByteBuf param0) {
         this.left = param0.readBoolean();
         this.right = param0.readBoolean();
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeBoolean(this.left);
         param0.writeBoolean(this.right);
     }

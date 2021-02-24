@@ -26,31 +26,28 @@ public class PacketDecoder extends ByteToMessageDecoder {
         if (param1.readableBytes() != 0) {
             FriendlyByteBuf var0 = new FriendlyByteBuf(param1);
             int var1 = var0.readVarInt();
-            Packet<?> var2 = param0.channel().attr(Connection.ATTRIBUTE_PROTOCOL).get().createPacket(this.flow, var1);
+            Packet<?> var2 = param0.channel().attr(Connection.ATTRIBUTE_PROTOCOL).get().createPacket(this.flow, var1, var0);
             if (var2 == null) {
                 throw new IOException("Bad packet id " + var1);
+            } else if (var0.readableBytes() > 0) {
+                throw new IOException(
+                    "Packet "
+                        + param0.channel().attr(Connection.ATTRIBUTE_PROTOCOL).get().getId()
+                        + "/"
+                        + var1
+                        + " ("
+                        + var2.getClass().getSimpleName()
+                        + ") was larger than I expected, found "
+                        + var0.readableBytes()
+                        + " bytes extra whilst reading packet "
+                        + var1
+                );
             } else {
-                var2.read(var0);
-                if (var0.readableBytes() > 0) {
-                    throw new IOException(
-                        "Packet "
-                            + param0.channel().attr(Connection.ATTRIBUTE_PROTOCOL).get().getId()
-                            + "/"
-                            + var1
-                            + " ("
-                            + var2.getClass().getSimpleName()
-                            + ") was larger than I expected, found "
-                            + var0.readableBytes()
-                            + " bytes extra whilst reading packet "
-                            + var1
-                    );
-                } else {
-                    param2.add(var2);
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug(MARKER, " IN: [{}:{}] {}", param0.channel().attr(Connection.ATTRIBUTE_PROTOCOL).get(), var1, var2.getClass().getName());
-                    }
-
+                param2.add(var2);
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug(MARKER, " IN: [{}:{}] {}", param0.channel().attr(Connection.ATTRIBUTE_PROTOCOL).get(), var1, var2.getClass().getName());
                 }
+
             }
         }
     }

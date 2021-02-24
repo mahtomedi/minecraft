@@ -23,8 +23,16 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class AdvancementProgress implements Comparable<AdvancementProgress> {
-    private final Map<String, CriterionProgress> criteria = Maps.newHashMap();
+    private final Map<String, CriterionProgress> criteria;
     private String[][] requirements = new String[0][];
+
+    private AdvancementProgress(Map<String, CriterionProgress> param0) {
+        this.criteria = param0;
+    }
+
+    public AdvancementProgress() {
+        this.criteria = Maps.newHashMap();
+    }
 
     public void update(Map<String, Criterion> param0, String[][] param1) {
         Set<String> var0 = param0.keySet();
@@ -99,24 +107,12 @@ public class AdvancementProgress implements Comparable<AdvancementProgress> {
     }
 
     public void serializeToNetwork(FriendlyByteBuf param0) {
-        param0.writeVarInt(this.criteria.size());
-
-        for(Entry<String, CriterionProgress> var0 : this.criteria.entrySet()) {
-            param0.writeUtf(var0.getKey());
-            var0.getValue().serializeToNetwork(param0);
-        }
-
+        param0.writeMap(this.criteria, FriendlyByteBuf::writeUtf, (param0x, param1) -> param1.serializeToNetwork(param0x));
     }
 
     public static AdvancementProgress fromNetwork(FriendlyByteBuf param0) {
-        AdvancementProgress var0 = new AdvancementProgress();
-        int var1 = param0.readVarInt();
-
-        for(int var2 = 0; var2 < var1; ++var2) {
-            var0.criteria.put(param0.readUtf(32767), CriterionProgress.fromNetwork(param0));
-        }
-
-        return var0;
+        Map<String, CriterionProgress> var0 = param0.readMap(FriendlyByteBuf::readUtf, CriterionProgress::fromNetwork);
+        return new AdvancementProgress(var0);
     }
 
     @Nullable

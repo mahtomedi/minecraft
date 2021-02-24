@@ -89,12 +89,7 @@ public final class Ingredient implements Predicate<ItemStack> {
 
     public void toNetwork(FriendlyByteBuf param0) {
         this.dissolve();
-        param0.writeVarInt(this.itemStacks.length);
-
-        for(int var0 = 0; var0 < this.itemStacks.length; ++var0) {
-            param0.writeItem(this.itemStacks[var0]);
-        }
-
+        param0.writeCollection(Arrays.asList(this.itemStacks), FriendlyByteBuf::writeItem);
     }
 
     public JsonElement toJson() {
@@ -138,8 +133,7 @@ public final class Ingredient implements Predicate<ItemStack> {
     }
 
     public static Ingredient fromNetwork(FriendlyByteBuf param0) {
-        int var0 = param0.readVarInt();
-        return fromValues(Stream.<Ingredient.ItemValue>generate(() -> new Ingredient.ItemValue(param0.readItem())).limit((long)var0));
+        return fromValues(param0.readList(FriendlyByteBuf::readItem).stream().map(param0x -> new Ingredient.ItemValue(param0x)));
     }
 
     public static Ingredient fromJson(@Nullable JsonElement param0) {

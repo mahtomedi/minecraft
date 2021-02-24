@@ -1,19 +1,15 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ServerboundPlayerInputPacket implements Packet<ServerGamePacketListener> {
-    private float xxa;
-    private float zza;
-    private boolean isJumping;
-    private boolean isShiftKeyDown;
-
-    public ServerboundPlayerInputPacket() {
-    }
+    private final float xxa;
+    private final float zza;
+    private final boolean isJumping;
+    private final boolean isShiftKeyDown;
 
     @OnlyIn(Dist.CLIENT)
     public ServerboundPlayerInputPacket(float param0, float param1, boolean param2, boolean param3) {
@@ -23,8 +19,7 @@ public class ServerboundPlayerInputPacket implements Packet<ServerGamePacketList
         this.isShiftKeyDown = param3;
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ServerboundPlayerInputPacket(FriendlyByteBuf param0) {
         this.xxa = param0.readFloat();
         this.zza = param0.readFloat();
         byte var0 = param0.readByte();
@@ -33,7 +28,7 @@ public class ServerboundPlayerInputPacket implements Packet<ServerGamePacketList
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeFloat(this.xxa);
         param0.writeFloat(this.zza);
         byte var0 = 0;

@@ -1,6 +1,5 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.entity.ExperienceOrb;
@@ -8,14 +7,11 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundAddExperienceOrbPacket implements Packet<ClientGamePacketListener> {
-    private int id;
-    private double x;
-    private double y;
-    private double z;
-    private int value;
-
-    public ClientboundAddExperienceOrbPacket() {
-    }
+    private final int id;
+    private final double x;
+    private final double y;
+    private final double z;
+    private final int value;
 
     public ClientboundAddExperienceOrbPacket(ExperienceOrb param0) {
         this.id = param0.getId();
@@ -25,8 +21,7 @@ public class ClientboundAddExperienceOrbPacket implements Packet<ClientGamePacke
         this.value = param0.getValue();
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ClientboundAddExperienceOrbPacket(FriendlyByteBuf param0) {
         this.id = param0.readVarInt();
         this.x = param0.readDouble();
         this.y = param0.readDouble();
@@ -35,7 +30,7 @@ public class ClientboundAddExperienceOrbPacket implements Packet<ClientGamePacke
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeVarInt(this.id);
         param0.writeDouble(this.x);
         param0.writeDouble(this.y);

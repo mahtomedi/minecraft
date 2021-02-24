@@ -1,6 +1,5 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.util.Mth;
@@ -10,13 +9,10 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundSetEntityMotionPacket implements Packet<ClientGamePacketListener> {
-    private int id;
-    private int xa;
-    private int ya;
-    private int za;
-
-    public ClientboundSetEntityMotionPacket() {
-    }
+    private final int id;
+    private final int xa;
+    private final int ya;
+    private final int za;
 
     public ClientboundSetEntityMotionPacket(Entity param0) {
         this(param0.getId(), param0.getDeltaMovement());
@@ -33,8 +29,7 @@ public class ClientboundSetEntityMotionPacket implements Packet<ClientGamePacket
         this.za = (int)(var3 * 8000.0);
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ClientboundSetEntityMotionPacket(FriendlyByteBuf param0) {
         this.id = param0.readVarInt();
         this.xa = param0.readShort();
         this.ya = param0.readShort();
@@ -42,7 +37,7 @@ public class ClientboundSetEntityMotionPacket implements Packet<ClientGamePacket
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeVarInt(this.id);
         param0.writeShort(this.xa);
         param0.writeShort(this.ya);

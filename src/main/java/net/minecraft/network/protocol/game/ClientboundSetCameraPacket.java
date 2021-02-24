@@ -1,6 +1,5 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import javax.annotation.Nullable;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
@@ -10,22 +9,18 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundSetCameraPacket implements Packet<ClientGamePacketListener> {
-    public int cameraId;
-
-    public ClientboundSetCameraPacket() {
-    }
+    private final int cameraId;
 
     public ClientboundSetCameraPacket(Entity param0) {
         this.cameraId = param0.getId();
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ClientboundSetCameraPacket(FriendlyByteBuf param0) {
         this.cameraId = param0.readVarInt();
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeVarInt(this.cameraId);
     }
 

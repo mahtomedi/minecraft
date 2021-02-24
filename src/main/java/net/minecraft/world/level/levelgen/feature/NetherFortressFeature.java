@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import java.util.List;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.core.SectionPos;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
@@ -38,12 +37,11 @@ public class NetherFortressFeature extends StructureFeature<NoneFeatureConfigura
         BiomeSource param1,
         long param2,
         WorldgenRandom param3,
-        int param4,
-        int param5,
-        Biome param6,
-        ChunkPos param7,
-        NoneFeatureConfiguration param8,
-        LevelHeightAccessor param9
+        ChunkPos param4,
+        Biome param5,
+        ChunkPos param6,
+        NoneFeatureConfiguration param7,
+        LevelHeightAccessor param8
     ) {
         return param3.nextInt(5) < 2;
     }
@@ -59,23 +57,20 @@ public class NetherFortressFeature extends StructureFeature<NoneFeatureConfigura
     }
 
     public static class NetherBridgeStart extends StructureStart<NoneFeatureConfiguration> {
-        public NetherBridgeStart(StructureFeature<NoneFeatureConfiguration> param0, int param1, int param2, BoundingBox param3, int param4, long param5) {
-            super(param0, param1, param2, param3, param4, param5);
+        public NetherBridgeStart(StructureFeature<NoneFeatureConfiguration> param0, ChunkPos param1, BoundingBox param2, int param3, long param4) {
+            super(param0, param1, param2, param3, param4);
         }
 
         public void generatePieces(
             RegistryAccess param0,
             ChunkGenerator param1,
             StructureManager param2,
-            int param3,
-            int param4,
-            Biome param5,
-            NoneFeatureConfiguration param6,
-            LevelHeightAccessor param7
+            ChunkPos param3,
+            Biome param4,
+            NoneFeatureConfiguration param5,
+            LevelHeightAccessor param6
         ) {
-            NetherBridgePieces.StartPiece var0 = new NetherBridgePieces.StartPiece(
-                this.random, SectionPos.sectionToBlockCoord(param3, 2), SectionPos.sectionToBlockCoord(param4, 2)
-            );
+            NetherBridgePieces.StartPiece var0 = new NetherBridgePieces.StartPiece(this.random, param3.getBlockX(2), param3.getBlockZ(2));
             this.pieces.add(var0);
             var0.addChildren(var0, this.pieces, this.random);
             List<StructurePiece> var1 = var0.pendingChildren;

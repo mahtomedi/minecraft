@@ -1,16 +1,12 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ServerboundLockDifficultyPacket implements Packet<ServerGamePacketListener> {
-    private boolean locked;
-
-    public ServerboundLockDifficultyPacket() {
-    }
+    private final boolean locked;
 
     @OnlyIn(Dist.CLIENT)
     public ServerboundLockDifficultyPacket(boolean param0) {
@@ -21,13 +17,12 @@ public class ServerboundLockDifficultyPacket implements Packet<ServerGamePacketL
         param0.handleLockDifficulty(this);
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ServerboundLockDifficultyPacket(FriendlyByteBuf param0) {
         this.locked = param0.readBoolean();
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeBoolean(this.locked);
     }
 

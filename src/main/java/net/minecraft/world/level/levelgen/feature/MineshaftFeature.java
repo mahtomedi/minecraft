@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.core.SectionPos;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
@@ -33,15 +32,14 @@ public class MineshaftFeature extends StructureFeature<MineshaftConfiguration> {
         BiomeSource param1,
         long param2,
         WorldgenRandom param3,
-        int param4,
-        int param5,
-        Biome param6,
-        ChunkPos param7,
-        MineshaftConfiguration param8,
-        LevelHeightAccessor param9
+        ChunkPos param4,
+        Biome param5,
+        ChunkPos param6,
+        MineshaftConfiguration param7,
+        LevelHeightAccessor param8
     ) {
-        param3.setLargeFeatureSeed(param2, param4, param5);
-        double var0 = (double)param8.probability;
+        param3.setLargeFeatureSeed(param2, param4.x, param4.z);
+        double var0 = (double)param7.probability;
         return param3.nextDouble() < var0;
     }
 
@@ -51,27 +49,24 @@ public class MineshaftFeature extends StructureFeature<MineshaftConfiguration> {
     }
 
     public static class MineShaftStart extends StructureStart<MineshaftConfiguration> {
-        public MineShaftStart(StructureFeature<MineshaftConfiguration> param0, int param1, int param2, BoundingBox param3, int param4, long param5) {
-            super(param0, param1, param2, param3, param4, param5);
+        public MineShaftStart(StructureFeature<MineshaftConfiguration> param0, ChunkPos param1, BoundingBox param2, int param3, long param4) {
+            super(param0, param1, param2, param3, param4);
         }
 
         public void generatePieces(
             RegistryAccess param0,
             ChunkGenerator param1,
             StructureManager param2,
-            int param3,
-            int param4,
-            Biome param5,
-            MineshaftConfiguration param6,
-            LevelHeightAccessor param7
+            ChunkPos param3,
+            Biome param4,
+            MineshaftConfiguration param5,
+            LevelHeightAccessor param6
         ) {
-            MineShaftPieces.MineShaftRoom var0 = new MineShaftPieces.MineShaftRoom(
-                0, this.random, SectionPos.sectionToBlockCoord(param3, 2), SectionPos.sectionToBlockCoord(param4, 2), param6.type
-            );
+            MineShaftPieces.MineShaftRoom var0 = new MineShaftPieces.MineShaftRoom(0, this.random, param3.getBlockX(2), param3.getBlockZ(2), param5.type);
             this.pieces.add(var0);
             var0.addChildren(var0, this.pieces, this.random);
             this.calculateBoundingBox();
-            if (param6.type == MineshaftFeature.Type.MESA) {
+            if (param5.type == MineshaftFeature.Type.MESA) {
                 int var1 = -5;
                 int var2 = param1.getSeaLevel() - this.boundingBox.y1 + this.boundingBox.getYSpan() / 2 - -5;
                 this.boundingBox.move(0, var2, 0);

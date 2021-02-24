@@ -1,11 +1,13 @@
 package net.minecraft.network.syncher;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.EncoderException;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -23,9 +25,9 @@ import org.apache.logging.log4j.Logger;
 
 public class SynchedEntityData {
     private static final Logger LOGGER = LogManager.getLogger();
-    private static final Map<Class<? extends Entity>, Integer> ENTITY_ID_POOL = Maps.newHashMap();
+    private static final Object2IntMap<Class<? extends Entity>> ENTITY_ID_POOL = new Object2IntOpenHashMap<>();
     private final Entity entity;
-    private final Map<Integer, SynchedEntityData.DataItem<?>> itemsById = Maps.newHashMap();
+    private final Int2ObjectMap<SynchedEntityData.DataItem<?>> itemsById = new Int2ObjectOpenHashMap<>();
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
     private boolean isEmpty = true;
     private boolean isDirty;
@@ -47,7 +49,7 @@ public class SynchedEntityData {
 
         int var1;
         if (ENTITY_ID_POOL.containsKey(param0)) {
-            var1 = ENTITY_ID_POOL.get(param0) + 1;
+            var1 = ENTITY_ID_POOL.getInt(param0) + 1;
         } else {
             int var2 = 0;
             Class<?> var3 = param0;
@@ -55,7 +57,7 @@ public class SynchedEntityData {
             while(var3 != Entity.class) {
                 var3 = var3.getSuperclass();
                 if (ENTITY_ID_POOL.containsKey(var3)) {
-                    var2 = ENTITY_ID_POOL.get(var3) + 1;
+                    var2 = ENTITY_ID_POOL.getInt(var3) + 1;
                     break;
                 }
             }
@@ -129,12 +131,10 @@ public class SynchedEntityData {
         return this.isDirty;
     }
 
-    public static void pack(List<SynchedEntityData.DataItem<?>> param0, FriendlyByteBuf param1) {
+    public static void pack(@Nullable List<SynchedEntityData.DataItem<?>> param0, FriendlyByteBuf param1) {
         if (param0 != null) {
-            int var0 = 0;
-
-            for(int var1 = param0.size(); var0 < var1; ++var0) {
-                writeDataItem(param1, param0.get(var0));
+            for(SynchedEntityData.DataItem<?> var0 : param0) {
+                writeDataItem(param1, var0);
             }
         }
 

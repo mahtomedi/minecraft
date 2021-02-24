@@ -1,6 +1,5 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.FriendlyByteBuf;
@@ -9,12 +8,9 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ServerboundPlayerActionPacket implements Packet<ServerGamePacketListener> {
-    private BlockPos pos;
-    private Direction direction;
-    private ServerboundPlayerActionPacket.Action action;
-
-    public ServerboundPlayerActionPacket() {
-    }
+    private final BlockPos pos;
+    private final Direction direction;
+    private final ServerboundPlayerActionPacket.Action action;
 
     @OnlyIn(Dist.CLIENT)
     public ServerboundPlayerActionPacket(ServerboundPlayerActionPacket.Action param0, BlockPos param1, Direction param2) {
@@ -23,15 +19,14 @@ public class ServerboundPlayerActionPacket implements Packet<ServerGamePacketLis
         this.direction = param2;
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ServerboundPlayerActionPacket(FriendlyByteBuf param0) {
         this.action = param0.readEnum(ServerboundPlayerActionPacket.Action.class);
         this.pos = param0.readBlockPos();
         this.direction = Direction.from3DDataValue(param0.readUnsignedByte());
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeEnum(this.action);
         param0.writeBlockPos(this.pos);
         param0.writeByte(this.direction.get3DDataValue());

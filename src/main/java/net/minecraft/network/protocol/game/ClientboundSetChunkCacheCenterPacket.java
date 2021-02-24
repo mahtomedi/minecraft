@@ -1,31 +1,26 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundSetChunkCacheCenterPacket implements Packet<ClientGamePacketListener> {
-    private int x;
-    private int z;
-
-    public ClientboundSetChunkCacheCenterPacket() {
-    }
+    private final int x;
+    private final int z;
 
     public ClientboundSetChunkCacheCenterPacket(int param0, int param1) {
         this.x = param0;
         this.z = param1;
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ClientboundSetChunkCacheCenterPacket(FriendlyByteBuf param0) {
         this.x = param0.readVarInt();
         this.z = param0.readVarInt();
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeVarInt(this.x);
         param0.writeVarInt(this.z);
     }

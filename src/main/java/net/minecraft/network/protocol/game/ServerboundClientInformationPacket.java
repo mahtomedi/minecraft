@@ -1,6 +1,5 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.entity.HumanoidArm;
@@ -9,16 +8,13 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ServerboundClientInformationPacket implements Packet<ServerGamePacketListener> {
-    private String language;
-    private int viewDistance;
-    private ChatVisiblity chatVisibility;
-    private boolean chatColors;
-    private int modelCustomisation;
-    private HumanoidArm mainHand;
-    private boolean textFilteringEnabled;
-
-    public ServerboundClientInformationPacket() {
-    }
+    private final String language;
+    private final int viewDistance;
+    private final ChatVisiblity chatVisibility;
+    private final boolean chatColors;
+    private final int modelCustomisation;
+    private final HumanoidArm mainHand;
+    private final boolean textFilteringEnabled;
 
     @OnlyIn(Dist.CLIENT)
     public ServerboundClientInformationPacket(String param0, int param1, ChatVisiblity param2, boolean param3, int param4, HumanoidArm param5, boolean param6) {
@@ -31,8 +27,7 @@ public class ServerboundClientInformationPacket implements Packet<ServerGamePack
         this.textFilteringEnabled = param6;
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ServerboundClientInformationPacket(FriendlyByteBuf param0) {
         this.language = param0.readUtf(16);
         this.viewDistance = param0.readByte();
         this.chatVisibility = param0.readEnum(ChatVisiblity.class);
@@ -43,7 +38,7 @@ public class ServerboundClientInformationPacket implements Packet<ServerGamePack
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeUtf(this.language);
         param0.writeByte(this.viewDistance);
         param0.writeEnum(this.chatVisibility);

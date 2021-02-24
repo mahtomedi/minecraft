@@ -2,7 +2,6 @@ package net.minecraft.network.protocol.game;
 
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
-import java.io.IOException;
 import java.util.List;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
@@ -12,22 +11,18 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundSetEquipmentPacket implements Packet<ClientGamePacketListener> {
-    private int entity;
+    private final int entity;
     private final List<Pair<EquipmentSlot, ItemStack>> slots;
-
-    public ClientboundSetEquipmentPacket() {
-        this.slots = Lists.newArrayList();
-    }
 
     public ClientboundSetEquipmentPacket(int param0, List<Pair<EquipmentSlot, ItemStack>> param1) {
         this.entity = param0;
         this.slots = param1;
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ClientboundSetEquipmentPacket(FriendlyByteBuf param0) {
         this.entity = param0.readVarInt();
         EquipmentSlot[] var0 = EquipmentSlot.values();
+        this.slots = Lists.newArrayList();
 
         int var1;
         do {
@@ -40,7 +35,7 @@ public class ClientboundSetEquipmentPacket implements Packet<ClientGamePacketLis
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeVarInt(this.entity);
         int var0 = this.slots.size();
 

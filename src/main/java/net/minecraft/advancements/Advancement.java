@@ -431,7 +431,7 @@ public class Advancement {
                 var3[var4] = new String[param0.readVarInt()];
 
                 for(int var5 = 0; var5 < var3[var4].length; ++var5) {
-                    var3[var4][var5] = param0.readUtf(32767);
+                    var3[var4][var5] = param0.readUtf();
                 }
             }
 

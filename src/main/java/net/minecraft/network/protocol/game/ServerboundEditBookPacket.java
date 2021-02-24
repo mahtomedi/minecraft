@@ -1,6 +1,5 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.item.ItemStack;
@@ -8,12 +7,9 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ServerboundEditBookPacket implements Packet<ServerGamePacketListener> {
-    private ItemStack book;
-    private boolean signing;
-    private int slot;
-
-    public ServerboundEditBookPacket() {
-    }
+    private final ItemStack book;
+    private final boolean signing;
+    private final int slot;
 
     @OnlyIn(Dist.CLIENT)
     public ServerboundEditBookPacket(ItemStack param0, boolean param1, int param2) {
@@ -22,15 +18,14 @@ public class ServerboundEditBookPacket implements Packet<ServerGamePacketListene
         this.slot = param2;
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ServerboundEditBookPacket(FriendlyByteBuf param0) {
         this.book = param0.readItem();
         this.signing = param0.readBoolean();
         this.slot = param0.readVarInt();
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeItem(this.book);
         param0.writeBoolean(this.signing);
         param0.writeVarInt(this.slot);

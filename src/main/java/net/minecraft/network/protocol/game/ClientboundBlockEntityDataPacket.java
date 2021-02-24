@@ -1,6 +1,5 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -9,12 +8,9 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundBlockEntityDataPacket implements Packet<ClientGamePacketListener> {
-    private BlockPos pos;
-    private int type;
-    private CompoundTag tag;
-
-    public ClientboundBlockEntityDataPacket() {
-    }
+    private final BlockPos pos;
+    private final int type;
+    private final CompoundTag tag;
 
     public ClientboundBlockEntityDataPacket(BlockPos param0, int param1, CompoundTag param2) {
         this.pos = param0;
@@ -22,15 +18,14 @@ public class ClientboundBlockEntityDataPacket implements Packet<ClientGamePacket
         this.tag = param2;
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ClientboundBlockEntityDataPacket(FriendlyByteBuf param0) {
         this.pos = param0.readBlockPos();
         this.type = param0.readUnsignedByte();
         this.tag = param0.readNbt();
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeBlockPos(this.pos);
         param0.writeByte((byte)this.type);
         param0.writeNbt(this.tag);

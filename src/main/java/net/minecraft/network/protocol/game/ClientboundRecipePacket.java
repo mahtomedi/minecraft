@@ -1,8 +1,6 @@
 package net.minecraft.network.protocol.game;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import net.minecraft.network.FriendlyByteBuf;
@@ -13,13 +11,10 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundRecipePacket implements Packet<ClientGamePacketListener> {
-    private ClientboundRecipePacket.State state;
-    private List<ResourceLocation> recipes;
-    private List<ResourceLocation> toHighlight;
-    private RecipeBookSettings bookSettings;
-
-    public ClientboundRecipePacket() {
-    }
+    private final ClientboundRecipePacket.State state;
+    private final List<ResourceLocation> recipes;
+    private final List<ResourceLocation> toHighlight;
+    private final RecipeBookSettings bookSettings;
 
     public ClientboundRecipePacket(
         ClientboundRecipePacket.State param0, Collection<ResourceLocation> param1, Collection<ResourceLocation> param2, RecipeBookSettings param3
@@ -30,50 +25,31 @@ public class ClientboundRecipePacket implements Packet<ClientGamePacketListener>
         this.bookSettings = param3;
     }
 
-    public void handle(ClientGamePacketListener param0) {
-        param0.handleAddOrRemoveRecipes(this);
-    }
-
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ClientboundRecipePacket(FriendlyByteBuf param0) {
         this.state = param0.readEnum(ClientboundRecipePacket.State.class);
         this.bookSettings = RecipeBookSettings.read(param0);
-        int var0 = param0.readVarInt();
-        this.recipes = Lists.newArrayList();
-
-        for(int var1 = 0; var1 < var0; ++var1) {
-            this.recipes.add(param0.readResourceLocation());
-        }
-
+        this.recipes = param0.readList(FriendlyByteBuf::readResourceLocation);
         if (this.state == ClientboundRecipePacket.State.INIT) {
-            var0 = param0.readVarInt();
-            this.toHighlight = Lists.newArrayList();
-
-            for(int var2 = 0; var2 < var0; ++var2) {
-                this.toHighlight.add(param0.readResourceLocation());
-            }
+            this.toHighlight = param0.readList(FriendlyByteBuf::readResourceLocation);
+        } else {
+            this.toHighlight = ImmutableList.of();
         }
 
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeEnum(this.state);
         this.bookSettings.write(param0);
-        param0.writeVarInt(this.recipes.size());
-
-        for(ResourceLocation var0 : this.recipes) {
-            param0.writeResourceLocation(var0);
-        }
-
+        param0.writeCollection(this.recipes, FriendlyByteBuf::writeResourceLocation);
         if (this.state == ClientboundRecipePacket.State.INIT) {
-            param0.writeVarInt(this.toHighlight.size());
-
-            for(ResourceLocation var1 : this.toHighlight) {
-                param0.writeResourceLocation(var1);
-            }
+            param0.writeCollection(this.toHighlight, FriendlyByteBuf::writeResourceLocation);
         }
 
+    }
+
+    public void handle(ClientGamePacketListener param0) {
+        param0.handleAddOrRemoveRecipes(this);
     }
 
     @OnlyIn(Dist.CLIENT)

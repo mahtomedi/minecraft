@@ -1,6 +1,5 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
@@ -9,15 +8,12 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ServerboundSetCommandBlockPacket implements Packet<ServerGamePacketListener> {
-    private BlockPos pos;
-    private String command;
-    private boolean trackOutput;
-    private boolean conditional;
-    private boolean automatic;
-    private CommandBlockEntity.Mode mode;
-
-    public ServerboundSetCommandBlockPacket() {
-    }
+    private final BlockPos pos;
+    private final String command;
+    private final boolean trackOutput;
+    private final boolean conditional;
+    private final boolean automatic;
+    private final CommandBlockEntity.Mode mode;
 
     @OnlyIn(Dist.CLIENT)
     public ServerboundSetCommandBlockPacket(BlockPos param0, String param1, CommandBlockEntity.Mode param2, boolean param3, boolean param4, boolean param5) {
@@ -29,10 +25,9 @@ public class ServerboundSetCommandBlockPacket implements Packet<ServerGamePacket
         this.mode = param2;
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ServerboundSetCommandBlockPacket(FriendlyByteBuf param0) {
         this.pos = param0.readBlockPos();
-        this.command = param0.readUtf(32767);
+        this.command = param0.readUtf();
         this.mode = param0.readEnum(CommandBlockEntity.Mode.class);
         int var0 = param0.readByte();
         this.trackOutput = (var0 & 1) != 0;
@@ -41,7 +36,7 @@ public class ServerboundSetCommandBlockPacket implements Packet<ServerGamePacket
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeBlockPos(this.pos);
         param0.writeUtf(this.command);
         param0.writeEnum(this.mode);

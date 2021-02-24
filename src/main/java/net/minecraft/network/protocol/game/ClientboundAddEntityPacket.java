@@ -1,6 +1,5 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
@@ -14,21 +13,18 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundAddEntityPacket implements Packet<ClientGamePacketListener> {
-    private int id;
-    private UUID uuid;
-    private double x;
-    private double y;
-    private double z;
-    private int xa;
-    private int ya;
-    private int za;
-    private int xRot;
-    private int yRot;
-    private EntityType<?> type;
-    private int data;
-
-    public ClientboundAddEntityPacket() {
-    }
+    private final int id;
+    private final UUID uuid;
+    private final double x;
+    private final double y;
+    private final double z;
+    private final int xa;
+    private final int ya;
+    private final int za;
+    private final int xRot;
+    private final int yRot;
+    private final EntityType<?> type;
+    private final int data;
 
     public ClientboundAddEntityPacket(
         int param0, UUID param1, double param2, double param3, double param4, float param5, float param6, EntityType<?> param7, int param8, Vec3 param9
@@ -81,8 +77,7 @@ public class ClientboundAddEntityPacket implements Packet<ClientGamePacketListen
         );
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ClientboundAddEntityPacket(FriendlyByteBuf param0) {
         this.id = param0.readVarInt();
         this.uuid = param0.readUUID();
         this.type = Registry.ENTITY_TYPE.byId(param0.readVarInt());
@@ -98,7 +93,7 @@ public class ClientboundAddEntityPacket implements Packet<ClientGamePacketListen
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeVarInt(this.id);
         param0.writeUUID(this.uuid);
         param0.writeVarInt(Registry.ENTITY_TYPE.getId(this.type));

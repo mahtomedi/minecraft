@@ -1,28 +1,23 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundSetCarriedItemPacket implements Packet<ClientGamePacketListener> {
-    private int slot;
-
-    public ClientboundSetCarriedItemPacket() {
-    }
+    private final int slot;
 
     public ClientboundSetCarriedItemPacket(int param0) {
         this.slot = param0;
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ClientboundSetCarriedItemPacket(FriendlyByteBuf param0) {
         this.slot = param0.readByte();
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeByte(this.slot);
     }
 

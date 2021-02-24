@@ -1,6 +1,5 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
@@ -10,15 +9,12 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ServerboundSetJigsawBlockPacket implements Packet<ServerGamePacketListener> {
-    private BlockPos pos;
-    private ResourceLocation name;
-    private ResourceLocation target;
-    private ResourceLocation pool;
-    private String finalState;
-    private JigsawBlockEntity.JointType joint;
-
-    public ServerboundSetJigsawBlockPacket() {
-    }
+    private final BlockPos pos;
+    private final ResourceLocation name;
+    private final ResourceLocation target;
+    private final ResourceLocation pool;
+    private final String finalState;
+    private final JigsawBlockEntity.JointType joint;
 
     @OnlyIn(Dist.CLIENT)
     public ServerboundSetJigsawBlockPacket(
@@ -32,18 +28,17 @@ public class ServerboundSetJigsawBlockPacket implements Packet<ServerGamePacketL
         this.joint = param5;
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ServerboundSetJigsawBlockPacket(FriendlyByteBuf param0) {
         this.pos = param0.readBlockPos();
         this.name = param0.readResourceLocation();
         this.target = param0.readResourceLocation();
         this.pool = param0.readResourceLocation();
-        this.finalState = param0.readUtf(32767);
-        this.joint = JigsawBlockEntity.JointType.byName(param0.readUtf(32767)).orElse(JigsawBlockEntity.JointType.ALIGNED);
+        this.finalState = param0.readUtf();
+        this.joint = JigsawBlockEntity.JointType.byName(param0.readUtf()).orElse(JigsawBlockEntity.JointType.ALIGNED);
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeBlockPos(this.pos);
         param0.writeResourceLocation(this.name);
         param0.writeResourceLocation(this.target);

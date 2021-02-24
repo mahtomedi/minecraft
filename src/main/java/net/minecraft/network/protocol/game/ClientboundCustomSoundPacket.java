@@ -1,6 +1,5 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceLocation;
@@ -10,16 +9,13 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundCustomSoundPacket implements Packet<ClientGamePacketListener> {
-    private ResourceLocation name;
-    private SoundSource source;
-    private int x;
-    private int y = Integer.MAX_VALUE;
-    private int z;
-    private float volume;
-    private float pitch;
-
-    public ClientboundCustomSoundPacket() {
-    }
+    private final ResourceLocation name;
+    private final SoundSource source;
+    private final int x;
+    private final int y;
+    private final int z;
+    private final float volume;
+    private final float pitch;
 
     public ClientboundCustomSoundPacket(ResourceLocation param0, SoundSource param1, Vec3 param2, float param3, float param4) {
         this.name = param0;
@@ -31,8 +27,7 @@ public class ClientboundCustomSoundPacket implements Packet<ClientGamePacketList
         this.pitch = param4;
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ClientboundCustomSoundPacket(FriendlyByteBuf param0) {
         this.name = param0.readResourceLocation();
         this.source = param0.readEnum(SoundSource.class);
         this.x = param0.readInt();
@@ -43,7 +38,7 @@ public class ClientboundCustomSoundPacket implements Packet<ClientGamePacketList
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeResourceLocation(this.name);
         param0.writeEnum(this.source);
         param0.writeInt(this.x);

@@ -1,12 +1,12 @@
 package net.minecraft.network.protocol.game;
 
-import com.google.common.collect.Maps;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import java.io.IOException;
+import com.google.common.collect.ImmutableMap.Builder;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
-import java.util.Map.Entry;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementProgress;
 import net.minecraft.network.FriendlyByteBuf;
@@ -16,87 +16,43 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundUpdateAdvancementsPacket implements Packet<ClientGamePacketListener> {
-    private boolean reset;
-    private Map<ResourceLocation, Advancement.Builder> added;
-    private Set<ResourceLocation> removed;
-    private Map<ResourceLocation, AdvancementProgress> progress;
-
-    public ClientboundUpdateAdvancementsPacket() {
-    }
+    private final boolean reset;
+    private final Map<ResourceLocation, Advancement.Builder> added;
+    private final Set<ResourceLocation> removed;
+    private final Map<ResourceLocation, AdvancementProgress> progress;
 
     public ClientboundUpdateAdvancementsPacket(
         boolean param0, Collection<Advancement> param1, Set<ResourceLocation> param2, Map<ResourceLocation, AdvancementProgress> param3
     ) {
         this.reset = param0;
-        this.added = Maps.newHashMap();
+        Builder<ResourceLocation, Advancement.Builder> var0 = ImmutableMap.builder();
 
-        for(Advancement var0 : param1) {
-            this.added.put(var0.getId(), var0.deconstruct());
+        for(Advancement var1 : param1) {
+            var0.put(var1.getId(), var1.deconstruct());
         }
 
-        this.removed = param2;
-        this.progress = Maps.newHashMap(param3);
+        this.added = var0.build();
+        this.removed = ImmutableSet.copyOf(param2);
+        this.progress = ImmutableMap.copyOf(param3);
+    }
+
+    public ClientboundUpdateAdvancementsPacket(FriendlyByteBuf param0) {
+        this.reset = param0.readBoolean();
+        this.added = param0.readMap(FriendlyByteBuf::readResourceLocation, Advancement.Builder::fromNetwork);
+        this.removed = param0.readCollection(Sets::newLinkedHashSetWithExpectedSize, FriendlyByteBuf::readResourceLocation);
+        this.progress = param0.readMap(FriendlyByteBuf::readResourceLocation, AdvancementProgress::fromNetwork);
+    }
+
+    @Override
+    public void write(FriendlyByteBuf param0) {
+        param0.writeBoolean(this.reset);
+        param0.writeMap(this.added, FriendlyByteBuf::writeResourceLocation, (param0x, param1) -> param1.serializeToNetwork(param0x));
+        param0.writeCollection(this.removed, FriendlyByteBuf::writeResourceLocation);
+        param0.writeMap(this.progress, FriendlyByteBuf::writeResourceLocation, (param0x, param1) -> param1.serializeToNetwork(param0x));
     }
 
     public void handle(ClientGamePacketListener param0) {
         param0.handleUpdateAdvancementsPacket(this);
-    }
-
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
-        this.reset = param0.readBoolean();
-        this.added = Maps.newHashMap();
-        this.removed = Sets.newLinkedHashSet();
-        this.progress = Maps.newHashMap();
-        int var0 = param0.readVarInt();
-
-        for(int var1 = 0; var1 < var0; ++var1) {
-            ResourceLocation var2 = param0.readResourceLocation();
-            Advancement.Builder var3 = Advancement.Builder.fromNetwork(param0);
-            this.added.put(var2, var3);
-        }
-
-        var0 = param0.readVarInt();
-
-        for(int var4 = 0; var4 < var0; ++var4) {
-            ResourceLocation var5 = param0.readResourceLocation();
-            this.removed.add(var5);
-        }
-
-        var0 = param0.readVarInt();
-
-        for(int var6 = 0; var6 < var0; ++var6) {
-            ResourceLocation var7 = param0.readResourceLocation();
-            this.progress.put(var7, AdvancementProgress.fromNetwork(param0));
-        }
-
-    }
-
-    @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
-        param0.writeBoolean(this.reset);
-        param0.writeVarInt(this.added.size());
-
-        for(Entry<ResourceLocation, Advancement.Builder> var0 : this.added.entrySet()) {
-            ResourceLocation var1 = var0.getKey();
-            Advancement.Builder var2 = var0.getValue();
-            param0.writeResourceLocation(var1);
-            var2.serializeToNetwork(param0);
-        }
-
-        param0.writeVarInt(this.removed.size());
-
-        for(ResourceLocation var3 : this.removed) {
-            param0.writeResourceLocation(var3);
-        }
-
-        param0.writeVarInt(this.progress.size());
-
-        for(Entry<ResourceLocation, AdvancementProgress> var4 : this.progress.entrySet()) {
-            param0.writeResourceLocation(var4.getKey());
-            var4.getValue().serializeToNetwork(param0);
-        }
-
     }
 
     @OnlyIn(Dist.CLIENT)

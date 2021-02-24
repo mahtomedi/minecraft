@@ -131,15 +131,27 @@ public interface ClientGamePacketListener extends PacketListener {
 
     void handleUpdateTags(ClientboundUpdateTagsPacket var1);
 
-    void handlePlayerCombat(ClientboundPlayerCombatPacket var1);
+    void handlePlayerCombatEnd(ClientboundPlayerCombatEndPacket var1);
+
+    void handlePlayerCombatEnter(ClientboundPlayerCombatEnterPacket var1);
+
+    void handlePlayerCombatKill(ClientboundPlayerCombatKillPacket var1);
 
     void handleChangeDifficulty(ClientboundChangeDifficultyPacket var1);
 
     void handleSetCamera(ClientboundSetCameraPacket var1);
 
-    void handleSetBorder(ClientboundSetBorderPacket var1);
+    void handleInitializeBorder(ClientboundInitializeBorderPacket var1);
 
-    void handleSetTitles(ClientboundSetTitlesPacket var1);
+    void handleSetBorderLerpSize(ClientboundSetBorderLerpSizePacket var1);
+
+    void handleSetBorderSize(ClientboundSetBorderSizePacket var1);
+
+    void handleSetBorderWarningDelay(ClientboundSetBorderWarningDelayPacket var1);
+
+    void handleSetBorderWarningDistance(ClientboundSetBorderWarningDistancePacket var1);
+
+    void handleSetBorderCenter(ClientboundSetBorderCenterPacket var1);
 
     void handleTabListCustomisation(ClientboundTabListPacket var1);
 
@@ -182,4 +194,14 @@ public interface ClientGamePacketListener extends PacketListener {
     void handleSetChunkCacheCenter(ClientboundSetChunkCacheCenterPacket var1);
 
     void handleBlockBreakAck(ClientboundBlockBreakAckPacket var1);
+
+    void setActionBarText(ClientboundSetActionBarTextPacket var1);
+
+    void setSubtitleText(ClientboundSetSubtitleTextPacket var1);
+
+    void setTitleText(ClientboundSetTitleTextPacket var1);
+
+    void setTitlesAnimation(ClientboundSetTitlesAnimationPacket var1);
+
+    void handleTitlesClear(ClientboundClearTitlesPacket var1);
 }

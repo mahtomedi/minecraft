@@ -1,7 +1,6 @@
 package net.minecraft.network.protocol.game;
 
 import it.unimi.dsi.fastutil.shorts.ShortSet;
-import java.io.IOException;
 import java.util.function.BiConsumer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
@@ -14,41 +13,35 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundSectionBlocksUpdatePacket implements Packet<ClientGamePacketListener> {
-    private SectionPos sectionPos;
-    private short[] positions;
-    private BlockState[] states;
-    private boolean suppressLightUpdates;
-
-    public ClientboundSectionBlocksUpdatePacket() {
-    }
+    private final SectionPos sectionPos;
+    private final short[] positions;
+    private final BlockState[] states;
+    private final boolean suppressLightUpdates;
 
     public ClientboundSectionBlocksUpdatePacket(SectionPos param0, ShortSet param1, LevelChunkSection param2, boolean param3) {
         this.sectionPos = param0;
         this.suppressLightUpdates = param3;
-        this.initFields(param1.size());
-        int var0 = 0;
+        int var0 = param1.size();
+        this.positions = new short[var0];
+        this.states = new BlockState[var0];
+        int var1 = 0;
 
-        for(short var1 : param1) {
-            this.positions[var0] = var1;
-            this.states[var0] = param2.getBlockState(SectionPos.sectionRelativeX(var1), SectionPos.sectionRelativeY(var1), SectionPos.sectionRelativeZ(var1));
-            ++var0;
+        for(short var2 : param1) {
+            this.positions[var1] = var2;
+            this.states[var1] = param2.getBlockState(SectionPos.sectionRelativeX(var2), SectionPos.sectionRelativeY(var2), SectionPos.sectionRelativeZ(var2));
+            ++var1;
         }
 
     }
 
-    private void initFields(int param0) {
-        this.positions = new short[param0];
-        this.states = new BlockState[param0];
-    }
-
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ClientboundSectionBlocksUpdatePacket(FriendlyByteBuf param0) {
         this.sectionPos = SectionPos.of(param0.readLong());
         this.suppressLightUpdates = param0.readBoolean();
         int var0 = param0.readVarInt();
-        this.initFields(var0);
+        this.positions = new short[var0];
+        this.states = new BlockState[var0];
 
-        for(int var1 = 0; var1 < this.positions.length; ++var1) {
+        for(int var1 = 0; var1 < var0; ++var1) {
             long var2 = param0.readVarLong();
             this.positions[var1] = (short)((int)(var2 & 4095L));
             this.states[var1] = Block.BLOCK_STATE_REGISTRY.byId((int)(var2 >>> 12));
@@ -57,7 +50,7 @@ public class ClientboundSectionBlocksUpdatePacket implements Packet<ClientGamePa
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeLong(this.sectionPos.asLong());
         param0.writeBoolean(this.suppressLightUpdates);
         param0.writeVarInt(this.positions.length);

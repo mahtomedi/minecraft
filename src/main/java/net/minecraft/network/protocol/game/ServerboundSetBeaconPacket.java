@@ -1,17 +1,13 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ServerboundSetBeaconPacket implements Packet<ServerGamePacketListener> {
-    private int primary;
-    private int secondary;
-
-    public ServerboundSetBeaconPacket() {
-    }
+    private final int primary;
+    private final int secondary;
 
     @OnlyIn(Dist.CLIENT)
     public ServerboundSetBeaconPacket(int param0, int param1) {
@@ -19,14 +15,13 @@ public class ServerboundSetBeaconPacket implements Packet<ServerGamePacketListen
         this.secondary = param1;
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ServerboundSetBeaconPacket(FriendlyByteBuf param0) {
         this.primary = param0.readVarInt();
         this.secondary = param0.readVarInt();
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeVarInt(this.primary);
         param0.writeVarInt(this.secondary);
     }

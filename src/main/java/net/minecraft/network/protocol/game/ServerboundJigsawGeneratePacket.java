@@ -1,6 +1,5 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
@@ -8,12 +7,9 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ServerboundJigsawGeneratePacket implements Packet<ServerGamePacketListener> {
-    private BlockPos pos;
-    private int levels;
-    private boolean keepJigsaws;
-
-    public ServerboundJigsawGeneratePacket() {
-    }
+    private final BlockPos pos;
+    private final int levels;
+    private final boolean keepJigsaws;
 
     @OnlyIn(Dist.CLIENT)
     public ServerboundJigsawGeneratePacket(BlockPos param0, int param1, boolean param2) {
@@ -22,15 +18,14 @@ public class ServerboundJigsawGeneratePacket implements Packet<ServerGamePacketL
         this.keepJigsaws = param2;
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ServerboundJigsawGeneratePacket(FriendlyByteBuf param0) {
         this.pos = param0.readBlockPos();
         this.levels = param0.readVarInt();
         this.keepJigsaws = param0.readBoolean();
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeBlockPos(this.pos);
         param0.writeVarInt(this.levels);
         param0.writeBoolean(this.keepJigsaws);

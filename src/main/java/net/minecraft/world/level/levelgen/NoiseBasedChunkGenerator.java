@@ -112,7 +112,7 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
         Cavifier var8 = var0.isNoiseCavesEnabled() ? new Cavifier(var2, var1.minY() / this.cellHeight) : null;
         this.sampler = new NoiseSampler(param0, this.cellWidth, this.cellHeight, this.cellCountY, var1, var3, var6, var4, var8);
         this.aquifersEnabled = var0.isAquifersEnabled();
-        this.baseStoneSource = new DepthBasedReplacingBaseStoneSource(param2, this.defaultBlock, Blocks.GRIMSTONE.defaultBlockState());
+        this.baseStoneSource = new DepthBasedReplacingBaseStoneSource(param2, this.defaultBlock, Blocks.DEEPSLATE.defaultBlockState());
     }
 
     @Override

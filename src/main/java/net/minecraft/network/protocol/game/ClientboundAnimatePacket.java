@@ -1,6 +1,5 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.entity.Entity;
@@ -8,25 +7,21 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundAnimatePacket implements Packet<ClientGamePacketListener> {
-    private int id;
-    private int action;
-
-    public ClientboundAnimatePacket() {
-    }
+    private final int id;
+    private final int action;
 
     public ClientboundAnimatePacket(Entity param0, int param1) {
         this.id = param0.getId();
         this.action = param1;
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ClientboundAnimatePacket(FriendlyByteBuf param0) {
         this.id = param0.readVarInt();
         this.action = param0.readUnsignedByte();
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeVarInt(this.id);
         param0.writeByte(this.action);
     }

@@ -3,7 +3,6 @@ package net.minecraft.world.level.levelgen.feature;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.biome.Biome;
@@ -26,15 +25,14 @@ public class BuriedTreasureFeature extends StructureFeature<ProbabilityFeatureCo
         BiomeSource param1,
         long param2,
         WorldgenRandom param3,
-        int param4,
-        int param5,
-        Biome param6,
-        ChunkPos param7,
-        ProbabilityFeatureConfiguration param8,
-        LevelHeightAccessor param9
+        ChunkPos param4,
+        Biome param5,
+        ChunkPos param6,
+        ProbabilityFeatureConfiguration param7,
+        LevelHeightAccessor param8
     ) {
-        param3.setLargeFeatureWithSalt(param2, param4, param5, 10387320);
-        return param3.nextFloat() < param8.probability;
+        param3.setLargeFeatureWithSalt(param2, param4.x, param4.z, 10387320);
+        return param3.nextFloat() < param7.probability;
     }
 
     @Override
@@ -43,30 +41,28 @@ public class BuriedTreasureFeature extends StructureFeature<ProbabilityFeatureCo
     }
 
     public static class BuriedTreasureStart extends StructureStart<ProbabilityFeatureConfiguration> {
-        public BuriedTreasureStart(
-            StructureFeature<ProbabilityFeatureConfiguration> param0, int param1, int param2, BoundingBox param3, int param4, long param5
-        ) {
-            super(param0, param1, param2, param3, param4, param5);
+        public BuriedTreasureStart(StructureFeature<ProbabilityFeatureConfiguration> param0, ChunkPos param1, BoundingBox param2, int param3, long param4) {
+            super(param0, param1, param2, param3, param4);
         }
 
         public void generatePieces(
             RegistryAccess param0,
             ChunkGenerator param1,
             StructureManager param2,
-            int param3,
-            int param4,
-            Biome param5,
-            ProbabilityFeatureConfiguration param6,
-            LevelHeightAccessor param7
+            ChunkPos param3,
+            Biome param4,
+            ProbabilityFeatureConfiguration param5,
+            LevelHeightAccessor param6
         ) {
-            BlockPos var0 = new BlockPos(SectionPos.sectionToBlockCoord(param3, 9), 90, SectionPos.sectionToBlockCoord(param4, 9));
+            BlockPos var0 = new BlockPos(param3.getBlockX(9), 90, param3.getBlockZ(9));
             this.pieces.add(new BuriedTreasurePieces.BuriedTreasurePiece(var0));
             this.calculateBoundingBox();
         }
 
         @Override
         public BlockPos getLocatePos() {
-            return new BlockPos(SectionPos.sectionToBlockCoord(this.getChunkX(), 9), 0, SectionPos.sectionToBlockCoord(this.getChunkZ(), 9));
+            ChunkPos var0 = this.getChunkPos();
+            return new BlockPos(var0.getBlockX(9), 0, var0.getBlockZ(9));
         }
     }
 }

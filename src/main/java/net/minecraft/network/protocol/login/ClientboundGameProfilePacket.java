@@ -1,7 +1,6 @@
 package net.minecraft.network.protocol.login;
 
 import com.mojang.authlib.GameProfile;
-import java.io.IOException;
 import java.util.UUID;
 import net.minecraft.core.SerializableUUID;
 import net.minecraft.network.FriendlyByteBuf;
@@ -10,17 +9,13 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundGameProfilePacket implements Packet<ClientLoginPacketListener> {
-    private GameProfile gameProfile;
-
-    public ClientboundGameProfilePacket() {
-    }
+    private final GameProfile gameProfile;
 
     public ClientboundGameProfilePacket(GameProfile param0) {
         this.gameProfile = param0;
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ClientboundGameProfilePacket(FriendlyByteBuf param0) {
         int[] var0 = new int[4];
 
         for(int var1 = 0; var1 < var0.length; ++var1) {
@@ -33,7 +28,7 @@ public class ClientboundGameProfilePacket implements Packet<ClientLoginPacketLis
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         for(int var0 : SerializableUUID.uuidToIntArray(this.gameProfile.getId())) {
             param0.writeInt(var0);
         }

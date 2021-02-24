@@ -1,6 +1,5 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
@@ -8,11 +7,8 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ServerboundSignUpdatePacket implements Packet<ServerGamePacketListener> {
-    private BlockPos pos;
-    private String[] lines;
-
-    public ServerboundSignUpdatePacket() {
-    }
+    private final BlockPos pos;
+    private final String[] lines;
 
     @OnlyIn(Dist.CLIENT)
     public ServerboundSignUpdatePacket(BlockPos param0, String param1, String param2, String param3, String param4) {
@@ -20,8 +16,7 @@ public class ServerboundSignUpdatePacket implements Packet<ServerGamePacketListe
         this.lines = new String[]{param1, param2, param3, param4};
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ServerboundSignUpdatePacket(FriendlyByteBuf param0) {
         this.pos = param0.readBlockPos();
         this.lines = new String[4];
 
@@ -32,7 +27,7 @@ public class ServerboundSignUpdatePacket implements Packet<ServerGamePacketListe
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeBlockPos(this.pos);
 
         for(int var0 = 0; var0 < 4; ++var0) {

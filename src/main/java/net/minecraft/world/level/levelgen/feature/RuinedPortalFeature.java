@@ -126,46 +126,45 @@ public class RuinedPortalFeature extends StructureFeature<RuinedPortalConfigurat
     }
 
     public static class FeatureStart extends StructureStart<RuinedPortalConfiguration> {
-        protected FeatureStart(StructureFeature<RuinedPortalConfiguration> param0, int param1, int param2, BoundingBox param3, int param4, long param5) {
-            super(param0, param1, param2, param3, param4, param5);
+        protected FeatureStart(StructureFeature<RuinedPortalConfiguration> param0, ChunkPos param1, BoundingBox param2, int param3, long param4) {
+            super(param0, param1, param2, param3, param4);
         }
 
         public void generatePieces(
             RegistryAccess param0,
             ChunkGenerator param1,
             StructureManager param2,
-            int param3,
-            int param4,
-            Biome param5,
-            RuinedPortalConfiguration param6,
-            LevelHeightAccessor param7
+            ChunkPos param3,
+            Biome param4,
+            RuinedPortalConfiguration param5,
+            LevelHeightAccessor param6
         ) {
             RuinedPortalPiece.Properties var0 = new RuinedPortalPiece.Properties();
             RuinedPortalPiece.VerticalPlacement var1;
-            if (param6.portalType == RuinedPortalFeature.Type.DESERT) {
+            if (param5.portalType == RuinedPortalFeature.Type.DESERT) {
                 var1 = RuinedPortalPiece.VerticalPlacement.PARTLY_BURIED;
                 var0.airPocket = false;
                 var0.mossiness = 0.0F;
-            } else if (param6.portalType == RuinedPortalFeature.Type.JUNGLE) {
+            } else if (param5.portalType == RuinedPortalFeature.Type.JUNGLE) {
                 var1 = RuinedPortalPiece.VerticalPlacement.ON_LAND_SURFACE;
                 var0.airPocket = this.random.nextFloat() < 0.5F;
                 var0.mossiness = 0.8F;
                 var0.overgrown = true;
                 var0.vines = true;
-            } else if (param6.portalType == RuinedPortalFeature.Type.SWAMP) {
+            } else if (param5.portalType == RuinedPortalFeature.Type.SWAMP) {
                 var1 = RuinedPortalPiece.VerticalPlacement.ON_OCEAN_FLOOR;
                 var0.airPocket = false;
                 var0.mossiness = 0.5F;
                 var0.vines = true;
-            } else if (param6.portalType == RuinedPortalFeature.Type.MOUNTAIN) {
+            } else if (param5.portalType == RuinedPortalFeature.Type.MOUNTAIN) {
                 boolean var4 = this.random.nextFloat() < 0.5F;
                 var1 = var4 ? RuinedPortalPiece.VerticalPlacement.IN_MOUNTAIN : RuinedPortalPiece.VerticalPlacement.ON_LAND_SURFACE;
                 var0.airPocket = var4 || this.random.nextFloat() < 0.5F;
-            } else if (param6.portalType == RuinedPortalFeature.Type.OCEAN) {
+            } else if (param5.portalType == RuinedPortalFeature.Type.OCEAN) {
                 var1 = RuinedPortalPiece.VerticalPlacement.ON_OCEAN_FLOOR;
                 var0.airPocket = false;
                 var0.mossiness = 0.8F;
-            } else if (param6.portalType == RuinedPortalFeature.Type.NETHER) {
+            } else if (param5.portalType == RuinedPortalFeature.Type.NETHER) {
                 var1 = RuinedPortalPiece.VerticalPlacement.IN_NETHER;
                 var0.airPocket = this.random.nextFloat() < 0.5F;
                 var0.mossiness = 0.0F;
@@ -191,18 +190,18 @@ public class RuinedPortalFeature extends StructureFeature<RuinedPortalConfigurat
             Rotation var13 = Util.getRandom(Rotation.values(), this.random);
             Mirror var14 = this.random.nextFloat() < 0.5F ? Mirror.NONE : Mirror.FRONT_BACK;
             BlockPos var15 = new BlockPos(var12.getSize().getX() / 2, 0, var12.getSize().getZ() / 2);
-            BlockPos var16 = new ChunkPos(param3, param4).getWorldPosition();
+            BlockPos var16 = param3.getWorldPosition();
             BoundingBox var17 = var12.getBoundingBox(var16, var13, var15, var14);
             Vec3i var18 = var17.getCenter();
             int var19 = var18.getX();
             int var20 = var18.getZ();
-            int var21 = param1.getBaseHeight(var19, var20, RuinedPortalPiece.getHeightMapType(var1), param7) - 1;
-            int var22 = RuinedPortalFeature.findSuitableY(this.random, param1, var1, var0.airPocket, var21, var17.getYSpan(), var17, param7);
+            int var21 = param1.getBaseHeight(var19, var20, RuinedPortalPiece.getHeightMapType(var1), param6) - 1;
+            int var22 = RuinedPortalFeature.findSuitableY(this.random, param1, var1, var0.airPocket, var21, var17.getYSpan(), var17, param6);
             BlockPos var23 = new BlockPos(var16.getX(), var22, var16.getZ());
-            if (param6.portalType == RuinedPortalFeature.Type.MOUNTAIN
-                || param6.portalType == RuinedPortalFeature.Type.OCEAN
-                || param6.portalType == RuinedPortalFeature.Type.STANDARD) {
-                var0.cold = RuinedPortalFeature.isCold(var23, param5);
+            if (param5.portalType == RuinedPortalFeature.Type.MOUNTAIN
+                || param5.portalType == RuinedPortalFeature.Type.OCEAN
+                || param5.portalType == RuinedPortalFeature.Type.STANDARD) {
+                var0.cold = RuinedPortalFeature.isCold(var23, param4);
             }
 
             this.pieces.add(new RuinedPortalPiece(var23, var1, var0, var10, var12, var13, var14, var15));

@@ -1,6 +1,5 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import javax.annotation.Nullable;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
@@ -10,32 +9,34 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundStopSoundPacket implements Packet<ClientGamePacketListener> {
-    private ResourceLocation name;
-    private SoundSource source;
-
-    public ClientboundStopSoundPacket() {
-    }
+    @Nullable
+    private final ResourceLocation name;
+    @Nullable
+    private final SoundSource source;
 
     public ClientboundStopSoundPacket(@Nullable ResourceLocation param0, @Nullable SoundSource param1) {
         this.name = param0;
         this.source = param1;
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ClientboundStopSoundPacket(FriendlyByteBuf param0) {
         int var0 = param0.readByte();
         if ((var0 & 1) > 0) {
             this.source = param0.readEnum(SoundSource.class);
+        } else {
+            this.source = null;
         }
 
         if ((var0 & 2) > 0) {
             this.name = param0.readResourceLocation();
+        } else {
+            this.name = null;
         }
 
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         if (this.source != null) {
             if (this.name != null) {
                 param0.writeByte(3);

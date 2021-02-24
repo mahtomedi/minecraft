@@ -1,6 +1,5 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.InteractionHand;
@@ -9,11 +8,8 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ServerboundUseItemOnPacket implements Packet<ServerGamePacketListener> {
-    private BlockHitResult blockHit;
-    private InteractionHand hand;
-
-    public ServerboundUseItemOnPacket() {
-    }
+    private final BlockHitResult blockHit;
+    private final InteractionHand hand;
 
     @OnlyIn(Dist.CLIENT)
     public ServerboundUseItemOnPacket(InteractionHand param0, BlockHitResult param1) {
@@ -21,14 +17,13 @@ public class ServerboundUseItemOnPacket implements Packet<ServerGamePacketListen
         this.blockHit = param1;
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ServerboundUseItemOnPacket(FriendlyByteBuf param0) {
         this.hand = param0.readEnum(InteractionHand.class);
         this.blockHit = param0.readBlockHitResult();
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeEnum(this.hand);
         param0.writeBlockHitResult(this.blockHit);
     }

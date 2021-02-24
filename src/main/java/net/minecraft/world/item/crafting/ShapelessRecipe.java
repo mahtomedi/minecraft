@@ -106,7 +106,7 @@ public class ShapelessRecipe implements CraftingRecipe {
         }
 
         public ShapelessRecipe fromNetwork(ResourceLocation param0, FriendlyByteBuf param1) {
-            String var0 = param1.readUtf(32767);
+            String var0 = param1.readUtf();
             int var1 = param1.readVarInt();
             NonNullList<Ingredient> var2 = NonNullList.withSize(var1, Ingredient.EMPTY);
 

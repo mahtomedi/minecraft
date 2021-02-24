@@ -1,6 +1,5 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import javax.annotation.Nullable;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
@@ -11,25 +10,21 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundRemoveMobEffectPacket implements Packet<ClientGamePacketListener> {
-    private int entityId;
-    private MobEffect effect;
-
-    public ClientboundRemoveMobEffectPacket() {
-    }
+    private final int entityId;
+    private final MobEffect effect;
 
     public ClientboundRemoveMobEffectPacket(int param0, MobEffect param1) {
         this.entityId = param0;
         this.effect = param1;
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ClientboundRemoveMobEffectPacket(FriendlyByteBuf param0) {
         this.entityId = param0.readVarInt();
         this.effect = MobEffect.byId(param0.readUnsignedByte());
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeVarInt(this.entityId);
         param0.writeByte(MobEffect.getId(this.effect));
     }

@@ -18,7 +18,7 @@ public class DepthBasedReplacingBaseStoneSource implements BaseStoneSource {
 
     @Override
     public BlockState getBaseStone(int param0, int param1, int param2, NoiseGeneratorSettings param3) {
-        if (!param3.isGrimstoneEnabled()) {
+        if (!param3.isDeepslateEnabled()) {
             return this.normalBlock;
         } else {
             this.random.setBaseStoneSeed(this.seed, param0, param1, param2);

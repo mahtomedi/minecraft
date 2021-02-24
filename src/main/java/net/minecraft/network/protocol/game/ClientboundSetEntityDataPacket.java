@@ -1,7 +1,7 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import java.util.List;
+import javax.annotation.Nullable;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -9,11 +9,9 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundSetEntityDataPacket implements Packet<ClientGamePacketListener> {
-    private int id;
-    private List<SynchedEntityData.DataItem<?>> packedItems;
-
-    public ClientboundSetEntityDataPacket() {
-    }
+    private final int id;
+    @Nullable
+    private final List<SynchedEntityData.DataItem<?>> packedItems;
 
     public ClientboundSetEntityDataPacket(int param0, SynchedEntityData param1, boolean param2) {
         this.id = param0;
@@ -26,14 +24,13 @@ public class ClientboundSetEntityDataPacket implements Packet<ClientGamePacketLi
 
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ClientboundSetEntityDataPacket(FriendlyByteBuf param0) {
         this.id = param0.readVarInt();
         this.packedItems = SynchedEntityData.unpack(param0);
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeVarInt(this.id);
         SynchedEntityData.pack(this.packedItems, param0);
     }
@@ -42,6 +39,7 @@ public class ClientboundSetEntityDataPacket implements Packet<ClientGamePacketLi
         param0.handleSetEntityData(this);
     }
 
+    @Nullable
     @OnlyIn(Dist.CLIENT)
     public List<SynchedEntityData.DataItem<?>> getUnpackedData() {
         return this.packedItems;

@@ -5,7 +5,6 @@ import com.mojang.serialization.Codec;
 import java.util.function.Function;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.level.dimension.DimensionType;
-import net.minecraft.world.level.levelgen.placement.DecorationContext;
 
 public abstract class VerticalAnchor {
     public static final Codec<VerticalAnchor> CODEC = ExtraCodecs.xor(
@@ -56,7 +55,7 @@ public abstract class VerticalAnchor {
         return this.value;
     }
 
-    public abstract int resolveY(DecorationContext var1);
+    public abstract int resolveY(WorldGenerationContext var1);
 
     static final class AboveBottom extends VerticalAnchor {
         public static final Codec<VerticalAnchor.AboveBottom> CODEC = Codec.intRange(DimensionType.MIN_Y, DimensionType.MAX_Y)
@@ -69,7 +68,7 @@ public abstract class VerticalAnchor {
         }
 
         @Override
-        public int resolveY(DecorationContext param0) {
+        public int resolveY(WorldGenerationContext param0) {
             return param0.getMinGenY() + this.value();
         }
     }
@@ -85,7 +84,7 @@ public abstract class VerticalAnchor {
         }
 
         @Override
-        public int resolveY(DecorationContext param0) {
+        public int resolveY(WorldGenerationContext param0) {
             return this.value();
         }
     }
@@ -101,7 +100,7 @@ public abstract class VerticalAnchor {
         }
 
         @Override
-        public int resolveY(DecorationContext param0) {
+        public int resolveY(WorldGenerationContext param0) {
             return param0.getGenDepth() - 1 + param0.getMinGenY() - this.value();
         }
     }

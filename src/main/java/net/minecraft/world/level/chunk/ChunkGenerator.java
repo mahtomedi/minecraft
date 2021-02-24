@@ -41,6 +41,7 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import net.minecraft.world.level.levelgen.StructureSettings;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
+import net.minecraft.world.level.levelgen.carver.CarvingContext;
 import net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver;
 import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
@@ -132,24 +133,24 @@ public abstract class ChunkGenerator {
         WorldgenRandom var1 = new WorldgenRandom();
         int var2 = 8;
         ChunkPos var3 = param2.getPos();
-        int var4 = var3.x;
-        int var5 = var3.z;
-        BiomeGenerationSettings var6 = this.biomeSource
+        BiomeGenerationSettings var4 = this.biomeSource
             .getNoiseBiome(QuartPos.fromBlock(var3.getMinBlockX()), 0, QuartPos.fromBlock(var3.getMinBlockZ()))
             .getGenerationSettings();
-        BitSet var7 = ((ProtoChunk)param2).getOrCreateCarvingMask(param3);
+        CarvingContext var5 = new CarvingContext(this);
+        BitSet var6 = ((ProtoChunk)param2).getOrCreateCarvingMask(param3);
 
-        for(int var8 = var4 - 8; var8 <= var4 + 8; ++var8) {
-            for(int var9 = var5 - 8; var9 <= var5 + 8; ++var9) {
-                List<Supplier<ConfiguredWorldCarver<?>>> var10 = var6.getCarvers(param3);
+        for(int var7 = -8; var7 <= 8; ++var7) {
+            for(int var8 = -8; var8 <= 8; ++var8) {
+                ChunkPos var9 = new ChunkPos(var3.x + var7, var3.z + var8);
+                List<Supplier<ConfiguredWorldCarver<?>>> var10 = var4.getCarvers(param3);
                 ListIterator<Supplier<ConfiguredWorldCarver<?>>> var11 = var10.listIterator();
 
                 while(var11.hasNext()) {
                     int var12 = var11.nextIndex();
                     ConfiguredWorldCarver<?> var13 = var11.next().get();
-                    var1.setLargeFeatureSeed(param0 + (long)var12, var8, var9);
-                    if (var13.isStartChunk(var1, var8, var9)) {
-                        var13.carve(param2, var0::getBiome, var1, this.getSeaLevel(), var8, var9, var4, var5, var7);
+                    var1.setLargeFeatureSeed(param0 + (long)var12, var9.x, var9.z);
+                    if (var13.isStartChunk(var1)) {
+                        var13.carve(var5, param2, var0::getBiome, var1, this.getSeaLevel(), var9, var6);
                     }
                 }
             }

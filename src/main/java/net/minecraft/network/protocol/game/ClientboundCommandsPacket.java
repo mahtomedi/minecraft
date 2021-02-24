@@ -13,7 +13,7 @@ import com.mojang.brigadier.tree.RootCommandNode;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMaps;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import java.io.IOException;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -27,41 +27,28 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundCommandsPacket implements Packet<ClientGamePacketListener> {
-    private RootCommandNode<SharedSuggestionProvider> root;
-
-    public ClientboundCommandsPacket() {
-    }
+    private final RootCommandNode<SharedSuggestionProvider> root;
 
     public ClientboundCommandsPacket(RootCommandNode<SharedSuggestionProvider> param0) {
         this.root = param0;
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
-        ClientboundCommandsPacket.Entry[] var0 = new ClientboundCommandsPacket.Entry[param0.readVarInt()];
-
-        for(int var1 = 0; var1 < var0.length; ++var1) {
-            var0[var1] = readNode(param0);
-        }
-
+    public ClientboundCommandsPacket(FriendlyByteBuf param0) {
+        List<ClientboundCommandsPacket.Entry> var0 = param0.readList(ClientboundCommandsPacket::readNode);
         resolveEntries(var0);
-        this.root = (RootCommandNode)var0[param0.readVarInt()].node;
+        int var1 = param0.readVarInt();
+        this.root = (RootCommandNode)var0.get(var1).node;
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         Object2IntMap<CommandNode<SharedSuggestionProvider>> var0 = enumerateNodes(this.root);
-        CommandNode<SharedSuggestionProvider>[] var1 = getNodesInIdOrder(var0);
-        param0.writeVarInt(var1.length);
-
-        for(CommandNode<SharedSuggestionProvider> var2 : var1) {
-            writeNode(param0, var2, var0);
-        }
-
+        List<CommandNode<SharedSuggestionProvider>> var1 = getNodesInIdOrder(var0);
+        param0.writeCollection(var1, (param1, param2) -> writeNode(param1, param2, var0));
         param0.writeVarInt(var0.get(this.root));
     }
 
-    private static void resolveEntries(ClientboundCommandsPacket.Entry[] param0) {
+    private static void resolveEntries(List<ClientboundCommandsPacket.Entry> param0) {
         List<ClientboundCommandsPacket.Entry> var0 = Lists.newArrayList(param0);
 
         while(!var0.isEmpty()) {
@@ -93,29 +80,30 @@ public class ClientboundCommandsPacket implements Packet<ClientGamePacketListene
         return var0;
     }
 
-    private static CommandNode<SharedSuggestionProvider>[] getNodesInIdOrder(Object2IntMap<CommandNode<SharedSuggestionProvider>> param0) {
-        CommandNode<SharedSuggestionProvider>[] var0 = new CommandNode[param0.size()];
+    private static List<CommandNode<SharedSuggestionProvider>> getNodesInIdOrder(Object2IntMap<CommandNode<SharedSuggestionProvider>> param0) {
+        ObjectArrayList<CommandNode<SharedSuggestionProvider>> var0 = new ObjectArrayList<>(param0.size());
+        var0.size(param0.size());
 
         for(Object2IntMap.Entry<CommandNode<SharedSuggestionProvider>> var1 : Object2IntMaps.fastIterable(param0)) {
-            var0[var1.getIntValue()] = var1.getKey();
+            var0.set(var1.getIntValue(), var1.getKey());
         }
 
         return var0;
     }
 
-    private static ClientboundCommandsPacket.Entry readNode(FriendlyByteBuf param0) {
-        byte var0 = param0.readByte();
-        int[] var1 = param0.readVarIntArray();
-        int var2 = (var0 & 8) != 0 ? param0.readVarInt() : 0;
-        ArgumentBuilder<SharedSuggestionProvider, ?> var3 = createBuilder(param0, var0);
-        return new ClientboundCommandsPacket.Entry(var3, var0, var2, var1);
+    private static ClientboundCommandsPacket.Entry readNode(FriendlyByteBuf param0x) {
+        byte var0x = param0x.readByte();
+        int[] var1x = param0x.readVarIntArray();
+        int var2 = (var0x & 8) != 0 ? param0x.readVarInt() : 0;
+        ArgumentBuilder<SharedSuggestionProvider, ?> var3 = createBuilder(param0x, var0x);
+        return new ClientboundCommandsPacket.Entry(var3, var0x, var2, var1x);
     }
 
     @Nullable
     private static ArgumentBuilder<SharedSuggestionProvider, ?> createBuilder(FriendlyByteBuf param0, byte param1) {
         int var0 = param1 & 3;
         if (var0 == 2) {
-            String var1 = param0.readUtf(32767);
+            String var1 = param0.readUtf();
             ArgumentType<?> var2 = ArgumentTypes.deserialize(param0);
             if (var2 == null) {
                 return null;
@@ -128,7 +116,7 @@ public class ClientboundCommandsPacket implements Packet<ClientGamePacketListene
                 return var3;
             }
         } else {
-            return var0 == 1 ? LiteralArgumentBuilder.literal(param0.readUtf(32767)) : null;
+            return var0 == 1 ? LiteralArgumentBuilder.literal(param0.readUtf()) : null;
         }
     }
 
@@ -208,17 +196,17 @@ public class ClientboundCommandsPacket implements Packet<ClientGamePacketListene
             this.children = param3;
         }
 
-        public boolean build(ClientboundCommandsPacket.Entry[] param0) {
+        public boolean build(List<ClientboundCommandsPacket.Entry> param0) {
             if (this.node == null) {
                 if (this.builder == null) {
                     this.node = new RootCommandNode<>();
                 } else {
                     if ((this.flags & 8) != 0) {
-                        if (param0[this.redirect].node == null) {
+                        if (param0.get(this.redirect).node == null) {
                             return false;
                         }
 
-                        this.builder.redirect(param0[this.redirect].node);
+                        this.builder.redirect(param0.get(this.redirect).node);
                     }
 
                     if ((this.flags & 4) != 0) {
@@ -230,13 +218,13 @@ public class ClientboundCommandsPacket implements Packet<ClientGamePacketListene
             }
 
             for(int var0 : this.children) {
-                if (param0[var0].node == null) {
+                if (param0.get(var0).node == null) {
                     return false;
                 }
             }
 
             for(int var1 : this.children) {
-                CommandNode<SharedSuggestionProvider> var2 = param0[var1].node;
+                CommandNode<SharedSuggestionProvider> var2 = param0.get(var1).node;
                 if (!(var2 instanceof RootCommandNode)) {
                     this.node.addChild(var2);
                 }

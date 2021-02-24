@@ -1,7 +1,6 @@
 package net.minecraft.network.protocol.game;
 
 import com.google.common.collect.Sets;
-import java.io.IOException;
 import java.util.Set;
 import javax.annotation.Nullable;
 import net.minecraft.core.Registry;
@@ -16,25 +15,22 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundLoginPacket implements Packet<ClientGamePacketListener> {
-    private int playerId;
-    private long seed;
-    private boolean hardcore;
-    private GameType gameType;
+    private final int playerId;
+    private final long seed;
+    private final boolean hardcore;
+    private final GameType gameType;
     @Nullable
-    private GameType previousGameType;
-    private Set<ResourceKey<Level>> levels;
-    private RegistryAccess.RegistryHolder registryHolder;
-    private DimensionType dimensionType;
-    private ResourceKey<Level> dimension;
-    private int maxPlayers;
-    private int chunkRadius;
-    private boolean reducedDebugInfo;
-    private boolean showDeathScreen;
-    private boolean isDebug;
-    private boolean isFlat;
-
-    public ClientboundLoginPacket() {
-    }
+    private final GameType previousGameType;
+    private final Set<ResourceKey<Level>> levels;
+    private final RegistryAccess.RegistryHolder registryHolder;
+    private final DimensionType dimensionType;
+    private final ResourceKey<Level> dimension;
+    private final int maxPlayers;
+    private final int chunkRadius;
+    private final boolean reducedDebugInfo;
+    private final boolean showDeathScreen;
+    private final boolean isDebug;
+    private final boolean isFlat;
 
     public ClientboundLoginPacket(
         int param0,
@@ -70,19 +66,14 @@ public class ClientboundLoginPacket implements Packet<ClientGamePacketListener> 
         this.isFlat = param14;
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ClientboundLoginPacket(FriendlyByteBuf param0) {
         this.playerId = param0.readInt();
         this.hardcore = param0.readBoolean();
         this.gameType = GameType.byId(param0.readByte());
         this.previousGameType = GameType.byNullableId(param0.readByte());
-        int var0 = param0.readVarInt();
-        this.levels = Sets.newHashSet();
-
-        for(int var1 = 0; var1 < var0; ++var1) {
-            this.levels.add(ResourceKey.create(Registry.DIMENSION_REGISTRY, param0.readResourceLocation()));
-        }
-
+        this.levels = param0.readCollection(
+            Sets::newHashSetWithExpectedSize, param0x -> ResourceKey.create(Registry.DIMENSION_REGISTRY, param0x.readResourceLocation())
+        );
         this.registryHolder = param0.readWithCodec(RegistryAccess.RegistryHolder.NETWORK_CODEC);
         this.dimensionType = param0.readWithCodec(DimensionType.CODEC).get();
         this.dimension = ResourceKey.create(Registry.DIMENSION_REGISTRY, param0.readResourceLocation());
@@ -96,17 +87,12 @@ public class ClientboundLoginPacket implements Packet<ClientGamePacketListener> 
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeInt(this.playerId);
         param0.writeBoolean(this.hardcore);
         param0.writeByte(this.gameType.getId());
         param0.writeByte(GameType.getNullableId(this.previousGameType));
-        param0.writeVarInt(this.levels.size());
-
-        for(ResourceKey<Level> var0 : this.levels) {
-            param0.writeResourceLocation(var0.location());
-        }
-
+        param0.writeCollection(this.levels, (param0x, param1) -> param0x.writeResourceLocation(param1.location()));
         param0.writeWithCodec(RegistryAccess.RegistryHolder.NETWORK_CODEC, this.registryHolder);
         param0.writeWithCodec(DimensionType.CODEC, () -> this.dimensionType);
         param0.writeResourceLocation(this.dimension.location());
@@ -143,6 +129,7 @@ public class ClientboundLoginPacket implements Packet<ClientGamePacketListener> 
         return this.gameType;
     }
 
+    @Nullable
     @OnlyIn(Dist.CLIENT)
     public GameType getPreviousGameType() {
         return this.previousGameType;

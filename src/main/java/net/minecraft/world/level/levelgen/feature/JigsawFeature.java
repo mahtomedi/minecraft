@@ -3,8 +3,8 @@ package net.minecraft.world.level.levelgen.feature;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.core.SectionPos;
 import net.minecraft.data.worldgen.Pools;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -29,14 +29,14 @@ public class JigsawFeature extends StructureFeature<JigsawConfiguration> {
 
     @Override
     public StructureFeature.StructureStartFactory<JigsawConfiguration> getStartFactory() {
-        return (param0, param1, param2, param3, param4, param5) -> new JigsawFeature.FeatureStart(this, param1, param2, param3, param4, param5);
+        return (param0, param1, param2, param3, param4) -> new JigsawFeature.FeatureStart(this, param1, param2, param3, param4);
     }
 
     public static class FeatureStart extends NoiseAffectingStructureStart<JigsawConfiguration> {
         private final JigsawFeature feature;
 
-        public FeatureStart(JigsawFeature param0, int param1, int param2, BoundingBox param3, int param4, long param5) {
-            super(param0, param1, param2, param3, param4, param5);
+        public FeatureStart(JigsawFeature param0, ChunkPos param1, BoundingBox param2, int param3, long param4) {
+            super(param0, param1, param2, param3, param4);
             this.feature = param0;
         }
 
@@ -44,17 +44,16 @@ public class JigsawFeature extends StructureFeature<JigsawConfiguration> {
             RegistryAccess param0,
             ChunkGenerator param1,
             StructureManager param2,
-            int param3,
-            int param4,
-            Biome param5,
-            JigsawConfiguration param6,
-            LevelHeightAccessor param7
+            ChunkPos param3,
+            Biome param4,
+            JigsawConfiguration param5,
+            LevelHeightAccessor param6
         ) {
-            BlockPos var0 = new BlockPos(SectionPos.sectionToBlockCoord(param3), this.feature.startY, SectionPos.sectionToBlockCoord(param4));
+            BlockPos var0 = new BlockPos(param3.getMinBlockX(), this.feature.startY, param3.getMinBlockZ());
             Pools.bootstrap();
             JigsawPlacement.addPieces(
                 param0,
-                param6,
+                param5,
                 PoolElementStructurePiece::new,
                 param1,
                 param2,
@@ -63,7 +62,7 @@ public class JigsawFeature extends StructureFeature<JigsawConfiguration> {
                 this.random,
                 this.feature.doExpansionHack,
                 this.feature.projectStartToHeightmap,
-                param7
+                param6
             );
             this.calculateBoundingBox();
         }

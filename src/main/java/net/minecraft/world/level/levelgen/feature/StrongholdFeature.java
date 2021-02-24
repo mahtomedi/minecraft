@@ -3,7 +3,6 @@ package net.minecraft.world.level.levelgen.feature;
 import com.mojang.serialization.Codec;
 import java.util.List;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.biome.Biome;
@@ -32,33 +31,31 @@ public class StrongholdFeature extends StructureFeature<NoneFeatureConfiguration
         BiomeSource param1,
         long param2,
         WorldgenRandom param3,
-        int param4,
-        int param5,
-        Biome param6,
-        ChunkPos param7,
-        NoneFeatureConfiguration param8,
-        LevelHeightAccessor param9
+        ChunkPos param4,
+        Biome param5,
+        ChunkPos param6,
+        NoneFeatureConfiguration param7,
+        LevelHeightAccessor param8
     ) {
-        return param0.hasStronghold(new ChunkPos(param4, param5));
+        return param0.hasStronghold(param4);
     }
 
     public static class StrongholdStart extends NoiseAffectingStructureStart<NoneFeatureConfiguration> {
         private final long seed;
 
-        public StrongholdStart(StructureFeature<NoneFeatureConfiguration> param0, int param1, int param2, BoundingBox param3, int param4, long param5) {
-            super(param0, param1, param2, param3, param4, param5);
-            this.seed = param5;
+        public StrongholdStart(StructureFeature<NoneFeatureConfiguration> param0, ChunkPos param1, BoundingBox param2, int param3, long param4) {
+            super(param0, param1, param2, param3, param4);
+            this.seed = param4;
         }
 
         public void generatePieces(
             RegistryAccess param0,
             ChunkGenerator param1,
             StructureManager param2,
-            int param3,
-            int param4,
-            Biome param5,
-            NoneFeatureConfiguration param6,
-            LevelHeightAccessor param7
+            ChunkPos param3,
+            Biome param4,
+            NoneFeatureConfiguration param5,
+            LevelHeightAccessor param6
         ) {
             int var0 = 0;
 
@@ -66,9 +63,9 @@ public class StrongholdFeature extends StructureFeature<NoneFeatureConfiguration
             do {
                 this.pieces.clear();
                 this.boundingBox = BoundingBox.getUnknownBox();
-                this.random.setLargeFeatureSeed(this.seed + (long)(var0++), param3, param4);
+                this.random.setLargeFeatureSeed(this.seed + (long)(var0++), param3.x, param3.z);
                 StrongholdPieces.resetPieces();
-                var1 = new StrongholdPieces.StartPiece(this.random, SectionPos.sectionToBlockCoord(param3, 2), SectionPos.sectionToBlockCoord(param4, 2));
+                var1 = new StrongholdPieces.StartPiece(this.random, param3.getBlockX(2), param3.getBlockZ(2));
                 this.pieces.add(var1);
                 var1.addChildren(var1, this.pieces, this.random);
                 List<StructurePiece> var2 = var1.pendingChildren;

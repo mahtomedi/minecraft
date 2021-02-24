@@ -1,11 +1,12 @@
 package net.minecraft.world.level.levelgen.structure;
 
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 
 public abstract class NoiseAffectingStructureStart<C extends FeatureConfiguration> extends StructureStart<C> {
-    public NoiseAffectingStructureStart(StructureFeature<C> param0, int param1, int param2, BoundingBox param3, int param4, long param5) {
-        super(param0, param1, param2, param3, param4, param5);
+    public NoiseAffectingStructureStart(StructureFeature<C> param0, ChunkPos param1, BoundingBox param2, int param3, long param4) {
+        super(param0, param1, param2, param3, param4);
     }
 
     @Override

@@ -1,6 +1,5 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
@@ -8,25 +7,23 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundSetDefaultSpawnPositionPacket implements Packet<ClientGamePacketListener> {
-    private BlockPos pos;
-    private float angle;
-
-    public ClientboundSetDefaultSpawnPositionPacket() {
-    }
+    private final BlockPos pos;
+    private final float angle;
 
     public ClientboundSetDefaultSpawnPositionPacket(BlockPos param0, float param1) {
         this.pos = param0;
         this.angle = param1;
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ClientboundSetDefaultSpawnPositionPacket(FriendlyByteBuf param0) {
         this.pos = param0.readBlockPos();
+        this.angle = param0.readFloat();
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeBlockPos(this.pos);
+        param0.writeFloat(this.angle);
     }
 
     public void handle(ClientGamePacketListener param0) {

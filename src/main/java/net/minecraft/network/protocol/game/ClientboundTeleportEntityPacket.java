@@ -1,6 +1,5 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.entity.Entity;
@@ -8,16 +7,13 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundTeleportEntityPacket implements Packet<ClientGamePacketListener> {
-    private int id;
-    private double x;
-    private double y;
-    private double z;
-    private byte yRot;
-    private byte xRot;
-    private boolean onGround;
-
-    public ClientboundTeleportEntityPacket() {
-    }
+    private final int id;
+    private final double x;
+    private final double y;
+    private final double z;
+    private final byte yRot;
+    private final byte xRot;
+    private final boolean onGround;
 
     public ClientboundTeleportEntityPacket(Entity param0) {
         this.id = param0.getId();
@@ -29,8 +25,7 @@ public class ClientboundTeleportEntityPacket implements Packet<ClientGamePacketL
         this.onGround = param0.isOnGround();
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ClientboundTeleportEntityPacket(FriendlyByteBuf param0) {
         this.id = param0.readVarInt();
         this.x = param0.readDouble();
         this.y = param0.readDouble();
@@ -41,7 +36,7 @@ public class ClientboundTeleportEntityPacket implements Packet<ClientGamePacketL
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeVarInt(this.id);
         param0.writeDouble(this.x);
         param0.writeDouble(this.y);

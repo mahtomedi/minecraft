@@ -24,7 +24,8 @@ public class GeodeConfiguration implements FeatureConfiguration {
                     Codec.intRange(0, 10).fieldOf("max_point_offset").orElse(3).forGetter(param0x -> param0x.maxPointOffset),
                     Codec.INT.fieldOf("min_gen_offset").orElse(-16).forGetter(param0x -> param0x.minGenOffset),
                     Codec.INT.fieldOf("max_gen_offset").orElse(16).forGetter(param0x -> param0x.maxGenOffset),
-                    CHANCE_RANGE.fieldOf("noise_multiplier").orElse(0.05).forGetter(param0x -> param0x.noiseMultiplier)
+                    CHANCE_RANGE.fieldOf("noise_multiplier").orElse(0.05).forGetter(param0x -> param0x.noiseMultiplier),
+                    Codec.INT.fieldOf("invalid_blocks_threshold").forGetter(param0x -> param0x.invalidBlocksThreshold)
                 )
                 .apply(param0, GeodeConfiguration::new)
     );
@@ -43,6 +44,7 @@ public class GeodeConfiguration implements FeatureConfiguration {
     public final int minGenOffset;
     public final int maxGenOffset;
     public final double noiseMultiplier;
+    public final int invalidBlocksThreshold;
 
     public GeodeConfiguration(
         GeodeBlockSettings param0,
@@ -59,7 +61,8 @@ public class GeodeConfiguration implements FeatureConfiguration {
         int param11,
         int param12,
         int param13,
-        double param14
+        double param14,
+        int param15
     ) {
         this.geodeBlockSettings = param0;
         this.geodeLayerSettings = param1;
@@ -76,5 +79,6 @@ public class GeodeConfiguration implements FeatureConfiguration {
         this.minGenOffset = param12;
         this.maxGenOffset = param13;
         this.noiseMultiplier = param14;
+        this.invalidBlocksThreshold = param15;
     }
 }

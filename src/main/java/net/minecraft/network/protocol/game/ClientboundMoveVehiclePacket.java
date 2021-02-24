@@ -1,6 +1,5 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.entity.Entity;
@@ -8,14 +7,11 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundMoveVehiclePacket implements Packet<ClientGamePacketListener> {
-    private double x;
-    private double y;
-    private double z;
-    private float yRot;
-    private float xRot;
-
-    public ClientboundMoveVehiclePacket() {
-    }
+    private final double x;
+    private final double y;
+    private final double z;
+    private final float yRot;
+    private final float xRot;
 
     public ClientboundMoveVehiclePacket(Entity param0) {
         this.x = param0.getX();
@@ -25,8 +21,7 @@ public class ClientboundMoveVehiclePacket implements Packet<ClientGamePacketList
         this.xRot = param0.xRot;
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ClientboundMoveVehiclePacket(FriendlyByteBuf param0) {
         this.x = param0.readDouble();
         this.y = param0.readDouble();
         this.z = param0.readDouble();
@@ -35,7 +30,7 @@ public class ClientboundMoveVehiclePacket implements Packet<ClientGamePacketList
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeDouble(this.x);
         param0.writeDouble(this.y);
         param0.writeDouble(this.z);

@@ -1,6 +1,5 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
@@ -11,16 +10,13 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.Validate;
 
 public class ClientboundSoundPacket implements Packet<ClientGamePacketListener> {
-    private SoundEvent sound;
-    private SoundSource source;
-    private int x;
-    private int y;
-    private int z;
-    private float volume;
-    private float pitch;
-
-    public ClientboundSoundPacket() {
-    }
+    private final SoundEvent sound;
+    private final SoundSource source;
+    private final int x;
+    private final int y;
+    private final int z;
+    private final float volume;
+    private final float pitch;
 
     public ClientboundSoundPacket(SoundEvent param0, SoundSource param1, double param2, double param3, double param4, float param5, float param6) {
         Validate.notNull(param0, "sound");
@@ -33,8 +29,7 @@ public class ClientboundSoundPacket implements Packet<ClientGamePacketListener> 
         this.pitch = param6;
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ClientboundSoundPacket(FriendlyByteBuf param0) {
         this.sound = Registry.SOUND_EVENT.byId(param0.readVarInt());
         this.source = param0.readEnum(SoundSource.class);
         this.x = param0.readInt();
@@ -45,7 +40,7 @@ public class ClientboundSoundPacket implements Packet<ClientGamePacketListener> 
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeVarInt(Registry.SOUND_EVENT.getId(this.sound));
         param0.writeEnum(this.source);
         param0.writeInt(this.x);

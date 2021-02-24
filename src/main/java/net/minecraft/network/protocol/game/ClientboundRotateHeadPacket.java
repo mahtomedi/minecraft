@@ -1,6 +1,5 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.entity.Entity;
@@ -9,25 +8,21 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundRotateHeadPacket implements Packet<ClientGamePacketListener> {
-    private int entityId;
-    private byte yHeadRot;
-
-    public ClientboundRotateHeadPacket() {
-    }
+    private final int entityId;
+    private final byte yHeadRot;
 
     public ClientboundRotateHeadPacket(Entity param0, byte param1) {
         this.entityId = param0.getId();
         this.yHeadRot = param1;
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ClientboundRotateHeadPacket(FriendlyByteBuf param0) {
         this.entityId = param0.readVarInt();
         this.yHeadRot = param0.readByte();
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeVarInt(this.entityId);
         param0.writeByte(this.yHeadRot);
     }

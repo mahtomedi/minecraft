@@ -1,8 +1,8 @@
 package net.minecraft.network.protocol.game;
 
 import com.google.common.collect.Lists;
-import java.io.IOException;
 import java.util.List;
+import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
@@ -12,19 +12,16 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundExplodePacket implements Packet<ClientGamePacketListener> {
-    private double x;
-    private double y;
-    private double z;
-    private float power;
-    private List<BlockPos> toBlow;
-    private float knockbackX;
-    private float knockbackY;
-    private float knockbackZ;
+    private final double x;
+    private final double y;
+    private final double z;
+    private final float power;
+    private final List<BlockPos> toBlow;
+    private final float knockbackX;
+    private final float knockbackY;
+    private final float knockbackZ;
 
-    public ClientboundExplodePacket() {
-    }
-
-    public ClientboundExplodePacket(double param0, double param1, double param2, float param3, List<BlockPos> param4, Vec3 param5) {
+    public ClientboundExplodePacket(double param0, double param1, double param2, float param3, List<BlockPos> param4, @Nullable Vec3 param5) {
         this.x = param0;
         this.y = param1;
         this.z = param2;
@@ -34,54 +31,50 @@ public class ClientboundExplodePacket implements Packet<ClientGamePacketListener
             this.knockbackX = (float)param5.x;
             this.knockbackY = (float)param5.y;
             this.knockbackZ = (float)param5.z;
+        } else {
+            this.knockbackX = 0.0F;
+            this.knockbackY = 0.0F;
+            this.knockbackZ = 0.0F;
         }
 
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ClientboundExplodePacket(FriendlyByteBuf param0) {
         this.x = (double)param0.readFloat();
         this.y = (double)param0.readFloat();
         this.z = (double)param0.readFloat();
         this.power = param0.readFloat();
-        int var0 = param0.readInt();
-        this.toBlow = Lists.newArrayListWithCapacity(var0);
-        int var1 = Mth.floor(this.x);
-        int var2 = Mth.floor(this.y);
-        int var3 = Mth.floor(this.z);
-
-        for(int var4 = 0; var4 < var0; ++var4) {
-            int var5 = param0.readByte() + var1;
-            int var6 = param0.readByte() + var2;
-            int var7 = param0.readByte() + var3;
-            this.toBlow.add(new BlockPos(var5, var6, var7));
-        }
-
+        int var0 = Mth.floor(this.x);
+        int var1 = Mth.floor(this.y);
+        int var2 = Mth.floor(this.z);
+        this.toBlow = param0.readList(param3 -> {
+            int var0x = param3.readByte() + var0;
+            int var1x = param3.readByte() + var1;
+            int var2x = param3.readByte() + var2;
+            return new BlockPos(var0x, var1x, var2x);
+        });
         this.knockbackX = param0.readFloat();
         this.knockbackY = param0.readFloat();
         this.knockbackZ = param0.readFloat();
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeFloat((float)this.x);
         param0.writeFloat((float)this.y);
         param0.writeFloat((float)this.z);
         param0.writeFloat(this.power);
-        param0.writeInt(this.toBlow.size());
         int var0 = Mth.floor(this.x);
         int var1 = Mth.floor(this.y);
         int var2 = Mth.floor(this.z);
-
-        for(BlockPos var3 : this.toBlow) {
-            int var4 = var3.getX() - var0;
-            int var5 = var3.getY() - var1;
-            int var6 = var3.getZ() - var2;
-            param0.writeByte(var4);
-            param0.writeByte(var5);
-            param0.writeByte(var6);
-        }
-
+        param0.writeCollection(this.toBlow, (param3, param4) -> {
+            int var0x = param4.getX() - var0;
+            int var1x = param4.getY() - var1;
+            int var2x = param4.getZ() - var2;
+            param3.writeByte(var0x);
+            param3.writeByte(var1x);
+            param3.writeByte(var2x);
+        });
         param0.writeFloat(this.knockbackX);
         param0.writeFloat(this.knockbackY);
         param0.writeFloat(this.knockbackZ);

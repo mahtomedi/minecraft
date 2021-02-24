@@ -1,6 +1,5 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import java.util.UUID;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
@@ -9,16 +8,13 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundAddPlayerPacket implements Packet<ClientGamePacketListener> {
-    private int entityId;
-    private UUID playerId;
-    private double x;
-    private double y;
-    private double z;
-    private byte yRot;
-    private byte xRot;
-
-    public ClientboundAddPlayerPacket() {
-    }
+    private final int entityId;
+    private final UUID playerId;
+    private final double x;
+    private final double y;
+    private final double z;
+    private final byte yRot;
+    private final byte xRot;
 
     public ClientboundAddPlayerPacket(Player param0) {
         this.entityId = param0.getId();
@@ -30,8 +26,7 @@ public class ClientboundAddPlayerPacket implements Packet<ClientGamePacketListen
         this.xRot = (byte)((int)(param0.xRot * 256.0F / 360.0F));
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ClientboundAddPlayerPacket(FriendlyByteBuf param0) {
         this.entityId = param0.readVarInt();
         this.playerId = param0.readUUID();
         this.x = param0.readDouble();
@@ -42,7 +37,7 @@ public class ClientboundAddPlayerPacket implements Packet<ClientGamePacketListen
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeVarInt(this.entityId);
         param0.writeUUID(this.playerId);
         param0.writeDouble(this.x);

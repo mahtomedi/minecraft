@@ -1,7 +1,10 @@
 package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.LevelSimulatedReader;
@@ -108,7 +111,7 @@ public abstract class Feature<FC extends FeatureConfiguration> {
     public static final Feature<LayerConfiguration> FILL_LAYER = register("fill_layer", new FillLayerFeature(LayerConfiguration.CODEC));
     public static final BonusChestFeature BONUS_CHEST = register("bonus_chest", new BonusChestFeature(NoneFeatureConfiguration.CODEC));
     public static final Feature<NoneFeatureConfiguration> BASALT_PILLAR = register("basalt_pillar", new BasaltPillarFeature(NoneFeatureConfiguration.CODEC));
-    public static final Feature<OreConfiguration> NO_SURFACE_ORE = register("no_surface_ore", new NoSurfaceOreFeature(OreConfiguration.CODEC));
+    public static final Feature<OreConfiguration> SCATTERED_ORE = register("scattered_ore", new ScatteredOreFeature(OreConfiguration.CODEC));
     public static final Feature<RandomFeatureConfiguration> RANDOM_SELECTOR = register(
         "random_selector", new RandomSelectorFeature(RandomFeatureConfiguration.CODEC)
     );
@@ -171,5 +174,22 @@ public abstract class Feature<FC extends FeatureConfiguration> {
 
     public static boolean isAir(LevelSimulatedReader param0, BlockPos param1) {
         return param0.isStateAtPosition(param1, BlockBehaviour.BlockStateBase::isAir);
+    }
+
+    public static boolean checkNeighbors(Function<BlockPos, BlockState> param0, BlockPos param1, Predicate<BlockState> param2) {
+        BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos();
+
+        for(Direction var1 : Direction.values()) {
+            var0.setWithOffset(param1, var1);
+            if (param2.test(param0.apply(var0))) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static boolean isAdjacentToAir(Function<BlockPos, BlockState> param0, BlockPos param1) {
+        return checkNeighbors(param0, param1, BlockBehaviour.BlockStateBase::isAir);
     }
 }

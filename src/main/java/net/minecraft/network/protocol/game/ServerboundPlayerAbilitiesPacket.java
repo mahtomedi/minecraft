@@ -1,28 +1,23 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.entity.player.Abilities;
 
 public class ServerboundPlayerAbilitiesPacket implements Packet<ServerGamePacketListener> {
-    private boolean isFlying;
-
-    public ServerboundPlayerAbilitiesPacket() {
-    }
+    private final boolean isFlying;
 
     public ServerboundPlayerAbilitiesPacket(Abilities param0) {
         this.isFlying = param0.flying;
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ServerboundPlayerAbilitiesPacket(FriendlyByteBuf param0) {
         byte var0 = param0.readByte();
         this.isFlying = (var0 & 2) != 0;
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         byte var0 = 0;
         if (this.isFlying) {
             var0 = (byte)(var0 | 2);

@@ -1,5 +1,7 @@
 package net.minecraft.network;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import io.netty.buffer.ByteBuf;
@@ -9,6 +11,8 @@ import io.netty.buffer.ByteBufOutputStream;
 import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.EncoderException;
 import io.netty.util.ByteProcessor;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -20,8 +24,15 @@ import java.nio.channels.ScatteringByteChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.BitSet;
+import java.util.Collection;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.IntFunction;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -57,33 +68,105 @@ public class FriendlyByteBuf extends ByteBuf {
         return 5;
     }
 
-    public <T> T readWithCodec(Codec<T> param0) throws IOException {
+    public <T> T readWithCodec(Codec<T> param0) {
         CompoundTag var0 = this.readAnySizeNbt();
         DataResult<T> var1 = param0.parse(NbtOps.INSTANCE, var0);
-        if (var1.error().isPresent()) {
-            throw new IOException("Failed to decode: " + var1.error().get().message() + " " + var0);
-        } else {
-            return var1.result().get();
-        }
+        var1.error().ifPresent(param1 -> {
+            throw new EncoderException("Failed to decode: " + param1.message() + " " + var0);
+        });
+        return var1.result().get();
     }
 
-    public <T> void writeWithCodec(Codec<T> param0, T param1) throws IOException {
+    public <T> void writeWithCodec(Codec<T> param0, T param1) {
         DataResult<Tag> var0 = param0.encodeStart(NbtOps.INSTANCE, param1);
-        if (var0.error().isPresent()) {
-            throw new IOException("Failed to encode: " + var0.error().get().message() + " " + param1);
-        } else {
-            this.writeNbt((CompoundTag)var0.result().get());
+        var0.error().ifPresent(param1x -> {
+            throw new EncoderException("Failed to encode: " + param1x.message() + " " + param1);
+        });
+        this.writeNbt((CompoundTag)var0.result().get());
+    }
+
+    public <T, C extends Collection<T>> C readCollection(IntFunction<C> param0, Function<FriendlyByteBuf, T> param1) {
+        int var0 = this.readVarInt();
+        C var1 = param0.apply(var0);
+
+        for(int var2 = 0; var2 < var0; ++var2) {
+            var1.add(param1.apply(this));
         }
+
+        return var1;
+    }
+
+    public <T> void writeCollection(Collection<T> param0, BiConsumer<FriendlyByteBuf, T> param1) {
+        this.writeVarInt(param0.size());
+
+        for(T var0 : param0) {
+            param1.accept(this, var0);
+        }
+
+    }
+
+    public <T> List<T> readList(Function<FriendlyByteBuf, T> param0) {
+        return this.readCollection(Lists::newArrayListWithCapacity, param0);
+    }
+
+    public IntList readIntIdList() {
+        int var0 = this.readVarInt();
+        IntList var1 = new IntArrayList();
+
+        for(int var2 = 0; var2 < var0; ++var2) {
+            var1.add(this.readVarInt());
+        }
+
+        return var1;
+    }
+
+    public void writeIntIdList(IntList param0) {
+        this.writeVarInt(param0.size());
+        param0.forEach(this::writeVarInt);
+    }
+
+    public <K, V, M extends Map<K, V>> M readMap(IntFunction<M> param0, Function<FriendlyByteBuf, K> param1, Function<FriendlyByteBuf, V> param2) {
+        int var0 = this.readVarInt();
+        M var1 = param0.apply(var0);
+
+        for(int var2 = 0; var2 < var0; ++var2) {
+            K var3 = param1.apply(this);
+            V var4 = param2.apply(this);
+            var1.put(var3, var4);
+        }
+
+        return var1;
+    }
+
+    public <K, V> Map<K, V> readMap(Function<FriendlyByteBuf, K> param0, Function<FriendlyByteBuf, V> param1) {
+        return this.readMap(Maps::newHashMapWithExpectedSize, param0, param1);
+    }
+
+    public <K, V> void writeMap(Map<K, V> param0, BiConsumer<FriendlyByteBuf, K> param1, BiConsumer<FriendlyByteBuf, V> param2) {
+        this.writeVarInt(param0.size());
+        param0.forEach((param2x, param3) -> {
+            param1.accept(this, param2x);
+            param2.accept(this, param3);
+        });
+    }
+
+    public void readWithCount(Consumer<FriendlyByteBuf> param0) {
+        int var0 = this.readVarInt();
+
+        for(int var1 = 0; var1 < var0; ++var1) {
+            param0.accept(this);
+        }
+
+    }
+
+    public byte[] readByteArray() {
+        return this.readByteArray(this.readableBytes());
     }
 
     public FriendlyByteBuf writeByteArray(byte[] param0) {
         this.writeVarInt(param0.length);
         this.writeBytes(param0);
         return this;
-    }
-
-    public byte[] readByteArray() {
-        return this.readByteArray(this.readableBytes());
     }
 
     public byte[] readByteArray(int param0) {
@@ -233,13 +316,13 @@ public class FriendlyByteBuf extends ByteBuf {
         return new UUID(this.readLong(), this.readLong());
     }
 
-    public FriendlyByteBuf writeVarInt(int param0) {
-        while((param0 & -128) != 0) {
-            this.writeByte(param0 & 127 | 128);
-            param0 >>>= 7;
+    public FriendlyByteBuf writeVarInt(int param0x) {
+        while((param0x & -128) != 0) {
+            this.writeByte(param0x & 127 | 128);
+            param0x >>>= 7;
         }
 
-        this.writeByte(param0);
+        this.writeByte(param0x);
         return this;
     }
 
@@ -325,7 +408,6 @@ public class FriendlyByteBuf extends ByteBuf {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     public String readUtf() {
         return this.readUtf(32767);
     }

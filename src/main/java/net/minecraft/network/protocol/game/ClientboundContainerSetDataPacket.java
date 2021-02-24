@@ -1,18 +1,14 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundContainerSetDataPacket implements Packet<ClientGamePacketListener> {
-    private int containerId;
-    private int id;
-    private int value;
-
-    public ClientboundContainerSetDataPacket() {
-    }
+    private final int containerId;
+    private final int id;
+    private final int value;
 
     public ClientboundContainerSetDataPacket(int param0, int param1, int param2) {
         this.containerId = param0;
@@ -20,22 +16,21 @@ public class ClientboundContainerSetDataPacket implements Packet<ClientGamePacke
         this.value = param2;
     }
 
-    public void handle(ClientGamePacketListener param0) {
-        param0.handleContainerSetData(this);
-    }
-
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ClientboundContainerSetDataPacket(FriendlyByteBuf param0) {
         this.containerId = param0.readUnsignedByte();
         this.id = param0.readShort();
         this.value = param0.readShort();
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeByte(this.containerId);
         param0.writeShort(this.id);
         param0.writeShort(this.value);
+    }
+
+    public void handle(ClientGamePacketListener param0) {
+        param0.handleContainerSetData(this);
     }
 
     @OnlyIn(Dist.CLIENT)

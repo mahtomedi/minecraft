@@ -723,6 +723,28 @@ public class DataFixers {
             .build();
         param0.addFixer(ItemRenameFix.create(var132, "Rename copper item suffixes", createRenamer(var133)));
         param0.addFixer(BlockRenameFixWithJigsaw.create(var132, "Rename copper blocks suffixes", createRenamer(var133)));
+        Schema var134 = param0.addSchema(2696, SAME_NAMESPACED);
+        ImmutableMap<String, String> var135 = ImmutableMap.<String, String>builder()
+            .put("minecraft:grimstone", "minecraft:deepslate")
+            .put("minecraft:grimstone_slab", "minecraft:cobbled_deepslate_slab")
+            .put("minecraft:grimstone_stairs", "minecraft:cobbled_deepslate_stairs")
+            .put("minecraft:grimstone_wall", "minecraft:cobbled_deepslate_wall")
+            .put("minecraft:polished_grimstone", "minecraft:polished_deepslate")
+            .put("minecraft:polished_grimstone_slab", "minecraft:polished_deepslate_slab")
+            .put("minecraft:polished_grimstone_stairs", "minecraft:polished_deepslate_stairs")
+            .put("minecraft:polished_grimstone_wall", "minecraft:polished_deepslate_wall")
+            .put("minecraft:grimstone_tiles", "minecraft:deepslate_tiles")
+            .put("minecraft:grimstone_tile_slab", "minecraft:deepslate_tile_slab")
+            .put("minecraft:grimstone_tile_stairs", "minecraft:deepslate_tile_stairs")
+            .put("minecraft:grimstone_tile_wall", "minecraft:deepslate_tile_wall")
+            .put("minecraft:grimstone_bricks", "minecraft:deepslate_bricks")
+            .put("minecraft:grimstone_brick_slab", "minecraft:deepslate_brick_slab")
+            .put("minecraft:grimstone_brick_stairs", "minecraft:deepslate_brick_stairs")
+            .put("minecraft:grimstone_brick_wall", "minecraft:deepslate_brick_wall")
+            .put("minecraft:chiseled_grimstone", "minecraft:chiseled_deepslate")
+            .build();
+        param0.addFixer(ItemRenameFix.create(var134, "Renamed grimstone block items to deepslate", createRenamer(var135)));
+        param0.addFixer(BlockRenameFixWithJigsaw.create(var134, "Renamed grimstone blocks to deepslate", createRenamer(var135)));
     }
 
     private static UnaryOperator<String> createRenamer(Map<String, String> param0) {

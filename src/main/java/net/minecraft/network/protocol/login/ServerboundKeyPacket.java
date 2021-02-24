@@ -1,6 +1,5 @@
 package net.minecraft.network.protocol.login;
 
-import java.io.IOException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import javax.crypto.SecretKey;
@@ -12,11 +11,8 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ServerboundKeyPacket implements Packet<ServerLoginPacketListener> {
-    private byte[] keybytes = new byte[0];
-    private byte[] nonce = new byte[0];
-
-    public ServerboundKeyPacket() {
-    }
+    private final byte[] keybytes;
+    private final byte[] nonce;
 
     @OnlyIn(Dist.CLIENT)
     public ServerboundKeyPacket(SecretKey param0, PublicKey param1, byte[] param2) throws CryptException {
@@ -24,14 +20,13 @@ public class ServerboundKeyPacket implements Packet<ServerLoginPacketListener> {
         this.nonce = Crypt.encryptUsingKey(param1, param2);
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ServerboundKeyPacket(FriendlyByteBuf param0) {
         this.keybytes = param0.readByteArray();
         this.nonce = param0.readByteArray();
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeByteArray(this.keybytes);
         param0.writeByteArray(this.nonce);
     }

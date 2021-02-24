@@ -1,28 +1,23 @@
 package net.minecraft.network.protocol.game;
 
-import java.io.IOException;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundSetChunkCacheRadiusPacket implements Packet<ClientGamePacketListener> {
-    private int radius;
-
-    public ClientboundSetChunkCacheRadiusPacket() {
-    }
+    private final int radius;
 
     public ClientboundSetChunkCacheRadiusPacket(int param0) {
         this.radius = param0;
     }
 
-    @Override
-    public void read(FriendlyByteBuf param0) throws IOException {
+    public ClientboundSetChunkCacheRadiusPacket(FriendlyByteBuf param0) {
         this.radius = param0.readVarInt();
     }
 
     @Override
-    public void write(FriendlyByteBuf param0) throws IOException {
+    public void write(FriendlyByteBuf param0) {
         param0.writeVarInt(this.radius);
     }
 

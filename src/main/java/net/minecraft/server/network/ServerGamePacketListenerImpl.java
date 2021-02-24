@@ -11,7 +11,6 @@ import it.unimi.dsi.fastutil.ints.Int2ShortMap;
 import it.unimi.dsi.fastutil.ints.Int2ShortOpenHashMap;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
@@ -116,6 +115,7 @@ import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.ChatVisiblity;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -1294,35 +1294,51 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
     public void handleInteract(ServerboundInteractPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.player.getLevel());
         ServerLevel var0 = this.player.getLevel();
-        Entity var1 = param0.getTarget(var0);
+        final Entity var1 = param0.getTarget(var0);
         this.player.resetLastActionTime();
         this.player.setShiftKeyDown(param0.isUsingSecondaryAction());
         if (var1 != null) {
             double var2 = 36.0;
             if (this.player.distanceToSqr(var1) < 36.0) {
-                InteractionHand var3 = param0.getHand();
-                ItemStack var4 = var3 != null ? this.player.getItemInHand(var3).copy() : ItemStack.EMPTY;
-                Optional<InteractionResult> var5 = Optional.empty();
-                if (param0.getAction() == ServerboundInteractPacket.Action.INTERACT) {
-                    var5 = Optional.of(this.player.interactOn(var1, var3));
-                } else if (param0.getAction() == ServerboundInteractPacket.Action.INTERACT_AT) {
-                    var5 = Optional.of(var1.interactAt(this.player, param0.getLocation(), var3));
-                } else if (param0.getAction() == ServerboundInteractPacket.Action.ATTACK) {
-                    if (var1 instanceof ItemEntity || var1 instanceof ExperienceOrb || var1 instanceof AbstractArrow || var1 == this.player) {
-                        this.disconnect(new TranslatableComponent("multiplayer.disconnect.invalid_entity_attacked"));
-                        LOGGER.warn("Player {} tried to attack an invalid entity", this.player.getName().getString());
-                        return;
+                param0.dispatch(
+                    new ServerboundInteractPacket.Handler() {
+                        private void performInteraction(InteractionHand param0, ServerGamePacketListenerImpl.EntityInteraction param1) {
+                            ItemStack var0 = ServerGamePacketListenerImpl.this.player.getItemInHand(param0).copy();
+                            InteractionResult var1 = param1.run(ServerGamePacketListenerImpl.this.player, var1, param0);
+                            if (var1.consumesAction()) {
+                                CriteriaTriggers.PLAYER_INTERACTED_WITH_ENTITY.trigger(ServerGamePacketListenerImpl.this.player, var0, var1);
+                                if (var1.shouldSwing()) {
+                                    ServerGamePacketListenerImpl.this.player.swing(param0, true);
+                                }
+                            }
+    
+                        }
+    
+                        @Override
+                        public void onInteraction(InteractionHand param0) {
+                            this.performInteraction(param0, Player::interactOn);
+                        }
+    
+                        @Override
+                        public void onInteraction(InteractionHand param0, Vec3 param1) {
+                            this.performInteraction(param0, (param1x, param2, param3) -> param2.interactAt(param1x, param1, param3));
+                        }
+    
+                        @Override
+                        public void onAttack() {
+                            if (!(var1 instanceof ItemEntity)
+                                && !(var1 instanceof ExperienceOrb)
+                                && !(var1 instanceof AbstractArrow)
+                                && var1 != ServerGamePacketListenerImpl.this.player) {
+                                ServerGamePacketListenerImpl.this.player.attack(var1);
+                            } else {
+                                ServerGamePacketListenerImpl.this.disconnect(new TranslatableComponent("multiplayer.disconnect.invalid_entity_attacked"));
+                                ServerGamePacketListenerImpl.LOGGER
+                                    .warn("Player {} tried to attack an invalid entity", ServerGamePacketListenerImpl.this.player.getName().getString());
+                            }
+                        }
                     }
-
-                    this.player.attack(var1);
-                }
-
-                if (var5.isPresent() && var5.get().consumesAction()) {
-                    CriteriaTriggers.PLAYER_INTERACTED_WITH_ENTITY.trigger(this.player, var4, var1);
-                    if (var5.get().shouldSwing()) {
-                        this.player.swing(var3, true);
-                    }
-                }
+                );
             }
         }
 
@@ -1564,5 +1580,10 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
     @Override
     public ServerPlayer getPlayer() {
         return this.player;
+    }
+
+    @FunctionalInterface
+    interface EntityInteraction {
+        InteractionResult run(ServerPlayer var1, Entity var2, InteractionHand var3);
     }
 }

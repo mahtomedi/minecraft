@@ -7,8 +7,8 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.core.SectionPos;
 import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Rotation;
@@ -28,25 +28,22 @@ public class OceanRuinFeature extends StructureFeature<OceanRuinConfiguration> {
     }
 
     public static class OceanRuinStart extends StructureStart<OceanRuinConfiguration> {
-        public OceanRuinStart(StructureFeature<OceanRuinConfiguration> param0, int param1, int param2, BoundingBox param3, int param4, long param5) {
-            super(param0, param1, param2, param3, param4, param5);
+        public OceanRuinStart(StructureFeature<OceanRuinConfiguration> param0, ChunkPos param1, BoundingBox param2, int param3, long param4) {
+            super(param0, param1, param2, param3, param4);
         }
 
         public void generatePieces(
             RegistryAccess param0,
             ChunkGenerator param1,
             StructureManager param2,
-            int param3,
-            int param4,
-            Biome param5,
-            OceanRuinConfiguration param6,
-            LevelHeightAccessor param7
+            ChunkPos param3,
+            Biome param4,
+            OceanRuinConfiguration param5,
+            LevelHeightAccessor param6
         ) {
-            int var0 = SectionPos.sectionToBlockCoord(param3);
-            int var1 = SectionPos.sectionToBlockCoord(param4);
-            BlockPos var2 = new BlockPos(var0, 90, var1);
-            Rotation var3 = Rotation.getRandom(this.random);
-            OceanRuinPieces.addPieces(param2, var2, var3, this.pieces, this.random, param6);
+            BlockPos var0 = new BlockPos(param3.getMinBlockX(), 90, param3.getMinBlockZ());
+            Rotation var1 = Rotation.getRandom(this.random);
+            OceanRuinPieces.addPieces(param2, var0, var1, this.pieces, this.random, param5);
             this.calculateBoundingBox();
         }
     }

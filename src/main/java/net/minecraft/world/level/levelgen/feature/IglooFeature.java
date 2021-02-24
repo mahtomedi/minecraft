@@ -3,7 +3,7 @@ package net.minecraft.world.level.levelgen.feature;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.core.SectionPos;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Rotation;
@@ -25,25 +25,22 @@ public class IglooFeature extends StructureFeature<NoneFeatureConfiguration> {
     }
 
     public static class FeatureStart extends StructureStart<NoneFeatureConfiguration> {
-        public FeatureStart(StructureFeature<NoneFeatureConfiguration> param0, int param1, int param2, BoundingBox param3, int param4, long param5) {
-            super(param0, param1, param2, param3, param4, param5);
+        public FeatureStart(StructureFeature<NoneFeatureConfiguration> param0, ChunkPos param1, BoundingBox param2, int param3, long param4) {
+            super(param0, param1, param2, param3, param4);
         }
 
         public void generatePieces(
             RegistryAccess param0,
             ChunkGenerator param1,
             StructureManager param2,
-            int param3,
-            int param4,
-            Biome param5,
-            NoneFeatureConfiguration param6,
-            LevelHeightAccessor param7
+            ChunkPos param3,
+            Biome param4,
+            NoneFeatureConfiguration param5,
+            LevelHeightAccessor param6
         ) {
-            int var0 = SectionPos.sectionToBlockCoord(param3);
-            int var1 = SectionPos.sectionToBlockCoord(param4);
-            BlockPos var2 = new BlockPos(var0, 90, var1);
-            Rotation var3 = Rotation.getRandom(this.random);
-            IglooPieces.addPieces(param2, var2, var3, this.pieces, this.random);
+            BlockPos var0 = new BlockPos(param3.getMinBlockX(), 90, param3.getMinBlockZ());
+            Rotation var1 = Rotation.getRandom(this.random);
+            IglooPieces.addPieces(param2, var0, var1, this.pieces, this.random);
             this.calculateBoundingBox();
         }
     }
