@@ -65,10 +65,12 @@ public class BiomeDefaultFeatures {
     public static void addDefaultOres(BiomeGenerationSettings.Builder param0) {
         param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_COAL_UPPER);
         param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_COAL_LOWER);
-        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_IRON_LOWER);
         param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_IRON_UPPER);
+        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_IRON_MIDDLE);
+        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_IRON_LOWER);
         param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_GOLD);
         param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_REDSTONE);
+        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_REDSTONE_LOWER);
         param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_DIAMOND);
         param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_LAPIS);
         param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_LAPIS_BURIED);
