@@ -7,9 +7,9 @@ import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.StructureFeatureManager;
@@ -21,8 +21,11 @@ import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.MineshaftConfiguration;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public abstract class StructureStart<C extends FeatureConfiguration> {
+    private static final Logger LOGGER = LogManager.getLogger();
     public static final StructureStart<?> INVALID_START = new StructureStart<MineshaftConfiguration>(
         StructureFeature.MINESHAFT, new ChunkPos(0, 0), BoundingBox.getUnknownBox(), 0, 0L
     ) {
@@ -69,7 +72,7 @@ public abstract class StructureStart<C extends FeatureConfiguration> {
         synchronized(this.pieces) {
             if (!this.pieces.isEmpty()) {
                 BoundingBox var0 = this.pieces.get(0).boundingBox;
-                Vec3i var1 = var0.getCenter();
+                BlockPos var1 = var0.getCenter();
                 BlockPos var2 = new BlockPos(var1.getX(), var0.y0, var1.getZ());
                 Iterator<StructurePiece> var3 = this.pieces.iterator();
 
@@ -101,7 +104,7 @@ public abstract class StructureStart<C extends FeatureConfiguration> {
             var0.putInt("ChunkX", param0.x);
             var0.putInt("ChunkZ", param0.z);
             var0.putInt("references", this.references);
-            var0.put("BB", this.boundingBox.createTag());
+            BoundingBox.CODEC.encodeStart(NbtOps.INSTANCE, this.boundingBox).resultOrPartial(LOGGER::error).ifPresent(param1 -> var0.put("BB", param1));
             ListTag var1 = new ListTag();
             synchronized(this.pieces) {
                 for(StructurePiece var2 : this.pieces) {

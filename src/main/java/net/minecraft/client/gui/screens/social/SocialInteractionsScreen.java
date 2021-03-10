@@ -1,6 +1,7 @@
 package net.minecraft.client.gui.screens.social;
 
 import com.google.common.collect.ImmutableList;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.Collection;
 import java.util.Locale;
@@ -186,7 +187,7 @@ public class SocialInteractionsScreen extends Screen {
     public void renderBackground(PoseStack param0) {
         int var0 = this.marginX() + 3;
         super.renderBackground(param0);
-        this.minecraft.getTextureManager().bind(SOCIAL_INTERACTIONS_LOCATION);
+        RenderSystem.setShaderTexture(0, SOCIAL_INTERACTIONS_LOCATION);
         this.blit(param0, var0, 64, 1, 1, 236, 8);
         int var1 = this.backgroundUnits();
 

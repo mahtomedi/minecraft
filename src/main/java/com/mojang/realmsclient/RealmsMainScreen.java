@@ -6,6 +6,7 @@ import com.google.common.util.concurrent.RateLimiter;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Vector3f;
 import com.mojang.realmsclient.client.Ping;
 import com.mojang.realmsclient.client.RealmsClient;
 import com.mojang.realmsclient.dto.PingResult;
@@ -42,6 +43,7 @@ import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.components.TickableWidget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -767,8 +769,8 @@ public class RealmsMainScreen extends RealmsScreen {
         }
 
         if (this.trialsAvailable && !this.createdTrial && this.shouldShowPopup()) {
-            this.minecraft.getTextureManager().bind(TRIAL_ICON_LOCATION);
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.setShaderTexture(0, TRIAL_ICON_LOCATION);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             int var1 = 8;
             int var2 = 8;
             int var3 = 0;
@@ -792,12 +794,13 @@ public class RealmsMainScreen extends RealmsScreen {
     }
 
     private void drawRealmsLogo(PoseStack param0, int param1, int param2) {
-        this.minecraft.getTextureManager().bind(LOGO_LOCATION);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.pushMatrix();
-        RenderSystem.scalef(0.5F, 0.5F, 0.5F);
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderTexture(0, LOGO_LOCATION);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        param0.pushPose();
+        param0.scale(0.5F, 0.5F, 0.5F);
         GuiComponent.blit(param0, param1 * 2, param2 * 2 - 5, 0.0F, 0.0F, 200, 50, 200, 50);
-        RenderSystem.popMatrix();
+        param0.popPose();
     }
 
     @Override
@@ -839,19 +842,19 @@ public class RealmsMainScreen extends RealmsScreen {
             this.showingPopup = true;
         }
 
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 0.7F);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 0.7F);
         RenderSystem.enableBlend();
-        this.minecraft.getTextureManager().bind(DARKEN_LOCATION);
+        RenderSystem.setShaderTexture(0, DARKEN_LOCATION);
         int var3 = 0;
         int var4 = 32;
         GuiComponent.blit(param0, 0, 32, 0.0F, 0.0F, this.width, this.height - 40 - 32, 310, 166);
         RenderSystem.disableBlend();
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        this.minecraft.getTextureManager().bind(POPUP_LOCATION);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderTexture(0, POPUP_LOCATION);
         GuiComponent.blit(param0, var0, var1, 0.0F, 0.0F, 310, 166, 310, 166);
         if (!teaserImages.isEmpty()) {
-            this.minecraft.getTextureManager().bind(teaserImages.get(this.carouselIndex));
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.setShaderTexture(0, teaserImages.get(this.carouselIndex));
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             GuiComponent.blit(param0, var0 + 7, var1 + 7, 0.0F, 0.0F, 195, 152, 195, 152);
             if (this.carouselTick % 95 < 5) {
                 if (!this.hasSwitchedCarouselImage) {
@@ -889,8 +892,8 @@ public class RealmsMainScreen extends RealmsScreen {
             this.fillGradient(param0, param3 - 2, param4 + 17, param3 + 18, param4 + 18, var4, var4);
         }
 
-        this.minecraft.getTextureManager().bind(INVITE_ICON_LOCATION);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderTexture(0, INVITE_ICON_LOCATION);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         boolean var5 = param6 && param5;
         float var6 = var5 ? 16.0F : 0.0F;
         GuiComponent.blit(param0, param3, param4 - 6, var6, 0.0F, 15, 25, 31, 25);
@@ -898,8 +901,8 @@ public class RealmsMainScreen extends RealmsScreen {
         if (var7) {
             int var8 = (Math.min(var0, 6) - 1) * 8;
             int var9 = (int)(Math.max(0.0F, Math.max(Mth.sin((float)(10 + this.animTick) * 0.57F), Mth.cos((float)this.animTick * 0.35F))) * -6.0F);
-            this.minecraft.getTextureManager().bind(INVITATION_ICONS_LOCATION);
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.setShaderTexture(0, INVITATION_ICONS_LOCATION);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             float var10 = var1 ? 8.0F : 0.0F;
             GuiComponent.blit(param0, param3 + 4, param4 + 4 + var9, (float)var8, var10, 8, 8, 48, 16);
         }
@@ -959,8 +962,8 @@ public class RealmsMainScreen extends RealmsScreen {
     }
 
     private void drawExpired(PoseStack param0, int param1, int param2, int param3, int param4) {
-        this.minecraft.getTextureManager().bind(EXPIRED_ICON_LOCATION);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderTexture(0, EXPIRED_ICON_LOCATION);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         GuiComponent.blit(param0, param1, param2, 0.0F, 0.0F, 10, 28, 10, 28);
         if (param3 >= param1
             && param3 <= param1 + 9
@@ -975,8 +978,8 @@ public class RealmsMainScreen extends RealmsScreen {
     }
 
     private void drawExpiring(PoseStack param0, int param1, int param2, int param3, int param4, int param5) {
-        this.minecraft.getTextureManager().bind(EXPIRES_SOON_ICON_LOCATION);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderTexture(0, EXPIRES_SOON_ICON_LOCATION);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         if (this.animTick % 20 < 10) {
             GuiComponent.blit(param0, param1, param2, 0.0F, 0.0F, 10, 28, 20, 28);
         } else {
@@ -1002,8 +1005,8 @@ public class RealmsMainScreen extends RealmsScreen {
     }
 
     private void drawOpen(PoseStack param0, int param1, int param2, int param3, int param4) {
-        this.minecraft.getTextureManager().bind(ON_ICON_LOCATION);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderTexture(0, ON_ICON_LOCATION);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         GuiComponent.blit(param0, param1, param2, 0.0F, 0.0F, 10, 28, 10, 28);
         if (param3 >= param1
             && param3 <= param1 + 9
@@ -1018,8 +1021,8 @@ public class RealmsMainScreen extends RealmsScreen {
     }
 
     private void drawClose(PoseStack param0, int param1, int param2, int param3, int param4) {
-        this.minecraft.getTextureManager().bind(OFF_ICON_LOCATION);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderTexture(0, OFF_ICON_LOCATION);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         GuiComponent.blit(param0, param1, param2, 0.0F, 0.0F, 10, 28, 10, 28);
         if (param3 >= param1
             && param3 <= param1 + 9
@@ -1045,8 +1048,8 @@ public class RealmsMainScreen extends RealmsScreen {
             var0 = true;
         }
 
-        this.minecraft.getTextureManager().bind(LEAVE_ICON_LOCATION);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderTexture(0, LEAVE_ICON_LOCATION);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         float var1 = var0 ? 28.0F : 0.0F;
         GuiComponent.blit(param0, param1, param2, var1, 0.0F, 28, 28, 56, 28);
         if (var0) {
@@ -1068,8 +1071,8 @@ public class RealmsMainScreen extends RealmsScreen {
             var0 = true;
         }
 
-        this.minecraft.getTextureManager().bind(CONFIGURE_LOCATION);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderTexture(0, CONFIGURE_LOCATION);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         float var1 = var0 ? 28.0F : 0.0F;
         GuiComponent.blit(param0, param1, param2, var1, 0.0F, 28, 28, 56, 28);
         if (var0) {
@@ -1113,8 +1116,8 @@ public class RealmsMainScreen extends RealmsScreen {
             var0 = true;
         }
 
-        this.minecraft.getTextureManager().bind(QUESTIONMARK_LOCATION);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderTexture(0, QUESTIONMARK_LOCATION);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         float var1 = param5 ? 20.0F : 0.0F;
         GuiComponent.blit(param0, param3, param4, var1, 0.0F, 20, 20, 40, 20);
         if (var0) {
@@ -1129,11 +1132,11 @@ public class RealmsMainScreen extends RealmsScreen {
             var0 = true;
         }
 
-        this.minecraft.getTextureManager().bind(NEWS_LOCATION);
+        RenderSystem.setShaderTexture(0, NEWS_LOCATION);
         if (param7) {
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         } else {
-            RenderSystem.color4f(0.5F, 0.5F, 0.5F, 1.0F);
+            RenderSystem.setShaderColor(0.5F, 0.5F, 0.5F, 1.0F);
         }
 
         boolean var1 = param7 && param6;
@@ -1145,8 +1148,8 @@ public class RealmsMainScreen extends RealmsScreen {
 
         if (param3 && param7) {
             int var3 = var0 ? 0 : (int)(Math.max(0.0F, Math.max(Mth.sin((float)(10 + this.animTick) * 0.57F), Mth.cos((float)this.animTick * 0.35F))) * -6.0F);
-            this.minecraft.getTextureManager().bind(INVITATION_ICONS_LOCATION);
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.setShaderTexture(0, INVITATION_ICONS_LOCATION);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             GuiComponent.blit(param0, param4 + 10, param5 + 2 + var3, 40.0F, 0.0F, 8, 8, 48, 16);
         }
 
@@ -1154,24 +1157,24 @@ public class RealmsMainScreen extends RealmsScreen {
 
     private void renderLocal(PoseStack param0) {
         String var0 = "LOCAL!";
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.pushMatrix();
-        RenderSystem.translatef((float)(this.width / 2 - 25), 20.0F, 0.0F);
-        RenderSystem.rotatef(-20.0F, 0.0F, 0.0F, 1.0F);
-        RenderSystem.scalef(1.5F, 1.5F, 1.5F);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        param0.pushPose();
+        param0.translate((double)(this.width / 2 - 25), 20.0, 0.0);
+        param0.mulPose(Vector3f.ZP.rotationDegrees(-20.0F));
+        param0.scale(1.5F, 1.5F, 1.5F);
         this.font.draw(param0, "LOCAL!", 0.0F, 0.0F, 8388479);
-        RenderSystem.popMatrix();
+        param0.popPose();
     }
 
     private void renderStage(PoseStack param0) {
         String var0 = "STAGE!";
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.pushMatrix();
-        RenderSystem.translatef((float)(this.width / 2 - 25), 20.0F, 0.0F);
-        RenderSystem.rotatef(-20.0F, 0.0F, 0.0F, 1.0F);
-        RenderSystem.scalef(1.5F, 1.5F, 1.5F);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        param0.pushPose();
+        param0.translate((double)(this.width / 2 - 25), 20.0, 0.0);
+        param0.mulPose(Vector3f.ZP.rotationDegrees(-20.0F));
+        param0.scale(1.5F, 1.5F, 1.5F);
         this.font.draw(param0, "STAGE!", 0.0F, 0.0F, -256);
-        RenderSystem.popMatrix();
+        param0.popPose();
     }
 
     public RealmsMainScreen newScreen() {
@@ -1208,8 +1211,8 @@ public class RealmsMainScreen extends RealmsScreen {
 
         @Override
         public void renderButton(PoseStack param0, int param1, int param2, float param3) {
-            RealmsMainScreen.this.minecraft.getTextureManager().bind(RealmsMainScreen.CROSS_ICON_LOCATION);
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.setShaderTexture(0, RealmsMainScreen.CROSS_ICON_LOCATION);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             float var0 = this.isHovered() ? 12.0F : 0.0F;
             blit(param0, this.x, this.y, 0.0F, var0, 12, 12, 12, 24);
             if (this.isMouseOver((double)param1, (double)param2)) {
@@ -1463,9 +1466,8 @@ public class RealmsMainScreen extends RealmsScreen {
 
         private void renderLegacy(RealmsServer param0, PoseStack param1, int param2, int param3, int param4, int param5) {
             if (param0.state == RealmsServer.State.UNINITIALIZED) {
-                RealmsMainScreen.this.minecraft.getTextureManager().bind(RealmsMainScreen.WORLDICON_LOCATION);
-                RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-                RenderSystem.enableAlphaTest();
+                RenderSystem.setShaderTexture(0, RealmsMainScreen.WORLDICON_LOCATION);
+                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                 GuiComponent.blit(param1, param2 + 10, param3 + 6, 0.0F, 0.0F, 40, 20, 40, 20);
                 float var0 = 0.5F + (1.0F + Mth.sin((float)RealmsMainScreen.this.animTick * 0.25F)) * 0.25F;
                 int var1 = 0xFF000000 | (int)(127.0F * var0) << 16 | (int)(255.0F * var0) << 8 | (int)(127.0F * var0);
@@ -1506,9 +1508,9 @@ public class RealmsMainScreen extends RealmsScreen {
                 }
 
                 if (RealmsMainScreen.this.isSelfOwnedServer(param0) && param0.expired) {
-                    RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+                    RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                     RenderSystem.enableBlend();
-                    RealmsMainScreen.this.minecraft.getTextureManager().bind(RealmsMainScreen.BUTTON_LOCATION);
+                    RenderSystem.setShaderTexture(0, RealmsMainScreen.BUTTON_LOCATION);
                     RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
                     Component var5;
                     Component var6;
@@ -1562,7 +1564,7 @@ public class RealmsMainScreen extends RealmsScreen {
 
                 RealmsMainScreen.this.font.draw(param1, param0.getName(), (float)(param2 + 2), (float)(param3 + 1), 16777215);
                 RealmsTextureManager.withBoundFace(param0.ownerUUID, () -> {
-                    RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+                    RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                     GuiComponent.blit(param1, param2 - 36, param3, 32, 32, 8.0F, 8.0F, 8, 8, 64, 64);
                     GuiComponent.blit(param1, param2 - 36, param3, 32, 32, 40.0F, 8.0F, 8, 8, 64, 64);
                 });

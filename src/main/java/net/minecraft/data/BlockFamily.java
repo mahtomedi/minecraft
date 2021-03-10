@@ -9,7 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 
 public class BlockFamily {
     private final Block baseBlock;
-    private final Map<BlockFamily.Variant, Block> shapes = Maps.newHashMap();
+    private final Map<BlockFamily.Variant, Block> variants = Maps.newHashMap();
     private boolean generateModel = true;
     private boolean generateRecipe = true;
     @Nullable
@@ -25,12 +25,12 @@ public class BlockFamily {
         return this.baseBlock;
     }
 
-    public Map<BlockFamily.Variant, Block> getShapes() {
-        return this.shapes;
+    public Map<BlockFamily.Variant, Block> getVariants() {
+        return this.variants;
     }
 
     public Block get(BlockFamily.Variant param0) {
-        return this.shapes.get(param0);
+        return this.variants.get(param0);
     }
 
     public boolean shouldGenerateModel() {
@@ -61,63 +61,68 @@ public class BlockFamily {
         }
 
         public BlockFamily.Builder button(Block param0) {
-            this.family.shapes.put(BlockFamily.Variant.BUTTON, param0);
+            this.family.variants.put(BlockFamily.Variant.BUTTON, param0);
             return this;
         }
 
         public BlockFamily.Builder chiseled(Block param0) {
-            this.family.shapes.put(BlockFamily.Variant.CHISELED, param0);
+            this.family.variants.put(BlockFamily.Variant.CHISELED, param0);
+            return this;
+        }
+
+        public BlockFamily.Builder cracked(Block param0) {
+            this.family.variants.put(BlockFamily.Variant.CRACKED, param0);
             return this;
         }
 
         public BlockFamily.Builder door(Block param0) {
-            this.family.shapes.put(BlockFamily.Variant.DOOR, param0);
+            this.family.variants.put(BlockFamily.Variant.DOOR, param0);
             return this;
         }
 
         public BlockFamily.Builder fence(Block param0) {
-            this.family.shapes.put(BlockFamily.Variant.FENCE, param0);
+            this.family.variants.put(BlockFamily.Variant.FENCE, param0);
             return this;
         }
 
         public BlockFamily.Builder fenceGate(Block param0) {
-            this.family.shapes.put(BlockFamily.Variant.FENCE_GATE, param0);
+            this.family.variants.put(BlockFamily.Variant.FENCE_GATE, param0);
             return this;
         }
 
         public BlockFamily.Builder sign(Block param0, Block param1) {
-            this.family.shapes.put(BlockFamily.Variant.SIGN, param0);
-            this.family.shapes.put(BlockFamily.Variant.WALL_SIGN, param1);
+            this.family.variants.put(BlockFamily.Variant.SIGN, param0);
+            this.family.variants.put(BlockFamily.Variant.WALL_SIGN, param1);
             return this;
         }
 
         public BlockFamily.Builder slab(Block param0) {
-            this.family.shapes.put(BlockFamily.Variant.SLAB, param0);
+            this.family.variants.put(BlockFamily.Variant.SLAB, param0);
             return this;
         }
 
         public BlockFamily.Builder stairs(Block param0) {
-            this.family.shapes.put(BlockFamily.Variant.STAIRS, param0);
+            this.family.variants.put(BlockFamily.Variant.STAIRS, param0);
             return this;
         }
 
         public BlockFamily.Builder pressurePlate(Block param0) {
-            this.family.shapes.put(BlockFamily.Variant.PRESSURE_PLATE, param0);
+            this.family.variants.put(BlockFamily.Variant.PRESSURE_PLATE, param0);
             return this;
         }
 
         public BlockFamily.Builder polished(Block param0) {
-            this.family.shapes.put(BlockFamily.Variant.POLISHED, param0);
+            this.family.variants.put(BlockFamily.Variant.POLISHED, param0);
             return this;
         }
 
         public BlockFamily.Builder trapdoor(Block param0) {
-            this.family.shapes.put(BlockFamily.Variant.TRAPDOOR, param0);
+            this.family.variants.put(BlockFamily.Variant.TRAPDOOR, param0);
             return this;
         }
 
         public BlockFamily.Builder wall(Block param0) {
-            this.family.shapes.put(BlockFamily.Variant.WALL, param0);
+            this.family.variants.put(BlockFamily.Variant.WALL, param0);
             return this;
         }
 
@@ -145,6 +150,7 @@ public class BlockFamily {
     public static enum Variant {
         BUTTON("button"),
         CHISELED("chiseled"),
+        CRACKED("cracked"),
         DOOR("door"),
         FENCE("fence"),
         FENCE_GATE("fence_gate"),

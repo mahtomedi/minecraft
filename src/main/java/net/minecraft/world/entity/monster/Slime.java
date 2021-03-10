@@ -75,17 +75,18 @@ public class Slime extends Mob implements Enemy {
     }
 
     protected void setSize(int param0, boolean param1) {
-        this.entityData.set(ID_SIZE, param0);
+        int var0 = Mth.clamp(param0, 1, 127);
+        this.entityData.set(ID_SIZE, var0);
         this.reapplyPosition();
         this.refreshDimensions();
-        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue((double)(param0 * param0));
-        this.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue((double)(0.2F + 0.1F * (float)param0));
-        this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue((double)param0);
+        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue((double)(var0 * var0));
+        this.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue((double)(0.2F + 0.1F * (float)var0));
+        this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue((double)var0);
         if (param1) {
             this.setHealth(this.getMaxHealth());
         }
 
-        this.xpReward = param0;
+        this.xpReward = var0;
     }
 
     public int getSize() {
@@ -101,12 +102,7 @@ public class Slime extends Mob implements Enemy {
 
     @Override
     public void readAdditionalSaveData(CompoundTag param0) {
-        int var0 = param0.getInt("Size");
-        if (var0 < 0) {
-            var0 = 0;
-        }
-
-        this.setSize(var0 + 1, false);
+        this.setSize(param0.getInt("Size") + 1, false);
         super.readAdditionalSaveData(param0);
         this.wasOnGround = param0.getBoolean("wasOnGround");
     }

@@ -33,7 +33,6 @@ public class Inventory implements Container, Nameable {
     private final List<NonNullList<ItemStack>> compartments = ImmutableList.of(this.items, this.armor, this.offhand);
     public int selected;
     public final Player player;
-    private ItemStack carried = ItemStack.EMPTY;
     private int timesChanged;
 
     public Inventory(Player param0) {
@@ -171,9 +170,10 @@ public class Inventory implements Container, Nameable {
         boolean var1 = param1 == 0;
         var0 += ContainerHelper.clearOrCountMatchingItems(this, param0, param1 - var0, var1);
         var0 += ContainerHelper.clearOrCountMatchingItems(param2, param0, param1 - var0, var1);
-        var0 += ContainerHelper.clearOrCountMatchingItems(this.carried, param0, param1 - var0, var1);
-        if (this.carried.isEmpty()) {
-            this.carried = ItemStack.EMPTY;
+        ItemStack var2 = this.player.containerMenu.getCarried();
+        var0 += ContainerHelper.clearOrCountMatchingItems(var2, param0, param1 - var0, var1);
+        if (var2.isEmpty()) {
+            this.player.containerMenu.setCarried(ItemStack.EMPTY);
         }
 
         return var0;
@@ -546,14 +546,6 @@ public class Inventory implements Container, Nameable {
     @OnlyIn(Dist.CLIENT)
     public int getTimesChanged() {
         return this.timesChanged;
-    }
-
-    public void setCarried(ItemStack param0) {
-        this.carried = param0;
-    }
-
-    public ItemStack getCarried() {
-        return this.carried;
     }
 
     @Override

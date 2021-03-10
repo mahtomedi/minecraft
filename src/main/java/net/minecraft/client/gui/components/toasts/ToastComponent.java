@@ -101,15 +101,18 @@ public class ToastComponent extends GuiComponent {
                 this.visibleTime = var0;
             }
 
-            RenderSystem.pushMatrix();
-            RenderSystem.translatef(
-                (float)param0 - (float)this.toast.width() * this.getVisibility(var0), (float)(param1 * this.toast.height()), (float)(800 + param1)
+            PoseStack var1 = RenderSystem.getModelViewStack();
+            var1.pushPose();
+            var1.translate(
+                (double)((float)param0 - (float)this.toast.width() * this.getVisibility(var0)), (double)(param1 * this.toast.height()), (double)(800 + param1)
             );
-            Toast.Visibility var1 = this.toast.render(param2, ToastComponent.this, var0 - this.visibleTime);
-            RenderSystem.popMatrix();
-            if (var1 != this.visibility) {
+            RenderSystem.applyModelViewMatrix();
+            Toast.Visibility var2 = this.toast.render(param2, ToastComponent.this, var0 - this.visibleTime);
+            var1.popPose();
+            RenderSystem.applyModelViewMatrix();
+            if (var2 != this.visibility) {
                 this.animationTime = var0 - (long)((int)((1.0F - this.getVisibility(var0)) * 600.0F));
-                this.visibility = var1;
+                this.visibility = var2;
                 this.visibility.playSound(ToastComponent.this.minecraft.getSoundManager());
             }
 

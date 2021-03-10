@@ -20,6 +20,7 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
@@ -87,7 +88,7 @@ public class BigDripleafBlock extends HorizontalDirectionalBlock implements Bone
         return LEAF_SHAPES.get(param0.getValue(TILT));
     }
 
-    protected static void placeWithRandomHeight(Level param0, Random param1, BlockPos param2) {
+    public static void placeWithRandomHeight(LevelAccessor param0, Random param1, BlockPos param2) {
         int var0 = 1 + param1.nextInt(5);
         Direction var1 = Direction.Plane.HORIZONTAL.getRandomDirection(param1);
         BlockPos.MutableBlockPos var2 = param2.mutable();
@@ -113,8 +114,8 @@ public class BigDripleafBlock extends HorizontalDirectionalBlock implements Bone
         return param0.isAir() || param0.is(Blocks.WATER) || param0.is(Blocks.SMALL_DRIPLEAF);
     }
 
-    private static boolean canPlaceAt(Level param0, BlockPos param1, BlockState param2) {
-        return param0.isInWorldBounds(param1) && canReplace(param2);
+    private static boolean canPlaceAt(LevelHeightAccessor param0, BlockPos param1, BlockState param2) {
+        return !param0.isOutsideBuildHeight(param1) && canReplace(param2);
     }
 
     protected static boolean place(LevelAccessor param0, BlockPos param1, FluidState param2, Direction param3) {

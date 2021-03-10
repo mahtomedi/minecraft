@@ -772,6 +772,18 @@ public class RecipeProvider implements DataProvider {
             .pattern("WWW")
             .unlockedBy("has_quartz", has(Items.QUARTZ))
             .save(param0);
+        ShapedRecipeBuilder.shaped(Blocks.DEEPSLATE_BRICKS, 4)
+            .define('S', Blocks.POLISHED_DEEPSLATE)
+            .pattern("SS")
+            .pattern("SS")
+            .unlockedBy("has_polished_deepslate", has(Blocks.POLISHED_DEEPSLATE))
+            .save(param0);
+        ShapedRecipeBuilder.shaped(Blocks.DEEPSLATE_TILES, 4)
+            .define('S', Blocks.DEEPSLATE_BRICKS)
+            .pattern("SS")
+            .pattern("SS")
+            .unlockedBy("has_deepslate_bricks", has(Blocks.DEEPSLATE_BRICKS))
+            .save(param0);
         ShapedRecipeBuilder.shaped(Blocks.DETECTOR_RAIL, 6)
             .define('R', Items.REDSTONE)
             .define('#', Blocks.STONE_PRESSURE_PLATE)
@@ -2307,8 +2319,8 @@ public class RecipeProvider implements DataProvider {
         SimpleCookingRecipeBuilder.smelting(Ingredient.of(Items.CHORUS_FRUIT), Items.POPPED_CHORUS_FRUIT, 0.1F, 200)
             .unlockedBy("has_chorus_fruit", has(Items.CHORUS_FRUIT))
             .save(param0);
-        SimpleCookingRecipeBuilder.smelting(Ingredient.of(Blocks.COAL_ORE.asItem()), Items.COAL, 0.1F, 200)
-            .unlockedBy("has_coal_ore", has(Blocks.COAL_ORE))
+        SimpleCookingRecipeBuilder.smelting(Ingredient.of(ItemTags.COAL_ORES), Items.COAL, 0.1F, 200)
+            .unlockedBy("has_coal_ore", has(ItemTags.COAL_ORES))
             .save(param0, "coal_from_smelting");
         SimpleCookingRecipeBuilder.smelting(Ingredient.of(Items.BEEF), Items.COOKED_BEEF, 0.35F, 200).unlockedBy("has_beef", has(Items.BEEF)).save(param0);
         SimpleCookingRecipeBuilder.smelting(Ingredient.of(Items.CHICKEN), Items.COOKED_CHICKEN, 0.35F, 200)
@@ -2336,8 +2348,8 @@ public class RecipeProvider implements DataProvider {
         SimpleCookingRecipeBuilder.smelting(Ingredient.of(ItemTags.LAPIS_ORES), Items.LAPIS_LAZULI, 0.2F, 200)
             .unlockedBy("has_lapis_ore", has(ItemTags.LAPIS_ORES))
             .save(param0, "lapis_from_smelting");
-        SimpleCookingRecipeBuilder.smelting(Ingredient.of(Blocks.EMERALD_ORE.asItem()), Items.EMERALD, 1.0F, 200)
-            .unlockedBy("has_emerald_ore", has(Blocks.EMERALD_ORE))
+        SimpleCookingRecipeBuilder.smelting(Ingredient.of(ItemTags.EMERALD_ORES), Items.EMERALD, 1.0F, 200)
+            .unlockedBy("has_emerald_ore", has(ItemTags.EMERALD_ORES))
             .save(param0, "emerald_from_smelting");
         SimpleCookingRecipeBuilder.smelting(Ingredient.of(ItemTags.SAND), Blocks.GLASS.asItem(), 0.1F, 200)
             .unlockedBy("has_sand", has(ItemTags.SAND))
@@ -2418,8 +2430,8 @@ public class RecipeProvider implements DataProvider {
         SimpleCookingRecipeBuilder.smelting(Ingredient.of(ItemTags.IRON_ORES), Items.IRON_INGOT, 0.7F, 200)
             .unlockedBy("has_iron_ore", has(ItemTags.IRON_ORES))
             .save(param0);
-        SimpleCookingRecipeBuilder.smelting(Ingredient.of(Blocks.COPPER_ORE), Items.COPPER_INGOT, 0.7F, 200)
-            .unlockedBy("has_copper_ore", has(Blocks.COPPER_ORE.asItem()))
+        SimpleCookingRecipeBuilder.smelting(Ingredient.of(ItemTags.COPPER_ORES), Items.COPPER_INGOT, 0.7F, 200)
+            .unlockedBy("has_copper_ore", has(ItemTags.COPPER_ORES))
             .save(param0);
         SimpleCookingRecipeBuilder.smelting(Ingredient.of(Blocks.CLAY), Blocks.TERRACOTTA.asItem(), 0.35F, 200)
             .unlockedBy("has_clay_block", has(Blocks.CLAY))
@@ -2505,20 +2517,17 @@ public class RecipeProvider implements DataProvider {
         SimpleCookingRecipeBuilder.smelting(Ingredient.of(Blocks.ANCIENT_DEBRIS), Items.NETHERITE_SCRAP, 2.0F, 200)
             .unlockedBy("has_ancient_debris", has(Blocks.ANCIENT_DEBRIS))
             .save(param0);
-        SimpleCookingRecipeBuilder.smelting(Ingredient.of(Blocks.POLISHED_BLACKSTONE_BRICKS), Blocks.CRACKED_POLISHED_BLACKSTONE_BRICKS.asItem(), 0.1F, 200)
-            .unlockedBy("has_blackstone_bricks", has(Blocks.POLISHED_BLACKSTONE_BRICKS))
-            .save(param0);
-        SimpleCookingRecipeBuilder.smelting(Ingredient.of(Blocks.NETHER_BRICKS), Blocks.CRACKED_NETHER_BRICKS.asItem(), 0.1F, 200)
-            .unlockedBy("has_nether_bricks", has(Blocks.NETHER_BRICKS))
-            .save(param0);
         SimpleCookingRecipeBuilder.smelting(Ingredient.of(Blocks.BASALT), Blocks.SMOOTH_BASALT, 0.1F, 200)
             .unlockedBy("has_basalt", has(Blocks.BASALT))
+            .save(param0);
+        SimpleCookingRecipeBuilder.smelting(Ingredient.of(Blocks.COBBLED_DEEPSLATE), Blocks.DEEPSLATE, 0.1F, 200)
+            .unlockedBy("has_cobbled_deepslate", has(Blocks.COBBLED_DEEPSLATE))
             .save(param0);
         SimpleCookingRecipeBuilder.blasting(Ingredient.of(ItemTags.IRON_ORES), Items.IRON_INGOT, 0.7F, 100)
             .unlockedBy("has_iron_ore", has(ItemTags.IRON_ORES))
             .save(param0, "iron_ingot_from_blasting");
-        SimpleCookingRecipeBuilder.blasting(Ingredient.of(Blocks.COPPER_ORE), Items.COPPER_INGOT, 0.7F, 100)
-            .unlockedBy("has_copper_ore", has(Blocks.COPPER_ORE.asItem()))
+        SimpleCookingRecipeBuilder.blasting(Ingredient.of(ItemTags.COPPER_ORES), Items.COPPER_INGOT, 0.7F, 100)
+            .unlockedBy("has_copper_ore", has(ItemTags.COPPER_ORES))
             .save(param0, "copper_ingot_from_blasting");
         SimpleCookingRecipeBuilder.blasting(Ingredient.of(ItemTags.GOLD_ORES), Items.GOLD_INGOT, 1.0F, 100)
             .unlockedBy("has_gold_ore", has(ItemTags.GOLD_ORES))
@@ -2532,11 +2541,11 @@ public class RecipeProvider implements DataProvider {
         SimpleCookingRecipeBuilder.blasting(Ingredient.of(ItemTags.REDSTONE_ORES), Items.REDSTONE, 0.7F, 100)
             .unlockedBy("has_redstone_ore", has(ItemTags.REDSTONE_ORES))
             .save(param0, "redstone_from_blasting");
-        SimpleCookingRecipeBuilder.blasting(Ingredient.of(Blocks.COAL_ORE.asItem()), Items.COAL, 0.1F, 100)
-            .unlockedBy("has_coal_ore", has(Blocks.COAL_ORE))
+        SimpleCookingRecipeBuilder.blasting(Ingredient.of(ItemTags.COAL_ORES), Items.COAL, 0.1F, 100)
+            .unlockedBy("has_coal_ore", has(ItemTags.COAL_ORES))
             .save(param0, "coal_from_blasting");
-        SimpleCookingRecipeBuilder.blasting(Ingredient.of(Blocks.EMERALD_ORE.asItem()), Items.EMERALD, 1.0F, 100)
-            .unlockedBy("has_emerald_ore", has(Blocks.EMERALD_ORE))
+        SimpleCookingRecipeBuilder.blasting(Ingredient.of(ItemTags.EMERALD_ORES), Items.EMERALD, 1.0F, 100)
+            .unlockedBy("has_emerald_ore", has(ItemTags.EMERALD_ORES))
             .save(param0, "emerald_from_blasting");
         SimpleCookingRecipeBuilder.blasting(Ingredient.of(Blocks.NETHER_QUARTZ_ORE), Items.QUARTZ, 0.2F, 100)
             .unlockedBy("has_nether_quartz_ore", has(Blocks.NETHER_QUARTZ_ORE))
@@ -3012,15 +3021,39 @@ public class RecipeProvider implements DataProvider {
         stonecutterResultFromBase(param0, Blocks.COBBLED_DEEPSLATE_STAIRS, Blocks.COBBLED_DEEPSLATE);
         stonecutterResultFromBase(param0, Blocks.COBBLED_DEEPSLATE_WALL, Blocks.COBBLED_DEEPSLATE);
         stonecutterResultFromBase(param0, Blocks.CHISELED_DEEPSLATE, Blocks.COBBLED_DEEPSLATE);
+        stonecutterResultFromBase(param0, Blocks.POLISHED_DEEPSLATE, Blocks.COBBLED_DEEPSLATE);
+        stonecutterResultFromBase(param0, Blocks.POLISHED_DEEPSLATE_SLAB, Blocks.COBBLED_DEEPSLATE, 2);
+        stonecutterResultFromBase(param0, Blocks.POLISHED_DEEPSLATE_STAIRS, Blocks.COBBLED_DEEPSLATE);
+        stonecutterResultFromBase(param0, Blocks.POLISHED_DEEPSLATE_WALL, Blocks.COBBLED_DEEPSLATE);
+        stonecutterResultFromBase(param0, Blocks.DEEPSLATE_BRICKS, Blocks.COBBLED_DEEPSLATE);
+        stonecutterResultFromBase(param0, Blocks.DEEPSLATE_BRICK_SLAB, Blocks.COBBLED_DEEPSLATE, 2);
+        stonecutterResultFromBase(param0, Blocks.DEEPSLATE_BRICK_STAIRS, Blocks.COBBLED_DEEPSLATE);
+        stonecutterResultFromBase(param0, Blocks.DEEPSLATE_BRICK_WALL, Blocks.COBBLED_DEEPSLATE);
+        stonecutterResultFromBase(param0, Blocks.DEEPSLATE_TILES, Blocks.COBBLED_DEEPSLATE);
+        stonecutterResultFromBase(param0, Blocks.DEEPSLATE_TILE_SLAB, Blocks.COBBLED_DEEPSLATE, 2);
+        stonecutterResultFromBase(param0, Blocks.DEEPSLATE_TILE_STAIRS, Blocks.COBBLED_DEEPSLATE);
+        stonecutterResultFromBase(param0, Blocks.DEEPSLATE_TILE_WALL, Blocks.COBBLED_DEEPSLATE);
         stonecutterResultFromBase(param0, Blocks.POLISHED_DEEPSLATE_SLAB, Blocks.POLISHED_DEEPSLATE, 2);
         stonecutterResultFromBase(param0, Blocks.POLISHED_DEEPSLATE_STAIRS, Blocks.POLISHED_DEEPSLATE);
         stonecutterResultFromBase(param0, Blocks.POLISHED_DEEPSLATE_WALL, Blocks.POLISHED_DEEPSLATE);
-        stonecutterResultFromBase(param0, Blocks.DEEPSLATE_TILE_SLAB, Blocks.DEEPSLATE_TILES, 2);
-        stonecutterResultFromBase(param0, Blocks.DEEPSLATE_TILE_STAIRS, Blocks.DEEPSLATE_TILES);
-        stonecutterResultFromBase(param0, Blocks.DEEPSLATE_TILE_WALL, Blocks.DEEPSLATE_TILES);
+        stonecutterResultFromBase(param0, Blocks.DEEPSLATE_BRICKS, Blocks.POLISHED_DEEPSLATE);
+        stonecutterResultFromBase(param0, Blocks.DEEPSLATE_BRICK_SLAB, Blocks.POLISHED_DEEPSLATE, 2);
+        stonecutterResultFromBase(param0, Blocks.DEEPSLATE_BRICK_STAIRS, Blocks.POLISHED_DEEPSLATE);
+        stonecutterResultFromBase(param0, Blocks.DEEPSLATE_BRICK_WALL, Blocks.POLISHED_DEEPSLATE);
+        stonecutterResultFromBase(param0, Blocks.DEEPSLATE_TILES, Blocks.POLISHED_DEEPSLATE);
+        stonecutterResultFromBase(param0, Blocks.DEEPSLATE_TILE_SLAB, Blocks.POLISHED_DEEPSLATE, 2);
+        stonecutterResultFromBase(param0, Blocks.DEEPSLATE_TILE_STAIRS, Blocks.POLISHED_DEEPSLATE);
+        stonecutterResultFromBase(param0, Blocks.DEEPSLATE_TILE_WALL, Blocks.POLISHED_DEEPSLATE);
         stonecutterResultFromBase(param0, Blocks.DEEPSLATE_BRICK_SLAB, Blocks.DEEPSLATE_BRICKS, 2);
         stonecutterResultFromBase(param0, Blocks.DEEPSLATE_BRICK_STAIRS, Blocks.DEEPSLATE_BRICKS);
         stonecutterResultFromBase(param0, Blocks.DEEPSLATE_BRICK_WALL, Blocks.DEEPSLATE_BRICKS);
+        stonecutterResultFromBase(param0, Blocks.DEEPSLATE_TILES, Blocks.DEEPSLATE_BRICKS);
+        stonecutterResultFromBase(param0, Blocks.DEEPSLATE_TILE_SLAB, Blocks.DEEPSLATE_BRICKS, 2);
+        stonecutterResultFromBase(param0, Blocks.DEEPSLATE_TILE_STAIRS, Blocks.DEEPSLATE_BRICKS);
+        stonecutterResultFromBase(param0, Blocks.DEEPSLATE_TILE_WALL, Blocks.DEEPSLATE_BRICKS);
+        stonecutterResultFromBase(param0, Blocks.DEEPSLATE_TILE_SLAB, Blocks.DEEPSLATE_TILES, 2);
+        stonecutterResultFromBase(param0, Blocks.DEEPSLATE_TILE_STAIRS, Blocks.DEEPSLATE_TILES);
+        stonecutterResultFromBase(param0, Blocks.DEEPSLATE_TILE_WALL, Blocks.DEEPSLATE_TILES);
         netheriteSmithing(param0, Items.DIAMOND_CHESTPLATE, Items.NETHERITE_CHESTPLATE);
         netheriteSmithing(param0, Items.DIAMOND_LEGGINGS, Items.NETHERITE_LEGGINGS);
         netheriteSmithing(param0, Items.DIAMOND_HELMET, Items.NETHERITE_HELMET);
@@ -3267,6 +3300,10 @@ public class RecipeProvider implements DataProvider {
             .save(param0, getFromName(param1, param2) + "_stonecutting");
     }
 
+    private static void smeltingResultFromBase(Consumer<FinishedRecipe> param0, ItemLike param1, ItemLike param2) {
+        SimpleCookingRecipeBuilder.smelting(Ingredient.of(param2), param1, 0.1F, 200).unlockedBy(getHasName(param2), has(param2)).save(param0);
+    }
+
     private static void cookRecipes(Consumer<FinishedRecipe> param0, String param1, SimpleCookingSerializer<?> param2, int param3) {
         SimpleCookingRecipeBuilder.cooking(Ingredient.of(Items.BEEF), Items.COOKED_BEEF, 0.35F, param3, param2)
             .unlockedBy("has_beef", has(Items.BEEF))
@@ -3298,21 +3335,33 @@ public class RecipeProvider implements DataProvider {
     }
 
     private static void generateRecipes(Consumer<FinishedRecipe> param0, BlockFamily param1) {
-        param1.getShapes().forEach((param2, param3) -> {
+        param1.getVariants().forEach((param2, param3) -> {
             BiFunction<ItemLike, ItemLike, RecipeBuilder> var0x = shapeBuilders.get(param2);
+            ItemLike var1x = getBaseBlock(param1, param2);
             if (var0x != null) {
-                ItemLike var1x = getBaseBlock(param1, param2);
                 RecipeBuilder var2 = (RecipeBuilder)var0x.apply(param3, var1x);
                 param1.getRecipeGroupPrefix().ifPresent(param2x -> var2.group(param2x + "_" + param2.getName()));
                 var2.unlockedBy(param1.getRecipeUnlockedBy().orElseGet(() -> getHasName(var1x)), has(var1x));
                 var2.save(param0);
             }
 
+            if (param2 == BlockFamily.Variant.CRACKED) {
+                smeltingResultFromBase(param0, param3, var1x);
+            }
+
         });
     }
 
     private static Block getBaseBlock(BlockFamily param0, BlockFamily.Variant param1) {
-        return param1 == BlockFamily.Variant.CHISELED ? param0.get(BlockFamily.Variant.SLAB) : param0.getBaseBlock();
+        if (param1 == BlockFamily.Variant.CHISELED) {
+            if (!param0.getVariants().containsKey(BlockFamily.Variant.SLAB)) {
+                throw new IllegalStateException("Slab is not defined for the family.");
+            } else {
+                return param0.get(BlockFamily.Variant.SLAB);
+            }
+        } else {
+            return param0.getBaseBlock();
+        }
     }
 
     private static EnterBlockTrigger.TriggerInstance insideOf(Block param0) {

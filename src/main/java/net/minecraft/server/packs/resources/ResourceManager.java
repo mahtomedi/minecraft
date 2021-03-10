@@ -14,11 +14,9 @@ import net.minecraft.server.packs.PackResources;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public interface ResourceManager {
+public interface ResourceManager extends ResourceProvider {
     @OnlyIn(Dist.CLIENT)
     Set<String> getNamespaces();
-
-    Resource getResource(ResourceLocation var1) throws IOException;
 
     @OnlyIn(Dist.CLIENT)
     boolean hasResource(ResourceLocation var1);

@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.StructureBlockEntity;
@@ -23,7 +24,7 @@ public class StructureBlockRenderer implements BlockEntityRenderer<StructureBloc
     public void render(StructureBlockEntity param0, float param1, PoseStack param2, MultiBufferSource param3, int param4, int param5) {
         if (Minecraft.getInstance().player.canUseGameMasterBlocks() || Minecraft.getInstance().player.isSpectator()) {
             BlockPos var0 = param0.getStructurePos();
-            BlockPos var1 = param0.getStructureSize();
+            Vec3i var1 = param0.getStructureSize();
             if (var1.getX() >= 1 && var1.getY() >= 1 && var1.getZ() >= 1) {
                 if (param0.getMode() == StructureMode.SAVE || param0.getMode() == StructureMode.LOAD) {
                     double var2 = (double)var0.getX();

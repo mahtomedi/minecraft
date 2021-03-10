@@ -3,6 +3,7 @@ package net.minecraft.client.gui.screens.inventory;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -73,15 +74,16 @@ public class MerchantScreen extends AbstractContainerScreen<MerchantMenu> {
             this.font.draw(param0, this.title, (float)(49 + this.imageWidth / 2 - this.font.width(this.title) / 2), 6.0F, 4210752);
         }
 
-        this.font.draw(param0, this.inventory.getDisplayName(), (float)this.inventoryLabelX, (float)this.inventoryLabelY, 4210752);
+        this.font.draw(param0, this.playerInventoryTitle, (float)this.inventoryLabelX, (float)this.inventoryLabelY, 4210752);
         int var4 = this.font.width(TRADES_LABEL);
         this.font.draw(param0, TRADES_LABEL, (float)(5 - var4 / 2 + 48), 6.0F, 4210752);
     }
 
     @Override
     protected void renderBg(PoseStack param0, float param1, int param2, int param3) {
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        this.minecraft.getTextureManager().bind(VILLAGER_LOCATION);
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderTexture(0, VILLAGER_LOCATION);
         int var0 = (this.width - this.imageWidth) / 2;
         int var1 = (this.height - this.imageHeight) / 2;
         blit(param0, var0, var1, this.getBlitOffset(), 0.0F, 0.0F, this.imageWidth, this.imageHeight, 256, 512);
@@ -94,8 +96,8 @@ public class MerchantScreen extends AbstractContainerScreen<MerchantMenu> {
 
             MerchantOffer var4 = var2.get(var3);
             if (var4.isOutOfStock()) {
-                this.minecraft.getTextureManager().bind(VILLAGER_LOCATION);
-                RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+                RenderSystem.setShaderTexture(0, VILLAGER_LOCATION);
+                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                 blit(param0, this.leftPos + 83 + 99, this.topPos + 35, this.getBlitOffset(), 311.0F, 0.0F, 28, 21, 256, 512);
             }
         }
@@ -103,7 +105,8 @@ public class MerchantScreen extends AbstractContainerScreen<MerchantMenu> {
     }
 
     private void renderProgressBar(PoseStack param0, int param1, int param2, MerchantOffer param3) {
-        this.minecraft.getTextureManager().bind(VILLAGER_LOCATION);
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderTexture(0, VILLAGER_LOCATION);
         int var0 = this.menu.getTraderLevel();
         int var1 = this.menu.getTraderXp();
         if (var0 < 5) {
@@ -152,9 +155,8 @@ public class MerchantScreen extends AbstractContainerScreen<MerchantMenu> {
             int var2 = (this.height - this.imageHeight) / 2;
             int var3 = var2 + 16 + 1;
             int var4 = var1 + 5 + 5;
-            RenderSystem.pushMatrix();
-            RenderSystem.enableRescaleNormal();
-            this.minecraft.getTextureManager().bind(VILLAGER_LOCATION);
+            RenderSystem.setShader(GameRenderer::getPositionTexShader);
+            RenderSystem.setShaderTexture(0, VILLAGER_LOCATION);
             this.renderScroller(param0, var1, var2, var0);
             int var5 = 0;
 
@@ -201,7 +203,6 @@ public class MerchantScreen extends AbstractContainerScreen<MerchantMenu> {
                 var14.visible = var14.index < this.menu.getOffers().size();
             }
 
-            RenderSystem.popMatrix();
             RenderSystem.enableDepthTest();
         }
 
@@ -210,7 +211,8 @@ public class MerchantScreen extends AbstractContainerScreen<MerchantMenu> {
 
     private void renderButtonArrows(PoseStack param0, MerchantOffer param1, int param2, int param3) {
         RenderSystem.enableBlend();
-        this.minecraft.getTextureManager().bind(VILLAGER_LOCATION);
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderTexture(0, VILLAGER_LOCATION);
         if (param1.isOutOfStock()) {
             blit(param0, param2 + 5 + 35 + 20, param3 + 3, this.getBlitOffset(), 25.0F, 171.0F, 10, 9, 256, 512);
         } else {
@@ -226,7 +228,8 @@ public class MerchantScreen extends AbstractContainerScreen<MerchantMenu> {
         } else {
             this.itemRenderer.renderGuiItemDecorations(this.font, param2, param3, param4, param2.getCount() == 1 ? "1" : null);
             this.itemRenderer.renderGuiItemDecorations(this.font, param1, param3 + 14, param4, param1.getCount() == 1 ? "1" : null);
-            this.minecraft.getTextureManager().bind(VILLAGER_LOCATION);
+            RenderSystem.setShader(GameRenderer::getPositionTexShader);
+            RenderSystem.setShaderTexture(0, VILLAGER_LOCATION);
             this.setBlitOffset(this.getBlitOffset() + 300);
             blit(param0, param3 + 7, param4 + 12, this.getBlitOffset(), 0.0F, 176.0F, 9, 2, 256, 512);
             this.setBlitOffset(this.getBlitOffset() - 300);

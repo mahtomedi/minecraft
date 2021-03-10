@@ -1,7 +1,6 @@
 package net.minecraft.client.gui.screens.inventory;
 
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -18,17 +17,12 @@ public class LecternScreen extends BookViewScreen implements MenuAccess<LecternM
     private final LecternMenu menu;
     private final ContainerListener listener = new ContainerListener() {
         @Override
-        public void refreshContainer(AbstractContainerMenu param0, NonNullList<ItemStack> param1) {
-            LecternScreen.this.bookChanged();
-        }
-
-        @Override
         public void slotChanged(AbstractContainerMenu param0, int param1, ItemStack param2) {
             LecternScreen.this.bookChanged();
         }
 
         @Override
-        public void setContainerData(AbstractContainerMenu param0, int param1, int param2) {
+        public void dataChanged(AbstractContainerMenu param0, int param1, int param2) {
             if (param1 == 0) {
                 LecternScreen.this.pageChanged();
             }
@@ -109,5 +103,10 @@ public class LecternScreen extends BookViewScreen implements MenuAccess<LecternM
 
     private void pageChanged() {
         this.setPage(this.menu.getPage());
+    }
+
+    @Override
+    protected void closeScreen() {
+        this.minecraft.player.closeContainer();
     }
 }

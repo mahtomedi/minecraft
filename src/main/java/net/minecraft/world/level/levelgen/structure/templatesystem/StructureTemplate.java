@@ -1,5 +1,6 @@
 package net.minecraft.world.level.levelgen.structure.templatesystem;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mojang.datafixers.util.Pair;
@@ -16,6 +17,7 @@ import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.IdMapper;
+import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.DoubleTag;
 import net.minecraft.nbt.IntTag;
@@ -50,10 +52,10 @@ import net.minecraft.world.phys.shapes.DiscreteVoxelShape;
 public class StructureTemplate {
     private final List<StructureTemplate.Palette> palettes = Lists.newArrayList();
     private final List<StructureTemplate.StructureEntityInfo> entityInfoList = Lists.newArrayList();
-    private BlockPos size = BlockPos.ZERO;
+    private Vec3i size = Vec3i.ZERO;
     private String author = "?";
 
-    public BlockPos getSize() {
+    public Vec3i getSize() {
         return this.size;
     }
 
@@ -65,7 +67,7 @@ public class StructureTemplate {
         return this.author;
     }
 
-    public void fillFromWorld(Level param0, BlockPos param1, BlockPos param2, boolean param3, @Nullable Block param4) {
+    public void fillFromWorld(Level param0, BlockPos param1, Vec3i param2, boolean param3, @Nullable Block param4) {
         if (param2.getX() >= 1 && param2.getY() >= 1 && param2.getZ() >= 1) {
             BlockPos var0 = param1.offset(param2).offset(-1, -1, -1);
             List<StructureTemplate.StructureBlockInfo> var1 = Lists.newArrayList();
@@ -416,11 +418,11 @@ public class StructureTemplate {
         }
     }
 
-    public BlockPos getSize(Rotation param0) {
+    public Vec3i getSize(Rotation param0) {
         switch(param0) {
             case COUNTERCLOCKWISE_90:
             case CLOCKWISE_90:
-                return new BlockPos(this.size.getZ(), this.size.getY(), this.size.getX());
+                return new Vec3i(this.size.getZ(), this.size.getY(), this.size.getX());
             default:
                 return this.size;
         }
@@ -518,51 +520,15 @@ public class StructureTemplate {
     }
 
     public BoundingBox getBoundingBox(BlockPos param0, Rotation param1, BlockPos param2, Mirror param3) {
-        BlockPos var0 = this.getSize(param1);
-        int var1 = param2.getX();
-        int var2 = param2.getZ();
-        int var3 = var0.getX() - 1;
-        int var4 = var0.getY() - 1;
-        int var5 = var0.getZ() - 1;
-        BoundingBox var6 = new BoundingBox(0, 0, 0, 0, 0, 0);
-        switch(param1) {
-            case COUNTERCLOCKWISE_90:
-                var6 = new BoundingBox(var1 - var2, 0, var1 + var2 - var5, var1 - var2 + var3, var4, var1 + var2);
-                break;
-            case CLOCKWISE_90:
-                var6 = new BoundingBox(var1 + var2 - var3, 0, var2 - var1, var1 + var2, var4, var2 - var1 + var5);
-                break;
-            case CLOCKWISE_180:
-                var6 = new BoundingBox(var1 + var1 - var3, 0, var2 + var2 - var5, var1 + var1, var4, var2 + var2);
-                break;
-            case NONE:
-                var6 = new BoundingBox(0, 0, 0, var3, var4, var5);
-        }
-
-        switch(param3) {
-            case LEFT_RIGHT:
-                this.mirrorAABB(param1, var5, var3, var6, Direction.NORTH, Direction.SOUTH);
-                break;
-            case FRONT_BACK:
-                this.mirrorAABB(param1, var3, var5, var6, Direction.WEST, Direction.EAST);
-            case NONE:
-        }
-
-        var6.move(param0.getX(), param0.getY(), param0.getZ());
-        return var6;
+        return getBoundingBox(param0, param1, param2, param3, this.size);
     }
 
-    private void mirrorAABB(Rotation param0, int param1, int param2, BoundingBox param3, Direction param4, Direction param5) {
-        BlockPos var0 = BlockPos.ZERO;
-        if (param0 == Rotation.CLOCKWISE_90 || param0 == Rotation.COUNTERCLOCKWISE_90) {
-            var0 = var0.relative(param0.rotate(param4), param2);
-        } else if (param0 == Rotation.CLOCKWISE_180) {
-            var0 = var0.relative(param5, param1);
-        } else {
-            var0 = var0.relative(param4, param1);
-        }
-
-        param3.move(var0.getX(), 0, var0.getZ());
+    @VisibleForTesting
+    protected static BoundingBox getBoundingBox(BlockPos param0, Rotation param1, BlockPos param2, Mirror param3, Vec3i param4) {
+        Vec3i var0 = param4.offset(-1, -1, -1);
+        BlockPos var1 = transform(BlockPos.ZERO, param3, param1, param2);
+        BlockPos var2 = transform(BlockPos.ZERO.offset(var0), param3, param1, param2);
+        return BoundingBox.createProper(var1, var2).move(param0);
     }
 
     public CompoundTag save(CompoundTag param0) {
@@ -648,7 +614,7 @@ public class StructureTemplate {
         this.palettes.clear();
         this.entityInfoList.clear();
         ListTag var0 = param0.getList("size", 3);
-        this.size = new BlockPos(var0.getInt(0), var0.getInt(1), var0.getInt(2));
+        this.size = new Vec3i(var0.getInt(0), var0.getInt(1), var0.getInt(2));
         ListTag var1 = param0.getList("blocks", 10);
         if (param0.contains("palettes", 9)) {
             ListTag var2 = param0.getList("palettes", 9);

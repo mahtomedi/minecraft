@@ -49,11 +49,11 @@ public class ChatComponent extends GuiComponent {
                     var2 = true;
                 }
 
-                double var3 = this.getScale();
-                int var4 = Mth.ceil((double)this.getWidth() / var3);
-                RenderSystem.pushMatrix();
-                RenderSystem.translatef(2.0F, 8.0F, 0.0F);
-                RenderSystem.scaled(var3, var3, 1.0);
+                float var3 = (float)this.getScale();
+                int var4 = Mth.ceil((float)this.getWidth() / var3);
+                param0.pushPose();
+                param0.translate(2.0, 8.0, 0.0);
+                param0.scale(var3, var3, 1.0F);
                 double var5 = this.minecraft.options.chatOpacity * 0.9F + 0.1F;
                 double var6 = this.minecraft.options.textBackgroundOpacity;
                 double var7 = 9.0 * (this.minecraft.options.chatLineSpacing + 1.0);
@@ -78,7 +78,6 @@ public class ChatComponent extends GuiComponent {
                                 RenderSystem.enableBlend();
                                 param0.translate(0.0, 0.0, 50.0);
                                 this.minecraft.font.drawShadow(param0, var11.getMessage(), 0.0F, (float)((int)(var17 + var8)), 16777215 + (var14 << 24));
-                                RenderSystem.disableAlphaTest();
                                 RenderSystem.disableBlend();
                                 param0.popPose();
                             }
@@ -98,13 +97,11 @@ public class ChatComponent extends GuiComponent {
                         .font
                         .drawShadow(param0, new TranslatableComponent("chat.queue", this.chatQueue.size()), 0.0F, 1.0F, 16777215 + (var18 << 24));
                     param0.popPose();
-                    RenderSystem.disableAlphaTest();
                     RenderSystem.disableBlend();
                 }
 
                 if (var2) {
                     int var20 = 9;
-                    RenderSystem.translatef(-3.0F, 0.0F, 0.0F);
                     int var21 = var1 * var20 + var1;
                     int var22 = var9 * var20 + var9;
                     int var23 = this.chatScrollbarPos * var22 / var1;
@@ -117,7 +114,7 @@ public class ChatComponent extends GuiComponent {
                     }
                 }
 
-                RenderSystem.popMatrix();
+                param0.popPose();
             }
         }
     }

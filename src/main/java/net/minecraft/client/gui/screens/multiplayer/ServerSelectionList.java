@@ -25,7 +25,10 @@ import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.ServerList;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.DynamicTexture;
+import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.server.LanServer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
@@ -218,6 +221,7 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
         private final ServerData serverData;
         private final ResourceLocation iconLocation;
         private String lastIconB64;
+        @Nullable
         private DynamicTexture icon;
         private long lastClickTime;
 
@@ -226,7 +230,11 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
             this.serverData = param2;
             this.minecraft = Minecraft.getInstance();
             this.iconLocation = new ResourceLocation("servers/" + Hashing.sha1().hashUnencodedChars(param2.ip) + "/icon");
-            this.icon = (DynamicTexture)this.minecraft.getTextureManager().getTexture(this.iconLocation);
+            AbstractTexture var0 = this.minecraft.getTextureManager().getTexture(this.iconLocation, MissingTextureAtlasSprite.getTexture());
+            if (var0 != MissingTextureAtlasSprite.getTexture() && var0 instanceof DynamicTexture) {
+                this.icon = (DynamicTexture)var0;
+            }
+
         }
 
         @Override
@@ -302,8 +310,9 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
                 var8 = Collections.emptyList();
             }
 
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            this.minecraft.getTextureManager().bind(GuiComponent.GUI_ICONS_LOCATION);
+            RenderSystem.setShader(GameRenderer::getPositionTexShader);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.setShaderTexture(0, GuiComponent.GUI_ICONS_LOCATION);
             GuiComponent.blit(param0, param3 + param4 - 15, param2, (float)(var5 * 10), (float)(176 + var6 * 8), 10, 8, 256, 256);
             String var22 = this.serverData.getIconB64();
             if (!Objects.equals(var22, this.lastIconB64)) {
@@ -315,10 +324,10 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
                 }
             }
 
-            if (this.icon != null) {
-                this.drawIcon(param0, param3, param2, this.iconLocation);
-            } else {
+            if (this.icon == null) {
                 this.drawIcon(param0, param3, param2, ServerSelectionList.ICON_MISSING);
+            } else {
+                this.drawIcon(param0, param3, param2, this.iconLocation);
             }
 
             int var23 = param6 - param3;
@@ -330,9 +339,10 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
             }
 
             if (this.minecraft.options.touchscreen || param8) {
-                this.minecraft.getTextureManager().bind(ServerSelectionList.ICON_OVERLAY_LOCATION);
+                RenderSystem.setShaderTexture(0, ServerSelectionList.ICON_OVERLAY_LOCATION);
                 GuiComponent.fill(param0, param3, param2, param3 + 32, param2 + 32, -1601138544);
-                RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+                RenderSystem.setShader(GameRenderer::getPositionTexShader);
+                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                 int var25 = param6 - param3;
                 int var26 = param7 - param2;
                 if (this.canJoin()) {
@@ -367,7 +377,7 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
         }
 
         protected void drawIcon(PoseStack param0, int param1, int param2, ResourceLocation param3) {
-            this.minecraft.getTextureManager().bind(param3);
+            RenderSystem.setShaderTexture(0, param3);
             RenderSystem.enableBlend();
             GuiComponent.blit(param0, param1, param2, 0.0F, 0.0F, 32, 32, 32, 32);
             RenderSystem.disableBlend();

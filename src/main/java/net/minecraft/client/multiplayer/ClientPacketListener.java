@@ -108,7 +108,6 @@ import net.minecraft.network.protocol.game.ClientboundChatPacket;
 import net.minecraft.network.protocol.game.ClientboundClearTitlesPacket;
 import net.minecraft.network.protocol.game.ClientboundCommandSuggestionsPacket;
 import net.minecraft.network.protocol.game.ClientboundCommandsPacket;
-import net.minecraft.network.protocol.game.ClientboundContainerAckPacket;
 import net.minecraft.network.protocol.game.ClientboundContainerClosePacket;
 import net.minecraft.network.protocol.game.ClientboundContainerSetContentPacket;
 import net.minecraft.network.protocol.game.ClientboundContainerSetDataPacket;
@@ -192,7 +191,6 @@ import net.minecraft.network.protocol.game.ClientboundUpdateRecipesPacket;
 import net.minecraft.network.protocol.game.ClientboundUpdateTagsPacket;
 import net.minecraft.network.protocol.game.ServerboundAcceptTeleportationPacket;
 import net.minecraft.network.protocol.game.ServerboundClientCommandPacket;
-import net.minecraft.network.protocol.game.ServerboundContainerAckPacket;
 import net.minecraft.network.protocol.game.ServerboundCustomPayloadPacket;
 import net.minecraft.network.protocol.game.ServerboundKeepAlivePacket;
 import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
@@ -985,7 +983,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
         this.minecraft.getTutorial().onGetItem(var1);
         if (param0.getContainerId() == -1) {
             if (!(this.minecraft.screen instanceof CreativeModeInventoryScreen)) {
-                var0.getInventory().setCarried(var1);
+                var0.containerMenu.setCarried(var1);
             }
         } else if (param0.getContainerId() == -2) {
             var0.getInventory().setItem(var2, var1);
@@ -1008,23 +1006,6 @@ public class ClientPacketListener implements ClientGamePacketListener {
             } else if (param0.getContainerId() == var0.containerMenu.containerId && (param0.getContainerId() != 0 || !var3)) {
                 var0.containerMenu.setItem(var2, var1);
             }
-        }
-
-    }
-
-    @Override
-    public void handleContainerAck(ClientboundContainerAckPacket param0) {
-        PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
-        AbstractContainerMenu var0 = null;
-        Player var1 = this.minecraft.player;
-        if (param0.getContainerId() == 0) {
-            var0 = var1.inventoryMenu;
-        } else if (param0.getContainerId() == var1.containerMenu.containerId) {
-            var0 = var1.containerMenu;
-        }
-
-        if (var0 != null && !param0.isAccepted()) {
-            this.send(new ServerboundContainerAckPacket(param0.getContainerId(), param0.getUid(), true));
         }
 
     }
@@ -2170,7 +2151,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
     public void handlePlaceRecipe(ClientboundPlaceGhostRecipePacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
         AbstractContainerMenu var0 = this.minecraft.player.containerMenu;
-        if (var0.containerId == param0.getContainerId() && var0.isSynched(this.minecraft.player)) {
+        if (var0.containerId == param0.getContainerId()) {
             this.recipeManager.byKey(param0.getRecipe()).ifPresent(param1 -> {
                 if (this.minecraft.screen instanceof RecipeUpdateListener) {
                     RecipeBookComponent var0x = ((RecipeUpdateListener)this.minecraft.screen).getRecipeBookComponent();

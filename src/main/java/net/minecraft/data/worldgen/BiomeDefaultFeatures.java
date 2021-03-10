@@ -153,6 +153,20 @@ public class BiomeDefaultFeatures {
         param0.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, Features.TREES_SHATTERED_SAVANNA);
     }
 
+    public static void addLushCavesVegetationFeatures(BiomeGenerationSettings.Builder param0) {
+        param0.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, Features.LUSH_CAVES_CEILING_VEGETATION);
+        param0.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, Features.CAVE_VINES);
+        param0.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, Features.LUSH_CAVES_CLAY);
+        param0.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, Features.LUSH_CAVES_VEGETATION);
+        param0.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, Features.ROOTED_AZALEA_TREES);
+        param0.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, Features.SPORE_BLOSSOM_FEATURE);
+        param0.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, Features.CLASSIC_VINES_CAVE_FEATURE);
+    }
+
+    public static void addLushCavesSpecialOres(BiomeGenerationSettings.Builder param0) {
+        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_CLAY);
+    }
+
     public static void addMountainTrees(BiomeGenerationSettings.Builder param0) {
         param0.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, Features.TREES_MOUNTAIN);
     }
@@ -170,11 +184,11 @@ public class BiomeDefaultFeatures {
     }
 
     public static void addBadlandsTrees(BiomeGenerationSettings.Builder param0) {
-        param0.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, Features.OAK_BADLANDS);
+        param0.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, Features.TREES_BADLANDS);
     }
 
     public static void addSnowyTrees(BiomeGenerationSettings.Builder param0) {
-        param0.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, Features.SPRUCE_SNOWY);
+        param0.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, Features.TREES_SNOWY);
     }
 
     public static void addJungleGrass(BiomeGenerationSettings.Builder param0) {
@@ -207,7 +221,7 @@ public class BiomeDefaultFeatures {
     }
 
     public static void addSwampVegetation(BiomeGenerationSettings.Builder param0) {
-        param0.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, Features.SWAMP_TREE);
+        param0.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, Features.TREES_SWAMP);
         param0.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, Features.FLOWER_SWAMP);
         param0.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, Features.PATCH_GRASS_NORMAL);
         param0.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, Features.PATCH_DEAD_BUSH);
@@ -298,7 +312,8 @@ public class BiomeDefaultFeatures {
     }
 
     public static void addFossilDecoration(BiomeGenerationSettings.Builder param0) {
-        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_STRUCTURES, Features.FOSSIL);
+        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_STRUCTURES, Features.FOSSIL_UPPER);
+        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_STRUCTURES, Features.FOSSIL_LOWER);
     }
 
     public static void addColdOceanExtraVegetation(BiomeGenerationSettings.Builder param0) {

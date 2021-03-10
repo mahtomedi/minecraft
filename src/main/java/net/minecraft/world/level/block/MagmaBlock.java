@@ -33,7 +33,7 @@ public class MagmaBlock extends Block {
 
     @Override
     public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
-        BubbleColumnBlock.growColumn(param1, param2.above(), true);
+        BubbleColumnBlock.updateColumn(param1, param2.above(), param0);
     }
 
     @Override

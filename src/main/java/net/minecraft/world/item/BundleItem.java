@@ -14,8 +14,8 @@ import net.minecraft.stats.Stats;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ClickAction;
 import net.minecraft.world.inventory.Slot;
@@ -38,7 +38,7 @@ public class BundleItem extends Item {
     }
 
     @Override
-    public boolean overrideStackedOnOther(ItemStack param0, Slot param1, ClickAction param2, Inventory param3) {
+    public boolean overrideStackedOnOther(ItemStack param0, Slot param1, ClickAction param2, Player param3) {
         if (param2 != ClickAction.SECONDARY) {
             return false;
         } else {
@@ -47,7 +47,7 @@ public class BundleItem extends Item {
                 removeOne(param0).ifPresent(param2x -> add(param0, param1.safeInsert(param2x)));
             } else if (var0.getItem().canFitInsideContainerItems()) {
                 int var1 = (64 - getContentWeight(param0)) / getWeight(var0);
-                add(param0, param1.safeTake(var0.getCount(), var1, param3.player));
+                add(param0, param1.safeTake(var0.getCount(), var1, param3));
             }
 
             return true;
@@ -55,10 +55,10 @@ public class BundleItem extends Item {
     }
 
     @Override
-    public boolean overrideOtherStackedOnMe(ItemStack param0, ItemStack param1, Slot param2, ClickAction param3, Inventory param4) {
-        if (param3 == ClickAction.SECONDARY && param2.allowModification(param4.player)) {
+    public boolean overrideOtherStackedOnMe(ItemStack param0, ItemStack param1, Slot param2, ClickAction param3, Player param4, SlotAccess param5) {
+        if (param3 == ClickAction.SECONDARY && param2.allowModification(param4)) {
             if (param1.isEmpty()) {
-                removeOne(param0).ifPresent(param4::setCarried);
+                removeOne(param0).ifPresent(param5::set);
             } else {
                 param1.shrink(add(param0, param1));
             }

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Random;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.ChunkPos;
@@ -126,7 +127,7 @@ public class ShipwreckPieces {
         ) {
             int var0 = param0.getMaxBuildHeight();
             int var1 = 0;
-            BlockPos var2 = this.template.getSize();
+            Vec3i var2 = this.template.getSize();
             Heightmap.Types var3 = this.isBeached ? Heightmap.Types.WORLD_SURFACE_WG : Heightmap.Types.OCEAN_FLOOR_WG;
             int var4 = var2.getX() * var2.getZ();
             if (var4 == 0) {

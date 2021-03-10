@@ -58,6 +58,7 @@ public class GlowSquid extends Squid {
 
     @Override
     public void readAdditionalSaveData(CompoundTag param0) {
+        super.readAdditionalSaveData(param0);
         this.setDarkTicks(param0.getInt("DarkTicksRemaining"));
     }
 
@@ -79,7 +80,7 @@ public class GlowSquid extends Squid {
             this.setDarkTicks(100);
         }
 
-        return false;
+        return var0;
     }
 
     private void setDarkTicks(int param0) {

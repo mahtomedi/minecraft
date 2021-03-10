@@ -34,6 +34,7 @@ import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.components.events.AbstractContainerEventHandler;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.network.chat.ClickEvent;
@@ -181,6 +182,7 @@ public abstract class Screen extends AbstractContainerEventHandler implements Ti
             this.itemRenderer.blitOffset = 400.0F;
             Tesselator var13 = Tesselator.getInstance();
             BufferBuilder var14 = var13.getBuilder();
+            RenderSystem.setShader(GameRenderer::getPositionColorShader);
             var14.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
             Matrix4f var15 = param0.last().pose();
             fillGradient(var15, var14, var4 - 3, var5 - 4, var4 + var0 + 3, var5 - 3, 400, -267386864, -267386864);
@@ -196,10 +198,8 @@ public abstract class Screen extends AbstractContainerEventHandler implements Ti
             RenderSystem.disableTexture();
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
-            RenderSystem.shadeModel(7425);
             var14.end();
             BufferUploader.end(var14);
-            RenderSystem.shadeModel(7424);
             RenderSystem.disableBlend();
             RenderSystem.enableTexture();
             MultiBufferSource.BufferSource var16 = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
@@ -362,8 +362,9 @@ public abstract class Screen extends AbstractContainerEventHandler implements Ti
     public void renderDirtBackground(int param0) {
         Tesselator var0 = Tesselator.getInstance();
         BufferBuilder var1 = var0.getBuilder();
-        this.minecraft.getTextureManager().bind(BACKGROUND_LOCATION);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+        RenderSystem.setShaderTexture(0, BACKGROUND_LOCATION);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         float var2 = 32.0F;
         var1.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
         var1.vertex(0.0, (double)this.height, 0.0).uv(0.0F, (float)this.height / 32.0F + (float)param0).color(64, 64, 64, 255).endVertex();

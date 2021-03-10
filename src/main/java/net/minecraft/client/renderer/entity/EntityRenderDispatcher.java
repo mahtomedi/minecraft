@@ -198,9 +198,10 @@ public class EntityRenderDispatcher implements ResourceManagerReloadListener {
 
         Vec3 var9 = param2.getViewVector(param3);
         Matrix4f var10 = param0.last().pose();
-        param1.vertex(var10, 0.0F, param2.getEyeHeight(), 0.0F).color(0, 0, 255, 255).endVertex();
+        param1.vertex(var10, 0.0F, param2.getEyeHeight(), 0.0F).color(0, 0, 255, 255).normal((float)var9.x, (float)var9.y, (float)var9.z).endVertex();
         param1.vertex(var10, (float)(var9.x * 2.0), (float)((double)param2.getEyeHeight() + var9.y * 2.0), (float)(var9.z * 2.0))
             .color(0, 0, 255, 255)
+            .normal((float)var9.x, (float)var9.y, (float)var9.z)
             .endVertex();
     }
 

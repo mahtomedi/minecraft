@@ -2,7 +2,6 @@ package net.minecraft.client;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.Window;
 import java.util.Arrays;
 import java.util.List;
@@ -275,7 +274,7 @@ public abstract class Option {
             "options.graphics",
             Arrays.asList(GraphicsStatus.values()),
             Stream.of(GraphicsStatus.values()).filter(param0 -> param0 != GraphicsStatus.FABULOUS).collect(Collectors.toList()),
-            () -> !GlStateManager.supportsFramebufferBlit() || Minecraft.getInstance().getGpuWarnlistManager().isSkippingFabulous(),
+            () -> Minecraft.getInstance().getGpuWarnlistManager().isSkippingFabulous(),
             param0 -> {
                 MutableComponent var0 = new TranslatableComponent(param0.getKey());
                 return param0 == GraphicsStatus.FABULOUS ? var0.withStyle(ChatFormatting.ITALIC) : var0;

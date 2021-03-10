@@ -12,7 +12,6 @@ import java.util.Set;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
-import javax.annotation.Nullable;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
@@ -41,7 +40,7 @@ public class TextureManager implements PreparableReloadListener, Tickable, AutoC
         this.resourceManager = param0;
     }
 
-    public void bind(ResourceLocation param0) {
+    public void bindForSetup(ResourceLocation param0) {
         if (!RenderSystem.isOnRenderThread()) {
             RenderSystem.recordRenderCall(() -> this._bind(param0));
         } else {
@@ -107,9 +106,18 @@ public class TextureManager implements PreparableReloadListener, Tickable, AutoC
         }
     }
 
-    @Nullable
     public AbstractTexture getTexture(ResourceLocation param0) {
-        return this.byPath.get(param0);
+        AbstractTexture var0 = this.byPath.get(param0);
+        if (var0 == null) {
+            var0 = new SimpleTexture(param0);
+            this.register(param0, var0);
+        }
+
+        return var0;
+    }
+
+    public AbstractTexture getTexture(ResourceLocation param0, AbstractTexture param1) {
+        return this.byPath.getOrDefault(param0, param1);
     }
 
     public ResourceLocation register(String param0, DynamicTexture param1) {
@@ -149,8 +157,8 @@ public class TextureManager implements PreparableReloadListener, Tickable, AutoC
     }
 
     public void release(ResourceLocation param0) {
-        AbstractTexture var0 = this.getTexture(param0);
-        if (var0 != null) {
+        AbstractTexture var0 = this.getTexture(param0, MissingTextureAtlasSprite.getTexture());
+        if (var0 != MissingTextureAtlasSprite.getTexture()) {
             TextureUtil.releaseTextureId(var0.getId());
         }
 

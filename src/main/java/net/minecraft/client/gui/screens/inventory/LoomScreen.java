@@ -1,6 +1,7 @@
 package net.minecraft.client.gui.screens.inventory;
 
 import com.mojang.blaze3d.platform.Lighting;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 import java.util.List;
@@ -8,6 +9,7 @@ import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BannerRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -69,7 +71,8 @@ public class LoomScreen extends AbstractContainerScreen<LoomMenu> {
     @Override
     protected void renderBg(PoseStack param0, float param1, int param2, int param3) {
         this.renderBackground(param0);
-        this.minecraft.getTextureManager().bind(BG_LOCATION);
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderTexture(0, BG_LOCATION);
         int var0 = this.leftPos;
         int var1 = this.topPos;
         this.blit(param0, var0, var1, 0, 0, this.imageWidth, this.imageHeight);
@@ -120,7 +123,7 @@ public class LoomScreen extends AbstractContainerScreen<LoomMenu> {
                 int var13 = var12 - this.startIndex;
                 int var14 = var9 + var13 % 4 * 14;
                 int var15 = var10 + var13 / 4 * 14;
-                this.minecraft.getTextureManager().bind(BG_LOCATION);
+                RenderSystem.setShaderTexture(0, BG_LOCATION);
                 int var16 = this.imageHeight;
                 if (var12 == this.menu.getSelectedBannerPatternIndex()) {
                     var16 += 14;
@@ -134,7 +137,7 @@ public class LoomScreen extends AbstractContainerScreen<LoomMenu> {
         } else if (this.displaySpecialPattern) {
             int var17 = var0 + 60;
             int var18 = var1 + 13;
-            this.minecraft.getTextureManager().bind(BG_LOCATION);
+            RenderSystem.setShaderTexture(0, BG_LOCATION);
             this.blit(param0, var17, var18, 0, this.imageHeight, 14, 14);
             int var19 = this.menu.getSelectedBannerPatternIndex();
             this.renderPattern(var19, var17, var18);

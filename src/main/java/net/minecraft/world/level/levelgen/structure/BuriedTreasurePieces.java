@@ -19,7 +19,7 @@ public class BuriedTreasurePieces {
     public static class BuriedTreasurePiece extends StructurePiece {
         public BuriedTreasurePiece(BlockPos param0) {
             super(StructurePieceType.BURIED_TREASURE_PIECE, 0);
-            this.boundingBox = new BoundingBox(param0.getX(), param0.getY(), param0.getZ(), param0.getX(), param0.getY(), param0.getZ());
+            this.boundingBox = new BoundingBox(param0);
         }
 
         public BuriedTreasurePiece(StructureManager param0, CompoundTag param1) {
@@ -61,7 +61,7 @@ public class BuriedTreasurePieces {
                         }
                     }
 
-                    this.boundingBox = new BoundingBox(var1.getX(), var1.getY(), var1.getZ(), var1.getX(), var1.getY(), var1.getZ());
+                    this.boundingBox = new BoundingBox(var1);
                     return this.createChest(param0, param4, param3, var1, BuiltInLootTables.BURIED_TREASURE, null);
                 }
 

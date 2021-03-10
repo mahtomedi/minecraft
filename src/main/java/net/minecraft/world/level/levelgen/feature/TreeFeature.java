@@ -19,7 +19,6 @@ import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
 import net.minecraft.world.level.levelgen.feature.foliageplacers.FoliagePlacer;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
@@ -75,38 +74,16 @@ public class TreeFeature extends Feature<TreeConfiguration> {
         int var1 = param6.foliagePlacer.foliageHeight(param1, var0, param6);
         int var2 = var0 - var1;
         int var3 = param6.foliagePlacer.foliageRadius(param1, var2);
-        BlockPos var9;
-        if (!param6.fromSapling) {
-            int var4 = param0.getHeightmapPos(Heightmap.Types.OCEAN_FLOOR, param2).getY();
-            int var5 = param0.getHeightmapPos(Heightmap.Types.WORLD_SURFACE, param2).getY();
-            if (var5 - var4 > param6.maxWaterDepth) {
-                return false;
-            }
-
-            int var6;
-            if (param6.heightmap == Heightmap.Types.OCEAN_FLOOR) {
-                var6 = var4;
-            } else if (param6.heightmap == Heightmap.Types.WORLD_SURFACE) {
-                var6 = var5;
-            } else {
-                var6 = param0.getHeightmapPos(param6.heightmap, param2).getY();
-            }
-
-            var9 = new BlockPos(param2.getX(), var6, param2.getZ());
-        } else {
-            var9 = param2;
-        }
-
-        if (var9.getY() < param0.getMinBuildHeight() + 1 || var9.getY() + var0 + 1 > param0.getMaxBuildHeight()) {
+        if (param2.getY() < param0.getMinBuildHeight() + 1 || param2.getY() + var0 + 1 > param0.getMaxBuildHeight()) {
             return false;
-        } else if (!isGrassOrDirtOrFarmland(param0, var9.below())) {
+        } else if (!isGrassOrDirtOrFarmland(param0, param2.below())) {
             return false;
         } else {
-            OptionalInt var11 = param6.minimumSize.minClippedHeight();
-            int var12 = this.getMaxFreeTreeHeight(param0, var0, var9, param6);
-            if (var12 >= var0 || var11.isPresent() && var12 >= var11.getAsInt()) {
-                List<FoliagePlacer.FoliageAttachment> var13 = param6.trunkPlacer.placeTrunk(param0, param1, var12, var9, param3, param5, param6);
-                var13.forEach(param8 -> param6.foliagePlacer.createFoliage(param0, param1, param6, var12, param8, var1, var3, param4, param5));
+            OptionalInt var4 = param6.minimumSize.minClippedHeight();
+            int var5 = this.getMaxFreeTreeHeight(param0, var0, param2, param6);
+            if (var5 >= var0 || var4.isPresent() && var5 >= var4.getAsInt()) {
+                List<FoliagePlacer.FoliageAttachment> var6 = param6.trunkPlacer.placeTrunk(param0, param1, var5, param2, param3, param5, param6);
+                var6.forEach(param8 -> param6.foliagePlacer.createFoliage(param0, param1, param6, var5, param8, var1, var3, param4, param5));
                 return true;
             } else {
                 return false;

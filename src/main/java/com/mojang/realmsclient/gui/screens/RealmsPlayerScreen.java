@@ -237,8 +237,8 @@ public class RealmsPlayerScreen extends RealmsScreen {
         int var0 = row(12) + 20;
         Tesselator var1 = Tesselator.getInstance();
         BufferBuilder var2 = var1.getBuilder();
-        this.minecraft.getTextureManager().bind(OPTIONS_BACKGROUND);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderTexture(0, OPTIONS_BACKGROUND);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         float var3 = 32.0F;
         var2.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
         var2.vertex(0.0, (double)this.height, 0.0).uv(0.0F, (float)(this.height - var0) / 32.0F + 0.0F).color(64, 64, 64, 255).endVertex();
@@ -281,8 +281,8 @@ public class RealmsPlayerScreen extends RealmsScreen {
 
     private void drawRemoveIcon(PoseStack param0, int param1, int param2, int param3, int param4) {
         boolean var0 = param3 >= param1 && param3 <= param1 + 9 && param4 >= param2 && param4 <= param2 + 9 && param4 < row(12) + 20 && param4 > row(1);
-        this.minecraft.getTextureManager().bind(CROSS_ICON_LOCATION);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderTexture(0, CROSS_ICON_LOCATION);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         float var1 = var0 ? 7.0F : 0.0F;
         GuiComponent.blit(param0, param1, param2, 0.0F, var1, 8, 7, 8, 14);
         if (var0) {
@@ -294,8 +294,8 @@ public class RealmsPlayerScreen extends RealmsScreen {
 
     private void drawOpped(PoseStack param0, int param1, int param2, int param3, int param4) {
         boolean var0 = param3 >= param1 && param3 <= param1 + 9 && param4 >= param2 && param4 <= param2 + 9 && param4 < row(12) + 20 && param4 > row(1);
-        this.minecraft.getTextureManager().bind(OP_ICON_LOCATION);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderTexture(0, OP_ICON_LOCATION);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         float var1 = var0 ? 8.0F : 0.0F;
         GuiComponent.blit(param0, param1, param2, 0.0F, var1, 8, 8, 8, 16);
         if (var0) {
@@ -307,8 +307,8 @@ public class RealmsPlayerScreen extends RealmsScreen {
 
     private void drawNormal(PoseStack param0, int param1, int param2, int param3, int param4) {
         boolean var0 = param3 >= param1 && param3 <= param1 + 9 && param4 >= param2 && param4 <= param2 + 9 && param4 < row(12) + 20 && param4 > row(1);
-        this.minecraft.getTextureManager().bind(USER_ICON_LOCATION);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderTexture(0, USER_ICON_LOCATION);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         float var1 = var0 ? 8.0F : 0.0F;
         GuiComponent.blit(param0, param1, param2, 0.0F, var1, 8, 8, 8, 16);
         if (var0) {
@@ -356,7 +356,7 @@ public class RealmsPlayerScreen extends RealmsScreen {
                 param0, RealmsPlayerScreen.this.column1X + RealmsPlayerScreen.this.columnWidth - 22, param3 + 2, param4, param5
             );
             RealmsTextureManager.withBoundFace(param1.getUuid(), () -> {
-                RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                 GuiComponent.blit(param0, RealmsPlayerScreen.this.column1X + 2 + 2, param3 + 1, 8, 8, 8.0F, 8.0F, 8, 8, 64, 64);
                 GuiComponent.blit(param0, RealmsPlayerScreen.this.column1X + 2 + 2, param3 + 1, 8, 8, 40.0F, 8.0F, 8, 8, 64, 64);
             });

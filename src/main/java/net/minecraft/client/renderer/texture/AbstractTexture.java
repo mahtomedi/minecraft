@@ -30,6 +30,7 @@ public abstract class AbstractTexture implements AutoCloseable {
             var1 = 9728;
         }
 
+        this.bind();
         GlStateManager._texParameter(3553, 10241, var0);
         GlStateManager._texParameter(3553, 10240, var1);
     }

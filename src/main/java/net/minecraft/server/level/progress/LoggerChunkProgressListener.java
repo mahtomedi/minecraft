@@ -6,6 +6,8 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.ChunkStatus;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -39,6 +41,11 @@ public class LoggerChunkProgressListener implements ChunkProgressListener {
             LOGGER.info(new TranslatableComponent("menu.preparingSpawn", Mth.clamp(var0, 0, 100)).getString());
         }
 
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public void start() {
     }
 
     @Override

@@ -3,6 +3,7 @@ package net.minecraft.client.gui.components;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -87,7 +88,8 @@ public class ImageButton extends Button {
     @Override
     public void renderButton(PoseStack param0, int param1, int param2, float param3) {
         Minecraft var0 = Minecraft.getInstance();
-        var0.getTextureManager().bind(this.resourceLocation);
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderTexture(0, this.resourceLocation);
         int var1 = this.yTexStart;
         if (this.isHovered()) {
             var1 += this.yDiffTex;

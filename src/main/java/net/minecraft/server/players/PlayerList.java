@@ -256,7 +256,7 @@ public abstract class PlayerList {
             }
         }
 
-        param1.initMenu();
+        param1.initInventoryMenu();
     }
 
     protected void updateEntireScoreboard(ServerScoreboard param0, ServerPlayer param1) {
@@ -496,7 +496,7 @@ public abstract class PlayerList {
         var6.addRespawnedPlayer(var7);
         this.players.add(var7);
         this.playersByUUID.put(var7.getUUID(), var7);
-        var7.initMenu();
+        var7.initInventoryMenu();
         var7.setHealth(var7.getHealth());
         if (var9) {
             var7.connection
@@ -698,7 +698,7 @@ public abstract class PlayerList {
     }
 
     public void sendAllPlayerInfo(ServerPlayer param0) {
-        param0.refreshContainer(param0.inventoryMenu);
+        param0.inventoryMenu.sendAllDataToRemote();
         param0.resetSentInfo();
         param0.connection.send(new ClientboundSetCarriedItemPacket(param0.getInventory().selected));
     }

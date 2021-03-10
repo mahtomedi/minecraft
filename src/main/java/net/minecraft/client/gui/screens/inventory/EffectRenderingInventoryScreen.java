@@ -54,7 +54,7 @@ public abstract class EffectRenderingInventoryScreen<T extends AbstractContainer
         int var0 = this.leftPos - 124;
         Collection<MobEffectInstance> var1 = this.minecraft.player.getActiveEffects();
         if (!var1.isEmpty()) {
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             int var2 = 33;
             if (var1.size() > 5) {
                 var2 = 132 / (var1.size() - 1);
@@ -68,11 +68,11 @@ public abstract class EffectRenderingInventoryScreen<T extends AbstractContainer
     }
 
     private void renderBackgrounds(PoseStack param0, int param1, int param2, Iterable<MobEffectInstance> param3) {
-        this.minecraft.getTextureManager().bind(INVENTORY_LOCATION);
+        RenderSystem.setShaderTexture(0, INVENTORY_LOCATION);
         int var0 = this.topPos;
 
         for(MobEffectInstance var1 : param3) {
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             this.blit(param0, param1, var0, 0, 166, 140, 32);
             var0 += param2;
         }
@@ -86,7 +86,7 @@ public abstract class EffectRenderingInventoryScreen<T extends AbstractContainer
         for(MobEffectInstance var2 : param3) {
             MobEffect var3 = var2.getEffect();
             TextureAtlasSprite var4 = var0.get(var3);
-            this.minecraft.getTextureManager().bind(var4.atlas().location());
+            RenderSystem.setShaderTexture(0, var4.atlas().location());
             blit(param0, param1 + 6, var1 + 7, this.getBlitOffset(), 18, 18, var4);
             var1 += param2;
         }

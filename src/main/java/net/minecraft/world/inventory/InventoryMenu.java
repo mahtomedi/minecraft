@@ -106,7 +106,7 @@ public class InventoryMenu extends RecipeBookMenu<CraftingContainer> {
 
     @Override
     public void slotsChanged(Container param0) {
-        CraftingMenu.slotChangedCraftingGrid(this.containerId, this.owner.level, this.owner, this.craftSlots, this.resultSlots);
+        CraftingMenu.slotChangedCraftingGrid(this, this.owner.level, this.owner, this.craftSlots, this.resultSlots);
     }
 
     @Override
@@ -176,9 +176,9 @@ public class InventoryMenu extends RecipeBookMenu<CraftingContainer> {
                 return ItemStack.EMPTY;
             }
 
-            ItemStack var5 = var1.onTake(param0, var2);
+            var1.onTake(param0, var2);
             if (param1 == 0) {
-                param0.drop(var5, false);
+                param0.drop(var2, false);
             }
         }
 

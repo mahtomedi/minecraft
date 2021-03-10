@@ -18,14 +18,16 @@ public interface BufferVertexConsumer extends VertexConsumer {
 
     @Override
     default VertexConsumer vertex(double param0, double param1, double param2) {
-        if (this.currentElement().getType() != VertexFormatElement.Type.FLOAT) {
-            throw new IllegalStateException();
-        } else {
+        if (this.currentElement().getUsage() != VertexFormatElement.Usage.POSITION) {
+            return this;
+        } else if (this.currentElement().getType() == VertexFormatElement.Type.FLOAT && this.currentElement().getCount() == 3) {
             this.putFloat(0, (float)param0);
             this.putFloat(4, (float)param1);
             this.putFloat(8, (float)param2);
             this.nextElement();
             return this;
+        } else {
+            throw new IllegalStateException();
         }
     }
 
@@ -34,15 +36,15 @@ public interface BufferVertexConsumer extends VertexConsumer {
         VertexFormatElement var0 = this.currentElement();
         if (var0.getUsage() != VertexFormatElement.Usage.COLOR) {
             return this;
-        } else if (var0.getType() != VertexFormatElement.Type.UBYTE) {
-            throw new IllegalStateException();
-        } else {
+        } else if (var0.getType() == VertexFormatElement.Type.UBYTE && var0.getCount() == 4) {
             this.putByte(0, (byte)param0);
             this.putByte(1, (byte)param1);
             this.putByte(2, (byte)param2);
             this.putByte(3, (byte)param3);
             this.nextElement();
             return this;
+        } else {
+            throw new IllegalStateException();
         }
     }
 
@@ -50,13 +52,13 @@ public interface BufferVertexConsumer extends VertexConsumer {
     default VertexConsumer uv(float param0, float param1) {
         VertexFormatElement var0 = this.currentElement();
         if (var0.getUsage() == VertexFormatElement.Usage.UV && var0.getIndex() == 0) {
-            if (var0.getType() != VertexFormatElement.Type.FLOAT) {
-                throw new IllegalStateException();
-            } else {
+            if (var0.getType() == VertexFormatElement.Type.FLOAT && var0.getCount() == 2) {
                 this.putFloat(0, param0);
                 this.putFloat(4, param1);
                 this.nextElement();
                 return this;
+            } else {
+                throw new IllegalStateException();
             }
         } else {
             return this;
@@ -77,13 +79,13 @@ public interface BufferVertexConsumer extends VertexConsumer {
         VertexFormatElement var0 = this.currentElement();
         if (var0.getUsage() != VertexFormatElement.Usage.UV || var0.getIndex() != param2) {
             return this;
-        } else if (var0.getType() != VertexFormatElement.Type.SHORT) {
-            throw new IllegalStateException();
-        } else {
+        } else if (var0.getType() == VertexFormatElement.Type.SHORT && var0.getCount() == 2) {
             this.putShort(0, param0);
             this.putShort(2, param1);
             this.nextElement();
             return this;
+        } else {
+            throw new IllegalStateException();
         }
     }
 
@@ -92,14 +94,14 @@ public interface BufferVertexConsumer extends VertexConsumer {
         VertexFormatElement var0 = this.currentElement();
         if (var0.getUsage() != VertexFormatElement.Usage.NORMAL) {
             return this;
-        } else if (var0.getType() != VertexFormatElement.Type.BYTE) {
-            throw new IllegalStateException();
-        } else {
+        } else if (var0.getType() == VertexFormatElement.Type.BYTE && var0.getCount() == 3) {
             this.putByte(0, normalIntValue(param0));
             this.putByte(1, normalIntValue(param1));
             this.putByte(2, normalIntValue(param2));
             this.nextElement();
             return this;
+        } else {
+            throw new IllegalStateException();
         }
     }
 

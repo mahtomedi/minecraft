@@ -1,5 +1,8 @@
 package net.minecraft.network.protocol.game;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMaps;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.inventory.ClickType;
@@ -11,31 +14,29 @@ public class ServerboundContainerClickPacket implements Packet<ServerGamePacketL
     private final int containerId;
     private final int slotNum;
     private final int buttonNum;
-    private final short uid;
-    private final ItemStack itemStack;
     private final ClickType clickType;
+    private final ItemStack carriedItem;
+    private final Int2ObjectMap<ItemStack> changedSlots;
 
     @OnlyIn(Dist.CLIENT)
-    public ServerboundContainerClickPacket(int param0, int param1, int param2, ClickType param3, ItemStack param4, short param5) {
+    public ServerboundContainerClickPacket(int param0, int param1, int param2, ClickType param3, ItemStack param4, Int2ObjectMap<ItemStack> param5) {
         this.containerId = param0;
         this.slotNum = param1;
         this.buttonNum = param2;
-        this.itemStack = param4.copy();
-        this.uid = param5;
         this.clickType = param3;
-    }
-
-    public void handle(ServerGamePacketListener param0) {
-        param0.handleContainerClick(this);
+        this.carriedItem = param4;
+        this.changedSlots = Int2ObjectMaps.unmodifiable(param5);
     }
 
     public ServerboundContainerClickPacket(FriendlyByteBuf param0) {
         this.containerId = param0.readByte();
         this.slotNum = param0.readShort();
         this.buttonNum = param0.readByte();
-        this.uid = param0.readShort();
         this.clickType = param0.readEnum(ClickType.class);
-        this.itemStack = param0.readItem();
+        this.changedSlots = Int2ObjectMaps.unmodifiable(
+            param0.readMap(Int2ObjectOpenHashMap::new, param0x -> Integer.valueOf(param0x.readShort()), FriendlyByteBuf::readItem)
+        );
+        this.carriedItem = param0.readItem();
     }
 
     @Override
@@ -43,9 +44,13 @@ public class ServerboundContainerClickPacket implements Packet<ServerGamePacketL
         param0.writeByte(this.containerId);
         param0.writeShort(this.slotNum);
         param0.writeByte(this.buttonNum);
-        param0.writeShort(this.uid);
         param0.writeEnum(this.clickType);
-        param0.writeItem(this.itemStack);
+        param0.writeMap(this.changedSlots, FriendlyByteBuf::writeShort, FriendlyByteBuf::writeItem);
+        param0.writeItem(this.carriedItem);
+    }
+
+    public void handle(ServerGamePacketListener param0) {
+        param0.handleContainerClick(this);
     }
 
     public int getContainerId() {
@@ -60,12 +65,12 @@ public class ServerboundContainerClickPacket implements Packet<ServerGamePacketL
         return this.buttonNum;
     }
 
-    public short getUid() {
-        return this.uid;
+    public ItemStack getCarriedItem() {
+        return this.carriedItem;
     }
 
-    public ItemStack getItem() {
-        return this.itemStack;
+    public Int2ObjectMap<ItemStack> getChangedSlots() {
+        return this.changedSlots;
     }
 
     public ClickType getClickType() {

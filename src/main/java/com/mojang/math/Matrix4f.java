@@ -365,8 +365,24 @@ public final class Matrix4f {
         var0.m22 = -2.0F / var1;
         var0.m33 = 1.0F;
         var0.m03 = -1.0F;
-        var0.m13 = -1.0F;
+        var0.m13 = 1.0F;
         var0.m23 = -(param3 + param2) / var1;
+        return var0;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static Matrix4f orthographic(float param0, float param1, float param2, float param3, float param4, float param5) {
+        Matrix4f var0 = new Matrix4f();
+        float var1 = param1 - param0;
+        float var2 = param2 - param3;
+        float var3 = param5 - param4;
+        var0.m00 = 2.0F / var1;
+        var0.m11 = 2.0F / var2;
+        var0.m22 = -2.0F / var3;
+        var0.m03 = -(param1 + param0) / var1;
+        var0.m13 = -(param2 + param3) / var2;
+        var0.m23 = -(param5 + param4) / var3;
+        var0.m33 = 1.0F;
         return var0;
     }
 

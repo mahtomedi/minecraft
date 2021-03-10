@@ -45,7 +45,7 @@ public class FillCommand {
                                         .executes(
                                             param0x -> fillBlocks(
                                                     param0x.getSource(),
-                                                    new BoundingBox(
+                                                    BoundingBox.createProper(
                                                         BlockPosArgument.getLoadedBlockPos(param0x, "from"), BlockPosArgument.getLoadedBlockPos(param0x, "to")
                                                     ),
                                                     BlockStateArgument.getBlock(param0x, "block"),
@@ -58,7 +58,7 @@ public class FillCommand {
                                                 .executes(
                                                     param0x -> fillBlocks(
                                                             param0x.getSource(),
-                                                            new BoundingBox(
+                                                            BoundingBox.createProper(
                                                                 BlockPosArgument.getLoadedBlockPos(param0x, "from"),
                                                                 BlockPosArgument.getLoadedBlockPos(param0x, "to")
                                                             ),
@@ -72,7 +72,7 @@ public class FillCommand {
                                                         .executes(
                                                             param0x -> fillBlocks(
                                                                     param0x.getSource(),
-                                                                    new BoundingBox(
+                                                                    BoundingBox.createProper(
                                                                         BlockPosArgument.getLoadedBlockPos(param0x, "from"),
                                                                         BlockPosArgument.getLoadedBlockPos(param0x, "to")
                                                                     ),
@@ -88,7 +88,7 @@ public class FillCommand {
                                                 .executes(
                                                     param0x -> fillBlocks(
                                                             param0x.getSource(),
-                                                            new BoundingBox(
+                                                            BoundingBox.createProper(
                                                                 BlockPosArgument.getLoadedBlockPos(param0x, "from"),
                                                                 BlockPosArgument.getLoadedBlockPos(param0x, "to")
                                                             ),
@@ -103,7 +103,7 @@ public class FillCommand {
                                                 .executes(
                                                     param0x -> fillBlocks(
                                                             param0x.getSource(),
-                                                            new BoundingBox(
+                                                            BoundingBox.createProper(
                                                                 BlockPosArgument.getLoadedBlockPos(param0x, "from"),
                                                                 BlockPosArgument.getLoadedBlockPos(param0x, "to")
                                                             ),
@@ -118,7 +118,7 @@ public class FillCommand {
                                                 .executes(
                                                     param0x -> fillBlocks(
                                                             param0x.getSource(),
-                                                            new BoundingBox(
+                                                            BoundingBox.createProper(
                                                                 BlockPosArgument.getLoadedBlockPos(param0x, "from"),
                                                                 BlockPosArgument.getLoadedBlockPos(param0x, "to")
                                                             ),
@@ -133,7 +133,7 @@ public class FillCommand {
                                                 .executes(
                                                     param0x -> fillBlocks(
                                                             param0x.getSource(),
-                                                            new BoundingBox(
+                                                            BoundingBox.createProper(
                                                                 BlockPosArgument.getLoadedBlockPos(param0x, "from"),
                                                                 BlockPosArgument.getLoadedBlockPos(param0x, "to")
                                                             ),

@@ -28,7 +28,6 @@ public class ScreenEffectRenderer {
     private static final ResourceLocation UNDERWATER_LOCATION = new ResourceLocation("textures/misc/underwater.png");
 
     public static void renderScreenEffect(Minecraft param0, PoseStack param1) {
-        RenderSystem.disableAlphaTest();
         Player var0 = param0.player;
         if (!var0.noPhysics) {
             BlockState var1 = getViewBlockingState(var0);
@@ -47,7 +46,6 @@ public class ScreenEffectRenderer {
             }
         }
 
-        RenderSystem.enableAlphaTest();
     }
 
     @Nullable
@@ -69,7 +67,7 @@ public class ScreenEffectRenderer {
     }
 
     private static void renderTex(Minecraft param0, TextureAtlasSprite param1, PoseStack param2) {
-        param0.getTextureManager().bind(param1.atlas().location());
+        RenderSystem.setShaderTexture(0, param1.atlas().location());
         BufferBuilder var0 = Tesselator.getInstance().getBuilder();
         float var1 = 0.1F;
         float var2 = -1.0F;
@@ -92,12 +90,14 @@ public class ScreenEffectRenderer {
     }
 
     private static void renderWater(Minecraft param0, PoseStack param1) {
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.enableTexture();
-        param0.getTextureManager().bind(UNDERWATER_LOCATION);
+        RenderSystem.setShaderTexture(0, UNDERWATER_LOCATION);
         BufferBuilder var0 = Tesselator.getInstance().getBuilder();
         float var1 = param0.player.getBrightness();
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
+        RenderSystem.setShaderColor(var1, var1, var1, 0.1F);
         float var2 = 4.0F;
         float var3 = -1.0F;
         float var4 = 1.0F;
@@ -107,11 +107,11 @@ public class ScreenEffectRenderer {
         float var8 = -param0.player.yRot / 64.0F;
         float var9 = param0.player.xRot / 64.0F;
         Matrix4f var10 = param1.last().pose();
-        var0.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX);
-        var0.vertex(var10, -1.0F, -1.0F, -0.5F).color(var1, var1, var1, 0.1F).uv(4.0F + var8, 4.0F + var9).endVertex();
-        var0.vertex(var10, 1.0F, -1.0F, -0.5F).color(var1, var1, var1, 0.1F).uv(0.0F + var8, 4.0F + var9).endVertex();
-        var0.vertex(var10, 1.0F, 1.0F, -0.5F).color(var1, var1, var1, 0.1F).uv(0.0F + var8, 0.0F + var9).endVertex();
-        var0.vertex(var10, -1.0F, 1.0F, -0.5F).color(var1, var1, var1, 0.1F).uv(4.0F + var8, 0.0F + var9).endVertex();
+        var0.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        var0.vertex(var10, -1.0F, -1.0F, -0.5F).uv(4.0F + var8, 4.0F + var9).endVertex();
+        var0.vertex(var10, 1.0F, -1.0F, -0.5F).uv(0.0F + var8, 4.0F + var9).endVertex();
+        var0.vertex(var10, 1.0F, 1.0F, -0.5F).uv(0.0F + var8, 0.0F + var9).endVertex();
+        var0.vertex(var10, -1.0F, 1.0F, -0.5F).uv(4.0F + var8, 0.0F + var9).endVertex();
         var0.end();
         BufferUploader.end(var0);
         RenderSystem.disableBlend();
@@ -119,13 +119,14 @@ public class ScreenEffectRenderer {
 
     private static void renderFire(Minecraft param0, PoseStack param1) {
         BufferBuilder var0 = Tesselator.getInstance().getBuilder();
+        RenderSystem.setShader(GameRenderer::getPositionColorTexShader);
         RenderSystem.depthFunc(519);
         RenderSystem.depthMask(false);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.enableTexture();
         TextureAtlasSprite var1 = ModelBakery.FIRE_1.sprite();
-        param0.getTextureManager().bind(var1.atlas().location());
+        RenderSystem.setShaderTexture(0, var1.atlas().location());
         float var2 = var1.getU0();
         float var3 = var1.getU1();
         float var4 = (var2 + var3) / 2.0F;

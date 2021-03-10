@@ -382,9 +382,8 @@ public class LootCommand {
         for(Entity var1 : param0) {
             if (var1 instanceof ServerPlayer) {
                 ServerPlayer var2 = (ServerPlayer)var1;
-                var2.inventoryMenu.broadcastChanges();
                 setSlots(var1, param3, param1, param2, var0);
-                var2.inventoryMenu.broadcastChanges();
+                var2.containerMenu.broadcastChanges();
             } else {
                 setSlots(var1, param3, param1, param2, var0);
             }

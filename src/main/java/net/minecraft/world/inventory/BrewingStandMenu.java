@@ -170,14 +170,13 @@ public class BrewingStandMenu extends AbstractContainerMenu {
         }
 
         @Override
-        public ItemStack onTake(Player param0, ItemStack param1) {
+        public void onTake(Player param0, ItemStack param1) {
             Potion var0 = PotionUtils.getPotion(param1);
             if (param0 instanceof ServerPlayer) {
                 CriteriaTriggers.BREWED_POTION.trigger((ServerPlayer)param0, var0);
             }
 
             super.onTake(param0, param1);
-            return param1;
         }
 
         public static boolean mayPlaceItem(ItemStack param0) {

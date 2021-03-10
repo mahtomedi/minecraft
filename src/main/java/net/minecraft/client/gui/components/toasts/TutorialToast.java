@@ -29,8 +29,8 @@ public class TutorialToast implements Toast {
 
     @Override
     public Toast.Visibility render(PoseStack param0, ToastComponent param1, long param2) {
-        param1.getMinecraft().getTextureManager().bind(TEXTURE);
-        RenderSystem.color3f(1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderTexture(0, TEXTURE);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F);
         param1.blit(param0, 0, 0, 0, 96, this.width(), this.height());
         this.icon.render(param0, param1, 6, 6);
         if (this.message == null) {

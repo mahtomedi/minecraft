@@ -19,12 +19,14 @@ import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.platform.WindowEventHandler;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.datafixers.DataFixer;
 import com.mojang.datafixers.util.Function4;
+import com.mojang.math.Matrix4f;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.Lifecycle;
@@ -503,6 +505,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
             this.setScreen(new TitleScreen(true));
         }
 
+        this.gameRenderer.preloadUiShader(this.getClientPackSource().getVanillaPack());
         LoadingOverlay.registerTextures(this);
         List<PackResources> var12 = this.resourcePackRepository.openAllSelected();
         this.setOverlay(
@@ -835,6 +838,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         }
 
         this.screen = param0;
+        BufferUploader.reset();
         if (param0 != null) {
             this.mouseHandler.releaseMouse();
             KeyMapping.releaseAll();
@@ -950,8 +954,14 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         this.soundManager.updateSource(this.gameRenderer.getMainCamera());
         this.profiler.pop();
         this.profiler.push("render");
-        RenderSystem.pushMatrix();
+        PoseStack var5 = RenderSystem.getModelViewStack();
+        var5.pushPose();
+        RenderSystem.applyModelViewMatrix();
         RenderSystem.clear(16640, ON_OSX);
+        this.mainRenderTarget.clearChannels[0] = 0.1F;
+        this.mainRenderTarget.clearChannels[1] = 0.2F;
+        this.mainRenderTarget.clearChannels[2] = 0.3F;
+        this.mainRenderTarget.clear(ON_OSX);
         this.mainRenderTarget.bindWrite(true);
         FogRenderer.setupNoFog();
         this.profiler.push("display");
@@ -974,15 +984,17 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
 
         this.profiler.push("blit");
         this.mainRenderTarget.unbindWrite();
-        RenderSystem.popMatrix();
-        RenderSystem.pushMatrix();
+        var5.popPose();
+        var5.pushPose();
+        RenderSystem.applyModelViewMatrix();
         this.mainRenderTarget.blitToScreen(this.window.getWidth(), this.window.getHeight());
-        RenderSystem.popMatrix();
+        var5.popPose();
+        RenderSystem.applyModelViewMatrix();
         this.profiler.popPush("updateDisplay");
         this.window.updateDisplay();
-        int var5 = this.getFramerateLimit();
-        if ((double)var5 < Option.FRAMERATE_LIMIT.getMaxValue()) {
-            RenderSystem.limitDisplayFPS(var5);
+        int var6 = this.getFramerateLimit();
+        if ((double)var6 < Option.FRAMERATE_LIMIT.getMaxValue()) {
+            RenderSystem.limitDisplayFPS(var6);
         }
 
         this.profiler.popPush("yield");
@@ -990,22 +1002,22 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         this.profiler.pop();
         this.window.setErrorSection("Post render");
         ++this.frames;
-        boolean var6 = this.hasSingleplayerServer()
+        boolean var7 = this.hasSingleplayerServer()
             && (this.screen != null && this.screen.isPauseScreen() || this.overlay != null && this.overlay.isPauseScreen())
             && !this.singleplayerServer.isPublished();
-        if (this.pause != var6) {
+        if (this.pause != var7) {
             if (this.pause) {
                 this.pausePartialTick = this.timer.partialTick;
             } else {
                 this.timer.partialTick = this.pausePartialTick;
             }
 
-            this.pause = var6;
+            this.pause = var7;
         }
 
-        long var7 = Util.getNanos();
-        this.frameTimer.logFrameDuration(var7 - this.lastNanoTime);
-        this.lastNanoTime = var7;
+        long var8 = Util.getNanos();
+        this.frameTimer.logFrameDuration(var8 - this.lastNanoTime);
+        this.lastNanoTime = var8;
         this.profiler.push("fpsUpdate");
 
         while(Util.getMillis() >= this.lastTime + 1000L) {
@@ -1137,99 +1149,99 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         List<ResultField> var0 = param1.getTimes(this.debugPath);
         ResultField var1 = var0.remove(0);
         RenderSystem.clear(256, ON_OSX);
-        RenderSystem.matrixMode(5889);
-        RenderSystem.loadIdentity();
-        RenderSystem.ortho(0.0, (double)this.window.getWidth(), (double)this.window.getHeight(), 0.0, 1000.0, 3000.0);
-        RenderSystem.matrixMode(5888);
-        RenderSystem.loadIdentity();
-        RenderSystem.translatef(0.0F, 0.0F, -2000.0F);
+        Matrix4f var2 = Matrix4f.orthographic(0.0F, (float)this.window.getWidth(), 0.0F, (float)this.window.getHeight(), 1000.0F, 3000.0F);
+        RenderSystem.setProjectionMatrix(var2);
+        PoseStack var3 = RenderSystem.getModelViewStack();
+        var3.setIdentity();
+        var3.translate(0.0, 0.0, -2000.0);
+        RenderSystem.applyModelViewMatrix();
         RenderSystem.lineWidth(1.0F);
         RenderSystem.disableTexture();
-        Tesselator var2 = Tesselator.getInstance();
-        BufferBuilder var3 = var2.getBuilder();
-        int var4 = 160;
-        int var5 = this.window.getWidth() - 160 - 10;
-        int var6 = this.window.getHeight() - 320;
+        Tesselator var4 = Tesselator.getInstance();
+        BufferBuilder var5 = var4.getBuilder();
+        int var6 = 160;
+        int var7 = this.window.getWidth() - 160 - 10;
+        int var8 = this.window.getHeight() - 320;
         RenderSystem.enableBlend();
-        var3.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-        var3.vertex((double)((float)var5 - 176.0F), (double)((float)var6 - 96.0F - 16.0F), 0.0).color(200, 0, 0, 0).endVertex();
-        var3.vertex((double)((float)var5 - 176.0F), (double)(var6 + 320), 0.0).color(200, 0, 0, 0).endVertex();
-        var3.vertex((double)((float)var5 + 176.0F), (double)(var6 + 320), 0.0).color(200, 0, 0, 0).endVertex();
-        var3.vertex((double)((float)var5 + 176.0F), (double)((float)var6 - 96.0F - 16.0F), 0.0).color(200, 0, 0, 0).endVertex();
-        var2.end();
+        var5.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+        var5.vertex((double)((float)var7 - 176.0F), (double)((float)var8 - 96.0F - 16.0F), 0.0).color(200, 0, 0, 0).endVertex();
+        var5.vertex((double)((float)var7 - 176.0F), (double)(var8 + 320), 0.0).color(200, 0, 0, 0).endVertex();
+        var5.vertex((double)((float)var7 + 176.0F), (double)(var8 + 320), 0.0).color(200, 0, 0, 0).endVertex();
+        var5.vertex((double)((float)var7 + 176.0F), (double)((float)var8 - 96.0F - 16.0F), 0.0).color(200, 0, 0, 0).endVertex();
+        var4.end();
         RenderSystem.disableBlend();
-        double var7 = 0.0;
+        double var9 = 0.0;
 
-        for(ResultField var8 : var0) {
-            int var9 = Mth.floor(var8.percentage / 4.0) + 1;
-            var3.begin(VertexFormat.Mode.TRIANGLE_FAN, DefaultVertexFormat.POSITION_COLOR);
-            int var10 = var8.getColor();
-            int var11 = var10 >> 16 & 0xFF;
-            int var12 = var10 >> 8 & 0xFF;
-            int var13 = var10 & 0xFF;
-            var3.vertex((double)var5, (double)var6, 0.0).color(var11, var12, var13, 255).endVertex();
+        for(ResultField var10 : var0) {
+            int var11 = Mth.floor(var10.percentage / 4.0) + 1;
+            var5.begin(VertexFormat.Mode.TRIANGLE_FAN, DefaultVertexFormat.POSITION_COLOR);
+            int var12 = var10.getColor();
+            int var13 = var12 >> 16 & 0xFF;
+            int var14 = var12 >> 8 & 0xFF;
+            int var15 = var12 & 0xFF;
+            var5.vertex((double)var7, (double)var8, 0.0).color(var13, var14, var15, 255).endVertex();
 
-            for(int var14 = var9; var14 >= 0; --var14) {
-                float var15 = (float)((var7 + var8.percentage * (double)var14 / (double)var9) * (float) (Math.PI * 2) / 100.0);
-                float var16 = Mth.sin(var15) * 160.0F;
-                float var17 = Mth.cos(var15) * 160.0F * 0.5F;
-                var3.vertex((double)((float)var5 + var16), (double)((float)var6 - var17), 0.0).color(var11, var12, var13, 255).endVertex();
+            for(int var16 = var11; var16 >= 0; --var16) {
+                float var17 = (float)((var9 + var10.percentage * (double)var16 / (double)var11) * (float) (Math.PI * 2) / 100.0);
+                float var18 = Mth.sin(var17) * 160.0F;
+                float var19 = Mth.cos(var17) * 160.0F * 0.5F;
+                var5.vertex((double)((float)var7 + var18), (double)((float)var8 - var19), 0.0).color(var13, var14, var15, 255).endVertex();
             }
 
-            var2.end();
-            var3.begin(VertexFormat.Mode.TRIANGLE_STRIP, DefaultVertexFormat.POSITION_COLOR);
+            var4.end();
+            var5.begin(VertexFormat.Mode.TRIANGLE_STRIP, DefaultVertexFormat.POSITION_COLOR);
 
-            for(int var18 = var9; var18 >= 0; --var18) {
-                float var19 = (float)((var7 + var8.percentage * (double)var18 / (double)var9) * (float) (Math.PI * 2) / 100.0);
-                float var20 = Mth.sin(var19) * 160.0F;
-                float var21 = Mth.cos(var19) * 160.0F * 0.5F;
-                if (!(var21 > 0.0F)) {
-                    var3.vertex((double)((float)var5 + var20), (double)((float)var6 - var21), 0.0).color(var11 >> 1, var12 >> 1, var13 >> 1, 255).endVertex();
-                    var3.vertex((double)((float)var5 + var20), (double)((float)var6 - var21 + 10.0F), 0.0)
-                        .color(var11 >> 1, var12 >> 1, var13 >> 1, 255)
+            for(int var20 = var11; var20 >= 0; --var20) {
+                float var21 = (float)((var9 + var10.percentage * (double)var20 / (double)var11) * (float) (Math.PI * 2) / 100.0);
+                float var22 = Mth.sin(var21) * 160.0F;
+                float var23 = Mth.cos(var21) * 160.0F * 0.5F;
+                if (!(var23 > 0.0F)) {
+                    var5.vertex((double)((float)var7 + var22), (double)((float)var8 - var23), 0.0).color(var13 >> 1, var14 >> 1, var15 >> 1, 255).endVertex();
+                    var5.vertex((double)((float)var7 + var22), (double)((float)var8 - var23 + 10.0F), 0.0)
+                        .color(var13 >> 1, var14 >> 1, var15 >> 1, 255)
                         .endVertex();
                 }
             }
 
-            var2.end();
-            var7 += var8.percentage;
+            var4.end();
+            var9 += var10.percentage;
         }
 
-        DecimalFormat var22 = new DecimalFormat("##0.00");
-        var22.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ROOT));
+        DecimalFormat var24 = new DecimalFormat("##0.00");
+        var24.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ROOT));
         RenderSystem.enableTexture();
-        String var23 = ProfileResults.demanglePath(var1.name);
-        String var24 = "";
-        if (!"unspecified".equals(var23)) {
-            var24 = var24 + "[0] ";
+        String var25 = ProfileResults.demanglePath(var1.name);
+        String var26 = "";
+        if (!"unspecified".equals(var25)) {
+            var26 = var26 + "[0] ";
         }
 
-        if (var23.isEmpty()) {
-            var24 = var24 + "ROOT ";
+        if (var25.isEmpty()) {
+            var26 = var26 + "ROOT ";
         } else {
-            var24 = var24 + var23 + ' ';
+            var26 = var26 + var25 + ' ';
         }
 
-        int var25 = 16777215;
-        this.font.drawShadow(param0, var24, (float)(var5 - 160), (float)(var6 - 80 - 16), 16777215);
-        var24 = var22.format(var1.globalPercentage) + "%";
-        this.font.drawShadow(param0, var24, (float)(var5 + 160 - this.font.width(var24)), (float)(var6 - 80 - 16), 16777215);
+        int var27 = 16777215;
+        this.font.drawShadow(param0, var26, (float)(var7 - 160), (float)(var8 - 80 - 16), 16777215);
+        var26 = var24.format(var1.globalPercentage) + "%";
+        this.font.drawShadow(param0, var26, (float)(var7 + 160 - this.font.width(var26)), (float)(var8 - 80 - 16), 16777215);
 
-        for(int var26 = 0; var26 < var0.size(); ++var26) {
-            ResultField var27 = var0.get(var26);
-            StringBuilder var28 = new StringBuilder();
-            if ("unspecified".equals(var27.name)) {
-                var28.append("[?] ");
+        for(int var28 = 0; var28 < var0.size(); ++var28) {
+            ResultField var29 = var0.get(var28);
+            StringBuilder var30 = new StringBuilder();
+            if ("unspecified".equals(var29.name)) {
+                var30.append("[?] ");
             } else {
-                var28.append("[").append(var26 + 1).append("] ");
+                var30.append("[").append(var28 + 1).append("] ");
             }
 
-            String var29 = var28.append(var27.name).toString();
-            this.font.drawShadow(param0, var29, (float)(var5 - 160), (float)(var6 + 80 + var26 * 8 + 20), var27.getColor());
-            var29 = var22.format(var27.percentage) + "%";
-            this.font.drawShadow(param0, var29, (float)(var5 + 160 - 50 - this.font.width(var29)), (float)(var6 + 80 + var26 * 8 + 20), var27.getColor());
-            var29 = var22.format(var27.globalPercentage) + "%";
-            this.font.drawShadow(param0, var29, (float)(var5 + 160 - this.font.width(var29)), (float)(var6 + 80 + var26 * 8 + 20), var27.getColor());
+            String var31 = var30.append(var29.name).toString();
+            this.font.drawShadow(param0, var31, (float)(var7 - 160), (float)(var8 + 80 + var28 * 8 + 20), var29.getColor());
+            var31 = var24.format(var29.percentage) + "%";
+            this.font.drawShadow(param0, var31, (float)(var7 + 160 - 50 - this.font.width(var31)), (float)(var8 + 80 + var28 * 8 + 20), var29.getColor());
+            var31 = var24.format(var29.globalPercentage) + "%";
+            this.font.drawShadow(param0, var31, (float)(var7 + 160 - this.font.width(var31)), (float)(var8 + 80 + var28 * 8 + 20), var29.getColor());
         }
 
     }
@@ -1724,9 +1736,8 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
                     param7 -> new IntegratedServer(
                             param7, this, param1, var0, var3.packRepository(), var3.serverResources(), var7, var12, var13, var14, param0x -> {
                                 StoringChunkProgressListener var0x = new StoringChunkProgressListener(param0x + 0);
-                                var0x.start();
                                 this.progressListener.set(var0x);
-                                return new ProcessorChunkProgressListener(var0x, this.progressTasks::add);
+                                return ProcessorChunkProgressListener.createStarted(var0x, this.progressTasks::add);
                             }
                         )
                 );

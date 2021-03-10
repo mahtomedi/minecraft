@@ -35,6 +35,7 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundAddPlayerPacket;
 import net.minecraft.network.protocol.game.ClientboundAnimatePacket;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundChangeDifficultyPacket;
 import net.minecraft.network.protocol.game.ClientboundChatPacket;
 import net.minecraft.network.protocol.game.ClientboundContainerClosePacket;
@@ -101,6 +102,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerListener;
+import net.minecraft.world.inventory.ContainerSynchronizer;
 import net.minecraft.world.inventory.HorseInventoryMenu;
 import net.minecraft.world.inventory.ResultSlot;
 import net.minecraft.world.item.ComplexItem;
@@ -134,7 +136,7 @@ import net.minecraft.world.scores.criteria.ObjectiveCriteria;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class ServerPlayer extends Player implements ContainerListener {
+public class ServerPlayer extends Player {
     private static final Logger LOGGER = LogManager.getLogger();
     public ServerGamePacketListenerImpl connection;
     public final MinecraftServer server;
@@ -173,8 +175,57 @@ public class ServerPlayer extends Player implements ContainerListener {
     private float respawnAngle;
     private final TextFilter textFilter;
     private boolean textFilteringEnabled = true;
+    private final ContainerSynchronizer containerSynchronizer = new ContainerSynchronizer() {
+        @Override
+        public void sendInitialData(AbstractContainerMenu param0, NonNullList<ItemStack> param1, ItemStack param2, int[] param3) {
+            ServerPlayer.this.connection.send(new ClientboundContainerSetContentPacket(param0.containerId, param1));
+            this.broadcastCarriedItem(param2);
+
+            for(int var0 = 0; var0 < param3.length; ++var0) {
+                this.broadcastDataValue(param0, var0, param3[var0]);
+            }
+
+        }
+
+        @Override
+        public void sendSlotChange(AbstractContainerMenu param0, int param1, ItemStack param2) {
+            ServerPlayer.this.connection.send(new ClientboundContainerSetSlotPacket(param0.containerId, param1, param2));
+        }
+
+        @Override
+        public void sendCarriedChange(AbstractContainerMenu param0, ItemStack param1) {
+            this.broadcastCarriedItem(param1);
+        }
+
+        @Override
+        public void sendDataChange(AbstractContainerMenu param0, int param1, int param2) {
+            this.broadcastDataValue(param0, param1, param2);
+        }
+
+        private void broadcastDataValue(AbstractContainerMenu param0, int param1, int param2) {
+            ServerPlayer.this.connection.send(new ClientboundContainerSetDataPacket(param0.containerId, param1, param2));
+        }
+
+        private void broadcastCarriedItem(ItemStack param0) {
+            ServerPlayer.this.connection.send(new ClientboundContainerSetSlotPacket(-1, -1, param0));
+        }
+    };
+    private final ContainerListener containerListener = new ContainerListener() {
+        @Override
+        public void slotChanged(AbstractContainerMenu param0, int param1, ItemStack param2) {
+            if (!(param0.getSlot(param1) instanceof ResultSlot)) {
+                if (param0 == ServerPlayer.this.inventoryMenu) {
+                    CriteriaTriggers.INVENTORY_CHANGED.trigger(ServerPlayer.this, ServerPlayer.this.getInventory(), param2);
+                }
+
+            }
+        }
+
+        @Override
+        public void dataChanged(AbstractContainerMenu param0, int param1, int param2) {
+        }
+    };
     private int containerCounter;
-    public boolean ignoreSlotUpdateHack;
     public int latency;
     public boolean wonGame;
 
@@ -329,8 +380,13 @@ public class ServerPlayer extends Player implements ContainerListener {
         this.lastSentExp = -1;
     }
 
-    public void initMenu() {
-        this.containerMenu.addSlotListener(this);
+    private void initMenu(AbstractContainerMenu param0) {
+        param0.addSlotListener(this.containerListener);
+        param0.setSynchronizer(this.containerSynchronizer);
+    }
+
+    public void initInventoryMenu() {
+        this.initMenu(this.inventoryMenu);
     }
 
     @Override
@@ -902,6 +958,7 @@ public class ServerPlayer extends Player implements ContainerListener {
     @Override
     public void openTextEdit(SignBlockEntity param0) {
         param0.setAllowedPlayerEditor(this);
+        this.connection.send(new ClientboundBlockUpdatePacket(this.level, param0.getBlockPos()));
         this.connection.send(new ClientboundOpenSignEditorPacket(param0.getBlockPos()));
     }
 
@@ -928,7 +985,7 @@ public class ServerPlayer extends Player implements ContainerListener {
                 return OptionalInt.empty();
             } else {
                 this.connection.send(new ClientboundOpenScreenPacket(var0.containerId, var0.getType(), param0.getDisplayName()));
-                var0.addSlotListener(this);
+                this.initMenu(var0);
                 this.containerMenu = var0;
                 return OptionalInt.of(this.containerCounter);
             }
@@ -949,7 +1006,7 @@ public class ServerPlayer extends Player implements ContainerListener {
         this.nextContainerCounter();
         this.connection.send(new ClientboundHorseScreenOpenPacket(this.containerCounter, param1.getContainerSize(), param0.getId()));
         this.containerMenu = new HorseInventoryMenu(this.containerCounter, this.getInventory(), param1, param0);
-        this.containerMenu.addSlotListener(this);
+        this.initMenu(this.containerMenu);
     }
 
     @Override
@@ -971,47 +1028,14 @@ public class ServerPlayer extends Player implements ContainerListener {
     }
 
     @Override
-    public void slotChanged(AbstractContainerMenu param0, int param1, ItemStack param2) {
-        if (!(param0.getSlot(param1) instanceof ResultSlot)) {
-            if (param0 == this.inventoryMenu) {
-                CriteriaTriggers.INVENTORY_CHANGED.trigger(this, this.getInventory(), param2);
-            }
-
-            if (!this.ignoreSlotUpdateHack) {
-                this.connection.send(new ClientboundContainerSetSlotPacket(param0.containerId, param1, param2));
-            }
-        }
-    }
-
-    public void refreshContainer(AbstractContainerMenu param0) {
-        this.refreshContainer(param0, param0.getItems());
-    }
-
-    @Override
-    public void refreshContainer(AbstractContainerMenu param0, NonNullList<ItemStack> param1) {
-        this.connection.send(new ClientboundContainerSetContentPacket(param0.containerId, param1));
-        this.connection.send(new ClientboundContainerSetSlotPacket(-1, -1, this.getInventory().getCarried()));
-    }
-
-    @Override
-    public void setContainerData(AbstractContainerMenu param0, int param1, int param2) {
-        this.connection.send(new ClientboundContainerSetDataPacket(param0.containerId, param1, param2));
-    }
-
-    @Override
     public void closeContainer() {
         this.connection.send(new ClientboundContainerClosePacket(this.containerMenu.containerId));
         this.doCloseContainer();
     }
 
-    public void broadcastCarriedItem() {
-        if (!this.ignoreSlotUpdateHack) {
-            this.connection.send(new ClientboundContainerSetSlotPacket(-1, -1, this.getInventory().getCarried()));
-        }
-    }
-
     public void doCloseContainer() {
         this.containerMenu.removed(this);
+        this.inventoryMenu.transferState(this.containerMenu);
         this.containerMenu = this.inventoryMenu;
     }
 

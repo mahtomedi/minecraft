@@ -32,7 +32,6 @@ public class GameTestDebugRenderer implements DebugRenderer.SimpleDebugRenderer 
     }
 
     private void renderMarker(BlockPos param0x, GameTestDebugRenderer.Marker param1x) {
-        RenderSystem.pushMatrix();
         RenderSystem.enableBlend();
         RenderSystem.blendFuncSeparate(
             GlStateManager.SourceFactor.SRC_ALPHA,
@@ -40,7 +39,7 @@ public class GameTestDebugRenderer implements DebugRenderer.SimpleDebugRenderer 
             GlStateManager.SourceFactor.ONE,
             GlStateManager.DestFactor.ZERO
         );
-        RenderSystem.color4f(0.0F, 1.0F, 0.0F, 0.75F);
+        RenderSystem.setShaderColor(0.0F, 1.0F, 0.0F, 0.75F);
         RenderSystem.disableTexture();
         DebugRenderer.renderFilledBox(param0x, 0.02F, param1x.getR(), param1x.getG(), param1x.getB(), param1x.getA());
         if (!param1x.text.isEmpty()) {
@@ -52,7 +51,6 @@ public class GameTestDebugRenderer implements DebugRenderer.SimpleDebugRenderer 
 
         RenderSystem.enableTexture();
         RenderSystem.disableBlend();
-        RenderSystem.popMatrix();
     }
 
     @OnlyIn(Dist.CLIENT)

@@ -7,8 +7,8 @@ import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.StringReader;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
-import it.unimi.dsi.fastutil.ints.Int2ShortMap;
-import it.unimi.dsi.fastutil.ints.Int2ShortOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMaps;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap.Entry;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -30,7 +30,6 @@ import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
@@ -44,7 +43,6 @@ import net.minecraft.network.protocol.PacketUtils;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundChatPacket;
 import net.minecraft.network.protocol.game.ClientboundCommandSuggestionsPacket;
-import net.minecraft.network.protocol.game.ClientboundContainerAckPacket;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.network.protocol.game.ClientboundDisconnectPacket;
 import net.minecraft.network.protocol.game.ClientboundKeepAlivePacket;
@@ -60,7 +58,6 @@ import net.minecraft.network.protocol.game.ServerboundChatPacket;
 import net.minecraft.network.protocol.game.ServerboundClientCommandPacket;
 import net.minecraft.network.protocol.game.ServerboundClientInformationPacket;
 import net.minecraft.network.protocol.game.ServerboundCommandSuggestionPacket;
-import net.minecraft.network.protocol.game.ServerboundContainerAckPacket;
 import net.minecraft.network.protocol.game.ServerboundContainerButtonClickPacket;
 import net.minecraft.network.protocol.game.ServerboundContainerClickPacket;
 import net.minecraft.network.protocol.game.ServerboundContainerClosePacket;
@@ -164,7 +161,6 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
     private long keepAliveChallenge;
     private int chatSpamTickCount;
     private int dropSpamTickCount;
-    private final Int2ShortMap expectedAcks = new Int2ShortOpenHashMap();
     private double firstGoodX;
     private double firstGoodY;
     private double firstGoodZ;
@@ -1383,36 +1379,20 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
     public void handleContainerClick(ServerboundContainerClickPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.player.getLevel());
         this.player.resetLastActionTime();
-        if (this.player.containerMenu.containerId == param0.getContainerId() && this.player.containerMenu.isSynched(this.player)) {
+        if (this.player.containerMenu.containerId == param0.getContainerId()) {
             if (this.player.isSpectator()) {
-                NonNullList<ItemStack> var0 = NonNullList.create();
-
-                for(int var1 = 0; var1 < this.player.containerMenu.slots.size(); ++var1) {
-                    var0.add(this.player.containerMenu.slots.get(var1).getItem());
-                }
-
-                this.player.refreshContainer(this.player.containerMenu, var0);
+                this.player.containerMenu.sendAllDataToRemote();
             } else {
-                ItemStack var2 = this.player.containerMenu.clicked(param0.getSlotNum(), param0.getButtonNum(), param0.getClickType(), this.player);
-                if (ItemStack.matches(param0.getItem(), var2)) {
-                    this.player.connection.send(new ClientboundContainerAckPacket(param0.getContainerId(), param0.getUid(), true));
-                    this.player.ignoreSlotUpdateHack = true;
-                    this.player.containerMenu.broadcastChanges();
-                    this.player.broadcastCarriedItem();
-                    this.player.ignoreSlotUpdateHack = false;
-                } else {
-                    this.expectedAcks.put(this.player.containerMenu.containerId, param0.getUid());
-                    this.player.connection.send(new ClientboundContainerAckPacket(param0.getContainerId(), param0.getUid(), false));
-                    this.player.containerMenu.setSynched(this.player, false);
-                    NonNullList<ItemStack> var3 = NonNullList.create();
+                this.player.containerMenu.suppressRemoteUpdates();
+                this.player.containerMenu.clicked(param0.getSlotNum(), param0.getButtonNum(), param0.getClickType(), this.player);
 
-                    for(int var4 = 0; var4 < this.player.containerMenu.slots.size(); ++var4) {
-                        ItemStack var5 = this.player.containerMenu.slots.get(var4).getItem();
-                        var3.add(var5.isEmpty() ? ItemStack.EMPTY : var5);
-                    }
-
-                    this.player.refreshContainer(this.player.containerMenu, var3);
+                for(Entry<ItemStack> var0 : Int2ObjectMaps.fastIterable(param0.getChangedSlots())) {
+                    this.player.containerMenu.setRemoteSlot(var0.getIntKey(), var0.getValue());
                 }
+
+                this.player.containerMenu.setRemoteCarried(param0.getCarriedItem());
+                this.player.containerMenu.resumeRemoteUpdates();
+                this.player.containerMenu.broadcastChanges();
             }
         }
 
@@ -1424,7 +1404,6 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
         this.player.resetLastActionTime();
         if (!this.player.isSpectator()
             && this.player.containerMenu.containerId == param0.getContainerId()
-            && this.player.containerMenu.isSynched(this.player)
             && this.player.containerMenu instanceof RecipeBookMenu) {
             this.server
                 .getRecipeManager()
@@ -1437,7 +1416,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
     public void handleContainerButtonClick(ServerboundContainerButtonClickPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.player.getLevel());
         this.player.resetLastActionTime();
-        if (this.player.containerMenu.containerId == param0.getContainerId() && this.player.containerMenu.isSynched(this.player) && !this.player.isSpectator()) {
+        if (this.player.containerMenu.containerId == param0.getContainerId() && !this.player.isSpectator()) {
             this.player.containerMenu.clickMenuButton(this.player, param0.getButtonId());
             this.player.containerMenu.broadcastChanges();
         }
@@ -1472,25 +1451,11 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
                     this.player.inventoryMenu.setItem(param0.getSlotNum(), var1);
                 }
 
-                this.player.inventoryMenu.setSynched(this.player, true);
                 this.player.inventoryMenu.broadcastChanges();
             } else if (var0 && var7 && this.dropSpamTickCount < 200) {
                 this.dropSpamTickCount += 20;
                 this.player.drop(var1, true);
             }
-        }
-
-    }
-
-    @Override
-    public void handleContainerAck(ServerboundContainerAckPacket param0) {
-        PacketUtils.ensureRunningOnSameThread(param0, this, this.player.getLevel());
-        int var0 = this.player.containerMenu.containerId;
-        if (var0 == param0.getContainerId()
-            && this.expectedAcks.getOrDefault(var0, (short)(param0.getUid() + 1)) == param0.getUid()
-            && !this.player.containerMenu.isSynched(this.player)
-            && !this.player.isSpectator()) {
-            this.player.containerMenu.setSynched(this.player, true);
         }
 
     }

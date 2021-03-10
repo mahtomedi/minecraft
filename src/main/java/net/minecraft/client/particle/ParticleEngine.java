@@ -32,6 +32,7 @@ import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
 import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
@@ -369,44 +370,42 @@ public class ParticleEngine implements PreparableReloadListener {
 
     public void render(PoseStack param0, MultiBufferSource.BufferSource param1, LightTexture param2, Camera param3, float param4) {
         param2.turnOnLightLayer();
-        RenderSystem.enableAlphaTest();
-        RenderSystem.defaultAlphaFunc();
         RenderSystem.enableDepthTest();
-        RenderSystem.enableFog();
-        RenderSystem.pushMatrix();
-        RenderSystem.multMatrix(param0.last().pose());
+        PoseStack var0 = RenderSystem.getModelViewStack();
+        var0.pushPose();
+        var0.mulPoseMatrix(param0.last().pose());
+        RenderSystem.applyModelViewMatrix();
 
-        for(ParticleRenderType var0 : RENDER_ORDER) {
-            Iterable<Particle> var1 = this.particles.get(var0);
-            if (var1 != null) {
-                RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-                Tesselator var2 = Tesselator.getInstance();
-                BufferBuilder var3 = var2.getBuilder();
-                var0.begin(var3, this.textureManager);
+        for(ParticleRenderType var1 : RENDER_ORDER) {
+            Iterable<Particle> var2 = this.particles.get(var1);
+            if (var2 != null) {
+                RenderSystem.setShader(GameRenderer::getParticleShader);
+                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+                Tesselator var3 = Tesselator.getInstance();
+                BufferBuilder var4 = var3.getBuilder();
+                var1.begin(var4, this.textureManager);
 
-                for(Particle var4 : var1) {
+                for(Particle var5 : var2) {
                     try {
-                        var4.render(var3, param3, param4);
-                    } catch (Throwable var16) {
-                        CrashReport var6 = CrashReport.forThrowable(var16, "Rendering Particle");
-                        CrashReportCategory var7 = var6.addCategory("Particle being rendered");
-                        var7.setDetail("Particle", var4::toString);
-                        var7.setDetail("Particle Type", var0::toString);
-                        throw new ReportedException(var6);
+                        var5.render(var4, param3, param4);
+                    } catch (Throwable var17) {
+                        CrashReport var7 = CrashReport.forThrowable(var17, "Rendering Particle");
+                        CrashReportCategory var8 = var7.addCategory("Particle being rendered");
+                        var8.setDetail("Particle", var5::toString);
+                        var8.setDetail("Particle Type", var1::toString);
+                        throw new ReportedException(var7);
                     }
                 }
 
-                var0.end(var2);
+                var1.end(var3);
             }
         }
 
-        RenderSystem.popMatrix();
+        var0.popPose();
+        RenderSystem.applyModelViewMatrix();
         RenderSystem.depthMask(true);
-        RenderSystem.depthFunc(515);
         RenderSystem.disableBlend();
-        RenderSystem.defaultAlphaFunc();
         param2.turnOffLightLayer();
-        RenderSystem.disableFog();
     }
 
     public void setLevel(@Nullable ClientLevel param0) {

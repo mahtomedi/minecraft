@@ -219,17 +219,15 @@ public class CreateFlatWorldScreen extends Screen {
 
             private void blitSlot(PoseStack param0, int param1, int param2, ItemStack param3) {
                 this.blitSlotBg(param0, param1 + 1, param2 + 1);
-                RenderSystem.enableRescaleNormal();
                 if (!param3.isEmpty()) {
                     CreateFlatWorldScreen.this.itemRenderer.renderGuiItem(param3, param1 + 2, param2 + 2);
                 }
 
-                RenderSystem.disableRescaleNormal();
             }
 
             private void blitSlotBg(PoseStack param0, int param1, int param2) {
-                RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-                DetailsList.this.minecraft.getTextureManager().bind(GuiComponent.STATS_ICON_LOCATION);
+                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+                RenderSystem.setShaderTexture(0, GuiComponent.STATS_ICON_LOCATION);
                 GuiComponent.blit(param0, param1, param2, CreateFlatWorldScreen.this.getBlitOffset(), 0.0F, 0.0F, 18, 18, 128, 128);
             }
         }

@@ -10,6 +10,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.FrontAndTop;
 import net.minecraft.core.Registry;
+import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.WorldGenLevel;
@@ -47,8 +48,8 @@ public class FeaturePoolElement extends StructurePoolElement {
         return var0;
     }
 
-    public BlockPos getSize(StructureManager param0, Rotation param1) {
-        return BlockPos.ZERO;
+    public Vec3i getSize(StructureManager param0, Rotation param1) {
+        return Vec3i.ZERO;
     }
 
     @Override
@@ -66,7 +67,7 @@ public class FeaturePoolElement extends StructurePoolElement {
 
     @Override
     public BoundingBox getBoundingBox(StructureManager param0, BlockPos param1, Rotation param2) {
-        BlockPos var0 = this.getSize(param0, param2);
+        Vec3i var0 = this.getSize(param0, param2);
         return new BoundingBox(
             param1.getX(), param1.getY(), param1.getZ(), param1.getX() + var0.getX(), param1.getY() + var0.getY(), param1.getZ() + var0.getZ()
         );

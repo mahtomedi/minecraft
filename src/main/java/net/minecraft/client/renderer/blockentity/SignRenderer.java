@@ -89,7 +89,7 @@ public class SignRenderer implements BlockEntityRenderer<SignBlockEntity> {
         for(int var17 = 0; var17 < 4; ++var17) {
             FormattedCharSequence var18 = var16[var17];
             float var19 = (float)(-this.font.width(var18) / 2);
-            int var20 = var0.getValue(SignBlock.LIT) ? 15728880 : param4;
+            int var20 = param0.hasGlowingText() ? 15728880 : param4;
             this.font.drawInBatch(var18, var19, (float)(var17 * 10 - 20), var14, false, param2.last().pose(), param3, false, 0, var20);
         }
 

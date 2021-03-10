@@ -142,8 +142,7 @@ public class PlayerTabOverlay extends GuiComponent {
             int var27 = var14 + var25 * var13 + var25 * 5;
             int var28 = var15 + var26 * 9;
             fill(param0, var27, var28, var27 + var13, var28 + 8, var23);
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            RenderSystem.enableAlphaTest();
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
             if (var24 < var1.size()) {
@@ -154,7 +153,7 @@ public class PlayerTabOverlay extends GuiComponent {
                     boolean var32 = var31 != null
                         && var31.isModelPartShown(PlayerModelPart.CAPE)
                         && ("Dinnerbone".equals(var30.getName()) || "Grumm".equals(var30.getName()));
-                    this.minecraft.getTextureManager().bind(var29.getSkinLocation());
+                    RenderSystem.setShaderTexture(0, var29.getSkinLocation());
                     int var33 = 8 + (var32 ? 8 : 0);
                     int var34 = 8 * (var32 ? -1 : 1);
                     GuiComponent.blit(param0, var27, var28, 8, 8, 8.0F, (float)var33, 8, var34, 64, 64);
@@ -196,8 +195,8 @@ public class PlayerTabOverlay extends GuiComponent {
     }
 
     protected void renderPingIcon(PoseStack param0, int param1, int param2, int param3, PlayerInfo param4) {
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        this.minecraft.getTextureManager().bind(GUI_ICONS_LOCATION);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderTexture(0, GUI_ICONS_LOCATION);
         int var0 = 0;
         int var1;
         if (param4.getLatency() < 0) {
@@ -222,7 +221,7 @@ public class PlayerTabOverlay extends GuiComponent {
     private void renderTablistScore(Objective param0, int param1, String param2, int param3, int param4, PlayerInfo param5, PoseStack param6) {
         int var0 = param0.getScoreboard().getOrCreatePlayerScore(param2, param0).getScore();
         if (param0.getRenderType() == ObjectiveCriteria.RenderType.HEARTS) {
-            this.minecraft.getTextureManager().bind(GUI_ICONS_LOCATION);
+            RenderSystem.setShaderTexture(0, GUI_ICONS_LOCATION);
             long var1 = Util.getMillis();
             if (this.visibilityId == param5.getRenderVisibilityId()) {
                 if (var0 < param5.getLastHealth()) {

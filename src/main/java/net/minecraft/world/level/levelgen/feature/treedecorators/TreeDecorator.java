@@ -27,6 +27,6 @@ public abstract class TreeDecorator {
     protected void setBlock(LevelWriter param0, BlockPos param1, BlockState param2, Set<BlockPos> param3, BoundingBox param4) {
         param0.setBlock(param1, param2, 19);
         param3.add(param1);
-        param4.expand(new BoundingBox(param1, param1));
+        param4.expand(new BoundingBox(param1));
     }
 }

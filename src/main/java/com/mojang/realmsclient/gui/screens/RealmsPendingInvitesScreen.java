@@ -225,7 +225,7 @@ public class RealmsPendingInvitesScreen extends RealmsScreen {
                 .draw(param0, RealmsUtil.convertToAgePresentationFromInstant(param1.date), (float)(param2 + 38), (float)(param3 + 24), 7105644);
             RowButton.drawButtonsInRow(param0, this.rowButtons, RealmsPendingInvitesScreen.this.pendingInvitationSelectionList, param2, param3, param4, param5);
             RealmsTextureManager.withBoundFace(param1.worldOwnerUuid, () -> {
-                RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                 GuiComponent.blit(param0, param2, param3, 32, 32, 8.0F, 8.0F, 8, 8, 64, 64);
                 GuiComponent.blit(param0, param2, param3, 32, 32, 40.0F, 8.0F, 8, 8, 64, 64);
             });
@@ -239,8 +239,8 @@ public class RealmsPendingInvitesScreen extends RealmsScreen {
 
             @Override
             protected void draw(PoseStack param0, int param1, int param2, boolean param3) {
-                RealmsPendingInvitesScreen.this.minecraft.getTextureManager().bind(RealmsPendingInvitesScreen.ACCEPT_ICON_LOCATION);
-                RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+                RenderSystem.setShaderTexture(0, RealmsPendingInvitesScreen.ACCEPT_ICON_LOCATION);
+                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                 float var0 = param3 ? 19.0F : 0.0F;
                 GuiComponent.blit(param0, param1, param2, var0, 0.0F, 18, 18, 37, 18);
                 if (param3) {
@@ -263,8 +263,8 @@ public class RealmsPendingInvitesScreen extends RealmsScreen {
 
             @Override
             protected void draw(PoseStack param0, int param1, int param2, boolean param3) {
-                RealmsPendingInvitesScreen.this.minecraft.getTextureManager().bind(RealmsPendingInvitesScreen.REJECT_ICON_LOCATION);
-                RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+                RenderSystem.setShaderTexture(0, RealmsPendingInvitesScreen.REJECT_ICON_LOCATION);
+                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                 float var0 = param3 ? 19.0F : 0.0F;
                 GuiComponent.blit(param0, param1, param2, var0, 0.0F, 18, 18, 37, 18);
                 if (param3) {

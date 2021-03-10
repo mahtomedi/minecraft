@@ -30,10 +30,9 @@ public class FurnaceResultSlot extends Slot {
     }
 
     @Override
-    public ItemStack onTake(Player param0, ItemStack param1) {
+    public void onTake(Player param0, ItemStack param1) {
         this.checkTakeAchievements(param1);
         super.onTake(param0, param1);
-        return param1;
     }
 
     @Override

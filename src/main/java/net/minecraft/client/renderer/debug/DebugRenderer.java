@@ -174,11 +174,11 @@ public class DebugRenderer {
             double var3 = var1.getPosition().x;
             double var4 = var1.getPosition().y;
             double var5 = var1.getPosition().z;
-            RenderSystem.pushMatrix();
-            RenderSystem.translatef((float)(param1 - var3), (float)(param2 - var4) + 0.07F, (float)(param3 - var5));
-            RenderSystem.normal3f(0.0F, 1.0F, 0.0F);
-            RenderSystem.multMatrix(new Matrix4f(var1.rotation()));
-            RenderSystem.scalef(param5, -param5, param5);
+            PoseStack var6 = RenderSystem.getModelViewStack();
+            var6.pushPose();
+            var6.translate((double)((float)(param1 - var3)), (double)((float)(param2 - var4) + 0.07F), (double)((float)(param3 - var5)));
+            var6.mulPoseMatrix(new Matrix4f(var1.rotation()));
+            var6.scale(param5, -param5, param5);
             RenderSystem.enableTexture();
             if (param8) {
                 RenderSystem.disableDepthTest();
@@ -187,16 +187,17 @@ public class DebugRenderer {
             }
 
             RenderSystem.depthMask(true);
-            RenderSystem.scalef(-1.0F, 1.0F, 1.0F);
-            float var6 = param6 ? (float)(-var2.width(param0)) / 2.0F : 0.0F;
-            var6 -= param7 / param5;
-            RenderSystem.enableAlphaTest();
-            MultiBufferSource.BufferSource var7 = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-            var2.drawInBatch(param0, var6, 0.0F, param4, false, Transformation.identity().getMatrix(), var7, param8, 0, 15728880);
-            var7.endBatch();
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            var6.scale(-1.0F, 1.0F, 1.0F);
+            RenderSystem.applyModelViewMatrix();
+            float var7 = param6 ? (float)(-var2.width(param0)) / 2.0F : 0.0F;
+            var7 -= param7 / param5;
+            MultiBufferSource.BufferSource var8 = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
+            var2.drawInBatch(param0, var7, 0.0F, param4, false, Transformation.identity().getMatrix(), var8, param8, 0, 15728880);
+            var8.endBatch();
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             RenderSystem.enableDepthTest();
-            RenderSystem.popMatrix();
+            var6.popPose();
+            RenderSystem.applyModelViewMatrix();
         }
     }
 

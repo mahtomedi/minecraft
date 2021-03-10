@@ -128,10 +128,10 @@ public class OverlayRecipeComponent extends GuiComponent implements Widget, GuiE
         if (this.isVisible) {
             this.time += param3;
             RenderSystem.enableBlend();
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            this.minecraft.getTextureManager().bind(RECIPE_BOOK_LOCATION);
-            RenderSystem.pushMatrix();
-            RenderSystem.translatef(0.0F, 0.0F, 170.0F);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.setShaderTexture(0, RECIPE_BOOK_LOCATION);
+            param0.pushPose();
+            param0.translate(0.0, 0.0, 170.0);
             int var0 = this.recipeButtons.size() <= 16 ? 4 : 5;
             int var1 = Math.min(this.recipeButtons.size(), var0);
             int var2 = Mth.ceil((float)this.recipeButtons.size() / (float)var0);
@@ -146,7 +146,7 @@ public class OverlayRecipeComponent extends GuiComponent implements Widget, GuiE
                 var7.render(param0, param1, param2, param3);
             }
 
-            RenderSystem.popMatrix();
+            param0.popPose();
         }
     }
 
@@ -254,8 +254,7 @@ public class OverlayRecipeComponent extends GuiComponent implements Widget, GuiE
 
         @Override
         public void renderButton(PoseStack param0, int param1, int param2, float param3) {
-            RenderSystem.enableAlphaTest();
-            OverlayRecipeComponent.this.minecraft.getTextureManager().bind(OverlayRecipeComponent.RECIPE_BOOK_LOCATION);
+            RenderSystem.setShaderTexture(0, OverlayRecipeComponent.RECIPE_BOOK_LOCATION);
             int var0 = 152;
             if (!this.isCraftable) {
                 var0 += 26;
@@ -267,20 +266,22 @@ public class OverlayRecipeComponent extends GuiComponent implements Widget, GuiE
             }
 
             this.blit(param0, this.x, this.y, var0, var1, this.width, this.height);
+            float var2 = 0.42F;
+            PoseStack var3 = RenderSystem.getModelViewStack();
+            var3.pushPose();
+            var3.scale(0.42F, 0.42F, 1.0F);
+            RenderSystem.applyModelViewMatrix();
 
-            for(OverlayRecipeComponent.OverlayRecipeButton.Pos var2 : this.ingredientPos) {
-                RenderSystem.pushMatrix();
-                float var3 = 0.42F;
-                int var4 = (int)((float)(this.x + var2.x) / 0.42F - 3.0F);
-                int var5 = (int)((float)(this.y + var2.y) / 0.42F - 3.0F);
-                RenderSystem.scalef(0.42F, 0.42F, 1.0F);
+            for(OverlayRecipeComponent.OverlayRecipeButton.Pos var4 : this.ingredientPos) {
+                int var5 = (int)((float)(this.x + var4.x) / 0.42F - 3.0F);
+                int var6 = (int)((float)(this.y + var4.y) / 0.42F - 3.0F);
                 OverlayRecipeComponent.this.minecraft
                     .getItemRenderer()
-                    .renderAndDecorateItem(var2.ingredients[Mth.floor(OverlayRecipeComponent.this.time / 30.0F) % var2.ingredients.length], var4, var5);
-                RenderSystem.popMatrix();
+                    .renderAndDecorateItem(var4.ingredients[Mth.floor(OverlayRecipeComponent.this.time / 30.0F) % var4.ingredients.length], var5, var6);
             }
 
-            RenderSystem.disableAlphaTest();
+            var3.popPose();
+            RenderSystem.applyModelViewMatrix();
         }
 
         @OnlyIn(Dist.CLIENT)

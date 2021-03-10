@@ -405,13 +405,13 @@ public class RealmsBackupScreen extends RealmsScreen {
                 && param4 <= param2 + 14
                 && param4 < RealmsBackupScreen.this.height - 15
                 && param4 > 32;
-            RealmsBackupScreen.this.minecraft.getTextureManager().bind(RealmsBackupScreen.RESTORE_ICON_LOCATION);
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            RenderSystem.pushMatrix();
-            RenderSystem.scalef(0.5F, 0.5F, 0.5F);
+            RenderSystem.setShaderTexture(0, RealmsBackupScreen.RESTORE_ICON_LOCATION);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+            param0.pushPose();
+            param0.scale(0.5F, 0.5F, 0.5F);
             float var1 = var0 ? 28.0F : 0.0F;
             GuiComponent.blit(param0, param1 * 2, param2 * 2, 0.0F, var1, 23, 28, 23, 56);
-            RenderSystem.popMatrix();
+            param0.popPose();
             if (var0) {
                 RealmsBackupScreen.this.toolTip = RealmsBackupScreen.RESTORE_TOOLTIP;
             }
@@ -425,13 +425,13 @@ public class RealmsBackupScreen extends RealmsScreen {
                 && param4 <= param2 + 8
                 && param4 < RealmsBackupScreen.this.height - 15
                 && param4 > 32;
-            RealmsBackupScreen.this.minecraft.getTextureManager().bind(RealmsBackupScreen.PLUS_ICON_LOCATION);
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            RenderSystem.pushMatrix();
-            RenderSystem.scalef(0.5F, 0.5F, 0.5F);
+            RenderSystem.setShaderTexture(0, RealmsBackupScreen.PLUS_ICON_LOCATION);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+            param0.pushPose();
+            param0.scale(0.5F, 0.5F, 0.5F);
             float var1 = var0 ? 15.0F : 0.0F;
             GuiComponent.blit(param0, param1 * 2, param2 * 2, 0.0F, var1, 15, 15, 15, 30);
-            RenderSystem.popMatrix();
+            param0.popPose();
             if (var0) {
                 RealmsBackupScreen.this.toolTip = RealmsBackupScreen.HAS_CHANGES_TOOLTIP;
             }

@@ -126,18 +126,6 @@ public final class NativeImage implements AutoCloseable {
         }
     }
 
-    private static void setClamp(boolean param0) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
-        if (param0) {
-            GlStateManager._texParameter(3553, 10242, 10496);
-            GlStateManager._texParameter(3553, 10243, 10496);
-        } else {
-            GlStateManager._texParameter(3553, 10242, 10497);
-            GlStateManager._texParameter(3553, 10243, 10497);
-        }
-
-    }
-
     private static void setFilter(boolean param0, boolean param1) {
         RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
         if (param0) {
@@ -265,7 +253,6 @@ public final class NativeImage implements AutoCloseable {
         RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
         this.checkAllocated();
         setFilter(param7, param9);
-        setClamp(param8);
         if (param5 == this.getWidth()) {
             GlStateManager._pixelStore(3314, 0);
         } else {

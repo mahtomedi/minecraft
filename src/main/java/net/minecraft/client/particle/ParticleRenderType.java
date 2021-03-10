@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraftforge.api.distmarker.Dist;
@@ -19,7 +20,7 @@ public interface ParticleRenderType {
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
             RenderSystem.depthMask(true);
-            param1.bind(TextureAtlas.LOCATION_BLOCKS);
+            RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_BLOCKS);
             param0.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.PARTICLE);
         }
 
@@ -38,7 +39,8 @@ public interface ParticleRenderType {
         public void begin(BufferBuilder param0, TextureManager param1) {
             RenderSystem.disableBlend();
             RenderSystem.depthMask(true);
-            param1.bind(TextureAtlas.LOCATION_PARTICLES);
+            RenderSystem.setShader(GameRenderer::getParticleShader);
+            RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_PARTICLES);
             param0.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.PARTICLE);
         }
 
@@ -56,10 +58,9 @@ public interface ParticleRenderType {
         @Override
         public void begin(BufferBuilder param0, TextureManager param1) {
             RenderSystem.depthMask(true);
-            param1.bind(TextureAtlas.LOCATION_PARTICLES);
+            RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_PARTICLES);
             RenderSystem.enableBlend();
             RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-            RenderSystem.alphaFunc(516, 0.003921569F);
             param0.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.PARTICLE);
         }
 
@@ -78,7 +79,7 @@ public interface ParticleRenderType {
         public void begin(BufferBuilder param0, TextureManager param1) {
             RenderSystem.disableBlend();
             RenderSystem.depthMask(true);
-            param1.bind(TextureAtlas.LOCATION_PARTICLES);
+            RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_PARTICLES);
             param0.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.PARTICLE);
         }
 

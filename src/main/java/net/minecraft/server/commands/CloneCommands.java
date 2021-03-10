@@ -220,9 +220,9 @@ public class CloneCommands {
     private static int clone(
         CommandSourceStack param0, BlockPos param1, BlockPos param2, BlockPos param3, Predicate<BlockInWorld> param4, CloneCommands.Mode param5
     ) throws CommandSyntaxException {
-        BoundingBox var0 = new BoundingBox(param1, param2);
+        BoundingBox var0 = BoundingBox.createProper(param1, param2);
         BlockPos var1 = param3.offset(var0.getLength());
-        BoundingBox var2 = new BoundingBox(param3, var1);
+        BoundingBox var2 = BoundingBox.createProper(param3, var1);
         if (!param5.canOverlap() && var2.intersects(var0)) {
             throw ERROR_OVERLAP.create();
         } else {

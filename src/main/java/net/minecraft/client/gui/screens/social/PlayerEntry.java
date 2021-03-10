@@ -116,7 +116,7 @@ public class PlayerEntry extends ContainerObjectSelectionList.Entry<PlayerEntry>
             this.minecraft.font.draw(param0, var3, (float)var2, (float)(var4 + 12), PLAYER_STATUS_COLOR);
         }
 
-        this.minecraft.getTextureManager().bind(this.skinGetter.get());
+        RenderSystem.setShaderTexture(0, this.skinGetter.get());
         GuiComponent.blit(param0, var0, var1, 24, 24, 8.0F, 8.0F, 8, 8, 64, 64);
         RenderSystem.enableBlend();
         GuiComponent.blit(param0, var0, var1, 24, 24, 40.0F, 8.0F, 8, 8, 64, 64);

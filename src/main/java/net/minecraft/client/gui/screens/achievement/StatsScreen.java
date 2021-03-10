@@ -16,6 +16,7 @@ import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.Registry;
@@ -159,14 +160,13 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
 
     private void blitSlot(PoseStack param0, int param1, int param2, Item param3) {
         this.blitSlotIcon(param0, param1 + 1, param2 + 1, 0, 0);
-        RenderSystem.enableRescaleNormal();
         this.itemRenderer.renderGuiItem(param3.getDefaultInstance(), param1 + 2, param2 + 2);
-        RenderSystem.disableRescaleNormal();
     }
 
     private void blitSlotIcon(PoseStack param0, int param1, int param2, int param3, int param4) {
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        this.minecraft.getTextureManager().bind(STATS_ICON_LOCATION);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderTexture(0, STATS_ICON_LOCATION);
         blit(param0, param1, param2, this.getBlitOffset(), (float)param3, (float)param4, 18, 18, 128, 128);
     }
 
@@ -377,10 +377,10 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
                 int var1 = param3 - 12;
                 int var2 = StatsScreen.this.font.width(param1);
                 this.fillGradient(param0, var0 - 3, var1 - 3, var0 + var2 + 3, var1 + 8 + 3, -1073741824, -1073741824);
-                RenderSystem.pushMatrix();
-                RenderSystem.translatef(0.0F, 0.0F, 400.0F);
+                param0.pushPose();
+                param0.translate(0.0, 0.0, 400.0);
                 StatsScreen.this.font.drawShadow(param0, param1, (float)var0, (float)var1, -1);
-                RenderSystem.popMatrix();
+                param0.popPose();
             }
         }
 

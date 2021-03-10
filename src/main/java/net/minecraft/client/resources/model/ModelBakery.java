@@ -186,6 +186,7 @@ public class ModelBakery {
 
         param2.popPush("special");
         this.loadTopLevel(new ModelResourceLocation("minecraft:trident_in_hand#inventory"));
+        this.loadTopLevel(new ModelResourceLocation("minecraft:spyglass_in_hand#inventory"));
         param2.popPush("textures");
         Set<Pair<String, String>> var3 = Sets.newLinkedHashSet();
         Set<Material> var4 = this.topLevelModels
@@ -218,7 +219,7 @@ public class ModelBakery {
             TextureAtlas.Preparations var2 = var0.getSecond();
             var1.reload(var2);
             param0.register(var1.location(), var1);
-            param0.bind(var1.location());
+            param0.bindForSetup(var1.location());
             var1.updateFilter(var2);
         }
 

@@ -16,12 +16,12 @@ public class SetWorldSpawnCommand {
                 .executes(param0x -> setSpawn(param0x.getSource(), new BlockPos(param0x.getSource().getPosition()), 0.0F))
                 .then(
                     Commands.argument("pos", BlockPosArgument.blockPos())
-                        .executes(param0x -> setSpawn(param0x.getSource(), BlockPosArgument.getOrLoadBlockPos(param0x, "pos"), 0.0F))
+                        .executes(param0x -> setSpawn(param0x.getSource(), BlockPosArgument.getSpawnablePos(param0x, "pos"), 0.0F))
                         .then(
                             Commands.argument("angle", AngleArgument.angle())
                                 .executes(
                                     param0x -> setSpawn(
-                                            param0x.getSource(), BlockPosArgument.getOrLoadBlockPos(param0x, "pos"), AngleArgument.getAngle(param0x, "angle")
+                                            param0x.getSource(), BlockPosArgument.getSpawnablePos(param0x, "pos"), AngleArgument.getAngle(param0x, "angle")
                                         )
                                 )
                         )

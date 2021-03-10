@@ -34,7 +34,6 @@ public class WorldGenAttemptRenderer implements DebugRenderer.SimpleDebugRendere
 
     @Override
     public void render(PoseStack param0, MultiBufferSource param1, double param2, double param3, double param4) {
-        RenderSystem.pushMatrix();
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.disableTexture();
@@ -63,6 +62,5 @@ public class WorldGenAttemptRenderer implements DebugRenderer.SimpleDebugRendere
 
         var0.end();
         RenderSystem.enableTexture();
-        RenderSystem.popMatrix();
     }
 }

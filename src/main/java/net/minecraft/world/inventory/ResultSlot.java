@@ -56,7 +56,7 @@ public class ResultSlot extends Slot {
     }
 
     @Override
-    public ItemStack onTake(Player param0, ItemStack param1) {
+    public void onTake(Player param0, ItemStack param1) {
         this.checkTakeAchievements(param1);
         NonNullList<ItemStack> var0 = param0.level.getRecipeManager().getRemainingItemsFor(RecipeType.CRAFTING, this.craftSlots, param0.level);
 
@@ -80,6 +80,5 @@ public class ResultSlot extends Slot {
             }
         }
 
-        return param1;
     }
 }

@@ -23,6 +23,7 @@ public final class Vector3f {
     public static Vector3f YP = new Vector3f(0.0F, 1.0F, 0.0F);
     public static Vector3f ZN = new Vector3f(0.0F, 0.0F, -1.0F);
     public static Vector3f ZP = new Vector3f(0.0F, 0.0F, 1.0F);
+    public static Vector3f ZERO = new Vector3f(0.0F, 0.0F, 0.0F);
     private float x;
     private float y;
     private float z;
@@ -34,6 +35,11 @@ public final class Vector3f {
         this.x = param0;
         this.y = param1;
         this.z = param2;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public Vector3f(Vector4f param0) {
+        this(param0.x(), param0.y(), param0.z());
     }
 
     public Vector3f(Vec3 param0) {

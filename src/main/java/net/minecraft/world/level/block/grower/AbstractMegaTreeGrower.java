@@ -34,7 +34,6 @@ public abstract class AbstractMegaTreeGrower extends AbstractTreeGrower {
         if (var0 == null) {
             return false;
         } else {
-            var0.config.setFromSapling();
             BlockState var1 = Blocks.AIR.defaultBlockState();
             param0.setBlock(param2.offset(param5, 0, param6), var1, 4);
             param0.setBlock(param2.offset(param5 + 1, 0, param6), var1, 4);

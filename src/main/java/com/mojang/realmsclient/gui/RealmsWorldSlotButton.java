@@ -180,33 +180,33 @@ public class RealmsWorldSlotButton extends Button implements TickableWidget {
         if (param11) {
             RealmsTextureManager.bindWorldTemplate(String.valueOf(param8), param9);
         } else if (param10) {
-            var2.bind(EMPTY_SLOT_LOCATION);
+            RenderSystem.setShaderTexture(0, EMPTY_SLOT_LOCATION);
         } else if (param9 != null && param8 != -1L) {
             RealmsTextureManager.bindWorldTemplate(String.valueOf(param8), param9);
         } else if (param7 == 1) {
-            var2.bind(DEFAULT_WORLD_SLOT_1);
+            RenderSystem.setShaderTexture(0, DEFAULT_WORLD_SLOT_1);
         } else if (param7 == 2) {
-            var2.bind(DEFAULT_WORLD_SLOT_2);
+            RenderSystem.setShaderTexture(0, DEFAULT_WORLD_SLOT_2);
         } else if (param7 == 3) {
-            var2.bind(DEFAULT_WORLD_SLOT_3);
+            RenderSystem.setShaderTexture(0, DEFAULT_WORLD_SLOT_3);
         }
 
         if (param5) {
             float var3 = 0.85F + 0.15F * Mth.cos((float)this.animTick * 0.2F);
-            RenderSystem.color4f(var3, var3, var3, 1.0F);
+            RenderSystem.setShaderColor(var3, var3, var3, 1.0F);
         } else {
-            RenderSystem.color4f(0.56F, 0.56F, 0.56F, 1.0F);
+            RenderSystem.setShaderColor(0.56F, 0.56F, 0.56F, 1.0F);
         }
 
         blit(param0, param1 + 3, param2 + 3, 0.0F, 0.0F, 74, 74, 74, 74);
-        var2.bind(SLOT_FRAME_LOCATION);
+        RenderSystem.setShaderTexture(0, SLOT_FRAME_LOCATION);
         boolean var4 = var0 && param12 != RealmsWorldSlotButton.Action.NOTHING;
         if (var4) {
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         } else if (param5) {
-            RenderSystem.color4f(0.8F, 0.8F, 0.8F, 1.0F);
+            RenderSystem.setShaderColor(0.8F, 0.8F, 0.8F, 1.0F);
         } else {
-            RenderSystem.color4f(0.56F, 0.56F, 0.56F, 1.0F);
+            RenderSystem.setShaderColor(0.56F, 0.56F, 0.56F, 1.0F);
         }
 
         blit(param0, param1, param2, 0.0F, 0.0F, 80, 80, 80, 80);

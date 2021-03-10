@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import javax.annotation.Nullable;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -34,8 +35,9 @@ public class CartographyTableScreen extends AbstractContainerScreen<CartographyT
     @Override
     protected void renderBg(PoseStack param0, float param1, int param2, int param3) {
         this.renderBackground(param0);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        this.minecraft.getTextureManager().bind(BG_LOCATION);
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderTexture(0, BG_LOCATION);
         int var0 = this.leftPos;
         int var1 = this.topPos;
         this.blit(param0, var0, var1, 0, 0, this.imageWidth, this.imageHeight);
@@ -78,40 +80,40 @@ public class CartographyTableScreen extends AbstractContainerScreen<CartographyT
         int var1 = this.topPos;
         if (param4 && !param6) {
             this.blit(param0, var0 + 67, var1 + 13, this.imageWidth, 66, 66, 66);
-            this.renderMap(param1, param2, var0 + 85, var1 + 31, 0.226F);
+            this.renderMap(param0, param1, param2, var0 + 85, var1 + 31, 0.226F);
         } else if (param3) {
             this.blit(param0, var0 + 67 + 16, var1 + 13, this.imageWidth, 132, 50, 66);
-            this.renderMap(param1, param2, var0 + 86, var1 + 16, 0.34F);
-            this.minecraft.getTextureManager().bind(BG_LOCATION);
-            RenderSystem.pushMatrix();
-            RenderSystem.translatef(0.0F, 0.0F, 1.0F);
+            this.renderMap(param0, param1, param2, var0 + 86, var1 + 16, 0.34F);
+            RenderSystem.setShaderTexture(0, BG_LOCATION);
+            param0.pushPose();
+            param0.translate(0.0, 0.0, 1.0);
             this.blit(param0, var0 + 67, var1 + 13 + 16, this.imageWidth, 132, 50, 66);
-            this.renderMap(param1, param2, var0 + 70, var1 + 32, 0.34F);
-            RenderSystem.popMatrix();
+            this.renderMap(param0, param1, param2, var0 + 70, var1 + 32, 0.34F);
+            param0.popPose();
         } else if (param5) {
             this.blit(param0, var0 + 67, var1 + 13, this.imageWidth, 0, 66, 66);
-            this.renderMap(param1, param2, var0 + 71, var1 + 17, 0.45F);
-            this.minecraft.getTextureManager().bind(BG_LOCATION);
-            RenderSystem.pushMatrix();
-            RenderSystem.translatef(0.0F, 0.0F, 1.0F);
+            this.renderMap(param0, param1, param2, var0 + 71, var1 + 17, 0.45F);
+            RenderSystem.setShaderTexture(0, BG_LOCATION);
+            param0.pushPose();
+            param0.translate(0.0, 0.0, 1.0);
             this.blit(param0, var0 + 66, var1 + 12, 0, this.imageHeight, 66, 66);
-            RenderSystem.popMatrix();
+            param0.popPose();
         } else {
             this.blit(param0, var0 + 67, var1 + 13, this.imageWidth, 0, 66, 66);
-            this.renderMap(param1, param2, var0 + 71, var1 + 17, 0.45F);
+            this.renderMap(param0, param1, param2, var0 + 71, var1 + 17, 0.45F);
         }
 
     }
 
-    private void renderMap(@Nullable Integer param0, @Nullable MapItemSavedData param1, int param2, int param3, float param4) {
-        if (param0 != null && param1 != null) {
-            RenderSystem.pushMatrix();
-            RenderSystem.translatef((float)param2, (float)param3, 1.0F);
-            RenderSystem.scalef(param4, param4, 1.0F);
+    private void renderMap(PoseStack param0, @Nullable Integer param1, @Nullable MapItemSavedData param2, int param3, int param4, float param5) {
+        if (param1 != null && param2 != null) {
+            param0.pushPose();
+            param0.translate((double)param3, (double)param4, 1.0);
+            param0.scale(param5, param5, 1.0F);
             MultiBufferSource.BufferSource var0 = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-            this.minecraft.gameRenderer.getMapRenderer().render(new PoseStack(), var0, param0, param1, true, 15728880);
+            this.minecraft.gameRenderer.getMapRenderer().render(param0, var0, param1, param2, true, 15728880);
             var0.endBatch();
-            RenderSystem.popMatrix();
+            param0.popPose();
         }
 
     }

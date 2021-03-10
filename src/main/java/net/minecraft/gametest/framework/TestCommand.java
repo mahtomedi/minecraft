@@ -24,6 +24,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.blocks.BlockInput;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
 import net.minecraft.data.structures.NbtToSnbt;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtUtils;
@@ -217,7 +218,7 @@ public class TestCommand {
             ServerLevel var0 = param0.getLevel();
             BlockPos var1 = new BlockPos(param0.getPosition());
             BlockPos var2 = new BlockPos(var1.getX(), param0.getLevel().getHeightmapPos(Heightmap.Types.WORLD_SURFACE, var1).getY(), var1.getZ() + 3);
-            StructureUtils.createNewEmptyStructureBlock(param1.toLowerCase(), var2, new BlockPos(param2, param3, param4), Rotation.NONE, var0);
+            StructureUtils.createNewEmptyStructureBlock(param1.toLowerCase(), var2, new Vec3i(param2, param3, param4), Rotation.NONE, var0);
 
             for(int var3 = 0; var3 < param2; ++var3) {
                 for(int var4 = 0; var4 < param4; ++var4) {

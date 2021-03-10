@@ -7,6 +7,7 @@ import net.minecraft.client.ClientRecipeBook;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.RecipeBookCategories;
 import net.minecraft.client.gui.components.StateSwitchingButton;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.world.inventory.RecipeBookMenu;
 import net.minecraft.world.item.ItemStack;
@@ -45,14 +46,15 @@ public class RecipeBookTabButton extends StateSwitchingButton {
     public void renderButton(PoseStack param0, int param1, int param2, float param3) {
         if (this.animationTime > 0.0F) {
             float var0 = 1.0F + 0.1F * (float)Math.sin((double)(this.animationTime / 15.0F * (float) Math.PI));
-            RenderSystem.pushMatrix();
-            RenderSystem.translatef((float)(this.x + 8), (float)(this.y + 12), 0.0F);
-            RenderSystem.scalef(1.0F, var0, 1.0F);
-            RenderSystem.translatef((float)(-(this.x + 8)), (float)(-(this.y + 12)), 0.0F);
+            param0.pushPose();
+            param0.translate((double)(this.x + 8), (double)(this.y + 12), 0.0);
+            param0.scale(1.0F, var0, 1.0F);
+            param0.translate((double)(-(this.x + 8)), (double)(-(this.y + 12)), 0.0);
         }
 
         Minecraft var1 = Minecraft.getInstance();
-        var1.getTextureManager().bind(this.resourceLocation);
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderTexture(0, this.resourceLocation);
         RenderSystem.disableDepthTest();
         int var2 = this.xTexStart;
         int var3 = this.yTexStart;
@@ -69,12 +71,12 @@ public class RecipeBookTabButton extends StateSwitchingButton {
             var4 -= 2;
         }
 
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         this.blit(param0, var4, this.y, var2, var3, this.width, this.height);
         RenderSystem.enableDepthTest();
         this.renderIcon(var1.getItemRenderer());
         if (this.animationTime > 0.0F) {
-            RenderSystem.popMatrix();
+            param0.popPose();
             this.animationTime -= param3;
         }
 

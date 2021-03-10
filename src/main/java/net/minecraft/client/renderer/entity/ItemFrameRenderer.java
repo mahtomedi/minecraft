@@ -40,7 +40,7 @@ public class ItemFrameRenderer<T extends ItemFrame> extends EntityRenderer<T> {
     }
 
     protected int getBlockLightLevel(T param0, BlockPos param1) {
-        return param0.isGlowFrame() ? 5 : super.getBlockLightLevel(param0, param1);
+        return param0.getType() == EntityType.GLOW_ITEM_FRAME ? 5 : super.getBlockLightLevel(param0, param1);
     }
 
     public void render(T param0, float param1, float param2, PoseStack param3, MultiBufferSource param4, int param5) {
@@ -105,7 +105,7 @@ public class ItemFrameRenderer<T extends ItemFrame> extends EntityRenderer<T> {
     }
 
     private ModelResourceLocation getFrameModelResourceLoc(T param0, ItemStack param1) {
-        boolean var0 = param0.isGlowFrame();
+        boolean var0 = param0.getType() == EntityType.GLOW_ITEM_FRAME;
         if (param1.is(Items.FILLED_MAP)) {
             return var0 ? GLOW_MAP_FRAME_LOCATION : MAP_FRAME_LOCATION;
         } else {

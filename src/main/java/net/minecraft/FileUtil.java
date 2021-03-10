@@ -1,5 +1,6 @@
 package net.minecraft;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
@@ -10,6 +11,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.apache.commons.io.FilenameUtils;
 
 public class FileUtil {
     private static final Pattern COPY_COUNTER_PATTERN = Pattern.compile("(<name>.*) \\((<count>\\d*)\\)", 66);
@@ -85,5 +87,15 @@ public class FileUtil {
         } else {
             return param0.resolve(var1);
         }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static String getFullResourcePath(String param0) {
+        return FilenameUtils.getFullPath(param0).replace(File.separator, "/");
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static String normalizeResourcePath(String param0) {
+        return FilenameUtils.normalize(param0).replace(File.separator, "/");
     }
 }

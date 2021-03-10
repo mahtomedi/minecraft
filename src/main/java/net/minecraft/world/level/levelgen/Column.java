@@ -51,22 +51,28 @@ public abstract class Column {
             return Optional.empty();
         } else {
             int var1 = param1.getY();
-            var0.setY(var1);
-
-            for(int var2 = 1; var2 < param2 && param0.isStateAtPosition(var0, param3); ++var2) {
-                var0.move(Direction.UP);
-            }
-
-            OptionalInt var3 = param0.isStateAtPosition(var0, param4) ? OptionalInt.of(var0.getY()) : OptionalInt.empty();
-            var0.setY(var1);
-
-            for(int var4 = 1; var4 < param2 && param0.isStateAtPosition(var0, param3); ++var4) {
-                var0.move(Direction.DOWN);
-            }
-
-            OptionalInt var5 = param0.isStateAtPosition(var0, param4) ? OptionalInt.of(var0.getY()) : OptionalInt.empty();
-            return Optional.of(create(var5, var3));
+            OptionalInt var2 = scanDirection(param0, param2, param3, param4, var0, var1, Direction.UP);
+            OptionalInt var3 = scanDirection(param0, param2, param3, param4, var0, var1, Direction.DOWN);
+            return Optional.of(create(var3, var2));
         }
+    }
+
+    private static OptionalInt scanDirection(
+        LevelSimulatedReader param0,
+        int param1,
+        Predicate<BlockState> param2,
+        Predicate<BlockState> param3,
+        BlockPos.MutableBlockPos param4,
+        int param5,
+        Direction param6
+    ) {
+        param4.setY(param5);
+
+        for(int var0 = 1; var0 < param1 && param0.isStateAtPosition(param4, param2); ++var0) {
+            param4.move(param6);
+        }
+
+        return param0.isStateAtPosition(param4, param3) ? OptionalInt.of(param4.getY()) : OptionalInt.empty();
     }
 
     public static final class Line extends Column {

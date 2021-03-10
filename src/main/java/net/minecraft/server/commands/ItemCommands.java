@@ -319,17 +319,13 @@ public class ItemCommands {
         Map<Entity, ItemStack> var0 = Maps.newHashMapWithExpectedSize(param1.size());
 
         for(Entity var1 : param1) {
-            if (var1 instanceof ServerPlayer) {
-                ((ServerPlayer)var1).inventoryMenu.broadcastChanges();
-            }
-
             SlotAccess var2 = var1.getSlot(param2);
             if (var2 != SlotAccess.NULL) {
                 ItemStack var3 = applyModifier(param0, param3, var2.get().copy());
                 if (var2.set(var3)) {
                     var0.put(var1, var3);
                     if (var1 instanceof ServerPlayer) {
-                        ((ServerPlayer)var1).inventoryMenu.broadcastChanges();
+                        ((ServerPlayer)var1).containerMenu.broadcastChanges();
                     }
                 }
             }
@@ -378,15 +374,11 @@ public class ItemCommands {
         List<Entity> var0 = Lists.newArrayListWithCapacity(param1.size());
 
         for(Entity var1 : param1) {
-            if (var1 instanceof ServerPlayer) {
-                ((ServerPlayer)var1).inventoryMenu.broadcastChanges();
-            }
-
             SlotAccess var2 = var1.getSlot(param2);
             if (var2 != SlotAccess.NULL && var2.set(param3.copy())) {
                 var0.add(var1);
                 if (var1 instanceof ServerPlayer) {
-                    ((ServerPlayer)var1).inventoryMenu.broadcastChanges();
+                    ((ServerPlayer)var1).containerMenu.broadcastChanges();
                 }
             }
         }

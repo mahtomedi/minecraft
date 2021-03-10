@@ -24,9 +24,6 @@ public class ChunkBorderRenderer implements DebugRenderer.SimpleDebugRenderer {
     @Override
     public void render(PoseStack param0, MultiBufferSource param1, double param2, double param3, double param4) {
         RenderSystem.enableDepthTest();
-        RenderSystem.shadeModel(7425);
-        RenderSystem.enableAlphaTest();
-        RenderSystem.defaultAlphaFunc();
         Entity var0 = this.minecraft.gameRenderer.getMainCamera().getEntity();
         Tesselator var1 = Tesselator.getInstance();
         BufferBuilder var2 = var1.getBuilder();
@@ -38,7 +35,7 @@ public class ChunkBorderRenderer implements DebugRenderer.SimpleDebugRenderer {
         double var6 = (double)var5.getMinBlockX() - param2;
         double var7 = (double)var5.getMinBlockZ() - param4;
         RenderSystem.lineWidth(1.0F);
-        var2.begin(VertexFormat.Mode.LINE_STRIP, DefaultVertexFormat.POSITION_COLOR);
+        var2.begin(VertexFormat.Mode.DEBUG_LINE_STRIP, DefaultVertexFormat.POSITION_COLOR);
 
         for(int var8 = -16; var8 <= 32; var8 += 16) {
             for(int var9 = -16; var9 <= 32; var9 += 16) {
@@ -84,7 +81,7 @@ public class ChunkBorderRenderer implements DebugRenderer.SimpleDebugRenderer {
 
         var1.end();
         RenderSystem.lineWidth(2.0F);
-        var2.begin(VertexFormat.Mode.LINE_STRIP, DefaultVertexFormat.POSITION_COLOR);
+        var2.begin(VertexFormat.Mode.DEBUG_LINE_STRIP, DefaultVertexFormat.POSITION_COLOR);
 
         for(int var14 = 0; var14 <= 16; var14 += 16) {
             for(int var15 = 0; var15 <= 16; var15 += 16) {
@@ -110,6 +107,5 @@ public class ChunkBorderRenderer implements DebugRenderer.SimpleDebugRenderer {
         RenderSystem.lineWidth(1.0F);
         RenderSystem.enableBlend();
         RenderSystem.enableTexture();
-        RenderSystem.shadeModel(7424);
     }
 }

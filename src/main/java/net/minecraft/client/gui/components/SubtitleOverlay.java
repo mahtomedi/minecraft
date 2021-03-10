@@ -37,7 +37,6 @@ public class SubtitleOverlay extends GuiComponent implements SoundEventListener 
         }
 
         if (this.isListening && !this.subtitles.isEmpty()) {
-            RenderSystem.pushMatrix();
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
             Vec3 var0 = new Vec3(this.minecraft.player.getX(), this.minecraft.player.getEyeY(), this.minecraft.player.getZ());
@@ -77,13 +76,13 @@ public class SubtitleOverlay extends GuiComponent implements SoundEventListener 
                 int var19 = this.minecraft.font.width(var10);
                 int var20 = Mth.floor(Mth.clampedLerp(255.0, 75.0, (double)((float)(Util.getMillis() - var8.getTime()) / 3000.0F)));
                 int var21 = var20 << 16 | var20 << 8 | var20;
-                RenderSystem.pushMatrix();
-                RenderSystem.translatef(
-                    (float)this.minecraft.getWindow().getGuiScaledWidth() - (float)var15 * 1.0F - 2.0F,
-                    (float)(this.minecraft.getWindow().getGuiScaledHeight() - 30) - (float)(var4 * (var16 + 1)) * 1.0F,
-                    0.0F
+                param0.pushPose();
+                param0.translate(
+                    (double)((float)this.minecraft.getWindow().getGuiScaledWidth() - (float)var15 * 1.0F - 2.0F),
+                    (double)((float)(this.minecraft.getWindow().getGuiScaledHeight() - 30) - (float)(var4 * (var16 + 1)) * 1.0F),
+                    0.0
                 );
-                RenderSystem.scalef(1.0F, 1.0F, 1.0F);
+                param0.scale(1.0F, 1.0F, 1.0F);
                 fill(param0, -var15 - 1, -var17 - 1, var15 + 1, var17 + 1, this.minecraft.options.getBackgroundColor(0.8F));
                 RenderSystem.enableBlend();
                 if (!var14) {
@@ -95,12 +94,11 @@ public class SubtitleOverlay extends GuiComponent implements SoundEventListener 
                 }
 
                 this.minecraft.font.draw(param0, var10, (float)(-var19 / 2), (float)(-var17), var21 + -16777216);
-                RenderSystem.popMatrix();
+                param0.popPose();
                 ++var4;
             }
 
             RenderSystem.disableBlend();
-            RenderSystem.popMatrix();
         }
     }
 

@@ -18,12 +18,15 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.events.AbstractContainerEventHandler;
 import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entry<E>> extends AbstractContainerEventHandler implements Widget {
+    public static final ResourceLocation WHITE_TEXTURE_LOCATION = new ResourceLocation("textures/misc/white.png");
     protected final Minecraft minecraft;
     protected final int itemHeight;
     private final List<E> children = new AbstractSelectionList.TrackedList();
@@ -180,8 +183,9 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
         Tesselator var2 = Tesselator.getInstance();
         BufferBuilder var3 = var2.getBuilder();
         if (this.renderBackground) {
-            this.minecraft.getTextureManager().bind(GuiComponent.BACKGROUND_LOCATION);
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+            RenderSystem.setShaderTexture(0, GuiComponent.BACKGROUND_LOCATION);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             float var4 = 32.0F;
             var3.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
             var3.vertex((double)this.x0, (double)this.y1, 0.0)
@@ -211,7 +215,8 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
 
         this.renderList(param0, var5, var6, param1, param2, param3);
         if (this.renderTopAndBottom) {
-            this.minecraft.getTextureManager().bind(GuiComponent.BACKGROUND_LOCATION);
+            RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+            RenderSystem.setShaderTexture(0, GuiComponent.BACKGROUND_LOCATION);
             RenderSystem.enableDepthTest();
             RenderSystem.depthFunc(519);
             float var7 = 32.0F;
@@ -244,9 +249,9 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
                 GlStateManager.SourceFactor.ZERO,
                 GlStateManager.DestFactor.ONE
             );
-            RenderSystem.disableAlphaTest();
-            RenderSystem.shadeModel(7425);
             RenderSystem.disableTexture();
+            RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+            RenderSystem.setShaderTexture(0, WHITE_TEXTURE_LOCATION);
             int var9 = 4;
             var3.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
             var3.vertex((double)this.x0, (double)(this.y0 + 4), 0.0).uv(0.0F, 1.0F).color(0, 0, 0, 0).endVertex();
@@ -288,8 +293,6 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
 
         this.renderDecorations(param0, param1, param2);
         RenderSystem.enableTexture();
-        RenderSystem.shadeModel(7424);
-        RenderSystem.enableAlphaTest();
         RenderSystem.disableBlend();
     }
 
@@ -472,15 +475,16 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
                     int var10 = this.x0 + this.width / 2 - var9 / 2;
                     int var11 = this.x0 + this.width / 2 + var9 / 2;
                     RenderSystem.disableTexture();
+                    RenderSystem.setShader(GameRenderer::getPositionShader);
                     float var12 = this.isFocused() ? 1.0F : 0.5F;
-                    RenderSystem.color4f(var12, var12, var12, 1.0F);
+                    RenderSystem.setShaderColor(var12, var12, var12, 1.0F);
                     var2.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
                     var2.vertex((double)var10, (double)(var6 + var7 + 2), 0.0).endVertex();
                     var2.vertex((double)var11, (double)(var6 + var7 + 2), 0.0).endVertex();
                     var2.vertex((double)var11, (double)(var6 - 2), 0.0).endVertex();
                     var2.vertex((double)var10, (double)(var6 - 2), 0.0).endVertex();
                     var1.end();
-                    RenderSystem.color4f(0.0F, 0.0F, 0.0F, 1.0F);
+                    RenderSystem.setShaderColor(0.0F, 0.0F, 0.0F, 1.0F);
                     var2.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
                     var2.vertex((double)(var10 + 1), (double)(var6 + var7 + 1), 0.0).endVertex();
                     var2.vertex((double)(var11 - 1), (double)(var6 + var7 + 1), 0.0).endVertex();

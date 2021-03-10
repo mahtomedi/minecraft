@@ -22,7 +22,7 @@ public abstract class ItemCombinerMenu extends AbstractContainerMenu {
 
     protected abstract boolean mayPickup(Player var1, boolean var2);
 
-    protected abstract ItemStack onTake(Player var1, ItemStack var2);
+    protected abstract void onTake(Player var1, ItemStack var2);
 
     protected abstract boolean isValidBlock(BlockState var1);
 
@@ -44,8 +44,8 @@ public abstract class ItemCombinerMenu extends AbstractContainerMenu {
             }
 
             @Override
-            public ItemStack onTake(Player param0, ItemStack param1) {
-                return ItemCombinerMenu.this.onTake(param0, param1);
+            public void onTake(Player param0, ItemStack param1) {
+                ItemCombinerMenu.this.onTake(param0, param1);
             }
         });
 

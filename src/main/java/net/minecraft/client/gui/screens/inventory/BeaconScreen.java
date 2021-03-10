@@ -5,8 +5,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -43,15 +43,11 @@ public class BeaconScreen extends AbstractContainerScreen<BeaconMenu> {
         this.imageHeight = 219;
         param0.addSlotListener(new ContainerListener() {
             @Override
-            public void refreshContainer(AbstractContainerMenu param0x, NonNullList<ItemStack> param1) {
-            }
-
-            @Override
             public void slotChanged(AbstractContainerMenu param0x, int param1, ItemStack param2) {
             }
 
             @Override
-            public void setContainerData(AbstractContainerMenu param0x, int param1, int param2) {
+            public void dataChanged(AbstractContainerMenu param0x, int param1, int param2) {
                 BeaconScreen.this.primary = param0.getPrimaryEffect();
                 BeaconScreen.this.secondary = param0.getSecondaryEffect();
                 BeaconScreen.this.initPowerButtons = true;
@@ -142,8 +138,9 @@ public class BeaconScreen extends AbstractContainerScreen<BeaconMenu> {
 
     @Override
     protected void renderBg(PoseStack param0, float param1, int param2, int param3) {
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        this.minecraft.getTextureManager().bind(BEACON_LOCATION);
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderTexture(0, BEACON_LOCATION);
         int var0 = (this.width - this.imageWidth) / 2;
         int var1 = (this.height - this.imageHeight) / 2;
         this.blit(param0, var0, var1, 0, 0, this.imageWidth, this.imageHeight);
@@ -255,7 +252,7 @@ public class BeaconScreen extends AbstractContainerScreen<BeaconMenu> {
 
         @Override
         protected void renderIcon(PoseStack param0) {
-            Minecraft.getInstance().getTextureManager().bind(this.sprite.atlas().location());
+            RenderSystem.setShaderTexture(0, this.sprite.atlas().location());
             blit(param0, this.x + 2, this.y + 2, this.getBlitOffset(), 18, 18, this.sprite);
         }
     }
@@ -270,8 +267,9 @@ public class BeaconScreen extends AbstractContainerScreen<BeaconMenu> {
 
         @Override
         public void renderButton(PoseStack param0, int param1, int param2, float param3) {
-            Minecraft.getInstance().getTextureManager().bind(BeaconScreen.BEACON_LOCATION);
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.setShader(GameRenderer::getPositionTexShader);
+            RenderSystem.setShaderTexture(0, BeaconScreen.BEACON_LOCATION);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             int var0 = 219;
             int var1 = 0;
             if (!this.active) {

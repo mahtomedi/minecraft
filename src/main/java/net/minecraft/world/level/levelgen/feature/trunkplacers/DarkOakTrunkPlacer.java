@@ -32,10 +32,10 @@ public class DarkOakTrunkPlacer extends TrunkPlacer {
     ) {
         List<FoliagePlacer.FoliageAttachment> var0 = Lists.newArrayList();
         BlockPos var1 = param3.below();
-        setDirtAt(param0, var1);
-        setDirtAt(param0, var1.east());
-        setDirtAt(param0, var1.south());
-        setDirtAt(param0, var1.south().east());
+        setDirtAt(param0, param1, var1, param6);
+        setDirtAt(param0, param1, var1.east(), param6);
+        setDirtAt(param0, param1, var1.south(), param6);
+        setDirtAt(param0, param1, var1.south().east(), param6);
         Direction var2 = Direction.Plane.HORIZONTAL.getRandomDirection(param1);
         int var3 = param2 - param1.nextInt(4);
         int var4 = 2 - param1.nextInt(3);

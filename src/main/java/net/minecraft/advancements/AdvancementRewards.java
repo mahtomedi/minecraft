@@ -73,7 +73,7 @@ public class AdvancementRewards {
         }
 
         if (var1) {
-            param0.inventoryMenu.broadcastChanges();
+            param0.containerMenu.broadcastChanges();
         }
 
         if (this.recipes.length > 0) {

@@ -9,6 +9,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.shaders.AbstractUniform;
 import com.mojang.blaze3d.shaders.BlendMode;
 import com.mojang.blaze3d.shaders.Effect;
+import com.mojang.blaze3d.shaders.EffectProgram;
 import com.mojang.blaze3d.shaders.Program;
 import com.mojang.blaze3d.shaders.ProgramManager;
 import com.mojang.blaze3d.shaders.Uniform;
@@ -18,6 +19,7 @@ import it.unimi.dsi.fastutil.ints.IntList;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.InvalidClassException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
@@ -52,8 +54,8 @@ public class EffectInstance implements Effect, AutoCloseable {
     private final BlendMode blend;
     private final List<Integer> attributes;
     private final List<String> attributeNames;
-    private final Program vertexProgram;
-    private final Program fragmentProgram;
+    private final EffectProgram vertexProgram;
+    private final EffectProgram fragmentProgram;
 
     public EffectInstance(ResourceManager param0, String param1) throws IOException {
         ResourceLocation var0 = new ResourceLocation("shaders/program/" + param1 + ".json");
@@ -125,7 +127,7 @@ public class EffectInstance implements Effect, AutoCloseable {
             this.vertexProgram = getOrCreate(param0, Program.Type.VERTEX, var3);
             this.fragmentProgram = getOrCreate(param0, Program.Type.FRAGMENT, var4);
             this.programId = ProgramManager.createProgram();
-            ProgramManager.linkProgram(this);
+            ProgramManager.linkShader(this);
             this.updateLocations();
             if (this.attributeNames != null) {
                 for(String var20 : this.attributeNames) {
@@ -151,20 +153,27 @@ public class EffectInstance implements Effect, AutoCloseable {
         this.markDirty();
     }
 
-    public static Program getOrCreate(ResourceManager param0, Program.Type param1, String param2) throws IOException {
+    public static EffectProgram getOrCreate(ResourceManager param0, Program.Type param1, String param2) throws IOException {
         Program var0 = param1.getPrograms().get(param2);
-        if (var0 == null) {
-            ResourceLocation var1 = new ResourceLocation("shaders/program/" + param2 + param1.getExtension());
-            Resource var2 = param0.getResource(var1);
+        if (var0 != null && !(var0 instanceof EffectProgram)) {
+            throw new InvalidClassException("Program is not of type EffectProgram");
+        } else {
+            EffectProgram var3;
+            if (var0 == null) {
+                ResourceLocation var1 = new ResourceLocation("shaders/program/" + param2 + param1.getExtension());
+                Resource var2 = param0.getResource(var1);
 
-            try {
-                var0 = Program.compileShader(param1, param2, var2.getInputStream(), var2.getSourceName());
-            } finally {
-                IOUtils.closeQuietly((Closeable)var2);
+                try {
+                    var3 = EffectProgram.compileShader(param1, param2, var2.getInputStream(), var2.getSourceName());
+                } finally {
+                    IOUtils.closeQuietly((Closeable)var2);
+                }
+            } else {
+                var3 = (EffectProgram)var0;
             }
-        }
 
-        return var0;
+            return var3;
+        }
     }
 
     public static BlendMode parseBlendNode(JsonObject param0) {
@@ -404,6 +413,12 @@ public class EffectInstance implements Effect, AutoCloseable {
     @Override
     public Program getFragmentProgram() {
         return this.fragmentProgram;
+    }
+
+    @Override
+    public void attachToProgram() {
+        this.fragmentProgram.attachToEffect(this);
+        this.vertexProgram.attachToEffect(this);
     }
 
     @Override

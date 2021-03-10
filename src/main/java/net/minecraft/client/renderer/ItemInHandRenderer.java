@@ -2,6 +2,7 @@ package net.minecraft.client.renderer;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Matrix4f;
@@ -65,7 +66,7 @@ public class ItemInHandRenderer {
     }
 
     private void renderMapHand(PoseStack param0, MultiBufferSource param1, int param2, HumanoidArm param3) {
-        this.minecraft.getTextureManager().bind(this.minecraft.player.getSkinTextureLocation());
+        RenderSystem.setShaderTexture(0, this.minecraft.player.getSkinTextureLocation());
         PlayerRenderer var0 = (PlayerRenderer)this.entityRenderDispatcher.<AbstractClientPlayer>getRenderer(this.minecraft.player);
         param0.pushPose();
         float var1 = param3 == HumanoidArm.RIGHT ? 1.0F : -1.0F;
@@ -162,7 +163,7 @@ public class ItemInHandRenderer {
         param0.mulPose(Vector3f.YP.rotationDegrees(var1 * var7 * 70.0F));
         param0.mulPose(Vector3f.ZP.rotationDegrees(var1 * var6 * -20.0F));
         AbstractClientPlayer var8 = this.minecraft.player;
-        this.minecraft.getTextureManager().bind(var8.getSkinTextureLocation());
+        RenderSystem.setShaderTexture(0, var8.getSkinTextureLocation());
         param0.translate((double)(var1 * -1.0F), 3.6F, 3.5);
         param0.mulPose(Vector3f.ZP.rotationDegrees(var1 * 120.0F));
         param0.mulPose(Vector3f.XP.rotationDegrees(200.0F));

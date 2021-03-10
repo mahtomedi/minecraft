@@ -76,7 +76,7 @@ public class LoomMenu extends AbstractContainerMenu {
             }
 
             @Override
-            public ItemStack onTake(Player param0, ItemStack param1) {
+            public void onTake(Player param0, ItemStack param1) {
                 LoomMenu.this.bannerSlot.remove(1);
                 LoomMenu.this.dyeSlot.remove(1);
                 if (!LoomMenu.this.bannerSlot.hasItem() || !LoomMenu.this.dyeSlot.hasItem()) {
@@ -91,7 +91,7 @@ public class LoomMenu extends AbstractContainerMenu {
                     }
 
                 });
-                return super.onTake(param0, param1);
+                super.onTake(param0, param1);
             }
         });
 

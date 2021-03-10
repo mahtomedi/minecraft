@@ -16,11 +16,13 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.level.Level;
 
 public class BlockPosArgument implements ArgumentType<Coordinates> {
     private static final Collection<String> EXAMPLES = Arrays.asList("0 0 0", "~ ~ ~", "^ ^ ^", "^1 ^ ^-5", "~0.5 ~1 ~-5");
     public static final SimpleCommandExceptionType ERROR_NOT_LOADED = new SimpleCommandExceptionType(new TranslatableComponent("argument.pos.unloaded"));
     public static final SimpleCommandExceptionType ERROR_OUT_OF_WORLD = new SimpleCommandExceptionType(new TranslatableComponent("argument.pos.outofworld"));
+    public static final SimpleCommandExceptionType ERROR_OUT_OF_BOUNDS = new SimpleCommandExceptionType(new TranslatableComponent("argument.pos.outofbounds"));
 
     public static BlockPosArgument blockPos() {
         return new BlockPosArgument();
@@ -37,8 +39,13 @@ public class BlockPosArgument implements ArgumentType<Coordinates> {
         }
     }
 
-    public static BlockPos getOrLoadBlockPos(CommandContext<CommandSourceStack> param0, String param1) {
-        return param0.getArgument(param1, Coordinates.class).getBlockPos(param0.getSource());
+    public static BlockPos getSpawnablePos(CommandContext<CommandSourceStack> param0, String param1) throws CommandSyntaxException {
+        BlockPos var0 = param0.getArgument(param1, Coordinates.class).getBlockPos(param0.getSource());
+        if (!Level.isInSpawnableBounds(var0)) {
+            throw ERROR_OUT_OF_BOUNDS.create();
+        } else {
+            return var0;
+        }
     }
 
     public Coordinates parse(StringReader param0) throws CommandSyntaxException {

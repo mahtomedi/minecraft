@@ -51,12 +51,12 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobType;
+import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ClickAction;
 import net.minecraft.world.inventory.Slot;
@@ -322,12 +322,12 @@ public final class ItemStack {
         return this.item.getBarColor(this);
     }
 
-    public boolean overrideStackedOnOther(Slot param0, ClickAction param1, Inventory param2) {
+    public boolean overrideStackedOnOther(Slot param0, ClickAction param1, Player param2) {
         return this.getItem().overrideStackedOnOther(this, param0, param1, param2);
     }
 
-    public boolean overrideOtherStackedOnMe(ItemStack param0, Slot param1, ClickAction param2, Inventory param3) {
-        return this.getItem().overrideOtherStackedOnMe(this, param0, param1, param2, param3);
+    public boolean overrideOtherStackedOnMe(ItemStack param0, Slot param1, ClickAction param2, Player param3, SlotAccess param4) {
+        return this.getItem().overrideOtherStackedOnMe(this, param0, param1, param2, param3, param4);
     }
 
     public void hurtEnemy(LivingEntity param0, Player param1) {

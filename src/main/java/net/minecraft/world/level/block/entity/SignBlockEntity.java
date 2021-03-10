@@ -36,6 +36,7 @@ public class SignBlockEntity extends BlockEntity {
     @OnlyIn(Dist.CLIENT)
     private boolean renderMessagedFiltered;
     private DyeColor color = DyeColor.BLACK;
+    private boolean hasGlowingText;
 
     public SignBlockEntity(BlockPos param0, BlockState param1) {
         super(BlockEntityType.SIGN, param0, param1);
@@ -56,6 +57,7 @@ public class SignBlockEntity extends BlockEntity {
         }
 
         param0.putString("Color", this.color.getName());
+        param0.putBoolean("GlowingText", this.hasGlowingText);
         return param0;
     }
 
@@ -78,6 +80,7 @@ public class SignBlockEntity extends BlockEntity {
         }
 
         this.renderMessages = null;
+        this.hasGlowingText = param0.getBoolean("GlowingText");
     }
 
     private Component loadLine(String param0) {
@@ -201,11 +204,29 @@ public class SignBlockEntity extends BlockEntity {
     public boolean setColor(DyeColor param0) {
         if (param0 != this.getColor()) {
             this.color = param0;
-            this.setChanged();
-            this.level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), 3);
+            this.markUpdated();
             return true;
         } else {
             return false;
         }
+    }
+
+    public boolean hasGlowingText() {
+        return this.hasGlowingText;
+    }
+
+    public boolean setHasGlowingText(boolean param0) {
+        if (this.hasGlowingText != param0) {
+            this.hasGlowingText = param0;
+            this.markUpdated();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private void markUpdated() {
+        this.setChanged();
+        this.level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), 3);
     }
 }

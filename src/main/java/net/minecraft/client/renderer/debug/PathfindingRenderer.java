@@ -53,16 +53,14 @@ public class PathfindingRenderer implements DebugRenderer.SimpleDebugRenderer {
     }
 
     public static void renderPath(Path param0, float param1, boolean param2, boolean param3, double param4, double param5, double param6) {
-        RenderSystem.pushMatrix();
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
-        RenderSystem.color4f(0.0F, 1.0F, 0.0F, 0.75F);
+        RenderSystem.setShaderColor(0.0F, 1.0F, 0.0F, 0.75F);
         RenderSystem.disableTexture();
         RenderSystem.lineWidth(6.0F);
         doRenderPath(param0, param1, param2, param3, param4, param5, param6);
         RenderSystem.enableTexture();
         RenderSystem.disableBlend();
-        RenderSystem.popMatrix();
     }
 
     private static void doRenderPath(Path param0, float param1, boolean param2, boolean param3, double param4, double param5, double param6) {

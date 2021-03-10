@@ -7,6 +7,7 @@ import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -66,7 +67,8 @@ public class RecipeButton extends AbstractWidget {
         }
 
         Minecraft var0 = Minecraft.getInstance();
-        var0.getTextureManager().bind(RECIPE_BOOK_LOCATION);
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderTexture(0, RECIPE_BOOK_LOCATION);
         int var1 = 29;
         if (!this.collection.hasCraftable()) {
             var1 += 25;
@@ -78,28 +80,31 @@ public class RecipeButton extends AbstractWidget {
         }
 
         boolean var3 = this.animationTime > 0.0F;
+        PoseStack var4 = RenderSystem.getModelViewStack();
         if (var3) {
-            float var4 = 1.0F + 0.1F * (float)Math.sin((double)(this.animationTime / 15.0F * (float) Math.PI));
-            RenderSystem.pushMatrix();
-            RenderSystem.translatef((float)(this.x + 8), (float)(this.y + 12), 0.0F);
-            RenderSystem.scalef(var4, var4, 1.0F);
-            RenderSystem.translatef((float)(-(this.x + 8)), (float)(-(this.y + 12)), 0.0F);
+            float var5 = 1.0F + 0.1F * (float)Math.sin((double)(this.animationTime / 15.0F * (float) Math.PI));
+            var4.pushPose();
+            var4.translate((double)(this.x + 8), (double)(this.y + 12), 0.0);
+            var4.scale(var5, var5, 1.0F);
+            var4.translate((double)(-(this.x + 8)), (double)(-(this.y + 12)), 0.0);
+            RenderSystem.applyModelViewMatrix();
             this.animationTime -= param3;
         }
 
         this.blit(param0, this.x, this.y, var1, var2, this.width, this.height);
-        List<Recipe<?>> var5 = this.getOrderedRecipes();
-        this.currentIndex = Mth.floor(this.time / 30.0F) % var5.size();
-        ItemStack var6 = var5.get(this.currentIndex).getResultItem();
-        int var7 = 4;
+        List<Recipe<?>> var6 = this.getOrderedRecipes();
+        this.currentIndex = Mth.floor(this.time / 30.0F) % var6.size();
+        ItemStack var7 = var6.get(this.currentIndex).getResultItem();
+        int var8 = 4;
         if (this.collection.hasSingleResultItem() && this.getOrderedRecipes().size() > 1) {
-            var0.getItemRenderer().renderAndDecorateItem(var6, this.x + var7 + 1, this.y + var7 + 1);
-            --var7;
+            var0.getItemRenderer().renderAndDecorateItem(var7, this.x + var8 + 1, this.y + var8 + 1);
+            --var8;
         }
 
-        var0.getItemRenderer().renderAndDecorateFakeItem(var6, this.x + var7, this.y + var7);
+        var0.getItemRenderer().renderAndDecorateFakeItem(var7, this.x + var8, this.y + var8);
         if (var3) {
-            RenderSystem.popMatrix();
+            var4.popPose();
+            RenderSystem.applyModelViewMatrix();
         }
 
     }

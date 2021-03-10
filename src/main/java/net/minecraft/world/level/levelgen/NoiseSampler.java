@@ -129,15 +129,15 @@ public class NoiseSampler {
             int var32 = var31 + param5;
             double var33 = this.blendedNoise.sampleAndClampNoise(param1, var32, param2, var26, var27, var28, var29);
             double var34 = this.computeInitialDensity(var32, var0, var1, var30) + var33;
-            var34 = this.cavify(param1 * this.cellWidth, var32 * this.cellHeight, param2 * this.cellWidth, var33, var34);
+            var34 = this.cavify(param1 * this.cellWidth, var32 * this.cellHeight, param2 * this.cellWidth, var34);
             var34 = this.applySlide(var34, var32);
             param0[var31] = var34;
         }
 
     }
 
-    private double cavify(int param0, int param1, int param2, double param3, double param4) {
-        return this.cavifier != null ? this.cavifier.cavify(param0, param1, param2, param3, param4) : param4;
+    private double cavify(int param0, int param1, int param2, double param3) {
+        return this.cavifier != null ? this.cavifier.cavify(param0, param1, param2, param3) : param3;
     }
 
     private double computeInitialDensity(int param0, double param1, double param2, double param3) {

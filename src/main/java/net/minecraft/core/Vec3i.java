@@ -89,6 +89,10 @@ public class Vec3i implements Comparable<Vec3i> {
         return this;
     }
 
+    public Vec3i offset(int param0, int param1, int param2) {
+        return param0 == 0 && param1 == 0 && param2 == 0 ? this : new Vec3i(this.getX() + param0, this.getY() + param1, this.getZ() + param2);
+    }
+
     public Vec3i above() {
         return this.above(1);
     }

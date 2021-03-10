@@ -14,6 +14,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.ClickEvent;
@@ -156,8 +157,9 @@ public class BookViewScreen extends Screen {
     @Override
     public void render(PoseStack param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        this.minecraft.getTextureManager().bind(BOOK_LOCATION);
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderTexture(0, BOOK_LOCATION);
         int var0 = (this.width - 192) / 2;
         int var1 = 2;
         this.blit(param0, var0, 2, 0, 0, 192, 192);
@@ -214,11 +216,15 @@ public class BookViewScreen extends Screen {
         } else {
             boolean var3 = super.handleComponentClicked(param0);
             if (var3 && var0.getAction() == ClickEvent.Action.RUN_COMMAND) {
-                this.minecraft.setScreen(null);
+                this.closeScreen();
             }
 
             return var3;
         }
+    }
+
+    protected void closeScreen() {
+        this.minecraft.setScreen(null);
     }
 
     @Nullable

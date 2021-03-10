@@ -47,56 +47,68 @@ public class GiveCommand {
     }
 
     private static int giveItem(CommandSourceStack param0, ItemInput param1, Collection<ServerPlayer> param2, int param3) throws CommandSyntaxException {
-        for(ServerPlayer var0 : param2) {
-            int var1 = param3;
+        int var0 = param1.getItem().getMaxStackSize();
+        int var1 = var0 * 100;
+        if (param3 > var1) {
+            String var2 = param1.getItem().getDescriptionId();
+            param0.sendFailure(new TranslatableComponent("commands.give.failed.toomanyitems", var1, var2));
+            return 0;
+        } else {
+            for(ServerPlayer var3 : param2) {
+                int var4 = param3;
 
-            while(var1 > 0) {
-                int var2 = Math.min(param1.getItem().getMaxStackSize(), var1);
-                var1 -= var2;
-                ItemStack var3 = param1.createItemStack(var2, false);
-                boolean var4 = var0.getInventory().add(var3);
-                if (var4 && var3.isEmpty()) {
-                    var3.setCount(1);
-                    ItemEntity var6 = var0.drop(var3, false);
-                    if (var6 != null) {
-                        var6.makeFakeItem();
-                    }
+                while(var4 > 0) {
+                    int var5 = Math.min(var0, var4);
+                    var4 -= var5;
+                    ItemStack var6 = param1.createItemStack(var5, false);
+                    boolean var7 = var3.getInventory().add(var6);
+                    if (var7 && var6.isEmpty()) {
+                        var6.setCount(1);
+                        ItemEntity var9 = var3.drop(var6, false);
+                        if (var9 != null) {
+                            var9.makeFakeItem();
+                        }
 
-                    var0.level
-                        .playSound(
-                            null,
-                            var0.getX(),
-                            var0.getY(),
-                            var0.getZ(),
-                            SoundEvents.ITEM_PICKUP,
-                            SoundSource.PLAYERS,
-                            0.2F,
-                            ((var0.getRandom().nextFloat() - var0.getRandom().nextFloat()) * 0.7F + 1.0F) * 2.0F
-                        );
-                    var0.inventoryMenu.broadcastChanges();
-                } else {
-                    ItemEntity var5 = var0.drop(var3, false);
-                    if (var5 != null) {
-                        var5.setNoPickUpDelay();
-                        var5.setOwner(var0.getUUID());
+                        var3.level
+                            .playSound(
+                                null,
+                                var3.getX(),
+                                var3.getY(),
+                                var3.getZ(),
+                                SoundEvents.ITEM_PICKUP,
+                                SoundSource.PLAYERS,
+                                0.2F,
+                                ((var3.getRandom().nextFloat() - var3.getRandom().nextFloat()) * 0.7F + 1.0F) * 2.0F
+                            );
+                        var3.containerMenu.broadcastChanges();
+                    } else {
+                        ItemEntity var8 = var3.drop(var6, false);
+                        if (var8 != null) {
+                            var8.setNoPickUpDelay();
+                            var8.setOwner(var3.getUUID());
+                        }
                     }
                 }
             }
-        }
 
-        if (param2.size() == 1) {
-            param0.sendSuccess(
-                new TranslatableComponent(
-                    "commands.give.success.single", param3, param1.createItemStack(param3, false).getDisplayName(), param2.iterator().next().getDisplayName()
-                ),
-                true
-            );
-        } else {
-            param0.sendSuccess(
-                new TranslatableComponent("commands.give.success.single", param3, param1.createItemStack(param3, false).getDisplayName(), param2.size()), true
-            );
-        }
+            if (param2.size() == 1) {
+                param0.sendSuccess(
+                    new TranslatableComponent(
+                        "commands.give.success.single",
+                        param3,
+                        param1.createItemStack(param3, false).getDisplayName(),
+                        param2.iterator().next().getDisplayName()
+                    ),
+                    true
+                );
+            } else {
+                param0.sendSuccess(
+                    new TranslatableComponent("commands.give.success.single", param3, param1.createItemStack(param3, false).getDisplayName(), param2.size()),
+                    true
+                );
+            }
 
-        return param2.size();
+            return param2.size();
+        }
     }
 }

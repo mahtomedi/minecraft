@@ -40,7 +40,7 @@ public class SetSpawnCommand {
                                     param0x -> setSpawn(
                                             param0x.getSource(),
                                             EntityArgument.getPlayers(param0x, "targets"),
-                                            BlockPosArgument.getOrLoadBlockPos(param0x, "pos"),
+                                            BlockPosArgument.getSpawnablePos(param0x, "pos"),
                                             0.0F
                                         )
                                 )
@@ -50,7 +50,7 @@ public class SetSpawnCommand {
                                             param0x -> setSpawn(
                                                     param0x.getSource(),
                                                     EntityArgument.getPlayers(param0x, "targets"),
-                                                    BlockPosArgument.getOrLoadBlockPos(param0x, "pos"),
+                                                    BlockPosArgument.getSpawnablePos(param0x, "pos"),
                                                     AngleArgument.getAngle(param0x, "angle")
                                                 )
                                         )

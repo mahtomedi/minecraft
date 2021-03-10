@@ -66,7 +66,6 @@ public class ClearInventoryCommands {
             var0 += var1.getInventory().clearOrCountMatchingItems(param2, param3, var1.inventoryMenu.getCraftSlots());
             var1.containerMenu.broadcastChanges();
             var1.inventoryMenu.slotsChanged(var1.getInventory());
-            var1.broadcastCarriedItem();
         }
 
         if (var0 == 0) {

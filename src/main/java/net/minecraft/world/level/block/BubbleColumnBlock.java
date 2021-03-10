@@ -78,7 +78,7 @@ public class BubbleColumnBlock extends Block implements BucketPickup {
 
     @Override
     public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
-        growColumn(param1, param2.above(), getDrag(param1, param2));
+        updateColumn(param1, param2, param0, param1.getBlockState(param2.below()));
     }
 
     @Override
@@ -86,27 +86,40 @@ public class BubbleColumnBlock extends Block implements BucketPickup {
         return Fluids.WATER.getSource(false);
     }
 
-    public static void growColumn(LevelAccessor param0, BlockPos param1, boolean param2) {
-        BlockPos.MutableBlockPos var0 = param1.mutable();
+    public static void updateColumn(LevelAccessor param0, BlockPos param1, BlockState param2) {
+        updateColumn(param0, param1, param0.getBlockState(param1), param2);
+    }
 
-        while(canExistIn(param0, var0)) {
-            param0.setBlock(var0, Blocks.BUBBLE_COLUMN.defaultBlockState().setValue(DRAG_DOWN, Boolean.valueOf(param2)), 2);
-            var0.move(Direction.UP);
+    public static void updateColumn(LevelAccessor param0, BlockPos param1, BlockState param2, BlockState param3) {
+        if (canExistIn(param2)) {
+            BlockState var0 = getColumnState(param3);
+            param0.setBlock(param1, var0, 2);
+            BlockPos.MutableBlockPos var1 = param1.mutable().move(Direction.UP);
+
+            while(canExistIn(param0.getBlockState(var1))) {
+                if (!param0.setBlock(var1, var0, 2)) {
+                    return;
+                }
+
+                var1.move(Direction.UP);
+            }
+
         }
-
     }
 
-    public static boolean canExistIn(LevelAccessor param0, BlockPos param1) {
-        FluidState var0 = param0.getFluidState(param1);
-        return param0.getBlockState(param1).is(Blocks.WATER) && var0.getAmount() >= 8 && var0.isSource();
+    private static boolean canExistIn(BlockState param0) {
+        return param0.is(Blocks.BUBBLE_COLUMN) || param0.is(Blocks.WATER) && param0.getFluidState().getAmount() >= 8 && param0.getFluidState().isSource();
     }
 
-    private static boolean getDrag(BlockGetter param0, BlockPos param1) {
-        BlockState var0 = param0.getBlockState(param1);
-        if (var0.is(Blocks.BUBBLE_COLUMN)) {
-            return var0.getValue(DRAG_DOWN);
+    private static BlockState getColumnState(BlockState param0) {
+        if (param0.is(Blocks.BUBBLE_COLUMN)) {
+            return param0;
+        } else if (param0.is(Blocks.SOUL_SAND)) {
+            return Blocks.BUBBLE_COLUMN.defaultBlockState().setValue(DRAG_DOWN, Boolean.valueOf(false));
         } else {
-            return !var0.is(Blocks.SOUL_SAND);
+            return param0.is(Blocks.MAGMA_BLOCK)
+                ? Blocks.BUBBLE_COLUMN.defaultBlockState().setValue(DRAG_DOWN, Boolean.valueOf(true))
+                : Blocks.WATER.defaultBlockState();
         }
     }
 
@@ -159,18 +172,12 @@ public class BubbleColumnBlock extends Block implements BucketPickup {
 
     @Override
     public BlockState updateShape(BlockState param0, Direction param1, BlockState param2, LevelAccessor param3, BlockPos param4, BlockPos param5) {
-        if (!param0.canSurvive(param3, param4)) {
-            return Blocks.WATER.defaultBlockState();
-        } else {
-            if (param1 == Direction.DOWN) {
-                param3.setBlock(param4, Blocks.BUBBLE_COLUMN.defaultBlockState().setValue(DRAG_DOWN, Boolean.valueOf(getDrag(param3, param5))), 2);
-            } else if (param1 == Direction.UP && !param2.is(Blocks.BUBBLE_COLUMN) && canExistIn(param3, param5)) {
-                param3.getBlockTicks().scheduleTick(param4, this, 5);
-            }
-
-            param3.getLiquidTicks().scheduleTick(param4, Fluids.WATER, Fluids.WATER.getTickDelay(param3));
-            return super.updateShape(param0, param1, param2, param3, param4, param5);
+        param3.getLiquidTicks().scheduleTick(param4, Fluids.WATER, Fluids.WATER.getTickDelay(param3));
+        if (!param0.canSurvive(param3, param4) || param1 == Direction.DOWN || param1 == Direction.UP && !param2.is(Blocks.BUBBLE_COLUMN) && canExistIn(param2)) {
+            param3.getBlockTicks().scheduleTick(param4, this, 5);
         }
+
+        return super.updateShape(param0, param1, param2, param3, param4, param5);
     }
 
     @Override

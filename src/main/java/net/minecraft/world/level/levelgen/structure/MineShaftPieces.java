@@ -7,7 +7,7 @@ import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.vehicle.MinecartChest;
@@ -31,8 +31,12 @@ import net.minecraft.world.level.levelgen.feature.MineshaftFeature;
 import net.minecraft.world.level.levelgen.feature.StructurePieceType;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class MineShaftPieces {
+    private static final Logger LOGGER = LogManager.getLogger();
+
     private static MineShaftPieces.MineShaftPiece createRandomShaftPiece(
         List<StructurePiece> param0, Random param1, int param2, int param3, int param4, @Nullable Direction param5, int param6, MineshaftFeature.Type param7
     ) {
@@ -912,12 +916,11 @@ public class MineShaftPieces {
 
         public MineShaftRoom(StructureManager param0, CompoundTag param1) {
             super(StructurePieceType.MINE_SHAFT_ROOM, param1);
-            ListTag var0 = param1.getList("Entrances", 11);
-
-            for(int var1 = 0; var1 < var0.size(); ++var1) {
-                this.childEntranceBoxes.add(new BoundingBox(var0.getIntArray(var1)));
-            }
-
+            BoundingBox.CODEC
+                .listOf()
+                .parse(NbtOps.INSTANCE, param1.getList("Entrances", 11))
+                .resultOrPartial(MineShaftPieces.LOGGER::error)
+                .ifPresent(this.childEntranceBoxes::addAll);
         }
 
         @Override
@@ -1086,13 +1089,11 @@ public class MineShaftPieces {
         @Override
         protected void addAdditionalSaveData(CompoundTag param0) {
             super.addAdditionalSaveData(param0);
-            ListTag var0 = new ListTag();
-
-            for(BoundingBox var1 : this.childEntranceBoxes) {
-                var0.add(var1.createTag());
-            }
-
-            param0.put("Entrances", var0);
+            BoundingBox.CODEC
+                .listOf()
+                .encodeStart(NbtOps.INSTANCE, this.childEntranceBoxes)
+                .resultOrPartial(MineShaftPieces.LOGGER::error)
+                .ifPresent(param1 -> param0.put("Entrances", param1));
         }
     }
 

@@ -39,8 +39,8 @@ public class CaveWorldCarver extends WorldCarver<CarverConfiguration> {
             double var3 = (double)param6.getBlockX(param4.nextInt(16));
             double var4 = (double)this.getCaveY(param0, param4);
             double var5 = (double)param6.getBlockZ(param4.nextInt(16));
-            double var6 = (double)Mth.randomBetween(param4, 0.2F, 1.8F);
-            double var7 = (double)Mth.randomBetween(param4, 0.2F, 1.8F);
+            double var6 = (double)Mth.randomBetween(param4, 0.3F, 1.7F);
+            double var7 = (double)Mth.randomBetween(param4, 0.3F, 1.7F);
             double var8 = (double)Mth.randomBetween(param4, -1.0F, 0.0F);
             WorldCarver.CarveSkipChecker var9 = (param1x, param2x, param3x, param4x, param5x) -> shouldSkip(param2x, param3x, param4x, var8);
             int var10 = 1;

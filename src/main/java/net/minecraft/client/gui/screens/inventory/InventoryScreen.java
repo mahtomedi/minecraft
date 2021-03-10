@@ -8,6 +8,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.screens.recipebook.RecipeBookComponent;
 import net.minecraft.client.gui.screens.recipebook.RecipeUpdateListener;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -93,8 +94,9 @@ public class InventoryScreen extends EffectRenderingInventoryScreen<InventoryMen
 
     @Override
     protected void renderBg(PoseStack param0, float param1, int param2, int param3) {
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        this.minecraft.getTextureManager().bind(INVENTORY_LOCATION);
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderTexture(0, INVENTORY_LOCATION);
         int var0 = this.leftPos;
         int var1 = this.topPos;
         this.blit(param0, var0, var1, 0, 0, this.imageWidth, this.imageHeight);
@@ -104,40 +106,43 @@ public class InventoryScreen extends EffectRenderingInventoryScreen<InventoryMen
     public static void renderEntityInInventory(int param0, int param1, int param2, float param3, float param4, LivingEntity param5) {
         float var0 = (float)Math.atan((double)(param3 / 40.0F));
         float var1 = (float)Math.atan((double)(param4 / 40.0F));
-        RenderSystem.pushMatrix();
-        RenderSystem.translatef((float)param0, (float)param1, 1050.0F);
-        RenderSystem.scalef(1.0F, 1.0F, -1.0F);
-        PoseStack var2 = new PoseStack();
-        var2.translate(0.0, 0.0, 1000.0);
-        var2.scale((float)param2, (float)param2, (float)param2);
-        Quaternion var3 = Vector3f.ZP.rotationDegrees(180.0F);
-        Quaternion var4 = Vector3f.XP.rotationDegrees(var1 * 20.0F);
-        var3.mul(var4);
-        var2.mulPose(var3);
-        float var5 = param5.yBodyRot;
-        float var6 = param5.yRot;
-        float var7 = param5.xRot;
-        float var8 = param5.yHeadRotO;
-        float var9 = param5.yHeadRot;
+        PoseStack var2 = RenderSystem.getModelViewStack();
+        var2.pushPose();
+        var2.translate((double)param0, (double)param1, 1050.0);
+        var2.scale(1.0F, 1.0F, -1.0F);
+        RenderSystem.applyModelViewMatrix();
+        PoseStack var3 = new PoseStack();
+        var3.translate(0.0, 0.0, 1000.0);
+        var3.scale((float)param2, (float)param2, (float)param2);
+        Quaternion var4 = Vector3f.ZP.rotationDegrees(180.0F);
+        Quaternion var5 = Vector3f.XP.rotationDegrees(var1 * 20.0F);
+        var4.mul(var5);
+        var3.mulPose(var4);
+        float var6 = param5.yBodyRot;
+        float var7 = param5.yRot;
+        float var8 = param5.xRot;
+        float var9 = param5.yHeadRotO;
+        float var10 = param5.yHeadRot;
         param5.yBodyRot = 180.0F + var0 * 20.0F;
         param5.yRot = 180.0F + var0 * 40.0F;
         param5.xRot = -var1 * 20.0F;
         param5.yHeadRot = param5.yRot;
         param5.yHeadRotO = param5.yRot;
-        EntityRenderDispatcher var10 = Minecraft.getInstance().getEntityRenderDispatcher();
-        var4.conj();
-        var10.overrideCameraOrientation(var4);
-        var10.setRenderShadow(false);
-        MultiBufferSource.BufferSource var11 = Minecraft.getInstance().renderBuffers().bufferSource();
-        RenderSystem.runAsFancy(() -> var10.render(param5, 0.0, 0.0, 0.0, 0.0F, 1.0F, var2, var11, 15728880));
-        var11.endBatch();
-        var10.setRenderShadow(true);
-        param5.yBodyRot = var5;
-        param5.yRot = var6;
-        param5.xRot = var7;
-        param5.yHeadRotO = var8;
-        param5.yHeadRot = var9;
-        RenderSystem.popMatrix();
+        EntityRenderDispatcher var11 = Minecraft.getInstance().getEntityRenderDispatcher();
+        var5.conj();
+        var11.overrideCameraOrientation(var5);
+        var11.setRenderShadow(false);
+        MultiBufferSource.BufferSource var12 = Minecraft.getInstance().renderBuffers().bufferSource();
+        RenderSystem.runAsFancy(() -> var11.render(param5, 0.0, 0.0, 0.0, 0.0F, 1.0F, var3, var12, 15728880));
+        var12.endBatch();
+        var11.setRenderShadow(true);
+        param5.yBodyRot = var6;
+        param5.yRot = var7;
+        param5.xRot = var8;
+        param5.yHeadRotO = var9;
+        param5.yHeadRot = var10;
+        var2.popPose();
+        RenderSystem.applyModelViewMatrix();
     }
 
     @Override

@@ -26,10 +26,10 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.inventory.ClickAction;
@@ -167,11 +167,11 @@ public class Item implements ItemLike {
         return Mth.hsvToRgb(var0 / 3.0F, 1.0F, 1.0F);
     }
 
-    public boolean overrideStackedOnOther(ItemStack param0, Slot param1, ClickAction param2, Inventory param3) {
+    public boolean overrideStackedOnOther(ItemStack param0, Slot param1, ClickAction param2, Player param3) {
         return false;
     }
 
-    public boolean overrideOtherStackedOnMe(ItemStack param0, ItemStack param1, Slot param2, ClickAction param3, Inventory param4) {
+    public boolean overrideOtherStackedOnMe(ItemStack param0, ItemStack param1, Slot param2, ClickAction param3, Player param4, SlotAccess param5) {
         return false;
     }
 

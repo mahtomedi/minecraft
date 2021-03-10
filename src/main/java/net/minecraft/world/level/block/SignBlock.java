@@ -31,7 +31,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class SignBlock extends BaseEntityBlock implements SimpleWaterloggedBlock {
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
-    public static final BooleanProperty LIT = BlockStateProperties.LIT;
     protected static final VoxelShape SHAPE = Block.box(4.0, 0.0, 4.0, 12.0, 16.0, 12.0);
     private final WoodType type;
 
@@ -71,27 +70,27 @@ public abstract class SignBlock extends BaseEntityBlock implements SimpleWaterlo
         boolean var2 = var0.is(Items.GLOW_INK_SAC);
         boolean var3 = var0.is(Items.INK_SAC);
         boolean var4 = (var2 || var1 || var3) && param3.getAbilities().mayBuild;
-        boolean var5 = param0.getValue(LIT);
-        if ((!var2 || !var5) && (!var3 || var5)) {
-            if (param1.isClientSide) {
-                return var4 ? InteractionResult.SUCCESS : InteractionResult.CONSUME;
+        if (param1.isClientSide) {
+            return var4 ? InteractionResult.SUCCESS : InteractionResult.CONSUME;
+        } else {
+            BlockEntity var5 = param1.getBlockEntity(param2);
+            if (!(var5 instanceof SignBlockEntity)) {
+                return InteractionResult.PASS;
             } else {
-                BlockEntity var6 = param1.getBlockEntity(param2);
-                if (var6 instanceof SignBlockEntity) {
-                    SignBlockEntity var7 = (SignBlockEntity)var6;
+                SignBlockEntity var6 = (SignBlockEntity)var5;
+                boolean var7 = var6.hasGlowingText();
+                if ((!var2 || !var7) && (!var3 || var7)) {
                     if (var4) {
                         boolean var8;
                         if (var2) {
                             param1.playSound(null, param2, SoundEvents.GLOW_INK_SAC_USE, SoundSource.BLOCKS, 1.0F, 1.0F);
-                            param1.setBlockAndUpdate(param2, param0.setValue(LIT, Boolean.valueOf(true)));
-                            var8 = true;
+                            var8 = var6.setHasGlowingText(true);
                         } else if (var3) {
                             param1.playSound(null, param2, SoundEvents.INK_SAC_USE, SoundSource.BLOCKS, 1.0F, 1.0F);
-                            param1.setBlockAndUpdate(param2, param0.setValue(LIT, Boolean.valueOf(false)));
-                            var8 = true;
+                            var8 = var6.setHasGlowingText(false);
                         } else {
                             param1.playSound(null, param2, SoundEvents.DYE_USE, SoundSource.BLOCKS, 1.0F, 1.0F);
-                            var8 = var7.setColor(((DyeItem)var0.getItem()).getDyeColor());
+                            var8 = var6.setColor(((DyeItem)var0.getItem()).getDyeColor());
                         }
 
                         if (var8 && !param3.isCreative()) {
@@ -99,13 +98,11 @@ public abstract class SignBlock extends BaseEntityBlock implements SimpleWaterlo
                         }
                     }
 
-                    return var7.executeClickCommands((ServerPlayer)param3) ? InteractionResult.SUCCESS : InteractionResult.PASS;
+                    return var6.executeClickCommands((ServerPlayer)param3) ? InteractionResult.SUCCESS : InteractionResult.PASS;
                 } else {
                     return InteractionResult.PASS;
                 }
             }
-        } else {
-            return InteractionResult.PASS;
         }
     }
 

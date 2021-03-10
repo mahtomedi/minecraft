@@ -1,5 +1,6 @@
 package net.minecraft.world.level.levelgen;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -132,8 +133,13 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
 
     private double[] makeAndFillNoiseColumn(int param0, int param1, int param2, int param3) {
         double[] var0 = new double[param3 + 1];
-        this.sampler.fillNoiseColumn(var0, param0, param1, this.settings.get().noiseSettings(), this.getSeaLevel(), param2, param3);
+        this.fillNoiseColumn(var0, param0, param1, param2, param3);
         return var0;
+    }
+
+    private void fillNoiseColumn(double[] param0, int param1, int param2, int param3, int param4) {
+        NoiseSettings var0 = this.settings.get().noiseSettings();
+        this.sampler.fillNoiseColumn(param0, param1, param2, var0, this.getSeaLevel(), param3, param4);
     }
 
     @Override
@@ -226,9 +232,11 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
         BlockState var1;
         if (var0 > 0.0) {
             var1 = param2.getBaseStone(param3, param4, param5, this.settings.get());
+        } else if (this.aquifersEnabled && param4 < this.getMinY() + 9) {
+            var1 = Blocks.LAVA.defaultBlockState();
         } else {
-            int var2 = param1 == null ? this.getSeaLevel() : param1.getLastWaterLevel();
-            if (param4 < var2) {
+            int var3 = param1 == null ? this.getSeaLevel() : param1.getLastWaterLevel();
+            if (param4 < var3) {
                 var1 = this.defaultFluid;
             } else {
                 var1 = AIR;
@@ -345,80 +353,58 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
         Aquifer var10 = this.aquifersEnabled
             ? new Aquifer(var5, var6, this.barrierNoise, this.waterLevelNoise, this.settings.get(), this.sampler, param3 * this.cellHeight)
             : null;
-        double[][][] var11 = new double[2][this.cellCountZ + 1][param3 + 1];
+        NoiseInterpolator var11 = new NoiseInterpolator(this.cellCountX, param3, this.cellCountZ, var5, var6, param2, this::fillNoiseColumn);
+        List<NoiseInterpolator> var12 = ImmutableList.of(var11);
+        var12.forEach(NoiseInterpolator::initializeForFirstCellX);
+        BlockPos.MutableBlockPos var13 = new BlockPos.MutableBlockPos();
 
-        for(int var12 = 0; var12 < this.cellCountZ + 1; ++var12) {
-            var11[0][var12] = new double[param3 + 1];
-            double[] var13 = var11[0][var12];
-            int var14 = var5 * this.cellCountX;
-            int var15 = var6 * this.cellCountZ + var12;
-            this.sampler.fillNoiseColumn(var13, var14, var15, var0, this.getSeaLevel(), param2, param3);
-            var11[1][var12] = new double[param3 + 1];
-        }
+        for(int var14 = 0; var14 < this.cellCountX; ++var14) {
+            int var15 = var14;
+            var12.forEach(param1x -> param1x.advanceCellX(var15));
 
-        BlockPos.MutableBlockPos var16 = new BlockPos.MutableBlockPos();
+            for(int var16 = 0; var16 < this.cellCountZ; ++var16) {
+                LevelChunkSection var17 = param1.getOrCreateSection(param1.getSectionsCount() - 1);
 
-        for(int var17 = 0; var17 < this.cellCountX; ++var17) {
-            int var18 = var5 * this.cellCountX + var17 + 1;
+                for(int var18 = param3 - 1; var18 >= 0; --var18) {
+                    int var19 = var16;
+                    int var20 = var18;
+                    var12.forEach(param2x -> param2x.selectCellYZ(var20, var19));
 
-            for(int var19 = 0; var19 < this.cellCountZ + 1; ++var19) {
-                double[] var20 = var11[1][var19];
-                int var21 = var6 * this.cellCountZ + var19;
-                this.sampler.fillNoiseColumn(var20, var18, var21, var0, this.getSeaLevel(), param2, param3);
-            }
-
-            for(int var22 = 0; var22 < this.cellCountZ; ++var22) {
-                LevelChunkSection var23 = param1.getOrCreateSection(param1.getSectionsCount() - 1);
-
-                for(int var24 = param3 - 1; var24 >= 0; --var24) {
-                    double var25 = var11[0][var22][var24];
-                    double var26 = var11[0][var22 + 1][var24];
-                    double var27 = var11[1][var22][var24];
-                    double var28 = var11[1][var22 + 1][var24];
-                    double var29 = var11[0][var22][var24 + 1];
-                    double var30 = var11[0][var22 + 1][var24 + 1];
-                    double var31 = var11[1][var22][var24 + 1];
-                    double var32 = var11[1][var22 + 1][var24 + 1];
-
-                    for(int var33 = this.cellHeight - 1; var33 >= 0; --var33) {
-                        int var34 = var24 * this.cellHeight + var33 + var1;
-                        int var35 = var34 & 15;
-                        int var36 = param1.getSectionIndex(var34);
-                        if (param1.getSectionIndex(var23.bottomBlockY()) != var36) {
-                            var23 = param1.getOrCreateSection(var36);
+                    for(int var21 = this.cellHeight - 1; var21 >= 0; --var21) {
+                        int var22 = var18 * this.cellHeight + var21 + var1;
+                        int var23 = var22 & 15;
+                        int var24 = param1.getSectionIndex(var22);
+                        if (param1.getSectionIndex(var17.bottomBlockY()) != var24) {
+                            var17 = param1.getOrCreateSection(var24);
                         }
 
-                        double var37 = (double)var33 / (double)this.cellHeight;
-                        double var38 = Mth.lerp(var37, var25, var29);
-                        double var39 = Mth.lerp(var37, var27, var31);
-                        double var40 = Mth.lerp(var37, var26, var30);
-                        double var41 = Mth.lerp(var37, var28, var32);
+                        double var25 = (double)var21 / (double)this.cellHeight;
+                        var12.forEach(param1x -> param1x.updateForY(var25));
 
-                        for(int var42 = 0; var42 < this.cellWidth; ++var42) {
-                            int var43 = var7 + var17 * this.cellWidth + var42;
-                            int var44 = var43 & 15;
-                            double var45 = (double)var42 / (double)this.cellWidth;
-                            double var46 = Mth.lerp(var45, var38, var39);
-                            double var47 = Mth.lerp(var45, var40, var41);
+                        for(int var26 = 0; var26 < this.cellWidth; ++var26) {
+                            int var27 = var7 + var14 * this.cellWidth + var26;
+                            int var28 = var27 & 15;
+                            double var29 = (double)var26 / (double)this.cellWidth;
+                            var12.forEach(param1x -> param1x.updateForX(var29));
 
-                            for(int var48 = 0; var48 < this.cellWidth; ++var48) {
-                                int var49 = var8 + var22 * this.cellWidth + var48;
-                                int var50 = var49 & 15;
-                                double var51 = (double)var48 / (double)this.cellWidth;
-                                double var52 = Mth.lerp(var51, var46, var47);
-                                BlockState var53 = this.updateNoiseAndGenerateBaseState(var9, var10, this.baseStoneSource, var43, var34, var49, var52);
-                                if (var53 != AIR) {
-                                    if (var53.getLightEmission() != 0 && param1 instanceof ProtoChunk) {
-                                        var16.set(var43, var34, var49);
-                                        ((ProtoChunk)param1).addLight(var16);
+                            for(int var30 = 0; var30 < this.cellWidth; ++var30) {
+                                int var31 = var8 + var16 * this.cellWidth + var30;
+                                int var32 = var31 & 15;
+                                double var33 = (double)var30 / (double)this.cellWidth;
+                                double var34 = var11.calculateValue(var33);
+                                BlockState var35 = this.updateNoiseAndGenerateBaseState(var9, var10, this.baseStoneSource, var27, var22, var31, var34);
+                                if (var35 != AIR) {
+                                    if (var35.getLightEmission() != 0 && param1 instanceof ProtoChunk) {
+                                        var13.set(var27, var22, var31);
+                                        ((ProtoChunk)param1).addLight(var13);
                                     }
 
-                                    var23.setBlockState(var44, var35, var50, var53, false);
-                                    var2.update(var44, var34, var50, var53);
-                                    var3.update(var44, var34, var50, var53);
-                                    if (var10 != null && var10.shouldScheduleWaterUpdate() && !var53.getFluidState().isEmpty()) {
-                                        var16.set(var43, var34, var49);
-                                        param1.getLiquidTicks().scheduleTick(var16, var53.getFluidState().getType(), 0);
+                                    var17.setBlockState(var28, var23, var32, var35, false);
+                                    var2.update(var28, var22, var32, var35);
+                                    var3.update(var28, var22, var32, var35);
+                                    if (var10 != null && var10.shouldScheduleWaterUpdate() && !var35.getFluidState().isEmpty()) {
+                                        var13.set(var27, var22, var31);
+                                        param1.getLiquidTicks().scheduleTick(var13, var35.getFluidState().getType(), 0);
                                     }
                                 }
                             }
@@ -427,16 +413,10 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
                 }
             }
 
-            this.swapFirstTwoElements(var11);
+            var12.forEach(NoiseInterpolator::swapSlices);
         }
 
         return param1;
-    }
-
-    public <T> void swapFirstTwoElements(T[] param0) {
-        T var0 = param0[0];
-        param0[0] = param0[1];
-        param0[1] = var0;
     }
 
     @Override

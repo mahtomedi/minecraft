@@ -299,32 +299,32 @@ public class RealmsBrokenWorldScreen extends RealmsScreen {
         boolean param10
     ) {
         if (param10) {
-            this.minecraft.getTextureManager().bind(RealmsWorldSlotButton.EMPTY_SLOT_LOCATION);
+            RenderSystem.setShaderTexture(0, RealmsWorldSlotButton.EMPTY_SLOT_LOCATION);
         } else if (param9 != null && param8 != -1L) {
             RealmsTextureManager.bindWorldTemplate(String.valueOf(param8), param9);
         } else if (param7 == 1) {
-            this.minecraft.getTextureManager().bind(RealmsWorldSlotButton.DEFAULT_WORLD_SLOT_1);
+            RenderSystem.setShaderTexture(0, RealmsWorldSlotButton.DEFAULT_WORLD_SLOT_1);
         } else if (param7 == 2) {
-            this.minecraft.getTextureManager().bind(RealmsWorldSlotButton.DEFAULT_WORLD_SLOT_2);
+            RenderSystem.setShaderTexture(0, RealmsWorldSlotButton.DEFAULT_WORLD_SLOT_2);
         } else if (param7 == 3) {
-            this.minecraft.getTextureManager().bind(RealmsWorldSlotButton.DEFAULT_WORLD_SLOT_3);
+            RenderSystem.setShaderTexture(0, RealmsWorldSlotButton.DEFAULT_WORLD_SLOT_3);
         } else {
             RealmsTextureManager.bindWorldTemplate(String.valueOf(this.serverData.minigameId), this.serverData.minigameImage);
         }
 
         if (!param5) {
-            RenderSystem.color4f(0.56F, 0.56F, 0.56F, 1.0F);
+            RenderSystem.setShaderColor(0.56F, 0.56F, 0.56F, 1.0F);
         } else if (param5) {
             float var0 = 0.9F + 0.1F * Mth.cos((float)this.animTick * 0.2F);
-            RenderSystem.color4f(var0, var0, var0, 1.0F);
+            RenderSystem.setShaderColor(var0, var0, var0, 1.0F);
         }
 
         GuiComponent.blit(param0, param1 + 3, param2 + 3, 0.0F, 0.0F, 74, 74, 74, 74);
-        this.minecraft.getTextureManager().bind(RealmsWorldSlotButton.SLOT_FRAME_LOCATION);
+        RenderSystem.setShaderTexture(0, RealmsWorldSlotButton.SLOT_FRAME_LOCATION);
         if (param5) {
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         } else {
-            RenderSystem.color4f(0.56F, 0.56F, 0.56F, 1.0F);
+            RenderSystem.setShaderColor(0.56F, 0.56F, 0.56F, 1.0F);
         }
 
         GuiComponent.blit(param0, param1, param2, 0.0F, 0.0F, 80, 80, 80, 80);

@@ -299,7 +299,7 @@ public class ServerPlayerGameMode {
                 }
 
                 if (!param0.isUsingItem()) {
-                    param0.refreshContainer(param0.inventoryMenu);
+                    param0.inventoryMenu.sendAllDataToRemote();
                 }
 
                 return var2.getResult();

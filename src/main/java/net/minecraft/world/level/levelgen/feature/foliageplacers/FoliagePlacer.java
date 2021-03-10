@@ -104,13 +104,20 @@ public abstract class FoliagePlacer {
             for(int var3 = -param4; var3 <= param4 + var0; ++var3) {
                 if (!this.shouldSkipLocationSigned(param1, var2, param6, var3, param4, param7)) {
                     var1.setWithOffset(param3, var2, param6, var3);
-                    if (TreeFeature.validTreePos(param0, var1)) {
-                        param0.setBlock(var1, param2.leavesProvider.getState(param1, var1), 19);
-                        param8.expand(new BoundingBox(var1, var1));
-                        param5.add(var1.immutable());
-                    }
+                    this.tryPlaceLeaf(param0, param1, param2, param5, param8, var1);
                 }
             }
+        }
+
+    }
+
+    protected void tryPlaceLeaf(
+        LevelSimulatedRW param0, Random param1, TreeConfiguration param2, Set<BlockPos> param3, BoundingBox param4, BlockPos.MutableBlockPos param5
+    ) {
+        if (TreeFeature.validTreePos(param0, param5)) {
+            param0.setBlock(param5, param2.foliageProvider.getState(param1, param5), 19);
+            param4.expand(new BoundingBox(param5));
+            param3.add(param5.immutable());
         }
 
     }

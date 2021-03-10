@@ -178,7 +178,7 @@ public abstract class WorldCarver<C extends CarverConfiguration> {
         if (!this.canReplaceBlock(var0, var1) && !isDebugEnabled(param1)) {
             return false;
         } else {
-            if (param6.getY() < param0.getMinGenY() + 11 && !isDebugEnabled(param1)) {
+            if (param6.getY() < param0.getMinGenY() + 9 && !isDebugEnabled(param1)) {
                 param2.setBlockState(param6, LAVA.createLegacyBlock(), false);
             } else {
                 param2.setBlockState(param6, getCaveAirState(param1), false);

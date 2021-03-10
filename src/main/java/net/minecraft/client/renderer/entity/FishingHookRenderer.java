@@ -89,13 +89,12 @@ public class FishingHookRenderer extends EntityRenderer<FishingHook> {
             float var27 = (float)(var20 - var24);
             float var28 = (float)(var21 - var25) + var23;
             float var29 = (float)(var22 - var26);
-            VertexConsumer var30 = param4.getBuffer(RenderType.lines());
-            Matrix4f var31 = param3.last().pose();
+            VertexConsumer var30 = param4.getBuffer(RenderType.lineStrip());
+            PoseStack.Pose var31 = param3.last();
             int var32 = 16;
 
-            for(int var33 = 0; var33 < 16; ++var33) {
-                stringVertex(var27, var28, var29, var30, var31, fraction(var33, 16));
-                stringVertex(var27, var28, var29, var30, var31, fraction(var33 + 1, 16));
+            for(int var33 = 0; var33 <= 16; ++var33) {
+                stringVertex(var27, var28, var29, var30, var31, fraction(var33, 16), fraction(var33 + 1, 17));
             }
 
             param3.popPose();
@@ -117,8 +116,18 @@ public class FishingHookRenderer extends EntityRenderer<FishingHook> {
             .endVertex();
     }
 
-    private static void stringVertex(float param0, float param1, float param2, VertexConsumer param3, Matrix4f param4, float param5) {
-        param3.vertex(param4, param0 * param5, param1 * (param5 * param5 + param5) * 0.5F + 0.25F, param2 * param5).color(0, 0, 0, 255).endVertex();
+    private static void stringVertex(float param0, float param1, float param2, VertexConsumer param3, PoseStack.Pose param4, float param5, float param6) {
+        float var0 = param0 * param5;
+        float var1 = param1 * (param5 * param5 + param5) * 0.5F + 0.25F;
+        float var2 = param2 * param5;
+        float var3 = param0 * param6 - var0;
+        float var4 = param1 * (param6 * param6 + param6) * 0.5F + 0.25F - var1;
+        float var5 = param2 * param6 - var2;
+        float var6 = Mth.sqrt(var3 * var3 + var4 * var4 + var5 * var5);
+        var3 /= var6;
+        var4 /= var6;
+        var5 /= var6;
+        param3.vertex(param4.pose(), var0, var1, var2).color(0, 0, 0, 255).normal(param4.normal(), var3, var4, var5).endVertex();
     }
 
     public ResourceLocation getTextureLocation(FishingHook param0) {

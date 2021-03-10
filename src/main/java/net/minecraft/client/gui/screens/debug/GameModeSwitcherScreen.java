@@ -12,6 +12,7 @@ import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.network.chat.Component;
@@ -70,9 +71,10 @@ public class GameModeSwitcherScreen extends Screen {
     @Override
     public void render(PoseStack param0, int param1, int param2, float param3) {
         if (!this.checkToClose()) {
+            RenderSystem.setShader(GameRenderer::getPositionTexShader);
             param0.pushPose();
             RenderSystem.enableBlend();
-            this.minecraft.getTextureManager().bind(GAMEMODE_SWITCHER_LOCATION);
+            RenderSystem.setShaderTexture(0, GAMEMODE_SWITCHER_LOCATION);
             int var0 = this.width / 2 - 62;
             int var1 = this.height / 2 - 31 - 27;
             blit(param0, var0, var1, 0.0F, 0.0F, 125, 75, 128, 128);
@@ -231,7 +233,8 @@ public class GameModeSwitcherScreen extends Screen {
         }
 
         private void drawSlot(PoseStack param0, TextureManager param1) {
-            param1.bind(GameModeSwitcherScreen.GAMEMODE_SWITCHER_LOCATION);
+            RenderSystem.setShader(GameRenderer::getPositionTexShader);
+            RenderSystem.setShaderTexture(0, GameModeSwitcherScreen.GAMEMODE_SWITCHER_LOCATION);
             param0.pushPose();
             param0.translate((double)this.x, (double)this.y, 0.0);
             blit(param0, 0, 0, 0.0F, 75.0F, 26, 26, 128, 128);
@@ -239,7 +242,8 @@ public class GameModeSwitcherScreen extends Screen {
         }
 
         private void drawSelection(PoseStack param0, TextureManager param1) {
-            param1.bind(GameModeSwitcherScreen.GAMEMODE_SWITCHER_LOCATION);
+            RenderSystem.setShader(GameRenderer::getPositionTexShader);
+            RenderSystem.setShaderTexture(0, GameModeSwitcherScreen.GAMEMODE_SWITCHER_LOCATION);
             param0.pushPose();
             param0.translate((double)this.x, (double)this.y, 0.0);
             blit(param0, 0, 0, 26.0F, 75.0F, 26, 26, 128, 128);

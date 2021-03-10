@@ -185,6 +185,10 @@ public class SectionPos extends Vec3i {
         return asLong(this.x(), this.y(), this.z());
     }
 
+    public SectionPos offset(int param0, int param1, int param2) {
+        return param0 == 0 && param1 == 0 && param2 == 0 ? this : new SectionPos(this.x() + param0, this.y() + param1, this.z() + param2);
+    }
+
     public Stream<BlockPos> blocksInside() {
         return BlockPos.betweenClosedStream(this.minBlockX(), this.minBlockY(), this.minBlockZ(), this.maxBlockX(), this.maxBlockY(), this.maxBlockZ());
     }

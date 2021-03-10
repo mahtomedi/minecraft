@@ -1,6 +1,7 @@
 package net.minecraft.world.inventory;
 
 import com.mojang.datafixers.util.Pair;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
@@ -40,9 +41,8 @@ public class Slot {
     protected void checkTakeAchievements(ItemStack param0) {
     }
 
-    public ItemStack onTake(Player param0, ItemStack param1) {
+    public void onTake(Player param0, ItemStack param1) {
         this.setChanged();
-        return param1;
     }
 
     public boolean mayPlace(ItemStack param0) {
@@ -93,11 +93,11 @@ public class Slot {
         return true;
     }
 
-    public ItemStack safeTake(int param0, int param1, Player param2) {
+    public Optional<ItemStack> tryRemove(int param0, int param1, Player param2) {
         if (!this.mayPickup(param2)) {
-            return ItemStack.EMPTY;
+            return Optional.empty();
         } else if (!this.allowModification(param2) && param1 < this.getItem().getCount()) {
-            return ItemStack.EMPTY;
+            return Optional.empty();
         } else {
             if (!this.allowModification(param2)) {
                 param0 = this.getItem().getCount();
@@ -109,9 +109,14 @@ public class Slot {
                 this.set(ItemStack.EMPTY);
             }
 
-            this.onTake(param2, var0);
-            return var0;
+            return Optional.of(var0);
         }
+    }
+
+    public ItemStack safeTake(int param0, int param1, Player param2) {
+        Optional<ItemStack> var0 = this.tryRemove(param0, param1, param2);
+        var0.ifPresent(param1x -> this.onTake(param2, param1x));
+        return var0.orElse(ItemStack.EMPTY);
     }
 
     public ItemStack safeInsert(ItemStack param0) {
@@ -138,5 +143,9 @@ public class Slot {
 
     public boolean allowModification(Player param0) {
         return this.mayPickup(param0) && this.mayPlace(this.getItem());
+    }
+
+    public int getContainerSlot() {
+        return this.slot;
     }
 }

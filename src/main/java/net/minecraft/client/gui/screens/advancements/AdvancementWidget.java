@@ -11,6 +11,7 @@ import net.minecraft.advancements.DisplayInfo;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.StringSplitter;
 import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
@@ -137,7 +138,8 @@ public class AdvancementWidget extends GuiComponent {
                 var1 = AdvancementWidgetType.UNOBTAINED;
             }
 
-            this.minecraft.getTextureManager().bind(WIDGETS_LOCATION);
+            RenderSystem.setShader(GameRenderer::getPositionTexShader);
+            RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
             this.blit(param0, param1 + this.x + 3, param2 + this.y, this.display.getFrame().getTexture(), 128 + var1.getIndex() * 26, 26, 26);
             this.minecraft.getItemRenderer().renderAndDecorateFakeItem(this.display.getIcon(), param1 + this.x + 8, param2 + this.y + 5);
         }
@@ -188,8 +190,9 @@ public class AdvancementWidget extends GuiComponent {
         }
 
         int var18 = this.width - var5;
-        this.minecraft.getTextureManager().bind(WIDGETS_LOCATION);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.enableBlend();
         int var19 = param2 + this.y;
         int var20;

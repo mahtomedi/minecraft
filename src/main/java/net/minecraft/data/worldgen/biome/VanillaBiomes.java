@@ -1509,6 +1509,37 @@ public class VanillaBiomes {
             .build();
     }
 
+    public static Biome lushCaves() {
+        MobSpawnSettings.Builder var0 = new MobSpawnSettings.Builder();
+        BiomeDefaultFeatures.commonSpawns(var0);
+        BiomeGenerationSettings.Builder var1 = new BiomeGenerationSettings.Builder().surfaceBuilder(SurfaceBuilders.GRASS);
+        BiomeDefaultFeatures.addDefaultOverworldLandStructures(var1);
+        var1.addStructureStart(StructureFeatures.RUINED_PORTAL_STANDARD);
+        BiomeDefaultFeatures.addDefaultCarvers(var1);
+        BiomeDefaultFeatures.addDefaultLakes(var1);
+        BiomeDefaultFeatures.addDefaultCrystalFormations(var1);
+        BiomeDefaultFeatures.addDefaultMonsterRoom(var1);
+        BiomeDefaultFeatures.addPlainGrass(var1);
+        BiomeDefaultFeatures.addDefaultUndergroundVariety(var1);
+        BiomeDefaultFeatures.addDefaultOres(var1);
+        BiomeDefaultFeatures.addLushCavesSpecialOres(var1);
+        BiomeDefaultFeatures.addDefaultSoftDisks(var1);
+        BiomeDefaultFeatures.addLushCavesVegetationFeatures(var1);
+        return new Biome.BiomeBuilder()
+            .precipitation(Biome.Precipitation.RAIN)
+            .biomeCategory(Biome.BiomeCategory.UNDERGROUND)
+            .depth(0.1F)
+            .scale(0.2F)
+            .temperature(0.5F)
+            .downfall(0.5F)
+            .specialEffects(
+                new BiomeSpecialEffects.Builder().waterColor(4159204).waterFogColor(329011).fogColor(12638463).skyColor(calculateSkyColor(0.5F)).build()
+            )
+            .mobSpawnSettings(var0.build())
+            .generationSettings(var1.build())
+            .build();
+    }
+
     public static Biome dripstoneCaves() {
         MobSpawnSettings.Builder var0 = new MobSpawnSettings.Builder();
         BiomeDefaultFeatures.commonSpawns(var0);
@@ -1531,7 +1562,7 @@ public class VanillaBiomes {
         BiomeDefaultFeatures.addDripstone(var1);
         return new Biome.BiomeBuilder()
             .precipitation(Biome.Precipitation.RAIN)
-            .biomeCategory(Biome.BiomeCategory.PLAINS)
+            .biomeCategory(Biome.BiomeCategory.UNDERGROUND)
             .depth(0.125F)
             .scale(0.05F)
             .temperature(0.8F)

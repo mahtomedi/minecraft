@@ -42,39 +42,33 @@ public class RealmsTextureManager {
 
     public static void bindWorldTemplate(String param0, @Nullable String param1) {
         if (param1 == null) {
-            Minecraft.getInstance().getTextureManager().bind(TEMPLATE_ICON_LOCATION);
+            RenderSystem.setShaderTexture(0, TEMPLATE_ICON_LOCATION);
         } else {
             int var0 = getTextureId(param0, param1);
-            RenderSystem.bindTexture(var0);
+            RenderSystem.setShaderTexture(0, var0);
         }
     }
 
     public static void withBoundFace(String param0, Runnable param1) {
-        RenderSystem.pushTextureAttributes();
-
-        try {
-            bindFace(param0);
-            param1.run();
-        } finally {
-            RenderSystem.popAttributes();
-        }
-
+        bindFace(param0);
+        param1.run();
     }
 
     private static void bindDefaultFace(UUID param0) {
-        Minecraft.getInstance().getTextureManager().bind(DefaultPlayerSkin.getDefaultSkin(param0));
+        RenderSystem.setShaderTexture(0, DefaultPlayerSkin.getDefaultSkin(param0));
     }
 
     private static void bindFace(final String param0) {
         UUID var0 = UUIDTypeAdapter.fromString(param0);
         if (TEXTURES.containsKey(param0)) {
-            RenderSystem.bindTexture(TEXTURES.get(param0).textureId);
+            int var1 = TEXTURES.get(param0).textureId;
+            RenderSystem.setShaderTexture(0, var1);
         } else if (SKIN_FETCH_STATUS.containsKey(param0)) {
             if (!SKIN_FETCH_STATUS.get(param0)) {
                 bindDefaultFace(var0);
             } else if (FETCHED_SKINS.containsKey(param0)) {
-                int var1 = getTextureId(param0, FETCHED_SKINS.get(param0));
-                RenderSystem.bindTexture(var1);
+                int var2 = getTextureId(param0, FETCHED_SKINS.get(param0));
+                RenderSystem.setShaderTexture(0, var2);
             } else {
                 bindDefaultFace(var0);
             }
@@ -82,7 +76,7 @@ public class RealmsTextureManager {
         } else {
             SKIN_FETCH_STATUS.put(param0, false);
             bindDefaultFace(var0);
-            Thread var2 = new Thread("Realms Texture Downloader") {
+            Thread var3 = new Thread("Realms Texture Downloader") {
                 @Override
                 public void run() {
                     Map<Type, MinecraftProfileTexture> var0 = RealmsUtil.getTextures(param0);
@@ -133,8 +127,8 @@ public class RealmsTextureManager {
                     }
                 }
             };
-            var2.setDaemon(true);
-            var2.start();
+            var3.setDaemon(true);
+            var3.start();
         }
     }
 
@@ -178,7 +172,7 @@ public class RealmsTextureManager {
         }
 
         RenderSystem.activeTexture(33984);
-        RenderSystem.bindTexture(var1);
+        RenderSystem.bindTextureForSetup(var1);
         TextureUtil.initTexture(var3, var4, var5);
         TEXTURES.put(param0, new RealmsTextureManager.RealmsTexture(param1, var1));
         return var1;

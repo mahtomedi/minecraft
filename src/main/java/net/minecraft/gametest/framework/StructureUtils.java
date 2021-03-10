@@ -17,6 +17,7 @@ import javax.annotation.Nullable;
 import net.minecraft.commands.arguments.blocks.BlockInput;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
+import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.resources.ResourceLocation;
@@ -71,7 +72,7 @@ public class StructureUtils {
         BlockPos var0 = param0.getBlockPos();
         BlockPos var1 = var0.offset(param0.getStructureSize().offset(-1, -1, -1));
         BlockPos var2 = StructureTemplate.transform(var1, Mirror.NONE, param0.getRotation(), var0);
-        return new BoundingBox(var0, var2);
+        return BoundingBox.createProper(var0, var2);
     }
 
     public static void addCommandBlockAndButtonToStartTest(BlockPos param0, BlockPos param1, Rotation param2, ServerLevel param3) {
@@ -83,7 +84,7 @@ public class StructureUtils {
         param3.setBlockAndUpdate(var2, Blocks.STONE_BUTTON.defaultBlockState().rotate(param2));
     }
 
-    public static void createNewEmptyStructureBlock(String param0, BlockPos param1, BlockPos param2, Rotation param3, ServerLevel param4) {
+    public static void createNewEmptyStructureBlock(String param0, BlockPos param1, Vec3i param2, Rotation param3, ServerLevel param4) {
         BoundingBox var0 = getStructureBoundingBox(param1, param2, param3);
         clearSpaceForStructure(var0, param1.getY(), param4);
         param4.setBlockAndUpdate(param1, Blocks.STRUCTURE_BLOCK.defaultBlockState());
@@ -96,7 +97,7 @@ public class StructureUtils {
     }
 
     public static StructureBlockEntity spawnStructure(String param0, BlockPos param1, Rotation param2, int param3, ServerLevel param4, boolean param5) {
-        BlockPos var0 = getStructureTemplate(param0, param4).getSize();
+        Vec3i var0 = getStructureTemplate(param0, param4).getSize();
         BoundingBox var1 = getStructureBoundingBox(param1, var0, param2);
         BlockPos var2;
         if (param2 == Rotation.NONE) {
@@ -144,15 +145,13 @@ public class StructureUtils {
         var2.forEach(Entity::discard);
     }
 
-    public static BoundingBox getStructureBoundingBox(BlockPos param0, BlockPos param1, Rotation param2) {
+    public static BoundingBox getStructureBoundingBox(BlockPos param0, Vec3i param1, Rotation param2) {
         BlockPos var0 = param0.offset(param1).offset(-1, -1, -1);
         BlockPos var1 = StructureTemplate.transform(var0, Mirror.NONE, param2, param0);
         BoundingBox var2 = BoundingBox.createProper(param0.getX(), param0.getY(), param0.getZ(), var1.getX(), var1.getY(), var1.getZ());
         int var3 = Math.min(var2.x0, var2.x1);
         int var4 = Math.min(var2.z0, var2.z1);
-        BlockPos var5 = new BlockPos(param0.getX() - var3, 0, param0.getZ() - var4);
-        var2.move(var5);
-        return var2;
+        return var2.move(param0.getX() - var3, 0, param0.getZ() - var4);
     }
 
     public static Optional<BlockPos> findStructureBlockContainingPos(BlockPos param0, int param1, ServerLevel param2) {
@@ -212,12 +211,12 @@ public class StructureUtils {
         var0.setIgnoreEntities(false);
         var0.setStructureName(new ResourceLocation(param0));
         var0.loadStructure(param3, param4);
-        if (var0.getStructureSize() != BlockPos.ZERO) {
+        if (var0.getStructureSize() != Vec3i.ZERO) {
             return var0;
         } else {
             StructureTemplate var1 = getStructureTemplate(param0, param3);
             var0.loadStructure(param3, param4, var1);
-            if (var0.getStructureSize() == BlockPos.ZERO) {
+            if (var0.getStructureSize() == Vec3i.ZERO) {
                 throw new RuntimeException("Failed to load structure " + param0);
             } else {
                 return var0;

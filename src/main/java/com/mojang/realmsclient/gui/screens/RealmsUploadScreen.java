@@ -167,7 +167,7 @@ public class RealmsUploadScreen extends RealmsScreen {
     private void drawProgressBar(PoseStack param0) {
         double var0 = Math.min((double)this.uploadStatus.bytesWritten / (double)this.uploadStatus.totalBytes, 1.0);
         this.progress = String.format(Locale.ROOT, "%.1f", var0 * 100.0);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.disableTexture();
         double var1 = (double)(this.width / 2 - 100);
         double var2 = 0.5;

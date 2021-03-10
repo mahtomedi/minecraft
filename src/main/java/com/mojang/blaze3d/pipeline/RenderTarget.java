@@ -1,13 +1,16 @@
 package com.mojang.blaze3d.pipeline;
 
-import com.mojang.blaze3d.platform.GlConst;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.TextureUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.math.Matrix4f;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -55,7 +58,7 @@ public class RenderTarget {
         }
 
         this.createBuffers(param0, param1, param2);
-        GlStateManager._glBindFramebuffer(GlConst.GL_FRAMEBUFFER, 0);
+        GlStateManager._glBindFramebuffer(36160, 0);
     }
 
     public void destroyBuffers() {
@@ -73,7 +76,7 @@ public class RenderTarget {
         }
 
         if (this.frameBufferId > -1) {
-            GlStateManager._glBindFramebuffer(GlConst.GL_FRAMEBUFFER, 0);
+            GlStateManager._glBindFramebuffer(36160, 0);
             GlStateManager._glDeleteFramebuffers(this.frameBufferId);
             this.frameBufferId = -1;
         }
@@ -82,23 +85,10 @@ public class RenderTarget {
 
     public void copyDepthFrom(RenderTarget param0) {
         RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
-        if (GlStateManager.supportsFramebufferBlit()) {
-            GlStateManager._glBindFramebuffer(36008, param0.frameBufferId);
-            GlStateManager._glBindFramebuffer(36009, this.frameBufferId);
-            GlStateManager._glBlitFrameBuffer(0, 0, param0.width, param0.height, 0, 0, this.width, this.height, 256, 9728);
-        } else {
-            GlStateManager._glBindFramebuffer(GlConst.GL_FRAMEBUFFER, this.frameBufferId);
-            int var0 = GlStateManager.getFramebufferDepthTexture();
-            if (var0 != 0) {
-                int var1 = GlStateManager.getActiveTextureName();
-                GlStateManager._bindTexture(var0);
-                GlStateManager._glBindFramebuffer(GlConst.GL_FRAMEBUFFER, param0.frameBufferId);
-                GlStateManager._glCopyTexSubImage2D(3553, 0, 0, 0, 0, 0, Math.min(this.width, param0.width), Math.min(this.height, param0.height));
-                GlStateManager._bindTexture(var1);
-            }
-        }
-
-        GlStateManager._glBindFramebuffer(GlConst.GL_FRAMEBUFFER, 0);
+        GlStateManager._glBindFramebuffer(36008, param0.frameBufferId);
+        GlStateManager._glBindFramebuffer(36009, this.frameBufferId);
+        GlStateManager._glBlitFrameBuffer(0, 0, param0.width, param0.height, 0, 0, this.width, this.height, 256, 9728);
+        GlStateManager._glBindFramebuffer(36160, 0);
     }
 
     public void createBuffers(int param0, int param1, boolean param2) {
@@ -114,8 +104,6 @@ public class RenderTarget {
             GlStateManager._bindTexture(this.depthBufferId);
             GlStateManager._texParameter(3553, 10241, 9728);
             GlStateManager._texParameter(3553, 10240, 9728);
-            GlStateManager._texParameter(3553, 10242, 10496);
-            GlStateManager._texParameter(3553, 10243, 10496);
             GlStateManager._texParameter(3553, 34892, 0);
             GlStateManager._texImage2D(3553, 0, 6402, this.width, this.height, 0, 6402, 5126, null);
         }
@@ -123,10 +111,10 @@ public class RenderTarget {
         this.setFilterMode(9728);
         GlStateManager._bindTexture(this.colorTextureId);
         GlStateManager._texImage2D(3553, 0, 32856, this.width, this.height, 0, 6408, 5121, null);
-        GlStateManager._glBindFramebuffer(GlConst.GL_FRAMEBUFFER, this.frameBufferId);
-        GlStateManager._glFramebufferTexture2D(GlConst.GL_FRAMEBUFFER, GlConst.GL_COLOR_ATTACHMENT0, 3553, this.colorTextureId, 0);
+        GlStateManager._glBindFramebuffer(36160, this.frameBufferId);
+        GlStateManager._glFramebufferTexture2D(36160, 36064, 3553, this.colorTextureId, 0);
         if (this.useDepth) {
-            GlStateManager._glFramebufferTexture2D(GlConst.GL_FRAMEBUFFER, GlConst.GL_DEPTH_ATTACHMENT, 3553, this.depthBufferId, 0);
+            GlStateManager._glFramebufferTexture2D(36160, 36096, 3553, this.depthBufferId, 0);
         }
 
         this.checkStatus();
@@ -140,32 +128,25 @@ public class RenderTarget {
         GlStateManager._bindTexture(this.colorTextureId);
         GlStateManager._texParameter(3553, 10241, param0);
         GlStateManager._texParameter(3553, 10240, param0);
-        GlStateManager._texParameter(3553, 10242, 10496);
-        GlStateManager._texParameter(3553, 10243, 10496);
         GlStateManager._bindTexture(0);
     }
 
     public void checkStatus() {
         RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
-        int var0 = GlStateManager.glCheckFramebufferStatus(GlConst.GL_FRAMEBUFFER);
-        if (var0 != GlConst.GL_FRAMEBUFFER_COMPLETE) {
-            if (var0 == GlConst.GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT) {
+        int var0 = GlStateManager.glCheckFramebufferStatus(36160);
+        if (var0 != 36053) {
+            if (var0 == 36054) {
                 throw new RuntimeException("GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT");
-            } else if (var0 == GlConst.GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT) {
+            } else if (var0 == 36055) {
                 throw new RuntimeException("GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT");
-            } else if (var0 == GlConst.GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER) {
+            } else if (var0 == 36059) {
                 throw new RuntimeException("GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER");
-            } else if (var0 == GlConst.GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER) {
+            } else if (var0 == 36060) {
                 throw new RuntimeException("GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER");
             } else {
                 throw new RuntimeException("glCheckFramebufferStatus returned unknown status:" + var0);
             }
         }
-    }
-
-    public void bindRead() {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
-        GlStateManager._bindTexture(this.colorTextureId);
     }
 
     public void unbindRead() {
@@ -184,7 +165,7 @@ public class RenderTarget {
 
     private void _bindWrite(boolean param0) {
         RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
-        GlStateManager._glBindFramebuffer(GlConst.GL_FRAMEBUFFER, this.frameBufferId);
+        GlStateManager._glBindFramebuffer(36160, this.frameBufferId);
         if (param0) {
             GlStateManager._viewport(0, 0, this.viewWidth, this.viewHeight);
         }
@@ -193,9 +174,9 @@ public class RenderTarget {
 
     public void unbindWrite() {
         if (!RenderSystem.isOnRenderThread()) {
-            RenderSystem.recordRenderCall(() -> GlStateManager._glBindFramebuffer(GlConst.GL_FRAMEBUFFER, 0));
+            RenderSystem.recordRenderCall(() -> GlStateManager._glBindFramebuffer(36160, 0));
         } else {
-            GlStateManager._glBindFramebuffer(GlConst.GL_FRAMEBUFFER, 0);
+            GlStateManager._glBindFramebuffer(36160, 0);
         }
 
     }
@@ -226,36 +207,39 @@ public class RenderTarget {
         GlStateManager._colorMask(true, true, true, false);
         GlStateManager._disableDepthTest();
         GlStateManager._depthMask(false);
-        GlStateManager._matrixMode(5889);
-        GlStateManager._loadIdentity();
-        GlStateManager._ortho(0.0, (double)param0, (double)param1, 0.0, 1000.0, 3000.0);
-        GlStateManager._matrixMode(5888);
-        GlStateManager._loadIdentity();
-        GlStateManager._translatef(0.0F, 0.0F, -2000.0F);
         GlStateManager._viewport(0, 0, param0, param1);
-        GlStateManager._enableTexture();
-        GlStateManager._disableLighting();
-        GlStateManager._disableAlphaTest();
         if (param2) {
             GlStateManager._disableBlend();
-            GlStateManager._enableColorMaterial();
         }
 
-        GlStateManager._color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        this.bindRead();
-        float var0 = (float)param0;
-        float var1 = (float)param1;
-        float var2 = (float)this.viewWidth / (float)this.width;
-        float var3 = (float)this.viewHeight / (float)this.height;
-        Tesselator var4 = RenderSystem.renderThreadTesselator();
-        BufferBuilder var5 = var4.getBuilder();
-        var5.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
-        var5.vertex(0.0, (double)var1, 0.0).uv(0.0F, 0.0F).color(255, 255, 255, 255).endVertex();
-        var5.vertex((double)var0, (double)var1, 0.0).uv(var2, 0.0F).color(255, 255, 255, 255).endVertex();
-        var5.vertex((double)var0, 0.0, 0.0).uv(var2, var3).color(255, 255, 255, 255).endVertex();
-        var5.vertex(0.0, 0.0, 0.0).uv(0.0F, var3).color(255, 255, 255, 255).endVertex();
-        var4.end();
-        this.unbindRead();
+        Minecraft var0 = Minecraft.getInstance();
+        ShaderInstance var1 = var0.gameRenderer.blitShader;
+        var1.setSampler("DiffuseSampler", this.colorTextureId);
+        Matrix4f var2 = Matrix4f.orthographic((float)param0, (float)(-param1), 1000.0F, 3000.0F);
+        RenderSystem.setProjectionMatrix(var2);
+        if (var1.MODEL_VIEW_MATRIX != null) {
+            var1.MODEL_VIEW_MATRIX.set(Matrix4f.createTranslateMatrix(0.0F, 0.0F, -2000.0F));
+        }
+
+        if (var1.PROJECTION_MATRIX != null) {
+            var1.PROJECTION_MATRIX.set(var2);
+        }
+
+        var1.apply();
+        float var3 = (float)param0;
+        float var4 = (float)param1;
+        float var5 = (float)this.viewWidth / (float)this.width;
+        float var6 = (float)this.viewHeight / (float)this.height;
+        Tesselator var7 = RenderSystem.renderThreadTesselator();
+        BufferBuilder var8 = var7.getBuilder();
+        var8.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+        var8.vertex(0.0, (double)var4, 0.0).uv(0.0F, 0.0F).color(255, 255, 255, 255).endVertex();
+        var8.vertex((double)var3, (double)var4, 0.0).uv(var5, 0.0F).color(255, 255, 255, 255).endVertex();
+        var8.vertex((double)var3, 0.0, 0.0).uv(var5, var6).color(255, 255, 255, 255).endVertex();
+        var8.vertex(0.0, 0.0, 0.0).uv(0.0F, var6).color(255, 255, 255, 255).endVertex();
+        var8.end();
+        BufferUploader._endInternal(var8);
+        var1.clear();
         GlStateManager._depthMask(true);
         GlStateManager._colorMask(true, true, true, true);
     }

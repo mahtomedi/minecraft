@@ -11,7 +11,6 @@ import java.util.Random;
 import java.util.stream.Collectors;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.ResourceLocation;
@@ -212,7 +211,7 @@ public class RuinedPortalPiece extends TemplateStructurePiece {
     private void spreadNetherrack(Random param0, LevelAccessor param1) {
         boolean var0 = this.verticalPlacement == RuinedPortalPiece.VerticalPlacement.ON_LAND_SURFACE
             || this.verticalPlacement == RuinedPortalPiece.VerticalPlacement.ON_OCEAN_FLOOR;
-        Vec3i var1 = this.boundingBox.getCenter();
+        BlockPos var1 = this.boundingBox.getCenter();
         int var2 = var1.getX();
         int var3 = var1.getZ();
         float[] var4 = new float[]{1.0F, 1.0F, 1.0F, 1.0F, 1.0F, 1.0F, 1.0F, 0.9F, 0.9F, 0.8F, 0.7F, 0.6F, 0.4F, 0.2F};

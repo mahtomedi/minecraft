@@ -21,6 +21,7 @@ public class Cavifier {
     private final NormalNoise spaghettiRoughnessNoise;
     private final NormalNoise spaghettiRoughnessModulator;
     private final NormalNoise caveEntranceNoiseSource;
+    private final NormalNoise cheeseNoiseSource;
 
     public Cavifier(RandomSource param0, int param1) {
         this.minCellY = param1;
@@ -39,14 +40,17 @@ public class Cavifier {
         this.spaghettiRoughnessModulator = NormalNoise.create(new SimpleRandomSource(param0.nextLong()), -8, 1.0);
         this.caveEntranceNoiseSource = NormalNoise.create(new SimpleRandomSource(param0.nextLong()), -8, 1.0, 1.0, 1.0);
         this.layerNoiseSource = NormalNoise.create(new SimpleRandomSource(param0.nextLong()), -8, 1.0);
+        this.cheeseNoiseSource = NormalNoise.create(new SimpleRandomSource(param0.nextLong()), -6, 1.0, 1.0, 0.0, 1.0, 0.0, 1.0, 1.0);
     }
 
-    public double cavify(int param0, int param1, int param2, double param3, double param4) {
-        boolean var0 = param4 >= 375.0;
+    public double cavify(int param0, int param1, int param2, double param3) {
+        boolean var0 = param3 < 375.0;
         double var1 = this.spaghettiRoughness(param0, param1, param2);
         double var2 = this.getSpaghetti3d(param0, param1, param2);
         if (var0) {
-            double var3 = param3 / 128.0;
+            return Math.min(param3, (var2 + var1) * 128.0 * 64.0);
+        } else {
+            double var3 = this.cheeseNoiseSource.getValue((double)param0, (double)((float)param1 / 2.0F), (double)param2);
             double var4 = Mth.clamp(var3 + 0.25, -1.0, 1.0);
             double var5 = this.getLayerizedCaverns(param0, param1, param2);
             double var6 = this.getSpaghetti2d(param0, param1, param2);
@@ -54,8 +58,6 @@ public class Cavifier {
             double var8 = Math.min(var7, Math.min(var2, var6) + var1);
             double var9 = Math.max(var8, this.getPillars(param0, param1, param2));
             return 128.0 * Mth.clamp(var9, -1.0, 1.0);
-        } else {
-            return Math.min(param4, (var2 + var1) * 128.0);
         }
     }
 

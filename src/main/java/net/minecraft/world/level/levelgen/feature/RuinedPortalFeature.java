@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.core.Vec3i;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.util.StringRepresentable;
@@ -192,7 +191,7 @@ public class RuinedPortalFeature extends StructureFeature<RuinedPortalConfigurat
             BlockPos var15 = new BlockPos(var12.getSize().getX() / 2, 0, var12.getSize().getZ() / 2);
             BlockPos var16 = param3.getWorldPosition();
             BoundingBox var17 = var12.getBoundingBox(var16, var13, var15, var14);
-            Vec3i var18 = var17.getCenter();
+            BlockPos var18 = var17.getCenter();
             int var19 = var18.getX();
             int var20 = var18.getZ();
             int var21 = param1.getBaseHeight(var19, var20, RuinedPortalPiece.getHeightMapType(var1), param6) - 1;

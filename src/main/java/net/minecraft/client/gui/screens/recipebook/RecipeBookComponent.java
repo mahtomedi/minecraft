@@ -19,6 +19,7 @@ import net.minecraft.client.gui.components.StateSwitchingButton;
 import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.resources.language.LanguageInfo;
 import net.minecraft.client.resources.language.LanguageManager;
 import net.minecraft.client.searchtree.SearchRegistry;
@@ -232,10 +233,11 @@ public class RecipeBookComponent extends GuiComponent implements Widget, GuiEven
     @Override
     public void render(PoseStack param0, int param1, int param2, float param3) {
         if (this.isVisible()) {
-            RenderSystem.pushMatrix();
-            RenderSystem.translatef(0.0F, 0.0F, 100.0F);
-            this.minecraft.getTextureManager().bind(RECIPE_BOOK_LOCATION);
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            param0.pushPose();
+            param0.translate(0.0, 0.0, 100.0);
+            RenderSystem.setShader(GameRenderer::getPositionTexShader);
+            RenderSystem.setShaderTexture(0, RECIPE_BOOK_LOCATION);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             int var0 = (this.width - 147) / 2 - this.xOffset;
             int var1 = (this.height - 166) / 2;
             this.blit(param0, var0, var1, 1, 1, 147, 166);
@@ -251,7 +253,7 @@ public class RecipeBookComponent extends GuiComponent implements Widget, GuiEven
 
             this.filterButton.render(param0, param1, param2, param3);
             this.recipeBookPage.render(param0, var0, var1, param1, param2, param3);
-            RenderSystem.popMatrix();
+            param0.popPose();
         }
     }
 

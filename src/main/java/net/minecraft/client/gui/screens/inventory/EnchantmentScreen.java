@@ -13,6 +13,7 @@ import java.util.Random;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.model.BookModel;
 import net.minecraft.client.model.geom.ModelLayers;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.network.chat.Component;
@@ -80,104 +81,101 @@ public class EnchantmentScreen extends AbstractContainerScreen<EnchantmentMenu> 
     @Override
     protected void renderBg(PoseStack param0, float param1, int param2, int param3) {
         Lighting.setupForFlatItems();
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        this.minecraft.getTextureManager().bind(ENCHANTING_TABLE_LOCATION);
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderTexture(0, ENCHANTING_TABLE_LOCATION);
         int var0 = (this.width - this.imageWidth) / 2;
         int var1 = (this.height - this.imageHeight) / 2;
         this.blit(param0, var0, var1, 0, 0, this.imageWidth, this.imageHeight);
-        RenderSystem.matrixMode(5889);
-        RenderSystem.pushMatrix();
-        RenderSystem.loadIdentity();
         int var2 = (int)this.minecraft.getWindow().getGuiScale();
         RenderSystem.viewport((this.width - 320) / 2 * var2, (this.height - 240) / 2 * var2, 320 * var2, 240 * var2);
-        RenderSystem.translatef(-0.34F, 0.23F, 0.0F);
-        RenderSystem.multMatrix(Matrix4f.perspective(90.0, 1.3333334F, 9.0F, 80.0F));
-        RenderSystem.matrixMode(5888);
+        Matrix4f var3 = Matrix4f.createTranslateMatrix(-0.34F, 0.23F, 0.0F);
+        var3.multiply(Matrix4f.perspective(90.0, 1.3333334F, 9.0F, 80.0F));
+        RenderSystem.backupProjectionMatrix();
+        RenderSystem.setProjectionMatrix(var3);
         param0.pushPose();
-        PoseStack.Pose var3 = param0.last();
-        var3.pose().setIdentity();
-        var3.normal().setIdentity();
+        PoseStack.Pose var4 = param0.last();
+        var4.pose().setIdentity();
+        var4.normal().setIdentity();
         param0.translate(0.0, 3.3F, 1984.0);
-        float var4 = 5.0F;
+        float var5 = 5.0F;
         param0.scale(5.0F, 5.0F, 5.0F);
         param0.mulPose(Vector3f.ZP.rotationDegrees(180.0F));
         param0.mulPose(Vector3f.XP.rotationDegrees(20.0F));
-        float var5 = Mth.lerp(param1, this.oOpen, this.open);
-        param0.translate((double)((1.0F - var5) * 0.2F), (double)((1.0F - var5) * 0.1F), (double)((1.0F - var5) * 0.25F));
-        float var6 = -(1.0F - var5) * 90.0F - 90.0F;
-        param0.mulPose(Vector3f.YP.rotationDegrees(var6));
+        float var6 = Mth.lerp(param1, this.oOpen, this.open);
+        param0.translate((double)((1.0F - var6) * 0.2F), (double)((1.0F - var6) * 0.1F), (double)((1.0F - var6) * 0.25F));
+        float var7 = -(1.0F - var6) * 90.0F - 90.0F;
+        param0.mulPose(Vector3f.YP.rotationDegrees(var7));
         param0.mulPose(Vector3f.XP.rotationDegrees(180.0F));
-        float var7 = Mth.lerp(param1, this.oFlip, this.flip) + 0.25F;
-        float var8 = Mth.lerp(param1, this.oFlip, this.flip) + 0.75F;
-        var7 = (var7 - (float)Mth.fastFloor((double)var7)) * 1.6F - 0.3F;
+        float var8 = Mth.lerp(param1, this.oFlip, this.flip) + 0.25F;
+        float var9 = Mth.lerp(param1, this.oFlip, this.flip) + 0.75F;
         var8 = (var8 - (float)Mth.fastFloor((double)var8)) * 1.6F - 0.3F;
-        if (var7 < 0.0F) {
-            var7 = 0.0F;
-        }
-
+        var9 = (var9 - (float)Mth.fastFloor((double)var9)) * 1.6F - 0.3F;
         if (var8 < 0.0F) {
             var8 = 0.0F;
         }
 
-        if (var7 > 1.0F) {
-            var7 = 1.0F;
+        if (var9 < 0.0F) {
+            var9 = 0.0F;
         }
 
         if (var8 > 1.0F) {
             var8 = 1.0F;
         }
 
-        RenderSystem.enableRescaleNormal();
-        this.bookModel.setupAnim(0.0F, var7, var8, var5);
-        MultiBufferSource.BufferSource var9 = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-        VertexConsumer var10 = var9.getBuffer(this.bookModel.renderType(ENCHANTING_BOOK_LOCATION));
-        this.bookModel.renderToBuffer(param0, var10, 15728880, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
-        var9.endBatch();
-        param0.popPose();
-        RenderSystem.matrixMode(5889);
-        RenderSystem.viewport(0, 0, this.minecraft.getWindow().getWidth(), this.minecraft.getWindow().getHeight());
-        RenderSystem.popMatrix();
-        RenderSystem.matrixMode(5888);
-        Lighting.setupFor3DItems();
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        EnchantmentNames.getInstance().initSeed((long)this.menu.getEnchantmentSeed());
-        int var11 = this.menu.getGoldCount();
+        if (var9 > 1.0F) {
+            var9 = 1.0F;
+        }
 
-        for(int var12 = 0; var12 < 3; ++var12) {
-            int var13 = var0 + 60;
-            int var14 = var13 + 20;
+        this.bookModel.setupAnim(0.0F, var8, var9, var6);
+        MultiBufferSource.BufferSource var10 = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
+        VertexConsumer var11 = var10.getBuffer(this.bookModel.renderType(ENCHANTING_BOOK_LOCATION));
+        this.bookModel.renderToBuffer(param0, var11, 15728880, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
+        var10.endBatch();
+        param0.popPose();
+        RenderSystem.viewport(0, 0, this.minecraft.getWindow().getWidth(), this.minecraft.getWindow().getHeight());
+        RenderSystem.restoreProjectionMatrix();
+        Lighting.setupFor3DItems();
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        EnchantmentNames.getInstance().initSeed((long)this.menu.getEnchantmentSeed());
+        int var12 = this.menu.getGoldCount();
+
+        for(int var13 = 0; var13 < 3; ++var13) {
+            int var14 = var0 + 60;
+            int var15 = var14 + 20;
             this.setBlitOffset(0);
-            this.minecraft.getTextureManager().bind(ENCHANTING_TABLE_LOCATION);
-            int var15 = this.menu.costs[var12];
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            if (var15 == 0) {
-                this.blit(param0, var13, var1 + 14 + 19 * var12, 0, 185, 108, 19);
+            RenderSystem.setShader(GameRenderer::getPositionTexShader);
+            RenderSystem.setShaderTexture(0, ENCHANTING_TABLE_LOCATION);
+            int var16 = this.menu.costs[var13];
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+            if (var16 == 0) {
+                this.blit(param0, var14, var1 + 14 + 19 * var13, 0, 185, 108, 19);
             } else {
-                String var16 = "" + var15;
-                int var17 = 86 - this.font.width(var16);
-                FormattedText var18 = EnchantmentNames.getInstance().getRandomName(this.font, var17);
-                int var19 = 6839882;
-                if ((var11 < var12 + 1 || this.minecraft.player.experienceLevel < var15) && !this.minecraft.player.getAbilities().instabuild) {
-                    this.blit(param0, var13, var1 + 14 + 19 * var12, 0, 185, 108, 19);
-                    this.blit(param0, var13 + 1, var1 + 15 + 19 * var12, 16 * var12, 239, 16, 16);
-                    this.font.drawWordWrap(var18, var14, var1 + 16 + 19 * var12, var17, (var19 & 16711422) >> 1);
-                    var19 = 4226832;
+                String var17 = "" + var16;
+                int var18 = 86 - this.font.width(var17);
+                FormattedText var19 = EnchantmentNames.getInstance().getRandomName(this.font, var18);
+                int var20 = 6839882;
+                if ((var12 < var13 + 1 || this.minecraft.player.experienceLevel < var16) && !this.minecraft.player.getAbilities().instabuild) {
+                    this.blit(param0, var14, var1 + 14 + 19 * var13, 0, 185, 108, 19);
+                    this.blit(param0, var14 + 1, var1 + 15 + 19 * var13, 16 * var13, 239, 16, 16);
+                    this.font.drawWordWrap(var19, var15, var1 + 16 + 19 * var13, var18, (var20 & 16711422) >> 1);
+                    var20 = 4226832;
                 } else {
-                    int var20 = param2 - (var0 + 60);
-                    int var21 = param3 - (var1 + 14 + 19 * var12);
-                    if (var20 >= 0 && var21 >= 0 && var20 < 108 && var21 < 19) {
-                        this.blit(param0, var13, var1 + 14 + 19 * var12, 0, 204, 108, 19);
-                        var19 = 16777088;
+                    int var21 = param2 - (var0 + 60);
+                    int var22 = param3 - (var1 + 14 + 19 * var13);
+                    if (var21 >= 0 && var22 >= 0 && var21 < 108 && var22 < 19) {
+                        this.blit(param0, var14, var1 + 14 + 19 * var13, 0, 204, 108, 19);
+                        var20 = 16777088;
                     } else {
-                        this.blit(param0, var13, var1 + 14 + 19 * var12, 0, 166, 108, 19);
+                        this.blit(param0, var14, var1 + 14 + 19 * var13, 0, 166, 108, 19);
                     }
 
-                    this.blit(param0, var13 + 1, var1 + 15 + 19 * var12, 16 * var12, 223, 16, 16);
-                    this.font.drawWordWrap(var18, var14, var1 + 16 + 19 * var12, var17, var19);
-                    var19 = 8453920;
+                    this.blit(param0, var14 + 1, var1 + 15 + 19 * var13, 16 * var13, 223, 16, 16);
+                    this.font.drawWordWrap(var19, var15, var1 + 16 + 19 * var13, var18, var20);
+                    var20 = 8453920;
                 }
 
-                this.font.drawShadow(param0, var16, (float)(var14 + 86 - this.font.width(var16)), (float)(var1 + 16 + 19 * var12 + 7), var19);
+                this.font.drawShadow(param0, var17, (float)(var15 + 86 - this.font.width(var17)), (float)(var1 + 16 + 19 * var13 + 7), var20);
             }
         }
 

@@ -248,6 +248,17 @@ public class BufferBuilder extends DefaultedVertexConsumer implements BufferVert
         } else {
             ++this.vertices;
             this.ensureVertexCapacity();
+            if (this.mode == VertexFormat.Mode.LINES || this.mode == VertexFormat.Mode.LINE_STRIP) {
+                int var0 = this.format.getVertexSize();
+                ((Buffer)this.buffer).position(this.nextElementByte);
+                ByteBuffer var1 = this.buffer.duplicate();
+                ((Buffer)var1).position(this.nextElementByte - var0).limit(this.nextElementByte);
+                this.buffer.put(var1);
+                this.nextElementByte += var0;
+                ++this.vertices;
+                this.ensureVertexCapacity();
+            }
+
         }
     }
 

@@ -1,5 +1,6 @@
 package net.minecraft.util;
 
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import net.minecraftforge.api.distmarker.Dist;
@@ -8,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 
 public class StringUtil {
     private static final Pattern STRIP_COLOR_PATTERN = Pattern.compile("(?i)\\u00A7[0-9A-FK-OR]");
+    private static final Pattern LINE_PATTERN = Pattern.compile("\r\n|[\n\r\u2028\u2029\u0085]");
 
     @OnlyIn(Dist.CLIENT)
     public static String formatTickDuration(int param0) {
@@ -24,5 +26,21 @@ public class StringUtil {
 
     public static boolean isNullOrEmpty(@Nullable String param0) {
         return StringUtils.isEmpty(param0);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static int lineCount(String param0) {
+        if (param0.isEmpty()) {
+            return 0;
+        } else {
+            Matcher var0 = LINE_PATTERN.matcher(param0);
+            int var1 = 1;
+
+            while(var0.find()) {
+                ++var1;
+            }
+
+            return var1;
+        }
     }
 }

@@ -60,11 +60,10 @@ public class SpectatorGui extends GuiComponent implements SpectatorMenuListener 
     }
 
     protected void renderPage(PoseStack param0, float param1, int param2, int param3, SpectatorPage param4) {
-        RenderSystem.enableRescaleNormal();
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, param1);
-        this.minecraft.getTextureManager().bind(WIDGETS_LOCATION);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, param1);
+        RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
         this.blit(param0, param2 - 91, param3, 0, 0, 182, 22);
         if (param4.getSelectedSlot() >= 0) {
             this.blit(param0, param2 - 91 - 1 + param4.getSelectedSlot() * 20, param3 - 1, 0, 22, 24, 22);
@@ -76,20 +75,19 @@ public class SpectatorGui extends GuiComponent implements SpectatorMenuListener 
             );
         }
 
-        RenderSystem.disableRescaleNormal();
         RenderSystem.disableBlend();
     }
 
     private void renderSlot(PoseStack param0, int param1, int param2, float param3, float param4, SpectatorMenuItem param5) {
-        this.minecraft.getTextureManager().bind(SPECTATOR_LOCATION);
+        RenderSystem.setShaderTexture(0, SPECTATOR_LOCATION);
         if (param5 != SpectatorMenu.EMPTY_SLOT) {
             int var0 = (int)(param4 * 255.0F);
-            RenderSystem.pushMatrix();
-            RenderSystem.translatef((float)param2, param3, 0.0F);
+            param0.pushPose();
+            param0.translate((double)param2, (double)param3, 0.0);
             float var1 = param5.isEnabled() ? 1.0F : 0.25F;
-            RenderSystem.color4f(var1, var1, var1, param4);
+            RenderSystem.setShaderColor(var1, var1, var1, param4);
             param5.renderIcon(param0, var1, var0);
-            RenderSystem.popMatrix();
+            param0.popPose();
             if (var0 > 3 && param5.isEnabled()) {
                 Component var2 = this.minecraft.options.keyHotbarSlots[param1].getTranslatedKeyMessage();
                 this.minecraft
@@ -108,12 +106,10 @@ public class SpectatorGui extends GuiComponent implements SpectatorMenuListener 
             if (var2 != null) {
                 int var3 = (this.minecraft.getWindow().getGuiScaledWidth() - this.minecraft.font.width(var2)) / 2;
                 int var4 = this.minecraft.getWindow().getGuiScaledHeight() - 35;
-                RenderSystem.pushMatrix();
                 RenderSystem.enableBlend();
                 RenderSystem.defaultBlendFunc();
                 this.minecraft.font.drawShadow(param0, var2, (float)var3, (float)var4, 16777215 + (var0 << 24));
                 RenderSystem.disableBlend();
-                RenderSystem.popMatrix();
             }
         }
 

@@ -17,7 +17,7 @@ public class ProgramManager {
         GlStateManager._glUseProgram(param0);
     }
 
-    public static void releaseProgram(Effect param0) {
+    public static void releaseProgram(Shader param0) {
         RenderSystem.assertThread(RenderSystem::isOnRenderThread);
         param0.getFragmentProgram().close();
         param0.getVertexProgram().close();
@@ -34,10 +34,9 @@ public class ProgramManager {
         }
     }
 
-    public static void linkProgram(Effect param0) {
+    public static void linkShader(Shader param0) {
         RenderSystem.assertThread(RenderSystem::isOnRenderThread);
-        param0.getFragmentProgram().attachToEffect(param0);
-        param0.getVertexProgram().attachToEffect(param0);
+        param0.attachToProgram();
         GlStateManager.glLinkProgram(param0.getId());
         int var0 = GlStateManager.glGetProgrami(param0.getId(), 35714);
         if (var0 == 0) {

@@ -29,10 +29,10 @@ public class GiantTrunkPlacer extends TrunkPlacer {
         LevelSimulatedRW param0, Random param1, int param2, BlockPos param3, Set<BlockPos> param4, BoundingBox param5, TreeConfiguration param6
     ) {
         BlockPos var0 = param3.below();
-        setDirtAt(param0, var0);
-        setDirtAt(param0, var0.east());
-        setDirtAt(param0, var0.south());
-        setDirtAt(param0, var0.south().east());
+        setDirtAt(param0, param1, var0, param6);
+        setDirtAt(param0, param1, var0.east(), param6);
+        setDirtAt(param0, param1, var0.south(), param6);
+        setDirtAt(param0, param1, var0.south().east(), param6);
         BlockPos.MutableBlockPos var1 = new BlockPos.MutableBlockPos();
 
         for(int var2 = 0; var2 < param2; ++var2) {

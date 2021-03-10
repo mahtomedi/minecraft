@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.function.Predicate;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -89,7 +88,7 @@ public interface CauldronInteraction {
                 if (param5.isEmpty()) {
                     param3.setItemInHand(param4, var0);
                 } else if (param3.getInventory().add(var0)) {
-                    ((ServerPlayer)param3).refreshContainer(param3.inventoryMenu);
+                    param3.inventoryMenu.sendAllDataToRemote();
                 } else {
                     param3.drop(var0, false);
                 }

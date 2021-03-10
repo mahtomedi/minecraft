@@ -163,22 +163,22 @@ public class FaceBakery {
             Vector3f var1;
             switch(param1.axis) {
                 case X:
-                    var0 = new Vector3f(1.0F, 0.0F, 0.0F);
+                    var0 = Vector3f.XP;
                     var1 = new Vector3f(0.0F, 1.0F, 1.0F);
                     break;
                 case Y:
-                    var0 = new Vector3f(0.0F, 1.0F, 0.0F);
+                    var0 = Vector3f.YP;
                     var1 = new Vector3f(1.0F, 0.0F, 1.0F);
                     break;
                 case Z:
-                    var0 = new Vector3f(0.0F, 0.0F, 1.0F);
+                    var0 = Vector3f.ZP;
                     var1 = new Vector3f(1.0F, 1.0F, 0.0F);
                     break;
                 default:
                     throw new IllegalArgumentException("There are only 3 axes");
             }
 
-            Quaternion var8 = new Quaternion(var0, param1.angle, true);
+            Quaternion var8 = var0.rotationDegrees(param1.angle);
             if (param1.rescale) {
                 if (Math.abs(param1.angle) == 22.5F) {
                     var1.mul(RESCALE_22_5);

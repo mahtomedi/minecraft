@@ -680,8 +680,8 @@ public class ExecuteCommand {
     }
 
     private static OptionalInt checkRegions(ServerLevel param0, BlockPos param1, BlockPos param2, BlockPos param3, boolean param4) throws CommandSyntaxException {
-        BoundingBox var0 = new BoundingBox(param1, param2);
-        BoundingBox var1 = new BoundingBox(param3, param3.offset(var0.getLength()));
+        BoundingBox var0 = BoundingBox.createProper(param1, param2);
+        BoundingBox var1 = BoundingBox.createProper(param3, param3.offset(var0.getLength()));
         BlockPos var2 = new BlockPos(var1.x0 - var0.x0, var1.y0 - var0.y0, var1.z0 - var0.z0);
         int var3 = var0.getXSpan() * var0.getYSpan() * var0.getZSpan();
         if (var3 > 32768) {

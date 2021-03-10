@@ -16,6 +16,7 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
@@ -147,31 +148,37 @@ public abstract class StructureFeature<C extends FeatureConfiguration> {
             } else {
                 ChunkPos var2 = new ChunkPos(param1.getInt("ChunkX"), param1.getInt("ChunkZ"));
                 int var3 = param1.getInt("references");
-                BoundingBox var4 = param1.contains("BB") ? new BoundingBox(param1.getIntArray("BB")) : BoundingBox.getUnknownBox();
-                ListTag var5 = param1.getList("Children", 10);
+                BoundingBox var4;
+                if (param1.contains("BB")) {
+                    var4 = BoundingBox.CODEC.parse(NbtOps.INSTANCE, param1.get("BB")).resultOrPartial(LOGGER::error).orElse(new BoundingBox(BlockPos.ZERO));
+                } else {
+                    var4 = BoundingBox.getUnknownBox();
+                }
+
+                ListTag var6 = param1.getList("Children", 10);
 
                 try {
-                    StructureStart<?> var6 = var1.createStart(var2, var4, var3, param2);
+                    StructureStart<?> var7 = var1.createStart(var2, var4, var3, param2);
 
-                    for(int var7 = 0; var7 < var5.size(); ++var7) {
-                        CompoundTag var8 = var5.getCompound(var7);
-                        String var9 = var8.getString("id").toLowerCase(Locale.ROOT);
-                        ResourceLocation var10 = new ResourceLocation(var9);
-                        ResourceLocation var11 = RENAMES.getOrDefault(var10, var10);
-                        StructurePieceType var12 = Registry.STRUCTURE_PIECE.get(var11);
-                        if (var12 == null) {
-                            LOGGER.error("Unknown structure piece id: {}", var11);
+                    for(int var8 = 0; var8 < var6.size(); ++var8) {
+                        CompoundTag var9 = var6.getCompound(var8);
+                        String var10 = var9.getString("id").toLowerCase(Locale.ROOT);
+                        ResourceLocation var11 = new ResourceLocation(var10);
+                        ResourceLocation var12 = RENAMES.getOrDefault(var11, var11);
+                        StructurePieceType var13 = Registry.STRUCTURE_PIECE.get(var12);
+                        if (var13 == null) {
+                            LOGGER.error("Unknown structure piece id: {}", var12);
                         } else {
                             try {
-                                StructurePiece var13 = var12.load(param0, var8);
-                                var6.getPieces().add(var13);
+                                StructurePiece var14 = var13.load(param0, var9);
+                                var7.getPieces().add(var14);
                             } catch (Exception var18) {
-                                LOGGER.error("Exception loading structure piece with id {}", var11, var18);
+                                LOGGER.error("Exception loading structure piece with id {}", var12, var18);
                             }
                         }
                     }
 
-                    return var6;
+                    return var7;
                 } catch (Exception var19) {
                     LOGGER.error("Failed Start with id {}", var0, var19);
                     return null;

@@ -1,15 +1,15 @@
 package net.minecraft.world.level.block.entity;
 
-import com.google.common.collect.Lists;
-import java.util.List;
+import java.util.Iterator;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Random;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
@@ -37,7 +37,7 @@ public class StructureBlockEntity extends BlockEntity {
     private String author = "";
     private String metaData = "";
     private BlockPos structurePos = new BlockPos(0, 1, 0);
-    private BlockPos structureSize = BlockPos.ZERO;
+    private Vec3i structureSize = Vec3i.ZERO;
     private Mirror mirror = Mirror.NONE;
     private Rotation rotation = Rotation.NONE;
     private StructureMode mode;
@@ -90,7 +90,7 @@ public class StructureBlockEntity extends BlockEntity {
         int var3 = Mth.clamp(param0.getInt("sizeX"), 0, 48);
         int var4 = Mth.clamp(param0.getInt("sizeY"), 0, 48);
         int var5 = Mth.clamp(param0.getInt("sizeZ"), 0, 48);
-        this.structureSize = new BlockPos(var3, var4, var5);
+        this.structureSize = new Vec3i(var3, var4, var5);
 
         try {
             this.rotation = Rotation.valueOf(param0.getString("rotation"));
@@ -191,11 +191,11 @@ public class StructureBlockEntity extends BlockEntity {
         this.structurePos = param0;
     }
 
-    public BlockPos getStructureSize() {
+    public Vec3i getStructureSize() {
         return this.structureSize;
     }
 
-    public void setStructureSize(BlockPos param0) {
+    public void setStructureSize(Vec3i param0) {
         this.structureSize = param0;
     }
 
@@ -271,80 +271,52 @@ public class StructureBlockEntity extends BlockEntity {
         } else {
             BlockPos var0 = this.getBlockPos();
             int var1 = 80;
-            BlockPos var2 = new BlockPos(var0.getX() - 80, 0, var0.getZ() - 80);
+            BlockPos var2 = new BlockPos(var0.getX() - 80, this.level.getMinBuildHeight(), var0.getZ() - 80);
             BlockPos var3 = new BlockPos(var0.getX() + 80, this.level.getMaxBuildHeight() - 1, var0.getZ() + 80);
-            List<StructureBlockEntity> var4 = this.getNearbyCornerBlocks(var2, var3);
-            List<StructureBlockEntity> var5 = this.filterRelatedCornerBlocks(var4);
-            if (var5.size() < 1) {
-                return false;
-            } else {
-                BoundingBox var6 = this.calculateEnclosingBoundingBox(var0, var5);
-                if (var6.x1 - var6.x0 > 1 && var6.y1 - var6.y0 > 1 && var6.z1 - var6.z0 > 1) {
-                    this.structurePos = new BlockPos(var6.x0 - var0.getX() + 1, var6.y0 - var0.getY() + 1, var6.z0 - var0.getZ() + 1);
-                    this.structureSize = new BlockPos(var6.x1 - var6.x0 - 1, var6.y1 - var6.y0 - 1, var6.z1 - var6.z0 - 1);
+            Stream<BlockPos> var4 = this.getRelatedCorners(var2, var3);
+            return calculateEnclosingBoundingBox(var0, var4).filter(param1 -> {
+                int var0x = param1.x1 - param1.x0;
+                int var1x = param1.y1 - param1.y0;
+                int var2x = param1.z1 - param1.z0;
+                if (var0x > 1 && var1x > 1 && var2x > 1) {
+                    this.structurePos = new BlockPos(param1.x0 - var0.getX() + 1, param1.y0 - var0.getY() + 1, param1.z0 - var0.getZ() + 1);
+                    this.structureSize = new Vec3i(var0x - 1, var1x - 1, var2x - 1);
                     this.setChanged();
-                    BlockState var7 = this.level.getBlockState(var0);
-                    this.level.sendBlockUpdated(var0, var7, var7, 3);
+                    BlockState var3x = this.level.getBlockState(var0);
+                    this.level.sendBlockUpdated(var0, var3x, var3x, 3);
                     return true;
                 } else {
                     return false;
                 }
-            }
+            }).isPresent();
         }
     }
 
-    private List<StructureBlockEntity> filterRelatedCornerBlocks(List<StructureBlockEntity> param0) {
-        Predicate<StructureBlockEntity> var0 = param0x -> param0x.mode == StructureMode.CORNER && Objects.equals(this.structureName, param0x.structureName);
-        return param0.stream().filter(var0).collect(Collectors.toList());
+    private Stream<BlockPos> getRelatedCorners(BlockPos param0, BlockPos param1) {
+        return BlockPos.betweenClosedStream(param0, param1)
+            .filter(param0x -> this.level.getBlockState(param0x).is(Blocks.STRUCTURE_BLOCK))
+            .map(this.level::getBlockEntity)
+            .filter(param0x -> param0x instanceof StructureBlockEntity)
+            .map(param0x -> (StructureBlockEntity)param0x)
+            .filter(param0x -> param0x.mode == StructureMode.CORNER && Objects.equals(this.structureName, param0x.structureName))
+            .map(BlockEntity::getBlockPos);
     }
 
-    private List<StructureBlockEntity> getNearbyCornerBlocks(BlockPos param0, BlockPos param1) {
-        List<StructureBlockEntity> var0 = Lists.newArrayList();
-
-        for(BlockPos var1 : BlockPos.betweenClosed(param0, param1)) {
-            BlockState var2 = this.level.getBlockState(var1);
-            if (var2.is(Blocks.STRUCTURE_BLOCK)) {
-                BlockEntity var3 = this.level.getBlockEntity(var1);
-                if (var3 != null && var3 instanceof StructureBlockEntity) {
-                    var0.add((StructureBlockEntity)var3);
-                }
-            }
-        }
-
-        return var0;
-    }
-
-    private BoundingBox calculateEnclosingBoundingBox(BlockPos param0, List<StructureBlockEntity> param1) {
-        BoundingBox var1;
-        if (param1.size() > 1) {
-            BlockPos var0 = param1.get(0).getBlockPos();
-            var1 = new BoundingBox(var0, var0);
+    private static Optional<BoundingBox> calculateEnclosingBoundingBox(BlockPos param0, Stream<BlockPos> param1) {
+        Iterator<BlockPos> var0 = param1.iterator();
+        if (!var0.hasNext()) {
+            return Optional.empty();
         } else {
-            var1 = new BoundingBox(param0, param0);
+            BlockPos var1 = var0.next();
+            BoundingBox var2 = new BoundingBox(var1);
+            if (var0.hasNext()) {
+                var0.forEachRemaining(var2::encapsulate);
+            } else {
+                var2.encapsulate(param0);
+            }
+
+            return Optional.of(var2);
         }
-
-        for(StructureBlockEntity var3 : param1) {
-            BlockPos var4 = var3.getBlockPos();
-            if (var4.getX() < var1.x0) {
-                var1.x0 = var4.getX();
-            } else if (var4.getX() > var1.x1) {
-                var1.x1 = var4.getX();
-            }
-
-            if (var4.getY() < var1.y0) {
-                var1.y0 = var4.getY();
-            } else if (var4.getY() > var1.y1) {
-                var1.y1 = var4.getY();
-            }
-
-            if (var4.getZ() < var1.z0) {
-                var1.z0 = var4.getZ();
-            } else if (var4.getZ() > var1.z1) {
-                var1.z1 = var4.getZ();
-            }
-        }
-
-        return var1;
     }
 
     public boolean saveStructure() {
@@ -411,7 +383,7 @@ public class StructureBlockEntity extends BlockEntity {
             this.author = param2.getAuthor();
         }
 
-        BlockPos var1 = param2.getSize();
+        Vec3i var1 = param2.getSize();
         boolean var2 = this.structureSize.equals(var1);
         if (!var2) {
             this.structureSize = var1;

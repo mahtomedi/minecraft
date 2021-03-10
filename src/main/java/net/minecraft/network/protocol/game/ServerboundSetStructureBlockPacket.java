@@ -1,6 +1,7 @@
 package net.minecraft.network.protocol.game;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.util.Mth;
@@ -17,7 +18,7 @@ public class ServerboundSetStructureBlockPacket implements Packet<ServerGamePack
     private final StructureMode mode;
     private final String name;
     private final BlockPos offset;
-    private final BlockPos size;
+    private final Vec3i size;
     private final Mirror mirror;
     private final Rotation rotation;
     private final String data;
@@ -34,7 +35,7 @@ public class ServerboundSetStructureBlockPacket implements Packet<ServerGamePack
         StructureMode param2,
         String param3,
         BlockPos param4,
-        BlockPos param5,
+        Vec3i param5,
         Mirror param6,
         Rotation param7,
         String param8,
@@ -68,7 +69,7 @@ public class ServerboundSetStructureBlockPacket implements Packet<ServerGamePack
         int var0 = 48;
         this.offset = new BlockPos(Mth.clamp(param0.readByte(), -48, 48), Mth.clamp(param0.readByte(), -48, 48), Mth.clamp(param0.readByte(), -48, 48));
         int var1 = 48;
-        this.size = new BlockPos(Mth.clamp(param0.readByte(), 0, 48), Mth.clamp(param0.readByte(), 0, 48), Mth.clamp(param0.readByte(), 0, 48));
+        this.size = new Vec3i(Mth.clamp(param0.readByte(), 0, 48), Mth.clamp(param0.readByte(), 0, 48), Mth.clamp(param0.readByte(), 0, 48));
         this.mirror = param0.readEnum(Mirror.class);
         this.rotation = param0.readEnum(Rotation.class);
         this.data = param0.readUtf(12);
@@ -137,7 +138,7 @@ public class ServerboundSetStructureBlockPacket implements Packet<ServerGamePack
         return this.offset;
     }
 
-    public BlockPos getSize() {
+    public Vec3i getSize() {
         return this.size;
     }
 

@@ -4,6 +4,8 @@ import com.google.common.collect.Queues;
 import com.mojang.blaze3d.pipeline.RenderCall;
 import com.mojang.blaze3d.platform.GLX;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.vertex.BufferUploader;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.math.Matrix4f;
@@ -17,9 +19,14 @@ import java.util.function.IntConsumer;
 import java.util.function.IntSupplier;
 import java.util.function.LongSupplier;
 import java.util.function.Supplier;
+import javax.annotation.Nullable;
 import net.minecraft.client.GraphicsStatus;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
+import net.minecraft.client.renderer.ShaderInstance;
+import net.minecraft.client.renderer.texture.AbstractTexture;
+import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -33,10 +40,11 @@ public class RenderSystem {
     private static final Logger LOGGER = LogManager.getLogger();
     private static final ConcurrentLinkedQueue<RenderCall> recordingQueue = Queues.newConcurrentLinkedQueue();
     private static final Tesselator RENDER_THREAD_TESSELATOR = new Tesselator();
-    public static final float DEFAULTALPHACUTOFF = 0.1F;
     private static final int MINIMUM_ATLAS_TEXTURE_SIZE = 1024;
     private static boolean isReplayingQueue;
+    @Nullable
     private static Thread gameThread;
+    @Nullable
     private static Thread renderThread;
     private static int MAX_SUPPORTED_TEXTURE_SIZE = -1;
     private static boolean isInInit;
@@ -50,6 +58,29 @@ public class RenderSystem {
         param0.accept(param1 + 3);
         param0.accept(param1 + 0);
     });
+    private static final RenderSystem.AutoStorageIndexBuffer sharedSequentialLines = new RenderSystem.AutoStorageIndexBuffer(4, 6, (param0, param1) -> {
+        param0.accept(param1 + 0);
+        param0.accept(param1 + 1);
+        param0.accept(param1 + 2);
+        param0.accept(param1 + 3);
+        param0.accept(param1 + 2);
+        param0.accept(param1 + 1);
+    });
+    private static Matrix4f projectionMatrix = new Matrix4f();
+    private static Matrix4f savedProjectionMatrix = new Matrix4f();
+    private static PoseStack modelViewStack = new PoseStack();
+    private static Matrix4f modelViewMatrix = new Matrix4f();
+    private static Matrix4f textureMatrix = new Matrix4f();
+    private static final int[] shaderTextures = new int[12];
+    private static final float[] shaderColor = new float[]{1.0F, 1.0F, 1.0F, 1.0F};
+    private static float shaderFogStart;
+    private static float shaderFogEnd = 1.0F;
+    private static final float[] shaderFogColor = new float[]{0.0F, 0.0F, 0.0F, 0.0F};
+    private static final Vector3f[] shaderLightDirections = new Vector3f[2];
+    private static float shaderGameTime;
+    private static float shaderLineWidth = 1.0F;
+    @Nullable
+    private static ShaderInstance shader;
 
     public static void initRenderThread() {
         if (renderThread == null && gameThread != Thread.currentThread()) {
@@ -128,78 +159,6 @@ public class RenderSystem {
         lastDrawTime = var1;
     }
 
-    @Deprecated
-    public static void pushLightingAttributes() {
-        assertThread(RenderSystem::isOnGameThread);
-        GlStateManager._pushLightingAttributes();
-    }
-
-    @Deprecated
-    public static void pushTextureAttributes() {
-        assertThread(RenderSystem::isOnGameThread);
-        GlStateManager._pushTextureAttributes();
-    }
-
-    @Deprecated
-    public static void popAttributes() {
-        assertThread(RenderSystem::isOnGameThread);
-        GlStateManager._popAttributes();
-    }
-
-    @Deprecated
-    public static void disableAlphaTest() {
-        assertThread(RenderSystem::isOnGameThread);
-        GlStateManager._disableAlphaTest();
-    }
-
-    @Deprecated
-    public static void enableAlphaTest() {
-        assertThread(RenderSystem::isOnGameThread);
-        GlStateManager._enableAlphaTest();
-    }
-
-    @Deprecated
-    public static void alphaFunc(int param0, float param1) {
-        assertThread(RenderSystem::isOnGameThread);
-        GlStateManager._alphaFunc(param0, param1);
-    }
-
-    @Deprecated
-    public static void enableLighting() {
-        assertThread(RenderSystem::isOnGameThread);
-        GlStateManager._enableLighting();
-    }
-
-    @Deprecated
-    public static void disableLighting() {
-        assertThread(RenderSystem::isOnGameThread);
-        GlStateManager._disableLighting();
-    }
-
-    @Deprecated
-    public static void enableColorMaterial() {
-        assertThread(RenderSystem::isOnGameThread);
-        GlStateManager._enableColorMaterial();
-    }
-
-    @Deprecated
-    public static void disableColorMaterial() {
-        assertThread(RenderSystem::isOnGameThread);
-        GlStateManager._disableColorMaterial();
-    }
-
-    @Deprecated
-    public static void colorMaterial(int param0, int param1) {
-        assertThread(RenderSystem::isOnGameThread);
-        GlStateManager._colorMaterial(param0, param1);
-    }
-
-    @Deprecated
-    public static void normal3f(float param0, float param1, float param2) {
-        assertThread(RenderSystem::isOnGameThread);
-        GlStateManager._normal3f(param0, param1, param2);
-    }
-
     public static void disableDepthTest() {
         assertThread(RenderSystem::isOnGameThread);
         GlStateManager._disableDepthTest();
@@ -268,65 +227,6 @@ public class RenderSystem {
         GlStateManager._blendEquation(param0);
     }
 
-    public static void blendColor(float param0, float param1, float param2, float param3) {
-        assertThread(RenderSystem::isOnGameThread);
-        GlStateManager._blendColor(param0, param1, param2, param3);
-    }
-
-    @Deprecated
-    public static void enableFog() {
-        assertThread(RenderSystem::isOnGameThread);
-        GlStateManager._enableFog();
-    }
-
-    @Deprecated
-    public static void disableFog() {
-        assertThread(RenderSystem::isOnGameThread);
-        GlStateManager._disableFog();
-    }
-
-    @Deprecated
-    public static void fogMode(GlStateManager.FogMode param0) {
-        assertThread(RenderSystem::isOnGameThread);
-        GlStateManager._fogMode(param0.value);
-    }
-
-    @Deprecated
-    public static void fogMode(int param0) {
-        assertThread(RenderSystem::isOnGameThread);
-        GlStateManager._fogMode(param0);
-    }
-
-    @Deprecated
-    public static void fogDensity(float param0) {
-        assertThread(RenderSystem::isOnGameThread);
-        GlStateManager._fogDensity(param0);
-    }
-
-    @Deprecated
-    public static void fogStart(float param0) {
-        assertThread(RenderSystem::isOnGameThread);
-        GlStateManager._fogStart(param0);
-    }
-
-    @Deprecated
-    public static void fogEnd(float param0) {
-        assertThread(RenderSystem::isOnGameThread);
-        GlStateManager._fogEnd(param0);
-    }
-
-    @Deprecated
-    public static void fog(int param0, float param1, float param2, float param3, float param4) {
-        assertThread(RenderSystem::isOnGameThread);
-        GlStateManager._fog(param0, new float[]{param1, param2, param3, param4});
-    }
-
-    @Deprecated
-    public static void fogi(int param0, int param1) {
-        assertThread(RenderSystem::isOnGameThread);
-        GlStateManager._fogi(param0, param1);
-    }
-
     public static void enableCull() {
         assertThread(RenderSystem::isOnGameThread);
         GlStateManager._enableCull();
@@ -350,16 +250,6 @@ public class RenderSystem {
     public static void disablePolygonOffset() {
         assertThread(RenderSystem::isOnGameThread);
         GlStateManager._disablePolygonOffset();
-    }
-
-    public static void enableLineOffset() {
-        assertThread(RenderSystem::isOnGameThread);
-        GlStateManager._enableLineOffset();
-    }
-
-    public static void disableLineOffset() {
-        assertThread(RenderSystem::isOnGameThread);
-        GlStateManager._disableLineOffset();
     }
 
     public static void polygonOffset(float param0, float param1) {
@@ -406,26 +296,12 @@ public class RenderSystem {
         GlStateManager._deleteTexture(param0);
     }
 
+    public static void bindTextureForSetup(int param0) {
+        bindTexture(param0);
+    }
+
     public static void bindTexture(int param0) {
         GlStateManager._bindTexture(param0);
-    }
-
-    @Deprecated
-    public static void shadeModel(int param0) {
-        assertThread(RenderSystem::isOnGameThread);
-        GlStateManager._shadeModel(param0);
-    }
-
-    @Deprecated
-    public static void enableRescaleNormal() {
-        assertThread(RenderSystem::isOnGameThread);
-        GlStateManager._enableRescaleNormal();
-    }
-
-    @Deprecated
-    public static void disableRescaleNormal() {
-        assertThread(RenderSystem::isOnGameThread);
-        GlStateManager._disableRescaleNormal();
     }
 
     public static void viewport(int param0, int param1, int param2, int param3) {
@@ -473,88 +349,100 @@ public class RenderSystem {
         GlStateManager._clear(param0, param1);
     }
 
-    @Deprecated
-    public static void matrixMode(int param0) {
+    public static void setShaderFogStart(float param0) {
         assertThread(RenderSystem::isOnGameThread);
-        GlStateManager._matrixMode(param0);
+        _setShaderFogStart(param0);
     }
 
-    @Deprecated
-    public static void loadIdentity() {
-        assertThread(RenderSystem::isOnGameThread);
-        GlStateManager._loadIdentity();
+    private static void _setShaderFogStart(float param0) {
+        shaderFogStart = param0;
     }
 
-    @Deprecated
-    public static void pushMatrix() {
-        assertThread(RenderSystem::isOnGameThread);
-        GlStateManager._pushMatrix();
+    public static float getShaderFogStart() {
+        assertThread(RenderSystem::isOnRenderThread);
+        return shaderFogStart;
     }
 
-    @Deprecated
-    public static void popMatrix() {
+    public static void setShaderFogEnd(float param0) {
         assertThread(RenderSystem::isOnGameThread);
-        GlStateManager._popMatrix();
+        _setShaderFogEnd(param0);
     }
 
-    @Deprecated
-    public static void ortho(double param0, double param1, double param2, double param3, double param4, double param5) {
-        assertThread(RenderSystem::isOnGameThread);
-        GlStateManager._ortho(param0, param1, param2, param3, param4, param5);
+    private static void _setShaderFogEnd(float param0) {
+        shaderFogEnd = param0;
     }
 
-    @Deprecated
-    public static void rotatef(float param0, float param1, float param2, float param3) {
-        assertThread(RenderSystem::isOnGameThread);
-        GlStateManager._rotatef(param0, param1, param2, param3);
+    public static float getShaderFogEnd() {
+        assertThread(RenderSystem::isOnRenderThread);
+        return shaderFogEnd;
     }
 
-    @Deprecated
-    public static void scalef(float param0, float param1, float param2) {
+    public static void setShaderFogColor(float param0, float param1, float param2, float param3) {
         assertThread(RenderSystem::isOnGameThread);
-        GlStateManager._scalef(param0, param1, param2);
+        _setShaderFogColor(param0, param1, param2, param3);
     }
 
-    @Deprecated
-    public static void scaled(double param0, double param1, double param2) {
-        assertThread(RenderSystem::isOnGameThread);
-        GlStateManager._scaled(param0, param1, param2);
+    public static void setShaderFogColor(float param0, float param1, float param2) {
+        setShaderFogColor(param0, param1, param2, 1.0F);
     }
 
-    @Deprecated
-    public static void translatef(float param0, float param1, float param2) {
-        assertThread(RenderSystem::isOnGameThread);
-        GlStateManager._translatef(param0, param1, param2);
+    private static void _setShaderFogColor(float param0, float param1, float param2, float param3) {
+        shaderFogColor[0] = param0;
+        shaderFogColor[1] = param1;
+        shaderFogColor[2] = param2;
+        shaderFogColor[3] = param3;
     }
 
-    @Deprecated
-    public static void translated(double param0, double param1, double param2) {
-        assertThread(RenderSystem::isOnGameThread);
-        GlStateManager._translated(param0, param1, param2);
+    public static float[] getShaderFogColor() {
+        assertThread(RenderSystem::isOnRenderThread);
+        return shaderFogColor;
     }
 
-    @Deprecated
-    public static void multMatrix(Matrix4f param0) {
+    public static void setShaderLights(Vector3f param0, Vector3f param1) {
         assertThread(RenderSystem::isOnGameThread);
-        GlStateManager._multMatrix(param0);
+        _setShaderLights(param0, param1);
     }
 
-    @Deprecated
-    public static void color4f(float param0, float param1, float param2, float param3) {
-        assertThread(RenderSystem::isOnGameThread);
-        GlStateManager._color4f(param0, param1, param2, param3);
+    public static void _setShaderLights(Vector3f param0, Vector3f param1) {
+        shaderLightDirections[0] = param0;
+        shaderLightDirections[1] = param1;
     }
 
-    @Deprecated
-    public static void color3f(float param0, float param1, float param2) {
-        assertThread(RenderSystem::isOnGameThread);
-        GlStateManager._color4f(param0, param1, param2, 1.0F);
+    public static void setupShaderLights(ShaderInstance param0) {
+        assertThread(RenderSystem::isOnRenderThread);
+        if (param0.LIGHT0_DIRECTION != null) {
+            param0.LIGHT0_DIRECTION.set(shaderLightDirections[0]);
+        }
+
+        if (param0.LIGHT1_DIRECTION != null) {
+            param0.LIGHT1_DIRECTION.set(shaderLightDirections[1]);
+        }
+
     }
 
-    @Deprecated
-    public static void clearCurrentColor() {
-        assertThread(RenderSystem::isOnGameThread);
-        GlStateManager._clearCurrentColor();
+    public static void setShaderColor(float param0, float param1, float param2, float param3) {
+        if (!isOnRenderThread()) {
+            recordRenderCall(() -> _setShaderColor(param0, param1, param2, param3));
+        } else {
+            _setShaderColor(param0, param1, param2, param3);
+        }
+
+    }
+
+    public static void setShaderColor(float param0, float param1, float param2) {
+        setShaderColor(param0, param1, param2, 1.0F);
+    }
+
+    private static void _setShaderColor(float param0, float param1, float param2, float param3) {
+        shaderColor[0] = param0;
+        shaderColor[1] = param1;
+        shaderColor[2] = param2;
+        shaderColor[3] = param3;
+    }
+
+    public static float[] getShaderColor() {
+        assertThread(RenderSystem::isOnRenderThread);
+        return shaderColor;
     }
 
     public static void drawElements(int param0, int param1, int param2) {
@@ -563,17 +451,22 @@ public class RenderSystem {
     }
 
     public static void lineWidth(float param0) {
-        assertThread(RenderSystem::isOnGameThread);
-        GlStateManager._lineWidth(param0);
+        if (!isOnRenderThread()) {
+            recordRenderCall(() -> shaderLineWidth = param0);
+        } else {
+            shaderLineWidth = param0;
+        }
+
+    }
+
+    public static float getShaderLineWidth() {
+        assertThread(RenderSystem::isOnRenderThread);
+        return shaderLineWidth;
     }
 
     public static void pixelStore(int param0, int param1) {
         assertThread(RenderSystem::isOnGameThreadOrInit);
         GlStateManager._pixelStore(param0, param1);
-    }
-
-    public static void pixelTransfer(int param0, float param1) {
-        GlStateManager._pixelTransfer(param0, param1);
     }
 
     public static void readPixels(int param0, int param1, int param2, int param3, int param4, int param5, ByteBuffer param6) {
@@ -616,34 +509,21 @@ public class RenderSystem {
         GLX._renderCrosshair(param0, true, true, true);
     }
 
-    public static void setupNvFogDistance() {
-        assertThread(RenderSystem::isOnGameThread);
-        GLX._setupNvFogDistance();
-    }
-
-    @Deprecated
-    public static void glMultiTexCoord2f(int param0, float param1, float param2) {
-        assertThread(RenderSystem::isOnGameThread);
-        GlStateManager._glMultiTexCoord2f(param0, param1, param2);
-    }
-
     public static String getCapsString() {
         assertThread(RenderSystem::isOnGameThread);
-        return GLX._getCapsString();
+        return "Using framebuffer using OpenGL 3.2";
     }
 
     public static void setupDefaultState(int param0, int param1, int param2, int param3) {
         assertThread(RenderSystem::isInInitPhase);
         GlStateManager._enableTexture();
-        GlStateManager._shadeModel(7425);
         GlStateManager._clearDepth(1.0);
         GlStateManager._enableDepthTest();
         GlStateManager._depthFunc(515);
-        GlStateManager._enableAlphaTest();
-        GlStateManager._alphaFunc(516, 0.1F);
-        GlStateManager._matrixMode(5889);
-        GlStateManager._loadIdentity();
-        GlStateManager._matrixMode(5888);
+        projectionMatrix.setIdentity();
+        savedProjectionMatrix.setIdentity();
+        modelViewMatrix.setIdentity();
+        textureMatrix.setIdentity();
         GlStateManager._viewport(param0, param1, param2, param3);
     }
 
@@ -668,8 +548,12 @@ public class RenderSystem {
         return MAX_SUPPORTED_TEXTURE_SIZE;
     }
 
-    public static void glBindBuffer(int param0, Supplier<Integer> param1) {
-        GlStateManager._glBindBuffer(param0, param1.get());
+    public static void glBindBuffer(int param0, IntSupplier param1) {
+        GlStateManager._glBindBuffer(param0, param1.getAsInt());
+    }
+
+    public static void glBindVertexArray(Supplier<Integer> param0) {
+        GlStateManager._glBindVertexArray(param0.get());
     }
 
     public static void glBufferData(int param0, ByteBuffer param1, int param2) {
@@ -680,6 +564,11 @@ public class RenderSystem {
     public static void glDeleteBuffers(int param0) {
         assertThread(RenderSystem::isOnGameThread);
         GlStateManager._glDeleteBuffers(param0);
+    }
+
+    public static void glDeleteVertexArrays(int param0) {
+        assertThread(RenderSystem::isOnGameThread);
+        GlStateManager._glDeleteVertexArrays(param0);
     }
 
     public static void glUniform1i(int param0, int param1) {
@@ -742,24 +631,15 @@ public class RenderSystem {
         GlStateManager._glUniformMatrix4(param0, param1, param2);
     }
 
-    public static void setupOutline() {
-        assertThread(RenderSystem::isOnGameThread);
-        GlStateManager.setupOutline();
-    }
-
-    public static void teardownOutline() {
-        assertThread(RenderSystem::isOnGameThread);
-        GlStateManager.teardownOutline();
-    }
-
     public static void setupOverlayColor(IntSupplier param0, int param1) {
         assertThread(RenderSystem::isOnGameThread);
-        GlStateManager.setupOverlayColor(param0.getAsInt(), param1);
+        int var0 = param0.getAsInt();
+        setShaderTexture(1, var0);
     }
 
     public static void teardownOverlayColor() {
         assertThread(RenderSystem::isOnGameThread);
-        GlStateManager.teardownOverlayColor();
+        setShaderTexture(1, 0);
     }
 
     public static void setupLevelDiffuseLighting(Vector3f param0, Vector3f param1, Matrix4f param2) {
@@ -775,21 +655,6 @@ public class RenderSystem {
     public static void setupGui3DDiffuseLighting(Vector3f param0, Vector3f param1) {
         assertThread(RenderSystem::isOnGameThread);
         GlStateManager.setupGui3DDiffuseLighting(param0, param1);
-    }
-
-    public static void mulTextureByProjModelView() {
-        assertThread(RenderSystem::isOnGameThread);
-        GlStateManager.mulTextureByProjModelView();
-    }
-
-    public static void setupEndPortalTexGen() {
-        assertThread(RenderSystem::isOnGameThread);
-        GlStateManager.setupEndPortalTexGen();
-    }
-
-    public static void clearTexGen() {
-        assertThread(RenderSystem::isOnGameThread);
-        GlStateManager.clearTexGen();
     }
 
     public static void beginInitialization() {
@@ -816,6 +681,15 @@ public class RenderSystem {
 
     }
 
+    public static void glGenVertexArrays(Consumer<Integer> param0) {
+        if (!isOnRenderThread()) {
+            recordRenderCall(() -> param0.accept(GlStateManager._glGenVertexArrays()));
+        } else {
+            param0.accept(GlStateManager._glGenVertexArrays());
+        }
+
+    }
+
     public static Tesselator renderThreadTesselator() {
         assertThread(RenderSystem::isOnRenderThread);
         return RENDER_THREAD_TESSELATOR;
@@ -828,10 +702,6 @@ public class RenderSystem {
             GlStateManager.SourceFactor.ONE,
             GlStateManager.DestFactor.ZERO
         );
-    }
-
-    public static void defaultAlphaFunc() {
-        alphaFunc(516, 0.1F);
     }
 
     @Deprecated
@@ -848,11 +718,183 @@ public class RenderSystem {
         }
     }
 
+    public static void setShader(Supplier<ShaderInstance> param0) {
+        if (!isOnRenderThread()) {
+            recordRenderCall(() -> shader = param0.get());
+        } else {
+            shader = param0.get();
+        }
+
+    }
+
+    @Nullable
+    public static ShaderInstance getShader() {
+        assertThread(RenderSystem::isOnRenderThread);
+        return shader;
+    }
+
+    public static int getTextureId(int param0) {
+        return GlStateManager._getTextureId(param0);
+    }
+
+    public static void setShaderTexture(int param0, ResourceLocation param1) {
+        if (!isOnRenderThread()) {
+            recordRenderCall(() -> _setShaderTexture(param0, param1));
+        } else {
+            _setShaderTexture(param0, param1);
+        }
+
+    }
+
+    public static void _setShaderTexture(int param0, ResourceLocation param1) {
+        if (param0 >= 0 && param0 < shaderTextures.length) {
+            TextureManager var0 = Minecraft.getInstance().getTextureManager();
+            AbstractTexture var1 = var0.getTexture(param1);
+            shaderTextures[param0] = var1.getId();
+        }
+
+    }
+
+    public static void setShaderTexture(int param0, int param1) {
+        if (!isOnRenderThread()) {
+            recordRenderCall(() -> _setShaderTexture(param0, param1));
+        } else {
+            _setShaderTexture(param0, param1);
+        }
+
+    }
+
+    public static void _setShaderTexture(int param0, int param1) {
+        if (param0 >= 0 && param0 < shaderTextures.length) {
+            shaderTextures[param0] = param1;
+        }
+
+    }
+
+    public static int getShaderTexture(int param0) {
+        assertThread(RenderSystem::isOnRenderThread);
+        return param0 >= 0 && param0 < shaderTextures.length ? shaderTextures[param0] : 0;
+    }
+
+    public static void setProjectionMatrix(Matrix4f param0) {
+        Matrix4f var0 = param0.copy();
+        if (!isOnRenderThread()) {
+            recordRenderCall(() -> projectionMatrix = var0);
+        } else {
+            projectionMatrix = var0;
+        }
+
+    }
+
+    public static void setTextureMatrix(Matrix4f param0) {
+        Matrix4f var0 = param0.copy();
+        if (!isOnRenderThread()) {
+            recordRenderCall(() -> textureMatrix = var0);
+        } else {
+            textureMatrix = var0;
+        }
+
+    }
+
+    public static void resetTextureMatrix() {
+        if (!isOnRenderThread()) {
+            recordRenderCall(() -> textureMatrix.setIdentity());
+        } else {
+            textureMatrix.setIdentity();
+        }
+
+    }
+
+    public static void applyModelViewMatrix() {
+        Matrix4f var0 = modelViewStack.last().pose().copy();
+        if (!isOnRenderThread()) {
+            recordRenderCall(() -> modelViewMatrix = var0);
+        } else {
+            modelViewMatrix = var0;
+        }
+
+    }
+
+    public static void backupProjectionMatrix() {
+        if (!isOnRenderThread()) {
+            recordRenderCall(() -> _backupProjectionMatrix());
+        } else {
+            _backupProjectionMatrix();
+        }
+
+    }
+
+    private static void _backupProjectionMatrix() {
+        savedProjectionMatrix = projectionMatrix;
+    }
+
+    public static void restoreProjectionMatrix() {
+        if (!isOnRenderThread()) {
+            recordRenderCall(() -> _restoreProjectionMatrix());
+        } else {
+            _restoreProjectionMatrix();
+        }
+
+    }
+
+    private static void _restoreProjectionMatrix() {
+        projectionMatrix = savedProjectionMatrix;
+    }
+
+    public static Matrix4f getProjectionMatrix() {
+        assertThread(RenderSystem::isOnRenderThread);
+        return projectionMatrix;
+    }
+
+    public static Matrix4f getModelViewMatrix() {
+        assertThread(RenderSystem::isOnRenderThread);
+        return modelViewMatrix;
+    }
+
+    public static PoseStack getModelViewStack() {
+        return modelViewStack;
+    }
+
+    public static Matrix4f getTextureMatrix() {
+        assertThread(RenderSystem::isOnRenderThread);
+        return textureMatrix;
+    }
+
     public static RenderSystem.AutoStorageIndexBuffer getSequentialBuffer(VertexFormat.Mode param0, int param1) {
         assertThread(RenderSystem::isOnRenderThread);
-        RenderSystem.AutoStorageIndexBuffer var0 = param0 == VertexFormat.Mode.QUADS ? sharedSequentialQuad : sharedSequential;
+        RenderSystem.AutoStorageIndexBuffer var0;
+        if (param0 == VertexFormat.Mode.QUADS) {
+            var0 = sharedSequentialQuad;
+        } else if (param0 == VertexFormat.Mode.LINES) {
+            var0 = sharedSequentialLines;
+        } else {
+            var0 = sharedSequential;
+        }
+
         var0.ensureStorage(param1);
         return var0;
+    }
+
+    public static void setShaderGameTime(long param0, float param1) {
+        float var0 = ((float)param0 + param1) / 24000.0F;
+        if (!isOnRenderThread()) {
+            recordRenderCall(() -> shaderGameTime = var0);
+        } else {
+            shaderGameTime = var0;
+        }
+
+    }
+
+    public static float getShaderGameTime() {
+        assertThread(RenderSystem::isOnRenderThread);
+        return shaderGameTime;
+    }
+
+    static {
+        projectionMatrix.setIdentity();
+        savedProjectionMatrix.setIdentity();
+        modelViewMatrix.setIdentity();
+        textureMatrix.setIdentity();
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -880,7 +922,7 @@ public class RenderSystem {
                 VertexFormat.IndexType var0 = VertexFormat.IndexType.least(param0);
                 int var1 = Mth.roundToward(param0 * var0.bytes, 4);
                 GlStateManager._glBindBuffer(34963, this.name);
-                GlStateManager._glBufferData(34963, (long)var1, 35044);
+                GlStateManager._glBufferData(34963, (long)var1, 35048);
                 ByteBuffer var2 = GlStateManager._glMapBuffer(34963, 35001);
                 if (var2 == null) {
                     throw new RuntimeException("Failed to map GL buffer");
@@ -895,6 +937,7 @@ public class RenderSystem {
                     GlStateManager._glUnmapBuffer(34963);
                     GlStateManager._glBindBuffer(34963, 0);
                     this.indexCount = param0;
+                    BufferUploader.invalidateElementArrayBufferBinding();
                 }
             }
         }

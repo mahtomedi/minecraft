@@ -1,7 +1,11 @@
 package net.minecraft.client.multiplayer;
 
+import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
+import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.client.ClientRecipeBook;
 import net.minecraft.client.Minecraft;
@@ -9,6 +13,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.NonNullList;
 import net.minecraft.network.protocol.game.ServerboundContainerButtonClickPacket;
 import net.minecraft.network.protocol.game.ServerboundContainerClickPacket;
 import net.minecraft.network.protocol.game.ServerboundInteractPacket;
@@ -29,6 +34,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.crafting.Recipe;
@@ -350,11 +356,27 @@ public class MultiPlayerGameMode {
         return this.localPlayerMode == GameType.SPECTATOR ? InteractionResult.PASS : param1.interactAt(param0, var0, param3);
     }
 
-    public ItemStack handleInventoryMouseClick(int param0, int param1, int param2, ClickType param3, Player param4) {
-        short var0 = param4.containerMenu.backup(param4.getInventory());
-        ItemStack var1 = param4.containerMenu.clicked(param1, param2, param3, param4);
-        this.connection.send(new ServerboundContainerClickPacket(param0, param1, param2, param3, var1, var0));
-        return var1;
+    public void handleInventoryMouseClick(int param0, int param1, int param2, ClickType param3, Player param4) {
+        NonNullList<Slot> var0 = param4.containerMenu.slots;
+        int var1 = var0.size();
+        List<ItemStack> var2 = Lists.newArrayListWithCapacity(var1);
+
+        for(Slot var3 : var0) {
+            var2.add(var3.getItem().copy());
+        }
+
+        param4.containerMenu.clicked(param1, param2, param3, param4);
+        Int2ObjectMap<ItemStack> var4 = new Int2ObjectOpenHashMap<>();
+
+        for(int var5 = 0; var5 < var1; ++var5) {
+            ItemStack var6 = var2.get(var5);
+            ItemStack var7 = var0.get(var5).getItem();
+            if (!ItemStack.matches(var6, var7)) {
+                var4.put(var5, var7.copy());
+            }
+        }
+
+        this.connection.send(new ServerboundContainerClickPacket(param0, param1, param2, param3, param4.containerMenu.getCarried().copy(), var4));
     }
 
     public void handlePlaceRecipe(int param0, Recipe<?> param1, boolean param2) {

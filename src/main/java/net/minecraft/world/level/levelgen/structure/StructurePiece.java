@@ -9,6 +9,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ChunkPos;
@@ -31,8 +32,11 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.NoiseEffect;
 import net.minecraft.world.level.levelgen.feature.StructurePieceType;
 import net.minecraft.world.level.material.FluidState;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public abstract class StructurePiece {
+    private static final Logger LOGGER = LogManager.getLogger();
     protected static final BlockState CAVE_AIR = Blocks.CAVE_AIR.defaultBlockState();
     protected BoundingBox boundingBox;
     @Nullable
@@ -63,7 +67,7 @@ public abstract class StructurePiece {
     public StructurePiece(StructurePieceType param0, CompoundTag param1) {
         this(param0, param1.getInt("GD"));
         if (param1.contains("BB")) {
-            this.boundingBox = new BoundingBox(param1.getIntArray("BB"));
+            this.boundingBox = BoundingBox.CODEC.parse(NbtOps.INSTANCE, param1.get("BB")).resultOrPartial(LOGGER::error).orElse(new BoundingBox(BlockPos.ZERO));
         }
 
         int var0 = param1.getInt("O");
@@ -73,7 +77,7 @@ public abstract class StructurePiece {
     public final CompoundTag createTag() {
         CompoundTag var0 = new CompoundTag();
         var0.putString("id", Registry.STRUCTURE_PIECE.getKey(this.getType()).toString());
-        var0.put("BB", this.boundingBox.createTag());
+        BoundingBox.CODEC.encodeStart(NbtOps.INSTANCE, this.boundingBox).resultOrPartial(LOGGER::error).ifPresent(param1 -> var0.put("BB", param1));
         Direction var1 = this.getOrientation();
         var0.putInt("O", var1 == null ? -1 : var1.get2DDataValue());
         var0.putInt("GD", this.genDepth);

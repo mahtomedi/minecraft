@@ -11,6 +11,7 @@ import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
@@ -216,7 +217,7 @@ public class StructureBlockEditScreen extends Screen {
         this.posZEdit.setMaxLength(15);
         this.posZEdit.setValue(Integer.toString(var0.getZ()));
         this.children.add(this.posZEdit);
-        BlockPos var1 = this.structure.getStructureSize();
+        Vec3i var1 = this.structure.getStructureSize();
         this.sizeXEdit = new EditBox(this.font, this.width / 2 - 152, 120, 80, 20, new TranslatableComponent("structure_block.size.x"));
         this.sizeXEdit.setMaxLength(15);
         this.sizeXEdit.setValue(Integer.toString(var1.getX()));
@@ -363,7 +364,7 @@ public class StructureBlockEditScreen extends Screen {
         BlockPos var0 = new BlockPos(
             this.parseCoordinate(this.posXEdit.getValue()), this.parseCoordinate(this.posYEdit.getValue()), this.parseCoordinate(this.posZEdit.getValue())
         );
-        BlockPos var1 = new BlockPos(
+        Vec3i var1 = new Vec3i(
             this.parseCoordinate(this.sizeXEdit.getValue()), this.parseCoordinate(this.sizeYEdit.getValue()), this.parseCoordinate(this.sizeZEdit.getValue())
         );
         float var2 = this.parseIntegrity(this.integrityEdit.getValue());
