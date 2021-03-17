@@ -7,6 +7,8 @@ import java.util.Queue;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import javax.annotation.Nullable;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public interface StrictQueue<T, F> {
     @Nullable
@@ -15,6 +17,9 @@ public interface StrictQueue<T, F> {
     boolean push(T var1);
 
     boolean isEmpty();
+
+    @OnlyIn(Dist.CLIENT)
+    int size();
 
     public static final class FixedPriorityQueue implements StrictQueue<StrictQueue.IntRunnable, Runnable> {
         private final List<Queue<Runnable>> queueList;
@@ -44,6 +49,18 @@ public interface StrictQueue<T, F> {
         @Override
         public boolean isEmpty() {
             return this.queueList.stream().allMatch(Collection::isEmpty);
+        }
+
+        @OnlyIn(Dist.CLIENT)
+        @Override
+        public int size() {
+            int var0 = 0;
+
+            for(Queue<Runnable> var1 : this.queueList) {
+                var0 += var1.size();
+            }
+
+            return var0;
         }
     }
 
@@ -87,6 +104,12 @@ public interface StrictQueue<T, F> {
         @Override
         public boolean isEmpty() {
             return this.queue.isEmpty();
+        }
+
+        @OnlyIn(Dist.CLIENT)
+        @Override
+        public int size() {
+            return this.queue.size();
         }
     }
 }

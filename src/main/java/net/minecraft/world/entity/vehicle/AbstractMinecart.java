@@ -714,8 +714,6 @@ public abstract class AbstractMinecart extends Entity {
                         var1 *= var3;
                         var0 *= 0.1F;
                         var1 *= 0.1F;
-                        var0 *= (double)(1.0F - this.pushthrough);
-                        var1 *= (double)(1.0F - this.pushthrough);
                         var0 *= 0.5;
                         var1 *= 0.5;
                         if (param0 instanceof AbstractMinecart) {

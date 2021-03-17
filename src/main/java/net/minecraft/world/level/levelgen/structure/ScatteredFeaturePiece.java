@@ -4,6 +4,7 @@ import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.StructurePieceType;
@@ -37,11 +38,11 @@ public abstract class ScatteredFeaturePiece extends StructurePiece {
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundTag param0) {
-        param0.putInt("Width", this.width);
-        param0.putInt("Height", this.height);
-        param0.putInt("Depth", this.depth);
-        param0.putInt("HPos", this.heightPosition);
+    protected void addAdditionalSaveData(ServerLevel param0, CompoundTag param1) {
+        param1.putInt("Width", this.width);
+        param1.putInt("Height", this.height);
+        param1.putInt("Depth", this.depth);
+        param1.putInt("HPos", this.heightPosition);
     }
 
     protected boolean updateAverageGroundHeight(LevelAccessor param0, BoundingBox param1, int param2) {

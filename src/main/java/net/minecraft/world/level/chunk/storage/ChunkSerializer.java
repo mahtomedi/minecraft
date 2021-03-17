@@ -175,7 +175,7 @@ public class ChunkSerializer {
 
         Heightmap.primeHeightmaps(var25, var30);
         CompoundTag var33 = var2.getCompound("Structures");
-        var25.setAllStarts(unpackStructureStart(param1, var33, param0.getSeed()));
+        var25.setAllStarts(unpackStructureStart(param0, var33, param0.getSeed()));
         var25.setAllReferences(unpackStructureReferences(param3, var33));
         if (var2.getBoolean("shouldSave")) {
             var25.setUnsaved(true);
@@ -343,7 +343,7 @@ public class ChunkSerializer {
         }
 
         var2.put("Heightmaps", var25);
-        var2.put("Structures", packStructureData(var0, param1.getAllStarts(), param1.getAllReferences()));
+        var2.put("Structures", packStructureData(param0, var0, param1.getAllStarts(), param1.getAllReferences()));
         return var1;
     }
 
@@ -384,18 +384,20 @@ public class ChunkSerializer {
 
     }
 
-    private static CompoundTag packStructureData(ChunkPos param0, Map<StructureFeature<?>, StructureStart<?>> param1, Map<StructureFeature<?>, LongSet> param2) {
+    private static CompoundTag packStructureData(
+        ServerLevel param0, ChunkPos param1, Map<StructureFeature<?>, StructureStart<?>> param2, Map<StructureFeature<?>, LongSet> param3
+    ) {
         CompoundTag var0 = new CompoundTag();
         CompoundTag var1 = new CompoundTag();
 
-        for(Entry<StructureFeature<?>, StructureStart<?>> var2 : param1.entrySet()) {
-            var1.put(var2.getKey().getFeatureName(), var2.getValue().createTag(param0));
+        for(Entry<StructureFeature<?>, StructureStart<?>> var2 : param2.entrySet()) {
+            var1.put(var2.getKey().getFeatureName(), var2.getValue().createTag(param0, param1));
         }
 
         var0.put("Starts", var1);
         CompoundTag var3 = new CompoundTag();
 
-        for(Entry<StructureFeature<?>, LongSet> var4 : param2.entrySet()) {
+        for(Entry<StructureFeature<?>, LongSet> var4 : param3.entrySet()) {
             var3.put(var4.getKey().getFeatureName(), new LongArrayTag(var4.getValue()));
         }
 
@@ -403,7 +405,7 @@ public class ChunkSerializer {
         return var0;
     }
 
-    private static Map<StructureFeature<?>, StructureStart<?>> unpackStructureStart(StructureManager param0, CompoundTag param1, long param2) {
+    private static Map<StructureFeature<?>, StructureStart<?>> unpackStructureStart(ServerLevel param0, CompoundTag param1, long param2) {
         Map<StructureFeature<?>, StructureStart<?>> var0 = Maps.newHashMap();
         CompoundTag var1 = param1.getCompound("Starts");
 

@@ -16,13 +16,12 @@ public class FlatLayerInfo {
                 )
                 .apply(param0, FlatLayerInfo::new)
     );
-    private final BlockState blockState;
+    private final Block block;
     private final int height;
-    private int start;
 
     public FlatLayerInfo(int param0, Block param1) {
         this.height = param0;
-        this.blockState = param1.defaultBlockState();
+        this.block = param1;
     }
 
     public int getHeight() {
@@ -30,19 +29,11 @@ public class FlatLayerInfo {
     }
 
     public BlockState getBlockState() {
-        return this.blockState;
-    }
-
-    public int getStart() {
-        return this.start;
-    }
-
-    public void setStart(int param0) {
-        this.start = param0;
+        return this.block.defaultBlockState();
     }
 
     @Override
     public String toString() {
-        return (this.height != 1 ? this.height + "*" : "") + Registry.BLOCK.getKey(this.blockState.getBlock());
+        return (this.height != 1 ? this.height + "*" : "") + Registry.BLOCK.getKey(this.block);
     }
 }

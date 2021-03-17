@@ -7,6 +7,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.StructureFeatureManager;
@@ -83,20 +84,20 @@ public class ShipwreckPieces {
             this.loadTemplate(param0);
         }
 
-        public ShipwreckPiece(StructureManager param0, CompoundTag param1) {
+        public ShipwreckPiece(ServerLevel param0, CompoundTag param1) {
             super(StructurePieceType.SHIPWRECK_PIECE, param1);
             this.templateLocation = new ResourceLocation(param1.getString("Template"));
             this.isBeached = param1.getBoolean("isBeached");
             this.rotation = Rotation.valueOf(param1.getString("Rot"));
-            this.loadTemplate(param0);
+            this.loadTemplate(param0.getStructureManager());
         }
 
         @Override
-        protected void addAdditionalSaveData(CompoundTag param0) {
-            super.addAdditionalSaveData(param0);
-            param0.putString("Template", this.templateLocation.toString());
-            param0.putBoolean("isBeached", this.isBeached);
-            param0.putString("Rot", this.rotation.name());
+        protected void addAdditionalSaveData(ServerLevel param0, CompoundTag param1) {
+            super.addAdditionalSaveData(param0, param1);
+            param1.putString("Template", this.templateLocation.toString());
+            param1.putBoolean("isBeached", this.isBeached);
+            param1.putString("Rot", this.rotation.name());
         }
 
         private void loadTemplate(StructureManager param0) {

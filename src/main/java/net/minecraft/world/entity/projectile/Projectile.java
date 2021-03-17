@@ -21,7 +21,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class Projectile extends Entity {
     private UUID ownerUUID;
-    private int ownerNetworkId;
     private boolean leftOwner;
     private boolean hasBeenShot;
 
@@ -32,18 +31,13 @@ public abstract class Projectile extends Entity {
     public void setOwner(@Nullable Entity param0) {
         if (param0 != null) {
             this.ownerUUID = param0.getUUID();
-            this.ownerNetworkId = param0.getId();
         }
 
     }
 
     @Nullable
     public Entity getOwner() {
-        if (this.ownerUUID != null && this.level instanceof ServerLevel) {
-            return ((ServerLevel)this.level).getEntity(this.ownerUUID);
-        } else {
-            return this.ownerNetworkId != 0 ? this.level.getEntity(this.ownerNetworkId) : null;
-        }
+        return this.ownerUUID != null && this.level instanceof ServerLevel ? ((ServerLevel)this.level).getEntity(this.ownerUUID) : null;
     }
 
     @Override
@@ -57,6 +51,10 @@ public abstract class Projectile extends Entity {
         }
 
         param0.putBoolean("HasBeenShot", this.hasBeenShot);
+    }
+
+    protected boolean ownedBy(Entity param0) {
+        return param0.getUUID().equals(this.ownerUUID);
     }
 
     @Override

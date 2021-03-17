@@ -44,20 +44,22 @@ public class Cavifier {
     }
 
     public double cavify(int param0, int param1, int param2, double param3) {
-        boolean var0 = param3 < 375.0;
+        boolean var0 = param3 < 170.0;
         double var1 = this.spaghettiRoughness(param0, param1, param2);
         double var2 = this.getSpaghetti3d(param0, param1, param2);
         if (var0) {
-            return Math.min(param3, (var2 + var1) * 128.0 * 64.0);
+            return Math.min(param3, (var2 + var1) * 128.0 * 5.0);
         } else {
-            double var3 = this.cheeseNoiseSource.getValue((double)param0, (double)((float)param1 / 2.0F), (double)param2);
+            double var3 = this.cheeseNoiseSource.getValue((double)param0, (double)param1, (double)param2);
             double var4 = Mth.clamp(var3 + 0.25, -1.0, 1.0);
-            double var5 = this.getLayerizedCaverns(param0, param1, param2);
-            double var6 = this.getSpaghetti2d(param0, param1, param2);
-            double var7 = var4 + var5;
-            double var8 = Math.min(var7, Math.min(var2, var6) + var1);
-            double var9 = Math.max(var8, this.getPillars(param0, param1, param2));
-            return 128.0 * Mth.clamp(var9, -1.0, 1.0);
+            double var5 = (param3 - 170.0) / 100.0;
+            double var6 = var4 + Mth.clampedLerp(0.5, 0.0, var5);
+            double var7 = this.getLayerizedCaverns(param0, param1, param2);
+            double var8 = this.getSpaghetti2d(param0, param1, param2);
+            double var9 = var6 + var7;
+            double var10 = Math.min(var9, Math.min(var2, var8) + var1);
+            double var11 = Math.max(var10, this.getPillars(param0, param1, param2));
+            return 128.0 * Mth.clamp(var11, -1.0, 1.0);
         }
     }
 

@@ -485,6 +485,7 @@ public class Gui extends GuiComponent {
             }
 
             var4.forEach(Runnable::run);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         }
     }
 
@@ -951,6 +952,7 @@ public class Gui extends GuiComponent {
         RenderSystem.disableDepthTest();
         RenderSystem.depthMask(false);
         RenderSystem.defaultBlendFunc();
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, param1);
         RenderSystem.setShaderTexture(0, param0);
         Tesselator var0 = Tesselator.getInstance();
@@ -970,6 +972,7 @@ public class Gui extends GuiComponent {
         RenderSystem.disableDepthTest();
         RenderSystem.depthMask(false);
         RenderSystem.defaultBlendFunc();
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, SPYGLASS_SCOPE_LOCATION);
         Tesselator var0 = Tesselator.getInstance();
         BufferBuilder var1 = var0.getBuilder();
@@ -1037,21 +1040,24 @@ public class Gui extends GuiComponent {
             GlStateManager.SourceFactor.ZERO, GlStateManager.DestFactor.ONE_MINUS_SRC_COLOR, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO
         );
         if (var1 > 0.0F) {
+            var1 = Mth.clamp(var1, 0.0F, 1.0F);
             RenderSystem.setShaderColor(0.0F, var1, var1, 1.0F);
         } else {
-            RenderSystem.setShaderColor(this.vignetteBrightness, this.vignetteBrightness, this.vignetteBrightness, 1.0F);
+            float var4 = this.vignetteBrightness;
+            var4 = Mth.clamp(var4, 0.0F, 1.0F);
+            RenderSystem.setShaderColor(var4, var4, var4, 1.0F);
         }
 
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, VIGNETTE_LOCATION);
-        Tesselator var4 = Tesselator.getInstance();
-        BufferBuilder var5 = var4.getBuilder();
-        var5.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-        var5.vertex(0.0, (double)this.screenHeight, -90.0).uv(0.0F, 1.0F).endVertex();
-        var5.vertex((double)this.screenWidth, (double)this.screenHeight, -90.0).uv(1.0F, 1.0F).endVertex();
-        var5.vertex((double)this.screenWidth, 0.0, -90.0).uv(1.0F, 0.0F).endVertex();
-        var5.vertex(0.0, 0.0, -90.0).uv(0.0F, 0.0F).endVertex();
-        var4.end();
+        Tesselator var5 = Tesselator.getInstance();
+        BufferBuilder var6 = var5.getBuilder();
+        var6.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        var6.vertex(0.0, (double)this.screenHeight, -90.0).uv(0.0F, 1.0F).endVertex();
+        var6.vertex((double)this.screenWidth, (double)this.screenHeight, -90.0).uv(1.0F, 1.0F).endVertex();
+        var6.vertex((double)this.screenWidth, 0.0, -90.0).uv(1.0F, 0.0F).endVertex();
+        var6.vertex(0.0, 0.0, -90.0).uv(0.0F, 0.0F).endVertex();
+        var5.end();
         RenderSystem.depthMask(true);
         RenderSystem.enableDepthTest();
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
@@ -1070,6 +1076,7 @@ public class Gui extends GuiComponent {
         RenderSystem.defaultBlendFunc();
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, param0);
         RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_BLOCKS);
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
         TextureAtlasSprite var0 = this.minecraft.getBlockRenderer().getBlockModelShaper().getParticleIcon(Blocks.NETHER_PORTAL.defaultBlockState());
         float var1 = var0.getU0();
         float var2 = var0.getV0();

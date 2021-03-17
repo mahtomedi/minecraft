@@ -14,6 +14,7 @@ import javax.annotation.Nullable;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
@@ -147,6 +148,7 @@ public class DebugRenderer {
     ) {
         Tesselator var0 = Tesselator.getInstance();
         BufferBuilder var1 = var0.getBuilder();
+        RenderSystem.setShader(GameRenderer::getPositionColorShader);
         var1.begin(VertexFormat.Mode.TRIANGLE_STRIP, DefaultVertexFormat.POSITION_COLOR);
         LevelRenderer.addChainedFilledBoxVertices(var1, param0, param1, param2, param3, param4, param5, param6, param7, param8, param9);
         var0.end();

@@ -7,6 +7,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
@@ -25,6 +26,13 @@ public class SporeBlossomBlock extends Block {
     @Override
     public boolean canSurvive(BlockState param0, LevelReader param1, BlockPos param2) {
         return Block.canSupportCenter(param1, param2.above(), Direction.DOWN);
+    }
+
+    @Override
+    public BlockState updateShape(BlockState param0, Direction param1, BlockState param2, LevelAccessor param3, BlockPos param4, BlockPos param5) {
+        return param1 == Direction.UP && !this.canSurvive(param0, param3, param4)
+            ? Blocks.AIR.defaultBlockState()
+            : super.updateShape(param0, param1, param2, param3, param4, param5);
     }
 
     @OnlyIn(Dist.CLIENT)

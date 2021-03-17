@@ -130,18 +130,16 @@ public abstract class RegistryAccess {
 
     }
 
-    public static void load(RegistryAccess.RegistryHolder param0, RegistryReadOps<?> param1) {
+    public static void load(RegistryAccess param0, RegistryReadOps<?> param1) {
         for(RegistryAccess.RegistryData<?> var0 : REGISTRIES.values()) {
             readRegistry(param1, param0, var0);
         }
 
     }
 
-    private static <E> void readRegistry(RegistryReadOps<?> param0, RegistryAccess.RegistryHolder param1, RegistryAccess.RegistryData<E> param2) {
+    private static <E> void readRegistry(RegistryReadOps<?> param0, RegistryAccess param1, RegistryAccess.RegistryData<E> param2) {
         ResourceKey<? extends Registry<E>> var0 = param2.key();
-        MappedRegistry<E> var1 = (MappedRegistry)Optional.ofNullable(param1.registries.get(var0))
-            .map((Function<? super MappedRegistry<?>, ? extends MappedRegistry<?>>)(param0x -> param0x))
-            .orElseThrow(() -> new IllegalStateException("Missing registry: " + var0));
+        MappedRegistry<E> var1 = (MappedRegistry)param1.<E>ownedRegistryOrThrow(var0);
         DataResult<MappedRegistry<E>> var2 = param0.decodeElements(var1, param2.key(), param2.codec());
         var2.error().ifPresent(param0x -> LOGGER.error("Error loading registry data: {}", param0x.message()));
     }

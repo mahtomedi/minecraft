@@ -7,6 +7,7 @@ import net.minecraft.commands.arguments.blocks.BlockStateParser;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.StructureFeatureManager;
@@ -46,10 +47,10 @@ public abstract class TemplateStructurePiece extends StructurePiece {
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundTag param0) {
-        param0.putInt("TPX", this.templatePosition.getX());
-        param0.putInt("TPY", this.templatePosition.getY());
-        param0.putInt("TPZ", this.templatePosition.getZ());
+    protected void addAdditionalSaveData(ServerLevel param0, CompoundTag param1) {
+        param1.putInt("TPX", this.templatePosition.getX());
+        param1.putInt("TPY", this.templatePosition.getY());
+        param1.putInt("TPZ", this.templatePosition.getZ());
     }
 
     @Override

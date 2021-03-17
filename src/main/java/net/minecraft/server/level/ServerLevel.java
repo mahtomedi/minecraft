@@ -459,7 +459,8 @@ public class ServerLevel extends Level implements WorldGenLevel {
             if (this.isRainingAt(var5)) {
                 DifficultyInstance var6 = this.getCurrentDifficultyAt(var5);
                 boolean var7 = this.getGameRules().getBoolean(GameRules.RULE_DOMOBSPAWNING)
-                    && this.random.nextDouble() < (double)var6.getEffectiveDifficulty() * 0.01;
+                    && this.random.nextDouble() < (double)var6.getEffectiveDifficulty() * 0.01
+                    && !this.getBlockState(var5.below()).is(Blocks.LIGHTNING_ROD);
                 if (var7) {
                     SkeletonHorse var8 = EntityType.SKELETON_HORSE.create(this);
                     var8.setTrap(true);
@@ -528,21 +529,15 @@ public class ServerLevel extends Level implements WorldGenLevel {
     }
 
     private Optional<BlockPos> findLightningRod(BlockPos param0) {
-        Optional<BlockPos> var0 = this.getPoiManager().findClosest(param0x -> param0x == PoiType.LIGHTNING_ROD, param0, 128, PoiManager.Occupancy.ANY);
-        if (var0.isPresent()) {
-            BlockPos var1 = var0.get();
-            int var2 = this.getLevel().getHeight(Heightmap.Types.WORLD_SURFACE, var1.getX(), var1.getZ()) - 1;
-            if (var1.getY() == var2) {
-                return Optional.of(var1.above(1));
-            }
-
-            BlockPos var3 = new BlockPos(var1.getX(), var2, var1.getZ());
-            if (this.getLevel().getBlockState(var3).is(Blocks.LIGHTNING_ROD)) {
-                return Optional.of(var3.above(1));
-            }
-        }
-
-        return Optional.empty();
+        Optional<BlockPos> var0 = this.getPoiManager()
+            .findClosest(
+                param0x -> param0x == PoiType.LIGHTNING_ROD,
+                param0x -> param0x.getY() == this.getLevel().getHeight(Heightmap.Types.WORLD_SURFACE, param0x.getX(), param0x.getZ()) - 1,
+                param0,
+                128,
+                PoiManager.Occupancy.ANY
+            );
+        return var0.map(param0x -> param0x.above(1));
     }
 
     protected BlockPos findLightningTargetAround(BlockPos param0) {

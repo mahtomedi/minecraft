@@ -7,6 +7,7 @@ import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.StructureFeatureManager;
@@ -63,11 +64,11 @@ public class IglooPieces {
             this.loadTemplate(param0);
         }
 
-        public IglooPiece(StructureManager param0, CompoundTag param1) {
+        public IglooPiece(ServerLevel param0, CompoundTag param1) {
             super(StructurePieceType.IGLOO, param1);
             this.templateLocation = new ResourceLocation(param1.getString("Template"));
             this.rotation = Rotation.valueOf(param1.getString("Rot"));
-            this.loadTemplate(param0);
+            this.loadTemplate(param0.getStructureManager());
         }
 
         private void loadTemplate(StructureManager param0) {
@@ -81,10 +82,10 @@ public class IglooPieces {
         }
 
         @Override
-        protected void addAdditionalSaveData(CompoundTag param0) {
-            super.addAdditionalSaveData(param0);
-            param0.putString("Template", this.templateLocation.toString());
-            param0.putString("Rot", this.rotation.name());
+        protected void addAdditionalSaveData(ServerLevel param0, CompoundTag param1) {
+            super.addAdditionalSaveData(param0, param1);
+            param1.putString("Template", this.templateLocation.toString());
+            param1.putString("Rot", this.rotation.name());
         }
 
         @Override

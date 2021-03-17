@@ -65,7 +65,7 @@ public class DebugCommand {
         } else {
             ProfileResults var1 = var0.finishProfiling();
             File var2 = new File(var0.getFile("debug"), "profile-results-" + new SimpleDateFormat("yyyy-MM-dd_HH.mm.ss").format(new Date()) + ".txt");
-            var1.saveResults(var2);
+            var1.saveResults(var2.toPath());
             float var3 = (float)var1.getNanoDuration() / 1.0E9F;
             float var4 = (float)var1.getTickDuration() / var3;
             param0.sendSuccess(

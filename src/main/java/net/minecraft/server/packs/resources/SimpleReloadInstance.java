@@ -105,12 +105,6 @@ public class SimpleReloadInstance<S> implements ReloadInstance {
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public boolean isApplying() {
-        return this.allPreparations.isDone();
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    @Override
     public boolean isDone() {
         return this.allDone.isDone();
     }

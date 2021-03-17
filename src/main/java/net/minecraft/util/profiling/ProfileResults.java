@@ -1,6 +1,6 @@
 package net.minecraft.util.profiling;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.List;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -9,7 +9,7 @@ public interface ProfileResults {
     @OnlyIn(Dist.CLIENT)
     List<ResultField> getTimes(String var1);
 
-    boolean saveResults(File var1);
+    boolean saveResults(Path var1);
 
     long getStartTimeNano();
 

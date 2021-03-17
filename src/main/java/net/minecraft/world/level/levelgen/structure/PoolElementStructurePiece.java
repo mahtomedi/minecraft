@@ -8,6 +8,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
+import net.minecraft.resources.RegistryReadOps;
+import net.minecraft.resources.RegistryWriteOps;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.WorldGenLevel;
@@ -40,40 +44,39 @@ public class PoolElementStructurePiece extends StructurePiece {
         this.boundingBox = param5;
     }
 
-    public PoolElementStructurePiece(StructureManager param0, CompoundTag param1) {
+    public PoolElementStructurePiece(ServerLevel param0, CompoundTag param1) {
         super(StructurePieceType.JIGSAW, param1);
-        this.structureManager = param0;
+        this.structureManager = param0.getStructureManager();
         this.position = new BlockPos(param1.getInt("PosX"), param1.getInt("PosY"), param1.getInt("PosZ"));
         this.groundLevelDelta = param1.getInt("ground_level_delta");
+        RegistryReadOps<Tag> var0 = RegistryReadOps.create(NbtOps.INSTANCE, param0.getServer().getResourceManager(), param0.getServer().registryAccess());
         this.element = StructurePoolElement.CODEC
-            .parse(NbtOps.INSTANCE, param1.getCompound("pool_element"))
+            .parse(var0, param1.getCompound("pool_element"))
             .resultOrPartial(LOGGER::error)
             .orElse(EmptyPoolElement.INSTANCE);
         this.rotation = Rotation.valueOf(param1.getString("rotation"));
-        this.boundingBox = this.element.getBoundingBox(param0, this.position, this.rotation);
-        ListTag var0 = param1.getList("junctions", 10);
+        this.boundingBox = this.element.getBoundingBox(this.structureManager, this.position, this.rotation);
+        ListTag var1 = param1.getList("junctions", 10);
         this.junctions.clear();
-        var0.forEach(param0x -> this.junctions.add(JigsawJunction.deserialize(new Dynamic<>(NbtOps.INSTANCE, param0x))));
+        var1.forEach(param1x -> this.junctions.add(JigsawJunction.deserialize(new Dynamic<>(var0, param1x))));
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundTag param0) {
-        param0.putInt("PosX", this.position.getX());
-        param0.putInt("PosY", this.position.getY());
-        param0.putInt("PosZ", this.position.getZ());
-        param0.putInt("ground_level_delta", this.groundLevelDelta);
-        StructurePoolElement.CODEC
-            .encodeStart(NbtOps.INSTANCE, this.element)
-            .resultOrPartial(LOGGER::error)
-            .ifPresent(param1 -> param0.put("pool_element", param1));
-        param0.putString("rotation", this.rotation.name());
-        ListTag var0 = new ListTag();
+    protected void addAdditionalSaveData(ServerLevel param0, CompoundTag param1) {
+        param1.putInt("PosX", this.position.getX());
+        param1.putInt("PosY", this.position.getY());
+        param1.putInt("PosZ", this.position.getZ());
+        param1.putInt("ground_level_delta", this.groundLevelDelta);
+        RegistryWriteOps<Tag> var0 = RegistryWriteOps.create(NbtOps.INSTANCE, param0.getServer().registryAccess());
+        StructurePoolElement.CODEC.encodeStart(var0, this.element).resultOrPartial(LOGGER::error).ifPresent(param1x -> param1.put("pool_element", param1x));
+        param1.putString("rotation", this.rotation.name());
+        ListTag var1 = new ListTag();
 
-        for(JigsawJunction var1 : this.junctions) {
-            var0.add(var1.serialize(NbtOps.INSTANCE).getValue());
+        for(JigsawJunction var2 : this.junctions) {
+            var1.add(var2.serialize(var0).getValue());
         }
 
-        param0.put("junctions", var0);
+        param1.put("junctions", var1);
     }
 
     @Override

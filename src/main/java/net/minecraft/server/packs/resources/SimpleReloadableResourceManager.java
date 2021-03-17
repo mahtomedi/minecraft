@@ -163,12 +163,6 @@ public class SimpleReloadableResourceManager implements ReloadableResourceManage
 
         @OnlyIn(Dist.CLIENT)
         @Override
-        public boolean isApplying() {
-            return false;
-        }
-
-        @OnlyIn(Dist.CLIENT)
-        @Override
         public boolean isDone() {
             return true;
         }

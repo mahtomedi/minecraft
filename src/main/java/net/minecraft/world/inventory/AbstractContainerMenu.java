@@ -5,6 +5,8 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -33,6 +35,7 @@ public abstract class AbstractContainerMenu {
     private final List<DataSlot> dataSlots = Lists.newArrayList();
     private ItemStack carried = ItemStack.EMPTY;
     private final NonNullList<ItemStack> remoteSlots = NonNullList.create();
+    private final IntList remoteDataSlots = new IntArrayList();
     private ItemStack remoteCarried = ItemStack.EMPTY;
     @Nullable
     private final MenuType<?> menuType;
@@ -91,6 +94,7 @@ public abstract class AbstractContainerMenu {
 
     protected DataSlot addDataSlot(DataSlot param0) {
         this.dataSlots.add(param0);
+        this.remoteDataSlots.add(0);
         return param0;
     }
 
@@ -121,9 +125,14 @@ public abstract class AbstractContainerMenu {
         }
 
         this.remoteCarried = this.getCarried().copy();
+        var0 = 0;
+
+        for(int var3 = this.dataSlots.size(); var0 < var3; ++var0) {
+            this.remoteDataSlots.set(var0, this.dataSlots.get(var0).get());
+        }
+
         if (this.synchronizer != null) {
-            int[] var2 = this.dataSlots.stream().mapToInt(DataSlot::get).toArray();
-            this.synchronizer.sendInitialData(this, this.remoteSlots, this.remoteCarried, var2);
+            this.synchronizer.sendInitialData(this, this.remoteSlots, this.remoteCarried, this.remoteDataSlots.toIntArray());
         }
 
     }
@@ -156,17 +165,14 @@ public abstract class AbstractContainerMenu {
 
         for(int var3 = 0; var3 < this.dataSlots.size(); ++var3) {
             DataSlot var4 = this.dataSlots.get(var3);
+            int var5 = var4.get();
             if (var4.checkAndClearUpdateFlag()) {
-                int var5 = var4.get();
-
                 for(ContainerListener var6 : this.containerListeners) {
                     var6.dataChanged(this, var3, var5);
                 }
-
-                if (!this.suppressRemoteUpdates && this.synchronizer != null) {
-                    this.synchronizer.sendDataChange(this, var3, var5);
-                }
             }
+
+            this.synchronizeDataSlotToRemote(var3, var5);
         }
 
     }
@@ -192,6 +198,19 @@ public abstract class AbstractContainerMenu {
                 this.remoteSlots.set(param0, var1);
                 if (this.synchronizer != null) {
                     this.synchronizer.sendSlotChange(this, param0, var1);
+                }
+            }
+
+        }
+    }
+
+    private void synchronizeDataSlotToRemote(int param0, int param1) {
+        if (!this.suppressRemoteUpdates) {
+            int var0 = this.remoteDataSlots.getInt(param0);
+            if (var0 != param1) {
+                this.remoteDataSlots.set(param0, param1);
+                if (this.synchronizer != null) {
+                    this.synchronizer.sendDataChange(this, param0, param1);
                 }
             }
 

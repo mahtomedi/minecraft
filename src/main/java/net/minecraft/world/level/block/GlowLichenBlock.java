@@ -1,6 +1,7 @@
 package net.minecraft.world.level.block;
 
 import java.util.Random;
+import java.util.stream.Stream;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -47,7 +48,7 @@ public class GlowLichenBlock extends MultifaceBlock implements BonemealableBlock
 
     @Override
     public boolean isValidBonemealTarget(BlockGetter param0, BlockPos param1, BlockState param2, boolean param3) {
-        return true;
+        return Stream.of(DIRECTIONS).anyMatch(param3x -> this.canSpread(param2, param0, param1, param3x.getOpposite()));
     }
 
     @Override

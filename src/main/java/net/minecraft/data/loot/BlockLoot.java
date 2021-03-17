@@ -18,6 +18,7 @@ import net.minecraft.advancements.critereon.StatePropertiesPredicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -30,7 +31,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CandleBlock;
 import net.minecraft.world.level.block.CarrotBlock;
-import net.minecraft.world.level.block.CaveVinesBlock;
+import net.minecraft.world.level.block.CaveVines;
 import net.minecraft.world.level.block.CocoaBlock;
 import net.minecraft.world.level.block.ComposterBlock;
 import net.minecraft.world.level.block.CropBlock;
@@ -336,7 +337,7 @@ public class BlockLoot implements Consumer<BiConsumer<ResourceLocation, LootTabl
                     .add(LootItem.lootTableItem(Items.GLOW_BERRIES))
                     .when(
                         LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0)
-                            .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(CaveVinesBlock.BERRIES, true))
+                            .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(CaveVines.BERRIES, true))
                     )
             );
     }
@@ -1073,6 +1074,7 @@ public class BlockLoot implements Consumer<BiConsumer<ResourceLocation, LootTabl
         this.dropOther(Blocks.WATER_CAULDRON, Blocks.CAULDRON);
         this.dropOther(Blocks.LAVA_CAULDRON, Blocks.CAULDRON);
         this.dropOther(Blocks.POWDER_SNOW_CAULDRON, Blocks.CAULDRON);
+        this.dropOther(Blocks.BIG_DRIPLEAF_STEM, Blocks.BIG_DRIPLEAF);
         this.add(Blocks.STONE, param0x -> createSingleItemTableWithSilkTouch(param0x, Blocks.COBBLESTONE));
         this.add(Blocks.DEEPSLATE, param0x -> createSingleItemTableWithSilkTouch(param0x, Blocks.COBBLED_DEEPSLATE));
         this.add(Blocks.GRASS_BLOCK, param0x -> createSingleItemTableWithSilkTouch(param0x, Blocks.DIRT));
@@ -1286,8 +1288,8 @@ public class BlockLoot implements Consumer<BiConsumer<ResourceLocation, LootTabl
                             )
                     )
         );
-        this.add(Blocks.CAVE_VINES_HEAD, BlockLoot::createCaveVinesDrop);
-        this.add(Blocks.CAVE_VINES_BODY, BlockLoot::createCaveVinesDrop);
+        this.add(Blocks.CAVE_VINES, BlockLoot::createCaveVinesDrop);
+        this.add(Blocks.CAVE_VINES_PLANT, BlockLoot::createCaveVinesDrop);
         this.add(Blocks.CANDLE, BlockLoot::createCandleDrops);
         this.add(Blocks.WHITE_CANDLE, BlockLoot::createCandleDrops);
         this.add(Blocks.ORANGE_CANDLE, BlockLoot::createCandleDrops);
@@ -1731,12 +1733,15 @@ public class BlockLoot implements Consumer<BiConsumer<ResourceLocation, LootTabl
             Blocks.AMETHYST_CLUSTER,
             param0x -> createSilkTouchDispatchTable(
                     param0x,
-                    applyExplosionDecay(
-                        param0x,
-                        LootItem.lootTableItem(Items.AMETHYST_SHARD)
-                            .apply(SetItemCountFunction.setCount(ConstantValue.exactly(4.0F)))
-                            .apply(ApplyBonusCount.addOreBonusCount(Enchantments.BLOCK_FORTUNE))
-                    )
+                    LootItem.lootTableItem(Items.AMETHYST_SHARD)
+                        .apply(SetItemCountFunction.setCount(ConstantValue.exactly(4.0F)))
+                        .apply(ApplyBonusCount.addOreBonusCount(Enchantments.BLOCK_FORTUNE))
+                        .when(MatchTool.toolMatches(ItemPredicate.Builder.item().of(ItemTags.CLUSTER_MAX_HARVESTABLES)))
+                        .otherwise(
+                            applyExplosionDecay(
+                                param0x, LootItem.lootTableItem(Items.AMETHYST_SHARD).apply(SetItemCountFunction.setCount(ConstantValue.exactly(2.0F)))
+                            )
+                        )
                 )
         );
         this.dropWhenSilkTouch(Blocks.SMALL_AMETHYST_BUD);
@@ -1835,7 +1840,6 @@ public class BlockLoot implements Consumer<BiConsumer<ResourceLocation, LootTabl
         this.add(Blocks.NETHER_PORTAL, noDrop());
         this.add(Blocks.BUDDING_AMETHYST, noDrop());
         this.add(Blocks.POWDER_SNOW, noDrop());
-        this.add(Blocks.BIG_DRIPLEAF_STEM, noDrop());
         Set<ResourceLocation> var4 = Sets.newHashSet();
 
         for(Block var5 : Registry.BLOCK) {

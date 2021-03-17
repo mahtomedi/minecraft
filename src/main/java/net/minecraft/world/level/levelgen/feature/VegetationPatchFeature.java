@@ -99,7 +99,7 @@ public class VegetationPatchFeature extends Feature<VegetationPatchConfiguration
     }
 
     protected boolean placeVegetation(WorldGenLevel param0, VegetationPatchConfiguration param1, ChunkGenerator param2, Random param3, BlockPos param4) {
-        return param1.vegetationFeature.get().place(param0, param2, param3, param4.above());
+        return param1.vegetationFeature.get().place(param0, param2, param3, param4.relative(param1.surface.getDirection().getOpposite()));
     }
 
     protected boolean placeGround(

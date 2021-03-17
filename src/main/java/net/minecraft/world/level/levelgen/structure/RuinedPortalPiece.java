@@ -14,6 +14,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.ServerLevelAccessor;
@@ -39,7 +40,6 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.LavaSubmerged
 import net.minecraft.world.level.levelgen.structure.templatesystem.ProcessorRule;
 import net.minecraft.world.level.levelgen.structure.templatesystem.RandomBlockMatchTest;
 import net.minecraft.world.level.levelgen.structure.templatesystem.RuleProcessor;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import org.apache.logging.log4j.LogManager;
@@ -73,28 +73,28 @@ public class RuinedPortalPiece extends TemplateStructurePiece {
         this.loadTemplate(param4, param7);
     }
 
-    public RuinedPortalPiece(StructureManager param0, CompoundTag param1) {
+    public RuinedPortalPiece(ServerLevel param0, CompoundTag param1) {
         super(StructurePieceType.RUINED_PORTAL, param1);
         this.templateLocation = new ResourceLocation(param1.getString("Template"));
         this.rotation = Rotation.valueOf(param1.getString("Rotation"));
         this.mirror = Mirror.valueOf(param1.getString("Mirror"));
         this.verticalPlacement = RuinedPortalPiece.VerticalPlacement.byName(param1.getString("VerticalPlacement"));
         this.properties = RuinedPortalPiece.Properties.CODEC.parse(new Dynamic<>(NbtOps.INSTANCE, param1.get("Properties"))).getOrThrow(true, LOGGER::error);
-        StructureTemplate var0 = param0.getOrCreate(this.templateLocation);
+        StructureTemplate var0 = param0.getStructureManager().getOrCreate(this.templateLocation);
         this.loadTemplate(var0, new BlockPos(var0.getSize().getX() / 2, 0, var0.getSize().getZ() / 2));
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundTag param0) {
-        super.addAdditionalSaveData(param0);
-        param0.putString("Template", this.templateLocation.toString());
-        param0.putString("Rotation", this.rotation.name());
-        param0.putString("Mirror", this.mirror.name());
-        param0.putString("VerticalPlacement", this.verticalPlacement.getName());
+    protected void addAdditionalSaveData(ServerLevel param0, CompoundTag param1) {
+        super.addAdditionalSaveData(param0, param1);
+        param1.putString("Template", this.templateLocation.toString());
+        param1.putString("Rotation", this.rotation.name());
+        param1.putString("Mirror", this.mirror.name());
+        param1.putString("VerticalPlacement", this.verticalPlacement.getName());
         RuinedPortalPiece.Properties.CODEC
             .encodeStart(NbtOps.INSTANCE, this.properties)
             .resultOrPartial(LOGGER::error)
-            .ifPresent(param1 -> param0.put("Properties", param1));
+            .ifPresent(param1x -> param1.put("Properties", param1x));
     }
 
     private void loadTemplate(StructureTemplate param0, BlockPos param1) {

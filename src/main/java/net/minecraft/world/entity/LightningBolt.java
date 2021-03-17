@@ -1,6 +1,7 @@
 package net.minecraft.world.entity;
 
 import java.util.List;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
@@ -17,6 +18,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseFireBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LightningRodBlock;
+import net.minecraft.world.level.block.WeatheringCopper;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
@@ -64,13 +66,14 @@ public class LightningBolt extends Entity {
     @Override
     public void tick() {
         super.tick();
-        if (this.life == 2) {
+        if (this.life == 2 && !this.level.isClientSide) {
             Difficulty var0 = this.level.getDifficulty();
             if (var0 == Difficulty.NORMAL || var0 == Difficulty.HARD) {
                 this.spawnFire(4);
             }
 
             this.powerLightningRod();
+            clearCopperOnLightningStrike(this.level, this.blockPosition().below());
             this.level
                 .playSound(
                     null,
@@ -149,6 +152,58 @@ public class LightningBolt extends Entity {
             }
 
         }
+    }
+
+    private static void clearCopperOnLightningStrike(Level param0, BlockPos param1) {
+        BlockState var0 = param0.getBlockState(param1);
+        BlockPos var1;
+        BlockState var2;
+        if (var0.is(Blocks.LIGHTNING_ROD)) {
+            var1 = param1.relative(var0.getValue(LightningRodBlock.FACING).getOpposite());
+            var2 = param0.getBlockState(var1);
+        } else {
+            var1 = param1;
+            var2 = var0;
+        }
+
+        if (var2.getBlock() instanceof WeatheringCopper) {
+            param0.setBlockAndUpdate(var1, WeatheringCopper.getFirst(param0.getBlockState(var1)));
+            BlockPos.MutableBlockPos var5 = param1.mutable();
+            int var6 = param0.random.nextInt(3) + 3;
+
+            for(int var7 = 0; var7 < var6; ++var7) {
+                int var8 = param0.random.nextInt(8) + 1;
+                randomWalkCleaningCopper(param0, var1, var5, var8);
+            }
+
+        }
+    }
+
+    private static void randomWalkCleaningCopper(Level param0, BlockPos param1, BlockPos.MutableBlockPos param2, int param3) {
+        param2.set(param1);
+
+        for(int var0 = 0; var0 < param3; ++var0) {
+            Optional<BlockPos> var1 = randomStepCleaningCopper(param0, param2);
+            if (!var1.isPresent()) {
+                break;
+            }
+
+            param2.set(var1.get());
+        }
+
+    }
+
+    private static Optional<BlockPos> randomStepCleaningCopper(Level param0, BlockPos param1) {
+        for(BlockPos var0 : BlockPos.randomInCube(param0.random, 10, param1, 1)) {
+            BlockState var1 = param0.getBlockState(var0);
+            if (var1.getBlock() instanceof WeatheringCopper) {
+                WeatheringCopper.getPrevious(var1).ifPresent(param2 -> param0.setBlockAndUpdate(var0, param2));
+                param0.levelEvent(3002, var0, -1);
+                return Optional.of(var0);
+            }
+        }
+
+        return Optional.empty();
     }
 
     @OnlyIn(Dist.CLIENT)

@@ -66,9 +66,9 @@ public class DoublePlantBlock extends BushBlock {
         }
     }
 
-    public void placeAt(LevelAccessor param0, BlockPos param1, int param2) {
-        param0.setBlock(param1, this.defaultBlockState().setValue(HALF, DoubleBlockHalf.LOWER), param2);
-        param0.setBlock(param1.above(), this.defaultBlockState().setValue(HALF, DoubleBlockHalf.UPPER), param2);
+    public void placeAt(LevelAccessor param0, BlockState param1, BlockPos param2, int param3) {
+        param0.setBlock(param2, param1.setValue(HALF, DoubleBlockHalf.LOWER), param3);
+        param0.setBlock(param2.above(), param1.setValue(HALF, DoubleBlockHalf.UPPER), param3);
     }
 
     @Override

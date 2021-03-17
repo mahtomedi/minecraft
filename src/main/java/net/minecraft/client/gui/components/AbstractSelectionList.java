@@ -182,8 +182,8 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
         int var1 = var0 + 6;
         Tesselator var2 = Tesselator.getInstance();
         BufferBuilder var3 = var2.getBuilder();
+        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
         if (this.renderBackground) {
-            RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
             RenderSystem.setShaderTexture(0, GuiComponent.BACKGROUND_LOCATION);
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             float var4 = 32.0F;
@@ -250,24 +250,24 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
                 GlStateManager.DestFactor.ONE
             );
             RenderSystem.disableTexture();
-            RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
-            RenderSystem.setShaderTexture(0, WHITE_TEXTURE_LOCATION);
+            RenderSystem.setShader(GameRenderer::getPositionColorShader);
             int var9 = 4;
-            var3.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
-            var3.vertex((double)this.x0, (double)(this.y0 + 4), 0.0).uv(0.0F, 1.0F).color(0, 0, 0, 0).endVertex();
-            var3.vertex((double)this.x1, (double)(this.y0 + 4), 0.0).uv(1.0F, 1.0F).color(0, 0, 0, 0).endVertex();
-            var3.vertex((double)this.x1, (double)this.y0, 0.0).uv(1.0F, 0.0F).color(0, 0, 0, 255).endVertex();
-            var3.vertex((double)this.x0, (double)this.y0, 0.0).uv(0.0F, 0.0F).color(0, 0, 0, 255).endVertex();
-            var3.vertex((double)this.x0, (double)this.y1, 0.0).uv(0.0F, 1.0F).color(0, 0, 0, 255).endVertex();
-            var3.vertex((double)this.x1, (double)this.y1, 0.0).uv(1.0F, 1.0F).color(0, 0, 0, 255).endVertex();
-            var3.vertex((double)this.x1, (double)(this.y1 - 4), 0.0).uv(1.0F, 0.0F).color(0, 0, 0, 0).endVertex();
-            var3.vertex((double)this.x0, (double)(this.y1 - 4), 0.0).uv(0.0F, 0.0F).color(0, 0, 0, 0).endVertex();
+            var3.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+            var3.vertex((double)this.x0, (double)(this.y0 + 4), 0.0).color(0, 0, 0, 0).endVertex();
+            var3.vertex((double)this.x1, (double)(this.y0 + 4), 0.0).color(0, 0, 0, 0).endVertex();
+            var3.vertex((double)this.x1, (double)this.y0, 0.0).color(0, 0, 0, 255).endVertex();
+            var3.vertex((double)this.x0, (double)this.y0, 0.0).color(0, 0, 0, 255).endVertex();
+            var3.vertex((double)this.x0, (double)this.y1, 0.0).color(0, 0, 0, 255).endVertex();
+            var3.vertex((double)this.x1, (double)this.y1, 0.0).color(0, 0, 0, 255).endVertex();
+            var3.vertex((double)this.x1, (double)(this.y1 - 4), 0.0).color(0, 0, 0, 0).endVertex();
+            var3.vertex((double)this.x0, (double)(this.y1 - 4), 0.0).color(0, 0, 0, 0).endVertex();
             var2.end();
         }
 
         int var10 = this.getMaxScroll();
         if (var10 > 0) {
             RenderSystem.disableTexture();
+            RenderSystem.setShader(GameRenderer::getPositionColorShader);
             int var11 = (int)((float)((this.y1 - this.y0) * (this.y1 - this.y0)) / (float)this.getMaxPosition());
             var11 = Mth.clamp(var11, 32, this.y1 - this.y0 - 8);
             int var12 = (int)this.getScrollAmount() * (this.y1 - this.y0 - var11) / var10 + this.y0;
@@ -275,19 +275,19 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
                 var12 = this.y0;
             }
 
-            var3.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
-            var3.vertex((double)var0, (double)this.y1, 0.0).uv(0.0F, 1.0F).color(0, 0, 0, 255).endVertex();
-            var3.vertex((double)var1, (double)this.y1, 0.0).uv(1.0F, 1.0F).color(0, 0, 0, 255).endVertex();
-            var3.vertex((double)var1, (double)this.y0, 0.0).uv(1.0F, 0.0F).color(0, 0, 0, 255).endVertex();
-            var3.vertex((double)var0, (double)this.y0, 0.0).uv(0.0F, 0.0F).color(0, 0, 0, 255).endVertex();
-            var3.vertex((double)var0, (double)(var12 + var11), 0.0).uv(0.0F, 1.0F).color(128, 128, 128, 255).endVertex();
-            var3.vertex((double)var1, (double)(var12 + var11), 0.0).uv(1.0F, 1.0F).color(128, 128, 128, 255).endVertex();
-            var3.vertex((double)var1, (double)var12, 0.0).uv(1.0F, 0.0F).color(128, 128, 128, 255).endVertex();
-            var3.vertex((double)var0, (double)var12, 0.0).uv(0.0F, 0.0F).color(128, 128, 128, 255).endVertex();
-            var3.vertex((double)var0, (double)(var12 + var11 - 1), 0.0).uv(0.0F, 1.0F).color(192, 192, 192, 255).endVertex();
-            var3.vertex((double)(var1 - 1), (double)(var12 + var11 - 1), 0.0).uv(1.0F, 1.0F).color(192, 192, 192, 255).endVertex();
-            var3.vertex((double)(var1 - 1), (double)var12, 0.0).uv(1.0F, 0.0F).color(192, 192, 192, 255).endVertex();
-            var3.vertex((double)var0, (double)var12, 0.0).uv(0.0F, 0.0F).color(192, 192, 192, 255).endVertex();
+            var3.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+            var3.vertex((double)var0, (double)this.y1, 0.0).color(0, 0, 0, 255).endVertex();
+            var3.vertex((double)var1, (double)this.y1, 0.0).color(0, 0, 0, 255).endVertex();
+            var3.vertex((double)var1, (double)this.y0, 0.0).color(0, 0, 0, 255).endVertex();
+            var3.vertex((double)var0, (double)this.y0, 0.0).color(0, 0, 0, 255).endVertex();
+            var3.vertex((double)var0, (double)(var12 + var11), 0.0).color(128, 128, 128, 255).endVertex();
+            var3.vertex((double)var1, (double)(var12 + var11), 0.0).color(128, 128, 128, 255).endVertex();
+            var3.vertex((double)var1, (double)var12, 0.0).color(128, 128, 128, 255).endVertex();
+            var3.vertex((double)var0, (double)var12, 0.0).color(128, 128, 128, 255).endVertex();
+            var3.vertex((double)var0, (double)(var12 + var11 - 1), 0.0).color(192, 192, 192, 255).endVertex();
+            var3.vertex((double)(var1 - 1), (double)(var12 + var11 - 1), 0.0).color(192, 192, 192, 255).endVertex();
+            var3.vertex((double)(var1 - 1), (double)var12, 0.0).color(192, 192, 192, 255).endVertex();
+            var3.vertex((double)var0, (double)var12, 0.0).color(192, 192, 192, 255).endVertex();
             var2.end();
         }
 

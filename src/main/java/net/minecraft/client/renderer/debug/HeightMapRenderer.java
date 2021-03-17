@@ -9,6 +9,7 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.math.Vector3f;
 import java.util.Map.Entry;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
@@ -34,6 +35,7 @@ public class HeightMapRenderer implements DebugRenderer.SimpleDebugRenderer {
         RenderSystem.disableBlend();
         RenderSystem.disableTexture();
         RenderSystem.enableDepthTest();
+        RenderSystem.setShader(GameRenderer::getPositionColorShader);
         BlockPos var1 = new BlockPos(param2, 0.0, param4);
         Tesselator var2 = Tesselator.getInstance();
         BufferBuilder var3 = var2.getBuilder();

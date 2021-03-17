@@ -186,21 +186,26 @@ public class FogRenderer {
         FogType var0 = param0.getFluidInCamera();
         Entity var1 = param0.getEntity();
         if (var0 == FogType.WATER) {
-            float var2 = 1.0F;
-            var2 = 0.05F;
+            float var2 = param2;
+            LocalPlayer var3 = (LocalPlayer)var1;
             if (var1 instanceof LocalPlayer) {
-                LocalPlayer var3 = (LocalPlayer)var1;
-                var2 -= var3.getWaterVision() * var3.getWaterVision() * 0.03F;
+                var2 = param2 * Math.max(0.25F, var3.getWaterVision());
                 Biome var4 = var3.level.getBiome(var3.blockPosition());
                 if (var4.getBiomeCategory() == Biome.BiomeCategory.SWAMP) {
-                    var2 += 0.005F;
+                    var2 *= 0.85F;
                 }
             }
+
+            RenderSystem.setShaderFogStart(-8.0F);
+            RenderSystem.setShaderFogEnd(var2 * 0.5F);
         } else {
             float var5;
             float var6;
             if (var0 == FogType.LAVA) {
-                if (var1 instanceof LivingEntity && ((LivingEntity)var1).hasEffect(MobEffects.FIRE_RESISTANCE)) {
+                if (var1.isSpectator()) {
+                    var5 = -8.0F;
+                    var6 = param2 * 0.5F;
+                } else if (var1 instanceof LivingEntity && ((LivingEntity)var1).hasEffect(MobEffects.FIRE_RESISTANCE)) {
                     var5 = 0.0F;
                     var6 = 3.0F;
                 } else {
@@ -208,18 +213,23 @@ public class FogRenderer {
                     var6 = 1.0F;
                 }
             } else if (var1 instanceof LivingEntity && ((LivingEntity)var1).hasEffect(MobEffects.BLINDNESS)) {
-                int var9 = ((LivingEntity)var1).getEffect(MobEffects.BLINDNESS).getDuration();
-                float var10 = Mth.lerp(Math.min(1.0F, (float)var9 / 20.0F), param2, 5.0F);
+                int var11 = ((LivingEntity)var1).getEffect(MobEffects.BLINDNESS).getDuration();
+                float var12 = Mth.lerp(Math.min(1.0F, (float)var11 / 20.0F), param2, 5.0F);
                 if (param1 == FogRenderer.FogMode.FOG_SKY) {
                     var5 = 0.0F;
-                    var6 = var10 * 0.8F;
+                    var6 = var12 * 0.8F;
                 } else {
-                    var5 = var10 * 0.25F;
-                    var6 = var10;
+                    var5 = var12 * 0.25F;
+                    var6 = var12;
                 }
             } else if (var0 == FogType.POWDER_SNOW) {
-                var5 = 0.0F;
-                var6 = 2.0F;
+                if (var1.isSpectator()) {
+                    var5 = -8.0F;
+                    var6 = param2 * 0.5F;
+                } else {
+                    var5 = 0.0F;
+                    var6 = 2.0F;
+                }
             } else if (param3) {
                 var5 = param2 * 0.05F;
                 var6 = Math.min(param2, 192.0F) * 0.5F;

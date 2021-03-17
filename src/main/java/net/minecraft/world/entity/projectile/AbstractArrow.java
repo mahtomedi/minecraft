@@ -476,12 +476,7 @@ public abstract class AbstractArrow extends Projectile {
             this.baseDamage = param0.getDouble("damage");
         }
 
-        if (param0.contains("pickup", 99)) {
-            this.pickup = AbstractArrow.Pickup.byOrdinal(param0.getByte("pickup"));
-        } else if (param0.contains("player", 99)) {
-            this.pickup = param0.getBoolean("player") ? AbstractArrow.Pickup.ALLOWED : AbstractArrow.Pickup.DISALLOWED;
-        }
-
+        this.pickup = AbstractArrow.Pickup.byOrdinal(param0.getByte("pickup"));
         this.setCritArrow(param0.getBoolean("crit"));
         this.setPierceLevel(param0.getByte("PierceLevel"));
         if (param0.contains("SoundEvent", 8)) {
@@ -505,18 +500,22 @@ public abstract class AbstractArrow extends Projectile {
     @Override
     public void playerTouch(Player param0) {
         if (!this.level.isClientSide && (this.inGround || this.isNoPhysics()) && this.shakeTime <= 0) {
-            boolean var0 = this.pickup == AbstractArrow.Pickup.ALLOWED
-                || this.pickup == AbstractArrow.Pickup.CREATIVE_ONLY && param0.getAbilities().instabuild
-                || this.isNoPhysics() && this.getOwner().getUUID() == param0.getUUID();
-            if (this.pickup == AbstractArrow.Pickup.ALLOWED && !param0.getInventory().add(this.getPickupItem())) {
-                var0 = false;
-            }
-
-            if (var0) {
+            if (this.tryPickup(param0)) {
                 param0.take(this, 1);
                 this.discard();
             }
 
+        }
+    }
+
+    protected boolean tryPickup(Player param0) {
+        switch(this.pickup) {
+            case ALLOWED:
+                return param0.getInventory().add(this.getPickupItem());
+            case CREATIVE_ONLY:
+                return param0.getAbilities().instabuild;
+            default:
+                return false;
         }
     }
 

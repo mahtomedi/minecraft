@@ -734,13 +734,13 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
                 this.minecraft.getProfiler().pop();
             }
 
-            if (this.minecraft.overlay != null) {
+            if (this.minecraft.getOverlay() != null) {
                 try {
-                    this.minecraft.overlay.render(var5, var0, var1, this.minecraft.getDeltaFrameTime());
+                    this.minecraft.getOverlay().render(var5, var0, var1, this.minecraft.getDeltaFrameTime());
                 } catch (Throwable var15) {
                     CrashReport var8 = CrashReport.forThrowable(var15, "Rendering overlay");
                     CrashReportCategory var9 = var8.addCategory("Overlay render details");
-                    var9.setDetail("Overlay name", () -> this.minecraft.overlay.getClass().getCanonicalName());
+                    var9.setDetail("Overlay name", () -> this.minecraft.getOverlay().getClass().getCanonicalName());
                     throw new ReportedException(var8);
                 }
             } else if (this.minecraft.screen != null) {
@@ -969,6 +969,7 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
             GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE
         );
         RenderSystem.setShaderColor(var3, var4, var5, 1.0F);
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, NAUSEA_LOCATION);
         Tesselator var10 = Tesselator.getInstance();
         BufferBuilder var11 = var10.getBuilder();

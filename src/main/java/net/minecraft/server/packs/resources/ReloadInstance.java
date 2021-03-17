@@ -12,9 +12,6 @@ public interface ReloadInstance {
     float getActualProgress();
 
     @OnlyIn(Dist.CLIENT)
-    boolean isApplying();
-
-    @OnlyIn(Dist.CLIENT)
     boolean isDone();
 
     @OnlyIn(Dist.CLIENT)

@@ -58,7 +58,7 @@ public class SystemToast implements Toast {
         }
 
         RenderSystem.setShaderTexture(0, TEXTURE);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         int var0 = this.width();
         int var1 = 12;
         if (var0 == 160 && this.messageLines.size() <= 1) {

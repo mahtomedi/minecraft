@@ -32,7 +32,7 @@ public class ScreenEffectRenderer {
         if (!var0.noPhysics) {
             BlockState var1 = getViewBlockingState(var0);
             if (var1 != null) {
-                renderTex(param0, param0.getBlockRenderer().getBlockModelShaper().getParticleIcon(var1), param1);
+                renderTex(param0.getBlockRenderer().getBlockModelShaper().getParticleIcon(var1), param1);
             }
         }
 
@@ -66,8 +66,9 @@ public class ScreenEffectRenderer {
         return null;
     }
 
-    private static void renderTex(Minecraft param0, TextureAtlasSprite param1, PoseStack param2) {
-        RenderSystem.setShaderTexture(0, param1.atlas().location());
+    private static void renderTex(TextureAtlasSprite param0, PoseStack param1) {
+        RenderSystem.setShaderTexture(0, param0.atlas().location());
+        RenderSystem.setShader(GameRenderer::getPositionColorTexShader);
         BufferBuilder var0 = Tesselator.getInstance().getBuilder();
         float var1 = 0.1F;
         float var2 = -1.0F;
@@ -75,11 +76,11 @@ public class ScreenEffectRenderer {
         float var4 = -1.0F;
         float var5 = 1.0F;
         float var6 = -0.5F;
-        float var7 = param1.getU0();
-        float var8 = param1.getU1();
-        float var9 = param1.getV0();
-        float var10 = param1.getV1();
-        Matrix4f var11 = param2.last().pose();
+        float var7 = param0.getU0();
+        float var8 = param0.getU1();
+        float var9 = param0.getV0();
+        float var10 = param0.getV1();
+        Matrix4f var11 = param1.last().pose();
         var0.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX);
         var0.vertex(var11, -1.0F, -1.0F, -0.5F).color(0.1F, 0.1F, 0.1F, 1.0F).uv(var8, var10).endVertex();
         var0.vertex(var11, 1.0F, -1.0F, -0.5F).color(0.1F, 0.1F, 0.1F, 1.0F).uv(var7, var10).endVertex();

@@ -57,17 +57,17 @@ public class ThrownTrident extends AbstractArrow {
         }
 
         Entity var0 = this.getOwner();
-        if ((this.dealtDamage || this.isNoPhysics()) && var0 != null) {
-            int var1 = this.entityData.get(ID_LOYALTY);
-            if (var1 > 0 && !this.isAcceptibleReturnOwner()) {
+        int var1 = this.entityData.get(ID_LOYALTY);
+        if (var1 > 0 && (this.dealtDamage || this.isNoPhysics()) && var0 != null) {
+            if (!this.isAcceptibleReturnOwner()) {
                 if (!this.level.isClientSide && this.pickup == AbstractArrow.Pickup.ALLOWED) {
                     this.spawnAtLocation(this.getPickupItem(), 0.1F);
                 }
 
                 this.discard();
-            } else if (var1 > 0) {
+            } else {
                 this.setNoPhysics(true);
-                Vec3 var2 = new Vec3(var0.getX() - this.getX(), var0.getEyeY() - this.getY(), var0.getZ() - this.getZ());
+                Vec3 var2 = var0.getEyePosition().subtract(this.position());
                 this.setPosRaw(this.getX(), this.getY() + var2.y * 0.015 * (double)var1, this.getZ());
                 if (this.level.isClientSide) {
                     this.yOld = this.getY();
@@ -162,16 +162,21 @@ public class ThrownTrident extends AbstractArrow {
     }
 
     @Override
+    protected boolean tryPickup(Player param0) {
+        return super.tryPickup(param0) || this.isNoPhysics() && this.ownedBy(param0);
+    }
+
+    @Override
     protected SoundEvent getDefaultHitGroundSoundEvent() {
         return SoundEvents.TRIDENT_HIT_GROUND;
     }
 
     @Override
     public void playerTouch(Player param0) {
-        Entity var0 = this.getOwner();
-        if (var0 == null || var0.getUUID() == param0.getUUID()) {
+        if (this.ownedBy(param0) || this.getOwner() == null) {
             super.playerTouch(param0);
         }
+
     }
 
     @Override

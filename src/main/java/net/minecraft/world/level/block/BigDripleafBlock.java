@@ -88,33 +88,32 @@ public class BigDripleafBlock extends HorizontalDirectionalBlock implements Bone
         return LEAF_SHAPES.get(param0.getValue(TILT));
     }
 
-    public static void placeWithRandomHeight(LevelAccessor param0, Random param1, BlockPos param2) {
+    public static void placeWithRandomHeight(LevelAccessor param0, Random param1, BlockPos param2, Direction param3) {
         int var0 = 1 + param1.nextInt(5);
-        Direction var1 = Direction.Plane.HORIZONTAL.getRandomDirection(param1);
-        BlockPos.MutableBlockPos var2 = param2.mutable();
-        int var3 = 0;
+        BlockPos.MutableBlockPos var1 = param2.mutable();
+        int var2 = 0;
 
-        while(var3 < var0 && canPlaceAt(param0, var2, param0.getBlockState(var2))) {
-            ++var3;
-            var2.move(Direction.UP);
+        while(var2 < var0 && canPlaceAt(param0, var1, param0.getBlockState(var1))) {
+            ++var2;
+            var1.move(Direction.UP);
         }
 
-        int var4 = param2.getY() + var3 - 1;
-        var2.setY(param2.getY());
+        int var3 = param2.getY() + var2 - 1;
+        var1.setY(param2.getY());
 
-        while(var2.getY() < var4) {
-            BigDripleafStemBlock.place(param0, var2, param0.getFluidState(var2), var1);
-            var2.move(Direction.UP);
+        while(var1.getY() < var3) {
+            BigDripleafStemBlock.place(param0, var1, param0.getFluidState(var1), param3);
+            var1.move(Direction.UP);
         }
 
-        place(param0, var2, param0.getFluidState(var2), var1);
+        place(param0, var1, param0.getFluidState(var1), param3);
     }
 
     private static boolean canReplace(BlockState param0) {
         return param0.isAir() || param0.is(Blocks.WATER) || param0.is(Blocks.SMALL_DRIPLEAF);
     }
 
-    private static boolean canPlaceAt(LevelHeightAccessor param0, BlockPos param1, BlockState param2) {
+    protected static boolean canPlaceAt(LevelHeightAccessor param0, BlockPos param1, BlockState param2) {
         return !param0.isOutsideBuildHeight(param1) && canReplace(param2);
     }
 

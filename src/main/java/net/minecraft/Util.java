@@ -2,10 +2,12 @@ package net.minecraft;
 
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.mojang.datafixers.DataFixUtils;
 import com.mojang.datafixers.DSL.TypeReference;
 import com.mojang.datafixers.types.Type;
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.DataResult;
 import it.unimi.dsi.fastutil.Hash.Strategy;
 import java.io.File;
@@ -40,8 +42,10 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinWorkerThread;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiFunction;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.LongSupplier;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
@@ -590,6 +594,40 @@ public class Util {
             .chars()
             .mapToObj(param1x -> param1.test((char)param1x) ? Character.toString((char)param1x) : "_")
             .collect(Collectors.joining());
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static <T, R> Function<T, R> memoize(final Function<T, R> param0) {
+        return new Function<T, R>() {
+            private final Map<T, R> cache = Maps.newHashMap();
+
+            @Override
+            public R apply(T param0x) {
+                return this.cache.computeIfAbsent(param0, param0);
+            }
+
+            @Override
+            public String toString() {
+                return "memoize/1[function=" + param0 + ", size=" + this.cache.size() + "]";
+            }
+        };
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static <T, U, R> BiFunction<T, U, R> memoize(final BiFunction<T, U, R> param0) {
+        return new BiFunction<T, U, R>() {
+            private final Map<Pair<T, U>, R> cache = Maps.newHashMap();
+
+            @Override
+            public R apply(T param0x, U param1) {
+                return this.cache.computeIfAbsent(Pair.of(param0, param1), param1x -> param0.apply(param1x.getFirst(), param1x.getSecond()));
+            }
+
+            @Override
+            public String toString() {
+                return "memoize/2[function=" + param0 + ", size=" + this.cache.size() + "]";
+            }
+        };
     }
 
     static enum IdentityStrategy implements Strategy<Object> {

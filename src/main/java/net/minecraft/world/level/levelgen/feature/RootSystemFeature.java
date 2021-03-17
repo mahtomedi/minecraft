@@ -107,8 +107,11 @@ public class RootSystemFeature extends Feature<RootSystemConfiguration> {
             param4.setWithOffset(
                 param3, param2.nextInt(var0) - param2.nextInt(var0), param2.nextInt(var1) - param2.nextInt(var1), param2.nextInt(var0) - param2.nextInt(var0)
             );
-            if (param0.isEmptyBlock(param4) && param0.getBlockState(param4.above()).getMaterial().isSolid()) {
-                param0.setBlock(param4, param1.hangingRootStateProvider.getState(param2, param4), 2);
+            if (param0.isEmptyBlock(param4)) {
+                BlockState var3 = param1.hangingRootStateProvider.getState(param2, param4);
+                if (var3.canSurvive(param0, param4) && param0.getBlockState(param4.above()).isFaceSturdy(param0, param4, Direction.DOWN)) {
+                    param0.setBlock(param4, var3, 2);
+                }
             }
         }
 

@@ -434,6 +434,7 @@ public class BookEditScreen extends Screen {
     private void renderHighlight(Rect2i[] param0) {
         Tesselator var0 = Tesselator.getInstance();
         BufferBuilder var1 = var0.getBuilder();
+        RenderSystem.setShader(GameRenderer::getPositionShader);
         RenderSystem.setShaderColor(0.0F, 0.0F, 255.0F, 255.0F);
         RenderSystem.disableTexture();
         RenderSystem.enableColorLogicOp();

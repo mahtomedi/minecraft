@@ -1,6 +1,7 @@
 package net.minecraft.util.profiling;
 
 import java.util.function.Supplier;
+import javax.annotation.Nullable;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -50,5 +51,12 @@ public class InactiveProfiler implements ProfileCollector {
     @Override
     public ProfileResults getResults() {
         return EmptyProfileResults.EMPTY;
+    }
+
+    @Nullable
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public ActiveProfiler.PathEntry getEntry(String param0) {
+        return null;
     }
 }

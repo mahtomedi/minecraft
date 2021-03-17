@@ -129,9 +129,7 @@ public interface CauldronInteraction {
     InteractionResult interact(BlockState var1, Level var2, BlockPos var3, Player var4, InteractionHand var5, ItemStack var6);
 
     static void bootStrap() {
-        EMPTY.put(Items.WATER_BUCKET, FILL_WATER);
-        EMPTY.put(Items.LAVA_BUCKET, FILL_LAVA);
-        EMPTY.put(Items.POWDER_SNOW_BUCKET, FILL_POWDER_SNOW);
+        addDefaultInteractions(EMPTY);
         EMPTY.put(Items.POTION, (param0, param1, param2, param3, param4, param5) -> {
             if (PotionUtils.getPotion(param5) != Potions.WATER) {
                 return InteractionResult.PASS;
@@ -147,9 +145,7 @@ public interface CauldronInteraction {
                 return InteractionResult.sidedSuccess(param1.isClientSide);
             }
         });
-        WATER.put(Items.LAVA_BUCKET, FILL_LAVA);
-        WATER.put(Items.WATER_BUCKET, FILL_WATER);
-        WATER.put(Items.POWDER_SNOW_BUCKET, FILL_POWDER_SNOW);
+        addDefaultInteractions(WATER);
         WATER.put(
             Items.BUCKET,
             (param0, param1, param2, param3, param4, param5) -> fillBucket(
@@ -233,8 +229,7 @@ public interface CauldronInteraction {
                     param0, param1, param2, param3, param4, param5, new ItemStack(Items.LAVA_BUCKET), param0x -> true, SoundEvents.BUCKET_FILL_LAVA
                 )
         );
-        LAVA.put(Items.WATER_BUCKET, FILL_WATER);
-        LAVA.put(Items.POWDER_SNOW_BUCKET, FILL_POWDER_SNOW);
+        addDefaultInteractions(LAVA);
         POWDER_SNOW.put(
             Items.BUCKET,
             (param0, param1, param2, param3, param4, param5) -> fillBucket(
@@ -249,8 +244,13 @@ public interface CauldronInteraction {
                     SoundEvents.BUCKET_FILL_POWDER_SNOW
                 )
         );
-        POWDER_SNOW.put(Items.WATER_BUCKET, FILL_WATER);
-        POWDER_SNOW.put(Items.LAVA_BUCKET, FILL_LAVA);
+        addDefaultInteractions(POWDER_SNOW);
+    }
+
+    static void addDefaultInteractions(Map<Item, CauldronInteraction> param0) {
+        param0.put(Items.LAVA_BUCKET, FILL_LAVA);
+        param0.put(Items.WATER_BUCKET, FILL_WATER);
+        param0.put(Items.POWDER_SNOW_BUCKET, FILL_POWDER_SNOW);
     }
 
     static InteractionResult fillBucket(

@@ -28,7 +28,7 @@ public class SimpleBlockFeature extends Feature<SimpleBlockConfiguration> {
                     }
 
                     DoublePlantBlock var4 = (DoublePlantBlock)var3.getBlock();
-                    var4.placeAt(var1, var2, 2);
+                    var4.placeAt(var1, var3, var2, 2);
                 } else {
                     var1.setBlock(var2, var3, 2);
                 }

@@ -12,7 +12,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class ProcessorChunkProgressListener implements ChunkProgressListener {
     private final ChunkProgressListener delegate;
     private final ProcessorMailbox<Runnable> mailbox;
-    private volatile boolean isRunning;
 
     private ProcessorChunkProgressListener(ChunkProgressListener param0, Executor param1) {
         this.delegate = param0;
@@ -27,31 +26,21 @@ public class ProcessorChunkProgressListener implements ChunkProgressListener {
 
     @Override
     public void updateSpawnPos(ChunkPos param0) {
-        if (this.isRunning) {
-            this.mailbox.tell(() -> this.delegate.updateSpawnPos(param0));
-        }
+        this.mailbox.tell(() -> this.delegate.updateSpawnPos(param0));
     }
 
     @Override
     public void onStatusChange(ChunkPos param0, @Nullable ChunkStatus param1) {
-        if (this.isRunning) {
-            this.mailbox.tell(() -> this.delegate.onStatusChange(param0, param1));
-        }
+        this.mailbox.tell(() -> this.delegate.onStatusChange(param0, param1));
     }
 
     @Override
     public void start() {
-        if (!this.isRunning) {
-            this.isRunning = true;
-            this.mailbox.tell(this.delegate::start);
-        }
+        this.mailbox.tell(this.delegate::start);
     }
 
     @Override
     public void stop() {
-        if (this.isRunning) {
-            this.isRunning = false;
-            this.mailbox.tell(this.delegate::stop);
-        }
+        this.mailbox.tell(this.delegate::stop);
     }
 }

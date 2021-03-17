@@ -7,6 +7,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
@@ -24,6 +25,7 @@ public class ChunkBorderRenderer implements DebugRenderer.SimpleDebugRenderer {
     @Override
     public void render(PoseStack param0, MultiBufferSource param1, double param2, double param3, double param4) {
         RenderSystem.enableDepthTest();
+        RenderSystem.setShader(GameRenderer::getPositionColorShader);
         Entity var0 = this.minecraft.gameRenderer.getMainCamera().getEntity();
         Tesselator var1 = Tesselator.getInstance();
         BufferBuilder var2 = var1.getBuilder();

@@ -18,35 +18,20 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class CaveVinesHeadBlock extends GrowingPlantHeadBlock implements BonemealableBlock, CaveVinesBlock {
-    public CaveVinesHeadBlock(BlockBehaviour.Properties param0) {
-        super(param0, Direction.DOWN, SHAPE, false, 0.1);
-        this.registerDefaultState(this.stateDefinition.any().setValue(AGE, Integer.valueOf(0)).setValue(BERRIES, Boolean.valueOf(false)));
+public class CaveVinesPlantBlock extends GrowingPlantBodyBlock implements BonemealableBlock, CaveVines {
+    public CaveVinesPlantBlock(BlockBehaviour.Properties param0) {
+        super(param0, Direction.DOWN, SHAPE, false);
+        this.registerDefaultState(this.stateDefinition.any().setValue(BERRIES, Boolean.valueOf(false)));
     }
 
     @Override
-    protected int getBlocksToGrowWhenBonemealed(Random param0) {
-        return 1;
+    protected GrowingPlantHeadBlock getHeadBlock() {
+        return (GrowingPlantHeadBlock)Blocks.CAVE_VINES;
     }
 
     @Override
-    protected boolean canGrowInto(BlockState param0) {
-        return param0.isAir();
-    }
-
-    @Override
-    protected Block getBodyBlock() {
-        return Blocks.CAVE_VINES_BODY;
-    }
-
-    @Override
-    protected BlockState updateBodyAfterConvertedFromHead(BlockState param0, BlockState param1) {
+    protected BlockState updateHeadAfterConvertedFromBody(BlockState param0, BlockState param1) {
         return param1.setValue(BERRIES, param0.getValue(BERRIES));
-    }
-
-    @Override
-    protected BlockState getGrowIntoState(BlockState param0, Random param1) {
-        return super.getGrowIntoState(param0, param1).setValue(BERRIES, Boolean.valueOf(param1.nextFloat() < 0.11F));
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -57,12 +42,11 @@ public class CaveVinesHeadBlock extends GrowingPlantHeadBlock implements Bonemea
 
     @Override
     public InteractionResult use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
-        return CaveVinesBlock.use(param0, param1, param2);
+        return CaveVines.use(param0, param1, param2);
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> param0) {
-        super.createBlockStateDefinition(param0);
         param0.add(BERRIES);
     }
 

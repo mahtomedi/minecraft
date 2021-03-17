@@ -2,6 +2,7 @@ package net.minecraft.world.level.block;
 
 import java.util.Optional;
 import java.util.Random;
+import net.minecraft.BlockUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -52,7 +53,7 @@ public abstract class GrowingPlantBodyBlock extends GrowingPlantBlock implements
 
     @Override
     public boolean isValidBonemealTarget(BlockGetter param0, BlockPos param1, BlockState param2, boolean param3) {
-        Optional<BlockPos> var0 = this.getHeadPos(param0, param1, param2);
+        Optional<BlockPos> var0 = this.getHeadPos(param0, param1, param2.getBlock());
         return var0.isPresent() && this.getHeadBlock().canGrowInto(param0.getBlockState(var0.get().relative(this.growthDirection)));
     }
 
@@ -63,7 +64,7 @@ public abstract class GrowingPlantBodyBlock extends GrowingPlantBlock implements
 
     @Override
     public void performBonemeal(ServerLevel param0, Random param1, BlockPos param2, BlockState param3) {
-        Optional<BlockPos> var0 = this.getHeadPos(param0, param2, param3);
+        Optional<BlockPos> var0 = this.getHeadPos(param0, param2, param3.getBlock());
         if (var0.isPresent()) {
             BlockState var1 = param0.getBlockState(var0.get());
             ((GrowingPlantHeadBlock)var1.getBlock()).performBonemeal(param0, param1, var0.get(), var1);
@@ -71,16 +72,8 @@ public abstract class GrowingPlantBodyBlock extends GrowingPlantBlock implements
 
     }
 
-    private Optional<BlockPos> getHeadPos(BlockGetter param0, BlockPos param1, BlockState param2) {
-        BlockPos var0 = param1;
-
-        BlockState var1;
-        do {
-            var0 = var0.relative(this.growthDirection);
-            var1 = param0.getBlockState(var0);
-        } while(var1.is(param2.getBlock()));
-
-        return var1.is(this.getHeadBlock()) ? Optional.of(var0) : Optional.empty();
+    private Optional<BlockPos> getHeadPos(BlockGetter param0, BlockPos param1, Block param2) {
+        return BlockUtil.getTopConnectedBlock(param0, param1, param2, this.growthDirection, this.getHeadBlock());
     }
 
     @Override

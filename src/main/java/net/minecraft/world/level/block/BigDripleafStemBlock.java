@@ -1,10 +1,13 @@
 package net.minecraft.world.level.block;
 
+import java.util.Optional;
 import java.util.Random;
+import net.minecraft.BlockUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -17,7 +20,7 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class BigDripleafStemBlock extends HorizontalDirectionalBlock implements SimpleWaterloggedBlock {
+public class BigDripleafStemBlock extends HorizontalDirectionalBlock implements BonemealableBlock, SimpleWaterloggedBlock {
     private static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     private static final VoxelShape NORTH_SHAPE = Block.box(5.0, 0.0, 8.0, 11.0, 16.0, 14.0);
     private static final VoxelShape SOUTH_SHAPE = Block.box(5.0, 0.0, 2.0, 11.0, 16.0, 8.0);
@@ -88,5 +91,35 @@ public class BigDripleafStemBlock extends HorizontalDirectionalBlock implements 
             param1.destroyBlock(param2, true);
         }
 
+    }
+
+    @Override
+    public boolean isValidBonemealTarget(BlockGetter param0, BlockPos param1, BlockState param2, boolean param3) {
+        Optional<BlockPos> var0 = BlockUtil.getTopConnectedBlock(param0, param1, param2.getBlock(), Direction.UP, Blocks.BIG_DRIPLEAF);
+        if (!var0.isPresent()) {
+            return false;
+        } else {
+            BlockPos var1 = var0.get().above();
+            BlockState var2 = param0.getBlockState(var1);
+            return BigDripleafBlock.canPlaceAt(param0, var1, var2);
+        }
+    }
+
+    @Override
+    public boolean isBonemealSuccess(Level param0, Random param1, BlockPos param2, BlockState param3) {
+        return true;
+    }
+
+    @Override
+    public void performBonemeal(ServerLevel param0, Random param1, BlockPos param2, BlockState param3) {
+        Optional<BlockPos> var0 = BlockUtil.getTopConnectedBlock(param0, param2, param3.getBlock(), Direction.UP, Blocks.BIG_DRIPLEAF);
+        if (var0.isPresent()) {
+            BlockPos var1 = var0.get();
+            BlockPos var2 = var1.above();
+            FluidState var3 = param0.getFluidState(var2);
+            Direction var4 = param3.getValue(FACING);
+            place(param0, var1, param3.getFluidState(), var4);
+            BigDripleafBlock.place(param0, var2, var3, var4);
+        }
     }
 }

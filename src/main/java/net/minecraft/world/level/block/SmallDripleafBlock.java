@@ -17,6 +17,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
@@ -25,11 +26,14 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class SmallDripleafBlock extends DoublePlantBlock implements BonemealableBlock, SimpleWaterloggedBlock {
     private static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
+    public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
     protected static final VoxelShape SHAPE = Block.box(2.0, 0.0, 2.0, 14.0, 13.0, 14.0);
 
     public SmallDripleafBlock(BlockBehaviour.Properties param0) {
         super(param0);
-        this.registerDefaultState(this.stateDefinition.any().setValue(HALF, DoubleBlockHalf.LOWER).setValue(WATERLOGGED, Boolean.valueOf(false)));
+        this.registerDefaultState(
+            this.stateDefinition.any().setValue(HALF, DoubleBlockHalf.LOWER).setValue(WATERLOGGED, Boolean.valueOf(false)).setValue(FACING, Direction.NORTH)
+        );
     }
 
     @Override
@@ -48,7 +52,7 @@ public class SmallDripleafBlock extends DoublePlantBlock implements Bonemealable
         BlockState var0 = super.getStateForPlacement(param0);
         if (var0 != null) {
             FluidState var1 = param0.getLevel().getFluidState(param0.getClickedPos());
-            return var0.setValue(WATERLOGGED, Boolean.valueOf(var1.getType() == Fluids.WATER));
+            return var0.setValue(WATERLOGGED, Boolean.valueOf(var1.getType() == Fluids.WATER)).setValue(FACING, param0.getHorizontalDirection().getOpposite());
         } else {
             return null;
         }
@@ -56,9 +60,13 @@ public class SmallDripleafBlock extends DoublePlantBlock implements Bonemealable
 
     @Override
     public void setPlacedBy(Level param0, BlockPos param1, BlockState param2, LivingEntity param3, ItemStack param4) {
+        Direction var0 = param2.getValue(FACING);
         param0.setBlock(
             param1.above(),
-            this.defaultBlockState().setValue(HALF, DoubleBlockHalf.UPPER).setValue(WATERLOGGED, Boolean.valueOf(param0.isWaterAt(param1.above()))),
+            this.defaultBlockState()
+                .setValue(HALF, DoubleBlockHalf.UPPER)
+                .setValue(WATERLOGGED, Boolean.valueOf(param0.isWaterAt(param1.above())))
+                .setValue(FACING, var0),
             3
         );
     }
@@ -90,7 +98,7 @@ public class SmallDripleafBlock extends DoublePlantBlock implements Bonemealable
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> param0) {
-        param0.add(HALF, WATERLOGGED);
+        param0.add(HALF, WATERLOGGED, FACING);
     }
 
     @Override
@@ -106,11 +114,21 @@ public class SmallDripleafBlock extends DoublePlantBlock implements Bonemealable
     @Override
     public void performBonemeal(ServerLevel param0, Random param1, BlockPos param2, BlockState param3) {
         if (param3.getValue(DoublePlantBlock.HALF) == DoubleBlockHalf.LOWER) {
-            BigDripleafBlock.placeWithRandomHeight(param0, param1, param2);
+            BigDripleafBlock.placeWithRandomHeight(param0, param1, param2, param3.getValue(FACING));
         } else {
             BlockPos var0 = param2.below();
             this.performBonemeal(param0, param1, var0, param0.getBlockState(var0));
         }
 
+    }
+
+    @Override
+    public BlockState rotate(BlockState param0, Rotation param1) {
+        return param0.setValue(FACING, param1.rotate(param0.getValue(FACING)));
+    }
+
+    @Override
+    public BlockState mirror(BlockState param0, Mirror param1) {
+        return param0.rotate(param1.getRotation(param0.getValue(FACING)));
     }
 }

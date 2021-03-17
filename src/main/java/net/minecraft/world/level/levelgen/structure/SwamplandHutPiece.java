@@ -4,6 +4,7 @@ import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.animal.Cat;
@@ -18,7 +19,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.StairsShape;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.StructurePieceType;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 
 public class SwamplandHutPiece extends ScatteredFeaturePiece {
     private boolean spawnedWitch;
@@ -28,17 +28,17 @@ public class SwamplandHutPiece extends ScatteredFeaturePiece {
         super(StructurePieceType.SWAMPLAND_HUT, param0, param1, 64, param2, 7, 7, 9);
     }
 
-    public SwamplandHutPiece(StructureManager param0, CompoundTag param1) {
+    public SwamplandHutPiece(ServerLevel param0, CompoundTag param1) {
         super(StructurePieceType.SWAMPLAND_HUT, param1);
         this.spawnedWitch = param1.getBoolean("Witch");
         this.spawnedCat = param1.getBoolean("Cat");
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundTag param0) {
-        super.addAdditionalSaveData(param0);
-        param0.putBoolean("Witch", this.spawnedWitch);
-        param0.putBoolean("Cat", this.spawnedCat);
+    protected void addAdditionalSaveData(ServerLevel param0, CompoundTag param1) {
+        super.addAdditionalSaveData(param0, param1);
+        param1.putBoolean("Witch", this.spawnedWitch);
+        param1.putBoolean("Cat", this.spawnedCat);
     }
 
     @Override

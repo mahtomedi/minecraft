@@ -33,6 +33,7 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.StructureSettings;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.levelgen.feature.configurations.StructureFeatureConfiguration;
@@ -68,15 +69,15 @@ public class PresetFlatWorldScreen extends Screen {
         if (var0.length == 2) {
             try {
                 var1 = Math.max(Integer.parseInt(var0[0]), 0);
-            } catch (NumberFormatException var101) {
-                LOGGER.error("Error while parsing flat world string => {}", var101.getMessage());
+            } catch (NumberFormatException var10) {
+                LOGGER.error("Error while parsing flat world string => {}", var10.getMessage());
                 return null;
             }
         } else {
             var1 = 1;
         }
 
-        int var4 = Math.min(param1 + var1, 256);
+        int var4 = Math.min(param1 + var1, DimensionType.Y_SIZE);
         int var5 = var4 - param1;
         String var6 = var0[var0.length - 1];
 
@@ -92,9 +93,7 @@ public class PresetFlatWorldScreen extends Screen {
             LOGGER.error("Error while parsing flat world string => Unknown block, {}", var6);
             return null;
         } else {
-            FlatLayerInfo var10 = new FlatLayerInfo(var5, var7);
-            var10.setStart(param1);
-            return var10;
+            return new FlatLayerInfo(var5, var7);
         }
     }
 

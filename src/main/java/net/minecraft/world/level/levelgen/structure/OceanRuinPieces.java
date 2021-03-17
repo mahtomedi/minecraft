@@ -7,6 +7,7 @@ import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
@@ -209,14 +210,14 @@ public class OceanRuinPieces {
             this.loadTemplate(param0);
         }
 
-        public OceanRuinPiece(StructureManager param0, CompoundTag param1) {
+        public OceanRuinPiece(ServerLevel param0, CompoundTag param1) {
             super(StructurePieceType.OCEAN_RUIN, param1);
             this.templateLocation = new ResourceLocation(param1.getString("Template"));
             this.rotation = Rotation.valueOf(param1.getString("Rot"));
             this.integrity = param1.getFloat("Integrity");
             this.biomeType = OceanRuinFeature.Type.valueOf(param1.getString("BiomeType"));
             this.isLarge = param1.getBoolean("IsLarge");
-            this.loadTemplate(param0);
+            this.loadTemplate(param0.getStructureManager());
         }
 
         private void loadTemplate(StructureManager param0) {
@@ -229,13 +230,13 @@ public class OceanRuinPieces {
         }
 
         @Override
-        protected void addAdditionalSaveData(CompoundTag param0) {
-            super.addAdditionalSaveData(param0);
-            param0.putString("Template", this.templateLocation.toString());
-            param0.putString("Rot", this.rotation.name());
-            param0.putFloat("Integrity", this.integrity);
-            param0.putString("BiomeType", this.biomeType.toString());
-            param0.putBoolean("IsLarge", this.isLarge);
+        protected void addAdditionalSaveData(ServerLevel param0, CompoundTag param1) {
+            super.addAdditionalSaveData(param0, param1);
+            param1.putString("Template", this.templateLocation.toString());
+            param1.putString("Rot", this.rotation.name());
+            param1.putFloat("Integrity", this.integrity);
+            param1.putString("BiomeType", this.biomeType.toString());
+            param1.putBoolean("IsLarge", this.isLarge);
         }
 
         @Override

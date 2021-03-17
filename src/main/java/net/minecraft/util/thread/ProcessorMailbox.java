@@ -1,18 +1,27 @@
 package net.minecraft.util.thread;
 
+import com.google.common.collect.ImmutableList;
 import it.unimi.dsi.fastutil.ints.Int2BooleanFunction;
+import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import net.minecraft.Util;
+import net.minecraft.util.profiling.registry.MeasuredMetric;
+import net.minecraft.util.profiling.registry.MeasurementCategory;
+import net.minecraft.util.profiling.registry.MeasurementRegistry;
+import net.minecraft.util.profiling.registry.Metric;
+import net.minecraft.util.profiling.registry.ProfilerMeasured;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class ProcessorMailbox<T> implements ProcessorHandle<T>, AutoCloseable, Runnable {
+public class ProcessorMailbox<T> implements ProfilerMeasured, ProcessorHandle<T>, AutoCloseable, Runnable {
     private static final Logger LOGGER = LogManager.getLogger();
     private final AtomicInteger status = new AtomicInteger(0);
-    public final StrictQueue<? super T, ? extends Runnable> queue;
+    private final StrictQueue<? super T, ? extends Runnable> queue;
     private final Executor dispatcher;
     private final String name;
 
@@ -24,6 +33,7 @@ public class ProcessorMailbox<T> implements ProcessorHandle<T>, AutoCloseable, R
         this.dispatcher = param1;
         this.queue = param0;
         this.name = param2;
+        MeasurementRegistry.INSTANCE.add(this);
     }
 
     private boolean setAsScheduled() {
@@ -131,5 +141,11 @@ public class ProcessorMailbox<T> implements ProcessorHandle<T>, AutoCloseable, R
     @Override
     public String name() {
         return this.name;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public List<MeasuredMetric> metrics() {
+        return ImmutableList.of(new MeasuredMetric(new Metric(this.name + "-queuesize"), this.queue::size, MeasurementCategory.MAIL_BOX));
     }
 }

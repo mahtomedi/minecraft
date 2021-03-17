@@ -1,6 +1,6 @@
 package net.minecraft.util.profiling;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import net.minecraftforge.api.distmarker.Dist;
@@ -19,7 +19,7 @@ public class EmptyProfileResults implements ProfileResults {
     }
 
     @Override
-    public boolean saveResults(File param0) {
+    public boolean saveResults(Path param0) {
         return false;
     }
 

@@ -9,6 +9,7 @@ import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.monster.ElderGuardian;
@@ -20,7 +21,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.StructurePieceType;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 
 public class OceanMonumentPieces {
     static class FitDoubleXRoom implements OceanMonumentPieces.MonumentRoomFitter {
@@ -231,7 +231,7 @@ public class OceanMonumentPieces {
             this.childPieces.add(new OceanMonumentPieces.OceanMonumentPenthouse(var0, var11));
         }
 
-        public MonumentBuilding(StructureManager param0, CompoundTag param1) {
+        public MonumentBuilding(ServerLevel param0, CompoundTag param1) {
             super(StructurePieceType.OCEAN_MONUMENT_BUILDING, param1);
         }
 
@@ -742,7 +742,7 @@ public class OceanMonumentPieces {
             super(StructurePieceType.OCEAN_MONUMENT_CORE_ROOM, 1, param0, param1, 2, 2, 2);
         }
 
-        public OceanMonumentCoreRoom(StructureManager param0, CompoundTag param1) {
+        public OceanMonumentCoreRoom(ServerLevel param0, CompoundTag param1) {
             super(StructurePieceType.OCEAN_MONUMENT_CORE_ROOM, param1);
         }
 
@@ -823,7 +823,7 @@ public class OceanMonumentPieces {
             super(StructurePieceType.OCEAN_MONUMENT_DOUBLE_X_ROOM, 1, param0, param1, 2, 1, 1);
         }
 
-        public OceanMonumentDoubleXRoom(StructureManager param0, CompoundTag param1) {
+        public OceanMonumentDoubleXRoom(ServerLevel param0, CompoundTag param1) {
             super(StructurePieceType.OCEAN_MONUMENT_DOUBLE_X_ROOM, param1);
         }
 
@@ -896,7 +896,7 @@ public class OceanMonumentPieces {
             super(StructurePieceType.OCEAN_MONUMENT_DOUBLE_XY_ROOM, 1, param0, param1, 2, 2, 1);
         }
 
-        public OceanMonumentDoubleXYRoom(StructureManager param0, CompoundTag param1) {
+        public OceanMonumentDoubleXYRoom(ServerLevel param0, CompoundTag param1) {
             super(StructurePieceType.OCEAN_MONUMENT_DOUBLE_XY_ROOM, param1);
         }
 
@@ -1013,7 +1013,7 @@ public class OceanMonumentPieces {
             super(StructurePieceType.OCEAN_MONUMENT_DOUBLE_Y_ROOM, 1, param0, param1, 1, 2, 1);
         }
 
-        public OceanMonumentDoubleYRoom(StructureManager param0, CompoundTag param1) {
+        public OceanMonumentDoubleYRoom(ServerLevel param0, CompoundTag param1) {
             super(StructurePieceType.OCEAN_MONUMENT_DOUBLE_Y_ROOM, param1);
         }
 
@@ -1097,7 +1097,7 @@ public class OceanMonumentPieces {
             super(StructurePieceType.OCEAN_MONUMENT_DOUBLE_YZ_ROOM, 1, param0, param1, 1, 2, 2);
         }
 
-        public OceanMonumentDoubleYZRoom(StructureManager param0, CompoundTag param1) {
+        public OceanMonumentDoubleYZRoom(ServerLevel param0, CompoundTag param1) {
             super(StructurePieceType.OCEAN_MONUMENT_DOUBLE_YZ_ROOM, param1);
         }
 
@@ -1212,7 +1212,7 @@ public class OceanMonumentPieces {
             super(StructurePieceType.OCEAN_MONUMENT_DOUBLE_Z_ROOM, 1, param0, param1, 1, 1, 2);
         }
 
-        public OceanMonumentDoubleZRoom(StructureManager param0, CompoundTag param1) {
+        public OceanMonumentDoubleZRoom(ServerLevel param0, CompoundTag param1) {
             super(StructurePieceType.OCEAN_MONUMENT_DOUBLE_Z_ROOM, param1);
         }
 
@@ -1304,7 +1304,7 @@ public class OceanMonumentPieces {
             super(StructurePieceType.OCEAN_MONUMENT_ENTRY_ROOM, 1, param0, param1, 1, 1, 1);
         }
 
-        public OceanMonumentEntryRoom(StructureManager param0, CompoundTag param1) {
+        public OceanMonumentEntryRoom(ServerLevel param0, CompoundTag param1) {
             super(StructurePieceType.OCEAN_MONUMENT_ENTRY_ROOM, param1);
         }
 
@@ -1342,7 +1342,7 @@ public class OceanMonumentPieces {
             super(StructurePieceType.OCEAN_MONUMENT_PENTHOUSE, param0, param1);
         }
 
-        public OceanMonumentPenthouse(StructureManager param0, CompoundTag param1) {
+        public OceanMonumentPenthouse(ServerLevel param0, CompoundTag param1) {
             super(StructurePieceType.OCEAN_MONUMENT_PENTHOUSE, param1);
         }
 
@@ -1465,7 +1465,7 @@ public class OceanMonumentPieces {
         }
 
         @Override
-        protected void addAdditionalSaveData(CompoundTag param0) {
+        protected void addAdditionalSaveData(ServerLevel param0, CompoundTag param1) {
         }
 
         protected void generateWaterBox(WorldGenLevel param0, BoundingBox param1, int param2, int param3, int param4, int param5, int param6, int param7) {
@@ -1550,7 +1550,7 @@ public class OceanMonumentPieces {
             this.mainDesign = param2.nextInt(3);
         }
 
-        public OceanMonumentSimpleRoom(StructureManager param0, CompoundTag param1) {
+        public OceanMonumentSimpleRoom(ServerLevel param0, CompoundTag param1) {
             super(StructurePieceType.OCEAN_MONUMENT_SIMPLE_ROOM, param1);
         }
 
@@ -1720,7 +1720,7 @@ public class OceanMonumentPieces {
             super(StructurePieceType.OCEAN_MONUMENT_SIMPLE_TOP_ROOM, 1, param0, param1, 1, 1, 1);
         }
 
-        public OceanMonumentSimpleTopRoom(StructureManager param0, CompoundTag param1) {
+        public OceanMonumentSimpleTopRoom(ServerLevel param0, CompoundTag param1) {
             super(StructurePieceType.OCEAN_MONUMENT_SIMPLE_TOP_ROOM, param1);
         }
 
@@ -1778,7 +1778,7 @@ public class OceanMonumentPieces {
             this.mainDesign = param2 & 1;
         }
 
-        public OceanMonumentWingRoom(StructureManager param0, CompoundTag param1) {
+        public OceanMonumentWingRoom(ServerLevel param0, CompoundTag param1) {
             super(StructurePieceType.OCEAN_MONUMENT_WING_ROOM, param1);
         }
 

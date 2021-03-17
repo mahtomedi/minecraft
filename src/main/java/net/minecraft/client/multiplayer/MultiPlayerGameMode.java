@@ -17,6 +17,7 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.network.protocol.game.ServerboundContainerButtonClickPacket;
 import net.minecraft.network.protocol.game.ServerboundContainerClickPacket;
 import net.minecraft.network.protocol.game.ServerboundInteractPacket;
+import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
 import net.minecraft.network.protocol.game.ServerboundPickItemPacket;
 import net.minecraft.network.protocol.game.ServerboundPlaceRecipePacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
@@ -308,19 +309,20 @@ public class MultiPlayerGameMode {
             return InteractionResult.PASS;
         } else {
             this.ensureHasSentCarriedItem();
+            this.connection
+                .send(new ServerboundMovePlayerPacket.PosRot(param0.getX(), param0.getY(), param0.getZ(), param0.yRot, param0.xRot, param0.isOnGround()));
             this.connection.send(new ServerboundUseItemPacket(param2));
             ItemStack var0 = param0.getItemInHand(param2);
             if (param0.getCooldowns().isOnCooldown(var0.getItem())) {
                 return InteractionResult.PASS;
             } else {
-                int var1 = var0.getCount();
-                InteractionResultHolder<ItemStack> var2 = var0.use(param1, param0, param2);
-                ItemStack var3 = var2.getObject();
-                if (var3 != var0) {
-                    param0.setItemInHand(param2, var3);
+                InteractionResultHolder<ItemStack> var1 = var0.use(param1, param0, param2);
+                ItemStack var2 = var1.getObject();
+                if (var2 != var0) {
+                    param0.setItemInHand(param2, var2);
                 }
 
-                return var2.getResult();
+                return var1.getResult();
             }
         }
     }

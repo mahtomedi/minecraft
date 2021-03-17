@@ -52,7 +52,7 @@ public class ChatComponent extends GuiComponent {
                 float var3 = (float)this.getScale();
                 int var4 = Mth.ceil((float)this.getWidth() / var3);
                 param0.pushPose();
-                param0.translate(2.0, 8.0, 0.0);
+                param0.translate(4.0, 8.0, 0.0);
                 param0.scale(var3, var3, 1.0F);
                 double var5 = this.minecraft.options.chatOpacity * 0.9F + 0.1F;
                 double var6 = this.minecraft.options.textBackgroundOpacity;
@@ -74,7 +74,7 @@ public class ChatComponent extends GuiComponent {
                                 double var17 = (double)(-var10) * var7;
                                 param0.pushPose();
                                 param0.translate(0.0, 0.0, 50.0);
-                                fill(param0, -2, (int)(var17 - var7), 0 + var4 + 4, (int)var17, var15 << 24);
+                                fill(param0, -4, (int)(var17 - var7), 0 + var4 + 4, (int)var17, var15 << 24);
                                 RenderSystem.enableBlend();
                                 param0.translate(0.0, 0.0, 50.0);
                                 this.minecraft.font.drawShadow(param0, var11.getMessage(), 0.0F, (float)((int)(var17 + var8)), 16777215 + (var14 << 24));
@@ -102,13 +102,14 @@ public class ChatComponent extends GuiComponent {
 
                 if (var2) {
                     int var20 = 9;
-                    int var21 = var1 * var20 + var1;
-                    int var22 = var9 * var20 + var9;
+                    int var21 = var1 * var20;
+                    int var22 = var9 * var20;
                     int var23 = this.chatScrollbarPos * var22 / var1;
                     int var24 = var22 * var22 / var21;
                     if (var21 != var22) {
                         int var25 = var23 > 0 ? 170 : 96;
                         int var26 = this.newMessageSinceScroll ? 13382451 : 3355562;
+                        param0.translate(-4.0, 0.0, 0.0);
                         fill(param0, 0, -var23, 2, -var23 - var24, var26 + (var25 << 24));
                         fill(param0, 2, -var23, 1, -var23 - var24, 13421772 + (var25 << 24));
                     }

@@ -13,24 +13,11 @@ public class GlowParticle extends TextureSheetParticle {
     private final SpriteSet sprites;
 
     private GlowParticle(ClientLevel param0, double param1, double param2, double param3, double param4, double param5, double param6, SpriteSet param7) {
-        super(param0, param1, param2, param3, 0.5 - RANDOM.nextDouble(), param5, 0.5 - RANDOM.nextDouble());
+        super(param0, param1, param2, param3, param4, param5, param6);
         this.friction = 0.96F;
         this.speedUpWhenYMotionIsBlocked = true;
         this.sprites = param7;
-        this.yd *= 0.2F;
-        if (param4 == 0.0 && param6 == 0.0) {
-            this.xd *= 0.1F;
-            this.zd *= 0.1F;
-        }
-
         this.quadSize *= 0.75F;
-        this.lifetime = (int)(8.0 / (Math.random() * 0.8 + 0.2));
-        if (this.random.nextBoolean()) {
-            this.setColor(0.6F, 1.0F, 0.8F);
-        } else {
-            this.setColor(0.08F, 0.4F, 0.4F);
-        }
-
         this.hasPhysics = false;
         this.setSpriteFromAge(param7);
     }
@@ -62,17 +49,126 @@ public class GlowParticle extends TextureSheetParticle {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static class Provider implements ParticleProvider<SimpleParticleType> {
+    public static class ElectricSparkProvider implements ParticleProvider<SimpleParticleType> {
+        private final double SPEED_FACTOR = 0.25;
         private final SpriteSet sprite;
 
-        public Provider(SpriteSet param0) {
+        public ElectricSparkProvider(SpriteSet param0) {
             this.sprite = param0;
         }
 
         public Particle createParticle(
             SimpleParticleType param0, ClientLevel param1, double param2, double param3, double param4, double param5, double param6, double param7
         ) {
-            return new GlowParticle(param1, param2, param3, param4, param5, param6, param7, this.sprite);
+            GlowParticle var0 = new GlowParticle(param1, param2, param3, param4, 0.0, 0.0, 0.0, this.sprite);
+            var0.setColor(1.0F, 0.9F, 1.0F);
+            var0.setParticleSpeed(param5 * 0.25, param6 * 0.25, param7 * 0.25);
+            int var1 = 2;
+            int var2 = 4;
+            var0.setLifetime(param1.random.nextInt(2) + 2);
+            return var0;
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static class GlowSquidProvider implements ParticleProvider<SimpleParticleType> {
+        private final SpriteSet sprite;
+
+        public GlowSquidProvider(SpriteSet param0) {
+            this.sprite = param0;
+        }
+
+        public Particle createParticle(
+            SimpleParticleType param0, ClientLevel param1, double param2, double param3, double param4, double param5, double param6, double param7
+        ) {
+            GlowParticle var0 = new GlowParticle(
+                param1, param2, param3, param4, 0.5 - GlowParticle.RANDOM.nextDouble(), param6, 0.5 - GlowParticle.RANDOM.nextDouble(), this.sprite
+            );
+            if (param1.random.nextBoolean()) {
+                var0.setColor(0.6F, 1.0F, 0.8F);
+            } else {
+                var0.setColor(0.08F, 0.4F, 0.4F);
+            }
+
+            var0.yd *= 0.2F;
+            if (param5 == 0.0 && param7 == 0.0) {
+                var0.xd *= 0.1F;
+                var0.zd *= 0.1F;
+            }
+
+            var0.setLifetime((int)(8.0 / (param1.random.nextDouble() * 0.8 + 0.2)));
+            return var0;
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static class ScrapeProvider implements ParticleProvider<SimpleParticleType> {
+        private final double SPEED_FACTOR = 0.01;
+        private final SpriteSet sprite;
+
+        public ScrapeProvider(SpriteSet param0) {
+            this.sprite = param0;
+        }
+
+        public Particle createParticle(
+            SimpleParticleType param0, ClientLevel param1, double param2, double param3, double param4, double param5, double param6, double param7
+        ) {
+            GlowParticle var0 = new GlowParticle(param1, param2, param3, param4, 0.0, 0.0, 0.0, this.sprite);
+            if (param1.random.nextBoolean()) {
+                var0.setColor(0.29F, 0.58F, 0.51F);
+            } else {
+                var0.setColor(0.43F, 0.77F, 0.62F);
+            }
+
+            var0.setParticleSpeed(param5 * 0.01, param6 * 0.01, param7 * 0.01);
+            int var1 = 10;
+            int var2 = 40;
+            var0.setLifetime(param1.random.nextInt(30) + 10);
+            return var0;
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static class WaxOffProvider implements ParticleProvider<SimpleParticleType> {
+        private final double SPEED_FACTOR = 0.01;
+        private final SpriteSet sprite;
+
+        public WaxOffProvider(SpriteSet param0) {
+            this.sprite = param0;
+        }
+
+        public Particle createParticle(
+            SimpleParticleType param0, ClientLevel param1, double param2, double param3, double param4, double param5, double param6, double param7
+        ) {
+            GlowParticle var0 = new GlowParticle(param1, param2, param3, param4, 0.0, 0.0, 0.0, this.sprite);
+            var0.setColor(1.0F, 0.9F, 1.0F);
+            var0.setParticleSpeed(param5 * 0.01 / 2.0, param6 * 0.01, param7 * 0.01 / 2.0);
+            int var1 = 10;
+            int var2 = 40;
+            var0.setLifetime(param1.random.nextInt(30) + 10);
+            return var0;
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static class WaxOnProvider implements ParticleProvider<SimpleParticleType> {
+        private final double SPEED_FACTOR = 0.01;
+        private final SpriteSet sprite;
+
+        public WaxOnProvider(SpriteSet param0) {
+            this.sprite = param0;
+        }
+
+        public Particle createParticle(
+            SimpleParticleType param0, ClientLevel param1, double param2, double param3, double param4, double param5, double param6, double param7
+        ) {
+            GlowParticle var0 = new GlowParticle(param1, param2, param3, param4, 0.0, 0.0, 0.0, this.sprite);
+            var0.setColor(0.91F, 0.55F, 0.08F);
+            var0.setParticleSpeed(param5 * 0.01 / 2.0, param6 * 0.01, param7 * 0.01 / 2.0);
+            int var1 = 10;
+            int var2 = 40;
+            var0.setLifetime(param1.random.nextInt(30) + 10);
+            return var0;
         }
     }
 }

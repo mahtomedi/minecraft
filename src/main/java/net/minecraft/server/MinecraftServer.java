@@ -85,6 +85,7 @@ import net.minecraft.server.network.ServerConnectionListener;
 import net.minecraft.server.network.TextFilter;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackRepository;
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.players.GameProfileCache;
 import net.minecraft.server.players.PlayerList;
 import net.minecraft.server.players.ServerOpListEntry;
@@ -419,7 +420,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
                 }
             }
 
-            int var7 = var0.getSpawnHeight();
+            int var7 = var0.getSpawnHeight(param0);
             if (var7 < param0.getMinBuildHeight()) {
                 BlockPos var8 = var4.getWorldPosition();
                 var7 = param0.getHeight(Heightmap.Types.WORLD_SURFACE, var8.getX() + 8, var8.getZ() + 8);
@@ -1628,5 +1629,9 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
     @Nullable
     public GameType getForcedGameType() {
         return null;
+    }
+
+    public ResourceManager getResourceManager() {
+        return this.resources.getResourceManager();
     }
 }

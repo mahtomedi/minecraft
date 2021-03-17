@@ -7,17 +7,11 @@ import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.BlockHitResult;
 
 public class AmethystBlock extends Block {
     public AmethystBlock(BlockBehaviour.Properties param0) {
         super(param0);
-    }
-
-    @Override
-    public PushReaction getPistonPushReaction(BlockState param0) {
-        return PushReaction.NORMAL;
     }
 
     @Override

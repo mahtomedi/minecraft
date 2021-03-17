@@ -9,6 +9,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.vehicle.MinecartChest;
 import net.minecraft.world.level.BlockGetter;
@@ -29,7 +30,6 @@ import net.minecraft.world.level.block.state.properties.RailShape;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.MineshaftFeature;
 import net.minecraft.world.level.levelgen.feature.StructurePieceType;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -86,7 +86,7 @@ public class MineShaftPieces {
         private boolean hasPlacedSpider;
         private final int numSections;
 
-        public MineShaftCorridor(StructureManager param0, CompoundTag param1) {
+        public MineShaftCorridor(ServerLevel param0, CompoundTag param1) {
             super(StructurePieceType.MINE_SHAFT_CORRIDOR, param1);
             this.hasRails = param1.getBoolean("hr");
             this.spiderCorridor = param1.getBoolean("sc");
@@ -95,12 +95,12 @@ public class MineShaftPieces {
         }
 
         @Override
-        protected void addAdditionalSaveData(CompoundTag param0) {
-            super.addAdditionalSaveData(param0);
-            param0.putBoolean("hr", this.hasRails);
-            param0.putBoolean("sc", this.spiderCorridor);
-            param0.putBoolean("hps", this.hasPlacedSpider);
-            param0.putInt("Num", this.numSections);
+        protected void addAdditionalSaveData(ServerLevel param0, CompoundTag param1) {
+            super.addAdditionalSaveData(param0, param1);
+            param1.putBoolean("hr", this.hasRails);
+            param1.putBoolean("sc", this.spiderCorridor);
+            param1.putBoolean("hps", this.hasPlacedSpider);
+            param1.putInt("Num", this.numSections);
         }
 
         public MineShaftCorridor(int param0, Random param1, BoundingBox param2, Direction param3, MineshaftFeature.Type param4) {
@@ -551,17 +551,17 @@ public class MineShaftPieces {
         private final Direction direction;
         private final boolean isTwoFloored;
 
-        public MineShaftCrossing(StructureManager param0, CompoundTag param1) {
+        public MineShaftCrossing(ServerLevel param0, CompoundTag param1) {
             super(StructurePieceType.MINE_SHAFT_CROSSING, param1);
             this.isTwoFloored = param1.getBoolean("tf");
             this.direction = Direction.from2DDataValue(param1.getInt("D"));
         }
 
         @Override
-        protected void addAdditionalSaveData(CompoundTag param0) {
-            super.addAdditionalSaveData(param0);
-            param0.putBoolean("tf", this.isTwoFloored);
-            param0.putInt("D", this.direction.get2DDataValue());
+        protected void addAdditionalSaveData(ServerLevel param0, CompoundTag param1) {
+            super.addAdditionalSaveData(param0, param1);
+            param1.putBoolean("tf", this.isTwoFloored);
+            param1.putInt("D", this.direction.get2DDataValue());
         }
 
         public MineShaftCrossing(int param0, BoundingBox param1, @Nullable Direction param2, MineshaftFeature.Type param3) {
@@ -831,8 +831,8 @@ public class MineShaftPieces {
         }
 
         @Override
-        protected void addAdditionalSaveData(CompoundTag param0) {
-            param0.putInt("MST", this.type.ordinal());
+        protected void addAdditionalSaveData(ServerLevel param0, CompoundTag param1) {
+            param1.putInt("MST", this.type.ordinal());
         }
 
         protected boolean isSupportingBox(BlockGetter param0, BoundingBox param1, int param2, int param3, int param4, int param5) {
@@ -914,7 +914,7 @@ public class MineShaftPieces {
             this.boundingBox = new BoundingBox(param2, 50, param3, param2 + 7 + param1.nextInt(6), 54 + param1.nextInt(6), param3 + 7 + param1.nextInt(6));
         }
 
-        public MineShaftRoom(StructureManager param0, CompoundTag param1) {
+        public MineShaftRoom(ServerLevel param0, CompoundTag param1) {
             super(StructurePieceType.MINE_SHAFT_ROOM, param1);
             BoundingBox.CODEC
                 .listOf()
@@ -1087,13 +1087,13 @@ public class MineShaftPieces {
         }
 
         @Override
-        protected void addAdditionalSaveData(CompoundTag param0) {
-            super.addAdditionalSaveData(param0);
+        protected void addAdditionalSaveData(ServerLevel param0, CompoundTag param1) {
+            super.addAdditionalSaveData(param0, param1);
             BoundingBox.CODEC
                 .listOf()
                 .encodeStart(NbtOps.INSTANCE, this.childEntranceBoxes)
                 .resultOrPartial(MineShaftPieces.LOGGER::error)
-                .ifPresent(param1 -> param0.put("Entrances", param1));
+                .ifPresent(param1x -> param1.put("Entrances", param1x));
         }
     }
 
@@ -1104,7 +1104,7 @@ public class MineShaftPieces {
             this.boundingBox = param1;
         }
 
-        public MineShaftStairs(StructureManager param0, CompoundTag param1) {
+        public MineShaftStairs(ServerLevel param0, CompoundTag param1) {
             super(StructurePieceType.MINE_SHAFT_STAIRS, param1);
         }
 

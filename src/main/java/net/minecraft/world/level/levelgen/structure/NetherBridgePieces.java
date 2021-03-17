@@ -7,6 +7,7 @@ import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.StructureFeatureManager;
@@ -19,7 +20,6 @@ import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.StructurePieceType;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 
@@ -100,7 +100,7 @@ public class NetherBridgePieces {
             super(param0, param1);
         }
 
-        public BridgeCrossing(StructureManager param0, CompoundTag param1) {
+        public BridgeCrossing(ServerLevel param0, CompoundTag param1) {
             this(StructurePieceType.NETHER_FORTRESS_BRIDGE_CROSSING, param1);
         }
 
@@ -174,7 +174,7 @@ public class NetherBridgePieces {
             this.selfSeed = param1.nextInt();
         }
 
-        public BridgeEndFiller(StructureManager param0, CompoundTag param1) {
+        public BridgeEndFiller(ServerLevel param0, CompoundTag param1) {
             super(StructurePieceType.NETHER_FORTRESS_BRIDGE_END_FILLER, param1);
             this.selfSeed = param1.getInt("Seed");
         }
@@ -189,9 +189,9 @@ public class NetherBridgePieces {
         }
 
         @Override
-        protected void addAdditionalSaveData(CompoundTag param0) {
-            super.addAdditionalSaveData(param0);
-            param0.putInt("Seed", this.selfSeed);
+        protected void addAdditionalSaveData(ServerLevel param0, CompoundTag param1) {
+            super.addAdditionalSaveData(param0, param1);
+            param1.putInt("Seed", this.selfSeed);
         }
 
         @Override
@@ -261,7 +261,7 @@ public class NetherBridgePieces {
             this.boundingBox = param2;
         }
 
-        public BridgeStraight(StructureManager param0, CompoundTag param1) {
+        public BridgeStraight(ServerLevel param0, CompoundTag param1) {
             super(StructurePieceType.NETHER_FORTRESS_BRIDGE_STRAIGHT, param1);
         }
 
@@ -324,7 +324,7 @@ public class NetherBridgePieces {
             this.boundingBox = param1;
         }
 
-        public CastleCorridorStairsPiece(StructureManager param0, CompoundTag param1) {
+        public CastleCorridorStairsPiece(ServerLevel param0, CompoundTag param1) {
             super(StructurePieceType.NETHER_FORTRESS_CASTLE_CORRIDOR_STAIRS, param1);
         }
 
@@ -416,7 +416,7 @@ public class NetherBridgePieces {
             this.boundingBox = param1;
         }
 
-        public CastleCorridorTBalconyPiece(StructureManager param0, CompoundTag param1) {
+        public CastleCorridorTBalconyPiece(ServerLevel param0, CompoundTag param1) {
             super(StructurePieceType.NETHER_FORTRESS_CASTLE_CORRIDOR_T_BALCONY, param1);
         }
 
@@ -512,7 +512,7 @@ public class NetherBridgePieces {
             this.boundingBox = param2;
         }
 
-        public CastleEntrance(StructureManager param0, CompoundTag param1) {
+        public CastleEntrance(ServerLevel param0, CompoundTag param1) {
             super(StructurePieceType.NETHER_FORTRESS_CASTLE_ENTRANCE, param1);
         }
 
@@ -689,7 +689,7 @@ public class NetherBridgePieces {
             this.boundingBox = param1;
         }
 
-        public CastleSmallCorridorCrossingPiece(StructureManager param0, CompoundTag param1) {
+        public CastleSmallCorridorCrossingPiece(ServerLevel param0, CompoundTag param1) {
             super(StructurePieceType.NETHER_FORTRESS_CASTLE_SMALL_CORRIDOR_CROSSING, param1);
         }
 
@@ -741,15 +741,15 @@ public class NetherBridgePieces {
             this.isNeedingChest = param1.nextInt(3) == 0;
         }
 
-        public CastleSmallCorridorLeftTurnPiece(StructureManager param0, CompoundTag param1) {
+        public CastleSmallCorridorLeftTurnPiece(ServerLevel param0, CompoundTag param1) {
             super(StructurePieceType.NETHER_FORTRESS_CASTLE_SMALL_CORRIDOR_LEFT_TURN, param1);
             this.isNeedingChest = param1.getBoolean("Chest");
         }
 
         @Override
-        protected void addAdditionalSaveData(CompoundTag param0) {
-            super.addAdditionalSaveData(param0);
-            param0.putBoolean("Chest", this.isNeedingChest);
+        protected void addAdditionalSaveData(ServerLevel param0, CompoundTag param1) {
+            super.addAdditionalSaveData(param0, param1);
+            param1.putBoolean("Chest", this.isNeedingChest);
         }
 
         @Override
@@ -811,7 +811,7 @@ public class NetherBridgePieces {
             this.boundingBox = param1;
         }
 
-        public CastleSmallCorridorPiece(StructureManager param0, CompoundTag param1) {
+        public CastleSmallCorridorPiece(ServerLevel param0, CompoundTag param1) {
             super(StructurePieceType.NETHER_FORTRESS_CASTLE_SMALL_CORRIDOR, param1);
         }
 
@@ -867,15 +867,15 @@ public class NetherBridgePieces {
             this.isNeedingChest = param1.nextInt(3) == 0;
         }
 
-        public CastleSmallCorridorRightTurnPiece(StructureManager param0, CompoundTag param1) {
+        public CastleSmallCorridorRightTurnPiece(ServerLevel param0, CompoundTag param1) {
             super(StructurePieceType.NETHER_FORTRESS_CASTLE_SMALL_CORRIDOR_RIGHT_TURN, param1);
             this.isNeedingChest = param1.getBoolean("Chest");
         }
 
         @Override
-        protected void addAdditionalSaveData(CompoundTag param0) {
-            super.addAdditionalSaveData(param0);
-            param0.putBoolean("Chest", this.isNeedingChest);
+        protected void addAdditionalSaveData(ServerLevel param0, CompoundTag param1) {
+            super.addAdditionalSaveData(param0, param1);
+            param1.putBoolean("Chest", this.isNeedingChest);
         }
 
         @Override
@@ -937,7 +937,7 @@ public class NetherBridgePieces {
             this.boundingBox = param1;
         }
 
-        public CastleStalkRoom(StructureManager param0, CompoundTag param1) {
+        public CastleStalkRoom(ServerLevel param0, CompoundTag param1) {
             super(StructurePieceType.NETHER_FORTRESS_CASTLE_STALK_ROOM, param1);
         }
 
@@ -1156,15 +1156,15 @@ public class NetherBridgePieces {
             this.boundingBox = param1;
         }
 
-        public MonsterThrone(StructureManager param0, CompoundTag param1) {
+        public MonsterThrone(ServerLevel param0, CompoundTag param1) {
             super(StructurePieceType.NETHER_FORTRESS_MONSTER_THRONE, param1);
             this.hasPlacedSpawner = param1.getBoolean("Mob");
         }
 
         @Override
-        protected void addAdditionalSaveData(CompoundTag param0) {
-            super.addAdditionalSaveData(param0);
-            param0.putBoolean("Mob", this.hasPlacedSpawner);
+        protected void addAdditionalSaveData(ServerLevel param0, CompoundTag param1) {
+            super.addAdditionalSaveData(param0, param1);
+            param1.putBoolean("Mob", this.hasPlacedSpawner);
         }
 
         public static NetherBridgePieces.MonsterThrone createPiece(
@@ -1285,7 +1285,7 @@ public class NetherBridgePieces {
         }
 
         @Override
-        protected void addAdditionalSaveData(CompoundTag param0) {
+        protected void addAdditionalSaveData(ServerLevel param0, CompoundTag param1) {
         }
 
         private int updatePieceWeight(List<NetherBridgePieces.PieceWeight> param0) {
@@ -1599,7 +1599,7 @@ public class NetherBridgePieces {
             this.boundingBox = param1;
         }
 
-        public RoomCrossing(StructureManager param0, CompoundTag param1) {
+        public RoomCrossing(ServerLevel param0, CompoundTag param1) {
             super(StructurePieceType.NETHER_FORTRESS_ROOM_CROSSING, param1);
         }
 
@@ -1663,7 +1663,7 @@ public class NetherBridgePieces {
             this.boundingBox = param1;
         }
 
-        public StairsRoom(StructureManager param0, CompoundTag param1) {
+        public StairsRoom(ServerLevel param0, CompoundTag param1) {
             super(StructurePieceType.NETHER_FORTRESS_STAIRS_ROOM, param1);
         }
 
@@ -1743,7 +1743,7 @@ public class NetherBridgePieces {
 
         }
 
-        public StartPiece(StructureManager param0, CompoundTag param1) {
+        public StartPiece(ServerLevel param0, CompoundTag param1) {
             super(StructurePieceType.NETHER_FORTRESS_START, param1);
         }
     }

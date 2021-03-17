@@ -8,18 +8,10 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public class WeatheringCopperSlabBlock extends SlabBlock implements WeatheringCopper {
     private final WeatheringCopper.WeatherState weatherState;
-    private final Block changeTo;
 
-    public WeatheringCopperSlabBlock(BlockBehaviour.Properties param0) {
-        super(param0);
-        this.weatherState = WeatheringCopper.WeatherState.values()[WeatheringCopper.WeatherState.values().length - 1];
-        this.changeTo = this;
-    }
-
-    public WeatheringCopperSlabBlock(BlockBehaviour.Properties param0, WeatheringCopper.WeatherState param1, Block param2) {
-        super(param0);
-        this.weatherState = param1;
-        this.changeTo = param2;
+    public WeatheringCopperSlabBlock(WeatheringCopper.WeatherState param0, BlockBehaviour.Properties param1) {
+        super(param1);
+        this.weatherState = param0;
     }
 
     @Override
@@ -29,15 +21,10 @@ public class WeatheringCopperSlabBlock extends SlabBlock implements WeatheringCo
 
     @Override
     public boolean isRandomlyTicking(BlockState param0) {
-        return this.changeTo != this;
+        return WeatheringCopper.getNext(param0.getBlock()).isPresent();
     }
 
     public WeatheringCopper.WeatherState getAge() {
         return this.weatherState;
-    }
-
-    @Override
-    public BlockState getChangeTo(BlockState param0) {
-        return this.changeTo.defaultBlockState().setValue(TYPE, param0.getValue(TYPE)).setValue(WATERLOGGED, param0.getValue(WATERLOGGED));
     }
 }

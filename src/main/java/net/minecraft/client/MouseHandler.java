@@ -71,7 +71,7 @@ public class MouseHandler {
             }
 
             boolean[] var2 = new boolean[]{false};
-            if (this.minecraft.overlay == null) {
+            if (this.minecraft.getOverlay() == null) {
                 if (this.minecraft.screen == null) {
                     if (!this.mouseGrabbed && var0) {
                         this.grabMouse();
@@ -95,7 +95,7 @@ public class MouseHandler {
                 }
             }
 
-            if (!var2[0] && (this.minecraft.screen == null || this.minecraft.screen.passEvents) && this.minecraft.overlay == null) {
+            if (!var2[0] && (this.minecraft.screen == null || this.minecraft.screen.passEvents) && this.minecraft.getOverlay() == null) {
                 if (var1 == 0) {
                     this.isLeftPressed = var0;
                 } else if (var1 == 2) {
@@ -120,7 +120,7 @@ public class MouseHandler {
     private void onScroll(long param0, double param1, double param2) {
         if (param0 == Minecraft.getInstance().getWindow().getWindow()) {
             double var0 = (this.minecraft.options.discreteMouseScroll ? Math.signum(param2) : param2) * this.minecraft.options.mouseWheelSensitivity;
-            if (this.minecraft.overlay == null) {
+            if (this.minecraft.getOverlay() == null) {
                 if (this.minecraft.screen != null) {
                     double var1 = this.xpos * (double)this.minecraft.getWindow().getGuiScaledWidth() / (double)this.minecraft.getWindow().getScreenWidth();
                     double var2 = this.ypos * (double)this.minecraft.getWindow().getGuiScaledHeight() / (double)this.minecraft.getWindow().getScreenHeight();
@@ -187,7 +187,7 @@ public class MouseHandler {
             }
 
             GuiEventListener var0 = this.minecraft.screen;
-            if (var0 != null && this.minecraft.overlay == null) {
+            if (var0 != null && this.minecraft.getOverlay() == null) {
                 double var1 = param1 * (double)this.minecraft.getWindow().getGuiScaledWidth() / (double)this.minecraft.getWindow().getScreenWidth();
                 double var2 = param2 * (double)this.minecraft.getWindow().getGuiScaledHeight() / (double)this.minecraft.getWindow().getScreenHeight();
                 Screen.wrapScreenError(() -> var0.mouseMoved(var1, var2), "mouseMoved event handler", var0.getClass().getCanonicalName());

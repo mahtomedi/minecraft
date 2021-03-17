@@ -1,12 +1,13 @@
 package net.minecraft.world.level.block;
 
+import java.util.Optional;
 import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.state.BlockState;
 
 public interface ChangeOverTimeBlock<T extends Enum<T>> {
-    BlockState getChangeTo(BlockState var1);
+    Optional<BlockState> getNext(BlockState var1);
 
     float getChanceModifier();
 
@@ -55,7 +56,7 @@ public interface ChangeOverTimeBlock<T extends Enum<T>> {
         float var9 = (float)(var2 + 1) / (float)(var2 + var1 + 1);
         float var10 = var9 * var9 * this.getChanceModifier();
         if (param3.nextFloat() < var10) {
-            param1.setBlockAndUpdate(param2, this.getChangeTo(param0));
+            this.getNext(param0).ifPresent(param2x -> param1.setBlockAndUpdate(param2, param2x));
         }
 
     }

@@ -277,7 +277,6 @@ public class TitleScreen extends Screen {
         }
 
         float var0 = this.fading ? (float)(Util.getMillis() - this.fadeInStart) / 1000.0F : 1.0F;
-        fill(param0, 0, 0, this.width, this.height, -1);
         this.panorama.render(param3, Mth.clamp(var0, 0.0F, 1.0F));
         int var1 = 274;
         int var2 = this.width / 2 - 137;

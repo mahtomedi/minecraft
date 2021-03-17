@@ -18,6 +18,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.LevelReader;
@@ -136,7 +137,7 @@ public abstract class StructureFeature<C extends FeatureConfiguration> {
     }
 
     @Nullable
-    public static StructureStart<?> loadStaticStart(StructureManager param0, CompoundTag param1, long param2) {
+    public static StructureStart<?> loadStaticStart(ServerLevel param0, CompoundTag param1, long param2) {
         String var0 = param1.getString("id");
         if ("INVALID".equals(var0)) {
             return StructureStart.INVALID_START;

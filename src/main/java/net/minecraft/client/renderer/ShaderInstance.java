@@ -398,7 +398,7 @@ public class ShaderInstance implements Shader, AutoCloseable {
             String var7 = var6.getName();
             int var8 = Uniform.glGetUniformLocation(this.programId, var7);
             if (var8 == -1) {
-                LOGGER.warn("Could not find uniform named {} in the specified shader program.", var7);
+                LOGGER.warn("Shader {} could not find uniform named {} in the specified shader program.", this.name, var7);
             } else {
                 this.uniformLocations.add(var8);
                 var6.setLocation(var8);

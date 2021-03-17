@@ -4,6 +4,7 @@ import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.WorldGenLevel;
@@ -12,7 +13,6 @@ import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.StructurePieceType;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 
 public class DesertPyramidPiece extends ScatteredFeaturePiece {
@@ -22,7 +22,7 @@ public class DesertPyramidPiece extends ScatteredFeaturePiece {
         super(StructurePieceType.DESERT_PYRAMID_PIECE, param0, param1, 64, param2, 21, 15, 21);
     }
 
-    public DesertPyramidPiece(StructureManager param0, CompoundTag param1) {
+    public DesertPyramidPiece(ServerLevel param0, CompoundTag param1) {
         super(StructurePieceType.DESERT_PYRAMID_PIECE, param1);
         this.hasPlacedChest[0] = param1.getBoolean("hasPlacedChest0");
         this.hasPlacedChest[1] = param1.getBoolean("hasPlacedChest1");
@@ -31,12 +31,12 @@ public class DesertPyramidPiece extends ScatteredFeaturePiece {
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundTag param0) {
-        super.addAdditionalSaveData(param0);
-        param0.putBoolean("hasPlacedChest0", this.hasPlacedChest[0]);
-        param0.putBoolean("hasPlacedChest1", this.hasPlacedChest[1]);
-        param0.putBoolean("hasPlacedChest2", this.hasPlacedChest[2]);
-        param0.putBoolean("hasPlacedChest3", this.hasPlacedChest[3]);
+    protected void addAdditionalSaveData(ServerLevel param0, CompoundTag param1) {
+        super.addAdditionalSaveData(param0, param1);
+        param1.putBoolean("hasPlacedChest0", this.hasPlacedChest[0]);
+        param1.putBoolean("hasPlacedChest1", this.hasPlacedChest[1]);
+        param1.putBoolean("hasPlacedChest2", this.hasPlacedChest[2]);
+        param1.putBoolean("hasPlacedChest3", this.hasPlacedChest[3]);
     }
 
     @Override

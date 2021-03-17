@@ -218,6 +218,19 @@ public class BlockPos extends Vec3i {
         return new BlockPos.MutableBlockPos(this.getX(), this.getY(), this.getZ());
     }
 
+    public static Iterable<BlockPos> randomInCube(Random param0, int param1, BlockPos param2, int param3) {
+        return randomBetweenClosed(
+            param0,
+            param1,
+            param2.getX() - param3,
+            param2.getY() - param3,
+            param2.getZ() - param3,
+            param2.getX() + param3,
+            param2.getY() + param3,
+            param2.getZ() + param3
+        );
+    }
+
     public static Iterable<BlockPos> randomBetweenClosed(Random param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7) {
         int var0 = param5 - param2 + 1;
         int var1 = param6 - param3 + 1;

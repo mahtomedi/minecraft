@@ -26,32 +26,32 @@ public class DragonFireball extends AbstractHurtingProjectile {
     @Override
     protected void onHit(HitResult param0) {
         super.onHit(param0);
-        Entity var0 = this.getOwner();
-        if (param0.getType() != HitResult.Type.ENTITY || !((EntityHitResult)param0).getEntity().is(var0)) {
+        if (param0.getType() != HitResult.Type.ENTITY || !this.ownedBy(((EntityHitResult)param0).getEntity())) {
             if (!this.level.isClientSide) {
-                List<LivingEntity> var1 = this.level.getEntitiesOfClass(LivingEntity.class, this.getBoundingBox().inflate(4.0, 2.0, 4.0));
-                AreaEffectCloud var2 = new AreaEffectCloud(this.level, this.getX(), this.getY(), this.getZ());
-                if (var0 instanceof LivingEntity) {
-                    var2.setOwner((LivingEntity)var0);
+                List<LivingEntity> var0 = this.level.getEntitiesOfClass(LivingEntity.class, this.getBoundingBox().inflate(4.0, 2.0, 4.0));
+                AreaEffectCloud var1 = new AreaEffectCloud(this.level, this.getX(), this.getY(), this.getZ());
+                Entity var2 = this.getOwner();
+                if (var2 instanceof LivingEntity) {
+                    var1.setOwner((LivingEntity)var2);
                 }
 
-                var2.setParticle(ParticleTypes.DRAGON_BREATH);
-                var2.setRadius(3.0F);
-                var2.setDuration(600);
-                var2.setRadiusPerTick((7.0F - var2.getRadius()) / (float)var2.getDuration());
-                var2.addEffect(new MobEffectInstance(MobEffects.HARM, 1, 1));
-                if (!var1.isEmpty()) {
-                    for(LivingEntity var3 : var1) {
+                var1.setParticle(ParticleTypes.DRAGON_BREATH);
+                var1.setRadius(3.0F);
+                var1.setDuration(600);
+                var1.setRadiusPerTick((7.0F - var1.getRadius()) / (float)var1.getDuration());
+                var1.addEffect(new MobEffectInstance(MobEffects.HARM, 1, 1));
+                if (!var0.isEmpty()) {
+                    for(LivingEntity var3 : var0) {
                         double var4 = this.distanceToSqr(var3);
                         if (var4 < 16.0) {
-                            var2.setPos(var3.getX(), var3.getY(), var3.getZ());
+                            var1.setPos(var3.getX(), var3.getY(), var3.getZ());
                             break;
                         }
                     }
                 }
 
                 this.level.levelEvent(2006, this.blockPosition(), this.isSilent() ? -1 : 1);
-                this.level.addFreshEntity(var2);
+                this.level.addFreshEntity(var1);
                 this.discard();
             }
 

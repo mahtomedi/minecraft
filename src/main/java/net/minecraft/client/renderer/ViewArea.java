@@ -32,7 +32,7 @@ public class ViewArea {
             for(int var2 = 0; var2 < this.chunkGridSizeY; ++var2) {
                 for(int var3 = 0; var3 < this.chunkGridSizeZ; ++var3) {
                     int var4 = this.getChunkIndex(var1, var2, var3);
-                    this.chunks[var4] = param0.new RenderChunk();
+                    this.chunks[var4] = param0.new RenderChunk(var4);
                     this.chunks[var4].setOrigin(var1 * 16, var2 * 16, var3 * 16);
                 }
             }

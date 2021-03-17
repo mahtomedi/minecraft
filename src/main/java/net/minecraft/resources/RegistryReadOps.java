@@ -41,15 +41,15 @@ import org.apache.logging.log4j.Logger;
 public class RegistryReadOps<T> extends DelegatingOps<T> {
     private static final Logger LOGGER = LogManager.getLogger();
     private final RegistryReadOps.ResourceAccess resources;
-    private final RegistryAccess.RegistryHolder registryHolder;
+    private final RegistryAccess registryAccess;
     private final Map<ResourceKey<? extends Registry<?>>, RegistryReadOps.ReadCache<?>> readCache;
     private final RegistryReadOps<JsonElement> jsonOps;
 
-    public static <T> RegistryReadOps<T> create(DynamicOps<T> param0, ResourceManager param1, RegistryAccess.RegistryHolder param2) {
+    public static <T> RegistryReadOps<T> create(DynamicOps<T> param0, ResourceManager param1, RegistryAccess param2) {
         return create(param0, RegistryReadOps.ResourceAccess.forResourceManager(param1), param2);
     }
 
-    public static <T> RegistryReadOps<T> create(DynamicOps<T> param0, RegistryReadOps.ResourceAccess param1, RegistryAccess.RegistryHolder param2) {
+    public static <T> RegistryReadOps<T> create(DynamicOps<T> param0, RegistryReadOps.ResourceAccess param1, RegistryAccess param2) {
         RegistryReadOps<T> var0 = new RegistryReadOps<>(param0, param1, param2, Maps.newIdentityHashMap());
         RegistryAccess.load(param2, var0);
         return var0;
@@ -58,18 +58,18 @@ public class RegistryReadOps<T> extends DelegatingOps<T> {
     private RegistryReadOps(
         DynamicOps<T> param0,
         RegistryReadOps.ResourceAccess param1,
-        RegistryAccess.RegistryHolder param2,
+        RegistryAccess param2,
         IdentityHashMap<ResourceKey<? extends Registry<?>>, RegistryReadOps.ReadCache<?>> param3
     ) {
         super(param0);
         this.resources = param1;
-        this.registryHolder = param2;
+        this.registryAccess = param2;
         this.readCache = param3;
         this.jsonOps = param0 == JsonOps.INSTANCE ? this : new RegistryReadOps<>(JsonOps.INSTANCE, param1, param2, param3);
     }
 
     protected <E> DataResult<Pair<Supplier<E>, T>> decodeElement(T param0, ResourceKey<? extends Registry<E>> param1, Codec<E> param2, boolean param3) {
-        Optional<WritableRegistry<E>> var0 = this.registryHolder.ownedRegistry(param1);
+        Optional<WritableRegistry<E>> var0 = this.registryAccess.ownedRegistry(param1);
         if (!var0.isPresent()) {
             return DataResult.error("Unknown registry: " + param1);
         } else {
@@ -150,7 +150,7 @@ public class RegistryReadOps<T> extends DelegatingOps<T> {
     }
 
     protected <E> DataResult<Registry<E>> registry(ResourceKey<? extends Registry<E>> param0) {
-        return this.registryHolder
+        return this.registryAccess
             .ownedRegistry(param0)
             .map(param0x -> DataResult.success(param0x, param0x.elementsLifecycle()))
             .orElseGet(() -> DataResult.error("Unknown registry: " + param0));

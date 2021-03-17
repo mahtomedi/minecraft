@@ -40,9 +40,8 @@ public class ThrownEnderpearl extends ThrowableItemProjectile {
     @Override
     protected void onHit(HitResult param0) {
         super.onHit(param0);
-        Entity var0 = this.getOwner();
 
-        for(int var1 = 0; var1 < 32; ++var1) {
+        for(int var0 = 0; var0 < 32; ++var0) {
             this.level
                 .addParticle(
                     ParticleTypes.PORTAL,
@@ -56,27 +55,28 @@ public class ThrownEnderpearl extends ThrowableItemProjectile {
         }
 
         if (!this.level.isClientSide && !this.isRemoved()) {
-            if (var0 instanceof ServerPlayer) {
-                ServerPlayer var2 = (ServerPlayer)var0;
+            Entity var1 = this.getOwner();
+            if (var1 instanceof ServerPlayer) {
+                ServerPlayer var2 = (ServerPlayer)var1;
                 if (var2.connection.getConnection().isConnected() && var2.level == this.level && !var2.isSleeping()) {
                     if (this.random.nextFloat() < 0.05F && this.level.getGameRules().getBoolean(GameRules.RULE_DOMOBSPAWNING)) {
                         Endermite var3 = EntityType.ENDERMITE.create(this.level);
-                        var3.moveTo(var0.getX(), var0.getY(), var0.getZ(), var0.yRot, var0.xRot);
+                        var3.moveTo(var1.getX(), var1.getY(), var1.getZ(), var1.yRot, var1.xRot);
                         this.level.addFreshEntity(var3);
                     }
 
-                    if (var0.isPassenger()) {
+                    if (var1.isPassenger()) {
                         var2.dismountTo(this.getX(), this.getY(), this.getZ());
                     } else {
-                        var0.teleportTo(this.getX(), this.getY(), this.getZ());
+                        var1.teleportTo(this.getX(), this.getY(), this.getZ());
                     }
 
-                    var0.fallDistance = 0.0F;
-                    var0.hurt(DamageSource.FALL, 5.0F);
+                    var1.fallDistance = 0.0F;
+                    var1.hurt(DamageSource.FALL, 5.0F);
                 }
-            } else if (var0 != null) {
-                var0.teleportTo(this.getX(), this.getY(), this.getZ());
-                var0.fallDistance = 0.0F;
+            } else if (var1 != null) {
+                var1.teleportTo(this.getX(), this.getY(), this.getZ());
+                var1.fallDistance = 0.0F;
             }
 
             this.discard();

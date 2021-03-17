@@ -140,6 +140,18 @@ public class ChunkRenderDispatcher {
         return String.format("pC: %03d, pU: %02d, aB: %02d", this.toBatchCount, this.toUpload.size(), this.freeBufferCount);
     }
 
+    public int getToBatchCount() {
+        return this.toBatchCount;
+    }
+
+    public int getToUpload() {
+        return this.toUpload.size();
+    }
+
+    public int getFreeBufferCount() {
+        return this.freeBufferCount;
+    }
+
     public void setCamera(Vec3 param0) {
         this.camera = param0;
     }
@@ -245,6 +257,7 @@ public class ChunkRenderDispatcher {
 
     @OnlyIn(Dist.CLIENT)
     public class RenderChunk {
+        public final int index;
         public final AtomicReference<ChunkRenderDispatcher.CompiledChunk> compiled = new AtomicReference<>(ChunkRenderDispatcher.CompiledChunk.UNCOMPILED);
         @Nullable
         private ChunkRenderDispatcher.RenderChunk.RebuildTask lastRebuildTask;
@@ -265,6 +278,10 @@ public class ChunkRenderDispatcher {
 
         });
         private boolean playerChanged;
+
+        public RenderChunk(int param1) {
+            this.index = param1;
+        }
 
         private boolean doesChunkExistAt(BlockPos param0) {
             return ChunkRenderDispatcher.this.level

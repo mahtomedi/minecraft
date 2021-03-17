@@ -48,6 +48,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
@@ -409,6 +410,22 @@ public class Block extends BlockBehaviour implements ItemLike {
 
     public final BlockState defaultBlockState() {
         return this.defaultBlockState;
+    }
+
+    public final BlockState withPropertiesOf(BlockState param0) {
+        BlockState var0 = this.defaultBlockState();
+
+        for(Property<?> var1 : param0.getBlock().getStateDefinition().getProperties()) {
+            if (var0.hasProperty(var1)) {
+                var0 = copyProperty(param0, var0, var1);
+            }
+        }
+
+        return var0;
+    }
+
+    private static <T extends Comparable<T>> BlockState copyProperty(BlockState param0, BlockState param1, Property<T> param2) {
+        return param1.setValue(param2, param0.getValue(param2));
     }
 
     public SoundType getSoundType(BlockState param0) {

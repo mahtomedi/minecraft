@@ -4,7 +4,9 @@ import com.google.common.base.MoreObjects;
 import com.mojang.blaze3d.Blaze3D;
 import com.mojang.blaze3d.platform.ClipboardManager;
 import com.mojang.blaze3d.platform.InputConstants;
+import java.nio.file.Path;
 import java.util.Locale;
+import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.CrashReport;
@@ -96,8 +98,8 @@ public class KeyboardHandler {
                     if (this.minecraft.player.isReducedDebugInfo()) {
                         return false;
                     } else {
-                        ClientPacketListener var3 = this.minecraft.player.connection;
-                        if (var3 == null) {
+                        ClientPacketListener var5 = this.minecraft.player.connection;
+                        if (var5 == null) {
                             return false;
                         }
 
@@ -149,6 +151,11 @@ public class KeyboardHandler {
                     }
 
                     return true;
+                case 76:
+                    Runnable var3 = () -> this.debugFeedbackTranslated("debug.profiling.start", 10);
+                    Consumer<Path> var4 = param0x -> this.debugFeedbackTranslated("debug.profiling.stop", param0x.toAbsolutePath());
+                    this.minecraft.debugClientMetricsKeyPressed(var3, var4);
+                    return true;
                 case 78:
                     if (!this.minecraft.player.hasPermissions(2)) {
                         this.debugFeedbackTranslated("debug.creative_spectator.error");
@@ -181,6 +188,7 @@ public class KeyboardHandler {
                     var2.addMessage(new TranslatableComponent("debug.pause_focus.help"));
                     var2.addMessage(new TranslatableComponent("debug.help.help"));
                     var2.addMessage(new TranslatableComponent("debug.reload_resourcepacks.help"));
+                    var2.addMessage(new TranslatableComponent("debug.profiling.help"));
                     var2.addMessage(new TranslatableComponent("debug.pause.help"));
                     var2.addMessage(new TranslatableComponent("debug.gamemodes.help"));
                     return true;

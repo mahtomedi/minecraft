@@ -429,10 +429,6 @@ public class RenderSystem {
 
     }
 
-    public static void setShaderColor(float param0, float param1, float param2) {
-        setShaderColor(param0, param1, param2, 1.0F);
-    }
-
     private static void _setShaderColor(float param0, float param1, float param2, float param3) {
         shaderColor[0] = param0;
         shaderColor[1] = param1;

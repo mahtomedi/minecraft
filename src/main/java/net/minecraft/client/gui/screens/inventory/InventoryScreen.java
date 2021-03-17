@@ -1,5 +1,6 @@
 package net.minecraft.client.gui.screens.inventory;
 
+import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Quaternion;
@@ -128,6 +129,7 @@ public class InventoryScreen extends EffectRenderingInventoryScreen<InventoryMen
         param5.xRot = -var1 * 20.0F;
         param5.yHeadRot = param5.yRot;
         param5.yHeadRotO = param5.yRot;
+        Lighting.setupForEntityInInventory();
         EntityRenderDispatcher var11 = Minecraft.getInstance().getEntityRenderDispatcher();
         var5.conj();
         var11.overrideCameraOrientation(var5);
@@ -143,6 +145,7 @@ public class InventoryScreen extends EffectRenderingInventoryScreen<InventoryMen
         param5.yHeadRot = var10;
         var2.popPose();
         RenderSystem.applyModelViewMatrix();
+        Lighting.setupFor3DItems();
     }
 
     @Override

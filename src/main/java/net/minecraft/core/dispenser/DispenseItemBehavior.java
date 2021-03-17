@@ -1,6 +1,7 @@
 package net.minecraft.core.dispenser;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
@@ -36,6 +37,7 @@ import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.BoneMealItem;
 import net.minecraft.world.item.DispensibleContainerItem;
 import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.HoneycombItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -568,6 +570,24 @@ public interface DispenseItemBehavior {
             }
         });
         DispenserBlock.registerBehavior(Items.SHEARS.asItem(), new ShearsDispenseItemBehavior());
+        DispenserBlock.registerBehavior(Items.HONEYCOMB, new OptionalDispenseItemBehavior() {
+            @Override
+            public ItemStack execute(BlockSource param0, ItemStack param1) {
+                BlockPos var0 = param0.getPos().relative(param0.getBlockState().getValue(DispenserBlock.FACING));
+                Level var1 = param0.getLevel();
+                BlockState var2 = var1.getBlockState(var0);
+                Optional<BlockState> var3 = HoneycombItem.getWaxed(var2);
+                if (var3.isPresent()) {
+                    var1.setBlockAndUpdate(var0, var3.get());
+                    var1.levelEvent(3003, var0, 0);
+                    param1.shrink(1);
+                    this.setSuccess(true);
+                    return param1;
+                } else {
+                    return super.execute(param0, param1);
+                }
+            }
+        });
     }
 
     static void setEntityPokingOutOfBlock(BlockSource param0, Entity param1, Direction param2) {

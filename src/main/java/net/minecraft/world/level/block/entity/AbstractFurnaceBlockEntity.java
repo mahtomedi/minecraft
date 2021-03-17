@@ -160,6 +160,8 @@ public abstract class AbstractFurnaceBlockEntity extends BaseContainerBlockEntit
         add(var0, Blocks.FLETCHING_TABLE, 300);
         add(var0, Blocks.SMITHING_TABLE, 300);
         add(var0, Blocks.COMPOSTER, 300);
+        add(var0, Blocks.AZALEA, 100);
+        add(var0, Blocks.FLOWERING_AZALEA, 100);
         return var0;
     }
 

@@ -3,10 +3,13 @@ package net.minecraft.world.level.block;
 import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.IntRange;
+import net.minecraft.util.ParticleUtils;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LightningBolt;
@@ -15,25 +18,50 @@ import net.minecraft.world.entity.projectile.ThrownTrident;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class LightningRodBlock extends RodBlock {
+public class LightningRodBlock extends RodBlock implements SimpleWaterloggedBlock {
+    public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 
     public LightningRodBlock(BlockBehaviour.Properties param0) {
         super(param0);
-        this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.UP).setValue(POWERED, Boolean.valueOf(false)));
+        this.registerDefaultState(
+            this.stateDefinition.any().setValue(FACING, Direction.UP).setValue(WATERLOGGED, Boolean.valueOf(false)).setValue(POWERED, Boolean.valueOf(false))
+        );
     }
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext param0) {
-        return this.defaultBlockState().setValue(FACING, param0.getClickedFace());
+        FluidState var0 = param0.getLevel().getFluidState(param0.getClickedPos());
+        boolean var1 = var0.getType() == Fluids.WATER;
+        return this.defaultBlockState().setValue(FACING, param0.getClickedFace()).setValue(WATERLOGGED, Boolean.valueOf(var1));
+    }
+
+    @Override
+    public BlockState updateShape(BlockState param0, Direction param1, BlockState param2, LevelAccessor param3, BlockPos param4, BlockPos param5) {
+        if (param0.getValue(WATERLOGGED)) {
+            param3.getLiquidTicks().scheduleTick(param4, Fluids.WATER, Fluids.WATER.getTickDelay(param3));
+        }
+
+        return super.updateShape(param0, param1, param2, param3, param4, param5);
+    }
+
+    @Override
+    public FluidState getFluidState(BlockState param0) {
+        return param0.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(param0);
     }
 
     @Override
@@ -50,6 +78,7 @@ public class LightningRodBlock extends RodBlock {
         param1.setBlock(param2, param0.setValue(POWERED, Boolean.valueOf(true)), 3);
         this.updateNeighbours(param0, param1, param2);
         param1.getBlockTicks().scheduleTick(param2, this, 8);
+        param1.levelEvent(3002, param2, param0.getValue(FACING).getAxis().ordinal());
     }
 
     private void updateNeighbours(BlockState param0, Level param1, BlockPos param2) {
@@ -60,6 +89,16 @@ public class LightningRodBlock extends RodBlock {
     public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
         param1.setBlock(param2, param0.setValue(POWERED, Boolean.valueOf(false)), 3);
         this.updateNeighbours(param0, param1, param2);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public void animateTick(BlockState param0, Level param1, BlockPos param2, Random param3) {
+        if (param1.isThundering()
+            && (long)param1.random.nextInt(200) <= param1.getGameTime() % 200L
+            && param2.getY() == param1.getHeight(Heightmap.Types.WORLD_SURFACE, param2.getX(), param2.getZ()) - 1) {
+            ParticleUtils.spawnParticlesAlongAxis(param0.getValue(FACING).getAxis(), param1, param2, 0.125, ParticleTypes.ELECTRIC_SPARK, IntRange.of(1, 2));
+        }
     }
 
     @Override
@@ -91,7 +130,7 @@ public class LightningRodBlock extends RodBlock {
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> param0) {
-        param0.add(FACING, POWERED);
+        param0.add(FACING, POWERED, WATERLOGGED);
     }
 
     @Override

@@ -232,8 +232,8 @@ public class ItemBlockRenderTypes {
         param0.put(Blocks.LARGE_AMETHYST_BUD, var2);
         param0.put(Blocks.AMETHYST_CLUSTER, var2);
         param0.put(Blocks.LIGHTNING_ROD, var2);
-        param0.put(Blocks.CAVE_VINES_HEAD, var2);
-        param0.put(Blocks.CAVE_VINES_BODY, var2);
+        param0.put(Blocks.CAVE_VINES, var2);
+        param0.put(Blocks.CAVE_VINES_PLANT, var2);
         param0.put(Blocks.SPORE_BLOSSOM, var2);
         param0.put(Blocks.FLOWERING_AZALEA, var2);
         param0.put(Blocks.AZALEA, var2);

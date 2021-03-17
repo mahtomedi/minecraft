@@ -44,7 +44,8 @@ public class WaterloggedVegetationPatchFeature extends VegetationPatchFeature {
         return isExposedDirection(param0, param2, param3, Direction.NORTH)
             || isExposedDirection(param0, param2, param3, Direction.EAST)
             || isExposedDirection(param0, param2, param3, Direction.SOUTH)
-            || isExposedDirection(param0, param2, param3, Direction.WEST);
+            || isExposedDirection(param0, param2, param3, Direction.WEST)
+            || isExposedDirection(param0, param2, param3, Direction.DOWN);
     }
 
     private static boolean isExposedDirection(WorldGenLevel param0, BlockPos param1, BlockPos.MutableBlockPos param2, Direction param3) {

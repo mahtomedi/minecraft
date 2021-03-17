@@ -9,6 +9,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
@@ -1195,12 +1196,12 @@ public class WoodlandMansionPieces {
             this.loadTemplate(param0);
         }
 
-        public WoodlandMansionPiece(StructureManager param0, CompoundTag param1) {
+        public WoodlandMansionPiece(ServerLevel param0, CompoundTag param1) {
             super(StructurePieceType.WOODLAND_MANSION_PIECE, param1);
             this.templateName = param1.getString("Template");
             this.rotation = Rotation.valueOf(param1.getString("Rot"));
             this.mirror = Mirror.valueOf(param1.getString("Mi"));
-            this.loadTemplate(param0);
+            this.loadTemplate(param0.getStructureManager());
         }
 
         private void loadTemplate(StructureManager param0) {
@@ -1214,11 +1215,11 @@ public class WoodlandMansionPieces {
         }
 
         @Override
-        protected void addAdditionalSaveData(CompoundTag param0) {
-            super.addAdditionalSaveData(param0);
-            param0.putString("Template", this.templateName);
-            param0.putString("Rot", this.placeSettings.getRotation().name());
-            param0.putString("Mi", this.placeSettings.getMirror().name());
+        protected void addAdditionalSaveData(ServerLevel param0, CompoundTag param1) {
+            super.addAdditionalSaveData(param0, param1);
+            param1.putString("Template", this.templateName);
+            param1.putString("Rot", this.placeSettings.getRotation().name());
+            param1.putString("Mi", this.placeSettings.getMirror().name());
         }
 
         @Override

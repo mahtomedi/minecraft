@@ -7,6 +7,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.decoration.ItemFrame;
@@ -286,12 +287,12 @@ public class EndCityPieces {
             this.loadTemplate(param0);
         }
 
-        public EndCityPiece(StructureManager param0, CompoundTag param1) {
+        public EndCityPiece(ServerLevel param0, CompoundTag param1) {
             super(StructurePieceType.END_CITY_PIECE, param1);
             this.templateName = param1.getString("Template");
             this.rotation = Rotation.valueOf(param1.getString("Rot"));
             this.overwrite = param1.getBoolean("OW");
-            this.loadTemplate(param0);
+            this.loadTemplate(param0.getStructureManager());
         }
 
         private void loadTemplate(StructureManager param0) {
@@ -301,11 +302,11 @@ public class EndCityPieces {
         }
 
         @Override
-        protected void addAdditionalSaveData(CompoundTag param0) {
-            super.addAdditionalSaveData(param0);
-            param0.putString("Template", this.templateName);
-            param0.putString("Rot", this.rotation.name());
-            param0.putBoolean("OW", this.overwrite);
+        protected void addAdditionalSaveData(ServerLevel param0, CompoundTag param1) {
+            super.addAdditionalSaveData(param0, param1);
+            param1.putString("Template", this.templateName);
+            param1.putString("Rot", this.rotation.name());
+            param1.putBoolean("OW", this.overwrite);
         }
 
         @Override

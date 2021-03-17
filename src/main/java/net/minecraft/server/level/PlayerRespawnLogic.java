@@ -22,7 +22,7 @@ public class PlayerRespawnLogic {
         } else {
             LevelChunk var4 = param0.getChunk(SectionPos.blockToSectionCoord(param1), SectionPos.blockToSectionCoord(param2));
             int var5 = var2
-                ? param0.getChunkSource().getGenerator().getSpawnHeight()
+                ? param0.getChunkSource().getGenerator().getSpawnHeight(param0)
                 : var4.getHeight(Heightmap.Types.MOTION_BLOCKING, param1 & 15, param2 & 15);
             if (var5 < param0.getMinBuildHeight()) {
                 return null;

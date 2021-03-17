@@ -10,6 +10,7 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.StructureFeatureManager;
@@ -97,18 +98,18 @@ public abstract class StructureStart<C extends FeatureConfiguration> {
 
     }
 
-    public CompoundTag createTag(ChunkPos param0) {
+    public CompoundTag createTag(ServerLevel param0, ChunkPos param1) {
         CompoundTag var0 = new CompoundTag();
         if (this.isValid()) {
             var0.putString("id", Registry.STRUCTURE_FEATURE.getKey(this.getFeature()).toString());
-            var0.putInt("ChunkX", param0.x);
-            var0.putInt("ChunkZ", param0.z);
+            var0.putInt("ChunkX", param1.x);
+            var0.putInt("ChunkZ", param1.z);
             var0.putInt("references", this.references);
-            BoundingBox.CODEC.encodeStart(NbtOps.INSTANCE, this.boundingBox).resultOrPartial(LOGGER::error).ifPresent(param1 -> var0.put("BB", param1));
+            BoundingBox.CODEC.encodeStart(NbtOps.INSTANCE, this.boundingBox).resultOrPartial(LOGGER::error).ifPresent(param1x -> var0.put("BB", param1x));
             ListTag var1 = new ListTag();
             synchronized(this.pieces) {
                 for(StructurePiece var2 : this.pieces) {
-                    var1.add(var2.createTag());
+                    var1.add(var2.createTag(param0));
                 }
             }
 

@@ -36,6 +36,7 @@ import java.io.InputStream;
 import java.net.Proxy;
 import java.net.SocketAddress;
 import java.nio.ByteOrder;
+import java.nio.file.Path;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
@@ -48,6 +49,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -101,6 +103,10 @@ import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.profiling.ActiveClientMetricsLogger;
+import net.minecraft.client.profiling.ClientMetricsLogger;
+import net.minecraft.client.profiling.InactiveClientMetricsLogger;
+import net.minecraft.client.profiling.storage.MetricsPersister;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.client.renderer.GameRenderer;
@@ -330,7 +336,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     @Nullable
     public Screen screen;
     @Nullable
-    public Overlay overlay;
+    private Overlay overlay;
     private boolean connectedToRealms;
     private Thread gameThread;
     private volatile boolean running = true;
@@ -352,6 +358,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     private final ContinuousProfiler fpsPieProfiler = new ContinuousProfiler(Util.timeSource, () -> this.fpsPieRenderTicks);
     @Nullable
     private ProfileResults fpsPieResults;
+    private ClientMetricsLogger clientMetricsLogger = InactiveClientMetricsLogger.INSTANCE;
     private String debugPath = "root";
 
     public Minecraft(GameConfig param0) {
@@ -608,9 +615,11 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
                 try {
                     SingleTickProfiler var1 = SingleTickProfiler.createTickProfiler("Renderer");
                     boolean var2 = this.shouldRenderFpsPie();
-                    this.startProfilers(var2, var1);
+                    this.profiler = this.constructProfiler(var2, var1);
                     this.profiler.startTick();
+                    this.clientMetricsLogger.startTick();
                     this.runTick(!var0);
+                    this.clientMetricsLogger.endTick();
                     this.profiler.endTick();
                     this.finishProfilers(var2, var1);
                 } catch (OutOfMemoryError var4) {
@@ -958,10 +967,6 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         var5.pushPose();
         RenderSystem.applyModelViewMatrix();
         RenderSystem.clear(16640, ON_OSX);
-        this.mainRenderTarget.clearChannels[0] = 0.1F;
-        this.mainRenderTarget.clearChannels[1] = 0.2F;
-        this.mainRenderTarget.clearChannels[2] = 0.3F;
-        this.mainRenderTarget.clear(ON_OSX);
         this.mainRenderTarget.bindWrite(true);
         FogRenderer.setupNoFog();
         this.profiler.push("display");
@@ -1046,19 +1051,27 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         return this.options.renderDebug && this.options.renderDebugCharts && !this.options.hideGui;
     }
 
-    private void startProfilers(boolean param0, @Nullable SingleTickProfiler param1) {
-        if (param0) {
+    private ProfilerFiller constructProfiler(boolean param0, @Nullable SingleTickProfiler param1) {
+        if (!param0 && !this.clientMetricsLogger.isRecording()) {
+            return (ProfilerFiller)(param1 == null ? InactiveProfiler.INSTANCE : param1.startTick());
+        } else if (param0) {
             if (!this.fpsPieProfiler.isEnabled()) {
                 this.fpsPieRenderTicks = 0;
                 this.fpsPieProfiler.enable();
             }
 
             ++this.fpsPieRenderTicks;
+            ProfilerFiller var0 = this.clientMetricsLogger.isRecording()
+                ? ProfilerFiller.tee(this.fpsPieProfiler.getFiller(), this.clientMetricsLogger.getProfiler())
+                : this.fpsPieProfiler.getFiller();
+            return SingleTickProfiler.decorateFiller(var0, param1);
         } else {
-            this.fpsPieProfiler.disable();
-        }
+            if (this.fpsPieProfiler.isEnabled()) {
+                this.fpsPieProfiler.disable();
+            }
 
-        this.profiler = SingleTickProfiler.decorateFiller(this.fpsPieProfiler.getFiller(), param1);
+            return SingleTickProfiler.decorateFiller(this.clientMetricsLogger.getProfiler(), param1);
+        }
     }
 
     private void finishProfilers(boolean param0, @Nullable SingleTickProfiler param1) {
@@ -1118,6 +1131,16 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         System.gc();
     }
 
+    void debugClientMetricsKeyPressed(Runnable param0, Consumer<Path> param1) {
+        if (this.clientMetricsLogger.isRecording()) {
+            this.clientMetricsLogger.end();
+        } else {
+            Runnable var0 = () -> this.clientMetricsLogger = InactiveClientMetricsLogger.INSTANCE;
+            this.clientMetricsLogger = ActiveClientMetricsLogger.createStarted(Util.timeSource, Util.ioPool(), new MetricsPersister(), var0, param1);
+            param0.run();
+        }
+    }
+
     void debugFpsMeterKeyPress(int param0) {
         if (this.fpsPieResults != null) {
             List<ResultField> var0 = this.fpsPieResults.getTimes(this.debugPath);
@@ -1149,6 +1172,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         List<ResultField> var0 = param1.getTimes(this.debugPath);
         ResultField var1 = var0.remove(0);
         RenderSystem.clear(256, ON_OSX);
+        RenderSystem.setShader(GameRenderer::getPositionColorShader);
         Matrix4f var2 = Matrix4f.orthographic(0.0F, (float)this.window.getWidth(), 0.0F, (float)this.window.getHeight(), 1000.0F, 3000.0F);
         RenderSystem.setProjectionMatrix(var2);
         PoseStack var3 = RenderSystem.getModelViewStack();

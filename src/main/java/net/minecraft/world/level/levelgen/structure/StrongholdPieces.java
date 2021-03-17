@@ -7,6 +7,7 @@ import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.StructureFeatureManager;
@@ -29,7 +30,6 @@ import net.minecraft.world.level.block.state.properties.SlabType;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.NoiseEffect;
 import net.minecraft.world.level.levelgen.feature.StructurePieceType;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 
 public class StrongholdPieces {
@@ -208,15 +208,15 @@ public class StrongholdPieces {
             this.boundingBox = param2;
         }
 
-        public ChestCorridor(StructureManager param0, CompoundTag param1) {
+        public ChestCorridor(ServerLevel param0, CompoundTag param1) {
             super(StructurePieceType.STRONGHOLD_CHEST_CORRIDOR, param1);
             this.hasPlacedChest = param1.getBoolean("Chest");
         }
 
         @Override
-        protected void addAdditionalSaveData(CompoundTag param0) {
-            super.addAdditionalSaveData(param0);
-            param0.putBoolean("Chest", this.hasPlacedChest);
+        protected void addAdditionalSaveData(ServerLevel param0, CompoundTag param1) {
+            super.addAdditionalSaveData(param0, param1);
+            param1.putBoolean("Chest", this.hasPlacedChest);
         }
 
         @Override
@@ -269,15 +269,15 @@ public class StrongholdPieces {
             this.steps = param2 != Direction.NORTH && param2 != Direction.SOUTH ? param1.getXSpan() : param1.getZSpan();
         }
 
-        public FillerCorridor(StructureManager param0, CompoundTag param1) {
+        public FillerCorridor(ServerLevel param0, CompoundTag param1) {
             super(StructurePieceType.STRONGHOLD_FILLER_CORRIDOR, param1);
             this.steps = param1.getInt("Steps");
         }
 
         @Override
-        protected void addAdditionalSaveData(CompoundTag param0) {
-            super.addAdditionalSaveData(param0);
-            param0.putInt("Steps", this.steps);
+        protected void addAdditionalSaveData(ServerLevel param0, CompoundTag param1) {
+            super.addAdditionalSaveData(param0, param1);
+            param1.putInt("Steps", this.steps);
         }
 
         public static BoundingBox findPieceBox(List<StructurePiece> param0, Random param1, int param2, int param3, int param4, Direction param5) {
@@ -347,7 +347,7 @@ public class StrongholdPieces {
             this.rightHigh = param1.nextInt(3) > 0;
         }
 
-        public FiveCrossing(StructureManager param0, CompoundTag param1) {
+        public FiveCrossing(ServerLevel param0, CompoundTag param1) {
             super(StructurePieceType.STRONGHOLD_FIVE_CROSSING, param1);
             this.leftLow = param1.getBoolean("leftLow");
             this.leftHigh = param1.getBoolean("leftHigh");
@@ -356,12 +356,12 @@ public class StrongholdPieces {
         }
 
         @Override
-        protected void addAdditionalSaveData(CompoundTag param0) {
-            super.addAdditionalSaveData(param0);
-            param0.putBoolean("leftLow", this.leftLow);
-            param0.putBoolean("leftHigh", this.leftHigh);
-            param0.putBoolean("rightLow", this.rightLow);
-            param0.putBoolean("rightHigh", this.rightHigh);
+        protected void addAdditionalSaveData(ServerLevel param0, CompoundTag param1) {
+            super.addAdditionalSaveData(param0, param1);
+            param1.putBoolean("leftLow", this.leftLow);
+            param1.putBoolean("leftHigh", this.leftHigh);
+            param1.putBoolean("rightLow", this.rightLow);
+            param1.putBoolean("rightHigh", this.rightHigh);
         }
 
         @Override
@@ -475,7 +475,7 @@ public class StrongholdPieces {
             this.boundingBox = param2;
         }
 
-        public LeftTurn(StructureManager param0, CompoundTag param1) {
+        public LeftTurn(ServerLevel param0, CompoundTag param1) {
             super(StructurePieceType.STRONGHOLD_LEFT_TURN, param1);
         }
 
@@ -527,15 +527,15 @@ public class StrongholdPieces {
             this.isTall = param2.getYSpan() > 6;
         }
 
-        public Library(StructureManager param0, CompoundTag param1) {
+        public Library(ServerLevel param0, CompoundTag param1) {
             super(StructurePieceType.STRONGHOLD_LIBRARY, param1);
             this.isTall = param1.getBoolean("Tall");
         }
 
         @Override
-        protected void addAdditionalSaveData(CompoundTag param0) {
-            super.addAdditionalSaveData(param0);
-            param0.putBoolean("Tall", this.isTall);
+        protected void addAdditionalSaveData(ServerLevel param0, CompoundTag param1) {
+            super.addAdditionalSaveData(param0, param1);
+            param1.putBoolean("Tall", this.isTall);
         }
 
         public static StrongholdPieces.Library createPiece(
@@ -752,15 +752,15 @@ public class StrongholdPieces {
             this.boundingBox = param1;
         }
 
-        public PortalRoom(StructureManager param0, CompoundTag param1) {
+        public PortalRoom(ServerLevel param0, CompoundTag param1) {
             super(StructurePieceType.STRONGHOLD_PORTAL_ROOM, param1);
             this.hasPlacedSpawner = param1.getBoolean("Mob");
         }
 
         @Override
-        protected void addAdditionalSaveData(CompoundTag param0) {
-            super.addAdditionalSaveData(param0);
-            param0.putBoolean("Mob", this.hasPlacedSpawner);
+        protected void addAdditionalSaveData(ServerLevel param0, CompoundTag param1) {
+            super.addAdditionalSaveData(param0, param1);
+            param1.putBoolean("Mob", this.hasPlacedSpawner);
         }
 
         @Override
@@ -884,7 +884,7 @@ public class StrongholdPieces {
             this.boundingBox = param2;
         }
 
-        public PrisonHall(StructureManager param0, CompoundTag param1) {
+        public PrisonHall(ServerLevel param0, CompoundTag param1) {
             super(StructurePieceType.STRONGHOLD_PRISON_HALL, param1);
         }
 
@@ -1018,7 +1018,7 @@ public class StrongholdPieces {
             this.boundingBox = param2;
         }
 
-        public RightTurn(StructureManager param0, CompoundTag param1) {
+        public RightTurn(ServerLevel param0, CompoundTag param1) {
             super(StructurePieceType.STRONGHOLD_RIGHT_TURN, param1);
         }
 
@@ -1070,15 +1070,15 @@ public class StrongholdPieces {
             this.type = param1.nextInt(5);
         }
 
-        public RoomCrossing(StructureManager param0, CompoundTag param1) {
+        public RoomCrossing(ServerLevel param0, CompoundTag param1) {
             super(StructurePieceType.STRONGHOLD_ROOM_CROSSING, param1);
             this.type = param1.getInt("Type");
         }
 
         @Override
-        protected void addAdditionalSaveData(CompoundTag param0) {
-            super.addAdditionalSaveData(param0);
-            param0.putInt("Type", this.type);
+        protected void addAdditionalSaveData(ServerLevel param0, CompoundTag param1) {
+            super.addAdditionalSaveData(param0, param1);
+            param1.putInt("Type", this.type);
         }
 
         @Override
@@ -1243,14 +1243,14 @@ public class StrongholdPieces {
             this.isSource = param1.getBoolean("Source");
         }
 
-        public StairsDown(StructureManager param0, CompoundTag param1) {
+        public StairsDown(ServerLevel param0, CompoundTag param1) {
             this(StructurePieceType.STRONGHOLD_STAIRS_DOWN, param1);
         }
 
         @Override
-        protected void addAdditionalSaveData(CompoundTag param0) {
-            super.addAdditionalSaveData(param0);
-            param0.putBoolean("Source", this.isSource);
+        protected void addAdditionalSaveData(ServerLevel param0, CompoundTag param1) {
+            super.addAdditionalSaveData(param0, param1);
+            param1.putBoolean("Source", this.isSource);
         }
 
         @Override
@@ -1309,7 +1309,7 @@ public class StrongholdPieces {
             super(StructurePieceType.STRONGHOLD_START, 0, param0, param1, param2);
         }
 
-        public StartPiece(StructureManager param0, CompoundTag param1) {
+        public StartPiece(ServerLevel param0, CompoundTag param1) {
             super(StructurePieceType.STRONGHOLD_START, param1);
         }
     }
@@ -1327,17 +1327,17 @@ public class StrongholdPieces {
             this.rightChild = param1.nextInt(2) == 0;
         }
 
-        public Straight(StructureManager param0, CompoundTag param1) {
+        public Straight(ServerLevel param0, CompoundTag param1) {
             super(StructurePieceType.STRONGHOLD_STRAIGHT, param1);
             this.leftChild = param1.getBoolean("Left");
             this.rightChild = param1.getBoolean("Right");
         }
 
         @Override
-        protected void addAdditionalSaveData(CompoundTag param0) {
-            super.addAdditionalSaveData(param0);
-            param0.putBoolean("Left", this.leftChild);
-            param0.putBoolean("Right", this.rightChild);
+        protected void addAdditionalSaveData(ServerLevel param0, CompoundTag param1) {
+            super.addAdditionalSaveData(param0, param1);
+            param1.putBoolean("Left", this.leftChild);
+            param1.putBoolean("Right", this.rightChild);
         }
 
         @Override
@@ -1395,7 +1395,7 @@ public class StrongholdPieces {
             this.boundingBox = param2;
         }
 
-        public StraightStairsDown(StructureManager param0, CompoundTag param1) {
+        public StraightStairsDown(ServerLevel param0, CompoundTag param1) {
             super(StructurePieceType.STRONGHOLD_STRAIGHT_STAIRS_DOWN, param1);
         }
 
@@ -1455,8 +1455,8 @@ public class StrongholdPieces {
         }
 
         @Override
-        protected void addAdditionalSaveData(CompoundTag param0) {
-            param0.putString("EntryDoor", this.entryDoor.name());
+        protected void addAdditionalSaveData(ServerLevel param0, CompoundTag param1) {
+            param1.putString("EntryDoor", this.entryDoor.name());
         }
 
         protected void generateSmallDoor(

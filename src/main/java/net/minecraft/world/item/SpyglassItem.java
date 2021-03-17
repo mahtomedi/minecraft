@@ -1,6 +1,7 @@
 package net.minecraft.world.item;
 
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
@@ -25,6 +26,7 @@ public class SpyglassItem extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level param0, Player param1, InteractionHand param2) {
         param1.playSound(SoundEvents.SPYGLASS_USE, 1.0F, 1.0F);
+        param1.awardStat(Stats.ITEM_USED.get(this));
         return ItemUtils.startUsingInstantly(param0, param1, param2);
     }
 

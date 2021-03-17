@@ -36,7 +36,7 @@ public class RecipeToast implements Toast {
         } else {
             RenderSystem.setShader(GameRenderer::getPositionTexShader);
             RenderSystem.setShaderTexture(0, TEXTURE);
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             param1.blit(param0, 0, 0, 0, 32, this.width(), this.height());
             param1.getMinecraft().font.draw(param0, TITLE_TEXT, 30.0F, 7.0F, -11534256);
             param1.getMinecraft().font.draw(param0, DESCRIPTION_TEXT, 30.0F, 18.0F, -16777216);

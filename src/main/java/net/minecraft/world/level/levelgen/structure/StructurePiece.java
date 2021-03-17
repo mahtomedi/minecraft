@@ -11,6 +11,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelReader;
@@ -74,18 +75,18 @@ public abstract class StructurePiece {
         this.setOrientation(var0 == -1 ? null : Direction.from2DDataValue(var0));
     }
 
-    public final CompoundTag createTag() {
+    public final CompoundTag createTag(ServerLevel param0) {
         CompoundTag var0 = new CompoundTag();
         var0.putString("id", Registry.STRUCTURE_PIECE.getKey(this.getType()).toString());
         BoundingBox.CODEC.encodeStart(NbtOps.INSTANCE, this.boundingBox).resultOrPartial(LOGGER::error).ifPresent(param1 -> var0.put("BB", param1));
         Direction var1 = this.getOrientation();
         var0.putInt("O", var1 == null ? -1 : var1.get2DDataValue());
         var0.putInt("GD", this.genDepth);
-        this.addAdditionalSaveData(var0);
+        this.addAdditionalSaveData(param0, var0);
         return var0;
     }
 
-    protected abstract void addAdditionalSaveData(CompoundTag var1);
+    protected abstract void addAdditionalSaveData(ServerLevel var1, CompoundTag var2);
 
     public NoiseEffect getNoiseEffect() {
         return NoiseEffect.BEARD;
