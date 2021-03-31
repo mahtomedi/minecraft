@@ -21,6 +21,10 @@ public class BakedQuad {
         this.shade = param4;
     }
 
+    public TextureAtlasSprite getSprite() {
+        return this.sprite;
+    }
+
     public int[] getVertices() {
         return this.vertices;
     }

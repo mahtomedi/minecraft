@@ -14,8 +14,6 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class IronBarsBlock extends CrossCollisionBlock {
     protected IronBarsBlock(BlockBehaviour.Properties param0) {
@@ -70,7 +68,6 @@ public class IronBarsBlock extends CrossCollisionBlock {
         return Shapes.empty();
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public boolean skipRendering(BlockState param0, BlockState param1, Direction param2) {
         if (param1.is(this)) {

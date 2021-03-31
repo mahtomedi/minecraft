@@ -2,8 +2,6 @@ package net.minecraft.network.protocol.game;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundTakeItemEntityPacket implements Packet<ClientGamePacketListener> {
     private final int itemId;
@@ -33,17 +31,14 @@ public class ClientboundTakeItemEntityPacket implements Packet<ClientGamePacketL
         param0.handleTakeItemEntity(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getItemId() {
         return this.itemId;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getPlayerId() {
         return this.playerId;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getAmount() {
         return this.amount;
     }

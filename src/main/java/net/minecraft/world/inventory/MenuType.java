@@ -2,8 +2,6 @@ package net.minecraft.world.inventory;
 
 import net.minecraft.core.Registry;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class MenuType<T extends AbstractContainerMenu> {
     public static final MenuType<ChestMenu> GENERIC_9x1 = register("generic_9x1", ChestMenu::oneRow);
@@ -40,13 +38,11 @@ public class MenuType<T extends AbstractContainerMenu> {
         this.constructor = param0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public T create(int param0, Inventory param1) {
         return this.constructor.create(param0, param1);
     }
 
     interface MenuSupplier<T extends AbstractContainerMenu> {
-        @OnlyIn(Dist.CLIENT)
         T create(int var1, Inventory var2);
     }
 }

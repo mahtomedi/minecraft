@@ -3,14 +3,12 @@ package net.minecraft.network.protocol.login;
 import javax.annotation.Nullable;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ServerboundCustomQueryPacket implements Packet<ServerLoginPacketListener> {
+    private static final int MAX_PAYLOAD_SIZE = 1048576;
     private final int transactionId;
     private final FriendlyByteBuf data;
 
-    @OnlyIn(Dist.CLIENT)
     public ServerboundCustomQueryPacket(int param0, @Nullable FriendlyByteBuf param1) {
         this.transactionId = param0;
         this.data = param1;
@@ -45,5 +43,13 @@ public class ServerboundCustomQueryPacket implements Packet<ServerLoginPacketLis
 
     public void handle(ServerLoginPacketListener param0) {
         param0.handleCustomQueryPacket(this);
+    }
+
+    public int getTransactionId() {
+        return this.transactionId;
+    }
+
+    public FriendlyByteBuf getData() {
+        return this.data;
     }
 }

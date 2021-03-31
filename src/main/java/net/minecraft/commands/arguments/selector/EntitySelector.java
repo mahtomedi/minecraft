@@ -23,6 +23,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 public class EntitySelector {
+    public static final int INFINITE = Integer.MAX_VALUE;
     private static final EntityTypeTest<Entity, ?> ANY_TYPE = new EntityTypeTest<Entity, Entity>() {
         public Entity tryCast(Entity param0) {
             return param0;
@@ -94,6 +95,10 @@ public class EntitySelector {
 
     public boolean isWorldLimited() {
         return this.worldLimited;
+    }
+
+    public boolean usesSelector() {
+        return this.usesSelector;
     }
 
     private void checkPermissions(CommandSourceStack param0) throws CommandSyntaxException {

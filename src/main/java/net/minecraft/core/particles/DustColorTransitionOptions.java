@@ -9,8 +9,6 @@ import java.util.Locale;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class DustColorTransitionOptions extends DustParticleOptionsBase {
     public static final Vector3f SCULK_PARTICLE_COLOR = new Vector3f(Vec3.fromRGB24(3790560));
@@ -48,12 +46,10 @@ public class DustColorTransitionOptions extends DustParticleOptionsBase {
         this.toColor = param1;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Vector3f getFromColor() {
         return this.color;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Vector3f getToColor() {
         return this.toColor;
     }

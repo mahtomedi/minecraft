@@ -17,8 +17,6 @@ import javax.annotation.Nullable;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.GsonHelper;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.StringUtils;
 
 public class ResourceLocation implements Comparable<ResourceLocation> {
@@ -26,6 +24,9 @@ public class ResourceLocation implements Comparable<ResourceLocation> {
         .<ResourceLocation>comapFlatMap(ResourceLocation::read, ResourceLocation::toString)
         .stable();
     private static final SimpleCommandExceptionType ERROR_INVALID = new SimpleCommandExceptionType(new TranslatableComponent("argument.id.invalid"));
+    public static final char NAMESPACE_SEPARATOR = ':';
+    public static final String DEFAULT_NAMESPACE = "minecraft";
+    public static final String REALMS_NAMESPACE = "realms";
     protected final String namespace;
     protected final String path;
 
@@ -120,6 +121,10 @@ public class ResourceLocation implements Comparable<ResourceLocation> {
         return var0;
     }
 
+    public String toDebugFileName() {
+        return this.toString().replace('/', '_').replace(':', '_');
+    }
+
     public static ResourceLocation read(StringReader param0) throws CommandSyntaxException {
         int var0 = param0.getCursor();
 
@@ -175,7 +180,6 @@ public class ResourceLocation implements Comparable<ResourceLocation> {
         return param0 == '_' || param0 == '-' || param0 >= 'a' && param0 <= 'z' || param0 >= '0' && param0 <= '9' || param0 == '.';
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static boolean isValidResourceLocation(String param0) {
         String[] var0 = decompose(param0, ':');
         return isValidNamespace(StringUtils.isEmpty(var0[0]) ? "minecraft" : var0[0]) && isValidPath(var0[1]);

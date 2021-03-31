@@ -16,8 +16,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class Projectile extends Entity {
     private UUID ownerUUID;
@@ -145,7 +143,6 @@ public abstract class Projectile extends Entity {
         var1.onProjectileHit(this.level, var1, param0, this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void lerpMotion(double param0, double param1, double param2) {
         this.setDeltaMovement(param0, param1, param2);
@@ -194,7 +191,6 @@ public abstract class Projectile extends Entity {
         return new ClientboundAddEntityPacket(this, var0 == null ? 0 : var0.getId());
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void recreateFromPacket(ClientboundAddEntityPacket param0) {
         super.recreateFromPacket(param0);

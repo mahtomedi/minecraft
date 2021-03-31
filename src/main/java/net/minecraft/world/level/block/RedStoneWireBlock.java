@@ -33,8 +33,6 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class RedStoneWireBlock extends Block {
     public static final EnumProperty<RedstoneSide> NORTH = BlockStateProperties.NORTH_REDSTONE;
@@ -45,6 +43,11 @@ public class RedStoneWireBlock extends Block {
     public static final Map<Direction, EnumProperty<RedstoneSide>> PROPERTY_BY_DIRECTION = Maps.newEnumMap(
         ImmutableMap.of(Direction.NORTH, NORTH, Direction.EAST, EAST, Direction.SOUTH, SOUTH, Direction.WEST, WEST)
     );
+    protected static final int H = 1;
+    protected static final int W = 3;
+    protected static final int E = 13;
+    protected static final int N = 3;
+    protected static final int S = 13;
     private static final VoxelShape SHAPE_DOT = Block.box(3.0, 0.0, 3.0, 13.0, 1.0, 13.0);
     private static final Map<Direction, VoxelShape> SHAPES_FLOOR = Maps.newEnumMap(
         ImmutableMap.of(
@@ -81,6 +84,7 @@ public class RedStoneWireBlock extends Block {
         }
 
     });
+    private static final float PARTICLE_DENSITY = 0.2F;
     private final BlockState crossState;
     private boolean shouldSignal = true;
 
@@ -429,13 +433,11 @@ public class RedStoneWireBlock extends Block {
         return this.shouldSignal;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static int getColorForPower(int param0) {
         Vec3 var0 = COLORS[param0];
         return Mth.color((float)var0.x(), (float)var0.y(), (float)var0.z());
     }
 
-    @OnlyIn(Dist.CLIENT)
     private void spawnParticlesAlongLine(
         Level param0, Random param1, BlockPos param2, Vec3 param3, Direction param4, Direction param5, float param6, float param7
     ) {
@@ -458,7 +460,6 @@ public class RedStoneWireBlock extends Block {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void animateTick(BlockState param0, Level param1, BlockPos param2, Random param3) {
         int var0 = param0.getValue(POWER);

@@ -9,8 +9,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.DyeColor;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public enum BannerPattern {
     BASE("base", "b", false),
@@ -73,7 +71,6 @@ public enum BannerPattern {
         this.hasPatternItem = param2;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public ResourceLocation location(boolean param0) {
         String var0 = param0 ? "banner" : "shield";
         return new ResourceLocation("entity/" + var0 + "/" + this.getFilename());
@@ -88,7 +85,6 @@ public enum BannerPattern {
     }
 
     @Nullable
-    @OnlyIn(Dist.CLIENT)
     public static BannerPattern byHash(String param0) {
         for(BannerPattern var0 : values()) {
             if (var0.hashname.equals(param0)) {

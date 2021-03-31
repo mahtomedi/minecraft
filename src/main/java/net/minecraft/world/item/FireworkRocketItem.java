@@ -20,10 +20,19 @@ import net.minecraft.world.entity.projectile.FireworkRocketEntity;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class FireworkRocketItem extends Item {
+    public static final String TAG_FIREWORKS = "Fireworks";
+    public static final String TAG_EXPLOSION = "Explosion";
+    public static final String TAG_EXPLOSIONS = "Explosions";
+    public static final String TAG_FLIGHT = "Flight";
+    public static final String TAG_EXPLOSION_TYPE = "Type";
+    public static final String TAG_EXPLOSION_TRAIL = "Trail";
+    public static final String TAG_EXPLOSION_FLICKER = "Flicker";
+    public static final String TAG_EXPLOSION_COLORS = "Colors";
+    public static final String TAG_EXPLOSION_FADECOLORS = "FadeColors";
+    public static final double ROCKET_PLACEMENT_OFFSET = 0.15;
+
     public FireworkRocketItem(Item.Properties param0) {
         super(param0);
     }
@@ -68,7 +77,6 @@ public class FireworkRocketItem extends Item {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void appendHoverText(ItemStack param0, @Nullable Level param1, List<Component> param2, TooltipFlag param3) {
         CompoundTag var0 = param0.getTagElement("Fireworks");
@@ -130,12 +138,10 @@ public class FireworkRocketItem extends Item {
             return this.id;
         }
 
-        @OnlyIn(Dist.CLIENT)
         public String getName() {
             return this.name;
         }
 
-        @OnlyIn(Dist.CLIENT)
         public static FireworkRocketItem.Shape byId(int param0) {
             return param0 >= 0 && param0 < BY_ID.length ? BY_ID[param0] : SMALL_BALL;
         }

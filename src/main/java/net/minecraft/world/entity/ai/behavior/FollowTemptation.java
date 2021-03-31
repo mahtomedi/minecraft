@@ -1,8 +1,10 @@
 package net.minecraft.world.entity.ai.behavior;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMap.Builder;
 import java.util.Optional;
 import java.util.function.Function;
+import net.minecraft.Util;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.PathfinderMob;
@@ -13,23 +15,21 @@ import net.minecraft.world.entity.ai.memory.WalkTarget;
 import net.minecraft.world.entity.player.Player;
 
 public class FollowTemptation extends Behavior<PathfinderMob> {
+    public static final int TEMPTATION_COOLDOWN = 100;
+    public static final double CLOSE_ENOUGH_DIST = 2.5;
     private final Function<LivingEntity, Float> speedModifier;
 
     public FollowTemptation(Function<LivingEntity, Float> param0) {
-        super(
-            ImmutableMap.of(
-                MemoryModuleType.LOOK_TARGET,
-                MemoryStatus.REGISTERED,
-                MemoryModuleType.WALK_TARGET,
-                MemoryStatus.REGISTERED,
-                MemoryModuleType.TEMPTATION_COOLDOWN_TICKS,
-                MemoryStatus.VALUE_ABSENT,
-                MemoryModuleType.IS_TEMPTED,
-                MemoryStatus.REGISTERED,
-                MemoryModuleType.TEMPTING_PLAYER,
-                MemoryStatus.VALUE_PRESENT
-            )
-        );
+        super(Util.make(() -> {
+            Builder<MemoryModuleType<?>, MemoryStatus> var0 = ImmutableMap.builder();
+            var0.put(MemoryModuleType.LOOK_TARGET, MemoryStatus.REGISTERED);
+            var0.put(MemoryModuleType.WALK_TARGET, MemoryStatus.REGISTERED);
+            var0.put(MemoryModuleType.TEMPTATION_COOLDOWN_TICKS, MemoryStatus.VALUE_ABSENT);
+            var0.put(MemoryModuleType.IS_TEMPTED, MemoryStatus.REGISTERED);
+            var0.put(MemoryModuleType.TEMPTING_PLAYER, MemoryStatus.VALUE_PRESENT);
+            var0.put(MemoryModuleType.BREED_TARGET, MemoryStatus.VALUE_ABSENT);
+            return var0.build();
+        }));
         this.speedModifier = param0;
     }
 
@@ -47,7 +47,7 @@ public class FollowTemptation extends Behavior<PathfinderMob> {
     }
 
     protected boolean canStillUse(ServerLevel param0, PathfinderMob param1, long param2) {
-        return this.getTemptingPlayer(param1).isPresent();
+        return this.getTemptingPlayer(param1).isPresent() && !param1.getBrain().hasMemoryValue(MemoryModuleType.BREED_TARGET);
     }
 
     protected void start(ServerLevel param0, PathfinderMob param1, long param2) {

@@ -10,8 +10,15 @@ import net.minecraft.core.SectionPos;
 
 public class ChunkPos {
     public static final long INVALID_CHUNK_POS = asLong(1875016, 1875016);
+    private static final long COORD_BITS = 32L;
+    private static final long COORD_MASK = 4294967295L;
+    private static final int REGION_BITS = 5;
+    private static final int REGION_MASK = 31;
     public final int x;
     public final int z;
+    private static final int HASH_A = 1664525;
+    private static final int HASH_C = 1013904223;
+    private static final int HASH_Z_XOR = -559038737;
 
     public ChunkPos(int param0, int param1) {
         this.x = param0;
@@ -101,6 +108,10 @@ public class ChunkPos {
 
     public int getRegionLocalZ() {
         return this.z & 31;
+    }
+
+    public BlockPos getBlockAt(int param0, int param1, int param2) {
+        return new BlockPos(this.getBlockX(param0), param1, this.getBlockZ(param2));
     }
 
     public int getBlockX(int param0) {

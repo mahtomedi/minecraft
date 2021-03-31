@@ -248,13 +248,48 @@ public class LocationPredicate {
             return new LocationPredicate.Builder();
         }
 
+        public LocationPredicate.Builder setX(MinMaxBounds.Floats param0) {
+            this.x = param0;
+            return this;
+        }
+
+        public LocationPredicate.Builder setY(MinMaxBounds.Floats param0) {
+            this.y = param0;
+            return this;
+        }
+
+        public LocationPredicate.Builder setZ(MinMaxBounds.Floats param0) {
+            this.z = param0;
+            return this;
+        }
+
         public LocationPredicate.Builder setBiome(@Nullable ResourceKey<Biome> param0) {
             this.biome = param0;
             return this;
         }
 
+        public LocationPredicate.Builder setFeature(@Nullable StructureFeature<?> param0) {
+            this.feature = param0;
+            return this;
+        }
+
+        public LocationPredicate.Builder setDimension(@Nullable ResourceKey<Level> param0) {
+            this.dimension = param0;
+            return this;
+        }
+
+        public LocationPredicate.Builder setLight(LightPredicate param0) {
+            this.light = param0;
+            return this;
+        }
+
         public LocationPredicate.Builder setBlock(BlockPredicate param0) {
             this.block = param0;
+            return this;
+        }
+
+        public LocationPredicate.Builder setFluid(FluidPredicate param0) {
+            this.fluid = param0;
             return this;
         }
 

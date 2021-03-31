@@ -27,10 +27,11 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class PiglinBrute extends AbstractPiglin {
+    private static final int MAX_HEALTH = 50;
+    private static final float MOVEMENT_SPEED_WHEN_FIGHTING = 0.35F;
+    private static final int ATTACK_DAMAGE = 7;
     protected static final ImmutableList<SensorType<? extends Sensor<? super PiglinBrute>>> SENSOR_TYPES = ImmutableList.of(
         SensorType.NEAREST_LIVING_ENTITIES, SensorType.NEAREST_PLAYERS, SensorType.NEAREST_ITEMS, SensorType.HURT_BY, SensorType.PIGLIN_BRUTE_SPECIFIC_SENSOR
     );
@@ -115,7 +116,6 @@ public class PiglinBrute extends AbstractPiglin {
         super.customServerAiStep();
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public PiglinArmPose getArmPose() {
         return this.isAggressive() && this.isHoldingMeleeWeapon() ? PiglinArmPose.ATTACKING_WITH_MELEE_WEAPON : PiglinArmPose.DEFAULT;

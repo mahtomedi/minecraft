@@ -12,6 +12,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class OrCondition implements Condition {
+    public static final String TOKEN = "OR";
     private final Iterable<? extends Condition> conditions;
 
     public OrCondition(Iterable<? extends Condition> param0) {

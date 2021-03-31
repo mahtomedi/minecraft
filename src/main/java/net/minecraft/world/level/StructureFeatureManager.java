@@ -59,8 +59,11 @@ public class StructureFeatureManager {
     public StructureStart<?> getStructureAt(BlockPos param0, boolean param1, StructureFeature<?> param2) {
         return DataFixUtils.orElse(
             this.startsForFeature(SectionPos.of(param0), param2)
-                .filter(param1x -> param1x.getBoundingBox().isInside(param0))
-                .filter(param2x -> !param1 || param2x.getPieces().stream().anyMatch(param1x -> param1x.getBoundingBox().isInside(param0)))
+                .filter(
+                    param2x -> param1
+                            ? param2x.getPieces().stream().anyMatch(param1x -> param1x.getBoundingBox().isInside(param0))
+                            : param2x.getBoundingBox().isInside(param0)
+                )
                 .findFirst(),
             StructureStart.INVALID_START
         );

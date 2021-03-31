@@ -7,8 +7,6 @@ import net.minecraft.core.IdMapper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class LinearPalette<T> implements Palette<T> {
     private final IdMapper<T> registry;
@@ -61,7 +59,6 @@ public class LinearPalette<T> implements Palette<T> {
         return param0 >= 0 && param0 < this.size ? this.values[param0] : null;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void read(FriendlyByteBuf param0) {
         this.size = param0.readVarInt();
@@ -93,6 +90,7 @@ public class LinearPalette<T> implements Palette<T> {
         return var0;
     }
 
+    @Override
     public int getSize() {
         return this.size;
     }

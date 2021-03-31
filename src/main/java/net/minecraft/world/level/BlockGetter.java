@@ -1,5 +1,6 @@
 package net.minecraft.world.level;
 
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -9,6 +10,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.AABB;
@@ -19,6 +21,11 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 public interface BlockGetter extends LevelHeightAccessor {
     @Nullable
     BlockEntity getBlockEntity(BlockPos var1);
+
+    default <T extends BlockEntity> Optional<T> getBlockEntity(BlockPos param0, BlockEntityType<T> param1) {
+        BlockEntity var0 = this.getBlockEntity(param0);
+        return var0 != null && var0.getType() == param1 ? Optional.of((T)var0) : Optional.empty();
+    }
 
     BlockState getBlockState(BlockPos var1);
 

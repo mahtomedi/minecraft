@@ -10,17 +10,23 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.trading.Merchant;
 import net.minecraft.world.item.trading.MerchantOffers;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class MerchantMenu extends AbstractContainerMenu {
+    protected static final int PAYMENT1_SLOT = 0;
+    protected static final int PAYMENT2_SLOT = 1;
+    protected static final int RESULT_SLOT = 2;
+    private static final int INV_SLOT_START = 3;
+    private static final int INV_SLOT_END = 30;
+    private static final int USE_ROW_SLOT_START = 30;
+    private static final int USE_ROW_SLOT_END = 39;
+    private static final int SELLSLOT1_X = 136;
+    private static final int SELLSLOT2_X = 162;
+    private static final int BUYSLOT_X = 220;
+    private static final int ROW_Y = 37;
     private final Merchant trader;
     private final MerchantContainer tradeContainer;
-    @OnlyIn(Dist.CLIENT)
     private int merchantLevel;
-    @OnlyIn(Dist.CLIENT)
     private boolean showProgressBar;
-    @OnlyIn(Dist.CLIENT)
     private boolean canRestock;
 
     public MerchantMenu(int param0, Inventory param1) {
@@ -47,7 +53,6 @@ public class MerchantMenu extends AbstractContainerMenu {
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void setShowProgressBar(boolean param0) {
         this.showProgressBar = param0;
     }
@@ -67,37 +72,30 @@ public class MerchantMenu extends AbstractContainerMenu {
         return this.trader.getTradingPlayer() == param0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getTraderXp() {
         return this.trader.getVillagerXp();
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getFutureTraderXp() {
         return this.tradeContainer.getFutureXp();
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void setXp(int param0) {
         this.trader.overrideXp(param0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getTraderLevel() {
         return this.merchantLevel;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void setMerchantLevel(int param0) {
         this.merchantLevel = param0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void setCanRestock(boolean param0) {
         this.canRestock = param0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean canRestock() {
         return this.canRestock;
     }
@@ -234,7 +232,6 @@ public class MerchantMenu extends AbstractContainerMenu {
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void setOffers(MerchantOffers param0) {
         this.trader.overrideOffers(param0);
     }
@@ -243,7 +240,6 @@ public class MerchantMenu extends AbstractContainerMenu {
         return this.trader.getOffers();
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean showProgressBar() {
         return this.showProgressBar;
     }

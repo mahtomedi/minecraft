@@ -25,13 +25,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
-@OnlyIn(
-    value = Dist.CLIENT,
-    _interface = ItemSupplier.class
-)
 public class FireworkRocketEntity extends Projectile implements ItemSupplier {
     private static final EntityDataAccessor<ItemStack> DATA_ID_FIREWORKS_ITEM = SynchedEntityData.defineId(
         FireworkRocketEntity.class, EntityDataSerializers.ITEM_STACK
@@ -90,13 +84,11 @@ public class FireworkRocketEntity extends Projectile implements ItemSupplier {
         this.entityData.define(DATA_SHOT_AT_ANGLE, false);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public boolean shouldRenderAtSqrDistance(double param0) {
         return param0 < 4096.0 && !this.isAttachedToEntity();
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public boolean shouldRender(double param0, double param1, double param2) {
         return super.shouldRender(param0, param1, param2) && !this.isAttachedToEntity();
@@ -258,7 +250,6 @@ public class FireworkRocketEntity extends Projectile implements ItemSupplier {
         return this.entityData.get(DATA_SHOT_AT_ANGLE);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void handleEntityEvent(byte param0) {
         if (param0 == 17 && this.level.isClientSide) {
@@ -315,7 +306,6 @@ public class FireworkRocketEntity extends Projectile implements ItemSupplier {
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public ItemStack getItem() {
         ItemStack var0 = this.entityData.get(DATA_ID_FIREWORKS_ITEM);

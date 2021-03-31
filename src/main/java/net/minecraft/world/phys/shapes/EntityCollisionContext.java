@@ -51,6 +51,11 @@ public class EntityCollisionContext implements CollisionContext {
     }
 
     @Override
+    public boolean hasItemOnFeet(Item param0) {
+        return this.footItem.is(param0);
+    }
+
+    @Override
     public boolean isHoldingItem(Item param0) {
         return this.heldItem.is(param0);
     }

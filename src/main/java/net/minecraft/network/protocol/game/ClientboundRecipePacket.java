@@ -7,8 +7,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.stats.RecipeBookSettings;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundRecipePacket implements Packet<ClientGamePacketListener> {
     private final ClientboundRecipePacket.State state;
@@ -52,22 +50,18 @@ public class ClientboundRecipePacket implements Packet<ClientGamePacketListener>
         param0.handleAddOrRemoveRecipes(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public List<ResourceLocation> getRecipes() {
         return this.recipes;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public List<ResourceLocation> getHighlights() {
         return this.toHighlight;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public RecipeBookSettings getBookSettings() {
         return this.bookSettings;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public ClientboundRecipePacket.State getState() {
         return this.state;
     }

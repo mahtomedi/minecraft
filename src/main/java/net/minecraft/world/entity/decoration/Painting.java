@@ -19,8 +19,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class Painting extends HangingEntity {
     public Motive motive;
@@ -62,7 +60,6 @@ public class Painting extends HangingEntity {
         this.setDirection(param2);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Painting(Level param0, BlockPos param1, Direction param2, Motive param3) {
         this(param0, param1, param2);
         this.motive = param3;
@@ -119,7 +116,6 @@ public class Painting extends HangingEntity {
         this.setPos(param0, param1, param2);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void lerpTo(double param0, double param1, double param2, float param3, float param4, int param5, boolean param6) {
         BlockPos var0 = this.pos.offset(param0 - this.getX(), param1 - this.getY(), param2 - this.getZ());
@@ -131,7 +127,6 @@ public class Painting extends HangingEntity {
         return new ClientboundAddPaintingPacket(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public ItemStack getPickResult() {
         return new ItemStack(Items.PAINTING);

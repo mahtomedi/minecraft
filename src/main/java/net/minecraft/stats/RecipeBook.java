@@ -7,8 +7,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.RecipeBookMenu;
 import net.minecraft.world.inventory.RecipeBookType;
 import net.minecraft.world.item.crafting.Recipe;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class RecipeBook {
     protected final Set<ResourceLocation> known = Sets.newHashSet();
@@ -42,7 +40,6 @@ public class RecipeBook {
         return this.known.contains(param0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void remove(Recipe<?> param0) {
         this.remove(param0.getId());
     }
@@ -52,7 +49,6 @@ public class RecipeBook {
         this.highlight.remove(param0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean willHighlight(Recipe<?> param0) {
         return this.highlight.contains(param0.getId());
     }
@@ -69,27 +65,22 @@ public class RecipeBook {
         this.highlight.add(param0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean isOpen(RecipeBookType param0) {
         return this.bookSettings.isOpen(param0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void setOpen(RecipeBookType param0, boolean param1) {
         this.bookSettings.setOpen(param0, param1);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean isFiltering(RecipeBookMenu<?> param0) {
         return this.isFiltering(param0.getRecipeBookType());
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean isFiltering(RecipeBookType param0) {
         return this.bookSettings.isFiltering(param0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void setFiltering(RecipeBookType param0, boolean param1) {
         this.bookSettings.setFiltering(param0, param1);
     }

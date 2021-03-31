@@ -12,8 +12,6 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -95,14 +93,12 @@ public class TagContainer {
         return var0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static TagContainer deserializeFromNetwork(RegistryAccess param0, Map<ResourceKey<? extends Registry<?>>, TagCollection.NetworkPayload> param1) {
         TagContainer.Builder var0 = new TagContainer.Builder();
         param1.forEach((param2, param3) -> addTagsFromPayload(param0, var0, param2, param3));
         return var0.build();
     }
 
-    @OnlyIn(Dist.CLIENT)
     private static <T> void addTagsFromPayload(
         RegistryAccess param0, TagContainer.Builder param1, ResourceKey<? extends Registry<? extends T>> param2, TagCollection.NetworkPayload param3
     ) {

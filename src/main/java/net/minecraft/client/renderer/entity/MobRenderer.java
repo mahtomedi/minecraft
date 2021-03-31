@@ -19,6 +19,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public abstract class MobRenderer<T extends Mob, M extends EntityModel<T>> extends LivingEntityRenderer<T, M> {
+    public static final int LEASH_RENDER_STEPS = 24;
+
     public MobRenderer(EntityRendererProvider.Context param0, M param1, float param2) {
         super(param0, param1, param2);
     }

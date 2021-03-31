@@ -13,10 +13,11 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class EvokerFangs extends Entity {
+    public static final int ATTACK_DURATION = 20;
+    public static final int LIFE_OFFSET = 2;
+    public static final int ATTACK_TRIGGER_TICKS = 14;
     private int warmupDelayTicks;
     private boolean sentSpikeEvent;
     private int lifeTicks = 22;
@@ -128,7 +129,6 @@ public class EvokerFangs extends Entity {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void handleEntityEvent(byte param0) {
         super.handleEntityEvent(param0);
@@ -151,7 +151,6 @@ public class EvokerFangs extends Entity {
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getAnimationProgress(float param0) {
         if (!this.clientSideAttackStarted) {
             return 0.0F;

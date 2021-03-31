@@ -5,8 +5,6 @@ import javax.annotation.Nullable;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundSetEntityDataPacket implements Packet<ClientGamePacketListener> {
     private final int id;
@@ -40,12 +38,10 @@ public class ClientboundSetEntityDataPacket implements Packet<ClientGamePacketLi
     }
 
     @Nullable
-    @OnlyIn(Dist.CLIENT)
     public List<SynchedEntityData.DataItem<?>> getUnpackedData() {
         return this.packedItems;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getId() {
         return this.id;
     }

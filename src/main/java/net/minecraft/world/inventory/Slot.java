@@ -7,8 +7,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class Slot {
     private final int slot;
@@ -75,7 +73,6 @@ public class Slot {
     }
 
     @Nullable
-    @OnlyIn(Dist.CLIENT)
     public Pair<ResourceLocation, ResourceLocation> getNoItemIcon() {
         return null;
     }
@@ -88,7 +85,6 @@ public class Slot {
         return true;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean isActive() {
         return true;
     }
@@ -99,10 +95,6 @@ public class Slot {
         } else if (!this.allowModification(param2) && param1 < this.getItem().getCount()) {
             return Optional.empty();
         } else {
-            if (!this.allowModification(param2)) {
-                param0 = this.getItem().getCount();
-            }
-
             param0 = Math.min(param0, param1);
             ItemStack var0 = this.remove(param0);
             if (this.getItem().isEmpty()) {

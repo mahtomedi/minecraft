@@ -67,10 +67,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class AbstractHorse extends Animal implements ContainerListener, PlayerRideableJumping, Saddleable {
+    public static final int EQUIPMENT_SLOT_OFFSET = 400;
+    public static final int CHEST_SLOT_OFFSET = 499;
+    public static final int INVENTORY_SLOT_OFFSET = 500;
     private static final Predicate<LivingEntity> PARENT_HORSE_SELECTOR = param0 -> param0 instanceof AbstractHorse && ((AbstractHorse)param0).isBred();
     private static final TargetingConditions MOMMY_TARGETING = new TargetingConditions()
         .range(16.0)
@@ -85,6 +86,15 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
     private static final EntityDataAccessor<Optional<UUID>> DATA_ID_OWNER_UUID = SynchedEntityData.defineId(
         AbstractHorse.class, EntityDataSerializers.OPTIONAL_UUID
     );
+    private static final int FLAG_TAME = 2;
+    private static final int FLAG_SADDLE = 4;
+    private static final int FLAG_BRED = 8;
+    private static final int FLAG_EATING = 16;
+    private static final int FLAG_STANDING = 32;
+    private static final int FLAG_OPEN_MOUTH = 64;
+    public static final int INV_SLOT_SADDLE = 0;
+    public static final int INV_SLOT_ARMOR = 1;
+    public static final int INV_BASE_COUNT = 2;
     private int eatingCounter;
     private int mouthCounter;
     private int standCounter;
@@ -857,22 +867,18 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
         return this.getControllingPassenger() instanceof LivingEntity;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getEatAnim(float param0) {
         return Mth.lerp(param0, this.eatAnimO, this.eatAnim);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getStandAnim(float param0) {
         return Mth.lerp(param0, this.standAnimO, this.standAnim);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getMouthAnim(float param0) {
         return Mth.lerp(param0, this.mouthAnimO, this.mouthAnim);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void onPlayerJump(int param0) {
         if (this.isSaddled()) {
@@ -908,7 +914,6 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
     public void handleStopJump() {
     }
 
-    @OnlyIn(Dist.CLIENT)
     protected void spawnTamingParticles(boolean param0) {
         ParticleOptions var0 = param0 ? ParticleTypes.HEART : ParticleTypes.SMOKE;
 
@@ -921,7 +926,6 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void handleEntityEvent(byte param0) {
         if (param0 == 7) {

@@ -41,6 +41,12 @@ public class KilledTrigger extends SimpleCriterionTrigger<KilledTrigger.TriggerI
             this.killingBlow = param3;
         }
 
+        public static KilledTrigger.TriggerInstance playerKilledEntity(EntityPredicate param0) {
+            return new KilledTrigger.TriggerInstance(
+                CriteriaTriggers.PLAYER_KILLED_ENTITY.id, EntityPredicate.Composite.ANY, EntityPredicate.Composite.wrap(param0), DamageSourcePredicate.ANY
+            );
+        }
+
         public static KilledTrigger.TriggerInstance playerKilledEntity(EntityPredicate.Builder param0) {
             return new KilledTrigger.TriggerInstance(
                 CriteriaTriggers.PLAYER_KILLED_ENTITY.id,
@@ -56,15 +62,72 @@ public class KilledTrigger extends SimpleCriterionTrigger<KilledTrigger.TriggerI
             );
         }
 
+        public static KilledTrigger.TriggerInstance playerKilledEntity(EntityPredicate param0, DamageSourcePredicate param1) {
+            return new KilledTrigger.TriggerInstance(
+                CriteriaTriggers.PLAYER_KILLED_ENTITY.id, EntityPredicate.Composite.ANY, EntityPredicate.Composite.wrap(param0), param1
+            );
+        }
+
+        public static KilledTrigger.TriggerInstance playerKilledEntity(EntityPredicate.Builder param0, DamageSourcePredicate param1) {
+            return new KilledTrigger.TriggerInstance(
+                CriteriaTriggers.PLAYER_KILLED_ENTITY.id, EntityPredicate.Composite.ANY, EntityPredicate.Composite.wrap(param0.build()), param1
+            );
+        }
+
+        public static KilledTrigger.TriggerInstance playerKilledEntity(EntityPredicate param0, DamageSourcePredicate.Builder param1) {
+            return new KilledTrigger.TriggerInstance(
+                CriteriaTriggers.PLAYER_KILLED_ENTITY.id, EntityPredicate.Composite.ANY, EntityPredicate.Composite.wrap(param0), param1.build()
+            );
+        }
+
         public static KilledTrigger.TriggerInstance playerKilledEntity(EntityPredicate.Builder param0, DamageSourcePredicate.Builder param1) {
             return new KilledTrigger.TriggerInstance(
                 CriteriaTriggers.PLAYER_KILLED_ENTITY.id, EntityPredicate.Composite.ANY, EntityPredicate.Composite.wrap(param0.build()), param1.build()
             );
         }
 
+        public static KilledTrigger.TriggerInstance entityKilledPlayer(EntityPredicate param0) {
+            return new KilledTrigger.TriggerInstance(
+                CriteriaTriggers.ENTITY_KILLED_PLAYER.id, EntityPredicate.Composite.ANY, EntityPredicate.Composite.wrap(param0), DamageSourcePredicate.ANY
+            );
+        }
+
+        public static KilledTrigger.TriggerInstance entityKilledPlayer(EntityPredicate.Builder param0) {
+            return new KilledTrigger.TriggerInstance(
+                CriteriaTriggers.ENTITY_KILLED_PLAYER.id,
+                EntityPredicate.Composite.ANY,
+                EntityPredicate.Composite.wrap(param0.build()),
+                DamageSourcePredicate.ANY
+            );
+        }
+
         public static KilledTrigger.TriggerInstance entityKilledPlayer() {
             return new KilledTrigger.TriggerInstance(
                 CriteriaTriggers.ENTITY_KILLED_PLAYER.id, EntityPredicate.Composite.ANY, EntityPredicate.Composite.ANY, DamageSourcePredicate.ANY
+            );
+        }
+
+        public static KilledTrigger.TriggerInstance entityKilledPlayer(EntityPredicate param0, DamageSourcePredicate param1) {
+            return new KilledTrigger.TriggerInstance(
+                CriteriaTriggers.ENTITY_KILLED_PLAYER.id, EntityPredicate.Composite.ANY, EntityPredicate.Composite.wrap(param0), param1
+            );
+        }
+
+        public static KilledTrigger.TriggerInstance entityKilledPlayer(EntityPredicate.Builder param0, DamageSourcePredicate param1) {
+            return new KilledTrigger.TriggerInstance(
+                CriteriaTriggers.ENTITY_KILLED_PLAYER.id, EntityPredicate.Composite.ANY, EntityPredicate.Composite.wrap(param0.build()), param1
+            );
+        }
+
+        public static KilledTrigger.TriggerInstance entityKilledPlayer(EntityPredicate param0, DamageSourcePredicate.Builder param1) {
+            return new KilledTrigger.TriggerInstance(
+                CriteriaTriggers.ENTITY_KILLED_PLAYER.id, EntityPredicate.Composite.ANY, EntityPredicate.Composite.wrap(param0), param1.build()
+            );
+        }
+
+        public static KilledTrigger.TriggerInstance entityKilledPlayer(EntityPredicate.Builder param0, DamageSourcePredicate.Builder param1) {
+            return new KilledTrigger.TriggerInstance(
+                CriteriaTriggers.ENTITY_KILLED_PLAYER.id, EntityPredicate.Composite.ANY, EntityPredicate.Composite.wrap(param0.build()), param1.build()
             );
         }
 

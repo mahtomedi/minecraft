@@ -1,8 +1,5 @@
 package net.minecraft.network.chat;
 
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-
 public enum ChatType {
     CHAT((byte)0, false),
     SYSTEM((byte)1, true),
@@ -30,7 +27,6 @@ public enum ChatType {
         return CHAT;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean shouldInterrupt() {
         return this.interrupt;
     }

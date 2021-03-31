@@ -21,6 +21,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class FogRenderer {
+    private static final int WATER_FOG_DISTANCE = 192;
+    public static final float BIOME_FOG_TRANSITION_TIME = 5000.0F;
     private static float fogRed;
     private static float fogGreen;
     private static float fogBlue;
@@ -156,25 +158,23 @@ public class FogRenderer {
             fogBlue = fogBlue * (1.0F - param4) + fogBlue * 0.6F * param4;
         }
 
+        float var34;
         if (var0 == FogType.WATER) {
-            float var34 = 0.0F;
             if (var1 instanceof LocalPlayer) {
-                LocalPlayer var35 = (LocalPlayer)var1;
-                var34 = var35.getWaterVision();
+                var34 = ((LocalPlayer)var1).getWaterVision();
+            } else {
+                var34 = 1.0F;
             }
-
-            float var36 = Math.min(1.0F / fogRed, Math.min(1.0F / fogGreen, 1.0F / fogBlue));
-            fogRed = fogRed * (1.0F - var34) + fogRed * var36 * var34;
-            fogGreen = fogGreen * (1.0F - var34) + fogGreen * var36 * var34;
-            fogBlue = fogBlue * (1.0F - var34) + fogBlue * var36 * var34;
         } else if (var1 instanceof LivingEntity && ((LivingEntity)var1).hasEffect(MobEffects.NIGHT_VISION)) {
-            float var37 = GameRenderer.getNightVisionScale((LivingEntity)var1, param1);
-            float var38 = Math.min(1.0F / fogRed, Math.min(1.0F / fogGreen, 1.0F / fogBlue));
-            fogRed = fogRed * (1.0F - var37) + fogRed * var38 * var37;
-            fogGreen = fogGreen * (1.0F - var37) + fogGreen * var38 * var37;
-            fogBlue = fogBlue * (1.0F - var37) + fogBlue * var38 * var37;
+            var34 = GameRenderer.getNightVisionScale((LivingEntity)var1, param1);
+        } else {
+            var34 = 0.0F;
         }
 
+        float var38 = Math.min(1.0F / fogRed, Math.min(1.0F / fogGreen, 1.0F / fogBlue));
+        fogRed = fogRed * (1.0F - var34) + fogRed * var38 * var34;
+        fogGreen = fogGreen * (1.0F - var34) + fogGreen * var38 * var34;
+        fogBlue = fogBlue * (1.0F - var34) + fogBlue * var38 * var34;
         RenderSystem.clearColor(fogRed, fogGreen, fogBlue, 0.0F);
     }
 
@@ -186,10 +186,10 @@ public class FogRenderer {
         FogType var0 = param0.getFluidInCamera();
         Entity var1 = param0.getEntity();
         if (var0 == FogType.WATER) {
-            float var2 = param2;
-            LocalPlayer var3 = (LocalPlayer)var1;
+            float var2 = 192.0F;
             if (var1 instanceof LocalPlayer) {
-                var2 = param2 * Math.max(0.25F, var3.getWaterVision());
+                LocalPlayer var3 = (LocalPlayer)var1;
+                var2 *= Math.max(0.25F, var3.getWaterVision());
                 Biome var4 = var3.level.getBiome(var3.blockPosition());
                 if (var4.getBiomeCategory() == Biome.BiomeCategory.SWAMP) {
                     var2 *= 0.85F;

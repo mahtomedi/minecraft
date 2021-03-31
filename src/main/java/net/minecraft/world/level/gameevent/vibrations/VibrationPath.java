@@ -6,8 +6,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.gameevent.PositionSource;
 import net.minecraft.world.level.gameevent.PositionSourceType;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class VibrationPath {
     public static final Codec<VibrationPath> CODEC = RecordCodecBuilder.create(
@@ -36,7 +34,6 @@ public class VibrationPath {
         return this.origin;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public PositionSource getDestination() {
         return this.destination;
     }

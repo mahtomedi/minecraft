@@ -5,8 +5,6 @@ import net.minecraft.world.entity.MobType;
 import net.minecraft.world.entity.ai.goal.OpenDoorGoal;
 import net.minecraft.world.entity.raid.Raider;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class AbstractIllager extends Raider {
     protected AbstractIllager(EntityType<? extends AbstractIllager> param0, Level param1) {
@@ -23,12 +21,10 @@ public abstract class AbstractIllager extends Raider {
         return MobType.ILLAGER;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public AbstractIllager.IllagerArmPose getArmPose() {
         return AbstractIllager.IllagerArmPose.CROSSED;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static enum IllagerArmPose {
         CROSSED,
         ATTACKING,

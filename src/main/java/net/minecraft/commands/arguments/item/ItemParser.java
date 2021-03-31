@@ -25,6 +25,8 @@ public class ItemParser {
     public static final DynamicCommandExceptionType ERROR_UNKNOWN_ITEM = new DynamicCommandExceptionType(
         param0 -> new TranslatableComponent("argument.item.id.invalid", param0)
     );
+    private static final char SYNTAX_START_NBT = '{';
+    private static final char SYNTAX_TAG = '#';
     private static final BiFunction<SuggestionsBuilder, TagCollection<Item>, CompletableFuture<Suggestions>> SUGGEST_NOTHING = (param0, param1) -> param0.buildFuture(
             
         );

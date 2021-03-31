@@ -23,14 +23,9 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.ChestBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.ChestType;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
-@OnlyIn(
-    value = Dist.CLIENT,
-    _interface = LidBlockEntity.class
-)
 public class ChestBlockEntity extends RandomizableContainerBlockEntity implements LidBlockEntity {
+    private static final int EVENT_SET_OPEN_COUNT = 1;
     private NonNullList<ItemStack> items = NonNullList.withSize(27, ItemStack.EMPTY);
     private final ContainerOpenersCounter openersCounter = new ContainerOpenersCounter() {
         @Override
@@ -154,7 +149,6 @@ public class ChestBlockEntity extends RandomizableContainerBlockEntity implement
         this.items = param0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public float getOpenNess(float param0) {
         return this.chestLidController.getOpenness(param0);

@@ -4,6 +4,10 @@ import java.util.List;
 import net.minecraft.nbt.CompoundTag;
 
 public interface DyeableLeatherItem {
+    String TAG_COLOR = "color";
+    String TAG_DISPLAY = "display";
+    int DEFAULT_LEATHER_COLOR = 10511680;
+
     default boolean hasCustomColor(ItemStack param0) {
         CompoundTag var0 = param0.getTagElement("display");
         return var0 != null && var0.contains("color", 99);

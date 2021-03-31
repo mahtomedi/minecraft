@@ -7,10 +7,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class StructureVoidBlock extends Block {
+    private static final double SIZE = 5.0;
     private static final VoxelShape SHAPE = Block.box(5.0, 5.0, 5.0, 11.0, 11.0, 11.0);
 
     protected StructureVoidBlock(BlockBehaviour.Properties param0) {
@@ -27,7 +26,6 @@ public class StructureVoidBlock extends Block {
         return SHAPE;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public float getShadeBrightness(BlockState param0, BlockGetter param1, BlockPos param2) {
         return 1.0F;

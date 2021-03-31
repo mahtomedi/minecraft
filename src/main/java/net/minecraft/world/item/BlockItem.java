@@ -28,10 +28,10 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class BlockItem extends Item {
+    public static final String BLOCK_ENTITY_TAG = "BlockEntityTag";
+    public static final String BLOCK_STATE_TAG = "BlockStateTag";
     @Deprecated
     private final Block block;
 
@@ -192,7 +192,6 @@ public class BlockItem extends Item {
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void appendHoverText(ItemStack param0, @Nullable Level param1, List<Component> param2, TooltipFlag param3) {
         super.appendHoverText(param0, param1, param2, param3);

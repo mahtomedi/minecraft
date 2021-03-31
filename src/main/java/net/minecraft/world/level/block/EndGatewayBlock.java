@@ -14,8 +14,6 @@ import net.minecraft.world.level.block.entity.TheEndGatewayBlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class EndGatewayBlock extends BaseEntityBlock {
     protected EndGatewayBlock(BlockBehaviour.Properties param0) {
@@ -35,7 +33,6 @@ public class EndGatewayBlock extends BaseEntityBlock {
         );
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void animateTick(BlockState param0, Level param1, BlockPos param2, Random param3) {
         BlockEntity var0 = param1.getBlockEntity(param2);
@@ -64,7 +61,6 @@ public class EndGatewayBlock extends BaseEntityBlock {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public ItemStack getCloneItemStack(BlockGetter param0, BlockPos param1, BlockState param2) {
         return ItemStack.EMPTY;

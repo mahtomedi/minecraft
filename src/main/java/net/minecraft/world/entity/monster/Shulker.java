@@ -49,8 +49,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class Shulker extends AbstractGolem implements Enemy {
     private static final UUID COVERED_ARMOR_MODIFIER_UUID = UUID.fromString("7E0292F2-9434-48D5-A29F-9583AF7DF27F");
@@ -60,11 +58,19 @@ public class Shulker extends AbstractGolem implements Enemy {
     protected static final EntityDataAccessor<Direction> DATA_ATTACH_FACE_ID = SynchedEntityData.defineId(Shulker.class, EntityDataSerializers.DIRECTION);
     protected static final EntityDataAccessor<Byte> DATA_PEEK_ID = SynchedEntityData.defineId(Shulker.class, EntityDataSerializers.BYTE);
     protected static final EntityDataAccessor<Byte> DATA_COLOR_ID = SynchedEntityData.defineId(Shulker.class, EntityDataSerializers.BYTE);
+    private static final int TELEPORT_STEPS = 6;
+    private static final byte NO_COLOR = 16;
+    private static final byte DEFAULT_COLOR = 16;
+    private static final int MAX_TELEPORT_DISTANCE = 8;
+    private static final int OTHER_SHULKER_SCAN_RADIUS = 8;
+    private static final int OTHER_SHULKER_LIMIT = 5;
+    private static final float PEEK_PER_TICK = 0.05F;
     private float currentPeekAmountO;
     private float currentPeekAmount;
     @Nullable
     private BlockPos clientOldAttachPosition;
     private int clientSideTeleportInterpolation;
+    private static final float MAX_LID_OPEN = 1.0F;
 
     public Shulker(EntityType<? extends Shulker> param0, Level param1) {
         super(param0, param1);
@@ -135,7 +141,7 @@ public class Shulker extends AbstractGolem implements Enemy {
     @Override
     public void readAdditionalSaveData(CompoundTag param0) {
         super.readAdditionalSaveData(param0);
-        this.entityData.set(DATA_ATTACH_FACE_ID, Direction.from3DDataValue(param0.getByte("AttachFace")));
+        this.setAttachFace(Direction.from3DDataValue(param0.getByte("AttachFace")));
         this.entityData.set(DATA_PEEK_ID, param0.getByte("Peek"));
         if (param0.contains("Color", 99)) {
             this.entityData.set(DATA_COLOR_ID, param0.getByte("Color"));
@@ -146,7 +152,7 @@ public class Shulker extends AbstractGolem implements Enemy {
     @Override
     public void addAdditionalSaveData(CompoundTag param0) {
         super.addAdditionalSaveData(param0);
-        param0.putByte("AttachFace", (byte)this.entityData.get(DATA_ATTACH_FACE_ID).get3DDataValue());
+        param0.putByte("AttachFace", (byte)this.getAttachFace().get3DDataValue());
         param0.putByte("Peek", this.entityData.get(DATA_PEEK_ID));
         param0.putByte("Color", this.entityData.get(DATA_COLOR_ID));
     }
@@ -175,7 +181,7 @@ public class Shulker extends AbstractGolem implements Enemy {
     private void findNewAttachment() {
         Direction var0 = this.findAttachableSurface(this.blockPosition());
         if (var0 != null) {
-            this.entityData.set(DATA_ATTACH_FACE_ID, var0);
+            this.setAttachFace(var0);
         } else {
             this.teleportSomewhere();
         }
@@ -258,7 +264,7 @@ public class Shulker extends AbstractGolem implements Enemy {
             this.clientSideTeleportInterpolation = 0;
         }
 
-        this.entityData.set(DATA_ATTACH_FACE_ID, Direction.DOWN);
+        this.setAttachFace(Direction.DOWN);
         return super.startRiding(param0, param1);
     }
 
@@ -381,7 +387,7 @@ public class Shulker extends AbstractGolem implements Enemy {
                     Direction var3 = this.findAttachableSurface(var2);
                     if (var3 != null) {
                         this.unRide();
-                        this.entityData.set(DATA_ATTACH_FACE_ID, var3);
+                        this.setAttachFace(var3);
                         this.playSound(SoundEvents.SHULKER_TELEPORT, 1.0F, 1.0F);
                         this.setPos((double)var2.getX() + 0.5, (double)var2.getY(), (double)var2.getZ() + 0.5);
                         this.entityData.set(DATA_PEEK_ID, (byte)0);
@@ -397,7 +403,6 @@ public class Shulker extends AbstractGolem implements Enemy {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void lerpTo(double param0, double param1, double param2, float param3, float param4, int param5, boolean param6) {
         this.lerpSteps = 0;
@@ -462,6 +467,19 @@ public class Shulker extends AbstractGolem implements Enemy {
         return this.entityData.get(DATA_ATTACH_FACE_ID);
     }
 
+    private void setAttachFace(Direction param0) {
+        this.entityData.set(DATA_ATTACH_FACE_ID, param0);
+    }
+
+    @Override
+    public void onSyncedDataUpdated(EntityDataAccessor<?> param0) {
+        if (DATA_ATTACH_FACE_ID.equals(param0)) {
+            this.setBoundingBox(this.makeBoundingBox());
+        }
+
+        super.onSyncedDataUpdated(param0);
+    }
+
     private int getRawPeekAmount() {
         return this.entityData.get(DATA_PEEK_ID);
     }
@@ -482,7 +500,6 @@ public class Shulker extends AbstractGolem implements Enemy {
         this.entityData.set(DATA_PEEK_ID, (byte)param0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getClientPeekAmount(float param0) {
         return Mth.lerp(param0, this.currentPeekAmountO, this.currentPeekAmount);
     }
@@ -492,7 +509,6 @@ public class Shulker extends AbstractGolem implements Enemy {
         return 0.5F;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void recreateFromPacket(ClientboundAddMobPacket param0) {
         super.recreateFromPacket(param0);
@@ -518,7 +534,6 @@ public class Shulker extends AbstractGolem implements Enemy {
         return 0.0F;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Optional<Vec3> getRenderPosition(float param0) {
         if (this.clientOldAttachPosition != null && this.clientSideTeleportInterpolation > 0) {
             double var0 = (double)((float)this.clientSideTeleportInterpolation - param0) / 6.0;

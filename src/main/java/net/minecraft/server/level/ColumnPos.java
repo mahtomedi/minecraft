@@ -1,8 +1,15 @@
 package net.minecraft.server.level;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.SectionPos;
+import net.minecraft.world.level.ChunkPos;
 
 public class ColumnPos {
+    private static final long COORD_BITS = 32L;
+    private static final long COORD_MASK = 4294967295L;
+    private static final int HASH_A = 1664525;
+    private static final int HASH_C = 1013904223;
+    private static final int HASH_Z_XOR = -559038737;
     public final int x;
     public final int z;
 
@@ -14,6 +21,18 @@ public class ColumnPos {
     public ColumnPos(BlockPos param0) {
         this.x = param0.getX();
         this.z = param0.getZ();
+    }
+
+    public ChunkPos toChunkPos() {
+        return new ChunkPos(SectionPos.blockToSectionCoord(this.x), SectionPos.blockToSectionCoord(this.z));
+    }
+
+    public long toLong() {
+        return asLong(this.x, this.z);
+    }
+
+    public static long asLong(int param0, int param1) {
+        return (long)param0 & 4294967295L | ((long)param1 & 4294967295L) << 32;
     }
 
     @Override

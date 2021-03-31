@@ -20,6 +20,10 @@ public enum RailShape implements StringRepresentable {
         this.name = param0;
     }
 
+    public String getName() {
+        return this.name;
+    }
+
     @Override
     public String toString() {
         return this.name;

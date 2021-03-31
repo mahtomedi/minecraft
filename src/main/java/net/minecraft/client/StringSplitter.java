@@ -82,6 +82,12 @@ public class StringSplitter {
         return param0.substring(var1.intValue());
     }
 
+    public int formattedIndexByWidth(String param0, int param1, Style param2) {
+        StringSplitter.WidthLimitedCharSink var0 = new StringSplitter.WidthLimitedCharSink((float)param1);
+        StringDecomposer.iterateFormatted(param0, param2, var0);
+        return var0.getPosition();
+    }
+
     @Nullable
     public Style componentStyleAtWidth(FormattedText param0, int param1) {
         StringSplitter.WidthLimitedCharSink var0 = new StringSplitter.WidthLimitedCharSink((float)param1);
@@ -104,6 +110,10 @@ public class StringSplitter {
             }
         });
         return var1.getValue();
+    }
+
+    public String formattedHeadByWidth(String param0, int param1, Style param2) {
+        return param0.substring(0, this.formattedIndexByWidth(param0, param1, param2));
     }
 
     public FormattedText headByWidth(FormattedText param0, int param1, Style param2) {
@@ -130,6 +140,12 @@ public class StringSplitter {
                 }
             }
         }, param2).orElse(param0);
+    }
+
+    public int findLineBreak(String param0, int param1, Style param2) {
+        StringSplitter.LineBreakFinder var0 = new StringSplitter.LineBreakFinder((float)param1);
+        StringDecomposer.iterateFormatted(param0, param2, var0);
+        return var0.getSplitPosition();
     }
 
     public static int getWordPosition(String param0, int param1, int param2, boolean param3) {
@@ -204,6 +220,12 @@ public class StringSplitter {
     public List<FormattedText> splitLines(FormattedText param0, int param1, Style param2) {
         List<FormattedText> var0 = Lists.newArrayList();
         this.splitLines(param0, param1, param2, (param1x, param2x) -> var0.add(param1x));
+        return var0;
+    }
+
+    public List<FormattedText> splitLines(FormattedText param0, int param1, Style param2, FormattedText param3) {
+        List<FormattedText> var0 = Lists.newArrayList();
+        this.splitLines(param0, param1, param2, (param2x, param3x) -> var0.add(param3x ? FormattedText.composite(param3, param2x) : param2x));
         return var0;
     }
 

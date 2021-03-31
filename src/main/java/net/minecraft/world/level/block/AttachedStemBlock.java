@@ -16,11 +16,10 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class AttachedStemBlock extends BushBlock {
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
+    protected static final float AABB_OFFSET = 2.0F;
     private static final Map<Direction, VoxelShape> AABBS = Maps.newEnumMap(
         ImmutableMap.of(
             Direction.SOUTH,
@@ -60,7 +59,6 @@ public class AttachedStemBlock extends BushBlock {
         return param0.is(Blocks.FARMLAND);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public ItemStack getCloneItemStack(BlockGetter param0, BlockPos param1, BlockState param2) {
         return new ItemStack(this.seedSupplier.get());

@@ -2,8 +2,6 @@ package net.minecraft.world.level.block;
 
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class SoundType {
     public static final SoundType WOOD = new SoundType(
@@ -500,7 +498,6 @@ public class SoundType {
         return this.pitch;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public SoundEvent getBreakSound() {
         return this.breakSound;
     }
@@ -513,7 +510,6 @@ public class SoundType {
         return this.placeSound;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public SoundEvent getHitSound() {
         return this.hitSound;
     }

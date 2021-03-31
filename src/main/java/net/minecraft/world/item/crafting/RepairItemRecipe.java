@@ -12,8 +12,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class RepairItemRecipe extends CustomRecipe {
     public RepairItemRecipe(ResourceLocation param0) {
@@ -91,7 +89,6 @@ public class RepairItemRecipe extends CustomRecipe {
         return ItemStack.EMPTY;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public boolean canCraftInDimensions(int param0, int param1) {
         return param0 * param1 >= 2;

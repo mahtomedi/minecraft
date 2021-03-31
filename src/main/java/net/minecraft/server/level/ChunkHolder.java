@@ -36,8 +36,6 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.chunk.ProtoChunk;
 import net.minecraft.world.level.lighting.LevelLightEngine;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ChunkHolder {
     public static final Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure> UNLOADED_CHUNK = Either.right(ChunkHolder.ChunkLoadingFailure.UNLOADED);
@@ -50,6 +48,7 @@ public class ChunkHolder {
     );
     private static final List<ChunkStatus> CHUNK_STATUSES = ChunkStatus.getStatusList();
     private static final ChunkHolder.FullChunkStatus[] FULL_CHUNK_STATUSES = ChunkHolder.FullChunkStatus.values();
+    private static final int BLOCKS_BEFORE_RESEND_FUDGE = 64;
     private final AtomicReferenceArray<CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>>> futures = new AtomicReferenceArray<>(
         CHUNK_STATUSES.size()
     );
@@ -124,7 +123,6 @@ public class ChunkHolder {
     }
 
     @Nullable
-    @OnlyIn(Dist.CLIENT)
     public ChunkStatus getLastAvailableStatus() {
         for(int var0 = CHUNK_STATUSES.size() - 1; var0 >= 0; --var0) {
             ChunkStatus var1 = CHUNK_STATUSES.get(var0);
@@ -284,7 +282,6 @@ public class ChunkHolder {
         this.chunkToSave = this.chunkToSave.thenCombine(param0, (param0x, param1x) -> param1x.map(param0xx -> param0xx, param1xx -> param0x));
     }
 
-    @OnlyIn(Dist.CLIENT)
     public ChunkHolder.FullChunkStatus getFullStatus() {
         return getFullChunkStatus(this.ticketLevel);
     }

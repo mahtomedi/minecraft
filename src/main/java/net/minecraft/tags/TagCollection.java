@@ -16,8 +16,6 @@ import javax.annotation.Nullable;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public interface TagCollection<T> {
     Map<ResourceLocation, Tag<T>> getAllTags();
@@ -30,13 +28,21 @@ public interface TagCollection<T> {
     Tag<T> getTagOrEmpty(ResourceLocation var1);
 
     @Nullable
+    default ResourceLocation getId(Tag.Named<T> param0) {
+        return param0.getName();
+    }
+
+    @Nullable
     ResourceLocation getId(Tag<T> var1);
+
+    default boolean hasTag(ResourceLocation param0) {
+        return this.getAllTags().containsKey(param0);
+    }
 
     default Collection<ResourceLocation> getAvailableTags() {
         return this.getAllTags().keySet();
     }
 
-    @OnlyIn(Dist.CLIENT)
     default Collection<ResourceLocation> getMatchingTags(T param0) {
         List<ResourceLocation> var0 = Lists.newArrayList();
 
@@ -65,7 +71,6 @@ public interface TagCollection<T> {
         return new TagCollection.NetworkPayload(var1);
     }
 
-    @OnlyIn(Dist.CLIENT)
     static <T> TagCollection<T> createFromNetwork(TagCollection.NetworkPayload param0, Registry<? extends T> param1) {
         Map<ResourceLocation, Tag<T>> var0 = Maps.newHashMapWithExpectedSize(param0.tags.size());
         param0.tags.forEach((param2, param3) -> {

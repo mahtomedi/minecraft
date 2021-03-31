@@ -6,14 +6,11 @@ import java.util.Objects;
 import javax.annotation.Nullable;
 import net.minecraft.locale.Language;
 import net.minecraft.util.FormattedCharSequence;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class BaseComponent implements MutableComponent {
     protected final List<Component> siblings = Lists.newArrayList();
     private FormattedCharSequence visualOrderText = FormattedCharSequence.EMPTY;
     @Nullable
-    @OnlyIn(Dist.CLIENT)
     private Language decomposedWith;
     private Style style = Style.EMPTY;
 
@@ -54,7 +51,6 @@ public abstract class BaseComponent implements MutableComponent {
         return var0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public FormattedCharSequence getVisualOrderText() {
         Language var0 = Language.getInstance();

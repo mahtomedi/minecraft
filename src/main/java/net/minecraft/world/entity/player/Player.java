@@ -109,10 +109,18 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraft.world.scores.Team;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class Player extends LivingEntity {
+    public static final String UUID_PREFIX_OFFLINE_PLAYER = "OfflinePlayer:";
+    public static final int MAX_NAME_LENGTH = 16;
+    public static final int MAX_HEALTH = 20;
+    public static final int SLEEP_DURATION = 100;
+    public static final int WAKE_UP_DURATION = 10;
+    public static final int ENDER_SLOT_OFFSET = 200;
+    public static final float CROUCH_BB_HEIGHT = 1.5F;
+    public static final float SWIMMING_BB_WIDTH = 0.6F;
+    public static final float SWIMMING_BB_HEIGHT = 0.6F;
+    public static final float DEFAULT_EYE_HEIGHT = 1.62F;
     public static final EntityDimensions STANDING_DIMENSIONS = EntityDimensions.scalable(0.6F, 1.8F);
     private static final Map<Pose, EntityDimensions> POSES = ImmutableMap.<Pose, EntityDimensions>builder()
         .put(Pose.STANDING, STANDING_DIMENSIONS)
@@ -123,6 +131,7 @@ public abstract class Player extends LivingEntity {
         .put(Pose.CROUCHING, EntityDimensions.scalable(0.6F, 1.5F))
         .put(Pose.DYING, EntityDimensions.fixed(0.2F, 0.2F))
         .build();
+    private static final int FLY_ACHIEVEMENT_SPEED = 25;
     private static final EntityDataAccessor<Float> DATA_PLAYER_ABSORPTION_ID = SynchedEntityData.defineId(Player.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Integer> DATA_SCORE_ID = SynchedEntityData.defineId(Player.class, EntityDataSerializers.INT);
     protected static final EntityDataAccessor<Byte> DATA_PLAYER_MODE_CUSTOMISATION = SynchedEntityData.defineId(Player.class, EntityDataSerializers.BYTE);
@@ -155,7 +164,6 @@ public abstract class Player extends LivingEntity {
     protected final float defaultFlySpeed = 0.02F;
     private int lastLevelUpTime;
     private final GameProfile gameProfile;
-    @OnlyIn(Dist.CLIENT)
     private boolean reducedDebugInfo;
     private ItemStack lastItemInMainHand = ItemStack.EMPTY;
     private final ItemCooldowns cooldowns = this.createItemCooldowns();
@@ -422,7 +430,6 @@ public abstract class Player extends LivingEntity {
         return 20;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void handleEntityEvent(byte param0) {
         if (param0 == 9) {
@@ -439,7 +446,6 @@ public abstract class Player extends LivingEntity {
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     private void addParticlesAroundSelf(ParticleOptions param0) {
         for(int var0 = 0; var0 < 5; ++var0) {
             double var1 = this.random.nextGaussian() * 0.02;
@@ -1302,7 +1308,6 @@ public abstract class Player extends LivingEntity {
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void respawn() {
     }
 
@@ -1727,7 +1732,6 @@ public abstract class Player extends LivingEntity {
         return true;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public boolean shouldShowName() {
         return true;
@@ -1911,7 +1915,6 @@ public abstract class Player extends LivingEntity {
         return UUID.nameUUIDFromBytes(("OfflinePlayer:" + param0).getBytes(StandardCharsets.UTF_8));
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean isModelPartShown(PlayerModelPart param0) {
         return (this.getEntityData().get(DATA_PLAYER_MODE_CUSTOMISATION) & param0.getMask()) == param0.getMask();
     }
@@ -1928,12 +1931,10 @@ public abstract class Player extends LivingEntity {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean isReducedDebugInfo() {
         return this.reducedDebugInfo;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void setReducedDebugInfo(boolean param0) {
         this.reducedDebugInfo = param0;
     }
@@ -2056,7 +2057,6 @@ public abstract class Player extends LivingEntity {
         return this.abilities.flying || super.shouldRemoveSoulSpeed(param0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public Vec3 getRopeHoldPosition(float param0) {
         double var0 = 0.22 * (this.getMainArm() == HumanoidArm.RIGHT ? -1.0 : 1.0);
@@ -2091,7 +2091,6 @@ public abstract class Player extends LivingEntity {
         return true;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean isScoping() {
         return this.isUsingItem() && this.getUseItem().is(Items.SPYGLASS);
     }

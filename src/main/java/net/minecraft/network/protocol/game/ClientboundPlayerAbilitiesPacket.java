@@ -3,10 +3,12 @@ package net.minecraft.network.protocol.game;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.entity.player.Abilities;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundPlayerAbilitiesPacket implements Packet<ClientGamePacketListener> {
+    private static final int FLAG_INVULNERABLE = 1;
+    private static final int FLAG_FLYING = 2;
+    private static final int FLAG_CAN_FLY = 4;
+    private static final int FLAG_INSTABUILD = 8;
     private final boolean invulnerable;
     private final boolean isFlying;
     private final boolean canFly;
@@ -61,32 +63,26 @@ public class ClientboundPlayerAbilitiesPacket implements Packet<ClientGamePacket
         param0.handlePlayerAbilities(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean isInvulnerable() {
         return this.invulnerable;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean isFlying() {
         return this.isFlying;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean canFly() {
         return this.canFly;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean canInstabuild() {
         return this.instabuild;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getFlyingSpeed() {
         return this.flyingSpeed;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getWalkingSpeed() {
         return this.walkingSpeed;
     }

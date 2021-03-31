@@ -41,8 +41,6 @@ import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class Raider extends PatrollingMonster {
     protected static final EntityDataAccessor<Boolean> IS_CELEBRATING = SynchedEntityData.defineId(Raider.class, EntityDataSerializers.BOOLEAN);
@@ -191,7 +189,6 @@ public abstract class Raider extends PatrollingMonster {
         return this.wave;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean isCelebrating() {
         return this.entityData.get(IS_CELEBRATING);
     }

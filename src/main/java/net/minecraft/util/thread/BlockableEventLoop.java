@@ -14,8 +14,6 @@ import net.minecraft.util.profiling.registry.MeasurementCategory;
 import net.minecraft.util.profiling.registry.MeasurementRegistry;
 import net.minecraft.util.profiling.registry.Metric;
 import net.minecraft.util.profiling.registry.ProfilerMeasured;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -53,7 +51,6 @@ public abstract class BlockableEventLoop<R extends Runnable> implements Profiler
         return this.name;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public <V> CompletableFuture<V> submit(Supplier<V> param0) {
         return this.scheduleExecutables() ? CompletableFuture.supplyAsync(param0, this) : CompletableFuture.completedFuture(param0.get());
     }
@@ -98,7 +95,6 @@ public abstract class BlockableEventLoop<R extends Runnable> implements Profiler
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     protected void dropAllTasks() {
         this.pendingRunnables.clear();
     }
@@ -150,7 +146,6 @@ public abstract class BlockableEventLoop<R extends Runnable> implements Profiler
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public List<MeasuredMetric> metrics() {
         return ImmutableList.of(new MeasuredMetric(new Metric(this.name + "-tasks-pending"), this::getPendingTasksCount, MeasurementCategory.EVENT_LOOP));

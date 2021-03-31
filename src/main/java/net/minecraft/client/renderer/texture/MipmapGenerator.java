@@ -7,12 +7,16 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class MipmapGenerator {
+    private static final int ALPHA_CUTOUT_CUTOFF = 96;
     private static final float[] POW22 = Util.make(new float[256], param0 -> {
         for(int var0 = 0; var0 < param0.length; ++var0) {
             param0[var0] = (float)Math.pow((double)((float)var0 / 255.0F), 2.2);
         }
 
     });
+
+    private MipmapGenerator() {
+    }
 
     public static NativeImage[] generateMipLevels(NativeImage param0, int param1) {
         NativeImage[] var0 = new NativeImage[param1 + 1];

@@ -41,13 +41,12 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class FishingHook extends Projectile {
     private final Random syncronizedRandom = new Random();
     private boolean biting;
     private int outOfWaterTime;
+    private static final int MAX_OUT_OF_WATER_TIME = 10;
     private static final EntityDataAccessor<Integer> DATA_HOOKED_ENTITY = SynchedEntityData.defineId(FishingHook.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> DATA_BITING = SynchedEntityData.defineId(FishingHook.class, EntityDataSerializers.BOOLEAN);
     private int life;
@@ -122,14 +121,12 @@ public class FishingHook extends Projectile {
         super.onSyncedDataUpdated(param0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public boolean shouldRenderAtSqrDistance(double param0) {
         double var0 = 64.0;
         return param0 < 4096.0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void lerpTo(double param0, double param1, double param2, float param3, float param4, int param5, boolean param6) {
     }
@@ -485,7 +482,6 @@ public class FishingHook extends Projectile {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void handleEntityEvent(byte param0) {
         if (param0 == 31 && this.level.isClientSide && this.hookedIn instanceof Player && ((Player)this.hookedIn).isLocalPlayer()) {
@@ -550,7 +546,6 @@ public class FishingHook extends Projectile {
         return new ClientboundAddEntityPacket(this, var0 == null ? this.getId() : var0.getId());
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void recreateFromPacket(ClientboundAddEntityPacket param0) {
         super.recreateFromPacket(param0);

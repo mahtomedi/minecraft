@@ -17,8 +17,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class Fluid {
     public static final IdMapper<FluidState> FLUID_STATE_REGISTRY = new IdMapper<>();
@@ -49,7 +47,6 @@ public abstract class Fluid {
 
     public abstract Item getBucket();
 
-    @OnlyIn(Dist.CLIENT)
     protected void animateTick(Level param0, BlockPos param1, FluidState param2, Random param3) {
     }
 
@@ -60,7 +57,6 @@ public abstract class Fluid {
     }
 
     @Nullable
-    @OnlyIn(Dist.CLIENT)
     protected ParticleOptions getDripParticle() {
         return null;
     }

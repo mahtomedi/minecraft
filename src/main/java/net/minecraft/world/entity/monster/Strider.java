@@ -66,10 +66,11 @@ import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class Strider extends Animal implements ItemSteerable, Saddleable {
+    private static final float SUFFOCATE_STEERING_MODIFIER = 0.23F;
+    private static final float SUFFOCATE_SPEED_MODIFIER = 0.66F;
+    private static final float STEERING_MODIFIER = 0.55F;
     private static final Ingredient FOOD_ITEMS = Ingredient.of(Items.WARPED_FUNGUS);
     private static final Ingredient TEMPT_ITEMS = Ingredient.of(Items.WARPED_FUNGUS, Items.WARPED_FUNGUS_ON_A_STICK);
     private static final EntityDataAccessor<Integer> DATA_BOOST_TIME = SynchedEntityData.defineId(Strider.class, EntityDataSerializers.INT);
@@ -434,7 +435,6 @@ public class Strider extends Animal implements ItemSteerable, Saddleable {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public Vec3 getLeashOffset() {
         return new Vec3(0.0, (double)(0.6F * this.getEyeHeight()), (double)(this.getBbWidth() * 0.4F));

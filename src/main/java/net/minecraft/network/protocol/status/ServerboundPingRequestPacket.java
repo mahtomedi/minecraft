@@ -2,13 +2,10 @@ package net.minecraft.network.protocol.status;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ServerboundPingRequestPacket implements Packet<ServerStatusPacketListener> {
     private final long time;
 
-    @OnlyIn(Dist.CLIENT)
     public ServerboundPingRequestPacket(long param0) {
         this.time = param0;
     }

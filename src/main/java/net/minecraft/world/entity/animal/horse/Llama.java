@@ -52,10 +52,10 @@ import net.minecraft.world.level.block.WoolCarpetBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class Llama extends AbstractChestedHorse implements RangedAttackMob {
+    private static final int MAX_STRENGTH = 5;
+    private static final int VARIANTS = 4;
     private static final Ingredient FOOD_ITEMS = Ingredient.of(Items.WHEAT, Blocks.HAY_BLOCK.asItem());
     private static final EntityDataAccessor<Integer> DATA_STRENGTH_ID = SynchedEntityData.defineId(Llama.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> DATA_SWAG_ID = SynchedEntityData.defineId(Llama.class, EntityDataSerializers.INT);
@@ -70,7 +70,6 @@ public class Llama extends AbstractChestedHorse implements RangedAttackMob {
         super(param0, param1);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean isTraderLlama() {
         return false;
     }
@@ -499,7 +498,6 @@ public class Llama extends AbstractChestedHorse implements RangedAttackMob {
         this.spit(param0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public Vec3 getLeashOffset() {
         return new Vec3(0.0, 0.75 * (double)this.getEyeHeight(), (double)this.getBbWidth() * 0.5);

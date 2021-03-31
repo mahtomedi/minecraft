@@ -19,7 +19,6 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
@@ -53,24 +52,21 @@ import net.minecraft.world.entity.animal.Bucketable;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.pathfinder.AmphibiousNodeEvaluator;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.level.pathfinder.PathFinder;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class Axolotl extends Animal implements Bucketable {
+    public static final int TOTAL_PLAYDEAD_TIME = 200;
     public static final Predicate<LivingEntity> NOT_PLAYING_DEAD_SELECTOR = param0 -> param0.getType() == EntityType.AXOLOTL
             && !((Axolotl)param0).isPlayingDead();
     protected static final ImmutableList<? extends SensorType<? extends Sensor<? super Axolotl>>> SENSOR_TYPES = ImmutableList.of(
-        SensorType.NEAREST_LIVING_ENTITIES, SensorType.NEAREST_ADULT, SensorType.HURT_BY, SensorType.AXOLOTL_HOSTILES, SensorType.AXOLOTL_TEMPTATIONS
+        SensorType.NEAREST_LIVING_ENTITIES, SensorType.NEAREST_ADULT, SensorType.HURT_BY, SensorType.AXOLOTL_ATTACKABLES, SensorType.AXOLOTL_TEMPTATIONS
     );
     protected static final ImmutableList<? extends MemoryModuleType<?>> MEMORY_TYPES = ImmutableList.of(
         MemoryModuleType.BREED_TARGET,
@@ -87,14 +83,20 @@ public class Axolotl extends Animal implements Bucketable {
         MemoryModuleType.NEAREST_VISIBLE_ADULT,
         MemoryModuleType.HURT_BY_ENTITY,
         MemoryModuleType.PLAY_DEAD_TICKS,
-        MemoryModuleType.NEAREST_HOSTILE,
+        MemoryModuleType.NEAREST_ATTACKABLE,
         MemoryModuleType.TEMPTING_PLAYER,
         MemoryModuleType.TEMPTATION_COOLDOWN_TICKS,
-        MemoryModuleType.IS_TEMPTED
+        MemoryModuleType.IS_TEMPTED,
+        MemoryModuleType.HAS_HUNTING_COOLDOWN
     );
     private static final EntityDataAccessor<Integer> DATA_VARIANT = SynchedEntityData.defineId(Axolotl.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> DATA_PLAYING_DEAD = SynchedEntityData.defineId(Axolotl.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> FROM_BUCKET = SynchedEntityData.defineId(Axolotl.class, EntityDataSerializers.BOOLEAN);
+    public static final double PLAYER_REGEN_DETECTION_RANGE = 20.0;
+    public static final int RARE_VARIANT_CHANCE = 1200;
+    private static final int AXOLOTL_TOTAL_AIR_SUPPLY = 6000;
+    public static final String VARIANT_TAG = "Variant";
+    private static final int REGEN_BUFF_BASE_DURATION = 100;
 
     public Axolotl(EntityType<? extends Axolotl> param0, Level param1) {
         super(param0, param1);
@@ -102,6 +104,11 @@ public class Axolotl extends Animal implements Bucketable {
         this.moveControl = new Axolotl.AxolotlMoveControl(this);
         this.lookControl = new Axolotl.AxolotlLookControl(this, 20);
         this.maxUpStep = 1.0F;
+    }
+
+    @Override
+    public float getWalkTargetValue(BlockPos param0, LevelReader param1) {
+        return 0.0F;
     }
 
     @Override
@@ -131,22 +138,26 @@ public class Axolotl extends Animal implements Bucketable {
         ServerLevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
     ) {
         boolean var0 = false;
-        if (param3 instanceof Axolotl.AxolotlGroupData) {
-            if (((Axolotl.AxolotlGroupData)param3).getGroupSize() >= 2) {
-                var0 = true;
-            }
+        if (param2 == MobSpawnType.BUCKET) {
+            return param3;
         } else {
-            param3 = new Axolotl.AxolotlGroupData(
-                Axolotl.Variant.getCommonSpawnVariant(this.level.random), Axolotl.Variant.getCommonSpawnVariant(this.level.random)
-            );
-        }
+            if (param3 instanceof Axolotl.AxolotlGroupData) {
+                if (((Axolotl.AxolotlGroupData)param3).getGroupSize() >= 2) {
+                    var0 = true;
+                }
+            } else {
+                param3 = new Axolotl.AxolotlGroupData(
+                    Axolotl.Variant.getCommonSpawnVariant(this.level.random), Axolotl.Variant.getCommonSpawnVariant(this.level.random)
+                );
+            }
 
-        this.setVariant(((Axolotl.AxolotlGroupData)param3).getVariant(this.level.random));
-        if (var0) {
-            this.setAge(-24000);
-        }
+            this.setVariant(((Axolotl.AxolotlGroupData)param3).getVariant(this.level.random));
+            if (var0) {
+                this.setAge(-24000);
+            }
 
-        return super.finalizeSpawn(param0, param1, param2, param3, param4);
+            return super.finalizeSpawn(param0, param1, param2, param3, param4);
+        }
     }
 
     @Override
@@ -170,6 +181,10 @@ public class Axolotl extends Animal implements Bucketable {
             this.setAirSupply(this.getMaxAirSupply());
         }
 
+    }
+
+    public boolean isDryingOut() {
+        return this.getAirSupply() < this.getMaxAirSupply();
     }
 
     @Override
@@ -217,6 +232,7 @@ public class Axolotl extends Animal implements Bucketable {
         return this.entityData.get(DATA_PLAYING_DEAD);
     }
 
+    @Override
     public boolean fromBucket() {
         return this.entityData.get(FROM_BUCKET);
     }
@@ -332,8 +348,35 @@ public class Axolotl extends Animal implements Bucketable {
 
     @Override
     public InteractionResult mobInteract(Player param0, InteractionHand param1) {
-        return ItemUtils.bucketMobPickup(param0, param1, this, SoundEvents.BUCKET_FILL_AXOLOTL, () -> new ItemStack(Items.AXOLOTL_BUCKET))
-            .orElse(super.mobInteract(param0, param1));
+        return Bucketable.bucketMobPickup(param0, param1, this).orElse(super.mobInteract(param0, param1));
+    }
+
+    @Override
+    public void saveToBucketTag(ItemStack param0) {
+        Bucketable.saveDefaultDataToBucketTag(this, param0);
+        CompoundTag var0 = param0.getOrCreateTag();
+        var0.putInt("Variant", this.getVariant().getId());
+        var0.putInt("Age", this.getAge());
+    }
+
+    @Override
+    public void loadFromBucketTag(CompoundTag param0) {
+        Bucketable.loadDefaultDataFromBucketTag(this, param0);
+        this.setVariant(Axolotl.Variant.BY_ID[param0.getInt("Variant")]);
+        if (param0.contains("Age")) {
+            this.setAge(param0.getInt("Age"));
+        }
+
+    }
+
+    @Override
+    public ItemStack getBucketItemStack() {
+        return new ItemStack(Items.AXOLOTL_BUCKET);
+    }
+
+    @Override
+    public SoundEvent getPickupSound() {
+        return SoundEvents.BUCKET_FILL_AXOLOTL;
     }
 
     @Override
@@ -341,32 +384,29 @@ public class Axolotl extends Animal implements Bucketable {
         return !this.isPlayingDead() && super.canBeTargeted();
     }
 
-    @Override
-    public void setTarget(@Nullable LivingEntity param0) {
-        if (param0 == null) {
-            LivingEntity var0 = this.getTarget();
-            if (var0 != null && var0.isDeadOrDying()) {
-                DamageSource var1 = var0.getLastDamageSource();
-                if (var1 != null) {
-                    Entity var2 = var1.getEntity();
-                    if (var2 != null && var2.getType() == EntityType.PLAYER) {
-                        Player var3 = (Player)var2;
-                        List<Player> var4 = this.level.getEntitiesOfClass(Player.class, this.getBoundingBox().inflate(20.0));
-                        if (var4.contains(var3)) {
-                            this.applyRegenEffect(var3);
+    public static void onStopAttacking(Axolotl param0) {
+        Optional<LivingEntity> var0 = param0.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET);
+        if (var0.isPresent()) {
+            Level var1 = param0.level;
+            LivingEntity var2 = var0.get();
+            if (var2.isDeadOrDying()) {
+                DamageSource var3 = var2.getLastDamageSource();
+                if (var3 != null) {
+                    Entity var4 = var3.getEntity();
+                    if (var4 != null && var4.getType() == EntityType.PLAYER) {
+                        Player var5 = (Player)var4;
+                        List<Player> var6 = var1.getEntitiesOfClass(Player.class, param0.getBoundingBox().inflate(20.0));
+                        if (var6.contains(var5)) {
+                            applySupportingEffects(var5);
                         }
                     }
                 }
             }
-        }
 
-        if (param0 != null && (param0.getType() != EntityType.AXOLOTL || !((Axolotl)param0).isPlayingDead())) {
-            super.setTarget(param0);
         }
-
     }
 
-    public void applyRegenEffect(Player param0) {
+    public static void applySupportingEffects(Player param0) {
         MobEffectInstance var0 = param0.getEffect(MobEffects.REGENERATION);
         int var1 = 100 + (var0 != null ? var0.getDuration() : 0);
         param0.addEffect(new MobEffectInstance(MobEffects.REGENERATION, var1, 0));
@@ -376,10 +416,6 @@ public class Axolotl extends Animal implements Bucketable {
     @Override
     public boolean requiresCustomPersistence() {
         return super.requiresCustomPersistence() || this.fromBucket();
-    }
-
-    public static boolean checkAxolotlSpawnRules(EntityType<Axolotl> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, Random param4) {
-        return param1.getFluidState(param3).is(FluidTags.WATER) && !param1.canSeeSkyFromBelowWater(param3);
     }
 
     @Override
@@ -450,6 +486,11 @@ public class Axolotl extends Animal implements Bucketable {
             super.usePlayerItem(param0, param1, param2);
         }
 
+    }
+
+    @Override
+    public boolean removeWhenFarAway(double param0) {
+        return !this.fromBucket() && !this.hasCustomName();
     }
 
     public static class AxolotlGroupData extends AgeableMob.AgeableMobGroupData {
@@ -542,7 +583,6 @@ public class Axolotl extends Animal implements Bucketable {
             return this.id;
         }
 
-        @OnlyIn(Dist.CLIENT)
         public String getName() {
             return this.name;
         }

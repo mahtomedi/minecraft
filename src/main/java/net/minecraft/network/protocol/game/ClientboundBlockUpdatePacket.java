@@ -6,8 +6,6 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundBlockUpdatePacket implements Packet<ClientGamePacketListener> {
     private final BlockPos pos;
@@ -37,12 +35,10 @@ public class ClientboundBlockUpdatePacket implements Packet<ClientGamePacketList
         param0.handleBlockUpdate(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public BlockState getBlockState() {
         return this.blockState;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public BlockPos getPos() {
         return this.pos;
     }

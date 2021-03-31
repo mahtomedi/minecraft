@@ -9,8 +9,6 @@ import net.minecraft.world.item.trading.Merchant;
 import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.item.trading.MerchantOffers;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientSideMerchant implements Merchant {
     private final Player source;
@@ -35,7 +33,6 @@ public class ClientSideMerchant implements Merchant {
         return this.offers;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void overrideOffers(MerchantOffers param0) {
         this.offers = param0;

@@ -48,10 +48,11 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class Ocelot extends Animal {
+    public static final double CROUCH_SPEED_MOD = 0.6;
+    public static final double WALK_SPEED_MOD = 0.8;
+    public static final double SPRINT_SPEED_MOD = 1.33;
     private static final Ingredient TEMPT_INGREDIENT = Ingredient.of(Items.COD, Items.SALMON);
     private static final EntityDataAccessor<Boolean> DATA_TRUSTING = SynchedEntityData.defineId(Ocelot.class, EntityDataSerializers.BOOLEAN);
     private Ocelot.OcelotAvoidEntityGoal<Player> ocelotAvoidPlayersGoal;
@@ -190,7 +191,6 @@ public class Ocelot extends Animal {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void handleEntityEvent(byte param0) {
         if (param0 == 41) {
@@ -272,7 +272,6 @@ public class Ocelot extends Animal {
         return super.finalizeSpawn(param0, param1, param2, param3, param4);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public Vec3 getLeashOffset() {
         return new Vec3(0.0, (double)(0.5F * this.getEyeHeight()), (double)(this.getBbWidth() * 0.4F));

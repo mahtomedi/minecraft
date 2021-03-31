@@ -3,12 +3,12 @@ package net.minecraft.world.level.levelgen.feature.foliageplacers;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Random;
-import java.util.Set;
+import java.util.function.BiConsumer;
 import net.minecraft.core.BlockPos;
-import net.minecraft.util.UniformInt;
-import net.minecraft.world.level.LevelSimulatedRW;
+import net.minecraft.util.valueproviders.IntProvider;
+import net.minecraft.world.level.LevelSimulatedReader;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
-import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 public class MegaJungleFoliagePlacer extends FoliagePlacer {
     public static final Codec<MegaJungleFoliagePlacer> CODEC = RecordCodecBuilder.create(
@@ -18,7 +18,7 @@ public class MegaJungleFoliagePlacer extends FoliagePlacer {
     );
     protected final int height;
 
-    public MegaJungleFoliagePlacer(UniformInt param0, UniformInt param1, int param2) {
+    public MegaJungleFoliagePlacer(IntProvider param0, IntProvider param1, int param2) {
         super(param0, param1);
         this.height = param2;
     }
@@ -30,22 +30,21 @@ public class MegaJungleFoliagePlacer extends FoliagePlacer {
 
     @Override
     protected void createFoliage(
-        LevelSimulatedRW param0,
-        Random param1,
-        TreeConfiguration param2,
-        int param3,
-        FoliagePlacer.FoliageAttachment param4,
-        int param5,
+        LevelSimulatedReader param0,
+        BiConsumer<BlockPos, BlockState> param1,
+        Random param2,
+        TreeConfiguration param3,
+        int param4,
+        FoliagePlacer.FoliageAttachment param5,
         int param6,
-        Set<BlockPos> param7,
-        int param8,
-        BoundingBox param9
+        int param7,
+        int param8
     ) {
-        int var0 = param4.doubleTrunk() ? param5 : 1 + param1.nextInt(2);
+        int var0 = param5.doubleTrunk() ? param6 : 1 + param2.nextInt(2);
 
         for(int var1 = param8; var1 >= param8 - var0; --var1) {
-            int var2 = param6 + param4.radiusOffset() + 1 - var1;
-            this.placeLeavesRow(param0, param1, param2, param4.foliagePos(), var2, param7, var1, param4.doubleTrunk(), param9);
+            int var2 = param7 + param5.radiusOffset() + 1 - var1;
+            this.placeLeavesRow(param0, param1, param2, param3, param5.pos(), var2, var1, param5.doubleTrunk());
         }
 
     }

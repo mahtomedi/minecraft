@@ -2,8 +2,6 @@ package net.minecraft.network.protocol.game;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundContainerSetDataPacket implements Packet<ClientGamePacketListener> {
     private final int containerId;
@@ -33,17 +31,14 @@ public class ClientboundContainerSetDataPacket implements Packet<ClientGamePacke
         param0.handleContainerSetData(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getContainerId() {
         return this.containerId;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getId() {
         return this.id;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getValue() {
         return this.value;
     }

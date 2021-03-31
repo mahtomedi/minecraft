@@ -3,16 +3,14 @@ package net.minecraft.util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
 public class ParticleUtils {
-    public static void spawnParticlesOnBlockFaces(Level param0, BlockPos param1, ParticleOptions param2, IntRange param3) {
+    public static void spawnParticlesOnBlockFaces(Level param0, BlockPos param1, ParticleOptions param2, UniformInt param3) {
         for(Direction var0 : Direction.values()) {
-            int var1 = param3.randomValue(param0.random);
+            int var1 = param3.sample(param0.random);
 
             for(int var2 = 0; var2 < var1; ++var2) {
                 spawnParticleOnFace(param0, param1, var0, param2);
@@ -21,12 +19,12 @@ public class ParticleUtils {
 
     }
 
-    public static void spawnParticlesAlongAxis(Direction.Axis param0, Level param1, BlockPos param2, double param3, ParticleOptions param4, IntRange param5) {
+    public static void spawnParticlesAlongAxis(Direction.Axis param0, Level param1, BlockPos param2, double param3, ParticleOptions param4, UniformInt param5) {
         Vec3 var0 = Vec3.atCenterOf(param2);
         boolean var1 = param0 == Direction.Axis.X;
         boolean var2 = param0 == Direction.Axis.Y;
         boolean var3 = param0 == Direction.Axis.Z;
-        int var4 = param5.randomValue(param1.random);
+        int var4 = param5.sample(param1.random);
 
         for(int var5 = 0; var5 < var4; ++var5) {
             double var6 = var0.x + Mth.nextDouble(param1.random, -1.0, 1.0) * (var1 ? 0.5 : param3);

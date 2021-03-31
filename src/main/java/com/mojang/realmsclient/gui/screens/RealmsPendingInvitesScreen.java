@@ -199,6 +199,7 @@ public class RealmsPendingInvitesScreen extends RealmsScreen {
 
     @OnlyIn(Dist.CLIENT)
     class Entry extends ObjectSelectionList.Entry<RealmsPendingInvitesScreen.Entry> {
+        private static final int TEXT_LEFT = 38;
         private final PendingInvite pendingInvite;
         private final List<RowButton> rowButtons;
 

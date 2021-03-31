@@ -16,6 +16,10 @@ public class LootContextParamSet {
         this.all = ImmutableSet.copyOf(Sets.union(param0, param1));
     }
 
+    public boolean isAllowed(LootContextParam<?> param0) {
+        return this.all.contains(param0);
+    }
+
     public Set<LootContextParam<?>> getRequired() {
         return this.required;
     }
@@ -36,6 +40,10 @@ public class LootContextParamSet {
             param0.reportProblem("Parameters " + var1 + " are not provided in this context");
         }
 
+    }
+
+    public static LootContextParamSet.Builder builder() {
+        return new LootContextParamSet.Builder();
     }
 
     public static class Builder {

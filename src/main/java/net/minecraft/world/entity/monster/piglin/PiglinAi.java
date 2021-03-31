@@ -12,8 +12,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.util.IntRange;
 import net.minecraft.util.TimeUtil;
+import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -70,13 +70,42 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
 
 public class PiglinAi {
+    public static final int REPELLENT_DETECTION_RANGE_HORIZONTAL = 8;
+    public static final int REPELLENT_DETECTION_RANGE_VERTICAL = 4;
     public static final Item BARTERING_ITEM = Items.GOLD_INGOT;
-    private static final IntRange TIME_BETWEEN_HUNTS = TimeUtil.rangeOfSeconds(30, 120);
-    private static final IntRange RIDE_START_INTERVAL = TimeUtil.rangeOfSeconds(10, 40);
-    private static final IntRange RIDE_DURATION = TimeUtil.rangeOfSeconds(10, 30);
-    private static final IntRange RETREAT_DURATION = TimeUtil.rangeOfSeconds(5, 20);
-    private static final IntRange AVOID_ZOMBIFIED_DURATION = TimeUtil.rangeOfSeconds(5, 7);
-    private static final IntRange BABY_AVOID_NEMESIS_DURATION = TimeUtil.rangeOfSeconds(5, 7);
+    private static final int PLAYER_ANGER_RANGE = 16;
+    private static final int ANGER_DURATION = 600;
+    private static final int ADMIRE_DURATION = 120;
+    private static final int MAX_DISTANCE_TO_WALK_TO_ITEM = 9;
+    private static final int MAX_TIME_TO_WALK_TO_ITEM = 200;
+    private static final int HOW_LONG_TIME_TO_DISABLE_ADMIRE_WALKING_IF_CANT_REACH_ITEM = 200;
+    private static final int CELEBRATION_TIME = 300;
+    private static final UniformInt TIME_BETWEEN_HUNTS = TimeUtil.rangeOfSeconds(30, 120);
+    private static final int BABY_FLEE_DURATION_AFTER_GETTING_HIT = 100;
+    private static final int HIT_BY_PLAYER_MEMORY_TIMEOUT = 400;
+    private static final int MAX_WALK_DISTANCE_TO_START_RIDING = 8;
+    private static final UniformInt RIDE_START_INTERVAL = TimeUtil.rangeOfSeconds(10, 40);
+    private static final UniformInt RIDE_DURATION = TimeUtil.rangeOfSeconds(10, 30);
+    private static final UniformInt RETREAT_DURATION = TimeUtil.rangeOfSeconds(5, 20);
+    private static final int MELEE_ATTACK_COOLDOWN = 20;
+    private static final int EAT_COOLDOWN = 200;
+    private static final int DESIRED_DISTANCE_FROM_ENTITY_WHEN_AVOIDING = 12;
+    private static final int MAX_LOOK_DIST = 8;
+    private static final int MAX_LOOK_DIST_FOR_PLAYER_HOLDING_LOVED_ITEM = 14;
+    private static final int INTERACTION_RANGE = 8;
+    private static final int MIN_DESIRED_DIST_FROM_TARGET_WHEN_HOLDING_CROSSBOW = 5;
+    private static final float SPEED_WHEN_STRAFING_BACK_FROM_TARGET = 0.75F;
+    private static final int DESIRED_DISTANCE_FROM_ZOMBIFIED = 6;
+    private static final UniformInt AVOID_ZOMBIFIED_DURATION = TimeUtil.rangeOfSeconds(5, 7);
+    private static final UniformInt BABY_AVOID_NEMESIS_DURATION = TimeUtil.rangeOfSeconds(5, 7);
+    private static final float PROBABILITY_OF_CELEBRATION_DANCE = 0.1F;
+    private static final float SPEED_MULTIPLIER_WHEN_AVOIDING = 1.0F;
+    private static final float SPEED_MULTIPLIER_WHEN_RETREATING = 1.0F;
+    private static final float SPEED_MULTIPLIER_WHEN_MOUNTING = 0.8F;
+    private static final float SPEED_MULTIPLIER_WHEN_GOING_TO_WANTED_ITEM = 1.0F;
+    private static final float SPEED_MULTIPLIER_WHEN_GOING_TO_CELEBRATE_LOCATION = 1.0F;
+    private static final float SPEED_MULTIPLIER_WHEN_DANCING = 0.6F;
+    private static final float SPEED_MULTIPLIER_WHEN_IDLING = 0.6F;
 
     protected static Brain<?> makeBrain(Piglin param0, Brain<Piglin> param1) {
         initCoreActivity(param1);
@@ -93,7 +122,7 @@ public class PiglinAi {
     }
 
     protected static void initMemories(Piglin param0) {
-        int var0 = TIME_BETWEEN_HUNTS.randomValue(param0.level.random);
+        int var0 = TIME_BETWEEN_HUNTS.sample(param0.level.random);
         param0.getBrain().setMemoryWithExpiry(MemoryModuleType.HUNTED_RECENTLY, true, (long)var0);
     }
 
@@ -748,12 +777,16 @@ public class PiglinAi {
         param0.getBrain().eraseMemory(MemoryModuleType.ANGRY_AT);
         param0.getBrain().eraseMemory(MemoryModuleType.ATTACK_TARGET);
         param0.getBrain().eraseMemory(MemoryModuleType.WALK_TARGET);
-        param0.getBrain().setMemoryWithExpiry(MemoryModuleType.AVOID_TARGET, param1, (long)RETREAT_DURATION.randomValue(param0.level.random));
+        param0.getBrain().setMemoryWithExpiry(MemoryModuleType.AVOID_TARGET, param1, (long)RETREAT_DURATION.sample(param0.level.random));
         dontKillAnyMoreHoglinsForAWhile(param0);
     }
 
     protected static void dontKillAnyMoreHoglinsForAWhile(AbstractPiglin param0x) {
-        param0x.getBrain().setMemoryWithExpiry(MemoryModuleType.HUNTED_RECENTLY, true, (long)TIME_BETWEEN_HUNTS.randomValue(param0x.level.random));
+        param0x.getBrain().setMemoryWithExpiry(MemoryModuleType.HUNTED_RECENTLY, true, (long)TIME_BETWEEN_HUNTS.sample(param0x.level.random));
+    }
+
+    private static boolean seesPlayerHoldingWantedItem(Piglin param0) {
+        return param0.getBrain().hasMemoryValue(MemoryModuleType.NEAREST_PLAYER_HOLDING_WANTED_ITEM);
     }
 
     private static void eat(Piglin param0) {

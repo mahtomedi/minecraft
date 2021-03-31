@@ -23,10 +23,13 @@ import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class Inventory implements Container, Nameable {
+    public static final int POP_TIME_DURATION = 5;
+    public static final int INVENTORY_SIZE = 36;
+    private static final int SELECTION_SIZE = 9;
+    public static final int SLOT_OFFHAND = 40;
+    public static final int NOT_FOUND_INDEX = -1;
     public final NonNullList<ItemStack> items = NonNullList.withSize(36, ItemStack.EMPTY);
     public final NonNullList<ItemStack> armor = NonNullList.withSize(4, ItemStack.EMPTY);
     public final NonNullList<ItemStack> offhand = NonNullList.withSize(1, ItemStack.EMPTY);
@@ -65,7 +68,6 @@ public class Inventory implements Container, Nameable {
         return -1;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void setPickedItem(ItemStack param0) {
         int var0 = this.findSlotMatchingItem(param0);
         if (isHotbarSlot(var0)) {
@@ -99,7 +101,6 @@ public class Inventory implements Container, Nameable {
         return param0 >= 0 && param0 < 9;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int findSlotMatchingItem(ItemStack param0) {
         for(int var0 = 0; var0 < this.items.size(); ++var0) {
             if (!this.items.get(var0).isEmpty() && ItemStack.isSameItemSameTags(param0, this.items.get(var0))) {
@@ -143,7 +144,6 @@ public class Inventory implements Container, Nameable {
         return this.selected;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void swapPaint(double param0) {
         if (param0 > 0.0) {
             param0 = 1.0;
@@ -500,7 +500,6 @@ public class Inventory implements Container, Nameable {
         return new TranslatableComponent("container.inventory");
     }
 
-    @OnlyIn(Dist.CLIENT)
     public ItemStack getArmor(int param0) {
         return this.armor.get(param0);
     }
@@ -543,7 +542,6 @@ public class Inventory implements Container, Nameable {
         ++this.timesChanged;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getTimesChanged() {
         return this.timesChanged;
     }
@@ -569,7 +567,6 @@ public class Inventory implements Container, Nameable {
         return false;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean contains(Tag<Item> param0) {
         for(List<ItemStack> var0 : this.compartments) {
             for(ItemStack var1 : var0) {

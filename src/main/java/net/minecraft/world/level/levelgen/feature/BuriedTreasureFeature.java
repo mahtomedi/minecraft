@@ -10,12 +10,13 @@ import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.feature.configurations.ProbabilityFeatureConfiguration;
-import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.BuriedTreasurePieces;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 
 public class BuriedTreasureFeature extends StructureFeature<ProbabilityFeatureConfiguration> {
+    private static final int RANDOM_SALT = 10387320;
+
     public BuriedTreasureFeature(Codec<ProbabilityFeatureConfiguration> param0) {
         super(param0);
     }
@@ -41,8 +42,8 @@ public class BuriedTreasureFeature extends StructureFeature<ProbabilityFeatureCo
     }
 
     public static class BuriedTreasureStart extends StructureStart<ProbabilityFeatureConfiguration> {
-        public BuriedTreasureStart(StructureFeature<ProbabilityFeatureConfiguration> param0, ChunkPos param1, BoundingBox param2, int param3, long param4) {
-            super(param0, param1, param2, param3, param4);
+        public BuriedTreasureStart(StructureFeature<ProbabilityFeatureConfiguration> param0, ChunkPos param1, int param2, long param3) {
+            super(param0, param1, param2, param3);
         }
 
         public void generatePieces(
@@ -55,8 +56,7 @@ public class BuriedTreasureFeature extends StructureFeature<ProbabilityFeatureCo
             LevelHeightAccessor param6
         ) {
             BlockPos var0 = new BlockPos(param3.getBlockX(9), 90, param3.getBlockZ(9));
-            this.pieces.add(new BuriedTreasurePieces.BuriedTreasurePiece(var0));
-            this.calculateBoundingBox();
+            this.addPiece(new BuriedTreasurePieces.BuriedTreasurePiece(var0));
         }
 
         @Override

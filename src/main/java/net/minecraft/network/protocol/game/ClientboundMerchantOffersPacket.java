@@ -3,8 +3,6 @@ package net.minecraft.network.protocol.game;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.item.trading.MerchantOffers;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundMerchantOffersPacket implements Packet<ClientGamePacketListener> {
     private final int containerId;
@@ -46,32 +44,26 @@ public class ClientboundMerchantOffersPacket implements Packet<ClientGamePacketL
         param0.handleMerchantOffers(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getContainerId() {
         return this.containerId;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public MerchantOffers getOffers() {
         return this.offers;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getVillagerLevel() {
         return this.villagerLevel;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getVillagerXp() {
         return this.villagerXp;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean showProgress() {
         return this.showProgress;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean canRestock() {
         return this.canRestock;
     }

@@ -36,6 +36,15 @@ public class WoodlandMansionPieces {
         var1.createMansion(param1, param2, param3, var0);
     }
 
+    public static void main(String[] param0) {
+        Random var0 = new Random();
+        long var1 = var0.nextLong();
+        System.out.println("Seed: " + var1);
+        var0.setSeed(var1);
+        WoodlandMansionPieces.MansionGrid var2 = new WoodlandMansionPieces.MansionGrid(var0);
+        var2.print();
+    }
+
     static class FirstFloorRoomCollection extends WoodlandMansionPieces.FloorRoomCollection {
         private FirstFloorRoomCollection() {
         }
@@ -96,6 +105,22 @@ public class WoodlandMansionPieces {
     }
 
     static class MansionGrid {
+        private static final int DEFAULT_SIZE = 11;
+        private static final int CLEAR = 0;
+        private static final int CORRIDOR = 1;
+        private static final int ROOM = 2;
+        private static final int START_ROOM = 3;
+        private static final int TEST_ROOM = 4;
+        private static final int BLOCKED = 5;
+        private static final int ROOM_1x1 = 65536;
+        private static final int ROOM_1x2 = 131072;
+        private static final int ROOM_2x2 = 262144;
+        private static final int ROOM_ORIGIN_FLAG = 1048576;
+        private static final int ROOM_DOOR_FLAG = 2097152;
+        private static final int ROOM_STAIRS_FLAG = 4194304;
+        private static final int ROOM_CORRIDOR_FLAG = 8388608;
+        private static final int ROOM_TYPE_MASK = 983040;
+        private static final int ROOM_ID_MASK = 65535;
         private final Random random;
         private final WoodlandMansionPieces.SimpleGrid baseGrid;
         private final WoodlandMansionPieces.SimpleGrid thirdFloorGrid;
@@ -378,6 +403,36 @@ public class WoodlandMansionPieces {
 
                     ++var3;
                 }
+            }
+
+        }
+
+        public void print() {
+            for(int var0 = 0; var0 < 2; ++var0) {
+                WoodlandMansionPieces.SimpleGrid var1 = var0 == 0 ? this.baseGrid : this.thirdFloorGrid;
+
+                for(int var2 = 0; var2 < var1.height; ++var2) {
+                    for(int var3 = 0; var3 < var1.width; ++var3) {
+                        int var4 = var1.get(var3, var2);
+                        if (var4 == 1) {
+                            System.out.print("+");
+                        } else if (var4 == 4) {
+                            System.out.print("x");
+                        } else if (var4 == 2) {
+                            System.out.print("X");
+                        } else if (var4 == 3) {
+                            System.out.print("O");
+                        } else if (var4 == 5) {
+                            System.out.print("#");
+                        } else {
+                            System.out.print(" ");
+                        }
+                    }
+
+                    System.out.println("");
+                }
+
+                System.out.println("");
             }
 
         }
@@ -1179,45 +1234,43 @@ public class WoodlandMansionPieces {
     }
 
     public static class WoodlandMansionPiece extends TemplateStructurePiece {
-        private final String templateName;
-        private final Rotation rotation;
-        private final Mirror mirror;
-
         public WoodlandMansionPiece(StructureManager param0, String param1, BlockPos param2, Rotation param3) {
             this(param0, param1, param2, param3, Mirror.NONE);
         }
 
         public WoodlandMansionPiece(StructureManager param0, String param1, BlockPos param2, Rotation param3, Mirror param4) {
-            super(StructurePieceType.WOODLAND_MANSION_PIECE, 0);
-            this.templateName = param1;
-            this.templatePosition = param2;
-            this.rotation = param3;
-            this.mirror = param4;
-            this.loadTemplate(param0);
+            super(StructurePieceType.WOODLAND_MANSION_PIECE, 0, param0, makeLocation(param1), param1, makeSettings(param4, param3), param2);
         }
 
         public WoodlandMansionPiece(ServerLevel param0, CompoundTag param1) {
-            super(StructurePieceType.WOODLAND_MANSION_PIECE, param1);
-            this.templateName = param1.getString("Template");
-            this.rotation = Rotation.valueOf(param1.getString("Rot"));
-            this.mirror = Mirror.valueOf(param1.getString("Mi"));
-            this.loadTemplate(param0.getStructureManager());
+            super(
+                StructurePieceType.WOODLAND_MANSION_PIECE,
+                param1,
+                param0,
+                param1x -> makeSettings(Mirror.valueOf(param1.getString("Mi")), Rotation.valueOf(param1.getString("Rot")))
+            );
         }
 
-        private void loadTemplate(StructureManager param0) {
-            StructureTemplate var0 = param0.getOrCreate(new ResourceLocation("woodland_mansion/" + this.templateName));
-            StructurePlaceSettings var1 = new StructurePlaceSettings()
+        @Override
+        protected ResourceLocation makeTemplateLocation() {
+            return makeLocation(this.templateName);
+        }
+
+        private static ResourceLocation makeLocation(String param0) {
+            return new ResourceLocation("woodland_mansion/" + param0);
+        }
+
+        private static StructurePlaceSettings makeSettings(Mirror param0, Rotation param1) {
+            return new StructurePlaceSettings()
                 .setIgnoreEntities(true)
-                .setRotation(this.rotation)
-                .setMirror(this.mirror)
+                .setRotation(param1)
+                .setMirror(param0)
                 .addProcessor(BlockIgnoreProcessor.STRUCTURE_BLOCK);
-            this.setup(var0, this.templatePosition, var1);
         }
 
         @Override
         protected void addAdditionalSaveData(ServerLevel param0, CompoundTag param1) {
             super.addAdditionalSaveData(param0, param1);
-            param1.putString("Template", this.templateName);
             param1.putString("Rot", this.placeSettings.getRotation().name());
             param1.putString("Mi", this.placeSettings.getMirror().name());
         }

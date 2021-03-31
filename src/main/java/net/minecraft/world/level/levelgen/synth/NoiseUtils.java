@@ -7,4 +7,8 @@ public class NoiseUtils {
         double var0 = param0.getValue(param1, param2, param3);
         return Mth.map(var0, -1.0, 1.0, param4, param5);
     }
+
+    public static double biasTowardsExtreme(double param0, double param1) {
+        return param0 + Math.sin(Math.PI * param0) * param1 / Math.PI;
+    }
 }

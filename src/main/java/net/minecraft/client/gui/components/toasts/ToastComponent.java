@@ -15,6 +15,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class ToastComponent extends GuiComponent {
+    private static final int VISIBLE_TOASTS = 5;
     private final Minecraft minecraft;
     private final ToastComponent.ToastInstance<?>[] visible = new ToastComponent.ToastInstance[5];
     private final Deque<Toast> queued = Queues.newArrayDeque();
@@ -71,6 +72,7 @@ public class ToastComponent extends GuiComponent {
 
     @OnlyIn(Dist.CLIENT)
     class ToastInstance<T extends Toast> {
+        private static final long ANIMATION_TIME = 600L;
         private final T toast;
         private long animationTime = -1L;
         private long visibleTime = -1L;

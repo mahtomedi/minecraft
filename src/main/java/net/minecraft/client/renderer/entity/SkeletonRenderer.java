@@ -25,4 +25,8 @@ public class SkeletonRenderer extends HumanoidMobRenderer<AbstractSkeleton, Skel
     public ResourceLocation getTextureLocation(AbstractSkeleton param0) {
         return SKELETON_LOCATION;
     }
+
+    protected boolean isShaking(AbstractSkeleton param0) {
+        return param0.isShaking();
+    }
 }

@@ -62,8 +62,6 @@ import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.level.storage.WritableLevelData;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.scores.Scoreboard;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -74,7 +72,14 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     public static final ResourceKey<Level> OVERWORLD = ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation("overworld"));
     public static final ResourceKey<Level> NETHER = ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation("the_nether"));
     public static final ResourceKey<Level> END = ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation("the_end"));
+    public static final int MAX_LEVEL_SIZE = 30000000;
+    public static final int LONG_PARTICLE_CLIP_RANGE = 512;
+    public static final int SHORT_PARTICLE_CLIP_RANGE = 32;
     private static final Direction[] DIRECTIONS = Direction.values();
+    public static final int MAX_BRIGHTNESS = 15;
+    public static final int TICKS_PER_DAY = 24000;
+    public static final int MAX_ENTITY_SPAWN_Y = 20000000;
+    public static final int MIN_ENTITY_SPAWN_Y = -20000000;
     protected final List<TickingBlockEntity> blockEntityTickers = Lists.newArrayList();
     private final List<TickingBlockEntity> pendingBlockEntityTickers = Lists.newArrayList();
     private boolean tickingBlockEntities;
@@ -137,6 +142,7 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     }
 
     @Nullable
+    @Override
     public MinecraftServer getServer() {
         return null;
     }
@@ -417,7 +423,6 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     public void addParticle(ParticleOptions param0, double param1, double param2, double param3, double param4, double param5, double param6) {
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void addParticle(ParticleOptions param0, boolean param1, double param2, double param3, double param4, double param5, double param6, double param7) {
     }
 
@@ -499,6 +504,8 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         var0.finalizeExplosion(true);
         return var0;
     }
+
+    public abstract String gatherChunkSourceStats();
 
     @Nullable
     @Override
@@ -710,7 +717,6 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         return var0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void disconnect() {
     }
 
@@ -746,7 +752,6 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         return Mth.lerp(param0, this.oThunderLevel, this.thunderLevel) * this.getRainLevel(param0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void setThunderLevel(float param0) {
         this.oThunderLevel = param0;
         this.thunderLevel = param0;
@@ -756,7 +761,6 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         return Mth.lerp(param0, this.oRainLevel, this.rainLevel);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void setRainLevel(float param0) {
         this.oRainLevel = param0;
         this.rainLevel = param0;
@@ -819,7 +823,6 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
 
     public abstract void destroyBlockProgress(int var1, BlockPos var2, int var3);
 
-    @OnlyIn(Dist.CLIENT)
     public void createFireworks(double param0, double param1, double param2, double param3, double param4, double param5, @Nullable CompoundTag param6) {
     }
 
@@ -890,6 +893,11 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     @Override
     public boolean isStateAtPosition(BlockPos param0, Predicate<BlockState> param1) {
         return param1.test(this.getBlockState(param0));
+    }
+
+    @Override
+    public boolean isFluidAtPosition(BlockPos param0, Predicate<FluidState> param1) {
+        return param1.test(this.getFluidState(param0));
     }
 
     public abstract RecipeManager getRecipeManager();

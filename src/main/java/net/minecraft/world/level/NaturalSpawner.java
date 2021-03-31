@@ -4,7 +4,6 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMaps;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
@@ -19,7 +18,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
-import net.minecraft.util.WeighedRandom;
+import net.minecraft.util.VisibleForDebug;
+import net.minecraft.util.random.WeightedRandomList;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
@@ -41,17 +41,21 @@ import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public final class NaturalSpawner {
     private static final Logger LOGGER = LogManager.getLogger();
+    private static final int MIN_SPAWN_DISTANCE = 24;
+    public static final int SPAWN_DISTANCE_CHUNK = 8;
+    public static final int SPAWN_DISTANCE_BLOCK = 128;
     private static final int MAGIC_NUMBER = (int)Math.pow(17.0, 2.0);
     private static final MobCategory[] SPAWNING_CATEGORIES = Stream.of(MobCategory.values())
         .filter(param0 -> param0 != MobCategory.MISC)
         .toArray(param0 -> new MobCategory[param0]);
+
+    private NaturalSpawner() {
+    }
 
     public static NaturalSpawner.SpawnState createState(int param0, Iterable<Entity> param1, NaturalSpawner.ChunkGetter param2) {
         PotentialCalculator var0 = new PotentialCalculator();
@@ -119,6 +123,12 @@ public final class NaturalSpawner {
         if (var0.getY() >= param1.getMinBuildHeight() + 1) {
             spawnCategoryForPosition(param0, param1, param2, var0, param3, param4);
         }
+    }
+
+    @VisibleForDebug
+    public static void spawnCategoryForPosition(MobCategory param0, ServerLevel param1, BlockPos param2) {
+        spawnCategoryForPosition(param0, param1, param1.getChunk(param2), param2, (param0x, param1x, param2x) -> true, (param0x, param1x) -> {
+        });
     }
 
     public static void spawnCategoryForPosition(
@@ -263,21 +273,18 @@ public final class NaturalSpawner {
         ServerLevel param0, StructureFeatureManager param1, ChunkGenerator param2, MobCategory param3, Random param4, BlockPos param5
     ) {
         Biome var0 = param0.getBiome(param5);
-        if (param3 == MobCategory.WATER_AMBIENT && var0.getBiomeCategory() == Biome.BiomeCategory.RIVER && param4.nextFloat() < 0.98F) {
-            return Optional.empty();
-        } else {
-            List<MobSpawnSettings.SpawnerData> var1 = mobsAt(param0, param1, param2, param3, param5, var0);
-            return var1.isEmpty() ? Optional.empty() : WeighedRandom.getRandomItem(param4, var1);
-        }
+        return param3 == MobCategory.WATER_AMBIENT && var0.getBiomeCategory() == Biome.BiomeCategory.RIVER && param4.nextFloat() < 0.98F
+            ? Optional.empty()
+            : mobsAt(param0, param1, param2, param3, param5, var0).getRandom(param4);
     }
 
     private static boolean canSpawnMobAt(
         ServerLevel param0, StructureFeatureManager param1, ChunkGenerator param2, MobCategory param3, MobSpawnSettings.SpawnerData param4, BlockPos param5
     ) {
-        return mobsAt(param0, param1, param2, param3, param5, null).contains(param4);
+        return mobsAt(param0, param1, param2, param3, param5, null).unwrap().contains(param4);
     }
 
-    private static List<MobSpawnSettings.SpawnerData> mobsAt(
+    private static WeightedRandomList<MobSpawnSettings.SpawnerData> mobsAt(
         ServerLevel param0, StructureFeatureManager param1, ChunkGenerator param2, MobCategory param3, BlockPos param4, @Nullable Biome param5
     ) {
         return param3 == MobCategory.MONSTER
@@ -342,13 +349,13 @@ public final class NaturalSpawner {
 
     public static void spawnMobsForChunkGeneration(ServerLevelAccessor param0, Biome param1, ChunkPos param2, Random param3) {
         MobSpawnSettings var0 = param1.getMobSettings();
-        List<MobSpawnSettings.SpawnerData> var1 = var0.getMobs(MobCategory.CREATURE);
+        WeightedRandomList<MobSpawnSettings.SpawnerData> var1 = var0.getMobs(MobCategory.CREATURE);
         if (!var1.isEmpty()) {
             int var2 = param2.getMinBlockX();
             int var3 = param2.getMinBlockZ();
 
             while(param3.nextFloat() < var0.getCreatureProbability()) {
-                Optional<MobSpawnSettings.SpawnerData> var4 = WeighedRandom.getRandomItem(param3, var1);
+                Optional<MobSpawnSettings.SpawnerData> var4 = var1.getRandom(param3);
                 if (var4.isPresent()) {
                     MobSpawnSettings.SpawnerData var5 = var4.get();
                     int var6 = var5.minCount + param3.nextInt(1 + var5.maxCount - var5.minCount);
@@ -501,7 +508,6 @@ public final class NaturalSpawner {
             this.mobCategoryCounts.addTo(var0.getCategory(), 1);
         }
 
-        @OnlyIn(Dist.CLIENT)
         public int getSpawnableChunkCount() {
             return this.spawnableChunkCount;
         }

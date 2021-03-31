@@ -25,6 +25,7 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.obfuscate.DontObfuscate;
 import net.minecraft.resources.RegistryReadOps;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.dedicated.DedicatedServer;
@@ -56,6 +57,7 @@ import org.apache.logging.log4j.Logger;
 public class Main {
     private static final Logger LOGGER = LogManager.getLogger();
 
+    @DontObfuscate
     public static void main(String[] param0) {
         OptionParser var0 = new OptionParser();
         OptionSpec<Void> var1 = var0.accepts("nogui");

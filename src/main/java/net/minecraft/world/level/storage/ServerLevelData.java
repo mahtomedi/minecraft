@@ -1,6 +1,7 @@
 package net.minecraft.world.level.storage;
 
 import java.util.UUID;
+import javax.annotation.Nullable;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.GameType;
@@ -54,6 +55,9 @@ public interface ServerLevelData extends WritableLevelData {
     int getWanderingTraderSpawnChance();
 
     void setWanderingTraderSpawnChance(int var1);
+
+    @Nullable
+    UUID getWanderingTraderId();
 
     void setWanderingTraderId(UUID var1);
 

@@ -8,8 +8,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.protocol.Packet;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundCommandSuggestionsPacket implements Packet<ClientGamePacketListener> {
     private final int id;
@@ -52,12 +50,10 @@ public class ClientboundCommandSuggestionsPacket implements Packet<ClientGamePac
         param0.handleCommandSuggestions(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getId() {
         return this.id;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Suggestions getSuggestions() {
         return this.suggestions;
     }

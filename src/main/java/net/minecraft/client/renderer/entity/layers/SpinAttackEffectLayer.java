@@ -24,6 +24,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class SpinAttackEffectLayer<T extends LivingEntity> extends RenderLayer<T, PlayerModel<T>> {
     public static final ResourceLocation TEXTURE = new ResourceLocation("textures/entity/trident_riptide.png");
+    public static final String BOX = "box";
     private final ModelPart box;
 
     public SpinAttackEffectLayer(RenderLayerParent<T, PlayerModel<T>> param0, EntityModelSet param1) {

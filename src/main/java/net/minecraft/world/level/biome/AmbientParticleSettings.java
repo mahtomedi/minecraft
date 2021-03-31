@@ -5,8 +5,6 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Random;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class AmbientParticleSettings {
     public static final Codec<AmbientParticleSettings> CODEC = RecordCodecBuilder.create(
@@ -24,12 +22,10 @@ public class AmbientParticleSettings {
         this.probability = param1;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public ParticleOptions getOptions() {
         return this.options;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean canSpawn(Random param0) {
         return param0.nextFloat() <= this.probability;
     }

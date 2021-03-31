@@ -12,8 +12,6 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class SpawnerBlock extends BaseEntityBlock {
     protected SpawnerBlock(BlockBehaviour.Properties param0) {
@@ -43,7 +41,6 @@ public class SpawnerBlock extends BaseEntityBlock {
         return RenderShape.MODEL;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public ItemStack getCloneItemStack(BlockGetter param0, BlockPos param1, BlockState param2) {
         return ItemStack.EMPTY;

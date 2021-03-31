@@ -20,10 +20,12 @@ import net.minecraft.world.level.block.BaseCoralWallFanBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.BonemealableBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class BoneMealItem extends Item {
+    public static final int GRASS_SPREAD_WIDTH = 3;
+    public static final int GRASS_SPREAD_HEIGHT = 1;
+    public static final int GRASS_COUNT_MULTIPLIER = 3;
+
     public BoneMealItem(Item.Properties param0) {
         super(param0);
     }
@@ -126,7 +128,6 @@ public class BoneMealItem extends Item {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static void addGrowthParticles(LevelAccessor param0, BlockPos param1, int param2) {
         if (param2 == 0) {
             param2 = 15;

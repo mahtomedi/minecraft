@@ -30,10 +30,10 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class CandleBlock extends AbstractCandleBlock implements SimpleWaterloggedBlock {
+    public static final int MIN_CANDLES = 1;
+    public static final int MAX_CANDLES = 4;
     public static final IntegerProperty CANDLES = BlockStateProperties.CANDLES;
     public static final BooleanProperty LIT = AbstractCandleBlock.LIT;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
@@ -149,10 +149,14 @@ public class CandleBlock extends AbstractCandleBlock implements SimpleWaterlogge
             && !param0.getValue(WATERLOGGED);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     protected Iterable<Vec3> getParticleOffsets(BlockState param0) {
         return PARTICLE_OFFSETS.get(param0.getValue(CANDLES).intValue());
+    }
+
+    @Override
+    protected boolean canBeLit(BlockState param0) {
+        return !param0.getValue(WATERLOGGED) && super.canBeLit(param0);
     }
 
     @Override

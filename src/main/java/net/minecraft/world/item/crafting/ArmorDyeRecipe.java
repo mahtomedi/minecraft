@@ -9,8 +9,6 @@ import net.minecraft.world.item.DyeableLeatherItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ArmorDyeRecipe extends CustomRecipe {
     public ArmorDyeRecipe(ResourceLocation param0) {
@@ -70,7 +68,6 @@ public class ArmorDyeRecipe extends CustomRecipe {
         return !var1.isEmpty() && !var0.isEmpty() ? DyeableLeatherItem.dyeArmor(var1, var0) : ItemStack.EMPTY;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public boolean canCraftInDimensions(int param0, int param1) {
         return param0 * param1 >= 2;

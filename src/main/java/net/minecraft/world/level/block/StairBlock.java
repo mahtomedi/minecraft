@@ -30,8 +30,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class StairBlock extends Block implements SimpleWaterloggedBlock {
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
@@ -109,7 +107,6 @@ public class StairBlock extends Block implements SimpleWaterloggedBlock {
         return param0.getValue(SHAPE).ordinal() * 4 + param0.getValue(FACING).get2DDataValue();
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void animateTick(BlockState param0, Level param1, BlockPos param2, Random param3) {
         this.base.animateTick(param0, param1, param2, param3);

@@ -7,15 +7,12 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public interface Recipe<C extends Container> {
     boolean matches(C var1, Level var2);
 
     ItemStack assemble(C var1);
 
-    @OnlyIn(Dist.CLIENT)
     boolean canCraftInDimensions(int var1, int var2);
 
     ItemStack getResultItem();
@@ -41,12 +38,10 @@ public interface Recipe<C extends Container> {
         return false;
     }
 
-    @OnlyIn(Dist.CLIENT)
     default String getGroup() {
         return "";
     }
 
-    @OnlyIn(Dist.CLIENT)
     default ItemStack getToastSymbol() {
         return new ItemStack(Blocks.CRAFTING_TABLE);
     }
@@ -57,7 +52,6 @@ public interface Recipe<C extends Container> {
 
     RecipeType<?> getType();
 
-    @OnlyIn(Dist.CLIENT)
     default boolean isIncomplete() {
         NonNullList<Ingredient> var0 = this.getIngredients();
         return var0.isEmpty() || var0.stream().anyMatch(param0 -> param0.getItems().length == 0);

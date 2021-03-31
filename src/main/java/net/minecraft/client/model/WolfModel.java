@@ -14,6 +14,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class WolfModel<T extends Wolf> extends ColorableAgeableListModel<T> {
+    private static final String REAL_HEAD = "real_head";
+    private static final String UPPER_BODY = "upper_body";
+    private static final String REAL_TAIL = "real_tail";
     private final ModelPart head;
     private final ModelPart realHead;
     private final ModelPart body;
@@ -24,6 +27,7 @@ public class WolfModel<T extends Wolf> extends ColorableAgeableListModel<T> {
     private final ModelPart tail;
     private final ModelPart realTail;
     private final ModelPart upperBody;
+    private static final int LEG_SIZE = 8;
 
     public WolfModel(ModelPart param0) {
         this.head = param0.getChild("head");

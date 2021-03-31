@@ -3,10 +3,14 @@ package net.minecraft.network.protocol.game;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.entity.Entity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundAnimatePacket implements Packet<ClientGamePacketListener> {
+    public static final int SWING_MAIN_HAND = 0;
+    public static final int HURT = 1;
+    public static final int WAKE_UP = 2;
+    public static final int SWING_OFF_HAND = 3;
+    public static final int CRITICAL_HIT = 4;
+    public static final int MAGIC_CRITICAL_HIT = 5;
     private final int id;
     private final int action;
 
@@ -30,12 +34,10 @@ public class ClientboundAnimatePacket implements Packet<ClientGamePacketListener
         param0.handleAnimate(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getId() {
         return this.id;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getAction() {
         return this.action;
     }

@@ -32,6 +32,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 public abstract class FlowingFluid extends Fluid {
     public static final BooleanProperty FALLING = BlockStateProperties.FALLING;
     public static final IntegerProperty LEVEL = BlockStateProperties.LEVEL_FLOWING;
+    private static final int CACHE_SIZE = 200;
     private static final ThreadLocal<Object2ByteLinkedOpenHashMap<Block.BlockStatePairKey>> OCCLUSION_CACHE = ThreadLocal.withInitial(() -> {
         Object2ByteLinkedOpenHashMap<Block.BlockStatePairKey> var0 = new Object2ByteLinkedOpenHashMap<Block.BlockStatePairKey>(200) {
             @Override
@@ -451,6 +452,9 @@ public abstract class FlowingFluid extends Fluid {
     public float getOwnHeight(FluidState param0) {
         return (float)param0.getAmount() / 9.0F;
     }
+
+    @Override
+    public abstract int getAmount(FluidState var1);
 
     @Override
     public VoxelShape getShape(FluidState param0, BlockGetter param1, BlockPos param2) {

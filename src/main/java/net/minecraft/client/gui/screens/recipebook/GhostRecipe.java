@@ -99,7 +99,7 @@ public class GhostRecipe {
 
         public ItemStack getItem() {
             ItemStack[] var0 = this.ingredient.getItems();
-            return var0[Mth.floor(GhostRecipe.this.time / 30.0F) % var0.length];
+            return var0.length == 0 ? ItemStack.EMPTY : var0[Mth.floor(GhostRecipe.this.time / 30.0F) % var0.length];
         }
     }
 }

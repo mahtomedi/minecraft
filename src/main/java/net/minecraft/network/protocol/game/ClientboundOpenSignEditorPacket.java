@@ -3,8 +3,6 @@ package net.minecraft.network.protocol.game;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundOpenSignEditorPacket implements Packet<ClientGamePacketListener> {
     private final BlockPos pos;
@@ -26,7 +24,6 @@ public class ClientboundOpenSignEditorPacket implements Packet<ClientGamePacketL
         param0.handleOpenSignEditor(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public BlockPos getPos() {
         return this.pos;
     }

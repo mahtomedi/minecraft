@@ -4,8 +4,6 @@ import java.util.Objects;
 import javax.annotation.Nullable;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class MapDecoration {
     private final MapDecoration.Type type;
@@ -23,7 +21,6 @@ public class MapDecoration {
         this.name = param4;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public byte getImage() {
         return this.type.getIcon();
     }
@@ -44,7 +41,6 @@ public class MapDecoration {
         return this.rot;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean renderOnFrame() {
         return this.type.isRenderedOnFrame();
     }
@@ -121,7 +117,6 @@ public class MapDecoration {
             return this.icon;
         }
 
-        @OnlyIn(Dist.CLIENT)
         public boolean isRenderedOnFrame() {
             return this.renderedOnFrame;
         }

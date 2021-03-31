@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class ListTag extends CollectionTag<Tag> {
+    private static final int SELF_SIZE_IN_BITS = 296;
     public static final TagType<ListTag> TYPE = new TagType<ListTag>() {
         public ListTag load(DataInput param0, int param1, NbtAccounter param2) throws IOException {
             param2.accountBits(296L);
@@ -148,6 +149,28 @@ public class ListTag extends CollectionTag<Tag> {
         }
 
         return 0;
+    }
+
+    public int[] getIntArray(int param0) {
+        if (param0 >= 0 && param0 < this.list.size()) {
+            Tag var0 = this.list.get(param0);
+            if (var0.getId() == 11) {
+                return ((IntArrayTag)var0).getAsIntArray();
+            }
+        }
+
+        return new int[0];
+    }
+
+    public long[] getLongArray(int param0) {
+        if (param0 >= 0 && param0 < this.list.size()) {
+            Tag var0 = this.list.get(param0);
+            if (var0.getId() == 11) {
+                return ((LongArrayTag)var0).getAsLongArray();
+            }
+        }
+
+        return new long[0];
     }
 
     public double getDouble(int param0) {

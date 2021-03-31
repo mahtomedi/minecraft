@@ -10,8 +10,6 @@ import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class UpgradeRecipe implements Recipe<Container> {
     private final Ingredient base;
@@ -42,7 +40,6 @@ public class UpgradeRecipe implements Recipe<Container> {
         return var0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public boolean canCraftInDimensions(int param0, int param1) {
         return param0 * param1 >= 2;
@@ -57,7 +54,6 @@ public class UpgradeRecipe implements Recipe<Container> {
         return this.addition.test(param0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public ItemStack getToastSymbol() {
         return new ItemStack(Blocks.SMITHING_TABLE);
@@ -78,7 +74,6 @@ public class UpgradeRecipe implements Recipe<Container> {
         return RecipeType.SMITHING;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public boolean isIncomplete() {
         return Stream.of(this.base, this.addition).anyMatch(param0 -> param0.getItems().length == 0);
@@ -88,7 +83,7 @@ public class UpgradeRecipe implements Recipe<Container> {
         public UpgradeRecipe fromJson(ResourceLocation param0, JsonObject param1) {
             Ingredient var0 = Ingredient.fromJson(GsonHelper.getAsJsonObject(param1, "base"));
             Ingredient var1 = Ingredient.fromJson(GsonHelper.getAsJsonObject(param1, "addition"));
-            ItemStack var2 = ShapedRecipe.itemFromJson(GsonHelper.getAsJsonObject(param1, "result"));
+            ItemStack var2 = ShapedRecipe.itemStackFromJson(GsonHelper.getAsJsonObject(param1, "result"));
             return new UpgradeRecipe(param0, var0, var1, var2);
         }
 

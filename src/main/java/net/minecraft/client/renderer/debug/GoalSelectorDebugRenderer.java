@@ -14,6 +14,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class GoalSelectorDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
+    private static final int MAX_RENDER_DIST = 160;
     private final Minecraft minecraft;
     private final Map<Integer, List<GoalSelectorDebugRenderer.DebugGoal>> goalSelectors = Maps.newHashMap();
 
@@ -24,6 +25,10 @@ public class GoalSelectorDebugRenderer implements DebugRenderer.SimpleDebugRende
 
     public void addGoalSelector(int param0, List<GoalSelectorDebugRenderer.DebugGoal> param1) {
         this.goalSelectors.put(param0, param1);
+    }
+
+    public void removeGoalSelector(int param0) {
+        this.goalSelectors.remove(param0);
     }
 
     public GoalSelectorDebugRenderer(Minecraft param0) {

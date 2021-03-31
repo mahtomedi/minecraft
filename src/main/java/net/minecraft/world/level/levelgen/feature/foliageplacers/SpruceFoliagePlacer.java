@@ -3,22 +3,22 @@ package net.minecraft.world.level.levelgen.feature.foliageplacers;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Random;
-import java.util.Set;
+import java.util.function.BiConsumer;
 import net.minecraft.core.BlockPos;
-import net.minecraft.util.UniformInt;
-import net.minecraft.world.level.LevelSimulatedRW;
+import net.minecraft.util.valueproviders.IntProvider;
+import net.minecraft.world.level.LevelSimulatedReader;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
-import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 public class SpruceFoliagePlacer extends FoliagePlacer {
     public static final Codec<SpruceFoliagePlacer> CODEC = RecordCodecBuilder.create(
         param0 -> foliagePlacerParts(param0)
-                .and(UniformInt.codec(0, 16, 8).fieldOf("trunk_height").forGetter(param0x -> param0x.trunkHeight))
+                .and(IntProvider.codec(0, 24).fieldOf("trunk_height").forGetter(param0x -> param0x.trunkHeight))
                 .apply(param0, SpruceFoliagePlacer::new)
     );
-    private final UniformInt trunkHeight;
+    private final IntProvider trunkHeight;
 
-    public SpruceFoliagePlacer(UniformInt param0, UniformInt param1, UniformInt param2) {
+    public SpruceFoliagePlacer(IntProvider param0, IntProvider param1, IntProvider param2) {
         super(param0, param1);
         this.trunkHeight = param2;
     }
@@ -30,28 +30,27 @@ public class SpruceFoliagePlacer extends FoliagePlacer {
 
     @Override
     protected void createFoliage(
-        LevelSimulatedRW param0,
-        Random param1,
-        TreeConfiguration param2,
-        int param3,
-        FoliagePlacer.FoliageAttachment param4,
-        int param5,
+        LevelSimulatedReader param0,
+        BiConsumer<BlockPos, BlockState> param1,
+        Random param2,
+        TreeConfiguration param3,
+        int param4,
+        FoliagePlacer.FoliageAttachment param5,
         int param6,
-        Set<BlockPos> param7,
-        int param8,
-        BoundingBox param9
+        int param7,
+        int param8
     ) {
-        BlockPos var0 = param4.foliagePos();
-        int var1 = param1.nextInt(2);
+        BlockPos var0 = param5.pos();
+        int var1 = param2.nextInt(2);
         int var2 = 1;
         int var3 = 0;
 
-        for(int var4 = param8; var4 >= -param5; --var4) {
-            this.placeLeavesRow(param0, param1, param2, var0, var1, param7, var4, param4.doubleTrunk(), param9);
+        for(int var4 = param8; var4 >= -param6; --var4) {
+            this.placeLeavesRow(param0, param1, param2, param3, var0, var1, var4, param5.doubleTrunk());
             if (var1 >= var2) {
                 var1 = var3;
                 var3 = 1;
-                var2 = Math.min(var2 + 1, param6 + param4.radiusOffset());
+                var2 = Math.min(var2 + 1, param7 + param5.radiusOffset());
             } else {
                 ++var1;
             }

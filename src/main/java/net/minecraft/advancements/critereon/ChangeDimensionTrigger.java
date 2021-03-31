@@ -43,8 +43,20 @@ public class ChangeDimensionTrigger extends SimpleCriterionTrigger<ChangeDimensi
             this.to = param2;
         }
 
+        public static ChangeDimensionTrigger.TriggerInstance changedDimension() {
+            return new ChangeDimensionTrigger.TriggerInstance(EntityPredicate.Composite.ANY, null, null);
+        }
+
+        public static ChangeDimensionTrigger.TriggerInstance changedDimension(ResourceKey<Level> param0, ResourceKey<Level> param1) {
+            return new ChangeDimensionTrigger.TriggerInstance(EntityPredicate.Composite.ANY, param0, param1);
+        }
+
         public static ChangeDimensionTrigger.TriggerInstance changedDimensionTo(ResourceKey<Level> param0) {
             return new ChangeDimensionTrigger.TriggerInstance(EntityPredicate.Composite.ANY, null, param0);
+        }
+
+        public static ChangeDimensionTrigger.TriggerInstance changedDimensionFrom(ResourceKey<Level> param0) {
+            return new ChangeDimensionTrigger.TriggerInstance(EntityPredicate.Composite.ANY, param0, null);
         }
 
         public boolean matches(ResourceKey<Level> param0, ResourceKey<Level> param1) {

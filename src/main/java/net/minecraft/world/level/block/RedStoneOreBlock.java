@@ -20,8 +20,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class RedStoneOreBlock extends Block {
     public static final BooleanProperty LIT = RedstoneTorchBlock.LIT;
@@ -88,7 +86,6 @@ public class RedStoneOreBlock extends Block {
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void animateTick(BlockState param0, Level param1, BlockPos param2, Random param3) {
         if (param0.getValue(LIT)) {

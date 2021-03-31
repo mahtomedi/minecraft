@@ -27,6 +27,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class BlockColors {
+    private static final int DEFAULT = -1;
     private final IdMapper<BlockColor> blockColors = new IdMapper<>(32);
     private final Map<Block, Set<Property<?>>> coloringStates = Maps.newHashMap();
 

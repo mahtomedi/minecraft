@@ -12,6 +12,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class VillageSectionsDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
+    private static final int MAX_RENDER_DIST_FOR_VILLAGE_SECTIONS = 60;
     private final Set<SectionPos> villageSections = Sets.newHashSet();
 
     VillageSectionsDebugRenderer() {

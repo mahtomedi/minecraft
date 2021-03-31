@@ -3,8 +3,6 @@ package net.minecraft.network.protocol.game;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.level.border.WorldBorder;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundSetBorderSizePacket implements Packet<ClientGamePacketListener> {
     private final double size;
@@ -26,7 +24,6 @@ public class ClientboundSetBorderSizePacket implements Packet<ClientGamePacketLi
         param0.handleSetBorderSize(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public double getSize() {
         return this.size;
     }

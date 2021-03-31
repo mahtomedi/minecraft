@@ -5,11 +5,10 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.Validate;
 
 public class ClientboundSoundPacket implements Packet<ClientGamePacketListener> {
+    public static final float LOCATION_ACCURACY = 8.0F;
     private final SoundEvent sound;
     private final SoundSource source;
     private final int x;
@@ -50,37 +49,30 @@ public class ClientboundSoundPacket implements Packet<ClientGamePacketListener> 
         param0.writeFloat(this.pitch);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public SoundEvent getSound() {
         return this.sound;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public SoundSource getSource() {
         return this.source;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public double getX() {
         return (double)((float)this.x / 8.0F);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public double getY() {
         return (double)((float)this.y / 8.0F);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public double getZ() {
         return (double)((float)this.z / 8.0F);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getVolume() {
         return this.volume;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getPitch() {
         return this.pitch;
     }

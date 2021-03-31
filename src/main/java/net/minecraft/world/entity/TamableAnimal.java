@@ -19,10 +19,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.scores.Team;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
-public abstract class TamableAnimal extends Animal {
+public abstract class TamableAnimal extends Animal implements OwnableEntity {
     protected static final EntityDataAccessor<Byte> DATA_FLAGS_ID = SynchedEntityData.defineId(TamableAnimal.class, EntityDataSerializers.BYTE);
     protected static final EntityDataAccessor<Optional<UUID>> DATA_OWNERUUID_ID = SynchedEntityData.defineId(
         TamableAnimal.class, EntityDataSerializers.OPTIONAL_UUID
@@ -80,7 +78,6 @@ public abstract class TamableAnimal extends Animal {
         return !this.isLeashed();
     }
 
-    @OnlyIn(Dist.CLIENT)
     protected void spawnTamingParticles(boolean param0) {
         ParticleOptions var0 = ParticleTypes.HEART;
         if (!param0) {
@@ -96,7 +93,6 @@ public abstract class TamableAnimal extends Animal {
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void handleEntityEvent(byte param0) {
         if (param0 == 7) {
@@ -142,6 +138,7 @@ public abstract class TamableAnimal extends Animal {
     }
 
     @Nullable
+    @Override
     public UUID getOwnerUUID() {
         return this.entityData.get(DATA_OWNERUUID_ID).orElse(null);
     }

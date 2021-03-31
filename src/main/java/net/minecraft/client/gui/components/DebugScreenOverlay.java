@@ -66,6 +66,10 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class DebugScreenOverlay extends GuiComponent {
+    private static final int COLOR_GREY = 14737632;
+    private static final int MARGIN_RIGHT = 2;
+    private static final int MARGIN_LEFT = 2;
+    private static final int MARGIN_TOP = 2;
     private static final Map<Heightmap.Types, String> HEIGHTMAP_NAMES = Util.make(new EnumMap<>(Heightmap.Types.class), param0 -> {
         param0.put(Heightmap.Types.WORLD_SURFACE_WG, "SW");
         param0.put(Heightmap.Types.WORLD_SURFACE, "S");
@@ -84,6 +88,9 @@ public class DebugScreenOverlay extends GuiComponent {
     private LevelChunk clientChunk;
     @Nullable
     private CompletableFuture<LevelChunk> serverChunk;
+    private static final int RED = -65536;
+    private static final int YELLOW = -256;
+    private static final int GREEN = -16711936;
 
     public DebugScreenOverlay(Minecraft param0) {
         this.minecraft = param0;

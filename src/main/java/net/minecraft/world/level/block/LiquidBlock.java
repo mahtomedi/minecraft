@@ -26,8 +26,6 @@ import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class LiquidBlock extends Block implements BucketPickup {
     public static final IntegerProperty LEVEL = BlockStateProperties.LEVEL;
@@ -84,7 +82,6 @@ public class LiquidBlock extends Block implements BucketPickup {
         return this.stateCache.get(Math.min(var0, 8));
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public boolean skipRendering(BlockState param0, BlockState param1, Direction param2) {
         return param1.getFluidState().getType().isSame(this.fluid);

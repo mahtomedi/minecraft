@@ -9,8 +9,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class Team {
     public boolean isAlliedTo(@Nullable Team param0) {
@@ -25,15 +23,12 @@ public abstract class Team {
 
     public abstract MutableComponent getFormattedName(Component var1);
 
-    @OnlyIn(Dist.CLIENT)
     public abstract boolean canSeeFriendlyInvisibles();
 
     public abstract boolean isAllowFriendlyFire();
 
-    @OnlyIn(Dist.CLIENT)
     public abstract Team.Visibility getNameTagVisibility();
 
-    @OnlyIn(Dist.CLIENT)
     public abstract ChatFormatting getColor();
 
     public abstract Collection<String> getPlayers();
@@ -77,6 +72,10 @@ public abstract class Team {
         private static final Map<String, Team.Visibility> BY_NAME = Arrays.stream(values()).collect(Collectors.toMap(param0 -> param0.name, param0 -> param0));
         public final String name;
         public final int id;
+
+        public static String[] getAllNames() {
+            return BY_NAME.keySet().toArray(new String[BY_NAME.size()]);
+        }
 
         @Nullable
         public static Team.Visibility byName(String param0) {

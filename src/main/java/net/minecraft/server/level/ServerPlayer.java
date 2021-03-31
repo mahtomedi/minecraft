@@ -138,6 +138,8 @@ import org.apache.logging.log4j.Logger;
 
 public class ServerPlayer extends Player {
     private static final Logger LOGGER = LogManager.getLogger();
+    private static final int NEUTRAL_MOB_DEATH_NOTIFICATION_RADII_XZ = 32;
+    private static final int NEUTRAL_MOB_DEATH_NOTIFICATION_RADII_Y = 10;
     public ServerGamePacketListenerImpl connection;
     public final MinecraftServer server;
     public final ServerPlayerGameMode gameMode;
@@ -1304,6 +1306,10 @@ public class ServerPlayer extends Player {
         this.textFilteringEnabled = param0.isTextFilteringEnabled();
         this.getEntityData().set(DATA_PLAYER_MODE_CUSTOMISATION, (byte)param0.getModelCustomisation());
         this.getEntityData().set(DATA_PLAYER_MAIN_HAND, (byte)(param0.getMainHand() == HumanoidArm.LEFT ? 0 : 1));
+    }
+
+    public boolean canChatInColor() {
+        return this.canChatColor;
     }
 
     public ChatVisiblity getChatVisibility() {

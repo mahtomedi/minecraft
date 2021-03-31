@@ -27,6 +27,12 @@ public class CycleOption<T> extends Option {
     }
 
     public static <T> CycleOption<T> create(
+        String param0, List<T> param1, Function<T, Component> param2, Function<Options, T> param3, CycleOption.OptionSetter<T> param4
+    ) {
+        return new CycleOption<>(param0, param3, param4, () -> CycleButton.builder(param2).withValues(param1));
+    }
+
+    public static <T> CycleOption<T> create(
         String param0, Supplier<List<T>> param1, Function<T, Component> param2, Function<Options, T> param3, CycleOption.OptionSetter<T> param4
     ) {
         return new CycleOption<>(param0, param3, param4, () -> CycleButton.builder(param2).withValues(param1.get()));

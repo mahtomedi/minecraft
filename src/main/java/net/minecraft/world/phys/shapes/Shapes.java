@@ -18,10 +18,10 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public final class Shapes {
+    public static final double EPSILON = 1.0E-7;
+    public static final double BIG_EPSILON = 1.0E-6;
     private static final VoxelShape BLOCK = Util.make(() -> {
         DiscreteVoxelShape var0 = new BitSetDiscreteVoxelShape(1, 1, 1);
         var0.fill(0, 0, 0);
@@ -37,9 +37,9 @@ public final class Shapes {
     );
     private static final VoxelShape EMPTY = new ArrayVoxelShape(
         new BitSetDiscreteVoxelShape(0, 0, 0),
-        new DoubleArrayList(new double[]{0.0}),
-        new DoubleArrayList(new double[]{0.0}),
-        new DoubleArrayList(new double[]{0.0})
+        (DoubleList)(new DoubleArrayList(new double[]{0.0})),
+        (DoubleList)(new DoubleArrayList(new double[]{0.0})),
+        (DoubleList)(new DoubleArrayList(new double[]{0.0}))
     );
 
     public static VoxelShape empty() {
@@ -66,9 +66,9 @@ public final class Shapes {
             if (var0 < 0 || var1 < 0 || var2 < 0) {
                 return new ArrayVoxelShape(
                     BLOCK.shape,
-                    DoubleArrayList.wrap(new double[]{param0, param3}),
-                    DoubleArrayList.wrap(new double[]{param1, param4}),
-                    DoubleArrayList.wrap(new double[]{param2, param5})
+                    (DoubleList)DoubleArrayList.wrap(new double[]{param0, param3}),
+                    (DoubleList)DoubleArrayList.wrap(new double[]{param1, param4}),
+                    (DoubleList)DoubleArrayList.wrap(new double[]{param2, param5})
                 );
             } else if (var0 == 0 && var1 == 0 && var2 == 0) {
                 return block();
@@ -300,7 +300,6 @@ public final class Shapes {
         return param0 > 0.0 ? Mth.floor(param2 + param0) + 1 : Mth.floor(param1 + param0) - 1;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static boolean blockOccudes(VoxelShape param0, VoxelShape param1, Direction param2) {
         if (param0 == block() && param1 == block()) {
             return true;

@@ -1,6 +1,5 @@
 package net.minecraft.world.level.levelgen.structure;
 
-import java.util.List;
 import java.util.Random;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
@@ -22,7 +21,6 @@ import net.minecraft.world.level.levelgen.feature.configurations.ShipwreckConfig
 import net.minecraft.world.level.levelgen.structure.templatesystem.BlockIgnoreProcessor;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 
 public class ShipwreckPieces {
@@ -64,50 +62,38 @@ public class ShipwreckPieces {
     };
 
     public static void addPieces(
-        StructureManager param0, BlockPos param1, Rotation param2, List<StructurePiece> param3, Random param4, ShipwreckConfiguration param5
+        StructureManager param0, BlockPos param1, Rotation param2, StructurePieceAccessor param3, Random param4, ShipwreckConfiguration param5
     ) {
         ResourceLocation var0 = Util.getRandom(param5.isBeached ? STRUCTURE_LOCATION_BEACHED : STRUCTURE_LOCATION_OCEAN, param4);
-        param3.add(new ShipwreckPieces.ShipwreckPiece(param0, var0, param1, param2, param5.isBeached));
+        param3.addPiece(new ShipwreckPieces.ShipwreckPiece(param0, var0, param1, param2, param5.isBeached));
     }
 
     public static class ShipwreckPiece extends TemplateStructurePiece {
-        private final Rotation rotation;
-        private final ResourceLocation templateLocation;
         private final boolean isBeached;
 
         public ShipwreckPiece(StructureManager param0, ResourceLocation param1, BlockPos param2, Rotation param3, boolean param4) {
-            super(StructurePieceType.SHIPWRECK_PIECE, 0);
-            this.templatePosition = param2;
-            this.rotation = param3;
-            this.templateLocation = param1;
+            super(StructurePieceType.SHIPWRECK_PIECE, 0, param0, param1, param1.toString(), makeSettings(param3), param2);
             this.isBeached = param4;
-            this.loadTemplate(param0);
         }
 
         public ShipwreckPiece(ServerLevel param0, CompoundTag param1) {
-            super(StructurePieceType.SHIPWRECK_PIECE, param1);
-            this.templateLocation = new ResourceLocation(param1.getString("Template"));
+            super(StructurePieceType.SHIPWRECK_PIECE, param1, param0, param1x -> makeSettings(Rotation.valueOf(param1.getString("Rot"))));
             this.isBeached = param1.getBoolean("isBeached");
-            this.rotation = Rotation.valueOf(param1.getString("Rot"));
-            this.loadTemplate(param0.getStructureManager());
         }
 
         @Override
         protected void addAdditionalSaveData(ServerLevel param0, CompoundTag param1) {
             super.addAdditionalSaveData(param0, param1);
-            param1.putString("Template", this.templateLocation.toString());
             param1.putBoolean("isBeached", this.isBeached);
-            param1.putString("Rot", this.rotation.name());
+            param1.putString("Rot", this.placeSettings.getRotation().name());
         }
 
-        private void loadTemplate(StructureManager param0) {
-            StructureTemplate var0 = param0.getOrCreate(this.templateLocation);
-            StructurePlaceSettings var1 = new StructurePlaceSettings()
-                .setRotation(this.rotation)
+        private static StructurePlaceSettings makeSettings(Rotation param0) {
+            return new StructurePlaceSettings()
+                .setRotation(param0)
                 .setMirror(Mirror.NONE)
                 .setRotationPivot(ShipwreckPieces.PIVOT)
                 .addProcessor(BlockIgnoreProcessor.STRUCTURE_AND_AIR);
-            this.setup(var0, this.templatePosition, var1);
         }
 
         @Override

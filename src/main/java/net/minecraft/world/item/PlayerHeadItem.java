@@ -10,6 +10,8 @@ import net.minecraft.world.level.block.entity.SkullBlockEntity;
 import org.apache.commons.lang3.StringUtils;
 
 public class PlayerHeadItem extends StandingAndWallBlockItem {
+    public static final String TAG_SKULL_OWNER = "SkullOwner";
+
     public PlayerHeadItem(Block param0, Block param1, Item.Properties param2) {
         super(param0, param1, param2);
     }

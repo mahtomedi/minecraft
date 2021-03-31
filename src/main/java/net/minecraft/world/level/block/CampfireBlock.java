@@ -46,8 +46,6 @@ import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class CampfireBlock extends BaseEntityBlock implements SimpleWaterloggedBlock {
     protected static final VoxelShape SHAPE = Block.box(0.0, 0.0, 0.0, 16.0, 7.0, 16.0);
@@ -56,6 +54,7 @@ public class CampfireBlock extends BaseEntityBlock implements SimpleWaterloggedB
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
     private static final VoxelShape VIRTUAL_FENCE_POST = Block.box(6.0, 0.0, 6.0, 10.0, 16.0, 10.0);
+    private static final int SMOKE_DISTANCE = 5;
     private final boolean spawnParticles;
     private final int fireDamage;
 
@@ -152,7 +151,6 @@ public class CampfireBlock extends BaseEntityBlock implements SimpleWaterloggedB
         return RenderShape.MODEL;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void animateTick(BlockState param0, Level param1, BlockPos param2, Random param3) {
         if (param0.getValue(LIT)) {
@@ -250,9 +248,9 @@ public class CampfireBlock extends BaseEntityBlock implements SimpleWaterloggedB
         if (param3) {
             param0.addParticle(
                 ParticleTypes.SMOKE,
-                (double)param1.getX() + 0.25 + var0.nextDouble() / 2.0 * (double)(var0.nextBoolean() ? 1 : -1),
+                (double)param1.getX() + 0.5 + var0.nextDouble() / 4.0 * (double)(var0.nextBoolean() ? 1 : -1),
                 (double)param1.getY() + 0.4,
-                (double)param1.getZ() + 0.25 + var0.nextDouble() / 2.0 * (double)(var0.nextBoolean() ? 1 : -1),
+                (double)param1.getZ() + 0.5 + var0.nextDouble() / 4.0 * (double)(var0.nextBoolean() ? 1 : -1),
                 0.0,
                 0.005,
                 0.0

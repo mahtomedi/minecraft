@@ -67,8 +67,6 @@ import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class Dolphin extends WaterAnimal {
     private static final EntityDataAccessor<BlockPos> TREASURE_POS = SynchedEntityData.defineId(Dolphin.class, EntityDataSerializers.BLOCK_POS);
@@ -79,6 +77,8 @@ public class Dolphin extends WaterAnimal {
         .allowSameTeam()
         .allowInvulnerable()
         .allowUnseeable();
+    public static final int TOTAL_AIR_SUPPLY = 4800;
+    private static final int TOTAL_MOISTNESS_LEVEL = 2400;
     public static final Predicate<ItemEntity> ALLOWED_ITEMS = param0 -> !param0.hasPickUpDelay() && param0.isAlive() && param0.isInWater();
 
     public Dolphin(EntityType<? extends Dolphin> param0, Level param1) {
@@ -310,7 +310,6 @@ public class Dolphin extends WaterAnimal {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void handleEntityEvent(byte param0) {
         if (param0 == 38) {
@@ -321,7 +320,6 @@ public class Dolphin extends WaterAnimal {
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     private void addParticlesAroundSelf(ParticleOptions param0) {
         for(int var0 = 0; var0 < 7; ++var0) {
             double var1 = this.random.nextGaussian() * 0.01;

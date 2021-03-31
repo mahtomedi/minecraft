@@ -7,10 +7,10 @@ import java.util.Locale;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.Mth;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class DustParticleOptionsBase implements ParticleOptions {
+    public static final float MIN_SCALE = 0.01F;
+    public static final float MAX_SCALE = 4.0F;
     protected final Vector3f color;
     protected final float scale;
 
@@ -48,12 +48,10 @@ public abstract class DustParticleOptionsBase implements ParticleOptions {
         );
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Vector3f getColor() {
         return this.color;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getScale() {
         return this.scale;
     }

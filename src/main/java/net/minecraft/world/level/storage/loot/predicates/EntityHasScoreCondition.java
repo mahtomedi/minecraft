@@ -68,6 +68,29 @@ public class EntityHasScoreCondition implements LootItemCondition {
         }
     }
 
+    public static EntityHasScoreCondition.Builder hasScores(LootContext.EntityTarget param0) {
+        return new EntityHasScoreCondition.Builder(param0);
+    }
+
+    public static class Builder implements LootItemCondition.Builder {
+        private final Map<String, IntRange> scores = Maps.newHashMap();
+        private final LootContext.EntityTarget entityTarget;
+
+        public Builder(LootContext.EntityTarget param0) {
+            this.entityTarget = param0;
+        }
+
+        public EntityHasScoreCondition.Builder withScore(String param0, IntRange param1) {
+            this.scores.put(param0, param1);
+            return this;
+        }
+
+        @Override
+        public LootItemCondition build() {
+            return new EntityHasScoreCondition(this.scores, this.entityTarget);
+        }
+    }
+
     public static class Serializer implements net.minecraft.world.level.storage.loot.Serializer<EntityHasScoreCondition> {
         public void serialize(JsonObject param0, EntityHasScoreCondition param1, JsonSerializationContext param2) {
             JsonObject var0 = new JsonObject();

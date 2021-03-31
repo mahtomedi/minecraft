@@ -3,10 +3,9 @@ package net.minecraft.network.protocol.game;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundCustomPayloadPacket implements Packet<ClientGamePacketListener> {
+    private static final int MAX_PAYLOAD_SIZE = 1048576;
     public static final ResourceLocation BRAND = new ResourceLocation("brand");
     public static final ResourceLocation DEBUG_PATHFINDING_PACKET = new ResourceLocation("debug/path");
     public static final ResourceLocation DEBUG_NEIGHBORSUPDATE_PACKET = new ResourceLocation("debug/neighbors_update");
@@ -56,12 +55,10 @@ public class ClientboundCustomPayloadPacket implements Packet<ClientGamePacketLi
         param0.handleCustomPayload(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public ResourceLocation getIdentifier() {
         return this.identifier;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public FriendlyByteBuf getData() {
         return new FriendlyByteBuf(this.data.copy());
     }

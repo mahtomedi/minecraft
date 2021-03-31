@@ -21,11 +21,10 @@ import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class FlowerPotBlock extends Block {
     private static final Map<Block, Block> POTTED_BY_CONTENT = Maps.newHashMap();
+    public static final float AABB_SIZE = 3.0F;
     protected static final VoxelShape SHAPE = Block.box(5.0, 0.0, 5.0, 11.0, 6.0, 11.0);
     private final Block content;
 
@@ -78,7 +77,6 @@ public class FlowerPotBlock extends Block {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public ItemStack getCloneItemStack(BlockGetter param0, BlockPos param1, BlockState param2) {
         return this.isEmpty() ? super.getCloneItemStack(param0, param1, param2) : new ItemStack(this.content);

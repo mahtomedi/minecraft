@@ -33,6 +33,7 @@ public class UnderwaterAmbientSoundInstances {
 
     @OnlyIn(Dist.CLIENT)
     public static class UnderwaterAmbientSoundInstance extends AbstractTickableSoundInstance {
+        public static final int FADE_DURATION = 40;
         private final LocalPlayer player;
         private int fade;
 

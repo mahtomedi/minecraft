@@ -19,6 +19,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public abstract class EntityRenderer<T extends Entity> {
+    protected static final float NAMETAG_SCALE = 0.025F;
     protected final EntityRenderDispatcher entityRenderDispatcher;
     private final Font font;
     protected float shadowRadius;

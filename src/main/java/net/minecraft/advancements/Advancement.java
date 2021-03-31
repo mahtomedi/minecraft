@@ -25,8 +25,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.ArrayUtils;
 
 public class Advancement {
@@ -112,7 +110,6 @@ public class Advancement {
         return this.criteria;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getMaxCriteraRequired() {
         return this.requirements.length;
     }
@@ -241,6 +238,11 @@ public class Advancement {
 
         public Advancement.Builder requirements(RequirementsStrategy param0) {
             this.requirementsStrategy = param0;
+            return this;
+        }
+
+        public Advancement.Builder requirements(String[][] param0) {
+            this.requirements = param0;
             return this;
         }
 

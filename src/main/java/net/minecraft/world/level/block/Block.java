@@ -56,8 +56,6 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -72,12 +70,27 @@ public class Block extends BlockBehaviour implements ItemLike {
                 return !Shapes.joinIsNotEmpty(Shapes.block(), param0, BooleanOp.NOT_SAME);
             }
         });
+    public static final int UPDATE_NEIGHBORS = 1;
+    public static final int UPDATE_CLIENTS = 2;
+    public static final int UPDATE_INVISIBLE = 4;
+    public static final int UPDATE_IMMEDIATE = 8;
+    public static final int UPDATE_KNOWN_SHAPE = 16;
+    public static final int UPDATE_SUPPRESS_DROPS = 32;
+    public static final int UPDATE_MOVE_BY_PISTON = 64;
+    public static final int UPDATE_SUPPRESS_LIGHT = 128;
+    public static final int UPDATE_NONE = 4;
+    public static final int UPDATE_ALL = 3;
+    public static final int UPDATE_ALL_IMMEDIATE = 11;
+    public static final float INDESTRUCTIBLE = -1.0F;
+    public static final float INSTANT = 0.0F;
+    public static final int UPDATE_LIMIT = 512;
     protected final StateDefinition<Block, BlockState> stateDefinition;
     private BlockState defaultBlockState;
     @Nullable
     private String descriptionId;
     @Nullable
     private Item item;
+    private static final int CACHE_SIZE = 2048;
     private static final ThreadLocal<Object2ByteLinkedOpenHashMap<Block.BlockStatePairKey>> OCCLUSION_CACHE = ThreadLocal.withInitial(() -> {
         Object2ByteLinkedOpenHashMap<Block.BlockStatePairKey> var0 = new Object2ByteLinkedOpenHashMap<Block.BlockStatePairKey>(2048, 0.25F) {
             @Override
@@ -183,7 +196,6 @@ public class Block extends BlockBehaviour implements ItemLike {
         return this.isRandomlyTicking;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static boolean shouldRenderFace(BlockState param0, BlockGetter param1, BlockPos param2, Direction param3, BlockPos param4) {
         BlockState var0 = param1.getBlockState(param4);
         if (param0.skipRendering(var0, param3)) {
@@ -236,7 +248,6 @@ public class Block extends BlockBehaviour implements ItemLike {
         return !isShapeFullBlock(param0.getShape(param1, param2)) && param0.getFluidState().isEmpty();
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void animateTick(BlockState param0, Level param1, BlockPos param2, Random param3) {
     }
 
@@ -262,6 +273,13 @@ public class Block extends BlockBehaviour implements ItemLike {
             .withOptionalParameter(LootContextParams.THIS_ENTITY, param4)
             .withOptionalParameter(LootContextParams.BLOCK_ENTITY, param3);
         return param0.getDrops(var0);
+    }
+
+    public static void dropResources(BlockState param0, LootContext.Builder param1) {
+        ServerLevel var0 = param1.getLevel();
+        BlockPos var1 = new BlockPos(param1.getParameter(LootContextParams.ORIGIN));
+        param0.getDrops(param1).forEach(param2 -> popResource(var0, var1, param2));
+        param0.spawnAfterBreak(var0, var1, ItemStack.EMPTY);
     }
 
     public static void dropResources(BlockState param0, Level param1, BlockPos param2) {
@@ -335,7 +353,6 @@ public class Block extends BlockBehaviour implements ItemLike {
         return !this.material.isSolid() && !this.material.isLiquid();
     }
 
-    @OnlyIn(Dist.CLIENT)
     public MutableComponent getName() {
         return new TranslatableComponent(this.getDescriptionId());
     }
@@ -356,7 +373,6 @@ public class Block extends BlockBehaviour implements ItemLike {
         param1.setDeltaMovement(param1.getDeltaMovement().multiply(1.0, 0.0, 1.0));
     }
 
-    @OnlyIn(Dist.CLIENT)
     public ItemStack getCloneItemStack(BlockGetter param0, BlockPos param1, BlockState param2) {
         return new ItemStack(this);
     }
@@ -450,7 +466,6 @@ public class Block extends BlockBehaviour implements ItemLike {
         return "Block{" + Registry.BLOCK.getKey(this) + "}";
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void appendHoverText(ItemStack param0, @Nullable BlockGetter param1, List<Component> param2, TooltipFlag param3) {
     }
 

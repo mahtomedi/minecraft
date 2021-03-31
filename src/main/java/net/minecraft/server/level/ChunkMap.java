@@ -80,15 +80,20 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureMana
 import net.minecraft.world.level.storage.DimensionDataStorage;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider {
+    private static final byte CHUNK_TYPE_REPLACEABLE = -1;
+    private static final byte CHUNK_TYPE_UNKNOWN = 0;
+    private static final byte CHUNK_TYPE_FULL = 1;
     private static final Logger LOGGER = LogManager.getLogger();
+    private static final int CHUNK_SAVED_PER_TICK = 200;
+    private static final int MIN_VIEW_DISTANCE = 3;
+    public static final int MAX_VIEW_DISTANCE = 33;
     public static final int MAX_CHUNK_DISTANCE = 33 + ChunkStatus.maxDistance();
+    public static final int FORCED_TICKET_LEVEL = 31;
     private final Long2ObjectLinkedOpenHashMap<ChunkHolder> updatingChunkMap = new Long2ObjectLinkedOpenHashMap<>();
     private volatile Long2ObjectLinkedOpenHashMap<ChunkHolder> visibleChunkMap = this.updatingChunkMap.clone();
     private final Long2ObjectLinkedOpenHashMap<ChunkHolder> pendingUnloads = new Long2ObjectLinkedOpenHashMap<>();
@@ -177,6 +182,10 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
         return checkerboardDistance(param0, var1, var2);
     }
 
+    private static int checkerboardDistance(ChunkPos param0, Entity param1) {
+        return checkerboardDistance(param0, SectionPos.blockToSectionCoord(param1.getBlockX()), SectionPos.blockToSectionCoord(param1.getBlockZ()));
+    }
+
     private static int checkerboardDistance(ChunkPos param0, int param1, int param2) {
         int var0 = param0.x - param1;
         int var1 = param0.z - param2;
@@ -206,7 +215,6 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
         };
     }
 
-    @OnlyIn(Dist.CLIENT)
     public String getChunkDebugData(ChunkPos param0) {
         ChunkHolder var0 = this.getVisibleChunkIfPresent(param0.toLong());
         if (var0 == null) {

@@ -24,10 +24,11 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class PistonMovingBlockEntity extends BlockEntity {
+    private static final int TICKS_TO_EXTEND = 2;
+    private static final double PUSH_OFFSET = 0.01;
+    public static final double TICK_MOVEMENT = 0.51;
     private BlockState movedState;
     private Direction direction;
     private boolean extending;
@@ -75,17 +76,14 @@ public class PistonMovingBlockEntity extends BlockEntity {
         return Mth.lerp(param0, this.progressO, this.progress);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getXOff(float param0) {
         return (float)this.direction.getStepX() * this.getExtendedProgress(this.getProgress(param0));
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getYOff(float param0) {
         return (float)this.direction.getStepY() * this.getExtendedProgress(this.getProgress(param0));
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getZOff(float param0) {
         return (float)this.direction.getStepZ() * this.getExtendedProgress(this.getProgress(param0));
     }

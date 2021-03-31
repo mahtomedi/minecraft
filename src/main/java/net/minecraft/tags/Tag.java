@@ -63,8 +63,16 @@ public interface Tag<T> {
             return this.add(new Tag.ElementEntry(param0), param1);
         }
 
+        public Tag.Builder addOptionalElement(ResourceLocation param0, String param1) {
+            return this.add(new Tag.OptionalElementEntry(param0), param1);
+        }
+
         public Tag.Builder addTag(ResourceLocation param0, String param1) {
             return this.add(new Tag.TagEntry(param0), param1);
+        }
+
+        public Tag.Builder addOptionalTag(ResourceLocation param0, String param1) {
+            return this.add(new Tag.OptionalTagEntry(param0), param1);
         }
 
         public <T> Either<Collection<Tag.BuilderEntry>, Tag<T>> build(Function<ResourceLocation, Tag<T>> param0, Function<ResourceLocation, T> param1) {
@@ -154,6 +162,10 @@ public interface Tag<T> {
 
         public Tag.Entry getEntry() {
             return this.entry;
+        }
+
+        public String getSource() {
+            return this.source;
         }
 
         @Override

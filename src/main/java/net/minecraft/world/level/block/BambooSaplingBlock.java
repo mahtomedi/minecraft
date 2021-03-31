@@ -19,10 +19,9 @@ import net.minecraft.world.level.block.state.properties.BambooLeaves;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class BambooSaplingBlock extends Block implements BonemealableBlock {
+    protected static final float SAPLING_AABB_OFFSET = 4.0F;
     protected static final VoxelShape SAPLING_SHAPE = Block.box(4.0, 0.0, 4.0, 12.0, 12.0, 12.0);
 
     public BambooSaplingBlock(BlockBehaviour.Properties param0) {
@@ -66,7 +65,6 @@ public class BambooSaplingBlock extends Block implements BonemealableBlock {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public ItemStack getCloneItemStack(BlockGetter param0, BlockPos param1, BlockState param2) {
         return new ItemStack(Items.BAMBOO);

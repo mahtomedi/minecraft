@@ -11,10 +11,17 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class AbstractFurnaceMenu extends RecipeBookMenu<Container> {
+    public static final int INGREDIENT_SLOT = 0;
+    public static final int FUEL_SLOT = 1;
+    public static final int RESULT_SLOT = 2;
+    public static final int SLOT_COUNT = 3;
+    public static final int DATA_COUNT = 4;
+    private static final int INV_SLOT_START = 3;
+    private static final int INV_SLOT_END = 30;
+    private static final int USE_ROW_SLOT_START = 30;
+    private static final int USE_ROW_SLOT_END = 39;
     private final Container container;
     private final ContainerData data;
     protected final Level level;
@@ -160,14 +167,12 @@ public abstract class AbstractFurnaceMenu extends RecipeBookMenu<Container> {
         return AbstractFurnaceBlockEntity.isFuel(param0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getBurnProgress() {
         int var0 = this.data.get(2);
         int var1 = this.data.get(3);
         return var1 != 0 && var0 != 0 ? var0 * 24 / var1 : 0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getLitProgress() {
         int var0 = this.data.get(1);
         if (var0 == 0) {
@@ -177,12 +182,10 @@ public abstract class AbstractFurnaceMenu extends RecipeBookMenu<Container> {
         return this.data.get(0) * 13 / var0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean isLit() {
         return this.data.get(0) > 0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public RecipeBookType getRecipeBookType() {
         return this.recipeBookType;

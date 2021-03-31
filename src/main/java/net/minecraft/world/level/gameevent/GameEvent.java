@@ -1,8 +1,6 @@
 package net.minecraft.world.level.gameevent;
 
 import net.minecraft.core.Registry;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class GameEvent {
     public static final GameEvent BLOCK_ATTACH = register("block_attach");
@@ -50,6 +48,7 @@ public class GameEvent {
     public static final GameEvent STEP = register("step");
     public static final GameEvent SWIM = register("swim");
     public static final GameEvent WOLF_SHAKING = register("wolf_shaking");
+    public static final int DEFAULT_NOTIFICATION_RADIUS = 16;
     private final String name;
     private final int notificationRadius;
 
@@ -58,7 +57,6 @@ public class GameEvent {
         this.notificationRadius = param1;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public String getName() {
         return this.name;
     }

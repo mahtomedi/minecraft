@@ -19,10 +19,12 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class HoneyBlock extends HalfTransparentBlock {
+    private static final double SLIDE_STARTS_WHEN_VERTICAL_SPEED_IS_AT_LEAST = 0.13;
+    private static final double MIN_FALL_SPEED_TO_BE_CONSIDERED_SLIDING = 0.08;
+    private static final double THROTTLE_SLIDE_SPEED_TO = 0.05;
+    private static final int SLIDE_ADVANCEMENT_CHECK_INTERVAL = 20;
     protected static final VoxelShape SHAPE = Block.box(1.0, 0.0, 1.0, 15.0, 15.0, 15.0);
 
     public HoneyBlock(BlockBehaviour.Properties param0) {
@@ -109,17 +111,14 @@ public class HoneyBlock extends HalfTransparentBlock {
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static void showSlideParticles(Entity param0) {
         showParticles(param0, 5);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static void showJumpParticles(Entity param0) {
         showParticles(param0, 10);
     }
 
-    @OnlyIn(Dist.CLIENT)
     private static void showParticles(Entity param0, int param1) {
         if (param0.level.isClientSide) {
             BlockState var0 = Blocks.HONEY_BLOCK.defaultBlockState();

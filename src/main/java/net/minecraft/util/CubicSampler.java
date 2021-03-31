@@ -1,13 +1,16 @@
 package net.minecraft.util;
 
+import net.minecraft.obfuscate.DontObfuscate;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class CubicSampler {
+    private static final int GAUSSIAN_SAMPLE_RADIUS = 2;
+    private static final int GAUSSIAN_SAMPLE_BREADTH = 6;
     private static final double[] GAUSSIAN_SAMPLE_KERNEL = new double[]{0.0, 1.0, 4.0, 6.0, 4.0, 1.0, 0.0};
 
-    @OnlyIn(Dist.CLIENT)
+    private CubicSampler() {
+    }
+
     public static Vec3 gaussianSampleVec3(Vec3 param0, CubicSampler.Vec3Fetcher param1) {
         int var0 = Mth.floor(param0.x());
         int var1 = Mth.floor(param0.y());
@@ -39,6 +42,7 @@ public class CubicSampler {
         return var7.scale(1.0 / var6);
     }
 
+    @DontObfuscate
     public interface Vec3Fetcher {
         Vec3 fetch(int var1, int var2, int var3);
     }

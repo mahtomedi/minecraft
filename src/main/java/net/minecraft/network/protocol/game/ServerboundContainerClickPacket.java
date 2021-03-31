@@ -7,8 +7,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ServerboundContainerClickPacket implements Packet<ServerGamePacketListener> {
     private final int containerId;
@@ -18,7 +16,6 @@ public class ServerboundContainerClickPacket implements Packet<ServerGamePacketL
     private final ItemStack carriedItem;
     private final Int2ObjectMap<ItemStack> changedSlots;
 
-    @OnlyIn(Dist.CLIENT)
     public ServerboundContainerClickPacket(int param0, int param1, int param2, ClickType param3, ItemStack param4, Int2ObjectMap<ItemStack> param5) {
         this.containerId = param0;
         this.slotNum = param1;

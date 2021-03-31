@@ -50,7 +50,6 @@ import java.util.function.LongSupplier;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
-import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
@@ -59,8 +58,6 @@ import net.minecraft.server.Bootstrap;
 import net.minecraft.util.Mth;
 import net.minecraft.util.datafix.DataFixers;
 import net.minecraft.world.level.block.state.properties.Property;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -167,14 +164,12 @@ public class Util {
         });
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static <T> CompletableFuture<T> failedFuture(Throwable param0) {
         CompletableFuture<T> var0 = new CompletableFuture<>();
         var0.completeExceptionally(param0);
         return var0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static void throwAsRuntime(Throwable param0) {
         throw param0 instanceof RuntimeException ? (RuntimeException)param0 : new RuntimeException(param0);
     }
@@ -517,7 +512,6 @@ public class Util {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static int offsetByCodepoints(String param0, int param1, int param2) {
         int var0 = param0.length();
         if (param2 >= 0) {
@@ -552,13 +546,12 @@ public class Util {
         }
     }
 
-    public static DataResult<double[]> fixedSize(DoubleStream param0, int param1) {
-        double[] var0 = param0.limit((long)(param1 + 1)).toArray();
-        if (var0.length != param1) {
-            String var1 = "Input is not a list of " + param1 + " doubles";
-            return var0.length >= param1 ? DataResult.error(var1, Arrays.copyOf(var0, param1)) : DataResult.error(var1);
+    public static <T> DataResult<List<T>> fixedSize(List<T> param0, int param1) {
+        if (param0.size() != param1) {
+            String var0 = "Input is not a list of " + param1 + " elements";
+            return param0.size() >= param1 ? DataResult.error(var0, param0.subList(0, param1)) : DataResult.error(var0);
         } else {
-            return DataResult.success(var0);
+            return DataResult.success(param0);
         }
     }
 
@@ -581,14 +574,12 @@ public class Util {
         var0.start();
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static void copyBetweenDirs(Path param0, Path param1, Path param2) throws IOException {
         Path var0 = param0.relativize(param2);
         Path var1 = param1.resolve(var0);
         Files.copy(param2, var1);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static String sanitizeName(String param0, CharPredicate param1) {
         return param0.toLowerCase(Locale.ROOT)
             .chars()
@@ -596,7 +587,6 @@ public class Util {
             .collect(Collectors.joining());
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static <T, R> Function<T, R> memoize(final Function<T, R> param0) {
         return new Function<T, R>() {
             private final Map<T, R> cache = Maps.newHashMap();
@@ -613,7 +603,6 @@ public class Util {
         };
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static <T, U, R> BiFunction<T, U, R> memoize(final BiFunction<T, U, R> param0) {
         return new BiFunction<T, U, R>() {
             private final Map<Pair<T, U>, R> cache = Maps.newHashMap();
@@ -648,14 +637,12 @@ public class Util {
         LINUX,
         SOLARIS,
         WINDOWS {
-            @OnlyIn(Dist.CLIENT)
             @Override
             protected String[] getOpenUrlArguments(URL param0) {
                 return new String[]{"rundll32", "url.dll,FileProtocolHandler", param0.toString()};
             }
         },
         OSX {
-            @OnlyIn(Dist.CLIENT)
             @Override
             protected String[] getOpenUrlArguments(URL param0) {
                 return new String[]{"open", param0.toString()};
@@ -666,7 +653,6 @@ public class Util {
         private OS() {
         }
 
-        @OnlyIn(Dist.CLIENT)
         public void openUrl(URL param0) {
             try {
                 Process var0 = AccessController.doPrivileged(
@@ -686,7 +672,6 @@ public class Util {
 
         }
 
-        @OnlyIn(Dist.CLIENT)
         public void openUri(URI param0) {
             try {
                 this.openUrl(param0.toURL());
@@ -696,7 +681,6 @@ public class Util {
 
         }
 
-        @OnlyIn(Dist.CLIENT)
         public void openFile(File param0) {
             try {
                 this.openUrl(param0.toURI().toURL());
@@ -706,7 +690,6 @@ public class Util {
 
         }
 
-        @OnlyIn(Dist.CLIENT)
         protected String[] getOpenUrlArguments(URL param0) {
             String var0 = param0.toString();
             if ("file".equals(param0.getProtocol())) {
@@ -716,7 +699,6 @@ public class Util {
             return new String[]{"xdg-open", var0};
         }
 
-        @OnlyIn(Dist.CLIENT)
         public void openUri(String param0) {
             try {
                 this.openUrl(new URI(param0).toURL());

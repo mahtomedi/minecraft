@@ -11,6 +11,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class RidingMinecartSoundInstance extends AbstractTickableSoundInstance {
+    private static final float VOLUME_MIN = 0.0F;
+    private static final float VOLUME_MAX = 0.75F;
     private final Player player;
     private final AbstractMinecart minecart;
     private final boolean underwaterSound;

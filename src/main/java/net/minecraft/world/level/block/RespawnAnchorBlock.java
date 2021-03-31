@@ -35,10 +35,10 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class RespawnAnchorBlock extends Block {
+    public static final int MIN_CHARGES = 0;
+    public static final int MAX_CHARGES = 4;
     public static final IntegerProperty CHARGE = BlockStateProperties.RESPAWN_ANCHOR_CHARGES;
     private static final ImmutableList<Vec3i> RESPAWN_HORIZONTAL_OFFSETS = ImmutableList.of(
         new Vec3i(0, 0, -1),
@@ -173,7 +173,6 @@ public class RespawnAnchorBlock extends Block {
         );
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void animateTick(BlockState param0, Level param1, BlockPos param2, Random param3) {
         if (param0.getValue(CHARGE) != 0) {

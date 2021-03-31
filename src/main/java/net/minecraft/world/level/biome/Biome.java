@@ -48,8 +48,6 @@ import net.minecraft.world.level.levelgen.surfacebuilders.ConfiguredSurfaceBuild
 import net.minecraft.world.level.levelgen.synth.PerlinSimplexNoise;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -90,6 +88,7 @@ public final class Biome {
     private static final PerlinSimplexNoise TEMPERATURE_NOISE = new PerlinSimplexNoise(new WorldgenRandom(1234L), ImmutableList.of(0));
     private static final PerlinSimplexNoise FROZEN_TEMPERATURE_NOISE = new PerlinSimplexNoise(new WorldgenRandom(3456L), ImmutableList.of(-2, -1, 0));
     public static final PerlinSimplexNoise BIOME_INFO_NOISE = new PerlinSimplexNoise(new WorldgenRandom(2345L), ImmutableList.of(0));
+    private static final int TEMPERATURE_CACHE_SIZE = 1024;
     private final Biome.ClimateSettings climateSettings;
     private final BiomeGenerationSettings generationSettings;
     private final MobSpawnSettings mobSettings;
@@ -125,7 +124,6 @@ public final class Biome {
         this.specialEffects = param4;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getSkyColor() {
         return this.specialEffects.getSkyColor();
     }
@@ -287,30 +285,25 @@ public final class Biome {
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getFogColor() {
         return this.specialEffects.getFogColor();
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getGrassColor(double param0, double param1) {
         int var0 = this.specialEffects.getGrassColorOverride().orElseGet(this::getGrassColorFromTexture);
         return this.specialEffects.getGrassColorModifier().modifyColor(param0, param1, var0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     private int getGrassColorFromTexture() {
         double var0x = (double)Mth.clamp(this.climateSettings.temperature, 0.0F, 1.0F);
         double var1 = (double)Mth.clamp(this.climateSettings.downfall, 0.0F, 1.0F);
         return GrassColor.get(var0x, var1);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getFoliageColor() {
         return this.specialEffects.getFoliageColorOverride().orElseGet(this::getFoliageColorFromTexture);
     }
 
-    @OnlyIn(Dist.CLIENT)
     private int getFoliageColorFromTexture() {
         double var0 = (double)Mth.clamp(this.climateSettings.temperature, 0.0F, 1.0F);
         double var1 = (double)Mth.clamp(this.climateSettings.downfall, 0.0F, 1.0F);
@@ -345,37 +338,30 @@ public final class Biome {
         return this.specialEffects;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public final int getWaterColor() {
         return this.specialEffects.getWaterColor();
     }
 
-    @OnlyIn(Dist.CLIENT)
     public final int getWaterFogColor() {
         return this.specialEffects.getWaterFogColor();
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Optional<AmbientParticleSettings> getAmbientParticle() {
         return this.specialEffects.getAmbientParticleSettings();
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Optional<SoundEvent> getAmbientLoop() {
         return this.specialEffects.getAmbientLoopSoundEvent();
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Optional<AmbientMoodSettings> getAmbientMood() {
         return this.specialEffects.getAmbientMoodSettings();
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Optional<AmbientAdditionsSettings> getAmbientAdditions() {
         return this.specialEffects.getAmbientAdditionsSettings();
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Optional<Music> getBackgroundMusic() {
         return this.specialEffects.getBackgroundMusic();
     }

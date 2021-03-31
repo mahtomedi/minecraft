@@ -19,10 +19,13 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ExperienceOrb extends Entity {
+    private static final int LIFETIME = 6000;
+    private static final int ENTITY_SCAN_PERIOD = 20;
+    private static final int MAX_FOLLOW_DIST = 8;
+    private static final int ORB_GROUPS_PER_AREA = 40;
+    private static final double ORB_MERGE_DISTANCE = 0.5;
     private int age;
     private int health = 5;
     private int value;
@@ -214,18 +217,9 @@ public class ExperienceOrb extends Entity {
             if (param0.takeXpDelay == 0) {
                 param0.takeXpDelay = 2;
                 param0.take(this, 1);
-                Entry<EquipmentSlot, ItemStack> var0 = EnchantmentHelper.getRandomItemWith(Enchantments.MENDING, param0, ItemStack::isDamaged);
-                if (var0 != null) {
-                    ItemStack var1 = var0.getValue();
-                    if (!var1.isEmpty() && var1.isDamaged()) {
-                        int var2 = Math.min(this.xpToDurability(this.value), var1.getDamageValue());
-                        this.value -= this.durabilityToXp(var2);
-                        var1.setDamageValue(var1.getDamageValue() - var2);
-                    }
-                }
-
-                if (this.value > 0) {
-                    param0.giveExperiencePoints(this.value);
+                int var0 = this.repairPlayerItems(param0, this.value);
+                if (var0 > 0) {
+                    param0.giveExperiencePoints(var0);
                 }
 
                 --this.count;
@@ -234,6 +228,19 @@ public class ExperienceOrb extends Entity {
                 }
             }
 
+        }
+    }
+
+    private int repairPlayerItems(Player param0, int param1) {
+        Entry<EquipmentSlot, ItemStack> var0 = EnchantmentHelper.getRandomItemWith(Enchantments.MENDING, param0, ItemStack::isDamaged);
+        if (var0 != null) {
+            ItemStack var1 = var0.getValue();
+            int var2 = Math.min(this.xpToDurability(this.value), var1.getDamageValue());
+            var1.setDamageValue(var1.getDamageValue() - var2);
+            int var3 = param1 - this.durabilityToXp(var2);
+            return var3 > 0 ? this.repairPlayerItems(param0, var3) : 0;
+        } else {
+            return param1;
         }
     }
 
@@ -249,7 +256,6 @@ public class ExperienceOrb extends Entity {
         return this.value;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getIcon() {
         if (this.value >= 2477) {
             return 10;

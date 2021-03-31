@@ -25,6 +25,10 @@ public class BinaryHeap {
         this.size = 0;
     }
 
+    public Node peek() {
+        return this.heap[0];
+    }
+
     public Node pop() {
         Node var0 = this.heap[0];
         this.heap[0] = this.heap[--this.size];
@@ -37,6 +41,20 @@ public class BinaryHeap {
         return var0;
     }
 
+    public void remove(Node param0) {
+        this.heap[param0.heapIdx] = this.heap[--this.size];
+        this.heap[this.size] = null;
+        if (this.size > param0.heapIdx) {
+            if (this.heap[param0.heapIdx].f < param0.f) {
+                this.upHeap(param0.heapIdx);
+            } else {
+                this.downHeap(param0.heapIdx);
+            }
+        }
+
+        param0.heapIdx = -1;
+    }
+
     public void changeCost(Node param0, float param1) {
         float var0 = param0.f;
         param0.f = param1;
@@ -46,6 +64,10 @@ public class BinaryHeap {
             this.downHeap(param0.heapIdx);
         }
 
+    }
+
+    public int size() {
+        return this.size;
     }
 
     private void upHeap(int param0) {
@@ -115,5 +137,11 @@ public class BinaryHeap {
 
     public boolean isEmpty() {
         return this.size == 0;
+    }
+
+    public Node[] getHeap() {
+        Node[] var0 = new Node[this.size()];
+        System.arraycopy(this.heap, 0, var0, 0, this.size());
+        return var0;
     }
 }

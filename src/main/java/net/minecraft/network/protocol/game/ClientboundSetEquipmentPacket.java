@@ -7,10 +7,9 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundSetEquipmentPacket implements Packet<ClientGamePacketListener> {
+    private static final byte CONTINUE_MASK = -128;
     private final int entity;
     private final List<Pair<EquipmentSlot, ItemStack>> slots;
 
@@ -54,12 +53,10 @@ public class ClientboundSetEquipmentPacket implements Packet<ClientGamePacketLis
         param0.handleSetEquipment(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getEntity() {
         return this.entity;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public List<Pair<EquipmentSlot, ItemStack>> getSlots() {
         return this.slots;
     }

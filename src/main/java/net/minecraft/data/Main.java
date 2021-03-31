@@ -24,8 +24,10 @@ import net.minecraft.data.tags.FluidTagsProvider;
 import net.minecraft.data.tags.GameEventTagsProvider;
 import net.minecraft.data.tags.ItemTagsProvider;
 import net.minecraft.data.worldgen.biome.BiomeReport;
+import net.minecraft.obfuscate.DontObfuscate;
 
 public class Main {
+    @DontObfuscate
     public static void main(String[] param0) throws IOException {
         OptionParser var0 = new OptionParser();
         OptionSpec<Void> var1 = var0.accepts("help", "Show the help menu").forHelp();

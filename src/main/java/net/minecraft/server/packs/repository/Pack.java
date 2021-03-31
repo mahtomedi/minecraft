@@ -14,8 +14,6 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -84,12 +82,10 @@ public class Pack implements AutoCloseable {
         this(param0, param2, param3, param1, param4.getDescription(), PackCompatibility.forMetadata(param4, param5), param6, false, param7);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Component getTitle() {
         return this.title;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Component getDescription() {
         return this.description;
     }
@@ -129,7 +125,6 @@ public class Pack implements AutoCloseable {
         return this.defaultPosition;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public PackSource getPackSource() {
         return this.packSource;
     }

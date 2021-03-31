@@ -4,8 +4,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class AmbientMoodSettings {
     public static final Codec<AmbientMoodSettings> CODEC = RecordCodecBuilder.create(
@@ -30,22 +28,18 @@ public class AmbientMoodSettings {
         this.soundPositionOffset = param3;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public SoundEvent getSoundEvent() {
         return this.soundEvent;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getTickDelay() {
         return this.tickDelay;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getBlockSearchExtent() {
         return this.blockSearchExtent;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public double getSoundPositionOffset() {
         return this.soundPositionOffset;
     }

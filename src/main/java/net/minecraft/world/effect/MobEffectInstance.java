@@ -4,8 +4,6 @@ import com.google.common.collect.ComparisonChain;
 import javax.annotation.Nullable;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -15,7 +13,6 @@ public class MobEffectInstance implements Comparable<MobEffectInstance> {
     private int duration;
     private int amplifier;
     private boolean ambient;
-    @OnlyIn(Dist.CLIENT)
     private boolean noCounter;
     private boolean visible;
     private boolean showIcon;
@@ -259,12 +256,10 @@ public class MobEffectInstance implements Comparable<MobEffectInstance> {
         return new MobEffectInstance(param0, var1, var0 < 0 ? 0 : var0, var2, var3, var4, var5);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void setNoCounter(boolean param0) {
         this.noCounter = param0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean isNoCounter() {
         return this.noCounter;
     }

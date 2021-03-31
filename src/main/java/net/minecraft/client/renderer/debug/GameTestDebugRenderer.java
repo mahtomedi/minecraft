@@ -13,6 +13,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class GameTestDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
+    private static final float PADDING = 0.02F;
     private final Map<BlockPos, GameTestDebugRenderer.Marker> markers = Maps.newHashMap();
 
     public void addMarker(BlockPos param0, int param1, String param2, int param3) {

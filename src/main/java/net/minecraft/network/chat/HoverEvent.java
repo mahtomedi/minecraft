@@ -21,8 +21,6 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -173,7 +171,6 @@ public class HoverEvent {
         @Nullable
         public final Component name;
         @Nullable
-        @OnlyIn(Dist.CLIENT)
         private List<Component> linesCache;
 
         public EntityTooltipInfo(EntityType<?> param0, UUID param1, @Nullable Component param2) {
@@ -219,7 +216,6 @@ public class HoverEvent {
             return var0;
         }
 
-        @OnlyIn(Dist.CLIENT)
         public List<Component> getTooltipLines() {
             if (this.linesCache == null) {
                 this.linesCache = Lists.newArrayList();
@@ -260,7 +256,6 @@ public class HoverEvent {
         @Nullable
         private final CompoundTag tag;
         @Nullable
-        @OnlyIn(Dist.CLIENT)
         private ItemStack itemStack;
 
         ItemStackInfo(Item param0, int param1, @Nullable CompoundTag param2) {
@@ -292,7 +287,6 @@ public class HoverEvent {
             return 31 * var0 + (this.tag != null ? this.tag.hashCode() : 0);
         }
 
-        @OnlyIn(Dist.CLIENT)
         public ItemStack getItemStack() {
             if (this.itemStack == null) {
                 this.itemStack = new ItemStack(this.item, this.count);

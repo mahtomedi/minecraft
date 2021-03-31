@@ -23,10 +23,10 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class LavaFluid extends FlowingFluid {
+    public static final float MIN_LEVEL_CUTOFF = 0.44444445F;
+
     @Override
     public Fluid getFlowing() {
         return Fluids.FLOWING_LAVA;
@@ -42,7 +42,6 @@ public abstract class LavaFluid extends FlowingFluid {
         return Items.LAVA_BUCKET;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void animateTick(Level param0, BlockPos param1, FluidState param2, Random param3) {
         BlockPos var0 = param1.above();
@@ -129,7 +128,6 @@ public abstract class LavaFluid extends FlowingFluid {
     }
 
     @Nullable
-    @OnlyIn(Dist.CLIENT)
     @Override
     public ParticleOptions getDripParticle() {
         return ParticleTypes.DRIPPING_LAVA;

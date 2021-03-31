@@ -21,20 +21,17 @@ import net.minecraft.world.item.alchemy.Potion;
 import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.AbstractCandleBlock;
 import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
-@OnlyIn(
-    value = Dist.CLIENT,
-    _interface = ItemSupplier.class
-)
 public class ThrownPotion extends ThrowableItemProjectile implements ItemSupplier {
+    public static final double SPLASH_RANGE = 4.0;
+    private static final double SPLASH_RANGE_SQ = 16.0;
     public static final Predicate<LivingEntity> WATER_SENSITIVE = LivingEntity::isSensitiveToWater;
 
     public ThrownPotion(EntityType<? extends ThrownPotion> param0, Level param1) {
@@ -184,6 +181,8 @@ public class ThrownPotion extends ThrowableItemProjectile implements ItemSupplie
         BlockState var0 = this.level.getBlockState(param0);
         if (var0.is(BlockTags.FIRE)) {
             this.level.removeBlock(param0, false);
+        } else if (AbstractCandleBlock.isLit(var0)) {
+            AbstractCandleBlock.extinguish(null, var0, this.level, param0);
         } else if (CampfireBlock.isLitCampfire(var0)) {
             this.level.levelEvent(null, 1009, param0, 0);
             CampfireBlock.dowse(this.getOwner(), this.level, param0, var0);

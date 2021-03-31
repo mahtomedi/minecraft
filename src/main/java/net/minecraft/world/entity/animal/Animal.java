@@ -27,10 +27,9 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class Animal extends AgeableMob {
+    static final int PARENT_AGE_AFTER_BREEDING = 6000;
     private int inLove;
     private UUID loveCause;
 
@@ -239,7 +238,6 @@ public abstract class Animal extends AgeableMob {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void handleEntityEvent(byte param0) {
         if (param0 == 18) {

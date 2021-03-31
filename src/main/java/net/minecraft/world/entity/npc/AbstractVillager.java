@@ -34,11 +34,11 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
-public abstract class AbstractVillager extends AgeableMob implements Npc, Merchant {
+public abstract class AbstractVillager extends AgeableMob implements InventoryCarrier, Npc, Merchant {
     private static final EntityDataAccessor<Integer> DATA_UNHAPPY_COUNTER = SynchedEntityData.defineId(AbstractVillager.class, EntityDataSerializers.INT);
+    public static final int VILLAGER_SLOT_OFFSET = 300;
+    private static final int VILLAGER_INVENTORY_SIZE = 8;
     @Nullable
     private Player tradingPlayer;
     @Nullable
@@ -111,7 +111,6 @@ public abstract class AbstractVillager extends AgeableMob implements Npc, Mercha
         return this.offers;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void overrideOffers(@Nullable MerchantOffers param0) {
     }
@@ -198,7 +197,6 @@ public abstract class AbstractVillager extends AgeableMob implements Npc, Mercha
         this.stopTrading();
     }
 
-    @OnlyIn(Dist.CLIENT)
     protected void addParticlesAroundSelf(ParticleOptions param0) {
         for(int var0 = 0; var0 < 5; ++var0) {
             double var1 = this.random.nextGaussian() * 0.02;
@@ -253,7 +251,6 @@ public abstract class AbstractVillager extends AgeableMob implements Npc, Mercha
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public Vec3 getRopeHoldPosition(float param0) {
         float var0 = Mth.lerp(param0, this.yBodyRotO, this.yBodyRot) * (float) (Math.PI / 180.0);

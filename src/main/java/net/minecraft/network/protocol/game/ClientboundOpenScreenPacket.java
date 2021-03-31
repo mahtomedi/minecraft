@@ -6,8 +6,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.inventory.MenuType;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundOpenScreenPacket implements Packet<ClientGamePacketListener> {
     private final int containerId;
@@ -37,18 +35,15 @@ public class ClientboundOpenScreenPacket implements Packet<ClientGamePacketListe
         param0.handleOpenScreen(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getContainerId() {
         return this.containerId;
     }
 
     @Nullable
-    @OnlyIn(Dist.CLIENT)
     public MenuType<?> getType() {
         return Registry.MENU.byId(this.type);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Component getTitle() {
         return this.title;
     }

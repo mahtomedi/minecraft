@@ -32,8 +32,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -42,6 +40,7 @@ public class ItemFrame extends HangingEntity {
     private static final Logger LOGGER = LogManager.getLogger();
     private static final EntityDataAccessor<ItemStack> DATA_ITEM = SynchedEntityData.defineId(ItemFrame.class, EntityDataSerializers.ITEM_STACK);
     private static final EntityDataAccessor<Integer> DATA_ROTATION = SynchedEntityData.defineId(ItemFrame.class, EntityDataSerializers.INT);
+    public static final int NUM_ROTATIONS = 8;
     private float dropChance = 1.0F;
     private boolean fixed;
 
@@ -189,7 +188,6 @@ public class ItemFrame extends HangingEntity {
         return 12;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public boolean shouldRenderAtSqrDistance(double param0) {
         double var0 = 16.0;
@@ -415,14 +413,12 @@ public class ItemFrame extends HangingEntity {
         return new ClientboundAddEntityPacket(this, this.getType(), this.direction.get3DDataValue(), this.getPos());
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void recreateFromPacket(ClientboundAddEntityPacket param0) {
         super.recreateFromPacket(param0);
         this.setDirection(Direction.from3DDataValue(param0.getData()));
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public ItemStack getPickResult() {
         ItemStack var0 = this.getItem();

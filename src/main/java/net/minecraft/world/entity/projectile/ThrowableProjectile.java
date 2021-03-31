@@ -12,8 +12,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class ThrowableProjectile extends Projectile {
     protected ThrowableProjectile(EntityType<? extends ThrowableProjectile> param0, Level param1) {
@@ -30,7 +28,6 @@ public abstract class ThrowableProjectile extends Projectile {
         this.setOwner(param1);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public boolean shouldRenderAtSqrDistance(double param0) {
         double var0 = this.getBoundingBox().getSize() * 4.0;

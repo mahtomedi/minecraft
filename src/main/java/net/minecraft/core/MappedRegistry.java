@@ -181,7 +181,13 @@ public class MappedRegistry<T> extends WritableRegistry<T> {
         return Collections.unmodifiableMap(this.keyStorage).entrySet();
     }
 
+    @Override
+    public boolean isEmpty() {
+        return this.storage.isEmpty();
+    }
+
     @Nullable
+    @Override
     public T getRandom(Random param0) {
         if (this.randomCache == null) {
             Collection<?> var0 = this.storage.values();
@@ -198,6 +204,11 @@ public class MappedRegistry<T> extends WritableRegistry<T> {
     @Override
     public boolean containsKey(ResourceLocation param0) {
         return this.storage.containsKey(param0);
+    }
+
+    @Override
+    public boolean containsKey(ResourceKey<T> param0) {
+        return this.keyStorage.containsKey(param0);
     }
 
     public static <T> Codec<MappedRegistry<T>> networkCodec(ResourceKey<? extends Registry<T>> param0, Lifecycle param1, Codec<T> param2) {

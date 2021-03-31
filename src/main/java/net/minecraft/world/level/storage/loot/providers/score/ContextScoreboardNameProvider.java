@@ -20,6 +20,10 @@ public class ContextScoreboardNameProvider implements ScoreboardNameProvider {
         this.target = param0;
     }
 
+    public static ScoreboardNameProvider forTarget(LootContext.EntityTarget param0) {
+        return new ContextScoreboardNameProvider(param0);
+    }
+
     @Override
     public LootScoreProviderType getType() {
         return ScoreboardNameProviders.CONTEXT;

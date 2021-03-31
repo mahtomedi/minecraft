@@ -2,8 +2,6 @@ package net.minecraft.sounds;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class Music {
     public static final Codec<Music> CODEC = RecordCodecBuilder.create(
@@ -27,22 +25,18 @@ public class Music {
         this.replaceCurrentMusic = param3;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public SoundEvent getEvent() {
         return this.event;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getMinDelay() {
         return this.minDelay;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getMaxDelay() {
         return this.maxDelay;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean replaceCurrentMusic() {
         return this.replaceCurrentMusic;
     }

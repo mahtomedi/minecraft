@@ -13,8 +13,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.GameType;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundPlayerInfoPacket implements Packet<ClientGamePacketListener> {
     private final ClientboundPlayerInfoPacket.Action action;
@@ -65,12 +63,10 @@ public class ClientboundPlayerInfoPacket implements Packet<ClientGamePacketListe
         param0.handlePlayerInfo(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public List<ClientboundPlayerInfoPacket.PlayerUpdate> getEntries() {
         return this.entries;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public ClientboundPlayerInfoPacket.Action getAction() {
         return this.action;
     }

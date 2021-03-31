@@ -33,6 +33,9 @@ public class RealmsUtil {
                 }
             }
         });
+    private static final int MINUTES = 60;
+    private static final int HOURS = 3600;
+    private static final int DAYS = 86400;
 
     public static String uuidToName(String param0) throws Exception {
         GameProfile var0 = gameProfileCache.get(param0);

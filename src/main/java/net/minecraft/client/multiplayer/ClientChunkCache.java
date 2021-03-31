@@ -1,5 +1,9 @@
 package net.minecraft.client.multiplayer;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.BitSet;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.function.BooleanSupplier;
@@ -113,6 +117,7 @@ public class ClientChunkCache extends ChunkSource {
         }
     }
 
+    @Override
     public void tick(BooleanSupplier param0) {
     }
 
@@ -153,6 +158,7 @@ public class ClientChunkCache extends ChunkSource {
         return this.storage.chunks.length() + ", " + this.getLoadedChunksCount();
     }
 
+    @Override
     public int getLoadedChunksCount() {
         return this.storage.chunkCount;
     }
@@ -220,6 +226,25 @@ public class ClientChunkCache extends ChunkSource {
         @Nullable
         protected LevelChunk getChunk(int param0) {
             return this.chunks.get(param0);
+        }
+
+        private void dumpChunks(String param0) {
+            try (FileOutputStream var0 = new FileOutputStream(new File(param0))) {
+                int var1 = ClientChunkCache.this.storage.chunkRadius;
+
+                for(int var2 = this.viewCenterZ - var1; var2 <= this.viewCenterZ + var1; ++var2) {
+                    for(int var3 = this.viewCenterX - var1; var3 <= this.viewCenterX + var1; ++var3) {
+                        LevelChunk var4 = ClientChunkCache.this.storage.chunks.get(ClientChunkCache.this.storage.getIndex(var3, var2));
+                        if (var4 != null) {
+                            ChunkPos var5 = var4.getPos();
+                            var0.write((var5.x + "\t" + var5.z + "\t" + var4.isEmpty() + "\n").getBytes(StandardCharsets.UTF_8));
+                        }
+                    }
+                }
+            } catch (IOException var19) {
+                ClientChunkCache.LOGGER.error(var19);
+            }
+
         }
     }
 }

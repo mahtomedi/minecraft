@@ -23,10 +23,15 @@ import net.minecraft.commands.synchronization.ArgumentTypes;
 import net.minecraft.commands.synchronization.SuggestionProviders;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundCommandsPacket implements Packet<ClientGamePacketListener> {
+    private static final byte MASK_TYPE = 3;
+    private static final byte FLAG_EXECUTABLE = 4;
+    private static final byte FLAG_REDIRECT = 8;
+    private static final byte FLAG_CUSTOM_SUGGESTIONS = 16;
+    private static final byte TYPE_ROOT = 0;
+    private static final byte TYPE_LITERAL = 1;
+    private static final byte TYPE_ARGUMENT = 2;
     private final RootCommandNode<SharedSuggestionProvider> root;
 
     public ClientboundCommandsPacket(RootCommandNode<SharedSuggestionProvider> param0) {
@@ -175,7 +180,6 @@ public class ClientboundCommandsPacket implements Packet<ClientGamePacketListene
         param0.handleCommands(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public RootCommandNode<SharedSuggestionProvider> getRoot() {
         return this.root;
     }

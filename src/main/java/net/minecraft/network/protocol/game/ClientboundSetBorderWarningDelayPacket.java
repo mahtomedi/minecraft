@@ -3,8 +3,6 @@ package net.minecraft.network.protocol.game;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.level.border.WorldBorder;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundSetBorderWarningDelayPacket implements Packet<ClientGamePacketListener> {
     private final int warningDelay;
@@ -26,7 +24,6 @@ public class ClientboundSetBorderWarningDelayPacket implements Packet<ClientGame
         param0.handleSetBorderWarningDelay(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getWarningDelay() {
         return this.warningDelay;
     }

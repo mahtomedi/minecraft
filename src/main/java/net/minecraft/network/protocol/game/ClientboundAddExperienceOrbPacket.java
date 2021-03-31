@@ -3,8 +3,6 @@ package net.minecraft.network.protocol.game;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.entity.ExperienceOrb;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundAddExperienceOrbPacket implements Packet<ClientGamePacketListener> {
     private final int id;
@@ -42,27 +40,22 @@ public class ClientboundAddExperienceOrbPacket implements Packet<ClientGamePacke
         param0.handleAddExperienceOrb(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getId() {
         return this.id;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public double getX() {
         return this.x;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public double getY() {
         return this.y;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public double getZ() {
         return this.z;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getValue() {
         return this.value;
     }

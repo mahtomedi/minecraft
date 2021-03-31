@@ -25,6 +25,7 @@ import net.minecraft.world.level.block.state.pattern.BlockInWorld;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 public class CloneCommands {
+    private static final int MAX_CLONE_AREA = 32768;
     private static final SimpleCommandExceptionType ERROR_OVERLAP = new SimpleCommandExceptionType(new TranslatableComponent("commands.clone.overlap"));
     private static final Dynamic2CommandExceptionType ERROR_AREA_TOO_LARGE = new Dynamic2CommandExceptionType(
         (param0, param1) -> new TranslatableComponent("commands.clone.toobig", param0, param1)
@@ -220,9 +221,9 @@ public class CloneCommands {
     private static int clone(
         CommandSourceStack param0, BlockPos param1, BlockPos param2, BlockPos param3, Predicate<BlockInWorld> param4, CloneCommands.Mode param5
     ) throws CommandSyntaxException {
-        BoundingBox var0 = BoundingBox.createProper(param1, param2);
+        BoundingBox var0 = BoundingBox.fromCorners(param1, param2);
         BlockPos var1 = param3.offset(var0.getLength());
-        BoundingBox var2 = BoundingBox.createProper(param3, var1);
+        BoundingBox var2 = BoundingBox.fromCorners(param3, var1);
         if (!param5.canOverlap() && var2.intersects(var0)) {
             throw ERROR_OVERLAP.create();
         } else {
@@ -236,11 +237,11 @@ public class CloneCommands {
                     List<CloneCommands.CloneBlockInfo> var6 = Lists.newArrayList();
                     List<CloneCommands.CloneBlockInfo> var7 = Lists.newArrayList();
                     Deque<BlockPos> var8 = Lists.newLinkedList();
-                    BlockPos var9 = new BlockPos(var2.x0 - var0.x0, var2.y0 - var0.y0, var2.z0 - var0.z0);
+                    BlockPos var9 = new BlockPos(var2.minX() - var0.minX(), var2.minY() - var0.minY(), var2.minZ() - var0.minZ());
 
-                    for(int var10 = var0.z0; var10 <= var0.z1; ++var10) {
-                        for(int var11 = var0.y0; var11 <= var0.y1; ++var11) {
-                            for(int var12 = var0.x0; var12 <= var0.x1; ++var12) {
+                    for(int var10 = var0.minZ(); var10 <= var0.maxZ(); ++var10) {
+                        for(int var11 = var0.minY(); var11 <= var0.maxY(); ++var11) {
+                            for(int var12 = var0.minX(); var12 <= var0.maxX(); ++var12) {
                                 BlockPos var13 = new BlockPos(var12, var11, var10);
                                 BlockPos var14 = var13.offset(var9);
                                 BlockInWorld var15 = new BlockInWorld(var4, var13, false);

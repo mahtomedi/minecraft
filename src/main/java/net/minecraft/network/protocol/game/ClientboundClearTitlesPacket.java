@@ -2,8 +2,6 @@ package net.minecraft.network.protocol.game;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundClearTitlesPacket implements Packet<ClientGamePacketListener> {
     private final boolean resetTimes;
@@ -25,7 +23,6 @@ public class ClientboundClearTitlesPacket implements Packet<ClientGamePacketList
         param0.handleTitlesClear(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean shouldResetTimes() {
         return this.resetTimes;
     }

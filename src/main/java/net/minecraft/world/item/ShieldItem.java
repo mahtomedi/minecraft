@@ -9,10 +9,12 @@ import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.DispenserBlock;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ShieldItem extends Item {
+    public static final int EFFECTIVE_BLOCK_DELAY = 5;
+    public static final float MINIMUM_DURABILITY_DAMAGE = 3.0F;
+    public static final String TAG_BASE_COLOR = "Base";
+
     public ShieldItem(Item.Properties param0) {
         super(param0);
         DispenserBlock.registerBehavior(this, ArmorItem.DISPENSE_ITEM_BEHAVIOR);
@@ -23,7 +25,6 @@ public class ShieldItem extends Item {
         return param0.getTagElement("BlockEntityTag") != null ? this.getDescriptionId() + '.' + getColor(param0).getName() : super.getDescriptionId(param0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void appendHoverText(ItemStack param0, @Nullable Level param1, List<Component> param2, TooltipFlag param3) {
         BannerItem.appendHoverTextFromBannerBlockEntityTag(param0, param2);

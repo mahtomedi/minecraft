@@ -13,8 +13,6 @@ import net.minecraft.world.level.block.CommandBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class CommandBlockEntity extends BlockEntity {
     private boolean powered;
@@ -39,7 +37,6 @@ public class CommandBlockEntity extends BlockEntity {
             this.getLevel().sendBlockUpdated(CommandBlockEntity.this.worldPosition, var0, var0, 3);
         }
 
-        @OnlyIn(Dist.CLIENT)
         @Override
         public Vec3 getPosition() {
             return Vec3.atCenterOf(CommandBlockEntity.this.worldPosition);

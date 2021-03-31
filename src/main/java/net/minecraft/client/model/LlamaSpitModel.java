@@ -12,6 +12,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class LlamaSpitModel<T extends Entity> extends HierarchicalModel<T> {
+    private static final String MAIN = "main";
     private final ModelPart root;
 
     public LlamaSpitModel(ModelPart param0) {

@@ -8,8 +8,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ServerboundInteractPacket implements Packet<ServerGamePacketListener> {
     private final int entityId;
@@ -31,24 +29,20 @@ public class ServerboundInteractPacket implements Packet<ServerGamePacketListene
         }
     };
 
-    @OnlyIn(Dist.CLIENT)
     private ServerboundInteractPacket(int param0, boolean param1, ServerboundInteractPacket.Action param2) {
         this.entityId = param0;
         this.action = param2;
         this.usingSecondaryAction = param1;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static ServerboundInteractPacket createAttackPacket(Entity param0, boolean param1) {
         return new ServerboundInteractPacket(param0.getId(), param1, ATTACK_ACTION);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static ServerboundInteractPacket createInteractionPacket(Entity param0, boolean param1, InteractionHand param2) {
         return new ServerboundInteractPacket(param0.getId(), param1, new ServerboundInteractPacket.InteractionAction(param2));
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static ServerboundInteractPacket createInteractionPacket(Entity param0, boolean param1, InteractionHand param2, Vec3 param3) {
         return new ServerboundInteractPacket(param0.getId(), param1, new ServerboundInteractPacket.InteractionAtLocationAction(param2, param3));
     }
@@ -116,7 +110,6 @@ public class ServerboundInteractPacket implements Packet<ServerGamePacketListene
     static class InteractionAction implements ServerboundInteractPacket.Action {
         private final InteractionHand hand;
 
-        @OnlyIn(Dist.CLIENT)
         private InteractionAction(InteractionHand param0) {
             this.hand = param0;
         }
@@ -145,7 +138,6 @@ public class ServerboundInteractPacket implements Packet<ServerGamePacketListene
         private final InteractionHand hand;
         private final Vec3 location;
 
-        @OnlyIn(Dist.CLIENT)
         private InteractionAtLocationAction(InteractionHand param0, Vec3 param1) {
             this.hand = param0;
             this.location = param1;

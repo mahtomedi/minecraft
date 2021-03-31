@@ -6,6 +6,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.raid.Raider;
 
 public class NearestHealableRaiderTargetGoal<T extends LivingEntity> extends NearestAttackableTargetGoal<T> {
+    private static final int DEFAULT_COOLDOWN = 200;
     private int cooldown = 0;
 
     public NearestHealableRaiderTargetGoal(Raider param0, Class<T> param1, boolean param2, @Nullable Predicate<LivingEntity> param3) {

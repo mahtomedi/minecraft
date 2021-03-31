@@ -27,13 +27,16 @@ import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.configurations.EndGatewayConfiguration;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class TheEndGatewayBlockEntity extends TheEndPortalBlockEntity {
     private static final Logger LOGGER = LogManager.getLogger();
+    private static final int SPAWN_TIME = 200;
+    private static final int COOLDOWN_TIME = 40;
+    private static final int ATTENTION_INTERVAL = 2400;
+    private static final int EVENT_COOLDOWN = 1;
+    private static final int GATEWAY_HEIGHT_ABOVE_SURFACE = 10;
     private long age;
     private int teleportCooldown;
     @Nullable
@@ -64,7 +67,10 @@ public class TheEndGatewayBlockEntity extends TheEndPortalBlockEntity {
         super.load(param0);
         this.age = param0.getLong("Age");
         if (param0.contains("ExitPortal", 10)) {
-            this.exitPortal = NbtUtils.readBlockPos(param0.getCompound("ExitPortal"));
+            BlockPos var0 = NbtUtils.readBlockPos(param0.getCompound("ExitPortal"));
+            if (Level.isInSpawnableBounds(var0)) {
+                this.exitPortal = var0;
+            }
         }
 
         this.exactTeleport = param0.getBoolean("ExactTeleport");
@@ -113,12 +119,10 @@ public class TheEndGatewayBlockEntity extends TheEndPortalBlockEntity {
         return this.teleportCooldown > 0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getSpawnPercent(float param0) {
         return Mth.clamp(((float)this.age + param0) / 200.0F, 0.0F, 1.0F);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getCooldownPercent(float param0) {
         return 1.0F - Mth.clamp(((float)this.teleportCooldown - param0) / 40.0F, 0.0F, 1.0F);
     }
@@ -290,13 +294,11 @@ public class TheEndGatewayBlockEntity extends TheEndPortalBlockEntity {
         Feature.END_GATEWAY.configured(param2).place(param0, param0.getChunkSource().getGenerator(), new Random(), param1);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public boolean shouldRenderFace(Direction param0) {
         return Block.shouldRenderFace(this.getBlockState(), this.level, this.getBlockPos(), param0, this.getBlockPos().relative(param0));
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getParticleAmount() {
         int var0 = 0;
 

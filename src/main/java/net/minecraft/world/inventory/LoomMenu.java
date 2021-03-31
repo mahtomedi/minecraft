@@ -15,10 +15,12 @@ import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BannerPattern;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class LoomMenu extends AbstractContainerMenu {
+    private static final int INV_SLOT_START = 4;
+    private static final int INV_SLOT_END = 31;
+    private static final int USE_ROW_SLOT_START = 31;
+    private static final int USE_ROW_SLOT_END = 40;
     private final ContainerLevelAccess access;
     private final DataSlot selectedBannerPatternIndex = DataSlot.standalone();
     private Runnable slotUpdateListener = () -> {
@@ -108,7 +110,6 @@ public class LoomMenu extends AbstractContainerMenu {
         this.addDataSlot(this.selectedBannerPatternIndex);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getSelectedBannerPatternIndex() {
         return this.selectedBannerPatternIndex.get();
     }
@@ -158,7 +159,6 @@ public class LoomMenu extends AbstractContainerMenu {
         this.broadcastChanges();
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void registerUpdateListener(Runnable param0) {
         this.slotUpdateListener = param0;
     }
@@ -254,22 +254,18 @@ public class LoomMenu extends AbstractContainerMenu {
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Slot getBannerSlot() {
         return this.bannerSlot;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Slot getDyeSlot() {
         return this.dyeSlot;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Slot getPatternSlot() {
         return this.patternSlot;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Slot getResultSlot() {
         return this.resultSlot;
     }

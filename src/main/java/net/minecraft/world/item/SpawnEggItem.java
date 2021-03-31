@@ -32,8 +32,6 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class SpawnEggItem extends Item {
     private static final Map<EntityType<? extends Mob>, SpawnEggItem> BY_ID = Maps.newIdentityHashMap();
@@ -128,13 +126,11 @@ public class SpawnEggItem extends Item {
         return Objects.equals(this.getType(param0), param1);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getColor(int param0) {
         return param0 == 0 ? this.backgroundColor : this.highlightColor;
     }
 
     @Nullable
-    @OnlyIn(Dist.CLIENT)
     public static SpawnEggItem byId(@Nullable EntityType<?> param0) {
         return BY_ID.get(param0);
     }

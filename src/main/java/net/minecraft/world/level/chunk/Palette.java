@@ -4,8 +4,6 @@ import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public interface Palette<T> {
     int idFor(T var1);
@@ -15,12 +13,13 @@ public interface Palette<T> {
     @Nullable
     T valueFor(int var1);
 
-    @OnlyIn(Dist.CLIENT)
     void read(FriendlyByteBuf var1);
 
     void write(FriendlyByteBuf var1);
 
     int getSerializedSize();
+
+    int getSize();
 
     void read(ListTag var1);
 }

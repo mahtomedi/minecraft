@@ -14,6 +14,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class LavaSlimeModel<T extends Slime> extends HierarchicalModel<T> {
+    private static final int SEGMENT_COUNT = 8;
     private final ModelPart root;
     private final ModelPart[] bodyCubes = new ModelPart[8];
 

@@ -16,8 +16,6 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class RedstoneWallTorchBlock extends RedstoneTorchBlock {
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
@@ -55,7 +53,6 @@ public class RedstoneWallTorchBlock extends RedstoneTorchBlock {
         return var0 == null ? null : this.defaultBlockState().setValue(FACING, var0.getValue(FACING));
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void animateTick(BlockState param0, Level param1, BlockPos param2, Random param3) {
         if (param0.getValue(LIT)) {

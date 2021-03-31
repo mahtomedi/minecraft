@@ -25,7 +25,7 @@ public class SwamplandHutPiece extends ScatteredFeaturePiece {
     private boolean spawnedCat;
 
     public SwamplandHutPiece(Random param0, int param1, int param2) {
-        super(StructurePieceType.SWAMPLAND_HUT, param0, param1, 64, param2, 7, 7, 9);
+        super(StructurePieceType.SWAMPLAND_HUT, param1, 64, param2, 7, 7, 9, getRandomHorizontalDirection(param0));
     }
 
     public SwamplandHutPiece(ServerLevel param0, CompoundTag param1) {
@@ -89,16 +89,14 @@ public class SwamplandHutPiece extends ScatteredFeaturePiece {
             }
 
             if (!this.spawnedWitch) {
-                int var6 = this.getWorldX(2, 5);
-                int var7 = this.getWorldY(2);
-                int var8 = this.getWorldZ(2, 5);
-                if (param4.isInside(new BlockPos(var6, var7, var8))) {
+                BlockPos var6 = this.getWorldPos(2, 2, 5);
+                if (param4.isInside(var6)) {
                     this.spawnedWitch = true;
-                    Witch var9 = EntityType.WITCH.create(param0.getLevel());
-                    var9.setPersistenceRequired();
-                    var9.moveTo((double)var6 + 0.5, (double)var7, (double)var8 + 0.5, 0.0F, 0.0F);
-                    var9.finalizeSpawn(param0, param0.getCurrentDifficultyAt(new BlockPos(var6, var7, var8)), MobSpawnType.STRUCTURE, null, null);
-                    param0.addFreshEntityWithPassengers(var9);
+                    Witch var7 = EntityType.WITCH.create(param0.getLevel());
+                    var7.setPersistenceRequired();
+                    var7.moveTo((double)var6.getX() + 0.5, (double)var6.getY(), (double)var6.getZ() + 0.5, 0.0F, 0.0F);
+                    var7.finalizeSpawn(param0, param0.getCurrentDifficultyAt(var6), MobSpawnType.STRUCTURE, null, null);
+                    param0.addFreshEntityWithPassengers(var7);
                 }
             }
 
@@ -109,16 +107,14 @@ public class SwamplandHutPiece extends ScatteredFeaturePiece {
 
     private void spawnCat(ServerLevelAccessor param0, BoundingBox param1) {
         if (!this.spawnedCat) {
-            int var0 = this.getWorldX(2, 5);
-            int var1 = this.getWorldY(2);
-            int var2 = this.getWorldZ(2, 5);
-            if (param1.isInside(new BlockPos(var0, var1, var2))) {
+            BlockPos var0 = this.getWorldPos(2, 2, 5);
+            if (param1.isInside(var0)) {
                 this.spawnedCat = true;
-                Cat var3 = EntityType.CAT.create(param0.getLevel());
-                var3.setPersistenceRequired();
-                var3.moveTo((double)var0 + 0.5, (double)var1, (double)var2 + 0.5, 0.0F, 0.0F);
-                var3.finalizeSpawn(param0, param0.getCurrentDifficultyAt(new BlockPos(var0, var1, var2)), MobSpawnType.STRUCTURE, null, null);
-                param0.addFreshEntityWithPassengers(var3);
+                Cat var1 = EntityType.CAT.create(param0.getLevel());
+                var1.setPersistenceRequired();
+                var1.moveTo((double)var0.getX() + 0.5, (double)var0.getY(), (double)var0.getZ() + 0.5, 0.0F, 0.0F);
+                var1.finalizeSpawn(param0, param0.getCurrentDifficultyAt(var0), MobSpawnType.STRUCTURE, null, null);
+                param0.addFreshEntityWithPassengers(var1);
             }
         }
 

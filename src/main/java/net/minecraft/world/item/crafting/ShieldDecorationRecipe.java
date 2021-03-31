@@ -7,8 +7,6 @@ import net.minecraft.world.item.BannerItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ShieldDecorationRecipe extends CustomRecipe {
     public ShieldDecorationRecipe(ResourceLocation param0) {
@@ -75,7 +73,6 @@ public class ShieldDecorationRecipe extends CustomRecipe {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public boolean canCraftInDimensions(int param0, int param1) {
         return param0 * param1 >= 2;

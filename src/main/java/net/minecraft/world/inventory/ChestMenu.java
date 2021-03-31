@@ -5,10 +5,9 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ChestMenu extends AbstractContainerMenu {
+    private static final int SLOTS_PER_ROW = 9;
     private final Container container;
     private final int containerRows;
 
@@ -114,7 +113,6 @@ public class ChestMenu extends AbstractContainerMenu {
         return this.container;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getRowCount() {
         return this.containerRows;
     }

@@ -2,8 +2,6 @@ package net.minecraft.network.protocol.game;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundSetChunkCacheRadiusPacket implements Packet<ClientGamePacketListener> {
     private final int radius;
@@ -25,7 +23,6 @@ public class ClientboundSetChunkCacheRadiusPacket implements Packet<ClientGamePa
         param0.handleSetChunkCacheRadius(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getRadius() {
         return this.radius;
     }

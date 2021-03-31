@@ -3,14 +3,11 @@ package net.minecraft.network.protocol.game;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ServerboundSetCreativeModeSlotPacket implements Packet<ServerGamePacketListener> {
     private final int slotNum;
     private final ItemStack itemStack;
 
-    @OnlyIn(Dist.CLIENT)
     public ServerboundSetCreativeModeSlotPacket(int param0, ItemStack param1) {
         this.slotNum = param0;
         this.itemStack = param1.copy();

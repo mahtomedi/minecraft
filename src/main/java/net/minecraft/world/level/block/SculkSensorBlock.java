@@ -35,10 +35,10 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class SculkSensorBlock extends BaseEntityBlock implements SimpleWaterloggedBlock {
+    public static final int ACTIVE_TICKS = 40;
+    public static final int COOLDOWN_TICKS = 1;
     public static final Object2IntMap<GameEvent> VIBRATION_STRENGTH_FOR_EVENT = Object2IntMaps.unmodifiable(
         Util.make(new Object2IntOpenHashMap<>(), param0 -> {
             param0.put(GameEvent.STEP, 1);
@@ -248,7 +248,6 @@ public class SculkSensorBlock extends BaseEntityBlock implements SimpleWaterlogg
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void animateTick(BlockState param0, Level param1, BlockPos param2, Random param3) {
         if (getPhase(param0) == SculkSensorPhase.ACTIVE) {

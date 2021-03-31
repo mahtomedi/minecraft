@@ -77,6 +77,33 @@ public class SetEnchantmentsFunction extends LootItemConditionalFunction {
 
     }
 
+    public static class Builder extends LootItemConditionalFunction.Builder<SetEnchantmentsFunction.Builder> {
+        private final Map<Enchantment, NumberProvider> enchantments = Maps.newHashMap();
+        private final boolean add;
+
+        public Builder() {
+            this(false);
+        }
+
+        public Builder(boolean param0) {
+            this.add = param0;
+        }
+
+        protected SetEnchantmentsFunction.Builder getThis() {
+            return this;
+        }
+
+        public SetEnchantmentsFunction.Builder withEnchantment(Enchantment param0, NumberProvider param1) {
+            this.enchantments.put(param0, param1);
+            return this;
+        }
+
+        @Override
+        public LootItemFunction build() {
+            return new SetEnchantmentsFunction(this.getConditions(), this.enchantments, this.add);
+        }
+    }
+
     public static class Serializer extends LootItemConditionalFunction.Serializer<SetEnchantmentsFunction> {
         public void serialize(JsonObject param0, SetEnchantmentsFunction param1, JsonSerializationContext param2) {
             super.serialize(param0, param1, param2);

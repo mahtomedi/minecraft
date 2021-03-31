@@ -49,6 +49,10 @@ public class VillagerProfession {
         this.workSound = param4;
     }
 
+    public String getName() {
+        return this.name;
+    }
+
     public PoiType getJobPoiType() {
         return this.jobPoiType;
     }

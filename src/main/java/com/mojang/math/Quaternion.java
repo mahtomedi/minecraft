@@ -1,8 +1,6 @@
 package com.mojang.math;
 
 import net.minecraft.util.Mth;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public final class Quaternion {
     public static final Quaternion ONE = new Quaternion(0.0F, 0.0F, 0.0F, 1.0F);
@@ -30,7 +28,6 @@ public final class Quaternion {
         this.r = cos(param1 / 2.0F);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Quaternion(float param0, float param1, float param2, boolean param3) {
         if (param3) {
             param0 *= (float) (Math.PI / 180.0);
@@ -55,6 +52,74 @@ public final class Quaternion {
         this.j = param0.j;
         this.k = param0.k;
         this.r = param0.r;
+    }
+
+    public static Quaternion fromYXZ(float param0, float param1, float param2) {
+        Quaternion var0 = ONE.copy();
+        var0.mul(new Quaternion(0.0F, (float)Math.sin((double)(param0 / 2.0F)), 0.0F, (float)Math.cos((double)(param0 / 2.0F))));
+        var0.mul(new Quaternion((float)Math.sin((double)(param1 / 2.0F)), 0.0F, 0.0F, (float)Math.cos((double)(param1 / 2.0F))));
+        var0.mul(new Quaternion(0.0F, 0.0F, (float)Math.sin((double)(param2 / 2.0F)), (float)Math.cos((double)(param2 / 2.0F))));
+        return var0;
+    }
+
+    public static Quaternion fromXYZDegrees(Vector3f param0) {
+        return fromXYZ((float)Math.toRadians((double)param0.x()), (float)Math.toRadians((double)param0.y()), (float)Math.toRadians((double)param0.z()));
+    }
+
+    public static Quaternion fromXYZ(Vector3f param0) {
+        return fromXYZ(param0.x(), param0.y(), param0.z());
+    }
+
+    public static Quaternion fromXYZ(float param0, float param1, float param2) {
+        Quaternion var0 = ONE.copy();
+        var0.mul(new Quaternion((float)Math.sin((double)(param0 / 2.0F)), 0.0F, 0.0F, (float)Math.cos((double)(param0 / 2.0F))));
+        var0.mul(new Quaternion(0.0F, (float)Math.sin((double)(param1 / 2.0F)), 0.0F, (float)Math.cos((double)(param1 / 2.0F))));
+        var0.mul(new Quaternion(0.0F, 0.0F, (float)Math.sin((double)(param2 / 2.0F)), (float)Math.cos((double)(param2 / 2.0F))));
+        return var0;
+    }
+
+    public Vector3f toXYZ() {
+        float var0 = this.r() * this.r();
+        float var1 = this.i() * this.i();
+        float var2 = this.j() * this.j();
+        float var3 = this.k() * this.k();
+        float var4 = var0 + var1 + var2 + var3;
+        float var5 = 2.0F * this.r() * this.i() - 2.0F * this.j() * this.k();
+        float var6 = (float)Math.asin((double)(var5 / var4));
+        return Math.abs(var5) > 0.999F * var4
+            ? new Vector3f(2.0F * (float)Math.atan2((double)this.i(), (double)this.r()), var6, 0.0F)
+            : new Vector3f(
+                (float)Math.atan2((double)(2.0F * this.j() * this.k() + 2.0F * this.i() * this.r()), (double)(var0 - var1 - var2 + var3)),
+                var6,
+                (float)Math.atan2((double)(2.0F * this.i() * this.j() + 2.0F * this.r() * this.k()), (double)(var0 + var1 - var2 - var3))
+            );
+    }
+
+    public Vector3f toXYZDegrees() {
+        Vector3f var0 = this.toXYZ();
+        return new Vector3f((float)Math.toDegrees((double)var0.x()), (float)Math.toDegrees((double)var0.y()), (float)Math.toDegrees((double)var0.z()));
+    }
+
+    public Vector3f toYXZ() {
+        float var0 = this.r() * this.r();
+        float var1 = this.i() * this.i();
+        float var2 = this.j() * this.j();
+        float var3 = this.k() * this.k();
+        float var4 = var0 + var1 + var2 + var3;
+        float var5 = 2.0F * this.r() * this.i() - 2.0F * this.j() * this.k();
+        float var6 = (float)Math.asin((double)(var5 / var4));
+        return Math.abs(var5) > 0.999F * var4
+            ? new Vector3f(var6, 2.0F * (float)Math.atan2((double)this.j(), (double)this.r()), 0.0F)
+            : new Vector3f(
+                var6,
+                (float)Math.atan2((double)(2.0F * this.i() * this.k() + 2.0F * this.j() * this.r()), (double)(var0 - var1 - var2 + var3)),
+                (float)Math.atan2((double)(2.0F * this.i() * this.j() + 2.0F * this.r() * this.k()), (double)(var0 - var1 + var2 - var3))
+            );
+    }
+
+    public Vector3f toYXZDegrees() {
+        Vector3f var0 = this.toYXZ();
+        return new Vector3f((float)Math.toDegrees((double)var0.x()), (float)Math.toDegrees((double)var0.y()), (float)Math.toDegrees((double)var0.z()));
     }
 
     @Override
@@ -126,7 +191,6 @@ public final class Quaternion {
         this.r = var3 * var7 - var0 * var4 - var1 * var5 - var2 * var6;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void mul(float param0) {
         this.i *= param0;
         this.j *= param0;
@@ -140,7 +204,6 @@ public final class Quaternion {
         this.k = -this.k;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void set(float param0, float param1, float param2, float param3) {
         this.i = param0;
         this.j = param1;
@@ -156,7 +219,6 @@ public final class Quaternion {
         return (float)Math.sin((double)param0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void normalize() {
         float var0 = this.i() * this.i() + this.j() * this.j() + this.k() * this.k() + this.r() * this.r();
         if (var0 > 1.0E-6F) {
@@ -174,7 +236,10 @@ public final class Quaternion {
 
     }
 
-    @OnlyIn(Dist.CLIENT)
+    public void slerp(Quaternion param0, float param1) {
+        throw new UnsupportedOperationException();
+    }
+
     public Quaternion copy() {
         return new Quaternion(this);
     }

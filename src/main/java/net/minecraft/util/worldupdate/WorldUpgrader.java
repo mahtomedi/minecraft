@@ -30,8 +30,6 @@ import net.minecraft.world.level.chunk.storage.ChunkStorage;
 import net.minecraft.world.level.chunk.storage.RegionFile;
 import net.minecraft.world.level.storage.DimensionDataStorage;
 import net.minecraft.world.level.storage.LevelStorageSource;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -225,17 +223,14 @@ public class WorldUpgrader {
         return this.finished;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public ImmutableSet<ResourceKey<Level>> levels() {
         return this.levels;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float dimensionProgress(ResourceKey<Level> param0) {
         return this.progressMap.getFloat(param0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getProgress() {
         return this.progress;
     }

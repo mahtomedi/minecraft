@@ -3,11 +3,8 @@ package net.minecraft.world.effect;
 import net.minecraft.util.Mth;
 import net.minecraft.util.StringUtil;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public final class MobEffectUtil {
-    @OnlyIn(Dist.CLIENT)
     public static String formatDuration(MobEffectInstance param0, float param1) {
         if (param0.isNoCounter()) {
             return "**:**";

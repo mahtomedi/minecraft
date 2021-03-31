@@ -8,8 +8,6 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.LowerCaseEnumTypeAdapterFactory;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundStatusResponsePacket implements Packet<ClientStatusPacketListener> {
     private static final Gson GSON = new GsonBuilder()
@@ -39,7 +37,6 @@ public class ClientboundStatusResponsePacket implements Packet<ClientStatusPacke
         param0.handleStatusResponse(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public ServerStatus getStatus() {
         return this.status;
     }

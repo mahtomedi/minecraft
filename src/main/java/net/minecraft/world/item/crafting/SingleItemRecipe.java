@@ -8,8 +8,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class SingleItemRecipe implements Recipe<Container> {
     protected final Ingredient ingredient;
@@ -43,7 +41,6 @@ public abstract class SingleItemRecipe implements Recipe<Container> {
         return this.id;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public String getGroup() {
         return this.group;
@@ -61,7 +58,6 @@ public abstract class SingleItemRecipe implements Recipe<Container> {
         return var0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public boolean canCraftInDimensions(int param0, int param1) {
         return true;

@@ -13,8 +13,6 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class SpellcasterIllager extends AbstractIllager {
     private static final EntityDataAccessor<Byte> DATA_SPELL_CASTING_ID = SynchedEntityData.defineId(SpellcasterIllager.class, EntityDataSerializers.BYTE);
@@ -43,7 +41,6 @@ public abstract class SpellcasterIllager extends AbstractIllager {
         param0.putInt("SpellTicks", this.spellCastingTickCount);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public AbstractIllager.IllagerArmPose getArmPose() {
         if (this.isCastingSpell()) {

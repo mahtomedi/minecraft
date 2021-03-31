@@ -8,8 +8,6 @@ import net.minecraft.commands.arguments.item.ItemParser;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ItemParticleOption implements ParticleOptions {
     public static final ParticleOptions.Deserializer<ItemParticleOption> DESERIALIZER = new ParticleOptions.Deserializer<ItemParticleOption>() {
@@ -51,7 +49,6 @@ public class ItemParticleOption implements ParticleOptions {
         return this.type;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public ItemStack getItem() {
         return this.itemStack;
     }

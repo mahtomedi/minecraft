@@ -14,6 +14,14 @@ public final class ModelLayerLocation {
         this.layer = param1;
     }
 
+    public ResourceLocation getModel() {
+        return this.model;
+    }
+
+    public String getLayer() {
+        return this.layer;
+    }
+
     @Override
     public boolean equals(Object param0) {
         if (this == param0) {

@@ -1,8 +1,6 @@
 package net.minecraft.world.level.block.entity;
 
 import net.minecraft.util.Mth;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ChestLidController {
     private boolean shouldBeOpen;
@@ -20,7 +18,6 @@ public class ChestLidController {
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getOpenness(float param0) {
         return Mth.lerp(param0, this.oOpenness, this.openness);
     }

@@ -23,6 +23,9 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.StructurePieceType;
 
 public class OceanMonumentPieces {
+    private OceanMonumentPieces() {
+    }
+
     static class FitDoubleXRoom implements OceanMonumentPieces.MonumentRoomFitter {
         private FitDoubleXRoom() {
         }
@@ -170,65 +173,55 @@ public class OceanMonumentPieces {
     }
 
     public static class MonumentBuilding extends OceanMonumentPieces.OceanMonumentPiece {
+        private static final int WIDTH = 58;
+        private static final int HEIGHT = 22;
+        private static final int DEPTH = 58;
+        public static final int BIOME_RANGE_CHECK = 29;
+        private static final int TOP_POSITION = 61;
         private OceanMonumentPieces.RoomDefinition sourceRoom;
         private OceanMonumentPieces.RoomDefinition coreRoom;
         private final List<OceanMonumentPieces.OceanMonumentPiece> childPieces = Lists.newArrayList();
 
         public MonumentBuilding(Random param0, int param1, int param2, Direction param3) {
-            super(StructurePieceType.OCEAN_MONUMENT_BUILDING, 0);
+            super(StructurePieceType.OCEAN_MONUMENT_BUILDING, param3, 0, makeBoundingBox(param1, 39, param2, param3, 58, 23, 58));
             this.setOrientation(param3);
-            Direction var0 = this.getOrientation();
-            if (var0.getAxis() == Direction.Axis.Z) {
-                this.boundingBox = new BoundingBox(param1, 39, param2, param1 + 58 - 1, 61, param2 + 58 - 1);
-            } else {
-                this.boundingBox = new BoundingBox(param1, 39, param2, param1 + 58 - 1, 61, param2 + 58 - 1);
-            }
-
-            List<OceanMonumentPieces.RoomDefinition> var1 = this.generateRoomGraph(param0);
+            List<OceanMonumentPieces.RoomDefinition> var0 = this.generateRoomGraph(param0);
             this.sourceRoom.claimed = true;
-            this.childPieces.add(new OceanMonumentPieces.OceanMonumentEntryRoom(var0, this.sourceRoom));
-            this.childPieces.add(new OceanMonumentPieces.OceanMonumentCoreRoom(var0, this.coreRoom));
-            List<OceanMonumentPieces.MonumentRoomFitter> var2 = Lists.newArrayList();
-            var2.add(new OceanMonumentPieces.FitDoubleXYRoom());
-            var2.add(new OceanMonumentPieces.FitDoubleYZRoom());
-            var2.add(new OceanMonumentPieces.FitDoubleZRoom());
-            var2.add(new OceanMonumentPieces.FitDoubleXRoom());
-            var2.add(new OceanMonumentPieces.FitDoubleYRoom());
-            var2.add(new OceanMonumentPieces.FitSimpleTopRoom());
-            var2.add(new OceanMonumentPieces.FitSimpleRoom());
+            this.childPieces.add(new OceanMonumentPieces.OceanMonumentEntryRoom(param3, this.sourceRoom));
+            this.childPieces.add(new OceanMonumentPieces.OceanMonumentCoreRoom(param3, this.coreRoom));
+            List<OceanMonumentPieces.MonumentRoomFitter> var1 = Lists.newArrayList();
+            var1.add(new OceanMonumentPieces.FitDoubleXYRoom());
+            var1.add(new OceanMonumentPieces.FitDoubleYZRoom());
+            var1.add(new OceanMonumentPieces.FitDoubleZRoom());
+            var1.add(new OceanMonumentPieces.FitDoubleXRoom());
+            var1.add(new OceanMonumentPieces.FitDoubleYRoom());
+            var1.add(new OceanMonumentPieces.FitSimpleTopRoom());
+            var1.add(new OceanMonumentPieces.FitSimpleRoom());
 
-            for(OceanMonumentPieces.RoomDefinition var3 : var1) {
-                if (!var3.claimed && !var3.isSpecial()) {
-                    for(OceanMonumentPieces.MonumentRoomFitter var4 : var2) {
-                        if (var4.fits(var3)) {
-                            this.childPieces.add(var4.create(var0, var3, param0));
+            for(OceanMonumentPieces.RoomDefinition var2 : var0) {
+                if (!var2.claimed && !var2.isSpecial()) {
+                    for(OceanMonumentPieces.MonumentRoomFitter var3 : var1) {
+                        if (var3.fits(var2)) {
+                            this.childPieces.add(var3.create(param3, var2, param0));
                             break;
                         }
                     }
                 }
             }
 
-            int var5 = this.boundingBox.y0;
-            int var6 = this.getWorldX(9, 22);
-            int var7 = this.getWorldZ(9, 22);
+            BlockPos var4 = this.getWorldPos(9, 0, 22);
 
-            for(OceanMonumentPieces.OceanMonumentPiece var8 : this.childPieces) {
-                var8.getBoundingBox().move(var6, var5, var7);
+            for(OceanMonumentPieces.OceanMonumentPiece var5 : this.childPieces) {
+                var5.getBoundingBox().move(var4);
             }
 
-            BoundingBox var9 = BoundingBox.createProper(
-                this.getWorldX(1, 1), this.getWorldY(1), this.getWorldZ(1, 1), this.getWorldX(23, 21), this.getWorldY(8), this.getWorldZ(23, 21)
-            );
-            BoundingBox var10 = BoundingBox.createProper(
-                this.getWorldX(34, 1), this.getWorldY(1), this.getWorldZ(34, 1), this.getWorldX(56, 21), this.getWorldY(8), this.getWorldZ(56, 21)
-            );
-            BoundingBox var11 = BoundingBox.createProper(
-                this.getWorldX(22, 22), this.getWorldY(13), this.getWorldZ(22, 22), this.getWorldX(35, 35), this.getWorldY(17), this.getWorldZ(35, 35)
-            );
-            int var12 = param0.nextInt();
-            this.childPieces.add(new OceanMonumentPieces.OceanMonumentWingRoom(var0, var9, var12++));
-            this.childPieces.add(new OceanMonumentPieces.OceanMonumentWingRoom(var0, var10, var12++));
-            this.childPieces.add(new OceanMonumentPieces.OceanMonumentPenthouse(var0, var11));
+            BoundingBox var6 = BoundingBox.fromCorners(this.getWorldPos(1, 1, 1), this.getWorldPos(23, 8, 21));
+            BoundingBox var7 = BoundingBox.fromCorners(this.getWorldPos(34, 1, 1), this.getWorldPos(56, 8, 21));
+            BoundingBox var8 = BoundingBox.fromCorners(this.getWorldPos(22, 13, 22), this.getWorldPos(35, 17, 35));
+            int var9 = param0.nextInt();
+            this.childPieces.add(new OceanMonumentPieces.OceanMonumentWingRoom(param3, var6, var9++));
+            this.childPieces.add(new OceanMonumentPieces.OceanMonumentWingRoom(param3, var7, var9++));
+            this.childPieces.add(new OceanMonumentPieces.OceanMonumentPenthouse(param3, var8));
         }
 
         public MonumentBuilding(ServerLevel param0, CompoundTag param1) {
@@ -352,7 +345,7 @@ public class OceanMonumentPieces {
         public boolean postProcess(
             WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
-            int var0 = Math.max(param0.getSeaLevel(), 64) - this.boundingBox.y0;
+            int var0 = Math.max(param0.getSeaLevel(), 64) - this.boundingBox.minY();
             this.generateWaterBox(param0, param4, 0, 0, 0, 58, var0, 58);
             this.generateWing(false, 0, param0, param3, param4);
             this.generateWing(true, 33, param0, param3, param4);
@@ -1339,7 +1332,7 @@ public class OceanMonumentPieces {
 
     public static class OceanMonumentPenthouse extends OceanMonumentPieces.OceanMonumentPiece {
         public OceanMonumentPenthouse(Direction param0, BoundingBox param1) {
-            super(StructurePieceType.OCEAN_MONUMENT_PENTHOUSE, param0, param1);
+            super(StructurePieceType.OCEAN_MONUMENT_PENTHOUSE, param0, 1, param1);
         }
 
         public OceanMonumentPenthouse(ServerLevel param0, CompoundTag param1) {
@@ -1401,6 +1394,7 @@ public class OceanMonumentPieces {
         protected static final BlockState BASE_BLACK = Blocks.DARK_PRISMARINE.defaultBlockState();
         protected static final BlockState DOT_DECO_DATA = BASE_LIGHT;
         protected static final BlockState LAMP_BLOCK = Blocks.SEA_LANTERN.defaultBlockState();
+        protected static final boolean DO_FILL = true;
         protected static final BlockState FILL_BLOCK = Blocks.WATER.defaultBlockState();
         protected static final Set<Block> FILL_KEEP = ImmutableSet.<Block>builder()
             .add(Blocks.ICE)
@@ -1408,56 +1402,62 @@ public class OceanMonumentPieces {
             .add(Blocks.BLUE_ICE)
             .add(FILL_BLOCK.getBlock())
             .build();
+        protected static final int GRIDROOM_WIDTH = 8;
+        protected static final int GRIDROOM_DEPTH = 8;
+        protected static final int GRIDROOM_HEIGHT = 4;
+        protected static final int GRID_WIDTH = 5;
+        protected static final int GRID_DEPTH = 5;
+        protected static final int GRID_HEIGHT = 3;
+        protected static final int GRID_FLOOR_COUNT = 25;
+        protected static final int GRID_SIZE = 75;
         protected static final int GRIDROOM_SOURCE_INDEX = getRoomIndex(2, 0, 0);
         protected static final int GRIDROOM_TOP_CONNECT_INDEX = getRoomIndex(2, 2, 0);
         protected static final int GRIDROOM_LEFTWING_CONNECT_INDEX = getRoomIndex(0, 1, 0);
         protected static final int GRIDROOM_RIGHTWING_CONNECT_INDEX = getRoomIndex(4, 1, 0);
+        protected static final int LEFTWING_INDEX = 1001;
+        protected static final int RIGHTWING_INDEX = 1002;
+        protected static final int PENTHOUSE_INDEX = 1003;
         protected OceanMonumentPieces.RoomDefinition roomDefinition;
 
         protected static int getRoomIndex(int param0, int param1, int param2) {
             return param1 * 25 + param2 * 5 + param0;
         }
 
-        public OceanMonumentPiece(StructurePieceType param0, int param1) {
-            super(param0, param1);
-        }
-
-        public OceanMonumentPiece(StructurePieceType param0, Direction param1, BoundingBox param2) {
-            super(param0, 1);
+        public OceanMonumentPiece(StructurePieceType param0, Direction param1, int param2, BoundingBox param3) {
+            super(param0, param2, param3);
             this.setOrientation(param1);
-            this.boundingBox = param2;
         }
 
         protected OceanMonumentPiece(
             StructurePieceType param0, int param1, Direction param2, OceanMonumentPieces.RoomDefinition param3, int param4, int param5, int param6
         ) {
-            super(param0, param1);
+            super(param0, param1, makeBoundingBox(param2, param3, param4, param5, param6));
             this.setOrientation(param2);
             this.roomDefinition = param3;
-            int var0 = param3.index;
+        }
+
+        private static BoundingBox makeBoundingBox(Direction param0, OceanMonumentPieces.RoomDefinition param1, int param2, int param3, int param4) {
+            int var0 = param1.index;
             int var1 = var0 % 5;
             int var2 = var0 / 5 % 5;
             int var3 = var0 / 25;
-            if (param2 != Direction.NORTH && param2 != Direction.SOUTH) {
-                this.boundingBox = new BoundingBox(0, 0, 0, param6 * 8 - 1, param5 * 4 - 1, param4 * 8 - 1);
-            } else {
-                this.boundingBox = new BoundingBox(0, 0, 0, param4 * 8 - 1, param5 * 4 - 1, param6 * 8 - 1);
-            }
-
-            switch(param2) {
+            BoundingBox var4 = makeBoundingBox(0, 0, 0, param0, param2 * 8, param3 * 4, param4 * 8);
+            switch(param0) {
                 case NORTH:
-                    this.boundingBox.move(var1 * 8, var3 * 4, -(var2 + param6) * 8 + 1);
+                    var4.move(var1 * 8, var3 * 4, -(var2 + param4) * 8 + 1);
                     break;
                 case SOUTH:
-                    this.boundingBox.move(var1 * 8, var3 * 4, var2 * 8);
+                    var4.move(var1 * 8, var3 * 4, var2 * 8);
                     break;
                 case WEST:
-                    this.boundingBox.move(-(var2 + param6) * 8 + 1, var3 * 4, var1 * 8);
+                    var4.move(-(var2 + param4) * 8 + 1, var3 * 4, var1 * 8);
                     break;
+                case EAST:
                 default:
-                    this.boundingBox.move(var2 * 8, var3 * 4, var1 * 8);
+                    var4.move(var2 * 8, var3 * 4, var1 * 8);
             }
 
+            return var4;
         }
 
         public OceanMonumentPiece(StructurePieceType param0, CompoundTag param1) {
@@ -1526,15 +1526,13 @@ public class OceanMonumentPieces {
         }
 
         protected boolean spawnElder(WorldGenLevel param0, BoundingBox param1, int param2, int param3, int param4) {
-            int var0 = this.getWorldX(param2, param4);
-            int var1 = this.getWorldY(param3);
-            int var2 = this.getWorldZ(param2, param4);
-            if (param1.isInside(new BlockPos(var0, var1, var2))) {
-                ElderGuardian var3 = EntityType.ELDER_GUARDIAN.create(param0.getLevel());
-                var3.heal(var3.getMaxHealth());
-                var3.moveTo((double)var0 + 0.5, (double)var1, (double)var2 + 0.5, 0.0F, 0.0F);
-                var3.finalizeSpawn(param0, param0.getCurrentDifficultyAt(var3.blockPosition()), MobSpawnType.STRUCTURE, null, null);
-                param0.addFreshEntityWithPassengers(var3);
+            BlockPos var0 = this.getWorldPos(param2, param3, param4);
+            if (param1.isInside(var0)) {
+                ElderGuardian var1 = EntityType.ELDER_GUARDIAN.create(param0.getLevel());
+                var1.heal(var1.getMaxHealth());
+                var1.moveTo((double)var0.getX() + 0.5, (double)var0.getY(), (double)var0.getZ() + 0.5, 0.0F, 0.0F);
+                var1.finalizeSpawn(param0, param0.getCurrentDifficultyAt(var1.blockPosition()), MobSpawnType.STRUCTURE, null, null);
+                param0.addFreshEntityWithPassengers(var1);
                 return true;
             } else {
                 return false;
@@ -1774,7 +1772,7 @@ public class OceanMonumentPieces {
         private int mainDesign;
 
         public OceanMonumentWingRoom(Direction param0, BoundingBox param1, int param2) {
-            super(StructurePieceType.OCEAN_MONUMENT_WING_ROOM, param0, param1);
+            super(StructurePieceType.OCEAN_MONUMENT_WING_ROOM, param0, 1, param1);
             this.mainDesign = param2 & 1;
         }
 

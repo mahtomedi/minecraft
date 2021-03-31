@@ -13,6 +13,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class MinecartModel<T extends Entity> extends HierarchicalModel<T> {
     private final ModelPart root;
+    private static final String CONTENTS = "contents";
     private final ModelPart contents;
 
     public MinecartModel(ModelPart param0) {

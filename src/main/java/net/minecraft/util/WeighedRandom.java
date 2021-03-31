@@ -13,11 +13,9 @@ public class WeighedRandom {
 
     public static int getTotalWeight(List<? extends WeighedRandom.WeighedRandomItem> param0) {
         long var0 = 0L;
-        int var1 = 0;
 
-        for(int var2 = param0.size(); var1 < var2; ++var1) {
-            WeighedRandom.WeighedRandomItem var3 = param0.get(var1);
-            var0 += (long)var3.weight;
+        for(WeighedRandom.WeighedRandomItem var1 : param0) {
+            var0 += (long)var1.weight;
         }
 
         if (var0 > 2147483647L) {
@@ -39,13 +37,10 @@ public class WeighedRandom {
     }
 
     public static <T extends WeighedRandom.WeighedRandomItem> Optional<T> getWeightedItem(List<T> param0, int param1) {
-        int var0 = 0;
-
-        for(int var1 = param0.size(); var0 < var1; ++var0) {
-            T var2 = param0.get(var0);
-            param1 -= var2.weight;
+        for(T var0 : param0) {
+            param1 -= var0.weight;
             if (param1 < 0) {
-                return Optional.of(var2);
+                return Optional.of(var0);
             }
         }
 

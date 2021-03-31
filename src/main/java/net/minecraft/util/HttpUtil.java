@@ -3,16 +3,20 @@ package net.minecraft.util;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.Proxy;
 import java.net.ServerSocket;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -21,8 +25,6 @@ import java.util.concurrent.Executors;
 import javax.annotation.Nullable;
 import net.minecraft.DefaultUncaughtExceptionHandler;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
@@ -40,7 +42,79 @@ public class HttpUtil {
         )
     );
 
-    @OnlyIn(Dist.CLIENT)
+    private HttpUtil() {
+    }
+
+    public static String buildQuery(Map<String, Object> param0) {
+        StringBuilder var0 = new StringBuilder();
+
+        for(Entry<String, Object> var1 : param0.entrySet()) {
+            if (var0.length() > 0) {
+                var0.append('&');
+            }
+
+            try {
+                var0.append(URLEncoder.encode(var1.getKey(), "UTF-8"));
+            } catch (UnsupportedEncodingException var6) {
+                var6.printStackTrace();
+            }
+
+            if (var1.getValue() != null) {
+                var0.append('=');
+
+                try {
+                    var0.append(URLEncoder.encode(var1.getValue().toString(), "UTF-8"));
+                } catch (UnsupportedEncodingException var5) {
+                    var5.printStackTrace();
+                }
+            }
+        }
+
+        return var0.toString();
+    }
+
+    public static String performPost(URL param0, Map<String, Object> param1, boolean param2, @Nullable Proxy param3) {
+        return performPost(param0, buildQuery(param1), param2, param3);
+    }
+
+    private static String performPost(URL param0, String param1, boolean param2, @Nullable Proxy param3) {
+        try {
+            if (param3 == null) {
+                param3 = Proxy.NO_PROXY;
+            }
+
+            HttpURLConnection var0 = (HttpURLConnection)param0.openConnection(param3);
+            var0.setRequestMethod("POST");
+            var0.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            var0.setRequestProperty("Content-Length", "" + param1.getBytes().length);
+            var0.setRequestProperty("Content-Language", "en-US");
+            var0.setUseCaches(false);
+            var0.setDoInput(true);
+            var0.setDoOutput(true);
+            DataOutputStream var1 = new DataOutputStream(var0.getOutputStream());
+            var1.writeBytes(param1);
+            var1.flush();
+            var1.close();
+            BufferedReader var2 = new BufferedReader(new InputStreamReader(var0.getInputStream()));
+            StringBuilder var3 = new StringBuilder();
+
+            String var4;
+            while((var4 = var2.readLine()) != null) {
+                var3.append(var4);
+                var3.append('\r');
+            }
+
+            var2.close();
+            return var3.toString();
+        } catch (Exception var9) {
+            if (!param2) {
+                LOGGER.error("Could not post to {}", param0, var9);
+            }
+
+            return "";
+        }
+    }
+
     public static CompletableFuture<?> downloadTo(
         File param0, String param1, Map<String, String> param2, int param3, @Nullable ProgressListener param4, Proxy param5
     ) {

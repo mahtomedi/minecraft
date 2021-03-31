@@ -24,6 +24,7 @@ public class StructureRenderer implements DebugRenderer.SimpleDebugRenderer {
     private final Map<DimensionType, Map<String, BoundingBox>> postMainBoxes = Maps.newIdentityHashMap();
     private final Map<DimensionType, Map<String, BoundingBox>> postPiecesBoxes = Maps.newIdentityHashMap();
     private final Map<DimensionType, Map<String, Boolean>> startPiecesMap = Maps.newIdentityHashMap();
+    private static final int MAX_RENDER_DIST = 500;
 
     public StructureRenderer(Minecraft param0) {
         this.minecraft = param0;
@@ -42,12 +43,12 @@ public class StructureRenderer implements DebugRenderer.SimpleDebugRenderer {
                     LevelRenderer.renderLineBox(
                         param0,
                         var4,
-                        (double)var5.x0 - param2,
-                        (double)var5.y0 - param3,
-                        (double)var5.z0 - param4,
-                        (double)(var5.x1 + 1) - param2,
-                        (double)(var5.y1 + 1) - param3,
-                        (double)(var5.z1 + 1) - param4,
+                        (double)var5.minX() - param2,
+                        (double)var5.minY() - param3,
+                        (double)var5.minZ() - param4,
+                        (double)(var5.maxX() + 1) - param2,
+                        (double)(var5.maxY() + 1) - param3,
+                        (double)(var5.maxZ() + 1) - param4,
                         1.0F,
                         1.0F,
                         1.0F,
@@ -70,12 +71,12 @@ public class StructureRenderer implements DebugRenderer.SimpleDebugRenderer {
                         LevelRenderer.renderLineBox(
                             param0,
                             var4,
-                            (double)var8.x0 - param2,
-                            (double)var8.y0 - param3,
-                            (double)var8.z0 - param4,
-                            (double)(var8.x1 + 1) - param2,
-                            (double)(var8.y1 + 1) - param3,
-                            (double)(var8.z1 + 1) - param4,
+                            (double)var8.minX() - param2,
+                            (double)var8.minY() - param3,
+                            (double)var8.minZ() - param4,
+                            (double)(var8.maxX() + 1) - param2,
+                            (double)(var8.maxY() + 1) - param3,
+                            (double)(var8.maxZ() + 1) - param4,
                             0.0F,
                             1.0F,
                             0.0F,
@@ -88,12 +89,12 @@ public class StructureRenderer implements DebugRenderer.SimpleDebugRenderer {
                         LevelRenderer.renderLineBox(
                             param0,
                             var4,
-                            (double)var8.x0 - param2,
-                            (double)var8.y0 - param3,
-                            (double)var8.z0 - param4,
-                            (double)(var8.x1 + 1) - param2,
-                            (double)(var8.y1 + 1) - param3,
-                            (double)(var8.z1 + 1) - param4,
+                            (double)var8.minX() - param2,
+                            (double)var8.minY() - param3,
+                            (double)var8.minZ() - param4,
+                            (double)(var8.maxX() + 1) - param2,
+                            (double)(var8.maxY() + 1) - param3,
+                            (double)(var8.maxZ() + 1) - param4,
                             0.0F,
                             0.0F,
                             1.0F,

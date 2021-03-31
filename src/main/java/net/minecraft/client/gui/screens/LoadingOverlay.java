@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.IntSupplier;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
@@ -25,8 +26,19 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class LoadingOverlay extends Overlay {
     private static final ResourceLocation MOJANG_STUDIOS_LOGO_LOCATION = new ResourceLocation("textures/gui/title/mojangstudios.png");
-    private static final int BRAND_BACKGROUND = FastColor.ARGB32.color(255, 239, 50, 61);
-    private static final int BRAND_BACKGROUND_NO_ALPHA = BRAND_BACKGROUND & 16777215;
+    private static final int LOGO_BACKGROUND_COLOR = FastColor.ARGB32.color(255, 239, 50, 61);
+    private static final int LOGO_BACKGROUND_COLOR_DARK = FastColor.ARGB32.color(255, 0, 0, 0);
+    private static final IntSupplier BRAND_BACKGROUND = () -> Minecraft.getInstance().options.darkMojangStudiosBackground
+            ? LOGO_BACKGROUND_COLOR_DARK
+            : LOGO_BACKGROUND_COLOR;
+    private static final int LOGO_SCALE = 240;
+    private static final float LOGO_QUARTER_FLOAT = 60.0F;
+    private static final int LOGO_QUARTER = 60;
+    private static final int LOGO_HALF = 120;
+    private static final float LOGO_OVERLAP = 0.0625F;
+    private static final float SMOOTHING = 0.95F;
+    public static final long FADE_OUT_TIME = 1000L;
+    public static final long FADE_IN_TIME = 500L;
     private final Minecraft minecraft;
     private final ReloadInstance reload;
     private final Consumer<Optional<Throwable>> onFinish;
@@ -44,6 +56,10 @@ public class LoadingOverlay extends Overlay {
 
     public static void registerTextures(Minecraft param0) {
         param0.getTextureManager().register(MOJANG_STUDIOS_LOGO_LOCATION, new LoadingOverlay.LogoTexture());
+    }
+
+    private static int replaceAlpha(int param0, int param1) {
+        return param0 & 16777215 | param1 << 24;
     }
 
     @Override
@@ -64,7 +80,7 @@ public class LoadingOverlay extends Overlay {
             }
 
             int var5 = Mth.ceil((1.0F - Mth.clamp(var3 - 1.0F, 0.0F, 1.0F)) * 255.0F);
-            fill(param0, 0, 0, var0, var1, BRAND_BACKGROUND_NO_ALPHA | var5 << 24);
+            fill(param0, 0, 0, var0, var1, replaceAlpha(BRAND_BACKGROUND.getAsInt(), var5));
             var6 = 1.0F - Mth.clamp(var3 - 1.0F, 0.0F, 1.0F);
         } else if (this.fadeIn) {
             if (this.minecraft.screen != null && var4 < 1.0F) {
@@ -72,10 +88,10 @@ public class LoadingOverlay extends Overlay {
             }
 
             int var7 = Mth.ceil(Mth.clamp((double)var4, 0.15, 1.0) * 255.0);
-            fill(param0, 0, 0, var0, var1, BRAND_BACKGROUND_NO_ALPHA | var7 << 24);
+            fill(param0, 0, 0, var0, var1, replaceAlpha(BRAND_BACKGROUND.getAsInt(), var7));
             var6 = Mth.clamp(var4, 0.0F, 1.0F);
         } else {
-            fill(param0, 0, 0, var0, var1, BRAND_BACKGROUND);
+            fill(param0, 0, 0, var0, var1, BRAND_BACKGROUND.getAsInt());
             var6 = 1.0F;
         }
 

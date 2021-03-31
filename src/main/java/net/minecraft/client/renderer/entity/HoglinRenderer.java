@@ -20,6 +20,6 @@ public class HoglinRenderer extends MobRenderer<Hoglin, HoglinModel<Hoglin>> {
     }
 
     protected boolean isShaking(Hoglin param0) {
-        return param0.isConverting();
+        return super.isShaking(param0) || param0.isConverting();
     }
 }

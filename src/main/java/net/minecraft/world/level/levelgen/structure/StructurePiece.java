@@ -1,7 +1,6 @@
 package net.minecraft.world.level.levelgen.structure;
 
 import com.google.common.collect.ImmutableSet;
-import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import javax.annotation.Nullable;
@@ -60,19 +59,33 @@ public abstract class StructurePiece {
         .add(Blocks.IRON_BARS)
         .build();
 
-    protected StructurePiece(StructurePieceType param0, int param1) {
+    protected StructurePiece(StructurePieceType param0, int param1, BoundingBox param2) {
         this.type = param0;
         this.genDepth = param1;
+        this.boundingBox = param2;
     }
 
     public StructurePiece(StructurePieceType param0, CompoundTag param1) {
-        this(param0, param1.getInt("GD"));
-        if (param1.contains("BB")) {
-            this.boundingBox = BoundingBox.CODEC.parse(NbtOps.INSTANCE, param1.get("BB")).resultOrPartial(LOGGER::error).orElse(new BoundingBox(BlockPos.ZERO));
-        }
-
+        this(
+            param0,
+            param1.getInt("GD"),
+            BoundingBox.CODEC
+                .parse(NbtOps.INSTANCE, param1.get("BB"))
+                .resultOrPartial(LOGGER::error)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid boundingbox"))
+        );
         int var0 = param1.getInt("O");
         this.setOrientation(var0 == -1 ? null : Direction.from2DDataValue(var0));
+    }
+
+    protected static BoundingBox makeBoundingBox(int param0, int param1, int param2, Direction param3, int param4, int param5, int param6) {
+        return param3.getAxis() == Direction.Axis.Z
+            ? new BoundingBox(param0, param1, param2, param0 + param4 - 1, param1 + param5 - 1, param2 + param6 - 1)
+            : new BoundingBox(param0, param1, param2, param0 + param6 - 1, param1 + param5 - 1, param2 + param4 - 1);
+    }
+
+    protected static Direction getRandomHorizontalDirection(Random param0) {
+        return Direction.Plane.HORIZONTAL.getRandomDirection(param0);
     }
 
     public final CompoundTag createTag(ServerLevel param0) {
@@ -92,7 +105,7 @@ public abstract class StructurePiece {
         return NoiseEffect.BEARD;
     }
 
-    public void addChildren(StructurePiece param0, List<StructurePiece> param1, Random param2) {
+    public void addChildren(StructurePiece param0, StructurePieceAccessor param1, Random param2) {
     }
 
     public abstract boolean postProcess(
@@ -113,18 +126,12 @@ public abstract class StructurePiece {
         return this.boundingBox.intersects(var0 - param1, var1 - param1, var0 + 15 + param1, var1 + 15 + param1);
     }
 
-    public static StructurePiece findCollisionPiece(List<StructurePiece> param0, BoundingBox param1) {
-        for(StructurePiece var0 : param0) {
-            if (var0.getBoundingBox() != null && var0.getBoundingBox().intersects(param1)) {
-                return var0;
-            }
-        }
-
-        return null;
+    public BlockPos getLocatorPosition() {
+        return new BlockPos(this.boundingBox.getCenter());
     }
 
-    protected BlockPos getWorldPos(int param0, int param1, int param2) {
-        return new BlockPos(this.getWorldX(param0, param2), this.getWorldY(param1), this.getWorldZ(param0, param2));
+    protected BlockPos.MutableBlockPos getWorldPos(int param0, int param1, int param2) {
+        return new BlockPos.MutableBlockPos(this.getWorldX(param0, param2), this.getWorldY(param1), this.getWorldZ(param0, param2));
     }
 
     protected int getWorldX(int param0, int param1) {
@@ -135,11 +142,11 @@ public abstract class StructurePiece {
             switch(var0) {
                 case NORTH:
                 case SOUTH:
-                    return this.boundingBox.x0 + param0;
+                    return this.boundingBox.minX() + param0;
                 case WEST:
-                    return this.boundingBox.x1 - param1;
+                    return this.boundingBox.maxX() - param1;
                 case EAST:
-                    return this.boundingBox.x0 + param1;
+                    return this.boundingBox.minX() + param1;
                 default:
                     return param0;
             }
@@ -147,7 +154,7 @@ public abstract class StructurePiece {
     }
 
     protected int getWorldY(int param0) {
-        return this.getOrientation() == null ? param0 : param0 + this.boundingBox.y0;
+        return this.getOrientation() == null ? param0 : param0 + this.boundingBox.minY();
     }
 
     protected int getWorldZ(int param0, int param1) {
@@ -157,12 +164,12 @@ public abstract class StructurePiece {
         } else {
             switch(var0) {
                 case NORTH:
-                    return this.boundingBox.z1 - param1;
+                    return this.boundingBox.maxZ() - param1;
                 case SOUTH:
-                    return this.boundingBox.z0 + param1;
+                    return this.boundingBox.minZ() + param1;
                 case WEST:
                 case EAST:
-                    return this.boundingBox.z0 + param0;
+                    return this.boundingBox.minZ() + param0;
                 default:
                     return param1;
             }
@@ -170,7 +177,7 @@ public abstract class StructurePiece {
     }
 
     protected void placeBlock(WorldGenLevel param0, BlockState param1, int param2, int param3, int param4, BoundingBox param5) {
-        BlockPos var0 = new BlockPos(this.getWorldX(param2, param4), this.getWorldY(param3), this.getWorldZ(param2, param4));
+        BlockPos var0 = this.getWorldPos(param2, param3, param4);
         if (param5.isInside(var0)) {
             if (this.canBeReplaced(param0, param2, param3, param4, param5)) {
                 if (this.mirror != Mirror.NONE) {
@@ -200,22 +207,16 @@ public abstract class StructurePiece {
     }
 
     protected BlockState getBlock(BlockGetter param0, int param1, int param2, int param3, BoundingBox param4) {
-        int var0 = this.getWorldX(param1, param3);
-        int var1 = this.getWorldY(param2);
-        int var2 = this.getWorldZ(param1, param3);
-        BlockPos var3 = new BlockPos(var0, var1, var2);
-        return !param4.isInside(var3) ? Blocks.AIR.defaultBlockState() : param0.getBlockState(var3);
+        BlockPos var0 = this.getWorldPos(param1, param2, param3);
+        return !param4.isInside(var0) ? Blocks.AIR.defaultBlockState() : param0.getBlockState(var0);
     }
 
     protected boolean isInterior(LevelReader param0, int param1, int param2, int param3, BoundingBox param4) {
-        int var0 = this.getWorldX(param1, param3);
-        int var1 = this.getWorldY(param2 + 1);
-        int var2 = this.getWorldZ(param1, param3);
-        BlockPos var3 = new BlockPos(var0, var1, var2);
-        if (!param4.isInside(var3)) {
+        BlockPos var0 = this.getWorldPos(param1, param2 + 1, param3);
+        if (!param4.isInside(var0)) {
             return false;
         } else {
-            return var1 < param0.getHeight(Heightmap.Types.OCEAN_FLOOR_WG, var0, var2);
+            return var0.getY() < param0.getHeight(Heightmap.Types.OCEAN_FLOOR_WG, var0.getX(), var0.getZ());
         }
     }
 
@@ -259,6 +260,10 @@ public abstract class StructurePiece {
 
     }
 
+    protected void generateBox(WorldGenLevel param0, BoundingBox param1, BoundingBox param2, BlockState param3, BlockState param4, boolean param5) {
+        this.generateBox(param0, param1, param2.minX(), param2.minY(), param2.minZ(), param2.maxX(), param2.maxY(), param2.maxZ(), param3, param4, param5);
+    }
+
     protected void generateBox(
         WorldGenLevel param0,
         BoundingBox param1,
@@ -285,6 +290,10 @@ public abstract class StructurePiece {
             }
         }
 
+    }
+
+    protected void generateBox(WorldGenLevel param0, BoundingBox param1, BoundingBox param2, boolean param3, Random param4, StructurePiece.BlockSelector param5) {
+        this.generateBox(param0, param1, param2.minX(), param2.minY(), param2.minZ(), param2.maxX(), param2.maxY(), param2.maxZ(), param3, param4, param5);
     }
 
     protected void generateMaybeBox(
@@ -376,14 +385,11 @@ public abstract class StructurePiece {
     }
 
     protected void fillColumnDown(WorldGenLevel param0, BlockState param1, int param2, int param3, int param4, BoundingBox param5) {
-        int var0 = this.getWorldX(param2, param4);
-        int var1 = this.getWorldY(param3);
-        int var2 = this.getWorldZ(param2, param4);
-        BlockPos.MutableBlockPos var3 = new BlockPos.MutableBlockPos(var0, var1, var2);
-        if (param5.isInside(var3)) {
-            while(this.isReplaceableByStructures(param0.getBlockState(var3)) && var3.getY() > param0.getMinBuildHeight() + 1) {
-                param0.setBlock(var3, param1, 2);
-                var3.move(Direction.DOWN);
+        BlockPos.MutableBlockPos var0 = this.getWorldPos(param2, param3, param4);
+        if (param5.isInside(var0)) {
+            while(this.isReplaceableByStructures(param0.getBlockState(var0)) && var0.getY() > param0.getMinBuildHeight() + 1) {
+                param0.setBlock(var0, param1, 2);
+                var0.move(Direction.DOWN);
             }
 
         }
@@ -398,8 +404,7 @@ public abstract class StructurePiece {
     }
 
     protected boolean createChest(WorldGenLevel param0, BoundingBox param1, Random param2, int param3, int param4, int param5, ResourceLocation param6) {
-        BlockPos var0 = new BlockPos(this.getWorldX(param3, param5), this.getWorldY(param4), this.getWorldZ(param3, param5));
-        return this.createChest(param0, param1, param2, var0, param6, null);
+        return this.createChest(param0, param1, param2, this.getWorldPos(param3, param4, param5), param6, null);
     }
 
     public static BlockState reorient(BlockGetter param0, BlockPos param1, BlockState param2) {
@@ -469,7 +474,7 @@ public abstract class StructurePiece {
     protected boolean createDispenser(
         WorldGenLevel param0, BoundingBox param1, Random param2, int param3, int param4, int param5, Direction param6, ResourceLocation param7
     ) {
-        BlockPos var0 = new BlockPos(this.getWorldX(param3, param5), this.getWorldY(param4), this.getWorldZ(param3, param5));
+        BlockPos var0 = this.getWorldPos(param3, param4, param5);
         if (param1.isInside(var0) && !param0.getBlockState(var0).is(Blocks.DISPENSER)) {
             this.placeBlock(param0, Blocks.DISPENSER.defaultBlockState().setValue(DispenserBlock.FACING, param6), param3, param4, param5, param1);
             BlockEntity var1 = param0.getBlockEntity(var0);
@@ -521,6 +526,10 @@ public abstract class StructurePiece {
 
     public Rotation getRotation() {
         return this.rotation;
+    }
+
+    public Mirror getMirror() {
+        return this.mirror;
     }
 
     public StructurePieceType getType() {

@@ -4,8 +4,6 @@ import java.util.function.Predicate;
 import net.minecraft.core.IdMapper;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class GlobalPalette<T> implements Palette<T> {
     private final IdMapper<T> registry;
@@ -33,7 +31,6 @@ public class GlobalPalette<T> implements Palette<T> {
         return (T)(var0 == null ? this.defaultValue : var0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void read(FriendlyByteBuf param0) {
     }
@@ -45,6 +42,11 @@ public class GlobalPalette<T> implements Palette<T> {
     @Override
     public int getSerializedSize() {
         return FriendlyByteBuf.getVarIntSize(0);
+    }
+
+    @Override
+    public int getSize() {
+        return this.registry.size();
     }
 
     @Override

@@ -8,10 +8,10 @@ import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.chunk.DataLayer;
 import net.minecraft.world.level.chunk.LightChunkGetter;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class LevelLightEngine implements LightEventListener {
+    public static final int MAX_SOURCE_LEVEL = 15;
+    public static final int LIGHT_SECTION_PADDING = 1;
     protected final LevelHeightAccessor levelHeightAccessor;
     @Nullable
     private final LayerLightEngine<?, ?> blockEngine;
@@ -24,6 +24,7 @@ public class LevelLightEngine implements LightEventListener {
         this.skyEngine = param2 ? new SkyLightEngine(param0) : null;
     }
 
+    @Override
     public void checkBlock(BlockPos param0) {
         if (this.blockEngine != null) {
             this.blockEngine.checkBlock(param0);
@@ -35,6 +36,7 @@ public class LevelLightEngine implements LightEventListener {
 
     }
 
+    @Override
     public void onBlockEmissionIncrease(BlockPos param0, int param1) {
         if (this.blockEngine != null) {
             this.blockEngine.onBlockEmissionIncrease(param0, param1);
@@ -42,6 +44,7 @@ public class LevelLightEngine implements LightEventListener {
 
     }
 
+    @Override
     public boolean hasLightWork() {
         if (this.skyEngine != null && this.skyEngine.hasLightWork()) {
             return true;
@@ -50,6 +53,7 @@ public class LevelLightEngine implements LightEventListener {
         }
     }
 
+    @Override
     public int runUpdates(int param0, boolean param1, boolean param2) {
         if (this.blockEngine != null && this.skyEngine != null) {
             int var0 = param0 / 2;
@@ -76,6 +80,7 @@ public class LevelLightEngine implements LightEventListener {
 
     }
 
+    @Override
     public void enableLightSources(ChunkPos param0, boolean param1) {
         if (this.blockEngine != null) {
             this.blockEngine.enableLightSources(param0, param1);
@@ -95,7 +100,6 @@ public class LevelLightEngine implements LightEventListener {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     public String getDebugData(LightLayer param0, SectionPos param1) {
         if (param0 == LightLayer.BLOCK) {
             if (this.blockEngine != null) {

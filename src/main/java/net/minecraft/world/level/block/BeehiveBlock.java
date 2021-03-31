@@ -49,13 +49,13 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class BeehiveBlock extends BaseEntityBlock {
     private static final Direction[] SPAWN_DIRECTIONS = new Direction[]{Direction.WEST, Direction.EAST, Direction.SOUTH};
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
     public static final IntegerProperty HONEY_LEVEL = BlockStateProperties.LEVEL_HONEY;
+    public static final int MAX_HONEY_LEVELS = 5;
+    private static final int SHEARED_HONEYCOMB_COUNT = 3;
 
     public BeehiveBlock(BlockBehaviour.Properties param0) {
         super(param0);
@@ -176,7 +176,6 @@ public class BeehiveBlock extends BaseEntityBlock {
         param0.setBlock(param2, param1.setValue(HONEY_LEVEL, Integer.valueOf(0)), 3);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void animateTick(BlockState param0, Level param1, BlockPos param2, Random param3) {
         if (param0.getValue(HONEY_LEVEL) >= 5) {
@@ -187,7 +186,6 @@ public class BeehiveBlock extends BaseEntityBlock {
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     private void trySpawnDripParticles(Level param0, BlockPos param1, BlockState param2) {
         if (param2.getFluidState().isEmpty() && !(param0.random.nextFloat() < 0.3F)) {
             VoxelShape var0 = param2.getCollisionShape(param0, param1);
@@ -210,7 +208,6 @@ public class BeehiveBlock extends BaseEntityBlock {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     private void spawnParticle(Level param0, BlockPos param1, VoxelShape param2, double param3) {
         this.spawnFluidParticle(
             param0,
@@ -222,7 +219,6 @@ public class BeehiveBlock extends BaseEntityBlock {
         );
     }
 
-    @OnlyIn(Dist.CLIENT)
     private void spawnFluidParticle(Level param0, double param1, double param2, double param3, double param4, double param5) {
         param0.addParticle(
             ParticleTypes.DRIPPING_HONEY,

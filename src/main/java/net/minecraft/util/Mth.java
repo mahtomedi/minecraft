@@ -5,12 +5,25 @@ import java.util.UUID;
 import java.util.function.IntPredicate;
 import net.minecraft.Util;
 import net.minecraft.core.Vec3i;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.math.NumberUtils;
 
 public class Mth {
+    private static final int BIG_ENOUGH_INT = 1024;
+    private static final float BIG_ENOUGH_FLOAT = 1024.0F;
+    private static final long UUID_VERSION = 61440L;
+    private static final long UUID_VERSION_TYPE_4 = 16384L;
+    private static final long UUID_VARIANT = -4611686018427387904L;
+    private static final long UUID_VARIANT_2 = Long.MIN_VALUE;
+    public static final float PI = (float) Math.PI;
+    public static final float HALF_PI = (float) (Math.PI / 2);
+    public static final float TWO_PI = (float) (Math.PI * 2);
+    public static final float DEG_TO_RAD = (float) (Math.PI / 180.0);
+    public static final float RAD_TO_DEG = 180.0F / (float)Math.PI;
+    public static final float EPSILON = 1.0E-5F;
     public static final float SQRT_OF_TWO = sqrt(2.0F);
+    private static final float SIN_SCALE = 10430.378F;
     private static final float[] SIN = Util.make(new float[65536], param0 -> {
         for(int var0x = 0; var0x < param0.length; ++var0x) {
             param0[var0x] = (float)Math.sin((double)var0x * Math.PI * 2.0 / 65536.0);
@@ -21,6 +34,9 @@ public class Mth {
     private static final int[] MULTIPLY_DE_BRUIJN_BIT_POSITION = new int[]{
         0, 1, 28, 2, 29, 14, 24, 3, 30, 22, 20, 15, 25, 17, 4, 8, 31, 27, 13, 23, 21, 19, 16, 7, 26, 12, 18, 6, 11, 5, 10, 9
     };
+    private static final double ONE_SIXTH = 0.16666666666666666;
+    private static final int FRAC_EXP = 8;
+    private static final int LUT_SIZE = 257;
     private static final double FRAC_BIAS = Double.longBitsToDouble(4805340802404319232L);
     private static final double[] ASIN_TAB = new double[257];
     private static final double[] COS_TAB = new double[257];
@@ -46,7 +62,6 @@ public class Mth {
         return param0 < (float)var0 ? var0 - 1 : var0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static int fastFloor(double param0) {
         return (int)(param0 + 1024.0) - 1024;
     }
@@ -59,6 +74,10 @@ public class Mth {
     public static long lfloor(double param0) {
         long var0 = (long)param0;
         return param0 < (double)var0 ? var0 - 1L : var0;
+    }
+
+    public static int absFloor(double param0) {
+        return (int)(param0 >= 0.0 ? param0 : -param0 + 1.0);
     }
 
     public static float abs(float param0) {
@@ -79,6 +98,14 @@ public class Mth {
         return param0 > (double)var0 ? var0 + 1 : var0;
     }
 
+    public static byte clamp(byte param0, byte param1, byte param2) {
+        if (param0 < param1) {
+            return param1;
+        } else {
+            return param0 > param2 ? param2 : param0;
+        }
+    }
+
     public static int clamp(int param0, int param1, int param2) {
         if (param0 < param1) {
             return param1;
@@ -87,7 +114,6 @@ public class Mth {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static long clamp(long param0, long param1, long param2) {
         if (param0 < param1) {
             return param1;
@@ -158,7 +184,6 @@ public class Mth {
         return (double)var0 / (double)param0.length;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static boolean equal(float param0, float param1) {
         return Math.abs(param1 - param0) < 1.0E-5F;
     }
@@ -171,17 +196,14 @@ public class Mth {
         return Math.floorMod(param0, param1);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static float positiveModulo(float param0, float param1) {
         return (param0 % param1 + param1) % param1;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static double positiveModulo(double param0, double param1) {
         return (param0 % param1 + param1) % param1;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static int wrapDegrees(int param0) {
         int var0 = param0 % 360;
         if (var0 >= 180) {
@@ -245,9 +267,24 @@ public class Mth {
         return approach(param0, param0 + var0, param2);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static int getInt(String param0, int param1) {
         return NumberUtils.toInt(param0, param1);
+    }
+
+    public static int getInt(String param0, int param1, int param2) {
+        return Math.max(param2, getInt(param0, param1));
+    }
+
+    public static double getDouble(String param0, double param1) {
+        try {
+            return Double.parseDouble(param0);
+        } catch (Throwable var4) {
+            return param1;
+        }
+    }
+
+    public static double getDouble(String param0, double param1, double param2) {
+        return Math.max(param2, getDouble(param0, param1));
     }
 
     public static int smallestEncompassingPowerOfTwo(int param0) {
@@ -282,12 +319,47 @@ public class Mth {
         return (var0 << 8) + param2;
     }
 
+    public static int colorMultiply(int param0, int param1) {
+        int var0 = (param0 & 0xFF0000) >> 16;
+        int var1 = (param1 & 0xFF0000) >> 16;
+        int var2 = (param0 & 0xFF00) >> 8;
+        int var3 = (param1 & 0xFF00) >> 8;
+        int var4 = (param0 & 0xFF) >> 0;
+        int var5 = (param1 & 0xFF) >> 0;
+        int var6 = (int)((float)var0 * (float)var1 / 255.0F);
+        int var7 = (int)((float)var2 * (float)var3 / 255.0F);
+        int var8 = (int)((float)var4 * (float)var5 / 255.0F);
+        return param0 & 0xFF000000 | var6 << 16 | var7 << 8 | var8;
+    }
+
+    public static int colorMultiply(int param0, float param1, float param2, float param3) {
+        int var0 = (param0 & 0xFF0000) >> 16;
+        int var1 = (param0 & 0xFF00) >> 8;
+        int var2 = (param0 & 0xFF) >> 0;
+        int var3 = (int)((float)var0 * param1);
+        int var4 = (int)((float)var1 * param2);
+        int var5 = (int)((float)var2 * param3);
+        return param0 & 0xFF000000 | var3 << 16 | var4 << 8 | var5;
+    }
+
     public static float frac(float param0) {
         return param0 - (float)floor(param0);
     }
 
     public static double frac(double param0) {
         return param0 - (double)lfloor(param0);
+    }
+
+    public static Vec3 catmullRomSplinePos(Vec3 param0, Vec3 param1, Vec3 param2, Vec3 param3, double param4) {
+        double var0 = ((-param4 + 2.0) * param4 - 1.0) * param4 * 0.5;
+        double var1 = ((3.0 * param4 - 5.0) * param4 * param4 + 2.0) * 0.5;
+        double var2 = ((-3.0 * param4 + 4.0) * param4 + 1.0) * param4 * 0.5;
+        double var3 = (param4 - 1.0) * param4 * param4 * 0.5;
+        return new Vec3(
+            param0.x * var0 + param1.x * var1 + param2.x * var2 + param3.x * var3,
+            param0.y * var0 + param1.y * var1 + param2.y * var2 + param3.y * var3,
+            param0.z * var0 + param1.z * var1 + param2.z * var2 + param3.z * var3
+        );
     }
 
     public static long getSeed(Vec3i param0) {
@@ -312,6 +384,45 @@ public class Mth {
 
     public static double inverseLerp(double param0, double param1, double param2) {
         return (param0 - param1) / (param2 - param1);
+    }
+
+    public static boolean rayIntersectsAABB(Vec3 param0, Vec3 param1, AABB param2) {
+        double var0 = (param2.minX + param2.maxX) * 0.5;
+        double var1 = (param2.maxX - param2.minX) * 0.5;
+        double var2 = param0.x - var0;
+        if (Math.abs(var2) > var1 && var2 * param1.x >= 0.0) {
+            return false;
+        } else {
+            double var3 = (param2.minY + param2.maxY) * 0.5;
+            double var4 = (param2.maxY - param2.minY) * 0.5;
+            double var5 = param0.y - var3;
+            if (Math.abs(var5) > var4 && var5 * param1.y >= 0.0) {
+                return false;
+            } else {
+                double var6 = (param2.minZ + param2.maxZ) * 0.5;
+                double var7 = (param2.maxZ - param2.minZ) * 0.5;
+                double var8 = param0.z - var6;
+                if (Math.abs(var8) > var7 && var8 * param1.z >= 0.0) {
+                    return false;
+                } else {
+                    double var9 = Math.abs(param1.x);
+                    double var10 = Math.abs(param1.y);
+                    double var11 = Math.abs(param1.z);
+                    double var12 = param1.y * var8 - param1.z * var5;
+                    if (Math.abs(var12) > var4 * var11 + var7 * var10) {
+                        return false;
+                    } else {
+                        var12 = param1.z * var2 - param1.x * var8;
+                        if (Math.abs(var12) > var1 * var11 + var7 * var9) {
+                            return false;
+                        } else {
+                            var12 = param1.x * var5 - param1.y * var2;
+                            return Math.abs(var12) < var1 * var10 + var4 * var9;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public static double atan2(double param0, double param1) {
@@ -363,7 +474,6 @@ public class Mth {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static float fastInvSqrt(float param0) {
         float var0 = 0.5F * param0;
         int var1 = Float.floatToIntBits(param0);
@@ -380,7 +490,6 @@ public class Mth {
         return param0 * (1.5 - var0 * param0 * param0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static float fastInvCubeRoot(float param0) {
         int var0 = Float.floatToIntBits(param0);
         var0 = 1419967116 - var0 / 3;
@@ -447,6 +556,86 @@ public class Mth {
         return param0 ^ param0 >>> 16;
     }
 
+    public static long murmurHash3Mixer(long param0) {
+        param0 ^= param0 >>> 33;
+        param0 *= -49064778989728563L;
+        param0 ^= param0 >>> 33;
+        param0 *= -4265267296055464877L;
+        return param0 ^ param0 >>> 33;
+    }
+
+    public static double[] cumulativeSum(double... param0) {
+        float var0 = 0.0F;
+
+        for(double var1 : param0) {
+            var0 = (float)((double)var0 + var1);
+        }
+
+        for(int var2 = 0; var2 < param0.length; ++var2) {
+            param0[var2] /= (double)var0;
+        }
+
+        for(int var3 = 0; var3 < param0.length; ++var3) {
+            param0[var3] += var3 == 0 ? 0.0 : param0[var3 - 1];
+        }
+
+        return param0;
+    }
+
+    public static int getRandomForDistributionIntegral(Random param0, double[] param1) {
+        double var0 = param0.nextDouble();
+
+        for(int var1 = 0; var1 < param1.length; ++var1) {
+            if (var0 < param1[var1]) {
+                return var1;
+            }
+        }
+
+        return param1.length;
+    }
+
+    public static double[] binNormalDistribution(double param0, double param1, double param2, int param3, int param4) {
+        double[] var0 = new double[param4 - param3 + 1];
+        int var1 = 0;
+
+        for(int var2 = param3; var2 <= param4; ++var2) {
+            var0[var1] = Math.max(0.0, param0 * StrictMath.exp(-((double)var2 - param2) * ((double)var2 - param2) / (2.0 * param1 * param1)));
+            ++var1;
+        }
+
+        return var0;
+    }
+
+    public static double[] binBiModalNormalDistribution(
+        double param0, double param1, double param2, double param3, double param4, double param5, int param6, int param7
+    ) {
+        double[] var0 = new double[param7 - param6 + 1];
+        int var1 = 0;
+
+        for(int var2 = param6; var2 <= param7; ++var2) {
+            var0[var1] = Math.max(
+                0.0,
+                param0 * StrictMath.exp(-((double)var2 - param2) * ((double)var2 - param2) / (2.0 * param1 * param1))
+                    + param3 * StrictMath.exp(-((double)var2 - param5) * ((double)var2 - param5) / (2.0 * param4 * param4))
+            );
+            ++var1;
+        }
+
+        return var0;
+    }
+
+    public static double[] binLogDistribution(double param0, double param1, int param2, int param3) {
+        double[] var0 = new double[param3 - param2 + 1];
+        int var1 = 0;
+
+        for(int var2 = param2; var2 <= param3; ++var2) {
+            var0[var1] = Math.max(param0 * StrictMath.log((double)var2) + param1, 0.0);
+            ++var1;
+        }
+
+        return var0;
+    }
+
     public static int binarySearch(int param0, int param1, IntPredicate param2) {
         int var0 = param1 - param0;
 
@@ -496,6 +685,10 @@ public class Mth {
         return param0 * param0 * param0 * (param0 * (param0 * 6.0 - 15.0) + 10.0);
     }
 
+    public static double smoothstepDerivative(double param0) {
+        return 30.0 * param0 * param0 * (param0 - 1.0) * (param0 - 1.0);
+    }
+
     public static int sign(double param0) {
         if (param0 == 0.0) {
             return 0;
@@ -504,9 +697,12 @@ public class Mth {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static float rotLerp(float param0, float param1, float param2) {
         return param1 + param0 * wrapDegrees(param2 - param1);
+    }
+
+    public static float diffuseLight(float param0, float param1, float param2) {
+        return Math.min(param0 * param0 * 0.6F + param1 * param1 * ((3.0F + param1) / 4.0F) + param2 * param2 * 0.8F, 1.0F);
     }
 
     @Deprecated
@@ -525,7 +721,6 @@ public class Mth {
     }
 
     @Deprecated
-    @OnlyIn(Dist.CLIENT)
     public static float rotWrap(double param0) {
         while(param0 >= 180.0) {
             param0 -= 360.0;
@@ -538,7 +733,6 @@ public class Mth {
         return (float)param0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static float triangleWave(float param0, float param1) {
         return (Math.abs(param0 % param1 - param1 * 0.5F) - param1 * 0.25F) / (param1 * 0.25F);
     }
@@ -551,12 +745,20 @@ public class Mth {
         return param0 * param0;
     }
 
+    public static int square(int param0) {
+        return param0 * param0;
+    }
+
     public static double clampedMap(double param0, double param1, double param2, double param3, double param4) {
         return clampedLerp(param3, param4, inverseLerp(param0, param1, param2));
     }
 
     public static double map(double param0, double param1, double param2, double param3, double param4) {
         return lerp(inverseLerp(param0, param1, param2), param3, param4);
+    }
+
+    public static double wobble(double param0) {
+        return param0 + (2.0 * new Random((long)floor(param0 * 3000.0)).nextDouble() - 1.0) * 1.0E-7 / 2.0;
     }
 
     public static int roundToward(int param0, int param1) {

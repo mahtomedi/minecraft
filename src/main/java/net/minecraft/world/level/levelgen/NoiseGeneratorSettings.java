@@ -155,7 +155,7 @@ public final class NoiseGeneratorSettings {
             param0,
             NoiseSettings.create(
                 param5 ? -64 : 0,
-                param5 ? 384 : 128,
+                param5 ? 384 : 256,
                 new NoiseSamplingSettings(2.0, 1.0, 80.0, 160.0),
                 new NoiseSlideSettings(-3000, 64, -46),
                 new NoiseSlideSettings(-30, 7, 1),

@@ -17,8 +17,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class WitherRoseBlock extends FlowerBlock {
     public WitherRoseBlock(MobEffect param0, BlockBehaviour.Properties param1) {
@@ -30,7 +28,6 @@ public class WitherRoseBlock extends FlowerBlock {
         return super.mayPlaceOn(param0, param1, param2) || param0.is(Blocks.NETHERRACK) || param0.is(Blocks.SOUL_SAND) || param0.is(Blocks.SOUL_SOIL);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void animateTick(BlockState param0, Level param1, BlockPos param2, Random param3) {
         VoxelShape var0 = this.getShape(param0, param1, param2, CollisionContext.empty());

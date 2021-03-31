@@ -5,10 +5,7 @@ import javax.annotation.Nullable;
 import net.minecraft.util.thread.ProcessorMailbox;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.ChunkStatus;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
 public class ProcessorChunkProgressListener implements ChunkProgressListener {
     private final ChunkProgressListener delegate;
     private final ProcessorMailbox<Runnable> mailbox;

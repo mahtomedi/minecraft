@@ -22,8 +22,6 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ThrownTrident extends AbstractArrow {
     private static final EntityDataAccessor<Byte> ID_LOYALTY = SynchedEntityData.defineId(ThrownTrident.class, EntityDataSerializers.BYTE);
@@ -100,7 +98,6 @@ public class ThrownTrident extends AbstractArrow {
         return this.tridentItem.copy();
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean isFoil() {
         return this.entityData.get(ID_FOIL);
     }
@@ -211,7 +208,6 @@ public class ThrownTrident extends AbstractArrow {
         return 0.99F;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public boolean shouldRender(double param0, double param1, double param2) {
         return true;

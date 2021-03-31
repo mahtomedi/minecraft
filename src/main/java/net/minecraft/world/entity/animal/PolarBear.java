@@ -14,9 +14,9 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.util.IntRange;
 import net.minecraft.util.Mth;
 import net.minecraft.util.TimeUtil;
+import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.AgeableMob;
@@ -50,15 +50,14 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class PolarBear extends Animal implements NeutralMob {
     private static final EntityDataAccessor<Boolean> DATA_STANDING_ID = SynchedEntityData.defineId(PolarBear.class, EntityDataSerializers.BOOLEAN);
+    private static final float STAND_ANIMATION_TICKS = 6.0F;
     private float clientSideStandAnimationO;
     private float clientSideStandAnimation;
     private int warningSoundTicks;
-    private static final IntRange PERSISTENT_ANGER_TIME = TimeUtil.rangeOfSeconds(20, 39);
+    private static final UniformInt PERSISTENT_ANGER_TIME = TimeUtil.rangeOfSeconds(20, 39);
     private int remainingPersistentAngerTime;
     private UUID persistentAngerTarget;
 
@@ -124,7 +123,7 @@ public class PolarBear extends Animal implements NeutralMob {
 
     @Override
     public void startPersistentAngerTimer() {
-        this.setRemainingPersistentAngerTime(PERSISTENT_ANGER_TIME.randomValue(this.random));
+        this.setRemainingPersistentAngerTime(PERSISTENT_ANGER_TIME.sample(this.random));
     }
 
     @Override
@@ -236,7 +235,6 @@ public class PolarBear extends Animal implements NeutralMob {
         this.entityData.set(DATA_STANDING_ID, param0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getStandingAnimationScale(float param0) {
         return Mth.lerp(param0, this.clientSideStandAnimationO, this.clientSideStandAnimation) / 6.0F;
     }

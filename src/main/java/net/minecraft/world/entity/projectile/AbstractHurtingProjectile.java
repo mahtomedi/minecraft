@@ -14,8 +14,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class AbstractHurtingProjectile extends Projectile {
     public double xPower;
@@ -60,7 +58,6 @@ public abstract class AbstractHurtingProjectile extends Projectile {
     protected void defineSynchedData() {
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public boolean shouldRenderAtSqrDistance(double param0) {
         double var0 = this.getBoundingBox().getSize() * 4.0;
@@ -201,7 +198,6 @@ public abstract class AbstractHurtingProjectile extends Projectile {
         );
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void recreateFromPacket(ClientboundAddEntityPacket param0) {
         super.recreateFromPacket(param0);

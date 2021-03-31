@@ -31,6 +31,7 @@ import org.apache.commons.io.IOUtils;
 
 @OnlyIn(Dist.CLIENT)
 public class PostChain implements AutoCloseable {
+    private static final String MAIN_RENDER_TARGET = "minecraft:main";
     private final RenderTarget screenTarget;
     private final ResourceManager resourceManager;
     private final String name;

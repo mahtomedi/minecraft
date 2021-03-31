@@ -3,8 +3,7 @@ package net.minecraft.world.level.pathfinder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.Mth;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.world.phys.Vec3;
 
 public class Node {
     public final int x;
@@ -53,10 +52,24 @@ public class Node {
         return Mth.sqrt(var0 * var0 + var1 * var1 + var2 * var2);
     }
 
+    public float distanceTo(BlockPos param0) {
+        float var0 = (float)(param0.getX() - this.x);
+        float var1 = (float)(param0.getY() - this.y);
+        float var2 = (float)(param0.getZ() - this.z);
+        return Mth.sqrt(var0 * var0 + var1 * var1 + var2 * var2);
+    }
+
     public float distanceToSqr(Node param0) {
         float var0 = (float)(param0.x - this.x);
         float var1 = (float)(param0.y - this.y);
         float var2 = (float)(param0.z - this.z);
+        return var0 * var0 + var1 * var1 + var2 * var2;
+    }
+
+    public float distanceToSqr(BlockPos param0) {
+        float var0 = (float)(param0.getX() - this.x);
+        float var1 = (float)(param0.getY() - this.y);
+        float var2 = (float)(param0.getZ() - this.z);
         return var0 * var0 + var1 * var1 + var2 * var2;
     }
 
@@ -76,6 +89,10 @@ public class Node {
 
     public BlockPos asBlockPos() {
         return new BlockPos(this.x, this.y, this.z);
+    }
+
+    public Vec3 asVec3() {
+        return new Vec3((double)this.x, (double)this.y, (double)this.z);
     }
 
     @Override
@@ -102,7 +119,17 @@ public class Node {
         return "Node{x=" + this.x + ", y=" + this.y + ", z=" + this.z + '}';
     }
 
-    @OnlyIn(Dist.CLIENT)
+    public void writeToStream(FriendlyByteBuf param0) {
+        param0.writeInt(this.x);
+        param0.writeInt(this.y);
+        param0.writeInt(this.z);
+        param0.writeFloat(this.walkedDistance);
+        param0.writeFloat(this.costMalus);
+        param0.writeBoolean(this.closed);
+        param0.writeInt(this.type.ordinal());
+        param0.writeFloat(this.f);
+    }
+
     public static Node createFromStream(FriendlyByteBuf param0) {
         Node var0 = new Node(param0.readInt(), param0.readInt(), param0.readInt());
         var0.walkedDistance = param0.readFloat();

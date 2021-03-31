@@ -26,11 +26,10 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class BubbleColumnBlock extends Block implements BucketPickup {
     public static final BooleanProperty DRAG_DOWN = BlockStateProperties.DRAG;
+    private static final int CHECK_PERIOD = 5;
 
     public BubbleColumnBlock(BlockBehaviour.Properties param0) {
         super(param0);
@@ -123,7 +122,6 @@ public class BubbleColumnBlock extends Block implements BucketPickup {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void animateTick(BlockState param0, Level param1, BlockPos param2, Random param3) {
         double var0 = (double)param2.getX();

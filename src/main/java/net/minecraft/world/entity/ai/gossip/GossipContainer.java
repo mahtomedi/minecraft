@@ -19,14 +19,27 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.DoublePredicate;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import net.minecraft.Util;
 import net.minecraft.core.SerializableUUID;
+import net.minecraft.util.VisibleForDebug;
 
 public class GossipContainer {
+    public static final int DISCARD_THRESHOLD = 2;
     private final Map<UUID, GossipContainer.EntityGossips> gossips = Maps.newHashMap();
+
+    @VisibleForDebug
+    public Map<UUID, Object2IntMap<GossipType>> getGossipEntries() {
+        Map<UUID, Object2IntMap<GossipType>> var0 = Maps.newHashMap();
+        this.gossips.keySet().forEach(param1 -> {
+            GossipContainer.EntityGossips var0x = this.gossips.get(param1);
+            var0.put(param1, var0x.entries);
+        });
+        return var0;
+    }
 
     public void decay() {
         Iterator<GossipContainer.EntityGossips> var0 = this.gossips.values().iterator();
@@ -91,12 +104,44 @@ public class GossipContainer {
         return var0 != null ? var0.weightedValue(param1) : 0;
     }
 
+    public long getCountForType(GossipType param0, DoublePredicate param1) {
+        return this.gossips.values().stream().filter(param2 -> param1.test((double)(param2.entries.getOrDefault(param0, 0) * param0.weight))).count();
+    }
+
     public void add(UUID param0, GossipType param1, int param2) {
         GossipContainer.EntityGossips var0 = this.getOrCreate(param0);
         var0.entries.mergeInt(param1, param2, (param1x, param2x) -> this.mergeValuesForAddition(param1, param1x, param2x));
         var0.makeSureValueIsntTooLowOrTooHigh(param1);
         if (var0.isEmpty()) {
             this.gossips.remove(param0);
+        }
+
+    }
+
+    public void remove(UUID param0, GossipType param1, int param2) {
+        this.add(param0, param1, -param2);
+    }
+
+    public void remove(UUID param0, GossipType param1) {
+        GossipContainer.EntityGossips var0 = this.gossips.get(param0);
+        if (var0 != null) {
+            var0.remove(param1);
+            if (var0.isEmpty()) {
+                this.gossips.remove(param0);
+            }
+        }
+
+    }
+
+    public void remove(GossipType param0) {
+        Iterator<GossipContainer.EntityGossips> var0 = this.gossips.values().iterator();
+
+        while(var0.hasNext()) {
+            GossipContainer.EntityGossips var1 = var0.next();
+            var1.remove(param0);
+            if (var1.isEmpty()) {
+                var0.remove();
+            }
         }
 
     }
@@ -177,6 +222,9 @@ public class GossipContainer {
     }
 
     static class GossipEntry {
+        public static final String TAG_TARGET = "Target";
+        public static final String TAG_TYPE = "Type";
+        public static final String TAG_VALUE = "Value";
         public final UUID target;
         public final GossipType type;
         public final int value;

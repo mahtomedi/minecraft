@@ -8,8 +8,6 @@ import net.minecraft.resources.RegistryLookupCodec;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.synth.SimplexNoise;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class TheEndBiomeSource extends BiomeSource {
     public static final Codec<TheEndBiomeSource> CODEC = RecordCodecBuilder.create(
@@ -19,6 +17,9 @@ public class TheEndBiomeSource extends BiomeSource {
                 )
                 .apply(param0, param0.stable(TheEndBiomeSource::new))
     );
+    private static final float ISLAND_THRESHOLD = -0.9F;
+    public static final int ISLAND_CHUNK_DISTANCE = 64;
+    private static final long ISLAND_CHUNK_DISTANCE_SQR = 4096L;
     private final SimplexNoise islandNoise;
     private final Registry<Biome> biomes;
     private final long seed;
@@ -59,7 +60,6 @@ public class TheEndBiomeSource extends BiomeSource {
         return CODEC;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public BiomeSource withSeed(long param0) {
         return new TheEndBiomeSource(this.biomes, param0, this.end, this.highlands, this.midlands, this.islands, this.barrens);

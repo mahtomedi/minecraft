@@ -19,7 +19,6 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
-import net.minecraft.world.level.levelgen.structure.StructurePiece;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.levelgen.structure.WoodlandMansionPieces;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
@@ -60,8 +59,8 @@ public class WoodlandMansionFeature extends StructureFeature<NoneFeatureConfigur
     }
 
     public static class WoodlandMansionStart extends StructureStart<NoneFeatureConfiguration> {
-        public WoodlandMansionStart(StructureFeature<NoneFeatureConfiguration> param0, ChunkPos param1, BoundingBox param2, int param3, long param4) {
-            super(param0, param1, param2, param3, param4);
+        public WoodlandMansionStart(StructureFeature<NoneFeatureConfiguration> param0, ChunkPos param1, int param2, long param3) {
+            super(param0, param1, param2, param3);
         }
 
         public void generatePieces(
@@ -96,8 +95,7 @@ public class WoodlandMansionFeature extends StructureFeature<NoneFeatureConfigur
                 BlockPos var10 = new BlockPos(param3.getBlockX(8), var9 + 1, param3.getBlockZ(8));
                 List<WoodlandMansionPieces.WoodlandMansionPiece> var11 = Lists.newLinkedList();
                 WoodlandMansionPieces.generateMansion(param2, var10, var0, var11, this.random);
-                this.pieces.addAll(var11);
-                this.calculateBoundingBox();
+                var11.forEach(this::addPiece);
             }
         }
 
@@ -106,30 +104,20 @@ public class WoodlandMansionFeature extends StructureFeature<NoneFeatureConfigur
             WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5
         ) {
             super.placeInChunk(param0, param1, param2, param3, param4, param5);
-            int var0 = this.boundingBox.y0;
+            BoundingBox var0 = this.getBoundingBox();
+            int var1 = var0.minY();
 
-            for(int var1 = param4.x0; var1 <= param4.x1; ++var1) {
-                for(int var2 = param4.z0; var2 <= param4.z1; ++var2) {
-                    BlockPos var3 = new BlockPos(var1, var0, var2);
-                    if (!param0.isEmptyBlock(var3) && this.boundingBox.isInside(var3)) {
-                        boolean var4 = false;
-
-                        for(StructurePiece var5 : this.pieces) {
-                            if (var5.getBoundingBox().isInside(var3)) {
-                                var4 = true;
+            for(int var2 = param4.minX(); var2 <= param4.maxX(); ++var2) {
+                for(int var3 = param4.minZ(); var3 <= param4.maxZ(); ++var3) {
+                    BlockPos var4 = new BlockPos(var2, var1, var3);
+                    if (!param0.isEmptyBlock(var4) && var0.isInside(var4) && this.isInsidePiece(var4)) {
+                        for(int var5 = var1 - 1; var5 > 1; --var5) {
+                            BlockPos var6 = new BlockPos(var2, var5, var3);
+                            if (!param0.isEmptyBlock(var6) && !param0.getBlockState(var6).getMaterial().isLiquid()) {
                                 break;
                             }
-                        }
 
-                        if (var4) {
-                            for(int var6 = var0 - 1; var6 > 1; --var6) {
-                                BlockPos var7 = new BlockPos(var1, var6, var2);
-                                if (!param0.isEmptyBlock(var7) && !param0.getBlockState(var7).getMaterial().isLiquid()) {
-                                    break;
-                                }
-
-                                param0.setBlock(var7, Blocks.COBBLESTONE.defaultBlockState(), 2);
-                            }
+                            param0.setBlock(var6, Blocks.COBBLESTONE.defaultBlockState(), 2);
                         }
                     }
                 }

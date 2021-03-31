@@ -71,6 +71,16 @@ public interface MultiLineLabel {
         );
     }
 
+    static MultiLineLabel create(Font param0, List<Component> param1) {
+        return createFixed(
+            param0,
+            param1.stream()
+                .map(Component::getVisualOrderText)
+                .map(param1x -> new MultiLineLabel.TextWithWidth(param1x, param0.width(param1x)))
+                .collect(ImmutableList.toImmutableList())
+        );
+    }
+
     static MultiLineLabel createFixed(final Font param0, final List<MultiLineLabel.TextWithWidth> param1) {
         return param1.isEmpty() ? EMPTY : new MultiLineLabel() {
             @Override

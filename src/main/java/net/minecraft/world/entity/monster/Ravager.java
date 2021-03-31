@@ -43,11 +43,17 @@ import net.minecraft.world.level.pathfinder.PathFinder;
 import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class Ravager extends Raider {
     private static final Predicate<Entity> NO_RAVAGER_AND_ALIVE = param0 -> param0.isAlive() && !(param0 instanceof Ravager);
+    private static final double BASE_MOVEMENT_SPEED = 0.3;
+    private static final double ATTACK_MOVEMENT_SPEED = 0.35;
+    private static final int STUNNED_COLOR = 8356754;
+    private static final double STUNNED_COLOR_BLUE = 0.5725490196078431;
+    private static final double STUNNED_COLOR_GREEN = 0.5137254901960784;
+    private static final double STUNNED_COLOR_RED = 0.4980392156862745;
+    private static final int ATTACK_DURATION = 10;
+    public static final int STUN_DURATION = 40;
     private int attackTick;
     private int stunnedTick;
     private int roarTick;
@@ -265,7 +271,6 @@ public class Ravager extends Raider {
         param0.push(var0 / var2 * 4.0, 0.2, var1 / var2 * 4.0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void handleEntityEvent(byte param0) {
         if (param0 == 4) {
@@ -278,17 +283,14 @@ public class Ravager extends Raider {
         super.handleEntityEvent(param0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getAttackTick() {
         return this.attackTick;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getStunnedTick() {
         return this.stunnedTick;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getRoarTick() {
         return this.roarTick;
     }

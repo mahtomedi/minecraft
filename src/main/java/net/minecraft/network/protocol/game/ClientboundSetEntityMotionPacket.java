@@ -5,8 +5,6 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundSetEntityMotionPacket implements Packet<ClientGamePacketListener> {
     private final int id;
@@ -48,22 +46,18 @@ public class ClientboundSetEntityMotionPacket implements Packet<ClientGamePacket
         param0.handleSetEntityMotion(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getId() {
         return this.id;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getXa() {
         return this.xa;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getYa() {
         return this.ya;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getZa() {
         return this.za;
     }

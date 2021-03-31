@@ -11,8 +11,6 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.chunk.DataLayer;
 import net.minecraft.world.level.lighting.LevelLightEngine;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundLightUpdatePacket implements Packet<ClientGamePacketListener> {
     private final int x;
@@ -92,47 +90,38 @@ public class ClientboundLightUpdatePacket implements Packet<ClientGamePacketList
         param0.handleLightUpdatePacked(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getX() {
         return this.x;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getZ() {
         return this.z;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public BitSet getSkyYMask() {
         return this.skyYMask;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public BitSet getEmptySkyYMask() {
         return this.emptySkyYMask;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public List<byte[]> getSkyUpdates() {
         return this.skyUpdates;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public BitSet getBlockYMask() {
         return this.blockYMask;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public BitSet getEmptyBlockYMask() {
         return this.emptyBlockYMask;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public List<byte[]> getBlockUpdates() {
         return this.blockUpdates;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean getTrustEdges() {
         return this.trustEdges;
     }

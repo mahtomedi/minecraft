@@ -4,8 +4,6 @@ import com.mojang.math.OctahedralGroup;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public enum Mirror {
     NONE(new TranslatableComponent("mirror.none"), OctahedralGroup.IDENTITY),
@@ -50,7 +48,6 @@ public enum Mirror {
         return this.rotation;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Component symbol() {
         return this.symbol;
     }

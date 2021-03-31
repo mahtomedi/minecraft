@@ -2,8 +2,6 @@ package net.minecraft.network.protocol.game;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundSetTimePacket implements Packet<ClientGamePacketListener> {
     private final long gameTime;
@@ -37,12 +35,10 @@ public class ClientboundSetTimePacket implements Packet<ClientGamePacketListener
         param0.handleSetTime(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public long getGameTime() {
         return this.gameTime;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public long getDayTime() {
         return this.dayTime;
     }

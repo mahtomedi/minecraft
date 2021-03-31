@@ -2,6 +2,7 @@ package net.minecraft.world.entity.ai.behavior;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntitySelector;
@@ -11,17 +12,30 @@ import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
 
 public class StopAttackingIfTargetInvalid<E extends Mob> extends Behavior<E> {
+    private static final int TIMEOUT_TO_GET_WITHIN_ATTACK_RANGE = 200;
     private final Predicate<LivingEntity> stopAttackingWhen;
+    private final Consumer<E> onTargetErased;
 
-    public StopAttackingIfTargetInvalid(Predicate<LivingEntity> param0) {
+    public StopAttackingIfTargetInvalid(Predicate<LivingEntity> param0, Consumer<E> param1) {
         super(
             ImmutableMap.of(MemoryModuleType.ATTACK_TARGET, MemoryStatus.VALUE_PRESENT, MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE, MemoryStatus.REGISTERED)
         );
         this.stopAttackingWhen = param0;
+        this.onTargetErased = param1;
+    }
+
+    public StopAttackingIfTargetInvalid(Predicate<LivingEntity> param0) {
+        this(param0, param0x -> {
+        });
+    }
+
+    public StopAttackingIfTargetInvalid(Consumer<E> param0) {
+        this(param0x -> false, param0);
     }
 
     public StopAttackingIfTargetInvalid() {
-        this(param0 -> false);
+        this(param0 -> false, param0 -> {
+        });
     }
 
     protected void start(ServerLevel param0, E param1, long param2) {
@@ -59,7 +73,8 @@ public class StopAttackingIfTargetInvalid<E extends Mob> extends Behavior<E> {
         return var0.isPresent() && !var0.get().isAlive();
     }
 
-    private void clearAttackTarget(E param0) {
+    protected void clearAttackTarget(E param0) {
+        this.onTargetErased.accept(param0);
         param0.getBrain().eraseMemory(MemoryModuleType.ATTACK_TARGET);
     }
 }

@@ -24,14 +24,13 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class DebugLevelSource extends ChunkGenerator {
     public static final Codec<DebugLevelSource> CODEC = RegistryLookupCodec.create(Registry.BIOME_REGISTRY)
         .xmap(DebugLevelSource::new, DebugLevelSource::biomes)
         .stable()
         .codec();
+    private static final int BLOCK_MARGIN = 2;
     private static final List<BlockState> ALL_BLOCKS = StreamSupport.stream(Registry.BLOCK.spliterator(), false)
         .flatMap(param0 -> param0.getStateDefinition().getPossibleStates().stream())
         .collect(Collectors.toList());
@@ -39,6 +38,8 @@ public class DebugLevelSource extends ChunkGenerator {
     private static final int GRID_HEIGHT = Mth.ceil((float)ALL_BLOCKS.size() / (float)GRID_WIDTH);
     protected static final BlockState AIR = Blocks.AIR.defaultBlockState();
     protected static final BlockState BARRIER = Blocks.BARRIER.defaultBlockState();
+    public static final int HEIGHT = 70;
+    public static final int BARRIER_HEIGHT = 60;
     private final Registry<Biome> biomes;
 
     public DebugLevelSource(Registry<Biome> param0) {
@@ -55,7 +56,6 @@ public class DebugLevelSource extends ChunkGenerator {
         return CODEC;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public ChunkGenerator withSeed(long param0) {
         return this;

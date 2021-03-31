@@ -12,8 +12,6 @@ import java.util.stream.Collectors;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class StaticTags {
     private static final Set<ResourceKey<?>> HELPERS_IDS = Sets.newHashSet();
@@ -33,7 +31,6 @@ public class StaticTags {
         HELPERS.forEach(param1 -> param1.reset(param0));
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static void resetAllToEmpty() {
         HELPERS.forEach(StaticTagHelper::resetToEmpty);
     }

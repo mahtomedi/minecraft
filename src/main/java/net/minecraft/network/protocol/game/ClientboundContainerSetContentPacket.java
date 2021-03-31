@@ -5,8 +5,6 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundContainerSetContentPacket implements Packet<ClientGamePacketListener> {
     private final int containerId;
@@ -48,12 +46,10 @@ public class ClientboundContainerSetContentPacket implements Packet<ClientGamePa
         param0.handleContainerContent(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getContainerId() {
         return this.containerId;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public List<ItemStack> getItems() {
         return this.items;
     }

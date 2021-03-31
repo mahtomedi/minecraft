@@ -6,10 +6,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class AABB {
+    private static final double EPSILON = 1.0E-7;
     public final double minX;
     public final double minY;
     public final double minZ;
@@ -46,11 +45,42 @@ public class AABB {
     }
 
     public static AABB of(BoundingBox param0) {
-        return new AABB((double)param0.x0, (double)param0.y0, (double)param0.z0, (double)(param0.x1 + 1), (double)(param0.y1 + 1), (double)(param0.z1 + 1));
+        return new AABB(
+            (double)param0.minX(),
+            (double)param0.minY(),
+            (double)param0.minZ(),
+            (double)(param0.maxX() + 1),
+            (double)(param0.maxY() + 1),
+            (double)(param0.maxZ() + 1)
+        );
     }
 
     public static AABB unitCubeFromLowerCorner(Vec3 param0) {
         return new AABB(param0.x, param0.y, param0.z, param0.x + 1.0, param0.y + 1.0, param0.z + 1.0);
+    }
+
+    public AABB setMinX(double param0) {
+        return new AABB(param0, this.minY, this.minZ, this.maxX, this.maxY, this.maxZ);
+    }
+
+    public AABB setMinY(double param0) {
+        return new AABB(this.minX, param0, this.minZ, this.maxX, this.maxY, this.maxZ);
+    }
+
+    public AABB setMinZ(double param0) {
+        return new AABB(this.minX, this.minY, param0, this.maxX, this.maxY, this.maxZ);
+    }
+
+    public AABB setMaxX(double param0) {
+        return new AABB(this.minX, this.minY, this.minZ, param0, this.maxY, this.maxZ);
+    }
+
+    public AABB setMaxY(double param0) {
+        return new AABB(this.minX, this.minY, this.minZ, this.maxX, param0, this.maxZ);
+    }
+
+    public AABB setMaxZ(double param0) {
+        return new AABB(this.minX, this.minY, this.minZ, this.maxX, this.maxY, param0);
     }
 
     public double min(Direction.Axis param0) {
@@ -222,7 +252,6 @@ public class AABB {
         return this.minX < param3 && this.maxX > param0 && this.minY < param4 && this.maxY > param1 && this.minZ < param5 && this.maxZ > param2;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean intersects(Vec3 param0, Vec3 param1) {
         return this.intersects(
             Math.min(param0.x, param1.x),
@@ -259,6 +288,10 @@ public class AABB {
 
     public double getZsize() {
         return this.maxZ - this.minZ;
+    }
+
+    public AABB deflate(double param0, double param1, double param2) {
+        return this.inflate(-param0, -param1, -param2);
     }
 
     public AABB deflate(double param0) {
@@ -445,7 +478,6 @@ public class AABB {
         return "AABB[" + this.minX + ", " + this.minY + ", " + this.minZ + "] -> [" + this.maxX + ", " + this.maxY + ", " + this.maxZ + "]";
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean hasNaN() {
         return Double.isNaN(this.minX)
             || Double.isNaN(this.minY)

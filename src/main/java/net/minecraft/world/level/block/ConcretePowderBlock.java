@@ -10,8 +10,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ConcretePowderBlock extends FallingBlock {
     private final BlockState concrete;
@@ -69,7 +67,6 @@ public class ConcretePowderBlock extends FallingBlock {
         return touchesLiquid(param3, param4) ? this.concrete : super.updateShape(param0, param1, param2, param3, param4, param5);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public int getDustColor(BlockState param0, BlockGetter param1, BlockPos param2) {
         return param0.getMapColor(param1, param2).col;

@@ -43,6 +43,7 @@ public class DispenserBlock extends BaseEntityBlock {
     private static final Map<Item, DispenseItemBehavior> DISPENSER_REGISTRY = Util.make(
         new Object2ObjectOpenHashMap<>(), param0 -> param0.defaultReturnValue(new DefaultDispenseItemBehavior())
     );
+    private static final int TRIGGER_DURATION = 4;
 
     public static void registerBehavior(ItemLike param0, DispenseItemBehavior param1) {
         DISPENSER_REGISTRY.put(param0.asItem(), param1);

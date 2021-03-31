@@ -13,8 +13,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public abstract class AgeableListModel<E extends Entity> extends EntityModel<E> {
     private final boolean scaleHead;
-    private final float yHeadOffset;
-    private final float zHeadOffset;
+    private final float babyYHeadOffset;
+    private final float babyZHeadOffset;
     private final float babyHeadScale;
     private final float babyBodyScale;
     private final float bodyYOffset;
@@ -32,8 +32,8 @@ public abstract class AgeableListModel<E extends Entity> extends EntityModel<E> 
     ) {
         super(param0);
         this.scaleHead = param1;
-        this.yHeadOffset = param2;
-        this.zHeadOffset = param3;
+        this.babyYHeadOffset = param2;
+        this.babyZHeadOffset = param3;
         this.babyHeadScale = param4;
         this.babyBodyScale = param5;
         this.bodyYOffset = param6;
@@ -52,7 +52,7 @@ public abstract class AgeableListModel<E extends Entity> extends EntityModel<E> 
                 param0.scale(var0, var0, var0);
             }
 
-            param0.translate(0.0, (double)(this.yHeadOffset / 16.0F), (double)(this.zHeadOffset / 16.0F));
+            param0.translate(0.0, (double)(this.babyYHeadOffset / 16.0F), (double)(this.babyZHeadOffset / 16.0F));
             this.headParts().forEach(param8 -> param8.render(param0, param1, param2, param3, param4, param5, param6, param7));
             param0.popPose();
             param0.pushPose();

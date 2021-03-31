@@ -11,8 +11,6 @@ import javax.annotation.Nullable;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.locale.Language;
 import net.minecraft.world.entity.Entity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class TranslatableComponent extends BaseComponent implements ContextAwareComponent {
     private static final Object[] NO_ARGS = new Object[0];
@@ -120,7 +118,6 @@ public class TranslatableComponent extends BaseComponent implements ContextAware
         return new TranslatableComponent(this.key, this.args);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public <T> Optional<T> visitSelf(FormattedText.StyledContentConsumer<T> param0, Style param1) {
         this.decompose();

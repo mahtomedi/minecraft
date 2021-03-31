@@ -1,5 +1,6 @@
 package net.minecraft.client.multiplayer;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
@@ -44,6 +45,7 @@ import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.ColorResolver;
@@ -79,6 +81,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class ClientLevel extends Level {
+    private static final double FLUID_PARTICLE_SPAWN_OFFSET = 0.05;
     private final EntityTickList tickingEntities = new EntityTickList();
     private final TransientEntitySectionManager<Entity> entityStorage = new TransientEntitySectionManager<>(Entity.class, new ClientLevel.EntityCallbacks());
     private final ClientPacketListener connection;
@@ -89,6 +92,7 @@ public class ClientLevel extends Level {
     private final List<AbstractClientPlayer> players = Lists.newArrayList();
     private Scoreboard scoreboard = new Scoreboard();
     private final Map<String, MapItemSavedData> mapData = Maps.newHashMap();
+    private static final long CLOUD_COLOR = 16777215L;
     private int skyFlashTime;
     private final Object2ObjectArrayMap<ColorResolver, BlockTintCache> tintCaches = Util.make(new Object2ObjectArrayMap<>(3), param0x -> {
         param0x.put(BiomeColors.GRASS_COLOR_RESOLVER, new BlockTintCache());
@@ -261,26 +265,35 @@ public class ClientLevel extends Level {
     public void animateTick(int param0, int param1, int param2) {
         int var0 = 32;
         Random var1 = new Random();
-        boolean var2 = false;
-        if (this.minecraft.gameMode.getPlayerMode() == GameType.CREATIVE) {
-            for(ItemStack var3 : this.minecraft.player.getHandSlots()) {
-                if (var3.is(Blocks.BARRIER.asItem())) {
-                    var2 = true;
-                    break;
-                }
-            }
-        }
+        ClientLevel.MarkerParticleStatus var2 = this.getMarkerParticleStatus();
+        BlockPos.MutableBlockPos var3 = new BlockPos.MutableBlockPos();
 
-        BlockPos.MutableBlockPos var4 = new BlockPos.MutableBlockPos();
-
-        for(int var5 = 0; var5 < 667; ++var5) {
-            this.doAnimateTick(param0, param1, param2, 16, var1, var2, var4);
-            this.doAnimateTick(param0, param1, param2, 32, var1, var2, var4);
+        for(int var4 = 0; var4 < 667; ++var4) {
+            this.doAnimateTick(param0, param1, param2, 16, var1, var2, var3);
+            this.doAnimateTick(param0, param1, param2, 32, var1, var2, var3);
         }
 
     }
 
-    public void doAnimateTick(int param0, int param1, int param2, int param3, Random param4, boolean param5, BlockPos.MutableBlockPos param6) {
+    @Nullable
+    private ClientLevel.MarkerParticleStatus getMarkerParticleStatus() {
+        if (this.minecraft.gameMode.getPlayerMode() == GameType.CREATIVE) {
+            ItemStack var0 = this.minecraft.player.getMainHandItem();
+            if (var0.getItem() == Items.BARRIER) {
+                return ClientLevel.MarkerParticleStatus.BARRIER;
+            }
+
+            if (var0.getItem() == Items.LIGHT) {
+                return ClientLevel.MarkerParticleStatus.LIGHT;
+            }
+        }
+
+        return null;
+    }
+
+    public void doAnimateTick(
+        int param0, int param1, int param2, int param3, Random param4, @Nullable ClientLevel.MarkerParticleStatus param5, BlockPos.MutableBlockPos param6
+    ) {
         int var0 = param0 + this.random.nextInt(param3) - this.random.nextInt(param3);
         int var1 = param1 + this.random.nextInt(param3) - this.random.nextInt(param3);
         int var2 = param2 + this.random.nextInt(param3) - this.random.nextInt(param3);
@@ -298,8 +311,8 @@ public class ClientLevel extends Level {
             }
         }
 
-        if (param5 && var3.is(Blocks.BARRIER)) {
-            this.addParticle(ParticleTypes.BARRIER, (double)var0 + 0.5, (double)var1 + 0.5, (double)var2 + 0.5, 0.0, 0.0, 0.0);
+        if (param5 != null && var3.getBlock() == param5.block) {
+            this.addParticle(param5.particle, (double)var0 + 0.5, (double)var1 + 0.5, (double)var2 + 0.5, 0.0, 0.0, 0.0);
         }
 
         if (!var3.isCollisionShapeFullBlock(this, param6)) {
@@ -741,11 +754,20 @@ public class ClientLevel extends Level {
     public void gameEvent(@Nullable Entity param0, GameEvent param1, BlockPos param2) {
     }
 
+    protected Map<String, MapItemSavedData> getAllMapData() {
+        return ImmutableMap.copyOf(this.mapData);
+    }
+
+    protected void addMapData(Map<String, MapItemSavedData> param0) {
+        this.mapData.putAll(param0);
+    }
+
     @Override
     protected LevelEntityGetter<Entity> getEntities() {
         return this.entityStorage.getEntityGetter();
     }
 
+    @Override
     public String gatherChunkSourceStats() {
         return "Chunks[C] W: " + this.chunkSource.gatherStats() + " E: " + this.entityStorage.gatherStats();
     }
@@ -929,6 +951,20 @@ public class ClientLevel extends Level {
         public void onTrackingEnd(Entity param0) {
             param0.unRide();
             ClientLevel.this.players.remove(param0);
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    static enum MarkerParticleStatus {
+        BARRIER(Blocks.BARRIER, ParticleTypes.BARRIER),
+        LIGHT(Blocks.LIGHT, ParticleTypes.LIGHT);
+
+        private final Block block;
+        private final ParticleOptions particle;
+
+        private MarkerParticleStatus(Block param0, ParticleOptions param1) {
+            this.block = param0;
+            this.particle = param1;
         }
     }
 }

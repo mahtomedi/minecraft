@@ -11,6 +11,10 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class TutorialToast implements Toast {
+    public static final int PROGRESS_BAR_WIDTH = 154;
+    public static final int PROGRESS_BAR_HEIGHT = 1;
+    public static final int PROGRESS_BAR_X = 3;
+    public static final int PROGRESS_BAR_Y = 28;
     private final TutorialToast.Icons icon;
     private final Component title;
     private final Component message;

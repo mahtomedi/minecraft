@@ -15,8 +15,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorSettings;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class FlatLevelSource extends ChunkGenerator {
     public static final Codec<FlatLevelSource> CODEC = FlatLevelGeneratorSettings.CODEC
@@ -35,7 +33,6 @@ public class FlatLevelSource extends ChunkGenerator {
         return CODEC;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public ChunkGenerator withSeed(long param0) {
         return this;

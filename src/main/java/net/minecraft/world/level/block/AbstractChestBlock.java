@@ -8,8 +8,6 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class AbstractChestBlock<E extends BlockEntity> extends BaseEntityBlock {
     protected final Supplier<BlockEntityType<? extends E>> blockEntityType;
@@ -19,6 +17,5 @@ public abstract class AbstractChestBlock<E extends BlockEntity> extends BaseEnti
         this.blockEntityType = param1;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public abstract DoubleBlockCombiner.NeighborCombineResult<? extends ChestBlockEntity> combine(BlockState var1, Level var2, BlockPos var3, boolean var4);
 }

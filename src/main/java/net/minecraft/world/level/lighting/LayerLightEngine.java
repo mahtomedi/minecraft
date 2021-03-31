@@ -14,19 +14,19 @@ import net.minecraft.world.level.chunk.DataLayer;
 import net.minecraft.world.level.chunk.LightChunkGetter;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.mutable.MutableInt;
 
 public abstract class LayerLightEngine<M extends DataLayerStorageMap<M>, S extends LayerLightSectionStorage<M>>
     extends DynamicGraphMinFixedPoint
     implements LayerLightEventListener {
+    public static final long SELF_SOURCE = Long.MAX_VALUE;
     private static final Direction[] DIRECTIONS = Direction.values();
     protected final LightChunkGetter chunkSource;
     protected final LightLayer layer;
     protected final S storage;
     private boolean runningLightUpdates;
     protected final BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
+    private static final int CACHE_SIZE = 2;
     private final long[] lastChunkPos = new long[2];
     private final BlockGetter[] lastChunk = new BlockGetter[2];
 
@@ -156,10 +156,12 @@ public abstract class LayerLightEngine<M extends DataLayerStorageMap<M>, S exten
         return 0;
     }
 
+    @Override
     public boolean hasLightWork() {
         return this.hasWork() || this.storage.hasWork() || this.storage.hasInconsistencies();
     }
 
+    @Override
     public int runUpdates(int param0, boolean param1, boolean param2) {
         if (!this.runningLightUpdates) {
             if (this.storage.hasWork()) {
@@ -201,11 +203,11 @@ public abstract class LayerLightEngine<M extends DataLayerStorageMap<M>, S exten
         return this.storage.getLightValue(param0.asLong());
     }
 
-    @OnlyIn(Dist.CLIENT)
     public String getDebugData(long param0) {
         return "" + this.storage.getLevel(param0);
     }
 
+    @Override
     public void checkBlock(BlockPos param0) {
         long var0 = param0.asLong();
         this.checkNode(var0);
@@ -216,6 +218,7 @@ public abstract class LayerLightEngine<M extends DataLayerStorageMap<M>, S exten
 
     }
 
+    @Override
     public void onBlockEmissionIncrease(BlockPos param0, int param1) {
     }
 
@@ -224,6 +227,7 @@ public abstract class LayerLightEngine<M extends DataLayerStorageMap<M>, S exten
         this.storage.updateSectionStatus(param0.asLong(), param1);
     }
 
+    @Override
     public void enableLightSources(ChunkPos param0, boolean param1) {
         long var0 = SectionPos.getZeroNode(SectionPos.asLong(param0.x, 0, param0.z));
         this.storage.enableLightSources(var0, param1);

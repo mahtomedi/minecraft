@@ -3,8 +3,6 @@ package net.minecraft.world.level.block.state.properties;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.StringRepresentable;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public enum StructureMode implements StringRepresentable {
     SAVE("save"),
@@ -25,7 +23,6 @@ public enum StructureMode implements StringRepresentable {
         return this.name;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Component getDisplayName() {
         return this.displayName;
     }

@@ -3,8 +3,6 @@ package net.minecraft.network.protocol.game;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.item.Item;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundCooldownPacket implements Packet<ClientGamePacketListener> {
     private final Item item;
@@ -30,12 +28,10 @@ public class ClientboundCooldownPacket implements Packet<ClientGamePacketListene
         param0.handleItemCooldown(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Item getItem() {
         return this.item;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getDuration() {
         return this.duration;
     }

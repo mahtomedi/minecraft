@@ -17,9 +17,17 @@ public class FixedScoreboardNameProvider implements ScoreboardNameProvider {
         this.name = param0;
     }
 
+    public static ScoreboardNameProvider forName(String param0) {
+        return new FixedScoreboardNameProvider(param0);
+    }
+
     @Override
     public LootScoreProviderType getType() {
         return ScoreboardNameProviders.FIXED;
+    }
+
+    public String getName() {
+        return this.name;
     }
 
     @Nullable

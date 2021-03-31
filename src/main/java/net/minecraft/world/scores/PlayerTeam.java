@@ -11,10 +11,11 @@ import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextComponent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class PlayerTeam extends Team {
+    public static final int MAX_NAME_LENGTH = 16;
+    private static final int BIT_FRIENDLY_FIRE = 0;
+    private static final int BIT_SEE_INVISIBLES = 1;
     private final Scoreboard scoreboard;
     private final String name;
     private final Set<String> players = Sets.newHashSet();
@@ -34,6 +35,10 @@ public class PlayerTeam extends Team {
         this.name = param1;
         this.displayName = new TextComponent(param1);
         this.displayNameStyle = Style.EMPTY.withInsertion(param1).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponent(param1)));
+    }
+
+    public Scoreboard getScoreboard() {
+        return this.scoreboard;
     }
 
     @Override
@@ -165,7 +170,6 @@ public class PlayerTeam extends Team {
         return var0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void unpackOptions(int param0) {
         this.setAllowFriendlyFire((param0 & 1) > 0);
         this.setSeeFriendlyInvisibles((param0 & 2) > 0);

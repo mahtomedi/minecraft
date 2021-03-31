@@ -44,14 +44,16 @@ import net.minecraft.world.level.block.BedBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ZombieVillager extends Zombie implements VillagerDataHolder {
     private static final EntityDataAccessor<Boolean> DATA_CONVERTING_ID = SynchedEntityData.defineId(ZombieVillager.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<VillagerData> DATA_VILLAGER_DATA = SynchedEntityData.defineId(
         ZombieVillager.class, EntityDataSerializers.VILLAGER_DATA
     );
+    private static final int VILLAGER_CONVERSION_WAIT_MIN = 3600;
+    private static final int VILLAGER_CONVERSION_WAIT_MAX = 6000;
+    private static final int MAX_SPECIAL_BLOCKS_COUNT = 14;
+    private static final int SPECIAL_BLOCK_RADIUS = 4;
     private int villagerConversionTime;
     private UUID conversionStarter;
     private Tag gossips;
@@ -178,7 +180,6 @@ public class ZombieVillager extends Zombie implements VillagerDataHolder {
         this.level.broadcastEntityEvent(this, (byte)16);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void handleEntityEvent(byte param0) {
         if (param0 == 16) {
@@ -318,6 +319,7 @@ public class ZombieVillager extends Zombie implements VillagerDataHolder {
         return super.finalizeSpawn(param0, param1, param2, param3, param4);
     }
 
+    @Override
     public void setVillagerData(VillagerData param0x) {
         VillagerData var0x = this.getVillagerData();
         if (var0x.getProfession() != param0x.getProfession()) {
@@ -330,6 +332,10 @@ public class ZombieVillager extends Zombie implements VillagerDataHolder {
     @Override
     public VillagerData getVillagerData() {
         return this.entityData.get(DATA_VILLAGER_DATA);
+    }
+
+    public int getVillagerXp() {
+        return this.villagerXp;
     }
 
     public void setVillagerXp(int param0) {

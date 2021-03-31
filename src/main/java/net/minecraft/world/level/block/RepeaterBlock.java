@@ -18,8 +18,6 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class RepeaterBlock extends DiodeBlock {
     public static final BooleanProperty LOCKED = BlockStateProperties.LOCKED;
@@ -75,7 +73,6 @@ public class RepeaterBlock extends DiodeBlock {
         return isDiode(param0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void animateTick(BlockState param0, Level param1, BlockPos param2, Random param3) {
         if (param0.getValue(POWERED)) {

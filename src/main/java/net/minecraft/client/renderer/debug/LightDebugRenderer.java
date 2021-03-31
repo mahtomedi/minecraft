@@ -17,6 +17,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class LightDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
     private final Minecraft minecraft;
+    private static final int MAX_RENDER_DIST = 10;
 
     public LightDebugRenderer(Minecraft param0) {
         this.minecraft = param0;

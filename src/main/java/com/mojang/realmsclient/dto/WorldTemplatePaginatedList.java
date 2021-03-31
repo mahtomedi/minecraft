@@ -31,6 +31,10 @@ public class WorldTemplatePaginatedList extends ValueObject {
         this.total = -1;
     }
 
+    public boolean isLastPage() {
+        return this.page * this.size >= this.total && this.page > 0 && this.total > 0 && this.size > 0;
+    }
+
     public static WorldTemplatePaginatedList parse(String param0) {
         WorldTemplatePaginatedList var0 = new WorldTemplatePaginatedList();
         var0.templates = Lists.newArrayList();

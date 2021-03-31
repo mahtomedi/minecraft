@@ -6,10 +6,11 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.scores.Objective;
 import net.minecraft.world.scores.criteria.ObjectiveCriteria;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundSetObjectivePacket implements Packet<ClientGamePacketListener> {
+    public static final int METHOD_ADD = 0;
+    public static final int METHOD_REMOVE = 1;
+    public static final int METHOD_CHANGE = 2;
     private final String objectiveName;
     private final Component displayName;
     private final ObjectiveCriteria.RenderType renderType;
@@ -50,22 +51,18 @@ public class ClientboundSetObjectivePacket implements Packet<ClientGamePacketLis
         param0.handleAddObjective(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public String getObjectiveName() {
         return this.objectiveName;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Component getDisplayName() {
         return this.displayName;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getMethod() {
         return this.method;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public ObjectiveCriteria.RenderType getRenderType() {
         return this.renderType;
     }

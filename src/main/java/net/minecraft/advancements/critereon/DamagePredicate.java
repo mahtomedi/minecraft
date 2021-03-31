@@ -92,8 +92,28 @@ public class DamagePredicate {
             return new DamagePredicate.Builder();
         }
 
+        public DamagePredicate.Builder dealtDamage(MinMaxBounds.Floats param0) {
+            this.dealtDamage = param0;
+            return this;
+        }
+
+        public DamagePredicate.Builder takenDamage(MinMaxBounds.Floats param0) {
+            this.takenDamage = param0;
+            return this;
+        }
+
+        public DamagePredicate.Builder sourceEntity(EntityPredicate param0) {
+            this.sourceEntity = param0;
+            return this;
+        }
+
         public DamagePredicate.Builder blocked(Boolean param0) {
             this.blocked = param0;
+            return this;
+        }
+
+        public DamagePredicate.Builder type(DamageSourcePredicate param0) {
+            this.type = param0;
             return this;
         }
 

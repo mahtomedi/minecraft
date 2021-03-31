@@ -35,6 +35,11 @@ public class NbtPathArgument implements ArgumentType<NbtPathArgument.NbtPath> {
     public static final DynamicCommandExceptionType ERROR_NOTHING_FOUND = new DynamicCommandExceptionType(
         param0 -> new TranslatableComponent("arguments.nbtpath.nothing_found", param0)
     );
+    private static final char INDEX_MATCH_START = '[';
+    private static final char INDEX_MATCH_END = ']';
+    private static final char KEY_MATCH_START = '{';
+    private static final char KEY_MATCH_END = '}';
+    private static final char QUOTED_KEY_START = '"';
 
     public static NbtPathArgument nbtPath() {
         return new NbtPathArgument();
@@ -605,6 +610,10 @@ public class NbtPathArgument implements ArgumentType<NbtPathArgument.NbtPath> {
 
         private static int apply(List<Tag> param0, Function<Tag, Integer> param1) {
             return param0.stream().map(param1).reduce(0, (param0x, param1x) -> param0x + param1x);
+        }
+
+        public int set(Tag param0, Tag param1) throws CommandSyntaxException {
+            return this.set(param0, param1::copy);
         }
 
         public int set(Tag param0, Supplier<Tag> param1) throws CommandSyntaxException {

@@ -49,6 +49,10 @@ public class PoiType {
         .flatMap(param0 -> param0.getStateDefinition().getPossibleStates().stream())
         .filter(param0 -> param0.getValue(BedBlock.PART) == BedPart.HEAD)
         .collect(ImmutableSet.toImmutableSet());
+    private static final Set<BlockState> CAULDRONS = ImmutableList.of(Blocks.CAULDRON, Blocks.LAVA_CAULDRON, Blocks.WATER_CAULDRON, Blocks.POWDER_SNOW_CAULDRON)
+        .stream()
+        .flatMap(param0 -> param0.getStateDefinition().getPossibleStates().stream())
+        .collect(ImmutableSet.toImmutableSet());
     private static final Map<BlockState, PoiType> TYPE_BY_STATE = Maps.newHashMap();
     public static final PoiType UNEMPLOYED = register("unemployed", ImmutableSet.of(), 1, ALL_JOBS, 1);
     public static final PoiType ARMORER = register("armorer", getBlockStates(Blocks.BLAST_FURNACE), 1, 1);
@@ -58,7 +62,7 @@ public class PoiType {
     public static final PoiType FARMER = register("farmer", getBlockStates(Blocks.COMPOSTER), 1, 1);
     public static final PoiType FISHERMAN = register("fisherman", getBlockStates(Blocks.BARREL), 1, 1);
     public static final PoiType FLETCHER = register("fletcher", getBlockStates(Blocks.FLETCHING_TABLE), 1, 1);
-    public static final PoiType LEATHERWORKER = register("leatherworker", getBlockStates(Blocks.CAULDRON), 1, 1);
+    public static final PoiType LEATHERWORKER = register("leatherworker", CAULDRONS, 1, 1);
     public static final PoiType LIBRARIAN = register("librarian", getBlockStates(Blocks.LECTERN), 1, 1);
     public static final PoiType MASON = register("mason", getBlockStates(Blocks.STONECUTTER), 1, 1);
     public static final PoiType NITWIT = register("nitwit", ImmutableSet.of(), 1, 1);
@@ -99,12 +103,20 @@ public class PoiType {
         this.validRange = param3;
     }
 
+    public String getName() {
+        return this.name;
+    }
+
     public int getMaxTickets() {
         return this.maxTickets;
     }
 
     public Predicate<PoiType> getPredicate() {
         return this.predicate;
+    }
+
+    public boolean is(BlockState param0) {
+        return this.matchingStates.contains(param0);
     }
 
     public int getValidRange() {

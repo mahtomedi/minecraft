@@ -18,7 +18,6 @@ import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.StructurePieceType;
-import net.minecraft.world.level.levelgen.feature.structures.EmptyPoolElement;
 import net.minecraft.world.level.levelgen.feature.structures.JigsawJunction;
 import net.minecraft.world.level.levelgen.feature.structures.StructurePoolElement;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
@@ -35,13 +34,12 @@ public class PoolElementStructurePiece extends StructurePiece {
     private final StructureManager structureManager;
 
     public PoolElementStructurePiece(StructureManager param0, StructurePoolElement param1, BlockPos param2, int param3, Rotation param4, BoundingBox param5) {
-        super(StructurePieceType.JIGSAW, 0);
+        super(StructurePieceType.JIGSAW, 0, param5);
         this.structureManager = param0;
         this.element = param1;
         this.position = param2;
         this.groundLevelDelta = param3;
         this.rotation = param4;
-        this.boundingBox = param5;
     }
 
     public PoolElementStructurePiece(ServerLevel param0, CompoundTag param1) {
@@ -53,7 +51,7 @@ public class PoolElementStructurePiece extends StructurePiece {
         this.element = StructurePoolElement.CODEC
             .parse(var0, param1.getCompound("pool_element"))
             .resultOrPartial(LOGGER::error)
-            .orElse(EmptyPoolElement.INSTANCE);
+            .orElseThrow(() -> new IllegalStateException("Invalid pool element found"));
         this.rotation = Rotation.valueOf(param1.getString("rotation"));
         this.boundingBox = this.element.getBoundingBox(this.structureManager, this.position, this.rotation);
         ListTag var1 = param1.getList("junctions", 10);

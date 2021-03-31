@@ -15,8 +15,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class DisplayInfo {
     private final Component title;
@@ -63,13 +61,11 @@ public class DisplayInfo {
         return this.description;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public ItemStack getIcon() {
         return this.icon;
     }
 
     @Nullable
-    @OnlyIn(Dist.CLIENT)
     public ResourceLocation getBackground() {
         return this.background;
     }
@@ -78,17 +74,14 @@ public class DisplayInfo {
         return this.frame;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getX() {
         return this.x;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getY() {
         return this.y;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean shouldShowToast() {
         return this.showToast;
     }

@@ -8,10 +8,11 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class LevelChunkSection {
+    public static final int SECTION_WIDTH = 16;
+    public static final int SECTION_HEIGHT = 16;
+    public static final int SECTION_SIZE = 4096;
     private static final Palette<BlockState> GLOBAL_BLOCKSTATE_PALETTE = new GlobalPalette<>(Block.BLOCK_STATE_REGISTRY, Blocks.AIR.defaultBlockState());
     private final int bottomBlockY;
     private short nonEmptyBlockCount;
@@ -143,7 +144,6 @@ public class LevelChunkSection {
         return this.states;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void read(FriendlyByteBuf param0) {
         this.nonEmptyBlockCount = param0.readShort();
         this.states.read(param0);

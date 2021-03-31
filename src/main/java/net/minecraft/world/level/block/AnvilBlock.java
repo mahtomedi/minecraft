@@ -27,8 +27,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class AnvilBlock extends FallingBlock {
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
@@ -42,6 +40,8 @@ public class AnvilBlock extends FallingBlock {
     private static final VoxelShape X_AXIS_AABB = Shapes.or(BASE, X_LEG1, X_LEG2, X_TOP);
     private static final VoxelShape Z_AXIS_AABB = Shapes.or(BASE, Z_LEG1, Z_LEG2, Z_TOP);
     private static final Component CONTAINER_TITLE = new TranslatableComponent("container.repair");
+    private static final float FALL_DAMAGE_PER_DISTANCE = 2.0F;
+    private static final int FALL_DAMAGE_MAX = 40;
 
     public AnvilBlock(BlockBehaviour.Properties param0) {
         super(param0);
@@ -126,7 +126,6 @@ public class AnvilBlock extends FallingBlock {
         return false;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public int getDustColor(BlockState param0, BlockGetter param1, BlockPos param2) {
         return param0.getMapColor(param1, param2).col;

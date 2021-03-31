@@ -36,10 +36,9 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class BeaconBlockEntity extends BlockEntity implements MenuProvider {
+    private static final int MAX_LEVELS = 4;
     public static final MobEffect[][] BEACON_EFFECTS = new MobEffect[][]{
         {MobEffects.MOVEMENT_SPEED, MobEffects.DIG_SPEED},
         {MobEffects.DAMAGE_RESISTANCE, MobEffects.JUMP},
@@ -47,6 +46,11 @@ public class BeaconBlockEntity extends BlockEntity implements MenuProvider {
         {MobEffects.REGENERATION}
     };
     private static final Set<MobEffect> VALID_EFFECTS = Arrays.stream(BEACON_EFFECTS).flatMap(Arrays::stream).collect(Collectors.toSet());
+    public static final int DATA_LEVELS = 0;
+    public static final int DATA_PRIMARY = 1;
+    public static final int DATA_SECONDARY = 2;
+    public static final int NUM_DATA_VALUES = 3;
+    private static final int BLOCKS_CHECK_PER_TICK = 10;
     private List<BeaconBlockEntity.BeaconBeamSection> beamSections = Lists.newArrayList();
     private List<BeaconBlockEntity.BeaconBeamSection> checkingBeamSections = Lists.newArrayList();
     private int levels;
@@ -250,7 +254,6 @@ public class BeaconBlockEntity extends BlockEntity implements MenuProvider {
         param0.playSound(null, param1, param2, SoundSource.BLOCKS, 1.0F, 1.0F);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public List<BeaconBlockEntity.BeaconBeamSection> getBeamSections() {
         return (List<BeaconBlockEntity.BeaconBeamSection>)(this.levels == 0 ? ImmutableList.of() : this.beamSections);
     }
@@ -334,12 +337,10 @@ public class BeaconBlockEntity extends BlockEntity implements MenuProvider {
             ++this.height;
         }
 
-        @OnlyIn(Dist.CLIENT)
         public float[] getColor() {
             return this.color;
         }
 
-        @OnlyIn(Dist.CLIENT)
         public int getHeight() {
             return this.height;
         }

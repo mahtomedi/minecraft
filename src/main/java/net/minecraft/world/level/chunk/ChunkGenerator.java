@@ -23,6 +23,7 @@ import net.minecraft.data.worldgen.StructureFeatures;
 import net.minecraft.network.protocol.game.DebugPackets;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.WorldGenRegion;
+import net.minecraft.util.random.WeightedRandomList;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
@@ -49,8 +50,6 @@ import net.minecraft.world.level.levelgen.feature.configurations.StrongholdConfi
 import net.minecraft.world.level.levelgen.feature.configurations.StructureFeatureConfiguration;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class ChunkGenerator {
     public static final Codec<ChunkGenerator> CODEC = Registry.CHUNK_GENERATOR.dispatchStable(ChunkGenerator::codec, Function.identity());
@@ -120,7 +119,6 @@ public abstract class ChunkGenerator {
 
     protected abstract Codec<? extends ChunkGenerator> codec();
 
-    @OnlyIn(Dist.CLIENT)
     public abstract ChunkGenerator withSeed(long var1);
 
     public void createBiomes(Registry<Biome> param0, ChunkAccess param1) {
@@ -228,7 +226,7 @@ public abstract class ChunkGenerator {
         return 384;
     }
 
-    public List<MobSpawnSettings.SpawnerData> getMobsAt(Biome param0, StructureFeatureManager param1, MobCategory param2, BlockPos param3) {
+    public WeightedRandomList<MobSpawnSettings.SpawnerData> getMobsAt(Biome param0, StructureFeatureManager param1, MobCategory param2, BlockPos param3) {
         return param0.getMobSettings().getMobs(param2);
     }
 
@@ -278,7 +276,7 @@ public abstract class ChunkGenerator {
 
                 for(StructureStart<?> var10 : param0.getChunk(var7, var8).getAllStarts().values()) {
                     try {
-                        if (var10 != StructureStart.INVALID_START && var10.getBoundingBox().intersects(var4, var5, var4 + 15, var5 + 15)) {
+                        if (var10.isValid() && var10.getBoundingBox().intersects(var4, var5, var4 + 15, var5 + 15)) {
                             param1.addReferenceForFeature(var6, var10.getFeature(), var9, param2);
                             DebugPackets.sendStructurePacket(param0, var10);
                         }

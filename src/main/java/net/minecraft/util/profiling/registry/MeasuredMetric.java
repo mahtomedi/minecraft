@@ -1,10 +1,7 @@
 package net.minecraft.util.profiling.registry;
 
 import java.util.function.DoubleSupplier;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
 public class MeasuredMetric {
     private final Metric metric;
     private final DoubleSupplier currentValue;

@@ -4,8 +4,6 @@ import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.Optional;
 import net.minecraft.util.Unit;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public interface FormattedText {
     Optional<Unit> STOP_ITERATION = Optional.of(Unit.INSTANCE);
@@ -15,7 +13,6 @@ public interface FormattedText {
             return Optional.empty();
         }
 
-        @OnlyIn(Dist.CLIENT)
         @Override
         public <T> Optional<T> visit(FormattedText.StyledContentConsumer<T> param0, Style param1) {
             return Optional.empty();
@@ -24,7 +21,6 @@ public interface FormattedText {
 
     <T> Optional<T> visit(FormattedText.ContentConsumer<T> var1);
 
-    @OnlyIn(Dist.CLIENT)
     <T> Optional<T> visit(FormattedText.StyledContentConsumer<T> var1, Style var2);
 
     static FormattedText of(final String param0) {
@@ -34,7 +30,6 @@ public interface FormattedText {
                 return param0.accept(param0);
             }
 
-            @OnlyIn(Dist.CLIENT)
             @Override
             public <T> Optional<T> visit(FormattedText.StyledContentConsumer<T> param0x, Style param1) {
                 return param0.accept(param1, param0);
@@ -42,7 +37,6 @@ public interface FormattedText {
         };
     }
 
-    @OnlyIn(Dist.CLIENT)
     static FormattedText of(final String param0, final Style param1) {
         return new FormattedText() {
             @Override
@@ -57,12 +51,10 @@ public interface FormattedText {
         };
     }
 
-    @OnlyIn(Dist.CLIENT)
     static FormattedText composite(FormattedText... param0) {
         return composite(ImmutableList.copyOf(param0));
     }
 
-    @OnlyIn(Dist.CLIENT)
     static FormattedText composite(final List<FormattedText> param0) {
         return new FormattedText() {
             @Override
@@ -104,7 +96,6 @@ public interface FormattedText {
         Optional<T> accept(String var1);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public interface StyledContentConsumer<T> {
         Optional<T> accept(Style var1, String var2);
     }

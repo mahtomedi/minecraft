@@ -1,6 +1,8 @@
 package net.minecraft.world.level.levelgen;
 
-import net.minecraft.util.UniformInt;
+import net.minecraft.util.valueproviders.ConstantInt;
+import net.minecraft.util.valueproviders.IntProvider;
+import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.level.levelgen.feature.configurations.CountConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneDecoratorConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.RangeDecoratorConfiguration;
@@ -16,12 +18,12 @@ public interface Decoratable<R> {
         return this.decorated(FeatureDecorator.CHANCE.configured(new ChanceDecoratorConfiguration(param0)));
     }
 
-    default R count(UniformInt param0) {
+    default R count(IntProvider param0) {
         return this.decorated(FeatureDecorator.COUNT.configured(new CountConfiguration(param0)));
     }
 
     default R count(int param0) {
-        return this.count(UniformInt.fixed(param0));
+        return this.count(ConstantInt.of(param0));
     }
 
     default R countRandom(int param0) {

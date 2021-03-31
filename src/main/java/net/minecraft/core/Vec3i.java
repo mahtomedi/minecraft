@@ -6,8 +6,6 @@ import java.util.stream.IntStream;
 import javax.annotation.concurrent.Immutable;
 import net.minecraft.Util;
 import net.minecraft.util.Mth;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 @Immutable
 public class Vec3i implements Comparable<Vec3i> {
@@ -89,8 +87,30 @@ public class Vec3i implements Comparable<Vec3i> {
         return this;
     }
 
+    public Vec3i offset(double param0, double param1, double param2) {
+        return param0 == 0.0 && param1 == 0.0 && param2 == 0.0
+            ? this
+            : new Vec3i((double)this.getX() + param0, (double)this.getY() + param1, (double)this.getZ() + param2);
+    }
+
     public Vec3i offset(int param0, int param1, int param2) {
         return param0 == 0 && param1 == 0 && param2 == 0 ? this : new Vec3i(this.getX() + param0, this.getY() + param1, this.getZ() + param2);
+    }
+
+    public Vec3i offset(Vec3i param0) {
+        return this.offset(param0.getX(), param0.getY(), param0.getZ());
+    }
+
+    public Vec3i subtract(Vec3i param0) {
+        return this.offset(-param0.getX(), -param0.getY(), -param0.getZ());
+    }
+
+    public Vec3i multiply(int param0) {
+        if (param0 == 1) {
+            return this;
+        } else {
+            return param0 == 0 ? ZERO : new Vec3i(this.getX() * param0, this.getY() * param0, this.getZ() * param0);
+        }
     }
 
     public Vec3i above() {
@@ -109,10 +129,57 @@ public class Vec3i implements Comparable<Vec3i> {
         return this.relative(Direction.DOWN, param0);
     }
 
+    public Vec3i north() {
+        return this.north(1);
+    }
+
+    public Vec3i north(int param0) {
+        return this.relative(Direction.NORTH, param0);
+    }
+
+    public Vec3i south() {
+        return this.south(1);
+    }
+
+    public Vec3i south(int param0) {
+        return this.relative(Direction.SOUTH, param0);
+    }
+
+    public Vec3i west() {
+        return this.west(1);
+    }
+
+    public Vec3i west(int param0) {
+        return this.relative(Direction.WEST, param0);
+    }
+
+    public Vec3i east() {
+        return this.east(1);
+    }
+
+    public Vec3i east(int param0) {
+        return this.relative(Direction.EAST, param0);
+    }
+
+    public Vec3i relative(Direction param0) {
+        return this.relative(param0, 1);
+    }
+
     public Vec3i relative(Direction param0, int param1) {
         return param1 == 0
             ? this
             : new Vec3i(this.getX() + param0.getStepX() * param1, this.getY() + param0.getStepY() * param1, this.getZ() + param0.getStepZ() * param1);
+    }
+
+    public Vec3i relative(Direction.Axis param0, int param1) {
+        if (param1 == 0) {
+            return this;
+        } else {
+            int var0 = param0 == Direction.Axis.X ? param1 : 0;
+            int var1 = param0 == Direction.Axis.Y ? param1 : 0;
+            int var2 = param0 == Direction.Axis.Z ? param1 : 0;
+            return new Vec3i(this.getX() + var0, this.getY() + var1, this.getZ() + var2);
+        }
     }
 
     public Vec3i cross(Vec3i param0) {
@@ -167,7 +234,6 @@ public class Vec3i implements Comparable<Vec3i> {
         return MoreObjects.toStringHelper(this).add("x", this.getX()).add("y", this.getY()).add("z", this.getZ()).toString();
     }
 
-    @OnlyIn(Dist.CLIENT)
     public String toShortString() {
         return "" + this.getX() + ", " + this.getY() + ", " + this.getZ();
     }

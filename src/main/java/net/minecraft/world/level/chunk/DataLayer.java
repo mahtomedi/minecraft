@@ -2,8 +2,12 @@ package net.minecraft.world.level.chunk;
 
 import javax.annotation.Nullable;
 import net.minecraft.Util;
+import net.minecraft.util.VisibleForDebug;
 
 public class DataLayer {
+    public static final int SIZE = 2048;
+    public static final int LAYER_SIZE = 128;
+    private static final int NIBBLE_SIZE = 4;
     @Nullable
     protected byte[] data;
 
@@ -87,6 +91,20 @@ public class DataLayer {
             }
 
             if ((var1 & 0xFF) == 255) {
+                var0.append("\n");
+            }
+        }
+
+        return var0.toString();
+    }
+
+    @VisibleForDebug
+    public String layerToString(int param0) {
+        StringBuilder var0 = new StringBuilder();
+
+        for(int var1 = 0; var1 < 256; ++var1) {
+            var0.append(Integer.toHexString(this.get(var1)));
+            if ((var1 & 15) == 15) {
                 var0.append("\n");
             }
         }

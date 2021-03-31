@@ -1,22 +1,19 @@
 package com.mojang.math;
 
+import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.floats.Float2FloatFunction;
-import java.util.stream.DoubleStream;
 import net.minecraft.Util;
-import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public final class Vector3f {
-    public static final Codec<Vector3f> CODEC = ExtraCodecs.DOUBLE_STREAM
-        .<Vector3f>comapFlatMap(
-            param0 -> Util.fixedSize(param0, 3).map(param0x -> new Vector3f((float)param0x[0], (float)param0x[1], (float)param0x[2])),
-            param0 -> DoubleStream.of((double)param0.x, (double)param0.y, (double)param0.z)
-        )
-        .stable();
+    public static final Codec<Vector3f> CODEC = Codec.FLOAT
+        .listOf()
+        .comapFlatMap(
+            param0 -> Util.fixedSize(param0, 3).map(param0x -> new Vector3f(param0x.get(0), param0x.get(1), param0x.get(2))),
+            param0 -> ImmutableList.of(param0.x, param0.y, param0.z)
+        );
     public static Vector3f XN = new Vector3f(-1.0F, 0.0F, 0.0F);
     public static Vector3f XP = new Vector3f(1.0F, 0.0F, 0.0F);
     public static Vector3f YN = new Vector3f(0.0F, -1.0F, 0.0F);
@@ -37,7 +34,6 @@ public final class Vector3f {
         this.z = param2;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Vector3f(Vector4f param0) {
         this(param0.x(), param0.y(), param0.z());
     }
@@ -83,21 +79,24 @@ public final class Vector3f {
         return this.z;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void mul(float param0) {
         this.x *= param0;
         this.y *= param0;
         this.z *= param0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void mul(float param0, float param1, float param2) {
         this.x *= param0;
         this.y *= param1;
         this.z *= param2;
     }
 
-    @OnlyIn(Dist.CLIENT)
+    public void clamp(Vector3f param0, Vector3f param1) {
+        this.x = Mth.clamp(this.x, param0.x(), param1.x());
+        this.y = Mth.clamp(this.y, param0.x(), param1.y());
+        this.z = Mth.clamp(this.z, param0.z(), param1.z());
+    }
+
     public void clamp(float param0, float param1) {
         this.x = Mth.clamp(this.x, param0, param1);
         this.y = Mth.clamp(this.y, param0, param1);
@@ -110,33 +109,34 @@ public final class Vector3f {
         this.z = param2;
     }
 
-    @OnlyIn(Dist.CLIENT)
+    public void load(Vector3f param0) {
+        this.x = param0.x;
+        this.y = param0.y;
+        this.z = param0.z;
+    }
+
     public void add(float param0, float param1, float param2) {
         this.x += param0;
         this.y += param1;
         this.z += param2;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void add(Vector3f param0) {
         this.x += param0.x;
         this.y += param0.y;
         this.z += param0.z;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void sub(Vector3f param0) {
         this.x -= param0.x;
         this.y -= param0.y;
         this.z -= param0.z;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float dot(Vector3f param0) {
         return this.x * param0.x + this.y * param0.y + this.z * param0.z;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean normalize() {
         float var0 = this.x * this.x + this.y * this.y + this.z * this.z;
         if ((double)var0 < 1.0E-5) {
@@ -150,7 +150,6 @@ public final class Vector3f {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void cross(Vector3f param0) {
         float var0 = this.x;
         float var1 = this.y;
@@ -163,7 +162,6 @@ public final class Vector3f {
         this.z = var0 * var4 - var1 * var3;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void transform(Matrix3f param0) {
         float var0 = this.x;
         float var1 = this.y;
@@ -182,7 +180,6 @@ public final class Vector3f {
         this.set(var0.i(), var0.j(), var0.k());
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void lerp(Vector3f param0, float param1) {
         float var0 = 1.0F - param1;
         this.x = this.x * var0 + param0.x * param1;
@@ -190,22 +187,18 @@ public final class Vector3f {
         this.z = this.z * var0 + param0.z * param1;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Quaternion rotation(float param0) {
         return new Quaternion(this, param0, false);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Quaternion rotationDegrees(float param0) {
         return new Quaternion(this, param0, true);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Vector3f copy() {
         return new Vector3f(this.x, this.y, this.z);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void map(Float2FloatFunction param0) {
         this.x = param0.get(this.x);
         this.y = param0.get(this.y);

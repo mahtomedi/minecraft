@@ -1,6 +1,8 @@
 package net.minecraft.client.renderer.block.model;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -13,6 +15,7 @@ import java.io.Reader;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 import javax.annotation.Nullable;
 import net.minecraft.client.renderer.block.model.multipart.MultiPart;
@@ -56,6 +59,21 @@ public class BlockModelDefinition {
 
     }
 
+    @VisibleForTesting
+    public boolean hasVariant(String param0) {
+        return this.variants.get(param0) != null;
+    }
+
+    @VisibleForTesting
+    public MultiVariant getVariant(String param0) {
+        MultiVariant var0 = this.variants.get(param0);
+        if (var0 == null) {
+            throw new BlockModelDefinition.MissingVariantException();
+        } else {
+            return var0;
+        }
+    }
+
     @Override
     public boolean equals(Object param0) {
         if (this == param0) {
@@ -79,6 +97,16 @@ public class BlockModelDefinition {
 
     public Map<String, MultiVariant> getVariants() {
         return this.variants;
+    }
+
+    @VisibleForTesting
+    public Set<MultiVariant> getMultiVariants() {
+        Set<MultiVariant> var0 = Sets.newHashSet(this.variants.values());
+        if (this.isMultiPart()) {
+            var0.addAll(this.multiPart.getMultiVariants());
+        }
+
+        return var0;
     }
 
     public boolean isMultiPart() {
@@ -143,6 +171,12 @@ public class BlockModelDefinition {
                 JsonArray var0 = GsonHelper.getAsJsonArray(param1, "multipart");
                 return param0.deserialize(var0, MultiPart.class);
             }
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public class MissingVariantException extends RuntimeException {
+        protected MissingVariantException() {
         }
     }
 }

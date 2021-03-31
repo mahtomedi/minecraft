@@ -53,6 +53,7 @@ public class RealmsBackupScreen extends RealmsScreen {
     private Button changesButton;
     private Boolean noBackups = false;
     private final RealmsServer serverData;
+    private static final String UPLOADED_KEY = "Uploaded";
     private RealmsLabel titleLabel;
 
     public RealmsBackupScreen(RealmsConfigureWorldScreen param0, RealmsServer param1, int param2) {

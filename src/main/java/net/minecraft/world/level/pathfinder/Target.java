@@ -1,8 +1,6 @@
 package net.minecraft.world.level.pathfinder;
 
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class Target extends Node {
     private float bestHeuristic = Float.MAX_VALUE;
@@ -13,7 +11,6 @@ public class Target extends Node {
         super(param0.x, param0.y, param0.z);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Target(int param0, int param1, int param2) {
         super(param0, param1, param2);
     }
@@ -34,7 +31,10 @@ public class Target extends Node {
         this.reached = true;
     }
 
-    @OnlyIn(Dist.CLIENT)
+    public boolean isReached() {
+        return this.reached;
+    }
+
     public static Target createFromStream(FriendlyByteBuf param0) {
         Target var0 = new Target(param0.readInt(), param0.readInt(), param0.readInt());
         var0.walkedDistance = param0.readFloat();

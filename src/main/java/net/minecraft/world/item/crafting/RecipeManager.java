@@ -31,8 +31,6 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -63,6 +61,10 @@ public class RecipeManager extends SimpleJsonResourceReloadListener {
 
         this.recipes = var0.entrySet().stream().collect(ImmutableMap.toImmutableMap(Entry::getKey, param0x -> param0x.getValue().build()));
         LOGGER.info("Loaded {} recipes", var0.size());
+    }
+
+    public boolean hadErrorsLoading() {
+        return this.hasErrors;
     }
 
     public <C extends Container, T extends Recipe<C>> Optional<T> getRecipeFor(RecipeType<T> param0, C param1, Level param2) {
@@ -121,7 +123,6 @@ public class RecipeManager extends SimpleJsonResourceReloadListener {
             .fromJson(param0, param1);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void replaceRecipes(Iterable<Recipe<?>> param0) {
         this.hasErrors = false;
         Map<RecipeType<?>, Map<ResourceLocation, Recipe<?>>> var0 = Maps.newHashMap();

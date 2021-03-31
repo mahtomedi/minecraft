@@ -13,6 +13,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class PhantomModel<T extends Phantom> extends HierarchicalModel<T> {
+    private static final String TAIL_BASE = "tail_base";
+    private static final String TAIL_TIP = "tail_tip";
     private final ModelPart root;
     private final ModelPart leftWingBase;
     private final ModelPart leftWingTip;

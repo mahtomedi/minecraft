@@ -7,13 +7,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
-@OnlyIn(
-    value = Dist.CLIENT,
-    _interface = LidBlockEntity.class
-)
 public class EnderChestBlockEntity extends BlockEntity implements LidBlockEntity {
     private final ChestLidController chestLidController = new ChestLidController();
     private final ContainerOpenersCounter openersCounter = new ContainerOpenersCounter() {
@@ -103,7 +97,6 @@ public class EnderChestBlockEntity extends BlockEntity implements LidBlockEntity
         this.openersCounter.recheckOpeners(this.getLevel(), this.getBlockPos(), this.getBlockState());
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public float getOpenNess(float param0) {
         return this.chestLidController.getOpenness(param0);

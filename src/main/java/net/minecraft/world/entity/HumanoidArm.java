@@ -2,8 +2,6 @@ package net.minecraft.world.entity;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public enum HumanoidArm {
     LEFT(new TranslatableComponent("options.mainHand.left")),
@@ -15,7 +13,6 @@ public enum HumanoidArm {
         this.name = param0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public HumanoidArm getOpposite() {
         return this == LEFT ? RIGHT : LEFT;
     }
@@ -25,7 +22,6 @@ public enum HumanoidArm {
         return this.name.getString();
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Component getName() {
         return this.name;
     }

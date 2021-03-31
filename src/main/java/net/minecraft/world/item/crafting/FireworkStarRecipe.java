@@ -14,8 +14,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class FireworkStarRecipe extends CustomRecipe {
     private static final Ingredient SHAPE_INGREDIENT = Ingredient.of(
@@ -121,7 +119,6 @@ public class FireworkStarRecipe extends CustomRecipe {
         return var0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public boolean canCraftInDimensions(int param0, int param1) {
         return param0 * param1 >= 2;

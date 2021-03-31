@@ -20,8 +20,6 @@ import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseFireBlock;
 import net.minecraft.world.level.dimension.end.EndDragonFight;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class EndCrystal extends Entity {
     private static final EntityDataAccessor<Optional<BlockPos>> DATA_BEAM_TARGET = SynchedEntityData.defineId(
@@ -143,13 +141,11 @@ public class EndCrystal extends Entity {
         return this.getEntityData().get(DATA_SHOW_BOTTOM);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public boolean shouldRenderAtSqrDistance(double param0) {
         return super.shouldRenderAtSqrDistance(param0) || this.getBeamTarget() != null;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public ItemStack getPickResult() {
         return new ItemStack(Items.END_CRYSTAL);

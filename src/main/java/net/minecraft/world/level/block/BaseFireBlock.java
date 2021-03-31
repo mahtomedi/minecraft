@@ -18,11 +18,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.portal.PortalShape;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class BaseFireBlock extends Block {
+    private static final int SECONDS_ON_FIRE = 8;
     private final float fireDamage;
+    protected static final float AABB_OFFSET = 1.0F;
     protected static final VoxelShape DOWN_AABB = Block.box(0.0, 0.0, 0.0, 16.0, 1.0, 16.0);
 
     public BaseFireBlock(BlockBehaviour.Properties param0, float param1) {
@@ -46,7 +46,6 @@ public abstract class BaseFireBlock extends Block {
         return DOWN_AABB;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void animateTick(BlockState param0, Level param1, BlockPos param2, Random param3) {
         if (param3.nextInt(24) == 0) {

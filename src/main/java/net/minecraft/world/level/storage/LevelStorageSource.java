@@ -54,8 +54,6 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -74,6 +72,7 @@ public class LevelStorageSource {
         .appendLiteral('-')
         .appendValue(ChronoField.SECOND_OF_MINUTE, 2)
         .toFormatter();
+    private static final String ICON_FILENAME = "icon.png";
     private static final ImmutableList<String> OLD_SETTINGS_KEYS = ImmutableList.of(
         "RandomSeed", "generatorName", "generatorOptions", "generatorVersion", "legacy_custom_options", "MapFeatures", "BonusChest"
     );
@@ -140,7 +139,10 @@ public class LevelStorageSource {
         return DataPackConfig.CODEC.parse(param0).resultOrPartial(LOGGER::error).orElse(DataPackConfig.DEFAULT);
     }
 
-    @OnlyIn(Dist.CLIENT)
+    public String getName() {
+        return "Anvil";
+    }
+
     public List<LevelSummary> getLevelList() throws LevelStorageException {
         if (!Files.isDirectory(this.baseDir)) {
             throw new LevelStorageException(new TranslatableComponent("selectWorld.load_folder_access").getString());
@@ -258,7 +260,6 @@ public class LevelStorageSource {
         };
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean isNewLevelIdAcceptable(String param0) {
         try {
             Path var0 = this.baseDir.resolve(param0);
@@ -270,17 +271,14 @@ public class LevelStorageSource {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean levelExists(String param0) {
         return Files.isDirectory(this.baseDir.resolve(param0));
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Path getBaseDir() {
         return this.baseDir;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Path getBackupPath() {
         return this.backupDir;
     }
@@ -379,7 +377,6 @@ public class LevelStorageSource {
             return this.levelPath.resolve("icon.png").toFile();
         }
 
-        @OnlyIn(Dist.CLIENT)
         public void deleteLevel() throws IOException {
             this.checkLock();
             final Path var0 = this.levelPath.resolve("session.lock");
@@ -429,7 +426,6 @@ public class LevelStorageSource {
 
         }
 
-        @OnlyIn(Dist.CLIENT)
         public void renameLevel(String param0) throws IOException {
             this.checkLock();
             File var0 = new File(LevelStorageSource.this.baseDir.toFile(), this.levelId);
@@ -445,7 +441,6 @@ public class LevelStorageSource {
             }
         }
 
-        @OnlyIn(Dist.CLIENT)
         public long makeWorldBackup() throws IOException {
             this.checkLock();
             String var0 = LocalDateTime.now().format(LevelStorageSource.FORMATTER) + "_" + this.levelId;

@@ -268,6 +268,40 @@ public class PlayerPredicate {
         private final Object2BooleanMap<ResourceLocation> recipes = new Object2BooleanOpenHashMap<>();
         private final Map<ResourceLocation, PlayerPredicate.AdvancementPredicate> advancements = Maps.newHashMap();
 
+        public static PlayerPredicate.Builder player() {
+            return new PlayerPredicate.Builder();
+        }
+
+        public PlayerPredicate.Builder setLevel(MinMaxBounds.Ints param0) {
+            this.level = param0;
+            return this;
+        }
+
+        public PlayerPredicate.Builder addStat(Stat<?> param0, MinMaxBounds.Ints param1) {
+            this.stats.put(param0, param1);
+            return this;
+        }
+
+        public PlayerPredicate.Builder addRecipe(ResourceLocation param0, boolean param1) {
+            this.recipes.put(param0, param1);
+            return this;
+        }
+
+        public PlayerPredicate.Builder setGameType(GameType param0) {
+            this.gameType = param0;
+            return this;
+        }
+
+        public PlayerPredicate.Builder checkAdvancementDone(ResourceLocation param0, boolean param1) {
+            this.advancements.put(param0, new PlayerPredicate.AdvancementDonePredicate(param1));
+            return this;
+        }
+
+        public PlayerPredicate.Builder checkAdvancementCriterions(ResourceLocation param0, Map<String, Boolean> param1) {
+            this.advancements.put(param0, new PlayerPredicate.AdvancementCriterionsPredicate(new Object2BooleanOpenHashMap<>(param1)));
+            return this;
+        }
+
         public PlayerPredicate build() {
             return new PlayerPredicate(this.level, this.gameType, this.stats, this.recipes, this.advancements);
         }

@@ -27,6 +27,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public abstract class Option {
+    protected static final int OPTIONS_TOOLTIP_WIDTH = 200;
     public static final ProgressOption BIOME_BLEND_RADIUS = new ProgressOption(
         "options.biomeBlendRadius", 0.0, 7.0, 1.0F, param0 -> (double)param0.biomeBlendRadius, (param0, param1) -> {
             param0.biomeBlendRadius = Mth.clamp((int)param1.doubleValue(), 0, 7);
@@ -452,6 +453,13 @@ public abstract class Option {
     );
     public static final CycleOption<Boolean> VIEW_BOBBING = CycleOption.createOnOff(
         "options.viewBobbing", param0 -> param0.bobView, (param0, param1, param2) -> param0.bobView = param2
+    );
+    private static final Component ACCESSIBILITY_TOOLTIP_DARK_MOJANG_BACKGROUND = new TranslatableComponent("options.darkMojangStudiosBackgroundColor.tooltip");
+    public static final CycleOption<Boolean> DARK_MOJANG_STUDIOS_BACKGROUND_COLOR = CycleOption.createOnOff(
+        "options.darkMojangStudiosBackgroundColor",
+        ACCESSIBILITY_TOOLTIP_DARK_MOJANG_BACKGROUND,
+        param0 -> param0.darkMojangStudiosBackground,
+        (param0, param1, param2) -> param0.darkMojangStudiosBackground = param2
     );
     private final Component caption;
 

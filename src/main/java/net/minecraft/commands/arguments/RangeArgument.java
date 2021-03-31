@@ -21,6 +21,10 @@ public interface RangeArgument<T extends MinMaxBounds<?>> extends ArgumentType<T
     public static class Floats implements RangeArgument<MinMaxBounds.Floats> {
         private static final Collection<String> EXAMPLES = Arrays.asList("0..5.2", "0", "-5.4", "-100.76..", "..100");
 
+        public static MinMaxBounds.Floats getRange(CommandContext<CommandSourceStack> param0, String param1) {
+            return param0.getArgument(param1, MinMaxBounds.Floats.class);
+        }
+
         public MinMaxBounds.Floats parse(StringReader param0) throws CommandSyntaxException {
             return MinMaxBounds.Floats.fromReader(param0);
         }

@@ -1,6 +1,8 @@
 package net.minecraft.world.level.levelgen.feature;
 
+import com.google.common.collect.Lists;
 import com.mojang.serialization.Codec;
+import java.util.List;
 import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.RegistryAccess;
@@ -13,12 +15,14 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
-import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.EndCityPieces;
+import net.minecraft.world.level.levelgen.structure.StructurePiece;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 
 public class EndCityFeature extends StructureFeature<NoneFeatureConfiguration> {
+    private static final int RANDOM_SALT = 10387313;
+
     public EndCityFeature(Codec<NoneFeatureConfiguration> param0) {
         super(param0);
     }
@@ -71,8 +75,8 @@ public class EndCityFeature extends StructureFeature<NoneFeatureConfiguration> {
     }
 
     public static class EndCityStart extends StructureStart<NoneFeatureConfiguration> {
-        public EndCityStart(StructureFeature<NoneFeatureConfiguration> param0, ChunkPos param1, BoundingBox param2, int param3, long param4) {
-            super(param0, param1, param2, param3, param4);
+        public EndCityStart(StructureFeature<NoneFeatureConfiguration> param0, ChunkPos param1, int param2, long param3) {
+            super(param0, param1, param2, param3);
         }
 
         public void generatePieces(
@@ -88,8 +92,9 @@ public class EndCityFeature extends StructureFeature<NoneFeatureConfiguration> {
             int var1 = EndCityFeature.getYPositionForFeature(param3, param1, param6);
             if (var1 >= 60) {
                 BlockPos var2 = param3.getMiddleBlockPosition(var1);
-                EndCityPieces.startHouseTower(param2, var2, var0, this.pieces, this.random);
-                this.calculateBoundingBox();
+                List<StructurePiece> var3 = Lists.newArrayList();
+                EndCityPieces.startHouseTower(param2, var2, var0, var3, this.random);
+                var3.forEach(this::addPiece);
             }
         }
     }

@@ -15,6 +15,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class ParrotModel extends HierarchicalModel<Parrot> {
+    private static final String FEATHER = "feather";
     private final ModelPart root;
     private final ModelPart body;
     private final ModelPart tail;

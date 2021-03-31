@@ -12,8 +12,6 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.StringUtil;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.LevelSettings;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.StringUtils;
 
 public class LevelSummary implements Comparable<LevelSummary> {
@@ -24,7 +22,6 @@ public class LevelSummary implements Comparable<LevelSummary> {
     private final boolean locked;
     private final File icon;
     @Nullable
-    @OnlyIn(Dist.CLIENT)
     private Component info;
 
     public LevelSummary(LevelSettings param0, LevelVersion param1, String param2, boolean param3, boolean param4, File param5) {
@@ -36,27 +33,22 @@ public class LevelSummary implements Comparable<LevelSummary> {
         this.requiresConversion = param3;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public String getLevelId() {
         return this.levelId;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public String getLevelName() {
         return StringUtils.isEmpty(this.settings.levelName()) ? this.levelId : this.settings.levelName();
     }
 
-    @OnlyIn(Dist.CLIENT)
     public File getIcon() {
         return this.icon;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean isRequiresConversion() {
         return this.requiresConversion;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public long getLastPlayed() {
         return this.levelVersion.lastPlayed();
     }
@@ -69,22 +61,22 @@ public class LevelSummary implements Comparable<LevelSummary> {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
+    public LevelSettings getSettings() {
+        return this.settings;
+    }
+
     public GameType getGameMode() {
         return this.settings.gameType();
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean isHardcore() {
         return this.settings.hardcore();
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean hasCheats() {
         return this.settings.allowCommands();
     }
 
-    @OnlyIn(Dist.CLIENT)
     public MutableComponent getWorldVersionName() {
         return (MutableComponent)(StringUtil.isNullOrEmpty(this.levelVersion.minecraftVersionName())
             ? new TranslatableComponent("selectWorld.versionUnknown")
@@ -95,17 +87,14 @@ public class LevelSummary implements Comparable<LevelSummary> {
         return this.levelVersion;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean markVersionInList() {
         return this.askToOpenWorld() || !SharedConstants.getCurrentVersion().isStable() && !this.levelVersion.snapshot() || this.backupStatus().shouldBackup();
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean askToOpenWorld() {
         return this.levelVersion.minecraftVersion() > SharedConstants.getCurrentVersion().getWorldVersion();
     }
 
-    @OnlyIn(Dist.CLIENT)
     public LevelSummary.BackupStatus backupStatus() {
         GameVersion var0 = SharedConstants.getCurrentVersion();
         int var1 = var0.getWorldVersion();
@@ -117,7 +106,6 @@ public class LevelSummary implements Comparable<LevelSummary> {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean isLocked() {
         return this.locked;
     }
@@ -126,12 +114,10 @@ public class LevelSummary implements Comparable<LevelSummary> {
         return this.levelVersion.minecraftVersion() <= 2692;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean isDisabled() {
         return this.isLocked() || this.isIncompatibleWorldHeight();
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Component getInfo() {
         if (this.info == null) {
             this.info = this.createInfo();
@@ -140,7 +126,6 @@ public class LevelSummary implements Comparable<LevelSummary> {
         return this.info;
     }
 
-    @OnlyIn(Dist.CLIENT)
     private Component createInfo() {
         if (this.isLocked()) {
             return new TranslatableComponent("selectWorld.locked").withStyle(ChatFormatting.RED);
@@ -169,7 +154,6 @@ public class LevelSummary implements Comparable<LevelSummary> {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static enum BackupStatus {
         NONE(false, false, ""),
         DOWNGRADE(true, true, "downgrade"),

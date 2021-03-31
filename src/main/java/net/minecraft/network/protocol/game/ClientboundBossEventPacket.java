@@ -6,10 +6,11 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.BossEvent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundBossEventPacket implements Packet<ClientGamePacketListener> {
+    private static final int FLAG_DARKEN = 1;
+    private static final int FLAG_MUSIC = 2;
+    private static final int FLAG_FOG = 4;
     private final UUID id;
     private final ClientboundBossEventPacket.Operation operation;
     private static final ClientboundBossEventPacket.Operation REMOVE_OPERATION = new ClientboundBossEventPacket.Operation() {
@@ -18,7 +19,6 @@ public class ClientboundBossEventPacket implements Packet<ClientGamePacketListen
             return ClientboundBossEventPacket.OperationType.REMOVE;
         }
 
-        @OnlyIn(Dist.CLIENT)
         @Override
         public void dispatch(UUID param0, ClientboundBossEventPacket.Handler param1) {
             param1.remove(param0);
@@ -95,7 +95,6 @@ public class ClientboundBossEventPacket implements Packet<ClientGamePacketListen
         param0.handleBossUpdate(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void dispatch(ClientboundBossEventPacket.Handler param0) {
         this.operation.dispatch(this.id, param0);
     }
@@ -135,7 +134,6 @@ public class ClientboundBossEventPacket implements Packet<ClientGamePacketListen
             return ClientboundBossEventPacket.OperationType.ADD;
         }
 
-        @OnlyIn(Dist.CLIENT)
         @Override
         public void dispatch(UUID param0, ClientboundBossEventPacket.Handler param1) {
             param1.add(param0, this.name, this.progress, this.color, this.overlay, this.darkenScreen, this.playMusic, this.createWorldFog);
@@ -151,7 +149,6 @@ public class ClientboundBossEventPacket implements Packet<ClientGamePacketListen
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     public interface Handler {
         default void add(
             UUID param0,
@@ -184,7 +181,6 @@ public class ClientboundBossEventPacket implements Packet<ClientGamePacketListen
     interface Operation {
         ClientboundBossEventPacket.OperationType getType();
 
-        @OnlyIn(Dist.CLIENT)
         void dispatch(UUID var1, ClientboundBossEventPacket.Handler var2);
 
         void write(FriendlyByteBuf var1);
@@ -221,7 +217,6 @@ public class ClientboundBossEventPacket implements Packet<ClientGamePacketListen
             return ClientboundBossEventPacket.OperationType.UPDATE_NAME;
         }
 
-        @OnlyIn(Dist.CLIENT)
         @Override
         public void dispatch(UUID param0, ClientboundBossEventPacket.Handler param1) {
             param1.updateName(param0, this.name);
@@ -249,7 +244,6 @@ public class ClientboundBossEventPacket implements Packet<ClientGamePacketListen
             return ClientboundBossEventPacket.OperationType.UPDATE_PROGRESS;
         }
 
-        @OnlyIn(Dist.CLIENT)
         @Override
         public void dispatch(UUID param0, ClientboundBossEventPacket.Handler param1) {
             param1.updateProgress(param0, this.progress);
@@ -284,7 +278,6 @@ public class ClientboundBossEventPacket implements Packet<ClientGamePacketListen
             return ClientboundBossEventPacket.OperationType.UPDATE_PROPERTIES;
         }
 
-        @OnlyIn(Dist.CLIENT)
         @Override
         public void dispatch(UUID param0, ClientboundBossEventPacket.Handler param1) {
             param1.updateProperties(param0, this.darkenScreen, this.playMusic, this.createWorldFog);
@@ -315,7 +308,6 @@ public class ClientboundBossEventPacket implements Packet<ClientGamePacketListen
             return ClientboundBossEventPacket.OperationType.UPDATE_STYLE;
         }
 
-        @OnlyIn(Dist.CLIENT)
         @Override
         public void dispatch(UUID param0, ClientboundBossEventPacket.Handler param1) {
             param1.updateStyle(param0, this.color, this.overlay);

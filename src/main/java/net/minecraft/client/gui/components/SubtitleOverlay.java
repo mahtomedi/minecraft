@@ -19,6 +19,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class SubtitleOverlay extends GuiComponent implements SoundEventListener {
+    private static final long DISPLAY_TIME = 3000L;
     private final Minecraft minecraft;
     private final List<SubtitleOverlay.Subtitle> subtitles = Lists.newArrayList();
     private boolean isListening;

@@ -2,8 +2,6 @@ package net.minecraft.network.protocol.game;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundHorseScreenOpenPacket implements Packet<ClientGamePacketListener> {
     private final int containerId;
@@ -33,17 +31,14 @@ public class ClientboundHorseScreenOpenPacket implements Packet<ClientGamePacket
         param0.handleHorseScreenOpen(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getContainerId() {
         return this.containerId;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getSize() {
         return this.size;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getEntityId() {
         return this.entityId;
     }

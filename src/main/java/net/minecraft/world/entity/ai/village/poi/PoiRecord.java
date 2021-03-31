@@ -5,6 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Objects;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
+import net.minecraft.util.VisibleForDebug;
 
 public class PoiRecord {
     private final BlockPos pos;
@@ -33,6 +34,12 @@ public class PoiRecord {
 
     public PoiRecord(BlockPos param0, PoiType param1, Runnable param2) {
         this(param0, param1, param1.getMaxTickets(), param2);
+    }
+
+    @Deprecated
+    @VisibleForDebug
+    public int getFreeTickets() {
+        return this.freeTickets;
     }
 
     protected boolean acquireTicket() {

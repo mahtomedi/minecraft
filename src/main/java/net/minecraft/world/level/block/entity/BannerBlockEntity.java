@@ -16,10 +16,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.AbstractBannerBlock;
 import net.minecraft.world.level.block.BannerBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class BannerBlockEntity extends BlockEntity implements Nameable {
+    public static final int MAX_PATTERNS = 6;
+    public static final String TAG_PATTERNS = "Patterns";
+    public static final String TAG_PATTERN = "Pattern";
+    public static final String TAG_COLOR = "Color";
     @Nullable
     private Component name;
     private DyeColor baseColor;
@@ -40,7 +42,6 @@ public class BannerBlockEntity extends BlockEntity implements Nameable {
     }
 
     @Nullable
-    @OnlyIn(Dist.CLIENT)
     public static ListTag getItemPatterns(ItemStack param0) {
         ListTag var0 = null;
         CompoundTag var1 = param0.getTagElement("BlockEntityTag");
@@ -51,7 +52,6 @@ public class BannerBlockEntity extends BlockEntity implements Nameable {
         return var0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void fromItem(ItemStack param0, DyeColor param1) {
         this.itemPatterns = getItemPatterns(param0);
         this.baseColor = param1;
@@ -117,7 +117,6 @@ public class BannerBlockEntity extends BlockEntity implements Nameable {
         return var0 != null && var0.contains("Patterns") ? var0.getList("Patterns", 10).size() : 0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public List<Pair<BannerPattern, DyeColor>> getPatterns() {
         if (this.patterns == null && this.receivedData) {
             this.patterns = createPatterns(this.baseColor, this.itemPatterns);
@@ -126,7 +125,6 @@ public class BannerBlockEntity extends BlockEntity implements Nameable {
         return this.patterns;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static List<Pair<BannerPattern, DyeColor>> createPatterns(DyeColor param0, @Nullable ListTag param1) {
         List<Pair<BannerPattern, DyeColor>> var0 = Lists.newArrayList();
         var0.add(Pair.of(BannerPattern.BASE, param0));
@@ -158,7 +156,6 @@ public class BannerBlockEntity extends BlockEntity implements Nameable {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     public ItemStack getItem() {
         ItemStack var0 = new ItemStack(BannerBlock.byColor(this.baseColor));
         if (this.itemPatterns != null && !this.itemPatterns.isEmpty()) {

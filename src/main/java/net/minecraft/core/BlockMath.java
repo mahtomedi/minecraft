@@ -7,12 +7,9 @@ import com.mojang.math.Vector3f;
 import java.util.Map;
 import java.util.function.Supplier;
 import net.minecraft.Util;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-@OnlyIn(Dist.CLIENT)
 public class BlockMath {
     private static final Logger LOGGER = LogManager.getLogger();
     public static final Map<Direction, Transformation> VANILLA_UV_TRANSFORM_LOCAL_TO_GLOBAL = Util.make(Maps.newEnumMap(Direction.class), param0 -> {
@@ -34,6 +31,13 @@ public class BlockMath {
         Matrix4f var0 = Matrix4f.createTranslateMatrix(0.5F, 0.5F, 0.5F);
         var0.multiply(param0.getMatrix());
         var0.multiply(Matrix4f.createTranslateMatrix(-0.5F, -0.5F, -0.5F));
+        return new Transformation(var0);
+    }
+
+    public static Transformation blockCornerToCenter(Transformation param0) {
+        Matrix4f var0 = Matrix4f.createTranslateMatrix(-0.5F, -0.5F, -0.5F);
+        var0.multiply(param0.getMatrix());
+        var0.multiply(Matrix4f.createTranslateMatrix(0.5F, 0.5F, 0.5F));
         return new Transformation(var0);
     }
 

@@ -16,6 +16,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class ItemPickupParticle extends Particle {
+    private static final int LIFE_TIME = 3;
     private final RenderBuffers renderBuffers;
     private final Entity itemEntity;
     private final Entity target;

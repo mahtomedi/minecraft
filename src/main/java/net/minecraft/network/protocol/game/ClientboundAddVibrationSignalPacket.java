@@ -3,8 +3,6 @@ package net.minecraft.network.protocol.game;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.level.gameevent.vibrations.VibrationPath;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundAddVibrationSignalPacket implements Packet<ClientGamePacketListener> {
     private final VibrationPath vibrationPath;
@@ -26,7 +24,6 @@ public class ClientboundAddVibrationSignalPacket implements Packet<ClientGamePac
         param0.handleAddVibrationSignal(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public VibrationPath getVibrationPath() {
         return this.vibrationPath;
     }

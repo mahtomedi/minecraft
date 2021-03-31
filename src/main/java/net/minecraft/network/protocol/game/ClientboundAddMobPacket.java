@@ -7,8 +7,6 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundAddMobPacket implements Packet<ClientGamePacketListener> {
     private final int id;
@@ -79,62 +77,50 @@ public class ClientboundAddMobPacket implements Packet<ClientGamePacketListener>
         param0.handleAddMob(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getId() {
         return this.id;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public UUID getUUID() {
         return this.uuid;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getType() {
         return this.type;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public double getX() {
         return this.x;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public double getY() {
         return this.y;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public double getZ() {
         return this.z;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getXd() {
         return this.xd;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getYd() {
         return this.yd;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getZd() {
         return this.zd;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public byte getyRot() {
         return this.yRot;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public byte getxRot() {
         return this.xRot;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public byte getyHeadRot() {
         return this.yHeadRot;
     }

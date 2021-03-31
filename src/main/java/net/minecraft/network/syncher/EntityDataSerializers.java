@@ -315,6 +315,9 @@ public class EntityDataSerializers {
         return SERIALIZERS.getId(param0);
     }
 
+    private EntityDataSerializers() {
+    }
+
     static {
         registerSerializer(BYTE);
         registerSerializer(INT);

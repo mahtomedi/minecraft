@@ -4,11 +4,10 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public interface HoglinBase {
-    @OnlyIn(Dist.CLIENT)
+    int ATTACK_ANIMATION_DURATION = 10;
+
     int getAttackAnimationRemainingTicks();
 
     static boolean hurtAndThrowTarget(LivingEntity param0, LivingEntity param1) {

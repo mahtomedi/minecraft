@@ -1,9 +1,5 @@
 package net.minecraft.util.profiling.registry;
 
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-
-@OnlyIn(Dist.CLIENT)
 public class Metric {
     private final String name;
 

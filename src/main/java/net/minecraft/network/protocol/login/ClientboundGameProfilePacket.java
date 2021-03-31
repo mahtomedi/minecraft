@@ -5,8 +5,6 @@ import java.util.UUID;
 import net.minecraft.core.SerializableUUID;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundGameProfilePacket implements Packet<ClientLoginPacketListener> {
     private final GameProfile gameProfile;
@@ -40,7 +38,6 @@ public class ClientboundGameProfilePacket implements Packet<ClientLoginPacketLis
         param0.handleGameProfile(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public GameProfile getGameProfile() {
         return this.gameProfile;
     }

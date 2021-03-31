@@ -19,8 +19,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.util.Unit;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -52,7 +50,6 @@ public class SimpleReloadableResourceManager implements ReloadableResourceManage
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public Set<String> getNamespaces() {
         return this.namespaces;
@@ -68,7 +65,6 @@ public class SimpleReloadableResourceManager implements ReloadableResourceManage
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public boolean hasResource(ResourceLocation param0) {
         ResourceManager var0 = this.namespacedPacks.get(param0.getNamespace());
@@ -134,7 +130,6 @@ public class SimpleReloadableResourceManager implements ReloadableResourceManage
             : SimpleReloadInstance.of(this, Lists.newArrayList(this.listeners), param0, param1, param2));
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public Stream<PackResources> listPacks() {
         return this.packs.stream();
@@ -155,19 +150,16 @@ public class SimpleReloadableResourceManager implements ReloadableResourceManage
             return this.failedFuture;
         }
 
-        @OnlyIn(Dist.CLIENT)
         @Override
         public float getActualProgress() {
             return 0.0F;
         }
 
-        @OnlyIn(Dist.CLIENT)
         @Override
         public boolean isDone() {
             return true;
         }
 
-        @OnlyIn(Dist.CLIENT)
         @Override
         public void checkExceptions() {
             throw this.exception;
@@ -182,7 +174,6 @@ public class SimpleReloadableResourceManager implements ReloadableResourceManage
             this.pack = param0;
         }
 
-        @OnlyIn(Dist.CLIENT)
         public PackResources getPack() {
             return this.pack;
         }

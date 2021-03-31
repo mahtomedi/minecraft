@@ -1,9 +1,5 @@
 package net.minecraft.core.particles;
 
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-
-@OnlyIn(Dist.CLIENT)
 public class ParticleGroup {
     private final int limit;
     public static final ParticleGroup SPORE_BLOSSOM = new ParticleGroup(1000);

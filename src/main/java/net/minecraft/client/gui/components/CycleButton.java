@@ -199,6 +199,11 @@ public class CycleButton<T> extends AbstractButton implements TooltipAccessor {
             return this;
         }
 
+        public CycleButton<T> create(int param0, int param1, int param2, int param3, Component param4) {
+            return this.create(param0, param1, param2, param3, param4, (param0x, param1x) -> {
+            });
+        }
+
         public CycleButton<T> create(int param0, int param1, int param2, int param3, Component param4, CycleButton.OnValueChange<T> param5) {
             List<T> var0 = this.values.getDefaultList();
             if (var0.isEmpty()) {

@@ -2,58 +2,71 @@ package net.minecraft.world.level.levelgen.structure;
 
 import com.google.common.base.MoreObjects;
 import com.mojang.serialization.Codec;
+import java.util.Iterator;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.IntStream;
+import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class BoundingBox {
+    private static final Logger LOGGER = LogManager.getLogger();
     public static final Codec<BoundingBox> CODEC = Codec.INT_STREAM
         .<BoundingBox>comapFlatMap(
             param0 -> Util.fixedSize(param0, 6).map(param0x -> new BoundingBox(param0x[0], param0x[1], param0x[2], param0x[3], param0x[4], param0x[5])),
-            param0 -> IntStream.of(param0.x0, param0.y0, param0.z0, param0.x1, param0.y1, param0.z1)
+            param0 -> IntStream.of(param0.minX, param0.minY, param0.minZ, param0.maxX, param0.maxY, param0.maxZ)
         )
         .stable();
-    public int x0;
-    public int y0;
-    public int z0;
-    public int x1;
-    public int y1;
-    public int z1;
+    private int minX;
+    private int minY;
+    private int minZ;
+    private int maxX;
+    private int maxY;
+    private int maxZ;
 
     public BoundingBox(BlockPos param0) {
         this(param0.getX(), param0.getY(), param0.getZ(), param0.getX(), param0.getY(), param0.getZ());
     }
 
     public BoundingBox(int param0, int param1, int param2, int param3, int param4, int param5) {
-        this.x0 = param0;
-        this.y0 = param1;
-        this.z0 = param2;
-        this.x1 = param3;
-        this.y1 = param4;
-        this.z1 = param5;
+        this.minX = param0;
+        this.minY = param1;
+        this.minZ = param2;
+        this.maxX = param3;
+        this.maxY = param4;
+        this.maxZ = param5;
+        if (param3 < param0 || param4 < param1 || param5 < param2) {
+            String var0 = "Invalid bounding box data, inverted bounds for: " + this;
+            if (SharedConstants.IS_RUNNING_IN_IDE) {
+                throw new IllegalStateException(var0);
+            }
+
+            LOGGER.error(var0);
+            this.minX = Math.min(param0, param3);
+            this.minY = Math.min(param1, param4);
+            this.minZ = Math.min(param2, param5);
+            this.maxX = Math.max(param0, param3);
+            this.maxY = Math.max(param1, param4);
+            this.maxZ = Math.max(param2, param5);
+        }
+
     }
 
-    public static BoundingBox createProper(Vec3i param0, Vec3i param1) {
-        return createProper(param0.getX(), param0.getY(), param0.getZ(), param1.getX(), param1.getY(), param1.getZ());
-    }
-
-    public static BoundingBox createProper(int param0, int param1, int param2, int param3, int param4, int param5) {
+    public static BoundingBox fromCorners(Vec3i param0, Vec3i param1) {
         return new BoundingBox(
-            Math.min(param0, param3),
-            Math.min(param1, param4),
-            Math.min(param2, param5),
-            Math.max(param0, param3),
-            Math.max(param1, param4),
-            Math.max(param2, param5)
+            Math.min(param0.getX(), param1.getX()),
+            Math.min(param0.getY(), param1.getY()),
+            Math.min(param0.getZ(), param1.getZ()),
+            Math.max(param0.getX(), param1.getX()),
+            Math.max(param0.getY(), param1.getY()),
+            Math.max(param0.getZ(), param1.getZ())
         );
-    }
-
-    public static BoundingBox getUnknownBox() {
-        return new BoundingBox(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE);
     }
 
     public static BoundingBox infinite() {
@@ -64,13 +77,14 @@ public class BoundingBox {
         int param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, Direction param9
     ) {
         switch(param9) {
+            case SOUTH:
+            default:
+                return new BoundingBox(
+                    param0 + param3, param1 + param4, param2 + param5, param0 + param6 - 1 + param3, param1 + param7 - 1 + param4, param2 + param8 - 1 + param5
+                );
             case NORTH:
                 return new BoundingBox(
                     param0 + param3, param1 + param4, param2 - param8 + 1 + param5, param0 + param6 - 1 + param3, param1 + param7 - 1 + param4, param2 + param5
-                );
-            case SOUTH:
-                return new BoundingBox(
-                    param0 + param3, param1 + param4, param2 + param5, param0 + param6 - 1 + param3, param1 + param7 - 1 + param4, param2 + param8 - 1 + param5
                 );
             case WEST:
                 return new BoundingBox(
@@ -80,47 +94,82 @@ public class BoundingBox {
                 return new BoundingBox(
                     param0 + param5, param1 + param4, param2 + param3, param0 + param8 - 1 + param5, param1 + param7 - 1 + param4, param2 + param6 - 1 + param3
                 );
-            default:
-                return new BoundingBox(
-                    param0 + param3, param1 + param4, param2 + param5, param0 + param6 - 1 + param3, param1 + param7 - 1 + param4, param2 + param8 - 1 + param5
-                );
         }
     }
 
     public boolean intersects(BoundingBox param0) {
-        return this.x1 >= param0.x0 && this.x0 <= param0.x1 && this.z1 >= param0.z0 && this.z0 <= param0.z1 && this.y1 >= param0.y0 && this.y0 <= param0.y1;
+        return this.maxX >= param0.minX
+            && this.minX <= param0.maxX
+            && this.maxZ >= param0.minZ
+            && this.minZ <= param0.maxZ
+            && this.maxY >= param0.minY
+            && this.minY <= param0.maxY;
     }
 
     public boolean intersects(int param0, int param1, int param2, int param3) {
-        return this.x1 >= param0 && this.x0 <= param2 && this.z1 >= param1 && this.z0 <= param3;
+        return this.maxX >= param0 && this.minX <= param2 && this.maxZ >= param1 && this.minZ <= param3;
     }
 
-    public void expand(BoundingBox param0) {
-        this.x0 = Math.min(this.x0, param0.x0);
-        this.y0 = Math.min(this.y0, param0.y0);
-        this.z0 = Math.min(this.z0, param0.z0);
-        this.x1 = Math.max(this.x1, param0.x1);
-        this.y1 = Math.max(this.y1, param0.y1);
-        this.z1 = Math.max(this.z1, param0.z1);
+    public static Optional<BoundingBox> encapsulatingPositions(Iterable<BlockPos> param0) {
+        Iterator<BlockPos> var0 = param0.iterator();
+        if (!var0.hasNext()) {
+            return Optional.empty();
+        } else {
+            BoundingBox var1 = new BoundingBox(var0.next());
+            var0.forEachRemaining(var1::encapsulate);
+            return Optional.of(var1);
+        }
     }
 
-    public BoundingBox encapsulate(BlockPos param0) {
-        this.x0 = Math.min(this.x0, param0.getX());
-        this.y0 = Math.min(this.y0, param0.getY());
-        this.z0 = Math.min(this.z0, param0.getZ());
-        this.x1 = Math.max(this.x1, param0.getX());
-        this.y1 = Math.max(this.y1, param0.getY());
-        this.z1 = Math.max(this.z1, param0.getZ());
+    public static Optional<BoundingBox> encapsulatingBoxes(Iterable<BoundingBox> param0) {
+        Iterator<BoundingBox> var0 = param0.iterator();
+        if (!var0.hasNext()) {
+            return Optional.empty();
+        } else {
+            BoundingBox var1 = var0.next();
+            BoundingBox var2 = new BoundingBox(var1.minX, var1.minY, var1.minZ, var1.maxX, var1.maxY, var1.maxZ);
+            var0.forEachRemaining(var2::encapsulate);
+            return Optional.of(var2);
+        }
+    }
+
+    public BoundingBox encapsulate(BoundingBox param0x) {
+        this.minX = Math.min(this.minX, param0x.minX);
+        this.minY = Math.min(this.minY, param0x.minY);
+        this.minZ = Math.min(this.minZ, param0x.minZ);
+        this.maxX = Math.max(this.maxX, param0x.maxX);
+        this.maxY = Math.max(this.maxY, param0x.maxY);
+        this.maxZ = Math.max(this.maxZ, param0x.maxZ);
+        return this;
+    }
+
+    public BoundingBox encapsulate(BlockPos param0x) {
+        this.minX = Math.min(this.minX, param0x.getX());
+        this.minY = Math.min(this.minY, param0x.getY());
+        this.minZ = Math.min(this.minZ, param0x.getZ());
+        this.maxX = Math.max(this.maxX, param0x.getX());
+        this.maxY = Math.max(this.maxY, param0x.getY());
+        this.maxZ = Math.max(this.maxZ, param0x.getZ());
+        return this;
+    }
+
+    public BoundingBox inflate(int param0) {
+        this.minX -= param0;
+        this.minY -= param0;
+        this.minZ -= param0;
+        this.maxX += param0;
+        this.maxY += param0;
+        this.maxZ += param0;
         return this;
     }
 
     public BoundingBox move(int param0, int param1, int param2) {
-        this.x0 += param0;
-        this.y0 += param1;
-        this.z0 += param2;
-        this.x1 += param0;
-        this.y1 += param1;
-        this.z1 += param2;
+        this.minX += param0;
+        this.minY += param1;
+        this.minZ += param2;
+        this.maxX += param0;
+        this.maxY += param1;
+        this.maxZ += param2;
         return this;
     }
 
@@ -129,59 +178,61 @@ public class BoundingBox {
     }
 
     public BoundingBox moved(int param0, int param1, int param2) {
-        return new BoundingBox(this.x0 + param0, this.y0 + param1, this.z0 + param2, this.x1 + param0, this.y1 + param1, this.z1 + param2);
+        return new BoundingBox(this.minX + param0, this.minY + param1, this.minZ + param2, this.maxX + param0, this.maxY + param1, this.maxZ + param2);
     }
 
     public boolean isInside(Vec3i param0) {
-        return param0.getX() >= this.x0
-            && param0.getX() <= this.x1
-            && param0.getZ() >= this.z0
-            && param0.getZ() <= this.z1
-            && param0.getY() >= this.y0
-            && param0.getY() <= this.y1;
+        return param0.getX() >= this.minX
+            && param0.getX() <= this.maxX
+            && param0.getZ() >= this.minZ
+            && param0.getZ() <= this.maxZ
+            && param0.getY() >= this.minY
+            && param0.getY() <= this.maxY;
     }
 
     public Vec3i getLength() {
-        return new Vec3i(this.x1 - this.x0, this.y1 - this.y0, this.z1 - this.z0);
+        return new Vec3i(this.maxX - this.minX, this.maxY - this.minY, this.maxZ - this.minZ);
     }
 
     public int getXSpan() {
-        return this.x1 - this.x0 + 1;
+        return this.maxX - this.minX + 1;
     }
 
     public int getYSpan() {
-        return this.y1 - this.y0 + 1;
+        return this.maxY - this.minY + 1;
     }
 
     public int getZSpan() {
-        return this.z1 - this.z0 + 1;
+        return this.maxZ - this.minZ + 1;
     }
 
     public BlockPos getCenter() {
-        return new BlockPos(this.x0 + (this.x1 - this.x0 + 1) / 2, this.y0 + (this.y1 - this.y0 + 1) / 2, this.z0 + (this.z1 - this.z0 + 1) / 2);
+        return new BlockPos(
+            this.minX + (this.maxX - this.minX + 1) / 2, this.minY + (this.maxY - this.minY + 1) / 2, this.minZ + (this.maxZ - this.minZ + 1) / 2
+        );
     }
 
     public void forAllCorners(Consumer<BlockPos> param0) {
         BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos();
-        param0.accept(var0.set(this.x1, this.y1, this.z1));
-        param0.accept(var0.set(this.x0, this.y1, this.z1));
-        param0.accept(var0.set(this.x1, this.y0, this.z1));
-        param0.accept(var0.set(this.x0, this.y0, this.z1));
-        param0.accept(var0.set(this.x1, this.y1, this.z0));
-        param0.accept(var0.set(this.x0, this.y1, this.z0));
-        param0.accept(var0.set(this.x1, this.y0, this.z0));
-        param0.accept(var0.set(this.x0, this.y0, this.z0));
+        param0.accept(var0.set(this.maxX, this.maxY, this.maxZ));
+        param0.accept(var0.set(this.minX, this.maxY, this.maxZ));
+        param0.accept(var0.set(this.maxX, this.minY, this.maxZ));
+        param0.accept(var0.set(this.minX, this.minY, this.maxZ));
+        param0.accept(var0.set(this.maxX, this.maxY, this.minZ));
+        param0.accept(var0.set(this.minX, this.maxY, this.minZ));
+        param0.accept(var0.set(this.maxX, this.minY, this.minZ));
+        param0.accept(var0.set(this.minX, this.minY, this.minZ));
     }
 
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-            .add("x0", this.x0)
-            .add("y0", this.y0)
-            .add("z0", this.z0)
-            .add("x1", this.x1)
-            .add("y1", this.y1)
-            .add("z1", this.z1)
+            .add("minX", this.minX)
+            .add("minY", this.minY)
+            .add("minZ", this.minZ)
+            .add("maxX", this.maxX)
+            .add("maxY", this.maxY)
+            .add("maxZ", this.maxZ)
             .toString();
     }
 
@@ -193,12 +244,41 @@ public class BoundingBox {
             return false;
         } else {
             BoundingBox var0 = (BoundingBox)param0;
-            return this.x0 == var0.x0 && this.y0 == var0.y0 && this.z0 == var0.z0 && this.x1 == var0.x1 && this.y1 == var0.y1 && this.z1 == var0.z1;
+            return this.minX == var0.minX
+                && this.minY == var0.minY
+                && this.minZ == var0.minZ
+                && this.maxX == var0.maxX
+                && this.maxY == var0.maxY
+                && this.maxZ == var0.maxZ;
         }
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.x0, this.y0, this.z0, this.x1, this.y1, this.z1);
+        return Objects.hash(this.minX, this.minY, this.minZ, this.maxX, this.maxY, this.maxZ);
+    }
+
+    public int minX() {
+        return this.minX;
+    }
+
+    public int minY() {
+        return this.minY;
+    }
+
+    public int minZ() {
+        return this.minZ;
+    }
+
+    public int maxX() {
+        return this.maxX;
+    }
+
+    public int maxY() {
+        return this.maxY;
+    }
+
+    public int maxZ() {
+        return this.maxZ;
     }
 }

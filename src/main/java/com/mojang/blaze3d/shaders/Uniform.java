@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
+import com.mojang.math.Vector4f;
 import java.nio.Buffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -16,6 +17,18 @@ import org.lwjgl.system.MemoryUtil;
 @OnlyIn(Dist.CLIENT)
 public class Uniform extends AbstractUniform implements AutoCloseable {
     private static final Logger LOGGER = LogManager.getLogger();
+    public static final int UT_INT1 = 0;
+    public static final int UT_INT2 = 1;
+    public static final int UT_INT3 = 2;
+    public static final int UT_INT4 = 3;
+    public static final int UT_FLOAT1 = 4;
+    public static final int UT_FLOAT2 = 5;
+    public static final int UT_FLOAT3 = 6;
+    public static final int UT_FLOAT4 = 7;
+    public static final int UT_MAT2 = 8;
+    public static final int UT_MAT3 = 9;
+    public static final int UT_MAT4 = 10;
+    private static final boolean TRANSPOSE_MATRICIES = false;
     private int location;
     private final int count;
     private final int type;
@@ -120,6 +133,12 @@ public class Uniform extends AbstractUniform implements AutoCloseable {
         this.markDirty();
     }
 
+    public final void set(int param0, float param1) {
+        ((Buffer)this.floatValues).position(0);
+        this.floatValues.put(param0, param1);
+        this.markDirty();
+    }
+
     @Override
     public final void set(float param0, float param1, float param2) {
         ((Buffer)this.floatValues).position(0);
@@ -146,6 +165,16 @@ public class Uniform extends AbstractUniform implements AutoCloseable {
         this.floatValues.put(param2);
         this.floatValues.put(param3);
         ((Buffer)this.floatValues).flip();
+        this.markDirty();
+    }
+
+    @Override
+    public final void set(Vector4f param0) {
+        ((Buffer)this.floatValues).position(0);
+        this.floatValues.put(0, param0.x());
+        this.floatValues.put(1, param0.y());
+        this.floatValues.put(2, param0.z());
+        this.floatValues.put(3, param0.w());
         this.markDirty();
     }
 
@@ -194,6 +223,40 @@ public class Uniform extends AbstractUniform implements AutoCloseable {
     }
 
     @Override
+    public final void set(int param0) {
+        ((Buffer)this.intValues).position(0);
+        this.intValues.put(0, param0);
+        this.markDirty();
+    }
+
+    @Override
+    public final void set(int param0, int param1) {
+        ((Buffer)this.intValues).position(0);
+        this.intValues.put(0, param0);
+        this.intValues.put(1, param1);
+        this.markDirty();
+    }
+
+    @Override
+    public final void set(int param0, int param1, int param2) {
+        ((Buffer)this.intValues).position(0);
+        this.intValues.put(0, param0);
+        this.intValues.put(1, param1);
+        this.intValues.put(2, param2);
+        this.markDirty();
+    }
+
+    @Override
+    public final void set(int param0, int param1, int param2, int param3) {
+        ((Buffer)this.intValues).position(0);
+        this.intValues.put(0, param0);
+        this.intValues.put(1, param1);
+        this.intValues.put(2, param2);
+        this.intValues.put(3, param3);
+        this.markDirty();
+    }
+
+    @Override
     public final void set(float[] param0) {
         if (param0.length < this.count) {
             LOGGER.warn("Uniform.set called with a too-small value array (expected {}, got {}). Ignoring.", this.count, param0.length);
@@ -203,6 +266,184 @@ public class Uniform extends AbstractUniform implements AutoCloseable {
             ((Buffer)this.floatValues).position(0);
             this.markDirty();
         }
+    }
+
+    @Override
+    public final void setMat2x2(float param0, float param1, float param2, float param3) {
+        ((Buffer)this.floatValues).position(0);
+        this.floatValues.put(0, param0);
+        this.floatValues.put(1, param1);
+        this.floatValues.put(2, param2);
+        this.floatValues.put(3, param3);
+        this.markDirty();
+    }
+
+    @Override
+    public final void setMat2x3(float param0, float param1, float param2, float param3, float param4, float param5) {
+        ((Buffer)this.floatValues).position(0);
+        this.floatValues.put(0, param0);
+        this.floatValues.put(1, param1);
+        this.floatValues.put(2, param2);
+        this.floatValues.put(3, param3);
+        this.floatValues.put(4, param4);
+        this.floatValues.put(5, param5);
+        this.markDirty();
+    }
+
+    @Override
+    public final void setMat2x4(float param0, float param1, float param2, float param3, float param4, float param5, float param6, float param7) {
+        ((Buffer)this.floatValues).position(0);
+        this.floatValues.put(0, param0);
+        this.floatValues.put(1, param1);
+        this.floatValues.put(2, param2);
+        this.floatValues.put(3, param3);
+        this.floatValues.put(4, param4);
+        this.floatValues.put(5, param5);
+        this.floatValues.put(6, param6);
+        this.floatValues.put(7, param7);
+        this.markDirty();
+    }
+
+    @Override
+    public final void setMat3x2(float param0, float param1, float param2, float param3, float param4, float param5) {
+        ((Buffer)this.floatValues).position(0);
+        this.floatValues.put(0, param0);
+        this.floatValues.put(1, param1);
+        this.floatValues.put(2, param2);
+        this.floatValues.put(3, param3);
+        this.floatValues.put(4, param4);
+        this.floatValues.put(5, param5);
+        this.markDirty();
+    }
+
+    @Override
+    public final void setMat3x3(float param0, float param1, float param2, float param3, float param4, float param5, float param6, float param7, float param8) {
+        ((Buffer)this.floatValues).position(0);
+        this.floatValues.put(0, param0);
+        this.floatValues.put(1, param1);
+        this.floatValues.put(2, param2);
+        this.floatValues.put(3, param3);
+        this.floatValues.put(4, param4);
+        this.floatValues.put(5, param5);
+        this.floatValues.put(6, param6);
+        this.floatValues.put(7, param7);
+        this.floatValues.put(8, param8);
+        this.markDirty();
+    }
+
+    @Override
+    public final void setMat3x4(
+        float param0,
+        float param1,
+        float param2,
+        float param3,
+        float param4,
+        float param5,
+        float param6,
+        float param7,
+        float param8,
+        float param9,
+        float param10,
+        float param11
+    ) {
+        ((Buffer)this.floatValues).position(0);
+        this.floatValues.put(0, param0);
+        this.floatValues.put(1, param1);
+        this.floatValues.put(2, param2);
+        this.floatValues.put(3, param3);
+        this.floatValues.put(4, param4);
+        this.floatValues.put(5, param5);
+        this.floatValues.put(6, param6);
+        this.floatValues.put(7, param7);
+        this.floatValues.put(8, param8);
+        this.floatValues.put(9, param9);
+        this.floatValues.put(10, param10);
+        this.floatValues.put(11, param11);
+        this.markDirty();
+    }
+
+    @Override
+    public final void setMat4x2(float param0, float param1, float param2, float param3, float param4, float param5, float param6, float param7) {
+        ((Buffer)this.floatValues).position(0);
+        this.floatValues.put(0, param0);
+        this.floatValues.put(1, param1);
+        this.floatValues.put(2, param2);
+        this.floatValues.put(3, param3);
+        this.floatValues.put(4, param4);
+        this.floatValues.put(5, param5);
+        this.floatValues.put(6, param6);
+        this.floatValues.put(7, param7);
+        this.markDirty();
+    }
+
+    @Override
+    public final void setMat4x3(
+        float param0,
+        float param1,
+        float param2,
+        float param3,
+        float param4,
+        float param5,
+        float param6,
+        float param7,
+        float param8,
+        float param9,
+        float param10,
+        float param11
+    ) {
+        ((Buffer)this.floatValues).position(0);
+        this.floatValues.put(0, param0);
+        this.floatValues.put(1, param1);
+        this.floatValues.put(2, param2);
+        this.floatValues.put(3, param3);
+        this.floatValues.put(4, param4);
+        this.floatValues.put(5, param5);
+        this.floatValues.put(6, param6);
+        this.floatValues.put(7, param7);
+        this.floatValues.put(8, param8);
+        this.floatValues.put(9, param9);
+        this.floatValues.put(10, param10);
+        this.floatValues.put(11, param11);
+        this.markDirty();
+    }
+
+    @Override
+    public final void setMat4x4(
+        float param0,
+        float param1,
+        float param2,
+        float param3,
+        float param4,
+        float param5,
+        float param6,
+        float param7,
+        float param8,
+        float param9,
+        float param10,
+        float param11,
+        float param12,
+        float param13,
+        float param14,
+        float param15
+    ) {
+        ((Buffer)this.floatValues).position(0);
+        this.floatValues.put(0, param0);
+        this.floatValues.put(1, param1);
+        this.floatValues.put(2, param2);
+        this.floatValues.put(3, param3);
+        this.floatValues.put(4, param4);
+        this.floatValues.put(5, param5);
+        this.floatValues.put(6, param6);
+        this.floatValues.put(7, param7);
+        this.floatValues.put(8, param8);
+        this.floatValues.put(9, param9);
+        this.floatValues.put(10, param10);
+        this.floatValues.put(11, param11);
+        this.floatValues.put(12, param12);
+        this.floatValues.put(13, param13);
+        this.floatValues.put(14, param14);
+        this.floatValues.put(15, param15);
+        this.markDirty();
     }
 
     @Override
@@ -287,5 +528,25 @@ public class Uniform extends AbstractUniform implements AutoCloseable {
                 RenderSystem.glUniformMatrix4(this.location, false, this.floatValues);
         }
 
+    }
+
+    public int getLocation() {
+        return this.location;
+    }
+
+    public int getCount() {
+        return this.count;
+    }
+
+    public int getType() {
+        return this.type;
+    }
+
+    public IntBuffer getIntBuffer() {
+        return this.intValues;
+    }
+
+    public FloatBuffer getFloatBuffer() {
+        return this.floatValues;
     }
 }

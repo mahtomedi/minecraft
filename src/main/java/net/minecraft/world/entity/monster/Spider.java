@@ -44,6 +44,7 @@ import net.minecraft.world.phys.Vec3;
 
 public class Spider extends Monster {
     private static final EntityDataAccessor<Byte> DATA_FLAGS_ID = SynchedEntityData.defineId(Spider.class, EntityDataSerializers.BYTE);
+    private static final float SPIDER_SPECIAL_EFFECT_CHANCE = 0.1F;
 
     public Spider(EntityType<? extends Spider> param0, Level param1) {
         super(param0, param1);

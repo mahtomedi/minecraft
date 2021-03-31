@@ -3,15 +3,12 @@ package net.minecraft.util;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.StringUtils;
 
 public class StringUtil {
     private static final Pattern STRIP_COLOR_PATTERN = Pattern.compile("(?i)\\u00A7[0-9A-FK-OR]");
     private static final Pattern LINE_PATTERN = Pattern.compile("\r\n|[\n\r\u2028\u2029\u0085]");
 
-    @OnlyIn(Dist.CLIENT)
     public static String formatTickDuration(int param0) {
         int var0 = param0 / 20;
         int var1 = var0 / 60;
@@ -19,7 +16,6 @@ public class StringUtil {
         return var0 < 10 ? var1 + ":0" + var0 : var1 + ":" + var0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static String stripColor(String param0) {
         return STRIP_COLOR_PATTERN.matcher(param0).replaceAll("");
     }
@@ -28,7 +24,14 @@ public class StringUtil {
         return StringUtils.isEmpty(param0);
     }
 
-    @OnlyIn(Dist.CLIENT)
+    public static String truncateStringIfNecessary(String param0, int param1, boolean param2) {
+        if (param0.length() <= param1) {
+            return param0;
+        } else {
+            return param2 && param1 > 3 ? param0.substring(0, param1 - 3) + "..." : param0.substring(0, param1);
+        }
+    }
+
     public static int lineCount(String param0) {
         if (param0.isEmpty()) {
             return 0;

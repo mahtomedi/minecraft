@@ -46,7 +46,7 @@ public class ScaffoldingBlockItem extends BlockItem {
                     int var9 = var1.getMaxBuildHeight();
                     if (var8 instanceof ServerPlayer && var7.getY() >= var9) {
                         ((ServerPlayer)var8)
-                            .sendMessage(new TranslatableComponent("build.tooHigh", var9).withStyle(ChatFormatting.RED), ChatType.GAME_INFO, Util.NIL_UUID);
+                            .sendMessage(new TranslatableComponent("build.tooHigh", var9 - 1).withStyle(ChatFormatting.RED), ChatType.GAME_INFO, Util.NIL_UUID);
                     }
                     break;
                 }

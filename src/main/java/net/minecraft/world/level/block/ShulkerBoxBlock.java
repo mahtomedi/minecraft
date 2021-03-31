@@ -46,8 +46,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ShulkerBoxBlock extends BaseEntityBlock {
     public static final EnumProperty<Direction> FACING = DirectionalBlock.FACING;
@@ -185,7 +183,6 @@ public class ShulkerBoxBlock extends BaseEntityBlock {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void appendHoverText(ItemStack param0, @Nullable BlockGetter param1, List<Component> param2, TooltipFlag param3) {
         super.appendHoverText(param0, param1, param2, param3);
@@ -242,7 +239,6 @@ public class ShulkerBoxBlock extends BaseEntityBlock {
         return AbstractContainerMenu.getRedstoneSignalFromContainer((Container)param1.getBlockEntity(param2));
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public ItemStack getCloneItemStack(BlockGetter param0, BlockPos param1, BlockState param2) {
         ItemStack var0 = super.getCloneItemStack(param0, param1, param2);
@@ -256,7 +252,6 @@ public class ShulkerBoxBlock extends BaseEntityBlock {
     }
 
     @Nullable
-    @OnlyIn(Dist.CLIENT)
     public static DyeColor getColorFromItem(Item param0) {
         return getColorFromBlock(Block.byItem(param0));
     }

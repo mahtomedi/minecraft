@@ -35,13 +35,13 @@ public class CanyonWorldCarver extends WorldCarver<CanyonCarverConfiguration> {
     ) {
         int var0 = (this.getRange() * 2 - 1) * 16;
         double var1 = (double)param6.getBlockX(param4.nextInt(16));
-        int var2 = this.getY(param0, param1, param4);
+        int var2 = param1.y.sample(param4, param0);
         double var3 = (double)param6.getBlockZ(param4.nextInt(16));
         float var4 = param4.nextFloat() * (float) (Math.PI * 2);
-        float var5 = param1.getVerticalRotation().sample(param4);
-        double var6 = (double)param1.getYScale().sample(param4);
-        float var7 = param1.getThickness().sample(param4);
-        int var8 = (int)((float)var0 * param1.getDistanceFactor().sample(param4));
+        float var5 = param1.verticalRotation.sample(param4);
+        double var6 = (double)param1.yScale.sample(param4);
+        float var7 = param1.shape.thickness.sample(param4);
+        int var8 = (int)((float)var0 * param1.shape.distanceFactor.sample(param4));
         int var9 = 0;
         this.doCarve(param0, param1, param2, param3, param4.nextLong(), param5, var1, (double)var2, var3, var7, var4, var5, 0, var8, var6, param7);
         return true;
@@ -73,7 +73,7 @@ public class CanyonWorldCarver extends WorldCarver<CanyonCarverConfiguration> {
         for(int var4 = param12; var4 < param13; ++var4) {
             double var5 = 1.5 + (double)(Mth.sin((float)var4 * (float) Math.PI / (float)param13) * param9);
             double var6 = var5 * param14;
-            var5 *= (double)param1.getHorizontalRadiusFactor().sample(var0);
+            var5 *= (double)param1.shape.horizontalRadiusFactor.sample(var0);
             var6 = this.updateVerticalRadius(param1, var0, var6, (float)param13, (float)var4);
             float var7 = Mth.cos(param11);
             float var8 = Mth.sin(param11);
@@ -112,24 +112,13 @@ public class CanyonWorldCarver extends WorldCarver<CanyonCarverConfiguration> {
 
     }
 
-    private int getY(CarvingContext param0, CanyonCarverConfiguration param1, Random param2) {
-        int var0 = param1.getBottomInclusive().resolveY(param0);
-        int var1 = param1.getTopInclusive().resolveY(param0);
-        if (var0 >= var1) {
-            LOGGER.warn("Empty carver: {} [{}-{}]", this, var0, var1);
-            return var0;
-        } else {
-            return Mth.randomBetweenInclusive(param2, var0, var1);
-        }
-    }
-
     private float[] initWidthFactors(CarvingContext param0, CanyonCarverConfiguration param1, Random param2) {
         int var0 = param0.getGenDepth();
         float[] var1 = new float[var0];
         float var2 = 1.0F;
 
         for(int var3 = 0; var3 < var0; ++var3) {
-            if (var3 == 0 || param2.nextInt(param1.getWidthSmoothness()) == 0) {
+            if (var3 == 0 || param2.nextInt(param1.shape.widthSmoothness) == 0) {
                 var2 = 1.0F + param2.nextFloat() * param2.nextFloat();
             }
 
@@ -141,7 +130,7 @@ public class CanyonWorldCarver extends WorldCarver<CanyonCarverConfiguration> {
 
     private double updateVerticalRadius(CanyonCarverConfiguration param0, Random param1, double param2, float param3, float param4) {
         float var0 = 1.0F - Mth.abs(0.5F - param4 / param3) * 2.0F;
-        float var1 = param0.getVerticalRadiusDefaultFactor() + param0.getVerticalRadiusCenterFactor() * var0;
+        float var1 = param0.shape.verticalRadiusDefaultFactor + param0.shape.verticalRadiusCenterFactor * var0;
         return (double)var1 * param2 * (double)Mth.randomBetween(param1, 0.75F, 1.0F);
     }
 

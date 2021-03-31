@@ -12,8 +12,6 @@ import javax.annotation.Nullable;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.metadata.MetadataSectionSerializer;
 import net.minecraft.util.GsonHelper;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -45,7 +43,6 @@ public abstract class AbstractPackResources implements PackResources {
 
     protected abstract InputStream getResource(String var1) throws IOException;
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public InputStream getRootResource(String param0) throws IOException {
         if (!param0.contains("/") && !param0.contains("\\")) {

@@ -53,13 +53,14 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ChestBlock extends AbstractChestBlock<ChestBlockEntity> implements SimpleWaterloggedBlock {
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
     public static final EnumProperty<ChestType> TYPE = BlockStateProperties.CHEST_TYPE;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
+    public static final int EVENT_SET_OPEN_COUNT = 1;
+    protected static final int AABB_OFFSET = 1;
+    protected static final int AABB_HEIGHT = 14;
     protected static final VoxelShape NORTH_AABB = Block.box(1.0, 0.0, 0.0, 15.0, 14.0, 15.0);
     protected static final VoxelShape SOUTH_AABB = Block.box(1.0, 0.0, 1.0, 15.0, 14.0, 16.0);
     protected static final VoxelShape WEST_AABB = Block.box(0.0, 0.0, 1.0, 15.0, 14.0, 15.0);
@@ -294,7 +295,6 @@ public class ChestBlock extends AbstractChestBlock<ChestBlockEntity> implements 
         return this.combine(param0, param1, param2, false).<Optional<MenuProvider>>apply(MENU_PROVIDER_COMBINER).orElse(null);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static DoubleBlockCombiner.Combiner<ChestBlockEntity, Float2FloatFunction> opennessCombiner(final LidBlockEntity param0) {
         return new DoubleBlockCombiner.Combiner<ChestBlockEntity, Float2FloatFunction>() {
             public Float2FloatFunction acceptDouble(ChestBlockEntity param0x, ChestBlockEntity param1) {

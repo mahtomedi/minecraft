@@ -78,6 +78,11 @@ public class ChunkTickList<T> implements TickList<T> {
         this.ticks.forEach(param1 -> param0.scheduleTick(param1.pos, param1.type, param1.delay, param1.priority));
     }
 
+    @Override
+    public int size() {
+        return this.ticks.size();
+    }
+
     static class ScheduledTick<T> {
         private final T type;
         public final BlockPos pos;

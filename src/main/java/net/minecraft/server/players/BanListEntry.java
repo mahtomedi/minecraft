@@ -9,6 +9,7 @@ import net.minecraft.network.chat.Component;
 
 public abstract class BanListEntry<T> extends StoredUserEntry<T> {
     public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
+    public static final String EXPIRES_NEVER = "forever";
     protected final Date created;
     protected final String source;
     protected final Date expires;
@@ -44,6 +45,10 @@ public abstract class BanListEntry<T> extends StoredUserEntry<T> {
 
         this.expires = var3;
         this.reason = param1.has("reason") ? param1.get("reason").getAsString() : "Banned by an operator.";
+    }
+
+    public Date getCreated() {
+        return this.created;
     }
 
     public String getSource() {

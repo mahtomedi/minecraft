@@ -41,10 +41,10 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ArmorStand extends LivingEntity {
+    public static final int WOBBLE_TIME = 5;
+    private static final boolean ENABLE_ARMS = true;
     private static final Rotations DEFAULT_HEAD_POSE = new Rotations(0.0F, 0.0F, 0.0F);
     private static final Rotations DEFAULT_BODY_POSE = new Rotations(0.0F, 0.0F, 0.0F);
     private static final Rotations DEFAULT_LEFT_ARM_POSE = new Rotations(-10.0F, 0.0F, -10.0F);
@@ -53,6 +53,16 @@ public class ArmorStand extends LivingEntity {
     private static final Rotations DEFAULT_RIGHT_LEG_POSE = new Rotations(1.0F, 0.0F, 1.0F);
     private static final EntityDimensions MARKER_DIMENSIONS = new EntityDimensions(0.0F, 0.0F, true);
     private static final EntityDimensions BABY_DIMENSIONS = EntityType.ARMOR_STAND.getDimensions().scale(0.5F);
+    private static final double FEET_OFFSET = 0.1;
+    private static final double CHEST_OFFSET = 0.9;
+    private static final double LEGS_OFFSET = 0.4;
+    private static final double HEAD_OFFSET = 1.6;
+    public static final int DISABLE_TAKING_OFFSET = 8;
+    public static final int DISABLE_PUTTING_OFFSET = 16;
+    public static final int CLIENT_FLAG_SMALL = 1;
+    public static final int CLIENT_FLAG_SHOW_ARMS = 4;
+    public static final int CLIENT_FLAG_NO_BASEPLATE = 8;
+    public static final int CLIENT_FLAG_MARKER = 16;
     public static final EntityDataAccessor<Byte> DATA_CLIENT_FLAGS = SynchedEntityData.defineId(ArmorStand.class, EntityDataSerializers.BYTE);
     public static final EntityDataAccessor<Rotations> DATA_HEAD_POSE = SynchedEntityData.defineId(ArmorStand.class, EntityDataSerializers.ROTATIONS);
     public static final EntityDataAccessor<Rotations> DATA_BODY_POSE = SynchedEntityData.defineId(ArmorStand.class, EntityDataSerializers.ROTATIONS);
@@ -430,7 +440,6 @@ public class ArmorStand extends LivingEntity {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void handleEntityEvent(byte param0) {
         if (param0 == 32) {
@@ -444,7 +453,6 @@ public class ArmorStand extends LivingEntity {
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public boolean shouldRenderAtSqrDistance(double param0) {
         double var0 = this.getBoundingBox().getSize() * 4.0;
@@ -700,22 +708,18 @@ public class ArmorStand extends LivingEntity {
         return this.bodyPose;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Rotations getLeftArmPose() {
         return this.leftArmPose;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Rotations getRightArmPose() {
         return this.rightArmPose;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Rotations getLeftLegPose() {
         return this.leftLegPose;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Rotations getRightLegPose() {
         return this.rightLegPose;
     }
@@ -789,7 +793,6 @@ public class ArmorStand extends LivingEntity {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public Vec3 getLightProbePosition(float param0) {
         if (this.isMarker()) {
@@ -815,7 +818,6 @@ public class ArmorStand extends LivingEntity {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public ItemStack getPickResult() {
         return new ItemStack(Items.ARMOR_STAND);

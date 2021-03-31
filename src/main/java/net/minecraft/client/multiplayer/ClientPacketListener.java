@@ -899,41 +899,43 @@ public class ClientPacketListener implements ClientGamePacketListener {
         this.started = false;
         if (var0 != var2.level.dimension()) {
             Scoreboard var4 = this.level.getScoreboard();
-            boolean var5 = param0.isDebug();
-            boolean var6 = param0.isFlat();
-            ClientLevel.ClientLevelData var7 = new ClientLevel.ClientLevelData(this.levelData.getDifficulty(), this.levelData.isHardcore(), var6);
-            this.levelData = var7;
+            Map<String, MapItemSavedData> var5 = this.level.getAllMapData();
+            boolean var6 = param0.isDebug();
+            boolean var7 = param0.isFlat();
+            ClientLevel.ClientLevelData var8 = new ClientLevel.ClientLevelData(this.levelData.getDifficulty(), this.levelData.isHardcore(), var7);
+            this.levelData = var8;
             this.level = new ClientLevel(
-                this, var7, var0, var1, this.serverChunkRadius, this.minecraft::getProfiler, this.minecraft.levelRenderer, var5, param0.getSeed()
+                this, var8, var0, var1, this.serverChunkRadius, this.minecraft::getProfiler, this.minecraft.levelRenderer, var6, param0.getSeed()
             );
             this.level.setScoreboard(var4);
+            this.level.addMapData(var5);
             this.minecraft.setLevel(this.level);
             this.minecraft.setScreen(new ReceivingLevelScreen());
         }
 
-        String var8 = var2.getServerBrand();
+        String var9 = var2.getServerBrand();
         this.minecraft.cameraEntity = null;
-        LocalPlayer var9 = this.minecraft.gameMode.createPlayer(this.level, var2.getStats(), var2.getRecipeBook(), var2.isShiftKeyDown(), var2.isSprinting());
-        var9.setId(var3);
-        this.minecraft.player = var9;
+        LocalPlayer var10 = this.minecraft.gameMode.createPlayer(this.level, var2.getStats(), var2.getRecipeBook(), var2.isShiftKeyDown(), var2.isSprinting());
+        var10.setId(var3);
+        this.minecraft.player = var10;
         if (var0 != var2.level.dimension()) {
             this.minecraft.getMusicManager().stopPlaying();
         }
 
-        this.minecraft.cameraEntity = var9;
-        var9.getEntityData().assignValues(var2.getEntityData().getAll());
+        this.minecraft.cameraEntity = var10;
+        var10.getEntityData().assignValues(var2.getEntityData().getAll());
         if (param0.shouldKeepAllPlayerData()) {
-            var9.getAttributes().assignValues(var2.getAttributes());
+            var10.getAttributes().assignValues(var2.getAttributes());
         }
 
-        var9.resetPos();
-        var9.setServerBrand(var8);
-        this.level.addPlayer(var3, var9);
-        var9.yRot = -180.0F;
-        var9.input = new KeyboardInput(this.minecraft.options);
-        this.minecraft.gameMode.adjustPlayer(var9);
-        var9.setReducedDebugInfo(var2.isReducedDebugInfo());
-        var9.setShowDeathScreen(var2.shouldShowDeathScreen());
+        var10.resetPos();
+        var10.setServerBrand(var9);
+        this.level.addPlayer(var3, var10);
+        var10.yRot = -180.0F;
+        var10.input = new KeyboardInput(this.minecraft.options);
+        this.minecraft.gameMode.adjustPlayer(var10);
+        var10.setReducedDebugInfo(var2.isReducedDebugInfo());
+        var10.setShowDeathScreen(var2.shouldShowDeathScreen());
         if (this.minecraft.screen instanceof DeathScreen) {
             this.minecraft.setScreen(null);
         }
@@ -1187,11 +1189,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
         String var2 = MapItem.makeKey(var1);
         MapItemSavedData var3 = this.minecraft.level.getMapData(var2);
         if (var3 == null) {
-            var3 = var0.retrieveMapFromRenderer(var1);
-            if (var3 == null) {
-                var3 = MapItemSavedData.createForClient(param0.getScale(), param0.isLocked(), this.minecraft.level.dimension());
-            }
-
+            var3 = MapItemSavedData.createForClient(param0.getScale(), param0.isLocked(), this.minecraft.level.dimension());
             this.minecraft.level.setMapData(var2, var3);
         }
 
@@ -1859,42 +1857,42 @@ public class ClientPacketListener implements ClientGamePacketListener {
                 BrainDebugRenderer.BrainDump var51 = new BrainDebugRenderer.BrainDump(
                     var39, var40, var41, var42, var43, var44, var45, var38, var46, var48, var50
                 );
-                int var52 = var1.readInt();
+                int var52 = var1.readVarInt();
 
                 for(int var53 = 0; var53 < var52; ++var53) {
                     String var54 = var1.readUtf();
                     var51.activities.add(var54);
                 }
 
-                int var55 = var1.readInt();
+                int var55 = var1.readVarInt();
 
                 for(int var56 = 0; var56 < var55; ++var56) {
                     String var57 = var1.readUtf();
                     var51.behaviors.add(var57);
                 }
 
-                int var58 = var1.readInt();
+                int var58 = var1.readVarInt();
 
                 for(int var59 = 0; var59 < var58; ++var59) {
                     String var60 = var1.readUtf();
                     var51.memories.add(var60);
                 }
 
-                int var61 = var1.readInt();
+                int var61 = var1.readVarInt();
 
                 for(int var62 = 0; var62 < var61; ++var62) {
                     BlockPos var63 = var1.readBlockPos();
                     var51.pois.add(var63);
                 }
 
-                int var64 = var1.readInt();
+                int var64 = var1.readVarInt();
 
                 for(int var65 = 0; var65 < var64; ++var65) {
                     BlockPos var66 = var1.readBlockPos();
                     var51.potentialPois.add(var66);
                 }
 
-                int var67 = var1.readInt();
+                int var67 = var1.readVarInt();
 
                 for(int var68 = 0; var68 < var67; ++var68) {
                     String var69 = var1.readUtf();
@@ -1929,14 +1927,14 @@ public class ClientPacketListener implements ClientGamePacketListener {
                 }
 
                 BeeDebugRenderer.BeeInfo var83 = new BeeDebugRenderer.BeeInfo(var74, var75, var73, var82, var77, var79, var80);
-                int var84 = var1.readInt();
+                int var84 = var1.readVarInt();
 
                 for(int var85 = 0; var85 < var84; ++var85) {
                     String var86 = var1.readUtf();
                     var83.goals.add(var86);
                 }
 
-                int var87 = var1.readInt();
+                int var87 = var1.readVarInt();
 
                 for(int var88 = 0; var88 < var87; ++var88) {
                     BlockPos var89 = var1.readBlockPos();

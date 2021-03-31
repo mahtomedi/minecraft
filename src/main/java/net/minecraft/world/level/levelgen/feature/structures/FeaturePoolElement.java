@@ -48,6 +48,7 @@ public class FeaturePoolElement extends StructurePoolElement {
         return var0;
     }
 
+    @Override
     public Vec3i getSize(StructureManager param0, Rotation param1) {
         return Vec3i.ZERO;
     }

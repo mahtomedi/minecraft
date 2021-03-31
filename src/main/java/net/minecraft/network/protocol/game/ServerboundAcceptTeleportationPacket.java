@@ -2,13 +2,10 @@ package net.minecraft.network.protocol.game;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ServerboundAcceptTeleportationPacket implements Packet<ServerGamePacketListener> {
     private final int id;
 
-    @OnlyIn(Dist.CLIENT)
     public ServerboundAcceptTeleportationPacket(int param0) {
         this.id = param0;
     }

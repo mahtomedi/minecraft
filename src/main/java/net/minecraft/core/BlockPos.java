@@ -35,6 +35,7 @@ public class BlockPos extends Vec3i {
     private static final long PACKED_X_MASK = (1L << PACKED_X_LENGTH) - 1L;
     private static final long PACKED_Y_MASK = (1L << PACKED_Y_LENGTH) - 1L;
     private static final long PACKED_Z_MASK = (1L << PACKED_Z_LENGTH) - 1L;
+    private static final int Y_OFFSET = 0;
     private static final int Z_OFFSET = PACKED_Y_LENGTH;
     private static final int X_OFFSET = PACKED_Y_LENGTH + PACKED_Z_LENGTH;
 
@@ -113,6 +114,14 @@ public class BlockPos extends Vec3i {
 
     public BlockPos subtract(Vec3i param0) {
         return this.offset(-param0.getX(), -param0.getY(), -param0.getZ());
+    }
+
+    public BlockPos multiply(int param0) {
+        if (param0 == 1) {
+            return this;
+        } else {
+            return param0 == 0 ? ZERO : new BlockPos(this.getX() * param0, this.getY() * param0, this.getZ() * param0);
+        }
     }
 
     public BlockPos above() {
@@ -329,12 +338,12 @@ public class BlockPos extends Vec3i {
 
     public static Stream<BlockPos> betweenClosedStream(BoundingBox param0) {
         return betweenClosedStream(
-            Math.min(param0.x0, param0.x1),
-            Math.min(param0.y0, param0.y1),
-            Math.min(param0.z0, param0.z1),
-            Math.max(param0.x0, param0.x1),
-            Math.max(param0.y0, param0.y1),
-            Math.max(param0.z0, param0.z1)
+            Math.min(param0.minX(), param0.maxX()),
+            Math.min(param0.minY(), param0.maxY()),
+            Math.min(param0.minZ(), param0.maxZ()),
+            Math.max(param0.minX(), param0.maxX()),
+            Math.max(param0.minY(), param0.maxY()),
+            Math.max(param0.minZ(), param0.maxZ())
         );
     }
 
@@ -430,6 +439,11 @@ public class BlockPos extends Vec3i {
         }
 
         @Override
+        public BlockPos multiply(int param0) {
+            return super.multiply(param0).immutable();
+        }
+
+        @Override
         public BlockPos relative(Direction param0, int param1) {
             return super.relative(param0, param1).immutable();
         }
@@ -477,6 +491,10 @@ public class BlockPos extends Vec3i {
 
         public BlockPos.MutableBlockPos setWithOffset(Vec3i param0, int param1, int param2, int param3) {
             return this.set(param0.getX() + param1, param0.getY() + param2, param0.getZ() + param3);
+        }
+
+        public BlockPos.MutableBlockPos setWithOffset(Vec3i param0, Vec3i param1) {
+            return this.set(param0.getX() + param1.getX(), param0.getY() + param1.getY(), param0.getZ() + param1.getZ());
         }
 
         public BlockPos.MutableBlockPos move(Direction param0) {

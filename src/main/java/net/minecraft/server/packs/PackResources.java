@@ -8,12 +8,12 @@ import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.metadata.MetadataSectionSerializer;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public interface PackResources extends AutoCloseable {
+    String METADATA_EXTENSION = ".mcmeta";
+    String PACK_META = "pack.mcmeta";
+
     @Nullable
-    @OnlyIn(Dist.CLIENT)
     InputStream getRootResource(String var1) throws IOException;
 
     InputStream getResource(PackType var1, ResourceLocation var2) throws IOException;

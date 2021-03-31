@@ -14,11 +14,15 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class Crypt {
-    @OnlyIn(Dist.CLIENT)
+    private static final String SYMMETRIC_ALGORITHM = "AES";
+    private static final int SYMMETRIC_BITS = 128;
+    private static final String ASYMMETRIC_ALGORITHM = "RSA";
+    private static final int ASYMMETRIC_BITS = 1024;
+    private static final String BYTE_ENCODING = "ISO_8859_1";
+    private static final String HASH_ALGORITHM = "SHA-1";
+
     public static SecretKey generateSecretKey() throws CryptException {
         try {
             KeyGenerator var0 = KeyGenerator.getInstance("AES");
@@ -57,7 +61,6 @@ public class Crypt {
         return var0.digest();
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static PublicKey byteToPublicKey(byte[] param0) throws CryptException {
         try {
             EncodedKeySpec var0 = new X509EncodedKeySpec(param0);
@@ -78,7 +81,6 @@ public class Crypt {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static byte[] encryptUsingKey(Key param0, byte[] param1) throws CryptException {
         return cipherData(1, param0, param1);
     }

@@ -1,13 +1,8 @@
 package net.minecraft.world.item;
 
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-
-@OnlyIn(Dist.CLIENT)
 public interface TooltipFlag {
     boolean isAdvanced();
 
-    @OnlyIn(Dist.CLIENT)
     public static enum Default implements TooltipFlag {
         NORMAL(false),
         ADVANCED(true);

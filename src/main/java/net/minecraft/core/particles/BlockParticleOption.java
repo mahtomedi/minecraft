@@ -8,8 +8,6 @@ import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class BlockParticleOption implements ParticleOptions {
     public static final ParticleOptions.Deserializer<BlockParticleOption> DESERIALIZER = new ParticleOptions.Deserializer<BlockParticleOption>() {
@@ -49,7 +47,6 @@ public class BlockParticleOption implements ParticleOptions {
         return this.type;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public BlockState getState() {
         return this.state;
     }

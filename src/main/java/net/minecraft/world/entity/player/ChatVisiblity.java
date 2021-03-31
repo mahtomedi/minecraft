@@ -3,8 +3,6 @@ package net.minecraft.world.entity.player;
 import java.util.Arrays;
 import java.util.Comparator;
 import net.minecraft.util.Mth;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public enum ChatVisiblity {
     FULL(0, "options.chat.visibility.full"),
@@ -26,12 +24,10 @@ public enum ChatVisiblity {
         return this.id;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public String getKey() {
         return this.key;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static ChatVisiblity byId(int param0) {
         return BY_ID[Mth.positiveModulo(param0, BY_ID.length)];
     }

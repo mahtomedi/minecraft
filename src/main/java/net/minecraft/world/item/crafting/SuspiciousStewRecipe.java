@@ -11,8 +11,6 @@ import net.minecraft.world.item.SuspiciousStewItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FlowerBlock;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class SuspiciousStewRecipe extends CustomRecipe {
     public SuspiciousStewRecipe(ResourceLocation param0) {
@@ -68,7 +66,6 @@ public class SuspiciousStewRecipe extends CustomRecipe {
         return var3;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public boolean canCraftInDimensions(int param0, int param1) {
         return param0 >= 2 && param1 >= 2;

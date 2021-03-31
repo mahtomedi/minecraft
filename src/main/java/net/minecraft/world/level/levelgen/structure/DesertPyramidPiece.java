@@ -19,7 +19,7 @@ public class DesertPyramidPiece extends ScatteredFeaturePiece {
     private final boolean[] hasPlacedChest = new boolean[4];
 
     public DesertPyramidPiece(Random param0, int param1, int param2) {
-        super(StructurePieceType.DESERT_PYRAMID_PIECE, param0, param1, 64, param2, 21, 15, 21);
+        super(StructurePieceType.DESERT_PYRAMID_PIECE, param1, 64, param2, 21, 15, 21, getRandomHorizontalDirection(param0));
     }
 
     public DesertPyramidPiece(ServerLevel param0, CompoundTag param1) {

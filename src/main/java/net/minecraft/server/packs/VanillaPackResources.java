@@ -32,8 +32,6 @@ import net.minecraft.server.packs.metadata.MetadataSectionSerializer;
 import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceProvider;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -261,7 +259,6 @@ public class VanillaPackResources implements PackResources, ResourceProvider {
 
             }
 
-            @OnlyIn(Dist.CLIENT)
             @Override
             public ResourceLocation getLocation() {
                 return param0;
@@ -278,8 +275,12 @@ public class VanillaPackResources implements PackResources, ResourceProvider {
                 return this.inputStream;
             }
 
+            @Override
+            public boolean hasMetadata() {
+                return false;
+            }
+
             @Nullable
-            @OnlyIn(Dist.CLIENT)
             @Override
             public <T> T getMetadata(MetadataSectionSerializer<T> param0x) {
                 return null;

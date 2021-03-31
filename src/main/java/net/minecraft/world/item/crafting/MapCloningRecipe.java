@@ -5,8 +5,6 @@ import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class MapCloningRecipe extends CustomRecipe {
     public MapCloningRecipe(ResourceLocation param0) {
@@ -71,7 +69,6 @@ public class MapCloningRecipe extends CustomRecipe {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public boolean canCraftInDimensions(int param0, int param1) {
         return param0 >= 3 && param1 >= 3;

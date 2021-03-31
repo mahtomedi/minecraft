@@ -20,18 +20,19 @@ public class TheEndPortalRenderer<T extends TheEndPortalBlockEntity> implements 
     }
 
     public void render(T param0, float param1, PoseStack param2, MultiBufferSource param3, int param4, int param5) {
-        float var0 = this.getOffset();
-        Matrix4f var1 = param2.last().pose();
-        this.renderCube(param0, var0, var1, param3.getBuffer(this.renderType()));
+        Matrix4f var0 = param2.last().pose();
+        this.renderCube(param0, var0, param3.getBuffer(this.renderType()));
     }
 
-    private void renderCube(T param0, float param1, Matrix4f param2, VertexConsumer param3) {
-        this.renderFace(param0, param2, param3, 0.0F, 1.0F, 0.0F, 1.0F, 1.0F, 1.0F, 1.0F, 1.0F, Direction.SOUTH);
-        this.renderFace(param0, param2, param3, 0.0F, 1.0F, 1.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, Direction.NORTH);
-        this.renderFace(param0, param2, param3, 1.0F, 1.0F, 1.0F, 0.0F, 0.0F, 1.0F, 1.0F, 0.0F, Direction.EAST);
-        this.renderFace(param0, param2, param3, 0.0F, 0.0F, 0.0F, 1.0F, 0.0F, 1.0F, 1.0F, 0.0F, Direction.WEST);
-        this.renderFace(param0, param2, param3, 0.0F, 1.0F, 0.0F, 0.0F, 0.0F, 0.0F, 1.0F, 1.0F, Direction.DOWN);
-        this.renderFace(param0, param2, param3, 0.0F, 1.0F, param1, param1, 1.0F, 1.0F, 0.0F, 0.0F, Direction.UP);
+    private void renderCube(T param0, Matrix4f param1, VertexConsumer param2) {
+        float var0 = this.getOffsetDown();
+        float var1 = this.getOffsetUp();
+        this.renderFace(param0, param1, param2, 0.0F, 1.0F, 0.0F, 1.0F, 1.0F, 1.0F, 1.0F, 1.0F, Direction.SOUTH);
+        this.renderFace(param0, param1, param2, 0.0F, 1.0F, 1.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, Direction.NORTH);
+        this.renderFace(param0, param1, param2, 1.0F, 1.0F, 1.0F, 0.0F, 0.0F, 1.0F, 1.0F, 0.0F, Direction.EAST);
+        this.renderFace(param0, param1, param2, 0.0F, 0.0F, 0.0F, 1.0F, 0.0F, 1.0F, 1.0F, 0.0F, Direction.WEST);
+        this.renderFace(param0, param1, param2, 0.0F, 1.0F, var0, var0, 0.0F, 0.0F, 1.0F, 1.0F, Direction.DOWN);
+        this.renderFace(param0, param1, param2, 0.0F, 1.0F, var1, var1, 1.0F, 1.0F, 0.0F, 0.0F, Direction.UP);
     }
 
     private void renderFace(
@@ -57,8 +58,12 @@ public class TheEndPortalRenderer<T extends TheEndPortalBlockEntity> implements 
 
     }
 
-    protected float getOffset() {
+    protected float getOffsetUp() {
         return 0.75F;
+    }
+
+    protected float getOffsetDown() {
+        return 0.375F;
     }
 
     protected RenderType renderType() {

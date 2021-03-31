@@ -132,6 +132,11 @@ public class BlockPredicate {
             return this;
         }
 
+        public BlockPredicate.Builder hasNbt(CompoundTag param0) {
+            this.nbt = new NbtPredicate(param0);
+            return this;
+        }
+
         public BlockPredicate.Builder setProperties(StatePropertiesPredicate param0) {
             this.properties = param0;
             return this;

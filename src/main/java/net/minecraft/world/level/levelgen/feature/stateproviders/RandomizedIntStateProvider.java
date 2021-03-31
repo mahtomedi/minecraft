@@ -7,7 +7,7 @@ import java.util.Optional;
 import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
-import net.minecraft.util.UniformInt;
+import net.minecraft.util.valueproviders.IntProvider;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.block.state.properties.Property;
@@ -17,7 +17,7 @@ public class RandomizedIntStateProvider extends BlockStateProvider {
         param0 -> param0.group(
                     BlockStateProvider.CODEC.fieldOf("source").forGetter(param0x -> param0x.source),
                     Codec.STRING.fieldOf("property").forGetter(param0x -> param0x.propertyName),
-                    UniformInt.CODEC.fieldOf("values").forGetter(param0x -> param0x.values)
+                    IntProvider.CODEC.fieldOf("values").forGetter(param0x -> param0x.values)
                 )
                 .apply(param0, RandomizedIntStateProvider::new)
     );
@@ -25,16 +25,16 @@ public class RandomizedIntStateProvider extends BlockStateProvider {
     private final String propertyName;
     @Nullable
     private IntegerProperty property;
-    private final UniformInt values;
+    private final IntProvider values;
 
-    public RandomizedIntStateProvider(BlockStateProvider param0, IntegerProperty param1, UniformInt param2) {
+    public RandomizedIntStateProvider(BlockStateProvider param0, IntegerProperty param1, IntProvider param2) {
         this.source = param0;
         this.property = param1;
         this.propertyName = param1.getName();
         this.values = param2;
         Collection<Integer> var0 = param1.getPossibleValues();
 
-        for(int var1 = param2.getBaseValue(); var1 < param2.getMaxValue(); ++var1) {
+        for(int var1 = param2.getMinValue(); var1 <= param2.getMaxValue(); ++var1) {
             if (!var0.contains(var1)) {
                 throw new IllegalArgumentException("Property value out of range: " + param1.getName() + ": " + var1);
             }
@@ -42,7 +42,7 @@ public class RandomizedIntStateProvider extends BlockStateProvider {
 
     }
 
-    public RandomizedIntStateProvider(BlockStateProvider param0, String param1, UniformInt param2) {
+    public RandomizedIntStateProvider(BlockStateProvider param0, String param1, IntProvider param2) {
         this.source = param0;
         this.propertyName = param1;
         this.values = param2;

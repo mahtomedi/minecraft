@@ -10,8 +10,6 @@ import java.util.stream.Collectors;
 import net.minecraft.sounds.Music;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.StringRepresentable;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class BiomeSpecialEffects {
     public static final Codec<BiomeSpecialEffects> CODEC = RecordCodecBuilder.create(
@@ -74,62 +72,50 @@ public class BiomeSpecialEffects {
         this.backgroundMusic = param11;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getFogColor() {
         return this.fogColor;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getWaterColor() {
         return this.waterColor;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getWaterFogColor() {
         return this.waterFogColor;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getSkyColor() {
         return this.skyColor;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Optional<Integer> getFoliageColorOverride() {
         return this.foliageColorOverride;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Optional<Integer> getGrassColorOverride() {
         return this.grassColorOverride;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public BiomeSpecialEffects.GrassColorModifier getGrassColorModifier() {
         return this.grassColorModifier;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Optional<AmbientParticleSettings> getAmbientParticleSettings() {
         return this.ambientParticleSettings;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Optional<SoundEvent> getAmbientLoopSoundEvent() {
         return this.ambientLoopSoundEvent;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Optional<AmbientMoodSettings> getAmbientMoodSettings() {
         return this.ambientMoodSettings;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Optional<AmbientAdditionsSettings> getAmbientAdditionsSettings() {
         return this.ambientAdditionsSettings;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Optional<Music> getBackgroundMusic() {
         return this.backgroundMusic;
     }
@@ -228,21 +214,18 @@ public class BiomeSpecialEffects {
 
     public static enum GrassColorModifier implements StringRepresentable {
         NONE("none") {
-            @OnlyIn(Dist.CLIENT)
             @Override
             public int modifyColor(double param0, double param1, int param2) {
                 return param2;
             }
         },
         DARK_FOREST("dark_forest") {
-            @OnlyIn(Dist.CLIENT)
             @Override
             public int modifyColor(double param0, double param1, int param2) {
                 return (param2 & 16711422) + 2634762 >> 1;
             }
         },
         SWAMP("swamp") {
-            @OnlyIn(Dist.CLIENT)
             @Override
             public int modifyColor(double param0, double param1, int param2) {
                 double var0 = Biome.BIOME_INFO_NOISE.getValue(param0 * 0.0225, param1 * 0.0225, false);
@@ -257,7 +240,6 @@ public class BiomeSpecialEffects {
         private static final Map<String, BiomeSpecialEffects.GrassColorModifier> BY_NAME = Arrays.stream(values())
             .collect(Collectors.toMap(BiomeSpecialEffects.GrassColorModifier::getName, param0 -> param0));
 
-        @OnlyIn(Dist.CLIENT)
         public abstract int modifyColor(double var1, double var3, int var5);
 
         private GrassColorModifier(String param0) {

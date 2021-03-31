@@ -15,8 +15,6 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class GrowingPlantBodyBlock extends GrowingPlantBlock implements BonemealableBlock {
     protected GrowingPlantBodyBlock(BlockBehaviour.Properties param0, Direction param1, VoxelShape param2, boolean param3) {
@@ -45,7 +43,6 @@ public abstract class GrowingPlantBodyBlock extends GrowingPlantBlock implements
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public ItemStack getCloneItemStack(BlockGetter param0, BlockPos param1, BlockState param2) {
         return new ItemStack(this.getHeadBlock());

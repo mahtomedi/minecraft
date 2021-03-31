@@ -1,5 +1,6 @@
 package com.mojang.blaze3d.platform;
 
+import com.mojang.blaze3d.DontObfuscate;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
@@ -20,7 +21,9 @@ import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 
 @OnlyIn(Dist.CLIENT)
+@DontObfuscate
 public class GlStateManager {
+    public static final int TEXTURE_COUNT = 12;
     private static final GlStateManager.BlendState BLEND = new GlStateManager.BlendState();
     private static final GlStateManager.DepthState DEPTH = new GlStateManager.DepthState();
     private static final GlStateManager.CullState CULL = new GlStateManager.CullState();
@@ -290,6 +293,11 @@ public class GlStateManager {
         GL15.glDeleteBuffers(param0);
     }
 
+    public static void _glCopyTexSubImage2D(int param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7) {
+        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        GL20.glCopyTexSubImage2D(param0, param1, param2, param3, param4, param5, param6, param7);
+    }
+
     public static void _glDeleteVertexArrays(int param0) {
         RenderSystem.assertThread(RenderSystem::isOnRenderThread);
         GL30.glDeleteVertexArrays(param0);
@@ -307,6 +315,16 @@ public class GlStateManager {
         GL30.glBlitFramebuffer(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9);
     }
 
+    public static void _glBindRenderbuffer(int param0, int param1) {
+        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        GL30.glBindRenderbuffer(param0, param1);
+    }
+
+    public static void _glDeleteRenderbuffers(int param0) {
+        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        GL30.glDeleteRenderbuffers(param0);
+    }
+
     public static void _glDeleteFramebuffers(int param0) {
         RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
         GL30.glDeleteFramebuffers(param0);
@@ -317,6 +335,21 @@ public class GlStateManager {
         return GL30.glGenFramebuffers();
     }
 
+    public static int glGenRenderbuffers() {
+        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        return GL30.glGenRenderbuffers();
+    }
+
+    public static void _glRenderbufferStorage(int param0, int param1, int param2, int param3) {
+        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        GL30.glRenderbufferStorage(param0, param1, param2, param3);
+    }
+
+    public static void _glFramebufferRenderbuffer(int param0, int param1, int param2, int param3) {
+        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        GL30.glFramebufferRenderbuffer(param0, param1, param2, param3);
+    }
+
     public static int glCheckFramebufferStatus(int param0) {
         RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
         return GL30.glCheckFramebufferStatus(param0);
@@ -325,6 +358,11 @@ public class GlStateManager {
     public static void _glFramebufferTexture2D(int param0, int param1, int param2, int param3, int param4) {
         RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
         GL30.glFramebufferTexture2D(param0, param1, param2, param3, param4);
+    }
+
+    public static int getBoundFramebuffer() {
+        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        return _getInteger(36006);
     }
 
     public static void glActiveTexture(int param0) {
@@ -609,6 +647,11 @@ public class GlStateManager {
 
     }
 
+    public static void _glDrawPixels(int param0, int param1, int param2, int param3, long param4) {
+        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        GL11.glDrawPixels(param0, param1, param2, param3, param4);
+    }
+
     public static void _vertexAttribPointer(int param0, int param1, int param2, boolean param3, int param4, long param5) {
         RenderSystem.assertThread(RenderSystem::isOnRenderThread);
         GL20.glVertexAttribPointer(param0, param1, param2, param3, param4, param5);
@@ -640,6 +683,11 @@ public class GlStateManager {
     }
 
     public static void _readPixels(int param0, int param1, int param2, int param3, int param4, int param5, ByteBuffer param6) {
+        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        GL11.glReadPixels(param0, param1, param2, param3, param4, param5, param6);
+    }
+
+    public static void _readPixels(int param0, int param1, int param2, int param3, int param4, int param5, long param6) {
         RenderSystem.assertThread(RenderSystem::isOnRenderThread);
         GL11.glReadPixels(param0, param1, param2, param3, param4, param5, param6);
     }
@@ -742,6 +790,7 @@ public class GlStateManager {
     }
 
     @OnlyIn(Dist.CLIENT)
+    @DontObfuscate
     public static enum DestFactor {
         CONSTANT_ALPHA(32771),
         CONSTANT_COLOR(32769),
@@ -811,6 +860,7 @@ public class GlStateManager {
     }
 
     @OnlyIn(Dist.CLIENT)
+    @DontObfuscate
     public static enum SourceFactor {
         CONSTANT_ALPHA(32771),
         CONSTANT_COLOR(32769),
@@ -874,5 +924,21 @@ public class GlStateManager {
         protected int y;
         protected int width;
         protected int height;
+
+        public static int x() {
+            return INSTANCE.x;
+        }
+
+        public static int y() {
+            return INSTANCE.y;
+        }
+
+        public static int width() {
+            return INSTANCE.width;
+        }
+
+        public static int height() {
+            return INSTANCE.height;
+        }
     }
 }

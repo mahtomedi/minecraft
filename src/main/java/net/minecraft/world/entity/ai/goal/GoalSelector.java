@@ -1,5 +1,6 @@
 package net.minecraft.world.entity.ai.goal;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Sets;
 import java.util.EnumMap;
 import java.util.EnumSet;
@@ -28,6 +29,7 @@ public class GoalSelector {
     private final Set<WrappedGoal> availableGoals = Sets.newLinkedHashSet();
     private final Supplier<ProfilerFiller> profiler;
     private final EnumSet<Goal.Flag> disabledFlags = EnumSet.noneOf(Goal.Flag.class);
+    private int tickCount;
     private int newGoalRate = 3;
 
     public GoalSelector(Supplier<ProfilerFiller> param0) {
@@ -36,6 +38,11 @@ public class GoalSelector {
 
     public void addGoal(int param0, Goal param1) {
         this.availableGoals.add(new WrappedGoal(param0, param1));
+    }
+
+    @VisibleForTesting
+    public void removeAllGoals() {
+        this.availableGoals.clear();
     }
 
     public void removeGoal(Goal param0) {
@@ -77,8 +84,16 @@ public class GoalSelector {
         var0.pop();
     }
 
+    public Set<WrappedGoal> getAvailableGoals() {
+        return this.availableGoals;
+    }
+
     public Stream<WrappedGoal> getRunningGoals() {
         return this.availableGoals.stream().filter(WrappedGoal::isRunning);
+    }
+
+    public void setNewGoalRate(int param0) {
+        this.newGoalRate = param0;
     }
 
     public void disableControlFlag(Goal.Flag param0) {

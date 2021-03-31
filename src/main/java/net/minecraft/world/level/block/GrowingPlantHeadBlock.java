@@ -17,6 +17,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 public abstract class GrowingPlantHeadBlock extends GrowingPlantBlock implements BonemealableBlock {
     public static final IntegerProperty AGE = BlockStateProperties.AGE_25;
+    public static final int MAX_AGE = 25;
     private final double growPerTickProbability;
 
     protected GrowingPlantHeadBlock(BlockBehaviour.Properties param0, Direction param1, VoxelShape param2, boolean param3, double param4) {

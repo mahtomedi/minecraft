@@ -18,8 +18,6 @@ import net.minecraft.core.QuartPos;
 import net.minecraft.core.Registry;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class BiomeSource implements BiomeManager.NoiseBiomeSource {
     public static final Codec<BiomeSource> CODEC = Registry.BIOME_SOURCE.dispatchStable(BiomeSource::codec, Function.identity());
@@ -37,7 +35,6 @@ public abstract class BiomeSource implements BiomeManager.NoiseBiomeSource {
 
     protected abstract Codec<? extends BiomeSource> codec();
 
-    @OnlyIn(Dist.CLIENT)
     public abstract BiomeSource withSeed(long var1);
 
     public List<Biome> possibleBiomes() {

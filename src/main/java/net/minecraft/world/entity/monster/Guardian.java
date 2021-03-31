@@ -43,10 +43,9 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class Guardian extends Monster {
+    protected static final int ATTACK_TIME = 80;
     private static final EntityDataAccessor<Boolean> DATA_ID_MOVING = SynchedEntityData.defineId(Guardian.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> DATA_ID_ATTACK_TARGET = SynchedEntityData.defineId(Guardian.class, EntityDataSerializers.INT);
     private float clientSideTailAnimation;
@@ -303,12 +302,10 @@ public class Guardian extends Monster {
         return SoundEvents.GUARDIAN_FLOP;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getTailAnimation(float param0) {
         return Mth.lerp(param0, this.clientSideTailAnimationO, this.clientSideTailAnimation);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getSpikesAnimation(float param0) {
         return Mth.lerp(param0, this.clientSideSpikesAnimationO, this.clientSideSpikesAnimation);
     }

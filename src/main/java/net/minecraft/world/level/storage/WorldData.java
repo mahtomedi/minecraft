@@ -12,10 +12,11 @@ import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.LevelSettings;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public interface WorldData {
+    int ANVIL_VERSION_ID = 19133;
+    int MCREGION_VERSION_ID = 19132;
+
     DataPackConfig getDataPackConfig();
 
     void setDataPackConfig(DataPackConfig var1);
@@ -53,7 +54,6 @@ public interface WorldData {
 
     ServerLevelData overworldData();
 
-    @OnlyIn(Dist.CLIENT)
     LevelSettings getLevelSettings();
 
     CompoundTag createTag(RegistryAccess var1, @Nullable CompoundTag var2);
@@ -88,6 +88,5 @@ public interface WorldData {
 
     WorldGenSettings worldGenSettings();
 
-    @OnlyIn(Dist.CLIENT)
     Lifecycle worldGenSettingsLifecycle();
 }

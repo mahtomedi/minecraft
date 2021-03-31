@@ -30,11 +30,12 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ItemEntity extends Entity {
     private static final EntityDataAccessor<ItemStack> DATA_ITEM = SynchedEntityData.defineId(ItemEntity.class, EntityDataSerializers.ITEM_STACK);
+    private static final int LIFETIME = 6000;
+    private static final int INFINITE_PICKUP_DELAY = 32767;
+    private static final int INFINITE_LIFETIME = -32768;
     private int age;
     private int pickupDelay;
     private int health = 5;
@@ -59,7 +60,6 @@ public class ItemEntity extends Entity {
         this.setItem(param4);
     }
 
-    @OnlyIn(Dist.CLIENT)
     private ItemEntity(ItemEntity param0) {
         super(param0.getType(), param0.level);
         this.setItem(param0.getItem().copy());
@@ -388,7 +388,6 @@ public class ItemEntity extends Entity {
         this.thrower = param0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getAge() {
         return this.age;
     }
@@ -413,6 +412,10 @@ public class ItemEntity extends Entity {
         return this.pickupDelay > 0;
     }
 
+    public void setUnlimitedLifetime() {
+        this.age = -32768;
+    }
+
     public void setExtendedLifetime() {
         this.age = -6000;
     }
@@ -422,7 +425,6 @@ public class ItemEntity extends Entity {
         this.age = 5999;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getSpin(float param0) {
         return ((float)this.getAge() + param0) / 20.0F + this.bobOffs;
     }
@@ -432,7 +434,6 @@ public class ItemEntity extends Entity {
         return new ClientboundAddEntityPacket(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public ItemEntity copy() {
         return new ItemEntity(this);
     }

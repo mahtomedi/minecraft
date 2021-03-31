@@ -45,6 +45,14 @@ public class MessageArgument implements ArgumentType<MessageArgument.Message> {
             this.parts = param1;
         }
 
+        public String getText() {
+            return this.text;
+        }
+
+        public MessageArgument.Part[] getParts() {
+            return this.parts;
+        }
+
         public Component toComponent(CommandSourceStack param0, boolean param1) throws CommandSyntaxException {
             if (this.parts.length != 0 && param1) {
                 MutableComponent var0 = new TextComponent(this.text.substring(0, this.parts[0].getStart()));
@@ -133,6 +141,10 @@ public class MessageArgument implements ArgumentType<MessageArgument.Message> {
 
         public int getEnd() {
             return this.end;
+        }
+
+        public EntitySelector getSelector() {
+            return this.selector;
         }
 
         @Nullable

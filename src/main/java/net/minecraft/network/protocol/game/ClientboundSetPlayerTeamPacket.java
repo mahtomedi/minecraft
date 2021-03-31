@@ -9,10 +9,15 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.scores.PlayerTeam;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundSetPlayerTeamPacket implements Packet<ClientGamePacketListener> {
+    private static final int METHOD_ADD = 0;
+    private static final int METHOD_REMOVE = 1;
+    private static final int METHOD_CHANGE = 2;
+    private static final int METHOD_JOIN = 3;
+    private static final int METHOD_LEAVE = 4;
+    private static final int MAX_VISIBILITY_LENGTH = 40;
+    private static final int MAX_COLLISION_LENGTH = 40;
     private final int method;
     private final String name;
     private final Collection<String> players;
@@ -84,7 +89,6 @@ public class ClientboundSetPlayerTeamPacket implements Packet<ClientGamePacketLi
     }
 
     @Nullable
-    @OnlyIn(Dist.CLIENT)
     public ClientboundSetPlayerTeamPacket.Action getPlayerAction() {
         switch(this.method) {
             case 0:
@@ -100,7 +104,6 @@ public class ClientboundSetPlayerTeamPacket implements Packet<ClientGamePacketLi
     }
 
     @Nullable
-    @OnlyIn(Dist.CLIENT)
     public ClientboundSetPlayerTeamPacket.Action getTeamAction() {
         switch(this.method) {
             case 0:
@@ -116,17 +119,14 @@ public class ClientboundSetPlayerTeamPacket implements Packet<ClientGamePacketLi
         param0.handleSetPlayerTeamPacket(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public String getName() {
         return this.name;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Collection<String> getPlayers() {
         return this.players;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Optional<ClientboundSetPlayerTeamPacket.Parameters> getParameters() {
         return this.parameters;
     }
@@ -165,37 +165,30 @@ public class ClientboundSetPlayerTeamPacket implements Packet<ClientGamePacketLi
             this.playerSuffix = param0.readComponent();
         }
 
-        @OnlyIn(Dist.CLIENT)
         public Component getDisplayName() {
             return this.displayName;
         }
 
-        @OnlyIn(Dist.CLIENT)
         public int getOptions() {
             return this.options;
         }
 
-        @OnlyIn(Dist.CLIENT)
         public ChatFormatting getColor() {
             return this.color;
         }
 
-        @OnlyIn(Dist.CLIENT)
         public String getNametagVisibility() {
             return this.nametagVisibility;
         }
 
-        @OnlyIn(Dist.CLIENT)
         public String getCollisionRule() {
             return this.collisionRule;
         }
 
-        @OnlyIn(Dist.CLIENT)
         public Component getPlayerPrefix() {
             return this.playerPrefix;
         }
 
-        @OnlyIn(Dist.CLIENT)
         public Component getPlayerSuffix() {
             return this.playerSuffix;
         }

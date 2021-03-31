@@ -3,8 +3,6 @@ package net.minecraft.world.level.storage;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.OptionalDynamic;
 import net.minecraft.SharedConstants;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class LevelVersion {
     private final int levelDataVersion;
@@ -44,7 +42,6 @@ public class LevelVersion {
         return this.lastPlayed;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public String minecraftVersionName() {
         return this.minecraftVersionName;
     }
@@ -53,7 +50,6 @@ public class LevelVersion {
         return this.minecraftVersion;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean snapshot() {
         return this.snapshot;
     }

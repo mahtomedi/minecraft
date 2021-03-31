@@ -226,4 +226,8 @@ public abstract class AbstractSkeleton extends Monster implements RangedAttackMo
     public double getMyRidingOffset() {
         return -0.6;
     }
+
+    public boolean isShaking() {
+        return this.isFullyFrozen();
+    }
 }

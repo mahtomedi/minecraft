@@ -60,8 +60,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class Parrot extends ShoulderRidingEntity implements FlyingAnimal {
     private static final EntityDataAccessor<Integer> DATA_VARIANT_ID = SynchedEntityData.defineId(Parrot.class, EntityDataSerializers.INT);
@@ -72,6 +70,7 @@ public class Parrot extends ShoulderRidingEntity implements FlyingAnimal {
     };
     private static final Item POISONOUS_FOOD = Items.COOKIE;
     private static final Set<Item> TAME_FOOD = Sets.newHashSet(Items.WHEAT_SEEDS, Items.MELON_SEEDS, Items.PUMPKIN_SEEDS, Items.BEETROOT_SEEDS);
+    private static final int VARIANTS = 5;
     private static final Map<EntityType<?>, SoundEvent> MOB_SOUND_MAP = Util.make(Maps.newHashMap(), param0 -> {
         param0.put(EntityType.BLAZE, SoundEvents.PARROT_IMITATE_BLAZE);
         param0.put(EntityType.CAVE_SPIDER, SoundEvents.PARROT_IMITATE_SPIDER);
@@ -187,14 +186,12 @@ public class Parrot extends ShoulderRidingEntity implements FlyingAnimal {
         this.calculateFlapping();
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void setRecordPlayingNearby(BlockPos param0, boolean param1) {
         this.jukebox = param0;
         this.partyParrot = param1;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean isPartyParrot() {
         return this.partyParrot;
     }
@@ -432,11 +429,11 @@ public class Parrot extends ShoulderRidingEntity implements FlyingAnimal {
         this.setVariant(param0.getInt("Variant"));
     }
 
+    @Override
     public boolean isFlying() {
         return !this.onGround;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public Vec3 getLeashOffset() {
         return new Vec3(0.0, (double)(0.5F * this.getEyeHeight()), (double)(this.getBbWidth() * 0.4F));

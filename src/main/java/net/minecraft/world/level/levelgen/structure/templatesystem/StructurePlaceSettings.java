@@ -73,6 +73,11 @@ public class StructurePlaceSettings {
         return this;
     }
 
+    public StructurePlaceSettings setKeepLiquids(boolean param0) {
+        this.keepLiquids = param0;
+        return this;
+    }
+
     public StructurePlaceSettings setKnownShape(boolean param0) {
         this.knownShape = param0;
         return this;

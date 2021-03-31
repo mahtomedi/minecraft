@@ -11,8 +11,6 @@ import net.minecraft.world.level.block.entity.BannerBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class AbstractBannerBlock extends BaseEntityBlock {
     private final DyeColor color;
@@ -43,7 +41,6 @@ public abstract class AbstractBannerBlock extends BaseEntityBlock {
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public ItemStack getCloneItemStack(BlockGetter param0, BlockPos param1, BlockState param2) {
         BlockEntity var0 = param0.getBlockEntity(param1);

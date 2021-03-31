@@ -13,13 +13,13 @@ import net.minecraft.util.profiling.registry.MeasurementCategory;
 import net.minecraft.util.profiling.registry.MeasurementRegistry;
 import net.minecraft.util.profiling.registry.Metric;
 import net.minecraft.util.profiling.registry.ProfilerMeasured;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class ProcessorMailbox<T> implements ProfilerMeasured, ProcessorHandle<T>, AutoCloseable, Runnable {
     private static final Logger LOGGER = LogManager.getLogger();
+    private static final int CLOSED_BIT = 1;
+    private static final int SCHEDULED_BIT = 2;
     private final AtomicInteger status = new AtomicInteger(0);
     private final StrictQueue<? super T, ? extends Runnable> queue;
     private final Executor dispatcher;
@@ -133,6 +133,10 @@ public class ProcessorMailbox<T> implements ProfilerMeasured, ProcessorHandle<T>
         return var0;
     }
 
+    public int size() {
+        return this.queue.size();
+    }
+
     @Override
     public String toString() {
         return this.name + " " + this.status.get() + " " + this.queue.isEmpty();
@@ -143,7 +147,6 @@ public class ProcessorMailbox<T> implements ProfilerMeasured, ProcessorHandle<T>
         return this.name;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public List<MeasuredMetric> metrics() {
         return ImmutableList.of(new MeasuredMetric(new Metric(this.name + "-queuesize"), this.queue::size, MeasurementCategory.MAIL_BOX));

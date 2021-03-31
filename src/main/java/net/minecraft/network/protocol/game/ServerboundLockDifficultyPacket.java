@@ -2,13 +2,10 @@ package net.minecraft.network.protocol.game;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ServerboundLockDifficultyPacket implements Packet<ServerGamePacketListener> {
     private final boolean locked;
 
-    @OnlyIn(Dist.CLIENT)
     public ServerboundLockDifficultyPacket(boolean param0) {
         this.locked = param0;
     }

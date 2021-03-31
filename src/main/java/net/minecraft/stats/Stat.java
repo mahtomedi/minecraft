@@ -5,8 +5,6 @@ import javax.annotation.Nullable;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.scores.criteria.ObjectiveCriteria;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class Stat<T> extends ObjectiveCriteria {
     private final StatFormatter formatter;
@@ -36,7 +34,6 @@ public class Stat<T> extends ObjectiveCriteria {
         return this.value;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public String format(int param0) {
         return this.formatter.format(param0);
     }

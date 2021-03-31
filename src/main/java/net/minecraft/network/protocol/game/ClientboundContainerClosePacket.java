@@ -22,4 +22,8 @@ public class ClientboundContainerClosePacket implements Packet<ClientGamePacketL
     public void handle(ClientGamePacketListener param0) {
         param0.handleContainerClose(this);
     }
+
+    public int getContainerId() {
+        return this.containerId;
+    }
 }

@@ -33,6 +33,31 @@ public class WeatherCheck implements LootItemCondition {
         }
     }
 
+    public static WeatherCheck.Builder weather() {
+        return new WeatherCheck.Builder();
+    }
+
+    public static class Builder implements LootItemCondition.Builder {
+        @Nullable
+        private Boolean isRaining;
+        @Nullable
+        private Boolean isThundering;
+
+        public WeatherCheck.Builder setRaining(@Nullable Boolean param0) {
+            this.isRaining = param0;
+            return this;
+        }
+
+        public WeatherCheck.Builder setThundering(@Nullable Boolean param0) {
+            this.isThundering = param0;
+            return this;
+        }
+
+        public WeatherCheck build() {
+            return new WeatherCheck(this.isRaining, this.isThundering);
+        }
+    }
+
     public static class Serializer implements net.minecraft.world.level.storage.loot.Serializer<WeatherCheck> {
         public void serialize(JsonObject param0, WeatherCheck param1, JsonSerializationContext param2) {
             param0.addProperty("raining", param1.isRaining);

@@ -1,8 +1,6 @@
 package net.minecraft.world.entity.player;
 
 import net.minecraft.nbt.CompoundTag;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class Abilities {
     public boolean invulnerable;
@@ -48,7 +46,6 @@ public class Abilities {
         return this.flyingSpeed;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void setFlyingSpeed(float param0) {
         this.flyingSpeed = param0;
     }
@@ -57,7 +54,6 @@ public class Abilities {
         return this.walkingSpeed;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void setWalkingSpeed(float param0) {
         this.walkingSpeed = param0;
     }

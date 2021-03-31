@@ -31,6 +31,8 @@ public class ItemFrameRenderer<T extends ItemFrame> extends EntityRenderer<T> {
     private static final ModelResourceLocation MAP_FRAME_LOCATION = new ModelResourceLocation("item_frame", "map=true");
     private static final ModelResourceLocation GLOW_FRAME_LOCATION = new ModelResourceLocation("glow_item_frame", "map=false");
     private static final ModelResourceLocation GLOW_MAP_FRAME_LOCATION = new ModelResourceLocation("glow_item_frame", "map=true");
+    public static final int GLOW_FRAME_BRIGHTNESS = 5;
+    public static final int BRIGHT_MAP_LIGHT_ADJUSTMENT = 30;
     private final Minecraft minecraft = Minecraft.getInstance();
     private final ItemRenderer itemRenderer;
 
@@ -40,7 +42,9 @@ public class ItemFrameRenderer<T extends ItemFrame> extends EntityRenderer<T> {
     }
 
     protected int getBlockLightLevel(T param0, BlockPos param1) {
-        return param0.getType() == EntityType.GLOW_ITEM_FRAME ? 5 : super.getBlockLightLevel(param0, param1);
+        return param0.getType() == EntityType.GLOW_ITEM_FRAME
+            ? Math.max(5, super.getBlockLightLevel(param0, param1))
+            : super.getBlockLightLevel(param0, param1);
     }
 
     public void render(T param0, float param1, float param2, PoseStack param3, MultiBufferSource param4, int param5) {

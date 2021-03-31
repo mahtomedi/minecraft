@@ -14,8 +14,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class Snowball extends ThrowableItemProjectile {
     public Snowball(EntityType<? extends Snowball> param0, Level param1) {
@@ -35,13 +33,11 @@ public class Snowball extends ThrowableItemProjectile {
         return Items.SNOWBALL;
     }
 
-    @OnlyIn(Dist.CLIENT)
     private ParticleOptions getParticle() {
         ItemStack var0 = this.getItemRaw();
         return (ParticleOptions)(var0.isEmpty() ? ParticleTypes.ITEM_SNOWBALL : new ItemParticleOption(ParticleTypes.ITEM, var0));
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void handleEntityEvent(byte param0) {
         if (param0 == 3) {

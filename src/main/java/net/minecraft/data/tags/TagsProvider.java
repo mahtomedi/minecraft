@@ -107,8 +107,18 @@ public abstract class TagsProvider<T> implements DataProvider {
             return this;
         }
 
+        public TagsProvider.TagAppender<T> addOptional(ResourceLocation param0) {
+            this.builder.addOptionalElement(param0, this.source);
+            return this;
+        }
+
         public TagsProvider.TagAppender<T> addTag(Tag.Named<T> param0) {
             this.builder.addTag(param0.getName(), this.source);
+            return this;
+        }
+
+        public TagsProvider.TagAppender<T> addOptionalTag(ResourceLocation param0) {
+            this.builder.addOptionalTag(param0, this.source);
             return this;
         }
 

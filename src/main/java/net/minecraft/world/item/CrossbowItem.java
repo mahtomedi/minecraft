@@ -31,12 +31,18 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class CrossbowItem extends ProjectileWeaponItem implements Vanishable {
+    private static final String TAG_CHARGED = "Charged";
+    private static final String TAG_CHARGED_PROJECTILES = "ChargedProjectiles";
+    private static final int MAX_CHARGE_DURATION = 25;
+    public static final int DEFAULT_RANGE = 8;
     private boolean startSoundPlayed = false;
     private boolean midLoadSoundPlayed = false;
+    private static final float START_SOUND_PERCENT = 0.2F;
+    private static final float MID_SOUND_PERCENT = 0.5F;
+    private static final float ARROW_POWER = 3.15F;
+    private static final float FIREWORK_POWER = 1.6F;
 
     public CrossbowItem(Item.Properties param0) {
         super(param0);
@@ -362,7 +368,6 @@ public class CrossbowItem extends ProjectileWeaponItem implements Vanishable {
         return var0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void appendHoverText(ItemStack param0, @Nullable Level param1, List<Component> param2, TooltipFlag param3) {
         List<ItemStack> var0 = getChargedProjectiles(param0);

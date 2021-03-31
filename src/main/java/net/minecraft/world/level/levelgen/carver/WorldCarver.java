@@ -23,8 +23,8 @@ import net.minecraft.world.level.material.Fluids;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 
 public abstract class WorldCarver<C extends CarverConfiguration> {
-    public static final WorldCarver<CarverConfiguration> CAVE = register("cave", new CaveWorldCarver(CarverConfiguration.CODEC));
-    public static final WorldCarver<CarverConfiguration> NETHER_CAVE = register("nether_cave", new NetherWorldCarver(CarverConfiguration.CODEC));
+    public static final WorldCarver<CaveCarverConfiguration> CAVE = register("cave", new CaveWorldCarver(CaveCarverConfiguration.CODEC));
+    public static final WorldCarver<CaveCarverConfiguration> NETHER_CAVE = register("nether_cave", new NetherWorldCarver(CaveCarverConfiguration.CODEC));
     public static final WorldCarver<CanyonCarverConfiguration> CANYON = register("canyon", new CanyonWorldCarver(CanyonCarverConfiguration.CODEC));
     protected static final BlockState AIR = Blocks.AIR.defaultBlockState();
     protected static final BlockState CAVE_AIR = Blocks.CAVE_AIR.defaultBlockState();
@@ -178,7 +178,7 @@ public abstract class WorldCarver<C extends CarverConfiguration> {
         if (!this.canReplaceBlock(var0, var1) && !isDebugEnabled(param1)) {
             return false;
         } else {
-            if (param6.getY() < param0.getMinGenY() + 9 && !isDebugEnabled(param1)) {
+            if (param6.getY() < param1.lavaLevel.resolveY(param0) && !isDebugEnabled(param1)) {
                 param2.setBlockState(param6, LAVA.createLegacyBlock(), false);
             } else {
                 param2.setBlockState(param6, getCaveAirState(param1), false);
@@ -195,7 +195,7 @@ public abstract class WorldCarver<C extends CarverConfiguration> {
     }
 
     private static BlockState getCaveAirState(CarverConfiguration param0) {
-        return isDebugEnabled(param0) ? param0.getDebugSettings().getAirState() : CAVE_AIR;
+        return isDebugEnabled(param0) ? param0.debugSettings.getAirState() : CAVE_AIR;
     }
 
     public abstract boolean carve(
@@ -251,7 +251,7 @@ public abstract class WorldCarver<C extends CarverConfiguration> {
     }
 
     private static boolean isDebugEnabled(CarverConfiguration param0) {
-        return param0.getDebugSettings().isDebugMode();
+        return param0.debugSettings.isDebugMode();
     }
 
     public interface CarveSkipChecker {

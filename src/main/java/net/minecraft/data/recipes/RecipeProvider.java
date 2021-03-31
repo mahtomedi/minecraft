@@ -3084,6 +3084,10 @@ public class RecipeProvider implements DataProvider {
         return ShapedRecipeBuilder.shaped(param0, 6).define('#', param1).pattern("###");
     }
 
+    private static void stair(Consumer<FinishedRecipe> param0, ItemLike param1, ItemLike param2) {
+        stairBuilder(param1, Ingredient.of(param2)).unlockedBy(getHasName(param2), has(param2)).save(param0);
+    }
+
     private static RecipeBuilder stairBuilder(ItemLike param0, Ingredient param1) {
         return ShapedRecipeBuilder.shaped(param0, 4).define('#', param1).pattern("#  ").pattern("## ").pattern("###");
     }
@@ -3335,6 +3339,10 @@ public class RecipeProvider implements DataProvider {
 
     private static EnterBlockTrigger.TriggerInstance insideOf(Block param0) {
         return new EnterBlockTrigger.TriggerInstance(EntityPredicate.Composite.ANY, param0, StatePropertiesPredicate.ANY);
+    }
+
+    private static InventoryChangeTrigger.TriggerInstance has(MinMaxBounds.Ints param0, ItemLike param1) {
+        return inventoryTrigger(ItemPredicate.Builder.item().of(param1).withCount(param0).build());
     }
 
     private static InventoryChangeTrigger.TriggerInstance has(ItemLike param0) {

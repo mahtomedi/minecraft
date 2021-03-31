@@ -5,8 +5,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.util.Crypt;
 import net.minecraft.util.CryptException;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundHelloPacket implements Packet<ClientLoginPacketListener> {
     private final String serverId;
@@ -36,17 +34,14 @@ public class ClientboundHelloPacket implements Packet<ClientLoginPacketListener>
         param0.handleHello(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public String getServerId() {
         return this.serverId;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public PublicKey getPublicKey() throws CryptException {
         return Crypt.byteToPublicKey(this.publicKey);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public byte[] getNonce() {
         return this.nonce;
     }

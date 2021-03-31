@@ -3,15 +3,12 @@ package net.minecraft.network.protocol.game;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.inventory.RecipeBookType;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ServerboundRecipeBookChangeSettingsPacket implements Packet<ServerGamePacketListener> {
     private final RecipeBookType bookType;
     private final boolean isOpen;
     private final boolean isFiltering;
 
-    @OnlyIn(Dist.CLIENT)
     public ServerboundRecipeBookChangeSettingsPacket(RecipeBookType param0, boolean param1, boolean param2) {
         this.bookType = param0;
         this.isOpen = param1;

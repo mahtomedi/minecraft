@@ -5,8 +5,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import net.minecraft.util.Mth;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ItemCooldowns {
     private final Map<Item, ItemCooldowns.CooldownInstance> cooldowns = Maps.newHashMap();
@@ -48,7 +46,6 @@ public class ItemCooldowns {
         this.onCooldownStarted(param0, param1);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void removeCooldown(Item param0) {
         this.cooldowns.remove(param0);
         this.onCooldownEnded(param0);

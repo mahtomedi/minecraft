@@ -4,10 +4,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.level.block.entity.CommandBlockEntity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ServerboundSetCommandBlockPacket implements Packet<ServerGamePacketListener> {
+    private static final int FLAG_TRACK_OUTPUT = 1;
+    private static final int FLAG_CONDITIONAL = 2;
+    private static final int FLAG_AUTOMATIC = 4;
     private final BlockPos pos;
     private final String command;
     private final boolean trackOutput;
@@ -15,7 +16,6 @@ public class ServerboundSetCommandBlockPacket implements Packet<ServerGamePacket
     private final boolean automatic;
     private final CommandBlockEntity.Mode mode;
 
-    @OnlyIn(Dist.CLIENT)
     public ServerboundSetCommandBlockPacket(BlockPos param0, String param1, CommandBlockEntity.Mode param2, boolean param3, boolean param4, boolean param5) {
         this.pos = param0;
         this.command = param1;

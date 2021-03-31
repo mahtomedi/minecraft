@@ -10,10 +10,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import net.minecraft.Util;
 import net.minecraft.util.Unit;
 import net.minecraft.util.profiling.InactiveProfiler;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class SimpleReloadInstance<S> implements ReloadInstance {
+    private static final int PREPARATION_PROGRESS_WEIGHT = 2;
+    private static final int EXTRA_RELOAD_PROGRESS_WEIGHT = 2;
+    private static final int LISTENER_PROGRESS_WEIGHT = 1;
     protected final ResourceManager resourceManager;
     protected final CompletableFuture<Unit> allPreparations = new CompletableFuture<>();
     protected final CompletableFuture<List<S>> allDone;
@@ -94,7 +95,6 @@ public class SimpleReloadInstance<S> implements ReloadInstance {
         return this.allDone.thenApply(param0 -> Unit.INSTANCE);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public float getActualProgress() {
         int var0 = this.listenerCount - this.preparingListeners.size();
@@ -103,13 +103,11 @@ public class SimpleReloadInstance<S> implements ReloadInstance {
         return var1 / var2;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public boolean isDone() {
         return this.allDone.isDone();
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void checkExceptions() {
         if (this.allDone.isCompletedExceptionally()) {

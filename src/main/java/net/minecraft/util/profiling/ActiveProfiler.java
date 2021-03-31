@@ -15,8 +15,6 @@ import java.util.function.LongSupplier;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -122,7 +120,6 @@ public class ActiveProfiler implements ProfileCollector {
         this.push(param0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void popPush(Supplier<String> param0) {
         this.pop();
@@ -153,7 +150,6 @@ public class ActiveProfiler implements ProfileCollector {
     }
 
     @Nullable
-    @OnlyIn(Dist.CLIENT)
     @Override
     public ActiveProfiler.PathEntry getEntry(String param0) {
         return this.entries.get(param0);

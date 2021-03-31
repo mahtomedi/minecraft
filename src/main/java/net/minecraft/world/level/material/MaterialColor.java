@@ -1,8 +1,5 @@
 package net.minecraft.world.level.material;
 
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-
 public class MaterialColor {
     public static final MaterialColor[] MATERIAL_COLORS = new MaterialColor[64];
     public static final MaterialColor NONE = new MaterialColor(0, 0);
@@ -77,7 +74,6 @@ public class MaterialColor {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int calculateRGBColor(int param0) {
         int var0 = 220;
         if (param0 == 3) {

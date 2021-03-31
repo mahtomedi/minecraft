@@ -203,6 +203,19 @@ public interface SharedSuggestionProvider {
         return param1.buildFuture();
     }
 
+    static <T> CompletableFuture<Suggestions> suggest(Iterable<T> param0, SuggestionsBuilder param1, Function<T, String> param2, Function<T, Message> param3) {
+        String var0 = param1.getRemaining().toLowerCase(Locale.ROOT);
+
+        for(T var1 : param0) {
+            String var2 = param2.apply(var1);
+            if (matchesSubStr(var0, var2.toLowerCase(Locale.ROOT))) {
+                param1.suggest(var2, param3.apply(var1));
+            }
+        }
+
+        return param1.buildFuture();
+    }
+
     static boolean matchesSubStr(String param0, String param1) {
         for(int var0 = 0; !param1.startsWith(param0, var0); ++var0) {
             var0 = param1.indexOf(95, var0);

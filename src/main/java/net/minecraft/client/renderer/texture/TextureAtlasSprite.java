@@ -155,6 +155,14 @@ public class TextureAtlasSprite implements AutoCloseable {
 
     }
 
+    public int getX() {
+        return this.x;
+    }
+
+    public int getY() {
+        return this.y;
+    }
+
     public int getWidth() {
         return this.width;
     }
@@ -176,6 +184,11 @@ public class TextureAtlasSprite implements AutoCloseable {
         return this.u0 + var0 * (float)param0 / 16.0F;
     }
 
+    public float getUOffset(float param0) {
+        float var0 = this.u1 - this.u0;
+        return (param0 - this.u0) / var0 * 16.0F;
+    }
+
     public float getV0() {
         return this.v0;
     }
@@ -187,6 +200,11 @@ public class TextureAtlasSprite implements AutoCloseable {
     public float getV(double param0) {
         float var0 = this.v1 - this.v0;
         return this.v0 + var0 * (float)param0 / 16.0F;
+    }
+
+    public float getVOffset(float param0) {
+        float var0 = this.v1 - this.v0;
+        return (param0 - this.v0) / var0 * 16.0F;
     }
 
     public ResourceLocation getName() {

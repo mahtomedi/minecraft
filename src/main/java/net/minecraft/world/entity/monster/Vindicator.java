@@ -45,10 +45,9 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class Vindicator extends AbstractIllager {
+    private static final String TAG_JOHNNY = "Johnny";
     private static final Predicate<Difficulty> DOOR_BREAKING_PREDICATE = param0 -> param0 == Difficulty.NORMAL || param0 == Difficulty.HARD;
     private boolean isJohnny;
 
@@ -101,7 +100,6 @@ public class Vindicator extends AbstractIllager {
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public AbstractIllager.IllagerArmPose getArmPose() {
         if (this.isAggressive()) {

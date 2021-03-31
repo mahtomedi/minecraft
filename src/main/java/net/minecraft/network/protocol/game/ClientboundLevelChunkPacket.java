@@ -17,10 +17,9 @@ import net.minecraft.world.level.chunk.ChunkBiomeContainer;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundLevelChunkPacket implements Packet<ClientGamePacketListener> {
+    public static final int TWO_MEGABYTES = 2097152;
     private final int x;
     private final int z;
     private final BitSet availableSections;
@@ -86,7 +85,6 @@ public class ClientboundLevelChunkPacket implements Packet<ClientGamePacketListe
         param0.handleLevelChunk(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public FriendlyByteBuf getReadBuffer() {
         return new FriendlyByteBuf(Unpooled.wrappedBuffer(this.buffer));
     }
@@ -128,32 +126,26 @@ public class ClientboundLevelChunkPacket implements Packet<ClientGamePacketListe
         return var0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getX() {
         return this.x;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getZ() {
         return this.z;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public BitSet getAvailableSections() {
         return this.availableSections;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public CompoundTag getHeightmaps() {
         return this.heightmaps;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public List<CompoundTag> getBlockEntitiesTags() {
         return this.blockEntitiesTags;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int[] getBiomes() {
         return this.biomes;
     }

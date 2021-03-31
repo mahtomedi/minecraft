@@ -15,6 +15,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class ThrownItemRenderer<T extends Entity & ItemSupplier> extends EntityRenderer<T> {
+    private static final float MIN_CAMERA_DISTANCE_SQUARED = 12.25F;
     private final ItemRenderer itemRenderer;
     private final float scale;
     private final boolean fullBright;

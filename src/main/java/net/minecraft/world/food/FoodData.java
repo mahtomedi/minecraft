@@ -7,8 +7,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameRules;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class FoodData {
     private int foodLevel = 20;
@@ -98,12 +96,20 @@ public class FoodData {
         return this.foodLevel;
     }
 
+    public int getLastFoodLevel() {
+        return this.lastFoodLevel;
+    }
+
     public boolean needsFood() {
         return this.foodLevel < 20;
     }
 
     public void addExhaustion(float param0) {
         this.exhaustionLevel = Math.min(this.exhaustionLevel + param0, 40.0F);
+    }
+
+    public float getExhaustionLevel() {
+        return this.exhaustionLevel;
     }
 
     public float getSaturationLevel() {
@@ -114,8 +120,11 @@ public class FoodData {
         this.foodLevel = param0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void setSaturation(float param0) {
         this.saturationLevel = param0;
+    }
+
+    public void setExhaustion(float param0) {
+        this.exhaustionLevel = param0;
     }
 }

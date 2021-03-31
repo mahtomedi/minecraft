@@ -21,6 +21,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class BlockElement {
+    private static final boolean DEFAULT_RESCALE = false;
+    private static final float MIN_EXTENT = -16.0F;
+    private static final float MAX_EXTENT = 32.0F;
     public final Vector3f from;
     public final Vector3f to;
     public final Map<Direction, BlockElementFace> faces;
@@ -64,6 +67,8 @@ public class BlockElement {
 
     @OnlyIn(Dist.CLIENT)
     public static class Deserializer implements JsonDeserializer<BlockElement> {
+        private static final boolean DEFAULT_SHADE = true;
+
         protected Deserializer() {
         }
 

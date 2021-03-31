@@ -60,8 +60,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class Panda extends Animal {
     private static final EntityDataAccessor<Integer> UNHAPPY_COUNTER = SynchedEntityData.defineId(Panda.class, EntityDataSerializers.INT);
@@ -71,6 +69,13 @@ public class Panda extends Animal {
     private static final EntityDataAccessor<Byte> HIDDEN_GENE_ID = SynchedEntityData.defineId(Panda.class, EntityDataSerializers.BYTE);
     private static final EntityDataAccessor<Byte> DATA_ID_FLAGS = SynchedEntityData.defineId(Panda.class, EntityDataSerializers.BYTE);
     private static final TargetingConditions BREED_TARGETING = new TargetingConditions().range(8.0).allowSameTeam().allowInvulnerable();
+    private static final int FLAG_SNEEZE = 2;
+    private static final int FLAG_ROLL = 4;
+    private static final int FLAG_SIT = 8;
+    private static final int FLAG_ON_BACK = 16;
+    private static final int EAT_TICK_INTERVAL = 5;
+    public static final int TOTAL_ROLL_STEPS = 32;
+    private static final int TOTAL_UNHAPPY_TIME = 32;
     private boolean gotBamboo;
     private boolean didBite;
     public int rollCounter;
@@ -290,6 +295,10 @@ public class Panda extends Animal {
         return this.getVariant() == Panda.Gene.PLAYFUL;
     }
 
+    public boolean isBrown() {
+        return this.getVariant() == Panda.Gene.BROWN;
+    }
+
     public boolean isWeak() {
         return this.getVariant() == Panda.Gene.WEAK;
     }
@@ -460,17 +469,14 @@ public class Panda extends Animal {
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getSitAmount(float param0) {
         return Mth.lerp(param0, this.sitAmountO, this.sitAmount);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getLieOnBackAmount(float param0) {
         return Mth.lerp(param0, this.onBackAmountO, this.onBackAmount);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getRollAmount(float param0) {
         return Mth.lerp(param0, this.rollAmountO, this.rollAmount);
     }
@@ -703,6 +709,7 @@ public class Panda extends Animal {
         private static final Panda.Gene[] BY_ID = Arrays.stream(values())
             .sorted(Comparator.comparingInt(Panda.Gene::getId))
             .toArray(param0 -> new Panda.Gene[param0]);
+        private static final int MAX_GENE = 6;
         private final int id;
         private final String name;
         private final boolean isRecessive;

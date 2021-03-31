@@ -9,6 +9,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class VillagerMetaDataSection {
     public static final VillagerMetadataSectionSerializer SERIALIZER = new VillagerMetadataSectionSerializer();
+    public static final String SECTION_NAME = "villager";
     private final VillagerMetaDataSection.Hat hat;
 
     public VillagerMetaDataSection(VillagerMetaDataSection.Hat param0) {

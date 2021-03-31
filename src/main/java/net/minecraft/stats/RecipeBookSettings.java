@@ -8,8 +8,6 @@ import net.minecraft.Util;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.inventory.RecipeBookType;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public final class RecipeBookSettings {
     private static final Map<RecipeBookType, Pair<String, String>> TAG_FIELDS = ImmutableMap.of(
@@ -37,7 +35,6 @@ public final class RecipeBookSettings {
         }));
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean isOpen(RecipeBookType param0) {
         return this.states.get(param0).open;
     }
@@ -46,7 +43,6 @@ public final class RecipeBookSettings {
         this.states.get(param0).open = param1;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean isFiltering(RecipeBookType param0) {
         return this.states.get(param0).filtering;
     }

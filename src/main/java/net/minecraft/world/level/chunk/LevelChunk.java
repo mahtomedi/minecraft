@@ -54,8 +54,6 @@ import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -349,6 +347,25 @@ public class LevelChunk implements ChunkAccess {
         return this.heightmaps.get(param0).getFirstAvailable(param1 & 15, param2 & 15) - 1;
     }
 
+    @Override
+    public BlockPos getHeighestPosition(Heightmap.Types param0) {
+        ChunkPos var0 = this.getPos();
+        int var1 = this.getMinBuildHeight();
+        BlockPos.MutableBlockPos var2 = new BlockPos.MutableBlockPos();
+
+        for(int var3 = var0.getMinBlockX(); var3 <= var0.getMaxBlockX(); ++var3) {
+            for(int var4 = var0.getMinBlockZ(); var4 <= var0.getMaxBlockZ(); ++var4) {
+                int var5 = this.getHeight(param0, var3 & 15, var4 & 15);
+                if (var5 > var1) {
+                    var1 = var5;
+                    var2.set(var3, var5, var4);
+                }
+            }
+        }
+
+        return var2.immutable();
+    }
+
     @Nullable
     private BlockEntity createBlockEntity(BlockPos param0) {
         BlockState var0 = this.getBlockState(param0);
@@ -505,7 +522,6 @@ public class LevelChunk implements ChunkAccess {
         return this.chunkPos;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void replaceWithPacketData(@Nullable ChunkBiomeContainer param0, FriendlyByteBuf param1, CompoundTag param2, BitSet param3) {
         boolean var0 = param0 != null;
         if (var0) {

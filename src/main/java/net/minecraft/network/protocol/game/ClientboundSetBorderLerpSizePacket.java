@@ -3,8 +3,6 @@ package net.minecraft.network.protocol.game;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.level.border.WorldBorder;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundSetBorderLerpSizePacket implements Packet<ClientGamePacketListener> {
     private final double oldSize;
@@ -34,17 +32,14 @@ public class ClientboundSetBorderLerpSizePacket implements Packet<ClientGamePack
         param0.handleSetBorderLerpSize(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public double getOldSize() {
         return this.oldSize;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public double getNewSize() {
         return this.newSize;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public long getLerpTime() {
         return this.lerpTime;
     }

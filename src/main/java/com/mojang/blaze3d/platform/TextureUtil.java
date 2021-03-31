@@ -1,6 +1,8 @@
 package com.mojang.blaze3d.platform;
 
+import com.mojang.blaze3d.DontObfuscate;
 import com.mojang.blaze3d.systems.RenderSystem;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,8 +23,11 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.system.MemoryUtil;
 
 @OnlyIn(Dist.CLIENT)
+@DontObfuscate
 public class TextureUtil {
     private static final Logger LOGGER = LogManager.getLogger();
+    public static final int MIN_MIPMAP_LEVEL = 0;
+    private static final int DEFAULT_IMAGE_BUFFER_SIZE = 8192;
 
     public static int generateTextureId() {
         RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
@@ -117,6 +122,26 @@ public class TextureUtil {
         }
 
         return null;
+    }
+
+    public static void writeAsPNG(String param0, int param1, int param2, int param3, int param4) {
+        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        bind(param1);
+
+        for(int var0 = 0; var0 <= param2; ++var0) {
+            String var1 = param0 + "_" + var0 + ".png";
+            int var2 = param3 >> var0;
+            int var3 = param4 >> var0;
+
+            try (NativeImage var4 = new NativeImage(var2, var3, false)) {
+                var4.downloadTexture(var0, false);
+                var4.writeToFile(var1);
+                LOGGER.debug("Exported png to: {}", new File(var1).getAbsolutePath());
+            } catch (IOException var22) {
+                LOGGER.debug("Unable to write: ", (Throwable)var22);
+            }
+        }
+
     }
 
     public static void initTexture(IntBuffer param0, int param1, int param2) {

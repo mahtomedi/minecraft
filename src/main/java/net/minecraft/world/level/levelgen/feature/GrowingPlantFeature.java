@@ -18,7 +18,7 @@ public class GrowingPlantFeature extends Feature<GrowingPlantConfiguration> {
         LevelAccessor var0 = param0.level();
         GrowingPlantConfiguration var1 = param0.config();
         Random var2 = param0.random();
-        int var3 = var1.heightDistribution.getOne(var2).sample(var2);
+        int var3 = var1.heightDistribution.getRandomValue(var2).orElseThrow(IllegalStateException::new).sample(var2);
         BlockPos.MutableBlockPos var4 = param0.origin().mutable();
         BlockPos.MutableBlockPos var5 = var4.mutable().move(var1.direction);
         BlockState var6 = var0.getBlockState(var4);

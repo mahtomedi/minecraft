@@ -5,6 +5,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class RetryCallException extends RealmsServiceException {
+    public static final int DEFAULT_DELAY = 5;
     public final int delaySeconds;
 
     public RetryCallException(int param0, int param1) {

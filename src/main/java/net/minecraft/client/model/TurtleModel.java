@@ -17,6 +17,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class TurtleModel<T extends Turtle> extends QuadrupedModel<T> {
+    private static final String EGG_BELLY = "egg_belly";
     private final ModelPart eggBelly;
 
     public TurtleModel(ModelPart param0) {

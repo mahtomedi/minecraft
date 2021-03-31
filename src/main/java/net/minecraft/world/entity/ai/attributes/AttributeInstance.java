@@ -15,8 +15,6 @@ import javax.annotation.Nullable;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class AttributeInstance {
     private final Attribute attribute;
@@ -115,7 +113,6 @@ public class AttributeInstance {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void removeModifiers() {
         for(AttributeModifier var0 : this.getModifiers()) {
             this.removeModifier(var0);

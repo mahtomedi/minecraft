@@ -9,10 +9,9 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundAddEntityPacket implements Packet<ClientGamePacketListener> {
+    public static final double MAGICAL_QUANTIZATION = 8000.0;
     private final int id;
     private final UUID uuid;
     private final double x;
@@ -25,6 +24,7 @@ public class ClientboundAddEntityPacket implements Packet<ClientGamePacketListen
     private final int yRot;
     private final EntityType<?> type;
     private final int data;
+    public static final double LIMIT = 3.9;
 
     public ClientboundAddEntityPacket(
         int param0, UUID param1, double param2, double param3, double param4, float param5, float param6, EntityType<?> param7, int param8, Vec3 param9
@@ -112,62 +112,50 @@ public class ClientboundAddEntityPacket implements Packet<ClientGamePacketListen
         param0.handleAddEntity(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getId() {
         return this.id;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public UUID getUUID() {
         return this.uuid;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public double getX() {
         return this.x;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public double getY() {
         return this.y;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public double getZ() {
         return this.z;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public double getXa() {
         return (double)this.xa / 8000.0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public double getYa() {
         return (double)this.ya / 8000.0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public double getZa() {
         return (double)this.za / 8000.0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getxRot() {
         return this.xRot;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getyRot() {
         return this.yRot;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public EntityType<?> getType() {
         return this.type;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getData() {
         return this.data;
     }

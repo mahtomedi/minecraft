@@ -3,14 +3,11 @@ package net.minecraft.network.protocol.game;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ServerboundBlockEntityTagQuery implements Packet<ServerGamePacketListener> {
     private final int transactionId;
     private final BlockPos pos;
 
-    @OnlyIn(Dist.CLIENT)
     public ServerboundBlockEntityTagQuery(int param0, BlockPos param1) {
         this.transactionId = param0;
         this.pos = param1;

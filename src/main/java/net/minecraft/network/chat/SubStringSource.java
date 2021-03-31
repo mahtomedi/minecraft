@@ -8,10 +8,7 @@ import java.util.Optional;
 import java.util.function.UnaryOperator;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.StringDecomposer;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
 public class SubStringSource {
     private final String plainText;
     private final List<Style> charStyles;
@@ -53,6 +50,10 @@ public class SubStringSource {
 
             return param2 ? Lists.reverse(var0) : var0;
         }
+    }
+
+    public static SubStringSource create(FormattedText param0) {
+        return create(param0, param0x -> param0x, param0x -> param0x);
     }
 
     public static SubStringSource create(FormattedText param0, Int2IntFunction param1, UnaryOperator<String> param2) {

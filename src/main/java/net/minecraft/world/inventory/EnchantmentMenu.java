@@ -19,8 +19,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.EnchantmentInstance;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class EnchantmentMenu extends AbstractContainerMenu {
     private final Container enchantSlots = new SimpleContainer(2) {
@@ -234,13 +232,11 @@ public class EnchantmentMenu extends AbstractContainerMenu {
         return var0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getGoldCount() {
         ItemStack var0 = this.enchantSlots.getItem(1);
         return var0.isEmpty() ? 0 : var0.getCount();
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getEnchantmentSeed() {
         return this.enchantmentSeed.get();
     }

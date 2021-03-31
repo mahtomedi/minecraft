@@ -21,6 +21,7 @@ import net.minecraft.core.SectionPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.util.Mth;
+import net.minecraft.util.random.WeightedRandomList;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
@@ -43,8 +44,6 @@ import net.minecraft.world.level.levelgen.synth.PerlinNoise;
 import net.minecraft.world.level.levelgen.synth.PerlinSimplexNoise;
 import net.minecraft.world.level.levelgen.synth.SimplexNoise;
 import net.minecraft.world.level.levelgen.synth.SurfaceNoise;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public final class NoiseBasedChunkGenerator extends ChunkGenerator {
     public static final Codec<NoiseBasedChunkGenerator> CODEC = RecordCodecBuilder.create(
@@ -121,7 +120,6 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
         return CODEC;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public ChunkGenerator withSeed(long param0) {
         return new NoiseBasedChunkGenerator(this.biomeSource.withSeed(param0), param0, this.settings);
@@ -232,7 +230,7 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
         BlockState var1;
         if (var0 > 0.0) {
             var1 = param2.getBaseStone(param3, param4, param5, this.settings.get());
-        } else if (this.aquifersEnabled && param4 < this.getMinY() + 9) {
+        } else if (this.aquifersEnabled && Aquifer.isLavaLevel(param4 - this.getMinY())) {
             var1 = Blocks.LAVA.defaultBlockState();
         } else {
             int var3 = param1 == null ? this.getSeaLevel() : param1.getLastWaterLevel();
@@ -435,7 +433,7 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
     }
 
     @Override
-    public List<MobSpawnSettings.SpawnerData> getMobsAt(Biome param0, StructureFeatureManager param1, MobCategory param2, BlockPos param3) {
+    public WeightedRandomList<MobSpawnSettings.SpawnerData> getMobsAt(Biome param0, StructureFeatureManager param1, MobCategory param2, BlockPos param3) {
         if (param1.getStructureAt(param3, true, StructureFeature.SWAMP_HUT).isValid()) {
             if (param2 == MobCategory.MONSTER) {
                 return StructureFeature.SWAMP_HUT.getSpecialEnemies();

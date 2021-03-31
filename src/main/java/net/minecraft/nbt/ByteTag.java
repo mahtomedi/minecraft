@@ -5,6 +5,7 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 public class ByteTag extends NumericTag {
+    private static final int SELF_SIZE_IN_BITS = 72;
     public static final TagType<ByteTag> TYPE = new TagType<ByteTag>() {
         public ByteTag load(DataInput param0, int param1, NbtAccounter param2) throws IOException {
             param2.accountBits(72L);
@@ -117,6 +118,9 @@ public class ByteTag extends NumericTag {
 
     static class Cache {
         private static final ByteTag[] cache = new ByteTag[256];
+
+        private Cache() {
+        }
 
         static {
             for(int var0 = 0; var0 < cache.length; ++var0) {

@@ -7,12 +7,15 @@ import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import it.unimi.dsi.fastutil.objects.Object2LongMap.Entry;
 import java.util.Collection;
+import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.StructureBlockEntity;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.phys.AABB;
 
 public class GameTestInfo {
     private final TestFunction testFunction;
@@ -117,12 +120,33 @@ public class GameTestInfo {
         }
     }
 
+    public void setRunAtTickTime(long param0, Runnable param1) {
+        this.runAtTickTimeMap.put(param1, param0);
+    }
+
     public String getTestName() {
         return this.testFunction.getTestName();
     }
 
     public BlockPos getStructureBlockPos() {
         return this.structureBlockPos;
+    }
+
+    @Nullable
+    public Vec3i getStructureSize() {
+        StructureBlockEntity var0 = this.getStructureBlockEntity();
+        return var0 == null ? null : var0.getStructureSize();
+    }
+
+    @Nullable
+    public AABB getStructureBounds() {
+        StructureBlockEntity var0 = this.getStructureBlockEntity();
+        return var0 == null ? null : StructureUtils.getStructureBounds(var0);
+    }
+
+    @Nullable
+    private StructureBlockEntity getStructureBlockEntity() {
+        return (StructureBlockEntity)this.level.getBlockEntity(this.structureBlockPos);
     }
 
     public ServerLevel getLevel() {
@@ -145,10 +169,21 @@ public class GameTestInfo {
         return this.done;
     }
 
+    public long getRunTime() {
+        return this.timer.elapsed(TimeUnit.MILLISECONDS);
+    }
+
     private void finish() {
         if (!this.done) {
             this.done = true;
             this.timer.stop();
+        }
+
+    }
+
+    public void succeed() {
+        if (this.error == null) {
+            this.finish();
         }
 
     }
@@ -189,6 +224,16 @@ public class GameTestInfo {
         }
     }
 
+    long getTick() {
+        return this.tickCount;
+    }
+
+    GameTestSequence createSequence() {
+        GameTestSequence var0 = new GameTestSequence(this);
+        this.sequences.add(var0);
+        return var0;
+    }
+
     public boolean isRequired() {
         return this.testFunction.isRequired();
     }
@@ -207,6 +252,10 @@ public class GameTestInfo {
 
     public TestFunction getTestFunction() {
         return this.testFunction;
+    }
+
+    public int getTimeoutTicks() {
+        return this.timeoutTicks;
     }
 
     public boolean isFlaky() {

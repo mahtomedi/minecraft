@@ -8,6 +8,13 @@ public class GameTestAssertPosException extends GameTestAssertException {
     private final BlockPos relativePos;
     private final long tick;
 
+    public GameTestAssertPosException(String param0, BlockPos param1, BlockPos param2, long param3) {
+        super(param0);
+        this.absolutePos = param1;
+        this.relativePos = param2;
+        this.tick = param3;
+    }
+
     @Override
     public String getMessage() {
         String var0 = ""
@@ -29,6 +36,11 @@ public class GameTestAssertPosException extends GameTestAssertException {
     @Nullable
     public String getMessageToShowAtBlock() {
         return super.getMessage() + " here";
+    }
+
+    @Nullable
+    public BlockPos getRelativePos() {
+        return this.relativePos;
     }
 
     @Nullable

@@ -9,6 +9,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class I18n {
     private static volatile Language language = Language.getInstance();
 
+    private I18n() {
+    }
+
     static void setLanguage(Language param0) {
         language = param0;
     }

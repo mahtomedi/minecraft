@@ -4,8 +4,6 @@ import javax.annotation.Nullable;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.entity.Entity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundSetEntityLinkPacket implements Packet<ClientGamePacketListener> {
     private final int sourceId;
@@ -31,12 +29,10 @@ public class ClientboundSetEntityLinkPacket implements Packet<ClientGamePacketLi
         param0.handleEntityLinkPacket(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getSourceId() {
         return this.sourceId;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getDestId() {
         return this.destId;
     }

@@ -26,10 +26,16 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class AbstractContainerMenu {
+    public static final int SLOT_CLICKED_OUTSIDE = -999;
+    public static final int QUICKCRAFT_TYPE_CHARITABLE = 0;
+    public static final int QUICKCRAFT_TYPE_GREEDY = 1;
+    public static final int QUICKCRAFT_TYPE_CLONE = 2;
+    public static final int QUICKCRAFT_HEADER_START = 0;
+    public static final int QUICKCRAFT_HEADER_CONTINUE = 1;
+    public static final int QUICKCRAFT_HEADER_END = 2;
+    public static final int CARRIED_SLOT_SIZE = Integer.MAX_VALUE;
     private final NonNullList<ItemStack> lastSlots = NonNullList.create();
     public final NonNullList<Slot> slots = NonNullList.create();
     private final List<DataSlot> dataSlots = Lists.newArrayList();
@@ -137,12 +143,10 @@ public abstract class AbstractContainerMenu {
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void removeSlotListener(ContainerListener param0) {
         this.containerListeners.remove(param0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public NonNullList<ItemStack> getItems() {
         NonNullList<ItemStack> var0 = NonNullList.create();
 
@@ -528,7 +532,6 @@ public abstract class AbstractContainerMenu {
         this.getSlot(param0).set(param1);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void setAll(List<ItemStack> param0) {
         for(int var0 = 0; var0 < param0.size(); ++var0) {
             this.getSlot(var0).set(param0.get(var0));
@@ -633,7 +636,6 @@ public abstract class AbstractContainerMenu {
         return param0 & 3;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static int getQuickcraftMask(int param0, int param1) {
         return param0 & 3 | (param1 & 3) << 2;
     }
@@ -733,7 +735,6 @@ public abstract class AbstractContainerMenu {
             Slot var4 = this.slots.get(var3);
             Integer var5 = var0.get(var4.container, var4.getContainerSlot());
             if (var5 != null) {
-                this.lastSlots.set(var3, param0.lastSlots.get(var5));
                 this.remoteSlots.set(var3, param0.remoteSlots.get(var5));
             }
         }

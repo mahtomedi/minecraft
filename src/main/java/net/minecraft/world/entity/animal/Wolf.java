@@ -12,9 +12,9 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.util.IntRange;
 import net.minecraft.util.Mth;
 import net.minecraft.util.TimeUtil;
+import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
@@ -62,8 +62,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class Wolf extends TamableAnimal implements NeutralMob {
     private static final EntityDataAccessor<Boolean> DATA_INTERESTED_ID = SynchedEntityData.defineId(Wolf.class, EntityDataSerializers.BOOLEAN);
@@ -73,13 +71,15 @@ public class Wolf extends TamableAnimal implements NeutralMob {
         EntityType<?> var0 = param0.getType();
         return var0 == EntityType.SHEEP || var0 == EntityType.RABBIT || var0 == EntityType.FOX;
     };
+    private static final float START_HEALTH = 8.0F;
+    private static final float TAME_HEALTH = 20.0F;
     private float interestedAngle;
     private float interestedAngleO;
     private boolean isWet;
     private boolean isShaking;
     private float shakeAnim;
     private float shakeAnimO;
-    private static final IntRange PERSISTENT_ANGER_TIME = TimeUtil.rangeOfSeconds(20, 39);
+    private static final UniformInt PERSISTENT_ANGER_TIME = TimeUtil.rangeOfSeconds(20, 39);
     private UUID persistentAngerTarget;
 
     public Wolf(EntityType<? extends Wolf> param0, Level param1) {
@@ -252,17 +252,14 @@ public class Wolf extends TamableAnimal implements NeutralMob {
         super.die(param0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean isWet() {
         return this.isWet;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getWetShade(float param0) {
         return Math.min(0.5F + Mth.lerp(param0, this.shakeAnimO, this.shakeAnim) / 2.0F * 0.5F, 1.0F);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getBodyRollAngle(float param0, float param1) {
         float var0 = (Mth.lerp(param0, this.shakeAnimO, this.shakeAnim) + param1) / 1.8F;
         if (var0 < 0.0F) {
@@ -274,7 +271,6 @@ public class Wolf extends TamableAnimal implements NeutralMob {
         return Mth.sin(var0 * (float) Math.PI) * Mth.sin(var0 * (float) Math.PI * 11.0F) * 0.15F * (float) Math.PI;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getHeadRollAngle(float param0) {
         return Mth.lerp(param0, this.interestedAngleO, this.interestedAngle) * 0.15F * (float) Math.PI;
     }
@@ -390,7 +386,6 @@ public class Wolf extends TamableAnimal implements NeutralMob {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void handleEntityEvent(byte param0) {
         if (param0 == 8) {
@@ -405,7 +400,6 @@ public class Wolf extends TamableAnimal implements NeutralMob {
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getTailAngle() {
         if (this.isAngry()) {
             return 1.5393804F;
@@ -437,7 +431,7 @@ public class Wolf extends TamableAnimal implements NeutralMob {
 
     @Override
     public void startPersistentAngerTimer() {
-        this.setRemainingPersistentAngerTime(PERSISTENT_ANGER_TIME.randomValue(this.random));
+        this.setRemainingPersistentAngerTime(PERSISTENT_ANGER_TIME.sample(this.random));
     }
 
     @Nullable
@@ -519,7 +513,6 @@ public class Wolf extends TamableAnimal implements NeutralMob {
         return !this.isAngry() && super.canBeLeashed(param0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public Vec3 getLeashOffset() {
         return new Vec3(0.0, (double)(0.6F * this.getEyeHeight()), (double)(this.getBbWidth() * 0.4F));

@@ -14,7 +14,7 @@ import net.minecraft.world.level.material.Fluids;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 
 public class NetherWorldCarver extends CaveWorldCarver {
-    public NetherWorldCarver(Codec<CarverConfiguration> param0) {
+    public NetherWorldCarver(Codec<CaveCarverConfiguration> param0) {
         super(param0);
         this.replaceableBlocks = ImmutableSet.of(
             Blocks.STONE,
@@ -53,15 +53,9 @@ public class NetherWorldCarver extends CaveWorldCarver {
         return 5.0;
     }
 
-    @Override
-    protected int getCaveY(CarvingContext param0, Random param1) {
-        return param1.nextInt(param0.getGenDepth());
-    }
-
-    @Override
     protected boolean carveBlock(
         CarvingContext param0,
-        CarverConfiguration param1,
+        CaveCarverConfiguration param1,
         ChunkAccess param2,
         Function<BlockPos, Biome> param3,
         BitSet param4,

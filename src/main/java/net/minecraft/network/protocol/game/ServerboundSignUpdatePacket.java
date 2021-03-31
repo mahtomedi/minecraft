@@ -3,14 +3,12 @@ package net.minecraft.network.protocol.game;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ServerboundSignUpdatePacket implements Packet<ServerGamePacketListener> {
+    private static final int MAX_STRING_LENGTH = 384;
     private final BlockPos pos;
     private final String[] lines;
 
-    @OnlyIn(Dist.CLIENT)
     public ServerboundSignUpdatePacket(BlockPos param0, String param1, String param2, String param3, String param4) {
         this.pos = param0;
         this.lines = new String[]{param1, param2, param3, param4};

@@ -22,17 +22,17 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.inventory.tooltip.BundleTooltip;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class BundleItem extends Item {
+    private static final String TAG_ITEMS = "Items";
+    public static final int MAX_WEIGHT = 64;
+    private static final int BUNDLE_IN_BUNDLE_WEIGHT = 4;
     private static final int BAR_COLOR = Mth.color(0.4F, 0.4F, 1.0F);
 
     public BundleItem(Item.Properties param0) {
         super(param0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static float getFullnessDisplay(ItemStack param0) {
         return (float)getContentWeight(param0) / 64.0F;
     }
@@ -80,19 +80,16 @@ public class BundleItem extends Item {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public boolean isBarVisible(ItemStack param0) {
         return getContentWeight(param0) > 0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public int getBarWidth(ItemStack param0) {
         return Math.min(1 + 12 * getContentWeight(param0) / 64, 13);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public int getBarColor(ItemStack param0) {
         return BAR_COLOR;
@@ -205,7 +202,6 @@ public class BundleItem extends Item {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public Optional<TooltipComponent> getTooltipImage(ItemStack param0) {
         NonNullList<ItemStack> var0 = NonNullList.create();
@@ -213,7 +209,6 @@ public class BundleItem extends Item {
         return Optional.of(new BundleTooltip(var0, getContentWeight(param0)));
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void appendHoverText(ItemStack param0, Level param1, List<Component> param2, TooltipFlag param3) {
         param2.add(new TranslatableComponent("item.minecraft.bundle.fullness", getContentWeight(param0), 64).withStyle(ChatFormatting.GRAY));

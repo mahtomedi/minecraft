@@ -12,6 +12,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class AndCondition implements Condition {
+    public static final String TOKEN = "AND";
     private final Iterable<? extends Condition> conditions;
 
     public AndCondition(Iterable<? extends Condition> param0) {

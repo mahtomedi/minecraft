@@ -3,8 +3,6 @@ package net.minecraft.network.protocol.game;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundBlockDestructionPacket implements Packet<ClientGamePacketListener> {
     private final int id;
@@ -34,17 +32,14 @@ public class ClientboundBlockDestructionPacket implements Packet<ClientGamePacke
         param0.handleBlockDestruction(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getId() {
         return this.id;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public BlockPos getPos() {
         return this.pos;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getProgress() {
         return this.progress;
     }

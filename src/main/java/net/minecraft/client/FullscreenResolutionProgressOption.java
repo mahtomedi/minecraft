@@ -12,6 +12,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class FullscreenResolutionProgressOption extends ProgressOption {
+    private static final double CURRENT_MODE = -1.0;
+
     public FullscreenResolutionProgressOption(Window param0) {
         this(param0, param0.findBestMonitor());
     }

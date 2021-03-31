@@ -5,6 +5,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class AnimationFrame {
+    public static final int UNKNOWN_FRAME_TIME = -1;
     private final int index;
     private final int time;
 

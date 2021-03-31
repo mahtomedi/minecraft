@@ -31,6 +31,10 @@ public class UsedTotemTrigger extends SimpleCriterionTrigger<UsedTotemTrigger.Tr
             this.item = param1;
         }
 
+        public static UsedTotemTrigger.TriggerInstance usedTotem(ItemPredicate param0) {
+            return new UsedTotemTrigger.TriggerInstance(EntityPredicate.Composite.ANY, param0);
+        }
+
         public static UsedTotemTrigger.TriggerInstance usedTotem(ItemLike param0) {
             return new UsedTotemTrigger.TriggerInstance(EntityPredicate.Composite.ANY, ItemPredicate.Builder.item().of(param0).build());
         }

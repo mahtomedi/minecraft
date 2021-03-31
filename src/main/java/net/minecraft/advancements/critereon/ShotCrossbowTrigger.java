@@ -31,6 +31,10 @@ public class ShotCrossbowTrigger extends SimpleCriterionTrigger<ShotCrossbowTrig
             this.item = param1;
         }
 
+        public static ShotCrossbowTrigger.TriggerInstance shotCrossbow(ItemPredicate param0) {
+            return new ShotCrossbowTrigger.TriggerInstance(EntityPredicate.Composite.ANY, param0);
+        }
+
         public static ShotCrossbowTrigger.TriggerInstance shotCrossbow(ItemLike param0) {
             return new ShotCrossbowTrigger.TriggerInstance(EntityPredicate.Composite.ANY, ItemPredicate.Builder.item().of(param0).build());
         }

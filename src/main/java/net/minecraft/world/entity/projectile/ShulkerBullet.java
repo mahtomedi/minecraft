@@ -26,10 +26,9 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ShulkerBullet extends Projectile {
+    private static final double SPEED = 0.15;
     private Entity finalTarget;
     @Nullable
     private Direction currentMoveDirection;
@@ -99,6 +98,11 @@ public class ShulkerBullet extends Projectile {
 
     @Override
     protected void defineSynchedData() {
+    }
+
+    @Nullable
+    private Direction getMoveDirection() {
+        return this.currentMoveDirection;
     }
 
     private void setMoveDirection(@Nullable Direction param0) {
@@ -258,7 +262,6 @@ public class ShulkerBullet extends Projectile {
         return false;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public boolean shouldRenderAtSqrDistance(double param0) {
         return param0 < 16384.0;
@@ -314,7 +317,6 @@ public class ShulkerBullet extends Projectile {
         return true;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void recreateFromPacket(ClientboundAddEntityPacket param0) {
         super.recreateFromPacket(param0);

@@ -15,6 +15,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class PunchTreeTutorialStepInstance implements TutorialStepInstance {
+    private static final int HINT_DELAY = 600;
     private static final Component TITLE = new TranslatableComponent("tutorial.punch_tree.title");
     private static final Component DESCRIPTION = new TranslatableComponent("tutorial.punch_tree.description", Tutorial.key("attack"));
     private final Tutorial tutorial;

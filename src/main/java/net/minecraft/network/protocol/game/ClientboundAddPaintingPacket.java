@@ -8,8 +8,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.entity.decoration.Motive;
 import net.minecraft.world.entity.decoration.Painting;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundAddPaintingPacket implements Packet<ClientGamePacketListener> {
     private final int id;
@@ -47,27 +45,22 @@ public class ClientboundAddPaintingPacket implements Packet<ClientGamePacketList
         param0.handleAddPainting(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getId() {
         return this.id;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public UUID getUUID() {
         return this.uuid;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public BlockPos getPos() {
         return this.pos;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Direction getDirection() {
         return this.direction;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Motive getMotive() {
         return Registry.MOTIVE.byId(this.motive);
     }

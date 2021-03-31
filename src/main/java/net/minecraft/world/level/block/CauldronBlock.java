@@ -15,6 +15,11 @@ public class CauldronBlock extends AbstractCauldronBlock {
         super(param0, CauldronInteraction.EMPTY);
     }
 
+    @Override
+    public boolean isFull(BlockState param0) {
+        return false;
+    }
+
     protected static boolean shouldHandlePrecipitation(Level param0) {
         return param0.random.nextInt(20) == 1;
     }

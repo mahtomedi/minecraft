@@ -1,18 +1,46 @@
 package net.minecraft.network.protocol.game;
 
+import com.google.common.collect.Lists;
 import io.netty.buffer.Unpooled;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
+import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.StringUtil;
+import net.minecraft.world.Container;
+import net.minecraft.world.Nameable;
+import net.minecraft.world.damagesource.EntityDamageSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.Brain;
+import net.minecraft.world.entity.ai.behavior.Behavior;
+import net.minecraft.world.entity.ai.behavior.BlockPosTracker;
+import net.minecraft.world.entity.ai.behavior.EntityTracker;
 import net.minecraft.world.entity.ai.goal.GoalSelector;
+import net.minecraft.world.entity.ai.gossip.GossipType;
+import net.minecraft.world.entity.ai.memory.ExpirableValue;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.world.entity.ai.memory.WalkTarget;
 import net.minecraft.world.entity.animal.Bee;
+import net.minecraft.world.entity.npc.InventoryCarrier;
+import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.raid.Raid;
 import net.minecraft.world.level.ChunkPos;
@@ -93,6 +121,139 @@ public class DebugPackets {
     }
 
     public static void sendHiveInfo(Level param0, BlockPos param1, BlockState param2, BeehiveBlockEntity param3) {
+    }
+
+    private static void writeBrain(LivingEntity param0, FriendlyByteBuf param1) {
+        Brain<?> var0 = param0.getBrain();
+        long var1 = param0.level.getGameTime();
+        if (param0 instanceof InventoryCarrier) {
+            Container var2 = ((InventoryCarrier)param0).getInventory();
+            param1.writeUtf(var2.isEmpty() ? "" : var2.toString());
+        } else {
+            param1.writeUtf("");
+        }
+
+        if (var0.hasMemoryValue(MemoryModuleType.PATH)) {
+            param1.writeBoolean(true);
+            Path var3 = var0.getMemory(MemoryModuleType.PATH).get();
+            var3.writeToStream(param1);
+        } else {
+            param1.writeBoolean(false);
+        }
+
+        if (param0 instanceof Villager) {
+            Villager var4 = (Villager)param0;
+            boolean var5 = var4.wantsToSpawnGolem(var1);
+            param1.writeBoolean(var5);
+        } else {
+            param1.writeBoolean(false);
+        }
+
+        param1.writeCollection(var0.getActiveActivities(), (param0x, param1x) -> param0x.writeUtf(param1x.getName()));
+        Set<String> var6 = var0.getRunningBehaviors().stream().map(Behavior::toString).collect(Collectors.toSet());
+        param1.writeCollection(var6, FriendlyByteBuf::writeUtf);
+        param1.writeCollection(getMemoryDescriptions(param0, var1), (param0x, param1x) -> {
+            String var0x = StringUtil.truncateStringIfNecessary(param1x, 255, true);
+            param0x.writeUtf(var0x);
+        });
+        if (param0 instanceof Villager) {
+            Set<BlockPos> var7 = Stream.of(MemoryModuleType.JOB_SITE, MemoryModuleType.HOME, MemoryModuleType.MEETING_POINT)
+                .map(var0::getMemory)
+                .flatMap(Util::toStream)
+                .map(GlobalPos::pos)
+                .collect(Collectors.toSet());
+            param1.writeCollection(var7, FriendlyByteBuf::writeBlockPos);
+        } else {
+            param1.writeVarInt(0);
+        }
+
+        if (param0 instanceof Villager) {
+            Set<BlockPos> var8 = Stream.of(MemoryModuleType.POTENTIAL_JOB_SITE)
+                .map(var0::getMemory)
+                .flatMap(Util::toStream)
+                .map(GlobalPos::pos)
+                .collect(Collectors.toSet());
+            param1.writeCollection(var8, FriendlyByteBuf::writeBlockPos);
+        } else {
+            param1.writeVarInt(0);
+        }
+
+        if (param0 instanceof Villager) {
+            Map<UUID, Object2IntMap<GossipType>> var9 = ((Villager)param0).getGossips().getGossipEntries();
+            List<String> var10 = Lists.newArrayList();
+            var9.forEach((param1x, param2) -> {
+                String var0x = DebugEntityNameGenerator.getEntityName(param1x);
+                param2.forEach((param2x, param3) -> var10.add(var0x + ": " + param2x + ": " + param3));
+            });
+            param1.writeCollection(var10, FriendlyByteBuf::writeUtf);
+        } else {
+            param1.writeVarInt(0);
+        }
+
+    }
+
+    private static List<String> getMemoryDescriptions(LivingEntity param0, long param1) {
+        Map<MemoryModuleType<?>, Optional<? extends ExpirableValue<?>>> var0 = param0.getBrain().getMemories();
+        List<String> var1 = Lists.newArrayList();
+
+        for(Entry<MemoryModuleType<?>, Optional<? extends ExpirableValue<?>>> var2 : var0.entrySet()) {
+            MemoryModuleType<?> var3 = var2.getKey();
+            Optional<? extends ExpirableValue<?>> var4 = var2.getValue();
+            String var8;
+            if (var4.isPresent()) {
+                ExpirableValue<?> var5 = var4.get();
+                Object var6 = var5.getValue();
+                if (var3 == MemoryModuleType.HEARD_BELL_TIME) {
+                    long var7 = param1 - (Long)var6;
+                    var8 = "" + var7 + " ticks ago";
+                } else if (var5.canExpire()) {
+                    var8 = getShortDescription((ServerLevel)param0.level, var6) + " (ttl: " + var5.getTimeToLive() + ")";
+                } else {
+                    var8 = getShortDescription((ServerLevel)param0.level, var6);
+                }
+            } else {
+                var8 = "-";
+            }
+
+            var1.add(Registry.MEMORY_MODULE_TYPE.getKey(var3).getPath() + ": " + var8);
+        }
+
+        var1.sort(String::compareTo);
+        return var1;
+    }
+
+    private static String getShortDescription(ServerLevel param0, @Nullable Object param1) {
+        if (param1 == null) {
+            return "-";
+        } else if (param1 instanceof UUID) {
+            return getShortDescription(param0, param0.getEntity((UUID)param1));
+        } else if (param1 instanceof LivingEntity) {
+            Entity var0 = (Entity)param1;
+            return DebugEntityNameGenerator.getEntityName(var0);
+        } else if (param1 instanceof Nameable) {
+            return ((Nameable)param1).getName().getString();
+        } else if (param1 instanceof WalkTarget) {
+            return getShortDescription(param0, ((WalkTarget)param1).getTarget());
+        } else if (param1 instanceof EntityTracker) {
+            return getShortDescription(param0, ((EntityTracker)param1).getEntity());
+        } else if (param1 instanceof GlobalPos) {
+            return getShortDescription(param0, ((GlobalPos)param1).pos());
+        } else if (param1 instanceof BlockPosTracker) {
+            return getShortDescription(param0, ((BlockPosTracker)param1).currentBlockPosition());
+        } else if (param1 instanceof EntityDamageSource) {
+            Entity var1 = ((EntityDamageSource)param1).getEntity();
+            return var1 == null ? param1.toString() : getShortDescription(param0, var1);
+        } else if (!(param1 instanceof Collection)) {
+            return param1.toString();
+        } else {
+            List<String> var2 = Lists.newArrayList();
+
+            for(Object var3 : (Iterable)param1) {
+                var2.add(getShortDescription(param0, var3));
+            }
+
+            return var2.toString();
+        }
     }
 
     private static void sendPacketToAllPlayers(ServerLevel param0, FriendlyByteBuf param1, ResourceLocation param2) {

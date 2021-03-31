@@ -31,10 +31,16 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ShulkerBoxBlockEntity extends RandomizableContainerBlockEntity implements WorldlyContainer {
+    public static final int COLUMNS = 9;
+    public static final int ROWS = 3;
+    public static final int CONTAINER_SIZE = 27;
+    public static final int EVENT_SET_OPEN_COUNT = 1;
+    public static final int OPENING_TICK_LENGTH = 10;
+    public static final float MAX_LID_HEIGHT = 0.5F;
+    public static final float MAX_LID_ROTATION = 270.0F;
+    public static final String ITEMS_TAG = "Items";
     private static final int[] SLOTS = IntStream.range(0, 27).toArray();
     private NonNullList<ItemStack> itemStacks = NonNullList.withSize(27, ItemStack.EMPTY);
     private int openCount;
@@ -272,7 +278,6 @@ public class ShulkerBoxBlockEntity extends RandomizableContainerBlockEntity impl
     }
 
     @Nullable
-    @OnlyIn(Dist.CLIENT)
     public DyeColor getColor() {
         return this.color;
     }

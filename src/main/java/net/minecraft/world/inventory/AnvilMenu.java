@@ -12,17 +12,24 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.block.AnvilBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class AnvilMenu extends ItemCombinerMenu {
     private static final Logger LOGGER = LogManager.getLogger();
+    private static final boolean DEBUG_COST = false;
+    public static final int MAX_NAME_LENGTH = 35;
     private int repairItemCountCost;
     private String itemName;
     private final DataSlot cost = DataSlot.standalone();
+    private static final int COST_FAIL = 0;
+    private static final int COST_BASE = 1;
+    private static final int COST_ADDED_BASE = 1;
+    private static final int COST_REPAIR_MATERIAL = 1;
+    private static final int COST_REPAIR_SACRIFICE = 2;
+    private static final int COST_INCOMPATIBLE_PENALTY = 1;
+    private static final int COST_RENAME = 1;
 
     public AnvilMenu(int param0, Inventory param1) {
         this(param0, param1, ContainerLevelAccess.NULL);
@@ -266,7 +273,6 @@ public class AnvilMenu extends ItemCombinerMenu {
         this.createResult();
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getCost() {
         return this.cost.get();
     }

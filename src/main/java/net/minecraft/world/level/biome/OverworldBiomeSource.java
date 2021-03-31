@@ -10,8 +10,6 @@ import net.minecraft.resources.RegistryLookupCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.newbiome.layer.Layer;
 import net.minecraft.world.level.newbiome.layer.Layers;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class OverworldBiomeSource extends BiomeSource {
     public static final Codec<OverworldBiomeSource> CODEC = RecordCodecBuilder.create(
@@ -113,7 +111,6 @@ public class OverworldBiomeSource extends BiomeSource {
         return CODEC;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public BiomeSource withSeed(long param0) {
         return new OverworldBiomeSource(param0, this.legacyBiomeInitLayer, this.largeBiomes, this.biomes);

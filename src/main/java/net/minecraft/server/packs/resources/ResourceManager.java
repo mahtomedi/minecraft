@@ -11,27 +11,21 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackResources;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public interface ResourceManager extends ResourceProvider {
-    @OnlyIn(Dist.CLIENT)
     Set<String> getNamespaces();
 
-    @OnlyIn(Dist.CLIENT)
     boolean hasResource(ResourceLocation var1);
 
     List<Resource> getResources(ResourceLocation var1) throws IOException;
 
     Collection<ResourceLocation> listResources(String var1, Predicate<String> var2);
 
-    @OnlyIn(Dist.CLIENT)
     Stream<PackResources> listPacks();
 
     public static enum Empty implements ResourceManager {
         INSTANCE;
 
-        @OnlyIn(Dist.CLIENT)
         @Override
         public Set<String> getNamespaces() {
             return ImmutableSet.of();
@@ -42,7 +36,6 @@ public interface ResourceManager extends ResourceProvider {
             throw new FileNotFoundException(param0.toString());
         }
 
-        @OnlyIn(Dist.CLIENT)
         @Override
         public boolean hasResource(ResourceLocation param0) {
             return false;
@@ -58,7 +51,6 @@ public interface ResourceManager extends ResourceProvider {
             return ImmutableSet.of();
         }
 
-        @OnlyIn(Dist.CLIENT)
         @Override
         public Stream<PackResources> listPacks() {
             return Stream.of();

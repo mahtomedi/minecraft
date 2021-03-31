@@ -19,6 +19,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class BeaconRenderer implements BlockEntityRenderer<BeaconBlockEntity> {
     public static final ResourceLocation BEAM_LOCATION = new ResourceLocation("textures/entity/beacon_beam.png");
+    public static final int MAX_RENDER_Y = 1024;
 
     public BeaconRenderer(BlockEntityRendererProvider.Context param0) {
     }

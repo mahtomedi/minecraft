@@ -7,8 +7,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class HorseInventoryMenu extends AbstractContainerMenu {
     private final Container horseContainer;
@@ -27,7 +25,6 @@ public class HorseInventoryMenu extends AbstractContainerMenu {
                 return param0.is(Items.SADDLE) && !this.hasItem() && param3.isSaddleable();
             }
 
-            @OnlyIn(Dist.CLIENT)
             @Override
             public boolean isActive() {
                 return param3.isSaddleable();
@@ -39,7 +36,6 @@ public class HorseInventoryMenu extends AbstractContainerMenu {
                 return param3.isArmor(param0);
             }
 
-            @OnlyIn(Dist.CLIENT)
             @Override
             public boolean isActive() {
                 return param3.canWearArmor();

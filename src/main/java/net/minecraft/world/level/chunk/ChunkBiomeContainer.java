@@ -10,8 +10,6 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.dimension.DimensionType;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -32,7 +30,6 @@ public class ChunkBiomeContainer implements BiomeManager.NoiseBiomeSource {
         this.quartHeight = QuartPos.fromBlock(param1.getHeight()) - 1;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public ChunkBiomeContainer(IdMap<Biome> param0, LevelHeightAccessor param1, int[] param2) {
         this(param0, param1, new Biome[param2.length]);
 

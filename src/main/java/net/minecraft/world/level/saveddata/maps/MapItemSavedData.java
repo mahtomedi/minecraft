@@ -26,13 +26,14 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.saveddata.SavedData;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class MapItemSavedData extends SavedData {
     private static final Logger LOGGER = LogManager.getLogger();
+    private static final int MAP_SIZE = 128;
+    private static final int HALF_MAP_SIZE = 64;
+    public static final int MAX_SCALE = 4;
     public final int x;
     public final int z;
     public final ResourceKey<Level> dimension;
@@ -67,7 +68,6 @@ public class MapItemSavedData extends SavedData {
         return new MapItemSavedData(var3, var4, param2, param3, param4, false, param5);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static MapItemSavedData createForClient(byte param0, boolean param1, ResourceKey<Level> param2) {
         return new MapItemSavedData(0, 0, param0, false, false, param1, param2);
     }
@@ -389,6 +389,10 @@ public class MapItemSavedData extends SavedData {
 
     }
 
+    public Collection<MapBanner> getBanners() {
+        return this.bannerMarkers.values();
+    }
+
     public void removedFromFrame(BlockPos param0, int param1) {
         this.removeDecoration("frame-" + param1);
         this.frameMarkers.remove(MapFrame.frameId(param0));
@@ -419,7 +423,6 @@ public class MapItemSavedData extends SavedData {
         return false;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void addClientSideDecorations(List<MapDecoration> param0) {
         this.decorations.clear();
 
@@ -430,7 +433,6 @@ public class MapItemSavedData extends SavedData {
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Iterable<MapDecoration> getDecorations() {
         return this.decorations.values();
     }
@@ -525,7 +527,6 @@ public class MapItemSavedData extends SavedData {
             this.mapColors = param4;
         }
 
-        @OnlyIn(Dist.CLIENT)
         public void applyToMap(MapItemSavedData param0) {
             for(int var0 = 0; var0 < this.width; ++var0) {
                 for(int var1 = 0; var1 < this.height; ++var1) {

@@ -51,19 +51,14 @@ import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
-@OnlyIn(
-    value = Dist.CLIENT,
-    _interface = PowerableMob.class
-)
 public class WitherBoss extends Monster implements PowerableMob, RangedAttackMob {
     private static final EntityDataAccessor<Integer> DATA_TARGET_A = SynchedEntityData.defineId(WitherBoss.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> DATA_TARGET_B = SynchedEntityData.defineId(WitherBoss.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> DATA_TARGET_C = SynchedEntityData.defineId(WitherBoss.class, EntityDataSerializers.INT);
     private static final List<EntityDataAccessor<Integer>> DATA_TARGETS = ImmutableList.of(DATA_TARGET_A, DATA_TARGET_B, DATA_TARGET_C);
     private static final EntityDataAccessor<Integer> DATA_ID_INV = SynchedEntityData.defineId(WitherBoss.class, EntityDataSerializers.INT);
+    private static final int INVULNERABLE_TICKS = 220;
     private final float[] xRotHeads = new float[2];
     private final float[] yRotHeads = new float[2];
     private final float[] xRotOHeads = new float[2];
@@ -526,12 +521,10 @@ public class WitherBoss extends Monster implements PowerableMob, RangedAttackMob
             .add(Attributes.ARMOR, 4.0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getHeadYRot(int param0) {
         return this.yRotHeads[param0];
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getHeadXRot(int param0) {
         return this.xRotHeads[param0];
     }

@@ -4,8 +4,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.List;
 import java.util.function.Supplier;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class CheckerboardColumnBiomeSource extends BiomeSource {
     public static final Codec<CheckerboardColumnBiomeSource> CODEC = RecordCodecBuilder.create(
@@ -31,7 +29,6 @@ public class CheckerboardColumnBiomeSource extends BiomeSource {
         return CODEC;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public BiomeSource withSeed(long param0) {
         return this;

@@ -8,8 +8,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.IntRange;
 import net.minecraft.util.ParticleUtils;
+import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LightningBolt;
@@ -29,12 +29,13 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class LightningRodBlock extends RodBlock implements SimpleWaterloggedBlock {
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
+    private static final int ACTIVATION_TICKS = 8;
+    public static final int RANGE = 128;
+    public static final int SPARK_CYCLE = 200;
 
     public LightningRodBlock(BlockBehaviour.Properties param0) {
         super(param0);
@@ -91,14 +92,18 @@ public class LightningRodBlock extends RodBlock implements SimpleWaterloggedBloc
         this.updateNeighbours(param0, param1, param2);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void animateTick(BlockState param0, Level param1, BlockPos param2, Random param3) {
         if (param1.isThundering()
             && (long)param1.random.nextInt(200) <= param1.getGameTime() % 200L
             && param2.getY() == param1.getHeight(Heightmap.Types.WORLD_SURFACE, param2.getX(), param2.getZ()) - 1) {
-            ParticleUtils.spawnParticlesAlongAxis(param0.getValue(FACING).getAxis(), param1, param2, 0.125, ParticleTypes.ELECTRIC_SPARK, IntRange.of(1, 2));
+            ParticleUtils.spawnParticlesAlongAxis(param0.getValue(FACING).getAxis(), param1, param2, 0.125, ParticleTypes.ELECTRIC_SPARK, UniformInt.of(1, 2));
         }
+    }
+
+    public static double getSparkPositionOnAxis(Random param0, Direction.Axis param1, double param2, Direction.Axis param3) {
+        double var0 = param1 == param3 ? 1.0 : 0.25;
+        return param2 + param0.nextDouble() * var0 - var0 / 2.0;
     }
 
     @Override

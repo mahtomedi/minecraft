@@ -2,8 +2,6 @@ package net.minecraft.network.protocol.game;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundSetHealthPacket implements Packet<ClientGamePacketListener> {
     private final float health;
@@ -33,17 +31,14 @@ public class ClientboundSetHealthPacket implements Packet<ClientGamePacketListen
         param0.handleSetHealth(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getHealth() {
         return this.health;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getFood() {
         return this.food;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getSaturation() {
         return this.saturation;
     }

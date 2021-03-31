@@ -10,6 +10,8 @@ import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.feature.configurations.JigsawConfiguration;
 
 public class BastionFeature extends JigsawFeature {
+    private static final int BASTION_SPAWN_HEIGHT = 33;
+
     public BastionFeature(Codec<JigsawConfiguration> param0) {
         super(param0, 33, false, false);
     }

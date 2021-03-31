@@ -11,10 +11,9 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class DirectoryLock implements AutoCloseable {
+    public static final String LOCK_FILE = "session.lock";
     private final FileChannel lockFile;
     private final FileLock lock;
     private static final ByteBuffer DUMMY;
@@ -71,7 +70,6 @@ public class DirectoryLock implements AutoCloseable {
         return this.lock.isValid();
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static boolean isLocked(Path param0) throws IOException {
         Path var0 = param0.resolve("session.lock");
 

@@ -15,10 +15,10 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class CaveVinesBlock extends GrowingPlantHeadBlock implements BonemealableBlock, CaveVines {
+    private static final float CHANCE_OF_BERRIES_ON_GROWTH = 0.11F;
+
     public CaveVinesBlock(BlockBehaviour.Properties param0) {
         super(param0, Direction.DOWN, SHAPE, false, 0.1);
         this.registerDefaultState(this.stateDefinition.any().setValue(AGE, Integer.valueOf(0)).setValue(BERRIES, Boolean.valueOf(false)));
@@ -49,7 +49,6 @@ public class CaveVinesBlock extends GrowingPlantHeadBlock implements Bonemealabl
         return super.getGrowIntoState(param0, param1).setValue(BERRIES, Boolean.valueOf(param1.nextFloat() < 0.11F));
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public ItemStack getCloneItemStack(BlockGetter param0, BlockPos param1, BlockState param2) {
         return new ItemStack(Items.GLOW_BERRIES);

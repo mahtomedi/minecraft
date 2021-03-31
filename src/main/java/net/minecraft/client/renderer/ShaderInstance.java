@@ -8,6 +8,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.preprocessor.GlslPreprocessor;
 import com.mojang.blaze3d.shaders.AbstractUniform;
 import com.mojang.blaze3d.shaders.BlendMode;
 import com.mojang.blaze3d.shaders.Program;
@@ -32,7 +33,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.ChainedJsonException;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceProvider;
-import net.minecraft.util.GlslPreprocessor;
 import net.minecraft.util.GsonHelper;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -42,8 +42,11 @@ import org.apache.logging.log4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class ShaderInstance implements Shader, AutoCloseable {
+    private static final String SHADER_PATH = "shaders/core/";
+    private static final String SHADER_INCLUDE_PATH = "shaders/include/";
     private static final Logger LOGGER = LogManager.getLogger();
     private static final AbstractUniform DUMMY_UNIFORM = new AbstractUniform();
+    private static final boolean ALWAYS_REAPPLY = true;
     private static ShaderInstance lastAppliedShader;
     private static int lastProgramId = -1;
     private final Map<String, Object> samplerMap = Maps.newHashMap();
@@ -373,6 +376,12 @@ public class ShaderInstance implements Shader, AutoCloseable {
         return this.uniformMap.get(param0);
     }
 
+    public AbstractUniform safeGetUniform(String param0) {
+        RenderSystem.assertThread(RenderSystem::isOnGameThread);
+        Uniform var0 = this.getUniform(param0);
+        return (AbstractUniform)(var0 == null ? DUMMY_UNIFORM : var0);
+    }
+
     private void updateLocations() {
         RenderSystem.assertThread(RenderSystem::isOnRenderThread);
         IntList var0 = new IntArrayList();
@@ -483,6 +492,14 @@ public class ShaderInstance implements Shader, AutoCloseable {
     public void attachToProgram() {
         this.fragmentProgram.attachToShader(this);
         this.vertexProgram.attachToShader(this);
+    }
+
+    public VertexFormat getVertexFormat() {
+        return this.vertexFormat;
+    }
+
+    public String getName() {
+        return this.name;
     }
 
     @Override

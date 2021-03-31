@@ -7,10 +7,9 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public final class TextColor {
+    private static final String CUSTOM_COLOR_PREFIX = "#";
     private static final Map<ChatFormatting, TextColor> LEGACY_FORMAT_TO_COLOR = Stream.of(ChatFormatting.values())
         .filter(ChatFormatting::isColor)
         .collect(ImmutableMap.toImmutableMap(Function.identity(), param0 -> new TextColor(param0.getColor(), param0.getName())));
@@ -31,7 +30,6 @@ public final class TextColor {
         this.name = null;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getValue() {
         return this.value;
     }

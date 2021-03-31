@@ -43,6 +43,11 @@ public class SingleItemRecipeBuilder {
         return this;
     }
 
+    public SingleItemRecipeBuilder group(String param0) {
+        this.group = param0;
+        return this;
+    }
+
     public void save(Consumer<FinishedRecipe> param0, String param1) {
         ResourceLocation var0 = Registry.ITEM.getKey(this.result);
         if (new ResourceLocation(param1).equals(var0)) {

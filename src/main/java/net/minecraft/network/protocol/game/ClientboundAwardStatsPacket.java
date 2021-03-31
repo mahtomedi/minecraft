@@ -8,8 +8,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.stats.Stat;
 import net.minecraft.stats.StatType;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundAwardStatsPacket implements Packet<ClientGamePacketListener> {
     private final Object2IntMap<Stat<?>> stats;
@@ -46,7 +44,6 @@ public class ClientboundAwardStatsPacket implements Packet<ClientGamePacketListe
         return param0.getType().getRegistry().getId(param0.getValue());
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Map<Stat<?>, Integer> getStats() {
         return this.stats;
     }

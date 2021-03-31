@@ -292,7 +292,13 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
                 .withPool(
                     LootPool.lootPool()
                         .setRolls(ConstantValue.exactly(1.0F))
-                        .add(LootTableReference.lootTableReference(BuiltInLootTables.FISHING_FISH))
+                        .add(
+                            LootTableReference.lootTableReference(BuiltInLootTables.FISHING_FISH)
+                                .apply(
+                                    SmeltItemFunction.smelted()
+                                        .when(LootItemEntityPropertyCondition.hasProperties(LootContext.EntityTarget.THIS, ENTITY_ON_FIRE))
+                                )
+                        )
                         .when(LootItemKilledByPlayerCondition.killedByPlayer())
                         .when(LootItemRandomChanceWithLootingCondition.randomChanceAndLootingBoost(0.025F, 0.01F))
                 )
@@ -364,6 +370,7 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
                         )
                 )
         );
+        this.add(EntityType.GOAT, LootTable.lootTable());
         this.add(
             EntityType.GUARDIAN,
             LootTable.lootTable()
@@ -398,7 +405,13 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
                 .withPool(
                     LootPool.lootPool()
                         .setRolls(ConstantValue.exactly(1.0F))
-                        .add(LootTableReference.lootTableReference(BuiltInLootTables.FISHING_FISH))
+                        .add(
+                            LootTableReference.lootTableReference(BuiltInLootTables.FISHING_FISH)
+                                .apply(
+                                    SmeltItemFunction.smelted()
+                                        .when(LootItemEntityPropertyCondition.hasProperties(LootContext.EntityTarget.THIS, ENTITY_ON_FIRE))
+                                )
+                        )
                         .when(LootItemKilledByPlayerCondition.killedByPlayer())
                         .when(LootItemRandomChanceWithLootingCondition.randomChanceAndLootingBoost(0.025F, 0.01F))
                 )
@@ -433,7 +446,13 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
                         .setRolls(ConstantValue.exactly(1.0F))
                         .add(LootItem.lootTableItem(Items.IRON_INGOT))
                         .add(LootItem.lootTableItem(Items.CARROT))
-                        .add(LootItem.lootTableItem(Items.POTATO))
+                        .add(
+                            LootItem.lootTableItem(Items.POTATO)
+                                .apply(
+                                    SmeltItemFunction.smelted()
+                                        .when(LootItemEntityPropertyCondition.hasProperties(LootContext.EntityTarget.THIS, ENTITY_ON_FIRE))
+                                )
+                        )
                         .when(LootItemKilledByPlayerCondition.killedByPlayer())
                         .when(LootItemRandomChanceWithLootingCondition.randomChanceAndLootingBoost(0.025F, 0.01F))
                 )
@@ -591,12 +610,20 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
                         .setRolls(ConstantValue.exactly(1.0F))
                         .add(
                             LootItem.lootTableItem(Items.COD)
+                                .apply(
+                                    SmeltItemFunction.smelted()
+                                        .when(LootItemEntityPropertyCondition.hasProperties(LootContext.EntityTarget.THIS, ENTITY_ON_FIRE))
+                                )
                                 .setWeight(3)
                                 .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 2.0F)))
                                 .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
                         .add(
                             LootItem.lootTableItem(Items.SALMON)
+                                .apply(
+                                    SmeltItemFunction.smelted()
+                                        .when(LootItemEntityPropertyCondition.hasProperties(LootContext.EntityTarget.THIS, ENTITY_ON_FIRE))
+                                )
                                 .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 2.0F)))
                                 .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                         )
@@ -1024,7 +1051,13 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
                         .setRolls(ConstantValue.exactly(1.0F))
                         .add(LootItem.lootTableItem(Items.IRON_INGOT))
                         .add(LootItem.lootTableItem(Items.CARROT))
-                        .add(LootItem.lootTableItem(Items.POTATO))
+                        .add(
+                            LootItem.lootTableItem(Items.POTATO)
+                                .apply(
+                                    SmeltItemFunction.smelted()
+                                        .when(LootItemEntityPropertyCondition.hasProperties(LootContext.EntityTarget.THIS, ENTITY_ON_FIRE))
+                                )
+                        )
                         .when(LootItemKilledByPlayerCondition.killedByPlayer())
                         .when(LootItemRandomChanceWithLootingCondition.randomChanceAndLootingBoost(0.025F, 0.01F))
                 )
@@ -1116,7 +1149,13 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
                         .setRolls(ConstantValue.exactly(1.0F))
                         .add(LootItem.lootTableItem(Items.IRON_INGOT))
                         .add(LootItem.lootTableItem(Items.CARROT))
-                        .add(LootItem.lootTableItem(Items.POTATO))
+                        .add(
+                            LootItem.lootTableItem(Items.POTATO)
+                                .apply(
+                                    SmeltItemFunction.smelted()
+                                        .when(LootItemEntityPropertyCondition.hasProperties(LootContext.EntityTarget.THIS, ENTITY_ON_FIRE))
+                                )
+                        )
                         .when(LootItemKilledByPlayerCondition.killedByPlayer())
                         .when(LootItemRandomChanceWithLootingCondition.randomChanceAndLootingBoost(0.025F, 0.01F))
                 )

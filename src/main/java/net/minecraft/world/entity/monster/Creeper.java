@@ -38,13 +38,7 @@ import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
-@OnlyIn(
-    value = Dist.CLIENT,
-    _interface = PowerableMob.class
-)
 public class Creeper extends Monster implements PowerableMob {
     private static final EntityDataAccessor<Integer> DATA_SWELL_DIR = SynchedEntityData.defineId(Creeper.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> DATA_IS_POWERED = SynchedEntityData.defineId(Creeper.class, EntityDataSerializers.BOOLEAN);
@@ -193,7 +187,6 @@ public class Creeper extends Monster implements PowerableMob {
         return this.entityData.get(DATA_IS_POWERED);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getSwelling(float param0) {
         return Mth.lerp(param0, (float)this.oldSwell, (float)this.swell) / (float)(this.maxSwell - 2);
     }

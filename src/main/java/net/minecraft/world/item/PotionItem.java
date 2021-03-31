@@ -18,10 +18,10 @@ import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class PotionItem extends Item {
+    private static final int DRINK_DURATION = 32;
+
     public PotionItem(Item.Properties param0) {
         super(param0);
     }
@@ -89,7 +89,6 @@ public class PotionItem extends Item {
         return PotionUtils.getPotion(param0).getName(this.getDescriptionId() + ".effect.");
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void appendHoverText(ItemStack param0, @Nullable Level param1, List<Component> param2, TooltipFlag param3) {
         PotionUtils.addPotionTooltip(param0, param2, 1.0F);

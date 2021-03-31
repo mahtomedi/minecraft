@@ -1,10 +1,7 @@
 package com.mojang.math;
 
 import net.minecraft.util.Mth;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
 public class Vector4f {
     private float x;
     private float y;
@@ -69,6 +66,13 @@ public class Vector4f {
         return this.w;
     }
 
+    public void mul(float param0) {
+        this.x *= param0;
+        this.y *= param0;
+        this.z *= param0;
+        this.w *= param0;
+    }
+
     public void mul(Vector3f param0) {
         this.x *= param0.x();
         this.y *= param0.y();
@@ -80,6 +84,13 @@ public class Vector4f {
         this.y = param1;
         this.z = param2;
         this.w = param3;
+    }
+
+    public void add(float param0, float param1, float param2, float param3) {
+        this.x += param0;
+        this.y += param1;
+        this.z += param2;
+        this.w += param3;
     }
 
     public float dot(Vector4f param0) {
@@ -125,6 +136,14 @@ public class Vector4f {
         this.y /= this.w;
         this.z /= this.w;
         this.w = 1.0F;
+    }
+
+    public void lerp(Vector4f param0, float param1) {
+        float var0 = 1.0F - param1;
+        this.x = this.x * var0 + param0.x * param1;
+        this.y = this.y * var0 + param0.y * param1;
+        this.z = this.z * var0 + param0.z * param1;
+        this.w = this.w * var0 + param0.w * param1;
     }
 
     @Override

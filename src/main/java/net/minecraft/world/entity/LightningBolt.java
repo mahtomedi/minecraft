@@ -22,10 +22,9 @@ import net.minecraft.world.level.block.WeatheringCopper;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class LightningBolt extends Entity {
+    private static final int START_LIFE = 2;
     private int life;
     public long seed;
     private int flashes;
@@ -50,6 +49,11 @@ public class LightningBolt extends Entity {
         return SoundSource.WEATHER;
     }
 
+    @Nullable
+    public ServerPlayer getCause() {
+        return this.cause;
+    }
+
     public void setCause(@Nullable ServerPlayer param0) {
         this.cause = param0;
     }
@@ -66,37 +70,40 @@ public class LightningBolt extends Entity {
     @Override
     public void tick() {
         super.tick();
-        if (this.life == 2 && !this.level.isClientSide) {
-            Difficulty var0 = this.level.getDifficulty();
-            if (var0 == Difficulty.NORMAL || var0 == Difficulty.HARD) {
-                this.spawnFire(4);
-            }
+        if (this.life == 2) {
+            if (this.level.isClientSide()) {
+                this.level
+                    .playLocalSound(
+                        this.getX(),
+                        this.getY(),
+                        this.getZ(),
+                        SoundEvents.LIGHTNING_BOLT_THUNDER,
+                        SoundSource.WEATHER,
+                        10000.0F,
+                        0.8F + this.random.nextFloat() * 0.2F,
+                        false
+                    );
+                this.level
+                    .playLocalSound(
+                        this.getX(),
+                        this.getY(),
+                        this.getZ(),
+                        SoundEvents.LIGHTNING_BOLT_IMPACT,
+                        SoundSource.WEATHER,
+                        2.0F,
+                        0.5F + this.random.nextFloat() * 0.2F,
+                        false
+                    );
+            } else {
+                Difficulty var0 = this.level.getDifficulty();
+                if (var0 == Difficulty.NORMAL || var0 == Difficulty.HARD) {
+                    this.spawnFire(4);
+                }
 
-            this.powerLightningRod();
-            clearCopperOnLightningStrike(this.level, this.blockPosition().below());
-            this.level
-                .playSound(
-                    null,
-                    this.getX(),
-                    this.getY(),
-                    this.getZ(),
-                    SoundEvents.LIGHTNING_BOLT_THUNDER,
-                    SoundSource.WEATHER,
-                    10000.0F,
-                    0.8F + this.random.nextFloat() * 0.2F
-                );
-            this.level
-                .playSound(
-                    null,
-                    this.getX(),
-                    this.getY(),
-                    this.getZ(),
-                    SoundEvents.LIGHTNING_BOLT_IMPACT,
-                    SoundSource.WEATHER,
-                    2.0F,
-                    0.5F + this.random.nextFloat() * 0.2F
-                );
-            this.gameEvent(GameEvent.LIGHTNING_STRIKE);
+                this.powerLightningRod();
+                clearCopperOnLightningStrike(this.level, this.blockPosition().below());
+                this.gameEvent(GameEvent.LIGHTNING_STRIKE);
+            }
         }
 
         --this.life;
@@ -206,7 +213,6 @@ public class LightningBolt extends Entity {
         return Optional.empty();
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public boolean shouldRenderAtSqrDistance(double param0) {
         double var0 = 64.0 * getViewScale();

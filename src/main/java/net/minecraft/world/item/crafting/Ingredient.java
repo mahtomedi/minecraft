@@ -27,8 +27,6 @@ import net.minecraft.world.entity.player.StackedContents;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public final class Ingredient implements Predicate<ItemStack> {
     public static final Ingredient EMPTY = new Ingredient(Stream.empty());
@@ -40,7 +38,6 @@ public final class Ingredient implements Predicate<ItemStack> {
         this.values = param0.toArray(param0x -> new Ingredient.Value[param0x]);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public ItemStack[] getItems() {
         this.dissolve();
         return this.itemStacks;
@@ -115,11 +112,14 @@ public final class Ingredient implements Predicate<ItemStack> {
         return var0.values.length == 0 ? EMPTY : var0;
     }
 
+    public static Ingredient of() {
+        return EMPTY;
+    }
+
     public static Ingredient of(ItemLike... param0) {
         return of(Arrays.stream(param0).map(ItemStack::new));
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static Ingredient of(ItemStack... param0) {
         return of(Arrays.stream(param0));
     }
@@ -159,14 +159,13 @@ public final class Ingredient implements Predicate<ItemStack> {
         if (param0.has("item") && param0.has("tag")) {
             throw new JsonParseException("An ingredient entry is either a tag or an item, not both");
         } else if (param0.has("item")) {
-            ResourceLocation var0 = new ResourceLocation(GsonHelper.getAsString(param0, "item"));
-            Item var1 = Registry.ITEM.getOptional(var0).orElseThrow(() -> new JsonSyntaxException("Unknown item '" + var0 + "'"));
-            return new Ingredient.ItemValue(new ItemStack(var1));
+            Item var0 = ShapedRecipe.itemFromJson(param0);
+            return new Ingredient.ItemValue(new ItemStack(var0));
         } else if (param0.has("tag")) {
-            ResourceLocation var2 = new ResourceLocation(GsonHelper.getAsString(param0, "tag"));
-            Tag<Item> var3 = SerializationTags.getInstance()
-                .getTagOrThrow(Registry.ITEM_REGISTRY, var2, param0x -> new JsonSyntaxException("Unknown item tag '" + param0x + "'"));
-            return new Ingredient.TagValue(var3);
+            ResourceLocation var1 = new ResourceLocation(GsonHelper.getAsString(param0, "tag"));
+            Tag<Item> var2 = SerializationTags.getInstance()
+                .getTagOrThrow(Registry.ITEM_REGISTRY, var1, param0x -> new JsonSyntaxException("Unknown item tag '" + param0x + "'"));
+            return new Ingredient.TagValue(var2);
         } else {
             throw new JsonParseException("An ingredient entry needs either a tag or an item");
         }

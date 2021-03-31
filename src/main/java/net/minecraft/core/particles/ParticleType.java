@@ -1,8 +1,6 @@
 package net.minecraft.core.particles;
 
 import com.mojang.serialization.Codec;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class ParticleType<T extends ParticleOptions> {
     private final boolean overrideLimiter;
@@ -13,7 +11,6 @@ public abstract class ParticleType<T extends ParticleOptions> {
         this.deserializer = param1;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean getOverrideLimiter() {
         return this.overrideLimiter;
     }

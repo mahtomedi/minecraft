@@ -106,6 +106,21 @@ public class EntityFlagsPredicate {
             return this;
         }
 
+        public EntityFlagsPredicate.Builder setCrouching(@Nullable Boolean param0) {
+            this.isCrouching = param0;
+            return this;
+        }
+
+        public EntityFlagsPredicate.Builder setSprinting(@Nullable Boolean param0) {
+            this.isSprinting = param0;
+            return this;
+        }
+
+        public EntityFlagsPredicate.Builder setSwimming(@Nullable Boolean param0) {
+            this.isSwimming = param0;
+            return this;
+        }
+
         public EntityFlagsPredicate.Builder setIsBaby(@Nullable Boolean param0) {
             this.isBaby = param0;
             return this;

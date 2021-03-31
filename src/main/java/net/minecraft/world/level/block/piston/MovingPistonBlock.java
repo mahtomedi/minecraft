@@ -32,8 +32,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class MovingPistonBlock extends BaseEntityBlock {
     public static final DirectionProperty FACING = PistonHeadBlock.FACING;
@@ -114,7 +112,6 @@ public class MovingPistonBlock extends BaseEntityBlock {
         return var0 instanceof PistonMovingBlockEntity ? (PistonMovingBlockEntity)var0 : null;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public ItemStack getCloneItemStack(BlockGetter param0, BlockPos param1, BlockState param2) {
         return ItemStack.EMPTY;

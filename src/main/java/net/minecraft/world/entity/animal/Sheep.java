@@ -59,10 +59,9 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class Sheep extends Animal implements Shearable {
+    private static final int EAT_ANIMATION_TICKS = 40;
     private static final EntityDataAccessor<Byte> DATA_WOOL_ID = SynchedEntityData.defineId(Sheep.class, EntityDataSerializers.BYTE);
     private static final Map<DyeColor, ItemLike> ITEM_BY_DYE = Util.make(Maps.newEnumMap(DyeColor.class), param0 -> {
         param0.put(DyeColor.WHITE, Blocks.WHITE_WOOL);
@@ -98,7 +97,6 @@ public class Sheep extends Animal implements Shearable {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static float[] getColorArray(DyeColor param0) {
         return COLORARRAY_BY_COLOR.get(param0);
     }
@@ -189,7 +187,6 @@ public class Sheep extends Animal implements Shearable {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void handleEntityEvent(byte param0) {
         if (param0 == 10) {
@@ -200,7 +197,6 @@ public class Sheep extends Animal implements Shearable {
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getHeadEatPositionScale(float param0) {
         if (this.eatAnimationTick <= 0) {
             return 0.0F;
@@ -211,7 +207,6 @@ public class Sheep extends Animal implements Shearable {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getHeadEatAngleScale(float param0) {
         if (this.eatAnimationTick > 4 && this.eatAnimationTick <= 36) {
             float var0 = ((float)(this.eatAnimationTick - 4) - param0) / 32.0F;

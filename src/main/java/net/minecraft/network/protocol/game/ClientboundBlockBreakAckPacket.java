@@ -5,8 +5,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -43,22 +41,18 @@ public class ClientboundBlockBreakAckPacket implements Packet<ClientGamePacketLi
         param0.handleBlockBreakAck(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public BlockState getState() {
         return this.state;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public BlockPos getPos() {
         return this.pos;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean allGood() {
         return this.allGood;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public ServerboundPlayerActionPacket.Action action() {
         return this.action;
     }

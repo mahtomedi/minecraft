@@ -1157,6 +1157,11 @@ public class BlockModelGenerators {
         this.blockStateOutput.accept(createSimpleBlock(param0, param1.create(param0, this.modelOutput)));
     }
 
+    private void createTrivialBlock(Block param0, TextureMapping param1, ModelTemplate param2) {
+        ResourceLocation var0 = param2.create(param0, param1, this.modelOutput);
+        this.blockStateOutput.accept(createSimpleBlock(param0, var0));
+    }
+
     private BlockModelGenerators.BlockFamilyProvider family(Block param0) {
         TexturedModel var0 = this.texturedModels.getOrDefault(param0, TexturedModel.CUBE.get(param0));
         return new BlockModelGenerators.BlockFamilyProvider(var0.getMapping()).fullBlock(param0, var0.getTemplate());
@@ -1444,7 +1449,7 @@ public class BlockModelGenerators {
     }
 
     private void createFullAndCarpetBlocks(Block param0, Block param1) {
-        this.createTrivialBlock(param0, TexturedModel.CUBE);
+        this.createTrivialCube(param0);
         ResourceLocation var0 = TexturedModel.CARPET.get(param0).create(param1, this.modelOutput);
         this.blockStateOutput.accept(createSimpleBlock(param1, var0));
     }
@@ -3872,69 +3877,71 @@ public class BlockModelGenerators {
         this.createFullAndCarpetBlocks(Blocks.MOSS_BLOCK, Blocks.MOSS_CARPET);
         this.createAirLikeBlock(Blocks.BARRIER, Items.BARRIER);
         this.createSimpleFlatItemModel(Items.BARRIER);
+        this.createAirLikeBlock(Blocks.LIGHT, Items.LIGHT);
+        this.createLightBlockItems();
         this.createAirLikeBlock(Blocks.STRUCTURE_VOID, Items.STRUCTURE_VOID);
         this.createSimpleFlatItemModel(Items.STRUCTURE_VOID);
         this.createAirLikeBlock(Blocks.MOVING_PISTON, TextureMapping.getBlockTexture(Blocks.PISTON, "_side"));
-        this.createTrivialBlock(Blocks.COAL_ORE, TexturedModel.CUBE);
-        this.createTrivialBlock(Blocks.DEEPSLATE_COAL_ORE, TexturedModel.CUBE);
-        this.createTrivialBlock(Blocks.COAL_BLOCK, TexturedModel.CUBE);
-        this.createTrivialBlock(Blocks.DIAMOND_ORE, TexturedModel.CUBE);
-        this.createTrivialBlock(Blocks.DEEPSLATE_DIAMOND_ORE, TexturedModel.CUBE);
-        this.createTrivialBlock(Blocks.DIAMOND_BLOCK, TexturedModel.CUBE);
-        this.createTrivialBlock(Blocks.EMERALD_ORE, TexturedModel.CUBE);
-        this.createTrivialBlock(Blocks.DEEPSLATE_EMERALD_ORE, TexturedModel.CUBE);
-        this.createTrivialBlock(Blocks.EMERALD_BLOCK, TexturedModel.CUBE);
-        this.createTrivialBlock(Blocks.GOLD_ORE, TexturedModel.CUBE);
-        this.createTrivialBlock(Blocks.NETHER_GOLD_ORE, TexturedModel.CUBE);
-        this.createTrivialBlock(Blocks.DEEPSLATE_GOLD_ORE, TexturedModel.CUBE);
-        this.createTrivialBlock(Blocks.GOLD_BLOCK, TexturedModel.CUBE);
-        this.createTrivialBlock(Blocks.IRON_ORE, TexturedModel.CUBE);
-        this.createTrivialBlock(Blocks.DEEPSLATE_IRON_ORE, TexturedModel.CUBE);
-        this.createTrivialBlock(Blocks.IRON_BLOCK, TexturedModel.CUBE);
+        this.createTrivialCube(Blocks.COAL_ORE);
+        this.createTrivialCube(Blocks.DEEPSLATE_COAL_ORE);
+        this.createTrivialCube(Blocks.COAL_BLOCK);
+        this.createTrivialCube(Blocks.DIAMOND_ORE);
+        this.createTrivialCube(Blocks.DEEPSLATE_DIAMOND_ORE);
+        this.createTrivialCube(Blocks.DIAMOND_BLOCK);
+        this.createTrivialCube(Blocks.EMERALD_ORE);
+        this.createTrivialCube(Blocks.DEEPSLATE_EMERALD_ORE);
+        this.createTrivialCube(Blocks.EMERALD_BLOCK);
+        this.createTrivialCube(Blocks.GOLD_ORE);
+        this.createTrivialCube(Blocks.NETHER_GOLD_ORE);
+        this.createTrivialCube(Blocks.DEEPSLATE_GOLD_ORE);
+        this.createTrivialCube(Blocks.GOLD_BLOCK);
+        this.createTrivialCube(Blocks.IRON_ORE);
+        this.createTrivialCube(Blocks.DEEPSLATE_IRON_ORE);
+        this.createTrivialCube(Blocks.IRON_BLOCK);
         this.createTrivialBlock(Blocks.ANCIENT_DEBRIS, TexturedModel.COLUMN);
-        this.createTrivialBlock(Blocks.NETHERITE_BLOCK, TexturedModel.CUBE);
-        this.createTrivialBlock(Blocks.LAPIS_ORE, TexturedModel.CUBE);
-        this.createTrivialBlock(Blocks.DEEPSLATE_LAPIS_ORE, TexturedModel.CUBE);
-        this.createTrivialBlock(Blocks.LAPIS_BLOCK, TexturedModel.CUBE);
-        this.createTrivialBlock(Blocks.NETHER_QUARTZ_ORE, TexturedModel.CUBE);
-        this.createTrivialBlock(Blocks.REDSTONE_ORE, TexturedModel.CUBE);
-        this.createTrivialBlock(Blocks.DEEPSLATE_REDSTONE_ORE, TexturedModel.CUBE);
-        this.createTrivialBlock(Blocks.REDSTONE_BLOCK, TexturedModel.CUBE);
-        this.createTrivialBlock(Blocks.GILDED_BLACKSTONE, TexturedModel.CUBE);
-        this.createTrivialBlock(Blocks.BLUE_ICE, TexturedModel.CUBE);
-        this.createTrivialBlock(Blocks.CLAY, TexturedModel.CUBE);
-        this.createTrivialBlock(Blocks.COARSE_DIRT, TexturedModel.CUBE);
-        this.createTrivialBlock(Blocks.CRYING_OBSIDIAN, TexturedModel.CUBE);
-        this.createTrivialBlock(Blocks.END_STONE, TexturedModel.CUBE);
-        this.createTrivialBlock(Blocks.GLOWSTONE, TexturedModel.CUBE);
-        this.createTrivialBlock(Blocks.GRAVEL, TexturedModel.CUBE);
-        this.createTrivialBlock(Blocks.HONEYCOMB_BLOCK, TexturedModel.CUBE);
-        this.createTrivialBlock(Blocks.ICE, TexturedModel.CUBE);
+        this.createTrivialCube(Blocks.NETHERITE_BLOCK);
+        this.createTrivialCube(Blocks.LAPIS_ORE);
+        this.createTrivialCube(Blocks.DEEPSLATE_LAPIS_ORE);
+        this.createTrivialCube(Blocks.LAPIS_BLOCK);
+        this.createTrivialCube(Blocks.NETHER_QUARTZ_ORE);
+        this.createTrivialCube(Blocks.REDSTONE_ORE);
+        this.createTrivialCube(Blocks.DEEPSLATE_REDSTONE_ORE);
+        this.createTrivialCube(Blocks.REDSTONE_BLOCK);
+        this.createTrivialCube(Blocks.GILDED_BLACKSTONE);
+        this.createTrivialCube(Blocks.BLUE_ICE);
+        this.createTrivialCube(Blocks.CLAY);
+        this.createTrivialCube(Blocks.COARSE_DIRT);
+        this.createTrivialCube(Blocks.CRYING_OBSIDIAN);
+        this.createTrivialCube(Blocks.END_STONE);
+        this.createTrivialCube(Blocks.GLOWSTONE);
+        this.createTrivialCube(Blocks.GRAVEL);
+        this.createTrivialCube(Blocks.HONEYCOMB_BLOCK);
+        this.createTrivialCube(Blocks.ICE);
         this.createTrivialBlock(Blocks.JUKEBOX, TexturedModel.CUBE_TOP);
         this.createTrivialBlock(Blocks.LODESTONE, TexturedModel.COLUMN);
         this.createTrivialBlock(Blocks.MELON, TexturedModel.COLUMN);
-        this.createTrivialBlock(Blocks.NETHER_WART_BLOCK, TexturedModel.CUBE);
-        this.createTrivialBlock(Blocks.NOTE_BLOCK, TexturedModel.CUBE);
-        this.createTrivialBlock(Blocks.PACKED_ICE, TexturedModel.CUBE);
-        this.createTrivialBlock(Blocks.OBSIDIAN, TexturedModel.CUBE);
-        this.createTrivialBlock(Blocks.QUARTZ_BRICKS, TexturedModel.CUBE);
-        this.createTrivialBlock(Blocks.SEA_LANTERN, TexturedModel.CUBE);
-        this.createTrivialBlock(Blocks.SHROOMLIGHT, TexturedModel.CUBE);
-        this.createTrivialBlock(Blocks.SOUL_SAND, TexturedModel.CUBE);
-        this.createTrivialBlock(Blocks.SOUL_SOIL, TexturedModel.CUBE);
-        this.createTrivialBlock(Blocks.SPAWNER, TexturedModel.CUBE);
-        this.createTrivialBlock(Blocks.SPONGE, TexturedModel.CUBE);
+        this.createTrivialCube(Blocks.NETHER_WART_BLOCK);
+        this.createTrivialCube(Blocks.NOTE_BLOCK);
+        this.createTrivialCube(Blocks.PACKED_ICE);
+        this.createTrivialCube(Blocks.OBSIDIAN);
+        this.createTrivialCube(Blocks.QUARTZ_BRICKS);
+        this.createTrivialCube(Blocks.SEA_LANTERN);
+        this.createTrivialCube(Blocks.SHROOMLIGHT);
+        this.createTrivialCube(Blocks.SOUL_SAND);
+        this.createTrivialCube(Blocks.SOUL_SOIL);
+        this.createTrivialCube(Blocks.SPAWNER);
+        this.createTrivialCube(Blocks.SPONGE);
         this.createTrivialBlock(Blocks.SEAGRASS, TexturedModel.SEAGRASS);
         this.createSimpleFlatItemModel(Items.SEAGRASS);
         this.createTrivialBlock(Blocks.TNT, TexturedModel.CUBE_TOP_BOTTOM);
         this.createTrivialBlock(Blocks.TARGET, TexturedModel.COLUMN);
-        this.createTrivialBlock(Blocks.WARPED_WART_BLOCK, TexturedModel.CUBE);
-        this.createTrivialBlock(Blocks.WET_SPONGE, TexturedModel.CUBE);
-        this.createTrivialBlock(Blocks.AMETHYST_BLOCK, TexturedModel.CUBE);
-        this.createTrivialBlock(Blocks.BUDDING_AMETHYST, TexturedModel.CUBE);
-        this.createTrivialBlock(Blocks.CALCITE, TexturedModel.CUBE);
-        this.createTrivialBlock(Blocks.TUFF, TexturedModel.CUBE);
-        this.createTrivialBlock(Blocks.DRIPSTONE_BLOCK, TexturedModel.CUBE);
+        this.createTrivialCube(Blocks.WARPED_WART_BLOCK);
+        this.createTrivialCube(Blocks.WET_SPONGE);
+        this.createTrivialCube(Blocks.AMETHYST_BLOCK);
+        this.createTrivialCube(Blocks.BUDDING_AMETHYST);
+        this.createTrivialCube(Blocks.CALCITE);
+        this.createTrivialCube(Blocks.TUFF);
+        this.createTrivialCube(Blocks.DRIPSTONE_BLOCK);
         this.createPetrifiedOakSlab();
         this.createTrivialCube(Blocks.COPPER_ORE);
         this.createTrivialCube(Blocks.DEEPSLATE_COPPER_ORE);
@@ -4017,6 +4024,7 @@ public class BlockModelGenerators {
         this.createTrivialCube(Blocks.SMOOTH_BASALT);
         this.createAxisAlignedPillarBlock(Blocks.BONE_BLOCK, TexturedModel.COLUMN);
         this.createRotatedVariantBlock(Blocks.DIRT);
+        this.createRotatedVariantBlock(Blocks.ROOTED_DIRT);
         this.createRotatedVariantBlock(Blocks.SAND);
         this.createRotatedVariantBlock(Blocks.RED_SAND);
         this.createRotatedMirroredVariantBlock(Blocks.BEDROCK);
@@ -4148,7 +4156,6 @@ public class BlockModelGenerators {
         this.blockEntityModels(Blocks.END_PORTAL, Blocks.OBSIDIAN).create(Blocks.END_PORTAL, Blocks.END_GATEWAY);
         this.createTrivialCube(Blocks.AZALEA_LEAVES);
         this.createTrivialCube(Blocks.AZALEA_LEAVES_FLOWERS);
-        this.createTrivialCube(Blocks.ROOTED_DIRT);
         this.createTrivialCube(Blocks.WHITE_CONCRETE);
         this.createTrivialCube(Blocks.ORANGE_CONCRETE);
         this.createTrivialCube(Blocks.MAGENTA_CONCRETE);
@@ -4418,6 +4425,21 @@ public class BlockModelGenerators {
         this.copyModel(Blocks.STONE_BRICKS, Blocks.INFESTED_STONE_BRICKS);
         this.copyModel(Blocks.DEEPSLATE, Blocks.INFESTED_DEEPSLATE);
         SpawnEggItem.eggs().forEach(param0 -> this.delegateItemModel(param0, ModelLocationUtils.decorateItemModelLocation("template_spawn_egg")));
+    }
+
+    private void createLightBlockItems() {
+        this.skipAutoItemBlock(Blocks.LIGHT);
+
+        for(int var0 = 0; var0 < 16; ++var0) {
+            String var1 = String.format("_%02d", var0);
+            ModelTemplates.FLAT_ITEM
+                .create(
+                    ModelLocationUtils.getModelLocation(Items.LIGHT, var1),
+                    TextureMapping.layer0(TextureMapping.getItemTexture(Items.LIGHT, var1)),
+                    this.modelOutput
+                );
+        }
+
     }
 
     private void createCandleAndCandleCake(Block param0, Block param1) {

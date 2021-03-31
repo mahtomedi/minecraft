@@ -5,8 +5,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class AbstractCookingRecipe implements Recipe<Container> {
     protected final RecipeType<?> type;
@@ -37,7 +35,6 @@ public abstract class AbstractCookingRecipe implements Recipe<Container> {
         return this.result.copy();
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public boolean canCraftInDimensions(int param0, int param1) {
         return true;
@@ -59,7 +56,6 @@ public abstract class AbstractCookingRecipe implements Recipe<Container> {
         return this.result;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public String getGroup() {
         return this.group;

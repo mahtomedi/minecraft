@@ -25,11 +25,10 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class CandleCakeBlock extends AbstractCandleBlock {
     public static final BooleanProperty LIT = AbstractCandleBlock.LIT;
+    protected static final float AABB_OFFSET = 1.0F;
     protected static final VoxelShape CAKE_SHAPE = Block.box(1.0, 0.0, 1.0, 15.0, 8.0, 15.0);
     protected static final VoxelShape CANDLE_SHAPE = Block.box(7.0, 8.0, 7.0, 9.0, 14.0, 9.0);
     protected static final VoxelShape SHAPE = Shapes.or(CAKE_SHAPE, CANDLE_SHAPE);
@@ -42,7 +41,6 @@ public class CandleCakeBlock extends AbstractCandleBlock {
         BY_CANDLE.put(param0, this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     protected Iterable<Vec3> getParticleOffsets(BlockState param0) {
         return PARTICLE_OFFSETS;
@@ -80,7 +78,6 @@ public class CandleCakeBlock extends AbstractCandleBlock {
         param0.add(LIT);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public ItemStack getCloneItemStack(BlockGetter param0, BlockPos param1, BlockState param2) {
         return new ItemStack(Blocks.CAKE);

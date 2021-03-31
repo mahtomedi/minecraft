@@ -2,13 +2,16 @@ package net.minecraft.nbt;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.datafixers.DataFixer;
 import com.mojang.serialization.Dynamic;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +35,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.StateHolder;
 import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.material.FluidState;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -42,9 +46,19 @@ public final class NbtUtils {
     private static final Comparator<ListTag> YXZ_LISTTAG_DOUBLE_COMPARATOR = Comparator.<ListTag>comparingDouble(param0 -> param0.getDouble(1))
         .thenComparingDouble(param0 -> param0.getDouble(0))
         .thenComparingDouble(param0 -> param0.getDouble(2));
+    public static final String SNBT_DATA_TAG = "data";
+    private static final char PROPERTIES_START = '{';
+    private static final char PROPERTIES_END = '}';
+    private static final String ELEMENT_SEPARATOR = ",";
+    private static final char KEY_VALUE_SEPARATOR = ':';
     private static final Splitter COMMA_SPLITTER = Splitter.on(",");
     private static final Splitter COLON_SPLITTER = Splitter.on(':').limit(2);
     private static final Logger LOGGER = LogManager.getLogger();
+    private static final int INDENT = 2;
+    private static final int NOT_FOUND = -1;
+
+    private NbtUtils() {
+    }
 
     @Nullable
     public static GameProfile readGameProfile(CompoundTag param0) {
@@ -252,8 +266,224 @@ public final class NbtUtils {
         return var0;
     }
 
+    public static CompoundTag writeFluidState(FluidState param0) {
+        CompoundTag var0 = new CompoundTag();
+        var0.putString("Name", Registry.FLUID.getKey(param0.getType()).toString());
+        ImmutableMap<Property<?>, Comparable<?>> var1 = param0.getValues();
+        if (!var1.isEmpty()) {
+            CompoundTag var2 = new CompoundTag();
+
+            for(Entry<Property<?>, Comparable<?>> var3 : var1.entrySet()) {
+                Property<?> var4 = var3.getKey();
+                var2.putString(var4.getName(), getName(var4, var3.getValue()));
+            }
+
+            var0.put("Properties", var2);
+        }
+
+        return var0;
+    }
+
     private static <T extends Comparable<T>> String getName(Property<T> param0, Comparable<?> param1) {
         return param0.getName((T)param1);
+    }
+
+    public static String prettyPrint(Tag param0) {
+        return prettyPrint(param0, false);
+    }
+
+    public static String prettyPrint(Tag param0, boolean param1) {
+        return prettyPrint(new StringBuilder(), param0, 0, param1).toString();
+    }
+
+    public static StringBuilder prettyPrint(StringBuilder param0, Tag param1, int param2, boolean param3) {
+        switch(param1.getId()) {
+            case 0:
+                break;
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+            case 5:
+            case 6:
+            case 8:
+                param0.append(param1);
+                break;
+            case 7:
+                ByteArrayTag var0 = (ByteArrayTag)param1;
+                byte[] var1 = var0.getAsByteArray();
+                int var2 = var1.length;
+                indent(param2, param0).append("byte[").append(var2).append("] {\n");
+                if (!param3) {
+                    indent(param2 + 1, param0).append(" // Skipped, supply withBinaryBlobs true");
+                } else {
+                    indent(param2 + 1, param0);
+
+                    for(int var3 = 0; var3 < var1.length; ++var3) {
+                        if (var3 != 0) {
+                            param0.append(',');
+                        }
+
+                        if (var3 % 16 == 0 && var3 / 16 > 0) {
+                            param0.append('\n');
+                            if (var3 < var1.length) {
+                                indent(param2 + 1, param0);
+                            }
+                        } else if (var3 != 0) {
+                            param0.append(' ');
+                        }
+
+                        param0.append(String.format("0x%02X", var1[var3] & 255));
+                    }
+                }
+
+                param0.append('\n');
+                indent(param2, param0).append('}');
+                break;
+            case 9:
+                ListTag var4 = (ListTag)param1;
+                int var5 = var4.size();
+                int var6 = var4.getElementType();
+                String var7 = var6 == 0 ? "undefined" : TagTypes.getType(var6).getPrettyName();
+                indent(param2, param0).append("list<").append(var7).append(">[").append(var5).append("] [");
+                if (var5 != 0) {
+                    param0.append('\n');
+                }
+
+                for(int var8 = 0; var8 < var5; ++var8) {
+                    if (var8 != 0) {
+                        param0.append(",\n");
+                    }
+
+                    indent(param2 + 1, param0);
+                    prettyPrint(param0, var4.get(var8), param2 + 1, param3);
+                }
+
+                if (var5 != 0) {
+                    param0.append('\n');
+                }
+
+                indent(param2, param0).append(']');
+                break;
+            case 10:
+                CompoundTag var15 = (CompoundTag)param1;
+                List<String> var16 = Lists.newArrayList(var15.getAllKeys());
+                Collections.sort(var16);
+                indent(param2, param0).append('{');
+                if (param0.length() - param0.lastIndexOf("\n") > 2 * (param2 + 1)) {
+                    param0.append('\n');
+                    indent(param2 + 1, param0);
+                }
+
+                int var17 = var16.stream().mapToInt(String::length).max().orElse(0);
+                String var18 = Strings.repeat(" ", var17);
+
+                for(int var19 = 0; var19 < var16.size(); ++var19) {
+                    if (var19 != 0) {
+                        param0.append(",\n");
+                    }
+
+                    String var20 = var16.get(var19);
+                    indent(param2 + 1, param0).append('"').append(var20).append('"').append(var18, 0, var18.length() - var20.length()).append(": ");
+                    prettyPrint(param0, var15.get(var20), param2 + 1, param3);
+                }
+
+                if (!var16.isEmpty()) {
+                    param0.append('\n');
+                }
+
+                indent(param2, param0).append('}');
+                break;
+            case 11:
+                IntArrayTag var9 = (IntArrayTag)param1;
+                int[] var10 = var9.getAsIntArray();
+                int var11 = 0;
+
+                for(int var12 : var10) {
+                    var11 = Math.max(var11, String.format("%X", var12).length());
+                }
+
+                int var13 = var10.length;
+                indent(param2, param0).append("int[").append(var13).append("] {\n");
+                if (!param3) {
+                    indent(param2 + 1, param0).append(" // Skipped, supply withBinaryBlobs true");
+                } else {
+                    indent(param2 + 1, param0);
+
+                    for(int var14 = 0; var14 < var10.length; ++var14) {
+                        if (var14 != 0) {
+                            param0.append(',');
+                        }
+
+                        if (var14 % 16 == 0 && var14 / 16 > 0) {
+                            param0.append('\n');
+                            if (var14 < var10.length) {
+                                indent(param2 + 1, param0);
+                            }
+                        } else if (var14 != 0) {
+                            param0.append(' ');
+                        }
+
+                        param0.append(String.format("0x%0" + var11 + "X", var10[var14]));
+                    }
+                }
+
+                param0.append('\n');
+                indent(param2, param0).append('}');
+                break;
+            case 12:
+                LongArrayTag var21 = (LongArrayTag)param1;
+                long[] var22 = var21.getAsLongArray();
+                long var23 = 0L;
+
+                for(long var24 : var22) {
+                    var23 = Math.max(var23, (long)String.format("%X", var24).length());
+                }
+
+                long var25 = (long)var22.length;
+                indent(param2, param0).append("long[").append(var25).append("] {\n");
+                if (!param3) {
+                    indent(param2 + 1, param0).append(" // Skipped, supply withBinaryBlobs true");
+                } else {
+                    indent(param2 + 1, param0);
+
+                    for(int var26 = 0; var26 < var22.length; ++var26) {
+                        if (var26 != 0) {
+                            param0.append(',');
+                        }
+
+                        if (var26 % 16 == 0 && var26 / 16 > 0) {
+                            param0.append('\n');
+                            if (var26 < var22.length) {
+                                indent(param2 + 1, param0);
+                            }
+                        } else if (var26 != 0) {
+                            param0.append(' ');
+                        }
+
+                        param0.append(String.format("0x%0" + var23 + "X", var22[var26]));
+                    }
+                }
+
+                param0.append('\n');
+                indent(param2, param0).append('}');
+                break;
+            default:
+                param0.append("<UNKNOWN :(>");
+        }
+
+        return param0;
+    }
+
+    private static StringBuilder indent(int param0, StringBuilder param1) {
+        int var0 = param1.lastIndexOf("\n") + 1;
+        int var1 = param1.length() - var0;
+
+        for(int var2 = 0; var2 < 2 * param0 - var1; ++var2) {
+            param1.append(' ');
+        }
+
+        return param1;
     }
 
     public static CompoundTag update(DataFixer param0, DataFixTypes param1, CompoundTag param2, int param3) {

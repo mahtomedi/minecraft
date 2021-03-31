@@ -16,6 +16,8 @@ import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.GameType;
 
 public class GameModeCommand {
+    public static final int PERMISSION_LEVEL = 2;
+
     public static void register(CommandDispatcher<CommandSourceStack> param0) {
         LiteralArgumentBuilder<CommandSourceStack> var0 = Commands.literal("gamemode").requires(param0x -> param0x.hasPermission(2));
 

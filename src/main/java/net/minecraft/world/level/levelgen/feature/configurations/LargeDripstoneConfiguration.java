@@ -2,14 +2,14 @@ package net.minecraft.world.level.levelgen.feature.configurations;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.util.FloatProvider;
-import net.minecraft.util.UniformInt;
+import net.minecraft.util.valueproviders.FloatProvider;
+import net.minecraft.util.valueproviders.IntProvider;
 
 public class LargeDripstoneConfiguration implements FeatureConfiguration {
     public static final Codec<LargeDripstoneConfiguration> CODEC = RecordCodecBuilder.create(
         param0 -> param0.group(
                     Codec.intRange(1, 512).fieldOf("floor_to_ceiling_search_range").orElse(30).forGetter(param0x -> param0x.floorToCeilingSearchRange),
-                    UniformInt.codec(1, 30, 30).fieldOf("column_radius").forGetter(param0x -> param0x.columnRadius),
+                    IntProvider.codec(1, 60).fieldOf("column_radius").forGetter(param0x -> param0x.columnRadius),
                     FloatProvider.codec(0.0F, 20.0F).fieldOf("height_scale").forGetter(param0x -> param0x.heightScale),
                     Codec.floatRange(0.1F, 1.0F)
                         .fieldOf("max_column_radius_to_cave_height_ratio")
@@ -23,7 +23,7 @@ public class LargeDripstoneConfiguration implements FeatureConfiguration {
                 .apply(param0, LargeDripstoneConfiguration::new)
     );
     public final int floorToCeilingSearchRange;
-    public final UniformInt columnRadius;
+    public final IntProvider columnRadius;
     public final FloatProvider heightScale;
     public final float maxColumnRadiusToCaveHeightRatio;
     public final FloatProvider stalactiteBluntness;
@@ -34,7 +34,7 @@ public class LargeDripstoneConfiguration implements FeatureConfiguration {
 
     public LargeDripstoneConfiguration(
         int param0,
-        UniformInt param1,
+        IntProvider param1,
         FloatProvider param2,
         float param3,
         FloatProvider param4,

@@ -22,8 +22,6 @@ import net.minecraft.Util;
 import net.minecraft.util.Mth;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.entity.Entity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public enum Direction implements StringRepresentable {
     DOWN(0, 1, -1, "down", Direction.AxisDirection.NEGATIVE, Direction.Axis.Y, new Vec3i(0, -1, 0)),
@@ -100,7 +98,6 @@ public enum Direction implements StringRepresentable {
         return new Direction[]{param0, param1, param2, param2.getOpposite(), param1.getOpposite(), param0.getOpposite()};
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static Direction rotate(Matrix4f param0, Direction param1) {
         Vec3i var0 = param1.getNormal();
         Vector4f var1 = new Vector4f((float)var0.getX(), (float)var0.getY(), (float)var0.getZ(), 0.0F);
@@ -108,7 +105,6 @@ public enum Direction implements StringRepresentable {
         return getNearest(var1.x(), var1.y(), var1.z());
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Quaternion getRotation() {
         Quaternion var0 = Vector3f.XP.rotationDegrees(90.0F);
         switch(this) {
@@ -159,6 +155,56 @@ public enum Direction implements StringRepresentable {
         return from3DDataValue(this.oppositeIndex);
     }
 
+    public Direction getClockWise(Direction.Axis param0) {
+        switch(param0) {
+            case X:
+                if (this != WEST && this != EAST) {
+                    return this.getClockWiseX();
+                }
+
+                return this;
+            case Z:
+                if (this != NORTH && this != SOUTH) {
+                    return this.getClockWiseZ();
+                }
+
+                return this;
+            case Y:
+                if (this != UP && this != DOWN) {
+                    return this.getClockWise();
+                }
+
+                return this;
+            default:
+                throw new IllegalStateException("Unable to get CW facing for axis " + param0);
+        }
+    }
+
+    public Direction getCounterClockWise(Direction.Axis param0) {
+        switch(param0) {
+            case X:
+                if (this != WEST && this != EAST) {
+                    return this.getCounterClockWiseX();
+                }
+
+                return this;
+            case Z:
+                if (this != NORTH && this != SOUTH) {
+                    return this.getCounterClockWiseZ();
+                }
+
+                return this;
+            case Y:
+                if (this != UP && this != DOWN) {
+                    return this.getCounterClockWise();
+                }
+
+                return this;
+            default:
+                throw new IllegalStateException("Unable to get CW facing for axis " + param0);
+        }
+    }
+
     public Direction getClockWise() {
         switch(this) {
             case NORTH:
@@ -171,6 +217,70 @@ public enum Direction implements StringRepresentable {
                 return SOUTH;
             default:
                 throw new IllegalStateException("Unable to get Y-rotated facing of " + this);
+        }
+    }
+
+    private Direction getClockWiseX() {
+        switch(this) {
+            case DOWN:
+                return SOUTH;
+            case UP:
+                return NORTH;
+            case NORTH:
+                return DOWN;
+            case SOUTH:
+                return UP;
+            default:
+                throw new IllegalStateException("Unable to get X-rotated facing of " + this);
+        }
+    }
+
+    private Direction getCounterClockWiseX() {
+        switch(this) {
+            case DOWN:
+                return NORTH;
+            case UP:
+                return SOUTH;
+            case NORTH:
+                return UP;
+            case SOUTH:
+                return DOWN;
+            default:
+                throw new IllegalStateException("Unable to get X-rotated facing of " + this);
+        }
+    }
+
+    private Direction getClockWiseZ() {
+        switch(this) {
+            case DOWN:
+                return WEST;
+            case UP:
+                return EAST;
+            case NORTH:
+            case SOUTH:
+            default:
+                throw new IllegalStateException("Unable to get Z-rotated facing of " + this);
+            case WEST:
+                return UP;
+            case EAST:
+                return DOWN;
+        }
+    }
+
+    private Direction getCounterClockWiseZ() {
+        switch(this) {
+            case DOWN:
+                return EAST;
+            case UP:
+                return WEST;
+            case NORTH:
+            case SOUTH:
+            default:
+                throw new IllegalStateException("Unable to get Z-rotated facing of " + this);
+            case WEST:
+                return DOWN;
+            case EAST:
+                return UP;
         }
     }
 
@@ -201,7 +311,6 @@ public enum Direction implements StringRepresentable {
         return this.normal.getZ();
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Vector3f step() {
         return new Vector3f((float)this.getStepX(), (float)this.getStepY(), (float)this.getStepZ());
     }
@@ -225,6 +334,11 @@ public enum Direction implements StringRepresentable {
 
     public static Direction from2DDataValue(int param0) {
         return BY_2D_DATA[Mth.abs(param0 % BY_2D_DATA.length)];
+    }
+
+    @Nullable
+    public static Direction fromNormal(BlockPos param0) {
+        return BY_NORMAL.get(param0.asLong());
     }
 
     @Nullable
@@ -416,6 +530,10 @@ public enum Direction implements StringRepresentable {
 
         public int getStep() {
             return this.step;
+        }
+
+        public String getName() {
+            return this.name;
         }
 
         @Override

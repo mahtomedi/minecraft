@@ -59,6 +59,14 @@ public class SetContainerLootTable extends LootItemConditionalFunction {
         }
     }
 
+    public static LootItemConditionalFunction.Builder<?> withLootTable(ResourceLocation param0) {
+        return simpleBuilder(param1 -> new SetContainerLootTable(param1, param0, 0L));
+    }
+
+    public static LootItemConditionalFunction.Builder<?> withLootTable(ResourceLocation param0, long param1) {
+        return simpleBuilder(param2 -> new SetContainerLootTable(param2, param0, param1));
+    }
+
     public static class Serializer extends LootItemConditionalFunction.Serializer<SetContainerLootTable> {
         public void serialize(JsonObject param0, SetContainerLootTable param1, JsonSerializationContext param2) {
             super.serialize(param0, param1, param2);

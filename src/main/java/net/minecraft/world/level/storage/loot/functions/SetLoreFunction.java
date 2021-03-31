@@ -2,6 +2,7 @@ package net.minecraft.world.level.storage.loot.functions;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Streams;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
@@ -93,6 +94,40 @@ public class SetLoreFunction extends LootItemConditionalFunction {
             return var6;
         } else {
             return null;
+        }
+    }
+
+    public static SetLoreFunction.Builder setLore() {
+        return new SetLoreFunction.Builder();
+    }
+
+    public static class Builder extends LootItemConditionalFunction.Builder<SetLoreFunction.Builder> {
+        private boolean replace;
+        private LootContext.EntityTarget resolutionContext;
+        private final List<Component> lore = Lists.newArrayList();
+
+        public SetLoreFunction.Builder setReplace(boolean param0) {
+            this.replace = param0;
+            return this;
+        }
+
+        public SetLoreFunction.Builder setResolutionContext(LootContext.EntityTarget param0) {
+            this.resolutionContext = param0;
+            return this;
+        }
+
+        public SetLoreFunction.Builder addLine(Component param0) {
+            this.lore.add(param0);
+            return this;
+        }
+
+        protected SetLoreFunction.Builder getThis() {
+            return this;
+        }
+
+        @Override
+        public LootItemFunction build() {
+            return new SetLoreFunction(this.getConditions(), this.replace, this.lore, this.resolutionContext);
         }
     }
 

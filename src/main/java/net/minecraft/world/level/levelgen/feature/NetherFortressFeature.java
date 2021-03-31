@@ -1,9 +1,9 @@
 package net.minecraft.world.level.levelgen.feature;
 
-import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import java.util.List;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.util.random.WeightedRandomList;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
@@ -13,14 +13,13 @@ import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
-import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.NetherBridgePieces;
 import net.minecraft.world.level.levelgen.structure.StructurePiece;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 
 public class NetherFortressFeature extends StructureFeature<NoneFeatureConfiguration> {
-    private static final List<MobSpawnSettings.SpawnerData> FORTRESS_ENEMIES = ImmutableList.of(
+    private static final WeightedRandomList<MobSpawnSettings.SpawnerData> FORTRESS_ENEMIES = WeightedRandomList.create(
         new MobSpawnSettings.SpawnerData(EntityType.BLAZE, 10, 2, 3),
         new MobSpawnSettings.SpawnerData(EntityType.ZOMBIFIED_PIGLIN, 5, 4, 4),
         new MobSpawnSettings.SpawnerData(EntityType.WITHER_SKELETON, 8, 5, 5),
@@ -52,13 +51,13 @@ public class NetherFortressFeature extends StructureFeature<NoneFeatureConfigura
     }
 
     @Override
-    public List<MobSpawnSettings.SpawnerData> getSpecialEnemies() {
+    public WeightedRandomList<MobSpawnSettings.SpawnerData> getSpecialEnemies() {
         return FORTRESS_ENEMIES;
     }
 
     public static class NetherBridgeStart extends StructureStart<NoneFeatureConfiguration> {
-        public NetherBridgeStart(StructureFeature<NoneFeatureConfiguration> param0, ChunkPos param1, BoundingBox param2, int param3, long param4) {
-            super(param0, param1, param2, param3, param4);
+        public NetherBridgeStart(StructureFeature<NoneFeatureConfiguration> param0, ChunkPos param1, int param2, long param3) {
+            super(param0, param1, param2, param3);
         }
 
         public void generatePieces(
@@ -71,17 +70,16 @@ public class NetherFortressFeature extends StructureFeature<NoneFeatureConfigura
             LevelHeightAccessor param6
         ) {
             NetherBridgePieces.StartPiece var0 = new NetherBridgePieces.StartPiece(this.random, param3.getBlockX(2), param3.getBlockZ(2));
-            this.pieces.add(var0);
-            var0.addChildren(var0, this.pieces, this.random);
+            this.addPiece(var0);
+            var0.addChildren(var0, this, this.random);
             List<StructurePiece> var1 = var0.pendingChildren;
 
             while(!var1.isEmpty()) {
                 int var2 = this.random.nextInt(var1.size());
                 StructurePiece var3 = var1.remove(var2);
-                var3.addChildren(var0, this.pieces, this.random);
+                var3.addChildren(var0, this, this.random);
             }
 
-            this.calculateBoundingBox();
             this.moveInsideHeights(this.random, 48, 70);
         }
     }

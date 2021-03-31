@@ -17,8 +17,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class MinecartCommandBlock extends AbstractMinecart {
     private static final EntityDataAccessor<String> DATA_ID_COMMAND_NAME = SynchedEntityData.defineId(MinecartCommandBlock.class, EntityDataSerializers.STRING);
@@ -26,6 +24,7 @@ public class MinecartCommandBlock extends AbstractMinecart {
         MinecartCommandBlock.class, EntityDataSerializers.COMPONENT
     );
     private final BaseCommandBlock commandBlock = new MinecartCommandBlock.MinecartCommandBase();
+    private static final int ACTIVATION_DELAY = 4;
     private int lastActivated;
 
     public MinecartCommandBlock(EntityType<? extends MinecartCommandBlock> param0, Level param1) {
@@ -116,13 +115,11 @@ public class MinecartCommandBlock extends AbstractMinecart {
             MinecartCommandBlock.this.getEntityData().set(MinecartCommandBlock.DATA_ID_LAST_OUTPUT, this.getLastOutput());
         }
 
-        @OnlyIn(Dist.CLIENT)
         @Override
         public Vec3 getPosition() {
             return MinecartCommandBlock.this.position();
         }
 
-        @OnlyIn(Dist.CLIENT)
         public MinecartCommandBlock getMinecart() {
             return MinecartCommandBlock.this;
         }

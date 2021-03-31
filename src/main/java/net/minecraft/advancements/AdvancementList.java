@@ -9,8 +9,6 @@ import java.util.Set;
 import java.util.Map.Entry;
 import javax.annotation.Nullable;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -21,7 +19,6 @@ public class AdvancementList {
     private final Set<Advancement> tasks = Sets.newLinkedHashSet();
     private AdvancementList.Listener listener;
 
-    @OnlyIn(Dist.CLIENT)
     private void remove(Advancement param0) {
         for(Advancement var0 : param0.getChildren()) {
             this.remove(var0);
@@ -43,7 +40,6 @@ public class AdvancementList {
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void remove(Set<ResourceLocation> param0) {
         for(ResourceLocation var0 : param0) {
             Advancement var1 = this.advancements.get(var0);
@@ -97,7 +93,6 @@ public class AdvancementList {
         LOGGER.info("Loaded {} advancements", this.advancements.size());
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void clear() {
         this.advancements.clear();
         this.roots.clear();
@@ -121,7 +116,6 @@ public class AdvancementList {
         return this.advancements.get(param0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void setListener(@Nullable AdvancementList.Listener param0) {
         this.listener = param0;
         if (param0 != null) {
@@ -139,15 +133,12 @@ public class AdvancementList {
     public interface Listener {
         void onAddAdvancementRoot(Advancement var1);
 
-        @OnlyIn(Dist.CLIENT)
         void onRemoveAdvancementRoot(Advancement var1);
 
         void onAddAdvancementTask(Advancement var1);
 
-        @OnlyIn(Dist.CLIENT)
         void onRemoveAdvancementTask(Advancement var1);
 
-        @OnlyIn(Dist.CLIENT)
         void onAdvancementsCleared();
     }
 }

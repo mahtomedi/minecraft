@@ -10,6 +10,11 @@ public class DebugBuffer<T> {
     private final AtomicReferenceArray<T> data;
     private final AtomicInteger index;
 
+    public DebugBuffer(int param0) {
+        this.data = new AtomicReferenceArray<>(param0);
+        this.index = new AtomicInteger(0);
+    }
+
     public void push(T param0) {
         int var0 = this.data.length();
 

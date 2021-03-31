@@ -140,14 +140,13 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class ServerLevel extends Level implements WorldGenLevel {
     public static final BlockPos END_SPAWN_POINT = new BlockPos(100, 50, 0);
     private static final Logger LOGGER = LogManager.getLogger();
+    private static final int EMPTY_TIME_NO_TICK = 300;
     private final List<ServerPlayer> players = Lists.newArrayList();
     private final ServerChunkCache chunkSource;
     private final MinecraftServer server;
@@ -862,6 +861,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
             );
     }
 
+    @Override
     public int getLogicalHeight() {
         return this.dimensionType().logicalHeight();
     }
@@ -1324,7 +1324,6 @@ public class ServerLevel extends Level implements WorldGenLevel {
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public float getShade(Direction param0, boolean param1) {
         return 1.0F;
@@ -1428,6 +1427,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
         this.entityManager.close();
     }
 
+    @Override
     public String gatherChunkSourceStats() {
         return "Chunks[S] W: " + this.chunkSource.gatherStats() + " E: " + this.entityManager.gatherStats();
     }

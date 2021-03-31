@@ -4,8 +4,6 @@ import javax.annotation.Nullable;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundTagQueryPacket implements Packet<ClientGamePacketListener> {
     private final int transactionId;
@@ -32,13 +30,11 @@ public class ClientboundTagQueryPacket implements Packet<ClientGamePacketListene
         param0.handleTagQueryPacket(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getTransactionId() {
         return this.transactionId;
     }
 
     @Nullable
-    @OnlyIn(Dist.CLIENT)
     public CompoundTag getTag() {
         return this.tag;
     }

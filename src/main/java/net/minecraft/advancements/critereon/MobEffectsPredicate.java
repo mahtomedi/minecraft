@@ -34,6 +34,11 @@ public class MobEffectsPredicate {
         return this;
     }
 
+    public MobEffectsPredicate and(MobEffect param0, MobEffectsPredicate.MobEffectInstancePredicate param1) {
+        this.effects.put(param0, param1);
+        return this;
+    }
+
     public boolean matches(Entity param0) {
         if (this == ANY) {
             return true;

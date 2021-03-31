@@ -48,6 +48,12 @@ public class InteractWith<E extends LivingEntity, T extends LivingEntity> extend
         return new InteractWith<>(param0, param1, param0x -> true, param0x -> true, param2, param3, param4);
     }
 
+    public static <T extends LivingEntity> InteractWith<LivingEntity, T> of(
+        EntityType<? extends T> param0, int param1, Predicate<T> param2, MemoryModuleType<T> param3, float param4, int param5
+    ) {
+        return new InteractWith<>(param0, param1, param0x -> true, param2, param3, param4, param5);
+    }
+
     @Override
     protected boolean checkExtraStartConditions(ServerLevel param0, E param1) {
         return this.selfFilter.test(param1) && this.seesAtLeastOneValidTarget(param1);

@@ -4,11 +4,8 @@ import com.mojang.datafixers.util.Pair;
 import java.util.Objects;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.tuple.Triple;
 
-@OnlyIn(Dist.CLIENT)
 public final class Transformation {
     private final Matrix4f matrix;
     private boolean decomposed;
@@ -114,9 +111,24 @@ public final class Transformation {
         return this.matrix.copy();
     }
 
+    public Vector3f getTranslation() {
+        this.ensureDecomposed();
+        return this.translation.copy();
+    }
+
     public Quaternion getLeftRotation() {
         this.ensureDecomposed();
         return this.leftRotation.copy();
+    }
+
+    public Vector3f getScale() {
+        this.ensureDecomposed();
+        return this.scale.copy();
+    }
+
+    public Quaternion getRightRotation() {
+        this.ensureDecomposed();
+        return this.rightRotation.copy();
     }
 
     @Override
@@ -134,5 +146,17 @@ public final class Transformation {
     @Override
     public int hashCode() {
         return Objects.hash(this.matrix);
+    }
+
+    public Transformation slerp(Transformation param0, float param1) {
+        Vector3f var0 = this.getTranslation();
+        Quaternion var1 = this.getLeftRotation();
+        Vector3f var2 = this.getScale();
+        Quaternion var3 = this.getRightRotation();
+        var0.lerp(param0.getTranslation(), param1);
+        var1.slerp(param0.getLeftRotation(), param1);
+        var2.lerp(param0.getScale(), param1);
+        var3.slerp(param0.getRightRotation(), param1);
+        return new Transformation(var0, var1, var2, var3);
     }
 }

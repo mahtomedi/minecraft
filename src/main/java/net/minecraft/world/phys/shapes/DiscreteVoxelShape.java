@@ -2,8 +2,6 @@ package net.minecraft.world.phys.shapes;
 
 import net.minecraft.core.AxisCycle;
 import net.minecraft.core.Direction;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class DiscreteVoxelShape {
     private static final Direction.Axis[] AXIS_VALUES = Direction.Axis.values();
@@ -63,7 +61,29 @@ public abstract class DiscreteVoxelShape {
 
     public abstract int lastFull(Direction.Axis var1);
 
-    @OnlyIn(Dist.CLIENT)
+    public int firstFull(Direction.Axis param0, int param1, int param2) {
+        int var0 = this.getSize(param0);
+        if (param1 >= 0 && param2 >= 0) {
+            Direction.Axis var1 = AxisCycle.FORWARD.cycle(param0);
+            Direction.Axis var2 = AxisCycle.BACKWARD.cycle(param0);
+            if (param1 < this.getSize(var1) && param2 < this.getSize(var2)) {
+                AxisCycle var3 = AxisCycle.between(Direction.Axis.X, param0);
+
+                for(int var4 = 0; var4 < var0; ++var4) {
+                    if (this.isFull(var3, var4, param1, param2)) {
+                        return var4;
+                    }
+                }
+
+                return var0;
+            } else {
+                return var0;
+            }
+        } else {
+            return var0;
+        }
+    }
+
     public int lastFull(Direction.Axis param0, int param1, int param2) {
         if (param1 >= 0 && param2 >= 0) {
             Direction.Axis var0 = AxisCycle.FORWARD.cycle(param0);
@@ -103,14 +123,12 @@ public abstract class DiscreteVoxelShape {
         return this.getSize(Direction.Axis.Z);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void forAllEdges(DiscreteVoxelShape.IntLineConsumer param0, boolean param1) {
         this.forAllAxisEdges(param0, AxisCycle.NONE, param1);
         this.forAllAxisEdges(param0, AxisCycle.FORWARD, param1);
         this.forAllAxisEdges(param0, AxisCycle.BACKWARD, param1);
     }
 
-    @OnlyIn(Dist.CLIENT)
     private void forAllAxisEdges(DiscreteVoxelShape.IntLineConsumer param0, AxisCycle param1, boolean param2) {
         AxisCycle var0 = param1.inverse();
         int var1 = this.getSize(var0.cycle(Direction.Axis.X));

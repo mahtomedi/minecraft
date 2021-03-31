@@ -18,8 +18,6 @@ import net.minecraft.util.StringUtil;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class BaseCommandBlock implements CommandSource {
     private static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm:ss");
@@ -177,7 +175,6 @@ public abstract class BaseCommandBlock implements CommandSource {
         this.trackOutput = param0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean isTrackOutput() {
         return this.trackOutput;
     }
@@ -194,7 +191,6 @@ public abstract class BaseCommandBlock implements CommandSource {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     public abstract Vec3 getPosition();
 
     public abstract CommandSourceStack createCommandSourceStack();

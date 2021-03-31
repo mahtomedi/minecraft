@@ -9,8 +9,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.trading.Merchant;
 import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.item.trading.MerchantOffers;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class MerchantContainer implements Container {
     private final Merchant merchant;
@@ -145,7 +143,6 @@ public class MerchantContainer implements Container {
         this.itemStacks.clear();
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getFutureXp() {
         return this.futureXp;
     }

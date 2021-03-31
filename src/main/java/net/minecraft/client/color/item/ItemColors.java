@@ -21,6 +21,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class ItemColors {
+    private static final int DEFAULT = -1;
     private final IdMapper<ItemColor> itemColors = new IdMapper<>(32);
 
     public static ItemColors createDefault(BlockColors param0) {

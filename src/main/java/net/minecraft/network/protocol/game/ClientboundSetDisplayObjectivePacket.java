@@ -5,8 +5,6 @@ import javax.annotation.Nullable;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.scores.Objective;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundSetDisplayObjectivePacket implements Packet<ClientGamePacketListener> {
     private final int slot;
@@ -37,13 +35,11 @@ public class ClientboundSetDisplayObjectivePacket implements Packet<ClientGamePa
         param0.handleSetDisplayObjective(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getSlot() {
         return this.slot;
     }
 
     @Nullable
-    @OnlyIn(Dist.CLIENT)
     public String getObjectiveName() {
         return Objects.equals(this.objectiveName, "") ? null : this.objectiveName;
     }

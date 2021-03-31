@@ -2,8 +2,6 @@ package net.minecraft.network.protocol.game;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundSetExperiencePacket implements Packet<ClientGamePacketListener> {
     private final float experienceProgress;
@@ -33,17 +31,14 @@ public class ClientboundSetExperiencePacket implements Packet<ClientGamePacketLi
         param0.handleSetExperience(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getExperienceProgress() {
         return this.experienceProgress;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getTotalExperience() {
         return this.totalExperience;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getExperienceLevel() {
         return this.experienceLevel;
     }

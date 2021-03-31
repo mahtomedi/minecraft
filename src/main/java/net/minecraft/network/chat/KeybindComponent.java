@@ -3,8 +3,6 @@ package net.minecraft.network.chat;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class KeybindComponent extends BaseComponent {
     private static Function<String, Supplier<Component>> keyResolver = param0 -> () -> new TextComponent(param0);
@@ -15,7 +13,6 @@ public class KeybindComponent extends BaseComponent {
         this.name = param0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static void setKeyResolver(Function<String, Supplier<Component>> param0) {
         keyResolver = param0;
     }
@@ -33,7 +30,6 @@ public class KeybindComponent extends BaseComponent {
         return this.getNestedComponent().visit(param0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public <T> Optional<T> visitSelf(FormattedText.StyledContentConsumer<T> param0, Style param1) {
         return this.getNestedComponent().visit(param0, param1);

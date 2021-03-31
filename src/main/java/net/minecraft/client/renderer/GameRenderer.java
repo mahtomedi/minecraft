@@ -65,6 +65,8 @@ import org.apache.logging.log4j.Logger;
 public class GameRenderer implements ResourceManagerReloadListener, AutoCloseable {
     private static final ResourceLocation NAUSEA_LOCATION = new ResourceLocation("textures/misc/nausea.png");
     private static final Logger LOGGER = LogManager.getLogger();
+    private static final boolean DEPTH_BUFFER_DEBUG = false;
+    public static final float PROJECTION_Z_NEAR = 0.05F;
     private final Minecraft minecraft;
     private final ResourceManager resourceManager;
     private final Random random = new Random();
@@ -87,6 +89,7 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
     private float zoom = 1.0F;
     private float zoomX;
     private float zoomY;
+    public static final int ITEM_ACTIVATION_ANIMATION_LENGTH = 40;
     @Nullable
     private ItemStack itemActivationItem;
     private int itemActivationTicks;
@@ -254,6 +257,22 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
 
     }
 
+    public void setRenderHand(boolean param0) {
+        this.renderHand = param0;
+    }
+
+    public void setRenderBlockOutline(boolean param0) {
+        this.renderBlockOutline = param0;
+    }
+
+    public void setPanoramicMode(boolean param0) {
+        this.panoramicMode = param0;
+    }
+
+    public boolean isPanoramicMode() {
+        return this.panoramicMode;
+    }
+
     public void shutdownEffect() {
         if (this.postEffect != null) {
             this.postEffect.close();
@@ -281,6 +300,22 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
             this.loadEffect(new ResourceLocation("shaders/post/invert.json"));
         }
 
+    }
+
+    public void cycleEffect() {
+        if (this.minecraft.getCameraEntity() instanceof Player) {
+            if (this.postEffect != null) {
+                this.postEffect.close();
+            }
+
+            this.effectIndex = (this.effectIndex + 1) % (EFFECTS.length + 1);
+            if (this.effectIndex == EFFECT_NONE) {
+                this.postEffect = null;
+            } else {
+                this.loadEffect(EFFECTS[this.effectIndex]);
+            }
+
+        }
     }
 
     private void loadEffect(ResourceLocation param0) {
@@ -409,6 +444,11 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
         RenderSystem.assertThread(RenderSystem::isOnRenderThread);
         this.shaders.values().forEach(ShaderInstance::close);
         this.shaders.clear();
+    }
+
+    @Nullable
+    public ShaderInstance getShader(@Nullable String param0) {
+        return param0 == null ? null : this.shaders.get(param0);
     }
 
     public void tick() {
@@ -584,6 +624,16 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
             param0.mulPose(Vector3f.ZP.rotationDegrees(Mth.sin(var2 * (float) Math.PI) * var3 * 3.0F));
             param0.mulPose(Vector3f.XP.rotationDegrees(Math.abs(Mth.cos(var2 * (float) Math.PI - 0.2F) * var3) * 5.0F));
         }
+    }
+
+    public void renderZoomed(float param0, float param1, float param2) {
+        this.zoom = param0;
+        this.zoomX = param1;
+        this.zoomY = param2;
+        this.setRenderBlockOutline(false);
+        this.setRenderHand(false);
+        this.renderLevel(1.0F, 0L, new PoseStack());
+        this.zoom = 1.0F;
     }
 
     private void renderItemInHand(PoseStack param0, Camera param1, float param2) {
@@ -986,6 +1036,10 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
         RenderSystem.enableDepthTest();
     }
 
+    public Minecraft getMinecraft() {
+        return this.minecraft;
+    }
+
     public float getDarkenWorldAmount(float param0) {
         return Mth.lerp(param0, this.darkenWorldAmountO, this.darkenWorldAmount);
     }
@@ -1059,6 +1113,11 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
     @Nullable
     public static ShaderInstance getPositionTexColorNormalShader() {
         return positionTexColorNormalShader;
+    }
+
+    @Nullable
+    public static ShaderInstance getPositionTexLightmapColorShader() {
+        return positionTexLightmapColorShader;
     }
 
     @Nullable

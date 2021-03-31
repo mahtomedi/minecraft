@@ -2,6 +2,7 @@ package net.minecraft.client;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Queues;
+import com.google.common.hash.Hashing;
 import com.google.gson.JsonElement;
 import com.mojang.authlib.AuthenticationService;
 import com.mojang.authlib.GameProfile;
@@ -35,6 +36,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.Proxy;
 import java.net.SocketAddress;
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.file.Path;
 import java.text.DecimalFormat;
@@ -122,6 +125,7 @@ import net.minecraft.client.renderer.debug.DebugRenderer;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.resources.ClientPackSource;
@@ -158,6 +162,7 @@ import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.ConnectionProtocol;
+import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.KeybindComponent;
@@ -232,6 +237,7 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.apache.commons.io.Charsets;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -240,6 +246,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     private static Minecraft instance;
     private static final Logger LOGGER = LogManager.getLogger();
     public static final boolean ON_OSX = Util.getPlatform() == Util.OS.OSX;
+    private static final int MAX_TICKS_PER_UPDATE = 10;
     public static final ResourceLocation DEFAULT_FONT = new ResourceLocation("default");
     public static final ResourceLocation UNIFORM_FONT = new ResourceLocation("uniform");
     public static final ResourceLocation ALT_FONT = new ResourceLocation("alt");
@@ -344,6 +351,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     private CrashReport delayedCrash;
     private static int fps;
     public String fpsString = "";
+    public boolean wireframe;
     public boolean chunkPath;
     public boolean chunkVisibility;
     public boolean smartCull = true;
@@ -1982,6 +1990,10 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         return this.allowsMultiplayer && this.socialInteractionsService.serversAllowed();
     }
 
+    public boolean allowsRealms() {
+        return this.socialInteractionsService.realmsAllowed();
+    }
+
     public boolean isBlocked(UUID param0) {
         if (this.getChatStatus().isChatAllowed(false)) {
             return this.playerSocialManager.shouldHideMessageFrom(param0);
@@ -2018,7 +2030,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     }
 
     public static boolean useShaderTransparency() {
-        return instance.options.graphicsMode.getId() >= GraphicsStatus.FABULOUS.getId();
+        return !instance.gameRenderer.isPanoramicMode() && instance.options.graphicsMode.getId() >= GraphicsStatus.FABULOUS.getId();
     }
 
     public static boolean useAmbientOcclusion() {
@@ -2217,6 +2229,28 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         }
     }
 
+    @Override
+    public void populateSnooperInitial(Snooper param0) {
+        param0.setFixedData("client_brand", ClientBrandRetriever.getClientModName());
+        param0.setFixedData("launched_version", this.launchedVersion);
+        populateSnooperWithOpenGL(param0);
+        param0.setFixedData("gl_max_texture_size", RenderSystem.maxSupportedTextureSize());
+        GameProfile var0 = this.user.getGameProfile();
+        if (var0.getId() != null) {
+            param0.setFixedData("uuid", Hashing.sha1().hashBytes(var0.getId().toString().getBytes(Charsets.ISO_8859_1)).toString());
+        }
+
+    }
+
+    private static void populateSnooperWithOpenGL(Snooper param0) {
+        GlUtil.populateSnooperWithOpenGL(param0::setFixedData);
+    }
+
+    @Override
+    public boolean isSnooperEnabled() {
+        return this.options.snooperEnabled;
+    }
+
     public void setCurrentServer(@Nullable ServerData param0) {
         this.currentServer = param0;
     }
@@ -2388,6 +2422,10 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         return this.searchRegistry.getTree(param0);
     }
 
+    public static int getAverageFps() {
+        return fps;
+    }
+
     public FrameTimer getFrameTimer() {
         return this.frameTimer;
     }
@@ -2453,12 +2491,136 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         this.windowActive = param0;
     }
 
+    public Component grabPanoramixScreenshot(File param0, int param1, int param2) {
+        int var0 = this.window.getWidth();
+        int var1 = this.window.getHeight();
+        RenderTarget var2 = new RenderTarget(param1, param2, true, ON_OSX);
+        float var3 = this.player.xRot;
+        float var4 = this.player.yRot;
+        float var5 = this.player.xRotO;
+        float var6 = this.player.yRotO;
+        this.gameRenderer.setRenderBlockOutline(false);
+
+        TranslatableComponent var12;
+        try {
+            this.gameRenderer.setPanoramicMode(true);
+            this.levelRenderer.graphicsChanged();
+            this.window.setWidth(param1);
+            this.window.setHeight(param2);
+
+            for(int var7 = 0; var7 < 6; ++var7) {
+                switch(var7) {
+                    case 0:
+                        this.player.yRotO = this.player.yRot = var4;
+                        this.player.xRotO = this.player.xRot = 0.0F;
+                        break;
+                    case 1:
+                        this.player.yRotO = this.player.yRot = (var4 + 90.0F) % 360.0F;
+                        this.player.xRotO = this.player.xRot = 0.0F;
+                        break;
+                    case 2:
+                        this.player.yRotO = this.player.yRot = (var4 + 180.0F) % 360.0F;
+                        this.player.xRotO = this.player.xRot = 0.0F;
+                        break;
+                    case 3:
+                        this.player.yRotO = this.player.yRot = (var4 - 90.0F) % 360.0F;
+                        this.player.xRotO = this.player.xRot = 0.0F;
+                        break;
+                    case 4:
+                        this.player.yRotO = this.player.yRot = var4;
+                        this.player.xRotO = this.player.xRot = -90.0F;
+                        break;
+                    case 5:
+                    default:
+                        this.player.yRotO = this.player.yRot = var4;
+                        this.player.xRotO = this.player.xRot = 90.0F;
+                }
+
+                var2.bindWrite(true);
+                this.gameRenderer.renderLevel(1.0F, 0L, new PoseStack());
+
+                try {
+                    Thread.sleep(10L);
+                } catch (InterruptedException var17) {
+                }
+
+                Screenshot.grab(param0, "panorama_" + var7 + ".png", param1, param2, var2, param0x -> {
+                });
+            }
+
+            Component var8 = new TextComponent(param0.getName())
+                .withStyle(ChatFormatting.UNDERLINE)
+                .withStyle(param1x -> param1x.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_FILE, param0.getAbsolutePath())));
+            return new TranslatableComponent("screenshot.success", var8);
+        } catch (Exception var18) {
+            LOGGER.error("Couldn't save image", (Throwable)var18);
+            var12 = new TranslatableComponent("screenshot.failure", var18.getMessage());
+        } finally {
+            this.player.xRot = var3;
+            this.player.yRot = var4;
+            this.player.xRotO = var5;
+            this.player.yRotO = var6;
+            this.gameRenderer.setRenderBlockOutline(true);
+            this.window.setWidth(var0);
+            this.window.setHeight(var1);
+            var2.destroyBuffers();
+            this.gameRenderer.setPanoramicMode(false);
+            this.levelRenderer.graphicsChanged();
+            this.getMainRenderTarget().bindWrite(true);
+        }
+
+        return var12;
+    }
+
+    private Component grabHugeScreenshot(File param0, int param1, int param2, int param3, int param4) {
+        try {
+            ByteBuffer var0 = GlUtil.allocateMemory(param1 * param2 * 3);
+            Screenshot var1 = new Screenshot(param0, param3, param4, param2);
+            float var2 = (float)param3 / (float)param1;
+            float var3 = (float)param4 / (float)param2;
+            float var4 = var2 > var3 ? var2 : var3;
+
+            for(int var5 = (param4 - 1) / param2 * param2; var5 >= 0; var5 -= param2) {
+                for(int var6 = 0; var6 < param3; var6 += param1) {
+                    RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_BLOCKS);
+                    float var7 = (float)(param3 - param1) / 2.0F * 2.0F - (float)(var6 * 2);
+                    float var8 = (float)(param4 - param2) / 2.0F * 2.0F - (float)(var5 * 2);
+                    var7 /= (float)param1;
+                    var8 /= (float)param2;
+                    this.gameRenderer.renderZoomed(var4, var7, var8);
+                    ((Buffer)var0).clear();
+                    RenderSystem.pixelStore(3333, 1);
+                    RenderSystem.pixelStore(3317, 1);
+                    RenderSystem.readPixels(0, 0, param1, param2, 32992, 5121, var0);
+                    var1.addRegion(var0, var6, var5, param1, param2);
+                }
+
+                var1.saveRow();
+            }
+
+            File var9 = var1.close();
+            GlUtil.freeMemory(var0);
+            Component var10 = new TextComponent(var9.getName())
+                .withStyle(ChatFormatting.UNDERLINE)
+                .withStyle(param1x -> param1x.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_FILE, var9.getAbsolutePath())));
+            return new TranslatableComponent("screenshot.success", var10);
+        } catch (Exception var15) {
+            LOGGER.warn("Couldn't save screenshot", (Throwable)var15);
+            return new TranslatableComponent("screenshot.failure", var15.getMessage());
+        }
+    }
+
     public ProfilerFiller getProfiler() {
         return this.profiler;
     }
 
     public Game getGame() {
         return this.game;
+    }
+
+    @Nullable
+    public StoringChunkProgressListener getProgressListener() {
+        return this.progressListener.get();
     }
 
     public SplashManager getSplashManager() {

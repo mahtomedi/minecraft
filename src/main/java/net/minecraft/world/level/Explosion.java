@@ -39,11 +39,10 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class Explosion {
     private static final ExplosionDamageCalculator EXPLOSION_DAMAGE_CALCULATOR = new ExplosionDamageCalculator();
+    private static final int MAX_DROPS_PER_COMBINED_STACK = 16;
     private final boolean fire;
     private final Explosion.BlockInteraction blockInteraction;
     private final Random random = new Random();
@@ -59,12 +58,14 @@ public class Explosion {
     private final List<BlockPos> toBlow = Lists.newArrayList();
     private final Map<Player, Vec3> hitPlayers = Maps.newHashMap();
 
-    @OnlyIn(Dist.CLIENT)
+    public Explosion(Level param0, @Nullable Entity param1, double param2, double param3, double param4, float param5) {
+        this(param0, param1, param2, param3, param4, param5, false, Explosion.BlockInteraction.DESTROY);
+    }
+
     public Explosion(Level param0, @Nullable Entity param1, double param2, double param3, double param4, float param5, List<BlockPos> param6) {
         this(param0, param1, param2, param3, param4, param5, false, Explosion.BlockInteraction.DESTROY, param6);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Explosion(
         Level param0,
         @Nullable Entity param1,
@@ -80,7 +81,6 @@ public class Explosion {
         this.toBlow.addAll(param8);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Explosion(
         Level param0, @Nullable Entity param1, double param2, double param3, double param4, float param5, boolean param6, Explosion.BlockInteraction param7
     ) {

@@ -30,6 +30,14 @@ public class NetworkDataOutputStream {
         this.dataOutputStream.writeShort(Short.reverseBytes(param0));
     }
 
+    public void writeInt(int param0) throws IOException {
+        this.dataOutputStream.writeInt(Integer.reverseBytes(param0));
+    }
+
+    public void writeFloat(float param0) throws IOException {
+        this.dataOutputStream.writeInt(Integer.reverseBytes(Float.floatToIntBits(param0)));
+    }
+
     public byte[] toByteArray() {
         return this.outputStream.toByteArray();
     }

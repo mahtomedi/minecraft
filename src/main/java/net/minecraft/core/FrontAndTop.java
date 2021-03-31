@@ -2,6 +2,7 @@ package net.minecraft.core;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import net.minecraft.Util;
 import net.minecraft.util.StringRepresentable;
 
 public enum FrontAndTop implements StringRepresentable {
@@ -18,13 +19,18 @@ public enum FrontAndTop implements StringRepresentable {
     NORTH_UP("north_up", Direction.NORTH, Direction.UP),
     SOUTH_UP("south_up", Direction.SOUTH, Direction.UP);
 
-    private static final Int2ObjectMap<FrontAndTop> LOOKUP_TOP_FRONT = new Int2ObjectOpenHashMap<>(values().length);
+    private static final Int2ObjectMap<FrontAndTop> LOOKUP_TOP_FRONT = Util.make(new Int2ObjectOpenHashMap<>(values().length), param0 -> {
+        for(FrontAndTop var0 : values()) {
+            param0.put(lookupKey(var0.front, var0.top), var0);
+        }
+
+    });
     private final String name;
     private final Direction top;
     private final Direction front;
 
     private static int lookupKey(Direction param0, Direction param1) {
-        return param0.ordinal() << 3 | param1.ordinal();
+        return param1.ordinal() << 3 | param0.ordinal();
     }
 
     private FrontAndTop(String param0, Direction param1, Direction param2) {
@@ -39,7 +45,7 @@ public enum FrontAndTop implements StringRepresentable {
     }
 
     public static FrontAndTop fromFrontAndTop(Direction param0, Direction param1) {
-        int var0 = lookupKey(param1, param0);
+        int var0 = lookupKey(param0, param1);
         return LOOKUP_TOP_FRONT.get(var0);
     }
 
@@ -49,12 +55,5 @@ public enum FrontAndTop implements StringRepresentable {
 
     public Direction top() {
         return this.top;
-    }
-
-    static {
-        for(FrontAndTop var0 : values()) {
-            LOOKUP_TOP_FRONT.put(lookupKey(var0.top, var0.front), var0);
-        }
-
     }
 }

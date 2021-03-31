@@ -23,8 +23,6 @@ import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class WaterFluid extends FlowingFluid {
     @Override
@@ -42,7 +40,6 @@ public abstract class WaterFluid extends FlowingFluid {
         return Items.WATER_BUCKET;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void animateTick(Level param0, BlockPos param1, FluidState param2, Random param3) {
         if (!param2.isSource() && !param2.getValue(FALLING)) {
@@ -73,7 +70,6 @@ public abstract class WaterFluid extends FlowingFluid {
     }
 
     @Nullable
-    @OnlyIn(Dist.CLIENT)
     @Override
     public ParticleOptions getDripParticle() {
         return ParticleTypes.DRIPPING_WATER;

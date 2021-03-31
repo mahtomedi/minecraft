@@ -69,6 +69,7 @@ import net.minecraft.world.scores.Score;
 import net.minecraft.world.scores.Scoreboard;
 
 public class ExecuteCommand {
+    private static final int MAX_TEST_AREA = 32768;
     private static final Dynamic2CommandExceptionType ERROR_AREA_TOO_LARGE = new Dynamic2CommandExceptionType(
         (param0, param1) -> new TranslatableComponent("commands.execute.blocks.toobig", param0, param1)
     );
@@ -680,18 +681,18 @@ public class ExecuteCommand {
     }
 
     private static OptionalInt checkRegions(ServerLevel param0, BlockPos param1, BlockPos param2, BlockPos param3, boolean param4) throws CommandSyntaxException {
-        BoundingBox var0 = BoundingBox.createProper(param1, param2);
-        BoundingBox var1 = BoundingBox.createProper(param3, param3.offset(var0.getLength()));
-        BlockPos var2 = new BlockPos(var1.x0 - var0.x0, var1.y0 - var0.y0, var1.z0 - var0.z0);
+        BoundingBox var0 = BoundingBox.fromCorners(param1, param2);
+        BoundingBox var1 = BoundingBox.fromCorners(param3, param3.offset(var0.getLength()));
+        BlockPos var2 = new BlockPos(var1.minX() - var0.minX(), var1.minY() - var0.minY(), var1.minZ() - var0.minZ());
         int var3 = var0.getXSpan() * var0.getYSpan() * var0.getZSpan();
         if (var3 > 32768) {
             throw ERROR_AREA_TOO_LARGE.create(32768, var3);
         } else {
             int var4 = 0;
 
-            for(int var5 = var0.z0; var5 <= var0.z1; ++var5) {
-                for(int var6 = var0.y0; var6 <= var0.y1; ++var6) {
-                    for(int var7 = var0.x0; var7 <= var0.x1; ++var7) {
+            for(int var5 = var0.minZ(); var5 <= var0.maxZ(); ++var5) {
+                for(int var6 = var0.minY(); var6 <= var0.maxY(); ++var6) {
+                    for(int var7 = var0.minX(); var7 <= var0.maxX(); ++var7) {
                         BlockPos var8 = new BlockPos(var7, var6, var5);
                         BlockPos var9 = var8.offset(var2);
                         BlockState var10 = param0.getBlockState(var8);

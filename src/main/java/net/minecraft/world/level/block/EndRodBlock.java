@@ -10,8 +10,6 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.material.PushReaction;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class EndRodBlock extends RodBlock {
     protected EndRodBlock(BlockBehaviour.Properties param0) {
@@ -28,7 +26,6 @@ public class EndRodBlock extends RodBlock {
             : this.defaultBlockState().setValue(FACING, var0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void animateTick(BlockState param0, Level param1, BlockPos param2, Random param3) {
         Direction var0 = param0.getValue(FACING);

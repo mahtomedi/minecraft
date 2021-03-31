@@ -1,10 +1,7 @@
 package net.minecraft.server.level;
 
 import net.minecraft.core.BlockPos;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
 public class BlockDestructionProgress implements Comparable<BlockDestructionProgress> {
     private final int id;
     private final BlockPos pos;
@@ -14,6 +11,10 @@ public class BlockDestructionProgress implements Comparable<BlockDestructionProg
     public BlockDestructionProgress(int param0, BlockPos param1) {
         this.id = param0;
         this.pos = param1;
+    }
+
+    public int getId() {
+        return this.id;
     }
 
     public BlockPos getPos() {

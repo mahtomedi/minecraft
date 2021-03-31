@@ -27,8 +27,6 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class Squid extends WaterAnimal {
     public float xBodyRot;
@@ -201,7 +199,6 @@ public class Squid extends WaterAnimal {
         return param3.getY() > 45 && param3.getY() < param1.getSeaLevel();
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void handleEntityEvent(byte param0) {
         if (param0 == 19) {
@@ -223,6 +220,9 @@ public class Squid extends WaterAnimal {
     }
 
     class SquidFleeGoal extends Goal {
+        private static final float SQUID_FLEE_SPEED = 3.0F;
+        private static final float SQUID_FLEE_MIN_DISTANCE = 5.0F;
+        private static final float SQUID_FLEE_MAX_DISTANCE = 10.0F;
         private int fleeTicks;
 
         private SquidFleeGoal() {

@@ -25,6 +25,7 @@ import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
 import net.minecraft.world.phys.Vec3;
 
 public abstract class PathNavigation {
+    private static final int MAX_TIME_RECOMPUTE = 20;
     protected final Mob mob;
     protected final Level level;
     @Nullable
@@ -111,12 +112,22 @@ public abstract class PathNavigation {
     }
 
     @Nullable
+    public Path createPath(BlockPos param0, int param1, int param2) {
+        return this.createPath(ImmutableSet.of(param0), 8, false, param1, (float)param2);
+    }
+
+    @Nullable
     public Path createPath(Entity param0, int param1) {
         return this.createPath(ImmutableSet.of(param0.blockPosition()), 16, true, param1);
     }
 
     @Nullable
     protected Path createPath(Set<BlockPos> param0, int param1, boolean param2, int param3) {
+        return this.createPath(param0, param1, param2, param3, (float)this.mob.getAttributeValue(Attributes.FOLLOW_RANGE));
+    }
+
+    @Nullable
+    protected Path createPath(Set<BlockPos> param0, int param1, boolean param2, int param3, float param4) {
         if (param0.isEmpty()) {
             return null;
         } else if (this.mob.getY() < (double)this.level.getMinBuildHeight()) {
@@ -127,19 +138,18 @@ public abstract class PathNavigation {
             return this.path;
         } else {
             this.level.getProfiler().push("pathfind");
-            float var0 = (float)this.mob.getAttributeValue(Attributes.FOLLOW_RANGE);
-            BlockPos var1 = param2 ? this.mob.blockPosition().above() : this.mob.blockPosition();
-            int var2 = (int)(var0 + (float)param1);
-            PathNavigationRegion var3 = new PathNavigationRegion(this.level, var1.offset(-var2, -var2, -var2), var1.offset(var2, var2, var2));
-            Path var4 = this.pathFinder.findPath(var3, this.mob, param0, var0, param3, this.maxVisitedNodesMultiplier);
+            BlockPos var0 = param2 ? this.mob.blockPosition().above() : this.mob.blockPosition();
+            int var1 = (int)(param4 + (float)param1);
+            PathNavigationRegion var2 = new PathNavigationRegion(this.level, var0.offset(-var1, -var1, -var1), var0.offset(var1, var1, var1));
+            Path var3 = this.pathFinder.findPath(var2, this.mob, param0, param4, param3, this.maxVisitedNodesMultiplier);
             this.level.getProfiler().pop();
-            if (var4 != null && var4.getTarget() != null) {
-                this.targetPos = var4.getTarget();
+            if (var3 != null && var3.getTarget() != null) {
+                this.targetPos = var3.getTarget();
                 this.reachRange = param3;
                 this.resetStuckTimeout();
             }
 
-            return var4;
+            return var3;
         }
     }
 
@@ -356,6 +366,10 @@ public abstract class PathNavigation {
             }
 
         }
+    }
+
+    public float getMaxDistanceToWaypoint() {
+        return this.maxDistanceToWaypoint;
     }
 
     public boolean isStuck() {

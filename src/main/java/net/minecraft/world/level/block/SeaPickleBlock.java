@@ -24,6 +24,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class SeaPickleBlock extends BushBlock implements BonemealableBlock, SimpleWaterloggedBlock {
+    public static final int MAX_PICKLES = 4;
     public static final IntegerProperty PICKLES = BlockStateProperties.PICKLES;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     protected static final VoxelShape ONE_AABB = Block.box(6.0, 0.0, 6.0, 10.0, 6.0, 10.0);
@@ -79,7 +80,9 @@ public class SeaPickleBlock extends BushBlock implements BonemealableBlock, Simp
 
     @Override
     public boolean canBeReplaced(BlockState param0, BlockPlaceContext param1) {
-        return param1.getItemInHand().is(this.asItem()) && param0.getValue(PICKLES) < 4 ? true : super.canBeReplaced(param0, param1);
+        return !param1.isSecondaryUseActive() && param1.getItemInHand().is(this.asItem()) && param0.getValue(PICKLES) < 4
+            ? true
+            : super.canBeReplaced(param0, param1);
     }
 
     @Override

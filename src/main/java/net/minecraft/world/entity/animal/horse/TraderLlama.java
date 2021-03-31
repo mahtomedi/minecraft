@@ -18,8 +18,6 @@ import net.minecraft.world.entity.npc.WanderingTrader;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class TraderLlama extends Llama {
     private int despawnDelay = 47999;
@@ -28,7 +26,6 @@ public class TraderLlama extends Llama {
         super(param0, param1);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public boolean isTraderLlama() {
         return true;
@@ -59,6 +56,10 @@ public class TraderLlama extends Llama {
         super.registerGoals();
         this.goalSelector.addGoal(1, new PanicGoal(this, 2.0));
         this.targetSelector.addGoal(1, new TraderLlama.TraderLlamaDefendWanderingTraderGoal(this));
+    }
+
+    public void setDespawnDelay(int param0) {
+        this.despawnDelay = param0;
     }
 
     @Override

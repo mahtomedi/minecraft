@@ -3,8 +3,6 @@ package net.minecraft.world.level.block.entity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class TheEndPortalBlockEntity extends BlockEntity {
     protected TheEndPortalBlockEntity(BlockEntityType<?> param0, BlockPos param1, BlockState param2) {
@@ -15,8 +13,7 @@ public class TheEndPortalBlockEntity extends BlockEntity {
         this(BlockEntityType.END_PORTAL, param0, param1);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean shouldRenderFace(Direction param0) {
-        return param0 == Direction.UP;
+        return param0.getAxis() == Direction.Axis.Y;
     }
 }

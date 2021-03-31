@@ -11,10 +11,19 @@ import net.minecraft.world.entity.player.StackedContents;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class InventoryMenu extends RecipeBookMenu<CraftingContainer> {
+    public static final int CONTAINER_ID = 0;
+    public static final int RESULT_SLOT = 0;
+    public static final int CRAFT_SLOT_START = 1;
+    public static final int CRAFT_SLOT_END = 5;
+    public static final int ARMOR_SLOT_START = 5;
+    public static final int ARMOR_SLOT_END = 9;
+    public static final int INV_SLOT_START = 9;
+    public static final int INV_SLOT_END = 36;
+    public static final int USE_ROW_SLOT_START = 36;
+    public static final int USE_ROW_SLOT_END = 45;
+    public static final int SHIELD_SLOT = 45;
     public static final ResourceLocation BLOCK_ATLAS = new ResourceLocation("textures/atlas/blocks.png");
     public static final ResourceLocation EMPTY_ARMOR_SLOT_HELMET = new ResourceLocation("item/empty_armor_slot_helmet");
     public static final ResourceLocation EMPTY_ARMOR_SLOT_CHESTPLATE = new ResourceLocation("item/empty_armor_slot_chestplate");
@@ -61,7 +70,6 @@ public class InventoryMenu extends RecipeBookMenu<CraftingContainer> {
                     return !var0.isEmpty() && !param0.isCreative() && EnchantmentHelper.hasBindingCurse(var0) ? false : super.mayPickup(param0);
                 }
 
-                @OnlyIn(Dist.CLIENT)
                 @Override
                 public Pair<ResourceLocation, ResourceLocation> getNoItemIcon() {
                     return Pair.of(InventoryMenu.BLOCK_ATLAS, InventoryMenu.TEXTURE_EMPTY_SLOTS[var3.getIndex()]);
@@ -80,7 +88,6 @@ public class InventoryMenu extends RecipeBookMenu<CraftingContainer> {
         }
 
         this.addSlot(new Slot(param0, 40, 77, 62) {
-            @OnlyIn(Dist.CLIENT)
             @Override
             public Pair<ResourceLocation, ResourceLocation> getNoItemIcon() {
                 return Pair.of(InventoryMenu.BLOCK_ATLAS, InventoryMenu.EMPTY_ARMOR_SLOT_SHIELD);
@@ -214,7 +221,6 @@ public class InventoryMenu extends RecipeBookMenu<CraftingContainer> {
         return this.craftSlots;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public RecipeBookType getRecipeBookType() {
         return RecipeBookType.CRAFTING;

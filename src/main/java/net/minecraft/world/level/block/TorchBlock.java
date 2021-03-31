@@ -13,10 +13,9 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class TorchBlock extends Block {
+    protected static final int AABB_STANDING_OFFSET = 2;
     protected static final VoxelShape AABB = Block.box(6.0, 0.0, 6.0, 10.0, 10.0, 10.0);
     protected final ParticleOptions flameParticle;
 
@@ -42,7 +41,6 @@ public class TorchBlock extends Block {
         return canSupportCenter(param1, param2.below(), Direction.UP);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void animateTick(BlockState param0, Level param1, BlockPos param2, Random param3) {
         double var0 = (double)param2.getX() + 0.5;

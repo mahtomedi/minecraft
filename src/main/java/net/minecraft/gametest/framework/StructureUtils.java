@@ -5,6 +5,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -18,9 +19,12 @@ import net.minecraft.commands.arguments.blocks.BlockInput;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.Vec3i;
+import net.minecraft.data.structures.NbtToSnbt;
+import net.minecraft.data.structures.StructureUpdater;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.Bootstrap;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -44,7 +48,9 @@ import org.apache.logging.log4j.Logger;
 
 public class StructureUtils {
     private static final Logger LOGGER = LogManager.getLogger();
+    public static final String DEFAULT_TEST_STRUCTURES_DIR = "gameteststructures";
     public static String testStructuresDir = "gameteststructures";
+    private static final int HOW_MANY_CHUNKS_TO_LOAD_IN_EACH_DIRECTION_OF_STRUCTURE = 4;
 
     public static Rotation getRotationForRotationSteps(int param0) {
         switch(param0) {
@@ -61,6 +67,36 @@ public class StructureUtils {
         }
     }
 
+    public static int getRotationStepsForRotation(Rotation param0) {
+        switch(param0) {
+            case NONE:
+                return 0;
+            case CLOCKWISE_90:
+                return 1;
+            case CLOCKWISE_180:
+                return 2;
+            case COUNTERCLOCKWISE_90:
+                return 3;
+            default:
+                throw new IllegalArgumentException("Unknown rotation value, don't know how many steps it represents: " + param0);
+        }
+    }
+
+    public static void main(String[] param0) throws IOException {
+        Bootstrap.bootStrap();
+        Files.walk(Paths.get(testStructuresDir)).filter(param0x -> param0x.toString().endsWith(".snbt")).forEach(param0x -> {
+            try {
+                String var0 = new String(Files.readAllBytes(param0x), StandardCharsets.UTF_8);
+                CompoundTag var1 = NbtUtils.snbtToStructure(var0);
+                CompoundTag var2 = StructureUpdater.update(param0x.toString(), var1);
+                NbtToSnbt.writeSnbt(param0x, NbtUtils.structureToSnbt(var2));
+            } catch (IOException | CommandSyntaxException var4) {
+                LOGGER.error("Something went wrong upgrading: {}", param0x, var4);
+            }
+
+        });
+    }
+
     public static AABB getStructureBounds(StructureBlockEntity param0) {
         BlockPos var0 = param0.getBlockPos();
         BlockPos var1 = var0.offset(param0.getStructureSize().offset(-1, -1, -1));
@@ -72,7 +108,7 @@ public class StructureUtils {
         BlockPos var0 = param0.getBlockPos();
         BlockPos var1 = var0.offset(param0.getStructureSize().offset(-1, -1, -1));
         BlockPos var2 = StructureTemplate.transform(var1, Mirror.NONE, param0.getRotation(), var0);
-        return BoundingBox.createProper(var0, var2);
+        return BoundingBox.fromCorners(var0, var2);
     }
 
     public static void addCommandBlockAndButtonToStartTest(BlockPos param0, BlockPos param1, Rotation param2, ServerLevel param3) {
@@ -136,11 +172,11 @@ public class StructureUtils {
     }
 
     public static void clearSpaceForStructure(BoundingBox param0, int param1, ServerLevel param2) {
-        BoundingBox var0 = new BoundingBox(param0.x0 - 2, param0.y0 - 3, param0.z0 - 3, param0.x1 + 3, param0.y1 + 20, param0.z1 + 3);
+        BoundingBox var0 = new BoundingBox(param0.minX() - 2, param0.minY() - 3, param0.minZ() - 3, param0.maxX() + 3, param0.maxY() + 20, param0.maxZ() + 3);
         BlockPos.betweenClosedStream(var0).forEach(param2x -> clearBlock(param1, param2x, param2));
         param2.getBlockTicks().fetchTicksInArea(var0, true, false);
         param2.clearBlockEvents(var0);
-        AABB var1 = new AABB((double)var0.x0, (double)var0.y0, (double)var0.z0, (double)var0.x1, (double)var0.y1, (double)var0.z1);
+        AABB var1 = new AABB((double)var0.minX(), (double)var0.minY(), (double)var0.minZ(), (double)var0.maxX(), (double)var0.maxY(), (double)var0.maxZ());
         List<Entity> var2 = param2.getEntitiesOfClass(Entity.class, var1, param0x -> !(param0x instanceof Player));
         var2.forEach(Entity::discard);
     }
@@ -148,9 +184,9 @@ public class StructureUtils {
     public static BoundingBox getStructureBoundingBox(BlockPos param0, Vec3i param1, Rotation param2) {
         BlockPos var0 = param0.offset(param1).offset(-1, -1, -1);
         BlockPos var1 = StructureTemplate.transform(var0, Mirror.NONE, param2, param0);
-        BoundingBox var2 = BoundingBox.createProper(param0.getX(), param0.getY(), param0.getZ(), var1.getX(), var1.getY(), var1.getZ());
-        int var3 = Math.min(var2.x0, var2.x1);
-        int var4 = Math.min(var2.z0, var2.z1);
+        BoundingBox var2 = BoundingBox.fromCorners(param0, var1);
+        int var3 = Math.min(var2.minX(), var2.maxX());
+        int var4 = Math.min(var2.minZ(), var2.maxZ());
         return var2.move(param0.getX() - var3, 0, param0.getZ() - var4);
     }
 

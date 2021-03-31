@@ -9,15 +9,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.io.FilenameUtils;
 
 public class FileUtil {
     private static final Pattern COPY_COUNTER_PATTERN = Pattern.compile("(<name>.*) \\((<count>\\d*)\\)", 66);
+    private static final int MAX_FILE_NAME = 255;
     private static final Pattern RESERVED_WINDOWS_FILENAMES = Pattern.compile(".*\\.|(?:COM|CLOCK\\$|CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])(?:\\..*)?", 2);
 
-    @OnlyIn(Dist.CLIENT)
     public static String findAvailableName(Path param0, String param1, String param2) throws IOException {
         for(char var0 : SharedConstants.ILLEGAL_FILE_CHARACTERS) {
             param1 = param1.replace(var0, '_');
@@ -89,12 +87,10 @@ public class FileUtil {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static String getFullResourcePath(String param0) {
         return FilenameUtils.getFullPath(param0).replace(File.separator, "/");
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static String normalizeResourcePath(String param0) {
         return FilenameUtils.normalize(param0).replace(File.separator, "/");
     }

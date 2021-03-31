@@ -1,8 +1,5 @@
 package net.minecraft.util.profiling;
 
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-
 public final class ResultField implements Comparable<ResultField> {
     public final double percentage;
     public final double globalPercentage;
@@ -24,7 +21,6 @@ public final class ResultField implements Comparable<ResultField> {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getColor() {
         return (this.name.hashCode() & 11184810) + 4473924;
     }

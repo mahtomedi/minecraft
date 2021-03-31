@@ -1,5 +1,6 @@
 package net.minecraft.client.resources.model;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.util.Locale;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
@@ -7,11 +8,17 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class ModelResourceLocation extends ResourceLocation {
+    @VisibleForTesting
+    static final char VARIANT_SEPARATOR = '#';
     private final String variant;
 
     protected ModelResourceLocation(String[] param0) {
         super(param0);
         this.variant = param0[2].toLowerCase(Locale.ROOT);
+    }
+
+    public ModelResourceLocation(String param0, String param1, String param2) {
+        this(new String[]{param0, param1, param2});
     }
 
     public ModelResourceLocation(String param0) {

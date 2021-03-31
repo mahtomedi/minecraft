@@ -9,8 +9,6 @@ import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public enum ChatFormatting {
     BLACK("BLACK", '0', 0, 0),
@@ -36,6 +34,7 @@ public enum ChatFormatting {
     ITALIC("ITALIC", 'o', true),
     RESET("RESET", 'r', -1, null);
 
+    public static final char PREFIX_CODE = '\u00a7';
     private static final Map<String, ChatFormatting> FORMATTING_BY_NAME = Arrays.stream(values())
         .collect(Collectors.toMap(param0 -> cleanName(param0.name), param0 -> param0));
     private static final Pattern STRIP_FORMATTING_PATTERN = Pattern.compile("(?i)\u00a7[0-9A-FK-OR]");
@@ -66,6 +65,10 @@ public enum ChatFormatting {
         this.id = param3;
         this.color = param4;
         this.toString = "\u00a7" + param1;
+    }
+
+    public char getChar() {
+        return this.code;
     }
 
     public int getId() {
@@ -120,7 +123,6 @@ public enum ChatFormatting {
     }
 
     @Nullable
-    @OnlyIn(Dist.CLIENT)
     public static ChatFormatting getByCode(char param0) {
         char var0 = Character.toString(param0).toLowerCase(Locale.ROOT).charAt(0);
 

@@ -18,7 +18,6 @@ import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.feature.configurations.MineshaftConfiguration;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.MineShaftPieces;
-import net.minecraft.world.level.levelgen.structure.StructurePiece;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 
@@ -49,8 +48,8 @@ public class MineshaftFeature extends StructureFeature<MineshaftConfiguration> {
     }
 
     public static class MineShaftStart extends StructureStart<MineshaftConfiguration> {
-        public MineShaftStart(StructureFeature<MineshaftConfiguration> param0, ChunkPos param1, BoundingBox param2, int param3, long param4) {
-            super(param0, param1, param2, param3, param4);
+        public MineShaftStart(StructureFeature<MineshaftConfiguration> param0, ChunkPos param1, int param2, long param3) {
+            super(param0, param1, param2, param3);
         }
 
         public void generatePieces(
@@ -63,17 +62,13 @@ public class MineshaftFeature extends StructureFeature<MineshaftConfiguration> {
             LevelHeightAccessor param6
         ) {
             MineShaftPieces.MineShaftRoom var0 = new MineShaftPieces.MineShaftRoom(0, this.random, param3.getBlockX(2), param3.getBlockZ(2), param5.type);
-            this.pieces.add(var0);
-            var0.addChildren(var0, this.pieces, this.random);
-            this.calculateBoundingBox();
+            this.addPiece(var0);
+            var0.addChildren(var0, this, this.random);
             if (param5.type == MineshaftFeature.Type.MESA) {
                 int var1 = -5;
-                int var2 = param1.getSeaLevel() - this.boundingBox.y1 + this.boundingBox.getYSpan() / 2 - -5;
-                this.boundingBox.move(0, var2, 0);
-
-                for(StructurePiece var3 : this.pieces) {
-                    var3.move(0, var2, 0);
-                }
+                BoundingBox var2 = this.getBoundingBox();
+                int var3 = param1.getSeaLevel() - var2.maxY() + var2.getYSpan() / 2 - -5;
+                this.offsetPiecesVertically(var3);
             } else {
                 this.moveBelowSeaLevel(param1.getSeaLevel(), param1.getMinY(), this.random, 10);
             }

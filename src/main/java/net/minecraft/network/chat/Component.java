@@ -1,5 +1,6 @@
 package net.minecraft.network.chat;
 
+import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -26,8 +27,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.LowerCaseEnumTypeAdapterFactory;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public interface Component extends Message, FormattedText {
     Style getStyle();
@@ -59,10 +58,8 @@ public interface Component extends Message, FormattedText {
 
     MutableComponent copy();
 
-    @OnlyIn(Dist.CLIENT)
     FormattedCharSequence getVisualOrderText();
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     default <T> Optional<T> visit(FormattedText.StyledContentConsumer<T> param0, Style param1) {
         Style var0 = this.getStyle().applyTo(param1);
@@ -98,7 +95,6 @@ public interface Component extends Message, FormattedText {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     default <T> Optional<T> visitSelf(FormattedText.StyledContentConsumer<T> param0, Style param1) {
         return param0.accept(param1, this.getContents());
     }
@@ -107,7 +103,18 @@ public interface Component extends Message, FormattedText {
         return param0.accept(this.getContents());
     }
 
-    @OnlyIn(Dist.CLIENT)
+    default List<Component> toFlatList(Style param0) {
+        List<Component> var0 = Lists.newArrayList();
+        this.visit((param1, param2) -> {
+            if (!param2.isEmpty()) {
+                var0.add(new TextComponent(param2).withStyle(param1));
+            }
+
+            return Optional.empty();
+        }, param0);
+        return var0;
+    }
+
     static Component nullToEmpty(@Nullable String param0) {
         return (Component)(param0 != null ? new TextComponent(param0) : TextComponent.EMPTY);
     }

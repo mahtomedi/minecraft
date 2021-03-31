@@ -34,13 +34,12 @@ import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
 import net.minecraft.world.level.timers.TimerCallbacks;
 import net.minecraft.world.level.timers.TimerQueue;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class PrimaryLevelData implements ServerLevelData, WorldData {
     private static final Logger LOGGER = LogManager.getLogger();
+    protected static final String WORLD_GEN_SETTINGS = "WorldGenSettings";
     private LevelSettings settings;
     private final WorldGenSettings worldGenSettings;
     private final Lifecycle worldGenSettingsLifecycle;
@@ -523,7 +522,6 @@ public class PrimaryLevelData implements ServerLevelData, WorldData {
         return this.worldGenSettings;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public Lifecycle worldGenSettingsLifecycle() {
         return this.worldGenSettingsLifecycle;
@@ -580,6 +578,12 @@ public class PrimaryLevelData implements ServerLevelData, WorldData {
         this.wanderingTraderSpawnChance = param0;
     }
 
+    @Nullable
+    @Override
+    public UUID getWanderingTraderId() {
+        return this.wanderingTraderId;
+    }
+
     @Override
     public void setWanderingTraderId(UUID param0) {
         this.wanderingTraderId = param0;
@@ -606,7 +610,6 @@ public class PrimaryLevelData implements ServerLevelData, WorldData {
         return this;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public LevelSettings getLevelSettings() {
         return this.settings.copy();

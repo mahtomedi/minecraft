@@ -30,6 +30,18 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 public class EntitySelectorParser {
+    public static final char SYNTAX_SELECTOR_START = '@';
+    private static final char SYNTAX_OPTIONS_START = '[';
+    private static final char SYNTAX_OPTIONS_END = ']';
+    public static final char SYNTAX_OPTIONS_KEY_VALUE_SEPARATOR = '=';
+    private static final char SYNTAX_OPTIONS_SEPARATOR = ',';
+    public static final char SYNTAX_NOT = '!';
+    public static final char SYNTAX_TAG = '#';
+    private static final char SELECTOR_NEAREST_PLAYER = 'p';
+    private static final char SELECTOR_ALL_PLAYERS = 'a';
+    private static final char SELECTOR_RANDOM_PLAYERS = 'r';
+    private static final char SELECTOR_CURRENT_ENTITY = 's';
+    private static final char SELECTOR_ALL_ENTITIES = 'e';
     public static final SimpleCommandExceptionType ERROR_INVALID_NAME_OR_UUID = new SimpleCommandExceptionType(
         new TranslatableComponent("argument.entity.invalid")
     );
@@ -436,6 +448,10 @@ public class EntitySelectorParser {
         this.includesEntities = param0;
     }
 
+    public BiConsumer<Vec3, List<? extends Entity>> getOrder() {
+        return this.order;
+    }
+
     public void setOrder(BiConsumer<Vec3, List<? extends Entity>> param0) {
         this.order = param0;
     }
@@ -510,6 +526,11 @@ public class EntitySelectorParser {
         return param0.buildFuture();
     }
 
+    private CompletableFuture<Suggestions> suggestEquals(SuggestionsBuilder param0, Consumer<SuggestionsBuilder> param1) {
+        param0.suggest(String.valueOf('='));
+        return param0.buildFuture();
+    }
+
     public boolean isCurrentEntity() {
         return this.currentEntity;
     }
@@ -576,6 +597,10 @@ public class EntitySelectorParser {
 
     public void setHasTeamEquals(boolean param0) {
         this.hasTeamEquals = param0;
+    }
+
+    public boolean hasTeamNotEquals() {
+        return this.hasTeamNotEquals;
     }
 
     public void setHasTeamNotEquals(boolean param0) {

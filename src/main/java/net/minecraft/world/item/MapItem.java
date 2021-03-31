@@ -31,10 +31,13 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.MaterialColor;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class MapItem extends ComplexItem {
+    public static final int IMAGE_WIDTH = 128;
+    public static final int IMAGE_HEIGHT = 128;
+    private static final int DEFAULT_MAP_COLOR = -12173266;
+    private static final String TAG_MAP = "map";
+
     public MapItem(Item.Properties param0) {
         super(param0);
     }
@@ -367,7 +370,6 @@ public class MapItem extends ComplexItem {
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void appendHoverText(ItemStack param0, @Nullable Level param1, List<Component> param2, TooltipFlag param3) {
         Integer var0 = getMapId(param0);
@@ -388,7 +390,6 @@ public class MapItem extends ComplexItem {
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static int getColor(ItemStack param0) {
         CompoundTag var0 = param0.getTagElement("display");
         if (var0 != null && var0.contains("MapColor", 99)) {

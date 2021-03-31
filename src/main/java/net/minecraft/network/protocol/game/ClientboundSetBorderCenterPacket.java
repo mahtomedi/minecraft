@@ -3,8 +3,6 @@ package net.minecraft.network.protocol.game;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.level.border.WorldBorder;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundSetBorderCenterPacket implements Packet<ClientGamePacketListener> {
     private final double newCenterX;
@@ -30,12 +28,10 @@ public class ClientboundSetBorderCenterPacket implements Packet<ClientGamePacket
         param0.handleSetBorderCenter(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public double getNewCenterZ() {
         return this.newCenterZ;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public double getNewCenterX() {
         return this.newCenterX;
     }

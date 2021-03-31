@@ -11,8 +11,6 @@ import javax.annotation.Nullable;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.metadata.MetadataSectionSerializer;
 import net.minecraft.util.GsonHelper;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.io.IOUtils;
 
 public class SimpleResource implements Resource {
@@ -20,9 +18,7 @@ public class SimpleResource implements Resource {
     private final ResourceLocation location;
     private final InputStream resourceStream;
     private final InputStream metadataStream;
-    @OnlyIn(Dist.CLIENT)
     private boolean triedMetadata;
-    @OnlyIn(Dist.CLIENT)
     private JsonObject metadata;
 
     public SimpleResource(String param0, ResourceLocation param1, InputStream param2, @Nullable InputStream param3) {
@@ -32,7 +28,6 @@ public class SimpleResource implements Resource {
         this.metadataStream = param3;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public ResourceLocation getLocation() {
         return this.location;
@@ -43,13 +38,12 @@ public class SimpleResource implements Resource {
         return this.resourceStream;
     }
 
-    @OnlyIn(Dist.CLIENT)
+    @Override
     public boolean hasMetadata() {
         return this.metadataStream != null;
     }
 
     @Nullable
-    @OnlyIn(Dist.CLIENT)
     @Override
     public <T> T getMetadata(MetadataSectionSerializer<T> param0) {
         if (!this.hasMetadata()) {

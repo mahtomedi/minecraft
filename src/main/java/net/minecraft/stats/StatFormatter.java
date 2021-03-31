@@ -5,8 +5,6 @@ import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.util.Locale;
 import net.minecraft.Util;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public interface StatFormatter {
     DecimalFormat DECIMAL_FORMAT = Util.make(
@@ -40,6 +38,5 @@ public interface StatFormatter {
         }
     };
 
-    @OnlyIn(Dist.CLIENT)
     String format(int var1);
 }

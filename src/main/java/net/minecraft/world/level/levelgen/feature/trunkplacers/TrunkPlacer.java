@@ -6,22 +6,23 @@ import com.mojang.serialization.codecs.RecordCodecBuilder.Instance;
 import com.mojang.serialization.codecs.RecordCodecBuilder.Mu;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
-import net.minecraft.world.level.LevelSimulatedRW;
 import net.minecraft.world.level.LevelSimulatedReader;
-import net.minecraft.world.level.LevelWriter;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.TreeFeature;
 import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
 import net.minecraft.world.level.levelgen.feature.foliageplacers.FoliagePlacer;
-import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 public abstract class TrunkPlacer {
     public static final Codec<TrunkPlacer> CODEC = Registry.TRUNK_PLACER_TYPES.dispatch(TrunkPlacer::type, TrunkPlacerType::codec);
+    private static final int MAX_BASE_HEIGHT = 32;
+    private static final int MAX_RAND = 24;
+    public static final int MAX_HEIGHT = 80;
     protected final int baseHeight;
     protected final int heightRandA;
     protected final int heightRandB;
@@ -43,35 +44,42 @@ public abstract class TrunkPlacer {
     protected abstract TrunkPlacerType<?> type();
 
     public abstract List<FoliagePlacer.FoliageAttachment> placeTrunk(
-        LevelSimulatedRW var1, Random var2, int var3, BlockPos var4, Set<BlockPos> var5, BoundingBox var6, TreeConfiguration var7
+        LevelSimulatedReader var1, BiConsumer<BlockPos, BlockState> var2, Random var3, int var4, BlockPos var5, TreeConfiguration var6
     );
 
     public int getTreeHeight(Random param0) {
         return this.baseHeight + param0.nextInt(this.heightRandA + 1) + param0.nextInt(this.heightRandB + 1);
     }
 
-    protected static void setBlock(LevelWriter param0, BlockPos param1, BlockState param2, BoundingBox param3) {
-        TreeFeature.setBlockKnownShape(param0, param1, param2);
-        param3.expand(new BoundingBox(param1));
-    }
-
     private static boolean isDirt(LevelSimulatedReader param0, BlockPos param1) {
         return param0.isStateAtPosition(param1, param0x -> Feature.isDirt(param0x) && !param0x.is(Blocks.GRASS_BLOCK) && !param0x.is(Blocks.MYCELIUM));
     }
 
-    protected static void setDirtAt(LevelSimulatedRW param0, Random param1, BlockPos param2, TreeConfiguration param3) {
-        if (param3.forceDirt || !isDirt(param0, param2)) {
-            TreeFeature.setBlockKnownShape(param0, param2, param3.dirtProvider.getState(param1, param2));
+    protected static void setDirtAt(
+        LevelSimulatedReader param0, BiConsumer<BlockPos, BlockState> param1, Random param2, BlockPos param3, TreeConfiguration param4
+    ) {
+        if (param4.forceDirt || !isDirt(param0, param3)) {
+            param1.accept(param3, param4.dirtProvider.getState(param2, param3));
         }
 
     }
 
     protected static boolean placeLog(
-        LevelSimulatedRW param0, Random param1, BlockPos param2, Set<BlockPos> param3, BoundingBox param4, TreeConfiguration param5
+        LevelSimulatedReader param0, BiConsumer<BlockPos, BlockState> param1, Random param2, BlockPos param3, TreeConfiguration param4
     ) {
-        if (TreeFeature.validTreePos(param0, param2)) {
-            setBlock(param0, param2, param5.trunkProvider.getState(param1, param2), param4);
-            param3.add(param2.immutable());
+        return placeLog(param0, param1, param2, param3, param4, Function.identity());
+    }
+
+    protected static boolean placeLog(
+        LevelSimulatedReader param0,
+        BiConsumer<BlockPos, BlockState> param1,
+        Random param2,
+        BlockPos param3,
+        TreeConfiguration param4,
+        Function<BlockState, BlockState> param5
+    ) {
+        if (TreeFeature.validTreePos(param0, param3)) {
+            param1.accept(param3, param5.apply(param4.trunkProvider.getState(param2, param3)));
             return true;
         } else {
             return false;
@@ -79,10 +87,10 @@ public abstract class TrunkPlacer {
     }
 
     protected static void placeLogIfFree(
-        LevelSimulatedRW param0, Random param1, BlockPos.MutableBlockPos param2, Set<BlockPos> param3, BoundingBox param4, TreeConfiguration param5
+        LevelSimulatedReader param0, BiConsumer<BlockPos, BlockState> param1, Random param2, BlockPos.MutableBlockPos param3, TreeConfiguration param4
     ) {
-        if (TreeFeature.isFree(param0, param2)) {
-            placeLog(param0, param1, param2, param3, param4, param5);
+        if (TreeFeature.isFree(param0, param3)) {
+            placeLog(param0, param1, param2, param3, param4);
         }
 
     }

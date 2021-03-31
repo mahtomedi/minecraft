@@ -4,6 +4,7 @@ import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelAccessor;
@@ -19,6 +20,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class SugarCaneBlock extends Block {
     public static final IntegerProperty AGE = BlockStateProperties.AGE_15;
+    protected static final float AABB_OFFSET = 6.0F;
     protected static final VoxelShape SHAPE = Block.box(2.0, 0.0, 2.0, 14.0, 16.0, 14.0);
 
     protected SugarCaneBlock(BlockBehaviour.Properties param0) {
@@ -76,12 +78,7 @@ public class SugarCaneBlock extends Block {
         if (var0.is(this)) {
             return true;
         } else {
-            if (var0.is(Blocks.GRASS_BLOCK)
-                || var0.is(Blocks.DIRT)
-                || var0.is(Blocks.COARSE_DIRT)
-                || var0.is(Blocks.PODZOL)
-                || var0.is(Blocks.SAND)
-                || var0.is(Blocks.RED_SAND)) {
+            if (var0.is(Blocks.GRASS_BLOCK) || var0.is(BlockTags.DIRT) || var0.is(Blocks.SAND) || var0.is(Blocks.RED_SAND)) {
                 BlockPos var1 = param2.below();
 
                 for(Direction var2 : Direction.Plane.HORIZONTAL) {

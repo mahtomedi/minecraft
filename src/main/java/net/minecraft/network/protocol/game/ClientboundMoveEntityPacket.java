@@ -7,10 +7,9 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class ClientboundMoveEntityPacket implements Packet<ClientGamePacketListener> {
+    private static final double TRUNCATION_STEPS = 4096.0;
     protected final int entityId;
     protected final short xa;
     protected final short ya;
@@ -25,12 +24,10 @@ public abstract class ClientboundMoveEntityPacket implements Packet<ClientGamePa
         return Mth.lfloor(param0 * 4096.0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static double packetToEntity(long param0) {
         return (double)param0 / 4096.0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Vec3 updateEntityPosition(Vec3 param0) {
         double var0 = this.xa == 0 ? param0.x : packetToEntity(entityToPacket(param0.x) + (long)this.xa);
         double var1 = this.ya == 0 ? param0.y : packetToEntity(entityToPacket(param0.y) + (long)this.ya);
@@ -66,32 +63,38 @@ public abstract class ClientboundMoveEntityPacket implements Packet<ClientGamePa
     }
 
     @Nullable
-    @OnlyIn(Dist.CLIENT)
     public Entity getEntity(Level param0) {
         return param0.getEntity(this.entityId);
     }
 
-    @OnlyIn(Dist.CLIENT)
+    public short getXa() {
+        return this.xa;
+    }
+
+    public short getYa() {
+        return this.ya;
+    }
+
+    public short getZa() {
+        return this.za;
+    }
+
     public byte getyRot() {
         return this.yRot;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public byte getxRot() {
         return this.xRot;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean hasRotation() {
         return this.hasRot;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean hasPosition() {
         return this.hasPos;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean isOnGround() {
         return this.onGround;
     }

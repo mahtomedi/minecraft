@@ -79,6 +79,10 @@ public class EnchantRandomlyFunction extends LootItemConditionalFunction {
         return param0;
     }
 
+    public static EnchantRandomlyFunction.Builder randomEnchantment() {
+        return new EnchantRandomlyFunction.Builder();
+    }
+
     public static LootItemConditionalFunction.Builder<?> randomApplicableEnchantment() {
         return simpleBuilder(param0 -> new EnchantRandomlyFunction(param0, ImmutableList.of()));
     }

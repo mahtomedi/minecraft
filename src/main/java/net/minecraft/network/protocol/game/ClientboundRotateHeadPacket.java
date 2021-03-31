@@ -4,8 +4,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundRotateHeadPacket implements Packet<ClientGamePacketListener> {
     private final int entityId;
@@ -31,12 +29,10 @@ public class ClientboundRotateHeadPacket implements Packet<ClientGamePacketListe
         param0.handleRotateMob(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Entity getEntity(Level param0) {
         return param0.getEntity(this.entityId);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public byte getYHeadRot() {
         return this.yHeadRot;
     }

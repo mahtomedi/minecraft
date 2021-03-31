@@ -7,8 +7,8 @@ import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.util.FloatProvider;
 import net.minecraft.util.Mth;
+import net.minecraft.util.valueproviders.FloatProvider;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -39,8 +39,8 @@ public class LargeDripstoneFeature extends Feature<LargeDripstoneConfiguration> 
                     return false;
                 } else {
                     int var6 = (int)((float)var5.height() * var2.maxColumnRadiusToCaveHeightRatio);
-                    int var7 = Mth.clamp(var6, var2.columnRadius.getBaseValue(), var2.columnRadius.getMaxValue());
-                    int var8 = Mth.randomBetweenInclusive(var3, var2.columnRadius.getBaseValue(), var7);
+                    int var7 = Mth.clamp(var6, var2.columnRadius.getMinValue(), var2.columnRadius.getMaxValue());
+                    int var8 = Mth.randomBetweenInclusive(var3, var2.columnRadius.getMinValue(), var7);
                     LargeDripstoneFeature.LargeDripstone var9 = makeDripstone(
                         var1.atY(var5.ceiling() - 1), false, var3, var8, var2.stalactiteBluntness, var2.heightScale
                     );
@@ -78,6 +78,19 @@ public class LargeDripstoneFeature extends Feature<LargeDripstoneConfiguration> 
         return new LargeDripstoneFeature.LargeDripstone(param0, param1, param3, (double)param4.sample(param2), (double)param5.sample(param2));
     }
 
+    private void placeDebugMarkers(WorldGenLevel param0, BlockPos param1, Column.Range param2, LargeDripstoneFeature.WindOffsetter param3) {
+        param0.setBlock(param3.offset(param1.atY(param2.ceiling() - 1)), Blocks.DIAMOND_BLOCK.defaultBlockState(), 2);
+        param0.setBlock(param3.offset(param1.atY(param2.floor() + 1)), Blocks.GOLD_BLOCK.defaultBlockState(), 2);
+
+        for(BlockPos.MutableBlockPos var0 = param1.atY(param2.floor() + 2).mutable(); var0.getY() < param2.ceiling() - 1; var0.move(Direction.UP)) {
+            BlockPos var1 = param3.offset(var0);
+            if (DripstoneUtils.isEmptyOrWater(param0, var1) || param0.getBlockState(var1).is(Blocks.DRIPSTONE_BLOCK)) {
+                param0.setBlock(var1, Blocks.CREEPER_HEAD.defaultBlockState(), 2);
+            }
+        }
+
+    }
+
     static final class LargeDripstone {
         private BlockPos root;
         private final boolean pointingUp;
@@ -95,6 +108,14 @@ public class LargeDripstoneFeature extends Feature<LargeDripstoneConfiguration> 
 
         private int getHeight() {
             return this.getHeightAtRadius(0.0F);
+        }
+
+        private int getMinY() {
+            return this.pointingUp ? this.root.getY() : this.root.getY() - this.getHeight();
+        }
+
+        private int getMaxY() {
+            return !this.pointingUp ? this.root.getY() : this.root.getY() + this.getHeight();
         }
 
         private boolean moveBackUntilBaseIsInsideStoneAndShrinkRadiusIfNecessary(WorldGenLevel param0, LargeDripstoneFeature.WindOffsetter param1) {

@@ -9,7 +9,6 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.configurations.ShipwreckConfiguration;
-import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.ShipwreckPieces;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
@@ -25,8 +24,8 @@ public class ShipwreckFeature extends StructureFeature<ShipwreckConfiguration> {
     }
 
     public static class FeatureStart extends StructureStart<ShipwreckConfiguration> {
-        public FeatureStart(StructureFeature<ShipwreckConfiguration> param0, ChunkPos param1, BoundingBox param2, int param3, long param4) {
-            super(param0, param1, param2, param3, param4);
+        public FeatureStart(StructureFeature<ShipwreckConfiguration> param0, ChunkPos param1, int param2, long param3) {
+            super(param0, param1, param2, param3);
         }
 
         public void generatePieces(
@@ -40,8 +39,7 @@ public class ShipwreckFeature extends StructureFeature<ShipwreckConfiguration> {
         ) {
             Rotation var0 = Rotation.getRandom(this.random);
             BlockPos var1 = new BlockPos(param3.getMinBlockX(), 90, param3.getMinBlockZ());
-            ShipwreckPieces.addPieces(param2, var1, var0, this.pieces, this.random, param5);
-            this.calculateBoundingBox();
+            ShipwreckPieces.addPieces(param2, var1, var0, this, this.random, param5);
         }
     }
 }

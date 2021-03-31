@@ -22,6 +22,7 @@ import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.server.level.SectionTracker;
+import net.minecraft.util.VisibleForDebug;
 import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
@@ -32,6 +33,8 @@ import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.chunk.storage.SectionStorage;
 
 public class PoiManager extends SectionStorage<PoiSection> {
+    public static final int MAX_VILLAGE_DISTANCE = 6;
+    public static final int VILLAGE_SECTION_SIZE = 1;
     private final PoiManager.DistanceTracker distanceTracker;
     private final LongSet loadedChunks = new LongOpenHashSet();
 
@@ -69,6 +72,7 @@ public class PoiManager extends SectionStorage<PoiSection> {
         return this.getInSquare(param0, param1, param2, param3).filter(param2x -> param2x.getPos().distSqr(param1) <= (double)var0);
     }
 
+    @VisibleForDebug
     public Stream<PoiRecord> getInChunk(Predicate<PoiType> param0, ChunkPos param1, PoiManager.Occupancy param2) {
         return IntStream.range(this.levelHeightAccessor.getMinSection(), this.levelHeightAccessor.getMaxSection())
             .boxed()
@@ -130,6 +134,12 @@ public class PoiManager extends SectionStorage<PoiSection> {
 
     public Optional<PoiType> getType(BlockPos param0) {
         return this.getOrLoad(SectionPos.asLong(param0)).flatMap(param1 -> param1.getType(param0));
+    }
+
+    @Deprecated
+    @VisibleForDebug
+    public int getFreeTickets(BlockPos param0) {
+        return this.getOrLoad(SectionPos.asLong(param0)).map(param1 -> param1.getFreeTickets(param0)).orElse(0);
     }
 
     public int sectionsToVillage(SectionPos param0) {

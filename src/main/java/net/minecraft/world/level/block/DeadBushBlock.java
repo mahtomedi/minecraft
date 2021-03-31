@@ -1,6 +1,7 @@
 package net.minecraft.world.level.block;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
@@ -8,6 +9,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class DeadBushBlock extends BushBlock {
+    protected static final float AABB_OFFSET = 6.0F;
     protected static final VoxelShape SHAPE = Block.box(2.0, 0.0, 2.0, 14.0, 13.0, 14.0);
 
     protected DeadBushBlock(BlockBehaviour.Properties param0) {
@@ -40,8 +42,6 @@ public class DeadBushBlock extends BushBlock {
             || param0.is(Blocks.GREEN_TERRACOTTA)
             || param0.is(Blocks.RED_TERRACOTTA)
             || param0.is(Blocks.BLACK_TERRACOTTA)
-            || param0.is(Blocks.DIRT)
-            || param0.is(Blocks.COARSE_DIRT)
-            || param0.is(Blocks.PODZOL);
+            || param0.is(BlockTags.DIRT);
     }
 }

@@ -19,8 +19,6 @@ import java.util.Map.Entry;
 import javax.annotation.Nullable;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.GsonHelper;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class AdvancementProgress implements Comparable<AdvancementProgress> {
     private final Map<String, CriterionProgress> criteria;
@@ -120,7 +118,6 @@ public class AdvancementProgress implements Comparable<AdvancementProgress> {
         return this.criteria.get(param0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getPercent() {
         if (this.criteria.isEmpty()) {
             return 0.0F;
@@ -132,7 +129,6 @@ public class AdvancementProgress implements Comparable<AdvancementProgress> {
     }
 
     @Nullable
-    @OnlyIn(Dist.CLIENT)
     public String getProgressText() {
         if (this.criteria.isEmpty()) {
             return null;
@@ -147,7 +143,6 @@ public class AdvancementProgress implements Comparable<AdvancementProgress> {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     private int countCompletedRequirements() {
         int var0 = 0;
 

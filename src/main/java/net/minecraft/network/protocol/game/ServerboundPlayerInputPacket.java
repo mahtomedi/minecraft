@@ -2,16 +2,15 @@ package net.minecraft.network.protocol.game;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ServerboundPlayerInputPacket implements Packet<ServerGamePacketListener> {
+    private static final int FLAG_JUMPING = 1;
+    private static final int FLAG_SHIFT_KEY_DOWN = 2;
     private final float xxa;
     private final float zza;
     private final boolean isJumping;
     private final boolean isShiftKeyDown;
 
-    @OnlyIn(Dist.CLIENT)
     public ServerboundPlayerInputPacket(float param0, float param1, boolean param2, boolean param3) {
         this.xxa = param0;
         this.zza = param1;

@@ -29,6 +29,10 @@ public class ConstructBeaconTrigger extends SimpleCriterionTrigger<ConstructBeac
             this.level = param1;
         }
 
+        public static ConstructBeaconTrigger.TriggerInstance constructedBeacon() {
+            return new ConstructBeaconTrigger.TriggerInstance(EntityPredicate.Composite.ANY, MinMaxBounds.Ints.ANY);
+        }
+
         public static ConstructBeaconTrigger.TriggerInstance constructedBeacon(MinMaxBounds.Ints param0) {
             return new ConstructBeaconTrigger.TriggerInstance(EntityPredicate.Composite.ANY, param0);
         }

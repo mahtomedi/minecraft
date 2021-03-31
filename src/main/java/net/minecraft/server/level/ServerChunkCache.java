@@ -22,6 +22,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.server.level.progress.ChunkProgressListener;
+import net.minecraft.util.VisibleForDebug;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.util.thread.BlockableEventLoop;
 import net.minecraft.world.entity.Entity;
@@ -42,8 +43,6 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureMana
 import net.minecraft.world.level.storage.DimensionDataStorage;
 import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.level.storage.LevelStorageSource;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ServerChunkCache extends ChunkSource {
     private static final List<ChunkStatus> CHUNK_STATUSES = ChunkStatus.getStatusList();
@@ -58,10 +57,12 @@ public class ServerChunkCache extends ChunkSource {
     private long lastInhabitedUpdate;
     private boolean spawnEnemies = true;
     private boolean spawnFriendlies = true;
+    private static final int CACHE_SIZE = 4;
     private final long[] lastChunkPos = new long[4];
     private final ChunkStatus[] lastChunkStatus = new ChunkStatus[4];
     private final ChunkAccess[] lastChunk = new ChunkAccess[4];
     @Nullable
+    @VisibleForDebug
     private NaturalSpawner.SpawnState lastSpawnState;
 
     public ServerChunkCache(
@@ -196,7 +197,6 @@ public class ServerChunkCache extends ChunkSource {
         Arrays.fill(this.lastChunk, null);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> getChunkFuture(int param0, int param1, ChunkStatus param2, boolean param3) {
         boolean var0 = Thread.currentThread() == this.mainThread;
         CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> var1;
@@ -325,6 +325,7 @@ public class ServerChunkCache extends ChunkSource {
         this.chunkMap.close();
     }
 
+    @Override
     public void tick(BooleanSupplier param0) {
         this.level.getProfiler().push("purge");
         this.distanceManager.purgeStaleTickets();
@@ -410,6 +411,7 @@ public class ServerChunkCache extends ChunkSource {
         return this.generator;
     }
 
+    @Override
     public int getLoadedChunksCount() {
         return this.chunkMap.size();
     }
@@ -478,7 +480,6 @@ public class ServerChunkCache extends ChunkSource {
         this.spawnFriendlies = param1;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public String getChunkDebugData(ChunkPos param0) {
         return this.chunkMap.getChunkDebugData(param0);
     }
@@ -492,6 +493,7 @@ public class ServerChunkCache extends ChunkSource {
     }
 
     @Nullable
+    @VisibleForDebug
     public NaturalSpawner.SpawnState getLastSpawnState() {
         return this.lastSpawnState;
     }

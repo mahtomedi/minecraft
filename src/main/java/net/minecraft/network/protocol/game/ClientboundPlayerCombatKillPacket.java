@@ -4,8 +4,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.damagesource.CombatTracker;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundPlayerCombatKillPacket implements Packet<ClientGamePacketListener> {
     private final int playerId;
@@ -44,12 +42,14 @@ public class ClientboundPlayerCombatKillPacket implements Packet<ClientGamePacke
         return true;
     }
 
-    @OnlyIn(Dist.CLIENT)
+    public int getKillerId() {
+        return this.killerId;
+    }
+
     public int getPlayerId() {
         return this.playerId;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Component getMessage() {
         return this.message;
     }

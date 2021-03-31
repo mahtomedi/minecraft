@@ -9,6 +9,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class SpectatorPage {
+    public static final int NO_SELECTION = -1;
     private final List<SpectatorMenuItem> items;
     private final int selection;
 

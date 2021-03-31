@@ -38,6 +38,10 @@ public class AdvancementRewards {
         this.function = param3;
     }
 
+    public ResourceLocation[] getRecipes() {
+        return this.recipes;
+    }
+
     public void grant(ServerPlayer param0) {
         param0.giveExperiencePoints(this.experience);
         LootContext var0 = new LootContext.Builder(param0.getLevel())
@@ -178,12 +182,30 @@ public class AdvancementRewards {
             return this;
         }
 
+        public static AdvancementRewards.Builder loot(ResourceLocation param0) {
+            return new AdvancementRewards.Builder().addLootTable(param0);
+        }
+
+        public AdvancementRewards.Builder addLootTable(ResourceLocation param0) {
+            this.loot.add(param0);
+            return this;
+        }
+
         public static AdvancementRewards.Builder recipe(ResourceLocation param0) {
             return new AdvancementRewards.Builder().addRecipe(param0);
         }
 
         public AdvancementRewards.Builder addRecipe(ResourceLocation param0) {
             this.recipes.add(param0);
+            return this;
+        }
+
+        public static AdvancementRewards.Builder function(ResourceLocation param0) {
+            return new AdvancementRewards.Builder().runs(param0);
+        }
+
+        public AdvancementRewards.Builder runs(ResourceLocation param0) {
+            this.function = param0;
             return this;
         }
 

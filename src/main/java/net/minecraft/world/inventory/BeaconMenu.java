@@ -8,10 +8,15 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class BeaconMenu extends AbstractContainerMenu {
+    private static final int PAYMENT_SLOT = 0;
+    private static final int SLOT_COUNT = 1;
+    private static final int DATA_COUNT = 3;
+    private static final int INV_SLOT_START = 1;
+    private static final int INV_SLOT_END = 28;
+    private static final int USE_ROW_SLOT_START = 28;
+    private static final int USE_ROW_SLOT_END = 37;
     private final Container beacon = new SimpleContainer(1) {
         @Override
         public boolean canPlaceItem(int param0, ItemStack param1) {
@@ -122,19 +127,16 @@ public class BeaconMenu extends AbstractContainerMenu {
         return var0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getLevels() {
         return this.beaconData.get(0);
     }
 
     @Nullable
-    @OnlyIn(Dist.CLIENT)
     public MobEffect getPrimaryEffect() {
         return MobEffect.byId(this.beaconData.get(1));
     }
 
     @Nullable
-    @OnlyIn(Dist.CLIENT)
     public MobEffect getSecondaryEffect() {
         return MobEffect.byId(this.beaconData.get(2));
     }
@@ -148,7 +150,6 @@ public class BeaconMenu extends AbstractContainerMenu {
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean hasPayment() {
         return !this.beacon.getItem(0).isEmpty();
     }

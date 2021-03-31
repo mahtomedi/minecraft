@@ -14,6 +14,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class LanguageMetadataSectionSerializer implements MetadataSectionSerializer<LanguageMetadataSection> {
+    private static final int MAX_LANGUAGE_LENGTH = 16;
+
     public LanguageMetadataSection fromJson(JsonObject param0) {
         Set<LanguageInfo> var0 = Sets.newHashSet();
 

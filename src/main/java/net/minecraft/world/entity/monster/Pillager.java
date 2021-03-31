@@ -11,6 +11,7 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.Container;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.SimpleContainer;
@@ -35,6 +36,7 @@ import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.npc.AbstractVillager;
+import net.minecraft.world.entity.npc.InventoryCarrier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.raid.Raid;
@@ -51,11 +53,12 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class Pillager extends AbstractIllager implements CrossbowAttackMob {
+public class Pillager extends AbstractIllager implements CrossbowAttackMob, InventoryCarrier {
     private static final EntityDataAccessor<Boolean> IS_CHARGING_CROSSBOW = SynchedEntityData.defineId(Pillager.class, EntityDataSerializers.BOOLEAN);
+    private static final int INVENTORY_SIZE = 5;
+    private static final int SLOT_OFFSET = 300;
+    private static final float CROSSBOW_POWER = 1.6F;
     private final SimpleContainer inventory = new SimpleContainer(5);
 
     public Pillager(EntityType<? extends Pillager> param0, Level param1) {
@@ -96,7 +99,6 @@ public class Pillager extends AbstractIllager implements CrossbowAttackMob {
         return param0 == Items.CROSSBOW;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean isChargingCrossbow() {
         return this.entityData.get(IS_CHARGING_CROSSBOW);
     }
@@ -126,7 +128,6 @@ public class Pillager extends AbstractIllager implements CrossbowAttackMob {
         param0.put("Inventory", var0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public AbstractIllager.IllagerArmPose getArmPose() {
         if (this.isChargingCrossbow()) {
@@ -228,6 +229,11 @@ public class Pillager extends AbstractIllager implements CrossbowAttackMob {
     @Override
     public void shootCrossbowProjectile(LivingEntity param0, ItemStack param1, Projectile param2, float param3) {
         this.shootCrossbowProjectile(this, param0, param2, param3, 1.6F);
+    }
+
+    @Override
+    public Container getInventory() {
+        return this.inventory;
     }
 
     @Override

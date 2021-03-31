@@ -17,8 +17,6 @@ import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class MobEffect {
     private final Map<Attribute, AttributeModifier> attributeModifiers = Maps.newHashMap();
@@ -134,7 +132,6 @@ public class MobEffect {
         return new TranslatableComponent(this.getDescriptionId());
     }
 
-    @OnlyIn(Dist.CLIENT)
     public MobEffectCategory getCategory() {
         return this.category;
     }
@@ -149,7 +146,6 @@ public class MobEffect {
         return this;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Map<Attribute, AttributeModifier> getAttributeModifiers() {
         return this.attributeModifiers;
     }
@@ -184,7 +180,6 @@ public class MobEffect {
         return param1.getAmount() * (double)(param0 + 1);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean isBeneficial() {
         return this.category == MobEffectCategory.BENEFICIAL;
     }

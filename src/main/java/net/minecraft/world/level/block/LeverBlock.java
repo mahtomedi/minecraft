@@ -22,11 +22,12 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class LeverBlock extends FaceAttachedHorizontalDirectionalBlock {
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
+    protected static final int DEPTH = 6;
+    protected static final int WIDTH = 6;
+    protected static final int HEIGHT = 8;
     protected static final VoxelShape NORTH_AABB = Block.box(5.0, 4.0, 10.0, 11.0, 12.0, 16.0);
     protected static final VoxelShape SOUTH_AABB = Block.box(5.0, 4.0, 0.0, 11.0, 12.0, 6.0);
     protected static final VoxelShape WEST_AABB = Block.box(10.0, 4.0, 5.0, 16.0, 12.0, 11.0);
@@ -112,7 +113,6 @@ public class LeverBlock extends FaceAttachedHorizontalDirectionalBlock {
         param1.addParticle(new DustParticleOptions(DustParticleOptions.REDSTONE_PARTICLE_COLOR, param3), var2, var3, var4, 0.0, 0.0, 0.0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void animateTick(BlockState param0, Level param1, BlockPos param2, Random param3) {
         if (param0.getValue(POWERED) && param3.nextFloat() < 0.25F) {

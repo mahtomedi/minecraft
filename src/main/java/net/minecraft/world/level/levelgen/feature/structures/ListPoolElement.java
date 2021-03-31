@@ -5,7 +5,9 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
 import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Rotation;
@@ -32,20 +34,34 @@ public class ListPoolElement extends StructurePoolElement {
     }
 
     @Override
+    public Vec3i getSize(StructureManager param0, Rotation param1) {
+        int var0 = 0;
+        int var1 = 0;
+        int var2 = 0;
+
+        for(StructurePoolElement var3 : this.elements) {
+            Vec3i var4 = var3.getSize(param0, param1);
+            var0 = Math.max(var0, var4.getX());
+            var1 = Math.max(var1, var4.getY());
+            var2 = Math.max(var2, var4.getZ());
+        }
+
+        return new Vec3i(var0, var1, var2);
+    }
+
+    @Override
     public List<StructureTemplate.StructureBlockInfo> getShuffledJigsawBlocks(StructureManager param0, BlockPos param1, Rotation param2, Random param3) {
         return this.elements.get(0).getShuffledJigsawBlocks(param0, param1, param2, param3);
     }
 
     @Override
     public BoundingBox getBoundingBox(StructureManager param0, BlockPos param1, Rotation param2) {
-        BoundingBox var0 = BoundingBox.getUnknownBox();
-
-        for(StructurePoolElement var1 : this.elements) {
-            BoundingBox var2 = var1.getBoundingBox(param0, param1, param2);
-            var0.expand(var2);
-        }
-
-        return var0;
+        Stream<BoundingBox> var0 = this.elements
+            .stream()
+            .filter(param0x -> param0x != EmptyPoolElement.INSTANCE)
+            .map(param3 -> param3.getBoundingBox(param0, param1, param2));
+        return BoundingBox.encapsulatingBoxes(var0::iterator)
+            .orElseThrow(() -> new IllegalStateException("Unable to calculate boundingbox for ListPoolElement"));
     }
 
     @Override

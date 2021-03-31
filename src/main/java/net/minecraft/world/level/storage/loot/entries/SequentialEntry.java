@@ -1,5 +1,7 @@
 package net.minecraft.world.level.storage.loot.entries;
 
+import com.google.common.collect.Lists;
+import java.util.List;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
 public class SequentialEntry extends CompositeEntryBase {
@@ -31,6 +33,36 @@ public class SequentialEntry extends CompositeEntryBase {
 
                     return true;
                 };
+        }
+    }
+
+    public static SequentialEntry.Builder sequential(LootPoolEntryContainer.Builder<?>... param0) {
+        return new SequentialEntry.Builder(param0);
+    }
+
+    public static class Builder extends LootPoolEntryContainer.Builder<SequentialEntry.Builder> {
+        private final List<LootPoolEntryContainer> entries = Lists.newArrayList();
+
+        public Builder(LootPoolEntryContainer.Builder<?>... param0) {
+            for(LootPoolEntryContainer.Builder<?> var0 : param0) {
+                this.entries.add(var0.build());
+            }
+
+        }
+
+        protected SequentialEntry.Builder getThis() {
+            return this;
+        }
+
+        @Override
+        public SequentialEntry.Builder then(LootPoolEntryContainer.Builder<?> param0) {
+            this.entries.add(param0.build());
+            return this;
+        }
+
+        @Override
+        public LootPoolEntryContainer build() {
+            return new SequentialEntry(this.entries.toArray(new LootPoolEntryContainer[0]), this.getConditions());
         }
     }
 }

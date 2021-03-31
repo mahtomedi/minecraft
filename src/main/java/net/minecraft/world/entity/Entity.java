@@ -53,6 +53,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.Tag;
 import net.minecraft.util.Mth;
@@ -107,16 +108,27 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Team;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     protected static final Logger LOGGER = LogManager.getLogger();
+    public static final String ID_TAG = "id";
+    public static final String PASSENGERS_TAG = "Passengers";
     private static final AtomicInteger ENTITY_COUNTER = new AtomicInteger();
     private static final List<ItemStack> EMPTY_LIST = Collections.emptyList();
+    public static final int BOARDING_COOLDOWN = 60;
+    public static final int TOTAL_AIR_SUPPLY = 300;
+    public static final int MAX_ENTITY_TAG_COUNT = 1024;
+    public static final double DELTA_AFFECTED_BY_BLOCKS_BELOW = 0.5000001;
+    public static final float BREATHING_DISTANCE_BELOW_EYES = 0.11111111F;
+    public static final int BASE_TICKS_REQUIRED_TO_FREEZE = 140;
+    public static final int FREEZE_HURT_FREQUENCY = 40;
     private static final AABB INITIAL_AABB = new AABB(0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+    private static final double WATER_FLOW_SCALE = 0.014;
+    private static final double LAVA_FAST_FLOW_SCALE = 0.007;
+    private static final double LAVA_SLOW_FLOW_SCALE = 0.0023333333333333335;
+    public static final String UUID_TAG = "UUID";
     private static double viewScale = 1.0;
     private final EntityType<?> type;
     private int id = ENTITY_COUNTER.incrementAndGet();
@@ -144,6 +156,8 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     protected Vec3 stuckSpeedMultiplier = Vec3.ZERO;
     @Nullable
     private Entity.RemovalReason removalReason;
+    public static final float DEFAULT_BB_WIDTH = 0.6F;
+    public static final float DEFAULT_BB_HEIGHT = 1.8F;
     public float walkDistO;
     public float walkDist;
     public float moveDist;
@@ -167,6 +181,13 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     protected boolean firstTick = true;
     protected final SynchedEntityData entityData;
     protected static final EntityDataAccessor<Byte> DATA_SHARED_FLAGS_ID = SynchedEntityData.defineId(Entity.class, EntityDataSerializers.BYTE);
+    protected static final int FLAG_ONFIRE = 0;
+    private static final int FLAG_SHIFT_KEY_DOWN = 1;
+    private static final int FLAG_SPRINTING = 3;
+    private static final int FLAG_SWIMMING = 4;
+    private static final int FLAG_INVISIBLE = 5;
+    protected static final int FLAG_GLOWING = 6;
+    protected static final int FLAG_FALL_FLYING = 7;
     private static final EntityDataAccessor<Integer> DATA_AIR_SUPPLY_ID = SynchedEntityData.defineId(Entity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Optional<Component>> DATA_CUSTOM_NAME = SynchedEntityData.defineId(
         Entity.class, EntityDataSerializers.OPTIONAL_COMPONENT
@@ -220,14 +241,12 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         this.eyeHeight = this.getEyeHeight(Pose.STANDING, this.dimensions);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean isColliding(BlockPos param0, BlockState param1) {
         VoxelShape var0 = param1.getCollisionShape(this.level, param0, CollisionContext.of(this));
         VoxelShape var1 = var0.move((double)param0.getX(), (double)param0.getY(), (double)param0.getZ());
         return Shapes.joinIsNotEmpty(var1, Shapes.create(this.getBoundingBox()), BooleanOp.AND);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getTeamColor() {
         Team var0 = this.getTeam();
         return var0 != null && var0.getColor().getColor() != null ? var0.getColor().getColor() : 16777215;
@@ -256,7 +275,6 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         this.packetCoordinates = param0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Vec3 getPacketCoordinates() {
         return this.packetCoordinates;
     }
@@ -359,7 +377,6 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         this.setPos(this.position.x, this.position.y, this.position.z);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void turn(double param0, double param1) {
         double var0 = param1 * 0.15;
         double var1 = param0 * 0.15;
@@ -422,7 +439,10 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
                 this.setRemainingFireTicks(this.remainingFireTicks - 1);
             }
 
-            this.setTicksFrozen(0);
+            if (this.getTicksFrozen() > 0) {
+                this.setTicksFrozen(0);
+                this.level.levelEvent(null, 1009, this.blockPosition, 1);
+            }
         }
 
         if (this.isInLava()) {
@@ -1367,12 +1387,10 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         return new Vec3(var0, var1, var2);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Vec3 getLightProbePosition(float param0) {
         return this.getEyePosition(param0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public final Vec3 getPosition(float param0) {
         double var0 = Mth.lerp((double)param0, this.xo, this.getX());
         double var1 = Mth.lerp((double)param0, this.yo, this.getY());
@@ -1402,7 +1420,6 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean shouldRender(double param0, double param1, double param2) {
         double var0 = this.getX() - param0;
         double var1 = this.getY() - param1;
@@ -1411,7 +1428,6 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         return this.shouldRenderAtSqrDistance(var3);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean shouldRenderAtSqrDistance(double param0) {
         double var0 = this.getBoundingBox().getSize();
         if (Double.isNaN(var0)) {
@@ -1704,7 +1720,6 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void onPassengerTurned(Entity param0) {
     }
 
@@ -1720,7 +1735,6 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         return this.startRiding(param0, false);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean showVehicleHealth() {
         return this instanceof LivingEntity;
     }
@@ -1812,13 +1826,11 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         return this.passengers.isEmpty();
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void lerpTo(double param0, double param1, double param2, float param3, float param4, int param5, boolean param6) {
         this.setPos(param0, param1, param2);
         this.setRot(param3, param4);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void lerpHeadTo(float param0, int param1) {
         this.setYHeadRot(param0);
     }
@@ -1835,7 +1847,6 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         return new Vec2(this.xRot, this.yRot);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Vec3 getForward() {
         return Vec3.directionFromRotation(this.getRotationVector());
     }
@@ -1887,12 +1898,10 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         return 300;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void lerpMotion(double param0, double param1, double param2) {
         this.setDeltaMovement(param0, param1, param2);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void handleEntityEvent(byte param0) {
         switch(param0) {
             case 53:
@@ -1900,7 +1909,6 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void animateHurt() {
     }
 
@@ -1980,7 +1988,6 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         return this.getPose() == Pose.SWIMMING;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean isVisuallyCrawling() {
         return this.isVisuallySwimming() && !this.isInWater();
     }
@@ -2005,7 +2012,6 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         return this.getSharedFlag(5);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean isInvisibleTo(Player param0) {
         if (param0.isSpectator()) {
             return false;
@@ -2081,7 +2087,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     }
 
     public int getTicksRequiredToFreeze() {
-        return 300;
+        return 140;
     }
 
     public void thunderHit(ServerLevel param0, LightningBolt param1) {
@@ -2373,7 +2379,6 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         param0.setDetail("Entity's Vehicle", () -> this.getVehicle().toString());
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean displayFireAnimation() {
         return this.isOnFire() && !this.isSpectator();
     }
@@ -2400,12 +2405,10 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         return true;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static double getViewScale() {
         return viewScale;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static void setViewScale(double param0) {
         viewScale = param0;
     }
@@ -2464,7 +2467,6 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean shouldShowName() {
         return this.isCustomNameVisible();
     }
@@ -2516,7 +2518,6 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         return this.bb;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public AABB getBoundingBoxForCulling() {
         return this.getBoundingBox();
     }
@@ -2537,7 +2538,6 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         return param1.height * 0.85F;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getEyeHeight(Pose param0) {
         return this.getEyeHeight(param0, this.getDimensions(param0));
     }
@@ -2546,7 +2546,6 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         return this.eyeHeight;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Vec3 getLeashOffset() {
         return new Vec3(0.0, (double)this.getEyeHeight(), (double)(this.getBbWidth() * 0.4F));
     }
@@ -2652,6 +2651,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         return this.passengers.stream().flatMap(Entity::getSelfAndPassengers);
     }
 
+    @Override
     public Stream<Entity> getSelfAndPassengers() {
         return Stream.concat(Stream.of(this), this.getIndirectPassengersStream());
     }
@@ -2683,7 +2683,6 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         return this.getRootVehicle() == param0.getRootVehicle();
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean hasIndirectPassenger(Entity param0) {
         return this.getIndirectPassengersStream().anyMatch(param1 -> param1 == param0);
     }
@@ -2977,12 +2976,10 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     public void checkDespawn() {
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Vec3 getRopeHoldPosition(float param0) {
         return this.getPosition(param0).add(0.0, (double)this.eyeHeight * 0.7, 0.0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void recreateFromPacket(ClientboundAddEntityPacket param0) {
         int var0 = param0.getId();
         double var1 = param0.getX();
@@ -2997,7 +2994,6 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     }
 
     @Nullable
-    @OnlyIn(Dist.CLIENT)
     public ItemStack getPickResult() {
         return null;
     }
@@ -3007,11 +3003,16 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     }
 
     public boolean canFreeze() {
-        return false;
+        return !EntityTypeTags.FREEZE_IMMUNE_ENTITY_TYPES.contains(this.getType());
     }
 
     public final boolean isRemoved() {
         return this.removalReason != null;
+    }
+
+    @Nullable
+    public Entity.RemovalReason getRemovalReason() {
+        return this.removalReason;
     }
 
     @Override

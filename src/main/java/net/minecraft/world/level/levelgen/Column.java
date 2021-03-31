@@ -9,6 +9,10 @@ import net.minecraft.world.level.LevelSimulatedReader;
 import net.minecraft.world.level.block.state.BlockState;
 
 public abstract class Column {
+    public static Column.Range around(int param0, int param1) {
+        return new Column.Range(param0 - 1, param1 + 1);
+    }
+
     public static Column.Range inside(int param0, int param1) {
         return new Column.Range(param0, param1);
     }
@@ -17,8 +21,16 @@ public abstract class Column {
         return new Column.Ray(param0, false);
     }
 
+    public static Column fromHighest(int param0) {
+        return new Column.Ray(param0 + 1, false);
+    }
+
     public static Column above(int param0) {
         return new Column.Ray(param0, true);
+    }
+
+    public static Column fromLowest(int param0) {
+        return new Column.Ray(param0 - 1, true);
     }
 
     public static Column line() {
@@ -43,6 +55,10 @@ public abstract class Column {
 
     public Column withFloor(OptionalInt param0) {
         return create(param0, this.getCeiling());
+    }
+
+    public Column withCeiling(OptionalInt param0) {
+        return create(this.getFloor(), param0);
     }
 
     public static Optional<Column> scan(LevelSimulatedReader param0, BlockPos param1, int param2, Predicate<BlockState> param3, Predicate<BlockState> param4) {

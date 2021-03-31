@@ -17,8 +17,6 @@ import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -26,6 +24,8 @@ import org.apache.logging.log4j.Logger;
 public class SynchedEntityData {
     private static final Logger LOGGER = LogManager.getLogger();
     private static final Object2IntMap<Class<? extends Entity>> ENTITY_ID_POOL = new Object2IntOpenHashMap<>();
+    private static final int EOF_MARKER = 255;
+    private static final int MAX_ID_VALUE = 254;
     private final Entity entity;
     private final Int2ObjectMap<SynchedEntityData.DataItem<?>> itemsById = new Int2ObjectOpenHashMap<>();
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
@@ -220,7 +220,6 @@ public class SynchedEntityData {
         return new SynchedEntityData.DataItem<>(param2.createAccessor(param1), param2.read(param0));
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void assignValues(List<SynchedEntityData.DataItem<?>> param0) {
         this.lock.writeLock().lock();
 
@@ -236,7 +235,6 @@ public class SynchedEntityData {
         this.isDirty = true;
     }
 
-    @OnlyIn(Dist.CLIENT)
     private <T> void assignValue(SynchedEntityData.DataItem<T> param0, SynchedEntityData.DataItem<?> param1) {
         if (!Objects.equals(param1.accessor.getSerializer(), param0.accessor.getSerializer())) {
             throw new IllegalStateException(

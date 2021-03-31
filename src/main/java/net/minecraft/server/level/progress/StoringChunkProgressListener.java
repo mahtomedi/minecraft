@@ -4,10 +4,7 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import javax.annotation.Nullable;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.ChunkStatus;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
 public class StoringChunkProgressListener implements ChunkProgressListener {
     private final LoggerChunkProgressListener delegate;
     private final Long2ObjectOpenHashMap<ChunkStatus> statuses;

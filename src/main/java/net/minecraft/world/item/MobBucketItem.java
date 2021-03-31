@@ -21,8 +21,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class MobBucketItem extends BucketItem {
     private final EntityType<?> type;
@@ -51,12 +49,13 @@ public class MobBucketItem extends BucketItem {
     private void spawn(ServerLevel param0, ItemStack param1, BlockPos param2) {
         Entity var0 = this.type.spawn(param0, param1, null, param2, MobSpawnType.BUCKET, true, false);
         if (var0 instanceof Bucketable) {
-            ((Bucketable)var0).setFromBucket(true);
+            Bucketable var1 = (Bucketable)var0;
+            var1.loadFromBucketTag(param1.getOrCreateTag());
+            var1.setFromBucket(true);
         }
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void appendHoverText(ItemStack param0, @Nullable Level param1, List<Component> param2, TooltipFlag param3) {
         if (this.type == EntityType.TROPICAL_FISH) {

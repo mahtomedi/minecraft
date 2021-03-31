@@ -41,6 +41,29 @@ public class TimeCheck implements LootItemCondition {
         return this.value.test(param0, (int)var1);
     }
 
+    public static TimeCheck.Builder time(IntRange param0) {
+        return new TimeCheck.Builder(param0);
+    }
+
+    public static class Builder implements LootItemCondition.Builder {
+        @Nullable
+        private Long period;
+        private final IntRange value;
+
+        public Builder(IntRange param0) {
+            this.value = param0;
+        }
+
+        public TimeCheck.Builder setPeriod(long param0) {
+            this.period = param0;
+            return this;
+        }
+
+        public TimeCheck build() {
+            return new TimeCheck(this.period, this.value);
+        }
+    }
+
     public static class Serializer implements net.minecraft.world.level.storage.loot.Serializer<TimeCheck> {
         public void serialize(JsonObject param0, TimeCheck param1, JsonSerializationContext param2) {
             param0.addProperty("period", param1.period);

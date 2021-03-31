@@ -12,8 +12,6 @@ import net.minecraft.advancements.AdvancementProgress;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundUpdateAdvancementsPacket implements Packet<ClientGamePacketListener> {
     private final boolean reset;
@@ -55,22 +53,18 @@ public class ClientboundUpdateAdvancementsPacket implements Packet<ClientGamePac
         param0.handleUpdateAdvancementsPacket(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Map<ResourceLocation, Advancement.Builder> getAdded() {
         return this.added;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Set<ResourceLocation> getRemoved() {
         return this.removed;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Map<ResourceLocation, AdvancementProgress> getProgress() {
         return this.progress;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean shouldReset() {
         return this.reset;
     }

@@ -30,6 +30,6 @@ public class ZombieVillagerRenderer extends HumanoidMobRenderer<ZombieVillager, 
     }
 
     protected boolean isShaking(ZombieVillager param0) {
-        return param0.isConverting();
+        return super.isShaking(param0) || param0.isConverting();
     }
 }

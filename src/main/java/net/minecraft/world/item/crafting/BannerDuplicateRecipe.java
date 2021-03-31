@@ -9,8 +9,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BannerBlockEntity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class BannerDuplicateRecipe extends CustomRecipe {
     public BannerDuplicateRecipe(ResourceLocation param0) {
@@ -97,7 +95,6 @@ public class BannerDuplicateRecipe extends CustomRecipe {
         return RecipeSerializer.BANNER_DUPLICATE;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public boolean canCraftInDimensions(int param0, int param1) {
         return param0 * param1 >= 2;

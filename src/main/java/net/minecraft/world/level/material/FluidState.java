@@ -17,11 +17,11 @@ import net.minecraft.world.level.block.state.StateHolder;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public final class FluidState extends StateHolder<Fluid, FluidState> {
     public static final Codec<FluidState> CODEC = codec(Registry.FLUID, Fluid::defaultFluidState).stable();
+    public static final int AMOUNT_MAX = 9;
+    public static final int AMOUNT_FULL = 8;
 
     public FluidState(Fluid param0, ImmutableMap<Property<?>, Comparable<?>> param1, MapCodec<FluidState> param2) {
         super(param0, param1, param2);
@@ -55,7 +55,6 @@ public final class FluidState extends StateHolder<Fluid, FluidState> {
         return this.getType().getAmount(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean shouldRenderBackwardUpFace(BlockGetter param0, BlockPos param1) {
         for(int var0 = -1; var0 <= 1; ++var0) {
             for(int var1 = -1; var1 <= 1; ++var1) {
@@ -74,7 +73,6 @@ public final class FluidState extends StateHolder<Fluid, FluidState> {
         this.getType().tick(param0, param1, this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void animateTick(Level param0, BlockPos param1, Random param2) {
         this.getType().animateTick(param0, param1, this, param2);
     }
@@ -96,7 +94,6 @@ public final class FluidState extends StateHolder<Fluid, FluidState> {
     }
 
     @Nullable
-    @OnlyIn(Dist.CLIENT)
     public ParticleOptions getDripParticle() {
         return this.getType().getDripParticle();
     }

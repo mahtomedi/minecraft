@@ -7,6 +7,17 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
 
 public class Aquifer {
+    private static final int X_RANGE = 10;
+    private static final int Y_RANGE = 9;
+    private static final int Z_RANGE = 10;
+    private static final int X_SEPARATION = 6;
+    private static final int Y_SEPARATION = 3;
+    private static final int Z_SEPARATION = 6;
+    private static final int X_SPACING = 16;
+    private static final int Y_SPACING = 12;
+    private static final int Z_SPACING = 16;
+    private static final int ALWAYS_LAVA_BELOW_Y_INDEX = 9;
+    public static final int ALWAYS_USE_SEA_LEVEL_WHEN_ABOVE = 30;
     private final NormalNoise barrierNoise;
     private final NormalNoise waterLevelNoise;
     private final NoiseGeneratorSettings noiseGeneratorSettings;
@@ -112,10 +123,10 @@ public class Aquifer {
         double var29 = this.similarity(var4, var5);
         this.lastWaterLevel = var24;
         this.shouldScheduleWaterUpdate = var27 > 0.0;
-        if (this.lastWaterLevel >= param1 && param1 - this.noiseGeneratorSettings.noiseSettings().minY() <= 9) {
+        if (this.lastWaterLevel >= param1 && isLavaLevel(param1 - this.noiseGeneratorSettings.noiseSettings().minY() - 1)) {
             this.lastBarrierDensity = 1.0;
         } else if (var27 > -1.0) {
-            double var30 = 1.0 + (this.barrierNoise.getValue((double)param0, (double)param1, (double)param2) + 0.1) / 4.0;
+            double var30 = 1.0 + (this.barrierNoise.getValue((double)param0, (double)param1, (double)param2) + 0.05) / 4.0;
             double var31 = this.calculatePressure(param1, var30, var24, var25);
             double var32 = this.calculatePressure(param1, var30, var24, var26);
             double var33 = this.calculatePressure(param1, var30, var25, var26);
@@ -130,13 +141,20 @@ public class Aquifer {
 
     }
 
+    public static boolean isLavaLevel(int param0) {
+        return param0 < 9;
+    }
+
     private double similarity(int param0, int param1) {
         double var0 = 25.0;
         return 1.0 - (double)Math.abs(param1 - param0) / 25.0;
     }
 
     private double calculatePressure(int param0, double param1, int param2, int param3) {
-        return 0.5 * (double)Math.abs(param2 - param3) * param1 - Math.abs(0.5 * (double)(param2 + param3) - (double)param0 - 0.5);
+        int var0 = Math.abs(param2 - param3);
+        double var1 = 0.5 * (double)(param2 + param3);
+        double var2 = Math.abs(var1 - (double)param0 - 0.5);
+        return 0.5 * (double)var0 * param1 - var2;
     }
 
     private int gridX(int param0) {

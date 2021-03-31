@@ -4,15 +4,12 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.Recipe;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ServerboundPlaceRecipePacket implements Packet<ServerGamePacketListener> {
     private final int containerId;
     private final ResourceLocation recipe;
     private final boolean shiftDown;
 
-    @OnlyIn(Dist.CLIENT)
     public ServerboundPlaceRecipePacket(int param0, Recipe<?> param1, boolean param2) {
         this.containerId = param0;
         this.recipe = param1.getId();

@@ -427,6 +427,14 @@ public final class Window implements AutoCloseable {
         return this.framebufferHeight;
     }
 
+    public void setWidth(int param0) {
+        this.framebufferWidth = param0;
+    }
+
+    public void setHeight(int param0) {
+        this.framebufferHeight = param0;
+    }
+
     public int getScreenWidth() {
         return this.width;
     }

@@ -85,8 +85,6 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Objective;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Team;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -96,6 +94,7 @@ public abstract class PlayerList {
     public static final File OPLIST_FILE = new File("ops.json");
     public static final File WHITELIST_FILE = new File("whitelist.json");
     private static final Logger LOGGER = LogManager.getLogger();
+    private static final int SEND_PLAYER_INFO_INTERVAL = 600;
     private static final SimpleDateFormat BAN_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd 'at' HH:mm:ss z");
     private final MinecraftServer server;
     private final List<ServerPlayer> players = Lists.newArrayList();
@@ -112,6 +111,7 @@ public abstract class PlayerList {
     protected final int maxPlayers;
     private int viewDistance;
     private boolean allowCheatsForAllPlayers;
+    private static final boolean ALLOW_LOGOUTIVATOR = false;
     private int sendAllPlayerInfoIn;
 
     public PlayerList(MinecraftServer param0, RegistryAccess.RegistryHolder param1, PlayerDataStorage param2, int param3) {
@@ -743,7 +743,6 @@ public abstract class PlayerList {
         return null;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void setAllowCheatsForAllPlayers(boolean param0) {
         this.allowCheatsForAllPlayers = param0;
     }

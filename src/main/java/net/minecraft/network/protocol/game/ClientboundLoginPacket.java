@@ -11,10 +11,9 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.dimension.DimensionType;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundLoginPacket implements Packet<ClientGamePacketListener> {
+    private static final int HARDCORE_FLAG = 8;
     private final int playerId;
     private final long seed;
     private final boolean hardcore;
@@ -109,73 +108,63 @@ public class ClientboundLoginPacket implements Packet<ClientGamePacketListener> 
         param0.handleLogin(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getPlayerId() {
         return this.playerId;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public long getSeed() {
         return this.seed;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean isHardcore() {
         return this.hardcore;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public GameType getGameType() {
         return this.gameType;
     }
 
     @Nullable
-    @OnlyIn(Dist.CLIENT)
     public GameType getPreviousGameType() {
         return this.previousGameType;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Set<ResourceKey<Level>> levels() {
         return this.levels;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public RegistryAccess registryAccess() {
         return this.registryHolder;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public DimensionType getDimensionType() {
         return this.dimensionType;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public ResourceKey<Level> getDimension() {
         return this.dimension;
     }
 
-    @OnlyIn(Dist.CLIENT)
+    public int getMaxPlayers() {
+        return this.maxPlayers;
+    }
+
     public int getChunkRadius() {
         return this.chunkRadius;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean isReducedDebugInfo() {
         return this.reducedDebugInfo;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean shouldShowDeathScreen() {
         return this.showDeathScreen;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean isDebug() {
         return this.isDebug;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean isFlat() {
         return this.isFlat;
     }

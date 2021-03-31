@@ -47,6 +47,7 @@ public class LeadItem extends Item {
             if (var7.getLeashHolder() == param0) {
                 if (var0 == null) {
                     var0 = LeashFenceKnotEntity.getOrCreateKnot(param1, param2);
+                    var0.playPlacementSound();
                 }
 
                 var7.setLeashedTo(var0, true);

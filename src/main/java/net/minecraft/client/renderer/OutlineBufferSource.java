@@ -71,6 +71,10 @@ public class OutlineBufferSource implements MultiBufferSource {
         }
 
         @Override
+        public void unsetDefaultColor() {
+        }
+
+        @Override
         public VertexConsumer vertex(double param0, double param1, double param2) {
             this.x = param0;
             this.y = param1;

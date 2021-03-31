@@ -22,10 +22,10 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class LeashFenceKnotEntity extends HangingEntity {
+    public static final double OFFSET_Y = 0.375;
+
     public LeashFenceKnotEntity(EntityType<? extends LeashFenceKnotEntity> param0, Level param1) {
         super(param0, param1);
     }
@@ -62,7 +62,6 @@ public class LeashFenceKnotEntity extends HangingEntity {
         return 0.0625F;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public boolean shouldRenderAtSqrDistance(double param0) {
         return param0 < 1024.0;
@@ -136,7 +135,6 @@ public class LeashFenceKnotEntity extends HangingEntity {
 
         LeashFenceKnotEntity var5 = new LeashFenceKnotEntity(param0, param1);
         param0.addFreshEntity(var5);
-        var5.playPlacementSound();
         return var5;
     }
 
@@ -150,13 +148,11 @@ public class LeashFenceKnotEntity extends HangingEntity {
         return new ClientboundAddEntityPacket(this, this.getType(), 0, this.getPos());
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public Vec3 getRopeHoldPosition(float param0) {
         return this.getPosition(param0).add(0.0, 0.2, 0.0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public ItemStack getPickResult() {
         return new ItemStack(Items.LEAD);

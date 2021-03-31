@@ -2,18 +2,18 @@ package net.minecraft.world.level.levelgen.feature.configurations;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.util.FloatProvider;
-import net.minecraft.util.UniformInt;
+import net.minecraft.util.valueproviders.FloatProvider;
+import net.minecraft.util.valueproviders.IntProvider;
 
 public class DripstoneClusterConfiguration implements FeatureConfiguration {
     public static final Codec<DripstoneClusterConfiguration> CODEC = RecordCodecBuilder.create(
         param0 -> param0.group(
                     Codec.intRange(1, 512).fieldOf("floor_to_ceiling_search_range").forGetter(param0x -> param0x.floorToCeilingSearchRange),
-                    UniformInt.codec(1, 64, 64).fieldOf("height").forGetter(param0x -> param0x.height),
-                    UniformInt.codec(1, 64, 64).fieldOf("radius").forGetter(param0x -> param0x.radius),
+                    IntProvider.codec(1, 128).fieldOf("height").forGetter(param0x -> param0x.height),
+                    IntProvider.codec(1, 128).fieldOf("radius").forGetter(param0x -> param0x.radius),
                     Codec.intRange(0, 64).fieldOf("max_stalagmite_stalactite_height_diff").forGetter(param0x -> param0x.maxStalagmiteStalactiteHeightDiff),
                     Codec.intRange(1, 64).fieldOf("height_deviation").forGetter(param0x -> param0x.heightDeviation),
-                    UniformInt.codec(0, 64, 64).fieldOf("dripstone_block_layer_thickness").forGetter(param0x -> param0x.dripstoneBlockLayerThickness),
+                    IntProvider.codec(0, 128).fieldOf("dripstone_block_layer_thickness").forGetter(param0x -> param0x.dripstoneBlockLayerThickness),
                     FloatProvider.codec(0.0F, 2.0F).fieldOf("density").forGetter(param0x -> param0x.density),
                     FloatProvider.codec(0.0F, 2.0F).fieldOf("wetness").forGetter(param0x -> param0x.wetness),
                     Codec.floatRange(0.0F, 1.0F)
@@ -29,11 +29,11 @@ public class DripstoneClusterConfiguration implements FeatureConfiguration {
                 .apply(param0, DripstoneClusterConfiguration::new)
     );
     public final int floorToCeilingSearchRange;
-    public final UniformInt height;
-    public final UniformInt radius;
+    public final IntProvider height;
+    public final IntProvider radius;
     public final int maxStalagmiteStalactiteHeightDiff;
     public final int heightDeviation;
-    public final UniformInt dripstoneBlockLayerThickness;
+    public final IntProvider dripstoneBlockLayerThickness;
     public final FloatProvider density;
     public final FloatProvider wetness;
     public final float chanceOfDripstoneColumnAtMaxDistanceFromCenter;
@@ -42,11 +42,11 @@ public class DripstoneClusterConfiguration implements FeatureConfiguration {
 
     public DripstoneClusterConfiguration(
         int param0,
-        UniformInt param1,
-        UniformInt param2,
+        IntProvider param1,
+        IntProvider param2,
         int param3,
         int param4,
-        UniformInt param5,
+        IntProvider param5,
         FloatProvider param6,
         FloatProvider param7,
         float param8,

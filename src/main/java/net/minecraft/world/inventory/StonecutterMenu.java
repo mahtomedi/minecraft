@@ -14,10 +14,14 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.StonecutterRecipe;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class StonecutterMenu extends AbstractContainerMenu {
+    public static final int INPUT_SLOT = 0;
+    public static final int RESULT_SLOT = 1;
+    private static final int INV_SLOT_START = 2;
+    private static final int INV_SLOT_END = 29;
+    private static final int USE_ROW_SLOT_START = 29;
+    private static final int USE_ROW_SLOT_END = 38;
     private final ContainerLevelAccess access;
     private final DataSlot selectedRecipeIndex = DataSlot.standalone();
     private final Level level;
@@ -87,22 +91,18 @@ public class StonecutterMenu extends AbstractContainerMenu {
         this.addDataSlot(this.selectedRecipeIndex);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getSelectedRecipeIndex() {
         return this.selectedRecipeIndex.get();
     }
 
-    @OnlyIn(Dist.CLIENT)
     public List<StonecutterRecipe> getRecipes() {
         return this.recipes;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getNumRecipes() {
         return this.recipes.size();
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean hasInputItem() {
         return this.inputSlot.hasItem() && !this.recipes.isEmpty();
     }
@@ -163,7 +163,6 @@ public class StonecutterMenu extends AbstractContainerMenu {
         return MenuType.STONECUTTER;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void registerUpdateListener(Runnable param0) {
         this.slotUpdateListener = param0;
     }

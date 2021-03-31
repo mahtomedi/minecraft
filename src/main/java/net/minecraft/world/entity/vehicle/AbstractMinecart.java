@@ -45,8 +45,6 @@ import net.minecraft.world.level.block.state.properties.RailShape;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class AbstractMinecart extends Entity {
     private static final EntityDataAccessor<Integer> DATA_ID_HURT = SynchedEntityData.defineId(AbstractMinecart.class, EntityDataSerializers.INT);
@@ -58,6 +56,7 @@ public abstract class AbstractMinecart extends Entity {
     private static final ImmutableMap<Pose, ImmutableList<Integer>> POSE_DISMOUNT_HEIGHTS = ImmutableMap.of(
         Pose.STANDING, ImmutableList.of(0, 1, -1), Pose.CROUCHING, ImmutableList.of(0, 1, -1), Pose.SWIMMING, ImmutableList.of(0, 1)
     );
+    protected static final float WATER_SLOWDOWN_FACTOR = 0.95F;
     private boolean flipped;
     private static final Map<RailShape, Pair<Vec3i, Vec3i>> EXITS = Util.make(Maps.newEnumMap(RailShape.class), param0 -> {
         Vec3i var0 = Direction.WEST.getNormal();
@@ -85,11 +84,8 @@ public abstract class AbstractMinecart extends Entity {
     private double lz;
     private double lyr;
     private double lxr;
-    @OnlyIn(Dist.CLIENT)
     private double lxd;
-    @OnlyIn(Dist.CLIENT)
     private double lyd;
-    @OnlyIn(Dist.CLIENT)
     private double lzd;
 
     protected AbstractMinecart(EntityType<?> param0, Level param1) {
@@ -254,7 +250,6 @@ public abstract class AbstractMinecart extends Entity {
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void animateHurt() {
         this.setHurtDir(-this.getHurtDir());
@@ -578,7 +573,6 @@ public abstract class AbstractMinecart extends Entity {
     }
 
     @Nullable
-    @OnlyIn(Dist.CLIENT)
     public Vec3 getPosOffs(double param0, double param1, double param2, double param3) {
         int var0 = Mth.floor(param0);
         int var1 = Mth.floor(param1);
@@ -667,7 +661,6 @@ public abstract class AbstractMinecart extends Entity {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public AABB getBoundingBoxForCulling() {
         AABB var0 = this.getBoundingBox();
@@ -760,7 +753,6 @@ public abstract class AbstractMinecart extends Entity {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void lerpTo(double param0, double param1, double param2, float param3, float param4, int param5, boolean param6) {
         this.lx = param0;
@@ -772,7 +764,6 @@ public abstract class AbstractMinecart extends Entity {
         this.setDeltaMovement(this.lxd, this.lyd, this.lzd);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void lerpMotion(double param0, double param1, double param2) {
         this.lxd = param0;
@@ -846,7 +837,6 @@ public abstract class AbstractMinecart extends Entity {
         return new ClientboundAddEntityPacket(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public ItemStack getPickResult() {
         Item var0;

@@ -13,6 +13,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class EvokerFangsModel<T extends Entity> extends HierarchicalModel<T> {
+    private static final String BASE = "base";
+    private static final String UPPER_JAW = "upper_jaw";
+    private static final String LOWER_JAW = "lower_jaw";
     private final ModelPart root;
     private final ModelPart base;
     private final ModelPart upperJaw;

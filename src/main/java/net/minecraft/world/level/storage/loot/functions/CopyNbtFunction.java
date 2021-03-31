@@ -22,6 +22,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
+import net.minecraft.world.level.storage.loot.providers.nbt.ContextNbtProvider;
 import net.minecraft.world.level.storage.loot.providers.nbt.NbtProvider;
 
 public class CopyNbtFunction extends LootItemConditionalFunction {
@@ -64,6 +65,10 @@ public class CopyNbtFunction extends LootItemConditionalFunction {
 
     public static CopyNbtFunction.Builder copyData(NbtProvider param0) {
         return new CopyNbtFunction.Builder(param0);
+    }
+
+    public static CopyNbtFunction.Builder copyData(LootContext.EntityTarget param0) {
+        return new CopyNbtFunction.Builder(ContextNbtProvider.forContextEntity(param0));
     }
 
     public static class Builder extends LootItemConditionalFunction.Builder<CopyNbtFunction.Builder> {

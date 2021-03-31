@@ -10,6 +10,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSyntaxException;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -61,6 +62,32 @@ public class SetAttributesFunction extends LootItemConditionalFunction {
         }
 
         return param0;
+    }
+
+    public static SetAttributesFunction.ModifierBuilder modifier(String param0, Attribute param1, AttributeModifier.Operation param2, NumberProvider param3) {
+        return new SetAttributesFunction.ModifierBuilder(param0, param1, param2, param3);
+    }
+
+    public static SetAttributesFunction.Builder setAttributes() {
+        return new SetAttributesFunction.Builder();
+    }
+
+    public static class Builder extends LootItemConditionalFunction.Builder<SetAttributesFunction.Builder> {
+        private final List<SetAttributesFunction.Modifier> modifiers = Lists.newArrayList();
+
+        protected SetAttributesFunction.Builder getThis() {
+            return this;
+        }
+
+        public SetAttributesFunction.Builder withModifier(SetAttributesFunction.ModifierBuilder param0) {
+            this.modifiers.add(param0.build());
+            return this;
+        }
+
+        @Override
+        public LootItemFunction build() {
+            return new SetAttributesFunction(this.getConditions(), this.modifiers);
+        }
     }
 
     static class Modifier {
@@ -177,6 +204,37 @@ public class SetAttributesFunction extends LootItemConditionalFunction {
                 default:
                     throw new JsonSyntaxException("Unknown attribute modifier operation " + param0);
             }
+        }
+    }
+
+    public static class ModifierBuilder {
+        private final String name;
+        private final Attribute attribute;
+        private final AttributeModifier.Operation operation;
+        private final NumberProvider amount;
+        @Nullable
+        private UUID id;
+        private final Set<EquipmentSlot> slots = EnumSet.noneOf(EquipmentSlot.class);
+
+        public ModifierBuilder(String param0, Attribute param1, AttributeModifier.Operation param2, NumberProvider param3) {
+            this.name = param0;
+            this.attribute = param1;
+            this.operation = param2;
+            this.amount = param3;
+        }
+
+        public SetAttributesFunction.ModifierBuilder forSlot(EquipmentSlot param0) {
+            this.slots.add(param0);
+            return this;
+        }
+
+        public SetAttributesFunction.ModifierBuilder withUuid(UUID param0) {
+            this.id = param0;
+            return this;
+        }
+
+        public SetAttributesFunction.Modifier build() {
+            return new SetAttributesFunction.Modifier(this.name, this.attribute, this.operation, this.amount, this.slots.toArray(new EquipmentSlot[0]), this.id);
         }
     }
 

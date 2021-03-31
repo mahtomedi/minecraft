@@ -41,12 +41,14 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class AbstractArrow extends Projectile {
+    private static final double ARROW_BASE_DAMAGE = 2.0;
     private static final EntityDataAccessor<Byte> ID_FLAGS = SynchedEntityData.defineId(AbstractArrow.class, EntityDataSerializers.BYTE);
     private static final EntityDataAccessor<Byte> PIERCE_LEVEL = SynchedEntityData.defineId(AbstractArrow.class, EntityDataSerializers.BYTE);
+    private static final int FLAG_CRIT = 1;
+    private static final int FLAG_NOPHYSICS = 2;
+    private static final int FLAG_CROSSBOW = 4;
     @Nullable
     private BlockState lastState;
     protected boolean inGround;
@@ -82,7 +84,6 @@ public abstract class AbstractArrow extends Projectile {
         this.soundEvent = param0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public boolean shouldRenderAtSqrDistance(double param0) {
         double var0 = this.getBoundingBox().getSize() * 10.0;
@@ -106,14 +107,12 @@ public abstract class AbstractArrow extends Projectile {
         this.life = 0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void lerpTo(double param0, double param1, double param2, float param3, float param4, int param5, boolean param6) {
         this.setPos(param0, param1, param2);
         this.setRot(param3, param4);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void lerpMotion(double param0, double param1, double param2) {
         super.lerpMotion(param0, param1, param2);
@@ -536,6 +535,10 @@ public abstract class AbstractArrow extends Projectile {
 
     public void setKnockback(int param0) {
         this.knockback = param0;
+    }
+
+    public int getKnockback() {
+        return this.knockback;
     }
 
     @Override

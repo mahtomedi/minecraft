@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
@@ -15,7 +16,7 @@ public class GateBehavior<E extends LivingEntity> extends Behavior<E> {
     private final Set<MemoryModuleType<?>> exitErasedMemories;
     private final GateBehavior.OrderPolicy orderPolicy;
     private final GateBehavior.RunningPolicy runningPolicy;
-    private final WeightedList<Behavior<? super E>> behaviors = new WeightedList<>();
+    private final ShufflingList<Behavior<? super E>> behaviors = new ShufflingList<>();
 
     public GateBehavior(
         Map<MemoryModuleType<?>, MemoryStatus> param0,
@@ -47,7 +48,7 @@ public class GateBehavior<E extends LivingEntity> extends Behavior<E> {
     @Override
     protected void start(ServerLevel param0, E param1, long param2) {
         this.orderPolicy.apply(this.behaviors);
-        this.runningPolicy.apply(this.behaviors, param0, param1, param2);
+        this.runningPolicy.apply(this.behaviors.stream(), param0, param1, param2);
     }
 
     @Override
@@ -73,15 +74,15 @@ public class GateBehavior<E extends LivingEntity> extends Behavior<E> {
     public static enum OrderPolicy {
         ORDERED(param0 -> {
         }),
-        SHUFFLED(WeightedList::shuffle);
+        SHUFFLED(ShufflingList::shuffle);
 
-        private final Consumer<WeightedList<?>> consumer;
+        private final Consumer<ShufflingList<?>> consumer;
 
-        private OrderPolicy(Consumer<WeightedList<?>> param0) {
+        private OrderPolicy(Consumer<ShufflingList<?>> param0) {
             this.consumer = param0;
         }
 
-        public void apply(WeightedList<?> param0) {
+        public void apply(ShufflingList<?> param0) {
             this.consumer.accept(param0);
         }
     }
@@ -89,23 +90,22 @@ public class GateBehavior<E extends LivingEntity> extends Behavior<E> {
     public static enum RunningPolicy {
         RUN_ONE {
             @Override
-            public <E extends LivingEntity> void apply(WeightedList<Behavior<? super E>> param0, ServerLevel param1, E param2, long param3) {
-                param0.stream()
-                    .filter(param0x -> param0x.getStatus() == Behavior.Status.STOPPED)
+            public <E extends LivingEntity> void apply(Stream<Behavior<? super E>> param0, ServerLevel param1, E param2, long param3) {
+                param0.filter(param0x -> param0x.getStatus() == Behavior.Status.STOPPED)
                     .filter(param3x -> param3x.tryStart(param1, param2, param3))
                     .findFirst();
             }
         },
         TRY_ALL {
             @Override
-            public <E extends LivingEntity> void apply(WeightedList<Behavior<? super E>> param0, ServerLevel param1, E param2, long param3) {
-                param0.stream().filter(param0x -> param0x.getStatus() == Behavior.Status.STOPPED).forEach(param3x -> param3x.tryStart(param1, param2, param3));
+            public <E extends LivingEntity> void apply(Stream<Behavior<? super E>> param0, ServerLevel param1, E param2, long param3) {
+                param0.filter(param0x -> param0x.getStatus() == Behavior.Status.STOPPED).forEach(param3x -> param3x.tryStart(param1, param2, param3));
             }
         };
 
         private RunningPolicy() {
         }
 
-        public abstract <E extends LivingEntity> void apply(WeightedList<Behavior<? super E>> var1, ServerLevel var2, E var3, long var4);
+        public abstract <E extends LivingEntity> void apply(Stream<Behavior<? super E>> var1, ServerLevel var2, E var3, long var4);
     }
 }

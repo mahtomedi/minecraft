@@ -4,8 +4,6 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundRemoveEntitiesPacket implements Packet<ClientGamePacketListener> {
     private final IntList entityIds;
@@ -31,7 +29,6 @@ public class ClientboundRemoveEntitiesPacket implements Packet<ClientGamePacketL
         param0.handleRemoveEntity(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public IntList getEntityIds() {
         return this.entityIds;
     }

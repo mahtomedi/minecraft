@@ -17,8 +17,6 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class FurnaceBlock extends AbstractFurnaceBlock {
     protected FurnaceBlock(BlockBehaviour.Properties param0) {
@@ -46,7 +44,6 @@ public class FurnaceBlock extends AbstractFurnaceBlock {
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void animateTick(BlockState param0, Level param1, BlockPos param2, Random param3) {
         if (param0.getValue(LIT)) {

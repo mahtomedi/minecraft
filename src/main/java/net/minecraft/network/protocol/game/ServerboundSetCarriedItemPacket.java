@@ -2,13 +2,10 @@ package net.minecraft.network.protocol.game;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ServerboundSetCarriedItemPacket implements Packet<ServerGamePacketListener> {
     private final int slot;
 
-    @OnlyIn(Dist.CLIENT)
     public ServerboundSetCarriedItemPacket(int param0) {
         this.slot = param0;
     }

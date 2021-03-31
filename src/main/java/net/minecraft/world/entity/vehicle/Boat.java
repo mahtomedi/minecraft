@@ -47,8 +47,6 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class Boat extends Entity {
     private static final EntityDataAccessor<Integer> DATA_ID_HURT = SynchedEntityData.defineId(Boat.class, EntityDataSerializers.INT);
@@ -58,6 +56,12 @@ public class Boat extends Entity {
     private static final EntityDataAccessor<Boolean> DATA_ID_PADDLE_LEFT = SynchedEntityData.defineId(Boat.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> DATA_ID_PADDLE_RIGHT = SynchedEntityData.defineId(Boat.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> DATA_ID_BUBBLE_TIME = SynchedEntityData.defineId(Boat.class, EntityDataSerializers.INT);
+    public static final int PADDLE_LEFT = 0;
+    public static final int PADDLE_RIGHT = 1;
+    private static final int TIME_TO_EJECT = 60;
+    private static final double PADDLE_SPEED = (float) (Math.PI / 8);
+    public static final double PADDLE_SOUND_TIME = (float) (Math.PI / 4);
+    public static final int BUBBLE_TIME = 60;
     private final float[] paddlePositions = new float[2];
     private float invFriction;
     private float outOfControlTicks;
@@ -231,7 +235,6 @@ public class Boat extends Entity {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void animateHurt() {
         this.setHurtDir(-this.getHurtDir());
@@ -244,7 +247,6 @@ public class Boat extends Entity {
         return !this.isRemoved();
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void lerpTo(double param0, double param1, double param2, float param3, float param4, int param5, boolean param6) {
         this.lerpX = param0;
@@ -436,7 +438,6 @@ public class Boat extends Entity {
         this.entityData.set(DATA_ID_PADDLE_RIGHT, param1);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getRowingTime(int param0, float param1) {
         return this.getPaddleState(param0)
             ? (float)Mth.clampedLerp((double)this.paddlePositions[param0] - (float) (Math.PI / 8), (double)this.paddlePositions[param0], (double)param1)
@@ -742,7 +743,6 @@ public class Boat extends Entity {
         param0.setYHeadRot(param0.yRot);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void onPassengerTurned(Entity param0) {
         this.clampRotation(param0);
@@ -838,7 +838,6 @@ public class Boat extends Entity {
         return this.entityData.get(DATA_ID_BUBBLE_TIME);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getBubbleAngle(float param0) {
         return Mth.lerp(param0, this.bubbleAngleO, this.bubbleAngle);
     }
@@ -870,7 +869,6 @@ public class Boat extends Entity {
         return this.getFirstPassenger();
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void setInput(boolean param0, boolean param1, boolean param2, boolean param3) {
         this.inputLeft = param0;
         this.inputRight = param1;
@@ -888,7 +886,6 @@ public class Boat extends Entity {
         return this.status == Boat.Status.UNDER_WATER || this.status == Boat.Status.UNDER_FLOWING_WATER;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public ItemStack getPickResult() {
         return new ItemStack(this.getDropItem());

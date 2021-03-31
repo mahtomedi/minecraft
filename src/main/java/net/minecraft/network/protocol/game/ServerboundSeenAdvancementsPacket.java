@@ -5,26 +5,21 @@ import net.minecraft.advancements.Advancement;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ServerboundSeenAdvancementsPacket implements Packet<ServerGamePacketListener> {
     private final ServerboundSeenAdvancementsPacket.Action action;
     @Nullable
     private final ResourceLocation tab;
 
-    @OnlyIn(Dist.CLIENT)
     public ServerboundSeenAdvancementsPacket(ServerboundSeenAdvancementsPacket.Action param0, @Nullable ResourceLocation param1) {
         this.action = param0;
         this.tab = param1;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static ServerboundSeenAdvancementsPacket openedTab(Advancement param0) {
         return new ServerboundSeenAdvancementsPacket(ServerboundSeenAdvancementsPacket.Action.OPENED_TAB, param0.getId());
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static ServerboundSeenAdvancementsPacket closedScreen() {
         return new ServerboundSeenAdvancementsPacket(ServerboundSeenAdvancementsPacket.Action.CLOSED_SCREEN, null);
     }

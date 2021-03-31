@@ -42,8 +42,6 @@ import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.server.network.ServerLoginPacketListenerImpl;
 import net.minecraft.util.LazyLoadedValue;
 import net.minecraft.util.Mth;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -51,6 +49,7 @@ import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 
 public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
+    private static final float AVERAGE_PACKETS_SMOOTHING = 0.75F;
     private static final Logger LOGGER = LogManager.getLogger();
     public static final Marker ROOT_MARKER = MarkerManager.getMarker("NETWORK");
     public static final Marker PACKET_MARKER = MarkerManager.getMarker("NETWORK_PACKETS", ROOT_MARKER);
@@ -270,7 +269,14 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
         return this.channel instanceof LocalChannel || this.channel instanceof LocalServerChannel;
     }
 
-    @OnlyIn(Dist.CLIENT)
+    public PacketFlow getReceiving() {
+        return this.receiving;
+    }
+
+    public PacketFlow getSending() {
+        return this.receiving.getOpposite();
+    }
+
     public static Connection connectToServer(InetAddress param0, int param1, boolean param2) {
         final Connection var0 = new Connection(PacketFlow.CLIENTBOUND);
         Class<? extends SocketChannel> var1;
@@ -310,7 +316,6 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
         return var0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static Connection connectToLocalServer(SocketAddress param0) {
         final Connection var0 = new Connection(PacketFlow.CLIENTBOUND);
         new Bootstrap().group(LOCAL_WORKER_GROUP.get()).handler(new ChannelInitializer<Channel>() {
@@ -328,7 +333,6 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
         this.channel.pipeline().addBefore("prepender", "encrypt", new CipherEncoder(param1));
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean isEncrypted() {
         return this.encrypted;
     }
@@ -399,7 +403,6 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
         return this.averageReceivedPackets;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getAverageSentPackets() {
         return this.averageSentPackets;
     }

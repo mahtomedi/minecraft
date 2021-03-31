@@ -13,7 +13,15 @@ public class Tuple<A, B> {
         return this.a;
     }
 
+    public void setA(A param0) {
+        this.a = param0;
+    }
+
     public B getB() {
         return this.b;
+    }
+
+    public void setB(B param0) {
+        this.b = param0;
     }
 }

@@ -11,20 +11,18 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.chunk.ChunkAccess;
 
-public class CaveWorldCarver extends WorldCarver<CarverConfiguration> {
-    public CaveWorldCarver(Codec<CarverConfiguration> param0) {
+public class CaveWorldCarver extends WorldCarver<CaveCarverConfiguration> {
+    public CaveWorldCarver(Codec<CaveCarverConfiguration> param0) {
         super(param0);
     }
 
-    @Override
-    public boolean isStartChunk(CarverConfiguration param0, Random param1) {
+    public boolean isStartChunk(CaveCarverConfiguration param0, Random param1) {
         return param1.nextFloat() <= param0.probability;
     }
 
-    @Override
     public boolean carve(
         CarvingContext param0,
-        CarverConfiguration param1,
+        CaveCarverConfiguration param1,
         ChunkAccess param2,
         Function<BlockPos, Biome> param3,
         Random param4,
@@ -37,15 +35,15 @@ public class CaveWorldCarver extends WorldCarver<CarverConfiguration> {
 
         for(int var2 = 0; var2 < var1; ++var2) {
             double var3 = (double)param6.getBlockX(param4.nextInt(16));
-            double var4 = (double)this.getCaveY(param0, param4);
+            double var4 = (double)param1.y.sample(param4, param0);
             double var5 = (double)param6.getBlockZ(param4.nextInt(16));
-            double var6 = (double)Mth.randomBetween(param4, 0.3F, 1.8F);
-            double var7 = (double)Mth.randomBetween(param4, 0.3F, 1.8F);
-            double var8 = (double)Mth.randomBetween(param4, -1.0F, 0.0F);
+            double var6 = (double)param1.horizontalRadiusMultiplier.sample(param4);
+            double var7 = (double)param1.verticalRadiusMultiplier.sample(param4);
+            double var8 = (double)param1.floorLevel.sample(param4);
             WorldCarver.CarveSkipChecker var9 = (param1x, param2x, param3x, param4x, param5x) -> shouldSkip(param2x, param3x, param4x, var8);
             int var10 = 1;
             if (param4.nextInt(4) == 0) {
-                double var11 = (double)Mth.randomBetween(param4, 0.1F, 0.9F);
+                double var11 = (double)param1.yScale.sample(param4);
                 float var12 = 1.0F + param4.nextFloat() * 6.0F;
                 this.createRoom(param0, param1, param2, param3, param4.nextLong(), param5, var3, var4, var5, var12, var11, param7, var9);
                 var10 += param4.nextInt(4);
@@ -101,15 +99,9 @@ public class CaveWorldCarver extends WorldCarver<CarverConfiguration> {
         return 1.0;
     }
 
-    protected int getCaveY(CarvingContext param0, Random param1) {
-        int var0 = param0.getMinGenY() + 8;
-        int var1 = 126;
-        return var0 > 126 ? var0 : Mth.randomBetweenInclusive(param1, var0, 126);
-    }
-
     protected void createRoom(
         CarvingContext param0,
-        CarverConfiguration param1,
+        CaveCarverConfiguration param1,
         ChunkAccess param2,
         Function<BlockPos, Biome> param3,
         long param4,
@@ -129,7 +121,7 @@ public class CaveWorldCarver extends WorldCarver<CarverConfiguration> {
 
     protected void createTunnel(
         CarvingContext param0,
-        CarverConfiguration param1,
+        CaveCarverConfiguration param1,
         ChunkAccess param2,
         Function<BlockPos, Biome> param3,
         long param4,

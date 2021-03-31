@@ -474,6 +474,10 @@ public class RealmsMainScreen extends RealmsScreen {
         this.stopRealmsFetcher();
     }
 
+    public void setCreatedTrial(boolean param0) {
+        this.createdTrial = param0;
+    }
+
     private void onRenew() {
         RealmsServer var0 = this.findServer(this.selectedServerId);
         if (var0 != null) {
@@ -1183,6 +1187,13 @@ public class RealmsMainScreen extends RealmsScreen {
         return var0;
     }
 
+    public void closePopup() {
+        if (this.shouldShowPopup() && this.popupOpenedByUser) {
+            this.popupOpenedByUser = false;
+        }
+
+    }
+
     public static void updateTeaserImages(ResourceManager param0) {
         Collection<ResourceLocation> var0 = param0.listResources("textures/gui/images", param0x -> param0x.endsWith(".png"));
         teaserImages = var0.stream().filter(param0x -> param0x.getNamespace().equals("realms")).collect(ImmutableList.toImmutableList());
@@ -1190,6 +1201,10 @@ public class RealmsMainScreen extends RealmsScreen {
 
     private void setTooltip(Component... param0) {
         this.toolTip = Arrays.asList(param0);
+    }
+
+    private void setTooltip(Iterable<Component> param0) {
+        this.toolTip = ImmutableList.copyOf(param0);
     }
 
     private void pendingButtonPress(Button param0) {
@@ -1437,6 +1452,7 @@ public class RealmsMainScreen extends RealmsScreen {
 
     @OnlyIn(Dist.CLIENT)
     class ServerEntry extends RealmsMainScreen.Entry {
+        private static final int SKIN_HEAD_LARGE_WIDTH = 36;
         private final RealmsServer serverData;
 
         public ServerEntry(RealmsServer param0) {

@@ -17,10 +17,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class MinecartTNT extends AbstractMinecart {
+    private static final byte EVENT_PRIME = 10;
     private int fuse = -1;
 
     public MinecartTNT(EntityType<? extends MinecartTNT> param0, Level param1) {
@@ -123,7 +122,6 @@ public class MinecartTNT extends AbstractMinecart {
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void handleEntityEvent(byte param0) {
         if (param0 == 10) {
@@ -145,7 +143,6 @@ public class MinecartTNT extends AbstractMinecart {
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getFuse() {
         return this.fuse;
     }

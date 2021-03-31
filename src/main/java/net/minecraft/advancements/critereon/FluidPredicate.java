@@ -92,4 +92,38 @@ public class FluidPredicate {
             return var0;
         }
     }
+
+    public static class Builder {
+        @Nullable
+        private Fluid fluid;
+        @Nullable
+        private Tag<Fluid> fluids;
+        private StatePropertiesPredicate properties = StatePropertiesPredicate.ANY;
+
+        private Builder() {
+        }
+
+        public static FluidPredicate.Builder fluid() {
+            return new FluidPredicate.Builder();
+        }
+
+        public FluidPredicate.Builder of(Fluid param0) {
+            this.fluid = param0;
+            return this;
+        }
+
+        public FluidPredicate.Builder of(Tag<Fluid> param0) {
+            this.fluids = param0;
+            return this;
+        }
+
+        public FluidPredicate.Builder setProperties(StatePropertiesPredicate param0) {
+            this.properties = param0;
+            return this;
+        }
+
+        public FluidPredicate build() {
+            return new FluidPredicate(this.fluids, this.fluid, this.properties);
+        }
+    }
 }

@@ -13,11 +13,12 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class SporeBlossomBlock extends Block {
     private static final VoxelShape SHAPE = Block.box(2.0, 13.0, 2.0, 14.0, 16.0, 14.0);
+    private static final int ADD_PARTICLE_ATTEMPTS = 14;
+    private static final int PARTICLE_XZ_RADIUS = 10;
+    private static final int PARTICLE_Y_MAX = 10;
 
     public SporeBlossomBlock(BlockBehaviour.Properties param0) {
         super(param0);
@@ -35,7 +36,6 @@ public class SporeBlossomBlock extends Block {
             : super.updateShape(param0, param1, param2, param3, param4, param5);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void animateTick(BlockState param0, Level param1, BlockPos param2, Random param3) {
         int var0 = param2.getX();

@@ -24,10 +24,22 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LecternBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class WrittenBookItem extends Item {
+    public static final int TITLE_LENGTH = 16;
+    public static final int TITLE_MAX_LENGTH = 32;
+    public static final int PAGE_EDIT_LENGTH = 1024;
+    public static final int PAGE_LENGTH = 32767;
+    public static final int MAX_PAGES = 100;
+    public static final int MAX_GENERATION = 2;
+    public static final String TAG_TITLE = "title";
+    public static final String TAG_FILTERED_TITLE = "filtered_title";
+    public static final String TAG_AUTHOR = "author";
+    public static final String TAG_PAGES = "pages";
+    public static final String TAG_FILTERED_PAGES = "filtered_pages";
+    public static final String TAG_GENERATION = "generation";
+    public static final String TAG_RESOLVED = "resolved";
+
     public WrittenBookItem(Item.Properties param0) {
         super(param0);
     }
@@ -65,7 +77,6 @@ public class WrittenBookItem extends Item {
         return super.getName(param0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void appendHoverText(ItemStack param0, @Nullable Level param1, List<Component> param2, TooltipFlag param3) {
         if (param0.hasTag()) {

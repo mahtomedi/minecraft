@@ -10,6 +10,9 @@ import net.minecraft.world.entity.ai.util.DefaultRandomPos;
 import net.minecraft.world.phys.Vec3;
 
 public class MoveBackToVillageGoal extends RandomStrollGoal {
+    private static final int MAX_XZ_DIST = 10;
+    private static final int MAX_Y_DIST = 7;
+
     public MoveBackToVillageGoal(PathfinderMob param0, double param1, boolean param2) {
         super(param0, param1, 10, param2);
     }

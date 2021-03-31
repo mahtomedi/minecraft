@@ -14,10 +14,9 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class BeetrootBlock extends CropBlock {
+    public static final int MAX_AGE = 3;
     public static final IntegerProperty AGE = BlockStateProperties.AGE_3;
     private static final VoxelShape[] SHAPE_BY_AGE = new VoxelShape[]{
         Block.box(0.0, 0.0, 0.0, 16.0, 2.0, 16.0),
@@ -40,7 +39,6 @@ public class BeetrootBlock extends CropBlock {
         return 3;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     protected ItemLike getBaseSeedId() {
         return Items.BEETROOT_SEEDS;

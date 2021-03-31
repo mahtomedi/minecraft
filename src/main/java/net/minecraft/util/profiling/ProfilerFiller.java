@@ -1,10 +1,10 @@
 package net.minecraft.util.profiling;
 
 import java.util.function.Supplier;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public interface ProfilerFiller {
+    String ROOT = "root";
+
     void startTick();
 
     void endTick();
@@ -17,7 +17,6 @@ public interface ProfilerFiller {
 
     void popPush(String var1);
 
-    @OnlyIn(Dist.CLIENT)
     void popPush(Supplier<String> var1);
 
     void incrementCounter(String var1);
@@ -65,7 +64,6 @@ public interface ProfilerFiller {
                     param1.popPush(param0);
                 }
 
-                @OnlyIn(Dist.CLIENT)
                 @Override
                 public void popPush(Supplier<String> param0x) {
                     param0.popPush(param0);

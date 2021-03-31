@@ -5,11 +5,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import javax.annotation.Nullable;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.StringUtils;
 
-@OnlyIn(Dist.CLIENT)
 public class ChainedJsonException extends IOException {
     private final List<ChainedJsonException.Entry> entries = Lists.newArrayList();
     private final String message;
@@ -52,7 +49,6 @@ public class ChainedJsonException extends IOException {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static class Entry {
         @Nullable
         private String filename;
@@ -63,6 +59,11 @@ public class ChainedJsonException extends IOException {
 
         private void addJsonKey(String param0) {
             this.jsonKeys.add(0, param0);
+        }
+
+        @Nullable
+        public String getFilename() {
+            return this.filename;
         }
 
         public String getJsonKeys() {

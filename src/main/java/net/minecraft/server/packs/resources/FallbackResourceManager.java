@@ -17,8 +17,6 @@ import java.util.stream.Stream;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PackType;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -37,7 +35,6 @@ public class FallbackResourceManager implements ResourceManager {
         this.fallbacks.add(param0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public Set<String> getNamespaces() {
         return ImmutableSet.of(this.namespace);
@@ -68,7 +65,6 @@ public class FallbackResourceManager implements ResourceManager {
         throw new FileNotFoundException(param0.toString());
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public boolean hasResource(ResourceLocation param0) {
         if (!this.isValidLocation(param0)) {
@@ -132,7 +128,6 @@ public class FallbackResourceManager implements ResourceManager {
         return var0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public Stream<PackResources> listPacks() {
         return this.fallbacks.stream();

@@ -35,6 +35,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class SignRenderer implements BlockEntityRenderer<SignBlockEntity> {
+    public static final int MAX_LINE_WIDTH = 90;
+    private static final int LINE_HEIGHT = 10;
+    private static final String STICK = "stick";
     private final Map<WoodType, SignRenderer.SignModel> signModels;
     private final Font font;
 

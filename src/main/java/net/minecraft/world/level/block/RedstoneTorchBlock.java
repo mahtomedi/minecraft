@@ -16,12 +16,14 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class RedstoneTorchBlock extends TorchBlock {
     public static final BooleanProperty LIT = BlockStateProperties.LIT;
     private static final Map<BlockGetter, List<RedstoneTorchBlock.Toggle>> RECENT_TOGGLES = new WeakHashMap<>();
+    public static final int RECENT_TOGGLE_TIMER = 60;
+    public static final int MAX_RECENT_TOGGLES = 8;
+    public static final int RESTART_DELAY = 160;
+    private static final int TOGGLE_DELAY = 2;
 
     protected RedstoneTorchBlock(BlockBehaviour.Properties param0) {
         super(param0, DustParticleOptions.REDSTONE);
@@ -96,7 +98,6 @@ public class RedstoneTorchBlock extends TorchBlock {
         return true;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void animateTick(BlockState param0, Level param1, BlockPos param2, Random param3) {
         if (param0.getValue(LIT)) {

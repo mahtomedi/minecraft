@@ -7,14 +7,11 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.util.Crypt;
 import net.minecraft.util.CryptException;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ServerboundKeyPacket implements Packet<ServerLoginPacketListener> {
     private final byte[] keybytes;
     private final byte[] nonce;
 
-    @OnlyIn(Dist.CLIENT)
     public ServerboundKeyPacket(SecretKey param0, PublicKey param1, byte[] param2) throws CryptException {
         this.keybytes = Crypt.encryptUsingKey(param1, param0.getEncoded());
         this.nonce = Crypt.encryptUsingKey(param1, param2);

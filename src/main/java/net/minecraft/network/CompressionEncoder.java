@@ -38,6 +38,10 @@ public class CompressionEncoder extends MessageToByteEncoder<ByteBuf> {
 
     }
 
+    public int getThreshold() {
+        return this.threshold;
+    }
+
     public void setThreshold(int param0) {
         this.threshold = param0;
     }

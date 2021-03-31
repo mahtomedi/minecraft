@@ -4,8 +4,6 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundGameEventPacket implements Packet<ClientGamePacketListener> {
     public static final ClientboundGameEventPacket.Type NO_RESPAWN_BLOCK_AVAILABLE = new ClientboundGameEventPacket.Type(0);
@@ -20,6 +18,11 @@ public class ClientboundGameEventPacket implements Packet<ClientGamePacketListen
     public static final ClientboundGameEventPacket.Type PUFFER_FISH_STING = new ClientboundGameEventPacket.Type(9);
     public static final ClientboundGameEventPacket.Type GUARDIAN_ELDER_EFFECT = new ClientboundGameEventPacket.Type(10);
     public static final ClientboundGameEventPacket.Type IMMEDIATE_RESPAWN = new ClientboundGameEventPacket.Type(11);
+    public static final int DEMO_PARAM_INTRO = 0;
+    public static final int DEMO_PARAM_HINT_1 = 101;
+    public static final int DEMO_PARAM_HINT_2 = 102;
+    public static final int DEMO_PARAM_HINT_3 = 103;
+    public static final int DEMO_PARAM_HINT_4 = 104;
     private final ClientboundGameEventPacket.Type event;
     private final float param;
 
@@ -43,12 +46,10 @@ public class ClientboundGameEventPacket implements Packet<ClientGamePacketListen
         param0.handleGameEvent(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public ClientboundGameEventPacket.Type getEvent() {
         return this.event;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getParam() {
         return this.param;
     }

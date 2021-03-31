@@ -56,6 +56,10 @@ public class ConditionReference implements LootItemCondition {
         }
     }
 
+    public static LootItemCondition.Builder conditionReference(ResourceLocation param0) {
+        return () -> new ConditionReference(param0);
+    }
+
     public static class Serializer implements net.minecraft.world.level.storage.loot.Serializer<ConditionReference> {
         public void serialize(JsonObject param0, ConditionReference param1, JsonSerializationContext param2) {
             param0.addProperty("name", param1.name.toString());

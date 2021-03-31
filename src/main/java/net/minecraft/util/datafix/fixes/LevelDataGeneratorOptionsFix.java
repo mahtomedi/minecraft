@@ -100,6 +100,7 @@ public class LevelDataGeneratorOptionsFix extends DataFix {
         param0.put("166", "minecraft:modified_wooded_badlands_plateau");
         param0.put("167", "minecraft:modified_badlands_plateau");
     });
+    public static final String GENERATOR_OPTIONS = "generatorOptions";
 
     public LevelDataGeneratorOptionsFix(Schema param0, boolean param1) {
         super(param0, param1);

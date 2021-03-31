@@ -18,8 +18,7 @@ import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 public class BuriedTreasurePieces {
     public static class BuriedTreasurePiece extends StructurePiece {
         public BuriedTreasurePiece(BlockPos param0) {
-            super(StructurePieceType.BURIED_TREASURE_PIECE, 0);
-            this.boundingBox = new BoundingBox(param0);
+            super(StructurePieceType.BURIED_TREASURE_PIECE, 0, new BoundingBox(param0));
         }
 
         public BuriedTreasurePiece(ServerLevel param0, CompoundTag param1) {
@@ -34,8 +33,8 @@ public class BuriedTreasurePieces {
         public boolean postProcess(
             WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
-            int var0 = param0.getHeight(Heightmap.Types.OCEAN_FLOOR_WG, this.boundingBox.x0, this.boundingBox.z0);
-            BlockPos.MutableBlockPos var1 = new BlockPos.MutableBlockPos(this.boundingBox.x0, var0, this.boundingBox.z0);
+            int var0 = param0.getHeight(Heightmap.Types.OCEAN_FLOOR_WG, this.boundingBox.minX(), this.boundingBox.minZ());
+            BlockPos.MutableBlockPos var1 = new BlockPos.MutableBlockPos(this.boundingBox.minX(), var0, this.boundingBox.minZ());
 
             while(var1.getY() > param0.getMinBuildHeight()) {
                 BlockState var2 = param0.getBlockState(var1);

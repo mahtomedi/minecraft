@@ -6,6 +6,8 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelException;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -18,12 +20,16 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.ServerSocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.timeout.ReadTimeoutHandler;
+import io.netty.util.HashedWheelTimer;
+import io.netty.util.Timeout;
+import io.netty.util.Timer;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.SocketAddress;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 import net.minecraft.CrashReport;
 import net.minecraft.ReportedException;
@@ -39,8 +45,6 @@ import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.game.ClientboundDisconnectPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.LazyLoadedValue;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -112,7 +116,6 @@ public class ServerConnectionListener {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     public SocketAddress startMemoryChannel() {
         ChannelFuture var0;
         synchronized(this.channels) {
@@ -176,5 +179,43 @@ public class ServerConnectionListener {
 
     public MinecraftServer getServer() {
         return this.server;
+    }
+
+    static class LatencySimulator extends ChannelInboundHandlerAdapter {
+        private static final Timer TIMER = new HashedWheelTimer();
+        private final int delay;
+        private final int jitter;
+        private final List<ServerConnectionListener.LatencySimulator.DelayedMessage> queuedMessages = Lists.newArrayList();
+
+        public LatencySimulator(int param0, int param1) {
+            this.delay = param0;
+            this.jitter = param1;
+        }
+
+        @Override
+        public void channelRead(ChannelHandlerContext param0, Object param1) {
+            this.delayDownstream(param0, param1);
+        }
+
+        private void delayDownstream(ChannelHandlerContext param0, Object param1) {
+            int var0 = this.delay + (int)(Math.random() * (double)this.jitter);
+            this.queuedMessages.add(new ServerConnectionListener.LatencySimulator.DelayedMessage(param0, param1));
+            TIMER.newTimeout(this::onTimeout, (long)var0, TimeUnit.MILLISECONDS);
+        }
+
+        private void onTimeout(Timeout param0x) {
+            ServerConnectionListener.LatencySimulator.DelayedMessage var0x = this.queuedMessages.remove(0);
+            var0x.ctx.fireChannelRead(var0x.msg);
+        }
+
+        static class DelayedMessage {
+            public final ChannelHandlerContext ctx;
+            public final Object msg;
+
+            public DelayedMessage(ChannelHandlerContext param0, Object param1) {
+                this.ctx = param0;
+                this.msg = param1;
+            }
+        }
     }
 }

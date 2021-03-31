@@ -22,8 +22,6 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.StringDecomposer;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -31,6 +29,7 @@ public abstract class Language {
     private static final Logger LOGGER = LogManager.getLogger();
     private static final Gson GSON = new Gson();
     private static final Pattern UNSUPPORTED_FORMAT_PATTERN = Pattern.compile("%(\\d+\\$)?[\\d.]*[df]");
+    public static final String DEFAULT = "en_us";
     private static volatile Language instance = loadDefault();
 
     private static Language loadDefault() {
@@ -56,13 +55,11 @@ public abstract class Language {
                 return var5.containsKey(param0);
             }
 
-            @OnlyIn(Dist.CLIENT)
             @Override
             public boolean isDefaultRightToLeft() {
                 return false;
             }
 
-            @OnlyIn(Dist.CLIENT)
             @Override
             public FormattedCharSequence getVisualOrder(FormattedText param0) {
                 return param1 -> param0.visit(
@@ -88,7 +85,6 @@ public abstract class Language {
         return instance;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static void inject(Language param0) {
         instance = param0;
     }
@@ -97,13 +93,10 @@ public abstract class Language {
 
     public abstract boolean has(String var1);
 
-    @OnlyIn(Dist.CLIENT)
     public abstract boolean isDefaultRightToLeft();
 
-    @OnlyIn(Dist.CLIENT)
     public abstract FormattedCharSequence getVisualOrder(FormattedText var1);
 
-    @OnlyIn(Dist.CLIENT)
     public List<FormattedCharSequence> getVisualOrder(List<FormattedText> param0) {
         return param0.stream().map(this::getVisualOrder).collect(ImmutableList.toImmutableList());
     }

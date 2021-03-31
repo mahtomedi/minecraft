@@ -20,11 +20,10 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class WallTorchBlock extends TorchBlock {
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
+    protected static final float AABB_OFFSET = 2.5F;
     private static final Map<Direction, VoxelShape> AABBS = Maps.newEnumMap(
         ImmutableMap.of(
             Direction.NORTH,
@@ -91,7 +90,6 @@ public class WallTorchBlock extends TorchBlock {
         return param1.getOpposite() == param0.getValue(FACING) && !param0.canSurvive(param3, param4) ? Blocks.AIR.defaultBlockState() : param0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void animateTick(BlockState param0, Level param1, BlockPos param2, Random param3) {
         Direction var0 = param0.getValue(FACING);

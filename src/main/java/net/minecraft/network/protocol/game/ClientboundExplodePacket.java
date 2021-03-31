@@ -8,8 +8,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundExplodePacket implements Packet<ClientGamePacketListener> {
     private final double x;
@@ -84,42 +82,34 @@ public class ClientboundExplodePacket implements Packet<ClientGamePacketListener
         param0.handleExplosion(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getKnockbackX() {
         return this.knockbackX;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getKnockbackY() {
         return this.knockbackY;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getKnockbackZ() {
         return this.knockbackZ;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public double getX() {
         return this.x;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public double getY() {
         return this.y;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public double getZ() {
         return this.z;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getPower() {
         return this.power;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public List<BlockPos> getToBlow() {
         return this.toBlow;
     }

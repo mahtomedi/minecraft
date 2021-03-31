@@ -20,6 +20,9 @@ public final class EntitySelector {
             || !param0.isSpectator() && !((Player)param0).isCreative() && param0.level.getDifficulty() != Difficulty.PEACEFUL;
     public static final Predicate<Entity> NO_SPECTATORS = param0 -> !param0.isSpectator();
 
+    private EntitySelector() {
+    }
+
     public static Predicate<Entity> withinDistance(double param0, double param1, double param2, double param3) {
         double var0 = param3 * param3;
         return param4 -> param4 != null && param4.distanceToSqr(param0, param1, param2) <= var0;

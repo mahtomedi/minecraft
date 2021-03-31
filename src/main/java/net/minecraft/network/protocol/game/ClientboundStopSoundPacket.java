@@ -5,10 +5,10 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundStopSoundPacket implements Packet<ClientGamePacketListener> {
+    private static final int HAS_SOURCE = 1;
+    private static final int HAS_SOUND = 2;
     @Nullable
     private final ResourceLocation name;
     @Nullable
@@ -56,13 +56,11 @@ public class ClientboundStopSoundPacket implements Packet<ClientGamePacketListen
     }
 
     @Nullable
-    @OnlyIn(Dist.CLIENT)
     public ResourceLocation getName() {
         return this.name;
     }
 
     @Nullable
-    @OnlyIn(Dist.CLIENT)
     public SoundSource getSource() {
         return this.source;
     }

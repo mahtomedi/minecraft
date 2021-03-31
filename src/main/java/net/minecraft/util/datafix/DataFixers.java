@@ -189,9 +189,11 @@ import net.minecraft.util.datafix.schemas.V2519;
 import net.minecraft.util.datafix.schemas.V2522;
 import net.minecraft.util.datafix.schemas.V2551;
 import net.minecraft.util.datafix.schemas.V2568;
+import net.minecraft.util.datafix.schemas.V2571;
 import net.minecraft.util.datafix.schemas.V2684;
 import net.minecraft.util.datafix.schemas.V2686;
 import net.minecraft.util.datafix.schemas.V2688;
+import net.minecraft.util.datafix.schemas.V2704;
 import net.minecraft.util.datafix.schemas.V501;
 import net.minecraft.util.datafix.schemas.V700;
 import net.minecraft.util.datafix.schemas.V701;
@@ -677,22 +679,24 @@ public class DataFixers {
         param0.addFixer(new OptionsRenameFieldFix(var123, false, "Rename swapHands setting", "key_key.swapHands", "key_key.swapOffhand"));
         Schema var124 = param0.addSchema(2568, V2568::new);
         param0.addFixer(new AddNewChoices(var124, "Added Piglin Brute", References.ENTITY));
-        Schema var125 = param0.addSchema(2679, SAME_NAMESPACED);
-        param0.addFixer(new CauldronRenameFix(var125, false));
-        Schema var126 = param0.addSchema(2680, SAME_NAMESPACED);
-        param0.addFixer(ItemRenameFix.create(var126, "Renamed grass path item to dirt path", createRenamer("minecraft:grass_path", "minecraft:dirt_path")));
+        Schema var125 = param0.addSchema(2571, V2571::new);
+        param0.addFixer(new AddNewChoices(var125, "Added Goat", References.ENTITY));
+        Schema var126 = param0.addSchema(2679, SAME_NAMESPACED);
+        param0.addFixer(new CauldronRenameFix(var126, false));
+        Schema var127 = param0.addSchema(2680, SAME_NAMESPACED);
+        param0.addFixer(ItemRenameFix.create(var127, "Renamed grass path item to dirt path", createRenamer("minecraft:grass_path", "minecraft:dirt_path")));
         param0.addFixer(
-            BlockRenameFixWithJigsaw.create(var126, "Renamed grass path block to dirt path", createRenamer("minecraft:grass_path", "minecraft:dirt_path"))
+            BlockRenameFixWithJigsaw.create(var127, "Renamed grass path block to dirt path", createRenamer("minecraft:grass_path", "minecraft:dirt_path"))
         );
-        Schema var127 = param0.addSchema(2684, V2684::new);
-        param0.addFixer(new AddNewChoices(var127, "Added Sculk Sensor", References.BLOCK_ENTITY));
-        Schema var128 = param0.addSchema(2686, V2686::new);
-        param0.addFixer(new AddNewChoices(var128, "Added Axolotl", References.ENTITY));
-        Schema var129 = param0.addSchema(2688, V2688::new);
-        param0.addFixer(new AddNewChoices(var129, "Added Glow Squid", References.ENTITY));
-        param0.addFixer(new AddNewChoices(var129, "Added Glow Item Frame", References.ENTITY));
-        Schema var130 = param0.addSchema(2690, SAME_NAMESPACED);
-        ImmutableMap<String, String> var131 = ImmutableMap.<String, String>builder()
+        Schema var128 = param0.addSchema(2684, V2684::new);
+        param0.addFixer(new AddNewChoices(var128, "Added Sculk Sensor", References.BLOCK_ENTITY));
+        Schema var129 = param0.addSchema(2686, V2686::new);
+        param0.addFixer(new AddNewChoices(var129, "Added Axolotl", References.ENTITY));
+        Schema var130 = param0.addSchema(2688, V2688::new);
+        param0.addFixer(new AddNewChoices(var130, "Added Glow Squid", References.ENTITY));
+        param0.addFixer(new AddNewChoices(var130, "Added Glow Item Frame", References.ENTITY));
+        Schema var131 = param0.addSchema(2690, SAME_NAMESPACED);
+        ImmutableMap<String, String> var132 = ImmutableMap.<String, String>builder()
             .put("minecraft:weathered_copper_block", "minecraft:oxidized_copper_block")
             .put("minecraft:semi_weathered_copper_block", "minecraft:weathered_copper_block")
             .put("minecraft:lightly_weathered_copper_block", "minecraft:exposed_copper_block")
@@ -714,19 +718,19 @@ public class DataFixers {
             .put("minecraft:waxed_semi_weathered_cut_copper_slab", "minecraft:waxed_weathered_cut_copper_slab")
             .put("minecraft:waxed_lightly_weathered_cut_copper_slab", "minecraft:waxed_exposed_cut_copper_slab")
             .build();
-        param0.addFixer(ItemRenameFix.create(var130, "Renamed copper block items to new oxidized terms", createRenamer(var131)));
-        param0.addFixer(BlockRenameFixWithJigsaw.create(var130, "Renamed copper blocks to new oxidized terms", createRenamer(var131)));
-        Schema var132 = param0.addSchema(2691, SAME_NAMESPACED);
-        ImmutableMap<String, String> var133 = ImmutableMap.<String, String>builder()
+        param0.addFixer(ItemRenameFix.create(var131, "Renamed copper block items to new oxidized terms", createRenamer(var132)));
+        param0.addFixer(BlockRenameFixWithJigsaw.create(var131, "Renamed copper blocks to new oxidized terms", createRenamer(var132)));
+        Schema var133 = param0.addSchema(2691, SAME_NAMESPACED);
+        ImmutableMap<String, String> var134 = ImmutableMap.<String, String>builder()
             .put("minecraft:waxed_copper", "minecraft:waxed_copper_block")
             .put("minecraft:oxidized_copper_block", "minecraft:oxidized_copper")
             .put("minecraft:weathered_copper_block", "minecraft:weathered_copper")
             .put("minecraft:exposed_copper_block", "minecraft:exposed_copper")
             .build();
-        param0.addFixer(ItemRenameFix.create(var132, "Rename copper item suffixes", createRenamer(var133)));
-        param0.addFixer(BlockRenameFixWithJigsaw.create(var132, "Rename copper blocks suffixes", createRenamer(var133)));
-        Schema var134 = param0.addSchema(2696, SAME_NAMESPACED);
-        ImmutableMap<String, String> var135 = ImmutableMap.<String, String>builder()
+        param0.addFixer(ItemRenameFix.create(var133, "Rename copper item suffixes", createRenamer(var134)));
+        param0.addFixer(BlockRenameFixWithJigsaw.create(var133, "Rename copper blocks suffixes", createRenamer(var134)));
+        Schema var135 = param0.addSchema(2696, SAME_NAMESPACED);
+        ImmutableMap<String, String> var136 = ImmutableMap.<String, String>builder()
             .put("minecraft:grimstone", "minecraft:deepslate")
             .put("minecraft:grimstone_slab", "minecraft:cobbled_deepslate_slab")
             .put("minecraft:grimstone_stairs", "minecraft:cobbled_deepslate_stairs")
@@ -745,20 +749,22 @@ public class DataFixers {
             .put("minecraft:grimstone_brick_wall", "minecraft:deepslate_brick_wall")
             .put("minecraft:chiseled_grimstone", "minecraft:chiseled_deepslate")
             .build();
-        param0.addFixer(ItemRenameFix.create(var134, "Renamed grimstone block items to deepslate", createRenamer(var135)));
-        param0.addFixer(BlockRenameFixWithJigsaw.create(var134, "Renamed grimstone blocks to deepslate", createRenamer(var135)));
-        Schema var136 = param0.addSchema(2700, SAME_NAMESPACED);
+        param0.addFixer(ItemRenameFix.create(var135, "Renamed grimstone block items to deepslate", createRenamer(var136)));
+        param0.addFixer(BlockRenameFixWithJigsaw.create(var135, "Renamed grimstone blocks to deepslate", createRenamer(var136)));
+        Schema var137 = param0.addSchema(2700, SAME_NAMESPACED);
         param0.addFixer(
             BlockRenameFixWithJigsaw.create(
-                var136,
+                var137,
                 "Renamed cave vines blocks",
                 createRenamer(ImmutableMap.of("minecraft:cave_vines_head", "minecraft:cave_vines", "minecraft:cave_vines_body", "minecraft:cave_vines_plant"))
             )
         );
-        Schema var137 = param0.addSchema(2701, SAME_NAMESPACED);
-        param0.addFixer(new SavedDataFeaturePoolElementFix(var137));
-        Schema var138 = param0.addSchema(2702, SAME_NAMESPACED);
-        param0.addFixer(new AbstractArrowPickupFix(var138));
+        Schema var138 = param0.addSchema(2701, SAME_NAMESPACED);
+        param0.addFixer(new SavedDataFeaturePoolElementFix(var138));
+        Schema var139 = param0.addSchema(2702, SAME_NAMESPACED);
+        param0.addFixer(new AbstractArrowPickupFix(var139));
+        Schema var140 = param0.addSchema(2704, V2704::new);
+        param0.addFixer(new AddNewChoices(var140, "Added Goat", References.ENTITY));
     }
 
     private static UnaryOperator<String> createRenamer(Map<String, String> param0) {

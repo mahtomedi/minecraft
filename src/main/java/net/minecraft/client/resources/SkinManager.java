@@ -31,6 +31,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class SkinManager {
+    public static final String PROPERTY_TEXTURES = "textures";
     private final TextureManager textureManager;
     private final File skinsDirectory;
     private final MinecraftSessionService sessionService;

@@ -70,6 +70,14 @@ public class SetNameFunction extends LootItemConditionalFunction {
         return param0;
     }
 
+    public static LootItemConditionalFunction.Builder<?> setName(Component param0) {
+        return simpleBuilder(param1 -> new SetNameFunction(param1, param0, null));
+    }
+
+    public static LootItemConditionalFunction.Builder<?> setName(Component param0, LootContext.EntityTarget param1) {
+        return simpleBuilder(param2 -> new SetNameFunction(param2, param0, param1));
+    }
+
     public static class Serializer extends LootItemConditionalFunction.Serializer<SetNameFunction> {
         public void serialize(JsonObject param0, SetNameFunction param1, JsonSerializationContext param2) {
             super.serialize(param0, param1, param2);

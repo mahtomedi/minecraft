@@ -26,4 +26,9 @@ public class EmptyTickList<T> implements TickList<T> {
     public boolean willTickThisTick(BlockPos param0, T param1) {
         return false;
     }
+
+    @Override
+    public int size() {
+        return 0;
+    }
 }

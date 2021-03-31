@@ -17,8 +17,6 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class BannerBlock extends AbstractBannerBlock {
     public static final IntegerProperty ROTATION = BlockStateProperties.ROTATION_16;
@@ -68,7 +66,6 @@ public class BannerBlock extends AbstractBannerBlock {
         param0.add(ROTATION);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static Block byColor(DyeColor param0) {
         return BY_COLOR.getOrDefault(param0, Blocks.WHITE_BANNER);
     }

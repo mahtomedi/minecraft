@@ -18,11 +18,10 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class TallSeagrassBlock extends DoublePlantBlock implements LiquidBlockContainer {
     public static final EnumProperty<DoubleBlockHalf> HALF = DoublePlantBlock.HALF;
+    protected static final float AABB_OFFSET = 6.0F;
     protected static final VoxelShape SHAPE = Block.box(2.0, 0.0, 2.0, 14.0, 16.0, 14.0);
 
     public TallSeagrassBlock(BlockBehaviour.Properties param0) {
@@ -39,7 +38,6 @@ public class TallSeagrassBlock extends DoublePlantBlock implements LiquidBlockCo
         return param0.isFaceSturdy(param1, param2, Direction.UP) && !param0.is(Blocks.MAGMA_BLOCK);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public ItemStack getCloneItemStack(BlockGetter param0, BlockPos param1, BlockState param2) {
         return new ItemStack(Blocks.SEAGRASS);

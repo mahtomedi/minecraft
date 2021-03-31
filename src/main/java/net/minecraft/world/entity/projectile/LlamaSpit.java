@@ -14,8 +14,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class LlamaSpit extends Projectile {
     public LlamaSpit(EntityType<? extends LlamaSpit> param0, Level param1) {
@@ -84,7 +82,6 @@ public class LlamaSpit extends Projectile {
     protected void defineSynchedData() {
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void recreateFromPacket(ClientboundAddEntityPacket param0) {
         super.recreateFromPacket(param0);

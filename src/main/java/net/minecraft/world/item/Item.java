@@ -43,8 +43,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -53,6 +51,9 @@ public class Item implements ItemLike {
     public static final Map<Block, Item> BY_BLOCK = Maps.newHashMap();
     protected static final UUID BASE_ATTACK_DAMAGE_UUID = UUID.fromString("CB3F55D3-645C-4F38-A497-9C13A33DB5CF");
     protected static final UUID BASE_ATTACK_SPEED_UUID = UUID.fromString("FA233E1C-4180-4865-B01B-BCCE9785ACA3");
+    public static final int MAX_STACK_SIZE = 64;
+    public static final int EAT_DURATION = 32;
+    public static final int MAX_BAR_WIDTH = 13;
     protected final CreativeModeTab category;
     private final Rarity rarity;
     private final int maxStackSize;
@@ -151,17 +152,14 @@ public class Item implements ItemLike {
         return this.maxDamage > 0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean isBarVisible(ItemStack param0) {
         return param0.isDamaged();
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getBarWidth(ItemStack param0) {
         return Math.round(13.0F - (float)param0.getDamageValue() * 13.0F / (float)this.maxDamage);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getBarColor(ItemStack param0) {
         float var0 = Math.max(0.0F, ((float)this.maxDamage - (float)param0.getDamageValue()) / (float)this.maxDamage);
         return Mth.hsvToRgb(var0 / 3.0F, 1.0F, 1.0F);
@@ -191,7 +189,6 @@ public class Item implements ItemLike {
         return InteractionResult.PASS;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Component getDescription() {
         return new TranslatableComponent(this.getDescriptionId());
     }
@@ -255,11 +252,9 @@ public class Item implements ItemLike {
     public void releaseUsing(ItemStack param0, Level param1, LivingEntity param2, int param3) {
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void appendHoverText(ItemStack param0, @Nullable Level param1, List<Component> param2, TooltipFlag param3) {
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Optional<TooltipComponent> getTooltipImage(ItemStack param0) {
         return Optional.empty();
     }

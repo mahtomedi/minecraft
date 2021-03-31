@@ -11,8 +11,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ThrownEgg extends ThrowableItemProjectile {
     public ThrownEgg(EntityType<? extends ThrownEgg> param0, Level param1) {
@@ -27,7 +25,6 @@ public class ThrownEgg extends ThrowableItemProjectile {
         super(EntityType.EGG, param1, param2, param3, param0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void handleEntityEvent(byte param0) {
         if (param0 == 3) {

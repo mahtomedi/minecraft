@@ -30,6 +30,17 @@ import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.schedule.Activity;
 
 public class PiglinBruteAi {
+    private static final int ANGER_DURATION = 600;
+    private static final int MELEE_ATTACK_COOLDOWN = 20;
+    private static final double ACTIVITY_SOUND_LIKELIHOOD_PER_TICK = 0.0125;
+    private static final int MAX_LOOK_DIST = 8;
+    private static final int INTERACTION_RANGE = 8;
+    private static final double TARGETING_RANGE = 12.0;
+    private static final float SPEED_MULTIPLIER_WHEN_IDLING = 0.6F;
+    private static final int HOME_CLOSE_ENOUGH_DISTANCE = 2;
+    private static final int HOME_TOO_FAR_DISTANCE = 100;
+    private static final int HOME_STROLL_AROUND_DISTANCE = 5;
+
     protected static Brain<?> makeBrain(PiglinBrute param0, Brain<PiglinBrute> param1) {
         initCoreActivity(param0, param1);
         initIdleActivity(param0, param1);
@@ -142,6 +153,11 @@ public class PiglinBruteAi {
         if (!(param1 instanceof AbstractPiglin)) {
             PiglinAi.maybeRetaliate(param0, param1);
         }
+    }
+
+    protected static void setAngerTarget(PiglinBrute param0, LivingEntity param1) {
+        param0.getBrain().eraseMemory(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);
+        param0.getBrain().setMemoryWithExpiry(MemoryModuleType.ANGRY_AT, param1.getUUID(), 600L);
     }
 
     protected static void maybePlayActivitySound(PiglinBrute param0) {

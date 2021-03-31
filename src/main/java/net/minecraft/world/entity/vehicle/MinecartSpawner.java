@@ -8,8 +8,6 @@ import net.minecraft.world.level.BaseSpawner;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class MinecartSpawner extends AbstractMinecart {
     private final BaseSpawner spawner = new BaseSpawner() {
@@ -58,7 +56,6 @@ public class MinecartSpawner extends AbstractMinecart {
         this.spawner.save(this.level, this.blockPosition(), param0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void handleEntityEvent(byte param0) {
         this.spawner.onEventTriggered(this.level, param0);
@@ -68,6 +65,10 @@ public class MinecartSpawner extends AbstractMinecart {
     public void tick() {
         super.tick();
         this.ticker.run();
+    }
+
+    public BaseSpawner getSpawner() {
+        return this.spawner;
     }
 
     @Override

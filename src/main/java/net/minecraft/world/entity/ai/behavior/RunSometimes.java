@@ -1,21 +1,21 @@
 package net.minecraft.world.entity.ai.behavior;
 
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.IntRange;
+import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.entity.LivingEntity;
 
 public class RunSometimes<E extends LivingEntity> extends Behavior<E> {
     private boolean resetTicks;
     private boolean wasRunning;
-    private final IntRange interval;
+    private final UniformInt interval;
     private final Behavior<? super E> wrappedBehavior;
     private int ticksUntilNextStart;
 
-    public RunSometimes(Behavior<? super E> param0, IntRange param1) {
+    public RunSometimes(Behavior<? super E> param0, UniformInt param1) {
         this(param0, false, param1);
     }
 
-    public RunSometimes(Behavior<? super E> param0, boolean param1, IntRange param2) {
+    public RunSometimes(Behavior<? super E> param0, boolean param1, UniformInt param2) {
         super(param0.entryCondition);
         this.wrappedBehavior = param0;
         this.resetTicks = !param1;
@@ -63,7 +63,7 @@ public class RunSometimes<E extends LivingEntity> extends Behavior<E> {
     }
 
     private void resetTicksUntilNextStart(ServerLevel param0) {
-        this.ticksUntilNextStart = this.interval.randomValue(param0.random);
+        this.ticksUntilNextStart = this.interval.sample(param0.random);
     }
 
     @Override

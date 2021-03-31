@@ -2,10 +2,9 @@ package net.minecraft.network.protocol.game;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundResourcePackPacket implements Packet<ClientGamePacketListener> {
+    public static final int MAX_HASH_LENGTH = 40;
     private final String url;
     private final String hash;
     private final boolean required;
@@ -37,17 +36,14 @@ public class ClientboundResourcePackPacket implements Packet<ClientGamePacketLis
         param0.handleResourcePack(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public String getUrl() {
         return this.url;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public String getHash() {
         return this.hash;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean isRequired() {
         return this.required;
     }

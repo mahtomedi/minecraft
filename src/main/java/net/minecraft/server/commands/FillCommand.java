@@ -26,6 +26,7 @@ import net.minecraft.world.level.block.state.pattern.BlockInWorld;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 public class FillCommand {
+    private static final int MAX_FILL_AREA = 32768;
     private static final Dynamic2CommandExceptionType ERROR_AREA_TOO_LARGE = new Dynamic2CommandExceptionType(
         (param0, param1) -> new TranslatableComponent("commands.fill.toobig", param0, param1)
     );
@@ -45,7 +46,7 @@ public class FillCommand {
                                         .executes(
                                             param0x -> fillBlocks(
                                                     param0x.getSource(),
-                                                    BoundingBox.createProper(
+                                                    BoundingBox.fromCorners(
                                                         BlockPosArgument.getLoadedBlockPos(param0x, "from"), BlockPosArgument.getLoadedBlockPos(param0x, "to")
                                                     ),
                                                     BlockStateArgument.getBlock(param0x, "block"),
@@ -58,7 +59,7 @@ public class FillCommand {
                                                 .executes(
                                                     param0x -> fillBlocks(
                                                             param0x.getSource(),
-                                                            BoundingBox.createProper(
+                                                            BoundingBox.fromCorners(
                                                                 BlockPosArgument.getLoadedBlockPos(param0x, "from"),
                                                                 BlockPosArgument.getLoadedBlockPos(param0x, "to")
                                                             ),
@@ -72,7 +73,7 @@ public class FillCommand {
                                                         .executes(
                                                             param0x -> fillBlocks(
                                                                     param0x.getSource(),
-                                                                    BoundingBox.createProper(
+                                                                    BoundingBox.fromCorners(
                                                                         BlockPosArgument.getLoadedBlockPos(param0x, "from"),
                                                                         BlockPosArgument.getLoadedBlockPos(param0x, "to")
                                                                     ),
@@ -88,7 +89,7 @@ public class FillCommand {
                                                 .executes(
                                                     param0x -> fillBlocks(
                                                             param0x.getSource(),
-                                                            BoundingBox.createProper(
+                                                            BoundingBox.fromCorners(
                                                                 BlockPosArgument.getLoadedBlockPos(param0x, "from"),
                                                                 BlockPosArgument.getLoadedBlockPos(param0x, "to")
                                                             ),
@@ -103,7 +104,7 @@ public class FillCommand {
                                                 .executes(
                                                     param0x -> fillBlocks(
                                                             param0x.getSource(),
-                                                            BoundingBox.createProper(
+                                                            BoundingBox.fromCorners(
                                                                 BlockPosArgument.getLoadedBlockPos(param0x, "from"),
                                                                 BlockPosArgument.getLoadedBlockPos(param0x, "to")
                                                             ),
@@ -118,7 +119,7 @@ public class FillCommand {
                                                 .executes(
                                                     param0x -> fillBlocks(
                                                             param0x.getSource(),
-                                                            BoundingBox.createProper(
+                                                            BoundingBox.fromCorners(
                                                                 BlockPosArgument.getLoadedBlockPos(param0x, "from"),
                                                                 BlockPosArgument.getLoadedBlockPos(param0x, "to")
                                                             ),
@@ -133,7 +134,7 @@ public class FillCommand {
                                                 .executes(
                                                     param0x -> fillBlocks(
                                                             param0x.getSource(),
-                                                            BoundingBox.createProper(
+                                                            BoundingBox.fromCorners(
                                                                 BlockPosArgument.getLoadedBlockPos(param0x, "from"),
                                                                 BlockPosArgument.getLoadedBlockPos(param0x, "to")
                                                             ),
@@ -160,7 +161,7 @@ public class FillCommand {
             ServerLevel var2 = param0.getLevel();
             int var3 = 0;
 
-            for(BlockPos var4 : BlockPos.betweenClosed(param1.x0, param1.y0, param1.z0, param1.x1, param1.y1, param1.z1)) {
+            for(BlockPos var4 : BlockPos.betweenClosed(param1.minX(), param1.minY(), param1.minZ(), param1.maxX(), param1.maxY(), param1.maxZ())) {
                 if (param4 == null || param4.test(new BlockInWorld(var2, var4, true))) {
                     BlockInput var5 = param3.filter.filter(param1, var4, param2, var2);
                     if (var5 != null) {
@@ -191,22 +192,22 @@ public class FillCommand {
     static enum Mode {
         REPLACE((param0, param1, param2, param3) -> param2),
         OUTLINE(
-            (param0, param1, param2, param3) -> param1.getX() != param0.x0
-                        && param1.getX() != param0.x1
-                        && param1.getY() != param0.y0
-                        && param1.getY() != param0.y1
-                        && param1.getZ() != param0.z0
-                        && param1.getZ() != param0.z1
+            (param0, param1, param2, param3) -> param1.getX() != param0.minX()
+                        && param1.getX() != param0.maxX()
+                        && param1.getY() != param0.minY()
+                        && param1.getY() != param0.maxY()
+                        && param1.getZ() != param0.minZ()
+                        && param1.getZ() != param0.maxZ()
                     ? null
                     : param2
         ),
         HOLLOW(
-            (param0, param1, param2, param3) -> param1.getX() != param0.x0
-                        && param1.getX() != param0.x1
-                        && param1.getY() != param0.y0
-                        && param1.getY() != param0.y1
-                        && param1.getZ() != param0.z0
-                        && param1.getZ() != param0.z1
+            (param0, param1, param2, param3) -> param1.getX() != param0.minX()
+                        && param1.getX() != param0.maxX()
+                        && param1.getY() != param0.minY()
+                        && param1.getY() != param0.maxY()
+                        && param1.getZ() != param0.minZ()
+                        && param1.getZ() != param0.maxZ()
                     ? FillCommand.HOLLOW_CORE
                     : param2
         ),

@@ -5,8 +5,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.JigsawBlockEntity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ServerboundSetJigsawBlockPacket implements Packet<ServerGamePacketListener> {
     private final BlockPos pos;
@@ -16,7 +14,6 @@ public class ServerboundSetJigsawBlockPacket implements Packet<ServerGamePacketL
     private final String finalState;
     private final JigsawBlockEntity.JointType joint;
 
-    @OnlyIn(Dist.CLIENT)
     public ServerboundSetJigsawBlockPacket(
         BlockPos param0, ResourceLocation param1, ResourceLocation param2, ResourceLocation param3, String param4, JigsawBlockEntity.JointType param5
     ) {

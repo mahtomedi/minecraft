@@ -36,8 +36,28 @@ public class PlayerHurtEntityTrigger extends SimpleCriterionTrigger<PlayerHurtEn
             this.entity = param2;
         }
 
+        public static PlayerHurtEntityTrigger.TriggerInstance playerHurtEntity() {
+            return new PlayerHurtEntityTrigger.TriggerInstance(EntityPredicate.Composite.ANY, DamagePredicate.ANY, EntityPredicate.Composite.ANY);
+        }
+
+        public static PlayerHurtEntityTrigger.TriggerInstance playerHurtEntity(DamagePredicate param0) {
+            return new PlayerHurtEntityTrigger.TriggerInstance(EntityPredicate.Composite.ANY, param0, EntityPredicate.Composite.ANY);
+        }
+
         public static PlayerHurtEntityTrigger.TriggerInstance playerHurtEntity(DamagePredicate.Builder param0) {
             return new PlayerHurtEntityTrigger.TriggerInstance(EntityPredicate.Composite.ANY, param0.build(), EntityPredicate.Composite.ANY);
+        }
+
+        public static PlayerHurtEntityTrigger.TriggerInstance playerHurtEntity(EntityPredicate param0) {
+            return new PlayerHurtEntityTrigger.TriggerInstance(EntityPredicate.Composite.ANY, DamagePredicate.ANY, EntityPredicate.Composite.wrap(param0));
+        }
+
+        public static PlayerHurtEntityTrigger.TriggerInstance playerHurtEntity(DamagePredicate param0, EntityPredicate param1) {
+            return new PlayerHurtEntityTrigger.TriggerInstance(EntityPredicate.Composite.ANY, param0, EntityPredicate.Composite.wrap(param1));
+        }
+
+        public static PlayerHurtEntityTrigger.TriggerInstance playerHurtEntity(DamagePredicate.Builder param0, EntityPredicate param1) {
+            return new PlayerHurtEntityTrigger.TriggerInstance(EntityPredicate.Composite.ANY, param0.build(), EntityPredicate.Composite.wrap(param1));
         }
 
         public boolean matches(ServerPlayer param0, LootContext param1, DamageSource param2, float param3, float param4, boolean param5) {

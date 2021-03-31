@@ -5,6 +5,7 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 public class EndTag implements Tag {
+    private static final int SELF_SIZE_IN_BITS = 64;
     public static final TagType<EndTag> TYPE = new TagType<EndTag>() {
         public EndTag load(DataInput param0, int param1, NbtAccounter param2) {
             param2.accountBits(64L);

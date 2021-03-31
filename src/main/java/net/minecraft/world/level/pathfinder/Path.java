@@ -7,16 +7,14 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.util.VisibleForDebug;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class Path {
     private final List<Node> nodes;
     private Node[] openSet = new Node[0];
     private Node[] closedSet = new Node[0];
-    @OnlyIn(Dist.CLIENT)
     private Set<Target> targetNodes;
     private int nextNodeIndex;
     private final BlockPos target;
@@ -125,17 +123,53 @@ public class Path {
         return this.reached;
     }
 
-    @OnlyIn(Dist.CLIENT)
+    @VisibleForDebug
+    void setDebug(Node[] param0, Node[] param1, Set<Target> param2) {
+        this.openSet = param0;
+        this.closedSet = param1;
+        this.targetNodes = param2;
+    }
+
+    @VisibleForDebug
     public Node[] getOpenSet() {
         return this.openSet;
     }
 
-    @OnlyIn(Dist.CLIENT)
+    @VisibleForDebug
     public Node[] getClosedSet() {
         return this.closedSet;
     }
 
-    @OnlyIn(Dist.CLIENT)
+    public void writeToStream(FriendlyByteBuf param0) {
+        if (this.targetNodes != null && !this.targetNodes.isEmpty()) {
+            param0.writeBoolean(this.reached);
+            param0.writeInt(this.nextNodeIndex);
+            param0.writeInt(this.targetNodes.size());
+            this.targetNodes.forEach(param1 -> param1.writeToStream(param0));
+            param0.writeInt(this.target.getX());
+            param0.writeInt(this.target.getY());
+            param0.writeInt(this.target.getZ());
+            param0.writeInt(this.nodes.size());
+
+            for(Node var0 : this.nodes) {
+                var0.writeToStream(param0);
+            }
+
+            param0.writeInt(this.openSet.length);
+
+            for(Node var1 : this.openSet) {
+                var1.writeToStream(param0);
+            }
+
+            param0.writeInt(this.closedSet.length);
+
+            for(Node var2 : this.closedSet) {
+                var2.writeToStream(param0);
+            }
+
+        }
+    }
+
     public static Path createFromStream(FriendlyByteBuf param0) {
         boolean var0 = param0.readBoolean();
         int var1 = param0.readInt();

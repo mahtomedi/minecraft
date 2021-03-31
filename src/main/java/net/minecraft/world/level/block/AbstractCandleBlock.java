@@ -6,6 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
@@ -17,28 +18,33 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class AbstractCandleBlock extends Block {
+    public static final int LIGHT_PER_CANDLE = 3;
     public static final BooleanProperty LIT = BlockStateProperties.LIT;
 
     protected AbstractCandleBlock(BlockBehaviour.Properties param0) {
         super(param0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     protected abstract Iterable<Vec3> getParticleOffsets(BlockState var1);
+
+    public static boolean isLit(BlockState param0) {
+        return param0.hasProperty(LIT) && param0.is(BlockTags.CANDLES) && param0.getValue(LIT);
+    }
 
     @Override
     public void onProjectileHit(Level param0, BlockState param1, BlockHitResult param2, Projectile param3) {
-        if (!param0.isClientSide && param3.isOnFire() && !param1.getValue(LIT)) {
+        if (!param0.isClientSide && param3.isOnFire() && this.canBeLit(param1)) {
             setLit(param0, param1, param2.getBlockPos(), true);
         }
 
     }
 
-    @OnlyIn(Dist.CLIENT)
+    protected boolean canBeLit(BlockState param0) {
+        return !param0.getValue(LIT);
+    }
+
     @Override
     public void animateTick(BlockState param0, Level param1, BlockPos param2, Random param3) {
         if (param0.getValue(LIT)) {
@@ -47,7 +53,6 @@ public abstract class AbstractCandleBlock extends Block {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     private static void addParticlesAndSound(Level param0, Vec3 param1, Random param2) {
         float var0 = param2.nextFloat();
         if (var0 < 0.3F) {
@@ -69,9 +74,24 @@ public abstract class AbstractCandleBlock extends Block {
         param0.addParticle(ParticleTypes.SMALL_FLAME, param1.x, param1.y, param1.z, 0.0, 0.0, 0.0);
     }
 
-    protected static void extinguish(@Nullable Player param0, BlockState param1, LevelAccessor param2, BlockPos param3) {
+    public static void extinguish(@Nullable Player param0, BlockState param1, LevelAccessor param2, BlockPos param3) {
         setLit(param2, param1, param3, false);
-        param2.addParticle(ParticleTypes.SMOKE, (double)param3.getX(), (double)param3.getY(), (double)param3.getZ(), 0.0, 0.1F, 0.0);
+        if (param1.getBlock() instanceof AbstractCandleBlock) {
+            ((AbstractCandleBlock)param1.getBlock())
+                .getParticleOffsets(param1)
+                .forEach(
+                    param2x -> param2.addParticle(
+                            ParticleTypes.SMOKE,
+                            (double)param3.getX() + param2x.x(),
+                            (double)param3.getY() + param2x.y(),
+                            (double)param3.getZ() + param2x.z(),
+                            0.0,
+                            0.1F,
+                            0.0
+                        )
+                );
+        }
+
         param2.playSound(null, param3, SoundEvents.CANDLE_EXTINGUISH, SoundSource.BLOCKS, 1.0F, 1.0F);
         param2.gameEvent(param0, GameEvent.BLOCK_CHANGE, param3);
     }

@@ -16,6 +16,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class ItemModelGenerator {
     public static final List<String> LAYERS = Lists.newArrayList("layer0", "layer1", "layer2", "layer3", "layer4");
+    private static final float MIN_Z = 7.5F;
+    private static final float MAX_Z = 8.5F;
 
     public BlockModel generateBlockModel(Function<Material, TextureAtlasSprite> param0, BlockModel param1) {
         Map<String, Either<Material, String>> var0 = Maps.newHashMap();

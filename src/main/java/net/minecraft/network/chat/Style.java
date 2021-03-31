@@ -15,8 +15,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class Style {
     public static final Style EMPTY = new Style(null, null, null, null, null, null, null, null, null, null);
@@ -124,6 +122,10 @@ public class Style {
         return this.withColor(param0 != null ? TextColor.fromLegacyFormat(param0) : null);
     }
 
+    public Style withColor(int param0) {
+        return this.withColor(TextColor.fromRgb(param0));
+    }
+
     public Style withBold(@Nullable Boolean param0) {
         return new Style(
             this.color, param0, this.italic, this.underlined, this.strikethrough, this.obfuscated, this.clickEvent, this.hoverEvent, this.insertion, this.font
@@ -136,10 +138,21 @@ public class Style {
         );
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Style withUnderlined(@Nullable Boolean param0) {
         return new Style(
             this.color, this.bold, this.italic, param0, this.strikethrough, this.obfuscated, this.clickEvent, this.hoverEvent, this.insertion, this.font
+        );
+    }
+
+    public Style withStrikethrough(@Nullable Boolean param0) {
+        return new Style(
+            this.color, this.bold, this.italic, this.underlined, param0, this.obfuscated, this.clickEvent, this.hoverEvent, this.insertion, this.font
+        );
+    }
+
+    public Style withObfuscated(@Nullable Boolean param0) {
+        return new Style(
+            this.color, this.bold, this.italic, this.underlined, this.strikethrough, param0, this.clickEvent, this.hoverEvent, this.insertion, this.font
         );
     }
 
@@ -161,7 +174,6 @@ public class Style {
         );
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Style withFont(@Nullable ResourceLocation param0) {
         return new Style(
             this.color, this.bold, this.italic, this.underlined, this.strikethrough, this.obfuscated, this.clickEvent, this.hoverEvent, this.insertion, param0
@@ -200,7 +212,6 @@ public class Style {
         return new Style(var0, var1, var2, var4, var3, var5, this.clickEvent, this.hoverEvent, this.insertion, this.font);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Style applyLegacyFormat(ChatFormatting param0) {
         TextColor var0 = this.color;
         Boolean var1 = this.bold;

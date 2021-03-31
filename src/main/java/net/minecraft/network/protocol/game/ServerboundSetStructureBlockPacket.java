@@ -9,10 +9,11 @@ import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.StructureBlockEntity;
 import net.minecraft.world.level.block.state.properties.StructureMode;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ServerboundSetStructureBlockPacket implements Packet<ServerGamePacketListener> {
+    private static final int FLAG_IGNORE_ENTITIES = 1;
+    private static final int FLAG_SHOW_AIR = 2;
+    private static final int FLAG_SHOW_BOUNDING_BOX = 4;
     private final BlockPos pos;
     private final StructureBlockEntity.UpdateType updateType;
     private final StructureMode mode;
@@ -28,7 +29,6 @@ public class ServerboundSetStructureBlockPacket implements Packet<ServerGamePack
     private final float integrity;
     private final long seed;
 
-    @OnlyIn(Dist.CLIENT)
     public ServerboundSetStructureBlockPacket(
         BlockPos param0,
         StructureBlockEntity.UpdateType param1,

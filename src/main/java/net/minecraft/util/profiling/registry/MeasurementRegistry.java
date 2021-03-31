@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.stream.Collectors;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class MeasurementRegistry {
     public static final MeasurementRegistry INSTANCE = new MeasurementRegistry();
@@ -19,7 +17,6 @@ public class MeasurementRegistry {
         this.measuredInstances.put(param0, null);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Map<MeasurementCategory, List<MeasuredMetric>> getMetricsByCategories() {
         return this.measuredInstances
             .keySet()

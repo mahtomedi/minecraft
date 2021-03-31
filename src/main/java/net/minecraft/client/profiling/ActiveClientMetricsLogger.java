@@ -32,6 +32,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class ActiveClientMetricsLogger implements ClientMetricsLogger {
+    public static final int PROFILING_MAX_DURATION_SECONDS = 10;
     @Nullable
     private static Consumer<Path> globalOnReportFinished = null;
     private final List<SamplerCategory> samplerCategories = new ObjectArrayList<>();
@@ -206,5 +207,9 @@ public class ActiveClientMetricsLogger implements ClientMetricsLogger {
             this.taskProfiler.disable();
             this.onReportFinished.accept(var0);
         });
+    }
+
+    public static void registerGlobalCompletionCallback(Consumer<Path> param0) {
+        globalOnReportFinished = param0;
     }
 }

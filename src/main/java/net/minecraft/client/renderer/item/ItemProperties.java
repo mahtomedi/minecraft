@@ -27,6 +27,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.LightBlock;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -34,6 +35,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class ItemProperties {
     private static final Map<ResourceLocation, ItemPropertyFunction> GENERIC_PROPERTIES = Maps.newHashMap();
+    private static final String TAG_CUSTOM_MODEL_DATA = "CustomModelData";
     private static final ResourceLocation DAMAGED = new ResourceLocation("damaged");
     private static final ResourceLocation DAMAGE = new ResourceLocation("damage");
     private static final ItemPropertyFunction PROPERTY_DAMAGED = (param0, param1, param2, param3) -> param0.isDamaged() ? 1.0F : 0.0F;
@@ -291,6 +293,18 @@ public class ItemProperties {
             new ResourceLocation("throwing"),
             (param0, param1, param2, param3) -> param2 != null && param2.isUsingItem() && param2.getUseItem() == param0 ? 1.0F : 0.0F
         );
+        register(Items.LIGHT, new ResourceLocation("level"), (param0, param1, param2, param3) -> {
+            CompoundTag var0 = param0.getTagElement("BlockStateTag");
+
+            try {
+                if (var0 != null) {
+                    return (float)Integer.parseInt(var0.getString(LightBlock.LEVEL.getName()));
+                }
+            } catch (NumberFormatException var6) {
+            }
+
+            return 15.0F;
+        });
     }
 
     @OnlyIn(Dist.CLIENT)

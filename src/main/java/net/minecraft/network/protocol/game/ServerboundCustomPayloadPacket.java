@@ -4,15 +4,13 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ServerboundCustomPayloadPacket implements Packet<ServerGamePacketListener> {
+    private static final int MAX_PAYLOAD_SIZE = 32767;
     public static final ResourceLocation BRAND = new ResourceLocation("brand");
     private final ResourceLocation identifier;
     private final FriendlyByteBuf data;
 
-    @OnlyIn(Dist.CLIENT)
     public ServerboundCustomPayloadPacket(ResourceLocation param0, FriendlyByteBuf param1) {
         this.identifier = param0;
         this.data = param1;
@@ -37,5 +35,13 @@ public class ServerboundCustomPayloadPacket implements Packet<ServerGamePacketLi
     public void handle(ServerGamePacketListener param0) {
         param0.handleCustomPayload(this);
         this.data.release();
+    }
+
+    public ResourceLocation getIdentifier() {
+        return this.identifier;
+    }
+
+    public FriendlyByteBuf getData() {
+        return this.data;
     }
 }

@@ -28,4 +28,8 @@ public class ComponentCollector {
         FormattedText var0 = this.getResult();
         return var0 != null ? var0 : FormattedText.EMPTY;
     }
+
+    public void reset() {
+        this.parts.clear();
+    }
 }

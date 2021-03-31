@@ -63,8 +63,6 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class BlockBehaviour {
     protected static final Direction[] UPDATE_SHAPE_ORDER = new Direction[]{
@@ -121,7 +119,6 @@ public abstract class BlockBehaviour {
     }
 
     @Deprecated
-    @OnlyIn(Dist.CLIENT)
     public boolean skipRendering(BlockState param0, BlockState param1, Direction param2) {
         return false;
     }
@@ -225,7 +222,6 @@ public abstract class BlockBehaviour {
     }
 
     @Deprecated
-    @OnlyIn(Dist.CLIENT)
     public long getSeed(BlockState param0, BlockPos param1) {
         return Mth.getSeed(param1);
     }
@@ -266,7 +262,6 @@ public abstract class BlockBehaviour {
     }
 
     @Deprecated
-    @OnlyIn(Dist.CLIENT)
     public float getShadeBrightness(BlockState param0, BlockGetter param1, BlockPos param2) {
         return param0.isCollisionShapeFullBlock(param1, param2) ? 0.2F : 1.0F;
     }
@@ -458,12 +453,10 @@ public abstract class BlockBehaviour {
             return this.getBlock().getRenderShape(this.asState());
         }
 
-        @OnlyIn(Dist.CLIENT)
         public boolean emissiveRendering(BlockGetter param0, BlockPos param1) {
             return this.emissiveRendering.test(this.asState(), param0, param1);
         }
 
-        @OnlyIn(Dist.CLIENT)
         public float getShadeBrightness(BlockGetter param0, BlockPos param1) {
             return this.getBlock().getShadeBrightness(this.asState(), param0, param1);
         }
@@ -517,7 +510,6 @@ public abstract class BlockBehaviour {
             return this.canOcclude;
         }
 
-        @OnlyIn(Dist.CLIENT)
         public boolean skipRendering(BlockState param0, Direction param1) {
             return this.getBlock().skipRendering(this.asState(), param0, param1);
         }
@@ -646,7 +638,6 @@ public abstract class BlockBehaviour {
             return this.isSuffocating.test(this.asState(), param0, param1);
         }
 
-        @OnlyIn(Dist.CLIENT)
         public boolean isViewBlocking(BlockGetter param0, BlockPos param1) {
             return this.isViewBlocking.test(this.asState(), param0, param1);
         }
@@ -709,7 +700,6 @@ public abstract class BlockBehaviour {
             return this.getBlock().isRandomlyTicking(this.asState());
         }
 
-        @OnlyIn(Dist.CLIENT)
         public long getSeed(BlockPos param0) {
             return this.getBlock().getSeed(this.asState(), param0);
         }

@@ -36,6 +36,10 @@ public class ChunkTaskPriorityQueueSorter implements AutoCloseable, ChunkHolder.
         this.mailbox = new ProcessorMailbox<>(new StrictQueue.FixedPriorityQueue(4), param1, "sorter");
     }
 
+    public static <T> ChunkTaskPriorityQueueSorter.Message<T> message(Function<ProcessorHandle<Unit>, T> param0, long param1, IntSupplier param2) {
+        return new ChunkTaskPriorityQueueSorter.Message<>(param0, param1, param2);
+    }
+
     public static ChunkTaskPriorityQueueSorter.Message<Runnable> message(Runnable param0, long param1, IntSupplier param2) {
         return new ChunkTaskPriorityQueueSorter.Message<>(param1x -> () -> {
                 param0.run();
@@ -44,6 +48,10 @@ public class ChunkTaskPriorityQueueSorter implements AutoCloseable, ChunkHolder.
     }
 
     public static ChunkTaskPriorityQueueSorter.Message<Runnable> message(ChunkHolder param0, Runnable param1) {
+        return message(param1, param0.getPos().toLong(), param0::getQueueLevel);
+    }
+
+    public static <T> ChunkTaskPriorityQueueSorter.Message<T> message(ChunkHolder param0, Function<ProcessorHandle<Unit>, T> param1) {
         return message(param1, param0.getPos().toLong(), param0::getQueueLevel);
     }
 

@@ -18,6 +18,7 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
 import net.minecraft.core.SectionPos;
+import net.minecraft.util.VisibleForDebug;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.phys.AABB;
 
@@ -125,6 +126,7 @@ public class EntitySectionStorage<T extends EntityAccess> {
         this.sectionIds.remove(param0);
     }
 
+    @VisibleForDebug
     public int count() {
         return this.sectionIds.size();
     }

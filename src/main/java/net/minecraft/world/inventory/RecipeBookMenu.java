@@ -5,8 +5,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.StackedContents;
 import net.minecraft.world.item.crafting.Recipe;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class RecipeBookMenu<C extends Container> extends AbstractContainerMenu {
     public RecipeBookMenu(MenuType<?> param0, int param1) {
@@ -31,7 +29,6 @@ public abstract class RecipeBookMenu<C extends Container> extends AbstractContai
 
     public abstract int getSize();
 
-    @OnlyIn(Dist.CLIENT)
     public abstract RecipeBookType getRecipeBookType();
 
     public abstract boolean shouldMoveToInventory(int var1);

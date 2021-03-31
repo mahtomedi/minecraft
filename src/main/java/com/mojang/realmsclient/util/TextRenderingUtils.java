@@ -10,6 +10,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class TextRenderingUtils {
+    private TextRenderingUtils() {
+    }
+
     @VisibleForTesting
     protected static List<String> lineBreak(String param0) {
         return Arrays.asList(param0.split("\\n"));
@@ -72,6 +75,10 @@ public class TextRenderingUtils {
     @OnlyIn(Dist.CLIENT)
     public static class Line {
         public final List<TextRenderingUtils.LineSegment> segments;
+
+        Line(TextRenderingUtils.LineSegment... param0) {
+            this(Arrays.asList(param0));
+        }
 
         Line(List<TextRenderingUtils.LineSegment> param0) {
             this.segments = param0;

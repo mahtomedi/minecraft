@@ -1,6 +1,5 @@
 package net.minecraft.world.level.levelgen.structure;
 
-import java.util.List;
 import java.util.Random;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
@@ -18,7 +17,6 @@ import net.minecraft.world.level.levelgen.feature.StructurePieceType;
 import net.minecraft.world.level.levelgen.structure.templatesystem.BlockIgnoreProcessor;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 
 public class NetherFossilPieces {
     private static final ResourceLocation[] FOSSILS = new ResourceLocation[]{
@@ -38,44 +36,28 @@ public class NetherFossilPieces {
         new ResourceLocation("nether_fossils/fossil_14")
     };
 
-    public static void addPieces(StructureManager param0, List<StructurePiece> param1, Random param2, BlockPos param3) {
+    public static void addPieces(StructureManager param0, StructurePieceAccessor param1, Random param2, BlockPos param3) {
         Rotation var0 = Rotation.getRandom(param2);
-        param1.add(new NetherFossilPieces.NetherFossilPiece(param0, Util.getRandom(FOSSILS, param2), param3, var0));
+        param1.addPiece(new NetherFossilPieces.NetherFossilPiece(param0, Util.getRandom(FOSSILS, param2), param3, var0));
     }
 
     public static class NetherFossilPiece extends TemplateStructurePiece {
-        private final ResourceLocation templateLocation;
-        private final Rotation rotation;
-
         public NetherFossilPiece(StructureManager param0, ResourceLocation param1, BlockPos param2, Rotation param3) {
-            super(StructurePieceType.NETHER_FOSSIL, 0);
-            this.templateLocation = param1;
-            this.templatePosition = param2;
-            this.rotation = param3;
-            this.loadTemplate(param0);
+            super(StructurePieceType.NETHER_FOSSIL, 0, param0, param1, param1.toString(), makeSettings(param3), param2);
         }
 
         public NetherFossilPiece(ServerLevel param0, CompoundTag param1) {
-            super(StructurePieceType.NETHER_FOSSIL, param1);
-            this.templateLocation = new ResourceLocation(param1.getString("Template"));
-            this.rotation = Rotation.valueOf(param1.getString("Rot"));
-            this.loadTemplate(param0.getStructureManager());
+            super(StructurePieceType.NETHER_FOSSIL, param1, param0, param1x -> makeSettings(Rotation.valueOf(param1.getString("Rot"))));
         }
 
-        private void loadTemplate(StructureManager param0) {
-            StructureTemplate var0 = param0.getOrCreate(this.templateLocation);
-            StructurePlaceSettings var1 = new StructurePlaceSettings()
-                .setRotation(this.rotation)
-                .setMirror(Mirror.NONE)
-                .addProcessor(BlockIgnoreProcessor.STRUCTURE_AND_AIR);
-            this.setup(var0, this.templatePosition, var1);
+        private static StructurePlaceSettings makeSettings(Rotation param0) {
+            return new StructurePlaceSettings().setRotation(param0).setMirror(Mirror.NONE).addProcessor(BlockIgnoreProcessor.STRUCTURE_AND_AIR);
         }
 
         @Override
         protected void addAdditionalSaveData(ServerLevel param0, CompoundTag param1) {
             super.addAdditionalSaveData(param0, param1);
-            param1.putString("Template", this.templateLocation.toString());
-            param1.putString("Rot", this.rotation.name());
+            param1.putString("Rot", this.placeSettings.getRotation().name());
         }
 
         @Override
@@ -86,7 +68,7 @@ public class NetherFossilPieces {
         public boolean postProcess(
             WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
-            param4.expand(this.template.getBoundingBox(this.placeSettings, this.templatePosition));
+            param4.encapsulate(this.template.getBoundingBox(this.placeSettings, this.templatePosition));
             return super.postProcess(param0, param1, param2, param3, param4, param5, param6);
         }
     }

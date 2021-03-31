@@ -32,8 +32,6 @@ import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.levelgen.feature.configurations.LayerConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.StructureFeatureConfiguration;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -114,12 +112,10 @@ public class FlatLevelGeneratorSettings {
         this.layers = Lists.newArrayList();
     }
 
-    @OnlyIn(Dist.CLIENT)
     public FlatLevelGeneratorSettings withStructureSettings(StructureSettings param0) {
         return this.withLayers(this.layersInfo, param0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public FlatLevelGeneratorSettings withLayers(List<FlatLayerInfo> param0, StructureSettings param1) {
         FlatLevelGeneratorSettings var0 = new FlatLevelGeneratorSettings(param1, this.biomes);
 
@@ -205,7 +201,6 @@ public class FlatLevelGeneratorSettings {
         return this.biome.get();
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void setBiome(Supplier<Biome> param0) {
         this.biome = param0;
     }

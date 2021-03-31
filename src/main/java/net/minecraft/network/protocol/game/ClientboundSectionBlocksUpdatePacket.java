@@ -9,10 +9,9 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunkSection;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundSectionBlocksUpdatePacket implements Packet<ClientGamePacketListener> {
+    private static final int POS_IN_SECTION_BITS = 12;
     private final SectionPos sectionPos;
     private final short[] positions;
     private final BlockState[] states;
@@ -76,7 +75,6 @@ public class ClientboundSectionBlocksUpdatePacket implements Packet<ClientGamePa
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean shouldSuppressLightUpdates() {
         return this.suppressLightUpdates;
     }

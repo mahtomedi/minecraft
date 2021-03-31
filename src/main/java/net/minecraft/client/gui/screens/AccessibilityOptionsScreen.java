@@ -23,8 +23,10 @@ public class AccessibilityOptionsScreen extends SimpleOptionsSubScreen {
         Option.TOGGLE_CROUCH,
         Option.TOGGLE_SPRINT,
         Option.SCREEN_EFFECTS_SCALE,
-        Option.FOV_EFFECTS_SCALE
+        Option.FOV_EFFECTS_SCALE,
+        Option.DARK_MOJANG_STUDIOS_BACKGROUND_COLOR
     };
+    private static final String GUIDE_LINK = "https://aka.ms/MinecraftJavaAccessibility";
 
     public AccessibilityOptionsScreen(Screen param0, Options param1) {
         super(param0, param1, new TranslatableComponent("options.accessibility.title"), OPTIONS);

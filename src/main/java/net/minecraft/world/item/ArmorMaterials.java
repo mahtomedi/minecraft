@@ -6,8 +6,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.LazyLoadedValue;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public enum ArmorMaterials implements ArmorMaterial {
     LEATHER("leather", 5, new int[]{1, 2, 3, 1}, 15, SoundEvents.ARMOR_EQUIP_LEATHER, 0.0F, 0.0F, () -> Ingredient.of(Items.LEATHER)),
@@ -64,7 +62,6 @@ public enum ArmorMaterials implements ArmorMaterial {
         return this.repairIngredient.get();
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public String getName() {
         return this.name;

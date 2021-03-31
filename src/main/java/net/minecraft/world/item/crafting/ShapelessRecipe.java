@@ -11,8 +11,6 @@ import net.minecraft.world.entity.player.StackedContents;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ShapelessRecipe implements CraftingRecipe {
     private final ResourceLocation id;
@@ -37,7 +35,6 @@ public class ShapelessRecipe implements CraftingRecipe {
         return RecipeSerializer.SHAPELESS_RECIPE;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public String getGroup() {
         return this.group;
@@ -72,7 +69,6 @@ public class ShapelessRecipe implements CraftingRecipe {
         return this.result.copy();
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public boolean canCraftInDimensions(int param0, int param1) {
         return param0 * param1 >= this.ingredients.size();
@@ -87,7 +83,7 @@ public class ShapelessRecipe implements CraftingRecipe {
             } else if (var1.size() > 9) {
                 throw new JsonParseException("Too many ingredients for shapeless recipe");
             } else {
-                ItemStack var2 = ShapedRecipe.itemFromJson(GsonHelper.getAsJsonObject(param1, "result"));
+                ItemStack var2 = ShapedRecipe.itemStackFromJson(GsonHelper.getAsJsonObject(param1, "result"));
                 return new ShapelessRecipe(param0, var0, var2, var1);
             }
         }

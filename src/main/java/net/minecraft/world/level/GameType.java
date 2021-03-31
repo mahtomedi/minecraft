@@ -4,8 +4,6 @@ import javax.annotation.Nullable;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.player.Abilities;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public enum GameType {
     SURVIVAL(0, "survival"),
@@ -14,6 +12,7 @@ public enum GameType {
     SPECTATOR(3, "spectator");
 
     public static final GameType DEFAULT_MODE = SURVIVAL;
+    private static final int NOT_SET = -1;
     private final int id;
     private final String name;
     private final Component shortName;
@@ -38,7 +37,6 @@ public enum GameType {
         return this.longName;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Component getShortDisplayName() {
         return this.shortName;
     }

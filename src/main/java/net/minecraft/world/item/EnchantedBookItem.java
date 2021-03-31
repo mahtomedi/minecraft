@@ -11,10 +11,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentInstance;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class EnchantedBookItem extends Item {
+    public static final String TAG_STORED_ENCHANTMENTS = "StoredEnchantments";
+
     public EnchantedBookItem(Item.Properties param0) {
         super(param0);
     }
@@ -34,7 +34,6 @@ public class EnchantedBookItem extends Item {
         return var0 != null ? var0.getList("StoredEnchantments", 10) : new ListTag();
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void appendHoverText(ItemStack param0, @Nullable Level param1, List<Component> param2, TooltipFlag param3) {
         super.appendHoverText(param0, param1, param2, param3);

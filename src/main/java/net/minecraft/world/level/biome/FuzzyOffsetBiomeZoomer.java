@@ -5,6 +5,10 @@ import net.minecraft.util.LinearCongruentialGenerator;
 public enum FuzzyOffsetBiomeZoomer implements BiomeZoomer {
     INSTANCE;
 
+    private static final int ZOOM_BITS = 2;
+    private static final int ZOOM = 4;
+    private static final int ZOOM_MASK = 3;
+
     @Override
     public Biome getBiome(long param0, int param1, int param2, int param3, BiomeManager.NoiseBiomeSource param4) {
         int var0 = param1 - 2;

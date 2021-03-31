@@ -35,12 +35,14 @@ import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ComposterBlock extends Block implements WorldlyContainerHolder {
+    public static final int READY = 8;
+    public static final int MIN_LEVEL = 0;
+    public static final int MAX_LEVEL = 7;
     public static final IntegerProperty LEVEL = BlockStateProperties.LEVEL_COMPOSTER;
     public static final Object2FloatMap<ItemLike> COMPOSTABLES = new Object2FloatOpenHashMap<>();
+    private static final int AABB_SIDE_THICKNESS = 2;
     private static final VoxelShape OUTER_SHAPE = Shapes.block();
     private static final VoxelShape[] SHAPES = Util.make(new VoxelShape[9], param0 -> {
         for(int var0 = 0; var0 < 8; ++var0) {
@@ -159,7 +161,6 @@ public class ComposterBlock extends Block implements WorldlyContainerHolder {
         this.registerDefaultState(this.stateDefinition.any().setValue(LEVEL, Integer.valueOf(0)));
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static void handleFill(Level param0, BlockPos param1, boolean param2) {
         BlockState var0 = param0.getBlockState(param1);
         param0.playLocalSound(

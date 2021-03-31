@@ -8,8 +8,8 @@ import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.util.IntRange;
 import net.minecraft.util.TimeUtil;
+import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EntityType;
@@ -38,8 +38,21 @@ import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.schedule.Activity;
 
 public class HoglinAi {
-    private static final IntRange RETREAT_DURATION = TimeUtil.rangeOfSeconds(5, 20);
-    private static final IntRange ADULT_FOLLOW_RANGE = IntRange.of(5, 16);
+    public static final int REPELLENT_DETECTION_RANGE_HORIZONTAL = 8;
+    public static final int REPELLENT_DETECTION_RANGE_VERTICAL = 4;
+    private static final UniformInt RETREAT_DURATION = TimeUtil.rangeOfSeconds(5, 20);
+    private static final int ATTACK_DURATION = 200;
+    private static final int DESIRED_DISTANCE_FROM_PIGLIN_WHEN_IDLING = 8;
+    private static final int DESIRED_DISTANCE_FROM_PIGLIN_WHEN_RETREATING = 15;
+    private static final int ATTACK_INTERVAL = 40;
+    private static final int BABY_ATTACK_INTERVAL = 15;
+    private static final int REPELLENT_PACIFY_TIME = 200;
+    private static final UniformInt ADULT_FOLLOW_RANGE = UniformInt.of(5, 16);
+    private static final float SPEED_MULTIPLIER_WHEN_AVOIDING_REPELLENT = 1.0F;
+    private static final float SPEED_MULTIPLIER_WHEN_RETREATING = 1.3F;
+    private static final float SPEED_MULTIPLIER_WHEN_MAKING_LOVE = 0.6F;
+    private static final float SPEED_MULTIPLIER_WHEN_IDLING = 0.4F;
+    private static final float SPEED_MULTIPLIER_WHEN_FOLLOWING_ADULT = 0.6F;
 
     protected static Brain<?> makeBrain(Brain<Hoglin> param0) {
         initCoreActivity(param0);
@@ -66,7 +79,7 @@ public class HoglinAi {
                 SetWalkTargetAwayFrom.pos(MemoryModuleType.NEAREST_REPELLENT, 1.0F, 8, true),
                 new StartAttacking<Hoglin>(HoglinAi::findNearestValidAttackTarget),
                 new RunIf<Hoglin>(Hoglin::isAdult, SetWalkTargetAwayFrom.entity(MemoryModuleType.NEAREST_VISIBLE_ADULT_PIGLIN, 0.4F, 8, false)),
-                new RunSometimes<LivingEntity>(new SetEntityLookTarget(8.0F), IntRange.of(30, 60)),
+                new RunSometimes<LivingEntity>(new SetEntityLookTarget(8.0F), UniformInt.of(30, 60)),
                 new BabyFollowAdult(ADULT_FOLLOW_RANGE, 0.6F),
                 createIdleMovementBehaviors()
             )
@@ -97,7 +110,7 @@ public class HoglinAi {
             ImmutableList.of(
                 SetWalkTargetAwayFrom.entity(MemoryModuleType.AVOID_TARGET, 1.3F, 15, false),
                 createIdleMovementBehaviors(),
-                new RunSometimes<LivingEntity>(new SetEntityLookTarget(8.0F), IntRange.of(30, 60)),
+                new RunSometimes<LivingEntity>(new SetEntityLookTarget(8.0F), UniformInt.of(30, 60)),
                 new EraseMemoryIf<Hoglin>(HoglinAi::wantsToStopFleeing, MemoryModuleType.AVOID_TARGET)
             ),
             MemoryModuleType.AVOID_TARGET
@@ -147,7 +160,7 @@ public class HoglinAi {
     private static void setAvoidTarget(Hoglin param0, LivingEntity param1) {
         param0.getBrain().eraseMemory(MemoryModuleType.ATTACK_TARGET);
         param0.getBrain().eraseMemory(MemoryModuleType.WALK_TARGET);
-        param0.getBrain().setMemoryWithExpiry(MemoryModuleType.AVOID_TARGET, param1, (long)RETREAT_DURATION.randomValue(param0.level.random));
+        param0.getBrain().setMemoryWithExpiry(MemoryModuleType.AVOID_TARGET, param1, (long)RETREAT_DURATION.sample(param0.level.random));
     }
 
     private static Optional<? extends LivingEntity> findNearestValidAttackTarget(Hoglin param0x) {

@@ -3,8 +3,6 @@ package net.minecraft.network.protocol.game;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.level.border.WorldBorder;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundSetBorderWarningDistancePacket implements Packet<ClientGamePacketListener> {
     private final int warningBlocks;
@@ -26,7 +24,6 @@ public class ClientboundSetBorderWarningDistancePacket implements Packet<ClientG
         param0.handleSetBorderWarningDistance(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getWarningBlocks() {
         return this.warningBlocks;
     }

@@ -21,10 +21,9 @@ import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class SignBlockEntity extends BlockEntity {
+    public static final int LINES = 4;
     private static final String[] RAW_TEXT_FIELD_NAMES = new String[]{"Text1", "Text2", "Text3", "Text4"};
     private static final String[] FILTERED_TEXT_FIELD_NAMES = new String[]{"FilteredText1", "FilteredText2", "FilteredText3", "FilteredText4"};
     private final Component[] messages = new Component[]{TextComponent.EMPTY, TextComponent.EMPTY, TextComponent.EMPTY, TextComponent.EMPTY};
@@ -33,7 +32,6 @@ public class SignBlockEntity extends BlockEntity {
     private Player playerWhoMayEdit;
     @Nullable
     private FormattedCharSequence[] renderMessages;
-    @OnlyIn(Dist.CLIENT)
     private boolean renderMessagedFiltered;
     private DyeColor color = DyeColor.BLACK;
     private boolean hasGlowingText;
@@ -107,7 +105,6 @@ public class SignBlockEntity extends BlockEntity {
         return TextComponent.EMPTY;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Component getMessage(int param0, boolean param1) {
         return this.getMessages(param1)[param0];
     }
@@ -122,7 +119,6 @@ public class SignBlockEntity extends BlockEntity {
         this.renderMessages = null;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public FormattedCharSequence[] getRenderMessages(boolean param0, Function<Component, FormattedCharSequence> param1) {
         if (this.renderMessages == null || this.renderMessagedFiltered != param0) {
             this.renderMessagedFiltered = param0;
@@ -160,7 +156,6 @@ public class SignBlockEntity extends BlockEntity {
         return this.isEditable;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void setEditable(boolean param0) {
         this.isEditable = param0;
         if (!param0) {

@@ -8,8 +8,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.level.saveddata.maps.MapDecoration;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundMapItemDataPacket implements Packet<ClientGamePacketListener> {
     private final int mapId;
@@ -100,12 +98,10 @@ public class ClientboundMapItemDataPacket implements Packet<ClientGamePacketList
         param0.handleMapItemData(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getMapId() {
         return this.mapId;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void applyToMap(MapItemSavedData param0) {
         if (this.decorations != null) {
             param0.addClientSideDecorations(this.decorations);
@@ -117,12 +113,10 @@ public class ClientboundMapItemDataPacket implements Packet<ClientGamePacketList
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     public byte getScale() {
         return this.scale;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean isLocked() {
         return this.locked;
     }

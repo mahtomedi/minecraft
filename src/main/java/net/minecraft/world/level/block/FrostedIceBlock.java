@@ -13,11 +13,12 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class FrostedIceBlock extends IceBlock {
+    public static final int MAX_AGE = 3;
     public static final IntegerProperty AGE = BlockStateProperties.AGE_3;
+    private static final int NEIGHBORS_TO_AGE = 4;
+    private static final int NEIGHBORS_TO_MELT = 2;
 
     public FrostedIceBlock(BlockBehaviour.Properties param0) {
         super(param0);
@@ -90,7 +91,6 @@ public class FrostedIceBlock extends IceBlock {
         param0.add(AGE);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public ItemStack getCloneItemStack(BlockGetter param0, BlockPos param1, BlockState param2) {
         return ItemStack.EMPTY;

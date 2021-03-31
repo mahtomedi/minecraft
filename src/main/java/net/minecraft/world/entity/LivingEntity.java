@@ -49,6 +49,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Mth;
@@ -111,8 +112,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.PlayerTeam;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class LivingEntity extends Entity {
     private static final UUID SPEED_MODIFIER_SPRINTING_UUID = UUID.fromString("662A6B8D-DA3E-4C1C-8813-96EA6097278D");
@@ -121,6 +120,23 @@ public abstract class LivingEntity extends Entity {
     private static final AttributeModifier SPEED_MODIFIER_SPRINTING = new AttributeModifier(
         SPEED_MODIFIER_SPRINTING_UUID, "Sprinting speed boost", 0.3F, AttributeModifier.Operation.MULTIPLY_TOTAL
     );
+    public static final int HAND_SLOTS = 2;
+    public static final int ARMOR_SLOTS = 4;
+    public static final int EQUIPMENT_SLOT_OFFSET = 98;
+    public static final int ARMOR_SLOT_OFFSET = 100;
+    public static final int SWING_DURATION = 6;
+    public static final int PLAYER_HURT_EXPERIENCE_TIME = 100;
+    private static final int DAMAGE_SOURCE_TIMEOUT = 40;
+    public static final double MIN_MOVEMENT_DISTANCE = 0.003;
+    public static final double DEFAULT_BASE_GRAVITY = 0.08;
+    public static final int DEATH_DURATION = 20;
+    private static final int WAIT_TICKS_BEFORE_ITEM_USE_EFFECTS = 7;
+    private static final int TICKS_PER_ELYTRA_FREE_FALL_EVENT = 10;
+    private static final int FREE_FALL_EVENTS_PER_ELYTRA_BREAK = 2;
+    public static final int USE_ITEM_INTERVAL = 4;
+    protected static final int LIVING_ENTITY_FLAG_IS_USING = 1;
+    protected static final int LIVING_ENTITY_FLAG_OFF_HAND = 2;
+    protected static final int LIVING_ENTITY_FLAG_SPIN_ATTACK = 4;
     protected static final EntityDataAccessor<Byte> DATA_LIVING_ENTITY_FLAGS = SynchedEntityData.defineId(LivingEntity.class, EntityDataSerializers.BYTE);
     private static final EntityDataAccessor<Float> DATA_HEALTH_ID = SynchedEntityData.defineId(LivingEntity.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Integer> DATA_EFFECT_COLOR_ID = SynchedEntityData.defineId(LivingEntity.class, EntityDataSerializers.INT);
@@ -130,13 +146,16 @@ public abstract class LivingEntity extends Entity {
     private static final EntityDataAccessor<Optional<BlockPos>> SLEEPING_POS_ID = SynchedEntityData.defineId(
         LivingEntity.class, EntityDataSerializers.OPTIONAL_BLOCK_POS
     );
+    protected static final float DEFAULT_EYE_HEIGHT = 1.74F;
     protected static final EntityDimensions SLEEPING_DIMENSIONS = EntityDimensions.fixed(0.2F, 0.2F);
+    public static final float EXTRA_RENDER_CULLING_SIZE_WITH_BIG_HAT = 0.5F;
     private final AttributeMap attributes;
     private final CombatTracker combatTracker = new CombatTracker(this);
     private final Map<MobEffect, MobEffectInstance> activeEffects = Maps.newHashMap();
     private final NonNullList<ItemStack> lastHandItemStacks = NonNullList.withSize(2, ItemStack.EMPTY);
     private final NonNullList<ItemStack> lastArmorItemStacks = NonNullList.withSize(4, ItemStack.EMPTY);
     public boolean swinging;
+    private boolean discardFriction = false;
     public InteractionHand swingingArm;
     public int swingTime;
     public int removeArrowTime;
@@ -289,7 +308,6 @@ public abstract class LivingEntity extends Entity {
         return this.getMobType() == MobType.UNDEAD;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getSwimAmount(float param0) {
         return Mth.lerp(param0, this.swimAmountO, this.swimAmount);
     }
@@ -628,6 +646,14 @@ public abstract class LivingEntity extends Entity {
         this.noActionTime = param0;
     }
 
+    public boolean shouldDiscardFriction() {
+        return this.discardFriction;
+    }
+
+    public void setDiscardFriction(boolean param0) {
+        this.discardFriction = param0;
+    }
+
     protected void equipEventAndSound(ItemStack param0) {
         SoundEvent var0 = param0.getEquipSound();
         if (!param0.isEmpty() && var0 != null && !this.isSpectator()) {
@@ -908,7 +934,6 @@ public abstract class LivingEntity extends Entity {
         return true;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void forceAddEffect(MobEffectInstance param0) {
         if (this.canBeAffected(param0)) {
             MobEffectInstance var0 = this.activeEffects.put(param0.getEffect(), param0);
@@ -1228,7 +1253,6 @@ public abstract class LivingEntity extends Entity {
         return false;
     }
 
-    @OnlyIn(Dist.CLIENT)
     private void breakItem(ItemStack param0) {
         if (!param0.isEmpty()) {
             if (!this.isSilent()) {
@@ -1479,7 +1503,6 @@ public abstract class LivingEntity extends Entity {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void animateHurt() {
         this.hurtDuration = 10;
@@ -1625,7 +1648,6 @@ public abstract class LivingEntity extends Entity {
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void handleEntityEvent(byte param0) {
         switch(param0) {
@@ -1765,7 +1787,6 @@ public abstract class LivingEntity extends Entity {
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     private void swapHandItems() {
         ItemStack var0 = this.getItemBySlot(EquipmentSlot.OFFHAND);
         this.setItemSlot(EquipmentSlot.OFFHAND, this.getItemBySlot(EquipmentSlot.MAINHAND));
@@ -1927,7 +1948,6 @@ public abstract class LivingEntity extends Entity {
         this.dismountTo(var1.x, var1.y, var1.z);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public boolean shouldShowName() {
         return this.isCustomNameVisible();
@@ -1953,7 +1973,6 @@ public abstract class LivingEntity extends Entity {
         this.hasImpulse = true;
     }
 
-    @OnlyIn(Dist.CLIENT)
     protected void goDownInWater() {
         this.setDeltaMovement(this.getDeltaMovement().add(0.0, -0.04F, 0.0));
     }
@@ -2097,7 +2116,11 @@ public abstract class LivingEntity extends Entity {
                     var28 -= var0;
                 }
 
-                this.setDeltaMovement(var27.x * (double)var26, var28 * 0.98F, var27.z * (double)var26);
+                if (this.shouldDiscardFriction()) {
+                    this.setDeltaMovement(var27.x, var28, var27.z);
+                } else {
+                    this.setDeltaMovement(var27.x * (double)var26, var28 * 0.98F, var27.z * (double)var26);
+                }
             }
         }
 
@@ -2220,6 +2243,8 @@ public abstract class LivingEntity extends Entity {
                 if (this.getSharedFlag(6) != var2) {
                     this.setSharedFlag(6, var2);
                 }
+
+                this.glowing = var2;
             }
 
             if (this.isSleeping() && !this.checkBedExists()) {
@@ -2523,17 +2548,21 @@ public abstract class LivingEntity extends Entity {
         this.travel(new Vec3((double)this.xxa, (double)this.yya, (double)this.zza));
         this.level.getProfiler().pop();
         this.level.getProfiler().push("freezing");
-        int var13 = this.getTicksFrozen();
-        if (this.isInPowderSnow && this.canFreeze()) {
-            this.setTicksFrozen(Math.min(this.getTicksRequiredToFreeze(), var13 + 1));
-        } else {
-            this.setTicksFrozen(Math.max(0, var13 - 2));
+        boolean var13 = this.getType().is(EntityTypeTags.FREEZE_HURTS_EXTRA_TYPES);
+        if (!this.level.isClientSide) {
+            int var14 = this.getTicksFrozen();
+            if (this.isInPowderSnow && this.canFreeze()) {
+                this.setTicksFrozen(Math.min(this.getTicksRequiredToFreeze(), var14 + 1));
+            } else {
+                this.setTicksFrozen(Math.max(0, var14 - 2));
+            }
         }
 
         this.removeFrost();
         this.tryAddFrost();
-        if (this.tickCount % 60 == 0 && this.isFullyFrozen() && this.canFreeze()) {
-            this.hurt(DamageSource.FREEZE, 1.0F);
+        if (!this.level.isClientSide && this.tickCount % 40 == 0 && this.isFullyFrozen() && this.canFreeze()) {
+            int var15 = var13 ? 5 : 1;
+            this.hurt(DamageSource.FREEZE, (float)var15);
         }
 
         this.level.getProfiler().pop();
@@ -2672,7 +2701,6 @@ public abstract class LivingEntity extends Entity {
         this.fallDistance = 0.0F;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void lerpTo(double param0, double param1, double param2, float param3, float param4, int param5, boolean param6) {
         this.lerpX = param0;
@@ -2683,7 +2711,6 @@ public abstract class LivingEntity extends Entity {
         this.lerpSteps = param5;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void lerpHeadTo(float param0, int param1) {
         this.lyHeadRot = (double)param0;
@@ -2722,7 +2749,6 @@ public abstract class LivingEntity extends Entity {
         return param0 == 1.0F ? this.yHeadRot : Mth.lerp(param0, this.yHeadRotO, this.yHeadRot);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getAttackAnim(float param0) {
         float var0 = this.attackAnim - this.oAttackAnim;
         if (var0 < 0.0F) {
@@ -3004,7 +3030,6 @@ public abstract class LivingEntity extends Entity {
         return super.isVisuallySwimming() || !this.isFallFlying() && this.getPose() == Pose.FALL_FLYING;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getFallFlyingTicks() {
         return this.fallFlyTicks;
     }
@@ -3063,7 +3088,6 @@ public abstract class LivingEntity extends Entity {
         return true;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void setRecordPlayingNearby(BlockPos param0, boolean param1) {
     }
 
@@ -3157,7 +3181,6 @@ public abstract class LivingEntity extends Entity {
     }
 
     @Nullable
-    @OnlyIn(Dist.CLIENT)
     public Direction getBedOrientation() {
         BlockPos var0 = this.getSleepingPos().orElse(null);
         return var0 != null ? BedBlock.getBedOrientation(this.level, var0) : null;
@@ -3244,7 +3267,6 @@ public abstract class LivingEntity extends Entity {
         this.broadcastBreakEvent(param0 == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public AABB getBoundingBoxForCulling() {
         if (this.getItemBySlot(EquipmentSlot.HEAD).is(Items.DRAGON_HEAD)) {
@@ -3304,14 +3326,14 @@ public abstract class LivingEntity extends Entity {
         if (this.isSpectator()) {
             return false;
         } else {
-            return !this.getItemBySlot(EquipmentSlot.HEAD).is(ItemTags.FREEZE_IMMUNE_WEARABLES)
+            boolean var0 = !this.getItemBySlot(EquipmentSlot.HEAD).is(ItemTags.FREEZE_IMMUNE_WEARABLES)
                 && !this.getItemBySlot(EquipmentSlot.CHEST).is(ItemTags.FREEZE_IMMUNE_WEARABLES)
                 && !this.getItemBySlot(EquipmentSlot.LEGS).is(ItemTags.FREEZE_IMMUNE_WEARABLES)
                 && !this.getItemBySlot(EquipmentSlot.FEET).is(ItemTags.FREEZE_IMMUNE_WEARABLES);
+            return var0 && super.canFreeze();
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void recreateFromPacket(ClientboundAddMobPacket param0) {
         double var0 = param0.getX();
         double var1 = param0.getY();

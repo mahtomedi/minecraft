@@ -20,11 +20,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class TropicalFish extends AbstractSchoolingFish {
+    public static final String BUCKET_VARIANT_TAG = "BucketVariantTag";
     private static final EntityDataAccessor<Integer> DATA_ID_TYPE_VARIANT = SynchedEntityData.defineId(TropicalFish.class, EntityDataSerializers.INT);
+    public static final int BASE_SMALL = 0;
+    public static final int BASE_LARGE = 1;
+    private static final int BASES = 2;
     private static final ResourceLocation[] BASE_TEXTURE_LOCATIONS = new ResourceLocation[]{
         new ResourceLocation("textures/entity/fish/tropical_a.png"), new ResourceLocation("textures/entity/fish/tropical_b.png")
     };
@@ -44,6 +46,8 @@ public class TropicalFish extends AbstractSchoolingFish {
         new ResourceLocation("textures/entity/fish/tropical_b_pattern_5.png"),
         new ResourceLocation("textures/entity/fish/tropical_b_pattern_6.png")
     };
+    private static final int PATTERNS = 6;
+    private static final int COLORS = 15;
     public static final int[] COMMON_VARIANTS = new int[]{
         calculateVariant(TropicalFish.Pattern.STRIPEY, DyeColor.ORANGE, DyeColor.GRAY),
         calculateVariant(TropicalFish.Pattern.FLOPPER, DyeColor.GRAY, DyeColor.GRAY),
@@ -78,22 +82,18 @@ public class TropicalFish extends AbstractSchoolingFish {
         super(param0, param1);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static String getPredefinedName(int param0) {
         return "entity.minecraft.tropical_fish.predefined." + param0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static DyeColor getBaseColor(int param0) {
         return DyeColor.byId(getBaseColorIdx(param0));
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static DyeColor getPatternColor(int param0) {
         return DyeColor.byId(getPatternColorIdx(param0));
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static String getFishTypeName(int param0) {
         int var0 = getBaseVariant(param0);
         int var1 = getPatternVariant(param0);
@@ -132,14 +132,20 @@ public class TropicalFish extends AbstractSchoolingFish {
     }
 
     @Override
-    protected void saveToBucketTag(ItemStack param0) {
+    public void saveToBucketTag(ItemStack param0) {
         super.saveToBucketTag(param0);
         CompoundTag var0 = param0.getOrCreateTag();
         var0.putInt("BucketVariantTag", this.getVariant());
     }
 
     @Override
-    protected ItemStack getBucketItemStack() {
+    public void loadFromBucketTag(CompoundTag param0) {
+        super.loadFromBucketTag(param0);
+        this.setVariant(param0.getInt("BucketVariantTag"));
+    }
+
+    @Override
+    public ItemStack getBucketItemStack() {
         return new ItemStack(Items.TROPICAL_FISH_BUCKET);
     }
 
@@ -163,49 +169,40 @@ public class TropicalFish extends AbstractSchoolingFish {
         return SoundEvents.TROPICAL_FISH_FLOP;
     }
 
-    @OnlyIn(Dist.CLIENT)
     private static int getBaseColorIdx(int param0) {
         return (param0 & 0xFF0000) >> 16;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float[] getBaseColor() {
         return DyeColor.byId(getBaseColorIdx(this.getVariant())).getTextureDiffuseColors();
     }
 
-    @OnlyIn(Dist.CLIENT)
     private static int getPatternColorIdx(int param0) {
         return (param0 & 0xFF000000) >> 24;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float[] getPatternColor() {
         return DyeColor.byId(getPatternColorIdx(this.getVariant())).getTextureDiffuseColors();
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static int getBaseVariant(int param0) {
         return Math.min(param0 & 0xFF, 1);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getBaseVariant() {
         return getBaseVariant(this.getVariant());
     }
 
-    @OnlyIn(Dist.CLIENT)
     private static int getPatternVariant(int param0) {
         return Math.min((param0 & 0xFF00) >> 8, 5);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public ResourceLocation getPatternTextureLocation() {
         return getBaseVariant(this.getVariant()) == 0
             ? PATTERN_A_TEXTURE_LOCATIONS[getPatternVariant(this.getVariant())]
             : PATTERN_B_TEXTURE_LOCATIONS[getPatternVariant(this.getVariant())];
     }
 
-    @OnlyIn(Dist.CLIENT)
     public ResourceLocation getBaseTextureLocation() {
         return BASE_TEXTURE_LOCATIONS[getBaseVariant(this.getVariant())];
     }
@@ -216,8 +213,7 @@ public class TropicalFish extends AbstractSchoolingFish {
         ServerLevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
     ) {
         param3 = super.finalizeSpawn(param0, param1, param2, param3, param4);
-        if (param4 != null && param4.contains("BucketVariantTag", 3)) {
-            this.setVariant(param4.getInt("BucketVariantTag"));
+        if (param2 == MobSpawnType.BUCKET) {
             return param3;
         } else {
             int var1;
@@ -281,12 +277,10 @@ public class TropicalFish extends AbstractSchoolingFish {
             return this.index;
         }
 
-        @OnlyIn(Dist.CLIENT)
         public static String getPatternName(int param0, int param1) {
             return VALUES[param1 + 6 * param0].getName();
         }
 
-        @OnlyIn(Dist.CLIENT)
         public String getName() {
             return this.name().toLowerCase(Locale.ROOT);
         }

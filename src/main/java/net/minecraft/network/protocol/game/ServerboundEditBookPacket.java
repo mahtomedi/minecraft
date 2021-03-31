@@ -3,15 +3,12 @@ package net.minecraft.network.protocol.game;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ServerboundEditBookPacket implements Packet<ServerGamePacketListener> {
     private final ItemStack book;
     private final boolean signing;
     private final int slot;
 
-    @OnlyIn(Dist.CLIENT)
     public ServerboundEditBookPacket(ItemStack param0, boolean param1, int param2) {
         this.book = param0.copy();
         this.signing = param1;

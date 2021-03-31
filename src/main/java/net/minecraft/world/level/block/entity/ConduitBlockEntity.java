@@ -26,10 +26,14 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ConduitBlockEntity extends BlockEntity {
+    private static final int BLOCK_REFRESH_RATE = 2;
+    private static final int EFFECT_DURATION = 13;
+    private static final float ROTATION_SPEED = -0.0375F;
+    private static final int MIN_ACTIVE_SIZE = 16;
+    private static final int MIN_KILL_SIZE = 42;
+    private static final int KILL_RANGE = 8;
     private static final Block[] VALID_BLOCKS = new Block[]{Blocks.PRISMARINE, Blocks.PRISMARINE_BRICKS, Blocks.SEA_LANTERN, Blocks.DARK_PRISMARINE};
     public int tickCount;
     private float activeRotation;
@@ -284,7 +288,6 @@ public class ConduitBlockEntity extends BlockEntity {
         return this.isActive;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean isHunting() {
         return this.isHunting;
     }
@@ -293,7 +296,6 @@ public class ConduitBlockEntity extends BlockEntity {
         this.isHunting = param0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getActiveRotation(float param0) {
         return (this.activeRotation + param0) * -0.0375F;
     }

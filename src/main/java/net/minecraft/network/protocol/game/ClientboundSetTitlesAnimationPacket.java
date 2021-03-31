@@ -2,8 +2,6 @@ package net.minecraft.network.protocol.game;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundSetTitlesAnimationPacket implements Packet<ClientGamePacketListener> {
     private final int fadeIn;
@@ -33,17 +31,14 @@ public class ClientboundSetTitlesAnimationPacket implements Packet<ClientGamePac
         param0.setTitlesAnimation(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getFadeIn() {
         return this.fadeIn;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getStay() {
         return this.stay;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getFadeOut() {
         return this.fadeOut;
     }

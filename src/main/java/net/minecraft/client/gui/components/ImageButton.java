@@ -19,6 +19,10 @@ public class ImageButton extends Button {
     private final int textureWidth;
     private final int textureHeight;
 
+    public ImageButton(int param0, int param1, int param2, int param3, int param4, int param5, ResourceLocation param6, Button.OnPress param7) {
+        this(param0, param1, param2, param3, param4, param5, param3, param6, 256, 256, param7);
+    }
+
     public ImageButton(int param0, int param1, int param2, int param3, int param4, int param5, int param6, ResourceLocation param7, Button.OnPress param8) {
         this(param0, param1, param2, param3, param4, param5, param6, param7, 256, 256, param8);
     }

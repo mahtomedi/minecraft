@@ -22,12 +22,11 @@ import net.minecraft.network.protocol.game.ClientboundEntityEventPacket;
 import net.minecraft.network.protocol.game.ClientboundGameEventPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class GameRules {
+    public static final int DEFAULT_RANDOM_TICK_SPEED = 3;
     private static final Logger LOGGER = LogManager.getLogger();
     private static final Map<GameRules.Key<?>, GameRules.Type<?>> GAME_RULE_TYPES = Maps.newTreeMap(Comparator.comparing(param0 -> param0.id));
     public static final GameRules.Key<GameRules.BooleanValue> RULE_DOFIRETICK = register(
@@ -199,12 +198,10 @@ public class GameRules {
         param2.callVisitor(param0, param1);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void assignFrom(GameRules param0, @Nullable MinecraftServer param1) {
         param0.rules.keySet().forEach(param2 -> this.assignCap(param2, param0, param1));
     }
 
-    @OnlyIn(Dist.CLIENT)
     private <T extends GameRules.Value<T>> void assignCap(GameRules.Key<T> param0, GameRules param1, @Nullable MinecraftServer param2) {
         T var0 = param1.getRule(param0);
         this.<T>getRule(param0).setFrom(var0, param2);
@@ -274,7 +271,6 @@ public class GameRules {
             return new GameRules.BooleanValue(this.type, this.value);
         }
 
-        @OnlyIn(Dist.CLIENT)
         public void setFrom(GameRules.BooleanValue param0, @Nullable MinecraftServer param1) {
             this.value = param0.value;
             this.onChanged(param1);
@@ -296,7 +292,6 @@ public class GameRules {
             this.descriptionId = param0;
         }
 
-        @OnlyIn(Dist.CLIENT)
         public String getDescriptionId() {
             return this.descriptionId;
         }
@@ -341,6 +336,11 @@ public class GameRules {
             return this.value;
         }
 
+        public void set(int param0, @Nullable MinecraftServer param1) {
+            this.value = param0;
+            this.onChanged(param1);
+        }
+
         @Override
         public String serialize() {
             return Integer.toString(this.value);
@@ -351,7 +351,6 @@ public class GameRules {
             this.value = safeParse(param0);
         }
 
-        @OnlyIn(Dist.CLIENT)
         public boolean tryDeserialize(String param0) {
             try {
                 this.value = Integer.parseInt(param0);
@@ -386,7 +385,6 @@ public class GameRules {
             return new GameRules.IntegerValue(this.type, this.value);
         }
 
-        @OnlyIn(Dist.CLIENT)
         public void setFrom(GameRules.IntegerValue param0, @Nullable MinecraftServer param1) {
             this.value = param0.value;
             this.onChanged(param1);
@@ -429,7 +427,6 @@ public class GameRules {
             return "gamerule." + this.id;
         }
 
-        @OnlyIn(Dist.CLIENT)
         public GameRules.Category getCategory() {
             return this.category;
         }
@@ -499,7 +496,6 @@ public class GameRules {
 
         protected abstract T copy();
 
-        @OnlyIn(Dist.CLIENT)
         public abstract void setFrom(T var1, @Nullable MinecraftServer var2);
     }
 

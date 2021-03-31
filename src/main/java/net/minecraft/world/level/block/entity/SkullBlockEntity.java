@@ -13,10 +13,9 @@ import net.minecraft.server.players.GameProfileCache;
 import net.minecraft.util.StringUtil;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class SkullBlockEntity extends BlockEntity {
+    public static final String TAG_SKULL_OWNER = "SkullOwner";
     @Nullable
     private static GameProfileCache profileCache;
     @Nullable
@@ -74,13 +73,11 @@ public class SkullBlockEntity extends BlockEntity {
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getMouthAnimation(float param0) {
         return this.isMovingMouth ? (float)this.mouthTickCount + param0 : (float)this.mouthTickCount;
     }
 
     @Nullable
-    @OnlyIn(Dist.CLIENT)
     public GameProfile getOwnerProfile() {
         return this.owner;
     }

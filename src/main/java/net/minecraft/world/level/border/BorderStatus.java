@@ -1,9 +1,5 @@
 package net.minecraft.world.level.border;
 
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-
-@OnlyIn(Dist.CLIENT)
 public enum BorderStatus {
     GROWING(4259712),
     SHRINKING(16724016),

@@ -41,14 +41,14 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.ArrayUtils;
 
 public class BedBlock extends HorizontalDirectionalBlock implements EntityBlock {
     public static final EnumProperty<BedPart> PART = BlockStateProperties.BED_PART;
     public static final BooleanProperty OCCUPIED = BlockStateProperties.OCCUPIED;
+    protected static final int HEIGHT = 9;
     protected static final VoxelShape BASE = Block.box(0.0, 3.0, 0.0, 16.0, 9.0, 16.0);
+    private static final int LEG_WIDTH = 3;
     protected static final VoxelShape LEG_NORTH_WEST = Block.box(0.0, 0.0, 0.0, 3.0, 3.0, 3.0);
     protected static final VoxelShape LEG_SOUTH_WEST = Block.box(0.0, 0.0, 13.0, 3.0, 3.0, 16.0);
     protected static final VoxelShape LEG_NORTH_EAST = Block.box(13.0, 0.0, 0.0, 16.0, 3.0, 3.0);
@@ -66,7 +66,6 @@ public class BedBlock extends HorizontalDirectionalBlock implements EntityBlock 
     }
 
     @Nullable
-    @OnlyIn(Dist.CLIENT)
     public static Direction getBedOrientation(BlockGetter param0, BlockPos param1) {
         BlockState var0 = param0.getBlockState(param1);
         return var0.getBlock() instanceof BedBlock ? var0.getValue(FACING) : null;
@@ -221,7 +220,6 @@ public class BedBlock extends HorizontalDirectionalBlock implements EntityBlock 
         return param0.getValue(PART) == BedPart.HEAD ? var0.getOpposite() : var0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static DoubleBlockCombiner.BlockType getBlockType(BlockState param0) {
         BedPart var0 = param0.getValue(PART);
         return var0 == BedPart.HEAD ? DoubleBlockCombiner.BlockType.FIRST : DoubleBlockCombiner.BlockType.SECOND;
@@ -322,7 +320,6 @@ public class BedBlock extends HorizontalDirectionalBlock implements EntityBlock 
         return this.color;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public long getSeed(BlockState param0, BlockPos param1) {
         BlockPos var0 = param1.relative(param0.getValue(FACING), param0.getValue(PART) == BedPart.HEAD ? 0 : 1);

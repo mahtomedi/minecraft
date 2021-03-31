@@ -4,8 +4,6 @@ import java.util.EnumSet;
 import java.util.Set;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundPlayerPositionPacket implements Packet<ClientGamePacketListener> {
     private final double x;
@@ -64,42 +62,34 @@ public class ClientboundPlayerPositionPacket implements Packet<ClientGamePacketL
         param0.handleMovePlayer(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public double getX() {
         return this.x;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public double getY() {
         return this.y;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public double getZ() {
         return this.z;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getYRot() {
         return this.yRot;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getXRot() {
         return this.xRot;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getId() {
         return this.id;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean requestDismountVehicle() {
         return this.dismountVehicle;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Set<ClientboundPlayerPositionPacket.RelativeArgument> getRelativeArguments() {
         return this.relativeArguments;
     }

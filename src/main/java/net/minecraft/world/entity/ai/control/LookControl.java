@@ -6,7 +6,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.phys.Vec3;
 
-public class LookControl {
+public class LookControl implements Control {
     protected final Mob mob;
     protected float yMaxRotSpeed;
     protected float xMaxRotAngle;
@@ -21,6 +21,10 @@ public class LookControl {
 
     public void setLookAt(Vec3 param0) {
         this.setLookAt(param0.x, param0.y, param0.z);
+    }
+
+    public void setLookAt(Entity param0) {
+        this.setLookAt(param0.getX(), getWantedY(param0), param0.getZ());
     }
 
     public void setLookAt(Entity param0, float param1, float param2) {

@@ -29,10 +29,12 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.BlockRotProce
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class StructureBlockEntity extends BlockEntity {
+    private static final int SCAN_CORNER_BLOCKS_RANGE = 5;
+    public static final int MAX_OFFSET_PER_AXIS = 48;
+    public static final int MAX_SIZE_PER_AXIS = 48;
+    public static final String AUTHOR_TAG = "author";
     private ResourceLocation structureName;
     private String author = "";
     private String metaData = "";
@@ -182,7 +184,6 @@ public class StructureBlockEntity extends BlockEntity {
         this.author = param0.getName().getString();
     }
 
-    @OnlyIn(Dist.CLIENT)
     public BlockPos getStructurePos() {
         return this.structurePos;
     }
@@ -199,7 +200,6 @@ public class StructureBlockEntity extends BlockEntity {
         this.structureSize = param0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Mirror getMirror() {
         return this.mirror;
     }
@@ -216,7 +216,6 @@ public class StructureBlockEntity extends BlockEntity {
         this.rotation = param0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public String getMetaData() {
         return this.metaData;
     }
@@ -238,7 +237,6 @@ public class StructureBlockEntity extends BlockEntity {
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean isIgnoreEntities() {
         return this.ignoreEntities;
     }
@@ -247,7 +245,6 @@ public class StructureBlockEntity extends BlockEntity {
         this.ignoreEntities = param0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getIntegrity() {
         return this.integrity;
     }
@@ -256,7 +253,6 @@ public class StructureBlockEntity extends BlockEntity {
         this.integrity = param0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public long getSeed() {
         return this.seed;
     }
@@ -275,11 +271,11 @@ public class StructureBlockEntity extends BlockEntity {
             BlockPos var3 = new BlockPos(var0.getX() + 80, this.level.getMaxBuildHeight() - 1, var0.getZ() + 80);
             Stream<BlockPos> var4 = this.getRelatedCorners(var2, var3);
             return calculateEnclosingBoundingBox(var0, var4).filter(param1 -> {
-                int var0x = param1.x1 - param1.x0;
-                int var1x = param1.y1 - param1.y0;
-                int var2x = param1.z1 - param1.z0;
+                int var0x = param1.maxX() - param1.minX();
+                int var1x = param1.maxY() - param1.minY();
+                int var2x = param1.maxZ() - param1.minZ();
                 if (var0x > 1 && var1x > 1 && var2x > 1) {
-                    this.structurePos = new BlockPos(param1.x0 - var0.getX() + 1, param1.y0 - var0.getY() + 1, param1.z0 - var0.getZ() + 1);
+                    this.structurePos = new BlockPos(param1.minX() - var0.getX() + 1, param1.minY() - var0.getY() + 1, param1.minZ() - var0.getZ() + 1);
                     this.structureSize = new Vec3i(var0x - 1, var1x - 1, var2x - 1);
                     this.setChanged();
                     BlockState var3x = this.level.getBlockState(var0);
@@ -437,7 +433,6 @@ public class StructureBlockEntity extends BlockEntity {
         this.powered = param0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean getShowAir() {
         return this.showAir;
     }
@@ -446,7 +441,6 @@ public class StructureBlockEntity extends BlockEntity {
         this.showAir = param0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean getShowBoundingBox() {
         return this.showBoundingBox;
     }

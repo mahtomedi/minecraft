@@ -17,8 +17,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public final class ProjectileUtil {
     public static HitResult getHitResult(Entity param0, Predicate<Entity> param1) {
@@ -40,7 +38,6 @@ public final class ProjectileUtil {
     }
 
     @Nullable
-    @OnlyIn(Dist.CLIENT)
     public static EntityHitResult getEntityHitResult(Entity param0, Vec3 param1, Vec3 param2, AABB param3, Predicate<Entity> param4, double param5) {
         Level var0 = param0.level;
         double var1 = param5;

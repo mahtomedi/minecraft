@@ -7,15 +7,12 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.vehicle.MinecartCommandBlock;
 import net.minecraft.world.level.BaseCommandBlock;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ServerboundSetCommandMinecartPacket implements Packet<ServerGamePacketListener> {
     private final int entity;
     private final String command;
     private final boolean trackOutput;
 
-    @OnlyIn(Dist.CLIENT)
     public ServerboundSetCommandMinecartPacket(int param0, String param1, boolean param2) {
         this.entity = param0;
         this.command = param1;

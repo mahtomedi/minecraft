@@ -5,8 +5,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundSetCameraPacket implements Packet<ClientGamePacketListener> {
     private final int cameraId;
@@ -29,7 +27,6 @@ public class ClientboundSetCameraPacket implements Packet<ClientGamePacketListen
     }
 
     @Nullable
-    @OnlyIn(Dist.CLIENT)
     public Entity getEntity(Level param0) {
         return param0.getEntity(this.cameraId);
     }

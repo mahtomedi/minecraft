@@ -10,6 +10,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public enum WhiteGlyph implements RawGlyph {
     INSTANCE;
 
+    private static final int WIDTH = 5;
+    private static final int HEIGHT = 8;
     private static final NativeImage IMAGE_DATA = Util.make(new NativeImage(NativeImage.Format.RGBA, 5, 8, false), param0 -> {
         for(int var0 = 0; var0 < 8; ++var0) {
             for(int var1 = 0; var1 < 5; ++var1) {

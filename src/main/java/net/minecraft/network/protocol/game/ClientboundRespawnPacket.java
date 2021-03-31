@@ -8,8 +8,6 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.dimension.DimensionType;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundRespawnPacket implements Packet<ClientGamePacketListener> {
     private final DimensionType dimensionType;
@@ -69,43 +67,35 @@ public class ClientboundRespawnPacket implements Packet<ClientGamePacketListener
         param0.handleRespawn(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public DimensionType getDimensionType() {
         return this.dimensionType;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public ResourceKey<Level> getDimension() {
         return this.dimension;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public long getSeed() {
         return this.seed;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public GameType getPlayerGameType() {
         return this.playerGameType;
     }
 
     @Nullable
-    @OnlyIn(Dist.CLIENT)
     public GameType getPreviousPlayerGameType() {
         return this.previousPlayerGameType;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean isDebug() {
         return this.isDebug;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean isFlat() {
         return this.isFlat;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean shouldKeepAllPlayerData() {
         return this.keepAllPlayerData;
     }

@@ -10,7 +10,6 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.configurations.JigsawConfiguration;
 import net.minecraft.world.level.levelgen.feature.structures.JigsawPlacement;
-import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.NoiseAffectingStructureStart;
 import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
@@ -29,14 +28,14 @@ public class JigsawFeature extends StructureFeature<JigsawConfiguration> {
 
     @Override
     public StructureFeature.StructureStartFactory<JigsawConfiguration> getStartFactory() {
-        return (param0, param1, param2, param3, param4) -> new JigsawFeature.FeatureStart(this, param1, param2, param3, param4);
+        return (param0, param1, param2, param3) -> new JigsawFeature.FeatureStart(this, param1, param2, param3);
     }
 
     public static class FeatureStart extends NoiseAffectingStructureStart<JigsawConfiguration> {
         private final JigsawFeature feature;
 
-        public FeatureStart(JigsawFeature param0, ChunkPos param1, BoundingBox param2, int param3, long param4) {
-            super(param0, param1, param2, param3, param4);
+        public FeatureStart(JigsawFeature param0, ChunkPos param1, int param2, long param3) {
+            super(param0, param1, param2, param3);
             this.feature = param0;
         }
 
@@ -58,13 +57,12 @@ public class JigsawFeature extends StructureFeature<JigsawConfiguration> {
                 param1,
                 param2,
                 var0,
-                this.pieces,
+                this,
                 this.random,
                 this.feature.doExpansionHack,
                 this.feature.projectStartToHeightmap,
                 param6
             );
-            this.calculateBoundingBox();
         }
     }
 }

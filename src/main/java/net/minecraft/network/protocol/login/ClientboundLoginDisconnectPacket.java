@@ -3,8 +3,6 @@ package net.minecraft.network.protocol.login;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundLoginDisconnectPacket implements Packet<ClientLoginPacketListener> {
     private final Component reason;
@@ -26,7 +24,6 @@ public class ClientboundLoginDisconnectPacket implements Packet<ClientLoginPacke
         param0.handleDisconnect(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Component getReason() {
         return this.reason;
     }

@@ -4,11 +4,9 @@ import java.util.Optional;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.Style;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
 public class StringDecomposer {
+    private static final char REPLACEMENT_CHAR = '\ufffd';
     private static final Optional<Object> STOP_ITERATION = Optional.of(Unit.INSTANCE);
 
     private static boolean feedChar(Style param0, FormattedCharSink param1, int param2, char param3) {

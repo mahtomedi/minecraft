@@ -31,8 +31,6 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorSettings;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -174,7 +172,6 @@ public class WorldGenSettings {
         return this.overworld() instanceof FlatLevelSource;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean isOldCustomizedWorld() {
         return this.legacyCustomOptions.isPresent();
     }
@@ -183,12 +180,10 @@ public class WorldGenSettings {
         return new WorldGenSettings(this.seed, this.generateFeatures, true, this.dimensions, this.legacyCustomOptions);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public WorldGenSettings withFeaturesToggled() {
         return new WorldGenSettings(this.seed, !this.generateFeatures, this.generateBonusChest, this.dimensions);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public WorldGenSettings withBonusChestToggled() {
         return new WorldGenSettings(this.seed, this.generateFeatures, !this.generateBonusChest, this.dimensions);
     }
@@ -272,7 +267,6 @@ public class WorldGenSettings {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     public WorldGenSettings withSeed(boolean param0, OptionalLong param1) {
         long var0 = param1.orElse(this.seed);
         MappedRegistry<LevelStem> var1;

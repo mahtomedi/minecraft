@@ -22,10 +22,12 @@ import net.minecraft.world.effect.MobEffectUtil;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class PotionUtils {
+    public static final String TAG_CUSTOM_POTION_EFFECTS = "CustomPotionEffects";
+    public static final String TAG_CUSTOM_POTION_COLOR = "CustomPotionColor";
+    public static final String TAG_POTION = "Potion";
+    private static final int EMPTY_COLOR = 16253176;
     private static final Component NO_EFFECT = new TranslatableComponent("effect.none").withStyle(ChatFormatting.GRAY);
 
     public static List<MobEffectInstance> getMobEffects(ItemStack param0) {
@@ -151,7 +153,6 @@ public class PotionUtils {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static void addPotionTooltip(ItemStack param0, List<Component> param1, float param2) {
         List<MobEffectInstance> var0 = getMobEffects(param0);
         List<Pair<Attribute, AttributeModifier>> var1 = Lists.newArrayList();

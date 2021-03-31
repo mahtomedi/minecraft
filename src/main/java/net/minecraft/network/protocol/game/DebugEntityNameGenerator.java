@@ -3,10 +3,10 @@ package net.minecraft.network.protocol.game;
 import java.util.Random;
 import java.util.UUID;
 import net.minecraft.Util;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 
-@OnlyIn(Dist.CLIENT)
 public class DebugEntityNameGenerator {
     private static final String[] NAMES_FIRST_PART = new String[]{
         "Slim",
@@ -75,6 +75,15 @@ public class DebugEntityNameGenerator {
         "Shirt",
         "Fist"
     };
+
+    public static String getEntityName(Entity param0) {
+        if (param0 instanceof Player) {
+            return param0.getName().getString();
+        } else {
+            Component var0 = param0.getCustomName();
+            return var0 != null ? var0.getString() : getEntityName(param0.getUUID());
+        }
+    }
 
     public static String getEntityName(UUID param0) {
         Random var0 = getRandom(param0);

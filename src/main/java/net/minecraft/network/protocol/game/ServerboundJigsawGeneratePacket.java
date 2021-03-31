@@ -3,15 +3,12 @@ package net.minecraft.network.protocol.game;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ServerboundJigsawGeneratePacket implements Packet<ServerGamePacketListener> {
     private final BlockPos pos;
     private final int levels;
     private final boolean keepJigsaws;
 
-    @OnlyIn(Dist.CLIENT)
     public ServerboundJigsawGeneratePacket(BlockPos param0, int param1, boolean param2) {
         this.pos = param0;
         this.levels = param1;

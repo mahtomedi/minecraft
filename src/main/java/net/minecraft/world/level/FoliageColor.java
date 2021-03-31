@@ -1,9 +1,5 @@
 package net.minecraft.world.level;
 
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-
-@OnlyIn(Dist.CLIENT)
 public class FoliageColor {
     private static int[] pixels = new int[65536];
 

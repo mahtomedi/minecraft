@@ -3,8 +3,6 @@ package net.minecraft.network.protocol.game;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundLevelEventPacket implements Packet<ClientGamePacketListener> {
     private final int type;
@@ -38,22 +36,18 @@ public class ClientboundLevelEventPacket implements Packet<ClientGamePacketListe
         param0.handleLevelEvent(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean isGlobalEvent() {
         return this.globalEvent;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getType() {
         return this.type;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getData() {
         return this.data;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public BlockPos getPos() {
         return this.pos;
     }

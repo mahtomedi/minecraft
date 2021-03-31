@@ -18,8 +18,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.JukeboxBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class RecordItem extends Item {
     private static final Map<SoundEvent, RecordItem> BY_NAME = Maps.newHashMap();
@@ -60,24 +58,20 @@ public class RecordItem extends Item {
         return this.analogOutput;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void appendHoverText(ItemStack param0, @Nullable Level param1, List<Component> param2, TooltipFlag param3) {
         param2.add(this.getDisplayName().withStyle(ChatFormatting.GRAY));
     }
 
-    @OnlyIn(Dist.CLIENT)
     public MutableComponent getDisplayName() {
         return new TranslatableComponent(this.getDescriptionId() + ".desc");
     }
 
     @Nullable
-    @OnlyIn(Dist.CLIENT)
     public static RecordItem getBySound(SoundEvent param0) {
         return BY_NAME.get(param0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public SoundEvent getSound() {
         return this.sound;
     }

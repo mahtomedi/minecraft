@@ -133,6 +133,11 @@ public class LootPool {
             return this;
         }
 
+        public LootPool.Builder setBonusRolls(NumberProvider param0) {
+            this.bonusRolls = param0;
+            return this;
+        }
+
         public LootPool.Builder add(LootPoolEntryContainer.Builder<?> param0) {
             this.entries.add(param0.build());
             return this;

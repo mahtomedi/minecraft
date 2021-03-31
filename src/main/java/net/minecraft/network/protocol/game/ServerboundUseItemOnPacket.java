@@ -4,14 +4,11 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ServerboundUseItemOnPacket implements Packet<ServerGamePacketListener> {
     private final BlockHitResult blockHit;
     private final InteractionHand hand;
 
-    @OnlyIn(Dist.CLIENT)
     public ServerboundUseItemOnPacket(InteractionHand param0, BlockHitResult param1) {
         this.hand = param0;
         this.blockHit = param1;

@@ -6,8 +6,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class TippedArrowRecipe extends CustomRecipe {
     public TippedArrowRecipe(ResourceLocation param0) {
@@ -51,7 +49,6 @@ public class TippedArrowRecipe extends CustomRecipe {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public boolean canCraftInDimensions(int param0, int param1) {
         return param0 >= 2 && param1 >= 2;

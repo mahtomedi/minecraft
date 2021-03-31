@@ -14,8 +14,6 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Material;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class FallingBlock extends Block implements Fallable {
     public FallingBlock(BlockBehaviour.Properties param0) {
@@ -56,7 +54,6 @@ public class FallingBlock extends Block implements Fallable {
         return param0.isAir() || param0.is(BlockTags.FIRE) || var0.isLiquid() || var0.isReplaceable();
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void animateTick(BlockState param0, Level param1, BlockPos param2, Random param3) {
         if (param3.nextInt(16) == 0) {
@@ -71,7 +68,6 @@ public class FallingBlock extends Block implements Fallable {
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getDustColor(BlockState param0, BlockGetter param1, BlockPos param2) {
         return -16777216;
     }

@@ -53,6 +53,10 @@ public class SetItemDamageFunction extends LootItemConditionalFunction {
         return simpleBuilder(param1 -> new SetItemDamageFunction(param1, param0, false));
     }
 
+    public static LootItemConditionalFunction.Builder<?> setDamage(NumberProvider param0, boolean param1) {
+        return simpleBuilder(param2 -> new SetItemDamageFunction(param2, param0, param1));
+    }
+
     public static class Serializer extends LootItemConditionalFunction.Serializer<SetItemDamageFunction> {
         public void serialize(JsonObject param0, SetItemDamageFunction param1, JsonSerializationContext param2) {
             super.serialize(param0, param1, param2);

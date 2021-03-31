@@ -4,8 +4,6 @@ import javax.annotation.Nullable;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundSelectAdvancementsTabPacket implements Packet<ClientGamePacketListener> {
     @Nullable
@@ -38,7 +36,6 @@ public class ClientboundSelectAdvancementsTabPacket implements Packet<ClientGame
     }
 
     @Nullable
-    @OnlyIn(Dist.CLIENT)
     public ResourceLocation getTab() {
         return this.tab;
     }

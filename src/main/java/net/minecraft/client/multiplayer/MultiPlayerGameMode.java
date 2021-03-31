@@ -71,6 +71,7 @@ public class MultiPlayerGameMode {
     private final Object2ObjectLinkedOpenHashMap<Pair<BlockPos, ServerboundPlayerActionPacket.Action>, Vec3> unAckedActions = new Object2ObjectLinkedOpenHashMap<>(
         
     );
+    private static final int MAX_ACTIONS_SIZE = 50;
     private int carriedIndex;
 
     public MultiPlayerGameMode(Minecraft param0, ClientPacketListener param1) {

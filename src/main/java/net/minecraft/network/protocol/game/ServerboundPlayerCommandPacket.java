@@ -3,20 +3,16 @@ package net.minecraft.network.protocol.game;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.entity.Entity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ServerboundPlayerCommandPacket implements Packet<ServerGamePacketListener> {
     private final int id;
     private final ServerboundPlayerCommandPacket.Action action;
     private final int data;
 
-    @OnlyIn(Dist.CLIENT)
     public ServerboundPlayerCommandPacket(Entity param0, ServerboundPlayerCommandPacket.Action param1) {
         this(param0, param1, 0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public ServerboundPlayerCommandPacket(Entity param0, ServerboundPlayerCommandPacket.Action param1, int param2) {
         this.id = param0.getId();
         this.action = param1;
@@ -38,6 +34,10 @@ public class ServerboundPlayerCommandPacket implements Packet<ServerGamePacketLi
 
     public void handle(ServerGamePacketListener param0) {
         param0.handlePlayerCommand(this);
+    }
+
+    public int getId() {
+        return this.id;
     }
 
     public ServerboundPlayerCommandPacket.Action getAction() {

@@ -1,7 +1,6 @@
 package net.minecraft.server.network;
 
 import com.google.common.collect.Lists;
-import com.google.common.primitives.Doubles;
 import com.google.common.primitives.Floats;
 import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.StringReader;
@@ -99,6 +98,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
 import net.minecraft.util.StringUtil;
 import net.minecraft.util.thread.BlockableEventLoop;
 import net.minecraft.world.InteractionHand;
@@ -152,6 +152,7 @@ import org.apache.logging.log4j.Logger;
 
 public class ServerGamePacketListenerImpl implements ServerGamePacketListener, ServerPlayerConnection {
     private static final Logger LOGGER = LogManager.getLogger();
+    private static final int LATENCY_CHECK_INTERVAL = 15000;
     public final Connection connection;
     private final MinecraftServer server;
     public ServerPlayer player;
@@ -320,30 +321,22 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
         this.player.setPlayerInput(param0.getXxa(), param0.getZza(), param0.isJumping(), param0.isShiftKeyDown());
     }
 
-    private static boolean containsInvalidValues(ServerboundMovePlayerPacket param0) {
-        if (Doubles.isFinite(param0.getX(0.0))
-            && Doubles.isFinite(param0.getY(0.0))
-            && Doubles.isFinite(param0.getZ(0.0))
-            && Floats.isFinite(param0.getXRot(0.0F))
-            && Floats.isFinite(param0.getYRot(0.0F))) {
-            return Math.abs(param0.getX(0.0)) > 3.0E7 || Math.abs(param0.getY(0.0)) > 3.0E7 || Math.abs(param0.getZ(0.0)) > 3.0E7;
-        } else {
-            return true;
-        }
+    private static boolean containsInvalidValues(double param0, double param1, double param2, float param3, float param4) {
+        return Double.isNaN(param0) || Double.isNaN(param1) || Double.isNaN(param2) || !Floats.isFinite(param4) || !Floats.isFinite(param3);
     }
 
-    private static boolean containsInvalidValues(ServerboundMoveVehiclePacket param0) {
-        return !Doubles.isFinite(param0.getX())
-            || !Doubles.isFinite(param0.getY())
-            || !Doubles.isFinite(param0.getZ())
-            || !Floats.isFinite(param0.getXRot())
-            || !Floats.isFinite(param0.getYRot());
+    private static double clampHorizontal(double param0) {
+        return Mth.clamp(param0, -3.0E7, 3.0E7);
+    }
+
+    private static double clampVertical(double param0) {
+        return Mth.clamp(param0, -2.0E7, 2.0E7);
     }
 
     @Override
     public void handleMoveVehicle(ServerboundMoveVehiclePacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.player.getLevel());
-        if (containsInvalidValues(param0)) {
+        if (containsInvalidValues(param0.getX(), param0.getY(), param0.getZ(), param0.getYRot(), param0.getXRot())) {
             this.disconnect(new TranslatableComponent("multiplayer.disconnect.invalid_vehicle_movement"));
         } else {
             Entity var0 = this.player.getRootVehicle();
@@ -352,11 +345,11 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
                 double var2 = var0.getX();
                 double var3 = var0.getY();
                 double var4 = var0.getZ();
-                double var5 = param0.getX();
-                double var6 = param0.getY();
-                double var7 = param0.getZ();
-                float var8 = param0.getYRot();
-                float var9 = param0.getXRot();
+                double var5 = clampHorizontal(param0.getX());
+                double var6 = clampVertical(param0.getY());
+                double var7 = clampHorizontal(param0.getZ());
+                float var8 = Mth.wrapDegrees(param0.getYRot());
+                float var9 = Mth.wrapDegrees(param0.getXRot());
                 double var10 = var5 - this.vehicleFirstGoodX;
                 double var11 = var6 - this.vehicleFirstGoodY;
                 double var12 = var7 - this.vehicleFirstGoodZ;
@@ -811,7 +804,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
     @Override
     public void handleMovePlayer(ServerboundMovePlayerPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.player.getLevel());
-        if (containsInvalidValues(param0)) {
+        if (containsInvalidValues(param0.getX(0.0), param0.getY(0.0), param0.getZ(0.0), param0.getYRot(0.0F), param0.getXRot(0.0F))) {
             this.disconnect(new TranslatableComponent("multiplayer.disconnect.invalid_player_movement"));
         } else {
             ServerLevel var0 = this.player.getLevel();
@@ -834,36 +827,27 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
 
                 } else {
                     this.awaitingTeleportTime = this.tickCount;
+                    double var1 = clampHorizontal(param0.getX(this.player.getX()));
+                    double var2 = clampVertical(param0.getY(this.player.getY()));
+                    double var3 = clampHorizontal(param0.getZ(this.player.getZ()));
+                    float var4 = Mth.wrapDegrees(param0.getYRot(this.player.yRot));
+                    float var5 = Mth.wrapDegrees(param0.getXRot(this.player.xRot));
                     if (this.player.isPassenger()) {
-                        this.player
-                            .absMoveTo(
-                                this.player.getX(), this.player.getY(), this.player.getZ(), param0.getYRot(this.player.yRot), param0.getXRot(this.player.xRot)
-                            );
+                        this.player.absMoveTo(this.player.getX(), this.player.getY(), this.player.getZ(), var4, var5);
                         this.player.getLevel().getChunkSource().move(this.player);
                     } else {
-                        double var1 = this.player.getX();
-                        double var2 = this.player.getY();
-                        double var3 = this.player.getZ();
-                        double var4 = this.player.getY();
-                        double var5 = param0.getX(this.player.getX());
-                        double var6 = param0.getY(this.player.getY());
-                        double var7 = param0.getZ(this.player.getZ());
-                        float var8 = param0.getYRot(this.player.yRot);
-                        float var9 = param0.getXRot(this.player.xRot);
-                        double var10 = var5 - this.firstGoodX;
-                        double var11 = var6 - this.firstGoodY;
-                        double var12 = var7 - this.firstGoodZ;
+                        double var6 = this.player.getX();
+                        double var7 = this.player.getY();
+                        double var8 = this.player.getZ();
+                        double var9 = this.player.getY();
+                        double var10 = var1 - this.firstGoodX;
+                        double var11 = var2 - this.firstGoodY;
+                        double var12 = var3 - this.firstGoodZ;
                         double var13 = this.player.getDeltaMovement().lengthSqr();
                         double var14 = var10 * var10 + var11 * var11 + var12 * var12;
                         if (this.player.isSleeping()) {
                             if (var14 > 1.0) {
-                                this.teleport(
-                                    this.player.getX(),
-                                    this.player.getY(),
-                                    this.player.getZ(),
-                                    param0.getYRot(this.player.yRot),
-                                    param0.getXRot(this.player.xRot)
-                                );
+                                this.teleport(this.player.getX(), this.player.getY(), this.player.getZ(), var4, var5);
                             }
 
                         } else {
@@ -888,22 +872,22 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
                             }
 
                             AABB var17 = this.player.getBoundingBox();
-                            var10 = var5 - this.lastGoodX;
-                            var11 = var6 - this.lastGoodY;
-                            var12 = var7 - this.lastGoodZ;
+                            var10 = var1 - this.lastGoodX;
+                            var11 = var2 - this.lastGoodY;
+                            var12 = var3 - this.lastGoodZ;
                             boolean var18 = var11 > 0.0;
                             if (this.player.isOnGround() && !param0.isOnGround() && var18) {
                                 this.player.jumpFromGround();
                             }
 
                             this.player.move(MoverType.PLAYER, new Vec3(var10, var11, var12));
-                            var10 = var5 - this.player.getX();
-                            var11 = var6 - this.player.getY();
+                            var10 = var1 - this.player.getX();
+                            var11 = var2 - this.player.getY();
                             if (var11 > -0.5 || var11 < 0.5) {
                                 var11 = 0.0;
                             }
 
-                            var12 = var7 - this.player.getZ();
+                            var12 = var3 - this.player.getZ();
                             var14 = var10 * var10 + var11 * var11 + var12 * var12;
                             boolean var20 = false;
                             if (!this.player.isChangingDimension()
@@ -915,7 +899,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
                                 LOGGER.warn("{} moved wrongly!", this.player.getName().getString());
                             }
 
-                            this.player.absMoveTo(var5, var6, var7, var8, var9);
+                            this.player.absMoveTo(var1, var2, var3, var4, var5);
                             if (this.player.noPhysics
                                 || this.player.isSleeping()
                                 || (!var20 || !var0.noCollision(this.player, var17)) && !this.isPlayerCollidingWithAnythingNew(var0, var17)) {
@@ -927,18 +911,18 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
                                     && !this.player.isFallFlying()
                                     && this.noBlocksAround(this.player);
                                 this.player.getLevel().getChunkSource().move(this.player);
-                                this.player.doCheckFallDamage(this.player.getY() - var4, param0.isOnGround());
+                                this.player.doCheckFallDamage(this.player.getY() - var9, param0.isOnGround());
                                 this.player.setOnGround(param0.isOnGround());
                                 if (var18) {
                                     this.player.fallDistance = 0.0F;
                                 }
 
-                                this.player.checkMovementStatistics(this.player.getX() - var1, this.player.getY() - var2, this.player.getZ() - var3);
+                                this.player.checkMovementStatistics(this.player.getX() - var6, this.player.getY() - var7, this.player.getZ() - var8);
                                 this.lastGoodX = this.player.getX();
                                 this.lastGoodY = this.player.getY();
                                 this.lastGoodZ = this.player.getZ();
                             } else {
-                                this.teleport(var1, var2, var3, var8, var9);
+                                this.teleport(var6, var7, var8, var4, var5);
                             }
                         }
                     }
@@ -1056,14 +1040,14 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
                 && var0.mayInteract(this.player, var4)) {
                 InteractionResult var7 = this.player.gameMode.useItemOn(this.player, var0, var2, var1, var3);
                 if (var5 == Direction.UP && !var7.consumesAction() && var4.getY() >= var6 - 1 && wasBlockPlacementAttempt(this.player, var2)) {
-                    Component var8 = new TranslatableComponent("build.tooHigh", var6).withStyle(ChatFormatting.RED);
+                    Component var8 = new TranslatableComponent("build.tooHigh", var6 - 1).withStyle(ChatFormatting.RED);
                     this.player.sendMessage(var8, ChatType.GAME_INFO, Util.NIL_UUID);
                 } else if (var7.shouldSwing()) {
                     this.player.swing(var1, true);
                 }
             }
         } else {
-            Component var9 = new TranslatableComponent("build.tooHigh", var6).withStyle(ChatFormatting.RED);
+            Component var9 = new TranslatableComponent("build.tooHigh", var6 - 1).withStyle(ChatFormatting.RED);
             this.player.sendMessage(var9, ChatType.GAME_INFO, Util.NIL_UUID);
         }
 

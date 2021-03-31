@@ -20,8 +20,19 @@ public class TextureMapping {
         return this;
     }
 
+    public TextureMapping putForced(TextureSlot param0, ResourceLocation param1) {
+        this.slots.put(param0, param1);
+        this.forcedSlots.add(param0);
+        return this;
+    }
+
     public Stream<TextureSlot> getForced() {
         return this.forcedSlots.stream();
+    }
+
+    public TextureMapping copySlot(TextureSlot param0, TextureSlot param1) {
+        this.slots.put(param1, this.slots.get(param0));
+        return this;
     }
 
     public TextureMapping copyForced(TextureSlot param0, TextureSlot param1) {
@@ -95,6 +106,10 @@ public class TextureMapping {
         return singleSlot(TextureSlot.WOOL, getBlockTexture(param0));
     }
 
+    public static TextureMapping wool(ResourceLocation param0) {
+        return singleSlot(TextureSlot.WOOL, param0);
+    }
+
     public static TextureMapping stem(Block param0) {
         return singleSlot(TextureSlot.STEM, getBlockTexture(param0));
     }
@@ -158,6 +173,10 @@ public class TextureMapping {
     public static TextureMapping columnWithWall(Block param0) {
         ResourceLocation var0 = getBlockTexture(param0);
         return new TextureMapping().put(TextureSlot.WALL, var0).put(TextureSlot.SIDE, var0).put(TextureSlot.END, getBlockTexture(param0, "_top"));
+    }
+
+    public static TextureMapping door(ResourceLocation param0, ResourceLocation param1) {
+        return new TextureMapping().put(TextureSlot.TOP, param0).put(TextureSlot.BOTTOM, param1);
     }
 
     public static TextureMapping door(Block param0) {

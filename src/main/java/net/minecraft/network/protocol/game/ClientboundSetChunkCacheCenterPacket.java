@@ -2,8 +2,6 @@ package net.minecraft.network.protocol.game;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundSetChunkCacheCenterPacket implements Packet<ClientGamePacketListener> {
     private final int x;
@@ -29,12 +27,10 @@ public class ClientboundSetChunkCacheCenterPacket implements Packet<ClientGamePa
         param0.handleSetChunkCacheCenter(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getX() {
         return this.x;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getZ() {
         return this.z;
     }

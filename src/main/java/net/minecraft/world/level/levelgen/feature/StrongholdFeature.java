@@ -10,7 +10,6 @@ import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
-import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.NoiseAffectingStructureStart;
 import net.minecraft.world.level.levelgen.structure.StrongholdPieces;
 import net.minecraft.world.level.levelgen.structure.StructurePiece;
@@ -43,9 +42,9 @@ public class StrongholdFeature extends StructureFeature<NoneFeatureConfiguration
     public static class StrongholdStart extends NoiseAffectingStructureStart<NoneFeatureConfiguration> {
         private final long seed;
 
-        public StrongholdStart(StructureFeature<NoneFeatureConfiguration> param0, ChunkPos param1, BoundingBox param2, int param3, long param4) {
-            super(param0, param1, param2, param3, param4);
-            this.seed = param4;
+        public StrongholdStart(StructureFeature<NoneFeatureConfiguration> param0, ChunkPos param1, int param2, long param3) {
+            super(param0, param1, param2, param3);
+            this.seed = param3;
         }
 
         public void generatePieces(
@@ -61,24 +60,22 @@ public class StrongholdFeature extends StructureFeature<NoneFeatureConfiguration
 
             StrongholdPieces.StartPiece var1;
             do {
-                this.pieces.clear();
-                this.boundingBox = BoundingBox.getUnknownBox();
+                this.clearPieces();
                 this.random.setLargeFeatureSeed(this.seed + (long)(var0++), param3.x, param3.z);
                 StrongholdPieces.resetPieces();
                 var1 = new StrongholdPieces.StartPiece(this.random, param3.getBlockX(2), param3.getBlockZ(2));
-                this.pieces.add(var1);
-                var1.addChildren(var1, this.pieces, this.random);
+                this.addPiece(var1);
+                var1.addChildren(var1, this, this.random);
                 List<StructurePiece> var2 = var1.pendingChildren;
 
                 while(!var2.isEmpty()) {
                     int var3 = this.random.nextInt(var2.size());
                     StructurePiece var4 = var2.remove(var3);
-                    var4.addChildren(var1, this.pieces, this.random);
+                    var4.addChildren(var1, this, this.random);
                 }
 
-                this.calculateBoundingBox();
                 this.moveBelowSeaLevel(param1.getSeaLevel(), param1.getMinY(), this.random, 10);
-            } while(this.pieces.isEmpty() || var1.portalRoomPiece == null);
+            } while(this.hasNoPieces() || var1.portalRoomPiece == null);
 
         }
     }

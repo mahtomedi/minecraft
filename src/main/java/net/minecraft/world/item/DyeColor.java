@@ -7,8 +7,6 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.material.MaterialColor;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public enum DyeColor implements StringRepresentable {
     WHITE(0, "white", 16383998, MaterialColor.SNOW, 15790320, 16777215),
@@ -71,7 +69,6 @@ public enum DyeColor implements StringRepresentable {
         return this.fireworkColor;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getTextColor() {
         return this.textColor;
     }
@@ -95,7 +92,6 @@ public enum DyeColor implements StringRepresentable {
     }
 
     @Nullable
-    @OnlyIn(Dist.CLIENT)
     public static DyeColor byFireworkColor(int param0) {
         return BY_FIREWORK_COLOR.get(param0);
     }

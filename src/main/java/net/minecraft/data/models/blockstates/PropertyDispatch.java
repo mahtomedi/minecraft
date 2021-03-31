@@ -95,6 +95,11 @@ public abstract class PropertyDispatch {
             this.property1.getPossibleValues().forEach(param1 -> this.select(param1, param0.apply(param1)));
             return this;
         }
+
+        public PropertyDispatch generateList(Function<T1, List<Variant>> param0) {
+            this.property1.getPossibleValues().forEach(param1 -> this.select(param1, param0.apply(param1)));
+            return this;
+        }
     }
 
     public static class C2<T1 extends Comparable<T1>, T2 extends Comparable<T2>> extends PropertyDispatch {
@@ -176,6 +181,21 @@ public abstract class PropertyDispatch {
                 );
             return this;
         }
+
+        public PropertyDispatch generateList(PropertyDispatch.TriFunction<T1, T2, T3, List<Variant>> param0) {
+            this.property1
+                .getPossibleValues()
+                .forEach(
+                    param1 -> this.property2
+                            .getPossibleValues()
+                            .forEach(
+                                param2 -> this.property3
+                                        .getPossibleValues()
+                                        .forEach(param3 -> this.select((T1)param1, (T2)param2, param3, param0.apply((T1)param1, (T2)param2, param3)))
+                            )
+                );
+            return this;
+        }
     }
 
     public static class C4<T1 extends Comparable<T1>, T2 extends Comparable<T2>, T3 extends Comparable<T3>, T4 extends Comparable<T4>> extends PropertyDispatch {
@@ -204,6 +224,60 @@ public abstract class PropertyDispatch {
 
         public PropertyDispatch.C4<T1, T2, T3, T4> select(T1 param0, T2 param1, T3 param2, T4 param3, Variant param4) {
             return this.select(param0, param1, param2, param3, Collections.singletonList(param4));
+        }
+
+        public PropertyDispatch generate(PropertyDispatch.QuadFunction<T1, T2, T3, T4, Variant> param0) {
+            this.property1
+                .getPossibleValues()
+                .forEach(
+                    param1 -> this.property2
+                            .getPossibleValues()
+                            .forEach(
+                                param2 -> this.property3
+                                        .getPossibleValues()
+                                        .forEach(
+                                            param3 -> this.property4
+                                                    .getPossibleValues()
+                                                    .forEach(
+                                                        param4 -> this.select(
+                                                                (T1)param1,
+                                                                (T2)param2,
+                                                                (T3)param3,
+                                                                param4,
+                                                                param0.apply((T1)param1, (T2)param2, (T3)param3, param4)
+                                                            )
+                                                    )
+                                        )
+                            )
+                );
+            return this;
+        }
+
+        public PropertyDispatch generateList(PropertyDispatch.QuadFunction<T1, T2, T3, T4, List<Variant>> param0) {
+            this.property1
+                .getPossibleValues()
+                .forEach(
+                    param1 -> this.property2
+                            .getPossibleValues()
+                            .forEach(
+                                param2 -> this.property3
+                                        .getPossibleValues()
+                                        .forEach(
+                                            param3 -> this.property4
+                                                    .getPossibleValues()
+                                                    .forEach(
+                                                        param4 -> this.select(
+                                                                (T1)param1,
+                                                                (T2)param2,
+                                                                (T3)param3,
+                                                                param4,
+                                                                param0.apply((T1)param1, (T2)param2, (T3)param3, param4)
+                                                            )
+                                                    )
+                                        )
+                            )
+                );
+            return this;
         }
     }
 
@@ -243,6 +317,80 @@ public abstract class PropertyDispatch {
         public PropertyDispatch.C5<T1, T2, T3, T4, T5> select(T1 param0, T2 param1, T3 param2, T4 param3, T5 param4, Variant param5) {
             return this.select(param0, param1, param2, param3, param4, Collections.singletonList(param5));
         }
+
+        public PropertyDispatch generate(PropertyDispatch.PentaFunction<T1, T2, T3, T4, T5, Variant> param0) {
+            this.property1
+                .getPossibleValues()
+                .forEach(
+                    param1 -> this.property2
+                            .getPossibleValues()
+                            .forEach(
+                                param2 -> this.property3
+                                        .getPossibleValues()
+                                        .forEach(
+                                            param3 -> this.property4
+                                                    .getPossibleValues()
+                                                    .forEach(
+                                                        param4 -> this.property5
+                                                                .getPossibleValues()
+                                                                .forEach(
+                                                                    param5 -> this.select(
+                                                                            (T1)param1,
+                                                                            (T2)param2,
+                                                                            (T3)param3,
+                                                                            (T4)param4,
+                                                                            param5,
+                                                                            param0.apply((T1)param1, (T2)param2, (T3)param3, (T4)param4, param5)
+                                                                        )
+                                                                )
+                                                    )
+                                        )
+                            )
+                );
+            return this;
+        }
+
+        public PropertyDispatch generateList(PropertyDispatch.PentaFunction<T1, T2, T3, T4, T5, List<Variant>> param0) {
+            this.property1
+                .getPossibleValues()
+                .forEach(
+                    param1 -> this.property2
+                            .getPossibleValues()
+                            .forEach(
+                                param2 -> this.property3
+                                        .getPossibleValues()
+                                        .forEach(
+                                            param3 -> this.property4
+                                                    .getPossibleValues()
+                                                    .forEach(
+                                                        param4 -> this.property5
+                                                                .getPossibleValues()
+                                                                .forEach(
+                                                                    param5 -> this.select(
+                                                                            (T1)param1,
+                                                                            (T2)param2,
+                                                                            (T3)param3,
+                                                                            (T4)param4,
+                                                                            param5,
+                                                                            param0.apply((T1)param1, (T2)param2, (T3)param3, (T4)param4, param5)
+                                                                        )
+                                                                )
+                                                    )
+                                        )
+                            )
+                );
+            return this;
+        }
+    }
+
+    @FunctionalInterface
+    public interface PentaFunction<P1, P2, P3, P4, P5, R> {
+        R apply(P1 var1, P2 var2, P3 var3, P4 var4, P5 var5);
+    }
+
+    @FunctionalInterface
+    public interface QuadFunction<P1, P2, P3, P4, R> {
+        R apply(P1 var1, P2 var2, P3 var3, P4 var4);
     }
 
     @FunctionalInterface

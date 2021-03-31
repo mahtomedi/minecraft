@@ -34,6 +34,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class ChestRenderer<T extends BlockEntity & LidBlockEntity> implements BlockEntityRenderer<T> {
+    private static final String BOTTOM = "bottom";
+    private static final String LID = "lid";
+    private static final String LOCK = "lock";
     private final ModelPart lid;
     private final ModelPart bottom;
     private final ModelPart lock;

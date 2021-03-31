@@ -71,8 +71,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.pattern.BlockInWorld;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -90,6 +88,20 @@ public final class ItemStack {
     public static final DecimalFormat ATTRIBUTE_MODIFIER_FORMAT = Util.make(
         new DecimalFormat("#.##"), param0 -> param0.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ROOT))
     );
+    public static final String TAG_ENCH = "Enchantments";
+    public static final String TAG_ENCH_ID = "id";
+    public static final String TAG_ENCH_LEVEL = "lvl";
+    public static final String TAG_DISPLAY = "display";
+    public static final String TAG_DISPLAY_NAME = "Name";
+    public static final String TAG_LORE = "Lore";
+    public static final String TAG_DAMAGE = "Damage";
+    public static final String TAG_COLOR = "color";
+    private static final String TAG_UNBREAKABLE = "Unbreakable";
+    private static final String TAG_REPAIR_COST = "RepairCost";
+    private static final String TAG_CAN_DESTROY_BLOCK_LIST = "CanDestroy";
+    private static final String TAG_CAN_PLACE_ON_BLOCK_LIST = "CanPlaceOn";
+    private static final String TAG_HIDE_FLAGS = "HideFlags";
+    private static final int DONT_HIDE_TOOLTIP = 0;
     private static final Style LORE_STYLE = Style.EMPTY.withColor(ChatFormatting.DARK_PURPLE).withItalic(true);
     private int count;
     private int popTime;
@@ -103,7 +115,6 @@ public final class ItemStack {
     private BlockInWorld cachedPlaceBlock;
     private boolean cachedPlaceBlockResult;
 
-    @OnlyIn(Dist.CLIENT)
     public Optional<TooltipComponent> getTooltipImage() {
         return this.getItem().getTooltipImage(this);
     }
@@ -307,17 +318,14 @@ public final class ItemStack {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean isBarVisible() {
         return this.item.isBarVisible(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getBarWidth() {
         return this.item.getBarWidth(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getBarColor() {
         return this.item.getBarColor(this);
     }
@@ -576,7 +584,6 @@ public final class ItemStack {
         return var0 != null && var0.contains("Name", 8);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public List<Component> getTooltipLines(@Nullable Player param0, TooltipFlag param1) {
         List<Component> var0 = Lists.newArrayList();
         MutableComponent var1 = new TextComponent("").append(this.getHoverName()).withStyle(this.getRarity().color);
@@ -744,12 +751,10 @@ public final class ItemStack {
         return var0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     private static boolean shouldShowInTooltip(int param0, ItemStack.TooltipPart param1) {
         return (param0 & param1.getMask()) == 0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     private int getHideFlags() {
         return this.hasTag() && this.tag.contains("HideFlags", 99) ? this.tag.getInt("HideFlags") : 0;
     }
@@ -759,7 +764,6 @@ public final class ItemStack {
         var0.putInt("HideFlags", var0.getInt("HideFlags") | param0.getMask());
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static void appendEnchantmentNames(List<Component> param0, ListTag param1) {
         for(int var0 = 0; var0 < param1.size(); ++var0) {
             CompoundTag var1 = param1.getCompound(var0);
@@ -770,7 +774,6 @@ public final class ItemStack {
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     private static Collection<Component> expandBlockState(String param0) {
         try {
             BlockStateParser var0 = new BlockStateParser(new StringReader(param0), true).parse(true);

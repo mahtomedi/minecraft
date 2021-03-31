@@ -6,6 +6,7 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import net.minecraft.network.chat.TranslatableComponent;
 
 public class WorldCoordinate {
+    private static final char PREFIX_RELATIVE = '~';
     public static final SimpleCommandExceptionType ERROR_EXPECTED_DOUBLE = new SimpleCommandExceptionType(
         new TranslatableComponent("argument.pos.missing.double")
     );

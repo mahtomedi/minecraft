@@ -19,6 +19,8 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class ChunkToProtochunkFix extends DataFix {
+    private static final int NUM_SECTIONS = 16;
+
     public ChunkToProtochunkFix(Schema param0, boolean param1) {
         super(param0, param1);
     }

@@ -8,8 +8,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class CrashReportCategory {
     private final CrashReport report;
@@ -22,7 +20,6 @@ public class CrashReportCategory {
         this.title = param1;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static String formatLocation(LevelHeightAccessor param0, double param1, double param2, double param3) {
         return String.format(Locale.ROOT, "%.2f,%.2f,%.2f - %s", param1, param2, param3, formatLocation(param0, new BlockPos(param1, param2, param3)));
     }

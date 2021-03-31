@@ -22,6 +22,7 @@ import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.levelgen.feature.configurations.JigsawConfiguration;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
+import net.minecraft.world.level.levelgen.structure.StructurePieceAccessor;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.phys.AABB;
@@ -42,49 +43,53 @@ public class JigsawPlacement {
         ChunkGenerator param3,
         StructureManager param4,
         BlockPos param5,
-        List<? super PoolElementStructurePiece> param6,
+        StructurePieceAccessor param6,
         Random param7,
         boolean param8,
         boolean param9,
         LevelHeightAccessor param10
     ) {
         StructureFeature.bootstrap();
-        Registry<StructureTemplatePool> var0 = param0.registryOrThrow(Registry.TEMPLATE_POOL_REGISTRY);
-        Rotation var1 = Rotation.getRandom(param7);
-        StructureTemplatePool var2 = param1.startPool().get();
-        StructurePoolElement var3 = var2.getRandomTemplate(param7);
-        PoolElementStructurePiece var4 = param2.create(param4, var3, param5, var3.getGroundLevelDelta(), var1, var3.getBoundingBox(param4, param5, var1));
-        BoundingBox var5 = var4.getBoundingBox();
-        int var6 = (var5.x1 + var5.x0) / 2;
-        int var7 = (var5.z1 + var5.z0) / 2;
-        int var8;
-        if (param9) {
-            var8 = param5.getY() + param3.getFirstFreeHeight(var6, var7, Heightmap.Types.WORLD_SURFACE_WG, param10);
-        } else {
-            var8 = param5.getY();
-        }
-
-        int var10 = var5.y0 + var4.getGroundLevelDelta();
-        var4.move(0, var8 - var10, 0);
-        param6.add(var4);
-        if (param1.maxDepth() > 0) {
-            int var11 = 80;
-            AABB var12 = new AABB(
-                (double)(var6 - 80), (double)(var8 - 80), (double)(var7 - 80), (double)(var6 + 80 + 1), (double)(var8 + 80 + 1), (double)(var7 + 80 + 1)
-            );
-            JigsawPlacement.Placer var13 = new JigsawPlacement.Placer(var0, param1.maxDepth(), param2, param3, param4, param6, param7);
-            var13.placing
-                .addLast(
-                    new JigsawPlacement.PieceState(
-                        var4, new MutableObject<>(Shapes.join(Shapes.create(var12), Shapes.create(AABB.of(var5)), BooleanOp.ONLY_FIRST)), var8 + 80, 0
-                    )
-                );
-
-            while(!var13.placing.isEmpty()) {
-                JigsawPlacement.PieceState var14 = var13.placing.removeFirst();
-                var13.tryPlacingChildren(var14.piece, var14.free, var14.boundsTop, var14.depth, param8, param10);
+        List<PoolElementStructurePiece> var0 = Lists.newArrayList();
+        Registry<StructureTemplatePool> var1 = param0.registryOrThrow(Registry.TEMPLATE_POOL_REGISTRY);
+        Rotation var2 = Rotation.getRandom(param7);
+        StructureTemplatePool var3 = param1.startPool().get();
+        StructurePoolElement var4 = var3.getRandomTemplate(param7);
+        if (var4 != EmptyPoolElement.INSTANCE) {
+            PoolElementStructurePiece var5 = param2.create(param4, var4, param5, var4.getGroundLevelDelta(), var2, var4.getBoundingBox(param4, param5, var2));
+            BoundingBox var6 = var5.getBoundingBox();
+            int var7 = (var6.maxX() + var6.minX()) / 2;
+            int var8 = (var6.maxZ() + var6.minZ()) / 2;
+            int var9;
+            if (param9) {
+                var9 = param5.getY() + param3.getFirstFreeHeight(var7, var8, Heightmap.Types.WORLD_SURFACE_WG, param10);
+            } else {
+                var9 = param5.getY();
             }
 
+            int var11 = var6.minY() + var5.getGroundLevelDelta();
+            var5.move(0, var9 - var11, 0);
+            var0.add(var5);
+            if (param1.maxDepth() > 0) {
+                int var12 = 80;
+                AABB var13 = new AABB(
+                    (double)(var7 - 80), (double)(var9 - 80), (double)(var8 - 80), (double)(var7 + 80 + 1), (double)(var9 + 80 + 1), (double)(var8 + 80 + 1)
+                );
+                JigsawPlacement.Placer var14 = new JigsawPlacement.Placer(var1, param1.maxDepth(), param2, param3, param4, var0, param7);
+                var14.placing
+                    .addLast(
+                        new JigsawPlacement.PieceState(
+                            var5, new MutableObject<>(Shapes.join(Shapes.create(var13), Shapes.create(AABB.of(var6)), BooleanOp.ONLY_FIRST)), var9 + 80, 0
+                        )
+                    );
+
+                while(!var14.placing.isEmpty()) {
+                    JigsawPlacement.PieceState var15 = var14.placing.removeFirst();
+                    var14.tryPlacingChildren(var15.piece, var15.free, var15.boundsTop, var15.depth, param8, param10);
+                }
+
+                var0.forEach(param6::addPiece);
+            }
         }
     }
 
@@ -166,7 +171,7 @@ public class JigsawPlacement {
             boolean var4 = var3 == StructureTemplatePool.Projection.RIGID;
             MutableObject<VoxelShape> var5 = new MutableObject<>();
             BoundingBox var6 = param0.getBoundingBox();
-            int var7 = var6.y0;
+            int var7 = var6.minY();
 
             label139:
             for(StructureTemplate.StructureBlockInfo var8 : var0.getShuffledJigsawBlocks(this.structureManager, var1, var2, this.random)) {
@@ -233,9 +238,9 @@ public class JigsawPlacement {
                                 for(StructureTemplate.StructureBlockInfo var30 : var26) {
                                     if (JigsawBlock.canAttach(var8, var30)) {
                                         BlockPos var31 = var30.pos;
-                                        BlockPos var32 = new BlockPos(var11.getX() - var31.getX(), var11.getY() - var31.getY(), var11.getZ() - var31.getZ());
+                                        BlockPos var32 = var11.subtract(var31);
                                         BoundingBox var33 = var24.getBoundingBox(this.structureManager, var32, var25);
-                                        int var34 = var33.y0;
+                                        int var34 = var33.minY();
                                         StructureTemplatePool.Projection var35 = var24.getProjection();
                                         boolean var36 = var35 == StructureTemplatePool.Projection.RIGID;
                                         int var37 = var31.getY();
@@ -256,8 +261,8 @@ public class JigsawPlacement {
                                         BoundingBox var42 = var33.moved(0, var41, 0);
                                         BlockPos var43 = var32.offset(0, var41, 0);
                                         if (var29 > 0) {
-                                            int var44 = Math.max(var29 + 1, var42.y1 - var42.y0);
-                                            var42.y1 = var42.y0 + var44;
+                                            int var44 = Math.max(var29 + 1, var42.maxY() - var42.minY());
+                                            var42.encapsulate(new BlockPos(var42.minX(), var42.minY() + var44, var42.minZ()));
                                         }
 
                                         if (!Shapes.joinIsNotEmpty(var19.getValue(), Shapes.create(AABB.of(var42).deflate(0.25)), BooleanOp.ONLY_SECOND)) {

@@ -18,8 +18,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class Heightmap {
     private static final Predicate<BlockState> NOT_AIR = param0 -> !param0.isAir();
@@ -105,6 +103,10 @@ public class Heightmap {
         return this.getFirstAvailable(getIndex(param0, param1));
     }
 
+    public int getHighestTaken(int param0, int param1) {
+        return this.getFirstAvailable(getIndex(param0, param1)) - 1;
+    }
+
     private int getFirstAvailable(int param0) {
         return this.data.get(param0) + this.chunk.getMinBuildHeight();
     }
@@ -162,7 +164,6 @@ public class Heightmap {
             return this.usage == Heightmap.Usage.CLIENT;
         }
 
-        @OnlyIn(Dist.CLIENT)
         public boolean keepAfterWorldgen() {
             return this.usage != Heightmap.Usage.WORLDGEN;
         }

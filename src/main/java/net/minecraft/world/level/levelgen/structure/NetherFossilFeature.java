@@ -27,8 +27,8 @@ public class NetherFossilFeature extends StructureFeature<NoneFeatureConfigurati
     }
 
     public static class FeatureStart extends NoiseAffectingStructureStart<NoneFeatureConfiguration> {
-        public FeatureStart(StructureFeature<NoneFeatureConfiguration> param0, ChunkPos param1, BoundingBox param2, int param3, long param4) {
-            super(param0, param1, param2, param3, param4);
+        public FeatureStart(StructureFeature<NoneFeatureConfiguration> param0, ChunkPos param1, int param2, long param3) {
+            super(param0, param1, param2, param3);
         }
 
         public void generatePieces(
@@ -56,8 +56,7 @@ public class NetherFossilFeature extends StructureFeature<NoneFeatureConfigurati
             }
 
             if (var3 > var2) {
-                NetherFossilPieces.addPieces(param2, this.pieces, this.random, new BlockPos(var0, var3, var1));
-                this.calculateBoundingBox();
+                NetherFossilPieces.addPieces(param2, this, this.random, new BlockPos(var0, var3, var1));
             }
         }
     }

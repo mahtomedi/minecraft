@@ -11,4 +11,8 @@ public class GameEventTags {
     private static Tag.Named<GameEvent> bind(String param0) {
         return HELPER.bind(param0);
     }
+
+    public static TagCollection<GameEvent> getAllTags() {
+        return HELPER.getAllTags();
+    }
 }

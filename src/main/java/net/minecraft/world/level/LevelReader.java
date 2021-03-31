@@ -16,8 +16,6 @@ import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public interface LevelReader extends BlockAndTintGetter, CollisionGetter, BiomeManager.NoiseBiomeSource {
     @Nullable
@@ -46,7 +44,6 @@ public interface LevelReader extends BlockAndTintGetter, CollisionGetter, BiomeM
         return this.hasChunksAt(var0, var2, var4, var1, var3, var5) ? this.getBlockStates(param0) : Stream.empty();
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     default int getBlockTint(BlockPos param0, ColorResolver param1) {
         return param1.getColor(this.getBiome(param0), (double)param0.getX(), (double)param0.getZ());

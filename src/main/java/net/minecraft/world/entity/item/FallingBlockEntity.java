@@ -38,8 +38,6 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class FallingBlockEntity extends Entity {
     private BlockState blockState = Blocks.SAND.defaultBlockState();
@@ -77,7 +75,6 @@ public class FallingBlockEntity extends Entity {
         this.entityData.set(DATA_START_POS, param0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public BlockPos getStartPos() {
         return this.entityData.get(DATA_START_POS);
     }
@@ -281,7 +278,6 @@ public class FallingBlockEntity extends Entity {
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Level getLevel() {
         return this.level;
     }
@@ -292,7 +288,6 @@ public class FallingBlockEntity extends Entity {
         this.fallDamageMax = param1;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public boolean displayFireAnimation() {
         return false;
@@ -318,7 +313,6 @@ public class FallingBlockEntity extends Entity {
         return new ClientboundAddEntityPacket(this, Block.getId(this.getBlockState()));
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void recreateFromPacket(ClientboundAddEntityPacket param0) {
         super.recreateFromPacket(param0);

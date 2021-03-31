@@ -6,8 +6,10 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import javax.annotation.Nullable;
 
 public class SortedArraySet<T> extends AbstractSet<T> {
+    private static final int DEFAULT_INITIAL_CAPACITY = 10;
     private final Comparator<T> comparator;
     private T[] contents;
     private int size;
@@ -21,8 +23,20 @@ public class SortedArraySet<T> extends AbstractSet<T> {
         }
     }
 
+    public static <T extends Comparable<T>> SortedArraySet<T> create() {
+        return create(10);
+    }
+
     public static <T extends Comparable<T>> SortedArraySet<T> create(int param0) {
         return new SortedArraySet<>(param0, Comparator.naturalOrder());
+    }
+
+    public static <T> SortedArraySet<T> create(Comparator<T> param0) {
+        return create(param0, 10);
+    }
+
+    public static <T> SortedArraySet<T> create(Comparator<T> param0, int param1) {
+        return new SortedArraySet<>(param1, param0);
     }
 
     private static <T> T[] castRawArray(Object[] param0) {
@@ -107,8 +121,18 @@ public class SortedArraySet<T> extends AbstractSet<T> {
         }
     }
 
+    @Nullable
+    public T get(T param0) {
+        int var0 = this.findIndex(param0);
+        return var0 >= 0 ? this.getInternal(var0) : null;
+    }
+
     public T first() {
         return this.getInternal(0);
+    }
+
+    public T last() {
+        return this.getInternal(this.size - 1);
     }
 
     @Override

@@ -6,8 +6,6 @@ import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundLevelParticlesPacket implements Packet<ClientGamePacketListener> {
     private final double x;
@@ -73,52 +71,42 @@ public class ClientboundLevelParticlesPacket implements Packet<ClientGamePacketL
         this.particle.writeToNetwork(param0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean isOverrideLimiter() {
         return this.overrideLimiter;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public double getX() {
         return this.x;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public double getY() {
         return this.y;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public double getZ() {
         return this.z;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getXDist() {
         return this.xDist;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getYDist() {
         return this.yDist;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getZDist() {
         return this.zDist;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getMaxSpeed() {
         return this.maxSpeed;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getCount() {
         return this.count;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public ParticleOptions getParticle() {
         return this.particle;
     }

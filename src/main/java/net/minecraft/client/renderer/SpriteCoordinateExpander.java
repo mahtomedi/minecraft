@@ -51,6 +51,16 @@ public class SpriteCoordinateExpander implements VertexConsumer {
     }
 
     @Override
+    public void defaultColor(int param0, int param1, int param2, int param3) {
+        this.delegate.defaultColor(param0, param1, param2, param3);
+    }
+
+    @Override
+    public void unsetDefaultColor() {
+        this.delegate.unsetDefaultColor();
+    }
+
+    @Override
     public void vertex(
         float param0,
         float param1,

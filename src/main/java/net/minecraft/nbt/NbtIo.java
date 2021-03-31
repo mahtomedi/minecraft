@@ -18,8 +18,6 @@ import javax.annotation.Nullable;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class NbtIo {
     public static CompoundTag readCompressed(File param0) throws IOException {
@@ -54,7 +52,6 @@ public class NbtIo {
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static void write(CompoundTag param0, File param1) throws IOException {
         try (
             FileOutputStream var0 = new FileOutputStream(param1);
@@ -66,7 +63,6 @@ public class NbtIo {
     }
 
     @Nullable
-    @OnlyIn(Dist.CLIENT)
     public static CompoundTag read(File param0) throws IOException {
         if (!param0.exists()) {
             return null;

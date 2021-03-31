@@ -6,8 +6,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagCollection;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundUpdateTagsPacket implements Packet<ClientGamePacketListener> {
     private final Map<ResourceKey<? extends Registry<?>>, TagCollection.NetworkPayload> tags;
@@ -29,7 +27,6 @@ public class ClientboundUpdateTagsPacket implements Packet<ClientGamePacketListe
         param0.handleUpdateTags(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Map<ResourceKey<? extends Registry<?>>, TagCollection.NetworkPayload> getTags() {
         return this.tags;
     }

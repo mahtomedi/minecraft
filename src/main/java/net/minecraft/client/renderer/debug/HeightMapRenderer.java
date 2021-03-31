@@ -24,6 +24,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class HeightMapRenderer implements DebugRenderer.SimpleDebugRenderer {
     private final Minecraft minecraft;
+    private static final int CHUNK_DIST = 2;
+    private static final float BOX_HEIGHT = 0.09375F;
 
     public HeightMapRenderer(Minecraft param0) {
         this.minecraft = param0;

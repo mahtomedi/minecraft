@@ -19,6 +19,7 @@ public class BackupConfirmScreen extends Screen {
     private final Component description;
     private final boolean promptForCacheErase;
     private MultiLineLabel message = MultiLineLabel.EMPTY;
+    protected int id;
     private Checkbox eraseCache;
 
     public BackupConfirmScreen(@Nullable Screen param0, BackupConfirmScreen.Listener param1, Component param2, Component param3, boolean param4) {

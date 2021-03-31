@@ -15,6 +15,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class ShulkerModel<T extends Shulker> extends ListModel<T> {
+    private static final String LID = "lid";
+    private static final String BASE = "base";
     private final ModelPart base;
     private final ModelPart lid;
     private final ModelPart head;

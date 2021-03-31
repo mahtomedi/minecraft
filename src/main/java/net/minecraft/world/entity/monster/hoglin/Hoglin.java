@@ -45,11 +45,17 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class Hoglin extends Animal implements Enemy, HoglinBase {
     private static final EntityDataAccessor<Boolean> DATA_IMMUNE_TO_ZOMBIFICATION = SynchedEntityData.defineId(Hoglin.class, EntityDataSerializers.BOOLEAN);
+    private static final float PROBABILITY_OF_SPAWNING_AS_BABY = 0.2F;
+    private static final int MAX_HEALTH = 40;
+    private static final float MOVEMENT_SPEED_WHEN_FIGHTING = 0.3F;
+    private static final int ATTACK_KNOCKBACK = 1;
+    private static final float KNOCKBACK_RESISTANCE = 0.6F;
+    private static final int ATTACK_DAMAGE = 6;
+    private static final float BABY_ATTACK_DAMAGE = 0.5F;
+    private static final int CONVERSION_TIME = 300;
     private int attackAnimationRemainingTicks;
     private int timeInOverworld;
     private boolean cannotBeHunted;
@@ -231,7 +237,6 @@ public class Hoglin extends Animal implements Enemy, HoglinBase {
         return var0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void handleEntityEvent(byte param0) {
         if (param0 == 4) {
@@ -243,7 +248,6 @@ public class Hoglin extends Animal implements Enemy, HoglinBase {
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public int getAttackAnimationRemainingTicks() {
         return this.attackAnimationRemainingTicks;

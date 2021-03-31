@@ -55,6 +55,7 @@ import org.apache.logging.log4j.Logger;
 
 public class ChunkSerializer {
     private static final Logger LOGGER = LogManager.getLogger();
+    public static final String TAG_UPGRADE_DATA = "UpgradeData";
 
     public static ProtoChunk read(ServerLevel param0, StructureManager param1, PoiManager param2, ChunkPos param3, CompoundTag param4) {
         ChunkGenerator var0 = param0.getChunkSource().getGenerator();

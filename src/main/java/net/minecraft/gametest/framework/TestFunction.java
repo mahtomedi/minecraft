@@ -15,6 +15,38 @@ public class TestFunction {
     private final long setupTicks;
     private final Rotation rotation;
 
+    public TestFunction(String param0, String param1, String param2, int param3, long param4, boolean param5, Consumer<GameTestHelper> param6) {
+        this(param0, param1, param2, Rotation.NONE, param3, param4, param5, 1, 1, param6);
+    }
+
+    public TestFunction(String param0, String param1, String param2, Rotation param3, int param4, long param5, boolean param6, Consumer<GameTestHelper> param7) {
+        this(param0, param1, param2, param3, param4, param5, param6, 1, 1, param7);
+    }
+
+    public TestFunction(
+        String param0,
+        String param1,
+        String param2,
+        Rotation param3,
+        int param4,
+        long param5,
+        boolean param6,
+        int param7,
+        int param8,
+        Consumer<GameTestHelper> param9
+    ) {
+        this.batchName = param0;
+        this.testName = param1;
+        this.structureName = param2;
+        this.rotation = param3;
+        this.maxTicks = param4;
+        this.required = param6;
+        this.requiredSuccesses = param7;
+        this.maxAttempts = param8;
+        this.function = param9;
+        this.setupTicks = param5;
+    }
+
     public void run(GameTestHelper param0) {
         this.function.accept(param0);
     }

@@ -1,15 +1,8 @@
 package net.minecraft.world.item;
 
-import java.util.Optional;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
-import net.minecraft.advancements.CriteriaTriggers;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -53,32 +46,6 @@ public class ItemUtils {
         Level var0 = param0.level;
         if (!var0.isClientSide) {
             param1.forEach(param2 -> var0.addFreshEntity(new ItemEntity(var0, param0.getX(), param0.getY(), param0.getZ(), param2)));
-        }
-    }
-
-    public static Optional<InteractionResult> bucketMobPickup(
-        Player param0, InteractionHand param1, LivingEntity param2, SoundEvent param3, Supplier<ItemStack> param4
-    ) {
-        ItemStack var0 = param0.getItemInHand(param1);
-        if (var0.getItem() == Items.WATER_BUCKET && param2.isAlive()) {
-            param2.playSound(param3, 1.0F, 1.0F);
-            var0.shrink(1);
-            ItemStack var1 = param4.get();
-            Level var2 = param2.level;
-            if (!var2.isClientSide) {
-                CriteriaTriggers.FILLED_BUCKET.trigger((ServerPlayer)param0, var1);
-            }
-
-            if (var0.isEmpty()) {
-                param0.setItemInHand(param1, var1);
-            } else if (!param0.getInventory().add(var1)) {
-                param0.drop(var1, false);
-            }
-
-            param2.discard();
-            return Optional.of(InteractionResult.sidedSuccess(var2.isClientSide));
-        } else {
-            return Optional.empty();
         }
     }
 }

@@ -11,8 +11,6 @@ import javax.annotation.Nullable;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class StaticTagHelper<T> {
     private final ResourceKey<? extends Registry<T>> key;
@@ -31,7 +29,6 @@ public class StaticTagHelper<T> {
         return var0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void resetToEmpty() {
         this.source = TagCollection.empty();
         Tag<T> var0 = SetTag.empty();

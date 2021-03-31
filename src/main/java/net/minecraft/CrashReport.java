@@ -13,8 +13,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CompletionException;
 import java.util.stream.Collectors;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.logging.log4j.LogManager;
@@ -73,6 +71,12 @@ public class CrashReport {
 
     public Throwable getException() {
         return this.exception;
+    }
+
+    public String getDetails() {
+        StringBuilder var0 = new StringBuilder();
+        this.getDetails(var0);
+        return var0.toString();
     }
 
     public void getDetails(StringBuilder param0) {
@@ -155,7 +159,6 @@ public class CrashReport {
         return var0.toString();
     }
 
-    @OnlyIn(Dist.CLIENT)
     public File getSaveFile() {
         return this.saveFile;
     }

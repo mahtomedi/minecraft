@@ -13,8 +13,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class WorldBorder {
     private final List<BorderChangeListener> listeners = Lists.newArrayList();
@@ -42,6 +40,10 @@ public class WorldBorder {
             && (double)param0.getMinBlockZ() < this.getMaxZ();
     }
 
+    public boolean isWithinBounds(double param0, double param1) {
+        return param0 > this.getMinX() && param0 < this.getMaxX() && param1 > this.getMinZ() && param1 < this.getMaxZ();
+    }
+
     public boolean isWithinBounds(AABB param0) {
         return param0.maxX > this.getMinX() && param0.minX < this.getMaxX() && param0.maxZ > this.getMinZ() && param0.minZ < this.getMaxZ();
     }
@@ -64,7 +66,6 @@ public class WorldBorder {
         return Math.min(var4, var1);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public BorderStatus getStatus() {
         return this.extent.getStatus();
     }
@@ -144,6 +145,10 @@ public class WorldBorder {
         this.listeners.add(param0);
     }
 
+    public void removeListener(BorderChangeListener param0) {
+        this.listeners.remove(param0);
+    }
+
     public void setAbsoluteMaxSize(int param0) {
         this.absoluteMaxSize = param0;
         this.extent.onAbsoluteMaxSizeChange();
@@ -179,7 +184,6 @@ public class WorldBorder {
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     public double getLerpSpeed() {
         return this.extent.getLerpSpeed();
     }
@@ -243,14 +247,12 @@ public class WorldBorder {
 
         double getSize();
 
-        @OnlyIn(Dist.CLIENT)
         double getLerpSpeed();
 
         long getLerpRemainingTime();
 
         double getLerpTarget();
 
-        @OnlyIn(Dist.CLIENT)
         BorderStatus getStatus();
 
         void onAbsoluteMaxSizeChange();
@@ -303,7 +305,6 @@ public class WorldBorder {
             return var0 < 1.0 ? Mth.lerp(var0, this.from, this.to) : this.to;
         }
 
-        @OnlyIn(Dist.CLIENT)
         @Override
         public double getLerpSpeed() {
             return Math.abs(this.from - this.to) / (double)(this.lerpEnd - this.lerpBegin);
@@ -319,7 +320,6 @@ public class WorldBorder {
             return this.to;
         }
 
-        @OnlyIn(Dist.CLIENT)
         @Override
         public BorderStatus getStatus() {
             return this.to < this.from ? BorderStatus.SHRINKING : BorderStatus.GROWING;
@@ -490,13 +490,11 @@ public class WorldBorder {
             return this.size;
         }
 
-        @OnlyIn(Dist.CLIENT)
         @Override
         public BorderStatus getStatus() {
             return BorderStatus.STATIONARY;
         }
 
-        @OnlyIn(Dist.CLIENT)
         @Override
         public double getLerpSpeed() {
             return 0.0;

@@ -13,6 +13,7 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
@@ -46,8 +47,6 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -168,7 +167,6 @@ public class WorldGenRegion implements WorldGenLevel {
         return this.level.getUncachedNoiseBiome(param0, param1, param2);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public float getShade(Direction param0, boolean param1) {
         return 1.0F;
@@ -316,6 +314,12 @@ public class WorldGenRegion implements WorldGenLevel {
         }
     }
 
+    @Nullable
+    @Override
+    public MinecraftServer getServer() {
+        return this.level.getServer();
+    }
+
     @Override
     public ChunkSource getChunkSource() {
         return this.level.getChunkSource();
@@ -375,6 +379,11 @@ public class WorldGenRegion implements WorldGenLevel {
     @Override
     public boolean isStateAtPosition(BlockPos param0, Predicate<BlockState> param1) {
         return param1.test(this.getBlockState(param0));
+    }
+
+    @Override
+    public boolean isFluidAtPosition(BlockPos param0, Predicate<FluidState> param1) {
+        return param1.test(this.getFluidState(param0));
     }
 
     @Override

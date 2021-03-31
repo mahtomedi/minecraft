@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -17,11 +18,11 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class StemBlock extends BushBlock implements BonemealableBlock {
+    public static final int MAX_AGE = 7;
     public static final IntegerProperty AGE = BlockStateProperties.AGE_7;
+    protected static final float AABB_OFFSET = 1.0F;
     protected static final VoxelShape[] SHAPE_BY_AGE = new VoxelShape[]{
         Block.box(7.0, 0.0, 7.0, 9.0, 2.0, 9.0),
         Block.box(7.0, 0.0, 7.0, 9.0, 4.0, 9.0),
@@ -65,14 +66,7 @@ public class StemBlock extends BushBlock implements BonemealableBlock {
                     Direction var2 = Direction.Plane.HORIZONTAL.getRandomDirection(param3);
                     BlockPos var3 = param2.relative(var2);
                     BlockState var4 = param1.getBlockState(var3.below());
-                    if (param1.getBlockState(var3).isAir()
-                        && (
-                            var4.is(Blocks.FARMLAND)
-                                || var4.is(Blocks.DIRT)
-                                || var4.is(Blocks.COARSE_DIRT)
-                                || var4.is(Blocks.PODZOL)
-                                || var4.is(Blocks.GRASS_BLOCK)
-                        )) {
+                    if (param1.getBlockState(var3).isAir() && (var4.is(Blocks.FARMLAND) || var4.is(BlockTags.DIRT) || var4.is(Blocks.GRASS_BLOCK))) {
                         param1.setBlockAndUpdate(var3, this.fruit.defaultBlockState());
                         param1.setBlockAndUpdate(param2, this.fruit.getAttachedStem().defaultBlockState().setValue(HorizontalDirectionalBlock.FACING, var2));
                     }
@@ -82,7 +76,6 @@ public class StemBlock extends BushBlock implements BonemealableBlock {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public ItemStack getCloneItemStack(BlockGetter param0, BlockPos param1, BlockState param2) {
         return new ItemStack(this.seedSupplier.get());

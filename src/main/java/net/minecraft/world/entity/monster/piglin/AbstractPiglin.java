@@ -19,13 +19,12 @@ import net.minecraft.world.entity.monster.ZombifiedPiglin;
 import net.minecraft.world.item.TieredItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class AbstractPiglin extends Monster {
     protected static final EntityDataAccessor<Boolean> DATA_IMMUNE_TO_ZOMBIFICATION = SynchedEntityData.defineId(
         AbstractPiglin.class, EntityDataSerializers.BOOLEAN
     );
+    protected static final int CONVERSION_TIME = 300;
     protected int timeInOverworld;
 
     public AbstractPiglin(EntityType<? extends AbstractPiglin> param0, Level param1) {
@@ -113,7 +112,6 @@ public abstract class AbstractPiglin extends Monster {
         return !this.isBaby();
     }
 
-    @OnlyIn(Dist.CLIENT)
     public abstract PiglinArmPose getArmPose();
 
     @Nullable

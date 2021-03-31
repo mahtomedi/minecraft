@@ -17,6 +17,10 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectMap.Entry;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -32,7 +36,9 @@ import org.apache.logging.log4j.Logger;
 
 public abstract class DistanceManager {
     private static final Logger LOGGER = LogManager.getLogger();
+    private static final int ENTITY_TICKING_RANGE = 2;
     private static final int PLAYER_TICKET_LEVEL = 33 + ChunkStatus.getDistance(ChunkStatus.FULL) - 2;
+    private static final int INITIAL_TICKET_LIST_CAPACITY = 4;
     private final Long2ObjectMap<ObjectSet<ServerPlayer>> playersPerChunk = new Long2ObjectOpenHashMap<>();
     private final Long2ObjectOpenHashMap<SortedArraySet<Ticket<?>>> tickets = new Long2ObjectOpenHashMap<>();
     private final DistanceManager.ChunkTicketTracker ticketTracker = new DistanceManager.ChunkTicketTracker();
@@ -227,6 +233,21 @@ public abstract class DistanceManager {
         return this.ticketThrottler.getDebugStatus();
     }
 
+    private void dumpTickets(String param0) {
+        try (FileOutputStream var0 = new FileOutputStream(new File(param0))) {
+            for(Entry<SortedArraySet<Ticket<?>>> var1 : this.tickets.long2ObjectEntrySet()) {
+                ChunkPos var2 = new ChunkPos(var1.getLongKey());
+
+                for(Ticket<?> var3 : var1.getValue()) {
+                    var0.write(("" + var2.x + "\t" + var2.z + "\t" + var3.getType() + "\t" + var3.getTicketLevel() + "\t\n").getBytes(StandardCharsets.UTF_8));
+                }
+            }
+        } catch (IOException var19) {
+            LOGGER.error(var19);
+        }
+
+    }
+
     class ChunkTicketTracker extends ChunkTracker {
         public ChunkTicketTracker() {
             super(ChunkMap.MAX_CHUNK_DISTANCE + 2, 16, 256);
@@ -314,6 +335,19 @@ public abstract class DistanceManager {
 
         public void runAllUpdates() {
             this.runUpdates(Integer.MAX_VALUE);
+        }
+
+        private void dumpChunks(String param0) {
+            try (FileOutputStream var0 = new FileOutputStream(new File(param0))) {
+                for(it.unimi.dsi.fastutil.longs.Long2ByteMap.Entry var1 : this.chunks.long2ByteEntrySet()) {
+                    ChunkPos var2 = new ChunkPos(var1.getLongKey());
+                    String var3 = Byte.toString(var1.getByteValue());
+                    var0.write(("" + var2.x + "\t" + var2.z + "\t" + var3 + "\n").getBytes(StandardCharsets.UTF_8));
+                }
+            } catch (IOException var18) {
+                DistanceManager.LOGGER.error(var18);
+            }
+
         }
     }
 

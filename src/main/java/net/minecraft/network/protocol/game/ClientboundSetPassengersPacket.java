@@ -4,8 +4,6 @@ import java.util.List;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.entity.Entity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundSetPassengersPacket implements Packet<ClientGamePacketListener> {
     private final int vehicle;
@@ -37,12 +35,10 @@ public class ClientboundSetPassengersPacket implements Packet<ClientGamePacketLi
         param0.handleSetEntityPassengersPacket(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int[] getPassengers() {
         return this.passengers;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getVehicle() {
         return this.vehicle;
     }

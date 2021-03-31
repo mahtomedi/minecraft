@@ -5,8 +5,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundChatPacket implements Packet<ClientGamePacketListener> {
     private final Component message;
@@ -36,17 +34,14 @@ public class ClientboundChatPacket implements Packet<ClientGamePacketListener> {
         param0.handleChat(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Component getMessage() {
         return this.message;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public ChatType getType() {
         return this.type;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public UUID getSender() {
         return this.sender;
     }

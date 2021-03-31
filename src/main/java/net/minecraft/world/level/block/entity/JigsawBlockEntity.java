@@ -27,10 +27,13 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class JigsawBlockEntity extends BlockEntity {
+    public static final String TARGET = "target";
+    public static final String POOL = "pool";
+    public static final String JOINT = "joint";
+    public static final String NAME = "name";
+    public static final String FINAL_STATE = "final_state";
     private ResourceLocation name = new ResourceLocation("empty");
     private ResourceLocation target = new ResourceLocation("empty");
     private ResourceLocation pool = new ResourceLocation("empty");
@@ -41,27 +44,22 @@ public class JigsawBlockEntity extends BlockEntity {
         super(BlockEntityType.JIGSAW, param0, param1);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public ResourceLocation getName() {
         return this.name;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public ResourceLocation getTarget() {
         return this.target;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public ResourceLocation getPool() {
         return this.pool;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public String getFinalState() {
         return this.finalState;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public JigsawBlockEntity.JointType getJoint() {
         return this.joint;
     }
@@ -161,7 +159,6 @@ public class JigsawBlockEntity extends BlockEntity {
             return Arrays.stream(values()).filter(param1 -> param1.getSerializedName().equals(param0)).findFirst();
         }
 
-        @OnlyIn(Dist.CLIENT)
         public Component getTranslatedName() {
             return new TranslatableComponent("jigsaw_block.joint." + this.name);
         }

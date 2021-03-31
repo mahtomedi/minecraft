@@ -10,6 +10,7 @@ import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
 
 public class SetHiddenState extends Behavior<LivingEntity> {
+    private static final int HIDE_TIMEOUT = 300;
     private final int closeEnoughDist;
     private final int stayHiddenTicks;
     private int ticksHidden;

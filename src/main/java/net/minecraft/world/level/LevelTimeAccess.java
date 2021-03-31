@@ -1,8 +1,6 @@
 package net.minecraft.world.level;
 
 import net.minecraft.world.level.dimension.DimensionType;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public interface LevelTimeAccess extends LevelReader {
     long dayTime();
@@ -15,7 +13,6 @@ public interface LevelTimeAccess extends LevelReader {
         return this.dimensionType().timeOfDay(this.dayTime());
     }
 
-    @OnlyIn(Dist.CLIENT)
     default int getMoonPhase() {
         return this.dimensionType().moonPhase(this.dayTime());
     }

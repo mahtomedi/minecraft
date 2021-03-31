@@ -8,6 +8,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.saveddata.SavedData;
 
 public class CommandStorage {
+    private static final String ID_PREFIX = "command_storage_";
     private final Map<String, CommandStorage.Container> namespaces = Maps.newHashMap();
     private final DimensionDataStorage storage;
 
@@ -41,6 +42,7 @@ public class CommandStorage {
     }
 
     static class Container extends SavedData {
+        private static final String TAG_CONTENTS = "contents";
         private final Map<String, CompoundTag> storage = Maps.newHashMap();
 
         private Container() {

@@ -14,8 +14,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class VoxelShape {
     protected final DiscreteVoxelShape shape;
@@ -66,9 +64,9 @@ public abstract class VoxelShape {
             ? Shapes.empty()
             : new ArrayVoxelShape(
                 this.shape,
-                new OffsetDoubleList(this.getCoords(Direction.Axis.X), param0),
-                new OffsetDoubleList(this.getCoords(Direction.Axis.Y), param1),
-                new OffsetDoubleList(this.getCoords(Direction.Axis.Z), param2)
+                (DoubleList)(new OffsetDoubleList(this.getCoords(Direction.Axis.X), param0)),
+                (DoubleList)(new OffsetDoubleList(this.getCoords(Direction.Axis.Y), param1)),
+                (DoubleList)(new OffsetDoubleList(this.getCoords(Direction.Axis.Z), param2))
             ));
     }
 
@@ -82,7 +80,6 @@ public abstract class VoxelShape {
         return var0[0];
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void forAllEdges(Shapes.DoubleLineConsumer param0) {
         this.shape
             .forAllEdges(
@@ -122,7 +119,15 @@ public abstract class VoxelShape {
         return var0;
     }
 
-    @OnlyIn(Dist.CLIENT)
+    public double min(Direction.Axis param0, double param1, double param2) {
+        Direction.Axis var0 = AxisCycle.FORWARD.cycle(param0);
+        Direction.Axis var1 = AxisCycle.BACKWARD.cycle(param0);
+        int var2 = this.findIndex(var0, param1);
+        int var3 = this.findIndex(var1, param2);
+        int var4 = this.shape.firstFull(param0, var2, var3);
+        return var4 >= this.shape.getSize(param0) ? Double.POSITIVE_INFINITY : this.get(param0, var4);
+    }
+
     public double max(Direction.Axis param0, double param1, double param2) {
         Direction.Axis var0 = AxisCycle.FORWARD.cycle(param0);
         Direction.Axis var1 = AxisCycle.BACKWARD.cycle(param0);

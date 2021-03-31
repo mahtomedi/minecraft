@@ -2,8 +2,6 @@ package net.minecraft.network.protocol.game;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundKeepAlivePacket implements Packet<ClientGamePacketListener> {
     private final long id;
@@ -25,7 +23,6 @@ public class ClientboundKeepAlivePacket implements Packet<ClientGamePacketListen
         param0.handleKeepAlive(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public long getId() {
         return this.id;
     }

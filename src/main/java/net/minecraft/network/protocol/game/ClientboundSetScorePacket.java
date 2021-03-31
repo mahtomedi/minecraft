@@ -5,8 +5,6 @@ import javax.annotation.Nullable;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.server.ServerScoreboard;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundSetScorePacket implements Packet<ClientGamePacketListener> {
     private final String owner;
@@ -54,23 +52,19 @@ public class ClientboundSetScorePacket implements Packet<ClientGamePacketListene
         param0.handleSetScore(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public String getOwner() {
         return this.owner;
     }
 
     @Nullable
-    @OnlyIn(Dist.CLIENT)
     public String getObjectiveName() {
         return this.objectiveName;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getScore() {
         return this.score;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public ServerScoreboard.Method getMethod() {
         return this.method;
     }

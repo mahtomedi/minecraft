@@ -5,28 +5,28 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder.Instance;
 import com.mojang.serialization.codecs.RecordCodecBuilder.Mu;
 import java.util.Random;
-import java.util.Set;
+import java.util.function.BiConsumer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
-import net.minecraft.util.UniformInt;
-import net.minecraft.world.level.LevelSimulatedRW;
+import net.minecraft.util.valueproviders.IntProvider;
+import net.minecraft.world.level.LevelSimulatedReader;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.TreeFeature;
 import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
-import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 public abstract class FoliagePlacer {
     public static final Codec<FoliagePlacer> CODEC = Registry.FOLIAGE_PLACER_TYPES.dispatch(FoliagePlacer::type, FoliagePlacerType::codec);
-    protected final UniformInt radius;
-    protected final UniformInt offset;
+    protected final IntProvider radius;
+    protected final IntProvider offset;
 
-    protected static <P extends FoliagePlacer> P2<Mu<P>, UniformInt, UniformInt> foliagePlacerParts(Instance<P> param0) {
+    protected static <P extends FoliagePlacer> P2<Mu<P>, IntProvider, IntProvider> foliagePlacerParts(Instance<P> param0) {
         return param0.group(
-            UniformInt.codec(0, 8, 8).fieldOf("radius").forGetter(param0x -> param0x.radius),
-            UniformInt.codec(0, 8, 8).fieldOf("offset").forGetter(param0x -> param0x.offset)
+            IntProvider.codec(0, 16).fieldOf("radius").forGetter(param0x -> param0x.radius),
+            IntProvider.codec(0, 16).fieldOf("offset").forGetter(param0x -> param0x.offset)
         );
     }
 
-    public FoliagePlacer(UniformInt param0, UniformInt param1) {
+    public FoliagePlacer(IntProvider param0, IntProvider param1) {
         this.radius = param0;
         this.offset = param1;
     }
@@ -34,30 +34,28 @@ public abstract class FoliagePlacer {
     protected abstract FoliagePlacerType<?> type();
 
     public void createFoliage(
-        LevelSimulatedRW param0,
-        Random param1,
-        TreeConfiguration param2,
-        int param3,
-        FoliagePlacer.FoliageAttachment param4,
-        int param5,
+        LevelSimulatedReader param0,
+        BiConsumer<BlockPos, BlockState> param1,
+        Random param2,
+        TreeConfiguration param3,
+        int param4,
+        FoliagePlacer.FoliageAttachment param5,
         int param6,
-        Set<BlockPos> param7,
-        BoundingBox param8
+        int param7
     ) {
-        this.createFoliage(param0, param1, param2, param3, param4, param5, param6, param7, this.offset(param1), param8);
+        this.createFoliage(param0, param1, param2, param3, param4, param5, param6, param7, this.offset(param2));
     }
 
     protected abstract void createFoliage(
-        LevelSimulatedRW var1,
-        Random var2,
-        TreeConfiguration var3,
-        int var4,
-        FoliagePlacer.FoliageAttachment var5,
-        int var6,
+        LevelSimulatedReader var1,
+        BiConsumer<BlockPos, BlockState> var2,
+        Random var3,
+        TreeConfiguration var4,
+        int var5,
+        FoliagePlacer.FoliageAttachment var6,
         int var7,
-        Set<BlockPos> var8,
-        int var9,
-        BoundingBox var10
+        int var8,
+        int var9
     );
 
     public abstract int foliageHeight(Random var1, int var2, TreeConfiguration var3);
@@ -87,54 +85,51 @@ public abstract class FoliagePlacer {
     }
 
     protected void placeLeavesRow(
-        LevelSimulatedRW param0,
-        Random param1,
-        TreeConfiguration param2,
-        BlockPos param3,
-        int param4,
-        Set<BlockPos> param5,
+        LevelSimulatedReader param0,
+        BiConsumer<BlockPos, BlockState> param1,
+        Random param2,
+        TreeConfiguration param3,
+        BlockPos param4,
+        int param5,
         int param6,
-        boolean param7,
-        BoundingBox param8
+        boolean param7
     ) {
         int var0 = param7 ? 1 : 0;
         BlockPos.MutableBlockPos var1 = new BlockPos.MutableBlockPos();
 
-        for(int var2 = -param4; var2 <= param4 + var0; ++var2) {
-            for(int var3 = -param4; var3 <= param4 + var0; ++var3) {
-                if (!this.shouldSkipLocationSigned(param1, var2, param6, var3, param4, param7)) {
-                    var1.setWithOffset(param3, var2, param6, var3);
-                    this.tryPlaceLeaf(param0, param1, param2, param5, param8, var1);
+        for(int var2 = -param5; var2 <= param5 + var0; ++var2) {
+            for(int var3 = -param5; var3 <= param5 + var0; ++var3) {
+                if (!this.shouldSkipLocationSigned(param2, var2, param6, var3, param5, param7)) {
+                    var1.setWithOffset(param4, var2, param6, var3);
+                    tryPlaceLeaf(param0, param1, param2, param3, var1);
                 }
             }
         }
 
     }
 
-    protected void tryPlaceLeaf(
-        LevelSimulatedRW param0, Random param1, TreeConfiguration param2, Set<BlockPos> param3, BoundingBox param4, BlockPos.MutableBlockPos param5
+    protected static void tryPlaceLeaf(
+        LevelSimulatedReader param0, BiConsumer<BlockPos, BlockState> param1, Random param2, TreeConfiguration param3, BlockPos param4
     ) {
-        if (TreeFeature.validTreePos(param0, param5)) {
-            param0.setBlock(param5, param2.foliageProvider.getState(param1, param5), 19);
-            param4.expand(new BoundingBox(param5));
-            param3.add(param5.immutable());
+        if (TreeFeature.validTreePos(param0, param4)) {
+            param1.accept(param4, param3.foliageProvider.getState(param2, param4));
         }
 
     }
 
     public static final class FoliageAttachment {
-        private final BlockPos foliagePos;
+        private final BlockPos pos;
         private final int radiusOffset;
         private final boolean doubleTrunk;
 
         public FoliageAttachment(BlockPos param0, int param1, boolean param2) {
-            this.foliagePos = param0;
+            this.pos = param0;
             this.radiusOffset = param1;
             this.doubleTrunk = param2;
         }
 
-        public BlockPos foliagePos() {
-            return this.foliagePos;
+        public BlockPos pos() {
+            return this.pos;
         }
 
         public int radiusOffset() {

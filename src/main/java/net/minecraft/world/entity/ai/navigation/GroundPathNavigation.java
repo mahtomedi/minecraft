@@ -239,6 +239,14 @@ public class GroundPathNavigation extends PathNavigation {
         this.nodeEvaluator.setCanOpenDoors(param0);
     }
 
+    public boolean canPassDoors() {
+        return this.nodeEvaluator.canPassDoors();
+    }
+
+    public void setCanPassDoors(boolean param0) {
+        this.nodeEvaluator.setCanPassDoors(param0);
+    }
+
     public boolean canOpenDoors() {
         return this.nodeEvaluator.canPassDoors();
     }

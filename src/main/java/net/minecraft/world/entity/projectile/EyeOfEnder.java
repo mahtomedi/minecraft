@@ -18,13 +18,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
-@OnlyIn(
-    value = Dist.CLIENT,
-    _interface = ItemSupplier.class
-)
 public class EyeOfEnder extends Entity implements ItemSupplier {
     private static final EntityDataAccessor<ItemStack> DATA_ITEM_STACK = SynchedEntityData.defineId(EyeOfEnder.class, EntityDataSerializers.ITEM_STACK);
     private double tx;
@@ -64,7 +58,6 @@ public class EyeOfEnder extends Entity implements ItemSupplier {
         this.getEntityData().define(DATA_ITEM_STACK, ItemStack.EMPTY);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public boolean shouldRenderAtSqrDistance(double param0) {
         double var0 = this.getBoundingBox().getSize() * 4.0;
@@ -97,7 +90,6 @@ public class EyeOfEnder extends Entity implements ItemSupplier {
         this.surviveAfterDeath = this.random.nextInt(5) > 0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void lerpMotion(double param0, double param1, double param2) {
         this.setDeltaMovement(param0, param1, param2);

@@ -10,8 +10,6 @@ import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.gameevent.BlockPositionSource;
 import net.minecraft.world.level.gameevent.vibrations.VibrationPath;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class VibrationParticleOption implements ParticleOptions {
     public static final Codec<VibrationParticleOption> CODEC = RecordCodecBuilder.create(
@@ -80,7 +78,6 @@ public class VibrationParticleOption implements ParticleOptions {
         return ParticleTypes.VIBRATION;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public VibrationPath getVibrationPath() {
         return this.vibrationPath;
     }

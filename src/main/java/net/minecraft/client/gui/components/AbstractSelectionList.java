@@ -330,6 +330,10 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
         return Math.max(0, this.getMaxPosition() - (this.y1 - this.y0 - 4));
     }
 
+    public int getScrollBottom() {
+        return (int)this.getScrollAmount() - this.height - this.headerHeight;
+    }
+
     protected void updateScrollingState(double param0, double param1, int param2) {
         this.scrolling = param2 == 0 && param0 >= (double)this.getScrollbarPosition() && param0 < (double)(this.getScrollbarPosition() + 6);
     }

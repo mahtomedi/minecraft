@@ -4,15 +4,12 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ServerboundPlayerActionPacket implements Packet<ServerGamePacketListener> {
     private final BlockPos pos;
     private final Direction direction;
     private final ServerboundPlayerActionPacket.Action action;
 
-    @OnlyIn(Dist.CLIENT)
     public ServerboundPlayerActionPacket(ServerboundPlayerActionPacket.Action param0, BlockPos param1, Direction param2) {
         this.action = param0;
         this.pos = param1.immutable();

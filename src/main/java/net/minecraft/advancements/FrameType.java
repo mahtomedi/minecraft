@@ -3,8 +3,6 @@ package net.minecraft.advancements;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public enum FrameType {
     TASK("task", 0, ChatFormatting.GREEN),
@@ -27,7 +25,6 @@ public enum FrameType {
         return this.name;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getTexture() {
         return this.texture;
     }
@@ -46,7 +43,6 @@ public enum FrameType {
         return this.chatColor;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Component getDisplayName() {
         return this.displayName;
     }

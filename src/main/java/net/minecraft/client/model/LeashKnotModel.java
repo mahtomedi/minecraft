@@ -12,6 +12,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class LeashKnotModel<T extends Entity> extends HierarchicalModel<T> {
+    private static final String KNOT = "knot";
     private final ModelPart root;
     private final ModelPart knot;
 

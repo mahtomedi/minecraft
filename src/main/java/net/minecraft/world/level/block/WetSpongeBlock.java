@@ -9,8 +9,6 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class WetSpongeBlock extends Block {
     protected WetSpongeBlock(BlockBehaviour.Properties param0) {
@@ -27,7 +25,6 @@ public class WetSpongeBlock extends Block {
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void animateTick(BlockState param0, Level param1, BlockPos param2, Random param3) {
         Direction var0 = Direction.getRandom(param3);

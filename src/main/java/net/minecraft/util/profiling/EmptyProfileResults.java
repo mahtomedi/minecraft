@@ -3,8 +3,6 @@ package net.minecraft.util.profiling;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class EmptyProfileResults implements ProfileResults {
     public static final EmptyProfileResults EMPTY = new EmptyProfileResults();
@@ -12,7 +10,6 @@ public class EmptyProfileResults implements ProfileResults {
     private EmptyProfileResults() {
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public List<ResultField> getTimes(String param0) {
         return Collections.emptyList();
@@ -41,5 +38,10 @@ public class EmptyProfileResults implements ProfileResults {
     @Override
     public int getEndTimeTicks() {
         return 0;
+    }
+
+    @Override
+    public String getProfilerResults() {
+        return "";
     }
 }

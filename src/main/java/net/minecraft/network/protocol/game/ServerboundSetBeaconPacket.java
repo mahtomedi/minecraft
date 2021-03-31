@@ -2,14 +2,11 @@ package net.minecraft.network.protocol.game;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ServerboundSetBeaconPacket implements Packet<ServerGamePacketListener> {
     private final int primary;
     private final int secondary;
 
-    @OnlyIn(Dist.CLIENT)
     public ServerboundSetBeaconPacket(int param0, int param1) {
         this.primary = param0;
         this.secondary = param1;

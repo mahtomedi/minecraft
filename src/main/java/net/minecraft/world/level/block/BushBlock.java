@@ -2,6 +2,7 @@ package net.minecraft.world.level.block;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
@@ -15,12 +16,7 @@ public class BushBlock extends Block {
     }
 
     protected boolean mayPlaceOn(BlockState param0, BlockGetter param1, BlockPos param2) {
-        return param0.is(Blocks.MOSS_BLOCK)
-            || param0.is(Blocks.GRASS_BLOCK)
-            || param0.is(Blocks.DIRT)
-            || param0.is(Blocks.COARSE_DIRT)
-            || param0.is(Blocks.PODZOL)
-            || param0.is(Blocks.FARMLAND);
+        return param0.is(Blocks.MOSS_BLOCK) || param0.is(Blocks.GRASS_BLOCK) || param0.is(BlockTags.DIRT) || param0.is(Blocks.FARMLAND);
     }
 
     @Override

@@ -6,8 +6,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public enum PackCompatibility {
     TOO_OLD("old"),
@@ -39,12 +37,10 @@ public enum PackCompatibility {
         return forFormat(param0.getPackFormat(), param1);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Component getDescription() {
         return this.description;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Component getConfirmation() {
         return this.confirmation;
     }

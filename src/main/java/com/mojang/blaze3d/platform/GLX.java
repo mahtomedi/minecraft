@@ -2,6 +2,7 @@ package com.mojang.blaze3d.platform;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
+import com.mojang.blaze3d.DontObfuscate;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
@@ -25,6 +26,7 @@ import oshi.SystemInfo;
 import oshi.hardware.Processor;
 
 @OnlyIn(Dist.CLIENT)
+@DontObfuscate
 public class GLX {
     private static final Logger LOGGER = LogManager.getLogger();
     private static String cpuInfo;
@@ -106,6 +108,7 @@ public class GLX {
         RenderSystem.assertThread(RenderSystem::isOnRenderThread);
         GlStateManager._disableTexture();
         GlStateManager._depthMask(false);
+        GlStateManager._disableCull();
         RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
         Tesselator var0 = RenderSystem.renderThreadTesselator();
         BufferBuilder var1 = var0.getBuilder();
@@ -146,6 +149,7 @@ public class GLX {
 
         var0.end();
         RenderSystem.lineWidth(1.0F);
+        GlStateManager._enableCull();
         GlStateManager._depthMask(true);
         GlStateManager._enableTexture();
     }

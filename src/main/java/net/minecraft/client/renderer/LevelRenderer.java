@@ -20,6 +20,7 @@ import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexMultiConsumer;
+import com.mojang.math.Matrix3f;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3d;
 import com.mojang.math.Vector3f;
@@ -81,10 +82,10 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.util.IntRange;
 import net.minecraft.util.Mth;
 import net.minecraft.util.ParticleUtils;
 import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -125,6 +126,14 @@ import org.apache.logging.log4j.Logger;
 @OnlyIn(Dist.CLIENT)
 public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseable {
     private static final Logger LOGGER = LogManager.getLogger();
+    public static final int CHUNK_SIZE = 16;
+    public static final int MAX_CHUNKS_WIDTH = 66;
+    public static final int MAX_CHUNKS_AREA = 4356;
+    private static final float SKY_DISC_RADIUS = 512.0F;
+    private static final int MIN_FOG_DISTANCE = 32;
+    private static final int RAIN_RADIUS = 10;
+    private static final int RAIN_DIAMETER = 21;
+    private static final int TRANSPARENT_SORT_COUNT = 15;
     private static final ResourceLocation MOON_LOCATION = new ResourceLocation("textures/environment/moon_phases.png");
     private static final ResourceLocation SUN_LOCATION = new ResourceLocation("textures/environment/sun.png");
     private static final ResourceLocation CLOUDS_LOCATION = new ResourceLocation("textures/environment/clouds.png");
@@ -561,7 +570,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
     }
 
     protected boolean shouldShowEntityOutlines() {
-        return this.entityTarget != null && this.entityEffect != null && this.minecraft.player != null;
+        return !this.minecraft.gameRenderer.isPanoramicMode() && this.entityTarget != null && this.entityEffect != null && this.minecraft.player != null;
     }
 
     private void createDarkSky() {
@@ -697,14 +706,18 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
 
     }
 
+    public void graphicsChanged() {
+        if (Minecraft.useShaderTransparency()) {
+            this.initTransparency();
+        } else {
+            this.deinitTransparency();
+        }
+
+    }
+
     public void allChanged() {
         if (this.level != null) {
-            if (Minecraft.useShaderTransparency()) {
-                this.initTransparency();
-            } else {
-                this.deinitTransparency();
-            }
-
+            this.graphicsChanged();
             this.level.clearTintCaches();
             if (this.chunkRenderDispatcher == null) {
                 this.chunkRenderDispatcher = new ChunkRenderDispatcher(
@@ -1647,6 +1660,14 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
             .endVertex();
     }
 
+    public void captureFrustum() {
+        this.captureFrustum = true;
+    }
+
+    public void killFrustum() {
+        this.capturedFrustum = null;
+    }
+
     public void tick() {
         ++this.ticks;
         if (this.ticks % 20 == 0) {
@@ -2200,10 +2221,10 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                 for(double var19 = var16; var19 < var17; var18 += 0.5F) {
                     double var20 = Math.min(1.0, var17 - var19);
                     float var21 = (float)var20 * 0.5F;
-                    var0.vertex(var1.getMaxX() - var4, -var6, var19 - var5).uv(var12 + var18, var12 + var15).endVertex();
-                    var0.vertex(var1.getMaxX() - var4, -var6, var19 + var20 - var5).uv(var12 + var21 + var18, var12 + var15).endVertex();
-                    var0.vertex(var1.getMaxX() - var4, var6, var19 + var20 - var5).uv(var12 + var21 + var18, var12 + 0.0F).endVertex();
-                    var0.vertex(var1.getMaxX() - var4, var6, var19 - var5).uv(var12 + var18, var12 + 0.0F).endVertex();
+                    var0.vertex(var1.getMaxX() - var4, -var6, var19 - var5).uv(var12 - var18, var12 + var15).endVertex();
+                    var0.vertex(var1.getMaxX() - var4, -var6, var19 + var20 - var5).uv(var12 - (var21 + var18), var12 + var15).endVertex();
+                    var0.vertex(var1.getMaxX() - var4, var6, var19 + var20 - var5).uv(var12 - (var21 + var18), var12 + 0.0F).endVertex();
+                    var0.vertex(var1.getMaxX() - var4, var6, var19 - var5).uv(var12 - var18, var12 + 0.0F).endVertex();
                     ++var19;
                 }
             }
@@ -2244,10 +2265,10 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                 for(double var31 = var16; var31 < var17; var30 += 0.5F) {
                     double var32 = Math.min(1.0, var17 - var31);
                     float var33 = (float)var32 * 0.5F;
-                    var0.vertex(var31 - var4, -var6, var1.getMinZ() - var5).uv(var12 + var30, var12 + var15).endVertex();
-                    var0.vertex(var31 + var32 - var4, -var6, var1.getMinZ() - var5).uv(var12 + var33 + var30, var12 + var15).endVertex();
-                    var0.vertex(var31 + var32 - var4, var6, var1.getMinZ() - var5).uv(var12 + var33 + var30, var12 + 0.0F).endVertex();
-                    var0.vertex(var31 - var4, var6, var1.getMinZ() - var5).uv(var12 + var30, var12 + 0.0F).endVertex();
+                    var0.vertex(var31 - var4, -var6, var1.getMinZ() - var5).uv(var12 - var30, var12 + var15).endVertex();
+                    var0.vertex(var31 + var32 - var4, -var6, var1.getMinZ() - var5).uv(var12 - (var33 + var30), var12 + var15).endVertex();
+                    var0.vertex(var31 + var32 - var4, var6, var1.getMinZ() - var5).uv(var12 - (var33 + var30), var12 + 0.0F).endVertex();
+                    var0.vertex(var31 - var4, var6, var1.getMinZ() - var5).uv(var12 - var30, var12 + 0.0F).endVertex();
                     ++var31;
                 }
             }
@@ -2342,6 +2363,22 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
         );
     }
 
+    public static void renderLineBox(
+        VertexConsumer param0,
+        double param1,
+        double param2,
+        double param3,
+        double param4,
+        double param5,
+        double param6,
+        float param7,
+        float param8,
+        float param9,
+        float param10
+    ) {
+        renderLineBox(new PoseStack(), param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param7, param8, param9);
+    }
+
     public static void renderLineBox(PoseStack param0, VertexConsumer param1, AABB param2, float param3, float param4, float param5, float param6) {
         renderLineBox(
             param0,
@@ -2397,36 +2434,37 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
         float param14
     ) {
         Matrix4f var0 = param0.last().pose();
-        float var1 = (float)param2;
-        float var2 = (float)param3;
-        float var3 = (float)param4;
-        float var4 = (float)param5;
-        float var5 = (float)param6;
-        float var6 = (float)param7;
-        param1.vertex(var0, var1, var2, var3).color(param8, param13, param14, param11).normal(1.0F, 0.0F, 0.0F).endVertex();
-        param1.vertex(var0, var4, var2, var3).color(param8, param13, param14, param11).normal(1.0F, 0.0F, 0.0F).endVertex();
-        param1.vertex(var0, var1, var2, var3).color(param12, param9, param14, param11).normal(0.0F, 1.0F, 0.0F).endVertex();
-        param1.vertex(var0, var1, var5, var3).color(param12, param9, param14, param11).normal(0.0F, 1.0F, 0.0F).endVertex();
-        param1.vertex(var0, var1, var2, var3).color(param12, param13, param10, param11).normal(0.0F, 0.0F, 1.0F).endVertex();
-        param1.vertex(var0, var1, var2, var6).color(param12, param13, param10, param11).normal(0.0F, 0.0F, 1.0F).endVertex();
-        param1.vertex(var0, var4, var2, var3).color(param8, param9, param10, param11).normal(0.0F, 1.0F, 0.0F).endVertex();
-        param1.vertex(var0, var4, var5, var3).color(param8, param9, param10, param11).normal(0.0F, 1.0F, 0.0F).endVertex();
-        param1.vertex(var0, var4, var5, var3).color(param8, param9, param10, param11).normal(-1.0F, 0.0F, 0.0F).endVertex();
-        param1.vertex(var0, var1, var5, var3).color(param8, param9, param10, param11).normal(-1.0F, 0.0F, 0.0F).endVertex();
-        param1.vertex(var0, var1, var5, var3).color(param8, param9, param10, param11).normal(0.0F, 0.0F, 1.0F).endVertex();
-        param1.vertex(var0, var1, var5, var6).color(param8, param9, param10, param11).normal(0.0F, 0.0F, 1.0F).endVertex();
-        param1.vertex(var0, var1, var5, var6).color(param8, param9, param10, param11).normal(0.0F, -1.0F, 0.0F).endVertex();
-        param1.vertex(var0, var1, var2, var6).color(param8, param9, param10, param11).normal(0.0F, -1.0F, 0.0F).endVertex();
-        param1.vertex(var0, var1, var2, var6).color(param8, param9, param10, param11).normal(1.0F, 0.0F, 0.0F).endVertex();
-        param1.vertex(var0, var4, var2, var6).color(param8, param9, param10, param11).normal(1.0F, 0.0F, 0.0F).endVertex();
-        param1.vertex(var0, var4, var2, var6).color(param8, param9, param10, param11).normal(0.0F, 0.0F, -1.0F).endVertex();
-        param1.vertex(var0, var4, var2, var3).color(param8, param9, param10, param11).normal(0.0F, 0.0F, -1.0F).endVertex();
-        param1.vertex(var0, var1, var5, var6).color(param8, param9, param10, param11).normal(1.0F, 0.0F, 0.0F).endVertex();
-        param1.vertex(var0, var4, var5, var6).color(param8, param9, param10, param11).normal(1.0F, 0.0F, 0.0F).endVertex();
-        param1.vertex(var0, var4, var2, var6).color(param8, param9, param10, param11).normal(0.0F, 1.0F, 0.0F).endVertex();
-        param1.vertex(var0, var4, var5, var6).color(param8, param9, param10, param11).normal(0.0F, 1.0F, 0.0F).endVertex();
-        param1.vertex(var0, var4, var5, var3).color(param8, param9, param10, param11).normal(0.0F, 0.0F, 1.0F).endVertex();
-        param1.vertex(var0, var4, var5, var6).color(param8, param9, param10, param11).normal(0.0F, 0.0F, 1.0F).endVertex();
+        Matrix3f var1 = param0.last().normal();
+        float var2 = (float)param2;
+        float var3 = (float)param3;
+        float var4 = (float)param4;
+        float var5 = (float)param5;
+        float var6 = (float)param6;
+        float var7 = (float)param7;
+        param1.vertex(var0, var2, var3, var4).color(param8, param13, param14, param11).normal(var1, 1.0F, 0.0F, 0.0F).endVertex();
+        param1.vertex(var0, var5, var3, var4).color(param8, param13, param14, param11).normal(var1, 1.0F, 0.0F, 0.0F).endVertex();
+        param1.vertex(var0, var2, var3, var4).color(param12, param9, param14, param11).normal(var1, 0.0F, 1.0F, 0.0F).endVertex();
+        param1.vertex(var0, var2, var6, var4).color(param12, param9, param14, param11).normal(var1, 0.0F, 1.0F, 0.0F).endVertex();
+        param1.vertex(var0, var2, var3, var4).color(param12, param13, param10, param11).normal(var1, 0.0F, 0.0F, 1.0F).endVertex();
+        param1.vertex(var0, var2, var3, var7).color(param12, param13, param10, param11).normal(var1, 0.0F, 0.0F, 1.0F).endVertex();
+        param1.vertex(var0, var5, var3, var4).color(param8, param9, param10, param11).normal(var1, 0.0F, 1.0F, 0.0F).endVertex();
+        param1.vertex(var0, var5, var6, var4).color(param8, param9, param10, param11).normal(var1, 0.0F, 1.0F, 0.0F).endVertex();
+        param1.vertex(var0, var5, var6, var4).color(param8, param9, param10, param11).normal(var1, -1.0F, 0.0F, 0.0F).endVertex();
+        param1.vertex(var0, var2, var6, var4).color(param8, param9, param10, param11).normal(var1, -1.0F, 0.0F, 0.0F).endVertex();
+        param1.vertex(var0, var2, var6, var4).color(param8, param9, param10, param11).normal(var1, 0.0F, 0.0F, 1.0F).endVertex();
+        param1.vertex(var0, var2, var6, var7).color(param8, param9, param10, param11).normal(var1, 0.0F, 0.0F, 1.0F).endVertex();
+        param1.vertex(var0, var2, var6, var7).color(param8, param9, param10, param11).normal(var1, 0.0F, -1.0F, 0.0F).endVertex();
+        param1.vertex(var0, var2, var3, var7).color(param8, param9, param10, param11).normal(var1, 0.0F, -1.0F, 0.0F).endVertex();
+        param1.vertex(var0, var2, var3, var7).color(param8, param9, param10, param11).normal(var1, 1.0F, 0.0F, 0.0F).endVertex();
+        param1.vertex(var0, var5, var3, var7).color(param8, param9, param10, param11).normal(var1, 1.0F, 0.0F, 0.0F).endVertex();
+        param1.vertex(var0, var5, var3, var7).color(param8, param9, param10, param11).normal(var1, 0.0F, 0.0F, -1.0F).endVertex();
+        param1.vertex(var0, var5, var3, var4).color(param8, param9, param10, param11).normal(var1, 0.0F, 0.0F, -1.0F).endVertex();
+        param1.vertex(var0, var2, var6, var7).color(param8, param9, param10, param11).normal(var1, 1.0F, 0.0F, 0.0F).endVertex();
+        param1.vertex(var0, var5, var6, var7).color(param8, param9, param10, param11).normal(var1, 1.0F, 0.0F, 0.0F).endVertex();
+        param1.vertex(var0, var5, var3, var7).color(param8, param9, param10, param11).normal(var1, 0.0F, 1.0F, 0.0F).endVertex();
+        param1.vertex(var0, var5, var6, var7).color(param8, param9, param10, param11).normal(var1, 0.0F, 1.0F, 0.0F).endVertex();
+        param1.vertex(var0, var5, var6, var4).color(param8, param9, param10, param11).normal(var1, 0.0F, 0.0F, 1.0F).endVertex();
+        param1.vertex(var0, var5, var6, var7).color(param8, param9, param10, param11).normal(var1, 0.0F, 0.0F, 1.0F).endVertex();
     }
 
     public static void addChainedFilledBoxVertices(
@@ -2685,8 +2723,17 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                 this.level.playLocalSound(param2, SoundEvents.FENCE_GATE_OPEN, SoundSource.BLOCKS, 1.0F, var0.nextFloat() * 0.1F + 0.9F, false);
                 break;
             case 1009:
-                this.level
-                    .playLocalSound(param2, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 0.5F, 2.6F + (var0.nextFloat() - var0.nextFloat()) * 0.8F, false);
+                if (param3 == 0) {
+                    this.level
+                        .playLocalSound(
+                            param2, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 0.5F, 2.6F + (var0.nextFloat() - var0.nextFloat()) * 0.8F, false
+                        );
+                } else if (param3 == 1) {
+                    this.level
+                        .playLocalSound(
+                            param2, SoundEvents.GENERIC_EXTINGUISH_FIRE, SoundSource.BLOCKS, 0.7F, 1.6F + (var0.nextFloat() - var0.nextFloat()) * 0.4F, false
+                        );
+                }
                 break;
             case 1010:
                 if (Item.byId(param3) instanceof RecordItem) {
@@ -3088,21 +3135,21 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
             case 3002:
                 if (param3 >= 0 && param3 < Direction.Axis.VALUES.length) {
                     ParticleUtils.spawnParticlesAlongAxis(
-                        Direction.Axis.VALUES[param3], this.level, param2, 0.125, ParticleTypes.ELECTRIC_SPARK, IntRange.of(10, 19)
+                        Direction.Axis.VALUES[param3], this.level, param2, 0.125, ParticleTypes.ELECTRIC_SPARK, UniformInt.of(10, 19)
                     );
                 } else {
-                    ParticleUtils.spawnParticlesOnBlockFaces(this.level, param2, ParticleTypes.ELECTRIC_SPARK, IntRange.of(3, 5));
+                    ParticleUtils.spawnParticlesOnBlockFaces(this.level, param2, ParticleTypes.ELECTRIC_SPARK, UniformInt.of(3, 5));
                 }
                 break;
             case 3003:
-                ParticleUtils.spawnParticlesOnBlockFaces(this.level, param2, ParticleTypes.WAX_ON, IntRange.of(3, 5));
+                ParticleUtils.spawnParticlesOnBlockFaces(this.level, param2, ParticleTypes.WAX_ON, UniformInt.of(3, 5));
                 this.level.playLocalSound(param2, SoundEvents.HONEYCOMB_WAX_ON, SoundSource.BLOCKS, 1.0F, 1.0F, false);
                 break;
             case 3004:
-                ParticleUtils.spawnParticlesOnBlockFaces(this.level, param2, ParticleTypes.WAX_OFF, IntRange.of(3, 5));
+                ParticleUtils.spawnParticlesOnBlockFaces(this.level, param2, ParticleTypes.WAX_OFF, UniformInt.of(3, 5));
                 break;
             case 3005:
-                ParticleUtils.spawnParticlesOnBlockFaces(this.level, param2, ParticleTypes.SCRAPE, IntRange.of(3, 5));
+                ParticleUtils.spawnParticlesOnBlockFaces(this.level, param2, ParticleTypes.SCRAPE, UniformInt.of(3, 5));
         }
 
     }

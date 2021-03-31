@@ -15,8 +15,6 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class CaveVinesPlantBlock extends GrowingPlantBodyBlock implements BonemealableBlock, CaveVines {
     public CaveVinesPlantBlock(BlockBehaviour.Properties param0) {
@@ -34,7 +32,6 @@ public class CaveVinesPlantBlock extends GrowingPlantBodyBlock implements Boneme
         return param1.setValue(BERRIES, param0.getValue(BERRIES));
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public ItemStack getCloneItemStack(BlockGetter param0, BlockPos param1, BlockState param2) {
         return new ItemStack(Items.GLOW_BERRIES);

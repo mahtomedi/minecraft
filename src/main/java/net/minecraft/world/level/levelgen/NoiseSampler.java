@@ -11,6 +11,7 @@ import net.minecraft.world.level.levelgen.synth.PerlinNoise;
 import net.minecraft.world.level.levelgen.synth.SimplexNoise;
 
 public class NoiseSampler {
+    private static final int OLD_CELL_COUNT_Y = 32;
     private static final float[] BIOME_WEIGHTS = Util.make(new float[25], param0 -> {
         for(int var0 = -2; var0 <= 2; ++var0) {
             for(int var1 = -2; var1 <= 2; ++var1) {

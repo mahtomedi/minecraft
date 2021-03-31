@@ -11,6 +11,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import java.util.stream.Collectors;
 
 public class OptionsKeyLwjgl3Fix extends DataFix {
+    public static final String KEY_UNKNOWN = "key.unknown";
     private static final Int2ObjectMap<String> MAP = DataFixUtils.make(new Int2ObjectOpenHashMap<>(), param0 -> {
         param0.put(0, "key.unknown");
         param0.put(11, "key.0");

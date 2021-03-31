@@ -15,10 +15,11 @@ import net.minecraft.util.BitStorage;
 import net.minecraft.util.DebugBuffer;
 import net.minecraft.util.Mth;
 import net.minecraft.util.ThreadingDetector;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class PalettedContainer<T> implements PaletteResize<T> {
+    private static final int SIZE = 4096;
+    public static final int GLOBAL_PALETTE_BITS = 9;
+    public static final int MIN_PALETTE_SIZE = 4;
     private final Palette<T> globalPalette;
     private final PaletteResize<T> dummyPaletteResize = (param0x, param1x) -> 0;
     private final IdMapper<T> registry;
@@ -110,6 +111,12 @@ public class PalettedContainer<T> implements PaletteResize<T> {
         return (T)(var2 == null ? this.defaultValue : var2);
     }
 
+    public void set(int param0, int param1, int param2, T param3) {
+        this.acquire();
+        this.set(getIndex(param0, param1, param2), param3);
+        this.release();
+    }
+
     private void set(int param0, T param1) {
         int var0 = this.palette.idFor(param1);
         this.storage.set(param0, var0);
@@ -124,7 +131,6 @@ public class PalettedContainer<T> implements PaletteResize<T> {
         return (T)(var0 == null ? this.defaultValue : var0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void read(FriendlyByteBuf param0) {
         this.acquire();
         int var0 = param0.readByte();

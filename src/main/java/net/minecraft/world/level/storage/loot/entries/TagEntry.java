@@ -58,6 +58,10 @@ public class TagEntry extends LootPoolSingletonContainer {
         return this.expand ? this.expandTag(param0, param1) : super.expand(param0, param1);
     }
 
+    public static LootPoolSingletonContainer.Builder<?> tagContents(Tag<Item> param0) {
+        return simpleBuilder((param1, param2, param3, param4) -> new TagEntry(param0, false, param1, param2, param3, param4));
+    }
+
     public static LootPoolSingletonContainer.Builder<?> expandTag(Tag<Item> param0) {
         return simpleBuilder((param1, param2, param3, param4) -> new TagEntry(param0, true, param1, param2, param3, param4));
     }

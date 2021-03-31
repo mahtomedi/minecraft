@@ -38,12 +38,11 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FlowerBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.tuple.Pair;
 
 public class MushroomCow extends Cow implements Shearable {
     private static final EntityDataAccessor<String> DATA_TYPE = SynchedEntityData.defineId(MushroomCow.class, EntityDataSerializers.STRING);
+    private static final int MUTATE_CHANCE = 1024;
     private MobEffect effect;
     private int effectDuration;
     private UUID lastLightningBoltUUID;
@@ -276,7 +275,6 @@ public class MushroomCow extends Cow implements Shearable {
             this.blockState = param1;
         }
 
-        @OnlyIn(Dist.CLIENT)
         public BlockState getBlockState() {
             return this.blockState;
         }

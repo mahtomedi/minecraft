@@ -2,14 +2,11 @@ package net.minecraft.network.protocol.game;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ServerboundCommandSuggestionPacket implements Packet<ServerGamePacketListener> {
     private final int id;
     private final String command;
 
-    @OnlyIn(Dist.CLIENT)
     public ServerboundCommandSuggestionPacket(int param0, String param1) {
         this.id = param0;
         this.command = param1;

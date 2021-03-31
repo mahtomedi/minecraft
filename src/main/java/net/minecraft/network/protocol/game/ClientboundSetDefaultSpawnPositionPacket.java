@@ -3,8 +3,6 @@ package net.minecraft.network.protocol.game;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundSetDefaultSpawnPositionPacket implements Packet<ClientGamePacketListener> {
     private final BlockPos pos;
@@ -30,12 +28,10 @@ public class ClientboundSetDefaultSpawnPositionPacket implements Packet<ClientGa
         param0.handleSetSpawn(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public BlockPos getPos() {
         return this.pos;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getAngle() {
         return this.angle;
     }

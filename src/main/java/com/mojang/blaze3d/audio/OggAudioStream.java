@@ -22,6 +22,7 @@ import org.lwjgl.system.MemoryUtil;
 
 @OnlyIn(Dist.CLIENT)
 public class OggAudioStream implements AudioStream {
+    private static final int EXPECTED_MAX_FRAME_SIZE = 8192;
     private long handle;
     private final AudioFormat audioFormat;
     private final InputStream input;

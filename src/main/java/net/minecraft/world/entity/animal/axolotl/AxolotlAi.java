@@ -6,14 +6,14 @@ import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Pair;
 import java.util.Optional;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.util.IntRange;
+import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.behavior.AnimalMakeLove;
 import net.minecraft.world.entity.ai.behavior.BabyFollowAdult;
-import net.minecraft.world.entity.ai.behavior.CountDownTemptationTicks;
+import net.minecraft.world.entity.ai.behavior.CountDownCooldownTicks;
 import net.minecraft.world.entity.ai.behavior.DoNothing;
 import net.minecraft.world.entity.ai.behavior.EraseMemoryIf;
 import net.minecraft.world.entity.ai.behavior.FollowTemptation;
@@ -38,7 +38,12 @@ import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.item.crafting.Ingredient;
 
 public class AxolotlAi {
-    private static final IntRange ADULT_FOLLOW_RANGE = IntRange.of(5, 16);
+    private static final UniformInt ADULT_FOLLOW_RANGE = UniformInt.of(5, 16);
+    private static final float SPEED_MULTIPLIER_WHEN_MAKING_LOVE = 0.2F;
+    private static final float SPEED_MULTIPLIER_ON_LAND = 0.15F;
+    private static final float SPEED_MULTIPLIER_WHEN_IDLING_IN_WATER = 0.5F;
+    private static final float SPEED_MULTIPLIER_WHEN_CHASING_IN_WATER = 0.6F;
+    private static final float SPEED_MULTIPLIER_WHEN_FOLLOWING_ADULT_IN_WATER = 0.6F;
 
     protected static Brain<?> makeBrain(Brain<Axolotl> param0) {
         initCoreActivity(param0);
@@ -65,7 +70,7 @@ public class AxolotlAi {
             Activity.FIGHT,
             0,
             ImmutableList.of(
-                new StopAttackingIfTargetInvalid<>(),
+                new StopAttackingIfTargetInvalid<>(Axolotl::onStopAttacking),
                 new SetWalkTargetFromAttackTargetIfTargetOutOfReach(AxolotlAi::getSpeedModifierChasing),
                 new MeleeAttack(20),
                 new EraseMemoryIf(AxolotlAi::isBreeding, MemoryModuleType.ATTACK_TARGET)
@@ -76,7 +81,14 @@ public class AxolotlAi {
 
     private static void initCoreActivity(Brain<Axolotl> param0) {
         param0.addActivity(
-            Activity.CORE, 0, ImmutableList.of(new LookAtTargetSink(45, 90), new MoveToTargetSink(), new ValidatePlayDead(), new CountDownTemptationTicks())
+            Activity.CORE,
+            0,
+            ImmutableList.of(
+                new LookAtTargetSink(45, 90),
+                new MoveToTargetSink(),
+                new ValidatePlayDead(),
+                new CountDownCooldownTicks(MemoryModuleType.TEMPTATION_COOLDOWN_TICKS)
+            )
         );
     }
 
@@ -84,21 +96,21 @@ public class AxolotlAi {
         param0.addActivity(
             Activity.IDLE,
             ImmutableList.of(
-                Pair.of(0, new RunSometimes<>(new SetEntityLookTarget(EntityType.PLAYER, 6.0F), IntRange.of(30, 60))),
+                Pair.of(0, new RunSometimes<>(new SetEntityLookTarget(EntityType.PLAYER, 6.0F), UniformInt.of(30, 60))),
+                Pair.of(1, new AnimalMakeLove(EntityType.AXOLOTL, 0.2F)),
                 Pair.of(
-                    1,
+                    2,
                     new RunOne<>(
                         ImmutableList.of(
-                            Pair.of(new AnimalMakeLove(EntityType.AXOLOTL, 0.2F), 1),
                             Pair.of(new FollowTemptation(AxolotlAi::getSpeedModifier), 1),
                             Pair.of(new BabyFollowAdult<>(ADULT_FOLLOW_RANGE, AxolotlAi::getSpeedModifierFollowingAdult), 1)
                         )
                     )
                 ),
-                Pair.of(2, new StartAttacking<>(AxolotlAi::findNearestValidAttackTarget)),
-                Pair.of(2, new TryFindWater(6, 0.15F)),
+                Pair.of(3, new StartAttacking<>(AxolotlAi::findNearestValidAttackTarget)),
+                Pair.of(3, new TryFindWater(6, 0.15F)),
                 Pair.of(
-                    3,
+                    4,
                     new GateBehavior<>(
                         ImmutableMap.of(MemoryModuleType.WALK_TARGET, MemoryStatus.VALUE_ABSENT),
                         ImmutableSet.of(),
@@ -122,6 +134,9 @@ public class AxolotlAi {
         Activity var1 = var0.getActiveNonCoreActivity().orElse(null);
         if (var1 != Activity.PLAY_DEAD) {
             var0.setActiveActivityToFirstValid(ImmutableList.of(Activity.PLAY_DEAD, Activity.FIGHT, Activity.IDLE));
+            if (var1 == Activity.FIGHT && var0.getActiveNonCoreActivity().orElse(null) != Activity.FIGHT) {
+                var0.setMemoryWithExpiry(MemoryModuleType.HAS_HUNTING_COOLDOWN, true, 2400L);
+            }
         }
 
     }
@@ -139,7 +154,7 @@ public class AxolotlAi {
     }
 
     private static Optional<? extends LivingEntity> findNearestValidAttackTarget(Axolotl param0x) {
-        return isBreeding(param0x) ? Optional.empty() : param0x.getBrain().getMemory(MemoryModuleType.NEAREST_HOSTILE);
+        return isBreeding(param0x) ? Optional.empty() : param0x.getBrain().getMemory(MemoryModuleType.NEAREST_ATTACKABLE);
     }
 
     private static boolean isBreeding(Axolotl param0x) {

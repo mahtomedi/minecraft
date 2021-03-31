@@ -7,8 +7,6 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundPlayerLookAtPacket implements Packet<ClientGamePacketListener> {
     private final double x;
@@ -74,13 +72,11 @@ public class ClientboundPlayerLookAtPacket implements Packet<ClientGamePacketLis
         param0.handleLookAt(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public EntityAnchorArgument.Anchor getFromAnchor() {
         return this.fromAnchor;
     }
 
     @Nullable
-    @OnlyIn(Dist.CLIENT)
     public Vec3 getPosition(Level param0) {
         if (this.atEntity) {
             Entity var0 = param0.getEntity(this.entity);

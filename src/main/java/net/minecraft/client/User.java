@@ -51,6 +51,10 @@ public class User {
         }
     }
 
+    public User.Type getType() {
+        return this.type;
+    }
+
     @OnlyIn(Dist.CLIENT)
     public static enum Type {
         LEGACY("legacy"),

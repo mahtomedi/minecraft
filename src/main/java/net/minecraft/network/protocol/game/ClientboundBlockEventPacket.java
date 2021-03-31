@@ -5,8 +5,6 @@ import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundBlockEventPacket implements Packet<ClientGamePacketListener> {
     private final BlockPos pos;
@@ -40,22 +38,18 @@ public class ClientboundBlockEventPacket implements Packet<ClientGamePacketListe
         param0.handleBlockEvent(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public BlockPos getPos() {
         return this.pos;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getB0() {
         return this.b0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getB1() {
         return this.b1;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Block getBlock() {
         return this.block;
     }

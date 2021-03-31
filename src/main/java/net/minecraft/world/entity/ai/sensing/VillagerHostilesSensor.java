@@ -1,12 +1,11 @@
 package net.minecraft.world.entity.ai.sensing;
 
 import com.google.common.collect.ImmutableMap;
-import java.util.Comparator;
-import java.util.Optional;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 
-public class VillagerHostilesSensor extends HostilesSensor {
+public class VillagerHostilesSensor extends NearestVisibleLivingEntitySensor {
     private static final ImmutableMap<EntityType<?>, Float> ACCEPTABLE_DISTANCE_FROM_HOSTILES = ImmutableMap.<EntityType<?>, Float>builder()
         .put(EntityType.DROWNED, 8.0F)
         .put(EntityType.EVOKER, 12.0F)
@@ -22,20 +21,18 @@ public class VillagerHostilesSensor extends HostilesSensor {
         .build();
 
     @Override
-    protected Optional<LivingEntity> getNearestHostile(LivingEntity param0) {
-        return this.getVisibleEntities(param0)
-            .flatMap(
-                param1 -> param1.stream()
-                        .filter(this::isHostile)
-                        .filter(param1x -> this.isClose(param0, param1x))
-                        .min(Comparator.comparingDouble(param0::distanceToSqr))
-            );
+    protected boolean isMatchingEntity(LivingEntity param0, LivingEntity param1) {
+        return this.isHostile(param1) && this.isClose(param0, param1);
+    }
+
+    private boolean isClose(LivingEntity param0, LivingEntity param1) {
+        float var0 = ACCEPTABLE_DISTANCE_FROM_HOSTILES.get(param1.getType());
+        return param1.distanceToSqr(param0) <= (double)(var0 * var0);
     }
 
     @Override
-    protected boolean isClose(LivingEntity param0, LivingEntity param1) {
-        float var0 = ACCEPTABLE_DISTANCE_FROM_HOSTILES.get(param1.getType());
-        return param1.distanceToSqr(param0) <= (double)(var0 * var0);
+    protected MemoryModuleType<LivingEntity> getMemory() {
+        return MemoryModuleType.NEAREST_HOSTILE;
     }
 
     private boolean isHostile(LivingEntity param0) {

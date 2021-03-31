@@ -10,8 +10,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundUpdateAttributesPacket implements Packet<ClientGamePacketListener> {
     private final int entityId;
@@ -65,12 +63,10 @@ public class ClientboundUpdateAttributesPacket implements Packet<ClientGamePacke
         param0.handleUpdateAttributes(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getEntityId() {
         return this.entityId;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public List<ClientboundUpdateAttributesPacket.AttributeSnapshot> getValues() {
         return this.attributes;
     }

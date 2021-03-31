@@ -14,8 +14,6 @@ import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -94,7 +92,6 @@ public class AttributeMap {
         });
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void assignValues(AttributeMap param0) {
         param0.attributes.values().forEach(param0x -> {
             AttributeInstance var0 = this.getInstance(param0x.getAttribute());

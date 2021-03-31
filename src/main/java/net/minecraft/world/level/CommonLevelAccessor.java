@@ -10,11 +10,18 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public interface CommonLevelAccessor extends EntityGetter, LevelReader, LevelSimulatedRW {
+    @Override
+    default <T extends BlockEntity> Optional<T> getBlockEntity(BlockPos param0, BlockEntityType<T> param1) {
+        return LevelReader.super.getBlockEntity(param0, param1);
+    }
+
     @Override
     default Stream<VoxelShape> getEntityCollisions(@Nullable Entity param0, AABB param1, Predicate<Entity> param2) {
         return EntityGetter.super.getEntityCollisions(param0, param1, param2);

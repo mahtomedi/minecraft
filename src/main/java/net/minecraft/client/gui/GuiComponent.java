@@ -126,7 +126,15 @@ public abstract class GuiComponent {
         param1.drawShadow(param0, var0, (float)(param3 - param1.width(var0) / 2), (float)param4, param5);
     }
 
+    public static void drawCenteredString(PoseStack param0, Font param1, FormattedCharSequence param2, int param3, int param4, int param5) {
+        param1.drawShadow(param0, param2, (float)(param3 - param1.width(param2) / 2), (float)param4, param5);
+    }
+
     public static void drawString(PoseStack param0, Font param1, String param2, int param3, int param4, int param5) {
+        param1.drawShadow(param0, param2, (float)param3, (float)param4, param5);
+    }
+
+    public static void drawString(PoseStack param0, Font param1, FormattedCharSequence param2, int param3, int param4, int param5) {
         param1.drawShadow(param0, param2, (float)param3, (float)param4, param5);
     }
 

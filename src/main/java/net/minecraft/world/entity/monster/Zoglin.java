@@ -14,7 +14,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.util.IntRange;
+import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
@@ -46,11 +46,19 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class Zoglin extends Monster implements Enemy, HoglinBase {
     private static final EntityDataAccessor<Boolean> DATA_BABY_ID = SynchedEntityData.defineId(Zoglin.class, EntityDataSerializers.BOOLEAN);
+    private static final int MAX_HEALTH = 40;
+    private static final int ATTACK_KNOCKBACK = 1;
+    private static final float KNOCKBACK_RESISTANCE = 0.6F;
+    private static final int ATTACK_DAMAGE = 6;
+    private static final float BABY_ATTACK_DAMAGE = 0.5F;
+    private static final int ATTACK_INTERVAL = 40;
+    private static final int BABY_ATTACK_INTERVAL = 15;
+    private static final int ATTACK_DURATION = 200;
+    private static final float MOVEMENT_SPEED_WHEN_FIGHTING = 0.3F;
+    private static final float SPEED_MULTIPLIER_WHEN_IDLING = 0.4F;
     private int attackAnimationRemainingTicks;
     protected static final ImmutableList<? extends SensorType<? extends Sensor<? super Zoglin>>> SENSOR_TYPES = ImmutableList.of(
         SensorType.NEAREST_LIVING_ENTITIES, SensorType.NEAREST_PLAYERS
@@ -100,7 +108,7 @@ public class Zoglin extends Monster implements Enemy, HoglinBase {
             10,
             ImmutableList.of(
                 new StartAttacking<>(Zoglin::findNearestValidAttackTarget),
-                new RunSometimes(new SetEntityLookTarget(8.0F), IntRange.of(30, 60)),
+                new RunSometimes(new SetEntityLookTarget(8.0F), UniformInt.of(30, 60)),
                 new RunOne(
                     ImmutableList.of(
                         Pair.of(new RandomStroll(0.4F), 2), Pair.of(new SetWalkTargetFromLookTarget(0.4F, 3), 2), Pair.of(new DoNothing(30, 60), 1)
@@ -260,7 +268,6 @@ public class Zoglin extends Monster implements Enemy, HoglinBase {
         super.aiStep();
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void handleEntityEvent(byte param0) {
         if (param0 == 4) {
@@ -272,7 +279,6 @@ public class Zoglin extends Monster implements Enemy, HoglinBase {
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public int getAttackAnimationRemainingTicks() {
         return this.attackAnimationRemainingTicks;

@@ -10,6 +10,9 @@ import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.animal.Animal;
 
 public class AnimalMakeLove extends Behavior<Animal> {
+    private static final int BREED_RANGE = 3;
+    private static final int MIN_DURATION = 60;
+    private static final int MAX_DURATION = 110;
     private final EntityType<? extends Animal> partnerType;
     private final float speedModifier;
     private long spawnChildAtTime;
@@ -26,7 +29,7 @@ public class AnimalMakeLove extends Behavior<Animal> {
                 MemoryModuleType.LOOK_TARGET,
                 MemoryStatus.REGISTERED
             ),
-            325
+            110
         );
         this.partnerType = param0;
         this.speedModifier = param1;
@@ -41,7 +44,7 @@ public class AnimalMakeLove extends Behavior<Animal> {
         param1.getBrain().setMemory(MemoryModuleType.BREED_TARGET, var0);
         var0.getBrain().setMemory(MemoryModuleType.BREED_TARGET, param1);
         BehaviorUtils.lockGazeAndWalkToEachOther(param1, var0, this.speedModifier);
-        int var1 = 275 + param1.getRandom().nextInt(50);
+        int var1 = 60 + param1.getRandom().nextInt(50);
         this.spawnChildAtTime = param2 + (long)var1;
     }
 

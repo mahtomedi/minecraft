@@ -4,10 +4,9 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.player.ChatVisiblity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ServerboundClientInformationPacket implements Packet<ServerGamePacketListener> {
+    public static final int MAX_LANGUAGE_LENGTH = 16;
     private final String language;
     private final int viewDistance;
     private final ChatVisiblity chatVisibility;
@@ -16,7 +15,6 @@ public class ServerboundClientInformationPacket implements Packet<ServerGamePack
     private final HumanoidArm mainHand;
     private final boolean textFilteringEnabled;
 
-    @OnlyIn(Dist.CLIENT)
     public ServerboundClientInformationPacket(String param0, int param1, ChatVisiblity param2, boolean param3, int param4, HumanoidArm param5, boolean param6) {
         this.language = param0;
         this.viewDistance = param1;
@@ -50,6 +48,14 @@ public class ServerboundClientInformationPacket implements Packet<ServerGamePack
 
     public void handle(ServerGamePacketListener param0) {
         param0.handleClientInformation(this);
+    }
+
+    public String getLanguage() {
+        return this.language;
+    }
+
+    public int getViewDistance() {
+        return this.viewDistance;
     }
 
     public ChatVisiblity getChatVisibility() {

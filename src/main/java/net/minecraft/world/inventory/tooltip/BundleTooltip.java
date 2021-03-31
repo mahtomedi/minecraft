@@ -2,10 +2,7 @@ package net.minecraft.world.inventory.tooltip;
 
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
 public class BundleTooltip implements TooltipComponent {
     private final NonNullList<ItemStack> items;
     private final int weight;

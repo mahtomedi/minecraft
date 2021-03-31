@@ -8,8 +8,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.CrudeIncrementalIntIdentityHashBiMap;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class HashMapPalette<T> implements Palette<T> {
     private final IdMapper<T> registry;
@@ -58,7 +56,6 @@ public class HashMapPalette<T> implements Palette<T> {
         return this.values.byId(param0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void read(FriendlyByteBuf param0) {
         this.values.clear();
@@ -92,6 +89,7 @@ public class HashMapPalette<T> implements Palette<T> {
         return var0;
     }
 
+    @Override
     public int getSize() {
         return this.values.size();
     }

@@ -19,9 +19,8 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ShapedRecipe implements CraftingRecipe {
     private final int width;
@@ -50,7 +49,6 @@ public class ShapedRecipe implements CraftingRecipe {
         return RecipeSerializer.SHAPED_RECIPE;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public String getGroup() {
         return this.group;
@@ -66,7 +64,6 @@ public class ShapedRecipe implements CraftingRecipe {
         return this.recipeItems;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public boolean canCraftInDimensions(int param0, int param1) {
         return param0 >= this.width && param1 >= this.height;
@@ -184,7 +181,6 @@ public class ShapedRecipe implements CraftingRecipe {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public boolean isIncomplete() {
         NonNullList<Ingredient> var0 = this.getIngredients();
@@ -254,14 +250,27 @@ public class ShapedRecipe implements CraftingRecipe {
         return var0;
     }
 
-    public static ItemStack itemFromJson(JsonObject param0) {
-        String var0 = GsonHelper.getAsString(param0, "item");
-        Item var1 = Registry.ITEM.getOptional(new ResourceLocation(var0)).orElseThrow(() -> new JsonSyntaxException("Unknown item '" + var0 + "'"));
+    public static ItemStack itemStackFromJson(JsonObject param0) {
+        Item var0 = itemFromJson(param0);
         if (param0.has("data")) {
             throw new JsonParseException("Disallowed data tag found");
         } else {
-            int var2 = GsonHelper.getAsInt(param0, "count", 1);
-            return new ItemStack(var1, var2);
+            int var1 = GsonHelper.getAsInt(param0, "count", 1);
+            if (var1 < 1) {
+                throw new JsonSyntaxException("Invalid output count: " + var1);
+            } else {
+                return new ItemStack(var0, var1);
+            }
+        }
+    }
+
+    public static Item itemFromJson(JsonObject param0) {
+        String var0 = GsonHelper.getAsString(param0, "item");
+        Item var1 = Registry.ITEM.getOptional(new ResourceLocation(var0)).orElseThrow(() -> new JsonSyntaxException("Unknown item '" + var0 + "'"));
+        if (var1 == Items.AIR) {
+            throw new JsonSyntaxException("Invalid item: " + var0);
+        } else {
+            return var1;
         }
     }
 
@@ -273,7 +282,7 @@ public class ShapedRecipe implements CraftingRecipe {
             int var3 = var2[0].length();
             int var4 = var2.length;
             NonNullList<Ingredient> var5 = ShapedRecipe.dissolvePattern(var2, var1, var3, var4);
-            ItemStack var6 = ShapedRecipe.itemFromJson(GsonHelper.getAsJsonObject(param1, "result"));
+            ItemStack var6 = ShapedRecipe.itemStackFromJson(GsonHelper.getAsJsonObject(param1, "result"));
             return new ShapedRecipe(param0, var0, var3, var4, var5, var6);
         }
 

@@ -6,8 +6,6 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.Validate;
 
 public class ClientboundSoundEntityPacket implements Packet<ClientGamePacketListener> {
@@ -43,27 +41,22 @@ public class ClientboundSoundEntityPacket implements Packet<ClientGamePacketList
         param0.writeFloat(this.pitch);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public SoundEvent getSound() {
         return this.sound;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public SoundSource getSource() {
         return this.source;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getId() {
         return this.id;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getVolume() {
         return this.volume;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getPitch() {
         return this.pitch;
     }

@@ -1,5 +1,6 @@
 package net.minecraft.network;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mojang.serialization.Codec;
@@ -46,13 +47,17 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class FriendlyByteBuf extends ByteBuf {
+    private static final int MAX_VARINT_SIZE = 5;
+    private static final int MAX_VARLONG_SIZE = 10;
+    private static final int DEFAULT_NBT_QUOTA = 2097152;
     private final ByteBuf source;
+    public static final short MAX_STRING_LENGTH = 32767;
+    public static final int MAX_COMPONENT_STRING_LENGTH = 262144;
 
     public FriendlyByteBuf(ByteBuf param0) {
         this.source = param0;
@@ -66,6 +71,16 @@ public class FriendlyByteBuf extends ByteBuf {
         }
 
         return 5;
+    }
+
+    public static int getVarLongSize(long param0) {
+        for(int var0 = 1; var0 < 10; ++var0) {
+            if ((param0 & -1L << var0 * 7) == 0L) {
+                return var0;
+            }
+        }
+
+        return 10;
     }
 
     public <T> T readWithCodec(Codec<T> param0) {
@@ -244,6 +259,14 @@ public class FriendlyByteBuf extends ByteBuf {
         return param0;
     }
 
+    @VisibleForTesting
+    public byte[] accessByteBufWithCorrectSize() {
+        int var0 = this.writerIndex();
+        byte[] var1 = new byte[var0];
+        this.getBytes(0, var1);
+        return var1;
+    }
+
     public BlockPos readBlockPos() {
         return BlockPos.of(this.readLong());
     }
@@ -253,9 +276,22 @@ public class FriendlyByteBuf extends ByteBuf {
         return this;
     }
 
-    @OnlyIn(Dist.CLIENT)
+    public ChunkPos readChunkPos() {
+        return new ChunkPos(this.readLong());
+    }
+
+    public FriendlyByteBuf writeChunkPos(ChunkPos param0) {
+        this.writeLong(param0.toLong());
+        return this;
+    }
+
     public SectionPos readSectionPos() {
         return SectionPos.of(this.readLong());
+    }
+
+    public FriendlyByteBuf writeSectionPos(SectionPos param0) {
+        this.writeLong(param0.asLong());
+        return this;
     }
 
     public Component readComponent() {

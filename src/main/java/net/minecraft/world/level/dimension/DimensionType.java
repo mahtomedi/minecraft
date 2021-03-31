@@ -32,8 +32,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class DimensionType {
     public static final int BITS_FOR_Y = BlockPos.PACKED_Y_LENGTH;
@@ -71,6 +69,7 @@ public class DimensionType {
                     .apply(param0, DimensionType::new)
         )
         .comapFlatMap(DimensionType::guardY, Function.identity());
+    private static final int MOON_PHASES = 8;
     public static final float[] MOON_BRIGHTNESS_PER_PHASE = new float[]{1.0F, 0.75F, 0.5F, 0.25F, 0.0F, 0.25F, 0.5F, 0.75F};
     public static final ResourceKey<DimensionType> OVERWORLD_LOCATION = ResourceKey.create(Registry.DIMENSION_TYPE_REGISTRY, new ResourceLocation("overworld"));
     public static final ResourceKey<DimensionType> NETHER_LOCATION = ResourceKey.create(Registry.DIMENSION_TYPE_REGISTRY, new ResourceLocation("the_nether"));
@@ -484,7 +483,6 @@ public class DimensionType {
         return (Tag<Block>)(var0 != null ? var0 : BlockTags.INFINIBURN_OVERWORLD);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public ResourceLocation effectsLocation() {
         return this.effectsLocation;
     }

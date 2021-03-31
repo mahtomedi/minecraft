@@ -40,6 +40,7 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.LavaSubmerged
 import net.minecraft.world.level.levelgen.structure.templatesystem.ProcessorRule;
 import net.minecraft.world.level.levelgen.structure.templatesystem.RandomBlockMatchTest;
 import net.minecraft.world.level.levelgen.structure.templatesystem.RuleProcessor;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import org.apache.logging.log4j.LogManager;
@@ -47,49 +48,40 @@ import org.apache.logging.log4j.Logger;
 
 public class RuinedPortalPiece extends TemplateStructurePiece {
     private static final Logger LOGGER = LogManager.getLogger();
-    private final ResourceLocation templateLocation;
-    private final Rotation rotation;
-    private final Mirror mirror;
+    private static final float PROBABILITY_OF_GOLD_GONE = 0.3F;
+    private static final float PROBABILITY_OF_MAGMA_INSTEAD_OF_NETHERRACK = 0.07F;
+    private static final float PROBABILITY_OF_MAGMA_INSTEAD_OF_LAVA = 0.2F;
+    private static final float DEFAULT_MOSSINESS = 0.2F;
     private final RuinedPortalPiece.VerticalPlacement verticalPlacement;
     private final RuinedPortalPiece.Properties properties;
 
     public RuinedPortalPiece(
-        BlockPos param0,
-        RuinedPortalPiece.VerticalPlacement param1,
-        RuinedPortalPiece.Properties param2,
-        ResourceLocation param3,
-        StructureTemplate param4,
-        Rotation param5,
-        Mirror param6,
-        BlockPos param7
+        StructureManager param0,
+        BlockPos param1,
+        RuinedPortalPiece.VerticalPlacement param2,
+        RuinedPortalPiece.Properties param3,
+        ResourceLocation param4,
+        StructureTemplate param5,
+        Rotation param6,
+        Mirror param7,
+        BlockPos param8
     ) {
-        super(StructurePieceType.RUINED_PORTAL, 0);
-        this.templatePosition = param0;
-        this.templateLocation = param3;
-        this.rotation = param5;
-        this.mirror = param6;
-        this.verticalPlacement = param1;
-        this.properties = param2;
-        this.loadTemplate(param4, param7);
+        super(StructurePieceType.RUINED_PORTAL, 0, param0, param4, param4.toString(), makeSettings(param7, param6, param2, param8, param3), param1);
+        this.verticalPlacement = param2;
+        this.properties = param3;
     }
 
     public RuinedPortalPiece(ServerLevel param0, CompoundTag param1) {
-        super(StructurePieceType.RUINED_PORTAL, param1);
-        this.templateLocation = new ResourceLocation(param1.getString("Template"));
-        this.rotation = Rotation.valueOf(param1.getString("Rotation"));
-        this.mirror = Mirror.valueOf(param1.getString("Mirror"));
+        super(StructurePieceType.RUINED_PORTAL, param1, param0, param2 -> makeSettings(param0, param1, param2));
         this.verticalPlacement = RuinedPortalPiece.VerticalPlacement.byName(param1.getString("VerticalPlacement"));
         this.properties = RuinedPortalPiece.Properties.CODEC.parse(new Dynamic<>(NbtOps.INSTANCE, param1.get("Properties"))).getOrThrow(true, LOGGER::error);
-        StructureTemplate var0 = param0.getStructureManager().getOrCreate(this.templateLocation);
-        this.loadTemplate(var0, new BlockPos(var0.getSize().getX() / 2, 0, var0.getSize().getZ() / 2));
     }
 
     @Override
     protected void addAdditionalSaveData(ServerLevel param0, CompoundTag param1) {
         super.addAdditionalSaveData(param0, param1);
-        param1.putString("Template", this.templateLocation.toString());
-        param1.putString("Rotation", this.rotation.name());
-        param1.putString("Mirror", this.mirror.name());
+        param1.putString("Rotation", this.placeSettings.getRotation().name());
+        param1.putString("Mirror", this.placeSettings.getMirror().name());
         param1.putString("VerticalPlacement", this.verticalPlacement.getName());
         RuinedPortalPiece.Properties.CODEC
             .encodeStart(NbtOps.INSTANCE, this.properties)
@@ -97,35 +89,49 @@ public class RuinedPortalPiece extends TemplateStructurePiece {
             .ifPresent(param1x -> param1.put("Properties", param1x));
     }
 
-    private void loadTemplate(StructureTemplate param0, BlockPos param1) {
-        BlockIgnoreProcessor var0 = this.properties.airPocket ? BlockIgnoreProcessor.STRUCTURE_BLOCK : BlockIgnoreProcessor.STRUCTURE_AND_AIR;
+    private static StructurePlaceSettings makeSettings(ServerLevel param0, CompoundTag param1, ResourceLocation param2) {
+        StructureTemplate var0 = param0.getStructureManager().getOrCreate(param2);
+        BlockPos var1 = new BlockPos(var0.getSize().getX() / 2, 0, var0.getSize().getZ() / 2);
+        return makeSettings(
+            Mirror.valueOf(param1.getString("Mirror")),
+            Rotation.valueOf(param1.getString("Rotation")),
+            RuinedPortalPiece.VerticalPlacement.byName(param1.getString("VerticalPlacement")),
+            var1,
+            RuinedPortalPiece.Properties.CODEC.parse(new Dynamic<>(NbtOps.INSTANCE, param1.get("Properties"))).getOrThrow(true, LOGGER::error)
+        );
+    }
+
+    private static StructurePlaceSettings makeSettings(
+        Mirror param0, Rotation param1, RuinedPortalPiece.VerticalPlacement param2, BlockPos param3, RuinedPortalPiece.Properties param4
+    ) {
+        BlockIgnoreProcessor var0 = param4.airPocket ? BlockIgnoreProcessor.STRUCTURE_BLOCK : BlockIgnoreProcessor.STRUCTURE_AND_AIR;
         List<ProcessorRule> var1 = Lists.newArrayList();
         var1.add(getBlockReplaceRule(Blocks.GOLD_BLOCK, 0.3F, Blocks.AIR));
-        var1.add(this.getLavaProcessorRule());
-        if (!this.properties.cold) {
+        var1.add(getLavaProcessorRule(param2, param4));
+        if (!param4.cold) {
             var1.add(getBlockReplaceRule(Blocks.NETHERRACK, 0.07F, Blocks.MAGMA_BLOCK));
         }
 
         StructurePlaceSettings var2 = new StructurePlaceSettings()
-            .setRotation(this.rotation)
-            .setMirror(this.mirror)
-            .setRotationPivot(param1)
+            .setRotation(param1)
+            .setMirror(param0)
+            .setRotationPivot(param3)
             .addProcessor(var0)
             .addProcessor(new RuleProcessor(var1))
-            .addProcessor(new BlockAgeProcessor(this.properties.mossiness))
+            .addProcessor(new BlockAgeProcessor(param4.mossiness))
             .addProcessor(new LavaSubmergedBlockProcessor());
-        if (this.properties.replaceWithBlackstone) {
+        if (param4.replaceWithBlackstone) {
             var2.addProcessor(BlackstoneReplaceProcessor.INSTANCE);
         }
 
-        this.setup(param0, this.templatePosition, var2);
+        return var2;
     }
 
-    private ProcessorRule getLavaProcessorRule() {
-        if (this.verticalPlacement == RuinedPortalPiece.VerticalPlacement.ON_OCEAN_FLOOR) {
+    private static ProcessorRule getLavaProcessorRule(RuinedPortalPiece.VerticalPlacement param0, RuinedPortalPiece.Properties param1) {
+        if (param0 == RuinedPortalPiece.VerticalPlacement.ON_OCEAN_FLOOR) {
             return getBlockReplaceRule(Blocks.LAVA, Blocks.MAGMA_BLOCK);
         } else {
-            return this.properties.cold ? getBlockReplaceRule(Blocks.LAVA, Blocks.NETHERRACK) : getBlockReplaceRule(Blocks.LAVA, 0.2F, Blocks.MAGMA_BLOCK);
+            return param1.cold ? getBlockReplaceRule(Blocks.LAVA, Blocks.NETHERRACK) : getBlockReplaceRule(Blocks.LAVA, 0.2F, Blocks.MAGMA_BLOCK);
         }
     }
 
@@ -136,7 +142,7 @@ public class RuinedPortalPiece extends TemplateStructurePiece {
         if (!param4.isInside(this.templatePosition)) {
             return true;
         } else {
-            param4.expand(this.template.getBoundingBox(this.placeSettings, this.templatePosition));
+            param4.encapsulate(this.template.getBoundingBox(this.placeSettings, this.templatePosition));
             boolean var0 = super.postProcess(param0, param1, param2, param3, param4, param5, param6);
             this.spreadNetherrack(param3, param0);
             this.addNetherrackDripColumnsBelowPortal(param3, param0);
@@ -164,7 +170,7 @@ public class RuinedPortalPiece extends TemplateStructurePiece {
     private void maybeAddVines(Random param0, LevelAccessor param1, BlockPos param2) {
         BlockState var0 = param1.getBlockState(param2);
         if (!var0.isAir() && !var0.is(Blocks.VINE)) {
-            Direction var1 = Direction.Plane.HORIZONTAL.getRandomDirection(param0);
+            Direction var1 = getRandomHorizontalDirection(param0);
             BlockPos var2 = param2.relative(var1);
             BlockState var3 = param1.getBlockState(var2);
             if (var3.isAir()) {
@@ -184,9 +190,9 @@ public class RuinedPortalPiece extends TemplateStructurePiece {
     }
 
     private void addNetherrackDripColumnsBelowPortal(Random param0, LevelAccessor param1) {
-        for(int var0 = this.boundingBox.x0 + 1; var0 < this.boundingBox.x1; ++var0) {
-            for(int var1 = this.boundingBox.z0 + 1; var1 < this.boundingBox.z1; ++var1) {
-                BlockPos var2 = new BlockPos(var0, this.boundingBox.y0, var1);
+        for(int var0 = this.boundingBox.minX() + 1; var0 < this.boundingBox.maxX(); ++var0) {
+            for(int var1 = this.boundingBox.minZ() + 1; var1 < this.boundingBox.maxZ(); ++var1) {
+                BlockPos var2 = new BlockPos(var0, this.boundingBox.minY(), var1);
                 if (param1.getBlockState(var2).is(Blocks.NETHERRACK)) {
                     this.addNetherrackDripColumn(param0, param1, var2.below());
                 }
@@ -229,9 +235,9 @@ public class RuinedPortalPiece extends TemplateStructurePiece {
                     float var14 = var4[var13];
                     if (param0.nextDouble() < (double)var14) {
                         int var15 = getSurfaceY(param1, var10, var11, this.verticalPlacement);
-                        int var16 = var0 ? var15 : Math.min(this.boundingBox.y0, var15);
+                        int var16 = var0 ? var15 : Math.min(this.boundingBox.minY(), var15);
                         var9.set(var10, var16, var11);
-                        if (Math.abs(var16 - this.boundingBox.y0) <= 3 && this.canBlockBeReplacedByNetherrackOrMagma(param1, var9)) {
+                        if (Math.abs(var16 - this.boundingBox.minY()) <= 3 && this.canBlockBeReplacedByNetherrackOrMagma(param1, var9)) {
                             this.placeNetherrackOrMagma(param0, param1, var9);
                             if (this.properties.overgrown) {
                                 this.maybeAddLeavesAbove(param0, param1, var9);

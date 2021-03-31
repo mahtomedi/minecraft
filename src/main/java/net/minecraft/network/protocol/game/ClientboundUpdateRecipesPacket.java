@@ -8,8 +8,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.Recipe;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundUpdateRecipesPacket implements Packet<ClientGamePacketListener> {
     private final List<Recipe<?>> recipes;
@@ -31,7 +29,6 @@ public class ClientboundUpdateRecipesPacket implements Packet<ClientGamePacketLi
         param0.handleUpdateRecipes(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public List<Recipe<?>> getRecipes() {
         return this.recipes;
     }

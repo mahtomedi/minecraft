@@ -3,8 +3,6 @@ package net.minecraft.network.protocol.game;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.entity.Entity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundMoveVehiclePacket implements Packet<ClientGamePacketListener> {
     private final double x;
@@ -42,27 +40,22 @@ public class ClientboundMoveVehiclePacket implements Packet<ClientGamePacketList
         param0.handleMoveVehicle(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public double getX() {
         return this.x;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public double getY() {
         return this.y;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public double getZ() {
         return this.z;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getYRot() {
         return this.yRot;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getXRot() {
         return this.xRot;
     }

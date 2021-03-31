@@ -8,8 +8,6 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class PotatoBlock extends CropBlock {
     private static final VoxelShape[] SHAPE_BY_AGE = new VoxelShape[]{
@@ -27,7 +25,6 @@ public class PotatoBlock extends CropBlock {
         super(param0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     protected ItemLike getBaseSeedId() {
         return Items.POTATO;

@@ -5,10 +5,9 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundCustomSoundPacket implements Packet<ClientGamePacketListener> {
+    public static final float LOCATION_ACCURACY = 8.0F;
     private final ResourceLocation name;
     private final SoundSource source;
     private final int x;
@@ -48,37 +47,30 @@ public class ClientboundCustomSoundPacket implements Packet<ClientGamePacketList
         param0.writeFloat(this.pitch);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public ResourceLocation getName() {
         return this.name;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public SoundSource getSource() {
         return this.source;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public double getX() {
         return (double)((float)this.x / 8.0F);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public double getY() {
         return (double)((float)this.y / 8.0F);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public double getZ() {
         return (double)((float)this.z / 8.0F);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getVolume() {
         return this.volume;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getPitch() {
         return this.pitch;
     }

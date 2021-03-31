@@ -10,13 +10,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
-@OnlyIn(
-    value = Dist.CLIENT,
-    _interface = ItemSupplier.class
-)
 public abstract class Fireball extends AbstractHurtingProjectile implements ItemSupplier {
     private static final EntityDataAccessor<ItemStack> DATA_ITEM_STACK = SynchedEntityData.defineId(Fireball.class, EntityDataSerializers.ITEM_STACK);
 
@@ -45,7 +39,6 @@ public abstract class Fireball extends AbstractHurtingProjectile implements Item
         return this.getEntityData().get(DATA_ITEM_STACK);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public ItemStack getItem() {
         ItemStack var0 = this.getItemRaw();

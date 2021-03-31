@@ -14,6 +14,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class ChickenModel<T extends Entity> extends AgeableListModel<T> {
+    public static final String RED_THING = "red_thing";
     private final ModelPart head;
     private final ModelPart body;
     private final ModelPart rightLeg;

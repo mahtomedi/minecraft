@@ -3,13 +3,18 @@ package net.minecraft.network.protocol.login;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundCustomQueryPacket implements Packet<ClientLoginPacketListener> {
+    private static final int MAX_PAYLOAD_SIZE = 1048576;
     private final int transactionId;
     private final ResourceLocation identifier;
     private final FriendlyByteBuf data;
+
+    public ClientboundCustomQueryPacket(int param0, ResourceLocation param1, FriendlyByteBuf param2) {
+        this.transactionId = param0;
+        this.identifier = param1;
+        this.data = param2;
+    }
 
     public ClientboundCustomQueryPacket(FriendlyByteBuf param0) {
         this.transactionId = param0.readVarInt();
@@ -33,8 +38,15 @@ public class ClientboundCustomQueryPacket implements Packet<ClientLoginPacketLis
         param0.handleCustomQuery(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getTransactionId() {
         return this.transactionId;
+    }
+
+    public ResourceLocation getIdentifier() {
+        return this.identifier;
+    }
+
+    public FriendlyByteBuf getData() {
+        return this.data;
     }
 }

@@ -4,8 +4,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.Recipe;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundPlaceGhostRecipePacket implements Packet<ClientGamePacketListener> {
     private final int containerId;
@@ -31,12 +29,10 @@ public class ClientboundPlaceGhostRecipePacket implements Packet<ClientGamePacke
         param0.handlePlaceRecipe(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public ResourceLocation getRecipe() {
         return this.recipe;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getContainerId() {
         return this.containerId;
     }

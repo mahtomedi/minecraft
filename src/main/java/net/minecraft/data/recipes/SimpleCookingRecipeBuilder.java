@@ -38,6 +38,10 @@ public class SimpleCookingRecipeBuilder {
         return new SimpleCookingRecipeBuilder(param1, param0, param2, param3, param4);
     }
 
+    public static SimpleCookingRecipeBuilder campfireCooking(Ingredient param0, ItemLike param1, float param2, int param3) {
+        return cooking(param0, param1, param2, param3, RecipeSerializer.CAMPFIRE_COOKING_RECIPE);
+    }
+
     public static SimpleCookingRecipeBuilder blasting(Ingredient param0, ItemLike param1, float param2, int param3) {
         return cooking(param0, param1, param2, param3, RecipeSerializer.BLASTING_RECIPE);
     }
@@ -46,8 +50,17 @@ public class SimpleCookingRecipeBuilder {
         return cooking(param0, param1, param2, param3, RecipeSerializer.SMELTING_RECIPE);
     }
 
+    public static SimpleCookingRecipeBuilder smoking(Ingredient param0, ItemLike param1, float param2, int param3) {
+        return cooking(param0, param1, param2, param3, RecipeSerializer.SMOKING_RECIPE);
+    }
+
     public SimpleCookingRecipeBuilder unlockedBy(String param0, CriterionTriggerInstance param1) {
         this.advancement.addCriterion(param0, param1);
+        return this;
+    }
+
+    public SimpleCookingRecipeBuilder group(String param0) {
+        this.group = param0;
         return this;
     }
 

@@ -8,6 +8,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class WhiteAshParticle extends BaseAshSmokeParticle {
+    private static final int COLOR_RGB24 = 12235202;
+
     protected WhiteAshParticle(
         ClientLevel param0, double param1, double param2, double param3, double param4, double param5, double param6, float param7, SpriteSet param8
     ) {

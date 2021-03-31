@@ -5,10 +5,9 @@ import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.scores.criteria.ObjectiveCriteria;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class Objective {
+    public static final int MAX_NAME_LENGTH = 16;
     private final Scoreboard scoreboard;
     private final String name;
     private final ObjectiveCriteria criteria;
@@ -25,7 +24,6 @@ public class Objective {
         this.renderType = param4;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Scoreboard getScoreboard() {
         return this.scoreboard;
     }

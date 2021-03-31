@@ -47,8 +47,6 @@ import net.minecraft.world.level.pathfinder.Node;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -56,6 +54,9 @@ public class EnderDragon extends Mob implements Enemy {
     private static final Logger LOGGER = LogManager.getLogger();
     public static final EntityDataAccessor<Integer> DATA_PHASE = SynchedEntityData.defineId(EnderDragon.class, EntityDataSerializers.INT);
     private static final TargetingConditions CRYSTAL_DESTROY_TARGETING = new TargetingConditions().range(64.0);
+    private static final int GROWL_INTERVAL_MIN = 200;
+    private static final int GROWL_INTERVAL_MAX = 400;
+    private static final float SITTING_ALLOWED_DAMAGE_PERCENTAGE = 0.25F;
     public final double[][] positions = new double[64][3];
     public int posPointer = -1;
     private final EnderDragonPart[] subEntities;
@@ -807,7 +808,6 @@ public class EnderDragon extends Mob implements Enemy {
         return 5.0F;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getHeadPartYOffset(int param0, double[] param1, double[] param2) {
         DragonPhaseInstance var0 = this.phaseManager.getCurrentPhase();
         EnderDragonPhase<? extends DragonPhaseInstance> var1 = var0.getPhase();
@@ -901,7 +901,6 @@ public class EnderDragon extends Mob implements Enemy {
         return false;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void recreateFromPacket(ClientboundAddMobPacket param0) {
         super.recreateFromPacket(param0);

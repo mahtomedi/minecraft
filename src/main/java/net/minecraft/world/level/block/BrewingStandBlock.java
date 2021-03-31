@@ -28,8 +28,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class BrewingStandBlock extends BaseEntityBlock {
     public static final BooleanProperty[] HAS_BOTTLE = new BooleanProperty[]{
@@ -95,7 +93,6 @@ public class BrewingStandBlock extends BaseEntityBlock {
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void animateTick(BlockState param0, Level param1, BlockPos param2, Random param3) {
         double var0 = (double)param2.getX() + 0.4 + (double)param3.nextFloat() * 0.2;

@@ -3,8 +3,6 @@ package net.minecraft.network.protocol.game;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.Difficulty;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundChangeDifficultyPacket implements Packet<ClientGamePacketListener> {
     private final Difficulty difficulty;
@@ -30,12 +28,10 @@ public class ClientboundChangeDifficultyPacket implements Packet<ClientGamePacke
         param0.handleChangeDifficulty(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean isLocked() {
         return this.locked;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Difficulty getDifficulty() {
         return this.difficulty;
     }
