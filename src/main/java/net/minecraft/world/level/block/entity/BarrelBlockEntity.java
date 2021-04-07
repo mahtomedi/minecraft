@@ -101,7 +101,7 @@ public class BarrelBlockEntity extends RandomizableContainerBlockEntity {
 
     @Override
     public void startOpen(Player param0) {
-        if (!param0.isSpectator()) {
+        if (!this.remove && !param0.isSpectator()) {
             this.openersCounter.incrementOpeners(param0, this.getLevel(), this.getBlockPos(), this.getBlockState());
         }
 
@@ -109,14 +109,17 @@ public class BarrelBlockEntity extends RandomizableContainerBlockEntity {
 
     @Override
     public void stopOpen(Player param0) {
-        if (!param0.isSpectator()) {
+        if (!this.remove && !param0.isSpectator()) {
             this.openersCounter.decrementOpeners(param0, this.getLevel(), this.getBlockPos(), this.getBlockState());
         }
 
     }
 
     public void recheckOpen() {
-        this.openersCounter.recheckOpeners(this.getLevel(), this.getBlockPos(), this.getBlockState());
+        if (!this.remove) {
+            this.openersCounter.recheckOpeners(this.getLevel(), this.getBlockPos(), this.getBlockState());
+        }
+
     }
 
     private void updateBlockState(BlockState param0, boolean param1) {

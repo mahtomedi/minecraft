@@ -22,6 +22,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.Bootstrap;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.stats.StatType;
@@ -308,6 +309,7 @@ public abstract class Registry<T> implements Codec<T>, Keyable, IdMap<T> {
     }
 
     protected Registry(ResourceKey<? extends Registry<T>> param0, Lifecycle param1) {
+        Bootstrap.checkBootstrapCalled(() -> "registry " + param0);
         this.key = param0;
         this.lifecycle = param1;
     }

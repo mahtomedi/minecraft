@@ -95,6 +95,10 @@ public class InventoryMenu extends RecipeBookMenu<CraftingContainer> {
         });
     }
 
+    public static boolean isHotbarSlot(int param0) {
+        return param0 >= 36 && param0 < 45 || param0 == 45;
+    }
+
     @Override
     public void fillCraftSlotsStackedContents(StackedContents param0) {
         this.craftSlots.fillStackedContents(param0);

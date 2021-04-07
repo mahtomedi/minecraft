@@ -31,8 +31,9 @@ public class NetherForestSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBas
         BlockState param7,
         BlockState param8,
         int param9,
-        long param10,
-        SurfaceBuilderBaseConfiguration param11
+        int param10,
+        long param11,
+        SurfaceBuilderBaseConfiguration param12
     ) {
         int var0 = param9;
         int var1 = param3 & 15;
@@ -44,11 +45,11 @@ public class NetherForestSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBas
         int var7 = (int)(param6 / 3.0 + 3.0 + param0.nextDouble() * 0.25);
         BlockPos.MutableBlockPos var8 = new BlockPos.MutableBlockPos();
         int var9 = -1;
-        BlockState var10 = param11.getUnderMaterial();
+        BlockState var10 = param12.getUnderMaterial();
 
-        for(int var11 = 127; var11 >= 0; --var11) {
+        for(int var11 = 127; var11 >= param10; --var11) {
             var8.set(var1, var11, var2);
-            BlockState var12 = param11.getTopMaterial();
+            BlockState var12 = param12.getTopMaterial();
             BlockState var13 = param1.getBlockState(var8);
             if (var13.isAir()) {
                 var9 = -1;
@@ -57,13 +58,13 @@ public class NetherForestSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBas
                     boolean var14 = false;
                     if (var7 <= 0) {
                         var14 = true;
-                        var10 = param11.getUnderMaterial();
+                        var10 = param12.getUnderMaterial();
                     }
 
                     if (var4) {
-                        var12 = param11.getUnderMaterial();
+                        var12 = param12.getUnderMaterial();
                     } else if (var6) {
-                        var12 = param11.getUnderwaterMaterial();
+                        var12 = param12.getUnderwaterMaterial();
                     }
 
                     if (var11 < var0 && var14) {

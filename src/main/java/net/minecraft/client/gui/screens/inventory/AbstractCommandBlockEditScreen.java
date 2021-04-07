@@ -27,7 +27,6 @@ public abstract class AbstractCommandBlockEditScreen extends Screen {
     protected Button doneButton;
     protected Button cancelButton;
     protected CycleButton<Boolean> outputButton;
-    protected boolean trackOutput;
     private CommandSuggestions commandSuggestions;
 
     public AbstractCommandBlockEditScreen() {
@@ -93,7 +92,7 @@ public abstract class AbstractCommandBlockEditScreen extends Screen {
         this.commandSuggestions.updateCommandInfo();
     }
 
-    private void updatePreviousOutput(boolean param0) {
+    protected void updatePreviousOutput(boolean param0) {
         this.previousEdit.setValue(param0 ? this.getCommandBlock().getLastOutput().getString() : "-");
     }
 
@@ -113,12 +112,6 @@ public abstract class AbstractCommandBlockEditScreen extends Screen {
     }
 
     protected abstract void populateAndSendPacket(BaseCommandBlock var1);
-
-    @Override
-    public void onClose() {
-        this.getCommandBlock().setTrackOutput(this.trackOutput);
-        this.minecraft.setScreen(null);
-    }
 
     private void onEdited(String param0) {
         this.commandSuggestions.updateCommandInfo();

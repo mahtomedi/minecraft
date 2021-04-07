@@ -9,8 +9,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 
 public class DefaultSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBaseConfiguration> {
-    private static final int LOWEST_Y_TO_BUILD_SURFACE_ON = 50;
-
     public DefaultSurfaceBuilder(Codec<SurfaceBuilderBaseConfiguration> param0) {
         super(param0);
     }
@@ -26,8 +24,9 @@ public class DefaultSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBaseConf
         BlockState param7,
         BlockState param8,
         int param9,
-        long param10,
-        SurfaceBuilderBaseConfiguration param11
+        int param10,
+        long param11,
+        SurfaceBuilderBaseConfiguration param12
     ) {
         this.apply(
             param0,
@@ -39,10 +38,11 @@ public class DefaultSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBaseConf
             param6,
             param7,
             param8,
-            param11.getTopMaterial(),
-            param11.getUnderMaterial(),
-            param11.getUnderwaterMaterial(),
-            param9
+            param12.getTopMaterial(),
+            param12.getUnderMaterial(),
+            param12.getUnderwaterMaterial(),
+            param9,
+            param10
         );
     }
 
@@ -59,14 +59,15 @@ public class DefaultSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBaseConf
         BlockState param9,
         BlockState param10,
         BlockState param11,
-        int param12
+        int param12,
+        int param13
     ) {
         BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos();
         int var1 = (int)(param6 / 3.0 + 3.0 + param0.nextDouble() * 0.25);
         if (var1 == 0) {
             boolean var2 = false;
 
-            for(int var3 = param5; var3 >= 50; --var3) {
+            for(int var3 = param5; var3 >= param13; --var3) {
                 var0.set(param3, var3, param4);
                 BlockState var4 = param1.getBlockState(var0);
                 if (var4.isAir()) {
@@ -94,7 +95,7 @@ public class DefaultSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBaseConf
             BlockState var9 = param10;
             int var10 = -1;
 
-            for(int var11 = param5; var11 >= 50; --var11) {
+            for(int var11 = param5; var11 >= param13; --var11) {
                 var0.set(param3, var11, param4);
                 BlockState var12 = param1.getBlockState(var0);
                 if (var12.isAir()) {

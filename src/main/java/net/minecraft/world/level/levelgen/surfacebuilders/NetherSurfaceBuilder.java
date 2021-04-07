@@ -33,8 +33,9 @@ public class NetherSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBaseConfi
         BlockState param7,
         BlockState param8,
         int param9,
-        long param10,
-        SurfaceBuilderBaseConfiguration param11
+        int param10,
+        long param11,
+        SurfaceBuilderBaseConfiguration param12
     ) {
         int var0 = param9;
         int var1 = param3 & 15;
@@ -45,10 +46,10 @@ public class NetherSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBaseConfi
         int var6 = (int)(param6 / 3.0 + 3.0 + param0.nextDouble() * 0.25);
         BlockPos.MutableBlockPos var7 = new BlockPos.MutableBlockPos();
         int var8 = -1;
-        BlockState var9 = param11.getTopMaterial();
-        BlockState var10 = param11.getUnderMaterial();
+        BlockState var9 = param12.getTopMaterial();
+        BlockState var10 = param12.getUnderMaterial();
 
-        for(int var11 = 127; var11 >= 0; --var11) {
+        for(int var11 = 127; var11 >= param10; --var11) {
             var7.set(var1, var11, var2);
             BlockState var12 = param1.getBlockState(var7);
             if (var12.isAir()) {
@@ -58,13 +59,13 @@ public class NetherSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBaseConfi
                     boolean var13 = false;
                     if (var6 <= 0) {
                         var13 = true;
-                        var10 = param11.getUnderMaterial();
+                        var10 = param12.getUnderMaterial();
                     } else if (var11 >= var0 - 4 && var11 <= var0 + 1) {
-                        var9 = param11.getTopMaterial();
-                        var10 = param11.getUnderMaterial();
+                        var9 = param12.getTopMaterial();
+                        var10 = param12.getUnderMaterial();
                         if (var5) {
                             var9 = GRAVEL;
-                            var10 = param11.getUnderMaterial();
+                            var10 = param12.getUnderMaterial();
                         }
 
                         if (var4) {

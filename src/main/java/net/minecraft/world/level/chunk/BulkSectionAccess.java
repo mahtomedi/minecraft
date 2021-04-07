@@ -6,6 +6,7 @@ import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class BulkSectionAccess implements AutoCloseable {
@@ -19,28 +20,37 @@ public class BulkSectionAccess implements AutoCloseable {
         this.level = param0;
     }
 
+    @Nullable
     public LevelChunkSection getSection(BlockPos param0) {
-        long var0 = SectionPos.asLong(param0);
-        if (this.lastSection != null && this.lastSectionKey == var0) {
+        int var0 = this.level.getSectionIndex(param0.getY());
+        if (var0 >= 0 && var0 < this.level.getSectionsCount()) {
+            long var1 = SectionPos.asLong(param0);
+            if (this.lastSection == null || this.lastSectionKey != var1) {
+                this.lastSection = this.acquiredSections.computeIfAbsent(var1, param2 -> {
+                    ChunkAccess var0x = this.level.getChunk(SectionPos.blockToSectionCoord(param0.getX()), SectionPos.blockToSectionCoord(param0.getZ()));
+                    LevelChunkSection var1x = var0x.getOrCreateSection(var0);
+                    var1x.acquire();
+                    return var1x;
+                });
+                this.lastSectionKey = var1;
+            }
+
             return this.lastSection;
         } else {
-            this.lastSection = this.acquiredSections.computeIfAbsent(var0, param1 -> {
-                ChunkAccess var0x = this.level.getChunk(SectionPos.blockToSectionCoord(param0.getX()), SectionPos.blockToSectionCoord(param0.getZ()));
-                LevelChunkSection var1x = var0x.getOrCreateSection(var0x.getSectionIndex(param0.getY()));
-                var1x.acquire();
-                return var1x;
-            });
-            this.lastSectionKey = var0;
-            return this.lastSection;
+            return LevelChunk.EMPTY_SECTION;
         }
     }
 
     public BlockState getBlockState(BlockPos param0) {
         LevelChunkSection var0 = this.getSection(param0);
-        int var1 = SectionPos.sectionRelative(param0.getX());
-        int var2 = SectionPos.sectionRelative(param0.getY());
-        int var3 = SectionPos.sectionRelative(param0.getZ());
-        return var0.getBlockState(var1, var2, var3);
+        if (var0 == LevelChunk.EMPTY_SECTION) {
+            return Blocks.AIR.defaultBlockState();
+        } else {
+            int var1 = SectionPos.sectionRelative(param0.getX());
+            int var2 = SectionPos.sectionRelative(param0.getY());
+            int var3 = SectionPos.sectionRelative(param0.getZ());
+            return var0.getBlockState(var1, var2, var3);
+        }
     }
 
     @Override

@@ -69,14 +69,14 @@ public class EnderChestBlockEntity extends BlockEntity implements LidBlockEntity
     }
 
     public void startOpen(Player param0) {
-        if (!param0.isSpectator()) {
+        if (!this.remove && !param0.isSpectator()) {
             this.openersCounter.incrementOpeners(param0, this.getLevel(), this.getBlockPos(), this.getBlockState());
         }
 
     }
 
     public void stopOpen(Player param0) {
-        if (!param0.isSpectator()) {
+        if (!this.remove && !param0.isSpectator()) {
             this.openersCounter.decrementOpeners(param0, this.getLevel(), this.getBlockPos(), this.getBlockState());
         }
 
@@ -94,7 +94,10 @@ public class EnderChestBlockEntity extends BlockEntity implements LidBlockEntity
     }
 
     public void recheckOpen() {
-        this.openersCounter.recheckOpeners(this.getLevel(), this.getBlockPos(), this.getBlockState());
+        if (!this.remove) {
+            this.openersCounter.recheckOpeners(this.getLevel(), this.getBlockPos(), this.getBlockState());
+        }
+
     }
 
     @Override

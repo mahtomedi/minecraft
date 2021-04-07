@@ -137,7 +137,7 @@ public class Arrow extends AbstractArrow {
     @Override
     public void addAdditionalSaveData(CompoundTag param0) {
         super.addAdditionalSaveData(param0);
-        if (this.potion != Potions.EMPTY && this.potion != null) {
+        if (this.potion != Potions.EMPTY) {
             param0.putString("Potion", Registry.POTION.getKey(this.potion).toString());
         }
 

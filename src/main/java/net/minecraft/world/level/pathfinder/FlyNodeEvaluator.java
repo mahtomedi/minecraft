@@ -188,7 +188,8 @@ public class FlyNodeEvaluator extends WalkNodeEvaluator {
         if (this.isOpen(var21)
             && this.hasMalus(var17)
             && this.hasMalus(var4)
-            && this.hasMalus(var2) & this.hasMalus(var5)
+            && this.hasMalus(var2)
+            && this.hasMalus(var5)
             && this.hasMalus(var10)
             && this.hasMalus(var8)) {
             param0[var0++] = var21;
@@ -198,7 +199,8 @@ public class FlyNodeEvaluator extends WalkNodeEvaluator {
         if (this.isOpen(var22)
             && this.hasMalus(var18)
             && this.hasMalus(var1)
-            && this.hasMalus(var2) & this.hasMalus(var5)
+            && this.hasMalus(var2)
+            && this.hasMalus(var5)
             && this.hasMalus(var7)
             && this.hasMalus(var8)) {
             param0[var0++] = var22;

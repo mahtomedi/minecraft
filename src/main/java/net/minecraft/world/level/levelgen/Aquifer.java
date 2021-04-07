@@ -33,7 +33,7 @@ public class Aquifer {
     private final int gridSizeX;
     private final int gridSizeZ;
 
-    public Aquifer(int param0, int param1, NormalNoise param2, NormalNoise param3, NoiseGeneratorSettings param4, NoiseSampler param5, int param6) {
+    public Aquifer(int param0, int param1, NormalNoise param2, NormalNoise param3, NoiseGeneratorSettings param4, NoiseSampler param5, int param6, int param7) {
         this.barrierNoise = param2;
         this.waterLevelNoise = param3;
         this.noiseGeneratorSettings = param4;
@@ -42,17 +42,16 @@ public class Aquifer {
         this.minGridX = this.gridX(var0.getMinBlockX()) - 1;
         int var1 = this.gridX(var0.getMaxBlockX()) + 1;
         this.gridSizeX = var1 - this.minGridX + 1;
-        int var2 = param4.noiseSettings().minY();
-        this.minGridY = this.gridY(var2) - 1;
-        int var3 = this.gridY(var2 + param6) + 1;
-        int var4 = var3 - this.minGridY + 1;
+        this.minGridY = this.gridY(param6) - 1;
+        int var2 = this.gridY(param6 + param7) + 1;
+        int var3 = var2 - this.minGridY + 1;
         this.minGridZ = this.gridZ(var0.getMinBlockZ()) - 1;
-        int var5 = this.gridZ(var0.getMaxBlockZ()) + 1;
-        this.gridSizeZ = var5 - this.minGridZ + 1;
-        int var6 = this.gridSizeX * var4 * this.gridSizeZ;
-        this.aquiferCache = new int[var6];
+        int var4 = this.gridZ(var0.getMaxBlockZ()) + 1;
+        this.gridSizeZ = var4 - this.minGridZ + 1;
+        int var5 = this.gridSizeX * var3 * this.gridSizeZ;
+        this.aquiferCache = new int[var5];
         Arrays.fill(this.aquiferCache, Integer.MAX_VALUE);
-        this.aquiferLocationCache = new long[var6];
+        this.aquiferLocationCache = new long[var5];
         Arrays.fill(this.aquiferLocationCache, Long.MAX_VALUE);
     }
 

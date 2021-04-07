@@ -18,7 +18,10 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 public abstract class Projectile extends Entity {
+    @Nullable
     private UUID ownerUUID;
+    @Nullable
+    private Entity cachedOwner;
     private boolean leftOwner;
     private boolean hasBeenShot;
 
@@ -29,13 +32,21 @@ public abstract class Projectile extends Entity {
     public void setOwner(@Nullable Entity param0) {
         if (param0 != null) {
             this.ownerUUID = param0.getUUID();
+            this.cachedOwner = param0;
         }
 
     }
 
     @Nullable
     public Entity getOwner() {
-        return this.ownerUUID != null && this.level instanceof ServerLevel ? ((ServerLevel)this.level).getEntity(this.ownerUUID) : null;
+        if (this.cachedOwner != null) {
+            return this.cachedOwner;
+        } else if (this.ownerUUID != null && this.level instanceof ServerLevel) {
+            this.cachedOwner = ((ServerLevel)this.level).getEntity(this.ownerUUID);
+            return this.cachedOwner;
+        } else {
+            return null;
+        }
     }
 
     @Override
@@ -139,8 +150,8 @@ public abstract class Projectile extends Entity {
     }
 
     protected void onHitBlock(BlockHitResult param0) {
-        BlockState var1 = this.level.getBlockState(param0.getBlockPos());
-        var1.onProjectileHit(this.level, var1, param0, this);
+        BlockState var0 = this.level.getBlockState(param0.getBlockPos());
+        var0.onProjectileHit(this.level, var0, param0, this);
     }
 
     @Override

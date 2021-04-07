@@ -23,8 +23,9 @@ public class SwampSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBaseConfig
         BlockState param7,
         BlockState param8,
         int param9,
-        long param10,
-        SurfaceBuilderBaseConfiguration param11
+        int param10,
+        long param11,
+        SurfaceBuilderBaseConfiguration param12
     ) {
         double var0 = Biome.BIOME_INFO_NOISE.getValue((double)param3 * 0.25, (double)param4 * 0.25, false);
         if (var0 > 0.0) {
@@ -32,7 +33,7 @@ public class SwampSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBaseConfig
             int var2 = param4 & 15;
             BlockPos.MutableBlockPos var3 = new BlockPos.MutableBlockPos();
 
-            for(int var4 = param5; var4 >= 0; --var4) {
+            for(int var4 = param5; var4 >= param10; --var4) {
                 var3.set(var1, var4, var2);
                 if (!param1.getBlockState(var3).isAir()) {
                     if (var4 == 62 && !param1.getBlockState(var3).is(param8.getBlock())) {
@@ -43,6 +44,6 @@ public class SwampSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBaseConfig
             }
         }
 
-        SurfaceBuilder.DEFAULT.apply(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11);
+        SurfaceBuilder.DEFAULT.apply(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11, param12);
     }
 }

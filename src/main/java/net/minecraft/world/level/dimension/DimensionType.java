@@ -35,6 +35,7 @@ import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 
 public class DimensionType {
     public static final int BITS_FOR_Y = BlockPos.PACKED_Y_LENGTH;
+    public static final int MIN_HEIGHT = 16;
     public static final int Y_SIZE = (1 << BITS_FOR_Y) - 32;
     public static final int MAX_Y = (Y_SIZE >> 1) - 1;
     public static final int MIN_Y = MAX_Y - Y_SIZE + 1;
@@ -60,7 +61,7 @@ public class DimensionType {
                         Codec.BOOL.fieldOf("respawn_anchor_works").forGetter(DimensionType::respawnAnchorWorks),
                         Codec.BOOL.fieldOf("has_raids").forGetter(DimensionType::hasRaids),
                         Codec.intRange(MIN_Y, MAX_Y).fieldOf("min_y").forGetter(DimensionType::minY),
-                        Codec.intRange(0, Y_SIZE).fieldOf("height").forGetter(DimensionType::height),
+                        Codec.intRange(16, Y_SIZE).fieldOf("height").forGetter(DimensionType::height),
                         Codec.intRange(0, Y_SIZE).fieldOf("logical_height").forGetter(DimensionType::logicalHeight),
                         ResourceLocation.CODEC.fieldOf("infiniburn").forGetter(param0x -> param0x.infiniburn),
                         ResourceLocation.CODEC.fieldOf("effects").orElse(OVERWORLD_EFFECTS).forGetter(param0x -> param0x.effectsLocation),
@@ -179,7 +180,9 @@ public class DimensionType {
     private final transient float[] brightnessRamp;
 
     private static DataResult<DimensionType> guardY(DimensionType param0) {
-        if (param0.minY() + param0.height() > MAX_Y + 1) {
+        if (param0.height() < 16) {
+            return DataResult.error("height has to be at least 16");
+        } else if (param0.minY() + param0.height() > MAX_Y + 1) {
             return DataResult.error("min_y + height cannot be higher than: " + (MAX_Y + 1));
         } else if (param0.logicalHeight() > param0.height()) {
             return DataResult.error("logical_height cannot be higher than height");

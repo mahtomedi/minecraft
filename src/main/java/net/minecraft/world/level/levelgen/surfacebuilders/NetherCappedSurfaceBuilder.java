@@ -35,8 +35,9 @@ public abstract class NetherCappedSurfaceBuilder extends SurfaceBuilder<SurfaceB
         BlockState param7,
         BlockState param8,
         int param9,
-        long param10,
-        SurfaceBuilderBaseConfiguration param11
+        int param10,
+        long param11,
+        SurfaceBuilderBaseConfiguration param12
     ) {
         int var0 = param9 + 1;
         int var1 = param3 & 15;
@@ -60,7 +61,7 @@ public abstract class NetherCappedSurfaceBuilder extends SurfaceBuilder<SurfaceB
         BlockPos.MutableBlockPos var9 = new BlockPos.MutableBlockPos();
         BlockState var10 = param1.getBlockState(var9.set(var1, 128, var2));
 
-        for(int var11 = 127; var11 >= 0; --var11) {
+        for(int var11 = 127; var11 >= param10; --var11) {
             var9.set(var1, var11, var2);
             BlockState var12 = param1.getBlockState(var9);
             if (var10.is(param7.getBlock()) && (var12.isAir() || var12 == param8)) {

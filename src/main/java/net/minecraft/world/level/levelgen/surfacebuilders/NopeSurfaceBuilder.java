@@ -22,8 +22,9 @@ public class NopeSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBaseConfigu
         BlockState param7,
         BlockState param8,
         int param9,
-        long param10,
-        SurfaceBuilderBaseConfiguration param11
+        int param10,
+        long param11,
+        SurfaceBuilderBaseConfiguration param12
     ) {
     }
 }

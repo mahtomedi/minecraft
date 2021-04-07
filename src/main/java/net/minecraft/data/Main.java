@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
+import net.minecraft.SharedConstants;
 import net.minecraft.data.advancements.AdvancementProvider;
 import net.minecraft.data.info.BlockListReport;
 import net.minecraft.data.info.CommandsReport;
@@ -29,6 +30,7 @@ import net.minecraft.obfuscate.DontObfuscate;
 public class Main {
     @DontObfuscate
     public static void main(String[] param0) throws IOException {
+        SharedConstants.tryDetectVersion();
         OptionParser var0 = new OptionParser();
         OptionSpec<Void> var1 = var0.accepts("help", "Show the help menu").forHelp();
         OptionSpec<Void> var2 = var0.accepts("server", "Include server generators");

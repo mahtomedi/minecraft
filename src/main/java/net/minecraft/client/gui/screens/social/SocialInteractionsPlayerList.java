@@ -18,7 +18,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class SocialInteractionsPlayerList extends ContainerObjectSelectionList<PlayerEntry> {
     private final SocialInteractionsScreen socialInteractionsScreen;
-    private final Minecraft minecraft;
     private final List<PlayerEntry> players = Lists.newArrayList();
     @Nullable
     private String filter;
@@ -26,7 +25,6 @@ public class SocialInteractionsPlayerList extends ContainerObjectSelectionList<P
     public SocialInteractionsPlayerList(SocialInteractionsScreen param0, Minecraft param1, int param2, int param3, int param4, int param5, int param6) {
         super(param1, param2, param3, param4, param5, param6);
         this.socialInteractionsScreen = param0;
-        this.minecraft = param1;
         this.setRenderBackground(false);
         this.setRenderTopAndBottom(false);
     }

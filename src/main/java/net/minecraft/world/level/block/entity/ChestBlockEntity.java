@@ -125,7 +125,7 @@ public class ChestBlockEntity extends RandomizableContainerBlockEntity implement
 
     @Override
     public void startOpen(Player param0) {
-        if (!param0.isSpectator()) {
+        if (!this.remove && !param0.isSpectator()) {
             this.openersCounter.incrementOpeners(param0, this.getLevel(), this.getBlockPos(), this.getBlockState());
         }
 
@@ -133,7 +133,7 @@ public class ChestBlockEntity extends RandomizableContainerBlockEntity implement
 
     @Override
     public void stopOpen(Player param0) {
-        if (!param0.isSpectator()) {
+        if (!this.remove && !param0.isSpectator()) {
             this.openersCounter.decrementOpeners(param0, this.getLevel(), this.getBlockPos(), this.getBlockState());
         }
 
@@ -178,7 +178,10 @@ public class ChestBlockEntity extends RandomizableContainerBlockEntity implement
     }
 
     public void recheckOpen() {
-        this.openersCounter.recheckOpeners(this.getLevel(), this.getBlockPos(), this.getBlockState());
+        if (!this.remove) {
+            this.openersCounter.recheckOpeners(this.getLevel(), this.getBlockPos(), this.getBlockState());
+        }
+
     }
 
     protected void signalOpenCount(Level param0, BlockPos param1, BlockState param2, int param3, int param4) {

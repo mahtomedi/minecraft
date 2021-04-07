@@ -59,7 +59,7 @@ public class DamageSource {
         return new EntityDamageSource("mob", param0);
     }
 
-    public static DamageSource indirectMobAttack(Entity param0, LivingEntity param1) {
+    public static DamageSource indirectMobAttack(Entity param0, @Nullable LivingEntity param1) {
         return new IndirectEntityDamageSource("mob", param0, param1);
     }
 

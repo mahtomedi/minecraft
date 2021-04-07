@@ -34,9 +34,10 @@ public class ConfiguredSurfaceBuilder<SC extends SurfaceBuilderConfiguration> {
         BlockState param7,
         BlockState param8,
         int param9,
-        long param10
+        int param10,
+        long param11
     ) {
-        this.surfaceBuilder.apply(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, this.config);
+        this.surfaceBuilder.apply(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11, this.config);
     }
 
     public void initNoise(long param0) {

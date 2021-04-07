@@ -27,6 +27,7 @@ public final class NoiseGeneratorSettings {
                     Codec.INT.fieldOf("bedrock_roof_position").forGetter(NoiseGeneratorSettings::getBedrockRoofPosition),
                     Codec.INT.fieldOf("bedrock_floor_position").forGetter(NoiseGeneratorSettings::getBedrockFloorPosition),
                     Codec.INT.fieldOf("sea_level").forGetter(NoiseGeneratorSettings::seaLevel),
+                    Codec.INT.fieldOf("min_surface_level").forGetter(NoiseGeneratorSettings::getMinSurfaceLevel),
                     Codec.BOOL.fieldOf("disable_mob_generation").forGetter(NoiseGeneratorSettings::disableMobGeneration),
                     Codec.BOOL.fieldOf("aquifers_enabled").forGetter(NoiseGeneratorSettings::isAquifersEnabled),
                     Codec.BOOL.fieldOf("noise_caves_enabled").forGetter(NoiseGeneratorSettings::isNoiseCavesEnabled),
@@ -42,6 +43,7 @@ public final class NoiseGeneratorSettings {
     private final int bedrockRoofPosition;
     private final int bedrockFloorPosition;
     private final int seaLevel;
+    private final int minSurfaceLevel;
     private final boolean disableMobGeneration;
     private final boolean aquifersEnabled;
     private final boolean noiseCavesEnabled;
@@ -72,10 +74,11 @@ public final class NoiseGeneratorSettings {
         int param4,
         int param5,
         int param6,
-        boolean param7,
+        int param7,
         boolean param8,
         boolean param9,
-        boolean param10
+        boolean param10,
+        boolean param11
     ) {
         this.structureSettings = param0;
         this.noiseSettings = param1;
@@ -84,10 +87,11 @@ public final class NoiseGeneratorSettings {
         this.bedrockRoofPosition = param4;
         this.bedrockFloorPosition = param5;
         this.seaLevel = param6;
-        this.disableMobGeneration = param7;
-        this.aquifersEnabled = param8;
-        this.noiseCavesEnabled = param9;
-        this.deepslateEnabled = param10;
+        this.minSurfaceLevel = param7;
+        this.disableMobGeneration = param8;
+        this.aquifersEnabled = param9;
+        this.noiseCavesEnabled = param10;
+        this.deepslateEnabled = param11;
     }
 
     public StructureSettings structureSettings() {
@@ -116,6 +120,10 @@ public final class NoiseGeneratorSettings {
 
     public int seaLevel() {
         return this.seaLevel;
+    }
+
+    public int getMinSurfaceLevel() {
+        return this.minSurfaceLevel;
     }
 
     @Deprecated
@@ -155,7 +163,7 @@ public final class NoiseGeneratorSettings {
             param0,
             NoiseSettings.create(
                 param5 ? -64 : 0,
-                param5 ? 384 : 256,
+                param5 ? 384 : 128,
                 new NoiseSamplingSettings(2.0, 1.0, 80.0, 160.0),
                 new NoiseSlideSettings(-3000, 64, -46),
                 new NoiseSlideSettings(-30, 7, 1),
@@ -172,6 +180,7 @@ public final class NoiseGeneratorSettings {
             param2,
             Integer.MIN_VALUE,
             Integer.MIN_VALUE,
+            param5 ? -64 : 0,
             param5 ? -64 : 0,
             param3,
             false,
@@ -205,6 +214,7 @@ public final class NoiseGeneratorSettings {
             0,
             0,
             32,
+            param3 ? -64 : 0,
             false,
             false,
             false,
@@ -236,6 +246,7 @@ public final class NoiseGeneratorSettings {
             Integer.MIN_VALUE,
             0,
             63,
+            50,
             false,
             true,
             true,

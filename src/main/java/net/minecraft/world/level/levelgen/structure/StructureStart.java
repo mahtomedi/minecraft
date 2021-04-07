@@ -65,15 +65,19 @@ public abstract class StructureStart<C extends FeatureConfiguration> implements 
         RegistryAccess var1, ChunkGenerator var2, StructureManager var3, ChunkPos var4, Biome var5, C var6, LevelHeightAccessor var7
     );
 
-    public BoundingBox getBoundingBox() {
+    public final BoundingBox getBoundingBox() {
         if (this.cachedBoundingBox == null) {
-            synchronized(this.pieces) {
-                this.cachedBoundingBox = BoundingBox.encapsulatingBoxes(this.pieces.stream().map(StructurePiece::getBoundingBox)::iterator)
-                    .orElseThrow(() -> new IllegalStateException("Unable to calculate boundingbox without pieces"));
-            }
+            this.cachedBoundingBox = this.createBoundingBox();
         }
 
         return this.cachedBoundingBox;
+    }
+
+    protected BoundingBox createBoundingBox() {
+        synchronized(this.pieces) {
+            return BoundingBox.encapsulatingBoxes(this.pieces.stream().map(StructurePiece::getBoundingBox)::iterator)
+                .orElseThrow(() -> new IllegalStateException("Unable to calculate boundingbox without pieces"));
+        }
     }
 
     public List<StructurePiece> getPieces() {

@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.multiplayer.ServerAddress;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -35,7 +36,7 @@ public class DirectJoinServerScreen extends Screen {
 
     @Override
     public boolean keyPressed(int param0, int param1, int param2) {
-        if (this.getFocused() != this.ipEdit || param0 != 257 && param0 != 335) {
+        if (!this.selectButton.active || this.getFocused() != this.ipEdit || param0 != 257 && param0 != 335) {
             return super.keyPressed(param0, param1, param2);
         } else {
             this.onSelect();
@@ -87,8 +88,7 @@ public class DirectJoinServerScreen extends Screen {
     }
 
     private void updateSelectButtonStatus() {
-        String var0 = this.ipEdit.getValue();
-        this.selectButton.active = !var0.isEmpty() && var0.split(":").length > 0 && var0.indexOf(32) == -1;
+        this.selectButton.active = ServerAddress.isValidAddress(this.ipEdit.getValue());
     }
 
     @Override

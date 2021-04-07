@@ -80,14 +80,15 @@ public class CommandBlockEditScreen extends AbstractCommandBlockEditScreen {
     public void updateGui() {
         BaseCommandBlock var0 = this.autoCommandBlock.getCommandBlock();
         this.commandEdit.setValue(var0.getCommand());
-        this.trackOutput = var0.isTrackOutput();
+        boolean var1 = var0.isTrackOutput();
         this.mode = this.autoCommandBlock.getMode();
         this.conditional = this.autoCommandBlock.isConditional();
         this.autoexec = this.autoCommandBlock.isAutomatic();
-        this.outputButton.setValue(this.trackOutput);
+        this.outputButton.setValue(var1);
         this.modeButton.setValue(this.mode);
         this.conditionalButton.setValue(this.conditional);
         this.autoexecButton.setValue(this.autoexec);
+        this.updatePreviousOutput(var1);
         this.enableControls(true);
     }
 

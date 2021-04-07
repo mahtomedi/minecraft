@@ -29,8 +29,9 @@ public class ErodedBadlandsSurfaceBuilder extends BadlandsSurfaceBuilder {
         BlockState param7,
         BlockState param8,
         int param9,
-        long param10,
-        SurfaceBuilderBaseConfiguration param11
+        int param10,
+        long param11,
+        SurfaceBuilderBaseConfiguration param12
     ) {
         double var0 = 0.0;
         double var1 = Math.min(Math.abs(param6), this.pillarNoise.getValue((double)param3 * 0.25, (double)param4 * 0.25, false) * 15.0);
@@ -59,7 +60,7 @@ public class ErodedBadlandsSurfaceBuilder extends BadlandsSurfaceBuilder {
         boolean var15 = false;
         BlockPos.MutableBlockPos var16 = new BlockPos.MutableBlockPos();
 
-        for(int var17 = Math.max(param5, (int)var0 + 1); var17 >= 0; --var17) {
+        for(int var17 = Math.max(param5, (int)var0 + 1); var17 >= param10; --var17) {
             var16.set(var5, var17, var6);
             if (param1.getBlockState(var16).isAir() && var17 < (int)var0) {
                 param1.setBlockState(var16, param7, false);

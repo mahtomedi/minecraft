@@ -1546,7 +1546,8 @@ public class RealmsMainScreen extends RealmsScreen {
                     if (param4 >= var11
                         && param4 < var11 + var9
                         && param5 > var12
-                        && param5 <= var12 + 16 & param5 < RealmsMainScreen.this.height - 40
+                        && param5 <= var12 + 16
+                        && param5 < RealmsMainScreen.this.height - 40
                         && param5 > 32
                         && !RealmsMainScreen.this.shouldShowPopup()) {
                         var13 = true;

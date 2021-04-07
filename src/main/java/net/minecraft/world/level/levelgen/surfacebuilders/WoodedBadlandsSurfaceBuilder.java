@@ -29,8 +29,9 @@ public class WoodedBadlandsSurfaceBuilder extends BadlandsSurfaceBuilder {
         BlockState param7,
         BlockState param8,
         int param9,
-        long param10,
-        SurfaceBuilderBaseConfiguration param11
+        int param10,
+        long param11,
+        SurfaceBuilderBaseConfiguration param12
     ) {
         int var0 = param3 & 15;
         int var1 = param4 & 15;
@@ -46,7 +47,7 @@ public class WoodedBadlandsSurfaceBuilder extends BadlandsSurfaceBuilder {
         int var11 = 0;
         BlockPos.MutableBlockPos var12 = new BlockPos.MutableBlockPos();
 
-        for(int var13 = param5; var13 >= 0; --var13) {
+        for(int var13 = param5; var13 >= param10; --var13) {
             if (var11 < 15) {
                 var12.set(var0, var13, var1);
                 BlockState var14 = param1.getBlockState(var12);

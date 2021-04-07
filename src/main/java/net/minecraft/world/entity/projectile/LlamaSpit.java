@@ -22,7 +22,7 @@ public class LlamaSpit extends Projectile {
 
     public LlamaSpit(Level param0, Llama param1) {
         this(EntityType.LLAMA_SPIT, param0);
-        super.setOwner(param1);
+        this.setOwner(param1);
         this.setPos(
             param1.getX() - (double)(param1.getBbWidth() + 1.0F) * 0.5 * (double)Mth.sin(param1.yBodyRot * (float) (Math.PI / 180.0)),
             param1.getEyeY() - 0.1F,
@@ -35,10 +35,7 @@ public class LlamaSpit extends Projectile {
         super.tick();
         Vec3 var0 = this.getDeltaMovement();
         HitResult var1 = ProjectileUtil.getHitResult(this, this::canHitEntity);
-        if (var1 != null) {
-            this.onHit(var1);
-        }
-
+        this.onHit(var1);
         double var2 = this.getX() + var0.x;
         double var3 = this.getY() + var0.y;
         double var4 = this.getZ() + var0.z;

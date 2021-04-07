@@ -311,11 +311,21 @@ public final class Biome {
     }
 
     public void buildSurfaceAt(
-        Random param0, ChunkAccess param1, int param2, int param3, int param4, double param5, BlockState param6, BlockState param7, int param8, long param9
+        Random param0,
+        ChunkAccess param1,
+        int param2,
+        int param3,
+        int param4,
+        double param5,
+        BlockState param6,
+        BlockState param7,
+        int param8,
+        int param9,
+        long param10
     ) {
         ConfiguredSurfaceBuilder<?> var0 = this.generationSettings.getSurfaceBuilder().get();
-        var0.initNoise(param9);
-        var0.apply(param0, param1, this, param2, param3, param4, param5, param6, param7, param8, param9);
+        var0.initNoise(param10);
+        var0.apply(param0, param1, this, param2, param3, param4, param5, param6, param7, param8, param9, param10);
     }
 
     public final float getDepth() {

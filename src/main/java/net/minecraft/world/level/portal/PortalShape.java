@@ -205,7 +205,7 @@ public class PortalShape {
     ) {
         BlockPos var0 = param1.minCorner;
         BlockState var1 = param0.getBlockState(var0);
-        Direction.Axis var2 = var1.getValue(BlockStateProperties.HORIZONTAL_AXIS);
+        Direction.Axis var2 = var1.getOptionalValue(BlockStateProperties.HORIZONTAL_AXIS).orElse(Direction.Axis.X);
         double var3 = (double)param1.axis1Size;
         double var4 = (double)param1.axis2Size;
         int var5 = param2 == var2 ? 0 : 90;

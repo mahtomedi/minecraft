@@ -38,8 +38,9 @@ public class FrozenOceanSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBase
         BlockState param7,
         BlockState param8,
         int param9,
-        long param10,
-        SurfaceBuilderBaseConfiguration param11
+        int param10,
+        long param11,
+        SurfaceBuilderBaseConfiguration param12
     ) {
         double var0 = 0.0;
         double var1 = 0.0;
@@ -80,7 +81,7 @@ public class FrozenOceanSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBase
         int var18 = 2 + param0.nextInt(4);
         int var19 = param9 + 18 + param0.nextInt(10);
 
-        for(int var20 = Math.max(param5, (int)var0 + 1); var20 >= 0; --var20) {
+        for(int var20 = Math.max(param5, (int)var0 + 1); var20 >= param10; --var20) {
             var2.set(var8, var20, var9);
             if (param1.getBlockState(var2).isAir() && var20 < (int)var0 && param0.nextDouble() > 0.01) {
                 param1.setBlockState(var2, PACKED_ICE, false);

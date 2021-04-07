@@ -340,6 +340,9 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
 
     }
 
+    public void onClientRemoval() {
+    }
+
     public void setPose(Pose param0) {
         this.entityData.set(DATA_POSE, param0);
     }
@@ -3016,7 +3019,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     }
 
     @Override
-    public void setRemoved(Entity.RemovalReason param0) {
+    public final void setRemoved(Entity.RemovalReason param0) {
         if (this.removalReason == null) {
             this.removalReason = param0;
         }

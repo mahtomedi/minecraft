@@ -94,7 +94,7 @@ public final class ProjectileUtil {
         return var1 == null ? null : new EntityHitResult(var1);
     }
 
-    public static final void rotateTowardsMovement(Entity param0, float param1) {
+    public static void rotateTowardsMovement(Entity param0, float param1) {
         Vec3 var0 = param0.getDeltaMovement();
         if (var0.lengthSqr() != 0.0) {
             float var1 = Mth.sqrt(Entity.getHorizontalDistanceSqr(var0));

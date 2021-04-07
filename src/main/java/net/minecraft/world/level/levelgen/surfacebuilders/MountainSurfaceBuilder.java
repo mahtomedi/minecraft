@@ -22,13 +22,16 @@ public class MountainSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBaseCon
         BlockState param7,
         BlockState param8,
         int param9,
-        long param10,
-        SurfaceBuilderBaseConfiguration param11
+        int param10,
+        long param11,
+        SurfaceBuilderBaseConfiguration param12
     ) {
         if (param6 > 1.0) {
-            SurfaceBuilder.DEFAULT.apply(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, SurfaceBuilder.CONFIG_STONE);
+            SurfaceBuilder.DEFAULT
+                .apply(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11, SurfaceBuilder.CONFIG_STONE);
         } else {
-            SurfaceBuilder.DEFAULT.apply(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, SurfaceBuilder.CONFIG_GRASS);
+            SurfaceBuilder.DEFAULT
+                .apply(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11, SurfaceBuilder.CONFIG_GRASS);
         }
 
     }

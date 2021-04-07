@@ -243,6 +243,7 @@ public class ClientLevel extends Level {
         Entity var0 = this.getEntities().get(param0);
         if (var0 != null) {
             var0.setRemoved(param1);
+            var0.onClientRemoval();
         }
 
     }

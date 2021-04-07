@@ -231,6 +231,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.AbstractMinecart;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.HorseInventoryMenu;
+import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.MerchantMenu;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
@@ -996,7 +997,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
                 var3 = var4.getSelectedTab() != CreativeModeTab.TAB_INVENTORY.getId();
             }
 
-            if (param0.getContainerId() == 0 && param0.getSlot() >= 36 && var2 < 45) {
+            if (param0.getContainerId() == 0 && InventoryMenu.isHotbarSlot(var2)) {
                 if (!var1.isEmpty()) {
                     ItemStack var5 = var0.inventoryMenu.getSlot(var2).getItem();
                     if (var5.isEmpty() || var5.getCount() < var1.getCount()) {

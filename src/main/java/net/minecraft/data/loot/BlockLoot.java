@@ -631,10 +631,6 @@ public class BlockLoot implements Consumer<BiConsumer<ResourceLocation, LootTabl
         this.dropSelf(Blocks.DARK_OAK_SAPLING);
         this.dropSelf(Blocks.SAND);
         this.dropSelf(Blocks.RED_SAND);
-        this.dropSelf(Blocks.GOLD_ORE);
-        this.dropSelf(Blocks.DEEPSLATE_GOLD_ORE);
-        this.dropSelf(Blocks.IRON_ORE);
-        this.dropSelf(Blocks.DEEPSLATE_IRON_ORE);
         this.dropSelf(Blocks.OAK_LOG);
         this.dropSelf(Blocks.SPRUCE_LOG);
         this.dropSelf(Blocks.BIRCH_LOG);
@@ -1022,8 +1018,6 @@ public class BlockLoot implements Consumer<BiConsumer<ResourceLocation, LootTabl
         this.dropSelf(Blocks.EXPOSED_COPPER);
         this.dropSelf(Blocks.WEATHERED_COPPER);
         this.dropSelf(Blocks.OXIDIZED_COPPER);
-        this.dropSelf(Blocks.COPPER_ORE);
-        this.dropSelf(Blocks.DEEPSLATE_COPPER_ORE);
         this.dropSelf(Blocks.CUT_COPPER);
         this.dropSelf(Blocks.EXPOSED_CUT_COPPER);
         this.dropSelf(Blocks.WEATHERED_CUT_COPPER);
@@ -1031,12 +1025,15 @@ public class BlockLoot implements Consumer<BiConsumer<ResourceLocation, LootTabl
         this.dropSelf(Blocks.WAXED_COPPER_BLOCK);
         this.dropSelf(Blocks.WAXED_WEATHERED_COPPER);
         this.dropSelf(Blocks.WAXED_EXPOSED_COPPER);
+        this.dropSelf(Blocks.WAXED_OXIDIZED_COPPER);
         this.dropSelf(Blocks.WAXED_CUT_COPPER);
         this.dropSelf(Blocks.WAXED_WEATHERED_CUT_COPPER);
         this.dropSelf(Blocks.WAXED_EXPOSED_CUT_COPPER);
+        this.dropSelf(Blocks.WAXED_OXIDIZED_CUT_COPPER);
         this.dropSelf(Blocks.WAXED_CUT_COPPER_STAIRS);
         this.dropSelf(Blocks.WAXED_EXPOSED_CUT_COPPER_STAIRS);
         this.dropSelf(Blocks.WAXED_WEATHERED_CUT_COPPER_STAIRS);
+        this.dropSelf(Blocks.WAXED_OXIDIZED_CUT_COPPER_STAIRS);
         this.dropSelf(Blocks.CUT_COPPER_STAIRS);
         this.dropSelf(Blocks.EXPOSED_CUT_COPPER_STAIRS);
         this.dropSelf(Blocks.WEATHERED_CUT_COPPER_STAIRS);
@@ -1165,6 +1162,7 @@ public class BlockLoot implements Consumer<BiConsumer<ResourceLocation, LootTabl
         this.add(Blocks.WEATHERED_CUT_COPPER_SLAB, BlockLoot::createSlabItemTable);
         this.add(Blocks.EXPOSED_CUT_COPPER_SLAB, BlockLoot::createSlabItemTable);
         this.add(Blocks.CUT_COPPER_SLAB, BlockLoot::createSlabItemTable);
+        this.add(Blocks.WAXED_OXIDIZED_CUT_COPPER_SLAB, BlockLoot::createSlabItemTable);
         this.add(Blocks.WAXED_WEATHERED_CUT_COPPER_SLAB, BlockLoot::createSlabItemTable);
         this.add(Blocks.WAXED_EXPOSED_CUT_COPPER_SLAB, BlockLoot::createSlabItemTable);
         this.add(Blocks.WAXED_CUT_COPPER_SLAB, BlockLoot::createSlabItemTable);
@@ -1469,6 +1467,12 @@ public class BlockLoot implements Consumer<BiConsumer<ResourceLocation, LootTabl
         this.add(Blocks.NETHER_QUARTZ_ORE, param0x -> createOreDrop(param0x, Items.QUARTZ));
         this.add(Blocks.DIAMOND_ORE, param0x -> createOreDrop(param0x, Items.DIAMOND));
         this.add(Blocks.DEEPSLATE_DIAMOND_ORE, param0x -> createOreDrop(param0x, Items.DIAMOND));
+        this.add(Blocks.COPPER_ORE, param0x -> createOreDrop(param0x, Items.RAW_COPPER));
+        this.add(Blocks.DEEPSLATE_COPPER_ORE, param0x -> createOreDrop(param0x, Items.RAW_COPPER));
+        this.add(Blocks.IRON_ORE, param0x -> createOreDrop(param0x, Items.RAW_IRON));
+        this.add(Blocks.DEEPSLATE_IRON_ORE, param0x -> createOreDrop(param0x, Items.RAW_IRON));
+        this.add(Blocks.GOLD_ORE, param0x -> createOreDrop(param0x, Items.RAW_GOLD));
+        this.add(Blocks.DEEPSLATE_GOLD_ORE, param0x -> createOreDrop(param0x, Items.RAW_GOLD));
         this.add(
             Blocks.NETHER_GOLD_ORE,
             param0x -> createSilkTouchDispatchTable(
