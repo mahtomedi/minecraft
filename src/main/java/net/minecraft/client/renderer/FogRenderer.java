@@ -171,10 +171,13 @@ public class FogRenderer {
             var34 = 0.0F;
         }
 
-        float var38 = Math.min(1.0F / fogRed, Math.min(1.0F / fogGreen, 1.0F / fogBlue));
-        fogRed = fogRed * (1.0F - var34) + fogRed * var38 * var34;
-        fogGreen = fogGreen * (1.0F - var34) + fogGreen * var38 * var34;
-        fogBlue = fogBlue * (1.0F - var34) + fogBlue * var38 * var34;
+        if (fogRed != 0.0F && fogGreen != 0.0F && fogBlue != 0.0F) {
+            float var38 = Math.min(1.0F / fogRed, Math.min(1.0F / fogGreen, 1.0F / fogBlue));
+            fogRed = fogRed * (1.0F - var34) + fogRed * var38 * var34;
+            fogGreen = fogGreen * (1.0F - var34) + fogGreen * var38 * var34;
+            fogBlue = fogBlue * (1.0F - var34) + fogBlue * var38 * var34;
+        }
+
         RenderSystem.clearColor(fogRed, fogGreen, fogBlue, 0.0F);
     }
 

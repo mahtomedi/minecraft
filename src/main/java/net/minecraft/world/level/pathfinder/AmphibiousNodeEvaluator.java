@@ -153,7 +153,12 @@ public class AmphibiousNodeEvaluator extends WalkNodeEvaluator {
             }
 
             if (var3 != BlockPathTypes.WATER && var3 != BlockPathTypes.WALKABLE) {
-                if (var0 == null && param3 > 0 && var3 != BlockPathTypes.FENCE && var3 != BlockPathTypes.UNPASSABLE_RAIL && var3 != BlockPathTypes.TRAPDOOR) {
+                if (var0 == null
+                    && param3 > 0
+                    && var3 != BlockPathTypes.FENCE
+                    && var3 != BlockPathTypes.UNPASSABLE_RAIL
+                    && var3 != BlockPathTypes.TRAPDOOR
+                    && var3 != BlockPathTypes.POWDER_SNOW) {
                     var0 = this.getAcceptedNode(param0, param1 + 1, param2, param3 - 1, param4);
                 }
 

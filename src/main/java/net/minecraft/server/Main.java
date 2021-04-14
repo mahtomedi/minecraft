@@ -115,7 +115,7 @@ public class Main {
             MinecraftServer.convertFromRegionFormatIfNeeded(var28);
             LevelSummary var29 = var28.getSummary();
             if (var29 != null && var29.isIncompatibleWorldHeight()) {
-                LOGGER.info("Loading of old worlds is temporarily disabled.");
+                LOGGER.info("Loading of worlds with extended height is disabled.");
                 return;
             }
 

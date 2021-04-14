@@ -4,8 +4,10 @@ import com.google.common.collect.Lists;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.Message;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.datafixers.DataFixUtils;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
@@ -13,6 +15,10 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.world.entity.Entity;
 
 public class ComponentUtils {
+    public static final String DEFAULT_SEPARATOR_TEXT = ", ";
+    public static final Component DEFAULT_SEPARATOR = new TextComponent(", ").withStyle(ChatFormatting.GRAY);
+    public static final Component DEFAULT_NO_STYLE_SEPARATOR = new TextComponent(", ");
+
     public static MutableComponent mergeStyles(MutableComponent param0, Style param1) {
         if (param1.isEmpty()) {
             return param0;
@@ -24,6 +30,12 @@ public class ComponentUtils {
                 return var0.equals(param1) ? param0 : param0.setStyle(var0.applyTo(param1));
             }
         }
+    }
+
+    public static Optional<MutableComponent> updateForEntity(
+        @Nullable CommandSourceStack param0, Optional<Component> param1, @Nullable Entity param2, int param3
+    ) throws CommandSyntaxException {
+        return param1.isPresent() ? Optional.of(updateForEntity(param0, param1.get(), param2, param3)) : Optional.empty();
     }
 
     public static MutableComponent updateForEntity(@Nullable CommandSourceStack param0, Component param1, @Nullable Entity param2, int param3) throws CommandSyntaxException {
@@ -79,21 +91,29 @@ public class ComponentUtils {
         }
     }
 
-    public static <T> MutableComponent formatList(Collection<T> param0, Function<T, Component> param1) {
+    public static <T> Component formatList(Collection<T> param0, Function<T, Component> param1) {
+        return formatList(param0, DEFAULT_SEPARATOR, param1);
+    }
+
+    public static <T> MutableComponent formatList(Collection<T> param0, Optional<? extends Component> param1, Function<T, Component> param2) {
+        return formatList(param0, DataFixUtils.orElse(param1, DEFAULT_SEPARATOR), param2);
+    }
+
+    public static <T> MutableComponent formatList(Collection<T> param0, Component param1, Function<T, Component> param2) {
         if (param0.isEmpty()) {
             return new TextComponent("");
         } else if (param0.size() == 1) {
-            return param1.apply(param0.iterator().next()).copy();
+            return param2.apply(param0.iterator().next()).copy();
         } else {
             MutableComponent var0 = new TextComponent("");
             boolean var1 = true;
 
             for(T var2 : param0) {
                 if (!var1) {
-                    var0.append(new TextComponent(", ").withStyle(ChatFormatting.GRAY));
+                    var0.append(param1);
                 }
 
-                var0.append(param1.apply(var2));
+                var0.append(param2.apply(var2));
                 var1 = false;
             }
 

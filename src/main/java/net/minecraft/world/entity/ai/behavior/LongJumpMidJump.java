@@ -2,6 +2,8 @@ package net.minecraft.world.entity.ai.behavior;
 
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.Pose;
@@ -11,10 +13,12 @@ import net.minecraft.world.entity.ai.memory.MemoryStatus;
 public class LongJumpMidJump extends Behavior<Mob> {
     public static final int TIME_OUT_DURATION = 100;
     private final UniformInt timeBetweenLongJumps;
+    private SoundEvent landingSound;
 
-    public LongJumpMidJump(UniformInt param0) {
+    public LongJumpMidJump(UniformInt param0, SoundEvent param1) {
         super(ImmutableMap.of(MemoryModuleType.LOOK_TARGET, MemoryStatus.REGISTERED, MemoryModuleType.LONG_JUMP_MID_JUMP, MemoryStatus.VALUE_PRESENT), 100);
         this.timeBetweenLongJumps = param0;
+        this.landingSound = param1;
     }
 
     protected boolean canStillUse(ServerLevel param0, Mob param1, long param2) {
@@ -29,6 +33,7 @@ public class LongJumpMidJump extends Behavior<Mob> {
     protected void stop(ServerLevel param0, Mob param1, long param2) {
         if (param1.isOnGround()) {
             param1.setDeltaMovement(param1.getDeltaMovement().scale(0.1F));
+            param0.playSound(null, param1, this.landingSound, SoundSource.NEUTRAL, 2.0F, 1.0F);
         }
 
         param1.setDiscardFriction(false);

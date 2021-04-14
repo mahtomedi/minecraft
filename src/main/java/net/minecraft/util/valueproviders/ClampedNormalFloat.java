@@ -3,7 +3,6 @@ package net.minecraft.util.valueproviders;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import java.util.Objects;
 import java.util.Random;
 import java.util.function.Function;
 import net.minecraft.util.Mth;
@@ -62,23 +61,6 @@ public class ClampedNormalFloat extends FloatProvider {
     @Override
     public FloatProviderType<?> getType() {
         return FloatProviderType.CLAMPED_NORMAL;
-    }
-
-    @Override
-    public boolean equals(Object param0) {
-        if (this == param0) {
-            return true;
-        } else if (param0 != null && this.getClass() == param0.getClass()) {
-            ClampedNormalFloat var0 = (ClampedNormalFloat)param0;
-            return this.mean == var0.mean && this.deviation == var0.deviation && this.min == var0.min && this.max == var0.max;
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(this.mean, this.deviation, this.min, this.max);
     }
 
     @Override

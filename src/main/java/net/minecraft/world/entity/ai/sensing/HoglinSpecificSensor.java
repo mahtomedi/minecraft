@@ -18,7 +18,7 @@ public class HoglinSpecificSensor extends Sensor<Hoglin> {
     @Override
     public Set<MemoryModuleType<?>> requires() {
         return ImmutableSet.of(
-            MemoryModuleType.VISIBLE_LIVING_ENTITIES,
+            MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES,
             MemoryModuleType.NEAREST_REPELLENT,
             MemoryModuleType.NEAREST_VISIBLE_ADULT_PIGLIN,
             MemoryModuleType.NEAREST_VISIBLE_ADULT_HOGLINS,
@@ -34,7 +34,7 @@ public class HoglinSpecificSensor extends Sensor<Hoglin> {
         int var2 = 0;
         List<Hoglin> var3 = Lists.newArrayList();
 
-        for(LivingEntity var5 : var0.getMemory(MemoryModuleType.VISIBLE_LIVING_ENTITIES).orElse(Lists.newArrayList())) {
+        for(LivingEntity var5 : var0.getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES).orElse(Lists.newArrayList())) {
             if (var5 instanceof Piglin && !var5.isBaby()) {
                 ++var2;
                 if (!var1.isPresent()) {

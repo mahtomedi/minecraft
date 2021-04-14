@@ -2,6 +2,7 @@ package net.minecraft.world.level.levelgen.carver;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.valueproviders.FloatProvider;
 import net.minecraft.world.level.levelgen.VerticalAnchor;
 import net.minecraft.world.level.levelgen.heightproviders.HeightProvider;
@@ -41,7 +42,7 @@ public class CanyonCarverConfiguration extends CarverConfiguration {
             param0 -> param0.group(
                         FloatProvider.CODEC.fieldOf("distance_factor").forGetter(param0x -> param0x.distanceFactor),
                         FloatProvider.CODEC.fieldOf("thickness").forGetter(param0x -> param0x.thickness),
-                        Codec.intRange(0, Integer.MAX_VALUE).fieldOf("width_smoothness").forGetter(param0x -> param0x.widthSmoothness),
+                        ExtraCodecs.NON_NEGATIVE_INT.fieldOf("width_smoothness").forGetter(param0x -> param0x.widthSmoothness),
                         FloatProvider.CODEC.fieldOf("horizontal_radius_factor").forGetter(param0x -> param0x.horizontalRadiusFactor),
                         Codec.FLOAT.fieldOf("vertical_radius_default_factor").forGetter(param0x -> param0x.verticalRadiusDefaultFactor),
                         Codec.FLOAT.fieldOf("vertical_radius_center_factor").forGetter(param0x -> param0x.verticalRadiusCenterFactor)

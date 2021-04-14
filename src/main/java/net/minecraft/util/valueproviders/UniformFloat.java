@@ -3,7 +3,6 @@ package net.minecraft.util.valueproviders;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import java.util.Objects;
 import java.util.Random;
 import java.util.function.Function;
 import net.minecraft.util.Mth;
@@ -56,23 +55,6 @@ public class UniformFloat extends FloatProvider {
     @Override
     public FloatProviderType<?> getType() {
         return FloatProviderType.UNIFORM;
-    }
-
-    @Override
-    public boolean equals(Object param0) {
-        if (this == param0) {
-            return true;
-        } else if (param0 != null && this.getClass() == param0.getClass()) {
-            UniformFloat var0 = (UniformFloat)param0;
-            return this.minInclusive == var0.minInclusive && this.maxExclusive == var0.maxExclusive;
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(this.minInclusive, this.maxExclusive);
     }
 
     @Override

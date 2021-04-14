@@ -33,7 +33,7 @@ public class BehaviorUtils {
     }
 
     public static boolean entityIsVisible(Brain<?> param0, LivingEntity param1) {
-        return param0.getMemory(MemoryModuleType.VISIBLE_LIVING_ENTITIES).filter(param1x -> param1x.contains(param1)).isPresent();
+        return param0.getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES).filter(param1x -> param1x.contains(param1)).isPresent();
     }
 
     public static boolean targetIsValid(Brain<?> param0, MemoryModuleType<? extends LivingEntity> param1, EntityType<?> param2) {
@@ -118,9 +118,9 @@ public class BehaviorUtils {
 
     public static boolean canSee(LivingEntity param0, LivingEntity param1) {
         Brain<?> var0 = param0.getBrain();
-        return !var0.hasMemoryValue(MemoryModuleType.VISIBLE_LIVING_ENTITIES)
+        return !var0.hasMemoryValue(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES)
             ? false
-            : var0.getMemory(MemoryModuleType.VISIBLE_LIVING_ENTITIES).get().contains(param1);
+            : var0.getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES).get().contains(param1);
     }
 
     public static LivingEntity getNearestTarget(LivingEntity param0, Optional<LivingEntity> param1, LivingEntity param2) {
@@ -141,7 +141,7 @@ public class BehaviorUtils {
 
     public static Stream<Villager> getNearbyVillagersWithCondition(Villager param0, Predicate<Villager> param1) {
         return param0.getBrain()
-            .getMemory(MemoryModuleType.LIVING_ENTITIES)
+            .getMemory(MemoryModuleType.NEAREST_LIVING_ENTITIES)
             .map(
                 param2 -> param2.stream()
                         .filter(param1x -> param1x instanceof Villager && param1x != param0)

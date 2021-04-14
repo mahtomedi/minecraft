@@ -4,8 +4,11 @@ import com.google.common.collect.ImmutableMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.util.WeighedRandom;
 import net.minecraft.util.valueproviders.UniformInt;
@@ -21,10 +24,10 @@ import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-public class LongJumpToRandomPos extends Behavior<Mob> {
+public class LongJumpToRandomPos<E extends Mob> extends Behavior<E> {
     private static final int FIND_JUMP_TRIES = 20;
     private static final int PREPARE_JUMP_DURATION = 40;
-    private static final int MIN_PATHFIND_DISTANCE_TO_VALID_JUMP = 7;
+    private static final int MIN_PATHFIND_DISTANCE_TO_VALID_JUMP = 8;
     public static final int TIME_OUT_DURATION = 200;
     private final UniformInt timeBetweenLongJumps;
     private final int maxLongJumpHeight;
@@ -35,8 +38,9 @@ public class LongJumpToRandomPos extends Behavior<Mob> {
     private Optional<LongJumpToRandomPos.PossibleJump> chosenJump = Optional.empty();
     private int findJumpTries;
     private long prepareJumpStart;
+    private Function<E, SoundEvent> getJumpSound;
 
-    public LongJumpToRandomPos(UniformInt param0, int param1, int param2, float param3) {
+    public LongJumpToRandomPos(UniformInt param0, int param1, int param2, float param3, Function<E, SoundEvent> param4) {
         super(
             ImmutableMap.of(
                 MemoryModuleType.LOOK_TARGET,
@@ -52,6 +56,7 @@ public class LongJumpToRandomPos extends Behavior<Mob> {
         this.maxLongJumpHeight = param1;
         this.maxLongJumpWidth = param2;
         this.maxJumpVelocity = param3;
+        this.getJumpSound = param4;
     }
 
     protected boolean checkExtraStartConditions(ServerLevel param0, Mob param1) {
@@ -101,13 +106,14 @@ public class LongJumpToRandomPos extends Behavior<Mob> {
 
     }
 
-    protected void tick(ServerLevel param0, Mob param1, long param2) {
+    protected void tick(ServerLevel param0, E param1, long param2) {
         if (this.chosenJump.isPresent()) {
             if (param2 - this.prepareJumpStart >= 40L) {
                 param1.yRot = param1.yBodyRot;
                 param1.setDiscardFriction(true);
                 param1.setDeltaMovement(this.chosenJump.get().getJumpVector());
                 param1.getBrain().setMemory(MemoryModuleType.LONG_JUMP_MID_JUMP, true);
+                param0.playSound(null, param1, this.getJumpSound.apply(param1), SoundSource.NEUTRAL, 1.0F, 1.0F);
             }
         } else {
             --this.findJumpTries;
@@ -116,7 +122,7 @@ public class LongJumpToRandomPos extends Behavior<Mob> {
                 this.jumpCandidates.remove(var0.get());
                 param1.getBrain().setMemory(MemoryModuleType.LOOK_TARGET, new BlockPosTracker(var0.get().getJumpTarget()));
                 PathNavigation var1 = param1.getNavigation();
-                Path var2 = var1.createPath(var0.get().getJumpTarget(), 0, 7);
+                Path var2 = var1.createPath(var0.get().getJumpTarget(), 0, 8);
                 if (var2 == null || !var2.canReach()) {
                     this.chosenJump = var0;
                     this.prepareJumpStart = param2;

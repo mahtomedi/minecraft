@@ -21,7 +21,7 @@ public class BackUpIfTooClose<E extends Mob> extends Behavior<E> {
                 MemoryStatus.REGISTERED,
                 MemoryModuleType.ATTACK_TARGET,
                 MemoryStatus.VALUE_PRESENT,
-                MemoryModuleType.VISIBLE_LIVING_ENTITIES,
+                MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES,
                 MemoryStatus.VALUE_PRESENT
             )
         );
@@ -40,7 +40,7 @@ public class BackUpIfTooClose<E extends Mob> extends Behavior<E> {
     }
 
     private boolean isTargetVisible(E param0) {
-        return param0.getBrain().getMemory(MemoryModuleType.VISIBLE_LIVING_ENTITIES).get().contains(this.getTarget(param0));
+        return param0.getBrain().getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES).get().contains(this.getTarget(param0));
     }
 
     private boolean isTargetTooClose(E param0) {

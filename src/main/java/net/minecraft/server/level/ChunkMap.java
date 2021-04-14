@@ -960,24 +960,26 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
         if (!(param0 instanceof EnderDragonPart)) {
             EntityType<?> var0 = param0.getType();
             int var1 = var0.clientTrackingRange() * 16;
-            int var2 = var0.updateInterval();
-            if (this.entityMap.containsKey(param0.getId())) {
-                throw (IllegalStateException)Util.pauseInIde(new IllegalStateException("Entity is already tracked!"));
-            } else {
-                ChunkMap.TrackedEntity var3 = new ChunkMap.TrackedEntity(param0, var1, var2, var0.trackDeltas());
-                this.entityMap.put(param0.getId(), var3);
-                var3.updatePlayers(this.level.players());
-                if (param0 instanceof ServerPlayer) {
-                    ServerPlayer var4 = (ServerPlayer)param0;
-                    this.updatePlayerStatus(var4, true);
+            if (var1 != 0) {
+                int var2 = var0.updateInterval();
+                if (this.entityMap.containsKey(param0.getId())) {
+                    throw (IllegalStateException)Util.pauseInIde(new IllegalStateException("Entity is already tracked!"));
+                } else {
+                    ChunkMap.TrackedEntity var3 = new ChunkMap.TrackedEntity(param0, var1, var2, var0.trackDeltas());
+                    this.entityMap.put(param0.getId(), var3);
+                    var3.updatePlayers(this.level.players());
+                    if (param0 instanceof ServerPlayer) {
+                        ServerPlayer var4 = (ServerPlayer)param0;
+                        this.updatePlayerStatus(var4, true);
 
-                    for(ChunkMap.TrackedEntity var5 : this.entityMap.values()) {
-                        if (var5.entity != var4) {
-                            var5.updatePlayer(var4);
+                        for(ChunkMap.TrackedEntity var5 : this.entityMap.values()) {
+                            if (var5.entity != var4) {
+                                var5.updatePlayer(var4);
+                            }
                         }
                     }
-                }
 
+                }
             }
         }
     }

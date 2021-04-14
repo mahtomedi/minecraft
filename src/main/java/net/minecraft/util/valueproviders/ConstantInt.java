@@ -42,23 +42,6 @@ public class ConstantInt extends IntProvider {
     }
 
     @Override
-    public boolean equals(Object param0) {
-        if (this == param0) {
-            return true;
-        } else if (param0 != null && this.getClass() == param0.getClass()) {
-            ConstantInt var0 = (ConstantInt)param0;
-            return this.value == var0.value;
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    public int hashCode() {
-        return Integer.hashCode(this.value);
-    }
-
-    @Override
     public IntProviderType<?> getType() {
         return IntProviderType.CONSTANT;
     }

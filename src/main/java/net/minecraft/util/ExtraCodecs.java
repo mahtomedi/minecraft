@@ -5,12 +5,30 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 
 public class ExtraCodecs {
+    public static final Codec<Integer> NON_NEGATIVE_INT = intRangeWithMessage(0, Integer.MAX_VALUE, param0 -> "Value must be non-negative: " + param0);
+    public static final Codec<Integer> POSITIVE_INT = intRangeWithMessage(1, Integer.MAX_VALUE, param0 -> "Value must be positive: " + param0);
+
     public static <F, S> Codec<Either<F, S>> xor(Codec<F> param0, Codec<S> param1) {
         return new ExtraCodecs.XorCodec<>(param0, param1);
+    }
+
+    private static <N extends Number & Comparable<N>> Function<N, DataResult<N>> checkRangeWithMessage(N param0, N param1, Function<N, String> param2) {
+        return param3 -> param3.compareTo(param0) >= 0 && param3.compareTo(param1) <= 0 ? DataResult.success(param3) : DataResult.error(param2.apply(param3));
+    }
+
+    private static Codec<Integer> intRangeWithMessage(int param0, int param1, Function<Integer, String> param2) {
+        Function<Integer, DataResult<Integer>> var0 = checkRangeWithMessage(param0, param1, param2);
+        return Codec.INT.flatXmap(var0, var0);
+    }
+
+    public static <T> Function<List<T>, DataResult<List<T>>> nonEmptyListCheck() {
+        return param0 -> param0.isEmpty() ? DataResult.error("List must have contents") : DataResult.success(param0);
     }
 
     static final class XorCodec<F, S> implements Codec<Either<F, S>> {

@@ -1,11 +1,8 @@
 package net.minecraft.world.level.levelgen.heightproviders;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import java.util.Objects;
 import java.util.Random;
-import java.util.function.Function;
 import net.minecraft.world.level.levelgen.VerticalAnchor;
 import net.minecraft.world.level.levelgen.WorldGenerationContext;
 import org.apache.logging.log4j.LogManager;
@@ -13,14 +10,13 @@ import org.apache.logging.log4j.Logger;
 
 public class BiasedToBottomHeight extends HeightProvider {
     public static final Codec<BiasedToBottomHeight> CODEC = RecordCodecBuilder.create(
-            param0 -> param0.group(
-                        VerticalAnchor.CODEC.fieldOf("min_inclusive").forGetter(param0x -> param0x.minInclusive),
-                        VerticalAnchor.CODEC.fieldOf("max_inclusive").forGetter(param0x -> param0x.maxInclusive),
-                        Codec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("inner", 1).forGetter(param0x -> param0x.inner)
-                    )
-                    .apply(param0, BiasedToBottomHeight::new)
-        )
-        .comapFlatMap(DataResult::success, Function.identity());
+        param0 -> param0.group(
+                    VerticalAnchor.CODEC.fieldOf("min_inclusive").forGetter(param0x -> param0x.minInclusive),
+                    VerticalAnchor.CODEC.fieldOf("max_inclusive").forGetter(param0x -> param0x.maxInclusive),
+                    Codec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("inner", 1).forGetter(param0x -> param0x.inner)
+                )
+                .apply(param0, BiasedToBottomHeight::new)
+    );
     private static final Logger LOGGER = LogManager.getLogger();
     private final VerticalAnchor minInclusive;
     private final VerticalAnchor maxInclusive;
@@ -52,23 +48,6 @@ public class BiasedToBottomHeight extends HeightProvider {
     @Override
     public HeightProviderType<?> getType() {
         return HeightProviderType.BIASED_TO_BOTTOM;
-    }
-
-    @Override
-    public boolean equals(Object param0) {
-        if (this == param0) {
-            return true;
-        } else if (param0 != null && this.getClass() == param0.getClass()) {
-            BiasedToBottomHeight var0 = (BiasedToBottomHeight)param0;
-            return this.minInclusive.equals(var0.minInclusive) && this.maxInclusive.equals(this.maxInclusive) && this.inner == var0.inner;
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(this.minInclusive, this.maxInclusive);
     }
 
     @Override

@@ -7,6 +7,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
@@ -23,10 +24,10 @@ public class RandomPatchConfiguration implements FeatureConfiguration {
                         .fieldOf("whitelist")
                         .forGetter(param0x -> param0x.whitelist.stream().map(Block::defaultBlockState).collect(Collectors.toList())),
                     BlockState.CODEC.listOf().fieldOf("blacklist").forGetter(param0x -> ImmutableList.copyOf(param0x.blacklist)),
-                    Codec.INT.fieldOf("tries").orElse(128).forGetter(param0x -> param0x.tries),
-                    Codec.INT.fieldOf("xspread").orElse(7).forGetter(param0x -> param0x.xspread),
-                    Codec.INT.fieldOf("yspread").orElse(3).forGetter(param0x -> param0x.yspread),
-                    Codec.INT.fieldOf("zspread").orElse(7).forGetter(param0x -> param0x.zspread),
+                    ExtraCodecs.POSITIVE_INT.fieldOf("tries").orElse(128).forGetter(param0x -> param0x.tries),
+                    ExtraCodecs.NON_NEGATIVE_INT.fieldOf("xspread").orElse(7).forGetter(param0x -> param0x.xspread),
+                    ExtraCodecs.NON_NEGATIVE_INT.fieldOf("yspread").orElse(3).forGetter(param0x -> param0x.yspread),
+                    ExtraCodecs.NON_NEGATIVE_INT.fieldOf("zspread").orElse(7).forGetter(param0x -> param0x.zspread),
                     Codec.BOOL.fieldOf("can_replace").orElse(false).forGetter(param0x -> param0x.canReplace),
                     Codec.BOOL.fieldOf("project").orElse(true).forGetter(param0x -> param0x.project),
                     Codec.BOOL.fieldOf("need_water").orElse(false).forGetter(param0x -> param0x.needWater)

@@ -25,12 +25,13 @@ public class BiomeDefaultFeatures {
     public static void addDefaultCarvers(BiomeGenerationSettings.Builder param0) {
         param0.addCarver(GenerationStep.Carving.AIR, Carvers.CAVE);
         param0.addCarver(GenerationStep.Carving.AIR, Carvers.CANYON);
-        param0.addCarver(GenerationStep.Carving.AIR, Carvers.CRACK);
     }
 
     public static void addOceanCarvers(BiomeGenerationSettings.Builder param0) {
         param0.addCarver(GenerationStep.Carving.AIR, Carvers.OCEAN_CAVE);
         param0.addCarver(GenerationStep.Carving.AIR, Carvers.CANYON);
+        param0.addCarver(GenerationStep.Carving.LIQUID, Carvers.UNDERWATER_CANYON);
+        param0.addCarver(GenerationStep.Carving.LIQUID, Carvers.UNDERWATER_CAVE);
     }
 
     public static void addDefaultLakes(BiomeGenerationSettings.Builder param0) {
@@ -52,8 +53,8 @@ public class BiomeDefaultFeatures {
         param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_GRANITE);
         param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_DIORITE);
         param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_ANDESITE);
-        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_TUFF);
         param0.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, Features.GLOW_LICHEN);
+        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_TUFF);
         param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_DEEPSLATE);
         param0.addFeature(GenerationStep.Decoration.UNDERGROUND_DECORATION, Features.RARE_DRIPSTONE_CLUSTER_FEATURE);
         param0.addFeature(GenerationStep.Decoration.UNDERGROUND_DECORATION, Features.RARE_SMALL_DRIPSTONE_FEATURE);
@@ -66,20 +67,13 @@ public class BiomeDefaultFeatures {
     }
 
     public static void addDefaultOres(BiomeGenerationSettings.Builder param0) {
-        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_COAL_UPPER);
-        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_COAL_LOWER);
-        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_IRON_UPPER);
-        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_IRON_MIDDLE);
-        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_IRON_LOWER);
+        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_COAL);
+        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_IRON);
         param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_GOLD);
         param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_REDSTONE);
-        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_REDSTONE_LOWER);
         param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_DIAMOND);
-        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_DIAMOND_LARGE);
         param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_LAPIS);
-        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_LAPIS_BURIED);
         param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_COPPER);
-        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.UNDERWATER_MAGMA);
     }
 
     public static void addExtraGold(BiomeGenerationSettings.Builder param0) {
@@ -316,8 +310,7 @@ public class BiomeDefaultFeatures {
     }
 
     public static void addFossilDecoration(BiomeGenerationSettings.Builder param0) {
-        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_STRUCTURES, Features.FOSSIL_UPPER);
-        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_STRUCTURES, Features.FOSSIL_LOWER);
+        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_STRUCTURES, Features.FOSSIL);
     }
 
     public static void addColdOceanExtraVegetation(BiomeGenerationSettings.Builder param0) {

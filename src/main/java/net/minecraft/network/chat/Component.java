@@ -154,19 +154,19 @@ public interface Component extends Message, FormattedText {
                 return new TextComponent(param0.getAsString());
             } else if (!param0.isJsonObject()) {
                 if (param0.isJsonArray()) {
-                    JsonArray var23 = param0.getAsJsonArray();
-                    MutableComponent var24 = null;
+                    JsonArray var25 = param0.getAsJsonArray();
+                    MutableComponent var26 = null;
 
-                    for(JsonElement var25 : var23) {
-                        MutableComponent var26 = this.deserialize(var25, var25.getClass(), param2);
-                        if (var24 == null) {
-                            var24 = var26;
+                    for(JsonElement var27 : var25) {
+                        MutableComponent var28 = this.deserialize(var27, var27.getClass(), param2);
+                        if (var26 == null) {
+                            var26 = var28;
                         } else {
-                            var24.append(var26);
+                            var26.append(var28);
                         }
                     }
 
-                    return var24;
+                    return var26;
                 } else {
                     throw new JsonParseException("Don't know how to turn " + param0 + " into a Component");
                 }
@@ -203,7 +203,8 @@ public interface Component extends Message, FormattedText {
 
                     var1 = new ScoreComponent(GsonHelper.getAsString(var9, "name"), GsonHelper.getAsString(var9, "objective"));
                 } else if (var0.has("selector")) {
-                    var1 = new SelectorComponent(GsonHelper.getAsString(var0, "selector"));
+                    Optional<Component> var12 = this.parseSeparator(param1, param2, var0);
+                    var1 = new SelectorComponent(GsonHelper.getAsString(var0, "selector"), var12);
                 } else if (var0.has("keybind")) {
                     var1 = new KeybindComponent(GsonHelper.getAsString(var0, "keybind"));
                 } else {
@@ -211,35 +212,40 @@ public interface Component extends Message, FormattedText {
                         throw new JsonParseException("Don't know how to turn " + param0 + " into a Component");
                     }
 
-                    String var14 = GsonHelper.getAsString(var0, "nbt");
-                    boolean var15 = GsonHelper.getAsBoolean(var0, "interpret", false);
+                    String var15 = GsonHelper.getAsString(var0, "nbt");
+                    Optional<Component> var16 = this.parseSeparator(param1, param2, var0);
+                    boolean var17 = GsonHelper.getAsBoolean(var0, "interpret", false);
                     if (var0.has("block")) {
-                        var1 = new NbtComponent.BlockNbtComponent(var14, var15, GsonHelper.getAsString(var0, "block"));
+                        var1 = new NbtComponent.BlockNbtComponent(var15, var17, GsonHelper.getAsString(var0, "block"), var16);
                     } else if (var0.has("entity")) {
-                        var1 = new NbtComponent.EntityNbtComponent(var14, var15, GsonHelper.getAsString(var0, "entity"));
+                        var1 = new NbtComponent.EntityNbtComponent(var15, var17, GsonHelper.getAsString(var0, "entity"), var16);
                     } else {
                         if (!var0.has("storage")) {
                             throw new JsonParseException("Don't know how to turn " + param0 + " into a Component");
                         }
 
-                        var1 = new NbtComponent.StorageNbtComponent(var14, var15, new ResourceLocation(GsonHelper.getAsString(var0, "storage")));
+                        var1 = new NbtComponent.StorageNbtComponent(var15, var17, new ResourceLocation(GsonHelper.getAsString(var0, "storage")), var16);
                     }
                 }
 
                 if (var0.has("extra")) {
-                    JsonArray var21 = GsonHelper.getAsJsonArray(var0, "extra");
-                    if (var21.size() <= 0) {
+                    JsonArray var23 = GsonHelper.getAsJsonArray(var0, "extra");
+                    if (var23.size() <= 0) {
                         throw new JsonParseException("Unexpected empty array of components");
                     }
 
-                    for(int var22 = 0; var22 < var21.size(); ++var22) {
-                        var1.append(this.deserialize(var21.get(var22), param1, param2));
+                    for(int var24 = 0; var24 < var23.size(); ++var24) {
+                        var1.append(this.deserialize(var23.get(var24), param1, param2));
                     }
                 }
 
                 var1.setStyle(param2.deserialize(param0, Style.class));
                 return var1;
             }
+        }
+
+        private Optional<Component> parseSeparator(Type param0, JsonDeserializationContext param1, JsonObject param2) {
+            return param2.has("separator") ? Optional.of(this.deserialize(param2.get("separator"), param0, param1)) : Optional.empty();
         }
 
         private void serializeStyle(Style param0, JsonObject param1, JsonSerializationContext param2) {
@@ -297,6 +303,7 @@ public interface Component extends Message, FormattedText {
             } else if (param0 instanceof SelectorComponent) {
                 SelectorComponent var8 = (SelectorComponent)param0;
                 var0.addProperty("selector", var8.getPattern());
+                this.serializeSeparator(param2, var0, var8.getSeparator());
             } else if (param0 instanceof KeybindComponent) {
                 KeybindComponent var9 = (KeybindComponent)param0;
                 var0.addProperty("keybind", var9.getName());
@@ -308,6 +315,7 @@ public interface Component extends Message, FormattedText {
                 NbtComponent var10 = (NbtComponent)param0;
                 var0.addProperty("nbt", var10.getNbtPath());
                 var0.addProperty("interpret", var10.isInterpreting());
+                this.serializeSeparator(param2, var0, var10.separator);
                 if (param0 instanceof NbtComponent.BlockNbtComponent) {
                     NbtComponent.BlockNbtComponent var11 = (NbtComponent.BlockNbtComponent)param0;
                     var0.addProperty("block", var11.getPos());
@@ -325,6 +333,10 @@ public interface Component extends Message, FormattedText {
             }
 
             return var0;
+        }
+
+        private void serializeSeparator(JsonSerializationContext param0, JsonObject param1, Optional<Component> param2) {
+            param2.ifPresent(param2x -> param1.add("separator", this.serialize(param2x, param2x.getClass(), param0)));
         }
 
         public static String toJson(Component param0) {

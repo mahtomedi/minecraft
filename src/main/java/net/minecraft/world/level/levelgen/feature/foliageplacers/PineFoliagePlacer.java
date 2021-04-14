@@ -55,7 +55,7 @@ public class PineFoliagePlacer extends FoliagePlacer {
 
     @Override
     public int foliageRadius(Random param0, int param1) {
-        return super.foliageRadius(param0, param1) + param0.nextInt(param1 + 1);
+        return super.foliageRadius(param0, param1) + param0.nextInt(Math.max(param1 + 1, 1));
     }
 
     @Override

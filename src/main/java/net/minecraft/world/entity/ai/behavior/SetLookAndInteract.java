@@ -23,7 +23,7 @@ public class SetLookAndInteract extends Behavior<LivingEntity> {
                 MemoryStatus.REGISTERED,
                 MemoryModuleType.INTERACTION_TARGET,
                 MemoryStatus.VALUE_ABSENT,
-                MemoryModuleType.VISIBLE_LIVING_ENTITIES,
+                MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES,
                 MemoryStatus.VALUE_PRESENT
             )
         );
@@ -46,7 +46,7 @@ public class SetLookAndInteract extends Behavior<LivingEntity> {
     public void start(ServerLevel param0, LivingEntity param1, long param2) {
         super.start(param0, param1, param2);
         Brain<?> var0 = param1.getBrain();
-        var0.getMemory(MemoryModuleType.VISIBLE_LIVING_ENTITIES)
+        var0.getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES)
             .ifPresent(
                 param2x -> param2x.stream()
                         .filter(param1x -> param1x.distanceToSqr(param1) <= (double)this.interactionRangeSqr)
@@ -64,6 +64,6 @@ public class SetLookAndInteract extends Behavior<LivingEntity> {
     }
 
     private List<LivingEntity> getVisibleEntities(LivingEntity param0) {
-        return param0.getBrain().getMemory(MemoryModuleType.VISIBLE_LIVING_ENTITIES).get();
+        return param0.getBrain().getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES).get();
     }
 }

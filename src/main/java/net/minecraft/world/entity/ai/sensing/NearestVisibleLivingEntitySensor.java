@@ -30,6 +30,6 @@ public abstract class NearestVisibleLivingEntitySensor extends Sensor<LivingEnti
     }
 
     protected Optional<List<LivingEntity>> getVisibleEntities(LivingEntity param0) {
-        return param0.getBrain().getMemory(MemoryModuleType.VISIBLE_LIVING_ENTITIES);
+        return param0.getBrain().getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES);
     }
 }

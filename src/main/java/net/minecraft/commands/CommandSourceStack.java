@@ -94,6 +94,25 @@ public class CommandSourceStack implements SharedSuggestionProvider {
         this.rotation = param2;
     }
 
+    public CommandSourceStack withSource(CommandSource param0) {
+        return this.source == param0
+            ? this
+            : new CommandSourceStack(
+                param0,
+                this.worldPosition,
+                this.rotation,
+                this.level,
+                this.permissionLevel,
+                this.textName,
+                this.displayName,
+                this.server,
+                this.entity,
+                this.silent,
+                this.consumer,
+                this.anchor
+            );
+    }
+
     public CommandSourceStack withEntity(Entity param0) {
         return this.entity == param0
             ? this
@@ -176,9 +195,8 @@ public class CommandSourceStack implements SharedSuggestionProvider {
     }
 
     public CommandSourceStack withSuppressedOutput() {
-        return this.silent
-            ? this
-            : new CommandSourceStack(
+        return !this.silent && !this.source.alwaysAccepts()
+            ? new CommandSourceStack(
                 this.source,
                 this.worldPosition,
                 this.rotation,
@@ -191,7 +209,8 @@ public class CommandSourceStack implements SharedSuggestionProvider {
                 true,
                 this.consumer,
                 this.anchor
-            );
+            )
+            : this;
     }
 
     public CommandSourceStack withPermission(int param0) {

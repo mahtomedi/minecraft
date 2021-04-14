@@ -24,7 +24,7 @@ public class TradeWithVillager extends Behavior<Villager> {
     public TradeWithVillager() {
         super(
             ImmutableMap.of(
-                MemoryModuleType.INTERACTION_TARGET, MemoryStatus.VALUE_PRESENT, MemoryModuleType.VISIBLE_LIVING_ENTITIES, MemoryStatus.VALUE_PRESENT
+                MemoryModuleType.INTERACTION_TARGET, MemoryStatus.VALUE_PRESENT, MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES, MemoryStatus.VALUE_PRESENT
             )
         );
     }

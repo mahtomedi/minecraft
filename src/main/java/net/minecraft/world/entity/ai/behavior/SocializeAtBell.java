@@ -23,7 +23,7 @@ public class SocializeAtBell extends Behavior<LivingEntity> {
                 MemoryStatus.REGISTERED,
                 MemoryModuleType.MEETING_POINT,
                 MemoryStatus.VALUE_PRESENT,
-                MemoryModuleType.VISIBLE_LIVING_ENTITIES,
+                MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES,
                 MemoryStatus.VALUE_PRESENT,
                 MemoryModuleType.INTERACTION_TARGET,
                 MemoryStatus.VALUE_ABSENT
@@ -39,13 +39,16 @@ public class SocializeAtBell extends Behavior<LivingEntity> {
             && var1.isPresent()
             && param0.dimension() == var1.get().dimension()
             && var1.get().pos().closerThan(param1.position(), 4.0)
-            && var0.getMemory(MemoryModuleType.VISIBLE_LIVING_ENTITIES).get().stream().anyMatch(param0x -> EntityType.VILLAGER.equals(param0x.getType()));
+            && var0.getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES)
+                .get()
+                .stream()
+                .anyMatch(param0x -> EntityType.VILLAGER.equals(param0x.getType()));
     }
 
     @Override
     protected void start(ServerLevel param0, LivingEntity param1, long param2) {
         Brain<?> var0 = param1.getBrain();
-        var0.getMemory(MemoryModuleType.VISIBLE_LIVING_ENTITIES)
+        var0.getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES)
             .ifPresent(
                 param2x -> param2x.stream()
                         .filter(param0x -> EntityType.VILLAGER.equals(param0x.getType()))

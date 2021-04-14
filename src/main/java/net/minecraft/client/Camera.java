@@ -183,9 +183,8 @@ public class Camera {
                     Vec3 var14 = this.position.add(var13);
                     BlockPos var15 = new BlockPos(var14);
                     FluidState var16 = this.level.getFluidState(var15);
-                    if (!var16.isEmpty()) {
-                        if (!(var14.y >= (double)((float)this.blockPosition.getY() + var16.getHeight(this.level, this.blockPosition)))
-                            && var16.is(FluidTags.LAVA)) {
+                    if (var16.is(FluidTags.LAVA)) {
+                        if (var14.y <= (double)(var16.getHeight(this.level, var15) + (float)var15.getY())) {
                             return FogType.LAVA;
                         }
                     } else {

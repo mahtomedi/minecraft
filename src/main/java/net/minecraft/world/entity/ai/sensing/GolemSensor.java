@@ -28,11 +28,11 @@ public class GolemSensor extends Sensor<LivingEntity> {
 
     @Override
     public Set<MemoryModuleType<?>> requires() {
-        return ImmutableSet.of(MemoryModuleType.LIVING_ENTITIES);
+        return ImmutableSet.of(MemoryModuleType.NEAREST_LIVING_ENTITIES);
     }
 
     public static void checkForNearbyGolem(LivingEntity param0) {
-        Optional<List<LivingEntity>> var0 = param0.getBrain().getMemory(MemoryModuleType.LIVING_ENTITIES);
+        Optional<List<LivingEntity>> var0 = param0.getBrain().getMemory(MemoryModuleType.NEAREST_LIVING_ENTITIES);
         if (var0.isPresent()) {
             boolean var1 = var0.get().stream().anyMatch(param0x -> param0x.getType().equals(EntityType.IRON_GOLEM));
             if (var1) {

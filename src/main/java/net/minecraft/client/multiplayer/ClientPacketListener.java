@@ -1641,10 +1641,10 @@ public class ClientPacketListener implements ClientGamePacketListener {
                             () -> this.minecraft
                                     .setScreen(
                                         new ConfirmScreen(
-                                            param3 -> {
+                                            param3x -> {
                                                 this.minecraft.setScreen(null);
                                                 ServerData var0x = this.minecraft.getCurrentServer();
-                                                if (param3) {
+                                                if (param3x) {
                                                     if (var0x != null) {
                                                         var0x.setResourcePackStatus(ServerData.ServerPackStatus.ENABLED);
                                                     }
@@ -1668,11 +1668,14 @@ public class ClientPacketListener implements ClientGamePacketListener {
                                             var2
                                                 ? new TranslatableComponent("multiplayer.requiredTexturePrompt.line1")
                                                 : new TranslatableComponent("multiplayer.texturePrompt.line1"),
-                                            (Component)(var2
-                                                ? new TranslatableComponent("multiplayer.requiredTexturePrompt.line2")
-                                                    .withStyle(new ChatFormatting[]{ChatFormatting.YELLOW, ChatFormatting.BOLD})
-                                                : new TranslatableComponent("multiplayer.texturePrompt.line2")),
-                                            (Component)(var2 ? new TranslatableComponent("gui.proceed") : CommonComponents.GUI_YES),
+                                            preparePackPrompt(
+                                                (Component)(var2
+                                                    ? new TranslatableComponent("multiplayer.requiredTexturePrompt.line2")
+                                                        .withStyle(new ChatFormatting[]{ChatFormatting.YELLOW, ChatFormatting.BOLD})
+                                                    : new TranslatableComponent("multiplayer.texturePrompt.line2")),
+                                                param0.getPrompt()
+                                            ),
+                                            var2 ? CommonComponents.GUI_PROCEED : CommonComponents.GUI_YES,
                                             (Component)(var2 ? new TranslatableComponent("menu.disconnect") : CommonComponents.GUI_NO)
                                         )
                                     )
@@ -1681,6 +1684,10 @@ public class ClientPacketListener implements ClientGamePacketListener {
 
             }
         }
+    }
+
+    private static Component preparePackPrompt(Component param0, @Nullable Component param1) {
+        return (Component)(param1 == null ? param0 : new TranslatableComponent("multiplayer.texturePrompt.serverPrompt", param0, param1));
     }
 
     private boolean validateResourcePackUrl(String param0) {

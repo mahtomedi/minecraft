@@ -1,11 +1,8 @@
 package net.minecraft.world.level.levelgen.heightproviders;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import java.util.Objects;
 import java.util.Random;
-import java.util.function.Function;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.levelgen.VerticalAnchor;
 import net.minecraft.world.level.levelgen.WorldGenerationContext;
@@ -14,13 +11,12 @@ import org.apache.logging.log4j.Logger;
 
 public class UniformHeight extends HeightProvider {
     public static final Codec<UniformHeight> CODEC = RecordCodecBuilder.create(
-            param0 -> param0.group(
-                        VerticalAnchor.CODEC.fieldOf("min_inclusive").forGetter(param0x -> param0x.minInclusive),
-                        VerticalAnchor.CODEC.fieldOf("max_inclusive").forGetter(param0x -> param0x.maxInclusive)
-                    )
-                    .apply(param0, UniformHeight::new)
-        )
-        .comapFlatMap(DataResult::success, Function.identity());
+        param0 -> param0.group(
+                    VerticalAnchor.CODEC.fieldOf("min_inclusive").forGetter(param0x -> param0x.minInclusive),
+                    VerticalAnchor.CODEC.fieldOf("max_inclusive").forGetter(param0x -> param0x.maxInclusive)
+                )
+                .apply(param0, UniformHeight::new)
+    );
     private static final Logger LOGGER = LogManager.getLogger();
     private final VerticalAnchor minInclusive;
     private final VerticalAnchor maxInclusive;
@@ -49,23 +45,6 @@ public class UniformHeight extends HeightProvider {
     @Override
     public HeightProviderType<?> getType() {
         return HeightProviderType.UNIFORM;
-    }
-
-    @Override
-    public boolean equals(Object param0) {
-        if (this == param0) {
-            return true;
-        } else if (param0 != null && this.getClass() == param0.getClass()) {
-            UniformHeight var0 = (UniformHeight)param0;
-            return this.minInclusive.equals(var0.minInclusive) && this.maxInclusive.equals(var0.maxInclusive);
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(this.minInclusive, this.maxInclusive);
     }
 
     @Override

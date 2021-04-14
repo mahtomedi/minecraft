@@ -32,7 +32,7 @@ public class EntityTracker implements PositionTracker {
         if (!(this.entity instanceof LivingEntity)) {
             return true;
         } else {
-            Optional<List<LivingEntity>> var0 = param0.getBrain().getMemory(MemoryModuleType.VISIBLE_LIVING_ENTITIES);
+            Optional<List<LivingEntity>> var0 = param0.getBrain().getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES);
             return this.entity.isAlive() && var0.isPresent() && var0.get().contains(this.entity);
         }
     }

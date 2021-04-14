@@ -14,6 +14,7 @@ import net.minecraft.world.entity.AreaEffectCloud;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.animal.axolotl.Axolotl;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -113,6 +114,10 @@ public class ThrownPotion extends ThrowableItemProjectile implements ItemSupplie
                     var2.hurt(DamageSource.indirectMagic(var2, this.getOwner()), 1.0F);
                 }
             }
+        }
+
+        for(Axolotl var5 : this.level.getEntitiesOfClass(Axolotl.class, var0)) {
+            var5.rehydrate();
         }
 
     }

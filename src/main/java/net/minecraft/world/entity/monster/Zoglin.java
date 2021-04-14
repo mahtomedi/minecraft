@@ -64,8 +64,8 @@ public class Zoglin extends Monster implements Enemy, HoglinBase {
         SensorType.NEAREST_LIVING_ENTITIES, SensorType.NEAREST_PLAYERS
     );
     protected static final ImmutableList<? extends MemoryModuleType<?>> MEMORY_TYPES = ImmutableList.of(
-        MemoryModuleType.LIVING_ENTITIES,
-        MemoryModuleType.VISIBLE_LIVING_ENTITIES,
+        MemoryModuleType.NEAREST_LIVING_ENTITIES,
+        MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES,
         MemoryModuleType.NEAREST_VISIBLE_PLAYER,
         MemoryModuleType.NEAREST_VISIBLE_TARGETABLE_PLAYER,
         MemoryModuleType.LOOK_TARGET,
@@ -133,7 +133,12 @@ public class Zoglin extends Monster implements Enemy, HoglinBase {
     }
 
     private Optional<? extends LivingEntity> findNearestValidAttackTarget() {
-        return this.getBrain().getMemory(MemoryModuleType.VISIBLE_LIVING_ENTITIES).orElse(ImmutableList.of()).stream().filter(Zoglin::isTargetable).findFirst();
+        return this.getBrain()
+            .getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES)
+            .orElse(ImmutableList.of())
+            .stream()
+            .filter(Zoglin::isTargetable)
+            .findFirst();
     }
 
     private static boolean isTargetable(LivingEntity param0x) {

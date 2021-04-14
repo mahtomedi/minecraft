@@ -216,7 +216,9 @@ public abstract class PlayerList {
         this.server.getCustomBossEvents().onPlayerConnect(param1);
         this.sendLevelInfo(param1, var7);
         if (!this.server.getResourcePack().isEmpty()) {
-            param1.sendTexturePack(this.server.getResourcePack(), this.server.getResourcePackHash(), this.server.isResourcePackRequired());
+            param1.sendTexturePack(
+                this.server.getResourcePack(), this.server.getResourcePackHash(), this.server.isResourcePackRequired(), this.server.getResourcePackPrompt()
+            );
         }
 
         for(MobEffectInstance var18 : param1.getActiveEffects()) {

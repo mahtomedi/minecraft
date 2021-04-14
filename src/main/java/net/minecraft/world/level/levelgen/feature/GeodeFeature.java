@@ -5,6 +5,7 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import java.util.List;
 import java.util.Random;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
@@ -36,11 +37,11 @@ public class GeodeFeature extends Feature<GeodeConfiguration> {
         int var4 = var0.minGenOffset;
         int var5 = var0.maxGenOffset;
         List<Pair<BlockPos, Integer>> var6 = Lists.newLinkedList();
-        int var7 = var0.minDistributionPoints + var1.nextInt(var0.maxDistributionPoints - var0.minDistributionPoints);
+        int var7 = var0.distributionPoints.sample(var1);
         WorldgenRandom var8 = new WorldgenRandom(var3.getSeed());
         NormalNoise var9 = NormalNoise.create(var8, -4, 1.0);
         List<BlockPos> var10 = Lists.newLinkedList();
-        double var11 = (double)var7 / (double)var0.maxOuterWallDistance;
+        double var11 = (double)var7 / (double)var0.outerWallDistance.getMaxValue();
         GeodeLayerSettings var12 = var0.geodeLayerSettings;
         GeodeBlockSettings var13 = var0.geodeBlockSettings;
         GeodeCrackSettings var14 = var0.geodeCrackSettings;
@@ -53,9 +54,9 @@ public class GeodeFeature extends Feature<GeodeConfiguration> {
         int var21 = 0;
 
         for(int var22 = 0; var22 < var7; ++var22) {
-            int var23 = var0.minOuterWallDistance + var1.nextInt(var0.maxOuterWallDistance - var0.minOuterWallDistance);
-            int var24 = var0.minOuterWallDistance + var1.nextInt(var0.maxOuterWallDistance - var0.minOuterWallDistance);
-            int var25 = var0.minOuterWallDistance + var1.nextInt(var0.maxOuterWallDistance - var0.minOuterWallDistance);
+            int var23 = var0.outerWallDistance.sample(var1);
+            int var24 = var0.outerWallDistance.sample(var1);
+            int var25 = var0.outerWallDistance.sample(var1);
             BlockPos var26 = var2.offset(var23, var24, var25);
             BlockState var27 = var3.getBlockState(var26);
             if (var27.isAir() || var27.is(Blocks.WATER) || var27.is(Blocks.LAVA)) {
@@ -64,7 +65,7 @@ public class GeodeFeature extends Feature<GeodeConfiguration> {
                 }
             }
 
-            var6.add(Pair.of(var26, var0.minPointOffset + var1.nextInt(var0.maxPointOffset - var0.minPointOffset)));
+            var6.add(Pair.of(var26, var0.pointOffset.sample(var1)));
         }
 
         if (var20) {
@@ -133,7 +134,7 @@ public class GeodeFeature extends Feature<GeodeConfiguration> {
         List<BlockState> var38 = var13.innerPlacements;
 
         for(BlockPos var39 : var30) {
-            BlockState var40 = var38.get(var1.nextInt(var38.size()));
+            BlockState var40 = Util.getRandom(var38, var1);
 
             for(Direction var41 : DIRECTIONS) {
                 if (var40.hasProperty(BlockStateProperties.FACING)) {

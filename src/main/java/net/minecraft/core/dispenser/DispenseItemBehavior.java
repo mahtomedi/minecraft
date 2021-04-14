@@ -420,7 +420,7 @@ public interface DispenseItemBehavior {
                 if (!BoneMealItem.growCrop(param1, var0, var1) && !BoneMealItem.growWaterPlant(param1, var0, var1, null)) {
                     this.setSuccess(false);
                 } else if (!var0.isClientSide) {
-                    var0.levelEvent(2005, var1, 0);
+                    var0.levelEvent(1505, var1, 0);
                 }
 
                 return param1;

@@ -37,7 +37,7 @@ public class BoneMealItem extends Item {
         BlockPos var2 = var1.relative(param0.getClickedFace());
         if (growCrop(param0.getItemInHand(), var0, var1)) {
             if (!var0.isClientSide) {
-                var0.levelEvent(2005, var1, 0);
+                var0.levelEvent(1505, var1, 0);
             }
 
             return InteractionResult.sidedSuccess(var0.isClientSide);
@@ -46,7 +46,7 @@ public class BoneMealItem extends Item {
             boolean var4 = var3.isFaceSturdy(var0, var1, param0.getClickedFace());
             if (var4 && growWaterPlant(param0.getItemInHand(), var0, var2, param0.getClickedFace())) {
                 if (!var0.isClientSide) {
-                    var0.levelEvent(2005, var2, 0);
+                    var0.levelEvent(1505, var2, 0);
                 }
 
                 return InteractionResult.sidedSuccess(var0.isClientSide);

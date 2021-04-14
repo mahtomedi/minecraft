@@ -6,9 +6,10 @@ import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.level.levelgen.feature.configurations.CountConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneDecoratorConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.RangeDecoratorConfiguration;
+import net.minecraft.world.level.levelgen.heightproviders.TrapezoidHeight;
+import net.minecraft.world.level.levelgen.heightproviders.UniformHeight;
 import net.minecraft.world.level.levelgen.placement.ChanceDecoratorConfiguration;
 import net.minecraft.world.level.levelgen.placement.ConfiguredDecorator;
-import net.minecraft.world.level.levelgen.placement.DepthAverageConfiguration;
 import net.minecraft.world.level.levelgen.placement.FeatureDecorator;
 
 public interface Decoratable<R> {
@@ -30,8 +31,12 @@ public interface Decoratable<R> {
         return this.count(UniformInt.of(0, param0));
     }
 
-    default R range(VerticalAnchor param0, VerticalAnchor param1) {
-        return this.range(new RangeDecoratorConfiguration(param0, param1));
+    default R rangeUniform(VerticalAnchor param0, VerticalAnchor param1) {
+        return this.range(new RangeDecoratorConfiguration(UniformHeight.of(param0, param1)));
+    }
+
+    default R rangeTriangle(VerticalAnchor param0, VerticalAnchor param1) {
+        return this.range(new RangeDecoratorConfiguration(TrapezoidHeight.of(param0, param1)));
     }
 
     default R range(RangeDecoratorConfiguration param0) {
@@ -40,9 +45,5 @@ public interface Decoratable<R> {
 
     default R squared() {
         return this.decorated(FeatureDecorator.SQUARE.configured(NoneDecoratorConfiguration.INSTANCE));
-    }
-
-    default R depthAverage(VerticalAnchor param0, int param1) {
-        return this.decorated(FeatureDecorator.DEPTH_AVERAGE.configured(new DepthAverageConfiguration(param0, param1)));
     }
 }

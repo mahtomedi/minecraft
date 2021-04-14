@@ -22,7 +22,9 @@ public class VillagerMakeLove extends Behavior<Villager> {
 
     public VillagerMakeLove() {
         super(
-            ImmutableMap.of(MemoryModuleType.BREED_TARGET, MemoryStatus.VALUE_PRESENT, MemoryModuleType.VISIBLE_LIVING_ENTITIES, MemoryStatus.VALUE_PRESENT),
+            ImmutableMap.of(
+                MemoryModuleType.BREED_TARGET, MemoryStatus.VALUE_PRESENT, MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES, MemoryStatus.VALUE_PRESENT
+            ),
             350,
             350
         );

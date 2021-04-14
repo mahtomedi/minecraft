@@ -28,6 +28,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.ConsoleInput;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerInterface;
@@ -73,6 +74,8 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface 
     private MinecraftServerGui gui;
     @Nullable
     private final TextFilterClient textFilterClient;
+    @Nullable
+    private final Component resourcePackPrompt;
 
     public DedicatedServer(
         Thread param0,
@@ -92,6 +95,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface 
         this.settings = param6;
         this.rconConsoleSource = new RconConsoleSource(this);
         this.textFilterClient = TextFilterClient.createFromConfig(param6.getProperties().textFilteringConfig);
+        this.resourcePackPrompt = parseResourcePackPrompt(param6);
     }
 
     @Override
@@ -591,5 +595,25 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface 
     @Override
     public GameType getForcedGameType() {
         return this.settings.getProperties().forceGameMode ? this.worldData.getGameType() : null;
+    }
+
+    @Nullable
+    private static Component parseResourcePackPrompt(DedicatedServerSettings param0) {
+        String var0 = param0.getProperties().resourcePackPrompt;
+        if (!Strings.isNullOrEmpty(var0)) {
+            try {
+                return Component.Serializer.fromJson(var0);
+            } catch (Exception var3) {
+                LOGGER.warn("Failed to parse resource pack prompt '{}'", var0, var3);
+            }
+        }
+
+        return null;
+    }
+
+    @Nullable
+    @Override
+    public Component getResourcePackPrompt() {
+        return this.resourcePackPrompt;
     }
 }

@@ -174,6 +174,10 @@ public class Explosion {
                             BlockPos var14 = new BlockPos(var10, var11, var12);
                             BlockState var15 = this.level.getBlockState(var14);
                             FluidState var16 = this.level.getFluidState(var14);
+                            if (!this.level.isInWorldBounds(var14)) {
+                                break;
+                            }
+
                             Optional<Float> var17 = this.damageCalculator.getBlockExplosionResistance(this, this.level, var14, var15, var16);
                             if (var17.isPresent()) {
                                 var9 -= (var17.get() + 0.3F) * 0.3F;

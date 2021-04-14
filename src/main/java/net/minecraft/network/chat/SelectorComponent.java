@@ -2,6 +2,7 @@ package net.minecraft.network.chat;
 
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.selector.EntitySelector;
@@ -15,16 +16,18 @@ public class SelectorComponent extends BaseComponent implements ContextAwareComp
     private final String pattern;
     @Nullable
     private final EntitySelector selector;
+    protected final Optional<Component> separator;
 
-    public SelectorComponent(String param0) {
+    public SelectorComponent(String param0, Optional<Component> param1) {
         this.pattern = param0;
+        this.separator = param1;
         EntitySelector var0 = null;
 
         try {
             EntitySelectorParser var1 = new EntitySelectorParser(new StringReader(param0));
             var0 = var1.parse();
-        } catch (CommandSyntaxException var4) {
-            LOGGER.warn("Invalid selector component: {}: {}", param0, var4.getMessage());
+        } catch (CommandSyntaxException var5) {
+            LOGGER.warn("Invalid selector component: {}: {}", param0, var5.getMessage());
         }
 
         this.selector = var0;
@@ -39,11 +42,18 @@ public class SelectorComponent extends BaseComponent implements ContextAwareComp
         return this.selector;
     }
 
+    public Optional<Component> getSeparator() {
+        return this.separator;
+    }
+
     @Override
     public MutableComponent resolve(@Nullable CommandSourceStack param0, @Nullable Entity param1, int param2) throws CommandSyntaxException {
-        return (MutableComponent)(param0 != null && this.selector != null
-            ? EntitySelector.joinNames(this.selector.findEntities(param0))
-            : new TextComponent(""));
+        if (param0 != null && this.selector != null) {
+            Optional<? extends Component> var0 = ComponentUtils.updateForEntity(param0, this.separator, param1, param2);
+            return ComponentUtils.formatList(this.selector.findEntities(param0), var0, Entity::getDisplayName);
+        } else {
+            return new TextComponent("");
+        }
     }
 
     @Override
@@ -52,7 +62,7 @@ public class SelectorComponent extends BaseComponent implements ContextAwareComp
     }
 
     public SelectorComponent plainCopy() {
-        return new SelectorComponent(this.pattern);
+        return new SelectorComponent(this.pattern, this.separator);
     }
 
     @Override

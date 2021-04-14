@@ -1462,7 +1462,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
             }
 
             SignBlockEntity var4 = (SignBlockEntity)var3;
-            if (!var4.isEditable() || var4.getPlayerWhoMayEdit() != this.player) {
+            if (!var4.isEditable() || !this.player.getUUID().equals(var4.getPlayerWhoMayEdit())) {
                 LOGGER.warn("Player {} just tried to change non-editable sign", this.player.getName().getString());
                 return;
             }

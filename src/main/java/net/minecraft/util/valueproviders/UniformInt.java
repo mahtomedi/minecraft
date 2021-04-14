@@ -3,7 +3,6 @@ package net.minecraft.util.valueproviders;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import java.util.Objects;
 import java.util.Random;
 import java.util.function.Function;
 import net.minecraft.util.Mth;
@@ -52,23 +51,6 @@ public class UniformInt extends IntProvider {
     @Override
     public IntProviderType<?> getType() {
         return IntProviderType.UNIFORM;
-    }
-
-    @Override
-    public boolean equals(Object param0) {
-        if (this == param0) {
-            return true;
-        } else if (param0 != null && this.getClass() == param0.getClass()) {
-            UniformInt var0 = (UniformInt)param0;
-            return this.minInclusive == var0.minInclusive && this.maxInclusive == var0.maxInclusive;
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(this.minInclusive, this.maxInclusive);
     }
 
     @Override

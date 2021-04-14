@@ -29,7 +29,7 @@ public class InteractWith<E extends LivingEntity, T extends LivingEntity> extend
                 MemoryStatus.REGISTERED,
                 MemoryModuleType.WALK_TARGET,
                 MemoryStatus.VALUE_ABSENT,
-                MemoryModuleType.VISIBLE_LIVING_ENTITIES,
+                MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES,
                 MemoryStatus.VALUE_PRESENT
             )
         );
@@ -60,7 +60,7 @@ public class InteractWith<E extends LivingEntity, T extends LivingEntity> extend
     }
 
     private boolean seesAtLeastOneValidTarget(E param0) {
-        List<LivingEntity> var0 = param0.getBrain().getMemory(MemoryModuleType.VISIBLE_LIVING_ENTITIES).get();
+        List<LivingEntity> var0 = param0.getBrain().getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES).get();
         return var0.stream().anyMatch(this::isTargetValid);
     }
 
@@ -71,7 +71,7 @@ public class InteractWith<E extends LivingEntity, T extends LivingEntity> extend
     @Override
     protected void start(ServerLevel param0, E param1, long param2) {
         Brain<?> var0 = param1.getBrain();
-        var0.getMemory(MemoryModuleType.VISIBLE_LIVING_ENTITIES)
+        var0.getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES)
             .ifPresent(
                 param2x -> param2x.stream()
                         .filter(param0x -> this.type.equals(param0x.getType()))

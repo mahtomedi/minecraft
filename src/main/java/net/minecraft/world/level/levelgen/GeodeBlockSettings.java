@@ -2,8 +2,8 @@ package net.minecraft.world.level.levelgen;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import java.util.ArrayList;
 import java.util.List;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 
@@ -21,7 +21,11 @@ public class GeodeBlockSettings {
                     BlockStateProvider.CODEC.fieldOf("alternate_inner_layer_provider").forGetter(param0x -> param0x.alternateInnerLayerProvider),
                     BlockStateProvider.CODEC.fieldOf("middle_layer_provider").forGetter(param0x -> param0x.middleLayerProvider),
                     BlockStateProvider.CODEC.fieldOf("outer_layer_provider").forGetter(param0x -> param0x.outerLayerProvider),
-                    BlockState.CODEC.listOf().fieldOf("inner_placements").forGetter(param0x -> new ArrayList<>(param0x.innerPlacements))
+                    BlockState.CODEC
+                        .listOf()
+                        .flatXmap(ExtraCodecs.nonEmptyListCheck(), ExtraCodecs.nonEmptyListCheck())
+                        .fieldOf("inner_placements")
+                        .forGetter(param0x -> param0x.innerPlacements)
                 )
                 .apply(param0, GeodeBlockSettings::new)
     );

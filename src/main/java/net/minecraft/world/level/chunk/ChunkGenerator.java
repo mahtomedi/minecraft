@@ -35,11 +35,14 @@ import net.minecraft.world.level.biome.BiomeGenerationSettings;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.biome.MobSpawnSettings;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.levelgen.BaseStoneSource;
 import net.minecraft.world.level.levelgen.DebugLevelSource;
 import net.minecraft.world.level.levelgen.FlatLevelSource;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
+import net.minecraft.world.level.levelgen.SingleBaseStoneSource;
 import net.minecraft.world.level.levelgen.StructureSettings;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.carver.CarvingContext;
@@ -58,6 +61,7 @@ public abstract class ChunkGenerator {
     private final StructureSettings settings;
     private final long strongholdSeed;
     private final List<ChunkPos> strongholdPositions = Lists.newArrayList();
+    private final BaseStoneSource defaultBaseStoneSource;
 
     public ChunkGenerator(BiomeSource param0, StructureSettings param1) {
         this(param0, param0, param1, 0L);
@@ -68,6 +72,7 @@ public abstract class ChunkGenerator {
         this.runtimeBiomeSource = param1;
         this.settings = param2;
         this.strongholdSeed = param3;
+        this.defaultBaseStoneSource = new SingleBaseStoneSource(Blocks.STONE.defaultBlockState());
     }
 
     private void generateStrongholds() {
@@ -223,7 +228,7 @@ public abstract class ChunkGenerator {
     }
 
     public int getGenDepth() {
-        return 384;
+        return 256;
     }
 
     public WeightedRandomList<MobSpawnSettings.SpawnerData> getMobsAt(Biome param0, StructureFeatureManager param1, MobCategory param2, BlockPos param3) {
@@ -319,6 +324,10 @@ public abstract class ChunkGenerator {
     public boolean hasStronghold(ChunkPos param0) {
         this.generateStrongholds();
         return this.strongholdPositions.contains(param0);
+    }
+
+    public BaseStoneSource getBaseStoneSource() {
+        return this.defaultBaseStoneSource;
     }
 
     static {

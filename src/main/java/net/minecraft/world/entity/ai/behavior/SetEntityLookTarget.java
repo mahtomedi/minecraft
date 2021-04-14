@@ -32,20 +32,24 @@ public class SetEntityLookTarget extends Behavior<LivingEntity> {
     }
 
     public SetEntityLookTarget(Predicate<LivingEntity> param0, float param1) {
-        super(ImmutableMap.of(MemoryModuleType.LOOK_TARGET, MemoryStatus.VALUE_ABSENT, MemoryModuleType.VISIBLE_LIVING_ENTITIES, MemoryStatus.VALUE_PRESENT));
+        super(
+            ImmutableMap.of(
+                MemoryModuleType.LOOK_TARGET, MemoryStatus.VALUE_ABSENT, MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES, MemoryStatus.VALUE_PRESENT
+            )
+        );
         this.predicate = param0;
         this.maxDistSqr = param1 * param1;
     }
 
     @Override
     protected boolean checkExtraStartConditions(ServerLevel param0, LivingEntity param1) {
-        return param1.getBrain().getMemory(MemoryModuleType.VISIBLE_LIVING_ENTITIES).get().stream().anyMatch(this.predicate);
+        return param1.getBrain().getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES).get().stream().anyMatch(this.predicate);
     }
 
     @Override
     protected void start(ServerLevel param0, LivingEntity param1, long param2) {
         Brain<?> var0 = param1.getBrain();
-        var0.getMemory(MemoryModuleType.VISIBLE_LIVING_ENTITIES)
+        var0.getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES)
             .ifPresent(
                 param2x -> param2x.stream()
                         .filter(this.predicate)

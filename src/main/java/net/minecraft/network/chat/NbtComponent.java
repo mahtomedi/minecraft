@@ -1,10 +1,12 @@
 package net.minecraft.network.chat;
 
-import com.google.common.base.Joiner;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.datafixers.DataFixUtils;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.advancements.critereon.NbtPredicate;
@@ -26,8 +28,8 @@ import org.apache.logging.log4j.Logger;
 
 public abstract class NbtComponent extends BaseComponent implements ContextAwareComponent {
     private static final Logger LOGGER = LogManager.getLogger();
-    private static final String SEPARATOR = ", ";
     protected final boolean interpreting;
+    protected final Optional<Component> separator;
     protected final String nbtPathPattern;
     @Nullable
     protected final NbtPathArgument.NbtPath compiledNbtPath;
@@ -41,14 +43,15 @@ public abstract class NbtComponent extends BaseComponent implements ContextAware
         }
     }
 
-    public NbtComponent(String param0, boolean param1) {
-        this(param0, compileNbtPath(param0), param1);
+    public NbtComponent(String param0, boolean param1, Optional<Component> param2) {
+        this(param0, compileNbtPath(param0), param1, param2);
     }
 
-    protected NbtComponent(String param0, @Nullable NbtPathArgument.NbtPath param1, boolean param2) {
+    protected NbtComponent(String param0, @Nullable NbtPathArgument.NbtPath param1, boolean param2, Optional<Component> param3) {
         this.nbtPathPattern = param0;
         this.compiledNbtPath = param1;
         this.interpreting = param2;
+        this.separator = param3;
     }
 
     protected abstract Stream<CompoundTag> getData(CommandSourceStack var1) throws CommandSyntaxException;
@@ -71,17 +74,28 @@ public abstract class NbtComponent extends BaseComponent implements ContextAware
                     return Stream.empty();
                 }
             }).map(Tag::getAsString);
-            return (MutableComponent)(this.interpreting
-                ? var0.flatMap(param3 -> {
+            if (this.interpreting) {
+                Component var1 = DataFixUtils.orElse(
+                    ComponentUtils.updateForEntity(param0, this.separator, param1, param2), ComponentUtils.DEFAULT_NO_STYLE_SEPARATOR
+                );
+                return var0.flatMap(param3 -> {
                     try {
-                        MutableComponent var1x = Component.Serializer.fromJson(param3);
-                        return Stream.of(ComponentUtils.updateForEntity(param0, var1x, param1, param2));
-                    } catch (Exception var5) {
-                        LOGGER.warn("Failed to parse component: {}", param3, var5);
+                        MutableComponent var0x = Component.Serializer.fromJson(param3);
+                        return Stream.of(ComponentUtils.updateForEntity(param0, var0x, param1, param2));
+                    } catch (Exception var5x) {
+                        LOGGER.warn("Failed to parse component: {}", param3, var5x);
                         return Stream.of();
                     }
-                }).reduce((param0x, param1x) -> param0x.append(", ").append(param1x)).orElse(new TextComponent(""))
-                : new TextComponent(Joiner.on(", ").join(var0.iterator())));
+                }).reduce((param1x, param2x) -> param1x.append(var1).append(param2x)).orElseGet(() -> new TextComponent(""));
+            } else {
+                return ComponentUtils.updateForEntity(param0, this.separator, param1, param2)
+                    .map(
+                        param1x -> var0.map(param0x -> new TextComponent(param0x))
+                                .reduce((param1xx, param2x) -> param1xx.append(param1x).append(param2x))
+                                .orElseGet(() -> new TextComponent(""))
+                    )
+                    .orElseGet(() -> new TextComponent(var0.collect(Collectors.joining(", "))));
+            }
         } else {
             return new TextComponent("");
         }
@@ -92,8 +106,8 @@ public abstract class NbtComponent extends BaseComponent implements ContextAware
         @Nullable
         private final Coordinates compiledPos;
 
-        public BlockNbtComponent(String param0, boolean param1, String param2) {
-            super(param0, param1);
+        public BlockNbtComponent(String param0, boolean param1, String param2, Optional<Component> param3) {
+            super(param0, param1, param3);
             this.posPattern = param2;
             this.compiledPos = this.compilePos(this.posPattern);
         }
@@ -107,8 +121,10 @@ public abstract class NbtComponent extends BaseComponent implements ContextAware
             }
         }
 
-        private BlockNbtComponent(String param0, @Nullable NbtPathArgument.NbtPath param1, boolean param2, String param3, @Nullable Coordinates param4) {
-            super(param0, param1, param2);
+        private BlockNbtComponent(
+            String param0, @Nullable NbtPathArgument.NbtPath param1, boolean param2, String param3, @Nullable Coordinates param4, Optional<Component> param5
+        ) {
+            super(param0, param1, param2, param5);
             this.posPattern = param3;
             this.compiledPos = param4;
         }
@@ -119,7 +135,9 @@ public abstract class NbtComponent extends BaseComponent implements ContextAware
         }
 
         public NbtComponent.BlockNbtComponent plainCopy() {
-            return new NbtComponent.BlockNbtComponent(this.nbtPathPattern, this.compiledNbtPath, this.interpreting, this.posPattern, this.compiledPos);
+            return new NbtComponent.BlockNbtComponent(
+                this.nbtPathPattern, this.compiledNbtPath, this.interpreting, this.posPattern, this.compiledPos, this.separator
+            );
         }
 
         @Override
@@ -171,8 +189,8 @@ public abstract class NbtComponent extends BaseComponent implements ContextAware
         @Nullable
         private final EntitySelector compiledSelector;
 
-        public EntityNbtComponent(String param0, boolean param1, String param2) {
-            super(param0, param1);
+        public EntityNbtComponent(String param0, boolean param1, String param2, Optional<Component> param3) {
+            super(param0, param1, param3);
             this.selectorPattern = param2;
             this.compiledSelector = compileSelector(param2);
         }
@@ -187,8 +205,10 @@ public abstract class NbtComponent extends BaseComponent implements ContextAware
             }
         }
 
-        private EntityNbtComponent(String param0, @Nullable NbtPathArgument.NbtPath param1, boolean param2, String param3, @Nullable EntitySelector param4) {
-            super(param0, param1, param2);
+        private EntityNbtComponent(
+            String param0, @Nullable NbtPathArgument.NbtPath param1, boolean param2, String param3, @Nullable EntitySelector param4, Optional<Component> param5
+        ) {
+            super(param0, param1, param2, param5);
             this.selectorPattern = param3;
             this.compiledSelector = param4;
         }
@@ -199,7 +219,7 @@ public abstract class NbtComponent extends BaseComponent implements ContextAware
 
         public NbtComponent.EntityNbtComponent plainCopy() {
             return new NbtComponent.EntityNbtComponent(
-                this.nbtPathPattern, this.compiledNbtPath, this.interpreting, this.selectorPattern, this.compiledSelector
+                this.nbtPathPattern, this.compiledNbtPath, this.interpreting, this.selectorPattern, this.compiledSelector, this.separator
             );
         }
 
@@ -246,13 +266,13 @@ public abstract class NbtComponent extends BaseComponent implements ContextAware
     public static class StorageNbtComponent extends NbtComponent {
         private final ResourceLocation id;
 
-        public StorageNbtComponent(String param0, boolean param1, ResourceLocation param2) {
-            super(param0, param1);
+        public StorageNbtComponent(String param0, boolean param1, ResourceLocation param2, Optional<Component> param3) {
+            super(param0, param1, param3);
             this.id = param2;
         }
 
-        public StorageNbtComponent(String param0, @Nullable NbtPathArgument.NbtPath param1, boolean param2, ResourceLocation param3) {
-            super(param0, param1, param2);
+        public StorageNbtComponent(String param0, @Nullable NbtPathArgument.NbtPath param1, boolean param2, ResourceLocation param3, Optional<Component> param4) {
+            super(param0, param1, param2, param4);
             this.id = param3;
         }
 
@@ -261,7 +281,7 @@ public abstract class NbtComponent extends BaseComponent implements ContextAware
         }
 
         public NbtComponent.StorageNbtComponent plainCopy() {
-            return new NbtComponent.StorageNbtComponent(this.nbtPathPattern, this.compiledNbtPath, this.interpreting, this.id);
+            return new NbtComponent.StorageNbtComponent(this.nbtPathPattern, this.compiledNbtPath, this.interpreting, this.id, this.separator);
         }
 
         @Override

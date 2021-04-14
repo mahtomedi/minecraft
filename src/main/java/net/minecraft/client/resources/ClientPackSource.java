@@ -19,7 +19,10 @@ import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.ProgressScreen;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.FilePackResources;
@@ -129,13 +132,37 @@ public class ClientPackSource implements RepositorySource {
                             ? Util.failedFuture(new RuntimeException("Hash check failure for file " + var2 + ", see log"))
                             : this.setServerPack(var2, PackSource.SERVER)
                 )
-                .whenComplete((param1x, param2) -> {
-                    if (param2 != null) {
-                        LOGGER.warn("Pack application failed: {}, deleting file {}", param2.getMessage(), var2);
-                        deleteQuietly(var2);
+                .whenComplete(
+                    (param1x, param2) -> {
+                        if (param2 != null) {
+                            LOGGER.warn("Pack application failed: {}, deleting file {}", param2.getMessage(), var2);
+                            deleteQuietly(var2);
+                            Minecraft var0x = Minecraft.getInstance();
+                            var0x.execute(
+                                () -> var0x.setScreen(
+                                        new ConfirmScreen(
+                                            param1xx -> {
+                                                if (param1xx) {
+                                                    var0x.setScreen(null);
+                                                } else {
+                                                    ClientPacketListener var0xx = var0x.getConnection();
+                                                    if (var0xx != null) {
+                                                        var0xx.getConnection().disconnect(new TranslatableComponent("connect.aborted"));
+                                                    }
+                                                }
+                    
+                                            },
+                                            new TranslatableComponent("multiplayer.texturePrompt.failure.line1"),
+                                            new TranslatableComponent("multiplayer.texturePrompt.failure.line2"),
+                                            CommonComponents.GUI_PROCEED,
+                                            new TranslatableComponent("menu.disconnect")
+                                        )
+                                    )
+                            );
+                        }
+        
                     }
-    
-                });
+                );
             var13 = this.currentDownload;
         } finally {
             this.downloadLock.unlock();

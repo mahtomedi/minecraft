@@ -2943,6 +2943,10 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
             case 1504:
                 PointedDripstoneBlock.spawnDripParticle(this.level, param2, this.level.getBlockState(param2));
                 break;
+            case 1505:
+                BoneMealItem.addGrowthParticles(this.level, param2, param3);
+                this.level.playLocalSound(param2, SoundEvents.BONE_MEAL_USE, SoundSource.BLOCKS, 1.0F, 1.0F, false);
+                break;
             case 2000:
                 Direction var1 = Direction.from3DDataValue(param3);
                 int var2 = var1.getStepX();

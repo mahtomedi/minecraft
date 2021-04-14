@@ -68,7 +68,7 @@ public class EntityRenderers {
     }
 
     static {
-        register(EntityType.AREA_EFFECT_CLOUD, AreaEffectCloudRenderer::new);
+        register(EntityType.AREA_EFFECT_CLOUD, NoopRenderer::new);
         register(EntityType.ARMOR_STAND, ArmorStandRenderer::new);
         register(EntityType.ARROW, TippableArrowRenderer::new);
         register(EntityType.AXOLOTL, AxolotlRenderer::new);
@@ -125,6 +125,7 @@ public class EntityRenderers {
         register(EntityType.LLAMA, param0 -> new LlamaRenderer(param0, ModelLayers.LLAMA));
         register(EntityType.LLAMA_SPIT, LlamaSpitRenderer::new);
         register(EntityType.MAGMA_CUBE, MagmaCubeRenderer::new);
+        register(EntityType.MARKER, NoopRenderer::new);
         register(EntityType.MINECART, param0 -> new MinecartRenderer<>(param0, ModelLayers.MINECART));
         register(EntityType.MOOSHROOM, MushroomCowRenderer::new);
         register(EntityType.MULE, param0 -> new ChestedHorseRenderer<>(param0, 0.92F, ModelLayers.MULE));

@@ -959,7 +959,7 @@ public class ServerPlayer extends Player {
 
     @Override
     public void openTextEdit(SignBlockEntity param0) {
-        param0.setAllowedPlayerEditor(this);
+        param0.setAllowedPlayerEditor(this.getUUID());
         this.connection.send(new ClientboundBlockUpdatePacket(this.level, param0.getBlockPos()));
         this.connection.send(new ClientboundOpenSignEditorPacket(param0.getBlockPos()));
     }
@@ -1328,8 +1328,8 @@ public class ServerPlayer extends Player {
         }
     }
 
-    public void sendTexturePack(String param0, String param1, boolean param2) {
-        this.connection.send(new ClientboundResourcePackPacket(param0, param1, param2));
+    public void sendTexturePack(String param0, String param1, boolean param2, @Nullable Component param3) {
+        this.connection.send(new ClientboundResourcePackPacket(param0, param1, param2, param3));
     }
 
     @Override

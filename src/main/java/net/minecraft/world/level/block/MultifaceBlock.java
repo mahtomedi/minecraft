@@ -81,7 +81,13 @@ public class MultifaceBlock extends Block {
 
     @Override
     public BlockState updateShape(BlockState param0, Direction param1, BlockState param2, LevelAccessor param3, BlockPos param4, BlockPos param5) {
-        return hasFace(param0, param1) && !canAttachTo(param3, param1, param5, param2) ? removeFace(param0, getFaceProperty(param1)) : param0;
+        if (hasAnyFace(param0)) {
+            return hasFace(param0, param1) && !canAttachTo(param3, param1, param5, param2) ? removeFace(param0, getFaceProperty(param1)) : param0;
+        } else {
+            return param0.hasProperty(BlockStateProperties.WATERLOGGED) && param0.getValue(BlockStateProperties.WATERLOGGED)
+                ? Blocks.WATER.defaultBlockState()
+                : Blocks.AIR.defaultBlockState();
+        }
     }
 
     @Override
@@ -138,9 +144,9 @@ public class MultifaceBlock extends Block {
 
                 var0 = param0;
             } else if (this.isWaterloggable() && param0.getFluidState().isSourceOfType(Fluids.WATER)) {
-                var0 = this.defaultBlockState().setValue(BlockStateProperties.WATERLOGGED, Boolean.valueOf(true));
+                var0 = getEmptyState(this).setValue(BlockStateProperties.WATERLOGGED, Boolean.valueOf(true));
             } else {
-                var0 = this.defaultBlockState();
+                var0 = getEmptyState(this);
             }
 
             BlockPos var3 = param2.relative(param3);
@@ -269,16 +275,22 @@ public class MultifaceBlock extends Block {
         return PROPERTY_BY_DIRECTION.get(param0);
     }
 
-    private static BlockState getDefaultMultifaceState(StateDefinition<Block, BlockState> param0) {
-        BlockState var0 = param0.any();
+    public static BlockState getEmptyState(Block param0) {
+        return getMultifaceStateWithAllFaces(param0.defaultBlockState(), false);
+    }
 
-        for(BooleanProperty var1 : PROPERTY_BY_DIRECTION.values()) {
-            if (var0.hasProperty(var1)) {
-                var0 = var0.setValue(var1, Boolean.valueOf(false));
+    private static BlockState getDefaultMultifaceState(StateDefinition<Block, BlockState> param0) {
+        return getMultifaceStateWithAllFaces(param0.any(), true);
+    }
+
+    private static BlockState getMultifaceStateWithAllFaces(BlockState param0, boolean param1) {
+        for(BooleanProperty var0 : PROPERTY_BY_DIRECTION.values()) {
+            if (param0.hasProperty(var0)) {
+                param0 = param0.setValue(var0, Boolean.valueOf(param1));
             }
         }
 
-        return var0;
+        return param0;
     }
 
     private static VoxelShape calculateMultifaceShape(BlockState param0x) {

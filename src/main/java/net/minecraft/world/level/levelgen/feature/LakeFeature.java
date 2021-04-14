@@ -9,6 +9,7 @@ import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.BaseStoneSource;
 import net.minecraft.world.level.levelgen.feature.configurations.BlockStateConfiguration;
 import net.minecraft.world.level.material.Material;
 
@@ -118,22 +119,25 @@ public class LakeFeature extends Feature<BlockStateConfiguration> {
                 }
 
                 if (var3.state.getMaterial() == Material.LAVA) {
-                    for(int var33 = 0; var33 < 16; ++var33) {
-                        for(int var34 = 0; var34 < 16; ++var34) {
-                            for(int var35 = 0; var35 < 8; ++var35) {
-                                boolean var36 = !var4[(var33 * 16 + var34) * 8 + var35]
+                    BaseStoneSource var33 = param0.chunkGenerator().getBaseStoneSource();
+
+                    for(int var34 = 0; var34 < 16; ++var34) {
+                        for(int var35 = 0; var35 < 16; ++var35) {
+                            for(int var36 = 0; var36 < 8; ++var36) {
+                                boolean var37 = !var4[(var34 * 16 + var35) * 8 + var36]
                                     && (
-                                        var33 < 15 && var4[((var33 + 1) * 16 + var34) * 8 + var35]
-                                            || var33 > 0 && var4[((var33 - 1) * 16 + var34) * 8 + var35]
-                                            || var34 < 15 && var4[(var33 * 16 + var34 + 1) * 8 + var35]
-                                            || var34 > 0 && var4[(var33 * 16 + (var34 - 1)) * 8 + var35]
-                                            || var35 < 7 && var4[(var33 * 16 + var34) * 8 + var35 + 1]
-                                            || var35 > 0 && var4[(var33 * 16 + var34) * 8 + (var35 - 1)]
+                                        var34 < 15 && var4[((var34 + 1) * 16 + var35) * 8 + var36]
+                                            || var34 > 0 && var4[((var34 - 1) * 16 + var35) * 8 + var36]
+                                            || var35 < 15 && var4[(var34 * 16 + var35 + 1) * 8 + var36]
+                                            || var35 > 0 && var4[(var34 * 16 + (var35 - 1)) * 8 + var36]
+                                            || var36 < 7 && var4[(var34 * 16 + var35) * 8 + var36 + 1]
+                                            || var36 > 0 && var4[(var34 * 16 + var35) * 8 + (var36 - 1)]
                                     );
-                                if (var36
-                                    && (var35 < 4 || var2.nextInt(2) != 0)
-                                    && var1.getBlockState(var0.offset(var33, var35, var34)).getMaterial().isSolid()) {
-                                    var1.setBlock(var0.offset(var33, var35, var34), Blocks.STONE.defaultBlockState(), 2);
+                                if (var37
+                                    && (var36 < 4 || var2.nextInt(2) != 0)
+                                    && var1.getBlockState(var0.offset(var34, var36, var35)).getMaterial().isSolid()) {
+                                    BlockPos var38 = var0.offset(var34, var36, var35);
+                                    var1.setBlock(var38, var33.getBaseStone(var38), 2);
                                 }
                             }
                         }
@@ -141,12 +145,12 @@ public class LakeFeature extends Feature<BlockStateConfiguration> {
                 }
 
                 if (var3.state.getMaterial() == Material.WATER) {
-                    for(int var37 = 0; var37 < 16; ++var37) {
-                        for(int var38 = 0; var38 < 16; ++var38) {
-                            int var39 = 4;
-                            BlockPos var40 = var0.offset(var37, 4, var38);
-                            if (var1.getBiome(var40).shouldFreeze(var1, var40, false)) {
-                                var1.setBlock(var40, Blocks.ICE.defaultBlockState(), 2);
+                    for(int var39 = 0; var39 < 16; ++var39) {
+                        for(int var40 = 0; var40 < 16; ++var40) {
+                            int var41 = 4;
+                            BlockPos var42 = var0.offset(var39, 4, var40);
+                            if (var1.getBiome(var42).shouldFreeze(var1, var42, false)) {
+                                var1.setBlock(var42, Blocks.ICE.defaultBlockState(), 2);
                             }
                         }
                     }

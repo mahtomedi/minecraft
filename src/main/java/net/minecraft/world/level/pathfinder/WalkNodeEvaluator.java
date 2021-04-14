@@ -242,7 +242,8 @@ public class WalkNodeEvaluator extends NodeEvaluator {
                     && param3 > 0
                     && var3 != BlockPathTypes.FENCE
                     && var3 != BlockPathTypes.UNPASSABLE_RAIL
-                    && var3 != BlockPathTypes.TRAPDOOR) {
+                    && var3 != BlockPathTypes.TRAPDOOR
+                    && var3 != BlockPathTypes.POWDER_SNOW) {
                     var0 = this.getLandNode(param0, param1 + 1, param2, param3 - 1, param4, param5, param6);
                     if (var0 != null && (var0.type == BlockPathTypes.OPEN || var0.type == BlockPathTypes.WALKABLE) && this.mob.getBbWidth() < 1.0F) {
                         double var6 = (double)(param0 - param5.getStepX()) + 0.5;
@@ -518,8 +519,10 @@ public class WalkNodeEvaluator extends NodeEvaluator {
         Material var2 = var0.getMaterial();
         if (var0.isAir()) {
             return BlockPathTypes.OPEN;
-        } else if (var0.is(BlockTags.TRAPDOORS) || var0.is(Blocks.LILY_PAD) || var0.is(Blocks.POWDER_SNOW)) {
+        } else if (var0.is(BlockTags.TRAPDOORS) || var0.is(Blocks.LILY_PAD)) {
             return BlockPathTypes.TRAPDOOR;
+        } else if (var0.is(Blocks.POWDER_SNOW)) {
+            return BlockPathTypes.POWDER_SNOW;
         } else if (var0.is(Blocks.CACTUS)) {
             return BlockPathTypes.DAMAGE_CACTUS;
         } else if (var0.is(Blocks.SWEET_BERRY_BUSH)) {

@@ -52,7 +52,9 @@ public class RecipeProvider implements DataProvider {
     private static final ImmutableList<ItemLike> COAL_SMELTABLES = ImmutableList.of(Items.COAL_ORE, Items.DEEPSLATE_COAL_ORE);
     private static final ImmutableList<ItemLike> IRON_SMELTABLES = ImmutableList.of(Items.IRON_ORE, Items.DEEPSLATE_IRON_ORE, Items.RAW_IRON);
     private static final ImmutableList<ItemLike> COPPER_SMELTABLES = ImmutableList.of(Items.COPPER_ORE, Items.DEEPSLATE_COPPER_ORE, Items.RAW_COPPER);
-    private static final ImmutableList<ItemLike> GOLD_SMELTABLES = ImmutableList.of(Items.GOLD_ORE, Items.DEEPSLATE_GOLD_ORE, Items.RAW_GOLD);
+    private static final ImmutableList<ItemLike> GOLD_SMELTABLES = ImmutableList.of(
+        Items.GOLD_ORE, Items.DEEPSLATE_GOLD_ORE, Items.NETHER_GOLD_ORE, Items.RAW_GOLD
+    );
     private static final ImmutableList<ItemLike> DIAMOND_SMELTABLES = ImmutableList.of(Items.DIAMOND_ORE, Items.DEEPSLATE_DIAMOND_ORE);
     private static final ImmutableList<ItemLike> LAPIS_SMELTABLES = ImmutableList.of(Items.LAPIS_ORE, Items.DEEPSLATE_LAPIS_ORE);
     private static final ImmutableList<ItemLike> REDSTONE_SMELTABLES = ImmutableList.of(Items.REDSTONE_ORE, Items.DEEPSLATE_REDSTONE_ORE);
@@ -2315,6 +2317,9 @@ public class RecipeProvider implements DataProvider {
         oreSmelting(param0, LAPIS_SMELTABLES, Items.LAPIS_LAZULI, 0.2F, 200);
         oreSmelting(param0, REDSTONE_SMELTABLES, Items.REDSTONE, 0.7F, 200);
         oreSmelting(param0, EMERALD_SMELTABLES, Items.EMERALD, 1.0F, 200);
+        compactMaterialRecipes(param0, Items.RAW_IRON, Items.RAW_IRON_BLOCK);
+        compactMaterialRecipes(param0, Items.RAW_COPPER, Items.RAW_COPPER_BLOCK);
+        compactMaterialRecipes(param0, Items.RAW_GOLD, Items.RAW_GOLD_BLOCK);
         SimpleCookingRecipeBuilder.smelting(Ingredient.of(ItemTags.SAND), Blocks.GLASS.asItem(), 0.1F, 200)
             .unlockedBy("has_sand", has(ItemTags.SAND))
             .save(param0);
@@ -3262,6 +3267,17 @@ public class RecipeProvider implements DataProvider {
 
     private static void smeltingResultFromBase(Consumer<FinishedRecipe> param0, ItemLike param1, ItemLike param2) {
         SimpleCookingRecipeBuilder.smelting(Ingredient.of(param2), param1, 0.1F, 200).unlockedBy(getHasName(param2), has(param2)).save(param0);
+    }
+
+    private static void compactMaterialRecipes(Consumer<FinishedRecipe> param0, ItemLike param1, ItemLike param2) {
+        ShapelessRecipeBuilder.shapeless(param1, 9).requires(param2).unlockedBy(getHasName(param2), has(param2)).save(param0);
+        ShapedRecipeBuilder.shaped(param2)
+            .define('#', param1)
+            .pattern("###")
+            .pattern("###")
+            .pattern("###")
+            .unlockedBy(getHasName(param1), has(param1))
+            .save(param0);
     }
 
     private static void cookRecipes(Consumer<FinishedRecipe> param0, String param1, SimpleCookingSerializer<?> param2, int param3) {
