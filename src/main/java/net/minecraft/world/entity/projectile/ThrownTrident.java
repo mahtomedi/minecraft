@@ -160,7 +160,7 @@ public class ThrownTrident extends AbstractArrow {
 
     @Override
     protected boolean tryPickup(Player param0) {
-        return super.tryPickup(param0) || this.isNoPhysics() && this.ownedBy(param0);
+        return super.tryPickup(param0) || this.isNoPhysics() && this.ownedBy(param0) && param0.getInventory().add(this.getPickupItem());
     }
 
     @Override

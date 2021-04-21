@@ -9,6 +9,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.levelgen.Aquifer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -29,7 +30,7 @@ public class CanyonWorldCarver extends WorldCarver<CanyonCarverConfiguration> {
         ChunkAccess param2,
         Function<BlockPos, Biome> param3,
         Random param4,
-        int param5,
+        Aquifer param5,
         ChunkPos param6,
         BitSet param7
     ) {
@@ -53,7 +54,7 @@ public class CanyonWorldCarver extends WorldCarver<CanyonCarverConfiguration> {
         ChunkAccess param2,
         Function<BlockPos, Biome> param3,
         long param4,
-        int param5,
+        Aquifer param5,
         double param6,
         double param7,
         double param8,

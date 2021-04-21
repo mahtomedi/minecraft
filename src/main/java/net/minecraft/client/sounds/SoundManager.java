@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.annotation.Nullable;
+import net.minecraft.SharedConstants;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Options;
 import net.minecraft.client.resources.language.I18n;
@@ -96,13 +97,14 @@ public class SoundManager extends SimplePreparableReloadListener<SoundManager.Pr
 
     protected void apply(SoundManager.Preparations param0, ResourceManager param1, ProfilerFiller param2) {
         param0.apply(this.registry, this.soundEngine);
-
-        for(ResourceLocation var0 : this.registry.keySet()) {
-            WeighedSoundEvents var1 = this.registry.get(var0);
-            if (var1.getSubtitle() instanceof TranslatableComponent) {
-                String var2 = ((TranslatableComponent)var1.getSubtitle()).getKey();
-                if (!I18n.exists(var2)) {
-                    LOGGER.debug("Missing subtitle {} for event: {}", var2, var0);
+        if (SharedConstants.IS_RUNNING_IN_IDE) {
+            for(ResourceLocation var0 : this.registry.keySet()) {
+                WeighedSoundEvents var1 = this.registry.get(var0);
+                if (var1.getSubtitle() instanceof TranslatableComponent) {
+                    String var2 = ((TranslatableComponent)var1.getSubtitle()).getKey();
+                    if (!I18n.exists(var2) && Registry.SOUND_EVENT.containsKey(var0)) {
+                        throw new IllegalArgumentException(String.format("Missing translation %s for sound event: %s", var2, var0));
+                    }
                 }
             }
         }

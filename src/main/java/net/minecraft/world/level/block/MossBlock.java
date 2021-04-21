@@ -23,7 +23,7 @@ public class MossBlock extends Block implements BonemealableBlock {
 
     @Override
     public boolean isBonemealSuccess(Level param0, Random param1, BlockPos param2, BlockState param3) {
-        return param0.getBlockState(param2.above()).isAir();
+        return true;
     }
 
     @Override

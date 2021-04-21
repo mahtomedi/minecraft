@@ -1,6 +1,7 @@
 package net.minecraft.world.level.levelgen;
 
 import net.minecraft.util.Mth;
+import net.minecraft.world.level.ChunkPos;
 
 public class NoiseInterpolator {
     private double[][] slice0;
@@ -26,15 +27,15 @@ public class NoiseInterpolator {
     private final int firstCellXInChunk;
     private final int firstCellZInChunk;
 
-    public NoiseInterpolator(int param0, int param1, int param2, int param3, int param4, int param5, NoiseInterpolator.NoiseColumnFiller param6) {
+    public NoiseInterpolator(int param0, int param1, int param2, ChunkPos param3, int param4, NoiseInterpolator.NoiseColumnFiller param5) {
         this.cellCountY = param1;
         this.cellCountZ = param2;
-        this.cellNoiseMinY = param5;
-        this.noiseColumnFiller = param6;
+        this.cellNoiseMinY = param4;
+        this.noiseColumnFiller = param5;
         this.slice0 = allocateSlice(param1, param2);
         this.slice1 = allocateSlice(param1, param2);
-        this.firstCellXInChunk = param3 * param0;
-        this.firstCellZInChunk = param4 * param2;
+        this.firstCellXInChunk = param3.x * param0;
+        this.firstCellZInChunk = param3.z * param2;
     }
 
     private static double[][] allocateSlice(int param0, int param1) {

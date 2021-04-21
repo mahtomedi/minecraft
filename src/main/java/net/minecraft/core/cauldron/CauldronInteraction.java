@@ -135,8 +135,10 @@ public interface CauldronInteraction {
                 return InteractionResult.PASS;
             } else {
                 if (!param1.isClientSide) {
+                    Item var0 = param5.getItem();
                     param3.setItemInHand(param4, ItemUtils.createFilledResult(param5, param3, new ItemStack(Items.GLASS_BOTTLE)));
                     param3.awardStat(Stats.USE_CAULDRON);
+                    param3.awardStat(Stats.ITEM_USED.get(var0));
                     param1.setBlockAndUpdate(param2, Blocks.WATER_CAULDRON.defaultBlockState());
                     param1.playSound(null, param2, SoundEvents.BOTTLE_EMPTY, SoundSource.BLOCKS, 1.0F, 1.0F);
                     param1.gameEvent(null, GameEvent.FLUID_PLACE, param2);
@@ -162,8 +164,10 @@ public interface CauldronInteraction {
         );
         WATER.put(Items.GLASS_BOTTLE, (param0, param1, param2, param3, param4, param5) -> {
             if (!param1.isClientSide) {
+                Item var0 = param5.getItem();
                 param3.setItemInHand(param4, ItemUtils.createFilledResult(param5, param3, PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.WATER)));
                 param3.awardStat(Stats.USE_CAULDRON);
+                param3.awardStat(Stats.ITEM_USED.get(var0));
                 LayeredCauldronBlock.lowerFillLevel(param0, param1, param2);
                 param1.playSound(null, param2, SoundEvents.BOTTLE_FILL, SoundSource.BLOCKS, 1.0F, 1.0F);
                 param1.gameEvent(null, GameEvent.FLUID_PICKUP, param2);
@@ -268,8 +272,10 @@ public interface CauldronInteraction {
             return InteractionResult.PASS;
         } else {
             if (!param1.isClientSide) {
+                Item var0 = param5.getItem();
                 param3.setItemInHand(param4, ItemUtils.createFilledResult(param5, param3, param6));
                 param3.awardStat(Stats.USE_CAULDRON);
+                param3.awardStat(Stats.ITEM_USED.get(var0));
                 param1.setBlockAndUpdate(param2, Blocks.CAULDRON.defaultBlockState());
                 param1.playSound(null, param2, param8, SoundSource.BLOCKS, 1.0F, 1.0F);
                 param1.gameEvent(null, GameEvent.FLUID_PICKUP, param2);
@@ -283,8 +289,10 @@ public interface CauldronInteraction {
         Level param0, BlockPos param1, Player param2, InteractionHand param3, ItemStack param4, BlockState param5, SoundEvent param6
     ) {
         if (!param0.isClientSide) {
+            Item var0 = param4.getItem();
             param2.setItemInHand(param3, ItemUtils.createFilledResult(param4, param2, new ItemStack(Items.BUCKET)));
             param2.awardStat(Stats.FILL_CAULDRON);
+            param2.awardStat(Stats.ITEM_USED.get(var0));
             param0.setBlockAndUpdate(param1, param5);
             param0.playSound(null, param1, param6, SoundSource.BLOCKS, 1.0F, 1.0F);
             param0.gameEvent(null, GameEvent.FLUID_PLACE, param1);

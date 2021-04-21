@@ -22,6 +22,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.progress.ChunkProgressListenerFactory;
 import net.minecraft.server.packs.repository.PackRepository;
 import net.minecraft.server.players.GameProfileCache;
+import net.minecraft.stats.Stats;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.Snooper;
 import net.minecraft.world.level.GameType;
@@ -89,7 +90,9 @@ public class IntegratedServer extends MinecraftServer {
             var1.pop();
         }
 
-        if (!this.paused) {
+        if (this.paused) {
+            this.tickPaused();
+        } else {
             super.tickServer(param0);
             int var2 = Math.max(2, this.minecraft.options.renderDistance + -1);
             if (var2 != this.getPlayerList().getViewDistance()) {
@@ -98,6 +101,13 @@ public class IntegratedServer extends MinecraftServer {
             }
 
         }
+    }
+
+    private void tickPaused() {
+        for(ServerPlayer var0 : this.getPlayerList().getPlayers()) {
+            var0.awardStat(Stats.TOTAL_WORLD_TIME);
+        }
+
     }
 
     @Override

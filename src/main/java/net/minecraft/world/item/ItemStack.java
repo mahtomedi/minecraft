@@ -206,7 +206,7 @@ public final class ItemStack {
         } else {
             Item var3 = this.getItem();
             InteractionResult var4 = var3.useOn(param0);
-            if (var0 != null && var4.consumesAction()) {
+            if (var0 != null && var4.shouldAwardStats()) {
                 var0.awardStat(Stats.ITEM_USED.get(var3));
             }
 

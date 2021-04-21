@@ -6,7 +6,6 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import java.util.EnumSet;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.BlockGetter;
@@ -330,20 +329,19 @@ public class FlyNodeEvaluator extends WalkNodeEvaluator {
         BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos();
         BlockPathTypes var1 = getBlockPathTypeRaw(param0, var0.set(param1, param2, param3));
         if (var1 == BlockPathTypes.OPEN && param2 >= param0.getMinBuildHeight() + 1) {
-            BlockState var2 = param0.getBlockState(var0.set(param1, param2 - 1, param3));
-            BlockPathTypes var3 = getBlockPathTypeRaw(param0, var0.set(param1, param2 - 1, param3));
-            if (var3 == BlockPathTypes.DAMAGE_FIRE || var2.is(Blocks.MAGMA_BLOCK) || var3 == BlockPathTypes.LAVA || var2.is(BlockTags.CAMPFIRES)) {
+            BlockPathTypes var2 = getBlockPathTypeRaw(param0, var0.set(param1, param2 - 1, param3));
+            if (var2 == BlockPathTypes.DAMAGE_FIRE || var2 == BlockPathTypes.LAVA) {
                 var1 = BlockPathTypes.DAMAGE_FIRE;
-            } else if (var3 == BlockPathTypes.DAMAGE_CACTUS) {
+            } else if (var2 == BlockPathTypes.DAMAGE_CACTUS) {
                 var1 = BlockPathTypes.DAMAGE_CACTUS;
-            } else if (var3 == BlockPathTypes.DAMAGE_OTHER) {
+            } else if (var2 == BlockPathTypes.DAMAGE_OTHER) {
                 var1 = BlockPathTypes.DAMAGE_OTHER;
-            } else if (var3 == BlockPathTypes.COCOA) {
+            } else if (var2 == BlockPathTypes.COCOA) {
                 var1 = BlockPathTypes.COCOA;
-            } else if (var3 == BlockPathTypes.FENCE) {
+            } else if (var2 == BlockPathTypes.FENCE) {
                 var1 = BlockPathTypes.FENCE;
             } else {
-                var1 = var3 != BlockPathTypes.WALKABLE && var3 != BlockPathTypes.OPEN && var3 != BlockPathTypes.WATER
+                var1 = var2 != BlockPathTypes.WALKABLE && var2 != BlockPathTypes.OPEN && var2 != BlockPathTypes.WATER
                     ? BlockPathTypes.WALKABLE
                     : BlockPathTypes.OPEN;
             }

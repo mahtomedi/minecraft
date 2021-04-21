@@ -12,6 +12,7 @@ import net.minecraft.resources.RegistryFileCodec;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.levelgen.Aquifer;
 
 public class ConfiguredWorldCarver<WC extends CarverConfiguration> {
     public static final Codec<ConfiguredWorldCarver<?>> DIRECT_CODEC = Registry.CARVER.dispatch(param0 -> param0.worldCarver, WorldCarver::configuredCodec);
@@ -35,7 +36,9 @@ public class ConfiguredWorldCarver<WC extends CarverConfiguration> {
         return this.worldCarver.isStartChunk(this.config, param0);
     }
 
-    public boolean carve(CarvingContext param0, ChunkAccess param1, Function<BlockPos, Biome> param2, Random param3, int param4, ChunkPos param5, BitSet param6) {
+    public boolean carve(
+        CarvingContext param0, ChunkAccess param1, Function<BlockPos, Biome> param2, Random param3, Aquifer param4, ChunkPos param5, BitSet param6
+    ) {
         return this.worldCarver.carve(param0, this.config, param1, param2, param3, param4, param5, param6);
     }
 }

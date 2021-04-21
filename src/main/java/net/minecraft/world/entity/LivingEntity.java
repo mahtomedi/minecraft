@@ -766,6 +766,7 @@ public abstract class LivingEntity extends Entity {
         if (this.effectsDirty) {
             if (!this.level.isClientSide) {
                 this.updateInvisibilityStatus();
+                this.updateGlowingStatus();
             }
 
             this.effectsDirty = false;
@@ -813,6 +814,14 @@ public abstract class LivingEntity extends Entity {
             this.entityData.set(DATA_EFFECT_AMBIENCE_ID, areAllEffectsAmbient(var0));
             this.entityData.set(DATA_EFFECT_COLOR_ID, PotionUtils.getColor(var0));
             this.setInvisible(this.hasEffect(MobEffects.INVISIBILITY));
+        }
+
+    }
+
+    private void updateGlowingStatus() {
+        boolean var0 = this.isCurrentlyGlowing();
+        if (this.getSharedFlag(6) != var0) {
+            this.setSharedFlag(6, var0);
         }
 
     }
@@ -2238,51 +2247,42 @@ public abstract class LivingEntity extends Entity {
                 this.getCombatTracker().recheckStatus();
             }
 
-            if (!this.glowing) {
-                boolean var2 = this.hasEffect(MobEffects.GLOWING);
-                if (this.getSharedFlag(6) != var2) {
-                    this.setSharedFlag(6, var2);
-                }
-
-                this.glowing = var2;
-            }
-
             if (this.isSleeping() && !this.checkBedExists()) {
                 this.stopSleeping();
             }
         }
 
         this.aiStep();
-        double var3 = this.getX() - this.xo;
-        double var4 = this.getZ() - this.zo;
-        float var5 = (float)(var3 * var3 + var4 * var4);
-        float var6 = this.yBodyRot;
-        float var7 = 0.0F;
+        double var2 = this.getX() - this.xo;
+        double var3 = this.getZ() - this.zo;
+        float var4 = (float)(var2 * var2 + var3 * var3);
+        float var5 = this.yBodyRot;
+        float var6 = 0.0F;
         this.oRun = this.run;
-        float var8 = 0.0F;
-        if (var5 > 0.0025000002F) {
-            var8 = 1.0F;
-            var7 = (float)Math.sqrt((double)var5) * 3.0F;
-            float var9 = (float)Mth.atan2(var4, var3) * (180.0F / (float)Math.PI) - 90.0F;
-            float var10 = Mth.abs(Mth.wrapDegrees(this.yRot) - var9);
-            if (95.0F < var10 && var10 < 265.0F) {
-                var6 = var9 - 180.0F;
+        float var7 = 0.0F;
+        if (var4 > 0.0025000002F) {
+            var7 = 1.0F;
+            var6 = (float)Math.sqrt((double)var4) * 3.0F;
+            float var8 = (float)Mth.atan2(var3, var2) * (180.0F / (float)Math.PI) - 90.0F;
+            float var9 = Mth.abs(Mth.wrapDegrees(this.yRot) - var8);
+            if (95.0F < var9 && var9 < 265.0F) {
+                var5 = var8 - 180.0F;
             } else {
-                var6 = var9;
+                var5 = var8;
             }
         }
 
         if (this.attackAnim > 0.0F) {
-            var6 = this.yRot;
+            var5 = this.yRot;
         }
 
         if (!this.onGround) {
-            var8 = 0.0F;
+            var7 = 0.0F;
         }
 
-        this.run += (var8 - this.run) * 0.3F;
+        this.run += (var7 - this.run) * 0.3F;
         this.level.getProfiler().push("headTurn");
-        var7 = this.tickHeadTurn(var6, var7);
+        var6 = this.tickHeadTurn(var5, var6);
         this.level.getProfiler().pop();
         this.level.getProfiler().push("rangeChecks");
 
@@ -2319,7 +2319,7 @@ public abstract class LivingEntity extends Entity {
         }
 
         this.level.getProfiler().pop();
-        this.animStep += var7;
+        this.animStep += var6;
         if (this.isFallFlying()) {
             ++this.fallFlyTicks;
         } else {
@@ -2549,7 +2549,7 @@ public abstract class LivingEntity extends Entity {
         this.level.getProfiler().pop();
         this.level.getProfiler().push("freezing");
         boolean var13 = this.getType().is(EntityTypeTags.FREEZE_HURTS_EXTRA_TYPES);
-        if (!this.level.isClientSide) {
+        if (!this.level.isClientSide && !this.isDeadOrDying()) {
             int var14 = this.getTicksFrozen();
             if (this.isInPowderSnow && this.canFreeze()) {
                 this.setTicksFrozen(Math.min(this.getTicksRequiredToFreeze(), var14 + 1));
@@ -3332,6 +3332,11 @@ public abstract class LivingEntity extends Entity {
                 && !this.getItemBySlot(EquipmentSlot.FEET).is(ItemTags.FREEZE_IMMUNE_WEARABLES);
             return var0 && super.canFreeze();
         }
+    }
+
+    @Override
+    public boolean isCurrentlyGlowing() {
+        return !this.level.isClientSide() && this.hasEffect(MobEffects.GLOWING) || super.isCurrentlyGlowing();
     }
 
     public void recreateFromPacket(ClientboundAddMobPacket param0) {

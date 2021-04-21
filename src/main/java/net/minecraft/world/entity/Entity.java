@@ -208,7 +208,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     private boolean invulnerable;
     protected UUID uuid = Mth.createInsecureUUID(this.random);
     protected String stringUUID = this.uuid.toString();
-    protected boolean glowing;
+    private boolean hasGlowingTag;
     private final Set<String> tags = Sets.newHashSet();
     private final double[] pistonDeltas = new double[]{0.0, 0.0, 0.0};
     private long pistonDeltasGameTime;
@@ -396,10 +396,6 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     }
 
     public void tick() {
-        if (!this.level.isClientSide) {
-            this.setSharedFlag(6, this.isGlowing());
-        }
-
         this.baseTick();
     }
 
@@ -1495,8 +1491,8 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
                 param0.putBoolean("NoGravity", this.isNoGravity());
             }
 
-            if (this.glowing) {
-                param0.putBoolean("Glowing", this.glowing);
+            if (this.hasGlowingTag) {
+                param0.putBoolean("Glowing", true);
             }
 
             int var2 = this.getTicksFrozen();
@@ -1586,7 +1582,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
                 this.setCustomNameVisible(param0.getBoolean("CustomNameVisible"));
                 this.setSilent(param0.getBoolean("Silent"));
                 this.setNoGravity(param0.getBoolean("NoGravity"));
-                this.setGlowing(param0.getBoolean("Glowing"));
+                this.setGlowingTag(param0.getBoolean("Glowing"));
                 this.setTicksFrozen(param0.getInt("TicksFrozen"));
                 if (param0.contains("Tags", 9)) {
                     this.tags.clear();
@@ -1999,16 +1995,17 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         this.setSharedFlag(4, param0);
     }
 
-    public boolean isGlowing() {
-        return this.glowing || this.level.isClientSide && this.getSharedFlag(6);
+    public final boolean hasGlowingTag() {
+        return this.hasGlowingTag;
     }
 
-    public void setGlowing(boolean param0) {
-        this.glowing = param0;
-        if (!this.level.isClientSide) {
-            this.setSharedFlag(6, this.glowing);
-        }
+    public final void setGlowingTag(boolean param0) {
+        this.hasGlowingTag = param0;
+        this.setSharedFlag(6, this.isCurrentlyGlowing());
+    }
 
+    public boolean isCurrentlyGlowing() {
+        return this.level.isClientSide() ? this.getSharedFlag(6) : this.hasGlowingTag;
     }
 
     public boolean isInvisible() {

@@ -3726,6 +3726,13 @@ public class BlockModelGenerators {
         this.delegateItemModel(Blocks.INFESTED_STONE, var0);
     }
 
+    private void createInfestedDeepslate() {
+        ResourceLocation var0 = ModelLocationUtils.getModelLocation(Blocks.DEEPSLATE);
+        ResourceLocation var1 = ModelLocationUtils.getModelLocation(Blocks.DEEPSLATE, "_mirrored");
+        this.blockStateOutput.accept(createRotatedVariant(Blocks.INFESTED_DEEPSLATE, var0, var1).with(createRotatedPillar()));
+        this.delegateItemModel(Blocks.INFESTED_DEEPSLATE, var0);
+    }
+
     private void createNetherRoots(Block param0, Block param1) {
         this.createCrossBlockWithDefaultItem(param0, BlockModelGenerators.TintState.NOT_TINTED);
         TextureMapping var0 = TextureMapping.plant(TextureMapping.getBlockTexture(param0, "_pot"));
@@ -4431,7 +4438,7 @@ public class BlockModelGenerators {
         this.copyModel(Blocks.MOSSY_STONE_BRICKS, Blocks.INFESTED_MOSSY_STONE_BRICKS);
         this.createInfestedStone();
         this.copyModel(Blocks.STONE_BRICKS, Blocks.INFESTED_STONE_BRICKS);
-        this.copyModel(Blocks.DEEPSLATE, Blocks.INFESTED_DEEPSLATE);
+        this.createInfestedDeepslate();
         SpawnEggItem.eggs().forEach(param0 -> this.delegateItemModel(param0, ModelLocationUtils.decorateItemModelLocation("template_spawn_egg")));
     }
 

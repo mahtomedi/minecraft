@@ -7,7 +7,8 @@ import org.apache.commons.lang3.StringUtils;
 
 public class StringUtil {
     private static final Pattern STRIP_COLOR_PATTERN = Pattern.compile("(?i)\\u00A7[0-9A-FK-OR]");
-    private static final Pattern LINE_PATTERN = Pattern.compile("\r\n|[\n\r\u2028\u2029\u0085]");
+    private static final Pattern LINE_PATTERN = Pattern.compile("\\r\\n|\\v");
+    private static final Pattern LINE_END_PATTERN = Pattern.compile("(?:\\r\\n|\\v)$");
 
     public static String formatTickDuration(int param0) {
         int var0 = param0 / 20;
@@ -45,5 +46,9 @@ public class StringUtil {
 
             return var1;
         }
+    }
+
+    public static boolean endsWithNewLine(String param0) {
+        return LINE_END_PATTERN.matcher(param0).find();
     }
 }

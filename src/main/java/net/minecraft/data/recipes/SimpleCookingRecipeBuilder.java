@@ -17,12 +17,13 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.SimpleCookingSerializer;
 import net.minecraft.world.level.ItemLike;
 
-public class SimpleCookingRecipeBuilder {
+public class SimpleCookingRecipeBuilder implements RecipeBuilder {
     private final Item result;
     private final Ingredient ingredient;
     private final float experience;
     private final int cookingTime;
     private final Advancement.Builder advancement = Advancement.Builder.advancement();
+    @Nullable
     private String group;
     private final SimpleCookingSerializer<?> serializer;
 
@@ -59,25 +60,17 @@ public class SimpleCookingRecipeBuilder {
         return this;
     }
 
-    public SimpleCookingRecipeBuilder group(String param0) {
+    public SimpleCookingRecipeBuilder group(@Nullable String param0) {
         this.group = param0;
         return this;
     }
 
-    public void save(Consumer<FinishedRecipe> param0) {
-        this.save(param0, Registry.ITEM.getKey(this.result));
+    @Override
+    public Item getResult() {
+        return this.result;
     }
 
-    public void save(Consumer<FinishedRecipe> param0, String param1) {
-        ResourceLocation var0 = Registry.ITEM.getKey(this.result);
-        ResourceLocation var1 = new ResourceLocation(param1);
-        if (var1.equals(var0)) {
-            throw new IllegalStateException("Recipe " + var1 + " should remove its 'save' argument");
-        } else {
-            this.save(param0, var1);
-        }
-    }
-
+    @Override
     public void save(Consumer<FinishedRecipe> param0, ResourceLocation param1) {
         this.ensureValid(param1);
         this.advancement

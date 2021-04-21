@@ -16,7 +16,7 @@ public class BushBlock extends Block {
     }
 
     protected boolean mayPlaceOn(BlockState param0, BlockGetter param1, BlockPos param2) {
-        return param0.is(Blocks.MOSS_BLOCK) || param0.is(Blocks.GRASS_BLOCK) || param0.is(BlockTags.DIRT) || param0.is(Blocks.FARMLAND);
+        return param0.is(BlockTags.DIRT) || param0.is(Blocks.FARMLAND);
     }
 
     @Override

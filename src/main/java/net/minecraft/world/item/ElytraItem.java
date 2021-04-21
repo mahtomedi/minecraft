@@ -3,6 +3,7 @@ package net.minecraft.world.item;
 import javax.annotation.Nullable;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -33,6 +34,10 @@ public class ElytraItem extends Item implements Wearable {
         ItemStack var2 = param1.getItemBySlot(var1);
         if (var2.isEmpty()) {
             param1.setItemSlot(var1, var0.copy());
+            if (!param0.isClientSide()) {
+                param1.awardStat(Stats.ITEM_USED.get(this));
+            }
+
             var0.setCount(0);
             return InteractionResultHolder.sidedSuccess(var0, param0.isClientSide());
         } else {

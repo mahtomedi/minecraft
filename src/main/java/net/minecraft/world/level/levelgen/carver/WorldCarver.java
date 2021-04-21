@@ -6,6 +6,7 @@ import java.util.BitSet;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
+import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
@@ -16,7 +17,11 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.levelgen.Aquifer;
+import net.minecraft.world.level.levelgen.BaseStoneSource;
+import net.minecraft.world.level.levelgen.SingleBaseStoneSource;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
@@ -32,6 +37,7 @@ public abstract class WorldCarver<C extends CarverConfiguration> {
     public static final WorldCarver<CaveCarverConfiguration> UNDERWATER_CAVE = register(
         "underwater_cave", new UnderwaterCaveWorldCarver(CaveCarverConfiguration.CODEC)
     );
+    protected static final BaseStoneSource STONE_SOURCE = new SingleBaseStoneSource(Blocks.STONE.defaultBlockState());
     protected static final BlockState AIR = Blocks.AIR.defaultBlockState();
     protected static final BlockState CAVE_AIR = Blocks.CAVE_AIR.defaultBlockState();
     protected static final FluidState WATER = Fluids.WATER.defaultFluidState();
@@ -67,7 +73,12 @@ public abstract class WorldCarver<C extends CarverConfiguration> {
         Blocks.MYCELIUM,
         Blocks.SNOW,
         Blocks.PACKED_ICE,
-        Blocks.DEEPSLATE
+        Blocks.DEEPSLATE,
+        Blocks.TUFF,
+        Blocks.GRANITE,
+        Blocks.IRON_ORE,
+        Blocks.DEEPSLATE_IRON_ORE,
+        Blocks.COPPER_ORE
     );
     protected Set<Fluid> liquids = ImmutableSet.of(Fluids.WATER);
     private final Codec<ConfiguredWorldCarver<C>> configuredCodec;
@@ -98,7 +109,7 @@ public abstract class WorldCarver<C extends CarverConfiguration> {
         ChunkAccess param2,
         Function<BlockPos, Biome> param3,
         long param4,
-        int param5,
+        Aquifer param5,
         double param6,
         double param7,
         double param8,
@@ -123,7 +134,7 @@ public abstract class WorldCarver<C extends CarverConfiguration> {
             int var12 = Math.min(Mth.floor(param7 + param10) + 1, param0.getMinGenY() + param0.getGenDepth() - 8);
             int var13 = Math.max(Mth.floor(param8 - param9) - var8 - 1, 0);
             int var14 = Math.min(Mth.floor(param8 + param9) - var8, 15);
-            if (this.hasDisallowedLiquid(param2, var9, var10, var11, var12, var13, var14)) {
+            if (!param1.aquifersEnabled && this.hasDisallowedLiquid(param2, var9, var10, var11, var12, var13, var14)) {
                 return false;
             } else {
                 boolean var15 = false;
@@ -172,7 +183,7 @@ public abstract class WorldCarver<C extends CarverConfiguration> {
         Random param5,
         BlockPos.MutableBlockPos param6,
         BlockPos.MutableBlockPos param7,
-        int param8,
+        Aquifer param8,
         MutableBoolean param9
     ) {
         BlockState var0 = param2.getBlockState(param6);
@@ -184,28 +195,52 @@ public abstract class WorldCarver<C extends CarverConfiguration> {
         if (!this.canReplaceBlock(var0, var1) && !isDebugEnabled(param1)) {
             return false;
         } else {
-            if (param6.getY() < param1.lavaLevel.resolveY(param0) && !isDebugEnabled(param1)) {
-                param2.setBlockState(param6, LAVA.createLegacyBlock(), false);
+            BlockState var2 = this.getCarveState(param0, param1, param6, param8);
+            if (var2 == null) {
+                return false;
             } else {
-                param2.setBlockState(param6, getCaveAirState(param1), false);
+                param2.setBlockState(param6, var2, false);
                 if (param9.isTrue()) {
                     param7.setWithOffset(param6, Direction.DOWN);
                     if (param2.getBlockState(param7).is(Blocks.DIRT)) {
                         param2.setBlockState(param7, param3.apply(param6).getGenerationSettings().getSurfaceBuilderConfig().getTopMaterial(), false);
                     }
                 }
-            }
 
-            return true;
+                return true;
+            }
         }
     }
 
-    private static BlockState getCaveAirState(CarverConfiguration param0) {
-        return isDebugEnabled(param0) ? param0.debugSettings.getAirState() : CAVE_AIR;
+    @Nullable
+    private BlockState getCarveState(CarvingContext param0, C param1, BlockPos param2, Aquifer param3) {
+        if (param2.getY() <= param1.lavaLevel.resolveY(param0)) {
+            return LAVA.createLegacyBlock();
+        } else if (!param1.aquifersEnabled) {
+            return isDebugEnabled(param1) ? getDebugState(param1, AIR) : AIR;
+        } else {
+            BlockState var0 = param3.computeState(STONE_SOURCE, param2.getX(), param2.getY(), param2.getZ(), 0.0);
+            if (var0 == Blocks.STONE.defaultBlockState()) {
+                return isDebugEnabled(param1) ? param1.debugSettings.getBarrierState() : null;
+            } else {
+                return isDebugEnabled(param1) ? getDebugState(param1, var0) : var0;
+            }
+        }
+    }
+
+    private static BlockState getDebugState(CarverConfiguration param0, BlockState param1) {
+        if (param1.is(Blocks.AIR)) {
+            return param0.debugSettings.getAirState();
+        } else if (param1.is(Blocks.WATER)) {
+            BlockState var0 = param0.debugSettings.getWaterState();
+            return var0.hasProperty(BlockStateProperties.WATERLOGGED) ? var0.setValue(BlockStateProperties.WATERLOGGED, Boolean.valueOf(true)) : var0;
+        } else {
+            return param1.is(Blocks.LAVA) ? param0.debugSettings.getLavaState() : param1;
+        }
     }
 
     public abstract boolean carve(
-        CarvingContext var1, C var2, ChunkAccess var3, Function<BlockPos, Biome> var4, Random var5, int var6, ChunkPos var7, BitSet var8
+        CarvingContext var1, C var2, ChunkAccess var3, Function<BlockPos, Biome> var4, Random var5, Aquifer var6, ChunkPos var7, BitSet var8
     );
 
     public abstract boolean isStartChunk(C var1, Random var2);

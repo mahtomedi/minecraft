@@ -45,8 +45,8 @@ public interface Bucketable {
             var0.putBoolean("NoGravity", param0.isNoGravity());
         }
 
-        if (param0.isGlowing()) {
-            var0.putBoolean("Glowing", param0.isGlowing());
+        if (param0.hasGlowingTag()) {
+            var0.putBoolean("Glowing", param0.hasGlowingTag());
         }
 
         if (param0.isInvulnerable()) {
@@ -70,7 +70,7 @@ public interface Bucketable {
         }
 
         if (param1.contains("Glowing")) {
-            param0.setGlowing(param1.getBoolean("Glowing"));
+            param0.setGlowingTag(param1.getBoolean("Glowing"));
         }
 
         if (param1.contains("Invulnerable")) {

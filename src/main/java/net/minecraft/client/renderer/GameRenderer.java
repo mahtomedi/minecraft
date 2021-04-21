@@ -220,7 +220,11 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
     @Nullable
     private static ShaderInstance rendertypeTextShader;
     @Nullable
+    private static ShaderInstance rendertypeTextIntensityShader;
+    @Nullable
     private static ShaderInstance rendertypeTextSeeThroughShader;
+    @Nullable
+    private static ShaderInstance rendertypeTextIntensitySeeThroughShader;
     @Nullable
     private static ShaderInstance rendertypeLightningShader;
     @Nullable
@@ -428,7 +432,11 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
             rendertypeEntityGlintShader = this.loadShader(param0, "rendertype_entity_glint", DefaultVertexFormat.POSITION_TEX);
             rendertypeEntityGlintDirectShader = this.loadShader(param0, "rendertype_entity_glint_direct", DefaultVertexFormat.POSITION_TEX);
             rendertypeTextShader = this.loadShader(param0, "rendertype_text", DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP);
+            rendertypeTextIntensityShader = this.loadShader(param0, "rendertype_text_intensity", DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP);
             rendertypeTextSeeThroughShader = this.loadShader(param0, "rendertype_text_see_through", DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP);
+            rendertypeTextIntensitySeeThroughShader = this.loadShader(
+                param0, "rendertype_text_intensity_see_through", DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP
+            );
             rendertypeLightningShader = this.loadShader(param0, "rendertype_lightning", DefaultVertexFormat.POSITION_COLOR);
             rendertypeTripwireShader = this.loadShader(param0, "rendertype_tripwire", DefaultVertexFormat.BLOCK);
             rendertypeEndPortalShader = this.loadShader(param0, "rendertype_end_portal", DefaultVertexFormat.POSITION);
@@ -1286,8 +1294,18 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
     }
 
     @Nullable
+    public static ShaderInstance getRendertypeTextIntensityShader() {
+        return rendertypeTextIntensityShader;
+    }
+
+    @Nullable
     public static ShaderInstance getRendertypeTextSeeThroughShader() {
         return rendertypeTextSeeThroughShader;
+    }
+
+    @Nullable
+    public static ShaderInstance getRendertypeTextIntensitySeeThroughShader() {
+        return rendertypeTextIntensitySeeThroughShader;
     }
 
     @Nullable

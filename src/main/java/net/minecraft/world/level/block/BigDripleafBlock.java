@@ -138,7 +138,7 @@ public class BigDripleafBlock extends HorizontalDirectionalBlock implements Bone
     public boolean canSurvive(BlockState param0, LevelReader param1, BlockPos param2) {
         BlockPos var0 = param2.below();
         BlockState var1 = param1.getBlockState(var0);
-        return var1.is(Blocks.BIG_DRIPLEAF_STEM) || var1.isFaceSturdy(param1, var0, Direction.UP);
+        return var1.is(Blocks.BIG_DRIPLEAF_STEM) || var1.is(this) || var1.isFaceSturdy(param1, var0, Direction.UP);
     }
 
     @Override
@@ -150,7 +150,9 @@ public class BigDripleafBlock extends HorizontalDirectionalBlock implements Bone
                 param3.getLiquidTicks().scheduleTick(param4, Fluids.WATER, Fluids.WATER.getTickDelay(param3));
             }
 
-            return super.updateShape(param0, param1, param2, param3, param4, param5);
+            return param1 == Direction.UP && param2.is(this)
+                ? Blocks.BIG_DRIPLEAF_STEM.withPropertiesOf(param0)
+                : super.updateShape(param0, param1, param2, param3, param4, param5);
         }
     }
 
@@ -262,16 +264,12 @@ public class BigDripleafBlock extends HorizontalDirectionalBlock implements Bone
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext param0) {
-        FluidState var0 = param0.getLevel().getFluidState(param0.getClickedPos());
-        BlockState var1 = param0.getLevel().getBlockState(param0.getClickedPos().below());
-        Direction var2;
-        if (var1.is(Blocks.BIG_DRIPLEAF_STEM)) {
-            var2 = var1.getValue(BigDripleafStemBlock.FACING);
-        } else {
-            var2 = param0.getHorizontalDirection().getOpposite();
-        }
-
-        return this.defaultBlockState().setValue(WATERLOGGED, Boolean.valueOf(var0.isSourceOfType(Fluids.WATER))).setValue(FACING, var2);
+        BlockState var0 = param0.getLevel().getBlockState(param0.getClickedPos().below());
+        FluidState var1 = param0.getLevel().getFluidState(param0.getClickedPos());
+        boolean var2 = var0.is(Blocks.BIG_DRIPLEAF) || var0.is(Blocks.BIG_DRIPLEAF_STEM);
+        return this.defaultBlockState()
+            .setValue(WATERLOGGED, Boolean.valueOf(var1.isSourceOfType(Fluids.WATER)))
+            .setValue(FACING, var2 ? var0.getValue(FACING) : param0.getHorizontalDirection().getOpposite());
     }
 
     @Override

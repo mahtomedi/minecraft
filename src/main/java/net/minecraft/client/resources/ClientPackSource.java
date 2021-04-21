@@ -20,9 +20,11 @@ import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ConfirmScreen;
+import net.minecraft.client.gui.screens.GenericDirtMessageScreen;
 import net.minecraft.client.gui.screens.ProgressScreen;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.FilePackResources;
@@ -58,6 +60,7 @@ public class ClientPackSource implements RepositorySource {
     private static final String SERVER_ID = "server";
     private static final String PROGRAMMER_ART_ID = "programer_art";
     private static final String PROGRAMMER_ART_NAME = "Programmer Art";
+    private static final Component APPLYING_PACK_TEXT = new TranslatableComponent("multiplayer.applyingPack");
     private final VanillaPackResources vanillaPack;
     private final File serverPackDir;
     private final ReentrantLock downloadLock = new ReentrantLock();
@@ -106,12 +109,12 @@ public class ClientPackSource implements RepositorySource {
         return var0;
     }
 
-    public CompletableFuture<?> downloadAndSelectResourcePack(String param0, String param1) {
+    public CompletableFuture<?> downloadAndSelectResourcePack(String param0, String param1, boolean param2) {
         String var0 = DigestUtils.sha1Hex(param0);
         String var1 = SHA1.matcher(param1).matches() ? param1 : "";
         this.downloadLock.lock();
 
-        CompletableFuture var13;
+        CompletableFuture var14;
         try {
             this.clearServerPack();
             this.clearOldDownloads();
@@ -120,22 +123,31 @@ public class ClientPackSource implements RepositorySource {
             if (var2.exists()) {
                 var3 = CompletableFuture.completedFuture("");
             } else {
-                ProgressScreen var4 = new ProgressScreen();
+                ProgressScreen var4 = new ProgressScreen(param2);
                 Map<String, String> var5 = getDownloadHeaders();
                 Minecraft var6 = Minecraft.getInstance();
                 var6.executeBlocking(() -> var6.setScreen(var4));
                 var3 = HttpUtil.downloadTo(var2, param0, var5, 104857600, var4, var6.getProxy());
             }
 
-            this.currentDownload = var3.<Void>thenCompose(
-                    param2 -> !this.checkHash(var1, var2)
-                            ? Util.failedFuture(new RuntimeException("Hash check failure for file " + var2 + ", see log"))
-                            : this.setServerPack(var2, PackSource.SERVER)
-                )
+            this.currentDownload = var3.<Void>thenCompose(param3 -> {
+                    if (!this.checkHash(var1, var2)) {
+                        return Util.failedFuture(new RuntimeException("Hash check failure for file " + var2 + ", see log"));
+                    } else {
+                        Minecraft var0x = Minecraft.getInstance();
+                        var0x.execute(() -> {
+                            if (!param2) {
+                                var0x.setScreen(new GenericDirtMessageScreen(APPLYING_PACK_TEXT));
+                            }
+    
+                        });
+                        return this.setServerPack(var2, PackSource.SERVER);
+                    }
+                })
                 .whenComplete(
-                    (param1x, param2) -> {
-                        if (param2 != null) {
-                            LOGGER.warn("Pack application failed: {}, deleting file {}", param2.getMessage(), var2);
+                    (param1x, param2x) -> {
+                        if (param2x != null) {
+                            LOGGER.warn("Pack application failed: {}, deleting file {}", param2x.getMessage(), var2);
                             deleteQuietly(var2);
                             Minecraft var0x = Minecraft.getInstance();
                             var0x.execute(
@@ -163,12 +175,12 @@ public class ClientPackSource implements RepositorySource {
         
                     }
                 );
-            var13 = this.currentDownload;
+            var14 = this.currentDownload;
         } finally {
             this.downloadLock.unlock();
         }
 
-        return var13;
+        return var14;
     }
 
     private static void deleteQuietly(File param0) {

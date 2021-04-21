@@ -3,14 +3,11 @@ package net.minecraft.world.level.pathfinder;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.PathNavigationRegion;
 import net.minecraft.world.level.block.BaseRailBlock;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
@@ -263,23 +260,22 @@ public class AmphibiousNodeEvaluator extends WalkNodeEvaluator {
         } else {
             if (var1 == BlockPathTypes.OPEN && param2 >= param0.getMinBuildHeight() + 1) {
                 var0.set(param1, param2, param3).move(Direction.DOWN);
-                BlockState var4 = param0.getBlockState(var0);
-                BlockPathTypes var5 = getBlockPathTypeRaw(param0, var0);
-                if (var5 != BlockPathTypes.WALKABLE && var5 != BlockPathTypes.OPEN && var5 != BlockPathTypes.LAVA) {
+                BlockPathTypes var4 = getBlockPathTypeRaw(param0, var0);
+                if (var4 != BlockPathTypes.WALKABLE && var4 != BlockPathTypes.OPEN && var4 != BlockPathTypes.LAVA) {
                     var1 = BlockPathTypes.WALKABLE;
                 } else {
                     var1 = BlockPathTypes.OPEN;
                 }
 
-                if (var5 == BlockPathTypes.DAMAGE_FIRE || var4.is(Blocks.MAGMA_BLOCK) || var4.is(BlockTags.CAMPFIRES)) {
+                if (var4 == BlockPathTypes.DAMAGE_FIRE) {
                     var1 = BlockPathTypes.DAMAGE_FIRE;
                 }
 
-                if (var5 == BlockPathTypes.DAMAGE_CACTUS) {
+                if (var4 == BlockPathTypes.DAMAGE_CACTUS) {
                     var1 = BlockPathTypes.DAMAGE_CACTUS;
                 }
 
-                if (var5 == BlockPathTypes.DAMAGE_OTHER) {
+                if (var4 == BlockPathTypes.DAMAGE_OTHER) {
                     var1 = BlockPathTypes.DAMAGE_OTHER;
                 }
             }

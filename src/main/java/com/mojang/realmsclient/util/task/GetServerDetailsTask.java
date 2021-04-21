@@ -141,7 +141,7 @@ public class GetServerDetailsTask extends LongRunningTask {
 
     private CompletableFuture<?> scheduleResourcePackDownload(RealmsServerAddress param0) {
         try {
-            return Minecraft.getInstance().getClientPackSource().downloadAndSelectResourcePack(param0.resourcePackUrl, param0.resourcePackHash);
+            return Minecraft.getInstance().getClientPackSource().downloadAndSelectResourcePack(param0.resourcePackUrl, param0.resourcePackHash, false);
         } catch (Exception var4) {
             CompletableFuture<Void> var1 = new CompletableFuture<>();
             var1.completeExceptionally(var4);

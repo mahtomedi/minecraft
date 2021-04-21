@@ -374,14 +374,14 @@ public class MineShaftPieces {
                 for(int var6 = 0; var6 < this.numSections; ++var6) {
                     int var7 = 2 + var6 * 5;
                     this.placeSupport(param0, param4, 0, 0, var7, 2, 2, param3);
-                    this.placeCobWeb(param0, param4, param3, 0.1F, 0, 2, var7 - 1);
-                    this.placeCobWeb(param0, param4, param3, 0.1F, 2, 2, var7 - 1);
-                    this.placeCobWeb(param0, param4, param3, 0.1F, 0, 2, var7 + 1);
-                    this.placeCobWeb(param0, param4, param3, 0.1F, 2, 2, var7 + 1);
-                    this.placeCobWeb(param0, param4, param3, 0.05F, 0, 2, var7 - 2);
-                    this.placeCobWeb(param0, param4, param3, 0.05F, 2, 2, var7 - 2);
-                    this.placeCobWeb(param0, param4, param3, 0.05F, 0, 2, var7 + 2);
-                    this.placeCobWeb(param0, param4, param3, 0.05F, 2, 2, var7 + 2);
+                    this.maybePlaceCobWeb(param0, param4, param3, 0.1F, 0, 2, var7 - 1);
+                    this.maybePlaceCobWeb(param0, param4, param3, 0.1F, 2, 2, var7 - 1);
+                    this.maybePlaceCobWeb(param0, param4, param3, 0.1F, 0, 2, var7 + 1);
+                    this.maybePlaceCobWeb(param0, param4, param3, 0.1F, 2, 2, var7 + 1);
+                    this.maybePlaceCobWeb(param0, param4, param3, 0.05F, 0, 2, var7 - 2);
+                    this.maybePlaceCobWeb(param0, param4, param3, 0.05F, 2, 2, var7 - 2);
+                    this.maybePlaceCobWeb(param0, param4, param3, 0.05F, 0, 2, var7 + 2);
+                    this.maybePlaceCobWeb(param0, param4, param3, 0.05F, 2, 2, var7 + 2);
                     if (param3.nextInt(100) == 0) {
                         this.createChest(param0, param4, param3, 2, 0, var7 - 1, BuiltInLootTables.ABANDONED_MINESHAFT);
                     }
@@ -425,7 +425,7 @@ public class MineShaftPieces {
                         BlockState var18 = this.getBlock(param0, 1, -1, var17, param4);
                         if (!var18.isAir() && var18.isSolidRender(param0, this.getWorldPos(1, -1, var17))) {
                             float var19 = this.isInterior(param0, 1, 0, var17, param4) ? 0.7F : 0.9F;
-                            this.maybeGenerateBlock(param0, param4, param3, var19, 1, 0, var17, var16, false);
+                            this.maybeGenerateBlock(param0, param4, param3, var19, 1, 0, var17, var16);
                         }
                     }
                 }
@@ -542,8 +542,7 @@ public class MineShaftPieces {
                         param2 + 1,
                         param5,
                         param4 - 1,
-                        Blocks.WALL_TORCH.defaultBlockState().setValue(WallTorchBlock.FACING, Direction.NORTH),
-                        false
+                        Blocks.WALL_TORCH.defaultBlockState().setValue(WallTorchBlock.FACING, Direction.NORTH)
                     );
                     this.maybeGenerateBlock(
                         param0,
@@ -553,19 +552,38 @@ public class MineShaftPieces {
                         param2 + 1,
                         param5,
                         param4 + 1,
-                        Blocks.WALL_TORCH.defaultBlockState().setValue(WallTorchBlock.FACING, Direction.SOUTH),
-                        false
+                        Blocks.WALL_TORCH.defaultBlockState().setValue(WallTorchBlock.FACING, Direction.SOUTH)
                     );
                 }
 
             }
         }
 
-        private void placeCobWeb(WorldGenLevel param0, BoundingBox param1, Random param2, float param3, int param4, int param5, int param6) {
-            if (this.isInterior(param0, param4, param5, param6, param1)) {
-                this.maybeGenerateBlock(param0, param1, param2, param3, param4, param5, param6, Blocks.COBWEB.defaultBlockState(), true);
+        private void maybePlaceCobWeb(WorldGenLevel param0, BoundingBox param1, Random param2, float param3, int param4, int param5, int param6) {
+            if (this.isInterior(param0, param4, param5, param6, param1)
+                && param2.nextFloat() < param3
+                && this.hasSturdyNeighbours(param0, param1, param4, param5, param6, 2)) {
+                this.placeBlock(param0, Blocks.COBWEB.defaultBlockState(), param4, param5, param6, param1);
             }
 
+        }
+
+        private boolean hasSturdyNeighbours(WorldGenLevel param0, BoundingBox param1, int param2, int param3, int param4, int param5) {
+            BlockPos.MutableBlockPos var0 = this.getWorldPos(param2, param3, param4);
+            int var1 = 0;
+
+            for(Direction var2 : Direction.values()) {
+                var0.move(var2);
+                if (param1.isInside(var0) && param0.getBlockState(var0).isFaceSturdy(param0, var0, var2.getOpposite())) {
+                    if (++var1 >= param5) {
+                        return true;
+                    }
+                }
+
+                var0.move(var2.getOpposite());
+            }
+
+            return false;
         }
     }
 

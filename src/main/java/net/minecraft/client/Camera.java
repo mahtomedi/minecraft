@@ -159,6 +159,17 @@ public class Camera {
         return this.detached;
     }
 
+    public Camera.NearPlane getNearPlane() {
+        Minecraft var0 = Minecraft.getInstance();
+        double var1 = (double)var0.getWindow().getWidth() / (double)var0.getWindow().getHeight();
+        double var2 = Math.tan(var0.options.fov * (float) (Math.PI / 180.0) / 2.0) * 0.05F;
+        double var3 = var2 * var1;
+        Vec3 var4 = new Vec3(this.forwards).scale(0.05F);
+        Vec3 var5 = new Vec3(this.left).scale(var3);
+        Vec3 var6 = new Vec3(this.up).scale(var2);
+        return new Camera.NearPlane(var4, var5, var6);
+    }
+
     public FogType getFluidInCamera() {
         if (!this.initialized) {
             return FogType.NONE;
@@ -167,29 +178,19 @@ public class Camera {
             if (var0.is(FluidTags.WATER) && this.position.y < (double)((float)this.blockPosition.getY() + var0.getHeight(this.level, this.blockPosition))) {
                 return FogType.WATER;
             } else {
-                Minecraft var1 = Minecraft.getInstance();
-                double var2 = (double)var1.getWindow().getWidth() / (double)var1.getWindow().getHeight();
-                double var3 = Math.tan(var1.options.fov * (float) (Math.PI / 180.0) / 2.0) * 0.05F;
-                double var4 = var3 * var2;
-                Vec3 var5 = new Vec3(this.forwards).scale(0.05F);
-                Vec3 var6 = new Vec3(this.left).scale(var4);
-                Vec3 var7 = new Vec3(this.up).scale(var3);
-                Vec3 var8 = var5.add(var7).add(var6);
-                Vec3 var9 = var5.add(var7).subtract(var6);
-                Vec3 var10 = var5.subtract(var7).add(var6);
-                Vec3 var11 = var5.subtract(var7).subtract(var6);
+                Camera.NearPlane var1 = this.getNearPlane();
 
-                for(Vec3 var13 : Arrays.asList(var5, var8, var9, var10, var11)) {
-                    Vec3 var14 = this.position.add(var13);
-                    BlockPos var15 = new BlockPos(var14);
-                    FluidState var16 = this.level.getFluidState(var15);
-                    if (var16.is(FluidTags.LAVA)) {
-                        if (var14.y <= (double)(var16.getHeight(this.level, var15) + (float)var15.getY())) {
+                for(Vec3 var3 : Arrays.asList(var1.forward, var1.getTopLeft(), var1.getTopRight(), var1.getBottomLeft(), var1.getBottomRight())) {
+                    Vec3 var4 = this.position.add(var3);
+                    BlockPos var5 = new BlockPos(var4);
+                    FluidState var6 = this.level.getFluidState(var5);
+                    if (var6.is(FluidTags.LAVA)) {
+                        if (var4.y <= (double)(var6.getHeight(this.level, var5) + (float)var5.getY())) {
                             return FogType.LAVA;
                         }
                     } else {
-                        BlockState var17 = this.level.getBlockState(var15);
-                        if (var17.is(Blocks.POWDER_SNOW)) {
+                        BlockState var7 = this.level.getBlockState(var5);
+                        if (var7.is(Blocks.POWDER_SNOW)) {
                             return FogType.POWDER_SNOW;
                         }
                     }
@@ -216,5 +217,38 @@ public class Camera {
         this.level = null;
         this.entity = null;
         this.initialized = false;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static class NearPlane {
+        private final Vec3 forward;
+        private final Vec3 left;
+        private final Vec3 up;
+
+        private NearPlane(Vec3 param0, Vec3 param1, Vec3 param2) {
+            this.forward = param0;
+            this.left = param1;
+            this.up = param2;
+        }
+
+        public Vec3 getTopLeft() {
+            return this.forward.add(this.up).add(this.left);
+        }
+
+        public Vec3 getTopRight() {
+            return this.forward.add(this.up).subtract(this.left);
+        }
+
+        public Vec3 getBottomLeft() {
+            return this.forward.subtract(this.up).add(this.left);
+        }
+
+        public Vec3 getBottomRight() {
+            return this.forward.subtract(this.up).subtract(this.left);
+        }
+
+        public Vec3 getPointOnPlane(float param0, float param1) {
+            return this.forward.add(this.up.scale((double)param1)).subtract(this.left.scale((double)param0));
+        }
     }
 }

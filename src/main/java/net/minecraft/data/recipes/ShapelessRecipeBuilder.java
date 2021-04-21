@@ -18,15 +18,13 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.ItemLike;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 public class ShapelessRecipeBuilder implements RecipeBuilder {
-    private static final Logger LOGGER = LogManager.getLogger();
     private final Item result;
     private final int count;
     private final List<Ingredient> ingredients = Lists.newArrayList();
     private final Advancement.Builder advancement = Advancement.Builder.advancement();
+    @Nullable
     private String group;
 
     public ShapelessRecipeBuilder(ItemLike param0, int param1) {
@@ -75,25 +73,17 @@ public class ShapelessRecipeBuilder implements RecipeBuilder {
         return this;
     }
 
-    public ShapelessRecipeBuilder group(String param0) {
+    public ShapelessRecipeBuilder group(@Nullable String param0) {
         this.group = param0;
         return this;
     }
 
     @Override
-    public void save(Consumer<FinishedRecipe> param0) {
-        this.save(param0, Registry.ITEM.getKey(this.result));
+    public Item getResult() {
+        return this.result;
     }
 
-    public void save(Consumer<FinishedRecipe> param0, String param1) {
-        ResourceLocation var0 = Registry.ITEM.getKey(this.result);
-        if (new ResourceLocation(param1).equals(var0)) {
-            throw new IllegalStateException("Shapeless Recipe " + param1 + " should remove its 'save' argument");
-        } else {
-            this.save(param0, new ResourceLocation(param1));
-        }
-    }
-
+    @Override
     public void save(Consumer<FinishedRecipe> param0, ResourceLocation param1) {
         this.ensureValid(param1);
         this.advancement

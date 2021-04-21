@@ -42,6 +42,29 @@ public class TeleportCommand {
             Commands.literal("teleport")
                 .requires(param0x -> param0x.hasPermission(2))
                 .then(
+                    Commands.argument("location", Vec3Argument.vec3())
+                        .executes(
+                            param0x -> teleportToPos(
+                                    param0x.getSource(),
+                                    Collections.singleton(param0x.getSource().getEntityOrException()),
+                                    param0x.getSource().getLevel(),
+                                    Vec3Argument.getCoordinates(param0x, "location"),
+                                    WorldCoordinates.current(),
+                                    null
+                                )
+                        )
+                )
+                .then(
+                    Commands.argument("destination", EntityArgument.entity())
+                        .executes(
+                            param0x -> teleportToEntity(
+                                    param0x.getSource(),
+                                    Collections.singleton(param0x.getSource().getEntityOrException()),
+                                    EntityArgument.getEntity(param0x, "destination")
+                                )
+                        )
+                )
+                .then(
                     Commands.argument("targets", EntityArgument.entities())
                         .then(
                             Commands.argument("location", Vec3Argument.vec3())
@@ -127,29 +150,6 @@ public class TeleportCommand {
                                             EntityArgument.getEntities(param0x, "targets"),
                                             EntityArgument.getEntity(param0x, "destination")
                                         )
-                                )
-                        )
-                )
-                .then(
-                    Commands.argument("location", Vec3Argument.vec3())
-                        .executes(
-                            param0x -> teleportToPos(
-                                    param0x.getSource(),
-                                    Collections.singleton(param0x.getSource().getEntityOrException()),
-                                    param0x.getSource().getLevel(),
-                                    Vec3Argument.getCoordinates(param0x, "location"),
-                                    WorldCoordinates.current(),
-                                    null
-                                )
-                        )
-                )
-                .then(
-                    Commands.argument("destination", EntityArgument.entity())
-                        .executes(
-                            param0x -> teleportToEntity(
-                                    param0x.getSource(),
-                                    Collections.singleton(param0x.getSource().getEntityOrException()),
-                                    EntityArgument.getEntity(param0x, "destination")
                                 )
                         )
                 )

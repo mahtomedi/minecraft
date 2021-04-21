@@ -25,9 +25,9 @@ public class FontTexture extends AbstractTexture {
         this.name = param0;
         this.colored = param1;
         this.root = new FontTexture.Node(0, 0, 256, 256);
-        TextureUtil.prepareImage(param1 ? NativeImage.InternalGlFormat.RGBA : NativeImage.InternalGlFormat.INTENSITY, this.getId(), 256, 256);
-        this.normalType = RenderType.text(param0);
-        this.seeThroughType = RenderType.textSeeThrough(param0);
+        TextureUtil.prepareImage(param1 ? NativeImage.InternalGlFormat.RGBA : NativeImage.InternalGlFormat.RED, this.getId(), 256, 256);
+        this.normalType = param1 ? RenderType.text(param0) : RenderType.textIntensity(param0);
+        this.seeThroughType = param1 ? RenderType.textSeeThrough(param0) : RenderType.textIntensitySeeThrough(param0);
     }
 
     @Override

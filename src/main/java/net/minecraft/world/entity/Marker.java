@@ -28,7 +28,7 @@ public class Marker extends Entity {
 
     @Override
     protected void addAdditionalSaveData(CompoundTag param0) {
-        param0.put("data", this.data);
+        param0.put("data", this.data.copy());
     }
 
     @Override

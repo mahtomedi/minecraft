@@ -105,6 +105,7 @@ import net.minecraft.world.inventory.ContainerListener;
 import net.minecraft.world.inventory.ContainerSynchronizer;
 import net.minecraft.world.inventory.HorseInventoryMenu;
 import net.minecraft.world.inventory.ResultSlot;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ComplexItem;
 import net.minecraft.world.item.ItemCooldowns;
 import net.minecraft.world.item.ItemStack;
@@ -215,8 +216,9 @@ public class ServerPlayer extends Player {
     private final ContainerListener containerListener = new ContainerListener() {
         @Override
         public void slotChanged(AbstractContainerMenu param0, int param1, ItemStack param2) {
-            if (!(param0.getSlot(param1) instanceof ResultSlot)) {
-                if (param0 == ServerPlayer.this.inventoryMenu) {
+            Slot var0 = param0.getSlot(param1);
+            if (!(var0 instanceof ResultSlot)) {
+                if (var0.container == ServerPlayer.this.getInventory()) {
                     CriteriaTriggers.INVENTORY_CHANGED.trigger(ServerPlayer.this, ServerPlayer.this.getInventory(), param2);
                 }
 
@@ -585,6 +587,7 @@ public class ServerPlayer extends Player {
         this.resetStat(Stats.CUSTOM.get(Stats.TIME_SINCE_DEATH));
         this.resetStat(Stats.CUSTOM.get(Stats.TIME_SINCE_REST));
         this.clearFire();
+        this.setTicksFrozen(0);
         this.setSharedFlagOnFire(false);
         this.getCombatTracker().recheckStatus();
     }

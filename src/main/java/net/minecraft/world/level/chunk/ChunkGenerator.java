@@ -36,6 +36,7 @@ import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.levelgen.Aquifer;
 import net.minecraft.world.level.levelgen.BaseStoneSource;
 import net.minecraft.world.level.levelgen.DebugLevelSource;
 import net.minecraft.world.level.levelgen.FlatLevelSource;
@@ -140,25 +141,30 @@ public abstract class ChunkGenerator {
             .getNoiseBiome(QuartPos.fromBlock(var3.getMinBlockX()), 0, QuartPos.fromBlock(var3.getMinBlockZ()))
             .getGenerationSettings();
         CarvingContext var5 = new CarvingContext(this);
-        BitSet var6 = ((ProtoChunk)param2).getOrCreateCarvingMask(param3);
+        Aquifer var6 = this.createAquifer(param2);
+        BitSet var7 = ((ProtoChunk)param2).getOrCreateCarvingMask(param3);
 
-        for(int var7 = -8; var7 <= 8; ++var7) {
-            for(int var8 = -8; var8 <= 8; ++var8) {
-                ChunkPos var9 = new ChunkPos(var3.x + var7, var3.z + var8);
-                List<Supplier<ConfiguredWorldCarver<?>>> var10 = var4.getCarvers(param3);
-                ListIterator<Supplier<ConfiguredWorldCarver<?>>> var11 = var10.listIterator();
+        for(int var8 = -8; var8 <= 8; ++var8) {
+            for(int var9 = -8; var9 <= 8; ++var9) {
+                ChunkPos var10 = new ChunkPos(var3.x + var8, var3.z + var9);
+                List<Supplier<ConfiguredWorldCarver<?>>> var11 = var4.getCarvers(param3);
+                ListIterator<Supplier<ConfiguredWorldCarver<?>>> var12 = var11.listIterator();
 
-                while(var11.hasNext()) {
-                    int var12 = var11.nextIndex();
-                    ConfiguredWorldCarver<?> var13 = var11.next().get();
-                    var1.setLargeFeatureSeed(param0 + (long)var12, var9.x, var9.z);
-                    if (var13.isStartChunk(var1)) {
-                        var13.carve(var5, param2, var0::getBiome, var1, this.getSeaLevel(), var9, var6);
+                while(var12.hasNext()) {
+                    int var13 = var12.nextIndex();
+                    ConfiguredWorldCarver<?> var14 = var12.next().get();
+                    var1.setLargeFeatureSeed(param0 + (long)var13, var10.x, var10.z);
+                    if (var14.isStartChunk(var1)) {
+                        var14.carve(var5, param2, var0::getBiome, var1, var6, var10, var7);
                     }
                 }
             }
         }
 
+    }
+
+    protected Aquifer createAquifer(ChunkAccess param0) {
+        return Aquifer.createDisabled(this.getSeaLevel(), Blocks.WATER.defaultBlockState());
     }
 
     @Nullable

@@ -1,6 +1,5 @@
 package net.minecraft.world.level.levelgen;
 
-import java.util.function.Supplier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -11,9 +10,9 @@ public class DepthBasedReplacingBaseStoneSource implements BaseStoneSource {
     private final long seed;
     private final BlockState normalBlock;
     private final BlockState replacementBlock;
-    private final Supplier<NoiseGeneratorSettings> settings;
+    private final NoiseGeneratorSettings settings;
 
-    public DepthBasedReplacingBaseStoneSource(long param0, BlockState param1, BlockState param2, Supplier<NoiseGeneratorSettings> param3) {
+    public DepthBasedReplacingBaseStoneSource(long param0, BlockState param1, BlockState param2, NoiseGeneratorSettings param3) {
         this.random = new WorldgenRandom(param0);
         this.seed = param0;
         this.normalBlock = param1;
@@ -22,8 +21,8 @@ public class DepthBasedReplacingBaseStoneSource implements BaseStoneSource {
     }
 
     @Override
-    public BlockState getBaseStone(int param0, int param1, int param2) {
-        if (!this.settings.get().isDeepslateEnabled()) {
+    public BlockState getBaseBlock(int param0, int param1, int param2) {
+        if (!this.settings.isDeepslateEnabled()) {
             return this.normalBlock;
         } else if (param1 < -8) {
             return this.replacementBlock;

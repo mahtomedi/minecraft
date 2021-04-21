@@ -694,7 +694,7 @@ public class VanillaBiomes {
         BiomeDefaultFeatures.addDefaultLakes(var0);
         BiomeDefaultFeatures.addDefaultCrystalFormations(var0);
         BiomeDefaultFeatures.addDefaultMonsterRoom(var0);
-        BiomeDefaultFeatures.addDefaultUndergroundVariety(var0);
+        BiomeDefaultFeatures.addDefaultUndergroundVariety(var0, true);
         BiomeDefaultFeatures.addDefaultOres(var0);
         BiomeDefaultFeatures.addDefaultSoftDisks(var0);
         BiomeDefaultFeatures.addWaterTrees(var0);
@@ -798,7 +798,7 @@ public class VanillaBiomes {
         BiomeDefaultFeatures.addDefaultCrystalFormations(var2);
         BiomeDefaultFeatures.addDefaultMonsterRoom(var2);
         BiomeDefaultFeatures.addBlueIce(var2);
-        BiomeDefaultFeatures.addDefaultUndergroundVariety(var2);
+        BiomeDefaultFeatures.addDefaultUndergroundVariety(var2, true);
         BiomeDefaultFeatures.addDefaultOres(var2);
         BiomeDefaultFeatures.addDefaultSoftDisks(var2);
         BiomeDefaultFeatures.addWaterTrees(var2);

@@ -224,7 +224,7 @@ public class FallingBlockEntity extends Entity {
                 float var6 = (float)Math.min(Mth.floor((float)var0 * this.fallDamagePerDistance), this.fallDamageMax);
                 this.level.getEntities(this, this.getBoundingBox(), var2).forEach(param2x -> param2x.hurt(var3, var6));
                 boolean var7 = this.blockState.is(BlockTags.ANVIL);
-                if (var7 && (double)this.random.nextFloat() < 0.05F + (double)var0 * 0.05) {
+                if (var7 && var6 > 0.0F && this.random.nextFloat() < 0.05F + (float)var0 * 0.05F) {
                     BlockState var8 = AnvilBlock.damage(this.blockState);
                     if (var8 == null) {
                         this.cancelDrop = true;

@@ -43,12 +43,17 @@ public class RootSystemFeature extends Feature<RootSystemConfiguration> {
 
         for(int var1 = 1; var1 <= param1.requiredVerticalSpaceForTree; ++var1) {
             var0.move(Direction.UP);
-            if (!param0.isEmptyBlock(var0) && !param0.isWaterAt(var0)) {
+            BlockState var2 = param0.getBlockState(var0);
+            if (!isAllowedTreeSpace(var2, var1, param1.allowedVerticalWaterForTree)) {
                 return false;
             }
         }
 
         return true;
+    }
+
+    private static boolean isAllowedTreeSpace(BlockState param0, int param1, int param2) {
+        return param0.isAir() || param1 <= param2 && param0.getFluidState().is(FluidTags.WATER);
     }
 
     private boolean placeDirtAndTree(

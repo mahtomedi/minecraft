@@ -10,6 +10,7 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.levelgen.Aquifer;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 
 public class UnderwaterCaveWorldCarver extends CaveWorldCarver {
@@ -70,16 +71,16 @@ public class UnderwaterCaveWorldCarver extends CaveWorldCarver {
         Random param5,
         BlockPos.MutableBlockPos param6,
         BlockPos.MutableBlockPos param7,
-        int param8,
+        Aquifer param8,
         MutableBoolean param9
     ) {
         return carveBlock(this, param2, param5, param6, param7, param8);
     }
 
     protected static boolean carveBlock(
-        WorldCarver<?> param0, ChunkAccess param1, Random param2, BlockPos.MutableBlockPos param3, BlockPos.MutableBlockPos param4, int param5
+        WorldCarver<?> param0, ChunkAccess param1, Random param2, BlockPos.MutableBlockPos param3, BlockPos.MutableBlockPos param4, Aquifer param5
     ) {
-        if (param3.getY() >= param5) {
+        if (param5.computeState(WorldCarver.STONE_SOURCE, param3.getX(), param3.getY(), param3.getZ(), Double.NEGATIVE_INFINITY).isAir()) {
             return false;
         } else {
             BlockState var0 = param1.getBlockState(param3);

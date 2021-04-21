@@ -12,6 +12,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
@@ -69,6 +70,8 @@ public class FireworkRocketItem extends Item {
                 if (!param1.getAbilities().instabuild) {
                     var0.shrink(1);
                 }
+
+                param1.awardStat(Stats.ITEM_USED.get(this));
             }
 
             return InteractionResultHolder.sidedSuccess(param1.getItemInHand(param2), param0.isClientSide());

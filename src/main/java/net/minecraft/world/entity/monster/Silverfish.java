@@ -178,7 +178,7 @@ public class Silverfish extends Monster {
                 BlockPos var1 = new BlockPos(this.mob.getX(), this.mob.getY() + 0.5, this.mob.getZ()).relative(this.selectedDirection);
                 BlockState var2 = var0.getBlockState(var1);
                 if (InfestedBlock.isCompatibleHostBlock(var2)) {
-                    var0.setBlock(var1, InfestedBlock.stateByHostBlock(var2.getBlock()), 3);
+                    var0.setBlock(var1, InfestedBlock.infestedStateByHost(var2), 3);
                     this.mob.spawnAnim();
                     this.mob.discard();
                 }
@@ -225,7 +225,7 @@ public class Silverfish extends Monster {
                                 if (var0.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)) {
                                     var0.destroyBlock(var6, true, this.silverfish);
                                 } else {
-                                    var0.setBlock(var6, ((InfestedBlock)var8).getHostBlock().defaultBlockState(), 3);
+                                    var0.setBlock(var6, ((InfestedBlock)var8).hostStateByInfested(var0.getBlockState(var6)), 3);
                                 }
 
                                 if (var1.nextBoolean()) {

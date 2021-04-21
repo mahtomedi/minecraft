@@ -735,6 +735,7 @@ public abstract class AbstractContainerMenu {
             Slot var4 = this.slots.get(var3);
             Integer var5 = var0.get(var4.container, var4.getContainerSlot());
             if (var5 != null) {
+                this.lastSlots.set(var3, param0.lastSlots.get(var5));
                 this.remoteSlots.set(var3, param0.remoteSlots.get(var5));
             }
         }

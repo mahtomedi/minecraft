@@ -48,12 +48,19 @@ public class BiomeDefaultFeatures {
     }
 
     public static void addDefaultUndergroundVariety(BiomeGenerationSettings.Builder param0) {
+        addDefaultUndergroundVariety(param0, false);
+    }
+
+    public static void addDefaultUndergroundVariety(BiomeGenerationSettings.Builder param0, boolean param1) {
         param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_DIRT);
         param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_GRAVEL);
         param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_GRANITE);
         param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_DIORITE);
         param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_ANDESITE);
-        param0.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, Features.GLOW_LICHEN);
+        if (!param1) {
+            param0.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, Features.GLOW_LICHEN);
+        }
+
         param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_TUFF);
         param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_DEEPSLATE);
         param0.addFeature(GenerationStep.Decoration.UNDERGROUND_DECORATION, Features.RARE_DRIPSTONE_CLUSTER_FEATURE);

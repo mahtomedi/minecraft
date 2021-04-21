@@ -35,11 +35,9 @@ import org.apache.logging.log4j.Logger;
 
 public class ServerStatsCounter extends StatsCounter {
     private static final Logger LOGGER = LogManager.getLogger();
-    private static final int STAT_REQUEST_COOLDOWN = 300;
     private final MinecraftServer server;
     private final File file;
     private final Set<Stat<?>> dirty = Sets.newHashSet();
-    private int lastStatRequest = -300;
 
     public ServerStatsCounter(MinecraftServer param0, File param1) {
         this.server = param0;
@@ -177,16 +175,12 @@ public class ServerStatsCounter extends StatsCounter {
     }
 
     public void sendStats(ServerPlayer param0) {
-        int var0 = this.server.getTickCount();
-        Object2IntMap<Stat<?>> var1 = new Object2IntOpenHashMap<>();
-        if (var0 - this.lastStatRequest > 300) {
-            this.lastStatRequest = var0;
+        Object2IntMap<Stat<?>> var0 = new Object2IntOpenHashMap<>();
 
-            for(Stat<?> var2 : this.getDirty()) {
-                var1.put(var2, this.getValue(var2));
-            }
+        for(Stat<?> var1 : this.getDirty()) {
+            var0.put(var1, this.getValue(var1));
         }
 
-        param0.connection.send(new ClientboundAwardStatsPacket(var1));
+        param0.connection.send(new ClientboundAwardStatsPacket(var0));
     }
 }

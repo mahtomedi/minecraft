@@ -137,7 +137,7 @@ public class LakeFeature extends Feature<BlockStateConfiguration> {
                                     && (var36 < 4 || var2.nextInt(2) != 0)
                                     && var1.getBlockState(var0.offset(var34, var36, var35)).getMaterial().isSolid()) {
                                     BlockPos var38 = var0.offset(var34, var36, var35);
-                                    var1.setBlock(var38, var33.getBaseStone(var38), 2);
+                                    var1.setBlock(var38, var33.getBaseBlock(var38), 2);
                                 }
                             }
                         }

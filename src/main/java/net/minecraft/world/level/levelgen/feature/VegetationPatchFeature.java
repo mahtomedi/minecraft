@@ -106,12 +106,16 @@ public class VegetationPatchFeature extends Feature<VegetationPatchConfiguration
         WorldGenLevel param0, VegetationPatchConfiguration param1, Predicate<BlockState> param2, Random param3, BlockPos.MutableBlockPos param4, int param5
     ) {
         for(int var0 = 0; var0 < param5; ++var0) {
-            if (!param2.test(param0.getBlockState(param4))) {
-                return var0 != 0;
-            }
+            BlockState var1 = param1.groundState.getState(param3, param4);
+            BlockState var2 = param0.getBlockState(param4);
+            if (!var1.is(var2.getBlock())) {
+                if (!param2.test(var2)) {
+                    return var0 != 0;
+                }
 
-            param0.setBlock(param4, param1.groundState.getState(param3, param4), 2);
-            param4.move(param1.surface.getDirection());
+                param0.setBlock(param4, var1, 2);
+                param4.move(param1.surface.getDirection());
+            }
         }
 
         return true;
