@@ -203,7 +203,7 @@ public abstract class PlayerList {
         }
 
         this.broadcastMessage(var15.withStyle(ChatFormatting.YELLOW), ChatType.SYSTEM, Util.NIL_UUID);
-        var11.teleport(param1.getX(), param1.getY(), param1.getZ(), param1.yRot, param1.xRot);
+        var11.teleport(param1.getX(), param1.getY(), param1.getZ(), param1.getYRot(), param1.getXRot());
         this.players.add(param1);
         this.playersByUUID.put(param1.getUUID(), param1);
         this.broadcastAll(new ClientboundPlayerInfoPacket(ClientboundPlayerInfoPacket.Action.ADD_PLAYER, param1));
@@ -489,7 +489,7 @@ public abstract class PlayerList {
                     param1
                 )
             );
-        var7.connection.teleport(var7.getX(), var7.getY(), var7.getZ(), var7.yRot, var7.xRot);
+        var7.connection.teleport(var7.getX(), var7.getY(), var7.getZ(), var7.getYRot(), var7.getXRot());
         var7.connection.send(new ClientboundSetDefaultSpawnPositionPacket(var6.getSharedSpawnPos(), var6.getSharedSpawnAngle()));
         var7.connection.send(new ClientboundChangeDifficultyPacket(var16.getDifficulty(), var16.isDifficultyLocked()));
         var7.connection.send(new ClientboundSetExperiencePacket(var7.experienceProgress, var7.totalExperience, var7.experienceLevel));

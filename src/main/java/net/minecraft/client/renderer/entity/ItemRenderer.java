@@ -305,6 +305,10 @@ public class ItemRenderer implements ResourceManagerReloadListener {
         this.tryRenderGuiItem(Minecraft.getInstance().player, param0, param1, param2, param3);
     }
 
+    public void renderAndDecorateItem(ItemStack param0, int param1, int param2, int param3, int param4) {
+        this.tryRenderGuiItem(Minecraft.getInstance().player, param0, param1, param2, param3, param4);
+    }
+
     public void renderAndDecorateFakeItem(ItemStack param0, int param1, int param2) {
         this.tryRenderGuiItem(null, param0, param1, param2, 0);
     }
@@ -314,22 +318,27 @@ public class ItemRenderer implements ResourceManagerReloadListener {
     }
 
     private void tryRenderGuiItem(@Nullable LivingEntity param0, ItemStack param1, int param2, int param3, int param4) {
+        this.tryRenderGuiItem(param0, param1, param2, param3, param4, 0);
+    }
+
+    private void tryRenderGuiItem(@Nullable LivingEntity param0, ItemStack param1, int param2, int param3, int param4, int param5) {
         if (!param1.isEmpty()) {
-            this.blitOffset += 50.0F;
+            BakedModel var0 = this.getModel(param1, null, param0, param4);
+            this.blitOffset = var0.isGui3d() ? this.blitOffset + 50.0F + (float)param5 : this.blitOffset + 50.0F;
 
             try {
-                this.renderGuiItem(param1, param2, param3, this.getModel(param1, null, param0, param4));
-            } catch (Throwable var9) {
-                CrashReport var1 = CrashReport.forThrowable(var9, "Rendering item");
-                CrashReportCategory var2 = var1.addCategory("Item being rendered");
-                var2.setDetail("Item Type", () -> String.valueOf(param1.getItem()));
-                var2.setDetail("Item Damage", () -> String.valueOf(param1.getDamageValue()));
-                var2.setDetail("Item NBT", () -> String.valueOf(param1.getTag()));
-                var2.setDetail("Item Foil", () -> String.valueOf(param1.hasFoil()));
-                throw new ReportedException(var1);
+                this.renderGuiItem(param1, param2, param3, var0);
+            } catch (Throwable var11) {
+                CrashReport var2 = CrashReport.forThrowable(var11, "Rendering item");
+                CrashReportCategory var3 = var2.addCategory("Item being rendered");
+                var3.setDetail("Item Type", () -> String.valueOf(param1.getItem()));
+                var3.setDetail("Item Damage", () -> String.valueOf(param1.getDamageValue()));
+                var3.setDetail("Item NBT", () -> String.valueOf(param1.getTag()));
+                var3.setDetail("Item Foil", () -> String.valueOf(param1.hasFoil()));
+                throw new ReportedException(var2);
             }
 
-            this.blitOffset -= 50.0F;
+            this.blitOffset = var0.isGui3d() ? this.blitOffset - 50.0F - (float)param5 : this.blitOffset - 50.0F;
         }
     }
 

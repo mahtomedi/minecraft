@@ -38,7 +38,7 @@ public class BoatDispenseItemBehavior extends DefaultDispenseItemBehavior {
 
         Boat var9 = new Boat(var1, var2, var3 + var6, var4);
         var9.setType(this.type);
-        var9.yRot = var0.toYRot();
+        var9.setYRot(var0.toYRot());
         var1.addFreshEntity(var9);
         param1.shrink(1);
         return param1;

@@ -51,7 +51,7 @@ public class ItemEntity extends Entity {
     public ItemEntity(Level param0, double param1, double param2, double param3) {
         this(EntityType.ITEM, param0);
         this.setPos(param1, param2, param3);
-        this.yRot = this.random.nextFloat() * 360.0F;
+        this.setYRot(this.random.nextFloat() * 360.0F);
         this.setDeltaMovement(this.random.nextDouble() * 0.2 - 0.1, 0.2, this.random.nextDouble() * 0.2 - 0.1);
     }
 

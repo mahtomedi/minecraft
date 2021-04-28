@@ -39,7 +39,7 @@ public class BowItem extends ProjectileWeaponItem implements Vanishable {
                     if (!param1.isClientSide) {
                         ArrowItem var6 = (ArrowItem)(var2.getItem() instanceof ArrowItem ? var2.getItem() : Items.ARROW);
                         AbstractArrow var7 = var6.createArrow(param1, var2, var0);
-                        var7.shootFromRotation(var0, var0.xRot, var0.yRot, 0.0F, var4 * 3.0F, 1.0F);
+                        var7.shootFromRotation(var0, var0.getXRot(), var0.getYRot(), 0.0F, var4 * 3.0F, 1.0F);
                         if (var4 == 1.0F) {
                             var7.setCritArrow(true);
                         }

@@ -221,7 +221,7 @@ public class Rabbit extends Animal {
     }
 
     private void facePoint(double param0, double param1) {
-        this.yRot = (float)(Mth.atan2(param1 - this.getZ(), param0 - this.getX()) * 180.0F / (float)Math.PI) - 90.0F;
+        this.setYRot((float)(Mth.atan2(param1 - this.getZ(), param0 - this.getX()) * 180.0F / (float)Math.PI) - 90.0F);
     }
 
     private void enableJumpControl() {

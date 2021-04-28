@@ -207,11 +207,11 @@ public class Strider extends Animal implements ItemSteerable, Saddleable {
     @Override
     public Vec3 getDismountLocationForPassenger(LivingEntity param0) {
         Vec3[] var0 = new Vec3[]{
-            getCollisionHorizontalEscapeVector((double)this.getBbWidth(), (double)param0.getBbWidth(), param0.yRot),
-            getCollisionHorizontalEscapeVector((double)this.getBbWidth(), (double)param0.getBbWidth(), param0.yRot - 22.5F),
-            getCollisionHorizontalEscapeVector((double)this.getBbWidth(), (double)param0.getBbWidth(), param0.yRot + 22.5F),
-            getCollisionHorizontalEscapeVector((double)this.getBbWidth(), (double)param0.getBbWidth(), param0.yRot - 45.0F),
-            getCollisionHorizontalEscapeVector((double)this.getBbWidth(), (double)param0.getBbWidth(), param0.yRot + 45.0F)
+            getCollisionHorizontalEscapeVector((double)this.getBbWidth(), (double)param0.getBbWidth(), param0.getYRot()),
+            getCollisionHorizontalEscapeVector((double)this.getBbWidth(), (double)param0.getBbWidth(), param0.getYRot() - 22.5F),
+            getCollisionHorizontalEscapeVector((double)this.getBbWidth(), (double)param0.getBbWidth(), param0.getYRot() + 22.5F),
+            getCollisionHorizontalEscapeVector((double)this.getBbWidth(), (double)param0.getBbWidth(), param0.getYRot() - 45.0F),
+            getCollisionHorizontalEscapeVector((double)this.getBbWidth(), (double)param0.getBbWidth(), param0.getYRot() + 45.0F)
         };
         Set<BlockPos> var1 = Sets.newLinkedHashSet();
         double var2 = this.getBoundingBox().maxY;
@@ -467,7 +467,7 @@ public class Strider extends Animal implements ItemSteerable, Saddleable {
     }
 
     private SpawnGroupData spawnJockey(ServerLevelAccessor param0, DifficultyInstance param1, Mob param2, @Nullable SpawnGroupData param3) {
-        param2.moveTo(this.getX(), this.getY(), this.getZ(), this.yRot, 0.0F);
+        param2.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), 0.0F);
         param2.finalizeSpawn(param0, param1, MobSpawnType.JOCKEY, param3, null);
         param2.startRiding(this, true);
         return new AgeableMob.AgeableMobGroupData(0.0F);

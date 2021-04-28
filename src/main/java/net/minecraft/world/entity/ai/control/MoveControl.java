@@ -69,8 +69,8 @@ public class MoveControl implements Control {
             var4 = var1 / var4;
             var2 *= var4;
             var3 *= var4;
-            float var5 = Mth.sin(this.mob.yRot * (float) (Math.PI / 180.0));
-            float var6 = Mth.cos(this.mob.yRot * (float) (Math.PI / 180.0));
+            float var5 = Mth.sin(this.mob.getYRot() * (float) (Math.PI / 180.0));
+            float var6 = Mth.cos(this.mob.getYRot() * (float) (Math.PI / 180.0));
             float var7 = var2 * var6 - var3 * var5;
             float var8 = var3 * var6 + var2 * var5;
             if (!this.isWalkable(var7, var8)) {
@@ -94,7 +94,7 @@ public class MoveControl implements Control {
             }
 
             float var13 = (float)(Mth.atan2(var10, var9) * 180.0F / (float)Math.PI) - 90.0F;
-            this.mob.yRot = this.rotlerp(this.mob.yRot, var13, 90.0F);
+            this.mob.setYRot(this.rotlerp(this.mob.getYRot(), var13, 90.0F));
             this.mob.setSpeed((float)(this.speedModifier * this.mob.getAttributeValue(Attributes.MOVEMENT_SPEED)));
             BlockPos var14 = this.mob.blockPosition();
             BlockState var15 = this.mob.level.getBlockState(var14);

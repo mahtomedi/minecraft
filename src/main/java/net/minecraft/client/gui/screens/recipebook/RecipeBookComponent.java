@@ -65,6 +65,7 @@ public class RecipeBookComponent extends GuiComponent implements Widget, GuiEven
     private final StackedContents stackedContents = new StackedContents();
     private int timesInventoryChanged;
     private boolean ignoreTextInput;
+    private boolean visible;
 
     public void init(int param0, int param1, Minecraft param2, boolean param3, RecipeBookMenu<?> param4) {
         this.minecraft = param2;
@@ -74,7 +75,8 @@ public class RecipeBookComponent extends GuiComponent implements Widget, GuiEven
         param2.player.containerMenu = param4;
         this.book = param2.player.getRecipeBook();
         this.timesInventoryChanged = param2.player.getInventory().getTimesChanged();
-        if (this.isVisible()) {
+        this.visible = this.isVisibleAccordingToBookData();
+        if (this.visible) {
             this.initVisuals(param3);
         }
 
@@ -153,10 +155,15 @@ public class RecipeBookComponent extends GuiComponent implements Widget, GuiEven
     }
 
     public boolean isVisible() {
+        return this.visible;
+    }
+
+    private boolean isVisibleAccordingToBookData() {
         return this.book.isOpen(this.menu.getRecipeBookType());
     }
 
     protected void setVisible(boolean param0) {
+        this.visible = param0;
         this.book.setOpen(this.menu.getRecipeBookType(), param0);
         if (!param0) {
             this.recipeBookPage.setInvisible();
@@ -216,6 +223,11 @@ public class RecipeBookComponent extends GuiComponent implements Widget, GuiEven
     }
 
     public void tick() {
+        boolean var0 = this.isVisibleAccordingToBookData();
+        if (this.isVisible() != var0) {
+            this.setVisible(var0);
+        }
+
         if (this.isVisible()) {
             if (this.timesInventoryChanged != this.minecraft.player.getInventory().getTimesChanged()) {
                 this.updateStackedContents();

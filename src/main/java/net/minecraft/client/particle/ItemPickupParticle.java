@@ -62,7 +62,7 @@ public class ItemPickupParticle extends Particle {
                 var4 - var8.x(),
                 var5 - var8.y(),
                 var6 - var8.z(),
-                this.itemEntity.yRot,
+                this.itemEntity.getYRot(),
                 param2,
                 new PoseStack(),
                 var7,

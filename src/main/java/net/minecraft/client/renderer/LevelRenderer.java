@@ -1342,7 +1342,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
         double var0 = Mth.lerp((double)param4, param0.xOld, param0.getX());
         double var1 = Mth.lerp((double)param4, param0.yOld, param0.getY());
         double var2 = Mth.lerp((double)param4, param0.zOld, param0.getZ());
-        float var3 = Mth.lerp(param4, param0.yRotO, param0.yRot);
+        float var3 = Mth.lerp(param4, param0.yRotO, param0.getYRot());
         this.entityRenderDispatcher
             .render(
                 param0,

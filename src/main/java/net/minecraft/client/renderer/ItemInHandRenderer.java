@@ -282,7 +282,7 @@ public class ItemInHandRenderer {
     public void renderHandsWithItems(float param0, PoseStack param1, MultiBufferSource.BufferSource param2, LocalPlayer param3, int param4) {
         float var0 = param3.getAttackAnim(param0);
         InteractionHand var1 = MoreObjects.firstNonNull(param3.swingingArm, InteractionHand.MAIN_HAND);
-        float var2 = Mth.lerp(param0, param3.xRotO, param3.xRot);
+        float var2 = Mth.lerp(param0, param3.xRotO, param3.getXRot());
         ItemInHandRenderer.HandRenderSelection var3 = evaluateWhichHandsToRender(param3);
         float var4 = Mth.lerp(param0, param3.xBobO, param3.xBob);
         float var5 = Mth.lerp(param0, param3.yBobO, param3.yBob);

@@ -222,7 +222,7 @@ public class Pig extends Animal implements ItemSteerable, Saddleable {
         if (param0.getDifficulty() != Difficulty.PEACEFUL) {
             ZombifiedPiglin var0 = EntityType.ZOMBIFIED_PIGLIN.create(param0);
             var0.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.GOLDEN_SWORD));
-            var0.moveTo(this.getX(), this.getY(), this.getZ(), this.yRot, this.xRot);
+            var0.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
             var0.setNoAi(this.isNoAi());
             var0.setBaby(this.isBaby());
             if (this.hasCustomName()) {

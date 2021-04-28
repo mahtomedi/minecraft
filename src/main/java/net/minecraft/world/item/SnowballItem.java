@@ -30,7 +30,7 @@ public class SnowballItem extends Item {
         if (!param0.isClientSide) {
             Snowball var1 = new Snowball(param0, param1);
             var1.setItem(var0);
-            var1.shootFromRotation(param1, param1.xRot, param1.yRot, 0.0F, 1.5F, 1.0F);
+            var1.shootFromRotation(param1, param1.getXRot(), param1.getYRot(), 0.0F, 1.5F, 1.0F);
             param0.addFreshEntity(var1);
         }
 

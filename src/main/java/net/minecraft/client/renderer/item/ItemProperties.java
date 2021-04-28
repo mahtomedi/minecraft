@@ -169,7 +169,7 @@ public class ItemProperties {
                             boolean var4 = param2 instanceof Player && ((Player)param2).isLocalPlayer();
                             double var5 = 0.0;
                             if (var4) {
-                                var5 = (double)param2.yRot;
+                                var5 = (double)param2.getYRot();
                             } else if (var0 instanceof ItemFrame) {
                                 var5 = this.getFrameRotation((ItemFrame)var0);
                             } else if (var0 instanceof ItemEntity) {

@@ -782,7 +782,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
         if (param0.getDifficulty() != Difficulty.PEACEFUL) {
             LOGGER.info("Villager {} was struck by lightning {}.", this, param1);
             Witch var0 = EntityType.WITCH.create(param0);
-            var0.moveTo(this.getX(), this.getY(), this.getZ(), this.yRot, this.xRot);
+            var0.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
             var0.finalizeSpawn(param0, param0.getCurrentDifficultyAt(var0.blockPosition()), MobSpawnType.CONVERSION, null, null);
             var0.setNoAi(this.isNoAi());
             if (this.hasCustomName()) {

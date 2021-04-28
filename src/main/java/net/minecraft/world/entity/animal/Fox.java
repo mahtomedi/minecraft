@@ -263,8 +263,8 @@ public class Fox extends Animal {
             if (!var0.isEmpty()) {
                 for(int var1 = 0; var1 < 8; ++var1) {
                     Vec3 var2 = new Vec3(((double)this.random.nextFloat() - 0.5) * 0.1, Math.random() * 0.1 + 0.1, 0.0)
-                        .xRot(-this.xRot * (float) (Math.PI / 180.0))
-                        .yRot(-this.yRot * (float) (Math.PI / 180.0));
+                        .xRot(-this.getXRot() * (float) (Math.PI / 180.0))
+                        .yRot(-this.getYRot() * (float) (Math.PI / 180.0));
                     this.level
                         .addParticle(
                             new ItemParticleOption(ParticleTypes.ITEM, var0),
@@ -1149,7 +1149,7 @@ public class Fox extends Animal {
             LivingEntity var0 = Fox.this.getTarget();
             if (var0 != null && var0.isAlive()) {
                 double var1 = Fox.this.getDeltaMovement().y;
-                return (!(var1 * var1 < 0.05F) || !(Math.abs(Fox.this.xRot) < 15.0F) || !Fox.this.onGround) && !Fox.this.isFaceplanted();
+                return (!(var1 * var1 < 0.05F) || !(Math.abs(Fox.this.getXRot()) < 15.0F) || !Fox.this.onGround) && !Fox.this.isFaceplanted();
             } else {
                 return false;
             }
@@ -1190,22 +1190,22 @@ public class Fox extends Animal {
 
             if (!Fox.this.isFaceplanted()) {
                 Vec3 var1 = Fox.this.getDeltaMovement();
-                if (var1.y * var1.y < 0.03F && Fox.this.xRot != 0.0F) {
-                    Fox.this.xRot = Mth.rotlerp(Fox.this.xRot, 0.0F, 0.2F);
+                if (var1.y * var1.y < 0.03F && Fox.this.getXRot() != 0.0F) {
+                    Fox.this.setXRot(Mth.rotlerp(Fox.this.getXRot(), 0.0F, 0.2F));
                 } else {
                     double var2 = Math.sqrt(Entity.getHorizontalDistanceSqr(var1));
                     double var3 = Math.signum(-var1.y) * Math.acos(var2 / var1.length()) * 180.0F / (float)Math.PI;
-                    Fox.this.xRot = (float)var3;
+                    Fox.this.setXRot((float)var3);
                 }
             }
 
             if (var0 != null && Fox.this.distanceTo(var0) <= 2.0F) {
                 Fox.this.doHurtTarget(var0);
-            } else if (Fox.this.xRot > 0.0F
+            } else if (Fox.this.getXRot() > 0.0F
                 && Fox.this.onGround
                 && (float)Fox.this.getDeltaMovement().y != 0.0F
                 && Fox.this.level.getBlockState(Fox.this.blockPosition()).is(Blocks.SNOW)) {
-                Fox.this.xRot = 60.0F;
+                Fox.this.setXRot(60.0F);
                 Fox.this.setTarget(null);
                 Fox.this.setFaceplanted(true);
             }

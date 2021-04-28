@@ -35,8 +35,8 @@ public class DolphinCarryingItemLayer extends RenderLayer<Dolphin, DolphinModel<
         param0.pushPose();
         float var1 = 1.0F;
         float var2 = -1.0F;
-        float var3 = Mth.abs(param3.xRot) / 60.0F;
-        if (param3.xRot < 0.0F) {
+        float var3 = Mth.abs(param3.getXRot()) / 60.0F;
+        if (param3.getXRot() < 0.0F) {
             param0.translate(0.0, (double)(1.0F - var3 * 0.5F), (double)(-1.0F + var3 * 0.5F));
         } else {
             param0.translate(0.0, (double)(1.0F + var3 * 0.8F), (double)(-1.0F + var3 * 0.2F));

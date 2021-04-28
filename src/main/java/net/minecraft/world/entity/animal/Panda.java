@@ -369,7 +369,7 @@ public class Panda extends Animal {
         }
 
         if (this.isSitting()) {
-            this.xRot = 0.0F;
+            this.setXRot(0.0F);
         }
 
         this.updateSitAmount();
@@ -418,8 +418,8 @@ public class Panda extends Animal {
 
             for(int var0 = 0; var0 < 6; ++var0) {
                 Vec3 var1 = new Vec3(((double)this.random.nextFloat() - 0.5) * 0.1, Math.random() * 0.1 + 0.1, ((double)this.random.nextFloat() - 0.5) * 0.1);
-                var1 = var1.xRot(-this.xRot * (float) (Math.PI / 180.0));
-                var1 = var1.yRot(-this.yRot * (float) (Math.PI / 180.0));
+                var1 = var1.xRot(-this.getXRot() * (float) (Math.PI / 180.0));
+                var1 = var1.yRot(-this.getYRot() * (float) (Math.PI / 180.0));
                 double var2 = (double)(-this.random.nextFloat()) * 0.6 - 0.3;
                 Vec3 var3 = new Vec3(((double)this.random.nextFloat() - 0.5) * 0.8, var2, 1.0 + ((double)this.random.nextFloat() - 0.5) * 0.4);
                 var3 = var3.yRot(-this.yBodyRot * (float) (Math.PI / 180.0));
@@ -489,7 +489,7 @@ public class Panda extends Animal {
             if (!this.level.isClientSide) {
                 Vec3 var0 = this.getDeltaMovement();
                 if (this.rollCounter == 1) {
-                    float var1 = this.yRot * (float) (Math.PI / 180.0);
+                    float var1 = this.getYRot() * (float) (Math.PI / 180.0);
                     float var2 = this.isBaby() ? 0.1F : 0.2F;
                     this.rollDelta = new Vec3(var0.x + (double)(-Mth.sin(var1) * var2), 0.0, var0.z + (double)(Mth.cos(var1) * var2));
                     this.setDeltaMovement(this.rollDelta.add(0.0, 0.27, 0.0));
@@ -1040,7 +1040,7 @@ public class Panda extends Animal {
                 if (!this.panda.canPerformAction()) {
                     return false;
                 } else {
-                    float var0 = this.panda.yRot * (float) (Math.PI / 180.0);
+                    float var0 = this.panda.getYRot() * (float) (Math.PI / 180.0);
                     int var1 = 0;
                     int var2 = 0;
                     float var3 = -Mth.sin(var0);

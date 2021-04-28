@@ -35,7 +35,7 @@ public class ExperienceBottleItem extends Item {
         if (!param0.isClientSide) {
             ThrownExperienceBottle var1 = new ThrownExperienceBottle(param0, param1);
             var1.setItem(var0);
-            var1.shootFromRotation(param1, param1.xRot, param1.yRot, -20.0F, 0.7F, 1.0F);
+            var1.shootFromRotation(param1, param1.getXRot(), param1.getYRot(), -20.0F, 0.7F, 1.0F);
             param0.addFreshEntity(var1);
         }
 

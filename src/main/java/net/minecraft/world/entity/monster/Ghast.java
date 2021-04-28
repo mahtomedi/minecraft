@@ -161,16 +161,16 @@ public class Ghast extends FlyingMob implements Enemy {
         public void tick() {
             if (this.ghast.getTarget() == null) {
                 Vec3 var0 = this.ghast.getDeltaMovement();
-                this.ghast.yRot = -((float)Mth.atan2(var0.x, var0.z)) * (180.0F / (float)Math.PI);
-                this.ghast.yBodyRot = this.ghast.yRot;
+                this.ghast.setYRot(-((float)Mth.atan2(var0.x, var0.z)) * (180.0F / (float)Math.PI));
+                this.ghast.yBodyRot = this.ghast.getYRot();
             } else {
                 LivingEntity var1 = this.ghast.getTarget();
                 double var2 = 64.0;
                 if (var1.distanceToSqr(this.ghast) < 4096.0) {
                     double var3 = var1.getX() - this.ghast.getX();
                     double var4 = var1.getZ() - this.ghast.getZ();
-                    this.ghast.yRot = -((float)Mth.atan2(var3, var4)) * (180.0F / (float)Math.PI);
-                    this.ghast.yBodyRot = this.ghast.yRot;
+                    this.ghast.setYRot(-((float)Mth.atan2(var3, var4)) * (180.0F / (float)Math.PI));
+                    this.ghast.yBodyRot = this.ghast.getYRot();
                 }
             }
 

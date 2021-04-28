@@ -15,8 +15,8 @@ public class ServerboundMoveVehiclePacket implements Packet<ServerGamePacketList
         this.x = param0.getX();
         this.y = param0.getY();
         this.z = param0.getZ();
-        this.yRot = param0.yRot;
-        this.xRot = param0.xRot;
+        this.yRot = param0.getYRot();
+        this.xRot = param0.getXRot();
     }
 
     public ServerboundMoveVehiclePacket(FriendlyByteBuf param0) {

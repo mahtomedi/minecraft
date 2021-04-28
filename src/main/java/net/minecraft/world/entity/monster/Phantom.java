@@ -136,8 +136,8 @@ public class Phantom extends FlyingMob implements Enemy {
             }
 
             int var2 = this.getPhantomSize();
-            float var3 = Mth.cos(this.yRot * (float) (Math.PI / 180.0)) * (1.3F + 0.21F * (float)var2);
-            float var4 = Mth.sin(this.yRot * (float) (Math.PI / 180.0)) * (1.3F + 0.21F * (float)var2);
+            float var3 = Mth.cos(this.getYRot() * (float) (Math.PI / 180.0)) * (1.3F + 0.21F * (float)var2);
+            float var4 = Mth.sin(this.getYRot() * (float) (Math.PI / 180.0)) * (1.3F + 0.21F * (float)var2);
             float var5 = (0.3F + var0 * 0.45F) * ((float)var2 * 0.2F + 1.0F);
             this.level.addParticle(ParticleTypes.MYCELIUM, this.getX() + (double)var3, this.getY() + (double)var5, this.getZ() + (double)var4, 0.0, 0.0, 0.0);
             this.level.addParticle(ParticleTypes.MYCELIUM, this.getX() - (double)var3, this.getY() + (double)var5, this.getZ() - (double)var4, 0.0, 0.0, 0.0);
@@ -335,7 +335,7 @@ public class Phantom extends FlyingMob implements Enemy {
         @Override
         public void clientTick() {
             Phantom.this.yHeadRot = Phantom.this.yBodyRot;
-            Phantom.this.yBodyRot = Phantom.this.yRot;
+            Phantom.this.yBodyRot = Phantom.this.getYRot();
         }
     }
 
@@ -427,7 +427,7 @@ public class Phantom extends FlyingMob implements Enemy {
         @Override
         public void tick() {
             if (Phantom.this.horizontalCollision) {
-                Phantom.this.yRot += 180.0F;
+                Phantom.this.setYRot(Phantom.this.getYRot() + 180.0F);
                 this.speed = 0.1F;
             }
 
@@ -435,31 +435,34 @@ public class Phantom extends FlyingMob implements Enemy {
             float var1 = (float)(Phantom.this.moveTargetPoint.y - Phantom.this.getY());
             float var2 = (float)(Phantom.this.moveTargetPoint.z - Phantom.this.getZ());
             double var3 = (double)Mth.sqrt(var0 * var0 + var2 * var2);
-            double var4 = 1.0 - (double)Mth.abs(var1 * 0.7F) / var3;
-            var0 = (float)((double)var0 * var4);
-            var2 = (float)((double)var2 * var4);
-            var3 = (double)Mth.sqrt(var0 * var0 + var2 * var2);
-            double var5 = (double)Mth.sqrt(var0 * var0 + var2 * var2 + var1 * var1);
-            float var6 = Phantom.this.yRot;
-            float var7 = (float)Mth.atan2((double)var2, (double)var0);
-            float var8 = Mth.wrapDegrees(Phantom.this.yRot + 90.0F);
-            float var9 = Mth.wrapDegrees(var7 * (180.0F / (float)Math.PI));
-            Phantom.this.yRot = Mth.approachDegrees(var8, var9, 4.0F) - 90.0F;
-            Phantom.this.yBodyRot = Phantom.this.yRot;
-            if (Mth.degreesDifferenceAbs(var6, Phantom.this.yRot) < 3.0F) {
-                this.speed = Mth.approach(this.speed, 1.8F, 0.005F * (1.8F / this.speed));
-            } else {
-                this.speed = Mth.approach(this.speed, 0.2F, 0.025F);
+            if (Math.abs(var3) > 1.0E-5F) {
+                double var4 = 1.0 - (double)Mth.abs(var1 * 0.7F) / var3;
+                var0 = (float)((double)var0 * var4);
+                var2 = (float)((double)var2 * var4);
+                var3 = (double)Mth.sqrt(var0 * var0 + var2 * var2);
+                double var5 = (double)Mth.sqrt(var0 * var0 + var2 * var2 + var1 * var1);
+                float var6 = Phantom.this.getYRot();
+                float var7 = (float)Mth.atan2((double)var2, (double)var0);
+                float var8 = Mth.wrapDegrees(Phantom.this.getYRot() + 90.0F);
+                float var9 = Mth.wrapDegrees(var7 * (180.0F / (float)Math.PI));
+                Phantom.this.setYRot(Mth.approachDegrees(var8, var9, 4.0F) - 90.0F);
+                Phantom.this.yBodyRot = Phantom.this.getYRot();
+                if (Mth.degreesDifferenceAbs(var6, Phantom.this.getYRot()) < 3.0F) {
+                    this.speed = Mth.approach(this.speed, 1.8F, 0.005F * (1.8F / this.speed));
+                } else {
+                    this.speed = Mth.approach(this.speed, 0.2F, 0.025F);
+                }
+
+                float var10 = (float)(-(Mth.atan2((double)(-var1), var3) * 180.0F / (float)Math.PI));
+                Phantom.this.setXRot(var10);
+                float var11 = Phantom.this.getYRot() + 90.0F;
+                double var12 = (double)(this.speed * Mth.cos(var11 * (float) (Math.PI / 180.0))) * Math.abs((double)var0 / var5);
+                double var13 = (double)(this.speed * Mth.sin(var11 * (float) (Math.PI / 180.0))) * Math.abs((double)var2 / var5);
+                double var14 = (double)(this.speed * Mth.sin(var10 * (float) (Math.PI / 180.0))) * Math.abs((double)var1 / var5);
+                Vec3 var15 = Phantom.this.getDeltaMovement();
+                Phantom.this.setDeltaMovement(var15.add(new Vec3(var12, var14, var13).subtract(var15).scale(0.2)));
             }
 
-            float var10 = (float)(-(Mth.atan2((double)(-var1), var3) * 180.0F / (float)Math.PI));
-            Phantom.this.xRot = var10;
-            float var11 = Phantom.this.yRot + 90.0F;
-            double var12 = (double)(this.speed * Mth.cos(var11 * (float) (Math.PI / 180.0))) * Math.abs((double)var0 / var5);
-            double var13 = (double)(this.speed * Mth.sin(var11 * (float) (Math.PI / 180.0))) * Math.abs((double)var2 / var5);
-            double var14 = (double)(this.speed * Mth.sin(var10 * (float) (Math.PI / 180.0))) * Math.abs((double)var1 / var5);
-            Vec3 var15 = Phantom.this.getDeltaMovement();
-            Phantom.this.setDeltaMovement(var15.add(new Vec3(var12, var14, var13).subtract(var15).scale(0.2)));
         }
     }
 

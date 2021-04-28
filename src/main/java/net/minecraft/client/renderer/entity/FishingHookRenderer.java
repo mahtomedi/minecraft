@@ -93,7 +93,7 @@ public class FishingHookRenderer extends EntityRenderer<FishingHook> {
             int var32 = 16;
 
             for(int var33 = 0; var33 <= 16; ++var33) {
-                stringVertex(var27, var28, var29, var30, var31, fraction(var33, 16), fraction(var33 + 1, 17));
+                stringVertex(var27, var28, var29, var30, var31, fraction(var33, 16), fraction(var33 + 1, 16));
             }
 
             param3.popPose();

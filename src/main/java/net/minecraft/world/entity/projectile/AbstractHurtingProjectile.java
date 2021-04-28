@@ -35,7 +35,7 @@ public abstract class AbstractHurtingProjectile extends Projectile {
         Level param7
     ) {
         this(param0, param7);
-        this.moveTo(param1, param2, param3, this.yRot, this.xRot);
+        this.moveTo(param1, param2, param3, this.getYRot(), this.getXRot());
         this.reapplyPosition();
         double var0 = (double)Mth.sqrt(param4 * param4 + param5 * param5 + param6 * param6);
         if (var0 != 0.0) {
@@ -51,7 +51,7 @@ public abstract class AbstractHurtingProjectile extends Projectile {
     ) {
         this(param0, param1.getX(), param1.getY(), param1.getZ(), param2, param3, param4, param5);
         this.setOwner(param1);
-        this.setRot(param1.yRot, param1.xRot);
+        this.setRot(param1.getYRot(), param1.getXRot());
     }
 
     @Override
@@ -190,8 +190,8 @@ public abstract class AbstractHurtingProjectile extends Projectile {
             this.getX(),
             this.getY(),
             this.getZ(),
-            this.xRot,
-            this.yRot,
+            this.getXRot(),
+            this.getYRot(),
             this.getType(),
             var1,
             new Vec3(this.xPower, this.yPower, this.zPower)

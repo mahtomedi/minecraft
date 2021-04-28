@@ -563,8 +563,8 @@ public class Turtle extends Animal {
                 double var3 = (double)Mth.sqrt(var0 * var0 + var1 * var1 + var2 * var2);
                 var1 /= var3;
                 float var4 = (float)(Mth.atan2(var2, var0) * 180.0F / (float)Math.PI) - 90.0F;
-                this.turtle.yRot = this.rotlerp(this.turtle.yRot, var4, 90.0F);
-                this.turtle.yBodyRot = this.turtle.yRot;
+                this.turtle.setYRot(this.rotlerp(this.turtle.getYRot(), var4, 90.0F));
+                this.turtle.yBodyRot = this.turtle.getYRot();
                 float var5 = (float)(this.speedModifier * this.turtle.getAttributeValue(Attributes.MOVEMENT_SPEED));
                 this.turtle.setSpeed(Mth.lerp(0.125F, this.turtle.getSpeed(), var5));
                 this.turtle.setDeltaMovement(this.turtle.getDeltaMovement().add(0.0, (double)this.turtle.getSpeed() * var1 * 0.1, 0.0));

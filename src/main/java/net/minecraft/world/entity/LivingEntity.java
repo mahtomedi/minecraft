@@ -232,8 +232,8 @@ public abstract class LivingEntity extends Entity {
         this.rotA = (float)((Math.random() + 1.0) * 0.01F);
         this.reapplyPosition();
         this.timeOffs = (float)Math.random() * 12398.0F;
-        this.yRot = (float)(Math.random() * (float) (Math.PI * 2));
-        this.yHeadRot = this.yRot;
+        this.setYRot((float)(Math.random() * (float) (Math.PI * 2)));
+        this.yHeadRot = this.getYRot();
         this.maxUpStep = 0.6F;
         NbtOps var0 = NbtOps.INSTANCE;
         this.brain = this.makeBrain(new Dynamic<>(var0, var0.createMap(ImmutableMap.of(var0.createString("memories"), var0.emptyMap()))));
@@ -419,8 +419,8 @@ public abstract class LivingEntity extends Entity {
         this.animStepO = this.animStep;
         this.yBodyRotO = this.yBodyRot;
         this.yHeadRotO = this.yHeadRot;
-        this.yRotO = this.yRot;
-        this.xRotO = this.xRot;
+        this.yRotO = this.getYRot();
+        this.xRotO = this.getXRot();
         this.level.getProfiler().pop();
     }
 
@@ -1137,7 +1137,7 @@ public abstract class LivingEntity extends Entity {
                         var13 = (Math.random() - Math.random()) * 0.01;
                     }
 
-                    this.hurtDir = (float)(Mth.atan2(var14, var13) * 180.0F / (float)Math.PI - (double)this.yRot);
+                    this.hurtDir = (float)(Mth.atan2(var14, var13) * 180.0F / (float)Math.PI - (double)this.getYRot());
                     this.knockback(0.4F, var13, var14);
                 } else {
                     this.hurtDir = (float)((int)(Math.random() * 2.0) * 180);
@@ -1947,14 +1947,17 @@ public abstract class LivingEntity extends Entity {
     }
 
     private void dismountVehicle(Entity param0) {
-        Vec3 var1;
-        if (!param0.isRemoved() && !this.level.getBlockState(param0.blockPosition()).is(BlockTags.PORTALS)) {
-            var1 = param0.getDismountLocationForPassenger(this);
+        Vec3 var0;
+        if (this.isRemoved()) {
+            var0 = this.position();
+        } else if (!param0.isRemoved() && !this.level.getBlockState(param0.blockPosition()).is(BlockTags.PORTALS)) {
+            var0 = param0.getDismountLocationForPassenger(this);
         } else {
-            var1 = new Vec3(param0.getX(), param0.getY() + (double)param0.getBbHeight(), param0.getZ());
+            double var1 = Math.max(this.getY(), param0.getY());
+            var0 = new Vec3(this.getX(), var1, this.getZ());
         }
 
-        this.dismountTo(var1.x, var1.y, var1.z);
+        this.dismountTo(var0.x, var0.y, var0.z);
     }
 
     @Override
@@ -1975,7 +1978,7 @@ public abstract class LivingEntity extends Entity {
         Vec3 var1 = this.getDeltaMovement();
         this.setDeltaMovement(var1.x, (double)var0, var1.z);
         if (this.isSprinting()) {
-            float var2 = this.yRot * (float) (Math.PI / 180.0);
+            float var2 = this.getYRot() * (float) (Math.PI / 180.0);
             this.setDeltaMovement(this.getDeltaMovement().add((double)(-Mth.sin(var2) * 0.2F), 0.0, (double)(Mth.cos(var2) * 0.2F)));
         }
 
@@ -2070,7 +2073,7 @@ public abstract class LivingEntity extends Entity {
                 }
 
                 Vec3 var13 = this.getLookAngle();
-                float var14 = this.xRot * (float) (Math.PI / 180.0);
+                float var14 = this.getXRot() * (float) (Math.PI / 180.0);
                 double var15 = Math.sqrt(var13.x * var13.x + var13.z * var13.z);
                 double var16 = Math.sqrt(getHorizontalDistanceSqr(var12));
                 double var17 = var13.length();
@@ -2264,7 +2267,7 @@ public abstract class LivingEntity extends Entity {
             var7 = 1.0F;
             var6 = (float)Math.sqrt((double)var4) * 3.0F;
             float var8 = (float)Mth.atan2(var3, var2) * (180.0F / (float)Math.PI) - 90.0F;
-            float var9 = Mth.abs(Mth.wrapDegrees(this.yRot) - var8);
+            float var9 = Mth.abs(Mth.wrapDegrees(this.getYRot()) - var8);
             if (95.0F < var9 && var9 < 265.0F) {
                 var5 = var8 - 180.0F;
             } else {
@@ -2273,7 +2276,7 @@ public abstract class LivingEntity extends Entity {
         }
 
         if (this.attackAnim > 0.0F) {
-            var5 = this.yRot;
+            var5 = this.getYRot();
         }
 
         if (!this.onGround) {
@@ -2286,11 +2289,11 @@ public abstract class LivingEntity extends Entity {
         this.level.getProfiler().pop();
         this.level.getProfiler().push("rangeChecks");
 
-        while(this.yRot - this.yRotO < -180.0F) {
+        while(this.getYRot() - this.yRotO < -180.0F) {
             this.yRotO -= 360.0F;
         }
 
-        while(this.yRot - this.yRotO >= 180.0F) {
+        while(this.getYRot() - this.yRotO >= 180.0F) {
             this.yRotO += 360.0F;
         }
 
@@ -2302,11 +2305,11 @@ public abstract class LivingEntity extends Entity {
             this.yBodyRotO += 360.0F;
         }
 
-        while(this.xRot - this.xRotO < -180.0F) {
+        while(this.getXRot() - this.xRotO < -180.0F) {
             this.xRotO -= 360.0F;
         }
 
-        while(this.xRot - this.xRotO >= 180.0F) {
+        while(this.getXRot() - this.xRotO >= 180.0F) {
             this.xRotO += 360.0F;
         }
 
@@ -2327,7 +2330,7 @@ public abstract class LivingEntity extends Entity {
         }
 
         if (this.isSleeping()) {
-            this.xRot = 0.0F;
+            this.setXRot(0.0F);
         }
 
     }
@@ -2432,7 +2435,7 @@ public abstract class LivingEntity extends Entity {
     protected float tickHeadTurn(float param0, float param1) {
         float var0 = Mth.wrapDegrees(param0 - this.yBodyRot);
         this.yBodyRot += var0 * 0.3F;
-        float var1 = Mth.wrapDegrees(this.yRot - this.yBodyRot);
+        float var1 = Mth.wrapDegrees(this.getYRot() - this.yBodyRot);
         boolean var2 = var1 < -90.0F || var1 >= 90.0F;
         if (var1 < -75.0F) {
             var1 = -75.0F;
@@ -2442,7 +2445,7 @@ public abstract class LivingEntity extends Entity {
             var1 = 75.0F;
         }
 
-        this.yBodyRot = this.yRot - var1;
+        this.yBodyRot = this.getYRot() - var1;
         if (var1 * var1 > 2500.0F) {
             this.yBodyRot += var1 * 0.2F;
         }
@@ -2468,12 +2471,12 @@ public abstract class LivingEntity extends Entity {
             double var0 = this.getX() + (this.lerpX - this.getX()) / (double)this.lerpSteps;
             double var1 = this.getY() + (this.lerpY - this.getY()) / (double)this.lerpSteps;
             double var2 = this.getZ() + (this.lerpZ - this.getZ()) / (double)this.lerpSteps;
-            double var3 = Mth.wrapDegrees(this.lerpYRot - (double)this.yRot);
-            this.yRot = (float)((double)this.yRot + var3 / (double)this.lerpSteps);
-            this.xRot = (float)((double)this.xRot + (this.lerpXRot - (double)this.xRot) / (double)this.lerpSteps);
+            double var3 = Mth.wrapDegrees(this.lerpYRot - (double)this.getYRot());
+            this.setYRot(this.getYRot() + (float)var3 / (float)this.lerpSteps);
+            this.setXRot(this.getXRot() + (float)(this.lerpXRot - (double)this.getXRot()) / (float)this.lerpSteps);
             --this.lerpSteps;
             this.setPos(var0, var1, var2);
-            this.setRot(this.yRot, this.xRot);
+            this.setRot(this.getYRot(), this.getXRot());
         } else if (!this.isEffectiveAi()) {
             this.setDeltaMovement(this.getDeltaMovement().scale(0.98));
         }
@@ -2942,12 +2945,12 @@ public abstract class LivingEntity extends Entity {
     private void spawnItemParticles(ItemStack param0, int param1) {
         for(int var0 = 0; var0 < param1; ++var0) {
             Vec3 var1 = new Vec3(((double)this.random.nextFloat() - 0.5) * 0.1, Math.random() * 0.1 + 0.1, 0.0);
-            var1 = var1.xRot(-this.xRot * (float) (Math.PI / 180.0));
-            var1 = var1.yRot(-this.yRot * (float) (Math.PI / 180.0));
+            var1 = var1.xRot(-this.getXRot() * (float) (Math.PI / 180.0));
+            var1 = var1.yRot(-this.getYRot() * (float) (Math.PI / 180.0));
             double var2 = (double)(-this.random.nextFloat()) * 0.6 - 0.3;
             Vec3 var3 = new Vec3(((double)this.random.nextFloat() - 0.5) * 0.3, var2, 0.6);
-            var3 = var3.xRot(-this.xRot * (float) (Math.PI / 180.0));
-            var3 = var3.yRot(-this.yRot * (float) (Math.PI / 180.0));
+            var3 = var3.xRot(-this.getXRot() * (float) (Math.PI / 180.0));
+            var3 = var3.yRot(-this.getYRot() * (float) (Math.PI / 180.0));
             var3 = var3.add(this.getX(), this.getEyeY(), this.getZ());
             this.level.addParticle(new ItemParticleOption(ParticleTypes.ITEM, param0), var3.x, var3.y, var3.z, var1.x, var1.y + 0.05, var1.z);
         }
@@ -3162,15 +3165,15 @@ public abstract class LivingEntity extends Entity {
             BlockState var0x = this.level.getBlockState(param0);
             if (var0x.getBlock() instanceof BedBlock) {
                 this.level.setBlock(param0, var0x.setValue(BedBlock.OCCUPIED, Boolean.valueOf(false)), 3);
-                Vec3 var1x = BedBlock.findStandUpPosition(this.getType(), this.level, param0, this.yRot).orElseGet(() -> {
+                Vec3 var1x = BedBlock.findStandUpPosition(this.getType(), this.level, param0, this.getYRot()).orElseGet(() -> {
                     BlockPos var0xx = param0.above();
                     return new Vec3((double)var0xx.getX() + 0.5, (double)var0xx.getY() + 0.1, (double)var0xx.getZ() + 0.5);
                 });
                 Vec3 var2 = Vec3.atBottomCenterOf(param0).subtract(var1x).normalize();
                 float var3 = (float)Mth.wrapDegrees(Mth.atan2(var2.z, var2.x) * 180.0F / (float)Math.PI - 90.0);
                 this.setPos(var1x.x, var1x.y, var1x.z);
-                this.yRot = var3;
-                this.xRot = 0.0F;
+                this.setYRot(var3);
+                this.setXRot(0.0F);
             }
 
         });

@@ -31,12 +31,12 @@ public class EvokerFangsRenderer extends EntityRenderer<EvokerFangs> {
             }
 
             param3.pushPose();
-            param3.mulPose(Vector3f.YP.rotationDegrees(90.0F - param0.yRot));
+            param3.mulPose(Vector3f.YP.rotationDegrees(90.0F - param0.getYRot()));
             param3.scale(-var1, -var1, var1);
             float var2 = 0.03125F;
             param3.translate(0.0, -0.626F, 0.0);
             param3.scale(0.5F, 0.5F, 0.5F);
-            this.model.setupAnim(param0, var0, 0.0F, 0.0F, param0.yRot, param0.xRot);
+            this.model.setupAnim(param0, var0, 0.0F, 0.0F, param0.getYRot(), param0.getXRot());
             VertexConsumer var3 = param4.getBuffer(this.model.renderType(TEXTURE_LOCATION));
             this.model.renderToBuffer(param3, var3, param5, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
             param3.popPose();

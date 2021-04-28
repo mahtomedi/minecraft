@@ -247,7 +247,7 @@ public class Witch extends Raider implements RangedAttackMob {
 
             ThrownPotion var6 = new ThrownPotion(this.level, this);
             var6.setItem(PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), var5));
-            var6.xRot -= -20.0F;
+            var6.setXRot(var6.getXRot() - -20.0F);
             var6.shoot(var1, var2 + (double)(var4 * 0.2F), var3, 0.75F, 8.0F);
             if (!this.isSilent()) {
                 this.level

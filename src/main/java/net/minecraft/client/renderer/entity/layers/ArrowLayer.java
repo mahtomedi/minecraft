@@ -33,10 +33,10 @@ public class ArrowLayer<T extends LivingEntity, M extends PlayerModel<T>> extend
     ) {
         float var0 = Mth.sqrt(param4 * param4 + param6 * param6);
         Arrow var1 = new Arrow(param3.level, param3.getX(), param3.getY(), param3.getZ());
-        var1.yRot = (float)(Math.atan2((double)param4, (double)param6) * 180.0F / (float)Math.PI);
-        var1.xRot = (float)(Math.atan2((double)param5, (double)var0) * 180.0F / (float)Math.PI);
-        var1.yRotO = var1.yRot;
-        var1.xRotO = var1.xRot;
+        var1.setYRot((float)(Math.atan2((double)param4, (double)param6) * 180.0F / (float)Math.PI));
+        var1.setXRot((float)(Math.atan2((double)param5, (double)var0) * 180.0F / (float)Math.PI));
+        var1.yRotO = var1.getYRot();
+        var1.xRotO = var1.getXRot();
         this.dispatcher.render(var1, 0.0, 0.0, 0.0, 0.0F, param7, param0, param1, param2);
     }
 }

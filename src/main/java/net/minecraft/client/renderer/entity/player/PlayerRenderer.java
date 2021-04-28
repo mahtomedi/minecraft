@@ -194,7 +194,7 @@ public class PlayerRenderer extends LivingEntityRenderer<AbstractClientPlayer, P
             float var1 = (float)param0.getFallFlyingTicks() + param4;
             float var2 = Mth.clamp(var1 * var1 / 100.0F, 0.0F, 1.0F);
             if (!param0.isAutoSpinAttack()) {
-                param1.mulPose(Vector3f.XP.rotationDegrees(var2 * (-90.0F - param0.xRot)));
+                param1.mulPose(Vector3f.XP.rotationDegrees(var2 * (-90.0F - param0.getXRot())));
             }
 
             Vec3 var3 = param0.getViewVector(param4);
@@ -208,7 +208,7 @@ public class PlayerRenderer extends LivingEntityRenderer<AbstractClientPlayer, P
             }
         } else if (var0 > 0.0F) {
             super.setupRotations(param0, param1, param2, param3, param4);
-            float var9 = param0.isInWater() ? -90.0F - param0.xRot : -90.0F;
+            float var9 = param0.isInWater() ? -90.0F - param0.getXRot() : -90.0F;
             float var10 = Mth.lerp(var0, 0.0F, var9);
             param1.mulPose(Vector3f.XP.rotationDegrees(var10));
             if (param0.isVisuallySwimming()) {

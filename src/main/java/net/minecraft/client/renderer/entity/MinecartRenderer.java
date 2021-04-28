@@ -43,7 +43,7 @@ public class MinecartRenderer<T extends AbstractMinecart> extends EntityRenderer
         double var6 = Mth.lerp((double)param2, param0.zOld, param0.getZ());
         double var7 = 0.3F;
         Vec3 var8 = param0.getPos(var4, var5, var6);
-        float var9 = Mth.lerp(param2, param0.xRotO, param0.xRot);
+        float var9 = Mth.lerp(param2, param0.xRotO, param0.getXRot());
         if (var8 != null) {
             Vec3 var10 = param0.getPosOffs(var4, var5, var6, 0.3F);
             Vec3 var11 = param0.getPosOffs(var4, var5, var6, -0.3F);

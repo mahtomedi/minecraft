@@ -4,7 +4,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.level.levelgen.synth.NoiseUtils;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
 
-public class Cavifier {
+public class Cavifier implements NoiseModifier {
     private final int minCellY;
     private final NormalNoise layerNoiseSource;
     private final NormalNoise pillarNoiseSource;
@@ -45,22 +45,23 @@ public class Cavifier {
         this.cheeseNoiseSource = NormalNoise.create(new SimpleRandomSource(param0.nextLong()), -8, 0.5, 1.0, 2.0, 1.0, 2.0, 1.0, 0.0, 2.0, 0.0);
     }
 
-    public double cavify(int param0, int param1, int param2, double param3) {
-        boolean var0 = param3 < 170.0;
-        double var1 = this.spaghettiRoughness(param0, param1, param2);
-        double var2 = this.getSpaghetti3d(param0, param1, param2);
+    @Override
+    public double modifyNoise(double param0, int param1, int param2, int param3) {
+        boolean var0 = param0 < 170.0;
+        double var1 = this.spaghettiRoughness(param3, param1, param2);
+        double var2 = this.getSpaghetti3d(param3, param1, param2);
         if (var0) {
-            return Math.min(param3, (var2 + var1) * 128.0 * 5.0);
+            return Math.min(param0, (var2 + var1) * 128.0 * 5.0);
         } else {
-            double var3 = this.cheeseNoiseSource.getValue((double)param0, (double)param1 / 1.5, (double)param2);
+            double var3 = this.cheeseNoiseSource.getValue((double)param3, (double)param1 / 1.5, (double)param2);
             double var4 = Mth.clamp(var3 + 0.25, -1.0, 1.0);
             double var5 = (double)((float)(30 - param1) / 8.0F);
             double var6 = var4 + Mth.clampedLerp(0.5, 0.0, var5);
-            double var7 = this.getLayerizedCaverns(param0, param1, param2);
-            double var8 = this.getSpaghetti2d(param0, param1, param2);
+            double var7 = this.getLayerizedCaverns(param3, param1, param2);
+            double var8 = this.getSpaghetti2d(param3, param1, param2);
             double var9 = var6 + var7;
             double var10 = Math.min(var9, Math.min(var2, var8) + var1);
-            double var11 = Math.max(var10, this.getPillars(param0, param1, param2));
+            double var11 = Math.max(var10, this.getPillars(param3, param1, param2));
             return 128.0 * Mth.clamp(var11, -1.0, 1.0);
         }
     }

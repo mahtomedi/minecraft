@@ -52,7 +52,7 @@ public class ShulkerBullet extends Projectile {
         double var1 = (double)var0.getX() + 0.5;
         double var2 = (double)var0.getY() + 0.5;
         double var3 = (double)var0.getZ() + 0.5;
-        this.moveTo(var1, var2, var3, this.yRot, this.xRot);
+        this.moveTo(var1, var2, var3, this.getYRot(), this.getXRot());
         this.finalTarget = param2;
         this.currentMoveDirection = Direction.UP;
         this.selectNextMoveDirection(param3);

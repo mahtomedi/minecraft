@@ -261,6 +261,18 @@ public class BlockLoot implements Consumer<BiConsumer<ResourceLocation, LootTabl
             );
     }
 
+    private static LootTable.Builder createCopperOreDrops(Block param0) {
+        return createSilkTouchDispatchTable(
+            param0,
+            applyExplosionDecay(
+                param0,
+                LootItem.lootTableItem(Items.RAW_COPPER)
+                    .apply(SetItemCountFunction.setCount(UniformGenerator.between(2.0F, 3.0F)))
+                    .apply(ApplyBonusCount.addOreBonusCount(Enchantments.BLOCK_FORTUNE))
+            )
+        );
+    }
+
     private static LootTable.Builder createLapisOreDrops(Block param0) {
         return createSilkTouchDispatchTable(
             param0,
@@ -1470,8 +1482,8 @@ public class BlockLoot implements Consumer<BiConsumer<ResourceLocation, LootTabl
         this.add(Blocks.NETHER_QUARTZ_ORE, param0x -> createOreDrop(param0x, Items.QUARTZ));
         this.add(Blocks.DIAMOND_ORE, param0x -> createOreDrop(param0x, Items.DIAMOND));
         this.add(Blocks.DEEPSLATE_DIAMOND_ORE, param0x -> createOreDrop(param0x, Items.DIAMOND));
-        this.add(Blocks.COPPER_ORE, param0x -> createOreDrop(param0x, Items.RAW_COPPER));
-        this.add(Blocks.DEEPSLATE_COPPER_ORE, param0x -> createOreDrop(param0x, Items.RAW_COPPER));
+        this.add(Blocks.COPPER_ORE, BlockLoot::createCopperOreDrops);
+        this.add(Blocks.DEEPSLATE_COPPER_ORE, BlockLoot::createCopperOreDrops);
         this.add(Blocks.IRON_ORE, param0x -> createOreDrop(param0x, Items.RAW_IRON));
         this.add(Blocks.DEEPSLATE_IRON_ORE, param0x -> createOreDrop(param0x, Items.RAW_IRON));
         this.add(Blocks.GOLD_ORE, param0x -> createOreDrop(param0x, Items.RAW_GOLD));

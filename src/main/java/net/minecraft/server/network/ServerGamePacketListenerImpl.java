@@ -202,7 +202,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
         this.player.yo = this.player.getY();
         this.player.zo = this.player.getZ();
         this.player.doTick();
-        this.player.absMoveTo(this.firstGoodX, this.firstGoodY, this.firstGoodZ, this.player.yRot, this.player.xRot);
+        this.player.absMoveTo(this.firstGoodX, this.firstGoodY, this.firstGoodZ, this.player.getYRot(), this.player.getXRot());
         ++this.tickCount;
         this.knownMovePacketCount = this.receivedMovePacketCount;
         if (this.clientIsFloating && !this.player.isSleeping()) {
@@ -413,7 +413,11 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
         if (param0.getId() == this.awaitingTeleport) {
             this.player
                 .absMoveTo(
-                    this.awaitingPositionFromClient.x, this.awaitingPositionFromClient.y, this.awaitingPositionFromClient.z, this.player.yRot, this.player.xRot
+                    this.awaitingPositionFromClient.x,
+                    this.awaitingPositionFromClient.y,
+                    this.awaitingPositionFromClient.z,
+                    this.player.getYRot(),
+                    this.player.getXRot()
                 );
             this.lastGoodX = this.awaitingPositionFromClient.x;
             this.lastGoodY = this.awaitingPositionFromClient.y;
@@ -820,8 +824,8 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
                             this.awaitingPositionFromClient.x,
                             this.awaitingPositionFromClient.y,
                             this.awaitingPositionFromClient.z,
-                            this.player.yRot,
-                            this.player.xRot
+                            this.player.getYRot(),
+                            this.player.getXRot()
                         );
                     }
 
@@ -830,8 +834,8 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
                     double var1 = clampHorizontal(param0.getX(this.player.getX()));
                     double var2 = clampVertical(param0.getY(this.player.getY()));
                     double var3 = clampHorizontal(param0.getZ(this.player.getZ()));
-                    float var4 = Mth.wrapDegrees(param0.getYRot(this.player.yRot));
-                    float var5 = Mth.wrapDegrees(param0.getXRot(this.player.xRot));
+                    float var4 = Mth.wrapDegrees(param0.getYRot(this.player.getYRot()));
+                    float var5 = Mth.wrapDegrees(param0.getXRot(this.player.getXRot()));
                     if (this.player.isPassenger()) {
                         this.player.absMoveTo(this.player.getX(), this.player.getY(), this.player.getZ(), var4, var5);
                         this.player.getLevel().getChunkSource().move(this.player);
@@ -866,7 +870,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
                                 float var16 = this.player.isFallFlying() ? 300.0F : 100.0F;
                                 if (var14 - var13 > (double)(var16 * (float)var15) && !this.isSingleplayerOwner()) {
                                     LOGGER.warn("{} moved too quickly! {},{},{}", this.player.getName().getString(), var10, var11, var12);
-                                    this.teleport(this.player.getX(), this.player.getY(), this.player.getZ(), this.player.yRot, this.player.xRot);
+                                    this.teleport(this.player.getX(), this.player.getY(), this.player.getZ(), this.player.getYRot(), this.player.getXRot());
                                     return;
                                 }
                             }
@@ -955,8 +959,8 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
         double var0 = param5.contains(ClientboundPlayerPositionPacket.RelativeArgument.X) ? this.player.getX() : 0.0;
         double var1 = param5.contains(ClientboundPlayerPositionPacket.RelativeArgument.Y) ? this.player.getY() : 0.0;
         double var2 = param5.contains(ClientboundPlayerPositionPacket.RelativeArgument.Z) ? this.player.getZ() : 0.0;
-        float var3 = param5.contains(ClientboundPlayerPositionPacket.RelativeArgument.Y_ROT) ? this.player.yRot : 0.0F;
-        float var4 = param5.contains(ClientboundPlayerPositionPacket.RelativeArgument.X_ROT) ? this.player.xRot : 0.0F;
+        float var3 = param5.contains(ClientboundPlayerPositionPacket.RelativeArgument.Y_ROT) ? this.player.getYRot() : 0.0F;
+        float var4 = param5.contains(ClientboundPlayerPositionPacket.RelativeArgument.X_ROT) ? this.player.getXRot() : 0.0F;
         this.awaitingPositionFromClient = new Vec3(param0, param1, param2);
         if (++this.awaitingTeleport == Integer.MAX_VALUE) {
             this.awaitingTeleport = 0;
@@ -1078,7 +1082,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
             for(ServerLevel var0 : this.server.getAllLevels()) {
                 Entity var1 = param0.getEntity(var0);
                 if (var1 != null) {
-                    this.player.teleportTo(var0, var1.getX(), var1.getY(), var1.getZ(), var1.yRot, var1.xRot);
+                    this.player.teleportTo(var0, var1.getX(), var1.getY(), var1.getZ(), var1.getYRot(), var1.getXRot());
                     return;
                 }
             }

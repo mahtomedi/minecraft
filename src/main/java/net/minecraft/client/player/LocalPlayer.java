@@ -158,9 +158,9 @@ public class LocalPlayer extends AbstractClientPlayer {
             }
 
             if (param0 instanceof Boat) {
-                this.yRotO = param0.yRot;
-                this.yRot = param0.yRot;
-                this.setYHeadRot(param0.yRot);
+                this.yRotO = param0.getYRot();
+                this.setYRot(param0.getYRot());
+                this.setYHeadRot(param0.getYRot());
             }
 
             return true;
@@ -175,12 +175,12 @@ public class LocalPlayer extends AbstractClientPlayer {
 
     @Override
     public float getViewXRot(float param0) {
-        return this.xRot;
+        return this.getXRot();
     }
 
     @Override
     public float getViewYRot(float param0) {
-        return this.isPassenger() ? super.getViewYRot(param0) : this.yRot;
+        return this.isPassenger() ? super.getViewYRot(param0) : this.getYRot();
     }
 
     @Override
@@ -188,7 +188,7 @@ public class LocalPlayer extends AbstractClientPlayer {
         if (this.level.hasChunkAt(this.getBlockX(), this.getBlockZ())) {
             super.tick();
             if (this.isPassenger()) {
-                this.connection.send(new ServerboundMovePlayerPacket.Rot(this.yRot, this.xRot, this.onGround));
+                this.connection.send(new ServerboundMovePlayerPacket.Rot(this.getYRot(), this.getXRot(), this.onGround));
                 this.connection.send(new ServerboundPlayerInputPacket(this.xxa, this.zza, this.input.jumping, this.input.shiftKeyDown));
                 Entity var0 = this.getRootVehicle();
                 if (var0 != this && var0.isControlledByLocalInstance()) {
@@ -238,21 +238,22 @@ public class LocalPlayer extends AbstractClientPlayer {
             double var4 = this.getX() - this.xLast;
             double var5 = this.getY() - this.yLast1;
             double var6 = this.getZ() - this.zLast;
-            double var7 = (double)(this.yRot - this.yRotLast);
-            double var8 = (double)(this.xRot - this.xRotLast);
+            double var7 = (double)(this.getYRot() - this.yRotLast);
+            double var8 = (double)(this.getXRot() - this.xRotLast);
             ++this.positionReminder;
             boolean var9 = var4 * var4 + var5 * var5 + var6 * var6 > 9.0E-4 || this.positionReminder >= 20;
             boolean var10 = var7 != 0.0 || var8 != 0.0;
             if (this.isPassenger()) {
                 Vec3 var11 = this.getDeltaMovement();
-                this.connection.send(new ServerboundMovePlayerPacket.PosRot(var11.x, -999.0, var11.z, this.yRot, this.xRot, this.onGround));
+                this.connection.send(new ServerboundMovePlayerPacket.PosRot(var11.x, -999.0, var11.z, this.getYRot(), this.getXRot(), this.onGround));
                 var9 = false;
             } else if (var9 && var10) {
-                this.connection.send(new ServerboundMovePlayerPacket.PosRot(this.getX(), this.getY(), this.getZ(), this.yRot, this.xRot, this.onGround));
+                this.connection
+                    .send(new ServerboundMovePlayerPacket.PosRot(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot(), this.onGround));
             } else if (var9) {
                 this.connection.send(new ServerboundMovePlayerPacket.Pos(this.getX(), this.getY(), this.getZ(), this.onGround));
             } else if (var10) {
-                this.connection.send(new ServerboundMovePlayerPacket.Rot(this.yRot, this.xRot, this.onGround));
+                this.connection.send(new ServerboundMovePlayerPacket.Rot(this.getYRot(), this.getXRot(), this.onGround));
             } else if (this.lastOnGround != this.onGround) {
                 this.connection.send(new ServerboundMovePlayerPacket.StatusOnly(this.onGround));
             }
@@ -265,8 +266,8 @@ public class LocalPlayer extends AbstractClientPlayer {
             }
 
             if (var10) {
-                this.yRotLast = this.yRot;
-                this.xRotLast = this.xRot;
+                this.yRotLast = this.getYRot();
+                this.xRotLast = this.getXRot();
             }
 
             this.lastOnGround = this.onGround;
@@ -630,8 +631,8 @@ public class LocalPlayer extends AbstractClientPlayer {
             this.jumping = this.input.jumping;
             this.yBobO = this.yBob;
             this.xBobO = this.xBob;
-            this.xBob = (float)((double)this.xBob + (double)(this.xRot - this.xBob) * 0.5);
-            this.yBob = (float)((double)this.yBob + (double)(this.yRot - this.yBob) * 0.5);
+            this.xBob = (float)((double)this.xBob + (double)(this.getXRot() - this.xBob) * 0.5);
+            this.yBob = (float)((double)this.yBob + (double)(this.getYRot() - this.yBob) * 0.5);
         }
 
     }
@@ -651,7 +652,7 @@ public class LocalPlayer extends AbstractClientPlayer {
             }
 
             this.setDeltaMovement(Vec3.ZERO);
-            this.xRot = 0.0F;
+            this.setXRot(0.0F);
         }
 
         this.setHealth(this.getMaxHealth());
@@ -919,8 +920,8 @@ public class LocalPlayer extends AbstractClientPlayer {
                 Vec2 var5 = this.input.getMoveVector();
                 float var6 = var3 * var5.x;
                 float var7 = var3 * var5.y;
-                float var8 = Mth.sin(this.yRot * (float) (Math.PI / 180.0));
-                float var9 = Mth.cos(this.yRot * (float) (Math.PI / 180.0));
+                float var8 = Mth.sin(this.getYRot() * (float) (Math.PI / 180.0));
+                float var9 = Mth.cos(this.getYRot() * (float) (Math.PI / 180.0));
                 var2 = new Vec3((double)(var6 * var9 - var7 * var8), var2.y, (double)(var7 * var9 + var6 * var8));
                 var4 = (float)var2.lengthSqr();
                 if (var4 <= 0.001F) {
@@ -1068,8 +1069,8 @@ public class LocalPlayer extends AbstractClientPlayer {
     @Override
     public Vec3 getRopeHoldPosition(float param0) {
         if (this.minecraft.options.getCameraType().isFirstPerson()) {
-            float var0 = Mth.lerp(param0 * 0.5F, this.yRot, this.yRotO) * (float) (Math.PI / 180.0);
-            float var1 = Mth.lerp(param0 * 0.5F, this.xRot, this.xRotO) * (float) (Math.PI / 180.0);
+            float var0 = Mth.lerp(param0 * 0.5F, this.getYRot(), this.yRotO) * (float) (Math.PI / 180.0);
+            float var1 = Mth.lerp(param0 * 0.5F, this.getXRot(), this.xRotO) * (float) (Math.PI / 180.0);
             double var2 = this.getMainArm() == HumanoidArm.RIGHT ? -1.0 : 1.0;
             Vec3 var3 = new Vec3(0.39 * var2, -0.6, 0.3);
             return var3.xRot(-var1).yRot(-var0).add(this.getEyePosition(param0));

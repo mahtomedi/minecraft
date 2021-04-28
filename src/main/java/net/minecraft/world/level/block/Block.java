@@ -332,7 +332,7 @@ public class Block extends BlockBehaviour implements ItemLike {
     public void wasExploded(Level param0, BlockPos param1, Explosion param2) {
     }
 
-    public void stepOn(Level param0, BlockPos param1, Entity param2) {
+    public void stepOn(Level param0, BlockPos param1, BlockState param2, Entity param3) {
     }
 
     @Nullable
@@ -365,8 +365,8 @@ public class Block extends BlockBehaviour implements ItemLike {
         return this.descriptionId;
     }
 
-    public void fallOn(Level param0, BlockPos param1, Entity param2, float param3) {
-        param2.causeFallDamage(param3, 1.0F, DamageSource.FALL);
+    public void fallOn(Level param0, BlockState param1, BlockPos param2, Entity param3, float param4) {
+        param3.causeFallDamage(param4, 1.0F, DamageSource.FALL);
     }
 
     public void updateEntityAfterFallOn(BlockGetter param0, Entity param1) {

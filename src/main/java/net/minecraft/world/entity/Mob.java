@@ -750,8 +750,8 @@ public abstract class Mob extends LivingEntity {
         double var5 = (double)Mth.sqrt(var0 * var0 + var1 * var1);
         float var6 = (float)(Mth.atan2(var1, var0) * 180.0F / (float)Math.PI) - 90.0F;
         float var7 = (float)(-(Mth.atan2(var3, var5) * 180.0F / (float)Math.PI));
-        this.xRot = this.rotlerp(this.xRot, var7, param2);
-        this.yRot = this.rotlerp(this.yRot, var6, param1);
+        this.setXRot(this.rotlerp(this.getXRot(), var7, param2));
+        this.setYRot(this.rotlerp(this.getYRot(), var6, param1));
     }
 
     private float rotlerp(float param0, float param1, float param2) {
@@ -1355,7 +1355,11 @@ public abstract class Mob extends LivingEntity {
         if (var3) {
             if (var1 > 0.0F && param0 instanceof LivingEntity) {
                 ((LivingEntity)param0)
-                    .knockback(var1 * 0.5F, (double)Mth.sin(this.yRot * (float) (Math.PI / 180.0)), (double)(-Mth.cos(this.yRot * (float) (Math.PI / 180.0))));
+                    .knockback(
+                        var1 * 0.5F,
+                        (double)Mth.sin(this.getYRot() * (float) (Math.PI / 180.0)),
+                        (double)(-Mth.cos(this.getYRot() * (float) (Math.PI / 180.0)))
+                    );
                 this.setDeltaMovement(this.getDeltaMovement().multiply(0.6, 1.0, 0.6));
             }
 

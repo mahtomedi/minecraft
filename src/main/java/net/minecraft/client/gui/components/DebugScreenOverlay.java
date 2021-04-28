@@ -269,7 +269,7 @@ public class DebugScreenOverlay extends GuiComponent {
                     SectionPos.blockToSectionCoord(var6.getZ())
                 )
             );
-            var17.add(String.format(Locale.ROOT, "Facing: %s (%s) (%.1f / %.1f)", var8, var9, Mth.wrapDegrees(var7.yRot), Mth.wrapDegrees(var7.xRot)));
+            var17.add(String.format(Locale.ROOT, "Facing: %s (%s) (%.1f / %.1f)", var8, var9, Mth.wrapDegrees(var7.getYRot()), Mth.wrapDegrees(var7.getXRot())));
             LevelChunk var19 = this.getClientChunk();
             if (var19.isEmpty()) {
                 var17.add("Waiting for chunk...");

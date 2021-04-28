@@ -143,8 +143,8 @@ public class StairBlock extends Block implements SimpleWaterloggedBlock {
     }
 
     @Override
-    public void stepOn(Level param0, BlockPos param1, Entity param2) {
-        this.base.stepOn(param0, param1, param2);
+    public void stepOn(Level param0, BlockPos param1, BlockState param2, Entity param3) {
+        this.base.stepOn(param0, param1, param2, param3);
     }
 
     @Override

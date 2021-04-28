@@ -98,27 +98,27 @@ public final class ProjectileUtil {
         Vec3 var0 = param0.getDeltaMovement();
         if (var0.lengthSqr() != 0.0) {
             float var1 = Mth.sqrt(Entity.getHorizontalDistanceSqr(var0));
-            param0.yRot = (float)(Mth.atan2(var0.z, var0.x) * 180.0F / (float)Math.PI) + 90.0F;
-            param0.xRot = (float)(Mth.atan2((double)var1, var0.y) * 180.0F / (float)Math.PI) - 90.0F;
+            param0.setYRot((float)(Mth.atan2(var0.z, var0.x) * 180.0F / (float)Math.PI) + 90.0F);
+            param0.setXRot((float)(Mth.atan2((double)var1, var0.y) * 180.0F / (float)Math.PI) - 90.0F);
 
-            while(param0.xRot - param0.xRotO < -180.0F) {
+            while(param0.getXRot() - param0.xRotO < -180.0F) {
                 param0.xRotO -= 360.0F;
             }
 
-            while(param0.xRot - param0.xRotO >= 180.0F) {
+            while(param0.getXRot() - param0.xRotO >= 180.0F) {
                 param0.xRotO += 360.0F;
             }
 
-            while(param0.yRot - param0.yRotO < -180.0F) {
+            while(param0.getYRot() - param0.yRotO < -180.0F) {
                 param0.yRotO -= 360.0F;
             }
 
-            while(param0.yRot - param0.yRotO >= 180.0F) {
+            while(param0.getYRot() - param0.yRotO >= 180.0F) {
                 param0.yRotO += 360.0F;
             }
 
-            param0.xRot = Mth.lerp(param1, param0.xRotO, param0.xRot);
-            param0.yRot = Mth.lerp(param1, param0.yRotO, param0.yRot);
+            param0.setXRot(Mth.lerp(param1, param0.xRotO, param0.getXRot()));
+            param0.setYRot(Mth.lerp(param1, param0.yRotO, param0.getYRot()));
         }
     }
 

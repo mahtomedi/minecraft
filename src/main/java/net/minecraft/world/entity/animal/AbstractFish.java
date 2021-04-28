@@ -206,8 +206,8 @@ public abstract class AbstractFish extends WaterAnimal implements Bucketable {
 
                 if (var1 != 0.0 || var3 != 0.0) {
                     float var5 = (float)(Mth.atan2(var3, var1) * 180.0F / (float)Math.PI) - 90.0F;
-                    this.fish.yRot = this.rotlerp(this.fish.yRot, var5, 90.0F);
-                    this.fish.yBodyRot = this.fish.yRot;
+                    this.fish.setYRot(this.rotlerp(this.fish.getYRot(), var5, 90.0F));
+                    this.fish.yBodyRot = this.fish.getYRot();
                 }
 
             } else {

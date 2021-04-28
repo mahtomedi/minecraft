@@ -18,6 +18,7 @@ import net.minecraft.DefaultUncaughtExceptionHandler;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.protocol.game.ClientboundDisconnectPacket;
 import net.minecraft.network.protocol.login.ClientboundGameProfilePacket;
 import net.minecraft.network.protocol.login.ClientboundHelloPacket;
 import net.minecraft.network.protocol.login.ClientboundLoginCompressionPacket;
@@ -111,11 +112,19 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
 
             this.connection.send(new ClientboundGameProfilePacket(this.gameProfile));
             ServerPlayer var1 = this.server.getPlayerList().getPlayer(this.gameProfile.getId());
-            if (var1 != null) {
-                this.state = ServerLoginPacketListenerImpl.State.DELAY_ACCEPT;
-                this.delayedAcceptPlayer = this.server.getPlayerList().getPlayerForLogin(this.gameProfile);
-            } else {
-                this.placeNewPlayer(this.server.getPlayerList().getPlayerForLogin(this.gameProfile));
+
+            try {
+                ServerPlayer var2 = this.server.getPlayerList().getPlayerForLogin(this.gameProfile);
+                if (var1 != null) {
+                    this.state = ServerLoginPacketListenerImpl.State.DELAY_ACCEPT;
+                    this.delayedAcceptPlayer = var2;
+                } else {
+                    this.placeNewPlayer(var2);
+                }
+            } catch (Exception var5) {
+                Component var4 = new TranslatableComponent("multiplayer.disconnect.invalid_player_data");
+                this.connection.send(new ClientboundDisconnectPacket(var4));
+                this.connection.disconnect(var4);
             }
         }
 

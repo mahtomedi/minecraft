@@ -50,7 +50,7 @@ public class BoatItem extends Item {
             if (var1.getType() == HitResult.Type.BLOCK) {
                 Boat var8 = new Boat(param0, var1.getLocation().x, var1.getLocation().y, var1.getLocation().z);
                 var8.setType(this.type);
-                var8.yRot = param1.yRot;
+                var8.setYRot(param1.getYRot());
                 if (!param0.noCollision(var8, var8.getBoundingBox().inflate(-0.1))) {
                     return InteractionResultHolder.fail(var0);
                 } else {

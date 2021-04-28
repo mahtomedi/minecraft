@@ -123,7 +123,7 @@ public abstract class BaseSpawner {
                     if (param0.noCollision(var3.get().getAABB(var6, var7, var8))
                         && SpawnPlacements.checkSpawnRules(var3.get(), param0, MobSpawnType.SPAWNER, new BlockPos(var6, var7, var8), param0.getRandom())) {
                         Entity var9 = EntityType.loadEntityRecursive(var2, param0, param3 -> {
-                            param3.moveTo(var6, var7, var8, param3.yRot, param3.xRot);
+                            param3.moveTo(var6, var7, var8, param3.getYRot(), param3.getXRot());
                             return param3;
                         });
                         if (var9 == null) {

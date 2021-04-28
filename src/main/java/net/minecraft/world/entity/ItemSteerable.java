@@ -17,12 +17,12 @@ public interface ItemSteerable {
         } else {
             Entity var0 = param0.getFirstPassenger();
             if (param0.isVehicle() && param0.canBeControlledByRider() && var0 instanceof Player) {
-                param0.yRot = var0.yRot;
-                param0.yRotO = param0.yRot;
-                param0.xRot = var0.xRot * 0.5F;
-                param0.setRot(param0.yRot, param0.xRot);
-                param0.yBodyRot = param0.yRot;
-                param0.yHeadRot = param0.yRot;
+                param0.setYRot(var0.getYRot());
+                param0.yRotO = param0.getYRot();
+                param0.setXRot(var0.getXRot() * 0.5F);
+                param0.setRot(param0.getYRot(), param0.getXRot());
+                param0.yBodyRot = param0.getYRot();
+                param0.yHeadRot = param0.getYRot();
                 param0.maxUpStep = 1.0F;
                 param0.flyingSpeed = param0.getSpeed() * 0.1F;
                 if (param1.boosting && param1.boostTime++ > param1.boostTimeTotal) {

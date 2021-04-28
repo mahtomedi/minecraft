@@ -424,12 +424,12 @@ public class Boat extends Entity {
             double var0 = this.getX() + (this.lerpX - this.getX()) / (double)this.lerpSteps;
             double var1 = this.getY() + (this.lerpY - this.getY()) / (double)this.lerpSteps;
             double var2 = this.getZ() + (this.lerpZ - this.getZ()) / (double)this.lerpSteps;
-            double var3 = Mth.wrapDegrees(this.lerpYRot - (double)this.yRot);
-            this.yRot = (float)((double)this.yRot + var3 / (double)this.lerpSteps);
-            this.xRot = (float)((double)this.xRot + (this.lerpXRot - (double)this.xRot) / (double)this.lerpSteps);
+            double var3 = Mth.wrapDegrees(this.lerpYRot - (double)this.getYRot());
+            this.setYRot(this.getYRot() + (float)var3 / (float)this.lerpSteps);
+            this.setXRot(this.getXRot() + (float)(this.lerpXRot - (double)this.getXRot()) / (float)this.lerpSteps);
             --this.lerpSteps;
             this.setPos(var0, var1, var2);
-            this.setRot(this.yRot, this.xRot);
+            this.setRot(this.getYRot(), this.getXRot());
         }
     }
 
@@ -653,7 +653,7 @@ public class Boat extends Entity {
                 var0 += 0.005F;
             }
 
-            this.yRot += this.deltaRotation;
+            this.setYRot(this.getYRot() + this.deltaRotation);
             if (this.inputUp) {
                 var0 += 0.04F;
             }
@@ -664,7 +664,11 @@ public class Boat extends Entity {
 
             this.setDeltaMovement(
                 this.getDeltaMovement()
-                    .add((double)(Mth.sin(-this.yRot * (float) (Math.PI / 180.0)) * var0), 0.0, (double)(Mth.cos(this.yRot * (float) (Math.PI / 180.0)) * var0))
+                    .add(
+                        (double)(Mth.sin(-this.getYRot() * (float) (Math.PI / 180.0)) * var0),
+                        0.0,
+                        (double)(Mth.cos(this.getYRot() * (float) (Math.PI / 180.0)) * var0)
+                    )
             );
             this.setPaddleState(this.inputRight && !this.inputLeft || this.inputUp, this.inputLeft && !this.inputRight || this.inputUp);
         }
@@ -688,9 +692,9 @@ public class Boat extends Entity {
                 }
             }
 
-            Vec3 var3 = new Vec3((double)var0, 0.0, 0.0).yRot(-this.yRot * (float) (Math.PI / 180.0) - (float) (Math.PI / 2));
+            Vec3 var3 = new Vec3((double)var0, 0.0, 0.0).yRot(-this.getYRot() * (float) (Math.PI / 180.0) - (float) (Math.PI / 2));
             param0.setPos(this.getX() + var3.x, this.getY() + (double)var1, this.getZ() + var3.z);
-            param0.yRot += this.deltaRotation;
+            param0.setYRot(param0.getYRot() + this.deltaRotation);
             param0.setYHeadRot(param0.getYHeadRot() + this.deltaRotation);
             this.clampRotation(param0);
             if (param0 instanceof Animal && this.getPassengers().size() > 1) {
@@ -704,7 +708,7 @@ public class Boat extends Entity {
 
     @Override
     public Vec3 getDismountLocationForPassenger(LivingEntity param0) {
-        Vec3 var0 = getCollisionHorizontalEscapeVector((double)(this.getBbWidth() * Mth.SQRT_OF_TWO), (double)param0.getBbWidth(), param0.yRot);
+        Vec3 var0 = getCollisionHorizontalEscapeVector((double)(this.getBbWidth() * Mth.SQRT_OF_TWO), (double)param0.getBbWidth(), param0.getYRot());
         double var1 = this.getX() + var0.x;
         double var2 = this.getZ() + var0.z;
         BlockPos var3 = new BlockPos(var1, this.getBoundingBox().maxY, var2);
@@ -735,12 +739,12 @@ public class Boat extends Entity {
     }
 
     protected void clampRotation(Entity param0) {
-        param0.setYBodyRot(this.yRot);
-        float var0 = Mth.wrapDegrees(param0.yRot - this.yRot);
+        param0.setYBodyRot(this.getYRot());
+        float var0 = Mth.wrapDegrees(param0.getYRot() - this.getYRot());
         float var1 = Mth.clamp(var0, -105.0F, 105.0F);
         param0.yRotO += var1 - var0;
-        param0.yRot += var1 - var0;
-        param0.setYHeadRot(param0.yRot);
+        param0.setYRot(param0.getYRot() + var1 - var0);
+        param0.setYHeadRot(param0.getYRot());
     }
 
     @Override

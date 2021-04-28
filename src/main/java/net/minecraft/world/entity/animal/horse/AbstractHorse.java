@@ -515,8 +515,8 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
         this.setEating(false);
         this.setStanding(false);
         if (!this.level.isClientSide) {
-            param0.yRot = this.yRot;
-            param0.xRot = this.xRot;
+            param0.setYRot(this.getYRot());
+            param0.setXRot(this.getXRot());
             param0.startRiding(this);
         }
 
@@ -718,11 +718,11 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
         if (this.isAlive()) {
             if (this.isVehicle() && this.canBeControlledByRider() && this.isSaddled()) {
                 LivingEntity var0 = (LivingEntity)this.getControllingPassenger();
-                this.yRot = var0.yRot;
-                this.yRotO = this.yRot;
-                this.xRot = var0.xRot * 0.5F;
-                this.setRot(this.yRot, this.xRot);
-                this.yBodyRot = this.yRot;
+                this.setYRot(var0.getYRot());
+                this.yRotO = this.getYRot();
+                this.setXRot(var0.getXRot() * 0.5F);
+                this.setRot(this.getYRot(), this.getXRot());
+                this.yBodyRot = this.getYRot();
                 this.yHeadRot = this.yBodyRot;
                 float var1 = var0.xxa * 0.5F;
                 float var2 = var0.zza;
@@ -750,8 +750,8 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
                     this.setIsJumping(true);
                     this.hasImpulse = true;
                     if (var2 > 0.0F) {
-                        float var7 = Mth.sin(this.yRot * (float) (Math.PI / 180.0));
-                        float var8 = Mth.cos(this.yRot * (float) (Math.PI / 180.0));
+                        float var7 = Mth.sin(this.getYRot() * (float) (Math.PI / 180.0));
+                        float var8 = Mth.cos(this.getYRot() * (float) (Math.PI / 180.0));
                         this.setDeltaMovement(
                             this.getDeltaMovement()
                                 .add((double)(-0.4F * var7 * this.playerJumpPendingScale), 0.0, (double)(0.4F * var8 * this.playerJumpPendingScale))
@@ -1080,14 +1080,14 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
     @Override
     public Vec3 getDismountLocationForPassenger(LivingEntity param0) {
         Vec3 var0 = getCollisionHorizontalEscapeVector(
-            (double)this.getBbWidth(), (double)param0.getBbWidth(), this.yRot + (param0.getMainArm() == HumanoidArm.RIGHT ? 90.0F : -90.0F)
+            (double)this.getBbWidth(), (double)param0.getBbWidth(), this.getYRot() + (param0.getMainArm() == HumanoidArm.RIGHT ? 90.0F : -90.0F)
         );
         Vec3 var1 = this.getDismountLocationInDirection(var0, param0);
         if (var1 != null) {
             return var1;
         } else {
             Vec3 var2 = getCollisionHorizontalEscapeVector(
-                (double)this.getBbWidth(), (double)param0.getBbWidth(), this.yRot + (param0.getMainArm() == HumanoidArm.LEFT ? 90.0F : -90.0F)
+                (double)this.getBbWidth(), (double)param0.getBbWidth(), this.getYRot() + (param0.getMainArm() == HumanoidArm.LEFT ? 90.0F : -90.0F)
             );
             Vec3 var3 = this.getDismountLocationInDirection(var2, param0);
             return var3 != null ? var3 : this.position();

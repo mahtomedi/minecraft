@@ -178,11 +178,11 @@ public class EntitySelectorParser {
 
     private void finalizePredicates() {
         if (this.rotX != WrappedMinMaxBounds.ANY) {
-            this.predicate = this.predicate.and(this.createRotationPredicate(this.rotX, param0 -> (double)param0.xRot));
+            this.predicate = this.predicate.and(this.createRotationPredicate(this.rotX, Entity::getXRot));
         }
 
         if (this.rotY != WrappedMinMaxBounds.ANY) {
-            this.predicate = this.predicate.and(this.createRotationPredicate(this.rotY, param0 -> (double)param0.yRot));
+            this.predicate = this.predicate.and(this.createRotationPredicate(this.rotY, Entity::getYRot));
         }
 
         if (!this.level.isAny()) {

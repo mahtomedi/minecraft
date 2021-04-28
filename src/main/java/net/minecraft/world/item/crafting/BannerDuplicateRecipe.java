@@ -22,8 +22,12 @@ public class BannerDuplicateRecipe extends CustomRecipe {
 
         for(int var3 = 0; var3 < param0.getContainerSize(); ++var3) {
             ItemStack var4 = param0.getItem(var3);
-            Item var5 = var4.getItem();
-            if (var5 instanceof BannerItem) {
+            if (!var4.isEmpty()) {
+                Item var5 = var4.getItem();
+                if (!(var5 instanceof BannerItem)) {
+                    return false;
+                }
+
                 BannerItem var6 = (BannerItem)var5;
                 if (var0 == null) {
                     var0 = var6.getColor();

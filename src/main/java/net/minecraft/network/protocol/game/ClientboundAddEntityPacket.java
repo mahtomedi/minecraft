@@ -54,8 +54,8 @@ public class ClientboundAddEntityPacket implements Packet<ClientGamePacketListen
             param0.getX(),
             param0.getY(),
             param0.getZ(),
-            param0.xRot,
-            param0.yRot,
+            param0.getXRot(),
+            param0.getYRot(),
             param0.getType(),
             param1,
             param0.getDeltaMovement()
@@ -69,8 +69,8 @@ public class ClientboundAddEntityPacket implements Packet<ClientGamePacketListen
             (double)param3.getX(),
             (double)param3.getY(),
             (double)param3.getZ(),
-            param0.xRot,
-            param0.yRot,
+            param0.getXRot(),
+            param0.getYRot(),
             param1,
             param2,
             param0.getDeltaMovement()

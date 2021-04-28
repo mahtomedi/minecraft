@@ -63,7 +63,8 @@ public class BigDripleafStemBlock extends HorizontalDirectionalBlock implements 
     public boolean canSurvive(BlockState param0, LevelReader param1, BlockPos param2) {
         BlockPos var0 = param2.below();
         BlockState var1 = param1.getBlockState(var0);
-        return var1.is(this) || var1.isFaceSturdy(param1, var0, Direction.UP);
+        BlockState var2 = param1.getBlockState(param2.above());
+        return (var1.is(this) || var1.isFaceSturdy(param1, var0, Direction.UP)) && (var2.is(this) || var2.is(Blocks.BIG_DRIPLEAF));
     }
 
     protected static boolean place(LevelAccessor param0, BlockPos param1, FluidState param2, Direction param3) {
@@ -76,7 +77,7 @@ public class BigDripleafStemBlock extends HorizontalDirectionalBlock implements 
 
     @Override
     public BlockState updateShape(BlockState param0, Direction param1, BlockState param2, LevelAccessor param3, BlockPos param4, BlockPos param5) {
-        if (param1 == Direction.DOWN && !param0.canSurvive(param3, param4)) {
+        if ((param1 == Direction.DOWN || param1 == Direction.UP) && !param0.canSurvive(param3, param4)) {
             param3.getBlockTicks().scheduleTick(param4, this, 1);
         }
 

@@ -177,7 +177,7 @@ public class MapItemSavedData extends SavedData {
             if (!var2.player.isRemoved() && (var2.player.getInventory().contains(param1) || param1.isFramed())) {
                 if (!param1.isFramed() && var2.player.level.dimension() == this.dimension && this.trackingPosition) {
                     this.addDecoration(
-                        MapDecoration.Type.PLAYER, var2.player.level, var3, var2.player.getX(), var2.player.getZ(), (double)var2.player.yRot, null
+                        MapDecoration.Type.PLAYER, var2.player.level, var3, var2.player.getX(), var2.player.getZ(), (double)var2.player.getYRot(), null
                     );
                 }
             } else {

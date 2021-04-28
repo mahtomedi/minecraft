@@ -128,10 +128,10 @@ public abstract class AbstractArrow extends Projectile {
         Vec3 var1 = this.getDeltaMovement();
         if (this.xRotO == 0.0F && this.yRotO == 0.0F) {
             float var2 = Mth.sqrt(getHorizontalDistanceSqr(var1));
-            this.yRot = (float)(Mth.atan2(var1.x, var1.z) * 180.0F / (float)Math.PI);
-            this.xRot = (float)(Mth.atan2(var1.y, (double)var2) * 180.0F / (float)Math.PI);
-            this.yRotO = this.yRot;
-            this.xRotO = this.xRot;
+            this.setYRot((float)(Mth.atan2(var1.x, var1.z) * 180.0F / (float)Math.PI));
+            this.setXRot((float)(Mth.atan2(var1.y, (double)var2) * 180.0F / (float)Math.PI));
+            this.yRotO = this.getYRot();
+            this.xRotO = this.getXRot();
         }
 
         BlockPos var3 = this.blockPosition();
@@ -226,14 +226,14 @@ public abstract class AbstractArrow extends Projectile {
             double var20 = this.getZ() + var16;
             float var21 = Mth.sqrt(getHorizontalDistanceSqr(var1));
             if (var0) {
-                this.yRot = (float)(Mth.atan2(-var14, -var16) * 180.0F / (float)Math.PI);
+                this.setYRot((float)(Mth.atan2(-var14, -var16) * 180.0F / (float)Math.PI));
             } else {
-                this.yRot = (float)(Mth.atan2(var14, var16) * 180.0F / (float)Math.PI);
+                this.setYRot((float)(Mth.atan2(var14, var16) * 180.0F / (float)Math.PI));
             }
 
-            this.xRot = (float)(Mth.atan2(var15, (double)var21) * 180.0F / (float)Math.PI);
-            this.xRot = lerpRotation(this.xRotO, this.xRot);
-            this.yRot = lerpRotation(this.yRotO, this.yRot);
+            this.setXRot((float)(Mth.atan2(var15, (double)var21) * 180.0F / (float)Math.PI));
+            this.setXRot(lerpRotation(this.xRotO, this.getXRot()));
+            this.setYRot(lerpRotation(this.yRotO, this.getYRot()));
             float var22 = 0.99F;
             float var23 = 0.05F;
             if (this.isInWater()) {
@@ -391,7 +391,7 @@ public abstract class AbstractArrow extends Projectile {
         } else {
             var0.setRemainingFireTicks(var8);
             this.setDeltaMovement(this.getDeltaMovement().scale(-0.1));
-            this.yRot += 180.0F;
+            this.setYRot(this.getYRot() + 180.0F);
             this.yRotO += 180.0F;
             if (!this.level.isClientSide && this.getDeltaMovement().lengthSqr() < 1.0E-7) {
                 if (this.pickup == AbstractArrow.Pickup.ALLOWED) {

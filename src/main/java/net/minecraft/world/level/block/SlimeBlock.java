@@ -7,6 +7,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
 public class SlimeBlock extends HalfTransparentBlock {
@@ -15,11 +16,11 @@ public class SlimeBlock extends HalfTransparentBlock {
     }
 
     @Override
-    public void fallOn(Level param0, BlockPos param1, Entity param2, float param3) {
-        if (param2.isSuppressingBounce()) {
-            super.fallOn(param0, param1, param2, param3);
+    public void fallOn(Level param0, BlockState param1, BlockPos param2, Entity param3, float param4) {
+        if (param3.isSuppressingBounce()) {
+            super.fallOn(param0, param1, param2, param3, param4);
         } else {
-            param2.causeFallDamage(param3, 0.0F, DamageSource.FALL);
+            param3.causeFallDamage(param4, 0.0F, DamageSource.FALL);
         }
 
     }
@@ -44,13 +45,13 @@ public class SlimeBlock extends HalfTransparentBlock {
     }
 
     @Override
-    public void stepOn(Level param0, BlockPos param1, Entity param2) {
-        double var0 = Math.abs(param2.getDeltaMovement().y);
-        if (var0 < 0.1 && !param2.isSteppingCarefully()) {
+    public void stepOn(Level param0, BlockPos param1, BlockState param2, Entity param3) {
+        double var0 = Math.abs(param3.getDeltaMovement().y);
+        if (var0 < 0.1 && !param3.isSteppingCarefully()) {
             double var1 = 0.4 + var0 * 0.2;
-            param2.setDeltaMovement(param2.getDeltaMovement().multiply(var1, 1.0, var1));
+            param3.setDeltaMovement(param3.getDeltaMovement().multiply(var1, 1.0, var1));
         }
 
-        super.stepOn(param0, param1, param2);
+        super.stepOn(param0, param1, param2, param3);
     }
 }

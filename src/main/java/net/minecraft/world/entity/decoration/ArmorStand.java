@@ -529,7 +529,7 @@ public class ArmorStand extends LivingEntity {
     @Override
     protected float tickHeadTurn(float param0, float param1) {
         this.yBodyRotO = this.yRotO;
-        this.yBodyRot = this.yRot;
+        this.yBodyRot = this.getYRot();
         return 0.0F;
     }
 

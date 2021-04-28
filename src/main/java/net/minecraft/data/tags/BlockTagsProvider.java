@@ -701,6 +701,7 @@ public class BlockTagsProvider extends TagsProvider<Block> {
             .add(Blocks.GRAVEL)
             .add(Blocks.MOSS_BLOCK)
             .add(Blocks.SAND);
+        this.tag(BlockTags.SMALL_DRIPLEAF_PLACEABLE).add(Blocks.CLAY).add(Blocks.MOSS_BLOCK);
         this.tag(BlockTags.OCCLUDES_VIBRATION_SIGNALS).addTag(BlockTags.WOOL);
         this.tag(BlockTags.SNOW).add(Blocks.SNOW, Blocks.SNOW_BLOCK, Blocks.POWDER_SNOW);
     }

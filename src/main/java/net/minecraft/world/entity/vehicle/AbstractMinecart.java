@@ -288,15 +288,15 @@ public abstract class AbstractMinecart extends Entity {
                 double var0 = this.getX() + (this.lx - this.getX()) / (double)this.lSteps;
                 double var1 = this.getY() + (this.ly - this.getY()) / (double)this.lSteps;
                 double var2 = this.getZ() + (this.lz - this.getZ()) / (double)this.lSteps;
-                double var3 = Mth.wrapDegrees(this.lyr - (double)this.yRot);
-                this.yRot = (float)((double)this.yRot + var3 / (double)this.lSteps);
-                this.xRot = (float)((double)this.xRot + (this.lxr - (double)this.xRot) / (double)this.lSteps);
+                double var3 = Mth.wrapDegrees(this.lyr - (double)this.getYRot());
+                this.setYRot(this.getYRot() + (float)var3 / (float)this.lSteps);
+                this.setXRot(this.getXRot() + (float)(this.lxr - (double)this.getXRot()) / (float)this.lSteps);
                 --this.lSteps;
                 this.setPos(var0, var1, var2);
-                this.setRot(this.yRot, this.xRot);
+                this.setRot(this.getYRot(), this.getXRot());
             } else {
                 this.reapplyPosition();
-                this.setRot(this.yRot, this.xRot);
+                this.setRot(this.getYRot(), this.getXRot());
             }
 
         } else {
@@ -324,23 +324,23 @@ public abstract class AbstractMinecart extends Entity {
             }
 
             this.checkInsideBlocks();
-            this.xRot = 0.0F;
+            this.setXRot(0.0F);
             double var10 = this.xo - this.getX();
             double var11 = this.zo - this.getZ();
             if (var10 * var10 + var11 * var11 > 0.001) {
-                this.yRot = (float)(Mth.atan2(var11, var10) * 180.0 / Math.PI);
+                this.setYRot((float)(Mth.atan2(var11, var10) * 180.0 / Math.PI));
                 if (this.flipped) {
-                    this.yRot += 180.0F;
+                    this.setYRot(this.getYRot() + 180.0F);
                 }
             }
 
-            double var12 = (double)Mth.wrapDegrees(this.yRot - this.yRotO);
+            double var12 = (double)Mth.wrapDegrees(this.getYRot() - this.yRotO);
             if (var12 < -170.0 || var12 >= 170.0) {
-                this.yRot += 180.0F;
+                this.setYRot(this.getYRot() + 180.0F);
                 this.flipped = !this.flipped;
             }
 
-            this.setRot(this.yRot, this.xRot);
+            this.setRot(this.getYRot(), this.getXRot());
             if (this.getMinecartType() == AbstractMinecart.Type.RIDEABLE && getHorizontalDistanceSqr(this.getDeltaMovement()) > 0.01) {
                 List<Entity> var13 = this.level.getEntities(this, this.getBoundingBox().inflate(0.2F, 0.0, 0.2F), EntitySelector.pushableBy(this));
                 if (!var13.isEmpty()) {
@@ -714,7 +714,9 @@ public abstract class AbstractMinecart extends Entity {
                             double var5 = param0.getZ() - this.getZ();
                             Vec3 var6 = new Vec3(var4, 0.0, var5).normalize();
                             Vec3 var7 = new Vec3(
-                                    (double)Mth.cos(this.yRot * (float) (Math.PI / 180.0)), 0.0, (double)Mth.sin(this.yRot * (float) (Math.PI / 180.0))
+                                    (double)Mth.cos(this.getYRot() * (float) (Math.PI / 180.0)),
+                                    0.0,
+                                    (double)Mth.sin(this.getYRot() * (float) (Math.PI / 180.0))
                                 )
                                 .normalize();
                             double var8 = Math.abs(var6.dot(var7));

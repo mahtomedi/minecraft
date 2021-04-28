@@ -285,13 +285,13 @@ public class Guardian extends Monster {
                     this.getDeltaMovement()
                         .add((double)((this.random.nextFloat() * 2.0F - 1.0F) * 0.4F), 0.5, (double)((this.random.nextFloat() * 2.0F - 1.0F) * 0.4F))
                 );
-                this.yRot = this.random.nextFloat() * 360.0F;
+                this.setYRot(this.random.nextFloat() * 360.0F);
                 this.onGround = false;
                 this.hasImpulse = true;
             }
 
             if (this.hasActiveAttackTarget()) {
-                this.yRot = this.yHeadRot;
+                this.setYRot(this.yHeadRot);
             }
         }
 
@@ -464,14 +464,14 @@ public class Guardian extends Monster {
                 double var3 = var0.y / var1;
                 double var4 = var0.z / var1;
                 float var5 = (float)(Mth.atan2(var0.z, var0.x) * 180.0F / (float)Math.PI) - 90.0F;
-                this.guardian.yRot = this.rotlerp(this.guardian.yRot, var5, 90.0F);
-                this.guardian.yBodyRot = this.guardian.yRot;
+                this.guardian.setYRot(this.rotlerp(this.guardian.getYRot(), var5, 90.0F));
+                this.guardian.yBodyRot = this.guardian.getYRot();
                 float var6 = (float)(this.speedModifier * this.guardian.getAttributeValue(Attributes.MOVEMENT_SPEED));
                 float var7 = Mth.lerp(0.125F, this.guardian.getSpeed(), var6);
                 this.guardian.setSpeed(var7);
                 double var8 = Math.sin((double)(this.guardian.tickCount + this.guardian.getId()) * 0.5) * 0.05;
-                double var9 = Math.cos((double)(this.guardian.yRot * (float) (Math.PI / 180.0)));
-                double var10 = Math.sin((double)(this.guardian.yRot * (float) (Math.PI / 180.0)));
+                double var9 = Math.cos((double)(this.guardian.getYRot() * (float) (Math.PI / 180.0)));
+                double var10 = Math.sin((double)(this.guardian.getYRot() * (float) (Math.PI / 180.0)));
                 double var11 = Math.sin((double)(this.guardian.tickCount + this.guardian.getId()) * 0.75) * 0.05;
                 this.guardian
                     .setDeltaMovement(

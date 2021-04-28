@@ -30,7 +30,9 @@ public class DragonSittingScanningPhase extends AbstractDragonSittingPhase {
             } else {
                 Vec3 var1 = new Vec3(var0.getX() - this.dragon.getX(), 0.0, var0.getZ() - this.dragon.getZ()).normalize();
                 Vec3 var2 = new Vec3(
-                        (double)Mth.sin(this.dragon.yRot * (float) (Math.PI / 180.0)), 0.0, (double)(-Mth.cos(this.dragon.yRot * (float) (Math.PI / 180.0)))
+                        (double)Mth.sin(this.dragon.getYRot() * (float) (Math.PI / 180.0)),
+                        0.0,
+                        (double)(-Mth.cos(this.dragon.getYRot() * (float) (Math.PI / 180.0)))
                     )
                     .normalize();
                 float var3 = (float)var2.dot(var1);
@@ -38,7 +40,9 @@ public class DragonSittingScanningPhase extends AbstractDragonSittingPhase {
                 if (var4 < 0.0F || var4 > 10.0F) {
                     double var5 = var0.getX() - this.dragon.head.getX();
                     double var6 = var0.getZ() - this.dragon.head.getZ();
-                    double var7 = Mth.clamp(Mth.wrapDegrees(180.0 - Mth.atan2(var5, var6) * 180.0F / (float)Math.PI - (double)this.dragon.yRot), -100.0, 100.0);
+                    double var7 = Mth.clamp(
+                        Mth.wrapDegrees(180.0 - Mth.atan2(var5, var6) * 180.0F / (float)Math.PI - (double)this.dragon.getYRot()), -100.0, 100.0
+                    );
                     this.dragon.yRotA *= 0.8F;
                     float var8 = Mth.sqrt(var5 * var5 + var6 * var6) + 1.0F;
                     float var9 = var8;
@@ -47,7 +51,7 @@ public class DragonSittingScanningPhase extends AbstractDragonSittingPhase {
                     }
 
                     this.dragon.yRotA = (float)((double)this.dragon.yRotA + var7 * (double)(0.7F / var8 / var9));
-                    this.dragon.yRot += this.dragon.yRotA;
+                    this.dragon.setYRot(this.dragon.getYRot() + this.dragon.yRotA);
                 }
             }
         } else if (this.scanningTime >= 100) {

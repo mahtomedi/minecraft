@@ -284,8 +284,8 @@ public class Shulker extends AbstractGolem implements Enemy {
     public SpawnGroupData finalizeSpawn(
         ServerLevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
     ) {
-        this.yRot = 0.0F;
-        this.yHeadRot = this.yRot;
+        this.setYRot(0.0F);
+        this.yHeadRot = this.getYRot();
         this.setOldPosAndRot();
         return super.finalizeSpawn(param0, param1, param2, param3, param4);
     }

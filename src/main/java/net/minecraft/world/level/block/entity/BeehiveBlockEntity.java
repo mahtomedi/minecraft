@@ -234,7 +234,7 @@ public class BeehiveBlockEntity extends BlockEntity {
                             double var10 = (double)param1.getX() + 0.5 + var9 * (double)var1.getStepX();
                             double var11 = (double)param1.getY() + 0.5 - (double)(var4.getBbHeight() / 2.0F);
                             double var12 = (double)param1.getZ() + 0.5 + var9 * (double)var1.getStepZ();
-                            var4.moveTo(var10, var11, var12, var4.yRot, var4.xRot);
+                            var4.moveTo(var10, var11, var12, var4.getYRot(), var4.getXRot());
                         }
 
                         param0.playSound(null, param1, SoundEvents.BEEHIVE_EXIT, SoundSource.BLOCKS, 1.0F, 1.0F);

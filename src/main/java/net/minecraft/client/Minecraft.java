@@ -15,6 +15,7 @@ import com.mojang.authlib.properties.PropertyMap;
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.platform.DisplayData;
+import com.mojang.blaze3d.platform.GlDebug;
 import com.mojang.blaze3d.platform.GlUtil;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.platform.WindowEventHandler;
@@ -2134,6 +2135,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         var0.setDetail("Backend library", RenderSystem::getBackendDescription);
         var0.setDetail("Backend API", RenderSystem::getApiDescription);
         var0.setDetail("GL Caps", RenderSystem::getCapsString);
+        var0.setDetail("GL debug messages", () -> GlDebug.isDebugEnabled() ? String.join("\n", GlDebug.getLastOpenGlDebugMessages()) : "<disabled>");
         var0.setDetail("Using VBOs", () -> "Yes");
         var0.setDetail(
             "Is Modded",
@@ -2495,8 +2497,8 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         int var0 = this.window.getWidth();
         int var1 = this.window.getHeight();
         RenderTarget var2 = new RenderTarget(param1, param2, true, ON_OSX);
-        float var3 = this.player.xRot;
-        float var4 = this.player.yRot;
+        float var3 = this.player.getXRot();
+        float var4 = this.player.getYRot();
         float var5 = this.player.xRotO;
         float var6 = this.player.yRotO;
         this.gameRenderer.setRenderBlockOutline(false);
@@ -2511,31 +2513,33 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
             for(int var7 = 0; var7 < 6; ++var7) {
                 switch(var7) {
                     case 0:
-                        this.player.yRotO = this.player.yRot = var4;
-                        this.player.xRotO = this.player.xRot = 0.0F;
+                        this.player.setYRot(var4);
+                        this.player.setXRot(0.0F);
                         break;
                     case 1:
-                        this.player.yRotO = this.player.yRot = (var4 + 90.0F) % 360.0F;
-                        this.player.xRotO = this.player.xRot = 0.0F;
+                        this.player.setYRot((var4 + 90.0F) % 360.0F);
+                        this.player.setXRot(0.0F);
                         break;
                     case 2:
-                        this.player.yRotO = this.player.yRot = (var4 + 180.0F) % 360.0F;
-                        this.player.xRotO = this.player.xRot = 0.0F;
+                        this.player.setYRot((var4 + 180.0F) % 360.0F);
+                        this.player.setXRot(0.0F);
                         break;
                     case 3:
-                        this.player.yRotO = this.player.yRot = (var4 - 90.0F) % 360.0F;
-                        this.player.xRotO = this.player.xRot = 0.0F;
+                        this.player.setYRot((var4 - 90.0F) % 360.0F);
+                        this.player.setXRot(0.0F);
                         break;
                     case 4:
-                        this.player.yRotO = this.player.yRot = var4;
-                        this.player.xRotO = this.player.xRot = -90.0F;
+                        this.player.setYRot(var4);
+                        this.player.setXRot(-90.0F);
                         break;
                     case 5:
                     default:
-                        this.player.yRotO = this.player.yRot = var4;
-                        this.player.xRotO = this.player.xRot = 90.0F;
+                        this.player.setYRot(var4);
+                        this.player.setXRot(90.0F);
                 }
 
+                this.player.yRotO = this.player.getYRot();
+                this.player.xRotO = this.player.getXRot();
                 var2.bindWrite(true);
                 this.gameRenderer.renderLevel(1.0F, 0L, new PoseStack());
 
@@ -2556,8 +2560,8 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
             LOGGER.error("Couldn't save image", (Throwable)var18);
             var12 = new TranslatableComponent("screenshot.failure", var18.getMessage());
         } finally {
-            this.player.xRot = var3;
-            this.player.yRot = var4;
+            this.player.setXRot(var3);
+            this.player.setYRot(var4);
             this.player.xRotO = var5;
             this.player.yRotO = var6;
             this.gameRenderer.setRenderBlockOutline(true);

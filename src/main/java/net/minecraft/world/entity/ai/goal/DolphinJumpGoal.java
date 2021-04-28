@@ -54,7 +54,7 @@ public class DolphinJumpGoal extends JumpGoal {
     @Override
     public boolean canContinueToUse() {
         double var0 = this.dolphin.getDeltaMovement().y;
-        return (!(var0 * var0 < 0.03F) || this.dolphin.xRot == 0.0F || !(Math.abs(this.dolphin.xRot) < 10.0F) || !this.dolphin.isInWater())
+        return (!(var0 * var0 < 0.03F) || this.dolphin.getXRot() == 0.0F || !(Math.abs(this.dolphin.getXRot()) < 10.0F) || !this.dolphin.isInWater())
             && !this.dolphin.isOnGround();
     }
 
@@ -72,7 +72,7 @@ public class DolphinJumpGoal extends JumpGoal {
 
     @Override
     public void stop() {
-        this.dolphin.xRot = 0.0F;
+        this.dolphin.setXRot(0.0F);
     }
 
     @Override
@@ -88,12 +88,12 @@ public class DolphinJumpGoal extends JumpGoal {
         }
 
         Vec3 var2 = this.dolphin.getDeltaMovement();
-        if (var2.y * var2.y < 0.03F && this.dolphin.xRot != 0.0F) {
-            this.dolphin.xRot = Mth.rotlerp(this.dolphin.xRot, 0.0F, 0.2F);
+        if (var2.y * var2.y < 0.03F && this.dolphin.getXRot() != 0.0F) {
+            this.dolphin.setXRot(Mth.rotlerp(this.dolphin.getXRot(), 0.0F, 0.2F));
         } else {
             double var3 = Math.sqrt(Entity.getHorizontalDistanceSqr(var2));
             double var4 = Math.signum(-var2.y) * Math.acos(var3 / var2.length()) * 180.0F / (float)Math.PI;
-            this.dolphin.xRot = (float)var4;
+            this.dolphin.setXRot((float)var4);
         }
 
     }

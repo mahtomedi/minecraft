@@ -5,6 +5,7 @@ import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -44,7 +45,8 @@ public class SmallDripleafBlock extends DoublePlantBlock implements Bonemealable
 
     @Override
     protected boolean mayPlaceOn(BlockState param0, BlockGetter param1, BlockPos param2) {
-        return param0.is(Blocks.CLAY) || super.mayPlaceOn(param0, param1, param2);
+        return param0.is(BlockTags.SMALL_DRIPLEAF_PLACEABLE)
+            || param1.getFluidState(param2.above()).isSourceOfType(Fluids.WATER) && super.mayPlaceOn(param0, param1, param2);
     }
 
     @Nullable
@@ -84,7 +86,7 @@ public class SmallDripleafBlock extends DoublePlantBlock implements Bonemealable
         } else {
             BlockPos var0 = param2.below();
             BlockState var1 = param1.getBlockState(var0);
-            return var1.is(Blocks.CLAY) || param1.getFluidState(param2).isSourceOfType(Fluids.WATER) && this.mayPlaceOn(var1, param1, var0);
+            return this.mayPlaceOn(var1, param1, var0);
         }
     }
 

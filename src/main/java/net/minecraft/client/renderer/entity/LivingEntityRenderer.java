@@ -78,7 +78,7 @@ public abstract class LivingEntityRenderer<T extends LivingEntity, M extends Ent
             var2 = var1 - var0;
         }
 
-        float var5 = Mth.lerp(param2, param0.xRotO, param0.xRot);
+        float var5 = Mth.lerp(param2, param0.xRotO, param0.getXRot());
         if (param0.getPose() == Pose.SLEEPING) {
             Direction var6 = param0.getBedOrientation();
             if (var6 != null) {
@@ -187,7 +187,7 @@ public abstract class LivingEntityRenderer<T extends LivingEntity, M extends Ent
 
             param1.mulPose(Vector3f.ZP.rotationDegrees(var1 * this.getFlipDegrees(param0)));
         } else if (param0.isAutoSpinAttack()) {
-            param1.mulPose(Vector3f.XP.rotationDegrees(-90.0F - param0.xRot));
+            param1.mulPose(Vector3f.XP.rotationDegrees(-90.0F - param0.getXRot()));
             param1.mulPose(Vector3f.YP.rotationDegrees(((float)param0.tickCount + param4) * -75.0F));
         } else if (var0 == Pose.SLEEPING) {
             Direction var2 = param0.getBedOrientation();

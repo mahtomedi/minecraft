@@ -105,8 +105,8 @@ public class ScreenEffectRenderer {
         float var5 = -1.0F;
         float var6 = 1.0F;
         float var7 = -0.5F;
-        float var8 = -param0.player.yRot / 64.0F;
-        float var9 = param0.player.xRot / 64.0F;
+        float var8 = -param0.player.getYRot() / 64.0F;
+        float var9 = param0.player.getXRot() / 64.0F;
         Matrix4f var10 = param1.last().pose();
         var0.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
         var0.vertex(var10, -1.0F, -1.0F, -0.5F).uv(4.0F + var8, 4.0F + var9).endVertex();

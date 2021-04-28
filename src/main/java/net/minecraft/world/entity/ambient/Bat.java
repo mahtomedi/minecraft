@@ -166,9 +166,9 @@ public class Bat extends AmbientCreature {
             );
             this.setDeltaMovement(var7);
             float var8 = (float)(Mth.atan2(var7.z, var7.x) * 180.0F / (float)Math.PI) - 90.0F;
-            float var9 = Mth.wrapDegrees(var8 - this.yRot);
+            float var9 = Mth.wrapDegrees(var8 - this.getYRot());
             this.zza = 0.5F;
-            this.yRot += var9;
+            this.setYRot(this.getYRot() + var9);
             if (this.random.nextInt(100) == 0 && this.level.getBlockState(var1).isRedstoneConductor(this.level, var1)) {
                 this.setResting(true);
             }

@@ -1,5 +1,6 @@
 package net.minecraft.client.renderer;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.gson.JsonSyntaxException;
 import com.mojang.blaze3d.platform.GlStateManager;
@@ -12,12 +13,15 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.datafixers.util.Pair;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
 import java.io.IOException;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
+import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
@@ -384,68 +388,220 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
 
     public void reloadShaders(ResourceManager param0) {
         RenderSystem.assertThread(RenderSystem::isOnRenderThread);
-        this.shutdownShaders();
+        List<Pair<ShaderInstance, Consumer<ShaderInstance>>> var0 = Lists.newArrayListWithCapacity(this.shaders.size());
 
         try {
-            blockShader = this.loadShader(param0, "block", DefaultVertexFormat.BLOCK);
-            newEntityShader = this.loadShader(param0, "new_entity", DefaultVertexFormat.NEW_ENTITY);
-            particleShader = this.loadShader(param0, "particle", DefaultVertexFormat.PARTICLE);
-            positionShader = this.loadShader(param0, "position", DefaultVertexFormat.POSITION);
-            positionColorShader = this.loadShader(param0, "position_color", DefaultVertexFormat.POSITION_COLOR);
-            positionColorLightmapShader = this.loadShader(param0, "position_color_lightmap", DefaultVertexFormat.POSITION_COLOR_LIGHTMAP);
-            positionColorTexShader = this.loadShader(param0, "position_color_tex", DefaultVertexFormat.POSITION_COLOR_TEX);
-            positionColorTexLightmapShader = this.loadShader(param0, "position_color_tex_lightmap", DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP);
-            positionTexShader = this.loadShader(param0, "position_tex", DefaultVertexFormat.POSITION_TEX);
-            positionTexColorShader = this.loadShader(param0, "position_tex_color", DefaultVertexFormat.POSITION_TEX_COLOR);
-            positionTexColorNormalShader = this.loadShader(param0, "position_tex_color_normal", DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL);
-            positionTexLightmapColorShader = this.loadShader(param0, "position_tex_lightmap_color", DefaultVertexFormat.POSITION_TEX_LIGHTMAP_COLOR);
-            rendertypeSolidShader = this.loadShader(param0, "rendertype_solid", DefaultVertexFormat.BLOCK);
-            rendertypeCutoutMippedShader = this.loadShader(param0, "rendertype_cutout_mipped", DefaultVertexFormat.BLOCK);
-            rendertypeCutoutShader = this.loadShader(param0, "rendertype_cutout", DefaultVertexFormat.BLOCK);
-            rendertypeTranslucentShader = this.loadShader(param0, "rendertype_translucent", DefaultVertexFormat.BLOCK);
-            rendertypeTranslucentMovingBlockShader = this.loadShader(param0, "rendertype_translucent_moving_block", DefaultVertexFormat.BLOCK);
-            rendertypeTranslucentNoCrumblingShader = this.loadShader(param0, "rendertype_translucent_no_crumbling", DefaultVertexFormat.BLOCK);
-            rendertypeArmorCutoutNoCullShader = this.loadShader(param0, "rendertype_armor_cutout_no_cull", DefaultVertexFormat.NEW_ENTITY);
-            rendertypeEntitySolidShader = this.loadShader(param0, "rendertype_entity_solid", DefaultVertexFormat.NEW_ENTITY);
-            rendertypeEntityCutoutShader = this.loadShader(param0, "rendertype_entity_cutout", DefaultVertexFormat.NEW_ENTITY);
-            rendertypeEntityCutoutNoCullShader = this.loadShader(param0, "rendertype_entity_cutout_no_cull", DefaultVertexFormat.NEW_ENTITY);
-            rendertypeEntityCutoutNoCullZOffsetShader = this.loadShader(param0, "rendertype_entity_cutout_no_cull_z_offset", DefaultVertexFormat.NEW_ENTITY);
-            rendertypeItemEntityTranslucentCullShader = this.loadShader(param0, "rendertype_item_entity_translucent_cull", DefaultVertexFormat.NEW_ENTITY);
-            rendertypeEntityTranslucentCullShader = this.loadShader(param0, "rendertype_entity_translucent_cull", DefaultVertexFormat.NEW_ENTITY);
-            rendertypeEntityTranslucentShader = this.loadShader(param0, "rendertype_entity_translucent", DefaultVertexFormat.NEW_ENTITY);
-            rendertypeEntitySmoothCutoutShader = this.loadShader(param0, "rendertype_entity_smooth_cutout", DefaultVertexFormat.NEW_ENTITY);
-            rendertypeBeaconBeamShader = this.loadShader(param0, "rendertype_beacon_beam", DefaultVertexFormat.BLOCK);
-            rendertypeEntityDecalShader = this.loadShader(param0, "rendertype_entity_decal", DefaultVertexFormat.NEW_ENTITY);
-            rendertypeEntityNoOutlineShader = this.loadShader(param0, "rendertype_entity_no_outline", DefaultVertexFormat.NEW_ENTITY);
-            rendertypeEntityShadowShader = this.loadShader(param0, "rendertype_entity_shadow", DefaultVertexFormat.NEW_ENTITY);
-            rendertypeEntityAlphaShader = this.loadShader(param0, "rendertype_entity_alpha", DefaultVertexFormat.NEW_ENTITY);
-            rendertypeEyesShader = this.loadShader(param0, "rendertype_eyes", DefaultVertexFormat.NEW_ENTITY);
-            rendertypeEnergySwirlShader = this.loadShader(param0, "rendertype_energy_swirl", DefaultVertexFormat.NEW_ENTITY);
-            rendertypeLeashShader = this.loadShader(param0, "rendertype_leash", DefaultVertexFormat.POSITION_COLOR_LIGHTMAP);
-            rendertypeWaterMaskShader = this.loadShader(param0, "rendertype_water_mask", DefaultVertexFormat.POSITION);
-            rendertypeOutlineShader = this.loadShader(param0, "rendertype_outline", DefaultVertexFormat.POSITION_COLOR_TEX);
-            rendertypeArmorGlintShader = this.loadShader(param0, "rendertype_armor_glint", DefaultVertexFormat.POSITION_TEX);
-            rendertypeArmorEntityGlintShader = this.loadShader(param0, "rendertype_armor_entity_glint", DefaultVertexFormat.POSITION_TEX);
-            rendertypeGlintTranslucentShader = this.loadShader(param0, "rendertype_glint_translucent", DefaultVertexFormat.POSITION_TEX);
-            rendertypeGlintShader = this.loadShader(param0, "rendertype_glint", DefaultVertexFormat.POSITION_TEX);
-            rendertypeGlintDirectShader = this.loadShader(param0, "rendertype_glint_direct", DefaultVertexFormat.POSITION_TEX);
-            rendertypeEntityGlintShader = this.loadShader(param0, "rendertype_entity_glint", DefaultVertexFormat.POSITION_TEX);
-            rendertypeEntityGlintDirectShader = this.loadShader(param0, "rendertype_entity_glint_direct", DefaultVertexFormat.POSITION_TEX);
-            rendertypeTextShader = this.loadShader(param0, "rendertype_text", DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP);
-            rendertypeTextIntensityShader = this.loadShader(param0, "rendertype_text_intensity", DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP);
-            rendertypeTextSeeThroughShader = this.loadShader(param0, "rendertype_text_see_through", DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP);
-            rendertypeTextIntensitySeeThroughShader = this.loadShader(
-                param0, "rendertype_text_intensity_see_through", DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP
+            var0.add(Pair.of(new ShaderInstance(param0, "block", DefaultVertexFormat.BLOCK), param0x -> blockShader = param0x));
+            var0.add(Pair.of(new ShaderInstance(param0, "new_entity", DefaultVertexFormat.NEW_ENTITY), param0x -> newEntityShader = param0x));
+            var0.add(Pair.of(new ShaderInstance(param0, "particle", DefaultVertexFormat.PARTICLE), param0x -> particleShader = param0x));
+            var0.add(Pair.of(new ShaderInstance(param0, "position", DefaultVertexFormat.POSITION), param0x -> positionShader = param0x));
+            var0.add(Pair.of(new ShaderInstance(param0, "position_color", DefaultVertexFormat.POSITION_COLOR), param0x -> positionColorShader = param0x));
+            var0.add(
+                Pair.of(
+                    new ShaderInstance(param0, "position_color_lightmap", DefaultVertexFormat.POSITION_COLOR_LIGHTMAP),
+                    param0x -> positionColorLightmapShader = param0x
+                )
             );
-            rendertypeLightningShader = this.loadShader(param0, "rendertype_lightning", DefaultVertexFormat.POSITION_COLOR);
-            rendertypeTripwireShader = this.loadShader(param0, "rendertype_tripwire", DefaultVertexFormat.BLOCK);
-            rendertypeEndPortalShader = this.loadShader(param0, "rendertype_end_portal", DefaultVertexFormat.POSITION);
-            rendertypeEndGatewayShader = this.loadShader(param0, "rendertype_end_gateway", DefaultVertexFormat.POSITION);
-            rendertypeLinesShader = this.loadShader(param0, "rendertype_lines", DefaultVertexFormat.POSITION_COLOR_NORMAL);
-            rendertypeCrumblingShader = this.loadShader(param0, "rendertype_crumbling", DefaultVertexFormat.BLOCK);
-        } catch (IOException var3) {
-            throw new RuntimeException("could not reload shaders", var3);
+            var0.add(
+                Pair.of(new ShaderInstance(param0, "position_color_tex", DefaultVertexFormat.POSITION_COLOR_TEX), param0x -> positionColorTexShader = param0x)
+            );
+            var0.add(
+                Pair.of(
+                    new ShaderInstance(param0, "position_color_tex_lightmap", DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP),
+                    param0x -> positionColorTexLightmapShader = param0x
+                )
+            );
+            var0.add(Pair.of(new ShaderInstance(param0, "position_tex", DefaultVertexFormat.POSITION_TEX), param0x -> positionTexShader = param0x));
+            var0.add(
+                Pair.of(new ShaderInstance(param0, "position_tex_color", DefaultVertexFormat.POSITION_TEX_COLOR), param0x -> positionTexColorShader = param0x)
+            );
+            var0.add(
+                Pair.of(
+                    new ShaderInstance(param0, "position_tex_color_normal", DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL),
+                    param0x -> positionTexColorNormalShader = param0x
+                )
+            );
+            var0.add(
+                Pair.of(
+                    new ShaderInstance(param0, "position_tex_lightmap_color", DefaultVertexFormat.POSITION_TEX_LIGHTMAP_COLOR),
+                    param0x -> positionTexLightmapColorShader = param0x
+                )
+            );
+            var0.add(Pair.of(new ShaderInstance(param0, "rendertype_solid", DefaultVertexFormat.BLOCK), param0x -> rendertypeSolidShader = param0x));
+            var0.add(
+                Pair.of(new ShaderInstance(param0, "rendertype_cutout_mipped", DefaultVertexFormat.BLOCK), param0x -> rendertypeCutoutMippedShader = param0x)
+            );
+            var0.add(Pair.of(new ShaderInstance(param0, "rendertype_cutout", DefaultVertexFormat.BLOCK), param0x -> rendertypeCutoutShader = param0x));
+            var0.add(Pair.of(new ShaderInstance(param0, "rendertype_translucent", DefaultVertexFormat.BLOCK), param0x -> rendertypeTranslucentShader = param0x));
+            var0.add(
+                Pair.of(
+                    new ShaderInstance(param0, "rendertype_translucent_moving_block", DefaultVertexFormat.BLOCK),
+                    param0x -> rendertypeTranslucentMovingBlockShader = param0x
+                )
+            );
+            var0.add(
+                Pair.of(
+                    new ShaderInstance(param0, "rendertype_translucent_no_crumbling", DefaultVertexFormat.BLOCK),
+                    param0x -> rendertypeTranslucentNoCrumblingShader = param0x
+                )
+            );
+            var0.add(
+                Pair.of(
+                    new ShaderInstance(param0, "rendertype_armor_cutout_no_cull", DefaultVertexFormat.NEW_ENTITY),
+                    param0x -> rendertypeArmorCutoutNoCullShader = param0x
+                )
+            );
+            var0.add(
+                Pair.of(new ShaderInstance(param0, "rendertype_entity_solid", DefaultVertexFormat.NEW_ENTITY), param0x -> rendertypeEntitySolidShader = param0x)
+            );
+            var0.add(
+                Pair.of(
+                    new ShaderInstance(param0, "rendertype_entity_cutout", DefaultVertexFormat.NEW_ENTITY), param0x -> rendertypeEntityCutoutShader = param0x
+                )
+            );
+            var0.add(
+                Pair.of(
+                    new ShaderInstance(param0, "rendertype_entity_cutout_no_cull", DefaultVertexFormat.NEW_ENTITY),
+                    param0x -> rendertypeEntityCutoutNoCullShader = param0x
+                )
+            );
+            var0.add(
+                Pair.of(
+                    new ShaderInstance(param0, "rendertype_entity_cutout_no_cull_z_offset", DefaultVertexFormat.NEW_ENTITY),
+                    param0x -> rendertypeEntityCutoutNoCullZOffsetShader = param0x
+                )
+            );
+            var0.add(
+                Pair.of(
+                    new ShaderInstance(param0, "rendertype_item_entity_translucent_cull", DefaultVertexFormat.NEW_ENTITY),
+                    param0x -> rendertypeItemEntityTranslucentCullShader = param0x
+                )
+            );
+            var0.add(
+                Pair.of(
+                    new ShaderInstance(param0, "rendertype_entity_translucent_cull", DefaultVertexFormat.NEW_ENTITY),
+                    param0x -> rendertypeEntityTranslucentCullShader = param0x
+                )
+            );
+            var0.add(
+                Pair.of(
+                    new ShaderInstance(param0, "rendertype_entity_translucent", DefaultVertexFormat.NEW_ENTITY),
+                    param0x -> rendertypeEntityTranslucentShader = param0x
+                )
+            );
+            var0.add(
+                Pair.of(
+                    new ShaderInstance(param0, "rendertype_entity_smooth_cutout", DefaultVertexFormat.NEW_ENTITY),
+                    param0x -> rendertypeEntitySmoothCutoutShader = param0x
+                )
+            );
+            var0.add(Pair.of(new ShaderInstance(param0, "rendertype_beacon_beam", DefaultVertexFormat.BLOCK), param0x -> rendertypeBeaconBeamShader = param0x));
+            var0.add(
+                Pair.of(new ShaderInstance(param0, "rendertype_entity_decal", DefaultVertexFormat.NEW_ENTITY), param0x -> rendertypeEntityDecalShader = param0x)
+            );
+            var0.add(
+                Pair.of(
+                    new ShaderInstance(param0, "rendertype_entity_no_outline", DefaultVertexFormat.NEW_ENTITY),
+                    param0x -> rendertypeEntityNoOutlineShader = param0x
+                )
+            );
+            var0.add(
+                Pair.of(
+                    new ShaderInstance(param0, "rendertype_entity_shadow", DefaultVertexFormat.NEW_ENTITY), param0x -> rendertypeEntityShadowShader = param0x
+                )
+            );
+            var0.add(
+                Pair.of(new ShaderInstance(param0, "rendertype_entity_alpha", DefaultVertexFormat.NEW_ENTITY), param0x -> rendertypeEntityAlphaShader = param0x)
+            );
+            var0.add(Pair.of(new ShaderInstance(param0, "rendertype_eyes", DefaultVertexFormat.NEW_ENTITY), param0x -> rendertypeEyesShader = param0x));
+            var0.add(
+                Pair.of(new ShaderInstance(param0, "rendertype_energy_swirl", DefaultVertexFormat.NEW_ENTITY), param0x -> rendertypeEnergySwirlShader = param0x)
+            );
+            var0.add(
+                Pair.of(new ShaderInstance(param0, "rendertype_leash", DefaultVertexFormat.POSITION_COLOR_LIGHTMAP), param0x -> rendertypeLeashShader = param0x)
+            );
+            var0.add(Pair.of(new ShaderInstance(param0, "rendertype_water_mask", DefaultVertexFormat.POSITION), param0x -> rendertypeWaterMaskShader = param0x));
+            var0.add(
+                Pair.of(new ShaderInstance(param0, "rendertype_outline", DefaultVertexFormat.POSITION_COLOR_TEX), param0x -> rendertypeOutlineShader = param0x)
+            );
+            var0.add(
+                Pair.of(new ShaderInstance(param0, "rendertype_armor_glint", DefaultVertexFormat.POSITION_TEX), param0x -> rendertypeArmorGlintShader = param0x)
+            );
+            var0.add(
+                Pair.of(
+                    new ShaderInstance(param0, "rendertype_armor_entity_glint", DefaultVertexFormat.POSITION_TEX),
+                    param0x -> rendertypeArmorEntityGlintShader = param0x
+                )
+            );
+            var0.add(
+                Pair.of(
+                    new ShaderInstance(param0, "rendertype_glint_translucent", DefaultVertexFormat.POSITION_TEX),
+                    param0x -> rendertypeGlintTranslucentShader = param0x
+                )
+            );
+            var0.add(Pair.of(new ShaderInstance(param0, "rendertype_glint", DefaultVertexFormat.POSITION_TEX), param0x -> rendertypeGlintShader = param0x));
+            var0.add(
+                Pair.of(
+                    new ShaderInstance(param0, "rendertype_glint_direct", DefaultVertexFormat.POSITION_TEX), param0x -> rendertypeGlintDirectShader = param0x
+                )
+            );
+            var0.add(
+                Pair.of(
+                    new ShaderInstance(param0, "rendertype_entity_glint", DefaultVertexFormat.POSITION_TEX), param0x -> rendertypeEntityGlintShader = param0x
+                )
+            );
+            var0.add(
+                Pair.of(
+                    new ShaderInstance(param0, "rendertype_entity_glint_direct", DefaultVertexFormat.POSITION_TEX),
+                    param0x -> rendertypeEntityGlintDirectShader = param0x
+                )
+            );
+            var0.add(
+                Pair.of(
+                    new ShaderInstance(param0, "rendertype_text", DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP), param0x -> rendertypeTextShader = param0x
+                )
+            );
+            var0.add(
+                Pair.of(
+                    new ShaderInstance(param0, "rendertype_text_intensity", DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP),
+                    param0x -> rendertypeTextIntensityShader = param0x
+                )
+            );
+            var0.add(
+                Pair.of(
+                    new ShaderInstance(param0, "rendertype_text_see_through", DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP),
+                    param0x -> rendertypeTextSeeThroughShader = param0x
+                )
+            );
+            var0.add(
+                Pair.of(
+                    new ShaderInstance(param0, "rendertype_text_intensity_see_through", DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP),
+                    param0x -> rendertypeTextIntensitySeeThroughShader = param0x
+                )
+            );
+            var0.add(
+                Pair.of(new ShaderInstance(param0, "rendertype_lightning", DefaultVertexFormat.POSITION_COLOR), param0x -> rendertypeLightningShader = param0x)
+            );
+            var0.add(Pair.of(new ShaderInstance(param0, "rendertype_tripwire", DefaultVertexFormat.BLOCK), param0x -> rendertypeTripwireShader = param0x));
+            var0.add(Pair.of(new ShaderInstance(param0, "rendertype_end_portal", DefaultVertexFormat.POSITION), param0x -> rendertypeEndPortalShader = param0x));
+            var0.add(
+                Pair.of(new ShaderInstance(param0, "rendertype_end_gateway", DefaultVertexFormat.POSITION), param0x -> rendertypeEndGatewayShader = param0x)
+            );
+            var0.add(
+                Pair.of(new ShaderInstance(param0, "rendertype_lines", DefaultVertexFormat.POSITION_COLOR_NORMAL), param0x -> rendertypeLinesShader = param0x)
+            );
+            var0.add(Pair.of(new ShaderInstance(param0, "rendertype_crumbling", DefaultVertexFormat.BLOCK), param0x -> rendertypeCrumblingShader = param0x));
+        } catch (IOException var4) {
+            var0.forEach(param0x -> param0x.getFirst().close());
+            throw new RuntimeException("could not reload shaders", var4);
         }
+
+        this.shutdownShaders();
+        var0.forEach(param0x -> {
+            ShaderInstance var0x = param0x.getFirst();
+            this.shaders.put(var0x.getName(), var0x);
+            param0x.getSecond().accept(var0x);
+        });
     }
 
     private void shutdownShaders() {

@@ -83,7 +83,7 @@ public class SummonCommand {
             var1.putString("id", param1.toString());
             ServerLevel var2 = param0.getLevel();
             Entity var3 = EntityType.loadEntityRecursive(var1, var2, param1x -> {
-                param1x.moveTo(param2.x, param2.y, param2.z, param1x.yRot, param1x.xRot);
+                param1x.moveTo(param2.x, param2.y, param2.z, param1x.getYRot(), param1x.getXRot());
                 return param1x;
             });
             if (var3 == null) {

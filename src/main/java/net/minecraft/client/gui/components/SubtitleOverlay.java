@@ -42,11 +42,11 @@ public class SubtitleOverlay extends GuiComponent implements SoundEventListener 
             RenderSystem.defaultBlendFunc();
             Vec3 var0 = new Vec3(this.minecraft.player.getX(), this.minecraft.player.getEyeY(), this.minecraft.player.getZ());
             Vec3 var1 = new Vec3(0.0, 0.0, -1.0)
-                .xRot(-this.minecraft.player.xRot * (float) (Math.PI / 180.0))
-                .yRot(-this.minecraft.player.yRot * (float) (Math.PI / 180.0));
+                .xRot(-this.minecraft.player.getXRot() * (float) (Math.PI / 180.0))
+                .yRot(-this.minecraft.player.getYRot() * (float) (Math.PI / 180.0));
             Vec3 var2 = new Vec3(0.0, 1.0, 0.0)
-                .xRot(-this.minecraft.player.xRot * (float) (Math.PI / 180.0))
-                .yRot(-this.minecraft.player.yRot * (float) (Math.PI / 180.0));
+                .xRot(-this.minecraft.player.getXRot() * (float) (Math.PI / 180.0))
+                .yRot(-this.minecraft.player.getYRot() * (float) (Math.PI / 180.0));
             Vec3 var3 = var1.cross(var2);
             int var4 = 0;
             int var5 = 0;

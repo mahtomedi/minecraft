@@ -1,8 +1,12 @@
 package com.mojang.blaze3d.platform;
 
+import com.google.common.collect.EvictingQueue;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.List;
+import java.util.Queue;
+import javax.annotation.Nullable;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
@@ -18,8 +22,13 @@ import org.lwjgl.opengl.KHRDebug;
 @OnlyIn(Dist.CLIENT)
 public class GlDebug {
     private static final Logger LOGGER = LogManager.getLogger();
+    private static final int CIRCULAR_LOG_SIZE = 10;
+    private static final Queue<GlDebug.LogEntry> MESSAGE_BUFFER = EvictingQueue.create(10);
+    @Nullable
+    private static volatile GlDebug.LogEntry lastEntry;
     private static final List<Integer> DEBUG_LEVELS = ImmutableList.of(37190, 37191, 37192, 33387);
     private static final List<Integer> DEBUG_LEVELS_ARB = ImmutableList.of(37190, 37191, 37192);
+    private static boolean debugEnabled;
 
     private static String printUnknownToken(int param0) {
         return "Unknown (0x" + Integer.toHexString(param0).toUpperCase() + ")";
@@ -81,14 +90,36 @@ public class GlDebug {
     }
 
     private static void printDebugLog(int param0, int param1, int param2, int param3, int param4, long param5, long param6) {
-        LOGGER.info(
-            "OpenGL debug message, id={}, source={}, type={}, severity={}, message={}",
-            param2,
-            sourceToString(param0),
-            typeToString(param1),
-            severityToString(param3),
-            GLDebugMessageCallback.getMessage(param4, param5)
-        );
+        String var0 = GLDebugMessageCallback.getMessage(param4, param5);
+        GlDebug.LogEntry var1;
+        synchronized(MESSAGE_BUFFER) {
+            var1 = lastEntry;
+            if (var1 != null && var1.isSame(param0, param1, param2, param3, var0)) {
+                var1.count = var1.count + 1;
+            } else {
+                var1 = new GlDebug.LogEntry(param0, param1, param2, param3, var0);
+                MESSAGE_BUFFER.add(var1);
+                lastEntry = var1;
+            }
+        }
+
+        LOGGER.info("OpenGL debug message: {}", var1);
+    }
+
+    public static List<String> getLastOpenGlDebugMessages() {
+        synchronized(MESSAGE_BUFFER) {
+            List<String> var0 = Lists.newArrayListWithCapacity(MESSAGE_BUFFER.size());
+
+            for(GlDebug.LogEntry var1 : MESSAGE_BUFFER) {
+                var0.add(var1 + " x " + var1.count);
+            }
+
+            return var0;
+        }
+    }
+
+    public static boolean isDebugEnabled() {
+        return debugEnabled;
     }
 
     public static void enableDebugCallback(int param0, boolean param1) {
@@ -96,6 +127,7 @@ public class GlDebug {
         if (param0 > 0) {
             GLCapabilities var0 = GL.getCapabilities();
             if (var0.GL_KHR_debug) {
+                debugEnabled = true;
                 GL11.glEnable(37600);
                 if (param1) {
                     GL11.glEnable(33346);
@@ -108,6 +140,7 @@ public class GlDebug {
 
                 KHRDebug.glDebugMessageCallback(GLX.make(GLDebugMessageCallback.create(GlDebug::printDebugLog), DebugMemoryUntracker::untrack), 0L);
             } else if (var0.GL_ARB_debug_output) {
+                debugEnabled = true;
                 if (param1) {
                     GL11.glEnable(33346);
                 }
@@ -120,6 +153,43 @@ public class GlDebug {
                 ARBDebugOutput.glDebugMessageCallbackARB(GLX.make(GLDebugMessageARBCallback.create(GlDebug::printDebugLog), DebugMemoryUntracker::untrack), 0L);
             }
 
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    static class LogEntry {
+        private final int id;
+        private final int source;
+        private final int type;
+        private final int severity;
+        private final String message;
+        private int count = 1;
+
+        private LogEntry(int param0, int param1, int param2, int param3, String param4) {
+            this.id = param2;
+            this.source = param0;
+            this.type = param1;
+            this.severity = param3;
+            this.message = param4;
+        }
+
+        private boolean isSame(int param0, int param1, int param2, int param3, String param4) {
+            return param1 == this.type && param0 == this.source && param2 == this.id && param3 == this.severity && param4.equals(this.message);
+        }
+
+        @Override
+        public String toString() {
+            return "id="
+                + this.id
+                + ", source="
+                + GlDebug.sourceToString(this.source)
+                + ", type="
+                + GlDebug.typeToString(this.type)
+                + ", severity="
+                + GlDebug.severityToString(this.severity)
+                + ", message='"
+                + this.message
+                + "'";
         }
     }
 }

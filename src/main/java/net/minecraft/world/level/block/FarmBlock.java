@@ -90,16 +90,16 @@ public class FarmBlock extends Block {
     }
 
     @Override
-    public void fallOn(Level param0, BlockPos param1, Entity param2, float param3) {
+    public void fallOn(Level param0, BlockState param1, BlockPos param2, Entity param3, float param4) {
         if (!param0.isClientSide
-            && param0.random.nextFloat() < param3 - 0.5F
-            && param2 instanceof LivingEntity
-            && (param2 instanceof Player || param0.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING))
-            && param2.getBbWidth() * param2.getBbWidth() * param2.getBbHeight() > 0.512F) {
-            turnToDirt(param0.getBlockState(param1), param0, param1);
+            && param0.random.nextFloat() < param4 - 0.5F
+            && param3 instanceof LivingEntity
+            && (param3 instanceof Player || param0.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING))
+            && param3.getBbWidth() * param3.getBbWidth() * param3.getBbHeight() > 0.512F) {
+            turnToDirt(param1, param0, param2);
         }
 
-        super.fallOn(param0, param1, param2, param3);
+        super.fallOn(param0, param1, param2, param3, param4);
     }
 
     public static void turnToDirt(BlockState param0, Level param1, BlockPos param2) {

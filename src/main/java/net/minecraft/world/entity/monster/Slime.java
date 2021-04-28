@@ -169,7 +169,7 @@ public class Slime extends Mob implements Enemy {
     public void onSyncedDataUpdated(EntityDataAccessor<?> param0) {
         if (ID_SIZE.equals(param0)) {
             this.refreshDimensions();
-            this.yRot = this.yHeadRot;
+            this.setYRot(this.yHeadRot);
             this.yBodyRot = this.yHeadRot;
             if (this.isInWater() && this.random.nextInt(20) == 0) {
                 this.doWaterSplashEffect();
@@ -397,7 +397,7 @@ public class Slime extends Mob implements Enemy {
         @Override
         public void tick() {
             this.slime.lookAt(this.slime.getTarget(), 10.0F, 10.0F);
-            ((Slime.SlimeMoveControl)this.slime.getMoveControl()).setDirection(this.slime.yRot, this.slime.isDealsDamage());
+            ((Slime.SlimeMoveControl)this.slime.getMoveControl()).setDirection(this.slime.getYRot(), this.slime.isDealsDamage());
         }
     }
 
@@ -453,7 +453,7 @@ public class Slime extends Mob implements Enemy {
         public SlimeMoveControl(Slime param0) {
             super(param0);
             this.slime = param0;
-            this.yRot = 180.0F * param0.yRot / (float) Math.PI;
+            this.yRot = 180.0F * param0.getYRot() / (float) Math.PI;
         }
 
         public void setDirection(float param0, boolean param1) {
@@ -468,9 +468,9 @@ public class Slime extends Mob implements Enemy {
 
         @Override
         public void tick() {
-            this.mob.yRot = this.rotlerp(this.mob.yRot, this.yRot, 90.0F);
-            this.mob.yHeadRot = this.mob.yRot;
-            this.mob.yBodyRot = this.mob.yRot;
+            this.mob.setYRot(this.rotlerp(this.mob.getYRot(), this.yRot, 90.0F));
+            this.mob.yHeadRot = this.mob.getYRot();
+            this.mob.yBodyRot = this.mob.getYRot();
             if (this.operation != MoveControl.Operation.MOVE_TO) {
                 this.mob.setZza(0.0F);
             } else {

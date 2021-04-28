@@ -35,7 +35,7 @@ public class EvokerFangs extends Entity {
         this(EntityType.EVOKER_FANGS, param0);
         this.warmupDelayTicks = param5;
         this.setOwner(param6);
-        this.yRot = param4 * (180.0F / (float)Math.PI);
+        this.setYRot(param4 * (180.0F / (float)Math.PI));
         this.setPos(param1, param2, param3);
     }
 

@@ -481,7 +481,7 @@ public abstract class Player extends LivingEntity {
     protected void serverAiStep() {
         super.serverAiStep();
         this.updateSwingTime();
-        this.yHeadRot = this.yRot;
+        this.yHeadRot = this.getYRot();
     }
 
     @Override
@@ -604,9 +604,9 @@ public abstract class Player extends LivingEntity {
 
         if (param0 != null) {
             this.setDeltaMovement(
-                (double)(-Mth.cos((this.hurtDir + this.yRot) * (float) (Math.PI / 180.0)) * 0.1F),
+                (double)(-Mth.cos((this.hurtDir + this.getYRot()) * (float) (Math.PI / 180.0)) * 0.1F),
                 0.1F,
-                (double)(-Mth.sin((this.hurtDir + this.yRot) * (float) (Math.PI / 180.0)) * 0.1F)
+                (double)(-Mth.sin((this.hurtDir + this.getYRot()) * (float) (Math.PI / 180.0)) * 0.1F)
             );
         } else {
             this.setDeltaMovement(0.0, 0.1, 0.0);
@@ -694,10 +694,10 @@ public abstract class Player extends LivingEntity {
                 var1.setDeltaMovement((double)(-Mth.sin(var3) * var2), 0.2F, (double)(Mth.cos(var3) * var2));
             } else {
                 float var4 = 0.3F;
-                float var5 = Mth.sin(this.xRot * (float) (Math.PI / 180.0));
-                float var6 = Mth.cos(this.xRot * (float) (Math.PI / 180.0));
-                float var7 = Mth.sin(this.yRot * (float) (Math.PI / 180.0));
-                float var8 = Mth.cos(this.yRot * (float) (Math.PI / 180.0));
+                float var5 = Mth.sin(this.getXRot() * (float) (Math.PI / 180.0));
+                float var6 = Mth.cos(this.getXRot() * (float) (Math.PI / 180.0));
+                float var7 = Mth.sin(this.getYRot() * (float) (Math.PI / 180.0));
+                float var8 = Mth.cos(this.getYRot() * (float) (Math.PI / 180.0));
                 float var9 = this.random.nextFloat() * (float) (Math.PI * 2);
                 float var10 = 0.02F * this.random.nextFloat();
                 var1.setDeltaMovement(
@@ -1165,14 +1165,14 @@ public abstract class Player extends LivingEntity {
                                 ((LivingEntity)param0)
                                     .knockback(
                                         (float)var6 * 0.5F,
-                                        (double)Mth.sin(this.yRot * (float) (Math.PI / 180.0)),
-                                        (double)(-Mth.cos(this.yRot * (float) (Math.PI / 180.0)))
+                                        (double)Mth.sin(this.getYRot() * (float) (Math.PI / 180.0)),
+                                        (double)(-Mth.cos(this.getYRot() * (float) (Math.PI / 180.0)))
                                     );
                             } else {
                                 param0.push(
-                                    (double)(-Mth.sin(this.yRot * (float) (Math.PI / 180.0)) * (float)var6 * 0.5F),
+                                    (double)(-Mth.sin(this.getYRot() * (float) (Math.PI / 180.0)) * (float)var6 * 0.5F),
                                     0.1,
-                                    (double)(Mth.cos(this.yRot * (float) (Math.PI / 180.0)) * (float)var6 * 0.5F)
+                                    (double)(Mth.cos(this.getYRot() * (float) (Math.PI / 180.0)) * (float)var6 * 0.5F)
                                 );
                             }
 
@@ -1190,7 +1190,9 @@ public abstract class Player extends LivingEntity {
                                     && (!(var18 instanceof ArmorStand) || !((ArmorStand)var18).isMarker())
                                     && this.distanceToSqr(var18) < 9.0) {
                                     var18.knockback(
-                                        0.4F, (double)Mth.sin(this.yRot * (float) (Math.PI / 180.0)), (double)(-Mth.cos(this.yRot * (float) (Math.PI / 180.0)))
+                                        0.4F,
+                                        (double)Mth.sin(this.getYRot() * (float) (Math.PI / 180.0)),
+                                        (double)(-Mth.cos(this.getYRot() * (float) (Math.PI / 180.0)))
                                     );
                                     var18.hurt(DamageSource.playerAttack(this), var16);
                                 }
@@ -1300,8 +1302,8 @@ public abstract class Player extends LivingEntity {
     }
 
     public void sweepAttack() {
-        double var0 = (double)(-Mth.sin(this.yRot * (float) (Math.PI / 180.0)));
-        double var1 = (double)Mth.cos(this.yRot * (float) (Math.PI / 180.0));
+        double var0 = (double)(-Mth.sin(this.getYRot() * (float) (Math.PI / 180.0)));
+        double var1 = (double)Mth.cos(this.getYRot() * (float) (Math.PI / 180.0));
         if (this.level instanceof ServerLevel) {
             ((ServerLevel)this.level)
                 .sendParticles(ParticleTypes.SWEEP_ATTACK, this.getX() + var0, this.getY(0.5), this.getZ() + var1, 0, var0, 0.0, var1, 0.0);
@@ -2061,7 +2063,7 @@ public abstract class Player extends LivingEntity {
     @Override
     public Vec3 getRopeHoldPosition(float param0) {
         double var0 = 0.22 * (this.getMainArm() == HumanoidArm.RIGHT ? -1.0 : 1.0);
-        float var1 = Mth.lerp(param0 * 0.5F, this.xRot, this.xRotO) * (float) (Math.PI / 180.0);
+        float var1 = Mth.lerp(param0 * 0.5F, this.getXRot(), this.xRotO) * (float) (Math.PI / 180.0);
         float var2 = Mth.lerp(param0, this.yBodyRotO, this.yBodyRot) * (float) (Math.PI / 180.0);
         if (this.isFallFlying() || this.isAutoSpinAttack()) {
             Vec3 var3 = this.getViewVector(param0);

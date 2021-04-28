@@ -87,7 +87,7 @@ public class GameTestHelper {
         }
 
         Vec3 var2 = this.absoluteVec(param1);
-        var1.moveTo(var2.x, var2.y, var2.z, var1.yRot, var1.xRot);
+        var1.moveTo(var2.x, var2.y, var2.z, var1.getYRot(), var1.getXRot());
         var0.addFreshEntity(var1);
         return var1;
     }

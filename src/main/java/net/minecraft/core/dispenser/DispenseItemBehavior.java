@@ -195,7 +195,7 @@ public interface DispenseItemBehavior {
                 Level var2 = param0.getLevel();
                 ArmorStand var3 = new ArmorStand(var2, (double)var1.getX() + 0.5, (double)var1.getY(), (double)var1.getZ() + 0.5);
                 EntityType.updateCustomEntityTag(var2, null, var3, param1.getTag());
-                var3.yRot = var0.toYRot();
+                var3.setYRot(var0.toYRot());
                 var2.addFreshEntity(var3);
                 param1.shrink(1);
                 return param1;

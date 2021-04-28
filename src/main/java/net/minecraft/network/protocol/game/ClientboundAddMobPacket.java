@@ -29,8 +29,8 @@ public class ClientboundAddMobPacket implements Packet<ClientGamePacketListener>
         this.x = param0.getX();
         this.y = param0.getY();
         this.z = param0.getZ();
-        this.yRot = (byte)((int)(param0.yRot * 256.0F / 360.0F));
-        this.xRot = (byte)((int)(param0.xRot * 256.0F / 360.0F));
+        this.yRot = (byte)((int)(param0.getYRot() * 256.0F / 360.0F));
+        this.xRot = (byte)((int)(param0.getXRot() * 256.0F / 360.0F));
         this.yHeadRot = (byte)((int)(param0.yHeadRot * 256.0F / 360.0F));
         double var0 = 3.9;
         Vec3 var1 = param0.getDeltaMovement();

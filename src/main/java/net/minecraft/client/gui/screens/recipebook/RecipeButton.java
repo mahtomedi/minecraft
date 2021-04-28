@@ -100,7 +100,7 @@ public class RecipeButton extends AbstractWidget {
         ItemStack var7 = var6.get(this.currentIndex).getResultItem();
         int var8 = 4;
         if (this.collection.hasSingleResultItem() && this.getOrderedRecipes().size() > 1) {
-            var0.getItemRenderer().renderAndDecorateItem(var7, this.x + var8 + 1, this.y + var8 + 1);
+            var0.getItemRenderer().renderAndDecorateItem(var7, this.x + var8 + 1, this.y + var8 + 1, 0, 10);
             --var8;
         }
 

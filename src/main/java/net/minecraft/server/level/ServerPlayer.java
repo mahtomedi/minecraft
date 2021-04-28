@@ -3,8 +3,6 @@ package net.minecraft.server.level;
 import com.google.common.collect.Lists;
 import com.mojang.authlib.GameProfile;
 import com.mojang.datafixers.util.Either;
-import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.ints.IntList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -56,7 +54,6 @@ import net.minecraft.network.protocol.game.ClientboundPlayerCombatEndPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerCombatEnterPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerCombatKillPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerLookAtPacket;
-import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveMobEffectPacket;
 import net.minecraft.network.protocol.game.ClientboundResourcePackPacket;
 import net.minecraft.network.protocol.game.ClientboundRespawnPacket;
@@ -144,7 +141,6 @@ public class ServerPlayer extends Player {
     public ServerGamePacketListenerImpl connection;
     public final MinecraftServer server;
     public final ServerPlayerGameMode gameMode;
-    private final IntList entitiesToRemove = new IntArrayList();
     private final PlayerAdvancements advancements;
     private final ServerStatsCounter stats;
     private float lastRecordedHealthAndAbsorption = Float.MIN_VALUE;
@@ -429,15 +425,10 @@ public class ServerPlayer extends Player {
             this.containerMenu = this.inventoryMenu;
         }
 
-        if (!this.entitiesToRemove.isEmpty()) {
-            this.connection.send(new ClientboundRemoveEntitiesPacket(this.entitiesToRemove));
-            this.entitiesToRemove.clear();
-        }
-
         Entity var0 = this.getCamera();
         if (var0 != this) {
             if (var0.isAlive()) {
-                this.absMoveTo(var0.getX(), var0.getY(), var0.getZ(), var0.yRot, var0.xRot);
+                this.absMoveTo(var0.getX(), var0.getY(), var0.getZ(), var0.getYRot(), var0.getXRot());
                 this.getLevel().getChunkSource().move(this);
                 if (this.wantsToStopRiding()) {
                     this.setCamera(this);
@@ -835,7 +826,7 @@ public class ServerPlayer extends Player {
         } else if (this.bedBlocked(param0, var0)) {
             return Either.left(Player.BedSleepingProblem.OBSTRUCTED);
         } else {
-            this.setRespawnPosition(this.level.dimension(), param0, this.yRot, false, true);
+            this.setRespawnPosition(this.level.dimension(), param0, this.getYRot(), false, true);
             if (this.level.isDay()) {
                 return Either.left(Player.BedSleepingProblem.NOT_POSSIBLE_NOW);
             } else {
@@ -896,7 +887,7 @@ public class ServerPlayer extends Player {
 
         super.stopSleepInBed(param0, param1);
         if (this.connection != null) {
-            this.connection.teleport(this.getX(), this.getY(), this.getZ(), this.yRot, this.xRot);
+            this.connection.teleport(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
         }
 
     }
@@ -909,7 +900,7 @@ public class ServerPlayer extends Player {
         } else {
             Entity var1 = this.getVehicle();
             if (var1 != var0 && this.connection != null) {
-                this.connection.teleport(this.getX(), this.getY(), this.getZ(), this.yRot, this.xRot);
+                this.connection.teleport(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
             }
 
             return true;
@@ -922,7 +913,7 @@ public class ServerPlayer extends Player {
         super.stopRiding();
         Entity var1 = this.getVehicle();
         if (var1 != var0 && this.connection != null) {
-            this.connection.dismount(this.getX(), this.getY(), this.getZ(), this.yRot, this.xRot);
+            this.connection.dismount(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
         }
 
     }
@@ -931,7 +922,7 @@ public class ServerPlayer extends Player {
     public void dismountTo(double param0, double param1, double param2) {
         this.removeVehicle();
         if (this.connection != null) {
-            this.connection.dismount(param0, param1, param2, this.yRot, this.xRot);
+            this.connection.dismount(param0, param1, param2, this.getYRot(), this.getXRot());
         }
 
     }
@@ -1169,7 +1160,6 @@ public class ServerPlayer extends Player {
         this.lastSentHealth = -1.0F;
         this.lastSentFood = -1;
         this.recipeBook.copyOverData(param0.recipeBook);
-        this.entitiesToRemove.addAll(param0.entitiesToRemove);
         this.seenCredits = param0.seenCredits;
         this.enteredNetherPosition = param0.enteredNetherPosition;
         this.setShoulderEntityLeft(param0.getShoulderEntityLeft());
@@ -1208,7 +1198,7 @@ public class ServerPlayer extends Player {
 
     @Override
     public void teleportTo(double param0, double param1, double param2) {
-        this.connection.teleport(param0, param1, param2, this.yRot, this.xRot);
+        this.connection.teleport(param0, param1, param2, this.getYRot(), this.getXRot());
     }
 
     @Override
@@ -1350,19 +1340,6 @@ public class ServerPlayer extends Player {
 
     public ServerRecipeBook getRecipeBook() {
         return this.recipeBook;
-    }
-
-    public void sendRemoveEntity(Entity param0) {
-        if (param0 instanceof Player) {
-            this.connection.send(new ClientboundRemoveEntitiesPacket(param0.getId()));
-        } else {
-            this.entitiesToRemove.add(param0.getId());
-        }
-
-    }
-
-    public void cancelRemoveEntity(Entity param0) {
-        this.entitiesToRemove.rem(param0.getId());
     }
 
     @Override

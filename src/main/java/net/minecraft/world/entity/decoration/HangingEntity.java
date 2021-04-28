@@ -47,8 +47,8 @@ public abstract class HangingEntity extends Entity {
         Validate.notNull(param0);
         Validate.isTrue(param0.getAxis().isHorizontal());
         this.direction = param0;
-        this.yRot = (float)(this.direction.get2DDataValue() * 90);
-        this.yRotO = this.yRot;
+        this.setYRot((float)(this.direction.get2DDataValue() * 90));
+        this.yRotO = this.getYRot();
         this.recalculateBoundingBox();
     }
 
@@ -247,7 +247,7 @@ public abstract class HangingEntity extends Entity {
             }
         }
 
-        float var0 = Mth.wrapDegrees(this.yRot);
+        float var0 = Mth.wrapDegrees(this.getYRot());
         switch(param0) {
             case CLOCKWISE_180:
                 return var0 + 180.0F;

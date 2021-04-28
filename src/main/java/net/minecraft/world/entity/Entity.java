@@ -144,8 +144,8 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     private Vec3 position;
     private BlockPos blockPosition;
     private Vec3 deltaMovement = Vec3.ZERO;
-    public float yRot;
-    public float xRot;
+    private float yRot;
+    private float xRot;
     public float yRotO;
     public float xRotO;
     private AABB bb = INITIAL_AABB;
@@ -359,8 +359,8 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     }
 
     protected void setRot(float param0, float param1) {
-        this.yRot = param0 % 360.0F;
-        this.xRot = param1 % 360.0F;
+        this.setYRot(param0 % 360.0F);
+        this.setXRot(param1 % 360.0F);
     }
 
     public final void setPos(Vec3 param0) {
@@ -381,13 +381,13 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     }
 
     public void turn(double param0, double param1) {
-        double var0 = param1 * 0.15;
-        double var1 = param0 * 0.15;
-        this.xRot = (float)((double)this.xRot + var0);
-        this.yRot = (float)((double)this.yRot + var1);
-        this.xRot = Mth.clamp(this.xRot, -90.0F, 90.0F);
-        this.xRotO = (float)((double)this.xRotO + var0);
-        this.yRotO = (float)((double)this.yRotO + var1);
+        float var0 = (float)param1 * 0.15F;
+        float var1 = (float)param0 * 0.15F;
+        this.setXRot(this.getXRot() + var0);
+        this.setYRot(this.getYRot() + var1);
+        this.setXRot(Mth.clamp(this.getXRot(), -90.0F, 90.0F));
+        this.xRotO += var0;
+        this.yRotO += var1;
         this.xRotO = Mth.clamp(this.xRotO, -90.0F, 90.0F);
         if (this.vehicle != null) {
             this.vehicle.onPassengerTurned(this);
@@ -410,8 +410,8 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         }
 
         this.walkDistO = this.walkDist;
-        this.xRotO = this.xRot;
-        this.yRotO = this.yRot;
+        this.xRotO = this.getXRot();
+        this.yRotO = this.getYRot();
         this.handleNetherPortal();
         if (this.canSpawnSprintParticle()) {
             this.spawnSprintParticle();
@@ -575,95 +575,97 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
             BlockPos var1 = this.getOnPos();
             BlockState var2 = this.level.getBlockState(var1);
             this.checkFallDamage(var0.y, this.onGround, var2, var1);
-            Vec3 var3 = this.getDeltaMovement();
-            if (param1.x != var0.x) {
-                this.setDeltaMovement(0.0, var3.y, var3.z);
-            }
-
-            if (param1.z != var0.z) {
-                this.setDeltaMovement(var3.x, var3.y, 0.0);
-            }
-
-            Block var4 = var2.getBlock();
-            if (param1.y != var0.y) {
-                var4.updateEntityAfterFallOn(this.level, this);
-            }
-
-            if (this.onGround && !this.isSteppingCarefully()) {
-                var4.stepOn(this.level, var1, this);
-            }
-
-            Entity.MovementEmission var5 = this.getMovementEmission();
-            if (var5.emitsAnything() && !this.isPassenger()) {
-                double var6 = var0.x;
-                double var7 = var0.y;
-                double var8 = var0.z;
-                this.flyDist = (float)((double)this.flyDist + var0.length() * 0.6);
-                if (!var2.is(BlockTags.CLIMBABLE) && !var2.is(Blocks.POWDER_SNOW)) {
-                    var7 = 0.0;
+            if (!this.isRemoved()) {
+                Vec3 var3 = this.getDeltaMovement();
+                if (param1.x != var0.x) {
+                    this.setDeltaMovement(0.0, var3.y, var3.z);
                 }
 
-                this.walkDist = (float)((double)this.walkDist + (double)Mth.sqrt(getHorizontalDistanceSqr(var0)) * 0.6);
-                this.moveDist = (float)((double)this.moveDist + (double)Mth.sqrt(var6 * var6 + var7 * var7 + var8 * var8) * 0.6);
-                if (this.moveDist > this.nextStep && !var2.isAir()) {
-                    this.nextStep = this.nextStep();
-                    if (this.isInWater()) {
-                        if (var5.emitsSounds()) {
-                            Entity var9 = this.isVehicle() && this.getControllingPassenger() != null ? this.getControllingPassenger() : this;
-                            float var10 = var9 == this ? 0.35F : 0.4F;
-                            Vec3 var11 = var9.getDeltaMovement();
-                            float var12 = Mth.sqrt(var11.x * var11.x * 0.2F + var11.y * var11.y + var11.z * var11.z * 0.2F) * var10;
-                            if (var12 > 1.0F) {
-                                var12 = 1.0F;
+                if (param1.z != var0.z) {
+                    this.setDeltaMovement(var3.x, var3.y, 0.0);
+                }
+
+                Block var4 = var2.getBlock();
+                if (param1.y != var0.y) {
+                    var4.updateEntityAfterFallOn(this.level, this);
+                }
+
+                if (this.onGround && !this.isSteppingCarefully()) {
+                    var4.stepOn(this.level, var1, var2, this);
+                }
+
+                Entity.MovementEmission var5 = this.getMovementEmission();
+                if (var5.emitsAnything() && !this.isPassenger()) {
+                    double var6 = var0.x;
+                    double var7 = var0.y;
+                    double var8 = var0.z;
+                    this.flyDist = (float)((double)this.flyDist + var0.length() * 0.6);
+                    if (!var2.is(BlockTags.CLIMBABLE) && !var2.is(Blocks.POWDER_SNOW)) {
+                        var7 = 0.0;
+                    }
+
+                    this.walkDist = (float)((double)this.walkDist + (double)Mth.sqrt(getHorizontalDistanceSqr(var0)) * 0.6);
+                    this.moveDist = (float)((double)this.moveDist + (double)Mth.sqrt(var6 * var6 + var7 * var7 + var8 * var8) * 0.6);
+                    if (this.moveDist > this.nextStep && !var2.isAir()) {
+                        this.nextStep = this.nextStep();
+                        if (this.isInWater()) {
+                            if (var5.emitsSounds()) {
+                                Entity var9 = this.isVehicle() && this.getControllingPassenger() != null ? this.getControllingPassenger() : this;
+                                float var10 = var9 == this ? 0.35F : 0.4F;
+                                Vec3 var11 = var9.getDeltaMovement();
+                                float var12 = Mth.sqrt(var11.x * var11.x * 0.2F + var11.y * var11.y + var11.z * var11.z * 0.2F) * var10;
+                                if (var12 > 1.0F) {
+                                    var12 = 1.0F;
+                                }
+
+                                this.playSwimSound(var12);
                             }
 
-                            this.playSwimSound(var12);
-                        }
+                            if (var5.emitsEvents()) {
+                                this.gameEvent(GameEvent.SWIM);
+                            }
+                        } else {
+                            if (var5.emitsSounds()) {
+                                this.playStepSound(var1, var2);
+                            }
 
-                        if (var5.emitsEvents()) {
-                            this.gameEvent(GameEvent.SWIM);
+                            if (var5.emitsEvents() && !var2.is(BlockTags.OCCLUDES_VIBRATION_SIGNALS)) {
+                                this.gameEvent(GameEvent.STEP);
+                            }
                         }
-                    } else {
-                        if (var5.emitsSounds()) {
-                            this.playStepSound(var1, var2);
-                        }
-
-                        if (var5.emitsEvents() && !var2.is(BlockTags.OCCLUDES_VIBRATION_SIGNALS)) {
-                            this.gameEvent(GameEvent.STEP);
-                        }
+                    } else if (var2.isAir()) {
+                        this.processFlappingMovement();
                     }
-                } else if (var2.isAir()) {
-                    this.processFlappingMovement();
-                }
-            }
-
-            try {
-                this.checkInsideBlocks();
-            } catch (Throwable var19) {
-                CrashReport var14 = CrashReport.forThrowable(var19, "Checking entity block collision");
-                CrashReportCategory var15 = var14.addCategory("Entity being checked for collision");
-                this.fillCrashReportCategory(var15);
-                throw new ReportedException(var14);
-            }
-
-            float var16 = this.getBlockSpeedFactor();
-            this.setDeltaMovement(this.getDeltaMovement().multiply((double)var16, 1.0, (double)var16));
-            if (this.level
-                    .getBlockStatesIfLoaded(this.getBoundingBox().deflate(1.0E-6))
-                    .noneMatch(param0x -> param0x.is(BlockTags.FIRE) || param0x.is(Blocks.LAVA))
-                && this.remainingFireTicks <= 0) {
-                this.setRemainingFireTicks(-this.getFireImmuneTicks());
-            }
-
-            if ((this.isInWaterRainOrBubble() || this.isInPowderSnow) && this.isOnFire()) {
-                if (this.wasOnFire) {
-                    this.playSound(SoundEvents.GENERIC_EXTINGUISH_FIRE, 0.7F, 1.6F + (this.random.nextFloat() - this.random.nextFloat()) * 0.4F);
                 }
 
-                this.setRemainingFireTicks(-this.getFireImmuneTicks());
-            }
+                try {
+                    this.checkInsideBlocks();
+                } catch (Throwable var19) {
+                    CrashReport var14 = CrashReport.forThrowable(var19, "Checking entity block collision");
+                    CrashReportCategory var15 = var14.addCategory("Entity being checked for collision");
+                    this.fillCrashReportCategory(var15);
+                    throw new ReportedException(var14);
+                }
 
-            this.level.getProfiler().pop();
+                float var16 = this.getBlockSpeedFactor();
+                this.setDeltaMovement(this.getDeltaMovement().multiply((double)var16, 1.0, (double)var16));
+                if (this.level
+                        .getBlockStatesIfLoaded(this.getBoundingBox().deflate(1.0E-6))
+                        .noneMatch(param0x -> param0x.is(BlockTags.FIRE) || param0x.is(Blocks.LAVA))
+                    && this.remainingFireTicks <= 0) {
+                    this.setRemainingFireTicks(-this.getFireImmuneTicks());
+                }
+
+                if ((this.isInWaterRainOrBubble() || this.isInPowderSnow) && this.isOnFire()) {
+                    if (this.wasOnFire) {
+                        this.playSound(SoundEvents.GENERIC_EXTINGUISH_FIRE, 0.7F, 1.6F + (this.random.nextFloat() - this.random.nextFloat()) * 0.4F);
+                    }
+
+                    this.setRemainingFireTicks(-this.getFireImmuneTicks());
+                }
+
+                this.level.getProfiler().pop();
+            }
         }
     }
 
@@ -996,7 +998,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     protected void checkFallDamage(double param0, boolean param1, BlockState param2, BlockPos param3) {
         if (param1) {
             if (this.fallDistance > 0.0F) {
-                param2.getBlock().fallOn(this.level, param3, this, this.fallDistance);
+                param2.getBlock().fallOn(this.level, param2, param3, this, this.fallDistance);
                 if (!param2.is(BlockTags.OCCLUDES_VIBRATION_SIGNALS)) {
                     this.gameEvent(GameEvent.HIT_GROUND);
                 }
@@ -1194,7 +1196,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     }
 
     public void moveRelative(float param0, Vec3 param1) {
-        Vec3 var0 = getInputVector(param1, param0, this.yRot);
+        Vec3 var0 = getInputVector(param1, param0, this.getYRot());
         this.setDeltaMovement(this.getDeltaMovement().add(var0));
     }
 
@@ -1218,10 +1220,10 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
 
     public void absMoveTo(double param0, double param1, double param2, float param3, float param4) {
         this.absMoveTo(param0, param1, param2);
-        this.yRot = param3 % 360.0F;
-        this.xRot = Mth.clamp(param4, -90.0F, 90.0F) % 360.0F;
-        this.yRotO = this.yRot;
-        this.xRotO = this.xRot;
+        this.setYRot(param3 % 360.0F);
+        this.setXRot(Mth.clamp(param4, -90.0F, 90.0F) % 360.0F);
+        this.yRotO = this.getYRot();
+        this.xRotO = this.getXRot();
     }
 
     public void absMoveTo(double param0, double param1, double param2) {
@@ -1238,7 +1240,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     }
 
     public void moveTo(double param0, double param1, double param2) {
-        this.moveTo(param0, param1, param2, this.yRot, this.xRot);
+        this.moveTo(param0, param1, param2, this.getYRot(), this.getXRot());
     }
 
     public void moveTo(BlockPos param0, float param1, float param2) {
@@ -1247,8 +1249,8 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
 
     public void moveTo(double param0, double param1, double param2, float param3, float param4) {
         this.setPosRaw(param0, param1, param2);
-        this.yRot = param3;
-        this.xRot = param4;
+        this.setYRot(param3);
+        this.setXRot(param4);
         this.setOldPosAndRot();
         this.reapplyPosition();
     }
@@ -1263,8 +1265,8 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         this.xOld = var0;
         this.yOld = var1;
         this.zOld = var2;
-        this.yRotO = this.yRot;
-        this.xRotO = this.xRot;
+        this.yRotO = this.getYRot();
+        this.xRotO = this.getXRot();
     }
 
     public float distanceTo(Entity param0) {
@@ -1350,11 +1352,11 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     }
 
     public float getViewXRot(float param0) {
-        return param0 == 1.0F ? this.xRot : Mth.lerp(param0, this.xRotO, this.xRot);
+        return param0 == 1.0F ? this.getXRot() : Mth.lerp(param0, this.xRotO, this.getXRot());
     }
 
     public float getViewYRot(float param0) {
-        return param0 == 1.0F ? this.yRot : Mth.lerp(param0, this.yRotO, this.yRot);
+        return param0 == 1.0F ? this.getYRot() : Mth.lerp(param0, this.yRotO, this.getYRot());
     }
 
     protected final Vec3 calculateViewVector(float param0, float param1) {
@@ -1466,7 +1468,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
 
             Vec3 var0 = this.getDeltaMovement();
             param0.put("Motion", this.newDoubleList(var0.x, var0.y, var0.z));
-            param0.put("Rotation", this.newFloatList(this.yRot, this.xRot));
+            param0.put("Rotation", this.newFloatList(this.getYRot(), this.getXRot()));
             param0.putFloat("FallDistance", this.fallDistance);
             param0.putShort("Fire", (short)this.remainingFireTicks);
             param0.putShort("Air", (short)this.getAirSupply());
@@ -1545,11 +1547,11 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
             double var5 = var1.getDouble(2);
             this.setDeltaMovement(Math.abs(var3) > 10.0 ? 0.0 : var3, Math.abs(var4) > 10.0 ? 0.0 : var4, Math.abs(var5) > 10.0 ? 0.0 : var5);
             this.setPosRaw(var0.getDouble(0), var0.getDouble(1), var0.getDouble(2));
-            this.yRot = var2.getFloat(0);
-            this.xRot = var2.getFloat(1);
+            this.setYRot(var2.getFloat(0));
+            this.setXRot(var2.getFloat(1));
             this.setOldPosAndRot();
-            this.setYHeadRot(this.yRot);
-            this.setYBodyRot(this.yRot);
+            this.setYHeadRot(this.getYRot());
+            this.setYBodyRot(this.getYRot());
             this.fallDistance = param0.getFloat("FallDistance");
             this.remainingFireTicks = param0.getShort("Fire");
             if (param0.contains("Air")) {
@@ -1566,9 +1568,9 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
 
             if (!Double.isFinite(this.getX()) || !Double.isFinite(this.getY()) || !Double.isFinite(this.getZ())) {
                 throw new IllegalStateException("Entity has invalid position");
-            } else if (Double.isFinite((double)this.yRot) && Double.isFinite((double)this.xRot)) {
+            } else if (Double.isFinite((double)this.getYRot()) && Double.isFinite((double)this.getXRot())) {
                 this.reapplyPosition();
-                this.setRot(this.yRot, this.xRot);
+                this.setRot(this.getYRot(), this.getXRot());
                 if (param0.contains("CustomName", 8)) {
                     String var6 = param0.getString("CustomName");
 
@@ -1839,11 +1841,11 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     }
 
     public Vec3 getLookAngle() {
-        return this.calculateViewVector(this.xRot, this.yRot);
+        return this.calculateViewVector(this.getXRot(), this.getYRot());
     }
 
     public Vec2 getRotationVector() {
-        return new Vec2(this.xRot, this.yRot);
+        return new Vec2(this.getXRot(), this.getYRot());
     }
 
     public Vec3 getForward() {
@@ -2234,7 +2236,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     }
 
     public void copyPosition(Entity param0) {
-        this.moveTo(param0.getX(), param0.getY(), param0.getZ(), param0.yRot, param0.xRot);
+        this.moveTo(param0.getX(), param0.getY(), param0.getZ(), param0.getYRot(), param0.getXRot());
     }
 
     public void restoreFrom(Entity param0) {
@@ -2259,7 +2261,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
                 Entity var1 = this.getType().create(param0);
                 if (var1 != null) {
                     var1.restoreFrom(this);
-                    var1.moveTo(var0.pos.x, var0.pos.y, var0.pos.z, var0.yRot, var1.xRot);
+                    var1.moveTo(var0.pos.x, var0.pos.y, var0.pos.z, var0.yRot, var1.getXRot());
                     var1.setDeltaMovement(var0.speed);
                     param0.addDuringTeleport(var1);
                     if (param0.dimension() == Level.END) {
@@ -2317,7 +2319,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
                             }
         
                             return PortalShape.createPortalInfo(
-                                param0, param1, var1x, var3x, this.getDimensions(this.getPose()), this.getDeltaMovement(), this.yRot, this.xRot
+                                param0, param1, var1x, var3x, this.getDimensions(this.getPose()), this.getDeltaMovement(), this.getYRot(), this.getXRot()
                             );
                         }
                     )
@@ -2332,7 +2334,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
             }
 
             return new PortalInfo(
-                new Vec3((double)var2.getX() + 0.5, (double)var2.getY(), (double)var2.getZ() + 0.5), this.getDeltaMovement(), this.yRot, this.xRot
+                new Vec3((double)var2.getX() + 0.5, (double)var2.getY(), (double)var2.getZ() + 0.5), this.getDeltaMovement(), this.getYRot(), this.getXRot()
             );
         }
     }
@@ -2376,7 +2378,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         Vec3 var0 = this.getDeltaMovement();
         param0.setDetail("Entity's Momentum", String.format(Locale.ROOT, "%.2f, %.2f, %.2f", var0.x, var0.y, var0.z));
         param0.setDetail("Entity's Passengers", () -> this.getPassengers().toString());
-        param0.setDetail("Entity's Vehicle", () -> this.getVehicle().toString());
+        param0.setDetail("Entity's Vehicle", () -> String.valueOf(this.getVehicle()));
     }
 
     public boolean displayFireAnimation() {
@@ -2457,7 +2459,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
 
     public void teleportTo(double param0, double param1, double param2) {
         if (this.level instanceof ServerLevel) {
-            this.moveTo(param0, param1, param2, this.yRot, this.xRot);
+            this.moveTo(param0, param1, param2, this.getYRot(), this.getXRot());
             this.getSelfAndPassengers().forEach(param0x -> {
                 for(Entity var0 : param0x.passengers) {
                     param0x.positionRider(var0, Entity::moveTo);
@@ -2498,7 +2500,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     }
 
     public Direction getDirection() {
-        return Direction.fromYRot((double)this.yRot);
+        return Direction.fromYRot((double)this.getYRot());
     }
 
     public Direction getMotionDirection() {
@@ -2590,7 +2592,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     }
 
     public float rotate(Rotation param0) {
-        float var0 = Mth.wrapDegrees(this.yRot);
+        float var0 = Mth.wrapDegrees(this.getYRot());
         switch(param0) {
             case CLOCKWISE_180:
                 return var0 + 180.0F;
@@ -2604,7 +2606,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     }
 
     public float mirror(Mirror param0) {
-        float var0 = Mth.wrapDegrees(this.yRot);
+        float var0 = Mth.wrapDegrees(this.getYRot());
         switch(param0) {
             case LEFT_RIGHT:
                 return -var0;
@@ -2768,11 +2770,11 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         double var2 = param1.y - var0.y;
         double var3 = param1.z - var0.z;
         double var4 = (double)Mth.sqrt(var1 * var1 + var3 * var3);
-        this.xRot = Mth.wrapDegrees((float)(-(Mth.atan2(var2, var4) * 180.0F / (float)Math.PI)));
-        this.yRot = Mth.wrapDegrees((float)(Mth.atan2(var3, var1) * 180.0F / (float)Math.PI) - 90.0F);
-        this.setYHeadRot(this.yRot);
-        this.xRotO = this.xRot;
-        this.yRotO = this.yRot;
+        this.setXRot(Mth.wrapDegrees((float)(-(Mth.atan2(var2, var4) * 180.0F / (float)Math.PI))));
+        this.setYRot(Mth.wrapDegrees((float)(Mth.atan2(var3, var1) * 180.0F / (float)Math.PI) - 90.0F));
+        this.setYHeadRot(this.getYRot());
+        this.xRotO = this.getXRot();
+        this.yRotO = this.getYRot();
     }
 
     public boolean updateFluidHeightAndDoFluidPushing(Tag<Fluid> param0, double param1) {
@@ -2987,8 +2989,8 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         double var3 = param0.getZ();
         this.setPacketCoordinates(var1, var2, var3);
         this.moveTo(var1, var2, var3);
-        this.xRot = (float)(param0.getxRot() * 360) / 256.0F;
-        this.yRot = (float)(param0.getyRot() * 360) / 256.0F;
+        this.setXRot((float)(param0.getxRot() * 360) / 256.0F);
+        this.setYRot((float)(param0.getyRot() * 360) / 256.0F);
         this.setId(var0);
         this.setUUID(param0.getUUID());
     }
@@ -3006,6 +3008,30 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         return !EntityTypeTags.FREEZE_IMMUNE_ENTITY_TYPES.contains(this.getType());
     }
 
+    public float getYRot() {
+        return this.yRot;
+    }
+
+    public void setYRot(float param0) {
+        if (!Float.isFinite(param0)) {
+            throw new IllegalStateException("Invalid entity rotation");
+        } else {
+            this.yRot = param0;
+        }
+    }
+
+    public float getXRot() {
+        return this.xRot;
+    }
+
+    public void setXRot(float param0) {
+        if (!Float.isFinite(param0)) {
+            throw new IllegalStateException("Invalid entity rotation");
+        } else {
+            this.xRot = param0;
+        }
+    }
+
     public final boolean isRemoved() {
         return this.removalReason != null;
     }
@@ -3019,6 +3045,10 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     public final void setRemoved(Entity.RemovalReason param0) {
         if (this.removalReason == null) {
             this.removalReason = param0;
+        }
+
+        if (this.removalReason.shouldDestroy()) {
+            this.stopRiding();
         }
 
         this.getPassengers().forEach(Entity::stopRiding);

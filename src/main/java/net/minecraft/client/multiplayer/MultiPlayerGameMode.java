@@ -311,7 +311,9 @@ public class MultiPlayerGameMode {
         } else {
             this.ensureHasSentCarriedItem();
             this.connection
-                .send(new ServerboundMovePlayerPacket.PosRot(param0.getX(), param0.getY(), param0.getZ(), param0.yRot, param0.xRot, param0.isOnGround()));
+                .send(
+                    new ServerboundMovePlayerPacket.PosRot(param0.getX(), param0.getY(), param0.getZ(), param0.getYRot(), param0.getXRot(), param0.isOnGround())
+                );
             this.connection.send(new ServerboundUseItemPacket(param2));
             ItemStack var0 = param0.getItemInHand(param2);
             if (param0.getCooldowns().isOnCooldown(var0.getItem())) {

@@ -109,7 +109,7 @@ public class LongJumpToRandomPos<E extends Mob> extends Behavior<E> {
     protected void tick(ServerLevel param0, E param1, long param2) {
         if (this.chosenJump.isPresent()) {
             if (param2 - this.prepareJumpStart >= 40L) {
-                param1.yRot = param1.yBodyRot;
+                param1.setYRot(param1.yBodyRot);
                 param1.setDiscardFriction(true);
                 param1.setDeltaMovement(this.chosenJump.get().getJumpVector());
                 param1.getBrain().setMemory(MemoryModuleType.LONG_JUMP_MID_JUMP, true);

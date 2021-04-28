@@ -26,8 +26,8 @@ public class LlamaSpitRenderer extends EntityRenderer<LlamaSpit> {
     public void render(LlamaSpit param0, float param1, float param2, PoseStack param3, MultiBufferSource param4, int param5) {
         param3.pushPose();
         param3.translate(0.0, 0.15F, 0.0);
-        param3.mulPose(Vector3f.YP.rotationDegrees(Mth.lerp(param2, param0.yRotO, param0.yRot) - 90.0F));
-        param3.mulPose(Vector3f.ZP.rotationDegrees(Mth.lerp(param2, param0.xRotO, param0.xRot)));
+        param3.mulPose(Vector3f.YP.rotationDegrees(Mth.lerp(param2, param0.yRotO, param0.getYRot()) - 90.0F));
+        param3.mulPose(Vector3f.ZP.rotationDegrees(Mth.lerp(param2, param0.xRotO, param0.getXRot())));
         this.model.setupAnim(param0, param2, 0.0F, -0.1F, 0.0F, 0.0F);
         VertexConsumer var0 = param4.getBuffer(this.model.renderType(LLAMA_SPIT_LOCATION));
         this.model.renderToBuffer(param3, var0, param5, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
