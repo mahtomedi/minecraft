@@ -183,7 +183,7 @@ public class WorldGenSettingsComponent implements TickableWidget, Widget {
                             return;
                         }
         
-                        RegistryReadOps<JsonElement> var9 = RegistryReadOps.create(JsonOps.INSTANCE, var4.getResourceManager(), var1x);
+                        RegistryReadOps<JsonElement> var9 = RegistryReadOps.createAndLoad(JsonOps.INSTANCE, var4.getResourceManager(), var1x);
                         JsonParser var10 = new JsonParser();
         
                         DataResult<WorldGenSettings> var13;
@@ -348,7 +348,7 @@ public class WorldGenSettingsComponent implements TickableWidget, Widget {
     void updateDataPacks(ServerResources param0) {
         RegistryAccess.RegistryHolder var0 = RegistryAccess.builtin();
         RegistryWriteOps<JsonElement> var1 = RegistryWriteOps.create(JsonOps.INSTANCE, this.registryHolder);
-        RegistryReadOps<JsonElement> var2 = RegistryReadOps.create(JsonOps.INSTANCE, param0.getResourceManager(), var0);
+        RegistryReadOps<JsonElement> var2 = RegistryReadOps.createAndLoad(JsonOps.INSTANCE, param0.getResourceManager(), var0);
         DataResult<WorldGenSettings> var3 = WorldGenSettings.CODEC
             .encodeStart(var1, this.settings)
             .flatMap(param1 -> WorldGenSettings.CODEC.parse(var2, param1));

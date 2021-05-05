@@ -90,7 +90,7 @@ public abstract class RegistryAccess {
             addBuiltinElements(var0, var1, var2);
         }
 
-        RegistryReadOps.create(JsonOps.INSTANCE, var1, var0);
+        RegistryReadOps.createAndLoad(JsonOps.INSTANCE, var1, var0);
         return var0;
     }
 

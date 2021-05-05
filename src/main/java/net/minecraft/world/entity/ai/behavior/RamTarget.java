@@ -4,6 +4,8 @@ import com.google.common.collect.ImmutableMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.ToDoubleFunction;
+import java.util.function.ToIntFunction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
@@ -23,20 +25,25 @@ import net.minecraft.world.phys.Vec3;
 public class RamTarget<E extends PathfinderMob> extends Behavior<E> {
     public static final int TIME_OUT_DURATION = 200;
     public static final float RAM_SPEED_FORCE_FACTOR = 1.65F;
-    private final UniformInt timeBetweenRams;
-    private final TargetingConditions targeting;
-    private final Function<E, Integer> getDamage;
+    private final Function<E, UniformInt> getTimeBetweenRams;
+    private final TargetingConditions ramTargeting;
+    private final ToIntFunction<E> getDamage;
     private final float speed;
-    private final Function<E, Float> getKnockbackForce;
+    private final ToDoubleFunction<E> getKnockbackForce;
     private Vec3 ramDirection;
     private final Function<E, SoundEvent> getImpactSound;
 
     public RamTarget(
-        UniformInt param0, TargetingConditions param1, Function<E, Integer> param2, float param3, Function<E, Float> param4, Function<E, SoundEvent> param5
+        Function<E, UniformInt> param0,
+        TargetingConditions param1,
+        ToIntFunction<E> param2,
+        float param3,
+        ToDoubleFunction<E> param4,
+        Function<E, SoundEvent> param5
     ) {
         super(ImmutableMap.of(MemoryModuleType.RAM_COOLDOWN_TICKS, MemoryStatus.VALUE_ABSENT, MemoryModuleType.RAM_TARGET, MemoryStatus.VALUE_PRESENT), 200);
-        this.timeBetweenRams = param0;
-        this.targeting = param1;
+        this.getTimeBetweenRams = param0;
+        this.ramTargeting = param1;
         this.getDamage = param2;
         this.speed = param3;
         this.getKnockbackForce = param4;
@@ -61,14 +68,14 @@ public class RamTarget<E extends PathfinderMob> extends Behavior<E> {
     }
 
     protected void tick(ServerLevel param0, E param1, long param2) {
-        List<LivingEntity> var0 = param0.getNearbyEntities(LivingEntity.class, this.targeting, param1, param1.getBoundingBox());
+        List<LivingEntity> var0 = param0.getNearbyEntities(LivingEntity.class, this.ramTargeting, param1, param1.getBoundingBox());
         Brain<?> var1 = param1.getBrain();
         if (!var0.isEmpty()) {
             LivingEntity var2 = var0.get(0);
-            var2.hurt(DamageSource.mobAttack(param1), (float)this.getDamage.apply(param1).intValue());
+            var2.hurt(DamageSource.mobAttack(param1), (float)this.getDamage.applyAsInt(param1));
             float var3 = var2.isDamageSourceBlocked(DamageSource.mobAttack(param1)) ? 0.5F : 1.0F;
             float var4 = Mth.clamp(param1.getSpeed() * 1.65F, 0.2F, 3.0F);
-            var2.knockback(var3 * var4 * this.getKnockbackForce.apply(param1), this.ramDirection.x(), this.ramDirection.z());
+            var2.knockback((double)(var3 * var4) * this.getKnockbackForce.applyAsDouble(param1), this.ramDirection.x(), this.ramDirection.z());
             this.finishRam(param0, param1);
             param0.playSound(null, param1, this.getImpactSound.apply(param1), SoundSource.HOSTILE, 1.0F, 1.0F);
         } else {
@@ -82,9 +89,9 @@ public class RamTarget<E extends PathfinderMob> extends Behavior<E> {
 
     }
 
-    protected void finishRam(ServerLevel param0, PathfinderMob param1) {
+    protected void finishRam(ServerLevel param0, E param1) {
         param0.broadcastEntityEvent(param1, (byte)59);
-        param1.getBrain().setMemory(MemoryModuleType.RAM_COOLDOWN_TICKS, this.timeBetweenRams.sample(param0.random));
+        param1.getBrain().setMemory(MemoryModuleType.RAM_COOLDOWN_TICKS, this.getTimeBetweenRams.apply(param1).sample(param0.random));
         param1.getBrain().eraseMemory(MemoryModuleType.RAM_TARGET);
     }
 }

@@ -12,6 +12,6 @@ public class GrassColor {
         int var0 = (int)((1.0 - param0) * 255.0);
         int var1 = (int)((1.0 - param1) * 255.0);
         int var2 = var1 << 8 | var0;
-        return var2 > pixels.length ? -65281 : pixels[var2];
+        return var2 >= pixels.length ? -65281 : pixels[var2];
     }
 }

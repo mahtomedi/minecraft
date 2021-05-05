@@ -137,25 +137,25 @@ public abstract class ChunkGenerator {
         WorldgenRandom var1 = new WorldgenRandom();
         int var2 = 8;
         ChunkPos var3 = param2.getPos();
-        BiomeGenerationSettings var4 = this.biomeSource
-            .getNoiseBiome(QuartPos.fromBlock(var3.getMinBlockX()), 0, QuartPos.fromBlock(var3.getMinBlockZ()))
-            .getGenerationSettings();
-        CarvingContext var5 = new CarvingContext(this);
-        Aquifer var6 = this.createAquifer(param2);
-        BitSet var7 = ((ProtoChunk)param2).getOrCreateCarvingMask(param3);
+        CarvingContext var4 = new CarvingContext(this);
+        Aquifer var5 = this.createAquifer(param2);
+        BitSet var6 = ((ProtoChunk)param2).getOrCreateCarvingMask(param3);
 
-        for(int var8 = -8; var8 <= 8; ++var8) {
-            for(int var9 = -8; var9 <= 8; ++var9) {
-                ChunkPos var10 = new ChunkPos(var3.x + var8, var3.z + var9);
-                List<Supplier<ConfiguredWorldCarver<?>>> var11 = var4.getCarvers(param3);
+        for(int var7 = -8; var7 <= 8; ++var7) {
+            for(int var8 = -8; var8 <= 8; ++var8) {
+                ChunkPos var9 = new ChunkPos(var3.x + var7, var3.z + var8);
+                BiomeGenerationSettings var10 = this.biomeSource
+                    .getNoiseBiome(QuartPos.fromBlock(var9.getMinBlockX()), 0, QuartPos.fromBlock(var9.getMinBlockZ()))
+                    .getGenerationSettings();
+                List<Supplier<ConfiguredWorldCarver<?>>> var11 = var10.getCarvers(param3);
                 ListIterator<Supplier<ConfiguredWorldCarver<?>>> var12 = var11.listIterator();
 
                 while(var12.hasNext()) {
                     int var13 = var12.nextIndex();
                     ConfiguredWorldCarver<?> var14 = var12.next().get();
-                    var1.setLargeFeatureSeed(param0 + (long)var13, var10.x, var10.z);
+                    var1.setLargeFeatureSeed(param0 + (long)var13, var9.x, var9.z);
                     if (var14.isStartChunk(var1)) {
-                        var14.carve(var5, param2, var0::getBiome, var1, var6, var10, var7);
+                        var14.carve(var4, param2, var0::getBiome, var1, var5, var9, var6);
                     }
                 }
             }

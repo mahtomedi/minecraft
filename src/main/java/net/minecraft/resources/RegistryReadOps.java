@@ -46,14 +46,22 @@ public class RegistryReadOps<T> extends DelegatingOps<T> {
     private final Map<ResourceKey<? extends Registry<?>>, RegistryReadOps.ReadCache<?>> readCache;
     private final RegistryReadOps<JsonElement> jsonOps;
 
+    public static <T> RegistryReadOps<T> createAndLoad(DynamicOps<T> param0, ResourceManager param1, RegistryAccess param2) {
+        return createAndLoad(param0, RegistryReadOps.ResourceAccess.forResourceManager(param1), param2);
+    }
+
+    public static <T> RegistryReadOps<T> createAndLoad(DynamicOps<T> param0, RegistryReadOps.ResourceAccess param1, RegistryAccess param2) {
+        RegistryReadOps<T> var0 = new RegistryReadOps<>(param0, param1, param2, Maps.newIdentityHashMap());
+        RegistryAccess.load(param2, var0);
+        return var0;
+    }
+
     public static <T> RegistryReadOps<T> create(DynamicOps<T> param0, ResourceManager param1, RegistryAccess param2) {
         return create(param0, RegistryReadOps.ResourceAccess.forResourceManager(param1), param2);
     }
 
     public static <T> RegistryReadOps<T> create(DynamicOps<T> param0, RegistryReadOps.ResourceAccess param1, RegistryAccess param2) {
-        RegistryReadOps<T> var0 = new RegistryReadOps<>(param0, param1, param2, Maps.newIdentityHashMap());
-        RegistryAccess.load(param2, var0);
-        return var0;
+        return new RegistryReadOps<>(param0, param1, param2, Maps.newIdentityHashMap());
     }
 
     private RegistryReadOps(

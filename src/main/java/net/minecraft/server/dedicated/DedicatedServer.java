@@ -19,7 +19,7 @@ import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
-import net.minecraft.CrashReport;
+import net.minecraft.CrashReportCategory;
 import net.minecraft.DefaultUncaughtExceptionHandler;
 import net.minecraft.DefaultUncaughtExceptionHandlerWithName;
 import net.minecraft.SharedConstants;
@@ -280,11 +280,10 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface 
     }
 
     @Override
-    public CrashReport fillReport(CrashReport param0) {
-        param0 = super.fillReport(param0);
-        param0.getSystemDetails().setDetail("Is Modded", () -> this.getModdedStatus().orElse("Unknown (can't tell)"));
-        param0.getSystemDetails().setDetail("Type", () -> "Dedicated Server (map_server.txt)");
-        return param0;
+    public void fillReport(CrashReportCategory param0) {
+        super.fillReport(param0);
+        param0.setDetail("Is Modded", () -> this.getModdedStatus().orElse("Unknown (can't tell)"));
+        param0.setDetail("Type", () -> "Dedicated Server (map_server.txt)");
     }
 
     @Override

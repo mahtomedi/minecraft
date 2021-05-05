@@ -59,7 +59,7 @@ public class ServerWatchdog implements Runnable {
                 }
 
                 CrashReport var8 = new CrashReport("Watching Server", var6);
-                this.server.fillReport(var8);
+                this.server.fillReport(var8.getSystemDetails());
                 CrashReportCategory var9 = var8.addCategory("Thread Dump");
                 var9.setDetail("Threads", var5);
                 CrashReportCategory var10 = var8.addCategory("Performance stats");

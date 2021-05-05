@@ -64,7 +64,7 @@ public class TrueTypeGlyphProvider implements GlyphProvider {
                     );
                     int var6 = var3.get(0) - var1.get(0);
                     int var7 = var4.get(0) - var2.get(0);
-                    if (var6 != 0 && var7 != 0) {
+                    if (var6 > 0 && var7 > 0) {
                         IntBuffer var8 = var0.mallocInt(1);
                         IntBuffer var9 = var0.mallocInt(1);
                         STBTruetype.stbtt_GetGlyphHMetrics(this.font, var5, var8, var9);

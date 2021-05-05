@@ -338,9 +338,7 @@ public class ChunkHolder {
 
             for(int var7 = var3 ? var1.getIndex() + 1 : 0; var7 <= var0.getIndex(); ++var7) {
                 CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> var8 = this.futures.get(var7);
-                if (var8 != null) {
-                    this.futures.set(var7, var8.thenApply(param1x -> var6));
-                } else {
+                if (var8 == null) {
                     this.futures.set(var7, CompletableFuture.completedFuture(var6));
                 }
             }

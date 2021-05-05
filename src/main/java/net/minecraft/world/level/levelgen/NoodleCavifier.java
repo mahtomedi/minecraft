@@ -6,7 +6,7 @@ import net.minecraft.world.level.levelgen.synth.NoiseUtils;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
 
 public class NoodleCavifier {
-    private static final int NOODLES_MAX_Y = 100;
+    private static final int NOODLES_MAX_Y = 30;
     private static final double SPACING_AND_STRAIGHTNESS = 1.5;
     private static final double XZ_FREQUENCY = 2.6666666666666665;
     private static final double Y_FREQUENCY = 2.6666666666666665;
@@ -53,7 +53,7 @@ public class NoodleCavifier {
             int var5 = var3 * 8;
             int var6 = param2 * 4;
             double var7;
-            if (var5 < 108) {
+            if (var5 < 38) {
                 var7 = NoiseUtils.sampleNoiseAndMapToRange(param5, (double)var4 * param6, (double)var5 * param7, (double)var6 * param6, -1.0, 1.0);
             } else {
                 var7 = 1.0;
@@ -65,7 +65,7 @@ public class NoodleCavifier {
     }
 
     public double noodleCavify(double param0, int param1, int param2, int param3, double param4, double param5, double param6, double param7, int param8) {
-        if (param2 > 100 || param2 < param8 + 4) {
+        if (param2 > 30 || param2 < param8 + 4) {
             return param0;
         } else if (param0 < 0.0) {
             return param0;
@@ -73,8 +73,8 @@ public class NoodleCavifier {
             return param0;
         } else {
             double var0 = 0.05;
-            double var1 = 0.07;
-            double var2 = Mth.clampedMap(param5, -1.0, 1.0, 0.05, 0.07);
+            double var1 = 0.1;
+            double var2 = Mth.clampedMap(param5, -1.0, 1.0, 0.05, 0.1);
             double var3 = Math.abs(1.5 * param6) - var2;
             double var4 = Math.abs(1.5 * param7) - var2;
             double var5 = Math.max(var3, var4);

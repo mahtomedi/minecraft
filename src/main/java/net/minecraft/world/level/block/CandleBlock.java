@@ -65,7 +65,7 @@ public class CandleBlock extends AbstractCandleBlock implements SimpleWaterlogge
 
     @Override
     public InteractionResult use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
-        if (param3.getItemInHand(param4).isEmpty() && param0.getValue(LIT)) {
+        if (param3.getAbilities().mayBuild && param3.getItemInHand(param4).isEmpty() && param0.getValue(LIT)) {
             extinguish(param3, param0, param1, param2);
             return InteractionResult.sidedSuccess(param1.isClientSide);
         } else {

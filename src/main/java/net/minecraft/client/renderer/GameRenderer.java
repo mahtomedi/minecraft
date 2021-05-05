@@ -369,21 +369,27 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
         } else {
             try {
                 this.blitShader = new ShaderInstance(param0, "blit_screen", DefaultVertexFormat.BLIT_SCREEN);
-                positionShader = this.loadShader(param0, "position", DefaultVertexFormat.POSITION);
-                positionColorShader = this.loadShader(param0, "position_color", DefaultVertexFormat.POSITION_COLOR);
-                positionColorTexShader = this.loadShader(param0, "position_color_tex", DefaultVertexFormat.POSITION_COLOR_TEX);
-                positionTexShader = this.loadShader(param0, "position_tex", DefaultVertexFormat.POSITION_TEX);
-                positionTexColorShader = this.loadShader(param0, "position_tex_color", DefaultVertexFormat.POSITION_TEX_COLOR);
             } catch (IOException var3) {
                 throw new RuntimeException("could not preload blit shader", var3);
             }
+
+            positionShader = this.preloadShader(param0, "position", DefaultVertexFormat.POSITION);
+            positionColorShader = this.preloadShader(param0, "position_color", DefaultVertexFormat.POSITION_COLOR);
+            positionColorTexShader = this.preloadShader(param0, "position_color_tex", DefaultVertexFormat.POSITION_COLOR_TEX);
+            positionTexShader = this.preloadShader(param0, "position_tex", DefaultVertexFormat.POSITION_TEX);
+            positionTexColorShader = this.preloadShader(param0, "position_tex_color", DefaultVertexFormat.POSITION_TEX_COLOR);
+            rendertypeTextShader = this.preloadShader(param0, "rendertype_text", DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP);
         }
     }
 
-    private ShaderInstance loadShader(ResourceProvider param0, String param1, VertexFormat param2) throws IOException {
-        ShaderInstance var0 = new ShaderInstance(param0, param1, param2);
-        this.shaders.put(param1, var0);
-        return var0;
+    private ShaderInstance preloadShader(ResourceProvider param0, String param1, VertexFormat param2) {
+        try {
+            ShaderInstance var0 = new ShaderInstance(param0, param1, param2);
+            this.shaders.put(param1, var0);
+            return var0;
+        } catch (Exception var5) {
+            throw new IllegalStateException("could not preload shader " + param1, var5);
+        }
     }
 
     public void reloadShaders(ResourceManager param0) {

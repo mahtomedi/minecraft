@@ -10,10 +10,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class EntityBoundSoundInstance extends AbstractTickableSoundInstance {
     private final Entity entity;
 
-    public EntityBoundSoundInstance(SoundEvent param0, SoundSource param1, Entity param2) {
-        this(param0, param1, 1.0F, 1.0F, param2);
-    }
-
     public EntityBoundSoundInstance(SoundEvent param0, SoundSource param1, float param2, float param3, Entity param4) {
         super(param0, param1);
         this.volume = param2;

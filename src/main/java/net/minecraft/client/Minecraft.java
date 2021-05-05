@@ -368,6 +368,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     @Nullable
     private ProfileResults fpsPieResults;
     private ClientMetricsLogger clientMetricsLogger = InactiveClientMetricsLogger.INSTANCE;
+    private final ResourceLoadStateTracker reloadStateTracker = new ResourceLoadStateTracker();
     private String debugPath = "root";
 
     public Minecraft(GameConfig param0) {
@@ -524,6 +525,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         this.gameRenderer.preloadUiShader(this.getClientPackSource().getVanillaPack());
         LoadingOverlay.registerTextures(this);
         List<PackResources> var12 = this.resourcePackRepository.openAllSelected();
+        this.reloadStateTracker.startReload(ResourceLoadStateTracker.ReloadReason.INITIAL, var12);
         this.setOverlay(
             new LoadingOverlay(
                 this,
@@ -533,6 +535,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
                             this.selfTest();
                         }
         
+                        this.reloadStateTracker.finishReload();
                     }),
                 false
             )
@@ -599,11 +602,12 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
 
     public void clearResourcePacksOnError(Throwable param0, @Nullable Component param1) {
         LOGGER.info("Caught error loading resourcepacks, removing all selected resourcepacks", param0);
+        this.reloadStateTracker.startRecovery(param0);
         this.resourcePackRepository.setSelected(Collections.emptyList());
         this.options.resourcePacks.clear();
         this.options.incompatibleResourcePacks.clear();
         this.options.save();
-        this.reloadResourcePacks().thenRun(() -> {
+        this.reloadResourcePacks(true).thenRun(() -> {
             ToastComponent var0 = this.getToasts();
             SystemToast.addOrUpdate(var0, SystemToast.SystemToastIds.PACK_LOAD_FAILURE, new TranslatableComponent("resourcePack.load_fail"), param1);
         });
@@ -749,22 +753,31 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     }
 
     public CompletableFuture<Void> reloadResourcePacks() {
+        return this.reloadResourcePacks(false);
+    }
+
+    private CompletableFuture<Void> reloadResourcePacks(boolean param0) {
         if (this.pendingReload != null) {
             return this.pendingReload;
         } else {
             CompletableFuture<Void> var0 = new CompletableFuture<>();
-            if (this.overlay instanceof LoadingOverlay) {
+            if (!param0 && this.overlay instanceof LoadingOverlay) {
                 this.pendingReload = var0;
                 return var0;
             } else {
                 this.resourcePackRepository.reload();
                 List<PackResources> var1 = this.resourcePackRepository.openAllSelected();
+                if (!param0) {
+                    this.reloadStateTracker.startReload(ResourceLoadStateTracker.ReloadReason.MANUAL, var1);
+                }
+
                 this.setOverlay(
                     new LoadingOverlay(
                         this,
                         this.resourceManager.createReload(Util.backgroundExecutor(), this, RESOURCE_RELOAD_INITIAL_TASK, var1),
                         param1 -> Util.ifElse(param1, this::rollbackResourcePacks, () -> {
                                 this.levelRenderer.allChanged();
+                                this.reloadStateTracker.finishReload();
                                 var0.complete(null);
                             }),
                         true
@@ -1680,7 +1693,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     public static WorldData loadWorldData(
         LevelStorageSource.LevelStorageAccess param0, RegistryAccess.RegistryHolder param1, ResourceManager param2, DataPackConfig param3
     ) {
-        RegistryReadOps<Tag> var0 = RegistryReadOps.create(NbtOps.INSTANCE, param2, param1);
+        RegistryReadOps<Tag> var0 = RegistryReadOps.createAndLoad(NbtOps.INSTANCE, param2, param1);
         WorldData var1 = param0.getDataTag(var0, param3);
         if (var1 == null) {
             throw new IllegalStateException("Failed to load world");
@@ -1700,7 +1713,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
             param1x -> param1.getDataPackConfig(),
             (param3x, param4, param5, param6) -> {
                 RegistryWriteOps<JsonElement> var0 = RegistryWriteOps.create(JsonOps.INSTANCE, param2);
-                RegistryReadOps<JsonElement> var1x = RegistryReadOps.create(JsonOps.INSTANCE, param5, param2);
+                RegistryReadOps<JsonElement> var1x = RegistryReadOps.createAndLoad(JsonOps.INSTANCE, param5, param2);
                 DataResult<WorldGenSettings> var2x = WorldGenSettings.CODEC
                     .encodeStart(var0, param3)
                     .setLifecycle(Lifecycle.stable())
@@ -2121,19 +2134,25 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     }
 
     public CrashReport fillReport(CrashReport param0) {
-        fillReport(this.languageManager, this.launchedVersion, this.options, param0);
+        fillReport(this, this.languageManager, this.launchedVersion, this.options, param0);
         if (this.level != null) {
             this.level.fillReportDetails(param0);
         }
 
+        if (this.singleplayerServer != null) {
+            this.singleplayerServer.fillReport(param0.addCategory("Integrated server"));
+        }
+
+        this.reloadStateTracker.fillCrashReport(param0);
         return param0;
     }
 
-    public static void fillReport(@Nullable LanguageManager param0, String param1, @Nullable Options param2, CrashReport param3) {
-        CrashReportCategory var0 = param3.getSystemDetails();
-        var0.setDetail("Launched Version", () -> param1);
+    public static void fillReport(@Nullable Minecraft param0, @Nullable LanguageManager param1, String param2, @Nullable Options param3, CrashReport param4) {
+        CrashReportCategory var0 = param4.getSystemDetails();
+        var0.setDetail("Launched Version", () -> param2);
         var0.setDetail("Backend library", RenderSystem::getBackendDescription);
         var0.setDetail("Backend API", RenderSystem::getApiDescription);
+        var0.setDetail("Window size", () -> param0 != null ? param0.window.getWidth() + "x" + param0.window.getHeight() : "<not initialized>");
         var0.setDetail("GL Caps", RenderSystem::getCapsString);
         var0.setDetail("GL debug messages", () -> GlDebug.isDebugEnabled() ? String.join("\n", GlDebug.getLastOpenGlDebugMessages()) : "<disabled>");
         var0.setDetail("Using VBOs", () -> "Yes");
@@ -2151,7 +2170,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
             }
         );
         var0.setDetail("Type", "Client (map_client.txt)");
-        if (param2 != null) {
+        if (param3 != null) {
             if (instance != null) {
                 String var1 = instance.getGpuWarnlistManager().getAllWarnings();
                 if (var1 != null) {
@@ -2159,17 +2178,17 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
                 }
             }
 
-            var0.setDetail("Graphics mode", param2.graphicsMode);
+            var0.setDetail("Graphics mode", param3.graphicsMode);
             var0.setDetail("Resource Packs", () -> {
                 StringBuilder var0x = new StringBuilder();
 
-                for(String var1x : param2.resourcePacks) {
+                for(String var1x : param3.resourcePacks) {
                     if (var0x.length() > 0) {
                         var0x.append(", ");
                     }
 
                     var0x.append(var1x);
-                    if (param2.incompatibleResourcePacks.contains(var1x)) {
+                    if (param3.incompatibleResourcePacks.contains(var1x)) {
                         var0x.append(" (incompatible)");
                     }
                 }
@@ -2178,8 +2197,8 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
             });
         }
 
-        if (param0 != null) {
-            var0.setDetail("Current Language", () -> param0.getSelected().toString());
+        if (param1 != null) {
+            var0.setDetail("Current Language", () -> param1.getSelected().toString());
         }
 
         var0.setDetail("CPU", GlUtil::getCpuInfo);
@@ -2190,7 +2209,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     }
 
     public CompletableFuture<Void> delayTextureReload() {
-        return this.submit(this::reloadResourcePacks).thenCompose(param0 -> param0);
+        return this.<CompletableFuture<Void>>submit(this::reloadResourcePacks).thenCompose(param0 -> param0);
     }
 
     @Override

@@ -558,15 +558,9 @@ public abstract class LivingEntity extends Entity {
 
     protected void tickDeath() {
         ++this.deathTime;
-        if (this.deathTime == 20) {
+        if (this.deathTime == 20 && !this.level.isClientSide()) {
+            this.level.broadcastEntityEvent(this, (byte)60);
             this.remove(Entity.RemovalReason.KILLED);
-
-            for(int var0 = 0; var0 < 20; ++var0) {
-                double var1 = this.random.nextGaussian() * 0.02;
-                double var2 = this.random.nextGaussian() * 0.02;
-                double var3 = this.random.nextGaussian() * 0.02;
-                this.level.addParticle(ParticleTypes.POOF, this.getRandomX(1.0), this.getRandomY(), this.getRandomZ(1.0), var1, var2, var3);
-            }
         }
 
     }
@@ -1183,7 +1177,7 @@ public abstract class LivingEntity extends Entity {
     }
 
     protected void blockedByShield(LivingEntity param0) {
-        param0.knockback(0.5F, param0.getX() - this.getX(), param0.getZ() - this.getZ());
+        param0.knockback(0.5, param0.getX() - this.getX(), param0.getZ() - this.getZ());
     }
 
     private boolean checkTotemDeathProtection(DamageSource param0) {
@@ -1395,13 +1389,13 @@ public abstract class LivingEntity extends Entity {
         return var0;
     }
 
-    public void knockback(float param0, double param1, double param2) {
-        param0 = (float)((double)param0 * (1.0 - this.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE)));
-        if (!(param0 <= 0.0F)) {
+    public void knockback(double param0, double param1, double param2) {
+        param0 *= 1.0 - this.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE);
+        if (!(param0 <= 0.0)) {
             this.hasImpulse = true;
             Vec3 var0 = this.getDeltaMovement();
-            Vec3 var1 = new Vec3(param1, 0.0, param2).normalize().scale((double)param0);
-            this.setDeltaMovement(var0.x / 2.0 - var1.x, this.onGround ? Math.min(0.4, var0.y / 2.0 + (double)param0) : var0.y, var0.z / 2.0 - var1.z);
+            Vec3 var1 = new Vec3(param1, 0.0, param2).normalize().scale(param0);
+            this.setDeltaMovement(var0.x / 2.0 - var1.x, this.onGround ? Math.min(0.4, var0.y / 2.0 + param0) : var0.y, var0.z / 2.0 - var1.z);
         }
     }
 
@@ -1746,6 +1740,8 @@ public abstract class LivingEntity extends Entity {
             case 45:
             case 53:
             case 56:
+            case 58:
+            case 59:
             default:
                 super.handleEntityEvent(param0);
                 break;
@@ -1792,6 +1788,19 @@ public abstract class LivingEntity extends Entity {
                 break;
             case 55:
                 this.swapHandItems();
+                break;
+            case 60:
+                this.makePoofParticles();
+        }
+
+    }
+
+    private void makePoofParticles() {
+        for(int var0 = 0; var0 < 20; ++var0) {
+            double var1 = this.random.nextGaussian() * 0.02;
+            double var2 = this.random.nextGaussian() * 0.02;
+            double var3 = this.random.nextGaussian() * 0.02;
+            this.level.addParticle(ParticleTypes.POOF, this.getRandomX(1.0), this.getRandomY(), this.getRandomZ(1.0), var1, var2, var3);
         }
 
     }
@@ -1928,7 +1937,7 @@ public abstract class LivingEntity extends Entity {
         return 1.0F;
     }
 
-    protected float getVoicePitch() {
+    public float getVoicePitch() {
         return this.isBaby()
             ? (this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.5F
             : (this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F;

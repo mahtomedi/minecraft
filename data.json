@@ -116,27 +116,27 @@
   "complianceLevel": 1,
   "downloads": {
     "client": {
-      "sha1": "6f0597c8dfef133d59cdce2c629a37f0e259512b",
-      "size": 19371256,
-      "url": "https://launcher.mojang.com/v1/objects/6f0597c8dfef133d59cdce2c629a37f0e259512b/client.jar"
+      "sha1": "f52cf94abf99911ca88c12f776bcf30c9b6f1617",
+      "size": 19376401,
+      "url": "https://launcher.mojang.com/v1/objects/f52cf94abf99911ca88c12f776bcf30c9b6f1617/client.jar"
     },
     "client_mappings": {
-      "sha1": "ef21afb3f08a213441012c16455210cd35e52a2a",
-      "size": 6530979,
-      "url": "https://launcher.mojang.com/v1/objects/ef21afb3f08a213441012c16455210cd35e52a2a/client.txt"
+      "sha1": "95bea66557e205298d65d8c48924013d6afa5e57",
+      "size": 6535018,
+      "url": "https://launcher.mojang.com/v1/objects/95bea66557e205298d65d8c48924013d6afa5e57/client.txt"
     },
     "server": {
-      "sha1": "ec995f939bb41a785f960985e73821c7044fc32e",
-      "size": 39189254,
-      "url": "https://launcher.mojang.com/v1/objects/ec995f939bb41a785f960985e73821c7044fc32e/server.jar"
+      "sha1": "0b18d883bd1132f761aa715d6a97e29e54a9b8b6",
+      "size": 39190633,
+      "url": "https://launcher.mojang.com/v1/objects/0b18d883bd1132f761aa715d6a97e29e54a9b8b6/server.jar"
     },
     "server_mappings": {
-      "sha1": "993c616af95fb18c76524dbb190fcd425b60fc48",
-      "size": 5007324,
-      "url": "https://launcher.mojang.com/v1/objects/993c616af95fb18c76524dbb190fcd425b60fc48/server.txt"
+      "sha1": "fb0c905d83afce0ef48001acd490f1932ed3c0cc",
+      "size": 5008302,
+      "url": "https://launcher.mojang.com/v1/objects/fb0c905d83afce0ef48001acd490f1932ed3c0cc/server.txt"
     }
   },
-  "id": "21w17a",
+  "id": "21w18a",
   "javaVersion": {
     "component": "jre-legacy",
     "majorVersion": 8
@@ -1308,7 +1308,7 @@
   },
   "mainClass": "net.minecraft.client.main.Main",
   "minimumLauncherVersion": 21,
-  "releaseTime": "2021-04-28T13:54:05+00:00",
-  "time": "2021-04-28T13:54:05+00:00",
+  "releaseTime": "2021-05-05T15:24:35+00:00",
+  "time": "2021-05-05T15:24:35+00:00",
   "type": "snapshot"
 }

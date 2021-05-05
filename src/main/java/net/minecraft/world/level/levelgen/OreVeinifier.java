@@ -12,12 +12,15 @@ public class OreVeinifier {
     private static final float RARITY = 1.0F;
     private static final float RIDGE_NOISE_FREQUENCY = 4.0F;
     private static final float THICKNESS = 0.08F;
-    private static final float VEININESS_THRESHOLD = 0.4F;
+    private static final float VEININESS_THRESHOLD = 0.5F;
+    private static final double VEININESS_FREQUENCY = 1.5;
+    private static final int EDGE_ROUNDOFF_BEGIN = 20;
+    private static final double MAX_EDGE_ROUNDOFF = 0.2;
     private static final float VEIN_SOLIDNESS = 0.7F;
     private static final float MIN_RICHNESS = 0.1F;
     private static final float MAX_RICHNESS = 0.3F;
     private static final float MAX_RICHNESS_THRESHOLD = 0.6F;
-    private static final float CHANCE_OF_RAW_ORE_BLOCK = 0.01F;
+    private static final float CHANCE_OF_RAW_ORE_BLOCK = 0.02F;
     private static final float SKIP_ORE_IF_GAP_NOISE_IS_BELOW = -0.3F;
     private final int veinMaxY;
     private final int veinMinY;
@@ -43,7 +46,7 @@ public class OreVeinifier {
     }
 
     public void fillVeininessNoiseColumn(double[] param0, int param1, int param2, int param3, int param4) {
-        this.fillNoiseColumn(param0, param1, param2, this.veininessNoiseSource, 1.0, param3, param4);
+        this.fillNoiseColumn(param0, param1, param2, this.veininessNoiseSource, 1.5, param3, param4);
     }
 
     public void fillNoiseColumnA(double[] param0, int param1, int param2, int param3, int param4) {
@@ -74,19 +77,17 @@ public class OreVeinifier {
 
     public BlockState oreVeinify(RandomSource param0, int param1, int param2, int param3, double param4, double param5, double param6) {
         BlockState var0 = this.normalBlock;
-        OreVeinifier.VeinType var1 = this.getVeinType(param4);
-        if (var1 != null && param2 >= var1.minY && param2 <= var1.maxY) {
-            if (param0.nextFloat() > 0.7F) {
-                return var0;
-            } else if (this.isVein(param5, param6)) {
-                double var2 = Mth.clampedMap(Math.abs(param4), 0.4F, 0.6F, 0.1F, 0.3F);
-                if ((double)param0.nextFloat() < var2 && this.gapNoise.getValue((double)param1, (double)param2, (double)param3) > -0.3F) {
-                    return param0.nextFloat() < 0.01F ? var1.rawOreBlock : var1.ore;
-                } else {
-                    return var1.filler;
-                }
+        OreVeinifier.VeinType var1 = this.getVeinType(param4, param2);
+        if (var1 == null) {
+            return var0;
+        } else if (param0.nextFloat() > 0.7F) {
+            return var0;
+        } else if (this.isVein(param5, param6)) {
+            double var2 = Mth.clampedMap(Math.abs(param4), 0.5, 0.6F, 0.1F, 0.3F);
+            if ((double)param0.nextFloat() < var2 && this.gapNoise.getValue((double)param1, (double)param2, (double)param3) > -0.3F) {
+                return param0.nextFloat() < 0.02F ? var1.rawOreBlock : var1.ore;
             } else {
-                return var0;
+                return var1.filler;
             }
         } else {
             return var0;
@@ -100,11 +101,16 @@ public class OreVeinifier {
     }
 
     @Nullable
-    private OreVeinifier.VeinType getVeinType(double param0) {
-        if (Math.abs(param0) < 0.4F) {
-            return null;
+    private OreVeinifier.VeinType getVeinType(double param0, int param1) {
+        OreVeinifier.VeinType var0 = param0 > 0.0 ? OreVeinifier.VeinType.COPPER : OreVeinifier.VeinType.IRON;
+        int var1 = var0.maxY - param1;
+        int var2 = param1 - var0.minY;
+        if (var2 >= 0 && var1 >= 0) {
+            int var3 = Math.min(var1, var2);
+            double var4 = Mth.clampedMap((double)var3, 0.0, 20.0, -0.2, 0.0);
+            return Math.abs(param0) + var4 < 0.5 ? null : var0;
         } else {
-            return param0 > 0.0 ? OreVeinifier.VeinType.COPPER : OreVeinifier.VeinType.IRON;
+            return null;
         }
     }
 

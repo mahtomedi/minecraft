@@ -55,31 +55,43 @@ public final class NativeImage implements AutoCloseable {
     }
 
     public NativeImage(NativeImage.Format param0, int param1, int param2, boolean param3) {
-        this.format = param0;
-        this.width = param1;
-        this.height = param2;
-        this.size = (long)param1 * (long)param2 * (long)param0.components();
-        this.useStbFree = false;
-        if (param3) {
-            this.pixels = MemoryUtil.nmemCalloc(1L, this.size);
-        } else {
-            this.pixels = MemoryUtil.nmemAlloc(this.size);
-        }
+        if (param1 > 0 && param2 > 0) {
+            this.format = param0;
+            this.width = param1;
+            this.height = param2;
+            this.size = (long)param1 * (long)param2 * (long)param0.components();
+            this.useStbFree = false;
+            if (param3) {
+                this.pixels = MemoryUtil.nmemCalloc(1L, this.size);
+            } else {
+                this.pixels = MemoryUtil.nmemAlloc(this.size);
+            }
 
+        } else {
+            throw new IllegalArgumentException("Invalid texture size: " + param1 + "x" + param2);
+        }
     }
 
     private NativeImage(NativeImage.Format param0, int param1, int param2, boolean param3, long param4) {
-        this.format = param0;
-        this.width = param1;
-        this.height = param2;
-        this.useStbFree = param3;
-        this.pixels = param4;
-        this.size = (long)(param1 * param2 * param0.components());
+        if (param1 > 0 && param2 > 0) {
+            this.format = param0;
+            this.width = param1;
+            this.height = param2;
+            this.useStbFree = param3;
+            this.pixels = param4;
+            this.size = (long)param1 * (long)param2 * (long)param0.components();
+        } else {
+            throw new IllegalArgumentException("Invalid texture size: " + param1 + "x" + param2);
+        }
     }
 
     @Override
     public String toString() {
         return "NativeImage[" + this.format + " " + this.width + "x" + this.height + "@" + this.pixels + (this.useStbFree ? "S" : "N") + "]";
+    }
+
+    private boolean isOutsideBounds(int param0, int param1) {
+        return param0 < 0 || param0 >= this.width || param1 < 0 || param1 >= this.height;
     }
 
     public static NativeImage read(InputStream param0) throws IOException {
@@ -177,24 +189,24 @@ public final class NativeImage implements AutoCloseable {
     public int getPixelRGBA(int param0, int param1) {
         if (this.format != NativeImage.Format.RGBA) {
             throw new IllegalArgumentException(String.format("getPixelRGBA only works on RGBA images; have %s", this.format));
-        } else if (param0 <= this.width && param1 <= this.height) {
-            this.checkAllocated();
-            long var0 = (long)((param0 + param1 * this.width) * 4);
-            return MemoryUtil.memGetInt(this.pixels + var0);
-        } else {
+        } else if (this.isOutsideBounds(param0, param1)) {
             throw new IllegalArgumentException(String.format("(%s, %s) outside of image bounds (%s, %s)", param0, param1, this.width, this.height));
+        } else {
+            this.checkAllocated();
+            long var0 = ((long)param0 + (long)param1 * (long)this.width) * 4L;
+            return MemoryUtil.memGetInt(this.pixels + var0);
         }
     }
 
     public void setPixelRGBA(int param0, int param1, int param2) {
         if (this.format != NativeImage.Format.RGBA) {
             throw new IllegalArgumentException(String.format("getPixelRGBA only works on RGBA images; have %s", this.format));
-        } else if (param0 <= this.width && param1 <= this.height) {
-            this.checkAllocated();
-            long var0 = (long)((param0 + param1 * this.width) * 4);
-            MemoryUtil.memPutInt(this.pixels + var0, param2);
-        } else {
+        } else if (this.isOutsideBounds(param0, param1)) {
             throw new IllegalArgumentException(String.format("(%s, %s) outside of image bounds (%s, %s)", param0, param1, this.width, this.height));
+        } else {
+            this.checkAllocated();
+            long var0 = ((long)param0 + (long)param1 * (long)this.width) * 4L;
+            MemoryUtil.memPutInt(this.pixels + var0, param2);
         }
     }
 
@@ -202,12 +214,12 @@ public final class NativeImage implements AutoCloseable {
         RenderSystem.assertThread(RenderSystem::isOnRenderThread);
         if (!this.format.hasLuminance()) {
             throw new IllegalArgumentException(String.format("setPixelLuminance only works on image with luminance; have %s", this.format));
-        } else if (param0 <= this.width && param1 <= this.height) {
-            this.checkAllocated();
-            long var0 = (long)((param0 + param1 * this.width) * this.format.components() + this.format.luminanceOffset() / 8);
-            MemoryUtil.memPutByte(this.pixels + var0, param2);
-        } else {
+        } else if (this.isOutsideBounds(param0, param1)) {
             throw new IllegalArgumentException(String.format("(%s, %s) outside of image bounds (%s, %s)", param0, param1, this.width, this.height));
+        } else {
+            this.checkAllocated();
+            long var0 = ((long)param0 + (long)param1 * (long)this.width) * (long)this.format.components() + (long)(this.format.luminanceOffset() / 8);
+            MemoryUtil.memPutByte(this.pixels + var0, param2);
         }
     }
 
@@ -215,11 +227,11 @@ public final class NativeImage implements AutoCloseable {
         RenderSystem.assertThread(RenderSystem::isOnRenderThread);
         if (!this.format.hasLuminanceOrRed()) {
             throw new IllegalArgumentException(String.format("no red or luminance in %s", this.format));
-        } else if (param0 <= this.width && param1 <= this.height) {
+        } else if (this.isOutsideBounds(param0, param1)) {
+            throw new IllegalArgumentException(String.format("(%s, %s) outside of image bounds (%s, %s)", param0, param1, this.width, this.height));
+        } else {
             int var0 = (param0 + param1 * this.width) * this.format.components() + this.format.luminanceOrRedOffset() / 8;
             return MemoryUtil.memGetByte(this.pixels + (long)var0);
-        } else {
-            throw new IllegalArgumentException(String.format("(%s, %s) outside of image bounds (%s, %s)", param0, param1, this.width, this.height));
         }
     }
 
@@ -227,11 +239,11 @@ public final class NativeImage implements AutoCloseable {
         RenderSystem.assertThread(RenderSystem::isOnRenderThread);
         if (!this.format.hasLuminanceOrGreen()) {
             throw new IllegalArgumentException(String.format("no green or luminance in %s", this.format));
-        } else if (param0 <= this.width && param1 <= this.height) {
+        } else if (this.isOutsideBounds(param0, param1)) {
+            throw new IllegalArgumentException(String.format("(%s, %s) outside of image bounds (%s, %s)", param0, param1, this.width, this.height));
+        } else {
             int var0 = (param0 + param1 * this.width) * this.format.components() + this.format.luminanceOrGreenOffset() / 8;
             return MemoryUtil.memGetByte(this.pixels + (long)var0);
-        } else {
-            throw new IllegalArgumentException(String.format("(%s, %s) outside of image bounds (%s, %s)", param0, param1, this.width, this.height));
         }
     }
 
@@ -239,22 +251,22 @@ public final class NativeImage implements AutoCloseable {
         RenderSystem.assertThread(RenderSystem::isOnRenderThread);
         if (!this.format.hasLuminanceOrBlue()) {
             throw new IllegalArgumentException(String.format("no blue or luminance in %s", this.format));
-        } else if (param0 <= this.width && param1 <= this.height) {
+        } else if (this.isOutsideBounds(param0, param1)) {
+            throw new IllegalArgumentException(String.format("(%s, %s) outside of image bounds (%s, %s)", param0, param1, this.width, this.height));
+        } else {
             int var0 = (param0 + param1 * this.width) * this.format.components() + this.format.luminanceOrBlueOffset() / 8;
             return MemoryUtil.memGetByte(this.pixels + (long)var0);
-        } else {
-            throw new IllegalArgumentException(String.format("(%s, %s) outside of image bounds (%s, %s)", param0, param1, this.width, this.height));
         }
     }
 
     public byte getLuminanceOrAlpha(int param0, int param1) {
         if (!this.format.hasLuminanceOrAlpha()) {
             throw new IllegalArgumentException(String.format("no luminance or alpha in %s", this.format));
-        } else if (param0 <= this.width && param1 <= this.height) {
+        } else if (this.isOutsideBounds(param0, param1)) {
+            throw new IllegalArgumentException(String.format("(%s, %s) outside of image bounds (%s, %s)", param0, param1, this.width, this.height));
+        } else {
             int var0 = (param0 + param1 * this.width) * this.format.components() + this.format.luminanceOrAlphaOffset() / 8;
             return MemoryUtil.memGetByte(this.pixels + (long)var0);
-        } else {
-            throw new IllegalArgumentException(String.format("(%s, %s) outside of image bounds (%s, %s)", param0, param1, this.width, this.height));
         }
     }
 

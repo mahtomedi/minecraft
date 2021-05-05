@@ -1356,7 +1356,7 @@ public abstract class Mob extends LivingEntity {
             if (var1 > 0.0F && param0 instanceof LivingEntity) {
                 ((LivingEntity)param0)
                     .knockback(
-                        var1 * 0.5F,
+                        (double)(var1 * 0.5F),
                         (double)Mth.sin(this.getYRot() * (float) (Math.PI / 180.0)),
                         (double)(-Mth.cos(this.getYRot() * (float) (Math.PI / 180.0)))
                     );

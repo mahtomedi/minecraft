@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.valueproviders.UniformInt;
+import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.behavior.AnimalMakeLove;
@@ -47,7 +48,12 @@ public class GoatAi {
     public static final int MAX_LONG_JUMP_WIDTH = 5;
     public static final float MAX_JUMP_VELOCITY = 1.5F;
     private static final UniformInt TIME_BETWEEN_RAMS = UniformInt.of(600, 6000);
-    private static final TargetingConditions RAM_TARGET_CONDITIONS = new TargetingConditions().selector(param0 -> !param0.getType().equals(EntityType.GOAT));
+    private static final UniformInt TIME_BETWEEN_RAMS_SCREAMER = UniformInt.of(100, 300);
+    private static final TargetingConditions RAM_TARGET_CONDITIONS = new TargetingConditions()
+        .selector(
+            param0 -> !param0.getType().equals(EntityType.GOAT)
+                    && (param0.level.getDifficulty() != Difficulty.PEACEFUL || !param0.getType().equals(EntityType.PLAYER))
+        );
     private static final float SPEED_MULTIPLIER_WHEN_RAMMING = 3.0F;
     public static final int RAM_MIN_DISTANCE = 4;
     private static final int ADULT_RAM_DAMAGE = 2;
@@ -142,18 +148,18 @@ public class GoatAi {
                 Pair.of(
                     0,
                     new RamTarget<>(
-                        TIME_BETWEEN_RAMS,
+                        param0x -> param0x.isScreamingGoat() ? TIME_BETWEEN_RAMS_SCREAMER : TIME_BETWEEN_RAMS,
                         RAM_TARGET_CONDITIONS,
                         param0x -> param0x.isBaby() ? 1 : 2,
                         3.0F,
-                        param0x -> param0x.isBaby() ? 1.0F : 2.5F,
+                        param0x -> param0x.isBaby() ? 1.0 : 2.5,
                         param0x -> param0x.isScreamingGoat() ? SoundEvents.GOAT_SCREAMING_RAM_IMPACT : SoundEvents.GOAT_RAM_IMPACT
                     )
                 ),
                 Pair.of(
                     1,
                     new PrepareRamNearestTarget<>(
-                        TIME_BETWEEN_RAMS.getMinValue(),
+                        param0x -> param0x.isScreamingGoat() ? TIME_BETWEEN_RAMS_SCREAMER.getMinValue() : TIME_BETWEEN_RAMS.getMinValue(),
                         4,
                         7,
                         1.25F,

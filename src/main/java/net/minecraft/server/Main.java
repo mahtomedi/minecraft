@@ -153,7 +153,7 @@ public class Main {
             }
 
             var35.updateGlobals();
-            RegistryReadOps<Tag> var38 = RegistryReadOps.create(NbtOps.INSTANCE, var35.getResourceManager(), var16);
+            RegistryReadOps<Tag> var38 = RegistryReadOps.createAndLoad(NbtOps.INSTANCE, var35.getResourceManager(), var16);
             WorldData var39 = var28.getDataTag(var38, var33);
             if (var39 == null) {
                 LevelSettings var40;

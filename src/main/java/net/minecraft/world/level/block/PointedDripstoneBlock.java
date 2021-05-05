@@ -45,12 +45,12 @@ public class PointedDripstoneBlock extends Block implements Fallable, SimpleWate
     public static final DirectionProperty TIP_DIRECTION = BlockStateProperties.VERTICAL_DIRECTION;
     public static final EnumProperty<DripstoneThickness> THICKNESS = BlockStateProperties.DRIPSTONE_THICKNESS;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
-    private static final int MAX_SEARCH_LENGTH_WHEN_CHECKING_DRIP_TYPE = 10;
+    private static final int MAX_SEARCH_LENGTH_WHEN_CHECKING_DRIP_TYPE = 11;
     private static final int MAX_SEARCH_LENGTH_WHEN_LOOKING_FOR_TIP_OF_FALLING_STALACTITE = Integer.MAX_VALUE;
     private static final int DELAY_BEFORE_FALLING = 2;
     private static final float DRIP_PROBABILITY_PER_ANIMATE_TICK = 0.02F;
     private static final float DRIP_PROBABILITY_PER_ANIMATE_TICK_IF_UNDER_LIQUID_SOURCE = 0.12F;
-    private static final int MAX_SEARCH_LENGTH_BETWEEN_STALACTITE_TIP_AND_CAULDRON = 10;
+    private static final int MAX_SEARCH_LENGTH_BETWEEN_STALACTITE_TIP_AND_CAULDRON = 11;
     private static final float WATER_CAULDRON_FILL_PROBABILITY_PER_RANDOM_TICK = 0.17578125F;
     private static final float LAVA_CAULDRON_FILL_PROBABILITY_PER_RANDOM_TICK = 0.05859375F;
     private static final double MIN_TRIDENT_VELOCITY_TO_BREAK_DRIPSTONE = 0.6;
@@ -187,7 +187,7 @@ public class PointedDripstoneBlock extends Block implements Fallable, SimpleWate
                 }
 
                 if (!(param3 >= var1)) {
-                    BlockPos var4 = findTip(param0, param1, param2, 10, false);
+                    BlockPos var4 = findTip(param0, param1, param2, 11, false);
                     if (var4 != null) {
                         BlockPos var5 = findFillableCauldronBelowStalactiteTip(param1, var4, var0);
                         if (var5 != null) {
@@ -330,22 +330,19 @@ public class PointedDripstoneBlock extends Block implements Fallable, SimpleWate
 
     @VisibleForTesting
     public static void growStalactiteOrStalagmiteIfPossible(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
-        Optional<BlockPos> var0 = findRootBlock(param1, param2, param0, 7);
-        if (var0.isPresent()) {
-            BlockState var1 = param1.getBlockState(var0.get());
-            BlockState var2 = param1.getBlockState(var0.get().above());
-            if (canGrow(var1, var2)) {
-                BlockPos var3 = findTip(param0, param1, param2, 7, false);
-                if (var3 != null) {
-                    BlockState var4 = param1.getBlockState(var3);
-                    if (canDrip(var4) && canTipGrow(var4, param1, var3)) {
-                        if (param3.nextBoolean()) {
-                            grow(param1, var3, Direction.DOWN);
-                        } else {
-                            growStalagmiteBelow(param1, var3);
-                        }
-
+        BlockState var0 = param1.getBlockState(param2.above(1));
+        BlockState var1 = param1.getBlockState(param2.above(2));
+        if (canGrow(var0, var1)) {
+            BlockPos var2 = findTip(param0, param1, param2, 7, false);
+            if (var2 != null) {
+                BlockState var3 = param1.getBlockState(var2);
+                if (canDrip(var3) && canTipGrow(var3, param1, var2)) {
+                    if (param3.nextBoolean()) {
+                        grow(param1, var2, Direction.DOWN);
+                    } else {
+                        growStalagmiteBelow(param1, var2);
                     }
+
                 }
             }
         }
@@ -534,12 +531,12 @@ public class PointedDripstoneBlock extends Block implements Fallable, SimpleWate
     private static BlockPos findFillableCauldronBelowStalactiteTip(Level param0, BlockPos param1, Fluid param2) {
         Predicate<BlockState> var0 = param1x -> param1x.getBlock() instanceof AbstractCauldronBlock
                 && ((AbstractCauldronBlock)param1x.getBlock()).canReceiveStalactiteDrip(param2);
-        return findBlockVertical(param0, param1, Direction.DOWN.getAxisDirection(), BlockBehaviour.BlockStateBase::isAir, var0, 10).orElse(null);
+        return findBlockVertical(param0, param1, Direction.DOWN.getAxisDirection(), BlockBehaviour.BlockStateBase::isAir, var0, 11).orElse(null);
     }
 
     @Nullable
     public static BlockPos findStalactiteTipAboveCauldron(Level param0, BlockPos param1) {
-        return findBlockVertical(param0, param1, Direction.UP.getAxisDirection(), BlockBehaviour.BlockStateBase::isAir, PointedDripstoneBlock::canDrip, 10)
+        return findBlockVertical(param0, param1, Direction.UP.getAxisDirection(), BlockBehaviour.BlockStateBase::isAir, PointedDripstoneBlock::canDrip, 11)
             .orElse(null);
     }
 
@@ -550,7 +547,7 @@ public class PointedDripstoneBlock extends Block implements Fallable, SimpleWate
     private static Optional<Fluid> getFluidAboveStalactite(Level param0, BlockPos param1, BlockState param2) {
         return !isStalactite(param2)
             ? Optional.empty()
-            : findRootBlock(param0, param1, param2, 10).map(param1x -> param0.getFluidState(param1x.above()).getType());
+            : findRootBlock(param0, param1, param2, 11).map(param1x -> param0.getFluidState(param1x.above()).getType());
     }
 
     private static boolean canFillCauldron(Fluid param0x) {
@@ -575,11 +572,11 @@ public class PointedDripstoneBlock extends Block implements Fallable, SimpleWate
         Direction var0 = Direction.get(param2, Direction.Axis.Y);
         BlockPos.MutableBlockPos var1 = param1.mutable();
 
-        for(int var2 = 0; var2 < param5; ++var2) {
+        for(int var2 = 1; var2 < param5; ++var2) {
             var1.move(var0);
             BlockState var3 = param0.getBlockState(var1);
             if (param4.test(var3)) {
-                return Optional.of(var1);
+                return Optional.of(var1.immutable());
             }
 
             if (param0.isOutsideBuildHeight(var1.getY()) || !param3.test(var3)) {

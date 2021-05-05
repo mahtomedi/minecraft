@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.ToIntFunction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -26,7 +27,7 @@ import net.minecraft.world.phys.Vec3;
 
 public class PrepareRamNearestTarget<E extends PathfinderMob> extends Behavior<E> {
     public static final int TIME_OUT_DURATION = 160;
-    private final int cooldownOnFail;
+    private final ToIntFunction<E> getCooldownOnFail;
     private final int minRamDistance;
     private final int maxRamDistance;
     private final float walkSpeed;
@@ -36,7 +37,9 @@ public class PrepareRamNearestTarget<E extends PathfinderMob> extends Behavior<E
     private Optional<Long> reachedRamPositionTimestamp = Optional.empty();
     private Optional<PrepareRamNearestTarget.RamCandidate> ramCandidate = Optional.empty();
 
-    public PrepareRamNearestTarget(int param0, int param1, int param2, float param3, TargetingConditions param4, int param5, Function<E, SoundEvent> param6) {
+    public PrepareRamNearestTarget(
+        ToIntFunction<E> param0, int param1, int param2, float param3, TargetingConditions param4, int param5, Function<E, SoundEvent> param6
+    ) {
         super(
             ImmutableMap.of(
                 MemoryModuleType.LOOK_TARGET,
@@ -50,7 +53,7 @@ public class PrepareRamNearestTarget<E extends PathfinderMob> extends Behavior<E
             ),
             160
         );
-        this.cooldownOnFail = param0;
+        this.getCooldownOnFail = param0;
         this.minRamDistance = param1;
         this.maxRamDistance = param2;
         this.walkSpeed = param3;
@@ -66,11 +69,11 @@ public class PrepareRamNearestTarget<E extends PathfinderMob> extends Behavior<E
             .ifPresent(param1x -> this.chooseRamPosition(param1, param1x));
     }
 
-    protected void stop(ServerLevel param0, PathfinderMob param1, long param2) {
+    protected void stop(ServerLevel param0, E param1, long param2) {
         Brain<?> var0 = param1.getBrain();
         if (!var0.hasMemoryValue(MemoryModuleType.RAM_TARGET)) {
             param0.broadcastEntityEvent(param1, (byte)59);
-            var0.setMemory(MemoryModuleType.RAM_COOLDOWN_TICKS, this.cooldownOnFail);
+            var0.setMemory(MemoryModuleType.RAM_COOLDOWN_TICKS, this.getCooldownOnFail.applyAsInt(param1));
         }
 
     }
@@ -98,7 +101,7 @@ public class PrepareRamNearestTarget<E extends PathfinderMob> extends Behavior<E
 
                     if (param2 - this.reachedRamPositionTimestamp.get() >= (long)this.ramPrepareTime) {
                         param1.getBrain().setMemory(MemoryModuleType.RAM_TARGET, this.getEdgeOfBlock(var1, this.ramCandidate.get().getTargetPosition()));
-                        param0.playSound(null, param1, this.getPrepareRamSound.apply(param1), SoundSource.HOSTILE, 1.0F, 1.0F);
+                        param0.playSound(null, param1, this.getPrepareRamSound.apply(param1), SoundSource.HOSTILE, 1.0F, param1.getVoicePitch());
                         this.ramCandidate = Optional.empty();
                     }
                 }

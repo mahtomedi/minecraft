@@ -1164,7 +1164,7 @@ public abstract class Player extends LivingEntity {
                             if (param0 instanceof LivingEntity) {
                                 ((LivingEntity)param0)
                                     .knockback(
-                                        (float)var6 * 0.5F,
+                                        (double)((float)var6 * 0.5F),
                                         (double)Mth.sin(this.getYRot() * (float) (Math.PI / 180.0)),
                                         (double)(-Mth.cos(this.getYRot() * (float) (Math.PI / 180.0)))
                                     );

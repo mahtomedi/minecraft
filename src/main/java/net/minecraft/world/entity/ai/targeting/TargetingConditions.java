@@ -4,6 +4,7 @@ import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.decoration.ArmorStand;
 
 public class TargetingConditions {
     public static final TargetingConditions DEFAULT = new TargetingConditions();
@@ -75,6 +76,13 @@ public class TargetingConditions {
         } else if (this.selector != null && !this.selector.test(param1)) {
             return false;
         } else {
+            if (param1 instanceof ArmorStand) {
+                ArmorStand var0 = (ArmorStand)param1;
+                if (var0.isInvisible() || var0.isMarker()) {
+                    return false;
+                }
+            }
+
             if (param0 != null) {
                 if (!this.allowNonAttackable) {
                     if (!param0.canAttack(param1)) {
@@ -91,10 +99,10 @@ public class TargetingConditions {
                 }
 
                 if (this.range > 0.0) {
-                    double var0 = this.testInvisible ? param1.getVisibilityPercent(param0) : 1.0;
-                    double var1 = Math.max(this.range * var0, 2.0);
-                    double var2 = param0.distanceToSqr(param1.getX(), param1.getY(), param1.getZ());
-                    if (var2 > var1 * var1) {
+                    double var1 = this.testInvisible ? param1.getVisibilityPercent(param0) : 1.0;
+                    double var2 = Math.max(this.range * var1, 2.0);
+                    double var3 = param0.distanceToSqr(param1.getX(), param1.getY(), param1.getZ());
+                    if (var3 > var2 * var2) {
                         return false;
                     }
                 }

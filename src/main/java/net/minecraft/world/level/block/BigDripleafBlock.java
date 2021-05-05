@@ -88,7 +88,7 @@ public class BigDripleafBlock extends HorizontalDirectionalBlock implements Bone
     }
 
     public static void placeWithRandomHeight(LevelAccessor param0, Random param1, BlockPos param2, Direction param3) {
-        int var0 = 1 + param1.nextInt(5);
+        int var0 = Mth.nextInt(param1, 2, 5);
         BlockPos.MutableBlockPos var1 = param2.mutable();
         int var2 = 0;
 
