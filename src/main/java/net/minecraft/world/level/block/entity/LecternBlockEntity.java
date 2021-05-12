@@ -131,8 +131,8 @@ public class LecternBlockEntity extends BlockEntity implements Clearable, MenuPr
             return 1;
         }
     };
-    private ItemStack book = ItemStack.EMPTY;
-    private int page;
+    ItemStack book = ItemStack.EMPTY;
+    int page;
     private int pageCount;
 
     public LecternBlockEntity(BlockPos param0, BlockState param1) {
@@ -151,7 +151,7 @@ public class LecternBlockEntity extends BlockEntity implements Clearable, MenuPr
         this.setBook(param0, null);
     }
 
-    private void onBookItemRemove() {
+    void onBookItemRemove() {
         this.page = 0;
         this.pageCount = 0;
         LecternBlock.resetBookState(this.getLevel(), this.getBlockPos(), this.getBlockState(), false);
@@ -164,7 +164,7 @@ public class LecternBlockEntity extends BlockEntity implements Clearable, MenuPr
         this.setChanged();
     }
 
-    private void setPage(int param0) {
+    void setPage(int param0) {
         int var0 = Mth.clamp(param0, 0, this.pageCount - 1);
         if (var0 != this.page) {
             this.page = var0;

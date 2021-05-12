@@ -63,16 +63,16 @@ import org.apache.logging.log4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.WorldListEntry> {
-    private static final Logger LOGGER = LogManager.getLogger();
-    private static final DateFormat DATE_FORMAT = new SimpleDateFormat();
-    private static final ResourceLocation ICON_MISSING = new ResourceLocation("textures/misc/unknown_server.png");
-    private static final ResourceLocation ICON_OVERLAY_LOCATION = new ResourceLocation("textures/gui/world_selection.png");
-    private static final Component FROM_NEWER_TOOLTIP_1 = new TranslatableComponent("selectWorld.tooltip.fromNewerVersion1").withStyle(ChatFormatting.RED);
-    private static final Component FROM_NEWER_TOOLTIP_2 = new TranslatableComponent("selectWorld.tooltip.fromNewerVersion2").withStyle(ChatFormatting.RED);
-    private static final Component SNAPSHOT_TOOLTIP_1 = new TranslatableComponent("selectWorld.tooltip.snapshot1").withStyle(ChatFormatting.GOLD);
-    private static final Component SNAPSHOT_TOOLTIP_2 = new TranslatableComponent("selectWorld.tooltip.snapshot2").withStyle(ChatFormatting.GOLD);
-    private static final Component WORLD_LOCKED_TOOLTIP = new TranslatableComponent("selectWorld.locked").withStyle(ChatFormatting.RED);
-    private static final Component WORLD_PRE_WORLDHEIGHT_TOOLTIP = new TranslatableComponent("selectWorld.pre_worldheight").withStyle(ChatFormatting.RED);
+    static final Logger LOGGER = LogManager.getLogger();
+    static final DateFormat DATE_FORMAT = new SimpleDateFormat();
+    static final ResourceLocation ICON_MISSING = new ResourceLocation("textures/misc/unknown_server.png");
+    static final ResourceLocation ICON_OVERLAY_LOCATION = new ResourceLocation("textures/gui/world_selection.png");
+    static final Component FROM_NEWER_TOOLTIP_1 = new TranslatableComponent("selectWorld.tooltip.fromNewerVersion1").withStyle(ChatFormatting.RED);
+    static final Component FROM_NEWER_TOOLTIP_2 = new TranslatableComponent("selectWorld.tooltip.fromNewerVersion2").withStyle(ChatFormatting.RED);
+    static final Component SNAPSHOT_TOOLTIP_1 = new TranslatableComponent("selectWorld.tooltip.snapshot1").withStyle(ChatFormatting.GOLD);
+    static final Component SNAPSHOT_TOOLTIP_2 = new TranslatableComponent("selectWorld.tooltip.snapshot2").withStyle(ChatFormatting.GOLD);
+    static final Component WORLD_LOCKED_TOOLTIP = new TranslatableComponent("selectWorld.locked").withStyle(ChatFormatting.RED);
+    static final Component WORLD_PRE_WORLDHEIGHT_TOOLTIP = new TranslatableComponent("selectWorld.pre_worldheight").withStyle(ChatFormatting.RED);
     private final SelectWorldScreen screen;
     @Nullable
     private List<LevelSummary> cachedList;
@@ -192,7 +192,7 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.W
         private static final int ICON_OVERLAY_Y_SELECTED = 32;
         private final Minecraft minecraft;
         private final SelectWorldScreen screen;
-        private final LevelSummary summary;
+        final LevelSummary summary;
         private final ResourceLocation iconLocation;
         private File iconFile;
         @Nullable
@@ -320,9 +320,9 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.W
 
                             try (LevelStorageSource.LevelStorageAccess var1x = this.minecraft.getLevelSource().createAccess(var0x)) {
                                 EditWorldScreen.makeBackupAndShowToast(var1x);
-                            } catch (IOException var17) {
+                            } catch (IOException var9) {
                                 SystemToast.onWorldAccessFailure(this.minecraft, var0x);
-                                WorldSelectionList.LOGGER.error("Failed to backup level {}", var0x, var17);
+                                WorldSelectionList.LOGGER.error("Failed to backup level {}", var0x, var9);
                             }
                         }
 
@@ -391,9 +391,9 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.W
 
             try (LevelStorageSource.LevelStorageAccess var2 = var0.createAccess(var1)) {
                 var2.deleteLevel();
-            } catch (IOException var16) {
+            } catch (IOException var8) {
                 SystemToast.onWorldDeleteFailure(this.minecraft, var1);
-                WorldSelectionList.LOGGER.error("Failed to delete world {}", var1, var16);
+                WorldSelectionList.LOGGER.error("Failed to delete world {}", var1, var8);
             }
 
             WorldSelectionList.this.refreshList(() -> this.screen.searchBox.getValue(), true);
@@ -452,8 +452,8 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.W
                 } else {
                     this.minecraft.setScreen(new CreateWorldScreen(this.screen, var3, var5, var6, var4, var0));
                 }
-            } catch (Exception var37) {
-                WorldSelectionList.LOGGER.error("Unable to recreate world", (Throwable)var37);
+            } catch (Exception var12) {
+                WorldSelectionList.LOGGER.error("Unable to recreate world", (Throwable)var12);
                 this.minecraft
                     .setScreen(
                         new AlertScreen(
@@ -483,15 +483,20 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.W
         private DynamicTexture loadServerIcon() {
             boolean var0 = this.iconFile != null && this.iconFile.isFile();
             if (var0) {
-                try (InputStream var1 = new FileInputStream(this.iconFile)) {
-                    NativeImage var2 = NativeImage.read(var1);
-                    Validate.validState(var2.getWidth() == 64, "Must be 64 pixels wide");
-                    Validate.validState(var2.getHeight() == 64, "Must be 64 pixels high");
-                    DynamicTexture var3 = new DynamicTexture(var2);
-                    this.minecraft.getTextureManager().register(this.iconLocation, var3);
-                    return var3;
-                } catch (Throwable var18) {
-                    WorldSelectionList.LOGGER.error("Invalid icon for world {}", this.summary.getLevelId(), var18);
+                try {
+                    DynamicTexture var5;
+                    try (InputStream var1 = new FileInputStream(this.iconFile)) {
+                        NativeImage var2 = NativeImage.read(var1);
+                        Validate.validState(var2.getWidth() == 64, "Must be 64 pixels wide");
+                        Validate.validState(var2.getHeight() == 64, "Must be 64 pixels high");
+                        DynamicTexture var3 = new DynamicTexture(var2);
+                        this.minecraft.getTextureManager().register(this.iconLocation, var3);
+                        var5 = var3;
+                    }
+
+                    return var5;
+                } catch (Throwable var8) {
+                    WorldSelectionList.LOGGER.error("Invalid icon for world {}", this.summary.getLevelId(), var8);
                     this.iconFile = null;
                     return null;
                 }

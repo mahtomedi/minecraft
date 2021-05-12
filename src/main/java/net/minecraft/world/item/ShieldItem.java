@@ -22,7 +22,7 @@ public class ShieldItem extends Item {
 
     @Override
     public String getDescriptionId(ItemStack param0) {
-        return param0.getTagElement("BlockEntityTag") != null ? this.getDescriptionId() + '.' + getColor(param0).getName() : super.getDescriptionId(param0);
+        return param0.getTagElement("BlockEntityTag") != null ? this.getDescriptionId() + "." + getColor(param0).getName() : super.getDescriptionId(param0);
     }
 
     @Override

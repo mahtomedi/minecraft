@@ -62,12 +62,9 @@ public class DamageEnchantment extends Enchantment {
 
     @Override
     public void doPostAttack(LivingEntity param0, Entity param1, int param2) {
-        if (param1 instanceof LivingEntity) {
-            LivingEntity var0 = (LivingEntity)param1;
-            if (this.type == 2 && param2 > 0 && var0.getMobType() == MobType.ARTHROPOD) {
-                int var1 = 20 + param0.getRandom().nextInt(10 * param2);
-                var0.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, var1, 3));
-            }
+        if (param1 instanceof LivingEntity var0 && this.type == 2 && param2 > 0 && var0.getMobType() == MobType.ARTHROPOD) {
+            int var1 = 20 + param0.getRandom().nextInt(10 * param2);
+            var0.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, var1, 3));
         }
 
     }

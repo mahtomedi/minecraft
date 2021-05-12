@@ -721,7 +721,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
     @Override
     protected Component getTypeName() {
         return new TranslatableComponent(
-            this.getType().getDescriptionId() + '.' + Registry.VILLAGER_PROFESSION.getKey(this.getVillagerData().getProfession()).getPath()
+            this.getType().getDescriptionId() + "." + Registry.VILLAGER_PROFESSION.getKey(this.getVillagerData().getProfession()).getPath()
         );
     }
 

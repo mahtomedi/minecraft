@@ -23,12 +23,12 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 
 public class ShapedRecipe implements CraftingRecipe {
-    private final int width;
-    private final int height;
-    private final NonNullList<Ingredient> recipeItems;
-    private final ItemStack result;
+    final int width;
+    final int height;
+    final NonNullList<Ingredient> recipeItems;
+    final ItemStack result;
     private final ResourceLocation id;
-    private final String group;
+    final String group;
 
     public ShapedRecipe(ResourceLocation param0, String param1, int param2, int param3, NonNullList<Ingredient> param4, ItemStack param5) {
         this.id = param0;
@@ -120,7 +120,7 @@ public class ShapedRecipe implements CraftingRecipe {
         return this.height;
     }
 
-    private static NonNullList<Ingredient> dissolvePattern(String[] param0, Map<String, Ingredient> param1, int param2, int param3) {
+    static NonNullList<Ingredient> dissolvePattern(String[] param0, Map<String, Ingredient> param1, int param2, int param3) {
         NonNullList<Ingredient> var0 = NonNullList.withSize(param2 * param3, Ingredient.EMPTY);
         Set<String> var1 = Sets.newHashSet(param1.keySet());
         var1.remove(" ");
@@ -207,7 +207,7 @@ public class ShapedRecipe implements CraftingRecipe {
         return var0;
     }
 
-    private static String[] patternFromJson(JsonArray param0) {
+    static String[] patternFromJson(JsonArray param0) {
         String[] var0 = new String[param0.size()];
         if (var0.length > 3) {
             throw new JsonSyntaxException("Invalid pattern: too many rows, 3 is maximum");
@@ -231,7 +231,7 @@ public class ShapedRecipe implements CraftingRecipe {
         }
     }
 
-    private static Map<String, Ingredient> keyFromJson(JsonObject param0) {
+    static Map<String, Ingredient> keyFromJson(JsonObject param0) {
         Map<String, Ingredient> var0 = Maps.newHashMap();
 
         for(Entry<String, JsonElement> var1 : param0.entrySet()) {

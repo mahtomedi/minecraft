@@ -13,7 +13,7 @@ public class ClientboundBossEventPacket implements Packet<ClientGamePacketListen
     private static final int FLAG_FOG = 4;
     private final UUID id;
     private final ClientboundBossEventPacket.Operation operation;
-    private static final ClientboundBossEventPacket.Operation REMOVE_OPERATION = new ClientboundBossEventPacket.Operation() {
+    static final ClientboundBossEventPacket.Operation REMOVE_OPERATION = new ClientboundBossEventPacket.Operation() {
         @Override
         public ClientboundBossEventPacket.OperationType getType() {
             return ClientboundBossEventPacket.OperationType.REMOVE;
@@ -74,7 +74,7 @@ public class ClientboundBossEventPacket implements Packet<ClientGamePacketListen
         this.operation.write(param0);
     }
 
-    private static int encodeProperties(boolean param0, boolean param1, boolean param2) {
+    static int encodeProperties(boolean param0, boolean param1, boolean param2) {
         int var0 = 0;
         if (param0) {
             var0 |= 1;
@@ -108,7 +108,7 @@ public class ClientboundBossEventPacket implements Packet<ClientGamePacketListen
         private final boolean playMusic;
         private final boolean createWorldFog;
 
-        private AddOperation(BossEvent param0) {
+        AddOperation(BossEvent param0) {
             this.name = param0.getName();
             this.progress = param0.getProgress();
             this.color = param0.getColor();
@@ -187,14 +187,14 @@ public class ClientboundBossEventPacket implements Packet<ClientGamePacketListen
     }
 
     static enum OperationType {
-        ADD(param0 -> new ClientboundBossEventPacket.AddOperation(param0)),
+        ADD(ClientboundBossEventPacket.AddOperation::new),
         REMOVE(param0 -> ClientboundBossEventPacket.REMOVE_OPERATION),
-        UPDATE_PROGRESS(param0 -> new ClientboundBossEventPacket.UpdateProgressOperation(param0)),
-        UPDATE_NAME(param0 -> new ClientboundBossEventPacket.UpdateNameOperation(param0)),
-        UPDATE_STYLE(param0 -> new ClientboundBossEventPacket.UpdateStyleOperation(param0)),
-        UPDATE_PROPERTIES(param0 -> new ClientboundBossEventPacket.UpdatePropertiesOperation(param0));
+        UPDATE_PROGRESS(ClientboundBossEventPacket.UpdateProgressOperation::new),
+        UPDATE_NAME(ClientboundBossEventPacket.UpdateNameOperation::new),
+        UPDATE_STYLE(ClientboundBossEventPacket.UpdateStyleOperation::new),
+        UPDATE_PROPERTIES(ClientboundBossEventPacket.UpdatePropertiesOperation::new);
 
-        private final Function<FriendlyByteBuf, ClientboundBossEventPacket.Operation> reader;
+        final Function<FriendlyByteBuf, ClientboundBossEventPacket.Operation> reader;
 
         private OperationType(Function<FriendlyByteBuf, ClientboundBossEventPacket.Operation> param0) {
             this.reader = param0;
@@ -204,7 +204,7 @@ public class ClientboundBossEventPacket implements Packet<ClientGamePacketListen
     static class UpdateNameOperation implements ClientboundBossEventPacket.Operation {
         private final Component name;
 
-        private UpdateNameOperation(Component param0) {
+        UpdateNameOperation(Component param0) {
             this.name = param0;
         }
 
@@ -231,7 +231,7 @@ public class ClientboundBossEventPacket implements Packet<ClientGamePacketListen
     static class UpdateProgressOperation implements ClientboundBossEventPacket.Operation {
         private final float progress;
 
-        private UpdateProgressOperation(float param0) {
+        UpdateProgressOperation(float param0) {
             this.progress = param0;
         }
 
@@ -260,7 +260,7 @@ public class ClientboundBossEventPacket implements Packet<ClientGamePacketListen
         private final boolean playMusic;
         private final boolean createWorldFog;
 
-        private UpdatePropertiesOperation(boolean param0, boolean param1, boolean param2) {
+        UpdatePropertiesOperation(boolean param0, boolean param1, boolean param2) {
             this.darkenScreen = param0;
             this.playMusic = param1;
             this.createWorldFog = param2;
@@ -293,7 +293,7 @@ public class ClientboundBossEventPacket implements Packet<ClientGamePacketListen
         private final BossEvent.BossBarColor color;
         private final BossEvent.BossBarOverlay overlay;
 
-        private UpdateStyleOperation(BossEvent.BossBarColor param0, BossEvent.BossBarOverlay param1) {
+        UpdateStyleOperation(BossEvent.BossBarColor param0, BossEvent.BossBarOverlay param1) {
             this.color = param0;
             this.overlay = param1;
         }

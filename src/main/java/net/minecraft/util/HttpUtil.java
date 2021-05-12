@@ -86,7 +86,7 @@ public class HttpUtil {
             HttpURLConnection var0 = (HttpURLConnection)param0.openConnection(param3);
             var0.setRequestMethod("POST");
             var0.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-            var0.setRequestProperty("Content-Length", "" + param1.getBytes().length);
+            var0.setRequestProperty("Content-Length", param1.getBytes().length + "");
             var0.setRequestProperty("Content-Language", "en-US");
             var0.setUseCaches(false);
             var0.setDoInput(true);
@@ -233,9 +233,14 @@ public class HttpUtil {
     }
 
     public static int getAvailablePort() {
-        try (ServerSocket var0 = new ServerSocket(0)) {
-            return var0.getLocalPort();
-        } catch (IOException var14) {
+        try {
+            int var11;
+            try (ServerSocket var0 = new ServerSocket(0)) {
+                var11 = var0.getLocalPort();
+            }
+
+            return var11;
+        } catch (IOException var5) {
             return 25564;
         }
     }

@@ -14,9 +14,9 @@ import net.minecraft.world.level.Level;
 
 public class ShapelessRecipe implements CraftingRecipe {
     private final ResourceLocation id;
-    private final String group;
-    private final ItemStack result;
-    private final NonNullList<Ingredient> ingredients;
+    final String group;
+    final ItemStack result;
+    final NonNullList<Ingredient> ingredients;
 
     public ShapelessRecipe(ResourceLocation param0, String param1, ItemStack param2, NonNullList<Ingredient> param3) {
         this.id = param0;

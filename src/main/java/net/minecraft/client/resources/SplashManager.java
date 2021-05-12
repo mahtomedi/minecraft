@@ -35,12 +35,17 @@ public class SplashManager extends SimplePreparableReloadListener<List<String>> 
     }
 
     protected List<String> prepare(ResourceManager param0, ProfilerFiller param1) {
-        try (
-            Resource var0 = Minecraft.getInstance().getResourceManager().getResource(SPLASHES_LOCATION);
-            BufferedReader var1 = new BufferedReader(new InputStreamReader(var0.getInputStream(), StandardCharsets.UTF_8));
-        ) {
-            return var1.lines().map(String::trim).filter(param0x -> param0x.hashCode() != 125780783).collect(Collectors.toList());
-        } catch (IOException var36) {
+        try {
+            List var5;
+            try (
+                Resource var0 = Minecraft.getInstance().getResourceManager().getResource(SPLASHES_LOCATION);
+                BufferedReader var1 = new BufferedReader(new InputStreamReader(var0.getInputStream(), StandardCharsets.UTF_8));
+            ) {
+                var5 = var1.lines().map(String::trim).filter(param0x -> param0x.hashCode() != 125780783).collect(Collectors.toList());
+            }
+
+            return var5;
+        } catch (IOException var11) {
             return Collections.emptyList();
         }
     }

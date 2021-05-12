@@ -8,7 +8,6 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.math.Vector3f;
 import it.unimi.dsi.fastutil.ints.IntArrays;
 import it.unimi.dsi.fastutil.ints.IntConsumer;
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.List;
@@ -59,9 +58,9 @@ public class BufferBuilder extends DefaultedVertexConsumer implements BufferVert
             int var1 = var0 + roundUp(param0);
             LOGGER.debug("Needed to grow BufferBuilder buffer: Old size {} bytes, new size {} bytes.", var0, var1);
             ByteBuffer var2 = MemoryTracker.createByteBuffer(var1);
-            ((Buffer)this.buffer).position(0);
+            this.buffer.position(0);
             var2.put(this.buffer);
-            ((Buffer)var2).rewind();
+            var2.rewind();
             this.buffer = var2;
         }
     }
@@ -99,7 +98,7 @@ public class BufferBuilder extends DefaultedVertexConsumer implements BufferVert
     }
 
     public void restoreSortState(BufferBuilder.SortState param0) {
-        ((Buffer)this.buffer).clear();
+        this.buffer.clear();
         this.mode = param0.mode;
         this.vertices = param0.vertices;
         this.nextElementByte = this.totalRenderedBytes;
@@ -119,7 +118,7 @@ public class BufferBuilder extends DefaultedVertexConsumer implements BufferVert
             this.switchFormat(param1);
             this.currentElement = param1.getElements().get(0);
             this.elementIndex = 0;
-            ((Buffer)this.buffer).clear();
+            this.buffer.clear();
         }
     }
 
@@ -182,7 +181,7 @@ public class BufferBuilder extends DefaultedVertexConsumer implements BufferVert
 
         IntArrays.mergeSort(var1, (param1, param2) -> Floats.compare(var0[param2], var0[param1]));
         IntConsumer var6 = this.intConsumer(param0);
-        ((Buffer)this.buffer).position(this.nextElementByte);
+        this.buffer.position(this.nextElementByte);
 
         for(int var7 : var1) {
             var6.accept(var7 * this.mode.primitiveStride + 0);
@@ -251,9 +250,9 @@ public class BufferBuilder extends DefaultedVertexConsumer implements BufferVert
             this.ensureVertexCapacity();
             if (this.mode == VertexFormat.Mode.LINES || this.mode == VertexFormat.Mode.LINE_STRIP) {
                 int var0 = this.format.getVertexSize();
-                ((Buffer)this.buffer).position(this.nextElementByte);
+                this.buffer.position(this.nextElementByte);
                 ByteBuffer var1 = this.buffer.duplicate();
-                ((Buffer)var1).position(this.nextElementByte - var0).limit(this.nextElementByte);
+                var1.position(this.nextElementByte - var0).limit(this.nextElementByte);
                 this.buffer.put(var1);
                 this.nextElementByte += var0;
                 ++this.vertices;
@@ -341,15 +340,15 @@ public class BufferBuilder extends DefaultedVertexConsumer implements BufferVert
 
     public Pair<BufferBuilder.DrawState, ByteBuffer> popNextBuffer() {
         BufferBuilder.DrawState var0 = this.drawStates.get(this.lastPoppedStateIndex++);
-        ((Buffer)this.buffer).position(this.totalUploadedBytes);
+        this.buffer.position(this.totalUploadedBytes);
         this.totalUploadedBytes += Mth.roundToward(var0.bufferSize(), 4);
-        ((Buffer)this.buffer).limit(this.totalUploadedBytes);
+        this.buffer.limit(this.totalUploadedBytes);
         if (this.lastPoppedStateIndex == this.drawStates.size() && this.vertices == 0) {
             this.clear();
         }
 
         ByteBuffer var1 = this.buffer.slice();
-        ((Buffer)this.buffer).clear();
+        this.buffer.clear();
         return Pair.of(var0, var1);
     }
 
@@ -392,7 +391,7 @@ public class BufferBuilder extends DefaultedVertexConsumer implements BufferVert
         private final boolean indexOnly;
         private final boolean sequentialIndex;
 
-        private DrawState(VertexFormat param0, int param1, int param2, VertexFormat.Mode param3, VertexFormat.IndexType param4, boolean param5, boolean param6) {
+        DrawState(VertexFormat param0, int param1, int param2, VertexFormat.Mode param3, VertexFormat.IndexType param4, boolean param5, boolean param6) {
             this.format = param0;
             this.vertexCount = param1;
             this.indexCount = param2;
@@ -445,15 +444,15 @@ public class BufferBuilder extends DefaultedVertexConsumer implements BufferVert
 
     @OnlyIn(Dist.CLIENT)
     public static class SortState {
-        private final VertexFormat.Mode mode;
-        private final int vertices;
+        final VertexFormat.Mode mode;
+        final int vertices;
         @Nullable
-        private final Vector3f[] sortingPoints;
-        private final float sortX;
-        private final float sortY;
-        private final float sortZ;
+        final Vector3f[] sortingPoints;
+        final float sortX;
+        final float sortY;
+        final float sortZ;
 
-        private SortState(VertexFormat.Mode param0, int param1, @Nullable Vector3f[] param2, float param3, float param4, float param5) {
+        SortState(VertexFormat.Mode param0, int param1, @Nullable Vector3f[] param2, float param3, float param4, float param5) {
             this.mode = param0;
             this.vertices = param1;
             this.sortingPoints = param2;

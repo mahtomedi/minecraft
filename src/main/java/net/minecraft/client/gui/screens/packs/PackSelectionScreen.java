@@ -47,7 +47,7 @@ import org.apache.logging.log4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class PackSelectionScreen extends Screen {
-    private static final Logger LOGGER = LogManager.getLogger();
+    static final Logger LOGGER = LogManager.getLogger();
     private static final int LIST_WIDTH = 200;
     private static final Component DRAG_AND_DROP = new TranslatableComponent("pack.dropInfo").withStyle(ChatFormatting.GRAY);
     private static final Component DIRECTORY_BUTTON_TOOLTIP = new TranslatableComponent("pack.folderInfo");
@@ -173,7 +173,7 @@ public class PackSelectionScreen extends Screen {
                     }
 
                 });
-            } catch (IOException var16) {
+            } catch (IOException var8) {
                 LOGGER.warn("Failed to copy datapack file from {} to {}", param2x, param2);
                 var0.setTrue();
             }
@@ -199,24 +199,29 @@ public class PackSelectionScreen extends Screen {
     }
 
     private ResourceLocation loadPackIcon(TextureManager param0, Pack param1) {
-        try (
-            PackResources var0 = param1.open();
-            InputStream var1 = var0.getRootResource("pack.png");
-        ) {
-            if (var1 != null) {
+        try {
+            ResourceLocation var8;
+            try (
+                PackResources var0 = param1.open();
+                InputStream var1 = var0.getRootResource("pack.png");
+            ) {
+                if (var1 == null) {
+                    return DEFAULT_ICON;
+                }
+
                 String var2 = param1.getId();
                 ResourceLocation var3 = new ResourceLocation(
                     "minecraft", "pack/" + Util.sanitizeName(var2, ResourceLocation::validPathChar) + "/" + Hashing.sha1().hashUnencodedChars(var2) + "/icon"
                 );
                 NativeImage var4 = NativeImage.read(var1);
                 param0.register(var3, new DynamicTexture(var4));
-                return var3;
+                var8 = var3;
             }
 
-            return DEFAULT_ICON;
-        } catch (FileNotFoundException var44) {
-        } catch (Exception var45) {
-            LOGGER.warn("Failed to load icon from pack {}", param1.getId(), var45);
+            return var8;
+        } catch (FileNotFoundException var13) {
+        } catch (Exception var14) {
+            LOGGER.warn("Failed to load icon from pack {}", param1.getId(), var14);
         }
 
         return DEFAULT_ICON;
@@ -246,9 +251,9 @@ public class PackSelectionScreen extends Screen {
                     }
                 }
 
-            } catch (Exception var16) {
+            } catch (Exception var7) {
                 this.watcher.close();
-                throw var16;
+                throw var7;
             }
         }
 

@@ -158,8 +158,7 @@ public class TheEndGatewayBlockEntity extends TheEndPortalBlockEntity {
     }
 
     public static void teleportEntity(Level param0, BlockPos param1, BlockState param2, Entity param3, TheEndGatewayBlockEntity param4) {
-        if (param0 instanceof ServerLevel && !param4.isCoolingDown()) {
-            ServerLevel var0 = (ServerLevel)param0;
+        if (param0 instanceof ServerLevel var0 && !param4.isCoolingDown()) {
             param4.teleportCooldown = 100;
             if (param4.exitPortal == null && param0.dimension() == Level.END) {
                 BlockPos var1 = findOrCreateValidTeleportPos(var0, param1);

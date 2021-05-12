@@ -78,10 +78,10 @@ public class PoseStack {
 
     @OnlyIn(Dist.CLIENT)
     public static final class Pose {
-        private final Matrix4f pose;
-        private final Matrix3f normal;
+        final Matrix4f pose;
+        final Matrix3f normal;
 
-        private Pose(Matrix4f param0, Matrix3f param1) {
+        Pose(Matrix4f param0, Matrix3f param1) {
             this.pose = param0;
             this.normal = param1;
         }

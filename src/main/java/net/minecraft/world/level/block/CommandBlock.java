@@ -68,8 +68,7 @@ public class CommandBlock extends BaseEntityBlock implements GameMasterBlock {
     @Override
     public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
         BlockEntity var0 = param1.getBlockEntity(param2);
-        if (var0 instanceof CommandBlockEntity) {
-            CommandBlockEntity var1 = (CommandBlockEntity)var0;
+        if (var0 instanceof CommandBlockEntity var1) {
             BaseCommandBlock var2 = var1.getCommandBlock();
             boolean var3 = !StringUtil.isNullOrEmpty(var2.getCommand());
             CommandBlockEntity.Mode var4 = var1.getMode();

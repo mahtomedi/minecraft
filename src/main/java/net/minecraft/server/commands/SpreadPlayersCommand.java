@@ -162,15 +162,15 @@ public class SpreadPlayersCommand {
                         var1 = Math.min(var9, var1);
                         if (var9 < param1) {
                             ++var5;
-                            var6.x = var6.x + (var8.x - var4.x);
-                            var6.z = var6.z + (var8.z - var4.z);
+                            var6.x += var8.x - var4.x;
+                            var6.z += var8.z - var4.z;
                         }
                     }
                 }
 
                 if (var5 > 0) {
-                    var6.x = var6.x / (double)var5;
-                    var6.z = var6.z / (double)var5;
+                    var6.x /= (double)var5;
+                    var6.z /= (double)var5;
                     double var10 = (double)var6.getLength();
                     if (var10 > 0.0) {
                         var6.normalize();
@@ -259,11 +259,8 @@ public class SpreadPlayersCommand {
     }
 
     static class Position {
-        private double x;
-        private double z;
-
-        private Position() {
-        }
+        double x;
+        double z;
 
         double dist(SpreadPlayersCommand.Position param0) {
             double var0 = this.x - param0.x;

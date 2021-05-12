@@ -49,6 +49,6 @@ public class UniformHeight extends HeightProvider {
 
     @Override
     public String toString() {
-        return "[" + this.minInclusive + '-' + this.maxInclusive + ']';
+        return "[" + this.minInclusive + "-" + this.maxInclusive + "]";
     }
 }

@@ -53,8 +53,7 @@ public class BucketItem extends Item implements DispensibleContainerItem {
                 return InteractionResultHolder.fail(var0);
             } else if (this.content == Fluids.EMPTY) {
                 BlockState var5 = param0.getBlockState(var2);
-                if (var5.getBlock() instanceof BucketPickup) {
-                    BucketPickup var6 = (BucketPickup)var5.getBlock();
+                if (var5.getBlock() instanceof BucketPickup var6) {
                     ItemStack var7 = var6.pickupBlock(param0, var2, var5);
                     if (!var7.isEmpty()) {
                         param1.awardStat(Stats.ITEM_USED.get(this));

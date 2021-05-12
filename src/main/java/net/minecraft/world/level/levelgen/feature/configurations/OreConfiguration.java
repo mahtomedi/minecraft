@@ -65,7 +65,7 @@ public class OreConfiguration implements FeatureConfiguration {
         public final RuleTest target;
         public final BlockState state;
 
-        private TargetBlockState(RuleTest param0, BlockState param1) {
+        TargetBlockState(RuleTest param0, BlockState param1) {
             this.target = param0;
             this.state = param1;
         }

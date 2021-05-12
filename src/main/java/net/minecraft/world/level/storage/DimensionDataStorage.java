@@ -79,7 +79,7 @@ public class DimensionDataStorage {
     public CompoundTag readTagFromDisk(String param0, int param1) throws IOException {
         File var0 = this.getDataFile(param0);
 
-        CompoundTag var61;
+        CompoundTag var8;
         try (
             FileInputStream var1 = new FileInputStream(var0);
             PushbackInputStream var2 = new PushbackInputStream(var1, 2);
@@ -94,10 +94,10 @@ public class DimensionDataStorage {
             }
 
             int var7 = var3.contains("DataVersion", 99) ? var3.getInt("DataVersion") : 1343;
-            var61 = NbtUtils.update(this.fixerUpper, DataFixTypes.SAVED_DATA, var3, var7, param1);
+            var8 = NbtUtils.update(this.fixerUpper, DataFixTypes.SAVED_DATA, var3, var7, param1);
         }
 
-        return var61;
+        return var8;
     }
 
     private boolean isGzip(PushbackInputStream param0) throws IOException {

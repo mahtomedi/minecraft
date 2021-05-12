@@ -738,16 +738,16 @@ public abstract class BlockBehaviour {
             private static final Direction[] DIRECTIONS = Direction.values();
             private static final int SUPPORT_TYPE_COUNT = SupportType.values().length;
             protected final boolean solidRender;
-            private final boolean propagatesSkylightDown;
-            private final int lightBlock;
+            final boolean propagatesSkylightDown;
+            final int lightBlock;
             @Nullable
-            private final VoxelShape[] occlusionShapes;
+            final VoxelShape[] occlusionShapes;
             protected final VoxelShape collisionShape;
             protected final boolean largeCollisionShape;
             private final boolean[] faceSturdy;
             protected final boolean isCollisionShapeFullBlock;
 
-            private Cache(BlockState param0) {
+            Cache(BlockState param0) {
                 Block var0 = param0.getBlock();
                 this.solidRender = param0.isSolidRender(EmptyBlockGetter.INSTANCE, BlockPos.ZERO);
                 this.propagatesSkylightDown = var0.propagatesSkylightDown(param0, EmptyBlockGetter.INSTANCE, BlockPos.ZERO);
@@ -794,33 +794,33 @@ public abstract class BlockBehaviour {
     }
 
     public static class Properties {
-        private Material material;
-        private Function<BlockState, MaterialColor> materialColor;
-        private boolean hasCollision = true;
-        private SoundType soundType = SoundType.STONE;
-        private ToIntFunction<BlockState> lightEmission = param0x -> 0;
-        private float explosionResistance;
-        private float destroyTime;
-        private boolean requiresCorrectToolForDrops;
-        private boolean isRandomlyTicking;
-        private float friction = 0.6F;
-        private float speedFactor = 1.0F;
-        private float jumpFactor = 1.0F;
-        private ResourceLocation drops;
-        private boolean canOcclude = true;
-        private boolean isAir;
-        private BlockBehaviour.StateArgumentPredicate<EntityType<?>> isValidSpawn = (param0x, param1x, param2, param3) -> param0x.isFaceSturdy(
+        Material material;
+        Function<BlockState, MaterialColor> materialColor;
+        boolean hasCollision = true;
+        SoundType soundType = SoundType.STONE;
+        ToIntFunction<BlockState> lightEmission = param0x -> 0;
+        float explosionResistance;
+        float destroyTime;
+        boolean requiresCorrectToolForDrops;
+        boolean isRandomlyTicking;
+        float friction = 0.6F;
+        float speedFactor = 1.0F;
+        float jumpFactor = 1.0F;
+        ResourceLocation drops;
+        boolean canOcclude = true;
+        boolean isAir;
+        BlockBehaviour.StateArgumentPredicate<EntityType<?>> isValidSpawn = (param0x, param1x, param2, param3) -> param0x.isFaceSturdy(
                     param1x, param2, Direction.UP
                 )
                 && param0x.getLightEmission() < 14;
-        private BlockBehaviour.StatePredicate isRedstoneConductor = (param0x, param1x, param2) -> param0x.getMaterial().isSolidBlocking()
+        BlockBehaviour.StatePredicate isRedstoneConductor = (param0x, param1x, param2) -> param0x.getMaterial().isSolidBlocking()
                 && param0x.isCollisionShapeFullBlock(param1x, param2);
-        private BlockBehaviour.StatePredicate isSuffocating = (param0x, param1x, param2) -> this.material.blocksMotion()
+        BlockBehaviour.StatePredicate isSuffocating = (param0x, param1x, param2) -> this.material.blocksMotion()
                 && param0x.isCollisionShapeFullBlock(param1x, param2);
-        private BlockBehaviour.StatePredicate isViewBlocking = this.isSuffocating;
-        private BlockBehaviour.StatePredicate hasPostProcess = (param0x, param1x, param2) -> false;
-        private BlockBehaviour.StatePredicate emissiveRendering = (param0x, param1x, param2) -> false;
-        private boolean dynamicShape;
+        BlockBehaviour.StatePredicate isViewBlocking = this.isSuffocating;
+        BlockBehaviour.StatePredicate hasPostProcess = (param0x, param1x, param2) -> false;
+        BlockBehaviour.StatePredicate emissiveRendering = (param0x, param1x, param2) -> false;
+        boolean dynamicShape;
 
         private Properties(Material param0, MaterialColor param1) {
             this(param0, param1x -> param1);

@@ -42,7 +42,7 @@ public class StatePropertiesPredicate {
         return param0.isJsonNull() ? null : param0.getAsString();
     }
 
-    private StatePropertiesPredicate(List<StatePropertiesPredicate.PropertyMatcher> param0) {
+    StatePropertiesPredicate(List<StatePropertiesPredicate.PropertyMatcher> param0) {
         this.properties = ImmutableList.copyOf(param0);
     }
 

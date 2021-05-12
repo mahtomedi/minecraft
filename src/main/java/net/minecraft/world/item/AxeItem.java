@@ -1,13 +1,12 @@
 package net.minecraft.world.item;
 
-import com.google.common.collect.Sets;
 import com.google.common.collect.ImmutableMap.Builder;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.UseOnContext;
@@ -17,24 +16,8 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.WeatheringCopper;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Material;
 
 public class AxeItem extends DiggerItem {
-    private static final Set<Material> DIGGABLE_MATERIALS = Sets.newHashSet(
-        Material.WOOD, Material.NETHER_WOOD, Material.PLANT, Material.REPLACEABLE_PLANT, Material.BAMBOO, Material.VEGETABLE
-    );
-    private static final Set<Block> OTHER_DIGGABLE_BLOCKS = Sets.newHashSet(
-        Blocks.LADDER,
-        Blocks.SCAFFOLDING,
-        Blocks.OAK_BUTTON,
-        Blocks.SPRUCE_BUTTON,
-        Blocks.BIRCH_BUTTON,
-        Blocks.JUNGLE_BUTTON,
-        Blocks.DARK_OAK_BUTTON,
-        Blocks.ACACIA_BUTTON,
-        Blocks.CRIMSON_BUTTON,
-        Blocks.WARPED_BUTTON
-    );
     protected static final Map<Block, Block> STRIPPABLES = new Builder<Block, Block>()
         .put(Blocks.OAK_WOOD, Blocks.STRIPPED_OAK_WOOD)
         .put(Blocks.OAK_LOG, Blocks.STRIPPED_OAK_LOG)
@@ -55,13 +38,7 @@ public class AxeItem extends DiggerItem {
         .build();
 
     protected AxeItem(Tier param0, float param1, float param2, Item.Properties param3) {
-        super(param1, param2, param0, OTHER_DIGGABLE_BLOCKS, param3);
-    }
-
-    @Override
-    public float getDestroySpeed(ItemStack param0, BlockState param1) {
-        Material var0 = param1.getMaterial();
-        return DIGGABLE_MATERIALS.contains(var0) ? this.speed : super.getDestroySpeed(param0, param1);
+        super(param1, param2, param0, BlockTags.MINEABLE_WITH_AXE, param3);
     }
 
     @Override

@@ -27,9 +27,6 @@ public class OceanMonumentPieces {
     }
 
     static class FitDoubleXRoom implements OceanMonumentPieces.MonumentRoomFitter {
-        private FitDoubleXRoom() {
-        }
-
         @Override
         public boolean fits(OceanMonumentPieces.RoomDefinition param0) {
             return param0.hasOpening[Direction.EAST.get3DDataValue()] && !param0.connections[Direction.EAST.get3DDataValue()].claimed;
@@ -44,9 +41,6 @@ public class OceanMonumentPieces {
     }
 
     static class FitDoubleXYRoom implements OceanMonumentPieces.MonumentRoomFitter {
-        private FitDoubleXYRoom() {
-        }
-
         @Override
         public boolean fits(OceanMonumentPieces.RoomDefinition param0) {
             if (param0.hasOpening[Direction.EAST.get3DDataValue()]
@@ -71,9 +65,6 @@ public class OceanMonumentPieces {
     }
 
     static class FitDoubleYRoom implements OceanMonumentPieces.MonumentRoomFitter {
-        private FitDoubleYRoom() {
-        }
-
         @Override
         public boolean fits(OceanMonumentPieces.RoomDefinition param0) {
             return param0.hasOpening[Direction.UP.get3DDataValue()] && !param0.connections[Direction.UP.get3DDataValue()].claimed;
@@ -88,9 +79,6 @@ public class OceanMonumentPieces {
     }
 
     static class FitDoubleYZRoom implements OceanMonumentPieces.MonumentRoomFitter {
-        private FitDoubleYZRoom() {
-        }
-
         @Override
         public boolean fits(OceanMonumentPieces.RoomDefinition param0) {
             if (param0.hasOpening[Direction.NORTH.get3DDataValue()]
@@ -115,9 +103,6 @@ public class OceanMonumentPieces {
     }
 
     static class FitDoubleZRoom implements OceanMonumentPieces.MonumentRoomFitter {
-        private FitDoubleZRoom() {
-        }
-
         @Override
         public boolean fits(OceanMonumentPieces.RoomDefinition param0) {
             return param0.hasOpening[Direction.NORTH.get3DDataValue()] && !param0.connections[Direction.NORTH.get3DDataValue()].claimed;
@@ -137,9 +122,6 @@ public class OceanMonumentPieces {
     }
 
     static class FitSimpleRoom implements OceanMonumentPieces.MonumentRoomFitter {
-        private FitSimpleRoom() {
-        }
-
         @Override
         public boolean fits(OceanMonumentPieces.RoomDefinition param0) {
             return true;
@@ -153,9 +135,6 @@ public class OceanMonumentPieces {
     }
 
     static class FitSimpleTopRoom implements OceanMonumentPieces.MonumentRoomFitter {
-        private FitSimpleTopRoom() {
-        }
-
         @Override
         public boolean fits(OceanMonumentPieces.RoomDefinition param0) {
             return !param0.hasOpening[Direction.WEST.get3DDataValue()]
@@ -1388,7 +1367,7 @@ public class OceanMonumentPieces {
         }
     }
 
-    public abstract static class OceanMonumentPiece extends StructurePiece {
+    protected abstract static class OceanMonumentPiece extends StructurePiece {
         protected static final BlockState BASE_GRAY = Blocks.PRISMARINE.defaultBlockState();
         protected static final BlockState BASE_LIGHT = Blocks.PRISMARINE_BRICKS.defaultBlockState();
         protected static final BlockState BASE_BLACK = Blocks.DARK_PRISMARINE.defaultBlockState();
@@ -1877,11 +1856,11 @@ public class OceanMonumentPieces {
     }
 
     static class RoomDefinition {
-        private final int index;
-        private final OceanMonumentPieces.RoomDefinition[] connections = new OceanMonumentPieces.RoomDefinition[6];
-        private final boolean[] hasOpening = new boolean[6];
-        private boolean claimed;
-        private boolean isSource;
+        final int index;
+        final OceanMonumentPieces.RoomDefinition[] connections = new OceanMonumentPieces.RoomDefinition[6];
+        final boolean[] hasOpening = new boolean[6];
+        boolean claimed;
+        boolean isSource;
         private int scanIndex;
 
         public RoomDefinition(int param0) {

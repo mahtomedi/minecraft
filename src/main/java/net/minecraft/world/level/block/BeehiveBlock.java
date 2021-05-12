@@ -77,8 +77,7 @@ public class BeehiveBlock extends BaseEntityBlock {
     @Override
     public void playerDestroy(Level param0, Player param1, BlockPos param2, BlockState param3, @Nullable BlockEntity param4, ItemStack param5) {
         super.playerDestroy(param0, param1, param2, param3, param4, param5);
-        if (!param0.isClientSide && param4 instanceof BeehiveBlockEntity) {
-            BeehiveBlockEntity var0 = (BeehiveBlockEntity)param4;
+        if (!param0.isClientSide && param4 instanceof BeehiveBlockEntity var0) {
             if (EnchantmentHelper.getItemEnchantmentLevel(Enchantments.SILK_TOUCH, param5) == 0) {
                 var0.emptyAllLivingFromHive(param1, param3, BeehiveBlockEntity.BeeReleaseStatus.EMERGENCY);
                 param0.updateNeighbourForOutputSignal(param2, this);
@@ -159,8 +158,7 @@ public class BeehiveBlock extends BaseEntityBlock {
 
     private boolean hiveContainsBees(Level param0, BlockPos param1) {
         BlockEntity var0 = param0.getBlockEntity(param1);
-        if (var0 instanceof BeehiveBlockEntity) {
-            BeehiveBlockEntity var1 = (BeehiveBlockEntity)var0;
+        if (var0 instanceof BeehiveBlockEntity var1) {
             return !var1.isEmpty();
         } else {
             return false;
@@ -172,8 +170,7 @@ public class BeehiveBlock extends BaseEntityBlock {
     ) {
         this.resetHoneyLevel(param0, param1, param2);
         BlockEntity var0 = param0.getBlockEntity(param2);
-        if (var0 instanceof BeehiveBlockEntity) {
-            BeehiveBlockEntity var1 = (BeehiveBlockEntity)var0;
+        if (var0 instanceof BeehiveBlockEntity var1) {
             var1.emptyAllLivingFromHive(param3, param1, param4);
         }
 
@@ -269,8 +266,7 @@ public class BeehiveBlock extends BaseEntityBlock {
     public void playerWillDestroy(Level param0, BlockPos param1, BlockState param2, Player param3) {
         if (!param0.isClientSide && param3.isCreative() && param0.getGameRules().getBoolean(GameRules.RULE_DOBLOCKDROPS)) {
             BlockEntity var0 = param0.getBlockEntity(param1);
-            if (var0 instanceof BeehiveBlockEntity) {
-                BeehiveBlockEntity var1 = (BeehiveBlockEntity)var0;
+            if (var0 instanceof BeehiveBlockEntity var1) {
                 ItemStack var2 = new ItemStack(this);
                 int var3 = param2.getValue(HONEY_LEVEL);
                 boolean var4 = !var1.isEmpty();
@@ -299,8 +295,7 @@ public class BeehiveBlock extends BaseEntityBlock {
         Entity var0 = param1.getOptionalParameter(LootContextParams.THIS_ENTITY);
         if (var0 instanceof PrimedTnt || var0 instanceof Creeper || var0 instanceof WitherSkull || var0 instanceof WitherBoss || var0 instanceof MinecartTNT) {
             BlockEntity var1 = param1.getOptionalParameter(LootContextParams.BLOCK_ENTITY);
-            if (var1 instanceof BeehiveBlockEntity) {
-                BeehiveBlockEntity var2 = (BeehiveBlockEntity)var1;
+            if (var1 instanceof BeehiveBlockEntity var2) {
                 var2.emptyAllLivingFromHive(null, param0, BeehiveBlockEntity.BeeReleaseStatus.EMERGENCY);
             }
         }
@@ -312,8 +307,7 @@ public class BeehiveBlock extends BaseEntityBlock {
     public BlockState updateShape(BlockState param0, Direction param1, BlockState param2, LevelAccessor param3, BlockPos param4, BlockPos param5) {
         if (param3.getBlockState(param5).getBlock() instanceof FireBlock) {
             BlockEntity var0 = param3.getBlockEntity(param4);
-            if (var0 instanceof BeehiveBlockEntity) {
-                BeehiveBlockEntity var1 = (BeehiveBlockEntity)var0;
+            if (var0 instanceof BeehiveBlockEntity var1) {
                 var1.emptyAllLivingFromHive(null, param0, BeehiveBlockEntity.BeeReleaseStatus.EMERGENCY);
             }
         }

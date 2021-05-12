@@ -41,11 +41,8 @@ public class MultiVariant implements UnbakedModel {
     public boolean equals(Object param0) {
         if (this == param0) {
             return true;
-        } else if (param0 instanceof MultiVariant) {
-            MultiVariant var0 = (MultiVariant)param0;
-            return this.variants.equals(var0.variants);
         } else {
-            return false;
+            return param0 instanceof MultiVariant var0 ? this.variants.equals(var0.variants) : false;
         }
     }
 

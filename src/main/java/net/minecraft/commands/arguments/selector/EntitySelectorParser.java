@@ -235,7 +235,7 @@ public class EntitySelectorParser {
             } else {
                 if (var1 != 'e') {
                     this.reader.setCursor(var0);
-                    throw ERROR_UNKNOWN_SELECTOR_TYPE.createWithContext(this.reader, '@' + String.valueOf(var1));
+                    throw ERROR_UNKNOWN_SELECTOR_TYPE.createWithContext(this.reader, "@" + var1);
                 }
 
                 this.maxResults = Integer.MAX_VALUE;

@@ -143,10 +143,10 @@ public interface MultiLineLabel {
 
     @OnlyIn(Dist.CLIENT)
     public static class TextWithWidth {
-        private final FormattedCharSequence text;
-        private final int width;
+        final FormattedCharSequence text;
+        final int width;
 
-        private TextWithWidth(FormattedCharSequence param0, int param1) {
+        TextWithWidth(FormattedCharSequence param0, int param1) {
             this.text = param0;
             this.width = param1;
         }

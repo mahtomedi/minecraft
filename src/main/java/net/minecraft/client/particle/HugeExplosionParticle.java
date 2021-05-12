@@ -9,7 +9,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class HugeExplosionParticle extends TextureSheetParticle {
     private final SpriteSet sprites;
 
-    private HugeExplosionParticle(ClientLevel param0, double param1, double param2, double param3, double param4, SpriteSet param5) {
+    HugeExplosionParticle(ClientLevel param0, double param1, double param2, double param3, double param4, SpriteSet param5) {
         super(param0, param1, param2, param3, 0.0, 0.0, 0.0);
         this.lifetime = 6 + this.random.nextInt(4);
         float var0 = this.random.nextFloat() * 0.6F + 0.4F;

@@ -35,11 +35,8 @@ public class IntegerProperty extends Property<Integer> {
     public boolean equals(Object param0) {
         if (this == param0) {
             return true;
-        } else if (param0 instanceof IntegerProperty && super.equals(param0)) {
-            IntegerProperty var0 = (IntegerProperty)param0;
-            return this.values.equals(var0.values);
         } else {
-            return false;
+            return param0 instanceof IntegerProperty var0 && super.equals(param0) ? this.values.equals(var0.values) : false;
         }
     }
 

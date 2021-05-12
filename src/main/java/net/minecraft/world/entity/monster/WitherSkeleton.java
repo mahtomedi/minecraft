@@ -62,12 +62,9 @@ public class WitherSkeleton extends AbstractSkeleton {
     protected void dropCustomDeathLoot(DamageSource param0, int param1, boolean param2) {
         super.dropCustomDeathLoot(param0, param1, param2);
         Entity var0 = param0.getEntity();
-        if (var0 instanceof Creeper) {
-            Creeper var1 = (Creeper)var0;
-            if (var1.canDropMobsSkull()) {
-                var1.increaseDroppedSkulls();
-                this.spawnAtLocation(Items.WITHER_SKELETON_SKULL);
-            }
+        if (var0 instanceof Creeper var1 && var1.canDropMobsSkull()) {
+            var1.increaseDroppedSkulls();
+            this.spawnAtLocation(Items.WITHER_SKELETON_SKULL);
         }
 
     }

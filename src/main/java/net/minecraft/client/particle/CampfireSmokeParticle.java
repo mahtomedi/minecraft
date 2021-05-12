@@ -7,7 +7,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class CampfireSmokeParticle extends TextureSheetParticle {
-    private CampfireSmokeParticle(ClientLevel param0, double param1, double param2, double param3, double param4, double param5, double param6, boolean param7) {
+    CampfireSmokeParticle(ClientLevel param0, double param1, double param2, double param3, double param4, double param5, double param6, boolean param7) {
         super(param0, param1, param2, param3);
         this.scale(3.0F);
         this.setSize(0.25F, 0.25F);

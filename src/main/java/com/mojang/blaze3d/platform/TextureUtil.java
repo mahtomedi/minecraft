@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.channels.Channels;
@@ -82,8 +81,7 @@ public class TextureUtil {
 
     public static ByteBuffer readResource(InputStream param0) throws IOException {
         ByteBuffer var2;
-        if (param0 instanceof FileInputStream) {
-            FileInputStream var0 = (FileInputStream)param0;
+        if (param0 instanceof FileInputStream var0) {
             FileChannel var1 = var0.getChannel();
             var2 = MemoryUtil.memAlloc((int)var1.size() + 1);
 
@@ -111,7 +109,7 @@ public class TextureUtil {
         try {
             var0 = readResource(param0);
             int var1 = var0.position();
-            ((Buffer)var0).rewind();
+            var0.rewind();
             return MemoryUtil.memASCII(var0, var1);
         } catch (IOException var7) {
         } finally {
@@ -137,8 +135,8 @@ public class TextureUtil {
                 var4.downloadTexture(var0, false);
                 var4.writeToFile(var1);
                 LOGGER.debug("Exported png to: {}", new File(var1).getAbsolutePath());
-            } catch (IOException var22) {
-                LOGGER.debug("Unable to write: ", (Throwable)var22);
+            } catch (IOException var14) {
+                LOGGER.debug("Unable to write: ", (Throwable)var14);
             }
         }
 

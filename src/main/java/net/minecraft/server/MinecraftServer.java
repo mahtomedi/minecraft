@@ -156,7 +156,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTask> implements SnooperPopulator, CommandSource, AutoCloseable {
-    private static final Logger LOGGER = LogManager.getLogger();
+    static final Logger LOGGER = LogManager.getLogger();
     private static final float AVERAGE_TICK_TIME_SMOOTHING = 0.8F;
     private static final int TICK_STATS_SPAN = 100;
     public static final int MS_PER_TICK = 50;
@@ -530,7 +530,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
             String var1 = this.storageSource.getLevelId();
 
             try {
-                this.setResourcePack("level://" + URLEncoder.encode(var1, StandardCharsets.UTF_8.toString()) + "/" + "resources.zip", "");
+                this.setResourcePack("level://" + URLEncoder.encode(var1, StandardCharsets.UTF_8.toString()) + "/resources.zip", "");
             } catch (UnsupportedEncodingException var4) {
                 LOGGER.warn("Something went wrong url encoding {}", var1);
             }
@@ -577,7 +577,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         this.stopServer();
     }
 
-    protected void stopServer() {
+    public void stopServer() {
         LOGGER.info("Stopping server");
         if (this.getConnection() != null) {
             this.getConnection().stop();
@@ -805,10 +805,10 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
     protected void onServerCrash(CrashReport param0) {
     }
 
-    protected void onServerExit() {
+    public void onServerExit() {
     }
 
-    protected void tickServer(BooleanSupplier param0) {
+    public void tickServer(BooleanSupplier param0) {
         long var0 = Util.getNanos();
         ++this.tickCount;
         this.tickChildren(param0);
@@ -853,7 +853,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         this.profiler.pop();
     }
 
-    protected void tickChildren(BooleanSupplier param0) {
+    public void tickChildren(BooleanSupplier param0) {
         this.profiler.push("commandFunctions");
         this.getFunctions().tick();
         this.profiler.popPush("levels");
@@ -1058,7 +1058,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         param0x.connection.send(new ClientboundChangeDifficultyPacket(var0.getDifficulty(), var0.isDifficultyLocked()));
     }
 
-    protected boolean isSpawningMonsters() {
+    public boolean isSpawningMonsters() {
         return this.worldData.getDifficulty() != Difficulty.PEACEFUL;
     }
 

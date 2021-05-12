@@ -45,7 +45,7 @@ public class MerchantScreen extends AbstractContainerScreen<MerchantMenu> {
     private static final Component DEPRECATED_TOOLTIP = new TranslatableComponent("merchant.deprecated");
     private int shopItem;
     private final MerchantScreen.TradeOfferButton[] tradeOfferButtons = new MerchantScreen.TradeOfferButton[7];
-    private int scrollOff;
+    int scrollOff;
     private boolean isDragging;
 
     public MerchantScreen(MerchantMenu param0, Inventory param1, Component param2) {

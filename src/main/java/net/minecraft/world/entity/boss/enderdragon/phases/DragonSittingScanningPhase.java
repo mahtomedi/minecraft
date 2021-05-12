@@ -11,13 +11,13 @@ public class DragonSittingScanningPhase extends AbstractDragonSittingPhase {
     private static final int SITTING_ATTACK_Y_VIEW_RANGE = 10;
     private static final int SITTING_ATTACK_VIEW_RANGE = 20;
     private static final int SITTING_CHARGE_VIEW_RANGE = 150;
-    private static final TargetingConditions CHARGE_TARGETING = new TargetingConditions().range(150.0);
+    private static final TargetingConditions CHARGE_TARGETING = TargetingConditions.forCombat().range(150.0);
     private final TargetingConditions scanTargeting;
     private int scanningTime;
 
     public DragonSittingScanningPhase(EnderDragon param0) {
         super(param0);
-        this.scanTargeting = new TargetingConditions().range(20.0).selector(param1 -> Math.abs(param1.getY() - param0.getY()) <= 10.0);
+        this.scanTargeting = TargetingConditions.forCombat().range(20.0).selector(param1 -> Math.abs(param1.getY() - param0.getY()) <= 10.0);
     }
 
     @Override

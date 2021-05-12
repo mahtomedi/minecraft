@@ -291,11 +291,8 @@ public class Commands {
                     var1.executes(param0x -> 0);
                 }
 
-                if (var1 instanceof RequiredArgumentBuilder) {
-                    RequiredArgumentBuilder<SharedSuggestionProvider, ?> var2 = (RequiredArgumentBuilder)var1;
-                    if (var2.getSuggestionsProvider() != null) {
-                        var2.suggests(SuggestionProviders.safelySwap(var2.getSuggestionsProvider()));
-                    }
+                if (var1 instanceof RequiredArgumentBuilder var2 && var2.getSuggestionsProvider() != null) {
+                    var2.suggests(SuggestionProviders.safelySwap(var2.getSuggestionsProvider()));
                 }
 
                 if (var1.getRedirect() != null) {
@@ -366,8 +363,8 @@ public class Commands {
         DEDICATED(false, true),
         INTEGRATED(true, false);
 
-        private final boolean includeIntegrated;
-        private final boolean includeDedicated;
+        final boolean includeIntegrated;
+        final boolean includeDedicated;
 
         private CommandSelection(boolean param0, boolean param1) {
             this.includeIntegrated = param0;

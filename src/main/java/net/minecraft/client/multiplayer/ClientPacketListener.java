@@ -135,6 +135,7 @@ import net.minecraft.network.protocol.game.ClientboundMoveVehiclePacket;
 import net.minecraft.network.protocol.game.ClientboundOpenBookPacket;
 import net.minecraft.network.protocol.game.ClientboundOpenScreenPacket;
 import net.minecraft.network.protocol.game.ClientboundOpenSignEditorPacket;
+import net.minecraft.network.protocol.game.ClientboundPingPacket;
 import net.minecraft.network.protocol.game.ClientboundPlaceGhostRecipePacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerAbilitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerCombatEndPacket;
@@ -195,6 +196,7 @@ import net.minecraft.network.protocol.game.ServerboundCustomPayloadPacket;
 import net.minecraft.network.protocol.game.ServerboundKeepAlivePacket;
 import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
 import net.minecraft.network.protocol.game.ServerboundMoveVehiclePacket;
+import net.minecraft.network.protocol.game.ServerboundPongPacket;
 import net.minecraft.network.protocol.game.ServerboundResourcePackPacket;
 import net.minecraft.realms.DisconnectedRealmsScreen;
 import net.minecraft.realms.RealmsScreen;
@@ -728,8 +730,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
             this.minecraft
                 .particleEngine
                 .add(new ItemPickupParticle(this.minecraft.getEntityRenderDispatcher(), this.minecraft.renderBuffers(), this.level, var0, var1));
-            if (var0 instanceof ItemEntity) {
-                ItemEntity var2 = (ItemEntity)var0;
+            if (var0 instanceof ItemEntity var2) {
                 ItemStack var3 = var2.getItem();
                 var3.shrink(param0.getAmount());
                 if (var3.isEmpty()) {
@@ -993,8 +994,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
             var0.getInventory().setItem(var2, var1);
         } else {
             boolean var3 = false;
-            if (this.minecraft.screen instanceof CreativeModeInventoryScreen) {
-                CreativeModeInventoryScreen var4 = (CreativeModeInventoryScreen)this.minecraft.screen;
+            if (this.minecraft.screen instanceof CreativeModeInventoryScreen var4) {
                 var3 = var4.getSelectedTab() != CreativeModeTab.TAB_INVENTORY.getId();
             }
 
@@ -2129,6 +2129,12 @@ public class ClientPacketListener implements ClientGamePacketListener {
     }
 
     @Override
+    public void handlePing(ClientboundPingPacket param0) {
+        PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
+        this.send(new ServerboundPongPacket(param0.getId()));
+    }
+
+    @Override
     public void handleUpdateAttributes(ClientboundUpdateAttributesPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
         Entity var0 = this.level.getEntity(param0.getEntityId());
@@ -2191,8 +2197,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
     public void handleMerchantOffers(ClientboundMerchantOffersPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
         AbstractContainerMenu var0 = this.minecraft.player.containerMenu;
-        if (param0.getContainerId() == var0.containerId && var0 instanceof MerchantMenu) {
-            MerchantMenu var1 = (MerchantMenu)var0;
+        if (param0.getContainerId() == var0.containerId && var0 instanceof MerchantMenu var1) {
             var1.setOffers(new MerchantOffers(param0.getOffers().createTag()));
             var1.setXp(param0.getVillagerXp());
             var1.setMerchantLevel(param0.getVillagerLevel());

@@ -71,7 +71,7 @@ public class Parrot extends ShoulderRidingEntity implements FlyingAnimal {
     private static final Item POISONOUS_FOOD = Items.COOKIE;
     private static final Set<Item> TAME_FOOD = Sets.newHashSet(Items.WHEAT_SEEDS, Items.MELON_SEEDS, Items.PUMPKIN_SEEDS, Items.BEETROOT_SEEDS);
     private static final int VARIANTS = 5;
-    private static final Map<EntityType<?>, SoundEvent> MOB_SOUND_MAP = Util.make(Maps.newHashMap(), param0 -> {
+    static final Map<EntityType<?>, SoundEvent> MOB_SOUND_MAP = Util.make(Maps.newHashMap(), param0 -> {
         param0.put(EntityType.BLAZE, SoundEvents.PARROT_IMITATE_BLAZE);
         param0.put(EntityType.CAVE_SPIDER, SoundEvents.PARROT_IMITATE_SPIDER);
         param0.put(EntityType.CREEPER, SoundEvents.PARROT_IMITATE_CREEPER);

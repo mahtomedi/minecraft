@@ -20,14 +20,12 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class BlockDataAccessor implements DataAccessor {
-    private static final SimpleCommandExceptionType ERROR_NOT_A_BLOCK_ENTITY = new SimpleCommandExceptionType(
-        new TranslatableComponent("commands.data.block.invalid")
-    );
+    static final SimpleCommandExceptionType ERROR_NOT_A_BLOCK_ENTITY = new SimpleCommandExceptionType(new TranslatableComponent("commands.data.block.invalid"));
     public static final Function<String, DataCommands.DataProvider> PROVIDER = param0 -> new DataCommands.DataProvider() {
             @Override
             public DataAccessor access(CommandContext<CommandSourceStack> param0x) throws CommandSyntaxException {
                 BlockPos var0 = BlockPosArgument.getLoadedBlockPos(param0, param0 + "Pos");
-                BlockEntity var1 = ((CommandSourceStack)param0.getSource()).getLevel().getBlockEntity(var0);
+                BlockEntity var1 = param0.getSource().getLevel().getBlockEntity(var0);
                 if (var1 == null) {
                     throw BlockDataAccessor.ERROR_NOT_A_BLOCK_ENTITY.create();
                 } else {
@@ -39,10 +37,7 @@ public class BlockDataAccessor implements DataAccessor {
             public ArgumentBuilder<CommandSourceStack, ?> wrap(
                 ArgumentBuilder<CommandSourceStack, ?> param0x, Function<ArgumentBuilder<CommandSourceStack, ?>, ArgumentBuilder<CommandSourceStack, ?>> param1
             ) {
-                return param0.then(
-                    Commands.literal("block")
-                        .then((ArgumentBuilder<CommandSourceStack, ?>)param1.apply(Commands.argument(param0 + "Pos", BlockPosArgument.blockPos())))
-                );
+                return param0.then(Commands.literal("block").then(param1.apply(Commands.argument(param0 + "Pos", BlockPosArgument.blockPos()))));
             }
         };
     private final BlockEntity entity;

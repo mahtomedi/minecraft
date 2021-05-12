@@ -227,8 +227,7 @@ public class CrossbowItem extends ProjectileWeaponItem implements Vanishable {
                 }
             }
 
-            if (param1 instanceof CrossbowAttackMob) {
-                CrossbowAttackMob var3 = (CrossbowAttackMob)param1;
+            if (param1 instanceof CrossbowAttackMob var3) {
                 var3.shootCrossbowProjectile(var3.getTarget(), param3, var1, param9);
             } else {
                 Vec3 var4 = param1.getUpVector(1.0F);
@@ -294,8 +293,7 @@ public class CrossbowItem extends ProjectileWeaponItem implements Vanishable {
     }
 
     private static void onCrossbowShot(Level param0, LivingEntity param1, ItemStack param2) {
-        if (param1 instanceof ServerPlayer) {
-            ServerPlayer var0 = (ServerPlayer)param1;
+        if (param1 instanceof ServerPlayer var0) {
             if (!param0.isClientSide) {
                 CriteriaTriggers.SHOT_CROSSBOW.trigger(var0, param2);
             }

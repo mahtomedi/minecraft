@@ -9,8 +9,7 @@ public interface PlaceRecipe<T> {
     default void placeRecipe(int param0, int param1, int param2, Recipe<?> param3, Iterator<T> param4, int param5) {
         int var0 = param0;
         int var1 = param1;
-        if (param3 instanceof ShapedRecipe) {
-            ShapedRecipe var2 = (ShapedRecipe)param3;
+        if (param3 instanceof ShapedRecipe var2) {
             var0 = var2.getWidth();
             var1 = var2.getHeight();
         }

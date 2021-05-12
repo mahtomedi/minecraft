@@ -68,7 +68,7 @@ public class Turtle extends Animal {
     private static final EntityDataAccessor<Boolean> GOING_HOME = SynchedEntityData.defineId(Turtle.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> TRAVELLING = SynchedEntityData.defineId(Turtle.class, EntityDataSerializers.BOOLEAN);
     public static final Ingredient FOOD_ITEMS = Ingredient.of(Blocks.SEAGRASS.asItem());
-    private int layEggCounter;
+    int layEggCounter;
     public static final Predicate<LivingEntity> BABY_ON_LAND_SELECTOR = param0 -> param0.isBaby() && !param0.isInWater();
 
     public Turtle(EntityType<? extends Turtle> param0, Level param1) {
@@ -82,15 +82,15 @@ public class Turtle extends Animal {
         this.entityData.set(HOME_POS, param0);
     }
 
-    private BlockPos getHomePos() {
+    BlockPos getHomePos() {
         return this.entityData.get(HOME_POS);
     }
 
-    private void setTravelPos(BlockPos param0) {
+    void setTravelPos(BlockPos param0) {
         this.entityData.set(TRAVEL_POS, param0);
     }
 
-    private BlockPos getTravelPos() {
+    BlockPos getTravelPos() {
         return this.entityData.get(TRAVEL_POS);
     }
 
@@ -98,7 +98,7 @@ public class Turtle extends Animal {
         return this.entityData.get(HAS_EGG);
     }
 
-    private void setHasEgg(boolean param0) {
+    void setHasEgg(boolean param0) {
         this.entityData.set(HAS_EGG, param0);
     }
 
@@ -106,24 +106,24 @@ public class Turtle extends Animal {
         return this.entityData.get(LAYING_EGG);
     }
 
-    private void setLayingEgg(boolean param0) {
+    void setLayingEgg(boolean param0) {
         this.layEggCounter = param0 ? 1 : 0;
         this.entityData.set(LAYING_EGG, param0);
     }
 
-    private boolean isGoingHome() {
+    boolean isGoingHome() {
         return this.entityData.get(GOING_HOME);
     }
 
-    private void setGoingHome(boolean param0) {
+    void setGoingHome(boolean param0) {
         this.entityData.set(GOING_HOME, param0);
     }
 
-    private boolean isTravelling() {
+    boolean isTravelling() {
         return this.entityData.get(TRAVELLING);
     }
 
-    private void setTravelling(boolean param0) {
+    void setTravelling(boolean param0) {
         this.entityData.set(TRAVELLING, param0);
     }
 
@@ -447,7 +447,7 @@ public class Turtle extends Animal {
         private static final int GIVE_UP_TICKS = 1200;
         private final Turtle turtle;
 
-        private TurtleGoToWaterGoal(Turtle param0, double param1) {
+        TurtleGoToWaterGoal(Turtle param0, double param1) {
             super(param0, param0.isBaby() ? 2.0 : param1, 24);
             this.turtle = param0;
             this.verticalSearchStart = -1;
@@ -517,7 +517,7 @@ public class Turtle extends Animal {
                 }
 
                 if (this.turtle.isLayingEgg()) {
-                    this.turtle.layEggCounter++;
+                    ++this.turtle.layEggCounter;
                 }
             }
 
@@ -615,11 +615,8 @@ public class Turtle extends Animal {
 
         @Override
         public boolean isStableDestination(BlockPos param0) {
-            if (this.mob instanceof Turtle) {
-                Turtle var0 = (Turtle)this.mob;
-                if (var0.isTravelling()) {
-                    return this.level.getBlockState(param0).is(Blocks.WATER);
-                }
+            if (this.mob instanceof Turtle var0 && var0.isTravelling()) {
+                return this.level.getBlockState(param0).is(Blocks.WATER);
             }
 
             return !this.level.getBlockState(param0.below()).isAir();
@@ -629,7 +626,7 @@ public class Turtle extends Animal {
     static class TurtleRandomStrollGoal extends RandomStrollGoal {
         private final Turtle turtle;
 
-        private TurtleRandomStrollGoal(Turtle param0, double param1, int param2) {
+        TurtleRandomStrollGoal(Turtle param0, double param1, int param2) {
             super(param0, param1, param2);
             this.turtle = param0;
         }

@@ -33,26 +33,26 @@ import org.apache.logging.log4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class RealmsBackupScreen extends RealmsScreen {
-    private static final Logger LOGGER = LogManager.getLogger();
-    private static final ResourceLocation PLUS_ICON_LOCATION = new ResourceLocation("realms", "textures/gui/realms/plus_icon.png");
-    private static final ResourceLocation RESTORE_ICON_LOCATION = new ResourceLocation("realms", "textures/gui/realms/restore_icon.png");
-    private static final Component RESTORE_TOOLTIP = new TranslatableComponent("mco.backup.button.restore");
-    private static final Component HAS_CHANGES_TOOLTIP = new TranslatableComponent("mco.backup.changes.tooltip");
+    static final Logger LOGGER = LogManager.getLogger();
+    static final ResourceLocation PLUS_ICON_LOCATION = new ResourceLocation("realms", "textures/gui/realms/plus_icon.png");
+    static final ResourceLocation RESTORE_ICON_LOCATION = new ResourceLocation("realms", "textures/gui/realms/restore_icon.png");
+    static final Component RESTORE_TOOLTIP = new TranslatableComponent("mco.backup.button.restore");
+    static final Component HAS_CHANGES_TOOLTIP = new TranslatableComponent("mco.backup.changes.tooltip");
     private static final Component TITLE = new TranslatableComponent("mco.configure.world.backup");
     private static final Component NO_BACKUPS_LABEL = new TranslatableComponent("mco.backup.nobackups");
-    private static int lastScrollPosition = -1;
+    static int lastScrollPosition = -1;
     private final RealmsConfigureWorldScreen lastScreen;
-    private List<Backup> backups = Collections.emptyList();
+    List<Backup> backups = Collections.emptyList();
     @Nullable
-    private Component toolTip;
-    private RealmsBackupScreen.BackupObjectSelectionList backupObjectSelectionList;
-    private int selectedBackup = -1;
+    Component toolTip;
+    RealmsBackupScreen.BackupObjectSelectionList backupObjectSelectionList;
+    int selectedBackup = -1;
     private final int slotId;
     private Button downloadButton;
     private Button restoreButton;
     private Button changesButton;
-    private Boolean noBackups = false;
-    private final RealmsServer serverData;
+    Boolean noBackups = false;
+    final RealmsServer serverData;
     private static final String UPLOADED_KEY = "Uploaded";
     private RealmsLabel titleLabel;
 
@@ -114,7 +114,7 @@ public class RealmsBackupScreen extends RealmsScreen {
         this.narrateLabels();
     }
 
-    private void generateChangeList() {
+    void generateChangeList() {
         if (this.backups.size() > 1) {
             for(int var0 = 0; var0 < this.backups.size() - 1; ++var0) {
                 Backup var1 = this.backups.get(var0);
@@ -144,7 +144,7 @@ public class RealmsBackupScreen extends RealmsScreen {
 
     }
 
-    private void updateButtonStates() {
+    void updateButtonStates() {
         this.restoreButton.visible = this.shouldRestoreButtonBeVisible();
         this.changesButton.visible = this.shouldChangesButtonBeVisible();
     }
@@ -175,7 +175,7 @@ public class RealmsBackupScreen extends RealmsScreen {
         }
     }
 
-    private void restoreClicked(int param0) {
+    void restoreClicked(int param0) {
         if (param0 >= 0 && param0 < this.backups.size() && !this.serverData.expired) {
             this.selectedBackup = param0;
             Date var0 = this.backups.get(param0).lastModifiedDate;

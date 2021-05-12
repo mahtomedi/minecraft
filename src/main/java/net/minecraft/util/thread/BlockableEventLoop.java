@@ -105,7 +105,7 @@ public abstract class BlockableEventLoop<R extends Runnable> implements Profiler
 
     }
 
-    protected boolean pollTask() {
+    public boolean pollTask() {
         R var0 = this.pendingRunnables.peek();
         if (var0 == null) {
             return false;

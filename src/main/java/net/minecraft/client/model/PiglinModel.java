@@ -70,8 +70,7 @@ public class PiglinModel<T extends Mob> extends PlayerModel<T> {
         float var2 = 0.08F + param2 * 0.4F;
         this.leftEar.zRot = (float) (-Math.PI / 6) - Mth.cos(var1 * 1.2F) * var2;
         this.rightEar.zRot = (float) (Math.PI / 6) + Mth.cos(var1) * var2;
-        if (param0 instanceof AbstractPiglin) {
-            AbstractPiglin var3 = (AbstractPiglin)param0;
+        if (param0 instanceof AbstractPiglin var3) {
             PiglinArmPose var4 = var3.getArmPose();
             if (var4 == PiglinArmPose.DANCING) {
                 float var5 = param3 / 60.0F;

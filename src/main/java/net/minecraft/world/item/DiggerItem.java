@@ -3,8 +3,9 @@ package net.minecraft.world.item;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.ImmutableMultimap.Builder;
-import java.util.Set;
 import net.minecraft.core.BlockPos;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.Tag;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -15,12 +16,12 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class DiggerItem extends TieredItem implements Vanishable {
-    private final Set<Block> blocks;
+    private final Tag<Block> blocks;
     protected final float speed;
     private final float attackDamageBaseline;
     private final Multimap<Attribute, AttributeModifier> defaultModifiers;
 
-    protected DiggerItem(float param0, float param1, Tier param2, Set<Block> param3, Item.Properties param4) {
+    protected DiggerItem(float param0, float param1, Tier param2, Tag<Block> param3, Item.Properties param4) {
         super(param2, param4);
         this.blocks = param3;
         this.speed = param2.getSpeed();
@@ -61,5 +62,17 @@ public class DiggerItem extends TieredItem implements Vanishable {
 
     public float getAttackDamage() {
         return this.attackDamageBaseline;
+    }
+
+    @Override
+    public boolean isCorrectToolForDrops(BlockState param0) {
+        int var0 = this.getTier().getLevel();
+        if (var0 < 3 && param0.is(BlockTags.NEEDS_DIAMOND_TOOL)) {
+            return false;
+        } else if (var0 < 2 && param0.is(BlockTags.NEEDS_IRON_TOOL)) {
+            return false;
+        } else {
+            return var0 < 1 && param0.is(BlockTags.NEEDS_STONE_TOOL) ? false : param0.is(this.blocks);
+        }
     }
 }

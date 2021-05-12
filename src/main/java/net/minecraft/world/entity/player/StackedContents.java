@@ -45,11 +45,11 @@ public class StackedContents {
         return Registry.ITEM.getId(param0.getItem());
     }
 
-    private boolean has(int param0) {
+    boolean has(int param0) {
         return this.contents.get(param0) > 0;
     }
 
-    private int take(int param0, int param1) {
+    int take(int param0, int param1) {
         int var0 = this.contents.get(param0);
         if (var0 >= param1) {
             this.contents.put(param0, var0 - param1);
@@ -59,7 +59,7 @@ public class StackedContents {
         }
     }
 
-    private void put(int param0, int param1) {
+    void put(int param0, int param1) {
         this.contents.put(param0, this.contents.get(param0) + param1);
     }
 

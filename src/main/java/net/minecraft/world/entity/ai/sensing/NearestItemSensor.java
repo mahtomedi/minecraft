@@ -28,7 +28,7 @@ public class NearestItemSensor extends Sensor<Mob> {
         Optional<ItemEntity> var2 = var1.stream()
             .filter(param1x -> param1.wantsToPickUp(param1x.getItem()))
             .filter(param1x -> param1x.closerThan(param1, 9.0))
-            .filter(param1::canSee)
+            .filter(param1::hasLineOfSight)
             .findFirst();
         var0.setMemory(MemoryModuleType.NEAREST_VISIBLE_WANTED_ITEM, var2);
     }

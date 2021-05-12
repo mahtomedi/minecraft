@@ -111,41 +111,13 @@ public class ShulkerBoxBlockEntity extends RandomizableContainerBlockEntity impl
                 for(int var3 = 0; var3 < var2.size(); ++var3) {
                     Entity var4 = var2.get(var3);
                     if (var4.getPistonPushReaction() != PushReaction.IGNORE) {
-                        double var5 = 0.0;
-                        double var6 = 0.0;
-                        double var7 = 0.0;
-                        AABB var8 = var4.getBoundingBox();
-                        switch(var0.getAxis()) {
-                            case X:
-                                if (var0.getAxisDirection() == Direction.AxisDirection.POSITIVE) {
-                                    var5 = var1.maxX - var8.minX;
-                                } else {
-                                    var5 = var8.maxX - var1.minX;
-                                }
-
-                                var5 += 0.01;
-                                break;
-                            case Y:
-                                if (var0.getAxisDirection() == Direction.AxisDirection.POSITIVE) {
-                                    var6 = var1.maxY - var8.minY;
-                                } else {
-                                    var6 = var8.maxY - var1.minY;
-                                }
-
-                                var6 += 0.01;
-                                break;
-                            case Z:
-                                if (var0.getAxisDirection() == Direction.AxisDirection.POSITIVE) {
-                                    var7 = var1.maxZ - var8.minZ;
-                                } else {
-                                    var7 = var8.maxZ - var1.minZ;
-                                }
-
-                                var7 += 0.01;
-                        }
-
                         var4.move(
-                            MoverType.SHULKER_BOX, new Vec3(var5 * (double)var0.getStepX(), var6 * (double)var0.getStepY(), var7 * (double)var0.getStepZ())
+                            MoverType.SHULKER_BOX,
+                            new Vec3(
+                                (var1.getXsize() + 0.01) * (double)var0.getStepX(),
+                                (var1.getYsize() + 0.01) * (double)var0.getStepY(),
+                                (var1.getZsize() + 0.01) * (double)var0.getStepZ()
+                            )
                         );
                     }
                 }

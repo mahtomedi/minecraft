@@ -35,21 +35,21 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public abstract class DistanceManager {
-    private static final Logger LOGGER = LogManager.getLogger();
+    static final Logger LOGGER = LogManager.getLogger();
     private static final int ENTITY_TICKING_RANGE = 2;
-    private static final int PLAYER_TICKET_LEVEL = 33 + ChunkStatus.getDistance(ChunkStatus.FULL) - 2;
+    static final int PLAYER_TICKET_LEVEL = 33 + ChunkStatus.getDistance(ChunkStatus.FULL) - 2;
     private static final int INITIAL_TICKET_LIST_CAPACITY = 4;
-    private final Long2ObjectMap<ObjectSet<ServerPlayer>> playersPerChunk = new Long2ObjectOpenHashMap<>();
-    private final Long2ObjectOpenHashMap<SortedArraySet<Ticket<?>>> tickets = new Long2ObjectOpenHashMap<>();
+    final Long2ObjectMap<ObjectSet<ServerPlayer>> playersPerChunk = new Long2ObjectOpenHashMap<>();
+    final Long2ObjectOpenHashMap<SortedArraySet<Ticket<?>>> tickets = new Long2ObjectOpenHashMap<>();
     private final DistanceManager.ChunkTicketTracker ticketTracker = new DistanceManager.ChunkTicketTracker();
     private final DistanceManager.FixedPlayerDistanceChunkTracker naturalSpawnChunkCounter = new DistanceManager.FixedPlayerDistanceChunkTracker(8);
     private final DistanceManager.PlayerTicketTracker playerTicketManager = new DistanceManager.PlayerTicketTracker(33);
-    private final Set<ChunkHolder> chunksToUpdateFutures = Sets.newHashSet();
-    private final ChunkTaskPriorityQueueSorter ticketThrottler;
-    private final ProcessorHandle<ChunkTaskPriorityQueueSorter.Message<Runnable>> ticketThrottlerInput;
-    private final ProcessorHandle<ChunkTaskPriorityQueueSorter.Release> ticketThrottlerReleaser;
-    private final LongSet ticketsToRelease = new LongOpenHashSet();
-    private final Executor mainThreadExecutor;
+    final Set<ChunkHolder> chunksToUpdateFutures = Sets.newHashSet();
+    final ChunkTaskPriorityQueueSorter ticketThrottler;
+    final ProcessorHandle<ChunkTaskPriorityQueueSorter.Message<Runnable>> ticketThrottlerInput;
+    final ProcessorHandle<ChunkTaskPriorityQueueSorter.Release> ticketThrottlerReleaser;
+    final LongSet ticketsToRelease = new LongOpenHashSet();
+    final Executor mainThreadExecutor;
     private long ticketTickCounter;
 
     protected DistanceManager(Executor param0, Executor param1) {
@@ -129,7 +129,7 @@ public abstract class DistanceManager {
         }
     }
 
-    private void addTicket(long param0, Ticket<?> param1) {
+    void addTicket(long param0, Ticket<?> param1) {
         SortedArraySet<Ticket<?>> var0 = this.getTickets(param0);
         int var1 = getTicketLevelAt(var0);
         Ticket<?> var2 = var0.addOrGet(param1);
@@ -140,7 +140,7 @@ public abstract class DistanceManager {
 
     }
 
-    private void removeTicket(long param0, Ticket<?> param1) {
+    void removeTicket(long param0, Ticket<?> param1) {
         SortedArraySet<Ticket<?>> var0 = this.getTickets(param0);
         if (var0.remove(param1)) {
         }
@@ -239,11 +239,11 @@ public abstract class DistanceManager {
                 ChunkPos var2 = new ChunkPos(var1.getLongKey());
 
                 for(Ticket<?> var3 : var1.getValue()) {
-                    var0.write(("" + var2.x + "\t" + var2.z + "\t" + var3.getType() + "\t" + var3.getTicketLevel() + "\t\n").getBytes(StandardCharsets.UTF_8));
+                    var0.write((var2.x + "\t" + var2.z + "\t" + var3.getType() + "\t" + var3.getTicketLevel() + "\t\n").getBytes(StandardCharsets.UTF_8));
                 }
             }
-        } catch (IOException var19) {
-            LOGGER.error(var19);
+        } catch (IOException var10) {
+            LOGGER.error(var10);
         }
 
     }
@@ -342,10 +342,10 @@ public abstract class DistanceManager {
                 for(it.unimi.dsi.fastutil.longs.Long2ByteMap.Entry var1 : this.chunks.long2ByteEntrySet()) {
                     ChunkPos var2 = new ChunkPos(var1.getLongKey());
                     String var3 = Byte.toString(var1.getByteValue());
-                    var0.write(("" + var2.x + "\t" + var2.z + "\t" + var3 + "\n").getBytes(StandardCharsets.UTF_8));
+                    var0.write((var2.x + "\t" + var2.z + "\t" + var3 + "\n").getBytes(StandardCharsets.UTF_8));
                 }
-            } catch (IOException var18) {
-                DistanceManager.LOGGER.error(var18);
+            } catch (IOException var9) {
+                DistanceManager.LOGGER.error(var9);
             }
 
         }

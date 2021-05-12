@@ -272,9 +272,6 @@ public class Goat extends Animal {
     static class GoatNodeEvaluator extends WalkNodeEvaluator {
         private final BlockPos.MutableBlockPos belowPos = new BlockPos.MutableBlockPos();
 
-        private GoatNodeEvaluator() {
-        }
-
         @Override
         public BlockPathTypes getBlockPathType(BlockGetter param0, int param1, int param2, int param3) {
             this.belowPos.set(param1, param2 - 1, param3);

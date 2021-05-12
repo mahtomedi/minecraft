@@ -62,11 +62,11 @@ public class ChunkRenderDispatcher {
     private final Queue<Runnable> toUpload = Queues.newConcurrentLinkedQueue();
     private volatile int toBatchCount;
     private volatile int freeBufferCount;
-    private final ChunkBufferBuilderPack fixedBuffers;
+    final ChunkBufferBuilderPack fixedBuffers;
     private final ProcessorMailbox<Runnable> mailbox;
     private final Executor executor;
-    private Level level;
-    private final LevelRenderer renderer;
+    Level level;
+    final LevelRenderer renderer;
     private Vec3 camera = Vec3.ZERO;
 
     public ChunkRenderDispatcher(Level param0, LevelRenderer param1, Executor param2, boolean param3, ChunkBufferBuilderPack param4) {
@@ -231,13 +231,13 @@ public class ChunkRenderDispatcher {
                 return false;
             }
         };
-        private final Set<RenderType> hasBlocks = new ObjectArraySet<>();
-        private final Set<RenderType> hasLayer = new ObjectArraySet<>();
-        private boolean isCompletelyEmpty = true;
-        private final List<BlockEntity> renderableBlockEntities = Lists.newArrayList();
-        private VisibilitySet visibilitySet = new VisibilitySet();
+        final Set<RenderType> hasBlocks = new ObjectArraySet<>();
+        final Set<RenderType> hasLayer = new ObjectArraySet<>();
+        boolean isCompletelyEmpty = true;
+        final List<BlockEntity> renderableBlockEntities = Lists.newArrayList();
+        VisibilitySet visibilitySet = new VisibilitySet();
         @Nullable
-        private BufferBuilder.SortState transparencyState;
+        BufferBuilder.SortState transparencyState;
 
         public boolean hasNoRenderableLayers() {
             return this.isCompletelyEmpty;
@@ -272,7 +272,7 @@ public class ChunkRenderDispatcher {
         public AABB bb;
         private int lastFrame = -1;
         private boolean dirty = true;
-        private final BlockPos.MutableBlockPos origin = new BlockPos.MutableBlockPos(-1, -1, -1);
+        final BlockPos.MutableBlockPos origin = new BlockPos.MutableBlockPos(-1, -1, -1);
         private final BlockPos.MutableBlockPos[] relativeOrigins = Util.make(new BlockPos.MutableBlockPos[6], param0x -> {
             for(int var0 = 0; var0 < param0x.length; ++var0) {
                 param0x[var0] = new BlockPos.MutableBlockPos();
@@ -337,7 +337,7 @@ public class ChunkRenderDispatcher {
             return var1 * var1 + var2 * var2 + var3 * var3;
         }
 
-        private void beginLayer(BufferBuilder param0) {
+        void beginLayer(BufferBuilder param0) {
             param0.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.BLOCK);
         }
 
@@ -425,7 +425,7 @@ public class ChunkRenderDispatcher {
             param0.schedule(var0);
         }
 
-        private void updateGlobalBlockEntities(Set<BlockEntity> param0) {
+        void updateGlobalBlockEntities(Set<BlockEntity> param0) {
             Set<BlockEntity> var0 = Sets.newHashSet(param0);
             Set<BlockEntity> var1 = Sets.newHashSet(this.globalBlockEntities);
             var0.removeAll(this.globalBlockEntities);
@@ -463,7 +463,7 @@ public class ChunkRenderDispatcher {
             @Nullable
             protected RenderChunkRegion region;
 
-            public RebuildTask(double param0, @Nullable RenderChunkRegion param1) {
+            public RebuildTask(@Nullable double param0, RenderChunkRegion param1) {
                 super(param0);
                 this.region = param1;
             }

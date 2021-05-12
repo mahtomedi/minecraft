@@ -99,7 +99,7 @@ public class Advancement {
             + this.criteria
             + ", requirements="
             + Arrays.deepToString(this.requirements)
-            + '}';
+            + "}";
     }
 
     public Iterable<Advancement> getChildren() {
@@ -156,9 +156,7 @@ public class Advancement {
         private String[][] requirements;
         private RequirementsStrategy requirementsStrategy = RequirementsStrategy.AND;
 
-        private Builder(
-            @Nullable ResourceLocation param0, @Nullable DisplayInfo param1, AdvancementRewards param2, Map<String, Criterion> param3, String[][] param4
-        ) {
+        Builder(@Nullable ResourceLocation param0, @Nullable DisplayInfo param1, AdvancementRewards param2, Map<String, Criterion> param3, String[][] param4) {
             this.parentId = param0;
             this.display = param1;
             this.rewards = param2;
@@ -356,7 +354,7 @@ public class Advancement {
                 + this.criteria
                 + ", requirements="
                 + Arrays.deepToString(this.requirements)
-                + '}';
+                + "}";
         }
 
         public static Advancement.Builder fromJson(JsonObject param0, DeserializationContext param1) {

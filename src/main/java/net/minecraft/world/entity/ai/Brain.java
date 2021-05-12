@@ -42,7 +42,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class Brain<E extends LivingEntity> {
-    private static final Logger LOGGER = LogManager.getLogger();
+    static final Logger LOGGER = LogManager.getLogger();
     private final Supplier<Codec<Brain<E>>> codec;
     private static final int SCHEDULE_UPDATE_DELAY = 20;
     private final Map<MemoryModuleType<?>, Optional<? extends ExpirableValue<?>>> memories = Maps.newHashMap();
@@ -143,7 +143,7 @@ public class Brain<E extends LivingEntity> {
         return this.codec.get().encodeStart(param0, this);
     }
 
-    private Stream<Brain.MemoryValue<?>> memories() {
+    Stream<Brain.MemoryValue<?>> memories() {
         return this.memories
             .entrySet()
             .stream()
@@ -170,7 +170,7 @@ public class Brain<E extends LivingEntity> {
         this.setMemoryInternal(param0, param1.map(ExpirableValue::of));
     }
 
-    private <U> void setMemoryInternal(MemoryModuleType<U> param0, Optional<? extends ExpirableValue<?>> param1) {
+    <U> void setMemoryInternal(MemoryModuleType<U> param0, Optional<? extends ExpirableValue<?>> param1) {
         if (this.memories.containsKey(param0)) {
             if (param1.isPresent() && this.isEmptyCollection(param1.get().getValue())) {
                 this.eraseMemory(param0);
@@ -475,16 +475,16 @@ public class Brain<E extends LivingEntity> {
         private final MemoryModuleType<U> type;
         private final Optional<? extends ExpirableValue<U>> value;
 
-        private static <U> Brain.MemoryValue<U> createUnchecked(MemoryModuleType<U> param0, Optional<? extends ExpirableValue<?>> param1) {
+        static <U> Brain.MemoryValue<U> createUnchecked(MemoryModuleType<U> param0, Optional<? extends ExpirableValue<?>> param1) {
             return new Brain.MemoryValue<>(param0, param1);
         }
 
-        private MemoryValue(MemoryModuleType<U> param0, Optional<? extends ExpirableValue<U>> param1) {
+        MemoryValue(MemoryModuleType<U> param0, Optional<? extends ExpirableValue<U>> param1) {
             this.type = param0;
             this.value = param1;
         }
 
-        private void setMemoryInternal(Brain<?> param0) {
+        void setMemoryInternal(Brain<?> param0) {
             param0.setMemoryInternal(this.type, this.value);
         }
 
@@ -503,7 +503,7 @@ public class Brain<E extends LivingEntity> {
         private final Collection<? extends SensorType<? extends Sensor<? super E>>> sensorTypes;
         private final Codec<Brain<E>> codec;
 
-        private Provider(Collection<? extends MemoryModuleType<?>> param0, Collection<? extends SensorType<? extends Sensor<? super E>>> param1) {
+        Provider(Collection<? extends MemoryModuleType<?>> param0, Collection<? extends SensorType<? extends Sensor<? super E>>> param1) {
             this.memoryTypes = param0;
             this.sensorTypes = param1;
             this.codec = Brain.codec(param0, param1);

@@ -118,7 +118,7 @@ public class TraderLlama extends Llama {
         return super.finalizeSpawn(param0, param1, param2, param3, param4);
     }
 
-    public static class TraderLlamaDefendWanderingTraderGoal extends TargetGoal {
+    protected static class TraderLlamaDefendWanderingTraderGoal extends TargetGoal {
         private final Llama llama;
         private LivingEntity ownerLastHurtBy;
         private int timestamp;

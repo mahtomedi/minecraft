@@ -4,7 +4,6 @@ import java.io.EOFException;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.channels.Channels;
@@ -60,9 +59,6 @@ public class PngInfo {
     abstract static class StbReader implements AutoCloseable {
         protected boolean closed;
 
-        private StbReader() {
-        }
-
         int read(long param0, long param1, int param2) {
             try {
                 return this.read(param1, param2);
@@ -102,7 +98,7 @@ public class PngInfo {
         private int read;
         private int consumed;
 
-        private StbReaderBufferedChannel(ReadableByteChannel param0) {
+        StbReaderBufferedChannel(ReadableByteChannel param0) {
             this.channel = param0;
         }
 
@@ -114,7 +110,7 @@ public class PngInfo {
                 this.readBufferAddress = MemoryUtil.memAddress(var0);
             }
 
-            ((Buffer)var0).position(this.read);
+            var0.position(this.read);
 
             while(param0 + this.consumed > this.read) {
                 try {
@@ -168,7 +164,7 @@ public class PngInfo {
     static class StbReaderSeekableByteChannel extends PngInfo.StbReader {
         private final SeekableByteChannel channel;
 
-        private StbReaderSeekableByteChannel(SeekableByteChannel param0) {
+        StbReaderSeekableByteChannel(SeekableByteChannel param0) {
             this.channel = param0;
         }
 

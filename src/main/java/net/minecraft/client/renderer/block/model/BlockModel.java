@@ -280,7 +280,7 @@ public class BlockModel implements UnbakedModel {
         return Either.left(new Material(TextureAtlas.LOCATION_BLOCKS, MissingTextureAtlasSprite.getLocation()));
     }
 
-    private static boolean isTextureReference(String param0) {
+    static boolean isTextureReference(String param0) {
         return param0.charAt(0) == '#';
     }
 

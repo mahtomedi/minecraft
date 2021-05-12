@@ -57,7 +57,7 @@ public class BeaconRenderer implements BlockEntityRenderer<BeaconBlockEntity> {
         int var0 = param6 + param7;
         param0.pushPose();
         param0.translate(0.5, 0.0, 0.5);
-        float var1 = (float)Math.floorMod(param5, 40L) + param3;
+        float var1 = (float)Math.floorMod(param5, 40) + param3;
         float var2 = param7 < 0 ? var1 : -var1;
         float var3 = Mth.frac(var2 * 0.2F - (float)Mth.floor(var2 * 0.1F));
         float var4 = param8[0];

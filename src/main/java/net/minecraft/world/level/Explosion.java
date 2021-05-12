@@ -230,11 +230,8 @@ public class Explosion {
                         }
 
                         var28.setDeltaMovement(var28.getDeltaMovement().add(var30 * var36, var31 * var36, var32 * var36));
-                        if (var28 instanceof Player) {
-                            Player var37 = (Player)var28;
-                            if (!var37.isSpectator() && (!var37.isCreative() || !var37.getAbilities().flying)) {
-                                this.hitPlayers.put(var37, new Vec3(var30 * var35, var31 * var35, var32 * var35));
-                            }
+                        if (var28 instanceof Player var37 && !var37.isSpectator() && (!var37.isCreative() || !var37.getAbilities().flying)) {
+                            this.hitPlayers.put(var37, new Vec3(var30 * var35, var31 * var35, var32 * var35));
                         }
                     }
                 }

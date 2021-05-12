@@ -9,7 +9,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class BubbleColumnUpParticle extends TextureSheetParticle {
-    private BubbleColumnUpParticle(ClientLevel param0, double param1, double param2, double param3, double param4, double param5, double param6) {
+    BubbleColumnUpParticle(ClientLevel param0, double param1, double param2, double param3, double param4, double param5, double param6) {
         super(param0, param1, param2, param3);
         this.gravity = -0.125F;
         this.friction = 0.85F;

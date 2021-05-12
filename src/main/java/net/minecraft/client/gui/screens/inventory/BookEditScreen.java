@@ -600,7 +600,7 @@ public class BookEditScreen extends Screen {
         }
     }
 
-    private static int findLineFromPos(int[] param0, int param1) {
+    static int findLineFromPos(int[] param0, int param1) {
         int var0 = Arrays.binarySearch(param0, param1);
         return var0 < 0 ? -(var0 + 2) : var0;
     }
@@ -625,7 +625,7 @@ public class BookEditScreen extends Screen {
 
     @OnlyIn(Dist.CLIENT)
     static class DisplayCache {
-        private static final BookEditScreen.DisplayCache EMPTY = new BookEditScreen.DisplayCache(
+        static final BookEditScreen.DisplayCache EMPTY = new BookEditScreen.DisplayCache(
             "",
             new BookEditScreen.Pos2i(0, 0),
             true,
@@ -634,11 +634,11 @@ public class BookEditScreen extends Screen {
             new Rect2i[0]
         );
         private final String fullText;
-        private final BookEditScreen.Pos2i cursor;
-        private final boolean cursorAtEnd;
+        final BookEditScreen.Pos2i cursor;
+        final boolean cursorAtEnd;
         private final int[] lineStarts;
-        private final BookEditScreen.LineInfo[] lines;
-        private final Rect2i[] selection;
+        final BookEditScreen.LineInfo[] lines;
+        final Rect2i[] selection;
 
         public DisplayCache(String param0, BookEditScreen.Pos2i param1, boolean param2, int[] param3, BookEditScreen.LineInfo[] param4, Rect2i[] param5) {
             this.fullText = param0;
@@ -689,11 +689,11 @@ public class BookEditScreen extends Screen {
 
     @OnlyIn(Dist.CLIENT)
     static class LineInfo {
-        private final Style style;
-        private final String contents;
-        private final Component asComponent;
-        private final int x;
-        private final int y;
+        final Style style;
+        final String contents;
+        final Component asComponent;
+        final int x;
+        final int y;
 
         public LineInfo(Style param0, String param1, int param2, int param3) {
             this.style = param0;

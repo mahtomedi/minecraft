@@ -203,7 +203,7 @@ public class EnderMan extends Monster implements NeutralMob {
         this.readPersistentAngerSaveData(this.level, param0);
     }
 
-    private boolean isLookingAtMe(Player param0) {
+    boolean isLookingAtMe(Player param0) {
         ItemStack var0 = param0.getInventory().armor.get(3);
         if (var0.is(Blocks.CARVED_PUMPKIN.asItem())) {
             return false;
@@ -213,7 +213,7 @@ public class EnderMan extends Monster implements NeutralMob {
             double var3 = var2.length();
             var2 = var2.normalize();
             double var4 = var1.dot(var2);
-            return var4 > 1.0 - 0.025 / var3 ? param0.canSee(this) : false;
+            return var4 > 1.0 - 0.025 / var3 ? param0.hasLineOfSight(this) : false;
         }
     }
 
@@ -276,7 +276,7 @@ public class EnderMan extends Monster implements NeutralMob {
         }
     }
 
-    private boolean teleportTowards(Entity param0) {
+    boolean teleportTowards(Entity param0) {
         Vec3 var0 = new Vec3(this.getX() - param0.getX(), this.getY(0.5) - param0.getEyeY(), this.getZ() - param0.getZ());
         var0 = var0.normalize();
         double var1 = 16.0;
@@ -470,12 +470,12 @@ public class EnderMan extends Monster implements NeutralMob {
         private int aggroTime;
         private int teleportTime;
         private final TargetingConditions startAggroTargetConditions;
-        private final TargetingConditions continueAggroTargetConditions = new TargetingConditions().allowUnseeable();
+        private final TargetingConditions continueAggroTargetConditions = TargetingConditions.forCombat().ignoreLineOfSight();
 
         public EndermanLookForPlayerGoal(EnderMan param0, @Nullable Predicate<LivingEntity> param1) {
             super(param0, Player.class, 10, false, false, param1);
             this.enderman = param0;
-            this.startAggroTargetConditions = new TargetingConditions()
+            this.startAggroTargetConditions = TargetingConditions.forCombat()
                 .range(this.getFollowDistance())
                 .selector(param1x -> param0.isLookingAtMe((Player)param1x));
         }

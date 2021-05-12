@@ -450,8 +450,7 @@ public class Zombie extends Monster {
             param3 = new Zombie.ZombieGroupData(getSpawnAsBabyOdds(param0.getRandom()), true);
         }
 
-        if (param3 instanceof Zombie.ZombieGroupData) {
-            Zombie.ZombieGroupData var1 = (Zombie.ZombieGroupData)param3;
+        if (param3 instanceof Zombie.ZombieGroupData var1) {
             if (var1.isBaby) {
                 this.setBaby(true);
                 if (var1.canSpawnJockey) {
@@ -533,14 +532,11 @@ public class Zombie extends Monster {
     protected void dropCustomDeathLoot(DamageSource param0, int param1, boolean param2) {
         super.dropCustomDeathLoot(param0, param1, param2);
         Entity var0 = param0.getEntity();
-        if (var0 instanceof Creeper) {
-            Creeper var1 = (Creeper)var0;
-            if (var1.canDropMobsSkull()) {
-                ItemStack var2 = this.getSkull();
-                if (!var2.isEmpty()) {
-                    var1.increaseDroppedSkulls();
-                    this.spawnAtLocation(var2);
-                }
+        if (var0 instanceof Creeper var1 && var1.canDropMobsSkull()) {
+            ItemStack var2 = this.getSkull();
+            if (!var2.isEmpty()) {
+                var1.increaseDroppedSkulls();
+                this.spawnAtLocation(var2);
             }
         }
 

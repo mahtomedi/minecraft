@@ -47,7 +47,7 @@ public class LazyAreaContext implements BigContext<LazyArea> {
 
     @Override
     public int nextRandom(int param0) {
-        int var0 = (int)Math.floorMod(this.rval >> 24, (long)param0);
+        int var0 = Math.floorMod(this.rval >> 24, param0);
         this.rval = LinearCongruentialGenerator.next(this.rval, this.seed);
         return var0;
     }

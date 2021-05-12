@@ -61,12 +61,12 @@ public abstract class AbstractPackResources implements PackResources {
     @Nullable
     @Override
     public <T> T getMetadataSection(MetadataSectionSerializer<T> param0) throws IOException {
-        Object var4;
+        Object var3;
         try (InputStream var0 = this.getResource("pack.mcmeta")) {
-            var4 = getMetadataFromStream(param0, var0);
+            var3 = getMetadataFromStream(param0, var0);
         }
 
-        return (T)var4;
+        return (T)var3;
     }
 
     @Nullable
@@ -74,8 +74,8 @@ public abstract class AbstractPackResources implements PackResources {
         JsonObject var1;
         try (BufferedReader var0 = new BufferedReader(new InputStreamReader(param1, StandardCharsets.UTF_8))) {
             var1 = GsonHelper.parse(var0);
-        } catch (JsonParseException | IOException var18) {
-            LOGGER.error("Couldn't load {} metadata", param0.getMetadataSectionName(), var18);
+        } catch (JsonParseException | IOException var9) {
+            LOGGER.error("Couldn't load {} metadata", param0.getMetadataSectionName(), var9);
             return null;
         }
 
@@ -84,8 +84,8 @@ public abstract class AbstractPackResources implements PackResources {
         } else {
             try {
                 return param0.fromJson(GsonHelper.getAsJsonObject(var1, param0.getMetadataSectionName()));
-            } catch (JsonParseException var15) {
-                LOGGER.error("Couldn't load {} metadata", param0.getMetadataSectionName(), var15);
+            } catch (JsonParseException var7) {
+                LOGGER.error("Couldn't load {} metadata", param0.getMetadataSectionName(), var7);
                 return null;
             }
         }

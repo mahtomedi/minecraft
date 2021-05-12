@@ -22,10 +22,10 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
 public class CopyBlockState extends LootItemConditionalFunction {
-    private final Block block;
-    private final Set<Property<?>> properties;
+    final Block block;
+    final Set<Property<?>> properties;
 
-    private CopyBlockState(LootItemCondition[] param0, Block param1, Set<Property<?>> param2) {
+    CopyBlockState(LootItemCondition[] param0, Block param1, Set<Property<?>> param2) {
         super(param0);
         this.block = param1;
         this.properties = param2;
@@ -73,7 +73,7 @@ public class CopyBlockState extends LootItemConditionalFunction {
         private final Block block;
         private final Set<Property<?>> properties = Sets.newHashSet();
 
-        private Builder(Block param0) {
+        Builder(Block param0) {
             this.block = param0;
         }
 

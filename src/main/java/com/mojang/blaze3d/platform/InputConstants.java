@@ -242,9 +242,9 @@ public class InputConstants {
         private final InputConstants.Type type;
         private final int value;
         private final LazyLoadedValue<Component> displayName;
-        private static final Map<String, InputConstants.Key> NAME_MAP = Maps.newHashMap();
+        static final Map<String, InputConstants.Key> NAME_MAP = Maps.newHashMap();
 
-        private Key(String param0, InputConstants.Type param1, int param2) {
+        Key(String param0, InputConstants.Type param1, int param2) {
             this.name = param0;
             this.type = param1;
             this.value = param2;
@@ -315,8 +315,8 @@ public class InputConstants {
         );
 
         private final Int2ObjectMap<InputConstants.Key> map = new Int2ObjectOpenHashMap<>();
-        private final String defaultPrefix;
-        private final BiFunction<Integer, String, Component> displayTextSupplier;
+        final String defaultPrefix;
+        final BiFunction<Integer, String, Component> displayTextSupplier;
 
         private static void addKey(InputConstants.Type param0, String param1, int param2) {
             InputConstants.Key var0 = new InputConstants.Key(param1, param0, param2);

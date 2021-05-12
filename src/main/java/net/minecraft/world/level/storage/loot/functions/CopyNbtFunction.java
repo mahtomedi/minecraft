@@ -26,10 +26,10 @@ import net.minecraft.world.level.storage.loot.providers.nbt.ContextNbtProvider;
 import net.minecraft.world.level.storage.loot.providers.nbt.NbtProvider;
 
 public class CopyNbtFunction extends LootItemConditionalFunction {
-    private final NbtProvider source;
-    private final List<CopyNbtFunction.CopyOperation> operations;
+    final NbtProvider source;
+    final List<CopyNbtFunction.CopyOperation> operations;
 
-    private CopyNbtFunction(LootItemCondition[] param0, NbtProvider param1, List<CopyNbtFunction.CopyOperation> param2) {
+    CopyNbtFunction(LootItemCondition[] param0, NbtProvider param1, List<CopyNbtFunction.CopyOperation> param2) {
         super(param0);
         this.source = param1;
         this.operations = ImmutableList.copyOf(param2);
@@ -40,7 +40,7 @@ public class CopyNbtFunction extends LootItemConditionalFunction {
         return LootItemFunctions.COPY_NBT;
     }
 
-    private static NbtPathArgument.NbtPath compileNbtPath(String param0) {
+    static NbtPathArgument.NbtPath compileNbtPath(String param0) {
         try {
             return new NbtPathArgument().parse(new StringReader(param0));
         } catch (CommandSyntaxException var2) {
@@ -75,7 +75,7 @@ public class CopyNbtFunction extends LootItemConditionalFunction {
         private final NbtProvider source;
         private final List<CopyNbtFunction.CopyOperation> ops = Lists.newArrayList();
 
-        private Builder(NbtProvider param0) {
+        Builder(NbtProvider param0) {
             this.source = param0;
         }
 
@@ -105,7 +105,7 @@ public class CopyNbtFunction extends LootItemConditionalFunction {
         private final NbtPathArgument.NbtPath targetPath;
         private final CopyNbtFunction.MergeStrategy op;
 
-        private CopyOperation(String param0, String param1, CopyNbtFunction.MergeStrategy param2) {
+        CopyOperation(String param0, String param1, CopyNbtFunction.MergeStrategy param2) {
             this.sourcePathText = param0;
             this.sourcePath = CopyNbtFunction.compileNbtPath(param0);
             this.targetPathText = param1;
@@ -177,11 +177,11 @@ public class CopyNbtFunction extends LootItemConditionalFunction {
             }
         };
 
-        private final String name;
+        final String name;
 
         public abstract void merge(Tag var1, NbtPathArgument.NbtPath var2, List<Tag> var3) throws CommandSyntaxException;
 
-        private MergeStrategy(String param0) {
+        MergeStrategy(String param0) {
             this.name = param0;
         }
 

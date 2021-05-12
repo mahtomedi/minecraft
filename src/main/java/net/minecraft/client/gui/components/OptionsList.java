@@ -71,9 +71,9 @@ public class OptionsList extends ContainerObjectSelectionList<OptionsList.Entry>
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static class Entry extends ContainerObjectSelectionList.Entry<OptionsList.Entry> {
-        private final Map<Option, AbstractWidget> options;
-        private final List<AbstractWidget> children;
+    protected static class Entry extends ContainerObjectSelectionList.Entry<OptionsList.Entry> {
+        final Map<Option, AbstractWidget> options;
+        final List<AbstractWidget> children;
 
         private Entry(Map<Option, AbstractWidget> param0) {
             this.options = param0;

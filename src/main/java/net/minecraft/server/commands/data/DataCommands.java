@@ -200,34 +200,27 @@ public class DataCommands {
         LiteralArgumentBuilder<CommandSourceStack> var0 = Commands.literal("modify");
 
         for(DataCommands.DataProvider var1 : TARGET_PROVIDERS) {
-            var1.wrap(
-                var0,
-                param2 -> {
-                    ArgumentBuilder<CommandSourceStack, ?> var0x = Commands.argument("targetPath", NbtPathArgument.nbtPath());
-    
-                    for(DataCommands.DataProvider var1x : SOURCE_PROVIDERS) {
-                        param0.accept(var0x, param2x -> var1x.wrap(Commands.literal("from"), param3 -> param3.executes(param3x -> {
-                                    List<Tag> var0xx = Collections.singletonList(var1x.access(param3x).getData());
-                                    return manipulateData(param3x, var1, param2x, var0xx);
-                                }).then(Commands.argument("sourcePath", NbtPathArgument.nbtPath()).executes(param3x -> {
-                                    DataAccessor var0xx = var1x.access(param3x);
-                                    NbtPathArgument.NbtPath var1xx = NbtPathArgument.getPath(param3x, "sourcePath");
-                                    List<Tag> var2x = var1xx.get(var0xx.getData());
-                                    return manipulateData(param3x, var1, param2x, var2x);
-                                }))));
-                    }
-    
-                    param0.accept(
-                        var0x,
-                        param1x -> (LiteralArgumentBuilder)Commands.literal("value")
-                                .then(Commands.argument("value", NbtTagArgument.nbtTag()).executes(param2x -> {
-                                    List<Tag> var0xx = Collections.singletonList(NbtTagArgument.getNbtTag(param2x, "value"));
-                                    return manipulateData(param2x, var1, param1x, var0xx);
-                                }))
-                    );
-                    return param2.then(var0x);
+            var1.wrap(var0, param2 -> {
+                ArgumentBuilder<CommandSourceStack, ?> var0x = Commands.argument("targetPath", NbtPathArgument.nbtPath());
+
+                for(DataCommands.DataProvider var1x : SOURCE_PROVIDERS) {
+                    param0.accept(var0x, param2x -> var1x.wrap(Commands.literal("from"), param3 -> param3.executes(param3x -> {
+                                List<Tag> var0xx = Collections.singletonList(var1x.access(param3x).getData());
+                                return manipulateData(param3x, var1, param2x, var0xx);
+                            }).then(Commands.argument("sourcePath", NbtPathArgument.nbtPath()).executes(param3x -> {
+                                DataAccessor var0xx = var1x.access(param3x);
+                                NbtPathArgument.NbtPath var1xx = NbtPathArgument.getPath(param3x, "sourcePath");
+                                List<Tag> var2x = var1xx.get(var0xx.getData());
+                                return manipulateData(param3x, var1, param2x, var2x);
+                            }))));
                 }
-            );
+
+                param0.accept(var0x, param1x -> Commands.literal("value").then(Commands.argument("value", NbtTagArgument.nbtTag()).executes(param2x -> {
+                        List<Tag> var0xx = Collections.singletonList(NbtTagArgument.getNbtTag(param2x, "value"));
+                        return manipulateData(param2x, var1, param1x, var0xx);
+                    })));
+                return param2.then(var0x);
+            });
         }
 
         return var0;

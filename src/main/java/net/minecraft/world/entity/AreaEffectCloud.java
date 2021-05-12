@@ -156,70 +156,48 @@ public class AreaEffectCloud extends Entity {
         boolean var0 = this.isWaiting();
         float var1 = this.getRadius();
         if (this.level.isClientSide) {
-            ParticleOptions var2 = this.getParticle();
-            if (var0) {
-                if (this.random.nextBoolean()) {
-                    for(int var3 = 0; var3 < 2; ++var3) {
-                        float var4 = this.random.nextFloat() * (float) (Math.PI * 2);
-                        float var5 = Mth.sqrt(this.random.nextFloat()) * 0.2F;
-                        float var6 = Mth.cos(var4) * var5;
-                        float var7 = Mth.sin(var4) * var5;
-                        if (var2.getType() == ParticleTypes.ENTITY_EFFECT) {
-                            int var8 = this.random.nextBoolean() ? 16777215 : this.getColor();
-                            int var9 = var8 >> 16 & 0xFF;
-                            int var10 = var8 >> 8 & 0xFF;
-                            int var11 = var8 & 0xFF;
-                            this.level
-                                .addAlwaysVisibleParticle(
-                                    var2,
-                                    this.getX() + (double)var6,
-                                    this.getY(),
-                                    this.getZ() + (double)var7,
-                                    (double)((float)var9 / 255.0F),
-                                    (double)((float)var10 / 255.0F),
-                                    (double)((float)var11 / 255.0F)
-                                );
-                        } else {
-                            this.level.addAlwaysVisibleParticle(var2, this.getX() + (double)var6, this.getY(), this.getZ() + (double)var7, 0.0, 0.0, 0.0);
-                        }
-                    }
-                }
-            } else {
-                float var12 = (float) Math.PI * var1 * var1;
+            if (var0 && this.random.nextBoolean()) {
+                return;
+            }
 
-                for(int var13 = 0; (float)var13 < var12; ++var13) {
-                    float var14 = this.random.nextFloat() * (float) (Math.PI * 2);
-                    float var15 = Mth.sqrt(this.random.nextFloat()) * var1;
-                    float var16 = Mth.cos(var14) * var15;
-                    float var17 = Mth.sin(var14) * var15;
-                    if (var2.getType() == ParticleTypes.ENTITY_EFFECT) {
-                        int var18 = this.getColor();
-                        int var19 = var18 >> 16 & 0xFF;
-                        int var20 = var18 >> 8 & 0xFF;
-                        int var21 = var18 & 0xFF;
-                        this.level
-                            .addAlwaysVisibleParticle(
-                                var2,
-                                this.getX() + (double)var16,
-                                this.getY(),
-                                this.getZ() + (double)var17,
-                                (double)((float)var19 / 255.0F),
-                                (double)((float)var20 / 255.0F),
-                                (double)((float)var21 / 255.0F)
-                            );
+            ParticleOptions var2 = this.getParticle();
+            int var3;
+            float var4;
+            if (var0) {
+                var3 = 2;
+                var4 = 0.2F;
+            } else {
+                var3 = Mth.ceil((float) Math.PI * var1 * var1);
+                var4 = var1;
+            }
+
+            for(int var7 = 0; var7 < var3; ++var7) {
+                float var8 = this.random.nextFloat() * (float) (Math.PI * 2);
+                float var9 = Mth.sqrt(this.random.nextFloat()) * var4;
+                double var10 = this.getX() + (double)(Mth.cos(var8) * var9);
+                double var11 = this.getY();
+                double var12 = this.getZ() + (double)(Mth.sin(var8) * var9);
+                double var17;
+                double var18;
+                double var19;
+                if (var2.getType() != ParticleTypes.ENTITY_EFFECT) {
+                    if (var0) {
+                        var17 = 0.0;
+                        var18 = 0.0;
+                        var19 = 0.0;
                     } else {
-                        this.level
-                            .addAlwaysVisibleParticle(
-                                var2,
-                                this.getX() + (double)var16,
-                                this.getY(),
-                                this.getZ() + (double)var17,
-                                (0.5 - this.random.nextDouble()) * 0.15,
-                                0.01F,
-                                (0.5 - this.random.nextDouble()) * 0.15
-                            );
+                        var17 = (0.5 - this.random.nextDouble()) * 0.15;
+                        var18 = 0.01F;
+                        var19 = (0.5 - this.random.nextDouble()) * 0.15;
                     }
+                } else {
+                    int var13 = var0 && this.random.nextBoolean() ? 16777215 : this.getColor();
+                    var17 = (double)((float)(var13 >> 16 & 0xFF) / 255.0F);
+                    var18 = (double)((float)(var13 >> 8 & 0xFF) / 255.0F);
+                    var19 = (double)((float)(var13 & 0xFF) / 255.0F);
                 }
+
+                this.level.addAlwaysVisibleParticle(var2, var10, var11, var12, var17, var18, var19);
             }
         } else {
             if (this.tickCount >= this.waitTime + this.duration) {
@@ -227,12 +205,12 @@ public class AreaEffectCloud extends Entity {
                 return;
             }
 
-            boolean var22 = this.tickCount < this.waitTime;
-            if (var0 != var22) {
-                this.setWaiting(var22);
+            boolean var23 = this.tickCount < this.waitTime;
+            if (var0 != var23) {
+                this.setWaiting(var23);
             }
 
-            if (var22) {
+            if (var23) {
                 return;
             }
 
@@ -248,31 +226,31 @@ public class AreaEffectCloud extends Entity {
 
             if (this.tickCount % 5 == 0) {
                 this.victims.entrySet().removeIf(param0 -> this.tickCount >= param0.getValue());
-                List<MobEffectInstance> var23 = Lists.newArrayList();
+                List<MobEffectInstance> var24 = Lists.newArrayList();
 
-                for(MobEffectInstance var24 : this.potion.getEffects()) {
-                    var23.add(new MobEffectInstance(var24.getEffect(), var24.getDuration() / 4, var24.getAmplifier(), var24.isAmbient(), var24.isVisible()));
+                for(MobEffectInstance var25 : this.potion.getEffects()) {
+                    var24.add(new MobEffectInstance(var25.getEffect(), var25.getDuration() / 4, var25.getAmplifier(), var25.isAmbient(), var25.isVisible()));
                 }
 
-                var23.addAll(this.effects);
-                if (var23.isEmpty()) {
+                var24.addAll(this.effects);
+                if (var24.isEmpty()) {
                     this.victims.clear();
                 } else {
-                    List<LivingEntity> var25 = this.level.getEntitiesOfClass(LivingEntity.class, this.getBoundingBox());
-                    if (!var25.isEmpty()) {
-                        for(LivingEntity var26 : var25) {
-                            if (!this.victims.containsKey(var26) && var26.isAffectedByPotions()) {
-                                double var27 = var26.getX() - this.getX();
-                                double var28 = var26.getZ() - this.getZ();
-                                double var29 = var27 * var27 + var28 * var28;
-                                if (var29 <= (double)(var1 * var1)) {
-                                    this.victims.put(var26, this.tickCount + this.reapplicationDelay);
+                    List<LivingEntity> var26 = this.level.getEntitiesOfClass(LivingEntity.class, this.getBoundingBox());
+                    if (!var26.isEmpty()) {
+                        for(LivingEntity var27 : var26) {
+                            if (!this.victims.containsKey(var27) && var27.isAffectedByPotions()) {
+                                double var28 = var27.getX() - this.getX();
+                                double var29 = var27.getZ() - this.getZ();
+                                double var30 = var28 * var28 + var29 * var29;
+                                if (var30 <= (double)(var1 * var1)) {
+                                    this.victims.put(var27, this.tickCount + this.reapplicationDelay);
 
-                                    for(MobEffectInstance var30 : var23) {
-                                        if (var30.getEffect().isInstantenous()) {
-                                            var30.getEffect().applyInstantenousEffect(this, this.getOwner(), var26, var30.getAmplifier(), 0.5);
+                                    for(MobEffectInstance var31 : var24) {
+                                        if (var31.getEffect().isInstantenous()) {
+                                            var31.getEffect().applyInstantenousEffect(this, this.getOwner(), var27, var31.getAmplifier(), 0.5);
                                         } else {
-                                            var26.addEffect(new MobEffectInstance(var30));
+                                            var27.addEffect(new MobEffectInstance(var31));
                                         }
                                     }
 

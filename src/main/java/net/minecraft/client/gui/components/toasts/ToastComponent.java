@@ -16,7 +16,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class ToastComponent extends GuiComponent {
     private static final int VISIBLE_TOASTS = 5;
-    private final Minecraft minecraft;
+    final Minecraft minecraft;
     private final ToastComponent.ToastInstance<?>[] visible = new ToastComponent.ToastInstance[5];
     private final Deque<Toast> queued = Queues.newArrayDeque();
 
@@ -33,7 +33,7 @@ public class ToastComponent extends GuiComponent {
                 }
 
                 if (this.visible[var0] == null && !this.queued.isEmpty()) {
-                    this.visible[var0] = new ToastComponent.ToastInstance(this.queued.removeFirst());
+                    this.visible[var0] = new ToastComponent.ToastInstance<>(this.queued.removeFirst());
                 }
             }
 
@@ -78,7 +78,7 @@ public class ToastComponent extends GuiComponent {
         private long visibleTime = -1L;
         private Toast.Visibility visibility = Toast.Visibility.SHOW;
 
-        private ToastInstance(T param0) {
+        ToastInstance(T param0) {
             this.toast = param0;
         }
 

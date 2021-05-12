@@ -874,8 +874,7 @@ public class LocalPlayer extends AbstractClientPlayer {
     public void rideTick() {
         super.rideTick();
         this.handsBusy = false;
-        if (this.getVehicle() instanceof Boat) {
-            Boat var0 = (Boat)this.getVehicle();
+        if (this.getVehicle() instanceof Boat var0) {
             var0.setInput(this.input.left, this.input.right, this.input.up, this.input.down);
             this.handsBusy |= this.input.left || this.input.right || this.input.up || this.input.down;
         }

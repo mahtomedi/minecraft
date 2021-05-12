@@ -8,7 +8,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class HeartParticle extends TextureSheetParticle {
-    private HeartParticle(ClientLevel param0, double param1, double param2, double param3) {
+    HeartParticle(ClientLevel param0, double param1, double param2, double param3) {
         super(param0, param1, param2, param3, 0.0, 0.0, 0.0);
         this.speedUpWhenYMotionIsBlocked = true;
         this.friction = 0.86F;

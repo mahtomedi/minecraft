@@ -60,6 +60,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.layers.SheepFurLayer;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.resources.model.ModelBakery;
@@ -354,7 +355,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                                 var10.set(var12, var20, var11);
                                 int var37 = getLightColor(var1, var10);
                                 int var38 = var37 >> 16 & 65535;
-                                int var39 = (var37 & 65535) * 3;
+                                int var39 = var37 & 65535;
                                 int var40 = (var38 * 3 + 240) / 4;
                                 int var41 = (var39 * 3 + 240) / 4;
                                 var6.vertex((double)var12 - param2 - var14 + 0.5, (double)var19 - param3, (double)var11 - param4 - var15 + 0.5)
@@ -1149,6 +1150,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
         var21.endBatch(RenderType.entitySolid(TextureAtlas.LOCATION_BLOCKS));
         var21.endBatch(RenderType.entityCutout(TextureAtlas.LOCATION_BLOCKS));
         var21.endBatch(RenderType.entityCutoutNoCull(TextureAtlas.LOCATION_BLOCKS));
+        var21.endBatch(RenderType.entityCutoutNoCull(SheepFurLayer.SHEEP_FUR_LOCATION));
         var21.endBatch(RenderType.entitySmoothCutout(TextureAtlas.LOCATION_BLOCKS));
         var0.popPush("blockentities");
 
@@ -3249,12 +3251,12 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
 
     @OnlyIn(Dist.CLIENT)
     static class RenderChunkInfo {
-        private final ChunkRenderDispatcher.RenderChunk chunk;
+        final ChunkRenderDispatcher.RenderChunk chunk;
         private byte sourceDirections;
-        private byte directions;
-        private final int step;
+        byte directions;
+        final int step;
 
-        private RenderChunkInfo(ChunkRenderDispatcher.RenderChunk param0, @Nullable Direction param1, int param2) {
+        RenderChunkInfo(ChunkRenderDispatcher.RenderChunk param0, @Nullable Direction param1, int param2) {
             this.chunk = param0;
             if (param1 != null) {
                 this.addSourceDirection(param1);
@@ -3289,12 +3291,12 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
         private final LevelRenderer.RenderChunkInfo[] infos;
         private final LevelRenderer.RenderChunkInfo[] blank;
 
-        private RenderInfoMap(int param0) {
+        RenderInfoMap(int param0) {
             this.infos = new LevelRenderer.RenderChunkInfo[param0];
             this.blank = new LevelRenderer.RenderChunkInfo[param0];
         }
 
-        private void clear() {
+        void clear() {
             System.arraycopy(this.blank, 0, this.infos, 0, this.infos.length);
         }
 

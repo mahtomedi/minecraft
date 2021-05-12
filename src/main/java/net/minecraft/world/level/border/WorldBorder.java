@@ -23,7 +23,7 @@ public class WorldBorder {
     private int warningBlocks = 5;
     private double centerX;
     private double centerZ;
-    private int absoluteMaxSize = 29999984;
+    int absoluteMaxSize = 29999984;
     private WorldBorder.BorderExtent extent = new WorldBorder.StaticBorderExtent(5.9999968E7);
     public static final WorldBorder.Settings DEFAULT_SETTINGS = new WorldBorder.Settings(0.0, 0.0, 0.2, 5.0, 5, 15, 5.9999968E7, 0L, 0.0);
 
@@ -272,7 +272,7 @@ public class WorldBorder {
         private final long lerpBegin;
         private final double lerpDuration;
 
-        private MovingBorderExtent(double param0, double param1, long param2) {
+        MovingBorderExtent(double param0, double param1, long param2) {
             this.from = param0;
             this.to = param1;
             this.lerpDuration = (double)param2;
@@ -375,7 +375,7 @@ public class WorldBorder {
         private final long sizeLerpTime;
         private final double sizeLerpTarget;
 
-        private Settings(double param0, double param1, double param2, double param3, int param4, int param5, double param6, long param7, double param8) {
+        Settings(double param0, double param1, double param2, double param3, int param4, int param5, double param6, long param7, double param8) {
             this.centerX = param0;
             this.centerZ = param1;
             this.damagePerBlock = param2;
@@ -387,7 +387,7 @@ public class WorldBorder {
             this.sizeLerpTarget = param8;
         }
 
-        private Settings(WorldBorder param0) {
+        Settings(WorldBorder param0) {
             this.centerX = param0.getCenterX();
             this.centerZ = param0.getCenterZ();
             this.damagePerBlock = param0.getDamagePerBlock();

@@ -14,9 +14,9 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
 public class CopyNameFunction extends LootItemConditionalFunction {
-    private final CopyNameFunction.NameSource source;
+    final CopyNameFunction.NameSource source;
 
-    private CopyNameFunction(LootItemCondition[] param0, CopyNameFunction.NameSource param1) {
+    CopyNameFunction(LootItemCondition[] param0, CopyNameFunction.NameSource param1) {
         super(param0);
         this.source = param1;
     }
@@ -34,11 +34,8 @@ public class CopyNameFunction extends LootItemConditionalFunction {
     @Override
     public ItemStack run(ItemStack param0, LootContext param1) {
         Object var0 = param1.getParamOrNull(this.source.param);
-        if (var0 instanceof Nameable) {
-            Nameable var1 = (Nameable)var0;
-            if (var1.hasCustomName()) {
-                param0.setHoverName(var1.getDisplayName());
-            }
+        if (var0 instanceof Nameable var1 && var1.hasCustomName()) {
+            param0.setHoverName(var1.getDisplayName());
         }
 
         return param0;

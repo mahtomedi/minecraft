@@ -36,15 +36,20 @@ public class DirectAssetIndex extends AssetIndex {
     public Collection<ResourceLocation> getFiles(String param0, String param1, int param2, Predicate<String> param3) {
         Path var0 = this.assetsDirectory.toPath().resolve(param1);
 
-        try (Stream<Path> var1 = Files.walk(var0.resolve(param0), param2)) {
-            return var1.filter(param0x -> Files.isRegularFile(param0x))
-                .filter(param0x -> !param0x.endsWith(".mcmeta"))
-                .filter(param1x -> param3.test(param1x.getFileName().toString()))
-                .map(param2x -> new ResourceLocation(param1, var0.relativize(param2x).toString().replaceAll("\\\\", "/")))
-                .collect(Collectors.toList());
-        } catch (NoSuchFileException var21) {
-        } catch (IOException var22) {
-            LOGGER.warn("Unable to getFiles on {}", param0, var22);
+        try {
+            Collection var7;
+            try (Stream<Path> var1 = Files.walk(var0.resolve(param0), param2)) {
+                var7 = var1.filter(param0x -> Files.isRegularFile(param0x))
+                    .filter(param0x -> !param0x.endsWith(".mcmeta"))
+                    .filter(param1x -> param3.test(param1x.getFileName().toString()))
+                    .map(param2x -> new ResourceLocation(param1, var0.relativize(param2x).toString().replaceAll("\\\\", "/")))
+                    .collect(Collectors.toList());
+            }
+
+            return var7;
+        } catch (NoSuchFileException var11) {
+        } catch (IOException var12) {
+            LOGGER.warn("Unable to getFiles on {}", param0, var12);
         }
 
         return Collections.emptyList();

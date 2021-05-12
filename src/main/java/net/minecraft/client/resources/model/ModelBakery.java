@@ -342,7 +342,7 @@ public class ModelBakery {
                 List<Property<?>> var5 = ImmutableList.copyOf(this.blockColors.getColoringProperties(var4.getOwner()));
                 ImmutableList<BlockState> var6 = var4.getPossibleStates();
                 Map<ModelResourceLocation, BlockState> var7 = Maps.newHashMap();
-                var6.forEach(param2 -> BlockModelShaper.stateToModelLocation(var3, param2));
+                var6.forEach(param2 -> var7.put(BlockModelShaper.stateToModelLocation(var3, param2), param2));
                 Map<BlockState, Pair<UnbakedModel, Supplier<ModelBakery.ModelGroupKey>>> var8 = Maps.newHashMap();
                 ResourceLocation var9 = new ResourceLocation(param0.getNamespace(), "blockstates/" + param0.getPath() + ".json");
                 UnbakedModel var10 = this.unbakedCache.get(MISSING_MODEL_LOCATION);
@@ -357,18 +357,23 @@ public class ModelBakery {
                             .stream()
                             .map(
                                 param0x -> {
-                                    try (InputStream var0x = param0x.getInputStream()) {
-                                        return Pair.of(
-                                            param0x.getSourceName(),
-                                            BlockModelDefinition.fromStream(this.context, new InputStreamReader(var0x, StandardCharsets.UTF_8))
-                                        );
-                                    } catch (Exception var16x) {
+                                    try {
+                                        Pair var3x;
+                                        try (InputStream var0x = param0x.getInputStream()) {
+                                            var3x = Pair.of(
+                                                param0x.getSourceName(),
+                                                BlockModelDefinition.fromStream(this.context, new InputStreamReader(var0x, StandardCharsets.UTF_8))
+                                            );
+                                        }
+        
+                                        return var3x;
+                                    } catch (Exception var7x) {
                                         throw new ModelBakery.BlockStateDefinitionException(
                                             String.format(
                                                 "Exception loading blockstate definition: '%s' in resourcepack: '%s': %s",
                                                 param0x.getLocation(),
                                                 param0x.getSourceName(),
-                                                var16x.getMessage()
+                                                var7x.getMessage()
                                             )
                                         );
                                     }
@@ -386,8 +391,7 @@ public class ModelBakery {
                         MultiPart var20;
                         if (var18.isMultiPart()) {
                             var20 = var18.getMultiPart();
-                            var6.forEach(param3 -> {
-                            });
+                            var6.forEach(param3 -> var19.put(param3, Pair.of(var20, () -> ModelBakery.ModelGroupKey.create(param3, var20, var5))));
                         } else {
                             var20 = null;
                         }
@@ -502,12 +506,9 @@ public class ModelBakery {
             throw new IllegalStateException("bake called too early");
         } else {
             UnbakedModel var1 = this.getModel(param0);
-            if (var1 instanceof BlockModel) {
-                BlockModel var2 = (BlockModel)var1;
-                if (var2.getRootModel() == GENERATION_MARKER) {
-                    return ITEM_MODEL_GENERATOR.generateBlockModel(this.atlasSet::getSprite, var2)
-                        .bake(this, var2, this.atlasSet::getSprite, param1, param0, false);
-                }
+            if (var1 instanceof BlockModel var2 && var2.getRootModel() == GENERATION_MARKER) {
+                return ITEM_MODEL_GENERATOR.generateBlockModel(this.atlasSet::getSprite, var2)
+                    .bake(this, var2, this.atlasSet::getSprite, param1, param0, false);
             }
 
             BakedModel var3 = var1.bake(this, this.atlasSet::getSprite, param1, param0);

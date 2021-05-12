@@ -25,11 +25,11 @@ import org.apache.logging.log4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class BitmapProvider implements GlyphProvider {
-    private static final Logger LOGGER = LogManager.getLogger();
+    static final Logger LOGGER = LogManager.getLogger();
     private final NativeImage image;
     private final Int2ObjectMap<BitmapProvider.Glyph> glyphs;
 
-    private BitmapProvider(NativeImage param0, Int2ObjectMap<BitmapProvider.Glyph> param1) {
+    BitmapProvider(NativeImage param0, Int2ObjectMap<BitmapProvider.Glyph> param1) {
         this.image = param0;
         this.glyphs = param1;
     }
@@ -99,38 +99,43 @@ public class BitmapProvider implements GlyphProvider {
         @Nullable
         @Override
         public GlyphProvider create(ResourceManager param0) {
-            try (Resource var0 = param0.getResource(this.texture)) {
-                NativeImage var1 = NativeImage.read(NativeImage.Format.RGBA, var0.getInputStream());
-                int var2 = var1.getWidth();
-                int var3 = var1.getHeight();
-                int var4 = var2 / ((int[])this.chars.get(0)).length;
-                int var5 = var3 / this.chars.size();
-                float var6 = (float)this.height / (float)var5;
-                Int2ObjectMap<BitmapProvider.Glyph> var7 = new Int2ObjectOpenHashMap<>();
+            try {
+                BitmapProvider var22;
+                try (Resource var0 = param0.getResource(this.texture)) {
+                    NativeImage var1 = NativeImage.read(NativeImage.Format.RGBA, var0.getInputStream());
+                    int var2 = var1.getWidth();
+                    int var3 = var1.getHeight();
+                    int var4 = var2 / ((int[])this.chars.get(0)).length;
+                    int var5 = var3 / this.chars.size();
+                    float var6 = (float)this.height / (float)var5;
+                    Int2ObjectMap<BitmapProvider.Glyph> var7 = new Int2ObjectOpenHashMap<>();
 
-                for(int var8 = 0; var8 < this.chars.size(); ++var8) {
-                    int var9 = 0;
+                    for(int var8 = 0; var8 < this.chars.size(); ++var8) {
+                        int var9 = 0;
 
-                    for(int var10 : this.chars.get(var8)) {
-                        int var11 = var9++;
-                        if (var10 != 0 && var10 != 32) {
-                            int var12 = this.getActualGlyphWidth(var1, var4, var5, var11, var8);
-                            BitmapProvider.Glyph var13 = var7.put(
-                                var10,
-                                new BitmapProvider.Glyph(
-                                    var6, var1, var11 * var4, var8 * var5, var4, var5, (int)(0.5 + (double)((float)var12 * var6)) + 1, this.ascent
-                                )
-                            );
-                            if (var13 != null) {
-                                BitmapProvider.LOGGER.warn("Codepoint '{}' declared multiple times in {}", Integer.toHexString(var10), this.texture);
+                        for(int var10 : this.chars.get(var8)) {
+                            int var11 = var9++;
+                            if (var10 != 0 && var10 != 32) {
+                                int var12 = this.getActualGlyphWidth(var1, var4, var5, var11, var8);
+                                BitmapProvider.Glyph var13 = var7.put(
+                                    var10,
+                                    new BitmapProvider.Glyph(
+                                        var6, var1, var11 * var4, var8 * var5, var4, var5, (int)(0.5 + (double)((float)var12 * var6)) + 1, this.ascent
+                                    )
+                                );
+                                if (var13 != null) {
+                                    BitmapProvider.LOGGER.warn("Codepoint '{}' declared multiple times in {}", Integer.toHexString(var10), this.texture);
+                                }
                             }
                         }
                     }
+
+                    var22 = new BitmapProvider(var1, var7);
                 }
 
-                return new BitmapProvider(var1, var7);
-            } catch (IOException var30) {
-                throw new RuntimeException(var30.getMessage());
+                return var22;
+            } catch (IOException var21) {
+                throw new RuntimeException(var21.getMessage());
             }
         }
 
@@ -162,7 +167,7 @@ public class BitmapProvider implements GlyphProvider {
         private final int advance;
         private final int ascent;
 
-        private Glyph(float param0, NativeImage param1, int param2, int param3, int param4, int param5, int param6, int param7) {
+        Glyph(float param0, NativeImage param1, int param2, int param3, int param4, int param5, int param6, int param7) {
             this.scale = param0;
             this.image = param1;
             this.offsetX = param2;

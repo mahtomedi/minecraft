@@ -166,8 +166,8 @@ public final class Window implements AutoCloseable {
             GLFW.glfwSetWindowIcon(this.window, var4);
             STBImage.stbi_image_free(var5);
             STBImage.stbi_image_free(var6);
-        } catch (IOException var21) {
-            LOGGER.error("Couldn't set icon", (Throwable)var21);
+        } catch (IOException var12) {
+            LOGGER.error("Couldn't set icon", (Throwable)var12);
         }
 
     }
@@ -180,7 +180,7 @@ public final class Window implements AutoCloseable {
         ByteBuffer var6;
         try {
             var0 = TextureUtil.readResource(param0);
-            ((java.nio.Buffer)var0).rewind();
+            var0.rewind();
             var6 = STBImage.stbi_load_from_memory(var0, param1, param2, param3, 0);
         } finally {
             if (var0 != null) {
@@ -365,6 +365,13 @@ public final class Window implements AutoCloseable {
         this.fullscreen = !this.fullscreen;
     }
 
+    public void setWindowed(int param0, int param1) {
+        this.windowedWidth = param0;
+        this.windowedHeight = param1;
+        this.fullscreen = false;
+        this.setMode();
+    }
+
     private void updateFullscreen(boolean param0) {
         RenderSystem.assertThread(RenderSystem::isOnRenderThread);
 
@@ -474,7 +481,7 @@ public final class Window implements AutoCloseable {
 
     @OnlyIn(Dist.CLIENT)
     public static class WindowInitFailed extends SilentInitException {
-        private WindowInitFailed(String param0) {
+        WindowInitFailed(String param0) {
             super(param0);
         }
     }

@@ -47,8 +47,7 @@ public class ProtectionEnchantment extends Enchantment {
 
     @Override
     public boolean checkCompatibility(Enchantment param0) {
-        if (param0 instanceof ProtectionEnchantment) {
-            ProtectionEnchantment var0 = (ProtectionEnchantment)param0;
+        if (param0 instanceof ProtectionEnchantment var0) {
             if (this.type == var0.type) {
                 return false;
             } else {

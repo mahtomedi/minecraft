@@ -7,7 +7,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class SuspendedTownParticle extends TextureSheetParticle {
-    private SuspendedTownParticle(ClientLevel param0, double param1, double param2, double param3, double param4, double param5, double param6) {
+    SuspendedTownParticle(ClientLevel param0, double param1, double param2, double param3, double param4, double param5, double param6) {
         super(param0, param1, param2, param3, param4, param5, param6);
         float var0 = this.random.nextFloat() * 0.1F + 0.2F;
         this.rCol = var0;

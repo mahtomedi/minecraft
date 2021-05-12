@@ -31,8 +31,7 @@ public class HashCache {
         Path var0 = param0.resolve(".cache");
         Files.createDirectories(var0);
         this.cachePath = var0.resolve(param1);
-        this.walkOutputFiles().forEach(param0x -> {
-        });
+        this.walkOutputFiles().forEach(param0x -> this.oldCache.put(param0x, ""));
         if (Files.isReadable(this.cachePath)) {
             IOUtils.readLines(Files.newInputStream(this.cachePath), Charsets.UTF_8).forEach(param1x -> {
                 int var0x = param1x.indexOf(32);
@@ -57,7 +56,7 @@ public class HashCache {
             this.newCache
                 .entrySet()
                 .stream()
-                .map(param0 -> (String)param0.getValue() + ' ' + this.path.relativize(param0.getKey()))
+                .map(param0 -> (String)param0.getValue() + " " + this.path.relativize(param0.getKey()))
                 .collect(Collectors.toList()),
             System.lineSeparator(),
             var0

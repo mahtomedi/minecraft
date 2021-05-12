@@ -173,12 +173,7 @@ public abstract class Mob extends LivingEntity {
     }
 
     public MoveControl getMoveControl() {
-        if (this.isPassenger() && this.getVehicle() instanceof Mob) {
-            Mob var0 = (Mob)this.getVehicle();
-            return var0.getMoveControl();
-        } else {
-            return this.moveControl;
-        }
+        return this.isPassenger() && this.getVehicle() instanceof Mob var0 ? var0.getMoveControl() : this.moveControl;
     }
 
     public JumpControl getJumpControl() {
@@ -186,12 +181,7 @@ public abstract class Mob extends LivingEntity {
     }
 
     public PathNavigation getNavigation() {
-        if (this.isPassenger() && this.getVehicle() instanceof Mob) {
-            Mob var0 = (Mob)this.getVehicle();
-            return var0.getNavigation();
-        } else {
-            return this.navigation;
-        }
+        return this.isPassenger() && this.getVehicle() instanceof Mob var0 ? var0.getNavigation() : this.navigation;
     }
 
     public Sensing getSensing() {
@@ -740,8 +730,7 @@ public abstract class Mob extends LivingEntity {
         double var0 = param0.getX() - this.getX();
         double var1 = param0.getZ() - this.getZ();
         double var3;
-        if (param0 instanceof LivingEntity) {
-            LivingEntity var2 = (LivingEntity)param0;
+        if (param0 instanceof LivingEntity var2) {
             var3 = var2.getEyeY() - this.getEyeY();
         } else {
             var3 = (param0.getBoundingBox().minY + param0.getBoundingBox().maxY) / 2.0 - this.getEyeY();
@@ -861,19 +850,11 @@ public abstract class Mob extends LivingEntity {
     }
 
     protected float getEquipmentDropChance(EquipmentSlot param0) {
-        float var0;
-        switch(param0.getType()) {
-            case HAND:
-                var0 = this.handDropChances[param0.getIndex()];
-                break;
-            case ARMOR:
-                var0 = this.armorDropChances[param0.getIndex()];
-                break;
-            default:
-                var0 = 0.0F;
-        }
-
-        return var0;
+        return switch(param0.getType()) {
+            case HAND -> this.handDropChances[param0.getIndex()];
+            case ARMOR -> this.armorDropChances[param0.getIndex()];
+            default -> 0.0F;
+        };
     }
 
     protected void populateDefaultEquipmentSlots(DifficultyInstance param0) {
@@ -1363,8 +1344,7 @@ public abstract class Mob extends LivingEntity {
                 this.setDeltaMovement(this.getDeltaMovement().multiply(0.6, 1.0, 0.6));
             }
 
-            if (param0 instanceof Player) {
-                Player var4 = (Player)param0;
+            if (param0 instanceof Player var4) {
                 this.maybeDisableShield(var4, this.getMainHandItem(), var4.isUsingItem() ? var4.getUseItem() : ItemStack.EMPTY);
             }
 

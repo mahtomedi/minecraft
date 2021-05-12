@@ -37,7 +37,7 @@ public class SocialInteractionsScreen extends Screen {
     private static final Component SEARCH_HINT = new TranslatableComponent("gui.socialInteractions.search_hint")
         .withStyle(ChatFormatting.ITALIC)
         .withStyle(ChatFormatting.GRAY);
-    private static final Component EMPTY_SEARCH = new TranslatableComponent("gui.socialInteractions.search_empty").withStyle(ChatFormatting.GRAY);
+    static final Component EMPTY_SEARCH = new TranslatableComponent("gui.socialInteractions.search_empty").withStyle(ChatFormatting.GRAY);
     private static final Component EMPTY_HIDDEN = new TranslatableComponent("gui.socialInteractions.empty_hidden").withStyle(ChatFormatting.GRAY);
     private static final Component EMPTY_BLOCKED = new TranslatableComponent("gui.socialInteractions.empty_blocked").withStyle(ChatFormatting.GRAY);
     private static final Component BLOCKING_HINT = new TranslatableComponent("gui.socialInteractions.blocking_hint");
@@ -52,8 +52,8 @@ public class SocialInteractionsScreen extends Screen {
     private static final int IMAGE_WIDTH = 238;
     private static final int BUTTON_HEIGHT = 20;
     private static final int ITEM_HEIGHT = 36;
-    private SocialInteractionsPlayerList socialInteractionsPlayerList;
-    private EditBox searchBox;
+    SocialInteractionsPlayerList socialInteractionsPlayerList;
+    EditBox searchBox;
     private String lastSearch = "";
     private SocialInteractionsScreen.Page page = SocialInteractionsScreen.Page.ALL;
     private Button allButton;
@@ -156,29 +156,27 @@ public class SocialInteractionsScreen extends Screen {
         this.allButton.setMessage(TAB_ALL);
         this.hiddenButton.setMessage(TAB_HIDDEN);
         this.blockedButton.setMessage(TAB_BLOCKED);
-        Collection<UUID> var0;
-        switch(param0) {
-            case ALL:
+
+        Collection var4 = switch(param0) {
+            case ALL -> {
                 this.allButton.setMessage(TAB_ALL_SELECTED);
-                var0 = this.minecraft.player.connection.getOnlinePlayerIds();
-                break;
-            case HIDDEN:
+                yield this.minecraft.player.connection.getOnlinePlayerIds();
+            }
+            case HIDDEN -> {
                 this.hiddenButton.setMessage(TAB_HIDDEN_SELECTED);
-                var0 = this.minecraft.getPlayerSocialManager().getHiddenPlayers();
-                break;
-            case BLOCKED:
+                yield this.minecraft.getPlayerSocialManager().getHiddenPlayers();
+            }
+            case BLOCKED -> {
                 this.blockedButton.setMessage(TAB_BLOCKED_SELECTED);
                 PlayerSocialManager var2 = this.minecraft.getPlayerSocialManager();
-                var0 = this.minecraft.player.connection.getOnlinePlayerIds().stream().filter(var2::isBlocked).collect(Collectors.toSet());
-                break;
-            default:
-                var0 = ImmutableList.of();
-        }
-
-        this.socialInteractionsPlayerList.updatePlayerList(var0, this.socialInteractionsPlayerList.getScrollAmount());
+                yield this.minecraft.player.connection.getOnlinePlayerIds().stream().filter(var2::isBlocked).collect(Collectors.toSet());
+            }
+            default -> ImmutableList.of();
+        };
+        this.socialInteractionsPlayerList.updatePlayerList(var4, this.socialInteractionsPlayerList.getScrollAmount());
         if (!this.searchBox.getValue().isEmpty() && this.socialInteractionsPlayerList.isEmpty() && !this.searchBox.isFocused()) {
             NarratorChatListener.INSTANCE.sayNow(EMPTY_SEARCH.getString());
-        } else if (var0.isEmpty()) {
+        } else if (var4.isEmpty()) {
             if (param0 == SocialInteractionsScreen.Page.HIDDEN) {
                 NarratorChatListener.INSTANCE.sayNow(EMPTY_HIDDEN.getString());
             } else if (param0 == SocialInteractionsScreen.Page.BLOCKED) {

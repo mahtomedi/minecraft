@@ -142,8 +142,7 @@ public final class NbtUtils {
             return false;
         } else if (!param0.getClass().equals(param1.getClass())) {
             return false;
-        } else if (param0 instanceof CompoundTag) {
-            CompoundTag var0 = (CompoundTag)param0;
+        } else if (param0 instanceof CompoundTag var0) {
             CompoundTag var1 = (CompoundTag)param1;
 
             for(String var2 : var0.getAllKeys()) {
@@ -154,8 +153,7 @@ public final class NbtUtils {
             }
 
             return true;
-        } else if (param0 instanceof ListTag && param2) {
-            ListTag var4 = (ListTag)param0;
+        } else if (param0 instanceof ListTag var4 && param2) {
             ListTag var5 = (ListTag)param1;
             if (var4.isEmpty()) {
                 return var5.isEmpty();
@@ -611,7 +609,7 @@ public final class NbtUtils {
         StringBuilder var0x = new StringBuilder(param0x.getString("Name"));
         if (param0x.contains("Properties", 10)) {
             CompoundTag var1x = param0x.getCompound("Properties");
-            String var2x = var1x.getAllKeys().stream().sorted().map(param1 -> param1 + ':' + var1x.get(param1).getAsString()).collect(Collectors.joining(","));
+            String var2x = var1x.getAllKeys().stream().sorted().map(param1 -> param1 + ":" + var1x.get(param1).getAsString()).collect(Collectors.joining(","));
             var0x.append('{').append(var2x).append('}');
         }
 

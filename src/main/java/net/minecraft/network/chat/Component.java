@@ -183,11 +183,8 @@ public interface Component extends Message, FormattedText {
 
                         for(int var5 = 0; var5 < var4.length; ++var5) {
                             var4[var5] = this.deserialize(var3.get(var5), param1, param2);
-                            if (var4[var5] instanceof TextComponent) {
-                                TextComponent var6 = (TextComponent)var4[var5];
-                                if (var6.getStyle().isEmpty() && var6.getSiblings().isEmpty()) {
-                                    var4[var5] = var6.getText();
-                                }
+                            if (var4[var5] instanceof TextComponent var6 && var6.getStyle().isEmpty() && var6.getSiblings().isEmpty()) {
+                                var4[var5] = var6.getText();
                             }
                         }
 
@@ -278,8 +275,7 @@ public interface Component extends Message, FormattedText {
 
             if (param0 instanceof TextComponent) {
                 var0.addProperty("text", ((TextComponent)param0).getText());
-            } else if (param0 instanceof TranslatableComponent) {
-                TranslatableComponent var3 = (TranslatableComponent)param0;
+            } else if (param0 instanceof TranslatableComponent var3) {
                 var0.addProperty("translate", var3.getKey());
                 if (var3.getArgs() != null && var3.getArgs().length > 0) {
                     JsonArray var4 = new JsonArray();
@@ -294,18 +290,15 @@ public interface Component extends Message, FormattedText {
 
                     var0.add("with", var4);
                 }
-            } else if (param0 instanceof ScoreComponent) {
-                ScoreComponent var6 = (ScoreComponent)param0;
+            } else if (param0 instanceof ScoreComponent var6) {
                 JsonObject var7 = new JsonObject();
                 var7.addProperty("name", var6.getName());
                 var7.addProperty("objective", var6.getObjective());
                 var0.add("score", var7);
-            } else if (param0 instanceof SelectorComponent) {
-                SelectorComponent var8 = (SelectorComponent)param0;
+            } else if (param0 instanceof SelectorComponent var8) {
                 var0.addProperty("selector", var8.getPattern());
                 this.serializeSeparator(param2, var0, var8.getSeparator());
-            } else if (param0 instanceof KeybindComponent) {
-                KeybindComponent var9 = (KeybindComponent)param0;
+            } else if (param0 instanceof KeybindComponent var9) {
                 var0.addProperty("keybind", var9.getName());
             } else {
                 if (!(param0 instanceof NbtComponent)) {
@@ -316,11 +309,9 @@ public interface Component extends Message, FormattedText {
                 var0.addProperty("nbt", var10.getNbtPath());
                 var0.addProperty("interpret", var10.isInterpreting());
                 this.serializeSeparator(param2, var0, var10.separator);
-                if (param0 instanceof NbtComponent.BlockNbtComponent) {
-                    NbtComponent.BlockNbtComponent var11 = (NbtComponent.BlockNbtComponent)param0;
+                if (param0 instanceof NbtComponent.BlockNbtComponent var11) {
                     var0.addProperty("block", var11.getPos());
-                } else if (param0 instanceof NbtComponent.EntityNbtComponent) {
-                    NbtComponent.EntityNbtComponent var12 = (NbtComponent.EntityNbtComponent)param0;
+                } else if (param0 instanceof NbtComponent.EntityNbtComponent var12) {
                     var0.addProperty("entity", var12.getSelector());
                 } else {
                     if (!(param0 instanceof NbtComponent.StorageNbtComponent)) {

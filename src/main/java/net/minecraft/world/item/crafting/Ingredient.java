@@ -125,7 +125,7 @@ public final class Ingredient implements Predicate<ItemStack> {
     }
 
     public static Ingredient of(Stream<ItemStack> param0) {
-        return fromValues(param0.filter(param0x -> !param0x.isEmpty()).map(param0x -> new Ingredient.ItemValue(param0x)));
+        return fromValues(param0.filter(param0x -> !param0x.isEmpty()).map(Ingredient.ItemValue::new));
     }
 
     public static Ingredient of(Tag<Item> param0) {
@@ -133,7 +133,7 @@ public final class Ingredient implements Predicate<ItemStack> {
     }
 
     public static Ingredient fromNetwork(FriendlyByteBuf param0) {
-        return fromValues(param0.readList(FriendlyByteBuf::readItem).stream().map(param0x -> new Ingredient.ItemValue(param0x)));
+        return fromValues(param0.readList(FriendlyByteBuf::readItem).stream().map(Ingredient.ItemValue::new));
     }
 
     public static Ingredient fromJson(@Nullable JsonElement param0) {
@@ -174,7 +174,7 @@ public final class Ingredient implements Predicate<ItemStack> {
     static class ItemValue implements Ingredient.Value {
         private final ItemStack item;
 
-        private ItemValue(ItemStack param0) {
+        ItemValue(ItemStack param0) {
             this.item = param0;
         }
 
@@ -194,7 +194,7 @@ public final class Ingredient implements Predicate<ItemStack> {
     static class TagValue implements Ingredient.Value {
         private final Tag<Item> tag;
 
-        private TagValue(Tag<Item> param0) {
+        TagValue(Tag<Item> param0) {
             this.tag = param0;
         }
 

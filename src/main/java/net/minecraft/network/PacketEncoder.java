@@ -37,13 +37,18 @@ public class PacketEncoder extends MessageToByteEncoder<Packet<?>> {
                 var2.writeVarInt(var1);
 
                 try {
+                    int var3 = var2.writerIndex();
                     param1.write(var2);
-                } catch (Throwable var8) {
-                    LOGGER.error(var8);
+                    int var4 = var2.writerIndex() - var3;
+                    if (var4 > 2097152) {
+                        throw new IllegalArgumentException("Packet too big (is " + var4 + ", should be less than 2097152): " + param1);
+                    }
+                } catch (Throwable var9) {
+                    LOGGER.error(var9);
                     if (param1.isSkippable()) {
-                        throw new SkipPacketException(var8);
+                        throw new SkipPacketException(var9);
                     } else {
-                        throw var8;
+                        throw var9;
                     }
                 }
             }

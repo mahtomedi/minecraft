@@ -9,7 +9,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class AttackSweepParticle extends TextureSheetParticle {
     private final SpriteSet sprites;
 
-    private AttackSweepParticle(ClientLevel param0, double param1, double param2, double param3, double param4, SpriteSet param5) {
+    AttackSweepParticle(ClientLevel param0, double param1, double param2, double param3, double param4, SpriteSet param5) {
         super(param0, param1, param2, param3, 0.0, 0.0, 0.0);
         this.sprites = param5;
         this.lifetime = 4;

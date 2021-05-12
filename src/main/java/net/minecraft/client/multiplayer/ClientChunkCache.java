@@ -30,11 +30,11 @@ import org.apache.logging.log4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class ClientChunkCache extends ChunkSource {
-    private static final Logger LOGGER = LogManager.getLogger();
+    static final Logger LOGGER = LogManager.getLogger();
     private final LevelChunk emptyChunk;
     private final LevelLightEngine lightEngine;
-    private volatile ClientChunkCache.Storage storage;
-    private final ClientLevel level;
+    volatile ClientChunkCache.Storage storage;
+    final ClientLevel level;
 
     public ClientChunkCache(ClientLevel param0, int param1) {
         this.level = param0;
@@ -180,20 +180,20 @@ public class ClientChunkCache extends ChunkSource {
 
     @OnlyIn(Dist.CLIENT)
     final class Storage {
-        private final AtomicReferenceArray<LevelChunk> chunks;
-        private final int chunkRadius;
+        final AtomicReferenceArray<LevelChunk> chunks;
+        final int chunkRadius;
         private final int viewRange;
-        private volatile int viewCenterX;
-        private volatile int viewCenterZ;
-        private int chunkCount;
+        volatile int viewCenterX;
+        volatile int viewCenterZ;
+        int chunkCount;
 
-        private Storage(int param0) {
+        Storage(int param0) {
             this.chunkRadius = param0;
             this.viewRange = param0 * 2 + 1;
             this.chunks = new AtomicReferenceArray<>(this.viewRange * this.viewRange);
         }
 
-        private int getIndex(int param0, int param1) {
+        int getIndex(int param0, int param1) {
             return Math.floorMod(param1, this.viewRange) * this.viewRange + Math.floorMod(param0, this.viewRange);
         }
 
@@ -219,7 +219,7 @@ public class ClientChunkCache extends ChunkSource {
             return param1;
         }
 
-        private boolean inRange(int param0, int param1) {
+        boolean inRange(int param0, int param1) {
             return Math.abs(param0 - this.viewCenterX) <= this.chunkRadius && Math.abs(param1 - this.viewCenterZ) <= this.chunkRadius;
         }
 
@@ -241,8 +241,8 @@ public class ClientChunkCache extends ChunkSource {
                         }
                     }
                 }
-            } catch (IOException var19) {
-                ClientChunkCache.LOGGER.error(var19);
+            } catch (IOException var10) {
+                ClientChunkCache.LOGGER.error(var10);
             }
 
         }

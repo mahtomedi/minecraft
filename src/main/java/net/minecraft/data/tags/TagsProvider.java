@@ -71,8 +71,8 @@ public abstract class TagsProvider<T> implements DataProvider {
                             }
         
                             param0.putNew(var2, var4);
-                        } catch (IOException var22) {
-                            LOGGER.error("Couldn't save tags to {}", var2, var22);
+                        } catch (IOException var14) {
+                            LOGGER.error("Couldn't save tags to {}", var2, var14);
                         }
         
                     }
@@ -91,12 +91,12 @@ public abstract class TagsProvider<T> implements DataProvider {
         return this.builders.computeIfAbsent(param0.getName(), param0x -> new Tag.Builder());
     }
 
-    public static class TagAppender<T> {
+    protected static class TagAppender<T> {
         private final Tag.Builder builder;
         private final Registry<T> registry;
         private final String source;
 
-        private TagAppender(Tag.Builder param0, Registry<T> param1, String param2) {
+        TagAppender(Tag.Builder param0, Registry<T> param1, String param2) {
             this.builder = param0;
             this.registry = param1;
             this.source = param2;

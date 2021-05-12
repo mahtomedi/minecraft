@@ -199,24 +199,14 @@ public class DebugScreenOverlay extends GuiComponent {
         } else {
             Entity var7 = this.minecraft.getCameraEntity();
             Direction var8 = var7.getDirection();
-            String var9;
-            switch(var8) {
-                case NORTH:
-                    var9 = "Towards negative Z";
-                    break;
-                case SOUTH:
-                    var9 = "Towards positive Z";
-                    break;
-                case WEST:
-                    var9 = "Towards negative X";
-                    break;
-                case EAST:
-                    var9 = "Towards positive X";
-                    break;
-                default:
-                    var9 = "Invalid";
-            }
 
+            String var13 = switch(var8) {
+                case NORTH -> "Towards negative Z";
+                case SOUTH -> "Towards positive Z";
+                case WEST -> "Towards negative X";
+                case EAST -> "Towards positive X";
+                default -> "Invalid";
+            };
             ChunkPos var14 = new ChunkPos(var6);
             if (!Objects.equals(this.lastPos, var14)) {
                 this.lastPos = var14;
@@ -269,7 +259,9 @@ public class DebugScreenOverlay extends GuiComponent {
                     SectionPos.blockToSectionCoord(var6.getZ())
                 )
             );
-            var17.add(String.format(Locale.ROOT, "Facing: %s (%s) (%.1f / %.1f)", var8, var9, Mth.wrapDegrees(var7.getYRot()), Mth.wrapDegrees(var7.getXRot())));
+            var17.add(
+                String.format(Locale.ROOT, "Facing: %s (%s) (%.1f / %.1f)", var8, var13, Mth.wrapDegrees(var7.getYRot()), Mth.wrapDegrees(var7.getXRot()))
+            );
             LevelChunk var19 = this.getClientChunk();
             if (var19.isEmpty()) {
                 var17.add("Waiting for chunk...");

@@ -26,9 +26,9 @@ public class CreateBuffetWorldScreen extends Screen {
     private static final Component BIOME_SELECT_INFO = new TranslatableComponent("createWorld.customize.buffet.biome");
     private final Screen parent;
     private final Consumer<Biome> applySettings;
-    private final Registry<Biome> biomes;
+    final Registry<Biome> biomes;
     private CreateBuffetWorldScreen.BiomeList list;
-    private Biome biome;
+    Biome biome;
     private Button doneButton;
 
     public CreateBuffetWorldScreen(Screen param0, RegistryAccess param1, Consumer<Biome> param2, Biome param3) {
@@ -57,7 +57,7 @@ public class CreateBuffetWorldScreen extends Screen {
         this.list.setSelected(this.list.children().stream().filter(param0 -> Objects.equals(param0.biome, this.biome)).findFirst().orElse(null));
     }
 
-    private void updateButtonValidity() {
+    void updateButtonValidity() {
         this.doneButton.active = this.list.getSelected() != null;
     }
 
@@ -72,7 +72,7 @@ public class CreateBuffetWorldScreen extends Screen {
 
     @OnlyIn(Dist.CLIENT)
     class BiomeList extends ObjectSelectionList<CreateBuffetWorldScreen.BiomeList.Entry> {
-        private BiomeList() {
+        BiomeList() {
             super(
                 CreateBuffetWorldScreen.this.minecraft,
                 CreateBuffetWorldScreen.this.width,
@@ -106,7 +106,7 @@ public class CreateBuffetWorldScreen extends Screen {
 
         @OnlyIn(Dist.CLIENT)
         class Entry extends ObjectSelectionList.Entry<CreateBuffetWorldScreen.BiomeList.Entry> {
-            private final Biome biome;
+            final Biome biome;
             private final Component name;
 
             public Entry(Biome param0) {

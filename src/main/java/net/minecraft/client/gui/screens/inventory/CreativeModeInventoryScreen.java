@@ -60,7 +60,7 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
     private static final int TAB_HEIGHT = 32;
     private static final int SCROLLER_WIDTH = 12;
     private static final int SCROLLER_HEIGHT = 15;
-    private static final SimpleContainer CONTAINER = new SimpleContainer(45);
+    static final SimpleContainer CONTAINER = new SimpleContainer(45);
     private static final Component TRASH_SLOT_TOOLTIP = new TranslatableComponent("inventory.binSlot");
     private static final int TEXT_COLOR = 16777215;
     private static int selectedTab = CreativeModeTab.TAB_BUILDING_BLOCKS.getId();
@@ -384,8 +384,7 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
         }
 
         TagCollection<Item> var5 = ItemTags.getAllTags();
-        var5.getAvailableTags().stream().filter(var1).forEach(param1 -> {
-        });
+        var5.getAvailableTags().stream().filter(var1).forEach(param1 -> this.visibleTags.put(param1, var5.getTag(param1)));
     }
 
     @Override
@@ -900,7 +899,7 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
 
     @OnlyIn(Dist.CLIENT)
     static class SlotWrapper extends Slot {
-        private final Slot target;
+        final Slot target;
 
         public SlotWrapper(Slot param0, int param1, int param2, int param3) {
             super(param0.container, param1, param2, param3);

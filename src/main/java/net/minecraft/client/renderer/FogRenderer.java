@@ -190,8 +190,7 @@ public class FogRenderer {
         Entity var1 = param0.getEntity();
         if (var0 == FogType.WATER) {
             float var2 = 192.0F;
-            if (var1 instanceof LocalPlayer) {
-                LocalPlayer var3 = (LocalPlayer)var1;
+            if (var1 instanceof LocalPlayer var3) {
                 var2 *= Math.max(0.25F, var3.getWaterVision());
                 Biome var4 = var3.level.getBiome(var3.blockPosition());
                 if (var4.getBiomeCategory() == Biome.BiomeCategory.SWAMP) {

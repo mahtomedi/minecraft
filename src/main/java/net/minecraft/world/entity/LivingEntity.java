@@ -856,8 +856,12 @@ public abstract class LivingEntity extends Entity {
         return param1.test(this, param0);
     }
 
-    public boolean canBeTargeted() {
-        return true;
+    public boolean canBeSeenAsEnemy() {
+        return !this.isInvulnerable() && this.canBeSeenByAnyone();
+    }
+
+    public boolean canBeSeenByAnyone() {
+        return !this.isSpectator() && this.isAlive();
     }
 
     public static boolean areAllEffectsAmbient(Collection<MobEffectInstance> param0) {
@@ -1083,16 +1087,13 @@ public abstract class LivingEntity extends Entity {
                 if (var5 instanceof Player) {
                     this.lastHurtByPlayerTime = 100;
                     this.lastHurtByPlayer = (Player)var5;
-                } else if (var5 instanceof Wolf) {
-                    Wolf var6 = (Wolf)var5;
-                    if (var6.isTame()) {
-                        this.lastHurtByPlayerTime = 100;
-                        LivingEntity var7 = var6.getOwner();
-                        if (var7 != null && var7.getType() == EntityType.PLAYER) {
-                            this.lastHurtByPlayer = (Player)var7;
-                        } else {
-                            this.lastHurtByPlayer = null;
-                        }
+                } else if (var5 instanceof Wolf var6 && var6.isTame()) {
+                    this.lastHurtByPlayerTime = 100;
+                    LivingEntity var7 = var6.getOwner();
+                    if (var7 != null && var7.getType() == EntityType.PLAYER) {
+                        this.lastHurtByPlayer = (Player)var7;
+                    } else {
+                        this.lastHurtByPlayer = null;
                     }
                 }
             }
@@ -1196,8 +1197,7 @@ public abstract class LivingEntity extends Entity {
             }
 
             if (var0 != null) {
-                if (this instanceof ServerPlayer) {
-                    ServerPlayer var3 = (ServerPlayer)this;
+                if (this instanceof ServerPlayer var3) {
                     var3.awardStat(Stats.ITEM_USED.get(Items.TOTEM_OF_UNDYING));
                     CriteriaTriggers.USED_TOTEM.trigger(var3, var0);
                 }
@@ -1234,11 +1234,8 @@ public abstract class LivingEntity extends Entity {
     public boolean isDamageSourceBlocked(DamageSource param0) {
         Entity var0 = param0.getDirectEntity();
         boolean var1 = false;
-        if (var0 instanceof AbstractArrow) {
-            AbstractArrow var2 = (AbstractArrow)var0;
-            if (var2.getPierceLevel() > 0) {
-                var1 = true;
-            }
+        if (var0 instanceof AbstractArrow var2 && var2.getPierceLevel() > 0) {
+            var1 = true;
         }
 
         if (!param0.isBypassArmor() && this.isBlocking() && !var1) {
@@ -1450,10 +1447,6 @@ public abstract class LivingEntity extends Entity {
                 return false;
             }
         }
-    }
-
-    public BlockState getFeetBlockState() {
-        return this.level.getBlockState(this.blockPosition());
     }
 
     private boolean trapdoorUsableAsLadder(BlockPos param0, BlockState param1) {
@@ -2750,7 +2743,7 @@ public abstract class LivingEntity extends Entity {
 
     }
 
-    public boolean canSee(Entity param0) {
+    public boolean hasLineOfSight(Entity param0) {
         Vec3 var0 = new Vec3(this.getX(), this.getEyeY(), this.getZ());
         Vec3 var1 = new Vec3(param0.getX(), param0.getEyeY(), param0.getZ());
         return this.level.clip(new ClipContext(var0, var1, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this)).getType() == HitResult.Type.MISS;

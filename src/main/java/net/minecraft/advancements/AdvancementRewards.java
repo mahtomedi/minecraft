@@ -100,7 +100,7 @@ public class AdvancementRewards {
             + Arrays.toString((Object[])this.recipes)
             + ", function="
             + this.function
-            + '}';
+            + "}";
     }
 
     public JsonElement serializeToJson() {

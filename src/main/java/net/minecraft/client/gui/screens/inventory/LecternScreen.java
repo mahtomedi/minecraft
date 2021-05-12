@@ -96,12 +96,12 @@ public class LecternScreen extends BookViewScreen implements MenuAccess<LecternM
         return false;
     }
 
-    private void bookChanged() {
+    void bookChanged() {
         ItemStack var0 = this.menu.getBook();
         this.setBookAccess(BookViewScreen.BookAccess.fromItem(var0));
     }
 
-    private void pageChanged() {
+    void pageChanged() {
         this.setPage(this.menu.getPage());
     }
 

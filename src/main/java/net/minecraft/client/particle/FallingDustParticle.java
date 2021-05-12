@@ -17,7 +17,7 @@ public class FallingDustParticle extends TextureSheetParticle {
     private final float rotSpeed;
     private final SpriteSet sprites;
 
-    private FallingDustParticle(ClientLevel param0, double param1, double param2, double param3, float param4, float param5, float param6, SpriteSet param7) {
+    FallingDustParticle(ClientLevel param0, double param1, double param2, double param3, float param4, float param5, float param6, SpriteSet param7) {
         super(param0, param1, param2, param3);
         this.sprites = param7;
         this.rCol = param4;

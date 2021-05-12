@@ -33,18 +33,23 @@ public class Pack implements AutoCloseable {
     public static Pack create(
         String param0, boolean param1, Supplier<PackResources> param2, Pack.PackConstructor param3, Pack.Position param4, PackSource param5
     ) {
-        try (PackResources var0 = param2.get()) {
-            PackMetadataSection var1 = var0.getMetadataSection(PackMetadataSection.SERIALIZER);
-            if (var1 != null) {
-                return param3.create(param0, new TextComponent(var0.getName()), param1, param2, var1, param4, param5);
+        try {
+            Pack var8;
+            try (PackResources var0 = param2.get()) {
+                PackMetadataSection var1 = var0.getMetadataSection(PackMetadataSection.SERIALIZER);
+                if (var1 == null) {
+                    LOGGER.warn("Couldn't find pack meta for pack {}", param0);
+                    return null;
+                }
+
+                var8 = param3.create(param0, new TextComponent(var0.getName()), param1, param2, var1, param4, param5);
             }
 
-            LOGGER.warn("Couldn't find pack meta for pack {}", param0);
-        } catch (IOException var22) {
-            LOGGER.warn("Couldn't get pack info for: {}", var22.toString());
+            return var8;
+        } catch (IOException var11) {
+            LOGGER.warn("Couldn't get pack info for: {}", var11.toString());
+            return null;
         }
-
-        return null;
     }
 
     public Pack(

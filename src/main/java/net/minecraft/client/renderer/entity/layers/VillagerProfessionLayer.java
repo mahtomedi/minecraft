@@ -84,13 +84,10 @@ public class VillagerProfessionLayer<T extends LivingEntity & VillagerDataHolder
         return param0.computeIfAbsent(param3, param3x -> {
             try (Resource var0 = this.resourceManager.getResource(this.getResourceLocation(param1, param2.getKey(param3)))) {
                 VillagerMetaDataSection var1x = var0.getMetadata(VillagerMetaDataSection.SERIALIZER);
-                if (var1x != null) {
-                    return var1x.getHat();
-                }
-            } catch (IOException var21) {
+                return var1x != null ? var1x.getHat() : VillagerMetaDataSection.Hat.NONE;
+            } catch (IOException var10) {
+                return VillagerMetaDataSection.Hat.NONE;
             }
-
-            return VillagerMetaDataSection.Hat.NONE;
         });
     }
 }

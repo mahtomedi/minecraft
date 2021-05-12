@@ -51,14 +51,14 @@ public class BeaconBlockEntity extends BlockEntity implements MenuProvider {
     public static final int DATA_SECONDARY = 2;
     public static final int NUM_DATA_VALUES = 3;
     private static final int BLOCKS_CHECK_PER_TICK = 10;
-    private List<BeaconBlockEntity.BeaconBeamSection> beamSections = Lists.newArrayList();
+    List<BeaconBlockEntity.BeaconBeamSection> beamSections = Lists.newArrayList();
     private List<BeaconBlockEntity.BeaconBeamSection> checkingBeamSections = Lists.newArrayList();
-    private int levels;
+    int levels;
     private int lastCheckY;
     @Nullable
-    private MobEffect primaryPower;
+    MobEffect primaryPower;
     @Nullable
-    private MobEffect secondaryPower;
+    MobEffect secondaryPower;
     @Nullable
     private Component name;
     private LockCode lockKey = LockCode.NO_LOCK;
@@ -270,7 +270,7 @@ public class BeaconBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     @Nullable
-    private static MobEffect getValidEffectById(int param0) {
+    static MobEffect getValidEffectById(int param0) {
         MobEffect var0 = MobEffect.byId(param0);
         return VALID_EFFECTS.contains(var0) ? var0 : null;
     }
@@ -325,7 +325,7 @@ public class BeaconBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     public static class BeaconBeamSection {
-        private final float[] color;
+        final float[] color;
         private int height;
 
         public BeaconBeamSection(float[] param0) {

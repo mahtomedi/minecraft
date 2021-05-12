@@ -76,6 +76,7 @@ import net.minecraft.network.protocol.game.ServerboundPlayerAbilitiesPacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerCommandPacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerInputPacket;
+import net.minecraft.network.protocol.game.ServerboundPongPacket;
 import net.minecraft.network.protocol.game.ServerboundRecipeBookChangeSettingsPacket;
 import net.minecraft.network.protocol.game.ServerboundRecipeBookSeenRecipePacket;
 import net.minecraft.network.protocol.game.ServerboundRenameItemPacket;
@@ -151,7 +152,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class ServerGamePacketListenerImpl implements ServerGamePacketListener, ServerPlayerConnection {
-    private static final Logger LOGGER = LogManager.getLogger();
+    static final Logger LOGGER = LogManager.getLogger();
     private static final int LATENCY_CHECK_INTERVAL = 15000;
     public final Connection connection;
     private final MinecraftServer server;
@@ -495,20 +496,12 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
                 CommandBlockEntity.Mode var6 = var1.getMode();
                 BlockState var7 = this.player.level.getBlockState(var2);
                 Direction var8 = var7.getValue(CommandBlock.FACING);
-                BlockState var9;
-                switch(param0.getMode()) {
-                    case SEQUENCE:
-                        var9 = Blocks.CHAIN_COMMAND_BLOCK.defaultBlockState();
-                        break;
-                    case AUTO:
-                        var9 = Blocks.REPEATING_COMMAND_BLOCK.defaultBlockState();
-                        break;
-                    case REDSTONE:
-                    default:
-                        var9 = Blocks.COMMAND_BLOCK.defaultBlockState();
-                }
 
-                BlockState var12 = var9.setValue(CommandBlock.FACING, var8).setValue(CommandBlock.CONDITIONAL, Boolean.valueOf(param0.isConditional()));
+                BlockState var12 = (switch(param0.getMode()) {
+                    case SEQUENCE -> Blocks.CHAIN_COMMAND_BLOCK.defaultBlockState();
+                    case AUTO -> Blocks.REPEATING_COMMAND_BLOCK.defaultBlockState();
+                    default -> Blocks.COMMAND_BLOCK.defaultBlockState();
+                }).setValue(CommandBlock.FACING, var8).setValue(CommandBlock.CONDITIONAL, Boolean.valueOf(param0.isConditional()));
                 if (var12 != var7) {
                     this.player.level.setBlock(var2, var12, 2);
                     var3.setBlockState(var12);
@@ -576,10 +569,9 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
     @Override
     public void handleRenameItem(ServerboundRenameItemPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.player.getLevel());
-        if (this.player.containerMenu instanceof AnvilMenu) {
-            AnvilMenu var0 = (AnvilMenu)this.player.containerMenu;
+        if (this.player.containerMenu instanceof AnvilMenu var0) {
             String var1 = SharedConstants.filterText(param0.getName());
-            if (var1.length() <= 35) {
+            if (var1.length() <= 50) {
                 var0.setItemName(var1);
             }
         }
@@ -602,8 +594,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
             BlockPos var0 = param0.getPos();
             BlockState var1 = this.player.level.getBlockState(var0);
             BlockEntity var2 = this.player.level.getBlockEntity(var0);
-            if (var2 instanceof StructureBlockEntity) {
-                StructureBlockEntity var3 = (StructureBlockEntity)var2;
+            if (var2 instanceof StructureBlockEntity var3) {
                 var3.setMode(param0.getMode());
                 var3.setStructureName(param0.getName());
                 var3.setStructurePos(param0.getOffset());
@@ -657,8 +648,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
             BlockPos var0 = param0.getPos();
             BlockState var1 = this.player.level.getBlockState(var0);
             BlockEntity var2 = this.player.level.getBlockEntity(var0);
-            if (var2 instanceof JigsawBlockEntity) {
-                JigsawBlockEntity var3 = (JigsawBlockEntity)var2;
+            if (var2 instanceof JigsawBlockEntity var3) {
                 var3.setName(param0.getName());
                 var3.setTarget(param0.getTarget());
                 var3.setPool(param0.getPool());
@@ -677,8 +667,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
         if (this.player.canUseGameMasterBlocks()) {
             BlockPos var0 = param0.getPos();
             BlockEntity var1 = this.player.level.getBlockEntity(var0);
-            if (var1 instanceof JigsawBlockEntity) {
-                JigsawBlockEntity var2 = (JigsawBlockEntity)var1;
+            if (var1 instanceof JigsawBlockEntity var2) {
                 var2.generate(this.player.getLevel(), param0.levels(), param0.keepJigsaws());
             }
 
@@ -690,8 +679,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
         PacketUtils.ensureRunningOnSameThread(param0, this, this.player.getLevel());
         int var0 = param0.getItem();
         AbstractContainerMenu var1 = this.player.containerMenu;
-        if (var1 instanceof MerchantMenu) {
-            MerchantMenu var2 = (MerchantMenu)var1;
+        if (var1 instanceof MerchantMenu var2) {
             var2.setSelectionHint(var0);
             var2.tryMoveItems(var0);
         }
@@ -1111,6 +1099,10 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
     }
 
     @Override
+    public void handlePong(ServerboundPongPacket param0) {
+    }
+
+    @Override
     public void onDisconnect(Component param0) {
         LOGGER.info("{} lost connection: {}", this.player.getName().getString(), param0.getString());
         this.server.invalidateStatus();
@@ -1244,8 +1236,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
                 }
                 break;
             case START_RIDING_JUMP:
-                if (this.player.getVehicle() instanceof PlayerRideableJumping) {
-                    PlayerRideableJumping var0 = (PlayerRideableJumping)this.player.getVehicle();
+                if (this.player.getVehicle() instanceof PlayerRideableJumping var0) {
                     int var1 = param0.getData();
                     if (var0.canJump() && var1 > 0) {
                         var0.handleStartJump(var1);
@@ -1253,8 +1244,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
                 }
                 break;
             case STOP_RIDING_JUMP:
-                if (this.player.getVehicle() instanceof PlayerRideableJumping) {
-                    PlayerRideableJumping var2 = (PlayerRideableJumping)this.player.getVehicle();
+                if (this.player.getVehicle() instanceof PlayerRideableJumping var2) {
                     var2.handleStopJump();
                 }
                 break;

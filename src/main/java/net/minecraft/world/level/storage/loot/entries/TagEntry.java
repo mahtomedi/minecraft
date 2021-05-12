@@ -17,10 +17,10 @@ import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
 public class TagEntry extends LootPoolSingletonContainer {
-    private final Tag<Item> tag;
-    private final boolean expand;
+    final Tag<Item> tag;
+    final boolean expand;
 
-    private TagEntry(Tag<Item> param0, boolean param1, int param2, int param3, LootItemCondition[] param4, LootItemFunction[] param5) {
+    TagEntry(Tag<Item> param0, boolean param1, int param2, int param3, LootItemCondition[] param4, LootItemFunction[] param5) {
         super(param2, param3, param4, param5);
         this.tag = param0;
         this.expand = param1;

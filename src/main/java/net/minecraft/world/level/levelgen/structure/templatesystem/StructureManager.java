@@ -70,12 +70,17 @@ public class StructureManager {
     private StructureTemplate loadFromResource(ResourceLocation param0) {
         ResourceLocation var0 = new ResourceLocation(param0.getNamespace(), "structures/" + param0.getPath() + ".nbt");
 
-        try (Resource var1 = this.resourceManager.getResource(var0)) {
-            return this.readStructure(var1.getInputStream());
-        } catch (FileNotFoundException var18) {
+        try {
+            StructureTemplate var4;
+            try (Resource var1 = this.resourceManager.getResource(var0)) {
+                var4 = this.readStructure(var1.getInputStream());
+            }
+
+            return var4;
+        } catch (FileNotFoundException var8) {
             return null;
-        } catch (Throwable var19) {
-            LOGGER.error("Couldn't load structure {}: {}", param0, var19.toString());
+        } catch (Throwable var9) {
+            LOGGER.error("Couldn't load structure {}: {}", param0, var9.toString());
             return null;
         }
     }
@@ -87,12 +92,17 @@ public class StructureManager {
         } else {
             Path var0 = this.createAndValidatePathToStructure(param0, ".nbt");
 
-            try (InputStream var1 = new FileInputStream(var0.toFile())) {
-                return this.readStructure(var1);
-            } catch (FileNotFoundException var18) {
+            try {
+                StructureTemplate var4;
+                try (InputStream var1 = new FileInputStream(var0.toFile())) {
+                    var4 = this.readStructure(var1);
+                }
+
+                return var4;
+            } catch (FileNotFoundException var8) {
                 return null;
-            } catch (IOException var19) {
-                LOGGER.error("Couldn't load structure from {}", var0, var19);
+            } catch (IOException var9) {
+                LOGGER.error("Couldn't load structure from {}", var0, var9);
                 return null;
             }
         }
@@ -125,17 +135,20 @@ public class StructureManager {
             } else {
                 try {
                     Files.createDirectories(Files.exists(var2) ? var2.toRealPath() : var2);
-                } catch (IOException var19) {
+                } catch (IOException var12) {
                     LOGGER.error("Failed to create parent directory: {}", var2);
                     return false;
                 }
 
                 CompoundTag var4 = var0.save(new CompoundTag());
 
-                try (OutputStream var5 = new FileOutputStream(var1.toFile())) {
-                    NbtIo.writeCompressed(var4, var5);
+                try {
+                    try (OutputStream var5 = new FileOutputStream(var1.toFile())) {
+                        NbtIo.writeCompressed(var4, var5);
+                    }
+
                     return true;
-                } catch (Throwable var21) {
+                } catch (Throwable var11) {
                     return false;
                 }
             }

@@ -29,15 +29,20 @@ public class SoundBufferLibrary {
 
     public CompletableFuture<SoundBuffer> getCompleteBuffer(ResourceLocation param0) {
         return this.cache.computeIfAbsent(param0, param0x -> CompletableFuture.supplyAsync(() -> {
-                try (
-                    Resource var0 = this.resourceManager.getResource(param0x);
-                    InputStream var1x = var0.getInputStream();
-                    OggAudioStream var2 = new OggAudioStream(var1x);
-                ) {
-                    ByteBuffer var3 = var2.readAll();
-                    return new SoundBuffer(var3, var2.getFormat());
-                } catch (IOException var62) {
-                    throw new CompletionException(var62);
+                try {
+                    SoundBuffer var6;
+                    try (
+                        Resource var0 = this.resourceManager.getResource(param0x);
+                        InputStream var1x = var0.getInputStream();
+                        OggAudioStream var2 = new OggAudioStream(var1x);
+                    ) {
+                        ByteBuffer var3 = var2.readAll();
+                        var6 = new SoundBuffer(var3, var2.getFormat());
+                    }
+
+                    return var6;
+                } catch (IOException var13) {
+                    throw new CompletionException(var13);
                 }
             }, Util.backgroundExecutor()));
     }

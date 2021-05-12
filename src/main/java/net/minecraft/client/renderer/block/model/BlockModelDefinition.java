@@ -79,11 +79,8 @@ public class BlockModelDefinition {
         if (this == param0) {
             return true;
         } else {
-            if (param0 instanceof BlockModelDefinition) {
-                BlockModelDefinition var0 = (BlockModelDefinition)param0;
-                if (this.variants.equals(var0.variants)) {
-                    return this.isMultiPart() ? this.multiPart.equals(var0.multiPart) : !var0.isMultiPart();
-                }
+            if (param0 instanceof BlockModelDefinition var0 && this.variants.equals(var0.variants)) {
+                return this.isMultiPart() ? this.multiPart.equals(var0.multiPart) : !var0.isMultiPart();
             }
 
             return false;
@@ -175,8 +172,6 @@ public class BlockModelDefinition {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public class MissingVariantException extends RuntimeException {
-        protected MissingVariantException() {
-        }
+    protected class MissingVariantException extends RuntimeException {
     }
 }

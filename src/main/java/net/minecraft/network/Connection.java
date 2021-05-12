@@ -26,7 +26,7 @@ import io.netty.handler.timeout.TimeoutException;
 import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
-import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.Queue;
 import javax.annotation.Nullable;
@@ -186,31 +186,26 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
         }
 
         if (this.channel.eventLoop().inEventLoop()) {
-            if (var0 != var1) {
-                this.setProtocol(var0);
-            }
-
-            ChannelFuture var2 = this.channel.writeAndFlush(param0);
-            if (param1 != null) {
-                var2.addListener(param1);
-            }
-
-            var2.addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
+            this.doSendPacket(param0, param1, var0, var1);
         } else {
-            this.channel.eventLoop().execute(() -> {
-                if (var0 != var1) {
-                    this.setProtocol(var0);
-                }
-
-                ChannelFuture var0x = this.channel.writeAndFlush(param0);
-                if (param1 != null) {
-                    var0x.addListener(param1);
-                }
-
-                var0x.addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
-            });
+            this.channel.eventLoop().execute(() -> this.doSendPacket(param0, param1, var0, var1));
         }
 
+    }
+
+    private void doSendPacket(
+        Packet<?> param0, @Nullable GenericFutureListener<? extends Future<? super Void>> param1, ConnectionProtocol param2, ConnectionProtocol param3
+    ) {
+        if (param2 != param3) {
+            this.setProtocol(param2);
+        }
+
+        ChannelFuture var0 = this.channel.writeAndFlush(param0);
+        if (param1 != null) {
+            var0.addListener(param1);
+        }
+
+        var0.addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
     }
 
     private ConnectionProtocol getCurrentProtocol() {
@@ -284,11 +279,11 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
         return this.receiving.getOpposite();
     }
 
-    public static Connection connectToServer(InetAddress param0, int param1, boolean param2) {
+    public static Connection connectToServer(InetSocketAddress param0, boolean param1) {
         final Connection var0 = new Connection(PacketFlow.CLIENTBOUND);
         Class<? extends SocketChannel> var1;
         LazyLoadedValue<? extends EventLoopGroup> var2;
-        if (Epoll.isAvailable() && param2) {
+        if (Epoll.isAvailable() && param1) {
             var1 = EpollSocketChannel.class;
             var2 = NETWORK_EPOLL_WORKER_GROUP;
         } else {
@@ -318,7 +313,7 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
                 }
             )
             .channel(var1)
-            .connect(param0, param1)
+            .connect(param0.getAddress(), param0.getPort())
             .syncUninterruptibly();
         return var0;
     }
@@ -415,9 +410,9 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
     }
 
     static class PacketHolder {
-        private final Packet<?> packet;
+        final Packet<?> packet;
         @Nullable
-        private final GenericFutureListener<? extends Future<? super Void>> listener;
+        final GenericFutureListener<? extends Future<? super Void>> listener;
 
         public PacketHolder(Packet<?> param0, @Nullable GenericFutureListener<? extends Future<? super Void>> param1) {
             this.packet = param0;

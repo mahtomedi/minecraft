@@ -13,7 +13,7 @@ public class FoodProperties {
     private final boolean fastFood;
     private final List<Pair<MobEffectInstance, Float>> effects;
 
-    private FoodProperties(int param0, float param1, boolean param2, boolean param3, boolean param4, List<Pair<MobEffectInstance, Float>> param5) {
+    FoodProperties(int param0, float param1, boolean param2, boolean param3, boolean param4, List<Pair<MobEffectInstance, Float>> param5) {
         this.nutrition = param0;
         this.saturationModifier = param1;
         this.isMeat = param2;

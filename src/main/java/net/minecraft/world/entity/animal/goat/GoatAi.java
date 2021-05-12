@@ -49,7 +49,7 @@ public class GoatAi {
     public static final float MAX_JUMP_VELOCITY = 1.5F;
     private static final UniformInt TIME_BETWEEN_RAMS = UniformInt.of(600, 6000);
     private static final UniformInt TIME_BETWEEN_RAMS_SCREAMER = UniformInt.of(100, 300);
-    private static final TargetingConditions RAM_TARGET_CONDITIONS = new TargetingConditions()
+    private static final TargetingConditions RAM_TARGET_CONDITIONS = TargetingConditions.forCombat()
         .selector(
             param0 -> !param0.getType().equals(EntityType.GOAT)
                     && (param0.level.getDifficulty() != Difficulty.PEACEFUL || !param0.getType().equals(EntityType.PLAYER))

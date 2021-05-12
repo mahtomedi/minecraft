@@ -30,7 +30,7 @@ public class FillCommand {
     private static final Dynamic2CommandExceptionType ERROR_AREA_TOO_LARGE = new Dynamic2CommandExceptionType(
         (param0, param1) -> new TranslatableComponent("commands.fill.toobig", param0, param1)
     );
-    private static final BlockInput HOLLOW_CORE = new BlockInput(Blocks.AIR.defaultBlockState(), Collections.emptySet(), null);
+    static final BlockInput HOLLOW_CORE = new BlockInput(Blocks.AIR.defaultBlockState(), Collections.emptySet(), null);
     private static final SimpleCommandExceptionType ERROR_FAILED = new SimpleCommandExceptionType(new TranslatableComponent("commands.fill.failed"));
 
     public static void register(CommandDispatcher<CommandSourceStack> param0) {

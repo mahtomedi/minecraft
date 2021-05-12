@@ -65,7 +65,7 @@ public class PredicateManager extends SimpleJsonResourceReloadListener {
         private final LootItemCondition[] terms;
         private final Predicate<LootContext> composedPredicate;
 
-        private CompositePredicate(LootItemCondition[] param0) {
+        CompositePredicate(LootItemCondition[] param0) {
             this.terms = param0;
             this.composedPredicate = LootItemConditions.andConditions(param0);
         }

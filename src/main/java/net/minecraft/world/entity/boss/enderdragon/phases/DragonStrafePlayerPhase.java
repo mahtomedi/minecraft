@@ -48,7 +48,7 @@ public class DragonStrafePlayerPhase extends AbstractDragonPhaseInstance {
 
             double var7 = 64.0;
             if (this.attackTarget.distanceToSqr(this.dragon) < 4096.0) {
-                if (this.dragon.canSee(this.attackTarget)) {
+                if (this.dragon.hasLineOfSight(this.attackTarget)) {
                     ++this.fireballCharge;
                     Vec3 var8 = new Vec3(this.attackTarget.getX() - this.dragon.getX(), 0.0, this.attackTarget.getZ() - this.dragon.getZ()).normalize();
                     Vec3 var9 = new Vec3(

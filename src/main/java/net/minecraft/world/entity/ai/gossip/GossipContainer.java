@@ -167,10 +167,7 @@ public class GossipContainer {
     }
 
     static class EntityGossips {
-        private final Object2IntMap<GossipType> entries = new Object2IntOpenHashMap<>();
-
-        private EntityGossips() {
-        }
+        final Object2IntMap<GossipType> entries = new Object2IntOpenHashMap<>();
 
         public int weightedValue(Predicate<GossipType> param0) {
             return this.entries
@@ -241,7 +238,7 @@ public class GossipContainer {
 
         @Override
         public String toString() {
-            return "GossipEntry{target=" + this.target + ", type=" + this.type + ", value=" + this.value + '}';
+            return "GossipEntry{target=" + this.target + ", type=" + this.type + ", value=" + this.value + "}";
         }
 
         public <T> Dynamic<T> store(DynamicOps<T> param0) {

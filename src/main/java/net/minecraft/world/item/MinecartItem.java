@@ -70,7 +70,7 @@ public class MinecartItem extends Item {
             param0.getLevel().levelEvent(1000, param0.getPos(), 0);
         }
     };
-    private final AbstractMinecart.Type type;
+    final AbstractMinecart.Type type;
 
     public MinecartItem(AbstractMinecart.Type param0, Item.Properties param1) {
         super(param1);

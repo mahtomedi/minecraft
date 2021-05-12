@@ -13,7 +13,7 @@ public class Varint21LengthFieldPrepender extends MessageToByteEncoder<ByteBuf> 
         int var0 = param1.readableBytes();
         int var1 = FriendlyByteBuf.getVarIntSize(var0);
         if (var1 > 3) {
-            throw new IllegalArgumentException("unable to fit " + var0 + " into " + 3);
+            throw new IllegalArgumentException("unable to fit " + var0 + " into 3");
         } else {
             FriendlyByteBuf var2 = new FriendlyByteBuf(param2);
             var2.ensureWritable(var1 + var0);

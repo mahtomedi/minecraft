@@ -71,8 +71,8 @@ public class PopupScreen extends Screen {
 
     @OnlyIn(Dist.CLIENT)
     public static final class ButtonOption {
-        private final Component message;
-        private final Button.OnPress onPress;
+        final Component message;
+        final Button.OnPress onPress;
 
         public ButtonOption(Component param0, Button.OnPress param1) {
             this.message = param0;

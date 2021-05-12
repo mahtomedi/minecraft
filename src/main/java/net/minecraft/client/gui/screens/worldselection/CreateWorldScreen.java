@@ -67,7 +67,7 @@ public class CreateWorldScreen extends Screen {
     private static final Component COMMANDS_INFO = new TranslatableComponent("selectWorld.allowCommands.info");
     private final Screen lastScreen;
     private EditBox nameEdit;
-    private String resultFolder;
+    String resultFolder;
     private CreateWorldScreen.SelectedGameMode gameMode = CreateWorldScreen.SelectedGameMode.SURVIVAL;
     @Nullable
     private CreateWorldScreen.SelectedGameMode oldGameMode;
@@ -525,7 +525,7 @@ public class CreateWorldScreen extends Screen {
                     }
 
                 });
-            } catch (IOException var14) {
+            } catch (IOException var6) {
                 LOGGER.warn("Failed to list temporary dir {}", this.tempDataPackDir);
             }
 
@@ -552,8 +552,8 @@ public class CreateWorldScreen extends Screen {
                 Path var2 = var0.getLevelPath(LevelResource.DATAPACK_DIR);
                 Files.createDirectories(var2);
                 var1.filter(param0 -> !param0.equals(this.tempDataPackDir)).forEach(param1 -> copyBetweenDirs(this.tempDataPackDir, var2, param1));
-            } catch (CreateWorldScreen.OperationFailedException | IOException var33) {
-                LOGGER.warn("Failed to copy datapacks to world {}", this.resultFolder, var33);
+            } catch (CreateWorldScreen.OperationFailedException | IOException var9) {
+                LOGGER.warn("Failed to copy datapacks to world {}", this.resultFolder, var9);
                 SystemToast.onPackCopyFailure(this.minecraft, this.resultFolder);
                 this.popScreen();
                 return false;
@@ -583,8 +583,8 @@ public class CreateWorldScreen extends Screen {
 
                 copyBetweenDirs(param0, var0x, param2);
             });
-        } catch (CreateWorldScreen.OperationFailedException | IOException var16) {
-            LOGGER.warn("Failed to copy datapacks from world {}", param0, var16);
+        } catch (CreateWorldScreen.OperationFailedException | IOException var8) {
+            LOGGER.warn("Failed to copy datapacks from world {}", param0, var8);
             SystemToast.onPackCopyFailure(param1, param0.toString());
             return null;
         }
@@ -625,8 +625,8 @@ public class CreateWorldScreen extends Screen {
         CREATIVE("creative", GameType.CREATIVE),
         DEBUG("spectator", GameType.SPECTATOR);
 
-        private final String name;
-        private final GameType gameType;
+        final String name;
+        final GameType gameType;
         private final Component displayName;
 
         private SelectedGameMode(String param0, GameType param1) {

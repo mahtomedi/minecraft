@@ -22,11 +22,11 @@ import org.apache.logging.log4j.Logger;
 
 public class SetNameFunction extends LootItemConditionalFunction {
     private static final Logger LOGGER = LogManager.getLogger();
-    private final Component name;
+    final Component name;
     @Nullable
-    private final LootContext.EntityTarget resolutionContext;
+    final LootContext.EntityTarget resolutionContext;
 
-    private SetNameFunction(LootItemCondition[] param0, @Nullable Component param1, @Nullable LootContext.EntityTarget param2) {
+    SetNameFunction(LootItemCondition[] param0, @Nullable Component param1, @Nullable LootContext.EntityTarget param2) {
         super(param0);
         this.name = param1;
         this.resolutionContext = param2;

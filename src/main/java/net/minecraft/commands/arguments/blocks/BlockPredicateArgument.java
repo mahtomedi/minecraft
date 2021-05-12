@@ -122,7 +122,7 @@ public class BlockPredicateArgument implements ArgumentType<BlockPredicateArgume
         private final CompoundTag nbt;
         private final Map<String, String> vagueProperties;
 
-        private TagPredicate(Tag<Block> param0, Map<String, String> param1, @Nullable CompoundTag param2) {
+        TagPredicate(Tag<Block> param0, Map<String, String> param1, @Nullable CompoundTag param2) {
             this.tag = param0;
             this.vagueProperties = param1;
             this.nbt = param2;

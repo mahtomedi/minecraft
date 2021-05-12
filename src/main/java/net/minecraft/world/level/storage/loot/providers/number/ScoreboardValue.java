@@ -13,11 +13,11 @@ import net.minecraft.world.scores.Objective;
 import net.minecraft.world.scores.Scoreboard;
 
 public class ScoreboardValue implements NumberProvider {
-    private final ScoreboardNameProvider target;
-    private final String score;
-    private final float scale;
+    final ScoreboardNameProvider target;
+    final String score;
+    final float scale;
 
-    private ScoreboardValue(ScoreboardNameProvider param0, String param1, float param2) {
+    ScoreboardValue(ScoreboardNameProvider param0, String param1, float param2) {
         this.target = param0;
         this.score = param1;
         this.scale = param2;

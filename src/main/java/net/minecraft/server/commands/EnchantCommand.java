@@ -74,8 +74,7 @@ public class EnchantCommand {
             int var0 = 0;
 
             for(Entity var1 : param1) {
-                if (var1 instanceof LivingEntity) {
-                    LivingEntity var2 = (LivingEntity)var1;
+                if (var1 instanceof LivingEntity var2) {
                     ItemStack var3 = var2.getMainHandItem();
                     if (!var3.isEmpty()) {
                         if (param2.canEnchant(var3) && EnchantmentHelper.isEnchantmentCompatible(EnchantmentHelper.getEnchantments(var3).keySet(), param2)) {

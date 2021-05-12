@@ -48,7 +48,7 @@ public class AngleArgument implements ArgumentType<AngleArgument.SingleAngle> {
         private final float angle;
         private final boolean isRelative;
 
-        private SingleAngle(float param0, boolean param1) {
+        SingleAngle(float param0, boolean param1) {
             this.angle = param0;
             this.isRelative = param1;
         }

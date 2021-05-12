@@ -25,8 +25,7 @@ public class EmoteCommands {
                                 Entity var1 = param0x.getSource().getEntity();
                                 MinecraftServer var2 = param0x.getSource().getServer();
                                 if (var1 != null) {
-                                    if (var1 instanceof ServerPlayer) {
-                                        ServerPlayer var3 = (ServerPlayer)var1;
+                                    if (var1 instanceof ServerPlayer var3) {
                                         var3.getTextFilter()
                                             .processStreamMessage(var0x)
                                             .thenAcceptAsync(

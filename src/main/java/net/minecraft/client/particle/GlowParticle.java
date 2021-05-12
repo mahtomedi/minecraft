@@ -9,10 +9,10 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class GlowParticle extends TextureSheetParticle {
-    private static final Random RANDOM = new Random();
+    static final Random RANDOM = new Random();
     private final SpriteSet sprites;
 
-    private GlowParticle(ClientLevel param0, double param1, double param2, double param3, double param4, double param5, double param6, SpriteSet param7) {
+    GlowParticle(ClientLevel param0, double param1, double param2, double param3, double param4, double param5, double param6, SpriteSet param7) {
         super(param0, param1, param2, param3, param4, param5, param6);
         this.friction = 0.96F;
         this.speedUpWhenYMotionIsBlocked = true;

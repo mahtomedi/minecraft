@@ -23,7 +23,7 @@ public class MetricSampler {
     @Nullable
     private final MetricSampler.ThresholdAlerter thresholdAlerter;
 
-    private <T> MetricSampler(Metric param0, DoubleSupplier param1, @Nullable Runnable param2, @Nullable MetricSampler.ThresholdAlerter param3) {
+    <T> MetricSampler(Metric param0, DoubleSupplier param1, @Nullable Runnable param2, @Nullable MetricSampler.ThresholdAlerter param3) {
         this.metric = param0;
         this.beforeTick = param2;
         this.sampler = param1;

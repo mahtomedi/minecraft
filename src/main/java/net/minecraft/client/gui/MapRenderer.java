@@ -23,10 +23,10 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class MapRenderer implements AutoCloseable {
     private static final ResourceLocation MAP_ICONS_LOCATION = new ResourceLocation("textures/map/map_icons.png");
-    private static final RenderType MAP_ICONS = RenderType.text(MAP_ICONS_LOCATION);
+    static final RenderType MAP_ICONS = RenderType.text(MAP_ICONS_LOCATION);
     private static final int WIDTH = 128;
     private static final int HEIGHT = 128;
-    private final TextureManager textureManager;
+    final TextureManager textureManager;
     private final Int2ObjectMap<MapRenderer.MapInstance> maps = new Int2ObjectOpenHashMap<>();
 
     public MapRenderer(TextureManager param0) {
@@ -64,14 +64,14 @@ public class MapRenderer implements AutoCloseable {
         private final DynamicTexture texture;
         private final RenderType renderType;
 
-        private MapInstance(int param0, MapItemSavedData param1) {
+        MapInstance(int param0, MapItemSavedData param1) {
             this.data = param1;
             this.texture = new DynamicTexture(128, 128, true);
             ResourceLocation param2 = MapRenderer.this.textureManager.register("map/" + param0, this.texture);
             this.renderType = RenderType.text(param2);
         }
 
-        private void updateTexture() {
+        void updateTexture() {
             for(int var0 = 0; var0 < 128; ++var0) {
                 for(int var1 = 0; var1 < 128; ++var1) {
                     int var2 = var1 + var0 * 128;
@@ -87,7 +87,7 @@ public class MapRenderer implements AutoCloseable {
             this.texture.upload();
         }
 
-        private void draw(PoseStack param0, MultiBufferSource param1, boolean param2, int param3) {
+        void draw(PoseStack param0, MultiBufferSource param1, boolean param2, int param3) {
             int var0 = 0;
             int var1 = 0;
             float var2 = 0.0F;

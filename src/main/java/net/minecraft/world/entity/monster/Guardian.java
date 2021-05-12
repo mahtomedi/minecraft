@@ -116,7 +116,7 @@ public class Guardian extends Monster {
         return this.entityData.get(DATA_ID_MOVING);
     }
 
-    private void setMoving(boolean param0) {
+    void setMoving(boolean param0) {
         this.entityData.set(DATA_ID_MOVING, param0);
     }
 
@@ -124,7 +124,7 @@ public class Guardian extends Monster {
         return 80;
     }
 
-    private void setActiveAttackTarget(int param0) {
+    void setActiveAttackTarget(int param0) {
         this.entityData.set(DATA_ID_ATTACK_TARGET, param0);
     }
 
@@ -329,11 +329,8 @@ public class Guardian extends Monster {
 
     @Override
     public boolean hurt(DamageSource param0, float param1) {
-        if (!this.isMoving() && !param0.isMagic() && param0.getDirectEntity() instanceof LivingEntity) {
-            LivingEntity var0 = (LivingEntity)param0.getDirectEntity();
-            if (!param0.isExplosion()) {
-                var0.hurt(DamageSource.thorns(this), 2.0F);
-            }
+        if (!this.isMoving() && !param0.isMagic() && param0.getDirectEntity() instanceof LivingEntity var0 && !param0.isExplosion()) {
+            var0.hurt(DamageSource.thorns(this), 2.0F);
         }
 
         if (this.randomStrollGoal != null) {
@@ -405,7 +402,7 @@ public class Guardian extends Monster {
             LivingEntity var0 = this.guardian.getTarget();
             this.guardian.getNavigation().stop();
             this.guardian.getLookControl().setLookAt(var0, 90.0F, 90.0F);
-            if (!this.guardian.canSee(var0)) {
+            if (!this.guardian.hasLineOfSight(var0)) {
                 this.guardian.setTarget(null);
             } else {
                 ++this.attackTime;

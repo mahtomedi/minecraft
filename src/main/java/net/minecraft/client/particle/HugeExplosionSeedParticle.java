@@ -11,7 +11,7 @@ public class HugeExplosionSeedParticle extends NoRenderParticle {
     private int life;
     private final int lifeTime = 8;
 
-    private HugeExplosionSeedParticle(ClientLevel param0, double param1, double param2, double param3) {
+    HugeExplosionSeedParticle(ClientLevel param0, double param1, double param2, double param3) {
         super(param0, param1, param2, param3, 0.0, 0.0, 0.0);
     }
 

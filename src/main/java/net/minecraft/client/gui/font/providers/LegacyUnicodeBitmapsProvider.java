@@ -23,7 +23,7 @@ import org.apache.logging.log4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class LegacyUnicodeBitmapsProvider implements GlyphProvider {
-    private static final Logger LOGGER = LogManager.getLogger();
+    static final Logger LOGGER = LogManager.getLogger();
     private static final int UNICODE_SHEETS = 256;
     private static final int CHARS_PER_SHEET = 256;
     private static final int TEXTURE_SIZE = 256;
@@ -54,7 +54,7 @@ public class LegacyUnicodeBitmapsProvider implements GlyphProvider {
                     }
                     continue;
                 }
-            } catch (IOException var43) {
+            } catch (IOException var15) {
             }
 
             Arrays.fill(param1, var1, var1 + 256, (byte)0);
@@ -106,10 +106,15 @@ public class LegacyUnicodeBitmapsProvider implements GlyphProvider {
 
     @Nullable
     private NativeImage loadTexture(ResourceLocation param0x) {
-        try (Resource var0x = this.resourceManager.getResource(param0x)) {
-            return NativeImage.read(NativeImage.Format.RGBA, var0x.getInputStream());
-        } catch (IOException var16) {
-            LOGGER.error("Couldn't load texture {}", param0x, var16);
+        try {
+            NativeImage var3;
+            try (Resource var0x = this.resourceManager.getResource(param0x)) {
+                var3 = NativeImage.read(NativeImage.Format.RGBA, var0x.getInputStream());
+            }
+
+            return var3;
+        } catch (IOException var7) {
+            LOGGER.error("Couldn't load texture {}", param0x, var7);
             return null;
         }
     }
@@ -141,11 +146,16 @@ public class LegacyUnicodeBitmapsProvider implements GlyphProvider {
         @Nullable
         @Override
         public GlyphProvider create(ResourceManager param0) {
-            try (Resource var0 = Minecraft.getInstance().getResourceManager().getResource(this.metadata)) {
-                byte[] var1 = new byte[65536];
-                var0.getInputStream().read(var1);
-                return new LegacyUnicodeBitmapsProvider(param0, var1, this.texturePattern);
-            } catch (IOException var17) {
+            try {
+                LegacyUnicodeBitmapsProvider var4;
+                try (Resource var0 = Minecraft.getInstance().getResourceManager().getResource(this.metadata)) {
+                    byte[] var1 = new byte[65536];
+                    var0.getInputStream().read(var1);
+                    var4 = new LegacyUnicodeBitmapsProvider(param0, var1, this.texturePattern);
+                }
+
+                return var4;
+            } catch (IOException var7) {
                 LegacyUnicodeBitmapsProvider.LOGGER.error("Cannot load {}, unicode glyphs will not render correctly", this.metadata);
                 return null;
             }
@@ -160,7 +170,7 @@ public class LegacyUnicodeBitmapsProvider implements GlyphProvider {
         private final int sourceY;
         private final NativeImage source;
 
-        private Glyph(int param0, int param1, int param2, int param3, NativeImage param4) {
+        Glyph(int param0, int param1, int param2, int param3, NativeImage param4) {
             this.width = param2;
             this.height = param3;
             this.sourceX = param0;

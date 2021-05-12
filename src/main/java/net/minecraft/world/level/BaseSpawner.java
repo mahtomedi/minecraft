@@ -150,8 +150,7 @@ public abstract class BaseSpawner {
                         }
 
                         var9.moveTo(var9.getX(), var9.getY(), var9.getZ(), param0.random.nextFloat() * 360.0F, 0.0F);
-                        if (var9 instanceof Mob) {
-                            Mob var11 = (Mob)var9;
+                        if (var9 instanceof Mob var11) {
                             if (!var11.checkSpawnRules(param0, MobSpawnType.SPAWNER) || !var11.checkSpawnObstruction(param0)) {
                                 continue;
                             }

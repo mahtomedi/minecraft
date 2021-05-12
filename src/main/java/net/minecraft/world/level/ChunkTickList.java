@@ -84,12 +84,12 @@ public class ChunkTickList<T> implements TickList<T> {
     }
 
     static class ScheduledTick<T> {
-        private final T type;
+        final T type;
         public final BlockPos pos;
         public final int delay;
         public final TickPriority priority;
 
-        private ScheduledTick(T param0, BlockPos param1, int param2, TickPriority param3) {
+        ScheduledTick(T param0, BlockPos param1, int param2, TickPriority param3) {
             this.type = param0;
             this.pos = param1;
             this.delay = param2;

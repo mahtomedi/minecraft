@@ -28,22 +28,19 @@ import net.minecraft.world.level.Level;
 
 public class Pufferfish extends AbstractFish {
     private static final EntityDataAccessor<Integer> PUFF_STATE = SynchedEntityData.defineId(Pufferfish.class, EntityDataSerializers.INT);
-    private int inflateCounter;
-    private int deflateTimer;
-    private static final Predicate<LivingEntity> NO_CREATIVE_OR_WATER_MOB = param0 -> {
+    int inflateCounter;
+    int deflateTimer;
+    private static final Predicate<LivingEntity> SCARY_MOB = param0 -> {
         if (param0 instanceof Player && ((Player)param0).isCreative()) {
             return false;
         } else {
-            return param0.getMobType() != MobType.WATER;
+            return param0.getType() == EntityType.AXOLOTL || param0.getMobType() != MobType.WATER;
         }
     };
-    private static final TargetingConditions targetingConditions = new TargetingConditions()
-        .allowInvulnerable()
+    static final TargetingConditions targetingConditions = TargetingConditions.forNonCombat()
         .ignoreInvisibilityTesting()
-        .allowNonAttackable()
-        .allowSameTeam()
-        .allowUnseeable()
-        .selector(NO_CREATIVE_OR_WATER_MOB);
+        .ignoreLineOfSight()
+        .selector(SCARY_MOB);
     public static final int STATE_SMALL = 0;
     public static final int STATE_MID = 1;
     public static final int STATE_FULL = 2;

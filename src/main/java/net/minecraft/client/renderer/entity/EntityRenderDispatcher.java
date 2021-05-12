@@ -260,11 +260,8 @@ public class EntityRenderDispatcher implements ResourceManagerReloadListener {
 
     private static void renderShadow(PoseStack param0, MultiBufferSource param1, Entity param2, float param3, float param4, LevelReader param5, float param6) {
         float var0 = param6;
-        if (param2 instanceof Mob) {
-            Mob var1 = (Mob)param2;
-            if (var1.isBaby()) {
-                var0 = param6 * 0.5F;
-            }
+        if (param2 instanceof Mob var1 && var1.isBaby()) {
+            var0 = param6 * 0.5F;
         }
 
         double var2 = Mth.lerp((double)param4, param2.xOld, param2.getX());

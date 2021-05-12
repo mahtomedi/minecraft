@@ -167,11 +167,11 @@ public class TextureAtlas extends AbstractTexture implements Tickable {
 
                         Pair<Integer, Integer> var4x = var3x.getFrameSize(var2x.width, var2x.height);
                         var5 = new TextureAtlasSprite.Info(var2, var4x.getFirst(), var4x.getSecond(), var3x);
-                    } catch (RuntimeException var22) {
-                        LOGGER.error("Unable to parse metadata from {} : {}", var0x, var22);
+                    } catch (RuntimeException var12) {
+                        LOGGER.error("Unable to parse metadata from {} : {}", var0x, var12);
                         return;
-                    } catch (IOException var23) {
-                        LOGGER.error("Using missing texture, unable to load {} : {}", var0x, var23);
+                    } catch (IOException var13) {
+                        LOGGER.error("Using missing texture, unable to load {} : {}", var0x, var13);
                         return;
                     }
 
@@ -210,14 +210,19 @@ public class TextureAtlas extends AbstractTexture implements Tickable {
     private TextureAtlasSprite load(ResourceManager param0, TextureAtlasSprite.Info param1, int param2, int param3, int param4, int param5, int param6) {
         ResourceLocation var0 = this.getResourceLocation(param1.name());
 
-        try (Resource var1 = param0.getResource(var0)) {
-            NativeImage var2 = NativeImage.read(var1.getInputStream());
-            return new TextureAtlasSprite(this, param1, param4, param2, param3, param5, param6, var2);
-        } catch (RuntimeException var25) {
-            LOGGER.error("Unable to parse metadata from {}", var0, var25);
+        try {
+            TextureAtlasSprite var11;
+            try (Resource var1 = param0.getResource(var0)) {
+                NativeImage var2 = NativeImage.read(var1.getInputStream());
+                var11 = new TextureAtlasSprite(this, param1, param4, param2, param3, param5, param6, var2);
+            }
+
+            return var11;
+        } catch (RuntimeException var14) {
+            LOGGER.error("Unable to parse metadata from {}", var0, var14);
             return null;
-        } catch (IOException var26) {
-            LOGGER.error("Using missing texture, unable to load {}", var0, var26);
+        } catch (IOException var15) {
+            LOGGER.error("Using missing texture, unable to load {}", var0, var15);
             return null;
         }
     }

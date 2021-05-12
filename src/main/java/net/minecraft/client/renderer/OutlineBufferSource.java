@@ -61,7 +61,7 @@ public class OutlineBufferSource implements MultiBufferSource {
         private float u;
         private float v;
 
-        private EntityOutlineGenerator(VertexConsumer param0, int param1, int param2, int param3, int param4) {
+        EntityOutlineGenerator(VertexConsumer param0, int param1, int param2, int param3, int param4) {
             this.delegate = param0;
             super.defaultColor(param1, param2, param3, param4);
         }

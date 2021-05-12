@@ -19,13 +19,13 @@ import org.lwjgl.system.MemoryUtil;
 @OnlyIn(Dist.CLIENT)
 public class TrueTypeGlyphProvider implements GlyphProvider {
     private final ByteBuffer fontMemory;
-    private final STBTTFontinfo font;
-    private final float oversample;
+    final STBTTFontinfo font;
+    final float oversample;
     private final IntSet skip = new IntArraySet();
-    private final float shiftX;
-    private final float shiftY;
-    private final float pointScale;
-    private final float ascent;
+    final float shiftX;
+    final float shiftY;
+    final float pointScale;
+    final float ascent;
 
     public TrueTypeGlyphProvider(ByteBuffer param0, STBTTFontinfo param1, float param2, float param3, float param4, float param5, String param6) {
         this.fontMemory = param0;
@@ -51,41 +51,33 @@ public class TrueTypeGlyphProvider implements GlyphProvider {
         if (this.skip.contains(param0)) {
             return null;
         } else {
-            Object var6;
+            Object var8;
             try (MemoryStack var0 = MemoryStack.stackPush()) {
                 IntBuffer var1 = var0.mallocInt(1);
                 IntBuffer var2 = var0.mallocInt(1);
                 IntBuffer var3 = var0.mallocInt(1);
                 IntBuffer var4 = var0.mallocInt(1);
                 int var5 = STBTruetype.stbtt_FindGlyphIndex(this.font, param0);
-                if (var5 != 0) {
-                    STBTruetype.stbtt_GetGlyphBitmapBoxSubpixel(
-                        this.font, var5, this.pointScale, this.pointScale, this.shiftX, this.shiftY, var1, var2, var3, var4
-                    );
-                    int var6 = var3.get(0) - var1.get(0);
-                    int var7 = var4.get(0) - var2.get(0);
-                    if (var6 > 0 && var7 > 0) {
-                        IntBuffer var8 = var0.mallocInt(1);
-                        IntBuffer var9 = var0.mallocInt(1);
-                        STBTruetype.stbtt_GetGlyphHMetrics(this.font, var5, var8, var9);
-                        return new TrueTypeGlyphProvider.Glyph(
-                            var1.get(0),
-                            var3.get(0),
-                            -var2.get(0),
-                            -var4.get(0),
-                            (float)var8.get(0) * this.pointScale,
-                            (float)var9.get(0) * this.pointScale,
-                            var5
-                        );
-                    }
-
+                if (var5 == 0) {
                     return null;
                 }
 
-                var6 = null;
+                STBTruetype.stbtt_GetGlyphBitmapBoxSubpixel(this.font, var5, this.pointScale, this.pointScale, this.shiftX, this.shiftY, var1, var2, var3, var4);
+                int var6 = var3.get(0) - var1.get(0);
+                int var7 = var4.get(0) - var2.get(0);
+                if (var6 > 0 && var7 > 0) {
+                    IntBuffer var8 = var0.mallocInt(1);
+                    IntBuffer var9 = var0.mallocInt(1);
+                    STBTruetype.stbtt_GetGlyphHMetrics(this.font, var5, var8, var9);
+                    return new TrueTypeGlyphProvider.Glyph(
+                        var1.get(0), var3.get(0), -var2.get(0), -var4.get(0), (float)var8.get(0) * this.pointScale, (float)var9.get(0) * this.pointScale, var5
+                    );
+                }
+
+                var8 = null;
             }
 
-            return (TrueTypeGlyphProvider.Glyph)var6;
+            return (TrueTypeGlyphProvider.Glyph)var8;
         }
     }
 
@@ -109,7 +101,7 @@ public class TrueTypeGlyphProvider implements GlyphProvider {
         private final float advance;
         private final int index;
 
-        private Glyph(int param0, int param1, int param2, int param3, float param4, float param5, int param6) {
+        Glyph(int param0, int param1, int param2, int param3, float param4, float param5, int param6) {
             this.width = param1 - param0;
             this.height = param2 - param3;
             this.advance = param4 / TrueTypeGlyphProvider.this.oversample;

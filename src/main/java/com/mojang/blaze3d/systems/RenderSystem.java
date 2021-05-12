@@ -39,7 +39,7 @@ import org.lwjgl.glfw.GLFWErrorCallbackI;
 @OnlyIn(Dist.CLIENT)
 @DontObfuscate
 public class RenderSystem {
-    private static final Logger LOGGER = LogManager.getLogger();
+    static final Logger LOGGER = LogManager.getLogger();
     private static final ConcurrentLinkedQueue<RenderCall> recordingQueue = Queues.newConcurrentLinkedQueue();
     private static final Tesselator RENDER_THREAD_TESSELATOR = new Tesselator();
     private static final int MINIMUM_ATLAS_TEXTURE_SIZE = 1024;
@@ -904,13 +904,13 @@ public class RenderSystem {
         private VertexFormat.IndexType type = VertexFormat.IndexType.BYTE;
         private int indexCount;
 
-        private AutoStorageIndexBuffer(int param0, int param1, RenderSystem.AutoStorageIndexBuffer.IndexGenerator param2) {
+        AutoStorageIndexBuffer(int param0, int param1, RenderSystem.AutoStorageIndexBuffer.IndexGenerator param2) {
             this.vertexStride = param0;
             this.indexStride = param1;
             this.generator = param2;
         }
 
-        private void ensureStorage(int param0) {
+        void ensureStorage(int param0) {
             if (param0 > this.indexCount) {
                 RenderSystem.LOGGER.debug("Growing IndexBuffer: Old limit {}, new limit {}.", this.indexCount, param0);
                 if (this.name == 0) {

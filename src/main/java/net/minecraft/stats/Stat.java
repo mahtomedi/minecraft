@@ -50,6 +50,6 @@ public class Stat<T> extends ObjectiveCriteria {
 
     @Override
     public String toString() {
-        return "Stat{name=" + this.getName() + ", formatter=" + this.formatter + '}';
+        return "Stat{name=" + this.getName() + ", formatter=" + this.formatter + "}";
     }
 }

@@ -21,7 +21,7 @@ public class DripParticle extends TextureSheetParticle {
     private final Fluid type;
     protected boolean isGlowing;
 
-    private DripParticle(ClientLevel param0, double param1, double param2, double param3, Fluid param4) {
+    DripParticle(ClientLevel param0, double param1, double param2, double param3, Fluid param4) {
         super(param0, param1, param2, param3);
         this.setSize(0.01F, 0.01F);
         this.gravity = 0.06F;
@@ -78,7 +78,7 @@ public class DripParticle extends TextureSheetParticle {
 
     @OnlyIn(Dist.CLIENT)
     static class CoolingDripHangParticle extends DripParticle.DripHangParticle {
-        private CoolingDripHangParticle(ClientLevel param0, double param1, double param2, double param3, Fluid param4, ParticleOptions param5) {
+        CoolingDripHangParticle(ClientLevel param0, double param1, double param2, double param3, Fluid param4, ParticleOptions param5) {
             super(param0, param1, param2, param3, param4, param5);
         }
 
@@ -95,7 +95,7 @@ public class DripParticle extends TextureSheetParticle {
     static class DripHangParticle extends DripParticle {
         private final ParticleOptions fallingParticle;
 
-        private DripHangParticle(ClientLevel param0, double param1, double param2, double param3, Fluid param4, ParticleOptions param5) {
+        DripHangParticle(ClientLevel param0, double param1, double param2, double param3, Fluid param4, ParticleOptions param5) {
             super(param0, param1, param2, param3, param4);
             this.fallingParticle = param5;
             this.gravity *= 0.02F;
@@ -121,7 +121,7 @@ public class DripParticle extends TextureSheetParticle {
 
     @OnlyIn(Dist.CLIENT)
     static class DripLandParticle extends DripParticle {
-        private DripLandParticle(ClientLevel param0, double param1, double param2, double param3, Fluid param4) {
+        DripLandParticle(ClientLevel param0, double param1, double param2, double param3, Fluid param4) {
             super(param0, param1, param2, param3, param4);
             this.lifetime = (int)(16.0 / (Math.random() * 0.8 + 0.2));
         }
@@ -129,7 +129,7 @@ public class DripParticle extends TextureSheetParticle {
 
     @OnlyIn(Dist.CLIENT)
     static class DripstoneFallAndLandParticle extends DripParticle.FallAndLandParticle {
-        private DripstoneFallAndLandParticle(ClientLevel param0, double param1, double param2, double param3, Fluid param4, ParticleOptions param5) {
+        DripstoneFallAndLandParticle(ClientLevel param0, double param1, double param2, double param3, Fluid param4, ParticleOptions param5) {
             super(param0, param1, param2, param3, param4, param5);
         }
 
@@ -221,7 +221,7 @@ public class DripParticle extends TextureSheetParticle {
     static class FallAndLandParticle extends DripParticle.FallingParticle {
         protected final ParticleOptions landParticle;
 
-        private FallAndLandParticle(ClientLevel param0, double param1, double param2, double param3, Fluid param4, ParticleOptions param5) {
+        FallAndLandParticle(ClientLevel param0, double param1, double param2, double param3, Fluid param4, ParticleOptions param5) {
             super(param0, param1, param2, param3, param4);
             this.landParticle = param5;
         }
@@ -238,11 +238,11 @@ public class DripParticle extends TextureSheetParticle {
 
     @OnlyIn(Dist.CLIENT)
     static class FallingParticle extends DripParticle {
-        private FallingParticle(ClientLevel param0, double param1, double param2, double param3, Fluid param4) {
+        FallingParticle(ClientLevel param0, double param1, double param2, double param3, Fluid param4) {
             this(param0, param1, param2, param3, param4, (int)(64.0 / (Math.random() * 0.8 + 0.2)));
         }
 
-        private FallingParticle(ClientLevel param0, double param1, double param2, double param3, Fluid param4, int param5) {
+        FallingParticle(ClientLevel param0, double param1, double param2, double param3, Fluid param4, int param5) {
             super(param0, param1, param2, param3, param4);
             this.lifetime = param5;
         }
@@ -258,7 +258,7 @@ public class DripParticle extends TextureSheetParticle {
 
     @OnlyIn(Dist.CLIENT)
     static class HoneyFallAndLandParticle extends DripParticle.FallAndLandParticle {
-        private HoneyFallAndLandParticle(ClientLevel param0, double param1, double param2, double param3, Fluid param4, ParticleOptions param5) {
+        HoneyFallAndLandParticle(ClientLevel param0, double param1, double param2, double param3, Fluid param4, ParticleOptions param5) {
             super(param0, param1, param2, param3, param4, param5);
         }
 

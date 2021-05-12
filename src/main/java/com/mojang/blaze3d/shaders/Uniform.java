@@ -5,7 +5,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
 import com.mojang.math.Vector4f;
-import java.nio.Buffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import net.minecraftforge.api.distmarker.Dist;
@@ -120,28 +119,28 @@ public class Uniform extends AbstractUniform implements AutoCloseable {
 
     @Override
     public final void set(float param0) {
-        ((Buffer)this.floatValues).position(0);
+        this.floatValues.position(0);
         this.floatValues.put(0, param0);
         this.markDirty();
     }
 
     @Override
     public final void set(float param0, float param1) {
-        ((Buffer)this.floatValues).position(0);
+        this.floatValues.position(0);
         this.floatValues.put(0, param0);
         this.floatValues.put(1, param1);
         this.markDirty();
     }
 
     public final void set(int param0, float param1) {
-        ((Buffer)this.floatValues).position(0);
+        this.floatValues.position(0);
         this.floatValues.put(param0, param1);
         this.markDirty();
     }
 
     @Override
     public final void set(float param0, float param1, float param2) {
-        ((Buffer)this.floatValues).position(0);
+        this.floatValues.position(0);
         this.floatValues.put(0, param0);
         this.floatValues.put(1, param1);
         this.floatValues.put(2, param2);
@@ -150,7 +149,7 @@ public class Uniform extends AbstractUniform implements AutoCloseable {
 
     @Override
     public final void set(Vector3f param0) {
-        ((Buffer)this.floatValues).position(0);
+        this.floatValues.position(0);
         this.floatValues.put(0, param0.x());
         this.floatValues.put(1, param0.y());
         this.floatValues.put(2, param0.z());
@@ -159,18 +158,18 @@ public class Uniform extends AbstractUniform implements AutoCloseable {
 
     @Override
     public final void set(float param0, float param1, float param2, float param3) {
-        ((Buffer)this.floatValues).position(0);
+        this.floatValues.position(0);
         this.floatValues.put(param0);
         this.floatValues.put(param1);
         this.floatValues.put(param2);
         this.floatValues.put(param3);
-        ((Buffer)this.floatValues).flip();
+        this.floatValues.flip();
         this.markDirty();
     }
 
     @Override
     public final void set(Vector4f param0) {
-        ((Buffer)this.floatValues).position(0);
+        this.floatValues.position(0);
         this.floatValues.put(0, param0.x());
         this.floatValues.put(1, param0.y());
         this.floatValues.put(2, param0.z());
@@ -180,7 +179,7 @@ public class Uniform extends AbstractUniform implements AutoCloseable {
 
     @Override
     public final void setSafe(float param0, float param1, float param2, float param3) {
-        ((Buffer)this.floatValues).position(0);
+        this.floatValues.position(0);
         if (this.type >= 4) {
             this.floatValues.put(0, param0);
         }
@@ -202,7 +201,7 @@ public class Uniform extends AbstractUniform implements AutoCloseable {
 
     @Override
     public final void setSafe(int param0, int param1, int param2, int param3) {
-        ((Buffer)this.intValues).position(0);
+        this.intValues.position(0);
         if (this.type >= 0) {
             this.intValues.put(0, param0);
         }
@@ -224,14 +223,14 @@ public class Uniform extends AbstractUniform implements AutoCloseable {
 
     @Override
     public final void set(int param0) {
-        ((Buffer)this.intValues).position(0);
+        this.intValues.position(0);
         this.intValues.put(0, param0);
         this.markDirty();
     }
 
     @Override
     public final void set(int param0, int param1) {
-        ((Buffer)this.intValues).position(0);
+        this.intValues.position(0);
         this.intValues.put(0, param0);
         this.intValues.put(1, param1);
         this.markDirty();
@@ -239,7 +238,7 @@ public class Uniform extends AbstractUniform implements AutoCloseable {
 
     @Override
     public final void set(int param0, int param1, int param2) {
-        ((Buffer)this.intValues).position(0);
+        this.intValues.position(0);
         this.intValues.put(0, param0);
         this.intValues.put(1, param1);
         this.intValues.put(2, param2);
@@ -248,7 +247,7 @@ public class Uniform extends AbstractUniform implements AutoCloseable {
 
     @Override
     public final void set(int param0, int param1, int param2, int param3) {
-        ((Buffer)this.intValues).position(0);
+        this.intValues.position(0);
         this.intValues.put(0, param0);
         this.intValues.put(1, param1);
         this.intValues.put(2, param2);
@@ -261,16 +260,16 @@ public class Uniform extends AbstractUniform implements AutoCloseable {
         if (param0.length < this.count) {
             LOGGER.warn("Uniform.set called with a too-small value array (expected {}, got {}). Ignoring.", this.count, param0.length);
         } else {
-            ((Buffer)this.floatValues).position(0);
+            this.floatValues.position(0);
             this.floatValues.put(param0);
-            ((Buffer)this.floatValues).position(0);
+            this.floatValues.position(0);
             this.markDirty();
         }
     }
 
     @Override
     public final void setMat2x2(float param0, float param1, float param2, float param3) {
-        ((Buffer)this.floatValues).position(0);
+        this.floatValues.position(0);
         this.floatValues.put(0, param0);
         this.floatValues.put(1, param1);
         this.floatValues.put(2, param2);
@@ -280,7 +279,7 @@ public class Uniform extends AbstractUniform implements AutoCloseable {
 
     @Override
     public final void setMat2x3(float param0, float param1, float param2, float param3, float param4, float param5) {
-        ((Buffer)this.floatValues).position(0);
+        this.floatValues.position(0);
         this.floatValues.put(0, param0);
         this.floatValues.put(1, param1);
         this.floatValues.put(2, param2);
@@ -292,7 +291,7 @@ public class Uniform extends AbstractUniform implements AutoCloseable {
 
     @Override
     public final void setMat2x4(float param0, float param1, float param2, float param3, float param4, float param5, float param6, float param7) {
-        ((Buffer)this.floatValues).position(0);
+        this.floatValues.position(0);
         this.floatValues.put(0, param0);
         this.floatValues.put(1, param1);
         this.floatValues.put(2, param2);
@@ -306,7 +305,7 @@ public class Uniform extends AbstractUniform implements AutoCloseable {
 
     @Override
     public final void setMat3x2(float param0, float param1, float param2, float param3, float param4, float param5) {
-        ((Buffer)this.floatValues).position(0);
+        this.floatValues.position(0);
         this.floatValues.put(0, param0);
         this.floatValues.put(1, param1);
         this.floatValues.put(2, param2);
@@ -318,7 +317,7 @@ public class Uniform extends AbstractUniform implements AutoCloseable {
 
     @Override
     public final void setMat3x3(float param0, float param1, float param2, float param3, float param4, float param5, float param6, float param7, float param8) {
-        ((Buffer)this.floatValues).position(0);
+        this.floatValues.position(0);
         this.floatValues.put(0, param0);
         this.floatValues.put(1, param1);
         this.floatValues.put(2, param2);
@@ -346,7 +345,7 @@ public class Uniform extends AbstractUniform implements AutoCloseable {
         float param10,
         float param11
     ) {
-        ((Buffer)this.floatValues).position(0);
+        this.floatValues.position(0);
         this.floatValues.put(0, param0);
         this.floatValues.put(1, param1);
         this.floatValues.put(2, param2);
@@ -364,7 +363,7 @@ public class Uniform extends AbstractUniform implements AutoCloseable {
 
     @Override
     public final void setMat4x2(float param0, float param1, float param2, float param3, float param4, float param5, float param6, float param7) {
-        ((Buffer)this.floatValues).position(0);
+        this.floatValues.position(0);
         this.floatValues.put(0, param0);
         this.floatValues.put(1, param1);
         this.floatValues.put(2, param2);
@@ -391,7 +390,7 @@ public class Uniform extends AbstractUniform implements AutoCloseable {
         float param10,
         float param11
     ) {
-        ((Buffer)this.floatValues).position(0);
+        this.floatValues.position(0);
         this.floatValues.put(0, param0);
         this.floatValues.put(1, param1);
         this.floatValues.put(2, param2);
@@ -426,7 +425,7 @@ public class Uniform extends AbstractUniform implements AutoCloseable {
         float param14,
         float param15
     ) {
-        ((Buffer)this.floatValues).position(0);
+        this.floatValues.position(0);
         this.floatValues.put(0, param0);
         this.floatValues.put(1, param1);
         this.floatValues.put(2, param2);
@@ -448,7 +447,7 @@ public class Uniform extends AbstractUniform implements AutoCloseable {
 
     @Override
     public final void set(Matrix4f param0) {
-        ((Buffer)this.floatValues).position(0);
+        this.floatValues.position(0);
         param0.store(this.floatValues);
         this.markDirty();
     }
@@ -474,7 +473,7 @@ public class Uniform extends AbstractUniform implements AutoCloseable {
     }
 
     private void uploadAsInteger() {
-        ((Buffer)this.intValues).rewind();
+        this.intValues.rewind();
         switch(this.type) {
             case 0:
                 RenderSystem.glUniform1(this.location, this.intValues);
@@ -495,7 +494,7 @@ public class Uniform extends AbstractUniform implements AutoCloseable {
     }
 
     private void uploadAsFloat() {
-        ((Buffer)this.floatValues).rewind();
+        this.floatValues.rewind();
         switch(this.type) {
             case 4:
                 RenderSystem.glUniform1(this.location, this.floatValues);
@@ -516,7 +515,7 @@ public class Uniform extends AbstractUniform implements AutoCloseable {
     }
 
     private void uploadAsMatrix() {
-        ((Buffer)this.floatValues).clear();
+        this.floatValues.clear();
         switch(this.type) {
             case 8:
                 RenderSystem.glUniformMatrix2(this.location, false, this.floatValues);

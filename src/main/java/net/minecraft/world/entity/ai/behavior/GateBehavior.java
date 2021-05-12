@@ -103,9 +103,6 @@ public class GateBehavior<E extends LivingEntity> extends Behavior<E> {
             }
         };
 
-        private RunningPolicy() {
-        }
-
         public abstract <E extends LivingEntity> void apply(Stream<Behavior<? super E>> var1, ServerLevel var2, E var3, long var4);
     }
 }

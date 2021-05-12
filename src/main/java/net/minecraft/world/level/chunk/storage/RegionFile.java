@@ -10,7 +10,6 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.channels.FileChannel;
@@ -38,7 +37,7 @@ public class RegionFile implements AutoCloseable {
     private static final int CHUNK_NOT_PRESENT = 0;
     private final FileChannel file;
     private final Path externalFileDir;
-    private final RegionFileVersion version;
+    final RegionFileVersion version;
     private final ByteBuffer header = ByteBuffer.allocateDirect(8192);
     private final IntBuffer offsets;
     private final IntBuffer timestamps;
@@ -56,8 +55,8 @@ public class RegionFile implements AutoCloseable {
         } else {
             this.externalFileDir = param1;
             this.offsets = this.header.asIntBuffer();
-            ((Buffer)this.offsets).limit(1024);
-            ((Buffer)this.header).position(4096);
+            this.offsets.limit(1024);
+            this.header.position(4096);
             this.timestamps = this.header.asIntBuffer();
             if (param3) {
                 this.file = FileChannel.open(param0, StandardOpenOption.CREATE, StandardOpenOption.READ, StandardOpenOption.WRITE, StandardOpenOption.DSYNC);
@@ -66,7 +65,7 @@ public class RegionFile implements AutoCloseable {
             }
 
             this.usedSectors.force(0, 2);
-            ((Buffer)this.header).position(0);
+            this.header.position(0);
             int var0 = this.file.read(this.header, 0L);
             if (var0 != -1) {
                 if (var0 != 8192) {
@@ -115,7 +114,7 @@ public class RegionFile implements AutoCloseable {
             int var3 = var2 * 4096;
             ByteBuffer var4 = ByteBuffer.allocate(var3);
             this.file.read(var4, (long)(var1 * 4096));
-            ((Buffer)var4).flip();
+            var4.flip();
             if (var4.remaining() < 5) {
                 LOGGER.error("Chunk {} header is truncated: expected {} but read {}", param0, var3, var4.remaining());
                 return null;
@@ -212,7 +211,7 @@ public class RegionFile implements AutoCloseable {
 
             try {
                 this.file.read(var3, (long)(var1 * 4096));
-                ((Buffer)var3).flip();
+                var3.flip();
                 if (var3.remaining() != 5) {
                     return false;
                 } else {
@@ -306,7 +305,7 @@ public class RegionFile implements AutoCloseable {
         ByteBuffer var0 = ByteBuffer.allocate(5);
         var0.putInt(1);
         var0.put((byte)(this.version.getId() | 128));
-        ((Buffer)var0).flip();
+        var0.flip();
         return var0;
     }
 
@@ -314,7 +313,7 @@ public class RegionFile implements AutoCloseable {
         Path var0 = Files.createTempFile(this.externalFileDir, "tmp", null);
 
         try (FileChannel var1 = FileChannel.open(var0, StandardOpenOption.CREATE, StandardOpenOption.WRITE)) {
-            ((Buffer)param1).position(5);
+            param1.position(5);
             var1.write(param1);
         }
 
@@ -322,7 +321,7 @@ public class RegionFile implements AutoCloseable {
     }
 
     private void writeHeader() throws IOException {
-        ((Buffer)this.header).position(0);
+        this.header.position(0);
         this.file.write(this.header, 0L);
     }
 
@@ -357,7 +356,7 @@ public class RegionFile implements AutoCloseable {
         int var1 = sizeToSectors(var0) * 4096;
         if (var0 != var1) {
             ByteBuffer var2 = PADDING_BUFFER.duplicate();
-            ((Buffer)var2).position(0);
+            var2.position(0);
             this.file.write(var2, (long)(var1 - 1));
         }
 

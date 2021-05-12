@@ -28,9 +28,9 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
 
 public class SetStewEffectFunction extends LootItemConditionalFunction {
-    private final Map<MobEffect, NumberProvider> effectDurationMap;
+    final Map<MobEffect, NumberProvider> effectDurationMap;
 
-    private SetStewEffectFunction(LootItemCondition[] param0, Map<MobEffect, NumberProvider> param1) {
+    SetStewEffectFunction(LootItemCondition[] param0, Map<MobEffect, NumberProvider> param1) {
         super(param0);
         this.effectDurationMap = ImmutableMap.copyOf(param1);
     }

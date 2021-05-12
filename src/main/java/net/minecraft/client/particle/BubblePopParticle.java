@@ -9,7 +9,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class BubblePopParticle extends TextureSheetParticle {
     private final SpriteSet sprites;
 
-    private BubblePopParticle(ClientLevel param0, double param1, double param2, double param3, double param4, double param5, double param6, SpriteSet param7) {
+    BubblePopParticle(ClientLevel param0, double param1, double param2, double param3, double param4, double param5, double param6, SpriteSet param7) {
         super(param0, param1, param2, param3);
         this.sprites = param7;
         this.lifetime = 4;

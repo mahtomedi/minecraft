@@ -16,10 +16,10 @@ import org.apache.logging.log4j.Logger;
 
 public class SetItemDamageFunction extends LootItemConditionalFunction {
     private static final Logger LOGGER = LogManager.getLogger();
-    private final NumberProvider damage;
-    private final boolean add;
+    final NumberProvider damage;
+    final boolean add;
 
-    private SetItemDamageFunction(LootItemCondition[] param0, NumberProvider param1, boolean param2) {
+    SetItemDamageFunction(LootItemCondition[] param0, NumberProvider param1, boolean param2) {
         super(param0);
         this.damage = param1;
         this.add = param2;

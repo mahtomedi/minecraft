@@ -204,7 +204,7 @@ public abstract class LayerLightEngine<M extends DataLayerStorageMap<M>, S exten
     }
 
     public String getDebugData(long param0) {
-        return "" + this.storage.getLevel(param0);
+        return this.storage.getLevel(param0) + "";
     }
 
     @Override

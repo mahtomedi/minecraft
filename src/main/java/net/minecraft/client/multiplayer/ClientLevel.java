@@ -82,14 +82,14 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class ClientLevel extends Level {
     private static final double FLUID_PARTICLE_SPAWN_OFFSET = 0.05;
-    private final EntityTickList tickingEntities = new EntityTickList();
+    final EntityTickList tickingEntities = new EntityTickList();
     private final TransientEntitySectionManager<Entity> entityStorage = new TransientEntitySectionManager<>(Entity.class, new ClientLevel.EntityCallbacks());
     private final ClientPacketListener connection;
     private final LevelRenderer levelRenderer;
     private final ClientLevel.ClientLevelData clientLevelData;
     private final DimensionSpecialEffects effects;
     private final Minecraft minecraft = Minecraft.getInstance();
-    private final List<AbstractClientPlayer> players = Lists.newArrayList();
+    final List<AbstractClientPlayer> players = Lists.newArrayList();
     private Scoreboard scoreboard = new Scoreboard();
     private final Map<String, MapItemSavedData> mapData = Maps.newHashMap();
     private static final long CLOUD_COLOR = 16777215L;
@@ -925,9 +925,6 @@ public class ClientLevel extends Level {
 
     @OnlyIn(Dist.CLIENT)
     final class EntityCallbacks implements LevelCallback<Entity> {
-        private EntityCallbacks() {
-        }
-
         public void onCreated(Entity param0) {
         }
 
@@ -960,8 +957,8 @@ public class ClientLevel extends Level {
         BARRIER(Blocks.BARRIER, ParticleTypes.BARRIER),
         LIGHT(Blocks.LIGHT, ParticleTypes.LIGHT);
 
-        private final Block block;
-        private final ParticleOptions particle;
+        final Block block;
+        final ParticleOptions particle;
 
         private MarkerParticleStatus(Block param0, ParticleOptions param1) {
             this.block = param0;

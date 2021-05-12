@@ -121,7 +121,7 @@ public class BigDripleafBlock extends HorizontalDirectionalBlock implements Bone
             .defaultBlockState()
             .setValue(WATERLOGGED, Boolean.valueOf(param2.isSourceOfType(Fluids.WATER)))
             .setValue(FACING, param3);
-        return param0.setBlock(param1, var0, 2);
+        return param0.setBlock(param1, var0, 3);
     }
 
     @Override
@@ -220,7 +220,7 @@ public class BigDripleafBlock extends HorizontalDirectionalBlock implements Bone
     }
 
     private static boolean canEntityTilt(BlockPos param0, Entity param1) {
-        return param1.position().y > (double)((float)param0.getY() + 0.6875F);
+        return param1.isOnGround() && param1.position().y > (double)((float)param0.getY() + 0.6875F);
     }
 
     private void setTiltAndScheduleTick(BlockState param0, Level param1, BlockPos param2, Tilt param3, @Nullable SoundEvent param4) {

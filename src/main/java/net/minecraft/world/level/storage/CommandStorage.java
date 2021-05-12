@@ -45,10 +45,7 @@ public class CommandStorage {
         private static final String TAG_CONTENTS = "contents";
         private final Map<String, CompoundTag> storage = Maps.newHashMap();
 
-        private Container() {
-        }
-
-        private CommandStorage.Container load(CompoundTag param0) {
+        CommandStorage.Container load(CompoundTag param0) {
             CompoundTag var0 = param0.getCompound("contents");
 
             for(String var1 : var0.getAllKeys()) {

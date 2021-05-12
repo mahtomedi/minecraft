@@ -79,7 +79,7 @@ public class Rabbit extends Animal {
     private int jumpDuration;
     private boolean wasOnGround;
     private int jumpDelayTicks;
-    private int moreCarrotTicks;
+    int moreCarrotTicks;
 
     public Rabbit(EntityType<? extends Rabbit> param0, Level param1) {
         super(param0, param1);
@@ -387,7 +387,7 @@ public class Rabbit extends Animal {
         return (var0.is(Blocks.GRASS_BLOCK) || var0.is(Blocks.SNOW) || var0.is(Blocks.SAND)) && param1.getRawBrightness(param3, 0) > 8;
     }
 
-    private boolean wantsMoreFood() {
+    boolean wantsMoreFood() {
         return this.moreCarrotTicks == 0;
     }
 

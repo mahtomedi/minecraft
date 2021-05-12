@@ -188,11 +188,8 @@ public class EntitySelector {
             Vec3 var2 = this.position.apply(param0.getPosition());
             Predicate<Entity> var3 = this.getPredicate(var2);
             if (this.currentEntity) {
-                if (param0.getEntity() instanceof ServerPlayer) {
-                    ServerPlayer var4 = (ServerPlayer)param0.getEntity();
-                    if (var3.test(var4)) {
-                        return Lists.newArrayList(var4);
-                    }
+                if (param0.getEntity() instanceof ServerPlayer var4 && var3.test(var4)) {
+                    return Lists.newArrayList(var4);
                 }
 
                 return Collections.emptyList();

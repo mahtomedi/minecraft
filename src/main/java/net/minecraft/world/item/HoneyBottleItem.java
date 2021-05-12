@@ -22,8 +22,7 @@ public class HoneyBottleItem extends Item {
     @Override
     public ItemStack finishUsingItem(ItemStack param0, Level param1, LivingEntity param2) {
         super.finishUsingItem(param0, param1, param2);
-        if (param2 instanceof ServerPlayer) {
-            ServerPlayer var0 = (ServerPlayer)param2;
+        if (param2 instanceof ServerPlayer var0) {
             CriteriaTriggers.CONSUME_ITEM.trigger(var0, param0);
             var0.awardStat(Stats.ITEM_USED.get(this));
         }

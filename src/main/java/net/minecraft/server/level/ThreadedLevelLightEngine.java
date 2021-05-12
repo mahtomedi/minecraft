@@ -84,7 +84,7 @@ public class ThreadedLevelLightEngine extends LevelLightEngine implements AutoCl
                 super.updateSectionStatus(SectionPos.of(param0, var1), true);
             }
 
-        }, () -> "updateChunkStatus " + param0 + " " + true));
+        }, () -> "updateChunkStatus " + param0 + " true"));
     }
 
     @Override

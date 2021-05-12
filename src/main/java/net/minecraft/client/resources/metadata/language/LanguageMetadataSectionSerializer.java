@@ -22,7 +22,7 @@ public class LanguageMetadataSectionSerializer implements MetadataSectionSeriali
         for(Entry<String, JsonElement> var1 : param0.entrySet()) {
             String var2 = var1.getKey();
             if (var2.length() > 16) {
-                throw new JsonParseException("Invalid language->'" + var2 + "': language code must not be more than " + 16 + " characters long");
+                throw new JsonParseException("Invalid language->'" + var2 + "': language code must not be more than 16 characters long");
             }
 
             JsonObject var3 = GsonHelper.convertToJsonObject(var1.getValue(), "language");

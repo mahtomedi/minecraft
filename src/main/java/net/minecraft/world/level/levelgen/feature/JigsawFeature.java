@@ -15,9 +15,9 @@ import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 
 public class JigsawFeature extends StructureFeature<JigsawConfiguration> {
-    private final int startY;
-    private final boolean doExpansionHack;
-    private final boolean projectStartToHeightmap;
+    final int startY;
+    final boolean doExpansionHack;
+    final boolean projectStartToHeightmap;
 
     public JigsawFeature(Codec<JigsawConfiguration> param0, int param1, boolean param2, boolean param3) {
         super(param0);

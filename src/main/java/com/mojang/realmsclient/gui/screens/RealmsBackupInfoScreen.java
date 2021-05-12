@@ -20,7 +20,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class RealmsBackupInfoScreen extends RealmsScreen {
     private static final Component TEXT_UNKNOWN = new TextComponent("UNKNOWN");
     private final Screen lastScreen;
-    private final Backup backup;
+    final Backup backup;
     private RealmsBackupInfoScreen.BackupInfoList backupInfoList;
 
     public RealmsBackupInfoScreen(Screen param0, Backup param1) {
@@ -68,7 +68,7 @@ public class RealmsBackupInfoScreen extends RealmsScreen {
         super.render(param0, param1, param2, param3);
     }
 
-    private Component checkForSpecificMetadata(String param0, String param1) {
+    Component checkForSpecificMetadata(String param0, String param1) {
         String var0 = param0.toLowerCase(Locale.ROOT);
         if (var0.contains("game") && var0.contains("mode")) {
             return this.gameModeMetadata(param1);

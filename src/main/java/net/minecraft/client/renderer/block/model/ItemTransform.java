@@ -64,15 +64,12 @@ public class ItemTransform {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static class Deserializer implements JsonDeserializer<ItemTransform> {
+    protected static class Deserializer implements JsonDeserializer<ItemTransform> {
         private static final Vector3f DEFAULT_ROTATION = new Vector3f(0.0F, 0.0F, 0.0F);
         private static final Vector3f DEFAULT_TRANSLATION = new Vector3f(0.0F, 0.0F, 0.0F);
         private static final Vector3f DEFAULT_SCALE = new Vector3f(1.0F, 1.0F, 1.0F);
         public static final float MAX_TRANSLATION = 5.0F;
         public static final float MAX_SCALE = 4.0F;
-
-        protected Deserializer() {
-        }
 
         public ItemTransform deserialize(JsonElement param0, Type param1, JsonDeserializationContext param2) throws JsonParseException {
             JsonObject var0 = param0.getAsJsonObject();

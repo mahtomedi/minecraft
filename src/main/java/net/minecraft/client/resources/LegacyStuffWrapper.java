@@ -12,14 +12,14 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class LegacyStuffWrapper {
     @Deprecated
     public static int[] getPixels(ResourceManager param0, ResourceLocation param1) throws IOException {
-        int[] var6;
+        int[] var4;
         try (
             Resource var0 = param0.getResource(param1);
             NativeImage var1 = NativeImage.read(var0.getInputStream());
         ) {
-            var6 = var1.makePixelArray();
+            var4 = var1.makePixelArray();
         }
 
-        return var6;
+        return var4;
     }
 }

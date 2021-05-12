@@ -62,7 +62,7 @@ public class ResourceLoadStateTracker {
     static class RecoveryInfo {
         private final Throwable error;
 
-        private RecoveryInfo(Throwable param0) {
+        RecoveryInfo(Throwable param0) {
             this.error = param0;
         }
 
@@ -82,7 +82,7 @@ public class ResourceLoadStateTracker {
         MANUAL("manual"),
         UNKNOWN("unknown");
 
-        private final String name;
+        final String name;
 
         private ReloadReason(String param0) {
             this.name = param0;
@@ -94,10 +94,10 @@ public class ResourceLoadStateTracker {
         private final ResourceLoadStateTracker.ReloadReason reloadReason;
         private final List<String> packs;
         @Nullable
-        private ResourceLoadStateTracker.RecoveryInfo recoveryReloadInfo;
-        private boolean finished;
+        ResourceLoadStateTracker.RecoveryInfo recoveryReloadInfo;
+        boolean finished;
 
-        private ReloadState(ResourceLoadStateTracker.ReloadReason param0, List<String> param1) {
+        ReloadState(ResourceLoadStateTracker.ReloadReason param0, List<String> param1) {
             this.reloadReason = param0;
             this.packs = param1;
         }

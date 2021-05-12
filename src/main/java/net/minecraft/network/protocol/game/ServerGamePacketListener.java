@@ -27,6 +27,8 @@ public interface ServerGamePacketListener extends PacketListener {
 
     void handleMovePlayer(ServerboundMovePlayerPacket var1);
 
+    void handlePong(ServerboundPongPacket var1);
+
     void handlePlayerAbilities(ServerboundPlayerAbilitiesPacket var1);
 
     void handlePlayerAction(ServerboundPlayerActionPacket var1);

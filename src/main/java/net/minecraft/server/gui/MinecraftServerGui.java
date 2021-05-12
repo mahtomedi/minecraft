@@ -38,7 +38,7 @@ public class MinecraftServerGui extends JComponent {
     private final DedicatedServer server;
     private Thread logAppenderThread;
     private final Collection<Runnable> finalizers = Lists.newArrayList();
-    private final AtomicBoolean isClosing = new AtomicBoolean();
+    final AtomicBoolean isClosing = new AtomicBoolean();
 
     public static MinecraftServerGui showFrameFor(final DedicatedServer param0) {
         try {
@@ -150,7 +150,7 @@ public class MinecraftServerGui extends JComponent {
 
     }
 
-    private void runFinalizers() {
+    void runFinalizers() {
         this.finalizers.forEach(Runnable::run);
     }
 

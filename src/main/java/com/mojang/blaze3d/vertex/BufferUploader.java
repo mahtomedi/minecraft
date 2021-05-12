@@ -4,7 +4,6 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.datafixers.util.Pair;
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
@@ -58,12 +57,12 @@ public class BufferUploader {
         ByteBuffer param0, VertexFormat.Mode param1, VertexFormat param2, int param3, VertexFormat.IndexType param4, int param5, boolean param6
     ) {
         RenderSystem.assertThread(RenderSystem::isOnRenderThread);
-        ((Buffer)param0).clear();
+        param0.clear();
         if (param3 > 0) {
             int var0 = param3 * param2.getVertexSize();
             updateVertexSetup(param2);
-            ((Buffer)param0).position(0);
-            ((Buffer)param0).limit(var0);
+            param0.position(0);
+            param0.limit(var0);
             GlStateManager._glBufferData(34962, param0, 35048);
             int var3;
             if (param6) {
@@ -82,8 +81,8 @@ public class BufferUploader {
                     lastIndexBufferObject = var4;
                 }
 
-                ((Buffer)param0).position(var0);
-                ((Buffer)param0).limit(var0 + param5 * param4.bytes);
+                param0.position(var0);
+                param0.limit(var0 + param5 * param4.bytes);
                 GlStateManager._glBufferData(34963, param0, 35048);
                 var3 = param4.asGLType;
             }
@@ -140,7 +139,7 @@ public class BufferUploader {
             var6.apply();
             GlStateManager._drawElements(param1.asGLMode, param5, var3, 0L);
             var6.clear();
-            ((Buffer)param0).position(0);
+            param0.position(0);
         }
     }
 
@@ -151,12 +150,12 @@ public class BufferUploader {
         ByteBuffer var2 = var0.getSecond();
         VertexFormat var3 = var1.format();
         int var4 = var1.vertexCount();
-        ((Buffer)var2).clear();
+        var2.clear();
         if (var4 > 0) {
             int var5 = var4 * var3.getVertexSize();
             updateVertexSetup(var3);
-            ((Buffer)var2).position(0);
-            ((Buffer)var2).limit(var5);
+            var2.position(0);
+            var2.limit(var5);
             GlStateManager._glBufferData(34962, var2, 35048);
             RenderSystem.AutoStorageIndexBuffer var6 = RenderSystem.getSequentialBuffer(var1.mode(), var1.indexCount());
             int var7 = var6.name();
@@ -167,7 +166,7 @@ public class BufferUploader {
 
             int var8 = var6.type().asGLType;
             GlStateManager._drawElements(var1.mode().asGLMode, var1.indexCount(), var8, 0L);
-            ((Buffer)var2).position(0);
+            var2.position(0);
         }
     }
 

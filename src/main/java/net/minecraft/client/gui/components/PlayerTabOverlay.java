@@ -284,7 +284,7 @@ public class PlayerTabOverlay extends GuiComponent {
                 } else {
                     float var8 = Mth.clamp((float)var0 / 20.0F, 0.0F, 1.0F);
                     int var9 = (int)((1.0F - var8) * 255.0F) << 16 | (int)(var8 * 255.0F) << 8;
-                    String var10 = "" + (float)var0 / 2.0F;
+                    String var10 = (float)var0 / 2.0F + "";
                     if (param4 - this.minecraft.font.width(var10 + "hp") >= param3) {
                         var10 = var10 + "hp";
                     }
@@ -293,7 +293,7 @@ public class PlayerTabOverlay extends GuiComponent {
                 }
             }
         } else {
-            String var11 = ChatFormatting.YELLOW + "" + var0;
+            String var11 = "" + ChatFormatting.YELLOW + var0;
             this.minecraft.font.drawShadow(param6, var11, (float)(param4 - this.minecraft.font.width(var11)), (float)param1, 16777215);
         }
 
@@ -314,9 +314,6 @@ public class PlayerTabOverlay extends GuiComponent {
 
     @OnlyIn(Dist.CLIENT)
     static class PlayerInfoComparator implements Comparator<PlayerInfo> {
-        private PlayerInfoComparator() {
-        }
-
         public int compare(PlayerInfo param0, PlayerInfo param1) {
             PlayerTeam var0 = param0.getTeam();
             PlayerTeam var1 = param1.getTeam();

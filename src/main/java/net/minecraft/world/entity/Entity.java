@@ -1096,11 +1096,8 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         this.fluidOnEyes = null;
         double var0 = this.getEyeY() - 0.11111111F;
         Entity var1 = this.getVehicle();
-        if (var1 instanceof Boat) {
-            Boat var2 = (Boat)var1;
-            if (!var2.isUnderWater() && var2.getBoundingBox().maxY >= var0 && var2.getBoundingBox().minY <= var0) {
-                return;
-            }
+        if (var1 instanceof Boat var2 && !var2.isUnderWater() && var2.getBoundingBox().maxY >= var0 && var2.getBoundingBox().minY <= var0) {
+            return;
         }
 
         BlockPos var3 = new BlockPos(this.getX(), var0, this.getZ());
@@ -2490,13 +2487,19 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         this.dimensions = var2;
         this.eyeHeight = this.getEyeHeight(var1, var2);
         this.reapplyPosition();
-        if (!this.level.isClientSide && !this.firstTick && (var2.width > var0.width || var2.height > var0.height) && !(this instanceof Player)) {
-            Vec3 var3 = this.position().add(0.0, (double)var0.height / 2.0, 0.0);
-            double var4 = (double)Math.max(0.0F, var2.width - var0.width) + 1.0E-6;
-            double var5 = (double)Math.max(0.0F, var2.height - var0.height) + 1.0E-6;
-            VoxelShape var6 = Shapes.create(AABB.ofSize(var3, var4, var5, var4));
+        boolean var3 = (double)var2.width <= 4.0 && (double)var2.height <= 4.0;
+        if (!this.level.isClientSide
+            && !this.firstTick
+            && !this.noPhysics
+            && var3
+            && (var2.width > var0.width || var2.height > var0.height)
+            && !(this instanceof Player)) {
+            Vec3 var4 = this.position().add(0.0, (double)var0.height / 2.0, 0.0);
+            double var5 = (double)Math.max(0.0F, var2.width - var0.width) + 1.0E-6;
+            double var6 = (double)Math.max(0.0F, var2.height - var0.height) + 1.0E-6;
+            VoxelShape var7 = Shapes.create(AABB.ofSize(var4, var5, var6, var5));
             this.level
-                .findFreePosition(this, var6, var3, (double)var2.width, (double)var2.height, (double)var2.width)
+                .findFreePosition(this, var7, var4, (double)var2.width, (double)var2.height, (double)var2.width)
                 .ifPresent(param1 -> this.setPos(param1.add(0.0, (double)(-var2.height) / 2.0, 0.0)));
         }
 
@@ -2885,6 +2888,10 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     @Override
     public BlockPos blockPosition() {
         return this.blockPosition;
+    }
+
+    public BlockState getFeetBlockState() {
+        return this.level.getBlockState(this.blockPosition());
     }
 
     public BlockPos eyeBlockPosition() {

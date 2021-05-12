@@ -151,7 +151,7 @@ public class BlockUtil {
 
         @Override
         public String toString() {
-            return "IntBounds{min=" + this.min + ", max=" + this.max + '}';
+            return "IntBounds{min=" + this.min + ", max=" + this.max + "}";
         }
     }
 }

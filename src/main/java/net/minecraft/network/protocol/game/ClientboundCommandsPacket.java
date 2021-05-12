@@ -163,8 +163,7 @@ public class ClientboundCommandsPacket implements Packet<ClientGamePacketListene
             param0.writeVarInt(param2.get(param1.getRedirect()));
         }
 
-        if (param1 instanceof ArgumentCommandNode) {
-            ArgumentCommandNode<SharedSuggestionProvider, ?> var2 = (ArgumentCommandNode)param1;
+        if (param1 instanceof ArgumentCommandNode var2) {
             param0.writeUtf(var2.getName());
             ArgumentTypes.serialize(param0, var2.getType());
             if (var2.getCustomSuggestions() != null) {
@@ -191,9 +190,9 @@ public class ClientboundCommandsPacket implements Packet<ClientGamePacketListene
         private final int redirect;
         private final int[] children;
         @Nullable
-        private CommandNode<SharedSuggestionProvider> node;
+        CommandNode<SharedSuggestionProvider> node;
 
-        private Entry(@Nullable ArgumentBuilder<SharedSuggestionProvider, ?> param0, byte param1, int param2, int[] param3) {
+        Entry(@Nullable ArgumentBuilder<SharedSuggestionProvider, ?> param0, byte param1, int param2, int[] param3) {
             this.builder = param0;
             this.flags = param1;
             this.redirect = param2;

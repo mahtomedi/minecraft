@@ -40,7 +40,7 @@ import org.apache.logging.log4j.Logger;
 @OnlyIn(Dist.CLIENT)
 public class SoundManager extends SimplePreparableReloadListener<SoundManager.Preparations> {
     public static final Sound EMPTY_SOUND = new Sound("meta:missing_sound", 1.0F, 1.0F, 1, Sound.Type.FILE, false, false, 16);
-    private static final Logger LOGGER = LogManager.getLogger();
+    static final Logger LOGGER = LogManager.getLogger();
     private static final String SOUNDS_PATH = "sounds.json";
     private static final Gson GSON = new GsonBuilder()
         .registerTypeHierarchyAdapter(Component.class, new Component.Serializer())
@@ -79,13 +79,13 @@ public class SoundManager extends SimplePreparableReloadListener<SoundManager.Pr
                         }
 
                         param1.pop();
-                    } catch (RuntimeException var45) {
-                        LOGGER.warn("Invalid {} in resourcepack: '{}'", "sounds.json", var3.getSourceName(), var45);
+                    } catch (RuntimeException var18) {
+                        LOGGER.warn("Invalid {} in resourcepack: '{}'", "sounds.json", var3.getSourceName(), var18);
                     }
 
                     param1.pop();
                 }
-            } catch (IOException var46) {
+            } catch (IOException var19) {
             }
 
             param1.pop();
@@ -120,7 +120,7 @@ public class SoundManager extends SimplePreparableReloadListener<SoundManager.Pr
         this.soundEngine.reload();
     }
 
-    private static boolean validateSoundResource(Sound param0, ResourceLocation param1, ResourceManager param2) {
+    static boolean validateSoundResource(Sound param0, ResourceLocation param1, ResourceManager param2) {
         ResourceLocation var0 = param0.getPath();
         if (!param2.hasResource(var0)) {
             LOGGER.warn("File {} does not exist, cannot add it to event {}", var0, param1);
@@ -208,13 +208,10 @@ public class SoundManager extends SimplePreparableReloadListener<SoundManager.Pr
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static class Preparations {
-        private final Map<ResourceLocation, WeighedSoundEvents> registry = Maps.newHashMap();
+    protected static class Preparations {
+        final Map<ResourceLocation, WeighedSoundEvents> registry = Maps.newHashMap();
 
-        protected Preparations() {
-        }
-
-        private void handleRegistration(ResourceLocation param0, SoundEventRegistration param1, ResourceManager param2) {
+        void handleRegistration(ResourceLocation param0, SoundEventRegistration param1, ResourceManager param2) {
             WeighedSoundEvents var0 = this.registry.get(param0);
             boolean var1 = var0 == null;
             if (var1 || param1.isReplace()) {

@@ -212,8 +212,23 @@ public class ClientPackSource implements RepositorySource {
     }
 
     private boolean checkHash(String param0, File param1) {
-        try (FileInputStream var0 = new FileInputStream(param1)) {
-            String var1 = DigestUtils.sha1Hex((InputStream)var0);
+        try {
+            FileInputStream var0 = new FileInputStream(param1);
+
+            String var1;
+            try {
+                var1 = DigestUtils.sha1Hex((InputStream)var0);
+            } catch (Throwable var8) {
+                try {
+                    var0.close();
+                } catch (Throwable var7) {
+                    var8.addSuppressed(var7);
+                }
+
+                throw var8;
+            }
+
+            var0.close();
             if (param0.isEmpty()) {
                 LOGGER.info("Found file {} without verification hash", param1);
                 return true;
@@ -225,8 +240,8 @@ public class ClientPackSource implements RepositorySource {
             }
 
             LOGGER.warn("File {} had wrong hash (expected {}, found {}).", param1, param0, var1);
-        } catch (IOException var17) {
-            LOGGER.warn("File {} couldn't be hashed.", param1, var17);
+        } catch (IOException var9) {
+            LOGGER.warn("File {} couldn't be hashed.", param1, var9);
         }
 
         return false;
@@ -254,8 +269,8 @@ public class ClientPackSource implements RepositorySource {
         PackMetadataSection var1;
         try (FilePackResources var0 = new FilePackResources(param0)) {
             var1 = var0.getMetadataSection(PackMetadataSection.SERIALIZER);
-        } catch (IOException var17) {
-            return Util.failedFuture(new IOException(String.format("Invalid resourcepack at %s", param0), var17));
+        } catch (IOException var9) {
+            return Util.failedFuture(new IOException(String.format("Invalid resourcepack at %s", param0), var9));
         }
 
         LOGGER.info("Applying server pack {}", param0);

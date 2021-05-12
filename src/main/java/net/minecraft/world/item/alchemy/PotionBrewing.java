@@ -213,9 +213,9 @@ public class PotionBrewing {
     }
 
     static class Mix<T> {
-        private final T from;
-        private final Ingredient ingredient;
-        private final T to;
+        final T from;
+        final Ingredient ingredient;
+        final T to;
 
         public Mix(T param0, Ingredient param1, T param2) {
             this.from = param0;

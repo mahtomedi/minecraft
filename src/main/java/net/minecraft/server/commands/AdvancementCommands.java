@@ -403,7 +403,7 @@ public class AdvancementCommands {
 
         private final String key;
 
-        private Action(String param0) {
+        Action(String param0) {
             this.key = "commands.advancement." + param0;
         }
 
@@ -435,8 +435,8 @@ public class AdvancementCommands {
         UNTIL(true, false),
         EVERYTHING(true, true);
 
-        private final boolean parents;
-        private final boolean children;
+        final boolean parents;
+        final boolean children;
 
         private Mode(boolean param0, boolean param1) {
             this.parents = param0;

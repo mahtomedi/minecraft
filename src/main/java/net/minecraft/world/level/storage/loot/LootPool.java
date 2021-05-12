@@ -31,15 +31,15 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.mutable.MutableInt;
 
 public class LootPool {
-    private final LootPoolEntryContainer[] entries;
-    private final LootItemCondition[] conditions;
+    final LootPoolEntryContainer[] entries;
+    final LootItemCondition[] conditions;
     private final Predicate<LootContext> compositeCondition;
-    private final LootItemFunction[] functions;
+    final LootItemFunction[] functions;
     private final BiFunction<ItemStack, LootContext, ItemStack> compositeFunction;
-    private final NumberProvider rolls;
-    private final NumberProvider bonusRolls;
+    final NumberProvider rolls;
+    final NumberProvider bonusRolls;
 
-    private LootPool(LootPoolEntryContainer[] param0, LootItemCondition[] param1, LootItemFunction[] param2, NumberProvider param3, NumberProvider param4) {
+    LootPool(LootPoolEntryContainer[] param0, LootItemCondition[] param1, LootItemFunction[] param2, NumberProvider param3, NumberProvider param4) {
         this.entries = param0;
         this.conditions = param1;
         this.compositeCondition = LootItemConditions.andConditions(param1);

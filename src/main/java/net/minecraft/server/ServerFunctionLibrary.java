@@ -117,10 +117,15 @@ public class ServerFunctionLibrary implements PreparableReloadListener {
     }
 
     private static List<String> readLines(ResourceManager param0, ResourceLocation param1) {
-        try (Resource var0 = param0.getResource(param1)) {
-            return IOUtils.readLines(var0.getInputStream(), StandardCharsets.UTF_8);
-        } catch (IOException var16) {
-            throw new CompletionException(var16);
+        try {
+            List var3;
+            try (Resource var0 = param0.getResource(param1)) {
+                var3 = IOUtils.readLines(var0.getInputStream(), StandardCharsets.UTF_8);
+            }
+
+            return var3;
+        } catch (IOException var7) {
+            throw new CompletionException(var7);
         }
     }
 }

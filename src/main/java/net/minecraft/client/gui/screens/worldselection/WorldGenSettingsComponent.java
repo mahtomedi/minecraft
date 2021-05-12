@@ -174,10 +174,10 @@ public class WorldGenSettingsComponent implements TickableWidget, Widget {
                             );
                             param1.managedBlock(var3::isDone);
                             var4 = var3.get();
-                        } catch (ExecutionException | InterruptedException var24) {
-                            LOGGER.error("Error loading data packs when importing world settings", (Throwable)var24);
+                        } catch (ExecutionException | InterruptedException var15) {
+                            LOGGER.error("Error loading data packs when importing world settings", (Throwable)var15);
                             Component var6 = new TranslatableComponent("selectWorld.import_worldgen_settings.failure");
-                            Component var7 = new TextComponent(var24.getMessage());
+                            Component var7 = new TextComponent(var15.getMessage());
                             param1.getToasts().addToast(SystemToast.multiline(param1, SystemToast.SystemToastIds.WORLD_GEN_SETTINGS_TRANSFER, var6, var7));
                             var2x.close();
                             return;
@@ -190,8 +190,8 @@ public class WorldGenSettingsComponent implements TickableWidget, Widget {
                         try (BufferedReader var11 = Files.newBufferedReader(Paths.get(var0x))) {
                             JsonElement var12 = var10.parse(var11);
                             var13 = WorldGenSettings.CODEC.parse(var9, var12);
-                        } catch (JsonIOException | JsonSyntaxException | IOException var26) {
-                            var13 = DataResult.error("Failed to parse file: " + var26.getMessage());
+                        } catch (JsonIOException | JsonSyntaxException | IOException var17) {
+                            var13 = DataResult.error("Failed to parse file: " + var17.getMessage());
                         }
         
                         if (var13.error().isPresent()) {

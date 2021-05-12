@@ -150,7 +150,7 @@ public class PackResourcesAdapterV4 implements PackResources {
                     }
                 } else {
                     if ("textures/entity/enderdragon/dragon.png".equals(var0) || "textures/entity/enderdragon/dragon_exploding.png".equals(var0)) {
-                        ByteArrayInputStream var23;
+                        ByteArrayInputStream var15;
                         try (NativeImage var3 = NativeImage.read(this.pack.getResource(param0, param1))) {
                             int var4 = var3.getWidth() / 256;
 
@@ -160,10 +160,10 @@ public class PackResourcesAdapterV4 implements PackResources {
                                 }
                             }
 
-                            var23 = new ByteArrayInputStream(var3.asByteArray());
+                            var15 = new ByteArrayInputStream(var3.asByteArray());
                         }
 
-                        return var23;
+                        return var15;
                     }
 
                     if ("textures/entity/conduit/closed_eye.png".equals(var0) || "textures/entity/conduit/open_eye.png".equals(var0)) {
@@ -195,52 +195,49 @@ public class PackResourcesAdapterV4 implements PackResources {
 
     @Nullable
     public static InputStream fixPattern(InputStream param0, InputStream param1, int param2, int param3, int param4, int param5, int param6) throws IOException {
-        ByteArrayInputStream var6;
         try (
             NativeImage var0 = NativeImage.read(param0);
             NativeImage var1 = NativeImage.read(param1);
         ) {
             int var2 = var0.getWidth();
             int var3 = var0.getHeight();
-            if (var2 != var1.getWidth() || var3 != var1.getHeight()) {
-                return null;
-            }
+            if (var2 == var1.getWidth() && var3 == var1.getHeight()) {
+                try (NativeImage var4 = new NativeImage(var2, var3, true)) {
+                    int var5 = var2 / param2;
 
-            try (NativeImage var4 = new NativeImage(var2, var3, true)) {
-                int var5 = var2 / param2;
-
-                for(int var6 = param4 * var5; var6 < param6 * var5; ++var6) {
-                    for(int var7 = param3 * var5; var7 < param5 * var5; ++var7) {
-                        int var8 = NativeImage.getR(var1.getPixelRGBA(var7, var6));
-                        int var9 = var0.getPixelRGBA(var7, var6);
-                        var4.setPixelRGBA(var7, var6, NativeImage.combine(var8, NativeImage.getB(var9), NativeImage.getG(var9), NativeImage.getR(var9)));
+                    for(int var6 = param4 * var5; var6 < param6 * var5; ++var6) {
+                        for(int var7 = param3 * var5; var7 < param5 * var5; ++var7) {
+                            int var8 = NativeImage.getR(var1.getPixelRGBA(var7, var6));
+                            int var9 = var0.getPixelRGBA(var7, var6);
+                            var4.setPixelRGBA(var7, var6, NativeImage.combine(var8, NativeImage.getB(var9), NativeImage.getG(var9), NativeImage.getR(var9)));
+                        }
                     }
-                }
 
-                var6 = new ByteArrayInputStream(var4.asByteArray());
+                    return new ByteArrayInputStream(var4.asByteArray());
+                }
             }
         }
 
-        return var6;
+        return null;
     }
 
     public static InputStream fixConduitEyeTexture(InputStream param0) throws IOException {
-        ByteArrayInputStream var7;
+        ByteArrayInputStream var5;
         try (NativeImage var0 = NativeImage.read(param0)) {
             int var1 = var0.getWidth();
             int var2 = var0.getHeight();
 
             try (NativeImage var3 = new NativeImage(2 * var1, 2 * var2, true)) {
                 copyRect(var0, var3, 0, 0, 0, 0, var1, var2, 1, false, false);
-                var7 = new ByteArrayInputStream(var3.asByteArray());
+                var5 = new ByteArrayInputStream(var3.asByteArray());
             }
         }
 
-        return var7;
+        return var5;
     }
 
     public static InputStream fixLeftChest(InputStream param0) throws IOException {
-        ByteArrayInputStream var8;
+        ByteArrayInputStream var6;
         try (NativeImage var0 = NativeImage.read(param0)) {
             int var1 = var0.getWidth();
             int var2 = var0.getHeight();
@@ -262,15 +259,15 @@ public class PackResourcesAdapterV4 implements PackResources {
                 copyRect(var0, var3, 2, 1, 3, 1, 1, 4, var4, true, true);
                 copyRect(var0, var3, 3, 1, 2, 1, 1, 4, var4, true, true);
                 copyRect(var0, var3, 4, 1, 1, 1, 1, 4, var4, true, true);
-                var8 = new ByteArrayInputStream(var3.asByteArray());
+                var6 = new ByteArrayInputStream(var3.asByteArray());
             }
         }
 
-        return var8;
+        return var6;
     }
 
     public static InputStream fixRightChest(InputStream param0) throws IOException {
-        ByteArrayInputStream var8;
+        ByteArrayInputStream var6;
         try (NativeImage var0 = NativeImage.read(param0)) {
             int var1 = var0.getWidth();
             int var2 = var0.getHeight();
@@ -292,15 +289,15 @@ public class PackResourcesAdapterV4 implements PackResources {
                 copyRect(var0, var3, 0, 1, 0, 1, 1, 4, var4, true, true);
                 copyRect(var0, var3, 1, 1, 3, 1, 1, 4, var4, true, true);
                 copyRect(var0, var3, 5, 1, 1, 1, 1, 4, var4, true, true);
-                var8 = new ByteArrayInputStream(var3.asByteArray());
+                var6 = new ByteArrayInputStream(var3.asByteArray());
             }
         }
 
-        return var8;
+        return var6;
     }
 
     public static InputStream fixSingleChest(InputStream param0) throws IOException {
-        ByteArrayInputStream var8;
+        ByteArrayInputStream var6;
         try (NativeImage var0 = NativeImage.read(param0)) {
             int var1 = var0.getWidth();
             int var2 = var0.getHeight();
@@ -325,11 +322,11 @@ public class PackResourcesAdapterV4 implements PackResources {
                 copyRect(var0, var3, 1, 1, 4, 1, 2, 4, var4, true, true);
                 copyRect(var0, var3, 3, 1, 3, 1, 1, 4, var4, true, true);
                 copyRect(var0, var3, 4, 1, 1, 1, 2, 4, var4, true, true);
-                var8 = new ByteArrayInputStream(var3.asByteArray());
+                var6 = new ByteArrayInputStream(var3.asByteArray());
             }
         }
 
-        return var8;
+        return var6;
     }
 
     @Override

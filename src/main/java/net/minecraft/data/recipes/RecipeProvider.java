@@ -129,8 +129,8 @@ public class RecipeProvider implements DataProvider {
             }
 
             param0.putNew(param2, var1);
-        } catch (IOException var18) {
-            LOGGER.error("Couldn't save recipe {}", param2, var18);
+        } catch (IOException var10) {
+            LOGGER.error("Couldn't save recipe {}", param2, var10);
         }
 
     }
@@ -148,8 +148,8 @@ public class RecipeProvider implements DataProvider {
             }
 
             param0.putNew(param2, var1);
-        } catch (IOException var18) {
-            LOGGER.error("Couldn't save recipe advancement {}", param2, var18);
+        } catch (IOException var10) {
+            LOGGER.error("Couldn't save recipe advancement {}", param2, var10);
         }
 
     }
@@ -360,22 +360,6 @@ public class RecipeProvider implements DataProvider {
         concretePowder(param0, Blocks.RED_CONCRETE_POWDER, Items.RED_DYE);
         concretePowder(param0, Blocks.WHITE_CONCRETE_POWDER, Items.WHITE_DYE);
         concretePowder(param0, Blocks.YELLOW_CONCRETE_POWDER, Items.YELLOW_DYE);
-        candle(param0, Blocks.BLACK_CANDLE, Items.BLACK_DYE);
-        candle(param0, Blocks.BLUE_CANDLE, Items.BLUE_DYE);
-        candle(param0, Blocks.BROWN_CANDLE, Items.BROWN_DYE);
-        candle(param0, Blocks.CYAN_CANDLE, Items.CYAN_DYE);
-        candle(param0, Blocks.GRAY_CANDLE, Items.GRAY_DYE);
-        candle(param0, Blocks.GREEN_CANDLE, Items.GREEN_DYE);
-        candle(param0, Blocks.LIGHT_BLUE_CANDLE, Items.LIGHT_BLUE_DYE);
-        candle(param0, Blocks.LIGHT_GRAY_CANDLE, Items.LIGHT_GRAY_DYE);
-        candle(param0, Blocks.LIME_CANDLE, Items.LIME_DYE);
-        candle(param0, Blocks.MAGENTA_CANDLE, Items.MAGENTA_DYE);
-        candle(param0, Blocks.ORANGE_CANDLE, Items.ORANGE_DYE);
-        candle(param0, Blocks.PINK_CANDLE, Items.PINK_DYE);
-        candle(param0, Blocks.PURPLE_CANDLE, Items.PURPLE_DYE);
-        candle(param0, Blocks.RED_CANDLE, Items.RED_DYE);
-        candle(param0, Blocks.WHITE_CANDLE, Items.WHITE_DYE);
-        candle(param0, Blocks.YELLOW_CANDLE, Items.YELLOW_DYE);
         ShapedRecipeBuilder.shaped(Blocks.ACTIVATOR_RAIL, 6)
             .define('#', Blocks.REDSTONE_TORCH)
             .define('S', Items.STICK)
@@ -660,7 +644,9 @@ public class RecipeProvider implements DataProvider {
             .unlockedBy("has_cut_red_sandstone", has(Blocks.CUT_RED_SANDSTONE))
             .save(param0);
         chiseled(param0, Blocks.CHISELED_SANDSTONE, Blocks.SANDSTONE_SLAB);
-        nineBlockStorageRecipes(param0, Items.COPPER_INGOT, Items.COPPER_BLOCK);
+        nineBlockStorageRecipesRecipesWithCustomUnpacking(
+            param0, Items.COPPER_INGOT, Items.COPPER_BLOCK, getSimpleRecipeName(Items.COPPER_INGOT), getItemName(Items.COPPER_INGOT)
+        );
         ShapelessRecipeBuilder.shapeless(Items.COPPER_INGOT, 9)
             .requires(Blocks.WAXED_COPPER_BLOCK)
             .group(getItemName(Items.COPPER_INGOT))
@@ -2031,14 +2017,6 @@ public class RecipeProvider implements DataProvider {
             .unlockedBy("has_iron_nugget", has(Items.IRON_NUGGET))
             .unlockedBy("has_iron_ingot", has(Items.IRON_INGOT))
             .save(param0);
-        ShapedRecipeBuilder.shaped(Items.CANDLE)
-            .define('S', Items.STRING)
-            .define('H', Items.HONEYCOMB)
-            .pattern("S")
-            .pattern("H")
-            .unlockedBy("has_string", has(Items.STRING))
-            .unlockedBy("has_honeycomb", has(Items.HONEYCOMB))
-            .save(param0);
         ShapedRecipeBuilder.shaped(Blocks.TINTED_GLASS, 2)
             .define('G', Blocks.GLASS)
             .define('S', Items.AMETHYST_SHARD)
@@ -2056,14 +2034,6 @@ public class RecipeProvider implements DataProvider {
         SpecialRecipeBuilder.special(RecipeSerializer.ARMOR_DYE).save(param0, "armor_dye");
         SpecialRecipeBuilder.special(RecipeSerializer.BANNER_DUPLICATE).save(param0, "banner_duplicate");
         SpecialRecipeBuilder.special(RecipeSerializer.BOOK_CLONING).save(param0, "book_cloning");
-        ShapedRecipeBuilder.shaped(Items.BUNDLE)
-            .define('#', Items.RABBIT_HIDE)
-            .define('-', Items.STRING)
-            .pattern("-#-")
-            .pattern("# #")
-            .pattern("###")
-            .unlockedBy("has_string", has(Items.STRING))
-            .save(param0);
         SpecialRecipeBuilder.special(RecipeSerializer.FIREWORK_ROCKET).save(param0, "firework_rocket");
         SpecialRecipeBuilder.special(RecipeSerializer.FIREWORK_STAR).save(param0, "firework_star");
         SpecialRecipeBuilder.special(RecipeSerializer.FIREWORK_STAR_FADE).save(param0, "firework_star_fade");

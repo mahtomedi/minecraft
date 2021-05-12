@@ -30,18 +30,18 @@ import org.apache.logging.log4j.Logger;
 @OnlyIn(Dist.CLIENT)
 public class RealmsSelectFileToUploadScreen extends RealmsScreen {
     private static final Logger LOGGER = LogManager.getLogger();
-    private static final Component WORLD_TEXT = new TranslatableComponent("selectWorld.world");
-    private static final Component REQUIRES_CONVERSION_TEXT = new TranslatableComponent("selectWorld.conversion");
-    private static final Component HARDCORE_TEXT = new TranslatableComponent("mco.upload.hardcore").withStyle(ChatFormatting.DARK_RED);
-    private static final Component CHEATS_TEXT = new TranslatableComponent("selectWorld.cheats");
+    static final Component WORLD_TEXT = new TranslatableComponent("selectWorld.world");
+    static final Component REQUIRES_CONVERSION_TEXT = new TranslatableComponent("selectWorld.conversion");
+    static final Component HARDCORE_TEXT = new TranslatableComponent("mco.upload.hardcore").withStyle(ChatFormatting.DARK_RED);
+    static final Component CHEATS_TEXT = new TranslatableComponent("selectWorld.cheats");
     private static final DateFormat DATE_FORMAT = new SimpleDateFormat();
     private final RealmsResetWorldScreen lastScreen;
     private final long worldId;
     private final int slotId;
-    private Button uploadButton;
-    private List<LevelSummary> levelList = Lists.newArrayList();
-    private int selectedWorld = -1;
-    private RealmsSelectFileToUploadScreen.WorldSelectionList worldSelectionList;
+    Button uploadButton;
+    List<LevelSummary> levelList = Lists.newArrayList();
+    int selectedWorld = -1;
+    RealmsSelectFileToUploadScreen.WorldSelectionList worldSelectionList;
     private RealmsLabel titleLabel;
     private RealmsLabel subtitleLabel;
     private RealmsLabel noWorldsLabel;
@@ -140,11 +140,11 @@ public class RealmsSelectFileToUploadScreen extends RealmsScreen {
         }
     }
 
-    private static Component gameModeName(LevelSummary param0) {
+    static Component gameModeName(LevelSummary param0) {
         return param0.getGameMode().getLongDisplayName();
     }
 
-    private static String formatLastPlayed(LevelSummary param0) {
+    static String formatLastPlayed(LevelSummary param0) {
         return DATE_FORMAT.format(new Date(param0.getLastPlayed()));
     }
 

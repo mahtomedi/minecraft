@@ -37,8 +37,7 @@ public class ElytraLayer<T extends LivingEntity, M extends EntityModel<T>> exten
         ItemStack var0 = param3.getItemBySlot(EquipmentSlot.CHEST);
         if (var0.is(Items.ELYTRA)) {
             ResourceLocation var2;
-            if (param3 instanceof AbstractClientPlayer) {
-                AbstractClientPlayer var1 = (AbstractClientPlayer)param3;
+            if (param3 instanceof AbstractClientPlayer var1) {
                 if (var1.isElytraLoaded() && var1.getElytraTextureLocation() != null) {
                     var2 = var1.getElytraTextureLocation();
                 } else if (var1.isCapeLoaded() && var1.getCloakTextureLocation() != null && var1.isModelPartShown(PlayerModelPart.CAPE)) {

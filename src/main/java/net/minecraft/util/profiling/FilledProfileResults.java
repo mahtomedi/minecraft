@@ -77,7 +77,7 @@ public class FilledProfileResults implements ProfileResults {
         long var5 = var3.getCount();
         List<ResultField> var6 = Lists.newArrayList();
         if (!param0.isEmpty()) {
-            param0 = param0 + '\u001e';
+            param0 = param0 + "\u001e";
         }
 
         long var7 = 0L;
@@ -256,7 +256,7 @@ public class FilledProfileResults implements ProfileResults {
                     .append("%\n");
                 if (!"unspecified".equals(var3.name)) {
                     try {
-                        this.appendProfilerResults(param0 + 1, param1 + '\u001e' + var3.name, param2);
+                        this.appendProfilerResults(param0 + 1, param1 + "\u001e" + var3.name, param2);
                     } catch (Exception var9) {
                         param2.append("[[ EXCEPTION ").append(var9).append(" ]]");
                     }
@@ -324,12 +324,9 @@ public class FilledProfileResults implements ProfileResults {
     }
 
     static class CounterCollector {
-        private long selfValue;
-        private long totalValue;
-        private final Map<String, FilledProfileResults.CounterCollector> children = Maps.newHashMap();
-
-        private CounterCollector() {
-        }
+        long selfValue;
+        long totalValue;
+        final Map<String, FilledProfileResults.CounterCollector> children = Maps.newHashMap();
 
         public void addValue(Iterator<String> param0, long param1) {
             this.totalValue += param1;

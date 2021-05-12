@@ -520,11 +520,8 @@ public abstract class StructurePiece {
         return this.type;
     }
 
-    public abstract static class BlockSelector {
+    protected abstract static class BlockSelector {
         protected BlockState next = Blocks.AIR.defaultBlockState();
-
-        protected BlockSelector() {
-        }
 
         public abstract void next(Random var1, int var2, int var3, int var4, boolean var5);
 

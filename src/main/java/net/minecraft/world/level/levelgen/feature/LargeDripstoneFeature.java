@@ -33,8 +33,7 @@ public class LargeDripstoneFeature extends Feature<LargeDripstoneConfiguration> 
             Optional<Column> var4 = Column.scan(
                 var0, var1, var2.floorToCeilingSearchRange, DripstoneUtils::isEmptyOrWater, DripstoneUtils::isDripstoneBaseOrLava
             );
-            if (var4.isPresent() && var4.get() instanceof Column.Range) {
-                Column.Range var5 = (Column.Range)var4.get();
+            if (var4.isPresent() && var4.get() instanceof Column.Range var5) {
                 if (var5.height() < 4) {
                     return false;
                 } else {
@@ -98,7 +97,7 @@ public class LargeDripstoneFeature extends Feature<LargeDripstoneConfiguration> 
         private final double bluntness;
         private final double scale;
 
-        private LargeDripstone(BlockPos param0, boolean param1, int param2, double param3, double param4) {
+        LargeDripstone(BlockPos param0, boolean param1, int param2, double param3, double param4) {
             this.root = param0;
             this.pointingUp = param1;
             this.radius = param2;
@@ -118,7 +117,7 @@ public class LargeDripstoneFeature extends Feature<LargeDripstoneConfiguration> 
             return !this.pointingUp ? this.root.getY() : this.root.getY() + this.getHeight();
         }
 
-        private boolean moveBackUntilBaseIsInsideStoneAndShrinkRadiusIfNecessary(WorldGenLevel param0, LargeDripstoneFeature.WindOffsetter param1) {
+        boolean moveBackUntilBaseIsInsideStoneAndShrinkRadiusIfNecessary(WorldGenLevel param0, LargeDripstoneFeature.WindOffsetter param1) {
             while(this.radius > 1) {
                 BlockPos.MutableBlockPos var0 = this.root.mutable();
                 int var1 = Math.min(10, this.getHeight());
@@ -146,7 +145,7 @@ public class LargeDripstoneFeature extends Feature<LargeDripstoneConfiguration> 
             return (int)DripstoneUtils.getDripstoneHeight((double)param0, (double)this.radius, this.scale, this.bluntness);
         }
 
-        private void placeBlocks(WorldGenLevel param0, Random param1, LargeDripstoneFeature.WindOffsetter param2) {
+        void placeBlocks(WorldGenLevel param0, Random param1, LargeDripstoneFeature.WindOffsetter param2) {
             for(int var0 = -this.radius; var0 <= this.radius; ++var0) {
                 for(int var1 = -this.radius; var1 <= this.radius; ++var1) {
                     float var2 = Mth.sqrt((float)(var0 * var0 + var1 * var1));
@@ -179,7 +178,7 @@ public class LargeDripstoneFeature extends Feature<LargeDripstoneConfiguration> 
 
         }
 
-        private boolean isSuitableForWind(LargeDripstoneConfiguration param0) {
+        boolean isSuitableForWind(LargeDripstoneConfiguration param0) {
             return this.radius >= param0.minRadiusForWind && this.bluntness >= (double)param0.minBluntnessForWind;
         }
     }
@@ -189,7 +188,7 @@ public class LargeDripstoneFeature extends Feature<LargeDripstoneConfiguration> 
         @Nullable
         private final Vec3 windSpeed;
 
-        private WindOffsetter(int param0, Random param1, FloatProvider param2) {
+        WindOffsetter(int param0, Random param1, FloatProvider param2) {
             this.originY = param0;
             float var0 = param2.sample(param1);
             float var1 = Mth.randomBetween(param1, 0.0F, (float) Math.PI);
@@ -201,11 +200,11 @@ public class LargeDripstoneFeature extends Feature<LargeDripstoneConfiguration> 
             this.windSpeed = null;
         }
 
-        private static LargeDripstoneFeature.WindOffsetter noWind() {
+        static LargeDripstoneFeature.WindOffsetter noWind() {
             return new LargeDripstoneFeature.WindOffsetter();
         }
 
-        private BlockPos offset(BlockPos param0) {
+        BlockPos offset(BlockPos param0) {
             if (this.windSpeed == null) {
                 return param0;
             } else {

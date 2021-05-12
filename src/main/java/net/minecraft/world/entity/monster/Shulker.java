@@ -254,7 +254,8 @@ public class Shulker extends AbstractGolem implements Enemy {
 
     @Override
     public double getMyRidingOffset() {
-        return 0.1875 - this.getVehicle().getPassengersRidingOffset();
+        EntityType<?> var0 = this.getVehicle().getType();
+        return var0 != EntityType.BOAT && var0 != EntityType.MINECART ? super.getMyRidingOffset() : 0.1875 - this.getVehicle().getPassengersRidingOffset();
     }
 
     @Override
@@ -346,7 +347,7 @@ public class Shulker extends AbstractGolem implements Enemy {
         return null;
     }
 
-    private boolean canStayAt(BlockPos param0, Direction param1) {
+    boolean canStayAt(BlockPos param0, Direction param1) {
         if (this.isPositionBlocked(param0)) {
             return false;
         } else {
@@ -484,7 +485,7 @@ public class Shulker extends AbstractGolem implements Enemy {
         return this.entityData.get(DATA_PEEK_ID);
     }
 
-    private void setRawPeekAmount(int param0) {
+    void setRawPeekAmount(int param0) {
         if (!this.level.isClientSide) {
             this.getAttribute(Attributes.ARMOR).removeModifier(COVERED_ARMOR_MODIFIER);
             if (param0 == 0) {
@@ -668,9 +669,6 @@ public class Shulker extends AbstractGolem implements Enemy {
 
     class ShulkerPeekGoal extends Goal {
         private int peekTime;
-
-        private ShulkerPeekGoal() {
-        }
 
         @Override
         public boolean canUse() {

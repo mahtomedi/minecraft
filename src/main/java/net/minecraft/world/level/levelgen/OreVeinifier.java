@@ -118,11 +118,11 @@ public class OreVeinifier {
         COPPER(Blocks.COPPER_ORE.defaultBlockState(), Blocks.RAW_COPPER_BLOCK.defaultBlockState(), Blocks.GRANITE.defaultBlockState(), 0, 50),
         IRON(Blocks.DEEPSLATE_IRON_ORE.defaultBlockState(), Blocks.RAW_IRON_BLOCK.defaultBlockState(), Blocks.TUFF.defaultBlockState(), -60, -8);
 
-        private final BlockState ore;
-        private final BlockState rawOreBlock;
-        private final BlockState filler;
-        private final int minY;
-        private final int maxY;
+        final BlockState ore;
+        final BlockState rawOreBlock;
+        final BlockState filler;
+        final int minY;
+        final int maxY;
 
         private VeinType(BlockState param0, BlockState param1, BlockState param2, int param3, int param4) {
             this.ore = param0;

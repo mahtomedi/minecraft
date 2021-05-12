@@ -726,23 +726,12 @@ public abstract class Player extends LivingEntity {
         }
 
         if (this.hasEffect(MobEffects.DIG_SLOWDOWN)) {
-            float var3;
-            switch(this.getEffect(MobEffects.DIG_SLOWDOWN).getAmplifier()) {
-                case 0:
-                    var3 = 0.3F;
-                    break;
-                case 1:
-                    var3 = 0.09F;
-                    break;
-                case 2:
-                    var3 = 0.0027F;
-                    break;
-                case 3:
-                default:
-                    var3 = 8.1E-4F;
-            }
-
-            var0 *= var3;
+            var0 *= switch(this.getEffect(MobEffects.DIG_SLOWDOWN).getAmplifier()) {
+                case 0 -> 0.3F;
+                case 1 -> 0.09F;
+                case 2 -> 0.0027F;
+                default -> 8.1E-4F;
+            };
         }
 
         if (this.isEyeInFluid(FluidTags.WATER) && !EnchantmentHelper.hasAquaAffinity(this)) {
@@ -877,8 +866,8 @@ public abstract class Player extends LivingEntity {
     }
 
     @Override
-    public boolean canBeTargeted() {
-        return !this.getAbilities().invulnerable && super.canBeTargeted();
+    public boolean canBeSeenAsEnemy() {
+        return !this.getAbilities().invulnerable && super.canBeSeenAsEnemy();
     }
 
     public boolean canHarmPlayer(Player param0) {

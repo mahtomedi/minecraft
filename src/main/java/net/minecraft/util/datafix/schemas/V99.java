@@ -16,7 +16,7 @@ import org.apache.logging.log4j.Logger;
 
 public class V99 extends Schema {
     private static final Logger LOGGER = LogManager.getLogger();
-    private static final Map<String, String> ITEM_TO_BLOCKENTITY = DataFixUtils.make(Maps.newHashMap(), param0 -> {
+    static final Map<String, String> ITEM_TO_BLOCKENTITY = DataFixUtils.make(Maps.newHashMap(), param0 -> {
         param0.put("minecraft:furnace", "Furnace");
         param0.put("minecraft:lit_furnace", "Furnace");
         param0.put("minecraft:chest", "Chest");

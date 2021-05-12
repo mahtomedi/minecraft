@@ -54,7 +54,7 @@ public class LoopingAudioStream implements AudioStream {
 
     @OnlyIn(Dist.CLIENT)
     static class NoCloseBuffer extends FilterInputStream {
-        private NoCloseBuffer(InputStream param0) {
+        NoCloseBuffer(InputStream param0) {
             super(param0);
         }
 

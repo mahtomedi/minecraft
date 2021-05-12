@@ -20,7 +20,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class GhostRecipe {
     private Recipe<?> recipe;
     private final List<GhostRecipe.GhostIngredient> ingredients = Lists.newArrayList();
-    private float time;
+    float time;
 
     public void clear() {
         this.recipe = null;

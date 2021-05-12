@@ -124,12 +124,12 @@ public class Evoker extends SpellcasterIllager {
         return SoundEvents.EVOKER_HURT;
     }
 
-    private void setWololoTarget(@Nullable Sheep param0) {
+    void setWololoTarget(@Nullable Sheep param0) {
         this.wololoTarget = param0;
     }
 
     @Nullable
-    private Sheep getWololoTarget() {
+    Sheep getWololoTarget() {
         return this.wololoTarget;
     }
 
@@ -143,9 +143,6 @@ public class Evoker extends SpellcasterIllager {
     }
 
     class EvokerAttackSpellGoal extends SpellcasterIllager.SpellcasterUseSpellGoal {
-        private EvokerAttackSpellGoal() {
-        }
-
         @Override
         protected int getCastingTime() {
             return 40;
@@ -230,9 +227,6 @@ public class Evoker extends SpellcasterIllager {
     }
 
     class EvokerCastingSpellGoal extends SpellcasterIllager.SpellcasterCastingSpellGoal {
-        private EvokerCastingSpellGoal() {
-        }
-
         @Override
         public void tick() {
             if (Evoker.this.getTarget() != null) {
@@ -245,15 +239,7 @@ public class Evoker extends SpellcasterIllager {
     }
 
     class EvokerSummonSpellGoal extends SpellcasterIllager.SpellcasterUseSpellGoal {
-        private final TargetingConditions vexCountTargeting = new TargetingConditions()
-            .range(16.0)
-            .allowUnseeable()
-            .ignoreInvisibilityTesting()
-            .allowInvulnerable()
-            .allowSameTeam();
-
-        private EvokerSummonSpellGoal() {
-        }
+        private final TargetingConditions vexCountTargeting = TargetingConditions.forNonCombat().range(16.0).ignoreLineOfSight().ignoreInvisibilityTesting();
 
         @Override
         public boolean canUse() {
@@ -306,9 +292,8 @@ public class Evoker extends SpellcasterIllager {
     }
 
     public class EvokerWololoSpellGoal extends SpellcasterIllager.SpellcasterUseSpellGoal {
-        private final TargetingConditions wololoTargeting = new TargetingConditions()
+        private final TargetingConditions wololoTargeting = TargetingConditions.forNonCombat()
             .range(16.0)
-            .allowInvulnerable()
             .selector(param0x -> ((Sheep)param0x).getColor() == DyeColor.BLUE);
 
         @Override

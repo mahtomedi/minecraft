@@ -138,7 +138,7 @@ public class NbtPathArgument implements ArgumentType<NbtPathArgument.NbtPath> {
         return param0 != ' ' && param0 != '"' && param0 != '[' && param0 != ']' && param0 != '.' && param0 != '{' && param0 != '}';
     }
 
-    private static Predicate<Tag> createTagPredicate(CompoundTag param0) {
+    static Predicate<Tag> createTagPredicate(CompoundTag param0) {
         return param1 -> NbtUtils.compareNbt(param0, param1, true);
     }
 
@@ -158,8 +158,7 @@ public class NbtPathArgument implements ArgumentType<NbtPathArgument.NbtPath> {
 
         @Override
         public void getOrCreateTag(Tag param0, Supplier<Tag> param1, List<Tag> param2) {
-            if (param0 instanceof CollectionTag) {
-                CollectionTag<?> var0 = (CollectionTag)param0;
+            if (param0 instanceof CollectionTag var0) {
                 if (var0.isEmpty()) {
                     Tag var1 = param1.get();
                     if (var0.addTag(0, var1)) {
@@ -210,8 +209,7 @@ public class NbtPathArgument implements ArgumentType<NbtPathArgument.NbtPath> {
 
         @Override
         public int removeTag(Tag param0) {
-            if (param0 instanceof CollectionTag) {
-                CollectionTag<?> var0 = (CollectionTag)param0;
+            if (param0 instanceof CollectionTag var0) {
                 int var1 = var0.size();
                 if (var1 > 0) {
                     var0.clear();
@@ -243,8 +241,7 @@ public class NbtPathArgument implements ArgumentType<NbtPathArgument.NbtPath> {
 
         @Override
         public void getOrCreateTag(Tag param0, Supplier<Tag> param1, List<Tag> param2) {
-            if (param0 instanceof CompoundTag) {
-                CompoundTag var0 = (CompoundTag)param0;
+            if (param0 instanceof CompoundTag var0) {
                 Tag var1;
                 if (var0.contains(this.name)) {
                     var1 = var0.get(this.name);
@@ -265,8 +262,7 @@ public class NbtPathArgument implements ArgumentType<NbtPathArgument.NbtPath> {
 
         @Override
         public int setTag(Tag param0, Supplier<Tag> param1) {
-            if (param0 instanceof CompoundTag) {
-                CompoundTag var0 = (CompoundTag)param0;
+            if (param0 instanceof CompoundTag var0) {
                 Tag var1 = param1.get();
                 Tag var2 = var0.put(this.name, var1);
                 if (!var1.equals(var2)) {
@@ -279,12 +275,9 @@ public class NbtPathArgument implements ArgumentType<NbtPathArgument.NbtPath> {
 
         @Override
         public int removeTag(Tag param0) {
-            if (param0 instanceof CompoundTag) {
-                CompoundTag var0 = (CompoundTag)param0;
-                if (var0.contains(this.name)) {
-                    var0.remove(this.name);
-                    return 1;
-                }
+            if (param0 instanceof CompoundTag var0 && var0.contains(this.name)) {
+                var0.remove(this.name);
+                return 1;
             }
 
             return 0;
@@ -300,8 +293,7 @@ public class NbtPathArgument implements ArgumentType<NbtPathArgument.NbtPath> {
 
         @Override
         public void getTag(Tag param0, List<Tag> param1) {
-            if (param0 instanceof CollectionTag) {
-                CollectionTag<?> var0 = (CollectionTag)param0;
+            if (param0 instanceof CollectionTag var0) {
                 int var1 = var0.size();
                 int var2 = this.index < 0 ? var1 + this.index : this.index;
                 if (0 <= var2 && var2 < var1) {
@@ -323,8 +315,7 @@ public class NbtPathArgument implements ArgumentType<NbtPathArgument.NbtPath> {
 
         @Override
         public int setTag(Tag param0, Supplier<Tag> param1) {
-            if (param0 instanceof CollectionTag) {
-                CollectionTag<?> var0 = (CollectionTag)param0;
+            if (param0 instanceof CollectionTag var0) {
                 int var1 = var0.size();
                 int var2 = this.index < 0 ? var1 + this.index : this.index;
                 if (0 <= var2 && var2 < var1) {
@@ -341,8 +332,7 @@ public class NbtPathArgument implements ArgumentType<NbtPathArgument.NbtPath> {
 
         @Override
         public int removeTag(Tag param0) {
-            if (param0 instanceof CollectionTag) {
-                CollectionTag<?> var0 = (CollectionTag)param0;
+            if (param0 instanceof CollectionTag var0) {
                 int var1 = var0.size();
                 int var2 = this.index < 0 ? var1 + this.index : this.index;
                 if (0 <= var2 && var2 < var1) {
@@ -366,8 +356,7 @@ public class NbtPathArgument implements ArgumentType<NbtPathArgument.NbtPath> {
 
         @Override
         public void getTag(Tag param0, List<Tag> param1) {
-            if (param0 instanceof ListTag) {
-                ListTag var0 = (ListTag)param0;
+            if (param0 instanceof ListTag var0) {
                 var0.stream().filter(this.predicate).forEach(param1::add);
             }
 
@@ -376,8 +365,7 @@ public class NbtPathArgument implements ArgumentType<NbtPathArgument.NbtPath> {
         @Override
         public void getOrCreateTag(Tag param0, Supplier<Tag> param1, List<Tag> param2) {
             MutableBoolean var0 = new MutableBoolean();
-            if (param0 instanceof ListTag) {
-                ListTag var1 = (ListTag)param0;
+            if (param0 instanceof ListTag var1) {
                 var1.stream().filter(this.predicate).forEach(param2x -> {
                     param2.add(param2x);
                     var0.setTrue();
@@ -399,8 +387,7 @@ public class NbtPathArgument implements ArgumentType<NbtPathArgument.NbtPath> {
         @Override
         public int setTag(Tag param0, Supplier<Tag> param1) {
             int var0 = 0;
-            if (param0 instanceof ListTag) {
-                ListTag var1 = (ListTag)param0;
+            if (param0 instanceof ListTag var1) {
                 int var2 = var1.size();
                 if (var2 == 0) {
                     var1.add(param1.get());
@@ -424,9 +411,7 @@ public class NbtPathArgument implements ArgumentType<NbtPathArgument.NbtPath> {
         @Override
         public int removeTag(Tag param0) {
             int var0 = 0;
-            if (param0 instanceof ListTag) {
-                ListTag var1 = (ListTag)param0;
-
+            if (param0 instanceof ListTag var1) {
                 for(int var2 = var1.size() - 1; var2 >= 0; --var2) {
                     if (this.predicate.test(var1.get(var2))) {
                         var1.remove(var2);
@@ -463,8 +448,7 @@ public class NbtPathArgument implements ArgumentType<NbtPathArgument.NbtPath> {
 
         @Override
         public void getOrCreateTag(Tag param0, Supplier<Tag> param1, List<Tag> param2) {
-            if (param0 instanceof CompoundTag) {
-                CompoundTag var0 = (CompoundTag)param0;
+            if (param0 instanceof CompoundTag var0) {
                 Tag var1 = var0.get(this.name);
                 if (var1 == null) {
                     Tag var6 = this.pattern.copy();
@@ -484,8 +468,7 @@ public class NbtPathArgument implements ArgumentType<NbtPathArgument.NbtPath> {
 
         @Override
         public int setTag(Tag param0, Supplier<Tag> param1) {
-            if (param0 instanceof CompoundTag) {
-                CompoundTag var0 = (CompoundTag)param0;
+            if (param0 instanceof CompoundTag var0) {
                 Tag var1 = var0.get(this.name);
                 if (this.predicate.test(var1)) {
                     Tag var2 = param1.get();
@@ -501,8 +484,7 @@ public class NbtPathArgument implements ArgumentType<NbtPathArgument.NbtPath> {
 
         @Override
         public int removeTag(Tag param0) {
-            if (param0 instanceof CompoundTag) {
-                CompoundTag var0 = (CompoundTag)param0;
+            if (param0 instanceof CompoundTag var0) {
                 Tag var1 = var0.get(this.name);
                 if (this.predicate.test(var1)) {
                     var0.remove(this.name);

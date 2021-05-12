@@ -421,9 +421,9 @@ public class WorldGenSettingsFix extends DataFix {
                     )
                     .apply(param0, WorldGenSettingsFix.StructureFeatureConfiguration::new)
         );
-        private final int spacing;
-        private final int separation;
-        private final int salt;
+        final int spacing;
+        final int separation;
+        final int salt;
 
         public StructureFeatureConfiguration(int param0, int param1, int param2) {
             this.spacing = param0;

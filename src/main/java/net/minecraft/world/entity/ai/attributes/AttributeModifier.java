@@ -73,10 +73,9 @@ public class AttributeModifier {
             + this.operation
             + ", name='"
             + (String)this.nameGetter.get()
-            + '\''
-            + ", id="
+            + "', id="
             + this.id
-            + '}';
+            + "}";
     }
 
     public CompoundTag save() {

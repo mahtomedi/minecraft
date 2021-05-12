@@ -68,7 +68,7 @@ public class Stitcher {
 
     }
 
-    private static int smallestFittingMinTexel(int param0, int param1) {
+    static int smallestFittingMinTexel(int param0, int param1) {
         return (param0 >> param1) + ((param0 & (1 << param1) - 1) == 0 ? 0 : 1) << param1;
     }
 
@@ -134,7 +134,7 @@ public class Stitcher {
 
         @Override
         public String toString() {
-            return "Holder{width=" + this.width + ", height=" + this.height + '}';
+            return "Holder{width=" + this.width + ", height=" + this.height + "}";
         }
     }
 
@@ -238,7 +238,7 @@ public class Stitcher {
                 + this.holder
                 + ", subSlots="
                 + this.subSlots
-                + '}';
+                + "}";
         }
     }
 

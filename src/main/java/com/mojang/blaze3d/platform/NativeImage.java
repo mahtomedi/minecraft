@@ -6,7 +6,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.channels.Channels;
@@ -104,7 +103,7 @@ public final class NativeImage implements AutoCloseable {
         NativeImage var3;
         try {
             var0 = TextureUtil.readResource(param1);
-            ((Buffer)var0).rewind();
+            var0.rewind();
             var3 = read(param0, var0);
         } finally {
             MemoryUtil.memFree(var0);
@@ -124,7 +123,7 @@ public final class NativeImage implements AutoCloseable {
         } else if (MemoryUtil.memAddress(param1) == 0L) {
             throw new IllegalArgumentException("Invalid buffer");
         } else {
-            NativeImage var8;
+            NativeImage var7;
             try (MemoryStack var0 = MemoryStack.stackPush()) {
                 IntBuffer var1 = var0.mallocInt(1);
                 IntBuffer var2 = var0.mallocInt(1);
@@ -134,12 +133,12 @@ public final class NativeImage implements AutoCloseable {
                     throw new IOException("Could not load image: " + STBImage.stbi_failure_reason());
                 }
 
-                var8 = new NativeImage(
+                var7 = new NativeImage(
                     param0 == null ? NativeImage.Format.getStbFormat(var3.get(0)) : param0, var1.get(0), var2.get(0), true, MemoryUtil.memAddress(var4)
                 );
             }
 
-            return var8;
+            return var7;
         }
     }
 
@@ -463,7 +462,7 @@ public final class NativeImage implements AutoCloseable {
     }
 
     public byte[] asByteArray() throws IOException {
-        byte[] var5;
+        byte[] var3;
         try (
             ByteArrayOutputStream var0 = new ByteArrayOutputStream();
             WritableByteChannel var1 = Channels.newChannel(var0);
@@ -472,10 +471,10 @@ public final class NativeImage implements AutoCloseable {
                 throw new IOException("Could not write image to byte array: " + STBImage.stbi_failure_reason());
             }
 
-            var5 = var0.toByteArray();
+            var3 = var0.toByteArray();
         }
 
-        return var5;
+        return var3;
     }
 
     private boolean writeToChannel(WritableByteChannel param0) throws IOException {
@@ -591,15 +590,15 @@ public final class NativeImage implements AutoCloseable {
     public static NativeImage fromBase64(String param0) throws IOException {
         byte[] var0 = Base64.getDecoder().decode(param0.replaceAll("\n", "").getBytes(Charsets.UTF_8));
 
-        NativeImage var5;
+        NativeImage var4;
         try (MemoryStack var1 = MemoryStack.stackPush()) {
             ByteBuffer var2 = var1.malloc(var0.length);
             var2.put(var0);
-            ((Buffer)var2).rewind();
-            var5 = read(var2);
+            var2.rewind();
+            var4 = read(var2);
         }
 
-        return var5;
+        return var4;
     }
 
     public static int getA(int param0) {
@@ -629,7 +628,7 @@ public final class NativeImage implements AutoCloseable {
         LUMINANCE_ALPHA(2, 33319, false, false, false, true, true, 255, 255, 255, 0, 8, true),
         LUMINANCE(1, 6403, false, false, false, true, false, 0, 0, 0, 0, 255, true);
 
-        private final int components;
+        final int components;
         private final int glFormat;
         private final boolean hasRed;
         private final boolean hasGreen;
@@ -767,7 +766,7 @@ public final class NativeImage implements AutoCloseable {
             return this.supportedByStb;
         }
 
-        private static NativeImage.Format getStbFormat(int param0) {
+        static NativeImage.Format getStbFormat(int param0) {
             switch(param0) {
                 case 1:
                     return LUMINANCE;
@@ -806,7 +805,7 @@ public final class NativeImage implements AutoCloseable {
         @Nullable
         private IOException exception;
 
-        private WriteCallback(WritableByteChannel param0) {
+        WriteCallback(WritableByteChannel param0) {
             this.output = param0;
         }
 

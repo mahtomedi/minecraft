@@ -13,9 +13,9 @@ import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
 
 public class StorageNbtProvider implements NbtProvider {
-    private final ResourceLocation id;
+    final ResourceLocation id;
 
-    private StorageNbtProvider(ResourceLocation param0) {
+    StorageNbtProvider(ResourceLocation param0) {
         this.id = param0;
     }
 

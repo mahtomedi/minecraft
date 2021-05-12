@@ -8,7 +8,6 @@ import com.mojang.blaze3d.font.GlyphProvider;
 import com.mojang.blaze3d.font.TrueTypeGlyphProvider;
 import com.mojang.blaze3d.platform.TextureUtil;
 import java.io.IOException;
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import javax.annotation.Nullable;
 import net.minecraft.resources.ResourceLocation;
@@ -85,19 +84,24 @@ public class TrueTypeGlyphProviderBuilder implements GlyphProviderBuilder {
         STBTTFontinfo var0 = null;
         ByteBuffer var1 = null;
 
-        try (Resource var2 = param0.getResource(new ResourceLocation(this.location.getNamespace(), "font/" + this.location.getPath()))) {
-            LOGGER.debug("Loading font {}", this.location);
-            var0 = STBTTFontinfo.malloc();
-            var1 = TextureUtil.readResource(var2.getInputStream());
-            ((Buffer)var1).flip();
-            LOGGER.debug("Reading font {}", this.location);
-            if (!STBTruetype.stbtt_InitFont(var0, var1)) {
-                throw new IOException("Invalid ttf");
-            } else {
-                return new TrueTypeGlyphProvider(var1, var0, this.size, this.oversample, this.shiftX, this.shiftY, this.skip);
+        try {
+            TrueTypeGlyphProvider var5;
+            try (Resource var2 = param0.getResource(new ResourceLocation(this.location.getNamespace(), "font/" + this.location.getPath()))) {
+                LOGGER.debug("Loading font {}", this.location);
+                var0 = STBTTFontinfo.malloc();
+                var1 = TextureUtil.readResource(var2.getInputStream());
+                var1.flip();
+                LOGGER.debug("Reading font {}", this.location);
+                if (!STBTruetype.stbtt_InitFont(var0, var1)) {
+                    throw new IOException("Invalid ttf");
+                }
+
+                var5 = new TrueTypeGlyphProvider(var1, var0, this.size, this.oversample, this.shiftX, this.shiftY, this.skip);
             }
-        } catch (Exception var18) {
-            LOGGER.error("Couldn't load truetype font {}", this.location, var18);
+
+            return var5;
+        } catch (Exception var9) {
+            LOGGER.error("Couldn't load truetype font {}", this.location, var9);
             if (var0 != null) {
                 var0.free();
             }

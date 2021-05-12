@@ -172,15 +172,13 @@ public abstract class NbtComponent extends BaseComponent implements ContextAware
         public String toString() {
             return "BlockPosArgument{pos='"
                 + this.posPattern
-                + '\''
-                + "path='"
+                + "'path='"
                 + this.nbtPathPattern
-                + '\''
-                + ", siblings="
+                + "', siblings="
                 + this.siblings
                 + ", style="
                 + this.getStyle()
-                + '}';
+                + "}";
         }
     }
 
@@ -251,15 +249,13 @@ public abstract class NbtComponent extends BaseComponent implements ContextAware
         public String toString() {
             return "EntityNbtComponent{selector='"
                 + this.selectorPattern
-                + '\''
-                + "path='"
+                + "'path='"
                 + this.nbtPathPattern
-                + '\''
-                + ", siblings="
+                + "', siblings="
                 + this.siblings
                 + ", style="
                 + this.getStyle()
-                + '}';
+                + "}";
         }
     }
 
@@ -304,17 +300,7 @@ public abstract class NbtComponent extends BaseComponent implements ContextAware
 
         @Override
         public String toString() {
-            return "StorageNbtComponent{id='"
-                + this.id
-                + '\''
-                + "path='"
-                + this.nbtPathPattern
-                + '\''
-                + ", siblings="
-                + this.siblings
-                + ", style="
-                + this.getStyle()
-                + '}';
+            return "StorageNbtComponent{id='" + this.id + "'path='" + this.nbtPathPattern + "', siblings=" + this.siblings + ", style=" + this.getStyle() + "}";
         }
     }
 }

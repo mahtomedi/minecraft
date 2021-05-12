@@ -79,6 +79,8 @@ public interface ClientGamePacketListener extends PacketListener {
 
     void handleParticleEvent(ClientboundLevelParticlesPacket var1);
 
+    void handlePing(ClientboundPingPacket var1);
+
     void handlePlayerAbilities(ClientboundPlayerAbilitiesPacket var1);
 
     void handlePlayerInfo(ClientboundPlayerInfoPacket var1);

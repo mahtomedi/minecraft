@@ -48,8 +48,8 @@ import net.minecraft.world.level.ServerLevelAccessor;
 
 public class Vindicator extends AbstractIllager {
     private static final String TAG_JOHNNY = "Johnny";
-    private static final Predicate<Difficulty> DOOR_BREAKING_PREDICATE = param0 -> param0 == Difficulty.NORMAL || param0 == Difficulty.HARD;
-    private boolean isJohnny;
+    static final Predicate<Difficulty> DOOR_BREAKING_PREDICATE = param0 -> param0 == Difficulty.NORMAL || param0 == Difficulty.HARD;
+    boolean isJohnny;
 
     public Vindicator(EntityType<? extends Vindicator> param0, Level param1) {
         super(param0, param1);

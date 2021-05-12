@@ -19,7 +19,7 @@ public interface StringRepresentable {
 
     static <E extends Enum<E> & StringRepresentable> Codec<E> fromEnum(Supplier<E[]> param0, Function<? super String, ? extends E> param1) {
         E[] var0 = (E[])param0.get();
-        return fromStringResolver(Enum::ordinal, param1x -> var0[param1x], param1);
+        return fromStringResolver(param0x -> param0x.ordinal(), param1x -> var0[param1x], param1);
     }
 
     static <E extends StringRepresentable> Codec<E> fromStringResolver(

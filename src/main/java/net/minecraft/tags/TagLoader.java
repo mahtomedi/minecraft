@@ -61,14 +61,14 @@ public class TagLoader<T> {
                         } else {
                             var0.computeIfAbsent(var3, param0x -> Tag.Builder.tag()).addFromJson(var7, var4.getSourceName());
                         }
-                    } catch (RuntimeException | IOException var57) {
-                        LOGGER.error("Couldn't read tag list {} from {} in data pack {}", var3, var1, var4.getSourceName(), var57);
+                    } catch (RuntimeException | IOException var25) {
+                        LOGGER.error("Couldn't read tag list {} from {} in data pack {}", var3, var1, var4.getSourceName(), var25);
                     } finally {
                         IOUtils.closeQuietly((Closeable)var4);
                     }
                 }
-            } catch (IOException var59) {
-                LOGGER.error("Couldn't read tag list {} from {}", var3, var1, var59);
+            } catch (IOException var27) {
+                LOGGER.error("Couldn't read tag list {} from {}", var3, var1, var27);
             }
         }
 
@@ -127,8 +127,7 @@ public class TagLoader<T> {
                                             param1x.stream().map(Objects::toString).collect(Collectors.joining(","))
                                         )
                                 )
-                                .ifRight(param2x -> {
-                                })
+                                .ifRight(param2x -> var0.put(param3x, param2x))
                     )
             );
         return TagCollection.of(var0);

@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
@@ -35,9 +34,9 @@ import org.apache.logging.log4j.Logger;
 @OnlyIn(Dist.CLIENT)
 public class RealmsTextureManager {
     private static final Map<String, RealmsTextureManager.RealmsTexture> TEXTURES = Maps.newHashMap();
-    private static final Map<String, Boolean> SKIN_FETCH_STATUS = Maps.newHashMap();
-    private static final Map<String, String> FETCHED_SKINS = Maps.newHashMap();
-    private static final Logger LOGGER = LogManager.getLogger();
+    static final Map<String, Boolean> SKIN_FETCH_STATUS = Maps.newHashMap();
+    static final Map<String, String> FETCHED_SKINS = Maps.newHashMap();
+    static final Logger LOGGER = LogManager.getLogger();
     private static final ResourceLocation TEMPLATE_ICON_LOCATION = new ResourceLocation("textures/gui/presets/isles.png");
 
     public static void bindWorldTemplate(String param0, @Nullable String param1) {
@@ -164,7 +163,7 @@ public class RealmsTextureManager {
                 var7.getRGB(0, 0, var4, var5, var9, 0, var4);
                 var3 = ByteBuffer.allocateDirect(4 * var4 * var5).order(ByteOrder.nativeOrder()).asIntBuffer();
                 var3.put(var9);
-                ((Buffer)var3).flip();
+                var3.flip();
             } catch (IOException var13) {
                 var13.printStackTrace();
             }
@@ -179,8 +178,8 @@ public class RealmsTextureManager {
 
     @OnlyIn(Dist.CLIENT)
     public static class RealmsTexture {
-        private final String image;
-        private final int textureId;
+        final String image;
+        final int textureId;
 
         public RealmsTexture(String param0, int param1) {
             this.image = param0;

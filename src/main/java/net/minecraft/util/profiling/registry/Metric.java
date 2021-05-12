@@ -13,6 +13,6 @@ public class Metric {
 
     @Override
     public String toString() {
-        return "Metric{name='" + this.name + '\'' + '}';
+        return "Metric{name='" + this.name + "'}";
     }
 }

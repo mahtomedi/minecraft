@@ -36,12 +36,12 @@ import org.apache.logging.log4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class FontManager implements AutoCloseable {
-    private static final Logger LOGGER = LogManager.getLogger();
+    static final Logger LOGGER = LogManager.getLogger();
     private static final String FONTS_PATH = "fonts.json";
     public static final ResourceLocation MISSING_FONT = new ResourceLocation("minecraft", "missing");
     private final FontSet missingFontSet;
-    private final Map<ResourceLocation, FontSet> fontSets = Maps.newHashMap();
-    private final TextureManager textureManager;
+    final Map<ResourceLocation, FontSet> fontSets = Maps.newHashMap();
+    final TextureManager textureManager;
     private Map<ResourceLocation, ResourceLocation> renames = ImmutableMap.of();
     private final PreparableReloadListener reloadListener = new SimplePreparableReloadListener<Map<ResourceLocation, List<GlyphProvider>>>() {
         protected Map<ResourceLocation, List<GlyphProvider>> prepare(ResourceManager param0, ProfilerFiller param1) {
@@ -80,28 +80,28 @@ public class FontManager implements AutoCloseable {
                                     }
 
                                     param1.pop();
-                                } catch (RuntimeException var49) {
+                                } catch (RuntimeException var22) {
                                     FontManager.LOGGER
                                         .warn(
                                             "Unable to read definition '{}' in {} in resourcepack: '{}': {}",
                                             var4,
                                             "fonts.json",
                                             var6.getSourceName(),
-                                            var49.getMessage()
+                                            var22.getMessage()
                                         );
                                 }
                             }
 
                             param1.pop();
-                        } catch (RuntimeException var54) {
+                        } catch (RuntimeException var25) {
                             FontManager.LOGGER
-                                .warn("Unable to load font '{}' in {} in resourcepack: '{}': {}", var4, "fonts.json", var6.getSourceName(), var54.getMessage());
+                                .warn("Unable to load font '{}' in {} in resourcepack: '{}': {}", var4, "fonts.json", var6.getSourceName(), var25.getMessage());
                         }
 
                         param1.pop();
                     }
-                } catch (IOException var55) {
-                    FontManager.LOGGER.warn("Unable to load font '{}' in {}: {}", var4, "fonts.json", var55.getMessage());
+                } catch (IOException var26) {
+                    FontManager.LOGGER.warn("Unable to load font '{}' in {}: {}", var4, "fonts.json", var26.getMessage());
                 }
 
                 param1.push("caching");

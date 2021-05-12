@@ -21,8 +21,8 @@ import org.apache.commons.lang3.ArrayUtils;
 
 @OnlyIn(Dist.CLIENT)
 public class ControlList extends ContainerObjectSelectionList<ControlList.Entry> {
-    private final ControlsScreen controlsScreen;
-    private int maxNameWidth;
+    final ControlsScreen controlsScreen;
+    int maxNameWidth;
 
     public ControlList(ControlsScreen param0, Minecraft param1) {
         super(param1, param0.width + 45, param0.height, 43, param0.height - 32, 20);
@@ -98,7 +98,7 @@ public class ControlList extends ContainerObjectSelectionList<ControlList.Entry>
         private final Button changeButton;
         private final Button resetButton;
 
-        private KeyEntry(final KeyMapping param1, final Component param2) {
+        KeyEntry(final KeyMapping param1, final Component param2) {
             this.key = param1;
             this.name = param2;
             this.changeButton = new Button(0, 0, 75, 20, param2, param1x -> ControlList.this.controlsScreen.selectedKey = param1) {
@@ -123,9 +123,8 @@ public class ControlList extends ContainerObjectSelectionList<ControlList.Entry>
         @Override
         public void render(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
             boolean var0 = ControlList.this.controlsScreen.selectedKey == this.key;
-            ControlList.this.minecraft
-                .font
-                .draw(param0, this.name, (float)(param3 + 90 - ControlList.this.maxNameWidth), (float)(param2 + param5 / 2 - 9 / 2), 16777215);
+            float var10003 = (float)(param3 + 90 - ControlList.this.maxNameWidth);
+            ControlList.this.minecraft.font.draw(param0, this.name, var10003, (float)(param2 + param5 / 2 - 9 / 2), 16777215);
             this.resetButton.x = param3 + 190;
             this.resetButton.y = param2;
             this.resetButton.active = !this.key.isDefault();

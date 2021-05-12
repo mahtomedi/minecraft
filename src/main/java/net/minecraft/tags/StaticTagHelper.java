@@ -80,7 +80,7 @@ public class StaticTagHelper<T> {
         private Tag<T> tag;
         protected final ResourceLocation name;
 
-        private Wrapper(ResourceLocation param0) {
+        Wrapper(ResourceLocation param0) {
             this.name = param0;
         }
 

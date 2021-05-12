@@ -30,6 +30,6 @@ public class BlockPosTracker implements PositionTracker {
 
     @Override
     public String toString() {
-        return "BlockPosTracker{blockPos=" + this.blockPos + ", centerPosition=" + this.centerPosition + '}';
+        return "BlockPosTracker{blockPos=" + this.blockPos + ", centerPosition=" + this.centerPosition + "}";
     }
 }

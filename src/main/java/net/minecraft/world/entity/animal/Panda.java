@@ -68,7 +68,7 @@ public class Panda extends Animal {
     private static final EntityDataAccessor<Byte> MAIN_GENE_ID = SynchedEntityData.defineId(Panda.class, EntityDataSerializers.BYTE);
     private static final EntityDataAccessor<Byte> HIDDEN_GENE_ID = SynchedEntityData.defineId(Panda.class, EntityDataSerializers.BYTE);
     private static final EntityDataAccessor<Byte> DATA_ID_FLAGS = SynchedEntityData.defineId(Panda.class, EntityDataSerializers.BYTE);
-    private static final TargetingConditions BREED_TARGETING = new TargetingConditions().range(8.0).allowSameTeam().allowInvulnerable();
+    static final TargetingConditions BREED_TARGETING = TargetingConditions.forNonCombat().range(8.0);
     private static final int FLAG_SNEEZE = 2;
     private static final int FLAG_ROLL = 4;
     private static final int FLAG_SIT = 8;
@@ -76,8 +76,8 @@ public class Panda extends Animal {
     private static final int EAT_TICK_INTERVAL = 5;
     public static final int TOTAL_ROLL_STEPS = 32;
     private static final int TOTAL_UNHAPPY_TIME = 32;
-    private boolean gotBamboo;
-    private boolean didBite;
+    boolean gotBamboo;
+    boolean didBite;
     public int rollCounter;
     private Vec3 rollDelta;
     private float sitAmount;
@@ -86,8 +86,8 @@ public class Panda extends Animal {
     private float onBackAmountO;
     private float rollAmount;
     private float rollAmountO;
-    private Panda.PandaLookAtPlayerGoal lookAtPlayerGoal;
-    private static final Predicate<ItemEntity> PANDA_ITEMS = param0 -> {
+    Panda.PandaLookAtPlayerGoal lookAtPlayerGoal;
+    static final Predicate<ItemEntity> PANDA_ITEMS = param0 -> {
         ItemStack var0 = param0.getItem();
         return (var0.is(Blocks.BAMBOO.asItem()) || var0.is(Blocks.CAKE.asItem())) && param0.isAlive() && !param0.hasPickUpDelay();
     };
@@ -605,7 +605,7 @@ public class Panda extends Animal {
 
     }
 
-    private void tryToSit() {
+    void tryToSit() {
         if (!this.isInWater()) {
             this.setZza(0.0F);
             this.getNavigation().stop();
@@ -732,7 +732,7 @@ public class Panda extends Animal {
             return this.isRecessive;
         }
 
-        private static Panda.Gene getVariantFromGenes(Panda.Gene param0, Panda.Gene param1) {
+        static Panda.Gene getVariantFromGenes(Panda.Gene param0, Panda.Gene param1) {
             if (param0.isRecessive()) {
                 return param0 == param1 ? param0 : NORMAL;
             } else {

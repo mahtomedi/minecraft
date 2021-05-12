@@ -20,27 +20,27 @@ public class Style {
     public static final Style EMPTY = new Style(null, null, null, null, null, null, null, null, null, null);
     public static final ResourceLocation DEFAULT_FONT = new ResourceLocation("minecraft", "default");
     @Nullable
-    private final TextColor color;
+    final TextColor color;
     @Nullable
-    private final Boolean bold;
+    final Boolean bold;
     @Nullable
-    private final Boolean italic;
+    final Boolean italic;
     @Nullable
-    private final Boolean underlined;
+    final Boolean underlined;
     @Nullable
-    private final Boolean strikethrough;
+    final Boolean strikethrough;
     @Nullable
-    private final Boolean obfuscated;
+    final Boolean obfuscated;
     @Nullable
-    private final ClickEvent clickEvent;
+    final ClickEvent clickEvent;
     @Nullable
-    private final HoverEvent hoverEvent;
+    final HoverEvent hoverEvent;
     @Nullable
-    private final String insertion;
+    final String insertion;
     @Nullable
-    private final ResourceLocation font;
+    final ResourceLocation font;
 
-    private Style(
+    Style(
         @Nullable TextColor param0,
         @Nullable Boolean param1,
         @Nullable Boolean param2,
@@ -327,7 +327,7 @@ public class Style {
             + this.getInsertion()
             + ", font="
             + this.getFont()
-            + '}';
+            + "}";
     }
 
     @Override

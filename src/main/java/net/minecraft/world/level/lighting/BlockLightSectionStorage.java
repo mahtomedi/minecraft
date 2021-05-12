@@ -25,7 +25,7 @@ public class BlockLightSectionStorage extends LayerLightSectionStorage<BlockLigh
             );
     }
 
-    public static final class BlockDataLayerStorageMap extends DataLayerStorageMap<BlockLightSectionStorage.BlockDataLayerStorageMap> {
+    protected static final class BlockDataLayerStorageMap extends DataLayerStorageMap<BlockLightSectionStorage.BlockDataLayerStorageMap> {
         public BlockDataLayerStorageMap(Long2ObjectOpenHashMap<DataLayer> param0) {
             super(param0);
         }

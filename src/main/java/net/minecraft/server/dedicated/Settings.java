@@ -30,7 +30,7 @@ public abstract class Settings<T extends Settings<T>> {
 
         try (InputStream var1 = Files.newInputStream(param0)) {
             var0.load(var1);
-        } catch (IOException var15) {
+        } catch (IOException var7) {
             LOGGER.error("Failed to load properties from file: {}", param0);
         }
 
@@ -40,7 +40,7 @@ public abstract class Settings<T extends Settings<T>> {
     public void store(Path param0) {
         try (OutputStream var0 = Files.newOutputStream(param0)) {
             this.properties.store(var0, "Minecraft server properties");
-        } catch (IOException var15) {
+        } catch (IOException var7) {
             LOGGER.error("Failed to store properties to file: {}", param0);
         }
 
@@ -162,7 +162,7 @@ public abstract class Settings<T extends Settings<T>> {
         private final V value;
         private final Function<V, String> serializer;
 
-        private MutableValue(String param1, V param2, Function<V, String> param3) {
+        MutableValue(String param1, V param2, Function<V, String> param3) {
             this.key = param1;
             this.value = param2;
             this.serializer = param3;

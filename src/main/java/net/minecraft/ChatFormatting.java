@@ -50,7 +50,7 @@ public enum ChatFormatting {
         return param0.toLowerCase(Locale.ROOT).replaceAll("[^a-z]", "");
     }
 
-    private ChatFormatting(String param0, char param1, int param2, @Nullable Integer param3) {
+    private ChatFormatting(String param0, @Nullable char param1, int param2, Integer param3) {
         this(param0, param1, false, param2, param3);
     }
 
@@ -58,7 +58,7 @@ public enum ChatFormatting {
         this(param0, param1, param2, -1, null);
     }
 
-    private ChatFormatting(String param0, char param1, boolean param2, int param3, @Nullable Integer param4) {
+    private ChatFormatting(String param0, char param1, @Nullable boolean param2, int param3, Integer param4) {
         this.name = param0;
         this.code = param1;
         this.isFormat = param2;

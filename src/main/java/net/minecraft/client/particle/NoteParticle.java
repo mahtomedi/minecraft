@@ -8,7 +8,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class NoteParticle extends TextureSheetParticle {
-    private NoteParticle(ClientLevel param0, double param1, double param2, double param3, double param4) {
+    NoteParticle(ClientLevel param0, double param1, double param2, double param3, double param4) {
         super(param0, param1, param2, param3, 0.0, 0.0, 0.0);
         this.friction = 0.66F;
         this.speedUpWhenYMotionIsBlocked = true;

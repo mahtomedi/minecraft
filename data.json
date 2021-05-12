@@ -116,42 +116,53 @@
   "complianceLevel": 1,
   "downloads": {
     "client": {
-      "sha1": "f52cf94abf99911ca88c12f776bcf30c9b6f1617",
-      "size": 19376401,
-      "url": "https://launcher.mojang.com/v1/objects/f52cf94abf99911ca88c12f776bcf30c9b6f1617/client.jar"
+      "sha1": "ec029994171ba8e3d9a68458d7d307a67a84faac",
+      "size": 19346626,
+      "url": "https://launcher.mojang.com/v1/objects/ec029994171ba8e3d9a68458d7d307a67a84faac/client.jar"
     },
     "client_mappings": {
-      "sha1": "95bea66557e205298d65d8c48924013d6afa5e57",
-      "size": 6535018,
-      "url": "https://launcher.mojang.com/v1/objects/95bea66557e205298d65d8c48924013d6afa5e57/client.txt"
+      "sha1": "7de88c6a5342a640d905ea008a1ad364bdcd63a5",
+      "size": 6366456,
+      "url": "https://launcher.mojang.com/v1/objects/7de88c6a5342a640d905ea008a1ad364bdcd63a5/client.txt"
     },
     "server": {
-      "sha1": "0b18d883bd1132f761aa715d6a97e29e54a9b8b6",
-      "size": 39190633,
-      "url": "https://launcher.mojang.com/v1/objects/0b18d883bd1132f761aa715d6a97e29e54a9b8b6/server.jar"
+      "sha1": "d0a9151432af384f5f2ca72e8e43422772158d0e",
+      "size": 39185936,
+      "url": "https://launcher.mojang.com/v1/objects/d0a9151432af384f5f2ca72e8e43422772158d0e/server.jar"
     },
     "server_mappings": {
-      "sha1": "fb0c905d83afce0ef48001acd490f1932ed3c0cc",
-      "size": 5008302,
-      "url": "https://launcher.mojang.com/v1/objects/fb0c905d83afce0ef48001acd490f1932ed3c0cc/server.txt"
+      "sha1": "8d8524fd057a410dbc680f8f46b967b39ad3f1d8",
+      "size": 4901519,
+      "url": "https://launcher.mojang.com/v1/objects/8d8524fd057a410dbc680f8f46b967b39ad3f1d8/server.txt"
     }
   },
-  "id": "21w18a",
+  "id": "21w19a",
   "javaVersion": {
-    "component": "jre-legacy",
-    "majorVersion": 8
+    "component": "java-runtime-alpha",
+    "majorVersion": 16
   },
   "libraries": [
     {
       "downloads": {
         "artifact": {
-          "path": "com/mojang/patchy/1.3.9/patchy-1.3.9.jar",
-          "sha1": "eb8bb7b66fa0e2152b1b40b3856e82f7619439ee",
-          "size": 23581,
-          "url": "https://libraries.minecraft.net/com/mojang/patchy/1.3.9/patchy-1.3.9.jar"
+          "path": "com/mojang/blocklist/1.0.5/blocklist-1.0.5.jar",
+          "sha1": "9da540f21c9a8d5ed7c029e1f88d1a6dabb0d6ad",
+          "size": 964,
+          "url": "https://libraries.minecraft.net/com/mojang/blocklist/1.0.5/blocklist-1.0.5.jar"
         }
       },
-      "name": "com.mojang:patchy:1.3.9"
+      "name": "com.mojang:blocklist:1.0.5"
+    },
+    {
+      "downloads": {
+        "artifact": {
+          "path": "com/mojang/patchy/2.0.5/patchy-2.0.5.jar",
+          "sha1": "147f3989fa1db4412bf00167c5cd44d1ade2d9b9",
+          "size": 10090,
+          "url": "https://libraries.minecraft.net/com/mojang/patchy/2.0.5/patchy-2.0.5.jar"
+        }
+      },
+      "name": "com.mojang:patchy:2.0.5"
     },
     {
       "downloads": {
@@ -1308,7 +1319,7 @@
   },
   "mainClass": "net.minecraft.client.main.Main",
   "minimumLauncherVersion": 21,
-  "releaseTime": "2021-05-05T15:24:35+00:00",
-  "time": "2021-05-05T15:24:35+00:00",
+  "releaseTime": "2021-05-12T11:19:15+00:00",
+  "time": "2021-05-12T11:19:15+00:00",
   "type": "snapshot"
 }

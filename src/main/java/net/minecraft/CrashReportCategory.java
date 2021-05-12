@@ -213,8 +213,7 @@ public class CrashReportCategory {
             this.key = param0;
             if (param1 == null) {
                 this.value = "~~NULL~~";
-            } else if (param1 instanceof Throwable) {
-                Throwable var0 = (Throwable)param1;
+            } else if (param1 instanceof Throwable var0) {
                 this.value = "~~ERROR~~ " + var0.getClass().getSimpleName() + ": " + var0.getMessage();
             } else {
                 this.value = param1.toString();

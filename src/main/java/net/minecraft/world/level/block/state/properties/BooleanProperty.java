@@ -33,11 +33,8 @@ public class BooleanProperty extends Property<Boolean> {
     public boolean equals(Object param0) {
         if (this == param0) {
             return true;
-        } else if (param0 instanceof BooleanProperty && super.equals(param0)) {
-            BooleanProperty var0 = (BooleanProperty)param0;
-            return this.values.equals(var0.values);
         } else {
-            return false;
+            return param0 instanceof BooleanProperty var0 && super.equals(param0) ? this.values.equals(var0.values) : false;
         }
     }
 

@@ -57,24 +57,24 @@ public class CommandSuggestions {
         )
         .map(Style.EMPTY::withColor)
         .collect(ImmutableList.toImmutableList());
-    private final Minecraft minecraft;
-    private final Screen screen;
-    private final EditBox input;
-    private final Font font;
+    final Minecraft minecraft;
+    final Screen screen;
+    final EditBox input;
+    final Font font;
     private final boolean commandsOnly;
     private final boolean onlyShowIfCursorPastError;
-    private final int lineStartOffset;
-    private final int suggestionLineLimit;
-    private final boolean anchorToBottom;
-    private final int fillColor;
+    final int lineStartOffset;
+    final int suggestionLineLimit;
+    final boolean anchorToBottom;
+    final int fillColor;
     private final List<FormattedCharSequence> commandUsage = Lists.newArrayList();
     private int commandUsagePosition;
     private int commandUsageWidth;
     private ParseResults<SharedSuggestionProvider> currentParse;
     private CompletableFuture<Suggestions> pendingSuggestions;
-    private CommandSuggestions.SuggestionsList suggestions;
+    CommandSuggestions.SuggestionsList suggestions;
     private boolean allowSuggestions;
-    private boolean keepSuggestions;
+    boolean keepSuggestions;
 
     public CommandSuggestions(
         Minecraft param0, Screen param1, EditBox param2, Font param3, boolean param4, boolean param5, int param6, int param7, boolean param8, int param9
@@ -290,7 +290,7 @@ public class CommandSuggestions {
     }
 
     @Nullable
-    private static String calculateSuggestionSuffix(String param0, String param1) {
+    static String calculateSuggestionSuffix(String param0, String param1) {
         return param1.startsWith(param0) ? param1.substring(param0.length()) : null;
     }
 
@@ -365,7 +365,7 @@ public class CommandSuggestions {
         private boolean tabCycles;
         private int lastNarratedEntry;
 
-        private SuggestionsList(int param1, int param2, int param3, List<Suggestion> param4, boolean param5) {
+        SuggestionsList(int param1, int param2, int param3, List<Suggestion> param4, boolean param5) {
             int var0 = param1 - 1;
             int var1 = CommandSuggestions.this.anchorToBottom ? param2 - 3 - Math.min(param4.size(), CommandSuggestions.this.suggestionLineLimit) * 12 : param2;
             this.rect = new Rect2i(var0, var1, param3 + 1, Math.min(param4.size(), CommandSuggestions.this.suggestionLineLimit) * 12);
@@ -575,7 +575,7 @@ public class CommandSuggestions {
             this.tabCycles = true;
         }
 
-        private String getNarrationMessage() {
+        String getNarrationMessage() {
             this.lastNarratedEntry = this.current;
             Suggestion var0 = this.suggestionList.get(this.current);
             Message var1 = var0.getTooltip();

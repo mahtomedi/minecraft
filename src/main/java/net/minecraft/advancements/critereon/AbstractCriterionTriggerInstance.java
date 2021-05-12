@@ -31,6 +31,6 @@ public abstract class AbstractCriterionTriggerInstance implements CriterionTrigg
 
     @Override
     public String toString() {
-        return "AbstractCriterionInstance{criterion=" + this.criterion + '}';
+        return "AbstractCriterionInstance{criterion=" + this.criterion + "}";
     }
 }

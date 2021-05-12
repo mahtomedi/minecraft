@@ -11,7 +11,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class SuspendedParticle extends TextureSheetParticle {
-    private SuspendedParticle(ClientLevel param0, SpriteSet param1, double param2, double param3, double param4) {
+    SuspendedParticle(ClientLevel param0, SpriteSet param1, double param2, double param3, double param4) {
         super(param0, param2, param3 - 0.125, param4);
         this.setSize(0.01F, 0.01F);
         this.pickSprite(param1);
@@ -22,7 +22,7 @@ public class SuspendedParticle extends TextureSheetParticle {
         this.gravity = 0.0F;
     }
 
-    private SuspendedParticle(ClientLevel param0, SpriteSet param1, double param2, double param3, double param4, double param5, double param6, double param7) {
+    SuspendedParticle(ClientLevel param0, SpriteSet param1, double param2, double param3, double param4, double param5, double param6, double param7) {
         super(param0, param2, param3 - 0.125, param4, param5, param6, param7);
         this.setSize(0.01F, 0.01F);
         this.pickSprite(param1);

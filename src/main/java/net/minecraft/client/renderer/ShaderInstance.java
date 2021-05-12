@@ -44,7 +44,7 @@ import org.apache.logging.log4j.Logger;
 public class ShaderInstance implements Shader, AutoCloseable {
     private static final String SHADER_PATH = "shaders/core/";
     private static final String SHADER_INCLUDE_PATH = "shaders/include/";
-    private static final Logger LOGGER = LogManager.getLogger();
+    static final Logger LOGGER = LogManager.getLogger();
     private static final AbstractUniform DUMMY_UNIFORM = new AbstractUniform();
     private static final boolean ALWAYS_REAPPLY = true;
     private static ShaderInstance lastAppliedShader;
@@ -219,11 +219,16 @@ public class ShaderInstance implements Shader, AutoCloseable {
                         } else {
                             ResourceLocation var0 = new ResourceLocation(param1);
 
-                            try (Resource var1 = param0.getResource(var0)) {
-                                return IOUtils.toString(var1.getInputStream(), StandardCharsets.UTF_8);
-                            } catch (IOException var18) {
-                                ShaderInstance.LOGGER.error("Could not open GLSL import {}: {}", param1, var18.getMessage());
-                                return "#error " + var18.getMessage();
+                            try {
+                                String var5;
+                                try (Resource var1 = param0.getResource(var0)) {
+                                    var5 = IOUtils.toString(var1.getInputStream(), StandardCharsets.UTF_8);
+                                }
+
+                                return var5;
+                            } catch (IOException var9) {
+                                ShaderInstance.LOGGER.error("Could not open GLSL import {}: {}", param1, var9.getMessage());
+                                return "#error " + var9.getMessage();
                             }
                         }
                     }

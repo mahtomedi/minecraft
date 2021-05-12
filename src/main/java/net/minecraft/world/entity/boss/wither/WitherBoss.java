@@ -24,6 +24,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -71,7 +72,7 @@ public class WitherBoss extends Monster implements PowerableMob, RangedAttackMob
         )
         .setDarkenScreen(true);
     private static final Predicate<LivingEntity> LIVING_ENTITY_SELECTOR = param0 -> param0.getMobType() != MobType.UNDEAD && param0.attackable();
-    private static final TargetingConditions TARGETING_CONDITIONS = new TargetingConditions().range(20.0).selector(LIVING_ENTITY_SELECTOR);
+    private static final TargetingConditions TARGETING_CONDITIONS = TargetingConditions.forCombat().range(20.0).selector(LIVING_ENTITY_SELECTOR);
 
     public WitherBoss(EntityType<? extends WitherBoss> param0, Level param1) {
         super(param0, param1);
@@ -281,9 +282,9 @@ public class WitherBoss extends Monster implements PowerableMob, RangedAttackMob
                     int var8 = this.getAlternativeTarget(var2);
                     if (var8 > 0) {
                         Entity var9 = this.level.getEntity(var8);
-                        if (var9 == null || !var9.isAlive() || this.distanceToSqr(var9) > 900.0 || !this.canSee(var9)) {
+                        if (var9 == null || !var9.isAlive() || this.distanceToSqr(var9) > 900.0 || !this.hasLineOfSight(var9)) {
                             this.setAlternativeTarget(var2, 0);
-                        } else if (var9 instanceof Player && ((Player)var9).getAbilities().invulnerable) {
+                        } else if (!EntitySelector.ATTACK_ALLOWED.test(var9)) {
                             this.setAlternativeTarget(var2, 0);
                         } else {
                             this.performRangedAttack(var2 + 1, (LivingEntity)var9);
@@ -296,7 +297,7 @@ public class WitherBoss extends Monster implements PowerableMob, RangedAttackMob
 
                         for(int var11 = 0; var11 < 10 && !var10.isEmpty(); ++var11) {
                             LivingEntity var12 = var10.get(this.random.nextInt(var10.size()));
-                            if (var12 != this && var12.isAlive() && this.canSee(var12)) {
+                            if (var12 != this && var12.isAlive() && this.hasLineOfSight(var12)) {
                                 if (var12 instanceof Player) {
                                     if (!((Player)var12).getAbilities().invulnerable) {
                                         this.setAlternativeTarget(var2, var12.getId());

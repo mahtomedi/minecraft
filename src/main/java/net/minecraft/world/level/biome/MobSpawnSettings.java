@@ -53,7 +53,7 @@ public class MobSpawnSettings {
     private final Map<EntityType<?>, MobSpawnSettings.MobSpawnCost> mobSpawnCosts;
     private final boolean playerSpawnFriendly;
 
-    private MobSpawnSettings(
+    MobSpawnSettings(
         float param0,
         Map<MobCategory, WeightedRandomList<MobSpawnSettings.SpawnerData>> param1,
         Map<EntityType<?>, MobSpawnSettings.MobSpawnCost> param2,
@@ -112,10 +112,7 @@ public class MobSpawnSettings {
         public MobSpawnSettings build() {
             return new MobSpawnSettings(
                 this.creatureGenerationProbability,
-                this.spawners
-                    .entrySet()
-                    .stream()
-                    .collect(ImmutableMap.toImmutableMap(Entry::getKey, param0 -> WeightedRandomList.create((List)param0.getValue()))),
+                this.spawners.entrySet().stream().collect(ImmutableMap.toImmutableMap(Entry::getKey, param0 -> WeightedRandomList.create(param0.getValue()))),
                 ImmutableMap.copyOf(this.mobSpawnCosts),
                 this.playerCanSpawn
             );
@@ -133,7 +130,7 @@ public class MobSpawnSettings {
         private final double energyBudget;
         private final double charge;
 
-        private MobSpawnCost(double param0, double param1) {
+        MobSpawnCost(double param0, double param1) {
             this.energyBudget = param0;
             this.charge = param1;
         }

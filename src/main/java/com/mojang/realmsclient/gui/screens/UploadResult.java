@@ -8,7 +8,7 @@ public class UploadResult {
     public final int statusCode;
     public final String errorMessage;
 
-    private UploadResult(int param0, String param1) {
+    UploadResult(int param0, String param1) {
         this.statusCode = param0;
         this.errorMessage = param1;
     }

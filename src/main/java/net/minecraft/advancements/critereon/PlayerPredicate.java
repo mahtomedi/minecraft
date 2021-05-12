@@ -53,7 +53,7 @@ public class PlayerPredicate {
         }
     }
 
-    private PlayerPredicate(
+    PlayerPredicate(
         MinMaxBounds.Ints param0,
         @Nullable GameType param1,
         Map<Stat<?>, MinMaxBounds.Ints> param2,

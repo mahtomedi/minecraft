@@ -9,15 +9,15 @@ import org.apache.commons.lang3.StringUtils;
 
 public class BlockFamily {
     private final Block baseBlock;
-    private final Map<BlockFamily.Variant, Block> variants = Maps.newHashMap();
-    private boolean generateModel = true;
-    private boolean generateRecipe = true;
+    final Map<BlockFamily.Variant, Block> variants = Maps.newHashMap();
+    boolean generateModel = true;
+    boolean generateRecipe = true;
     @Nullable
-    private String recipeGroupPrefix;
+    String recipeGroupPrefix;
     @Nullable
-    private String recipeUnlockedBy;
+    String recipeUnlockedBy;
 
-    private BlockFamily(Block param0) {
+    BlockFamily(Block param0) {
         this.baseBlock = param0;
     }
 

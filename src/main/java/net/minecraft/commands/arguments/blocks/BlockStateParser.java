@@ -144,7 +144,7 @@ public class BlockStateParser {
 
         for(Property<?> var1 : this.state.getProperties()) {
             if (!this.properties.containsKey(var1) && var1.getName().startsWith(var0)) {
-                param0.suggest(var1.getName() + '=');
+                param0.suggest(var1.getName() + "=");
             }
         }
 
@@ -159,7 +159,7 @@ public class BlockStateParser {
                 for(Block var2 : var1.getValues()) {
                     for(Property<?> var3 : var2.getStateDefinition().getProperties()) {
                         if (!this.vagueProperties.containsKey(var3.getName()) && var3.getName().startsWith(var0)) {
-                            param0.suggest(var3.getName() + '=');
+                            param0.suggest(var3.getName() + "=");
                         }
                     }
                 }

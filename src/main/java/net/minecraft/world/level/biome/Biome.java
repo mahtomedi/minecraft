@@ -86,7 +86,7 @@ public final class Biome {
         .stream()
         .collect(Collectors.groupingBy(param0x -> param0x.step().ordinal()));
     private static final PerlinSimplexNoise TEMPERATURE_NOISE = new PerlinSimplexNoise(new WorldgenRandom(1234L), ImmutableList.of(0));
-    private static final PerlinSimplexNoise FROZEN_TEMPERATURE_NOISE = new PerlinSimplexNoise(new WorldgenRandom(3456L), ImmutableList.of(-2, -1, 0));
+    static final PerlinSimplexNoise FROZEN_TEMPERATURE_NOISE = new PerlinSimplexNoise(new WorldgenRandom(3456L), ImmutableList.of(-2, -1, 0));
     public static final PerlinSimplexNoise BIOME_INFO_NOISE = new PerlinSimplexNoise(new WorldgenRandom(2345L), ImmutableList.of(0));
     private static final int TEMPERATURE_CACHE_SIZE = 1024;
     private final Biome.ClimateSettings climateSettings;
@@ -106,7 +106,7 @@ public final class Biome {
             return var0;
         }));
 
-    private Biome(
+    Biome(
         Biome.ClimateSettings param0,
         Biome.BiomeCategory param1,
         float param2,
@@ -503,8 +503,7 @@ public final class Biome {
                 + this.mobSpawnSettings
                 + ",\ngenerationSettings="
                 + this.generationSettings
-                + ",\n"
-                + '}';
+                + ",\n}";
         }
     }
 
@@ -639,12 +638,12 @@ public final class Biome {
                     )
                     .apply(param0, Biome.ClimateSettings::new)
         );
-        private final Biome.Precipitation precipitation;
-        private final float temperature;
-        private final Biome.TemperatureModifier temperatureModifier;
-        private final float downfall;
+        final Biome.Precipitation precipitation;
+        final float temperature;
+        final Biome.TemperatureModifier temperatureModifier;
+        final float downfall;
 
-        private ClimateSettings(Biome.Precipitation param0, float param1, Biome.TemperatureModifier param2, float param3) {
+        ClimateSettings(Biome.Precipitation param0, float param1, Biome.TemperatureModifier param2, float param3) {
             this.precipitation = param0;
             this.temperature = param1;
             this.temperatureModifier = param2;
@@ -713,7 +712,7 @@ public final class Biome {
 
         public abstract float modifyTemperature(BlockPos var1, float var2);
 
-        private TemperatureModifier(String param0) {
+        TemperatureModifier(String param0) {
             this.name = param0;
         }
 

@@ -44,6 +44,6 @@ public class KeyCombo {
 
     @Override
     public String toString() {
-        return "KeyCombo{chars=" + Arrays.toString(this.chars) + ", matchIndex=" + this.matchIndex + '}';
+        return "KeyCombo{chars=" + Arrays.toString(this.chars) + ", matchIndex=" + this.matchIndex + "}";
     }
 }

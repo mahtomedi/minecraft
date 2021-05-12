@@ -714,9 +714,6 @@ public class GlStateManager {
         public int dstRgb = 0;
         public int srcAlpha = 1;
         public int dstAlpha = 0;
-
-        private BlendState() {
-        }
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -754,9 +751,6 @@ public class GlStateManager {
     static class ColorLogicState {
         public final GlStateManager.BooleanState enable = new GlStateManager.BooleanState(3058);
         public int op = 5379;
-
-        private ColorLogicState() {
-        }
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -765,18 +759,12 @@ public class GlStateManager {
         public boolean green = true;
         public boolean blue = true;
         public boolean alpha = true;
-
-        private ColorMask() {
-        }
     }
 
     @OnlyIn(Dist.CLIENT)
     static class CullState {
         public final GlStateManager.BooleanState enable = new GlStateManager.BooleanState(2884);
         public int mode = 1029;
-
-        private CullState() {
-        }
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -784,9 +772,6 @@ public class GlStateManager {
         public final GlStateManager.BooleanState mode = new GlStateManager.BooleanState(2929);
         public boolean mask = true;
         public int func = 513;
-
-        private DepthState() {
-        }
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -846,17 +831,11 @@ public class GlStateManager {
         public final GlStateManager.BooleanState line = new GlStateManager.BooleanState(10754);
         public float factor;
         public float units;
-
-        private PolygonOffsetState() {
-        }
     }
 
     @OnlyIn(Dist.CLIENT)
     static class ScissorState {
         public final GlStateManager.BooleanState mode = new GlStateManager.BooleanState(3089);
-
-        private ScissorState() {
-        }
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -890,9 +869,6 @@ public class GlStateManager {
         public int func = 519;
         public int ref;
         public int mask = -1;
-
-        private StencilFunc() {
-        }
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -902,18 +878,12 @@ public class GlStateManager {
         public int fail = 7680;
         public int zfail = 7680;
         public int zpass = 7680;
-
-        private StencilState() {
-        }
     }
 
     @OnlyIn(Dist.CLIENT)
     static class TextureState {
         public boolean enable;
         public int binding;
-
-        private TextureState() {
-        }
     }
 
     @OnlyIn(Dist.CLIENT)

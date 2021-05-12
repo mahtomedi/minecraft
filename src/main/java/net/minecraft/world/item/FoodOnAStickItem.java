@@ -26,18 +26,15 @@ public class FoodOnAStickItem<T extends Entity & ItemSteerable> extends Item {
             return InteractionResultHolder.pass(var0);
         } else {
             Entity var1 = param1.getVehicle();
-            if (param1.isPassenger() && var1 instanceof ItemSteerable && var1.getType() == this.canInteractWith) {
-                ItemSteerable var2 = (ItemSteerable)var1;
-                if (var2.boost()) {
-                    var0.hurtAndBreak(this.consumeItemDamage, param1, param1x -> param1x.broadcastBreakEvent(param2));
-                    if (var0.isEmpty()) {
-                        ItemStack var3 = new ItemStack(Items.FISHING_ROD);
-                        var3.setTag(var0.getTag());
-                        return InteractionResultHolder.success(var3);
-                    }
-
-                    return InteractionResultHolder.success(var0);
+            if (param1.isPassenger() && var1 instanceof ItemSteerable var2 && var1.getType() == this.canInteractWith && var2.boost()) {
+                var0.hurtAndBreak(this.consumeItemDamage, param1, param1x -> param1x.broadcastBreakEvent(param2));
+                if (var0.isEmpty()) {
+                    ItemStack var3 = new ItemStack(Items.FISHING_ROD);
+                    var3.setTag(var0.getTag());
+                    return InteractionResultHolder.success(var3);
                 }
+
+                return InteractionResultHolder.success(var0);
             }
 
             param1.awardStat(Stats.ITEM_USED.get(this));

@@ -146,8 +146,8 @@ public class IOWorker implements AutoCloseable {
 
     static class PendingStore {
         @Nullable
-        private CompoundTag data;
-        private final CompletableFuture<Void> result = new CompletableFuture<>();
+        CompoundTag data;
+        final CompletableFuture<Void> result = new CompletableFuture<>();
 
         public PendingStore(@Nullable CompoundTag param0) {
             this.data = param0;

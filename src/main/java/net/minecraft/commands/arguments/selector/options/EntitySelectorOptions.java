@@ -218,7 +218,7 @@ public class EntitySelectorOptions {
                     for(GameType var3x : GameType.values()) {
                         if (var3x.getName().toLowerCase(Locale.ROOT).startsWith(var0x)) {
                             if (var2x) {
-                                param1.suggest('!' + var3x.getName());
+                                param1.suggest("!" + var3x.getName());
                             }
 
                             if (var1x) {
@@ -534,7 +534,7 @@ public class EntitySelectorOptions {
 
         for(Entry<String, EntitySelectorOptions.Option> var1 : OPTIONS.entrySet()) {
             if (var1.getValue().predicate.test(param0) && var1.getKey().toLowerCase(Locale.ROOT).startsWith(var0)) {
-                param1.suggest((String)var1.getKey() + '=', var1.getValue().description);
+                param1.suggest((String)var1.getKey() + "=", var1.getValue().description);
             }
         }
 
@@ -549,7 +549,7 @@ public class EntitySelectorOptions {
         public final Predicate<EntitySelectorParser> predicate;
         public final Component description;
 
-        private Option(EntitySelectorOptions.Modifier param0, Predicate<EntitySelectorParser> param1, Component param2) {
+        Option(EntitySelectorOptions.Modifier param0, Predicate<EntitySelectorParser> param1, Component param2) {
             this.modifier = param0;
             this.predicate = param1;
             this.description = param2;

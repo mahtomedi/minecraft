@@ -78,8 +78,7 @@ public class ServerEntity {
             this.broadcast.accept(new ClientboundSetPassengersPacket(this.entity));
         }
 
-        if (this.entity instanceof ItemFrame && this.tickCount % 10 == 0) {
-            ItemFrame var1 = (ItemFrame)this.entity;
+        if (this.entity instanceof ItemFrame var1 && this.tickCount % 10 == 0) {
             ItemStack var2 = var1.getItem();
             if (var2.getItem() instanceof MapItem) {
                 Integer var3 = MapItem.getMapId(var2);
@@ -249,9 +248,7 @@ public class ServerEntity {
             }
         }
 
-        if (this.entity instanceof LivingEntity) {
-            LivingEntity var6 = (LivingEntity)this.entity;
-
+        if (this.entity instanceof LivingEntity var6) {
             for(MobEffectInstance var7 : var6.getActiveEffects()) {
                 param0.accept(new ClientboundUpdateMobEffectPacket(this.entity.getId(), var7));
             }
@@ -265,11 +262,8 @@ public class ServerEntity {
             param0.accept(new ClientboundSetPassengersPacket(this.entity.getVehicle()));
         }
 
-        if (this.entity instanceof Mob) {
-            Mob var8 = (Mob)this.entity;
-            if (var8.isLeashed()) {
-                param0.accept(new ClientboundSetEntityLinkPacket(var8, var8.getLeashHolder()));
-            }
+        if (this.entity instanceof Mob var8 && var8.isLeashed()) {
+            param0.accept(new ClientboundSetEntityLinkPacket(var8, var8.getLeashHolder()));
         }
 
     }

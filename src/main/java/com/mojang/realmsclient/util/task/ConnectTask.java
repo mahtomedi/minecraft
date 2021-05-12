@@ -4,6 +4,7 @@ import com.mojang.realmsclient.dto.RealmsServer;
 import com.mojang.realmsclient.dto.RealmsServerAddress;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.multiplayer.resolver.ServerAddress;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.realms.RealmsConnect;
 import net.minecraftforge.api.distmarker.Dist;
@@ -24,8 +25,7 @@ public class ConnectTask extends LongRunningTask {
     @Override
     public void run() {
         this.setTitle(new TranslatableComponent("mco.connect.connecting"));
-        net.minecraft.realms.RealmsServerAddress var0 = net.minecraft.realms.RealmsServerAddress.parseString(this.address.address);
-        this.realmsConnect.connect(this.server, var0.getHost(), var0.getPort());
+        this.realmsConnect.connect(this.server, ServerAddress.parseString(this.address.address));
     }
 
     @Override

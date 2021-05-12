@@ -639,8 +639,7 @@ public class ServerPlayer extends Player {
                         return false;
                     }
 
-                    if (var1 instanceof AbstractArrow) {
-                        AbstractArrow var2 = (AbstractArrow)var1;
+                    if (var1 instanceof AbstractArrow var2) {
                         Entity var3 = var2.getOwner();
                         if (var3 instanceof Player && !this.canHarmPlayer((Player)var3)) {
                             return false;

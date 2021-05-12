@@ -89,6 +89,10 @@ public class EndDragonFight {
 
     public EndDragonFight(ServerLevel param0, long param1, CompoundTag param2) {
         this.level = param0;
+        if (param2.contains("NeedsStateScanning")) {
+            this.needsStateScanning = param2.getBoolean("NeedsStateScanning");
+        }
+
         if (param2.contains("DragonKilled", 99)) {
             if (param2.hasUUID("Dragon")) {
                 this.dragonUUID = param2.getUUID("Dragon");
@@ -131,6 +135,7 @@ public class EndDragonFight {
 
     public CompoundTag saveData() {
         CompoundTag var0 = new CompoundTag();
+        var0.putBoolean("NeedsStateScanning", this.needsStateScanning);
         if (this.dragonUUID != null) {
             var0.putUUID("Dragon", this.dragonUUID);
         }

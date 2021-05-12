@@ -127,8 +127,8 @@ public final class RecipeBookSettings {
     }
 
     static final class TypeSettings {
-        private boolean open;
-        private boolean filtering;
+        boolean open;
+        boolean filtering;
 
         public TypeSettings(boolean param0, boolean param1) {
             this.open = param0;
@@ -159,7 +159,7 @@ public final class RecipeBookSettings {
 
         @Override
         public String toString() {
-            return "[open=" + this.open + ", filtering=" + this.filtering + ']';
+            return "[open=" + this.open + ", filtering=" + this.filtering + "]";
         }
     }
 }

@@ -162,7 +162,7 @@ public abstract class WorldPreset {
     );
     private final Component description;
 
-    private WorldPreset(String param0) {
+    WorldPreset(String param0) {
         this.description = new TranslatableComponent("generator." + param0);
     }
 

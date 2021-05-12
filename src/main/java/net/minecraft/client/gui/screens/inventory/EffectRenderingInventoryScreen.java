@@ -99,7 +99,7 @@ public abstract class EffectRenderingInventoryScreen<T extends AbstractContainer
         for(MobEffectInstance var1 : param3) {
             String var2 = I18n.get(var1.getEffect().getDescriptionId());
             if (var1.getAmplifier() >= 1 && var1.getAmplifier() <= 9) {
-                var2 = var2 + ' ' + I18n.get("enchantment.level." + (var1.getAmplifier() + 1));
+                var2 = var2 + " " + I18n.get("enchantment.level." + (var1.getAmplifier() + 1));
             }
 
             this.font.drawShadow(param0, var2, (float)(param1 + 10 + 18), (float)(var0 + 6), 16777215);

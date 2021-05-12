@@ -2,7 +2,6 @@ package net.minecraft.util;
 
 import com.google.common.base.Charsets;
 import java.io.IOException;
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
@@ -24,9 +23,7 @@ public class DirectoryLock implements AutoCloseable {
             Files.createDirectories(param0);
         }
 
-        FileChannel var1 = FileChannel.open(var0, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
-
-        try {
+        try (FileChannel var1 = FileChannel.open(var0, StandardOpenOption.CREATE, StandardOpenOption.WRITE)) {
             var1.write(DUMMY.duplicate());
             var1.force(true);
             FileLock var2 = var1.tryLock();
@@ -35,14 +32,6 @@ public class DirectoryLock implements AutoCloseable {
             } else {
                 return new DirectoryLock(var1, var2);
             }
-        } catch (IOException var6) {
-            try {
-                var1.close();
-            } catch (IOException var5) {
-                var6.addSuppressed(var5);
-            }
-
-            throw var6;
         }
     }
 
@@ -73,14 +62,19 @@ public class DirectoryLock implements AutoCloseable {
     public static boolean isLocked(Path param0) throws IOException {
         Path var0 = param0.resolve("session.lock");
 
-        try (
-            FileChannel var1 = FileChannel.open(var0, StandardOpenOption.WRITE);
-            FileLock var2 = var1.tryLock();
-        ) {
-            return var2 == null;
-        } catch (AccessDeniedException var37) {
+        try {
+            boolean var41;
+            try (
+                FileChannel var1 = FileChannel.open(var0, StandardOpenOption.WRITE);
+                FileLock var2 = var1.tryLock();
+            ) {
+                var41 = var2 == null;
+            }
+
+            return var41;
+        } catch (AccessDeniedException var10) {
             return true;
-        } catch (NoSuchFileException var38) {
+        } catch (NoSuchFileException var11) {
             return false;
         }
     }
@@ -89,7 +83,7 @@ public class DirectoryLock implements AutoCloseable {
         byte[] var0 = "\u2603".getBytes(Charsets.UTF_8);
         DUMMY = ByteBuffer.allocateDirect(var0.length);
         DUMMY.put(var0);
-        ((Buffer)DUMMY).flip();
+        DUMMY.flip();
     }
 
     public static class LockException extends IOException {

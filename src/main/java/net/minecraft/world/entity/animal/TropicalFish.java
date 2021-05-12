@@ -220,8 +220,7 @@ public class TropicalFish extends AbstractSchoolingFish {
             int var2;
             int var3;
             int var4;
-            if (param3 instanceof TropicalFish.TropicalFishGroupData) {
-                TropicalFish.TropicalFishGroupData var0 = (TropicalFish.TropicalFishGroupData)param3;
+            if (param3 instanceof TropicalFish.TropicalFishGroupData var0) {
                 var1 = var0.base;
                 var2 = var0.pattern;
                 var3 = var0.baseColor;
@@ -287,12 +286,12 @@ public class TropicalFish extends AbstractSchoolingFish {
     }
 
     static class TropicalFishGroupData extends AbstractSchoolingFish.SchoolSpawnGroupData {
-        private final int base;
-        private final int pattern;
-        private final int baseColor;
-        private final int patternColor;
+        final int base;
+        final int pattern;
+        final int baseColor;
+        final int patternColor;
 
-        private TropicalFishGroupData(TropicalFish param0, int param1, int param2, int param3, int param4) {
+        TropicalFishGroupData(TropicalFish param0, int param1, int param2, int param3, int param4) {
             super(param0);
             this.base = param1;
             this.pattern = param2;

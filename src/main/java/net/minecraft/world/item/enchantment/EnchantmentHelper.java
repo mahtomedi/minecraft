@@ -60,8 +60,7 @@ public class EnchantmentHelper {
 
         for(int var1 = 0; var1 < param0.size(); ++var1) {
             CompoundTag var2 = param0.getCompound(var1);
-            Registry.ENCHANTMENT.getOptional(ResourceLocation.tryParse(var2.getString("id"))).ifPresent(param2 -> {
-            });
+            Registry.ENCHANTMENT.getOptional(ResourceLocation.tryParse(var2.getString("id"))).ifPresent(param2 -> var0.put(param2, var2.getInt("lvl")));
         }
 
         return var0;

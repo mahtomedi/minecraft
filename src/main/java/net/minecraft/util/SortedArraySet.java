@@ -11,8 +11,8 @@ import javax.annotation.Nullable;
 public class SortedArraySet<T> extends AbstractSet<T> {
     private static final int DEFAULT_INITIAL_CAPACITY = 10;
     private final Comparator<T> comparator;
-    private T[] contents;
-    private int size;
+    T[] contents;
+    int size;
 
     private SortedArraySet(int param0, Comparator<T> param1) {
         this.comparator = param1;
@@ -87,7 +87,7 @@ public class SortedArraySet<T> extends AbstractSet<T> {
         ++this.size;
     }
 
-    private void removeInternal(int param0) {
+    void removeInternal(int param0) {
         --this.size;
         if (param0 != this.size) {
             System.arraycopy(this.contents, param0 + 1, this.contents, param0, this.size - param0);
@@ -181,11 +181,8 @@ public class SortedArraySet<T> extends AbstractSet<T> {
         if (this == param0) {
             return true;
         } else {
-            if (param0 instanceof SortedArraySet) {
-                SortedArraySet<?> var0 = (SortedArraySet)param0;
-                if (this.comparator.equals(var0.comparator)) {
-                    return this.size == var0.size && Arrays.equals(this.contents, var0.contents);
-                }
+            if (param0 instanceof SortedArraySet var0 && this.comparator.equals(var0.comparator)) {
+                return this.size == var0.size && Arrays.equals(this.contents, var0.contents);
             }
 
             return super.equals(param0);
@@ -195,9 +192,6 @@ public class SortedArraySet<T> extends AbstractSet<T> {
     class ArrayIterator implements Iterator<T> {
         private int index;
         private int last = -1;
-
-        private ArrayIterator() {
-        }
 
         @Override
         public boolean hasNext() {

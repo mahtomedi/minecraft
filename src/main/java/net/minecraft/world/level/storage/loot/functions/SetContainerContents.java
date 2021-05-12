@@ -19,9 +19,9 @@ import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
 public class SetContainerContents extends LootItemConditionalFunction {
-    private final List<LootPoolEntryContainer> entries;
+    final List<LootPoolEntryContainer> entries;
 
-    private SetContainerContents(LootItemCondition[] param0, List<LootPoolEntryContainer> param1) {
+    SetContainerContents(LootItemCondition[] param0, List<LootPoolEntryContainer> param1) {
         super(param0);
         this.entries = ImmutableList.copyOf(param1);
     }

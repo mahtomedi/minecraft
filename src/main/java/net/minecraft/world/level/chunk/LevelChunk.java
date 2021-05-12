@@ -58,7 +58,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class LevelChunk implements ChunkAccess {
-    private static final Logger LOGGER = LogManager.getLogger();
+    static final Logger LOGGER = LogManager.getLogger();
     private static final TickingBlockEntity NULL_TICKER = new TickingBlockEntity() {
         @Override
         public void tick() {
@@ -86,7 +86,7 @@ public class LevelChunk implements ChunkAccess {
     private final Map<BlockPos, CompoundTag> pendingBlockEntities = Maps.newHashMap();
     private final Map<BlockPos, LevelChunk.RebindableTickingBlockEntityWrapper> tickersInLevel = Maps.newHashMap();
     private boolean loaded;
-    private final Level level;
+    final Level level;
     private final Map<Heightmap.Types, Heightmap> heightmaps = Maps.newEnumMap(Heightmap.Types.class);
     private final UpgradeData upgradeData;
     private final Map<BlockPos, BlockEntity> blockEntities = Maps.newHashMap();
@@ -419,7 +419,7 @@ public class LevelChunk implements ChunkAccess {
         return this.loaded || this.level.isClientSide();
     }
 
-    private boolean isTicking(BlockPos param0) {
+    boolean isTicking(BlockPos param0) {
         return (this.level.isClientSide() || this.getFullStatus().isOrAfter(ChunkHolder.FullChunkStatus.TICKING))
             && this.level.getWorldBorder().isWithinBounds(param0);
     }
@@ -870,7 +870,7 @@ public class LevelChunk implements ChunkAccess {
     }
 
     private <T extends BlockEntity> TickingBlockEntity createTicker(T param0, BlockEntityTicker<T> param1) {
-        return new LevelChunk.BoundTickingBlockEntity(param0, param1);
+        return new LevelChunk.BoundTickingBlockEntity<>(param0, param1);
     }
 
     class BoundTickingBlockEntity<T extends BlockEntity> implements TickingBlockEntity {
@@ -878,7 +878,7 @@ public class LevelChunk implements ChunkAccess {
         private final BlockEntityTicker<T> ticker;
         private boolean loggedInvalidBlockState;
 
-        private BoundTickingBlockEntity(T param0, BlockEntityTicker<T> param1) {
+        BoundTickingBlockEntity(T param0, BlockEntityTicker<T> param1) {
             this.blockEntity = param0;
             this.ticker = param1;
         }
@@ -942,11 +942,11 @@ public class LevelChunk implements ChunkAccess {
     class RebindableTickingBlockEntityWrapper implements TickingBlockEntity {
         private TickingBlockEntity ticker;
 
-        private RebindableTickingBlockEntityWrapper(TickingBlockEntity param0) {
+        RebindableTickingBlockEntityWrapper(TickingBlockEntity param0) {
             this.ticker = param0;
         }
 
-        private void rebind(TickingBlockEntity param0) {
+        void rebind(TickingBlockEntity param0) {
             this.ticker = param0;
         }
 

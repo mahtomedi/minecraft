@@ -12,7 +12,7 @@ public class EntityPositionSource implements PositionSource {
     public static final Codec<EntityPositionSource> CODEC = RecordCodecBuilder.create(
         param0 -> param0.group(Codec.INT.fieldOf("source_entity_id").forGetter(param0x -> param0x.sourceEntityId)).apply(param0, EntityPositionSource::new)
     );
-    private final int sourceEntityId;
+    final int sourceEntityId;
     private Optional<Entity> sourceEntity = Optional.empty();
 
     public EntityPositionSource(int param0) {

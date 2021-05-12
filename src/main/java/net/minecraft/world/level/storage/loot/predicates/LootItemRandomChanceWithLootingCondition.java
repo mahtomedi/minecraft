@@ -14,10 +14,10 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 
 public class LootItemRandomChanceWithLootingCondition implements LootItemCondition {
-    private final float percent;
-    private final float lootingMultiplier;
+    final float percent;
+    final float lootingMultiplier;
 
-    private LootItemRandomChanceWithLootingCondition(float param0, float param1) {
+    LootItemRandomChanceWithLootingCondition(float param0, float param1) {
         this.percent = param0;
         this.lootingMultiplier = param1;
     }

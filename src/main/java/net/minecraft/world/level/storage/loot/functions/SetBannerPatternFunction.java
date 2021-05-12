@@ -18,10 +18,10 @@ import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
 public class SetBannerPatternFunction extends LootItemConditionalFunction {
-    private final List<Pair<BannerPattern, DyeColor>> patterns;
-    private final boolean append;
+    final List<Pair<BannerPattern, DyeColor>> patterns;
+    final boolean append;
 
-    private SetBannerPatternFunction(LootItemCondition[] param0, List<Pair<BannerPattern, DyeColor>> param1, boolean param2) {
+    SetBannerPatternFunction(LootItemCondition[] param0, List<Pair<BannerPattern, DyeColor>> param1, boolean param2) {
         super(param0);
         this.patterns = param1;
         this.append = param2;
@@ -58,7 +58,7 @@ public class SetBannerPatternFunction extends LootItemConditionalFunction {
         private final ImmutableList.Builder<Pair<BannerPattern, DyeColor>> patterns = ImmutableList.builder();
         private final boolean append;
 
-        private Builder(boolean param0) {
+        Builder(boolean param0) {
             this.append = param0;
         }
 

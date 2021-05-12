@@ -226,8 +226,7 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
     }
 
     public static ItemStack addItem(@Nullable Container param0, Container param1, ItemStack param2, @Nullable Direction param3) {
-        if (param1 instanceof WorldlyContainer && param3 != null) {
-            WorldlyContainer var0 = (WorldlyContainer)param1;
+        if (param1 instanceof WorldlyContainer var0 && param3 != null) {
             int[] var1 = var0.getSlotsForFace(param3);
 
             for(int var2 = 0; var2 < var1.length && !param2.isEmpty(); ++var2) {
@@ -274,19 +273,13 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
             }
 
             if (var1) {
-                if (var2 && param1 instanceof HopperBlockEntity) {
-                    HopperBlockEntity var5 = (HopperBlockEntity)param1;
-                    if (!var5.isOnCustomCooldown()) {
-                        int var6 = 0;
-                        if (param0 instanceof HopperBlockEntity) {
-                            HopperBlockEntity var7 = (HopperBlockEntity)param0;
-                            if (var5.tickedGameTime >= var7.tickedGameTime) {
-                                var6 = 1;
-                            }
-                        }
-
-                        var5.setCooldown(8 - var6);
+                if (var2 && param1 instanceof HopperBlockEntity var5 && !var5.isOnCustomCooldown()) {
+                    int var6 = 0;
+                    if (param0 instanceof HopperBlockEntity var7 && var5.tickedGameTime >= var7.tickedGameTime) {
+                        var6 = 1;
                     }
+
+                    var5.setCooldown(8 - var6);
                 }
 
                 param1.setChanged();

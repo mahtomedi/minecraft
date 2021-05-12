@@ -9,7 +9,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class SoulParticle extends RisingParticle {
     private final SpriteSet sprites;
 
-    private SoulParticle(ClientLevel param0, double param1, double param2, double param3, double param4, double param5, double param6, SpriteSet param7) {
+    SoulParticle(ClientLevel param0, double param1, double param2, double param3, double param4, double param5, double param6, SpriteSet param7) {
         super(param0, param1, param2, param3, param4, param5, param6);
         this.sprites = param7;
         this.scale(1.5F);

@@ -21,9 +21,9 @@ public class SpectatorMenu {
     private static final SpectatorMenuItem SCROLL_RIGHT_ENABLED = new SpectatorMenu.ScrollMenuItem(1, true);
     private static final SpectatorMenuItem SCROLL_RIGHT_DISABLED = new SpectatorMenu.ScrollMenuItem(1, false);
     private static final int MAX_PER_PAGE = 8;
-    private static final Component CLOSE_MENU_TEXT = new TranslatableComponent("spectatorMenu.close");
-    private static final Component PREVIOUS_PAGE_TEXT = new TranslatableComponent("spectatorMenu.previous_page");
-    private static final Component NEXT_PAGE_TEXT = new TranslatableComponent("spectatorMenu.next_page");
+    static final Component CLOSE_MENU_TEXT = new TranslatableComponent("spectatorMenu.close");
+    static final Component PREVIOUS_PAGE_TEXT = new TranslatableComponent("spectatorMenu.previous_page");
+    static final Component NEXT_PAGE_TEXT = new TranslatableComponent("spectatorMenu.next_page");
     public static final SpectatorMenuItem EMPTY_SLOT = new SpectatorMenuItem() {
         @Override
         public void selectItem(SpectatorMenu param0) {
@@ -46,7 +46,7 @@ public class SpectatorMenu {
     private final SpectatorMenuListener listener;
     private SpectatorMenuCategory category;
     private int selectedSlot = -1;
-    private int page;
+    int page;
 
     public SpectatorMenu(SpectatorMenuListener param0) {
         this.category = new RootSpectatorMenuCategory();
@@ -116,9 +116,6 @@ public class SpectatorMenu {
 
     @OnlyIn(Dist.CLIENT)
     static class CloseSpectatorItem implements SpectatorMenuItem {
-        private CloseSpectatorItem() {
-        }
-
         @Override
         public void selectItem(SpectatorMenu param0) {
             param0.exit();
@@ -153,7 +150,7 @@ public class SpectatorMenu {
 
         @Override
         public void selectItem(SpectatorMenu param0) {
-            param0.page = param0.page + this.direction;
+            param0.page += this.direction;
         }
 
         @Override

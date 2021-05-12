@@ -23,7 +23,7 @@ public class MobAppearanceParticle extends Particle {
     private final Model model;
     private final RenderType renderType = RenderType.entityTranslucent(ElderGuardianRenderer.GUARDIAN_ELDER_LOCATION);
 
-    private MobAppearanceParticle(ClientLevel param0, double param1, double param2, double param3) {
+    MobAppearanceParticle(ClientLevel param0, double param1, double param2, double param3) {
         super(param0, param1, param2, param3);
         this.model = new GuardianModel(Minecraft.getInstance().getEntityModels().bakeLayer(ModelLayers.ELDER_GUARDIAN));
         this.gravity = 0.0F;

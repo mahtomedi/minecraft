@@ -20,9 +20,9 @@ import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
 
 public class IntRange {
     @Nullable
-    private final NumberProvider min;
+    final NumberProvider min;
     @Nullable
-    private final NumberProvider max;
+    final NumberProvider max;
     private final IntRange.IntLimiter limiter;
     private final IntRange.IntChecker predicate;
 
@@ -39,7 +39,7 @@ public class IntRange {
         return var0.build();
     }
 
-    private IntRange(@Nullable NumberProvider param0, @Nullable NumberProvider param1) {
+    IntRange(@Nullable NumberProvider param0, @Nullable NumberProvider param1) {
         this.min = param0;
         this.max = param1;
         if (param0 == null) {

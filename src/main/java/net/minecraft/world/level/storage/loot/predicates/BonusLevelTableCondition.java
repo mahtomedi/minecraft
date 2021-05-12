@@ -17,10 +17,10 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 
 public class BonusLevelTableCondition implements LootItemCondition {
-    private final Enchantment enchantment;
-    private final float[] values;
+    final Enchantment enchantment;
+    final float[] values;
 
-    private BonusLevelTableCondition(Enchantment param0, float[] param1) {
+    BonusLevelTableCondition(Enchantment param0, float[] param1) {
         this.enchantment = param0;
         this.values = param1;
     }

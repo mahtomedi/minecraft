@@ -34,8 +34,8 @@ public class RepeatedNarrator {
 
     @OnlyIn(Dist.CLIENT)
     static class Params {
-        private final String narration;
-        private final RateLimiter rateLimiter;
+        final String narration;
+        final RateLimiter rateLimiter;
 
         Params(String param0, RateLimiter param1) {
             this.narration = param0;

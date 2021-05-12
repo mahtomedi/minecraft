@@ -95,7 +95,7 @@ public class GlDebug {
         synchronized(MESSAGE_BUFFER) {
             var1 = lastEntry;
             if (var1 != null && var1.isSame(param0, param1, param2, param3, var0)) {
-                var1.count = var1.count + 1;
+                ++var1.count;
             } else {
                 var1 = new GlDebug.LogEntry(param0, param1, param2, param3, var0);
                 MESSAGE_BUFFER.add(var1);
@@ -163,9 +163,9 @@ public class GlDebug {
         private final int type;
         private final int severity;
         private final String message;
-        private int count = 1;
+        int count = 1;
 
-        private LogEntry(int param0, int param1, int param2, int param3, String param4) {
+        LogEntry(int param0, int param1, int param2, int param3, String param4) {
             this.id = param2;
             this.source = param0;
             this.type = param1;
@@ -173,7 +173,7 @@ public class GlDebug {
             this.message = param4;
         }
 
-        private boolean isSame(int param0, int param1, int param2, int param3, String param4) {
+        boolean isSame(int param0, int param1, int param2, int param3, String param4) {
             return param1 == this.type && param0 == this.source && param2 == this.id && param3 == this.severity && param4.equals(this.message);
         }
 

@@ -19,10 +19,10 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class PackSelectionModel {
     private final PackRepository repository;
-    private final List<Pack> selected;
-    private final List<Pack> unselected;
-    private final Function<Pack, ResourceLocation> iconGetter;
-    private final Runnable onListChanged;
+    final List<Pack> selected;
+    final List<Pack> unselected;
+    final Function<Pack, ResourceLocation> iconGetter;
+    final Runnable onListChanged;
     private final Consumer<PackRepository> output;
 
     public PackSelectionModel(Runnable param0, Function<Pack, ResourceLocation> param1, PackRepository param2, Consumer<PackRepository> param3) {

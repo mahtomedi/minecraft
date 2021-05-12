@@ -23,10 +23,10 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
 public class SetLoreFunction extends LootItemConditionalFunction {
-    private final boolean replace;
-    private final List<Component> lore;
+    final boolean replace;
+    final List<Component> lore;
     @Nullable
-    private final LootContext.EntityTarget resolutionContext;
+    final LootContext.EntityTarget resolutionContext;
 
     public SetLoreFunction(LootItemCondition[] param0, boolean param1, List<Component> param2, @Nullable LootContext.EntityTarget param3) {
         super(param0);

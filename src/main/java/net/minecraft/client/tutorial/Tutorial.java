@@ -101,7 +101,7 @@ public class Tutorial {
     }
 
     public void tick() {
-        this.timedToasts.removeIf(param0 -> param0.updateProgress());
+        this.timedToasts.removeIf(Tutorial.TimedToast::updateProgress);
         if (this.instance != null) {
             if (this.minecraft.level != null) {
                 this.instance.tick();
@@ -146,11 +146,11 @@ public class Tutorial {
 
     @OnlyIn(Dist.CLIENT)
     static final class TimedToast {
-        private final TutorialToast toast;
+        final TutorialToast toast;
         private final int durationTicks;
         private int progress;
 
-        private TimedToast(TutorialToast param0, int param1) {
+        TimedToast(TutorialToast param0, int param1) {
             this.toast = param0;
             this.durationTicks = param1;
         }

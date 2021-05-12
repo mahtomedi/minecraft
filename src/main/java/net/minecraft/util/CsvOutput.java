@@ -15,7 +15,7 @@ public class CsvOutput {
     private final Writer output;
     private final int columnCount;
 
-    private CsvOutput(Writer param0, List<String> param1) throws IOException {
+    CsvOutput(Writer param0, List<String> param1) throws IOException {
         this.output = param0;
         this.columnCount = param1.size();
         this.writeLine(param1.stream());

@@ -11,7 +11,7 @@ public class SpellParticle extends TextureSheetParticle {
     private static final Random RANDOM = new Random();
     private final SpriteSet sprites;
 
-    private SpellParticle(ClientLevel param0, double param1, double param2, double param3, double param4, double param5, double param6, SpriteSet param7) {
+    SpellParticle(ClientLevel param0, double param1, double param2, double param3, double param4, double param5, double param6, SpriteSet param7) {
         super(param0, param1, param2, param3, 0.5 - RANDOM.nextDouble(), param5, 0.5 - RANDOM.nextDouble());
         this.friction = 0.96F;
         this.gravity = -0.1F;

@@ -29,7 +29,7 @@ public class ShortTag extends NumericTag {
     };
     private final short data;
 
-    private ShortTag(short param0) {
+    ShortTag(short param0) {
         this.data = param0;
     }
 

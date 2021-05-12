@@ -47,7 +47,7 @@ public class ClickEvent {
 
     @Override
     public String toString() {
-        return "ClickEvent{action=" + this.action + ", value='" + this.value + '\'' + '}';
+        return "ClickEvent{action=" + this.action + ", value='" + this.value + "'}";
     }
 
     @Override

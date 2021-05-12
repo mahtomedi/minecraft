@@ -32,8 +32,7 @@ public class MinecartCommandBlockEditScreen extends AbstractCommandBlockEditScre
 
     @Override
     protected void populateAndSendPacket(BaseCommandBlock param0) {
-        if (param0 instanceof MinecartCommandBlock.MinecartCommandBase) {
-            MinecartCommandBlock.MinecartCommandBase var0 = (MinecartCommandBlock.MinecartCommandBase)param0;
+        if (param0 instanceof MinecartCommandBlock.MinecartCommandBase var0) {
             this.minecraft
                 .getConnection()
                 .send(new ServerboundSetCommandMinecartPacket(var0.getMinecart().getId(), this.commandEdit.getValue(), param0.isTrackOutput()));

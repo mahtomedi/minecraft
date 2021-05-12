@@ -10,9 +10,9 @@ import net.minecraft.world.level.storage.loot.GsonAdapterFactory;
 import net.minecraft.world.level.storage.loot.LootContext;
 
 public final class ConstantValue implements NumberProvider {
-    private final float value;
+    final float value;
 
-    private ConstantValue(float param0) {
+    ConstantValue(float param0) {
         this.value = param0;
     }
 

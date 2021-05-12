@@ -9,7 +9,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class BubbleParticle extends TextureSheetParticle {
-    private BubbleParticle(ClientLevel param0, double param1, double param2, double param3, double param4, double param5, double param6) {
+    BubbleParticle(ClientLevel param0, double param1, double param2, double param3, double param4, double param5, double param6) {
         super(param0, param1, param2, param3);
         this.setSize(0.02F, 0.02F);
         this.quadSize *= this.random.nextFloat() * 0.6F + 0.2F;

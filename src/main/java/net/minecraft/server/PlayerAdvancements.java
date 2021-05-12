@@ -164,10 +164,10 @@ public class PlayerAdvancements {
                         this.startProgress(var5, var4.getValue());
                     }
                 }
-            } catch (JsonParseException var21) {
-                LOGGER.error("Couldn't parse player advancements in {}", this.file, var21);
-            } catch (IOException var22) {
-                LOGGER.error("Couldn't access player advancements in {}", this.file, var22);
+            } catch (JsonParseException var11) {
+                LOGGER.error("Couldn't parse player advancements in {}", this.file, var11);
+            } catch (IOException var12) {
+                LOGGER.error("Couldn't access player advancements in {}", this.file, var12);
             }
         }
 
@@ -198,8 +198,8 @@ public class PlayerAdvancements {
             Writer var5 = new OutputStreamWriter(var4, Charsets.UTF_8.newEncoder());
         ) {
             GSON.toJson(var3, var5);
-        } catch (IOException var35) {
-            LOGGER.error("Couldn't save player advancements to {}", this.file, var35);
+        } catch (IOException var11) {
+            LOGGER.error("Couldn't save player advancements to {}", this.file, var11);
         }
 
     }

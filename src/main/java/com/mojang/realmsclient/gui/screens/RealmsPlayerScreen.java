@@ -45,19 +45,19 @@ public class RealmsPlayerScreen extends RealmsScreen {
     private static final Component INVITED_LABEL = new TranslatableComponent("mco.configure.world.invited");
     private Component toolTip;
     private final RealmsConfigureWorldScreen lastScreen;
-    private final RealmsServer serverData;
+    final RealmsServer serverData;
     private RealmsPlayerScreen.InvitedObjectSelectionList invitedObjectSelectionList;
-    private int column1X;
-    private int columnWidth;
+    int column1X;
+    int columnWidth;
     private int column2X;
     private Button removeButton;
     private Button opdeopButton;
     private int selectedInvitedIndex = -1;
     private String selectedInvited;
-    private int player = -1;
+    int player = -1;
     private boolean stateChanged;
     private RealmsLabel titleLabel;
-    private RealmsPlayerScreen.UserAction hoveredUserAction = RealmsPlayerScreen.UserAction.NONE;
+    RealmsPlayerScreen.UserAction hoveredUserAction = RealmsPlayerScreen.UserAction.NONE;
 
     public RealmsPlayerScreen(RealmsConfigureWorldScreen param0, RealmsServer param1) {
         this.lastScreen = param0;
@@ -123,7 +123,7 @@ public class RealmsPlayerScreen extends RealmsScreen {
         this.updateButtonStates();
     }
 
-    private void updateButtonStates() {
+    void updateButtonStates() {
         this.removeButton.visible = this.shouldRemoveAndOpdeopButtonBeVisible(this.player);
         this.opdeopButton.visible = this.shouldRemoveAndOpdeopButtonBeVisible(this.player);
     }
@@ -156,7 +156,7 @@ public class RealmsPlayerScreen extends RealmsScreen {
 
     }
 
-    private void op(int param0) {
+    void op(int param0) {
         this.updateButtonStates();
         RealmsClient var0 = RealmsClient.create();
         String var1 = this.serverData.players.get(param0).getUuid();
@@ -169,7 +169,7 @@ public class RealmsPlayerScreen extends RealmsScreen {
 
     }
 
-    private void deop(int param0) {
+    void deop(int param0) {
         this.updateButtonStates();
         RealmsClient var0 = RealmsClient.create();
         String var1 = this.serverData.players.get(param0).getUuid();
@@ -189,7 +189,7 @@ public class RealmsPlayerScreen extends RealmsScreen {
 
     }
 
-    private void uninvite(int param0) {
+    void uninvite(int param0) {
         this.updateButtonStates();
         if (param0 >= 0 && param0 < this.serverData.players.size()) {
             PlayerInfo var0 = this.serverData.players.get(param0);
@@ -281,7 +281,7 @@ public class RealmsPlayerScreen extends RealmsScreen {
         }
     }
 
-    private void drawRemoveIcon(PoseStack param0, int param1, int param2, int param3, int param4) {
+    void drawRemoveIcon(PoseStack param0, int param1, int param2, int param3, int param4) {
         boolean var0 = param3 >= param1 && param3 <= param1 + 9 && param4 >= param2 && param4 <= param2 + 9 && param4 < row(12) + 20 && param4 > row(1);
         RenderSystem.setShaderTexture(0, CROSS_ICON_LOCATION);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
@@ -294,7 +294,7 @@ public class RealmsPlayerScreen extends RealmsScreen {
 
     }
 
-    private void drawOpped(PoseStack param0, int param1, int param2, int param3, int param4) {
+    void drawOpped(PoseStack param0, int param1, int param2, int param3, int param4) {
         boolean var0 = param3 >= param1 && param3 <= param1 + 9 && param4 >= param2 && param4 <= param2 + 9 && param4 < row(12) + 20 && param4 > row(1);
         RenderSystem.setShaderTexture(0, OP_ICON_LOCATION);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
@@ -307,7 +307,7 @@ public class RealmsPlayerScreen extends RealmsScreen {
 
     }
 
-    private void drawNormal(PoseStack param0, int param1, int param2, int param3, int param4) {
+    void drawNormal(PoseStack param0, int param1, int param2, int param3, int param4) {
         boolean var0 = param3 >= param1 && param3 <= param1 + 9 && param4 >= param2 && param4 <= param2 + 9 && param4 < row(12) + 20 && param4 > row(1);
         RenderSystem.setShaderTexture(0, USER_ICON_LOCATION);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);

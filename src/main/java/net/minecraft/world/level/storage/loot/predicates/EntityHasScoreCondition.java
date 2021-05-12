@@ -20,10 +20,10 @@ import net.minecraft.world.scores.Objective;
 import net.minecraft.world.scores.Scoreboard;
 
 public class EntityHasScoreCondition implements LootItemCondition {
-    private final Map<String, IntRange> scores;
-    private final LootContext.EntityTarget entityTarget;
+    final Map<String, IntRange> scores;
+    final LootContext.EntityTarget entityTarget;
 
-    private EntityHasScoreCondition(Map<String, IntRange> param0, LootContext.EntityTarget param1) {
+    EntityHasScoreCondition(Map<String, IntRange> param0, LootContext.EntityTarget param1) {
         this.scores = ImmutableMap.copyOf(param0);
         this.entityTarget = param1;
     }

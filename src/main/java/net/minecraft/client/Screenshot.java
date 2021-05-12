@@ -7,7 +7,6 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -143,7 +142,7 @@ public class Screenshot {
         this.rowHeight = var1;
 
         for(int var2 = 0; var2 < var1; ++var2) {
-            ((Buffer)param0).position((param4 - var1) * param3 * 3 + var2 * param3 * 3);
+            param0.position((param4 - var1) * param3 * 3 + var2 * param3 * 3);
             int var3 = (param1 + var2 * this.width) * 3;
             param0.get(this.bytes, var3, var0 * 3);
         }

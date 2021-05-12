@@ -98,7 +98,7 @@ public class Fox extends Animal {
     private static final int FLAG_DEFENDING = 128;
     private static final EntityDataAccessor<Optional<UUID>> DATA_TRUSTED_ID_0 = SynchedEntityData.defineId(Fox.class, EntityDataSerializers.OPTIONAL_UUID);
     private static final EntityDataAccessor<Optional<UUID>> DATA_TRUSTED_ID_1 = SynchedEntityData.defineId(Fox.class, EntityDataSerializers.OPTIONAL_UUID);
-    private static final Predicate<ItemEntity> ALLOWED_ITEMS = param0 -> !param0.hasPickUpDelay() && param0.isAlive();
+    static final Predicate<ItemEntity> ALLOWED_ITEMS = param0 -> !param0.hasPickUpDelay() && param0.isAlive();
     private static final Predicate<Entity> TRUSTED_TARGET_SELECTOR = param0 -> {
         if (!(param0 instanceof LivingEntity)) {
             return false;
@@ -107,7 +107,7 @@ public class Fox extends Animal {
             return var0.getLastHurtMob() != null && var0.getLastHurtMobTimestamp() < var0.tickCount + 600;
         }
     };
-    private static final Predicate<Entity> STALKABLE_PREY = param0 -> param0 instanceof Chicken || param0 instanceof Rabbit;
+    static final Predicate<Entity> STALKABLE_PREY = param0 -> param0 instanceof Chicken || param0 instanceof Rabbit;
     private static final Predicate<Entity> AVOID_PLAYERS = param0 -> !param0.isDiscrete() && EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(param0);
     private static final int MIN_TICKS_BEFORE_EAT = 600;
     private Goal landTargetGoal;
@@ -115,8 +115,8 @@ public class Fox extends Animal {
     private Goal fishTargetGoal;
     private float interestedAngle;
     private float interestedAngleO;
-    private float crouchAmount;
-    private float crouchAmountO;
+    float crouchAmount;
+    float crouchAmountO;
     private int ticksSinceEaten;
 
     public Fox(EntityType<? extends Fox> param0, Level param1) {
@@ -362,14 +362,14 @@ public class Fox extends Animal {
         this.entityData.set(DATA_TYPE_ID, param0.getId());
     }
 
-    private List<UUID> getTrustedUUIDs() {
+    List<UUID> getTrustedUUIDs() {
         List<UUID> var0 = Lists.newArrayList();
         var0.add(this.entityData.get(DATA_TRUSTED_ID_0).orElse(null));
         var0.add(this.entityData.get(DATA_TRUSTED_ID_1).orElse(null));
         return var0;
     }
 
-    private void addTrustedUUID(@Nullable UUID param0) {
+    void addTrustedUUID(@Nullable UUID param0) {
         if (this.entityData.get(DATA_TRUSTED_ID_0).isPresent()) {
             this.entityData.set(DATA_TRUSTED_ID_1, Optional.ofNullable(param0));
         } else {
@@ -428,15 +428,15 @@ public class Fox extends Animal {
         return this.getFlag(64);
     }
 
-    private void setFaceplanted(boolean param0) {
+    void setFaceplanted(boolean param0) {
         this.setFlag(64, param0);
     }
 
-    private boolean isDefending() {
+    boolean isDefending() {
         return this.getFlag(128);
     }
 
-    private void setDefending(boolean param0) {
+    void setDefending(boolean param0) {
         this.setFlag(128, param0);
     }
 
@@ -445,7 +445,7 @@ public class Fox extends Animal {
         return this.getFlag(32);
     }
 
-    private void setSleeping(boolean param0) {
+    void setSleeping(boolean param0) {
         this.setFlag(32, param0);
     }
 
@@ -618,11 +618,11 @@ public class Fox extends Animal {
         return Mth.ceil((param0 - 5.0F) * param1);
     }
 
-    private void wakeUp() {
+    void wakeUp() {
         this.setSleeping(false);
     }
 
-    private void clearStates() {
+    void clearStates() {
         this.setIsInterested(false);
         this.setIsCrouching(false);
         this.setSitting(false);
@@ -631,7 +631,7 @@ public class Fox extends Animal {
         this.setFaceplanted(false);
     }
 
-    private boolean canMove() {
+    boolean canMove() {
         return !this.isSleeping() && !this.isSitting() && !this.isFaceplanted();
     }
 
@@ -675,7 +675,7 @@ public class Fox extends Animal {
         return SoundEvents.FOX_DEATH;
     }
 
-    private boolean trusts(UUID param0) {
+    boolean trusts(UUID param0) {
         return this.getTrustedUUIDs().contains(param0);
     }
 
@@ -724,7 +724,7 @@ public class Fox extends Animal {
         private LivingEntity trustedLastHurt;
         private int timestamp;
 
-        public DefendTrustedTargetGoal(Class<LivingEntity> param0, boolean param1, boolean param2, @Nullable Predicate<LivingEntity> param3) {
+        public DefendTrustedTargetGoal(Class<LivingEntity> param0, boolean param1, @Nullable boolean param2, Predicate<LivingEntity> param3) {
             super(Fox.this, param0, 10, param1, param2, param3);
         }
 
@@ -736,8 +736,7 @@ public class Fox extends Animal {
                 for(UUID var0 : Fox.this.getTrustedUUIDs()) {
                     if (var0 != null && Fox.this.level instanceof ServerLevel) {
                         Entity var1 = ((ServerLevel)Fox.this.level).getEntity(var0);
-                        if (var1 instanceof LivingEntity) {
-                            LivingEntity var2 = (LivingEntity)var1;
+                        if (var1 instanceof LivingEntity var2) {
                             this.trustedLastHurt = var2;
                             this.trustedLastHurtBy = var2.getLastHurtByMob();
                             int var3 = var2.getLastHurtByMobTimestamp();
@@ -819,13 +818,10 @@ public class Fox extends Animal {
     }
 
     abstract class FoxBehaviorGoal extends Goal {
-        private final TargetingConditions alertableTargeting = new TargetingConditions()
+        private final TargetingConditions alertableTargeting = TargetingConditions.forCombat()
             .range(12.0)
-            .allowUnseeable()
+            .ignoreLineOfSight()
             .selector(Fox.this.new FoxAlertableEntitiesSelector());
-
-        private FoxBehaviorGoal() {
-        }
 
         protected boolean hasShelter() {
             BlockPos var0 = new BlockPos(Fox.this.getX(), Fox.this.getBoundingBox().maxY, Fox.this.getZ());

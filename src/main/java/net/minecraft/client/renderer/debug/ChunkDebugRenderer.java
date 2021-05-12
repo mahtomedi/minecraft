@@ -26,7 +26,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class ChunkDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
-    private final Minecraft minecraft;
+    final Minecraft minecraft;
     private double lastUpdateTime = Double.MIN_VALUE;
     private final int radius = 12;
     @Nullable
@@ -90,10 +90,10 @@ public class ChunkDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
 
     @OnlyIn(Dist.CLIENT)
     final class ChunkData {
-        private final Map<ChunkPos, String> clientData;
-        private final CompletableFuture<Map<ChunkPos, String>> serverData;
+        final Map<ChunkPos, String> clientData;
+        final CompletableFuture<Map<ChunkPos, String>> serverData;
 
-        private ChunkData(IntegratedServer param0, double param1, double param2) {
+        ChunkData(IntegratedServer param0, double param1, double param2) {
             ClientLevel param3 = ChunkDebugRenderer.this.minecraft.level;
             ResourceKey<Level> var0 = param3.dimension();
             int var1 = SectionPos.posToSectionCoord(param1);

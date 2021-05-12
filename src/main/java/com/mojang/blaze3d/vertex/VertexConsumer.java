@@ -4,7 +4,6 @@ import com.mojang.math.Matrix3f;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
 import com.mojang.math.Vector4f;
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -96,7 +95,7 @@ public interface VertexConsumer {
             IntBuffer var10 = var9.asIntBuffer();
 
             for(int var11 = 0; var11 < var7; ++var11) {
-                ((Buffer)var10).clear();
+                var10.clear();
                 var10.put(var2, var11 * 8, 8);
                 float var12 = var9.getFloat(0);
                 float var13 = var9.getFloat(4);

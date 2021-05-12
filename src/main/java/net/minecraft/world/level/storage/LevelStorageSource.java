@@ -58,8 +58,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class LevelStorageSource {
-    private static final Logger LOGGER = LogManager.getLogger();
-    private static final DateTimeFormatter FORMATTER = new DateTimeFormatterBuilder()
+    static final Logger LOGGER = LogManager.getLogger();
+    static final DateTimeFormatter FORMATTER = new DateTimeFormatterBuilder()
         .appendValue(ChronoField.YEAR, 4, 10, SignStyle.EXCEEDS_PAD)
         .appendLiteral('-')
         .appendValue(ChronoField.MONTH_OF_YEAR, 2)
@@ -76,9 +76,9 @@ public class LevelStorageSource {
     private static final ImmutableList<String> OLD_SETTINGS_KEYS = ImmutableList.of(
         "RandomSeed", "generatorName", "generatorOptions", "generatorVersion", "legacy_custom_options", "MapFeatures", "BonusChest"
     );
-    private final Path baseDir;
+    final Path baseDir;
     private final Path backupDir;
-    private final DataFixer fixerUpper;
+    final DataFixer fixerUpper;
 
     public LevelStorageSource(Path param0, Path param1, DataFixer param2) {
         this.fixerUpper = param2;
@@ -171,12 +171,12 @@ public class LevelStorageSource {
         }
     }
 
-    private int getStorageVersion() {
+    int getStorageVersion() {
         return 19133;
     }
 
     @Nullable
-    private <T> T readLevelData(File param0, BiFunction<File, DataFixer, T> param1) {
+    <T> T readLevelData(File param0, BiFunction<File, DataFixer, T> param1) {
         if (!param0.exists()) {
             return null;
         } else {
@@ -210,7 +210,7 @@ public class LevelStorageSource {
         }
     }
 
-    private static BiFunction<File, DataFixer, PrimaryLevelData> getLevelData(DynamicOps<Tag> param0, DataPackConfig param1) {
+    static BiFunction<File, DataFixer, PrimaryLevelData> getLevelData(DynamicOps<Tag> param0, DataPackConfig param1) {
         return (param2, param3) -> {
             try {
                 CompoundTag var0 = NbtIo.readCompressed(param2);
@@ -232,7 +232,7 @@ public class LevelStorageSource {
         };
     }
 
-    private BiFunction<File, DataFixer, LevelSummary> levelSummaryReader(File param0, boolean param1) {
+    BiFunction<File, DataFixer, LevelSummary> levelSummaryReader(File param0, boolean param1) {
         return (param2, param3) -> {
             try {
                 CompoundTag var0 = NbtIo.readCompressed(param2);
@@ -288,8 +288,8 @@ public class LevelStorageSource {
     }
 
     public class LevelStorageAccess implements AutoCloseable {
-        private final DirectoryLock lock;
-        private final Path levelPath;
+        final DirectoryLock lock;
+        final Path levelPath;
         private final String levelId;
         private final Map<LevelResource, Path> resources = Maps.newHashMap();
 
@@ -347,7 +347,7 @@ public class LevelStorageSource {
         @Nullable
         public DataPackConfig getDataPacks() {
             this.checkLock();
-            return LevelStorageSource.this.readLevelData(this.levelPath.toFile(), (param0, param1) -> LevelStorageSource.getDataPacks(param0, param1));
+            return LevelStorageSource.this.readLevelData(this.levelPath.toFile(), LevelStorageSource::getDataPacks);
         }
 
         public void saveDataTag(RegistryAccess param0, WorldData param1) {
@@ -448,8 +448,8 @@ public class LevelStorageSource {
 
             try {
                 Files.createDirectories(Files.exists(var1) ? var1.toRealPath() : var1);
-            } catch (IOException var16) {
-                throw new RuntimeException(var16);
+            } catch (IOException var9) {
+                throw new RuntimeException(var9);
             }
 
             Path var3 = var1.resolve(FileUtil.findAvailableName(var1, var0, ".zip"));

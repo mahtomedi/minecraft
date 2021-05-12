@@ -131,7 +131,7 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
                 var7 = var7.copy();
                 var7.setCount(this.quickCraftingRemainder);
                 if (var7.isEmpty()) {
-                    var10 = "" + ChatFormatting.YELLOW + "0";
+                    var10 = ChatFormatting.YELLOW + "0";
                 }
             }
 

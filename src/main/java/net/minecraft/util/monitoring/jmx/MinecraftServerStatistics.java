@@ -40,7 +40,7 @@ public final class MinecraftServerStatistics implements DynamicMBean {
         MBeanAttributeInfo[] var0 = this.attributeDescriptionByName
             .values()
             .stream()
-            .map(param0x -> param0x.asMBeanAttributeInfo())
+            .map(MinecraftServerStatistics.AttributeDescription::asMBeanAttributeInfo)
             .toArray(param0x -> new MBeanAttributeInfo[param0x]);
         this.mBeanInfo = new MBeanInfo(
             MinecraftServerStatistics.class.getSimpleName(), "metrics for dedicated server", var0, null, null, new MBeanNotificationInfo[0]
@@ -102,12 +102,12 @@ public final class MinecraftServerStatistics implements DynamicMBean {
     }
 
     static final class AttributeDescription {
-        private final String name;
-        private final Supplier<Object> getter;
+        final String name;
+        final Supplier<Object> getter;
         private final String description;
         private final Class<?> type;
 
-        private AttributeDescription(String param0, Supplier<Object> param1, String param2, Class<?> param3) {
+        AttributeDescription(String param0, Supplier<Object> param1, String param2, Class<?> param3) {
             this.name = param0;
             this.getter = param1;
             this.description = param2;

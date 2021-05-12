@@ -24,7 +24,7 @@ public abstract class LootPoolSingletonContainer extends LootPoolEntryContainer 
     protected final int weight;
     protected final int quality;
     protected final LootItemFunction[] functions;
-    private final BiFunction<ItemStack, LootContext, ItemStack> compositeFunction;
+    final BiFunction<ItemStack, LootContext, ItemStack> compositeFunction;
     private final LootPoolEntry entry = new LootPoolSingletonContainer.EntryBase() {
         @Override
         public void createItemStack(Consumer<ItemStack> param0, LootContext param1) {
@@ -112,10 +112,7 @@ public abstract class LootPoolSingletonContainer extends LootPoolEntryContainer 
         }
     }
 
-    public abstract class EntryBase implements LootPoolEntry {
-        protected EntryBase() {
-        }
-
+    protected abstract class EntryBase implements LootPoolEntry {
         @Override
         public int getWeight(float param0) {
             return Math.max(Mth.floor((float)LootPoolSingletonContainer.this.weight + (float)LootPoolSingletonContainer.this.quality * param0), 0);
@@ -123,7 +120,7 @@ public abstract class LootPoolSingletonContainer extends LootPoolEntryContainer 
     }
 
     @FunctionalInterface
-    public interface EntryConstructor {
+    protected interface EntryConstructor {
         LootPoolSingletonContainer build(int var1, int var2, LootItemCondition[] var3, LootItemFunction[] var4);
     }
 

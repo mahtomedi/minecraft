@@ -476,7 +476,7 @@ public class Strider extends Animal implements ItemSteerable, Saddleable {
     static class StriderGoToLavaGoal extends MoveToBlockGoal {
         private final Strider strider;
 
-        private StriderGoToLavaGoal(Strider param0, double param1) {
+        StriderGoToLavaGoal(Strider param0, double param1) {
             super(param0, param1, 8, 2);
             this.strider = param0;
         }

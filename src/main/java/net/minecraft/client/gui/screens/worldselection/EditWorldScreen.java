@@ -134,15 +134,15 @@ public class EditWorldScreen extends Screen {
                         var4 = var3x.flatMap(param0x -> {
                             Path var0xx = this.levelAccess.getLevelPath(LevelResource.ROOT).resolve("worldgen_settings_export.json");
         
-                            try (JsonWriter var2xx = WORLD_GEN_SETTINGS_GSON.newJsonWriter(Files.newBufferedWriter(var0xx, StandardCharsets.UTF_8))) {
-                                WORLD_GEN_SETTINGS_GSON.toJson(param0x, var2xx);
-                            } catch (JsonIOException | IOException var16) {
-                                return DataResult.error("Error writing file: " + var16.getMessage());
+                            try (JsonWriter var1x = WORLD_GEN_SETTINGS_GSON.newJsonWriter(Files.newBufferedWriter(var0xx, StandardCharsets.UTF_8))) {
+                                WORLD_GEN_SETTINGS_GSON.toJson(param0x, var1x);
+                            } catch (JsonIOException | IOException var8x) {
+                                return DataResult.error("Error writing file: " + var8x.getMessage());
                             }
         
                             return DataResult.success(var0xx.toString());
                         });
-                    } catch (ExecutionException | InterruptedException var18) {
+                    } catch (ExecutionException | InterruptedException var91) {
                         var4 = DataResult.error("Could not parse level data!");
                     }
         
@@ -206,12 +206,12 @@ public class EditWorldScreen extends Screen {
         try (LevelStorageSource.LevelStorageAccess var1 = param0.createAccess(param1)) {
             var0 = true;
             makeBackupAndShowToast(var1);
-        } catch (IOException var16) {
+        } catch (IOException var8) {
             if (!var0) {
                 SystemToast.onWorldAccessFailure(Minecraft.getInstance(), param1);
             }
 
-            LOGGER.warn("Failed to create backup of level {}", param1, var16);
+            LOGGER.warn("Failed to create backup of level {}", param1, var8);
         }
 
     }

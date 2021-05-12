@@ -44,13 +44,18 @@ public class OptimizeWorldScreen extends Screen {
     ) {
         RegistryAccess.RegistryHolder var0 = RegistryAccess.builtin();
 
-        try (Minecraft.ServerStem var1 = param0.makeServerStem(var0, Minecraft::loadDataPacks, Minecraft::loadWorldData, false, param3)) {
-            WorldData var2 = var1.worldData();
-            param3.saveDataTag(var0, var2);
-            ImmutableSet<ResourceKey<Level>> var3 = var2.worldGenSettings().levels();
-            return new OptimizeWorldScreen(param1, param2, param3, var2.getLevelSettings(), param4, var3);
-        } catch (Exception var22) {
-            LOGGER.warn("Failed to load datapacks, can't optimize world", (Throwable)var22);
+        try {
+            OptimizeWorldScreen var9;
+            try (Minecraft.ServerStem var1 = param0.makeServerStem(var0, Minecraft::loadDataPacks, Minecraft::loadWorldData, false, param3)) {
+                WorldData var2 = var1.worldData();
+                param3.saveDataTag(var0, var2);
+                ImmutableSet<ResourceKey<Level>> var3 = var2.worldGenSettings().levels();
+                var9 = new OptimizeWorldScreen(param1, param2, param3, var2.getLevelSettings(), param4, var3);
+            }
+
+            return var9;
+        } catch (Exception var12) {
+            LOGGER.warn("Failed to load datapacks, can't optimize world", (Throwable)var12);
             return null;
         }
     }

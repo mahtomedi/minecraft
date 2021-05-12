@@ -460,7 +460,7 @@ public enum Direction implements StringRepresentable {
         private static final Map<String, Direction.Axis> BY_NAME = Arrays.stream(VALUES).collect(Collectors.toMap(Direction.Axis::getName, param0 -> param0));
         private final String name;
 
-        private Axis(String param0) {
+        Axis(String param0) {
             this.name = param0;
         }
 

@@ -49,7 +49,7 @@ public final class NaturalSpawner {
     private static final int MIN_SPAWN_DISTANCE = 24;
     public static final int SPAWN_DISTANCE_CHUNK = 8;
     public static final int SPAWN_DISTANCE_BLOCK = 128;
-    private static final int MAGIC_NUMBER = (int)Math.pow(17.0, 2.0);
+    static final int MAGIC_NUMBER = (int)Math.pow(17.0, 2.0);
     private static final MobCategory[] SPAWNING_CATEGORIES = Stream.of(MobCategory.values())
         .filter(param0 -> param0 != MobCategory.MISC)
         .toArray(param0 -> new MobCategory[param0]);
@@ -94,7 +94,7 @@ public final class NaturalSpawner {
         }
     }
 
-    private static Biome getRoughBiome(BlockPos param0, ChunkAccess param1) {
+    static Biome getRoughBiome(BlockPos param0, ChunkAccess param1) {
         return NearestNeighborBiomeZoomer.INSTANCE.getBiome(0L, param0.getX(), param0.getY(), param0.getZ(), param1.getBiomes());
     }
 
@@ -103,13 +103,7 @@ public final class NaturalSpawner {
 
         for(MobCategory var0 : SPAWNING_CATEGORIES) {
             if ((param3 || !var0.isFriendly()) && (param4 || var0.isFriendly()) && (param5 || !var0.isPersistent()) && param2.canSpawnForCategory(var0)) {
-                spawnCategoryForChunk(
-                    var0,
-                    param0,
-                    param1,
-                    (param1x, param2x, param3x) -> param2.canSpawn(param1x, param2x, param3x),
-                    (param1x, param2x) -> param2.afterSpawn(param1x, param2x)
-                );
+                spawnCategoryForChunk(var0, param0, param1, param2::canSpawn, param2::afterSpawn);
             }
         }
 
@@ -390,15 +384,14 @@ public final class NaturalSpawner {
                                 }
 
                                 var19.moveTo(var17, (double)var15.getY(), var18, param3.nextFloat() * 360.0F, 0.0F);
-                                if (var19 instanceof Mob) {
-                                    Mob var22 = (Mob)var19;
-                                    if (var22.checkSpawnRules(param0, MobSpawnType.CHUNK_GENERATION) && var22.checkSpawnObstruction(param0)) {
-                                        var7 = var22.finalizeSpawn(
-                                            param0, param0.getCurrentDifficultyAt(var22.blockPosition()), MobSpawnType.CHUNK_GENERATION, var7, null
-                                        );
-                                        param0.addFreshEntityWithPassengers(var22);
-                                        var13 = true;
-                                    }
+                                if (var19 instanceof Mob var22
+                                    && var22.checkSpawnRules(param0, MobSpawnType.CHUNK_GENERATION)
+                                    && var22.checkSpawnObstruction(param0)) {
+                                    var7 = var22.finalizeSpawn(
+                                        param0, param0.getCurrentDifficultyAt(var22.blockPosition()), MobSpawnType.CHUNK_GENERATION, var7, null
+                                    );
+                                    param0.addFreshEntityWithPassengers(var22);
+                                    var13 = true;
                                 }
                             }
 
@@ -467,7 +460,7 @@ public final class NaturalSpawner {
         private EntityType<?> lastCheckedType;
         private double lastCharge;
 
-        private SpawnState(int param0, Object2IntOpenHashMap<MobCategory> param1, PotentialCalculator param2) {
+        SpawnState(int param0, Object2IntOpenHashMap<MobCategory> param1, PotentialCalculator param2) {
             this.spawnableChunkCount = param0;
             this.mobCategoryCounts = param1;
             this.spawnPotential = param2;
@@ -516,7 +509,7 @@ public final class NaturalSpawner {
             return this.unmodifiableMobCategoryCounts;
         }
 
-        private boolean canSpawnForCategory(MobCategory param0) {
+        boolean canSpawnForCategory(MobCategory param0) {
             int var0 = param0.getMaxInstancesPerChunk() * this.spawnableChunkCount / NaturalSpawner.MAGIC_NUMBER;
             return this.mobCategoryCounts.getInt(param0) < var0;
         }

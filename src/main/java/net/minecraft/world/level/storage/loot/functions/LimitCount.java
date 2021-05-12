@@ -12,9 +12,9 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
 public class LimitCount extends LootItemConditionalFunction {
-    private final IntRange limiter;
+    final IntRange limiter;
 
-    private LimitCount(LootItemCondition[] param0, IntRange param1) {
+    LimitCount(LootItemCondition[] param0, IntRange param1) {
         super(param0);
         this.limiter = param1;
     }

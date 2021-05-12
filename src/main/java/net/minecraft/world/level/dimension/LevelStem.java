@@ -88,9 +88,8 @@ public final class LevelStem {
                 return false;
             } else if (!var3.getValue().type().equalTo(DimensionType.DEFAULT_END)) {
                 return false;
-            } else if (var2.getValue().generator() instanceof NoiseBasedChunkGenerator && var3.getValue().generator() instanceof NoiseBasedChunkGenerator) {
-                NoiseBasedChunkGenerator var4 = (NoiseBasedChunkGenerator)var2.getValue().generator();
-                NoiseBasedChunkGenerator var5 = (NoiseBasedChunkGenerator)var3.getValue().generator();
+            } else if (var2.getValue().generator() instanceof NoiseBasedChunkGenerator var4
+                && var3.getValue().generator() instanceof NoiseBasedChunkGenerator var5) {
                 if (!var4.stable(param0, NoiseGeneratorSettings.NETHER)) {
                     return false;
                 } else if (!var5.stable(param0, NoiseGeneratorSettings.END)) {

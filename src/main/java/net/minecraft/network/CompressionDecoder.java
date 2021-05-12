@@ -31,7 +31,7 @@ public class CompressionDecoder extends ByteToMessageDecoder {
                 }
 
                 if (var1 > 2097152) {
-                    throw new DecoderException("Badly compressed packet - size of " + var1 + " is larger than protocol maximum of " + 2097152);
+                    throw new DecoderException("Badly compressed packet - size of " + var1 + " is larger than protocol maximum of 2097152");
                 }
 
                 byte[] var2 = new byte[var0.readableBytes()];

@@ -79,6 +79,6 @@ public class SelectorComponent extends BaseComponent implements ContextAwareComp
 
     @Override
     public String toString() {
-        return "SelectorComponent{pattern='" + this.pattern + '\'' + ", siblings=" + this.siblings + ", style=" + this.getStyle() + '}';
+        return "SelectorComponent{pattern='" + this.pattern + "', siblings=" + this.siblings + ", style=" + this.getStyle() + "}";
     }
 }

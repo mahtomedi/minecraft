@@ -54,15 +54,15 @@ public class PresetFlatWorldScreen extends Screen {
     private static final int SLOT_BG_Y = 1;
     private static final int SLOT_FG_X = 2;
     private static final int SLOT_FG_Y = 2;
-    private static final List<PresetFlatWorldScreen.PresetInfo> PRESETS = Lists.newArrayList();
+    static final List<PresetFlatWorldScreen.PresetInfo> PRESETS = Lists.newArrayList();
     private static final ResourceKey<Biome> DEFAULT_BIOME = Biomes.PLAINS;
-    private final CreateFlatWorldScreen parent;
+    final CreateFlatWorldScreen parent;
     private Component shareText;
     private Component listText;
     private PresetFlatWorldScreen.PresetsList list;
     private Button selectButton;
-    private EditBox export;
-    private FlatLevelGeneratorSettings settings;
+    EditBox export;
+    FlatLevelGeneratorSettings settings;
 
     public PresetFlatWorldScreen(CreateFlatWorldScreen param0) {
         super(new TranslatableComponent("createWorld.customize.presets.title"));
@@ -151,7 +151,7 @@ public class PresetFlatWorldScreen extends Screen {
         }
     }
 
-    private static String save(Registry<Biome> param0, FlatLevelGeneratorSettings param1) {
+    static String save(Registry<Biome> param0, FlatLevelGeneratorSettings param1) {
         StringBuilder var0 = new StringBuilder();
 
         for(int var1 = 0; var1 < param1.getLayersInfo().size(); ++var1) {
@@ -475,7 +475,7 @@ public class PresetFlatWorldScreen extends Screen {
                 return false;
             }
 
-            private void select() {
+            void select() {
                 PresetsList.this.setSelected(this);
                 PresetFlatWorldScreen.PresetInfo var0 = PresetFlatWorldScreen.PRESETS.get(PresetsList.this.children().indexOf(this));
                 Registry<Biome> var1 = PresetFlatWorldScreen.this.parent

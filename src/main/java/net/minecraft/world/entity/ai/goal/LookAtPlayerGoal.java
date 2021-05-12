@@ -28,14 +28,9 @@ public class LookAtPlayerGoal extends Goal {
         this.probability = param3;
         this.setFlags(EnumSet.of(Goal.Flag.LOOK));
         if (param1 == Player.class) {
-            this.lookAtContext = new TargetingConditions()
-                .range((double)param2)
-                .allowSameTeam()
-                .allowInvulnerable()
-                .allowNonAttackable()
-                .selector(param1x -> EntitySelector.notRiding(param0).test(param1x));
+            this.lookAtContext = TargetingConditions.forNonCombat().range((double)param2).selector(param1x -> EntitySelector.notRiding(param0).test(param1x));
         } else {
-            this.lookAtContext = new TargetingConditions().range((double)param2).allowSameTeam().allowInvulnerable().allowNonAttackable();
+            this.lookAtContext = TargetingConditions.forNonCombat().range((double)param2);
         }
 
     }

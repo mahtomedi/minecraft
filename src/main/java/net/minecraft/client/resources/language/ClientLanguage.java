@@ -55,8 +55,8 @@ public class ClientLanguage extends Language {
         for(Resource var0 : param0) {
             try (InputStream var1 = var0.getInputStream()) {
                 Language.loadFromJson(var1, param1::put);
-            } catch (IOException var17) {
-                LOGGER.warn("Failed to load translations from {}", var0, var17);
+            } catch (IOException var9) {
+                LOGGER.warn("Failed to load translations from {}", var0, var9);
             }
         }
 

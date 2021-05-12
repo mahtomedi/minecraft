@@ -10,11 +10,11 @@ import net.minecraft.world.level.storage.loot.LootContext;
 
 public class WeatherCheck implements LootItemCondition {
     @Nullable
-    private final Boolean isRaining;
+    final Boolean isRaining;
     @Nullable
-    private final Boolean isThundering;
+    final Boolean isThundering;
 
-    private WeatherCheck(@Nullable Boolean param0, @Nullable Boolean param1) {
+    WeatherCheck(@Nullable Boolean param0, @Nullable Boolean param1) {
         this.isRaining = param0;
         this.isThundering = param1;
     }

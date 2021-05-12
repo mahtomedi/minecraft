@@ -112,8 +112,7 @@ public class ThrownTrident extends AbstractArrow {
     protected void onHitEntity(EntityHitResult param0) {
         Entity var0 = param0.getEntity();
         float var1 = 8.0F;
-        if (var0 instanceof LivingEntity) {
-            LivingEntity var2 = (LivingEntity)var0;
+        if (var0 instanceof LivingEntity var2) {
             var1 += EnchantmentHelper.getDamageBonus(this.tridentItem, var2.getMobType());
         }
 
@@ -126,8 +125,7 @@ public class ThrownTrident extends AbstractArrow {
                 return;
             }
 
-            if (var0 instanceof LivingEntity) {
-                LivingEntity var6 = (LivingEntity)var0;
+            if (var0 instanceof LivingEntity var6) {
                 if (var3 instanceof LivingEntity) {
                     EnchantmentHelper.doPostHurtEffects(var6, var3);
                     EnchantmentHelper.doPostDamageEffects((LivingEntity)var3, var6);

@@ -62,7 +62,7 @@ public class ChunkHolder {
     private int oldTicketLevel;
     private int ticketLevel;
     private int queueLevel;
-    private final ChunkPos pos;
+    final ChunkPos pos;
     private boolean hasChangedSections;
     private final ShortSet[] changedBlocksPerSection;
     private final BitSet blockChangedLightSectionFilter = new BitSet();
@@ -441,7 +441,7 @@ public class ChunkHolder {
         private final CompletableFuture<? extends Either<? extends ChunkAccess, ChunkHolder.ChunkLoadingFailure>> future;
         private final String source;
 
-        private ChunkSaveDebug(Thread param0, CompletableFuture<? extends Either<? extends ChunkAccess, ChunkHolder.ChunkLoadingFailure>> param1, String param2) {
+        ChunkSaveDebug(Thread param0, CompletableFuture<? extends Either<? extends ChunkAccess, ChunkHolder.ChunkLoadingFailure>> param1, String param2) {
             this.thread = param0;
             this.future = param1;
             this.source = param2;

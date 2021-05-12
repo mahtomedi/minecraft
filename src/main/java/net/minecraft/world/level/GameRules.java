@@ -27,7 +27,7 @@ import org.apache.logging.log4j.Logger;
 
 public class GameRules {
     public static final int DEFAULT_RANDOM_TICK_SPEED = 3;
-    private static final Logger LOGGER = LogManager.getLogger();
+    static final Logger LOGGER = LogManager.getLogger();
     private static final Map<GameRules.Key<?>, GameRules.Type<?>> GAME_RULE_TYPES = Maps.newTreeMap(Comparator.comparing(param0 -> param0.id));
     public static final GameRules.Key<GameRules.BooleanValue> RULE_DOFIRETICK = register(
         "doFireTick", GameRules.Category.UPDATES, GameRules.BooleanValue.create(true)
@@ -218,13 +218,13 @@ public class GameRules {
     public static class BooleanValue extends GameRules.Value<GameRules.BooleanValue> {
         private boolean value;
 
-        private static GameRules.Type<GameRules.BooleanValue> create(boolean param0, BiConsumer<MinecraftServer, GameRules.BooleanValue> param1) {
+        static GameRules.Type<GameRules.BooleanValue> create(boolean param0, BiConsumer<MinecraftServer, GameRules.BooleanValue> param1) {
             return new GameRules.Type<>(
                 BoolArgumentType::bool, param1x -> new GameRules.BooleanValue(param1x, param0), param1, GameRules.GameRuleTypeVisitor::visitBoolean
             );
         }
 
-        private static GameRules.Type<GameRules.BooleanValue> create(boolean param0) {
+        static GameRules.Type<GameRules.BooleanValue> create(boolean param0) {
             return create(param0, (param0x, param1) -> {
             });
         }
@@ -317,7 +317,7 @@ public class GameRules {
             );
         }
 
-        private static GameRules.Type<GameRules.IntegerValue> create(int param0) {
+        static GameRules.Type<GameRules.IntegerValue> create(int param0) {
             return create(param0, (param0x, param1) -> {
             });
         }
@@ -392,7 +392,7 @@ public class GameRules {
     }
 
     public static final class Key<T extends GameRules.Value<T>> {
-        private final String id;
+        final String id;
         private final GameRules.Category category;
 
         public Key(String param0, GameRules.Category param1) {
@@ -435,12 +435,10 @@ public class GameRules {
     public static class Type<T extends GameRules.Value<T>> {
         private final Supplier<ArgumentType<?>> argument;
         private final Function<GameRules.Type<T>, T> constructor;
-        private final BiConsumer<MinecraftServer, T> callback;
+        final BiConsumer<MinecraftServer, T> callback;
         private final GameRules.VisitorCaller<T> visitorCaller;
 
-        private Type(
-            Supplier<ArgumentType<?>> param0, Function<GameRules.Type<T>, T> param1, BiConsumer<MinecraftServer, T> param2, GameRules.VisitorCaller<T> param3
-        ) {
+        Type(Supplier<ArgumentType<?>> param0, Function<GameRules.Type<T>, T> param1, BiConsumer<MinecraftServer, T> param2, GameRules.VisitorCaller<T> param3) {
             this.argument = param0;
             this.constructor = param1;
             this.callback = param2;

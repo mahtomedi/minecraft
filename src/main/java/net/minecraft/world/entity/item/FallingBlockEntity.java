@@ -212,8 +212,7 @@ public class FallingBlockEntity extends Entity {
             } else {
                 Predicate<Entity> var2;
                 DamageSource var3;
-                if (this.blockState.getBlock() instanceof Fallable) {
-                    Fallable var1 = (Fallable)this.blockState.getBlock();
+                if (this.blockState.getBlock() instanceof Fallable var1) {
                     var2 = var1.getHurtsEntitySelector();
                     var3 = var1.getFallDamageSource();
                 } else {

@@ -380,8 +380,7 @@ public class LootCommand {
         List<ItemStack> var0 = Lists.newArrayListWithCapacity(param3.size());
 
         for(Entity var1 : param0) {
-            if (var1 instanceof ServerPlayer) {
-                ServerPlayer var2 = (ServerPlayer)var1;
+            if (var1 instanceof ServerPlayer var2) {
                 setSlots(var1, param3, param1, param2, var0);
                 var2.containerMenu.broadcastChanges();
             } else {

@@ -172,7 +172,7 @@ public class PlayerEntry extends ContainerObjectSelectionList.Entry<PlayerEntry>
         NarratorChatListener.INSTANCE.sayNow(param1.getString());
     }
 
-    private MutableComponent getEntryNarationMessage(MutableComponent param0) {
+    MutableComponent getEntryNarationMessage(MutableComponent param0) {
         Component var0 = this.getStatusComponent();
         return var0 == TextComponent.EMPTY
             ? new TextComponent(this.playerName).append(", ").append(param0)

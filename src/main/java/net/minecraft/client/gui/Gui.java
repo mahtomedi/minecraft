@@ -592,7 +592,7 @@ public class Gui extends GuiComponent {
         this.minecraft.getProfiler().pop();
         if (this.minecraft.player.experienceLevel > 0) {
             this.minecraft.getProfiler().push("expLevel");
-            String var4 = "" + this.minecraft.player.experienceLevel;
+            String var4 = this.minecraft.player.experienceLevel + "";
             int var5 = (this.screenWidth - this.getFont().width(var4)) / 2;
             int var6 = this.screenHeight - 31 - 4;
             this.getFont().draw(param0, var4, (float)(var5 + 1), (float)var6, 0);
@@ -686,7 +686,7 @@ public class Gui extends GuiComponent {
             ++var15;
             Score var19 = var18.getFirst();
             Component var20 = var18.getSecond();
-            String var21 = ChatFormatting.RED + "" + var19.getScore();
+            String var21 = "" + ChatFormatting.RED + var19.getScore();
             int var23 = var12 - var15 * 9;
             int var24 = this.screenWidth - 3 + 2;
             fill(param0, var14 - 2, var23, var24, var23 + 9, var16);

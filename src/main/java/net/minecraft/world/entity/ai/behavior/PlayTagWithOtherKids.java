@@ -94,7 +94,10 @@ public class PlayTagWithOtherKids extends Behavior<PathfinderMob> {
 
     private Map<LivingEntity, Integer> checkHowManyChasersEachFriendHas(PathfinderMob param0) {
         Map<LivingEntity, Integer> var0 = Maps.newHashMap();
-        this.getFriendsNearby(param0).stream().filter(this::isChasingSomeone).forEach(param1 -> this.whoAreYouChasing(param1));
+        this.getFriendsNearby(param0)
+            .stream()
+            .filter(this::isChasingSomeone)
+            .forEach(param1 -> var0.compute(this.whoAreYouChasing(param1), (param0x, param1x) -> param1x == null ? 1 : param1x + 1));
         return var0;
     }
 

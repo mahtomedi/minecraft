@@ -43,7 +43,7 @@ public class Vex extends Monster {
     public static final int TICKS_PER_FLAP = Mth.ceil((float) (Math.PI * 5.0 / 4.0));
     protected static final EntityDataAccessor<Byte> DATA_FLAGS_ID = SynchedEntityData.defineId(Vex.class, EntityDataSerializers.BYTE);
     private static final int FLAG_IS_CHARGING = 1;
-    private Mob owner;
+    Mob owner;
     @Nullable
     private BlockPos boundOrigin;
     private boolean hasLimitedLife;
@@ -263,7 +263,7 @@ public class Vex extends Monster {
     }
 
     class VexCopyOwnerTargetGoal extends TargetGoal {
-        private final TargetingConditions copyOwnerTargeting = new TargetingConditions().allowUnseeable().ignoreInvisibilityTesting();
+        private final TargetingConditions copyOwnerTargeting = TargetingConditions.forNonCombat().ignoreLineOfSight().ignoreInvisibilityTesting();
 
         public VexCopyOwnerTargetGoal(PathfinderMob param0) {
             super(param0, false);

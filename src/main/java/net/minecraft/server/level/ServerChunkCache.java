@@ -48,9 +48,9 @@ public class ServerChunkCache extends ChunkSource {
     private static final List<ChunkStatus> CHUNK_STATUSES = ChunkStatus.getStatusList();
     private final DistanceManager distanceManager;
     private final ChunkGenerator generator;
-    private final ServerLevel level;
-    private final Thread mainThread;
-    private final ThreadedLevelLightEngine lightEngine;
+    final ServerLevel level;
+    final Thread mainThread;
+    final ThreadedLevelLightEngine lightEngine;
     private final ServerChunkCache.MainThreadExecutor mainThreadProcessor;
     public final ChunkMap chunkMap;
     private final DimensionDataStorage dataStorage;
@@ -281,7 +281,7 @@ public class ServerChunkCache extends ChunkSource {
         return this.mainThreadProcessor.pollTask();
     }
 
-    private boolean runDistanceManagerUpdates() {
+    boolean runDistanceManagerUpdates() {
         boolean var0 = this.distanceManager.runAllUpdates(this.chunkMap);
         boolean var1 = this.chunkMap.promoteChunkMap();
         if (!var0 && !var1) {
@@ -499,7 +499,7 @@ public class ServerChunkCache extends ChunkSource {
     }
 
     final class MainThreadExecutor extends BlockableEventLoop<Runnable> {
-        private MainThreadExecutor(Level param0) {
+        MainThreadExecutor(Level param0) {
             super("Chunk source main thread executor for " + param0.dimension().location());
         }
 

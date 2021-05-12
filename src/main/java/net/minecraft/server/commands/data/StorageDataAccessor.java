@@ -19,7 +19,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.storage.CommandStorage;
 
 public class StorageDataAccessor implements DataAccessor {
-    private static final SuggestionProvider<CommandSourceStack> SUGGEST_STORAGE = (param0, param1) -> SharedSuggestionProvider.suggestResource(
+    static final SuggestionProvider<CommandSourceStack> SUGGEST_STORAGE = (param0, param1) -> SharedSuggestionProvider.suggestResource(
             getGlobalTags(param0).keys(), param1
         );
     public static final Function<String, DataCommands.DataProvider> PROVIDER = param0 -> new DataCommands.DataProvider() {
@@ -34,22 +34,18 @@ public class StorageDataAccessor implements DataAccessor {
             ) {
                 return param0.then(
                     Commands.literal("storage")
-                        .then(
-                            (ArgumentBuilder<CommandSourceStack, ?>)param1.apply(
-                                Commands.argument(param0, ResourceLocationArgument.id()).suggests(StorageDataAccessor.SUGGEST_STORAGE)
-                            )
-                        )
+                        .then(param1.apply(Commands.argument(param0, ResourceLocationArgument.id()).suggests(StorageDataAccessor.SUGGEST_STORAGE)))
                 );
             }
         };
     private final CommandStorage storage;
     private final ResourceLocation id;
 
-    private static CommandStorage getGlobalTags(CommandContext<CommandSourceStack> param0) {
+    static CommandStorage getGlobalTags(CommandContext<CommandSourceStack> param0) {
         return param0.getSource().getServer().getCommandStorage();
     }
 
-    private StorageDataAccessor(CommandStorage param0, ResourceLocation param1) {
+    StorageDataAccessor(CommandStorage param0, ResourceLocation param1) {
         this.storage = param0;
         this.id = param1;
     }

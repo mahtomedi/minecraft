@@ -82,7 +82,7 @@ public enum FaceInfo {
         public final int yFace;
         public final int zFace;
 
-        private VertexInfo(int param0, int param1, int param2) {
+        VertexInfo(int param0, int param1, int param2) {
             this.xFace = param0;
             this.yFace = param1;
             this.zFace = param2;

@@ -86,7 +86,7 @@ public class TextRenderingUtils {
 
         @Override
         public String toString() {
-            return "Line{segments=" + this.segments + '}';
+            return "Line{segments=" + this.segments + "}";
         }
 
         @Override
@@ -146,7 +146,7 @@ public class TextRenderingUtils {
 
         @Override
         public String toString() {
-            return "Segment{fullText='" + this.fullText + '\'' + ", linkTitle='" + this.linkTitle + '\'' + ", linkUrl='" + this.linkUrl + '\'' + '}';
+            return "Segment{fullText='" + this.fullText + "', linkTitle='" + this.linkTitle + "', linkUrl='" + this.linkUrl + "'}";
         }
 
         public String renderedText() {

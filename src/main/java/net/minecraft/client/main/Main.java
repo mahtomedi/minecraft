@@ -39,7 +39,7 @@ import org.apache.logging.log4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class Main {
-    private static final Logger LOGGER = LogManager.getLogger();
+    static final Logger LOGGER = LogManager.getLogger();
 
     @DontObfuscate
     public static void main(String[] param0) {
@@ -220,8 +220,7 @@ public class Main {
         try {
             return param0.valueOf(param1);
         } catch (Throwable var5) {
-            if (param1 instanceof ArgumentAcceptingOptionSpec) {
-                ArgumentAcceptingOptionSpec<T> var1 = (ArgumentAcceptingOptionSpec)param1;
+            if (param1 instanceof ArgumentAcceptingOptionSpec var1) {
                 List<T> var2 = var1.defaultValues();
                 if (!var2.isEmpty()) {
                     return var2.get(0);

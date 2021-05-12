@@ -30,7 +30,7 @@ public class NearestAttackableTargetGoal<T extends LivingEntity> extends TargetG
         this.targetType = param1;
         this.randomInterval = param2;
         this.setFlags(EnumSet.of(Goal.Flag.TARGET));
-        this.targetConditions = new TargetingConditions().range(this.getFollowDistance()).selector(param5);
+        this.targetConditions = TargetingConditions.forCombat().range(this.getFollowDistance()).selector(param5);
     }
 
     @Override

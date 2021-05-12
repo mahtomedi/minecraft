@@ -17,7 +17,7 @@ import org.apache.logging.log4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class SimpleTexture extends AbstractTexture {
-    private static final Logger LOGGER = LogManager.getLogger();
+    static final Logger LOGGER = LogManager.getLogger();
     protected final ResourceLocation location;
 
     public SimpleTexture(ResourceLocation param0) {
@@ -58,7 +58,7 @@ public class SimpleTexture extends AbstractTexture {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static class TextureImage implements Closeable {
+    protected static class TextureImage implements Closeable {
         @Nullable
         private final TextureMetadataSection metadata;
         @Nullable
@@ -79,19 +79,24 @@ public class SimpleTexture extends AbstractTexture {
         }
 
         public static SimpleTexture.TextureImage load(ResourceManager param0, ResourceLocation param1) {
-            try (Resource var0 = param0.getResource(param1)) {
-                NativeImage var1 = NativeImage.read(var0.getInputStream());
-                TextureMetadataSection var2 = null;
+            try {
+                SimpleTexture.TextureImage var3;
+                try (Resource var0 = param0.getResource(param1)) {
+                    NativeImage var1 = NativeImage.read(var0.getInputStream());
+                    TextureMetadataSection var2 = null;
 
-                try {
-                    var2 = var0.getMetadata(TextureMetadataSection.SERIALIZER);
-                } catch (RuntimeException var17) {
-                    SimpleTexture.LOGGER.warn("Failed reading metadata of: {}", param1, var17);
+                    try {
+                        var2 = var0.getMetadata(TextureMetadataSection.SERIALIZER);
+                    } catch (RuntimeException var7) {
+                        SimpleTexture.LOGGER.warn("Failed reading metadata of: {}", param1, var7);
+                    }
+
+                    var3 = new SimpleTexture.TextureImage(var2, var1);
                 }
 
-                return new SimpleTexture.TextureImage(var2, var1);
-            } catch (IOException var20) {
-                return new SimpleTexture.TextureImage(var20);
+                return var3;
+            } catch (IOException var9) {
+                return new SimpleTexture.TextureImage(var9);
             }
         }
 

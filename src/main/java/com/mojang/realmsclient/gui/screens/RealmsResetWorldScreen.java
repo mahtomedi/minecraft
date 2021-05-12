@@ -29,7 +29,7 @@ import org.apache.logging.log4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class RealmsResetWorldScreen extends RealmsScreen {
-    private static final Logger LOGGER = LogManager.getLogger();
+    static final Logger LOGGER = LogManager.getLogger();
     private final Screen lastScreen;
     private final RealmsServer serverData;
     private RealmsLabel titleLabel;
@@ -45,10 +45,10 @@ public class RealmsResetWorldScreen extends RealmsScreen {
     private static final ResourceLocation NEW_WORLD_LOCATION = new ResourceLocation("realms", "textures/gui/realms/new_world.png");
     private static final ResourceLocation EXPERIENCE_LOCATION = new ResourceLocation("realms", "textures/gui/realms/experience.png");
     private static final ResourceLocation INSPIRATION_LOCATION = new ResourceLocation("realms", "textures/gui/realms/inspiration.png");
-    private WorldTemplatePaginatedList templates;
-    private WorldTemplatePaginatedList adventuremaps;
-    private WorldTemplatePaginatedList experiences;
-    private WorldTemplatePaginatedList inspirations;
+    WorldTemplatePaginatedList templates;
+    WorldTemplatePaginatedList adventuremaps;
+    WorldTemplatePaginatedList experiences;
+    WorldTemplatePaginatedList inspirations;
     public int slot = -1;
     private Component resetTitle = new TranslatableComponent("mco.reset.world.resetting.screen.title");
     private final Runnable resetWorldRunnable;
@@ -219,7 +219,7 @@ public class RealmsResetWorldScreen extends RealmsScreen {
         super.render(param0, param1, param2, param3);
     }
 
-    private void drawFrame(PoseStack param0, int param1, int param2, Component param3, ResourceLocation param4, boolean param5, boolean param6) {
+    void drawFrame(PoseStack param0, int param1, int param2, Component param3, ResourceLocation param4, boolean param5, boolean param6) {
         RenderSystem.setShaderTexture(0, param4);
         if (param5) {
             RenderSystem.setShaderColor(0.56F, 0.56F, 0.56F, 1.0F);

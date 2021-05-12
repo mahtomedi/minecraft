@@ -83,8 +83,7 @@ public class ShulkerBoxBlock extends BaseEntityBlock {
             return InteractionResult.CONSUME;
         } else {
             BlockEntity var0 = param1.getBlockEntity(param2);
-            if (var0 instanceof ShulkerBoxBlockEntity) {
-                ShulkerBoxBlockEntity var1 = (ShulkerBoxBlockEntity)var0;
+            if (var0 instanceof ShulkerBoxBlockEntity var1) {
                 if (canOpen(param0, param1, param2, var1)) {
                     param3.openMenu(var1);
                     param3.awardStat(Stats.OPEN_SHULKER_BOX);
@@ -120,8 +119,7 @@ public class ShulkerBoxBlock extends BaseEntityBlock {
     @Override
     public void playerWillDestroy(Level param0, BlockPos param1, BlockState param2, Player param3) {
         BlockEntity var0 = param0.getBlockEntity(param1);
-        if (var0 instanceof ShulkerBoxBlockEntity) {
-            ShulkerBoxBlockEntity var1 = (ShulkerBoxBlockEntity)var0;
+        if (var0 instanceof ShulkerBoxBlockEntity var1) {
             if (!param0.isClientSide && param3.isCreative() && !var1.isEmpty()) {
                 ItemStack var2 = getColoredItemStack(this.getColor());
                 CompoundTag var3 = var1.saveToTag(new CompoundTag());
@@ -147,8 +145,7 @@ public class ShulkerBoxBlock extends BaseEntityBlock {
     @Override
     public List<ItemStack> getDrops(BlockState param0, LootContext.Builder param1) {
         BlockEntity var0 = param1.getOptionalParameter(LootContextParams.BLOCK_ENTITY);
-        if (var0 instanceof ShulkerBoxBlockEntity) {
-            ShulkerBoxBlockEntity var1 = (ShulkerBoxBlockEntity)var0;
+        if (var0 instanceof ShulkerBoxBlockEntity var1) {
             param1 = param1.withDynamicDrop(CONTENTS, (param1x, param2) -> {
                 for(int var0x = 0; var0x < var1.getContainerSize(); ++var0x) {
                     param2.accept(var1.getItem(var0x));

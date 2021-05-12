@@ -3,7 +3,6 @@ package com.mojang.blaze3d.audio;
 import com.google.common.collect.Lists;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -30,7 +29,7 @@ public class OggAudioStream implements AudioStream {
 
     public OggAudioStream(InputStream param0) throws IOException {
         this.input = param0;
-        ((Buffer)this.buffer).limit(0);
+        this.buffer.limit(0);
 
         try (MemoryStack var0 = MemoryStack.stackPush()) {
             IntBuffer var1 = var0.mallocInt(1);
@@ -42,9 +41,9 @@ public class OggAudioStream implements AudioStream {
                 }
 
                 int var3 = this.buffer.position();
-                ((Buffer)this.buffer).position(0);
+                this.buffer.position(0);
                 this.handle = STBVorbis.stb_vorbis_open_pushdata(this.buffer, var1, var2, null);
-                ((Buffer)this.buffer).position(var3);
+                this.buffer.position(var3);
                 int var4 = var2.get(0);
                 if (var4 == 1) {
                     this.forwardBuffer();
@@ -53,7 +52,7 @@ public class OggAudioStream implements AudioStream {
                 }
             }
 
-            ((Buffer)this.buffer).position(this.buffer.position() + var1.get(0));
+            this.buffer.position(this.buffer.position() + var1.get(0));
             STBVorbisInfo var5 = STBVorbisInfo.mallocStack(var0);
             STBVorbis.stb_vorbis_get_info(this.handle, var5);
             this.audioFormat = new AudioFormat((float)var5.sample_rate(), 16, var5.channels(), true, false);
@@ -73,10 +72,10 @@ public class OggAudioStream implements AudioStream {
                 return false;
             } else {
                 int var4 = this.buffer.position();
-                ((Buffer)this.buffer).limit(var0 + var3);
-                ((Buffer)this.buffer).position(var0);
+                this.buffer.limit(var0 + var3);
+                this.buffer.position(var0);
                 this.buffer.put(var2, 0, var3);
-                ((Buffer)this.buffer).position(var4);
+                this.buffer.position(var4);
                 return true;
             }
         }
@@ -86,13 +85,13 @@ public class OggAudioStream implements AudioStream {
         boolean var0 = this.buffer.position() == 0;
         boolean var1 = this.buffer.position() == this.buffer.limit();
         if (var1 && !var0) {
-            ((Buffer)this.buffer).position(0);
-            ((Buffer)this.buffer).limit(0);
+            this.buffer.position(0);
+            this.buffer.limit(0);
         } else {
             ByteBuffer var2 = MemoryUtil.memAlloc(var0 ? 2 * this.buffer.capacity() : this.buffer.capacity());
             var2.put(this.buffer);
             MemoryUtil.memFree(this.buffer);
-            ((Buffer)var2).flip();
+            var2.flip();
             this.buffer = var2;
         }
 
@@ -109,7 +108,7 @@ public class OggAudioStream implements AudioStream {
 
                 while(true) {
                     int var4 = STBVorbis.stb_vorbis_decode_frame_pushdata(this.handle, this.buffer, var2, var1, var3);
-                    ((Buffer)this.buffer).position(this.buffer.position() + var4);
+                    this.buffer.position(this.buffer.position() + var4);
                     int var5 = STBVorbis.stb_vorbis_get_error(this.handle);
                     if (var5 == 1) {
                         this.forwardBuffer();
@@ -125,16 +124,16 @@ public class OggAudioStream implements AudioStream {
                         if (var6 != 0) {
                             int var7 = var2.get(0);
                             PointerBuffer var8 = var1.getPointerBuffer(var7);
-                            if (var7 != 1) {
-                                if (var7 == 2) {
-                                    this.convertStereo(var8.getFloatBuffer(0, var6), var8.getFloatBuffer(1, var6), param0);
-                                    return true;
-                                }
+                            if (var7 == 1) {
+                                this.convertMono(var8.getFloatBuffer(0, var6), param0);
+                                return true;
+                            }
 
+                            if (var7 != 2) {
                                 throw new IllegalStateException("Invalid number of channels: " + var7);
                             }
 
-                            this.convertMono(var8.getFloatBuffer(0, var6), param0);
+                            this.convertStereo(var8.getFloatBuffer(0, var6), var8.getFloatBuffer(1, var6), param0);
                             return true;
                         }
                     }
@@ -197,7 +196,7 @@ public class OggAudioStream implements AudioStream {
     static class OutputConcat {
         private final List<ByteBuffer> buffers = Lists.newArrayList();
         private final int bufferSize;
-        private int byteCount;
+        int byteCount;
         private ByteBuffer currentBuffer;
 
         public OutputConcat(int param0) {
@@ -211,7 +210,7 @@ public class OggAudioStream implements AudioStream {
 
         public void put(float param0) {
             if (this.currentBuffer.remaining() == 0) {
-                ((Buffer)this.currentBuffer).flip();
+                this.currentBuffer.flip();
                 this.buffers.add(this.currentBuffer);
                 this.createNewBuffer();
             }
@@ -222,14 +221,14 @@ public class OggAudioStream implements AudioStream {
         }
 
         public ByteBuffer get() {
-            ((Buffer)this.currentBuffer).flip();
+            this.currentBuffer.flip();
             if (this.buffers.isEmpty()) {
                 return this.currentBuffer;
             } else {
                 ByteBuffer var0 = BufferUtils.createByteBuffer(this.byteCount);
                 this.buffers.forEach(var0::put);
                 var0.put(this.currentBuffer);
-                ((Buffer)var0).flip();
+                var0.flip();
                 return var0;
             }
         }

@@ -39,7 +39,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class RegistryReadOps<T> extends DelegatingOps<T> {
-    private static final Logger LOGGER = LogManager.getLogger();
+    static final Logger LOGGER = LogManager.getLogger();
     private static final String JSON = ".json";
     private final RegistryReadOps.ResourceAccess resources;
     private final RegistryAccess registryAccess;
@@ -166,10 +166,7 @@ public class RegistryReadOps<T> extends DelegatingOps<T> {
     }
 
     static final class ReadCache<E> {
-        private final Map<ResourceKey<E>, DataResult<Supplier<E>>> values = Maps.newIdentityHashMap();
-
-        private ReadCache() {
-        }
+        final Map<ResourceKey<E>, DataResult<Supplier<E>>> values = Maps.newIdentityHashMap();
     }
 
     public interface ResourceAccess {
@@ -193,15 +190,20 @@ public class RegistryReadOps<T> extends DelegatingOps<T> {
                     ResourceLocation var0 = param2.location();
                     ResourceLocation var1 = new ResourceLocation(var0.getNamespace(), param1.location().getPath() + "/" + var0.getPath() + ".json");
 
-                    try (
-                        Resource var2 = param0.getResource(var1);
-                        Reader var3 = new InputStreamReader(var2.getInputStream(), StandardCharsets.UTF_8);
-                    ) {
-                        JsonParser var4 = new JsonParser();
-                        JsonElement var5 = var4.parse(var3);
-                        return param3.parse(param0, var5).map(param0xx -> Pair.of(param0xx, OptionalInt.empty()));
-                    } catch (JsonIOException | JsonSyntaxException | IOException var42) {
-                        return DataResult.error("Failed to parse " + var1 + " file: " + var42.getMessage());
+                    try {
+                        DataResult var11;
+                        try (
+                            Resource var2 = param0.getResource(var1);
+                            Reader var3 = new InputStreamReader(var2.getInputStream(), StandardCharsets.UTF_8);
+                        ) {
+                            JsonParser var4 = new JsonParser();
+                            JsonElement var5 = var4.parse(var3);
+                            var11 = param3.parse(param0, var5).map(param0xx -> Pair.of(param0xx, OptionalInt.empty()));
+                        }
+
+                        return var11;
+                    } catch (JsonIOException | JsonSyntaxException | IOException var16) {
+                        return DataResult.error("Failed to parse " + var1 + " file: " + var16.getMessage());
                     }
                 }
 

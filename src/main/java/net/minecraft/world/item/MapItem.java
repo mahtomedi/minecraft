@@ -314,8 +314,7 @@ public class MapItem extends ComplexItem {
         if (!param1.isClientSide) {
             MapItemSavedData var0 = getSavedData(param0, param1);
             if (var0 != null) {
-                if (param2 instanceof Player) {
-                    Player var1 = (Player)param2;
+                if (param2 instanceof Player var1) {
                     var0.tickCarriedBy(var1, param0);
                 }
 

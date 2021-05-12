@@ -653,8 +653,7 @@ public class EntityType<T extends Entity> implements EntityTypeTest<Entity, T> {
                 Mth.wrapDegrees(param0.random.nextFloat() * 360.0F),
                 0.0F
             );
-            if (var0 instanceof Mob) {
-                Mob var3 = (Mob)var0;
+            if (var0 instanceof Mob var3) {
                 var3.yHeadRot = var3.getYRot();
                 var3.yBodyRot = var3.getYRot();
                 var3.finalizeSpawn(param0, param0.getCurrentDifficultyAt(var3.blockPosition()), param5, null, param1);

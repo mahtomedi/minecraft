@@ -35,7 +35,7 @@ public class LightningRodBlock extends RodBlock implements SimpleWaterloggedBloc
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     private static final int ACTIVATION_TICKS = 8;
     public static final int RANGE = 128;
-    public static final int SPARK_CYCLE = 200;
+    private static final int SPARK_CYCLE = 200;
 
     public LightningRodBlock(BlockBehaviour.Properties param0) {
         super(param0);
@@ -101,19 +101,24 @@ public class LightningRodBlock extends RodBlock implements SimpleWaterloggedBloc
         }
     }
 
-    public static double getSparkPositionOnAxis(Random param0, Direction.Axis param1, double param2, Direction.Axis param3) {
-        double var0 = param1 == param3 ? 1.0 : 0.25;
-        return param2 + param0.nextDouble() * var0 - var0 / 2.0;
-    }
-
     @Override
     public void onRemove(BlockState param0, Level param1, BlockPos param2, BlockState param3, boolean param4) {
-        if (!param4 && !param0.is(param3.getBlock())) {
+        if (!param0.is(param3.getBlock())) {
             if (param0.getValue(POWERED)) {
                 this.updateNeighbours(param0, param1, param2);
             }
 
             super.onRemove(param0, param1, param2, param3, param4);
+        }
+    }
+
+    @Override
+    public void onPlace(BlockState param0, Level param1, BlockPos param2, BlockState param3, boolean param4) {
+        if (!param0.is(param3.getBlock())) {
+            if (param0.getValue(POWERED) && !param1.getBlockTicks().hasScheduledTick(param2, this)) {
+                param1.setBlock(param2, param0.setValue(POWERED, Boolean.valueOf(false)), 18);
+            }
+
         }
     }
 

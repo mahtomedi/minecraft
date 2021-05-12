@@ -35,7 +35,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class MineShaftPieces {
-    private static final Logger LOGGER = LogManager.getLogger();
+    static final Logger LOGGER = LogManager.getLogger();
     private static final int DEFAULT_SHAFT_WIDTH = 3;
     private static final int DEFAULT_SHAFT_HEIGHT = 3;
     private static final int DEFAULT_SHAFT_LENGTH = 5;
@@ -67,7 +67,7 @@ public class MineShaftPieces {
         return null;
     }
 
-    private static MineShaftPieces.MineShaftPiece generateAndAddPiece(
+    static MineShaftPieces.MineShaftPiece generateAndAddPiece(
         StructurePiece param0, StructurePieceAccessor param1, Random param2, int param3, int param4, int param5, Direction param6, int param7
     ) {
         if (param7 > 8) {
@@ -126,25 +126,16 @@ public class MineShaftPieces {
         public static BoundingBox findCorridorSize(StructurePieceAccessor param0, Random param1, int param2, int param3, int param4, Direction param5) {
             for(int var0 = param1.nextInt(3) + 2; var0 > 0; --var0) {
                 int var1 = var0 * 5;
-                BoundingBox var2;
-                switch(param5) {
-                    case NORTH:
-                    default:
-                        var2 = new BoundingBox(0, 0, -(var1 - 1), 2, 2, 0);
-                        break;
-                    case SOUTH:
-                        var2 = new BoundingBox(0, 0, 0, 2, 2, var1 - 1);
-                        break;
-                    case WEST:
-                        var2 = new BoundingBox(-(var1 - 1), 0, 0, 0, 2, 2);
-                        break;
-                    case EAST:
-                        var2 = new BoundingBox(0, 0, 0, var1 - 1, 2, 2);
-                }
 
-                var2.move(param2, param3, param4);
-                if (param0.findCollisionPiece(var2) == null) {
-                    return var2;
+                BoundingBox var5 = switch(param5) {
+                    default -> new BoundingBox(0, 0, -(var1 - 1), 2, 2, 0);
+                    case SOUTH -> new BoundingBox(0, 0, 0, 2, 2, var1 - 1);
+                    case WEST -> new BoundingBox(-(var1 - 1), 0, 0, 0, 2, 2);
+                    case EAST -> new BoundingBox(0, 0, 0, var1 - 1, 2, 2);
+                };
+                var5.move(param2, param3, param4);
+                if (param0.findCollisionPiece(var5) == null) {
+                    return var5;
                 }
             }
 
@@ -619,24 +610,14 @@ public class MineShaftPieces {
                 var0 = 2;
             }
 
-            BoundingBox var2;
-            switch(param5) {
-                case NORTH:
-                default:
-                    var2 = new BoundingBox(-1, 0, -4, 3, var0, 0);
-                    break;
-                case SOUTH:
-                    var2 = new BoundingBox(-1, 0, 0, 3, var0, 4);
-                    break;
-                case WEST:
-                    var2 = new BoundingBox(-4, 0, -1, 0, var0, 3);
-                    break;
-                case EAST:
-                    var2 = new BoundingBox(0, 0, -1, 4, var0, 3);
-            }
-
-            var2.move(param2, param3, param4);
-            return param0.findCollisionPiece(var2) != null ? null : var2;
+            BoundingBox var5 = switch(param5) {
+                default -> new BoundingBox(-1, 0, -4, 3, var0, 0);
+                case SOUTH -> new BoundingBox(-1, 0, 0, 3, var0, 4);
+                case WEST -> new BoundingBox(-4, 0, -1, 0, var0, 3);
+                case EAST -> new BoundingBox(0, 0, -1, 4, var0, 3);
+            };
+            var5.move(param2, param3, param4);
+            return param0.findCollisionPiece(var5) != null ? null : var5;
         }
 
         @Override
@@ -1177,24 +1158,14 @@ public class MineShaftPieces {
 
         @Nullable
         public static BoundingBox findStairs(StructurePieceAccessor param0, Random param1, int param2, int param3, int param4, Direction param5) {
-            BoundingBox var0;
-            switch(param5) {
-                case NORTH:
-                default:
-                    var0 = new BoundingBox(0, -5, -8, 2, 2, 0);
-                    break;
-                case SOUTH:
-                    var0 = new BoundingBox(0, -5, 0, 2, 2, 8);
-                    break;
-                case WEST:
-                    var0 = new BoundingBox(-8, -5, 0, 0, 2, 2);
-                    break;
-                case EAST:
-                    var0 = new BoundingBox(0, -5, 0, 8, 2, 2);
-            }
-
-            var0.move(param2, param3, param4);
-            return param0.findCollisionPiece(var0) != null ? null : var0;
+            BoundingBox var3 = switch(param5) {
+                default -> new BoundingBox(0, -5, -8, 2, 2, 0);
+                case SOUTH -> new BoundingBox(0, -5, 0, 2, 2, 8);
+                case WEST -> new BoundingBox(-8, -5, 0, 0, 2, 2);
+                case EAST -> new BoundingBox(0, -5, 0, 8, 2, 2);
+            };
+            var3.move(param2, param3, param4);
+            return param0.findCollisionPiece(var3) != null ? null : var3;
         }
 
         @Override

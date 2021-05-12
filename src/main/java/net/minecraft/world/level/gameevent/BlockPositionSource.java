@@ -12,7 +12,7 @@ public class BlockPositionSource implements PositionSource {
         param0 -> param0.group(BlockPos.CODEC.fieldOf("pos").xmap(Optional::of, Optional::get).forGetter(param0x -> param0x.pos))
                 .apply(param0, BlockPositionSource::new)
     );
-    private final Optional<BlockPos> pos;
+    final Optional<BlockPos> pos;
 
     public BlockPositionSource(BlockPos param0) {
         this(Optional.of(param0));

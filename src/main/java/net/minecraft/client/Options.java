@@ -48,7 +48,7 @@ import org.apache.logging.log4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class Options {
-    private static final Logger LOGGER = LogManager.getLogger();
+    static final Logger LOGGER = LogManager.getLogger();
     private static final Gson GSON = new Gson();
     private static final TypeToken<List<String>> RESOURCE_PACK_TYPE = new TypeToken<List<String>>() {
     };
@@ -460,17 +460,17 @@ public class Options {
             }
 
             KeyMapping.resetMapping();
-        } catch (Exception var15) {
-            LOGGER.error("Failed to load options", (Throwable)var15);
+        } catch (Exception var7) {
+            LOGGER.error("Failed to load options", (Throwable)var7);
         }
 
     }
 
-    private static boolean isTrue(String param0) {
+    static boolean isTrue(String param0) {
         return "true".equals(param0);
     }
 
-    private static boolean isFalse(String param0) {
+    static boolean isFalse(String param0) {
         return "false".equals(param0);
     }
 
@@ -546,8 +546,8 @@ public class Options {
             if (this.minecraft.getWindow().getPreferredFullscreenVideoMode().isPresent()) {
                 var0.println("fullscreenResolution:" + this.minecraft.getWindow().getPreferredFullscreenVideoMode().get().write());
             }
-        } catch (Exception var14) {
-            LOGGER.error("Failed to save options", (Throwable)var14);
+        } catch (Exception var6) {
+            LOGGER.error("Failed to save options", (Throwable)var6);
         }
 
         this.broadcastOptions();

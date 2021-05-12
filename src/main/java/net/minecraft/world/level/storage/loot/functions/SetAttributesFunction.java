@@ -30,9 +30,9 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
 
 public class SetAttributesFunction extends LootItemConditionalFunction {
-    private final List<SetAttributesFunction.Modifier> modifiers;
+    final List<SetAttributesFunction.Modifier> modifiers;
 
-    private SetAttributesFunction(LootItemCondition[] param0, List<SetAttributesFunction.Modifier> param1) {
+    SetAttributesFunction(LootItemCondition[] param0, List<SetAttributesFunction.Modifier> param1) {
         super(param0);
         this.modifiers = ImmutableList.copyOf(param1);
     }
@@ -91,17 +91,15 @@ public class SetAttributesFunction extends LootItemConditionalFunction {
     }
 
     static class Modifier {
-        private final String name;
-        private final Attribute attribute;
-        private final AttributeModifier.Operation operation;
-        private final NumberProvider amount;
+        final String name;
+        final Attribute attribute;
+        final AttributeModifier.Operation operation;
+        final NumberProvider amount;
         @Nullable
-        private final UUID id;
-        private final EquipmentSlot[] slots;
+        final UUID id;
+        final EquipmentSlot[] slots;
 
-        private Modifier(
-            String param0, Attribute param1, AttributeModifier.Operation param2, NumberProvider param3, EquipmentSlot[] param4, @Nullable UUID param5
-        ) {
+        Modifier(String param0, Attribute param1, AttributeModifier.Operation param2, NumberProvider param3, EquipmentSlot[] param4, @Nullable UUID param5) {
             this.name = param0;
             this.attribute = param1;
             this.operation = param2;

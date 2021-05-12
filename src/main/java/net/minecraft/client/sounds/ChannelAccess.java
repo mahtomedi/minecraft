@@ -17,8 +17,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class ChannelAccess {
     private final Set<ChannelAccess.ChannelHandle> channels = Sets.newIdentityHashSet();
-    private final Library library;
-    private final Executor executor;
+    final Library library;
+    final Executor executor;
 
     public ChannelAccess(Library param0, Executor param1) {
         this.library = param0;
@@ -69,7 +69,7 @@ public class ChannelAccess {
     @OnlyIn(Dist.CLIENT)
     public class ChannelHandle {
         @Nullable
-        private Channel channel;
+        Channel channel;
         private boolean stopped;
 
         public boolean isStopped() {

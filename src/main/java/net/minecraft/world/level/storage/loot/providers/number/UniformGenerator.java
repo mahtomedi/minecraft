@@ -11,10 +11,10 @@ import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
 
 public class UniformGenerator implements NumberProvider {
-    private final NumberProvider min;
-    private final NumberProvider max;
+    final NumberProvider min;
+    final NumberProvider max;
 
-    private UniformGenerator(NumberProvider param0, NumberProvider param1) {
+    UniformGenerator(NumberProvider param0, NumberProvider param1) {
         this.min = param0;
         this.max = param1;
     }

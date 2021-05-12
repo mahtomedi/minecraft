@@ -181,7 +181,7 @@ public final class Material {
             return this;
         }
 
-        private Material.Builder notSolidBlocking() {
+        Material.Builder notSolidBlocking() {
             this.solidBlocking = false;
             return this;
         }

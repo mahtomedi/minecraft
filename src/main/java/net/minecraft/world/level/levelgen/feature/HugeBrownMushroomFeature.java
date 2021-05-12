@@ -5,6 +5,7 @@ import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.HugeMushroomBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.configurations.HugeMushroomFeatureConfiguration;
 
 public class HugeBrownMushroomFeature extends AbstractHugeMushroomFeature {
@@ -33,16 +34,18 @@ public class HugeBrownMushroomFeature extends AbstractHugeMushroomFeature {
                         boolean var10 = var4 || var8 && var1 == var0 - 1;
                         boolean var11 = var5 || var7 && var2 == 1 - var0;
                         boolean var12 = var6 || var7 && var2 == var0 - 1;
-                        this.setBlock(
-                            param0,
-                            param4,
-                            param5.capProvider
-                                .getState(param1, param2)
-                                .setValue(HugeMushroomBlock.WEST, Boolean.valueOf(var9))
+                        BlockState var13 = param5.capProvider.getState(param1, param2);
+                        if (var13.hasProperty(HugeMushroomBlock.WEST)
+                            && var13.hasProperty(HugeMushroomBlock.EAST)
+                            && var13.hasProperty(HugeMushroomBlock.NORTH)
+                            && var13.hasProperty(HugeMushroomBlock.SOUTH)) {
+                            var13 = var13.setValue(HugeMushroomBlock.WEST, Boolean.valueOf(var9))
                                 .setValue(HugeMushroomBlock.EAST, Boolean.valueOf(var10))
                                 .setValue(HugeMushroomBlock.NORTH, Boolean.valueOf(var11))
-                                .setValue(HugeMushroomBlock.SOUTH, Boolean.valueOf(var12))
-                        );
+                                .setValue(HugeMushroomBlock.SOUTH, Boolean.valueOf(var12));
+                        }
+
+                        this.setBlock(param0, param4, var13);
                     }
                 }
             }

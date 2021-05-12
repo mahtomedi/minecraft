@@ -69,13 +69,13 @@ public class ProfiledReloadInstance extends SimpleReloadInstance<ProfiledReloadI
     }
 
     public static class State {
-        private final String name;
-        private final ProfileResults preparationResult;
-        private final ProfileResults reloadResult;
-        private final AtomicLong preparationNanos;
-        private final AtomicLong reloadNanos;
+        final String name;
+        final ProfileResults preparationResult;
+        final ProfileResults reloadResult;
+        final AtomicLong preparationNanos;
+        final AtomicLong reloadNanos;
 
-        private State(String param0, ProfileResults param1, ProfileResults param2, AtomicLong param3, AtomicLong param4) {
+        State(String param0, ProfileResults param1, ProfileResults param2, AtomicLong param3, AtomicLong param4) {
             this.name = param0;
             this.preparationResult = param1;
             this.reloadResult = param2;

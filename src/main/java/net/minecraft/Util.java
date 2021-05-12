@@ -69,7 +69,7 @@ public class Util {
     private static final ExecutorService IO_POOL = makeIoExecutor();
     public static LongSupplier timeSource = System::nanoTime;
     public static final UUID NIL_UUID = new UUID(0L, 0L);
-    private static final Logger LOGGER = LogManager.getLogger();
+    static final Logger LOGGER = LogManager.getLogger();
 
     public static <K, V> Collector<Entry<? extends K, ? extends V>, ?, Map<K, V>> toMap() {
         return Collectors.toMap(Entry::getKey, Entry::getValue);
@@ -80,7 +80,7 @@ public class Util {
     }
 
     public static String makeDescriptionId(String param0, @Nullable ResourceLocation param1) {
-        return param1 == null ? param0 + ".unregistered_sadface" : param0 + '.' + param1.getNamespace() + '.' + param1.getPath().replace('/', '.');
+        return param1 == null ? param0 + ".unregistered_sadface" : param0 + "." + param1.getNamespace() + "." + param1.getPath().replace('/', '.');
     }
 
     public static long getMillis() {
@@ -649,9 +649,6 @@ public class Util {
             }
         },
         UNKNOWN;
-
-        private OS() {
-        }
 
         public void openUrl(URL param0) {
             try {

@@ -9,9 +9,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class SquidInkParticle extends SimpleAnimatedParticle {
-    private SquidInkParticle(
-        ClientLevel param0, double param1, double param2, double param3, double param4, double param5, double param6, int param7, SpriteSet param8
-    ) {
+    SquidInkParticle(ClientLevel param0, double param1, double param2, double param3, double param4, double param5, double param6, int param7, SpriteSet param8) {
         super(param0, param1, param2, param3, param8, 0.0F);
         this.friction = 0.92F;
         this.quadSize = 0.5F;

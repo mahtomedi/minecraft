@@ -113,7 +113,7 @@ public class ScheduleCommand {
                 var2.schedule(var0x, var0, new FunctionTagCallback(var1));
                 param0.sendSuccess(new TranslatableComponent("commands.schedule.created.tag", var1, param2, var0), true);
             });
-            return (int)Math.floorMod(var0, 2147483647L);
+            return Math.floorMod(var0, Integer.MAX_VALUE);
         }
     }
 

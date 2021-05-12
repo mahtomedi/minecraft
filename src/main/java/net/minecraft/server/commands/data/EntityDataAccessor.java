@@ -32,9 +32,7 @@ public class EntityDataAccessor implements DataAccessor {
             public ArgumentBuilder<CommandSourceStack, ?> wrap(
                 ArgumentBuilder<CommandSourceStack, ?> param0x, Function<ArgumentBuilder<CommandSourceStack, ?>, ArgumentBuilder<CommandSourceStack, ?>> param1
             ) {
-                return param0.then(
-                    Commands.literal("entity").then((ArgumentBuilder<CommandSourceStack, ?>)param1.apply(Commands.argument(param0, EntityArgument.entity())))
-                );
+                return param0.then(Commands.literal("entity").then(param1.apply(Commands.argument(param0, EntityArgument.entity()))));
             }
         };
     private final Entity entity;

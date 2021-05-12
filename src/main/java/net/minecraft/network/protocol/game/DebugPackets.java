@@ -141,8 +141,7 @@ public class DebugPackets {
             param1.writeBoolean(false);
         }
 
-        if (param0 instanceof Villager) {
-            Villager var4 = (Villager)param0;
+        if (param0 instanceof Villager var4) {
             boolean var5 = var4.wantsToSpawnGolem(var1);
             param1.writeBoolean(var5);
         } else {
@@ -205,7 +204,7 @@ public class DebugPackets {
                 Object var6 = var5.getValue();
                 if (var3 == MemoryModuleType.HEARD_BELL_TIME) {
                     long var7 = param1 - (Long)var6;
-                    var8 = "" + var7 + " ticks ago";
+                    var8 = var7 + " ticks ago";
                 } else if (var5.canExpire()) {
                     var8 = getShortDescription((ServerLevel)param0.level, var6) + " (ttl: " + var5.getTimeToLive() + ")";
                 } else {

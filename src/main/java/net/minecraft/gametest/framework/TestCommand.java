@@ -323,17 +323,17 @@ public class TestCommand {
         GameTestRunner.runTest(var3, var5, GameTestTicker.SINGLETON);
     }
 
-    private static void showTestSummaryIfAllDone(ServerLevel param0, MultipleTestTracker param1) {
+    static void showTestSummaryIfAllDone(ServerLevel param0, MultipleTestTracker param1) {
         if (param1.isDone()) {
             say(param0, "GameTest done! " + param1.getTotalCount() + " tests were run", ChatFormatting.WHITE);
             if (param1.hasFailedRequired()) {
-                say(param0, "" + param1.getFailedRequiredCount() + " required tests failed :(", ChatFormatting.RED);
+                say(param0, param1.getFailedRequiredCount() + " required tests failed :(", ChatFormatting.RED);
             } else {
                 say(param0, "All required tests passed :)", ChatFormatting.GREEN);
             }
 
             if (param1.hasFailedOptional()) {
-                say(param0, "" + param1.getFailedOptionalCount() + " optional tests failed", ChatFormatting.GRAY);
+                say(param0, param1.getFailedOptionalCount() + " optional tests failed", ChatFormatting.GRAY);
             }
         }
 
@@ -476,9 +476,9 @@ public class TestCommand {
 
             say(param0, "Imported to " + var2.toAbsolutePath());
             return 0;
-        } catch (CommandSyntaxException | IOException var20) {
+        } catch (CommandSyntaxException | IOException var12) {
             System.err.println("Failed to load structure " + param1);
-            var20.printStackTrace();
+            var12.printStackTrace();
             return 1;
         }
     }

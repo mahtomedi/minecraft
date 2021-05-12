@@ -25,18 +25,19 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class OverlayRecipeComponent extends GuiComponent implements Widget, GuiEventListener {
-    private static final ResourceLocation RECIPE_BOOK_LOCATION = new ResourceLocation("textures/gui/recipe_book.png");
+    static final ResourceLocation RECIPE_BOOK_LOCATION = new ResourceLocation("textures/gui/recipe_book.png");
     private static final int MAX_ROW = 4;
     private static final int MAX_ROW_LARGE = 5;
+    private static final float ITEM_RENDER_SCALE = 0.375F;
     private final List<OverlayRecipeComponent.OverlayRecipeButton> recipeButtons = Lists.newArrayList();
     private boolean isVisible;
     private int x;
     private int y;
-    private Minecraft minecraft;
+    Minecraft minecraft;
     private RecipeCollection collection;
     private Recipe<?> lastRecipeClicked;
-    private float time;
-    private boolean isFurnaceMenu;
+    float time;
+    boolean isFurnaceMenu;
 
     public void init(Minecraft param0, RecipeCollection param1, int param2, int param3, int param4, int param5, float param6) {
         this.minecraft = param0;
@@ -228,7 +229,7 @@ public class OverlayRecipeComponent extends GuiComponent implements Widget, GuiE
 
     @OnlyIn(Dist.CLIENT)
     class OverlayRecipeButton extends AbstractWidget implements PlaceRecipe<Ingredient> {
-        private final Recipe<?> recipe;
+        final Recipe<?> recipe;
         private final boolean isCraftable;
         protected final List<OverlayRecipeComponent.OverlayRecipeButton.Pos> ingredientPos = Lists.newArrayList();
 
@@ -268,27 +269,28 @@ public class OverlayRecipeComponent extends GuiComponent implements Widget, GuiE
             }
 
             this.blit(param0, this.x, this.y, var0, var1, this.width, this.height);
-            float var2 = 0.42F;
-            PoseStack var3 = RenderSystem.getModelViewStack();
-            var3.pushPose();
-            var3.translate(0.0, 0.0, 125.0);
-            var3.scale(0.42F, 0.42F, 1.0F);
-            RenderSystem.applyModelViewMatrix();
+            PoseStack var2 = RenderSystem.getModelViewStack();
+            var2.pushPose();
+            var2.translate((double)(this.x + 2), (double)(this.y + 2), 125.0);
 
-            for(OverlayRecipeComponent.OverlayRecipeButton.Pos var4 : this.ingredientPos) {
-                int var5 = (int)((float)(this.x + var4.x) / 0.42F - 3.0F);
-                int var6 = (int)((float)(this.y + var4.y) / 0.42F - 3.0F);
+            for(OverlayRecipeComponent.OverlayRecipeButton.Pos var3 : this.ingredientPos) {
+                var2.pushPose();
+                var2.translate((double)var3.x, (double)var3.y, 0.0);
+                var2.scale(0.375F, 0.375F, 1.0F);
+                var2.translate(-8.0, -8.0, 0.0);
+                RenderSystem.applyModelViewMatrix();
                 OverlayRecipeComponent.this.minecraft
                     .getItemRenderer()
-                    .renderAndDecorateItem(var4.ingredients[Mth.floor(OverlayRecipeComponent.this.time / 30.0F) % var4.ingredients.length], var5, var6);
+                    .renderAndDecorateItem(var3.ingredients[Mth.floor(OverlayRecipeComponent.this.time / 30.0F) % var3.ingredients.length], 0, 0);
+                var2.popPose();
             }
 
-            var3.popPose();
+            var2.popPose();
             RenderSystem.applyModelViewMatrix();
         }
 
         @OnlyIn(Dist.CLIENT)
-        public class Pos {
+        protected class Pos {
             public final ItemStack[] ingredients;
             public final int x;
             public final int y;

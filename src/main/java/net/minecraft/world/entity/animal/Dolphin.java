@@ -72,11 +72,7 @@ public class Dolphin extends WaterAnimal {
     private static final EntityDataAccessor<BlockPos> TREASURE_POS = SynchedEntityData.defineId(Dolphin.class, EntityDataSerializers.BLOCK_POS);
     private static final EntityDataAccessor<Boolean> GOT_FISH = SynchedEntityData.defineId(Dolphin.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> MOISTNESS_LEVEL = SynchedEntityData.defineId(Dolphin.class, EntityDataSerializers.INT);
-    private static final TargetingConditions SWIM_WITH_PLAYER_TARGETING = new TargetingConditions()
-        .range(10.0)
-        .allowSameTeam()
-        .allowInvulnerable()
-        .allowUnseeable();
+    static final TargetingConditions SWIM_WITH_PLAYER_TARGETING = TargetingConditions.forNonCombat().range(10.0).ignoreLineOfSight();
     public static final int TOTAL_AIR_SUPPLY = 4800;
     private static final int TOTAL_MOISTNESS_LEVEL = 2400;
     public static final Predicate<ItemEntity> ALLOWED_ITEMS = param0 -> !param0.hasPickUpDelay() && param0.isAlive() && param0.isInWater();
@@ -562,9 +558,6 @@ public class Dolphin extends WaterAnimal {
 
     class PlayWithItemsGoal extends Goal {
         private int cooldown;
-
-        private PlayWithItemsGoal() {
-        }
 
         @Override
         public boolean canUse() {

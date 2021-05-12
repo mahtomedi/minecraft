@@ -22,6 +22,7 @@ import net.minecraft.world.level.block.WeatheringCopper;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 public class LightningBolt extends Entity {
     private static final int START_LIFE = 2;
@@ -59,7 +60,7 @@ public class LightningBolt extends Entity {
     }
 
     private void powerLightningRod() {
-        BlockPos var0 = this.blockPosition().below();
+        BlockPos var0 = this.getStrikePosition();
         BlockState var1 = this.level.getBlockState(var0);
         if (var1.is(Blocks.LIGHTNING_ROD)) {
             ((LightningRodBlock)var1.getBlock()).onLightningStrike(var1, this.level, var0);
@@ -101,7 +102,7 @@ public class LightningBolt extends Entity {
                 }
 
                 this.powerLightningRod();
-                clearCopperOnLightningStrike(this.level, this.blockPosition().below());
+                clearCopperOnLightningStrike(this.level, this.getStrikePosition());
                 this.gameEvent(GameEvent.LIGHTNING_STRIKE);
             }
         }
@@ -140,6 +141,11 @@ public class LightningBolt extends Entity {
             }
         }
 
+    }
+
+    private BlockPos getStrikePosition() {
+        Vec3 var0 = this.position();
+        return new BlockPos(var0.x, var0.y - 1.0E-6, var0.z);
     }
 
     private void spawnFire(int param0) {

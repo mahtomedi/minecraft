@@ -33,7 +33,7 @@ public class GsonAdapterFactory {
         @Nullable
         private T defaultType;
 
-        private Builder(Registry<T> param0, String param1, String param2, Function<E, T> param3) {
+        Builder(Registry<T> param0, String param1, String param2, Function<E, T> param3) {
             this.registry = param0;
             this.elementName = param1;
             this.typeKey = param2;
@@ -51,7 +51,7 @@ public class GsonAdapterFactory {
         }
 
         public Object build() {
-            return new GsonAdapterFactory.JsonAdapter(this.registry, this.elementName, this.typeKey, this.typeGetter, this.defaultType, this.inlineType);
+            return new GsonAdapterFactory.JsonAdapter<>(this.registry, this.elementName, this.typeKey, this.typeGetter, this.defaultType, this.inlineType);
         }
     }
 
@@ -71,7 +71,7 @@ public class GsonAdapterFactory {
         @Nullable
         private final Pair<T, GsonAdapterFactory.InlineSerializer<? extends E>> inlineType;
 
-        private JsonAdapter(
+        JsonAdapter(
             Registry<T> param0,
             String param1,
             String param2,

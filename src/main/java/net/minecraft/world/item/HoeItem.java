@@ -1,14 +1,13 @@
 package net.minecraft.world.item;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import java.util.Map;
-import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.UseOnContext;
@@ -18,27 +17,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class HoeItem extends DiggerItem {
-    private static final Set<Block> DIGGABLES = ImmutableSet.of(
-        Blocks.NETHER_WART_BLOCK,
-        Blocks.WARPED_WART_BLOCK,
-        Blocks.HAY_BLOCK,
-        Blocks.DRIED_KELP_BLOCK,
-        Blocks.TARGET,
-        Blocks.SHROOMLIGHT,
-        Blocks.SPONGE,
-        Blocks.WET_SPONGE,
-        Blocks.JUNGLE_LEAVES,
-        Blocks.OAK_LEAVES,
-        Blocks.SPRUCE_LEAVES,
-        Blocks.DARK_OAK_LEAVES,
-        Blocks.ACACIA_LEAVES,
-        Blocks.BIRCH_LEAVES,
-        Blocks.AZALEA_LEAVES,
-        Blocks.AZALEA_LEAVES_FLOWERS,
-        Blocks.SCULK_SENSOR,
-        Blocks.MOSS_BLOCK,
-        Blocks.MOSS_CARPET
-    );
     protected static final Map<Block, BlockState> TILLABLES = Maps.newHashMap(
         ImmutableMap.of(
             Blocks.GRASS_BLOCK,
@@ -53,7 +31,7 @@ public class HoeItem extends DiggerItem {
     );
 
     protected HoeItem(Tier param0, int param1, float param2, Item.Properties param3) {
-        super((float)param1, param2, param0, DIGGABLES, param3);
+        super((float)param1, param2, param0, BlockTags.MINEABLE_WITH_HOE, param3);
     }
 
     @Override

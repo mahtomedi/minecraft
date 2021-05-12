@@ -5,6 +5,7 @@ import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.HugeMushroomBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.configurations.HugeMushroomFeatureConfiguration;
 
 public class HugeRedMushroomFeature extends AbstractHugeMushroomFeature {
@@ -31,17 +32,20 @@ public class HugeRedMushroomFeature extends AbstractHugeMushroomFeature {
                     if (var0 >= param3 || var9 != var10) {
                         param4.setWithOffset(param2, var3, var0, var4);
                         if (!param0.getBlockState(param4).isSolidRender(param0, param4)) {
-                            this.setBlock(
-                                param0,
-                                param4,
-                                param5.capProvider
-                                    .getState(param1, param2)
-                                    .setValue(HugeMushroomBlock.UP, Boolean.valueOf(var0 >= param3 - 1))
+                            BlockState var11 = param5.capProvider.getState(param1, param2);
+                            if (var11.hasProperty(HugeMushroomBlock.WEST)
+                                && var11.hasProperty(HugeMushroomBlock.EAST)
+                                && var11.hasProperty(HugeMushroomBlock.NORTH)
+                                && var11.hasProperty(HugeMushroomBlock.SOUTH)
+                                && var11.hasProperty(HugeMushroomBlock.UP)) {
+                                var11 = var11.setValue(HugeMushroomBlock.UP, Boolean.valueOf(var0 >= param3 - 1))
                                     .setValue(HugeMushroomBlock.WEST, Boolean.valueOf(var3 < -var2))
                                     .setValue(HugeMushroomBlock.EAST, Boolean.valueOf(var3 > var2))
                                     .setValue(HugeMushroomBlock.NORTH, Boolean.valueOf(var4 < -var2))
-                                    .setValue(HugeMushroomBlock.SOUTH, Boolean.valueOf(var4 > var2))
-                            );
+                                    .setValue(HugeMushroomBlock.SOUTH, Boolean.valueOf(var4 > var2));
+                            }
+
+                            this.setBlock(param0, param4, var11);
                         }
                     }
                 }

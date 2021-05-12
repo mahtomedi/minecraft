@@ -12,10 +12,10 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
 
 public class ValueCheckCondition implements LootItemCondition {
-    private final NumberProvider provider;
-    private final IntRange range;
+    final NumberProvider provider;
+    final IntRange range;
 
-    private ValueCheckCondition(NumberProvider param0, IntRange param1) {
+    ValueCheckCondition(NumberProvider param0, IntRange param1) {
         this.provider = param0;
         this.range = param1;
     }

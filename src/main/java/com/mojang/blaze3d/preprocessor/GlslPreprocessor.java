@@ -55,7 +55,7 @@ public abstract class GlslPreprocessor {
                             var9 = var9 + System.lineSeparator();
                         }
 
-                        param1.sourceId = param1.sourceId + 1;
+                        ++param1.sourceId;
                         int var10 = param1.sourceId;
                         List<String> var11 = this.processImports(var9, param1, var6 ? FileUtil.getFullResourcePath(var8) : "");
                         var11.set(0, String.format("#line %d %d\n%s", 0, var10, this.processVersions(var11.get(0), param1)));
@@ -125,10 +125,7 @@ public abstract class GlslPreprocessor {
 
     @OnlyIn(Dist.CLIENT)
     static final class Context {
-        private int glslVersion;
-        private int sourceId;
-
-        private Context() {
-        }
+        int glslVersion;
+        int sourceId;
     }
 }

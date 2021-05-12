@@ -45,7 +45,7 @@ public class MapItemSavedData extends SavedData {
     private final List<MapItemSavedData.HoldingPlayer> carriedBy = Lists.newArrayList();
     private final Map<Player, MapItemSavedData.HoldingPlayer> carriedByPlayers = Maps.newHashMap();
     private final Map<String, MapBanner> bannerMarkers = Maps.newHashMap();
-    private final Map<String, MapDecoration> decorations = Maps.newLinkedHashMap();
+    final Map<String, MapDecoration> decorations = Maps.newLinkedHashMap();
     private final Map<String, MapFrame> frameMarkers = Maps.newHashMap();
 
     private MapItemSavedData(int param0, int param1, byte param2, boolean param3, boolean param4, boolean param5, ResourceKey<Level> param6) {
@@ -336,7 +336,7 @@ public class MapItemSavedData extends SavedData {
 
     private void setDecorationsDirty() {
         this.setDirty();
-        this.carriedBy.forEach(param0 -> param0.markDecorationsDirty());
+        this.carriedBy.forEach(MapItemSavedData.HoldingPlayer::markDecorationsDirty);
     }
 
     public MapItemSavedData.HoldingPlayer getHoldingPlayer(Player param0) {
@@ -448,7 +448,7 @@ public class MapItemSavedData extends SavedData {
         private int tick;
         public int step;
 
-        private HoldingPlayer(Player param1) {
+        HoldingPlayer(Player param1) {
             this.player = param1;
         }
 
@@ -469,7 +469,7 @@ public class MapItemSavedData extends SavedData {
         }
 
         @Nullable
-        private Packet<?> nextUpdatePacket(int param0) {
+        Packet<?> nextUpdatePacket(int param0) {
             MapItemSavedData.MapPatch var0;
             if (this.dirtyData) {
                 this.dirtyData = false;
@@ -491,7 +491,7 @@ public class MapItemSavedData extends SavedData {
                 : new ClientboundMapItemDataPacket(param0, MapItemSavedData.this.scale, MapItemSavedData.this.locked, var2, var0);
         }
 
-        private void markColorsDirty(int param0, int param1) {
+        void markColorsDirty(int param0, int param1) {
             if (this.dirtyData) {
                 this.minDirtyX = Math.min(this.minDirtyX, param0);
                 this.minDirtyY = Math.min(this.minDirtyY, param1);

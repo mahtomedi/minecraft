@@ -114,7 +114,7 @@ public class TimerQueue<T> {
         public final String id;
         public final TimerCallback<T> callback;
 
-        private Event(long param0, UnsignedLong param1, String param2, TimerCallback<T> param3) {
+        Event(long param0, UnsignedLong param1, String param2, TimerCallback<T> param3) {
             this.triggerTime = param0;
             this.sequentialId = param1;
             this.id = param2;

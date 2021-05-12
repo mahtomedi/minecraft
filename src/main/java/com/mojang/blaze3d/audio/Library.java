@@ -21,7 +21,7 @@ import org.lwjgl.system.MemoryStack;
 @OnlyIn(Dist.CLIENT)
 public class Library {
     private static final int NUM_OPEN_DEVICE_RETRIES = 3;
-    private static final Logger LOGGER = LogManager.getLogger();
+    static final Logger LOGGER = LogManager.getLogger();
     private static final int DEFAULT_CHANNEL_COUNT = 30;
     private long device;
     private long context;
@@ -87,7 +87,6 @@ public class Library {
     }
 
     private int getChannelCount() {
-        int var8;
         try (MemoryStack var0 = MemoryStack.stackPush()) {
             int var1 = ALC10.alcGetInteger(this.device, 4098);
             if (OpenAlUtil.checkALCError(this.device, "Get attributes size")) {
@@ -102,25 +101,20 @@ public class Library {
 
             int var3 = 0;
 
-            int var4;
-            int var5;
-            do {
-                if (var3 >= var1) {
-                    return 30;
-                }
-
-                var4 = var2.get(var3++);
+            while(var3 < var1) {
+                int var4 = var2.get(var3++);
                 if (var4 == 0) {
-                    return 30;
+                    break;
                 }
 
-                var5 = var2.get(var3++);
-            } while(var4 != 4112);
-
-            var8 = var5;
+                int var5 = var2.get(var3++);
+                if (var4 == 4112) {
+                    return var5;
+                }
+            }
         }
 
-        return var8;
+        return 30;
     }
 
     private static long tryOpenDevice() {

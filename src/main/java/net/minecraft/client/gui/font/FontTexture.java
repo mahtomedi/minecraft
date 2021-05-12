@@ -75,15 +75,15 @@ public class FontTexture extends AbstractTexture {
 
     @OnlyIn(Dist.CLIENT)
     static class Node {
-        private final int x;
-        private final int y;
+        final int x;
+        final int y;
         private final int width;
         private final int height;
         private FontTexture.Node left;
         private FontTexture.Node right;
         private boolean occupied;
 
-        private Node(int param0, int param1, int param2, int param3) {
+        Node(int param0, int param1, int param2, int param3) {
             this.x = param0;
             this.y = param1;
             this.width = param2;

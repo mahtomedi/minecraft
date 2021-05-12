@@ -11,7 +11,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class StationaryItemParticle extends TextureSheetParticle {
-    private StationaryItemParticle(ClientLevel param0, double param1, double param2, double param3, ItemLike param4) {
+    StationaryItemParticle(ClientLevel param0, double param1, double param2, double param3, ItemLike param4) {
         super(param0, param1, param2, param3);
         this.setSprite(Minecraft.getInstance().getItemRenderer().getItemModelShaper().getParticleIcon(param4));
         this.gravity = 0.0F;

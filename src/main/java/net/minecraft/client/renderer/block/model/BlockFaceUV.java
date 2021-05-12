@@ -56,11 +56,8 @@ public class BlockFaceUV {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static class Deserializer implements JsonDeserializer<BlockFaceUV> {
+    protected static class Deserializer implements JsonDeserializer<BlockFaceUV> {
         private static final int DEFAULT_ROTATION = 0;
-
-        protected Deserializer() {
-        }
 
         public BlockFaceUV deserialize(JsonElement param0, Type param1, JsonDeserializationContext param2) throws JsonParseException {
             JsonObject var0 = param0.getAsJsonObject();

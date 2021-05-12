@@ -8,7 +8,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class FlameParticle extends RisingParticle {
-    private FlameParticle(ClientLevel param0, double param1, double param2, double param3, double param4, double param5, double param6) {
+    FlameParticle(ClientLevel param0, double param1, double param2, double param3, double param4, double param5, double param6) {
         super(param0, param1, param2, param3, param4, param5, param6);
     }
 

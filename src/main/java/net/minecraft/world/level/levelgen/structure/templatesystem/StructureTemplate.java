@@ -709,7 +709,7 @@ public class StructureTemplate {
         private final List<StructureTemplate.StructureBlockInfo> blocks;
         private final Map<Block, List<StructureTemplate.StructureBlockInfo>> cache = Maps.newHashMap();
 
-        private Palette(List<StructureTemplate.StructureBlockInfo> param0) {
+        Palette(List<StructureTemplate.StructureBlockInfo> param0) {
             this.blocks = param0;
         }
 
@@ -726,9 +726,6 @@ public class StructureTemplate {
         public static final BlockState DEFAULT_BLOCK_STATE = Blocks.AIR.defaultBlockState();
         private final IdMapper<BlockState> ids = new IdMapper<>(16);
         private int lastId;
-
-        private SimplePalette() {
-        }
 
         public int idFor(BlockState param0) {
             int var0 = this.ids.getId(param0);

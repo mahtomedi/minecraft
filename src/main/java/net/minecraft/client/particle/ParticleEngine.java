@@ -247,30 +247,34 @@ public class ParticleEngine implements PreparableReloadListener {
     private void loadParticleDescription(ResourceManager param0, ResourceLocation param1, Map<ResourceLocation, List<ResourceLocation>> param2) {
         ResourceLocation var0 = new ResourceLocation(param1.getNamespace(), "particles/" + param1.getPath() + ".json");
 
-        try (
-            Resource var1 = param0.getResource(var0);
-            Reader var2 = new InputStreamReader(var1.getInputStream(), Charsets.UTF_8);
-        ) {
-            ParticleDescription var3 = ParticleDescription.fromJson(GsonHelper.parse(var2));
-            List<ResourceLocation> var4 = var3.getTextures();
-            boolean var5 = this.spriteSets.containsKey(param1);
-            if (var4 == null) {
-                if (var5) {
-                    throw new IllegalStateException("Missing texture list for particle " + param1);
-                }
-            } else {
-                if (!var5) {
-                    throw new IllegalStateException("Redundant texture list for particle " + param1);
-                }
+        try {
+            try (
+                Resource var1 = param0.getResource(var0);
+                Reader var2 = new InputStreamReader(var1.getInputStream(), Charsets.UTF_8);
+            ) {
+                ParticleDescription var3 = ParticleDescription.fromJson(GsonHelper.parse(var2));
+                List<ResourceLocation> var4 = var3.getTextures();
+                boolean var5 = this.spriteSets.containsKey(param1);
+                if (var4 == null) {
+                    if (var5) {
+                        throw new IllegalStateException("Missing texture list for particle " + param1);
+                    }
+                } else {
+                    if (!var5) {
+                        throw new IllegalStateException("Redundant texture list for particle " + param1);
+                    }
 
-                param2.put(
-                    param1,
-                    var4.stream().map(param0x -> new ResourceLocation(param0x.getNamespace(), "particle/" + param0x.getPath())).collect(Collectors.toList())
-                );
+                    param2.put(
+                        param1,
+                        var4.stream()
+                            .map(param0x -> new ResourceLocation(param0x.getNamespace(), "particle/" + param0x.getPath()))
+                            .collect(Collectors.toList())
+                    );
+                }
             }
 
-        } catch (IOException var39) {
-            throw new IllegalStateException("Failed to load description for particle " + param1, var39);
+        } catch (IOException var14) {
+            throw new IllegalStateException("Failed to load description for particle " + param1, var14);
         }
     }
 
@@ -515,9 +519,6 @@ public class ParticleEngine implements PreparableReloadListener {
     @OnlyIn(Dist.CLIENT)
     class MutableSpriteSet implements SpriteSet {
         private List<TextureAtlasSprite> sprites;
-
-        private MutableSpriteSet() {
-        }
 
         @Override
         public TextureAtlasSprite get(int param0, int param1) {

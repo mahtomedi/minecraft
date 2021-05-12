@@ -9,7 +9,7 @@ import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
 public class EmptyLootItem extends LootPoolSingletonContainer {
-    private EmptyLootItem(int param0, int param1, LootItemCondition[] param2, LootItemFunction[] param3) {
+    EmptyLootItem(int param0, int param1, LootItemCondition[] param2, LootItemFunction[] param3) {
         super(param0, param1, param2, param3);
     }
 

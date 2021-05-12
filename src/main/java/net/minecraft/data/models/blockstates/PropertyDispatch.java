@@ -72,7 +72,7 @@ public abstract class PropertyDispatch {
     public static class C1<T1 extends Comparable<T1>> extends PropertyDispatch {
         private final Property<T1> property1;
 
-        private C1(Property<T1> param0) {
+        C1(Property<T1> param0) {
             this.property1 = param0;
         }
 
@@ -106,7 +106,7 @@ public abstract class PropertyDispatch {
         private final Property<T1> property1;
         private final Property<T2> property2;
 
-        private C2(Property<T1> param0, Property<T2> param1) {
+        C2(Property<T1> param0, Property<T2> param1) {
             this.property1 = param0;
             this.property2 = param1;
         }
@@ -146,7 +146,7 @@ public abstract class PropertyDispatch {
         private final Property<T2> property2;
         private final Property<T3> property3;
 
-        private C3(Property<T1> param0, Property<T2> param1, Property<T3> param2) {
+        C3(Property<T1> param0, Property<T2> param1, Property<T3> param2) {
             this.property1 = param0;
             this.property2 = param1;
             this.property3 = param2;
@@ -204,7 +204,7 @@ public abstract class PropertyDispatch {
         private final Property<T3> property3;
         private final Property<T4> property4;
 
-        private C4(Property<T1> param0, Property<T2> param1, Property<T3> param2, Property<T4> param3) {
+        C4(Property<T1> param0, Property<T2> param1, Property<T3> param2, Property<T4> param3) {
             this.property1 = param0;
             this.property2 = param1;
             this.property3 = param2;
@@ -289,7 +289,7 @@ public abstract class PropertyDispatch {
         private final Property<T4> property4;
         private final Property<T5> property5;
 
-        private C5(Property<T1> param0, Property<T2> param1, Property<T3> param2, Property<T4> param3, Property<T5> param4) {
+        C5(Property<T1> param0, Property<T2> param1, Property<T3> param2, Property<T4> param3, Property<T5> param4) {
             this.property1 = param0;
             this.property2 = param1;
             this.property3 = param2;

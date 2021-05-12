@@ -4,7 +4,6 @@ import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.math.Matrix4f;
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
 import net.minecraft.client.Minecraft;
@@ -76,18 +75,18 @@ public class VertexBuffer implements AutoCloseable {
             this.bindVertexArray();
             this.bind();
             if (!var1.indexOnly()) {
-                ((Buffer)var2).limit(var3);
+                var2.limit(var3);
                 RenderSystem.glBufferData(34962, var2, 35044);
-                ((Buffer)var2).position(var3);
+                var2.position(var3);
             }
 
             if (!this.sequentialIndices) {
-                ((Buffer)var2).limit(var1.bufferSize());
+                var2.limit(var1.bufferSize());
                 RenderSystem.glBufferData(34963, var2, 35044);
-                ((Buffer)var2).position(0);
+                var2.position(0);
             } else {
-                ((Buffer)var2).limit(var1.bufferSize());
-                ((Buffer)var2).position(0);
+                var2.limit(var1.bufferSize());
+                var2.position(0);
             }
 
             unbind();

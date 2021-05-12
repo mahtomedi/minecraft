@@ -272,7 +272,7 @@ public class ItemModelGenerator {
             return this.yOffset;
         }
 
-        private boolean isHorizontal() {
+        boolean isHorizontal() {
             return this == DOWN || this == UP;
         }
     }

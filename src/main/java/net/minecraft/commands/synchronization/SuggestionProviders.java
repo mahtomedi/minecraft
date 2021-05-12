@@ -68,9 +68,9 @@ public class SuggestionProviders {
         return param0 instanceof SuggestionProviders.Wrapper ? param0 : ASK_SERVER;
     }
 
-    public static class Wrapper implements SuggestionProvider<SharedSuggestionProvider> {
+    protected static class Wrapper implements SuggestionProvider<SharedSuggestionProvider> {
         private final SuggestionProvider<SharedSuggestionProvider> delegate;
-        private final ResourceLocation name;
+        final ResourceLocation name;
 
         public Wrapper(ResourceLocation param0, SuggestionProvider<SharedSuggestionProvider> param1) {
             this.delegate = param1;

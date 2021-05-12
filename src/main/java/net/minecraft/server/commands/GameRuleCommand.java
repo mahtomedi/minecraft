@@ -26,7 +26,7 @@ public class GameRuleCommand {
         param0.register(var0);
     }
 
-    private static <T extends GameRules.Value<T>> int setRule(CommandContext<CommandSourceStack> param0, GameRules.Key<T> param1) {
+    static <T extends GameRules.Value<T>> int setRule(CommandContext<CommandSourceStack> param0, GameRules.Key<T> param1) {
         CommandSourceStack var0 = param0.getSource();
         T var1 = var0.getServer().getGameRules().getRule(param1);
         var1.setFromArgument(param0, "value");
@@ -34,7 +34,7 @@ public class GameRuleCommand {
         return var1.getCommandResult();
     }
 
-    private static <T extends GameRules.Value<T>> int queryRule(CommandSourceStack param0, GameRules.Key<T> param1) {
+    static <T extends GameRules.Value<T>> int queryRule(CommandSourceStack param0, GameRules.Key<T> param1) {
         T var0 = param0.getServer().getGameRules().getRule(param1);
         param0.sendSuccess(new TranslatableComponent("commands.gamerule.query", param1.getId(), var0.toString()), false);
         return var0.getCommandResult();

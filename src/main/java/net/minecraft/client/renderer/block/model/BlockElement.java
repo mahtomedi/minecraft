@@ -66,11 +66,8 @@ public class BlockElement {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static class Deserializer implements JsonDeserializer<BlockElement> {
+    protected static class Deserializer implements JsonDeserializer<BlockElement> {
         private static final boolean DEFAULT_SHADE = true;
-
-        protected Deserializer() {
-        }
 
         public BlockElement deserialize(JsonElement param0, Type param1, JsonDeserializationContext param2) throws JsonParseException {
             JsonObject var0 = param0.getAsJsonObject();

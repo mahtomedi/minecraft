@@ -150,7 +150,7 @@ public class RealmsClient {
     }
 
     public RealmsServerAddress join(long param0) throws RealmsServiceException {
-        String var0 = this.url("worlds" + "/v1/$ID/join/pc".replace("$ID", "" + param0));
+        String var0 = this.url("worlds" + "/v1/$ID/join/pc".replace("$ID", param0 + ""));
         String var1 = this.execute(Request.get(var0, 5000, 30000));
         return RealmsServerAddress.parse(var1);
     }

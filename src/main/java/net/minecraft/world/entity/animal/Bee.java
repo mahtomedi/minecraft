@@ -72,6 +72,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.BonemealableBlock;
 import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.DoublePlantBlock;
 import net.minecraft.world.level.block.StemBlock;
@@ -118,19 +119,19 @@ public class Bee extends Animal implements NeutralMob, FlyingAnimal {
     private float rollAmount;
     private float rollAmountO;
     private int timeSinceSting;
-    private int ticksWithoutNectarSinceExitingHive;
+    int ticksWithoutNectarSinceExitingHive;
     private int stayOutOfHiveCountdown;
     private int numCropsGrownSincePollination;
     private static final int COOLDOWN_BEFORE_LOCATING_NEW_HIVE = 200;
-    private int remainingCooldownBeforeLocatingNewHive;
+    int remainingCooldownBeforeLocatingNewHive;
     private static final int COOLDOWN_BEFORE_LOCATING_NEW_FLOWER = 200;
-    private int remainingCooldownBeforeLocatingNewFlower = Mth.nextInt(this.random, 20, 60);
+    int remainingCooldownBeforeLocatingNewFlower = Mth.nextInt(this.random, 20, 60);
     @Nullable
-    private BlockPos savedFlowerPos;
+    BlockPos savedFlowerPos;
     @Nullable
-    private BlockPos hivePos;
-    private Bee.BeePollinateGoal beePollinateGoal;
-    private Bee.BeeGoToHiveGoal goToHiveGoal;
+    BlockPos hivePos;
+    Bee.BeePollinateGoal beePollinateGoal;
+    Bee.BeeGoToHiveGoal goToHiveGoal;
     private Bee.BeeGoToKnownFlowerGoal goToKnownFlowerGoal;
     private int underWaterTicks;
 
@@ -266,7 +267,7 @@ public class Bee extends Animal implements NeutralMob, FlyingAnimal {
         );
     }
 
-    private void pathfindRandomlyTowards(BlockPos param0) {
+    void pathfindRandomlyTowards(BlockPos param0) {
         Vec3 var0 = Vec3.atBottomCenterOf(param0);
         int var1 = 0;
         BlockPos var2 = this.blockPosition();
@@ -319,7 +320,7 @@ public class Bee extends Animal implements NeutralMob, FlyingAnimal {
         return this.ticksWithoutNectarSinceExitingHive > 3600;
     }
 
-    private boolean wantsToEnterHive() {
+    boolean wantsToEnterHive() {
         if (this.stayOutOfHiveCountdown <= 0 && !this.beePollinateGoal.isPollinating() && !this.hasStung() && this.getTarget() == null) {
             boolean var0 = this.isTiredOfLookingForNectar() || this.level.isRaining() || this.level.isNight() || this.hasNectar();
             return var0 && !this.isHiveNearFire();
@@ -445,7 +446,7 @@ public class Bee extends Animal implements NeutralMob, FlyingAnimal {
         DebugPackets.sendBeeInfo(this);
     }
 
-    private int getCropsGrownSincePollination() {
+    int getCropsGrownSincePollination() {
         return this.numCropsGrownSincePollination;
     }
 
@@ -453,7 +454,7 @@ public class Bee extends Animal implements NeutralMob, FlyingAnimal {
         this.numCropsGrownSincePollination = 0;
     }
 
-    private void incrementNumCropsGrownSincePollination() {
+    void incrementNumCropsGrownSincePollination() {
         ++this.numCropsGrownSincePollination;
     }
 
@@ -482,7 +483,7 @@ public class Bee extends Animal implements NeutralMob, FlyingAnimal {
 
     }
 
-    private boolean isHiveValid() {
+    boolean isHiveValid() {
         if (!this.hasHive()) {
             return false;
         } else {
@@ -495,7 +496,7 @@ public class Bee extends Animal implements NeutralMob, FlyingAnimal {
         return this.getFlag(8);
     }
 
-    private void setHasNectar(boolean param0) {
+    void setHasNectar(boolean param0) {
         if (param0) {
             this.resetTicksWithoutNectarSinceExitingHive();
         }
@@ -519,7 +520,7 @@ public class Bee extends Animal implements NeutralMob, FlyingAnimal {
         this.setFlag(2, param0);
     }
 
-    private boolean isTooFarAway(BlockPos param0) {
+    boolean isTooFarAway(BlockPos param0) {
         return !this.closerThan(param0, 32);
     }
 
@@ -571,7 +572,7 @@ public class Bee extends Animal implements NeutralMob, FlyingAnimal {
         return param0.is(ItemTags.FLOWERS);
     }
 
-    private boolean isFlowerValid(BlockPos param0) {
+    boolean isFlowerValid(BlockPos param0) {
         return this.level.isLoaded(param0) && this.level.getBlockState(param0).is(BlockTags.FLOWERS);
     }
 
@@ -660,14 +661,11 @@ public class Bee extends Animal implements NeutralMob, FlyingAnimal {
         return new Vec3(0.0, (double)(0.5F * this.getEyeHeight()), (double)(this.getBbWidth() * 0.2F));
     }
 
-    private boolean closerThan(BlockPos param0, int param1) {
+    boolean closerThan(BlockPos param0, int param1) {
         return param0.closerThan(this.blockPosition(), (double)param1);
     }
 
     abstract class BaseBeeGoal extends Goal {
-        private BaseBeeGoal() {
-        }
-
         public abstract boolean canBeeUse();
 
         public abstract boolean canBeeContinueToUse();
@@ -727,15 +725,11 @@ public class Bee extends Animal implements NeutralMob, FlyingAnimal {
     }
 
     class BeeEnterHiveGoal extends Bee.BaseBeeGoal {
-        private BeeEnterHiveGoal() {
-        }
-
         @Override
         public boolean canBeeUse() {
             if (Bee.this.hasHive() && Bee.this.wantsToEnterHive() && Bee.this.hivePos.closerThan(Bee.this.position(), 2.0)) {
                 BlockEntity var0 = Bee.this.level.getBlockEntity(Bee.this.hivePos);
-                if (var0 instanceof BeehiveBlockEntity) {
-                    BeehiveBlockEntity var1 = (BeehiveBlockEntity)var0;
+                if (var0 instanceof BeehiveBlockEntity var1) {
                     if (!var1.isFull()) {
                         return true;
                     }
@@ -755,8 +749,7 @@ public class Bee extends Animal implements NeutralMob, FlyingAnimal {
         @Override
         public void start() {
             BlockEntity var0 = Bee.this.level.getBlockEntity(Bee.this.hivePos);
-            if (var0 instanceof BeehiveBlockEntity) {
-                BeehiveBlockEntity var1 = (BeehiveBlockEntity)var0;
+            if (var0 instanceof BeehiveBlockEntity var1) {
                 var1.addOccupant(Bee.this, Bee.this.hasNectar());
             }
 
@@ -766,9 +759,9 @@ public class Bee extends Animal implements NeutralMob, FlyingAnimal {
     @VisibleForDebug
     public class BeeGoToHiveGoal extends Bee.BaseBeeGoal {
         public static final int MAX_TRAVELLING_TICKS = 600;
-        private int travellingTicks = Bee.this.level.random.nextInt(10);
+        int travellingTicks = Bee.this.level.random.nextInt(10);
         private static final int MAX_BLACKLISTED_TARGETS = 3;
-        private final List<BlockPos> blacklistedTargets = Lists.newArrayList();
+        final List<BlockPos> blacklistedTargets = Lists.newArrayList();
         @Nullable
         private Path lastPath;
         private static final int TICKS_BEFORE_HIVE_DROP = 60;
@@ -845,7 +838,7 @@ public class Bee extends Animal implements NeutralMob, FlyingAnimal {
             return Bee.this.navigation.getPath() != null && Bee.this.navigation.getPath().canReach();
         }
 
-        private boolean isTargetBlacklisted(BlockPos param0) {
+        boolean isTargetBlacklisted(BlockPos param0) {
             return this.blacklistedTargets.contains(param0);
         }
 
@@ -858,7 +851,7 @@ public class Bee extends Animal implements NeutralMob, FlyingAnimal {
 
         }
 
-        private void clearBlacklist() {
+        void clearBlacklist() {
             this.blacklistedTargets.clear();
         }
 
@@ -887,7 +880,7 @@ public class Bee extends Animal implements NeutralMob, FlyingAnimal {
 
     public class BeeGoToKnownFlowerGoal extends Bee.BaseBeeGoal {
         private static final int MAX_TRAVELLING_TICKS = 600;
-        private int travellingTicks = Bee.this.level.random.nextInt(10);
+        int travellingTicks = Bee.this.level.random.nextInt(10);
 
         BeeGoToKnownFlowerGoal() {
             this.setFlags(EnumSet.of(Goal.Flag.MOVE));
@@ -944,9 +937,6 @@ public class Bee extends Animal implements NeutralMob, FlyingAnimal {
     class BeeGrowCropGoal extends Bee.BaseBeeGoal {
         static final int GROW_CHANCE = 30;
 
-        private BeeGrowCropGoal() {
-        }
-
         @Override
         public boolean canBeeUse() {
             if (Bee.this.getCropsGrownSincePollination() >= 10) {
@@ -973,8 +963,7 @@ public class Bee extends Animal implements NeutralMob, FlyingAnimal {
                     boolean var4 = false;
                     IntegerProperty var5 = null;
                     if (var2.is(BlockTags.BEE_GROWABLES)) {
-                        if (var3 instanceof CropBlock) {
-                            CropBlock var6 = (CropBlock)var3;
+                        if (var3 instanceof CropBlock var6) {
                             if (!var6.isMaxAge(var2)) {
                                 var4 = true;
                                 var5 = var6.getAgeProperty();
@@ -991,6 +980,8 @@ public class Bee extends Animal implements NeutralMob, FlyingAnimal {
                                 var4 = true;
                                 var5 = SweetBerryBushBlock.AGE;
                             }
+                        } else if (var2.is(Blocks.CAVE_VINES)) {
+                            ((BonemealableBlock)Blocks.CAVE_VINES).performBonemeal((ServerLevel)Bee.this.level, Bee.this.random, var1, var2);
                         }
 
                         if (var4) {
@@ -1017,7 +1008,7 @@ public class Bee extends Animal implements NeutralMob, FlyingAnimal {
 
         @Override
         protected void alertOther(Mob param0, LivingEntity param1) {
-            if (param0 instanceof Bee && this.mob.canSee(param1)) {
+            if (param0 instanceof Bee && this.mob.hasLineOfSight(param1)) {
                 param0.setTarget(param1);
             }
 
@@ -1025,9 +1016,6 @@ public class Bee extends Animal implements NeutralMob, FlyingAnimal {
     }
 
     class BeeLocateHiveGoal extends Bee.BaseBeeGoal {
-        private BeeLocateHiveGoal() {
-        }
-
         @Override
         public boolean canBeeUse() {
             return Bee.this.remainingCooldownBeforeLocatingNewHive == 0 && !Bee.this.hasHive() && Bee.this.wantsToEnterHive();
@@ -1060,7 +1048,7 @@ public class Bee extends Animal implements NeutralMob, FlyingAnimal {
             PoiManager var1 = ((ServerLevel)Bee.this.level).getPoiManager();
             Stream<PoiRecord> var2 = var1.getInRange(param0 -> param0 == PoiType.BEEHIVE || param0 == PoiType.BEE_NEST, var0, 20, PoiManager.Occupancy.ANY);
             return var2.map(PoiRecord::getPos)
-                .filter(param1 -> Bee.this.doesHiveHaveSpace(param1))
+                .filter(Bee.this::doesHiveHaveSpace)
                 .sorted(Comparator.comparingDouble(param1 -> param1.distSqr(var0)))
                 .collect(Collectors.toList());
         }
@@ -1164,11 +1152,11 @@ public class Bee extends Animal implements NeutralMob, FlyingAnimal {
             return this.successfulPollinatingTicks > 400;
         }
 
-        private boolean isPollinating() {
+        boolean isPollinating() {
             return this.pollinating;
         }
 
-        private void stopPollinating() {
+        void stopPollinating() {
             this.pollinating = false;
         }
 

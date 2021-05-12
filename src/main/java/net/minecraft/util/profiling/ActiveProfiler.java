@@ -76,7 +76,7 @@ public class ActiveProfiler implements ProfileCollector {
             LOGGER.error("Cannot push '{}' to profiler if profiler tick hasn't started - missing startTick()?", param0);
         } else {
             if (!this.path.isEmpty()) {
-                this.path = this.path + '\u001e';
+                this.path = this.path + "\u001e";
             }
 
             this.path = this.path + param0;
@@ -103,8 +103,8 @@ public class ActiveProfiler implements ProfileCollector {
             this.paths.remove(this.paths.size() - 1);
             long var2 = var0 - var1;
             ActiveProfiler.PathEntry var3 = this.getCurrentEntry();
-            var3.duration = var3.duration + var2;
-            var3.count = var3.count + 1L;
+            var3.duration += var2;
+            ++var3.count;
             if (this.warn && var2 > WARNING_TIME_NANOS) {
                 LOGGER.warn("Something's taking too long! '{}' took aprox {} ms", () -> ProfileResults.demanglePath(this.path), () -> (double)var2 / 1000000.0);
             }
@@ -156,9 +156,9 @@ public class ActiveProfiler implements ProfileCollector {
     }
 
     public static class PathEntry implements ProfilerPathEntry {
-        private long duration;
-        private long count;
-        private final Object2LongOpenHashMap<String> counters = new Object2LongOpenHashMap<>();
+        long duration;
+        long count;
+        final Object2LongOpenHashMap<String> counters = new Object2LongOpenHashMap<>();
 
         @Override
         public long getDuration() {

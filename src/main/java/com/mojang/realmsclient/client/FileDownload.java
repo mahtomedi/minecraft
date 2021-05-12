@@ -44,13 +44,13 @@ import org.apache.logging.log4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class FileDownload {
-    private static final Logger LOGGER = LogManager.getLogger();
-    private volatile boolean cancelled;
-    private volatile boolean finished;
-    private volatile boolean error;
-    private volatile boolean extracting;
+    static final Logger LOGGER = LogManager.getLogger();
+    volatile boolean cancelled;
+    volatile boolean finished;
+    volatile boolean error;
+    volatile boolean extracting;
     private volatile File tempFile;
-    private volatile File resourcePackPath;
+    volatile File resourcePackPath;
     private volatile HttpGet request;
     private Thread currentThread;
     private final RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(120000).setConnectTimeout(120000).build();
@@ -229,7 +229,7 @@ public class FileDownload {
         return param0;
     }
 
-    private void untarGzipArchive(String param0, File param1, LevelStorageSource param2) throws IOException {
+    void untarGzipArchive(String param0, File param1, LevelStorageSource param2) throws IOException {
         Pattern var0 = Pattern.compile(".*-([0-9]+)$");
         int var1 = 1;
 
@@ -256,8 +256,8 @@ public class FileDownload {
                     }
                 }
             }
-        } catch (Exception var128) {
-            LOGGER.error("Error getting level list", (Throwable)var128);
+        } catch (Exception var39) {
+            LOGGER.error("Error getting level list", (Throwable)var39);
             this.error = true;
             return;
         }
@@ -299,8 +299,8 @@ public class FileDownload {
                     }
                 }
             }
-        } catch (Exception var126) {
-            LOGGER.error("Error extracting world", (Throwable)var126);
+        } catch (Exception var37) {
+            LOGGER.error("Error extracting world", (Throwable)var37);
             this.error = true;
         } finally {
             if (var9 != null) {
@@ -315,8 +315,8 @@ public class FileDownload {
                 var21.renameLevel(var8.trim());
                 Path var22 = var21.getLevelPath(LevelResource.LEVEL_DATA_FILE);
                 deletePlayerTag(var22.toFile());
-            } catch (IOException var124) {
-                LOGGER.error("Failed to rename unpacked realms level {}", var8, var124);
+            } catch (IOException var36) {
+                LOGGER.error("Failed to rename unpacked realms level {}", var8, var36);
             }
 
             this.resourcePackPath = new File(var10, var8 + File.separator + "resources.zip");
@@ -367,7 +367,7 @@ public class FileDownload {
         private final LevelStorageSource levelStorageSource;
         private final RealmsDownloadLatestWorldScreen.DownloadStatus downloadStatus;
 
-        private ProgressListener(String param0, File param1, LevelStorageSource param2, RealmsDownloadLatestWorldScreen.DownloadStatus param3) {
+        ProgressListener(String param0, File param1, LevelStorageSource param2, RealmsDownloadLatestWorldScreen.DownloadStatus param3) {
             this.worldName = param0;
             this.tempFile = param1;
             this.levelStorageSource = param2;
@@ -396,7 +396,7 @@ public class FileDownload {
         private final RealmsDownloadLatestWorldScreen.DownloadStatus downloadStatus;
         private final WorldDownload worldDownload;
 
-        private ResourcePackProgressListener(File param0, RealmsDownloadLatestWorldScreen.DownloadStatus param1, WorldDownload param2) {
+        ResourcePackProgressListener(File param0, RealmsDownloadLatestWorldScreen.DownloadStatus param1, WorldDownload param2) {
             this.tempFile = param0;
             this.downloadStatus = param1;
             this.worldDownload = param2;

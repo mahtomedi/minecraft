@@ -21,21 +21,21 @@ import net.minecraft.ReportedException;
 
 public class NbtIo {
     public static CompoundTag readCompressed(File param0) throws IOException {
-        CompoundTag var3;
+        CompoundTag var2;
         try (InputStream var0 = new FileInputStream(param0)) {
-            var3 = readCompressed(var0);
+            var2 = readCompressed(var0);
         }
 
-        return var3;
+        return var2;
     }
 
     public static CompoundTag readCompressed(InputStream param0) throws IOException {
-        CompoundTag var3;
+        CompoundTag var2;
         try (DataInputStream var0 = new DataInputStream(new BufferedInputStream(new GZIPInputStream(param0)))) {
-            var3 = read(var0, NbtAccounter.UNLIMITED);
+            var2 = read(var0, NbtAccounter.UNLIMITED);
         }
 
-        return var3;
+        return var2;
     }
 
     public static void writeCompressed(CompoundTag param0, File param1) throws IOException {
@@ -67,15 +67,15 @@ public class NbtIo {
         if (!param0.exists()) {
             return null;
         } else {
-            CompoundTag var5;
+            CompoundTag var3;
             try (
                 FileInputStream var0 = new FileInputStream(param0);
                 DataInputStream var1 = new DataInputStream(var0);
             ) {
-                var5 = read(var1, NbtAccounter.UNLIMITED);
+                var3 = read(var1, NbtAccounter.UNLIMITED);
             }
 
-            return var5;
+            return var3;
         }
     }
 

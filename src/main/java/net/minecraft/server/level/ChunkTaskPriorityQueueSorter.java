@@ -181,11 +181,11 @@ public class ChunkTaskPriorityQueueSorter implements AutoCloseable, ChunkHolder.
     }
 
     public static final class Message<T> {
-        private final Function<ProcessorHandle<Unit>, T> task;
-        private final long pos;
-        private final IntSupplier level;
+        final Function<ProcessorHandle<Unit>, T> task;
+        final long pos;
+        final IntSupplier level;
 
-        private Message(Function<ProcessorHandle<Unit>, T> param0, long param1, IntSupplier param2) {
+        Message(Function<ProcessorHandle<Unit>, T> param0, long param1, IntSupplier param2) {
             this.task = param0;
             this.pos = param1;
             this.level = param2;
@@ -193,11 +193,11 @@ public class ChunkTaskPriorityQueueSorter implements AutoCloseable, ChunkHolder.
     }
 
     public static final class Release {
-        private final Runnable task;
-        private final long pos;
-        private final boolean clearQueue;
+        final Runnable task;
+        final long pos;
+        final boolean clearQueue;
 
-        private Release(Runnable param0, long param1, boolean param2) {
+        Release(Runnable param0, long param1, boolean param2) {
             this.task = param0;
             this.pos = param1;
             this.clearQueue = param2;

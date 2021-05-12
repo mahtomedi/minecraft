@@ -260,7 +260,7 @@ public class BookViewScreen extends Screen {
         }
     }
 
-    private static List<String> loadPages(CompoundTag param0) {
+    static List<String> loadPages(CompoundTag param0) {
         Builder<String> var0 = ImmutableList.builder();
         loadPages(param0, var0::add);
         return var0.build();

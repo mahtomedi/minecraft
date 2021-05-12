@@ -55,6 +55,6 @@ public class UniformInt extends IntProvider {
 
     @Override
     public String toString() {
-        return "[" + this.minInclusive + '-' + this.maxInclusive + ']';
+        return "[" + this.minInclusive + "-" + this.maxInclusive + "]";
     }
 }

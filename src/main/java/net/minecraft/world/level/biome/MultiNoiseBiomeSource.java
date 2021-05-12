@@ -71,7 +71,7 @@ public class MultiNoiseBiomeSource extends BiomeSource {
         this(param0, param1, Optional.empty());
     }
 
-    private MultiNoiseBiomeSource(
+    MultiNoiseBiomeSource(
         long param0, List<Pair<Biome.ClimateParameters, Supplier<Biome>>> param1, Optional<Pair<Registry<Biome>, MultiNoiseBiomeSource.Preset>> param2
     ) {
         this(param0, param1, DEFAULT_NOISE_PARAMETERS, DEFAULT_NOISE_PARAMETERS, DEFAULT_NOISE_PARAMETERS, DEFAULT_NOISE_PARAMETERS, param2);
@@ -194,7 +194,7 @@ public class MultiNoiseBiomeSource extends BiomeSource {
     }
 
     public static class Preset {
-        private static final Map<ResourceLocation, MultiNoiseBiomeSource.Preset> BY_NAME = Maps.newHashMap();
+        static final Map<ResourceLocation, MultiNoiseBiomeSource.Preset> BY_NAME = Maps.newHashMap();
         public static final MultiNoiseBiomeSource.Preset NETHER = new MultiNoiseBiomeSource.Preset(
             new ResourceLocation("nether"),
             (param0, param1, param2) -> new MultiNoiseBiomeSource(
@@ -209,7 +209,7 @@ public class MultiNoiseBiomeSource extends BiomeSource {
                     Optional.of(Pair.of(param1, param0))
                 )
         );
-        private final ResourceLocation name;
+        final ResourceLocation name;
         private final Function3<MultiNoiseBiomeSource.Preset, Registry<Biome>, Long, MultiNoiseBiomeSource> biomeSource;
 
         public Preset(ResourceLocation param0, Function3<MultiNoiseBiomeSource.Preset, Registry<Biome>, Long, MultiNoiseBiomeSource> param1) {
@@ -245,7 +245,7 @@ public class MultiNoiseBiomeSource extends BiomeSource {
         private final Registry<Biome> biomes;
         private final long seed;
 
-        private PresetInstance(MultiNoiseBiomeSource.Preset param0, Registry<Biome> param1, long param2) {
+        PresetInstance(MultiNoiseBiomeSource.Preset param0, Registry<Biome> param1, long param2) {
             this.preset = param0;
             this.biomes = param1;
             this.seed = param2;

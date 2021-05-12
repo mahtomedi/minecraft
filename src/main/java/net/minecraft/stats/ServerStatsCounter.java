@@ -76,52 +76,57 @@ public class ServerStatsCounter extends StatsCounter {
     }
 
     public void parseLocal(DataFixer param0, String param1) {
-        try (JsonReader var0 = new JsonReader(new StringReader(param1))) {
-            var0.setLenient(false);
-            JsonElement var1 = Streams.parse(var0);
-            if (var1.isJsonNull()) {
-                LOGGER.error("Unable to parse Stat data from {}", this.file);
-                return;
-            }
-
-            CompoundTag var2 = fromJson(var1.getAsJsonObject());
-            if (!var2.contains("DataVersion", 99)) {
-                var2.putInt("DataVersion", 1343);
-            }
-
-            var2 = NbtUtils.update(param0, DataFixTypes.STATS, var2, var2.getInt("DataVersion"));
-            if (var2.contains("stats", 10)) {
-                CompoundTag var3 = var2.getCompound("stats");
-
-                for(String var4 : var3.getAllKeys()) {
-                    if (var3.contains(var4, 10)) {
-                        Util.ifElse(
-                            Registry.STAT_TYPE.getOptional(new ResourceLocation(var4)),
-                            param2 -> {
-                                CompoundTag var0x = var3.getCompound(var4);
-    
-                                for(String var1x : var0x.getAllKeys()) {
-                                    if (var0x.contains(var1x, 99)) {
-                                        Util.ifElse(
-                                            this.getStat(param2, var1x),
-                                            param2x -> this.stats.put(param2x, var0x.getInt(var1x)),
-                                            () -> LOGGER.warn("Invalid statistic in {}: Don't know what {} is", this.file, var1x)
-                                        );
-                                    } else {
-                                        LOGGER.warn("Invalid statistic value in {}: Don't know what {} is for key {}", this.file, var0x.get(var1x), var1x);
-                                    }
-                                }
-    
-                            },
-                            () -> LOGGER.warn("Invalid statistic type in {}: Don't know what {} is", this.file, var4)
-                        );
+        try {
+            try (JsonReader var0 = new JsonReader(new StringReader(param1))) {
+                var0.setLenient(false);
+                JsonElement var1 = Streams.parse(var0);
+                if (!var1.isJsonNull()) {
+                    CompoundTag var2 = fromJson(var1.getAsJsonObject());
+                    if (!var2.contains("DataVersion", 99)) {
+                        var2.putInt("DataVersion", 1343);
                     }
-                }
-            }
-        } catch (IOException | JsonParseException var21) {
-            LOGGER.error("Unable to parse Stat data from {}", this.file, var21);
-        }
 
+                    var2 = NbtUtils.update(param0, DataFixTypes.STATS, var2, var2.getInt("DataVersion"));
+                    if (!var2.contains("stats", 10)) {
+                        return;
+                    }
+
+                    CompoundTag var3 = var2.getCompound("stats");
+
+                    for(String var4 : var3.getAllKeys()) {
+                        if (var3.contains(var4, 10)) {
+                            Util.ifElse(
+                                Registry.STAT_TYPE.getOptional(new ResourceLocation(var4)),
+                                param2 -> {
+                                    CompoundTag var0x = var3.getCompound(var4);
+    
+                                    for(String var1x : var0x.getAllKeys()) {
+                                        if (var0x.contains(var1x, 99)) {
+                                            Util.ifElse(
+                                                this.getStat(param2, var1x),
+                                                param2x -> this.stats.put(param2x, var0x.getInt(var1x)),
+                                                () -> LOGGER.warn("Invalid statistic in {}: Don't know what {} is", this.file, var1x)
+                                            );
+                                        } else {
+                                            LOGGER.warn("Invalid statistic value in {}: Don't know what {} is for key {}", this.file, var0x.get(var1x), var1x);
+                                        }
+                                    }
+    
+                                },
+                                () -> LOGGER.warn("Invalid statistic type in {}: Don't know what {} is", this.file, var4)
+                            );
+                        }
+                    }
+
+                    return;
+                }
+
+                LOGGER.error("Unable to parse Stat data from {}", this.file);
+            }
+
+        } catch (IOException | JsonParseException var11) {
+            LOGGER.error("Unable to parse Stat data from {}", this.file, var11);
+        }
     }
 
     private <T> Optional<Stat<T>> getStat(StatType<T> param0, String param1) {

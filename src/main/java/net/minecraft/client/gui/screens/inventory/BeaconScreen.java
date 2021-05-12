@@ -28,13 +28,13 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class BeaconScreen extends AbstractContainerScreen<BeaconMenu> {
-    private static final ResourceLocation BEACON_LOCATION = new ResourceLocation("textures/gui/container/beacon.png");
+    static final ResourceLocation BEACON_LOCATION = new ResourceLocation("textures/gui/container/beacon.png");
     private static final Component PRIMARY_EFFECT_LABEL = new TranslatableComponent("block.minecraft.beacon.primary");
     private static final Component SECONDARY_EFFECT_LABEL = new TranslatableComponent("block.minecraft.beacon.secondary");
     private BeaconScreen.BeaconConfirmButton confirmButton;
-    private boolean initPowerButtons;
-    private MobEffect primary;
-    private MobEffect secondary;
+    boolean initPowerButtons;
+    MobEffect primary;
+    MobEffect secondary;
 
     public BeaconScreen(final BeaconMenu param0, Inventory param1, Component param2) {
         super(param0, param1, param2);

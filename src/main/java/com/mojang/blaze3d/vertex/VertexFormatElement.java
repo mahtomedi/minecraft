@@ -167,7 +167,7 @@ public class VertexFormatElement {
             this.clearState = param2;
         }
 
-        private void setupBufferState(int param0, int param1, int param2, long param3, int param4, int param5) {
+        void setupBufferState(int param0, int param1, int param2, long param3, int param4, int param5) {
             this.setupState.setupBufferState(param0, param1, param2, param3, param4, param5);
         }
 

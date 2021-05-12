@@ -296,9 +296,9 @@ public class SkyLightSectionStorage extends LayerLightSectionStorage<SkyLightSec
         return this.columnsWithSkySources.contains(var0);
     }
 
-    public static final class SkyDataLayerStorageMap extends DataLayerStorageMap<SkyLightSectionStorage.SkyDataLayerStorageMap> {
-        private int currentLowestY;
-        private final Long2IntOpenHashMap topSections;
+    protected static final class SkyDataLayerStorageMap extends DataLayerStorageMap<SkyLightSectionStorage.SkyDataLayerStorageMap> {
+        int currentLowestY;
+        final Long2IntOpenHashMap topSections;
 
         public SkyDataLayerStorageMap(Long2ObjectOpenHashMap<DataLayer> param0, Long2IntOpenHashMap param1, int param2) {
             super(param0);

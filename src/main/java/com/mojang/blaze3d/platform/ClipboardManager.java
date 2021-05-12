@@ -1,7 +1,6 @@
 package com.mojang.blaze3d.platform;
 
 import com.google.common.base.Charsets;
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import net.minecraft.util.StringDecomposer;
 import net.minecraftforge.api.distmarker.Dist;
@@ -30,10 +29,10 @@ public class ClipboardManager {
     }
 
     private static void pushClipboard(long param0, ByteBuffer param1, byte[] param2) {
-        ((Buffer)param1).clear();
+        param1.clear();
         param1.put(param2);
         param1.put((byte)0);
-        ((Buffer)param1).flip();
+        param1.flip();
         GLFW.glfwSetClipboardString(param0, param1);
     }
 

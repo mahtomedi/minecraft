@@ -72,6 +72,6 @@ public class Material {
 
     @Override
     public String toString() {
-        return "Material{atlasLocation=" + this.atlasLocation + ", texture=" + this.texture + '}';
+        return "Material{atlasLocation=" + this.atlasLocation + ", texture=" + this.texture + "}";
     }
 }

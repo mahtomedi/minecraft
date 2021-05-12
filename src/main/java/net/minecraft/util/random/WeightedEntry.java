@@ -31,7 +31,7 @@ public interface WeightedEntry {
         private final T data;
         private final Weight weight;
 
-        private Wrapper(T param0, Weight param1) {
+        Wrapper(T param0, Weight param1) {
             this.data = param0;
             this.weight = param1;
         }

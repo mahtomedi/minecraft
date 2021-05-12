@@ -20,7 +20,7 @@ import org.apache.commons.lang3.mutable.MutableObject;
 
 @OnlyIn(Dist.CLIENT)
 public class StringSplitter {
-    private final StringSplitter.WidthProvider widthProvider;
+    final StringSplitter.WidthProvider widthProvider;
 
     public StringSplitter(StringSplitter.WidthProvider param0) {
         this.widthProvider = param0;
@@ -278,7 +278,7 @@ public class StringSplitter {
 
     @OnlyIn(Dist.CLIENT)
     static class FlatComponents {
-        private final List<StringSplitter.LineComponent> parts;
+        final List<StringSplitter.LineComponent> parts;
         private String flatParts;
 
         public FlatComponents(List<StringSplitter.LineComponent> param0) {
@@ -408,8 +408,8 @@ public class StringSplitter {
 
     @OnlyIn(Dist.CLIENT)
     static class LineComponent implements FormattedText {
-        private final String contents;
-        private final Style style;
+        final String contents;
+        final Style style;
 
         public LineComponent(String param0, Style param1) {
             this.contents = param0;

@@ -45,7 +45,7 @@ public class LeavesFix extends DataFix {
     private static final int DECAY_DISTANCE = 7;
     private static final int SIZE_BITS = 12;
     private static final int SIZE = 4096;
-    private static final Object2IntMap<String> LEAVES = DataFixUtils.make(new Object2IntOpenHashMap<>(), param0 -> {
+    static final Object2IntMap<String> LEAVES = DataFixUtils.make(new Object2IntOpenHashMap<>(), param0 -> {
         param0.put("minecraft:acacia_leaves", 0);
         param0.put("minecraft:birch_leaves", 1);
         param0.put("minecraft:dark_oak_leaves", 2);
@@ -53,7 +53,7 @@ public class LeavesFix extends DataFix {
         param0.put("minecraft:oak_leaves", 4);
         param0.put("minecraft:spruce_leaves", 5);
     });
-    private static final Set<String> LOGS = ImmutableSet.of(
+    static final Set<String> LOGS = ImmutableSet.of(
         "minecraft:acacia_bark",
         "minecraft:birch_bark",
         "minecraft:dark_oak_bark",
@@ -288,11 +288,11 @@ public class LeavesFix extends DataFix {
             return this.leaveIds.contains(param0);
         }
 
-        private int getDistance(int param0) {
+        int getDistance(int param0) {
             return this.isLog(param0) ? 0 : Integer.parseInt(this.palette.get(param0).get("Properties").get("distance").asString(""));
         }
 
-        private void setDistance(int param0, int param1, int param2) {
+        void setDistance(int param0, int param1, int param2) {
             Dynamic<?> var0 = this.palette.get(param1);
             String var1 = var0.get("Name").asString("");
             boolean var2 = Objects.equals(var0.get("Properties").get("persistent").asString(""), "true");

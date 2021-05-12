@@ -65,11 +65,8 @@ public class ObjectiveArgument implements ArgumentType<String> {
     public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> param0, SuggestionsBuilder param1) {
         if (param0.getSource() instanceof CommandSourceStack) {
             return SharedSuggestionProvider.suggest(((CommandSourceStack)param0.getSource()).getServer().getScoreboard().getObjectiveNames(), param1);
-        } else if (param0.getSource() instanceof SharedSuggestionProvider) {
-            SharedSuggestionProvider var0 = (SharedSuggestionProvider)param0.getSource();
-            return var0.customSuggestion(param0, param1);
         } else {
-            return Suggestions.empty();
+            return param0.getSource() instanceof SharedSuggestionProvider var0 ? var0.customSuggestion(param0, param1) : Suggestions.empty();
         }
     }
 

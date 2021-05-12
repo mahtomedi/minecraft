@@ -275,8 +275,7 @@ public class SculkSensorBlock extends BaseEntityBlock implements SimpleWaterlogg
     @Override
     public int getAnalogOutputSignal(BlockState param0, Level param1, BlockPos param2) {
         BlockEntity var0 = param1.getBlockEntity(param2);
-        if (var0 instanceof SculkSensorBlockEntity) {
-            SculkSensorBlockEntity var1 = (SculkSensorBlockEntity)var0;
+        if (var0 instanceof SculkSensorBlockEntity var1) {
             return getPhase(param0) == SculkSensorPhase.ACTIVE ? var1.getLastVibrationFrequency() : 0;
         } else {
             return 0;

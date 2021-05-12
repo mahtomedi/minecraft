@@ -113,9 +113,9 @@ public interface TagCollection<T> {
     }
 
     public static class NetworkPayload {
-        private final Map<ResourceLocation, IntList> tags;
+        final Map<ResourceLocation, IntList> tags;
 
-        private NetworkPayload(Map<ResourceLocation, IntList> param0) {
+        NetworkPayload(Map<ResourceLocation, IntList> param0) {
             this.tags = param0;
         }
 

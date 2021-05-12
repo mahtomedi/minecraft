@@ -2188,7 +2188,7 @@ public class Features {
             .rarity(30)
     );
 
-    private static SimpleWeightedRandomList.Builder<BlockState> weightedBlockStateBuilder() {
+    static SimpleWeightedRandomList.Builder<BlockState> weightedBlockStateBuilder() {
         return SimpleWeightedRandomList.builder();
     }
 
@@ -2307,7 +2307,7 @@ public class Features {
         public static final BlockPileConfiguration NETHER_SPROUTS_CONFIG = new BlockPileConfiguration(new SimpleStateProvider(Features.States.NETHER_SPROUTS));
     }
 
-    public static final class Decorators {
+    protected static final class Decorators {
         public static final BeehiveDecorator BEEHIVE_0002 = new BeehiveDecorator(0.002F);
         public static final BeehiveDecorator BEEHIVE_002 = new BeehiveDecorator(0.02F);
         public static final BeehiveDecorator BEEHIVE_005 = new BeehiveDecorator(0.05F);
@@ -2348,9 +2348,6 @@ public class Features {
         public static final ConfiguredDecorator<?> DARK_OAK_DECORATOR = HEIGHTMAP_WITH_TREE_THRESHOLD.decorated(
             FeatureDecorator.DARK_OAK_TREE.configured(DecoratorConfiguration.NONE)
         );
-
-        protected Decorators() {
-        }
     }
 
     public static final class States {

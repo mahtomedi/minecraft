@@ -29,9 +29,9 @@ public class DetectedVersion implements GameVersion {
 
     private DetectedVersion() {
         this.id = UUID.randomUUID().toString().replaceAll("-", "");
-        this.name = "21w18a";
+        this.name = "21w19a";
         this.stable = false;
-        this.worldVersion = 2713;
+        this.worldVersion = 2714;
         this.protocolVersion = SharedConstants.getProtocolVersion();
         this.resourcePackVersion = 7;
         this.dataPackVersion = 7;
@@ -53,20 +53,22 @@ public class DetectedVersion implements GameVersion {
     }
 
     public static GameVersion tryDetectVersion() {
-        try (InputStream var0 = DetectedVersion.class.getResourceAsStream("/version.json")) {
-            if (var0 == null) {
-                LOGGER.warn("Missing version information!");
-                return BUILT_IN;
-            } else {
-                DetectedVersion var4;
-                try (InputStreamReader var1 = new InputStreamReader(var0)) {
-                    var4 = new DetectedVersion(GsonHelper.parse(var1));
+        try {
+            DetectedVersion var21;
+            try (InputStream var0 = DetectedVersion.class.getResourceAsStream("/version.json")) {
+                if (var0 == null) {
+                    LOGGER.warn("Missing version information!");
+                    return BUILT_IN;
                 }
 
-                return var4;
+                try (InputStreamReader var1 = new InputStreamReader(var0)) {
+                    var21 = new DetectedVersion(GsonHelper.parse(var1));
+                }
             }
-        } catch (JsonParseException | IOException var34) {
-            throw new IllegalStateException("Game version information is corrupt", var34);
+
+            return var21;
+        } catch (JsonParseException | IOException var8) {
+            throw new IllegalStateException("Game version information is corrupt", var8);
         }
     }
 

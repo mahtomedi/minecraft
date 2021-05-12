@@ -389,15 +389,15 @@ public class CompoundTag implements Tag {
         }
     }
 
-    private static byte readNamedTagType(DataInput param0, NbtAccounter param1) throws IOException {
+    static byte readNamedTagType(DataInput param0, NbtAccounter param1) throws IOException {
         return param0.readByte();
     }
 
-    private static String readNamedTagName(DataInput param0, NbtAccounter param1) throws IOException {
+    static String readNamedTagName(DataInput param0, NbtAccounter param1) throws IOException {
         return param0.readUTF();
     }
 
-    private static Tag readNamedTagData(TagType<?> param0, String param1, DataInput param2, int param3, NbtAccounter param4) {
+    static Tag readNamedTagData(TagType<?> param0, String param1, DataInput param2, int param3, NbtAccounter param4) {
         try {
             return param0.load(param2, param3, param4);
         } catch (IOException var8) {

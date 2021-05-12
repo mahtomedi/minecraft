@@ -39,8 +39,8 @@ public abstract class Language {
 
         try (InputStream var3 = Language.class.getResourceAsStream("/assets/minecraft/lang/en_us.json")) {
             loadFromJson(var3, var1);
-        } catch (JsonParseException | IOException var16) {
-            LOGGER.error("Couldn't read strings from {}", "/assets/minecraft/lang/en_us.json", var16);
+        } catch (JsonParseException | IOException var8) {
+            LOGGER.error("Couldn't read strings from {}", "/assets/minecraft/lang/en_us.json", var8);
         }
 
         final Map<String, String> var5 = var0.build();

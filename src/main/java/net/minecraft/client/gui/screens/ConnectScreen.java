@@ -1,17 +1,20 @@
 package net.minecraft.client.gui.screens;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.net.InetSocketAddress;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import javax.annotation.Nullable;
 import net.minecraft.DefaultUncaughtExceptionHandler;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.multiplayer.ClientHandshakePacketListenerImpl;
-import net.minecraft.client.multiplayer.ServerAddress;
 import net.minecraft.client.multiplayer.ServerData;
+import net.minecraft.client.multiplayer.resolver.ResolvedServerAddress;
+import net.minecraft.client.multiplayer.resolver.ServerAddress;
+import net.minecraft.client.multiplayer.resolver.ServerNameResolver;
 import net.minecraft.network.Connection;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.chat.CommonComponents;
@@ -27,92 +30,81 @@ import org.apache.logging.log4j.Logger;
 @OnlyIn(Dist.CLIENT)
 public class ConnectScreen extends Screen {
     private static final AtomicInteger UNIQUE_THREAD_ID = new AtomicInteger(0);
-    private static final Logger LOGGER = LogManager.getLogger();
+    static final Logger LOGGER = LogManager.getLogger();
     private static final long NARRATION_DELAY_MS = 2000L;
-    private Connection connection;
-    private boolean aborted;
-    private final Screen parent;
+    public static final Component UNKNOWN_HOST_MESSAGE = new TranslatableComponent(
+        "disconnect.genericReason", new TranslatableComponent("disconnect.unknownHost")
+    );
+    @Nullable
+    volatile Connection connection;
+    volatile boolean aborted;
+    final Screen parent;
     private Component status = new TranslatableComponent("connect.connecting");
     private long lastNarration = -1L;
 
-    public ConnectScreen(Screen param0, Minecraft param1, ServerData param2) {
+    private ConnectScreen(Screen param0) {
         super(NarratorChatListener.NO_TITLE);
-        this.minecraft = param1;
         this.parent = param0;
-        ServerAddress var0 = ServerAddress.parseString(param2.ip);
-        param1.clearLevel();
-        param1.setCurrentServer(param2);
-        this.connect(var0.getHost(), var0.getPort());
     }
 
-    public ConnectScreen(Screen param0, Minecraft param1, String param2, int param3) {
-        super(NarratorChatListener.NO_TITLE);
-        this.minecraft = param1;
-        this.parent = param0;
+    public static void startConnecting(Screen param0, Minecraft param1, ServerAddress param2, @Nullable ServerData param3) {
+        ConnectScreen var0 = new ConnectScreen(param0);
         param1.clearLevel();
-        this.connect(param2, param3);
+        param1.setCurrentServer(param3);
+        param1.setScreen(var0);
+        var0.connect(param1, param2);
     }
 
-    private void connect(final String param0, final int param1) {
-        LOGGER.info("Connecting to {}, {}", param0, param1);
+    private void connect(final Minecraft param0, final ServerAddress param1) {
+        LOGGER.info("Connecting to {}, {}", param1.getHost(), param1.getPort());
         Thread var0 = new Thread("Server Connector #" + UNIQUE_THREAD_ID.incrementAndGet()) {
             @Override
             public void run() {
-                InetAddress var0 = null;
+                InetSocketAddress var0 = null;
 
                 try {
                     if (ConnectScreen.this.aborted) {
                         return;
                     }
 
-                    var0 = InetAddress.getByName(param0);
-                    ConnectScreen.this.connection = Connection.connectToServer(var0, param1, ConnectScreen.this.minecraft.options.useNativeTransport());
+                    Optional<InetSocketAddress> var1 = ServerNameResolver.DEFAULT.resolveAddress(param1).map(ResolvedServerAddress::asInetSocketAddress);
+                    if (ConnectScreen.this.aborted) {
+                        return;
+                    }
+
+                    if (!var1.isPresent()) {
+                        param0.execute(
+                            () -> param0.setScreen(
+                                    new DisconnectedScreen(ConnectScreen.this.parent, CommonComponents.CONNECT_FAILED, ConnectScreen.UNKNOWN_HOST_MESSAGE)
+                                )
+                        );
+                        return;
+                    }
+
+                    var0 = var1.get();
+                    ConnectScreen.this.connection = Connection.connectToServer(var0, param0.options.useNativeTransport());
                     ConnectScreen.this.connection
                         .setListener(
                             new ClientHandshakePacketListenerImpl(
-                                ConnectScreen.this.connection,
-                                ConnectScreen.this.minecraft,
-                                ConnectScreen.this.parent,
-                                param1xx -> ConnectScreen.this.updateStatus(param1xx)
+                                ConnectScreen.this.connection, param0, ConnectScreen.this.parent, ConnectScreen.this::updateStatus
                             )
                         );
-                    ConnectScreen.this.connection.send(new ClientIntentionPacket(param0, param1, ConnectionProtocol.LOGIN));
-                    ConnectScreen.this.connection.send(new ServerboundHelloPacket(ConnectScreen.this.minecraft.getUser().getGameProfile()));
-                } catch (UnknownHostException var4) {
+                    ConnectScreen.this.connection.send(new ClientIntentionPacket(param1.getHost(), param1.getPort(), ConnectionProtocol.LOGIN));
+                    ConnectScreen.this.connection.send(new ServerboundHelloPacket(param0.getUser().getGameProfile()));
+                } catch (Exception var4) {
                     if (ConnectScreen.this.aborted) {
                         return;
                     }
 
                     ConnectScreen.LOGGER.error("Couldn't connect to server", (Throwable)var4);
-                    ConnectScreen.this.minecraft
-                        .execute(
-                            () -> ConnectScreen.this.minecraft
-                                    .setScreen(
-                                        new DisconnectedScreen(
-                                            ConnectScreen.this.parent,
-                                            CommonComponents.CONNECT_FAILED,
-                                            new TranslatableComponent("disconnect.genericReason", "Unknown host")
-                                        )
-                                    )
-                        );
-                } catch (Exception var5) {
-                    if (ConnectScreen.this.aborted) {
-                        return;
-                    }
-
-                    ConnectScreen.LOGGER.error("Couldn't connect to server", (Throwable)var5);
-                    String var3 = var0 == null ? var5.toString() : var5.toString().replaceAll(var0 + ":" + param1, "");
-                    ConnectScreen.this.minecraft
-                        .execute(
-                            () -> ConnectScreen.this.minecraft
-                                    .setScreen(
-                                        new DisconnectedScreen(
-                                            ConnectScreen.this.parent,
-                                            CommonComponents.CONNECT_FAILED,
-                                            new TranslatableComponent("disconnect.genericReason", var3)
-                                        )
-                                    )
-                        );
+                    String var3 = var0 == null ? var4.toString() : var4.toString().replaceAll(var0.getHostName() + ":" + var0.getPort(), "");
+                    param0.execute(
+                        () -> param0.setScreen(
+                                new DisconnectedScreen(
+                                    ConnectScreen.this.parent, CommonComponents.CONNECT_FAILED, new TranslatableComponent("disconnect.genericReason", var3)
+                                )
+                            )
+                    );
                 }
 
             }

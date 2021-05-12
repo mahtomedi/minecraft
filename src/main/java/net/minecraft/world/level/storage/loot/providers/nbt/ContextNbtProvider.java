@@ -39,7 +39,7 @@ public class ContextNbtProvider implements NbtProvider {
         }
     };
     public static final ContextNbtProvider BLOCK_ENTITY = new ContextNbtProvider(BLOCK_ENTITY_PROVIDER);
-    private final ContextNbtProvider.Getter getter;
+    final ContextNbtProvider.Getter getter;
 
     private static ContextNbtProvider.Getter forEntity(final LootContext.EntityTarget param0) {
         return new ContextNbtProvider.Getter() {
@@ -86,7 +86,7 @@ public class ContextNbtProvider implements NbtProvider {
         return new ContextNbtProvider(forEntity(param0));
     }
 
-    private static ContextNbtProvider createFromContext(String param0) {
+    static ContextNbtProvider createFromContext(String param0) {
         if (param0.equals("block_entity")) {
             return new ContextNbtProvider(BLOCK_ENTITY_PROVIDER);
         } else {

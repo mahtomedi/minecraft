@@ -51,8 +51,8 @@ public abstract class SimpleJsonResourceReloadListener extends SimplePreparableR
                 } else {
                     LOGGER.error("Couldn't load data file {} from {} as it's null or empty", var4, var2);
                 }
-            } catch (IllegalArgumentException | IOException | JsonParseException var68) {
-                LOGGER.error("Couldn't parse data file {} from {}", var4, var2, var68);
+            } catch (IllegalArgumentException | IOException | JsonParseException var20) {
+                LOGGER.error("Couldn't parse data file {} from {}", var4, var2, var20);
             }
         }
 

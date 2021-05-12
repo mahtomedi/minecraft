@@ -230,10 +230,11 @@ public class VanillaPackResources implements PackResources, ResourceProvider {
                     return var1;
                 }
             }
-        } catch (FileNotFoundException | RuntimeException var18) {
-        }
 
-        return (T)(param0 == PackMetadataSection.SERIALIZER ? this.packMetadata : null);
+            return (T)(param0 == PackMetadataSection.SERIALIZER ? this.packMetadata : null);
+        } catch (FileNotFoundException | RuntimeException var7) {
+            return (T)(param0 == PackMetadataSection.SERIALIZER ? this.packMetadata : null);
+        }
     }
 
     @Override

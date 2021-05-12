@@ -11,10 +11,10 @@ import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
 
 public final class BinomialDistributionGenerator implements NumberProvider {
-    private final NumberProvider n;
-    private final NumberProvider p;
+    final NumberProvider n;
+    final NumberProvider p;
 
-    private BinomialDistributionGenerator(NumberProvider param0, NumberProvider param1) {
+    BinomialDistributionGenerator(NumberProvider param0, NumberProvider param1) {
         this.n = param0;
         this.p = param1;
     }

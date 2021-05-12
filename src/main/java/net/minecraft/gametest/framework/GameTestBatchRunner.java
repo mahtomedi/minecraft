@@ -17,7 +17,7 @@ import org.apache.logging.log4j.Logger;
 public class GameTestBatchRunner {
     private static final Logger LOGGER = LogManager.getLogger();
     private final BlockPos firstTestNorthWestCorner;
-    private final ServerLevel level;
+    final ServerLevel level;
     private final GameTestTicker testTicker;
     private final int testsPerRow;
     private final List<GameTestInfo> allTestInfos;
@@ -52,7 +52,7 @@ public class GameTestBatchRunner {
         this.runBatch(0);
     }
 
-    private void runBatch(final int param0) {
+    void runBatch(final int param0) {
         if (param0 < this.batches.size()) {
             Pair<GameTestBatch, Collection<GameTestInfo>> var0 = this.batches.get(param0);
             final GameTestBatch var1 = var0.getFirst();

@@ -60,7 +60,7 @@ public class Llama extends AbstractChestedHorse implements RangedAttackMob {
     private static final EntityDataAccessor<Integer> DATA_STRENGTH_ID = SynchedEntityData.defineId(Llama.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> DATA_SWAG_ID = SynchedEntityData.defineId(Llama.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> DATA_VARIANT_ID = SynchedEntityData.defineId(Llama.class, EntityDataSerializers.INT);
-    private boolean didSpit;
+    boolean didSpit;
     @Nullable
     private Llama caravanHead;
     @Nullable
@@ -425,7 +425,7 @@ public class Llama extends AbstractChestedHorse implements RangedAttackMob {
         this.didSpit = true;
     }
 
-    private void setDidSpit(boolean param0) {
+    void setDidSpit(boolean param0) {
         this.didSpit = param0;
     }
 
@@ -517,7 +517,7 @@ public class Llama extends AbstractChestedHorse implements RangedAttackMob {
     static class LlamaGroupData extends AgeableMob.AgeableMobGroupData {
         public final int variant;
 
-        private LlamaGroupData(int param0) {
+        LlamaGroupData(int param0) {
             super(true);
             this.variant = param0;
         }
@@ -530,12 +530,9 @@ public class Llama extends AbstractChestedHorse implements RangedAttackMob {
 
         @Override
         public boolean canContinueToUse() {
-            if (this.mob instanceof Llama) {
-                Llama var0 = (Llama)this.mob;
-                if (var0.didSpit) {
-                    var0.setDidSpit(false);
-                    return false;
-                }
+            if (this.mob instanceof Llama var0 && var0.didSpit) {
+                var0.setDidSpit(false);
+                return false;
             }
 
             return super.canContinueToUse();

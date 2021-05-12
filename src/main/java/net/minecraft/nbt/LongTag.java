@@ -29,7 +29,7 @@ public class LongTag extends NumericTag {
     };
     private final long data;
 
-    private LongTag(long param0) {
+    LongTag(long param0) {
         this.data = param0;
     }
 

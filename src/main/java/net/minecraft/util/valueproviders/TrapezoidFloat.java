@@ -66,6 +66,6 @@ public class TrapezoidFloat extends FloatProvider {
 
     @Override
     public String toString() {
-        return "trapezoid(" + this.plateau + ") in [" + this.min + '-' + this.max + ']';
+        return "trapezoid(" + this.plateau + ") in [" + this.min + "-" + this.max + "]";
     }
 }

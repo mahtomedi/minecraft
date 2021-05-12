@@ -7,7 +7,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class TotemParticle extends SimpleAnimatedParticle {
-    private TotemParticle(ClientLevel param0, double param1, double param2, double param3, double param4, double param5, double param6, SpriteSet param7) {
+    TotemParticle(ClientLevel param0, double param1, double param2, double param3, double param4, double param5, double param6, SpriteSet param7) {
         super(param0, param1, param2, param3, param7, 1.25F);
         this.friction = 0.6F;
         this.xd = param4;

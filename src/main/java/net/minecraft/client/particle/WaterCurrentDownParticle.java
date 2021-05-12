@@ -12,7 +12,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class WaterCurrentDownParticle extends TextureSheetParticle {
     private float angle;
 
-    private WaterCurrentDownParticle(ClientLevel param0, double param1, double param2, double param3) {
+    WaterCurrentDownParticle(ClientLevel param0, double param1, double param2, double param3) {
         super(param0, param1, param2, param3);
         this.lifetime = (int)(Math.random() * 60.0) + 30;
         this.hasPhysics = false;

@@ -11,6 +11,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.ServerList;
 import net.minecraft.client.multiplayer.ServerStatusPinger;
+import net.minecraft.client.multiplayer.resolver.ServerAddress;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.client.server.LanServer;
 import net.minecraft.client.server.LanServerDetection;
@@ -230,7 +231,7 @@ public class JoinMultiplayerScreen extends Screen {
     }
 
     private void join(ServerData param0) {
-        this.minecraft.setScreen(new ConnectScreen(this, this.minecraft, param0));
+        ConnectScreen.startConnecting(this, this.minecraft, ServerAddress.parseString(param0.ip), param0);
     }
 
     public void setSelected(ServerSelectionList.Entry param0) {

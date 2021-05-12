@@ -152,10 +152,10 @@ public interface Tag<T> {
     }
 
     public static class BuilderEntry {
-        private final Tag.Entry entry;
+        final Tag.Entry entry;
         private final String source;
 
-        private BuilderEntry(Tag.Entry param0, String param1) {
+        BuilderEntry(Tag.Entry param0, String param1) {
             this.entry = param0;
             this.source = param1;
         }

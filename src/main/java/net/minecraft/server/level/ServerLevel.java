@@ -147,11 +147,11 @@ public class ServerLevel extends Level implements WorldGenLevel {
     public static final BlockPos END_SPAWN_POINT = new BlockPos(100, 50, 0);
     private static final Logger LOGGER = LogManager.getLogger();
     private static final int EMPTY_TIME_NO_TICK = 300;
-    private final List<ServerPlayer> players = Lists.newArrayList();
+    final List<ServerPlayer> players = Lists.newArrayList();
     private final ServerChunkCache chunkSource;
     private final MinecraftServer server;
     private final ServerLevelData serverLevelData;
-    private final EntityTickList entityTickList = new EntityTickList();
+    final EntityTickList entityTickList = new EntityTickList();
     private final PersistentEntitySectionManager<Entity> entityManager;
     public boolean noSave;
     private final SleepStatus sleepStatus;
@@ -163,14 +163,14 @@ public class ServerLevel extends Level implements WorldGenLevel {
     private final ServerTickList<Fluid> liquidTicks = new ServerTickList<>(
         this, param0x -> param0x == null || param0x == Fluids.EMPTY, Registry.FLUID::getKey, this::tickLiquid
     );
-    private final Set<Mob> navigatingMobs = new ObjectOpenHashSet<>();
+    final Set<Mob> navigatingMobs = new ObjectOpenHashSet<>();
     protected final Raids raids;
     private final ObjectLinkedOpenHashSet<BlockEventData> blockEvents = new ObjectLinkedOpenHashSet<>();
     private boolean handlingTick;
     private final List<CustomSpawner> customSpawners;
     @Nullable
     private final EndDragonFight dragonFight;
-    private final Int2ObjectMap<EnderDragonPart> dragonParts = new Int2ObjectOpenHashMap<>();
+    final Int2ObjectMap<EnderDragonPart> dragonParts = new Int2ObjectOpenHashMap<>();
     private final StructureFeatureManager structureFeatureManager;
     private final boolean tickTime;
 
@@ -1433,9 +1433,6 @@ public class ServerLevel extends Level implements WorldGenLevel {
     }
 
     final class EntityCallbacks implements LevelCallback<Entity> {
-        private EntityCallbacks() {
-        }
-
         public void onCreated(Entity param0) {
         }
 
@@ -1472,8 +1469,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
 
         public void onTrackingEnd(Entity param0) {
             ServerLevel.this.getChunkSource().removeEntity(param0);
-            if (param0 instanceof ServerPlayer) {
-                ServerPlayer var0 = (ServerPlayer)param0;
+            if (param0 instanceof ServerPlayer var0) {
                 ServerLevel.this.players.remove(var0);
                 ServerLevel.this.updateSleepingPlayerList();
             }

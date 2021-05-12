@@ -98,13 +98,13 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
     private volatile Long2ObjectLinkedOpenHashMap<ChunkHolder> visibleChunkMap = this.updatingChunkMap.clone();
     private final Long2ObjectLinkedOpenHashMap<ChunkHolder> pendingUnloads = new Long2ObjectLinkedOpenHashMap<>();
     private final LongSet entitiesInLevel = new LongOpenHashSet();
-    private final ServerLevel level;
+    final ServerLevel level;
     private final ThreadedLevelLightEngine lightEngine;
     private final BlockableEventLoop<Runnable> mainThreadExecutor;
     private final ChunkGenerator generator;
     private final Supplier<DimensionDataStorage> overworldDataStorage;
     private final PoiManager poiManager;
-    private final LongSet toDrop = new LongOpenHashSet();
+    final LongSet toDrop = new LongOpenHashSet();
     private boolean modified;
     private final ChunkTaskPriorityQueueSorter queueSorter;
     private final ProcessorHandle<ChunkTaskPriorityQueueSorter.Message<Runnable>> worldgenMailbox;
@@ -119,7 +119,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
     private final Int2ObjectMap<ChunkMap.TrackedEntity> entityMap = new Int2ObjectOpenHashMap<>();
     private final Long2ByteMap chunkTypeCache = new Long2ByteOpenHashMap();
     private final Queue<Runnable> unloadQueue = Queues.newConcurrentLinkedQueue();
-    private int viewDistance;
+    int viewDistance;
 
     public ChunkMap(
         ServerLevel param0,
@@ -224,16 +224,16 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
             ChunkStatus var2 = var0.getLastAvailableStatus();
             ChunkAccess var3 = var0.getLastAvailable();
             if (var2 != null) {
-                var1 = var1 + "St: \u00a7" + var2.getIndex() + var2 + '\u00a7' + "r\n";
+                var1 = var1 + "St: \u00a7" + var2.getIndex() + var2 + "\u00a7r\n";
             }
 
             if (var3 != null) {
-                var1 = var1 + "Ch: \u00a7" + var3.getStatus().getIndex() + var3.getStatus() + '\u00a7' + "r\n";
+                var1 = var1 + "Ch: \u00a7" + var3.getStatus().getIndex() + var3.getStatus() + "\u00a7r\n";
             }
 
             ChunkHolder.FullChunkStatus var4 = var0.getFullStatus();
             var1 = var1 + "\u00a7" + var4.ordinal() + var4;
-            return var1 + '\u00a7' + "r";
+            return var1 + "\u00a7r";
         }
     }
 
@@ -296,7 +296,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
     }
 
     @Nullable
-    private ChunkHolder updateChunkScheduling(long param0, int param1, @Nullable ChunkHolder param2, int param3) {
+    ChunkHolder updateChunkScheduling(long param0, int param1, @Nullable ChunkHolder param2, int param3) {
         if (param3 > MAX_CHUNK_DISTANCE && param1 > MAX_CHUNK_DISTANCE) {
             return param2;
         } else {
@@ -428,8 +428,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
                     }
 
                     this.save(param3);
-                    if (this.entitiesInLevel.remove(param0) && param3 instanceof LevelChunk) {
-                        LevelChunk var1x = (LevelChunk)param3;
+                    if (this.entitiesInLevel.remove(param0) && param3 instanceof LevelChunk var1x) {
                         this.level.unload(var1x);
                     }
 
@@ -968,8 +967,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
                     ChunkMap.TrackedEntity var3 = new ChunkMap.TrackedEntity(param0, var1, var2, var0.trackDeltas());
                     this.entityMap.put(param0.getId(), var3);
                     var3.updatePlayers(this.level.players());
-                    if (param0 instanceof ServerPlayer) {
-                        ServerPlayer var4 = (ServerPlayer)param0;
+                    if (param0 instanceof ServerPlayer var4) {
                         this.updatePlayerStatus(var4, true);
 
                         for(ChunkMap.TrackedEntity var5 : this.entityMap.values()) {
@@ -985,8 +983,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
     }
 
     protected void removeEntity(Entity param0) {
-        if (param0 instanceof ServerPlayer) {
-            ServerPlayer var0 = (ServerPlayer)param0;
+        if (param0 instanceof ServerPlayer var0) {
             this.updatePlayerStatus(var0, false);
 
             for(ChunkMap.TrackedEntity var1 : this.entityMap.values()) {
@@ -1120,10 +1117,10 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
     }
 
     class TrackedEntity {
-        private final ServerEntity serverEntity;
-        private final Entity entity;
+        final ServerEntity serverEntity;
+        final Entity entity;
         private final int range;
-        private SectionPos lastSectionPos;
+        SectionPos lastSectionPos;
         private final Set<ServerPlayerConnection> seenBy = Sets.newIdentityHashSet();
 
         public TrackedEntity(Entity param0, int param1, int param2, boolean param3) {

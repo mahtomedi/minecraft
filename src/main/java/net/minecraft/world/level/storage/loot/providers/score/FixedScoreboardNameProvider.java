@@ -11,9 +11,9 @@ import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
 
 public class FixedScoreboardNameProvider implements ScoreboardNameProvider {
-    private final String name;
+    final String name;
 
-    private FixedScoreboardNameProvider(String param0) {
+    FixedScoreboardNameProvider(String param0) {
         this.name = param0;
     }
 

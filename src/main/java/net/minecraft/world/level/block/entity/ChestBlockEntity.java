@@ -97,7 +97,7 @@ public class ChestBlockEntity extends RandomizableContainerBlockEntity implement
         param3.chestLidController.tickLid();
     }
 
-    private static void playSound(Level param0, BlockPos param1, BlockState param2, SoundEvent param3) {
+    static void playSound(Level param0, BlockPos param1, BlockState param2, SoundEvent param3) {
         ChestType var0 = param2.getValue(ChestBlock.TYPE);
         if (var0 != ChestType.LEFT) {
             double var1 = (double)param1.getX() + 0.5;

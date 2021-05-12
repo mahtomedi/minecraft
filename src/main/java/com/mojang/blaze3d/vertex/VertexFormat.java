@@ -180,25 +180,11 @@ public class VertexFormat {
         }
 
         public int indexCount(int param0) {
-            int var0;
-            switch(this) {
-                case LINE_STRIP:
-                case DEBUG_LINES:
-                case DEBUG_LINE_STRIP:
-                case TRIANGLES:
-                case TRIANGLE_STRIP:
-                case TRIANGLE_FAN:
-                    var0 = param0;
-                    break;
-                case LINES:
-                case QUADS:
-                    var0 = param0 / 4 * 6;
-                    break;
-                default:
-                    var0 = 0;
-            }
-
-            return var0;
+            return switch(this) {
+                case LINE_STRIP, DEBUG_LINES, DEBUG_LINE_STRIP, TRIANGLES, TRIANGLE_STRIP, TRIANGLE_FAN -> param0;
+                case LINES, QUADS -> param0 / 4 * 6;
+                default -> 0;
+            };
         }
     }
 }

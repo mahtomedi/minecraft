@@ -25,7 +25,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class LoadingOverlay extends Overlay {
-    private static final ResourceLocation MOJANG_STUDIOS_LOGO_LOCATION = new ResourceLocation("textures/gui/title/mojangstudios.png");
+    static final ResourceLocation MOJANG_STUDIOS_LOGO_LOCATION = new ResourceLocation("textures/gui/title/mojangstudios.png");
     private static final int LOGO_BACKGROUND_COLOR = FastColor.ARGB32.color(255, 239, 50, 61);
     private static final int LOGO_BACKGROUND_COLOR_DARK = FastColor.ARGB32.color(255, 0, 0, 0);
     private static final IntSupplier BRAND_BACKGROUND = () -> Minecraft.getInstance().options.darkMojangStudiosBackground
@@ -165,10 +165,15 @@ public class LoadingOverlay extends Overlay {
             Minecraft var0 = Minecraft.getInstance();
             VanillaPackResources var1 = var0.getClientPackSource().getVanillaPack();
 
-            try (InputStream var2 = var1.getResource(PackType.CLIENT_RESOURCES, LoadingOverlay.MOJANG_STUDIOS_LOGO_LOCATION)) {
-                return new SimpleTexture.TextureImage(new TextureMetadataSection(true, true), NativeImage.read(var2));
-            } catch (IOException var18) {
-                return new SimpleTexture.TextureImage(var18);
+            try {
+                SimpleTexture.TextureImage var5;
+                try (InputStream var2 = var1.getResource(PackType.CLIENT_RESOURCES, LoadingOverlay.MOJANG_STUDIOS_LOGO_LOCATION)) {
+                    var5 = new SimpleTexture.TextureImage(new TextureMetadataSection(true, true), NativeImage.read(var2));
+                }
+
+                return var5;
+            } catch (IOException var9) {
+                return new SimpleTexture.TextureImage(var9);
             }
         }
     }

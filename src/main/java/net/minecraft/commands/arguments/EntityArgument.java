@@ -45,8 +45,8 @@ public class EntityArgument implements ArgumentType<EntitySelector> {
     );
     private static final byte FLAG_SINGLE = 1;
     private static final byte FLAG_PLAYERS_ONLY = 2;
-    private final boolean single;
-    private final boolean playersOnly;
+    final boolean single;
+    final boolean playersOnly;
 
     protected EntityArgument(boolean param0, boolean param1) {
         this.single = param0;

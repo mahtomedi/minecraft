@@ -43,9 +43,9 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
     private static final Component PENDING_TEXT = new TranslatableComponent("multiplayer.downloadingStats");
     protected final Screen lastScreen;
     private StatsScreen.GeneralStatisticsList statsList;
-    private StatsScreen.ItemStatisticsList itemStatsList;
+    StatsScreen.ItemStatisticsList itemStatsList;
     private StatsScreen.MobsStatisticsList mobsStatsList;
-    private final StatsCounter stats;
+    final StatsCounter stats;
     @Nullable
     private ObjectSelectionList<?> activeList;
     private boolean isLoading = true;
@@ -162,20 +162,20 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
 
     }
 
-    private static String getTranslationKey(Stat<ResourceLocation> param0) {
+    static String getTranslationKey(Stat<ResourceLocation> param0) {
         return "stat." + param0.getValue().toString().replace(':', '.');
     }
 
-    private int getColumnX(int param0) {
+    int getColumnX(int param0) {
         return 115 + 40 * param0;
     }
 
-    private void blitSlot(PoseStack param0, int param1, int param2, Item param3) {
+    void blitSlot(PoseStack param0, int param1, int param2, Item param3) {
         this.blitSlotIcon(param0, param1 + 1, param2 + 1, 0, 0);
         this.itemRenderer.renderGuiItem(param3.getDefaultInstance(), param1 + 2, param2 + 2);
     }
 
-    private void blitSlotIcon(PoseStack param0, int param1, int param2, int param3, int param4) {
+    void blitSlotIcon(PoseStack param0, int param1, int param2, int param3, int param4) {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, STATS_ICON_LOCATION);
@@ -205,7 +205,7 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
             private final Stat<ResourceLocation> stat;
             private final Component statDisplay;
 
-            private Entry(Stat<ResourceLocation> param0) {
+            Entry(Stat<ResourceLocation> param0) {
                 this.stat = param0;
                 this.statDisplay = new TranslatableComponent(StatsScreen.getTranslationKey(param0));
             }
@@ -416,9 +416,6 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
 
         @OnlyIn(Dist.CLIENT)
         class ItemComparator implements Comparator<Item> {
-            private ItemComparator() {
-            }
-
             public int compare(Item param0, Item param1) {
                 int var0;
                 int var1;
@@ -443,9 +440,6 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
 
         @OnlyIn(Dist.CLIENT)
         class ItemRow extends ObjectSelectionList.Entry<StatsScreen.ItemStatisticsList.ItemRow> {
-            private ItemRow() {
-            }
-
             @Override
             public void render(
                 PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9

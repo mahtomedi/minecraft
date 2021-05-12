@@ -7,7 +7,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class ReversePortalParticle extends PortalParticle {
-    private ReversePortalParticle(ClientLevel param0, double param1, double param2, double param3, double param4, double param5, double param6) {
+    ReversePortalParticle(ClientLevel param0, double param1, double param2, double param3, double param4, double param5, double param6) {
         super(param0, param1, param2, param3, param4, param5, param6);
         this.quadSize = (float)((double)this.quadSize * 1.5);
         this.lifetime = (int)(Math.random() * 2.0) + 60;

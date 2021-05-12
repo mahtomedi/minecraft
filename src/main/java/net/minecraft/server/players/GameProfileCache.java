@@ -166,23 +166,29 @@ public class GameProfileCache {
     public List<GameProfileCache.GameProfileInfo> load() {
         List<GameProfileCache.GameProfileInfo> var0 = Lists.newArrayList();
 
-        try (Reader var1 = Files.newReader(this.file, StandardCharsets.UTF_8)) {
-            JsonArray var2 = this.gson.fromJson(var1, JsonArray.class);
-            if (var2 == null) {
-                return var0;
-            }
+        try {
+            Object var9;
+            try (Reader var1 = Files.newReader(this.file, StandardCharsets.UTF_8)) {
+                JsonArray var2 = this.gson.fromJson(var1, JsonArray.class);
+                if (var2 != null) {
+                    DateFormat var3 = createDateFormat();
+                    var2.forEach(param2 -> {
+                        GameProfileCache.GameProfileInfo var0x = readGameProfile(param2, var3);
+                        if (var0x != null) {
+                            var0.add(var0x);
+                        }
 
-            DateFormat var3 = createDateFormat();
-            var2.forEach(param2 -> {
-                GameProfileCache.GameProfileInfo var0x = readGameProfile(param2, var3);
-                if (var0x != null) {
-                    var0.add(var0x);
+                    });
+                    return var0;
                 }
 
-            });
-        } catch (FileNotFoundException var19) {
-        } catch (JsonParseException | IOException var20) {
-            LOGGER.warn("Failed to load profile cache {}", this.file, var20);
+                var9 = var0;
+            }
+
+            return (List<GameProfileCache.GameProfileInfo>)var9;
+        } catch (FileNotFoundException var7) {
+        } catch (JsonParseException | IOException var8) {
+            LOGGER.warn("Failed to load profile cache {}", this.file, var8);
         }
 
         return var0;
@@ -196,7 +202,7 @@ public class GameProfileCache {
 
         try (Writer var3 = Files.newWriter(this.file, StandardCharsets.UTF_8)) {
             var3.write(var2);
-        } catch (IOException var17) {
+        } catch (IOException var9) {
         }
 
     }
@@ -257,10 +263,10 @@ public class GameProfileCache {
 
     static class GameProfileInfo {
         private final GameProfile profile;
-        private final Date expirationDate;
+        final Date expirationDate;
         private volatile long lastAccess;
 
-        private GameProfileInfo(GameProfile param0, Date param1) {
+        GameProfileInfo(GameProfile param0, Date param1) {
             this.profile = param0;
             this.expirationDate = param1;
         }

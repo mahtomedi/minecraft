@@ -41,13 +41,13 @@ public class TextFilterClient implements AutoCloseable {
         return var0;
     };
     private final URL chatEndpoint;
-    private final URL joinEndpoint;
-    private final URL leaveEndpoint;
+    final URL joinEndpoint;
+    final URL leaveEndpoint;
     private final String authKey;
     private final int ruleId;
     private final String serverId;
-    private final TextFilterClient.IgnoreStrategy chatIgnoreStrategy;
-    private final ExecutorService workerPool;
+    final TextFilterClient.IgnoreStrategy chatIgnoreStrategy;
+    final ExecutorService workerPool;
 
     private TextFilterClient(URI param0, String param1, int param2, String param3, TextFilterClient.IgnoreStrategy param4, int param5) throws MalformedURLException {
         this.authKey = param1;
@@ -86,7 +86,7 @@ public class TextFilterClient implements AutoCloseable {
         }
     }
 
-    private void processJoinOrLeave(GameProfile param0, URL param1, Executor param2) {
+    void processJoinOrLeave(GameProfile param0, URL param1, Executor param2) {
         JsonObject var0 = new JsonObject();
         var0.addProperty("server", this.serverId);
         var0.addProperty("room", "Chat");
@@ -102,7 +102,7 @@ public class TextFilterClient implements AutoCloseable {
         });
     }
 
-    private CompletableFuture<TextFilter.FilteredText> requestMessageProcessing(
+    CompletableFuture<TextFilter.FilteredText> requestMessageProcessing(
         GameProfile param0, String param1, TextFilterClient.IgnoreStrategy param2, Executor param3
     ) {
         if (param1.isEmpty()) {
@@ -159,20 +159,20 @@ public class TextFilterClient implements AutoCloseable {
     private JsonObject processRequestResponse(JsonObject param0, URL param1) throws IOException {
         HttpURLConnection var0 = this.makeRequest(param0, param1);
 
-        JsonObject var6;
+        JsonObject var5;
         try (InputStream var1 = var0.getInputStream()) {
-            if (var0.getResponseCode() != 204) {
-                try {
-                    return Streams.parse(new JsonReader(new InputStreamReader(var1))).getAsJsonObject();
-                } finally {
-                    this.drainStream(var1);
-                }
+            if (var0.getResponseCode() == 204) {
+                return new JsonObject();
             }
 
-            var6 = new JsonObject();
+            try {
+                var5 = Streams.parse(new JsonReader(new InputStreamReader(var1))).getAsJsonObject();
+            } finally {
+                this.drainStream(var1);
+            }
         }
 
-        return var6;
+        return var5;
     }
 
     private void processRequest(JsonObject param0, URL param1) throws IOException {
@@ -196,14 +196,21 @@ public class TextFilterClient implements AutoCloseable {
         var0.setRequestProperty("Accept", "application/json");
         var0.setRequestProperty("Authorization", "Basic " + this.authKey);
         var0.setRequestProperty("User-Agent", "Minecraft server" + SharedConstants.getCurrentVersion().getName());
+        OutputStreamWriter var1 = new OutputStreamWriter(var0.getOutputStream(), StandardCharsets.UTF_8);
 
-        try (
-            OutputStreamWriter var1 = new OutputStreamWriter(var0.getOutputStream(), StandardCharsets.UTF_8);
-            JsonWriter var2 = new JsonWriter(var1);
-        ) {
+        try (JsonWriter var2 = new JsonWriter(var1)) {
             Streams.write(param0, var2);
+        } catch (Throwable var11) {
+            try {
+                var1.close();
+            } catch (Throwable var8) {
+                var11.addSuppressed(var8);
+            }
+
+            throw var11;
         }
 
+        var1.close();
         int var3 = var0.getResponseCode();
         if (var3 >= 200 && var3 < 300) {
             return var0;
@@ -243,7 +250,7 @@ public class TextFilterClient implements AutoCloseable {
         private final GameProfile profile;
         private final Executor streamExecutor;
 
-        private PlayerContext(GameProfile param0) {
+        PlayerContext(GameProfile param0) {
             this.profile = param0;
             ProcessorMailbox<Runnable> param1 = ProcessorMailbox.create(TextFilterClient.this.workerPool, "chat stream for " + param0.getName());
             this.streamExecutor = param1::tell;
@@ -278,7 +285,7 @@ public class TextFilterClient implements AutoCloseable {
     }
 
     public static class RequestFailedException extends RuntimeException {
-        private RequestFailedException(String param0) {
+        RequestFailedException(String param0) {
             super(param0);
         }
     }

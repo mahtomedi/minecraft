@@ -79,7 +79,7 @@ public class ReloadableIdSearchTree<T> implements MutableSearchTree<T> {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static class IntersectionIterator<T> extends AbstractIterator<T> {
+    protected static class IntersectionIterator<T> extends AbstractIterator<T> {
         private final PeekingIterator<T> firstIterator;
         private final PeekingIterator<T> secondIterator;
         private final Comparator<T> orderT;

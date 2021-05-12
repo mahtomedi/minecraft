@@ -61,8 +61,7 @@ public class PlayerSocialManager {
         }
 
         Screen var1 = this.minecraft.screen;
-        if (var1 instanceof SocialInteractionsScreen) {
-            SocialInteractionsScreen var2 = (SocialInteractionsScreen)var1;
+        if (var1 instanceof SocialInteractionsScreen var2) {
             var2.onAddPlayer(param0);
         }
 
@@ -70,8 +69,7 @@ public class PlayerSocialManager {
 
     public void removePlayer(UUID param0) {
         Screen var0 = this.minecraft.screen;
-        if (var0 instanceof SocialInteractionsScreen) {
-            SocialInteractionsScreen var1 = (SocialInteractionsScreen)var0;
+        if (var0 instanceof SocialInteractionsScreen var1) {
             var1.onRemovePlayer(param0);
         }
 

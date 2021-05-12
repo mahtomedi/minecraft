@@ -13,10 +13,10 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
 
 public class TimeCheck implements LootItemCondition {
     @Nullable
-    private final Long period;
-    private final IntRange value;
+    final Long period;
+    final IntRange value;
 
-    private TimeCheck(@Nullable Long param0, IntRange param1) {
+    TimeCheck(@Nullable Long param0, IntRange param1) {
         this.period = param0;
         this.value = param1;
     }

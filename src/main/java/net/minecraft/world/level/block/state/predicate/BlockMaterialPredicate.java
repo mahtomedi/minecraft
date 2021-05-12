@@ -14,7 +14,7 @@ public class BlockMaterialPredicate implements Predicate<BlockState> {
     };
     private final Material material;
 
-    private BlockMaterialPredicate(Material param0) {
+    BlockMaterialPredicate(Material param0) {
         this.material = param0;
     }
 

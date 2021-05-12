@@ -81,12 +81,10 @@ public class MultifaceBlock extends Block {
 
     @Override
     public BlockState updateShape(BlockState param0, Direction param1, BlockState param2, LevelAccessor param3, BlockPos param4, BlockPos param5) {
-        if (hasAnyFace(param0)) {
-            return hasFace(param0, param1) && !canAttachTo(param3, param1, param5, param2) ? removeFace(param0, getFaceProperty(param1)) : param0;
+        if (!hasAnyFace(param0)) {
+            return Blocks.AIR.defaultBlockState();
         } else {
-            return param0.hasProperty(BlockStateProperties.WATERLOGGED) && param0.getValue(BlockStateProperties.WATERLOGGED)
-                ? Blocks.WATER.defaultBlockState()
-                : Blocks.AIR.defaultBlockState();
+            return hasFace(param0, param1) && !canAttachTo(param3, param1, param5, param2) ? removeFace(param0, getFaceProperty(param1)) : param0;
         }
     }
 
@@ -262,13 +260,7 @@ public class MultifaceBlock extends Block {
 
     private static BlockState removeFace(BlockState param0, BooleanProperty param1) {
         BlockState var0 = param0.setValue(param1, Boolean.valueOf(false));
-        if (hasAnyFace(var0)) {
-            return var0;
-        } else {
-            return param0.hasProperty(BlockStateProperties.WATERLOGGED) && param0.getValue(BlockStateProperties.WATERLOGGED)
-                ? Blocks.WATER.defaultBlockState()
-                : Blocks.AIR.defaultBlockState();
-        }
+        return hasAnyFace(var0) ? var0 : Blocks.AIR.defaultBlockState();
     }
 
     public static BooleanProperty getFaceProperty(Direction param0) {

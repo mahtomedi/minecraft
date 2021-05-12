@@ -28,8 +28,8 @@ public class TextureAtlasSprite implements AutoCloseable {
     private static final Logger LOGGER = LogManager.getLogger();
     private final TextureAtlas atlas;
     private final ResourceLocation name;
-    private final int width;
-    private final int height;
+    final int width;
+    final int height;
     protected final NativeImage[] mainImage;
     @Nullable
     private final TextureAtlasSprite.AnimatedTexture animatedTexture;
@@ -137,7 +137,7 @@ public class TextureAtlasSprite implements AutoCloseable {
         }
     }
 
-    private void upload(int param0, int param1, NativeImage[] param2) {
+    void upload(int param0, int param1, NativeImage[] param2) {
         for(int var0 = 0; var0 < this.mainImage.length; ++var0) {
             param2[var0]
                 .upload(
@@ -237,8 +237,7 @@ public class TextureAtlasSprite implements AutoCloseable {
     public String toString() {
         return "TextureAtlasSprite{name='"
             + this.name
-            + '\''
-            + ", frameCount="
+            + "', frameCount="
             + this.getFrameCount()
             + ", x="
             + this.x
@@ -256,7 +255,7 @@ public class TextureAtlasSprite implements AutoCloseable {
             + this.v0
             + ", v1="
             + this.v1
-            + '}';
+            + "}";
     }
 
     public boolean isTransparent(int param0, int param1, int param2) {
@@ -300,24 +299,24 @@ public class TextureAtlasSprite implements AutoCloseable {
 
     @OnlyIn(Dist.CLIENT)
     class AnimatedTexture implements Tickable, AutoCloseable {
-        private int frame;
-        private int subFrame;
-        private final List<TextureAtlasSprite.FrameInfo> frames;
+        int frame;
+        int subFrame;
+        final List<TextureAtlasSprite.FrameInfo> frames;
         private final int frameRowSize;
         @Nullable
         private final TextureAtlasSprite.InterpolationData interpolationData;
 
-        private AnimatedTexture(List<TextureAtlasSprite.FrameInfo> param0, int param1, @Nullable TextureAtlasSprite.InterpolationData param2) {
+        AnimatedTexture(List<TextureAtlasSprite.FrameInfo> param0, @Nullable int param1, TextureAtlasSprite.InterpolationData param2) {
             this.frames = param0;
             this.frameRowSize = param1;
             this.interpolationData = param2;
         }
 
-        private int getFrameX(int param0) {
+        int getFrameX(int param0) {
             return param0 % this.frameRowSize;
         }
 
-        private int getFrameY(int param0) {
+        int getFrameY(int param0) {
             return param0 / this.frameRowSize;
         }
 
@@ -368,10 +367,10 @@ public class TextureAtlasSprite implements AutoCloseable {
 
     @OnlyIn(Dist.CLIENT)
     static class FrameInfo {
-        private final int index;
-        private final int time;
+        final int index;
+        final int time;
 
-        private FrameInfo(int param0, int param1) {
+        FrameInfo(int param0, int param1) {
             this.index = param0;
             this.time = param1;
         }
@@ -379,10 +378,10 @@ public class TextureAtlasSprite implements AutoCloseable {
 
     @OnlyIn(Dist.CLIENT)
     public static final class Info {
-        private final ResourceLocation name;
-        private final int width;
-        private final int height;
-        private final AnimationMetadataSection metadata;
+        final ResourceLocation name;
+        final int width;
+        final int height;
+        final AnimationMetadataSection metadata;
 
         public Info(ResourceLocation param0, int param1, int param2, AnimationMetadataSection param3) {
             this.name = param0;
@@ -408,7 +407,7 @@ public class TextureAtlasSprite implements AutoCloseable {
     final class InterpolationData implements AutoCloseable {
         private final NativeImage[] activeFrame;
 
-        private InterpolationData(TextureAtlasSprite.Info param0, int param1) {
+        InterpolationData(TextureAtlasSprite.Info param0, int param1) {
             this.activeFrame = new NativeImage[param1 + 1];
 
             for(int param2 = 0; param2 < this.activeFrame.length; ++param2) {
@@ -421,7 +420,7 @@ public class TextureAtlasSprite implements AutoCloseable {
 
         }
 
-        private void uploadInterpolatedFrame(TextureAtlasSprite.AnimatedTexture param0) {
+        void uploadInterpolatedFrame(TextureAtlasSprite.AnimatedTexture param0) {
             TextureAtlasSprite.FrameInfo var0 = param0.frames.get(param0.frame);
             double var1 = 1.0 - (double)param0.subFrame / (double)var0.time;
             int var2 = var0.index;

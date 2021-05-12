@@ -36,10 +36,7 @@ public class ItemOverride {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static class Deserializer implements JsonDeserializer<ItemOverride> {
-        protected Deserializer() {
-        }
-
+    protected static class Deserializer implements JsonDeserializer<ItemOverride> {
         public ItemOverride deserialize(JsonElement param0, Type param1, JsonDeserializationContext param2) throws JsonParseException {
             JsonObject var0 = param0.getAsJsonObject();
             ResourceLocation var1 = new ResourceLocation(GsonHelper.getAsString(var0, "model"));

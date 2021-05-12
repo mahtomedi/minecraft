@@ -40,7 +40,7 @@ public class FireworkParticles {
 
     @OnlyIn(Dist.CLIENT)
     public static class OverlayParticle extends TextureSheetParticle {
-        private OverlayParticle(ClientLevel param0, double param1, double param2, double param3) {
+        OverlayParticle(ClientLevel param0, double param1, double param2, double param3) {
             super(param0, param1, param2, param3);
             this.lifetime = 4;
         }
@@ -72,7 +72,7 @@ public class FireworkParticles {
         private float fadeB;
         private boolean hasFade;
 
-        private SparkParticle(
+        SparkParticle(
             ClientLevel param0,
             double param1,
             double param2,

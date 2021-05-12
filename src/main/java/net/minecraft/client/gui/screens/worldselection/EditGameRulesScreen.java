@@ -85,7 +85,7 @@ public class EditGameRulesScreen extends Screen {
 
     }
 
-    private void setTooltip(@Nullable List<FormattedCharSequence> param0) {
+    void setTooltip(@Nullable List<FormattedCharSequence> param0) {
         this.tooltip = param0;
     }
 
@@ -93,12 +93,12 @@ public class EditGameRulesScreen extends Screen {
         this.doneButton.active = this.invalidEntries.isEmpty();
     }
 
-    private void markInvalid(EditGameRulesScreen.RuleEntry param0) {
+    void markInvalid(EditGameRulesScreen.RuleEntry param0) {
         this.invalidEntries.add(param0);
         this.updateDoneButton();
     }
 
-    private void clearInvalid(EditGameRulesScreen.RuleEntry param0) {
+    void clearInvalid(EditGameRulesScreen.RuleEntry param0) {
         this.invalidEntries.remove(param0);
         this.updateDoneButton();
     }
@@ -156,7 +156,7 @@ public class EditGameRulesScreen extends Screen {
         private final List<FormattedCharSequence> label;
         protected final List<GuiEventListener> children = Lists.newArrayList();
 
-        public GameRuleEntry(@Nullable List<FormattedCharSequence> param1, Component param2) {
+        public GameRuleEntry(List<FormattedCharSequence> param1, Component param2) {
             super(param1);
             this.label = EditGameRulesScreen.this.minecraft.font.split(param2, 175);
         }
@@ -210,9 +210,9 @@ public class EditGameRulesScreen extends Screen {
     @OnlyIn(Dist.CLIENT)
     public abstract class RuleEntry extends ContainerObjectSelectionList.Entry<EditGameRulesScreen.RuleEntry> {
         @Nullable
-        private final List<FormattedCharSequence> tooltip;
+        final List<FormattedCharSequence> tooltip;
 
-        public RuleEntry(@Nullable List<FormattedCharSequence> param1) {
+        public RuleEntry(List<FormattedCharSequence> param1) {
             this.tooltip = param1;
         }
     }

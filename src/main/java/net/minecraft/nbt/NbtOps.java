@@ -125,8 +125,7 @@ public class NbtOps implements DynamicOps<Tag> {
     }
 
     private static <T extends Tag> void fillOne(CollectionTag<T> param0, Tag param1, Tag param2) {
-        if (param1 instanceof CollectionTag) {
-            CollectionTag<?> var0 = (CollectionTag)param1;
+        if (param1 instanceof CollectionTag var0) {
             var0.forEach(param1x -> param0.add(param1x));
         }
 
@@ -134,8 +133,7 @@ public class NbtOps implements DynamicOps<Tag> {
     }
 
     private static <T extends Tag> void fillMany(CollectionTag<T> param0, Tag param1, List<Tag> param2) {
-        if (param1 instanceof CollectionTag) {
-            CollectionTag<?> var0 = (CollectionTag)param1;
+        if (param1 instanceof CollectionTag var0) {
             var0.forEach(param1x -> param0.add(param1x));
         }
 
@@ -171,8 +169,7 @@ public class NbtOps implements DynamicOps<Tag> {
             return DataResult.error("key is not a string: " + param1, param0);
         } else {
             CompoundTag var0 = new CompoundTag();
-            if (param0 instanceof CompoundTag) {
-                CompoundTag var1 = (CompoundTag)param0;
+            if (param0 instanceof CompoundTag var1) {
                 var1.getAllKeys().forEach(param2x -> var0.put(param2x, var1.get(param2x)));
             }
 
@@ -186,8 +183,7 @@ public class NbtOps implements DynamicOps<Tag> {
             return DataResult.error("mergeToMap called with not a map: " + param0, param0);
         } else {
             CompoundTag var0 = new CompoundTag();
-            if (param0 instanceof CompoundTag) {
-                CompoundTag var1 = (CompoundTag)param0;
+            if (param0 instanceof CompoundTag var1) {
                 var1.getAllKeys().forEach(param2 -> var0.put(param2, var1.get(param2)));
             }
 
@@ -262,12 +258,7 @@ public class NbtOps implements DynamicOps<Tag> {
     }
 
     public DataResult<Consumer<Consumer<Tag>>> getList(Tag param0) {
-        if (param0 instanceof CollectionTag) {
-            CollectionTag<?> var0 = (CollectionTag)param0;
-            return DataResult.success(var0::forEach);
-        } else {
-            return DataResult.error("Not a list: " + param0);
-        }
+        return param0 instanceof CollectionTag var0 ? DataResult.success(var0::forEach) : DataResult.error("Not a list: " + param0);
     }
 
     public DataResult<ByteBuffer> getByteBuffer(Tag param0) {
@@ -329,8 +320,7 @@ public class NbtOps implements DynamicOps<Tag> {
     }
 
     public Tag remove(Tag param0, String param1) {
-        if (param0 instanceof CompoundTag) {
-            CompoundTag var0 = (CompoundTag)param0;
+        if (param0 instanceof CompoundTag var0) {
             CompoundTag var1 = new CompoundTag();
             var0.getAllKeys().stream().filter(param1x -> !Objects.equals(param1x, param1)).forEach(param2 -> var1.put(param2, var0.get(param2)));
             return var1;

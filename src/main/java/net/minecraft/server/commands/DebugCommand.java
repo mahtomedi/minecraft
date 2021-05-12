@@ -119,8 +119,8 @@ public class DebugCommand {
 
             param0.sendSuccess(new TranslatableComponent("commands.debug.reportSaved", var1), false);
             return 1;
-        } catch (IOException var18) {
-            LOGGER.error("Failed to save debug dump", (Throwable)var18);
+        } catch (IOException var10) {
+            LOGGER.error("Failed to save debug dump", (Throwable)var10);
             param0.sendFailure(new TranslatableComponent("commands.debug.reportFailed"));
             return 0;
         }
@@ -144,8 +144,8 @@ public class DebugCommand {
                     var0 += param0.getServer().getFunctions().execute(var6, param0.withSource(var7).withMaximumPermission(2), var7);
                 }
             }
-        } catch (IOException | UncheckedIOException var22) {
-            LOGGER.warn("Tracing failed", (Throwable)var22);
+        } catch (IOException | UncheckedIOException var13) {
+            LOGGER.warn("Tracing failed", (Throwable)var13);
             param0.sendFailure(new TranslatableComponent("commands.debug.function.traceFailed"));
         }
 
@@ -164,7 +164,7 @@ public class DebugCommand {
         private int lastIndent;
         private boolean waitingForResult;
 
-        private Tracer(PrintWriter param0) {
+        Tracer(PrintWriter param0) {
             this.output = param0;
         }
 

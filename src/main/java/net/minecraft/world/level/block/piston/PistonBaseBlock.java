@@ -122,12 +122,10 @@ public class PistonBaseBlock extends DirectionalBlock {
             int var4 = 1;
             if (var3.is(Blocks.MOVING_PISTON) && var3.getValue(FACING) == var0) {
                 BlockEntity var5 = param0.getBlockEntity(var2);
-                if (var5 instanceof PistonMovingBlockEntity) {
-                    PistonMovingBlockEntity var6 = (PistonMovingBlockEntity)var5;
-                    if (var6.isExtending()
-                        && (var6.getProgress(0.0F) < 0.5F || param0.getGameTime() == var6.getLastTicked() || ((ServerLevel)param0).isHandlingTick())) {
-                        var4 = 2;
-                    }
+                if (var5 instanceof PistonMovingBlockEntity var6
+                    && var6.isExtending()
+                    && (var6.getProgress(0.0F) < 0.5F || param0.getGameTime() == var6.getLastTicked() || ((ServerLevel)param0).isHandlingTick())) {
+                    var4 = 2;
                 }
             }
 
@@ -205,12 +203,9 @@ public class PistonBaseBlock extends DirectionalBlock {
                 boolean var6 = false;
                 if (var5.is(Blocks.MOVING_PISTON)) {
                     BlockEntity var7 = param1.getBlockEntity(var4);
-                    if (var7 instanceof PistonMovingBlockEntity) {
-                        PistonMovingBlockEntity var8 = (PistonMovingBlockEntity)var7;
-                        if (var8.getDirection() == var0 && var8.isExtending()) {
-                            var8.finalTick();
-                            var6 = true;
-                        }
+                    if (var7 instanceof PistonMovingBlockEntity var8 && var8.getDirection() == var0 && var8.isExtending()) {
+                        var8.finalTick();
+                        var6 = true;
                     }
                 }
 

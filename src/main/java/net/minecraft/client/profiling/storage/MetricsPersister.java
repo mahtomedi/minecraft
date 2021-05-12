@@ -45,8 +45,8 @@ public class MetricsPersister {
     public Path saveReports(List<SamplerCategory> param0, List<FpsSpikeRecording> param1, ContinuousProfiler param2) {
         try {
             Files.createDirectories(PROFILING_RESULTS_DIR);
-        } catch (IOException var20) {
-            throw new UncheckedIOException(var20);
+        } catch (IOException var11) {
+            throw new UncheckedIOException(var11);
         }
 
         Path var1 = PROFILING_RESULTS_DIR.resolve(new SimpleDateFormat("yyyy-MM-dd_HH.mm.ss").format(new Date()) + ".tmp");
@@ -65,8 +65,8 @@ public class MetricsPersister {
             }
 
             this.saveProfilingTaskExecutionResult(param2, var3);
-        } catch (IOException var23) {
-            throw new UncheckedIOException(var23);
+        } catch (IOException var13) {
+            throw new UncheckedIOException(var13);
         }
 
         return this.renameZipFile(var1);

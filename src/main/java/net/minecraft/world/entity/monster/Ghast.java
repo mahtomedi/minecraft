@@ -245,7 +245,7 @@ public class Ghast extends FlyingMob implements Enemy {
         public void tick() {
             LivingEntity var0 = this.ghast.getTarget();
             double var1 = 64.0;
-            if (var0.distanceToSqr(this.ghast) < 4096.0 && this.ghast.canSee(var0)) {
+            if (var0.distanceToSqr(this.ghast) < 4096.0 && this.ghast.hasLineOfSight(var0)) {
                 Level var2 = this.ghast.level;
                 ++this.chargeTime;
                 if (this.chargeTime == 10 && !this.ghast.isSilent()) {

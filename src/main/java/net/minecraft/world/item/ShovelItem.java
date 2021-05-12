@@ -1,14 +1,13 @@
 package net.minecraft.world.item;
 
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import com.google.common.collect.ImmutableMap.Builder;
 import java.util.Map;
-import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.UseOnContext;
@@ -19,40 +18,6 @@ import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class ShovelItem extends DiggerItem {
-    private static final Set<Block> DIGGABLES = Sets.newHashSet(
-        Blocks.CLAY,
-        Blocks.DIRT,
-        Blocks.COARSE_DIRT,
-        Blocks.PODZOL,
-        Blocks.FARMLAND,
-        Blocks.GRASS_BLOCK,
-        Blocks.GRAVEL,
-        Blocks.MYCELIUM,
-        Blocks.SAND,
-        Blocks.RED_SAND,
-        Blocks.SNOW_BLOCK,
-        Blocks.SNOW,
-        Blocks.SOUL_SAND,
-        Blocks.DIRT_PATH,
-        Blocks.WHITE_CONCRETE_POWDER,
-        Blocks.ORANGE_CONCRETE_POWDER,
-        Blocks.MAGENTA_CONCRETE_POWDER,
-        Blocks.LIGHT_BLUE_CONCRETE_POWDER,
-        Blocks.YELLOW_CONCRETE_POWDER,
-        Blocks.LIME_CONCRETE_POWDER,
-        Blocks.PINK_CONCRETE_POWDER,
-        Blocks.GRAY_CONCRETE_POWDER,
-        Blocks.LIGHT_GRAY_CONCRETE_POWDER,
-        Blocks.CYAN_CONCRETE_POWDER,
-        Blocks.PURPLE_CONCRETE_POWDER,
-        Blocks.BLUE_CONCRETE_POWDER,
-        Blocks.BROWN_CONCRETE_POWDER,
-        Blocks.GREEN_CONCRETE_POWDER,
-        Blocks.RED_CONCRETE_POWDER,
-        Blocks.BLACK_CONCRETE_POWDER,
-        Blocks.SOUL_SOIL,
-        Blocks.ROOTED_DIRT
-    );
     protected static final Map<Block, BlockState> FLATTENABLES = Maps.newHashMap(
         new Builder()
             .put(Blocks.GRASS_BLOCK, Blocks.DIRT_PATH.defaultBlockState())
@@ -65,12 +30,7 @@ public class ShovelItem extends DiggerItem {
     );
 
     public ShovelItem(Tier param0, float param1, float param2, Item.Properties param3) {
-        super(param1, param2, param0, DIGGABLES, param3);
-    }
-
-    @Override
-    public boolean isCorrectToolForDrops(BlockState param0) {
-        return param0.is(Blocks.SNOW) || param0.is(Blocks.SNOW_BLOCK);
+        super(param1, param2, param0, BlockTags.MINEABLE_WITH_SHOVEL, param3);
     }
 
     @Override

@@ -309,18 +309,15 @@ public class ItemProperties {
 
     @OnlyIn(Dist.CLIENT)
     static class CompassWobble {
-        private double rotation;
+        double rotation;
         private double deltaRotation;
         private long lastUpdateTick;
 
-        private CompassWobble() {
-        }
-
-        private boolean shouldUpdate(long param0) {
+        boolean shouldUpdate(long param0) {
             return this.lastUpdateTick != param0;
         }
 
-        private void update(long param0, double param1) {
+        void update(long param0, double param1) {
             this.lastUpdateTick = param0;
             double var0 = param1 - this.rotation;
             var0 = Mth.positiveModulo(var0 + 0.5, 1.0) - 0.5;

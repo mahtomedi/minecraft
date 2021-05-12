@@ -61,8 +61,7 @@ public class PiglinSpecificSensor extends Sensor<LivingEntity> {
         List<AbstractPiglin> var10 = Lists.newArrayList();
 
         for(LivingEntity var12 : var0.getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES).orElse(ImmutableList.of())) {
-            if (var12 instanceof Hoglin) {
-                Hoglin var13 = (Hoglin)var12;
+            if (var12 instanceof Hoglin var13) {
                 if (var13.isBaby() && !var3.isPresent()) {
                     var3 = Optional.of(var13);
                 } else if (var13.isAdult()) {
@@ -73,15 +72,13 @@ public class PiglinSpecificSensor extends Sensor<LivingEntity> {
                 }
             } else if (var12 instanceof PiglinBrute) {
                 var9.add((PiglinBrute)var12);
-            } else if (var12 instanceof Piglin) {
-                Piglin var14 = (Piglin)var12;
+            } else if (var12 instanceof Piglin var14) {
                 if (var14.isBaby() && !var4.isPresent()) {
                     var4 = Optional.of(var14);
                 } else if (var14.isAdult()) {
                     var9.add(var14);
                 }
-            } else if (var12 instanceof Player) {
-                Player var15 = (Player)var12;
+            } else if (var12 instanceof Player var15) {
                 if (!var6.isPresent() && EntitySelector.ATTACK_ALLOWED.test(var12) && !PiglinAi.isWearingGold(var15)) {
                     var6 = Optional.of(var15);
                 }

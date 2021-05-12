@@ -65,39 +65,228 @@ public class ItemCommands {
             Commands.literal("item")
                 .requires(param0x -> param0x.hasPermission(2))
                 .then(
-                    Commands.literal("block")
+                    Commands.literal("replace")
                         .then(
-                            Commands.argument("pos", BlockPosArgument.blockPos())
+                            Commands.literal("block")
                                 .then(
-                                    Commands.argument("slot", SlotArgument.slot())
+                                    Commands.argument("pos", BlockPosArgument.blockPos())
                                         .then(
-                                            Commands.literal("replace")
+                                            Commands.argument("slot", SlotArgument.slot())
                                                 .then(
-                                                    Commands.argument("item", ItemArgument.item())
-                                                        .executes(
-                                                            param0x -> setBlockItem(
-                                                                    param0x.getSource(),
-                                                                    BlockPosArgument.getLoadedBlockPos(param0x, "pos"),
-                                                                    SlotArgument.getSlot(param0x, "slot"),
-                                                                    ItemArgument.getItem(param0x, "item").createItemStack(1, false)
-                                                                )
-                                                        )
+                                                    Commands.literal("with")
                                                         .then(
-                                                            Commands.argument("count", IntegerArgumentType.integer(1, 64))
+                                                            Commands.argument("item", ItemArgument.item())
                                                                 .executes(
                                                                     param0x -> setBlockItem(
                                                                             param0x.getSource(),
                                                                             BlockPosArgument.getLoadedBlockPos(param0x, "pos"),
                                                                             SlotArgument.getSlot(param0x, "slot"),
-                                                                            ItemArgument.getItem(param0x, "item")
-                                                                                .createItemStack(IntegerArgumentType.getInteger(param0x, "count"), true)
+                                                                            ItemArgument.getItem(param0x, "item").createItemStack(1, false)
+                                                                        )
+                                                                )
+                                                                .then(
+                                                                    Commands.argument("count", IntegerArgumentType.integer(1, 64))
+                                                                        .executes(
+                                                                            param0x -> setBlockItem(
+                                                                                    param0x.getSource(),
+                                                                                    BlockPosArgument.getLoadedBlockPos(param0x, "pos"),
+                                                                                    SlotArgument.getSlot(param0x, "slot"),
+                                                                                    ItemArgument.getItem(param0x, "item")
+                                                                                        .createItemStack(IntegerArgumentType.getInteger(param0x, "count"), true)
+                                                                                )
+                                                                        )
+                                                                )
+                                                        )
+                                                )
+                                                .then(
+                                                    Commands.literal("from")
+                                                        .then(
+                                                            Commands.literal("block")
+                                                                .then(
+                                                                    Commands.argument("source", BlockPosArgument.blockPos())
+                                                                        .then(
+                                                                            Commands.argument("sourceSlot", SlotArgument.slot())
+                                                                                .executes(
+                                                                                    param0x -> blockToBlock(
+                                                                                            param0x.getSource(),
+                                                                                            BlockPosArgument.getLoadedBlockPos(param0x, "source"),
+                                                                                            SlotArgument.getSlot(param0x, "sourceSlot"),
+                                                                                            BlockPosArgument.getLoadedBlockPos(param0x, "pos"),
+                                                                                            SlotArgument.getSlot(param0x, "slot")
+                                                                                        )
+                                                                                )
+                                                                                .then(
+                                                                                    Commands.argument("modifier", ResourceLocationArgument.id())
+                                                                                        .suggests(SUGGEST_MODIFIER)
+                                                                                        .executes(
+                                                                                            param0x -> blockToBlock(
+                                                                                                    param0x.getSource(),
+                                                                                                    BlockPosArgument.getLoadedBlockPos(param0x, "source"),
+                                                                                                    SlotArgument.getSlot(param0x, "sourceSlot"),
+                                                                                                    BlockPosArgument.getLoadedBlockPos(param0x, "pos"),
+                                                                                                    SlotArgument.getSlot(param0x, "slot"),
+                                                                                                    ResourceLocationArgument.getItemModifier(
+                                                                                                        param0x, "modifier"
+                                                                                                    )
+                                                                                                )
+                                                                                        )
+                                                                                )
+                                                                        )
+                                                                )
+                                                        )
+                                                        .then(
+                                                            Commands.literal("entity")
+                                                                .then(
+                                                                    Commands.argument("source", EntityArgument.entity())
+                                                                        .then(
+                                                                            Commands.argument("sourceSlot", SlotArgument.slot())
+                                                                                .executes(
+                                                                                    param0x -> entityToBlock(
+                                                                                            param0x.getSource(),
+                                                                                            EntityArgument.getEntity(param0x, "source"),
+                                                                                            SlotArgument.getSlot(param0x, "sourceSlot"),
+                                                                                            BlockPosArgument.getLoadedBlockPos(param0x, "pos"),
+                                                                                            SlotArgument.getSlot(param0x, "slot")
+                                                                                        )
+                                                                                )
+                                                                                .then(
+                                                                                    Commands.argument("modifier", ResourceLocationArgument.id())
+                                                                                        .suggests(SUGGEST_MODIFIER)
+                                                                                        .executes(
+                                                                                            param0x -> entityToBlock(
+                                                                                                    param0x.getSource(),
+                                                                                                    EntityArgument.getEntity(param0x, "source"),
+                                                                                                    SlotArgument.getSlot(param0x, "sourceSlot"),
+                                                                                                    BlockPosArgument.getLoadedBlockPos(param0x, "pos"),
+                                                                                                    SlotArgument.getSlot(param0x, "slot"),
+                                                                                                    ResourceLocationArgument.getItemModifier(
+                                                                                                        param0x, "modifier"
+                                                                                                    )
+                                                                                                )
+                                                                                        )
+                                                                                )
                                                                         )
                                                                 )
                                                         )
                                                 )
                                         )
+                                )
+                        )
+                        .then(
+                            Commands.literal("entity")
+                                .then(
+                                    Commands.argument("targets", EntityArgument.entities())
                                         .then(
-                                            Commands.literal("modify")
+                                            Commands.argument("slot", SlotArgument.slot())
+                                                .then(
+                                                    Commands.literal("with")
+                                                        .then(
+                                                            Commands.argument("item", ItemArgument.item())
+                                                                .executes(
+                                                                    param0x -> setEntityItem(
+                                                                            param0x.getSource(),
+                                                                            EntityArgument.getEntities(param0x, "targets"),
+                                                                            SlotArgument.getSlot(param0x, "slot"),
+                                                                            ItemArgument.getItem(param0x, "item").createItemStack(1, false)
+                                                                        )
+                                                                )
+                                                                .then(
+                                                                    Commands.argument("count", IntegerArgumentType.integer(1, 64))
+                                                                        .executes(
+                                                                            param0x -> setEntityItem(
+                                                                                    param0x.getSource(),
+                                                                                    EntityArgument.getEntities(param0x, "targets"),
+                                                                                    SlotArgument.getSlot(param0x, "slot"),
+                                                                                    ItemArgument.getItem(param0x, "item")
+                                                                                        .createItemStack(IntegerArgumentType.getInteger(param0x, "count"), true)
+                                                                                )
+                                                                        )
+                                                                )
+                                                        )
+                                                )
+                                                .then(
+                                                    Commands.literal("from")
+                                                        .then(
+                                                            Commands.literal("block")
+                                                                .then(
+                                                                    Commands.argument("source", BlockPosArgument.blockPos())
+                                                                        .then(
+                                                                            Commands.argument("sourceSlot", SlotArgument.slot())
+                                                                                .executes(
+                                                                                    param0x -> blockToEntities(
+                                                                                            param0x.getSource(),
+                                                                                            BlockPosArgument.getLoadedBlockPos(param0x, "source"),
+                                                                                            SlotArgument.getSlot(param0x, "sourceSlot"),
+                                                                                            EntityArgument.getEntities(param0x, "targets"),
+                                                                                            SlotArgument.getSlot(param0x, "slot")
+                                                                                        )
+                                                                                )
+                                                                                .then(
+                                                                                    Commands.argument("modifier", ResourceLocationArgument.id())
+                                                                                        .suggests(SUGGEST_MODIFIER)
+                                                                                        .executes(
+                                                                                            param0x -> blockToEntities(
+                                                                                                    param0x.getSource(),
+                                                                                                    BlockPosArgument.getLoadedBlockPos(param0x, "source"),
+                                                                                                    SlotArgument.getSlot(param0x, "sourceSlot"),
+                                                                                                    EntityArgument.getEntities(param0x, "targets"),
+                                                                                                    SlotArgument.getSlot(param0x, "slot"),
+                                                                                                    ResourceLocationArgument.getItemModifier(
+                                                                                                        param0x, "modifier"
+                                                                                                    )
+                                                                                                )
+                                                                                        )
+                                                                                )
+                                                                        )
+                                                                )
+                                                        )
+                                                        .then(
+                                                            Commands.literal("entity")
+                                                                .then(
+                                                                    Commands.argument("source", EntityArgument.entity())
+                                                                        .then(
+                                                                            Commands.argument("sourceSlot", SlotArgument.slot())
+                                                                                .executes(
+                                                                                    param0x -> entityToEntities(
+                                                                                            param0x.getSource(),
+                                                                                            EntityArgument.getEntity(param0x, "source"),
+                                                                                            SlotArgument.getSlot(param0x, "sourceSlot"),
+                                                                                            EntityArgument.getEntities(param0x, "targets"),
+                                                                                            SlotArgument.getSlot(param0x, "slot")
+                                                                                        )
+                                                                                )
+                                                                                .then(
+                                                                                    Commands.argument("modifier", ResourceLocationArgument.id())
+                                                                                        .suggests(SUGGEST_MODIFIER)
+                                                                                        .executes(
+                                                                                            param0x -> entityToEntities(
+                                                                                                    param0x.getSource(),
+                                                                                                    EntityArgument.getEntity(param0x, "source"),
+                                                                                                    SlotArgument.getSlot(param0x, "sourceSlot"),
+                                                                                                    EntityArgument.getEntities(param0x, "targets"),
+                                                                                                    SlotArgument.getSlot(param0x, "slot"),
+                                                                                                    ResourceLocationArgument.getItemModifier(
+                                                                                                        param0x, "modifier"
+                                                                                                    )
+                                                                                                )
+                                                                                        )
+                                                                                )
+                                                                        )
+                                                                )
+                                                        )
+                                                )
+                                        )
+                                )
+                        )
+                )
+                .then(
+                    Commands.literal("modify")
+                        .then(
+                            Commands.literal("block")
+                                .then(
+                                    Commands.argument("pos", BlockPosArgument.blockPos())
+                                        .then(
+                                            Commands.argument("slot", SlotArgument.slot())
                                                 .then(
                                                     Commands.argument("modifier", ResourceLocationArgument.id())
                                                         .suggests(SUGGEST_MODIFIER)
@@ -111,110 +300,14 @@ public class ItemCommands {
                                                         )
                                                 )
                                         )
-                                        .then(
-                                            Commands.literal("copy")
-                                                .then(
-                                                    Commands.literal("block")
-                                                        .then(
-                                                            Commands.argument("source", BlockPosArgument.blockPos())
-                                                                .then(
-                                                                    Commands.argument("sourceSlot", SlotArgument.slot())
-                                                                        .executes(
-                                                                            param0x -> blockToBlock(
-                                                                                    param0x.getSource(),
-                                                                                    BlockPosArgument.getLoadedBlockPos(param0x, "source"),
-                                                                                    SlotArgument.getSlot(param0x, "sourceSlot"),
-                                                                                    BlockPosArgument.getLoadedBlockPos(param0x, "pos"),
-                                                                                    SlotArgument.getSlot(param0x, "slot")
-                                                                                )
-                                                                        )
-                                                                        .then(
-                                                                            Commands.argument("modifier", ResourceLocationArgument.id())
-                                                                                .suggests(SUGGEST_MODIFIER)
-                                                                                .executes(
-                                                                                    param0x -> blockToBlock(
-                                                                                            param0x.getSource(),
-                                                                                            BlockPosArgument.getLoadedBlockPos(param0x, "source"),
-                                                                                            SlotArgument.getSlot(param0x, "sourceSlot"),
-                                                                                            BlockPosArgument.getLoadedBlockPos(param0x, "pos"),
-                                                                                            SlotArgument.getSlot(param0x, "slot"),
-                                                                                            ResourceLocationArgument.getItemModifier(param0x, "modifier")
-                                                                                        )
-                                                                                )
-                                                                        )
-                                                                )
-                                                        )
-                                                )
-                                                .then(
-                                                    Commands.literal("entity")
-                                                        .then(
-                                                            Commands.argument("source", EntityArgument.entity())
-                                                                .then(
-                                                                    Commands.argument("sourceSlot", SlotArgument.slot())
-                                                                        .executes(
-                                                                            param0x -> entityToBlock(
-                                                                                    param0x.getSource(),
-                                                                                    EntityArgument.getEntity(param0x, "source"),
-                                                                                    SlotArgument.getSlot(param0x, "sourceSlot"),
-                                                                                    BlockPosArgument.getLoadedBlockPos(param0x, "pos"),
-                                                                                    SlotArgument.getSlot(param0x, "slot")
-                                                                                )
-                                                                        )
-                                                                        .then(
-                                                                            Commands.argument("modifier", ResourceLocationArgument.id())
-                                                                                .suggests(SUGGEST_MODIFIER)
-                                                                                .executes(
-                                                                                    param0x -> entityToBlock(
-                                                                                            param0x.getSource(),
-                                                                                            EntityArgument.getEntity(param0x, "source"),
-                                                                                            SlotArgument.getSlot(param0x, "sourceSlot"),
-                                                                                            BlockPosArgument.getLoadedBlockPos(param0x, "pos"),
-                                                                                            SlotArgument.getSlot(param0x, "slot"),
-                                                                                            ResourceLocationArgument.getItemModifier(param0x, "modifier")
-                                                                                        )
-                                                                                )
-                                                                        )
-                                                                )
-                                                        )
-                                                )
-                                        )
                                 )
                         )
-                )
-                .then(
-                    Commands.literal("entity")
                         .then(
-                            Commands.argument("targets", EntityArgument.entities())
+                            Commands.literal("entity")
                                 .then(
-                                    Commands.argument("slot", SlotArgument.slot())
+                                    Commands.argument("targets", EntityArgument.entities())
                                         .then(
-                                            Commands.literal("replace")
-                                                .then(
-                                                    Commands.argument("item", ItemArgument.item())
-                                                        .executes(
-                                                            param0x -> setEntityItem(
-                                                                    param0x.getSource(),
-                                                                    EntityArgument.getEntities(param0x, "targets"),
-                                                                    SlotArgument.getSlot(param0x, "slot"),
-                                                                    ItemArgument.getItem(param0x, "item").createItemStack(1, false)
-                                                                )
-                                                        )
-                                                        .then(
-                                                            Commands.argument("count", IntegerArgumentType.integer(1, 64))
-                                                                .executes(
-                                                                    param0x -> setEntityItem(
-                                                                            param0x.getSource(),
-                                                                            EntityArgument.getEntities(param0x, "targets"),
-                                                                            SlotArgument.getSlot(param0x, "slot"),
-                                                                            ItemArgument.getItem(param0x, "item")
-                                                                                .createItemStack(IntegerArgumentType.getInteger(param0x, "count"), true)
-                                                                        )
-                                                                )
-                                                        )
-                                                )
-                                        )
-                                        .then(
-                                            Commands.literal("modify")
+                                            Commands.argument("slot", SlotArgument.slot())
                                                 .then(
                                                     Commands.argument("modifier", ResourceLocationArgument.id())
                                                         .suggests(SUGGEST_MODIFIER)
@@ -224,73 +317,6 @@ public class ItemCommands {
                                                                     EntityArgument.getEntities(param0x, "targets"),
                                                                     SlotArgument.getSlot(param0x, "slot"),
                                                                     ResourceLocationArgument.getItemModifier(param0x, "modifier")
-                                                                )
-                                                        )
-                                                )
-                                        )
-                                        .then(
-                                            Commands.literal("copy")
-                                                .then(
-                                                    Commands.literal("block")
-                                                        .then(
-                                                            Commands.argument("source", BlockPosArgument.blockPos())
-                                                                .then(
-                                                                    Commands.argument("sourceSlot", SlotArgument.slot())
-                                                                        .executes(
-                                                                            param0x -> blockToEntities(
-                                                                                    param0x.getSource(),
-                                                                                    BlockPosArgument.getLoadedBlockPos(param0x, "source"),
-                                                                                    SlotArgument.getSlot(param0x, "sourceSlot"),
-                                                                                    EntityArgument.getEntities(param0x, "targets"),
-                                                                                    SlotArgument.getSlot(param0x, "slot")
-                                                                                )
-                                                                        )
-                                                                        .then(
-                                                                            Commands.argument("modifier", ResourceLocationArgument.id())
-                                                                                .suggests(SUGGEST_MODIFIER)
-                                                                                .executes(
-                                                                                    param0x -> blockToEntities(
-                                                                                            param0x.getSource(),
-                                                                                            BlockPosArgument.getLoadedBlockPos(param0x, "source"),
-                                                                                            SlotArgument.getSlot(param0x, "sourceSlot"),
-                                                                                            EntityArgument.getEntities(param0x, "targets"),
-                                                                                            SlotArgument.getSlot(param0x, "slot"),
-                                                                                            ResourceLocationArgument.getItemModifier(param0x, "modifier")
-                                                                                        )
-                                                                                )
-                                                                        )
-                                                                )
-                                                        )
-                                                )
-                                                .then(
-                                                    Commands.literal("entity")
-                                                        .then(
-                                                            Commands.argument("source", EntityArgument.entity())
-                                                                .then(
-                                                                    Commands.argument("sourceSlot", SlotArgument.slot())
-                                                                        .executes(
-                                                                            param0x -> entityToEntities(
-                                                                                    param0x.getSource(),
-                                                                                    EntityArgument.getEntity(param0x, "source"),
-                                                                                    SlotArgument.getSlot(param0x, "sourceSlot"),
-                                                                                    EntityArgument.getEntities(param0x, "targets"),
-                                                                                    SlotArgument.getSlot(param0x, "slot")
-                                                                                )
-                                                                        )
-                                                                        .then(
-                                                                            Commands.argument("modifier", ResourceLocationArgument.id())
-                                                                                .suggests(SUGGEST_MODIFIER)
-                                                                                .executes(
-                                                                                    param0x -> entityToEntities(
-                                                                                            param0x.getSource(),
-                                                                                            EntityArgument.getEntity(param0x, "source"),
-                                                                                            SlotArgument.getSlot(param0x, "sourceSlot"),
-                                                                                            EntityArgument.getEntities(param0x, "targets"),
-                                                                                            SlotArgument.getSlot(param0x, "slot"),
-                                                                                            ResourceLocationArgument.getItemModifier(param0x, "modifier")
-                                                                                        )
-                                                                                )
-                                                                        )
                                                                 )
                                                         )
                                                 )

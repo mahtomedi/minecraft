@@ -62,7 +62,7 @@ public class BiomeGenerationSettings {
     private final List<Supplier<ConfiguredStructureFeature<?, ?>>> structureStarts;
     private final List<ConfiguredFeature<?, ?>> flowerFeatures;
 
-    private BiomeGenerationSettings(
+    BiomeGenerationSettings(
         Supplier<ConfiguredSurfaceBuilder<?>> param0,
         Map<GenerationStep.Carving, List<Supplier<ConfiguredWorldCarver<?>>>> param1,
         List<List<Supplier<ConfiguredFeature<?, ?>>>> param2,
@@ -157,10 +157,7 @@ public class BiomeGenerationSettings {
         public BiomeGenerationSettings build() {
             return new BiomeGenerationSettings(
                 this.surfaceBuilder.orElseThrow(() -> new IllegalStateException("Missing surface builder")),
-                this.carvers
-                    .entrySet()
-                    .stream()
-                    .collect(ImmutableMap.toImmutableMap(Entry::getKey, param0 -> ImmutableList.copyOf((Collection)param0.getValue()))),
+                this.carvers.entrySet().stream().collect(ImmutableMap.toImmutableMap(Entry::getKey, param0 -> ImmutableList.copyOf(param0.getValue()))),
                 this.features.stream().map(ImmutableList::copyOf).collect(ImmutableList.toImmutableList()),
                 ImmutableList.copyOf(this.structureStarts)
             );

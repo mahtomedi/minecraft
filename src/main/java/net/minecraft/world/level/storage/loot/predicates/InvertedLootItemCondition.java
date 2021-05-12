@@ -10,9 +10,9 @@ import net.minecraft.world.level.storage.loot.ValidationContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
 
 public class InvertedLootItemCondition implements LootItemCondition {
-    private final LootItemCondition term;
+    final LootItemCondition term;
 
-    private InvertedLootItemCondition(LootItemCondition param0) {
+    InvertedLootItemCondition(LootItemCondition param0) {
         this.term = param0;
     }
 

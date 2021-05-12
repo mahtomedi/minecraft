@@ -128,7 +128,7 @@ public class GpuWarnlistManager extends SimplePreparableReloadListener<GpuWarnli
             BufferedReader var2 = new BufferedReader(new InputStreamReader(var1.getInputStream(), StandardCharsets.UTF_8));
         ) {
             var0 = new JsonParser().parse(var2).getAsJsonObject();
-        } catch (JsonSyntaxException | IOException var35) {
+        } catch (JsonSyntaxException | IOException var11) {
             LOGGER.warn("Failed to load GPU warnlist");
         }
 
@@ -137,12 +137,12 @@ public class GpuWarnlistManager extends SimplePreparableReloadListener<GpuWarnli
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static final class Preparations {
+    protected static final class Preparations {
         private final List<Pattern> rendererPatterns;
         private final List<Pattern> versionPatterns;
         private final List<Pattern> vendorPatterns;
 
-        private Preparations(List<Pattern> param0, List<Pattern> param1, List<Pattern> param2) {
+        Preparations(List<Pattern> param0, List<Pattern> param1, List<Pattern> param2) {
             this.rendererPatterns = param0;
             this.versionPatterns = param1;
             this.vendorPatterns = param2;
@@ -162,7 +162,7 @@ public class GpuWarnlistManager extends SimplePreparableReloadListener<GpuWarnli
             return String.join(", ", var0);
         }
 
-        private ImmutableMap<String, String> apply() {
+        ImmutableMap<String, String> apply() {
             Builder<String, String> var0 = new Builder<>();
             String var1 = matchAny(this.rendererPatterns, GlUtil.getRenderer());
             if (!var1.isEmpty()) {

@@ -63,7 +63,7 @@ public class MultiPartGenerator implements BlockStateGenerator {
     static class ConditionalEntry extends MultiPartGenerator.Entry {
         private final Condition condition;
 
-        private ConditionalEntry(Condition param0, List<Variant> param1) {
+        ConditionalEntry(Condition param0, List<Variant> param1) {
             super(param1);
             this.condition = param0;
         }
@@ -82,7 +82,7 @@ public class MultiPartGenerator implements BlockStateGenerator {
     static class Entry implements Supplier<JsonElement> {
         private final List<Variant> variants;
 
-        private Entry(List<Variant> param0) {
+        Entry(List<Variant> param0) {
             this.variants = param0;
         }
 

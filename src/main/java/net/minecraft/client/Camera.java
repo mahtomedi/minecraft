@@ -221,11 +221,11 @@ public class Camera {
 
     @OnlyIn(Dist.CLIENT)
     public static class NearPlane {
-        private final Vec3 forward;
+        final Vec3 forward;
         private final Vec3 left;
         private final Vec3 up;
 
-        private NearPlane(Vec3 param0, Vec3 param1, Vec3 param2) {
+        NearPlane(Vec3 param0, Vec3 param1, Vec3 param2) {
             this.forward = param0;
             this.left = param1;
             this.up = param2;

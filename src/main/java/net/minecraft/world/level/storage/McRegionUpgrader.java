@@ -120,8 +120,8 @@ public class McRegionUpgrader {
                             }
 
                             var7 = NbtIo.read(var6);
-                        } catch (IOException var107) {
-                            LOGGER.warn("Failed to read data for chunk {}", var5, var107);
+                        } catch (IOException var27) {
+                            LOGGER.warn("Failed to read data for chunk {}", var5, var27);
                             continue;
                         }
 
@@ -144,8 +144,8 @@ public class McRegionUpgrader {
                     param6.progressStagePercentage(var17);
                 }
             }
-        } catch (IOException var112) {
-            LOGGER.error("Failed to upgrade region file {}", param2, var112);
+        } catch (IOException var30) {
+            LOGGER.error("Failed to upgrade region file {}", param2, var30);
         }
 
     }
