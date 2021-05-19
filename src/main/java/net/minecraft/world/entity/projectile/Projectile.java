@@ -2,6 +2,7 @@ package net.minecraft.world.entity.projectile;
 
 import java.util.UUID;
 import javax.annotation.Nullable;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
@@ -9,6 +10,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
@@ -116,9 +119,9 @@ public abstract class Projectile extends Entity {
             )
             .scale((double)param3);
         this.setDeltaMovement(var0);
-        float var1 = Mth.sqrt(getHorizontalDistanceSqr(var0));
+        double var1 = Math.sqrt(getHorizontalDistanceSqr(var0));
         this.setYRot((float)(Mth.atan2(var0.x, var0.z) * 180.0F / (float)Math.PI));
-        this.setXRot((float)(Mth.atan2(var0.y, (double)var1) * 180.0F / (float)Math.PI));
+        this.setXRot((float)(Mth.atan2(var0.y, var1) * 180.0F / (float)Math.PI));
         this.yRotO = this.getYRot();
         this.xRotO = this.getXRot();
     }
@@ -158,8 +161,8 @@ public abstract class Projectile extends Entity {
     public void lerpMotion(double param0, double param1, double param2) {
         this.setDeltaMovement(param0, param1, param2);
         if (this.xRotO == 0.0F && this.yRotO == 0.0F) {
-            float var0 = Mth.sqrt(param0 * param0 + param2 * param2);
-            this.setXRot((float)(Mth.atan2(param1, (double)var0) * 180.0F / (float)Math.PI));
+            double var0 = Math.sqrt(param0 * param0 + param2 * param2);
+            this.setXRot((float)(Mth.atan2(param1, var0) * 180.0F / (float)Math.PI));
             this.setYRot((float)(Mth.atan2(param0, param2) * 180.0F / (float)Math.PI));
             this.xRotO = this.getXRot();
             this.yRotO = this.getYRot();
@@ -179,8 +182,8 @@ public abstract class Projectile extends Entity {
 
     protected void updateRotation() {
         Vec3 var0 = this.getDeltaMovement();
-        float var1 = Mth.sqrt(getHorizontalDistanceSqr(var0));
-        this.setXRot(lerpRotation(this.xRotO, (float)(Mth.atan2(var0.y, (double)var1) * 180.0F / (float)Math.PI)));
+        double var1 = Math.sqrt(getHorizontalDistanceSqr(var0));
+        this.setXRot(lerpRotation(this.xRotO, (float)(Mth.atan2(var0.y, var1) * 180.0F / (float)Math.PI)));
         this.setYRot(lerpRotation(this.yRotO, (float)(Mth.atan2(var0.x, var0.z) * 180.0F / (float)Math.PI)));
     }
 
@@ -210,5 +213,15 @@ public abstract class Projectile extends Entity {
             this.setOwner(var0);
         }
 
+    }
+
+    @Override
+    public boolean mayInteract(Level param0, BlockPos param1) {
+        Entity var0 = this.getOwner();
+        if (var0 instanceof Player) {
+            return var0.mayInteract(param0, param1);
+        } else {
+            return var0 == null || param0.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING);
+        }
     }
 }

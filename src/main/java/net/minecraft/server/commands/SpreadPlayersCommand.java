@@ -171,7 +171,7 @@ public class SpreadPlayersCommand {
                 if (var5 > 0) {
                     var6.x /= (double)var5;
                     var6.z /= (double)var5;
-                    double var10 = (double)var6.getLength();
+                    double var10 = var6.getLength();
                     if (var10 > 0.0) {
                         var6.normalize();
                         var4.moveAway(var6);
@@ -269,13 +269,13 @@ public class SpreadPlayersCommand {
         }
 
         void normalize() {
-            double var0 = (double)this.getLength();
+            double var0 = this.getLength();
             this.x /= var0;
             this.z /= var0;
         }
 
-        float getLength() {
-            return Mth.sqrt(this.x * this.x + this.z * this.z);
+        double getLength() {
+            return Math.sqrt(this.x * this.x + this.z * this.z);
         }
 
         public void moveAway(SpreadPlayersCommand.Position param0) {

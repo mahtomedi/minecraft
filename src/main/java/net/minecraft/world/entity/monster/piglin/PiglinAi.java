@@ -17,7 +17,6 @@ import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -51,6 +50,7 @@ import net.minecraft.world.entity.ai.behavior.StartCelebratingIfTargetDead;
 import net.minecraft.world.entity.ai.behavior.StopAttackingIfTargetInvalid;
 import net.minecraft.world.entity.ai.behavior.StopBeingAngryIfTargetDead;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.world.entity.ai.sensing.Sensor;
 import net.minecraft.world.entity.ai.util.LandRandomPos;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.hoglin.Hoglin;
@@ -504,11 +504,11 @@ public class PiglinAi {
             return Optional.empty();
         } else {
             Optional<LivingEntity> var1 = BehaviorUtils.getLivingEntityFromUUIDMemory(param0x, MemoryModuleType.ANGRY_AT);
-            if (var1.isPresent() && isAttackAllowed(var1.get())) {
+            if (var1.isPresent() && Sensor.isEntityAttackable(param0x, var1.get())) {
                 return var1;
             } else {
                 if (var0.hasMemoryValue(MemoryModuleType.UNIVERSAL_ANGER)) {
-                    Optional<Player> var2 = var0.getMemory(MemoryModuleType.NEAREST_VISIBLE_TARGETABLE_PLAYER);
+                    Optional<Player> var2 = var0.getMemory(MemoryModuleType.NEAREST_VISIBLE_ATTACKABLE_PLAYER);
                     if (var2.isPresent()) {
                         return var2;
                     }
@@ -519,7 +519,7 @@ public class PiglinAi {
                     return var3;
                 } else {
                     Optional<Player> var4 = var0.getMemory(MemoryModuleType.NEAREST_TARGETABLE_PLAYER_NOT_WEARING_GOLD);
-                    return var4.isPresent() && isAttackAllowed(var4.get()) ? var4 : Optional.empty();
+                    return var4.isPresent() && Sensor.isEntityAttackable(param0x, var4.get()) ? var4 : Optional.empty();
                 }
             }
         }
@@ -576,7 +576,7 @@ public class PiglinAi {
             });
             if (param0.isBaby()) {
                 var0.setMemoryWithExpiry(MemoryModuleType.AVOID_TARGET, param1, 100L);
-                if (isAttackAllowed(param1)) {
+                if (Sensor.isEntityAttackable(param0, param1)) {
                     broadcastAngerTarget(param0, param1);
                 }
 
@@ -591,7 +591,7 @@ public class PiglinAi {
 
     protected static void maybeRetaliate(AbstractPiglin param0, LivingEntity param1) {
         if (!param0.getBrain().isActive(Activity.AVOID)) {
-            if (isAttackAllowed(param1)) {
+            if (Sensor.isEntityAttackable(param0, param1)) {
                 if (!BehaviorUtils.isOtherTargetMuchFurtherAwayThanCurrentAttackTarget(param0, param1, 4.0)) {
                     if (param1.getType() == EntityType.PLAYER && param0.level.getGameRules().getBoolean(GameRules.RULE_UNIVERSAL_ANGER)) {
                         setAngerTargetToNearestTargetablePlayerIfFound(param0, param1);
@@ -686,7 +686,7 @@ public class PiglinAi {
     }
 
     protected static void setAngerTarget(AbstractPiglin param0, LivingEntity param1) {
-        if (isAttackAllowed(param1)) {
+        if (Sensor.isEntityAttackable(param0, param1)) {
             param0.getBrain().eraseMemory(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);
             param0.getBrain().setMemoryWithExpiry(MemoryModuleType.ANGRY_AT, param1.getUUID(), 600L);
             if (param1.getType() == EntityType.HOGLIN && param0.canHunt()) {
@@ -727,8 +727,8 @@ public class PiglinAi {
     }
 
     public static Optional<Player> getNearestVisibleTargetablePlayer(AbstractPiglin param0) {
-        return param0.getBrain().hasMemoryValue(MemoryModuleType.NEAREST_VISIBLE_TARGETABLE_PLAYER)
-            ? param0.getBrain().getMemory(MemoryModuleType.NEAREST_VISIBLE_TARGETABLE_PLAYER)
+        return param0.getBrain().hasMemoryValue(MemoryModuleType.NEAREST_VISIBLE_ATTACKABLE_PLAYER)
+            ? param0.getBrain().getMemory(MemoryModuleType.NEAREST_VISIBLE_ATTACKABLE_PLAYER)
             : Optional.empty();
     }
 
@@ -824,10 +824,6 @@ public class PiglinAi {
 
     private static boolean isFood(ItemStack param0) {
         return param0.is(ItemTags.PIGLIN_FOOD);
-    }
-
-    private static boolean isAttackAllowed(LivingEntity param0) {
-        return EntitySelector.ATTACK_ALLOWED.test(param0);
     }
 
     private static boolean isNearRepellent(Piglin param0) {

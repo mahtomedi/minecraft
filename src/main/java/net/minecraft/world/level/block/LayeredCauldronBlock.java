@@ -51,9 +51,15 @@ public class LayeredCauldronBlock extends AbstractCauldronBlock {
     public void entityInside(BlockState param0, Level param1, BlockPos param2, Entity param3) {
         if (!param1.isClientSide && param3.isOnFire() && this.isEntityInsideContent(param0, param2, param3)) {
             param3.clearFire();
-            lowerFillLevel(param0, param1, param2);
+            if (param3.mayInteract(param1, param2)) {
+                this.handleEntityOnFireInside(param0, param1, param2);
+            }
         }
 
+    }
+
+    protected void handleEntityOnFireInside(BlockState param0, Level param1, BlockPos param2) {
+        lowerFillLevel(param0, param1, param2);
     }
 
     public static void lowerFillLevel(BlockState param0, Level param1, BlockPos param2) {

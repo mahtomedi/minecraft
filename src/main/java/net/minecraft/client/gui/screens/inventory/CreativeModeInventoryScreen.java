@@ -255,7 +255,7 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
             this.searchBox.setBordered(false);
             this.searchBox.setVisible(false);
             this.searchBox.setTextColor(16777215);
-            this.children.add(this.searchBox);
+            this.addWidget(this.searchBox);
             int var0 = selectedTab;
             selectedTab = -1;
             this.selectTab(CreativeModeTab.TABS[var0]);

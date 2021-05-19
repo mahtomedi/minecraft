@@ -1,6 +1,9 @@
 package net.minecraft.client.gui.components;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import java.util.function.Consumer;
+import net.minecraft.client.gui.narration.NarratedElementType;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -41,6 +44,12 @@ public class Button extends AbstractButton {
         this.onTooltip.onTooltip(this, param0, param1, param2);
     }
 
+    @Override
+    public void updateNarration(NarrationElementOutput param0) {
+        this.defaultButtonNarrationText(param0);
+        this.onTooltip.narrateTooltip(param1 -> param0.add(NarratedElementType.HINT, param1));
+    }
+
     @OnlyIn(Dist.CLIENT)
     public interface OnPress {
         void onPress(Button var1);
@@ -49,5 +58,8 @@ public class Button extends AbstractButton {
     @OnlyIn(Dist.CLIENT)
     public interface OnTooltip {
         void onTooltip(Button var1, PoseStack var2, int var3, int var4);
+
+        default void narrateTooltip(Consumer<Component> param0) {
+        }
     }
 }

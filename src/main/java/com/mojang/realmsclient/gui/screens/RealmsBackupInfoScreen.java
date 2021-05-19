@@ -12,6 +12,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.realms.RealmsScreen;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -24,6 +25,7 @@ public class RealmsBackupInfoScreen extends RealmsScreen {
     private RealmsBackupInfoScreen.BackupInfoList backupInfoList;
 
     public RealmsBackupInfoScreen(Screen param0, Backup param1) {
+        super(new TextComponent("Changes from last backup"));
         this.lastScreen = param0;
         this.backup = param1;
     }
@@ -35,7 +37,7 @@ public class RealmsBackupInfoScreen extends RealmsScreen {
     @Override
     public void init() {
         this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
-        this.addButton(
+        this.addRenderableWidget(
             new Button(
                 this.width / 2 - 100, this.height / 4 + 120 + 24, 200, 20, CommonComponents.GUI_BACK, param0 -> this.minecraft.setScreen(this.lastScreen)
             )
@@ -63,8 +65,8 @@ public class RealmsBackupInfoScreen extends RealmsScreen {
     @Override
     public void render(PoseStack param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
-        drawCenteredString(param0, this.font, "Changes from last backup", this.width / 2, 10, 16777215);
         this.backupInfoList.render(param0, param1, param2, param3);
+        drawCenteredString(param0, this.font, this.title, this.width / 2, 10, 16777215);
         super.render(param0, param1, param2, param3);
     }
 
@@ -122,6 +124,11 @@ public class RealmsBackupInfoScreen extends RealmsScreen {
             Font var0 = RealmsBackupInfoScreen.this.minecraft.font;
             GuiComponent.drawString(param0, var0, this.key, param3, param2, 10526880);
             GuiComponent.drawString(param0, var0, RealmsBackupInfoScreen.this.checkForSpecificMetadata(this.key, this.value), param3, param2 + 12, 16777215);
+        }
+
+        @Override
+        public Component getNarration() {
+            return new TranslatableComponent("narrator.select", this.key + " " + this.value);
         }
     }
 }

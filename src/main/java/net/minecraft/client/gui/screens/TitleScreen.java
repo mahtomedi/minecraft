@@ -5,16 +5,20 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
+import com.mojang.realmsclient.RealmsMainScreen;
+import com.mojang.realmsclient.gui.screens.RealmsNotificationsScreen;
 import java.io.IOException;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ImageButton;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.gui.screens.multiplayer.SafetyScreen;
@@ -26,8 +30,8 @@ import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.realms.RealmsBridge;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Mth;
@@ -53,7 +57,6 @@ public class TitleScreen extends Screen {
     private Button resetDemoButton;
     private static final ResourceLocation MINECRAFT_LOGO = new ResourceLocation("textures/gui/title/minecraft.png");
     private static final ResourceLocation MINECRAFT_EDITION = new ResourceLocation("textures/gui/title/edition.png");
-    private boolean realmsNotificationsInitialized;
     private Screen realmsNotificationsScreen;
     private int copyrightWidth;
     private int copyrightX;
@@ -118,7 +121,7 @@ public class TitleScreen extends Screen {
             this.createNormalMenuOptions(var1, 24);
         }
 
-        this.addButton(
+        this.addRenderableWidget(
             new ImageButton(
                 this.width / 2 - 124,
                 var1 + 72 + 12,
@@ -134,7 +137,7 @@ public class TitleScreen extends Screen {
                 new TranslatableComponent("narrator.button.language")
             )
         );
-        this.addButton(
+        this.addRenderableWidget(
             new Button(
                 this.width / 2 - 100,
                 var1 + 72 + 12,
@@ -144,8 +147,10 @@ public class TitleScreen extends Screen {
                 param0 -> this.minecraft.setScreen(new OptionsScreen(this, this.minecraft.options))
             )
         );
-        this.addButton(new Button(this.width / 2 + 2, var1 + 72 + 12, 98, 20, new TranslatableComponent("menu.quit"), param0 -> this.minecraft.stop()));
-        this.addButton(
+        this.addRenderableWidget(
+            new Button(this.width / 2 + 2, var1 + 72 + 12, 98, 20, new TranslatableComponent("menu.quit"), param0 -> this.minecraft.stop())
+        );
+        this.addRenderableWidget(
             new ImageButton(
                 this.width / 2 + 104,
                 var1 + 72 + 12,
@@ -162,10 +167,8 @@ public class TitleScreen extends Screen {
             )
         );
         this.minecraft.setConnectedToRealms(false);
-        if (this.minecraft.options.realmsNotifications && !this.realmsNotificationsInitialized) {
-            RealmsBridge var2 = new RealmsBridge();
-            this.realmsNotificationsScreen = var2.getNotificationScreen(this);
-            this.realmsNotificationsInitialized = true;
+        if (this.minecraft.options.realmsNotifications && this.realmsNotificationsScreen == null) {
+            this.realmsNotificationsScreen = new RealmsNotificationsScreen();
         }
 
         if (this.realmsNotificationsEnabled()) {
@@ -175,7 +178,7 @@ public class TitleScreen extends Screen {
     }
 
     private void createNormalMenuOptions(int param0, int param1) {
-        this.addButton(
+        this.addRenderableWidget(
             new Button(
                 this.width / 2 - 100,
                 param0,
@@ -188,22 +191,29 @@ public class TitleScreen extends Screen {
         boolean var0 = this.minecraft.allowsMultiplayer();
         Button.OnTooltip var1 = var0
             ? Button.NO_TOOLTIP
-            : (param0x, param1x, param2, param3) -> {
-                if (!param0x.active) {
-                    this.renderTooltip(
-                        param1x,
-                        this.minecraft.font.split(new TranslatableComponent("title.multiplayer.disabled"), Math.max(this.width / 2 - 43, 170)),
-                        param2,
-                        param3
-                    );
+            : new Button.OnTooltip() {
+                private final Component text = new TranslatableComponent("title.multiplayer.disabled");
+    
+                @Override
+                public void onTooltip(Button param0, PoseStack param1, int param2, int param3) {
+                    if (!param0.active) {
+                        TitleScreen.this.renderTooltip(
+                            param1, TitleScreen.this.minecraft.font.split(this.text, Math.max(TitleScreen.this.width / 2 - 43, 170)), param2, param3
+                        );
+                    }
+    
                 }
     
+                @Override
+                public void narrateTooltip(Consumer<Component> param0) {
+                    param0.accept(this.text);
+                }
             };
-        this.addButton(new Button(this.width / 2 - 100, param0 + param1 * 1, 200, 20, new TranslatableComponent("menu.multiplayer"), param0x -> {
+        this.addRenderableWidget(new Button(this.width / 2 - 100, param0 + param1 * 1, 200, 20, new TranslatableComponent("menu.multiplayer"), param0x -> {
             Screen var0x = (Screen)(this.minecraft.options.skipMultiplayerWarning ? new JoinMultiplayerScreen(this) : new SafetyScreen(this));
             this.minecraft.setScreen(var0x);
         }, var1)).active = var0;
-        this.addButton(
+        this.addRenderableWidget(
                 new Button(
                     this.width / 2 - 100, param0 + param1 * 2, 200, 20, new TranslatableComponent("menu.online"), param0x -> this.realmsButtonClicked(), var1
                 )
@@ -213,7 +223,7 @@ public class TitleScreen extends Screen {
 
     private void createDemoMenuOptions(int param0, int param1) {
         boolean var0 = this.checkDemoWorldPresence();
-        this.addButton(new Button(this.width / 2 - 100, param0, 200, 20, new TranslatableComponent("menu.playdemo"), param1x -> {
+        this.addRenderableWidget(new Button(this.width / 2 - 100, param0, 200, 20, new TranslatableComponent("menu.playdemo"), param1x -> {
             if (var0) {
                 this.minecraft.loadLevel("Demo_World");
             } else {
@@ -222,7 +232,7 @@ public class TitleScreen extends Screen {
             }
 
         }));
-        this.resetDemoButton = this.addButton(
+        this.resetDemoButton = this.addRenderableWidget(
             new Button(
                 this.width / 2 - 100,
                 param0 + param1 * 1,
@@ -273,8 +283,7 @@ public class TitleScreen extends Screen {
     }
 
     private void realmsButtonClicked() {
-        RealmsBridge var0 = new RealmsBridge();
-        var0.switchToRealms(this);
+        this.minecraft.setScreen(new RealmsMainScreen(this));
     }
 
     @Override
@@ -345,8 +354,10 @@ public class TitleScreen extends Screen {
                 fill(param0, this.copyrightX, this.height - 1, this.copyrightX + this.copyrightWidth, this.height, 16777215 | var5);
             }
 
-            for(AbstractWidget var8 : this.buttons) {
-                var8.setAlpha(var4);
+            for(GuiEventListener var8 : this.children()) {
+                if (var8 instanceof AbstractWidget) {
+                    ((AbstractWidget)var8).setAlpha(var4);
+                }
             }
 
             super.render(param0, param1, param2, param3);

@@ -161,47 +161,47 @@ public abstract class MinMaxBounds<T extends Number> {
         R create(StringReader var1, @Nullable T var2, @Nullable T var3) throws CommandSyntaxException;
     }
 
-    public static class Floats extends MinMaxBounds<Float> {
-        public static final MinMaxBounds.Floats ANY = new MinMaxBounds.Floats(null, null);
+    public static class Doubles extends MinMaxBounds<Double> {
+        public static final MinMaxBounds.Doubles ANY = new MinMaxBounds.Doubles(null, null);
         private final Double minSq;
         private final Double maxSq;
 
-        private static MinMaxBounds.Floats create(StringReader param0, @Nullable Float param1, @Nullable Float param2) throws CommandSyntaxException {
+        private static MinMaxBounds.Doubles create(StringReader param0, @Nullable Double param1, @Nullable Double param2) throws CommandSyntaxException {
             if (param1 != null && param2 != null && param1 > param2) {
                 throw ERROR_SWAPPED.createWithContext(param0);
             } else {
-                return new MinMaxBounds.Floats(param1, param2);
+                return new MinMaxBounds.Doubles(param1, param2);
             }
         }
 
         @Nullable
-        private static Double squareOpt(@Nullable Float param0) {
-            return param0 == null ? null : param0.doubleValue() * param0.doubleValue();
+        private static Double squareOpt(@Nullable Double param0) {
+            return param0 == null ? null : param0 * param0;
         }
 
-        private Floats(@Nullable Float param0, @Nullable Float param1) {
+        private Doubles(@Nullable Double param0, @Nullable Double param1) {
             super(param0, param1);
             this.minSq = squareOpt(param0);
             this.maxSq = squareOpt(param1);
         }
 
-        public static MinMaxBounds.Floats exactly(float param0) {
-            return new MinMaxBounds.Floats(param0, param0);
+        public static MinMaxBounds.Doubles exactly(double param0) {
+            return new MinMaxBounds.Doubles(param0, param0);
         }
 
-        public static MinMaxBounds.Floats between(float param0, float param1) {
-            return new MinMaxBounds.Floats(param0, param1);
+        public static MinMaxBounds.Doubles between(double param0, double param1) {
+            return new MinMaxBounds.Doubles(param0, param1);
         }
 
-        public static MinMaxBounds.Floats atLeast(float param0) {
-            return new MinMaxBounds.Floats(param0, null);
+        public static MinMaxBounds.Doubles atLeast(double param0) {
+            return new MinMaxBounds.Doubles(param0, null);
         }
 
-        public static MinMaxBounds.Floats atMost(float param0) {
-            return new MinMaxBounds.Floats(null, param0);
+        public static MinMaxBounds.Doubles atMost(double param0) {
+            return new MinMaxBounds.Doubles(null, param0);
         }
 
-        public boolean matches(float param0) {
+        public boolean matches(double param0) {
             if (this.min != null && this.min > param0) {
                 return false;
             } else {
@@ -217,16 +217,18 @@ public abstract class MinMaxBounds<T extends Number> {
             }
         }
 
-        public static MinMaxBounds.Floats fromJson(@Nullable JsonElement param0) {
-            return fromJson(param0, ANY, GsonHelper::convertToFloat, MinMaxBounds.Floats::new);
+        public static MinMaxBounds.Doubles fromJson(@Nullable JsonElement param0) {
+            return fromJson(param0, ANY, GsonHelper::convertToDouble, MinMaxBounds.Doubles::new);
         }
 
-        public static MinMaxBounds.Floats fromReader(StringReader param0) throws CommandSyntaxException {
+        public static MinMaxBounds.Doubles fromReader(StringReader param0) throws CommandSyntaxException {
             return fromReader(param0, param0x -> param0x);
         }
 
-        public static MinMaxBounds.Floats fromReader(StringReader param0, Function<Float, Float> param1) throws CommandSyntaxException {
-            return fromReader(param0, MinMaxBounds.Floats::create, Float::parseFloat, CommandSyntaxException.BUILT_IN_EXCEPTIONS::readerInvalidFloat, param1);
+        public static MinMaxBounds.Doubles fromReader(StringReader param0, Function<Double, Double> param1) throws CommandSyntaxException {
+            return fromReader(
+                param0, MinMaxBounds.Doubles::create, Double::parseDouble, CommandSyntaxException.BUILT_IN_EXCEPTIONS::readerInvalidDouble, param1
+            );
         }
     }
 

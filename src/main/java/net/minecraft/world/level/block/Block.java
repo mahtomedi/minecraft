@@ -8,6 +8,7 @@ import it.unimi.dsi.fastutil.objects.Object2ByteLinkedOpenHashMap;
 import java.util.List;
 import java.util.Random;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
@@ -23,8 +24,10 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -307,14 +310,35 @@ public class Block extends BlockBehaviour implements ItemLike {
     }
 
     public static void popResource(Level param0, BlockPos param1, ItemStack param2) {
+        float var0 = EntityType.ITEM.getHeight() / 2.0F;
+        double var1 = (double)((float)param1.getX() + 0.5F) + Mth.nextDouble(param0.random, -0.25, 0.25);
+        double var2 = (double)((float)param1.getY() + 0.5F) + Mth.nextDouble(param0.random, -0.25, 0.25) - (double)var0;
+        double var3 = (double)((float)param1.getZ() + 0.5F) + Mth.nextDouble(param0.random, -0.25, 0.25);
+        popResource(param0, () -> new ItemEntity(param0, var1, var2, var3, param2), param2);
+    }
+
+    public static void popResourceFromFace(Level param0, BlockPos param1, Direction param2, ItemStack param3) {
+        int var0 = param2.getStepX();
+        int var1 = param2.getStepY();
+        int var2 = param2.getStepZ();
+        float var3 = EntityType.ITEM.getWidth() / 2.0F;
+        float var4 = EntityType.ITEM.getHeight() / 2.0F;
+        double var5 = (double)((float)param1.getX() + 0.5F) + (var0 == 0 ? Mth.nextDouble(param0.random, -0.25, 0.25) : (double)((float)var0 * (0.5F + var3)));
+        double var6 = (double)((float)param1.getY() + 0.5F)
+            + (var1 == 0 ? Mth.nextDouble(param0.random, -0.25, 0.25) : (double)((float)var1 * (0.5F + var4)))
+            - (double)var4;
+        double var7 = (double)((float)param1.getZ() + 0.5F) + (var2 == 0 ? Mth.nextDouble(param0.random, -0.25, 0.25) : (double)((float)var2 * (0.5F + var3)));
+        double var8 = var0 == 0 ? Mth.nextDouble(param0.random, -0.1, 0.1) : (double)var0 * 0.1;
+        double var9 = var1 == 0 ? Mth.nextDouble(param0.random, 0.0, 0.1) : (double)var1 * 0.1 + 0.1;
+        double var10 = var2 == 0 ? Mth.nextDouble(param0.random, -0.1, 0.1) : (double)var2 * 0.1;
+        popResource(param0, () -> new ItemEntity(param0, var5, var6, var7, param3, var8, var9, var10), param3);
+    }
+
+    private static void popResource(Level param0, Supplier<ItemEntity> param1, ItemStack param2) {
         if (!param0.isClientSide && !param2.isEmpty() && param0.getGameRules().getBoolean(GameRules.RULE_DOBLOCKDROPS)) {
-            float var0 = 0.5F;
-            double var1 = (double)(param0.random.nextFloat() * 0.5F) + 0.25;
-            double var2 = (double)(param0.random.nextFloat() * 0.5F) + 0.25;
-            double var3 = (double)(param0.random.nextFloat() * 0.5F) + 0.25;
-            ItemEntity var4 = new ItemEntity(param0, (double)param1.getX() + var1, (double)param1.getY() + var2, (double)param1.getZ() + var3, param2);
-            var4.setDefaultPickUpDelay();
-            param0.addFreshEntity(var4);
+            ItemEntity var0 = param1.get();
+            var0.setDefaultPickUpDelay();
+            param0.addFreshEntity(var0);
         }
     }
 

@@ -32,6 +32,6 @@ public class LavaCauldronBlock extends AbstractCauldronBlock {
 
     @Override
     public int getAnalogOutputSignal(BlockState param0, Level param1, BlockPos param2) {
-        return 1;
+        return 3;
     }
 }

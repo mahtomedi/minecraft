@@ -22,6 +22,7 @@ import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.Registry;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.game.ServerboundClientCommandPacket;
 import net.minecraft.resources.ResourceLocation;
@@ -81,22 +82,22 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
     }
 
     public void initButtons() {
-        this.addButton(
+        this.addRenderableWidget(
             new Button(
                 this.width / 2 - 120, this.height - 52, 80, 20, new TranslatableComponent("stat.generalButton"), param0 -> this.setActiveList(this.statsList)
             )
         );
-        Button var0 = this.addButton(
+        Button var0 = this.addRenderableWidget(
             new Button(
                 this.width / 2 - 40, this.height - 52, 80, 20, new TranslatableComponent("stat.itemsButton"), param0 -> this.setActiveList(this.itemStatsList)
             )
         );
-        Button var1 = this.addButton(
+        Button var1 = this.addRenderableWidget(
             new Button(
                 this.width / 2 + 40, this.height - 52, 80, 20, new TranslatableComponent("stat.mobsButton"), param0 -> this.setActiveList(this.mobsStatsList)
             )
         );
-        this.addButton(
+        this.addRenderableWidget(
             new Button(this.width / 2 - 100, this.height - 28, 200, 20, CommonComponents.GUI_DONE, param0 -> this.minecraft.setScreen(this.lastScreen))
         );
         if (this.itemStatsList.children().isEmpty()) {
@@ -152,11 +153,12 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
     }
 
     public void setActiveList(@Nullable ObjectSelectionList<?> param0) {
-        this.children.remove(this.statsList);
-        this.children.remove(this.itemStatsList);
-        this.children.remove(this.mobsStatsList);
+        if (this.activeList != null) {
+            this.removeWidget(this.activeList);
+        }
+
         if (param0 != null) {
-            this.children.add(0, param0);
+            this.addWidget(param0);
             this.activeList = param0;
         }
 
@@ -210,15 +212,24 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
                 this.statDisplay = new TranslatableComponent(StatsScreen.getTranslationKey(param0));
             }
 
+            private String getValueText() {
+                return this.stat.format(StatsScreen.this.stats.getValue(this.stat));
+            }
+
             @Override
             public void render(
                 PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9
             ) {
                 GuiComponent.drawString(param0, StatsScreen.this.font, this.statDisplay, param3 + 2, param2 + 1, param1 % 2 == 0 ? 16777215 : 9474192);
-                String var0 = this.stat.format(StatsScreen.this.stats.getValue(this.stat));
+                String var0 = this.getValueText();
                 GuiComponent.drawString(
                     param0, StatsScreen.this.font, var0, param3 + 2 + 213 - StatsScreen.this.font.width(var0), param2 + 1, param1 % 2 == 0 ? 16777215 : 9474192
                 );
+            }
+
+            @Override
+            public Component getNarration() {
+                return new TranslatableComponent("narrator.select", new TextComponent("").append(this.statDisplay).append(" ").append(this.getValueText()));
             }
         }
     }
@@ -274,8 +285,8 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
             param1.remove(Items.AIR);
             this.statItemList = Lists.newArrayList(param1);
 
-            for(int var6 = 0; var6 < this.statItemList.size(); ++var6) {
-                this.addEntry(new StatsScreen.ItemStatisticsList.ItemRow());
+            for(Item var6 : this.statItemList) {
+                this.addEntry(new StatsScreen.ItemStatisticsList.ItemRow(var6));
             }
 
         }
@@ -356,7 +367,7 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
         @Override
         protected void renderDecorations(PoseStack param0, int param1, int param2) {
             if (param2 >= this.y0 && param2 <= this.y1) {
-                StatsScreen.ItemStatisticsList.ItemRow var0 = this.getEntryAtPosition((double)param1, (double)param2);
+                StatsScreen.ItemStatisticsList.ItemRow var0 = this.getHovered();
                 int var1 = (this.width - this.getRowWidth()) / 2;
                 if (var0 != null) {
                     if (param1 < var1 + 40 || param1 > var1 + 40 + 20) {
@@ -440,29 +451,34 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
 
         @OnlyIn(Dist.CLIENT)
         class ItemRow extends ObjectSelectionList.Entry<StatsScreen.ItemStatisticsList.ItemRow> {
+            private final Item item;
+
+            ItemRow(Item param0) {
+                this.item = param0;
+            }
+
             @Override
             public void render(
                 PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9
             ) {
-                Item var0 = StatsScreen.this.itemStatsList.statItemList.get(param1);
-                StatsScreen.this.blitSlot(param0, param3 + 40, param2, var0);
+                StatsScreen.this.blitSlot(param0, param3 + 40, param2, this.item);
 
-                for(int var1 = 0; var1 < StatsScreen.this.itemStatsList.blockColumns.size(); ++var1) {
-                    Stat<Block> var2;
-                    if (var0 instanceof BlockItem) {
-                        var2 = StatsScreen.this.itemStatsList.blockColumns.get(var1).get(((BlockItem)var0).getBlock());
+                for(int var0 = 0; var0 < StatsScreen.this.itemStatsList.blockColumns.size(); ++var0) {
+                    Stat<Block> var1;
+                    if (this.item instanceof BlockItem) {
+                        var1 = StatsScreen.this.itemStatsList.blockColumns.get(var0).get(((BlockItem)this.item).getBlock());
                     } else {
-                        var2 = null;
+                        var1 = null;
                     }
 
-                    this.renderStat(param0, var2, param3 + StatsScreen.this.getColumnX(var1), param2, param1 % 2 == 0);
+                    this.renderStat(param0, var1, param3 + StatsScreen.this.getColumnX(var0), param2, param1 % 2 == 0);
                 }
 
-                for(int var4 = 0; var4 < StatsScreen.this.itemStatsList.itemColumns.size(); ++var4) {
+                for(int var3 = 0; var3 < StatsScreen.this.itemStatsList.itemColumns.size(); ++var3) {
                     this.renderStat(
                         param0,
-                        StatsScreen.this.itemStatsList.itemColumns.get(var4).get(var0),
-                        param3 + StatsScreen.this.getColumnX(var4 + StatsScreen.this.itemStatsList.blockColumns.size()),
+                        StatsScreen.this.itemStatsList.itemColumns.get(var3).get(this.item),
+                        param3 + StatsScreen.this.getColumnX(var3 + StatsScreen.this.itemStatsList.blockColumns.size()),
                         param2,
                         param1 % 2 == 0
                     );
@@ -475,6 +491,11 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
                 GuiComponent.drawString(
                     param0, StatsScreen.this.font, var0, param2 - StatsScreen.this.font.width(var0), param3 + 5, param4 ? 16777215 : 9474192
                 );
+            }
+
+            @Override
+            public Component getNarration() {
+                return new TranslatableComponent("narrator.select", this.item.getDescription());
             }
         }
     }
@@ -500,7 +521,6 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
 
         @OnlyIn(Dist.CLIENT)
         class MobRow extends ObjectSelectionList.Entry<StatsScreen.MobsStatisticsList.MobRow> {
-            private final EntityType<?> type;
             private final Component mobName;
             private final Component kills;
             private final boolean hasKills;
@@ -508,7 +528,6 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
             private final boolean wasKilledBy;
 
             public MobRow(EntityType<?> param0) {
-                this.type = param0;
                 this.mobName = param0.getDescription();
                 int param1 = StatsScreen.this.stats.getValue(Stats.ENTITY_KILLED.get(param0));
                 if (param1 == 0) {
@@ -537,6 +556,11 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
                 GuiComponent.drawString(param0, StatsScreen.this.font, this.mobName, param3 + 2, param2 + 1, 16777215);
                 GuiComponent.drawString(param0, StatsScreen.this.font, this.kills, param3 + 2 + 10, param2 + 1 + 9, this.hasKills ? 9474192 : 6316128);
                 GuiComponent.drawString(param0, StatsScreen.this.font, this.killedBy, param3 + 2 + 10, param2 + 1 + 9 * 2, this.wasKilledBy ? 9474192 : 6316128);
+            }
+
+            @Override
+            public Component getNarration() {
+                return new TranslatableComponent("narrator.select", CommonComponents.joinForNarration(this.kills, this.killedBy));
             }
         }
     }

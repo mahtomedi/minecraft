@@ -5,6 +5,7 @@ import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectListIterator;
+import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -18,8 +19,11 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class Heightmap {
+    private static final Logger LOGGER = LogManager.getLogger();
     static final Predicate<BlockState> NOT_AIR = param0 -> !param0.isAir();
     static final Predicate<BlockState> MATERIAL_MOTION_BLOCKING = param0 -> param0.getMaterial().blocksMotion();
     private final BitStorage data;
@@ -115,8 +119,14 @@ public class Heightmap {
         this.data.set(getIndex(param0, param1), param2 - this.chunk.getMinBuildHeight());
     }
 
-    public void setRawData(long[] param0) {
-        System.arraycopy(param0, 0, this.data.getRaw(), 0, param0.length);
+    public void setRawData(ChunkAccess param0, Heightmap.Types param1, long[] param2) {
+        long[] var0 = this.data.getRaw();
+        if (var0.length == param2.length) {
+            System.arraycopy(param2, 0, var0, 0, param2.length);
+        } else {
+            LOGGER.warn("Ignoring heightmap data for chunk " + param0.getPos() + ", size does not match; expected: " + var0.length + ", got: " + param2.length);
+            primeHeightmaps(param0, EnumSet.of(param1));
+        }
     }
 
     public long[] getRawData() {

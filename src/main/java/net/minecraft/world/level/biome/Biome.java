@@ -226,63 +226,67 @@ public final class Biome {
 
     public void generate(StructureFeatureManager param0, ChunkGenerator param1, WorldGenRegion param2, long param3, WorldgenRandom param4, BlockPos param5) {
         List<List<Supplier<ConfiguredFeature<?, ?>>>> var0 = this.generationSettings.features();
-        int var1 = GenerationStep.Decoration.values().length;
+        Registry<ConfiguredFeature<?, ?>> var1 = param2.registryAccess().registryOrThrow(Registry.CONFIGURED_FEATURE_REGISTRY);
+        Registry<StructureFeature<?>> var2 = param2.registryAccess().registryOrThrow(Registry.STRUCTURE_FEATURE_REGISTRY);
+        int var3 = GenerationStep.Decoration.values().length;
 
-        for(int var2 = 0; var2 < var1; ++var2) {
-            int var3 = 0;
+        for(int var4 = 0; var4 < var3; ++var4) {
+            int var5 = 0;
             if (param0.shouldGenerateFeatures()) {
-                for(StructureFeature<?> var5 : this.structuresByStep.getOrDefault(var2, Collections.emptyList())) {
-                    param4.setFeatureSeed(param3, var3, var2);
-                    int var6 = SectionPos.blockToSectionCoord(param5.getX());
-                    int var7 = SectionPos.blockToSectionCoord(param5.getZ());
-                    int var8 = SectionPos.sectionToBlockCoord(var6);
-                    int var9 = SectionPos.sectionToBlockCoord(var7);
+                for(StructureFeature<?> var7 : this.structuresByStep.getOrDefault(var4, Collections.emptyList())) {
+                    param4.setFeatureSeed(param3, var5, var4);
+                    int var8 = SectionPos.blockToSectionCoord(param5.getX());
+                    int var9 = SectionPos.blockToSectionCoord(param5.getZ());
+                    int var10 = SectionPos.sectionToBlockCoord(var8);
+                    int var11 = SectionPos.sectionToBlockCoord(var9);
+                    Supplier<String> var12 = () -> var2.getResourceKey(var7).map(Object::toString).orElseGet(var7::toString);
 
                     try {
-                        int var10 = param2.getMinBuildHeight() + 1;
-                        int var11 = param2.getMaxBuildHeight() - 1;
-                        param0.startsForFeature(SectionPos.of(param5), var5)
+                        int var13 = param2.getMinBuildHeight() + 1;
+                        int var14 = param2.getMaxBuildHeight() - 1;
+                        param2.setCurrentlyGenerating(var12);
+                        param0.startsForFeature(SectionPos.of(param5), var7)
                             .forEach(
                                 param10 -> param10.placeInChunk(
                                         param2,
                                         param0,
                                         param1,
                                         param4,
-                                        new BoundingBox(var8, var10, var9, var8 + 15, var11, var9 + 15),
-                                        new ChunkPos(var6, var7)
+                                        new BoundingBox(var10, var13, var11, var10 + 15, var14, var11 + 15),
+                                        new ChunkPos(var8, var9)
                                     )
                             );
-                    } catch (Exception var21) {
-                        CrashReport var13 = CrashReport.forThrowable(var21, "Feature placement");
-                        var13.addCategory("Feature").setDetail("Id", Registry.STRUCTURE_FEATURE.getKey(var5)).setDetail("Description", () -> var5.toString());
-                        throw new ReportedException(var13);
+                    } catch (Exception var24) {
+                        CrashReport var16 = CrashReport.forThrowable(var24, "Feature placement");
+                        var16.addCategory("Feature").setDetail("Description", var12::get);
+                        throw new ReportedException(var16);
                     }
 
-                    ++var3;
+                    ++var5;
                 }
             }
 
-            if (var0.size() > var2) {
-                for(Supplier<ConfiguredFeature<?, ?>> var14 : var0.get(var2)) {
-                    ConfiguredFeature<?, ?> var15 = var14.get();
-                    param4.setFeatureSeed(param3, var3, var2);
+            if (var0.size() > var4) {
+                for(Supplier<ConfiguredFeature<?, ?>> var17 : var0.get(var4)) {
+                    ConfiguredFeature<?, ?> var18 = var17.get();
+                    Supplier<String> var19 = () -> var1.getResourceKey(var18).map(Object::toString).orElseGet(var18::toString);
+                    param4.setFeatureSeed(param3, var5, var4);
 
                     try {
-                        var15.place(param2, param1, param4, param5);
-                    } catch (Exception var22) {
-                        CrashReport var17 = CrashReport.forThrowable(var22, "Feature placement");
-                        var17.addCategory("Feature")
-                            .setDetail("Id", Registry.FEATURE.getKey(var15.feature))
-                            .setDetail("Config", var15.config)
-                            .setDetail("Description", () -> var15.feature.toString());
-                        throw new ReportedException(var17);
+                        param2.setCurrentlyGenerating(var19);
+                        var18.place(param2, param1, param4, param5);
+                    } catch (Exception var25) {
+                        CrashReport var21 = CrashReport.forThrowable(var25, "Feature placement");
+                        var21.addCategory("Feature").setDetail("Description", var19::get);
+                        throw new ReportedException(var21);
                     }
 
-                    ++var3;
+                    ++var5;
                 }
             }
         }
 
+        param2.setCurrentlyGenerating(null);
     }
 
     public int getFogColor() {

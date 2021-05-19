@@ -26,32 +26,26 @@ public class RealmsClientOutdatedScreen extends RealmsScreen {
     private final boolean outdated;
 
     public RealmsClientOutdatedScreen(Screen param0, boolean param1) {
+        super(param1 ? OUTDATED_TITLE : INCOMPATIBLE_TITLE);
         this.lastScreen = param0;
         this.outdated = param1;
     }
 
     @Override
     public void init() {
-        this.addButton(new Button(this.width / 2 - 100, row(12), 200, 20, CommonComponents.GUI_BACK, param0 -> this.minecraft.setScreen(this.lastScreen)));
+        this.addRenderableWidget(
+            new Button(this.width / 2 - 100, row(12), 200, 20, CommonComponents.GUI_BACK, param0 -> this.minecraft.setScreen(this.lastScreen))
+        );
     }
 
     @Override
     public void render(PoseStack param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
-        Component var0;
-        Component[] var1;
-        if (this.outdated) {
-            var0 = INCOMPATIBLE_TITLE;
-            var1 = INCOMPATIBLE_MESSAGES;
-        } else {
-            var0 = OUTDATED_TITLE;
-            var1 = OUTDATED_MESSAGES;
-        }
+        drawCenteredString(param0, this.font, this.title, this.width / 2, row(3), 16711680);
+        Component[] var0 = this.outdated ? INCOMPATIBLE_MESSAGES : OUTDATED_MESSAGES;
 
-        drawCenteredString(param0, this.font, var0, this.width / 2, row(3), 16711680);
-
-        for(int var4 = 0; var4 < var1.length; ++var4) {
-            drawCenteredString(param0, this.font, var1[var4], this.width / 2, row(5) + var4 * 12, 16777215);
+        for(int var1 = 0; var1 < var0.length; ++var1) {
+            drawCenteredString(param0, this.font, var0[var1], this.width / 2, row(5) + var1 * 12, 16777215);
         }
 
         super.render(param0, param1, param2, param3);

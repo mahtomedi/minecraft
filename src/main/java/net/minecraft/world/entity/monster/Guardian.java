@@ -439,8 +439,7 @@ public class Guardian extends Monster {
         }
 
         public boolean test(@Nullable LivingEntity param0) {
-            return (param0 instanceof Player || param0 instanceof Squid || param0 != null && Axolotl.NOT_PLAYING_DEAD_SELECTOR.test(param0))
-                && param0.distanceToSqr(this.guardian) > 9.0;
+            return (param0 instanceof Player || param0 instanceof Squid || param0 instanceof Axolotl) && param0.distanceToSqr(this.guardian) > 9.0;
         }
     }
 

@@ -93,7 +93,10 @@ public class DoublePlantBlock extends BushBlock {
             BlockPos var1 = param1.below();
             BlockState var2 = param0.getBlockState(var1);
             if (var2.is(param2.getBlock()) && var2.getValue(HALF) == DoubleBlockHalf.LOWER) {
-                param0.setBlock(var1, Blocks.AIR.defaultBlockState(), 35);
+                BlockState var3 = var2.hasProperty(BlockStateProperties.WATERLOGGED) && var2.getValue(BlockStateProperties.WATERLOGGED)
+                    ? Blocks.WATER.defaultBlockState()
+                    : Blocks.AIR.defaultBlockState();
+                param0.setBlock(var1, var3, 35);
                 param0.levelEvent(param3, 2001, var1, Block.getId(var2));
             }
         }

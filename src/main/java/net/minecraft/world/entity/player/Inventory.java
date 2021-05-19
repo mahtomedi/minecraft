@@ -30,6 +30,8 @@ public class Inventory implements Container, Nameable {
     private static final int SELECTION_SIZE = 9;
     public static final int SLOT_OFFHAND = 40;
     public static final int NOT_FOUND_INDEX = -1;
+    public static final int[] ALL_ARMOR_SLOTS = new int[]{0, 1, 2, 3};
+    public static final int[] HELMET_SLOT_ONLY = new int[]{3};
     public final NonNullList<ItemStack> items = NonNullList.withSize(36, ItemStack.EMPTY);
     public final NonNullList<ItemStack> armor = NonNullList.withSize(4, ItemStack.EMPTY);
     public final NonNullList<ItemStack> offhand = NonNullList.withSize(1, ItemStack.EMPTY);
@@ -504,19 +506,18 @@ public class Inventory implements Container, Nameable {
         return this.armor.get(param0);
     }
 
-    public void hurtArmor(DamageSource param0, float param1) {
+    public void hurtArmor(DamageSource param0, float param1, int[] param2) {
         if (!(param1 <= 0.0F)) {
             param1 /= 4.0F;
             if (param1 < 1.0F) {
                 param1 = 1.0F;
             }
 
-            for(int var0 = 0; var0 < this.armor.size(); ++var0) {
+            for(int var0 : param2) {
                 ItemStack var1 = this.armor.get(var0);
                 if ((!param0.isFire() || !var1.getItem().isFireResistant()) && var1.getItem() instanceof ArmorItem) {
-                    int var2 = var0;
                     var1.hurtAndBreak(
-                        (int)param1, this.player, param1x -> param1x.broadcastBreakEvent(EquipmentSlot.byTypeAndIndex(EquipmentSlot.Type.ARMOR, var2))
+                        (int)param1, this.player, param1x -> param1x.broadcastBreakEvent(EquipmentSlot.byTypeAndIndex(EquipmentSlot.Type.ARMOR, var0))
                     );
                 }
             }

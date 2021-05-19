@@ -4,13 +4,13 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.realmsclient.client.RealmsClient;
 import com.mojang.realmsclient.dto.RealmsServer;
 import javax.annotation.Nullable;
+import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.realms.NarrationHelper;
 import net.minecraft.realms.RealmsScreen;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -30,6 +30,7 @@ public class RealmsInviteScreen extends RealmsScreen {
     private Component errorMsg;
 
     public RealmsInviteScreen(RealmsConfigureWorldScreen param0, Screen param1, RealmsServer param2) {
+        super(NarratorChatListener.NO_TITLE);
         this.configureScreen = param0;
         this.lastScreen = param1;
         this.serverData = param2;
@@ -48,10 +49,12 @@ public class RealmsInviteScreen extends RealmsScreen {
         );
         this.addWidget(this.profileName);
         this.setInitialFocus(this.profileName);
-        this.addButton(
+        this.addRenderableWidget(
             new Button(this.width / 2 - 100, row(10), 200, 20, new TranslatableComponent("mco.configure.world.buttons.invite"), param0 -> this.onInvite())
         );
-        this.addButton(new Button(this.width / 2 - 100, row(12), 200, 20, CommonComponents.GUI_CANCEL, param0 -> this.minecraft.setScreen(this.lastScreen)));
+        this.addRenderableWidget(
+            new Button(this.width / 2 - 100, row(12), 200, 20, CommonComponents.GUI_CANCEL, param0 -> this.minecraft.setScreen(this.lastScreen))
+        );
     }
 
     @Override
@@ -82,7 +85,7 @@ public class RealmsInviteScreen extends RealmsScreen {
 
     private void showError(Component param0) {
         this.errorMsg = param0;
-        NarrationHelper.now(param0.getString());
+        NarratorChatListener.INSTANCE.sayNow(param0);
     }
 
     @Override

@@ -873,6 +873,10 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     }
 
     public void setScreen(@Nullable Screen param0) {
+        if (SharedConstants.IS_RUNNING_IN_IDE && Thread.currentThread() != this.gameThread) {
+            LOGGER.error("setScreen called from non-game thread");
+        }
+
         if (this.screen != null) {
             this.screen.removed();
         }
@@ -894,7 +898,6 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
             KeyMapping.releaseAll();
             param0.init(this, this.window.getGuiScaledWidth(), this.window.getGuiScaledHeight());
             this.noRender = false;
-            NarratorChatListener.INSTANCE.sayNow(param0.getNarrationMessage());
         } else {
             this.soundManager.resume();
             this.mouseHandler.grabMouse();
@@ -1620,7 +1623,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         while(this.options.keySocialInteractions.consumeClick()) {
             if (!this.isMultiplayerServer()) {
                 this.player.displayClientMessage(SOCIAL_INTERACTIONS_NOT_AVAILABLE, true);
-                NarratorChatListener.INSTANCE.sayNow(SOCIAL_INTERACTIONS_NOT_AVAILABLE.getString());
+                NarratorChatListener.INSTANCE.sayNow(SOCIAL_INTERACTIONS_NOT_AVAILABLE);
             } else {
                 if (this.socialInteractionsToast != null) {
                     this.tutorial.removeTimedToast(this.socialInteractionsToast);
@@ -2723,7 +2726,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     }
 
     public boolean isTextFilteringEnabled() {
-        return true;
+        return false;
     }
 
     @OnlyIn(Dist.CLIENT)

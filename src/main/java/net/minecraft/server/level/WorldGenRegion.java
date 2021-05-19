@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
@@ -66,8 +67,14 @@ public class WorldGenRegion implements WorldGenLevel {
     private final ChunkPos firstPos;
     private final ChunkPos lastPos;
     private final StructureFeatureManager structureFeatureManager;
+    private final ChunkStatus generatingStatus;
+    private final int writeRadiusCutoff;
+    @Nullable
+    private Supplier<String> currentlyGenerating;
 
-    public WorldGenRegion(ServerLevel param0, List<ChunkAccess> param1) {
+    public WorldGenRegion(ServerLevel param0, List<ChunkAccess> param1, ChunkStatus param2, int param3) {
+        this.generatingStatus = param2;
+        this.writeRadiusCutoff = param3;
         int var0 = Mth.floor(Math.sqrt((double)param1.size()));
         if (var0 * var0 != param1.size()) {
             throw (IllegalStateException)Util.pauseInIde(new IllegalStateException("Cache size is not a square."));
@@ -90,6 +97,10 @@ public class WorldGenRegion implements WorldGenLevel {
 
     public ChunkPos getCenter() {
         return this.center;
+    }
+
+    public void setCurrentlyGenerating(@Nullable Supplier<String> param0) {
+        this.currentlyGenerating = param0;
     }
 
     @Override
@@ -229,30 +240,46 @@ public class WorldGenRegion implements WorldGenLevel {
 
     @Override
     public boolean setBlock(BlockPos param0, BlockState param1, int param2, int param3) {
-        ChunkAccess var0 = this.getChunk(param0);
-        BlockState var1 = var0.setBlockState(param0, param1, false);
-        if (var1 != null) {
-            this.level.onBlockStateChange(param0, var1, param1);
+        int var0 = SectionPos.blockToSectionCoord(param0.getX());
+        int var1 = SectionPos.blockToSectionCoord(param0.getZ());
+        int var2 = Math.abs(this.center.x - var0);
+        int var3 = Math.abs(this.center.z - var1);
+        if (var2 > this.writeRadiusCutoff || var3 > this.writeRadiusCutoff) {
+            Util.logAndPauseIfInIde(
+                "Detected setBlock in a far chunk ["
+                    + var0
+                    + ", "
+                    + var1
+                    + "], status: "
+                    + this.generatingStatus
+                    + (this.currentlyGenerating == null ? "" : ", currently generating: " + (String)this.currentlyGenerating.get())
+            );
+        }
+
+        ChunkAccess var4 = this.getChunk(var0, var1);
+        BlockState var5 = var4.setBlockState(param0, param1, false);
+        if (var5 != null) {
+            this.level.onBlockStateChange(param0, var5, param1);
         }
 
         if (param1.hasBlockEntity()) {
-            if (var0.getStatus().getChunkType() == ChunkStatus.ChunkType.LEVELCHUNK) {
-                BlockEntity var2 = ((EntityBlock)param1.getBlock()).newBlockEntity(param0, param1);
-                if (var2 != null) {
-                    var0.setBlockEntity(var2);
+            if (var4.getStatus().getChunkType() == ChunkStatus.ChunkType.LEVELCHUNK) {
+                BlockEntity var6 = ((EntityBlock)param1.getBlock()).newBlockEntity(param0, param1);
+                if (var6 != null) {
+                    var4.setBlockEntity(var6);
                 } else {
-                    var0.removeBlockEntity(param0);
+                    var4.removeBlockEntity(param0);
                 }
             } else {
-                CompoundTag var3 = new CompoundTag();
-                var3.putInt("x", param0.getX());
-                var3.putInt("y", param0.getY());
-                var3.putInt("z", param0.getZ());
-                var3.putString("id", "DUMMY");
-                var0.setBlockEntityNbt(var3);
+                CompoundTag var7 = new CompoundTag();
+                var7.putInt("x", param0.getX());
+                var7.putInt("y", param0.getY());
+                var7.putInt("z", param0.getZ());
+                var7.putString("id", "DUMMY");
+                var4.setBlockEntityNbt(var7);
             }
-        } else if (var1 != null && var1.hasBlockEntity()) {
-            var0.removeBlockEntity(param0);
+        } else if (var5 != null && var5.hasBlockEntity()) {
+            var4.removeBlockEntity(param0);
         }
 
         if (param1.hasPostProcess(this, param0)) {

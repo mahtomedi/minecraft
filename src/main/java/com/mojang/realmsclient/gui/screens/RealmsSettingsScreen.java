@@ -7,7 +7,6 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.realms.RealmsLabel;
 import net.minecraft.realms.RealmsScreen;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -22,9 +21,9 @@ public class RealmsSettingsScreen extends RealmsScreen {
     private Button doneButton;
     private EditBox descEdit;
     private EditBox nameEdit;
-    private RealmsLabel titleLabel;
 
     public RealmsSettingsScreen(RealmsConfigureWorldScreen param0, RealmsServer param1) {
+        super(new TranslatableComponent("mco.configure.world.settings.title"));
         this.configureWorldScreen = param0;
         this.serverData = param1;
     }
@@ -40,10 +39,10 @@ public class RealmsSettingsScreen extends RealmsScreen {
     public void init() {
         this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
         int var0 = this.width / 2 - 106;
-        this.doneButton = this.addButton(
+        this.doneButton = this.addRenderableWidget(
             new Button(var0 - 2, row(12), 106, 20, new TranslatableComponent("mco.configure.world.buttons.done"), param0 -> this.save())
         );
-        this.addButton(
+        this.addRenderableWidget(
             new Button(this.width / 2 + 2, row(12), 106, 20, CommonComponents.GUI_CANCEL, param0 -> this.minecraft.setScreen(this.configureWorldScreen))
         );
         String var1 = this.serverData.state == RealmsServer.State.OPEN ? "mco.configure.world.buttons.close" : "mco.configure.world.buttons.open";
@@ -64,7 +63,7 @@ public class RealmsSettingsScreen extends RealmsScreen {
             }
 
         });
-        this.addButton(var2);
+        this.addRenderableWidget(var2);
         this.nameEdit = new EditBox(this.minecraft.font, var0, row(4), 212, 20, null, new TranslatableComponent("mco.configure.world.name"));
         this.nameEdit.setMaxLength(32);
         this.nameEdit.setValue(this.serverData.getName());
@@ -74,8 +73,6 @@ public class RealmsSettingsScreen extends RealmsScreen {
         this.descEdit.setMaxLength(32);
         this.descEdit.setValue(this.serverData.getDescription());
         this.addWidget(this.descEdit);
-        this.titleLabel = this.addWidget(new RealmsLabel(new TranslatableComponent("mco.configure.world.settings.title"), this.width / 2, 17, 16777215));
-        this.narrateLabels();
     }
 
     @Override
@@ -96,7 +93,7 @@ public class RealmsSettingsScreen extends RealmsScreen {
     @Override
     public void render(PoseStack param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
-        this.titleLabel.render(this, param0);
+        drawCenteredString(param0, this.font, this.title, this.width / 2, 17, 16777215);
         this.font.draw(param0, NAME_LABEL, (float)(this.width / 2 - 106), (float)row(3), 10526880);
         this.font.draw(param0, DESCRIPTION_LABEL, (float)(this.width / 2 - 106), (float)row(7), 10526880);
         this.nameEdit.render(param0, param1, param2, param3);

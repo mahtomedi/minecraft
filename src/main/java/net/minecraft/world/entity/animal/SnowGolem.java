@@ -124,8 +124,8 @@ public class SnowGolem extends AbstractGolem implements Shearable, RangedAttackM
         double var2 = param0.getX() - this.getX();
         double var3 = var1 - var0.getY();
         double var4 = param0.getZ() - this.getZ();
-        float var5 = Mth.sqrt(var2 * var2 + var4 * var4) * 0.2F;
-        var0.shoot(var2, var3 + (double)var5, var4, 1.6F, 12.0F);
+        double var5 = Math.sqrt(var2 * var2 + var4 * var4) * 0.2F;
+        var0.shoot(var2, var3 + var5, var4, 1.6F, 12.0F);
         this.playSound(SoundEvents.SNOW_GOLEM_SHOOT, 1.0F, 0.4F / (this.getRandom().nextFloat() * 0.4F + 0.8F));
         this.level.addFreshEntity(var0);
     }

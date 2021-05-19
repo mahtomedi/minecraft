@@ -180,6 +180,7 @@ public interface CauldronInteraction {
                 if (!param1.isClientSide) {
                     param3.setItemInHand(param4, ItemUtils.createFilledResult(param5, param3, new ItemStack(Items.GLASS_BOTTLE)));
                     param3.awardStat(Stats.USE_CAULDRON);
+                    param3.awardStat(Stats.ITEM_USED.get(param5.getItem()));
                     param1.setBlockAndUpdate(param2, param0.cycle(LayeredCauldronBlock.LEVEL));
                     param1.playSound(null, param2, SoundEvents.BOTTLE_EMPTY, SoundSource.BLOCKS, 1.0F, 1.0F);
                     param1.gameEvent(null, GameEvent.FLUID_PLACE, param2);

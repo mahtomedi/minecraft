@@ -364,7 +364,7 @@ public class BiomeDefaultFeatures {
     }
 
     public static void addDefaultCrystalFormations(BiomeGenerationSettings.Builder param0) {
-        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_STRUCTURES, Features.AMETHYST_GEODE);
+        param0.addFeature(GenerationStep.Decoration.LOCAL_MODIFICATIONS, Features.AMETHYST_GEODE);
     }
 
     public static void farmAnimals(MobSpawnSettings.Builder param0) {

@@ -1,8 +1,11 @@
 package net.minecraft.client.particle;
 
 import java.util.Random;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -27,6 +30,10 @@ public class SpellParticle extends TextureSheetParticle {
         this.lifetime = (int)(8.0 / (Math.random() * 0.8 + 0.2));
         this.hasPhysics = false;
         this.setSpriteFromAge(param7);
+        if (this.isCloseToScopingPlayer()) {
+            this.setAlpha(0.0F);
+        }
+
     }
 
     @Override
@@ -38,6 +45,21 @@ public class SpellParticle extends TextureSheetParticle {
     public void tick() {
         super.tick();
         this.setSpriteFromAge(this.sprites);
+        if (this.isCloseToScopingPlayer()) {
+            this.setAlpha(0.0F);
+        } else {
+            this.setAlpha(Mth.lerp(0.05F, this.alpha, 1.0F));
+        }
+
+    }
+
+    private boolean isCloseToScopingPlayer() {
+        Minecraft var0 = Minecraft.getInstance();
+        LocalPlayer var1 = var0.player;
+        return var1 != null
+            && var1.getEyePosition().distanceToSqr(this.x, this.y, this.z) <= 9.0
+            && var0.options.getCameraType().isFirstPerson()
+            && var1.isScoping();
     }
 
     @OnlyIn(Dist.CLIENT)

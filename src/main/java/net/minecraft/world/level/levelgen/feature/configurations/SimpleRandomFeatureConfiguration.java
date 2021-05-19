@@ -8,9 +8,8 @@ import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 
 public class SimpleRandomFeatureConfiguration implements FeatureConfiguration {
-    public static final Codec<SimpleRandomFeatureConfiguration> CODEC = ConfiguredFeature.LIST_CODEC
+    public static final Codec<SimpleRandomFeatureConfiguration> CODEC = ExtraCodecs.nonEmptyList(ConfiguredFeature.LIST_CODEC)
         .fieldOf("features")
-        .flatXmap(ExtraCodecs.nonEmptyListCheck(), ExtraCodecs.nonEmptyListCheck())
         .xmap(SimpleRandomFeatureConfiguration::new, param0 -> param0.features)
         .codec();
     public final List<Supplier<ConfiguredFeature<?, ?>>> features;

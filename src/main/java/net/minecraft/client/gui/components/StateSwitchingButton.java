@@ -2,7 +2,7 @@ package net.minecraft.client.gui.components;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -45,22 +45,26 @@ public class StateSwitchingButton extends AbstractWidget {
     }
 
     @Override
+    public void updateNarration(NarrationElementOutput param0) {
+        this.defaultButtonNarrationText(param0);
+    }
+
+    @Override
     public void renderButton(PoseStack param0, int param1, int param2, float param3) {
-        Minecraft var0 = Minecraft.getInstance();
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, this.resourceLocation);
         RenderSystem.disableDepthTest();
-        int var1 = this.xTexStart;
-        int var2 = this.yTexStart;
+        int var0 = this.xTexStart;
+        int var1 = this.yTexStart;
         if (this.isStateTriggered) {
-            var1 += this.xDiffTex;
+            var0 += this.xDiffTex;
         }
 
         if (this.isHovered()) {
-            var2 += this.yDiffTex;
+            var1 += this.yDiffTex;
         }
 
-        this.blit(param0, this.x, this.y, var1, var2, this.width, this.height);
+        this.blit(param0, this.x, this.y, var0, var1, this.width, this.height);
         RenderSystem.enableDepthTest();
     }
 }

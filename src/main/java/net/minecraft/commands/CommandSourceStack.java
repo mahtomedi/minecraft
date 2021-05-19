@@ -302,7 +302,7 @@ public class CommandSourceStack implements SharedSuggestionProvider {
         double var1 = param0.x - var0.x;
         double var2 = param0.y - var0.y;
         double var3 = param0.z - var0.z;
-        double var4 = (double)Mth.sqrt(var1 * var1 + var3 * var3);
+        double var4 = Math.sqrt(var1 * var1 + var3 * var3);
         float var5 = Mth.wrapDegrees((float)(-(Mth.atan2(var2, var4) * 180.0F / (float)Math.PI)));
         float var6 = Mth.wrapDegrees((float)(Mth.atan2(var3, var1) * 180.0F / (float)Math.PI) - 90.0F);
         return this.withRotation(new Vec2(var5, var6));

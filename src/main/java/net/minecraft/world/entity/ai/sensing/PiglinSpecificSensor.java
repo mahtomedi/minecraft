@@ -9,7 +9,6 @@ import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.Brain;
@@ -79,7 +78,7 @@ public class PiglinSpecificSensor extends Sensor<LivingEntity> {
                     var9.add(var14);
                 }
             } else if (var12 instanceof Player var15) {
-                if (!var6.isPresent() && EntitySelector.ATTACK_ALLOWED.test(var12) && !PiglinAi.isWearingGold(var15)) {
+                if (!var6.isPresent() && var12.canBeSeenAsEnemy() && !PiglinAi.isWearingGold(var15)) {
                     var6 = Optional.of(var15);
                 }
 

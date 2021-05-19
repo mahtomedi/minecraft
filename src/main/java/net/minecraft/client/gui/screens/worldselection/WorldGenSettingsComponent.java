@@ -25,7 +25,6 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.MultiLineLabel;
-import net.minecraft.client.gui.components.TickableWidget;
 import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.client.gui.screens.ConfirmScreen;
@@ -53,7 +52,7 @@ import org.apache.logging.log4j.Logger;
 import org.lwjgl.util.tinyfd.TinyFileDialogs;
 
 @OnlyIn(Dist.CLIENT)
-public class WorldGenSettingsComponent implements TickableWidget, Widget {
+public class WorldGenSettingsComponent implements Widget {
     private static final Logger LOGGER = LogManager.getLogger();
     private static final Component CUSTOM_WORLD_DESCRIPTION = new TranslatableComponent("generator.custom");
     private static final Component AMPLIFIED_HELP_TEXT = new TranslatableComponent("generator.amplified.info");
@@ -90,10 +89,12 @@ public class WorldGenSettingsComponent implements TickableWidget, Widget {
         param0.addWidget(this.seedEdit);
         int var0 = this.width / 2 - 155;
         int var1 = this.width / 2 + 5;
-        this.featuresButton = param0.addButton(
+        this.featuresButton = param0.addRenderableWidget(
             CycleButton.onOffBuilder(this.settings.generateFeatures())
                 .withCustomNarration(
-                    param0x -> param0x.createDefaultNarrationMessage().append(". ").append(new TranslatableComponent("selectWorld.mapFeatures.info"))
+                    param0x -> CommonComponents.joinForNarration(
+                            param0x.createDefaultNarrationMessage(), new TranslatableComponent("selectWorld.mapFeatures.info")
+                        )
                 )
                 .create(
                     var0,
@@ -105,12 +106,12 @@ public class WorldGenSettingsComponent implements TickableWidget, Widget {
                 )
         );
         this.featuresButton.visible = false;
-        this.typeButton = param0.addButton(
+        this.typeButton = param0.addRenderableWidget(
             CycleButton.builder(WorldPreset::description)
                 .withValues(WorldPreset.PRESETS.stream().filter(WorldPreset::isVisibleByDefault).collect(Collectors.toList()), WorldPreset.PRESETS)
                 .withCustomNarration(
                     param0x -> param0x.getValue() == WorldPreset.AMPLIFIED
-                            ? param0x.createDefaultNarrationMessage().append(". ").append(AMPLIFIED_HELP_TEXT)
+                            ? CommonComponents.joinForNarration(param0x.createDefaultNarrationMessage(), AMPLIFIED_HELP_TEXT)
                             : param0x.createDefaultNarrationMessage()
                 )
                 .create(var1, 100, 150, 20, new TranslatableComponent("selectWorld.mapType"), (param1x, param2x) -> {
@@ -123,7 +124,7 @@ public class WorldGenSettingsComponent implements TickableWidget, Widget {
         );
         this.preset.ifPresent(this.typeButton::setValue);
         this.typeButton.visible = false;
-        this.customWorldDummyButton = param0.addButton(
+        this.customWorldDummyButton = param0.addRenderableWidget(
             new Button(
                 var1, 100, 150, 20, CommonComponents.optionNameValue(new TranslatableComponent("selectWorld.mapType"), CUSTOM_WORLD_DESCRIPTION), param0x -> {
                 }
@@ -131,15 +132,17 @@ public class WorldGenSettingsComponent implements TickableWidget, Widget {
         );
         this.customWorldDummyButton.active = false;
         this.customWorldDummyButton.visible = false;
-        this.customizeTypeButton = param0.addButton(new Button(var1, 120, 150, 20, new TranslatableComponent("selectWorld.customizeType"), param2x -> {
-            WorldPreset.PresetEditor var0x = WorldPreset.EDITORS.get(this.preset);
-            if (var0x != null) {
-                param1.setScreen(var0x.createEditScreen(param0, this.settings));
-            }
-
-        }));
+        this.customizeTypeButton = param0.addRenderableWidget(
+            new Button(var1, 120, 150, 20, new TranslatableComponent("selectWorld.customizeType"), param2x -> {
+                WorldPreset.PresetEditor var0x = WorldPreset.EDITORS.get(this.preset);
+                if (var0x != null) {
+                    param1.setScreen(var0x.createEditScreen(param0, this.settings));
+                }
+    
+            })
+        );
         this.customizeTypeButton.visible = false;
-        this.bonusItemsButton = param0.addButton(
+        this.bonusItemsButton = param0.addRenderableWidget(
             CycleButton.onOffBuilder(this.settings.generateBonusChest() && !param0.hardCore)
                 .create(
                     var0,
@@ -151,7 +154,7 @@ public class WorldGenSettingsComponent implements TickableWidget, Widget {
                 )
         );
         this.bonusItemsButton.visible = false;
-        this.importSettingsButton = param0.addButton(
+        this.importSettingsButton = param0.addRenderableWidget(
             new Button(
                 var0,
                 185,
@@ -253,7 +256,6 @@ public class WorldGenSettingsComponent implements TickableWidget, Widget {
         this.seedEdit.setValue(toString(this.seed));
     }
 
-    @Override
     public void tick() {
         this.seedEdit.tick();
     }

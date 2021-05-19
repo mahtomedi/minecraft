@@ -27,16 +27,16 @@ public class ShareToLanScreen extends Screen {
 
     @Override
     protected void init() {
-        this.addButton(
+        this.addRenderableWidget(
             CycleButton.builder(GameType::getShortDisplayName)
                 .withValues(GameType.SURVIVAL, GameType.SPECTATOR, GameType.CREATIVE, GameType.ADVENTURE)
                 .withInitialValue(this.gameMode)
                 .create(this.width / 2 - 155, 100, 150, 20, GAME_MODE_LABEL, (param0, param1) -> this.gameMode = param1)
         );
-        this.addButton(
+        this.addRenderableWidget(
             CycleButton.onOffBuilder(this.commands).create(this.width / 2 + 5, 100, 150, 20, ALLOW_COMMANDS_LABEL, (param0, param1) -> this.commands = param1)
         );
-        this.addButton(new Button(this.width / 2 - 155, this.height - 28, 150, 20, new TranslatableComponent("lanServer.start"), param0 -> {
+        this.addRenderableWidget(new Button(this.width / 2 - 155, this.height - 28, 150, 20, new TranslatableComponent("lanServer.start"), param0 -> {
             this.minecraft.setScreen(null);
             int var0 = HttpUtil.getAvailablePort();
             Component var1;
@@ -49,7 +49,7 @@ public class ShareToLanScreen extends Screen {
             this.minecraft.gui.getChat().addMessage(var1);
             this.minecraft.updateTitle();
         }));
-        this.addButton(
+        this.addRenderableWidget(
             new Button(this.width / 2 + 5, this.height - 28, 150, 20, CommonComponents.GUI_CANCEL, param0 -> this.minecraft.setScreen(this.lastScreen))
         );
     }

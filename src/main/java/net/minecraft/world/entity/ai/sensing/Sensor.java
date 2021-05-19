@@ -15,6 +15,10 @@ public abstract class Sensor<E extends LivingEntity> {
     private static final TargetingConditions TARGET_CONDITIONS_IGNORE_INVISIBILITY_TESTING = TargetingConditions.forNonCombat()
         .range(16.0)
         .ignoreInvisibilityTesting();
+    private static final TargetingConditions ATTACK_TARGET_CONDITIONS = TargetingConditions.forCombat().range(16.0);
+    private static final TargetingConditions ATTACK_TARGET_CONDITIONS_IGNORE_INVISIBILITY_TESTING = TargetingConditions.forCombat()
+        .range(16.0)
+        .ignoreInvisibilityTesting();
     private final int scanRate;
     private long timeToTick;
 
@@ -43,5 +47,11 @@ public abstract class Sensor<E extends LivingEntity> {
         return param0.getBrain().isMemoryValue(MemoryModuleType.ATTACK_TARGET, param1)
             ? TARGET_CONDITIONS_IGNORE_INVISIBILITY_TESTING.test(param0, param1)
             : TARGET_CONDITIONS.test(param0, param1);
+    }
+
+    public static boolean isEntityAttackable(LivingEntity param0, LivingEntity param1) {
+        return param0.getBrain().isMemoryValue(MemoryModuleType.ATTACK_TARGET, param1)
+            ? ATTACK_TARGET_CONDITIONS_IGNORE_INVISIBILITY_TESTING.test(param0, param1)
+            : ATTACK_TARGET_CONDITIONS.test(param0, param1);
     }
 }

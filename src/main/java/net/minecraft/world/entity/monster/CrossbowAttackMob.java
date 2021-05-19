@@ -4,7 +4,6 @@ import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
 import javax.annotation.Nullable;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.Projectile;
@@ -37,7 +36,7 @@ public interface CrossbowAttackMob extends RangedAttackMob {
     default void shootCrossbowProjectile(LivingEntity param0, LivingEntity param1, Projectile param2, float param3, float param4) {
         double var1 = param1.getX() - param0.getX();
         double var2 = param1.getZ() - param0.getZ();
-        double var3 = (double)Mth.sqrt(var1 * var1 + var2 * var2);
+        double var3 = Math.sqrt(var1 * var1 + var2 * var2);
         double var4 = param1.getY(0.3333333333333333) - param2.getY() + var3 * 0.2F;
         Vector3f var5 = this.getProjectileShotVector(param0, new Vec3(var1, var4, var2), param3);
         param2.shoot((double)var5.x(), (double)var5.y(), (double)var5.z(), param4, (float)(14 - param0.level.getDifficulty().getId() * 4));

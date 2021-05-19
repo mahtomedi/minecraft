@@ -11,7 +11,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.TimeUtil;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.entity.AgeableMob;
-import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.Brain;
@@ -35,6 +34,7 @@ import net.minecraft.world.entity.ai.behavior.SetWalkTargetFromLookTarget;
 import net.minecraft.world.entity.ai.behavior.StartAttacking;
 import net.minecraft.world.entity.ai.behavior.StopAttackingIfTargetInvalid;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.world.entity.ai.sensing.Sensor;
 import net.minecraft.world.entity.schedule.Activity;
 
 public class HoglinAi {
@@ -165,7 +165,7 @@ public class HoglinAi {
 
     private static Optional<? extends LivingEntity> findNearestValidAttackTarget(Hoglin param0x) {
         return !isPacified(param0x) && !isBreeding(param0x)
-            ? param0x.getBrain().getMemory(MemoryModuleType.NEAREST_VISIBLE_TARGETABLE_PLAYER)
+            ? param0x.getBrain().getMemory(MemoryModuleType.NEAREST_VISIBLE_ATTACKABLE_PLAYER)
             : Optional.empty();
     }
 
@@ -201,7 +201,7 @@ public class HoglinAi {
 
     private static void maybeRetaliate(Hoglin param0, LivingEntity param1) {
         if (!param0.getBrain().isActive(Activity.AVOID) || param1.getType() != EntityType.PIGLIN) {
-            if (EntitySelector.ATTACK_ALLOWED.test(param1)) {
+            if (Sensor.isEntityAttackable(param0, param1)) {
                 if (param1.getType() != EntityType.HOGLIN) {
                     if (!BehaviorUtils.isOtherTargetMuchFurtherAwayThanCurrentAttackTarget(param0, param1, 4.0)) {
                         setAttackTarget(param0, param1);

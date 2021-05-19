@@ -10,22 +10,22 @@ import net.minecraft.world.damagesource.DamageSource;
 
 public class DamagePredicate {
     public static final DamagePredicate ANY = DamagePredicate.Builder.damageInstance().build();
-    private final MinMaxBounds.Floats dealtDamage;
-    private final MinMaxBounds.Floats takenDamage;
+    private final MinMaxBounds.Doubles dealtDamage;
+    private final MinMaxBounds.Doubles takenDamage;
     private final EntityPredicate sourceEntity;
     private final Boolean blocked;
     private final DamageSourcePredicate type;
 
     public DamagePredicate() {
-        this.dealtDamage = MinMaxBounds.Floats.ANY;
-        this.takenDamage = MinMaxBounds.Floats.ANY;
+        this.dealtDamage = MinMaxBounds.Doubles.ANY;
+        this.takenDamage = MinMaxBounds.Doubles.ANY;
         this.sourceEntity = EntityPredicate.ANY;
         this.blocked = null;
         this.type = DamageSourcePredicate.ANY;
     }
 
     public DamagePredicate(
-        MinMaxBounds.Floats param0, MinMaxBounds.Floats param1, EntityPredicate param2, @Nullable Boolean param3, DamageSourcePredicate param4
+        MinMaxBounds.Doubles param0, MinMaxBounds.Doubles param1, EntityPredicate param2, @Nullable Boolean param3, DamageSourcePredicate param4
     ) {
         this.dealtDamage = param0;
         this.takenDamage = param1;
@@ -37,9 +37,9 @@ public class DamagePredicate {
     public boolean matches(ServerPlayer param0, DamageSource param1, float param2, float param3, boolean param4) {
         if (this == ANY) {
             return true;
-        } else if (!this.dealtDamage.matches(param2)) {
+        } else if (!this.dealtDamage.matches((double)param2)) {
             return false;
-        } else if (!this.takenDamage.matches(param3)) {
+        } else if (!this.takenDamage.matches((double)param3)) {
             return false;
         } else if (!this.sourceEntity.matches(param0, param1.getEntity())) {
             return false;
@@ -53,8 +53,8 @@ public class DamagePredicate {
     public static DamagePredicate fromJson(@Nullable JsonElement param0) {
         if (param0 != null && !param0.isJsonNull()) {
             JsonObject var0 = GsonHelper.convertToJsonObject(param0, "damage");
-            MinMaxBounds.Floats var1 = MinMaxBounds.Floats.fromJson(var0.get("dealt"));
-            MinMaxBounds.Floats var2 = MinMaxBounds.Floats.fromJson(var0.get("taken"));
+            MinMaxBounds.Doubles var1 = MinMaxBounds.Doubles.fromJson(var0.get("dealt"));
+            MinMaxBounds.Doubles var2 = MinMaxBounds.Doubles.fromJson(var0.get("taken"));
             Boolean var3 = var0.has("blocked") ? GsonHelper.getAsBoolean(var0, "blocked") : null;
             EntityPredicate var4 = EntityPredicate.fromJson(var0.get("source_entity"));
             DamageSourcePredicate var5 = DamageSourcePredicate.fromJson(var0.get("type"));
@@ -82,8 +82,8 @@ public class DamagePredicate {
     }
 
     public static class Builder {
-        private MinMaxBounds.Floats dealtDamage = MinMaxBounds.Floats.ANY;
-        private MinMaxBounds.Floats takenDamage = MinMaxBounds.Floats.ANY;
+        private MinMaxBounds.Doubles dealtDamage = MinMaxBounds.Doubles.ANY;
+        private MinMaxBounds.Doubles takenDamage = MinMaxBounds.Doubles.ANY;
         private EntityPredicate sourceEntity = EntityPredicate.ANY;
         private Boolean blocked;
         private DamageSourcePredicate type = DamageSourcePredicate.ANY;
@@ -92,12 +92,12 @@ public class DamagePredicate {
             return new DamagePredicate.Builder();
         }
 
-        public DamagePredicate.Builder dealtDamage(MinMaxBounds.Floats param0) {
+        public DamagePredicate.Builder dealtDamage(MinMaxBounds.Doubles param0) {
             this.dealtDamage = param0;
             return this;
         }
 
-        public DamagePredicate.Builder takenDamage(MinMaxBounds.Floats param0) {
+        public DamagePredicate.Builder takenDamage(MinMaxBounds.Doubles param0) {
             this.takenDamage = param0;
             return this;
         }

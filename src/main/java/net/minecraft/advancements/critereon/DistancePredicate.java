@@ -9,16 +9,16 @@ import net.minecraft.util.Mth;
 
 public class DistancePredicate {
     public static final DistancePredicate ANY = new DistancePredicate(
-        MinMaxBounds.Floats.ANY, MinMaxBounds.Floats.ANY, MinMaxBounds.Floats.ANY, MinMaxBounds.Floats.ANY, MinMaxBounds.Floats.ANY
+        MinMaxBounds.Doubles.ANY, MinMaxBounds.Doubles.ANY, MinMaxBounds.Doubles.ANY, MinMaxBounds.Doubles.ANY, MinMaxBounds.Doubles.ANY
     );
-    private final MinMaxBounds.Floats x;
-    private final MinMaxBounds.Floats y;
-    private final MinMaxBounds.Floats z;
-    private final MinMaxBounds.Floats horizontal;
-    private final MinMaxBounds.Floats absolute;
+    private final MinMaxBounds.Doubles x;
+    private final MinMaxBounds.Doubles y;
+    private final MinMaxBounds.Doubles z;
+    private final MinMaxBounds.Doubles horizontal;
+    private final MinMaxBounds.Doubles absolute;
 
     public DistancePredicate(
-        MinMaxBounds.Floats param0, MinMaxBounds.Floats param1, MinMaxBounds.Floats param2, MinMaxBounds.Floats param3, MinMaxBounds.Floats param4
+        MinMaxBounds.Doubles param0, MinMaxBounds.Doubles param1, MinMaxBounds.Doubles param2, MinMaxBounds.Doubles param3, MinMaxBounds.Doubles param4
     ) {
         this.x = param0;
         this.y = param1;
@@ -27,19 +27,19 @@ public class DistancePredicate {
         this.absolute = param4;
     }
 
-    public static DistancePredicate horizontal(MinMaxBounds.Floats param0) {
-        return new DistancePredicate(MinMaxBounds.Floats.ANY, MinMaxBounds.Floats.ANY, MinMaxBounds.Floats.ANY, param0, MinMaxBounds.Floats.ANY);
+    public static DistancePredicate horizontal(MinMaxBounds.Doubles param0) {
+        return new DistancePredicate(MinMaxBounds.Doubles.ANY, MinMaxBounds.Doubles.ANY, MinMaxBounds.Doubles.ANY, param0, MinMaxBounds.Doubles.ANY);
     }
 
-    public static DistancePredicate vertical(MinMaxBounds.Floats param0) {
-        return new DistancePredicate(MinMaxBounds.Floats.ANY, param0, MinMaxBounds.Floats.ANY, MinMaxBounds.Floats.ANY, MinMaxBounds.Floats.ANY);
+    public static DistancePredicate vertical(MinMaxBounds.Doubles param0) {
+        return new DistancePredicate(MinMaxBounds.Doubles.ANY, param0, MinMaxBounds.Doubles.ANY, MinMaxBounds.Doubles.ANY, MinMaxBounds.Doubles.ANY);
     }
 
     public boolean matches(double param0, double param1, double param2, double param3, double param4, double param5) {
         float var0 = (float)(param0 - param3);
         float var1 = (float)(param1 - param4);
         float var2 = (float)(param2 - param5);
-        if (!this.x.matches(Mth.abs(var0)) || !this.y.matches(Mth.abs(var1)) || !this.z.matches(Mth.abs(var2))) {
+        if (!this.x.matches((double)Mth.abs(var0)) || !this.y.matches((double)Mth.abs(var1)) || !this.z.matches((double)Mth.abs(var2))) {
             return false;
         } else if (!this.horizontal.matchesSqr((double)(var0 * var0 + var2 * var2))) {
             return false;
@@ -51,11 +51,11 @@ public class DistancePredicate {
     public static DistancePredicate fromJson(@Nullable JsonElement param0) {
         if (param0 != null && !param0.isJsonNull()) {
             JsonObject var0 = GsonHelper.convertToJsonObject(param0, "distance");
-            MinMaxBounds.Floats var1 = MinMaxBounds.Floats.fromJson(var0.get("x"));
-            MinMaxBounds.Floats var2 = MinMaxBounds.Floats.fromJson(var0.get("y"));
-            MinMaxBounds.Floats var3 = MinMaxBounds.Floats.fromJson(var0.get("z"));
-            MinMaxBounds.Floats var4 = MinMaxBounds.Floats.fromJson(var0.get("horizontal"));
-            MinMaxBounds.Floats var5 = MinMaxBounds.Floats.fromJson(var0.get("absolute"));
+            MinMaxBounds.Doubles var1 = MinMaxBounds.Doubles.fromJson(var0.get("x"));
+            MinMaxBounds.Doubles var2 = MinMaxBounds.Doubles.fromJson(var0.get("y"));
+            MinMaxBounds.Doubles var3 = MinMaxBounds.Doubles.fromJson(var0.get("z"));
+            MinMaxBounds.Doubles var4 = MinMaxBounds.Doubles.fromJson(var0.get("horizontal"));
+            MinMaxBounds.Doubles var5 = MinMaxBounds.Doubles.fromJson(var0.get("absolute"));
             return new DistancePredicate(var1, var2, var3, var4, var5);
         } else {
             return ANY;

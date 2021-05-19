@@ -36,7 +36,7 @@ public class ChunkStatus {
         return CompletableFuture.completedFuture(Either.left(param5));
     };
     public static final ChunkStatus EMPTY = registerSimple(
-        "empty", null, -1, PRE_FEATURES, ChunkStatus.ChunkType.PROTOCHUNK, (param0, param1, param2, param3) -> {
+        "empty", null, -1, PRE_FEATURES, ChunkStatus.ChunkType.PROTOCHUNK, (param0, param1, param2, param3, param4) -> {
         }
     );
     public static final ChunkStatus STRUCTURE_STARTS = register(
@@ -60,9 +60,9 @@ public class ChunkStatus {
         }
     );
     public static final ChunkStatus STRUCTURE_REFERENCES = registerSimple(
-        "structure_references", STRUCTURE_STARTS, 8, PRE_FEATURES, ChunkStatus.ChunkType.PROTOCHUNK, (param0, param1, param2, param3) -> {
-            WorldGenRegion var0 = new WorldGenRegion(param0, param2);
-            param1.createReferences(var0, param0.structureFeatureManager().forWorldGenRegion(var0), param3);
+        "structure_references", STRUCTURE_STARTS, 8, PRE_FEATURES, ChunkStatus.ChunkType.PROTOCHUNK, (param0, param1, param2, param3, param4) -> {
+            WorldGenRegion var0 = new WorldGenRegion(param1, param3, param0, -1);
+            param2.createReferences(var0, param1.structureFeatureManager().forWorldGenRegion(var0), param4);
         }
     );
     public static final ChunkStatus BIOMES = registerSimple(
@@ -71,12 +71,12 @@ public class ChunkStatus {
         0,
         PRE_FEATURES,
         ChunkStatus.ChunkType.PROTOCHUNK,
-        (param0, param1, param2, param3) -> param1.createBiomes(param0.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY), param3)
+        (param0, param1, param2, param3, param4) -> param2.createBiomes(param1.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY), param4)
     );
     public static final ChunkStatus NOISE = register(
         "noise", BIOMES, 8, PRE_FEATURES, ChunkStatus.ChunkType.PROTOCHUNK, (param0, param1, param2, param3, param4, param5, param6, param7, param8) -> {
             if (!param8.getStatus().isOrAfter(param0)) {
-                WorldGenRegion var0 = new WorldGenRegion(param2, param7);
+                WorldGenRegion var0 = new WorldGenRegion(param2, param7, param0, 0);
                 return param3.fillFromNoise(param1, param2.structureFeatureManager().forWorldGenRegion(var0), param8).thenApply(param1x -> {
                     if (param1x instanceof ProtoChunk) {
                         ((ProtoChunk)param1x).setStatus(param0);
@@ -95,7 +95,7 @@ public class ChunkStatus {
         0,
         PRE_FEATURES,
         ChunkStatus.ChunkType.PROTOCHUNK,
-        (param0, param1, param2, param3) -> param1.buildSurfaceAndBedrock(new WorldGenRegion(param0, param2), param3)
+        (param0, param1, param2, param3, param4) -> param2.buildSurfaceAndBedrock(new WorldGenRegion(param1, param3, param0, 0), param4)
     );
     public static final ChunkStatus CARVERS = registerSimple(
         "carvers",
@@ -103,7 +103,7 @@ public class ChunkStatus {
         0,
         PRE_FEATURES,
         ChunkStatus.ChunkType.PROTOCHUNK,
-        (param0, param1, param2, param3) -> param1.applyCarvers(param0.getSeed(), param0.getBiomeManager(), param3, GenerationStep.Carving.AIR)
+        (param0, param1, param2, param3, param4) -> param2.applyCarvers(param1.getSeed(), param1.getBiomeManager(), param4, GenerationStep.Carving.AIR)
     );
     public static final ChunkStatus LIQUID_CARVERS = registerSimple(
         "liquid_carvers",
@@ -111,7 +111,7 @@ public class ChunkStatus {
         0,
         POST_FEATURES,
         ChunkStatus.ChunkType.PROTOCHUNK,
-        (param0, param1, param2, param3) -> param1.applyCarvers(param0.getSeed(), param0.getBiomeManager(), param3, GenerationStep.Carving.LIQUID)
+        (param0, param1, param2, param3, param4) -> param2.applyCarvers(param1.getSeed(), param1.getBiomeManager(), param4, GenerationStep.Carving.LIQUID)
     );
     public static final ChunkStatus FEATURES = register(
         "features",
@@ -129,7 +129,7 @@ public class ChunkStatus {
                         Heightmap.Types.MOTION_BLOCKING, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Heightmap.Types.OCEAN_FLOOR, Heightmap.Types.WORLD_SURFACE
                     )
                 );
-                WorldGenRegion var1 = new WorldGenRegion(param2, param7);
+                WorldGenRegion var1 = new WorldGenRegion(param2, param7, param0, 1);
                 param3.applyBiomeDecoration(var1, param2.structureFeatureManager().forWorldGenRegion(var1));
                 var0.setStatus(param0);
             }
@@ -152,10 +152,10 @@ public class ChunkStatus {
         0,
         POST_FEATURES,
         ChunkStatus.ChunkType.PROTOCHUNK,
-        (param0, param1, param2, param3) -> param1.spawnOriginalMobs(new WorldGenRegion(param0, param2))
+        (param0, param1, param2, param3, param4) -> param2.spawnOriginalMobs(new WorldGenRegion(param1, param3, param0, -1))
     );
     public static final ChunkStatus HEIGHTMAPS = registerSimple(
-        "heightmaps", SPAWN, 0, POST_FEATURES, ChunkStatus.ChunkType.PROTOCHUNK, (param0, param1, param2, param3) -> {
+        "heightmaps", SPAWN, 0, POST_FEATURES, ChunkStatus.ChunkType.PROTOCHUNK, (param0, param1, param2, param3, param4) -> {
         }
     );
     public static final ChunkStatus FULL = register(
@@ -401,7 +401,7 @@ public class ChunkStatus {
             ChunkAccess param8
         ) {
             if (!param8.getStatus().isOrAfter(param0)) {
-                this.doWork(param2, param3, param7, param8);
+                this.doWork(param0, param2, param3, param7, param8);
                 if (param8 instanceof ProtoChunk) {
                     ((ProtoChunk)param8).setStatus(param0);
                 }
@@ -410,6 +410,6 @@ public class ChunkStatus {
             return CompletableFuture.completedFuture(Either.left(param8));
         }
 
-        void doWork(ServerLevel var1, ChunkGenerator var2, List<ChunkAccess> var3, ChunkAccess var4);
+        void doWork(ChunkStatus var1, ServerLevel var2, ChunkGenerator var3, List<ChunkAccess> var4, ChunkAccess var5);
     }
 }

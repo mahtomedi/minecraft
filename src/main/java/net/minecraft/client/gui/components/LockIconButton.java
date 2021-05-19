@@ -3,6 +3,7 @@ package net.minecraft.client.gui.components;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
@@ -18,13 +19,12 @@ public class LockIconButton extends Button {
 
     @Override
     protected MutableComponent createNarrationMessage() {
-        return super.createNarrationMessage()
-            .append(". ")
-            .append(
-                this.isLocked()
-                    ? new TranslatableComponent("narrator.button.difficulty_lock.locked")
-                    : new TranslatableComponent("narrator.button.difficulty_lock.unlocked")
-            );
+        return CommonComponents.joinForNarration(
+            super.createNarrationMessage(),
+            this.isLocked()
+                ? new TranslatableComponent("narrator.button.difficulty_lock.locked")
+                : new TranslatableComponent("narrator.button.difficulty_lock.unlocked")
+        );
     }
 
     public boolean isLocked() {

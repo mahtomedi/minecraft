@@ -2,7 +2,6 @@ package net.minecraft.client.gui.components;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
@@ -91,16 +90,15 @@ public class ImageButton extends Button {
 
     @Override
     public void renderButton(PoseStack param0, int param1, int param2, float param3) {
-        Minecraft var0 = Minecraft.getInstance();
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, this.resourceLocation);
-        int var1 = this.yTexStart;
+        int var0 = this.yTexStart;
         if (this.isHovered()) {
-            var1 += this.yDiffTex;
+            var0 += this.yDiffTex;
         }
 
         RenderSystem.enableDepthTest();
-        blit(param0, this.x, this.y, (float)this.xTexStart, (float)var1, this.width, this.height, this.textureWidth, this.textureHeight);
+        blit(param0, this.x, this.y, (float)this.xTexStart, (float)var0, this.width, this.height, this.textureWidth, this.textureHeight);
         if (this.isHovered()) {
             this.renderToolTip(param0, param1, param2);
         }

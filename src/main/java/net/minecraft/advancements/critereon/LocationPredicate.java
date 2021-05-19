@@ -22,9 +22,9 @@ import org.apache.logging.log4j.Logger;
 public class LocationPredicate {
     private static final Logger LOGGER = LogManager.getLogger();
     public static final LocationPredicate ANY = new LocationPredicate(
-        MinMaxBounds.Floats.ANY,
-        MinMaxBounds.Floats.ANY,
-        MinMaxBounds.Floats.ANY,
+        MinMaxBounds.Doubles.ANY,
+        MinMaxBounds.Doubles.ANY,
+        MinMaxBounds.Doubles.ANY,
         null,
         null,
         null,
@@ -33,9 +33,9 @@ public class LocationPredicate {
         BlockPredicate.ANY,
         FluidPredicate.ANY
     );
-    private final MinMaxBounds.Floats x;
-    private final MinMaxBounds.Floats y;
-    private final MinMaxBounds.Floats z;
+    private final MinMaxBounds.Doubles x;
+    private final MinMaxBounds.Doubles y;
+    private final MinMaxBounds.Doubles z;
     @Nullable
     private final ResourceKey<Biome> biome;
     @Nullable
@@ -49,9 +49,9 @@ public class LocationPredicate {
     private final FluidPredicate fluid;
 
     public LocationPredicate(
-        MinMaxBounds.Floats param0,
-        MinMaxBounds.Floats param1,
-        MinMaxBounds.Floats param2,
+        MinMaxBounds.Doubles param0,
+        MinMaxBounds.Doubles param1,
+        MinMaxBounds.Doubles param2,
         @Nullable ResourceKey<Biome> param3,
         @Nullable StructureFeature<?> param4,
         @Nullable ResourceKey<Level> param5,
@@ -74,9 +74,9 @@ public class LocationPredicate {
 
     public static LocationPredicate inBiome(ResourceKey<Biome> param0) {
         return new LocationPredicate(
-            MinMaxBounds.Floats.ANY,
-            MinMaxBounds.Floats.ANY,
-            MinMaxBounds.Floats.ANY,
+            MinMaxBounds.Doubles.ANY,
+            MinMaxBounds.Doubles.ANY,
+            MinMaxBounds.Doubles.ANY,
             param0,
             null,
             null,
@@ -89,9 +89,9 @@ public class LocationPredicate {
 
     public static LocationPredicate inDimension(ResourceKey<Level> param0) {
         return new LocationPredicate(
-            MinMaxBounds.Floats.ANY,
-            MinMaxBounds.Floats.ANY,
-            MinMaxBounds.Floats.ANY,
+            MinMaxBounds.Doubles.ANY,
+            MinMaxBounds.Doubles.ANY,
+            MinMaxBounds.Doubles.ANY,
             null,
             null,
             param0,
@@ -104,9 +104,9 @@ public class LocationPredicate {
 
     public static LocationPredicate inFeature(StructureFeature<?> param0) {
         return new LocationPredicate(
-            MinMaxBounds.Floats.ANY,
-            MinMaxBounds.Floats.ANY,
-            MinMaxBounds.Floats.ANY,
+            MinMaxBounds.Doubles.ANY,
+            MinMaxBounds.Doubles.ANY,
+            MinMaxBounds.Doubles.ANY,
             null,
             param0,
             null,
@@ -118,10 +118,6 @@ public class LocationPredicate {
     }
 
     public boolean matches(ServerLevel param0, double param1, double param2, double param3) {
-        return this.matches(param0, (float)param1, (float)param2, (float)param3);
-    }
-
-    public boolean matches(ServerLevel param0, float param1, float param2, float param3) {
         if (!this.x.matches(param1)) {
             return false;
         } else if (!this.y.matches(param2)) {
@@ -131,7 +127,7 @@ public class LocationPredicate {
         } else if (this.dimension != null && this.dimension != param0.dimension()) {
             return false;
         } else {
-            BlockPos var0 = new BlockPos((double)param1, (double)param2, (double)param3);
+            BlockPos var0 = new BlockPos(param1, param2, param3);
             boolean var1 = param0.isLoaded(var0);
             Optional<ResourceKey<Biome>> var2 = param0.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY).getResourceKey(param0.getBiome(var0));
             if (!var2.isPresent()) {
@@ -201,9 +197,9 @@ public class LocationPredicate {
         if (param0 != null && !param0.isJsonNull()) {
             JsonObject var0 = GsonHelper.convertToJsonObject(param0, "location");
             JsonObject var1 = GsonHelper.getAsJsonObject(var0, "position", new JsonObject());
-            MinMaxBounds.Floats var2 = MinMaxBounds.Floats.fromJson(var1.get("x"));
-            MinMaxBounds.Floats var3 = MinMaxBounds.Floats.fromJson(var1.get("y"));
-            MinMaxBounds.Floats var4 = MinMaxBounds.Floats.fromJson(var1.get("z"));
+            MinMaxBounds.Doubles var2 = MinMaxBounds.Doubles.fromJson(var1.get("x"));
+            MinMaxBounds.Doubles var3 = MinMaxBounds.Doubles.fromJson(var1.get("y"));
+            MinMaxBounds.Doubles var4 = MinMaxBounds.Doubles.fromJson(var1.get("z"));
             ResourceKey<Level> var5 = var0.has("dimension")
                 ? ResourceLocation.CODEC
                     .parse(JsonOps.INSTANCE, var0.get("dimension"))
@@ -229,9 +225,9 @@ public class LocationPredicate {
     }
 
     public static class Builder {
-        private MinMaxBounds.Floats x = MinMaxBounds.Floats.ANY;
-        private MinMaxBounds.Floats y = MinMaxBounds.Floats.ANY;
-        private MinMaxBounds.Floats z = MinMaxBounds.Floats.ANY;
+        private MinMaxBounds.Doubles x = MinMaxBounds.Doubles.ANY;
+        private MinMaxBounds.Doubles y = MinMaxBounds.Doubles.ANY;
+        private MinMaxBounds.Doubles z = MinMaxBounds.Doubles.ANY;
         @Nullable
         private ResourceKey<Biome> biome;
         @Nullable
@@ -248,17 +244,17 @@ public class LocationPredicate {
             return new LocationPredicate.Builder();
         }
 
-        public LocationPredicate.Builder setX(MinMaxBounds.Floats param0) {
+        public LocationPredicate.Builder setX(MinMaxBounds.Doubles param0) {
             this.x = param0;
             return this;
         }
 
-        public LocationPredicate.Builder setY(MinMaxBounds.Floats param0) {
+        public LocationPredicate.Builder setY(MinMaxBounds.Doubles param0) {
             this.y = param0;
             return this;
         }
 
-        public LocationPredicate.Builder setZ(MinMaxBounds.Floats param0) {
+        public LocationPredicate.Builder setZ(MinMaxBounds.Doubles param0) {
             this.z = param0;
             return this;
         }

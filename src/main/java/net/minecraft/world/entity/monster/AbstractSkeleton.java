@@ -7,7 +7,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.util.Mth;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.EntityDimensions;
@@ -186,7 +185,7 @@ public abstract class AbstractSkeleton extends Monster implements RangedAttackMo
         double var2 = param0.getX() - this.getX();
         double var3 = param0.getY(0.3333333333333333) - var1.getY();
         double var4 = param0.getZ() - this.getZ();
-        double var5 = (double)Mth.sqrt(var2 * var2 + var4 * var4);
+        double var5 = Math.sqrt(var2 * var2 + var4 * var4);
         var1.shoot(var2, var3 + var5 * 0.2F, var4, 1.6F, (float)(14 - this.level.getDifficulty().getId() * 4));
         this.playSound(SoundEvents.SKELETON_SHOOT, 1.0F, 1.0F / (this.getRandom().nextFloat() * 0.4F + 0.8F));
         this.level.addFreshEntity(var1);

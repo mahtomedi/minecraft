@@ -12,8 +12,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class ConfirmLinkScreen extends ConfirmScreen {
-    private final Component warning;
-    private final Component copyButton;
+    private static final Component COPY_BUTTON_TEXT = new TranslatableComponent("chat.copy");
+    private static final Component WARNING_TEXT = new TranslatableComponent("chat.link.warning");
     private final String url;
     private final boolean showWarning;
 
@@ -21,23 +21,18 @@ public class ConfirmLinkScreen extends ConfirmScreen {
         super(param0, new TranslatableComponent(param2 ? "chat.link.confirmTrusted" : "chat.link.confirm"), new TextComponent(param1));
         this.yesButton = (Component)(param2 ? new TranslatableComponent("chat.link.open") : CommonComponents.GUI_YES);
         this.noButton = param2 ? CommonComponents.GUI_CANCEL : CommonComponents.GUI_NO;
-        this.copyButton = new TranslatableComponent("chat.copy");
-        this.warning = new TranslatableComponent("chat.link.warning");
         this.showWarning = !param2;
         this.url = param1;
     }
 
     @Override
-    protected void init() {
-        super.init();
-        this.buttons.clear();
-        this.children.clear();
-        this.addButton(new Button(this.width / 2 - 50 - 105, this.height / 6 + 96, 100, 20, this.yesButton, param0 -> this.callback.accept(true)));
-        this.addButton(new Button(this.width / 2 - 50, this.height / 6 + 96, 100, 20, this.copyButton, param0 -> {
+    protected void addButtons(int param0) {
+        this.addRenderableWidget(new Button(this.width / 2 - 50 - 105, this.height / 6 + 96, 100, 20, this.yesButton, param0x -> this.callback.accept(true)));
+        this.addRenderableWidget(new Button(this.width / 2 - 50, this.height / 6 + 96, 100, 20, COPY_BUTTON_TEXT, param0x -> {
             this.copyToClipboard();
             this.callback.accept(false);
         }));
-        this.addButton(new Button(this.width / 2 - 50 + 105, this.height / 6 + 96, 100, 20, this.noButton, param0 -> this.callback.accept(false)));
+        this.addRenderableWidget(new Button(this.width / 2 - 50 + 105, this.height / 6 + 96, 100, 20, this.noButton, param0x -> this.callback.accept(false)));
     }
 
     public void copyToClipboard() {
@@ -48,7 +43,7 @@ public class ConfirmLinkScreen extends ConfirmScreen {
     public void render(PoseStack param0, int param1, int param2, float param3) {
         super.render(param0, param1, param2, param3);
         if (this.showWarning) {
-            drawCenteredString(param0, this.font, this.warning, this.width / 2, 110, 16764108);
+            drawCenteredString(param0, this.font, WARNING_TEXT, this.width / 2, 110, 16764108);
         }
 
     }

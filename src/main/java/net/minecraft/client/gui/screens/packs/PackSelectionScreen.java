@@ -50,7 +50,7 @@ public class PackSelectionScreen extends Screen {
     static final Logger LOGGER = LogManager.getLogger();
     private static final int LIST_WIDTH = 200;
     private static final Component DRAG_AND_DROP = new TranslatableComponent("pack.dropInfo").withStyle(ChatFormatting.GRAY);
-    private static final Component DIRECTORY_BUTTON_TOOLTIP = new TranslatableComponent("pack.folderInfo");
+    static final Component DIRECTORY_BUTTON_TOOLTIP = new TranslatableComponent("pack.folderInfo");
     private static final int RELOAD_COOLDOWN = 20;
     private static final ResourceLocation DEFAULT_ICON = new ResourceLocation("textures/misc/unknown_pack.png");
     private final PackSelectionModel model;
@@ -92,8 +92,10 @@ public class PackSelectionScreen extends Screen {
 
     @Override
     protected void init() {
-        this.doneButton = this.addButton(new Button(this.width / 2 + 4, this.height - 48, 150, 20, CommonComponents.GUI_DONE, param0 -> this.onClose()));
-        this.addButton(
+        this.doneButton = this.addRenderableWidget(
+            new Button(this.width / 2 + 4, this.height - 48, 150, 20, CommonComponents.GUI_DONE, param0 -> this.onClose())
+        );
+        this.addRenderableWidget(
             new Button(
                 this.width / 2 - 154,
                 this.height - 48,
@@ -101,15 +103,25 @@ public class PackSelectionScreen extends Screen {
                 20,
                 new TranslatableComponent("pack.openFolder"),
                 param0 -> Util.getPlatform().openFile(this.packDir),
-                (param0, param1, param2, param3) -> this.renderTooltip(param1, DIRECTORY_BUTTON_TOOLTIP, param2, param3)
+                new Button.OnTooltip() {
+                    @Override
+                    public void onTooltip(Button param0, PoseStack param1, int param2, int param3) {
+                        PackSelectionScreen.this.renderTooltip(param1, PackSelectionScreen.DIRECTORY_BUTTON_TOOLTIP, param2, param3);
+                    }
+        
+                    @Override
+                    public void narrateTooltip(Consumer<Component> param0) {
+                        param0.accept(PackSelectionScreen.DIRECTORY_BUTTON_TOOLTIP);
+                    }
+                }
             )
         );
         this.availablePackList = new TransferableSelectionList(this.minecraft, 200, this.height, new TranslatableComponent("pack.available.title"));
         this.availablePackList.setLeftPos(this.width / 2 - 4 - 200);
-        this.children.add(this.availablePackList);
+        this.addWidget(this.availablePackList);
         this.selectedPackList = new TransferableSelectionList(this.minecraft, 200, this.height, new TranslatableComponent("pack.selected.title"));
         this.selectedPackList.setLeftPos(this.width / 2 + 4);
-        this.children.add(this.selectedPackList);
+        this.addWidget(this.selectedPackList);
         this.reload();
     }
 

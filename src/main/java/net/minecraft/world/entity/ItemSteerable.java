@@ -43,6 +43,7 @@ public interface ItemSteerable {
                     param0.setDeltaMovement(Vec3.ZERO);
                 }
 
+                param0.tryCheckInsideBlocks();
                 return true;
             } else {
                 param0.maxUpStep = 0.5F;

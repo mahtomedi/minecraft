@@ -955,8 +955,8 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
             if (this.minecraft.getOverlay() != null) {
                 try {
                     this.minecraft.getOverlay().render(var5, var0, var1, this.minecraft.getDeltaFrameTime());
-                } catch (Throwable var15) {
-                    CrashReport var8 = CrashReport.forThrowable(var15, "Rendering overlay");
+                } catch (Throwable var16) {
+                    CrashReport var8 = CrashReport.forThrowable(var16, "Rendering overlay");
                     CrashReportCategory var9 = var8.addCategory("Overlay render details");
                     var9.setDetail("Overlay name", () -> this.minecraft.getOverlay().getClass().getCanonicalName());
                     throw new ReportedException(var8);
@@ -964,8 +964,8 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
             } else if (this.minecraft.screen != null) {
                 try {
                     this.minecraft.screen.render(var5, var0, var1, this.minecraft.getDeltaFrameTime());
-                } catch (Throwable var14) {
-                    CrashReport var11 = CrashReport.forThrowable(var14, "Rendering screen");
+                } catch (Throwable var151) {
+                    CrashReport var11 = CrashReport.forThrowable(var151, "Rendering screen");
                     CrashReportCategory var12 = var11.addCategory("Screen render details");
                     var12.setDetail("Screen name", () -> this.minecraft.screen.getClass().getCanonicalName());
                     var12.setDetail(
@@ -992,6 +992,17 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
                             )
                     );
                     throw new ReportedException(var11);
+                }
+
+                try {
+                    if (this.minecraft.screen != null) {
+                        this.minecraft.screen.handleDelayedNarration();
+                    }
+                } catch (Throwable var141) {
+                    CrashReport var14 = CrashReport.forThrowable(var141, "Narrating screen");
+                    CrashReportCategory var15 = var14.addCategory("Screen details");
+                    var15.setDetail("Screen name", () -> this.minecraft.screen.getClass().getCanonicalName());
+                    throw new ReportedException(var14);
                 }
             }
 

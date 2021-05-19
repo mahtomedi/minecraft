@@ -6,9 +6,13 @@ import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.Tag;
 import net.minecraft.world.level.LevelSimulatedReader;
 import net.minecraft.world.level.LevelWriter;
+import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.configurations.BlockPileConfiguration;
@@ -164,6 +168,18 @@ public abstract class Feature<FC extends FeatureConfiguration> {
 
     protected void setBlock(LevelWriter param0, BlockPos param1, BlockState param2) {
         param0.setBlock(param1, param2, 3);
+    }
+
+    public static Predicate<BlockState> isReplaceable(ResourceLocation param0) {
+        Tag<Block> var0 = BlockTags.getAllTags().getTag(param0);
+        return var0 == null ? param0x -> true : param1 -> !param1.is(var0);
+    }
+
+    protected void safeSetBlock(WorldGenLevel param0, BlockPos param1, BlockState param2, Predicate<BlockState> param3) {
+        if (param3.test(param0.getBlockState(param1))) {
+            param0.setBlock(param1, param2, 2);
+        }
+
     }
 
     public abstract boolean place(FeaturePlaceContext<FC> var1);

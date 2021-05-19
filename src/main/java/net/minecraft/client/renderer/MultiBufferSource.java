@@ -61,6 +61,18 @@ public interface MultiBufferSource {
             return this.fixedBuffers.getOrDefault(param0, this.builder);
         }
 
+        public void endLastBatch() {
+            if (this.lastState.isPresent()) {
+                RenderType var0 = this.lastState.get();
+                if (!this.fixedBuffers.containsKey(var0)) {
+                    this.endBatch(var0);
+                }
+
+                this.lastState = Optional.empty();
+            }
+
+        }
+
         public void endBatch() {
             this.lastState.ifPresent(param0 -> {
                 VertexConsumer var0x = this.getBuffer(param0);

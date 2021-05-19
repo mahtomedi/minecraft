@@ -12,7 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.Map;
-import javax.annotation.Nullable;
+import java.util.Optional;
 import net.minecraft.FileUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.nbt.CompoundTag;
@@ -32,7 +32,7 @@ public class StructureManager {
     private static final String STRUCTURE_DIRECTORY_NAME = "structures";
     private static final String STRUCTURE_FILE_EXTENSION = ".nbt";
     private static final String STRUCTURE_TEXT_FILE_EXTENSION = ".snbt";
-    private final Map<ResourceLocation, StructureTemplate> structureRepository = Maps.newHashMap();
+    private final Map<ResourceLocation, Optional<StructureTemplate>> structureRepository = Maps.newConcurrentMap();
     private final DataFixer fixerUpper;
     private ResourceManager resourceManager;
     private final Path generatedDir;
@@ -44,20 +44,20 @@ public class StructureManager {
     }
 
     public StructureTemplate getOrCreate(ResourceLocation param0) {
-        StructureTemplate var0 = this.get(param0);
-        if (var0 == null) {
-            var0 = new StructureTemplate();
-            this.structureRepository.put(param0, var0);
+        Optional<StructureTemplate> var0 = this.get(param0);
+        if (var0.isPresent()) {
+            return var0.get();
+        } else {
+            StructureTemplate var1 = new StructureTemplate();
+            this.structureRepository.put(param0, Optional.of(var1));
+            return var1;
         }
-
-        return var0;
     }
 
-    @Nullable
-    public StructureTemplate get(ResourceLocation param0) {
+    public Optional<StructureTemplate> get(ResourceLocation param0) {
         return this.structureRepository.computeIfAbsent(param0, param0x -> {
-            StructureTemplate var0 = this.loadFromGenerated(param0x);
-            return var0 != null ? var0 : this.loadFromResource(param0x);
+            Optional<StructureTemplate> var0 = this.loadFromGenerated(param0x);
+            return var0.isPresent() ? var0 : this.loadFromResource(param0x);
         });
     }
 
@@ -66,44 +66,42 @@ public class StructureManager {
         this.structureRepository.clear();
     }
 
-    @Nullable
-    private StructureTemplate loadFromResource(ResourceLocation param0) {
+    private Optional<StructureTemplate> loadFromResource(ResourceLocation param0) {
         ResourceLocation var0 = new ResourceLocation(param0.getNamespace(), "structures/" + param0.getPath() + ".nbt");
 
         try {
-            StructureTemplate var4;
+            Optional var4;
             try (Resource var1 = this.resourceManager.getResource(var0)) {
-                var4 = this.readStructure(var1.getInputStream());
+                var4 = Optional.of(this.readStructure(var1.getInputStream()));
             }
 
             return var4;
         } catch (FileNotFoundException var8) {
-            return null;
+            return Optional.empty();
         } catch (Throwable var9) {
             LOGGER.error("Couldn't load structure {}: {}", param0, var9.toString());
-            return null;
+            return Optional.empty();
         }
     }
 
-    @Nullable
-    private StructureTemplate loadFromGenerated(ResourceLocation param0) {
+    private Optional<StructureTemplate> loadFromGenerated(ResourceLocation param0) {
         if (!this.generatedDir.toFile().isDirectory()) {
-            return null;
+            return Optional.empty();
         } else {
             Path var0 = this.createAndValidatePathToStructure(param0, ".nbt");
 
             try {
-                StructureTemplate var4;
+                Optional var4;
                 try (InputStream var1 = new FileInputStream(var0.toFile())) {
-                    var4 = this.readStructure(var1);
+                    var4 = Optional.of(this.readStructure(var1));
                 }
 
                 return var4;
             } catch (FileNotFoundException var8) {
-                return null;
+                return Optional.empty();
             } catch (IOException var9) {
                 LOGGER.error("Couldn't load structure from {}", var0, var9);
-                return null;
+                return Optional.empty();
             }
         }
     }
@@ -124,31 +122,32 @@ public class StructureManager {
     }
 
     public boolean save(ResourceLocation param0) {
-        StructureTemplate var0 = this.structureRepository.get(param0);
-        if (var0 == null) {
+        Optional<StructureTemplate> var0 = this.structureRepository.get(param0);
+        if (!var0.isPresent()) {
             return false;
         } else {
-            Path var1 = this.createAndValidatePathToStructure(param0, ".nbt");
-            Path var2 = var1.getParent();
-            if (var2 == null) {
+            StructureTemplate var1 = var0.get();
+            Path var2 = this.createAndValidatePathToStructure(param0, ".nbt");
+            Path var3 = var2.getParent();
+            if (var3 == null) {
                 return false;
             } else {
                 try {
-                    Files.createDirectories(Files.exists(var2) ? var2.toRealPath() : var2);
-                } catch (IOException var12) {
-                    LOGGER.error("Failed to create parent directory: {}", var2);
+                    Files.createDirectories(Files.exists(var3) ? var3.toRealPath() : var3);
+                } catch (IOException var13) {
+                    LOGGER.error("Failed to create parent directory: {}", var3);
                     return false;
                 }
 
-                CompoundTag var4 = var0.save(new CompoundTag());
+                CompoundTag var5 = var1.save(new CompoundTag());
 
                 try {
-                    try (OutputStream var5 = new FileOutputStream(var1.toFile())) {
-                        NbtIo.writeCompressed(var4, var5);
+                    try (OutputStream var6 = new FileOutputStream(var2.toFile())) {
+                        NbtIo.writeCompressed(var5, var6);
                     }
 
                     return true;
-                } catch (Throwable var11) {
+                } catch (Throwable var12) {
                     return false;
                 }
             }

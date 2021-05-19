@@ -10,6 +10,7 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 import net.minecraft.Util;
+import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
@@ -17,7 +18,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.realms.NarrationHelper;
 import net.minecraft.realms.RealmsScreen;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -46,6 +46,7 @@ public class RealmsSubscriptionInfoScreen extends RealmsScreen {
     private static final String PURCHASE_LINK = "https://aka.ms/ExtendJavaRealms";
 
     public RealmsSubscriptionInfoScreen(Screen param0, RealmsServer param1, Screen param2) {
+        super(NarratorChatListener.NO_TITLE);
         this.lastScreen = param0;
         this.serverData = param1;
         this.mainScreen = param2;
@@ -54,11 +55,8 @@ public class RealmsSubscriptionInfoScreen extends RealmsScreen {
     @Override
     public void init() {
         this.getSubscription(this.serverData.id);
-        NarrationHelper.now(
-            SUBSCRIPTION_TITLE.getString(), SUBSCRIPTION_START_LABEL.getString(), this.startDate, TIME_LEFT_LABEL.getString(), this.daysLeft.getString()
-        );
         this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
-        this.addButton(
+        this.addRenderableWidget(
             new Button(
                 this.width / 2 - 100,
                 row(6),
@@ -75,15 +73,24 @@ public class RealmsSubscriptionInfoScreen extends RealmsScreen {
                 }
             )
         );
-        this.addButton(new Button(this.width / 2 - 100, row(12), 200, 20, CommonComponents.GUI_BACK, param0 -> this.minecraft.setScreen(this.lastScreen)));
+        this.addRenderableWidget(
+            new Button(this.width / 2 - 100, row(12), 200, 20, CommonComponents.GUI_BACK, param0 -> this.minecraft.setScreen(this.lastScreen))
+        );
         if (this.serverData.expired) {
-            this.addButton(new Button(this.width / 2 - 100, row(10), 200, 20, new TranslatableComponent("mco.configure.world.delete.button"), param0 -> {
-                Component var0 = new TranslatableComponent("mco.configure.world.delete.question.line1");
-                Component var1 = new TranslatableComponent("mco.configure.world.delete.question.line2");
-                this.minecraft.setScreen(new RealmsLongConfirmationScreen(this::deleteRealm, RealmsLongConfirmationScreen.Type.Warning, var0, var1, true));
-            }));
+            this.addRenderableWidget(
+                new Button(this.width / 2 - 100, row(10), 200, 20, new TranslatableComponent("mco.configure.world.delete.button"), param0 -> {
+                    Component var0 = new TranslatableComponent("mco.configure.world.delete.question.line1");
+                    Component var1 = new TranslatableComponent("mco.configure.world.delete.question.line2");
+                    this.minecraft.setScreen(new RealmsLongConfirmationScreen(this::deleteRealm, RealmsLongConfirmationScreen.Type.Warning, var0, var1, true));
+                })
+            );
         }
 
+    }
+
+    @Override
+    public Component getNarrationMessage() {
+        return CommonComponents.joinLines(SUBSCRIPTION_TITLE, SUBSCRIPTION_START_LABEL, new TextComponent(this.startDate), TIME_LEFT_LABEL, this.daysLeft);
     }
 
     private void deleteRealm(boolean param0) {

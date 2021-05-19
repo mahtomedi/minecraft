@@ -37,19 +37,16 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.client.gui.components.ObjectSelectionList;
-import net.minecraft.client.gui.components.TickableWidget;
-import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.realms.NarrationHelper;
 import net.minecraft.realms.RealmsObjectSelectionList;
 import net.minecraft.realms.RealmsScreen;
 import net.minecraft.resources.ResourceLocation;
@@ -101,6 +98,8 @@ public class RealmsMainScreen extends RealmsScreen {
     private static final Component CONFIGURE_SERVER_TOOLTIP = new TranslatableComponent("mco.selectServer.configure");
     private static final Component SERVER_INFO_TOOLTIP = new TranslatableComponent("mco.selectServer.info");
     private static final Component NEWS_TOOLTIP = new TranslatableComponent("mco.news");
+    static final Component UNITIALIZED_WORLD_NARRATION = new TranslatableComponent("gui.narrate.button", SERVER_UNITIALIZED_TEXT);
+    static final Component TRIAL_TEXT = CommonComponents.joinLines(TRIAL_MESSAGE_LINES);
     private static List<ResourceLocation> teaserImages = ImmutableList.of();
     static final RealmsDataFetcher REALMS_DATA_FETCHER = new RealmsDataFetcher(Minecraft.getInstance(), RealmsClient.create());
     static boolean overrideConfigure;
@@ -114,6 +113,7 @@ public class RealmsMainScreen extends RealmsScreen {
     private boolean dontSetConnectedToRealms;
     final Screen lastScreen;
     volatile RealmsMainScreen.RealmSelectionList realmSelectionList;
+    private boolean realmsSelectionListAdded;
     long selectedServerId = -1L;
     Button playButton;
     private Button backButton;
@@ -141,13 +141,15 @@ public class RealmsMainScreen extends RealmsScreen {
     private MultiLineLabel formattedPopup = MultiLineLabel.EMPTY;
     RealmsMainScreen.HoveredElement hoveredElement;
     private Button showPopupButton;
-    private Button pendingInvitesButton;
+    @Nullable
+    private RealmsMainScreen.PendingInvitesButton pendingInvitesButton;
     private Button newsButton;
     private Button createTrialButton;
     private Button buyARealmButton;
     private Button closeButton;
 
     public RealmsMainScreen(Screen param0) {
+        super(NarratorChatListener.NO_TITLE);
         this.lastScreen = param0;
         this.inviteNarrationLimiter = RateLimiter.create(0.016666668F);
     }
@@ -231,6 +233,7 @@ public class RealmsMainScreen extends RealmsScreen {
             }
 
             this.addWidget(this.realmSelectionList);
+            this.realmsSelectionListAdded = true;
             this.magicalSpecialHackyFocus(this.realmSelectionList);
             this.formattedPopup = MultiLineLabel.create(this.font, POPUP_TEXT, 100);
         }
@@ -241,7 +244,7 @@ public class RealmsMainScreen extends RealmsScreen {
     }
 
     public void addButtons() {
-        this.leaveButton = this.addButton(
+        this.leaveButton = this.addRenderableWidget(
             new Button(
                 this.width / 2 - 202,
                 this.height - 32,
@@ -251,7 +254,7 @@ public class RealmsMainScreen extends RealmsScreen {
                 param0 -> this.leaveClicked(this.findServer(this.selectedServerId))
             )
         );
-        this.configureButton = this.addButton(
+        this.configureButton = this.addRenderableWidget(
             new Button(
                 this.width / 2 - 190,
                 this.height - 32,
@@ -261,7 +264,7 @@ public class RealmsMainScreen extends RealmsScreen {
                 param0 -> this.configureClicked(this.findServer(this.selectedServerId))
             )
         );
-        this.playButton = this.addButton(
+        this.playButton = this.addRenderableWidget(
             new Button(this.width / 2 - 93, this.height - 32, 90, 20, new TranslatableComponent("mco.selectServer.play"), param0 -> {
                 RealmsServer var0x = this.findServer(this.selectedServerId);
                 if (var0x != null) {
@@ -269,20 +272,20 @@ public class RealmsMainScreen extends RealmsScreen {
                 }
             })
         );
-        this.backButton = this.addButton(new Button(this.width / 2 + 4, this.height - 32, 90, 20, CommonComponents.GUI_BACK, param0 -> {
+        this.backButton = this.addRenderableWidget(new Button(this.width / 2 + 4, this.height - 32, 90, 20, CommonComponents.GUI_BACK, param0 -> {
             if (!this.justClosedPopup) {
                 this.minecraft.setScreen(this.lastScreen);
             }
 
         }));
-        this.renewButton = this.addButton(
+        this.renewButton = this.addRenderableWidget(
             new Button(this.width / 2 + 100, this.height - 32, 90, 20, new TranslatableComponent("mco.selectServer.expiredRenew"), param0 -> this.onRenew())
         );
-        this.pendingInvitesButton = this.addButton(new RealmsMainScreen.PendingInvitesButton());
-        this.newsButton = this.addButton(new RealmsMainScreen.NewsButton());
-        this.showPopupButton = this.addButton(new RealmsMainScreen.ShowPopupButton());
-        this.closeButton = this.addButton(new RealmsMainScreen.CloseButton());
-        this.createTrialButton = this.addButton(
+        this.pendingInvitesButton = this.addRenderableWidget(new RealmsMainScreen.PendingInvitesButton());
+        this.newsButton = this.addRenderableWidget(new RealmsMainScreen.NewsButton());
+        this.showPopupButton = this.addRenderableWidget(new RealmsMainScreen.ShowPopupButton());
+        this.closeButton = this.addRenderableWidget(new RealmsMainScreen.CloseButton());
+        this.createTrialButton = this.addRenderableWidget(
             new Button(this.width / 2 + 52, this.popupY0() + 137 - 20, 98, 20, new TranslatableComponent("mco.selectServer.trial"), param0 -> {
                 if (this.trialsAvailable && !this.createdTrial) {
                     Util.getPlatform().openUri("https://aka.ms/startjavarealmstrial");
@@ -290,7 +293,7 @@ public class RealmsMainScreen extends RealmsScreen {
                 }
             })
         );
-        this.buyARealmButton = this.addButton(
+        this.buyARealmButton = this.addRenderableWidget(
             new Button(
                 this.width / 2 + 52,
                 this.popupY0() + 160 - 20,
@@ -346,6 +349,10 @@ public class RealmsMainScreen extends RealmsScreen {
     @Override
     public void tick() {
         super.tick();
+        if (this.pendingInvitesButton != null) {
+            this.pendingInvitesButton.tick();
+        }
+
         this.justClosedPopup = false;
         ++this.animTick;
         --this.clicks;
@@ -395,7 +402,7 @@ public class RealmsMainScreen extends RealmsScreen {
             if (REALMS_DATA_FETCHER.isFetchedSinceLastTry(RealmsDataFetcher.Task.PENDING_INVITE)) {
                 this.numberOfPendingInvites = REALMS_DATA_FETCHER.getPendingInvitesCount();
                 if (this.numberOfPendingInvites > 0 && this.inviteNarrationLimiter.tryAcquire(1)) {
-                    NarrationHelper.now(I18n.get("mco.configure.world.invite.narration", this.numberOfPendingInvites));
+                    NarratorChatListener.INSTANCE.sayNow(new TranslatableComponent("mco.configure.world.invite.narration", this.numberOfPendingInvites));
                 }
             }
 
@@ -756,8 +763,9 @@ public class RealmsMainScreen extends RealmsScreen {
         } else {
             if (this.showingPopup) {
                 this.updateButtonStates(null);
-                if (!this.children.contains(this.realmSelectionList)) {
-                    this.children.add(this.realmSelectionList);
+                if (!this.realmsSelectionListAdded) {
+                    this.addWidget(this.realmSelectionList);
+                    this.realmsSelectionListAdded = true;
                 }
 
                 RealmsServer var0 = this.findServer(this.selectedServerId);
@@ -832,14 +840,12 @@ public class RealmsMainScreen extends RealmsScreen {
             this.carouselTick = 0;
             this.hasSwitchedCarouselImage = true;
             this.updateButtonStates(null);
-            if (this.children.contains(this.realmSelectionList)) {
-                GuiEventListener var2 = this.realmSelectionList;
-                if (!this.children.remove(var2)) {
-                    LOGGER.error("Unable to remove widget: {}", var2);
-                }
+            if (this.realmsSelectionListAdded) {
+                this.removeWidget(this.realmSelectionList);
+                this.realmsSelectionListAdded = false;
             }
 
-            NarrationHelper.now(POPUP_TEXT.getString());
+            NarratorChatListener.INSTANCE.sayNow(POPUP_TEXT);
         }
 
         if (this.hasFetchedServers) {
@@ -849,8 +855,8 @@ public class RealmsMainScreen extends RealmsScreen {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 0.7F);
         RenderSystem.enableBlend();
         RenderSystem.setShaderTexture(0, DARKEN_LOCATION);
-        int var3 = 0;
-        int var4 = 32;
+        int var2 = 0;
+        int var3 = 32;
         GuiComponent.blit(param0, 0, 32, 0.0F, 0.0F, this.width, this.height - 40 - 32, 310, 166);
         RenderSystem.disableBlend();
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
@@ -1273,12 +1279,11 @@ public class RealmsMainScreen extends RealmsScreen {
     }
 
     @OnlyIn(Dist.CLIENT)
-    class PendingInvitesButton extends Button implements TickableWidget {
+    class PendingInvitesButton extends Button {
         public PendingInvitesButton() {
             super(RealmsMainScreen.this.width / 2 + 47, 6, 22, 22, TextComponent.EMPTY, RealmsMainScreen.this::pendingButtonPress);
         }
 
-        @Override
         public void tick() {
             this.setMessage(
                 RealmsMainScreen.this.numberOfPendingInvites == 0 ? RealmsMainScreen.NO_PENDING_INVITES_TEXT : RealmsMainScreen.PENDING_INVITES_TEXT
@@ -1387,17 +1392,10 @@ public class RealmsMainScreen extends RealmsScreen {
         public void setSelected(@Nullable RealmsMainScreen.Entry param0) {
             super.setSelected(param0);
             int var0 = this.children().indexOf(param0);
-            if (this.showingMessage && var0 == 0) {
-                NarrationHelper.now(I18n.get("mco.trial.message.line1"), I18n.get("mco.trial.message.line2"));
-            } else if (!this.showingMessage || var0 > 0) {
+            if (!this.showingMessage || var0 > 0) {
                 RealmsServer var1 = RealmsMainScreen.this.realmsServers.get(var0 - (this.showingMessage ? 1 : 0));
                 RealmsMainScreen.this.selectedServerId = var1.id;
                 RealmsMainScreen.this.updateButtonStates(var1);
-                if (var1.state == RealmsServer.State.UNINITIALIZED) {
-                    NarrationHelper.now(I18n.get("mco.selectServer.uninitialized") + I18n.get("mco.gui.button"));
-                } else {
-                    NarrationHelper.now(I18n.get("narrator.select", var1.name));
-                }
             }
 
         }
@@ -1585,6 +1583,13 @@ public class RealmsMainScreen extends RealmsScreen {
                 });
             }
         }
+
+        @Override
+        public Component getNarration() {
+            return (Component)(this.serverData.state == RealmsServer.State.UNINITIALIZED
+                ? RealmsMainScreen.UNITIALIZED_WORLD_NARRATION
+                : new TranslatableComponent("narrator.select", this.serverData.name));
+        }
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -1637,6 +1642,11 @@ public class RealmsMainScreen extends RealmsScreen {
                 var1 += 10;
             }
 
+        }
+
+        @Override
+        public Component getNarration() {
+            return RealmsMainScreen.TRIAL_TEXT;
         }
     }
 }

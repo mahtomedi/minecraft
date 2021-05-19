@@ -200,7 +200,7 @@ public abstract class AbstractFish extends WaterAnimal implements Bucketable {
                 double var2 = this.wantedY - this.fish.getY();
                 double var3 = this.wantedZ - this.fish.getZ();
                 if (var2 != 0.0) {
-                    double var4 = (double)Mth.sqrt(var1 * var1 + var2 * var2 + var3 * var3);
+                    double var4 = Math.sqrt(var1 * var1 + var2 * var2 + var3 * var3);
                     this.fish.setDeltaMovement(this.fish.getDeltaMovement().add(0.0, (double)this.fish.getSpeed() * (var2 / var4) * 0.1, 0.0));
                 }
 

@@ -15,7 +15,6 @@ import java.util.function.Function;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
-import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.ObjectSelectionList;
@@ -177,17 +176,19 @@ public class PresetFlatWorldScreen extends Screen {
         Registry<Biome> var0 = this.parent.parent.worldGenSettingsComponent.registryHolder().registryOrThrow(Registry.BIOME_REGISTRY);
         this.export.setValue(save(var0, this.parent.settings()));
         this.settings = this.parent.settings();
-        this.children.add(this.export);
+        this.addWidget(this.export);
         this.list = new PresetFlatWorldScreen.PresetsList();
-        this.children.add(this.list);
-        this.selectButton = this.addButton(
+        this.addWidget(this.list);
+        this.selectButton = this.addRenderableWidget(
             new Button(this.width / 2 - 155, this.height - 28, 150, 20, new TranslatableComponent("createWorld.customize.presets.select"), param1 -> {
                 FlatLevelGeneratorSettings var0x = fromString(var0, this.export.getValue(), this.settings);
                 this.parent.setConfig(var0x);
                 this.minecraft.setScreen(this.parent);
             })
         );
-        this.addButton(new Button(this.width / 2 + 5, this.height - 28, 150, 20, CommonComponents.GUI_CANCEL, param0 -> this.minecraft.setScreen(this.parent)));
+        this.addRenderableWidget(
+            new Button(this.width / 2 + 5, this.height - 28, 150, 20, CommonComponents.GUI_CANCEL, param0 -> this.minecraft.setScreen(this.parent))
+        );
         this.updateButtonValidity(this.list.getSelected() != null);
     }
 
@@ -419,21 +420,14 @@ public class PresetFlatWorldScreen extends Screen {
                 24
             );
 
-            for(int param0 = 0; param0 < PresetFlatWorldScreen.PRESETS.size(); ++param0) {
-                this.addEntry(new PresetFlatWorldScreen.PresetsList.Entry());
+            for(PresetFlatWorldScreen.PresetInfo param0 : PresetFlatWorldScreen.PRESETS) {
+                this.addEntry(new PresetFlatWorldScreen.PresetsList.Entry(param0));
             }
 
         }
 
         public void setSelected(@Nullable PresetFlatWorldScreen.PresetsList.Entry param0) {
             super.setSelected(param0);
-            if (param0 != null) {
-                NarratorChatListener.INSTANCE
-                    .sayNow(
-                        new TranslatableComponent("narrator.select", PresetFlatWorldScreen.PRESETS.get(this.children().indexOf(param0)).getName()).getString()
-                    );
-            }
-
             PresetFlatWorldScreen.this.updateButtonValidity(param0 != null);
         }
 
@@ -457,13 +451,18 @@ public class PresetFlatWorldScreen extends Screen {
 
         @OnlyIn(Dist.CLIENT)
         public class Entry extends ObjectSelectionList.Entry<PresetFlatWorldScreen.PresetsList.Entry> {
+            private final PresetFlatWorldScreen.PresetInfo preset;
+
+            public Entry(PresetFlatWorldScreen.PresetInfo param1) {
+                this.preset = param1;
+            }
+
             @Override
             public void render(
                 PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9
             ) {
-                PresetFlatWorldScreen.PresetInfo var0 = PresetFlatWorldScreen.PRESETS.get(param1);
-                this.blitSlot(param0, param3, param2, var0.icon);
-                PresetFlatWorldScreen.this.font.draw(param0, var0.name, (float)(param3 + 18 + 5), (float)(param2 + 6), 16777215);
+                this.blitSlot(param0, param3, param2, this.preset.icon);
+                PresetFlatWorldScreen.this.font.draw(param0, this.preset.name, (float)(param3 + 18 + 5), (float)(param2 + 6), 16777215);
             }
 
             @Override
@@ -477,14 +476,13 @@ public class PresetFlatWorldScreen extends Screen {
 
             void select() {
                 PresetsList.this.setSelected(this);
-                PresetFlatWorldScreen.PresetInfo var0 = PresetFlatWorldScreen.PRESETS.get(PresetsList.this.children().indexOf(this));
-                Registry<Biome> var1 = PresetFlatWorldScreen.this.parent
+                Registry<Biome> var0 = PresetFlatWorldScreen.this.parent
                     .parent
                     .worldGenSettingsComponent
                     .registryHolder()
                     .registryOrThrow(Registry.BIOME_REGISTRY);
-                PresetFlatWorldScreen.this.settings = var0.settings.apply(var1);
-                PresetFlatWorldScreen.this.export.setValue(PresetFlatWorldScreen.save(var1, PresetFlatWorldScreen.this.settings));
+                PresetFlatWorldScreen.this.settings = this.preset.settings.apply(var0);
+                PresetFlatWorldScreen.this.export.setValue(PresetFlatWorldScreen.save(var0, PresetFlatWorldScreen.this.settings));
                 PresetFlatWorldScreen.this.export.moveCursorToStart();
             }
 
@@ -497,6 +495,11 @@ public class PresetFlatWorldScreen extends Screen {
                 RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                 RenderSystem.setShaderTexture(0, GuiComponent.STATS_ICON_LOCATION);
                 GuiComponent.blit(param0, param1, param2, PresetFlatWorldScreen.this.getBlitOffset(), 0.0F, 0.0F, 18, 18, 128, 128);
+            }
+
+            @Override
+            public Component getNarration() {
+                return new TranslatableComponent("narrator.select", this.preset.getName());
             }
         }
     }

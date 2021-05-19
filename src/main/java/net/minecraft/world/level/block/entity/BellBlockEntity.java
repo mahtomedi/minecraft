@@ -139,12 +139,12 @@ public class BellBlockEntity extends BlockEntity {
             .forEach(
                 param4 -> {
                     float var0x = 1.0F;
-                    float var1x = Mth.sqrt(
+                    double var1x = Math.sqrt(
                         (param4.getX() - (double)param1x.getX()) * (param4.getX() - (double)param1x.getX())
                             + (param4.getZ() - (double)param1x.getZ()) * (param4.getZ() - (double)param1x.getZ())
                     );
-                    double var2x = (double)((float)param1x.getX() + 0.5F) + (double)(1.0F / var1x) * (param4.getX() - (double)param1x.getX());
-                    double var3x = (double)((float)param1x.getZ() + 0.5F) + (double)(1.0F / var1x) * (param4.getZ() - (double)param1x.getZ());
+                    double var2x = (double)((float)param1x.getX() + 0.5F) + 1.0 / var1x * (param4.getX() - (double)param1x.getX());
+                    double var3x = (double)((float)param1x.getZ() + 0.5F) + 1.0 / var1x * (param4.getZ() - (double)param1x.getZ());
                     int var4x = Mth.clamp((var1 - 21) / -2, 3, 15);
         
                     for(int var5 = 0; var5 < var4x; ++var5) {

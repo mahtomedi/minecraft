@@ -694,7 +694,7 @@ public abstract class AbstractMinecart extends Entity {
                     double var1 = param0.getZ() - this.getZ();
                     double var2 = var0 * var0 + var1 * var1;
                     if (var2 >= 1.0E-4F) {
-                        var2 = (double)Mth.sqrt(var2);
+                        var2 = Math.sqrt(var2);
                         var0 /= var2;
                         var1 /= var2;
                         double var3 = 1.0 / var2;

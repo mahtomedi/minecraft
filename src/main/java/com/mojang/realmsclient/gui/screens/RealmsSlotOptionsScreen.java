@@ -46,10 +46,9 @@ public class RealmsSlotOptionsScreen extends RealmsScreen {
     private boolean commandBlocks;
     private boolean forceGameMode;
     RealmsSlotOptionsScreen.SettingsSlider spawnProtectionButton;
-    private RealmsLabel titleLabel;
-    private RealmsLabel warningLabel;
 
     public RealmsSlotOptionsScreen(RealmsConfigureWorldScreen param0, RealmsWorldOptions param1, RealmsServer.WorldType param2, int param3) {
+        super(new TranslatableComponent("mco.configure.world.buttons.options"));
         this.parent = param0;
         this.options = param1;
         this.worldType = param2;
@@ -114,7 +113,7 @@ public class RealmsSlotOptionsScreen extends RealmsScreen {
                 var1 = new TranslatableComponent("mco.configure.world.edit.subscreen.experience");
             }
 
-            this.warningLabel = new RealmsLabel(var1, this.width / 2, 26, 16711680);
+            this.addLabel(new RealmsLabel(var1, this.width / 2, 26, 16711680));
             this.pvp = true;
             this.spawnProtection = 0;
             this.forceGameMode = false;
@@ -130,11 +129,11 @@ public class RealmsSlotOptionsScreen extends RealmsScreen {
         this.nameEdit.setMaxLength(10);
         this.nameEdit.setValue(this.options.getSlotName(this.activeSlot));
         this.magicalSpecialHackyFocus(this.nameEdit);
-        CycleButton<Boolean> var4 = this.addButton(
+        CycleButton<Boolean> var4 = this.addRenderableWidget(
             CycleButton.onOffBuilder(this.pvp)
                 .create(var0, row(1), this.columnWidth, 20, new TranslatableComponent("mco.configure.world.pvp"), (param0, param1) -> this.pvp = param1)
         );
-        this.addButton(
+        this.addRenderableWidget(
             CycleButton.builder(GameType::getShortDisplayName)
                 .withValues(GAME_MODES)
                 .withInitialValue(this.gameMode)
@@ -142,7 +141,7 @@ public class RealmsSlotOptionsScreen extends RealmsScreen {
                     this.column1X, row(3), this.columnWidth, 20, new TranslatableComponent("selectWorld.gameMode"), (param0, param1) -> this.gameMode = param1
                 )
         );
-        CycleButton<Boolean> var5 = this.addButton(
+        CycleButton<Boolean> var5 = this.addRenderableWidget(
             CycleButton.onOffBuilder(this.spawnAnimals)
                 .create(
                     var0,
@@ -162,7 +161,7 @@ public class RealmsSlotOptionsScreen extends RealmsScreen {
                 new TranslatableComponent("mco.configure.world.spawnMonsters"),
                 (param0, param1) -> this.spawnMonsters = param1
             );
-        this.addButton(
+        this.addRenderableWidget(
             CycleButton.builder(Difficulty::getDisplayName)
                 .withValues(DIFFICULTIES)
                 .withInitialValue(this.difficulty)
@@ -176,17 +175,17 @@ public class RealmsSlotOptionsScreen extends RealmsScreen {
         
                 })
         );
-        this.addButton(var6);
-        this.spawnProtectionButton = this.addButton(
+        this.addRenderableWidget(var6);
+        this.spawnProtectionButton = this.addRenderableWidget(
             new RealmsSlotOptionsScreen.SettingsSlider(this.column1X, row(7), this.columnWidth, this.spawnProtection, 0.0F, 16.0F)
         );
-        CycleButton<Boolean> var7 = this.addButton(
+        CycleButton<Boolean> var7 = this.addRenderableWidget(
             CycleButton.onOffBuilder(this.spawnNPCs)
                 .create(
                     var0, row(7), this.columnWidth, 20, new TranslatableComponent("mco.configure.world.spawnNPCs"), (param0, param1) -> this.spawnNPCs = param1
                 )
         );
-        CycleButton<Boolean> var8 = this.addButton(
+        CycleButton<Boolean> var8 = this.addRenderableWidget(
             CycleButton.onOffBuilder(this.forceGameMode)
                 .create(
                     this.column1X,
@@ -197,7 +196,7 @@ public class RealmsSlotOptionsScreen extends RealmsScreen {
                     (param0, param1) -> this.forceGameMode = param1
                 )
         );
-        CycleButton<Boolean> var9 = this.addButton(
+        CycleButton<Boolean> var9 = this.addRenderableWidget(
             CycleButton.onOffBuilder(this.commandBlocks)
                 .create(
                     var0,
@@ -222,30 +221,25 @@ public class RealmsSlotOptionsScreen extends RealmsScreen {
             var6.active = false;
         }
 
-        this.addButton(
+        this.addRenderableWidget(
             new Button(
                 this.column1X, row(13), this.columnWidth, 20, new TranslatableComponent("mco.configure.world.buttons.done"), param0 -> this.saveSettings()
             )
         );
-        this.addButton(new Button(var0, row(13), this.columnWidth, 20, CommonComponents.GUI_CANCEL, param0 -> this.minecraft.setScreen(this.parent)));
+        this.addRenderableWidget(new Button(var0, row(13), this.columnWidth, 20, CommonComponents.GUI_CANCEL, param0 -> this.minecraft.setScreen(this.parent)));
         this.addWidget(this.nameEdit);
-        this.titleLabel = this.addWidget(new RealmsLabel(new TranslatableComponent("mco.configure.world.buttons.options"), this.width / 2, 17, 16777215));
-        if (this.warningLabel != null) {
-            this.addWidget(this.warningLabel);
-        }
+    }
 
-        this.narrateLabels();
+    @Override
+    public Component getNarrationMessage() {
+        return CommonComponents.joinForNarration(this.getTitle(), this.createLabelNarration());
     }
 
     @Override
     public void render(PoseStack param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
+        drawCenteredString(param0, this.font, this.title, this.width / 2, 17, 16777215);
         this.font.draw(param0, NAME_LABEL, (float)(this.column1X + this.columnWidth / 2 - this.font.width(NAME_LABEL) / 2), (float)(row(0) - 5), 16777215);
-        this.titleLabel.render(this, param0);
-        if (this.warningLabel != null) {
-            this.warningLabel.render(this, param0);
-        }
-
         this.nameEdit.render(param0, param1, param2, param3);
         super.render(param0, param1, param2, param3);
     }

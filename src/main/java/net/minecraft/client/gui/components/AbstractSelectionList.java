@@ -18,15 +18,18 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.events.AbstractContainerEventHandler;
 import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.narration.NarratableEntry;
+import net.minecraft.client.gui.narration.NarratedElementType;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entry<E>> extends AbstractContainerEventHandler implements Widget {
-    public static final ResourceLocation WHITE_TEXTURE_LOCATION = new ResourceLocation("textures/misc/white.png");
+public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entry<E>> extends AbstractContainerEventHandler implements Widget, NarratableEntry {
     protected final Minecraft minecraft;
     protected final int itemHeight;
     private final List<E> children = new AbstractSelectionList.TrackedList();
@@ -42,9 +45,12 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
     private boolean renderHeader;
     protected int headerHeight;
     private boolean scrolling;
+    @Nullable
     private E selected;
     private boolean renderBackground = true;
     private boolean renderTopAndBottom = true;
+    @Nullable
+    private E hovered;
 
     public AbstractSelectionList(Minecraft param0, int param1, int param2, int param3, int param4, int param5) {
         this.minecraft = param0;
@@ -183,6 +189,7 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
         Tesselator var2 = Tesselator.getInstance();
         BufferBuilder var3 = var2.getBuilder();
         RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+        this.hovered = this.isMouseOver((double)param1, (double)param2) ? this.getEntryAtPosition((double)param1, (double)param2) : null;
         if (this.renderBackground) {
             RenderSystem.setShaderTexture(0, GuiComponent.BACKGROUND_LOCATION);
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
@@ -499,18 +506,7 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
                 }
 
                 int var13 = this.getRowLeft();
-                var8.render(
-                    param0,
-                    var3,
-                    var4,
-                    var13,
-                    var9,
-                    var7,
-                    param3,
-                    param4,
-                    this.isMouseOver((double)param3, (double)param4) && Objects.equals(this.getEntryAtPosition((double)param3, (double)param4), var8),
-                    param5
-                );
+                var8.render(param0, var3, var4, var13, var9, var7, param3, param4, Objects.equals(this.hovered, var8), param5);
             }
         }
 
@@ -536,6 +532,16 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
         return false;
     }
 
+    @Override
+    public NarratableEntry.NarrationPriority narrationPriority() {
+        if (this.isFocused()) {
+            return NarratableEntry.NarrationPriority.FOCUSED;
+        } else {
+            return this.hovered != null ? NarratableEntry.NarrationPriority.HOVERED : NarratableEntry.NarrationPriority.NONE;
+        }
+    }
+
+    @Nullable
     protected E remove(int param0) {
         E var0 = this.children.get(param0);
         return this.removeEntry(this.children.get(param0)) ? var0 : null;
@@ -550,8 +556,24 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
         return var0;
     }
 
+    @Nullable
+    protected E getHovered() {
+        return this.hovered;
+    }
+
     void bindEntryToSelf(AbstractSelectionList.Entry<E> param0) {
         param0.list = this;
+    }
+
+    protected void narrateListElementPosition(NarrationElementOutput param0, E param1) {
+        List<E> var0 = this.children();
+        if (var0.size() > 1) {
+            int var1 = var0.indexOf(param1);
+            if (var1 != -1) {
+                param0.add(NarratedElementType.POSITION, (Component)(new TranslatableComponent("narrator.position.list", var1 + 1, var0.size())));
+            }
+        }
+
     }
 
     @OnlyIn(Dist.CLIENT)

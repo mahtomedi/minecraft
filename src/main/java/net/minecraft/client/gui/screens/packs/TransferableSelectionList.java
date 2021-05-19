@@ -100,6 +100,11 @@ public class TransferableSelectionList extends ObjectSelectionList<TransferableS
         }
 
         @Override
+        public Component getNarration() {
+            return new TranslatableComponent("narrator.select", this.pack.getTitle());
+        }
+
+        @Override
         public void render(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
             PackCompatibility var0 = this.pack.getCompatibility();
             if (!var0.isCompatible()) {

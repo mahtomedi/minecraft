@@ -57,6 +57,10 @@ public class LookControl implements Control {
             this.mob.yHeadRot = this.rotateTowards(this.mob.yHeadRot, this.mob.yBodyRot, 10.0F);
         }
 
+        this.clampHeadRotationToBody();
+    }
+
+    protected void clampHeadRotationToBody() {
         if (!this.mob.getNavigation().isDone()) {
             this.mob.yHeadRot = Mth.rotateIfNecessary(this.mob.yHeadRot, this.mob.yBodyRot, (float)this.mob.getMaxHeadYRot());
         }
@@ -87,7 +91,7 @@ public class LookControl implements Control {
         double var0 = this.wantedX - this.mob.getX();
         double var1 = this.wantedY - this.mob.getEyeY();
         double var2 = this.wantedZ - this.mob.getZ();
-        double var3 = (double)Mth.sqrt(var0 * var0 + var2 * var2);
+        double var3 = Math.sqrt(var0 * var0 + var2 * var2);
         return (float)(-(Mth.atan2(var1, var3) * 180.0F / (float)Math.PI));
     }
 

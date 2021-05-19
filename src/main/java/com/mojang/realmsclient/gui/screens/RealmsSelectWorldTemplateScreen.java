@@ -14,10 +14,8 @@ import com.mojang.realmsclient.util.TextRenderingUtils;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
@@ -29,7 +27,6 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.realms.NarrationHelper;
 import net.minecraft.realms.RealmsObjectSelectionList;
 import net.minecraft.realms.RealmsScreen;
 import net.minecraft.resources.ResourceLocation;
@@ -49,7 +46,6 @@ public class RealmsSelectWorldTemplateScreen extends RealmsScreen {
     private final Consumer<WorldTemplate> callback;
     RealmsSelectWorldTemplateScreen.WorldTemplateObjectSelectionList worldTemplateObjectSelectionList;
     int selectedTemplate = -1;
-    private Component title;
     private Button selectButton;
     private Button trailerButton;
     private Button publisherButton;
@@ -66,26 +62,24 @@ public class RealmsSelectWorldTemplateScreen extends RealmsScreen {
     @Nullable
     List<TextRenderingUtils.Line> noTemplatesMessage;
 
-    public RealmsSelectWorldTemplateScreen(Consumer<WorldTemplate> param0, RealmsServer.WorldType param1) {
-        this(param0, param1, null);
+    public RealmsSelectWorldTemplateScreen(Component param0, Consumer<WorldTemplate> param1, RealmsServer.WorldType param2) {
+        this(param0, param1, param2, null);
     }
 
-    public RealmsSelectWorldTemplateScreen(Consumer<WorldTemplate> param0, RealmsServer.WorldType param1, @Nullable WorldTemplatePaginatedList param2) {
-        this.callback = param0;
-        this.worldType = param1;
-        if (param2 == null) {
+    public RealmsSelectWorldTemplateScreen(
+        Component param0, Consumer<WorldTemplate> param1, RealmsServer.WorldType param2, @Nullable WorldTemplatePaginatedList param3
+    ) {
+        super(param0);
+        this.callback = param1;
+        this.worldType = param2;
+        if (param3 == null) {
             this.worldTemplateObjectSelectionList = new RealmsSelectWorldTemplateScreen.WorldTemplateObjectSelectionList();
             this.fetchTemplatesAsync(new WorldTemplatePaginatedList(10));
         } else {
-            this.worldTemplateObjectSelectionList = new RealmsSelectWorldTemplateScreen.WorldTemplateObjectSelectionList(Lists.newArrayList(param2.templates));
-            this.fetchTemplatesAsync(param2);
+            this.worldTemplateObjectSelectionList = new RealmsSelectWorldTemplateScreen.WorldTemplateObjectSelectionList(Lists.newArrayList(param3.templates));
+            this.fetchTemplatesAsync(param3);
         }
 
-        this.title = new TranslatableComponent("mco.template.title");
-    }
-
-    public void setTitle(Component param0) {
-        this.title = param0;
     }
 
     public void setWarning(Component... param0) {
@@ -109,18 +103,18 @@ public class RealmsSelectWorldTemplateScreen extends RealmsScreen {
         this.worldTemplateObjectSelectionList = new RealmsSelectWorldTemplateScreen.WorldTemplateObjectSelectionList(
             this.worldTemplateObjectSelectionList.getTemplates()
         );
-        this.trailerButton = this.addButton(
+        this.trailerButton = this.addRenderableWidget(
             new Button(this.width / 2 - 206, this.height - 32, 100, 20, new TranslatableComponent("mco.template.button.trailer"), param0 -> this.onTrailer())
         );
-        this.selectButton = this.addButton(
+        this.selectButton = this.addRenderableWidget(
             new Button(
                 this.width / 2 - 100, this.height - 32, 100, 20, new TranslatableComponent("mco.template.button.select"), param0 -> this.selectTemplate()
             )
         );
         Component var0 = this.worldType == RealmsServer.WorldType.MINIGAME ? CommonComponents.GUI_CANCEL : CommonComponents.GUI_BACK;
         Button var1 = new Button(this.width / 2 + 6, this.height - 32, 100, 20, var0, param0 -> this.onClose());
-        this.addButton(var1);
-        this.publisherButton = this.addButton(
+        this.addRenderableWidget(var1);
+        this.publisherButton = this.addRenderableWidget(
             new Button(this.width / 2 + 112, this.height - 32, 100, 20, new TranslatableComponent("mco.template.button.publisher"), param0 -> this.onPublish())
         );
         this.selectButton.active = false;
@@ -128,12 +122,20 @@ public class RealmsSelectWorldTemplateScreen extends RealmsScreen {
         this.publisherButton.visible = false;
         this.addWidget(this.worldTemplateObjectSelectionList);
         this.magicalSpecialHackyFocus(this.worldTemplateObjectSelectionList);
-        Stream<Component> var2 = Stream.of(this.title);
-        if (this.warning != null) {
-            var2 = Stream.concat(Stream.of(this.warning), var2);
+    }
+
+    @Override
+    public Component getNarrationMessage() {
+        List<Component> var0 = Lists.newArrayListWithCapacity(2);
+        if (this.title != null) {
+            var0.add(this.title);
         }
 
-        NarrationHelper.now(var2.filter(Objects::nonNull).map(Component::getString).collect(Collectors.toList()));
+        if (this.warning != null) {
+            var0.addAll(Arrays.asList(this.warning));
+        }
+
+        return CommonComponents.joinLines(var0);
     }
 
     void updateButtonStates() {
@@ -428,6 +430,17 @@ public class RealmsSelectWorldTemplateScreen extends RealmsScreen {
             }
 
         }
+
+        @Override
+        public Component getNarration() {
+            Component var0 = CommonComponents.joinLines(
+                new TextComponent(this.template.name),
+                new TranslatableComponent("mco.template.select.narrate.authors", this.template.author),
+                new TextComponent(this.template.recommendedPlayers),
+                new TranslatableComponent("mco.template.select.narrate.version", this.template.version)
+            );
+            return new TranslatableComponent("narrator.select", var0);
+        }
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -478,22 +491,6 @@ public class RealmsSelectWorldTemplateScreen extends RealmsScreen {
             }
 
             return super.mouseClicked(param0, param1, param2);
-        }
-
-        @Override
-        public void selectItem(int param0) {
-            this.setSelectedItem(param0);
-            if (param0 != -1) {
-                WorldTemplate var0 = RealmsSelectWorldTemplateScreen.this.worldTemplateObjectSelectionList.get(param0);
-                String var1 = I18n.get(
-                    "narrator.select.list.position", param0 + 1, RealmsSelectWorldTemplateScreen.this.worldTemplateObjectSelectionList.getItemCount()
-                );
-                String var2 = I18n.get("mco.template.select.narrate.version", var0.version);
-                String var3 = I18n.get("mco.template.select.narrate.authors", var0.author);
-                String var4 = NarrationHelper.join(Arrays.asList(var0.name, var3, var0.recommendedPlayers, var2, var1));
-                NarrationHelper.now(I18n.get("narrator.select", var4));
-            }
-
         }
 
         public void setSelected(@Nullable RealmsSelectWorldTemplateScreen.Entry param0) {

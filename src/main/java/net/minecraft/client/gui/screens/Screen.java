@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.CrashReport;
@@ -28,11 +29,14 @@ import net.minecraft.ReportedException;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.TickableWidget;
+import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.components.events.AbstractContainerEventHandler;
 import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.narration.NarratableEntry;
+import net.minecraft.client.gui.narration.NarratedElementType;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.gui.narration.ScreenNarrationCollector;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -41,6 +45,7 @@ import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
@@ -51,21 +56,33 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
-public abstract class Screen extends AbstractContainerEventHandler implements TickableWidget, Widget {
+public abstract class Screen extends AbstractContainerEventHandler implements Widget {
     private static final Logger LOGGER = LogManager.getLogger();
     private static final Set<String> ALLOWED_PROTOCOLS = Sets.newHashSet("http", "https");
     private static final int EXTRA_SPACE_AFTER_FIRST_TOOLTIP_LINE = 2;
+    private static final Component USAGE_NARRATION = new TranslatableComponent("narrator.screen.usage");
     protected final Component title;
-    protected final List<GuiEventListener> children = Lists.newArrayList();
+    private final List<GuiEventListener> children = Lists.newArrayList();
+    private final List<NarratableEntry> narratables = Lists.newArrayList();
     @Nullable
     protected Minecraft minecraft;
     protected ItemRenderer itemRenderer;
     public int width;
     public int height;
-    protected final List<AbstractWidget> buttons = Lists.newArrayList();
+    private final List<Widget> renderables = Lists.newArrayList();
     public boolean passEvents;
     protected Font font;
     private URI clickedLink;
+    private static final long NARRATE_SUPPRESS_AFTER_INIT_TIME = TimeUnit.SECONDS.toMillis(2L);
+    private static final long NARRATE_DELAY_NARRATOR_ENABLED = NARRATE_SUPPRESS_AFTER_INIT_TIME;
+    private static final long NARRATE_DELAY_MOUSE_MOVE = 750L;
+    private static final long NARRATE_DELAY_MOUSE_ACTION = 200L;
+    private static final long NARRATE_DELAY_KEYBOARD_ACTION = 200L;
+    private final ScreenNarrationCollector narrationState = new ScreenNarrationCollector();
+    private long narrationSuppressTime = Long.MIN_VALUE;
+    private long nextNarrationTime = Long.MAX_VALUE;
+    @Nullable
+    private NarratableEntry lastNarratable;
 
     protected Screen(Component param0) {
         this.title = param0;
@@ -75,14 +92,14 @@ public abstract class Screen extends AbstractContainerEventHandler implements Ti
         return this.title;
     }
 
-    public String getNarrationMessage() {
-        return this.getTitle().getString();
+    public Component getNarrationMessage() {
+        return this.getTitle();
     }
 
     @Override
     public void render(PoseStack param0, int param1, int param2, float param3) {
-        for(int var0 = 0; var0 < this.buttons.size(); ++var0) {
-            this.buttons.get(var0).render(param0, param1, param2, param3);
+        for(Widget var0 : this.renderables) {
+            var0.render(param0, param1, param2, param3);
         }
 
     }
@@ -112,14 +129,38 @@ public abstract class Screen extends AbstractContainerEventHandler implements Ti
         this.minecraft.setScreen(null);
     }
 
-    protected <T extends AbstractWidget> T addButton(T param0) {
-        this.buttons.add(param0);
+    protected <T extends GuiEventListener & Widget & NarratableEntry> T addRenderableWidget(T param0) {
+        this.renderables.add(param0);
         return this.addWidget(param0);
     }
 
-    protected <T extends GuiEventListener> T addWidget(T param0) {
-        this.children.add(param0);
+    protected <T extends Widget> T addRenderableOnly(T param0) {
+        this.renderables.add(param0);
         return param0;
+    }
+
+    protected <T extends GuiEventListener & NarratableEntry> T addWidget(T param0) {
+        this.children.add(param0);
+        this.narratables.add(param0);
+        return param0;
+    }
+
+    protected void removeWidget(GuiEventListener param0) {
+        if (param0 instanceof Widget) {
+            this.renderables.remove((Widget)param0);
+        }
+
+        if (param0 instanceof NarratableEntry) {
+            this.narratables.remove((NarratableEntry)param0);
+        }
+
+        this.children.remove(param0);
+    }
+
+    protected void clearWidgets() {
+        this.renderables.clear();
+        this.children.clear();
+        this.narratables.clear();
     }
 
     protected void renderTooltip(PoseStack param0, ItemStack param1, int param2, int param3) {
@@ -320,16 +361,17 @@ public abstract class Screen extends AbstractContainerEventHandler implements Ti
         this.minecraft.player.chat(param0);
     }
 
-    public void init(Minecraft param0, int param1, int param2) {
+    public final void init(Minecraft param0, int param1, int param2) {
         this.minecraft = param0;
         this.itemRenderer = param0.getItemRenderer();
         this.font = param0.font;
         this.width = param1;
         this.height = param2;
-        this.buttons.clear();
-        this.children.clear();
+        this.clearWidgets();
         this.setFocused(null);
         this.init();
+        this.triggerImmediateNarration(false);
+        this.suppressNarration(NARRATE_SUPPRESS_AFTER_INIT_TIME);
     }
 
     @Override
@@ -340,7 +382,6 @@ public abstract class Screen extends AbstractContainerEventHandler implements Ti
     protected void init() {
     }
 
-    @Override
     public void tick() {
     }
 
@@ -464,5 +505,127 @@ public abstract class Screen extends AbstractContainerEventHandler implements Ti
     }
 
     public void onFilesDrop(List<Path> param0) {
+    }
+
+    private void scheduleNarration(long param0, boolean param1) {
+        this.nextNarrationTime = Util.getMillis() + param0;
+        if (param1) {
+            this.narrationSuppressTime = Long.MIN_VALUE;
+        }
+
+    }
+
+    private void suppressNarration(long param0) {
+        this.narrationSuppressTime = Util.getMillis() + param0;
+    }
+
+    public void afterMouseMove() {
+        this.scheduleNarration(750L, false);
+    }
+
+    public void afterMouseAction() {
+        this.scheduleNarration(200L, true);
+    }
+
+    public void afterKeyboardAction() {
+        this.scheduleNarration(200L, true);
+    }
+
+    private boolean shouldRunNarration() {
+        return NarratorChatListener.INSTANCE.isActive();
+    }
+
+    public void handleDelayedNarration() {
+        if (this.shouldRunNarration()) {
+            long var0 = Util.getMillis();
+            if (var0 > this.nextNarrationTime && var0 > this.narrationSuppressTime) {
+                this.runNarration(true);
+                this.nextNarrationTime = Long.MAX_VALUE;
+            }
+        }
+
+    }
+
+    protected void triggerImmediateNarration(boolean param0) {
+        if (this.shouldRunNarration()) {
+            this.runNarration(param0);
+        }
+
+    }
+
+    private void runNarration(boolean param0) {
+        this.narrationState.update(this::updateState);
+        String var0 = this.narrationState.collectNarrationText(!param0);
+        if (!var0.isEmpty()) {
+            NarratorChatListener.INSTANCE.sayNow(var0);
+        }
+
+    }
+
+    private void updateState(NarrationElementOutput param0x) {
+        param0x.add(NarratedElementType.TITLE, this.getNarrationMessage());
+        param0x.add(NarratedElementType.USAGE, USAGE_NARRATION);
+        this.updateNarratedWidget(param0x);
+    }
+
+    protected void updateNarratedWidget(NarrationElementOutput param0) {
+        Screen.NarratableSearchResult var0 = findNarratableWidget(this.narratables, this.lastNarratable);
+        if (var0 != null) {
+            if (var0.priority.isTerminal()) {
+                this.lastNarratable = var0.entry;
+            }
+
+            if (this.narratables.size() > 1) {
+                param0.add(
+                    NarratedElementType.POSITION, (Component)(new TranslatableComponent("narrator.position.screen", var0.index + 1, this.narratables.size()))
+                );
+                if (var0.priority == NarratableEntry.NarrationPriority.FOCUSED) {
+                    param0.add(NarratedElementType.USAGE, (Component)(new TranslatableComponent("narration.component_list.usage")));
+                }
+            }
+
+            var0.entry.updateNarration(param0.nest());
+        }
+
+    }
+
+    @Nullable
+    public static Screen.NarratableSearchResult findNarratableWidget(List<? extends NarratableEntry> param0, @Nullable NarratableEntry param1) {
+        Screen.NarratableSearchResult var0 = null;
+        Screen.NarratableSearchResult var1 = null;
+        int var2 = 0;
+
+        for(int var3 = param0.size(); var2 < var3; ++var2) {
+            NarratableEntry var4 = param0.get(var2);
+            NarratableEntry.NarrationPriority var5 = var4.narrationPriority();
+            if (var5.isTerminal()) {
+                if (var4 != param1) {
+                    return new Screen.NarratableSearchResult(var4, var2, var5);
+                }
+
+                var1 = new Screen.NarratableSearchResult(var4, var2, var5);
+            } else if (var5.compareTo(var0 != null ? var0.priority : NarratableEntry.NarrationPriority.NONE) > 0) {
+                var0 = new Screen.NarratableSearchResult(var4, var2, var5);
+            }
+        }
+
+        return var0 != null ? var0 : var1;
+    }
+
+    public void narrationEnabled() {
+        this.scheduleNarration(NARRATE_DELAY_NARRATOR_ENABLED, false);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static class NarratableSearchResult {
+        public final NarratableEntry entry;
+        public final int index;
+        public final NarratableEntry.NarrationPriority priority;
+
+        public NarratableSearchResult(NarratableEntry param0, int param1, NarratableEntry.NarrationPriority param2) {
+            this.entry = param0;
+            this.index = param1;
+            this.priority = param2;
+        }
     }
 }

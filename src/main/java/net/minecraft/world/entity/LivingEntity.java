@@ -53,6 +53,7 @@ import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Mth;
+import net.minecraft.world.Difficulty;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.CombatRules;
 import net.minecraft.world.damagesource.CombatTracker;
@@ -382,6 +383,10 @@ public abstract class LivingEntity extends Entity {
         }
 
         if (this.isAlive() && (this.isInWaterRainOrBubble() || this.isInPowderSnow)) {
+            if (!this.level.isClientSide && this.wasOnFire) {
+                this.playEntityOnFireExtinguishedSound();
+            }
+
             this.clearFire();
         }
 
@@ -849,7 +854,7 @@ public abstract class LivingEntity extends Entity {
     }
 
     public boolean canAttack(LivingEntity param0) {
-        return true;
+        return param0.canBeSeenAsEnemy();
     }
 
     public boolean canAttack(LivingEntity param0, TargetingConditions param1) {
@@ -857,7 +862,7 @@ public abstract class LivingEntity extends Entity {
     }
 
     public boolean canBeSeenAsEnemy() {
-        return !this.isInvulnerable() && this.canBeSeenByAnyone();
+        return !this.isInvulnerable() && this.level.getDifficulty() != Difficulty.PEACEFUL && this.canBeSeenByAnyone();
     }
 
     public boolean canBeSeenByAnyone() {
@@ -1035,14 +1040,6 @@ public abstract class LivingEntity extends Entity {
 
             this.noActionTime = 0;
             float var0 = param1;
-            if (param0.isDamageHelmet() && !this.getItemBySlot(EquipmentSlot.HEAD).isEmpty()) {
-                this.getItemBySlot(EquipmentSlot.HEAD)
-                    .hurtAndBreak(
-                        (int)(param1 * 4.0F + this.random.nextFloat() * param1 * 2.0F), this, param0x -> param0x.broadcastBreakEvent(EquipmentSlot.HEAD)
-                    );
-                param1 *= 0.75F;
-            }
-
             boolean var1 = false;
             float var2 = 0.0F;
             if (param1 > 0.0F && this.isDamageSourceBlocked(param0)) {
@@ -1075,6 +1072,11 @@ public abstract class LivingEntity extends Entity {
                 this.actuallyHurt(param0, param1);
                 this.hurtDuration = 10;
                 this.hurtTime = this.hurtDuration;
+            }
+
+            if (param0.isDamageHelmet() && !this.getItemBySlot(EquipmentSlot.HEAD).isEmpty()) {
+                this.hurtHelmet(param0, param1);
+                param1 *= 0.75F;
             }
 
             this.hurtDir = 0.0F;
@@ -1511,6 +1513,9 @@ public abstract class LivingEntity extends Entity {
     }
 
     protected void hurtArmor(DamageSource param0, float param1) {
+    }
+
+    protected void hurtHelmet(DamageSource param0, float param1) {
     }
 
     protected void hurtCurrentlyUsedShield(float param0) {

@@ -13,7 +13,7 @@ import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.Vec3;
 
 public class DragonLandingApproachPhase extends AbstractDragonPhaseInstance {
-    private static final TargetingConditions NEAR_EGG_TARGETING = TargetingConditions.forCombat().range(128.0);
+    private static final TargetingConditions NEAR_EGG_TARGETING = TargetingConditions.forCombat().ignoreLineOfSight();
     private Path currentPath;
     private Vec3 targetLocation;
 
@@ -51,7 +51,7 @@ public class DragonLandingApproachPhase extends AbstractDragonPhaseInstance {
         if (this.currentPath == null || this.currentPath.isDone()) {
             int var0 = this.dragon.findClosestNode();
             BlockPos var1 = this.dragon.level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, EndPodiumFeature.END_PODIUM_LOCATION);
-            Player var2 = this.dragon.level.getNearestPlayer(NEAR_EGG_TARGETING, (double)var1.getX(), (double)var1.getY(), (double)var1.getZ());
+            Player var2 = this.dragon.level.getNearestPlayer(NEAR_EGG_TARGETING, this.dragon, (double)var1.getX(), (double)var1.getY(), (double)var1.getZ());
             int var4;
             if (var2 != null) {
                 Vec3 var3 = new Vec3(var2.getX(), 0.0, var2.getZ()).normalize();

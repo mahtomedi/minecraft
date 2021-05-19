@@ -16,7 +16,7 @@ import net.minecraft.world.entity.player.Player;
 public class PlayerSensor extends Sensor<LivingEntity> {
     @Override
     public Set<MemoryModuleType<?>> requires() {
-        return ImmutableSet.of(MemoryModuleType.NEAREST_PLAYERS, MemoryModuleType.NEAREST_VISIBLE_PLAYER, MemoryModuleType.NEAREST_VISIBLE_TARGETABLE_PLAYER);
+        return ImmutableSet.of(MemoryModuleType.NEAREST_PLAYERS, MemoryModuleType.NEAREST_VISIBLE_PLAYER, MemoryModuleType.NEAREST_VISIBLE_ATTACKABLE_PLAYER);
     }
 
     @Override
@@ -31,7 +31,7 @@ public class PlayerSensor extends Sensor<LivingEntity> {
         var1.setMemory(MemoryModuleType.NEAREST_PLAYERS, var0);
         List<Player> var2 = var0.stream().filter(param1x -> isEntityTargetable(param1, param1x)).collect(Collectors.toList());
         var1.setMemory(MemoryModuleType.NEAREST_VISIBLE_PLAYER, var2.isEmpty() ? null : var2.get(0));
-        Optional<Player> var3 = var2.stream().filter(EntitySelector.ATTACK_ALLOWED).findFirst();
-        var1.setMemory(MemoryModuleType.NEAREST_VISIBLE_TARGETABLE_PLAYER, var3);
+        Optional<Player> var3 = var2.stream().filter(param1x -> isEntityAttackable(param1, param1x)).findFirst();
+        var1.setMemory(MemoryModuleType.NEAREST_VISIBLE_ATTACKABLE_PLAYER, var3);
     }
 }

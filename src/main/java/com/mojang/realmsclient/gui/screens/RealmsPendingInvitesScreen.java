@@ -17,12 +17,10 @@ import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.realms.NarrationHelper;
-import net.minecraft.realms.RealmsLabel;
 import net.minecraft.realms.RealmsObjectSelectionList;
 import net.minecraft.realms.RealmsScreen;
 import net.minecraft.resources.ResourceLocation;
@@ -44,12 +42,12 @@ public class RealmsPendingInvitesScreen extends RealmsScreen {
     Component toolTip;
     boolean loaded;
     RealmsPendingInvitesScreen.PendingInvitationSelectionList pendingInvitationSelectionList;
-    private RealmsLabel titleLabel;
     int selectedInvite = -1;
     private Button acceptButton;
     private Button rejectButton;
 
     public RealmsPendingInvitesScreen(Screen param0) {
+        super(new TranslatableComponent("mco.invites.title"));
         this.lastScreen = param0;
     }
 
@@ -79,14 +77,14 @@ public class RealmsPendingInvitesScreen extends RealmsScreen {
             })
             .start();
         this.addWidget(this.pendingInvitationSelectionList);
-        this.acceptButton = this.addButton(
+        this.acceptButton = this.addRenderableWidget(
             new Button(this.width / 2 - 174, this.height - 32, 100, 20, new TranslatableComponent("mco.invites.button.accept"), param0 -> {
                 this.accept(this.selectedInvite);
                 this.selectedInvite = -1;
                 this.updateButtonStates();
             })
         );
-        this.addButton(
+        this.addRenderableWidget(
             new Button(
                 this.width / 2 - 50,
                 this.height - 32,
@@ -96,16 +94,13 @@ public class RealmsPendingInvitesScreen extends RealmsScreen {
                 param0 -> this.minecraft.setScreen(new RealmsMainScreen(this.lastScreen))
             )
         );
-        this.rejectButton = this.addButton(
+        this.rejectButton = this.addRenderableWidget(
             new Button(this.width / 2 + 74, this.height - 32, 100, 20, new TranslatableComponent("mco.invites.button.reject"), param0 -> {
                 this.reject(this.selectedInvite);
                 this.selectedInvite = -1;
                 this.updateButtonStates();
             })
         );
-        this.titleLabel = new RealmsLabel(new TranslatableComponent("mco.invites.title"), this.width / 2, 12, 16777215);
-        this.addWidget(this.titleLabel);
-        this.narrateLabels();
         this.updateButtonStates();
     }
 
@@ -166,7 +161,7 @@ public class RealmsPendingInvitesScreen extends RealmsScreen {
         this.toolTip = null;
         this.renderBackground(param0);
         this.pendingInvitationSelectionList.render(param0, param1, param2, param3);
-        this.titleLabel.render(this, param0);
+        drawCenteredString(param0, this.font, this.title, this.width / 2, 12, 16777215);
         if (this.toolTip != null) {
             this.renderMousehoverTooltip(param0, this.toolTip, param1, param2);
         }
@@ -230,6 +225,16 @@ public class RealmsPendingInvitesScreen extends RealmsScreen {
                 GuiComponent.blit(param0, param2, param3, 32, 32, 8.0F, 8.0F, 8, 8, 64, 64);
                 GuiComponent.blit(param0, param2, param3, 32, 32, 40.0F, 8.0F, 8, 8, 64, 64);
             });
+        }
+
+        @Override
+        public Component getNarration() {
+            Component var0 = CommonComponents.joinLines(
+                new TextComponent(this.pendingInvite.worldName),
+                new TextComponent(this.pendingInvite.worldOwnerName),
+                new TextComponent(RealmsUtil.convertToAgePresentationFromInstant(this.pendingInvite.date))
+            );
+            return new TranslatableComponent("narrator.select", var0);
         }
 
         @OnlyIn(Dist.CLIENT)
@@ -313,17 +318,7 @@ public class RealmsPendingInvitesScreen extends RealmsScreen {
 
         @Override
         public void selectItem(int param0) {
-            this.setSelectedItem(param0);
-            if (param0 != -1) {
-                List<RealmsPendingInvitesScreen.Entry> var0 = RealmsPendingInvitesScreen.this.pendingInvitationSelectionList.children();
-                PendingInvite var1 = var0.get(param0).pendingInvite;
-                String var2 = I18n.get("narrator.select.list.position", param0 + 1, var0.size());
-                String var3 = NarrationHelper.join(
-                    Arrays.asList(var1.worldName, var1.worldOwnerName, RealmsUtil.convertToAgePresentationFromInstant(var1.date), var2)
-                );
-                NarrationHelper.now(I18n.get("narrator.select", var3));
-            }
-
+            super.selectItem(param0);
             this.selectInviteListItem(param0);
         }
 

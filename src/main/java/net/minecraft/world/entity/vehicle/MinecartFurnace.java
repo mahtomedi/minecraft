@@ -7,7 +7,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
@@ -94,8 +93,8 @@ public class MinecartFurnace extends AbstractMinecart {
         double var3 = getHorizontalDistanceSqr(var2);
         double var4 = this.xPush * this.xPush + this.zPush * this.zPush;
         if (var4 > 1.0E-4 && var3 > 0.001) {
-            double var5 = (double)Mth.sqrt(var3);
-            double var6 = (double)Mth.sqrt(var4);
+            double var5 = Math.sqrt(var3);
+            double var6 = Math.sqrt(var4);
             this.xPush = var2.x / var5 * var6;
             this.zPush = var2.z / var5 * var6;
         }
@@ -106,7 +105,7 @@ public class MinecartFurnace extends AbstractMinecart {
     protected void applyNaturalSlowdown() {
         double var0 = this.xPush * this.xPush + this.zPush * this.zPush;
         if (var0 > 1.0E-7) {
-            var0 = (double)Mth.sqrt(var0);
+            var0 = Math.sqrt(var0);
             this.xPush /= var0;
             this.zPush /= var0;
             Vec3 var1 = this.getDeltaMovement().multiply(0.8, 0.0, 0.8).add(this.xPush, 0.0, this.zPush);

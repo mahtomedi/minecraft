@@ -3,10 +3,10 @@ package net.minecraft.realms;
 import com.mojang.realmsclient.dto.RealmsServer;
 import java.net.InetSocketAddress;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ClientHandshakePacketListenerImpl;
 import net.minecraft.client.multiplayer.resolver.ServerAddress;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.Connection;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.chat.CommonComponents;
@@ -32,7 +32,7 @@ public class RealmsConnect {
     public void connect(final RealmsServer param0, ServerAddress param1) {
         final Minecraft var0 = Minecraft.getInstance();
         var0.setConnectedToRealms(true);
-        NarrationHelper.now(I18n.get("mco.connect.success"));
+        NarratorChatListener.INSTANCE.sayNow(new TranslatableComponent("mco.connect.success"));
         final String var1 = param1.getHost();
         final int var2 = param1.getPort();
         (new Thread("Realms-connect-task") {

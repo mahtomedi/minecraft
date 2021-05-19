@@ -18,6 +18,7 @@ import net.minecraft.client.gui.screens.ConfirmLinkScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.multiplayer.ServerData;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -89,8 +90,10 @@ public class SocialInteractionsScreen extends Screen {
     }
 
     @Override
-    public String getNarrationMessage() {
-        return super.getNarrationMessage() + ". " + this.serverLabel.getString();
+    public Component getNarrationMessage() {
+        return (Component)(this.serverLabel != null
+            ? CommonComponents.joinForNarration(super.getNarrationMessage(), this.serverLabel)
+            : super.getNarrationMessage());
     }
 
     @Override
@@ -114,14 +117,14 @@ public class SocialInteractionsScreen extends Screen {
         int var3 = this.font.width(BLOCKING_HINT) + 40;
         int var4 = 64 + 16 * this.backgroundUnits();
         int var5 = (this.width - var3) / 2;
-        this.allButton = this.addButton(new Button(var1, 45, var0, 20, TAB_ALL, param0 -> this.showPage(SocialInteractionsScreen.Page.ALL)));
-        this.hiddenButton = this.addButton(
+        this.allButton = this.addRenderableWidget(new Button(var1, 45, var0, 20, TAB_ALL, param0 -> this.showPage(SocialInteractionsScreen.Page.ALL)));
+        this.hiddenButton = this.addRenderableWidget(
             new Button((var1 + var2 - var0) / 2 + 1, 45, var0, 20, TAB_HIDDEN, param0 -> this.showPage(SocialInteractionsScreen.Page.HIDDEN))
         );
-        this.blockedButton = this.addButton(
+        this.blockedButton = this.addRenderableWidget(
             new Button(var2 - var0 + 1, 45, var0, 20, TAB_BLOCKED, param0 -> this.showPage(SocialInteractionsScreen.Page.BLOCKED))
         );
-        this.blockingHintButton = this.addButton(
+        this.blockingHintButton = this.addRenderableWidget(
             new Button(var5, var4, var3, 20, BLOCKING_HINT, param0 -> this.minecraft.setScreen(new ConfirmLinkScreen(param0x -> {
                     if (param0x) {
                         Util.getPlatform().openUri("https://aka.ms/javablocking");
@@ -145,8 +148,8 @@ public class SocialInteractionsScreen extends Screen {
         this.searchBox.setTextColor(16777215);
         this.searchBox.setValue(var6);
         this.searchBox.setResponder(this::checkSearchStringUpdate);
-        this.children.add(this.searchBox);
-        this.children.add(this.socialInteractionsPlayerList);
+        this.addWidget(this.searchBox);
+        this.addWidget(this.socialInteractionsPlayerList);
         this.initialized = true;
         this.showPage(this.page);
     }
@@ -175,12 +178,12 @@ public class SocialInteractionsScreen extends Screen {
         };
         this.socialInteractionsPlayerList.updatePlayerList(var4, this.socialInteractionsPlayerList.getScrollAmount());
         if (!this.searchBox.getValue().isEmpty() && this.socialInteractionsPlayerList.isEmpty() && !this.searchBox.isFocused()) {
-            NarratorChatListener.INSTANCE.sayNow(EMPTY_SEARCH.getString());
+            NarratorChatListener.INSTANCE.sayNow(EMPTY_SEARCH);
         } else if (var4.isEmpty()) {
             if (param0 == SocialInteractionsScreen.Page.HIDDEN) {
-                NarratorChatListener.INSTANCE.sayNow(EMPTY_HIDDEN.getString());
+                NarratorChatListener.INSTANCE.sayNow(EMPTY_HIDDEN);
             } else if (param0 == SocialInteractionsScreen.Page.BLOCKED) {
-                NarratorChatListener.INSTANCE.sayNow(EMPTY_BLOCKED.getString());
+                NarratorChatListener.INSTANCE.sayNow(EMPTY_BLOCKED);
             }
         }
 

@@ -77,7 +77,7 @@ public class EntitySelectorParser {
     private int maxResults;
     private boolean includesEntities;
     private boolean worldLimited;
-    private MinMaxBounds.Floats distance = MinMaxBounds.Floats.ANY;
+    private MinMaxBounds.Doubles distance = MinMaxBounds.Doubles.ANY;
     private MinMaxBounds.Ints level = MinMaxBounds.Ints.ANY;
     @Nullable
     private Double x;
@@ -130,8 +130,8 @@ public class EntitySelectorParser {
         AABB var2;
         if (this.deltaX == null && this.deltaY == null && this.deltaZ == null) {
             if (this.distance.getMax() != null) {
-                float var1 = this.distance.getMax();
-                var2 = new AABB((double)(-var1), (double)(-var1), (double)(-var1), (double)(var1 + 1.0F), (double)(var1 + 1.0F), (double)(var1 + 1.0F));
+                double var1 = this.distance.getMax();
+                var2 = new AABB(-var1, -var1, -var1, var1 + 1.0, var1 + 1.0, var1 + 1.0);
             } else {
                 var2 = null;
             }
@@ -354,11 +354,11 @@ public class EntitySelectorParser {
         this.worldLimited = true;
     }
 
-    public MinMaxBounds.Floats getDistance() {
+    public MinMaxBounds.Doubles getDistance() {
         return this.distance;
     }
 
-    public void setDistance(MinMaxBounds.Floats param0) {
+    public void setDistance(MinMaxBounds.Doubles param0) {
         this.distance = param0;
     }
 

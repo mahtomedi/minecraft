@@ -1,10 +1,14 @@
 package net.minecraft.client.gui.screens.inventory;
 
+import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import java.util.List;
+import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.CommonComponents;
@@ -15,7 +19,6 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.game.ServerboundSetBeaconPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.BeaconMenu;
@@ -31,9 +34,10 @@ public class BeaconScreen extends AbstractContainerScreen<BeaconMenu> {
     static final ResourceLocation BEACON_LOCATION = new ResourceLocation("textures/gui/container/beacon.png");
     private static final Component PRIMARY_EFFECT_LABEL = new TranslatableComponent("block.minecraft.beacon.primary");
     private static final Component SECONDARY_EFFECT_LABEL = new TranslatableComponent("block.minecraft.beacon.secondary");
-    private BeaconScreen.BeaconConfirmButton confirmButton;
-    boolean initPowerButtons;
+    private final List<BeaconScreen.BeaconButton> beaconButtons = Lists.newArrayList();
+    @Nullable
     MobEffect primary;
+    @Nullable
     MobEffect secondary;
 
     public BeaconScreen(final BeaconMenu param0, Inventory param1, Component param2) {
@@ -49,76 +53,65 @@ public class BeaconScreen extends AbstractContainerScreen<BeaconMenu> {
             public void dataChanged(AbstractContainerMenu param0x, int param1, int param2) {
                 BeaconScreen.this.primary = param0.getPrimaryEffect();
                 BeaconScreen.this.secondary = param0.getSecondaryEffect();
-                BeaconScreen.this.initPowerButtons = true;
             }
         });
+    }
+
+    private <T extends AbstractWidget & BeaconScreen.BeaconButton> void addBeaconButton(T param0) {
+        this.addRenderableWidget(param0);
+        this.beaconButtons.add(param0);
     }
 
     @Override
     protected void init() {
         super.init();
-        this.confirmButton = this.addButton(new BeaconScreen.BeaconConfirmButton(this.leftPos + 164, this.topPos + 107));
-        this.addButton(new BeaconScreen.BeaconCancelButton(this.leftPos + 190, this.topPos + 107));
-        this.initPowerButtons = true;
-        this.confirmButton.active = false;
+        this.beaconButtons.clear();
+        this.addBeaconButton(new BeaconScreen.BeaconConfirmButton(this.leftPos + 164, this.topPos + 107));
+        this.addBeaconButton(new BeaconScreen.BeaconCancelButton(this.leftPos + 190, this.topPos + 107));
+
+        for(int var0 = 0; var0 <= 2; ++var0) {
+            int var1 = BeaconBlockEntity.BEACON_EFFECTS[var0].length;
+            int var2 = var1 * 22 + (var1 - 1) * 2;
+
+            for(int var3 = 0; var3 < var1; ++var3) {
+                MobEffect var4 = BeaconBlockEntity.BEACON_EFFECTS[var0][var3];
+                BeaconScreen.BeaconPowerButton var5 = new BeaconScreen.BeaconPowerButton(
+                    this.leftPos + 76 + var3 * 24 - var2 / 2, this.topPos + 22 + var0 * 25, var4, true, var0
+                );
+                var5.active = false;
+                this.addBeaconButton(var5);
+            }
+        }
+
+        int var6 = 3;
+        int var7 = BeaconBlockEntity.BEACON_EFFECTS[3].length + 1;
+        int var8 = var7 * 22 + (var7 - 1) * 2;
+
+        for(int var9 = 0; var9 < var7 - 1; ++var9) {
+            MobEffect var10 = BeaconBlockEntity.BEACON_EFFECTS[3][var9];
+            BeaconScreen.BeaconPowerButton var11 = new BeaconScreen.BeaconPowerButton(
+                this.leftPos + 167 + var9 * 24 - var8 / 2, this.topPos + 47, var10, false, 3
+            );
+            var11.active = false;
+            this.addBeaconButton(var11);
+        }
+
+        BeaconScreen.BeaconPowerButton var12 = new BeaconScreen.BeaconUpgradePowerButton(
+            this.leftPos + 167 + (var7 - 1) * 24 - var8 / 2, this.topPos + 47, BeaconBlockEntity.BEACON_EFFECTS[0][0]
+        );
+        var12.visible = false;
+        this.addBeaconButton(var12);
     }
 
     @Override
     public void tick() {
         super.tick();
+        this.updateButtons();
+    }
+
+    void updateButtons() {
         int var0 = this.menu.getLevels();
-        if (this.initPowerButtons && var0 >= 0) {
-            this.initPowerButtons = false;
-
-            for(int var1 = 0; var1 <= 2; ++var1) {
-                int var2 = BeaconBlockEntity.BEACON_EFFECTS[var1].length;
-                int var3 = var2 * 22 + (var2 - 1) * 2;
-
-                for(int var4 = 0; var4 < var2; ++var4) {
-                    MobEffect var5 = BeaconBlockEntity.BEACON_EFFECTS[var1][var4];
-                    BeaconScreen.BeaconPowerButton var6 = new BeaconScreen.BeaconPowerButton(
-                        this.leftPos + 76 + var4 * 24 - var3 / 2, this.topPos + 22 + var1 * 25, var5, true
-                    );
-                    this.addButton(var6);
-                    if (var1 >= var0) {
-                        var6.active = false;
-                    } else if (var5 == this.primary) {
-                        var6.setSelected(true);
-                    }
-                }
-            }
-
-            int var7 = 3;
-            int var8 = BeaconBlockEntity.BEACON_EFFECTS[3].length + 1;
-            int var9 = var8 * 22 + (var8 - 1) * 2;
-
-            for(int var10 = 0; var10 < var8 - 1; ++var10) {
-                MobEffect var11 = BeaconBlockEntity.BEACON_EFFECTS[3][var10];
-                BeaconScreen.BeaconPowerButton var12 = new BeaconScreen.BeaconPowerButton(
-                    this.leftPos + 167 + var10 * 24 - var9 / 2, this.topPos + 47, var11, false
-                );
-                this.addButton(var12);
-                if (3 >= var0) {
-                    var12.active = false;
-                } else if (var11 == this.secondary) {
-                    var12.setSelected(true);
-                }
-            }
-
-            if (this.primary != null) {
-                BeaconScreen.BeaconPowerButton var13 = new BeaconScreen.BeaconPowerButton(
-                    this.leftPos + 167 + (var8 - 1) * 24 - var9 / 2, this.topPos + 47, this.primary, false
-                );
-                this.addButton(var13);
-                if (3 >= var0) {
-                    var13.active = false;
-                } else if (this.primary == this.secondary) {
-                    var13.setSelected(true);
-                }
-            }
-        }
-
-        this.confirmButton.active = this.menu.hasPayment() && this.primary != null;
+        this.beaconButtons.forEach(param1 -> param1.updateStatus(var0));
     }
 
     @Override
@@ -126,8 +119,8 @@ public class BeaconScreen extends AbstractContainerScreen<BeaconMenu> {
         drawCenteredString(param0, this.font, PRIMARY_EFFECT_LABEL, 62, 10, 14737632);
         drawCenteredString(param0, this.font, SECONDARY_EFFECT_LABEL, 169, 10, 14737632);
 
-        for(AbstractWidget var0 : this.buttons) {
-            if (var0.isHovered()) {
+        for(BeaconScreen.BeaconButton var0 : this.beaconButtons) {
+            if (var0.isShowingTooltip()) {
                 var0.renderToolTip(param0, param1 - this.leftPos, param2 - this.topPos);
                 break;
             }
@@ -160,9 +153,18 @@ public class BeaconScreen extends AbstractContainerScreen<BeaconMenu> {
     }
 
     @OnlyIn(Dist.CLIENT)
+    interface BeaconButton {
+        boolean isShowingTooltip();
+
+        void renderToolTip(PoseStack var1, int var2, int var3);
+
+        void updateStatus(int var1);
+    }
+
+    @OnlyIn(Dist.CLIENT)
     class BeaconCancelButton extends BeaconScreen.BeaconSpriteScreenButton {
         public BeaconCancelButton(int param0, int param1) {
-            super(param0, param1, 112, 220);
+            super(param0, param1, 112, 220, CommonComponents.GUI_CANCEL);
         }
 
         @Override
@@ -171,15 +173,14 @@ public class BeaconScreen extends AbstractContainerScreen<BeaconMenu> {
         }
 
         @Override
-        public void renderToolTip(PoseStack param0, int param1, int param2) {
-            BeaconScreen.this.renderTooltip(param0, CommonComponents.GUI_CANCEL, param1, param2);
+        public void updateStatus(int param0) {
         }
     }
 
     @OnlyIn(Dist.CLIENT)
     class BeaconConfirmButton extends BeaconScreen.BeaconSpriteScreenButton {
         public BeaconConfirmButton(int param0, int param1) {
-            super(param0, param1, 90, 220);
+            super(param0, param1, 90, 220, CommonComponents.GUI_DONE);
         }
 
         @Override
@@ -191,33 +192,34 @@ public class BeaconScreen extends AbstractContainerScreen<BeaconMenu> {
         }
 
         @Override
-        public void renderToolTip(PoseStack param0, int param1, int param2) {
-            BeaconScreen.this.renderTooltip(param0, CommonComponents.GUI_DONE, param1, param2);
+        public void updateStatus(int param0) {
+            this.active = BeaconScreen.this.menu.hasPayment() && BeaconScreen.this.primary != null;
         }
     }
 
     @OnlyIn(Dist.CLIENT)
     class BeaconPowerButton extends BeaconScreen.BeaconScreenButton {
-        private final MobEffect effect;
-        private final TextureAtlasSprite sprite;
         private final boolean isPrimary;
-        private final Component tooltip;
+        protected final int tier;
+        private MobEffect effect;
+        private TextureAtlasSprite sprite;
+        private Component tooltip;
 
-        public BeaconPowerButton(int param0, int param1, MobEffect param2, boolean param3) {
+        public BeaconPowerButton(int param0, int param1, MobEffect param2, boolean param3, int param4) {
             super(param0, param1);
-            this.effect = param2;
-            this.sprite = Minecraft.getInstance().getMobEffectTextures().get(param2);
             this.isPrimary = param3;
-            this.tooltip = this.createTooltip(param2, param3);
+            this.tier = param4;
+            this.setEffect(param2);
         }
 
-        private Component createTooltip(MobEffect param0, boolean param1) {
-            MutableComponent var0 = new TranslatableComponent(param0.getDescriptionId());
-            if (!param1 && param0 != MobEffects.REGENERATION) {
-                var0.append(" II");
-            }
+        protected void setEffect(MobEffect param0) {
+            this.effect = param0;
+            this.sprite = Minecraft.getInstance().getMobEffectTextures().get(param0);
+            this.tooltip = this.createEffectDescription(param0);
+        }
 
-            return var0;
+        protected MutableComponent createEffectDescription(MobEffect param0) {
+            return new TranslatableComponent(param0.getDescriptionId());
         }
 
         @Override
@@ -229,10 +231,7 @@ public class BeaconScreen extends AbstractContainerScreen<BeaconMenu> {
                     BeaconScreen.this.secondary = this.effect;
                 }
 
-                BeaconScreen.this.buttons.clear();
-                BeaconScreen.this.children.clear();
-                BeaconScreen.this.init();
-                BeaconScreen.this.tick();
+                BeaconScreen.this.updateButtons();
             }
         }
 
@@ -246,14 +245,29 @@ public class BeaconScreen extends AbstractContainerScreen<BeaconMenu> {
             RenderSystem.setShaderTexture(0, this.sprite.atlas().location());
             blit(param0, this.x + 2, this.y + 2, this.getBlitOffset(), 18, 18, this.sprite);
         }
+
+        @Override
+        public void updateStatus(int param0) {
+            this.active = this.tier < param0;
+            this.setSelected(this.effect == (this.isPrimary ? BeaconScreen.this.primary : BeaconScreen.this.secondary));
+        }
+
+        @Override
+        protected MutableComponent createNarrationMessage() {
+            return this.createEffectDescription(this.effect);
+        }
     }
 
     @OnlyIn(Dist.CLIENT)
-    abstract static class BeaconScreenButton extends AbstractButton {
+    abstract static class BeaconScreenButton extends AbstractButton implements BeaconScreen.BeaconButton {
         private boolean selected;
 
         protected BeaconScreenButton(int param0, int param1) {
             super(param0, param1, 22, 22, TextComponent.EMPTY);
+        }
+
+        protected BeaconScreenButton(int param0, int param1, Component param2) {
+            super(param0, param1, 22, 22, param2);
         }
 
         @Override
@@ -284,15 +298,25 @@ public class BeaconScreen extends AbstractContainerScreen<BeaconMenu> {
         public void setSelected(boolean param0) {
             this.selected = param0;
         }
+
+        @Override
+        public boolean isShowingTooltip() {
+            return this.isHovered;
+        }
+
+        @Override
+        public void updateNarration(NarrationElementOutput param0) {
+            this.defaultButtonNarrationText(param0);
+        }
     }
 
     @OnlyIn(Dist.CLIENT)
-    abstract static class BeaconSpriteScreenButton extends BeaconScreen.BeaconScreenButton {
+    abstract class BeaconSpriteScreenButton extends BeaconScreen.BeaconScreenButton {
         private final int iconX;
         private final int iconY;
 
-        protected BeaconSpriteScreenButton(int param0, int param1, int param2, int param3) {
-            super(param0, param1);
+        protected BeaconSpriteScreenButton(int param0, int param1, int param2, int param3, Component param4) {
+            super(param0, param1, param4);
             this.iconX = param2;
             this.iconY = param3;
         }
@@ -300,6 +324,35 @@ public class BeaconScreen extends AbstractContainerScreen<BeaconMenu> {
         @Override
         protected void renderIcon(PoseStack param0) {
             this.blit(param0, this.x + 2, this.y + 2, this.iconX, this.iconY, 18, 18);
+        }
+
+        @Override
+        public void renderToolTip(PoseStack param0, int param1, int param2) {
+            BeaconScreen.this.renderTooltip(param0, BeaconScreen.this.title, param1, param2);
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    class BeaconUpgradePowerButton extends BeaconScreen.BeaconPowerButton {
+        public BeaconUpgradePowerButton(int param0, int param1, MobEffect param2) {
+            super(param0, param1, param2, false, 3);
+        }
+
+        @Override
+        protected MutableComponent createEffectDescription(MobEffect param0) {
+            return new TranslatableComponent(param0.getDescriptionId()).append(" II");
+        }
+
+        @Override
+        public void updateStatus(int param0) {
+            if (BeaconScreen.this.primary != null) {
+                this.visible = true;
+                this.setEffect(BeaconScreen.this.primary);
+                super.updateStatus(param0);
+            } else {
+                this.visible = false;
+            }
+
         }
     }
 }

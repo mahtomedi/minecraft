@@ -13,9 +13,11 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.FallingBlockEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -70,11 +72,13 @@ public class PowderSnowBlock extends Block implements BucketPickup {
         }
 
         param3.setIsInPowderSnow(true);
-        if (param3.isOnFire()) {
-            param1.destroyBlock(param2, false);
-        }
-
         if (!param1.isClientSide) {
+            if (param3.isOnFire()
+                && (param1.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING) || param3 instanceof Player)
+                && param3.mayInteract(param1, param2)) {
+                param1.destroyBlock(param2, false);
+            }
+
             param3.setSharedFlagOnFire(false);
         }
 

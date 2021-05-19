@@ -130,22 +130,24 @@ public class BookEditScreen extends Screen {
     protected void init() {
         this.clearDisplayCache();
         this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
-        this.signButton = this.addButton(new Button(this.width / 2 - 100, 196, 98, 20, new TranslatableComponent("book.signButton"), param0 -> {
+        this.signButton = this.addRenderableWidget(new Button(this.width / 2 - 100, 196, 98, 20, new TranslatableComponent("book.signButton"), param0 -> {
             this.isSigning = true;
             this.updateButtonVisibility();
         }));
-        this.doneButton = this.addButton(new Button(this.width / 2 + 2, 196, 98, 20, CommonComponents.GUI_DONE, param0 -> {
+        this.doneButton = this.addRenderableWidget(new Button(this.width / 2 + 2, 196, 98, 20, CommonComponents.GUI_DONE, param0 -> {
             this.minecraft.setScreen(null);
             this.saveChanges(false);
         }));
-        this.finalizeButton = this.addButton(new Button(this.width / 2 - 100, 196, 98, 20, new TranslatableComponent("book.finalizeButton"), param0 -> {
-            if (this.isSigning) {
-                this.saveChanges(true);
-                this.minecraft.setScreen(null);
-            }
-
-        }));
-        this.cancelButton = this.addButton(new Button(this.width / 2 + 2, 196, 98, 20, CommonComponents.GUI_CANCEL, param0 -> {
+        this.finalizeButton = this.addRenderableWidget(
+            new Button(this.width / 2 - 100, 196, 98, 20, new TranslatableComponent("book.finalizeButton"), param0 -> {
+                if (this.isSigning) {
+                    this.saveChanges(true);
+                    this.minecraft.setScreen(null);
+                }
+    
+            })
+        );
+        this.cancelButton = this.addRenderableWidget(new Button(this.width / 2 + 2, 196, 98, 20, CommonComponents.GUI_CANCEL, param0 -> {
             if (this.isSigning) {
                 this.isSigning = false;
             }
@@ -154,8 +156,8 @@ public class BookEditScreen extends Screen {
         }));
         int var0 = (this.width - 192) / 2;
         int var1 = 2;
-        this.forwardButton = this.addButton(new PageButton(var0 + 116, 159, true, param0 -> this.pageForward(), true));
-        this.backButton = this.addButton(new PageButton(var0 + 43, 159, false, param0 -> this.pageBack(), true));
+        this.forwardButton = this.addRenderableWidget(new PageButton(var0 + 116, 159, true, param0 -> this.pageForward(), true));
+        this.backButton = this.addRenderableWidget(new PageButton(var0 + 43, 159, false, param0 -> this.pageBack(), true));
         this.updateButtonVisibility();
     }
 

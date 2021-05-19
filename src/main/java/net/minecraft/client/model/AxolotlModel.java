@@ -1,6 +1,8 @@
 package net.minecraft.client.model;
 
 import com.google.common.collect.ImmutableList;
+import com.mojang.math.Vector3f;
+import java.util.Map;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
@@ -10,12 +12,14 @@ import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LerpingModel;
 import net.minecraft.world.entity.animal.axolotl.Axolotl;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class AxolotlModel<T extends Axolotl> extends AgeableListModel<T> {
+public class AxolotlModel<T extends Axolotl & LerpingModel> extends AgeableListModel<T> {
+    public static final float SWIMMING_LEG_XROT = 1.8849558F;
     private final ModelPart tail;
     private final ModelPart leftHindLeg;
     private final ModelPart rightHindLeg;
@@ -26,7 +30,6 @@ public class AxolotlModel<T extends Axolotl> extends AgeableListModel<T> {
     private final ModelPart topGills;
     private final ModelPart leftGills;
     private final ModelPart rightGills;
-    public static final float SWIMMING_LEG_XROT = 1.8849558F;
 
     public AxolotlModel(ModelPart param0) {
         super(true, 8.0F, 3.35F);
@@ -81,11 +84,16 @@ public class AxolotlModel<T extends Axolotl> extends AgeableListModel<T> {
     }
 
     public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5) {
-        this.setupInitialAnimationValues(param4, param5);
+        this.setupInitialAnimationValues(param0, param4, param5);
         if (param0.isPlayingDead()) {
-            this.setupPlayDeadAnimation();
+            this.setupPlayDeadAnimation(param4);
+            this.saveAnimationValues(param0);
         } else {
-            boolean var0 = Entity.getHorizontalDistanceSqr(param0.getDeltaMovement()) > 1.0E-7;
+            boolean var0 = Entity.getHorizontalDistanceSqr(param0.getDeltaMovement()) > 1.0E-7
+                || param0.getXRot() != param0.xRotO
+                || param0.getYRot() != param0.yRotO
+                || param0.xOld != param0.getX()
+                || param0.zOld != param0.getZ();
             if (param0.isInWaterOrBubble()) {
                 if (var0) {
                     this.setupSwimmingAnimation(param3, param5);
@@ -93,82 +101,144 @@ public class AxolotlModel<T extends Axolotl> extends AgeableListModel<T> {
                     this.setupWaterHoveringAnimation(param3);
                 }
 
+                this.saveAnimationValues(param0);
             } else {
                 if (param0.isOnGround()) {
                     if (var0) {
-                        this.setupGroundCrawlingAnimation(param3);
+                        this.setupGroundCrawlingAnimation(param3, param4);
                     } else {
-                        this.setupLayStillOnGroundAnimation(param3);
+                        this.setupLayStillOnGroundAnimation(param3, param4);
                     }
                 }
 
+                this.saveAnimationValues(param0);
             }
         }
     }
 
-    private void setupInitialAnimationValues(float param0, float param1) {
+    private void saveAnimationValues(T param0) {
+        Map<String, Vector3f> var0 = param0.getModelRotationValues();
+        var0.put("body", this.getRotationVector(this.body));
+        var0.put("head", this.getRotationVector(this.head));
+        var0.put("right_hind_leg", this.getRotationVector(this.rightHindLeg));
+        var0.put("left_hind_leg", this.getRotationVector(this.leftHindLeg));
+        var0.put("right_front_leg", this.getRotationVector(this.rightFrontLeg));
+        var0.put("left_front_leg", this.getRotationVector(this.leftFrontLeg));
+        var0.put("tail", this.getRotationVector(this.tail));
+        var0.put("top_gills", this.getRotationVector(this.topGills));
+        var0.put("left_gills", this.getRotationVector(this.leftGills));
+        var0.put("right_gills", this.getRotationVector(this.rightGills));
+    }
+
+    private Vector3f getRotationVector(ModelPart param0) {
+        return new Vector3f(param0.xRot, param0.yRot, param0.zRot);
+    }
+
+    private void setRotationFromVector(ModelPart param0, Vector3f param1) {
+        param0.setRotation(param1.x(), param1.y(), param1.z());
+    }
+
+    private void setupInitialAnimationValues(T param0, float param1, float param2) {
         this.body.x = 0.0F;
         this.head.y = 0.0F;
         this.body.y = 20.0F;
-        this.body.setRotation(param1 * (float) (Math.PI / 180.0), param0 * (float) (Math.PI / 180.0), 0.0F);
-        this.head.setRotation(0.0F, 0.0F, 0.0F);
-        this.leftHindLeg.setRotation(0.0F, 0.0F, 0.0F);
-        this.rightHindLeg.setRotation(0.0F, 0.0F, 0.0F);
-        this.leftFrontLeg.setRotation(0.0F, 0.0F, 0.0F);
-        this.rightFrontLeg.setRotation(0.0F, 0.0F, 0.0F);
-        this.leftGills.setRotation(0.0F, 0.0F, 0.0F);
-        this.rightGills.setRotation(0.0F, 0.0F, 0.0F);
-        this.topGills.setRotation(0.0F, 0.0F, 0.0F);
-        this.tail.setRotation(0.0F, 0.0F, 0.0F);
+        Map<String, Vector3f> var0 = param0.getModelRotationValues();
+        if (var0.isEmpty()) {
+            this.body.setRotation(param2 * (float) (Math.PI / 180.0), param1 * (float) (Math.PI / 180.0), 0.0F);
+            this.head.setRotation(0.0F, 0.0F, 0.0F);
+            this.leftHindLeg.setRotation(0.0F, 0.0F, 0.0F);
+            this.rightHindLeg.setRotation(0.0F, 0.0F, 0.0F);
+            this.leftFrontLeg.setRotation(0.0F, 0.0F, 0.0F);
+            this.rightFrontLeg.setRotation(0.0F, 0.0F, 0.0F);
+            this.leftGills.setRotation(0.0F, 0.0F, 0.0F);
+            this.rightGills.setRotation(0.0F, 0.0F, 0.0F);
+            this.topGills.setRotation(0.0F, 0.0F, 0.0F);
+            this.tail.setRotation(0.0F, 0.0F, 0.0F);
+        } else {
+            this.setRotationFromVector(this.body, var0.get("body"));
+            this.setRotationFromVector(this.head, var0.get("head"));
+            this.setRotationFromVector(this.leftHindLeg, var0.get("left_hind_leg"));
+            this.setRotationFromVector(this.rightHindLeg, var0.get("right_hind_leg"));
+            this.setRotationFromVector(this.leftFrontLeg, var0.get("left_front_leg"));
+            this.setRotationFromVector(this.rightFrontLeg, var0.get("right_front_leg"));
+            this.setRotationFromVector(this.leftGills, var0.get("left_gills"));
+            this.setRotationFromVector(this.rightGills, var0.get("right_gills"));
+            this.setRotationFromVector(this.topGills, var0.get("top_gills"));
+            this.setRotationFromVector(this.tail, var0.get("tail"));
+        }
+
     }
 
-    private void setupLayStillOnGroundAnimation(float param0) {
+    private float lerpTo(float param0, float param1) {
+        return this.lerpTo(0.05F, param0, param1);
+    }
+
+    private float lerpTo(float param0, float param1, float param2) {
+        return Mth.rotLerp(param0, param1, param2);
+    }
+
+    private void lerpPart(ModelPart param0, float param1, float param2, float param3) {
+        param0.setRotation(this.lerpTo(param0.xRot, param1), this.lerpTo(param0.yRot, param2), this.lerpTo(param0.zRot, param3));
+    }
+
+    private void setupLayStillOnGroundAnimation(float param0, float param1) {
         float var0 = param0 * 0.09F;
         float var1 = Mth.sin(var0);
         float var2 = Mth.cos(var0);
         float var3 = var1 * var1 - 2.0F * var1;
         float var4 = var2 * var2 - 3.0F * var1;
-        this.head.xRot = -0.09F * var3;
-        this.head.zRot = -0.2F;
-        this.tail.yRot = -0.1F + 0.1F * var3;
-        this.topGills.xRot = 0.6F + 0.05F * var4;
-        this.leftGills.yRot = -this.topGills.xRot;
-        this.rightGills.yRot = -this.leftGills.yRot;
-        this.leftHindLeg.setRotation(1.1F, 1.0F, 0.0F);
-        this.leftFrontLeg.setRotation(0.8F, 2.3F, -0.5F);
+        this.head.xRot = this.lerpTo(this.head.xRot, -0.09F * var3);
+        this.head.yRot = this.lerpTo(this.head.yRot, 0.0F);
+        this.head.zRot = this.lerpTo(this.head.zRot, -0.2F);
+        this.tail.yRot = this.lerpTo(this.tail.yRot, -0.1F + 0.1F * var3);
+        this.topGills.xRot = this.lerpTo(this.topGills.xRot, 0.6F + 0.05F * var4);
+        this.leftGills.yRot = this.lerpTo(this.leftGills.yRot, -this.topGills.xRot);
+        this.rightGills.yRot = this.lerpTo(this.rightGills.yRot, -this.leftGills.yRot);
+        this.lerpPart(this.leftHindLeg, 1.1F, 1.0F, 0.0F);
+        this.lerpPart(this.leftFrontLeg, 0.8F, 2.3F, -0.5F);
         this.applyMirrorLegRotations();
+        this.body.xRot = this.lerpTo(0.2F, this.body.xRot, 0.0F);
+        this.body.yRot = this.lerpTo(this.body.yRot, param1 * (float) (Math.PI / 180.0));
+        this.body.zRot = this.lerpTo(this.body.zRot, 0.0F);
     }
 
-    private void setupGroundCrawlingAnimation(float param0) {
+    private void setupGroundCrawlingAnimation(float param0, float param1) {
         float var0 = param0 * 0.11F;
         float var1 = Mth.cos(var0);
         float var2 = (var1 * var1 - 2.0F * var1) / 5.0F;
         float var3 = 0.7F * var1;
-        this.head.yRot = 0.09F * var1;
-        this.tail.yRot = this.head.yRot;
-        this.topGills.xRot = 0.6F - 0.08F * (var1 * var1 + 2.0F * Mth.sin(var0));
-        this.leftGills.yRot = -this.topGills.xRot;
-        this.rightGills.yRot = -this.leftGills.yRot;
-        this.leftHindLeg.setRotation(0.9424779F, 1.5F - var2, -0.1F);
-        this.leftFrontLeg.setRotation(1.0995574F, (float) (Math.PI / 2) - var3, 0.0F);
-        this.rightHindLeg.setRotation(this.leftHindLeg.xRot, -1.0F - var2, 0.0F);
-        this.rightFrontLeg.setRotation(this.leftFrontLeg.xRot, (float) (-Math.PI / 2) - var3, 0.0F);
+        this.head.xRot = this.lerpTo(this.head.xRot, 0.0F);
+        this.head.yRot = this.lerpTo(this.head.yRot, 0.09F * var1);
+        this.head.zRot = this.lerpTo(this.head.zRot, 0.0F);
+        this.tail.yRot = this.lerpTo(this.tail.yRot, this.head.yRot);
+        this.topGills.xRot = this.lerpTo(this.topGills.xRot, 0.6F - 0.08F * (var1 * var1 + 2.0F * Mth.sin(var0)));
+        this.leftGills.yRot = this.lerpTo(this.leftGills.yRot, -this.topGills.xRot);
+        this.rightGills.yRot = this.lerpTo(this.rightGills.yRot, -this.leftGills.yRot);
+        this.lerpPart(this.leftHindLeg, 0.9424779F, 1.5F - var2, -0.1F);
+        this.lerpPart(this.leftFrontLeg, 1.0995574F, (float) (Math.PI / 2) - var3, 0.0F);
+        this.lerpPart(this.rightHindLeg, this.leftHindLeg.xRot, -1.0F - var2, 0.0F);
+        this.lerpPart(this.rightFrontLeg, this.leftFrontLeg.xRot, (float) (-Math.PI / 2) - var3, 0.0F);
+        this.body.xRot = this.lerpTo(0.2F, this.body.xRot, 0.0F);
+        this.body.yRot = this.lerpTo(this.body.yRot, param1 * (float) (Math.PI / 180.0));
+        this.body.zRot = this.lerpTo(this.body.zRot, 0.0F);
     }
 
     private void setupWaterHoveringAnimation(float param0) {
         float var0 = param0 * 0.075F;
         float var1 = Mth.cos(var0);
         float var2 = Mth.sin(var0) * 0.15F;
-        this.body.xRot = -0.15F + 0.075F * var1;
+        this.body.xRot = this.lerpTo(this.body.xRot, -0.15F + 0.075F * var1);
         this.body.y -= var2;
-        this.head.xRot = -this.body.xRot;
-        this.topGills.xRot = 0.2F * var1;
-        this.leftGills.yRot = -0.3F * var1 - 0.19F;
-        this.rightGills.yRot = -this.leftGills.yRot;
-        this.leftHindLeg.setRotation((float) (Math.PI * 3.0 / 4.0) - var1 * 0.11F, 0.47123894F, 1.7278761F);
-        this.leftFrontLeg.setRotation((float) (Math.PI / 4) - var1 * 0.2F, 2.042035F, 0.0F);
+        this.head.xRot = this.lerpTo(this.head.xRot, -this.body.xRot);
+        this.topGills.xRot = this.lerpTo(this.topGills.xRot, 0.2F * var1);
+        this.leftGills.yRot = this.lerpTo(this.leftGills.yRot, -0.3F * var1 - 0.19F);
+        this.rightGills.yRot = this.lerpTo(this.rightGills.yRot, -this.leftGills.yRot);
+        this.lerpPart(this.leftHindLeg, (float) (Math.PI * 3.0 / 4.0) - var1 * 0.11F, 0.47123894F, 1.7278761F);
+        this.lerpPart(this.leftFrontLeg, (float) (Math.PI / 4) - var1 * 0.2F, 2.042035F, 0.0F);
         this.applyMirrorLegRotations();
-        this.tail.yRot = 0.5F * var1;
+        this.tail.yRot = this.lerpTo(this.tail.yRot, 0.5F * var1);
+        this.head.yRot = this.lerpTo(this.head.yRot, 0.0F);
+        this.head.zRot = this.lerpTo(this.head.zRot, 0.0F);
     }
 
     private void setupSwimmingAnimation(float param0, float param1) {
@@ -176,28 +246,38 @@ public class AxolotlModel<T extends Axolotl> extends AgeableListModel<T> {
         float var1 = Mth.sin(var0);
         float var2 = Mth.cos(var0);
         float var3 = 0.13F * var1;
-        this.body.xRot = param1 * (float) (Math.PI / 180.0) + var3;
+        this.body.xRot = this.lerpTo(0.1F, this.body.xRot, param1 * (float) (Math.PI / 180.0) + var3);
         this.head.xRot = -var3 * 1.8F;
         this.body.y -= 0.45F * var2;
-        this.topGills.xRot = -0.5F * var1 - 0.8F;
-        this.leftGills.yRot = 0.3F * var1 + 0.9F;
-        this.rightGills.yRot = -this.leftGills.yRot;
-        this.tail.yRot = 0.3F * Mth.cos(var0 * 0.9F);
-        this.leftHindLeg.setRotation(1.8849558F, -0.4F * var1, (float) (Math.PI / 2));
-        this.leftFrontLeg.setRotation(1.8849558F, -0.2F * var2 - 0.1F, (float) (Math.PI / 2));
+        this.topGills.xRot = this.lerpTo(this.topGills.xRot, -0.5F * var1 - 0.8F);
+        this.leftGills.yRot = this.lerpTo(this.leftGills.yRot, 0.3F * var1 + 0.9F);
+        this.rightGills.yRot = this.lerpTo(this.rightGills.yRot, -this.leftGills.yRot);
+        this.tail.yRot = this.lerpTo(this.tail.yRot, 0.3F * Mth.cos(var0 * 0.9F));
+        this.lerpPart(this.leftHindLeg, 1.8849558F, -0.4F * var1, (float) (Math.PI / 2));
+        this.lerpPart(this.leftFrontLeg, 1.8849558F, -0.2F * var2 - 0.1F, (float) (Math.PI / 2));
         this.applyMirrorLegRotations();
+        this.head.yRot = this.lerpTo(this.head.yRot, 0.0F);
+        this.head.zRot = this.lerpTo(this.head.zRot, 0.0F);
     }
 
-    private void setupPlayDeadAnimation() {
-        this.leftHindLeg.setRotation(1.4137167F, 1.0995574F, (float) (Math.PI / 4));
-        this.leftFrontLeg.setRotation((float) (Math.PI / 4), 2.042035F, 0.0F);
-        this.body.xRot = -0.15F;
-        this.body.zRot = 0.35F;
+    private void setupPlayDeadAnimation(float param0) {
+        this.lerpPart(this.leftHindLeg, 1.4137167F, 1.0995574F, (float) (Math.PI / 4));
+        this.lerpPart(this.leftFrontLeg, (float) (Math.PI / 4), 2.042035F, 0.0F);
+        this.body.xRot = this.lerpTo(this.body.xRot, -0.15F);
+        this.body.zRot = this.lerpTo(this.body.zRot, 0.35F);
         this.applyMirrorLegRotations();
+        this.body.yRot = this.lerpTo(this.body.yRot, param0 * (float) (Math.PI / 180.0));
+        this.head.xRot = this.lerpTo(this.head.xRot, 0.0F);
+        this.head.yRot = this.lerpTo(this.head.yRot, 0.0F);
+        this.head.zRot = this.lerpTo(this.head.zRot, 0.0F);
+        this.tail.yRot = this.lerpTo(this.tail.yRot, 0.0F);
+        this.lerpPart(this.topGills, 0.0F, 0.0F, 0.0F);
+        this.lerpPart(this.leftGills, 0.0F, 0.0F, 0.0F);
+        this.lerpPart(this.rightGills, 0.0F, 0.0F, 0.0F);
     }
 
     private void applyMirrorLegRotations() {
-        this.rightHindLeg.setRotation(this.leftHindLeg.xRot, -this.leftHindLeg.yRot, -this.leftHindLeg.zRot);
-        this.rightFrontLeg.setRotation(this.leftFrontLeg.xRot, -this.leftFrontLeg.yRot, -this.leftFrontLeg.zRot);
+        this.lerpPart(this.rightHindLeg, this.leftHindLeg.xRot, -this.leftHindLeg.yRot, -this.leftHindLeg.zRot);
+        this.lerpPart(this.rightFrontLeg, this.leftFrontLeg.xRot, -this.leftFrontLeg.yRot, -this.leftFrontLeg.zRot);
     }
 }

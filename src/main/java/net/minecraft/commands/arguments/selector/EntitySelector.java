@@ -38,7 +38,7 @@ public class EntitySelector {
     private final boolean includesEntities;
     private final boolean worldLimited;
     private final Predicate<Entity> predicate;
-    private final MinMaxBounds.Floats range;
+    private final MinMaxBounds.Doubles range;
     private final Function<Vec3, Vec3> position;
     @Nullable
     private final AABB aabb;
@@ -56,7 +56,7 @@ public class EntitySelector {
         boolean param1,
         boolean param2,
         Predicate<Entity> param3,
-        MinMaxBounds.Floats param4,
+        MinMaxBounds.Doubles param4,
         Function<Vec3, Vec3> param5,
         @Nullable AABB param6,
         BiConsumer<Vec3, List<? extends Entity>> param7,

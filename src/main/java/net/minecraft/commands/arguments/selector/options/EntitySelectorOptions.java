@@ -101,8 +101,8 @@ public class EntitySelectorOptions {
             }, param0 -> !param0.hasNameEquals(), new TranslatableComponent("argument.entity.options.name.description"));
             register("distance", param0 -> {
                 int var0 = param0.getReader().getCursor();
-                MinMaxBounds.Floats var1 = MinMaxBounds.Floats.fromReader(param0.getReader());
-                if ((var1.getMin() == null || !(var1.getMin() < 0.0F)) && (var1.getMax() == null || !(var1.getMax() < 0.0F))) {
+                MinMaxBounds.Doubles var1 = MinMaxBounds.Doubles.fromReader(param0.getReader());
+                if ((var1.getMin() == null || !(var1.getMin() < 0.0)) && (var1.getMax() == null || !(var1.getMax() < 0.0))) {
                     param0.setDistance(var1);
                     param0.setWorldLimited();
                 } else {

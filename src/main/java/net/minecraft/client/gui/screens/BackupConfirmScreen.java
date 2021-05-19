@@ -35,7 +35,7 @@ public class BackupConfirmScreen extends Screen {
         super.init();
         this.message = MultiLineLabel.create(this.font, this.description, this.width - 50);
         int var0 = (this.message.getLineCount() + 1) * 9;
-        this.addButton(
+        this.addRenderableWidget(
             new Button(
                 this.width / 2 - 155,
                 100 + var0,
@@ -45,7 +45,7 @@ public class BackupConfirmScreen extends Screen {
                 param0 -> this.listener.proceed(true, this.eraseCache.selected())
             )
         );
-        this.addButton(
+        this.addRenderableWidget(
             new Button(
                 this.width / 2 - 155 + 160,
                 100 + var0,
@@ -55,12 +55,12 @@ public class BackupConfirmScreen extends Screen {
                 param0 -> this.listener.proceed(false, this.eraseCache.selected())
             )
         );
-        this.addButton(
+        this.addRenderableWidget(
             new Button(this.width / 2 - 155 + 80, 124 + var0, 150, 20, CommonComponents.GUI_CANCEL, param0 -> this.minecraft.setScreen(this.lastScreen))
         );
         this.eraseCache = new Checkbox(this.width / 2 - 155 + 80, 76 + var0, 150, 20, new TranslatableComponent("selectWorld.backupEraseCache"), false);
         if (this.promptForCacheErase) {
-            this.addButton(this.eraseCache);
+            this.addRenderableWidget(this.eraseCache);
         }
 
     }

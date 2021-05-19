@@ -11,6 +11,7 @@ import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.recipebook.PlaceRecipe;
 import net.minecraft.resources.ResourceLocation;
@@ -244,6 +245,11 @@ public class OverlayRecipeComponent extends GuiComponent implements Widget, GuiE
 
         protected void calculateIngredientsPositions(Recipe<?> param0) {
             this.placeRecipe(3, 3, -1, param0, param0.getIngredients().iterator(), 0);
+        }
+
+        @Override
+        public void updateNarration(NarrationElementOutput param0) {
+            this.defaultButtonNarrationText(param0);
         }
 
         @Override

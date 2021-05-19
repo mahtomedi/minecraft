@@ -1,5 +1,6 @@
 package net.minecraft.client.gui.screens;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -91,31 +92,36 @@ public class LoadingOverlay extends Overlay {
             fill(param0, 0, 0, var0, var1, replaceAlpha(BRAND_BACKGROUND.getAsInt(), var7));
             var6 = Mth.clamp(var4, 0.0F, 1.0F);
         } else {
-            fill(param0, 0, 0, var0, var1, BRAND_BACKGROUND.getAsInt());
+            int var9 = BRAND_BACKGROUND.getAsInt();
+            float var10 = (float)(var9 >> 16 & 0xFF) / 255.0F;
+            float var11 = (float)(var9 >> 8 & 0xFF) / 255.0F;
+            float var12 = (float)(var9 & 0xFF) / 255.0F;
+            GlStateManager._clearColor(var10, var11, var12, 1.0F);
+            GlStateManager._clear(16384, Minecraft.ON_OSX);
             var6 = 1.0F;
         }
 
-        int var10 = (int)((double)this.minecraft.getWindow().getGuiScaledWidth() * 0.5);
-        int var11 = (int)((double)this.minecraft.getWindow().getGuiScaledHeight() * 0.5);
-        double var12 = Math.min((double)this.minecraft.getWindow().getGuiScaledWidth() * 0.75, (double)this.minecraft.getWindow().getGuiScaledHeight()) * 0.25;
-        int var13 = (int)(var12 * 0.5);
-        double var14 = var12 * 4.0;
-        int var15 = (int)(var14 * 0.5);
+        int var14 = (int)((double)this.minecraft.getWindow().getGuiScaledWidth() * 0.5);
+        int var15 = (int)((double)this.minecraft.getWindow().getGuiScaledHeight() * 0.5);
+        double var16 = Math.min((double)this.minecraft.getWindow().getGuiScaledWidth() * 0.75, (double)this.minecraft.getWindow().getGuiScaledHeight()) * 0.25;
+        int var17 = (int)(var16 * 0.5);
+        double var18 = var16 * 4.0;
+        int var19 = (int)(var18 * 0.5);
         RenderSystem.setShaderTexture(0, MOJANG_STUDIOS_LOGO_LOCATION);
         RenderSystem.enableBlend();
         RenderSystem.blendEquation(32774);
         RenderSystem.blendFunc(770, 1);
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, var6);
-        blit(param0, var10 - var15, var11 - var13, var15, (int)var12, -0.0625F, 0.0F, 120, 60, 120, 120);
-        blit(param0, var10, var11 - var13, var15, (int)var12, 0.0625F, 60.0F, 120, 60, 120, 120);
+        blit(param0, var14 - var19, var15 - var17, var19, (int)var16, -0.0625F, 0.0F, 120, 60, 120, 120);
+        blit(param0, var14, var15 - var17, var19, (int)var16, 0.0625F, 60.0F, 120, 60, 120, 120);
         RenderSystem.defaultBlendFunc();
         RenderSystem.disableBlend();
-        int var16 = (int)((double)this.minecraft.getWindow().getGuiScaledHeight() * 0.8325);
-        float var17 = this.reload.getActualProgress();
-        this.currentProgress = Mth.clamp(this.currentProgress * 0.95F + var17 * 0.050000012F, 0.0F, 1.0F);
+        int var20 = (int)((double)this.minecraft.getWindow().getGuiScaledHeight() * 0.8325);
+        float var21 = this.reload.getActualProgress();
+        this.currentProgress = Mth.clamp(this.currentProgress * 0.95F + var21 * 0.050000012F, 0.0F, 1.0F);
         if (var3 < 1.0F) {
-            this.drawProgressBar(param0, var0 / 2 - var15, var16 - 5, var0 / 2 + var15, var16 + 5, 1.0F - Mth.clamp(var3, 0.0F, 1.0F));
+            this.drawProgressBar(param0, var0 / 2 - var19, var20 - 5, var0 / 2 + var19, var20 + 5, 1.0F - Mth.clamp(var3, 0.0F, 1.0F));
         }
 
         if (var3 >= 2.0F) {
@@ -142,11 +148,11 @@ public class LoadingOverlay extends Overlay {
         int var0 = Mth.ceil((float)(param3 - param1 - 2) * this.currentProgress);
         int var1 = Math.round(param5 * 255.0F);
         int var2 = FastColor.ARGB32.color(var1, 255, 255, 255);
+        fill(param0, param1 + 2, param2 + 2, param1 + var0, param4 - 2, var2);
         fill(param0, param1 + 1, param2, param3 - 1, param2 + 1, var2);
         fill(param0, param1 + 1, param4, param3 - 1, param4 - 1, var2);
         fill(param0, param1, param2, param1 + 1, param4, var2);
         fill(param0, param3, param2, param3 - 1, param4, var2);
-        fill(param0, param1 + 2, param2 + 2, param1 + var0, param4 - 2, var2);
     }
 
     @Override

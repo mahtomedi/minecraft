@@ -19,7 +19,6 @@ import net.minecraft.network.protocol.game.ClientboundCustomSoundPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 
 public class PlaySoundCommand {
@@ -162,7 +161,7 @@ public class PlaySoundCommand {
                 }
 
                 if (!(param7 <= 0.0F)) {
-                    double var9 = (double)Mth.sqrt(var6);
+                    double var9 = Math.sqrt(var6);
                     var7 = new Vec3(var2.getX() + var3 / var9 * 2.0, var2.getY() + var4 / var9 * 2.0, var2.getZ() + var5 / var9 * 2.0);
                     var8 = param7;
                     break;

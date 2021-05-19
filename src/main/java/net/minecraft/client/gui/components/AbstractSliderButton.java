@@ -3,6 +3,8 @@ package net.minecraft.client.gui.components;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.narration.NarratedElementType;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -28,6 +30,19 @@ public abstract class AbstractSliderButton extends AbstractWidget {
     @Override
     protected MutableComponent createNarrationMessage() {
         return new TranslatableComponent("gui.narrate.slider", this.getMessage());
+    }
+
+    @Override
+    public void updateNarration(NarrationElementOutput param0) {
+        param0.add(NarratedElementType.TITLE, (Component)this.createNarrationMessage());
+        if (this.active) {
+            if (this.isFocused()) {
+                param0.add(NarratedElementType.USAGE, (Component)(new TranslatableComponent("narration.slider.usage.focused")));
+            } else {
+                param0.add(NarratedElementType.USAGE, (Component)(new TranslatableComponent("narration.slider.usage.hovered")));
+            }
+        }
+
     }
 
     @Override

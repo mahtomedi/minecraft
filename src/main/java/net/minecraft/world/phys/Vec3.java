@@ -51,7 +51,7 @@ public class Vec3 implements Position {
     }
 
     public Vec3 normalize() {
-        double var0 = (double)Mth.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
+        double var0 = Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
         return var0 < 1.0E-4 ? ZERO : new Vec3(this.x / var0, this.y / var0, this.z / var0);
     }
 
@@ -87,7 +87,7 @@ public class Vec3 implements Position {
         double var0 = param0.x - this.x;
         double var1 = param0.y - this.y;
         double var2 = param0.z - this.z;
-        return (double)Mth.sqrt(var0 * var0 + var1 * var1 + var2 * var2);
+        return Math.sqrt(var0 * var0 + var1 * var1 + var2 * var2);
     }
 
     public double distanceToSqr(Vec3 param0) {
@@ -121,7 +121,7 @@ public class Vec3 implements Position {
     }
 
     public double length() {
-        return (double)Mth.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
+        return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
     }
 
     public double lengthSqr() {

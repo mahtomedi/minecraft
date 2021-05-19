@@ -2167,7 +2167,8 @@ public class Features {
                             Blocks.MEDIUM_AMETHYST_BUD.defaultBlockState(),
                             Blocks.LARGE_AMETHYST_BUD.defaultBlockState(),
                             Blocks.AMETHYST_CLUSTER.defaultBlockState()
-                        )
+                        ),
+                        BlockTags.FEATURES_CANNOT_REPLACE.getName()
                     ),
                     new GeodeLayerSettings(1.7, 2.2, 3.2, 4.2),
                     new GeodeCrackSettings(0.95, 2.0, 2),
@@ -2185,7 +2186,7 @@ public class Features {
             )
             .rangeUniform(VerticalAnchor.aboveBottom(6), VerticalAnchor.absolute(46))
             .squared()
-            .rarity(30)
+            .rarity(53)
     );
 
     static SimpleWeightedRandomList.Builder<BlockState> weightedBlockStateBuilder() {

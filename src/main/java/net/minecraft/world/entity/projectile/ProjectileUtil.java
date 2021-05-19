@@ -97,9 +97,9 @@ public final class ProjectileUtil {
     public static void rotateTowardsMovement(Entity param0, float param1) {
         Vec3 var0 = param0.getDeltaMovement();
         if (var0.lengthSqr() != 0.0) {
-            float var1 = Mth.sqrt(Entity.getHorizontalDistanceSqr(var0));
+            double var1 = Math.sqrt(Entity.getHorizontalDistanceSqr(var0));
             param0.setYRot((float)(Mth.atan2(var0.z, var0.x) * 180.0F / (float)Math.PI) + 90.0F);
-            param0.setXRot((float)(Mth.atan2((double)var1, var0.y) * 180.0F / (float)Math.PI) - 90.0F);
+            param0.setXRot((float)(Mth.atan2(var1, var0.y) * 180.0F / (float)Math.PI) - 90.0F);
 
             while(param0.getXRot() - param0.xRotO < -180.0F) {
                 param0.xRotO -= 360.0F;

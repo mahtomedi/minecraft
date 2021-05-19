@@ -60,7 +60,6 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
-import net.minecraft.client.renderer.entity.layers.SheepFurLayer;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.resources.model.ModelBakery;
@@ -1146,11 +1145,11 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
             }
         }
 
+        var21.endLastBatch();
         this.checkPoseStack(param0);
         var21.endBatch(RenderType.entitySolid(TextureAtlas.LOCATION_BLOCKS));
         var21.endBatch(RenderType.entityCutout(TextureAtlas.LOCATION_BLOCKS));
         var21.endBatch(RenderType.entityCutoutNoCull(TextureAtlas.LOCATION_BLOCKS));
-        var21.endBatch(RenderType.entityCutoutNoCull(SheepFurLayer.SHEEP_FUR_LOCATION));
         var21.endBatch(RenderType.entitySmoothCutout(TextureAtlas.LOCATION_BLOCKS));
         var0.popPush("blockentities");
 

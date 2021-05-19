@@ -28,7 +28,7 @@ public class ControlsScreen extends OptionsSubScreen {
 
     @Override
     protected void init() {
-        this.addButton(
+        this.addRenderableWidget(
             new Button(
                 this.width / 2 - 155,
                 18,
@@ -38,10 +38,10 @@ public class ControlsScreen extends OptionsSubScreen {
                 param0 -> this.minecraft.setScreen(new MouseSettingsScreen(this, this.options))
             )
         );
-        this.addButton(Option.AUTO_JUMP.createButton(this.options, this.width / 2 - 155 + 160, 18, 150));
+        this.addRenderableWidget(Option.AUTO_JUMP.createButton(this.options, this.width / 2 - 155 + 160, 18, 150));
         this.controlList = new ControlList(this, this.minecraft);
-        this.children.add(this.controlList);
-        this.resetButton = this.addButton(
+        this.addWidget(this.controlList);
+        this.resetButton = this.addRenderableWidget(
             new Button(this.width / 2 - 155, this.height - 29, 150, 20, new TranslatableComponent("controls.resetAll"), param0 -> {
                 for(KeyMapping var0 : this.options.keyMappings) {
                     var0.setKey(var0.getDefaultKey());
@@ -50,7 +50,7 @@ public class ControlsScreen extends OptionsSubScreen {
                 KeyMapping.resetMapping();
             })
         );
-        this.addButton(
+        this.addRenderableWidget(
             new Button(this.width / 2 - 155 + 160, this.height - 29, 150, 20, CommonComponents.GUI_DONE, param0 -> this.minecraft.setScreen(this.lastScreen))
         );
     }

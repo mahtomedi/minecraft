@@ -44,18 +44,18 @@ public class ItemEntity extends Entity {
 
     public ItemEntity(EntityType<? extends ItemEntity> param0, Level param1) {
         super(param0, param1);
-        this.bobOffs = (float)(Math.random() * Math.PI * 2.0);
-    }
-
-    public ItemEntity(Level param0, double param1, double param2, double param3) {
-        this(EntityType.ITEM, param0);
-        this.setPos(param1, param2, param3);
+        this.bobOffs = this.random.nextFloat() * (float) Math.PI * 2.0F;
         this.setYRot(this.random.nextFloat() * 360.0F);
-        this.setDeltaMovement(this.random.nextDouble() * 0.2 - 0.1, 0.2, this.random.nextDouble() * 0.2 - 0.1);
     }
 
     public ItemEntity(Level param0, double param1, double param2, double param3, ItemStack param4) {
-        this(param0, param1, param2, param3);
+        this(param0, param1, param2, param3, param4, param0.random.nextDouble() * 0.2 - 0.1, 0.2, param0.random.nextDouble() * 0.2 - 0.1);
+    }
+
+    public ItemEntity(Level param0, double param1, double param2, double param3, ItemStack param4, double param5, double param6, double param7) {
+        this(EntityType.ITEM, param0);
+        this.setPos(param1, param2, param3);
+        this.setDeltaMovement(param5, param6, param7);
         this.setItem(param4);
     }
 

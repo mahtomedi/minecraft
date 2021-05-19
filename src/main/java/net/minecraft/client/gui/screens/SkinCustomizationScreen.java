@@ -22,7 +22,7 @@ public class SkinCustomizationScreen extends OptionsSubScreen {
         int var0 = 0;
 
         for(PlayerModelPart var1 : PlayerModelPart.values()) {
-            this.addButton(
+            this.addRenderableWidget(
                 CycleButton.onOffBuilder(this.options.isModelPartEnabled(var1))
                     .create(
                         this.width / 2 - 155 + var0 % 2 * 160,
@@ -36,12 +36,12 @@ public class SkinCustomizationScreen extends OptionsSubScreen {
             ++var0;
         }
 
-        this.addButton(Option.MAIN_HAND.createButton(this.options, this.width / 2 - 155 + var0 % 2 * 160, this.height / 6 + 24 * (var0 >> 1), 150));
+        this.addRenderableWidget(Option.MAIN_HAND.createButton(this.options, this.width / 2 - 155 + var0 % 2 * 160, this.height / 6 + 24 * (var0 >> 1), 150));
         if (++var0 % 2 == 1) {
             ++var0;
         }
 
-        this.addButton(
+        this.addRenderableWidget(
             new Button(
                 this.width / 2 - 100,
                 this.height / 6 + 24 * (var0 >> 1),

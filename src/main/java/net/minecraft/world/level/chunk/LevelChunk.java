@@ -176,7 +176,7 @@ public class LevelChunk implements ChunkAccess {
 
         for(Entry<Heightmap.Types, Heightmap> var2 : param1.getHeightmaps()) {
             if (ChunkStatus.FULL.heightmapsAfter().contains(var2.getKey())) {
-                this.getOrCreateHeightmapUnprimed(var2.getKey()).setRawData(var2.getValue().getRawData());
+                this.setHeightmap(var2.getKey(), var2.getValue().getRawData());
             }
         }
 
@@ -335,11 +335,6 @@ public class LevelChunk implements ChunkAccess {
     @Deprecated
     @Override
     public void addEntity(Entity param0) {
-    }
-
-    @Override
-    public void setHeightmap(Heightmap.Types param0, long[] param1) {
-        this.heightmaps.get(param0).setRawData(param1);
     }
 
     @Override

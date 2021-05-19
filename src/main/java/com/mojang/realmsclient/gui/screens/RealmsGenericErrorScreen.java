@@ -2,13 +2,13 @@ package com.mojang.realmsclient.gui.screens;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.realmsclient.exception.RealmsServiceException;
+import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.realms.NarrationHelper;
 import net.minecraft.realms.RealmsScreen;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -20,16 +20,19 @@ public class RealmsGenericErrorScreen extends RealmsScreen {
     private Component line2;
 
     public RealmsGenericErrorScreen(RealmsServiceException param0, Screen param1) {
+        super(NarratorChatListener.NO_TITLE);
         this.nextScreen = param1;
         this.errorMessage(param0);
     }
 
     public RealmsGenericErrorScreen(Component param0, Screen param1) {
+        super(NarratorChatListener.NO_TITLE);
         this.nextScreen = param1;
         this.errorMessage(param0);
     }
 
     public RealmsGenericErrorScreen(Component param0, Component param1, Screen param2) {
+        super(NarratorChatListener.NO_TITLE);
         this.nextScreen = param2;
         this.errorMessage(param0, param1);
     }
@@ -58,10 +61,14 @@ public class RealmsGenericErrorScreen extends RealmsScreen {
 
     @Override
     public void init() {
-        NarrationHelper.now(this.line1.getString() + ": " + this.line2.getString());
-        this.addButton(
+        this.addRenderableWidget(
             new Button(this.width / 2 - 100, this.height - 52, 200, 20, new TextComponent("Ok"), param0 -> this.minecraft.setScreen(this.nextScreen))
         );
+    }
+
+    @Override
+    public Component getNarrationMessage() {
+        return new TextComponent("").append(this.line1).append(": ").append(this.line2);
     }
 
     @Override

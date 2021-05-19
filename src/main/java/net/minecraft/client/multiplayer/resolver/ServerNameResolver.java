@@ -1,55 +1,37 @@
 package net.minecraft.client.multiplayer.resolver;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Streams;
-import com.mojang.blocklist.BlockListSupplier;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.ServiceLoader;
-import java.util.function.Predicate;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class ServerNameResolver {
     public static final ServerNameResolver DEFAULT = new ServerNameResolver(
-        ServerAddressResolver.SYSTEM, ServerRedirectHandler.createDnsSrvRedirectHandler(), createBlockCheckFromService()
+        ServerAddressResolver.SYSTEM, ServerRedirectHandler.createDnsSrvRedirectHandler(), AddressCheck.createFromService()
     );
     private final ServerAddressResolver resolver;
     private final ServerRedirectHandler redirectHandler;
-    private final Predicate<ResolvedServerAddress> allowCheck;
+    private final AddressCheck addressCheck;
 
     @VisibleForTesting
-    ServerNameResolver(ServerAddressResolver param0, ServerRedirectHandler param1, Predicate<ResolvedServerAddress> param2) {
+    ServerNameResolver(ServerAddressResolver param0, ServerRedirectHandler param1, AddressCheck param2) {
         this.resolver = param0;
         this.redirectHandler = param1;
-        this.allowCheck = param2.negate();
-    }
-
-    private static Predicate<ResolvedServerAddress> createBlockCheckFromService() {
-        ImmutableList<Predicate<String>> var0 = Streams.stream(ServiceLoader.load(BlockListSupplier.class))
-            .map(BlockListSupplier::createBlockList)
-            .filter(Objects::nonNull)
-            .collect(ImmutableList.toImmutableList());
-        return param1 -> var0.stream().anyMatch(param1x -> param1x.test(param1.getHostName()) || param1x.test(param1.getHostIp()));
+        this.addressCheck = param2;
     }
 
     public Optional<ResolvedServerAddress> resolveAddress(ServerAddress param0) {
-        Optional<ResolvedServerAddress> var0 = this.resolveAndFilter(param0);
-        if (!var0.isPresent()) {
-            return Optional.empty();
-        } else {
+        Optional<ResolvedServerAddress> var0 = this.resolver.resolve(param0);
+        if ((!var0.isPresent() || this.addressCheck.isAllowed(var0.get())) && this.addressCheck.isAllowed(param0)) {
             Optional<ServerAddress> var1 = this.redirectHandler.lookupRedirect(param0);
             if (var1.isPresent()) {
-                var0 = this.resolveAndFilter(var1.get());
+                var0 = this.resolver.resolve(var1.get()).filter(this.addressCheck::isAllowed);
             }
 
             return var0;
+        } else {
+            return Optional.empty();
         }
-    }
-
-    private Optional<ResolvedServerAddress> resolveAndFilter(ServerAddress param0) {
-        return this.resolver.resolve(param0).filter(this.allowCheck);
     }
 }

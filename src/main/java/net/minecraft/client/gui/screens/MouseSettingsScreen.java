@@ -33,8 +33,8 @@ public class MouseSettingsScreen extends OptionsSubScreen {
             this.list.addSmall(OPTIONS);
         }
 
-        this.children.add(this.list);
-        this.addButton(new Button(this.width / 2 - 100, this.height - 27, 200, 20, CommonComponents.GUI_DONE, param0 -> {
+        this.addWidget(this.list);
+        this.addRenderableWidget(new Button(this.width / 2 - 100, this.height - 27, 200, 20, CommonComponents.GUI_DONE, param0 -> {
             this.options.save();
             this.minecraft.setScreen(this.lastScreen);
         }));

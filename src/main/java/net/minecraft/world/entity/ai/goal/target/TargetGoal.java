@@ -42,7 +42,7 @@ public abstract class TargetGoal extends Goal {
 
         if (var0 == null) {
             return false;
-        } else if (!var0.isAlive()) {
+        } else if (!var0.canBeSeenAsEnemy()) {
             return false;
         } else {
             Team var1 = this.mob.getTeam();
@@ -62,12 +62,8 @@ public abstract class TargetGoal extends Goal {
                         }
                     }
 
-                    if (!var0.canBeSeenAsEnemy()) {
-                        return false;
-                    } else {
-                        this.mob.setTarget(var0);
-                        return true;
-                    }
+                    this.mob.setTarget(var0);
+                    return true;
                 }
             }
         }

@@ -75,10 +75,10 @@ public class EyeOfEnder extends Entity implements ItemSupplier {
         double var2 = (double)param0.getZ();
         double var3 = var0 - this.getX();
         double var4 = var2 - this.getZ();
-        float var5 = Mth.sqrt(var3 * var3 + var4 * var4);
-        if (var5 > 12.0F) {
-            this.tx = this.getX() + var3 / (double)var5 * 12.0;
-            this.tz = this.getZ() + var4 / (double)var5 * 12.0;
+        double var5 = Math.sqrt(var3 * var3 + var4 * var4);
+        if (var5 > 12.0) {
+            this.tx = this.getX() + var3 / var5 * 12.0;
+            this.tz = this.getZ() + var4 / var5 * 12.0;
             this.ty = this.getY() + 8.0;
         } else {
             this.tx = var0;
@@ -94,9 +94,9 @@ public class EyeOfEnder extends Entity implements ItemSupplier {
     public void lerpMotion(double param0, double param1, double param2) {
         this.setDeltaMovement(param0, param1, param2);
         if (this.xRotO == 0.0F && this.yRotO == 0.0F) {
-            float var0 = Mth.sqrt(param0 * param0 + param2 * param2);
+            double var0 = Math.sqrt(param0 * param0 + param2 * param2);
             this.setYRot((float)(Mth.atan2(param0, param2) * 180.0F / (float)Math.PI));
-            this.setXRot((float)(Mth.atan2(param1, (double)var0) * 180.0F / (float)Math.PI));
+            this.setXRot((float)(Mth.atan2(param1, var0) * 180.0F / (float)Math.PI));
             this.yRotO = this.getYRot();
             this.xRotO = this.getXRot();
         }
@@ -110,15 +110,15 @@ public class EyeOfEnder extends Entity implements ItemSupplier {
         double var1 = this.getX() + var0.x;
         double var2 = this.getY() + var0.y;
         double var3 = this.getZ() + var0.z;
-        float var4 = Mth.sqrt(getHorizontalDistanceSqr(var0));
-        this.setXRot(Projectile.lerpRotation(this.xRotO, (float)(Mth.atan2(var0.y, (double)var4) * 180.0F / (float)Math.PI)));
+        double var4 = Math.sqrt(getHorizontalDistanceSqr(var0));
+        this.setXRot(Projectile.lerpRotation(this.xRotO, (float)(Mth.atan2(var0.y, var4) * 180.0F / (float)Math.PI)));
         this.setYRot(Projectile.lerpRotation(this.yRotO, (float)(Mth.atan2(var0.x, var0.z) * 180.0F / (float)Math.PI)));
         if (!this.level.isClientSide) {
             double var5 = this.tx - var1;
             double var6 = this.tz - var3;
             float var7 = (float)Math.sqrt(var5 * var5 + var6 * var6);
             float var8 = (float)Mth.atan2(var6, var5);
-            double var9 = Mth.lerp(0.0025, (double)var4, (double)var7);
+            double var9 = Mth.lerp(0.0025, var4, (double)var7);
             double var10 = var0.y;
             if (var7 < 1.0F) {
                 var9 *= 0.8;

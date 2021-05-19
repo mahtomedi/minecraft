@@ -121,14 +121,14 @@ public class SubtitleOverlay extends GuiComponent implements SoundEventListener 
     }
 
     @OnlyIn(Dist.CLIENT)
-    public class Subtitle {
+    public static class Subtitle {
         private final Component text;
         private long time;
         private Vec3 location;
 
-        public Subtitle(Component param1, Vec3 param2) {
-            this.text = param1;
-            this.location = param2;
+        public Subtitle(Component param0, Vec3 param1) {
+            this.text = param0;
+            this.location = param1;
             this.time = Util.getMillis();
         }
 

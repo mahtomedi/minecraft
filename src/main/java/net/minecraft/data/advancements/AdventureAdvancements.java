@@ -292,7 +292,7 @@ public class AdventureAdvancements implements Consumer<Consumer<Advancement>> {
             .addCriterion(
                 "killed_skeleton",
                 KilledTrigger.TriggerInstance.playerKilledEntity(
-                    EntityPredicate.Builder.entity().of(EntityType.SKELETON).distance(DistancePredicate.horizontal(MinMaxBounds.Floats.atLeast(50.0F))),
+                    EntityPredicate.Builder.entity().of(EntityType.SKELETON).distance(DistancePredicate.horizontal(MinMaxBounds.Doubles.atLeast(50.0))),
                     DamageSourcePredicate.Builder.damageType().isProjectile(true)
                 )
             )
@@ -440,7 +440,7 @@ public class AdventureAdvancements implements Consumer<Consumer<Advancement>> {
                 TargetBlockTrigger.TriggerInstance.targetHit(
                     MinMaxBounds.Ints.exactly(15),
                     EntityPredicate.Composite.wrap(
-                        EntityPredicate.Builder.entity().distance(DistancePredicate.horizontal(MinMaxBounds.Floats.atLeast(30.0F))).build()
+                        EntityPredicate.Builder.entity().distance(DistancePredicate.horizontal(MinMaxBounds.Doubles.atLeast(30.0))).build()
                     )
                 )
             )

@@ -1,9 +1,10 @@
 package net.minecraft.client.gui.screens;
 
+import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.PoseStack;
+import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
@@ -19,6 +20,7 @@ public class DeathScreen extends Screen {
     private final Component causeOfDeath;
     private final boolean hardcore;
     private Component deathScore;
+    private final List<Button> exitButtons = Lists.newArrayList();
 
     public DeathScreen(@Nullable Component param0, boolean param1) {
         super(new TranslatableComponent(param1 ? "deathScreen.title.hardcore" : "deathScreen.title"));
@@ -29,49 +31,53 @@ public class DeathScreen extends Screen {
     @Override
     protected void init() {
         this.delayTicker = 0;
-        this.addButton(
-            new Button(
-                this.width / 2 - 100,
-                this.height / 4 + 72,
-                200,
-                20,
-                this.hardcore ? new TranslatableComponent("deathScreen.spectate") : new TranslatableComponent("deathScreen.respawn"),
-                param0 -> {
-                    this.minecraft.player.respawn();
-                    this.minecraft.setScreen(null);
-                }
-            )
-        );
-        Button var0 = this.addButton(
-            new Button(
-                this.width / 2 - 100,
-                this.height / 4 + 96,
-                200,
-                20,
-                new TranslatableComponent("deathScreen.titleScreen"),
-                param0 -> {
-                    if (this.hardcore) {
-                        this.exitToTitleScreen();
-                    } else {
-                        ConfirmScreen var0x = new ConfirmScreen(
-                            this::confirmResult,
-                            new TranslatableComponent("deathScreen.quit.confirm"),
-                            TextComponent.EMPTY,
-                            new TranslatableComponent("deathScreen.titleScreen"),
-                            new TranslatableComponent("deathScreen.respawn")
-                        );
-                        this.minecraft.setScreen(var0x);
-                        var0x.setDelay(20);
-                    }
-                }
-            )
-        );
-        if (!this.hardcore && this.minecraft.getUser() == null) {
-            var0.active = false;
-        }
+        this.exitButtons.clear();
+        this.exitButtons
+            .add(
+                this.addRenderableWidget(
+                    new Button(
+                        this.width / 2 - 100,
+                        this.height / 4 + 72,
+                        200,
+                        20,
+                        this.hardcore ? new TranslatableComponent("deathScreen.spectate") : new TranslatableComponent("deathScreen.respawn"),
+                        param0 -> {
+                            this.minecraft.player.respawn();
+                            this.minecraft.setScreen(null);
+                        }
+                    )
+                )
+            );
+        this.exitButtons
+            .add(
+                this.addRenderableWidget(
+                    new Button(
+                        this.width / 2 - 100,
+                        this.height / 4 + 96,
+                        200,
+                        20,
+                        new TranslatableComponent("deathScreen.titleScreen"),
+                        param0 -> {
+                            if (this.hardcore) {
+                                this.exitToTitleScreen();
+                            } else {
+                                ConfirmScreen var0x = new ConfirmScreen(
+                                    this::confirmResult,
+                                    new TranslatableComponent("deathScreen.quit.confirm"),
+                                    TextComponent.EMPTY,
+                                    new TranslatableComponent("deathScreen.titleScreen"),
+                                    new TranslatableComponent("deathScreen.respawn")
+                                );
+                                this.minecraft.setScreen(var0x);
+                                var0x.setDelay(20);
+                            }
+                        }
+                    )
+                )
+            );
 
-        for(AbstractWidget var1 : this.buttons) {
-            var1.active = false;
+        for(Button var0 : this.exitButtons) {
+            var0.active = false;
         }
 
         this.deathScore = new TranslatableComponent("deathScreen.score")
@@ -158,7 +164,7 @@ public class DeathScreen extends Screen {
         super.tick();
         ++this.delayTicker;
         if (this.delayTicker == 20) {
-            for(AbstractWidget var0 : this.buttons) {
+            for(Button var0 : this.exitButtons) {
                 var0.active = true;
             }
         }

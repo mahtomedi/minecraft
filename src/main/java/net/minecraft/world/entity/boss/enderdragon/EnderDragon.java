@@ -248,7 +248,7 @@ public class EnderDragon extends Mob implements Enemy {
                         double var14 = var11.z - this.getZ();
                         double var15 = var12 * var12 + var13 * var13 + var14 * var14;
                         float var16 = var10.getFlySpeed();
-                        double var17 = (double)Mth.sqrt(var12 * var12 + var14 * var14);
+                        double var17 = Math.sqrt(var12 * var12 + var14 * var14);
                         if (var17 > 0.0) {
                             var13 = Mth.clamp(var13 / var17, (double)(-var16), (double)var16);
                         }
@@ -816,8 +816,8 @@ public class EnderDragon extends Mob implements Enemy {
         double var4;
         if (var1 == EnderDragonPhase.LANDING || var1 == EnderDragonPhase.TAKEOFF) {
             BlockPos var2 = this.level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, EndPodiumFeature.END_PODIUM_LOCATION);
-            float var3 = Math.max(Mth.sqrt(var2.distSqr(this.position(), true)) / 4.0F, 1.0F);
-            var4 = (double)((float)param0 / var3);
+            double var3 = Math.max(Math.sqrt(var2.distSqr(this.position(), true)) / 4.0, 1.0);
+            var4 = (double)param0 / var3;
         } else if (var0.isSitting()) {
             var4 = (double)param0;
         } else if (param0 == 6) {
@@ -912,5 +912,14 @@ public class EnderDragon extends Mob implements Enemy {
             var0[var1].setId(var1 + param0.getId());
         }
 
+    }
+
+    @Override
+    public boolean canAttack(LivingEntity param0) {
+        if (!(param0 instanceof Player)) {
+            return super.canAttack(param0);
+        } else {
+            return !((Player)param0).getAbilities().invulnerable && !param0.isInvulnerable() && param0.canBeSeenByAnyone();
+        }
     }
 }

@@ -15,7 +15,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class SheepFurLayer extends RenderLayer<Sheep, SheepModel<Sheep>> {
-    public static final ResourceLocation SHEEP_FUR_LOCATION = new ResourceLocation("textures/entity/sheep/sheep_fur.png");
+    private static final ResourceLocation SHEEP_FUR_LOCATION = new ResourceLocation("textures/entity/sheep/sheep_fur.png");
     private final SheepFurModel<Sheep> model;
 
     public SheepFurLayer(RenderLayerParent<Sheep, SheepModel<Sheep>> param0, EntityModelSet param1) {

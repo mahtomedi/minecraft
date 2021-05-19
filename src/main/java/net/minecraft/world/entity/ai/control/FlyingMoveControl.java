@@ -39,7 +39,7 @@ public class FlyingMoveControl extends MoveControl {
             }
 
             this.mob.setSpeed(var5);
-            double var7 = (double)Mth.sqrt(var0 * var0 + var2 * var2);
+            double var7 = Math.sqrt(var0 * var0 + var2 * var2);
             float var8 = (float)(-(Mth.atan2(var1, var7) * 180.0F / (float)Math.PI));
             this.mob.setXRot(this.rotlerp(this.mob.getXRot(), var8, (float)this.maxTurn));
             this.mob.setYya(var1 > 0.0 ? var5 : -var5);

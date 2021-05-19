@@ -91,15 +91,19 @@ public class ComponentUtils {
         }
     }
 
-    public static <T> Component formatList(Collection<T> param0, Function<T, Component> param1) {
+    public static <T> Component formatList(Collection<? extends T> param0, Function<T, Component> param1) {
         return formatList(param0, DEFAULT_SEPARATOR, param1);
     }
 
-    public static <T> MutableComponent formatList(Collection<T> param0, Optional<? extends Component> param1, Function<T, Component> param2) {
+    public static <T> MutableComponent formatList(Collection<? extends T> param0, Optional<? extends Component> param1, Function<T, Component> param2) {
         return formatList(param0, DataFixUtils.orElse(param1, DEFAULT_SEPARATOR), param2);
     }
 
-    public static <T> MutableComponent formatList(Collection<T> param0, Component param1, Function<T, Component> param2) {
+    public static Component formatList(Collection<? extends Component> param0, Component param1) {
+        return formatList(param0, param1, Function.identity());
+    }
+
+    public static <T> MutableComponent formatList(Collection<? extends T> param0, Component param1, Function<T, Component> param2) {
         if (param0.isEmpty()) {
             return new TextComponent("");
         } else if (param0.size() == 1) {

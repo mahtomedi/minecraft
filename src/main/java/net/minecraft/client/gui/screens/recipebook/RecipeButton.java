@@ -6,6 +6,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.narration.NarratedElementType;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
@@ -138,6 +140,22 @@ public class RecipeButton extends AbstractWidget {
         }
 
         return var1;
+    }
+
+    @Override
+    public void updateNarration(NarrationElementOutput param0) {
+        ItemStack var0 = this.getOrderedRecipes().get(this.currentIndex).getResultItem();
+        param0.add(NarratedElementType.TITLE, (Component)(new TranslatableComponent("narration.recipe", var0.getHoverName())));
+        if (this.collection.getRecipes(this.book.isFiltering(this.menu)).size() > 1) {
+            param0.add(
+                NarratedElementType.USAGE,
+                new TranslatableComponent("narration.button.usage.hovered"),
+                new TranslatableComponent("narration.recipe.usage.more")
+            );
+        } else {
+            param0.add(NarratedElementType.USAGE, (Component)(new TranslatableComponent("narration.button.usage.hovered")));
+        }
+
     }
 
     @Override

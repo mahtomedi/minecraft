@@ -19,7 +19,6 @@ import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
-import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.screens.Screen;
@@ -79,11 +78,6 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
 
     public void setSelected(@Nullable ServerSelectionList.Entry param0) {
         super.setSelected(param0);
-        if (this.getSelected() instanceof ServerSelectionList.OnlineServerEntry) {
-            NarratorChatListener.INSTANCE
-                .sayNow(new TranslatableComponent("narrator.select", ((ServerSelectionList.OnlineServerEntry)this.getSelected()).serverData.name).getString());
-        }
-
         this.screen.onSelectedChange();
     }
 
@@ -161,6 +155,11 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
             };
             this.minecraft.font.draw(param0, var3, (float)(this.minecraft.screen.width / 2 - this.minecraft.font.width(var3) / 2), (float)(var0 + 9), 8421504);
         }
+
+        @Override
+        public Component getNarration() {
+            return TextComponent.EMPTY;
+        }
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -205,6 +204,11 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
         public LanServer getServerData() {
             return this.serverData;
         }
+
+        @Override
+        public Component getNarration() {
+            return new TranslatableComponent("narrator.select", new TextComponent("").append(LAN_SERVER_HEADER).append(" ").append(this.serverData.getMotd()));
+        }
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -219,7 +223,7 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
         private static final int ICON_OVERLAY_Y_SELECTED = 32;
         private final JoinMultiplayerScreen screen;
         private final Minecraft minecraft;
-        final ServerData serverData;
+        private final ServerData serverData;
         private final ResourceLocation iconLocation;
         private String lastIconB64;
         @Nullable
@@ -474,6 +478,11 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
 
         public ServerData getServerData() {
             return this.serverData;
+        }
+
+        @Override
+        public Component getNarration() {
+            return new TranslatableComponent("narrator.select", this.serverData.name);
         }
     }
 }

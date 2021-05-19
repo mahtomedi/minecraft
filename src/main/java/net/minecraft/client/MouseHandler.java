@@ -6,7 +6,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
-import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.util.Mth;
 import net.minecraft.util.SmoothDouble;
@@ -79,17 +78,15 @@ public class MouseHandler {
                 } else {
                     double var3 = this.xpos * (double)this.minecraft.getWindow().getGuiScaledWidth() / (double)this.minecraft.getWindow().getScreenWidth();
                     double var4 = this.ypos * (double)this.minecraft.getWindow().getGuiScaledHeight() / (double)this.minecraft.getWindow().getScreenHeight();
+                    Screen var5 = this.minecraft.screen;
                     if (var0) {
+                        var5.afterMouseAction();
                         Screen.wrapScreenError(
-                            () -> var2[0] = this.minecraft.screen.mouseClicked(var3, var4, var1),
-                            "mouseClicked event handler",
-                            this.minecraft.screen.getClass().getCanonicalName()
+                            () -> var2[0] = var5.mouseClicked(var3, var4, var1), "mouseClicked event handler", var5.getClass().getCanonicalName()
                         );
                     } else {
                         Screen.wrapScreenError(
-                            () -> var2[0] = this.minecraft.screen.mouseReleased(var3, var4, var1),
-                            "mouseReleased event handler",
-                            this.minecraft.screen.getClass().getCanonicalName()
+                            () -> var2[0] = var5.mouseReleased(var3, var4, var1), "mouseReleased event handler", var5.getClass().getCanonicalName()
                         );
                     }
                 }
@@ -125,6 +122,7 @@ public class MouseHandler {
                     double var1 = this.xpos * (double)this.minecraft.getWindow().getGuiScaledWidth() / (double)this.minecraft.getWindow().getScreenWidth();
                     double var2 = this.ypos * (double)this.minecraft.getWindow().getGuiScaledHeight() / (double)this.minecraft.getWindow().getScreenHeight();
                     this.minecraft.screen.mouseScrolled(var1, var2, var0);
+                    this.minecraft.screen.afterMouseAction();
                 } else if (this.minecraft.player != null) {
                     if (this.accumulatedScroll != 0.0 && Math.signum(var0) != Math.signum(this.accumulatedScroll)) {
                         this.accumulatedScroll = 0.0;
@@ -186,7 +184,7 @@ public class MouseHandler {
                 this.ignoreFirstMove = false;
             }
 
-            GuiEventListener var0 = this.minecraft.screen;
+            Screen var0 = this.minecraft.screen;
             if (var0 != null && this.minecraft.getOverlay() == null) {
                 double var1 = param1 * (double)this.minecraft.getWindow().getGuiScaledWidth() / (double)this.minecraft.getWindow().getScreenWidth();
                 double var2 = param2 * (double)this.minecraft.getWindow().getGuiScaledHeight() / (double)this.minecraft.getWindow().getScreenHeight();
@@ -202,6 +200,8 @@ public class MouseHandler {
                         () -> var0.mouseDragged(var1, var2, this.activeButton, var3, var4), "mouseDragged event handler", var0.getClass().getCanonicalName()
                     );
                 }
+
+                var0.afterMouseMove();
             }
 
             this.minecraft.getProfiler().push("mouse");

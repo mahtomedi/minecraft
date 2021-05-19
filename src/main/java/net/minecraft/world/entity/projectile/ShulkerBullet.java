@@ -169,7 +169,7 @@ public class ShulkerBullet extends Projectile {
         double var10 = var3 - this.getX();
         double var11 = var4 - this.getY();
         double var12 = var5 - this.getZ();
-        double var13 = (double)Mth.sqrt(var10 * var10 + var11 * var11 + var12 * var12);
+        double var13 = Math.sqrt(var10 * var10 + var11 * var11 + var12 * var12);
         if (var13 == 0.0) {
             this.targetDeltaX = 0.0;
             this.targetDeltaY = 0.0;

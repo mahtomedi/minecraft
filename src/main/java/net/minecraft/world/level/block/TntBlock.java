@@ -110,11 +110,11 @@ public class TntBlock extends Block {
     @Override
     public void onProjectileHit(Level param0, BlockState param1, BlockHitResult param2, Projectile param3) {
         if (!param0.isClientSide) {
-            Entity var0 = param3.getOwner();
-            if (param3.isOnFire()) {
-                BlockPos var1 = param2.getBlockPos();
-                explode(param0, var1, var0 instanceof LivingEntity ? (LivingEntity)var0 : null);
-                param0.removeBlock(var1, false);
+            BlockPos var0 = param2.getBlockPos();
+            Entity var1 = param3.getOwner();
+            if (param3.isOnFire() && param3.mayInteract(param0, var0)) {
+                explode(param0, var0, var1 instanceof LivingEntity ? (LivingEntity)var1 : null);
+                param0.removeBlock(var0, false);
             }
         }
 

@@ -2,6 +2,7 @@ package net.minecraft.core;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
+import com.google.gson.JsonParseException;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
@@ -141,7 +142,9 @@ public abstract class RegistryAccess {
         ResourceKey<? extends Registry<E>> var0 = param2.key();
         MappedRegistry<E> var1 = (MappedRegistry)param1.<E>ownedRegistryOrThrow(var0);
         DataResult<MappedRegistry<E>> var2 = param0.decodeElements(var1, param2.key(), param2.codec());
-        var2.error().ifPresent(param0x -> LOGGER.error("Error loading registry data: {}", param0x.message()));
+        var2.error().ifPresent(param0x -> {
+            throw new JsonParseException("Error loading registry data: " + param0x.message());
+        });
     }
 
     static final class RegistryData<E> {

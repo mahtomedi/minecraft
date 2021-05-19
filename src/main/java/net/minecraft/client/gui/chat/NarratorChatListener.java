@@ -26,28 +26,41 @@ public class NarratorChatListener implements ChatListener {
     @Override
     public void handle(ChatType param0, Component param1, UUID param2) {
         NarratorStatus var0 = getStatus();
-        if (var0 != NarratorStatus.OFF && this.narrator.active()) {
-            if (var0 == NarratorStatus.ALL
-                || var0 == NarratorStatus.CHAT && param0 == ChatType.CHAT
-                || var0 == NarratorStatus.SYSTEM && param0 == ChatType.SYSTEM) {
-                Component var1;
-                if (param1 instanceof TranslatableComponent && "chat.type.text".equals(((TranslatableComponent)param1).getKey())) {
-                    var1 = new TranslatableComponent("chat.type.text.narrate", ((TranslatableComponent)param1).getArgs());
-                } else {
-                    var1 = param1;
+        if (var0 != NarratorStatus.OFF) {
+            if (!this.narrator.active()) {
+                this.logNarratedMessage(param1.getString());
+            } else {
+                if (var0 == NarratorStatus.ALL
+                    || var0 == NarratorStatus.CHAT && param0 == ChatType.CHAT
+                    || var0 == NarratorStatus.SYSTEM && param0 == ChatType.SYSTEM) {
+                    Component var1;
+                    if (param1 instanceof TranslatableComponent && "chat.type.text".equals(((TranslatableComponent)param1).getKey())) {
+                        var1 = new TranslatableComponent("chat.type.text.narrate", ((TranslatableComponent)param1).getArgs());
+                    } else {
+                        var1 = param1;
+                    }
+
+                    String var3 = var1.getString();
+                    this.logNarratedMessage(var3);
+                    this.narrator.say(var3, param0.shouldInterrupt());
                 }
 
-                this.doSay(param0.shouldInterrupt(), var1.getString());
             }
-
         }
+    }
+
+    public void sayNow(Component param0) {
+        this.sayNow(param0.getString());
     }
 
     public void sayNow(String param0) {
         NarratorStatus var0 = getStatus();
-        if (this.narrator.active() && var0 != NarratorStatus.OFF && var0 != NarratorStatus.CHAT && !param0.isEmpty()) {
-            this.narrator.clear();
-            this.doSay(true, param0);
+        if (var0 != NarratorStatus.OFF && var0 != NarratorStatus.CHAT && !param0.isEmpty()) {
+            this.logNarratedMessage(param0);
+            if (this.narrator.active()) {
+                this.narrator.clear();
+                this.narrator.say(param0, true);
+            }
         }
 
     }
@@ -56,12 +69,11 @@ public class NarratorChatListener implements ChatListener {
         return Minecraft.getInstance().options.narratorStatus;
     }
 
-    private void doSay(boolean param0, String param1) {
+    private void logNarratedMessage(String param0) {
         if (SharedConstants.IS_RUNNING_IN_IDE) {
-            LOGGER.debug("Narrating: {}", param1.replaceAll("\n", "\\\\n"));
+            LOGGER.debug("Narrating: {}", param0.replaceAll("\n", "\\\\n"));
         }
 
-        this.narrator.say(param1, param0);
     }
 
     public void updateNarratorStatus(NarratorStatus param0) {

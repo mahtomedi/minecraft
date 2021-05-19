@@ -1,8 +1,9 @@
 package net.minecraft.client.gui.screens;
 
+import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.PoseStack;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
-import net.minecraft.client.gui.components.AbstractWidget;
+import java.util.List;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.network.chat.CommonComponents;
@@ -20,6 +21,7 @@ public class ConfirmScreen extends Screen {
     protected Component noButton;
     private int delayTicker;
     protected final BooleanConsumer callback;
+    private final List<Button> exitButtons = Lists.newArrayList();
 
     public ConfirmScreen(BooleanConsumer param0, Component param1, Component param2) {
         this(param0, param1, param2, CommonComponents.GUI_YES, CommonComponents.GUI_NO);
@@ -34,8 +36,8 @@ public class ConfirmScreen extends Screen {
     }
 
     @Override
-    public String getNarrationMessage() {
-        return super.getNarrationMessage() + ". " + this.title2.getString();
+    public Component getNarrationMessage() {
+        return CommonComponents.joinForNarration(super.getNarrationMessage(), this.title2);
     }
 
     @Override
@@ -44,8 +46,17 @@ public class ConfirmScreen extends Screen {
         this.message = MultiLineLabel.create(this.font, this.title2, this.width - 50);
         int var0 = this.message.getLineCount() * 9;
         int var1 = Mth.clamp(90 + var0 + 12, this.height / 6 + 96, this.height - 24);
-        this.addButton(new Button(this.width / 2 - 155, var1, 150, 20, this.yesButton, param0 -> this.callback.accept(true)));
-        this.addButton(new Button(this.width / 2 - 155 + 160, var1, 150, 20, this.noButton, param0 -> this.callback.accept(false)));
+        this.exitButtons.clear();
+        this.addButtons(var1);
+    }
+
+    protected void addButtons(int param0) {
+        this.addExitButton(new Button(this.width / 2 - 155, param0, 150, 20, this.yesButton, param0x -> this.callback.accept(true)));
+        this.addExitButton(new Button(this.width / 2 - 155 + 160, param0, 150, 20, this.noButton, param0x -> this.callback.accept(false)));
+    }
+
+    protected void addExitButton(Button param0) {
+        this.exitButtons.add(this.addRenderableWidget(param0));
     }
 
     @Override
@@ -59,7 +70,7 @@ public class ConfirmScreen extends Screen {
     public void setDelay(int param0) {
         this.delayTicker = param0;
 
-        for(AbstractWidget var0 : this.buttons) {
+        for(Button var0 : this.exitButtons) {
             var0.active = false;
         }
 
@@ -69,7 +80,7 @@ public class ConfirmScreen extends Screen {
     public void tick() {
         super.tick();
         if (--this.delayTicker == 0) {
-            for(AbstractWidget var0 : this.buttons) {
+            for(Button var0 : this.exitButtons) {
                 var0.active = true;
             }
         }

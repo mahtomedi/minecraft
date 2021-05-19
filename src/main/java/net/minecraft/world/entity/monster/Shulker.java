@@ -1,11 +1,14 @@
 package net.minecraft.world.entity.monster;
 
+import com.mojang.math.Vector3f;
 import java.util.EnumSet;
 import java.util.Optional;
 import java.util.UUID;
 import javax.annotation.Nullable;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundAddMobPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -32,6 +35,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.control.BodyRotationControl;
+import net.minecraft.world.entity.ai.control.LookControl;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
@@ -65,6 +69,10 @@ public class Shulker extends AbstractGolem implements Enemy {
     private static final int OTHER_SHULKER_SCAN_RADIUS = 8;
     private static final int OTHER_SHULKER_LIMIT = 5;
     private static final float PEEK_PER_TICK = 0.05F;
+    static final Vector3f FORWARD = Util.make(() -> {
+        Vec3i var0 = Direction.SOUTH.getNormal();
+        return new Vector3f((float)var0.getX(), (float)var0.getY(), (float)var0.getZ());
+    });
     private float currentPeekAmountO;
     private float currentPeekAmount;
     @Nullable
@@ -75,11 +83,12 @@ public class Shulker extends AbstractGolem implements Enemy {
     public Shulker(EntityType<? extends Shulker> param0, Level param1) {
         super(param0, param1);
         this.xpReward = 5;
+        this.lookControl = new Shulker.ShulkerLookControl(this);
     }
 
     @Override
     protected void registerGoals() {
-        this.goalSelector.addGoal(1, new LookAtPlayerGoal(this, Player.class, 8.0F));
+        this.goalSelector.addGoal(1, new LookAtPlayerGoal(this, Player.class, 8.0F, 0.02F, true));
         this.goalSelector.addGoal(4, new Shulker.ShulkerAttackGoal());
         this.goalSelector.addGoal(7, new Shulker.ShulkerPeekGoal());
         this.goalSelector.addGoal(8, new RandomLookAroundGoal(this));
@@ -641,6 +650,38 @@ public class Shulker extends AbstractGolem implements Enemy {
                     ? this.mob.getBoundingBox().inflate(param0, param0, 4.0)
                     : this.mob.getBoundingBox().inflate(param0, 4.0, param0);
             }
+        }
+    }
+
+    class ShulkerLookControl extends LookControl {
+        public ShulkerLookControl(Mob param0) {
+            super(param0);
+        }
+
+        @Override
+        protected void clampHeadRotationToBody() {
+        }
+
+        @Override
+        protected float getYRotD() {
+            Direction var0 = Shulker.this.getAttachFace().getOpposite();
+            Vector3f var1 = Shulker.FORWARD.copy();
+            var1.transform(var0.getRotation());
+            Vec3i var2 = var0.getNormal();
+            Vector3f var3 = new Vector3f((float)var2.getX(), (float)var2.getY(), (float)var2.getZ());
+            var3.cross(var1);
+            double var4 = this.wantedX - this.mob.getX();
+            double var5 = this.wantedY - this.mob.getEyeY();
+            double var6 = this.wantedZ - this.mob.getZ();
+            Vector3f var7 = new Vector3f((float)var4, (float)var5, (float)var6);
+            float var8 = var3.dot(var7);
+            float var9 = var1.dot(var7);
+            return (float)(Mth.atan2((double)(-var8), (double)var9) * 180.0F / (float)Math.PI);
+        }
+
+        @Override
+        protected float getXRotD() {
+            return 0.0F;
         }
     }
 

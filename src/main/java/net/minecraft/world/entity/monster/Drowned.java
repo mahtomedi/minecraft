@@ -81,7 +81,7 @@ public class Drowned extends Zombie implements RangedAttackMob {
         this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, 10, true, false, this::okTarget));
         this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, AbstractVillager.class, false));
         this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, IronGolem.class, true));
-        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, Axolotl.class, 10, true, false, Axolotl.NOT_PLAYING_DEAD_SELECTOR));
+        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, Axolotl.class, true, false));
         this.targetSelector.addGoal(5, new NearestAttackableTargetGoal<>(this, Turtle.class, 10, true, false, Turtle.BABY_ON_LAND_SELECTOR));
     }
 
@@ -256,7 +256,7 @@ public class Drowned extends Zombie implements RangedAttackMob {
         double var1 = param0.getX() - this.getX();
         double var2 = param0.getY(0.3333333333333333) - var0.getY();
         double var3 = param0.getZ() - this.getZ();
-        double var4 = (double)Mth.sqrt(var1 * var1 + var3 * var3);
+        double var4 = Math.sqrt(var1 * var1 + var3 * var3);
         var0.shoot(var1, var2 + var4 * 0.2F, var3, 1.6F, (float)(14 - this.level.getDifficulty().getId() * 4));
         this.playSound(SoundEvents.DROWNED_SHOOT, 1.0F, 1.0F / (this.getRandom().nextFloat() * 0.4F + 0.8F));
         this.level.addFreshEntity(var0);
@@ -411,7 +411,7 @@ public class Drowned extends Zombie implements RangedAttackMob {
                 double var1 = this.wantedX - this.drowned.getX();
                 double var2 = this.wantedY - this.drowned.getY();
                 double var3 = this.wantedZ - this.drowned.getZ();
-                double var4 = (double)Mth.sqrt(var1 * var1 + var2 * var2 + var3 * var3);
+                double var4 = Math.sqrt(var1 * var1 + var2 * var2 + var3 * var3);
                 var2 /= var4;
                 float var5 = (float)(Mth.atan2(var3, var1) * 180.0F / (float)Math.PI) - 90.0F;
                 this.drowned.setYRot(this.rotlerp(this.drowned.getYRot(), var5, 90.0F));

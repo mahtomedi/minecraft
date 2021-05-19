@@ -40,7 +40,6 @@ import net.minecraft.world.entity.ai.goal.GoalSelector;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.ai.sensing.Sensing;
-import net.minecraft.world.entity.animal.axolotl.Axolotl;
 import net.minecraft.world.entity.decoration.HangingEntity;
 import net.minecraft.world.entity.decoration.LeashFenceKnotEntity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -736,7 +735,7 @@ public abstract class Mob extends LivingEntity {
             var3 = (param0.getBoundingBox().minY + param0.getBoundingBox().maxY) / 2.0 - this.getEyeY();
         }
 
-        double var5 = (double)Mth.sqrt(var0 * var0 + var1 * var1);
+        double var5 = Math.sqrt(var0 * var0 + var1 * var1);
         float var6 = (float)(Mth.atan2(var1, var0) * 180.0F / (float)Math.PI) - 90.0F;
         float var7 = (float)(-(Mth.atan2(var3, var5) * 180.0F / (float)Math.PI));
         this.setXRot(this.rotlerp(this.getXRot(), var7, param2));
@@ -1307,15 +1306,6 @@ public abstract class Mob extends LivingEntity {
 
     public double getMeleeAttackRangeSqr(LivingEntity param0) {
         return (double)(this.getBbWidth() * 2.0F * this.getBbWidth() * 2.0F + param0.getBbWidth());
-    }
-
-    @Override
-    public boolean canAttack(LivingEntity param0) {
-        if (param0.getType() == EntityType.PLAYER && ((Player)param0).getAbilities().invulnerable) {
-            return false;
-        } else {
-            return param0.getType() == EntityType.AXOLOTL && ((Axolotl)param0).isPlayingDead() ? false : super.canAttack(param0);
-        }
     }
 
     @Override

@@ -23,8 +23,9 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentUtils;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.realms.NarrationHelper;
 import net.minecraft.realms.RealmsScreen;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
@@ -40,7 +41,6 @@ public class RealmsBrokenWorldScreen extends RealmsScreen {
     private final RealmsMainScreen mainScreen;
     private RealmsServer serverData;
     private final long serverId;
-    private final Component header;
     private final Component[] message = new Component[]{
         new TranslatableComponent("mco.brokenworld.message.line1"), new TranslatableComponent("mco.brokenworld.message.line2")
     };
@@ -50,17 +50,17 @@ public class RealmsBrokenWorldScreen extends RealmsScreen {
     private int animTick;
 
     public RealmsBrokenWorldScreen(Screen param0, RealmsMainScreen param1, long param2, boolean param3) {
+        super(param3 ? new TranslatableComponent("mco.brokenworld.minigame.title") : new TranslatableComponent("mco.brokenworld.title"));
         this.lastScreen = param0;
         this.mainScreen = param1;
         this.serverId = param2;
-        this.header = param3 ? new TranslatableComponent("mco.brokenworld.minigame.title") : new TranslatableComponent("mco.brokenworld.title");
     }
 
     @Override
     public void init() {
         this.leftX = this.width / 2 - 150;
         this.rightX = this.width / 2 + 190;
-        this.addButton(new Button(this.rightX - 80 + 8, row(13) - 5, 70, 20, CommonComponents.GUI_BACK, param0 -> this.backButtonClicked()));
+        this.addRenderableWidget(new Button(this.rightX - 80 + 8, row(13) - 5, 70, 20, CommonComponents.GUI_BACK, param0 -> this.backButtonClicked()));
         if (this.serverData == null) {
             this.fetchServerData(this.serverId);
         } else {
@@ -68,7 +68,11 @@ public class RealmsBrokenWorldScreen extends RealmsScreen {
         }
 
         this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
-        NarrationHelper.now(Stream.concat(Stream.of(this.header), Stream.of(this.message)).map(Component::getString).collect(Collectors.joining(" ")));
+    }
+
+    @Override
+    public Component getNarrationMessage() {
+        return ComponentUtils.formatList(Stream.concat(Stream.of(this.title), Stream.of(this.message)).collect(Collectors.toList()), new TextComponent(" "));
     }
 
     private void addButtons() {
@@ -130,8 +134,8 @@ public class RealmsBrokenWorldScreen extends RealmsScreen {
                 var3.setMessage(new TranslatableComponent("mco.brokenworld.downloaded"));
             }
 
-            this.addButton(var3);
-            this.addButton(new Button(this.getFramePositionX(var1), row(10), 80, 20, new TranslatableComponent("mco.brokenworld.reset"), param1 -> {
+            this.addRenderableWidget(var3);
+            this.addRenderableWidget(new Button(this.getFramePositionX(var1), row(10), 80, 20, new TranslatableComponent("mco.brokenworld.reset"), param1 -> {
                 RealmsResetWorldScreen var0x = new RealmsResetWorldScreen(this, this.serverData, this::doSwitchOrReset, () -> {
                     this.minecraft.setScreen(this);
                     this.doSwitchOrReset();
@@ -155,7 +159,7 @@ public class RealmsBrokenWorldScreen extends RealmsScreen {
     public void render(PoseStack param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
         super.render(param0, param1, param2, param3);
-        drawCenteredString(param0, this.font, this.header, this.width / 2, 17, 16777215);
+        drawCenteredString(param0, this.font, this.title, this.width / 2, 17, 16777215);
 
         for(int var0 = 0; var0 < this.message.length; ++var0) {
             drawCenteredString(param0, this.font, this.message[var0], this.width / 2, row(-1) + 3 + var0 * 12, 10526880);
@@ -267,7 +271,7 @@ public class RealmsBrokenWorldScreen extends RealmsScreen {
             RealmsDownloadLatestWorldScreen var2 = new RealmsDownloadLatestWorldScreen(this, var1, this.serverData.getWorldName(param0), param1 -> {
                 if (param1) {
                     this.slotsThatHasBeenDownloaded.add(param0);
-                    this.children.clear();
+                    this.clearWidgets();
                     this.addButtons();
                 } else {
                     this.minecraft.setScreen(this);

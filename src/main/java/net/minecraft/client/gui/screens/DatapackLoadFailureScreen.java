@@ -21,12 +21,12 @@ public class DatapackLoadFailureScreen extends Screen {
     protected void init() {
         super.init();
         this.message = MultiLineLabel.create(this.font, this.getTitle(), this.width - 50);
-        this.addButton(
+        this.addRenderableWidget(
             new Button(
                 this.width / 2 - 155, this.height / 6 + 96, 150, 20, new TranslatableComponent("datapackFailure.safeMode"), param0 -> this.callback.run()
             )
         );
-        this.addButton(
+        this.addRenderableWidget(
             new Button(
                 this.width / 2 - 155 + 160, this.height / 6 + 96, 150, 20, new TranslatableComponent("gui.toTitle"), param0 -> this.minecraft.setScreen(null)
             )

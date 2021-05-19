@@ -9,10 +9,10 @@ public class AxolotlAttackablesSensor extends NearestVisibleLivingEntitySensor {
 
     @Override
     protected boolean isMatchingEntity(LivingEntity param0, LivingEntity param1) {
-        if (!this.isHostileTarget(param0, param1) && !this.isHuntTarget(param0, param1)) {
-            return false;
-        } else {
+        if (Sensor.isEntityAttackable(param0, param1) && (this.isHostileTarget(param1) || this.isHuntTarget(param0, param1))) {
             return this.isClose(param0, param1) && param1.isInWaterOrBubble();
+        } else {
+            return false;
         }
     }
 
@@ -20,8 +20,8 @@ public class AxolotlAttackablesSensor extends NearestVisibleLivingEntitySensor {
         return !param0.getBrain().hasMemoryValue(MemoryModuleType.HAS_HUNTING_COOLDOWN) && EntityTypeTags.AXOLOTL_HUNT_TARGETS.contains(param1.getType());
     }
 
-    private boolean isHostileTarget(LivingEntity param0, LivingEntity param1) {
-        return EntityTypeTags.AXOLOTL_ALWAYS_HOSTILES.contains(param1.getType());
+    private boolean isHostileTarget(LivingEntity param0) {
+        return EntityTypeTags.AXOLOTL_ALWAYS_HOSTILES.contains(param0.getType());
     }
 
     private boolean isClose(LivingEntity param0, LivingEntity param1) {

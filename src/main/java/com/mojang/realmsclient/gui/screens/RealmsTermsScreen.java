@@ -10,6 +10,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import net.minecraft.Util;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextComponent;
@@ -34,6 +35,7 @@ public class RealmsTermsScreen extends RealmsScreen {
     private final String realmsToSUrl = "https://aka.ms/MinecraftRealmsTerms";
 
     public RealmsTermsScreen(Screen param0, RealmsMainScreen param1, RealmsServer param2) {
+        super(TITLE);
         this.lastScreen = param0;
         this.mainScreen = param1;
         this.realmsServer = param2;
@@ -43,8 +45,10 @@ public class RealmsTermsScreen extends RealmsScreen {
     public void init() {
         this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
         int var0 = this.width / 4 - 2;
-        this.addButton(new Button(this.width / 4, row(12), var0, 20, new TranslatableComponent("mco.terms.buttons.agree"), param0 -> this.agreedToTos()));
-        this.addButton(
+        this.addRenderableWidget(
+            new Button(this.width / 4, row(12), var0, 20, new TranslatableComponent("mco.terms.buttons.agree"), param0 -> this.agreedToTos())
+        );
+        this.addRenderableWidget(
             new Button(
                 this.width / 2 + 4,
                 row(12),
@@ -100,14 +104,14 @@ public class RealmsTermsScreen extends RealmsScreen {
     }
 
     @Override
-    public String getNarrationMessage() {
-        return super.getNarrationMessage() + ". " + TERMS_STATIC_TEXT.getString() + " " + TERMS_LINK_TEXT.getString();
+    public Component getNarrationMessage() {
+        return CommonComponents.joinForNarration(super.getNarrationMessage(), TERMS_STATIC_TEXT).append(" ").append(TERMS_LINK_TEXT);
     }
 
     @Override
     public void render(PoseStack param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
-        drawCenteredString(param0, this.font, TITLE, this.width / 2, 17, 16777215);
+        drawCenteredString(param0, this.font, this.title, this.width / 2, 17, 16777215);
         this.font.draw(param0, TERMS_STATIC_TEXT, (float)(this.width / 2 - 120), (float)row(5), 16777215);
         int var0 = this.font.width(TERMS_STATIC_TEXT);
         int var1 = this.width / 2 - 121 + var0;

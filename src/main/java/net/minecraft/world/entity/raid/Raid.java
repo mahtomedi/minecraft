@@ -477,10 +477,10 @@ public class Raid {
         for(ServerPlayer var3 : this.level.players()) {
             Vec3 var4 = var3.position();
             Vec3 var5 = Vec3.atCenterOf(param0);
-            float var6 = Mth.sqrt((var5.x - var4.x) * (var5.x - var4.x) + (var5.z - var4.z) * (var5.z - var4.z));
-            double var7 = var4.x + (double)(13.0F / var6) * (var5.x - var4.x);
-            double var8 = var4.z + (double)(13.0F / var6) * (var5.z - var4.z);
-            if (var6 <= 64.0F || var2.contains(var3)) {
+            double var6 = Math.sqrt((var5.x - var4.x) * (var5.x - var4.x) + (var5.z - var4.z) * (var5.z - var4.z));
+            double var7 = var4.x + 13.0 / var6 * (var5.x - var4.x);
+            double var8 = var4.z + 13.0 / var6 * (var5.z - var4.z);
+            if (var6 <= 64.0 || var2.contains(var3)) {
                 var3.connection.send(new ClientboundSoundPacket(SoundEvents.RAID_HORN, SoundSource.NEUTRAL, var7, var3.getY(), var8, 64.0F, 1.0F));
             }
         }

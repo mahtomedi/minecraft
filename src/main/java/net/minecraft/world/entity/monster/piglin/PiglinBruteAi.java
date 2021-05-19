@@ -5,7 +5,6 @@ import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Pair;
 import java.util.Optional;
 import net.minecraft.core.GlobalPos;
-import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.Brain;
@@ -27,6 +26,7 @@ import net.minecraft.world.entity.ai.behavior.StopBeingAngryIfTargetDead;
 import net.minecraft.world.entity.ai.behavior.StrollAroundPoi;
 import net.minecraft.world.entity.ai.behavior.StrollToPoi;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.world.entity.ai.sensing.Sensor;
 import net.minecraft.world.entity.schedule.Activity;
 
 public class PiglinBruteAi {
@@ -133,16 +133,12 @@ public class PiglinBruteAi {
 
     private static Optional<? extends LivingEntity> findNearestValidAttackTarget(AbstractPiglin param0x) {
         Optional<LivingEntity> var0 = BehaviorUtils.getLivingEntityFromUUIDMemory(param0x, MemoryModuleType.ANGRY_AT);
-        if (var0.isPresent() && isAttackAllowed(var0.get())) {
+        if (var0.isPresent() && Sensor.isEntityAttackable(param0x, var0.get())) {
             return var0;
         } else {
-            Optional<? extends LivingEntity> var1 = getTargetIfWithinRange(param0x, MemoryModuleType.NEAREST_VISIBLE_TARGETABLE_PLAYER);
+            Optional<? extends LivingEntity> var1 = getTargetIfWithinRange(param0x, MemoryModuleType.NEAREST_VISIBLE_ATTACKABLE_PLAYER);
             return var1.isPresent() ? var1 : param0x.getBrain().getMemory(MemoryModuleType.NEAREST_VISIBLE_NEMESIS);
         }
-    }
-
-    private static boolean isAttackAllowed(LivingEntity param0) {
-        return EntitySelector.ATTACK_ALLOWED.test(param0);
     }
 
     private static Optional<? extends LivingEntity> getTargetIfWithinRange(AbstractPiglin param0, MemoryModuleType<? extends LivingEntity> param1) {

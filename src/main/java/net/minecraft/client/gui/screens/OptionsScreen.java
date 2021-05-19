@@ -41,12 +41,12 @@ public class OptionsScreen extends Screen {
         for(Option var1 : OPTION_SCREEN_OPTIONS) {
             int var2 = this.width / 2 - 155 + var0 % 2 * 160;
             int var3 = this.height / 6 - 12 + 24 * (var0 >> 1);
-            this.addButton(var1.createButton(this.minecraft.options, var2, var3, 150));
+            this.addRenderableWidget(var1.createButton(this.minecraft.options, var2, var3, 150));
             ++var0;
         }
 
         if (this.minecraft.level != null) {
-            this.difficultyButton = this.addButton(
+            this.difficultyButton = this.addRenderableWidget(
                 CycleButton.builder(Difficulty::getDisplayName)
                     .withValues(Difficulty.values())
                     .withInitialValue(this.minecraft.level.getDifficulty())
@@ -61,7 +61,7 @@ public class OptionsScreen extends Screen {
             );
             if (this.minecraft.hasSingleplayerServer() && !this.minecraft.level.getLevelData().isHardcore()) {
                 this.difficultyButton.setWidth(this.difficultyButton.getWidth() - 20);
-                this.lockButton = this.addButton(
+                this.lockButton = this.addRenderableWidget(
                     new LockIconButton(
                         this.difficultyButton.x + this.difficultyButton.getWidth(),
                         this.difficultyButton.y,
@@ -84,12 +84,12 @@ public class OptionsScreen extends Screen {
                 this.difficultyButton.active = false;
             }
         } else {
-            this.addButton(
+            this.addRenderableWidget(
                 Option.REALMS_NOTIFICATIONS.createButton(this.options, this.width / 2 - 155 + var0 % 2 * 160, this.height / 6 - 12 + 24 * (var0 >> 1), 150)
             );
         }
 
-        this.addButton(
+        this.addRenderableWidget(
             new Button(
                 this.width / 2 - 155,
                 this.height / 6 + 48 - 6,
@@ -99,7 +99,7 @@ public class OptionsScreen extends Screen {
                 param0 -> this.minecraft.setScreen(new SkinCustomizationScreen(this, this.options))
             )
         );
-        this.addButton(
+        this.addRenderableWidget(
             new Button(
                 this.width / 2 + 5,
                 this.height / 6 + 48 - 6,
@@ -109,7 +109,7 @@ public class OptionsScreen extends Screen {
                 param0 -> this.minecraft.setScreen(new SoundOptionsScreen(this, this.options))
             )
         );
-        this.addButton(
+        this.addRenderableWidget(
             new Button(
                 this.width / 2 - 155,
                 this.height / 6 + 72 - 6,
@@ -119,7 +119,7 @@ public class OptionsScreen extends Screen {
                 param0 -> this.minecraft.setScreen(new VideoSettingsScreen(this, this.options))
             )
         );
-        this.addButton(
+        this.addRenderableWidget(
             new Button(
                 this.width / 2 + 5,
                 this.height / 6 + 72 - 6,
@@ -129,7 +129,7 @@ public class OptionsScreen extends Screen {
                 param0 -> this.minecraft.setScreen(new ControlsScreen(this, this.options))
             )
         );
-        this.addButton(
+        this.addRenderableWidget(
             new Button(
                 this.width / 2 - 155,
                 this.height / 6 + 96 - 6,
@@ -139,7 +139,7 @@ public class OptionsScreen extends Screen {
                 param0 -> this.minecraft.setScreen(new LanguageSelectScreen(this, this.options, this.minecraft.getLanguageManager()))
             )
         );
-        this.addButton(
+        this.addRenderableWidget(
             new Button(
                 this.width / 2 + 5,
                 this.height / 6 + 96 - 6,
@@ -149,7 +149,7 @@ public class OptionsScreen extends Screen {
                 param0 -> this.minecraft.setScreen(new ChatOptionsScreen(this, this.options))
             )
         );
-        this.addButton(
+        this.addRenderableWidget(
             new Button(
                 this.width / 2 - 155,
                 this.height / 6 + 120 - 6,
@@ -168,7 +168,7 @@ public class OptionsScreen extends Screen {
                         )
             )
         );
-        this.addButton(
+        this.addRenderableWidget(
             new Button(
                 this.width / 2 + 5,
                 this.height / 6 + 120 - 6,
@@ -178,7 +178,7 @@ public class OptionsScreen extends Screen {
                 param0 -> this.minecraft.setScreen(new AccessibilityOptionsScreen(this, this.options))
             )
         );
-        this.addButton(
+        this.addRenderableWidget(
             new Button(this.width / 2 - 100, this.height / 6 + 168, 200, 20, CommonComponents.GUI_DONE, param0 -> this.minecraft.setScreen(this.lastScreen))
         );
     }

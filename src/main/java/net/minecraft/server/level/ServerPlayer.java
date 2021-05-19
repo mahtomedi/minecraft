@@ -173,7 +173,7 @@ public class ServerPlayer extends Player {
     private boolean respawnForced;
     private float respawnAngle;
     private final TextFilter textFilter;
-    private boolean textFilteringEnabled = true;
+    private boolean textFilteringEnabled;
     private final ContainerSynchronizer containerSynchronizer = new ContainerSynchronizer() {
         @Override
         public void sendInitialData(AbstractContainerMenu param0, NonNullList<ItemStack> param1, ItemStack param2, int[] param3) {
@@ -1583,5 +1583,10 @@ public class ServerPlayer extends Player {
         } else {
             return this.textFilteringEnabled || param0.textFilteringEnabled;
         }
+    }
+
+    @Override
+    public boolean mayInteract(Level param0, BlockPos param1) {
+        return super.mayInteract(param0, param1) && param0.mayInteract(this, param1);
     }
 }

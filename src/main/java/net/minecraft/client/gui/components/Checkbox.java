@@ -5,7 +5,10 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.narration.NarratedElementType;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
@@ -35,6 +38,19 @@ public class Checkbox extends AbstractButton {
 
     public boolean selected() {
         return this.selected;
+    }
+
+    @Override
+    public void updateNarration(NarrationElementOutput param0) {
+        param0.add(NarratedElementType.TITLE, (Component)this.createNarrationMessage());
+        if (this.active) {
+            if (this.isFocused()) {
+                param0.add(NarratedElementType.USAGE, (Component)(new TranslatableComponent("narration.checkbox.usage.focused")));
+            } else {
+                param0.add(NarratedElementType.USAGE, (Component)(new TranslatableComponent("narration.checkbox.usage.hovered")));
+            }
+        }
+
     }
 
     @Override

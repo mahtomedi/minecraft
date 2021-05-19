@@ -6,7 +6,6 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import net.minecraft.client.gui.GuiComponent;
-import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.core.Registry;
@@ -48,12 +47,14 @@ public class CreateBuffetWorldScreen extends Screen {
     protected void init() {
         this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
         this.list = new CreateBuffetWorldScreen.BiomeList();
-        this.children.add(this.list);
-        this.doneButton = this.addButton(new Button(this.width / 2 - 155, this.height - 28, 150, 20, CommonComponents.GUI_DONE, param0 -> {
+        this.addWidget(this.list);
+        this.doneButton = this.addRenderableWidget(new Button(this.width / 2 - 155, this.height - 28, 150, 20, CommonComponents.GUI_DONE, param0 -> {
             this.applySettings.accept(this.biome);
             this.minecraft.setScreen(this.parent);
         }));
-        this.addButton(new Button(this.width / 2 + 5, this.height - 28, 150, 20, CommonComponents.GUI_CANCEL, param0 -> this.minecraft.setScreen(this.parent)));
+        this.addRenderableWidget(
+            new Button(this.width / 2 + 5, this.height - 28, 150, 20, CommonComponents.GUI_CANCEL, param0 -> this.minecraft.setScreen(this.parent))
+        );
         this.list.setSelected(this.list.children().stream().filter(param0 -> Objects.equals(param0.biome, this.biome)).findFirst().orElse(null));
     }
 
@@ -97,8 +98,6 @@ public class CreateBuffetWorldScreen extends Screen {
             super.setSelected(param0);
             if (param0 != null) {
                 CreateBuffetWorldScreen.this.biome = param0.biome;
-                NarratorChatListener.INSTANCE
-                    .sayNow(new TranslatableComponent("narrator.select", CreateBuffetWorldScreen.this.biomes.getKey(param0.biome)).getString());
             }
 
             CreateBuffetWorldScreen.this.updateButtonValidity();
@@ -119,6 +118,11 @@ public class CreateBuffetWorldScreen extends Screen {
                     this.name = new TextComponent(param1.toString());
                 }
 
+            }
+
+            @Override
+            public Component getNarration() {
+                return new TranslatableComponent("narrator.select", this.name);
             }
 
             @Override

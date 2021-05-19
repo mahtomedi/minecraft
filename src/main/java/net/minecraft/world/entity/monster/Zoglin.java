@@ -17,7 +17,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobType;
@@ -67,7 +66,7 @@ public class Zoglin extends Monster implements Enemy, HoglinBase {
         MemoryModuleType.NEAREST_LIVING_ENTITIES,
         MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES,
         MemoryModuleType.NEAREST_VISIBLE_PLAYER,
-        MemoryModuleType.NEAREST_VISIBLE_TARGETABLE_PLAYER,
+        MemoryModuleType.NEAREST_VISIBLE_ATTACKABLE_PLAYER,
         MemoryModuleType.LOOK_TARGET,
         MemoryModuleType.WALK_TARGET,
         MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE,
@@ -137,13 +136,13 @@ public class Zoglin extends Monster implements Enemy, HoglinBase {
             .getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES)
             .orElse(ImmutableList.of())
             .stream()
-            .filter(Zoglin::isTargetable)
+            .filter(this::isTargetable)
             .findFirst();
     }
 
-    private static boolean isTargetable(LivingEntity param0x) {
+    private boolean isTargetable(LivingEntity param0x) {
         EntityType<?> var0 = param0x.getType();
-        return var0 != EntityType.ZOGLIN && var0 != EntityType.CREEPER && EntitySelector.ATTACK_ALLOWED.test(param0x);
+        return var0 != EntityType.ZOGLIN && var0 != EntityType.CREEPER && Sensor.isEntityAttackable(this, param0x);
     }
 
     @Override
@@ -210,7 +209,7 @@ public class Zoglin extends Monster implements Enemy, HoglinBase {
         if (this.level.isClientSide) {
             return false;
         } else if (var0 && param0.getEntity() instanceof LivingEntity var1) {
-            if (EntitySelector.ATTACK_ALLOWED.test(var1) && !BehaviorUtils.isOtherTargetMuchFurtherAwayThanCurrentAttackTarget(this, var1, 4.0)) {
+            if (var1.canBeSeenAsEnemy() && !BehaviorUtils.isOtherTargetMuchFurtherAwayThanCurrentAttackTarget(this, var1, 4.0)) {
                 this.setAttackTarget(var1);
             }
 

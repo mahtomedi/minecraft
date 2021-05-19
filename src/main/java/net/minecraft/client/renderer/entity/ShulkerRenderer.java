@@ -1,6 +1,7 @@
 package net.minecraft.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import javax.annotation.Nullable;
 import net.minecraft.client.model.ShulkerModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.Sheets;
@@ -9,6 +10,7 @@ import net.minecraft.client.renderer.entity.layers.ShulkerHeadLayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.monster.Shulker;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
@@ -16,10 +18,10 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class ShulkerRenderer extends MobRenderer<Shulker, ShulkerModel<Shulker>> {
-    public static final ResourceLocation DEFAULT_TEXTURE_LOCATION = new ResourceLocation(
+    private static final ResourceLocation DEFAULT_TEXTURE_LOCATION = new ResourceLocation(
         "textures/" + Sheets.DEFAULT_SHULKER_TEXTURE_LOCATION.texture().getPath() + ".png"
     );
-    public static final ResourceLocation[] TEXTURE_LOCATION = Sheets.SHULKER_TEXTURE_LOCATION
+    private static final ResourceLocation[] TEXTURE_LOCATION = Sheets.SHULKER_TEXTURE_LOCATION
         .stream()
         .map(param0 -> new ResourceLocation("textures/" + param0.texture().getPath() + ".png"))
         .toArray(param0 -> new ResourceLocation[param0]);
@@ -53,7 +55,11 @@ public class ShulkerRenderer extends MobRenderer<Shulker, ShulkerModel<Shulker>>
     }
 
     public ResourceLocation getTextureLocation(Shulker param0) {
-        return param0.getColor() == null ? DEFAULT_TEXTURE_LOCATION : TEXTURE_LOCATION[param0.getColor().getId()];
+        return getTextureLocation(param0.getColor());
+    }
+
+    public static ResourceLocation getTextureLocation(@Nullable DyeColor param0) {
+        return param0 == null ? DEFAULT_TEXTURE_LOCATION : TEXTURE_LOCATION[param0.getId()];
     }
 
     protected void setupRotations(Shulker param0, PoseStack param1, float param2, float param3, float param4) {

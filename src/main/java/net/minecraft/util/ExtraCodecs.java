@@ -31,6 +31,10 @@ public class ExtraCodecs {
         return param0 -> param0.isEmpty() ? DataResult.error("List must have contents") : DataResult.success(param0);
     }
 
+    public static <T> Codec<List<T>> nonEmptyList(Codec<List<T>> param0) {
+        return param0.flatXmap(nonEmptyListCheck(), nonEmptyListCheck());
+    }
+
     static final class XorCodec<F, S> implements Codec<Either<F, S>> {
         private final Codec<F> first;
         private final Codec<S> second;

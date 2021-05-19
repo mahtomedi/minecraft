@@ -4,8 +4,6 @@ import com.google.common.base.Predicates;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.world.Container;
-import net.minecraft.world.Difficulty;
-import net.minecraft.world.entity.animal.axolotl.Axolotl;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.scores.Team;
@@ -17,10 +15,6 @@ public final class EntitySelector {
     public static final Predicate<Entity> CONTAINER_ENTITY_SELECTOR = param0 -> param0 instanceof Container && param0.isAlive();
     public static final Predicate<Entity> NO_CREATIVE_OR_SPECTATOR = param0 -> !(param0 instanceof Player)
             || !param0.isSpectator() && !((Player)param0).isCreative();
-    public static final Predicate<Entity> ATTACK_ALLOWED = param0 -> (
-                !(param0 instanceof Player) || !param0.isSpectator() && !((Player)param0).isCreative() && param0.level.getDifficulty() != Difficulty.PEACEFUL
-            )
-            && (!(param0 instanceof Axolotl) || !((Axolotl)param0).isPlayingDead());
     public static final Predicate<Entity> NO_SPECTATORS = param0 -> !param0.isSpectator();
 
     private EntitySelector() {

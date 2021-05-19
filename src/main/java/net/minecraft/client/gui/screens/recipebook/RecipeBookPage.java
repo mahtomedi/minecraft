@@ -3,8 +3,10 @@ package net.minecraft.client.gui.screens.recipebook;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.List;
+import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.StateSwitchingButton;
 import net.minecraft.stats.RecipeBook;
 import net.minecraft.world.item.crafting.Recipe;
@@ -180,5 +182,11 @@ public class RecipeBookPage {
 
     public RecipeBook getRecipeBook() {
         return this.recipeBook;
+    }
+
+    protected void listButtons(Consumer<AbstractWidget> param0) {
+        param0.accept(this.forwardButton);
+        param0.accept(this.backButton);
+        this.buttons.forEach(param0);
     }
 }

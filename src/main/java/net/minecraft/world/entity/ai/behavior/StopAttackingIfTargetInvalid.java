@@ -5,7 +5,6 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
@@ -47,8 +46,6 @@ public class StopAttackingIfTargetInvalid<E extends Mob> extends Behavior<E> {
         } else if (this.isCurrentTargetDeadOrRemoved(param1)) {
             this.clearAttackTarget(param1);
         } else if (this.isCurrentTargetInDifferentLevel(param1)) {
-            this.clearAttackTarget(param1);
-        } else if (!EntitySelector.ATTACK_ALLOWED.test(this.getAttackTarget(param1))) {
             this.clearAttackTarget(param1);
         } else if (this.stopAttackingWhen.test(this.getAttackTarget(param1))) {
             this.clearAttackTarget(param1);

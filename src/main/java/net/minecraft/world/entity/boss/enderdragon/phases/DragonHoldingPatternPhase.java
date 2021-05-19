@@ -15,7 +15,7 @@ import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.Vec3;
 
 public class DragonHoldingPatternPhase extends AbstractDragonPhaseInstance {
-    private static final TargetingConditions NEW_TARGET_TARGETING = TargetingConditions.forCombat().range(64.0);
+    private static final TargetingConditions NEW_TARGET_TARGETING = TargetingConditions.forCombat().ignoreLineOfSight();
     private Path currentPath;
     private Vec3 targetLocation;
     private boolean clockwise;
@@ -60,14 +60,12 @@ public class DragonHoldingPatternPhase extends AbstractDragonPhaseInstance {
             }
 
             double var2 = 64.0;
-            Player var3 = this.dragon.level.getNearestPlayer(NEW_TARGET_TARGETING, (double)var0.getX(), (double)var0.getY(), (double)var0.getZ());
+            Player var3 = this.dragon.level.getNearestPlayer(NEW_TARGET_TARGETING, this.dragon, (double)var0.getX(), (double)var0.getY(), (double)var0.getZ());
             if (var3 != null) {
                 var2 = var0.distSqr(var3.position(), true) / 512.0;
             }
 
-            if (var3 != null
-                && !var3.getAbilities().invulnerable
-                && (this.dragon.getRandom().nextInt(Mth.abs((int)var2) + 2) == 0 || this.dragon.getRandom().nextInt(var1 + 2) == 0)) {
+            if (var3 != null && (this.dragon.getRandom().nextInt(Mth.abs((int)var2) + 2) == 0 || this.dragon.getRandom().nextInt(var1 + 2) == 0)) {
                 this.strafePlayer(var3);
                 return;
             }
@@ -131,7 +129,7 @@ public class DragonHoldingPatternPhase extends AbstractDragonPhaseInstance {
 
     @Override
     public void onCrystalDestroyed(EndCrystal param0, BlockPos param1, DamageSource param2, @Nullable Player param3) {
-        if (param3 != null && !param3.getAbilities().invulnerable) {
+        if (param3 != null && this.dragon.canAttack(param3)) {
             this.strafePlayer(param3);
         }
 

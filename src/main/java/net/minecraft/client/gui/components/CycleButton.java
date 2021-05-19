@@ -5,10 +5,13 @@ import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.Function;
 import javax.annotation.Nullable;
+import net.minecraft.client.gui.narration.NarratedElementType;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
@@ -74,6 +77,11 @@ public class CycleButton<T> extends AbstractButton implements TooltipAccessor {
         this.onValueChange.onValueChange(this, var1);
     }
 
+    private T getCycledValue(int param0) {
+        List<T> var0 = this.values.getSelectedList();
+        return var0.get(Mth.positiveModulo(this.index + param0, var0.size()));
+    }
+
     @Override
     public boolean mouseScrolled(double param0, double param1, double param2) {
         if (param2 > 0.0) {
@@ -96,9 +104,13 @@ public class CycleButton<T> extends AbstractButton implements TooltipAccessor {
     }
 
     private void updateValue(T param0) {
-        Component var0 = (Component)(this.displayOnlyValue ? this.valueStringifier.apply(param0) : this.createFullName(param0));
+        Component var0 = this.createLabelForValue(param0);
         this.setMessage(var0);
         this.value = param0;
+    }
+
+    private Component createLabelForValue(T param0) {
+        return (Component)(this.displayOnlyValue ? this.valueStringifier.apply(param0) : this.createFullName(param0));
     }
 
     private MutableComponent createFullName(T param0) {
@@ -112,6 +124,21 @@ public class CycleButton<T> extends AbstractButton implements TooltipAccessor {
     @Override
     protected MutableComponent createNarrationMessage() {
         return this.narrationProvider.apply(this);
+    }
+
+    @Override
+    public void updateNarration(NarrationElementOutput param0) {
+        param0.add(NarratedElementType.TITLE, (Component)this.createNarrationMessage());
+        if (this.active) {
+            T var0 = this.getCycledValue(1);
+            Component var1 = this.createLabelForValue(var0);
+            if (this.isFocused()) {
+                param0.add(NarratedElementType.USAGE, (Component)(new TranslatableComponent("narration.cycle_button.usage.focused", var1)));
+            } else {
+                param0.add(NarratedElementType.USAGE, (Component)(new TranslatableComponent("narration.cycle_button.usage.hovered", var1)));
+            }
+        }
+
     }
 
     public MutableComponent createDefaultNarrationMessage() {

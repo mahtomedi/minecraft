@@ -45,13 +45,13 @@ public class EditServerScreen extends Screen {
         this.nameEdit.setFocus(true);
         this.nameEdit.setValue(this.serverData.name);
         this.nameEdit.setResponder(param0 -> this.updateAddButtonStatus());
-        this.children.add(this.nameEdit);
+        this.addWidget(this.nameEdit);
         this.ipEdit = new EditBox(this.font, this.width / 2 - 100, 106, 200, 20, new TranslatableComponent("addServer.enterIp"));
         this.ipEdit.setMaxLength(128);
         this.ipEdit.setValue(this.serverData.ip);
         this.ipEdit.setResponder(param0 -> this.updateAddButtonStatus());
-        this.children.add(this.ipEdit);
-        this.addButton(
+        this.addWidget(this.ipEdit);
+        this.addRenderableWidget(
             CycleButton.builder(ServerData.ServerPackStatus::getName)
                 .withValues(ServerData.ServerPackStatus.values())
                 .withInitialValue(this.serverData.getResourcePackStatus())
@@ -64,10 +64,10 @@ public class EditServerScreen extends Screen {
                     (param0, param1) -> this.serverData.setResourcePackStatus(param1)
                 )
         );
-        this.addButton = this.addButton(
+        this.addButton = this.addRenderableWidget(
             new Button(this.width / 2 - 100, this.height / 4 + 96 + 18, 200, 20, new TranslatableComponent("addServer.add"), param0 -> this.onAdd())
         );
-        this.addButton(
+        this.addRenderableWidget(
             new Button(this.width / 2 - 100, this.height / 4 + 120 + 18, 200, 20, CommonComponents.GUI_CANCEL, param0 -> this.callback.accept(false))
         );
         this.updateAddButtonStatus();

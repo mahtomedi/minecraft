@@ -20,20 +20,21 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.stream.Stream;
 import java.util.zip.GZIPOutputStream;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
+import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.realms.NarrationHelper;
 import net.minecraft.realms.RealmsScreen;
 import net.minecraft.world.level.storage.LevelSummary;
 import net.minecraftforge.api.distmarker.Dist;
@@ -72,6 +73,7 @@ public class RealmsUploadScreen extends RealmsScreen {
     private final Runnable callback;
 
     public RealmsUploadScreen(long param0, int param1, RealmsResetWorldScreen param2, LevelSummary param3, Runnable param4) {
+        super(NarratorChatListener.NO_TITLE);
         this.worldId = param0;
         this.slotId = param1;
         this.lastScreen = param2;
@@ -84,9 +86,13 @@ public class RealmsUploadScreen extends RealmsScreen {
     @Override
     public void init() {
         this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
-        this.backButton = this.addButton(new Button(this.width / 2 - 100, this.height - 42, 200, 20, CommonComponents.GUI_BACK, param0 -> this.onBack()));
+        this.backButton = this.addRenderableWidget(
+            new Button(this.width / 2 - 100, this.height - 42, 200, 20, CommonComponents.GUI_BACK, param0 -> this.onBack())
+        );
         this.backButton.visible = false;
-        this.cancelButton = this.addButton(new Button(this.width / 2 - 100, this.height - 42, 200, 20, CommonComponents.GUI_CANCEL, param0 -> this.onCancel()));
+        this.cancelButton = this.addRenderableWidget(
+            new Button(this.width / 2 - 100, this.height - 42, 200, 20, CommonComponents.GUI_CANCEL, param0 -> this.onCancel())
+        );
         if (!this.uploadStarted) {
             if (this.lastScreen.slot == -1) {
                 this.upload();
@@ -223,19 +229,24 @@ public class RealmsUploadScreen extends RealmsScreen {
         super.tick();
         ++this.tickCount;
         if (this.status != null && this.narrationRateLimiter.tryAcquire(1)) {
-            List<String> var0 = Lists.newArrayList();
-            var0.add(this.status.getString());
-            if (this.progress != null) {
-                var0.add(this.progress + "%");
-            }
-
-            if (this.errorMessage != null) {
-                Stream.of(this.errorMessage).map(Component::getString).forEach(var0::add);
-            }
-
-            NarrationHelper.now(String.join(System.lineSeparator(), var0));
+            Component var0 = this.createProgressNarrationMessage();
+            NarratorChatListener.INSTANCE.sayNow(var0);
         }
 
+    }
+
+    private Component createProgressNarrationMessage() {
+        List<Component> var0 = Lists.newArrayList();
+        var0.add(this.status);
+        if (this.progress != null) {
+            var0.add(new TextComponent(this.progress + "%"));
+        }
+
+        if (this.errorMessage != null) {
+            var0.addAll(Arrays.asList(this.errorMessage));
+        }
+
+        return CommonComponents.joinLines(var0);
     }
 
     private void upload() {

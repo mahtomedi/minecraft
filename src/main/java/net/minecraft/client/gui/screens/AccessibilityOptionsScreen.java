@@ -34,7 +34,7 @@ public class AccessibilityOptionsScreen extends SimpleOptionsSubScreen {
 
     @Override
     protected void createFooter() {
-        this.addButton(
+        this.addRenderableWidget(
             new Button(
                 this.width / 2 - 155,
                 this.height - 27,
@@ -50,7 +50,7 @@ public class AccessibilityOptionsScreen extends SimpleOptionsSubScreen {
                     }, "https://aka.ms/MinecraftJavaAccessibility", true))
             )
         );
-        this.addButton(
+        this.addRenderableWidget(
             new Button(this.width / 2 + 5, this.height - 27, 150, 20, CommonComponents.GUI_DONE, param0 -> this.minecraft.setScreen(this.lastScreen))
         );
     }

@@ -211,12 +211,12 @@ public class Explosion {
         for(int var27 = 0; var27 < var25.size(); ++var27) {
             Entity var28 = var25.get(var27);
             if (!var28.ignoreExplosion()) {
-                double var29 = (double)(Mth.sqrt(var28.distanceToSqr(var26)) / var18);
+                double var29 = Math.sqrt(var28.distanceToSqr(var26)) / (double)var18;
                 if (var29 <= 1.0) {
                     double var30 = var28.getX() - this.x;
                     double var31 = (var28 instanceof PrimedTnt ? var28.getY() : var28.getEyeY()) - this.y;
                     double var32 = var28.getZ() - this.z;
-                    double var33 = (double)Mth.sqrt(var30 * var30 + var31 * var31 + var32 * var32);
+                    double var33 = Math.sqrt(var30 * var30 + var31 * var31 + var32 * var32);
                     if (var33 != 0.0) {
                         var30 /= var33;
                         var31 /= var33;

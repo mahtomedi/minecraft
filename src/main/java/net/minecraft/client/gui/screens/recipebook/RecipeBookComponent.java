@@ -18,6 +18,8 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.StateSwitchingButton;
 import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.narration.NarratableEntry;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.resources.language.LanguageInfo;
@@ -39,7 +41,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class RecipeBookComponent extends GuiComponent implements Widget, GuiEventListener, RecipeShownListener, PlaceRecipe<Ingredient> {
+public class RecipeBookComponent extends GuiComponent implements Widget, GuiEventListener, NarratableEntry, RecipeShownListener, PlaceRecipe<Ingredient> {
     protected static final ResourceLocation RECIPE_BOOK_LOCATION = new ResourceLocation("textures/gui/recipe_book.png");
     private static final Component SEARCH_HINT = new TranslatableComponent("gui.recipebook.search_hint")
         .withStyle(ChatFormatting.ITALIC)
@@ -497,6 +499,25 @@ public class RecipeBookComponent extends GuiComponent implements Widget, GuiEven
             boolean var1 = this.book.getBookSettings().isOpen(var0);
             boolean var2 = this.book.getBookSettings().isFiltering(var0);
             this.minecraft.getConnection().send(new ServerboundRecipeBookChangeSettingsPacket(var0, var1, var2));
+        }
+
+    }
+
+    @Override
+    public NarratableEntry.NarrationPriority narrationPriority() {
+        return this.visible ? NarratableEntry.NarrationPriority.HOVERED : NarratableEntry.NarrationPriority.NONE;
+    }
+
+    @Override
+    public void updateNarration(NarrationElementOutput param0) {
+        List<NarratableEntry> var0 = Lists.newArrayList();
+        this.recipeBookPage.listButtons(var0::add);
+        var0.add(this.searchBox);
+        var0.add(this.filterButton);
+        var0.addAll(this.tabButtons);
+        Screen.NarratableSearchResult var1 = Screen.findNarratableWidget(var0, null);
+        if (var1 != null) {
+            var1.entry.updateNarration(param0.nest());
         }
 
     }

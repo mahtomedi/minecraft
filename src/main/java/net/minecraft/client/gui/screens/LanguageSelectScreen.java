@@ -1,12 +1,10 @@
 package net.minecraft.client.gui.screens;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Option;
 import net.minecraft.client.Options;
-import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.resources.language.LanguageInfo;
@@ -35,9 +33,9 @@ public class LanguageSelectScreen extends OptionsSubScreen {
     @Override
     protected void init() {
         this.packSelectionList = new LanguageSelectScreen.LanguageSelectionList(this.minecraft);
-        this.children.add(this.packSelectionList);
-        this.addButton(Option.FORCE_UNICODE_FONT.createButton(this.options, this.width / 2 - 155, this.height - 38, 150));
-        this.addButton(new Button(this.width / 2 - 155 + 160, this.height - 38, 150, 20, CommonComponents.GUI_DONE, param0 -> {
+        this.addWidget(this.packSelectionList);
+        this.addRenderableWidget(Option.FORCE_UNICODE_FONT.createButton(this.options, this.width / 2 - 155, this.height - 38, 150));
+        this.addRenderableWidget(new Button(this.width / 2 - 155 + 160, this.height - 38, 150, 20, CommonComponents.GUI_DONE, param0 -> {
             LanguageSelectScreen.LanguageSelectionList.Entry var0 = this.packSelectionList.getSelected();
             if (var0 != null && !var0.language.getCode().equals(this.languageManager.getSelected().getCode())) {
                 this.languageManager.setSelected(var0.language);
@@ -88,14 +86,6 @@ public class LanguageSelectScreen extends OptionsSubScreen {
             return super.getRowWidth() + 50;
         }
 
-        public void setSelected(@Nullable LanguageSelectScreen.LanguageSelectionList.Entry param0) {
-            super.setSelected(param0);
-            if (param0 != null) {
-                NarratorChatListener.INSTANCE.sayNow(new TranslatableComponent("narrator.select", param0.language).getString());
-            }
-
-        }
-
         @Override
         protected void renderBackground(PoseStack param0) {
             LanguageSelectScreen.this.renderBackground(param0);
@@ -142,6 +132,11 @@ public class LanguageSelectScreen extends OptionsSubScreen {
 
             private void select() {
                 LanguageSelectionList.this.setSelected(this);
+            }
+
+            @Override
+            public Component getNarration() {
+                return new TranslatableComponent("narrator.select", this.language);
             }
         }
     }

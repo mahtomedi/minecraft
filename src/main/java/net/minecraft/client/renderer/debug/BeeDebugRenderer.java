@@ -19,7 +19,6 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Position;
 import net.minecraft.network.protocol.game.DebugEntityNameGenerator;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraftforge.api.distmarker.Dist;
@@ -286,8 +285,8 @@ public class BeeDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
     }
 
     private String getPosDescription(BeeDebugRenderer.BeeInfo param0, BlockPos param1) {
-        float var0 = Mth.sqrt(param1.distSqr(param0.pos.x(), param0.pos.y(), param0.pos.z(), true));
-        double var1 = (double)Math.round(var0 * 10.0F) / 10.0;
+        double var0 = Math.sqrt(param1.distSqr(param0.pos.x(), param0.pos.y(), param0.pos.z(), true));
+        double var1 = (double)Math.round(var0 * 10.0) / 10.0;
         return param1.toShortString() + " (dist " + var1 + ")";
     }
 

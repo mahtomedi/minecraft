@@ -7,7 +7,6 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -228,7 +227,7 @@ public class Blaze extends Monster {
                         }
 
                         if (this.attackStep > 1) {
-                            float var6 = Mth.sqrt(Mth.sqrt(var2)) * 0.5F;
+                            double var6 = Math.sqrt(Math.sqrt(var2)) * 0.5;
                             if (!this.blaze.isSilent()) {
                                 this.blaze.level.levelEvent(null, 1018, this.blaze.blockPosition(), 0);
                             }
@@ -237,9 +236,9 @@ public class Blaze extends Monster {
                                 SmallFireball var8 = new SmallFireball(
                                     this.blaze.level,
                                     this.blaze,
-                                    var3 + this.blaze.getRandom().nextGaussian() * (double)var6,
+                                    var3 + this.blaze.getRandom().nextGaussian() * var6,
                                     var4,
-                                    var5 + this.blaze.getRandom().nextGaussian() * (double)var6
+                                    var5 + this.blaze.getRandom().nextGaussian() * var6
                                 );
                                 var8.setPos(var8.getX(), this.blaze.getY(0.5) + 0.5, var8.getZ());
                                 this.blaze.level.addFreshEntity(var8);

@@ -63,15 +63,18 @@ public class SmallDripleafBlock extends DoublePlantBlock implements Bonemealable
 
     @Override
     public void setPlacedBy(Level param0, BlockPos param1, BlockState param2, LivingEntity param3, ItemStack param4) {
-        Direction var0 = param2.getValue(FACING);
-        param0.setBlock(
-            param1.above(),
-            this.defaultBlockState()
-                .setValue(HALF, DoubleBlockHalf.UPPER)
-                .setValue(WATERLOGGED, Boolean.valueOf(param0.isWaterAt(param1.above())))
-                .setValue(FACING, var0),
-            3
-        );
+        if (!param0.isClientSide()) {
+            Direction var0 = param2.getValue(FACING);
+            param0.setBlock(
+                param1.above(),
+                this.defaultBlockState()
+                    .setValue(HALF, DoubleBlockHalf.UPPER)
+                    .setValue(WATERLOGGED, Boolean.valueOf(param0.isWaterAt(param1.above())))
+                    .setValue(FACING, var0),
+                3
+            );
+        }
+
     }
 
     @Override

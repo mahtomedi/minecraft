@@ -351,7 +351,7 @@ public class FireworkParticles {
                         double var6 = (double)var4 + (this.random.nextDouble() - this.random.nextDouble()) * 0.5;
                         double var7 = (double)var3 + (this.random.nextDouble() - this.random.nextDouble()) * 0.5;
                         double var8 = (double)var5 + (this.random.nextDouble() - this.random.nextDouble()) * 0.5;
-                        double var9 = (double)Mth.sqrt(var6 * var6 + var7 * var7 + var8 * var8) / param0 + this.random.nextGaussian() * 0.05;
+                        double var9 = Math.sqrt(var6 * var6 + var7 * var7 + var8 * var8) / param0 + this.random.nextGaussian() * 0.05;
                         this.createParticle(var0, var1, var2, var6 / var9, var7 / var9, var8 / var9, param2, param3, param4, param5);
                         if (var3 != -param1 && var3 != param1 && var4 != -param1 && var4 != param1) {
                             var5 += param1 * 2 - 1;

@@ -64,16 +64,14 @@ public class ChunkBiomeContainer implements BiomeManager.NoiseBiomeSource {
         int var0 = QuartPos.fromBlock(param2.getMinBlockX());
         int var1 = this.quartMinY;
         int var2 = QuartPos.fromBlock(param2.getMinBlockZ());
-        if (param4 != null) {
-            for(int var3 = 0; var3 < param4.length; ++var3) {
+
+        for(int var3 = 0; var3 < this.biomes.length; ++var3) {
+            if (param4 != null && var3 < param4.length) {
                 this.biomes[var3] = param0.byId(param4[var3]);
-                if (this.biomes[var3] == null) {
-                    this.biomes[var3] = biomeForIndex(param3, var0, var1, var2, var3);
-                }
             }
-        } else {
-            for(int var4 = 0; var4 < this.biomes.length; ++var4) {
-                this.biomes[var4] = biomeForIndex(param3, var0, var1, var2, var4);
+
+            if (this.biomes[var3] == null) {
+                this.biomes[var3] = generateBiomeForIndex(param3, var0, var1, var2, var3);
             }
         }
 
@@ -83,7 +81,7 @@ public class ChunkBiomeContainer implements BiomeManager.NoiseBiomeSource {
         return (param0 + param1 - 1) / param1;
     }
 
-    private static Biome biomeForIndex(BiomeSource param0, int param1, int param2, int param3, int param4) {
+    private static Biome generateBiomeForIndex(BiomeSource param0, int param1, int param2, int param3, int param4) {
         int var0 = param4 & HORIZONTAL_MASK;
         int var1 = param4 >> WIDTH_BITS + WIDTH_BITS;
         int var2 = param4 >> WIDTH_BITS & HORIZONTAL_MASK;

@@ -86,8 +86,7 @@ public class StructureBlockRenderer implements BlockEntityRenderer<StructureBloc
                     }
 
                     if (param0.getMode() == StructureMode.SAVE && param0.getShowAir()) {
-                        this.renderInvisibleBlocks(param0, var31, var0, true, param2);
-                        this.renderInvisibleBlocks(param0, var31, var0, false, param2);
+                        this.renderInvisibleBlocks(param0, var31, var0, param2);
                     }
 
                 }
@@ -95,7 +94,7 @@ public class StructureBlockRenderer implements BlockEntityRenderer<StructureBloc
         }
     }
 
-    private void renderInvisibleBlocks(StructureBlockEntity param0, VertexConsumer param1, BlockPos param2, boolean param3, PoseStack param4) {
+    private void renderInvisibleBlocks(StructureBlockEntity param0, VertexConsumer param1, BlockPos param2, PoseStack param3) {
         BlockGetter var0 = param0.getLevel();
         BlockPos var1 = param0.getBlockPos();
         BlockPos var2 = var1.offset(param2);
@@ -104,20 +103,25 @@ public class StructureBlockRenderer implements BlockEntityRenderer<StructureBloc
             BlockState var4 = var0.getBlockState(var3);
             boolean var5 = var4.isAir();
             boolean var6 = var4.is(Blocks.STRUCTURE_VOID);
-            if (var5 || var6) {
-                float var7 = var5 ? 0.05F : 0.0F;
-                double var8 = (double)((float)(var3.getX() - var1.getX()) + 0.45F - var7);
-                double var9 = (double)((float)(var3.getY() - var1.getY()) + 0.45F - var7);
-                double var10 = (double)((float)(var3.getZ() - var1.getZ()) + 0.45F - var7);
-                double var11 = (double)((float)(var3.getX() - var1.getX()) + 0.55F + var7);
-                double var12 = (double)((float)(var3.getY() - var1.getY()) + 0.55F + var7);
-                double var13 = (double)((float)(var3.getZ() - var1.getZ()) + 0.55F + var7);
-                if (param3) {
-                    LevelRenderer.renderLineBox(param4, param1, var8, var9, var10, var11, var12, var13, 0.0F, 0.0F, 0.0F, 1.0F, 0.0F, 0.0F, 0.0F);
-                } else if (var5) {
-                    LevelRenderer.renderLineBox(param4, param1, var8, var9, var10, var11, var12, var13, 0.5F, 0.5F, 1.0F, 1.0F, 0.5F, 0.5F, 1.0F);
-                } else {
-                    LevelRenderer.renderLineBox(param4, param1, var8, var9, var10, var11, var12, var13, 1.0F, 0.25F, 0.25F, 1.0F, 1.0F, 0.25F, 0.25F);
+            boolean var7 = var4.is(Blocks.BARRIER);
+            boolean var8 = var4.is(Blocks.LIGHT);
+            boolean var9 = var6 || var7 || var8;
+            if (var5 || var9) {
+                float var10 = var5 ? 0.05F : 0.0F;
+                double var11 = (double)((float)(var3.getX() - var1.getX()) + 0.45F - var10);
+                double var12 = (double)((float)(var3.getY() - var1.getY()) + 0.45F - var10);
+                double var13 = (double)((float)(var3.getZ() - var1.getZ()) + 0.45F - var10);
+                double var14 = (double)((float)(var3.getX() - var1.getX()) + 0.55F + var10);
+                double var15 = (double)((float)(var3.getY() - var1.getY()) + 0.55F + var10);
+                double var16 = (double)((float)(var3.getZ() - var1.getZ()) + 0.55F + var10);
+                if (var5) {
+                    LevelRenderer.renderLineBox(param3, param1, var11, var12, var13, var14, var15, var16, 0.5F, 0.5F, 1.0F, 1.0F, 0.5F, 0.5F, 1.0F);
+                } else if (var6) {
+                    LevelRenderer.renderLineBox(param3, param1, var11, var12, var13, var14, var15, var16, 1.0F, 0.75F, 0.75F, 1.0F, 1.0F, 0.75F, 0.75F);
+                } else if (var7) {
+                    LevelRenderer.renderLineBox(param3, param1, var11, var12, var13, var14, var15, var16, 1.0F, 0.0F, 0.0F, 1.0F, 1.0F, 0.0F, 0.0F);
+                } else if (var8) {
+                    LevelRenderer.renderLineBox(param3, param1, var11, var12, var13, var14, var15, var16, 1.0F, 1.0F, 0.0F, 1.0F, 1.0F, 1.0F, 0.0F);
                 }
             }
         }
