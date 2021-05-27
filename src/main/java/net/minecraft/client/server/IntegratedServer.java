@@ -12,8 +12,8 @@ import java.util.UUID;
 import java.util.function.BooleanSupplier;
 import javax.annotation.Nullable;
 import net.minecraft.CrashReport;
-import net.minecraft.CrashReportCategory;
 import net.minecraft.SharedConstants;
+import net.minecraft.SystemReport;
 import net.minecraft.client.ClientBrandRetriever;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.RegistryAccess;
@@ -147,10 +147,10 @@ public class IntegratedServer extends MinecraftServer {
     }
 
     @Override
-    public void fillReport(CrashReportCategory param0) {
-        super.fillReport(param0);
+    public SystemReport fillServerSystemReport(SystemReport param0) {
         param0.setDetail("Type", "Integrated Server (map_client.txt)");
         param0.setDetail("Is Modded", () -> this.getModdedStatus().orElse("Probably not. Jar signature remains and both client + server brands are untouched."));
+        return param0;
     }
 
     @Override

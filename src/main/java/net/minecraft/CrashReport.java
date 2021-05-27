@@ -12,7 +12,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CompletionException;
-import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.logging.log4j.LogManager;
@@ -22,47 +21,15 @@ public class CrashReport {
     private static final Logger LOGGER = LogManager.getLogger();
     private final String title;
     private final Throwable exception;
-    private final CrashReportCategory systemDetails = new CrashReportCategory(this, "System Details");
     private final List<CrashReportCategory> details = Lists.newArrayList();
     private File saveFile;
     private boolean trackingStackTrace = true;
     private StackTraceElement[] uncategorizedStackTrace = new StackTraceElement[0];
+    private final SystemReport systemReport = new SystemReport();
 
     public CrashReport(String param0, Throwable param1) {
         this.title = param0;
         this.exception = param1;
-        this.initDetails();
-    }
-
-    private void initDetails() {
-        this.systemDetails.setDetail("Minecraft Version", () -> SharedConstants.getCurrentVersion().getName());
-        this.systemDetails.setDetail("Minecraft Version ID", () -> SharedConstants.getCurrentVersion().getId());
-        this.systemDetails
-            .setDetail(
-                "Operating System",
-                () -> System.getProperty("os.name") + " (" + System.getProperty("os.arch") + ") version " + System.getProperty("os.version")
-            );
-        this.systemDetails.setDetail("Java Version", () -> System.getProperty("java.version") + ", " + System.getProperty("java.vendor"));
-        this.systemDetails
-            .setDetail(
-                "Java VM Version",
-                () -> System.getProperty("java.vm.name") + " (" + System.getProperty("java.vm.info") + "), " + System.getProperty("java.vm.vendor")
-            );
-        this.systemDetails.setDetail("Memory", () -> {
-            Runtime var0 = Runtime.getRuntime();
-            long var1 = var0.maxMemory();
-            long var2 = var0.totalMemory();
-            long var3 = var0.freeMemory();
-            long var4 = var1 / 1024L / 1024L;
-            long var5 = var2 / 1024L / 1024L;
-            long var6 = var3 / 1024L / 1024L;
-            return var3 + " bytes (" + var6 + " MB) / " + var2 + " bytes (" + var5 + " MB) up to " + var1 + " bytes (" + var4 + " MB)";
-        });
-        this.systemDetails.setDetail("CPUs", Runtime.getRuntime().availableProcessors());
-        this.systemDetails.setDetail("JVM Flags", () -> {
-            List<String> var0 = Util.getVmArguments().collect(Collectors.toList());
-            return String.format("%d total; %s", var0.size(), var0.stream().collect(Collectors.joining(" ")));
-        });
     }
 
     public String getTitle() {
@@ -102,7 +69,7 @@ public class CrashReport {
             param0.append("\n\n");
         }
 
-        this.systemDetails.getDetails(param0);
+        this.systemReport.appendToCrashReportString(param0);
     }
 
     public String getExceptionMessage() {
@@ -190,8 +157,8 @@ public class CrashReport {
         }
     }
 
-    public CrashReportCategory getSystemDetails() {
-        return this.systemDetails;
+    public SystemReport getSystemReport() {
+        return this.systemReport;
     }
 
     public CrashReportCategory addCategory(String param0) {
@@ -199,7 +166,7 @@ public class CrashReport {
     }
 
     public CrashReportCategory addCategory(String param0, int param1) {
-        CrashReportCategory var0 = new CrashReportCategory(this, param0);
+        CrashReportCategory var0 = new CrashReportCategory(param0);
         if (this.trackingStackTrace) {
             int var1 = var0.fillInStackTrace(param1);
             StackTraceElement[] var2 = this.exception.getStackTrace();

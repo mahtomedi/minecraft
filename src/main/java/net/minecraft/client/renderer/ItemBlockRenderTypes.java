@@ -146,6 +146,8 @@ public class ItemBlockRenderTypes {
         param0.put(Blocks.POTTED_BROWN_MUSHROOM, var2);
         param0.put(Blocks.POTTED_DEAD_BUSH, var2);
         param0.put(Blocks.POTTED_CACTUS, var2);
+        param0.put(Blocks.POTTED_AZALEA, var2);
+        param0.put(Blocks.POTTED_FLOWERING_AZALEA, var2);
         param0.put(Blocks.CARROTS, var2);
         param0.put(Blocks.POTATOES, var2);
         param0.put(Blocks.COMPARATOR, var2);

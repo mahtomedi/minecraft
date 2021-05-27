@@ -2,9 +2,7 @@ package net.minecraft.world.entity.boss.enderdragon.phases;
 
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
-import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.boss.enderdragon.EndCrystal;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.entity.player.Player;
@@ -60,7 +58,7 @@ public abstract class AbstractDragonPhaseInstance implements DragonPhaseInstance
 
     @Override
     public float getTurnSpeed() {
-        float var0 = Mth.sqrt(Entity.getHorizontalDistanceSqr(this.dragon.getDeltaMovement())) + 1.0F;
+        float var0 = (float)this.dragon.getDeltaMovement().horizontalDistance() + 1.0F;
         float var1 = Math.min(var0, 40.0F);
         return 0.7F / var1 / var0;
     }

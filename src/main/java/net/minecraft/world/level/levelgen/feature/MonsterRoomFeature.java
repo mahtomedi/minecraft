@@ -2,9 +2,11 @@ package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
 import java.util.Random;
+import java.util.function.Predicate;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
@@ -30,97 +32,98 @@ public class MonsterRoomFeature extends Feature<NoneFeatureConfiguration> {
 
     @Override
     public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> param0) {
-        BlockPos var0 = param0.origin();
-        Random var1 = param0.random();
-        WorldGenLevel var2 = param0.level();
-        int var3 = 3;
-        int var4 = var1.nextInt(2) + 2;
-        int var5 = -var4 - 1;
-        int var6 = var4 + 1;
-        int var7 = -1;
-        int var8 = 4;
-        int var9 = var1.nextInt(2) + 2;
-        int var10 = -var9 - 1;
-        int var11 = var9 + 1;
-        int var12 = 0;
+        Predicate<BlockState> var0 = Feature.isReplaceable(BlockTags.FEATURES_CANNOT_REPLACE.getName());
+        BlockPos var1 = param0.origin();
+        Random var2 = param0.random();
+        WorldGenLevel var3 = param0.level();
+        int var4 = 3;
+        int var5 = var2.nextInt(2) + 2;
+        int var6 = -var5 - 1;
+        int var7 = var5 + 1;
+        int var8 = -1;
+        int var9 = 4;
+        int var10 = var2.nextInt(2) + 2;
+        int var11 = -var10 - 1;
+        int var12 = var10 + 1;
+        int var13 = 0;
 
-        for(int var13 = var5; var13 <= var6; ++var13) {
-            for(int var14 = -1; var14 <= 4; ++var14) {
-                for(int var15 = var10; var15 <= var11; ++var15) {
-                    BlockPos var16 = var0.offset(var13, var14, var15);
-                    Material var17 = var2.getBlockState(var16).getMaterial();
-                    boolean var18 = var17.isSolid();
-                    if (var14 == -1 && !var18) {
+        for(int var14 = var6; var14 <= var7; ++var14) {
+            for(int var15 = -1; var15 <= 4; ++var15) {
+                for(int var16 = var11; var16 <= var12; ++var16) {
+                    BlockPos var17 = var1.offset(var14, var15, var16);
+                    Material var18 = var3.getBlockState(var17).getMaterial();
+                    boolean var19 = var18.isSolid();
+                    if (var15 == -1 && !var19) {
                         return false;
                     }
 
-                    if (var14 == 4 && !var18) {
+                    if (var15 == 4 && !var19) {
                         return false;
                     }
 
-                    if ((var13 == var5 || var13 == var6 || var15 == var10 || var15 == var11)
-                        && var14 == 0
-                        && var2.isEmptyBlock(var16)
-                        && var2.isEmptyBlock(var16.above())) {
-                        ++var12;
+                    if ((var14 == var6 || var14 == var7 || var16 == var11 || var16 == var12)
+                        && var15 == 0
+                        && var3.isEmptyBlock(var17)
+                        && var3.isEmptyBlock(var17.above())) {
+                        ++var13;
                     }
                 }
             }
         }
 
-        if (var12 >= 1 && var12 <= 5) {
-            for(int var19 = var5; var19 <= var6; ++var19) {
-                for(int var20 = 3; var20 >= -1; --var20) {
-                    for(int var21 = var10; var21 <= var11; ++var21) {
-                        BlockPos var22 = var0.offset(var19, var20, var21);
-                        BlockState var23 = var2.getBlockState(var22);
-                        if (var19 == var5 || var20 == -1 || var21 == var10 || var19 == var6 || var20 == 4 || var21 == var11) {
-                            if (var22.getY() >= var2.getMinBuildHeight() && !var2.getBlockState(var22.below()).getMaterial().isSolid()) {
-                                var2.setBlock(var22, AIR, 2);
-                            } else if (var23.getMaterial().isSolid() && !var23.is(Blocks.CHEST)) {
-                                if (var20 == -1 && var1.nextInt(4) != 0) {
-                                    var2.setBlock(var22, Blocks.MOSSY_COBBLESTONE.defaultBlockState(), 2);
+        if (var13 >= 1 && var13 <= 5) {
+            for(int var20 = var6; var20 <= var7; ++var20) {
+                for(int var21 = 3; var21 >= -1; --var21) {
+                    for(int var22 = var11; var22 <= var12; ++var22) {
+                        BlockPos var23 = var1.offset(var20, var21, var22);
+                        BlockState var24 = var3.getBlockState(var23);
+                        if (var20 == var6 || var21 == -1 || var22 == var11 || var20 == var7 || var21 == 4 || var22 == var12) {
+                            if (var23.getY() >= var3.getMinBuildHeight() && !var3.getBlockState(var23.below()).getMaterial().isSolid()) {
+                                var3.setBlock(var23, AIR, 2);
+                            } else if (var24.getMaterial().isSolid() && !var24.is(Blocks.CHEST)) {
+                                if (var21 == -1 && var2.nextInt(4) != 0) {
+                                    this.safeSetBlock(var3, var23, Blocks.MOSSY_COBBLESTONE.defaultBlockState(), var0);
                                 } else {
-                                    var2.setBlock(var22, Blocks.COBBLESTONE.defaultBlockState(), 2);
+                                    this.safeSetBlock(var3, var23, Blocks.COBBLESTONE.defaultBlockState(), var0);
                                 }
                             }
-                        } else if (!var23.is(Blocks.CHEST) && !var23.is(Blocks.SPAWNER)) {
-                            var2.setBlock(var22, AIR, 2);
+                        } else if (!var24.is(Blocks.CHEST) && !var24.is(Blocks.SPAWNER)) {
+                            this.safeSetBlock(var3, var23, AIR, var0);
                         }
                     }
                 }
             }
 
-            for(int var24 = 0; var24 < 2; ++var24) {
-                for(int var25 = 0; var25 < 3; ++var25) {
-                    int var26 = var0.getX() + var1.nextInt(var4 * 2 + 1) - var4;
-                    int var27 = var0.getY();
-                    int var28 = var0.getZ() + var1.nextInt(var9 * 2 + 1) - var9;
-                    BlockPos var29 = new BlockPos(var26, var27, var28);
-                    if (var2.isEmptyBlock(var29)) {
-                        int var30 = 0;
+            for(int var25 = 0; var25 < 2; ++var25) {
+                for(int var26 = 0; var26 < 3; ++var26) {
+                    int var27 = var1.getX() + var2.nextInt(var5 * 2 + 1) - var5;
+                    int var28 = var1.getY();
+                    int var29 = var1.getZ() + var2.nextInt(var10 * 2 + 1) - var10;
+                    BlockPos var30 = new BlockPos(var27, var28, var29);
+                    if (var3.isEmptyBlock(var30)) {
+                        int var31 = 0;
 
-                        for(Direction var31 : Direction.Plane.HORIZONTAL) {
-                            if (var2.getBlockState(var29.relative(var31)).getMaterial().isSolid()) {
-                                ++var30;
+                        for(Direction var32 : Direction.Plane.HORIZONTAL) {
+                            if (var3.getBlockState(var30.relative(var32)).getMaterial().isSolid()) {
+                                ++var31;
                             }
                         }
 
-                        if (var30 == 1) {
-                            var2.setBlock(var29, StructurePiece.reorient(var2, var29, Blocks.CHEST.defaultBlockState()), 2);
-                            RandomizableContainerBlockEntity.setLootTable(var2, var1, var29, BuiltInLootTables.SIMPLE_DUNGEON);
+                        if (var31 == 1) {
+                            this.safeSetBlock(var3, var30, StructurePiece.reorient(var3, var30, Blocks.CHEST.defaultBlockState()), var0);
+                            RandomizableContainerBlockEntity.setLootTable(var3, var2, var30, BuiltInLootTables.SIMPLE_DUNGEON);
                             break;
                         }
                     }
                 }
             }
 
-            var2.setBlock(var0, Blocks.SPAWNER.defaultBlockState(), 2);
-            BlockEntity var32 = var2.getBlockEntity(var0);
-            if (var32 instanceof SpawnerBlockEntity) {
-                ((SpawnerBlockEntity)var32).getSpawner().setEntityId(this.randomEntityId(var1));
+            this.safeSetBlock(var3, var1, Blocks.SPAWNER.defaultBlockState(), var0);
+            BlockEntity var33 = var3.getBlockEntity(var1);
+            if (var33 instanceof SpawnerBlockEntity) {
+                ((SpawnerBlockEntity)var33).getSpawner().setEntityId(this.randomEntityId(var2));
             } else {
-                LOGGER.error("Failed to fetch mob spawner entity at ({}, {}, {})", var0.getX(), var0.getY(), var0.getZ());
+                LOGGER.error("Failed to fetch mob spawner entity at ({}, {}, {})", var1.getX(), var1.getY(), var1.getZ());
             }
 
             return true;

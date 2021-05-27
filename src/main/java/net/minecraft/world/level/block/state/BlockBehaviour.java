@@ -188,6 +188,10 @@ public abstract class BlockBehaviour {
         return 0.25F;
     }
 
+    public float getMaxVerticalOffset() {
+        return 0.2F;
+    }
+
     @Deprecated
     public BlockState rotate(BlockState param0, Rotation param1) {
         return param0;
@@ -563,7 +567,9 @@ public abstract class BlockBehaviour {
                 long var2 = Mth.getSeed(param1.getX(), 0, param1.getZ());
                 float var3 = var0.getMaxHorizontalOffset();
                 double var4 = Mth.clamp(((double)((float)(var2 & 15L) / 15.0F) - 0.5) * 0.5, (double)(-var3), (double)var3);
-                double var5 = var1 == BlockBehaviour.OffsetType.XYZ ? ((double)((float)(var2 >> 4 & 15L) / 15.0F) - 1.0) * 0.2 : 0.0;
+                double var5 = var1 == BlockBehaviour.OffsetType.XYZ
+                    ? ((double)((float)(var2 >> 4 & 15L) / 15.0F) - 1.0) * (double)var0.getMaxVerticalOffset()
+                    : 0.0;
                 double var6 = Mth.clamp(((double)((float)(var2 >> 8 & 15L) / 15.0F) - 0.5) * 0.5, (double)(-var3), (double)var3);
                 return new Vec3(var4, var5, var6);
             }

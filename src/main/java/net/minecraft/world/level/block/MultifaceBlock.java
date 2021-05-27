@@ -183,20 +183,22 @@ public class MultifaceBlock extends Block {
         Collections.shuffle(var0);
         return var0.stream()
             .filter(param1x -> hasFace(param0, param1x))
-            .anyMatch(param4 -> this.spreadFromFaceTowardRandomDirection(param0, param1, param2, param4, param3));
+            .anyMatch(param4 -> this.spreadFromFaceTowardRandomDirection(param0, param1, param2, param4, param3, false));
     }
 
-    public boolean spreadFromFaceTowardRandomDirection(BlockState param0, LevelAccessor param1, BlockPos param2, Direction param3, Random param4) {
+    public boolean spreadFromFaceTowardRandomDirection(
+        BlockState param0, LevelAccessor param1, BlockPos param2, Direction param3, Random param4, boolean param5
+    ) {
         List<Direction> var0 = Arrays.asList(DIRECTIONS);
         Collections.shuffle(var0, param4);
-        return var0.stream().anyMatch(param4x -> this.spreadFromFaceTowardDirection(param0, param1, param2, param3, param4x));
+        return var0.stream().anyMatch(param5x -> this.spreadFromFaceTowardDirection(param0, param1, param2, param3, param5x, param5));
     }
 
-    public boolean spreadFromFaceTowardDirection(BlockState param0, LevelAccessor param1, BlockPos param2, Direction param3, Direction param4) {
+    public boolean spreadFromFaceTowardDirection(BlockState param0, LevelAccessor param1, BlockPos param2, Direction param3, Direction param4, boolean param5) {
         Optional<Pair<BlockPos, Direction>> var0 = this.getSpreadFromFaceTowardDirection(param0, param1, param2, param3, param4);
         if (var0.isPresent()) {
             Pair<BlockPos, Direction> var1 = var0.get();
-            return this.spreadToFace(param1, var1.getFirst(), var1.getSecond());
+            return this.spreadToFace(param1, var1.getFirst(), var1.getSecond(), param5);
         } else {
             return false;
         }
@@ -235,10 +237,18 @@ public class MultifaceBlock extends Block {
         }
     }
 
-    private boolean spreadToFace(LevelAccessor param0, BlockPos param1, Direction param2) {
+    private boolean spreadToFace(LevelAccessor param0, BlockPos param1, Direction param2, boolean param3) {
         BlockState var0 = param0.getBlockState(param1);
         BlockState var1 = this.getStateForPlacement(var0, param0, param1, param2);
-        return var1 != null ? param0.setBlock(param1, var1, 2) : false;
+        if (var1 != null) {
+            if (param3) {
+                param0.getChunk(param1).markPosForPostprocessing(param1);
+            }
+
+            return param0.setBlock(param1, var1, 2);
+        } else {
+            return false;
+        }
     }
 
     private boolean canSpreadInto(BlockState param0) {

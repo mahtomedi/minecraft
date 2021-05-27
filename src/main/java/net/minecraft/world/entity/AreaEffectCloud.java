@@ -250,7 +250,7 @@ public class AreaEffectCloud extends Entity {
                                         if (var31.getEffect().isInstantenous()) {
                                             var31.getEffect().applyInstantenousEffect(this, this.getOwner(), var27, var31.getAmplifier(), 0.5);
                                         } else {
-                                            var27.addEffect(new MobEffectInstance(var31));
+                                            var27.addEffect(new MobEffectInstance(var31), this);
                                         }
                                     }
 

@@ -1166,22 +1166,22 @@ public class ServerPlayer extends Player {
     }
 
     @Override
-    protected void onEffectAdded(MobEffectInstance param0) {
-        super.onEffectAdded(param0);
+    protected void onEffectAdded(MobEffectInstance param0, @Nullable Entity param1) {
+        super.onEffectAdded(param0, param1);
         this.connection.send(new ClientboundUpdateMobEffectPacket(this.getId(), param0));
         if (param0.getEffect() == MobEffects.LEVITATION) {
             this.levitationStartTime = this.tickCount;
             this.levitationStartPos = this.position();
         }
 
-        CriteriaTriggers.EFFECTS_CHANGED.trigger(this);
+        CriteriaTriggers.EFFECTS_CHANGED.trigger(this, param1);
     }
 
     @Override
-    protected void onEffectUpdated(MobEffectInstance param0, boolean param1) {
-        super.onEffectUpdated(param0, param1);
+    protected void onEffectUpdated(MobEffectInstance param0, boolean param1, @Nullable Entity param2) {
+        super.onEffectUpdated(param0, param1, param2);
         this.connection.send(new ClientboundUpdateMobEffectPacket(this.getId(), param0));
-        CriteriaTriggers.EFFECTS_CHANGED.trigger(this);
+        CriteriaTriggers.EFFECTS_CHANGED.trigger(this, param2);
     }
 
     @Override
@@ -1192,7 +1192,7 @@ public class ServerPlayer extends Player {
             this.levitationStartPos = null;
         }
 
-        CriteriaTriggers.EFFECTS_CHANGED.trigger(this);
+        CriteriaTriggers.EFFECTS_CHANGED.trigger(this, null);
     }
 
     @Override
@@ -1588,5 +1588,11 @@ public class ServerPlayer extends Player {
     @Override
     public boolean mayInteract(Level param0, BlockPos param1) {
         return super.mayInteract(param0, param1) && param0.mayInteract(this, param1);
+    }
+
+    @Override
+    protected void updateUsingItem(ItemStack param0) {
+        CriteriaTriggers.USING_ITEM.trigger(this, param0);
+        super.updateUsingItem(param0);
     }
 }

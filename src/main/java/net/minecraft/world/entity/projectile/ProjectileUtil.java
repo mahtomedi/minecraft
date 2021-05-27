@@ -76,11 +76,16 @@ public final class ProjectileUtil {
 
     @Nullable
     public static EntityHitResult getEntityHitResult(Level param0, Entity param1, Vec3 param2, Vec3 param3, AABB param4, Predicate<Entity> param5) {
+        return getEntityHitResult(param0, param1, param2, param3, param4, param5, 0.3F);
+    }
+
+    @Nullable
+    public static EntityHitResult getEntityHitResult(Level param0, Entity param1, Vec3 param2, Vec3 param3, AABB param4, Predicate<Entity> param5, float param6) {
         double var0 = Double.MAX_VALUE;
         Entity var1 = null;
 
         for(Entity var2 : param0.getEntities(param1, param4, param5)) {
-            AABB var3 = var2.getBoundingBox().inflate(0.3F);
+            AABB var3 = var2.getBoundingBox().inflate((double)param6);
             Optional<Vec3> var4 = var3.clip(param2, param3);
             if (var4.isPresent()) {
                 double var5 = param2.distanceToSqr(var4.get());
@@ -97,7 +102,7 @@ public final class ProjectileUtil {
     public static void rotateTowardsMovement(Entity param0, float param1) {
         Vec3 var0 = param0.getDeltaMovement();
         if (var0.lengthSqr() != 0.0) {
-            double var1 = Math.sqrt(Entity.getHorizontalDistanceSqr(var0));
+            double var1 = var0.horizontalDistance();
             param0.setYRot((float)(Mth.atan2(var0.z, var0.x) * 180.0F / (float)Math.PI) + 90.0F);
             param0.setXRot((float)(Mth.atan2(var1, var0.y) * 180.0F / (float)Math.PI) - 90.0F);
 

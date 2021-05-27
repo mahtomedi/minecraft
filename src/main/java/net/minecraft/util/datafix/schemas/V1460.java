@@ -266,7 +266,9 @@ public class V1460 extends NamespacedSchema {
                             "CanDestroy",
                             DSL.list(References.BLOCK_NAME.in(param0)),
                             "CanPlaceOn",
-                            DSL.list(References.BLOCK_NAME.in(param0))
+                            DSL.list(References.BLOCK_NAME.in(param0)),
+                            "Items",
+                            DSL.list(References.ITEM_STACK.in(param0))
                         )
                     ),
                     V705.ADD_NAMES,

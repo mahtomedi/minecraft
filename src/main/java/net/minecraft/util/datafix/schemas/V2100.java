@@ -28,11 +28,7 @@ public class V2100 extends NamespacedSchema {
     public Map<String, Supplier<TypeTemplate>> registerBlockEntities(Schema param0) {
         Map<String, Supplier<TypeTemplate>> var0 = super.registerBlockEntities(param0);
         param0.register(
-            var0,
-            "minecraft:beehive",
-            () -> DSL.optionalFields(
-                    "Items", DSL.list(References.ITEM_STACK.in(param0)), "Bees", DSL.list(DSL.optionalFields("EntityData", References.ENTITY_TREE.in(param0)))
-                )
+            var0, "minecraft:beehive", () -> DSL.optionalFields("Bees", DSL.list(DSL.optionalFields("EntityData", References.ENTITY_TREE.in(param0))))
         );
         return var0;
     }

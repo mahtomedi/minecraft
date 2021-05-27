@@ -9,7 +9,6 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.function.BooleanSupplier;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -166,16 +165,6 @@ public class ClientChunkCache extends ChunkSource {
     @Override
     public void onLightUpdate(LightLayer param0, SectionPos param1) {
         Minecraft.getInstance().levelRenderer.setSectionDirty(param1.x(), param1.y(), param1.z());
-    }
-
-    @Override
-    public boolean isTickingChunk(BlockPos param0) {
-        return this.hasChunk(SectionPos.blockToSectionCoord(param0.getX()), SectionPos.blockToSectionCoord(param0.getZ()));
-    }
-
-    @Override
-    public boolean isEntityTickingChunk(ChunkPos param0) {
-        return this.hasChunk(param0.x, param0.z);
     }
 
     @OnlyIn(Dist.CLIENT)

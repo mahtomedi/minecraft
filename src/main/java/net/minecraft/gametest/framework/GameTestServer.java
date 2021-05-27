@@ -10,6 +10,7 @@ import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import javax.annotation.Nullable;
 import net.minecraft.CrashReport;
+import net.minecraft.SystemReport;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
@@ -163,6 +164,12 @@ public class GameTestServer extends MinecraftServer {
             LOGGER.info("====================================================");
         }
 
+    }
+
+    @Override
+    public SystemReport fillServerSystemReport(SystemReport param0) {
+        param0.setDetail("Type", "Game test server");
+        return param0;
     }
 
     @Override

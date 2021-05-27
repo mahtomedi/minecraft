@@ -141,7 +141,7 @@ public class Pufferfish extends AbstractFish {
     private void touch(Mob param0) {
         int var0 = this.getPuffState();
         if (param0.hurt(DamageSource.mobAttack(this), (float)(1 + var0))) {
-            param0.addEffect(new MobEffectInstance(MobEffects.POISON, 60 * var0, 0));
+            param0.addEffect(new MobEffectInstance(MobEffects.POISON, 60 * var0, 0), this);
             this.playSound(SoundEvents.PUFFER_FISH_STING, 1.0F, 1.0F);
         }
 
@@ -155,7 +155,7 @@ public class Pufferfish extends AbstractFish {
                 ((ServerPlayer)param0).connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.PUFFER_FISH_STING, 0.0F));
             }
 
-            param0.addEffect(new MobEffectInstance(MobEffects.POISON, 60 * var0, 0));
+            param0.addEffect(new MobEffectInstance(MobEffects.POISON, 60 * var0, 0), this);
         }
 
     }

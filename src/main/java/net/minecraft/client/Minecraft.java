@@ -1,5 +1,6 @@
 package net.minecraft.client;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Queues;
 import com.google.common.hash.Hashing;
@@ -37,11 +38,13 @@ import com.mojang.serialization.Lifecycle;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.net.Proxy;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
@@ -62,8 +65,10 @@ import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
+import net.minecraft.FileUtil;
 import net.minecraft.ReportedException;
 import net.minecraft.SharedConstants;
+import net.minecraft.SystemReport;
 import net.minecraft.Util;
 import net.minecraft.client.color.block.BlockColors;
 import net.minecraft.client.color.item.ItemColors;
@@ -109,10 +114,7 @@ import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.resolver.ServerAddress;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.profiling.ActiveClientMetricsLogger;
-import net.minecraft.client.profiling.ClientMetricsLogger;
-import net.minecraft.client.profiling.InactiveClientMetricsLogger;
-import net.minecraft.client.profiling.storage.MetricsPersister;
+import net.minecraft.client.profiling.ClientMetricsSamplersProvider;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.client.renderer.GameRenderer;
@@ -197,8 +199,10 @@ import net.minecraft.server.players.GameProfileCache;
 import net.minecraft.sounds.Music;
 import net.minecraft.sounds.Musics;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.util.FileZipper;
 import net.minecraft.util.FrameTimer;
 import net.minecraft.util.Mth;
+import net.minecraft.util.TimeUtil;
 import net.minecraft.util.Unit;
 import net.minecraft.util.datafix.DataFixers;
 import net.minecraft.util.profiling.ContinuousProfiler;
@@ -207,6 +211,10 @@ import net.minecraft.util.profiling.ProfileResults;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.util.profiling.ResultField;
 import net.minecraft.util.profiling.SingleTickProfiler;
+import net.minecraft.util.profiling.metrics.profiling.ActiveMetricsRecorder;
+import net.minecraft.util.profiling.metrics.profiling.InactiveMetricsRecorder;
+import net.minecraft.util.profiling.metrics.profiling.MetricsRecorder;
+import net.minecraft.util.profiling.metrics.storage.MetricsPersister;
 import net.minecraft.util.thread.ReentrantBlockableEventLoop;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -241,6 +249,7 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.io.Charsets;
+import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.util.tinyfd.TinyFileDialogs;
@@ -371,7 +380,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     private final ContinuousProfiler fpsPieProfiler = new ContinuousProfiler(Util.timeSource, () -> this.fpsPieRenderTicks);
     @Nullable
     private ProfileResults fpsPieResults;
-    private ClientMetricsLogger clientMetricsLogger = InactiveClientMetricsLogger.INSTANCE;
+    private MetricsRecorder metricsRecorder = InactiveMetricsRecorder.INSTANCE;
     private final ResourceLoadStateTracker reloadStateTracker = new ResourceLoadStateTracker();
     private String debugPath = "root";
 
@@ -649,9 +658,9 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
                     boolean var2 = this.shouldRenderFpsPie();
                     this.profiler = this.constructProfiler(var2, var1);
                     this.profiler.startTick();
-                    this.clientMetricsLogger.startTick();
+                    this.metricsRecorder.startTick();
                     this.runTick(!var0);
-                    this.clientMetricsLogger.endTick();
+                    this.metricsRecorder.endTick();
                     this.profiler.endTick();
                     this.finishProfilers(var2, var1);
                 } catch (OutOfMemoryError var4) {
@@ -1096,7 +1105,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     }
 
     private ProfilerFiller constructProfiler(boolean param0, @Nullable SingleTickProfiler param1) {
-        if (!param0 && !this.clientMetricsLogger.isRecording()) {
+        if (!param0 && !this.metricsRecorder.isRecording()) {
             return (ProfilerFiller)(param1 == null ? InactiveProfiler.INSTANCE : param1.startTick());
         } else if (param0) {
             if (!this.fpsPieProfiler.isEnabled()) {
@@ -1105,8 +1114,8 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
             }
 
             ++this.fpsPieRenderTicks;
-            ProfilerFiller var0 = this.clientMetricsLogger.isRecording()
-                ? ProfilerFiller.tee(this.fpsPieProfiler.getFiller(), this.clientMetricsLogger.getProfiler())
+            ProfilerFiller var0 = this.metricsRecorder.isRecording()
+                ? ProfilerFiller.tee(this.fpsPieProfiler.getFiller(), this.metricsRecorder.getProfiler())
                 : this.fpsPieProfiler.getFiller();
             return SingleTickProfiler.decorateFiller(var0, param1);
         } else {
@@ -1114,7 +1123,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
                 this.fpsPieProfiler.disable();
             }
 
-            return SingleTickProfiler.decorateFiller(this.clientMetricsLogger.getProfiler(), param1);
+            return SingleTickProfiler.decorateFiller(this.metricsRecorder.getProfiler(), param1);
         }
     }
 
@@ -1175,17 +1184,110 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         System.gc();
     }
 
-    void debugClientMetricsKeyPressed(Runnable param0, Consumer<Path> param1) {
-        if (this.clientMetricsLogger.isRecording()) {
-            this.clientMetricsLogger.end();
+    public boolean debugClientMetricsStart(Consumer<TranslatableComponent> param0) {
+        if (this.metricsRecorder.isRecording()) {
+            this.debugClientMetricsStop();
+            return false;
         } else {
-            Runnable var0 = () -> this.clientMetricsLogger = InactiveClientMetricsLogger.INSTANCE;
-            this.clientMetricsLogger = ActiveClientMetricsLogger.createStarted(Util.timeSource, Util.ioPool(), new MetricsPersister(), var0, param1);
-            param0.run();
+            Consumer<ProfileResults> var0 = param1 -> {
+                int var0x = param1.getTickDuration();
+                double var1x = (double)param1.getNanoDuration() / (double)TimeUtil.NANOSECONDS_PER_SECOND;
+                this.execute(
+                    () -> param0.accept(
+                            new TranslatableComponent(
+                                "commands.debug.stopped",
+                                String.format(Locale.ROOT, "%.2f", var1x),
+                                var0x,
+                                String.format(Locale.ROOT, "%.2f", (double)var0x / var1x)
+                            )
+                        )
+                );
+            };
+            Consumer<Path> var1 = param1 -> {
+                Component var0x = new TextComponent(param1.toString())
+                    .withStyle(ChatFormatting.UNDERLINE)
+                    .withStyle(param1x -> param1x.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_FILE, param1.toFile().getParent())));
+                this.execute(() -> param0.accept(new TranslatableComponent("debug.profiling.stop", var0x)));
+            };
+            SystemReport var2 = fillSystemReport(new SystemReport(), this, this.languageManager, this.launchedVersion, this.options);
+            Consumer<List<Path>> var3 = param2 -> {
+                Path var0x = this.archiveProfilingReport(var2, param2);
+                var1.accept(var0x);
+            };
+            Consumer<Path> var4;
+            if (this.singleplayerServer == null) {
+                var4 = param1 -> var3.accept(ImmutableList.of(param1));
+            } else {
+                this.singleplayerServer.fillSystemReport(var2);
+                CompletableFuture<Path> var5 = new CompletableFuture<>();
+                CompletableFuture<Path> var6 = new CompletableFuture<>();
+                CompletableFuture.allOf(var5, var6).thenRunAsync(() -> var3.accept(ImmutableList.of(var5.join(), var6.join())), Util.ioPool());
+                this.singleplayerServer.startRecordingMetrics(param0x -> {
+                }, var6::complete);
+                var4 = var5::complete;
+            }
+
+            this.metricsRecorder = ActiveMetricsRecorder.createStarted(
+                new ClientMetricsSamplersProvider(Util.timeSource, this.levelRenderer),
+                Util.timeSource,
+                Util.ioPool(),
+                new MetricsPersister("client"),
+                param1 -> {
+                    this.metricsRecorder = InactiveMetricsRecorder.INSTANCE;
+                    var0.accept(param1);
+                },
+                var4
+            );
+            return true;
         }
     }
 
-    void debugFpsMeterKeyPress(int param0) {
+    private void debugClientMetricsStop() {
+        this.metricsRecorder.end();
+        if (this.singleplayerServer != null) {
+            this.singleplayerServer.finishRecordingMetrics();
+        }
+
+    }
+
+    private Path archiveProfilingReport(SystemReport param0, List<Path> param1) {
+        String var0;
+        if (this.isLocalServer()) {
+            var0 = this.getSingleplayerServer().getWorldData().getLevelName();
+        } else {
+            var0 = this.getCurrentServer().name;
+        }
+
+        Path var4;
+        try {
+            String var2 = String.format(
+                "%s-%s-%s", new SimpleDateFormat("yyyy-MM-dd_HH.mm.ss").format(new Date()), var0, SharedConstants.getCurrentVersion().getId()
+            );
+            String var3 = FileUtil.findAvailableName(MetricsPersister.PROFILING_RESULTS_DIR, var2, ".zip");
+            var4 = MetricsPersister.PROFILING_RESULTS_DIR.resolve(var3);
+        } catch (IOException var21) {
+            throw new UncheckedIOException(var21);
+        }
+
+        try (FileZipper var7 = new FileZipper(var4)) {
+            var7.add(Paths.get("system.txt"), param0.toLineSeparatedString());
+            var7.add(Paths.get("client").resolve(this.options.getFile().getName()), this.options.dumpOptionsForReport());
+            param1.forEach(var7::add);
+        } finally {
+            for(Path var10 : param1) {
+                try {
+                    FileUtils.forceDelete(var10.toFile());
+                } catch (IOException var18) {
+                    LOGGER.warn("Failed to delete temporary profiling result {}", var10, var18);
+                }
+            }
+
+        }
+
+        return var4;
+    }
+
+    public void debugFpsMeterKeyPress(int param0) {
         if (this.fpsPieResults != null) {
             List<ResultField> var0 = this.fpsPieResults.getTimes(this.debugPath);
             if (!var0.isEmpty()) {
@@ -1797,6 +1899,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
                 MinecraftSessionService var12 = var11.createMinecraftSessionService();
                 GameProfileRepository var13 = var11.createProfileRepository();
                 GameProfileCache var14 = new GameProfileCache(var13, new File(this.gameDirectory, MinecraftServer.USERID_CACHE_FILE.getName()));
+                var14.setExecutor(this);
                 SkullBlockEntity.setProfileCache(var14);
                 SkullBlockEntity.setSessionService(var12);
                 GameProfileCache.setUsesAuthentication(false);
@@ -1951,6 +2054,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
             MinecraftSessionService var2 = var1.createMinecraftSessionService();
             GameProfileRepository var3 = var1.createProfileRepository();
             GameProfileCache var4 = new GameProfileCache(var3, new File(this.gameDirectory, MinecraftServer.USERID_CACHE_FILE.getName()));
+            var4.setExecutor(this);
             SkullBlockEntity.setProfileCache(var4);
             SkullBlockEntity.setSessionService(var2);
             GameProfileCache.setUsesAuthentication(false);
@@ -2156,13 +2260,14 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     }
 
     public CrashReport fillReport(CrashReport param0) {
-        fillReport(this, this.languageManager, this.launchedVersion, this.options, param0);
+        SystemReport var0 = param0.getSystemReport();
+        fillSystemReport(var0, this, this.languageManager, this.launchedVersion, this.options);
         if (this.level != null) {
             this.level.fillReportDetails(param0);
         }
 
         if (this.singleplayerServer != null) {
-            this.singleplayerServer.fillReport(param0.addCategory("Integrated server"));
+            this.singleplayerServer.fillSystemReport(var0);
         }
 
         this.reloadStateTracker.fillCrashReport(param0);
@@ -2170,15 +2275,21 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     }
 
     public static void fillReport(@Nullable Minecraft param0, @Nullable LanguageManager param1, String param2, @Nullable Options param3, CrashReport param4) {
-        CrashReportCategory var0 = param4.getSystemDetails();
-        var0.setDetail("Launched Version", () -> param2);
-        var0.setDetail("Backend library", RenderSystem::getBackendDescription);
-        var0.setDetail("Backend API", RenderSystem::getApiDescription);
-        var0.setDetail("Window size", () -> param0 != null ? param0.window.getWidth() + "x" + param0.window.getHeight() : "<not initialized>");
-        var0.setDetail("GL Caps", RenderSystem::getCapsString);
-        var0.setDetail("GL debug messages", () -> GlDebug.isDebugEnabled() ? String.join("\n", GlDebug.getLastOpenGlDebugMessages()) : "<disabled>");
-        var0.setDetail("Using VBOs", () -> "Yes");
-        var0.setDetail(
+        SystemReport var0 = param4.getSystemReport();
+        fillSystemReport(var0, param0, param1, param2, param3);
+    }
+
+    private static SystemReport fillSystemReport(
+        SystemReport param0, @Nullable Minecraft param1, @Nullable LanguageManager param2, String param3, Options param4
+    ) {
+        param0.setDetail("Launched Version", () -> param3);
+        param0.setDetail("Backend library", RenderSystem::getBackendDescription);
+        param0.setDetail("Backend API", RenderSystem::getApiDescription);
+        param0.setDetail("Window size", () -> param1 != null ? param1.window.getWidth() + "x" + param1.window.getHeight() : "<not initialized>");
+        param0.setDetail("GL Caps", RenderSystem::getCapsString);
+        param0.setDetail("GL debug messages", () -> GlDebug.isDebugEnabled() ? String.join("\n", GlDebug.getLastOpenGlDebugMessages()) : "<disabled>");
+        param0.setDetail("Using VBOs", () -> "Yes");
+        param0.setDetail(
             "Is Modded",
             () -> {
                 String var0x = ClientBrandRetriever.getClientModName();
@@ -2191,26 +2302,26 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
                 }
             }
         );
-        var0.setDetail("Type", "Client (map_client.txt)");
-        if (param3 != null) {
+        param0.setDetail("Type", "Client (map_client.txt)");
+        if (param4 != null) {
             if (instance != null) {
-                String var1 = instance.getGpuWarnlistManager().getAllWarnings();
-                if (var1 != null) {
-                    var0.setDetail("GPU Warnings", var1);
+                String var0 = instance.getGpuWarnlistManager().getAllWarnings();
+                if (var0 != null) {
+                    param0.setDetail("GPU Warnings", var0);
                 }
             }
 
-            var0.setDetail("Graphics mode", param3.graphicsMode);
-            var0.setDetail("Resource Packs", () -> {
+            param0.setDetail("Graphics mode", param4.graphicsMode.toString());
+            param0.setDetail("Resource Packs", () -> {
                 StringBuilder var0x = new StringBuilder();
 
-                for(String var1x : param3.resourcePacks) {
+                for(String var1x : param4.resourcePacks) {
                     if (var0x.length() > 0) {
                         var0x.append(", ");
                     }
 
                     var0x.append(var1x);
-                    if (param3.incompatibleResourcePacks.contains(var1x)) {
+                    if (param4.incompatibleResourcePacks.contains(var1x)) {
                         var0x.append(" (incompatible)");
                     }
                 }
@@ -2219,11 +2330,12 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
             });
         }
 
-        if (param1 != null) {
-            var0.setDetail("Current Language", () -> param1.getSelected().toString());
+        if (param2 != null) {
+            param0.setDetail("Current Language", () -> param2.getSelected().toString());
         }
 
-        var0.setDetail("CPU", GlUtil::getCpuInfo);
+        param0.setDetail("CPU", GlUtil::getCpuInfo);
+        return param0;
     }
 
     public static Minecraft getInstance() {
@@ -2463,10 +2575,6 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
 
     public <T> MutableSearchTree<T> getSearchTree(SearchRegistry.Key<T> param0) {
         return this.searchRegistry.getTree(param0);
-    }
-
-    public static int getAverageFps() {
-        return fps;
     }
 
     public FrameTimer getFrameTimer() {

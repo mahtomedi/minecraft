@@ -5,7 +5,9 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableBiMap;
 import java.util.Optional;
 import java.util.function.Supplier;
+import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.UseOnContext;
@@ -47,9 +49,14 @@ public class HoneycombItem extends Item {
         BlockPos var1 = param0.getClickedPos();
         BlockState var2 = var0.getBlockState(var1);
         return getWaxed(var2).map(param3 -> {
-            param0.getItemInHand().shrink(1);
-            var0.setBlock(var1, param3, 11);
             Player var0x = param0.getPlayer();
+            ItemStack var1x = param0.getItemInHand();
+            if (var0x instanceof ServerPlayer) {
+                CriteriaTriggers.ITEM_USED_ON_BLOCK.trigger((ServerPlayer)var0x, var1, var1x);
+            }
+
+            var1x.shrink(1);
+            var0.setBlock(var1, param3, 11);
             var0.levelEvent(var0x, 3003, var1, 0);
             return InteractionResult.sidedSuccess(var0.isClientSide);
         }).orElse(InteractionResult.PASS);

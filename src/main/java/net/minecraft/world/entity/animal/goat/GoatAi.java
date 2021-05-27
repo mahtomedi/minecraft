@@ -53,6 +53,7 @@ public class GoatAi {
         .selector(
             param0 -> !param0.getType().equals(EntityType.GOAT)
                     && (param0.level.getDifficulty() != Difficulty.PEACEFUL || !param0.getType().equals(EntityType.PLAYER))
+                    && param0.level.getWorldBorder().isWithinBounds(param0.getBoundingBox())
         );
     private static final float SPEED_MULTIPLIER_WHEN_RAMMING = 3.0F;
     public static final int RAM_MIN_DISTANCE = 4;

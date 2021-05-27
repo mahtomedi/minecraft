@@ -53,7 +53,7 @@ public class ObjectiveCriteriaArgument implements ArgumentType<ObjectiveCriteria
 
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> param0, SuggestionsBuilder param1) {
-        List<String> var0 = Lists.newArrayList(ObjectiveCriteria.CRITERIA_BY_NAME.keySet());
+        List<String> var0 = Lists.newArrayList(ObjectiveCriteria.getCustomCriteriaNames());
 
         for(StatType<?> var1 : Registry.STAT_TYPE) {
             for(Object var2 : var1.getRegistry()) {

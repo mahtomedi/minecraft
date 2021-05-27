@@ -4,7 +4,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.animal.Bee;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -40,8 +39,8 @@ public abstract class BeeSoundInstance extends AbstractTickableSoundInstance {
             this.x = (double)((float)this.bee.getX());
             this.y = (double)((float)this.bee.getY());
             this.z = (double)((float)this.bee.getZ());
-            float var1 = Mth.sqrt(Entity.getHorizontalDistanceSqr(this.bee.getDeltaMovement()));
-            if ((double)var1 >= 0.01) {
+            float var1 = (float)this.bee.getDeltaMovement().horizontalDistance();
+            if (var1 >= 0.01F) {
                 this.pitch = Mth.lerp(Mth.clamp(var1, this.getMinPitch(), this.getMaxPitch()), this.getMinPitch(), this.getMaxPitch());
                 this.volume = Mth.lerp(Mth.clamp(var1, 0.0F, 0.5F), 0.0F, 1.2F);
             } else {

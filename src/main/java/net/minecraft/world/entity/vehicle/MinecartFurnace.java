@@ -90,7 +90,7 @@ public class MinecartFurnace extends AbstractMinecart {
         double var1 = 0.001;
         super.moveAlongTrack(param0, param1);
         Vec3 var2 = this.getDeltaMovement();
-        double var3 = getHorizontalDistanceSqr(var2);
+        double var3 = var2.horizontalDistanceSqr();
         double var4 = this.xPush * this.xPush + this.zPush * this.zPush;
         if (var4 > 1.0E-4 && var3 > 0.001) {
             double var5 = Math.sqrt(var3);

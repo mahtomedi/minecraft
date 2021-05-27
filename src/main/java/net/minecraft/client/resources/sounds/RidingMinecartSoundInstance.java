@@ -3,7 +3,6 @@ package net.minecraft.client.resources.sounds;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.AbstractMinecart;
 import net.minecraftforge.api.distmarker.Dist;
@@ -45,9 +44,9 @@ public class RidingMinecartSoundInstance extends AbstractTickableSoundInstance {
         } else if (this.underwaterSound != this.player.isUnderWater()) {
             this.volume = 0.0F;
         } else {
-            float var0 = Mth.sqrt(Entity.getHorizontalDistanceSqr(this.minecart.getDeltaMovement()));
-            if ((double)var0 >= 0.01) {
-                this.volume = 0.0F + Mth.clamp(var0, 0.0F, 1.0F) * 0.75F;
+            float var0 = (float)this.minecart.getDeltaMovement().horizontalDistance();
+            if (var0 >= 0.01F) {
+                this.volume = Mth.clampedLerp(0.0F, 0.75F, var0);
             } else {
                 this.volume = 0.0F;
             }

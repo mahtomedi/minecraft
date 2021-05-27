@@ -16,6 +16,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.font.TextFieldHelper;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.blockentity.SignRenderer;
@@ -199,6 +200,7 @@ public class SignEditScreen extends Screen {
                     int var28 = Math.max(var25, var26);
                     Tesselator var29 = Tesselator.getInstance();
                     BufferBuilder var30 = var29.getBuilder();
+                    RenderSystem.setShader(GameRenderer::getPositionColorShader);
                     RenderSystem.disableTexture();
                     RenderSystem.enableColorLogicOp();
                     RenderSystem.logicOp(GlStateManager.LogicOp.OR_REVERSE);

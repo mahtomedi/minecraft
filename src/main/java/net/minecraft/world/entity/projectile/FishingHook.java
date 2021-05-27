@@ -94,7 +94,7 @@ public class FishingHook extends Projectile {
         );
         this.setDeltaMovement(var9);
         this.setYRot((float)(Mth.atan2(var9.x, var9.z) * 180.0F / (float)Math.PI));
-        this.setXRot((float)(Mth.atan2(var9.y, Math.sqrt(getHorizontalDistanceSqr(var9))) * 180.0F / (float)Math.PI));
+        this.setXRot((float)(Mth.atan2(var9.y, var9.horizontalDistance()) * 180.0F / (float)Math.PI));
         this.yRotO = this.getYRot();
         this.xRotO = this.getXRot();
     }
@@ -175,11 +175,11 @@ public class FishingHook extends Projectile {
             } else {
                 if (this.currentState == FishingHook.FishHookState.HOOKED_IN_ENTITY) {
                     if (this.hookedIn != null) {
-                        if (this.hookedIn.isRemoved()) {
-                            this.hookedIn = null;
-                            this.currentState = FishingHook.FishHookState.FLYING;
-                        } else {
+                        if (!this.hookedIn.isRemoved() && this.hookedIn.level.dimension() == this.level.dimension()) {
                             this.setPos(this.hookedIn.getX(), this.hookedIn.getY(0.8), this.hookedIn.getZ());
+                        } else {
+                            this.setHookedEntity(null);
+                            this.currentState = FishingHook.FishHookState.FLYING;
                         }
                     }
 
@@ -272,9 +272,9 @@ public class FishingHook extends Projectile {
         this.setDeltaMovement(this.getDeltaMovement().normalize().scale(param0.distanceTo(this)));
     }
 
-    private void setHookedEntity(Entity param0) {
+    private void setHookedEntity(@Nullable Entity param0) {
         this.hookedIn = param0;
-        this.getEntityData().set(DATA_HOOKED_ENTITY, param0.getId() + 1);
+        this.getEntityData().set(DATA_HOOKED_ENTITY, param0 == null ? 0 : param0.getId() + 1);
     }
 
     private void catchingFish(BlockPos param0) {
@@ -437,7 +437,7 @@ public class FishingHook extends Projectile {
 
     public int retrieve(ItemStack param0) {
         Player var0 = this.getPlayerOwner();
-        if (!this.level.isClientSide && var0 != null) {
+        if (!this.level.isClientSide && var0 != null && !this.shouldStopFishing(var0)) {
             int var1 = 0;
             if (this.hookedIn != null) {
                 this.pullEntity(this.hookedIn);

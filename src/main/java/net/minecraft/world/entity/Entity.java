@@ -491,10 +491,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
 
     public void lavaHurt() {
         if (!this.fireImmune()) {
-            if (!this.isInWaterRainOrBubble() && !this.isInPowderSnow) {
-                this.setSecondsOnFire(15);
-            }
-
+            this.setSecondsOnFire(15);
             if (this.hurt(DamageSource.LAVA, 4.0F)) {
                 this.playSound(SoundEvents.GENERIC_BURN, 0.4F, 2.0F + this.random.nextFloat() * 0.4F);
             }
@@ -579,7 +576,9 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
             BlockPos var1 = this.getOnPos();
             BlockState var2 = this.level.getBlockState(var1);
             this.checkFallDamage(var0.y, this.onGround, var2, var1);
-            if (!this.isRemoved()) {
+            if (this.isRemoved()) {
+                this.level.getProfiler().pop();
+            } else {
                 Vec3 var3 = this.getDeltaMovement();
                 if (param1.x != var0.x) {
                     this.setDeltaMovement(0.0, var3.y, var3.z);
@@ -608,8 +607,8 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
                         var7 = 0.0;
                     }
 
-                    this.walkDist += Mth.sqrt(getHorizontalDistanceSqr(var0)) * 0.6F;
-                    this.moveDist += Mth.sqrt(var6 * var6 + var7 * var7 + var8 * var8) * 0.6F;
+                    this.walkDist += (float)var0.horizontalDistance() * 0.6F;
+                    this.moveDist += (float)Math.sqrt(var6 * var6 + var7 * var7 + var8 * var8) * 0.6F;
                     if (this.moveDist > this.nextStep && !var2.isAir()) {
                         this.nextStep = this.nextStep();
                         if (this.isInWater()) {
@@ -617,11 +616,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
                                 Entity var9 = this.isVehicle() && this.getControllingPassenger() != null ? this.getControllingPassenger() : this;
                                 float var10 = var9 == this ? 0.35F : 0.4F;
                                 Vec3 var11 = var9.getDeltaMovement();
-                                float var12 = Mth.sqrt(var11.x * var11.x * 0.2F + var11.y * var11.y + var11.z * var11.z * 0.2F) * var10;
-                                if (var12 > 1.0F) {
-                                    var12 = 1.0F;
-                                }
-
+                                float var12 = Math.min(1.0F, (float)Math.sqrt(var11.x * var11.x * 0.2F + var11.y * var11.y + var11.z * var11.z * 0.2F) * var10);
                                 this.playSwimSound(var12);
                             }
 
@@ -630,6 +625,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
                             }
                         } else {
                             if (var5.emitsSounds()) {
+                                this.playAmethystStepSound(var2);
                                 this.playStepSound(var1, var2);
                             }
 
@@ -646,17 +642,18 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
                 float var13 = this.getBlockSpeedFactor();
                 this.setDeltaMovement(this.getDeltaMovement().multiply((double)var13, 1.0, (double)var13));
                 if (this.level
-                        .getBlockStatesIfLoaded(this.getBoundingBox().deflate(1.0E-6))
-                        .noneMatch(param0x -> param0x.is(BlockTags.FIRE) || param0x.is(Blocks.LAVA))
-                    && this.remainingFireTicks <= 0) {
-                    this.setRemainingFireTicks(-this.getFireImmuneTicks());
-                }
-
-                if (this.isOnFire() && (this.isInWaterRainOrBubble() || this.isInPowderSnow)) {
-                    if (this.wasOnFire) {
-                        this.playEntityOnFireExtinguishedSound();
+                    .getBlockStatesIfLoaded(this.getBoundingBox().deflate(1.0E-6))
+                    .noneMatch(param0x -> param0x.is(BlockTags.FIRE) || param0x.is(Blocks.LAVA))) {
+                    if (this.remainingFireTicks <= 0) {
+                        this.setRemainingFireTicks(-this.getFireImmuneTicks());
                     }
 
+                    if (this.wasOnFire && (this.isInPowderSnow || this.isInWaterRainOrBubble())) {
+                        this.playEntityOnFireExtinguishedSound();
+                    }
+                }
+
+                if (this.isOnFire() && (this.isInPowderSnow || this.isInWaterRainOrBubble())) {
                     this.setRemainingFireTicks(-this.getFireImmuneTicks());
                 }
 
@@ -690,7 +687,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
 
     }
 
-    protected BlockPos getOnPos() {
+    public BlockPos getOnPos() {
         int var0 = Mth.floor(this.position.x);
         int var1 = Mth.floor(this.position.y - 0.2F);
         int var2 = Mth.floor(this.position.z);
@@ -782,21 +779,17 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
             );
             if (var12.y < (double)this.maxUpStep) {
                 Vec3 var13 = collideBoundingBoxHeuristically(this, new Vec3(param0.x, 0.0, param0.z), var0.move(var12), this.level, var1, var5).add(var12);
-                if (getHorizontalDistanceSqr(var13) > getHorizontalDistanceSqr(var11)) {
+                if (var13.horizontalDistanceSqr() > var11.horizontalDistanceSqr()) {
                     var11 = var13;
                 }
             }
 
-            if (getHorizontalDistanceSqr(var11) > getHorizontalDistanceSqr(var6)) {
+            if (var11.horizontalDistanceSqr() > var6.horizontalDistanceSqr()) {
                 return var11.add(collideBoundingBoxHeuristically(this, new Vec3(0.0, -var11.y + param0.y, 0.0), var0.move(var11), this.level, var1, var5));
             }
         }
 
         return var6;
-    }
-
-    public static double getHorizontalDistanceSqr(Vec3 param0) {
-        return param0.x * param0.x + param0.z * param0.z;
     }
 
     public static Vec3 collideBoundingBoxHeuristically(
@@ -947,21 +940,24 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
 
     protected void playStepSound(BlockPos param0, BlockState param1) {
         if (!param1.getMaterial().isLiquid()) {
-            if (param1.is(BlockTags.CRYSTAL_SOUND_BLOCKS) && this.tickCount >= this.lastCrystalSoundPlayTick + 20) {
-                this.crystalSoundIntensity = (float)(
-                    (double)this.crystalSoundIntensity * Math.pow(0.997F, (double)(this.tickCount - this.lastCrystalSoundPlayTick))
-                );
-                this.crystalSoundIntensity = Math.min(1.0F, this.crystalSoundIntensity + 0.07F);
-                float var0 = 0.5F + this.crystalSoundIntensity * this.random.nextFloat() * 1.2F;
-                float var1 = 0.1F + this.crystalSoundIntensity * 1.2F;
-                this.playSound(SoundEvents.AMETHYST_BLOCK_CHIME, var1, var0);
-                this.lastCrystalSoundPlayTick = this.tickCount;
-            }
-
-            BlockState var2 = this.level.getBlockState(param0.above());
-            SoundType var3 = var2.is(BlockTags.INSIDE_STEP_SOUND_BLOCKS) ? var2.getSoundType() : param1.getSoundType();
-            this.playSound(var3.getStepSound(), var3.getVolume() * 0.15F, var3.getPitch());
+            BlockState var0 = this.level.getBlockState(param0.above());
+            SoundType var1 = var0.is(BlockTags.INSIDE_STEP_SOUND_BLOCKS) ? var0.getSoundType() : param1.getSoundType();
+            this.playSound(var1.getStepSound(), var1.getVolume() * 0.15F, var1.getPitch());
         }
+    }
+
+    private void playAmethystStepSound(BlockState param0) {
+        if (param0.is(BlockTags.CRYSTAL_SOUND_BLOCKS) && this.tickCount >= this.lastCrystalSoundPlayTick + 20) {
+            this.crystalSoundIntensity = (float)(
+                (double)this.crystalSoundIntensity * Math.pow(0.997F, (double)(this.tickCount - this.lastCrystalSoundPlayTick))
+            );
+            this.crystalSoundIntensity = Math.min(1.0F, this.crystalSoundIntensity + 0.07F);
+            float var0 = 0.5F + this.crystalSoundIntensity * this.random.nextFloat() * 1.2F;
+            float var1 = 0.1F + this.crystalSoundIntensity * 1.2F;
+            this.playSound(SoundEvents.AMETHYST_BLOCK_CHIME, var1, var0);
+            this.lastCrystalSoundPlayTick = this.tickCount;
+        }
+
     }
 
     protected void playSwimSound(float param0) {
@@ -1128,12 +1124,8 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         Entity var0 = this.isVehicle() && this.getControllingPassenger() != null ? this.getControllingPassenger() : this;
         float var1 = var0 == this ? 0.2F : 0.9F;
         Vec3 var2 = var0.getDeltaMovement();
-        float var3 = Mth.sqrt(var2.x * var2.x * 0.2F + var2.y * var2.y + var2.z * var2.z * 0.2F) * var1;
-        if (var3 > 1.0F) {
-            var3 = 1.0F;
-        }
-
-        if ((double)var3 < 0.25) {
+        float var3 = Math.min(1.0F, (float)Math.sqrt(var2.x * var2.x * 0.2F + var2.y * var2.y + var2.z * var2.z * 0.2F) * var1);
+        if (var3 < 0.25F) {
             this.playSound(this.getSwimSplashSound(), var3, 1.0F + (this.random.nextFloat() - this.random.nextFloat()) * 0.4F);
         } else {
             this.playSound(this.getSwimHighSpeedSplashSound(), var3, 1.0F + (this.random.nextFloat() - this.random.nextFloat()) * 0.4F);
@@ -1768,6 +1760,9 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
             this.setPose(Pose.STANDING);
             this.vehicle = param0;
             this.vehicle.addPassenger(this);
+            param0.getIndirectPassengersStream()
+                .filter(param0x -> param0x instanceof ServerPlayer)
+                .forEach(param0x -> CriteriaTriggers.START_RIDING_TRIGGER.trigger((ServerPlayer)param0x));
             return true;
         } else {
             return false;

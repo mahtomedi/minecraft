@@ -38,6 +38,7 @@ public class JigsawBlockEditScreen extends Screen {
     private boolean keepJigsaws = true;
     private CycleButton<JigsawBlockEntity.JointType> jointButton;
     private Button doneButton;
+    private Button generateButton;
     private JigsawBlockEntity.JointType joint;
 
     public JigsawBlockEditScreen(JigsawBlockEntity param0) {
@@ -141,10 +142,12 @@ public class JigsawBlockEditScreen extends Screen {
                     this.width / 2 - 50, 180, 100, 20, new TranslatableComponent("jigsaw_block.keep_jigsaws"), (param0, param1) -> this.keepJigsaws = param1
                 )
         );
-        this.addRenderableWidget(new Button(this.width / 2 + 54, 180, 100, 20, new TranslatableComponent("jigsaw_block.generate"), param0 -> {
-            this.onDone();
-            this.sendGenerate();
-        }));
+        this.generateButton = this.addRenderableWidget(
+            new Button(this.width / 2 + 54, 180, 100, 20, new TranslatableComponent("jigsaw_block.generate"), param0 -> {
+                this.onDone();
+                this.sendGenerate();
+            })
+        );
         this.doneButton = this.addRenderableWidget(new Button(this.width / 2 - 4 - 150, 210, 150, 20, CommonComponents.GUI_DONE, param0 -> this.onDone()));
         this.addRenderableWidget(new Button(this.width / 2 + 4, 210, 150, 20, CommonComponents.GUI_CANCEL, param0 -> this.onCancel()));
         this.setInitialFocus(this.poolEdit);
@@ -152,9 +155,11 @@ public class JigsawBlockEditScreen extends Screen {
     }
 
     private void updateValidity() {
-        this.doneButton.active = ResourceLocation.isValidResourceLocation(this.nameEdit.getValue())
+        boolean var0 = ResourceLocation.isValidResourceLocation(this.nameEdit.getValue())
             && ResourceLocation.isValidResourceLocation(this.targetEdit.getValue())
             && ResourceLocation.isValidResourceLocation(this.poolEdit.getValue());
+        this.doneButton.active = var0;
+        this.generateButton.active = var0;
     }
 
     @Override

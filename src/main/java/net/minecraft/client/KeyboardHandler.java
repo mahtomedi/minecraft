@@ -4,10 +4,8 @@ import com.google.common.base.MoreObjects;
 import com.mojang.blaze3d.Blaze3D;
 import com.mojang.blaze3d.platform.ClipboardManager;
 import com.mojang.blaze3d.platform.InputConstants;
-import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.Locale;
-import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.CrashReport;
@@ -27,6 +25,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -90,40 +89,32 @@ public class KeyboardHandler {
         }
     }
 
-    private void debugFeedbackTranslated(String param0, Object... param1) {
+    private void debugComponent(ChatFormatting param0, Component param1) {
         this.minecraft
             .gui
             .getChat()
             .addMessage(
                 new TextComponent("")
-                    .append(new TranslatableComponent("debug.prefix").withStyle(new ChatFormatting[]{ChatFormatting.YELLOW, ChatFormatting.BOLD}))
+                    .append(new TranslatableComponent("debug.prefix").withStyle(new ChatFormatting[]{param0, ChatFormatting.BOLD}))
                     .append(" ")
-                    .append(new TranslatableComponent(param0, param1))
+                    .append(param1)
             );
+    }
+
+    private void debugFeedbackComponent(Component param0) {
+        this.debugComponent(ChatFormatting.YELLOW, param0);
+    }
+
+    private void debugFeedbackTranslated(String param0, Object... param1) {
+        this.debugFeedbackComponent(new TranslatableComponent(param0, param1));
     }
 
     private void debugWarningTranslated(String param0, Object... param1) {
-        this.minecraft
-            .gui
-            .getChat()
-            .addMessage(
-                new TextComponent("")
-                    .append(new TranslatableComponent("debug.prefix").withStyle(new ChatFormatting[]{ChatFormatting.RED, ChatFormatting.BOLD}))
-                    .append(" ")
-                    .append(new TranslatableComponent(param0, param1))
-            );
+        this.debugComponent(ChatFormatting.RED, new TranslatableComponent(param0, param1));
     }
 
     private void debugFeedback(String param0, Object... param1) {
-        this.minecraft
-            .gui
-            .getChat()
-            .addMessage(
-                new TextComponent("")
-                    .append(new TranslatableComponent("debug.prefix").withStyle(new ChatFormatting[]{ChatFormatting.YELLOW, ChatFormatting.BOLD}))
-                    .append(" ")
-                    .append(MessageFormat.format(param0, param1))
-            );
+        this.debugFeedbackComponent(new TextComponent(MessageFormat.format(param0, param1)));
     }
 
     private boolean handleDebugKeys(int param0) {
@@ -144,8 +135,8 @@ public class KeyboardHandler {
                     if (this.minecraft.player.isReducedDebugInfo()) {
                         return false;
                     } else {
-                        ClientPacketListener var5 = this.minecraft.player.connection;
-                        if (var5 == null) {
+                        ClientPacketListener var3 = this.minecraft.player.connection;
+                        if (var3 == null) {
                             return false;
                         }
 
@@ -198,9 +189,10 @@ public class KeyboardHandler {
 
                     return true;
                 case 76:
-                    Runnable var3 = () -> this.debugFeedbackTranslated("debug.profiling.start", 10);
-                    Consumer<Path> var4 = param0x -> this.debugFeedbackTranslated("debug.profiling.stop", param0x.toAbsolutePath());
-                    this.minecraft.debugClientMetricsKeyPressed(var3, var4);
+                    if (this.minecraft.debugClientMetricsStart(this::debugFeedbackComponent)) {
+                        this.debugFeedbackTranslated("debug.profiling.start", 10);
+                    }
+
                     return true;
                 case 78:
                     if (!this.minecraft.player.hasPermissions(2)) {

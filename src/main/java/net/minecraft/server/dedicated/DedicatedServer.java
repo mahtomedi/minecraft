@@ -9,9 +9,12 @@ import com.mojang.datafixers.DataFixer;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Writer;
 import java.net.InetAddress;
 import java.net.Proxy;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -19,10 +22,10 @@ import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
-import net.minecraft.CrashReportCategory;
 import net.minecraft.DefaultUncaughtExceptionHandler;
 import net.minecraft.DefaultUncaughtExceptionHandlerWithName;
 import net.minecraft.SharedConstants;
+import net.minecraft.SystemReport;
 import net.minecraft.Util;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
@@ -280,10 +283,30 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface 
     }
 
     @Override
-    public void fillReport(CrashReportCategory param0) {
-        super.fillReport(param0);
+    public SystemReport fillServerSystemReport(SystemReport param0) {
         param0.setDetail("Is Modded", () -> this.getModdedStatus().orElse("Unknown (can't tell)"));
         param0.setDetail("Type", () -> "Dedicated Server (map_server.txt)");
+        return param0;
+    }
+
+    @Override
+    public void dumpServerProperties(Path param0) throws IOException {
+        DedicatedServerProperties var0 = this.getProperties();
+
+        try (Writer var1 = Files.newBufferedWriter(param0)) {
+            var1.write(String.format("sync-chunk-writes=%s%n", var0.syncChunkWrites));
+            var1.write(String.format("gamemode=%s%n", var0.gamemode));
+            var1.write(String.format("spawn-monsters=%s%n", var0.spawnMonsters));
+            var1.write(String.format("entity-broadcast-range-percentage=%d%n", var0.entityBroadcastRangePercentage));
+            var1.write(String.format("max-world-size=%d%n", var0.maxWorldSize));
+            var1.write(String.format("spawn-npcs=%s%n", var0.spawnNpcs));
+            var1.write(String.format("view-distance=%d%n", var0.viewDistance));
+            var1.write(String.format("spawn-animals=%s%n", var0.spawnAnimals));
+            var1.write(String.format("generate-structures=%s%n", var0.worldGenSettings.generateFeatures()));
+            var1.write(String.format("use-native=%s%n", var0.useNativeTransport));
+            var1.write(String.format("rate-limit=%d%n", var0.rateLimitPacketsPerSecond));
+        }
+
     }
 
     @Override

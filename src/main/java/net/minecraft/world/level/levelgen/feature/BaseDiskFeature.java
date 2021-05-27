@@ -42,6 +42,7 @@ public class BaseDiskFeature extends Feature<DiskConfiguration> {
                             for(BlockState var19 : var0.targets) {
                                 if (var19.is(var17)) {
                                     var2.setBlock(var15, var0.state, 2);
+                                    this.markAboveForPostProcessing(var2, var15);
                                     var3 = true;
                                     var18 = true;
                                     break;

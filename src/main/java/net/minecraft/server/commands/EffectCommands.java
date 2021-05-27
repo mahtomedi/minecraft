@@ -130,7 +130,7 @@ public class EffectCommands {
         for(Entity var5 : param1) {
             if (var5 instanceof LivingEntity) {
                 MobEffectInstance var6 = new MobEffectInstance(param2, var1, param4, false, param5);
-                if (((LivingEntity)var5).addEffect(var6)) {
+                if (((LivingEntity)var5).addEffect(var6, param0.getEntity())) {
                     ++var0;
                 }
             }

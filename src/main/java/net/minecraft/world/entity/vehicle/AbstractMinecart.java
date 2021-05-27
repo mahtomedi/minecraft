@@ -340,7 +340,7 @@ public abstract class AbstractMinecart extends Entity {
             }
 
             this.setRot(this.getYRot(), this.getXRot());
-            if (this.getMinecartType() == AbstractMinecart.Type.RIDEABLE && getHorizontalDistanceSqr(this.getDeltaMovement()) > 0.01) {
+            if (this.getMinecartType() == AbstractMinecart.Type.RIDEABLE && this.getDeltaMovement().horizontalDistanceSqr() > 0.01) {
                 List<Entity> var13 = this.level.getEntities(this, this.getBoundingBox().inflate(0.2F, 0.0, 0.2F), EntitySelector.pushableBy(this));
                 if (!var13.isEmpty()) {
                     for(int var14 = 0; var14 < var13.size(); ++var14) {
@@ -448,14 +448,14 @@ public abstract class AbstractMinecart extends Entity {
             var13 = -var13;
         }
 
-        double var16 = Math.min(2.0, Math.sqrt(getHorizontalDistanceSqr(var7)));
+        double var16 = Math.min(2.0, var7.horizontalDistance());
         var7 = new Vec3(var16 * var12 / var14, var7.y, var16 * var13 / var14);
         this.setDeltaMovement(var7);
         Entity var17 = this.getFirstPassenger();
         if (var17 instanceof Player) {
             Vec3 var18 = var17.getDeltaMovement();
-            double var19 = getHorizontalDistanceSqr(var18);
-            double var20 = getHorizontalDistanceSqr(this.getDeltaMovement());
+            double var19 = var18.horizontalDistanceSqr();
+            double var20 = this.getDeltaMovement().horizontalDistanceSqr();
             if (var19 > 1.0E-4 && var20 < 0.01) {
                 this.setDeltaMovement(this.getDeltaMovement().add(var18.x * 0.1, 0.0, var18.z * 0.1));
                 var5 = false;
@@ -463,7 +463,7 @@ public abstract class AbstractMinecart extends Entity {
         }
 
         if (var5) {
-            double var21 = Math.sqrt(getHorizontalDistanceSqr(this.getDeltaMovement()));
+            double var21 = this.getDeltaMovement().horizontalDistance();
             if (var21 < 0.03) {
                 this.setDeltaMovement(Vec3.ZERO);
             } else {
@@ -506,7 +506,7 @@ public abstract class AbstractMinecart extends Entity {
         if (var33 != null && var3 != null) {
             double var34 = (var3.y - var33.y) * 0.05;
             Vec3 var35 = this.getDeltaMovement();
-            double var36 = Math.sqrt(getHorizontalDistanceSqr(var35));
+            double var36 = var35.horizontalDistance();
             if (var36 > 0.0) {
                 this.setDeltaMovement(var35.multiply((var36 + var34) / var36, 1.0, (var36 + var34) / var36));
             }
@@ -518,13 +518,13 @@ public abstract class AbstractMinecart extends Entity {
         int var38 = Mth.floor(this.getZ());
         if (var37 != param0.getX() || var38 != param0.getZ()) {
             Vec3 var39 = this.getDeltaMovement();
-            double var40 = Math.sqrt(getHorizontalDistanceSqr(var39));
+            double var40 = var39.horizontalDistance();
             this.setDeltaMovement(var40 * (double)(var37 - param0.getX()), var39.y, var40 * (double)(var38 - param0.getZ()));
         }
 
         if (var4) {
             Vec3 var41 = this.getDeltaMovement();
-            double var42 = Math.sqrt(getHorizontalDistanceSqr(var41));
+            double var42 = var41.horizontalDistance();
             if (var42 > 0.01) {
                 double var43 = 0.06;
                 this.setDeltaMovement(var41.add(var41.x / var42 * 0.06, 0.0, var41.z / var42 * 0.06));

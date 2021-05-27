@@ -52,10 +52,6 @@ public class TreeFeature extends Feature<TreeConfiguration> {
         return param0.isStateAtPosition(param1, param0x -> param0x.isAir() || param0x.is(BlockTags.LEAVES));
     }
 
-    private static boolean isGrassOrDirtOrFarmland(LevelSimulatedReader param0, BlockPos param1) {
-        return param0.isStateAtPosition(param1, param0x -> isDirt(param0x) || param0x.is(Blocks.FARMLAND));
-    }
-
     private static boolean isReplaceablePlant(LevelSimulatedReader param0, BlockPos param1) {
         return param0.isStateAtPosition(param1, param0x -> {
             Material var0x = param0x.getMaterial();
@@ -85,7 +81,7 @@ public class TreeFeature extends Feature<TreeConfiguration> {
         int var3 = param5.foliagePlacer.foliageRadius(param1, var2);
         if (param2.getY() < param0.getMinBuildHeight() + 1 || param2.getY() + var0 + 1 > param0.getMaxBuildHeight()) {
             return false;
-        } else if (!isGrassOrDirtOrFarmland(param0, param2.below())) {
+        } else if (!param5.saplingProvider.getState(param1, param2).canSurvive(param0, param2)) {
             return false;
         } else {
             OptionalInt var4 = param5.minimumSize.minClippedHeight();

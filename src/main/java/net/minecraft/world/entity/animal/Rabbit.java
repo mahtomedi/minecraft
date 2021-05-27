@@ -124,7 +124,7 @@ public class Rabbit extends Animal {
         super.jumpFromGround();
         double var0 = this.moveControl.getSpeedModifier();
         if (var0 > 0.0) {
-            double var1 = getHorizontalDistanceSqr(this.getDeltaMovement());
+            double var1 = this.getDeltaMovement().horizontalDistanceSqr();
             if (var1 < 0.01) {
                 this.moveRelative(0.1F, new Vec3(0.0, 0.0, 1.0));
             }

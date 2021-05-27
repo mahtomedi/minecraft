@@ -5,9 +5,9 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.level.levelgen.RandomSource;
 
 public class BlendedNoise {
-    private PerlinNoise minLimitNoise;
-    private PerlinNoise maxLimitNoise;
-    private PerlinNoise mainNoise;
+    private final PerlinNoise minLimitNoise;
+    private final PerlinNoise maxLimitNoise;
+    private final PerlinNoise mainNoise;
 
     public BlendedNoise(PerlinNoise param0, PerlinNoise param1, PerlinNoise param2) {
         this.minLimitNoise = param0;
@@ -30,38 +30,49 @@ public class BlendedNoise {
         boolean var3 = true;
         double var4 = 1.0;
 
-        for(int var5 = 0; var5 < 16; ++var5) {
-            double var6 = PerlinNoise.wrap((double)param0 * param3 * var4);
-            double var7 = PerlinNoise.wrap((double)param1 * param4 * var4);
-            double var8 = PerlinNoise.wrap((double)param2 * param3 * var4);
-            double var9 = param4 * var4;
-            ImprovedNoise var10 = this.minLimitNoise.getOctaveNoise(var5);
-            if (var10 != null) {
-                var0 += var10.noise(var6, var7, var8, var9, (double)param1 * var9) / var4;
+        for(int var5 = 0; var5 < 8; ++var5) {
+            ImprovedNoise var6 = this.mainNoise.getOctaveNoise(var5);
+            if (var6 != null) {
+                var2 += var6.noise(
+                        PerlinNoise.wrap((double)param0 * param5 * var4),
+                        PerlinNoise.wrap((double)param1 * param6 * var4),
+                        PerlinNoise.wrap((double)param2 * param5 * var4),
+                        param6 * var4,
+                        (double)param1 * param6 * var4
+                    )
+                    / var4;
             }
 
-            ImprovedNoise var11 = this.maxLimitNoise.getOctaveNoise(var5);
-            if (var11 != null) {
-                var1 += var11.noise(var6, var7, var8, var9, (double)param1 * var9) / var4;
+            var4 /= 2.0;
+        }
+
+        double var7 = (var2 / 10.0 + 1.0) / 2.0;
+        boolean var8 = var7 >= 1.0;
+        boolean var9 = var7 <= 0.0;
+        var4 = 1.0;
+
+        for(int var10 = 0; var10 < 16; ++var10) {
+            double var11 = PerlinNoise.wrap((double)param0 * param3 * var4);
+            double var12 = PerlinNoise.wrap((double)param1 * param4 * var4);
+            double var13 = PerlinNoise.wrap((double)param2 * param3 * var4);
+            double var14 = param4 * var4;
+            if (!var8) {
+                ImprovedNoise var15 = this.minLimitNoise.getOctaveNoise(var10);
+                if (var15 != null) {
+                    var0 += var15.noise(var11, var12, var13, var14, (double)param1 * var14) / var4;
+                }
             }
 
-            if (var5 < 8) {
-                ImprovedNoise var12 = this.mainNoise.getOctaveNoise(var5);
-                if (var12 != null) {
-                    var2 += var12.noise(
-                            PerlinNoise.wrap((double)param0 * param5 * var4),
-                            PerlinNoise.wrap((double)param1 * param6 * var4),
-                            PerlinNoise.wrap((double)param2 * param5 * var4),
-                            param6 * var4,
-                            (double)param1 * param6 * var4
-                        )
-                        / var4;
+            if (!var9) {
+                ImprovedNoise var16 = this.maxLimitNoise.getOctaveNoise(var10);
+                if (var16 != null) {
+                    var1 += var16.noise(var11, var12, var13, var14, (double)param1 * var14) / var4;
                 }
             }
 
             var4 /= 2.0;
         }
 
-        return Mth.clampedLerp(var0 / 512.0, var1 / 512.0, (var2 / 10.0 + 1.0) / 2.0);
+        return Mth.clampedLerp(var0 / 512.0, var1 / 512.0, var7);
     }
 }

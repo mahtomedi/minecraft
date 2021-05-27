@@ -235,7 +235,7 @@ public class Bee extends Animal implements NeutralMob, FlyingAnimal {
                 }
 
                 if (var1 > 0) {
-                    ((LivingEntity)param0).addEffect(new MobEffectInstance(MobEffects.POISON, var1 * 20, 0));
+                    ((LivingEntity)param0).addEffect(new MobEffectInstance(MobEffects.POISON, var1 * 20, 0), this);
                 }
             }
 
@@ -1077,14 +1077,14 @@ public class Bee extends Animal implements NeutralMob, FlyingAnimal {
         private static final int MIN_FIND_FLOWER_RETRY_COOLDOWN = 20;
         private static final int MAX_FIND_FLOWER_RETRY_COOLDOWN = 60;
         private final Predicate<BlockState> VALID_POLLINATION_BLOCKS = param0 -> {
-            if (param0.is(BlockTags.TALL_FLOWERS)) {
+            if (param0.is(BlockTags.FLOWERS)) {
                 if (param0.is(Blocks.SUNFLOWER)) {
                     return param0.getValue(DoublePlantBlock.HALF) == DoubleBlockHalf.UPPER;
                 } else {
                     return true;
                 }
             } else {
-                return param0.is(BlockTags.SMALL_FLOWERS);
+                return false;
             }
         };
         private static final double ARRIVAL_THRESHOLD = 0.1;

@@ -1,5 +1,6 @@
 package net.minecraft.client.gui.screens;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.mojang.blaze3d.platform.InputConstants;
@@ -554,7 +555,7 @@ public abstract class Screen extends AbstractContainerEventHandler implements Wi
     }
 
     private void runNarration(boolean param0) {
-        this.narrationState.update(this::updateState);
+        this.narrationState.update(this::updateNarrationState);
         String var0 = this.narrationState.collectNarrationText(!param0);
         if (!var0.isEmpty()) {
             NarratorChatListener.INSTANCE.sayNow(var0);
@@ -562,29 +563,28 @@ public abstract class Screen extends AbstractContainerEventHandler implements Wi
 
     }
 
-    private void updateState(NarrationElementOutput param0x) {
+    protected void updateNarrationState(NarrationElementOutput param0x) {
         param0x.add(NarratedElementType.TITLE, this.getNarrationMessage());
         param0x.add(NarratedElementType.USAGE, USAGE_NARRATION);
         this.updateNarratedWidget(param0x);
     }
 
     protected void updateNarratedWidget(NarrationElementOutput param0) {
-        Screen.NarratableSearchResult var0 = findNarratableWidget(this.narratables, this.lastNarratable);
-        if (var0 != null) {
-            if (var0.priority.isTerminal()) {
-                this.lastNarratable = var0.entry;
+        ImmutableList<NarratableEntry> var0 = this.narratables.stream().filter(NarratableEntry::isActive).collect(ImmutableList.toImmutableList());
+        Screen.NarratableSearchResult var1 = findNarratableWidget(var0, this.lastNarratable);
+        if (var1 != null) {
+            if (var1.priority.isTerminal()) {
+                this.lastNarratable = var1.entry;
             }
 
-            if (this.narratables.size() > 1) {
-                param0.add(
-                    NarratedElementType.POSITION, (Component)(new TranslatableComponent("narrator.position.screen", var0.index + 1, this.narratables.size()))
-                );
-                if (var0.priority == NarratableEntry.NarrationPriority.FOCUSED) {
+            if (var0.size() > 1) {
+                param0.add(NarratedElementType.POSITION, (Component)(new TranslatableComponent("narrator.position.screen", var1.index + 1, var0.size())));
+                if (var1.priority == NarratableEntry.NarrationPriority.FOCUSED) {
                     param0.add(NarratedElementType.USAGE, (Component)(new TranslatableComponent("narration.component_list.usage")));
                 }
             }
 
-            var0.entry.updateNarration(param0.nest());
+            var1.entry.updateNarration(param0.nest());
         }
 
     }

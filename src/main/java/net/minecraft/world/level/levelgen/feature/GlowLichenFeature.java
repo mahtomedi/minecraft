@@ -71,8 +71,9 @@ public class GlowLichenFeature extends Feature<GlowLichenConfiguration> {
                 }
 
                 param0.setBlock(param1, var4, 3);
+                param0.getChunk(param1).markPosForPostprocessing(param1);
                 if (param4.nextFloat() < param3.chanceOfSpreading) {
-                    var3.spreadFromFaceTowardRandomDirection(var4, param0, param1, var1, param4);
+                    var3.spreadFromFaceTowardRandomDirection(var4, param0, param1, var1, param4, true);
                 }
 
                 return true;

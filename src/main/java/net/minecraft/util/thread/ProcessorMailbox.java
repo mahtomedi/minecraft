@@ -8,11 +8,10 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import net.minecraft.Util;
-import net.minecraft.util.profiling.registry.MeasuredMetric;
-import net.minecraft.util.profiling.registry.MeasurementCategory;
-import net.minecraft.util.profiling.registry.MeasurementRegistry;
-import net.minecraft.util.profiling.registry.Metric;
-import net.minecraft.util.profiling.registry.ProfilerMeasured;
+import net.minecraft.util.profiling.metrics.MetricCategory;
+import net.minecraft.util.profiling.metrics.MetricSampler;
+import net.minecraft.util.profiling.metrics.MetricsRegistry;
+import net.minecraft.util.profiling.metrics.ProfilerMeasured;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -33,7 +32,7 @@ public class ProcessorMailbox<T> implements ProfilerMeasured, ProcessorHandle<T>
         this.dispatcher = param1;
         this.queue = param0;
         this.name = param2;
-        MeasurementRegistry.INSTANCE.add(this);
+        MetricsRegistry.INSTANCE.add(this);
     }
 
     private boolean setAsScheduled() {
@@ -148,7 +147,7 @@ public class ProcessorMailbox<T> implements ProfilerMeasured, ProcessorHandle<T>
     }
 
     @Override
-    public List<MeasuredMetric> metrics() {
-        return ImmutableList.of(new MeasuredMetric(new Metric(this.name + "-queuesize"), this.queue::size, MeasurementCategory.MAIL_BOX));
+    public List<MetricSampler> profiledMetrics() {
+        return ImmutableList.of(MetricSampler.create(this.name + "-queue-size", MetricCategory.MAIL_BOXES, this::size));
     }
 }

@@ -11,13 +11,16 @@ import java.util.Map;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class Program {
+    private static final Logger LOGGER = LogManager.getLogger();
     private static final int MAX_LOG_LENGTH = 32768;
     private final Program.Type type;
     private final String name;
-    private final int id;
+    private int id;
 
     protected Program(Program.Type param0, int param1, String param2) {
         this.type = param0;
@@ -31,9 +34,14 @@ public class Program {
     }
 
     public void close() {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
-        GlStateManager.glDeleteShader(this.id);
-        this.type.getPrograms().remove(this.name);
+        if (this.id == -1) {
+            LOGGER.warn("Double closing {} program: {}", this.type, this.name);
+        } else {
+            RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+            GlStateManager.glDeleteShader(this.id);
+            this.id = -1;
+            this.type.getPrograms().remove(this.name);
+        }
     }
 
     public String getName() {

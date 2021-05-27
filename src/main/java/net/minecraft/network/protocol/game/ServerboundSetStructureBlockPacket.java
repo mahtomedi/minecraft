@@ -72,7 +72,7 @@ public class ServerboundSetStructureBlockPacket implements Packet<ServerGamePack
         this.size = new Vec3i(Mth.clamp(param0.readByte(), 0, 48), Mth.clamp(param0.readByte(), 0, 48), Mth.clamp(param0.readByte(), 0, 48));
         this.mirror = param0.readEnum(Mirror.class);
         this.rotation = param0.readEnum(Rotation.class);
-        this.data = param0.readUtf(12);
+        this.data = param0.readUtf(128);
         this.integrity = Mth.clamp(param0.readFloat(), 0.0F, 1.0F);
         this.seed = param0.readVarLong();
         int var2 = param0.readByte();

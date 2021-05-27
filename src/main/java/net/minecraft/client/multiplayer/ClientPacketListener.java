@@ -1348,7 +1348,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
                     param0.effectShowsIcon()
                 );
                 var2.setNoCounter(param0.isSuperLongDuration());
-                ((LivingEntity)var0).forceAddEffect(var2);
+                ((LivingEntity)var0).forceAddEffect(var2, null);
             }
         }
     }

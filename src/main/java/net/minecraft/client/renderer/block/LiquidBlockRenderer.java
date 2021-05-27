@@ -187,83 +187,84 @@ public class LiquidBlockRenderer {
                 var13 = true;
             }
 
-            for(int var67 = 0; var67 < 4; ++var67) {
-                float var68;
+            int var67 = this.getLightColor(param0, param1);
+
+            for(int var68 = 0; var68 < 4; ++var68) {
                 float var69;
-                double var70;
-                double var72;
+                float var70;
                 double var71;
                 double var73;
-                Direction var74;
-                boolean var75;
-                if (var67 == 0) {
-                    var68 = var18;
-                    var69 = var21;
-                    var70 = var22;
-                    var71 = var22 + 1.0;
-                    var72 = var24 + 0.001F;
-                    var73 = var24 + 0.001F;
-                    var74 = Direction.NORTH;
-                    var75 = var9;
-                } else if (var67 == 1) {
-                    var68 = var20;
-                    var69 = var19;
-                    var70 = var22 + 1.0;
-                    var71 = var22;
-                    var72 = var24 + 1.0 - 0.001F;
-                    var73 = var24 + 1.0 - 0.001F;
-                    var74 = Direction.SOUTH;
-                    var75 = var10;
-                } else if (var67 == 2) {
-                    var68 = var19;
+                double var72;
+                double var74;
+                Direction var75;
+                boolean var76;
+                if (var68 == 0) {
                     var69 = var18;
-                    var70 = var22 + 0.001F;
-                    var71 = var22 + 0.001F;
-                    var72 = var24 + 1.0;
-                    var73 = var24;
-                    var74 = Direction.WEST;
-                    var75 = var11;
-                } else {
-                    var68 = var21;
+                    var70 = var21;
+                    var71 = var22;
+                    var72 = var22 + 1.0;
+                    var73 = var24 + 0.001F;
+                    var74 = var24 + 0.001F;
+                    var75 = Direction.NORTH;
+                    var76 = var9;
+                } else if (var68 == 1) {
                     var69 = var20;
-                    var70 = var22 + 1.0 - 0.001F;
-                    var71 = var22 + 1.0 - 0.001F;
-                    var72 = var24;
+                    var70 = var19;
+                    var71 = var22 + 1.0;
+                    var72 = var22;
+                    var73 = var24 + 1.0 - 0.001F;
+                    var74 = var24 + 1.0 - 0.001F;
+                    var75 = Direction.SOUTH;
+                    var76 = var10;
+                } else if (var68 == 2) {
+                    var69 = var19;
+                    var70 = var18;
+                    var71 = var22 + 0.001F;
+                    var72 = var22 + 0.001F;
                     var73 = var24 + 1.0;
-                    var74 = Direction.EAST;
-                    var75 = var12;
+                    var74 = var24;
+                    var75 = Direction.WEST;
+                    var76 = var11;
+                } else {
+                    var69 = var21;
+                    var70 = var20;
+                    var71 = var22 + 1.0 - 0.001F;
+                    var72 = var22 + 1.0 - 0.001F;
+                    var73 = var24;
+                    var74 = var24 + 1.0;
+                    var75 = Direction.EAST;
+                    var76 = var12;
                 }
 
-                if (var75 && !isFaceOccludedByNeighbor(param0, param1, var74, Math.max(var68, var69))) {
+                if (var76 && !isFaceOccludedByNeighbor(param0, param1, var75, Math.max(var69, var70))) {
                     var13 = true;
-                    BlockPos var100 = param1.relative(var74);
-                    TextureAtlasSprite var101 = var1[1];
+                    BlockPos var101 = param1.relative(var75);
+                    TextureAtlasSprite var102 = var1[1];
                     if (!var0) {
-                        Block var102 = param0.getBlockState(var100).getBlock();
-                        if (var102 instanceof HalfTransparentBlock || var102 instanceof LeavesBlock) {
-                            var101 = this.waterOverlay;
+                        Block var103 = param0.getBlockState(var101).getBlock();
+                        if (var103 instanceof HalfTransparentBlock || var103 instanceof LeavesBlock) {
+                            var102 = this.waterOverlay;
                         }
                     }
 
-                    float var103 = var101.getU(0.0);
-                    float var104 = var101.getU(8.0);
-                    float var105 = var101.getV((double)((1.0F - var68) * 16.0F * 0.5F));
-                    float var106 = var101.getV((double)((1.0F - var69) * 16.0F * 0.5F));
-                    float var107 = var101.getV(8.0);
-                    int var108 = this.getLightColor(param0, var100);
-                    float var109 = var67 < 2 ? var16 : var17;
+                    float var104 = var102.getU(0.0);
+                    float var105 = var102.getU(8.0);
+                    float var106 = var102.getV((double)((1.0F - var69) * 16.0F * 0.5F));
+                    float var107 = var102.getV((double)((1.0F - var70) * 16.0F * 0.5F));
+                    float var108 = var102.getV(8.0);
+                    float var109 = var68 < 2 ? var16 : var17;
                     float var110 = var15 * var109 * var4;
                     float var111 = var15 * var109 * var5;
                     float var112 = var15 * var109 * var6;
-                    this.vertex(param2, var70, var23 + (double)var68, var72, var110, var111, var112, var103, var105, var108);
-                    this.vertex(param2, var71, var23 + (double)var69, var73, var110, var111, var112, var104, var106, var108);
-                    this.vertex(param2, var71, var23 + (double)var26, var73, var110, var111, var112, var104, var107, var108);
-                    this.vertex(param2, var70, var23 + (double)var26, var72, var110, var111, var112, var103, var107, var108);
-                    if (var101 != this.waterOverlay) {
-                        this.vertex(param2, var70, var23 + (double)var26, var72, var110, var111, var112, var103, var107, var108);
-                        this.vertex(param2, var71, var23 + (double)var26, var73, var110, var111, var112, var104, var107, var108);
-                        this.vertex(param2, var71, var23 + (double)var69, var73, var110, var111, var112, var104, var106, var108);
-                        this.vertex(param2, var70, var23 + (double)var68, var72, var110, var111, var112, var103, var105, var108);
+                    this.vertex(param2, var71, var23 + (double)var69, var73, var110, var111, var112, var104, var106, var67);
+                    this.vertex(param2, var72, var23 + (double)var70, var74, var110, var111, var112, var105, var107, var67);
+                    this.vertex(param2, var72, var23 + (double)var26, var74, var110, var111, var112, var105, var108, var67);
+                    this.vertex(param2, var71, var23 + (double)var26, var73, var110, var111, var112, var104, var108, var67);
+                    if (var102 != this.waterOverlay) {
+                        this.vertex(param2, var71, var23 + (double)var26, var73, var110, var111, var112, var104, var108, var67);
+                        this.vertex(param2, var72, var23 + (double)var26, var74, var110, var111, var112, var105, var108, var67);
+                        this.vertex(param2, var72, var23 + (double)var70, var74, var110, var111, var112, var105, var107, var67);
+                        this.vertex(param2, var71, var23 + (double)var69, var73, var110, var111, var112, var104, var106, var67);
                     }
                 }
             }

@@ -466,4 +466,8 @@ public class GsonHelper {
     public static JsonObject parse(Reader param0) {
         return parse(param0, false);
     }
+
+    public static JsonArray parseArray(Reader param0) {
+        return fromJson(GSON, param0, JsonArray.class, false);
+    }
 }

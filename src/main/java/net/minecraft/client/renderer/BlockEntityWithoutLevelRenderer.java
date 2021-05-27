@@ -95,10 +95,9 @@ public class BlockEntityWithoutLevelRenderer implements ResourceManagerReloadLis
                     if (var3.contains("SkullOwner", 10)) {
                         var2 = NbtUtils.readGameProfile(var3.getCompound("SkullOwner"));
                     } else if (var3.contains("SkullOwner", 8) && !StringUtils.isBlank(var3.getString("SkullOwner"))) {
-                        GameProfile var17 = new GameProfile(null, var3.getString("SkullOwner"));
-                        var2 = SkullBlockEntity.updateGameprofile(var17);
+                        var2 = new GameProfile(null, var3.getString("SkullOwner"));
                         var3.remove("SkullOwner");
-                        var3.put("SkullOwner", NbtUtils.writeGameProfile(new CompoundTag(), var2));
+                        SkullBlockEntity.updateGameprofile(var2, param1x -> var3.put("SkullOwner", NbtUtils.writeGameProfile(new CompoundTag(), param1x)));
                     }
                 }
 

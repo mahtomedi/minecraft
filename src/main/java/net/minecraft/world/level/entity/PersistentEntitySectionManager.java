@@ -296,6 +296,18 @@ public class PersistentEntitySectionManager<T extends EntityAccess> implements A
         return this.entityGetter;
     }
 
+    public boolean isPositionTicking(BlockPos param0) {
+        return this.chunkVisibility.get(ChunkPos.asLong(param0)).isTicking();
+    }
+
+    public boolean isPositionTicking(ChunkPos param0) {
+        return this.chunkVisibility.get(param0.toLong()).isTicking();
+    }
+
+    public boolean areEntitiesLoaded(long param0) {
+        return this.chunkLoadStatuses.get(param0) == PersistentEntitySectionManager.ChunkLoadStatus.LOADED;
+    }
+
     public void dumpSections(Writer param0) throws IOException {
         CsvOutput var0 = CsvOutput.builder()
             .addColumn("x")

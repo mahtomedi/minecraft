@@ -54,7 +54,7 @@ public class Husk extends Zombie {
         boolean var0 = super.doHurtTarget(param0);
         if (var0 && this.getMainHandItem().isEmpty() && param0 instanceof LivingEntity) {
             float var1 = this.level.getCurrentDifficultyAt(this.blockPosition()).getEffectiveDifficulty();
-            ((LivingEntity)param0).addEffect(new MobEffectInstance(MobEffects.HUNGER, 140 * (int)var1));
+            ((LivingEntity)param0).addEffect(new MobEffectInstance(MobEffects.HUNGER, 140 * (int)var1), this);
         }
 
         return var0;

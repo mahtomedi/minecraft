@@ -307,9 +307,9 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
 
                                 int var23 = this.ticks + var12 * var12 * 3121 + var12 * 45238971 + var11 * var11 * 418711 + var11 * 13761 & 31;
                                 float var24 = -((float)var23 + param1) / 32.0F * (3.0F + var21.nextFloat());
-                                double var25 = (double)((float)var12 + 0.5F) - param2;
-                                double var26 = (double)((float)var11 + 0.5F) - param4;
-                                float var27 = Mth.sqrt(var25 * var25 + var26 * var26) / (float)var7;
+                                double var25 = (double)var12 + 0.5 - param2;
+                                double var26 = (double)var11 + 0.5 - param4;
+                                float var27 = (float)Math.sqrt(var25 * var25 + var26 * var26) / (float)var7;
                                 float var28 = ((1.0F - var27 * var27) * 0.5F + 0.5F) * var0;
                                 var10.set(var12, var20, var11);
                                 int var29 = getLightColor(var1, var10);
@@ -347,9 +347,9 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                                 float var30 = -((float)(this.ticks & 511) + param1) / 512.0F;
                                 float var31 = (float)(var21.nextDouble() + (double)var9 * 0.01 * (double)((float)var21.nextGaussian()));
                                 float var32 = (float)(var21.nextDouble() + (double)(var9 * (float)var21.nextGaussian()) * 0.001);
-                                double var33 = (double)((float)var12 + 0.5F) - param2;
-                                double var34 = (double)((float)var11 + 0.5F) - param4;
-                                float var35 = Mth.sqrt(var33 * var33 + var34 * var34) / (float)var7;
+                                double var33 = (double)var12 + 0.5 - param2;
+                                double var34 = (double)var11 + 0.5 - param4;
+                                float var35 = (float)Math.sqrt(var33 * var33 + var34 * var34) / (float)var7;
                                 float var36 = ((1.0F - var35 * var35) * 0.3F + 0.5F) * var0;
                                 var10.set(var12, var20, var11);
                                 int var37 = getLightColor(var1, var10);

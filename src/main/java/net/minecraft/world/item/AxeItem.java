@@ -3,7 +3,9 @@ package net.minecraft.world.item;
 import com.google.common.collect.ImmutableMap.Builder;
 import java.util.Map;
 import java.util.Optional;
+import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
@@ -50,24 +52,29 @@ public class AxeItem extends DiggerItem {
         Optional<BlockState> var4 = this.getStripped(var3);
         Optional<BlockState> var5 = WeatheringCopper.getPrevious(var3);
         Optional<BlockState> var6 = Optional.ofNullable(HoneycombItem.WAX_OFF_BY_BLOCK.get().get(var3.getBlock())).map(param1 -> param1.withPropertiesOf(var3));
-        Optional<BlockState> var7 = Optional.empty();
+        ItemStack var7 = param0.getItemInHand();
+        Optional<BlockState> var8 = Optional.empty();
         if (var4.isPresent()) {
             var0.playSound(var2, var1, SoundEvents.AXE_STRIP, SoundSource.BLOCKS, 1.0F, 1.0F);
-            var7 = var4;
+            var8 = var4;
         } else if (var5.isPresent()) {
             var0.playSound(var2, var1, SoundEvents.AXE_SCRAPE, SoundSource.BLOCKS, 1.0F, 1.0F);
             var0.levelEvent(var2, 3005, var1, 0);
-            var7 = var5;
+            var8 = var5;
         } else if (var6.isPresent()) {
             var0.playSound(var2, var1, SoundEvents.AXE_WAX_OFF, SoundSource.BLOCKS, 1.0F, 1.0F);
             var0.levelEvent(var2, 3004, var1, 0);
-            var7 = var6;
+            var8 = var6;
         }
 
-        if (var7.isPresent()) {
-            var0.setBlock(var1, var7.get(), 11);
+        if (var8.isPresent()) {
+            if (var2 instanceof ServerPlayer) {
+                CriteriaTriggers.ITEM_USED_ON_BLOCK.trigger((ServerPlayer)var2, var1, var7);
+            }
+
+            var0.setBlock(var1, var8.get(), 11);
             if (var2 != null) {
-                param0.getItemInHand().hurtAndBreak(1, var2, param1 -> param1.broadcastBreakEvent(param0.getHand()));
+                var7.hurtAndBreak(1, var2, param1 -> param1.broadcastBreakEvent(param0.getHand()));
             }
 
             return InteractionResult.sidedSuccess(var0.isClientSide);

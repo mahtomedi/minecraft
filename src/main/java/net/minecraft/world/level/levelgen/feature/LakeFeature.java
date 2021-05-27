@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.biome.Biome;
@@ -99,25 +100,24 @@ public class LakeFeature extends Feature<BlockStateConfiguration> {
                                 var1.setBlock(var28, var29 ? AIR : var3.state, 2);
                                 if (var29) {
                                     var1.getBlockTicks().scheduleTick(var28, AIR.getBlock(), 0);
-                                    BlockPos var30 = var28.above();
-                                    this.tryScheduleBlockTick(var1, var30, var1.getBlockState(var30));
+                                    this.markAboveForPostProcessing(var1, var28);
                                 }
                             }
                         }
                     }
                 }
 
-                for(int var31 = 0; var31 < 16; ++var31) {
-                    for(int var32 = 0; var32 < 16; ++var32) {
-                        for(int var33 = 4; var33 < 8; ++var33) {
-                            if (var4[(var31 * 16 + var32) * 8 + var33]) {
-                                BlockPos var34 = var0.offset(var31, var33 - 1, var32);
-                                if (isDirt(var1.getBlockState(var34)) && var1.getBrightness(LightLayer.SKY, var0.offset(var31, var33, var32)) > 0) {
-                                    Biome var35 = var1.getBiome(var34);
-                                    if (var35.getGenerationSettings().getSurfaceBuilderConfig().getTopMaterial().is(Blocks.MYCELIUM)) {
-                                        var1.setBlock(var34, Blocks.MYCELIUM.defaultBlockState(), 2);
+                for(int var30 = 0; var30 < 16; ++var30) {
+                    for(int var31 = 0; var31 < 16; ++var31) {
+                        for(int var32 = 4; var32 < 8; ++var32) {
+                            if (var4[(var30 * 16 + var31) * 8 + var32]) {
+                                BlockPos var33 = var0.offset(var30, var32 - 1, var31);
+                                if (isDirt(var1.getBlockState(var33)) && var1.getBrightness(LightLayer.SKY, var0.offset(var30, var32, var31)) > 0) {
+                                    Biome var34 = var1.getBiome(var33);
+                                    if (var34.getGenerationSettings().getSurfaceBuilderConfig().getTopMaterial().is(Blocks.MYCELIUM)) {
+                                        var1.setBlock(var33, Blocks.MYCELIUM.defaultBlockState(), 2);
                                     } else {
-                                        var1.setBlock(var34, Blocks.GRASS_BLOCK.defaultBlockState(), 2);
+                                        var1.setBlock(var33, Blocks.GRASS_BLOCK.defaultBlockState(), 2);
                                     }
                                 }
                             }
@@ -126,27 +126,27 @@ public class LakeFeature extends Feature<BlockStateConfiguration> {
                 }
 
                 if (var3.state.getMaterial() == Material.LAVA) {
-                    BaseStoneSource var36 = param0.chunkGenerator().getBaseStoneSource();
+                    BaseStoneSource var35 = param0.chunkGenerator().getBaseStoneSource();
 
-                    for(int var37 = 0; var37 < 16; ++var37) {
-                        for(int var38 = 0; var38 < 16; ++var38) {
-                            for(int var39 = 0; var39 < 8; ++var39) {
-                                boolean var40 = !var4[(var37 * 16 + var38) * 8 + var39]
+                    for(int var36 = 0; var36 < 16; ++var36) {
+                        for(int var37 = 0; var37 < 16; ++var37) {
+                            for(int var38 = 0; var38 < 8; ++var38) {
+                                boolean var39 = !var4[(var36 * 16 + var37) * 8 + var38]
                                     && (
-                                        var37 < 15 && var4[((var37 + 1) * 16 + var38) * 8 + var39]
-                                            || var37 > 0 && var4[((var37 - 1) * 16 + var38) * 8 + var39]
-                                            || var38 < 15 && var4[(var37 * 16 + var38 + 1) * 8 + var39]
-                                            || var38 > 0 && var4[(var37 * 16 + (var38 - 1)) * 8 + var39]
-                                            || var39 < 7 && var4[(var37 * 16 + var38) * 8 + var39 + 1]
-                                            || var39 > 0 && var4[(var37 * 16 + var38) * 8 + (var39 - 1)]
+                                        var36 < 15 && var4[((var36 + 1) * 16 + var37) * 8 + var38]
+                                            || var36 > 0 && var4[((var36 - 1) * 16 + var37) * 8 + var38]
+                                            || var37 < 15 && var4[(var36 * 16 + var37 + 1) * 8 + var38]
+                                            || var37 > 0 && var4[(var36 * 16 + (var37 - 1)) * 8 + var38]
+                                            || var38 < 7 && var4[(var36 * 16 + var37) * 8 + var38 + 1]
+                                            || var38 > 0 && var4[(var36 * 16 + var37) * 8 + (var38 - 1)]
                                     );
-                                if (var40
-                                    && (var39 < 4 || var2.nextInt(2) != 0)
-                                    && var1.getBlockState(var0.offset(var37, var39, var38)).getMaterial().isSolid()) {
-                                    BlockPos var41 = var0.offset(var37, var39, var38);
-                                    var1.setBlock(var41, var36.getBaseBlock(var41), 2);
-                                    BlockPos var42 = var41.above();
-                                    this.tryScheduleBlockTick(var1, var42, var1.getBlockState(var42));
+                                if (var39 && (var38 < 4 || var2.nextInt(2) != 0)) {
+                                    BlockState var40 = var1.getBlockState(var0.offset(var36, var38, var37));
+                                    if (var40.getMaterial().isSolid() && !var40.is(BlockTags.LAVA_POOL_STONE_CANNOT_REPLACE)) {
+                                        BlockPos var41 = var0.offset(var36, var38, var37);
+                                        var1.setBlock(var41, var35.getBaseBlock(var41), 2);
+                                        this.markAboveForPostProcessing(var1, var41);
+                                    }
                                 }
                             }
                         }
@@ -154,12 +154,12 @@ public class LakeFeature extends Feature<BlockStateConfiguration> {
                 }
 
                 if (var3.state.getMaterial() == Material.WATER) {
-                    for(int var43 = 0; var43 < 16; ++var43) {
-                        for(int var44 = 0; var44 < 16; ++var44) {
-                            int var45 = 4;
-                            BlockPos var46 = var0.offset(var43, 4, var44);
-                            if (var1.getBiome(var46).shouldFreeze(var1, var46, false)) {
-                                var1.setBlock(var46, Blocks.ICE.defaultBlockState(), 2);
+                    for(int var42 = 0; var42 < 16; ++var42) {
+                        for(int var43 = 0; var43 < 16; ++var43) {
+                            int var44 = 4;
+                            BlockPos var45 = var0.offset(var42, 4, var43);
+                            if (var1.getBiome(var45).shouldFreeze(var1, var45, false)) {
+                                var1.setBlock(var45, Blocks.ICE.defaultBlockState(), 2);
                             }
                         }
                     }
@@ -168,12 +168,5 @@ public class LakeFeature extends Feature<BlockStateConfiguration> {
                 return true;
             }
         }
-    }
-
-    private void tryScheduleBlockTick(WorldGenLevel param0, BlockPos param1, BlockState param2) {
-        if (!param2.isAir()) {
-            param0.getBlockTicks().scheduleTick(param1, param2.getBlock(), 0);
-        }
-
     }
 }

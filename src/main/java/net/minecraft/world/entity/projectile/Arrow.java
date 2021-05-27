@@ -11,6 +11,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -179,16 +180,17 @@ public class Arrow extends AbstractArrow {
     @Override
     protected void doPostHurtEffects(LivingEntity param0) {
         super.doPostHurtEffects(param0);
+        Entity var0 = this.getEffectSource();
 
-        for(MobEffectInstance var0 : this.potion.getEffects()) {
+        for(MobEffectInstance var1 : this.potion.getEffects()) {
             param0.addEffect(
-                new MobEffectInstance(var0.getEffect(), Math.max(var0.getDuration() / 8, 1), var0.getAmplifier(), var0.isAmbient(), var0.isVisible())
+                new MobEffectInstance(var1.getEffect(), Math.max(var1.getDuration() / 8, 1), var1.getAmplifier(), var1.isAmbient(), var1.isVisible()), var0
             );
         }
 
         if (!this.effects.isEmpty()) {
-            for(MobEffectInstance var1 : this.effects) {
-                param0.addEffect(var1);
+            for(MobEffectInstance var2 : this.effects) {
+                param0.addEffect(var2, var0);
             }
         }
 

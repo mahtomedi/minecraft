@@ -70,19 +70,20 @@ public class AnvilMenu extends ItemCombinerMenu {
         }
 
         this.cost.set(0);
-        this.access.execute((param1x, param2) -> {
-            BlockState var0x = param1x.getBlockState(param2);
+        this.access.execute((param2, param3) -> {
+            BlockState var0x = param2.getBlockState(param3);
             if (!param0.getAbilities().instabuild && var0x.is(BlockTags.ANVIL) && param0.getRandom().nextFloat() < 0.12F) {
                 BlockState var1x = AnvilBlock.damage(var0x);
                 if (var1x == null) {
-                    param1x.removeBlock(param2, false);
-                    param1x.levelEvent(1029, param2, 0);
+                    param2.removeBlock(param3, false);
+                    param2.levelEvent(1029, param3, 0);
+                    param0.getInventory().placeItemBackInInventory(param1);
                 } else {
-                    param1x.setBlock(param2, var1x, 2);
-                    param1x.levelEvent(1030, param2, 0);
+                    param2.setBlock(param3, var1x, 2);
+                    param2.levelEvent(1030, param3, 0);
                 }
             } else {
-                param1x.levelEvent(1030, param2, 0);
+                param2.levelEvent(1030, param3, 0);
             }
 
         });

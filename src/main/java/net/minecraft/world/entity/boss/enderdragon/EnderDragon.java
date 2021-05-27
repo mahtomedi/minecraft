@@ -57,6 +57,8 @@ public class EnderDragon extends Mob implements Enemy {
     private static final int GROWL_INTERVAL_MIN = 200;
     private static final int GROWL_INTERVAL_MAX = 400;
     private static final float SITTING_ALLOWED_DAMAGE_PERCENTAGE = 0.25F;
+    private static final String DRAGON_DEATH_TIME_KEY = "DragonDeathTime";
+    private static final String DRAGON_PHASE_KEY = "DragonPhase";
     public final double[][] positions = new double[64][3];
     public int posPointer = -1;
     private final EnderDragonPart[] subEntities;
@@ -192,7 +194,7 @@ public class EnderDragon extends Mob implements Enemy {
         } else {
             this.checkCrystals();
             Vec3 var3 = this.getDeltaMovement();
-            float var4 = 0.2F / (Mth.sqrt(getHorizontalDistanceSqr(var3)) * 10.0F + 1.0F);
+            float var4 = 0.2F / ((float)var3.horizontalDistance() * 10.0F + 1.0F);
             var4 *= (float)Math.pow(2.0, var3.y);
             if (this.phaseManager.getCurrentPhase().isSitting()) {
                 this.flapTime += 0.1F;
@@ -766,6 +768,7 @@ public class EnderDragon extends Mob implements Enemy {
     public void addAdditionalSaveData(CompoundTag param0) {
         super.addAdditionalSaveData(param0);
         param0.putInt("DragonPhase", this.phaseManager.getCurrentPhase().getPhase().getId());
+        param0.putInt("DragonDeathTime", this.dragonDeathTime);
     }
 
     @Override
@@ -773,6 +776,10 @@ public class EnderDragon extends Mob implements Enemy {
         super.readAdditionalSaveData(param0);
         if (param0.contains("DragonPhase")) {
             this.phaseManager.setPhase(EnderDragonPhase.getById(param0.getInt("DragonPhase")));
+        }
+
+        if (param0.contains("DragonDeathTime")) {
+            this.dragonDeathTime = param0.getInt("DragonDeathTime");
         }
 
     }
@@ -835,7 +842,7 @@ public class EnderDragon extends Mob implements Enemy {
         Vec3 var7;
         if (var1 == EnderDragonPhase.LANDING || var1 == EnderDragonPhase.TAKEOFF) {
             BlockPos var2 = this.level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, EndPodiumFeature.END_PODIUM_LOCATION);
-            float var3 = Math.max(Mth.sqrt(var2.distSqr(this.position(), true)) / 4.0F, 1.0F);
+            float var3 = Math.max((float)Math.sqrt(var2.distSqr(this.position(), true)) / 4.0F, 1.0F);
             float var4 = 6.0F / var3;
             float var5 = this.getXRot();
             float var6 = 1.5F;

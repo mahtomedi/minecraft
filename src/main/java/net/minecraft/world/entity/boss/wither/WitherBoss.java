@@ -151,7 +151,7 @@ public class WitherBoss extends Monster implements PowerableMob, RangedAttackMob
 
                 var0 = new Vec3(var0.x, var2, var0.z);
                 Vec3 var3 = new Vec3(var1.getX() - this.getX(), 0.0, var1.getZ() - this.getZ());
-                if (getHorizontalDistanceSqr(var3) > 9.0) {
+                if (var3.horizontalDistanceSqr() > 9.0) {
                     Vec3 var4 = var3.normalize();
                     var0 = var0.add(var4.x * 0.3 - var0.x * 0.6, 0.0, var4.z * 0.3 - var0.z * 0.6);
                 }
@@ -159,7 +159,7 @@ public class WitherBoss extends Monster implements PowerableMob, RangedAttackMob
         }
 
         this.setDeltaMovement(var0);
-        if (getHorizontalDistanceSqr(var0) > 0.05) {
+        if (var0.horizontalDistanceSqr() > 0.05) {
             this.setYRot((float)Mth.atan2(var0.z, var0.x) * (180.0F / (float)Math.PI) - 90.0F);
         }
 

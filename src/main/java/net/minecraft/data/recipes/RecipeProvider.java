@@ -360,6 +360,30 @@ public class RecipeProvider implements DataProvider {
         concretePowder(param0, Blocks.RED_CONCRETE_POWDER, Items.RED_DYE);
         concretePowder(param0, Blocks.WHITE_CONCRETE_POWDER, Items.WHITE_DYE);
         concretePowder(param0, Blocks.YELLOW_CONCRETE_POWDER, Items.YELLOW_DYE);
+        ShapedRecipeBuilder.shaped(Items.CANDLE)
+            .define('S', Items.STRING)
+            .define('H', Items.HONEYCOMB)
+            .pattern("S")
+            .pattern("H")
+            .unlockedBy("has_string", has(Items.STRING))
+            .unlockedBy("has_honeycomb", has(Items.HONEYCOMB))
+            .save(param0);
+        candle(param0, Blocks.BLACK_CANDLE, Items.BLACK_DYE);
+        candle(param0, Blocks.BLUE_CANDLE, Items.BLUE_DYE);
+        candle(param0, Blocks.BROWN_CANDLE, Items.BROWN_DYE);
+        candle(param0, Blocks.CYAN_CANDLE, Items.CYAN_DYE);
+        candle(param0, Blocks.GRAY_CANDLE, Items.GRAY_DYE);
+        candle(param0, Blocks.GREEN_CANDLE, Items.GREEN_DYE);
+        candle(param0, Blocks.LIGHT_BLUE_CANDLE, Items.LIGHT_BLUE_DYE);
+        candle(param0, Blocks.LIGHT_GRAY_CANDLE, Items.LIGHT_GRAY_DYE);
+        candle(param0, Blocks.LIME_CANDLE, Items.LIME_DYE);
+        candle(param0, Blocks.MAGENTA_CANDLE, Items.MAGENTA_DYE);
+        candle(param0, Blocks.ORANGE_CANDLE, Items.ORANGE_DYE);
+        candle(param0, Blocks.PINK_CANDLE, Items.PINK_DYE);
+        candle(param0, Blocks.PURPLE_CANDLE, Items.PURPLE_DYE);
+        candle(param0, Blocks.RED_CANDLE, Items.RED_DYE);
+        candle(param0, Blocks.WHITE_CANDLE, Items.WHITE_DYE);
+        candle(param0, Blocks.YELLOW_CANDLE, Items.YELLOW_DYE);
         ShapedRecipeBuilder.shaped(Blocks.ACTIVATOR_RAIL, 6)
             .define('#', Blocks.REDSTONE_TORCH)
             .define('S', Items.STICK)

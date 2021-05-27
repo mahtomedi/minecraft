@@ -94,6 +94,8 @@ public class Gui extends GuiComponent {
     private static final int LINE_HEIGHT = 10;
     private static final String SPACER = ": ";
     private static final float PORTAL_OVERLAY_ALPHA_MIN = 0.2F;
+    private static final int HEART_SIZE = 9;
+    private static final int HEART_SEPARATION = 8;
     private final Random random = new Random();
     private final Minecraft minecraft;
     private final ItemRenderer itemRenderer;
@@ -767,129 +769,65 @@ public class Gui extends GuiComponent {
             int var7 = this.screenWidth / 2 - 91;
             int var8 = this.screenWidth / 2 + 91;
             int var9 = this.screenHeight - 39;
-            float var10 = (float)var0.getAttributeValue(Attributes.MAX_HEALTH);
+            float var10 = Math.max((float)var0.getAttributeValue(Attributes.MAX_HEALTH), (float)Math.max(var4, var1));
             int var11 = Mth.ceil(var0.getAbsorptionAmount());
             int var12 = Mth.ceil((var10 + (float)var11) / 2.0F / 10.0F);
             int var13 = Math.max(10 - (var12 - 2), 3);
             int var14 = var9 - (var12 - 1) * var13 - 10;
             int var15 = var9 - 10;
-            int var16 = var11;
-            int var17 = var0.getArmorValue();
-            int var18 = -1;
+            int var16 = var0.getArmorValue();
+            int var17 = -1;
             if (var0.hasEffect(MobEffects.REGENERATION)) {
-                var18 = this.tickCount % Mth.ceil(var10 + 5.0F);
+                var17 = this.tickCount % Mth.ceil(var10 + 5.0F);
             }
 
             this.minecraft.getProfiler().push("armor");
 
-            for(int var19 = 0; var19 < 10; ++var19) {
-                if (var17 > 0) {
-                    int var20 = var7 + var19 * 8;
-                    if (var19 * 2 + 1 < var17) {
-                        this.blit(param0, var20, var14, 34, 9, 9, 9);
+            for(int var18 = 0; var18 < 10; ++var18) {
+                if (var16 > 0) {
+                    int var19 = var7 + var18 * 8;
+                    if (var18 * 2 + 1 < var16) {
+                        this.blit(param0, var19, var14, 34, 9, 9, 9);
                     }
 
-                    if (var19 * 2 + 1 == var17) {
-                        this.blit(param0, var20, var14, 25, 9, 9, 9);
+                    if (var18 * 2 + 1 == var16) {
+                        this.blit(param0, var19, var14, 25, 9, 9, 9);
                     }
 
-                    if (var19 * 2 + 1 > var17) {
-                        this.blit(param0, var20, var14, 16, 9, 9, 9);
+                    if (var18 * 2 + 1 > var16) {
+                        this.blit(param0, var19, var14, 16, 9, 9, 9);
                     }
                 }
             }
 
             this.minecraft.getProfiler().popPush("health");
-
-            for(int var21 = Mth.ceil((var10 + (float)var11) / 2.0F) - 1; var21 >= 0; --var21) {
-                int var22 = 16;
-                if (var16 <= 0) {
-                    if (var0.hasEffect(MobEffects.POISON)) {
-                        var22 += 36;
-                    } else if (var0.hasEffect(MobEffects.WITHER)) {
-                        var22 += 72;
-                    } else if (var0.isFullyFrozen()) {
-                        var22 += 126;
-                    }
-                }
-
-                int var23 = 0;
-                if (var2) {
-                    var23 = 1;
-                }
-
-                int var24 = Mth.ceil((float)(var21 + 1) / 10.0F) - 1;
-                int var25 = var7 + var21 % 10 * 8;
-                int var26 = var9 - var24 * var13;
-                if (var1 <= 4) {
-                    var26 += this.random.nextInt(2);
-                }
-
-                if (var16 <= 0 && var21 == var18) {
-                    var26 -= 2;
-                }
-
-                int var27 = 0;
-                if (var0.level.getLevelData().isHardcore()) {
-                    var27 = 5;
-                }
-
-                this.blit(param0, var25, var26, 16 + var23 * 9, 9 * var27, 9, 9);
-                if (var2) {
-                    if (var21 * 2 + 1 < var4) {
-                        this.blit(param0, var25, var26, var22 + 54, 9 * var27, 9, 9);
-                    }
-
-                    if (var21 * 2 + 1 == var4) {
-                        this.blit(param0, var25, var26, var22 + 63, 9 * var27, 9, 9);
-                    }
-                }
-
-                if (var16 > 0) {
-                    if (var16 == var11 && var11 % 2 == 1) {
-                        this.blit(param0, var25, var26, var22 + 153, 9 * var27, 9, 9);
-                        --var16;
-                    } else {
-                        this.blit(param0, var25, var26, var22 + 144, 9 * var27, 9, 9);
-                        var16 -= 2;
-                    }
-                } else {
-                    if (var21 * 2 + 1 < var1) {
-                        this.blit(param0, var25, var26, var22 + 36, 9 * var27, 9, 9);
-                    }
-
-                    if (var21 * 2 + 1 == var1) {
-                        this.blit(param0, var25, var26, var22 + 45, 9 * var27, 9, 9);
-                    }
-                }
-            }
-
-            LivingEntity var28 = this.getPlayerVehicleWithHealth();
-            int var29 = this.getVehicleMaxHearts(var28);
-            if (var29 == 0) {
+            this.renderHearts(param0, var0, var7, var9, var13, var17, var10, var1, var4, var11, var2);
+            LivingEntity var20 = this.getPlayerVehicleWithHealth();
+            int var21 = this.getVehicleMaxHearts(var20);
+            if (var21 == 0) {
                 this.minecraft.getProfiler().popPush("food");
 
-                for(int var30 = 0; var30 < 10; ++var30) {
-                    int var31 = var9;
-                    int var32 = 16;
-                    int var33 = 0;
+                for(int var22 = 0; var22 < 10; ++var22) {
+                    int var23 = var9;
+                    int var24 = 16;
+                    int var25 = 0;
                     if (var0.hasEffect(MobEffects.HUNGER)) {
-                        var32 += 36;
-                        var33 = 13;
+                        var24 += 36;
+                        var25 = 13;
                     }
 
                     if (var0.getFoodData().getSaturationLevel() <= 0.0F && this.tickCount % (var6 * 3 + 1) == 0) {
-                        var31 = var9 + (this.random.nextInt(3) - 1);
+                        var23 = var9 + (this.random.nextInt(3) - 1);
                     }
 
-                    int var34 = var8 - var30 * 8 - 9;
-                    this.blit(param0, var34, var31, 16 + var33 * 9, 27, 9, 9);
-                    if (var30 * 2 + 1 < var6) {
-                        this.blit(param0, var34, var31, var32 + 36, 27, 9, 9);
+                    int var26 = var8 - var22 * 8 - 9;
+                    this.blit(param0, var26, var23, 16 + var25 * 9, 27, 9, 9);
+                    if (var22 * 2 + 1 < var6) {
+                        this.blit(param0, var26, var23, var24 + 36, 27, 9, 9);
                     }
 
-                    if (var30 * 2 + 1 == var6) {
-                        this.blit(param0, var34, var31, var32 + 45, 27, 9, 9);
+                    if (var22 * 2 + 1 == var6) {
+                        this.blit(param0, var26, var23, var24 + 45, 27, 9, 9);
                     }
                 }
 
@@ -897,25 +835,75 @@ public class Gui extends GuiComponent {
             }
 
             this.minecraft.getProfiler().popPush("air");
-            int var35 = var0.getMaxAirSupply();
-            int var36 = Math.min(var0.getAirSupply(), var35);
-            if (var0.isEyeInFluid(FluidTags.WATER) || var36 < var35) {
-                int var37 = this.getVisibleVehicleHeartRows(var29) - 1;
-                var15 -= var37 * 10;
-                int var38 = Mth.ceil((double)(var36 - 2) * 10.0 / (double)var35);
-                int var39 = Mth.ceil((double)var36 * 10.0 / (double)var35) - var38;
+            int var27 = var0.getMaxAirSupply();
+            int var28 = Math.min(var0.getAirSupply(), var27);
+            if (var0.isEyeInFluid(FluidTags.WATER) || var28 < var27) {
+                int var29 = this.getVisibleVehicleHeartRows(var21) - 1;
+                var15 -= var29 * 10;
+                int var30 = Mth.ceil((double)(var28 - 2) * 10.0 / (double)var27);
+                int var31 = Mth.ceil((double)var28 * 10.0 / (double)var27) - var30;
 
-                for(int var40 = 0; var40 < var38 + var39; ++var40) {
-                    if (var40 < var38) {
-                        this.blit(param0, var8 - var40 * 8 - 9, var15, 16, 18, 9, 9);
+                for(int var32 = 0; var32 < var30 + var31; ++var32) {
+                    if (var32 < var30) {
+                        this.blit(param0, var8 - var32 * 8 - 9, var15, 16, 18, 9, 9);
                     } else {
-                        this.blit(param0, var8 - var40 * 8 - 9, var15, 25, 18, 9, 9);
+                        this.blit(param0, var8 - var32 * 8 - 9, var15, 25, 18, 9, 9);
                     }
                 }
             }
 
             this.minecraft.getProfiler().pop();
         }
+    }
+
+    private void renderHearts(
+        PoseStack param0, Player param1, int param2, int param3, int param4, int param5, float param6, int param7, int param8, int param9, boolean param10
+    ) {
+        Gui.HeartType var0 = Gui.HeartType.forPlayer(param1);
+        int var1 = 9 * (param1.level.getLevelData().isHardcore() ? 5 : 0);
+        int var2 = Mth.ceil((double)param6 / 2.0);
+        int var3 = Mth.ceil((double)param9 / 2.0);
+        int var4 = var2 * 2;
+
+        for(int var5 = var2 + var3 - 1; var5 >= 0; --var5) {
+            int var6 = var5 / 10;
+            int var7 = var5 % 10;
+            int var8 = param2 + var7 * 8;
+            int var9 = param3 - var6 * param4;
+            if (param7 + param9 <= 4) {
+                var9 += this.random.nextInt(2);
+            }
+
+            if (var5 < var2 && var5 == param5) {
+                var9 -= 2;
+            }
+
+            this.renderHeart(param0, Gui.HeartType.CONTAINER, var8, var9, var1, param10, false);
+            int var10 = var5 * 2;
+            boolean var11 = var5 >= var2;
+            if (var11) {
+                int var12 = var10 - var4;
+                if (var12 < param9) {
+                    boolean var13 = var12 + 1 == param9;
+                    this.renderHeart(param0, var0 == Gui.HeartType.WITHERED ? var0 : Gui.HeartType.ABSORBING, var8, var9, var1, false, var13);
+                }
+            }
+
+            if (param10 && var10 < param8) {
+                boolean var14 = var10 + 1 == param8;
+                this.renderHeart(param0, var0, var8, var9, var1, true, var14);
+            }
+
+            if (var10 < param7) {
+                boolean var15 = var10 + 1 == param7;
+                this.renderHeart(param0, var0, var8, var9, var1, false, var15);
+            }
+        }
+
+    }
+
+    private void renderHeart(PoseStack param0, Gui.HeartType param1, int param2, int param3, int param4, boolean param5, boolean param6) {
+        this.blit(param0, param2, param3, param1.getX(param6, param5), param4, 9, 9);
     }
 
     private void renderVehicleHealth(PoseStack param0) {
@@ -1257,5 +1245,51 @@ public class Gui extends GuiComponent {
 
     public void clearCache() {
         this.debugScreen.clearChunkCache();
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    static enum HeartType {
+        CONTAINER(0, false),
+        NORMAL(2, true),
+        POISIONED(4, true),
+        WITHERED(6, true),
+        ABSORBING(8, false),
+        FROZEN(9, false);
+
+        private final int index;
+        private final boolean canBlink;
+
+        private HeartType(int param0, boolean param1) {
+            this.index = param0;
+            this.canBlink = param1;
+        }
+
+        public int getX(boolean param0, boolean param1) {
+            int var0;
+            if (this == CONTAINER) {
+                var0 = param1 ? 1 : 0;
+            } else {
+                int var1 = param0 ? 1 : 0;
+                int var2 = this.canBlink && param1 ? 2 : 0;
+                var0 = var1 + var2;
+            }
+
+            return 16 + (this.index * 2 + var0) * 9;
+        }
+
+        static Gui.HeartType forPlayer(Player param0) {
+            Gui.HeartType var0;
+            if (param0.hasEffect(MobEffects.POISON)) {
+                var0 = POISIONED;
+            } else if (param0.hasEffect(MobEffects.WITHER)) {
+                var0 = WITHERED;
+            } else if (param0.isFullyFrozen()) {
+                var0 = FROZEN;
+            } else {
+                var0 = NORMAL;
+            }
+
+            return var0;
+        }
     }
 }

@@ -7,6 +7,10 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public interface NarratableEntry extends NarrationSupplier {
     NarratableEntry.NarrationPriority narrationPriority();
 
+    default boolean isActive() {
+        return true;
+    }
+
     @OnlyIn(Dist.CLIENT)
     public static enum NarrationPriority {
         NONE,

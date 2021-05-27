@@ -39,15 +39,13 @@ public class PlayerHeadItem extends StandingAndWallBlockItem {
     }
 
     @Override
-    public boolean verifyTagAfterLoad(CompoundTag param0) {
+    public void verifyTagAfterLoad(CompoundTag param0) {
         super.verifyTagAfterLoad(param0);
         if (param0.contains("SkullOwner", 8) && !StringUtils.isBlank(param0.getString("SkullOwner"))) {
             GameProfile var0 = new GameProfile(null, param0.getString("SkullOwner"));
-            var0 = SkullBlockEntity.updateGameprofile(var0);
-            param0.put("SkullOwner", NbtUtils.writeGameProfile(new CompoundTag(), var0));
-            return true;
-        } else {
-            return false;
+            param0.remove("SkullOwner");
+            SkullBlockEntity.updateGameprofile(var0, param1 -> param0.put("SkullOwner", NbtUtils.writeGameProfile(new CompoundTag(), param1)));
         }
+
     }
 }

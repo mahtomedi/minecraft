@@ -1,5 +1,6 @@
 package net.minecraft.world.level.block;
 
+import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
@@ -87,6 +88,9 @@ public abstract class SignBlock extends BaseEntityBlock implements SimpleWaterlo
                         if (var3) {
                             param1.playSound(null, param2, SoundEvents.GLOW_INK_SAC_USE, SoundSource.BLOCKS, 1.0F, 1.0F);
                             var9 = var7.setHasGlowingText(true);
+                            if (param3 instanceof ServerPlayer) {
+                                CriteriaTriggers.ITEM_USED_ON_BLOCK.trigger((ServerPlayer)param3, param2, var0);
+                            }
                         } else if (var4) {
                             param1.playSound(null, param2, SoundEvents.INK_SAC_USE, SoundSource.BLOCKS, 1.0F, 1.0F);
                             var9 = var7.setHasGlowingText(false);

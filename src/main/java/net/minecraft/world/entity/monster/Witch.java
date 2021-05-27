@@ -9,7 +9,6 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -227,7 +226,7 @@ public class Witch extends Raider implements RangedAttackMob {
             double var1 = param0.getX() + var0.x - this.getX();
             double var2 = param0.getEyeY() - 1.1F - this.getY();
             double var3 = param0.getZ() + var0.z - this.getZ();
-            float var4 = Mth.sqrt(var1 * var1 + var3 * var3);
+            double var4 = Math.sqrt(var1 * var1 + var3 * var3);
             Potion var5 = Potions.HARMING;
             if (param0 instanceof Raider) {
                 if (param0.getHealth() <= 4.0F) {
@@ -237,18 +236,18 @@ public class Witch extends Raider implements RangedAttackMob {
                 }
 
                 this.setTarget(null);
-            } else if (var4 >= 8.0F && !param0.hasEffect(MobEffects.MOVEMENT_SLOWDOWN)) {
+            } else if (var4 >= 8.0 && !param0.hasEffect(MobEffects.MOVEMENT_SLOWDOWN)) {
                 var5 = Potions.SLOWNESS;
             } else if (param0.getHealth() >= 8.0F && !param0.hasEffect(MobEffects.POISON)) {
                 var5 = Potions.POISON;
-            } else if (var4 <= 3.0F && !param0.hasEffect(MobEffects.WEAKNESS) && this.random.nextFloat() < 0.25F) {
+            } else if (var4 <= 3.0 && !param0.hasEffect(MobEffects.WEAKNESS) && this.random.nextFloat() < 0.25F) {
                 var5 = Potions.WEAKNESS;
             }
 
             ThrownPotion var6 = new ThrownPotion(this.level, this);
             var6.setItem(PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), var5));
             var6.setXRot(var6.getXRot() - -20.0F);
-            var6.shoot(var1, var2 + (double)(var4 * 0.2F), var3, 0.75F, 8.0F);
+            var6.shoot(var1, var2 + var4 * 0.2, var3, 0.75F, 8.0F);
             if (!this.isSilent()) {
                 this.level
                     .playSound(

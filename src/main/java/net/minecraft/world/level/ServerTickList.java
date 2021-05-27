@@ -20,7 +20,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
@@ -51,40 +50,39 @@ public class ServerTickList<T> implements TickList<T> {
                 var0 = 65536;
             }
 
-            ServerChunkCache var1 = this.level.getChunkSource();
-            Iterator<TickNextTickData<T>> var2 = this.tickNextTickList.iterator();
+            Iterator<TickNextTickData<T>> var1 = this.tickNextTickList.iterator();
             this.level.getProfiler().push("cleaning");
 
-            while(var0 > 0 && var2.hasNext()) {
-                TickNextTickData<T> var3 = var2.next();
-                if (var3.triggerTick > this.level.getGameTime()) {
+            while(var0 > 0 && var1.hasNext()) {
+                TickNextTickData<T> var2 = var1.next();
+                if (var2.triggerTick > this.level.getGameTime()) {
                     break;
                 }
 
-                if (var1.isTickingChunk(var3.pos)) {
-                    var2.remove();
-                    this.tickNextTickSet.remove(var3);
-                    this.currentlyTicking.add(var3);
+                if (this.level.isPositionTickingWithEntitiesLoaded(var2.pos)) {
+                    var1.remove();
+                    this.tickNextTickSet.remove(var2);
+                    this.currentlyTicking.add(var2);
                     --var0;
                 }
             }
 
             this.level.getProfiler().popPush("ticking");
 
-            TickNextTickData<T> var4;
-            while((var4 = this.currentlyTicking.poll()) != null) {
-                if (var1.isTickingChunk(var4.pos)) {
+            TickNextTickData<T> var3;
+            while((var3 = this.currentlyTicking.poll()) != null) {
+                if (this.level.isPositionTickingWithEntitiesLoaded(var3.pos)) {
                     try {
-                        this.alreadyTicked.add(var4);
-                        this.ticker.accept(var4);
-                    } catch (Throwable var8) {
-                        CrashReport var6 = CrashReport.forThrowable(var8, "Exception while ticking");
-                        CrashReportCategory var7 = var6.addCategory("Block being ticked");
-                        CrashReportCategory.populateBlockDetails(var7, this.level, var4.pos, null);
-                        throw new ReportedException(var6);
+                        this.alreadyTicked.add(var3);
+                        this.ticker.accept(var3);
+                    } catch (Throwable var7) {
+                        CrashReport var5 = CrashReport.forThrowable(var7, "Exception while ticking");
+                        CrashReportCategory var6 = var5.addCategory("Block being ticked");
+                        CrashReportCategory.populateBlockDetails(var6, this.level, var3.pos, null);
+                        throw new ReportedException(var5);
                     }
                 } else {
-                    this.scheduleTick(var4.pos, var4.getType(), 0);
+                    this.scheduleTick(var3.pos, var3.getType(), 0);
                 }
             }
 

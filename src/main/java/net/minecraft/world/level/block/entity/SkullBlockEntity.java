@@ -4,6 +4,7 @@ import com.google.common.collect.Iterables;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.authlib.properties.Property;
+import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -94,37 +95,37 @@ public class SkullBlockEntity extends BlockEntity {
     }
 
     public void setOwner(@Nullable GameProfile param0) {
-        this.owner = param0;
+        synchronized(this) {
+            this.owner = param0;
+        }
+
         this.updateOwnerProfile();
     }
 
     private void updateOwnerProfile() {
-        this.owner = updateGameprofile(this.owner);
-        this.setChanged();
+        updateGameprofile(this.owner, param0 -> {
+            this.owner = param0;
+            this.setChanged();
+        });
     }
 
-    @Nullable
-    public static GameProfile updateGameprofile(@Nullable GameProfile param0) {
-        if (param0 != null && !StringUtil.isNullOrEmpty(param0.getName())) {
-            if (param0.isComplete() && param0.getProperties().containsKey("textures")) {
-                return param0;
-            } else if (profileCache != null && sessionService != null) {
-                GameProfile var0 = profileCache.get(param0.getName());
-                if (var0 == null) {
-                    return param0;
-                } else {
-                    Property var1 = Iterables.getFirst(var0.getProperties().get("textures"), null);
-                    if (var1 == null) {
-                        var0 = sessionService.fillProfileProperties(var0, true);
-                    }
-
-                    return var0;
+    public static void updateGameprofile(@Nullable GameProfile param0, Consumer<GameProfile> param1) {
+        if (param0 != null
+            && !StringUtil.isNullOrEmpty(param0.getName())
+            && (!param0.isComplete() || !param0.getProperties().containsKey("textures"))
+            && profileCache != null
+            && sessionService != null) {
+            profileCache.getAsync(param0.getName(), param1x -> {
+                Property var0x = Iterables.getFirst(param1x.getProperties().get("textures"), null);
+                if (var0x == null) {
+                    param1x = sessionService.fillProfileProperties(param1x, true);
                 }
-            } else {
-                return param0;
-            }
+
+                profileCache.add(param1x);
+                param1.accept(param1x);
+            });
         } else {
-            return param0;
+            param1.accept(param0);
         }
     }
 }

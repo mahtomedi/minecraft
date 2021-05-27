@@ -1,5 +1,6 @@
 package net.minecraft.world.entity.projectile;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.UUID;
@@ -283,7 +284,7 @@ public class ShulkerBullet extends Projectile {
         if (var3) {
             this.doEnchantDamageEffects(var2, var0);
             if (var0 instanceof LivingEntity) {
-                ((LivingEntity)var0).addEffect(new MobEffectInstance(MobEffects.LEVITATION, 200));
+                ((LivingEntity)var0).addEffect(new MobEffectInstance(MobEffects.LEVITATION, 200), MoreObjects.firstNonNull(var1, this));
             }
         }
 

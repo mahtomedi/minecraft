@@ -240,8 +240,7 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
         protected final List<StatType<Item>> itemColumns;
         private final int[] iconOffsets = new int[]{3, 4, 1, 2, 5, 6};
         protected int headerPressed = -1;
-        protected final List<Item> statItemList;
-        protected final Comparator<Item> itemStatSorter = new StatsScreen.ItemStatisticsList.ItemComparator();
+        protected final Comparator<StatsScreen.ItemStatisticsList.ItemRow> itemStatSorter = new StatsScreen.ItemStatisticsList.ItemRowComparator();
         @Nullable
         protected StatType<?> sortColumn;
         protected int sortOrder;
@@ -283,9 +282,8 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
             }
 
             param1.remove(Items.AIR);
-            this.statItemList = Lists.newArrayList(param1);
 
-            for(Item var6 : this.statItemList) {
+            for(Item var6 : param1) {
                 this.addEntry(new StatsScreen.ItemStatisticsList.ItemRow(var6));
             }
 
@@ -374,7 +372,7 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
                         return;
                     }
 
-                    Item var2 = this.statItemList.get(this.children().indexOf(var0));
+                    Item var2 = var0.getItem();
                     this.renderMousehoverTooltip(param0, this.getString(var2), param1, param2);
                 } else {
                     Component var3 = null;
@@ -422,31 +420,7 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
                 this.sortOrder = 0;
             }
 
-            this.statItemList.sort(this.itemStatSorter);
-        }
-
-        @OnlyIn(Dist.CLIENT)
-        class ItemComparator implements Comparator<Item> {
-            public int compare(Item param0, Item param1) {
-                int var0;
-                int var1;
-                if (ItemStatisticsList.this.sortColumn == null) {
-                    var0 = 0;
-                    var1 = 0;
-                } else if (ItemStatisticsList.this.blockColumns.contains(ItemStatisticsList.this.sortColumn)) {
-                    StatType<Block> var2 = ItemStatisticsList.this.sortColumn;
-                    var0 = param0 instanceof BlockItem ? StatsScreen.this.stats.getValue(var2, ((BlockItem)param0).getBlock()) : -1;
-                    var1 = param1 instanceof BlockItem ? StatsScreen.this.stats.getValue(var2, ((BlockItem)param1).getBlock()) : -1;
-                } else {
-                    StatType<Item> var5 = ItemStatisticsList.this.sortColumn;
-                    var0 = StatsScreen.this.stats.getValue(var5, param0);
-                    var1 = StatsScreen.this.stats.getValue(var5, param1);
-                }
-
-                return var0 == var1
-                    ? ItemStatisticsList.this.sortOrder * Integer.compare(Item.getId(param0), Item.getId(param1))
-                    : ItemStatisticsList.this.sortOrder * Integer.compare(var0, var1);
-            }
+            this.children().sort(this.itemStatSorter);
         }
 
         @OnlyIn(Dist.CLIENT)
@@ -455,6 +429,10 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
 
             ItemRow(Item param0) {
                 this.item = param0;
+            }
+
+            public Item getItem() {
+                return this.item;
             }
 
             @Override
@@ -496,6 +474,32 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
             @Override
             public Component getNarration() {
                 return new TranslatableComponent("narrator.select", this.item.getDescription());
+            }
+        }
+
+        @OnlyIn(Dist.CLIENT)
+        class ItemRowComparator implements Comparator<StatsScreen.ItemStatisticsList.ItemRow> {
+            public int compare(StatsScreen.ItemStatisticsList.ItemRow param0, StatsScreen.ItemStatisticsList.ItemRow param1) {
+                Item var0 = param0.getItem();
+                Item var1 = param1.getItem();
+                int var2;
+                int var3;
+                if (ItemStatisticsList.this.sortColumn == null) {
+                    var2 = 0;
+                    var3 = 0;
+                } else if (ItemStatisticsList.this.blockColumns.contains(ItemStatisticsList.this.sortColumn)) {
+                    StatType<Block> var4 = ItemStatisticsList.this.sortColumn;
+                    var2 = var0 instanceof BlockItem ? StatsScreen.this.stats.getValue(var4, ((BlockItem)var0).getBlock()) : -1;
+                    var3 = var1 instanceof BlockItem ? StatsScreen.this.stats.getValue(var4, ((BlockItem)var1).getBlock()) : -1;
+                } else {
+                    StatType<Item> var7 = ItemStatisticsList.this.sortColumn;
+                    var2 = StatsScreen.this.stats.getValue(var7, var0);
+                    var3 = StatsScreen.this.stats.getValue(var7, var1);
+                }
+
+                return var2 == var3
+                    ? ItemStatisticsList.this.sortOrder * Integer.compare(Item.getId(var0), Item.getId(var1))
+                    : ItemStatisticsList.this.sortOrder * Integer.compare(var2, var3);
             }
         }
     }

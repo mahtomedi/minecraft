@@ -135,6 +135,7 @@ public abstract class LivingEntity extends Entity {
     private static final int TICKS_PER_ELYTRA_FREE_FALL_EVENT = 10;
     private static final int FREE_FALL_EVENTS_PER_ELYTRA_BREAK = 2;
     public static final int USE_ITEM_INTERVAL = 4;
+    private static final double MAX_LINE_OF_SIGHT_TEST_RANGE = 128.0;
     protected static final int LIVING_ENTITY_FLAG_IS_USING = 1;
     protected static final int LIVING_ENTITY_FLAG_OFF_HAND = 2;
     protected static final int LIVING_ENTITY_FLAG_SPIN_ATTACK = 4;
@@ -750,13 +751,13 @@ public abstract class LivingEntity extends Entity {
             while(var0.hasNext()) {
                 MobEffect var1 = var0.next();
                 MobEffectInstance var2 = this.activeEffects.get(var1);
-                if (!var2.tick(this, () -> this.onEffectUpdated(var2, true))) {
+                if (!var2.tick(this, () -> this.onEffectUpdated(var2, true, null))) {
                     if (!this.level.isClientSide) {
                         var0.remove();
                         this.onEffectRemoved(var2);
                     }
                 } else if (var2.getDuration() % 600 == 0) {
-                    this.onEffectUpdated(var2, false);
+                    this.onEffectUpdated(var2, false, null);
                 }
             }
         } catch (ConcurrentModificationException var11) {
@@ -918,16 +919,20 @@ public abstract class LivingEntity extends Entity {
     }
 
     public boolean addEffect(MobEffectInstance param0) {
+        return this.addEffect(param0, null);
+    }
+
+    public boolean addEffect(MobEffectInstance param0, @Nullable Entity param1) {
         if (!this.canBeAffected(param0)) {
             return false;
         } else {
             MobEffectInstance var0 = this.activeEffects.get(param0.getEffect());
             if (var0 == null) {
                 this.activeEffects.put(param0.getEffect(), param0);
-                this.onEffectAdded(param0);
+                this.onEffectAdded(param0, param1);
                 return true;
             } else if (var0.update(param0)) {
-                this.onEffectUpdated(var0, true);
+                this.onEffectUpdated(var0, true, param1);
                 return true;
             } else {
                 return false;
@@ -946,13 +951,13 @@ public abstract class LivingEntity extends Entity {
         return true;
     }
 
-    public void forceAddEffect(MobEffectInstance param0) {
+    public void forceAddEffect(MobEffectInstance param0, @Nullable Entity param1) {
         if (this.canBeAffected(param0)) {
             MobEffectInstance var0 = this.activeEffects.put(param0.getEffect(), param0);
             if (var0 == null) {
-                this.onEffectAdded(param0);
+                this.onEffectAdded(param0, param1);
             } else {
-                this.onEffectUpdated(param0, true);
+                this.onEffectUpdated(param0, true, param1);
             }
 
         }
@@ -977,7 +982,7 @@ public abstract class LivingEntity extends Entity {
         }
     }
 
-    protected void onEffectAdded(MobEffectInstance param0) {
+    protected void onEffectAdded(MobEffectInstance param0, @Nullable Entity param1) {
         this.effectsDirty = true;
         if (!this.level.isClientSide) {
             param0.getEffect().addAttributeModifiers(this, this.getAttributes(), param0.getAmplifier());
@@ -985,7 +990,7 @@ public abstract class LivingEntity extends Entity {
 
     }
 
-    protected void onEffectUpdated(MobEffectInstance param0, boolean param1) {
+    protected void onEffectUpdated(MobEffectInstance param0, boolean param1, @Nullable Entity param2) {
         this.effectsDirty = true;
         if (param1 && !this.level.isClientSide) {
             MobEffect var0 = param0.getEffect();
@@ -2082,7 +2087,7 @@ public abstract class LivingEntity extends Entity {
                 Vec3 var13 = this.getLookAngle();
                 float var14 = this.getXRot() * (float) (Math.PI / 180.0);
                 double var15 = Math.sqrt(var13.x * var13.x + var13.z * var13.z);
-                double var16 = Math.sqrt(getHorizontalDistanceSqr(var12));
+                double var16 = var12.horizontalDistance();
                 double var17 = var13.length();
                 float var18 = Mth.cos(var14);
                 var18 = (float)((double)var18 * (double)var18 * Math.min(1.0, var17 / 0.4));
@@ -2104,7 +2109,7 @@ public abstract class LivingEntity extends Entity {
                 this.setDeltaMovement(var12.multiply(0.99F, 0.98F, 0.99F));
                 this.move(MoverType.SELF, this.getDeltaMovement());
                 if (this.horizontalCollision && !this.level.isClientSide) {
-                    double var21 = Math.sqrt(getHorizontalDistanceSqr(this.getDeltaMovement()));
+                    double var21 = this.getDeltaMovement().horizontalDistance();
                     double var22 = var16 - var21;
                     float var23 = (float)(var22 * 10.0 - 3.0);
                     if (var23 > 0.0F) {
@@ -2151,7 +2156,7 @@ public abstract class LivingEntity extends Entity {
         double var0 = param0.getX() - param0.xo;
         double var1 = param1 ? param0.getY() - param0.yo : 0.0;
         double var2 = param0.getZ() - param0.zo;
-        float var3 = Mth.sqrt(var0 * var0 + var1 * var1 + var2 * var2) * 4.0F;
+        float var3 = (float)Math.sqrt(var0 * var0 + var1 * var1 + var2 * var2) * 4.0F;
         if (var3 > 1.0F) {
             var3 = 1.0F;
         }
@@ -2749,9 +2754,17 @@ public abstract class LivingEntity extends Entity {
     }
 
     public boolean hasLineOfSight(Entity param0) {
-        Vec3 var0 = new Vec3(this.getX(), this.getEyeY(), this.getZ());
-        Vec3 var1 = new Vec3(param0.getX(), param0.getEyeY(), param0.getZ());
-        return this.level.clip(new ClipContext(var0, var1, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this)).getType() == HitResult.Type.MISS;
+        if (param0.level != this.level) {
+            return false;
+        } else {
+            Vec3 var0 = new Vec3(this.getX(), this.getEyeY(), this.getZ());
+            Vec3 var1 = new Vec3(param0.getX(), param0.getEyeY(), param0.getZ());
+            if (var1.distanceTo(var0) > 128.0) {
+                return false;
+            } else {
+                return this.level.clip(new ClipContext(var0, var1, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this)).getType() == HitResult.Type.MISS;
+            }
+        }
     }
 
     @Override
@@ -2847,17 +2860,22 @@ public abstract class LivingEntity extends Entity {
         if (this.isUsingItem()) {
             if (ItemStack.isSameIgnoreDurability(this.getItemInHand(this.getUsedItemHand()), this.useItem)) {
                 this.useItem = this.getItemInHand(this.getUsedItemHand());
-                this.useItem.onUseTick(this.level, this, this.getUseItemRemainingTicks());
-                if (this.shouldTriggerItemUseEffects()) {
-                    this.triggerItemUseEffects(this.useItem, 5);
-                }
-
-                if (--this.useItemRemaining == 0 && !this.level.isClientSide && !this.useItem.useOnRelease()) {
-                    this.completeUsingItem();
-                }
+                this.updateUsingItem(this.useItem);
             } else {
                 this.stopUsingItem();
             }
+        }
+
+    }
+
+    protected void updateUsingItem(ItemStack param0) {
+        param0.onUseTick(this.level, this, this.getUseItemRemainingTicks());
+        if (this.shouldTriggerItemUseEffects()) {
+            this.triggerItemUseEffects(param0, 5);
+        }
+
+        if (--this.useItemRemaining == 0 && !this.level.isClientSide && !param0.useOnRelease()) {
+            this.completeUsingItem();
         }
 
     }

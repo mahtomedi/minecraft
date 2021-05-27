@@ -97,7 +97,7 @@ public class VibrationListener implements GameEventListener {
     private void sendSignal(Level param0, GameEvent param1, BlockPos param2, BlockPos param3) {
         this.receivingEvent = Optional.of(param1);
         if (param0 instanceof ServerLevel) {
-            this.receivingDistance = Mth.floor(Mth.sqrt(param2.distSqr(param3, false)));
+            this.receivingDistance = Mth.floor(Math.sqrt(param2.distSqr(param3, false)));
             this.travelTimeInTicks = this.receivingDistance;
             ((ServerLevel)param0).sendVibrationParticle(new VibrationPath(param2, this.listenerSource, this.travelTimeInTicks));
         }

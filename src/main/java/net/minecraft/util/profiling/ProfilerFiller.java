@@ -1,6 +1,7 @@
 package net.minecraft.util.profiling;
 
 import java.util.function.Supplier;
+import net.minecraft.util.profiling.metrics.MetricCategory;
 
 public interface ProfilerFiller {
     String ROOT = "root";
@@ -18,6 +19,8 @@ public interface ProfilerFiller {
     void popPush(String var1);
 
     void popPush(Supplier<String> var1);
+
+    void markForCharting(MetricCategory var1);
 
     void incrementCounter(String var1);
 
@@ -50,6 +53,12 @@ public interface ProfilerFiller {
                 public void push(Supplier<String> param0x) {
                     param0.push(param0);
                     param1.push(param0);
+                }
+
+                @Override
+                public void markForCharting(MetricCategory param0x) {
+                    param0.markForCharting(param0);
+                    param1.markForCharting(param0);
                 }
 
                 @Override

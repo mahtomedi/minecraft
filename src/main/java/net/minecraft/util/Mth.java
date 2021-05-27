@@ -53,10 +53,6 @@ public class Mth {
         return (float)Math.sqrt((double)param0);
     }
 
-    public static float sqrt(double param0) {
-        return (float)Math.sqrt(param0);
-    }
-
     public static int floor(float param0) {
         int var0 = (int)param0;
         return param0 < (float)var0 ? var0 - 1 : var0;
@@ -143,6 +139,14 @@ public class Mth {
             return param0;
         } else {
             return param2 > 1.0 ? param1 : lerp(param2, param0, param1);
+        }
+    }
+
+    public static float clampedLerp(float param0, float param1, float param2) {
+        if (param2 < 0.0F) {
+            return param0;
+        } else {
+            return param2 > 1.0F ? param1 : lerp(param2, param0, param1);
         }
     }
 

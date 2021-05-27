@@ -44,7 +44,11 @@ public abstract class CoralFeature extends Feature<NoneFeatureConfiguration> {
                 if (param1.nextFloat() < 0.2F) {
                     BlockPos var3 = param2.relative(var2);
                     if (param0.getBlockState(var3).is(Blocks.WATER)) {
-                        BlockState var4 = BlockTags.WALL_CORALS.getRandomElement(param1).defaultBlockState().setValue(BaseCoralWallFanBlock.FACING, var2);
+                        BlockState var4 = BlockTags.WALL_CORALS.getRandomElement(param1).defaultBlockState();
+                        if (var4.hasProperty(BaseCoralWallFanBlock.FACING)) {
+                            var4 = var4.setValue(BaseCoralWallFanBlock.FACING, var2);
+                        }
+
                         param0.setBlock(var3, var4, 2);
                     }
                 }

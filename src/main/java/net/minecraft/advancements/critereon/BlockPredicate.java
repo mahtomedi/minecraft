@@ -1,9 +1,12 @@
 package net.minecraft.advancements.critereon;
 
+import com.google.common.collect.ImmutableSet;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
+import java.util.Set;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
@@ -22,13 +25,13 @@ public class BlockPredicate {
     @Nullable
     private final Tag<Block> tag;
     @Nullable
-    private final Block block;
+    private final Set<Block> blocks;
     private final StatePropertiesPredicate properties;
     private final NbtPredicate nbt;
 
-    public BlockPredicate(@Nullable Tag<Block> param0, @Nullable Block param1, StatePropertiesPredicate param2, NbtPredicate param3) {
+    public BlockPredicate(@Nullable Tag<Block> param0, @Nullable Set<Block> param1, StatePropertiesPredicate param2, NbtPredicate param3) {
         this.tag = param0;
-        this.block = param1;
+        this.blocks = param1;
         this.properties = param2;
         this.nbt = param3;
     }
@@ -42,7 +45,7 @@ public class BlockPredicate {
             BlockState var0 = param0.getBlockState(param1);
             if (this.tag != null && !var0.is(this.tag)) {
                 return false;
-            } else if (this.block != null && !var0.is(this.block)) {
+            } else if (this.blocks != null && !this.blocks.contains(var0.getBlock())) {
                 return false;
             } else if (!this.properties.matches(var0)) {
                 return false;
@@ -63,21 +66,28 @@ public class BlockPredicate {
         if (param0 != null && !param0.isJsonNull()) {
             JsonObject var0 = GsonHelper.convertToJsonObject(param0, "block");
             NbtPredicate var1 = NbtPredicate.fromJson(var0.get("nbt"));
-            Block var2 = null;
-            if (var0.has("block")) {
-                ResourceLocation var3 = new ResourceLocation(GsonHelper.getAsString(var0, "block"));
-                var2 = Registry.BLOCK.get(var3);
+            Set<Block> var2 = null;
+            JsonArray var3 = GsonHelper.getAsJsonArray(var0, "blocks", null);
+            if (var3 != null) {
+                ImmutableSet.Builder<Block> var4 = ImmutableSet.builder();
+
+                for(JsonElement var5 : var3) {
+                    ResourceLocation var6 = new ResourceLocation(GsonHelper.convertToString(var5, "block"));
+                    var4.add(Registry.BLOCK.getOptional(var6).orElseThrow(() -> new JsonSyntaxException("Unknown block id '" + var6 + "'")));
+                }
+
+                var2 = var4.build();
             }
 
-            Tag<Block> var4 = null;
+            Tag<Block> var7 = null;
             if (var0.has("tag")) {
-                ResourceLocation var5 = new ResourceLocation(GsonHelper.getAsString(var0, "tag"));
-                var4 = SerializationTags.getInstance()
-                    .getTagOrThrow(Registry.BLOCK_REGISTRY, var5, param0x -> new JsonSyntaxException("Unknown block tag '" + param0x + "'"));
+                ResourceLocation var8 = new ResourceLocation(GsonHelper.getAsString(var0, "tag"));
+                var7 = SerializationTags.getInstance()
+                    .getTagOrThrow(Registry.BLOCK_REGISTRY, var8, param0x -> new JsonSyntaxException("Unknown block tag '" + param0x + "'"));
             }
 
-            StatePropertiesPredicate var6 = StatePropertiesPredicate.fromJson(var0.get("state"));
-            return new BlockPredicate(var4, var2, var6, var1);
+            StatePropertiesPredicate var9 = StatePropertiesPredicate.fromJson(var0.get("state"));
+            return new BlockPredicate(var7, var2, var9, var1);
         } else {
             return ANY;
         }
@@ -88,8 +98,14 @@ public class BlockPredicate {
             return JsonNull.INSTANCE;
         } else {
             JsonObject var0 = new JsonObject();
-            if (this.block != null) {
-                var0.addProperty("block", Registry.BLOCK.getKey(this.block).toString());
+            if (this.blocks != null) {
+                JsonArray var1 = new JsonArray();
+
+                for(Block var2 : this.blocks) {
+                    var1.add(Registry.BLOCK.getKey(var2).toString());
+                }
+
+                var0.add("blocks", var1);
             }
 
             if (this.tag != null) {
@@ -109,9 +125,9 @@ public class BlockPredicate {
 
     public static class Builder {
         @Nullable
-        private Block block;
+        private Set<Block> blocks;
         @Nullable
-        private Tag<Block> blocks;
+        private Tag<Block> tag;
         private StatePropertiesPredicate properties = StatePropertiesPredicate.ANY;
         private NbtPredicate nbt = NbtPredicate.ANY;
 
@@ -122,13 +138,18 @@ public class BlockPredicate {
             return new BlockPredicate.Builder();
         }
 
-        public BlockPredicate.Builder of(Block param0) {
-            this.block = param0;
+        public BlockPredicate.Builder of(Block... param0) {
+            this.blocks = ImmutableSet.copyOf(param0);
+            return this;
+        }
+
+        public BlockPredicate.Builder of(Iterable<Block> param0) {
+            this.blocks = ImmutableSet.copyOf(param0);
             return this;
         }
 
         public BlockPredicate.Builder of(Tag<Block> param0) {
-            this.blocks = param0;
+            this.tag = param0;
             return this;
         }
 
@@ -143,7 +164,7 @@ public class BlockPredicate {
         }
 
         public BlockPredicate build() {
-            return new BlockPredicate(this.blocks, this.block, this.properties, this.nbt);
+            return new BlockPredicate(this.tag, this.blocks, this.properties, this.nbt);
         }
     }
 }

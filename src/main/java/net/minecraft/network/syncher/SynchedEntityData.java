@@ -223,15 +223,18 @@ public class SynchedEntityData {
     public void assignValues(List<SynchedEntityData.DataItem<?>> param0) {
         this.lock.writeLock().lock();
 
-        for(SynchedEntityData.DataItem<?> var0 : param0) {
-            SynchedEntityData.DataItem<?> var1 = this.itemsById.get(var0.getAccessor().getId());
-            if (var1 != null) {
-                this.assignValue(var1, var0);
-                this.entity.onSyncedDataUpdated(var0.getAccessor());
+        try {
+            for(SynchedEntityData.DataItem<?> var0 : param0) {
+                SynchedEntityData.DataItem<?> var1 = this.itemsById.get(var0.getAccessor().getId());
+                if (var1 != null) {
+                    this.assignValue(var1, var0);
+                    this.entity.onSyncedDataUpdated(var0.getAccessor());
+                }
             }
+        } finally {
+            this.lock.writeLock().unlock();
         }
 
-        this.lock.writeLock().unlock();
         this.isDirty = true;
     }
 

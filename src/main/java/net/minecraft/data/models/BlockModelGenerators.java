@@ -1321,9 +1321,9 @@ public class BlockModelGenerators {
     }
 
     private void createSmallDripleaf() {
+        this.skipAutoItemBlock(Blocks.SMALL_DRIPLEAF);
         ResourceLocation var0 = ModelLocationUtils.getModelLocation(Blocks.SMALL_DRIPLEAF, "_top");
         ResourceLocation var1 = ModelLocationUtils.getModelLocation(Blocks.SMALL_DRIPLEAF, "_bottom");
-        this.delegateItemModel(Blocks.SMALL_DRIPLEAF, var0);
         this.blockStateOutput
             .accept(
                 MultiVariantGenerator.multiVariant(Blocks.SMALL_DRIPLEAF)
@@ -1813,6 +1813,11 @@ public class BlockModelGenerators {
 
     private void createAzalea(Block param0) {
         ResourceLocation var0 = ModelTemplates.AZALEA.create(param0, TextureMapping.cubeTop(param0), this.modelOutput);
+        this.blockStateOutput.accept(createSimpleBlock(param0, var0));
+    }
+
+    private void createPottedAzalea(Block param0) {
+        ResourceLocation var0 = ModelTemplates.POTTED_AZALEA.create(param0, TextureMapping.cubeTop(param0), this.modelOutput);
         this.blockStateOutput.accept(createSimpleBlock(param0, var0));
     }
 
@@ -3883,6 +3888,8 @@ public class BlockModelGenerators {
         this.createNonTemplateModelBlock(Blocks.SPORE_BLOSSOM);
         this.createAzalea(Blocks.AZALEA);
         this.createAzalea(Blocks.FLOWERING_AZALEA);
+        this.createPottedAzalea(Blocks.POTTED_AZALEA);
+        this.createPottedAzalea(Blocks.POTTED_FLOWERING_AZALEA);
         this.createCaveVines();
         this.createFullAndCarpetBlocks(Blocks.MOSS_BLOCK, Blocks.MOSS_CARPET);
         this.createAirLikeBlock(Blocks.BARRIER, Items.BARRIER);
@@ -4459,36 +4466,28 @@ public class BlockModelGenerators {
     private void createCandleAndCandleCake(Block param0, Block param1) {
         this.createSimpleFlatItemModel(param0.asItem());
         TextureMapping var0 = TextureMapping.cube(TextureMapping.getBlockTexture(param0));
+        TextureMapping var1 = TextureMapping.cube(TextureMapping.getBlockTexture(param0, "_lit"));
+        ResourceLocation var2 = ModelTemplates.CANDLE.createWithSuffix(param0, "_one_candle", var0, this.modelOutput);
+        ResourceLocation var3 = ModelTemplates.TWO_CANDLES.createWithSuffix(param0, "_two_candles", var0, this.modelOutput);
+        ResourceLocation var4 = ModelTemplates.THREE_CANDLES.createWithSuffix(param0, "_three_candles", var0, this.modelOutput);
+        ResourceLocation var5 = ModelTemplates.FOUR_CANDLES.createWithSuffix(param0, "_four_candles", var0, this.modelOutput);
+        ResourceLocation var6 = ModelTemplates.CANDLE.createWithSuffix(param0, "_one_candle_lit", var1, this.modelOutput);
+        ResourceLocation var7 = ModelTemplates.TWO_CANDLES.createWithSuffix(param0, "_two_candles_lit", var1, this.modelOutput);
+        ResourceLocation var8 = ModelTemplates.THREE_CANDLES.createWithSuffix(param0, "_three_candles_lit", var1, this.modelOutput);
+        ResourceLocation var9 = ModelTemplates.FOUR_CANDLES.createWithSuffix(param0, "_four_candles_lit", var1, this.modelOutput);
         this.blockStateOutput
             .accept(
                 MultiVariantGenerator.multiVariant(param0)
                     .with(
-                        PropertyDispatch.property(BlockStateProperties.CANDLES)
-                            .select(
-                                1,
-                                Variant.variant()
-                                    .with(VariantProperties.MODEL, ModelTemplates.CANDLE.createWithSuffix(param0, "_one_candle", var0, this.modelOutput))
-                            )
-                            .select(
-                                2,
-                                Variant.variant()
-                                    .with(VariantProperties.MODEL, ModelTemplates.TWO_CANDLES.createWithSuffix(param0, "_two_candles", var0, this.modelOutput))
-                            )
-                            .select(
-                                3,
-                                Variant.variant()
-                                    .with(
-                                        VariantProperties.MODEL,
-                                        ModelTemplates.THREE_CANDLES.createWithSuffix(param0, "_three_candles", var0, this.modelOutput)
-                                    )
-                            )
-                            .select(
-                                4,
-                                Variant.variant()
-                                    .with(
-                                        VariantProperties.MODEL, ModelTemplates.FOUR_CANDLES.createWithSuffix(param0, "_four_candles", var0, this.modelOutput)
-                                    )
-                            )
+                        PropertyDispatch.properties(BlockStateProperties.CANDLES, BlockStateProperties.LIT)
+                            .select(1, false, Variant.variant().with(VariantProperties.MODEL, var2))
+                            .select(2, false, Variant.variant().with(VariantProperties.MODEL, var3))
+                            .select(3, false, Variant.variant().with(VariantProperties.MODEL, var4))
+                            .select(4, false, Variant.variant().with(VariantProperties.MODEL, var5))
+                            .select(1, true, Variant.variant().with(VariantProperties.MODEL, var6))
+                            .select(2, true, Variant.variant().with(VariantProperties.MODEL, var7))
+                            .select(3, true, Variant.variant().with(VariantProperties.MODEL, var8))
+                            .select(4, true, Variant.variant().with(VariantProperties.MODEL, var9))
                     )
             );
         this.blockStateOutput.accept(createSimpleBlock(param1, ModelTemplates.CANDLE_CAKE.create(param1, TextureMapping.candleCake(param0), this.modelOutput)));

@@ -37,6 +37,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class Font {
     private static final float EFFECT_DEPTH = 0.01F;
     private static final Vector3f SHADOW_OFFSET = new Vector3f(0.0F, 0.0F, 0.03F);
+    private static final Vector3f OUTLINE_OFFSET = new Vector3f(0.0F, 0.0F, 0.0025F);
     public final int lineHeight = 9;
     public final Random random = new Random();
     private final Function<ResourceLocation, FontSet> fonts;
@@ -166,6 +167,36 @@ public class Font {
         int param9
     ) {
         return this.drawInternal(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9);
+    }
+
+    public void drawInBatch8xOutline(
+        FormattedCharSequence param0, float param1, float param2, int param3, int param4, Matrix4f param5, MultiBufferSource param6, int param7
+    ) {
+        int var0 = adjustColor(param4);
+        Font.StringRenderOutput var1 = new Font.StringRenderOutput(param6, 0.0F, 0.0F, var0, false, param5, false, param7);
+
+        for(int var2 = -1; var2 <= 1; ++var2) {
+            for(int var3 = -1; var3 <= 1; ++var3) {
+                if (var2 != 0 || var3 != 0) {
+                    float[] var4 = new float[]{param1};
+                    int var5 = var2;
+                    int var6 = var3;
+                    param0.accept((param6x, param7x, param8) -> {
+                        boolean var0x = param7x.isBold();
+                        FontSet var1x = this.getFontSet(param7x.getFont());
+                        GlyphInfo var2x = var1x.getGlyphInfo(param8);
+                        var1.x = var4[0] + (float)var5 * var2x.getShadowOffset();
+                        var1.y = param2 + (float)var6 * var2x.getShadowOffset();
+                        var4[0] += var2x.getAdvance(var0x);
+                        return var1.accept(param6x, param7x.withColor(var0), param8);
+                    });
+                }
+            }
+        }
+
+        Matrix4f var7 = param5.copy();
+        var7.translate(OUTLINE_OFFSET);
+        this.renderText(param0, param1, param2, adjustColor(param3), false, var7, param6, false, 0, param7);
     }
 
     private static int adjustColor(int param0) {
@@ -341,8 +372,8 @@ public class Font {
         private final Matrix4f pose;
         private final boolean seeThrough;
         private final int packedLightCoords;
-        private float x;
-        private final float y;
+        float x;
+        float y;
         @Nullable
         private List<BakedGlyph.Effect> effects;
 

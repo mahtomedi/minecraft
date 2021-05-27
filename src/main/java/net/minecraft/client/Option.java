@@ -121,7 +121,7 @@ public abstract class Option {
         1.0,
         0.0F,
         param0 -> Math.pow((double)param0.fovEffectScale, 2.0),
-        (param0, param1) -> param0.fovEffectScale = Mth.sqrt(param1),
+        (param0, param1) -> param0.fovEffectScale = (float)Math.sqrt(param1),
         (param0, param1) -> {
             double var0 = param1.toPct(param1.get(param0));
             return var0 == 0.0 ? param1.genericValueLabel(CommonComponents.OPTION_OFF) : param1.percentValueLabel(var0);

@@ -11,7 +11,6 @@ import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LerpingModel;
 import net.minecraft.world.entity.animal.axolotl.Axolotl;
 import net.minecraftforge.api.distmarker.Dist;
@@ -89,7 +88,7 @@ public class AxolotlModel<T extends Axolotl & LerpingModel> extends AgeableListM
             this.setupPlayDeadAnimation(param4);
             this.saveAnimationValues(param0);
         } else {
-            boolean var0 = Entity.getHorizontalDistanceSqr(param0.getDeltaMovement()) > 1.0E-7
+            boolean var0 = param0.getDeltaMovement().horizontalDistanceSqr() > 1.0E-7
                 || param0.getXRot() != param0.xRotO
                 || param0.getYRot() != param0.yRotO
                 || param0.xOld != param0.getX()

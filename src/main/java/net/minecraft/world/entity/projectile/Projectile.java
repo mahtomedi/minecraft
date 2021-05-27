@@ -1,5 +1,6 @@
 package net.minecraft.world.entity.projectile;
 
+import com.google.common.base.MoreObjects;
 import java.util.UUID;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
@@ -50,6 +51,10 @@ public abstract class Projectile extends Entity {
         } else {
             return null;
         }
+    }
+
+    public Entity getEffectSource() {
+        return MoreObjects.firstNonNull(this.getOwner(), this);
     }
 
     @Override
@@ -119,7 +124,7 @@ public abstract class Projectile extends Entity {
             )
             .scale((double)param3);
         this.setDeltaMovement(var0);
-        double var1 = Math.sqrt(getHorizontalDistanceSqr(var0));
+        double var1 = var0.horizontalDistance();
         this.setYRot((float)(Mth.atan2(var0.x, var0.z) * 180.0F / (float)Math.PI));
         this.setXRot((float)(Mth.atan2(var0.y, var1) * 180.0F / (float)Math.PI));
         this.yRotO = this.getYRot();
@@ -182,7 +187,7 @@ public abstract class Projectile extends Entity {
 
     protected void updateRotation() {
         Vec3 var0 = this.getDeltaMovement();
-        double var1 = Math.sqrt(getHorizontalDistanceSqr(var0));
+        double var1 = var0.horizontalDistance();
         this.setXRot(lerpRotation(this.xRotO, (float)(Mth.atan2(var0.y, var1) * 180.0F / (float)Math.PI)));
         this.setYRot(lerpRotation(this.yRotO, (float)(Mth.atan2(var0.x, var0.z) * 180.0F / (float)Math.PI)));
     }

@@ -7,6 +7,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.realmsclient.RealmsMainScreen;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
@@ -129,7 +130,7 @@ public class TextureManager implements PreparableReloadListener, Tickable, AutoC
         }
 
         this.prefixRegister.put(param0, var0);
-        ResourceLocation var1 = new ResourceLocation(String.format("dynamic/%s_%d", param0, var0));
+        ResourceLocation var1 = new ResourceLocation(String.format(Locale.ROOT, "dynamic/%s_%d", param0, var0));
         this.register(var1, param1);
         return var1;
     }

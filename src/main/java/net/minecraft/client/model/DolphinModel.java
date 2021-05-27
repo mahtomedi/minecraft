@@ -72,7 +72,7 @@ public class DolphinModel<T extends Entity> extends HierarchicalModel<T> {
     public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5) {
         this.body.xRot = param5 * (float) (Math.PI / 180.0);
         this.body.yRot = param4 * (float) (Math.PI / 180.0);
-        if (Entity.getHorizontalDistanceSqr(param0.getDeltaMovement()) > 1.0E-7) {
+        if (param0.getDeltaMovement().horizontalDistanceSqr() > 1.0E-7) {
             this.body.xRot += -0.05F - 0.05F * Mth.cos(param3 * 0.3F);
             this.tail.xRot = -0.1F * Mth.cos(param3 * 0.3F);
             this.tailFin.xRot = -0.2F * Mth.cos(param3 * 0.3F);

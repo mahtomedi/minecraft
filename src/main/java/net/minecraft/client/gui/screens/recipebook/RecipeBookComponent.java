@@ -511,7 +511,12 @@ public class RecipeBookComponent extends GuiComponent implements Widget, GuiEven
     @Override
     public void updateNarration(NarrationElementOutput param0) {
         List<NarratableEntry> var0 = Lists.newArrayList();
-        this.recipeBookPage.listButtons(var0::add);
+        this.recipeBookPage.listButtons(param1 -> {
+            if (param1.isActive()) {
+                var0.add(param1);
+            }
+
+        });
         var0.add(this.searchBox);
         var0.add(this.filterButton);
         var0.addAll(this.tabButtons);

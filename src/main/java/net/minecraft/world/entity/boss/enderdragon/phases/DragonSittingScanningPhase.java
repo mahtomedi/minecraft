@@ -44,7 +44,7 @@ public class DragonSittingScanningPhase extends AbstractDragonSittingPhase {
                         Mth.wrapDegrees(180.0 - Mth.atan2(var5, var6) * 180.0F / (float)Math.PI - (double)this.dragon.getYRot()), -100.0, 100.0
                     );
                     this.dragon.yRotA *= 0.8F;
-                    float var8 = Mth.sqrt(var5 * var5 + var6 * var6) + 1.0F;
+                    float var8 = (float)Math.sqrt(var5 * var5 + var6 * var6) + 1.0F;
                     float var9 = var8;
                     if (var8 > 40.0F) {
                         var8 = 40.0F;

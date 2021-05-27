@@ -126,23 +126,25 @@ public class ThrownPotion extends ThrowableItemProjectile implements ItemSupplie
         AABB var0 = this.getBoundingBox().inflate(4.0, 2.0, 4.0);
         List<LivingEntity> var1 = this.level.getEntitiesOfClass(LivingEntity.class, var0);
         if (!var1.isEmpty()) {
-            for(LivingEntity var2 : var1) {
-                if (var2.isAffectedByPotions()) {
-                    double var3 = this.distanceToSqr(var2);
-                    if (var3 < 16.0) {
-                        double var4 = 1.0 - Math.sqrt(var3) / 4.0;
-                        if (var2 == param1) {
-                            var4 = 1.0;
+            Entity var2 = this.getEffectSource();
+
+            for(LivingEntity var3 : var1) {
+                if (var3.isAffectedByPotions()) {
+                    double var4 = this.distanceToSqr(var3);
+                    if (var4 < 16.0) {
+                        double var5 = 1.0 - Math.sqrt(var4) / 4.0;
+                        if (var3 == param1) {
+                            var5 = 1.0;
                         }
 
-                        for(MobEffectInstance var5 : param0) {
-                            MobEffect var6 = var5.getEffect();
-                            if (var6.isInstantenous()) {
-                                var6.applyInstantenousEffect(this, this.getOwner(), var2, var5.getAmplifier(), var4);
+                        for(MobEffectInstance var6 : param0) {
+                            MobEffect var7 = var6.getEffect();
+                            if (var7.isInstantenous()) {
+                                var7.applyInstantenousEffect(this, this.getOwner(), var3, var6.getAmplifier(), var5);
                             } else {
-                                int var7 = (int)(var4 * (double)var5.getDuration() + 0.5);
-                                if (var7 > 20) {
-                                    var2.addEffect(new MobEffectInstance(var6, var7, var5.getAmplifier(), var5.isAmbient(), var5.isVisible()));
+                                int var8 = (int)(var5 * (double)var6.getDuration() + 0.5);
+                                if (var8 > 20) {
+                                    var3.addEffect(new MobEffectInstance(var7, var8, var6.getAmplifier(), var6.isAmbient(), var6.isVisible()), var2);
                                 }
                             }
                         }

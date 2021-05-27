@@ -511,7 +511,7 @@ public abstract class Player extends LivingEntity {
         this.setSpeed((float)this.getAttributeValue(Attributes.MOVEMENT_SPEED));
         float var1;
         if (this.onGround && !this.isDeadOrDying() && !this.isSwimming()) {
-            var1 = Math.min(0.1F, Mth.sqrt(getHorizontalDistanceSqr(this.getDeltaMovement())));
+            var1 = Math.min(0.1F, (float)this.getDeltaMovement().horizontalDistance());
         } else {
             var1 = 0.0F;
         }
@@ -1487,19 +1487,19 @@ public abstract class Player extends LivingEntity {
     public void checkMovementStatistics(double param0, double param1, double param2) {
         if (!this.isPassenger()) {
             if (this.isSwimming()) {
-                int var0 = Math.round(Mth.sqrt(param0 * param0 + param1 * param1 + param2 * param2) * 100.0F);
+                int var0 = Math.round((float)Math.sqrt(param0 * param0 + param1 * param1 + param2 * param2) * 100.0F);
                 if (var0 > 0) {
                     this.awardStat(Stats.SWIM_ONE_CM, var0);
                     this.causeFoodExhaustion(0.01F * (float)var0 * 0.01F);
                 }
             } else if (this.isEyeInFluid(FluidTags.WATER)) {
-                int var1 = Math.round(Mth.sqrt(param0 * param0 + param1 * param1 + param2 * param2) * 100.0F);
+                int var1 = Math.round((float)Math.sqrt(param0 * param0 + param1 * param1 + param2 * param2) * 100.0F);
                 if (var1 > 0) {
                     this.awardStat(Stats.WALK_UNDER_WATER_ONE_CM, var1);
                     this.causeFoodExhaustion(0.01F * (float)var1 * 0.01F);
                 }
             } else if (this.isInWater()) {
-                int var2 = Math.round(Mth.sqrt(param0 * param0 + param2 * param2) * 100.0F);
+                int var2 = Math.round((float)Math.sqrt(param0 * param0 + param2 * param2) * 100.0F);
                 if (var2 > 0) {
                     this.awardStat(Stats.WALK_ON_WATER_ONE_CM, var2);
                     this.causeFoodExhaustion(0.01F * (float)var2 * 0.01F);
@@ -1509,7 +1509,7 @@ public abstract class Player extends LivingEntity {
                     this.awardStat(Stats.CLIMB_ONE_CM, (int)Math.round(param1 * 100.0));
                 }
             } else if (this.onGround) {
-                int var3 = Math.round(Mth.sqrt(param0 * param0 + param2 * param2) * 100.0F);
+                int var3 = Math.round((float)Math.sqrt(param0 * param0 + param2 * param2) * 100.0F);
                 if (var3 > 0) {
                     if (this.isSprinting()) {
                         this.awardStat(Stats.SPRINT_ONE_CM, var3);
@@ -1523,10 +1523,10 @@ public abstract class Player extends LivingEntity {
                     }
                 }
             } else if (this.isFallFlying()) {
-                int var4 = Math.round(Mth.sqrt(param0 * param0 + param1 * param1 + param2 * param2) * 100.0F);
+                int var4 = Math.round((float)Math.sqrt(param0 * param0 + param1 * param1 + param2 * param2) * 100.0F);
                 this.awardStat(Stats.AVIATE_ONE_CM, var4);
             } else {
-                int var5 = Math.round(Mth.sqrt(param0 * param0 + param2 * param2) * 100.0F);
+                int var5 = Math.round((float)Math.sqrt(param0 * param0 + param2 * param2) * 100.0F);
                 if (var5 > 25) {
                     this.awardStat(Stats.FLY_ONE_CM, var5);
                 }
@@ -1537,7 +1537,7 @@ public abstract class Player extends LivingEntity {
 
     private void checkRidingStatistics(double param0, double param1, double param2) {
         if (this.isPassenger()) {
-            int var0 = Math.round(Mth.sqrt(param0 * param0 + param1 * param1 + param2 * param2) * 100.0F);
+            int var0 = Math.round((float)Math.sqrt(param0 * param0 + param1 * param1 + param2 * param2) * 100.0F);
             if (var0 > 0) {
                 Entity var1 = this.getVehicle();
                 if (var1 instanceof AbstractMinecart) {
@@ -2062,8 +2062,8 @@ public abstract class Player extends LivingEntity {
         if (this.isFallFlying() || this.isAutoSpinAttack()) {
             Vec3 var3 = this.getViewVector(param0);
             Vec3 var4 = this.getDeltaMovement();
-            double var5 = Entity.getHorizontalDistanceSqr(var4);
-            double var6 = Entity.getHorizontalDistanceSqr(var3);
+            double var5 = var4.horizontalDistanceSqr();
+            double var6 = var3.horizontalDistanceSqr();
             float var9;
             if (var5 > 0.0 && var6 > 0.0) {
                 double var7 = (var4.x * var3.x + var4.z * var3.z) / Math.sqrt(var5 * var6);

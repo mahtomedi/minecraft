@@ -1,7 +1,10 @@
 package net.minecraft.world.entity;
 
+import com.google.common.collect.Sets;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
@@ -26,12 +29,16 @@ import net.minecraft.world.phys.Vec3;
 
 public class LightningBolt extends Entity {
     private static final int START_LIFE = 2;
+    private static final double DAMAGE_RADIUS = 3.0;
+    private static final double DETECTION_RADIUS = 15.0;
     private int life;
     public long seed;
     private int flashes;
     private boolean visualOnly;
     @Nullable
     private ServerPlayer cause;
+    private final Set<Entity> hitEntities = Sets.newHashSet();
+    private int blocksSetOnFire;
 
     public LightningBolt(EntityType<? extends LightningBolt> param0, Level param1) {
         super(param0, param1);
@@ -110,6 +117,21 @@ public class LightningBolt extends Entity {
         --this.life;
         if (this.life < 0) {
             if (this.flashes == 0) {
+                if (this.level instanceof ServerLevel) {
+                    List<Entity> var1 = this.level
+                        .getEntities(
+                            this,
+                            new AABB(
+                                this.getX() - 15.0, this.getY() - 15.0, this.getZ() - 15.0, this.getX() + 15.0, this.getY() + 6.0 + 15.0, this.getZ() + 15.0
+                            ),
+                            param0 -> param0.isAlive() && !this.hitEntities.contains(param0)
+                        );
+
+                    for(ServerPlayer var2 : ((ServerLevel)this.level).getPlayers(param0 -> param0.distanceTo(this) < 256.0F)) {
+                        CriteriaTriggers.LIGHTNING_STRIKE.trigger(var2, this, var1);
+                    }
+                }
+
                 this.discard();
             } else if (this.life < -this.random.nextInt(10)) {
                 --this.flashes;
@@ -123,20 +145,20 @@ public class LightningBolt extends Entity {
             if (!(this.level instanceof ServerLevel)) {
                 this.level.setSkyFlashTime(2);
             } else if (!this.visualOnly) {
-                double var1 = 3.0;
-                List<Entity> var2 = this.level
+                List<Entity> var3 = this.level
                     .getEntities(
                         this,
                         new AABB(this.getX() - 3.0, this.getY() - 3.0, this.getZ() - 3.0, this.getX() + 3.0, this.getY() + 6.0 + 3.0, this.getZ() + 3.0),
                         Entity::isAlive
                     );
 
-                for(Entity var3 : var2) {
-                    var3.thunderHit((ServerLevel)this.level, this);
+                for(Entity var4 : var3) {
+                    var4.thunderHit((ServerLevel)this.level, this);
                 }
 
+                this.hitEntities.addAll(var3);
                 if (this.cause != null) {
-                    CriteriaTriggers.CHANNELED_LIGHTNING.trigger(this.cause, var2);
+                    CriteriaTriggers.CHANNELED_LIGHTNING.trigger(this.cause, var3);
                 }
             }
         }
@@ -154,6 +176,7 @@ public class LightningBolt extends Entity {
             BlockState var1 = BaseFireBlock.getState(this.level, var0);
             if (this.level.getBlockState(var0).isAir() && var1.canSurvive(this.level, var0)) {
                 this.level.setBlockAndUpdate(var0, var1);
+                ++this.blocksSetOnFire;
             }
 
             for(int var2 = 0; var2 < param0; ++var2) {
@@ -161,6 +184,7 @@ public class LightningBolt extends Entity {
                 var1 = BaseFireBlock.getState(this.level, var3);
                 if (this.level.getBlockState(var3).isAir() && var1.canSurvive(this.level, var3)) {
                     this.level.setBlockAndUpdate(var3, var1);
+                    ++this.blocksSetOnFire;
                 }
             }
 
@@ -240,5 +264,13 @@ public class LightningBolt extends Entity {
     @Override
     public Packet<?> getAddEntityPacket() {
         return new ClientboundAddEntityPacket(this);
+    }
+
+    public int getBlocksSetOnFire() {
+        return this.blocksSetOnFire;
+    }
+
+    public Stream<Entity> getHitEntities() {
+        return this.hitEntities.stream().filter(Entity::isAlive);
     }
 }

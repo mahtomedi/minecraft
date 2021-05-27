@@ -1189,7 +1189,7 @@ public class Fox extends Animal {
                 if (var1.y * var1.y < 0.03F && Fox.this.getXRot() != 0.0F) {
                     Fox.this.setXRot(Mth.rotlerp(Fox.this.getXRot(), 0.0F, 0.2F));
                 } else {
-                    double var2 = Math.sqrt(Entity.getHorizontalDistanceSqr(var1));
+                    double var2 = var1.horizontalDistance();
                     double var3 = Math.signum(-var1.y) * Math.acos(var2 / var1.length()) * 180.0F / (float)Math.PI;
                     Fox.this.setXRot((float)var3);
                 }

@@ -123,7 +123,7 @@ public class IronGolem extends AbstractGolem implements NeutralMob {
             --this.offerFlowerTick;
         }
 
-        if (getHorizontalDistanceSqr(this.getDeltaMovement()) > 2.5000003E-7F && this.random.nextInt(5) == 0) {
+        if (this.getDeltaMovement().horizontalDistanceSqr() > 2.5000003E-7F && this.random.nextInt(5) == 0) {
             int var0 = Mth.floor(this.getX());
             int var1 = Mth.floor(this.getY() - 0.2F);
             int var2 = Mth.floor(this.getZ());

@@ -1,5 +1,6 @@
 package net.minecraft.advancements.critereon;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -9,6 +10,8 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
@@ -30,7 +33,7 @@ public class ItemPredicate {
     @Nullable
     private final Tag<Item> tag;
     @Nullable
-    private final Item item;
+    private final Set<Item> items;
     private final MinMaxBounds.Ints count;
     private final MinMaxBounds.Ints durability;
     private final EnchantmentPredicate[] enchantments;
@@ -41,7 +44,7 @@ public class ItemPredicate {
 
     public ItemPredicate() {
         this.tag = null;
-        this.item = null;
+        this.items = null;
         this.potion = null;
         this.count = MinMaxBounds.Ints.ANY;
         this.durability = MinMaxBounds.Ints.ANY;
@@ -52,7 +55,7 @@ public class ItemPredicate {
 
     public ItemPredicate(
         @Nullable Tag<Item> param0,
-        @Nullable Item param1,
+        @Nullable Set<Item> param1,
         MinMaxBounds.Ints param2,
         MinMaxBounds.Ints param3,
         EnchantmentPredicate[] param4,
@@ -61,7 +64,7 @@ public class ItemPredicate {
         NbtPredicate param7
     ) {
         this.tag = param0;
-        this.item = param1;
+        this.items = param1;
         this.count = param2;
         this.durability = param3;
         this.enchantments = param4;
@@ -75,7 +78,7 @@ public class ItemPredicate {
             return true;
         } else if (this.tag != null && !param0.is(this.tag)) {
             return false;
-        } else if (this.item != null && !param0.is(this.item)) {
+        } else if (this.items != null && !this.items.contains(param0.getItem())) {
             return false;
         } else if (!this.count.matches(param0.getCount())) {
             return false;
@@ -120,28 +123,35 @@ public class ItemPredicate {
                 throw new JsonParseException("Disallowed data tag found");
             } else {
                 NbtPredicate var3 = NbtPredicate.fromJson(var0.get("nbt"));
-                Item var4 = null;
-                if (var0.has("item")) {
-                    ResourceLocation var5 = new ResourceLocation(GsonHelper.getAsString(var0, "item"));
-                    var4 = Registry.ITEM.getOptional(var5).orElseThrow(() -> new JsonSyntaxException("Unknown item id '" + var5 + "'"));
+                Set<Item> var4 = null;
+                JsonArray var5 = GsonHelper.getAsJsonArray(var0, "items", null);
+                if (var5 != null) {
+                    ImmutableSet.Builder<Item> var6 = ImmutableSet.builder();
+
+                    for(JsonElement var7 : var5) {
+                        ResourceLocation var8 = new ResourceLocation(GsonHelper.convertToString(var7, "item"));
+                        var6.add(Registry.ITEM.getOptional(var8).orElseThrow(() -> new JsonSyntaxException("Unknown item id '" + var8 + "'")));
+                    }
+
+                    var4 = var6.build();
                 }
 
-                Tag<Item> var6 = null;
+                Tag<Item> var9 = null;
                 if (var0.has("tag")) {
-                    ResourceLocation var7 = new ResourceLocation(GsonHelper.getAsString(var0, "tag"));
-                    var6 = SerializationTags.getInstance()
-                        .getTagOrThrow(Registry.ITEM_REGISTRY, var7, param0x -> new JsonSyntaxException("Unknown item tag '" + param0x + "'"));
+                    ResourceLocation var10 = new ResourceLocation(GsonHelper.getAsString(var0, "tag"));
+                    var9 = SerializationTags.getInstance()
+                        .getTagOrThrow(Registry.ITEM_REGISTRY, var10, param0x -> new JsonSyntaxException("Unknown item tag '" + param0x + "'"));
                 }
 
-                Potion var8 = null;
+                Potion var11 = null;
                 if (var0.has("potion")) {
-                    ResourceLocation var9 = new ResourceLocation(GsonHelper.getAsString(var0, "potion"));
-                    var8 = Registry.POTION.getOptional(var9).orElseThrow(() -> new JsonSyntaxException("Unknown potion '" + var9 + "'"));
+                    ResourceLocation var12 = new ResourceLocation(GsonHelper.getAsString(var0, "potion"));
+                    var11 = Registry.POTION.getOptional(var12).orElseThrow(() -> new JsonSyntaxException("Unknown potion '" + var12 + "'"));
                 }
 
-                EnchantmentPredicate[] var10 = EnchantmentPredicate.fromJsonArray(var0.get("enchantments"));
-                EnchantmentPredicate[] var11 = EnchantmentPredicate.fromJsonArray(var0.get("stored_enchantments"));
-                return new ItemPredicate(var6, var4, var1, var2, var10, var11, var8, var3);
+                EnchantmentPredicate[] var13 = EnchantmentPredicate.fromJsonArray(var0.get("enchantments"));
+                EnchantmentPredicate[] var14 = EnchantmentPredicate.fromJsonArray(var0.get("stored_enchantments"));
+                return new ItemPredicate(var9, var4, var1, var2, var13, var14, var11, var3);
             }
         } else {
             return ANY;
@@ -153,8 +163,14 @@ public class ItemPredicate {
             return JsonNull.INSTANCE;
         } else {
             JsonObject var0 = new JsonObject();
-            if (this.item != null) {
-                var0.addProperty("item", Registry.ITEM.getKey(this.item).toString());
+            if (this.items != null) {
+                JsonArray var1 = new JsonArray();
+
+                for(Item var2 : this.items) {
+                    var1.add(Registry.ITEM.getKey(var2).toString());
+                }
+
+                var0.add("items", var1);
             }
 
             if (this.tag != null) {
@@ -170,23 +186,23 @@ public class ItemPredicate {
             var0.add("durability", this.durability.serializeToJson());
             var0.add("nbt", this.nbt.serializeToJson());
             if (this.enchantments.length > 0) {
-                JsonArray var1 = new JsonArray();
-
-                for(EnchantmentPredicate var2 : this.enchantments) {
-                    var1.add(var2.serializeToJson());
-                }
-
-                var0.add("enchantments", var1);
-            }
-
-            if (this.storedEnchantments.length > 0) {
                 JsonArray var3 = new JsonArray();
 
-                for(EnchantmentPredicate var4 : this.storedEnchantments) {
+                for(EnchantmentPredicate var4 : this.enchantments) {
                     var3.add(var4.serializeToJson());
                 }
 
-                var0.add("stored_enchantments", var3);
+                var0.add("enchantments", var3);
+            }
+
+            if (this.storedEnchantments.length > 0) {
+                JsonArray var5 = new JsonArray();
+
+                for(EnchantmentPredicate var6 : this.storedEnchantments) {
+                    var5.add(var6.serializeToJson());
+                }
+
+                var0.add("stored_enchantments", var5);
             }
 
             if (this.potion != null) {
@@ -216,7 +232,7 @@ public class ItemPredicate {
         private final List<EnchantmentPredicate> enchantments = Lists.newArrayList();
         private final List<EnchantmentPredicate> storedEnchantments = Lists.newArrayList();
         @Nullable
-        private Item item;
+        private Set<Item> items;
         @Nullable
         private Tag<Item> tag;
         private MinMaxBounds.Ints count = MinMaxBounds.Ints.ANY;
@@ -232,8 +248,8 @@ public class ItemPredicate {
             return new ItemPredicate.Builder();
         }
 
-        public ItemPredicate.Builder of(ItemLike param0) {
-            this.item = param0.asItem();
+        public ItemPredicate.Builder of(ItemLike... param0) {
+            this.items = Stream.of(param0).map(ItemLike::asItem).collect(ImmutableSet.toImmutableSet());
             return this;
         }
 
@@ -275,7 +291,7 @@ public class ItemPredicate {
         public ItemPredicate build() {
             return new ItemPredicate(
                 this.tag,
-                this.item,
+                this.items,
                 this.count,
                 this.durability,
                 this.enchantments.toArray(EnchantmentPredicate.NONE),

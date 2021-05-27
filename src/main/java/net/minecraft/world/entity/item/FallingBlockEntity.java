@@ -9,9 +9,11 @@ import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
+import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
@@ -137,7 +139,6 @@ public class FallingBlockEntity extends Entity {
                     BlockState var7 = this.level.getBlockState(var2);
                     this.setDeltaMovement(this.getDeltaMovement().multiply(0.7, -0.5, 0.7));
                     if (!var7.is(Blocks.MOVING_PISTON)) {
-                        this.discard();
                         if (!this.cancelDrop) {
                             boolean var8 = var7.canBeReplaced(new DirectionalPlaceContext(this.level, var2, Direction.DOWN, ItemStack.EMPTY, Direction.UP));
                             boolean var9 = FallingBlock.isFree(this.level.getBlockState(var2.below())) && (!var3 || !var4);
@@ -148,6 +149,11 @@ public class FallingBlockEntity extends Entity {
                                 }
 
                                 if (this.level.setBlock(var2, this.blockState, 3)) {
+                                    ((ServerLevel)this.level)
+                                        .getChunkSource()
+                                        .chunkMap
+                                        .broadcast(this, new ClientboundBlockUpdatePacket(var2, this.level.getBlockState(var2)));
+                                    this.discard();
                                     if (var0 instanceof Fallable) {
                                         ((Fallable)var0).onLand(this.level, var2, this.blockState, var7, this);
                                     }
@@ -164,19 +170,27 @@ public class FallingBlockEntity extends Entity {
                                                 }
                                             }
 
-                                            var11.load(var12);
+                                            try {
+                                                var11.load(var12);
+                                            } catch (Exception var16) {
+                                                LOGGER.error("Failed to load block entity from falling block", (Throwable)var16);
+                                            }
+
                                             var11.setChanged();
                                         }
                                     }
                                 } else if (this.dropItem && this.level.getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
+                                    this.discard();
                                     this.callOnBrokenAfterFall(var0, var2);
                                     this.spawnAtLocation(var0);
                                 }
                             } else if (this.dropItem && this.level.getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
+                                this.discard();
                                 this.callOnBrokenAfterFall(var0, var2);
                                 this.spawnAtLocation(var0);
                             }
                         } else {
+                            this.discard();
                             this.callOnBrokenAfterFall(var0, var2);
                         }
                     }

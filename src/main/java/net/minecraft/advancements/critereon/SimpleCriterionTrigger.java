@@ -54,7 +54,7 @@ public abstract class SimpleCriterionTrigger<T extends AbstractCriterionTriggerI
 
             for(CriterionTrigger.Listener<T> var4 : var1) {
                 T var5 = var4.getTriggerInstance();
-                if (var5.getPlayerPredicate().matches(var2) && param1.test(var5)) {
+                if (param1.test(var5) && var5.getPlayerPredicate().matches(var2)) {
                     if (var3 == null) {
                         var3 = Lists.newArrayList();
                     }
