@@ -18,6 +18,7 @@ public class FontTexture extends AbstractTexture {
     private final ResourceLocation name;
     private final RenderType normalType;
     private final RenderType seeThroughType;
+    private final RenderType polygonOffsetType;
     private final boolean colored;
     private final FontTexture.Node root;
 
@@ -28,6 +29,7 @@ public class FontTexture extends AbstractTexture {
         TextureUtil.prepareImage(param1 ? NativeImage.InternalGlFormat.RGBA : NativeImage.InternalGlFormat.RED, this.getId(), 256, 256);
         this.normalType = param1 ? RenderType.text(param0) : RenderType.textIntensity(param0);
         this.seeThroughType = param1 ? RenderType.textSeeThrough(param0) : RenderType.textIntensitySeeThrough(param0);
+        this.polygonOffsetType = param1 ? RenderType.textPolygonOffset(param0) : RenderType.textIntensityPolygonOffset(param0);
     }
 
     @Override
@@ -54,6 +56,7 @@ public class FontTexture extends AbstractTexture {
                 return new BakedGlyph(
                     this.normalType,
                     this.seeThroughType,
+                    this.polygonOffsetType,
                     ((float)var0.x + 0.01F) / 256.0F,
                     ((float)var0.x - 0.01F + (float)param0.getPixelWidth()) / 256.0F,
                     ((float)var0.y + 0.01F) / 256.0F,

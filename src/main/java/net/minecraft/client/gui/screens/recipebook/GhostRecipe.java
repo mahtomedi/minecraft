@@ -18,6 +18,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class GhostRecipe {
+    @Nullable
     private Recipe<?> recipe;
     private final List<GhostRecipe.GhostIngredient> ingredients = Lists.newArrayList();
     float time;

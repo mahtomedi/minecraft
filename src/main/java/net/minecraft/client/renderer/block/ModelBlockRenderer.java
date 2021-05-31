@@ -706,13 +706,13 @@ public class ModelBlockRenderer {
             int var14 = var3.getLightColor(var13, param0, var2);
             float var15 = var3.getShadeBrightness(var13, param0, var2);
             var2.setWithOffset(var0, var1.corners[0]).move(param3);
-            boolean var16 = param0.getBlockState(var2).getLightBlock(param0, var2) == 0;
+            boolean var16 = !var4.isViewBlocking(param0, var2) || var4.getLightBlock(param0, var2) == 0;
             var2.setWithOffset(var0, var1.corners[1]).move(param3);
-            boolean var17 = param0.getBlockState(var2).getLightBlock(param0, var2) == 0;
+            boolean var17 = !var7.isViewBlocking(param0, var2) || var7.getLightBlock(param0, var2) == 0;
             var2.setWithOffset(var0, var1.corners[2]).move(param3);
-            boolean var18 = param0.getBlockState(var2).getLightBlock(param0, var2) == 0;
+            boolean var18 = !var10.isViewBlocking(param0, var2) || var10.getLightBlock(param0, var2) == 0;
             var2.setWithOffset(var0, var1.corners[3]).move(param3);
-            boolean var19 = param0.getBlockState(var2).getLightBlock(param0, var2) == 0;
+            boolean var19 = !var13.isViewBlocking(param0, var2) || var13.getLightBlock(param0, var2) == 0;
             float var23;
             int var24;
             if (!var18 && !var16) {

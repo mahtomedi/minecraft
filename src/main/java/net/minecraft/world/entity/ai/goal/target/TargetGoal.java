@@ -42,7 +42,7 @@ public abstract class TargetGoal extends Goal {
 
         if (var0 == null) {
             return false;
-        } else if (!var0.canBeSeenAsEnemy()) {
+        } else if (!this.mob.canAttack(var0)) {
             return false;
         } else {
             Team var1 = this.mob.getTeam();

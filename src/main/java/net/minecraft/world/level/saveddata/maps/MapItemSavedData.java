@@ -34,6 +34,7 @@ public class MapItemSavedData extends SavedData {
     private static final int MAP_SIZE = 128;
     private static final int HALF_MAP_SIZE = 64;
     public static final int MAX_SCALE = 4;
+    public static final int TRACKED_DECORATION_LIMIT = 256;
     public final int x;
     public final int z;
     public final ResourceKey<Level> dimension;
@@ -47,6 +48,7 @@ public class MapItemSavedData extends SavedData {
     private final Map<String, MapBanner> bannerMarkers = Maps.newHashMap();
     final Map<String, MapDecoration> decorations = Maps.newLinkedHashMap();
     private final Map<String, MapFrame> frameMarkers = Maps.newHashMap();
+    private int trackedDecorationCount;
 
     private MapItemSavedData(int param0, int param1, byte param2, boolean param3, boolean param4, boolean param5, ResourceKey<Level> param6) {
         this.scale = param2;
@@ -149,6 +151,7 @@ public class MapItemSavedData extends SavedData {
         MapItemSavedData var0 = new MapItemSavedData(this.x, this.z, this.scale, this.trackingPosition, this.unlimitedTracking, true, this.dimension);
         var0.bannerMarkers.putAll(this.bannerMarkers);
         var0.decorations.putAll(this.decorations);
+        var0.trackedDecorationCount = this.trackedDecorationCount;
         System.arraycopy(this.colors, 0, var0.colors, 0, this.colors.length);
         var0.setDirty();
         return var0;
@@ -168,7 +171,7 @@ public class MapItemSavedData extends SavedData {
         }
 
         if (!param0.getInventory().contains(param1)) {
-            this.decorations.remove(param0.getName().getString());
+            this.removeDecoration(param0.getName().getString());
         }
 
         for(int var1 = 0; var1 < this.carriedBy.size(); ++var1) {
@@ -231,7 +234,11 @@ public class MapItemSavedData extends SavedData {
     }
 
     private void removeDecoration(String param0) {
-        this.decorations.remove(param0);
+        MapDecoration var0 = this.decorations.remove(param0);
+        if (var0 != null && var0.getType().shouldTrackCount()) {
+            --this.trackedDecorationCount;
+        }
+
         this.setDecorationsDirty();
     }
 
@@ -314,6 +321,14 @@ public class MapItemSavedData extends SavedData {
         MapDecoration var11 = new MapDecoration(param0, var3, var4, var6, param6);
         MapDecoration var12 = this.decorations.put(param2, var11);
         if (!var11.equals(var12)) {
+            if (var12 != null && var12.getType().shouldTrackCount()) {
+                --this.trackedDecorationCount;
+            }
+
+            if (param0.shouldTrackCount()) {
+                ++this.trackedDecorationCount;
+            }
+
             this.setDecorationsDirty();
         }
 
@@ -350,7 +365,7 @@ public class MapItemSavedData extends SavedData {
         return var0;
     }
 
-    public void toggleBanner(LevelAccessor param0, BlockPos param1) {
+    public boolean toggleBanner(LevelAccessor param0, BlockPos param1) {
         double var0 = (double)param1.getX() + 0.5;
         double var1 = (double)param1.getZ() + 0.5;
         int var2 = 1 << this.scale;
@@ -360,17 +375,22 @@ public class MapItemSavedData extends SavedData {
         if (var3 >= -63.0 && var4 >= -63.0 && var3 <= 63.0 && var4 <= 63.0) {
             MapBanner var6 = MapBanner.fromWorld(param0, param1);
             if (var6 == null) {
-                return;
+                return false;
             }
 
             if (this.bannerMarkers.remove(var6.getId(), var6)) {
                 this.removeDecoration(var6.getId());
-            } else {
+                return true;
+            }
+
+            if (!this.isTrackedCountOverLimit(256)) {
                 this.bannerMarkers.put(var6.getId(), var6);
                 this.addDecoration(var6.getDecoration(), param0, var6.getId(), var0, var1, 180.0, var6.getName());
+                return true;
             }
         }
 
+        return false;
     }
 
     public void checkBanners(BlockGetter param0, int param1, int param2) {
@@ -425,16 +445,24 @@ public class MapItemSavedData extends SavedData {
 
     public void addClientSideDecorations(List<MapDecoration> param0) {
         this.decorations.clear();
+        this.trackedDecorationCount = 0;
 
         for(int var0 = 0; var0 < param0.size(); ++var0) {
             MapDecoration var1 = param0.get(var0);
             this.decorations.put("icon-" + var0, var1);
+            if (var1.getType().shouldTrackCount()) {
+                ++this.trackedDecorationCount;
+            }
         }
 
     }
 
     public Iterable<MapDecoration> getDecorations() {
         return this.decorations.values();
+    }
+
+    public boolean isTrackedCountOverLimit(int param0) {
+        return this.trackedDecorationCount >= param0;
     }
 
     public class HoldingPlayer {

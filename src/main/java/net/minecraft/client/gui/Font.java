@@ -37,7 +37,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class Font {
     private static final float EFFECT_DEPTH = 0.01F;
     private static final Vector3f SHADOW_OFFSET = new Vector3f(0.0F, 0.0F, 0.03F);
-    private static final Vector3f OUTLINE_OFFSET = new Vector3f(0.0F, 0.0F, 0.0025F);
     public final int lineHeight = 9;
     public final Random random = new Random();
     private final Function<ResourceLocation, FontSet> fonts;
@@ -173,7 +172,7 @@ public class Font {
         FormattedCharSequence param0, float param1, float param2, int param3, int param4, Matrix4f param5, MultiBufferSource param6, int param7
     ) {
         int var0 = adjustColor(param4);
-        Font.StringRenderOutput var1 = new Font.StringRenderOutput(param6, 0.0F, 0.0F, var0, false, param5, false, param7);
+        Font.StringRenderOutput var1 = new Font.StringRenderOutput(param6, 0.0F, 0.0F, var0, false, param5, Font.DisplayMode.NORMAL, param7);
 
         for(int var2 = -1; var2 <= 1; ++var2) {
             for(int var3 = -1; var3 <= 1; ++var3) {
@@ -194,9 +193,11 @@ public class Font {
             }
         }
 
-        Matrix4f var7 = param5.copy();
-        var7.translate(OUTLINE_OFFSET);
-        this.renderText(param0, param1, param2, adjustColor(param3), false, var7, param6, false, 0, param7);
+        Font.StringRenderOutput var7 = new Font.StringRenderOutput(
+            param6, param1, param2, adjustColor(param3), false, param5, Font.DisplayMode.POLYGON_OFFSET, param7
+        );
+        param0.accept(var7);
+        var7.finish(0, param1);
     }
 
     private static int adjustColor(int param0) {
@@ -361,6 +362,13 @@ public class Font {
     }
 
     @OnlyIn(Dist.CLIENT)
+    public static enum DisplayMode {
+        NORMAL,
+        SEE_THROUGH,
+        POLYGON_OFFSET;
+    }
+
+    @OnlyIn(Dist.CLIENT)
     class StringRenderOutput implements FormattedCharSink {
         final MultiBufferSource bufferSource;
         private final boolean dropShadow;
@@ -370,7 +378,7 @@ public class Font {
         private final float b;
         private final float a;
         private final Matrix4f pose;
-        private final boolean seeThrough;
+        private final Font.DisplayMode mode;
         private final int packedLightCoords;
         float x;
         float y;
@@ -386,6 +394,12 @@ public class Font {
         }
 
         public StringRenderOutput(MultiBufferSource param0, float param1, float param2, int param3, boolean param4, Matrix4f param5, boolean param6, int param7) {
+            this(param0, param1, param2, param3, param4, param5, param6 ? Font.DisplayMode.SEE_THROUGH : Font.DisplayMode.NORMAL, param7);
+        }
+
+        public StringRenderOutput(
+            MultiBufferSource param0, float param1, float param2, int param3, boolean param4, Matrix4f param5, Font.DisplayMode param6, int param7
+        ) {
             this.bufferSource = param0;
             this.x = param1;
             this.y = param2;
@@ -396,7 +410,7 @@ public class Font {
             this.b = (float)(param3 & 0xFF) / 255.0F * this.dimFactor;
             this.a = (float)(param3 >> 24 & 0xFF) / 255.0F;
             this.pose = param5;
-            this.seeThrough = param6;
+            this.mode = param6;
             this.packedLightCoords = param7;
         }
 
@@ -425,7 +439,7 @@ public class Font {
             if (!(var2 instanceof EmptyGlyph)) {
                 float var13 = var3 ? var1.getBoldOffset() : 0.0F;
                 float var14 = this.dropShadow ? var1.getShadowOffset() : 0.0F;
-                VertexConsumer var15 = this.bufferSource.getBuffer(var2.renderType(this.seeThrough));
+                VertexConsumer var15 = this.bufferSource.getBuffer(var2.renderType(this.mode));
                 Font.this.renderChar(
                     var2, var3, param1.isItalic(), var13, this.x + var14, this.y + var14, this.pose, var15, var7, var8, var9, var4, this.packedLightCoords
                 );
@@ -464,7 +478,7 @@ public class Font {
 
             if (this.effects != null) {
                 BakedGlyph var4 = Font.this.getFontSet(Style.DEFAULT_FONT).whiteGlyph();
-                VertexConsumer var5 = this.bufferSource.getBuffer(var4.renderType(this.seeThrough));
+                VertexConsumer var5 = this.bufferSource.getBuffer(var4.renderType(this.mode));
 
                 for(BakedGlyph.Effect var6 : this.effects) {
                     var4.renderEffect(var6, this.pose, var5, this.packedLightCoords);

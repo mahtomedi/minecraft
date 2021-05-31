@@ -1459,6 +1459,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
 
     @Override
     public void handleTitlesClear(ClientboundClearTitlesPacket param0) {
+        PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
         this.minecraft.gui.clear();
         if (param0.shouldResetTimes()) {
             this.minecraft.gui.resetTitleTimes();
@@ -1468,26 +1469,31 @@ public class ClientPacketListener implements ClientGamePacketListener {
 
     @Override
     public void setActionBarText(ClientboundSetActionBarTextPacket param0) {
+        PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
         this.minecraft.gui.setOverlayMessage(param0.getText(), false);
     }
 
     @Override
     public void setTitleText(ClientboundSetTitleTextPacket param0) {
+        PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
         this.minecraft.gui.setTitle(param0.getText());
     }
 
     @Override
     public void setSubtitleText(ClientboundSetSubtitleTextPacket param0) {
+        PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
         this.minecraft.gui.setSubtitle(param0.getText());
     }
 
     @Override
     public void setTitlesAnimation(ClientboundSetTitlesAnimationPacket param0) {
+        PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
         this.minecraft.gui.setTimes(param0.getFadeIn(), param0.getStay(), param0.getFadeOut());
     }
 
     @Override
     public void handleTabListCustomisation(ClientboundTabListPacket param0) {
+        PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
         this.minecraft.gui.getTabList().setHeader(param0.getHeader().getString().isEmpty() ? null : param0.getHeader());
         this.minecraft.gui.getTabList().setFooter(param0.getFooter().getString().isEmpty() ? null : param0.getFooter());
     }

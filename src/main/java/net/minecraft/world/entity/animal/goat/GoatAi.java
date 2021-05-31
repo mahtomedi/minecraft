@@ -5,7 +5,6 @@ import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.valueproviders.UniformInt;
-import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.behavior.AnimalMakeLove;
@@ -50,11 +49,7 @@ public class GoatAi {
     private static final UniformInt TIME_BETWEEN_RAMS = UniformInt.of(600, 6000);
     private static final UniformInt TIME_BETWEEN_RAMS_SCREAMER = UniformInt.of(100, 300);
     private static final TargetingConditions RAM_TARGET_CONDITIONS = TargetingConditions.forCombat()
-        .selector(
-            param0 -> !param0.getType().equals(EntityType.GOAT)
-                    && (param0.level.getDifficulty() != Difficulty.PEACEFUL || !param0.getType().equals(EntityType.PLAYER))
-                    && param0.level.getWorldBorder().isWithinBounds(param0.getBoundingBox())
-        );
+        .selector(param0 -> !param0.getType().equals(EntityType.GOAT) && param0.level.getWorldBorder().isWithinBounds(param0.getBoundingBox()));
     private static final float SPEED_MULTIPLIER_WHEN_RAMMING = 3.0F;
     public static final int RAM_MIN_DISTANCE = 4;
     private static final int ADULT_RAM_DAMAGE = 2;

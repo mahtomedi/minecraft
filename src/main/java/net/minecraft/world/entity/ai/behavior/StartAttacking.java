@@ -31,7 +31,7 @@ public class StartAttacking<E extends Mob> extends Behavior<E> {
             return false;
         } else {
             Optional<? extends LivingEntity> var0 = this.targetFinderFunction.apply(param1);
-            return var0.isPresent() ? var0.get().canBeSeenAsEnemy() : false;
+            return var0.isPresent() ? param1.canAttack(var0.get()) : false;
         }
     }
 

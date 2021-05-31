@@ -63,25 +63,31 @@ public abstract class BlockEntity {
     @Nullable
     public static BlockEntity loadStatic(BlockPos param0, BlockState param1, CompoundTag param2) {
         String var0 = param2.getString("id");
-        return Registry.BLOCK_ENTITY_TYPE.getOptional(new ResourceLocation(var0)).map(param3 -> {
-            try {
-                return param3.create(param0, param1);
-            } catch (Throwable var5) {
-                LOGGER.error("Failed to create block entity {}", var0, var5);
-                return null;
-            }
-        }).map(param2x -> {
-            try {
-                param2x.load(param2);
-                return param2x;
-            } catch (Throwable var4) {
-                LOGGER.error("Failed to load data for block entity {}", var0, var4);
-                return null;
-            }
-        }).orElseGet(() -> {
-            LOGGER.warn("Skipping BlockEntity with id {}", var0);
+        ResourceLocation var1 = ResourceLocation.tryParse(var0);
+        if (var1 == null) {
+            LOGGER.error("Block entity has invalid type: {}", var0);
             return null;
-        });
+        } else {
+            return Registry.BLOCK_ENTITY_TYPE.getOptional(var1).map(param3 -> {
+                try {
+                    return param3.create(param0, param1);
+                } catch (Throwable var5) {
+                    LOGGER.error("Failed to create block entity {}", var0, var5);
+                    return null;
+                }
+            }).map(param2x -> {
+                try {
+                    param2x.load(param2);
+                    return param2x;
+                } catch (Throwable var4x) {
+                    LOGGER.error("Failed to load data for block entity {}", var0, var4x);
+                    return null;
+                }
+            }).orElseGet(() -> {
+                LOGGER.warn("Skipping BlockEntity with id {}", var0);
+                return null;
+            });
+        }
     }
 
     public void setChanged() {

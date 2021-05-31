@@ -39,7 +39,7 @@ public class StopAttackingIfTargetInvalid<E extends Mob> extends Behavior<E> {
 
     protected void start(ServerLevel param0, E param1, long param2) {
         LivingEntity var0 = this.getAttackTarget(param1);
-        if (!var0.canBeSeenAsEnemy()) {
+        if (!param1.canAttack(var0)) {
             this.clearAttackTarget(param1);
         } else if (isTiredOfTryingToReachTarget(param1)) {
             this.clearAttackTarget(param1);

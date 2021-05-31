@@ -116,27 +116,27 @@
   "complianceLevel": 1,
   "downloads": {
     "client": {
-      "sha1": "940af6eda421da56e3bf9c390df65ba713cc8f7f",
-      "size": 19514494,
-      "url": "https://launcher.mojang.com/v1/objects/940af6eda421da56e3bf9c390df65ba713cc8f7f/client.jar"
+      "sha1": "72ebf53f36151a9c2657dca80f72a97c0917d3ce",
+      "size": 19517845,
+      "url": "https://launcher.mojang.com/v1/objects/72ebf53f36151a9c2657dca80f72a97c0917d3ce/client.jar"
     },
     "client_mappings": {
-      "sha1": "7310449e6c7bdd202e4f2cd6bd7ad177357f473c",
-      "size": 6423597,
-      "url": "https://launcher.mojang.com/v1/objects/7310449e6c7bdd202e4f2cd6bd7ad177357f473c/client.txt"
+      "sha1": "c3fc5f17f6a63498078cbcc72872e78c500120f6",
+      "size": 6425983,
+      "url": "https://launcher.mojang.com/v1/objects/c3fc5f17f6a63498078cbcc72872e78c500120f6/client.txt"
     },
     "server": {
-      "sha1": "80a01a1178bcfb67b42636df3a9cdd275f3cc4d4",
-      "size": 43241335,
-      "url": "https://launcher.mojang.com/v1/objects/80a01a1178bcfb67b42636df3a9cdd275f3cc4d4/server.jar"
+      "sha1": "d8756c67ce3b3fe20d0510afb3e22fa16310b2e6",
+      "size": 43611016,
+      "url": "https://launcher.mojang.com/v1/objects/d8756c67ce3b3fe20d0510afb3e22fa16310b2e6/server.jar"
     },
     "server_mappings": {
-      "sha1": "1f6f65434a5ac334607a1141d676f7974308ae36",
-      "size": 4942864,
-      "url": "https://launcher.mojang.com/v1/objects/1f6f65434a5ac334607a1141d676f7974308ae36/server.txt"
+      "sha1": "f79c9cad034152d13c8fab69c441eb06138aacc6",
+      "size": 4943429,
+      "url": "https://launcher.mojang.com/v1/objects/f79c9cad034152d13c8fab69c441eb06138aacc6/server.txt"
     }
   },
-  "id": "1.17-pre1",
+  "id": "1.17-pre2",
   "javaVersion": {
     "component": "java-runtime-alpha",
     "majorVersion": 16
@@ -167,35 +167,35 @@
     {
       "downloads": {
         "artifact": {
-          "path": "com/github/oshi/oshi-core/5.3.4/oshi-core-5.3.4.jar",
-          "sha1": "ce532d48516e93d6a1e4f67048b970dc3ec9a2b7",
-          "size": 744585,
-          "url": "https://libraries.minecraft.net/com/github/oshi/oshi-core/5.3.4/oshi-core-5.3.4.jar"
+          "path": "com/github/oshi/oshi-core/5.7.4/oshi-core-5.7.4.jar",
+          "sha1": "7d46a42de1af8c81d401d50082f285853307b31d",
+          "size": 835937,
+          "url": "https://libraries.minecraft.net/com/github/oshi/oshi-core/5.7.4/oshi-core-5.7.4.jar"
         }
       },
-      "name": "com.github.oshi:oshi-core:5.3.4"
+      "name": "com.github.oshi:oshi-core:5.7.4"
     },
     {
       "downloads": {
         "artifact": {
-          "path": "net/java/dev/jna/jna/5.6.0/jna-5.6.0.jar",
-          "sha1": "330f2244e9030119ab3030fc3fededc86713d9cc",
-          "size": 1509440,
-          "url": "https://libraries.minecraft.net/net/java/dev/jna/jna/5.6.0/jna-5.6.0.jar"
+          "path": "net/java/dev/jna/jna/5.8.0/jna-5.8.0.jar",
+          "sha1": "3551d8d827e54858214107541d3aff9c615cb615",
+          "size": 1729586,
+          "url": "https://libraries.minecraft.net/net/java/dev/jna/jna/5.8.0/jna-5.8.0.jar"
         }
       },
-      "name": "net.java.dev.jna:jna:5.6.0"
+      "name": "net.java.dev.jna:jna:5.8.0"
     },
     {
       "downloads": {
         "artifact": {
-          "path": "net/java/dev/jna/jna-platform/5.6.0/jna-platform-5.6.0.jar",
-          "sha1": "d18424ffb8bbfd036d71bcaab9b546858f2ef986",
-          "size": 2735878,
-          "url": "https://libraries.minecraft.net/net/java/dev/jna/jna-platform/5.6.0/jna-platform-5.6.0.jar"
+          "path": "net/java/dev/jna/jna-platform/5.8.0/jna-platform-5.8.0.jar",
+          "sha1": "2f12f6d7f7652270d13624cef1b82d8cd9a5398e",
+          "size": 1338206,
+          "url": "https://libraries.minecraft.net/net/java/dev/jna/jna-platform/5.8.0/jna-platform-5.8.0.jar"
         }
       },
-      "name": "net.java.dev.jna:jna-platform:5.6.0"
+      "name": "net.java.dev.jna:jna-platform:5.8.0"
     },
     {
       "downloads": {
@@ -1341,7 +1341,7 @@
   },
   "mainClass": "net.minecraft.client.main.Main",
   "minimumLauncherVersion": 21,
-  "releaseTime": "2021-05-27T09:39:21+00:00",
-  "time": "2021-05-27T09:39:21+00:00",
+  "releaseTime": "2021-05-31T15:54:05+00:00",
+  "time": "2021-05-31T15:54:05+00:00",
   "type": "snapshot"
 }

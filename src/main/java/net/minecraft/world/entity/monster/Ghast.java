@@ -127,14 +127,14 @@ public class Ghast extends FlyingMob implements Enemy {
     @Override
     public void addAdditionalSaveData(CompoundTag param0) {
         super.addAdditionalSaveData(param0);
-        param0.putInt("ExplosionPower", this.explosionPower);
+        param0.putByte("ExplosionPower", (byte)this.explosionPower);
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag param0) {
         super.readAdditionalSaveData(param0);
         if (param0.contains("ExplosionPower", 99)) {
-            this.explosionPower = param0.getInt("ExplosionPower");
+            this.explosionPower = param0.getByte("ExplosionPower");
         }
 
     }
@@ -262,8 +262,7 @@ public class Ghast extends FlyingMob implements Enemy {
                         var2.levelEvent(null, 1016, this.ghast.blockPosition(), 0);
                     }
 
-                    LargeFireball var8 = new LargeFireball(var2, this.ghast, var5, var6, var7);
-                    var8.explosionPower = this.ghast.getExplosionPower();
+                    LargeFireball var8 = new LargeFireball(var2, this.ghast, var5, var6, var7, this.ghast.getExplosionPower());
                     var8.setPos(this.ghast.getX() + var4.x * 4.0, this.ghast.getY(0.5) + 0.5, var8.getZ() + var4.z * 4.0);
                     var2.addFreshEntity(var8);
                     this.chargeTime = -40;

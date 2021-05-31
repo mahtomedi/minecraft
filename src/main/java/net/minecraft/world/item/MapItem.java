@@ -405,8 +405,8 @@ public class MapItem extends ComplexItem {
         if (var0.is(BlockTags.BANNERS)) {
             if (!param0.getLevel().isClientSide) {
                 MapItemSavedData var1 = getSavedData(param0.getItemInHand(), param0.getLevel());
-                if (var1 != null) {
-                    var1.toggleBanner(param0.getLevel(), param0.getClickedPos());
+                if (var1 != null && !var1.toggleBanner(param0.getLevel(), param0.getClickedPos())) {
+                    return InteractionResult.FAIL;
                 }
             }
 

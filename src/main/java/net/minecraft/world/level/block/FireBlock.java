@@ -445,7 +445,7 @@ public class FireBlock extends BaseFireBlock {
         var0.setFlammable(Blocks.BEEHIVE, 5, 20);
         var0.setFlammable(Blocks.BEE_NEST, 30, 20);
         var0.setFlammable(Blocks.AZALEA_LEAVES, 30, 60);
-        var0.setFlammable(Blocks.AZALEA_LEAVES_FLOWERS, 30, 60);
+        var0.setFlammable(Blocks.FLOWERING_AZALEA_LEAVES, 30, 60);
         var0.setFlammable(Blocks.CAVE_VINES, 15, 60);
         var0.setFlammable(Blocks.CAVE_VINES_PLANT, 15, 60);
         var0.setFlammable(Blocks.SPORE_BLOSSOM, 60, 100);

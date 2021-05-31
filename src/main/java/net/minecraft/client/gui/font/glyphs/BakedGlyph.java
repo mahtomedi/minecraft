@@ -2,6 +2,7 @@ package net.minecraft.client.gui.font.glyphs;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Matrix4f;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -10,6 +11,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class BakedGlyph {
     private final RenderType normalType;
     private final RenderType seeThroughType;
+    private final RenderType polygonOffsetType;
     private final float u0;
     private final float u1;
     private final float v0;
@@ -20,18 +22,29 @@ public class BakedGlyph {
     private final float down;
 
     public BakedGlyph(
-        RenderType param0, RenderType param1, float param2, float param3, float param4, float param5, float param6, float param7, float param8, float param9
+        RenderType param0,
+        RenderType param1,
+        RenderType param2,
+        float param3,
+        float param4,
+        float param5,
+        float param6,
+        float param7,
+        float param8,
+        float param9,
+        float param10
     ) {
         this.normalType = param0;
         this.seeThroughType = param1;
-        this.u0 = param2;
-        this.u1 = param3;
-        this.v0 = param4;
-        this.v1 = param5;
-        this.left = param6;
-        this.right = param7;
-        this.up = param8;
-        this.down = param9;
+        this.polygonOffsetType = param2;
+        this.u0 = param3;
+        this.u1 = param4;
+        this.v0 = param5;
+        this.v1 = param6;
+        this.left = param7;
+        this.right = param8;
+        this.up = param9;
+        this.down = param10;
     }
 
     public void render(
@@ -59,8 +72,16 @@ public class BakedGlyph {
         param2.vertex(param1, param0.x0, param0.y1, param0.depth).color(param0.r, param0.g, param0.b, param0.a).uv(this.u1, this.v0).uv2(param3).endVertex();
     }
 
-    public RenderType renderType(boolean param0) {
-        return param0 ? this.seeThroughType : this.normalType;
+    public RenderType renderType(Font.DisplayMode param0) {
+        switch(param0) {
+            case NORMAL:
+            default:
+                return this.normalType;
+            case SEE_THROUGH:
+                return this.seeThroughType;
+            case POLYGON_OFFSET:
+                return this.polygonOffsetType;
+        }
     }
 
     @OnlyIn(Dist.CLIENT)

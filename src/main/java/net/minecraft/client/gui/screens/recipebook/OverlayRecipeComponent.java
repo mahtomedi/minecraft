@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -36,6 +37,7 @@ public class OverlayRecipeComponent extends GuiComponent implements Widget, GuiE
     private int y;
     Minecraft minecraft;
     private RecipeCollection collection;
+    @Nullable
     private Recipe<?> lastRecipeClicked;
     float time;
     boolean isFurnaceMenu;
@@ -102,6 +104,7 @@ public class OverlayRecipeComponent extends GuiComponent implements Widget, GuiE
         return this.collection;
     }
 
+    @Nullable
     public Recipe<?> getLastRecipeClicked() {
         return this.lastRecipeClicked;
     }

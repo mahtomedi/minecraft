@@ -1458,7 +1458,7 @@ public class BlockLoot implements Consumer<BiConsumer<ResourceLocation, LootTabl
         this.add(Blocks.OAK_LEAVES, param0x -> createOakLeavesDrops(param0x, Blocks.OAK_SAPLING, NORMAL_LEAVES_SAPLING_CHANCES));
         this.add(Blocks.DARK_OAK_LEAVES, param0x -> createOakLeavesDrops(param0x, Blocks.DARK_OAK_SAPLING, NORMAL_LEAVES_SAPLING_CHANCES));
         this.add(Blocks.AZALEA_LEAVES, param0x -> createLeavesDrops(param0x, Blocks.AZALEA, NORMAL_LEAVES_SAPLING_CHANCES));
-        this.add(Blocks.AZALEA_LEAVES_FLOWERS, param0x -> createLeavesDrops(param0x, Blocks.FLOWERING_AZALEA, NORMAL_LEAVES_SAPLING_CHANCES));
+        this.add(Blocks.FLOWERING_AZALEA_LEAVES, param0x -> createLeavesDrops(param0x, Blocks.FLOWERING_AZALEA, NORMAL_LEAVES_SAPLING_CHANCES));
         LootItemCondition.Builder var0 = LootItemBlockStatePropertyCondition.hasBlockStateProperties(Blocks.BEETROOTS)
             .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(BeetrootBlock.AGE, 3));
         this.add(Blocks.BEETROOTS, createCropDrops(Blocks.BEETROOTS, Items.BEETROOT, Items.BEETROOT_SEEDS, var0));

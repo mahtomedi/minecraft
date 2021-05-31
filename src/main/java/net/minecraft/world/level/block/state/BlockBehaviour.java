@@ -770,17 +770,25 @@ public abstract class BlockBehaviour {
                 }
 
                 this.collisionShape = var0.getCollisionShape(param0, EmptyBlockGetter.INSTANCE, BlockPos.ZERO, CollisionContext.empty());
-                this.largeCollisionShape = Arrays.stream(Direction.Axis.values())
-                    .anyMatch(param0x -> this.collisionShape.min(param0x) < 0.0 || this.collisionShape.max(param0x) > 1.0);
-                this.faceSturdy = new boolean[DIRECTIONS.length * SUPPORT_TYPE_COUNT];
+                if (!this.collisionShape.isEmpty() && var0.getOffsetType() != BlockBehaviour.OffsetType.NONE) {
+                    throw new IllegalStateException(
+                        String.format(
+                            "%s has a collision shape and an offset type, but is not marked as dynamicShape in its properties.", Registry.BLOCK.getKey(var0)
+                        )
+                    );
+                } else {
+                    this.largeCollisionShape = Arrays.stream(Direction.Axis.values())
+                        .anyMatch(param0x -> this.collisionShape.min(param0x) < 0.0 || this.collisionShape.max(param0x) > 1.0);
+                    this.faceSturdy = new boolean[DIRECTIONS.length * SUPPORT_TYPE_COUNT];
 
-                for(Direction var3 : DIRECTIONS) {
-                    for(SupportType var4 : SupportType.values()) {
-                        this.faceSturdy[getFaceSupportIndex(var3, var4)] = var4.isSupporting(param0, EmptyBlockGetter.INSTANCE, BlockPos.ZERO, var3);
+                    for(Direction var3 : DIRECTIONS) {
+                        for(SupportType var4 : SupportType.values()) {
+                            this.faceSturdy[getFaceSupportIndex(var3, var4)] = var4.isSupporting(param0, EmptyBlockGetter.INSTANCE, BlockPos.ZERO, var3);
+                        }
                     }
-                }
 
-                this.isCollisionShapeFullBlock = Block.isShapeFullBlock(param0.getCollisionShape(EmptyBlockGetter.INSTANCE, BlockPos.ZERO));
+                    this.isCollisionShapeFullBlock = Block.isShapeFullBlock(param0.getCollisionShape(EmptyBlockGetter.INSTANCE, BlockPos.ZERO));
+                }
             }
 
             public boolean isFaceSturdy(Direction param0, SupportType param1) {

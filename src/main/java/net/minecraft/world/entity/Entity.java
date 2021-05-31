@@ -1343,7 +1343,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
             return false;
         } else {
             this.markHurt();
-            return true;
+            return false;
         }
     }
 

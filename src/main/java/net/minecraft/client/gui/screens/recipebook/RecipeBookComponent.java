@@ -56,10 +56,12 @@ public class RecipeBookComponent extends GuiComponent implements Widget, GuiEven
     private int height;
     protected final GhostRecipe ghostRecipe = new GhostRecipe();
     private final List<RecipeBookTabButton> tabButtons = Lists.newArrayList();
+    @Nullable
     private RecipeBookTabButton selectedTab;
     protected StateSwitchingButton filterButton;
     protected RecipeBookMenu<?> menu;
     protected Minecraft minecraft;
+    @Nullable
     private EditBox searchBox;
     private String lastSearch = "";
     private ClientRecipeBook book;
@@ -68,25 +70,27 @@ public class RecipeBookComponent extends GuiComponent implements Widget, GuiEven
     private int timesInventoryChanged;
     private boolean ignoreTextInput;
     private boolean visible;
+    private boolean widthTooNarrow;
 
     public void init(int param0, int param1, Minecraft param2, boolean param3, RecipeBookMenu<?> param4) {
         this.minecraft = param2;
         this.width = param0;
         this.height = param1;
         this.menu = param4;
+        this.widthTooNarrow = param3;
         param2.player.containerMenu = param4;
         this.book = param2.player.getRecipeBook();
         this.timesInventoryChanged = param2.player.getInventory().getTimesChanged();
         this.visible = this.isVisibleAccordingToBookData();
         if (this.visible) {
-            this.initVisuals(param3);
+            this.initVisuals();
         }
 
         param2.keyboardHandler.setSendRepeatsToGui(true);
     }
 
-    public void initVisuals(boolean param0) {
-        this.xOffset = param0 ? 0 : 86;
+    public void initVisuals() {
+        this.xOffset = this.widthTooNarrow ? 0 : 86;
         int var0 = (this.width - 147) / 2 - this.xOffset;
         int var1 = (this.height - 166) / 2;
         this.stackedContents.clear();
@@ -110,11 +114,7 @@ public class RecipeBookComponent extends GuiComponent implements Widget, GuiEven
         }
 
         if (this.selectedTab != null) {
-            this.selectedTab = this.tabButtons
-                .stream()
-                .filter(param0x -> param0x.getCategory().equals(this.selectedTab.getCategory()))
-                .findFirst()
-                .orElse(null);
+            this.selectedTab = this.tabButtons.stream().filter(param0 -> param0.getCategory().equals(this.selectedTab.getCategory())).findFirst().orElse(null);
         }
 
         if (this.selectedTab == null) {
@@ -141,12 +141,12 @@ public class RecipeBookComponent extends GuiComponent implements Widget, GuiEven
         this.minecraft.keyboardHandler.setSendRepeatsToGui(false);
     }
 
-    public int updateScreenPosition(boolean param0, int param1, int param2) {
+    public int updateScreenPosition(int param0, int param1) {
         int var0;
-        if (this.isVisible() && !param0) {
-            var0 = 177 + (param1 - param2 - 200) / 2;
+        if (this.isVisible() && !this.widthTooNarrow) {
+            var0 = 177 + (param0 - param1 - 200) / 2;
         } else {
-            var0 = (param1 - param2) / 2;
+            var0 = (param0 - param1) / 2;
         }
 
         return var0;
@@ -165,6 +165,10 @@ public class RecipeBookComponent extends GuiComponent implements Widget, GuiEven
     }
 
     protected void setVisible(boolean param0) {
+        if (param0) {
+            this.initVisuals();
+        }
+
         this.visible = param0;
         this.book.setOpen(this.menu.getRecipeBookType(), param0);
         if (!param0) {
@@ -349,7 +353,10 @@ public class RecipeBookComponent extends GuiComponent implements Widget, GuiEven
                 for(RecipeBookTabButton var3 : this.tabButtons) {
                     if (var3.mouseClicked(param0, param1, param2)) {
                         if (this.selectedTab != var3) {
-                            this.selectedTab.setStateTriggered(false);
+                            if (this.selectedTab != null) {
+                                this.selectedTab.setStateTriggered(false);
+                            }
+
                             this.selectedTab = var3;
                             this.selectedTab.setStateTriggered(true);
                             this.updateCollections(true);

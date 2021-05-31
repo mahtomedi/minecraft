@@ -36,7 +36,7 @@ public class ItemBlockRenderTypes {
         param0.put(Blocks.BIRCH_LEAVES, var1);
         param0.put(Blocks.DARK_OAK_LEAVES, var1);
         param0.put(Blocks.AZALEA_LEAVES, var1);
-        param0.put(Blocks.AZALEA_LEAVES_FLOWERS, var1);
+        param0.put(Blocks.FLOWERING_AZALEA_LEAVES, var1);
         RenderType var2 = RenderType.cutout();
         param0.put(Blocks.OAK_SAPLING, var2);
         param0.put(Blocks.SPRUCE_SAPLING, var2);

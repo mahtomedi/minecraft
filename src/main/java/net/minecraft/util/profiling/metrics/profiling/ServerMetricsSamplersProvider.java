@@ -16,10 +16,13 @@ import net.minecraft.util.profiling.metrics.MetricCategory;
 import net.minecraft.util.profiling.metrics.MetricSampler;
 import net.minecraft.util.profiling.metrics.MetricsRegistry;
 import net.minecraft.util.profiling.metrics.MetricsSamplerProvider;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import oshi.SystemInfo;
 import oshi.hardware.CentralProcessor;
 
 public class ServerMetricsSamplersProvider implements MetricsSamplerProvider {
+    private static final Logger LOGGER = LogManager.getLogger();
     private final Set<MetricSampler> samplers = new ObjectOpenHashSet<>();
     private final ProfilerSamplerAdapter samplerFactory = new ProfilerSamplerAdapter();
 
@@ -33,10 +36,16 @@ public class ServerMetricsSamplersProvider implements MetricsSamplerProvider {
 
     public static Set<MetricSampler> runtimeIndependentSamplers() {
         Builder<MetricSampler> var0 = ImmutableSet.builder();
-        ServerMetricsSamplersProvider.CpuStats var1 = new ServerMetricsSamplersProvider.CpuStats();
-        IntStream.range(0, var1.nrOfCpus)
-            .mapToObj(param1 -> MetricSampler.create("cpu#" + param1, MetricCategory.CPU, () -> var1.loadForCpu(param1)))
-            .forEach(var0::add);
+
+        try {
+            ServerMetricsSamplersProvider.CpuStats var1 = new ServerMetricsSamplersProvider.CpuStats();
+            IntStream.range(0, var1.nrOfCpus)
+                .mapToObj(param1 -> MetricSampler.create("cpu#" + param1, MetricCategory.CPU, () -> var1.loadForCpu(param1)))
+                .forEach(var0::add);
+        } catch (Throwable var21) {
+            LOGGER.warn("Failed to query cpu, no cpu stats will be recorded", var21);
+        }
+
         var0.add(
             MetricSampler.create(
                 "heap MiB", MetricCategory.JVM, () -> (double)((float)(Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1048576.0F)
