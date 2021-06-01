@@ -1,5 +1,6 @@
 package net.minecraft.world.entity.ai.control;
 
+import java.util.Optional;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -51,8 +52,8 @@ public class LookControl implements Control {
 
         if (this.hasWanted) {
             this.hasWanted = false;
-            this.mob.yHeadRot = this.rotateTowards(this.mob.yHeadRot, this.getYRotD(), this.yMaxRotSpeed);
-            this.mob.setXRot(this.rotateTowards(this.mob.getXRot(), this.getXRotD(), this.xMaxRotAngle));
+            this.getYRotD().ifPresent(param0 -> this.mob.yHeadRot = this.rotateTowards(this.mob.yHeadRot, param0, this.yMaxRotSpeed));
+            this.getXRotD().ifPresent(param0 -> this.mob.setXRot(this.rotateTowards(this.mob.getXRot(), param0, this.xMaxRotAngle)));
         } else {
             this.mob.yHeadRot = this.rotateTowards(this.mob.yHeadRot, this.mob.yBodyRot, 10.0F);
         }
@@ -87,18 +88,22 @@ public class LookControl implements Control {
         return this.wantedZ;
     }
 
-    protected float getXRotD() {
+    protected Optional<Float> getXRotD() {
         double var0 = this.wantedX - this.mob.getX();
         double var1 = this.wantedY - this.mob.getEyeY();
         double var2 = this.wantedZ - this.mob.getZ();
         double var3 = Math.sqrt(var0 * var0 + var2 * var2);
-        return (float)(-(Mth.atan2(var1, var3) * 180.0F / (float)Math.PI));
+        return !(Math.abs(var1) > 1.0E-5F) && !(Math.abs(var3) > 1.0E-5F)
+            ? Optional.empty()
+            : Optional.of((float)(-(Mth.atan2(var1, var3) * 180.0F / (float)Math.PI)));
     }
 
-    protected float getYRotD() {
+    protected Optional<Float> getYRotD() {
         double var0 = this.wantedX - this.mob.getX();
         double var1 = this.wantedZ - this.mob.getZ();
-        return (float)(Mth.atan2(var1, var0) * 180.0F / (float)Math.PI) - 90.0F;
+        return !(Math.abs(var1) > 1.0E-5F) && !(Math.abs(var0) > 1.0E-5F)
+            ? Optional.empty()
+            : Optional.of((float)(Mth.atan2(var1, var0) * 180.0F / (float)Math.PI) - 90.0F);
     }
 
     protected float rotateTowards(float param0, float param1, float param2) {

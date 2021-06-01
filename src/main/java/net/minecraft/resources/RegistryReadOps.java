@@ -118,9 +118,9 @@ public class RegistryReadOps<T> extends DelegatingOps<T> {
     }
 
     private <E> DataResult<Supplier<E>> readAndRegisterElement(
-        ResourceKey<? extends Registry<E>> param0, WritableRegistry<E> param1, Codec<E> param2, ResourceLocation param3
+        ResourceKey<? extends Registry<E>> param0, final WritableRegistry<E> param1, Codec<E> param2, ResourceLocation param3
     ) {
-        ResourceKey<E> var0 = ResourceKey.create(param0, param3);
+        final ResourceKey<E> var0 = ResourceKey.create(param0, param3);
         RegistryReadOps.ReadCache<E> var1 = this.readCache(param0);
         DataResult<Supplier<E>> var2 = var1.values.get(var0);
         if (var2 != null) {
@@ -138,7 +138,17 @@ public class RegistryReadOps<T> extends DelegatingOps<T> {
             Optional<DataResult<Pair<E, OptionalInt>>> var4 = this.resources.parseElement(this.jsonOps, param0, var0, param2);
             DataResult<Supplier<E>> var5;
             if (!var4.isPresent()) {
-                var5 = DataResult.success(() -> param1.get(var0), Lifecycle.stable());
+                var5 = DataResult.success(new Supplier<E>() {
+                    @Override
+                    public E get() {
+                        return param1.get(var0);
+                    }
+
+                    @Override
+                    public String toString() {
+                        return var0.toString();
+                    }
+                }, Lifecycle.stable());
             } else {
                 DataResult<Pair<E, OptionalInt>> var6 = var4.get();
                 Optional<Pair<E, OptionalInt>> var7 = var6.result();

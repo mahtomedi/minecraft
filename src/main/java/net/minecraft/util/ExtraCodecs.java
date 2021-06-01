@@ -1,5 +1,6 @@
 package net.minecraft.util;
 
+import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
@@ -9,6 +10,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class ExtraCodecs {
     public static final Codec<Integer> NON_NEGATIVE_INT = intRangeWithMessage(0, Integer.MAX_VALUE, param0 -> "Value must be non-negative: " + param0);
@@ -33,6 +35,40 @@ public class ExtraCodecs {
 
     public static <T> Codec<List<T>> nonEmptyList(Codec<List<T>> param0) {
         return param0.flatXmap(nonEmptyListCheck(), nonEmptyListCheck());
+    }
+
+    public static <T> Function<List<Supplier<T>>, DataResult<List<Supplier<T>>>> nonNullSupplierListCheck() {
+        return param0 -> {
+            List<String> var0 = Lists.newArrayList();
+
+            for(int var1 = 0; var1 < param0.size(); ++var1) {
+                Supplier<T> var2 = param0.get(var1);
+
+                try {
+                    if (var2.get() == null) {
+                        var0.add("Missing value [" + var1 + "] : " + var2);
+                    }
+                } catch (Exception var5) {
+                    var0.add("Invalid value [" + var1 + "]: " + var2 + ", message: " + var5.getMessage());
+                }
+            }
+
+            return !var0.isEmpty() ? DataResult.error(String.join("; ", var0)) : DataResult.success(param0);
+        };
+    }
+
+    public static <T> Function<Supplier<T>, DataResult<Supplier<T>>> nonNullSupplierCheck() {
+        return param0 -> {
+            try {
+                if (param0.get() == null) {
+                    return DataResult.error("Missing value: " + param0);
+                }
+            } catch (Exception var2) {
+                return DataResult.error("Invalid value: " + param0 + ", message: " + var2.getMessage());
+            }
+
+            return DataResult.success(param0);
+        };
     }
 
     static final class XorCodec<F, S> implements Codec<Either<F, S>> {

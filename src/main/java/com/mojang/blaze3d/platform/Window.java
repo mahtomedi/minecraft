@@ -266,8 +266,8 @@ public final class Window implements AutoCloseable {
         int[] var0 = new int[1];
         int[] var1 = new int[1];
         GLFW.glfwGetFramebufferSize(this.window, var0, var1);
-        this.framebufferWidth = var0[0];
-        this.framebufferHeight = var1[0];
+        this.framebufferWidth = var0[0] > 0 ? var0[0] : 1;
+        this.framebufferHeight = var1[0] > 0 ? var1[0] : 1;
     }
 
     private void onResize(long param0x, int param1x, int param2x) {

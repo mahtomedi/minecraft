@@ -79,12 +79,17 @@ public class VineBlock extends Block {
             var0 = Shapes.or(var0, WEST_AABB);
         }
 
-        return var0;
+        return var0.isEmpty() ? Shapes.block() : var0;
     }
 
     @Override
     public VoxelShape getShape(BlockState param0, BlockGetter param1, BlockPos param2, CollisionContext param3) {
         return this.shapesCache.get(param0);
+    }
+
+    @Override
+    public boolean propagatesSkylightDown(BlockState param0, BlockGetter param1, BlockPos param2) {
+        return true;
     }
 
     @Override
@@ -217,7 +222,7 @@ public class VineBlock extends Block {
                         BlockState var11 = param0;
 
                         for(Direction var12 : Direction.Plane.HORIZONTAL) {
-                            if (param3.nextBoolean() || !isAcceptableNeighbour(param1, var1.relative(var12), Direction.UP)) {
+                            if (param3.nextBoolean() || !isAcceptableNeighbour(param1, var1.relative(var12), var12)) {
                                 var11 = var11.setValue(getPropertyForFace(var12), Boolean.valueOf(false));
                             }
                         }

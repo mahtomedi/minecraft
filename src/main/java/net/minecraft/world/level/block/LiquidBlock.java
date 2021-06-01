@@ -1,5 +1,6 @@
 package net.minecraft.world.level.block;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import java.util.Collections;
 import java.util.List;
@@ -32,6 +33,9 @@ public class LiquidBlock extends Block implements BucketPickup {
     protected final FlowingFluid fluid;
     private final List<FluidState> stateCache;
     public static final VoxelShape STABLE_SHAPE = Block.box(0.0, 0.0, 0.0, 16.0, 8.0, 16.0);
+    public static final ImmutableList<Direction> POSSIBLE_FLOW_DIRECTIONS = ImmutableList.of(
+        Direction.DOWN, Direction.SOUTH, Direction.NORTH, Direction.EAST, Direction.WEST
+    );
 
     protected LiquidBlock(FlowingFluid param0, BlockBehaviour.Properties param1) {
         super(param1);
@@ -131,21 +135,19 @@ public class LiquidBlock extends Block implements BucketPickup {
         if (this.fluid.is(FluidTags.LAVA)) {
             boolean var0 = param0.getBlockState(param1.below()).is(Blocks.SOUL_SOIL);
 
-            for(Direction var1 : Direction.values()) {
-                if (var1 != Direction.DOWN) {
-                    BlockPos var2 = param1.relative(var1);
-                    if (param0.getFluidState(var2).is(FluidTags.WATER)) {
-                        Block var3 = param0.getFluidState(param1).isSource() ? Blocks.OBSIDIAN : Blocks.COBBLESTONE;
-                        param0.setBlockAndUpdate(param1, var3.defaultBlockState());
-                        this.fizz(param0, param1);
-                        return false;
-                    }
+            for(Direction var1 : POSSIBLE_FLOW_DIRECTIONS) {
+                BlockPos var2 = param1.relative(var1.getOpposite());
+                if (param0.getFluidState(var2).is(FluidTags.WATER)) {
+                    Block var3 = param0.getFluidState(param1).isSource() ? Blocks.OBSIDIAN : Blocks.COBBLESTONE;
+                    param0.setBlockAndUpdate(param1, var3.defaultBlockState());
+                    this.fizz(param0, param1);
+                    return false;
+                }
 
-                    if (var0 && param0.getBlockState(var2).is(Blocks.BLUE_ICE)) {
-                        param0.setBlockAndUpdate(param1, Blocks.BASALT.defaultBlockState());
-                        this.fizz(param0, param1);
-                        return false;
-                    }
+                if (var0 && param0.getBlockState(var2).is(Blocks.BLUE_ICE)) {
+                    param0.setBlockAndUpdate(param1, Blocks.BASALT.defaultBlockState());
+                    this.fizz(param0, param1);
+                    return false;
                 }
             }
         }

@@ -259,16 +259,17 @@ public class ChunkHolder {
         CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> var1 = this.futures.get(var0);
         if (var1 != null) {
             Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure> var2 = var1.getNow(null);
-            if (var2 == null || var2.left().isPresent()) {
+            boolean var3 = var2 != null && var2.right().isPresent();
+            if (!var3) {
                 return var1;
             }
         }
 
         if (getStatus(this.ticketLevel).isOrAfter(param0)) {
-            CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> var3 = param1.schedule(this, param0);
-            this.updateChunkToSave(var3, "schedule " + param0);
-            this.futures.set(var0, var3);
-            return var3;
+            CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> var4 = param1.schedule(this, param0);
+            this.updateChunkToSave(var4, "schedule " + param0);
+            this.futures.set(var0, var4);
+            return var4;
         } else {
             return var1 == null ? UNLOADED_CHUNK_FUTURE : var1;
         }

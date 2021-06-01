@@ -142,9 +142,9 @@ public class MultifaceBlock extends Block {
 
                 var0 = param0;
             } else if (this.isWaterloggable() && param0.getFluidState().isSourceOfType(Fluids.WATER)) {
-                var0 = getEmptyState(this).setValue(BlockStateProperties.WATERLOGGED, Boolean.valueOf(true));
+                var0 = this.defaultBlockState().setValue(BlockStateProperties.WATERLOGGED, Boolean.valueOf(true));
             } else {
-                var0 = getEmptyState(this);
+                var0 = this.defaultBlockState();
             }
 
             BlockPos var3 = param2.relative(param3);
@@ -277,22 +277,16 @@ public class MultifaceBlock extends Block {
         return PROPERTY_BY_DIRECTION.get(param0);
     }
 
-    public static BlockState getEmptyState(Block param0) {
-        return getMultifaceStateWithAllFaces(param0.defaultBlockState(), false);
-    }
-
     private static BlockState getDefaultMultifaceState(StateDefinition<Block, BlockState> param0) {
-        return getMultifaceStateWithAllFaces(param0.any(), true);
-    }
+        BlockState var0 = param0.any();
 
-    private static BlockState getMultifaceStateWithAllFaces(BlockState param0, boolean param1) {
-        for(BooleanProperty var0 : PROPERTY_BY_DIRECTION.values()) {
-            if (param0.hasProperty(var0)) {
-                param0 = param0.setValue(var0, Boolean.valueOf(param1));
+        for(BooleanProperty var1 : PROPERTY_BY_DIRECTION.values()) {
+            if (var0.hasProperty(var1)) {
+                var0 = var0.setValue(var1, Boolean.valueOf(false));
             }
         }
 
-        return param0;
+        return var0;
     }
 
     private static VoxelShape calculateMultifaceShape(BlockState param0x) {
@@ -304,10 +298,10 @@ public class MultifaceBlock extends Block {
             }
         }
 
-        return var0;
+        return var0.isEmpty() ? Shapes.block() : var0;
     }
 
-    private static boolean hasAnyFace(BlockState param0) {
+    protected static boolean hasAnyFace(BlockState param0) {
         return Arrays.stream(DIRECTIONS).anyMatch(param1 -> hasFace(param0, param1));
     }
 

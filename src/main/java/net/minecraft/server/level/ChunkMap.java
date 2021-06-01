@@ -461,31 +461,20 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
         if (param1 == ChunkStatus.EMPTY) {
             return this.scheduleChunkLoad(var0);
         } else {
-            CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> var1 = param0.getOrScheduleFuture(param1.getParent(), this);
-            return var1.thenComposeAsync(
-                param3 -> {
-                    Optional<ChunkAccess> var0x = param3.left();
-                    if (!var0x.isPresent()) {
-                        return CompletableFuture.completedFuture(param3);
-                    } else {
-                        if (param1 == ChunkStatus.LIGHT) {
-                            this.distanceManager.addTicket(TicketType.LIGHT, var0, 33 + ChunkStatus.getDistance(ChunkStatus.FEATURES), var0);
-                        }
-    
-                        ChunkAccess var1x = var0x.get();
-                        if (var1x.getStatus().isOrAfter(param1)) {
-                            CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> var2x = param1.load(
-                                this.level, this.structureManager, this.lightEngine, param1x -> this.protoChunkToFullChunk(param0), var1x
-                            );
-                            this.progressListener.onStatusChange(var0, param1);
-                            return var2x;
-                        } else {
-                            return this.scheduleChunkGeneration(param0, param1);
-                        }
-                    }
-                },
-                this.mainThreadExecutor
-            );
+            if (param1 == ChunkStatus.LIGHT) {
+                this.distanceManager.addTicket(TicketType.LIGHT, var0, 33 + ChunkStatus.getDistance(ChunkStatus.FEATURES), var0);
+            }
+
+            Optional<ChunkAccess> var1 = param0.getOrScheduleFuture(param1.getParent(), this).getNow(ChunkHolder.UNLOADED_CHUNK).left();
+            if (var1.isPresent() && var1.get().getStatus().isOrAfter(param1)) {
+                CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> var2 = param1.load(
+                    this.level, this.structureManager, this.lightEngine, param1x -> this.protoChunkToFullChunk(param0), var1.get()
+                );
+                this.progressListener.onStatusChange(var0, param1);
+                return var2;
+            } else {
+                return this.scheduleChunkGeneration(param0, param1);
+            }
         }
     }
 

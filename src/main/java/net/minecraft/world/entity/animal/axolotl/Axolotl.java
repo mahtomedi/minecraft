@@ -97,6 +97,7 @@ public class Axolotl extends Animal implements LerpingModel, Bucketable {
     private static final int AXOLOTL_TOTAL_AIR_SUPPLY = 6000;
     public static final String VARIANT_TAG = "Variant";
     private static final int REHYDRATE_AIR_SUPPLY = 1800;
+    private static final int REGEN_BUFF_MAX_DURATION = 2400;
     private final Map<String, Vector3f> modelRotationValues = Maps.newHashMap();
     private static final int REGEN_BUFF_BASE_DURATION = 100;
 
@@ -274,6 +275,7 @@ public class Axolotl extends Animal implements LerpingModel, Bucketable {
             }
 
             var0.setVariant(var1);
+            var0.setPersistenceRequired();
         }
 
         return var0;
@@ -432,8 +434,12 @@ public class Axolotl extends Animal implements LerpingModel, Bucketable {
 
     public void applySupportingEffects(Player param0) {
         MobEffectInstance var0 = param0.getEffect(MobEffects.REGENERATION);
-        int var1 = 100 + (var0 != null ? var0.getDuration() : 0);
-        param0.addEffect(new MobEffectInstance(MobEffects.REGENERATION, var1, 0), this);
+        int var1 = var0 != null ? var0.getDuration() : 0;
+        if (var1 < 2400) {
+            var1 = Math.min(2400, 100 + var1);
+            param0.addEffect(new MobEffectInstance(MobEffects.REGENERATION, var1, 0), this);
+        }
+
         param0.removeEffect(MobEffects.DIG_SLOWDOWN);
     }
 

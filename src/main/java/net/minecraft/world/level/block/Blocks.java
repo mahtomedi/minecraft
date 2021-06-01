@@ -997,7 +997,7 @@ public class Blocks {
                 .noCollission()
                 .strength(0.2F)
                 .sound(SoundType.GLOW_LICHEN)
-                .lightLevel(param0 -> 7)
+                .lightLevel(GlowLichenBlock.emission(7))
         )
     );
     public static final Block OAK_FENCE_GATE = register(
@@ -3652,7 +3652,7 @@ public class Blocks {
             BlockBehaviour.Properties.of(Material.PLANT)
                 .randomTicks()
                 .noCollission()
-                .lightLevel(glowBerryBlockEmission(14))
+                .lightLevel(CaveVines.emission(14))
                 .instabreak()
                 .sound(SoundType.CAVE_VINES)
         )
@@ -3660,7 +3660,7 @@ public class Blocks {
     public static final Block CAVE_VINES_PLANT = register(
         "cave_vines_plant",
         new CaveVinesPlantBlock(
-            BlockBehaviour.Properties.of(Material.PLANT).noCollission().lightLevel(glowBerryBlockEmission(14)).instabreak().sound(SoundType.CAVE_VINES)
+            BlockBehaviour.Properties.of(Material.PLANT).noCollission().lightLevel(CaveVines.emission(14)).instabreak().sound(SoundType.CAVE_VINES)
         )
     );
     public static final Block SPORE_BLOSSOM = register(
@@ -3761,10 +3761,6 @@ public class Blocks {
 
     private static ToIntFunction<BlockState> litBlockEmission(int param0) {
         return param1 -> param1.getValue(BlockStateProperties.LIT) ? param0 : 0;
-    }
-
-    private static ToIntFunction<BlockState> glowBerryBlockEmission(int param0) {
-        return param1 -> param1.getValue(BlockStateProperties.BERRIES) ? param0 : 0;
     }
 
     private static Boolean never(BlockState param0, BlockGetter param1, BlockPos param2, EntityType<?> param3) {

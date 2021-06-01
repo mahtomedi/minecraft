@@ -257,23 +257,26 @@ public class EnderDragon extends Mob implements Enemy {
 
                         this.setDeltaMovement(this.getDeltaMovement().add(0.0, var13 * 0.01, 0.0));
                         this.setYRot(Mth.wrapDegrees(this.getYRot()));
-                        double var18 = Mth.clamp(
-                            Mth.wrapDegrees(180.0 - Mth.atan2(var12, var14) * 180.0F / (float)Math.PI - (double)this.getYRot()), -50.0, 50.0
-                        );
-                        Vec3 var19 = var11.subtract(this.getX(), this.getY(), this.getZ()).normalize();
-                        Vec3 var20 = new Vec3(
+                        Vec3 var18 = var11.subtract(this.getX(), this.getY(), this.getZ()).normalize();
+                        Vec3 var19 = new Vec3(
                                 (double)Mth.sin(this.getYRot() * (float) (Math.PI / 180.0)),
                                 this.getDeltaMovement().y,
                                 (double)(-Mth.cos(this.getYRot() * (float) (Math.PI / 180.0)))
                             )
                             .normalize();
-                        float var21 = Math.max(((float)var20.dot(var19) + 0.5F) / 1.5F, 0.0F);
-                        this.yRotA *= 0.8F;
-                        this.yRotA = (float)((double)this.yRotA + var18 * (double)var10.getTurnSpeed());
-                        this.setYRot(this.getYRot() + this.yRotA * 0.1F);
+                        float var20 = Math.max(((float)var19.dot(var18) + 0.5F) / 1.5F, 0.0F);
+                        if (Math.abs(var12) > 1.0E-5F || Math.abs(var14) > 1.0E-5F) {
+                            double var21 = Mth.clamp(
+                                Mth.wrapDegrees(180.0 - Mth.atan2(var12, var14) * 180.0F / (float)Math.PI - (double)this.getYRot()), -50.0, 50.0
+                            );
+                            this.yRotA *= 0.8F;
+                            this.yRotA = (float)((double)this.yRotA + var21 * (double)var10.getTurnSpeed());
+                            this.setYRot(this.getYRot() + this.yRotA * 0.1F);
+                        }
+
                         float var22 = (float)(2.0 / (var15 + 1.0));
                         float var23 = 0.06F;
-                        this.moveRelative(0.06F * (var21 * var22 + (1.0F - var22)), new Vec3(0.0, 0.0, -1.0));
+                        this.moveRelative(0.06F * (var20 * var22 + (1.0F - var22)), new Vec3(0.0, 0.0, -1.0));
                         if (this.inWall) {
                             this.move(MoverType.SELF, this.getDeltaMovement().scale(0.8F));
                         } else {
@@ -281,7 +284,7 @@ public class EnderDragon extends Mob implements Enemy {
                         }
 
                         Vec3 var24 = this.getDeltaMovement().normalize();
-                        double var25 = 0.8 + 0.15 * (var24.dot(var20) + 1.0) / 2.0;
+                        double var25 = 0.8 + 0.15 * (var24.dot(var19) + 1.0) / 2.0;
                         this.setDeltaMovement(this.getDeltaMovement().multiply(var25, 0.91F, var25));
                     }
                 }

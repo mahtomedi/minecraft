@@ -184,10 +184,12 @@ public class FallingBlockEntity extends Entity {
                                     this.callOnBrokenAfterFall(var0, var2);
                                     this.spawnAtLocation(var0);
                                 }
-                            } else if (this.dropItem && this.level.getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
+                            } else {
                                 this.discard();
-                                this.callOnBrokenAfterFall(var0, var2);
-                                this.spawnAtLocation(var0);
+                                if (this.dropItem && this.level.getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
+                                    this.callOnBrokenAfterFall(var0, var2);
+                                    this.spawnAtLocation(var0);
+                                }
                             }
                         } else {
                             this.discard();

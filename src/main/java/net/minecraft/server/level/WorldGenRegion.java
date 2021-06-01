@@ -244,7 +244,39 @@ public class WorldGenRegion implements WorldGenLevel {
         int var1 = SectionPos.blockToSectionCoord(param0.getZ());
         int var2 = Math.abs(this.center.x - var0);
         int var3 = Math.abs(this.center.z - var1);
-        if (var2 > this.writeRadiusCutoff || var3 > this.writeRadiusCutoff) {
+        if (var2 <= this.writeRadiusCutoff && var3 <= this.writeRadiusCutoff) {
+            ChunkAccess var4 = this.getChunk(var0, var1);
+            BlockState var5 = var4.setBlockState(param0, param1, false);
+            if (var5 != null) {
+                this.level.onBlockStateChange(param0, var5, param1);
+            }
+
+            if (param1.hasBlockEntity()) {
+                if (var4.getStatus().getChunkType() == ChunkStatus.ChunkType.LEVELCHUNK) {
+                    BlockEntity var6 = ((EntityBlock)param1.getBlock()).newBlockEntity(param0, param1);
+                    if (var6 != null) {
+                        var4.setBlockEntity(var6);
+                    } else {
+                        var4.removeBlockEntity(param0);
+                    }
+                } else {
+                    CompoundTag var7 = new CompoundTag();
+                    var7.putInt("x", param0.getX());
+                    var7.putInt("y", param0.getY());
+                    var7.putInt("z", param0.getZ());
+                    var7.putString("id", "DUMMY");
+                    var4.setBlockEntityNbt(var7);
+                }
+            } else if (var5 != null && var5.hasBlockEntity()) {
+                var4.removeBlockEntity(param0);
+            }
+
+            if (param1.hasPostProcess(this, param0)) {
+                this.markPosForPostprocessing(param0);
+            }
+
+            return true;
+        } else {
             Util.logAndPauseIfInIde(
                 "Detected setBlock in a far chunk ["
                     + var0
@@ -254,39 +286,8 @@ public class WorldGenRegion implements WorldGenLevel {
                     + this.generatingStatus
                     + (this.currentlyGenerating == null ? "" : ", currently generating: " + (String)this.currentlyGenerating.get())
             );
+            return false;
         }
-
-        ChunkAccess var4 = this.getChunk(var0, var1);
-        BlockState var5 = var4.setBlockState(param0, param1, false);
-        if (var5 != null) {
-            this.level.onBlockStateChange(param0, var5, param1);
-        }
-
-        if (param1.hasBlockEntity()) {
-            if (var4.getStatus().getChunkType() == ChunkStatus.ChunkType.LEVELCHUNK) {
-                BlockEntity var6 = ((EntityBlock)param1.getBlock()).newBlockEntity(param0, param1);
-                if (var6 != null) {
-                    var4.setBlockEntity(var6);
-                } else {
-                    var4.removeBlockEntity(param0);
-                }
-            } else {
-                CompoundTag var7 = new CompoundTag();
-                var7.putInt("x", param0.getX());
-                var7.putInt("y", param0.getY());
-                var7.putInt("z", param0.getZ());
-                var7.putString("id", "DUMMY");
-                var4.setBlockEntityNbt(var7);
-            }
-        } else if (var5 != null && var5.hasBlockEntity()) {
-            var4.removeBlockEntity(param0);
-        }
-
-        if (param1.hasPostProcess(this, param0)) {
-            this.markPosForPostprocessing(param0);
-        }
-
-        return true;
     }
 
     private void markPosForPostprocessing(BlockPos param0) {

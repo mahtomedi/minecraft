@@ -14,6 +14,7 @@ import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.level.biome.MultiNoiseBiomeSource;
 import net.minecraft.world.level.biome.TheEndBiomeSource;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -23,7 +24,10 @@ import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 public final class LevelStem {
     public static final Codec<LevelStem> CODEC = RecordCodecBuilder.create(
         param0 -> param0.group(
-                    DimensionType.CODEC.fieldOf("type").forGetter(LevelStem::typeSupplier),
+                    DimensionType.CODEC
+                        .fieldOf("type")
+                        .flatXmap(ExtraCodecs.nonNullSupplierCheck(), ExtraCodecs.nonNullSupplierCheck())
+                        .forGetter(LevelStem::typeSupplier),
                     ChunkGenerator.CODEC.fieldOf("generator").forGetter(LevelStem::generator)
                 )
                 .apply(param0, param0.stable(LevelStem::new))

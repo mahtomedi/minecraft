@@ -1054,10 +1054,9 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
         boolean var10 = this.minecraft.level.effects().isFoggyAt(Mth.floor(var2), Mth.floor(var3))
             || this.minecraft.gui.getBossOverlay().shouldCreateWorldFog();
         if (this.minecraft.options.renderDistance >= 4) {
-            FogRenderer.setupFog(param4, FogRenderer.FogMode.FOG_SKY, var9, var10);
             var0.popPush("sky");
             RenderSystem.setShader(GameRenderer::getPositionShader);
-            this.renderSky(param0, param7, param1);
+            this.renderSky(param0, param7, param1, () -> FogRenderer.setupFog(param4, FogRenderer.FogMode.FOG_SKY, var9, var10));
         }
 
         var0.popPush("fog");
@@ -1742,7 +1741,8 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
         RenderSystem.disableBlend();
     }
 
-    public void renderSky(PoseStack param0, Matrix4f param1, float param2) {
+    public void renderSky(PoseStack param0, Matrix4f param1, float param2, Runnable param3) {
+        param3.run();
         if (this.minecraft.level.effects().skyType() == DimensionSpecialEffects.SkyType.END) {
             this.renderEndSky(param0);
         } else if (this.minecraft.level.effects().skyType() == DimensionSpecialEffects.SkyType.NORMAL) {
@@ -1829,7 +1829,9 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
             float var27 = this.level.getStarBrightness(param2) * var17;
             if (var27 > 0.0F) {
                 RenderSystem.setShaderColor(var27, var27, var27, var27);
+                FogRenderer.setupNoFog();
                 this.starBuffer.drawWithShader(param0.last().pose(), param1, GameRenderer.getPositionShader());
+                param3.run();
             }
 
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);

@@ -1087,7 +1087,7 @@ public abstract class LivingEntity extends Entity {
             this.hurtDir = 0.0F;
             Entity var5 = param0.getEntity();
             if (var5 != null) {
-                if (var5 instanceof LivingEntity) {
+                if (var5 instanceof LivingEntity && !param0.isNoAggro()) {
                     this.setLastHurtByMob((LivingEntity)var5);
                 }
 

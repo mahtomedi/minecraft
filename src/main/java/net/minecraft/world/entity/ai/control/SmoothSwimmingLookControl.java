@@ -17,8 +17,8 @@ public class SmoothSwimmingLookControl extends LookControl {
     public void tick() {
         if (this.hasWanted) {
             this.hasWanted = false;
-            this.mob.yHeadRot = this.rotateTowards(this.mob.yHeadRot, this.getYRotD() + 20.0F, this.yMaxRotSpeed);
-            this.mob.setXRot(this.rotateTowards(this.mob.getXRot(), this.getXRotD() + 10.0F, this.xMaxRotAngle));
+            this.getYRotD().ifPresent(param0 -> this.mob.yHeadRot = this.rotateTowards(this.mob.yHeadRot, param0 + 20.0F, this.yMaxRotSpeed));
+            this.getXRotD().ifPresent(param0 -> this.mob.setXRot(this.rotateTowards(this.mob.getXRot(), param0 + 10.0F, this.xMaxRotAngle)));
         } else {
             if (this.mob.getNavigation().isDone()) {
                 this.mob.setXRot(this.rotateTowards(this.mob.getXRot(), 0.0F, 5.0F));

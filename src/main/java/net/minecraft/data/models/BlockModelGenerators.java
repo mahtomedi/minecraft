@@ -3689,9 +3689,16 @@ public class BlockModelGenerators {
         this.createSimpleFlatItemModel(param0);
         ResourceLocation var0 = ModelLocationUtils.getModelLocation(param0);
         MultiPartGenerator var1 = MultiPartGenerator.multiPart(param0);
-        MULTIFACE_GENERATOR.forEach((param3, param4) -> {
-            if (param0.defaultBlockState().hasProperty(param3)) {
-                var1.with(Condition.condition().term(param3, true), param4.apply(var0));
+        Condition.TerminalCondition var2 = Util.make(Condition.condition(), param1 -> MULTIFACE_GENERATOR.forEach((param2, param3) -> {
+                if (param0.defaultBlockState().hasProperty(param2)) {
+                    param1.term(param2, false);
+                }
+
+            }));
+        MULTIFACE_GENERATOR.forEach((param4, param5) -> {
+            if (param0.defaultBlockState().hasProperty(param4)) {
+                var1.with(Condition.condition().term(param4, true), param5.apply(var0));
+                var1.with(var2, param5.apply(var0));
             }
 
         });
@@ -4490,7 +4497,9 @@ public class BlockModelGenerators {
                             .select(4, true, Variant.variant().with(VariantProperties.MODEL, var9))
                     )
             );
-        this.blockStateOutput.accept(createSimpleBlock(param1, ModelTemplates.CANDLE_CAKE.create(param1, TextureMapping.candleCake(param0), this.modelOutput)));
+        ResourceLocation var10 = ModelTemplates.CANDLE_CAKE.create(param1, TextureMapping.candleCake(param0, false), this.modelOutput);
+        ResourceLocation var11 = ModelTemplates.CANDLE_CAKE.createWithSuffix(param1, "_lit", TextureMapping.candleCake(param0, true), this.modelOutput);
+        this.blockStateOutput.accept(MultiVariantGenerator.multiVariant(param1).with(createBooleanModelDispatch(BlockStateProperties.LIT, var11, var10)));
     }
 
     class BlockEntityModelGenerator {

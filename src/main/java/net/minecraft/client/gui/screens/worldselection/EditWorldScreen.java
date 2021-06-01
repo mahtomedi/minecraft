@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -144,8 +143,9 @@ public class EditWorldScreen extends Screen {
         
                             return DataResult.success(var0xx.toString());
                         });
-                    } catch (ExecutionException | InterruptedException var91) {
-                        var4 = DataResult.error("Could not parse level data!");
+                    } catch (Exception var91) {
+                        LOGGER.warn("Could not parse level data", (Throwable)var91);
+                        var4 = DataResult.error("Could not parse level data: " + var91.getMessage());
                     }
         
                     Component var8 = new TextComponent(var4.get().map(Function.identity(), PartialResult::message));

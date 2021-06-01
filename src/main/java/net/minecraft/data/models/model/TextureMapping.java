@@ -274,13 +274,13 @@ public class TextureMapping {
         return new TextureMapping().put(TextureSlot.LIT_LOG, getBlockTexture(param0, "_log_lit")).put(TextureSlot.FIRE, getBlockTexture(param0, "_fire"));
     }
 
-    public static TextureMapping candleCake(Block param0) {
+    public static TextureMapping candleCake(Block param0, boolean param1) {
         return new TextureMapping()
             .put(TextureSlot.PARTICLE, getBlockTexture(Blocks.CAKE, "_side"))
             .put(TextureSlot.BOTTOM, getBlockTexture(Blocks.CAKE, "_bottom"))
             .put(TextureSlot.TOP, getBlockTexture(Blocks.CAKE, "_top"))
             .put(TextureSlot.SIDE, getBlockTexture(Blocks.CAKE, "_side"))
-            .put(TextureSlot.CANDLE, getBlockTexture(param0));
+            .put(TextureSlot.CANDLE, getBlockTexture(param0, param1 ? "_lit" : ""));
     }
 
     public static TextureMapping cauldron(ResourceLocation param0) {

@@ -148,7 +148,7 @@ public final class ItemStack {
         this.count = param0.getByte("Count");
         if (param0.contains("tag", 10)) {
             this.tag = param0.getCompound("tag");
-            this.getItem().verifyTagAfterLoad(param0);
+            this.getItem().verifyTagAfterLoad(this.tag);
         }
 
         if (this.getItem().canBeDepleted()) {
@@ -533,6 +533,7 @@ public final class ItemStack {
             this.setDamageValue(this.getDamageValue());
         }
 
+        this.getItem().verifyTagAfterLoad(param0x);
     }
 
     public Component getHoverName() {

@@ -16,6 +16,7 @@ import java.util.Map.Entry;
 import java.util.function.Supplier;
 import net.minecraft.Util;
 import net.minecraft.data.worldgen.SurfaceBuilders;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.carver.CarverConfiguration;
@@ -36,22 +37,29 @@ public class BiomeGenerationSettings {
     );
     public static final MapCodec<BiomeGenerationSettings> CODEC = RecordCodecBuilder.mapCodec(
         param0 -> param0.group(
-                    ConfiguredSurfaceBuilder.CODEC.fieldOf("surface_builder").forGetter(param0x -> param0x.surfaceBuilder),
+                    ConfiguredSurfaceBuilder.CODEC
+                        .fieldOf("surface_builder")
+                        .flatXmap(ExtraCodecs.nonNullSupplierCheck(), ExtraCodecs.nonNullSupplierCheck())
+                        .forGetter(param0x -> param0x.surfaceBuilder),
                     Codec.simpleMap(
                             GenerationStep.Carving.CODEC,
-                            ConfiguredWorldCarver.LIST_CODEC.promotePartial(Util.prefix("Carver: ", LOGGER::error)),
+                            ConfiguredWorldCarver.LIST_CODEC
+                                .promotePartial(Util.prefix("Carver: ", LOGGER::error))
+                                .flatXmap(ExtraCodecs.nonNullSupplierListCheck(), ExtraCodecs.nonNullSupplierListCheck()),
                             StringRepresentable.keys(GenerationStep.Carving.values())
                         )
                         .fieldOf("carvers")
                         .forGetter(param0x -> param0x.carvers),
                     ConfiguredFeature.LIST_CODEC
                         .promotePartial(Util.prefix("Feature: ", LOGGER::error))
+                        .flatXmap(ExtraCodecs.nonNullSupplierListCheck(), ExtraCodecs.nonNullSupplierListCheck())
                         .listOf()
                         .fieldOf("features")
                         .forGetter(param0x -> param0x.features),
                     ConfiguredStructureFeature.LIST_CODEC
                         .promotePartial(Util.prefix("Structure start: ", LOGGER::error))
                         .fieldOf("starts")
+                        .flatXmap(ExtraCodecs.nonNullSupplierListCheck(), ExtraCodecs.nonNullSupplierListCheck())
                         .forGetter(param0x -> param0x.structureStarts)
                 )
                 .apply(param0, BiomeGenerationSettings::new)

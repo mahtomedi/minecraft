@@ -10,6 +10,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.levelgen.Aquifer;
@@ -53,8 +54,6 @@ public class UnderwaterCaveWorldCarver extends CaveWorldCarver {
             Blocks.WATER,
             Blocks.LAVA,
             Blocks.OBSIDIAN,
-            Blocks.AIR,
-            Blocks.CAVE_AIR,
             Blocks.PACKED_ICE
         );
     }
@@ -102,24 +101,18 @@ public class UnderwaterCaveWorldCarver extends CaveWorldCarver {
                 param1.setBlockState(param3, Blocks.LAVA.defaultBlockState(), false);
                 return false;
             } else {
+                param1.setBlockState(param3, WATER.createLegacyBlock(), false);
                 int var2 = param1.getPos().x;
                 int var3 = param1.getPos().z;
-                boolean var4 = false;
 
-                for(Direction var5 : Direction.Plane.HORIZONTAL) {
-                    param4.setWithOffset(param3, var5);
+                for(Direction var4 : LiquidBlock.POSSIBLE_FLOW_DIRECTIONS) {
+                    param4.setWithOffset(param3, var4);
                     if (SectionPos.blockToSectionCoord(param4.getX()) != var2
                         || SectionPos.blockToSectionCoord(param4.getZ()) != var3
                         || param1.getBlockState(param4).isAir()) {
-                        param1.setBlockState(param4, WATER.createLegacyBlock(), false);
-                        param1.getLiquidTicks().scheduleTick(param4, WATER.getType(), 0);
-                        var4 = true;
+                        param1.getLiquidTicks().scheduleTick(param3, WATER.getType(), 0);
                         break;
                     }
-                }
-
-                if (!var4) {
-                    param1.setBlockState(param3, WATER.createLegacyBlock(), false);
                 }
 
                 return true;
