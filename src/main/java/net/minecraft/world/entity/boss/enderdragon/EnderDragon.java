@@ -926,6 +926,6 @@ public class EnderDragon extends Mob implements Enemy {
 
     @Override
     public boolean canAttack(LivingEntity param0) {
-        return param0 instanceof Player ? param0.canBeSeenAsEnemy() : super.canAttack(param0);
+        return param0.canBeSeenAsEnemy();
     }
 }

@@ -855,7 +855,7 @@ public abstract class LivingEntity extends Entity {
     }
 
     public boolean canAttack(LivingEntity param0) {
-        return param0.canBeSeenAsEnemy() && this.level.getDifficulty() != Difficulty.PEACEFUL;
+        return param0 instanceof Player && this.level.getDifficulty() == Difficulty.PEACEFUL ? false : param0.canBeSeenAsEnemy();
     }
 
     public boolean canAttack(LivingEntity param0, TargetingConditions param1) {

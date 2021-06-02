@@ -313,12 +313,10 @@ public class ItemInHandRenderer {
             return ItemInHandRenderer.HandRenderSelection.RENDER_BOTH_HANDS;
         } else if (param0.isUsingItem()) {
             return selectionUsingItemWhileHoldingBowLike(param0);
-        } else if (isChargedCrossbow(var0)) {
-            return ItemInHandRenderer.HandRenderSelection.RENDER_MAIN_HAND_ONLY;
-        } else if (isChargedCrossbow(var1)) {
-            return var0.isEmpty() ? ItemInHandRenderer.HandRenderSelection.RENDER_OFF_HAND_ONLY : ItemInHandRenderer.HandRenderSelection.RENDER_MAIN_HAND_ONLY;
         } else {
-            return ItemInHandRenderer.HandRenderSelection.RENDER_BOTH_HANDS;
+            return isChargedCrossbow(var0)
+                ? ItemInHandRenderer.HandRenderSelection.RENDER_MAIN_HAND_ONLY
+                : ItemInHandRenderer.HandRenderSelection.RENDER_BOTH_HANDS;
         }
     }
 
@@ -397,7 +395,7 @@ public class ItemInHandRenderer {
                     param7.translate((double)((float)var4 * var10), (double)var11, (double)var12);
                     this.applyItemArmTransform(param7, var1, param6);
                     this.applyItemArmAttackTransform(param7, var1, param4);
-                    if (var2 && param4 < 0.001F) {
+                    if (var2 && param4 < 0.001F && var0) {
                         param7.translate((double)((float)var4 * -0.641864F), 0.0, 0.0);
                         param7.mulPose(Vector3f.YP.rotationDegrees((float)var4 * 10.0F));
                     }

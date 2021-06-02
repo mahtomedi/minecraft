@@ -94,10 +94,16 @@ public class PalettedContainer<T> implements PaletteResize<T> {
     }
 
     public T getAndSet(int param0, int param1, int param2, T param3) {
-        this.acquire();
-        T var0 = this.getAndSet(getIndex(param0, param1, param2), param3);
-        this.release();
-        return var0;
+        Object var6;
+        try {
+            this.acquire();
+            T var0 = this.getAndSet(getIndex(param0, param1, param2), param3);
+            var6 = var0;
+        } finally {
+            this.release();
+        }
+
+        return (T)var6;
     }
 
     public T getAndSetUnchecked(int param0, int param1, int param2, T param3) {
@@ -112,9 +118,13 @@ public class PalettedContainer<T> implements PaletteResize<T> {
     }
 
     public void set(int param0, int param1, int param2, T param3) {
-        this.acquire();
-        this.set(getIndex(param0, param1, param2), param3);
-        this.release();
+        try {
+            this.acquire();
+            this.set(getIndex(param0, param1, param2), param3);
+        } finally {
+            this.release();
+        }
+
     }
 
     private void set(int param0, T param1) {
@@ -132,84 +142,99 @@ public class PalettedContainer<T> implements PaletteResize<T> {
     }
 
     public void read(FriendlyByteBuf param0) {
-        this.acquire();
-        int var0 = param0.readByte();
-        if (this.bits != var0) {
-            this.setBits(var0);
+        try {
+            this.acquire();
+            int var0 = param0.readByte();
+            if (this.bits != var0) {
+                this.setBits(var0);
+            }
+
+            this.palette.read(param0);
+            param0.readLongArray(this.storage.getRaw());
+        } finally {
+            this.release();
         }
 
-        this.palette.read(param0);
-        param0.readLongArray(this.storage.getRaw());
-        this.release();
     }
 
     public void write(FriendlyByteBuf param0) {
-        this.acquire();
-        param0.writeByte(this.bits);
-        this.palette.write(param0);
-        param0.writeLongArray(this.storage.getRaw());
-        this.release();
+        try {
+            this.acquire();
+            param0.writeByte(this.bits);
+            this.palette.write(param0);
+            param0.writeLongArray(this.storage.getRaw());
+        } finally {
+            this.release();
+        }
+
     }
 
     public void read(ListTag param0, long[] param1) {
-        this.acquire();
-        int var0 = Math.max(4, Mth.ceillog2(param0.size()));
-        if (var0 != this.bits) {
-            this.setBits(var0);
+        try {
+            this.acquire();
+            int var0 = Math.max(4, Mth.ceillog2(param0.size()));
+            if (var0 != this.bits) {
+                this.setBits(var0);
+            }
+
+            this.palette.read(param0);
+            int var1 = param1.length * 64 / 4096;
+            if (this.palette == this.globalPalette) {
+                Palette<T> var2 = new HashMapPalette<>(this.registry, var0, this.dummyPaletteResize, this.reader, this.writer);
+                var2.read(param0);
+                BitStorage var3 = new BitStorage(var0, 4096, param1);
+
+                for(int var4 = 0; var4 < 4096; ++var4) {
+                    this.storage.set(var4, this.globalPalette.idFor(var2.valueFor(var3.get(var4))));
+                }
+            } else if (var1 == this.bits) {
+                System.arraycopy(param1, 0, this.storage.getRaw(), 0, param1.length);
+            } else {
+                BitStorage var5 = new BitStorage(var1, 4096, param1);
+
+                for(int var6 = 0; var6 < 4096; ++var6) {
+                    this.storage.set(var6, var5.get(var6));
+                }
+            }
+        } finally {
+            this.release();
         }
 
-        this.palette.read(param0);
-        int var1 = param1.length * 64 / 4096;
-        if (this.palette == this.globalPalette) {
-            Palette<T> var2 = new HashMapPalette<>(this.registry, var0, this.dummyPaletteResize, this.reader, this.writer);
-            var2.read(param0);
-            BitStorage var3 = new BitStorage(var0, 4096, param1);
-
-            for(int var4 = 0; var4 < 4096; ++var4) {
-                this.storage.set(var4, this.globalPalette.idFor(var2.valueFor(var3.get(var4))));
-            }
-        } else if (var1 == this.bits) {
-            System.arraycopy(param1, 0, this.storage.getRaw(), 0, param1.length);
-        } else {
-            BitStorage var5 = new BitStorage(var1, 4096, param1);
-
-            for(int var6 = 0; var6 < 4096; ++var6) {
-                this.storage.set(var6, var5.get(var6));
-            }
-        }
-
-        this.release();
     }
 
     public void write(CompoundTag param0, String param1, String param2) {
-        this.acquire();
-        HashMapPalette<T> var0 = new HashMapPalette<>(this.registry, this.bits, this.dummyPaletteResize, this.reader, this.writer);
-        T var1 = this.defaultValue;
-        int var2 = var0.idFor(this.defaultValue);
-        int[] var3 = new int[4096];
+        try {
+            this.acquire();
+            HashMapPalette<T> var0 = new HashMapPalette<>(this.registry, this.bits, this.dummyPaletteResize, this.reader, this.writer);
+            T var1 = this.defaultValue;
+            int var2 = var0.idFor(this.defaultValue);
+            int[] var3 = new int[4096];
 
-        for(int var4 = 0; var4 < 4096; ++var4) {
-            T var5 = this.get(var4);
-            if (var5 != var1) {
-                var1 = var5;
-                var2 = var0.idFor(var5);
+            for(int var4 = 0; var4 < 4096; ++var4) {
+                T var5 = this.get(var4);
+                if (var5 != var1) {
+                    var1 = var5;
+                    var2 = var0.idFor(var5);
+                }
+
+                var3[var4] = var2;
             }
 
-            var3[var4] = var2;
+            ListTag var6 = new ListTag();
+            var0.write(var6);
+            param0.put(param1, var6);
+            int var7 = Math.max(4, Mth.ceillog2(var6.size()));
+            BitStorage var8 = new BitStorage(var7, 4096);
+
+            for(int var9 = 0; var9 < var3.length; ++var9) {
+                var8.set(var9, var3[var9]);
+            }
+
+            param0.putLongArray(param2, var8.getRaw());
+        } finally {
+            this.release();
         }
 
-        ListTag var6 = new ListTag();
-        var0.write(var6);
-        param0.put(param1, var6);
-        int var7 = Math.max(4, Mth.ceillog2(var6.size()));
-        BitStorage var8 = new BitStorage(var7, 4096);
-
-        for(int var9 = 0; var9 < var3.length; ++var9) {
-            var8.set(var9, var3[var9]);
-        }
-
-        param0.putLongArray(param2, var8.getRaw());
-        this.release();
     }
 
     public int getSerializedSize() {

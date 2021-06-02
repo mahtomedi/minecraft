@@ -7,7 +7,6 @@ import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.util.Mth;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.BulkSectionAccess;
@@ -55,7 +54,7 @@ public class OreFeature extends Feature<OreConfiguration> {
     }
 
     protected boolean doPlace(
-        LevelAccessor param0,
+        WorldGenLevel param0,
         Random param1,
         OreConfiguration param2,
         double param3,
@@ -136,18 +135,20 @@ public class OreFeature extends Feature<OreConfiguration> {
                                             if (!var1.get(var36)) {
                                                 var1.set(var36);
                                                 var2.set(var30, var32, var34);
-                                                LevelChunkSection var37 = var18.getSection(var2);
-                                                if (var37 != LevelChunk.EMPTY_SECTION) {
-                                                    int var38 = SectionPos.sectionRelative(var30);
-                                                    int var39 = SectionPos.sectionRelative(var32);
-                                                    int var40 = SectionPos.sectionRelative(var34);
-                                                    BlockState var41 = var37.getBlockState(var38, var39, var40);
+                                                if (param0.ensureCanWrite(var2)) {
+                                                    LevelChunkSection var37 = var18.getSection(var2);
+                                                    if (var37 != LevelChunk.EMPTY_SECTION) {
+                                                        int var38 = SectionPos.sectionRelative(var30);
+                                                        int var39 = SectionPos.sectionRelative(var32);
+                                                        int var40 = SectionPos.sectionRelative(var34);
+                                                        BlockState var41 = var37.getBlockState(var38, var39, var40);
 
-                                                    for(OreConfiguration.TargetBlockState var42 : param2.targetStates) {
-                                                        if (canPlaceOre(var41, var18::getBlockState, param1, param2, var42, var2)) {
-                                                            var37.setBlockState(var38, var39, var40, var42.state, false);
-                                                            ++var0;
-                                                            break;
+                                                        for(OreConfiguration.TargetBlockState var42 : param2.targetStates) {
+                                                            if (canPlaceOre(var41, var18::getBlockState, param1, param2, var42, var2)) {
+                                                                var37.setBlockState(var38, var39, var40, var42.state, false);
+                                                                ++var0;
+                                                                break;
+                                                            }
                                                         }
                                                     }
                                                 }
