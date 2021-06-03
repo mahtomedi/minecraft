@@ -302,7 +302,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface 
             var1.write(String.format("spawn-npcs=%s%n", var0.spawnNpcs));
             var1.write(String.format("view-distance=%d%n", var0.viewDistance));
             var1.write(String.format("spawn-animals=%s%n", var0.spawnAnimals));
-            var1.write(String.format("generate-structures=%s%n", var0.worldGenSettings.generateFeatures()));
+            var1.write(String.format("generate-structures=%s%n", var0.getWorldGenSettings(this.registryHolder).generateFeatures()));
             var1.write(String.format("use-native=%s%n", var0.useNativeTransport));
             var1.write(String.format("rate-limit=%d%n", var0.rateLimitPacketsPerSecond));
         }

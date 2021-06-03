@@ -5,9 +5,6 @@ import com.mojang.datafixers.DataFix;
 import com.mojang.datafixers.TypeRewriteRule;
 import com.mojang.datafixers.schemas.Schema;
 import com.mojang.datafixers.types.Type;
-import com.mojang.datafixers.util.Pair;
-import com.mojang.serialization.Dynamic;
-import java.util.Objects;
 import java.util.Optional;
 import net.minecraft.world.scores.criteria.ObjectiveCriteria;
 
@@ -22,20 +19,16 @@ public class ObjectiveRenderTypeFix extends DataFix {
 
     @Override
     protected TypeRewriteRule makeRule() {
-        Type<Pair<String, Dynamic<?>>> var0 = DSL.named(References.OBJECTIVE.typeName(), DSL.remainderType());
-        if (!Objects.equals(var0, this.getInputSchema().getType(References.OBJECTIVE))) {
-            throw new IllegalStateException("Objective type is not what was expected.");
-        } else {
-            return this.fixTypeEverywhere("ObjectiveRenderTypeFix", var0, param0 -> param0x -> param0x.mapSecond(param0xx -> {
-                        Optional<String> var0x = param0xx.get("RenderType").asString().result();
-                        if (!var0x.isPresent()) {
-                            String var1x = param0xx.get("CriteriaName").asString("");
-                            ObjectiveCriteria.RenderType var2 = getRenderType(var1x);
-                            return param0xx.set("RenderType", param0xx.createString(var2.getId()));
-                        } else {
-                            return param0xx;
-                        }
-                    }));
-        }
+        Type<?> var0 = this.getInputSchema().getType(References.OBJECTIVE);
+        return this.fixTypeEverywhereTyped("ObjectiveRenderTypeFix", var0, param0 -> param0.update(DSL.remainderFinder(), param0x -> {
+                Optional<String> var0x = param0x.get("RenderType").asString().result();
+                if (!var0x.isPresent()) {
+                    String var1x = param0x.get("CriteriaName").asString("");
+                    ObjectiveCriteria.RenderType var2 = getRenderType(var1x);
+                    return param0x.set("RenderType", param0x.createString(var2.getId()));
+                } else {
+                    return param0x;
+                }
+            }));
     }
 }

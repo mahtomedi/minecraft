@@ -5,6 +5,7 @@ import com.mojang.realmsclient.client.RealmsClient;
 import com.mojang.realmsclient.dto.RealmsServer;
 import com.mojang.realmsclient.exception.RetryCallException;
 import com.mojang.realmsclient.gui.screens.RealmsConfigureWorldScreen;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
@@ -16,12 +17,14 @@ public class OpenServerTask extends LongRunningTask {
     private final Screen returnScreen;
     private final boolean join;
     private final RealmsMainScreen mainScreen;
+    private final Minecraft minecraft;
 
-    public OpenServerTask(RealmsServer param0, Screen param1, RealmsMainScreen param2, boolean param3) {
+    public OpenServerTask(RealmsServer param0, Screen param1, RealmsMainScreen param2, boolean param3, Minecraft param4) {
         this.serverData = param0;
         this.returnScreen = param1;
         this.join = param3;
         this.mainScreen = param2;
+        this.minecraft = param4;
     }
 
     @Override
@@ -37,16 +40,19 @@ public class OpenServerTask extends LongRunningTask {
             try {
                 boolean var2 = var0.open(this.serverData.id);
                 if (var2) {
-                    if (this.returnScreen instanceof RealmsConfigureWorldScreen) {
-                        ((RealmsConfigureWorldScreen)this.returnScreen).stateChanged();
-                    }
+                    this.minecraft.execute(() -> {
+                        if (this.returnScreen instanceof RealmsConfigureWorldScreen) {
+                            ((RealmsConfigureWorldScreen)this.returnScreen).stateChanged();
+                        }
 
-                    this.serverData.state = RealmsServer.State.OPEN;
-                    if (this.join) {
-                        this.mainScreen.play(this.serverData, this.returnScreen);
-                    } else {
-                        setScreen(this.returnScreen);
-                    }
+                        this.serverData.state = RealmsServer.State.OPEN;
+                        if (this.join) {
+                            this.mainScreen.play(this.serverData, this.returnScreen);
+                        } else {
+                            this.minecraft.setScreen(this.returnScreen);
+                        }
+
+                    });
                     break;
                 }
             } catch (RetryCallException var41) {

@@ -247,11 +247,16 @@ public class RealmsBrokenWorldScreen extends RealmsScreen {
                         this.minecraft
                             .execute(
                                 () -> this.minecraft
-                                        .setScreen(new RealmsLongRunningMcoTaskScreen(this, new OpenServerTask(this.serverData, this, this.mainScreen, true)))
+                                        .setScreen(
+                                            new RealmsLongRunningMcoTaskScreen(
+                                                this, new OpenServerTask(this.serverData, this, this.mainScreen, true, this.minecraft)
+                                            )
+                                        )
                             );
                     } else {
                         try {
-                            this.mainScreen.newScreen().play(var0.getOwnWorld(this.serverId), this);
+                            RealmsServer var1 = var0.getOwnWorld(this.serverId);
+                            this.minecraft.execute(() -> this.mainScreen.newScreen().play(var1, this));
                         } catch (RealmsServiceException var3) {
                             LOGGER.error("Couldn't get own world");
                             this.minecraft.execute(() -> this.minecraft.setScreen(this.lastScreen));

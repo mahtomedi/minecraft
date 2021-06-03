@@ -533,7 +533,10 @@ public final class ItemStack {
             this.setDamageValue(this.getDamageValue());
         }
 
-        this.getItem().verifyTagAfterLoad(param0x);
+        if (param0x != null) {
+            this.getItem().verifyTagAfterLoad(param0x);
+        }
+
     }
 
     public Component getHoverName() {

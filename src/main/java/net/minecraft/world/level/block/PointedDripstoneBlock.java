@@ -265,6 +265,11 @@ public class PointedDripstoneBlock extends Block implements Fallable, SimpleWate
     }
 
     @Override
+    public boolean isCollisionShapeFullBlock(BlockState param0, BlockGetter param1, BlockPos param2) {
+        return false;
+    }
+
+    @Override
     public BlockBehaviour.OffsetType getOffsetType() {
         return BlockBehaviour.OffsetType.XZ;
     }

@@ -6,9 +6,6 @@ import com.mojang.datafixers.DataFixUtils;
 import com.mojang.datafixers.TypeRewriteRule;
 import com.mojang.datafixers.schemas.Schema;
 import com.mojang.datafixers.types.Type;
-import com.mojang.datafixers.util.Pair;
-import com.mojang.serialization.Dynamic;
-import java.util.Objects;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 
@@ -19,26 +16,23 @@ public class ObjectiveDisplayNameFix extends DataFix {
 
     @Override
     protected TypeRewriteRule makeRule() {
-        Type<Pair<String, Dynamic<?>>> var0 = DSL.named(References.OBJECTIVE.typeName(), DSL.remainderType());
-        if (!Objects.equals(var0, this.getInputSchema().getType(References.OBJECTIVE))) {
-            throw new IllegalStateException("Objective type is not what was expected.");
-        } else {
-            return this.fixTypeEverywhere(
-                "ObjectiveDisplayNameFix",
-                var0,
-                param0 -> param0x -> param0x.mapSecond(
-                            param0xx -> param0xx.update(
-                                    "DisplayName",
-                                    param1 -> DataFixUtils.orElse(
-                                            param1.asString()
-                                                .map(param0xxxx -> Component.Serializer.toJson(new TextComponent(param0xxxx)))
-                                                .map(param0xx::createString)
-                                                .result(),
-                                            param1
-                                        )
+        Type<?> var0 = this.getInputSchema().getType(References.OBJECTIVE);
+        return this.fixTypeEverywhereTyped(
+            "ObjectiveDisplayNameFix",
+            var0,
+            param0 -> param0.update(
+                    DSL.remainderFinder(),
+                    param0x -> param0x.update(
+                            "DisplayName",
+                            param1 -> DataFixUtils.orElse(
+                                    param1.asString()
+                                        .map(param0xxx -> Component.Serializer.toJson(new TextComponent(param0xxx)))
+                                        .map(param0x::createString)
+                                        .result(),
+                                    param1
                                 )
                         )
-            );
-        }
+                )
+        );
     }
 }
