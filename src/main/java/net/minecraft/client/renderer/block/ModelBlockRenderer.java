@@ -705,125 +705,125 @@ public class ModelBlockRenderer {
             BlockState var13 = param0.getBlockState(var2);
             int var14 = var3.getLightColor(var13, param0, var2);
             float var15 = var3.getShadeBrightness(var13, param0, var2);
-            var2.setWithOffset(var0, var1.corners[0]).move(param3);
-            boolean var16 = !var4.isViewBlocking(param0, var2) || var4.getLightBlock(param0, var2) == 0;
-            var2.setWithOffset(var0, var1.corners[1]).move(param3);
-            boolean var17 = !var7.isViewBlocking(param0, var2) || var7.getLightBlock(param0, var2) == 0;
-            var2.setWithOffset(var0, var1.corners[2]).move(param3);
-            boolean var18 = !var10.isViewBlocking(param0, var2) || var10.getLightBlock(param0, var2) == 0;
-            var2.setWithOffset(var0, var1.corners[3]).move(param3);
-            boolean var19 = !var13.isViewBlocking(param0, var2) || var13.getLightBlock(param0, var2) == 0;
-            float var23;
-            int var24;
-            if (!var18 && !var16) {
-                var23 = var6;
-                var24 = var5;
+            BlockState var16 = param0.getBlockState(var2.setWithOffset(var0, var1.corners[0]).move(param3));
+            boolean var17 = !var16.isViewBlocking(param0, var2) || var16.getLightBlock(param0, var2) == 0;
+            BlockState var18 = param0.getBlockState(var2.setWithOffset(var0, var1.corners[1]).move(param3));
+            boolean var19 = !var18.isViewBlocking(param0, var2) || var18.getLightBlock(param0, var2) == 0;
+            BlockState var20 = param0.getBlockState(var2.setWithOffset(var0, var1.corners[2]).move(param3));
+            boolean var21 = !var20.isViewBlocking(param0, var2) || var20.getLightBlock(param0, var2) == 0;
+            BlockState var22 = param0.getBlockState(var2.setWithOffset(var0, var1.corners[3]).move(param3));
+            boolean var23 = !var22.isViewBlocking(param0, var2) || var22.getLightBlock(param0, var2) == 0;
+            float var27;
+            int var28;
+            if (!var21 && !var17) {
+                var27 = var6;
+                var28 = var5;
             } else {
                 var2.setWithOffset(var0, var1.corners[0]).move(var1.corners[2]);
-                BlockState var20 = param0.getBlockState(var2);
-                var23 = var3.getShadeBrightness(var20, param0, var2);
-                var24 = var3.getLightColor(var20, param0, var2);
+                BlockState var24 = param0.getBlockState(var2);
+                var27 = var3.getShadeBrightness(var24, param0, var2);
+                var28 = var3.getLightColor(var24, param0, var2);
             }
 
-            float var28;
-            int var29;
-            if (!var19 && !var16) {
-                var28 = var6;
-                var29 = var5;
+            float var32;
+            int var33;
+            if (!var23 && !var17) {
+                var32 = var6;
+                var33 = var5;
             } else {
                 var2.setWithOffset(var0, var1.corners[0]).move(var1.corners[3]);
-                BlockState var25 = param0.getBlockState(var2);
-                var28 = var3.getShadeBrightness(var25, param0, var2);
-                var29 = var3.getLightColor(var25, param0, var2);
+                BlockState var29 = param0.getBlockState(var2);
+                var32 = var3.getShadeBrightness(var29, param0, var2);
+                var33 = var3.getLightColor(var29, param0, var2);
             }
 
-            float var33;
-            int var34;
-            if (!var18 && !var17) {
-                var33 = var6;
-                var34 = var5;
+            float var37;
+            int var38;
+            if (!var21 && !var19) {
+                var37 = var6;
+                var38 = var5;
             } else {
                 var2.setWithOffset(var0, var1.corners[1]).move(var1.corners[2]);
-                BlockState var30 = param0.getBlockState(var2);
-                var33 = var3.getShadeBrightness(var30, param0, var2);
-                var34 = var3.getLightColor(var30, param0, var2);
+                BlockState var34 = param0.getBlockState(var2);
+                var37 = var3.getShadeBrightness(var34, param0, var2);
+                var38 = var3.getLightColor(var34, param0, var2);
             }
 
-            float var38;
-            int var39;
-            if (!var19 && !var17) {
-                var38 = var6;
-                var39 = var5;
+            float var42;
+            int var43;
+            if (!var23 && !var19) {
+                var42 = var6;
+                var43 = var5;
             } else {
                 var2.setWithOffset(var0, var1.corners[1]).move(var1.corners[3]);
-                BlockState var35 = param0.getBlockState(var2);
-                var38 = var3.getShadeBrightness(var35, param0, var2);
-                var39 = var3.getLightColor(var35, param0, var2);
+                BlockState var39 = param0.getBlockState(var2);
+                var42 = var3.getShadeBrightness(var39, param0, var2);
+                var43 = var3.getLightColor(var39, param0, var2);
             }
 
-            int var40 = var3.getLightColor(param1, param0, param2);
+            int var44 = var3.getLightColor(param1, param0, param2);
             var2.setWithOffset(param2, param3);
-            BlockState var41 = param0.getBlockState(var2);
-            if (param5.get(0) || !var41.isSolidRender(param0, var2)) {
-                var40 = var3.getLightColor(var41, param0, var2);
+            BlockState var45 = param0.getBlockState(var2);
+            if (param5.get(0) || !var45.isSolidRender(param0, var2)) {
+                var44 = var3.getLightColor(var45, param0, var2);
             }
 
-            float var42 = param5.get(0)
+            float var46 = param5.get(0)
                 ? var3.getShadeBrightness(param0.getBlockState(var0), param0, var0)
                 : var3.getShadeBrightness(param0.getBlockState(param2), param0, param2);
-            ModelBlockRenderer.AmbientVertexRemap var43 = ModelBlockRenderer.AmbientVertexRemap.fromFacing(param3);
+            ModelBlockRenderer.AmbientVertexRemap var47 = ModelBlockRenderer.AmbientVertexRemap.fromFacing(param3);
             if (param5.get(1) && var1.doNonCubicWeight) {
-                float var48 = (var15 + var6 + var28 + var42) * 0.25F;
-                float var49 = (var12 + var6 + var23 + var42) * 0.25F;
-                float var50 = (var12 + var9 + var33 + var42) * 0.25F;
-                float var51 = (var15 + var9 + var38 + var42) * 0.25F;
-                float var52 = param4[var1.vert0Weights[0].shape] * param4[var1.vert0Weights[1].shape];
-                float var53 = param4[var1.vert0Weights[2].shape] * param4[var1.vert0Weights[3].shape];
-                float var54 = param4[var1.vert0Weights[4].shape] * param4[var1.vert0Weights[5].shape];
-                float var55 = param4[var1.vert0Weights[6].shape] * param4[var1.vert0Weights[7].shape];
-                float var56 = param4[var1.vert1Weights[0].shape] * param4[var1.vert1Weights[1].shape];
-                float var57 = param4[var1.vert1Weights[2].shape] * param4[var1.vert1Weights[3].shape];
-                float var58 = param4[var1.vert1Weights[4].shape] * param4[var1.vert1Weights[5].shape];
-                float var59 = param4[var1.vert1Weights[6].shape] * param4[var1.vert1Weights[7].shape];
-                float var60 = param4[var1.vert2Weights[0].shape] * param4[var1.vert2Weights[1].shape];
-                float var61 = param4[var1.vert2Weights[2].shape] * param4[var1.vert2Weights[3].shape];
-                float var62 = param4[var1.vert2Weights[4].shape] * param4[var1.vert2Weights[5].shape];
-                float var63 = param4[var1.vert2Weights[6].shape] * param4[var1.vert2Weights[7].shape];
-                float var64 = param4[var1.vert3Weights[0].shape] * param4[var1.vert3Weights[1].shape];
-                float var65 = param4[var1.vert3Weights[2].shape] * param4[var1.vert3Weights[3].shape];
-                float var66 = param4[var1.vert3Weights[4].shape] * param4[var1.vert3Weights[5].shape];
-                float var67 = param4[var1.vert3Weights[6].shape] * param4[var1.vert3Weights[7].shape];
-                this.brightness[var43.vert0] = var48 * var52 + var49 * var53 + var50 * var54 + var51 * var55;
-                this.brightness[var43.vert1] = var48 * var56 + var49 * var57 + var50 * var58 + var51 * var59;
-                this.brightness[var43.vert2] = var48 * var60 + var49 * var61 + var50 * var62 + var51 * var63;
-                this.brightness[var43.vert3] = var48 * var64 + var49 * var65 + var50 * var66 + var51 * var67;
-                int var68 = this.blend(var14, var5, var29, var40);
-                int var69 = this.blend(var11, var5, var24, var40);
-                int var70 = this.blend(var11, var8, var34, var40);
-                int var71 = this.blend(var14, var8, var39, var40);
-                this.lightmap[var43.vert0] = this.blend(var68, var69, var70, var71, var52, var53, var54, var55);
-                this.lightmap[var43.vert1] = this.blend(var68, var69, var70, var71, var56, var57, var58, var59);
-                this.lightmap[var43.vert2] = this.blend(var68, var69, var70, var71, var60, var61, var62, var63);
-                this.lightmap[var43.vert3] = this.blend(var68, var69, var70, var71, var64, var65, var66, var67);
+                float var52 = (var15 + var6 + var32 + var46) * 0.25F;
+                float var53 = (var12 + var6 + var27 + var46) * 0.25F;
+                float var54 = (var12 + var9 + var37 + var46) * 0.25F;
+                float var55 = (var15 + var9 + var42 + var46) * 0.25F;
+                float var56 = param4[var1.vert0Weights[0].shape] * param4[var1.vert0Weights[1].shape];
+                float var57 = param4[var1.vert0Weights[2].shape] * param4[var1.vert0Weights[3].shape];
+                float var58 = param4[var1.vert0Weights[4].shape] * param4[var1.vert0Weights[5].shape];
+                float var59 = param4[var1.vert0Weights[6].shape] * param4[var1.vert0Weights[7].shape];
+                float var60 = param4[var1.vert1Weights[0].shape] * param4[var1.vert1Weights[1].shape];
+                float var61 = param4[var1.vert1Weights[2].shape] * param4[var1.vert1Weights[3].shape];
+                float var62 = param4[var1.vert1Weights[4].shape] * param4[var1.vert1Weights[5].shape];
+                float var63 = param4[var1.vert1Weights[6].shape] * param4[var1.vert1Weights[7].shape];
+                float var64 = param4[var1.vert2Weights[0].shape] * param4[var1.vert2Weights[1].shape];
+                float var65 = param4[var1.vert2Weights[2].shape] * param4[var1.vert2Weights[3].shape];
+                float var66 = param4[var1.vert2Weights[4].shape] * param4[var1.vert2Weights[5].shape];
+                float var67 = param4[var1.vert2Weights[6].shape] * param4[var1.vert2Weights[7].shape];
+                float var68 = param4[var1.vert3Weights[0].shape] * param4[var1.vert3Weights[1].shape];
+                float var69 = param4[var1.vert3Weights[2].shape] * param4[var1.vert3Weights[3].shape];
+                float var70 = param4[var1.vert3Weights[4].shape] * param4[var1.vert3Weights[5].shape];
+                float var71 = param4[var1.vert3Weights[6].shape] * param4[var1.vert3Weights[7].shape];
+                this.brightness[var47.vert0] = var52 * var56 + var53 * var57 + var54 * var58 + var55 * var59;
+                this.brightness[var47.vert1] = var52 * var60 + var53 * var61 + var54 * var62 + var55 * var63;
+                this.brightness[var47.vert2] = var52 * var64 + var53 * var65 + var54 * var66 + var55 * var67;
+                this.brightness[var47.vert3] = var52 * var68 + var53 * var69 + var54 * var70 + var55 * var71;
+                int var72 = this.blend(var14, var5, var33, var44);
+                int var73 = this.blend(var11, var5, var28, var44);
+                int var74 = this.blend(var11, var8, var38, var44);
+                int var75 = this.blend(var14, var8, var43, var44);
+                this.lightmap[var47.vert0] = this.blend(var72, var73, var74, var75, var56, var57, var58, var59);
+                this.lightmap[var47.vert1] = this.blend(var72, var73, var74, var75, var60, var61, var62, var63);
+                this.lightmap[var47.vert2] = this.blend(var72, var73, var74, var75, var64, var65, var66, var67);
+                this.lightmap[var47.vert3] = this.blend(var72, var73, var74, var75, var68, var69, var70, var71);
             } else {
-                float var44 = (var15 + var6 + var28 + var42) * 0.25F;
-                float var45 = (var12 + var6 + var23 + var42) * 0.25F;
-                float var46 = (var12 + var9 + var33 + var42) * 0.25F;
-                float var47 = (var15 + var9 + var38 + var42) * 0.25F;
-                this.lightmap[var43.vert0] = this.blend(var14, var5, var29, var40);
-                this.lightmap[var43.vert1] = this.blend(var11, var5, var24, var40);
-                this.lightmap[var43.vert2] = this.blend(var11, var8, var34, var40);
-                this.lightmap[var43.vert3] = this.blend(var14, var8, var39, var40);
-                this.brightness[var43.vert0] = var44;
-                this.brightness[var43.vert1] = var45;
-                this.brightness[var43.vert2] = var46;
-                this.brightness[var43.vert3] = var47;
+                float var48 = (var15 + var6 + var32 + var46) * 0.25F;
+                float var49 = (var12 + var6 + var27 + var46) * 0.25F;
+                float var50 = (var12 + var9 + var37 + var46) * 0.25F;
+                float var51 = (var15 + var9 + var42 + var46) * 0.25F;
+                this.lightmap[var47.vert0] = this.blend(var14, var5, var33, var44);
+                this.lightmap[var47.vert1] = this.blend(var11, var5, var28, var44);
+                this.lightmap[var47.vert2] = this.blend(var11, var8, var38, var44);
+                this.lightmap[var47.vert3] = this.blend(var14, var8, var43, var44);
+                this.brightness[var47.vert0] = var48;
+                this.brightness[var47.vert1] = var49;
+                this.brightness[var47.vert2] = var50;
+                this.brightness[var47.vert3] = var51;
             }
 
-            float var72 = param0.getShade(param3, param6);
+            float var76 = param0.getShade(param3, param6);
 
-            for(int var73 = 0; var73 < this.brightness.length; ++var73) {
-                this.brightness[var73] *= var72;
+            for(int var77 = 0; var77 < this.brightness.length; ++var77) {
+                this.brightness[var77] *= var76;
             }
 
         }

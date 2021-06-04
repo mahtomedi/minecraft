@@ -148,6 +148,7 @@ public class ArmorStand extends LivingEntity {
 
     @Override
     public void setItemSlot(EquipmentSlot param0, ItemStack param1) {
+        this.verifyEquippedItem(param1);
         switch(param0.getType()) {
             case HAND:
                 this.equipEventAndSound(param1);

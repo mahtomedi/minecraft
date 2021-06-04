@@ -26,10 +26,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.AbstractSkullBlock;
 import net.minecraft.world.level.block.SkullBlock;
-import net.minecraft.world.level.block.entity.SkullBlockEntity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.apache.commons.lang3.StringUtils;
 
 @OnlyIn(Dist.CLIENT)
 public class CustomHeadLayer<T extends LivingEntity, M extends EntityModel<T> & HeadedModel> extends RenderLayer<T, M> {
@@ -80,22 +78,14 @@ public class CustomHeadLayer<T extends LivingEntity, M extends EntityModel<T> & 
                     CompoundTag var7 = var0.getTag();
                     if (var7.contains("SkullOwner", 10)) {
                         var6 = NbtUtils.readGameProfile(var7.getCompound("SkullOwner"));
-                    } else if (var7.contains("SkullOwner", 8)) {
-                        String var8 = var7.getString("SkullOwner");
-                        if (!StringUtils.isBlank(var8)) {
-                            var7.remove("SkullOwner");
-                            SkullBlockEntity.updateGameprofile(
-                                new GameProfile(null, var8), param1x -> var7.put("SkullOwner", NbtUtils.writeGameProfile(new CompoundTag(), param1x))
-                            );
-                        }
                     }
                 }
 
                 param0.translate(-0.5, 0.0, -0.5);
-                SkullBlock.Type var9 = ((AbstractSkullBlock)((BlockItem)var1).getBlock()).getType();
-                SkullModelBase var10 = this.skullModels.get(var9);
-                RenderType var11 = SkullBlockRenderer.getRenderType(var9, var6);
-                SkullBlockRenderer.renderSkull(null, 180.0F, param4, param0, param1, param2, var10, var11);
+                SkullBlock.Type var8 = ((AbstractSkullBlock)((BlockItem)var1).getBlock()).getType();
+                SkullModelBase var9 = this.skullModels.get(var8);
+                RenderType var10 = SkullBlockRenderer.getRenderType(var8, var6);
+                SkullBlockRenderer.renderSkull(null, 180.0F, param4, param0, param1, param2, var9, var10);
             } else if (!(var1 instanceof ArmorItem) || ((ArmorItem)var1).getSlot() != EquipmentSlot.HEAD) {
                 translateToHead(param0, var2);
                 Minecraft.getInstance().getItemInHandRenderer().renderItem(param3, var0, ItemTransforms.TransformType.HEAD, false, param0, param1, param2);

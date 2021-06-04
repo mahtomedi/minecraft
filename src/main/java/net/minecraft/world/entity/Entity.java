@@ -1747,26 +1747,30 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     }
 
     public boolean startRiding(Entity param0, boolean param1) {
-        for(Entity var0 = param0; var0.vehicle != null; var0 = var0.vehicle) {
-            if (var0.vehicle == this) {
+        if (param0 == this.vehicle) {
+            return false;
+        } else {
+            for(Entity var0 = param0; var0.vehicle != null; var0 = var0.vehicle) {
+                if (var0.vehicle == this) {
+                    return false;
+                }
+            }
+
+            if (param1 || this.canRide(param0) && param0.canAddPassenger(this)) {
+                if (this.isPassenger()) {
+                    this.stopRiding();
+                }
+
+                this.setPose(Pose.STANDING);
+                this.vehicle = param0;
+                this.vehicle.addPassenger(this);
+                param0.getIndirectPassengersStream()
+                    .filter(param0x -> param0x instanceof ServerPlayer)
+                    .forEach(param0x -> CriteriaTriggers.START_RIDING_TRIGGER.trigger((ServerPlayer)param0x));
+                return true;
+            } else {
                 return false;
             }
-        }
-
-        if (param1 || this.canRide(param0) && param0.canAddPassenger(this)) {
-            if (this.isPassenger()) {
-                this.stopRiding();
-            }
-
-            this.setPose(Pose.STANDING);
-            this.vehicle = param0;
-            this.vehicle.addPassenger(this);
-            param0.getIndirectPassengersStream()
-                .filter(param0x -> param0x instanceof ServerPlayer)
-                .forEach(param0x -> CriteriaTriggers.START_RIDING_TRIGGER.trigger((ServerPlayer)param0x));
-            return true;
-        } else {
-            return false;
         }
     }
 
