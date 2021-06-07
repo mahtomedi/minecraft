@@ -116,27 +116,27 @@
   "complianceLevel": 1,
   "downloads": {
     "client": {
-      "sha1": "006320ab2a9969f0e0d3dc64a463e1816be5e225",
-      "size": 19535570,
-      "url": "https://launcher.mojang.com/v1/objects/006320ab2a9969f0e0d3dc64a463e1816be5e225/client.jar"
+      "sha1": "fe88ac6c8a0bedc9a48e5c9b48eb0f4dc24ccc79",
+      "size": 19536048,
+      "url": "https://launcher.mojang.com/v1/objects/fe88ac6c8a0bedc9a48e5c9b48eb0f4dc24ccc79/client.jar"
     },
     "client_mappings": {
-      "sha1": "f98bcfe6126153d862d072c574dbe48af778f5d9",
-      "size": 6431574,
-      "url": "https://launcher.mojang.com/v1/objects/f98bcfe6126153d862d072c574dbe48af778f5d9/client.txt"
+      "sha1": "cb05fa784d1c99357cc5702a9df4daaf6ed58b9b",
+      "size": 6431705,
+      "url": "https://launcher.mojang.com/v1/objects/cb05fa784d1c99357cc5702a9df4daaf6ed58b9b/client.txt"
     },
     "server": {
-      "sha1": "4de310c8c4f4a8ab4574246c1d63e3de3af1444d",
-      "size": 43620794,
-      "url": "https://launcher.mojang.com/v1/objects/4de310c8c4f4a8ab4574246c1d63e3de3af1444d/server.jar"
+      "sha1": "1b6e0511e1e419fdcf5a81e53e36b5558032ee79",
+      "size": 43621211,
+      "url": "https://launcher.mojang.com/v1/objects/1b6e0511e1e419fdcf5a81e53e36b5558032ee79/server.jar"
     },
     "server_mappings": {
-      "sha1": "98a1398dc4144f92e10dd6967a231763741952e7",
-      "size": 4948486,
-      "url": "https://launcher.mojang.com/v1/objects/98a1398dc4144f92e10dd6967a231763741952e7/server.txt"
+      "sha1": "4a643e9c4b7b607da9c93f3f8a81d87a08b9ac34",
+      "size": 4948536,
+      "url": "https://launcher.mojang.com/v1/objects/4a643e9c4b7b607da9c93f3f8a81d87a08b9ac34/server.txt"
     }
   },
-  "id": "1.17-rc1",
+  "id": "1.17-rc2",
   "javaVersion": {
     "component": "java-runtime-alpha",
     "majorVersion": 16
@@ -365,13 +365,13 @@
     {
       "downloads": {
         "artifact": {
-          "path": "com/mojang/authlib/2.2.30/authlib-2.2.30.jar",
-          "sha1": "d6e677199aa6b19c4a9a2e725034149eb3e746f8",
-          "size": 87497,
-          "url": "https://libraries.minecraft.net/com/mojang/authlib/2.2.30/authlib-2.2.30.jar"
+          "path": "com/mojang/authlib/2.3.31/authlib-2.3.31.jar",
+          "sha1": "bbd00ca33b052f73a6312254780fc580d2da3535",
+          "size": 87662,
+          "url": "https://libraries.minecraft.net/com/mojang/authlib/2.3.31/authlib-2.3.31.jar"
         }
       },
-      "name": "com.mojang:authlib:2.2.30"
+      "name": "com.mojang:authlib:2.3.31"
     },
     {
       "downloads": {
@@ -1341,7 +1341,7 @@
   },
   "mainClass": "net.minecraft.client.main.Main",
   "minimumLauncherVersion": 21,
-  "releaseTime": "2021-06-04T13:24:48+00:00",
-  "time": "2021-06-04T13:24:48+00:00",
+  "releaseTime": "2021-06-07T11:46:28+00:00",
+  "time": "2021-06-07T11:46:28+00:00",
   "type": "snapshot"
 }

@@ -12,7 +12,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.FileSystem;
-import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
@@ -50,7 +49,7 @@ public class VanillaPackResources implements PackResources, ResourceProvider {
                         FileSystem var3;
                         try {
                             var3 = FileSystems.getFileSystem(var2);
-                        } catch (FileSystemNotFoundException var11) {
+                        } catch (Exception var11) {
                             var3 = FileSystems.newFileSystem(var2, Collections.emptyMap());
                         }
 

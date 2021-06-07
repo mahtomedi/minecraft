@@ -69,8 +69,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public interface DispenseItemBehavior {
+    Logger LOGGER = LogManager.getLogger();
     DispenseItemBehavior NOOP = (param0, param1) -> param1;
 
     ItemStack dispense(BlockSource var1, ItemStack var2);
@@ -176,7 +179,14 @@ public interface DispenseItemBehavior {
             public ItemStack execute(BlockSource param0, ItemStack param1) {
                 Direction var0 = param0.getBlockState().getValue(DispenserBlock.FACING);
                 EntityType<?> var1 = ((SpawnEggItem)param1.getItem()).getType(param1.getTag());
-                var1.spawn(param0.getLevel(), param1, null, param0.getPos().relative(var0), MobSpawnType.DISPENSER, var0 != Direction.UP, false);
+
+                try {
+                    var1.spawn(param0.getLevel(), param1, null, param0.getPos().relative(var0), MobSpawnType.DISPENSER, var0 != Direction.UP, false);
+                } catch (Exception var6) {
+                    LOGGER.error("Error while dispensing spawn egg from dispenser at {}", param0.getPos(), var6);
+                    return ItemStack.EMPTY;
+                }
+
                 param1.shrink(1);
                 param0.getLevel().gameEvent(GameEvent.ENTITY_PLACE, param0.getPos());
                 return param1;

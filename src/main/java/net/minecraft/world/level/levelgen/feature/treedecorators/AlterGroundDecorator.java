@@ -28,23 +28,25 @@ public class AlterGroundDecorator extends TreeDecorator {
 
     @Override
     public void place(LevelSimulatedReader param0, BiConsumer<BlockPos, BlockState> param1, Random param2, List<BlockPos> param3, List<BlockPos> param4) {
-        int var0 = param3.get(0).getY();
-        param3.stream().filter(param1x -> param1x.getY() == var0).forEach(param3x -> {
-            this.placeCircle(param0, param1, param2, param3x.west().north());
-            this.placeCircle(param0, param1, param2, param3x.east(2).north());
-            this.placeCircle(param0, param1, param2, param3x.west().south(2));
-            this.placeCircle(param0, param1, param2, param3x.east(2).south(2));
+        if (!param3.isEmpty()) {
+            int var0 = param3.get(0).getY();
+            param3.stream().filter(param1x -> param1x.getY() == var0).forEach(param3x -> {
+                this.placeCircle(param0, param1, param2, param3x.west().north());
+                this.placeCircle(param0, param1, param2, param3x.east(2).north());
+                this.placeCircle(param0, param1, param2, param3x.west().south(2));
+                this.placeCircle(param0, param1, param2, param3x.east(2).south(2));
 
-            for(int var0x = 0; var0x < 5; ++var0x) {
-                int var1x = param2.nextInt(64);
-                int var2x = var1x % 8;
-                int var3x = var1x / 8;
-                if (var2x == 0 || var2x == 7 || var3x == 0 || var3x == 7) {
-                    this.placeCircle(param0, param1, param2, param3x.offset(-3 + var2x, 0, -3 + var3x));
+                for(int var0x = 0; var0x < 5; ++var0x) {
+                    int var1x = param2.nextInt(64);
+                    int var2x = var1x % 8;
+                    int var3x = var1x / 8;
+                    if (var2x == 0 || var2x == 7 || var3x == 0 || var3x == 7) {
+                        this.placeCircle(param0, param1, param2, param3x.offset(-3 + var2x, 0, -3 + var3x));
+                    }
                 }
-            }
 
-        });
+            });
+        }
     }
 
     private void placeCircle(LevelSimulatedReader param0, BiConsumer<BlockPos, BlockState> param1, Random param2, BlockPos param3) {

@@ -24,6 +24,9 @@ import org.apache.logging.log4j.Logger;
 @OnlyIn(Dist.CLIENT)
 public class HttpTexture extends SimpleTexture {
     private static final Logger LOGGER = LogManager.getLogger();
+    private static final int SKIN_WIDTH = 64;
+    private static final int SKIN_HEIGHT = 64;
+    private static final int LEGACY_SKIN_HEIGHT = 32;
     @Nullable
     private final File file;
     private final String urlString;
@@ -139,45 +142,54 @@ public class HttpTexture extends SimpleTexture {
         try {
             var0 = NativeImage.read(param0);
             if (this.processLegacySkin) {
-                var0 = processLegacySkin(var0);
+                var0 = this.processLegacySkin(var0);
             }
-        } catch (IOException var4) {
+        } catch (Exception var4) {
             LOGGER.warn("Error while loading the skin texture", (Throwable)var4);
         }
 
         return var0;
     }
 
-    private static NativeImage processLegacySkin(NativeImage param0) {
-        boolean var0 = param0.getHeight() == 32;
-        if (var0) {
-            NativeImage var1 = new NativeImage(64, 64, true);
-            var1.copyFrom(param0);
+    @Nullable
+    private NativeImage processLegacySkin(NativeImage param0) {
+        int var0 = param0.getHeight();
+        int var1 = param0.getWidth();
+        if (var1 == 64 && (var0 == 32 || var0 == 64)) {
+            boolean var2 = var0 == 32;
+            if (var2) {
+                NativeImage var3 = new NativeImage(64, 64, true);
+                var3.copyFrom(param0);
+                param0.close();
+                param0 = var3;
+                var3.fillRect(0, 32, 64, 32, 0);
+                var3.copyRect(4, 16, 16, 32, 4, 4, true, false);
+                var3.copyRect(8, 16, 16, 32, 4, 4, true, false);
+                var3.copyRect(0, 20, 24, 32, 4, 12, true, false);
+                var3.copyRect(4, 20, 16, 32, 4, 12, true, false);
+                var3.copyRect(8, 20, 8, 32, 4, 12, true, false);
+                var3.copyRect(12, 20, 16, 32, 4, 12, true, false);
+                var3.copyRect(44, 16, -8, 32, 4, 4, true, false);
+                var3.copyRect(48, 16, -8, 32, 4, 4, true, false);
+                var3.copyRect(40, 20, 0, 32, 4, 12, true, false);
+                var3.copyRect(44, 20, -8, 32, 4, 12, true, false);
+                var3.copyRect(48, 20, -16, 32, 4, 12, true, false);
+                var3.copyRect(52, 20, -8, 32, 4, 12, true, false);
+            }
+
+            setNoAlpha(param0, 0, 0, 32, 16);
+            if (var2) {
+                doNotchTransparencyHack(param0, 32, 0, 64, 32);
+            }
+
+            setNoAlpha(param0, 0, 16, 64, 32);
+            setNoAlpha(param0, 16, 48, 48, 64);
+            return param0;
+        } else {
             param0.close();
-            param0 = var1;
-            var1.fillRect(0, 32, 64, 32, 0);
-            var1.copyRect(4, 16, 16, 32, 4, 4, true, false);
-            var1.copyRect(8, 16, 16, 32, 4, 4, true, false);
-            var1.copyRect(0, 20, 24, 32, 4, 12, true, false);
-            var1.copyRect(4, 20, 16, 32, 4, 12, true, false);
-            var1.copyRect(8, 20, 8, 32, 4, 12, true, false);
-            var1.copyRect(12, 20, 16, 32, 4, 12, true, false);
-            var1.copyRect(44, 16, -8, 32, 4, 4, true, false);
-            var1.copyRect(48, 16, -8, 32, 4, 4, true, false);
-            var1.copyRect(40, 20, 0, 32, 4, 12, true, false);
-            var1.copyRect(44, 20, -8, 32, 4, 12, true, false);
-            var1.copyRect(48, 20, -16, 32, 4, 12, true, false);
-            var1.copyRect(52, 20, -8, 32, 4, 12, true, false);
+            LOGGER.warn("Discarding incorrectly sized ({}x{}) skin texture from {}", var1, var0, this.urlString);
+            return null;
         }
-
-        setNoAlpha(param0, 0, 0, 32, 16);
-        if (var0) {
-            doNotchTransparencyHack(param0, 32, 0, 64, 32);
-        }
-
-        setNoAlpha(param0, 0, 16, 64, 32);
-        setNoAlpha(param0, 16, 48, 48, 64);
-        return param0;
     }
 
     private static void doNotchTransparencyHack(NativeImage param0, int param1, int param2, int param3, int param4) {
