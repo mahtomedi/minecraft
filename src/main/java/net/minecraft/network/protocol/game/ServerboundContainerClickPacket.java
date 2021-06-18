@@ -10,23 +10,26 @@ import net.minecraft.world.item.ItemStack;
 
 public class ServerboundContainerClickPacket implements Packet<ServerGamePacketListener> {
     private final int containerId;
+    private final int stateId;
     private final int slotNum;
     private final int buttonNum;
     private final ClickType clickType;
     private final ItemStack carriedItem;
     private final Int2ObjectMap<ItemStack> changedSlots;
 
-    public ServerboundContainerClickPacket(int param0, int param1, int param2, ClickType param3, ItemStack param4, Int2ObjectMap<ItemStack> param5) {
+    public ServerboundContainerClickPacket(int param0, int param1, int param2, int param3, ClickType param4, ItemStack param5, Int2ObjectMap<ItemStack> param6) {
         this.containerId = param0;
-        this.slotNum = param1;
-        this.buttonNum = param2;
-        this.clickType = param3;
-        this.carriedItem = param4;
-        this.changedSlots = Int2ObjectMaps.unmodifiable(param5);
+        this.stateId = param1;
+        this.slotNum = param2;
+        this.buttonNum = param3;
+        this.clickType = param4;
+        this.carriedItem = param5;
+        this.changedSlots = Int2ObjectMaps.unmodifiable(param6);
     }
 
     public ServerboundContainerClickPacket(FriendlyByteBuf param0) {
         this.containerId = param0.readByte();
+        this.stateId = param0.readVarInt();
         this.slotNum = param0.readShort();
         this.buttonNum = param0.readByte();
         this.clickType = param0.readEnum(ClickType.class);
@@ -39,6 +42,7 @@ public class ServerboundContainerClickPacket implements Packet<ServerGamePacketL
     @Override
     public void write(FriendlyByteBuf param0) {
         param0.writeByte(this.containerId);
+        param0.writeVarInt(this.stateId);
         param0.writeShort(this.slotNum);
         param0.writeByte(this.buttonNum);
         param0.writeEnum(this.clickType);
@@ -72,5 +76,9 @@ public class ServerboundContainerClickPacket implements Packet<ServerGamePacketL
 
     public ClickType getClickType() {
         return this.clickType;
+    }
+
+    public int getStateId() {
+        return this.stateId;
     }
 }

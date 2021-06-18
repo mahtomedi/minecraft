@@ -4,7 +4,6 @@ import com.mojang.serialization.Codec;
 import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
-import net.minecraft.util.Mth;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
@@ -50,7 +49,7 @@ public class FossilFeature extends Feature<FossilFeatureConfiguration> {
             }
         }
 
-        int var18 = Mth.clamp(var2.getY(), var1.getMinBuildHeight(), var15 - 15);
+        int var18 = Math.max(var15 - 15 - var0.nextInt(10), var1.getMinBuildHeight() + 10);
         BlockPos var19 = var7.getZeroPositionWithTransform(var2.offset(var13, 0, var14).atY(var18), Mirror.NONE, var3);
         if (countEmptyCorners(var1, var7.getBoundingBox(var11, var19)) > var4.maxEmptyCornersAllowed) {
             return false;

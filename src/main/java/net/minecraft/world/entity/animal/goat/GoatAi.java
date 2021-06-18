@@ -52,8 +52,6 @@ public class GoatAi {
         .selector(param0 -> !param0.getType().equals(EntityType.GOAT) && param0.level.getWorldBorder().isWithinBounds(param0.getBoundingBox()));
     private static final float SPEED_MULTIPLIER_WHEN_RAMMING = 3.0F;
     public static final int RAM_MIN_DISTANCE = 4;
-    private static final int ADULT_RAM_DAMAGE = 2;
-    private static final int BABY_RAM_DAMAGE = 1;
     public static final float ADULT_RAM_KNOCKBACK_FORCE = 2.5F;
     public static final float BABY_RAM_KNOCKBACK_FORCE = 1.0F;
 
@@ -146,7 +144,6 @@ public class GoatAi {
                     new RamTarget<>(
                         param0x -> param0x.isScreamingGoat() ? TIME_BETWEEN_RAMS_SCREAMER : TIME_BETWEEN_RAMS,
                         RAM_TARGET_CONDITIONS,
-                        param0x -> param0x.isBaby() ? 1 : 2,
                         3.0F,
                         param0x -> param0x.isBaby() ? 1.0 : 2.5,
                         param0x -> param0x.isScreamingGoat() ? SoundEvents.GOAT_SCREAMING_RAM_IMPACT : SoundEvents.GOAT_RAM_IMPACT

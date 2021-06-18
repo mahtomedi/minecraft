@@ -657,16 +657,6 @@ public abstract class Player extends LivingEntity {
         return SoundEvents.PLAYER_DEATH;
     }
 
-    public boolean drop(boolean param0) {
-        return this.drop(
-                this.inventory
-                    .removeItem(this.inventory.selected, param0 && !this.inventory.getSelected().isEmpty() ? this.inventory.getSelected().getCount() : 1),
-                false,
-                true
-            )
-            != null;
-    }
-
     @Nullable
     public ItemEntity drop(ItemStack param0, boolean param1) {
         return this.drop(param0, false, param1);

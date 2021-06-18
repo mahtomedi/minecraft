@@ -4,8 +4,10 @@ import com.google.common.collect.Iterables;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.authlib.properties.Property;
+import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
@@ -22,6 +24,8 @@ public class SkullBlockEntity extends BlockEntity {
     @Nullable
     private static MinecraftSessionService sessionService;
     @Nullable
+    private static Executor mainThreadExecutor;
+    @Nullable
     private GameProfile owner;
     private int mouthTickCount;
     private boolean isMovingMouth;
@@ -36,6 +40,10 @@ public class SkullBlockEntity extends BlockEntity {
 
     public static void setSessionService(MinecraftSessionService param0) {
         sessionService = param0;
+    }
+
+    public static void setMainThreadExecutor(Executor param0) {
+        mainThreadExecutor = param0;
     }
 
     @Override
@@ -116,13 +124,20 @@ public class SkullBlockEntity extends BlockEntity {
             && profileCache != null
             && sessionService != null) {
             profileCache.getAsync(param0.getName(), param1x -> {
-                Property var0x = Iterables.getFirst(param1x.getProperties().get("textures"), null);
-                if (var0x == null) {
-                    param1x = sessionService.fillProfileProperties(param1x, true);
-                }
+                Runnable var0x = () -> {
+                    GameProfile var0xx = param1x;
+                    Property var1x = Iterables.getFirst(param1x.getProperties().get("textures"), null);
+                    if (var1x == null) {
+                        var0xx = sessionService.fillProfileProperties(param1x, true);
+                    }
 
-                profileCache.add(param1x);
-                param1.accept(param1x);
+                    GameProfile var2x = var0xx;
+                    mainThreadExecutor.execute(() -> {
+                        profileCache.add(var2x);
+                        param1.accept(var2x);
+                    });
+                };
+                Util.backgroundExecutor().execute(var0x);
             });
         } else {
             param1.accept(param0);

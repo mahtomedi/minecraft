@@ -8,6 +8,7 @@ import com.mojang.serialization.Dynamic;
 import io.netty.buffer.Unpooled;
 import java.io.File;
 import java.net.SocketAddress;
+import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +18,7 @@ import java.util.UUID;
 import java.util.function.Function;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
+import net.minecraft.FileUtil;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.RegistryAccess;
@@ -785,7 +787,8 @@ public abstract class PlayerList {
             File var3 = new File(var2, var0 + ".json");
             if (!var3.exists()) {
                 File var4 = new File(var2, param0.getName().getString() + ".json");
-                if (var4.exists() && var4.isFile()) {
+                Path var5 = var4.toPath();
+                if (FileUtil.isPathNormalized(var5) && FileUtil.isPathPortable(var5) && var5.startsWith(var2.getPath()) && var4.isFile()) {
                     var4.renameTo(var3);
                 }
             }

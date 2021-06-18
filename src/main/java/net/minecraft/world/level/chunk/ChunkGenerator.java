@@ -137,7 +137,7 @@ public abstract class ChunkGenerator {
         WorldgenRandom var1 = new WorldgenRandom();
         int var2 = 8;
         ChunkPos var3 = param2.getPos();
-        CarvingContext var4 = new CarvingContext(this);
+        CarvingContext var4 = new CarvingContext(this, param2);
         Aquifer var5 = this.createAquifer(param2);
         BitSet var6 = ((ProtoChunk)param2).getOrCreateCarvingMask(param3);
 

@@ -203,10 +203,6 @@ public class Axolotl extends Animal implements LerpingModel, Bucketable {
         this.setAirSupply(Math.min(var0, this.getMaxAirSupply()));
     }
 
-    public boolean isDryingOut() {
-        return this.getAirSupply() < this.getMaxAirSupply();
-    }
-
     @Override
     public int getMaxAirSupply() {
         return 6000;
@@ -220,7 +216,7 @@ public class Axolotl extends Animal implements LerpingModel, Bucketable {
         this.entityData.set(DATA_VARIANT, param0.getId());
     }
 
-    static boolean useRareVariant(Random param0) {
+    private static boolean useRareVariant(Random param0) {
         return param0.nextInt(1200) == 0;
     }
 
@@ -532,7 +528,7 @@ public class Axolotl extends Animal implements LerpingModel, Bucketable {
         }
 
         public Axolotl.Variant getVariant(Random param0) {
-            return Axolotl.useRareVariant(param0) ? Axolotl.Variant.getRareSpawnVariant(param0) : this.types[param0.nextInt(this.types.length)];
+            return this.types[param0.nextInt(this.types.length)];
         }
     }
 

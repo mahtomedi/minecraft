@@ -9,6 +9,7 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.Set;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
@@ -43,6 +44,7 @@ public abstract class AbstractContainerMenu {
     private final NonNullList<ItemStack> remoteSlots = NonNullList.create();
     private final IntList remoteDataSlots = new IntArrayList();
     private ItemStack remoteCarried = ItemStack.EMPTY;
+    private int stateId;
     @Nullable
     private final MenuType<?> menuType;
     public final int containerId;
@@ -171,12 +173,33 @@ public abstract class AbstractContainerMenu {
             DataSlot var4 = this.dataSlots.get(var3);
             int var5 = var4.get();
             if (var4.checkAndClearUpdateFlag()) {
-                for(ContainerListener var6 : this.containerListeners) {
-                    var6.dataChanged(this, var3, var5);
-                }
+                this.updateDataSlotListeners(var3, var5);
             }
 
             this.synchronizeDataSlotToRemote(var3, var5);
+        }
+
+    }
+
+    public void broadcastFullState() {
+        for(int var0 = 0; var0 < this.slots.size(); ++var0) {
+            ItemStack var1 = this.slots.get(var0).getItem();
+            this.triggerSlotListeners(var0, var1, var1::copy);
+        }
+
+        for(int var2 = 0; var2 < this.dataSlots.size(); ++var2) {
+            DataSlot var3 = this.dataSlots.get(var2);
+            if (var3.checkAndClearUpdateFlag()) {
+                this.updateDataSlotListeners(var2, var3.get());
+            }
+        }
+
+        this.sendAllDataToRemote();
+    }
+
+    private void updateDataSlotListeners(int param0, int param1) {
+        for(ContainerListener var0 : this.containerListeners) {
+            var0.dataChanged(this, param0, param1);
         }
 
     }
@@ -500,9 +523,17 @@ public abstract class AbstractContainerMenu {
     }
 
     public void removed(Player param0) {
-        if (!this.getCarried().isEmpty()) {
-            param0.drop(this.getCarried(), false);
-            this.setCarried(ItemStack.EMPTY);
+        if (param0 instanceof ServerPlayer) {
+            ItemStack var0 = this.getCarried();
+            if (!var0.isEmpty()) {
+                if (param0.isAlive() && !((ServerPlayer)param0).hasDisconnected()) {
+                    param0.getInventory().placeItemBackInInventory(var0);
+                } else {
+                    param0.drop(var0, false);
+                }
+
+                this.setCarried(ItemStack.EMPTY);
+            }
         }
 
     }
@@ -528,15 +559,18 @@ public abstract class AbstractContainerMenu {
         this.broadcastChanges();
     }
 
-    public void setItem(int param0, ItemStack param1) {
-        this.getSlot(param0).set(param1);
+    public void setItem(int param0, int param1, ItemStack param2) {
+        this.getSlot(param0).set(param2);
+        this.stateId = param1;
     }
 
-    public void setAll(List<ItemStack> param0) {
-        for(int var0 = 0; var0 < param0.size(); ++var0) {
-            this.getSlot(var0).set(param0.get(var0));
+    public void initializeContents(int param0, List<ItemStack> param1, ItemStack param2) {
+        for(int var0 = 0; var0 < param1.size(); ++var0) {
+            this.getSlot(var0).set(param1.get(var0));
         }
 
+        this.carried = param2;
+        this.stateId = param0;
     }
 
     public void setData(int param0, int param1) {
@@ -740,5 +774,25 @@ public abstract class AbstractContainerMenu {
             }
         }
 
+    }
+
+    public OptionalInt findSlot(Container param0, int param1) {
+        for(int var0 = 0; var0 < this.slots.size(); ++var0) {
+            Slot var1 = this.slots.get(var0);
+            if (var1.container == param0 && param1 == var1.getContainerSlot()) {
+                return OptionalInt.of(var0);
+            }
+        }
+
+        return OptionalInt.empty();
+    }
+
+    public int getStateId() {
+        return this.stateId;
+    }
+
+    public int incrementStateId() {
+        this.stateId = this.stateId + 1 & 32767;
+        return this.stateId;
     }
 }

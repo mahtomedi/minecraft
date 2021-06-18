@@ -29,6 +29,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -172,6 +173,20 @@ public class FriendlyByteBuf extends ByteBuf {
             param0.accept(this);
         }
 
+    }
+
+    public <T> void writeOptional(Optional<T> param0, BiConsumer<FriendlyByteBuf, T> param1) {
+        if (param0.isPresent()) {
+            this.writeBoolean(true);
+            param1.accept(this, param0.get());
+        } else {
+            this.writeBoolean(false);
+        }
+
+    }
+
+    public <T> Optional<T> readOptional(Function<FriendlyByteBuf, T> param0) {
+        return this.readBoolean() ? Optional.of(param0.apply(this)) : Optional.empty();
     }
 
     public byte[] readByteArray() {

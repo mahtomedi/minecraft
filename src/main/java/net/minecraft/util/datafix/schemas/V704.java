@@ -71,6 +71,7 @@ public class V704 extends Schema {
         var0.put("minecraft:pink_banner", "minecraft:banner");
         var0.put("minecraft:gray_banner", "minecraft:banner");
         var0.put("minecraft:silver_banner", "minecraft:banner");
+        var0.put("minecraft:light_gray_banner", "minecraft:banner");
         var0.put("minecraft:cyan_banner", "minecraft:banner");
         var0.put("minecraft:purple_banner", "minecraft:banner");
         var0.put("minecraft:blue_banner", "minecraft:banner");
@@ -100,6 +101,7 @@ public class V704 extends Schema {
         var0.put("minecraft:pink_bed", "minecraft:bed");
         var0.put("minecraft:gray_bed", "minecraft:bed");
         var0.put("minecraft:silver_bed", "minecraft:bed");
+        var0.put("minecraft:light_gray_bed", "minecraft:bed");
         var0.put("minecraft:cyan_bed", "minecraft:bed");
         var0.put("minecraft:purple_bed", "minecraft:bed");
         var0.put("minecraft:blue_bed", "minecraft:bed");

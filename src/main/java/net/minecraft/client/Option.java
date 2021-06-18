@@ -102,18 +102,17 @@ public abstract class Option {
                 : new TranslatableComponent("options.chat.delay", String.format("%.1f", var0));
         }
     );
-    public static final ProgressOption FOV = new ProgressOption(
-        "options.fov", 30.0, 110.0, 1.0F, param0 -> param0.fov, (param0, param1) -> param0.fov = param1, (param0, param1) -> {
-            double var0 = param1.get(param0);
-            if (var0 == 70.0) {
-                return param1.genericValueLabel(new TranslatableComponent("options.fov.min"));
-            } else {
-                return var0 == param1.getMaxValue()
-                    ? param1.genericValueLabel(new TranslatableComponent("options.fov.max"))
-                    : param1.genericValueLabel((int)var0);
-            }
+    public static final ProgressOption FOV = new ProgressOption("options.fov", 30.0, 110.0, 1.0F, param0 -> param0.fov, (param0, param1) -> {
+        param0.fov = param1;
+        Minecraft.getInstance().levelRenderer.needsUpdate();
+    }, (param0, param1) -> {
+        double var0 = param1.get(param0);
+        if (var0 == 70.0) {
+            return param1.genericValueLabel(new TranslatableComponent("options.fov.min"));
+        } else {
+            return var0 == param1.getMaxValue() ? param1.genericValueLabel(new TranslatableComponent("options.fov.max")) : param1.genericValueLabel((int)var0);
         }
-    );
+    });
     private static final Component ACCESSIBILITY_TOOLTIP_FOV_EFFECT = new TranslatableComponent("options.fovEffectScale.tooltip");
     public static final ProgressOption FOV_EFFECTS_SCALE = new ProgressOption(
         "options.fovEffectScale",

@@ -10,6 +10,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMaps;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap.Entry;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
@@ -126,7 +127,6 @@ import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.WritableBookItem;
 import net.minecraft.world.level.BaseCommandBlock;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.GameType;
@@ -559,10 +559,10 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
             .connection
             .send(
                 new ClientboundContainerSetSlotPacket(
-                    -2, this.player.getInventory().selected, this.player.getInventory().getItem(this.player.getInventory().selected)
+                    -2, 0, this.player.getInventory().selected, this.player.getInventory().getItem(this.player.getInventory().selected)
                 )
             );
-        this.player.connection.send(new ClientboundContainerSetSlotPacket(-2, param0.getSlot(), this.player.getInventory().getItem(param0.getSlot())));
+        this.player.connection.send(new ClientboundContainerSetSlotPacket(-2, 0, param0.getSlot(), this.player.getInventory().getItem(param0.getSlot())));
         this.player.connection.send(new ClientboundSetCarriedItemPacket(this.player.getInventory().selected));
     }
 
@@ -690,28 +690,16 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
     public void handleEditBook(ServerboundEditBookPacket param0) {
         int var0 = param0.getSlot();
         if (Inventory.isHotbarSlot(var0) || var0 == 40) {
-            ItemStack var1 = param0.getBook();
-            if (var1.is(Items.WRITABLE_BOOK)) {
-                CompoundTag var2 = var1.getTag();
-                if (WritableBookItem.makeSureTagIsValid(var2)) {
-                    List<String> var3 = Lists.newArrayList();
-                    boolean var4 = param0.isSigning();
-                    if (var4) {
-                        var3.add(var2.getString("title"));
-                    }
-
-                    ListTag var5 = var2.getList("pages", 8);
-
-                    for(int var6 = 0; var6 < var5.size(); ++var6) {
-                        var3.add(var5.getString(var6));
-                    }
-
-                    this.filterTextPacket(
-                        var3,
-                        var4 ? param1 -> this.signBook(param1.get(0), param1.subList(1, param1.size()), var0) : param1 -> this.updateBookContents(param1, var0)
-                    );
-                }
-            }
+            List<String> var1 = Lists.newArrayList();
+            Optional<String> var2 = param0.getTitle();
+            var2.ifPresent(var1::add);
+            param0.getPages().stream().limit(100L).forEach(var1::add);
+            this.filterTextPacket(
+                var1,
+                var2.isPresent()
+                    ? param1 -> this.signBook(param1.get(0), param1.subList(1, param1.size()), var0)
+                    : param1 -> this.updateBookContents(param1, var0)
+            );
         }
     }
 
@@ -1361,16 +1349,21 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
             if (this.player.isSpectator()) {
                 this.player.containerMenu.sendAllDataToRemote();
             } else {
+                boolean var0 = param0.getStateId() != this.player.containerMenu.getStateId();
                 this.player.containerMenu.suppressRemoteUpdates();
                 this.player.containerMenu.clicked(param0.getSlotNum(), param0.getButtonNum(), param0.getClickType(), this.player);
 
-                for(Entry<ItemStack> var0 : Int2ObjectMaps.fastIterable(param0.getChangedSlots())) {
-                    this.player.containerMenu.setRemoteSlot(var0.getIntKey(), var0.getValue());
+                for(Entry<ItemStack> var1 : Int2ObjectMaps.fastIterable(param0.getChangedSlots())) {
+                    this.player.containerMenu.setRemoteSlot(var1.getIntKey(), var1.getValue());
                 }
 
                 this.player.containerMenu.setRemoteCarried(param0.getCarriedItem());
                 this.player.containerMenu.resumeRemoteUpdates();
-                this.player.containerMenu.broadcastChanges();
+                if (var0) {
+                    this.player.containerMenu.broadcastFullState();
+                } else {
+                    this.player.containerMenu.broadcastChanges();
+                }
             }
         }
 
@@ -1423,12 +1416,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
             boolean var6 = param0.getSlotNum() >= 1 && param0.getSlotNum() <= 45;
             boolean var7 = var1.isEmpty() || var1.getDamageValue() >= 0 && var1.getCount() <= 64 && !var1.isEmpty();
             if (var6 && var7) {
-                if (var1.isEmpty()) {
-                    this.player.inventoryMenu.setItem(param0.getSlotNum(), ItemStack.EMPTY);
-                } else {
-                    this.player.inventoryMenu.setItem(param0.getSlotNum(), var1);
-                }
-
+                this.player.inventoryMenu.getSlot(param0.getSlotNum()).set(var1);
                 this.player.inventoryMenu.broadcastChanges();
             } else if (var0 && var7 && this.dropSpamTickCount < 200) {
                 this.dropSpamTickCount += 20;

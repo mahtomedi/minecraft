@@ -89,7 +89,7 @@ public class ConnectScreen extends Screen {
                                 ConnectScreen.this.connection, param0, ConnectScreen.this.parent, ConnectScreen.this::updateStatus
                             )
                         );
-                    ConnectScreen.this.connection.send(new ClientIntentionPacket(param1.getHost(), param1.getPort(), ConnectionProtocol.LOGIN));
+                    ConnectScreen.this.connection.send(new ClientIntentionPacket(var0.getHostName(), var0.getPort(), ConnectionProtocol.LOGIN));
                     ConnectScreen.this.connection.send(new ServerboundHelloPacket(param0.getUser().getGameProfile()));
                 } catch (Exception var4) {
                     if (ConnectScreen.this.aborted) {

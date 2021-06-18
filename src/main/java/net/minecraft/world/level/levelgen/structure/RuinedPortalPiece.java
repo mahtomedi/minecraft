@@ -142,11 +142,12 @@ public class RuinedPortalPiece extends TemplateStructurePiece {
     public boolean postProcess(
         WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
     ) {
-        if (!param4.isInside(this.templatePosition)) {
+        BoundingBox var0 = this.template.getBoundingBox(this.placeSettings, this.templatePosition);
+        if (!param4.isInside(var0.getCenter())) {
             return true;
         } else {
-            param4.encapsulate(this.template.getBoundingBox(this.placeSettings, this.templatePosition));
-            boolean var0 = super.postProcess(param0, param1, param2, param3, param4, param5, param6);
+            param4.encapsulate(var0);
+            boolean var1 = super.postProcess(param0, param1, param2, param3, param4, param5, param6);
             this.spreadNetherrack(param3, param0);
             this.addNetherrackDripColumnsBelowPortal(param3, param0);
             if (this.properties.vines || this.properties.overgrown) {
@@ -162,7 +163,7 @@ public class RuinedPortalPiece extends TemplateStructurePiece {
                 });
             }
 
-            return var0;
+            return var1;
         }
     }
 

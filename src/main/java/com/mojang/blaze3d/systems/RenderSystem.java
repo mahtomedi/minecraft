@@ -874,7 +874,7 @@ public class RenderSystem {
     }
 
     public static void setShaderGameTime(long param0, float param1) {
-        float var0 = ((float)param0 + param1) / 24000.0F;
+        float var0 = ((float)(param0 % 24000L) + param1) / 24000.0F;
         if (!isOnRenderThread()) {
             recordRenderCall(() -> shaderGameTime = var0);
         } else {
@@ -912,6 +912,7 @@ public class RenderSystem {
 
         void ensureStorage(int param0) {
             if (param0 > this.indexCount) {
+                param0 = Mth.roundToward(param0 * 2, this.indexStride);
                 RenderSystem.LOGGER.debug("Growing IndexBuffer: Old limit {}, new limit {}.", this.indexCount, param0);
                 if (this.name == 0) {
                     this.name = GlStateManager._glGenBuffers();

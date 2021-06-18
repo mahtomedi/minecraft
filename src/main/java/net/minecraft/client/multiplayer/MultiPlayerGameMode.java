@@ -34,6 +34,7 @@ import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -362,26 +363,27 @@ public class MultiPlayerGameMode {
     }
 
     public void handleInventoryMouseClick(int param0, int param1, int param2, ClickType param3, Player param4) {
-        NonNullList<Slot> var0 = param4.containerMenu.slots;
-        int var1 = var0.size();
-        List<ItemStack> var2 = Lists.newArrayListWithCapacity(var1);
+        AbstractContainerMenu var0 = param4.containerMenu;
+        NonNullList<Slot> var1 = var0.slots;
+        int var2 = var1.size();
+        List<ItemStack> var3 = Lists.newArrayListWithCapacity(var2);
 
-        for(Slot var3 : var0) {
-            var2.add(var3.getItem().copy());
+        for(Slot var4 : var1) {
+            var3.add(var4.getItem().copy());
         }
 
-        param4.containerMenu.clicked(param1, param2, param3, param4);
-        Int2ObjectMap<ItemStack> var4 = new Int2ObjectOpenHashMap<>();
+        var0.clicked(param1, param2, param3, param4);
+        Int2ObjectMap<ItemStack> var5 = new Int2ObjectOpenHashMap<>();
 
-        for(int var5 = 0; var5 < var1; ++var5) {
-            ItemStack var6 = var2.get(var5);
-            ItemStack var7 = var0.get(var5).getItem();
-            if (!ItemStack.matches(var6, var7)) {
-                var4.put(var5, var7.copy());
+        for(int var6 = 0; var6 < var2; ++var6) {
+            ItemStack var7 = var3.get(var6);
+            ItemStack var8 = var1.get(var6).getItem();
+            if (!ItemStack.matches(var7, var8)) {
+                var5.put(var6, var8.copy());
             }
         }
 
-        this.connection.send(new ServerboundContainerClickPacket(param0, param1, param2, param3, param4.containerMenu.getCarried().copy(), var4));
+        this.connection.send(new ServerboundContainerClickPacket(param0, var0.getStateId(), param1, param2, param3, var0.getCarried().copy(), var5));
     }
 
     public void handlePlaceRecipe(int param0, Recipe<?> param1, boolean param2) {

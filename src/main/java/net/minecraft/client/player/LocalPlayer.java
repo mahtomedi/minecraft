@@ -277,17 +277,13 @@ public class LocalPlayer extends AbstractClientPlayer {
 
     }
 
-    @Override
     public boolean drop(boolean param0) {
         ServerboundPlayerActionPacket.Action var0 = param0
             ? ServerboundPlayerActionPacket.Action.DROP_ALL_ITEMS
             : ServerboundPlayerActionPacket.Action.DROP_ITEM;
+        ItemStack var1 = this.getInventory().removeFromSelected(param0);
         this.connection.send(new ServerboundPlayerActionPacket(var0, BlockPos.ZERO, Direction.DOWN));
-        return this.getInventory()
-                .removeItem(
-                    this.getInventory().selected, param0 && !this.getInventory().getSelected().isEmpty() ? this.getInventory().getSelected().getCount() : 1
-                )
-            != ItemStack.EMPTY;
+        return !var1.isEmpty();
     }
 
     public void chat(String param0) {

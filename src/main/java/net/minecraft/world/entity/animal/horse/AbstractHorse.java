@@ -26,7 +26,6 @@ import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
@@ -736,23 +735,17 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
 
                 if (this.playerJumpPendingScale > 0.0F && !this.isJumping() && this.onGround) {
                     double var3 = this.getCustomJump() * (double)this.playerJumpPendingScale * (double)this.getBlockJumpFactor();
-                    double var4;
-                    if (this.hasEffect(MobEffects.JUMP)) {
-                        var4 = var3 + (double)((float)(this.getEffect(MobEffects.JUMP).getAmplifier() + 1) * 0.1F);
-                    } else {
-                        var4 = var3;
-                    }
-
-                    Vec3 var6 = this.getDeltaMovement();
-                    this.setDeltaMovement(var6.x, var4, var6.z);
+                    double var4 = var3 + this.getJumpBoostPower();
+                    Vec3 var5 = this.getDeltaMovement();
+                    this.setDeltaMovement(var5.x, var4, var5.z);
                     this.setIsJumping(true);
                     this.hasImpulse = true;
                     if (var2 > 0.0F) {
-                        float var7 = Mth.sin(this.getYRot() * (float) (Math.PI / 180.0));
-                        float var8 = Mth.cos(this.getYRot() * (float) (Math.PI / 180.0));
+                        float var6 = Mth.sin(this.getYRot() * (float) (Math.PI / 180.0));
+                        float var7 = Mth.cos(this.getYRot() * (float) (Math.PI / 180.0));
                         this.setDeltaMovement(
                             this.getDeltaMovement()
-                                .add((double)(-0.4F * var7 * this.playerJumpPendingScale), 0.0, (double)(0.4F * var8 * this.playerJumpPendingScale))
+                                .add((double)(-0.4F * var6 * this.playerJumpPendingScale), 0.0, (double)(0.4F * var7 * this.playerJumpPendingScale))
                         );
                     }
 

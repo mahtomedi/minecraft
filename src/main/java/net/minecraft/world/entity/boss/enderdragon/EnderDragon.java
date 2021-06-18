@@ -899,7 +899,7 @@ public class EnderDragon extends Mob implements Enemy {
     }
 
     @Override
-    public boolean addEffect(MobEffectInstance param0) {
+    public boolean addEffect(MobEffectInstance param0, @Nullable Entity param1) {
         return false;
     }
 

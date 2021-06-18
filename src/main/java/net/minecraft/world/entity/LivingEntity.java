@@ -918,7 +918,7 @@ public abstract class LivingEntity extends Entity {
         return this.activeEffects.get(param0);
     }
 
-    public boolean addEffect(MobEffectInstance param0) {
+    public final boolean addEffect(MobEffectInstance param0) {
         return this.addEffect(param0, null);
     }
 
@@ -1989,14 +1989,14 @@ public abstract class LivingEntity extends Entity {
         return 0.42F * this.getBlockJumpFactor();
     }
 
-    protected void jumpFromGround() {
-        float var0 = this.getJumpPower();
-        if (this.hasEffect(MobEffects.JUMP)) {
-            var0 += 0.1F * (float)(this.getEffect(MobEffects.JUMP).getAmplifier() + 1);
-        }
+    public double getJumpBoostPower() {
+        return this.hasEffect(MobEffects.JUMP) ? (double)(0.1F * (float)(this.getEffect(MobEffects.JUMP).getAmplifier() + 1)) : 0.0;
+    }
 
+    protected void jumpFromGround() {
+        double var0 = (double)this.getJumpPower() + this.getJumpBoostPower();
         Vec3 var1 = this.getDeltaMovement();
-        this.setDeltaMovement(var1.x, (double)var0, var1.z);
+        this.setDeltaMovement(var1.x, var0, var1.z);
         if (this.isSprinting()) {
             float var2 = this.getYRot() * (float) (Math.PI / 180.0);
             this.setDeltaMovement(this.getDeltaMovement().add((double)(-Mth.sin(var2) * 0.2F), 0.0, (double)(Mth.cos(var2) * 0.2F)));

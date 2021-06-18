@@ -9,6 +9,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.EnchantmentInstance;
 import net.minecraft.world.level.Level;
 
@@ -43,14 +44,14 @@ public class EnchantedBookItem extends Item {
     public static void addEnchantment(ItemStack param0, EnchantmentInstance param1) {
         ListTag var0 = getEnchantments(param0);
         boolean var1 = true;
-        ResourceLocation var2 = Registry.ENCHANTMENT.getKey(param1.enchantment);
+        ResourceLocation var2 = EnchantmentHelper.getEnchantmentId(param1.enchantment);
 
         for(int var3 = 0; var3 < var0.size(); ++var3) {
             CompoundTag var4 = var0.getCompound(var3);
-            ResourceLocation var5 = ResourceLocation.tryParse(var4.getString("id"));
+            ResourceLocation var5 = EnchantmentHelper.getEnchantmentId(var4);
             if (var5 != null && var5.equals(var2)) {
-                if (var4.getInt("lvl") < param1.level) {
-                    var4.putShort("lvl", (short)param1.level);
+                if (EnchantmentHelper.getEnchantmentLevel(var4) < param1.level) {
+                    EnchantmentHelper.setEnchantmentLevel(var4, param1.level);
                 }
 
                 var1 = false;
@@ -59,10 +60,7 @@ public class EnchantedBookItem extends Item {
         }
 
         if (var1) {
-            CompoundTag var6 = new CompoundTag();
-            var6.putString("id", String.valueOf(var2));
-            var6.putShort("lvl", (short)param1.level);
-            var0.add(var6);
+            var0.add(EnchantmentHelper.storeEnchantment(var2, param1.level));
         }
 
         param0.getOrCreateTag().put("StoredEnchantments", var0);

@@ -242,4 +242,9 @@ public class ZombifiedPiglin extends Zombie implements NeutralMob {
     public boolean isPreventingPlayerRest(Player param0) {
         return this.isAngryAt(param0);
     }
+
+    @Override
+    public boolean wantsToPickUp(ItemStack param0) {
+        return this.canHoldItem(param0);
+    }
 }

@@ -111,20 +111,23 @@ public class LongJumpToRandomPos<E extends Mob> extends Behavior<E> {
             if (param2 - this.prepareJumpStart >= 40L) {
                 param1.setYRot(param1.yBodyRot);
                 param1.setDiscardFriction(true);
-                param1.setDeltaMovement(this.chosenJump.get().getJumpVector());
+                Vec3 var0 = this.chosenJump.get().getJumpVector();
+                double var1 = var0.length();
+                double var2 = var1 + param1.getJumpBoostPower();
+                param1.setDeltaMovement(var0.scale(var2 / var1));
                 param1.getBrain().setMemory(MemoryModuleType.LONG_JUMP_MID_JUMP, true);
                 param0.playSound(null, param1, this.getJumpSound.apply(param1), SoundSource.NEUTRAL, 1.0F, 1.0F);
             }
         } else {
             --this.findJumpTries;
-            Optional<LongJumpToRandomPos.PossibleJump> var0 = WeighedRandom.getRandomItem(param0.random, this.jumpCandidates);
-            if (var0.isPresent()) {
-                this.jumpCandidates.remove(var0.get());
-                param1.getBrain().setMemory(MemoryModuleType.LOOK_TARGET, new BlockPosTracker(var0.get().getJumpTarget()));
-                PathNavigation var1 = param1.getNavigation();
-                Path var2 = var1.createPath(var0.get().getJumpTarget(), 0, 8);
-                if (var2 == null || !var2.canReach()) {
-                    this.chosenJump = var0;
+            Optional<LongJumpToRandomPos.PossibleJump> var3 = WeighedRandom.getRandomItem(param0.random, this.jumpCandidates);
+            if (var3.isPresent()) {
+                this.jumpCandidates.remove(var3.get());
+                param1.getBrain().setMemory(MemoryModuleType.LOOK_TARGET, new BlockPosTracker(var3.get().getJumpTarget()));
+                PathNavigation var4 = param1.getNavigation();
+                Path var5 = var4.createPath(var3.get().getJumpTarget(), 0, 8);
+                if (var5 == null || !var5.canReach()) {
+                    this.chosenJump = var3;
                     this.prepareJumpStart = param2;
                 }
             }

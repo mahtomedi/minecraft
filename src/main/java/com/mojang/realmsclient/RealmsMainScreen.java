@@ -396,6 +396,8 @@ public class RealmsMainScreen extends RealmsScreen {
 
                 if (var1) {
                     this.addButtons();
+                } else {
+                    this.updateButtonStates(this.findServer(this.selectedServerId));
                 }
             }
 
@@ -640,8 +642,8 @@ public class RealmsMainScreen extends RealmsScreen {
         REALMS_DATA_FETCHER.stop();
     }
 
-    void configureClicked(RealmsServer param0) {
-        if (this.minecraft.getUser().getUuid().equals(param0.ownerUUID) || overrideConfigure) {
+    void configureClicked(@Nullable RealmsServer param0) {
+        if (param0 != null && (this.minecraft.getUser().getUuid().equals(param0.ownerUUID) || overrideConfigure)) {
             this.saveListScrollPosition();
             this.minecraft.setScreen(new RealmsConfigureWorldScreen(this, param0.id));
         }
@@ -675,11 +677,12 @@ public class RealmsMainScreen extends RealmsScreen {
 
     private void leaveServer(boolean param0x) {
         if (param0x) {
+            final long var0x = this.selectedServerId;
             (new Thread("Realms-leave-server") {
                     @Override
                     public void run() {
                         try {
-                            RealmsServer var0 = RealmsMainScreen.this.findServer(RealmsMainScreen.this.selectedServerId);
+                            RealmsServer var0 = RealmsMainScreen.this.findServer(var0x);
                             if (var0 != null) {
                                 RealmsClient var1 = RealmsClient.create();
                                 var1.uninviteMyselfFrom(var0.id);
@@ -943,7 +946,7 @@ public class RealmsMainScreen extends RealmsScreen {
         return (double)var0 <= param0 && param0 <= (double)var1 && (double)var2 <= param1 && param1 <= (double)var3;
     }
 
-    public void play(RealmsServer param0, Screen param1) {
+    public void play(@Nullable RealmsServer param0, Screen param1) {
         if (param0 != null) {
             try {
                 if (!this.connectLock.tryLock(1L, TimeUnit.SECONDS)) {
@@ -1391,9 +1394,9 @@ public class RealmsMainScreen extends RealmsScreen {
 
         public void setSelected(@Nullable RealmsMainScreen.Entry param0) {
             super.setSelected(param0);
-            int var0 = this.children().indexOf(param0);
-            if (!this.showingMessage || var0 > 0) {
-                RealmsServer var1 = RealmsMainScreen.this.realmsServers.get(var0 - (this.showingMessage ? 1 : 0));
+            int var0 = this.children().indexOf(param0) - (this.showingMessage ? 1 : 0);
+            if (var0 >= 0 && var0 < RealmsMainScreen.this.realmsServers.size()) {
+                RealmsServer var1 = RealmsMainScreen.this.realmsServers.get(var0);
                 RealmsMainScreen.this.selectedServerId = var1.id;
                 RealmsMainScreen.this.updateButtonStates(var1);
             }

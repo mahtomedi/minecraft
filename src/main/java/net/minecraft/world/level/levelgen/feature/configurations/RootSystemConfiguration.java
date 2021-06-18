@@ -21,7 +21,7 @@ public class RootSystemConfiguration implements FeatureConfiguration {
                     Codec.intRange(0, 16).fieldOf("hanging_roots_vertical_span").forGetter(param0x -> param0x.hangingRootsVerticalSpan),
                     BlockStateProvider.CODEC.fieldOf("hanging_root_state_provider").forGetter(param0x -> param0x.hangingRootStateProvider),
                     Codec.intRange(1, 256).fieldOf("hanging_root_placement_attempts").forGetter(param0x -> param0x.hangingRootPlacementAttempts),
-                    Codec.intRange(1, 64).fieldOf("allowed_vertical_water_for_tree").forGetter(param0x -> param0x.requiredVerticalSpaceForTree)
+                    Codec.intRange(1, 64).fieldOf("allowed_vertical_water_for_tree").forGetter(param0x -> param0x.allowedVerticalWaterForTree)
                 )
                 .apply(param0, RootSystemConfiguration::new)
     );

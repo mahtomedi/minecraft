@@ -95,6 +95,7 @@ import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.ChatVisiblity;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -177,8 +178,7 @@ public class ServerPlayer extends Player {
     private final ContainerSynchronizer containerSynchronizer = new ContainerSynchronizer() {
         @Override
         public void sendInitialData(AbstractContainerMenu param0, NonNullList<ItemStack> param1, ItemStack param2, int[] param3) {
-            ServerPlayer.this.connection.send(new ClientboundContainerSetContentPacket(param0.containerId, param1));
-            this.broadcastCarriedItem(param2);
+            ServerPlayer.this.connection.send(new ClientboundContainerSetContentPacket(param0.containerId, param0.incrementStateId(), param1, param2));
 
             for(int var0 = 0; var0 < param3.length; ++var0) {
                 this.broadcastDataValue(param0, var0, param3[var0]);
@@ -188,12 +188,12 @@ public class ServerPlayer extends Player {
 
         @Override
         public void sendSlotChange(AbstractContainerMenu param0, int param1, ItemStack param2) {
-            ServerPlayer.this.connection.send(new ClientboundContainerSetSlotPacket(param0.containerId, param1, param2));
+            ServerPlayer.this.connection.send(new ClientboundContainerSetSlotPacket(param0.containerId, param0.incrementStateId(), param1, param2));
         }
 
         @Override
         public void sendCarriedChange(AbstractContainerMenu param0, ItemStack param1) {
-            this.broadcastCarriedItem(param1);
+            ServerPlayer.this.connection.send(new ClientboundContainerSetSlotPacket(-1, param0.incrementStateId(), -1, param1));
         }
 
         @Override
@@ -203,10 +203,6 @@ public class ServerPlayer extends Player {
 
         private void broadcastDataValue(AbstractContainerMenu param0, int param1, int param2) {
             ServerPlayer.this.connection.send(new ClientboundContainerSetDataPacket(param0.containerId, param1, param2));
-        }
-
-        private void broadcastCarriedItem(ItemStack param0) {
-            ServerPlayer.this.connection.send(new ClientboundContainerSetSlotPacket(-1, -1, param0));
         }
     };
     private final ContainerListener containerListener = new ContainerListener() {
@@ -1594,5 +1590,12 @@ public class ServerPlayer extends Player {
     protected void updateUsingItem(ItemStack param0) {
         CriteriaTriggers.USING_ITEM.trigger(this, param0);
         super.updateUsingItem(param0);
+    }
+
+    public boolean drop(boolean param0) {
+        Inventory var0 = this.getInventory();
+        ItemStack var1 = var0.removeFromSelected(param0);
+        this.containerMenu.findSlot(var0, var0.selected).ifPresent(param1 -> this.containerMenu.setRemoteSlot(param1, var0.getSelected()));
+        return this.drop(var1, false, true) != null;
     }
 }

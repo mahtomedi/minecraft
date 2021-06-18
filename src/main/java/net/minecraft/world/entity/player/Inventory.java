@@ -321,7 +321,7 @@ public class Inventory implements Container, Nameable {
 
             int var1 = param0.getMaxStackSize() - this.getItem(var0).getCount();
             if (this.add(var0, param0.split(var1)) && param1 && this.player instanceof ServerPlayer) {
-                ((ServerPlayer)this.player).connection.send(new ClientboundContainerSetSlotPacket(-2, var0, this.getItem(var0)));
+                ((ServerPlayer)this.player).connection.send(new ClientboundContainerSetSlotPacket(-2, 0, var0, this.getItem(var0)));
             }
         }
 
@@ -601,5 +601,10 @@ public class Inventory implements Container, Nameable {
             param0.accountSimpleStack(var0);
         }
 
+    }
+
+    public ItemStack removeFromSelected(boolean param0) {
+        ItemStack var0 = this.getSelected();
+        return var0.isEmpty() ? ItemStack.EMPTY : this.removeItem(this.selected, param0 ? var0.getCount() : 1);
     }
 }

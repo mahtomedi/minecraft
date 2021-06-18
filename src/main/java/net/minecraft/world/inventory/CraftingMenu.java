@@ -69,7 +69,7 @@ public class CraftingMenu extends RecipeBookMenu<CraftingContainer> {
 
             param4.setItem(0, var1);
             param0.setRemoteSlot(0, var1);
-            var0.connection.send(new ClientboundContainerSetSlotPacket(param0.containerId, 0, var1));
+            var0.connection.send(new ClientboundContainerSetSlotPacket(param0.containerId, param0.incrementStateId(), 0, var1));
         }
     }
 

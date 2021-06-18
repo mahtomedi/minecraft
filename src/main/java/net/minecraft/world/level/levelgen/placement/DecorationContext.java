@@ -11,27 +11,16 @@ import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.WorldGenerationContext;
 
-public class DecorationContext implements WorldGenerationContext {
+public class DecorationContext extends WorldGenerationContext {
     private final WorldGenLevel level;
-    private final ChunkGenerator generator;
 
     public DecorationContext(WorldGenLevel param0, ChunkGenerator param1) {
+        super(param1, param0);
         this.level = param0;
-        this.generator = param1;
     }
 
     public int getHeight(Heightmap.Types param0, int param1, int param2) {
         return this.level.getHeight(param0, param1, param2);
-    }
-
-    @Override
-    public int getMinGenY() {
-        return this.generator.getMinY();
-    }
-
-    @Override
-    public int getGenDepth() {
-        return this.generator.getGenDepth();
     }
 
     public BitSet getCarvingMask(ChunkPos param0, GenerationStep.Carving param1) {

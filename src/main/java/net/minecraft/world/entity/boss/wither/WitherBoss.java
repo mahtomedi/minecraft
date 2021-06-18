@@ -495,7 +495,7 @@ public class WitherBoss extends Monster implements PowerableMob, RangedAttackMob
     }
 
     @Override
-    public boolean addEffect(MobEffectInstance param0) {
+    public boolean addEffect(MobEffectInstance param0, @Nullable Entity param1) {
         return false;
     }
 

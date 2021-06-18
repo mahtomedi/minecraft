@@ -89,8 +89,6 @@ public final class ItemStack {
         new DecimalFormat("#.##"), param0 -> param0.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ROOT))
     );
     public static final String TAG_ENCH = "Enchantments";
-    public static final String TAG_ENCH_ID = "id";
-    public static final String TAG_ENCH_LEVEL = "lvl";
     public static final String TAG_DISPLAY = "display";
     public static final String TAG_DISPLAY_NAME = "Name";
     public static final String TAG_LORE = "Lore";
@@ -772,8 +770,8 @@ public final class ItemStack {
         for(int var0 = 0; var0 < param1.size(); ++var0) {
             CompoundTag var1 = param1.getCompound(var0);
             Registry.ENCHANTMENT
-                .getOptional(ResourceLocation.tryParse(var1.getString("id")))
-                .ifPresent(param2 -> param0.add(param2.getFullname(var1.getInt("lvl"))));
+                .getOptional(EnchantmentHelper.getEnchantmentId(var1))
+                .ifPresent(param2 -> param0.add(param2.getFullname(EnchantmentHelper.getEnchantmentLevel(var1))));
         }
 
     }
@@ -827,10 +825,7 @@ public final class ItemStack {
         }
 
         ListTag var0 = this.tag.getList("Enchantments", 10);
-        CompoundTag var1 = new CompoundTag();
-        var1.putString("id", String.valueOf(Registry.ENCHANTMENT.getKey(param0)));
-        var1.putShort("lvl", (short)((byte)param1));
-        var0.add(var1);
+        var0.add(EnchantmentHelper.storeEnchantment(EnchantmentHelper.getEnchantmentId(param0), (byte)param1));
     }
 
     public boolean isEnchanted() {

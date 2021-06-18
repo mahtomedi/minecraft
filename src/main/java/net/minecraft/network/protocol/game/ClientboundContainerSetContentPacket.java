@@ -8,38 +8,35 @@ import net.minecraft.world.item.ItemStack;
 
 public class ClientboundContainerSetContentPacket implements Packet<ClientGamePacketListener> {
     private final int containerId;
+    private final int stateId;
     private final List<ItemStack> items;
+    private final ItemStack carriedItem;
 
-    public ClientboundContainerSetContentPacket(int param0, NonNullList<ItemStack> param1) {
+    public ClientboundContainerSetContentPacket(int param0, int param1, NonNullList<ItemStack> param2, ItemStack param3) {
         this.containerId = param0;
-        this.items = NonNullList.withSize(param1.size(), ItemStack.EMPTY);
+        this.stateId = param1;
+        this.items = NonNullList.withSize(param2.size(), ItemStack.EMPTY);
 
-        for(int var0 = 0; var0 < this.items.size(); ++var0) {
-            this.items.set(var0, param1.get(var0).copy());
+        for(int var0 = 0; var0 < param2.size(); ++var0) {
+            this.items.set(var0, param2.get(var0).copy());
         }
 
+        this.carriedItem = param3.copy();
     }
 
     public ClientboundContainerSetContentPacket(FriendlyByteBuf param0) {
         this.containerId = param0.readUnsignedByte();
-        int var0 = param0.readShort();
-        this.items = NonNullList.withSize(var0, ItemStack.EMPTY);
-
-        for(int var1 = 0; var1 < var0; ++var1) {
-            this.items.set(var1, param0.readItem());
-        }
-
+        this.stateId = param0.readVarInt();
+        this.items = param0.readCollection(NonNullList::createWithCapacity, FriendlyByteBuf::readItem);
+        this.carriedItem = param0.readItem();
     }
 
     @Override
     public void write(FriendlyByteBuf param0) {
         param0.writeByte(this.containerId);
-        param0.writeShort(this.items.size());
-
-        for(ItemStack var0 : this.items) {
-            param0.writeItem(var0);
-        }
-
+        param0.writeVarInt(this.stateId);
+        param0.writeCollection(this.items, FriendlyByteBuf::writeItem);
+        param0.writeItem(this.carriedItem);
     }
 
     public void handle(ClientGamePacketListener param0) {
@@ -52,5 +49,13 @@ public class ClientboundContainerSetContentPacket implements Packet<ClientGamePa
 
     public List<ItemStack> getItems() {
         return this.items;
+    }
+
+    public ItemStack getCarriedItem() {
+        return this.carriedItem;
+    }
+
+    public int getStateId() {
+        return this.stateId;
     }
 }

@@ -621,12 +621,17 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
     }
 
     @Override
-    public void tick() {
+    public final void tick() {
         super.tick();
-        if (!this.minecraft.player.isAlive() || this.minecraft.player.isRemoved()) {
+        if (this.minecraft.player.isAlive() && !this.minecraft.player.isRemoved()) {
+            this.containerTick();
+        } else {
             this.minecraft.player.closeContainer();
         }
 
+    }
+
+    protected void containerTick() {
     }
 
     @Override

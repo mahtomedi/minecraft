@@ -1006,9 +1006,9 @@ public class ClientPacketListener implements ClientGamePacketListener {
                     }
                 }
 
-                var0.inventoryMenu.setItem(var2, var1);
+                var0.inventoryMenu.setItem(var2, param0.getStateId(), var1);
             } else if (param0.getContainerId() == var0.containerMenu.containerId && (param0.getContainerId() != 0 || !var3)) {
-                var0.containerMenu.setItem(var2, var1);
+                var0.containerMenu.setItem(var2, param0.getStateId(), var1);
             }
         }
 
@@ -1019,9 +1019,9 @@ public class ClientPacketListener implements ClientGamePacketListener {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
         Player var0 = this.minecraft.player;
         if (param0.getContainerId() == 0) {
-            var0.inventoryMenu.setAll(param0.getItems());
+            var0.inventoryMenu.initializeContents(param0.getStateId(), param0.getItems(), param0.getCarriedItem());
         } else if (param0.getContainerId() == var0.containerMenu.containerId) {
-            var0.containerMenu.setAll(param0.getItems());
+            var0.containerMenu.initializeContents(param0.getStateId(), param0.getItems(), param0.getCarriedItem());
         }
 
     }
