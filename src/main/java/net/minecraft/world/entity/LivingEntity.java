@@ -1293,6 +1293,10 @@ public abstract class LivingEntity extends Entity {
                 this.stopSleeping();
             }
 
+            if (!this.level.isClientSide && this.hasCustomName()) {
+                LOGGER.info("Named entity {} died: {}", this, this.getCombatTracker().getDeathMessage().getString());
+            }
+
             this.dead = true;
             this.getCombatTracker().recheckStatus();
             if (this.level instanceof ServerLevel) {

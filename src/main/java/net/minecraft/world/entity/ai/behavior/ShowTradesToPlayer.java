@@ -59,7 +59,7 @@ public class ShowTradesToPlayer extends Behavior<Villager> {
         if (!this.displayItems.isEmpty()) {
             this.displayCyclingItems(param1);
         } else {
-            param1.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
+            clearHeldItem(param1);
             this.lookTime = Math.min(this.lookTime, 40);
         }
 
@@ -69,7 +69,7 @@ public class ShowTradesToPlayer extends Behavior<Villager> {
     public void stop(ServerLevel param0, Villager param1, long param2) {
         super.stop(param0, param1, param2);
         param1.getBrain().eraseMemory(MemoryModuleType.INTERACTION_TARGET);
-        param1.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
+        clearHeldItem(param1);
         this.playerItemStack = null;
     }
 
@@ -93,7 +93,7 @@ public class ShowTradesToPlayer extends Behavior<Villager> {
     }
 
     private void displayFirstItem(Villager param0) {
-        param0.setItemSlot(EquipmentSlot.MAINHAND, this.displayItems.get(0));
+        displayAsHeldItem(param0, this.displayItems.get(0));
     }
 
     private void updateDisplayItems(Villager param0) {
@@ -107,6 +107,16 @@ public class ShowTradesToPlayer extends Behavior<Villager> {
 
     private boolean playerItemStackMatchesCostOfOffer(MerchantOffer param0) {
         return ItemStack.isSame(this.playerItemStack, param0.getCostA()) || ItemStack.isSame(this.playerItemStack, param0.getCostB());
+    }
+
+    private static void clearHeldItem(Villager param0) {
+        param0.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
+        param0.setDropChance(EquipmentSlot.MAINHAND, 0.085F);
+    }
+
+    private static void displayAsHeldItem(Villager param0, ItemStack param1) {
+        param0.setItemSlot(EquipmentSlot.MAINHAND, param1);
+        param0.setDropChance(EquipmentSlot.MAINHAND, 0.0F);
     }
 
     private LivingEntity lookAtTarget(Villager param0) {
@@ -124,7 +134,7 @@ public class ShowTradesToPlayer extends Behavior<Villager> {
                 this.displayIndex = 0;
             }
 
-            param0.setItemSlot(EquipmentSlot.MAINHAND, this.displayItems.get(this.displayIndex));
+            displayAsHeldItem(param0, this.displayItems.get(this.displayIndex));
         }
 
     }

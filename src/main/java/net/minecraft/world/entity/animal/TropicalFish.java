@@ -139,12 +139,6 @@ public class TropicalFish extends AbstractSchoolingFish {
     }
 
     @Override
-    public void loadFromBucketTag(CompoundTag param0) {
-        super.loadFromBucketTag(param0);
-        this.setVariant(param0.getInt("BucketVariantTag"));
-    }
-
-    @Override
     public ItemStack getBucketItemStack() {
         return new ItemStack(Items.TROPICAL_FISH_BUCKET);
     }
@@ -213,7 +207,8 @@ public class TropicalFish extends AbstractSchoolingFish {
         ServerLevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
     ) {
         param3 = super.finalizeSpawn(param0, param1, param2, param3, param4);
-        if (param2 == MobSpawnType.BUCKET) {
+        if (param2 == MobSpawnType.BUCKET && param4 != null && param4.contains("BucketVariantTag", 3)) {
+            this.setVariant(param4.getInt("BucketVariantTag"));
             return param3;
         } else {
             int var1;

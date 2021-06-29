@@ -174,6 +174,7 @@ public class Scoreboard {
         return this.displayObjectives[param0];
     }
 
+    @Nullable
     public PlayerTeam getPlayerTeam(String param0) {
         return this.teamsByName.get(param0);
     }

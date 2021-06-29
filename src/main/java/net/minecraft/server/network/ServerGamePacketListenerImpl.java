@@ -1354,7 +1354,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
                 this.player.containerMenu.clicked(param0.getSlotNum(), param0.getButtonNum(), param0.getClickType(), this.player);
 
                 for(Entry<ItemStack> var1 : Int2ObjectMaps.fastIterable(param0.getChangedSlots())) {
-                    this.player.containerMenu.setRemoteSlot(var1.getIntKey(), var1.getValue());
+                    this.player.containerMenu.setRemoteSlotNoCopy(var1.getIntKey(), var1.getValue());
                 }
 
                 this.player.containerMenu.setRemoteCarried(param0.getCarriedItem());

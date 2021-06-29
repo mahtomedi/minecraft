@@ -156,8 +156,8 @@ public class LevelStorageSource {
                     boolean var3;
                     try {
                         var3 = DirectoryLock.isLocked(var2.toPath());
-                    } catch (Exception var12) {
-                        LOGGER.warn("Failed to read {} lock", var2, var12);
+                    } catch (Exception var10) {
+                        LOGGER.warn("Failed to read {} lock", var2, var10);
                         continue;
                     }
 
@@ -166,13 +166,10 @@ public class LevelStorageSource {
                         if (var6 != null) {
                             var0.add(var6);
                         }
-                    } catch (OutOfMemoryError var11) {
+                    } catch (OutOfMemoryError var9) {
                         MemoryReserve.release();
                         System.gc();
-                        String var8 = String.format("Ran out of memory trying to read summary of \"%s\"", var2);
-                        LOGGER.fatal(var8);
-                        OutOfMemoryError var9 = new OutOfMemoryError(var8);
-                        var9.initCause(var11);
+                        LOGGER.fatal("Ran out of memory trying to read summary of {}", var2);
                         throw var9;
                     }
                 }

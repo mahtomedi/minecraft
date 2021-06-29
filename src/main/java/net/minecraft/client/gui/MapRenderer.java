@@ -34,7 +34,7 @@ public class MapRenderer implements AutoCloseable {
     }
 
     public void update(int param0, MapItemSavedData param1) {
-        this.getOrCreateMapInstance(param0, param1).updateTexture();
+        this.getOrCreateMapInstance(param0, param1).forceUpload();
     }
 
     public void render(PoseStack param0, MultiBufferSource param1, int param2, MapItemSavedData param3, boolean param4, int param5) {
@@ -42,7 +42,14 @@ public class MapRenderer implements AutoCloseable {
     }
 
     private MapRenderer.MapInstance getOrCreateMapInstance(int param0, MapItemSavedData param1) {
-        return this.maps.computeIfAbsent(param0, param1x -> new MapRenderer.MapInstance(param1x, param1));
+        return this.maps.compute(param0, (param1x, param2) -> {
+            if (param2 == null) {
+                return new MapRenderer.MapInstance(param1x, param1);
+            } else {
+                param2.replaceMapData(param1);
+                return param2;
+            }
+        });
     }
 
     public void resetData() {
@@ -60,9 +67,10 @@ public class MapRenderer implements AutoCloseable {
 
     @OnlyIn(Dist.CLIENT)
     class MapInstance implements AutoCloseable {
-        private final MapItemSavedData data;
+        private MapItemSavedData data;
         private final DynamicTexture texture;
         private final RenderType renderType;
+        private boolean requiresUpload = true;
 
         MapInstance(int param0, MapItemSavedData param1) {
             this.data = param1;
@@ -71,7 +79,17 @@ public class MapRenderer implements AutoCloseable {
             this.renderType = RenderType.text(param2);
         }
 
-        void updateTexture() {
+        void replaceMapData(MapItemSavedData param0) {
+            boolean var0 = this.data != param0;
+            this.data = param0;
+            this.requiresUpload |= var0;
+        }
+
+        public void forceUpload() {
+            this.requiresUpload = true;
+        }
+
+        private void updateTexture() {
             for(int var0 = 0; var0 < 128; ++var0) {
                 for(int var1 = 0; var1 < 128; ++var1) {
                     int var2 = var1 + var0 * 128;
@@ -88,6 +106,11 @@ public class MapRenderer implements AutoCloseable {
         }
 
         void draw(PoseStack param0, MultiBufferSource param1, boolean param2, int param3) {
+            if (this.requiresUpload) {
+                this.updateTexture();
+                this.requiresUpload = false;
+            }
+
             int var0 = 0;
             int var1 = 0;
             float var2 = 0.0F;

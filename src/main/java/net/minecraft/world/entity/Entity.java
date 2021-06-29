@@ -1066,7 +1066,9 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         if (this.isSwimming()) {
             this.setSwimming(this.isSprinting() && this.isInWater() && !this.isPassenger());
         } else {
-            this.setSwimming(this.isSprinting() && this.isUnderWater() && !this.isPassenger());
+            this.setSwimming(
+                this.isSprinting() && this.isUnderWater() && !this.isPassenger() && this.level.getFluidState(this.blockPosition).is(FluidTags.WATER)
+            );
         }
 
     }

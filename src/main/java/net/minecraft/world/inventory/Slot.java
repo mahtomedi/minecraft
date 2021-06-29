@@ -97,11 +97,15 @@ public class Slot {
         } else {
             param0 = Math.min(param0, param1);
             ItemStack var0 = this.remove(param0);
-            if (this.getItem().isEmpty()) {
-                this.set(ItemStack.EMPTY);
-            }
+            if (var0.isEmpty()) {
+                return Optional.empty();
+            } else {
+                if (this.getItem().isEmpty()) {
+                    this.set(ItemStack.EMPTY);
+                }
 
-            return Optional.of(var0);
+                return Optional.of(var0);
+            }
         }
     }
 

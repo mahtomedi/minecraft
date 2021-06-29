@@ -1,6 +1,7 @@
 package net.minecraft.network.protocol.game;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Optional;
 import net.minecraft.network.FriendlyByteBuf;
@@ -10,6 +11,7 @@ public class ServerboundEditBookPacket implements Packet<ServerGamePacketListene
     public static final int MAX_BYTES_PER_CHAR = 4;
     private static final int TITLE_MAX_CHARS = 128;
     private static final int PAGE_MAX_CHARS = 8192;
+    private static final int MAX_PAGES_COUNT = 200;
     private final int slot;
     private final List<String> pages;
     private final Optional<String> title;
@@ -22,7 +24,7 @@ public class ServerboundEditBookPacket implements Packet<ServerGamePacketListene
 
     public ServerboundEditBookPacket(FriendlyByteBuf param0) {
         this.slot = param0.readVarInt();
-        this.pages = param0.readList(param0x -> param0x.readUtf(8192));
+        this.pages = param0.readCollection(FriendlyByteBuf.limitValue(Lists::newArrayListWithCapacity, 200), param0x -> param0x.readUtf(8192));
         this.title = param0.readOptional(param0x -> param0x.readUtf(128));
     }
 
