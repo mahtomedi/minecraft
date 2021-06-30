@@ -45,7 +45,7 @@ public class BufferBuilder extends DefaultedVertexConsumer implements BufferVert
     private boolean indexOnly;
 
     public BufferBuilder(int param0) {
-        this.buffer = MemoryTracker.createByteBuffer(param0 * 6);
+        this.buffer = MemoryTracker.create(param0 * 6);
     }
 
     private void ensureVertexCapacity() {
@@ -57,9 +57,7 @@ public class BufferBuilder extends DefaultedVertexConsumer implements BufferVert
             int var0 = this.buffer.capacity();
             int var1 = var0 + roundUp(param0);
             LOGGER.debug("Needed to grow BufferBuilder buffer: Old size {} bytes, new size {} bytes.", var0, var1);
-            ByteBuffer var2 = MemoryTracker.createByteBuffer(var1);
-            this.buffer.position(0);
-            var2.put(this.buffer);
+            ByteBuffer var2 = MemoryTracker.resize(this.buffer, var1);
             var2.rewind();
             this.buffer = var2;
         }

@@ -462,7 +462,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
             return this.scheduleChunkLoad(var0);
         } else {
             if (param1 == ChunkStatus.LIGHT) {
-                this.distanceManager.addTicket(TicketType.LIGHT, var0, 33 + ChunkStatus.getDistance(ChunkStatus.FEATURES), var0);
+                this.distanceManager.addTicket(TicketType.LIGHT, var0, 33 + ChunkStatus.getDistance(ChunkStatus.LIGHT), var0);
             }
 
             Optional<ChunkAccess> var1 = param0.getOrScheduleFuture(param1.getParent(), this).getNow(ChunkHolder.UNLOADED_CHUNK).left();
@@ -563,7 +563,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
         this.mainThreadExecutor
             .tell(
                 Util.name(
-                    () -> this.distanceManager.removeTicket(TicketType.LIGHT, param0, 33 + ChunkStatus.getDistance(ChunkStatus.FEATURES), param0),
+                    () -> this.distanceManager.removeTicket(TicketType.LIGHT, param0, 33 + ChunkStatus.getDistance(ChunkStatus.LIGHT), param0),
                     () -> "release light ticket " + param0
                 )
             );

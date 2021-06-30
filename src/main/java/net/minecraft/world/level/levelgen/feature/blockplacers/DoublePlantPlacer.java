@@ -18,6 +18,6 @@ public class DoublePlantPlacer extends BlockPlacer {
 
     @Override
     public void place(LevelAccessor param0, BlockPos param1, BlockState param2, Random param3) {
-        ((DoublePlantBlock)param2.getBlock()).placeAt(param0, param2, param1, 2);
+        DoublePlantBlock.placeAt(param0, param2, param1, 2);
     }
 }

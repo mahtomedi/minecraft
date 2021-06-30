@@ -53,26 +53,19 @@ public class SmallDripleafBlock extends DoublePlantBlock implements Bonemealable
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext param0) {
         BlockState var0 = super.getStateForPlacement(param0);
-        if (var0 != null) {
-            FluidState var1 = param0.getLevel().getFluidState(param0.getClickedPos());
-            return var0.setValue(WATERLOGGED, Boolean.valueOf(var1.getType() == Fluids.WATER)).setValue(FACING, param0.getHorizontalDirection().getOpposite());
-        } else {
-            return null;
-        }
+        return var0 != null
+            ? copyWaterloggedFrom(param0.getLevel(), param0.getClickedPos(), var0.setValue(FACING, param0.getHorizontalDirection().getOpposite()))
+            : null;
     }
 
     @Override
     public void setPlacedBy(Level param0, BlockPos param1, BlockState param2, LivingEntity param3, ItemStack param4) {
         if (!param0.isClientSide()) {
-            Direction var0 = param2.getValue(FACING);
-            param0.setBlock(
-                param1.above(),
-                this.defaultBlockState()
-                    .setValue(HALF, DoubleBlockHalf.UPPER)
-                    .setValue(WATERLOGGED, Boolean.valueOf(param0.isWaterAt(param1.above())))
-                    .setValue(FACING, var0),
-                3
+            BlockPos var0 = param1.above();
+            BlockState var1 = DoublePlantBlock.copyWaterloggedFrom(
+                param0, var0, this.defaultBlockState().setValue(HALF, DoubleBlockHalf.UPPER).setValue(FACING, param2.getValue(FACING))
             );
+            param0.setBlock(var0, var1, 3);
         }
 
     }

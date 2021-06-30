@@ -1,43 +1,30 @@
 package com.mojang.blaze3d.platform;
 
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.CharBuffer;
-import java.nio.DoubleBuffer;
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
-import java.nio.LongBuffer;
-import java.nio.ShortBuffer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.lwjgl.system.MemoryUtil;
+import org.lwjgl.system.MemoryUtil.MemoryAllocator;
 
 @OnlyIn(Dist.CLIENT)
 public class MemoryTracker {
-    public static synchronized ByteBuffer createByteBuffer(int param0) {
-        return ByteBuffer.allocateDirect(param0).order(ByteOrder.nativeOrder());
+    private static final MemoryAllocator ALLOCATOR = MemoryUtil.getAllocator(false);
+
+    public static ByteBuffer create(int param0) {
+        long var0 = ALLOCATOR.malloc((long)param0);
+        if (var0 == 0L) {
+            throw new OutOfMemoryError("Failed to allocate " + param0 + " bytes");
+        } else {
+            return MemoryUtil.memByteBuffer(var0, param0);
+        }
     }
 
-    public static ShortBuffer createShortBuffer(int param0) {
-        return createByteBuffer(param0 << 1).asShortBuffer();
-    }
-
-    public static CharBuffer createCharBuffer(int param0) {
-        return createByteBuffer(param0 << 1).asCharBuffer();
-    }
-
-    public static IntBuffer createIntBuffer(int param0) {
-        return createByteBuffer(param0 << 2).asIntBuffer();
-    }
-
-    public static LongBuffer createLongBuffer(int param0) {
-        return createByteBuffer(param0 << 3).asLongBuffer();
-    }
-
-    public static FloatBuffer createFloatBuffer(int param0) {
-        return createByteBuffer(param0 << 2).asFloatBuffer();
-    }
-
-    public static DoubleBuffer createDoubleBuffer(int param0) {
-        return createByteBuffer(param0 << 3).asDoubleBuffer();
+    public static ByteBuffer resize(ByteBuffer param0, int param1) {
+        long var0 = ALLOCATOR.realloc(MemoryUtil.memAddress0(param0), (long)param1);
+        if (var0 == 0L) {
+            throw new OutOfMemoryError("Failed to resize buffer from " + param0.capacity() + " bytes to " + param1 + " bytes");
+        } else {
+            return MemoryUtil.memByteBuffer(var0, param1);
+        }
     }
 }

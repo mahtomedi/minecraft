@@ -1,8 +1,9 @@
 package net.minecraft.server.packs;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.google.common.collect.ImmutableMap.Builder;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -11,7 +12,8 @@ import java.io.UncheckedIOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.FileSystem;
+import java.nio.file.FileSystemAlreadyExistsException;
+import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
@@ -38,41 +40,52 @@ public class VanillaPackResources implements PackResources, ResourceProvider {
     public static Path generatedDir;
     private static final Logger LOGGER = LogManager.getLogger();
     public static Class<?> clientObject;
-    private static final Map<PackType, FileSystem> JAR_FILESYSTEM_BY_TYPE = Util.make(Maps.newHashMap(), param0 -> {
+    private static final Map<PackType, Path> ROOT_DIR_BY_TYPE = Util.make(() -> {
         synchronized(VanillaPackResources.class) {
-            for(PackType var0 : PackType.values()) {
-                URL var1 = VanillaPackResources.class.getResource("/" + var0.getDirectory() + "/.mcassetsroot");
+            Builder<PackType, Path> var0 = ImmutableMap.builder();
 
-                try {
-                    URI var2 = var1.toURI();
-                    String var3 = var2.getScheme();
-                    FileSystem var4;
-                    if ("jar".equals(var3)) {
-                        try {
-                            var4 = FileSystems.getFileSystem(var2);
-                        } catch (Throwable var12) {
-                            LOGGER.warn("Unable to create a jar-filesystem for: {}: {}", var2, var12.toString());
-                            var4 = FileSystems.newFileSystem(var2, Collections.emptyMap());
-                        }
-                    } else {
-                        if ("file".equals(var3)) {
-                            continue;
+            for(PackType var1 : PackType.values()) {
+                String var2 = "/" + var1.getDirectory() + "/.mcassetsroot";
+                URL var3 = VanillaPackResources.class.getResource(var2);
+                if (var3 == null) {
+                    LOGGER.error("File {} does not exist in classpath", var2);
+                } else {
+                    try {
+                        URI var4 = var3.toURI();
+                        String var5 = var4.getScheme();
+                        if (!"jar".equals(var5) && !"file".equals(var5)) {
+                            LOGGER.warn("Assets URL '{}' uses unexpected schema", var4);
                         }
 
-                        LOGGER.warn("Creating empty filesystem for: {}", var2);
-                        var4 = FileSystems.newFileSystem(var2, Collections.emptyMap());
+                        Path var6 = safeGetPath(var4);
+                        var0.put(var1, var6.getParent());
+                    } catch (Exception var12) {
+                        LOGGER.error("Couldn't resolve path to vanilla assets", (Throwable)var12);
                     }
-
-                    param0.put(var0, var4);
-                } catch (IOException | URISyntaxException var13) {
-                    LOGGER.error("Couldn't get a list of all vanilla resources", (Throwable)var13);
                 }
             }
 
+            return var0.build();
         }
     });
     public final PackMetadataSection packMetadata;
     public final Set<String> namespaces;
+
+    private static Path safeGetPath(URI param0) throws IOException {
+        try {
+            return Paths.get(param0);
+        } catch (FileSystemNotFoundException var3) {
+        } catch (Throwable var4) {
+            LOGGER.warn("Unable to get path for: {}", param0, var4);
+        }
+
+        try {
+            FileSystems.newFileSystem(param0, Collections.emptyMap());
+        } catch (FileSystemAlreadyExistsException var2) {
+        }
+
+        return Paths.get(param0);
+    }
 
     public VanillaPackResources(PackMetadataSection param0, String... param1) {
         this.packMetadata = param0;
@@ -111,7 +124,7 @@ public class VanillaPackResources implements PackResources, ResourceProvider {
         if (generatedDir != null) {
             try {
                 getResources(var0, param3, param1, generatedDir.resolve(param0.getDirectory()), param2, param4);
-            } catch (IOException var15) {
+            } catch (IOException var13) {
             }
 
             if (param0 == PackType.CLIENT_RESOURCES) {
@@ -119,7 +132,7 @@ public class VanillaPackResources implements PackResources, ResourceProvider {
 
                 try {
                     var1 = clientObject.getClassLoader().getResources(param0.getDirectory() + "/");
-                } catch (IOException var14) {
+                } catch (IOException var12) {
                 }
 
                 while(var1 != null && var1.hasMoreElements()) {
@@ -128,33 +141,22 @@ public class VanillaPackResources implements PackResources, ResourceProvider {
                         if ("file".equals(var2.getScheme())) {
                             getResources(var0, param3, param1, Paths.get(var2), param2, param4);
                         }
-                    } catch (IOException | URISyntaxException var13) {
+                    } catch (IOException | URISyntaxException var11) {
                     }
                 }
             }
         }
 
         try {
-            URL var3 = VanillaPackResources.class.getResource("/" + param0.getDirectory() + "/.mcassetsroot");
-            if (var3 == null) {
-                LOGGER.error("Couldn't find .mcassetsroot, cannot load vanilla resources");
-                return var0;
-            }
-
-            URI var4 = var3.toURI();
-            if ("file".equals(var4.getScheme())) {
-                URL var5 = new URL(var3.toString().substring(0, var3.toString().length() - ".mcassetsroot".length()));
-                Path var6 = Paths.get(var5.toURI());
-                getResources(var0, param3, param1, var6, param2, param4);
-            } else if ("jar".equals(var4.getScheme())) {
-                Path var7 = JAR_FILESYSTEM_BY_TYPE.get(param0).getPath("/" + param0.getDirectory());
-                getResources(var0, param3, "minecraft", var7, param2, param4);
+            Path var3 = ROOT_DIR_BY_TYPE.get(param0);
+            if (var3 != null) {
+                getResources(var0, param3, param1, var3, param2, param4);
             } else {
-                LOGGER.error("Unsupported scheme {} trying to list vanilla resources (NYI?)", var4);
+                LOGGER.error("Can't access assets root for type: {}", param0);
             }
-        } catch (NoSuchFileException | FileNotFoundException var11) {
-        } catch (IOException | URISyntaxException var12) {
-            LOGGER.error("Couldn't get a list of all vanilla resources", (Throwable)var12);
+        } catch (NoSuchFileException | FileNotFoundException var9) {
+        } catch (IOException var10) {
+            LOGGER.error("Couldn't get a list of all vanilla resources", (Throwable)var10);
         }
 
         return var0;

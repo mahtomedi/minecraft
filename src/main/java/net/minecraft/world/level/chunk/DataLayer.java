@@ -4,9 +4,10 @@ import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.util.VisibleForDebug;
 
-public class DataLayer {
-    public static final int SIZE = 2048;
+public final class DataLayer {
+    public static final int LAYER_COUNT = 16;
     public static final int LAYER_SIZE = 128;
+    public static final int SIZE = 2048;
     private static final int NIBBLE_SIZE = 4;
     @Nullable
     protected byte[] data;
@@ -17,7 +18,7 @@ public class DataLayer {
     public DataLayer(byte[] param0) {
         this.data = param0;
         if (param0.length != 2048) {
-            throw (IllegalArgumentException)Util.pauseInIde(new IllegalArgumentException("ChunkNibbleArrays should be 2048 bytes not: " + param0.length));
+            throw (IllegalArgumentException)Util.pauseInIde(new IllegalArgumentException("DataLayer should be 2048 bytes not: " + param0.length));
         }
     }
 
@@ -26,14 +27,14 @@ public class DataLayer {
     }
 
     public int get(int param0, int param1, int param2) {
-        return this.get(this.getIndex(param0, param1, param2));
+        return this.get(getIndex(param0, param1, param2));
     }
 
     public void set(int param0, int param1, int param2, int param3) {
-        this.set(this.getIndex(param0, param1, param2), param3);
+        this.set(getIndex(param0, param1, param2), param3);
     }
 
-    protected int getIndex(int param0, int param1, int param2) {
+    private static int getIndex(int param0, int param1, int param2) {
         return param1 << 8 | param2 << 4 | param0;
     }
 
@@ -41,8 +42,9 @@ public class DataLayer {
         if (this.data == null) {
             return 0;
         } else {
-            int var0 = this.getPosition(param0);
-            return this.isFirst(param0) ? this.data[var0] & 15 : this.data[var0] >> 4 & 15;
+            int var0 = getByteIndex(param0);
+            int var1 = getNibbleIndex(param0);
+            return this.data[var0] >> 4 * var1 & 15;
         }
     }
 
@@ -51,20 +53,18 @@ public class DataLayer {
             this.data = new byte[2048];
         }
 
-        int var0 = this.getPosition(param0);
-        if (this.isFirst(param0)) {
-            this.data[var0] = (byte)(this.data[var0] & 240 | param1 & 15);
-        } else {
-            this.data[var0] = (byte)(this.data[var0] & 15 | (param1 & 15) << 4);
-        }
-
+        int var0 = getByteIndex(param0);
+        int var1 = getNibbleIndex(param0);
+        int var2 = ~(15 << 4 * var1);
+        int var3 = (param1 & 15) << 4 * var1;
+        this.data[var0] = (byte)(this.data[var0] & var2 | var3);
     }
 
-    private boolean isFirst(int param0) {
-        return (param0 & 1) == 0;
+    private static int getNibbleIndex(int param0) {
+        return param0 & 1;
     }
 
-    private int getPosition(int param0) {
+    private static int getByteIndex(int param0) {
         return param0 >> 1;
     }
 

@@ -504,7 +504,7 @@ public class PiglinAi {
             return Optional.empty();
         } else {
             Optional<LivingEntity> var1 = BehaviorUtils.getLivingEntityFromUUIDMemory(param0x, MemoryModuleType.ANGRY_AT);
-            if (var1.isPresent() && Sensor.isEntityAttackable(param0x, var1.get())) {
+            if (var1.isPresent() && Sensor.isEntityAttackableIgnoringLineOfSight(param0x, var1.get())) {
                 return var1;
             } else {
                 if (var0.hasMemoryValue(MemoryModuleType.UNIVERSAL_ANGER)) {
@@ -576,7 +576,7 @@ public class PiglinAi {
             });
             if (param0.isBaby()) {
                 var0.setMemoryWithExpiry(MemoryModuleType.AVOID_TARGET, param1, 100L);
-                if (Sensor.isEntityAttackable(param0, param1)) {
+                if (Sensor.isEntityAttackableIgnoringLineOfSight(param0, param1)) {
                     broadcastAngerTarget(param0, param1);
                 }
 
@@ -591,7 +591,7 @@ public class PiglinAi {
 
     protected static void maybeRetaliate(AbstractPiglin param0, LivingEntity param1) {
         if (!param0.getBrain().isActive(Activity.AVOID)) {
-            if (Sensor.isEntityAttackable(param0, param1)) {
+            if (Sensor.isEntityAttackableIgnoringLineOfSight(param0, param1)) {
                 if (!BehaviorUtils.isOtherTargetMuchFurtherAwayThanCurrentAttackTarget(param0, param1, 4.0)) {
                     if (param1.getType() == EntityType.PLAYER && param0.level.getGameRules().getBoolean(GameRules.RULE_UNIVERSAL_ANGER)) {
                         setAngerTargetToNearestTargetablePlayerIfFound(param0, param1);
@@ -686,7 +686,7 @@ public class PiglinAi {
     }
 
     protected static void setAngerTarget(AbstractPiglin param0, LivingEntity param1) {
-        if (Sensor.isEntityAttackable(param0, param1)) {
+        if (Sensor.isEntityAttackableIgnoringLineOfSight(param0, param1)) {
             param0.getBrain().eraseMemory(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);
             param0.getBrain().setMemoryWithExpiry(MemoryModuleType.ANGRY_AT, param1.getUUID(), 600L);
             if (param1.getType() == EntityType.HOGLIN && param0.canHunt()) {

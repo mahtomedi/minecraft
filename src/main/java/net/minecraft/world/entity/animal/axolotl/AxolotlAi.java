@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Pair;
 import java.util.Optional;
+import net.minecraft.core.BlockPos;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.entity.Entity;
@@ -21,6 +22,7 @@ import net.minecraft.world.entity.ai.behavior.GateBehavior;
 import net.minecraft.world.entity.ai.behavior.LookAtTargetSink;
 import net.minecraft.world.entity.ai.behavior.MeleeAttack;
 import net.minecraft.world.entity.ai.behavior.MoveToTargetSink;
+import net.minecraft.world.entity.ai.behavior.PositionTracker;
 import net.minecraft.world.entity.ai.behavior.RandomStroll;
 import net.minecraft.world.entity.ai.behavior.RandomSwim;
 import net.minecraft.world.entity.ai.behavior.RunIf;
@@ -36,6 +38,7 @@ import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.level.Level;
 
 public class AxolotlAi {
     private static final UniformInt ADULT_FOLLOW_RANGE = UniformInt.of(5, 16);
@@ -118,8 +121,8 @@ public class AxolotlAi {
                         GateBehavior.RunningPolicy.TRY_ALL,
                         ImmutableList.of(
                             Pair.of(new RandomSwim(0.5F), 2),
-                            Pair.of(new RandomStroll(0.15F), 2),
-                            Pair.of(new SetWalkTargetFromLookTarget(AxolotlAi::getSpeedModifier, 3), 3),
+                            Pair.of(new RandomStroll(0.15F, false), 2),
+                            Pair.of(new SetWalkTargetFromLookTarget(AxolotlAi::canSetWalkTargetFromLookTarget, AxolotlAi::getSpeedModifier, 3), 3),
                             Pair.of(new RunIf<>(Entity::isInWaterOrBubble, new DoNothing(30, 60)), 5),
                             Pair.of(new RunIf<>(Entity::isOnGround, new DoNothing(200, 400)), 5)
                         )
@@ -127,6 +130,17 @@ public class AxolotlAi {
                 )
             )
         );
+    }
+
+    private static boolean canSetWalkTargetFromLookTarget(LivingEntity param0x) {
+        Level var0 = param0x.level;
+        Optional<PositionTracker> var1 = param0x.getBrain().getMemory(MemoryModuleType.LOOK_TARGET);
+        if (var1.isPresent()) {
+            BlockPos var2 = var1.get().currentBlockPosition();
+            return var0.isWaterAt(var2) == param0x.isInWaterOrBubble();
+        } else {
+            return false;
+        }
     }
 
     public static void updateActivity(Axolotl param0) {

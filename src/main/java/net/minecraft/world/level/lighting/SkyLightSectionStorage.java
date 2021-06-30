@@ -166,10 +166,25 @@ public class SkyLightSectionStorage extends LayerLightSectionStorage<SkyLightSec
                     var1 = SectionPos.offset(var1, Direction.UP);
                 }
 
-                return new DataLayer(new FlatDataLayer(var3, 0).getData());
+                return repeatFirstLayer(var3);
             } else {
                 return new DataLayer();
             }
+        }
+    }
+
+    private static DataLayer repeatFirstLayer(DataLayer param0) {
+        if (param0.isEmpty()) {
+            return new DataLayer();
+        } else {
+            byte[] var0 = param0.getData();
+            byte[] var1 = new byte[2048];
+
+            for(int var2 = 0; var2 < 16; ++var2) {
+                System.arraycopy(var0, 0, var1, var2 * 128, 128);
+            }
+
+            return new DataLayer(var1);
         }
     }
 

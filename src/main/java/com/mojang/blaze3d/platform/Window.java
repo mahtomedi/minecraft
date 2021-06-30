@@ -9,6 +9,7 @@ import java.nio.IntBuffer;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import javax.annotation.Nullable;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.main.SilentInitException;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -337,6 +338,10 @@ public final class Window implements AutoCloseable {
                 LOGGER.warn("Failed to find suitable monitor for fullscreen mode");
                 this.fullscreen = false;
             } else {
+                if (Minecraft.ON_OSX) {
+                    MacosUtil.toggleFullscreen(this.window);
+                }
+
                 VideoMode var2 = var1.getPreferredVidMode(this.preferredFullscreenVideoMode);
                 if (!var0) {
                     this.windowedX = this.x;

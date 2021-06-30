@@ -51,7 +51,8 @@ public class DoublePlantBlock extends BushBlock {
 
     @Override
     public void setPlacedBy(Level param0, BlockPos param1, BlockState param2, LivingEntity param3, ItemStack param4) {
-        param0.setBlock(param1.above(), this.defaultBlockState().setValue(HALF, DoubleBlockHalf.UPPER), 3);
+        BlockPos var0 = param1.above();
+        param0.setBlock(var0, copyWaterloggedFrom(param0, var0, this.defaultBlockState().setValue(HALF, DoubleBlockHalf.UPPER)), 3);
     }
 
     @Override
@@ -64,9 +65,16 @@ public class DoublePlantBlock extends BushBlock {
         }
     }
 
-    public void placeAt(LevelAccessor param0, BlockState param1, BlockPos param2, int param3) {
-        param0.setBlock(param2, param1.setValue(HALF, DoubleBlockHalf.LOWER), param3);
-        param0.setBlock(param2.above(), param1.setValue(HALF, DoubleBlockHalf.UPPER), param3);
+    public static void placeAt(LevelAccessor param0, BlockState param1, BlockPos param2, int param3) {
+        BlockPos var0 = param2.above();
+        param0.setBlock(param2, copyWaterloggedFrom(param0, param2, param1.setValue(HALF, DoubleBlockHalf.LOWER)), param3);
+        param0.setBlock(var0, copyWaterloggedFrom(param0, var0, param1.setValue(HALF, DoubleBlockHalf.UPPER)), param3);
+    }
+
+    public static BlockState copyWaterloggedFrom(LevelReader param0, BlockPos param1, BlockState param2) {
+        return param2.hasProperty(BlockStateProperties.WATERLOGGED)
+            ? param2.setValue(BlockStateProperties.WATERLOGGED, Boolean.valueOf(param0.isWaterAt(param1)))
+            : param2;
     }
 
     @Override
