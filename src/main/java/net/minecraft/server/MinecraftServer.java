@@ -9,12 +9,10 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.GameProfileRepository;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.datafixers.DataFixer;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufOutputStream;
-import io.netty.buffer.Unpooled;
 import it.unimi.dsi.fastutil.longs.LongIterator;
 import java.awt.GraphicsEnvironment;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -24,7 +22,6 @@ import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
 import java.net.Proxy;
 import java.net.URLEncoder;
-import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -238,7 +235,6 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
     private long nextTickTime = Util.getMillis();
     private long delayedTasksMaxNextTickTime;
     private boolean mayHaveDelayedTasks;
-    private boolean hasWorldScreenshot;
     private final PackRepository packRepository;
     private final ServerScoreboard scoreboard = new ServerScoreboard(this);
     @Nullable
@@ -785,36 +781,28 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
     }
 
     private void updateStatusIcon(ServerStatus param0) {
-        File var0 = this.getFile("server-icon.png");
-        if (!var0.exists()) {
-            var0 = this.storageSource.getIconFile();
+        Optional<File> var0 = Optional.of(this.getFile("server-icon.png")).filter(File::isFile);
+        if (!var0.isPresent()) {
+            var0 = this.storageSource.getIconFile().map(Path::toFile).filter(File::isFile);
         }
 
-        if (var0.isFile()) {
-            ByteBuf var1 = Unpooled.buffer();
-
+        var0.ifPresent(param1 -> {
             try {
-                BufferedImage var2 = ImageIO.read(var0);
-                Validate.validState(var2.getWidth() == 64, "Must be 64 pixels wide");
-                Validate.validState(var2.getHeight() == 64, "Must be 64 pixels high");
-                ImageIO.write(var2, "PNG", new ByteBufOutputStream(var1));
-                ByteBuffer var3 = Base64.getEncoder().encode(var1.nioBuffer());
-                param0.setFavicon("data:image/png;base64," + StandardCharsets.UTF_8.decode(var3));
-            } catch (Exception var9) {
-                LOGGER.error("Couldn't load server icon", (Throwable)var9);
-            } finally {
-                var1.release();
+                BufferedImage var0x = ImageIO.read(param1);
+                Validate.validState(var0x.getWidth() == 64, "Must be 64 pixels wide");
+                Validate.validState(var0x.getHeight() == 64, "Must be 64 pixels high");
+                ByteArrayOutputStream var1x = new ByteArrayOutputStream();
+                ImageIO.write(var0x, "PNG", var1x);
+                byte[] var2x = Base64.getEncoder().encode(var1x.toByteArray());
+                param0.setFavicon("data:image/png;base64," + new String(var2x, StandardCharsets.UTF_8));
+            } catch (Exception var5) {
+                LOGGER.error("Couldn't load server icon", (Throwable)var5);
             }
-        }
 
+        });
     }
 
-    public boolean hasWorldScreenshot() {
-        this.hasWorldScreenshot = this.hasWorldScreenshot || this.getWorldScreenshotFile().isFile();
-        return this.hasWorldScreenshot;
-    }
-
-    public File getWorldScreenshotFile() {
+    public Optional<Path> getWorldScreenshotFile() {
         return this.storageSource.getIconFile();
     }
 

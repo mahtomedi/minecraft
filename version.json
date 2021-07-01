@@ -1,14 +1,14 @@
 {
-    "id": "1.17.1-pre3",
-    "name": "1.17.1 Pre-release 3",
+    "id": "1.17.1-rc1",
+    "name": "1.17.1 Release Candidate 1",
     "release_target": "1.17.1",
-    "world_version": 2727,
-    "protocol_version": 1073741862,
+    "world_version": 2728,
+    "protocol_version": 1073741863,
     "pack_version": {
         "resource": 7,
         "data": 7
     },
-    "build_time": "2021-06-30T15:41:26+00:00",
+    "build_time": "2021-07-01T15:21:55+00:00",
     "java_component": "java-runtime-alpha",
     "java_version": 16,
     "stable": false

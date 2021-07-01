@@ -10,7 +10,7 @@ import java.util.function.Consumer;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundAddMobPacket;
 import net.minecraft.network.protocol.game.ClientboundMoveEntityPacket;
-import net.minecraft.network.protocol.game.ClientboundRemoveEntityPacket;
+import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundRotateHeadPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityLinkPacket;
@@ -196,7 +196,7 @@ public class ServerEntity {
 
     public void removePairing(ServerPlayer param0) {
         this.entity.stopSeenByPlayer(param0);
-        param0.connection.send(new ClientboundRemoveEntityPacket(this.entity.getId()));
+        param0.connection.send(new ClientboundRemoveEntitiesPacket(this.entity.getId()));
     }
 
     public void addPairing(ServerPlayer param0) {

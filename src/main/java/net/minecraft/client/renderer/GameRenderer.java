@@ -18,6 +18,8 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -35,6 +37,7 @@ import net.minecraft.client.gui.MapRenderer;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
@@ -87,6 +90,7 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
     private boolean renderHand = true;
     private boolean renderBlockOutline = true;
     private long lastScreenshotAttempt;
+    private boolean hasWorldScreenshot;
     private long lastActiveTime = Util.getMillis();
     private final LightTexture lightTexture;
     private final OverlayTexture overlayTexture = new OverlayTexture();
@@ -908,13 +912,7 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
             if (param2 && this.minecraft.level != null) {
                 this.minecraft.getProfiler().push("level");
                 this.renderLevel(param0, param1, new PoseStack());
-                if (this.minecraft.hasSingleplayerServer() && this.lastScreenshotAttempt < Util.getMillis() - 1000L) {
-                    this.lastScreenshotAttempt = Util.getMillis();
-                    if (!this.minecraft.getSingleplayerServer().hasWorldScreenshot()) {
-                        this.takeAutoScreenshot();
-                    }
-                }
-
+                this.tryTakeScreenshotIfNeeded();
                 this.minecraft.levelRenderer.doEntityOutline();
                 if (this.postEffect != null && this.effectActive) {
                     RenderSystem.disableBlend();
@@ -1014,20 +1012,36 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
         }
     }
 
-    private void takeAutoScreenshot() {
-        if (this.minecraft.levelRenderer.countRenderedChunks() > 10
-            && this.minecraft.levelRenderer.hasRenderedAllChunks()
-            && !this.minecraft.getSingleplayerServer().hasWorldScreenshot()) {
-            NativeImage var0 = Screenshot.takeScreenshot(
-                this.minecraft.getWindow().getWidth(), this.minecraft.getWindow().getHeight(), this.minecraft.getMainRenderTarget()
-            );
+    private void tryTakeScreenshotIfNeeded() {
+        if (!this.hasWorldScreenshot && this.minecraft.isLocalServer()) {
+            long var0 = Util.getMillis();
+            if (var0 - this.lastScreenshotAttempt >= 1000L) {
+                this.lastScreenshotAttempt = var0;
+                IntegratedServer var1 = this.minecraft.getSingleplayerServer();
+                if (var1 != null && !var1.isStopped()) {
+                    var1.getWorldScreenshotFile().ifPresent(param0 -> {
+                        if (Files.isRegularFile(param0)) {
+                            this.hasWorldScreenshot = true;
+                        } else {
+                            this.takeAutoScreenshot(param0);
+                        }
+
+                    });
+                }
+            }
+        }
+    }
+
+    private void takeAutoScreenshot(Path param0) {
+        if (this.minecraft.levelRenderer.countRenderedChunks() > 10 && this.minecraft.levelRenderer.hasRenderedAllChunks()) {
+            NativeImage var0 = Screenshot.takeScreenshot(this.minecraft.getMainRenderTarget());
             Util.ioPool().execute(() -> {
                 int var0x = var0.getWidth();
                 int var1x = var0.getHeight();
-                int var2 = 0;
+                int var2x = 0;
                 int var3 = 0;
                 if (var0x > var1x) {
-                    var2 = (var0x - var1x) / 2;
+                    var2x = (var0x - var1x) / 2;
                     var0x = var1x;
                 } else {
                     var3 = (var1x - var0x) / 2;
@@ -1035,8 +1049,8 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
                 }
 
                 try (NativeImage var4 = new NativeImage(64, 64, false)) {
-                    var0.resizeSubRectTo(var2, var3, var0x, var1x, var4);
-                    var4.writeToFile(this.minecraft.getSingleplayerServer().getWorldScreenshotFile());
+                    var0.resizeSubRectTo(var2x, var3, var0x, var1x, var4);
+                    var4.writeToFile(param0);
                 } catch (IOException var16) {
                     LOGGER.warn("Couldn't save auto screenshot", (Throwable)var16);
                 } finally {
@@ -1137,6 +1151,7 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
         this.itemActivationItem = null;
         this.mapRenderer.resetData();
         this.mainCamera.reset();
+        this.hasWorldScreenshot = false;
     }
 
     public MapRenderer getMapRenderer() {

@@ -35,21 +35,21 @@ public class Screenshot {
     private final int height;
     private File file;
 
-    public static void grab(File param0, int param1, int param2, RenderTarget param3, Consumer<Component> param4) {
-        grab(param0, null, param1, param2, param3, param4);
+    public static void grab(File param0, RenderTarget param1, Consumer<Component> param2) {
+        grab(param0, null, param1, param2);
     }
 
-    public static void grab(File param0, @Nullable String param1, int param2, int param3, RenderTarget param4, Consumer<Component> param5) {
+    public static void grab(File param0, @Nullable String param1, RenderTarget param2, Consumer<Component> param3) {
         if (!RenderSystem.isOnRenderThread()) {
-            RenderSystem.recordRenderCall(() -> _grab(param0, param1, param2, param3, param4, param5));
+            RenderSystem.recordRenderCall(() -> _grab(param0, param1, param2, param3));
         } else {
-            _grab(param0, param1, param2, param3, param4, param5);
+            _grab(param0, param1, param2, param3);
         }
 
     }
 
-    private static void _grab(File param0, @Nullable String param1, int param2, int param3, RenderTarget param4, Consumer<Component> param5) {
-        NativeImage var0 = takeScreenshot(param2, param3, param4);
+    private static void _grab(File param0, @Nullable String param1, RenderTarget param2, Consumer<Component> param3) {
+        NativeImage var0 = takeScreenshot(param2);
         File var1 = new File(param0, "screenshots");
         var1.mkdir();
         File var2;
@@ -67,10 +67,10 @@ public class Screenshot {
                         Component var0x = new TextComponent(var2.getName())
                             .withStyle(ChatFormatting.UNDERLINE)
                             .withStyle(param1x -> param1x.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_FILE, var2.getAbsolutePath())));
-                        param5.accept(new TranslatableComponent("screenshot.success", var0x));
-                    } catch (Exception var7x) {
-                        LOGGER.warn("Couldn't save screenshot", (Throwable)var7x);
-                        param5.accept(new TranslatableComponent("screenshot.failure", var7x.getMessage()));
+                        param3.accept(new TranslatableComponent("screenshot.success", var0x));
+                    } catch (Exception var7) {
+                        LOGGER.warn("Couldn't save screenshot", (Throwable)var7);
+                        param3.accept(new TranslatableComponent("screenshot.failure", var7.getMessage()));
                     } finally {
                         var0.close();
                     }
@@ -79,14 +79,14 @@ public class Screenshot {
             );
     }
 
-    public static NativeImage takeScreenshot(int param0, int param1, RenderTarget param2) {
-        param0 = param2.width;
-        param1 = param2.height;
-        NativeImage var0 = new NativeImage(param0, param1, false);
-        RenderSystem.bindTexture(param2.getColorTextureId());
-        var0.downloadTexture(0, true);
-        var0.flipY();
-        return var0;
+    public static NativeImage takeScreenshot(RenderTarget param0) {
+        int var0 = param0.width;
+        int var1 = param0.height;
+        NativeImage var2 = new NativeImage(var0, var1, false);
+        RenderSystem.bindTexture(param0.getColorTextureId());
+        var2.downloadTexture(0, true);
+        var2.flipY();
+        return var2;
     }
 
     private static File getFile(File param0) {

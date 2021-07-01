@@ -145,7 +145,7 @@ import net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerLookAtPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
 import net.minecraft.network.protocol.game.ClientboundRecipePacket;
-import net.minecraft.network.protocol.game.ClientboundRemoveEntityPacket;
+import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveMobEffectPacket;
 import net.minecraft.network.protocol.game.ClientboundResourcePackPacket;
 import net.minecraft.network.protocol.game.ClientboundRespawnPacket;
@@ -532,10 +532,9 @@ public class ClientPacketListener implements ClientGamePacketListener {
     }
 
     @Override
-    public void handleRemoveEntity(ClientboundRemoveEntityPacket param0) {
+    public void handleRemoveEntities(ClientboundRemoveEntitiesPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
-        int var0 = param0.getEntityId();
-        this.level.removeEntity(var0, Entity.RemovalReason.DISCARDED);
+        param0.getEntityIds().forEach(param0x -> this.level.removeEntity(param0x, Entity.RemovalReason.DISCARDED));
     }
 
     @Override

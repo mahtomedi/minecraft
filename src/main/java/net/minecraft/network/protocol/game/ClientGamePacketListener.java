@@ -85,7 +85,7 @@ public interface ClientGamePacketListener extends PacketListener {
 
     void handlePlayerInfo(ClientboundPlayerInfoPacket var1);
 
-    void handleRemoveEntity(ClientboundRemoveEntityPacket var1);
+    void handleRemoveEntities(ClientboundRemoveEntitiesPacket var1);
 
     void handleRemoveMobEffect(ClientboundRemoveMobEffectPacket var1);
 

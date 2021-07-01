@@ -126,8 +126,8 @@ public abstract class PlayerList {
     public void placeNewPlayer(Connection param0, ServerPlayer param1) {
         GameProfile var0 = param1.getGameProfile();
         GameProfileCache var1 = this.server.getProfileCache();
-        GameProfile var2 = var1.get(var0.getId());
-        String var3 = var2 == null ? var0.getName() : var2.getName();
+        Optional<GameProfile> var2 = var1.get(var0.getId());
+        String var3 = var2.map(GameProfile::getName).orElse(var0.getName());
         var1.add(var0);
         CompoundTag var4 = this.load(param1);
         ResourceKey<Level> var5 = var4 != null

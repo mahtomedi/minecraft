@@ -2704,7 +2704,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
                 } catch (InterruptedException var17) {
                 }
 
-                Screenshot.grab(param0, "panorama_" + var7 + ".png", param1, param2, var2, param0x -> {
+                Screenshot.grab(param0, "panorama_" + var7 + ".png", var2, param0x -> {
                 });
             }
 

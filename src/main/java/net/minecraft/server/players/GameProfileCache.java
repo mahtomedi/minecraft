@@ -29,6 +29,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -49,7 +50,7 @@ public class GameProfileCache {
     private static boolean usesAuthentication;
     private final Map<String, GameProfileCache.GameProfileInfo> profilesByName = Maps.newConcurrentMap();
     private final Map<UUID, GameProfileCache.GameProfileInfo> profilesByUUID = Maps.newConcurrentMap();
-    private final Map<String, CompletableFuture<GameProfile>> requests = Maps.newConcurrentMap();
+    private final Map<String, CompletableFuture<Optional<GameProfile>>> requests = Maps.newConcurrentMap();
     private final GameProfileRepository profileRepository;
     private final Gson gson = new GsonBuilder().create();
     private final File file;
@@ -78,8 +79,7 @@ public class GameProfileCache {
 
     }
 
-    @Nullable
-    private static GameProfile lookupGameProfile(GameProfileRepository param0, String param1) {
+    private static Optional<GameProfile> lookupGameProfile(GameProfileRepository param0, String param1) {
         final AtomicReference<GameProfile> var0 = new AtomicReference<>();
         ProfileLookupCallback var1 = new ProfileLookupCallback() {
             @Override
@@ -96,10 +96,10 @@ public class GameProfileCache {
         GameProfile var2 = var0.get();
         if (!usesAuthentication() && var2 == null) {
             UUID var3 = Player.createPlayerUUID(new GameProfile(null, param1));
-            var2 = new GameProfile(var3, param1);
+            return Optional.of(new GameProfile(var3, param1));
+        } else {
+            return Optional.ofNullable(var2);
         }
-
-        return var2;
     }
 
     public static void setUsesAuthentication(boolean param0) {
@@ -124,8 +124,7 @@ public class GameProfileCache {
         return this.operationCount.incrementAndGet();
     }
 
-    @Nullable
-    public GameProfile get(String param0) {
+    public Optional<GameProfile> get(String param0) {
         String var0 = param0.toLowerCase(Locale.ROOT);
         GameProfileCache.GameProfileInfo var1 = this.profilesByName.get(var0);
         boolean var2 = false;
@@ -136,14 +135,14 @@ public class GameProfileCache {
             var1 = null;
         }
 
-        GameProfile var3;
+        Optional<GameProfile> var3;
         if (var1 != null) {
             var1.setLastAccess(this.getNextOperation());
-            var3 = var1.getProfile();
+            var3 = Optional.of(var1.getProfile());
         } else {
             var3 = lookupGameProfile(this.profileRepository, var0);
-            if (var3 != null) {
-                this.add(var3);
+            if (var3.isPresent()) {
+                this.add(var3.get());
                 var2 = false;
             }
         }
@@ -155,18 +154,18 @@ public class GameProfileCache {
         return var3;
     }
 
-    public void getAsync(String param0, Consumer<GameProfile> param1) {
+    public void getAsync(String param0, Consumer<Optional<GameProfile>> param1) {
         if (this.executor == null) {
             throw new IllegalStateException("No executor");
         } else {
-            CompletableFuture<GameProfile> var0 = this.requests.get(param0);
+            CompletableFuture<Optional<GameProfile>> var0 = this.requests.get(param0);
             if (var0 != null) {
                 this.requests.put(param0, var0.whenCompleteAsync((param1x, param2) -> param1.accept(param1x), this.executor));
             } else {
                 this.requests
                     .put(
                         param0,
-                        CompletableFuture.<GameProfile>supplyAsync(() -> this.get(param0), Util.backgroundExecutor())
+                        CompletableFuture.<Optional<GameProfile>>supplyAsync(() -> this.get(param0), Util.backgroundExecutor())
                             .whenCompleteAsync((param1x, param2) -> this.requests.remove(param0), this.executor)
                             .whenCompleteAsync((param1x, param2) -> param1.accept(param1x), this.executor)
                     );
@@ -175,14 +174,13 @@ public class GameProfileCache {
         }
     }
 
-    @Nullable
-    public GameProfile get(UUID param0) {
+    public Optional<GameProfile> get(UUID param0) {
         GameProfileCache.GameProfileInfo var0 = this.profilesByUUID.get(param0);
         if (var0 == null) {
-            return null;
+            return Optional.empty();
         } else {
             var0.setLastAccess(this.getNextOperation());
-            return var0.getProfile();
+            return Optional.of(var0.getProfile());
         }
     }
 
@@ -203,13 +201,7 @@ public class GameProfileCache {
                 JsonArray var2 = this.gson.fromJson(var1, JsonArray.class);
                 if (var2 != null) {
                     DateFormat var3 = createDateFormat();
-                    var2.forEach(param2 -> {
-                        GameProfileCache.GameProfileInfo var0x = readGameProfile(param2, var3);
-                        if (var0x != null) {
-                            var0.add(var0x);
-                        }
-
-                    });
+                    var2.forEach(param2 -> readGameProfile(param2, var3).ifPresent(var0::add));
                     return var0;
                 }
 
@@ -254,8 +246,7 @@ public class GameProfileCache {
         return var0;
     }
 
-    @Nullable
-    private static GameProfileCache.GameProfileInfo readGameProfile(JsonElement param0, DateFormat param1) {
+    private static Optional<GameProfileCache.GameProfileInfo> readGameProfile(JsonElement param0, DateFormat param1) {
         if (param0.isJsonObject()) {
             JsonObject var0 = param0.getAsJsonObject();
             JsonElement var1 = var0.get("name");
@@ -277,18 +268,18 @@ public class GameProfileCache {
                     try {
                         var7 = UUID.fromString(var4);
                     } catch (Throwable var11) {
-                        return null;
+                        return Optional.empty();
                     }
 
-                    return new GameProfileCache.GameProfileInfo(new GameProfile(var7, var5), var6);
+                    return Optional.of(new GameProfileCache.GameProfileInfo(new GameProfile(var7, var5), var6));
                 } else {
-                    return null;
+                    return Optional.empty();
                 }
             } else {
-                return null;
+                return Optional.empty();
             }
         } else {
-            return null;
+            return Optional.empty();
         }
     }
 

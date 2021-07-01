@@ -16,6 +16,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import javax.annotation.Nullable;
 import net.minecraft.server.MinecraftServer;
@@ -243,9 +244,9 @@ public class OldUsersConverter {
     @Nullable
     public static UUID convertMobOwnerIfNecessary(final MinecraftServer param0, String param1) {
         if (!StringUtil.isNullOrEmpty(param1) && param1.length() <= 16) {
-            GameProfile var1 = param0.getProfileCache().get(param1);
-            if (var1 != null && var1.getId() != null) {
-                return var1.getId();
+            Optional<UUID> var1 = param0.getProfileCache().get(param1).map(GameProfile::getId);
+            if (var1.isPresent()) {
+                return var1.get();
             } else if (!param0.isSingleplayer() && param0.usesAuthentication()) {
                 final List<GameProfile> var2 = Lists.newArrayList();
                 ProfileLookupCallback var3 = new ProfileLookupCallback() {
