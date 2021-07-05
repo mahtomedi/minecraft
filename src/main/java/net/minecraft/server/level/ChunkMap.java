@@ -114,7 +114,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
     private final ChunkMap.DistanceManager distanceManager;
     private final AtomicInteger tickingGenerated = new AtomicInteger();
     private final StructureManager structureManager;
-    private final File storageFolder;
+    private final String storageName;
     private final PlayerMap playerMap = new PlayerMap();
     private final Int2ObjectMap<ChunkMap.TrackedEntity> entityMap = new Int2ObjectOpenHashMap<>();
     private final Long2ByteMap chunkTypeCache = new Long2ByteOpenHashMap();
@@ -138,24 +138,25 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
     ) {
         super(new File(param1.getDimensionPath(param0.dimension()), "region"), param2, param12);
         this.structureManager = param3;
-        this.storageFolder = param1.getDimensionPath(param0.dimension());
+        File var0 = param1.getDimensionPath(param0.dimension());
+        this.storageName = var0.getName();
         this.level = param0;
         this.generator = param7;
         this.mainThreadExecutor = param5;
-        ProcessorMailbox<Runnable> var0 = ProcessorMailbox.create(param4, "worldgen");
-        ProcessorHandle<Runnable> var1 = ProcessorHandle.of("main", param5::tell);
+        ProcessorMailbox<Runnable> var1 = ProcessorMailbox.create(param4, "worldgen");
+        ProcessorHandle<Runnable> var2 = ProcessorHandle.of("main", param5::tell);
         this.progressListener = param8;
         this.chunkStatusListener = param9;
-        ProcessorMailbox<Runnable> var2 = ProcessorMailbox.create(param4, "light");
-        this.queueSorter = new ChunkTaskPriorityQueueSorter(ImmutableList.of(var0, var1, var2), param4, Integer.MAX_VALUE);
-        this.worldgenMailbox = this.queueSorter.getProcessor(var0, false);
-        this.mainThreadMailbox = this.queueSorter.getProcessor(var1, false);
+        ProcessorMailbox<Runnable> var3 = ProcessorMailbox.create(param4, "light");
+        this.queueSorter = new ChunkTaskPriorityQueueSorter(ImmutableList.of(var1, var2, var3), param4, Integer.MAX_VALUE);
+        this.worldgenMailbox = this.queueSorter.getProcessor(var1, false);
+        this.mainThreadMailbox = this.queueSorter.getProcessor(var2, false);
         this.lightEngine = new ThreadedLevelLightEngine(
-            param6, this, this.level.dimensionType().hasSkyLight(), var2, this.queueSorter.getProcessor(var2, false)
+            param6, this, this.level.dimensionType().hasSkyLight(), var3, this.queueSorter.getProcessor(var3, false)
         );
         this.distanceManager = new ChunkMap.DistanceManager(param4, param5);
         this.overworldDataStorage = param10;
-        this.poiManager = new PoiManager(new File(this.storageFolder, "poi"), param2, param12, param0);
+        this.poiManager = new PoiManager(new File(var0, "poi"), param2, param12, param0);
         this.setViewDistance(param11);
     }
 
@@ -368,7 +369,6 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
 
             this.processUnloads(() -> true);
             this.flushWorker();
-            LOGGER.info("ThreadedAnvilChunkStorage ({}): All chunks are saved", this.storageFolder.getName());
         } else {
             this.visibleChunkMap.values().stream().filter(ChunkHolder::wasAccessibleSinceLastSave).forEach(param0x -> {
                 ChunkAccess var0x = param0x.getChunkToSave().getNow(null);
@@ -1072,6 +1072,10 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
 
     protected PoiManager getPoiManager() {
         return this.poiManager;
+    }
+
+    public String getStorageName() {
+        return this.storageName;
     }
 
     public CompletableFuture<Void> packTicks(LevelChunk param0) {

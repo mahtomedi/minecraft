@@ -74,24 +74,24 @@ public class IOWorker implements AutoCloseable {
         });
     }
 
-    public CompletableFuture<Void> synchronize() {
+    public CompletableFuture<Void> synchronize(boolean param0) {
         CompletableFuture<Void> var0 = this.<CompletableFuture<Void>>submitTask(
                 () -> Either.left(
                         CompletableFuture.allOf(
-                            this.pendingWrites.values().stream().map(param0 -> param0.result).toArray(param0 -> new CompletableFuture[param0])
+                            this.pendingWrites.values().stream().map(param0x -> param0x.result).toArray(param0x -> new CompletableFuture[param0x])
                         )
                     )
             )
             .thenCompose(Function.identity());
-        return var0.thenCompose(param0 -> this.submitTask(() -> {
+        return param0 ? var0.thenCompose(param0x -> this.submitTask(() -> {
                 try {
                     this.storage.flush();
                     return Either.left(null);
-                } catch (Exception var2) {
-                    LOGGER.warn("Failed to synchronized chunks", (Throwable)var2);
-                    return Either.right(var2);
+                } catch (Exception var2x) {
+                    LOGGER.warn("Failed to synchronize chunks", (Throwable)var2x);
+                    return Either.right(var2x);
                 }
-            }));
+            })) : var0.thenCompose(param0x -> this.submitTask(() -> Either.left(null)));
     }
 
     private <T> CompletableFuture<T> submitTask(Supplier<Either<T, Exception>> param0) {

@@ -360,12 +360,12 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
         this.channel.config().setAutoRead(false);
     }
 
-    public void setupCompression(int param0) {
+    public void setupCompression(int param0, boolean param1) {
         if (param0 >= 0) {
             if (this.channel.pipeline().get("decompress") instanceof CompressionDecoder) {
-                ((CompressionDecoder)this.channel.pipeline().get("decompress")).setThreshold(param0);
+                ((CompressionDecoder)this.channel.pipeline().get("decompress")).setThreshold(param0, param1);
             } else {
-                this.channel.pipeline().addBefore("decoder", "decompress", new CompressionDecoder(param0));
+                this.channel.pipeline().addBefore("decoder", "decompress", new CompressionDecoder(param0, param1));
             }
 
             if (this.channel.pipeline().get("compress") instanceof CompressionEncoder) {

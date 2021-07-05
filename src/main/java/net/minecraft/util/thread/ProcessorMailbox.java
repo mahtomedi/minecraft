@@ -101,6 +101,16 @@ public class ProcessorMailbox<T> implements ProfilerMeasured, ProcessorHandle<T>
 
     }
 
+    public void runAll() {
+        try {
+            this.pollUntil(param0 -> true);
+        } finally {
+            this.setAsIdle();
+            this.registerForExecution();
+        }
+
+    }
+
     @Override
     public void tell(T param0) {
         this.queue.push(param0);

@@ -140,7 +140,7 @@ public class ClientHandshakePacketListenerImpl implements ClientLoginPacketListe
     @Override
     public void handleCompression(ClientboundLoginCompressionPacket param0) {
         if (!this.connection.isMemoryConnection()) {
-            this.connection.setupCompression(param0.getCompressionThreshold());
+            this.connection.setupCompression(param0.getCompressionThreshold(), false);
         }
 
     }

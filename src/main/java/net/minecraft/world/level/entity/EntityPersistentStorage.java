@@ -9,7 +9,7 @@ public interface EntityPersistentStorage<T> extends AutoCloseable {
 
     void storeEntities(ChunkEntities<T> var1);
 
-    void flush();
+    void flush(boolean var1);
 
     @Override
     default void close() throws IOException {

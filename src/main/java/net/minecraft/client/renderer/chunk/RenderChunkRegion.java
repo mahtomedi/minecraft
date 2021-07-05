@@ -25,7 +25,6 @@ public class RenderChunkRegion implements BlockAndTintGetter {
     protected final int zLength;
     protected final LevelChunk[][] chunks;
     protected final BlockState[] blockStates;
-    protected final FluidState[] fluidStates;
     protected final Level level;
 
     @Nullable
@@ -75,7 +74,6 @@ public class RenderChunkRegion implements BlockAndTintGetter {
         this.yLength = param5.getY() - param4.getY() + 1;
         this.zLength = param5.getZ() - param4.getZ() + 1;
         this.blockStates = new BlockState[this.xLength * this.yLength * this.zLength];
-        this.fluidStates = new FluidState[this.xLength * this.yLength * this.zLength];
 
         for(BlockPos var0 : BlockPos.betweenClosed(param4, param5)) {
             int var1 = SectionPos.blockToSectionCoord(var0.getX()) - param1;
@@ -83,7 +81,6 @@ public class RenderChunkRegion implements BlockAndTintGetter {
             LevelChunk var3 = param3[var1][var2];
             int var4 = this.index(var0);
             this.blockStates[var4] = var3.getBlockState(var0);
-            this.fluidStates[var4] = var3.getFluidState(var0);
         }
 
     }
@@ -106,7 +103,7 @@ public class RenderChunkRegion implements BlockAndTintGetter {
 
     @Override
     public FluidState getFluidState(BlockPos param0) {
-        return this.fluidStates[this.index(param0)];
+        return this.blockStates[this.index(param0)].getFluidState();
     }
 
     @Override

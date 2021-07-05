@@ -271,7 +271,7 @@ public class PersistentEntitySectionManager<T extends EntityAccess> implements A
         LongSet var0 = this.getAllChunksToSave();
 
         while(!var0.isEmpty()) {
-            this.permanentStorage.flush();
+            this.permanentStorage.flush(false);
             this.processPendingLoads();
             var0.removeIf(param0 -> {
                 boolean var0x = this.chunkVisibility.get(param0) == Visibility.HIDDEN;
@@ -280,6 +280,7 @@ public class PersistentEntitySectionManager<T extends EntityAccess> implements A
             });
         }
 
+        this.permanentStorage.flush(true);
     }
 
     @Override
