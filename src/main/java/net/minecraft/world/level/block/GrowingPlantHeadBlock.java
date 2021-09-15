@@ -51,6 +51,14 @@ public abstract class GrowingPlantHeadBlock extends GrowingPlantBlock implements
         return param0.cycle(AGE);
     }
 
+    public BlockState getMaxAgeState(BlockState param0) {
+        return param0.setValue(AGE, Integer.valueOf(25));
+    }
+
+    public boolean isMaxAge(BlockState param0) {
+        return param0.getValue(AGE) == 25;
+    }
+
     protected BlockState updateBodyAfterConvertedFromHead(BlockState param0, BlockState param1) {
         return param1;
     }

@@ -213,17 +213,14 @@ public abstract class PathNavigation {
             DebugPackets.sendPathFindingPacket(this.level, this.mob, this.path, this.maxDistanceToWaypoint);
             if (!this.isDone()) {
                 Vec3 var2 = this.path.getNextEntityPos(this.mob);
-                BlockPos var3 = new BlockPos(var2);
-                this.mob
-                    .getMoveControl()
-                    .setWantedPosition(
-                        var2.x,
-                        this.level.getBlockState(var3.below()).isAir() ? var2.y : WalkNodeEvaluator.getFloorLevel(this.level, var3),
-                        var2.z,
-                        this.speedModifier
-                    );
+                this.mob.getMoveControl().setWantedPosition(var2.x, this.getGroundY(var2), var2.z, this.speedModifier);
             }
         }
+    }
+
+    protected double getGroundY(Vec3 param0) {
+        BlockPos var0 = new BlockPos(param0);
+        return this.level.getBlockState(var0.below()).isAir() ? param0.y : WalkNodeEvaluator.getFloorLevel(this.level, var0);
     }
 
     protected void followThePath() {
@@ -248,6 +245,8 @@ public abstract class PathNavigation {
             Vec3 var0 = Vec3.atBottomCenterOf(this.path.getNextNodePos());
             if (!param0.closerThan(var0, 2.0)) {
                 return false;
+            } else if (this.canMoveDirectly(param0, this.path.getNextEntityPos(this.mob))) {
+                return true;
             } else {
                 Vec3 var1 = Vec3.atBottomCenterOf(this.path.getNodePos(this.path.getNextNodeIndex() + 1));
                 Vec3 var2 = var1.subtract(var0);
@@ -338,7 +337,9 @@ public abstract class PathNavigation {
         }
     }
 
-    protected abstract boolean canMoveDirectly(Vec3 var1, Vec3 var2, int var3, int var4, int var5);
+    protected boolean canMoveDirectly(Vec3 param0, Vec3 param1) {
+        return false;
+    }
 
     public boolean isStableDestination(BlockPos param0) {
         BlockPos var0 = param0.below();

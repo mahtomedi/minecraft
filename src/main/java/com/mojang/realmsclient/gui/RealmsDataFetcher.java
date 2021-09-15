@@ -1,6 +1,7 @@
 package com.mojang.realmsclient.gui;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.mojang.realmsclient.client.RealmsClient;
@@ -113,7 +114,7 @@ public class RealmsDataFetcher {
     }
 
     public synchronized List<RealmsServer> getServers() {
-        return Lists.newArrayList(this.servers);
+        return ImmutableList.copyOf(this.servers);
     }
 
     public synchronized int getPendingInvitesCount() {

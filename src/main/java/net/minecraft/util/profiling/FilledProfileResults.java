@@ -300,6 +300,7 @@ public class FilledProfileResults implements ProfileResults {
 
     private static String getComment() {
         String[] var0 = new String[]{
+            "I'd Rather Be Surfing",
             "Shiny numbers!",
             "Am I not running fast enough? :(",
             "I'm working as hard as I can!",

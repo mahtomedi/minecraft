@@ -1,27 +1,25 @@
 package net.minecraft.world.level.chunk;
 
-import java.util.function.Function;
 import java.util.function.Predicate;
-import javax.annotation.Nullable;
-import net.minecraft.core.IdMapper;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
+import net.minecraft.core.IdMap;
 import net.minecraft.network.FriendlyByteBuf;
 
 public class LinearPalette<T> implements Palette<T> {
-    private final IdMapper<T> registry;
+    private final IdMap<T> registry;
     private final T[] values;
     private final PaletteResize<T> resizeHandler;
-    private final Function<CompoundTag, T> reader;
     private final int bits;
     private int size;
 
-    public LinearPalette(IdMapper<T> param0, int param1, PaletteResize<T> param2, Function<CompoundTag, T> param3) {
+    public LinearPalette(IdMap<T> param0, int param1, PaletteResize<T> param2) {
         this.registry = param0;
         this.values = (T[])(new Object[1 << param1]);
         this.bits = param1;
         this.resizeHandler = param2;
-        this.reader = param3;
+    }
+
+    public static <A> Palette<A> create(int param0, IdMap<A> param1, PaletteResize<A> param2) {
+        return new LinearPalette<>(param1, param0, param2);
     }
 
     @Override
@@ -53,10 +51,13 @@ public class LinearPalette<T> implements Palette<T> {
         return false;
     }
 
-    @Nullable
     @Override
     public T valueFor(int param0) {
-        return param0 >= 0 && param0 < this.size ? this.values[param0] : null;
+        if (param0 >= 0 && param0 < this.size) {
+            return this.values[param0];
+        } else {
+            throw new MissingPaletteEntryException(param0);
+        }
     }
 
     @Override
@@ -93,14 +94,5 @@ public class LinearPalette<T> implements Palette<T> {
     @Override
     public int getSize() {
         return this.size;
-    }
-
-    @Override
-    public void read(ListTag param0) {
-        for(int var0 = 0; var0 < param0.size(); ++var0) {
-            this.values[var0] = this.reader.apply(param0.getCompound(var0));
-        }
-
-        this.size = param0.size();
     }
 }

@@ -613,8 +613,6 @@ public class Turtle extends Animal {
         @Override
         protected PathFinder createPathFinder(int param0) {
             this.nodeEvaluator = new AmphibiousNodeEvaluator(true);
-            this.nodeEvaluator.setCanOpenDoors(false);
-            this.nodeEvaluator.setCanPassDoors(false);
             return new PathFinder(this.nodeEvaluator, param0);
         }
 

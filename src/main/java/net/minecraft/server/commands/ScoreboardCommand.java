@@ -616,8 +616,6 @@ public class ScoreboardCommand {
         Scoreboard var0 = param0.getServer().getScoreboard();
         if (var0.getObjective(param1) != null) {
             throw ERROR_OBJECTIVE_ALREADY_EXISTS.create();
-        } else if (param1.length() > 16) {
-            throw ObjectiveArgument.ERROR_OBJECTIVE_NAME_TOO_LONG.create(16);
         } else {
             var0.addObjective(param1, param2, param3, param2.getDefaultRenderType());
             Objective var1 = var0.getObjective(param1);

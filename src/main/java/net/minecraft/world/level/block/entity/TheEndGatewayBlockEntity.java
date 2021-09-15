@@ -48,18 +48,17 @@ public class TheEndGatewayBlockEntity extends TheEndPortalBlockEntity {
     }
 
     @Override
-    public CompoundTag save(CompoundTag param0) {
-        super.save(param0);
+    protected void saveAdditional(CompoundTag param0) {
+        super.saveAdditional(param0);
         param0.putLong("Age", this.age);
         if (this.exitPortal != null) {
             param0.put("ExitPortal", NbtUtils.writeBlockPos(this.exitPortal));
         }
 
         if (this.exactTeleport) {
-            param0.putBoolean("ExactTeleport", this.exactTeleport);
+            param0.putBoolean("ExactTeleport", true);
         }
 
-        return param0;
     }
 
     @Override
@@ -127,15 +126,13 @@ public class TheEndGatewayBlockEntity extends TheEndPortalBlockEntity {
         return 1.0F - Mth.clamp(((float)this.teleportCooldown - param0) / 40.0F, 0.0F, 1.0F);
     }
 
-    @Nullable
-    @Override
     public ClientboundBlockEntityDataPacket getUpdatePacket() {
-        return new ClientboundBlockEntityDataPacket(this.worldPosition, 8, this.getUpdateTag());
+        return ClientboundBlockEntityDataPacket.create(this);
     }
 
     @Override
     public CompoundTag getUpdateTag() {
-        return this.save(new CompoundTag());
+        return this.saveWithoutMetadata();
     }
 
     private static void triggerCooldown(Level param0, BlockPos param1, BlockState param2, TheEndGatewayBlockEntity param3) {

@@ -23,9 +23,6 @@ import net.minecraft.tags.Tag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.biome.BiomeZoomer;
-import net.minecraft.world.level.biome.FuzzyOffsetBiomeZoomer;
-import net.minecraft.world.level.biome.FuzzyOffsetConstantColumnBiomeZoomer;
 import net.minecraft.world.level.biome.MultiNoiseBiomeSource;
 import net.minecraft.world.level.biome.TheEndBiomeSource;
 import net.minecraft.world.level.block.Block;
@@ -87,10 +84,9 @@ public class DimensionType {
         true,
         false,
         true,
-        0,
-        256,
-        256,
-        FuzzyOffsetConstantColumnBiomeZoomer.INSTANCE,
+        -64,
+        384,
+        384,
         BlockTags.INFINIBURN_OVERWORLD.getName(),
         OVERWORLD_EFFECTS,
         0.0F
@@ -110,7 +106,6 @@ public class DimensionType {
         0,
         256,
         128,
-        FuzzyOffsetBiomeZoomer.INSTANCE,
         BlockTags.INFINIBURN_NETHER.getName(),
         NETHER_EFFECTS,
         0.1F
@@ -130,7 +125,6 @@ public class DimensionType {
         0,
         256,
         256,
-        FuzzyOffsetBiomeZoomer.INSTANCE,
         BlockTags.INFINIBURN_END.getName(),
         END_EFFECTS,
         0.0F
@@ -150,10 +144,9 @@ public class DimensionType {
         true,
         false,
         true,
-        0,
-        256,
-        256,
-        FuzzyOffsetConstantColumnBiomeZoomer.INSTANCE,
+        -64,
+        384,
+        384,
         BlockTags.INFINIBURN_OVERWORLD.getName(),
         OVERWORLD_EFFECTS,
         0.0F
@@ -173,7 +166,6 @@ public class DimensionType {
     private final int minY;
     private final int height;
     private final int logicalHeight;
-    private final BiomeZoomer biomeZoomer;
     private final ResourceLocation infiniburn;
     private final ResourceLocation effectsLocation;
     private final float ambientLight;
@@ -211,26 +203,7 @@ public class DimensionType {
         ResourceLocation param14,
         float param15
     ) {
-        this(
-            param0,
-            param1,
-            param2,
-            param3,
-            param4,
-            param5,
-            false,
-            param6,
-            param7,
-            param8,
-            param9,
-            param10,
-            param11,
-            param12,
-            FuzzyOffsetBiomeZoomer.INSTANCE,
-            param13,
-            param14,
-            param15
-        );
+        this(param0, param1, param2, param3, param4, param5, false, param6, param7, param8, param9, param10, param11, param12, param13, param14, param15);
     }
 
     public static DimensionType create(
@@ -248,30 +221,12 @@ public class DimensionType {
         int param11,
         int param12,
         int param13,
-        BiomeZoomer param14,
+        ResourceLocation param14,
         ResourceLocation param15,
-        ResourceLocation param16,
-        float param17
+        float param16
     ) {
         DimensionType var0 = new DimensionType(
-            param0,
-            param1,
-            param2,
-            param3,
-            param4,
-            param5,
-            param6,
-            param7,
-            param8,
-            param9,
-            param10,
-            param11,
-            param12,
-            param13,
-            param14,
-            param15,
-            param16,
-            param17
+            param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11, param12, param13, param14, param15, param16
         );
         guardY(var0).error().ifPresent(param0x -> {
             throw new IllegalStateException(param0x.message());
@@ -295,10 +250,9 @@ public class DimensionType {
         int param11,
         int param12,
         int param13,
-        BiomeZoomer param14,
+        ResourceLocation param14,
         ResourceLocation param15,
-        ResourceLocation param16,
-        float param17
+        float param16
     ) {
         this.fixedTime = param0;
         this.hasSkylight = param1;
@@ -314,11 +268,10 @@ public class DimensionType {
         this.minY = param11;
         this.height = param12;
         this.logicalHeight = param13;
-        this.biomeZoomer = param14;
-        this.infiniburn = param15;
-        this.effectsLocation = param16;
-        this.ambientLight = param17;
-        this.brightnessRamp = fillBrightnessRamp(param17);
+        this.infiniburn = param14;
+        this.effectsLocation = param15;
+        this.ambientLight = param16;
+        this.brightnessRamp = fillBrightnessRamp(param16);
     }
 
     private static float[] fillBrightnessRamp(float param0) {
@@ -369,7 +322,7 @@ public class DimensionType {
 
     private static ChunkGenerator defaultNetherGenerator(Registry<Biome> param0, Registry<NoiseGeneratorSettings> param1, long param2) {
         return new NoiseBasedChunkGenerator(
-            MultiNoiseBiomeSource.Preset.NETHER.biomeSource(param0, param2), param2, () -> param1.getOrThrow(NoiseGeneratorSettings.NETHER)
+            MultiNoiseBiomeSource.Preset.NETHER.biomeSource(param0), param2, () -> param1.getOrThrow(NoiseGeneratorSettings.NETHER)
         );
     }
 
@@ -459,10 +412,6 @@ public class DimensionType {
         return this.createDragonFight;
     }
 
-    public BiomeZoomer getBiomeZoomer() {
-        return this.biomeZoomer;
-    }
-
     public boolean hasFixedTime() {
         return this.fixedTime.isPresent();
     }
@@ -509,7 +458,6 @@ public class DimensionType {
                 && this.logicalHeight == param0.logicalHeight
                 && Float.compare(param0.ambientLight, this.ambientLight) == 0
                 && this.fixedTime.equals(param0.fixedTime)
-                && this.biomeZoomer.equals(param0.biomeZoomer)
                 && this.infiniburn.equals(param0.infiniburn)
                 && this.effectsLocation.equals(param0.effectsLocation);
         }

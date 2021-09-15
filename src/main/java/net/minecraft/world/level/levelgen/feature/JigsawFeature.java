@@ -1,6 +1,7 @@
 package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
+import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.data.worldgen.Pools;
@@ -44,15 +45,15 @@ public class JigsawFeature extends StructureFeature<JigsawConfiguration> {
             ChunkGenerator param1,
             StructureManager param2,
             ChunkPos param3,
-            Biome param4,
-            JigsawConfiguration param5,
-            LevelHeightAccessor param6
+            JigsawConfiguration param4,
+            LevelHeightAccessor param5,
+            Predicate<Biome> param6
         ) {
             BlockPos var0 = new BlockPos(param3.getMinBlockX(), this.feature.startY, param3.getMinBlockZ());
             Pools.bootstrap();
             JigsawPlacement.addPieces(
                 param0,
-                param5,
+                param4,
                 PoolElementStructurePiece::new,
                 param1,
                 param2,
@@ -61,6 +62,7 @@ public class JigsawFeature extends StructureFeature<JigsawConfiguration> {
                 this.random,
                 this.feature.doExpansionHack,
                 this.feature.projectStartToHeightmap,
+                param5,
                 param6
             );
         }

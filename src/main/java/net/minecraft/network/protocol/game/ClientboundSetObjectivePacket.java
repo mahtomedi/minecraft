@@ -24,7 +24,7 @@ public class ClientboundSetObjectivePacket implements Packet<ClientGamePacketLis
     }
 
     public ClientboundSetObjectivePacket(FriendlyByteBuf param0) {
-        this.objectiveName = param0.readUtf(16);
+        this.objectiveName = param0.readUtf();
         this.method = param0.readByte();
         if (this.method != 0 && this.method != 2) {
             this.displayName = TextComponent.EMPTY;

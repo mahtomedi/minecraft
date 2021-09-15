@@ -127,8 +127,8 @@ public class GameTestServer extends MinecraftServer {
         this.loadLevel();
         ServerLevel var0 = this.overworld();
         var0.setDefaultSpawnPos(this.spawnPos, 0.0F);
-        var0.getLevelData().setRaining(false);
-        var0.getLevelData().setRaining(false);
+        int var1 = 20000000;
+        var0.setWeatherParameters(20000000, 20000000, false, false);
         return true;
     }
 
@@ -185,7 +185,7 @@ public class GameTestServer extends MinecraftServer {
 
     private void startTests(ServerLevel param0) {
         Collection<GameTestInfo> var0 = GameTestRunner.runTestBatches(
-            this.testBatches, new BlockPos(0, 4, 0), Rotation.NONE, param0, GameTestTicker.SINGLETON, 8
+            this.testBatches, new BlockPos(0, -60, 0), Rotation.NONE, param0, GameTestTicker.SINGLETON, 8
         );
         this.testTracker = new MultipleTestTracker(var0);
         LOGGER.info("{} tests are now running!", this.testTracker.getTotalCount());

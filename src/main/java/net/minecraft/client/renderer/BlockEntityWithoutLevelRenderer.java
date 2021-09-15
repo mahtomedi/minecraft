@@ -139,7 +139,7 @@ public class BlockEntityWithoutLevelRenderer implements ResourceManagerReloadLis
             }
         } else {
             if (param0.is(Items.SHIELD)) {
-                boolean var18 = param0.getTagElement("BlockEntityTag") != null;
+                boolean var18 = BlockItem.getBlockEntityData(param0) != null;
                 param2.pushPose();
                 param2.scale(1.0F, -1.0F, -1.0F);
                 Material var19 = var18 ? ModelBakery.SHIELD_BASE : ModelBakery.NO_PATTERN_SHIELD;

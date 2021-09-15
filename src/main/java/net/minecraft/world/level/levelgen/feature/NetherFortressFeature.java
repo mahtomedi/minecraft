@@ -2,6 +2,8 @@ package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
 import java.util.List;
+import java.util.function.Predicate;
+import net.minecraft.core.QuartPos;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.util.random.WeightedRandomList;
 import net.minecraft.world.entity.EntityType;
@@ -37,10 +39,9 @@ public class NetherFortressFeature extends StructureFeature<NoneFeatureConfigura
         long param2,
         WorldgenRandom param3,
         ChunkPos param4,
-        Biome param5,
-        ChunkPos param6,
-        NoneFeatureConfiguration param7,
-        LevelHeightAccessor param8
+        ChunkPos param5,
+        NoneFeatureConfiguration param6,
+        LevelHeightAccessor param7
     ) {
         return param3.nextInt(5) < 2;
     }
@@ -65,22 +66,26 @@ public class NetherFortressFeature extends StructureFeature<NoneFeatureConfigura
             ChunkGenerator param1,
             StructureManager param2,
             ChunkPos param3,
-            Biome param4,
-            NoneFeatureConfiguration param5,
-            LevelHeightAccessor param6
+            NoneFeatureConfiguration param4,
+            LevelHeightAccessor param5,
+            Predicate<Biome> param6
         ) {
-            NetherBridgePieces.StartPiece var0 = new NetherBridgePieces.StartPiece(this.random, param3.getBlockX(2), param3.getBlockZ(2));
-            this.addPiece(var0);
-            var0.addChildren(var0, this, this.random);
-            List<StructurePiece> var1 = var0.pendingChildren;
+            if (param6.test(
+                param1.getNoiseBiome(QuartPos.fromBlock(param3.getMiddleBlockX()), QuartPos.fromBlock(64), QuartPos.fromBlock(param3.getMiddleBlockZ()))
+            )) {
+                NetherBridgePieces.StartPiece var0 = new NetherBridgePieces.StartPiece(this.random, param3.getBlockX(2), param3.getBlockZ(2));
+                this.addPiece(var0);
+                var0.addChildren(var0, this, this.random);
+                List<StructurePiece> var1 = var0.pendingChildren;
 
-            while(!var1.isEmpty()) {
-                int var2 = this.random.nextInt(var1.size());
-                StructurePiece var3 = var1.remove(var2);
-                var3.addChildren(var0, this, this.random);
+                while(!var1.isEmpty()) {
+                    int var2 = this.random.nextInt(var1.size());
+                    StructurePiece var3 = var1.remove(var2);
+                    var3.addChildren(var0, this, this.random);
+                }
+
+                this.moveInsideHeights(this.random, 48, 70);
             }
-
-            this.moveInsideHeights(this.random, 48, 70);
         }
     }
 }

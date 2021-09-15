@@ -65,7 +65,7 @@ public interface ClientGamePacketListener extends PacketListener {
 
     void handleKeepAlive(ClientboundKeepAlivePacket var1);
 
-    void handleLevelChunk(ClientboundLevelChunkPacket var1);
+    void handleLevelChunkWithLight(ClientboundLevelChunkWithLightPacket var1);
 
     void handleForgetLevelChunk(ClientboundForgetLevelChunkPacket var1);
 
@@ -181,7 +181,7 @@ public interface ClientGamePacketListener extends PacketListener {
 
     void handleTagQueryPacket(ClientboundTagQueryPacket var1);
 
-    void handleLightUpdatePacked(ClientboundLightUpdatePacket var1);
+    void handleLightUpdatePacket(ClientboundLightUpdatePacket var1);
 
     void handleOpenBook(ClientboundOpenBookPacket var1);
 

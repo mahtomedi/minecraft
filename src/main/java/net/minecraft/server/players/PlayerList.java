@@ -166,14 +166,14 @@ public abstract class PlayerList {
         var11.send(
             new ClientboundLoginPacket(
                 param1.getId(),
+                var10.isHardcore(),
                 param1.gameMode.getGameModeForPlayer(),
                 param1.gameMode.getPreviousGameModeForPlayer(),
-                BiomeManager.obfuscateSeed(var7.getSeed()),
-                var10.isHardcore(),
                 this.server.levelKeys(),
                 this.registryHolder,
                 var7.dimensionType(),
                 var7.dimension(),
+                BiomeManager.obfuscateSeed(var7.getSeed()),
                 this.getMaxPlayers(),
                 this.viewDistance,
                 var14,

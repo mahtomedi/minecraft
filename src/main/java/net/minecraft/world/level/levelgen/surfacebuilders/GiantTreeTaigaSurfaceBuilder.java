@@ -4,7 +4,7 @@ import com.mojang.serialization.Codec;
 import java.util.Random;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.BlockColumn;
 
 public class GiantTreeTaigaSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBaseConfiguration> {
     public GiantTreeTaigaSurfaceBuilder(Codec<SurfaceBuilderBaseConfiguration> param0) {
@@ -13,7 +13,7 @@ public class GiantTreeTaigaSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderB
 
     public void apply(
         Random param0,
-        ChunkAccess param1,
+        BlockColumn param1,
         Biome param2,
         int param3,
         int param4,

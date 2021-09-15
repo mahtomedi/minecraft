@@ -26,7 +26,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.biome.OverworldBiomeSource;
+import net.minecraft.world.level.biome.MultiNoiseBiomeSource;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
@@ -107,7 +107,7 @@ public class WorldGenSettings {
 
     public static NoiseBasedChunkGenerator makeDefaultOverworld(Registry<Biome> param0, Registry<NoiseGeneratorSettings> param1, long param2) {
         return new NoiseBasedChunkGenerator(
-            new OverworldBiomeSource(param2, false, false, param0), param2, () -> param1.getOrThrow(NoiseGeneratorSettings.OVERWORLD)
+            MultiNoiseBiomeSource.Preset.OVERWORLD.biomeSource(param0), param2, () -> param1.getOrThrow(NoiseGeneratorSettings.OVERWORLD)
         );
     }
 
@@ -236,32 +236,6 @@ public class WorldGenSettings {
                 );
             case "debug_all_block_states":
                 return new WorldGenSettings(var6, var3, false, withOverworld(var9, var12, new DebugLevelSource(var10)));
-            case "amplified":
-                return new WorldGenSettings(
-                    var6,
-                    var3,
-                    false,
-                    withOverworld(
-                        var9,
-                        var12,
-                        new NoiseBasedChunkGenerator(
-                            new OverworldBiomeSource(var6, false, false, var10), var6, () -> var11.getOrThrow(NoiseGeneratorSettings.AMPLIFIED)
-                        )
-                    )
-                );
-            case "largebiomes":
-                return new WorldGenSettings(
-                    var6,
-                    var3,
-                    false,
-                    withOverworld(
-                        var9,
-                        var12,
-                        new NoiseBasedChunkGenerator(
-                            new OverworldBiomeSource(var6, false, true, var10), var6, () -> var11.getOrThrow(NoiseGeneratorSettings.OVERWORLD)
-                        )
-                    )
-                );
             default:
                 return new WorldGenSettings(var6, var3, false, withOverworld(var9, var12, makeDefaultOverworld(var10, var11, var6)));
         }

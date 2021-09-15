@@ -122,6 +122,7 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
                     this.placeNewPlayer(var2);
                 }
             } catch (Exception var5) {
+                LOGGER.error("Couldn't place player in world", (Throwable)var5);
                 Component var4 = new TranslatableComponent("multiplayer.disconnect.invalid_player_data");
                 this.connection.send(new ClientboundDisconnectPacket(var4));
                 this.connection.disconnect(var4);

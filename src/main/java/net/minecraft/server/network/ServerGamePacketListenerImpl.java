@@ -776,7 +776,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
         PacketUtils.ensureRunningOnSameThread(param0, this, this.player.getLevel());
         if (this.player.hasPermissions(2)) {
             BlockEntity var0 = this.player.getLevel().getBlockEntity(param0.getPos());
-            CompoundTag var1 = var0 != null ? var0.save(new CompoundTag()) : null;
+            CompoundTag var1 = var0 != null ? var0.saveWithoutMetadata() : null;
             this.player.connection.send(new ClientboundTagQueryPacket(param0.getTransactionId(), var1));
         }
     }
@@ -1400,25 +1400,21 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
         if (this.player.gameMode.isCreative()) {
             boolean var0 = param0.getSlotNum() < 0;
             ItemStack var1 = param0.getItem();
-            CompoundTag var2 = var1.getTagElement("BlockEntityTag");
+            CompoundTag var2 = BlockItem.getBlockEntityData(var1);
             if (!var1.isEmpty() && var2 != null && var2.contains("x") && var2.contains("y") && var2.contains("z")) {
-                BlockPos var3 = new BlockPos(var2.getInt("x"), var2.getInt("y"), var2.getInt("z"));
+                BlockPos var3 = BlockEntity.getPosFromTag(var2);
                 BlockEntity var4 = this.player.level.getBlockEntity(var3);
                 if (var4 != null) {
-                    CompoundTag var5 = var4.save(new CompoundTag());
-                    var5.remove("x");
-                    var5.remove("y");
-                    var5.remove("z");
-                    var1.addTagElement("BlockEntityTag", var5);
+                    var4.saveToItem(var1);
                 }
             }
 
-            boolean var6 = param0.getSlotNum() >= 1 && param0.getSlotNum() <= 45;
-            boolean var7 = var1.isEmpty() || var1.getDamageValue() >= 0 && var1.getCount() <= 64 && !var1.isEmpty();
-            if (var6 && var7) {
+            boolean var5 = param0.getSlotNum() >= 1 && param0.getSlotNum() <= 45;
+            boolean var6 = var1.isEmpty() || var1.getDamageValue() >= 0 && var1.getCount() <= 64 && !var1.isEmpty();
+            if (var5 && var6) {
                 this.player.inventoryMenu.getSlot(param0.getSlotNum()).set(var1);
                 this.player.inventoryMenu.broadcastChanges();
-            } else if (var0 && var7 && this.dropSpamTickCount < 200) {
+            } else if (var0 && var6 && this.dropSpamTickCount < 200) {
                 this.dropSpamTickCount += 20;
                 this.player.drop(var1, true);
             }

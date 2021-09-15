@@ -63,14 +63,18 @@ public class Options {
     public static final int RENDER_DISTANCE_EXTREME = 32;
     private static final Splitter OPTION_SPLITTER = Splitter.on(':').limit(2);
     private static final float DEFAULT_VOLUME = 1.0F;
+    public static final String DEFAULT_SOUND_DEVICE = "";
     public boolean darkMojangStudiosBackground;
+    public boolean hideLightningFlashes;
     public double sensitivity = 0.5;
     public int renderDistance;
+    private int serverRenderDistance = 0;
     public float entityDistanceScaling = 1.0F;
     public int framerateLimit = 120;
     public CloudStatus renderClouds = CloudStatus.FANCY;
     public GraphicsStatus graphicsMode = GraphicsStatus.FANCY;
     public AmbientOcclusionStatus ambientOcclusion = AmbientOcclusionStatus.MAX;
+    public PrioritizeChunkUpdates prioritizeChunkUpdates = PrioritizeChunkUpdates.NONE;
     public List<String> resourcePacks = Lists.newArrayList();
     public List<String> incompatibleResourcePacks = Lists.newArrayList();
     public ChatVisiblity chatVisibility = ChatVisiblity.FULL;
@@ -209,6 +213,7 @@ public class Options {
     public ParticleStatus particles = ParticleStatus.ALL;
     public NarratorStatus narratorStatus = NarratorStatus.OFF;
     public String languageCode = "en_us";
+    public String soundDevice = "";
     public boolean syncWrites;
 
     public Options(Minecraft param0, File param1) {
@@ -263,6 +268,7 @@ public class Options {
         this.toggleCrouch = param0.process("toggleCrouch", this.toggleCrouch);
         this.toggleSprint = param0.process("toggleSprint", this.toggleSprint);
         this.darkMojangStudiosBackground = param0.process("darkMojangStudiosBackground", this.darkMojangStudiosBackground);
+        this.hideLightningFlashes = param0.process("hideLightningFlashes", this.hideLightningFlashes);
         this.sensitivity = param0.process("mouseSensitivity", this.sensitivity);
         this.fov = param0.process("fov", (this.fov - 70.0) / 40.0) * 40.0 + 70.0;
         this.screenEffectScale = param0.process("screenEffectScale", this.screenEffectScale);
@@ -276,12 +282,16 @@ public class Options {
         this.difficulty = param0.process("difficulty", this.difficulty, Difficulty::byId, Difficulty::getId);
         this.graphicsMode = param0.process("graphicsMode", this.graphicsMode, GraphicsStatus::byId, GraphicsStatus::getId);
         this.ambientOcclusion = param0.process("ao", this.ambientOcclusion, Options::readAmbientOcclusion, param0x -> Integer.toString(param0x.getId()));
+        this.prioritizeChunkUpdates = param0.process(
+            "prioritizeChunkUpdates", this.prioritizeChunkUpdates, PrioritizeChunkUpdates::byId, PrioritizeChunkUpdates::getId
+        );
         this.biomeBlendRadius = param0.process("biomeBlendRadius", this.biomeBlendRadius);
         this.renderClouds = param0.process("renderClouds", this.renderClouds, Options::readCloudStatus, Options::writeCloudStatus);
         this.resourcePacks = param0.process("resourcePacks", this.resourcePacks, Options::readPackList, GSON::toJson);
         this.incompatibleResourcePacks = param0.process("incompatibleResourcePacks", this.incompatibleResourcePacks, Options::readPackList, GSON::toJson);
         this.lastMpIp = param0.process("lastServer", this.lastMpIp);
         this.languageCode = param0.process("lang", this.languageCode);
+        this.soundDevice = param0.process("soundDevice", this.soundDevice);
         this.chatVisibility = param0.process("chatVisibility", this.chatVisibility, ChatVisiblity::byId, ChatVisiblity::getId);
         this.chatOpacity = param0.process("chatOpacity", this.chatOpacity);
         this.chatLineSpacing = param0.process("chatLineSpacing", this.chatLineSpacing);
@@ -610,7 +620,7 @@ public class Options {
     }
 
     public CloudStatus getCloudsType() {
-        return this.renderDistance >= 4 ? this.renderClouds : CloudStatus.OFF;
+        return this.getEffectiveRenderDistance() >= 4 ? this.renderClouds : CloudStatus.OFF;
     }
 
     public boolean useNativeTransport() {
@@ -712,6 +722,7 @@ public class Options {
             .add(Pair.of("forceUnicodeFont", String.valueOf(this.forceUnicodeFont)))
             .add(Pair.of("fov", String.valueOf(this.fov)))
             .add(Pair.of("fovEffectScale", String.valueOf(this.fovEffectScale)))
+            .add(Pair.of("prioritizeChunkUpdates", String.valueOf(this.prioritizeChunkUpdates)))
             .add(Pair.of("fullscreen", String.valueOf(this.fullscreen)))
             .add(Pair.of("fullscreenResolution", String.valueOf(this.fullscreenVideoModeString)))
             .add(Pair.of("gamma", String.valueOf(this.gamma)))
@@ -731,8 +742,17 @@ public class Options {
             .add(Pair.of("screenEffectScale", String.valueOf(this.screenEffectScale)))
             .add(Pair.of("syncChunkWrites", String.valueOf(this.syncWrites)))
             .add(Pair.of("useNativeTransport", String.valueOf(this.useNativeTransport)))
+            .add(Pair.of("soundDevice", String.valueOf(this.soundDevice)))
             .build();
         return var0.stream().map(param0 -> (String)param0.getFirst() + ": " + (String)param0.getSecond()).collect(Collectors.joining(System.lineSeparator()));
+    }
+
+    public void setServerRenderDistance(int param0) {
+        this.serverRenderDistance = param0;
+    }
+
+    public int getEffectiveRenderDistance() {
+        return this.serverRenderDistance > 0 ? Math.min(this.renderDistance, this.serverRenderDistance) : this.renderDistance;
     }
 
     @OnlyIn(Dist.CLIENT)

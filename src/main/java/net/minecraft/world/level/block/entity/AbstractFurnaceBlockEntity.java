@@ -225,8 +225,8 @@ public abstract class AbstractFurnaceBlockEntity extends BaseContainerBlockEntit
     }
 
     @Override
-    public CompoundTag save(CompoundTag param0) {
-        super.save(param0);
+    protected void saveAdditional(CompoundTag param0) {
+        super.saveAdditional(param0);
         param0.putShort("BurnTime", (short)this.litTime);
         param0.putShort("CookTime", (short)this.cookingProgress);
         param0.putShort("CookTimeTotal", (short)this.cookingTotalTime);
@@ -234,7 +234,6 @@ public abstract class AbstractFurnaceBlockEntity extends BaseContainerBlockEntit
         CompoundTag var0 = new CompoundTag();
         this.recipesUsed.forEach((param1, param2) -> var0.putInt(param1.toString(), param2));
         param0.put("RecipesUsed", var0);
-        return param0;
     }
 
     public static void serverTick(Level param0, BlockPos param1, BlockState param2, AbstractFurnaceBlockEntity param3) {

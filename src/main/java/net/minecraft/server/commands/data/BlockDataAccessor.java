@@ -50,9 +50,6 @@ public class BlockDataAccessor implements DataAccessor {
 
     @Override
     public void setData(CompoundTag param0) {
-        param0.putInt("x", this.pos.getX());
-        param0.putInt("y", this.pos.getY());
-        param0.putInt("z", this.pos.getZ());
         BlockState var0 = this.entity.getLevel().getBlockState(this.pos);
         this.entity.load(param0);
         this.entity.setChanged();
@@ -61,7 +58,7 @@ public class BlockDataAccessor implements DataAccessor {
 
     @Override
     public CompoundTag getData() {
-        return this.entity.save(new CompoundTag());
+        return this.entity.saveWithFullMetadata();
     }
 
     @Override

@@ -10,6 +10,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.annotation.Nullable;
@@ -120,6 +121,10 @@ public class SoundManager extends SimplePreparableReloadListener<SoundManager.Pr
         this.soundEngine.reload();
     }
 
+    public List<String> getAvailableSoundDevices() {
+        return this.soundEngine.getAvailableSoundDevices();
+    }
+
     static boolean validateSoundResource(Sound param0, ResourceLocation param1, ResourceManager param2) {
         ResourceLocation var0 = param0.getPath();
         if (!param2.hasResource(var0)) {
@@ -205,6 +210,10 @@ public class SoundManager extends SimplePreparableReloadListener<SoundManager.Pr
 
     public String getDebugString() {
         return this.soundEngine.getDebugString();
+    }
+
+    public void reload() {
+        this.soundEngine.reload();
     }
 
     @OnlyIn(Dist.CLIENT)

@@ -225,6 +225,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.ChatVisiblity;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -1591,14 +1592,15 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
             this.textureManager.tick();
         }
 
-        if (this.screen == null && this.player != null) {
-            if (this.player.isDeadOrDying() && !(this.screen instanceof DeathScreen)) {
-                this.setScreen(null);
-            } else if (this.player.isSleeping() && this.level != null) {
-                this.setScreen(new InBedChatScreen());
+        if (this.screen != null || this.player == null) {
+            Screen var4 = this.screen;
+            if (var4 instanceof InBedChatScreen var0 && !this.player.isSleeping()) {
+                var0.onPlayerWokeUp();
             }
-        } else if (this.screen != null && this.screen instanceof InBedChatScreen && !this.player.isSleeping()) {
+        } else if (this.player.isDeadOrDying() && !(this.screen instanceof DeathScreen)) {
             this.setScreen(null);
+        } else if (this.player.isSleeping() && this.level != null) {
+            this.setScreen(new InBedChatScreen());
         }
 
         if (this.screen != null) {
@@ -1652,9 +1654,9 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         if (this.level != null) {
             if (!this.pause) {
                 if (!this.options.joinedFirstServer && this.isMultiplayerServer()) {
-                    Component var0 = new TranslatableComponent("tutorial.socialInteractions.title");
-                    Component var1 = new TranslatableComponent("tutorial.socialInteractions.description", Tutorial.key("socialInteractions"));
-                    this.socialInteractionsToast = new TutorialToast(TutorialToast.Icons.SOCIAL_INTERACTIONS, var0, var1, true);
+                    Component var1 = new TranslatableComponent("tutorial.socialInteractions.title");
+                    Component var2 = new TranslatableComponent("tutorial.socialInteractions.description", Tutorial.key("socialInteractions"));
+                    this.socialInteractionsToast = new TutorialToast(TutorialToast.Icons.SOCIAL_INTERACTIONS, var1, var2, true);
                     this.tutorial.addTimedToast(this.socialInteractionsToast, 160);
                     this.options.joinedFirstServer = true;
                     this.options.save();
@@ -1665,15 +1667,15 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
                 try {
                     this.level.tick(() -> true);
                 } catch (Throwable var41) {
-                    CrashReport var3 = CrashReport.forThrowable(var41, "Exception in world tick");
+                    CrashReport var4 = CrashReport.forThrowable(var41, "Exception in world tick");
                     if (this.level == null) {
-                        CrashReportCategory var4 = var3.addCategory("Affected level");
-                        var4.setDetail("Problem", "Level is null!");
+                        CrashReportCategory var5 = var4.addCategory("Affected level");
+                        var5.setDetail("Problem", "Level is null!");
                     } else {
-                        this.level.fillReportDetails(var3);
+                        this.level.fillReportDetails(var4);
                     }
 
-                    throw new ReportedException(var3);
+                    throw new ReportedException(var4);
                 }
             }
 
@@ -1810,7 +1812,6 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     }
 
     public static DataPackConfig loadDataPacks(LevelStorageSource.LevelStorageAccess param0) {
-        MinecraftServer.convertFromRegionFormatIfNeeded(param0);
         DataPackConfig var0 = param0.getDataPacks();
         if (var0 == null) {
             throw new IllegalStateException("Failed to load data pack config");
@@ -2250,13 +2251,13 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     }
 
     private ItemStack addCustomNbtData(ItemStack param0, BlockEntity param1) {
-        CompoundTag var0 = param1.save(new CompoundTag());
+        CompoundTag var0 = param1.saveWithFullMetadata();
         if (param0.getItem() instanceof PlayerHeadItem && var0.contains("SkullOwner")) {
             CompoundTag var1 = var0.getCompound("SkullOwner");
             param0.getOrCreateTag().put("SkullOwner", var1);
             return param0;
         } else {
-            param0.addTagElement("BlockEntityTag", var0);
+            BlockItem.setBlockEntityData(param0, param1.getType(), var0);
             CompoundTag var2 = new CompoundTag();
             ListTag var3 = new ListTag();
             var3.add(StringTag.valueOf("\"(+NBT)\""));

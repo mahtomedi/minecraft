@@ -24,9 +24,6 @@ public class ObjectiveArgument implements ArgumentType<String> {
     private static final DynamicCommandExceptionType ERROR_OBJECTIVE_READ_ONLY = new DynamicCommandExceptionType(
         param0 -> new TranslatableComponent("arguments.objective.readonly", param0)
     );
-    public static final DynamicCommandExceptionType ERROR_OBJECTIVE_NAME_TOO_LONG = new DynamicCommandExceptionType(
-        param0 -> new TranslatableComponent("commands.scoreboard.objectives.add.longName", param0)
-    );
 
     public static ObjectiveArgument objective() {
         return new ObjectiveArgument();
@@ -53,12 +50,7 @@ public class ObjectiveArgument implements ArgumentType<String> {
     }
 
     public String parse(StringReader param0) throws CommandSyntaxException {
-        String var0 = param0.readUnquotedString();
-        if (var0.length() > 16) {
-            throw ERROR_OBJECTIVE_NAME_TOO_LONG.create(16);
-        } else {
-            return var0;
-        }
+        return param0.readUnquotedString();
     }
 
     @Override

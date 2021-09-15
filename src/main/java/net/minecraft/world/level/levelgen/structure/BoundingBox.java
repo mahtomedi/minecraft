@@ -133,6 +133,7 @@ public class BoundingBox {
         }
     }
 
+    @Deprecated
     public BoundingBox encapsulate(BoundingBox param0x) {
         this.minX = Math.min(this.minX, param0x.minX);
         this.minY = Math.min(this.minY, param0x.minY);
@@ -143,6 +144,7 @@ public class BoundingBox {
         return this;
     }
 
+    @Deprecated
     public BoundingBox encapsulate(BlockPos param0x) {
         this.minX = Math.min(this.minX, param0x.getX());
         this.minY = Math.min(this.minY, param0x.getY());
@@ -153,16 +155,7 @@ public class BoundingBox {
         return this;
     }
 
-    public BoundingBox inflate(int param0) {
-        this.minX -= param0;
-        this.minY -= param0;
-        this.minZ -= param0;
-        this.maxX += param0;
-        this.maxY += param0;
-        this.maxZ += param0;
-        return this;
-    }
-
+    @Deprecated
     public BoundingBox move(int param0, int param1, int param2) {
         this.minX += param0;
         this.minY += param1;
@@ -173,12 +166,19 @@ public class BoundingBox {
         return this;
     }
 
+    @Deprecated
     public BoundingBox move(Vec3i param0) {
         return this.move(param0.getX(), param0.getY(), param0.getZ());
     }
 
     public BoundingBox moved(int param0, int param1, int param2) {
         return new BoundingBox(this.minX + param0, this.minY + param1, this.minZ + param2, this.maxX + param0, this.maxY + param1, this.maxZ + param2);
+    }
+
+    public BoundingBox inflatedBy(int param0) {
+        return new BoundingBox(
+            this.minX() - param0, this.minY() - param0, this.minZ() - param0, this.maxX() + param0, this.maxY() + param0, this.maxZ() + param0
+        );
     }
 
     public boolean isInside(Vec3i param0) {

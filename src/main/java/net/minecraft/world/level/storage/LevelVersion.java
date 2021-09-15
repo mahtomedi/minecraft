@@ -8,15 +8,15 @@ public class LevelVersion {
     private final int levelDataVersion;
     private final long lastPlayed;
     private final String minecraftVersionName;
-    private final int minecraftVersion;
+    private final DataVersion minecraftVersion;
     private final boolean snapshot;
 
-    public LevelVersion(int param0, long param1, String param2, int param3, boolean param4) {
+    private LevelVersion(int param0, long param1, String param2, int param3, String param4, boolean param5) {
         this.levelDataVersion = param0;
         this.lastPlayed = param1;
         this.minecraftVersionName = param2;
-        this.minecraftVersion = param3;
-        this.snapshot = param4;
+        this.minecraftVersion = new DataVersion(param3, param4);
+        this.snapshot = param5;
     }
 
     public static LevelVersion parse(Dynamic<?> param0) {
@@ -28,10 +28,11 @@ public class LevelVersion {
                 var0,
                 var1,
                 var2.get("Name").asString(SharedConstants.getCurrentVersion().getName()),
-                var2.get("Id").asInt(SharedConstants.getCurrentVersion().getWorldVersion()),
+                var2.get("Id").asInt(SharedConstants.getCurrentVersion().getDataVersion().getVersion()),
+                var2.get("Series").asString(DataVersion.MAIN_SERIES),
                 var2.get("Snapshot").asBoolean(!SharedConstants.getCurrentVersion().isStable())
             )
-            : new LevelVersion(var0, var1, "", 0, false);
+            : new LevelVersion(var0, var1, "", 0, DataVersion.MAIN_SERIES, false);
     }
 
     public int levelDataVersion() {
@@ -46,7 +47,7 @@ public class LevelVersion {
         return this.minecraftVersionName;
     }
 
-    public int minecraftVersion() {
+    public DataVersion minecraftVersion() {
         return this.minecraftVersion;
     }
 

@@ -9,6 +9,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BaseCommandBlock;
@@ -140,7 +141,7 @@ public class CommandBlock extends BaseEntityBlock implements GameMasterBlock {
             }
 
             if (!param0.isClientSide) {
-                if (param4.getTagElement("BlockEntityTag") == null) {
+                if (BlockItem.getBlockEntityData(param4) == null) {
                     var2.setTrackOutput(param0.getGameRules().getBoolean(GameRules.RULE_SENDCOMMANDFEEDBACK));
                     var1.setAutomatic(this.automatic);
                 }

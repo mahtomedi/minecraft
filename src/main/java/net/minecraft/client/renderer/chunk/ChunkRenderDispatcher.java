@@ -114,25 +114,26 @@ public class ChunkRenderDispatcher {
                 ChunkBufferBuilderPack var1x = this.freeBuffers.poll();
                 this.toBatchCount = this.toBatch.size();
                 this.freeBufferCount = this.freeBuffers.size();
-                CompletableFuture.runAsync(() -> {
-                }, this.executor).thenCompose(param2x -> var0x.doTask(var1x)).whenComplete((param1x, param2x) -> {
-                    if (param2x != null) {
-                        CrashReport var0xx = CrashReport.forThrowable(param2x, "Batching chunks");
-                        Minecraft.getInstance().delayCrash(Minecraft.getInstance().fillReport(var0xx));
-                    } else {
-                        this.mailbox.tell(() -> {
-                            if (param1x == ChunkRenderDispatcher.ChunkTaskResult.SUCCESSFUL) {
-                                var1x.clearAll();
-                            } else {
-                                var1x.discardAll();
-                            }
-
-                            this.freeBuffers.add(var1x);
-                            this.freeBufferCount = this.freeBuffers.size();
-                            this.runTask();
-                        });
-                    }
-                });
+                CompletableFuture.supplyAsync(Util.wrapThreadWithTaskName(var0x.name(), () -> var0x.doTask(var1x)), this.executor)
+                    .thenCompose(param0x -> param0x)
+                    .whenComplete((param1x, param2x) -> {
+                        if (param2x != null) {
+                            CrashReport var0xx = CrashReport.forThrowable(param2x, "Batching chunks");
+                            Minecraft.getInstance().delayCrash(Minecraft.getInstance().fillReport(var0xx));
+                        } else {
+                            this.mailbox.tell(() -> {
+                                if (param1x == ChunkRenderDispatcher.ChunkTaskResult.SUCCESSFUL) {
+                                    var1x.clearAll();
+                                } else {
+                                    var1x.discardAll();
+                                }
+    
+                                this.freeBuffers.add(var1x);
+                                this.freeBufferCount = this.freeBuffers.size();
+                                this.runTask();
+                            });
+                        }
+                    });
             }
         }
     }
@@ -161,14 +162,12 @@ public class ChunkRenderDispatcher {
         return this.camera;
     }
 
-    public boolean uploadAllPendingUploads() {
-        boolean var0;
-        Runnable var1;
-        for(var0 = false; (var1 = this.toUpload.poll()) != null; var0 = true) {
-            var1.run();
+    public void uploadAllPendingUploads() {
+        Runnable var0;
+        while((var0 = this.toUpload.poll()) != null) {
+            var0.run();
         }
 
-        return var0;
     }
 
     public void rebuildChunkSync(ChunkRenderDispatcher.RenderChunk param0) {
@@ -270,7 +269,6 @@ public class ChunkRenderDispatcher {
             .stream()
             .collect(Collectors.toMap(param0x -> param0x, param0x -> new VertexBuffer()));
         public AABB bb;
-        private int lastFrame = -1;
         private boolean dirty = true;
         final BlockPos.MutableBlockPos origin = new BlockPos.MutableBlockPos(-1, -1, -1);
         private final BlockPos.MutableBlockPos[] relativeOrigins = Util.make(new BlockPos.MutableBlockPos[6], param0x -> {
@@ -300,15 +298,6 @@ public class ChunkRenderDispatcher {
                     && this.doesChunkExistAt(this.relativeOrigins[Direction.NORTH.ordinal()])
                     && this.doesChunkExistAt(this.relativeOrigins[Direction.EAST.ordinal()])
                     && this.doesChunkExistAt(this.relativeOrigins[Direction.SOUTH.ordinal()]);
-            }
-        }
-
-        public boolean setFrame(int param0) {
-            if (this.lastFrame == param0) {
-                return false;
-            } else {
-                this.lastFrame = param0;
-                return true;
             }
         }
 
@@ -453,6 +442,8 @@ public class ChunkRenderDispatcher {
 
             public abstract void cancel();
 
+            protected abstract String name();
+
             public int compareTo(ChunkRenderDispatcher.RenderChunk.ChunkCompileTask param0) {
                 return Doubles.compare(this.distAtCreation, param0.distAtCreation);
             }
@@ -466,6 +457,11 @@ public class ChunkRenderDispatcher {
             public RebuildTask(@Nullable double param0, RenderChunkRegion param1) {
                 super(param0);
                 this.region = param1;
+            }
+
+            @Override
+            protected String name() {
+                return "rend_chk_rebuild";
             }
 
             @Override
@@ -504,6 +500,7 @@ public class ChunkRenderDispatcher {
                                 return ChunkRenderDispatcher.ChunkTaskResult.CANCELLED;
                             } else {
                                 RenderChunk.this.compiled.set(var4);
+                                ChunkRenderDispatcher.this.renderer.addRecentlyCompiledChunk(RenderChunk.this);
                                 return ChunkRenderDispatcher.ChunkTaskResult.SUCCESSFUL;
                             }
                         });
@@ -614,6 +611,11 @@ public class ChunkRenderDispatcher {
             public ResortTransparencyTask(double param0, ChunkRenderDispatcher.CompiledChunk param1) {
                 super(param0);
                 this.compiledChunk = param1;
+            }
+
+            @Override
+            protected String name() {
+                return "rend_chk_sort";
             }
 
             @Override

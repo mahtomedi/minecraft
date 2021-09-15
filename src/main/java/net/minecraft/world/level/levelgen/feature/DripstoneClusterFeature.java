@@ -189,12 +189,8 @@ public class DripstoneClusterFeature extends Feature<DripstoneClusterConfigurati
         int var0 = param0 - Math.abs(param2);
         int var1 = param1 - Math.abs(param3);
         int var2 = Math.min(var0, var1);
-        return Mth.clampedMap(
-            (double)var2,
-            0.0,
-            (double)param4.maxDistanceFromEdgeAffectingChanceOfDripstoneColumn,
-            (double)param4.chanceOfDripstoneColumnAtMaxDistanceFromCenter,
-            1.0
+        return (double)Mth.clampedMap(
+            (float)var2, 0.0F, (float)param4.maxDistanceFromEdgeAffectingChanceOfDripstoneColumn, param4.chanceOfDripstoneColumnAtMaxDistanceFromCenter, 1.0F
         );
     }
 

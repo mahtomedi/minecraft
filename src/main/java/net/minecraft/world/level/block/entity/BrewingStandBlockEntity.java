@@ -201,12 +201,11 @@ public class BrewingStandBlockEntity extends BaseContainerBlockEntity implements
     }
 
     @Override
-    public CompoundTag save(CompoundTag param0) {
-        super.save(param0);
+    protected void saveAdditional(CompoundTag param0) {
+        super.saveAdditional(param0);
         param0.putShort("BrewTime", (short)this.brewTime);
         ContainerHelper.saveAllItems(param0, this.items);
         param0.putByte("Fuel", (byte)this.fuel);
-        return param0;
     }
 
     @Override

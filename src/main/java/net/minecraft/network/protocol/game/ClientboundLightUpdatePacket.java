@@ -1,93 +1,38 @@
 package net.minecraft.network.protocol.game;
 
-import com.google.common.collect.Lists;
 import java.util.BitSet;
-import java.util.List;
 import javax.annotation.Nullable;
-import net.minecraft.core.SectionPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.LightLayer;
-import net.minecraft.world.level.chunk.DataLayer;
 import net.minecraft.world.level.lighting.LevelLightEngine;
 
 public class ClientboundLightUpdatePacket implements Packet<ClientGamePacketListener> {
     private final int x;
     private final int z;
-    private final BitSet skyYMask;
-    private final BitSet blockYMask;
-    private final BitSet emptySkyYMask;
-    private final BitSet emptyBlockYMask;
-    private final List<byte[]> skyUpdates;
-    private final List<byte[]> blockUpdates;
-    private final boolean trustEdges;
+    private final ClientboundLightUpdatePacketData lightData;
 
     public ClientboundLightUpdatePacket(ChunkPos param0, LevelLightEngine param1, @Nullable BitSet param2, @Nullable BitSet param3, boolean param4) {
         this.x = param0.x;
         this.z = param0.z;
-        this.trustEdges = param4;
-        this.skyYMask = new BitSet();
-        this.blockYMask = new BitSet();
-        this.emptySkyYMask = new BitSet();
-        this.emptyBlockYMask = new BitSet();
-        this.skyUpdates = Lists.newArrayList();
-        this.blockUpdates = Lists.newArrayList();
-
-        for(int var0 = 0; var0 < param1.getLightSectionCount(); ++var0) {
-            if (param2 == null || param2.get(var0)) {
-                prepareSectionData(param0, param1, LightLayer.SKY, var0, this.skyYMask, this.emptySkyYMask, this.skyUpdates);
-            }
-
-            if (param3 == null || param3.get(var0)) {
-                prepareSectionData(param0, param1, LightLayer.BLOCK, var0, this.blockYMask, this.emptyBlockYMask, this.blockUpdates);
-            }
-        }
-
-    }
-
-    private static void prepareSectionData(
-        ChunkPos param0, LevelLightEngine param1, LightLayer param2, int param3, BitSet param4, BitSet param5, List<byte[]> param6
-    ) {
-        DataLayer var0 = param1.getLayerListener(param2).getDataLayerData(SectionPos.of(param0, param1.getMinLightSection() + param3));
-        if (var0 != null) {
-            if (var0.isEmpty()) {
-                param5.set(param3);
-            } else {
-                param4.set(param3);
-                param6.add((byte[])var0.getData().clone());
-            }
-        }
-
+        this.lightData = new ClientboundLightUpdatePacketData(param0, param1, param2, param3, param4);
     }
 
     public ClientboundLightUpdatePacket(FriendlyByteBuf param0) {
         this.x = param0.readVarInt();
         this.z = param0.readVarInt();
-        this.trustEdges = param0.readBoolean();
-        this.skyYMask = param0.readBitSet();
-        this.blockYMask = param0.readBitSet();
-        this.emptySkyYMask = param0.readBitSet();
-        this.emptyBlockYMask = param0.readBitSet();
-        this.skyUpdates = param0.readList(param0x -> param0x.readByteArray(2048));
-        this.blockUpdates = param0.readList(param0x -> param0x.readByteArray(2048));
+        this.lightData = new ClientboundLightUpdatePacketData(param0, this.x, this.z);
     }
 
     @Override
     public void write(FriendlyByteBuf param0) {
         param0.writeVarInt(this.x);
         param0.writeVarInt(this.z);
-        param0.writeBoolean(this.trustEdges);
-        param0.writeBitSet(this.skyYMask);
-        param0.writeBitSet(this.blockYMask);
-        param0.writeBitSet(this.emptySkyYMask);
-        param0.writeBitSet(this.emptyBlockYMask);
-        param0.writeCollection(this.skyUpdates, FriendlyByteBuf::writeByteArray);
-        param0.writeCollection(this.blockUpdates, FriendlyByteBuf::writeByteArray);
+        this.lightData.write(param0);
     }
 
     public void handle(ClientGamePacketListener param0) {
-        param0.handleLightUpdatePacked(this);
+        param0.handleLightUpdatePacket(this);
     }
 
     public int getX() {
@@ -98,31 +43,7 @@ public class ClientboundLightUpdatePacket implements Packet<ClientGamePacketList
         return this.z;
     }
 
-    public BitSet getSkyYMask() {
-        return this.skyYMask;
-    }
-
-    public BitSet getEmptySkyYMask() {
-        return this.emptySkyYMask;
-    }
-
-    public List<byte[]> getSkyUpdates() {
-        return this.skyUpdates;
-    }
-
-    public BitSet getBlockYMask() {
-        return this.blockYMask;
-    }
-
-    public BitSet getEmptyBlockYMask() {
-        return this.emptyBlockYMask;
-    }
-
-    public List<byte[]> getBlockUpdates() {
-        return this.blockUpdates;
-    }
-
-    public boolean getTrustEdges() {
-        return this.trustEdges;
+    public ClientboundLightUpdatePacketData getLightData() {
+        return this.lightData;
     }
 }

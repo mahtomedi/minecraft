@@ -327,8 +327,12 @@ public abstract class LivingEntity extends Entity {
 
         super.baseTick();
         this.level.getProfiler().push("livingEntityBaseTick");
-        boolean var0 = this instanceof Player;
+        if (this.fireImmune() || this.level.isClientSide) {
+            this.clearFire();
+        }
+
         if (this.isAlive()) {
+            boolean var0 = this instanceof Player;
             if (this.isInWall()) {
                 this.hurt(DamageSource.IN_WALL, 1.0F);
             } else if (var0 && !this.level.getWorldBorder().isWithinBounds(this.getBoundingBox())) {
@@ -340,17 +344,11 @@ public abstract class LivingEntity extends Entity {
                     }
                 }
             }
-        }
 
-        if (this.fireImmune() || this.level.isClientSide) {
-            this.clearFire();
-        }
-
-        boolean var3 = var0 && ((Player)this).getAbilities().invulnerable;
-        if (this.isAlive()) {
             if (this.isEyeInFluid(FluidTags.WATER)
                 && !this.level.getBlockState(new BlockPos(this.getX(), this.getEyeY(), this.getZ())).is(Blocks.BUBBLE_COLUMN)) {
-                if (!this.canBreatheUnderwater() && !MobEffectUtil.hasWaterBreathing(this) && !var3) {
+                boolean var3 = !this.canBreatheUnderwater() && !MobEffectUtil.hasWaterBreathing(this) && (!var0 || !((Player)this).getAbilities().invulnerable);
+                if (var3) {
                     this.setAirSupply(this.decreaseAirSupply(this.getAirSupply()));
                     if (this.getAirSupply() == -20) {
                         this.setAirSupply(0);
@@ -3388,6 +3386,8 @@ public abstract class LivingEntity extends Entity {
         this.setPacketCoordinates(var0, var1, var2);
         this.yBodyRot = (float)(param0.getyHeadRot() * 360) / 256.0F;
         this.yHeadRot = (float)(param0.getyHeadRot() * 360) / 256.0F;
+        this.yBodyRotO = this.yBodyRot;
+        this.yHeadRotO = this.yHeadRot;
         this.setId(param0.getId());
         this.setUUID(param0.getUUID());
         this.absMoveTo(var0, var1, var2, var3, var4);

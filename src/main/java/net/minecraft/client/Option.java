@@ -13,11 +13,15 @@ import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.renderer.GpuWarnlistManager;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.client.sounds.SoundEngine;
+import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
@@ -251,6 +255,13 @@ public abstract class Option {
             Minecraft.getInstance().levelRenderer.allChanged();
         }
     );
+    public static final CycleOption<PrioritizeChunkUpdates> PRIORITIZE_CHUNK_UPDATES = CycleOption.create(
+        "options.prioritizeChunkUpdates",
+        PrioritizeChunkUpdates.values(),
+        param0 -> new TranslatableComponent(param0.getKey()),
+        param0 -> param0.prioritizeChunkUpdates,
+        (param0, param1, param2) -> param0.prioritizeChunkUpdates = param2
+    );
     public static final CycleOption<AttackIndicatorStatus> ATTACK_INDICATOR = CycleOption.create(
         "options.attackIndicator",
         AttackIndicatorStatus.values(),
@@ -316,6 +327,26 @@ public abstract class Option {
         param0 -> (Component)(param0 == 0 ? new TranslatableComponent("options.guiScale.auto") : new TextComponent(Integer.toString(param0))),
         param0 -> param0.guiScale,
         (param0, param1, param2) -> param0.guiScale = param2
+    );
+    public static final CycleOption<String> AUDIO_DEVICE = CycleOption.create(
+        "options.audioDevice",
+        () -> Stream.concat(Stream.of(""), Minecraft.getInstance().getSoundManager().getAvailableSoundDevices().stream()).toList(),
+        param0 -> {
+            if ("".equals(param0)) {
+                return new TranslatableComponent("options.audioDevice.default");
+            } else {
+                return param0.startsWith("OpenAL Soft on ")
+                    ? new TextComponent(param0.substring(SoundEngine.OPEN_AL_SOFT_PREFIX_LENGTH))
+                    : new TextComponent(param0);
+            }
+        },
+        param0 -> param0.soundDevice,
+        (param0, param1, param2) -> {
+            param0.soundDevice = param2;
+            SoundManager var0 = Minecraft.getInstance().getSoundManager();
+            var0.reload();
+            var0.play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+        }
     );
     public static final CycleOption<HumanoidArm> MAIN_HAND = CycleOption.create(
         "options.mainHand", HumanoidArm.values(), HumanoidArm::getName, param0 -> param0.mainHand, (param0, param1, param2) -> {
@@ -460,6 +491,13 @@ public abstract class Option {
         ACCESSIBILITY_TOOLTIP_DARK_MOJANG_BACKGROUND,
         param0 -> param0.darkMojangStudiosBackground,
         (param0, param1, param2) -> param0.darkMojangStudiosBackground = param2
+    );
+    private static final Component ACCESSIBILITY_TOOLTIP_HIDE_LIGHTNING_FLASHES = new TranslatableComponent("options.hideLightningFlashes.tooltip");
+    public static final CycleOption<Boolean> HIDE_LIGHTNING_FLASH = CycleOption.createOnOff(
+        "options.hideLightningFlashes",
+        ACCESSIBILITY_TOOLTIP_HIDE_LIGHTNING_FLASHES,
+        param0 -> param0.hideLightningFlashes,
+        (param0, param1, param2) -> param0.hideLightningFlashes = param2
     );
     private final Component caption;
 

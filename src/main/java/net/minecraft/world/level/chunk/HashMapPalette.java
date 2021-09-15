@@ -1,29 +1,32 @@
 package net.minecraft.world.level.chunk;
 
-import java.util.function.Function;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Predicate;
-import javax.annotation.Nullable;
-import net.minecraft.core.IdMapper;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
+import net.minecraft.core.IdMap;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.CrudeIncrementalIntIdentityHashBiMap;
 
 public class HashMapPalette<T> implements Palette<T> {
-    private final IdMapper<T> registry;
+    private final IdMap<T> registry;
     private final CrudeIncrementalIntIdentityHashBiMap<T> values;
     private final PaletteResize<T> resizeHandler;
-    private final Function<CompoundTag, T> reader;
-    private final Function<T, CompoundTag> writer;
     private final int bits;
 
-    public HashMapPalette(IdMapper<T> param0, int param1, PaletteResize<T> param2, Function<CompoundTag, T> param3, Function<T, CompoundTag> param4) {
+    public HashMapPalette(IdMap<T> param0, int param1, PaletteResize<T> param2, List<T> param3) {
+        this(param0, param1, param2);
+        param3.forEach(this.values::add);
+    }
+
+    public HashMapPalette(IdMap<T> param0, int param1, PaletteResize<T> param2) {
         this.registry = param0;
         this.bits = param1;
         this.resizeHandler = param2;
-        this.reader = param3;
-        this.writer = param4;
-        this.values = new CrudeIncrementalIntIdentityHashBiMap<>(1 << param1);
+        this.values = CrudeIncrementalIntIdentityHashBiMap.create(1 << param1);
+    }
+
+    public static <A> Palette<A> create(int param0, IdMap<A> param1, PaletteResize<A> param2) {
+        return new HashMapPalette<>(param1, param0, param2);
     }
 
     @Override
@@ -50,10 +53,14 @@ public class HashMapPalette<T> implements Palette<T> {
         return false;
     }
 
-    @Nullable
     @Override
     public T valueFor(int param0) {
-        return this.values.byId(param0);
+        T var0 = this.values.byId(param0);
+        if (var0 == null) {
+            throw new MissingPaletteEntryException(param0);
+        } else {
+            return var0;
+        }
     }
 
     @Override
@@ -89,25 +96,14 @@ public class HashMapPalette<T> implements Palette<T> {
         return var0;
     }
 
+    public List<T> getEntries() {
+        ArrayList<T> var0 = new ArrayList<>();
+        this.values.iterator().forEachRemaining(var0::add);
+        return var0;
+    }
+
     @Override
     public int getSize() {
         return this.values.size();
-    }
-
-    @Override
-    public void read(ListTag param0) {
-        this.values.clear();
-
-        for(int var0 = 0; var0 < param0.size(); ++var0) {
-            this.values.add(this.reader.apply(param0.getCompound(var0)));
-        }
-
-    }
-
-    public void write(ListTag param0) {
-        for(int var0 = 0; var0 < this.getSize(); ++var0) {
-            param0.add(this.writer.apply(this.values.byId(var0)));
-        }
-
     }
 }

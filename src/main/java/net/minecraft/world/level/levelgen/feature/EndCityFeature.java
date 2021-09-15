@@ -4,7 +4,9 @@ import com.google.common.collect.Lists;
 import com.mojang.serialization.Codec;
 import java.util.List;
 import java.util.Random;
+import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.QuartPos;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
@@ -38,12 +40,11 @@ public class EndCityFeature extends StructureFeature<NoneFeatureConfiguration> {
         long param2,
         WorldgenRandom param3,
         ChunkPos param4,
-        Biome param5,
-        ChunkPos param6,
-        NoneFeatureConfiguration param7,
-        LevelHeightAccessor param8
+        ChunkPos param5,
+        NoneFeatureConfiguration param6,
+        LevelHeightAccessor param7
     ) {
-        return getYPositionForFeature(param4, param0, param8) >= 60;
+        return getYPositionForFeature(param4, param0, param7) >= 60;
     }
 
     @Override
@@ -84,17 +85,19 @@ public class EndCityFeature extends StructureFeature<NoneFeatureConfiguration> {
             ChunkGenerator param1,
             StructureManager param2,
             ChunkPos param3,
-            Biome param4,
-            NoneFeatureConfiguration param5,
-            LevelHeightAccessor param6
+            NoneFeatureConfiguration param4,
+            LevelHeightAccessor param5,
+            Predicate<Biome> param6
         ) {
             Rotation var0 = Rotation.getRandom(this.random);
-            int var1 = EndCityFeature.getYPositionForFeature(param3, param1, param6);
+            int var1 = EndCityFeature.getYPositionForFeature(param3, param1, param5);
             if (var1 >= 60) {
                 BlockPos var2 = param3.getMiddleBlockPosition(var1);
-                List<StructurePiece> var3 = Lists.newArrayList();
-                EndCityPieces.startHouseTower(param2, var2, var0, var3, this.random);
-                var3.forEach(this::addPiece);
+                if (param6.test(param1.getNoiseBiome(QuartPos.fromBlock(var2.getX()), QuartPos.fromBlock(var2.getY()), QuartPos.fromBlock(var2.getZ())))) {
+                    List<StructurePiece> var3 = Lists.newArrayList();
+                    EndCityPieces.startHouseTower(param2, var2, var0, var3, this.random);
+                    var3.forEach(this::addPiece);
+                }
             }
         }
     }

@@ -111,6 +111,7 @@ public abstract class TemplateStructurePiece extends StructurePiece {
 
     protected abstract void handleDataMarker(String var1, BlockPos var2, ServerLevelAccessor var3, Random var4, BoundingBox var5);
 
+    @Deprecated
     @Override
     public void move(int param0, int param1, int param2) {
         super.move(param0, param1, param2);

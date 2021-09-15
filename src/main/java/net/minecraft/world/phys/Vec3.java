@@ -223,6 +223,13 @@ public class Vec3 implements Position {
         return param0.choose(this.x, this.y, this.z);
     }
 
+    public Vec3 with(Direction.Axis param0, double param1) {
+        double var0 = param0 == Direction.Axis.X ? param1 : this.x;
+        double var1 = param0 == Direction.Axis.Y ? param1 : this.y;
+        double var2 = param0 == Direction.Axis.Z ? param1 : this.z;
+        return new Vec3(var0, var1, var2);
+    }
+
     @Override
     public final double x() {
         return this.x;

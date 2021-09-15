@@ -22,7 +22,7 @@ public class ClientboundSetDisplayObjectivePacket implements Packet<ClientGamePa
 
     public ClientboundSetDisplayObjectivePacket(FriendlyByteBuf param0) {
         this.slot = param0.readByte();
-        this.objectiveName = param0.readUtf(16);
+        this.objectiveName = param0.readUtf();
     }
 
     @Override

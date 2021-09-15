@@ -62,24 +62,21 @@ public class ConduitBlockEntity extends BlockEntity {
     }
 
     @Override
-    public CompoundTag save(CompoundTag param0) {
-        super.save(param0);
+    protected void saveAdditional(CompoundTag param0) {
+        super.saveAdditional(param0);
         if (this.destroyTarget != null) {
             param0.putUUID("Target", this.destroyTarget.getUUID());
         }
 
-        return param0;
     }
 
-    @Nullable
-    @Override
     public ClientboundBlockEntityDataPacket getUpdatePacket() {
-        return new ClientboundBlockEntityDataPacket(this.worldPosition, 5, this.getUpdateTag());
+        return ClientboundBlockEntityDataPacket.create(this);
     }
 
     @Override
     public CompoundTag getUpdateTag() {
-        return this.save(new CompoundTag());
+        return this.saveWithoutMetadata();
     }
 
     public static void clientTick(Level param0, BlockPos param1, BlockState param2, ConduitBlockEntity param3) {

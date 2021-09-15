@@ -19,24 +19,29 @@ public class SoundOptionsScreen extends OptionsSubScreen {
 
     @Override
     protected void init() {
-        int var0 = 0;
-        this.addRenderableWidget(
-            new VolumeSlider(this.minecraft, this.width / 2 - 155 + var0 % 2 * 160, this.height / 6 - 12 + 24 * (var0 >> 1), SoundSource.MASTER, 310)
-        );
-        var0 += 2;
+        int var0 = this.height / 6 - 12;
+        int var1 = 22;
+        int var2 = 0;
+        this.addRenderableWidget(new VolumeSlider(this.minecraft, this.width / 2 - 155 + var2 % 2 * 160, var0 + 22 * (var2 >> 1), SoundSource.MASTER, 310));
+        var2 += 2;
 
-        for(SoundSource var1 : SoundSource.values()) {
-            if (var1 != SoundSource.MASTER) {
-                this.addRenderableWidget(
-                    new VolumeSlider(this.minecraft, this.width / 2 - 155 + var0 % 2 * 160, this.height / 6 - 12 + 24 * (var0 >> 1), var1, 150)
-                );
-                ++var0;
+        for(SoundSource var3 : SoundSource.values()) {
+            if (var3 != SoundSource.MASTER) {
+                this.addRenderableWidget(new VolumeSlider(this.minecraft, this.width / 2 - 155 + var2 % 2 * 160, var0 + 22 * (var2 >> 1), var3, 150));
+                ++var2;
             }
         }
 
-        this.addRenderableWidget(Option.SHOW_SUBTITLES.createButton(this.options, this.width / 2 - 75, this.height / 6 - 12 + 24 * (++var0 >> 1), 150));
+        if (var2 % 2 == 1) {
+            ++var2;
+        }
+
+        this.addRenderableWidget(Option.AUDIO_DEVICE.createButton(this.options, this.width / 2 - 155, var0 + 22 * (var2 >> 1), 310));
+        var2 += 2;
+        this.addRenderableWidget(Option.SHOW_SUBTITLES.createButton(this.options, this.width / 2 - 75, var0 + 22 * (var2 >> 1), 150));
+        var2 += 2;
         this.addRenderableWidget(
-            new Button(this.width / 2 - 100, this.height / 6 + 168, 200, 20, CommonComponents.GUI_DONE, param0 -> this.minecraft.setScreen(this.lastScreen))
+            new Button(this.width / 2 - 100, var0 + 22 * (var2 >> 1), 200, 20, CommonComponents.GUI_DONE, param0 -> this.minecraft.setScreen(this.lastScreen))
         );
     }
 

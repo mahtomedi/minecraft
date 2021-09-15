@@ -36,7 +36,6 @@ import org.apache.logging.log4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class IntegratedServer extends MinecraftServer {
-    public static final int CLIENT_VIEW_DISTANCE_OFFSET = -1;
     private static final Logger LOGGER = LogManager.getLogger();
     private final Minecraft minecraft;
     private boolean paused;
@@ -95,7 +94,7 @@ public class IntegratedServer extends MinecraftServer {
             this.tickPaused();
         } else {
             super.tickServer(param0);
-            int var2 = Math.max(2, this.minecraft.options.renderDistance + -1);
+            int var2 = Math.max(2, this.minecraft.options.renderDistance);
             if (var2 != this.getPlayerList().getViewDistance()) {
                 LOGGER.info("Changing view distance to {}, from {}", var2, this.getPlayerList().getViewDistance());
                 this.getPlayerList().setViewDistance(var2);

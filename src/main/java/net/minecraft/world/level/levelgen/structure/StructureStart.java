@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
+import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
@@ -34,9 +35,9 @@ public abstract class StructureStart<C extends FeatureConfiguration> implements 
             ChunkGenerator param1,
             StructureManager param2,
             ChunkPos param3,
-            Biome param4,
-            MineshaftConfiguration param5,
-            LevelHeightAccessor param6
+            MineshaftConfiguration param4,
+            LevelHeightAccessor param5,
+            Predicate<Biome> param6
         ) {
         }
 
@@ -62,7 +63,7 @@ public abstract class StructureStart<C extends FeatureConfiguration> implements 
     }
 
     public abstract void generatePieces(
-        RegistryAccess var1, ChunkGenerator var2, StructureManager var3, ChunkPos var4, Biome var5, C var6, LevelHeightAccessor var7
+        RegistryAccess var1, ChunkGenerator var2, StructureManager var3, ChunkPos var4, C var5, LevelHeightAccessor var6, Predicate<Biome> var7
     );
 
     public final BoundingBox getBoundingBox() {
@@ -84,7 +85,15 @@ public abstract class StructureStart<C extends FeatureConfiguration> implements 
         return this.pieces;
     }
 
-    public void placeInChunk(WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5) {
+    public void placeInChunk(
+        WorldGenLevel param0,
+        StructureFeatureManager param1,
+        ChunkGenerator param2,
+        Random param3,
+        Predicate<Biome> param4,
+        BoundingBox param5,
+        ChunkPos param6
+    ) {
         synchronized(this.pieces) {
             if (!this.pieces.isEmpty()) {
                 BoundingBox var0 = this.pieces.get(0).boundingBox;
@@ -94,7 +103,7 @@ public abstract class StructureStart<C extends FeatureConfiguration> implements 
 
                 while(var3.hasNext()) {
                     StructurePiece var4 = var3.next();
-                    if (var4.getBoundingBox().intersects(param4) && !var4.postProcess(param0, param1, param2, param3, param4, param5, var2)) {
+                    if (var4.getBoundingBox().intersects(param5) && !var4.postProcess(param0, param1, param2, param3, param5, param6, var2)) {
                         var3.remove();
                     }
                 }
@@ -125,6 +134,7 @@ public abstract class StructureStart<C extends FeatureConfiguration> implements 
         }
     }
 
+    @Deprecated
     protected void moveBelowSeaLevel(int param0, int param1, Random param2, int param3) {
         int var0 = param0 - param3;
         BoundingBox var1 = this.getBoundingBox();
@@ -137,6 +147,7 @@ public abstract class StructureStart<C extends FeatureConfiguration> implements 
         this.offsetPiecesVertically(var3);
     }
 
+    @Deprecated
     protected void moveInsideHeights(Random param0, int param1, int param2) {
         BoundingBox var0 = this.getBoundingBox();
         int var1 = param2 - param1 + 1 - var0.getYSpan();
@@ -151,6 +162,7 @@ public abstract class StructureStart<C extends FeatureConfiguration> implements 
         this.offsetPiecesVertically(var4);
     }
 
+    @Deprecated
     protected void offsetPiecesVertically(int param0) {
         for(StructurePiece var0 : this.pieces) {
             var0.move(0, param0, 0);

@@ -1,10 +1,10 @@
 package net.minecraft.world.level.storage;
 
-import com.mojang.bridge.game.GameVersion;
 import java.io.File;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.SharedConstants;
+import net.minecraft.WorldVersion;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
@@ -18,7 +18,7 @@ public class LevelSummary implements Comparable<LevelSummary> {
     private final LevelSettings settings;
     private final LevelVersion levelVersion;
     private final String levelId;
-    private final boolean requiresConversion;
+    private final boolean requiresManualConversion;
     private final boolean locked;
     private final File icon;
     @Nullable
@@ -30,7 +30,7 @@ public class LevelSummary implements Comparable<LevelSummary> {
         this.levelId = param2;
         this.locked = param4;
         this.icon = param5;
-        this.requiresConversion = param3;
+        this.requiresManualConversion = param3;
     }
 
     public String getLevelId() {
@@ -45,8 +45,8 @@ public class LevelSummary implements Comparable<LevelSummary> {
         return this.icon;
     }
 
-    public boolean isRequiresConversion() {
-        return this.requiresConversion;
+    public boolean requiresManualConversion() {
+        return this.requiresManualConversion;
     }
 
     public long getLastPlayed() {
@@ -92,13 +92,13 @@ public class LevelSummary implements Comparable<LevelSummary> {
     }
 
     public boolean askToOpenWorld() {
-        return this.levelVersion.minecraftVersion() > SharedConstants.getCurrentVersion().getWorldVersion();
+        return this.levelVersion.minecraftVersion().getVersion() > SharedConstants.getCurrentVersion().getDataVersion().getVersion();
     }
 
     public LevelSummary.BackupStatus backupStatus() {
-        GameVersion var0 = SharedConstants.getCurrentVersion();
-        int var1 = var0.getWorldVersion();
-        int var2 = this.levelVersion.minecraftVersion();
+        WorldVersion var0 = SharedConstants.getCurrentVersion();
+        int var1 = var0.getDataVersion().getVersion();
+        int var2 = this.levelVersion.minecraftVersion().getVersion();
         if (!var0.isStable() && var2 < var1) {
             return LevelSummary.BackupStatus.UPGRADE_TO_SNAPSHOT;
         } else {
@@ -111,13 +111,19 @@ public class LevelSummary implements Comparable<LevelSummary> {
     }
 
     public boolean isIncompatibleWorldHeight() {
-        int var0 = this.levelVersion.minecraftVersion();
-        boolean var1 = var0 > 2692 && var0 <= 2706;
-        return var1;
+        return this.levelVersion.minecraftVersion().isInExtendedWorldHeightSegment();
     }
 
     public boolean isDisabled() {
-        return this.isLocked() || this.isIncompatibleWorldHeight();
+        if (!this.isLocked() && !this.requiresManualConversion()) {
+            return !this.isCompatible();
+        } else {
+            return true;
+        }
+    }
+
+    public boolean isCompatible() {
+        return this.levelVersion.minecraftVersion().isCompatible(SharedConstants.getCurrentVersion().getDataVersion());
     }
 
     public Component getInfo() {
@@ -131,10 +137,12 @@ public class LevelSummary implements Comparable<LevelSummary> {
     private Component createInfo() {
         if (this.isLocked()) {
             return new TranslatableComponent("selectWorld.locked").withStyle(ChatFormatting.RED);
+        } else if (this.requiresManualConversion()) {
+            return new TranslatableComponent("selectWorld.conversion").withStyle(ChatFormatting.RED);
         } else if (this.isIncompatibleWorldHeight()) {
             return new TranslatableComponent("selectWorld.pre_worldheight").withStyle(ChatFormatting.RED);
-        } else if (this.isRequiresConversion()) {
-            return new TranslatableComponent("selectWorld.conversion");
+        } else if (!this.levelVersion.minecraftVersion().isSameSeries(SharedConstants.getCurrentVersion().getDataVersion())) {
+            return new TranslatableComponent("selectWorld.incompatible_series").withStyle(ChatFormatting.RED);
         } else {
             MutableComponent var0 = (MutableComponent)(this.isHardcore()
                 ? new TextComponent("").append(new TranslatableComponent("gameMode.hardcore").withStyle(ChatFormatting.DARK_RED))

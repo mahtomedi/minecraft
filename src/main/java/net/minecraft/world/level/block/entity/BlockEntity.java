@@ -5,8 +5,11 @@ import net.minecraft.CrashReportCategory;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import org.apache.logging.log4j.LogManager;
@@ -27,6 +30,10 @@ public abstract class BlockEntity {
         this.blockState = param2;
     }
 
+    public static BlockPos getPosFromTag(CompoundTag param0) {
+        return new BlockPos(param0.getInt("x"), param0.getInt("y"), param0.getInt("z"));
+    }
+
     @Nullable
     public Level getLevel() {
         return this.level;
@@ -43,21 +50,49 @@ public abstract class BlockEntity {
     public void load(CompoundTag param0) {
     }
 
-    public CompoundTag save(CompoundTag param0) {
-        return this.saveMetadata(param0);
+    protected void saveAdditional(CompoundTag param0) {
     }
 
-    private CompoundTag saveMetadata(CompoundTag param0) {
+    public final CompoundTag saveWithFullMetadata() {
+        CompoundTag var0 = this.saveWithoutMetadata();
+        this.saveMetadata(var0);
+        return var0;
+    }
+
+    public final CompoundTag saveWithId() {
+        CompoundTag var0 = this.saveWithoutMetadata();
+        this.saveId(var0);
+        return var0;
+    }
+
+    public final CompoundTag saveWithoutMetadata() {
+        CompoundTag var0 = new CompoundTag();
+        this.saveAdditional(var0);
+        return var0;
+    }
+
+    private void saveId(CompoundTag param0) {
         ResourceLocation var0 = BlockEntityType.getKey(this.getType());
         if (var0 == null) {
             throw new RuntimeException(this.getClass() + " is missing a mapping! This is a bug!");
         } else {
             param0.putString("id", var0.toString());
-            param0.putInt("x", this.worldPosition.getX());
-            param0.putInt("y", this.worldPosition.getY());
-            param0.putInt("z", this.worldPosition.getZ());
-            return param0;
         }
+    }
+
+    public static void addEntityType(CompoundTag param0, BlockEntityType<?> param1) {
+        param0.putString("id", BlockEntityType.getKey(param1).toString());
+    }
+
+    public void saveToItem(ItemStack param0) {
+        BlockItem.setBlockEntityData(param0, this.getType(), this.saveWithoutMetadata());
+    }
+
+    private void saveMetadata(CompoundTag param0) {
+        this.saveId(param0);
+        param0.putInt("x", this.worldPosition.getX());
+        param0.putInt("y", this.worldPosition.getY());
+        param0.putInt("z", this.worldPosition.getZ());
     }
 
     @Nullable
@@ -114,12 +149,12 @@ public abstract class BlockEntity {
     }
 
     @Nullable
-    public ClientboundBlockEntityDataPacket getUpdatePacket() {
+    public Packet<ClientGamePacketListener> getUpdatePacket() {
         return null;
     }
 
     public CompoundTag getUpdateTag() {
-        return this.saveMetadata(new CompoundTag());
+        return new CompoundTag();
     }
 
     public boolean isRemoved() {

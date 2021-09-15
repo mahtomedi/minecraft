@@ -4,23 +4,22 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.BitSet;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.function.BooleanSupplier;
+import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.game.ClientboundLevelChunkPacketData;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LightLayer;
-import net.minecraft.world.level.chunk.ChunkBiomeContainer;
 import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.EmptyLevelChunk;
 import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -85,7 +84,9 @@ public class ClientChunkCache extends ChunkSource {
     }
 
     @Nullable
-    public LevelChunk replaceWithPacketData(int param0, int param1, ChunkBiomeContainer param2, FriendlyByteBuf param3, CompoundTag param4, BitSet param5) {
+    public LevelChunk replaceWithPacketData(
+        int param0, int param1, FriendlyByteBuf param2, CompoundTag param3, Consumer<ClientboundLevelChunkPacketData.BlockEntityTagOutput> param4
+    ) {
         if (!this.storage.inRange(param0, param1)) {
             LOGGER.warn("Ignoring chunk since it's not in the view range: {}, {}", param0, param1);
             return null;
@@ -94,21 +95,11 @@ public class ClientChunkCache extends ChunkSource {
             LevelChunk var1 = this.storage.chunks.get(var0);
             ChunkPos var2 = new ChunkPos(param0, param1);
             if (!isValidChunk(var1, param0, param1)) {
-                var1 = new LevelChunk(this.level, var2, param2);
-                var1.replaceWithPacketData(param2, param3, param4, param5);
+                var1 = new LevelChunk(this.level, var2);
+                var1.replaceWithPacketData(param2, param3, param4);
                 this.storage.replace(var0, var1);
             } else {
-                var1.replaceWithPacketData(param2, param3, param4, param5);
-            }
-
-            LevelChunkSection[] var3 = var1.getSections();
-            LevelLightEngine var4 = this.getLightEngine();
-            var4.enableLightSources(var2, true);
-
-            for(int var5 = 0; var5 < var3.length; ++var5) {
-                LevelChunkSection var6 = var3[var5];
-                int var7 = this.level.getSectionYFromSectionIndex(var5);
-                var4.updateSectionStatus(SectionPos.of(param0, var7, param1), LevelChunkSection.isEmpty(var6));
+                var1.replaceWithPacketData(param2, param3, param4);
             }
 
             this.level.onChunkLoaded(var2);

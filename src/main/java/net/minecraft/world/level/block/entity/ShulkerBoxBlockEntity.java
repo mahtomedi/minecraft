@@ -199,9 +199,12 @@ public class ShulkerBoxBlockEntity extends RandomizableContainerBlockEntity impl
     }
 
     @Override
-    public CompoundTag save(CompoundTag param0) {
-        super.save(param0);
-        return this.saveToTag(param0);
+    protected void saveAdditional(CompoundTag param0) {
+        super.saveAdditional(param0);
+        if (!this.trySaveLootTable(param0)) {
+            ContainerHelper.saveAllItems(param0, this.itemStacks, false);
+        }
+
     }
 
     public void loadFromTag(CompoundTag param0) {
@@ -210,14 +213,6 @@ public class ShulkerBoxBlockEntity extends RandomizableContainerBlockEntity impl
             ContainerHelper.loadAllItems(param0, this.itemStacks);
         }
 
-    }
-
-    public CompoundTag saveToTag(CompoundTag param0) {
-        if (!this.trySaveLootTable(param0)) {
-            ContainerHelper.saveAllItems(param0, this.itemStacks, false);
-        }
-
-        return param0;
     }
 
     @Override

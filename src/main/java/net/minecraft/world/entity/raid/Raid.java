@@ -44,6 +44,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -51,6 +52,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.NaturalSpawner;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BannerPattern;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
 
@@ -599,7 +601,7 @@ public class Raid {
 
     public static ItemStack getLeaderBannerInstance() {
         ItemStack var0 = new ItemStack(Items.WHITE_BANNER);
-        CompoundTag var1 = var0.getOrCreateTagElement("BlockEntityTag");
+        CompoundTag var1 = new CompoundTag();
         ListTag var2 = new BannerPattern.Builder()
             .addPattern(BannerPattern.RHOMBUS_MIDDLE, DyeColor.CYAN)
             .addPattern(BannerPattern.STRIPE_BOTTOM, DyeColor.LIGHT_GRAY)
@@ -611,6 +613,7 @@ public class Raid {
             .addPattern(BannerPattern.BORDER, DyeColor.BLACK)
             .toListTag();
         var1.put("Patterns", var2);
+        BlockItem.setBlockEntityData(var0, BlockEntityType.BANNER, var1);
         var0.hideTooltipPart(ItemStack.TooltipPart.ADDITIONAL);
         var0.setHoverName(new TranslatableComponent("block.minecraft.ominous_banner").withStyle(ChatFormatting.GOLD));
         return var0;

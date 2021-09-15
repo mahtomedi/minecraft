@@ -152,7 +152,7 @@ public class ThreadedLevelLightEngine extends LevelLightEngine implements AutoCl
 
             for(int var1x = 0; var1x < param0.getSectionsCount(); ++var1x) {
                 LevelChunkSection var2x = var0x[var1x];
-                if (!LevelChunkSection.isEmpty(var2x)) {
+                if (!var2x.hasOnlyAir()) {
                     int var3x = this.levelHeightAccessor.getSectionYFromSectionIndex(var1x);
                     super.updateSectionStatus(SectionPos.of(var0, var3x), false);
                 }

@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
-import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
@@ -85,14 +84,13 @@ public class JigsawBlockEntity extends BlockEntity {
     }
 
     @Override
-    public CompoundTag save(CompoundTag param0) {
-        super.save(param0);
+    protected void saveAdditional(CompoundTag param0) {
+        super.saveAdditional(param0);
         param0.putString("name", this.name.toString());
         param0.putString("target", this.target.toString());
         param0.putString("pool", this.pool.toString());
         param0.putString("final_state", this.finalState);
         param0.putString("joint", this.joint.getSerializedName());
-        return param0;
     }
 
     @Override
@@ -110,15 +108,13 @@ public class JigsawBlockEntity extends BlockEntity {
             );
     }
 
-    @Nullable
-    @Override
     public ClientboundBlockEntityDataPacket getUpdatePacket() {
-        return new ClientboundBlockEntityDataPacket(this.worldPosition, 12, this.getUpdateTag());
+        return ClientboundBlockEntityDataPacket.create(this);
     }
 
     @Override
     public CompoundTag getUpdateTag() {
-        return this.save(new CompoundTag());
+        return this.saveWithoutMetadata();
     }
 
     public void generate(ServerLevel param0, int param1, boolean param2) {

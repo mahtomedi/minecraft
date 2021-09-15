@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Random;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -52,7 +53,11 @@ public class ConfiguredFeature<FC extends FeatureConfiguration, F extends Featur
     }
 
     public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3) {
-        return this.feature.place(new FeaturePlaceContext<>(param0, param1, param2, param3, this.config));
+        return this.feature.place(new FeaturePlaceContext<>(Optional.empty(), param0, param1, param2, param3, this.config));
+    }
+
+    public boolean placeWithBiomeCheck(Optional<ConfiguredFeature<?, ?>> param0, WorldGenLevel param1, ChunkGenerator param2, Random param3, BlockPos param4) {
+        return this.feature.place(new FeaturePlaceContext<>(param0, param1, param2, param3, param4, this.config));
     }
 
     public Stream<ConfiguredFeature<?, ?>> getFeatures() {

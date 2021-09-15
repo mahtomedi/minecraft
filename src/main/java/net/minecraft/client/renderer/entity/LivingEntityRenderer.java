@@ -78,6 +78,11 @@ public abstract class LivingEntityRenderer<T extends LivingEntity, M extends Ent
         }
 
         float var5 = Mth.lerp(param2, param0.xRotO, param0.getXRot());
+        if (isEntityUpsideDown(param0)) {
+            var5 *= -1.0F;
+            var2 *= -1.0F;
+        }
+
         if (param0.getPose() == Pose.SLEEPING) {
             Direction var6 = param0.getBedOrientation();
             if (var6 != null) {
@@ -194,14 +199,9 @@ public abstract class LivingEntityRenderer<T extends LivingEntity, M extends Ent
             param1.mulPose(Vector3f.YP.rotationDegrees(var3));
             param1.mulPose(Vector3f.ZP.rotationDegrees(this.getFlipDegrees(param0)));
             param1.mulPose(Vector3f.YP.rotationDegrees(270.0F));
-        } else if (param0.hasCustomName() || param0 instanceof Player) {
-            String var4 = ChatFormatting.stripFormatting(param0.getName().getString());
-            if (("Dinnerbone".equals(var4) || "Grumm".equals(var4)) && (!(param0 instanceof Player) || ((Player)param0).isModelPartShown(PlayerModelPart.CAPE))
-                )
-             {
-                param1.translate(0.0, (double)(param0.getBbHeight() + 0.1F), 0.0);
-                param1.mulPose(Vector3f.ZP.rotationDegrees(180.0F));
-            }
+        } else if (isEntityUpsideDown(param0)) {
+            param1.translate(0.0, (double)(param0.getBbHeight() + 0.1F), 0.0);
+            param1.mulPose(Vector3f.ZP.rotationDegrees(180.0F));
         }
 
     }
@@ -256,5 +256,16 @@ public abstract class LivingEntityRenderer<T extends LivingEntity, M extends Ent
 
             return Minecraft.renderNames() && param0 != var2.getCameraEntity() && var4 && !param0.isVehicle();
         }
+    }
+
+    public static boolean isEntityUpsideDown(LivingEntity param0) {
+        if (param0 instanceof Player || param0.hasCustomName()) {
+            String var0 = ChatFormatting.stripFormatting(param0.getName().getString());
+            if ("Dinnerbone".equals(var0) || "Grumm".equals(var0)) {
+                return !(param0 instanceof Player) || ((Player)param0).isModelPartShown(PlayerModelPart.CAPE);
+            }
+        }
+
+        return false;
     }
 }

@@ -165,7 +165,7 @@ public class EntityType<T extends Entity> implements EntityTypeTest<Entity, T> {
         "arrow", EntityType.Builder.<Arrow>of(Arrow::new, MobCategory.MISC).sized(0.5F, 0.5F).clientTrackingRange(4).updateInterval(20)
     );
     public static final EntityType<Axolotl> AXOLOTL = register(
-        "axolotl", EntityType.Builder.<Axolotl>of(Axolotl::new, MobCategory.UNDERGROUND_WATER_CREATURE).sized(0.75F, 0.42F).clientTrackingRange(10)
+        "axolotl", EntityType.Builder.<Axolotl>of(Axolotl::new, MobCategory.AXOLOTLS).sized(0.75F, 0.42F).clientTrackingRange(10)
     );
     public static final EntityType<Bat> BAT = register(
         "bat", EntityType.Builder.<Bat>of(Bat::new, MobCategory.AMBIENT).sized(0.5F, 0.9F).clientTrackingRange(5)

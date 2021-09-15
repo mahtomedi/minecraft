@@ -3,16 +3,13 @@ package net.minecraft.world.level.levelgen.surfacebuilders;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import java.util.Random;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.BlockColumn;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.synth.PerlinNoise;
 
 public class NetherForestSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBaseConfiguration> {
-    private static final BlockState AIR = Blocks.CAVE_AIR.defaultBlockState();
     protected long seed;
     private PerlinNoise decorationNoise;
 
@@ -22,7 +19,7 @@ public class NetherForestSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBas
 
     public void apply(
         Random param0,
-        ChunkAccess param1,
+        BlockColumn param1,
         Biome param2,
         int param3,
         int param4,
@@ -35,51 +32,46 @@ public class NetherForestSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBas
         long param11,
         SurfaceBuilderBaseConfiguration param12
     ) {
-        int var0 = param9;
-        int var1 = param3 & 15;
-        int var2 = param4 & 15;
-        double var3 = this.decorationNoise.getValue((double)param3 * 0.1, (double)param9, (double)param4 * 0.1);
-        boolean var4 = var3 > 0.15 + param0.nextDouble() * 0.35;
-        double var5 = this.decorationNoise.getValue((double)param3 * 0.1, 109.0, (double)param4 * 0.1);
-        boolean var6 = var5 > 0.25 + param0.nextDouble() * 0.9;
-        int var7 = (int)(param6 / 3.0 + 3.0 + param0.nextDouble() * 0.25);
-        BlockPos.MutableBlockPos var8 = new BlockPos.MutableBlockPos();
-        int var9 = -1;
-        BlockState var10 = param12.getUnderMaterial();
+        double var0 = this.decorationNoise.getValue((double)param3 * 0.1, (double)param9, (double)param4 * 0.1);
+        boolean var1 = var0 > 0.15 + param0.nextDouble() * 0.35;
+        double var2 = this.decorationNoise.getValue((double)param3 * 0.1, 109.0, (double)param4 * 0.1);
+        boolean var3 = var2 > 0.25 + param0.nextDouble() * 0.9;
+        int var4 = (int)(param6 / 3.0 + 3.0 + param0.nextDouble() * 0.25);
+        int var5 = -1;
+        BlockState var6 = param12.getUnderMaterial();
 
-        for(int var11 = 127; var11 >= param10; --var11) {
-            var8.set(var1, var11, var2);
-            BlockState var12 = param12.getTopMaterial();
-            BlockState var13 = param1.getBlockState(var8);
-            if (var13.isAir()) {
-                var9 = -1;
-            } else if (var13.is(param7.getBlock())) {
-                if (var9 == -1) {
-                    boolean var14 = false;
-                    if (var7 <= 0) {
-                        var14 = true;
-                        var10 = param12.getUnderMaterial();
+        for(int var7 = 127; var7 >= param10; --var7) {
+            BlockState var8 = param12.getTopMaterial();
+            BlockState var9 = param1.getBlock(var7);
+            if (var9.isAir()) {
+                var5 = -1;
+            } else if (var9.is(param7.getBlock())) {
+                if (var5 == -1) {
+                    boolean var10 = false;
+                    if (var4 <= 0) {
+                        var10 = true;
+                        var6 = param12.getUnderMaterial();
                     }
 
-                    if (var4) {
-                        var12 = param12.getUnderMaterial();
-                    } else if (var6) {
-                        var12 = param12.getUnderwaterMaterial();
+                    if (var1) {
+                        var8 = param12.getUnderMaterial();
+                    } else if (var3) {
+                        var8 = param12.getUnderwaterMaterial();
                     }
 
-                    if (var11 < var0 && var14) {
-                        var12 = param8;
+                    if (var7 < param9 && var10) {
+                        var8 = param8;
                     }
 
-                    var9 = var7;
-                    if (var11 >= var0 - 1) {
-                        param1.setBlockState(var8, var12, false);
+                    var5 = var4;
+                    if (var7 >= param9 - 1) {
+                        param1.setBlock(var7, var8);
                     } else {
-                        param1.setBlockState(var8, var10, false);
+                        param1.setBlock(var7, var6);
                     }
-                } else if (var9 > 0) {
-                    --var9;
-                    param1.setBlockState(var8, var10, false);
+                } else if (var5 > 0) {
+                    --var5;
+                    param1.setBlock(var7, var6);
                 }
             }
         }

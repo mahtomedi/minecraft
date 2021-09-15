@@ -15,6 +15,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ExtraCodecs;
+import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.biome.MultiNoiseBiomeSource;
 import net.minecraft.world.level.biome.TheEndBiomeSource;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -102,13 +103,18 @@ public final class LevelStem {
                     return false;
                 } else {
                     MultiNoiseBiomeSource var6 = (MultiNoiseBiomeSource)var4.getBiomeSource();
-                    if (!var6.stable(param0)) {
-                        return false;
-                    } else if (!(var5.getBiomeSource() instanceof TheEndBiomeSource)) {
+                    if (!var6.stable(MultiNoiseBiomeSource.Preset.NETHER)) {
                         return false;
                     } else {
-                        TheEndBiomeSource var7 = (TheEndBiomeSource)var5.getBiomeSource();
-                        return var7.stable(param0);
+                        BiomeSource var7 = var1.getValue().generator().getBiomeSource();
+                        if (var7 instanceof MultiNoiseBiomeSource && !((MultiNoiseBiomeSource)var7).stable(MultiNoiseBiomeSource.Preset.OVERWORLD)) {
+                            return false;
+                        } else if (!(var5.getBiomeSource() instanceof TheEndBiomeSource)) {
+                            return false;
+                        } else {
+                            TheEndBiomeSource var8 = (TheEndBiomeSource)var5.getBiomeSource();
+                            return var8.stable(param0);
+                        }
                     }
                 }
             } else {

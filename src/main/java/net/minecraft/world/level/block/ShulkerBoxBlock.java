@@ -23,6 +23,7 @@ import net.minecraft.world.entity.monster.Shulker;
 import net.minecraft.world.entity.monster.piglin.PiglinAi;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -122,18 +123,14 @@ public class ShulkerBoxBlock extends BaseEntityBlock {
         if (var0 instanceof ShulkerBoxBlockEntity var1) {
             if (!param0.isClientSide && param3.isCreative() && !var1.isEmpty()) {
                 ItemStack var2 = getColoredItemStack(this.getColor());
-                CompoundTag var3 = var1.saveToTag(new CompoundTag());
-                if (!var3.isEmpty()) {
-                    var2.addTagElement("BlockEntityTag", var3);
-                }
-
+                var0.saveToItem(var2);
                 if (var1.hasCustomName()) {
                     var2.setHoverName(var1.getCustomName());
                 }
 
-                ItemEntity var4 = new ItemEntity(param0, (double)param1.getX() + 0.5, (double)param1.getY() + 0.5, (double)param1.getZ() + 0.5, var2);
-                var4.setDefaultPickUpDelay();
-                param0.addFreshEntity(var4);
+                ItemEntity var3 = new ItemEntity(param0, (double)param1.getX() + 0.5, (double)param1.getY() + 0.5, (double)param1.getZ() + 0.5, var2);
+                var3.setDefaultPickUpDelay();
+                param0.addFreshEntity(var3);
             } else {
                 var1.unpackLootTable(param3);
             }
@@ -183,7 +180,7 @@ public class ShulkerBoxBlock extends BaseEntityBlock {
     @Override
     public void appendHoverText(ItemStack param0, @Nullable BlockGetter param1, List<Component> param2, TooltipFlag param3) {
         super.appendHoverText(param0, param1, param2, param3);
-        CompoundTag var0 = param0.getTagElement("BlockEntityTag");
+        CompoundTag var0 = BlockItem.getBlockEntityData(param0);
         if (var0 != null) {
             if (var0.contains("LootTable", 8)) {
                 param2.add(new TextComponent("???????"));
@@ -239,12 +236,7 @@ public class ShulkerBoxBlock extends BaseEntityBlock {
     @Override
     public ItemStack getCloneItemStack(BlockGetter param0, BlockPos param1, BlockState param2) {
         ItemStack var0 = super.getCloneItemStack(param0, param1, param2);
-        ShulkerBoxBlockEntity var1 = (ShulkerBoxBlockEntity)param0.getBlockEntity(param1);
-        CompoundTag var2 = var1.saveToTag(new CompoundTag());
-        if (!var2.isEmpty()) {
-            var0.addTagElement("BlockEntityTag", var2);
-        }
-
+        param0.getBlockEntity(param1, BlockEntityType.SHULKER_BOX).ifPresent(param1x -> param1x.saveToItem(var0));
         return var0;
     }
 

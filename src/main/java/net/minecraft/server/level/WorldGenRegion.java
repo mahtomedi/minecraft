@@ -88,7 +88,7 @@ public class WorldGenRegion implements WorldGenLevel {
             this.levelData = param0.getLevelData();
             this.random = param0.getRandom();
             this.dimensionType = param0.dimensionType();
-            this.biomeManager = new BiomeManager(this, BiomeManager.obfuscateSeed(this.seed), param0.dimensionType().getBiomeZoomer());
+            this.biomeManager = new BiomeManager(this, BiomeManager.obfuscateSeed(this.seed));
             this.firstPos = param1.get(0).getPos();
             this.lastPos = param1.get(param1.size() - 1).getPos();
             this.structureFeatureManager = param0.structureFeatureManager().forWorldGenRegion(this);
@@ -99,6 +99,7 @@ public class WorldGenRegion implements WorldGenLevel {
         return this.center;
     }
 
+    @Override
     public void setCurrentlyGenerating(@Nullable Supplier<String> param0) {
         this.currentlyGenerating = param0;
     }

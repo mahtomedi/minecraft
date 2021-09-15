@@ -5,8 +5,11 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Queues;
 import com.google.common.collect.Sets;
+import com.google.gson.JsonElement;
 import com.mojang.datafixers.DataFixer;
 import com.mojang.datafixers.util.Either;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.JsonOps;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ByteMap;
@@ -40,11 +43,11 @@ import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
 import net.minecraft.Util;
+import net.minecraft.core.Registry;
 import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientboundLevelChunkPacket;
-import net.minecraft.network.protocol.game.ClientboundLightUpdatePacket;
+import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
 import net.minecraft.network.protocol.game.ClientboundSetChunkCacheCenterPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityLinkPacket;
 import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
@@ -81,6 +84,7 @@ import net.minecraft.world.level.storage.DimensionDataStorage;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.mutable.MutableBoolean;
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -101,7 +105,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
     final ServerLevel level;
     private final ThreadedLevelLightEngine lightEngine;
     private final BlockableEventLoop<Runnable> mainThreadExecutor;
-    private final ChunkGenerator generator;
+    private ChunkGenerator generator;
     private final Supplier<DimensionDataStorage> overworldDataStorage;
     private final PoiManager poiManager;
     final LongSet toDrop = new LongOpenHashSet();
@@ -160,6 +164,16 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
         this.setViewDistance(param11);
     }
 
+    protected ChunkGenerator generator() {
+        return this.generator;
+    }
+
+    public void debugReloadGenerator() {
+        DataResult<JsonElement> var0 = ChunkGenerator.CODEC.encodeStart(JsonOps.INSTANCE, this.generator);
+        DataResult<ChunkGenerator> var1 = var0.flatMap(param0 -> ChunkGenerator.CODEC.parse(JsonOps.INSTANCE, param0));
+        var1.result().ifPresent(param0 -> this.generator = param0);
+    }
+
     private static double euclideanDistanceSquared(ChunkPos param0, Entity param1) {
         double var0 = (double)SectionPos.sectionToBlockCoord(param0.x, 8);
         double var1 = (double)SectionPos.sectionToBlockCoord(param0.z, 8);
@@ -168,7 +182,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
         return var2 * var2 + var3 * var3;
     }
 
-    private static int checkerboardDistance(ChunkPos param0, ServerPlayer param1, boolean param2) {
+    private static boolean isChunkInEuclideanRange(ChunkPos param0, ServerPlayer param1, boolean param2, int param3) {
         int var1;
         int var2;
         if (param2) {
@@ -180,17 +194,50 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
             var2 = SectionPos.blockToSectionCoord(param1.getBlockZ());
         }
 
-        return checkerboardDistance(param0, var1, var2);
+        return isChunkInEuclideanRange(param0, var1, var2, param3);
     }
 
-    private static int checkerboardDistance(ChunkPos param0, Entity param1) {
-        return checkerboardDistance(param0, SectionPos.blockToSectionCoord(param1.getBlockX()), SectionPos.blockToSectionCoord(param1.getBlockZ()));
+    private static boolean isChunkInEuclideanRange(ChunkPos param0, int param1, int param2, int param3) {
+        int var0 = param0.x;
+        int var1 = param0.z;
+        return isChunkInEuclideanRange(var0, var1, param1, param2, param3);
     }
 
-    private static int checkerboardDistance(ChunkPos param0, int param1, int param2) {
-        int var0 = param0.x - param1;
-        int var1 = param0.z - param2;
-        return Math.max(Math.abs(var0), Math.abs(var1));
+    public static boolean isChunkInEuclideanRange(int param0, int param1, int param2, int param3, int param4) {
+        int var0 = param0 - param2;
+        int var1 = param1 - param3;
+        int var2 = param4 * param4 + param4;
+        int var3 = var0 * var0 + var1 * var1;
+        return var3 <= var2;
+    }
+
+    private static boolean isChunkOnEuclideanBorder(ChunkPos param0, ServerPlayer param1, boolean param2, int param3) {
+        int var1;
+        int var2;
+        if (param2) {
+            SectionPos var0 = param1.getLastSectionPos();
+            var1 = var0.x();
+            var2 = var0.z();
+        } else {
+            var1 = SectionPos.blockToSectionCoord(param1.getBlockX());
+            var2 = SectionPos.blockToSectionCoord(param1.getBlockZ());
+        }
+
+        return isChunkOnEuclideanBorder(param0.x, param0.z, var1, var2, param3);
+    }
+
+    private static boolean isChunkOnEuclideanBorder(int param0, int param1, int param2, int param3, int param4) {
+        if (!isChunkInEuclideanRange(param0, param1, param2, param3, param4)) {
+            return false;
+        } else if (!isChunkInEuclideanRange(param0 + 1, param1, param2, param3, param4)) {
+            return true;
+        } else if (!isChunkInEuclideanRange(param0, param1 + 1, param2, param3, param4)) {
+            return true;
+        } else if (!isChunkInEuclideanRange(param0 - 1, param1, param2, param3, param4)) {
+            return true;
+        } else {
+            return !isChunkInEuclideanRange(param0, param1 - 1, param2, param3, param4);
+        }
     }
 
     protected ThreadedLevelLightEngine getLightEngine() {
@@ -486,7 +533,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
                 if (var0 != null) {
                     boolean var1 = var0.contains("Level", 10) && var0.getCompound("Level").contains("Status", 8);
                     if (var1) {
-                        ChunkAccess var2 = ChunkSerializer.read(this.level, this.structureManager, this.poiManager, param0, var0);
+                        ChunkAccess var2 = ChunkSerializer.read(this.level, this.poiManager, param0, var0);
                         this.markPosition(param0, var2.getStatus().getChunkType());
                         return Either.left(var2);
                     }
@@ -506,7 +553,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
             }
 
             this.markPositionReplaceable(param0);
-            return Either.left(new ProtoChunk(param0, UpgradeData.EMPTY, this.level));
+            return Either.left(new ProtoChunk(param0, UpgradeData.EMPTY, this.level, this.level.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY)));
         }, this.mainThreadExecutor);
     }
 
@@ -536,7 +583,8 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
                                 this.structureManager,
                                 this.lightEngine,
                                 param1x -> this.protoChunkToFullChunk(param0),
-                                param4x
+                                param4x,
+                                false
                             );
                             this.progressListener.onStatusChange(var0, param1);
                             return var0x;
@@ -599,7 +647,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
                     var3x = ((ImposterProtoChunk)var1x).getWrapped();
                 } else {
                     var3x = new LevelChunk(this.level, var1x, param1xx -> postLoadProtoChunk(this.level, var1x.getEntities()));
-                    param0.replaceProtoChunk(new ImposterProtoChunk(var3x));
+                    param0.replaceProtoChunk(new ImposterProtoChunk(var3x, false));
                 }
 
                 var3x.setFullStatus(() -> ChunkHolder.getFullChunkStatus(param0.getTicketLevel()));
@@ -624,7 +672,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
             }), param1 -> this.mainThreadMailbox.tell(ChunkTaskPriorityQueueSorter.message(param0, param1)));
         var2.thenAcceptAsync(param1 -> param1.ifLeft(param1x -> {
                 this.tickingGenerated.getAndIncrement();
-                Packet<?>[] var0x = new Packet[2];
+                MutableObject<ClientboundLevelChunkWithLightPacket> var0x = new MutableObject<>();
                 this.getPlayers(var0, false).forEach(param2 -> this.playerLoadedChunk(param2, var0x, param1x));
             }), param1 -> this.mainThreadMailbox.tell(ChunkTaskPriorityQueueSorter.message(param0, param1)));
         return var2;
@@ -706,19 +754,20 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
 
             for(ChunkHolder var2 : this.updatingChunkMap.values()) {
                 ChunkPos var3 = var2.getPos();
-                Packet<?>[] var4 = new Packet[2];
+                MutableObject<ClientboundLevelChunkWithLightPacket> var4 = new MutableObject<>();
                 this.getPlayers(var3, false).forEach(param3 -> {
-                    int var0x = checkerboardDistance(var3, param3, true);
-                    boolean var1x = var0x <= var1;
-                    boolean var2x = var0x <= this.viewDistance;
-                    this.updateChunkTracking(param3, var3, var4, var1x, var2x);
+                    boolean var0x = isChunkInEuclideanRange(var3, param3, true, var1);
+                    boolean var1x = isChunkInEuclideanRange(var3, param3, true, this.viewDistance);
+                    this.updateChunkTracking(param3, var3, var4, var0x, var1x);
                 });
             }
         }
 
     }
 
-    protected void updateChunkTracking(ServerPlayer param0, ChunkPos param1, Packet<?>[] param2, boolean param3, boolean param4) {
+    protected void updateChunkTracking(
+        ServerPlayer param0, ChunkPos param1, MutableObject<ClientboundLevelChunkWithLightPacket> param2, boolean param3, boolean param4
+    ) {
         if (param0.level == this.level) {
             if (param4 && !param3) {
                 ChunkHolder var0 = this.getVisibleChunkIfPresent(param1.toLong());
@@ -808,10 +857,14 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
     }
 
     boolean noPlayersCloseForSpawning(ChunkPos param0) {
+        return this.getPlayersCloseForSpawning(param0).findAny().isEmpty();
+    }
+
+    public Stream<ServerPlayer> getPlayersCloseForSpawning(ChunkPos param0) {
         long var0 = param0.toLong();
         return !this.distanceManager.hasPlayersNearby(var0)
-            ? true
-            : this.playerMap.getPlayers(var0).noneMatch(param1 -> !param1.isSpectator() && euclideanDistanceSquared(param0, param1) < 16384.0);
+            ? Stream.empty()
+            : this.playerMap.getPlayers(var0).filter(param1 -> !param1.isSpectator() && euclideanDistanceSquared(param0, param1) < 16384.0);
     }
 
     private boolean skipPlayer(ServerPlayer param0) {
@@ -839,8 +892,10 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
 
         for(int var5 = var2 - this.viewDistance; var5 <= var2 + this.viewDistance; ++var5) {
             for(int var6 = var3 - this.viewDistance; var6 <= var3 + this.viewDistance; ++var6) {
-                ChunkPos var7 = new ChunkPos(var5, var6);
-                this.updateChunkTracking(param0, var7, new Packet[2], !param1, param1);
+                if (isChunkInEuclideanRange(var5, var6, var2, var3, this.viewDistance)) {
+                    ChunkPos var7 = new ChunkPos(var5, var6);
+                    this.updateChunkTracking(param0, var7, new MutableObject<>(), !param1, param1);
+                }
             }
         }
 
@@ -905,27 +960,31 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
             for(int var16 = var12; var16 <= var14; ++var16) {
                 for(int var17 = var13; var17 <= var15; ++var17) {
                     ChunkPos var18 = new ChunkPos(var16, var17);
-                    boolean var19 = checkerboardDistance(var18, var10, var11) <= this.viewDistance;
-                    boolean var20 = checkerboardDistance(var18, var1, var2) <= this.viewDistance;
-                    this.updateChunkTracking(param0, var18, new Packet[2], var19, var20);
+                    boolean var19 = isChunkInEuclideanRange(var18, var10, var11, this.viewDistance);
+                    boolean var20 = isChunkInEuclideanRange(var18, var1, var2, this.viewDistance);
+                    this.updateChunkTracking(param0, var18, new MutableObject<>(), var19, var20);
                 }
             }
         } else {
             for(int var21 = var10 - this.viewDistance; var21 <= var10 + this.viewDistance; ++var21) {
                 for(int var22 = var11 - this.viewDistance; var22 <= var11 + this.viewDistance; ++var22) {
-                    ChunkPos var23 = new ChunkPos(var21, var22);
-                    boolean var24 = true;
-                    boolean var25 = false;
-                    this.updateChunkTracking(param0, var23, new Packet[2], true, false);
+                    if (isChunkInEuclideanRange(var21, var22, var10, var11, this.viewDistance)) {
+                        ChunkPos var23 = new ChunkPos(var21, var22);
+                        boolean var24 = true;
+                        boolean var25 = false;
+                        this.updateChunkTracking(param0, var23, new MutableObject<>(), true, false);
+                    }
                 }
             }
 
             for(int var26 = var1 - this.viewDistance; var26 <= var1 + this.viewDistance; ++var26) {
                 for(int var27 = var2 - this.viewDistance; var27 <= var2 + this.viewDistance; ++var27) {
-                    ChunkPos var28 = new ChunkPos(var26, var27);
-                    boolean var29 = false;
-                    boolean var30 = true;
-                    this.updateChunkTracking(param0, var28, new Packet[2], false, true);
+                    if (isChunkInEuclideanRange(var26, var27, var1, var2, this.viewDistance)) {
+                        ChunkPos var28 = new ChunkPos(var26, var27);
+                        boolean var29 = false;
+                        boolean var30 = true;
+                        this.updateChunkTracking(param0, var28, new MutableObject<>(), false, true);
+                    }
                 }
             }
         }
@@ -935,12 +994,15 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
     @Override
     public Stream<ServerPlayer> getPlayers(ChunkPos param0, boolean param1) {
         return this.playerMap.getPlayers(param0.toLong()).filter(param2 -> {
-            int var0 = checkerboardDistance(param0, param2, true);
-            if (var0 > this.viewDistance) {
-                return false;
-            } else {
-                return !param1 || var0 == this.viewDistance;
+            if (param1) {
+                if (isChunkOnEuclideanBorder(param0, param2, true, this.viewDistance)) {
+                    return true;
+                }
+            } else if (isChunkInEuclideanRange(param0, param2, true, this.viewDistance)) {
+                return true;
             }
+
+            return false;
         });
     }
 
@@ -1031,13 +1093,12 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
 
     }
 
-    private void playerLoadedChunk(ServerPlayer param0, Packet<?>[] param1, LevelChunk param2) {
-        if (param1[0] == null) {
-            param1[0] = new ClientboundLevelChunkPacket(param2);
-            param1[1] = new ClientboundLightUpdatePacket(param2.getPos(), this.lightEngine, null, null, true);
+    private void playerLoadedChunk(ServerPlayer param0, MutableObject<ClientboundLevelChunkWithLightPacket> param1, LevelChunk param2) {
+        if (param1.getValue() == null) {
+            param1.setValue(new ClientboundLevelChunkWithLightPacket(param2, this.lightEngine, null, null, true));
         }
 
-        param0.trackChunk(param2.getPos(), param1[0], param1[1]);
+        param0.trackChunk(param2.getPos(), param1.getValue());
         DebugPackets.sendPoiPacketsForChunk(this.level, param2.getPos());
         List<Entity> var0 = Lists.newArrayList();
         List<Entity> var1 = Lists.newArrayList();
@@ -1169,13 +1230,11 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
         public void updatePlayer(ServerPlayer param0) {
             if (param0 != this.entity) {
                 Vec3 var0 = param0.position().subtract(this.serverEntity.sentPos());
-                int var1 = Math.min(this.getEffectiveRange(), (ChunkMap.this.viewDistance - 1) * 16);
-                boolean var2 = var0.x >= (double)(-var1)
-                    && var0.x <= (double)var1
-                    && var0.z >= (double)(-var1)
-                    && var0.z <= (double)var1
-                    && this.entity.broadcastToPlayer(param0);
-                if (var2) {
+                double var1 = (double)Math.min(this.getEffectiveRange(), (ChunkMap.this.viewDistance - 1) * 16);
+                double var2 = var0.x * var0.x + var0.z * var0.z;
+                double var3 = var1 * var1;
+                boolean var4 = var2 <= var3 && this.entity.broadcastToPlayer(param0);
+                if (var4) {
                     if (this.seenBy.add(param0.connection)) {
                         this.serverEntity.addPairing(param0);
                     }

@@ -5,7 +5,6 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import java.util.Collection;
 import java.util.Collections;
@@ -27,9 +26,6 @@ import net.minecraft.world.scores.Team;
 public class TeamCommand {
     private static final SimpleCommandExceptionType ERROR_TEAM_ALREADY_EXISTS = new SimpleCommandExceptionType(
         new TranslatableComponent("commands.team.add.duplicate")
-    );
-    private static final DynamicCommandExceptionType ERROR_TEAM_NAME_TOO_LONG = new DynamicCommandExceptionType(
-        param0 -> new TranslatableComponent("commands.team.add.longName", param0)
     );
     private static final SimpleCommandExceptionType ERROR_TEAM_ALREADY_EMPTY = new SimpleCommandExceptionType(
         new TranslatableComponent("commands.team.empty.unchanged")
@@ -481,8 +477,6 @@ public class TeamCommand {
         Scoreboard var0 = param0.getServer().getScoreboard();
         if (var0.getPlayerTeam(param1) != null) {
             throw ERROR_TEAM_ALREADY_EXISTS.create();
-        } else if (param1.length() > 16) {
-            throw ERROR_TEAM_NAME_TOO_LONG.create(16);
         } else {
             PlayerTeam var1 = var0.addPlayerTeam(param1);
             var1.setDisplayName(param2);

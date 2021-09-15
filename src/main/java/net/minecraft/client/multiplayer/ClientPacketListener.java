@@ -123,10 +123,12 @@ import net.minecraft.network.protocol.game.ClientboundGameEventPacket;
 import net.minecraft.network.protocol.game.ClientboundHorseScreenOpenPacket;
 import net.minecraft.network.protocol.game.ClientboundInitializeBorderPacket;
 import net.minecraft.network.protocol.game.ClientboundKeepAlivePacket;
-import net.minecraft.network.protocol.game.ClientboundLevelChunkPacket;
+import net.minecraft.network.protocol.game.ClientboundLevelChunkPacketData;
+import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
 import net.minecraft.network.protocol.game.ClientboundLevelEventPacket;
 import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
 import net.minecraft.network.protocol.game.ClientboundLightUpdatePacket;
+import net.minecraft.network.protocol.game.ClientboundLightUpdatePacketData;
 import net.minecraft.network.protocol.game.ClientboundLoginPacket;
 import net.minecraft.network.protocol.game.ClientboundMapItemDataPacket;
 import net.minecraft.network.protocol.game.ClientboundMerchantOffersPacket;
@@ -246,25 +248,14 @@ import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
-import net.minecraft.world.level.block.entity.BannerBlockEntity;
-import net.minecraft.world.level.block.entity.BeaconBlockEntity;
-import net.minecraft.world.level.block.entity.BedBlockEntity;
-import net.minecraft.world.level.block.entity.BeehiveBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.CampfireBlockEntity;
 import net.minecraft.world.level.block.entity.CommandBlockEntity;
-import net.minecraft.world.level.block.entity.ConduitBlockEntity;
-import net.minecraft.world.level.block.entity.JigsawBlockEntity;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
-import net.minecraft.world.level.block.entity.SkullBlockEntity;
-import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
-import net.minecraft.world.level.block.entity.StructureBlockEntity;
-import net.minecraft.world.level.block.entity.TheEndGatewayBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.border.WorldBorder;
-import net.minecraft.world.level.chunk.ChunkBiomeContainer;
 import net.minecraft.world.level.chunk.DataLayer;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.gameevent.PositionSource;
@@ -341,16 +332,16 @@ public class ClientPacketListener implements ClientGamePacketListener {
         List<ResourceKey<Level>> var0 = Lists.newArrayList(param0.levels());
         Collections.shuffle(var0);
         this.levels = Sets.newLinkedHashSet(var0);
-        this.registryAccess = param0.registryAccess();
-        ResourceKey<Level> var1 = param0.getDimension();
-        DimensionType var2 = param0.getDimensionType();
-        this.serverChunkRadius = param0.getChunkRadius();
+        this.registryAccess = param0.registryHolder();
+        ResourceKey<Level> var1 = param0.dimension();
+        DimensionType var2 = param0.dimensionType();
+        this.serverChunkRadius = param0.chunkRadius();
         boolean var3 = param0.isDebug();
         boolean var4 = param0.isFlat();
-        ClientLevel.ClientLevelData var5 = new ClientLevel.ClientLevelData(Difficulty.NORMAL, param0.isHardcore(), var4);
+        ClientLevel.ClientLevelData var5 = new ClientLevel.ClientLevelData(Difficulty.NORMAL, param0.hardcore(), var4);
         this.levelData = var5;
         this.level = new ClientLevel(
-            this, var5, var1, var2, this.serverChunkRadius, this.minecraft::getProfiler, this.minecraft.levelRenderer, var3, param0.getSeed()
+            this, var5, var1, var2, this.serverChunkRadius, this.minecraft::getProfiler, this.minecraft.levelRenderer, var3, param0.seed()
         );
         this.minecraft.setLevel(this.level);
         if (this.minecraft.player == null) {
@@ -363,16 +354,17 @@ public class ClientPacketListener implements ClientGamePacketListener {
 
         this.minecraft.debugRenderer.clear();
         this.minecraft.player.resetPos();
-        int var6 = param0.getPlayerId();
+        int var6 = param0.playerId();
         this.minecraft.player.setId(var6);
         this.level.addPlayer(var6, this.minecraft.player);
         this.minecraft.player.input = new KeyboardInput(this.minecraft.options);
         this.minecraft.gameMode.adjustPlayer(this.minecraft.player);
         this.minecraft.cameraEntity = this.minecraft.player;
         this.minecraft.setScreen(new ReceivingLevelScreen());
-        this.minecraft.player.setReducedDebugInfo(param0.isReducedDebugInfo());
-        this.minecraft.player.setShowDeathScreen(param0.shouldShowDeathScreen());
-        this.minecraft.gameMode.setLocalMode(param0.getGameType(), param0.getPreviousGameType());
+        this.minecraft.player.setReducedDebugInfo(param0.reducedDebugInfo());
+        this.minecraft.player.setShowDeathScreen(param0.showDeathScreen());
+        this.minecraft.gameMode.setLocalMode(param0.gameType(), param0.previousGameType());
+        this.minecraft.options.setServerRenderDistance(param0.chunkRadius());
         this.minecraft.options.broadcastOptions();
         this.connection
             .send(
@@ -618,27 +610,40 @@ public class ClientPacketListener implements ClientGamePacketListener {
     }
 
     @Override
-    public void handleLevelChunk(ClientboundLevelChunkPacket param0) {
+    public void handleLevelChunkWithLight(ClientboundLevelChunkWithLightPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
-        int var0 = param0.getX();
-        int var1 = param0.getZ();
-        ChunkBiomeContainer var2 = new ChunkBiomeContainer(this.registryAccess.registryOrThrow(Registry.BIOME_REGISTRY), this.level, param0.getBiomes());
-        LevelChunk var3 = this.level
+        this.updateLevelChunk(param0.getX(), param0.getZ(), param0.getChunkData());
+        this.queueLightUpdate(param0.getX(), param0.getZ(), param0.getLightData());
+    }
+
+    private void updateLevelChunk(int param0, int param1, ClientboundLevelChunkPacketData param2) {
+        this.level
             .getChunkSource()
-            .replaceWithPacketData(var0, var1, var2, param0.getReadBuffer(), param0.getHeightmaps(), param0.getAvailableSections());
+            .replaceWithPacketData(param0, param1, param2.getReadBuffer(), param2.getHeightmaps(), param2.getBlockEntitiesTagsConsumer(param0, param1));
+    }
 
-        for(int var4 = this.level.getMinSection(); var4 < this.level.getMaxSection(); ++var4) {
-            this.level.setSectionDirtyWithNeighbors(var0, var4, var1);
-        }
-
-        if (var3 != null) {
-            for(CompoundTag var5 : param0.getBlockEntitiesTags()) {
-                BlockPos var6 = new BlockPos(var5.getInt("x"), var5.getInt("y"), var5.getInt("z"));
-                BlockEntity var7 = var3.getBlockEntity(var6, LevelChunk.EntityCreationType.IMMEDIATE);
-                if (var7 != null) {
-                    var7.load(var5);
-                }
+    private void queueLightUpdate(int param0, int param1, ClientboundLightUpdatePacketData param2) {
+        this.level.queueLightUpdate(() -> {
+            this.applyLightData(param0, param1, param2);
+            LevelChunk var0 = this.level.getChunkSource().getChunk(param0, param1, false);
+            if (var0 != null) {
+                this.enableChunkLight(var0, param0, param1);
             }
+
+        });
+    }
+
+    private void enableChunkLight(LevelChunk param0, int param1, int param2) {
+        LevelLightEngine var0 = this.level.getChunkSource().getLightEngine();
+        LevelChunkSection[] var1 = param0.getSections();
+        ChunkPos var2 = param0.getPos();
+        var0.enableLightSources(var2, true);
+
+        for(int var3 = 0; var3 < var1.length; ++var3) {
+            LevelChunkSection var4 = var1[var3];
+            int var5 = this.level.getSectionYFromSectionIndex(var3);
+            var0.updateSectionStatus(SectionPos.of(var2, var5), var4.hasOnlyAir());
+            this.level.setSectionDirtyWithNeighbors(param1, var5, param2);
         }
 
     }
@@ -650,14 +655,20 @@ public class ClientPacketListener implements ClientGamePacketListener {
         int var1 = param0.getZ();
         ClientChunkCache var2 = this.level.getChunkSource();
         var2.drop(var0, var1);
-        LevelLightEngine var3 = var2.getLightEngine();
+        this.queueLightUpdate(param0);
+    }
 
-        for(int var4 = this.level.getMinSection(); var4 < this.level.getMaxSection(); ++var4) {
-            this.level.setSectionDirtyWithNeighbors(var0, var4, var1);
-            var3.updateSectionStatus(SectionPos.of(var0, var4, var1), true);
-        }
+    private void queueLightUpdate(ClientboundForgetLevelChunkPacket param0) {
+        this.level.queueLightUpdate(() -> {
+            LevelLightEngine var0 = this.level.getLightEngine();
 
-        var3.enableLightSources(new ChunkPos(var0, var1), false);
+            for(int var1x = this.level.getMinSection(); var1x < this.level.getMaxSection(); ++var1x) {
+                this.level.setSectionDirtyWithNeighbors(param0.getX(), var1x, param0.getZ());
+                var0.updateSectionStatus(SectionPos.of(param0.getX(), var1x, param0.getZ()), true);
+            }
+
+            var0.enableLightSources(new ChunkPos(param0.getX(), param0.getZ()), false);
+        });
     }
 
     @Override
@@ -1043,29 +1054,17 @@ public class ClientPacketListener implements ClientGamePacketListener {
     public void handleBlockEntityData(ClientboundBlockEntityDataPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
         BlockPos var0 = param0.getPos();
-        BlockEntity var1 = this.minecraft.level.getBlockEntity(var0);
-        int var2 = param0.getType();
-        boolean var3 = var2 == 2 && var1 instanceof CommandBlockEntity;
-        if (var2 == 1 && var1 instanceof SpawnerBlockEntity
-            || var3
-            || var2 == 3 && var1 instanceof BeaconBlockEntity
-            || var2 == 4 && var1 instanceof SkullBlockEntity
-            || var2 == 6 && var1 instanceof BannerBlockEntity
-            || var2 == 7 && var1 instanceof StructureBlockEntity
-            || var2 == 8 && var1 instanceof TheEndGatewayBlockEntity
-            || var2 == 9 && var1 instanceof SignBlockEntity
-            || var2 == 11 && var1 instanceof BedBlockEntity
-            || var2 == 5 && var1 instanceof ConduitBlockEntity
-            || var2 == 12 && var1 instanceof JigsawBlockEntity
-            || var2 == 13 && var1 instanceof CampfireBlockEntity
-            || var2 == 14 && var1 instanceof BeehiveBlockEntity) {
-            var1.load(param0.getTag());
-        }
+        this.minecraft.level.getBlockEntity(var0, param0.getType()).ifPresent(param1 -> {
+            CompoundTag var0x = param0.getTag();
+            if (var0x != null) {
+                param1.load(var0x);
+            }
 
-        if (var3 && this.minecraft.screen instanceof CommandBlockEditScreen) {
-            ((CommandBlockEditScreen)this.minecraft.screen).updateGui();
-        }
+            if (param1 instanceof CommandBlockEntity && this.minecraft.screen instanceof CommandBlockEditScreen) {
+                ((CommandBlockEditScreen)this.minecraft.screen).updateGui();
+            }
 
+        });
     }
 
     @Override
@@ -2192,19 +2191,24 @@ public class ClientPacketListener implements ClientGamePacketListener {
     }
 
     @Override
-    public void handleLightUpdatePacked(ClientboundLightUpdatePacket param0) {
+    public void handleLightUpdatePacket(ClientboundLightUpdatePacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
         int var0 = param0.getX();
         int var1 = param0.getZ();
-        LevelLightEngine var2 = this.level.getChunkSource().getLightEngine();
-        BitSet var3 = param0.getSkyYMask();
-        BitSet var4 = param0.getEmptySkyYMask();
-        Iterator<byte[]> var5 = param0.getSkyUpdates().iterator();
-        this.readSectionList(var0, var1, var2, LightLayer.SKY, var3, var4, var5, param0.getTrustEdges());
-        BitSet var6 = param0.getBlockYMask();
-        BitSet var7 = param0.getEmptyBlockYMask();
-        Iterator<byte[]> var8 = param0.getBlockUpdates().iterator();
-        this.readSectionList(var0, var1, var2, LightLayer.BLOCK, var6, var7, var8, param0.getTrustEdges());
+        ClientboundLightUpdatePacketData var2 = param0.getLightData();
+        this.level.queueLightUpdate(() -> this.applyLightData(var0, var1, var2));
+    }
+
+    private void applyLightData(int param0, int param1, ClientboundLightUpdatePacketData param2) {
+        LevelLightEngine var0 = this.level.getChunkSource().getLightEngine();
+        BitSet var1 = param2.getSkyYMask();
+        BitSet var2 = param2.getEmptySkyYMask();
+        Iterator<byte[]> var3 = param2.getSkyUpdates().iterator();
+        this.readSectionList(param0, param1, var0, LightLayer.SKY, var1, var2, var3, param2.getTrustEdges());
+        BitSet var4 = param2.getBlockYMask();
+        BitSet var5 = param2.getEmptyBlockYMask();
+        Iterator<byte[]> var6 = param2.getBlockUpdates().iterator();
+        this.readSectionList(param0, param1, var0, LightLayer.BLOCK, var4, var5, var6, param2.getTrustEdges());
     }
 
     @Override
@@ -2225,6 +2229,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
     public void handleSetChunkCacheRadius(ClientboundSetChunkCacheRadiusPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
         this.serverChunkRadius = param0.getRadius();
+        this.minecraft.options.setServerRenderDistance(this.serverChunkRadius);
         this.level.getChunkSource().updateViewRadius(param0.getRadius());
     }
 
@@ -2237,7 +2242,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
     @Override
     public void handleBlockBreakAck(ClientboundBlockBreakAckPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
-        this.minecraft.gameMode.handleBlockBreakAck(this.level, param0.getPos(), param0.getState(), param0.action(), param0.allGood());
+        this.minecraft.gameMode.handleBlockBreakAck(this.level, param0.pos(), param0.state(), param0.action(), param0.allGood());
     }
 
     private void readSectionList(

@@ -3,7 +3,9 @@ package net.minecraft.client.multiplayer;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Queues;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
+import java.util.Deque;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -82,6 +84,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class ClientLevel extends Level {
     private static final double FLUID_PARTICLE_SPAWN_OFFSET = 0.05;
+    private static final int NORMAL_LIGHT_UPDATES_PER_FRAME = 10;
+    private static final int LIGHT_UPDATE_QUEUE_SIZE_THRESHOLD = 1000;
     final EntityTickList tickingEntities = new EntityTickList();
     private final TransientEntitySectionManager<Entity> entityStorage = new TransientEntitySectionManager<>(Entity.class, new ClientLevel.EntityCallbacks());
     private final ClientPacketListener connection;
@@ -95,11 +99,12 @@ public class ClientLevel extends Level {
     private static final long CLOUD_COLOR = 16777215L;
     private int skyFlashTime;
     private final Object2ObjectArrayMap<ColorResolver, BlockTintCache> tintCaches = Util.make(new Object2ObjectArrayMap<>(3), param0x -> {
-        param0x.put(BiomeColors.GRASS_COLOR_RESOLVER, new BlockTintCache());
-        param0x.put(BiomeColors.FOLIAGE_COLOR_RESOLVER, new BlockTintCache());
-        param0x.put(BiomeColors.WATER_COLOR_RESOLVER, new BlockTintCache());
+        param0x.put(BiomeColors.GRASS_COLOR_RESOLVER, new BlockTintCache(param0xx -> this.calculateBlockTint(param0xx, BiomeColors.GRASS_COLOR_RESOLVER)));
+        param0x.put(BiomeColors.FOLIAGE_COLOR_RESOLVER, new BlockTintCache(param0xx -> this.calculateBlockTint(param0xx, BiomeColors.FOLIAGE_COLOR_RESOLVER)));
+        param0x.put(BiomeColors.WATER_COLOR_RESOLVER, new BlockTintCache(param0xx -> this.calculateBlockTint(param0xx, BiomeColors.WATER_COLOR_RESOLVER)));
     });
     private final ClientChunkCache chunkSource;
+    private final Deque<Runnable> lightUpdateQueue = Queues.newArrayDeque();
 
     public ClientLevel(
         ClientPacketListener param0,
@@ -121,6 +126,25 @@ public class ClientLevel extends Level {
         this.setDefaultSpawnPos(new BlockPos(8, 64, 8), 0.0F);
         this.updateSkyBrightness();
         this.prepareWeather();
+    }
+
+    public void queueLightUpdate(Runnable param0) {
+        this.lightUpdateQueue.add(param0);
+    }
+
+    public void pollLightUpdates() {
+        int var0 = this.lightUpdateQueue.size();
+        int var1 = var0 < 1000 ? Math.max(10, var0 / 10) : var0;
+
+        for(int var2 = 0; var2 < var1; ++var2) {
+            Runnable var3 = this.lightUpdateQueue.poll();
+            if (var3 == null) {
+                break;
+            }
+
+            var3.run();
+        }
+
     }
 
     public DimensionSpecialEffects effects() {
@@ -203,7 +227,7 @@ public class ClientLevel extends Level {
     }
 
     public void unload(LevelChunk param0) {
-        param0.invalidateAllBlockEntities();
+        param0.clearAllBlockEntities();
         this.chunkSource.getLightEngine().enableLightSources(param0.getPos(), false);
         this.entityStorage.stopTicking(param0.getPos());
     }
@@ -609,7 +633,7 @@ public class ClientLevel extends Level {
             var7 = var7 * var13 + var12 * (1.0F - var13);
         }
 
-        if (this.skyFlashTime > 0) {
+        if (!this.minecraft.options.hideLightningFlashes && this.skyFlashTime > 0) {
             float var14 = (float)this.skyFlashTime - param1;
             if (var14 > 1.0F) {
                 var14 = 1.0F;
@@ -697,7 +721,7 @@ public class ClientLevel extends Level {
     @Override
     public int getBlockTint(BlockPos param0, ColorResolver param1) {
         BlockTintCache var0 = this.tintCaches.get(param1);
-        return var0.getColor(param0, () -> this.calculateBlockTint(param0, param1));
+        return var0.getColor(param0);
     }
 
     public int calculateBlockTint(BlockPos param0, ColorResolver param1) {

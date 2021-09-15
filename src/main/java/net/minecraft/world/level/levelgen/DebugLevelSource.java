@@ -16,9 +16,11 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.NoiseColumn;
 import net.minecraft.world.level.StructureFeatureManager;
+import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.biome.Biomes;
+import net.minecraft.world.level.biome.Climate;
 import net.minecraft.world.level.biome.FixedBiomeSource;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -62,27 +64,22 @@ public class DebugLevelSource extends ChunkGenerator {
     }
 
     @Override
-    public void buildSurfaceAndBedrock(WorldGenRegion param0, ChunkAccess param1) {
+    public void buildSurfaceAndBedrock(WorldGenRegion param0, StructureFeatureManager param1, ChunkAccess param2) {
     }
 
     @Override
-    public void applyCarvers(long param0, BiomeManager param1, ChunkAccess param2, GenerationStep.Carving param3) {
-    }
-
-    @Override
-    public void applyBiomeDecoration(WorldGenRegion param0, StructureFeatureManager param1) {
+    public void applyBiomeDecoration(WorldGenLevel param0, ChunkPos param1, StructureFeatureManager param2) {
         BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos();
-        ChunkPos var1 = param0.getCenter();
+        int var1 = param1.x;
+        int var2 = param1.z;
 
-        for(int var2 = 0; var2 < 16; ++var2) {
-            for(int var3 = 0; var3 < 16; ++var3) {
-                int var4 = SectionPos.sectionToBlockCoord(var1.x, var2);
-                int var5 = SectionPos.sectionToBlockCoord(var1.z, var3);
-                param0.setBlock(var0.set(var4, 60, var5), BARRIER, 2);
-                BlockState var6 = getBlockStateFor(var4, var5);
-                if (var6 != null) {
-                    param0.setBlock(var0.set(var4, 70, var5), var6, 2);
-                }
+        for(int var3 = 0; var3 < 16; ++var3) {
+            for(int var4 = 0; var4 < 16; ++var4) {
+                int var5 = SectionPos.sectionToBlockCoord(var1, var3);
+                int var6 = SectionPos.sectionToBlockCoord(var2, var4);
+                param0.setBlock(var0.set(var5, 60, var6), BARRIER, 2);
+                BlockState var7 = getBlockStateFor(var5, var6);
+                param0.setBlock(var0.set(var5, 70, var6), var7, 2);
             }
         }
 
@@ -117,5 +114,35 @@ public class DebugLevelSource extends ChunkGenerator {
         }
 
         return var0;
+    }
+
+    @Override
+    public Climate.Sampler climateSampler() {
+        return (param0, param1, param2) -> Climate.target(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
+    }
+
+    @Override
+    public void applyCarvers(
+        WorldGenRegion param0, long param1, BiomeManager param2, StructureFeatureManager param3, ChunkAccess param4, GenerationStep.Carving param5
+    ) {
+    }
+
+    @Override
+    public void spawnOriginalMobs(WorldGenRegion param0) {
+    }
+
+    @Override
+    public int getMinY() {
+        return 0;
+    }
+
+    @Override
+    public int getGenDepth() {
+        return 384;
+    }
+
+    @Override
+    public int getSeaLevel() {
+        return 63;
     }
 }

@@ -3,7 +3,6 @@ package net.minecraft.world.level.levelgen.feature;
 import com.mojang.serialization.Codec;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
-import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
@@ -22,10 +21,9 @@ public class BastionFeature extends JigsawFeature {
         long param2,
         WorldgenRandom param3,
         ChunkPos param4,
-        Biome param5,
-        ChunkPos param6,
-        JigsawConfiguration param7,
-        LevelHeightAccessor param8
+        ChunkPos param5,
+        JigsawConfiguration param6,
+        LevelHeightAccessor param7
     ) {
         return param3.nextInt(5) >= 2;
     }

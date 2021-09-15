@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.List;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketFlow;
+import net.minecraft.util.profiling.jfr.event.network.PacketReceivedEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
@@ -23,31 +24,41 @@ public class PacketDecoder extends ByteToMessageDecoder {
 
     @Override
     protected void decode(ChannelHandlerContext param0, ByteBuf param1, List<Object> param2) throws Exception {
-        if (param1.readableBytes() != 0) {
-            FriendlyByteBuf var0 = new FriendlyByteBuf(param1);
-            int var1 = var0.readVarInt();
-            Packet<?> var2 = param0.channel().attr(Connection.ATTRIBUTE_PROTOCOL).get().createPacket(this.flow, var1, var0);
-            if (var2 == null) {
-                throw new IOException("Bad packet id " + var1);
-            } else if (var0.readableBytes() > 0) {
-                throw new IOException(
-                    "Packet "
-                        + param0.channel().attr(Connection.ATTRIBUTE_PROTOCOL).get().getId()
-                        + "/"
-                        + var1
-                        + " ("
-                        + var2.getClass().getSimpleName()
-                        + ") was larger than I expected, found "
-                        + var0.readableBytes()
-                        + " bytes extra whilst reading packet "
-                        + var1
-                );
+        int var0 = param1.readableBytes();
+        if (var0 != 0) {
+            FriendlyByteBuf var1 = new FriendlyByteBuf(param1);
+            int var2 = var1.readVarInt();
+            Packet<?> var3 = param0.channel().attr(Connection.ATTRIBUTE_PROTOCOL).get().createPacket(this.flow, var2, var1);
+            if (var3 == null) {
+                throw new IOException("Bad packet id " + var2);
             } else {
-                param2.add(var2);
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug(MARKER, " IN: [{}:{}] {}", param0.channel().attr(Connection.ATTRIBUTE_PROTOCOL).get(), var1, var2.getClass().getName());
+                if (PacketReceivedEvent.TYPE.isEnabled()) {
+                    int var4 = param0.channel().attr(Connection.ATTRIBUTE_PROTOCOL).get().getId();
+                    String var5 = "%d/%d (%s)".formatted(var4, var2, var3.getClass().getSimpleName());
+                    PacketReceivedEvent var6 = new PacketReceivedEvent(var5, param0.channel().remoteAddress(), var0);
+                    var6.commit();
                 }
 
+                if (var1.readableBytes() > 0) {
+                    throw new IOException(
+                        "Packet "
+                            + param0.channel().attr(Connection.ATTRIBUTE_PROTOCOL).get().getId()
+                            + "/"
+                            + var2
+                            + " ("
+                            + var3.getClass().getSimpleName()
+                            + ") was larger than I expected, found "
+                            + var1.readableBytes()
+                            + " bytes extra whilst reading packet "
+                            + var2
+                    );
+                } else {
+                    param2.add(var3);
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug(MARKER, " IN: [{}:{}] {}", param0.channel().attr(Connection.ATTRIBUTE_PROTOCOL).get(), var2, var3.getClass().getName());
+                    }
+
+                }
             }
         }
     }

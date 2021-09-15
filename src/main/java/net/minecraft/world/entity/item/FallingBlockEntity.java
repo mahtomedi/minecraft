@@ -6,7 +6,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
@@ -161,19 +160,16 @@ public class FallingBlockEntity extends Entity {
                                     if (this.blockData != null && this.blockState.hasBlockEntity()) {
                                         BlockEntity var11 = this.level.getBlockEntity(var2);
                                         if (var11 != null) {
-                                            CompoundTag var12 = var11.save(new CompoundTag());
+                                            CompoundTag var12 = var11.saveWithoutMetadata();
 
                                             for(String var13 : this.blockData.getAllKeys()) {
-                                                Tag var14 = this.blockData.get(var13);
-                                                if (!"x".equals(var13) && !"y".equals(var13) && !"z".equals(var13)) {
-                                                    var12.put(var13, var14.copy());
-                                                }
+                                                var12.put(var13, this.blockData.get(var13).copy());
                                             }
 
                                             try {
                                                 var11.load(var12);
-                                            } catch (Exception var16) {
-                                                LOGGER.error("Failed to load block entity from falling block", (Throwable)var16);
+                                            } catch (Exception var15) {
+                                                LOGGER.error("Failed to load block entity from falling block", (Throwable)var15);
                                             }
 
                                             var11.setChanged();
@@ -291,10 +287,6 @@ public class FallingBlockEntity extends Entity {
             this.blockState = Blocks.SAND.defaultBlockState();
         }
 
-    }
-
-    public Level getLevel() {
-        return this.level;
     }
 
     public void setHurtsEntities(float param0, int param1) {

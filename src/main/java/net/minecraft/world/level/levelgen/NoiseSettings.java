@@ -13,8 +13,8 @@ public class NoiseSettings {
                         Codec.intRange(DimensionType.MIN_Y, DimensionType.MAX_Y).fieldOf("min_y").forGetter(NoiseSettings::minY),
                         Codec.intRange(0, DimensionType.Y_SIZE).fieldOf("height").forGetter(NoiseSettings::height),
                         NoiseSamplingSettings.CODEC.fieldOf("sampling").forGetter(NoiseSettings::noiseSamplingSettings),
-                        NoiseSlideSettings.CODEC.fieldOf("top_slide").forGetter(NoiseSettings::topSlideSettings),
-                        NoiseSlideSettings.CODEC.fieldOf("bottom_slide").forGetter(NoiseSettings::bottomSlideSettings),
+                        NoiseSlider.CODEC.fieldOf("top_slide").forGetter(NoiseSettings::topSlideSettings),
+                        NoiseSlider.CODEC.fieldOf("bottom_slide").forGetter(NoiseSettings::bottomSlideSettings),
                         Codec.intRange(1, 4).fieldOf("size_horizontal").forGetter(NoiseSettings::noiseSizeHorizontal),
                         Codec.intRange(1, 4).fieldOf("size_vertical").forGetter(NoiseSettings::noiseSizeVertical),
                         Codec.DOUBLE.fieldOf("density_factor").forGetter(NoiseSettings::densityFactor),
@@ -26,7 +26,10 @@ public class NoiseSettings {
                         Codec.BOOL
                             .optionalFieldOf("island_noise_override", Boolean.valueOf(false), Lifecycle.experimental())
                             .forGetter(NoiseSettings::islandNoiseOverride),
-                        Codec.BOOL.optionalFieldOf("amplified", Boolean.valueOf(false), Lifecycle.experimental()).forGetter(NoiseSettings::isAmplified)
+                        Codec.BOOL.optionalFieldOf("amplified", Boolean.valueOf(false), Lifecycle.experimental()).forGetter(NoiseSettings::isAmplified),
+                        Codec.BOOL
+                            .optionalFieldOf("use_legacy_random", Boolean.valueOf(false), Lifecycle.experimental())
+                            .forGetter(NoiseSettings::useLegacyRandom)
                     )
                     .apply(param0, NoiseSettings::new)
         )
@@ -34,8 +37,8 @@ public class NoiseSettings {
     private final int minY;
     private final int height;
     private final NoiseSamplingSettings noiseSamplingSettings;
-    private final NoiseSlideSettings topSlideSettings;
-    private final NoiseSlideSettings bottomSlideSettings;
+    private final NoiseSlider topSlideSettings;
+    private final NoiseSlider bottomSlideSettings;
     private final int noiseSizeHorizontal;
     private final int noiseSizeVertical;
     private final double densityFactor;
@@ -44,6 +47,7 @@ public class NoiseSettings {
     private final boolean randomDensityOffset;
     private final boolean islandNoiseOverride;
     private final boolean isAmplified;
+    private final boolean useLegacyRandom;
 
     private static DataResult<NoiseSettings> guardY(NoiseSettings param0) {
         if (param0.minY() + param0.height() > DimensionType.MAX_Y + 1) {
@@ -59,8 +63,8 @@ public class NoiseSettings {
         int param0,
         int param1,
         NoiseSamplingSettings param2,
-        NoiseSlideSettings param3,
-        NoiseSlideSettings param4,
+        NoiseSlider param3,
+        NoiseSlider param4,
         int param5,
         int param6,
         double param7,
@@ -68,7 +72,8 @@ public class NoiseSettings {
         boolean param9,
         boolean param10,
         boolean param11,
-        boolean param12
+        boolean param12,
+        boolean param13
     ) {
         this.minY = param0;
         this.height = param1;
@@ -83,14 +88,15 @@ public class NoiseSettings {
         this.randomDensityOffset = param10;
         this.islandNoiseOverride = param11;
         this.isAmplified = param12;
+        this.useLegacyRandom = param13;
     }
 
     public static NoiseSettings create(
         int param0,
         int param1,
         NoiseSamplingSettings param2,
-        NoiseSlideSettings param3,
-        NoiseSlideSettings param4,
+        NoiseSlider param3,
+        NoiseSlider param4,
         int param5,
         int param6,
         double param7,
@@ -98,9 +104,12 @@ public class NoiseSettings {
         boolean param9,
         boolean param10,
         boolean param11,
-        boolean param12
+        boolean param12,
+        boolean param13
     ) {
-        NoiseSettings var0 = new NoiseSettings(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11, param12);
+        NoiseSettings var0 = new NoiseSettings(
+            param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11, param12, param13
+        );
         guardY(var0).error().ifPresent(param0x -> {
             throw new IllegalStateException(param0x.message());
         });
@@ -119,11 +128,11 @@ public class NoiseSettings {
         return this.noiseSamplingSettings;
     }
 
-    public NoiseSlideSettings topSlideSettings() {
+    public NoiseSlider topSlideSettings() {
         return this.topSlideSettings;
     }
 
-    public NoiseSlideSettings bottomSlideSettings() {
+    public NoiseSlider bottomSlideSettings() {
         return this.bottomSlideSettings;
     }
 
@@ -161,5 +170,9 @@ public class NoiseSettings {
     @Deprecated
     public boolean isAmplified() {
         return this.isAmplified;
+    }
+
+    public boolean useLegacyRandom() {
+        return this.useLegacyRandom;
     }
 }

@@ -25,11 +25,13 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.LoomMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.BannerItem;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.entity.BannerBlockEntity;
 import net.minecraft.world.level.block.entity.BannerPattern;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -156,13 +158,14 @@ public class LoomScreen extends AbstractContainerScreen<LoomMenu> {
     }
 
     private void renderPattern(int param0, int param1, int param2) {
-        ItemStack var0 = new ItemStack(Items.GRAY_BANNER);
-        CompoundTag var1 = var0.getOrCreateTagElement("BlockEntityTag");
-        ListTag var2 = new BannerPattern.Builder()
+        CompoundTag var0 = new CompoundTag();
+        ListTag var1 = new BannerPattern.Builder()
             .addPattern(BannerPattern.BASE, DyeColor.GRAY)
             .addPattern(BannerPattern.values()[param0], DyeColor.WHITE)
             .toListTag();
-        var1.put("Patterns", var2);
+        var0.put("Patterns", var1);
+        ItemStack var2 = new ItemStack(Items.GRAY_BANNER);
+        BlockItem.setBlockEntityData(var2, BlockEntityType.BANNER, var0);
         PoseStack var3 = new PoseStack();
         var3.pushPose();
         var3.translate((double)((float)param1 + 0.5F), (double)(param2 + 16), 0.0);
@@ -174,7 +177,7 @@ public class LoomScreen extends AbstractContainerScreen<LoomMenu> {
         MultiBufferSource.BufferSource var5 = this.minecraft.renderBuffers().bufferSource();
         this.flag.xRot = 0.0F;
         this.flag.y = -32.0F;
-        List<Pair<BannerPattern, DyeColor>> var6 = BannerBlockEntity.createPatterns(DyeColor.GRAY, BannerBlockEntity.getItemPatterns(var0));
+        List<Pair<BannerPattern, DyeColor>> var6 = BannerBlockEntity.createPatterns(DyeColor.GRAY, BannerBlockEntity.getItemPatterns(var2));
         BannerRenderer.renderPatterns(var3, var5, 15728880, OverlayTexture.NO_OVERLAY, this.flag, ModelBakery.BANNER_BASE, true, var6);
         var3.popPose();
         var5.endBatch();
@@ -260,8 +263,8 @@ public class LoomScreen extends AbstractContainerScreen<LoomMenu> {
         ItemStack var1 = this.menu.getBannerSlot().getItem();
         ItemStack var2 = this.menu.getDyeSlot().getItem();
         ItemStack var3 = this.menu.getPatternSlot().getItem();
-        CompoundTag var4 = var1.getOrCreateTagElement("BlockEntityTag");
-        this.hasMaxPatterns = var4.contains("Patterns", 9) && !var1.isEmpty() && var4.getList("Patterns", 10).size() >= 6;
+        CompoundTag var4 = BlockItem.getBlockEntityData(var1);
+        this.hasMaxPatterns = var4 != null && var4.contains("Patterns", 9) && !var1.isEmpty() && var4.getList("Patterns", 10).size() >= 6;
         if (this.hasMaxPatterns) {
             this.resultBannerPatterns = null;
         }

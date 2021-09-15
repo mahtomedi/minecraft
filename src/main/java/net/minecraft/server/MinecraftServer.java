@@ -49,6 +49,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
+import jdk.jfr.FlightRecorder;
 import net.minecraft.CrashReport;
 import net.minecraft.ReportedException;
 import net.minecraft.SharedConstants;
@@ -97,13 +98,16 @@ import net.minecraft.util.Crypt;
 import net.minecraft.util.CryptException;
 import net.minecraft.util.FrameTimer;
 import net.minecraft.util.Mth;
-import net.minecraft.util.ProgressListener;
+import net.minecraft.util.NativeModuleLister;
 import net.minecraft.util.Unit;
 import net.minecraft.util.profiling.EmptyProfileResults;
 import net.minecraft.util.profiling.ProfileResults;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.util.profiling.ResultField;
 import net.minecraft.util.profiling.SingleTickProfiler;
+import net.minecraft.util.profiling.jfr.JfrRecording;
+import net.minecraft.util.profiling.jfr.event.ticking.ServerTickTimeEvent;
+import net.minecraft.util.profiling.jfr.event.worldgen.WorldLoadFinishedEvent;
 import net.minecraft.util.profiling.metrics.profiling.ActiveMetricsRecorder;
 import net.minecraft.util.profiling.metrics.profiling.InactiveMetricsRecorder;
 import net.minecraft.util.profiling.metrics.profiling.MetricsRecorder;
@@ -159,7 +163,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTask> implements SnooperPopulator, CommandSource, AutoCloseable {
-    static final Logger LOGGER = LogManager.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     private static final float AVERAGE_TICK_TIME_SMOOTHING = 0.8F;
     private static final int TICK_STATS_SPAN = 100;
     public static final int MS_PER_TICK = 50;
@@ -305,48 +309,35 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
 
     protected abstract boolean initServer() throws IOException;
 
-    public static void convertFromRegionFormatIfNeeded(LevelStorageSource.LevelStorageAccess param0) {
-        if (param0.requiresConversion()) {
-            LOGGER.info("Converting map!");
-            param0.convertLevel(new ProgressListener() {
-                private long timeStamp = Util.getMillis();
-
-                @Override
-                public void progressStartNoAbort(Component param0) {
-                }
-
-                @Override
-                public void progressStart(Component param0) {
-                }
-
-                @Override
-                public void progressStagePercentage(int param0) {
-                    if (Util.getMillis() - this.timeStamp >= 1000L) {
-                        this.timeStamp = Util.getMillis();
-                        MinecraftServer.LOGGER.info("Converting... {}%", param0);
-                    }
-
-                }
-
-                @Override
-                public void stop() {
-                }
-
-                @Override
-                public void progressStage(Component param0) {
-                }
-            });
+    protected void loadLevel() {
+        if (FlightRecorder.isAvailable() && !JfrRecording.isRunning()) {
         }
 
-    }
+        boolean var0 = false;
+        WorldLoadFinishedEvent var1 = Util.make(new WorldLoadFinishedEvent(), param0 -> {
+            if (param0.isEnabled()) {
+                param0.begin();
+            }
 
-    protected void loadLevel() {
+        });
         this.detectBundledResources();
         this.worldData.setModdedInfo(this.getServerModName(), this.getModdedStatus().isPresent());
-        ChunkProgressListener var0 = this.progressListenerFactory.create(11);
-        this.createLevels(var0);
+        ChunkProgressListener var2 = this.progressListenerFactory.create(11);
+        this.createLevels(var2);
         this.forceDifficulty();
-        this.prepareLevels(var0);
+        this.prepareLevels(var2);
+        if (var1.shouldCommit()) {
+            var1.commit();
+        }
+
+        if (var0) {
+            try {
+                JfrRecording.stop();
+            } catch (Throwable var5) {
+                LOGGER.warn("Failed to stop JFR profiling", var5);
+            }
+        }
+
     }
 
     protected void forceDifficulty() {
@@ -434,7 +425,9 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
             ChunkGenerator var0 = param0.getChunkSource().getGenerator();
             BiomeSource var1 = var0.getBiomeSource();
             Random var2 = new Random(param0.getSeed());
-            BlockPos var3 = var1.findBiomeHorizontal(0, param0.getSeaLevel(), 0, 256, param0x -> param0x.getMobSettings().playerSpawnFriendly(), var2);
+            BlockPos var3 = var1.findBiomeHorizontal(
+                0, param0.getSeaLevel(), 0, 256, param0x -> param0x.getMobSettings().playerSpawnFriendly(), var2, var0.climateSampler()
+            );
             ChunkPos var4 = var3 == null ? new ChunkPos(0, 0) : new ChunkPos(var3);
             if (var3 == null) {
                 LOGGER.warn("Unable to find spawn biome");
@@ -443,7 +436,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
             boolean var5 = false;
 
             for(Block var6 : BlockTags.VALID_SPAWN.getValues()) {
-                if (var1.getSurfaceBlocks().contains(var6.defaultBlockState())) {
+                if (var1.hasSurfaceBlock(var6.defaultBlockState())) {
                     var5 = true;
                     break;
                 }
@@ -679,6 +672,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
                         new ServerStatus.Version(SharedConstants.getCurrentVersion().getName(), SharedConstants.getCurrentVersion().getProtocolVersion())
                     );
                 this.updateStatusIcon(this.status);
+                this.registerJFRhooks();
 
                 while(this.running) {
                     long var0 = Util.getMillis() - this.nextTickTime;
@@ -741,6 +735,16 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
 
         }
 
+    }
+
+    private void registerJFRhooks() {
+        FlightRecorder.addPeriodicEvent(ServerTickTimeEvent.class, () -> {
+            ServerTickTimeEvent var0 = new ServerTickTimeEvent(this.getAverageTickTime());
+            if (var0.shouldCommit()) {
+                var0.commit();
+            }
+
+        });
     }
 
     private boolean haveTime() {
@@ -1548,6 +1552,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
             this.dumpMiscStats(param0.resolve("stats.txt"));
             this.dumpThreads(param0.resolve("threads.txt"));
             this.dumpServerProperties(param0.resolve("server.properties.txt"));
+            this.dumpNativeModules(param0.resolve("modules.txt"));
         } catch (IOException var7) {
             LOGGER.warn("Failed to save debug report", (Throwable)var7);
         }
@@ -1607,6 +1612,26 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
             }
         }
 
+    }
+
+    private void dumpNativeModules(Path param0) throws IOException {
+        try (Writer var0 = Files.newBufferedWriter(param0)) {
+            List<NativeModuleLister.NativeModuleInfo> var1;
+            try {
+                var1 = Lists.newArrayList(NativeModuleLister.listModules());
+            } catch (Throwable var7) {
+                LOGGER.warn("Failed to list native modules", var7);
+                return;
+            }
+
+            var1.sort(Comparator.comparing(param0x -> param0x.name));
+
+            for(NativeModuleLister.NativeModuleInfo var4 : var1) {
+                var0.write(var4.toString());
+                var0.write(10);
+            }
+
+        }
     }
 
     private void startMetricsRecordingTick() {

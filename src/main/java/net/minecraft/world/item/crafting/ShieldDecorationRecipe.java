@@ -4,9 +4,11 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.BannerItem;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 
 public class ShieldDecorationRecipe extends CustomRecipe {
     public ShieldDecorationRecipe(ResourceLocation param0) {
@@ -35,7 +37,7 @@ public class ShieldDecorationRecipe extends CustomRecipe {
                         return false;
                     }
 
-                    if (var3.getTagElement("BlockEntityTag") != null) {
+                    if (BlockItem.getBlockEntityData(var3) != null) {
                         return false;
                     }
 
@@ -65,10 +67,10 @@ public class ShieldDecorationRecipe extends CustomRecipe {
         if (var1.isEmpty()) {
             return var1;
         } else {
-            CompoundTag var4 = var0.getTagElement("BlockEntityTag");
+            CompoundTag var4 = BlockItem.getBlockEntityData(var0);
             CompoundTag var5 = var4 == null ? new CompoundTag() : var4.copy();
             var5.putInt("Base", ((BannerItem)var0.getItem()).getColor().getId());
-            var1.addTagElement("BlockEntityTag", var5);
+            BlockItem.setBlockEntityData(var1, BlockEntityType.BANNER, var5);
             return var1;
         }
     }

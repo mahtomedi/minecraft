@@ -1,21 +1,18 @@
 package net.minecraft.world.level;
 
-import com.google.common.collect.Lists;
-import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.function.Function;
 import javax.annotation.Nullable;
-import net.minecraft.ResourceLocationException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.StringUtil;
-import net.minecraft.util.random.WeightedRandomList;
+import net.minecraft.util.random.SimpleWeightedRandomList;
+import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
@@ -28,9 +25,8 @@ import org.apache.logging.log4j.Logger;
 public abstract class BaseSpawner {
     private static final Logger LOGGER = LogManager.getLogger();
     private static final int EVENT_SPAWN = 1;
-    private static WeightedRandomList<SpawnData> EMPTY_POTENTIALS = WeightedRandomList.create();
     private int spawnDelay = 20;
-    private WeightedRandomList<SpawnData> spawnPotentials = EMPTY_POTENTIALS;
+    private SimpleWeightedRandomList<SpawnData> spawnPotentials = SimpleWeightedRandomList.empty();
     private SpawnData nextSpawnData = new SpawnData();
     private double spin;
     private double oSpin;
@@ -44,27 +40,8 @@ public abstract class BaseSpawner {
     private int spawnRange = 4;
     private final Random random = new Random();
 
-    @Nullable
-    private ResourceLocation getEntityId(@Nullable Level param0, BlockPos param1) {
-        String var0 = this.nextSpawnData.getTag().getString("id");
-
-        try {
-            return StringUtil.isNullOrEmpty(var0) ? null : new ResourceLocation(var0);
-        } catch (ResourceLocationException var5) {
-            LOGGER.warn(
-                "Invalid entity id '{}' at spawner {}:[{},{},{}]",
-                var0,
-                param0 != null ? param0.dimension().location() : "<null>",
-                param1.getX(),
-                param1.getY(),
-                param1.getZ()
-            );
-            return null;
-        }
-    }
-
     public void setEntityId(EntityType<?> param0) {
-        this.nextSpawnData.getTag().putString("id", Registry.ENTITY_TYPE.getKey(param0).toString());
+        this.nextSpawnData.getEntityToSpawn().putString("id", Registry.ENTITY_TYPE.getKey(param0).toString());
     }
 
     private boolean isNearPlayer(Level param0, BlockPos param1) {
@@ -104,9 +81,9 @@ public abstract class BaseSpawner {
                 boolean var0 = false;
 
                 for(int var1 = 0; var1 < this.spawnCount; ++var1) {
-                    CompoundTag var2 = this.nextSpawnData.getTag();
+                    CompoundTag var2 = this.nextSpawnData.getEntityToSpawn();
                     Optional<EntityType<?>> var3 = EntityType.by(var2);
-                    if (!var3.isPresent()) {
+                    if (var3.isEmpty()) {
                         this.delay(param0, param1);
                         return;
                     }
@@ -120,19 +97,33 @@ public abstract class BaseSpawner {
                     double var8 = var5 >= 3
                         ? var4.getDouble(2)
                         : (double)param1.getZ() + (param0.random.nextDouble() - param0.random.nextDouble()) * (double)this.spawnRange + 0.5;
-                    if (param0.noCollision(var3.get().getAABB(var6, var7, var8))
-                        && SpawnPlacements.checkSpawnRules(var3.get(), param0, MobSpawnType.SPAWNER, new BlockPos(var6, var7, var8), param0.getRandom())) {
-                        Entity var9 = EntityType.loadEntityRecursive(var2, param0, param3 -> {
+                    if (param0.noCollision(var3.get().getAABB(var6, var7, var8))) {
+                        BlockPos var9 = new BlockPos(var6, var7, var8);
+                        if (this.nextSpawnData.getCustomSpawnRules().isPresent()) {
+                            if (!var3.get().getCategory().isFriendly() && param0.getDifficulty() == Difficulty.PEACEFUL) {
+                                continue;
+                            }
+
+                            SpawnData.CustomSpawnRules var10 = this.nextSpawnData.getCustomSpawnRules().get();
+                            if (!var10.blockLightLimit().isValueInRange(param0.getBrightness(LightLayer.BLOCK, var9))
+                                || !var10.skyLightLimit().isValueInRange(param0.getBrightness(LightLayer.SKY, var9))) {
+                                continue;
+                            }
+                        } else if (!SpawnPlacements.checkSpawnRules(var3.get(), param0, MobSpawnType.SPAWNER, var9, param0.getRandom())) {
+                            continue;
+                        }
+
+                        Entity var11 = EntityType.loadEntityRecursive(var2, param0, param3 -> {
                             param3.moveTo(var6, var7, var8, param3.getYRot(), param3.getXRot());
                             return param3;
                         });
-                        if (var9 == null) {
+                        if (var11 == null) {
                             this.delay(param0, param1);
                             return;
                         }
 
-                        int var10 = param0.getEntitiesOfClass(
-                                var9.getClass(),
+                        int var12 = param0.getEntitiesOfClass(
+                                var11.getClass(),
                                 new AABB(
                                         (double)param1.getX(),
                                         (double)param1.getY(),
@@ -144,30 +135,31 @@ public abstract class BaseSpawner {
                                     .inflate((double)this.spawnRange)
                             )
                             .size();
-                        if (var10 >= this.maxNearbyEntities) {
+                        if (var12 >= this.maxNearbyEntities) {
                             this.delay(param0, param1);
                             return;
                         }
 
-                        var9.moveTo(var9.getX(), var9.getY(), var9.getZ(), param0.random.nextFloat() * 360.0F, 0.0F);
-                        if (var9 instanceof Mob var11) {
-                            if (!var11.checkSpawnRules(param0, MobSpawnType.SPAWNER) || !var11.checkSpawnObstruction(param0)) {
+                        var11.moveTo(var11.getX(), var11.getY(), var11.getZ(), param0.random.nextFloat() * 360.0F, 0.0F);
+                        if (var11 instanceof Mob var13) {
+                            if (this.nextSpawnData.getCustomSpawnRules().isEmpty() && !var13.checkSpawnRules(param0, MobSpawnType.SPAWNER)
+                                || !var13.checkSpawnObstruction(param0)) {
                                 continue;
                             }
 
-                            if (this.nextSpawnData.getTag().size() == 1 && this.nextSpawnData.getTag().contains("id", 8)) {
-                                ((Mob)var9).finalizeSpawn(param0, param0.getCurrentDifficultyAt(var9.blockPosition()), MobSpawnType.SPAWNER, null, null);
+                            if (this.nextSpawnData.getEntityToSpawn().size() == 1 && this.nextSpawnData.getEntityToSpawn().contains("id", 8)) {
+                                ((Mob)var11).finalizeSpawn(param0, param0.getCurrentDifficultyAt(var11.blockPosition()), MobSpawnType.SPAWNER, null, null);
                             }
                         }
 
-                        if (!param0.tryAddFreshEntityWithPassengers(var9)) {
+                        if (!param0.tryAddFreshEntityWithPassengers(var11)) {
                             this.delay(param0, param1);
                             return;
                         }
 
                         param0.levelEvent(2004, param1, 0);
-                        if (var9 instanceof Mob) {
-                            ((Mob)var9).spawnAnim();
+                        if (var11 instanceof Mob) {
+                            ((Mob)var11).spawnAnim();
                         }
 
                         var0 = true;
@@ -189,26 +181,42 @@ public abstract class BaseSpawner {
             this.spawnDelay = this.minSpawnDelay + this.random.nextInt(this.maxSpawnDelay - this.minSpawnDelay);
         }
 
-        this.spawnPotentials.getRandom(this.random).ifPresent(param2 -> this.setNextSpawnData(param0, param1, param2));
+        this.spawnPotentials.getRandom(this.random).ifPresent(param2 -> this.setNextSpawnData(param0, param1, param2.getData()));
         this.broadcastEvent(param0, param1, 1);
     }
 
     public void load(@Nullable Level param0, BlockPos param1, CompoundTag param2) {
         this.spawnDelay = param2.getShort("Delay");
-        List<SpawnData> var0 = Lists.newArrayList();
-        if (param2.contains("SpawnPotentials", 9)) {
-            ListTag var1 = param2.getList("SpawnPotentials", 10);
-
-            for(int var2 = 0; var2 < var1.size(); ++var2) {
-                var0.add(new SpawnData(var1.getCompound(var2)));
+        boolean var0 = param2.contains("SpawnPotentials", 9);
+        boolean var1 = param2.contains("SpawnData", 10);
+        if (!var0) {
+            SpawnData var2;
+            if (var1) {
+                var2 = SpawnData.CODEC
+                    .parse(NbtOps.INSTANCE, param2.getCompound("SpawnData"))
+                    .resultOrPartial(param0x -> LOGGER.warn("Invalid SpawnData: {}", param0x))
+                    .orElseGet(SpawnData::new);
+            } else {
+                var2 = new SpawnData();
             }
-        }
 
-        this.spawnPotentials = WeightedRandomList.create(var0);
-        if (param2.contains("SpawnData", 10)) {
-            this.setNextSpawnData(param0, param1, new SpawnData(1, param2.getCompound("SpawnData")));
-        } else if (!var0.isEmpty()) {
-            this.spawnPotentials.getRandom(this.random).ifPresent(param2x -> this.setNextSpawnData(param0, param1, param2x));
+            this.spawnPotentials = SimpleWeightedRandomList.single(var2);
+            this.setNextSpawnData(param0, param1, var2);
+        } else {
+            ListTag var4 = param2.getList("SpawnPotentials", 10);
+            this.spawnPotentials = SpawnData.LIST_CODEC
+                .parse(NbtOps.INSTANCE, var4)
+                .resultOrPartial(param0x -> LOGGER.warn("Invalid SpawnPotentials list: {}", param0x))
+                .orElseGet(SimpleWeightedRandomList::empty);
+            if (var1) {
+                SpawnData var5 = SpawnData.CODEC
+                    .parse(NbtOps.INSTANCE, param2.getCompound("SpawnData"))
+                    .resultOrPartial(param0x -> LOGGER.warn("Invalid SpawnData: {}", param0x))
+                    .orElseGet(SpawnData::new);
+                this.setNextSpawnData(param0, param1, var5);
+            } else {
+                this.spawnPotentials.getRandom(this.random).ifPresent(param2x -> this.setNextSpawnData(param0, param1, param2x.getData()));
+            }
         }
 
         if (param2.contains("MinSpawnDelay", 99)) {
@@ -229,38 +237,29 @@ public abstract class BaseSpawner {
         this.displayEntity = null;
     }
 
-    public CompoundTag save(@Nullable Level param0, BlockPos param1, CompoundTag param2) {
-        ResourceLocation var0 = this.getEntityId(param0, param1);
-        if (var0 == null) {
-            return param2;
-        } else {
-            param2.putShort("Delay", (short)this.spawnDelay);
-            param2.putShort("MinSpawnDelay", (short)this.minSpawnDelay);
-            param2.putShort("MaxSpawnDelay", (short)this.maxSpawnDelay);
-            param2.putShort("SpawnCount", (short)this.spawnCount);
-            param2.putShort("MaxNearbyEntities", (short)this.maxNearbyEntities);
-            param2.putShort("RequiredPlayerRange", (short)this.requiredPlayerRange);
-            param2.putShort("SpawnRange", (short)this.spawnRange);
-            param2.put("SpawnData", this.nextSpawnData.getTag().copy());
-            ListTag var1 = new ListTag();
-            if (this.spawnPotentials.isEmpty()) {
-                var1.add(this.nextSpawnData.save());
-            } else {
-                for(SpawnData var2 : this.spawnPotentials.unwrap()) {
-                    var1.add(var2.save());
-                }
-            }
-
-            param2.put("SpawnPotentials", var1);
-            return param2;
-        }
+    public CompoundTag save(CompoundTag param0) {
+        param0.putShort("Delay", (short)this.spawnDelay);
+        param0.putShort("MinSpawnDelay", (short)this.minSpawnDelay);
+        param0.putShort("MaxSpawnDelay", (short)this.maxSpawnDelay);
+        param0.putShort("SpawnCount", (short)this.spawnCount);
+        param0.putShort("MaxNearbyEntities", (short)this.maxNearbyEntities);
+        param0.putShort("RequiredPlayerRange", (short)this.requiredPlayerRange);
+        param0.putShort("SpawnRange", (short)this.spawnRange);
+        param0.put(
+            "SpawnData",
+            SpawnData.CODEC.encodeStart(NbtOps.INSTANCE, this.nextSpawnData).result().orElseThrow(() -> new IllegalStateException("Invalid SpawnData"))
+        );
+        param0.put("SpawnPotentials", SpawnData.LIST_CODEC.encodeStart(NbtOps.INSTANCE, this.spawnPotentials).result().orElseThrow());
+        return param0;
     }
 
     @Nullable
     public Entity getOrCreateDisplayEntity(Level param0) {
         if (this.displayEntity == null) {
-            this.displayEntity = EntityType.loadEntityRecursive(this.nextSpawnData.getTag(), param0, Function.identity());
-            if (this.nextSpawnData.getTag().size() == 1 && this.nextSpawnData.getTag().contains("id", 8) && this.displayEntity instanceof Mob) {
+            this.displayEntity = EntityType.loadEntityRecursive(this.nextSpawnData.getEntityToSpawn(), param0, Function.identity());
+            if (this.nextSpawnData.getEntityToSpawn().size() == 1
+                && this.nextSpawnData.getEntityToSpawn().contains("id", 8)
+                && this.displayEntity instanceof Mob) {
             }
         }
 

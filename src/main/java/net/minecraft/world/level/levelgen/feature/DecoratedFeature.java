@@ -1,10 +1,11 @@
 package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
+import java.util.Optional;
 import java.util.Random;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.configurations.DecoratedFeatureConfiguration;
 import net.minecraft.world.level.levelgen.placement.DecorationContext;
@@ -22,10 +23,17 @@ public class DecoratedFeature extends Feature<DecoratedFeatureConfiguration> {
         DecoratedFeatureConfiguration var2 = param0.config();
         ChunkGenerator var3 = param0.chunkGenerator();
         Random var4 = param0.random();
-        BlockPos var5 = param0.origin();
-        ConfiguredFeature<?, ?> var6 = var2.feature.get();
-        var2.decorator.getPositions(new DecorationContext(var1, var3), var4, var5).forEach(param5 -> {
-            if (var6.place(var1, var3, var4, param5)) {
+        ConfiguredFeature<?, ?> var5 = var2.feature.get();
+        var2.decorator.getPositions(new DecorationContext(var1, var3), var4, param0.origin()).forEach(param6 -> {
+            Optional<ConfiguredFeature<?, ?>> var0x = param0.topFeature();
+            if (var0x.isPresent() && !(var5.feature() instanceof DecoratedFeature)) {
+                Biome var1x = var1.getBiome(param6);
+                if (!var1x.getGenerationSettings().hasFeature(var0x.get())) {
+                    return;
+                }
+            }
+
+            if (var5.placeWithBiomeCheck(var0x, var1, var3, var4, param6)) {
                 var0.setTrue();
             }
 

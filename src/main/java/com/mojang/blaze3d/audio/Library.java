@@ -1,8 +1,10 @@
 package com.mojang.blaze3d.audio;
 
 import com.google.common.collect.Sets;
-import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import java.util.Collections;
+import java.util.List;
+import java.util.OptionalLong;
 import java.util.Set;
 import javax.annotation.Nullable;
 import net.minecraft.util.Mth;
@@ -16,11 +18,11 @@ import org.lwjgl.openal.ALC;
 import org.lwjgl.openal.ALC10;
 import org.lwjgl.openal.ALCCapabilities;
 import org.lwjgl.openal.ALCapabilities;
+import org.lwjgl.openal.ALUtil;
 import org.lwjgl.system.MemoryStack;
 
 @OnlyIn(Dist.CLIENT)
 public class Library {
-    private static final int NUM_OPEN_DEVICE_RETRIES = 3;
     static final Logger LOGGER = LogManager.getLogger();
     private static final int DEFAULT_CHANNEL_COUNT = 30;
     private long device;
@@ -55,8 +57,8 @@ public class Library {
     private Library.ChannelPool streamingChannels = EMPTY;
     private final Listener listener = new Listener();
 
-    public void init() {
-        this.device = tryOpenDevice();
+    public void init(@Nullable String param0) {
+        this.device = openDeviceOrFallback(param0);
         ALCCapabilities var0 = ALC.createCapabilities(this.device);
         if (OpenAlUtil.checkALCError(this.device, "Get capabilities")) {
             throw new IllegalStateException("Failed to get OpenAL capabilities");
@@ -117,15 +119,35 @@ public class Library {
         return 30;
     }
 
-    private static long tryOpenDevice() {
-        for(int var0 = 0; var0 < 3; ++var0) {
-            long var1 = ALC10.alcOpenDevice((ByteBuffer)null);
-            if (var1 != 0L && !OpenAlUtil.checkALCError(var1, "Open device")) {
-                return var1;
-            }
+    @Nullable
+    public static String getDefaultDeviceName() {
+        return !ALC10.alcIsExtensionPresent(0L, "ALC_ENUMERATE_ALL_EXT") ? null : ALC10.alcGetString(0L, 4115);
+    }
+
+    private static long openDeviceOrFallback(@Nullable String param0) {
+        OptionalLong var0 = OptionalLong.empty();
+        if (param0 != null) {
+            var0 = tryOpenDevice(param0);
         }
 
-        throw new IllegalStateException("Failed to open OpenAL device");
+        if (var0.isEmpty()) {
+            var0 = tryOpenDevice(getDefaultDeviceName());
+        }
+
+        if (var0.isEmpty()) {
+            var0 = tryOpenDevice(null);
+        }
+
+        if (var0.isEmpty()) {
+            throw new IllegalStateException("Failed to open OpenAL device");
+        } else {
+            return var0.getAsLong();
+        }
+    }
+
+    private static OptionalLong tryOpenDevice(@Nullable String param0) {
+        long var0 = ALC10.alcOpenDevice(param0);
+        return var0 != 0L && !OpenAlUtil.checkALCError(var0, "Open device") ? OptionalLong.of(var0) : OptionalLong.empty();
     }
 
     public void cleanup() {
@@ -161,6 +183,11 @@ public class Library {
             this.streamingChannels.getUsedCount(),
             this.streamingChannels.getMaxCount()
         );
+    }
+
+    public List<String> getAvailableSoundDevices() {
+        List<String> var0 = ALUtil.getStringList(0L, 4115);
+        return var0 == null ? Collections.emptyList() : var0;
     }
 
     @OnlyIn(Dist.CLIENT)

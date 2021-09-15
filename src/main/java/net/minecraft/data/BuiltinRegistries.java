@@ -40,7 +40,7 @@ public class BuiltinRegistries {
     public static final Registry<ConfiguredWorldCarver<?>> CONFIGURED_CARVER = registerSimple(Registry.CONFIGURED_CARVER_REGISTRY, () -> Carvers.CAVE);
     public static final Registry<ConfiguredFeature<?, ?>> CONFIGURED_FEATURE = registerSimple(Registry.CONFIGURED_FEATURE_REGISTRY, () -> Features.OAK);
     public static final Registry<ConfiguredStructureFeature<?, ?>> CONFIGURED_STRUCTURE_FEATURE = registerSimple(
-        Registry.CONFIGURED_STRUCTURE_FEATURE_REGISTRY, () -> StructureFeatures.MINESHAFT
+        Registry.CONFIGURED_STRUCTURE_FEATURE_REGISTRY, StructureFeatures::bootstrap
     );
     public static final Registry<StructureProcessorList> PROCESSOR_LIST = registerSimple(Registry.PROCESSOR_LIST_REGISTRY, () -> ProcessorLists.ZOMBIE_PLAINS);
     public static final Registry<StructureTemplatePool> TEMPLATE_POOL = registerSimple(Registry.TEMPLATE_POOL_REGISTRY, Pools::bootstrap);
@@ -74,8 +74,8 @@ public class BuiltinRegistries {
         return ((WritableRegistry)param0).register(ResourceKey.create(param0.key(), param1), param2, Lifecycle.stable());
     }
 
-    public static <V, T extends V> T registerMapping(Registry<V> param0, int param1, ResourceKey<V> param2, T param3) {
-        return ((WritableRegistry)param0).registerMapping(param1, param2, param3, Lifecycle.stable());
+    public static <V, T extends V> T registerMapping(Registry<V> param0, ResourceKey<V> param1, T param2) {
+        return ((WritableRegistry)param0).register(param1, param2, Lifecycle.stable());
     }
 
     public static void bootstrap() {

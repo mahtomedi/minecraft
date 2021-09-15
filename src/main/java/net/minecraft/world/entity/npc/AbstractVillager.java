@@ -222,11 +222,6 @@ public abstract class AbstractVillager extends AgeableMob implements InventoryCa
         return var0 >= 0 && var0 < this.inventory.getContainerSize() ? SlotAccess.forContainer(this.inventory, var0) : super.getSlot(param0);
     }
 
-    @Override
-    public Level getLevel() {
-        return this.level;
-    }
-
     protected abstract void updateTrades();
 
     protected void addOffersFromItemListings(MerchantOffers param0, VillagerTrades.ItemListing[] param1, int param2) {
@@ -256,5 +251,10 @@ public abstract class AbstractVillager extends AgeableMob implements InventoryCa
         float var0 = Mth.lerp(param0, this.yBodyRotO, this.yBodyRot) * (float) (Math.PI / 180.0);
         Vec3 var1 = new Vec3(0.0, this.getBoundingBox().getYsize() - 1.0, 0.2);
         return this.getPosition(param0).add(var1.yRot(-var0));
+    }
+
+    @Override
+    public boolean isClientSide() {
+        return this.level.isClientSide;
     }
 }

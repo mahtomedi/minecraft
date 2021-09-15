@@ -63,13 +63,12 @@ public class CommandBlockEntity extends BlockEntity {
     }
 
     @Override
-    public CompoundTag save(CompoundTag param0) {
-        super.save(param0);
+    protected void saveAdditional(CompoundTag param0) {
+        super.saveAdditional(param0);
         this.commandBlock.save(param0);
         param0.putBoolean("powered", this.isPowered());
         param0.putBoolean("conditionMet", this.wasConditionMet());
         param0.putBoolean("auto", this.isAutomatic());
-        return param0;
     }
 
     @Override
@@ -82,12 +81,10 @@ public class CommandBlockEntity extends BlockEntity {
     }
 
     @Nullable
-    @Override
     public ClientboundBlockEntityDataPacket getUpdatePacket() {
         if (this.isSendToClient()) {
             this.setSendToClient(false);
-            CompoundTag var0 = this.save(new CompoundTag());
-            return new ClientboundBlockEntityDataPacket(this.worldPosition, 2, var0);
+            return ClientboundBlockEntityDataPacket.create(this);
         } else {
             return null;
         }

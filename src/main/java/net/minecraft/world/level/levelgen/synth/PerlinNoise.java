@@ -18,6 +18,7 @@ import net.minecraft.world.level.levelgen.WorldgenRandom;
 public class PerlinNoise implements SurfaceNoise {
     private static final int ROUND_OFF = 33554432;
     private final ImprovedNoise[] noiseLevels;
+    private final int firstOctave;
     private final DoubleList amplitudes;
     private final double lowestFreqValueFactor;
     private final double lowestFreqInputFactor;
@@ -74,24 +75,24 @@ public class PerlinNoise implements SurfaceNoise {
     }
 
     protected PerlinNoise(RandomSource param0, Pair<Integer, DoubleList> param1, LongFunction<RandomSource> param2) {
-        int var0 = param1.getFirst();
+        this.firstOctave = param1.getFirst();
         this.amplitudes = param1.getSecond();
-        ImprovedNoise var1 = new ImprovedNoise(param0);
-        int var2 = this.amplitudes.size();
-        int var3 = -var0;
-        this.noiseLevels = new ImprovedNoise[var2];
-        if (var3 >= 0 && var3 < var2) {
-            double var4 = this.amplitudes.getDouble(var3);
-            if (var4 != 0.0) {
-                this.noiseLevels[var3] = var1;
+        ImprovedNoise var0 = new ImprovedNoise(param0);
+        int var1 = this.amplitudes.size();
+        int var2 = -this.firstOctave;
+        this.noiseLevels = new ImprovedNoise[var1];
+        if (var2 >= 0 && var2 < var1) {
+            double var3 = this.amplitudes.getDouble(var2);
+            if (var3 != 0.0) {
+                this.noiseLevels[var2] = var0;
             }
         }
 
-        for(int var5 = var3 - 1; var5 >= 0; --var5) {
-            if (var5 < var2) {
-                double var6 = this.amplitudes.getDouble(var5);
-                if (var6 != 0.0) {
-                    this.noiseLevels[var5] = new ImprovedNoise(param0);
+        for(int var4 = var2 - 1; var4 >= 0; --var4) {
+            if (var4 < var1) {
+                double var5 = this.amplitudes.getDouble(var4);
+                if (var5 != 0.0) {
+                    this.noiseLevels[var4] = new ImprovedNoise(param0);
                 } else {
                     skipOctave(param0);
                 }
@@ -100,11 +101,11 @@ public class PerlinNoise implements SurfaceNoise {
             }
         }
 
-        if (var3 < var2 - 1) {
+        if (var2 < var1 - 1) {
             throw new IllegalArgumentException("Positive octaves are temporarily disabled");
         } else {
-            this.lowestFreqInputFactor = Math.pow(2.0, (double)(-var3));
-            this.lowestFreqValueFactor = Math.pow(2.0, (double)(var2 - 1)) / (Math.pow(2.0, (double)var2) - 1.0);
+            this.lowestFreqInputFactor = Math.pow(2.0, (double)(-var2));
+            this.lowestFreqValueFactor = Math.pow(2.0, (double)(var1 - 1)) / (Math.pow(2.0, (double)var1) - 1.0);
         }
     }
 
@@ -148,5 +149,13 @@ public class PerlinNoise implements SurfaceNoise {
     @Override
     public double getSurfaceNoiseValue(double param0, double param1, double param2, double param3) {
         return this.getValue(param0, param1, 0.0, param2, param3, false);
+    }
+
+    protected int firstOctave() {
+        return this.firstOctave;
+    }
+
+    protected DoubleList amplitudes() {
+        return this.amplitudes;
     }
 }

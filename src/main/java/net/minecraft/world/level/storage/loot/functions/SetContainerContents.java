@@ -5,13 +5,18 @@ import com.google.common.collect.Lists;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSyntaxException;
 import java.util.Arrays;
 import java.util.List;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.ContainerHelper;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.ValidationContext;
@@ -20,10 +25,12 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
 public class SetContainerContents extends LootItemConditionalFunction {
     final List<LootPoolEntryContainer> entries;
+    final BlockEntityType<?> type;
 
-    SetContainerContents(LootItemCondition[] param0, List<LootPoolEntryContainer> param1) {
+    SetContainerContents(LootItemCondition[] param0, BlockEntityType<?> param1, List<LootPoolEntryContainer> param2) {
         super(param0);
-        this.entries = ImmutableList.copyOf(param1);
+        this.type = param1;
+        this.entries = ImmutableList.copyOf(param2);
     }
 
     @Override
@@ -40,8 +47,14 @@ public class SetContainerContents extends LootItemConditionalFunction {
             this.entries.forEach(param2 -> param2.expand(param1, param2x -> param2x.createItemStack(LootTable.createStackSplitter(var0::add), param1)));
             CompoundTag var1 = new CompoundTag();
             ContainerHelper.saveAllItems(var1, var0);
-            CompoundTag var2 = param0.getOrCreateTag();
-            var2.put("BlockEntityTag", var1.merge(var2.getCompound("BlockEntityTag")));
+            CompoundTag var2 = BlockItem.getBlockEntityData(param0);
+            if (var2 == null) {
+                var2 = var1;
+            } else {
+                var2.merge(var1);
+            }
+
+            BlockItem.setBlockEntityData(param0, this.type, var2);
             return param0;
         }
     }
@@ -56,12 +69,17 @@ public class SetContainerContents extends LootItemConditionalFunction {
 
     }
 
-    public static SetContainerContents.Builder setContents() {
-        return new SetContainerContents.Builder();
+    public static SetContainerContents.Builder setContents(BlockEntityType<?> param0) {
+        return new SetContainerContents.Builder(param0);
     }
 
     public static class Builder extends LootItemConditionalFunction.Builder<SetContainerContents.Builder> {
         private final List<LootPoolEntryContainer> entries = Lists.newArrayList();
+        private final BlockEntityType<?> type;
+
+        public Builder(BlockEntityType<?> param0) {
+            this.type = param0;
+        }
 
         protected SetContainerContents.Builder getThis() {
             return this;
@@ -74,19 +92,24 @@ public class SetContainerContents extends LootItemConditionalFunction {
 
         @Override
         public LootItemFunction build() {
-            return new SetContainerContents(this.getConditions(), this.entries);
+            return new SetContainerContents(this.getConditions(), this.type, this.entries);
         }
     }
 
     public static class Serializer extends LootItemConditionalFunction.Serializer<SetContainerContents> {
         public void serialize(JsonObject param0, SetContainerContents param1, JsonSerializationContext param2) {
             super.serialize(param0, param1, param2);
+            param0.addProperty("type", Registry.BLOCK_ENTITY_TYPE.getKey(param1.type).toString());
             param0.add("entries", param2.serialize(param1.entries));
         }
 
         public SetContainerContents deserialize(JsonObject param0, JsonDeserializationContext param1, LootItemCondition[] param2) {
             LootPoolEntryContainer[] var0 = GsonHelper.getAsObject(param0, "entries", param1, LootPoolEntryContainer[].class);
-            return new SetContainerContents(param2, Arrays.asList(var0));
+            ResourceLocation var1 = new ResourceLocation(GsonHelper.getAsString(param0, "type"));
+            BlockEntityType<?> var2 = Registry.BLOCK_ENTITY_TYPE
+                .getOptional(var1)
+                .orElseThrow(() -> new JsonSyntaxException("Unknown block entity type id '" + var1 + "'"));
+            return new SetContainerContents(param2, var2, Arrays.asList(var0));
         }
     }
 }

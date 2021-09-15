@@ -15,6 +15,7 @@ import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.multiplayer.PlayerInfo;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
@@ -161,9 +162,7 @@ public class PlayerTabOverlay extends GuiComponent {
                 GameProfile var30 = var29.getProfile();
                 if (var9) {
                     Player var31 = this.minecraft.level.getPlayerByUUID(var30.getId());
-                    boolean var32 = var31 != null
-                        && var31.isModelPartShown(PlayerModelPart.CAPE)
-                        && ("Dinnerbone".equals(var30.getName()) || "Grumm".equals(var30.getName()));
+                    boolean var32 = var31 != null && LivingEntityRenderer.isEntityUpsideDown(var31);
                     RenderSystem.setShaderTexture(0, var29.getSkinLocation());
                     int var33 = 8 + (var32 ? 8 : 0);
                     int var34 = 8 * (var32 ? -1 : 1);

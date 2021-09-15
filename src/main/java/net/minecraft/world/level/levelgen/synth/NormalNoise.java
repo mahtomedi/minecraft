@@ -1,8 +1,11 @@
 package net.minecraft.world.level.levelgen.synth;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import it.unimi.dsi.fastutil.doubles.DoubleList;
 import it.unimi.dsi.fastutil.doubles.DoubleListIterator;
+import java.util.List;
 import net.minecraft.world.level.levelgen.RandomSource;
 
 public class NormalNoise {
@@ -14,6 +17,10 @@ public class NormalNoise {
 
     public static NormalNoise create(RandomSource param0, int param1, double... param2) {
         return new NormalNoise(param0, param1, new DoubleArrayList(param2));
+    }
+
+    public static NormalNoise create(RandomSource param0, NormalNoise.NoiseParameters param1) {
+        return create(param0, param1.firstOctave(), param1.amplitudes());
     }
 
     public static NormalNoise create(RandomSource param0, int param1, DoubleList param2) {
@@ -48,5 +55,39 @@ public class NormalNoise {
         double var1 = param1 * 1.0181268882175227;
         double var2 = param2 * 1.0181268882175227;
         return (this.first.getValue(param0, param1, param2) + this.second.getValue(var0, var1, var2)) * this.valueFactor;
+    }
+
+    public NormalNoise.NoiseParameters parameters() {
+        return new NormalNoise.NoiseParameters(this.first.firstOctave(), this.first.amplitudes());
+    }
+
+    public static class NoiseParameters {
+        private final int firstOctave;
+        private final DoubleList amplitudes;
+        public static final Codec<NormalNoise.NoiseParameters> CODEC = RecordCodecBuilder.create(
+            param0 -> param0.group(
+                        Codec.INT.fieldOf("firstOctave").forGetter(NormalNoise.NoiseParameters::firstOctave),
+                        Codec.DOUBLE.listOf().fieldOf("amplitudes").forGetter(NormalNoise.NoiseParameters::amplitudes)
+                    )
+                    .apply(param0, NormalNoise.NoiseParameters::new)
+        );
+
+        public NoiseParameters(int param0, List<Double> param1) {
+            this.firstOctave = param0;
+            this.amplitudes = new DoubleArrayList(param1);
+        }
+
+        public NoiseParameters(int param0, double... param1) {
+            this.firstOctave = param0;
+            this.amplitudes = new DoubleArrayList(param1);
+        }
+
+        public int firstOctave() {
+            return this.firstOctave;
+        }
+
+        public DoubleList amplitudes() {
+            return this.amplitudes;
+        }
     }
 }

@@ -85,6 +85,7 @@ import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.border.WorldBorder;
@@ -1692,9 +1693,21 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         if (this.noPhysics) {
             return false;
         } else {
-            float var0 = this.dimensions.width * 0.8F;
-            AABB var1 = AABB.ofSize(this.getEyePosition(), (double)var0, 1.0E-6, (double)var0);
-            return this.level.getBlockCollisions(this, var1, (param0, param1) -> param0.isSuffocating(this.level, param1)).findAny().isPresent();
+            Vec3 var0 = this.getEyePosition();
+            float var1 = this.dimensions.width * 0.8F;
+            AABB var2 = AABB.ofSize(var0, (double)var1, 1.0E-6, (double)var1);
+            return this.level
+                .getBlockStates(var2)
+                .filter(Predicate.not(BlockBehaviour.BlockStateBase::isAir))
+                .anyMatch(
+                    param2 -> {
+                        BlockPos var0x = new BlockPos(var0);
+                        return param2.isSuffocating(this.level, var0x)
+                            && Shapes.joinIsNotEmpty(
+                                param2.getCollisionShape(this.level, var0x).move(var0.x, var0.y, var0.z), Shapes.create(var2), BooleanOp.AND
+                            );
+                    }
+                );
         }
     }
 
@@ -3107,6 +3120,10 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
 
     public boolean mayInteract(Level param0, BlockPos param1) {
         return true;
+    }
+
+    public Level getLevel() {
+        return this.level;
     }
 
     @FunctionalInterface

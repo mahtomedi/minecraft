@@ -48,7 +48,7 @@ public class BlockInput implements Predicate<BlockInWorld> {
                 return true;
             } else {
                 BlockEntity var2 = param0.getEntity();
-                return var2 != null && NbtUtils.compareNbt(this.tag, var2.save(new CompoundTag()), true);
+                return var2 != null && NbtUtils.compareNbt(this.tag, var2.saveWithFullMetadata(), true);
             }
         }
     }
@@ -69,11 +69,7 @@ public class BlockInput implements Predicate<BlockInWorld> {
             if (this.tag != null) {
                 BlockEntity var1 = param0.getBlockEntity(param1);
                 if (var1 != null) {
-                    CompoundTag var2 = this.tag.copy();
-                    var2.putInt("x", param1.getX());
-                    var2.putInt("y", param1.getY());
-                    var2.putInt("z", param1.getZ());
-                    var1.load(var2);
+                    var1.load(this.tag);
                 }
             }
 

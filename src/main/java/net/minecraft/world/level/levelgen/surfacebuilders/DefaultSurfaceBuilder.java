@@ -2,11 +2,10 @@ package net.minecraft.world.level.levelgen.surfacebuilders;
 
 import com.mojang.serialization.Codec;
 import java.util.Random;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.BlockColumn;
 
 public class DefaultSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBaseConfiguration> {
     public DefaultSurfaceBuilder(Codec<SurfaceBuilderBaseConfiguration> param0) {
@@ -15,7 +14,7 @@ public class DefaultSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBaseConf
 
     public void apply(
         Random param0,
-        ChunkAccess param1,
+        BlockColumn param1,
         Biome param2,
         int param3,
         int param4,
@@ -48,7 +47,7 @@ public class DefaultSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBaseConf
 
     protected void apply(
         Random param0,
-        ChunkAccess param1,
+        BlockColumn param1,
         Biome param2,
         int param3,
         int param4,
@@ -62,75 +61,63 @@ public class DefaultSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBaseConf
         int param12,
         int param13
     ) {
-        BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos();
-        int var1 = (int)(param6 / 3.0 + 3.0 + param0.nextDouble() * 0.25);
-        if (var1 == 0) {
-            boolean var2 = false;
+        param12 = Integer.MIN_VALUE;
+        int var0 = (int)(param6 / 3.0 + 3.0 + param0.nextDouble() * 0.25);
+        BlockState var1 = param10;
+        int var2 = -1;
 
-            for(int var3 = param5; var3 >= param13; --var3) {
-                var0.set(param3, var3, param4);
-                BlockState var4 = param1.getBlockState(var0);
-                if (var4.isAir()) {
-                    var2 = false;
-                } else if (var4.is(param7.getBlock())) {
-                    if (!var2) {
-                        BlockState var5;
-                        if (var3 >= param12) {
-                            var5 = Blocks.AIR.defaultBlockState();
-                        } else if (var3 == param12 - 1) {
-                            var5 = param2.getTemperature(var0) < 0.15F ? Blocks.ICE.defaultBlockState() : param8;
-                        } else if (var3 >= param12 - (7 + var1)) {
-                            var5 = param7;
-                        } else {
-                            var5 = param11;
-                        }
-
-                        param1.setBlockState(var0, var5, false);
-                    }
-
-                    var2 = true;
+        for(int var3 = param5; var3 >= param13; --var3) {
+            BlockState var4 = param1.getBlock(var3);
+            if (var4.isAir()) {
+                var2 = -1;
+                param12 = Integer.MIN_VALUE;
+            } else if (!var4.is(param7.getBlock())) {
+                param12 = Math.max(var3 + 1, param12);
+            } else if (var2 == -1) {
+                var2 = var0;
+                BlockState var5;
+                if (var3 >= param12 + 2) {
+                    var5 = param9;
+                } else if (var3 >= param12 - 1) {
+                    var1 = param10;
+                    var5 = param9;
+                } else if (var3 >= param12 - 4) {
+                    var1 = param10;
+                    var5 = param10;
+                } else if (var3 >= param12 - (7 + var0)) {
+                    var5 = var1;
+                } else {
+                    var1 = param7;
+                    var5 = param11;
                 }
-            }
-        } else {
-            BlockState var9 = param10;
-            int var10 = -1;
 
-            for(int var11 = param5; var11 >= param13; --var11) {
-                var0.set(param3, var11, param4);
-                BlockState var12 = param1.getBlockState(var0);
-                if (var12.isAir()) {
-                    var10 = -1;
-                } else if (var12.is(param7.getBlock())) {
-                    if (var10 == -1) {
-                        var10 = var1;
-                        BlockState var13;
-                        if (var11 >= param12 + 2) {
-                            var13 = param9;
-                        } else if (var11 >= param12 - 1) {
-                            var9 = param10;
-                            var13 = param9;
-                        } else if (var11 >= param12 - 4) {
-                            var9 = param10;
-                            var13 = param10;
-                        } else if (var11 >= param12 - (7 + var1)) {
-                            var13 = var9;
-                        } else {
-                            var9 = param7;
-                            var13 = param11;
-                        }
-
-                        param1.setBlockState(var0, var13, false);
-                    } else if (var10 > 0) {
-                        --var10;
-                        param1.setBlockState(var0, var9, false);
-                        if (var10 == 0 && var9.is(Blocks.SAND) && var1 > 1) {
-                            var10 = param0.nextInt(4) + Math.max(0, var11 - param12);
-                            var9 = var9.is(Blocks.RED_SAND) ? Blocks.RED_SANDSTONE.defaultBlockState() : Blocks.SANDSTONE.defaultBlockState();
-                        }
-                    }
+                param1.setBlock(var3, maybeReplaceState(var5, param1, var3, param12));
+            } else if (var2 > 0) {
+                --var2;
+                param1.setBlock(var3, maybeReplaceState(var1, param1, var3, param12));
+                if (var2 == 0 && var1.is(Blocks.SAND) && var0 > 1) {
+                    var2 = param0.nextInt(4) + Math.max(0, var3 - param12);
+                    var1 = var1.is(Blocks.RED_SAND) ? Blocks.RED_SANDSTONE.defaultBlockState() : Blocks.SANDSTONE.defaultBlockState();
                 }
             }
         }
 
+    }
+
+    private static BlockState maybeReplaceState(BlockState param0, BlockColumn param1, int param2, int param3) {
+        if (param2 <= param3 && param0.is(Blocks.GRASS_BLOCK)) {
+            return Blocks.DIRT.defaultBlockState();
+        } else if (param0.is(Blocks.SAND) && isEmptyBelow(param1, param2)) {
+            return Blocks.SANDSTONE.defaultBlockState();
+        } else if (param0.is(Blocks.RED_SAND) && isEmptyBelow(param1, param2)) {
+            return Blocks.RED_SANDSTONE.defaultBlockState();
+        } else {
+            return param0.is(Blocks.GRAVEL) && isEmptyBelow(param1, param2) ? Blocks.STONE.defaultBlockState() : param0;
+        }
+    }
+
+    private static boolean isEmptyBelow(BlockColumn param0, int param1) {
+        BlockState var0 = param0.getBlock(param1 - 1);
+        return var0.isAir() || !var0.getFluidState().isEmpty();
     }
 }

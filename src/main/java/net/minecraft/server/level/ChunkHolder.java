@@ -1,7 +1,7 @@
 package net.minecraft.server.level;
 
 import com.mojang.datafixers.util.Either;
-import it.unimi.dsi.fastutil.shorts.ShortArraySet;
+import it.unimi.dsi.fastutil.shorts.ShortOpenHashSet;
 import it.unimi.dsi.fastutil.shorts.ShortSet;
 import java.util.BitSet;
 import java.util.List;
@@ -17,7 +17,6 @@ import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundLightUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundSectionBlocksUpdatePacket;
@@ -161,7 +160,7 @@ public class ChunkHolder {
             int var1 = this.levelHeightAccessor.getSectionIndex(param0.getY());
             if (this.changedBlocksPerSection[var1] == null) {
                 this.hasChangedSections = true;
-                this.changedBlocksPerSection[var1] = new ShortArraySet();
+                this.changedBlocksPerSection[var1] = new ShortOpenHashSet();
             }
 
             this.changedBlocksPerSection[var1].add(SectionPos.sectionRelativePos(param0));
@@ -218,7 +217,7 @@ public class ChunkHolder {
                         this.broadcast(new ClientboundBlockUpdatePacket(var7, var8), false);
                         this.broadcastBlockEntityIfNeeded(var0, var7, var8);
                     } else {
-                        LevelChunkSection var9 = param0.getSections()[var3];
+                        LevelChunkSection var9 = param0.getSection(var3);
                         ClientboundSectionBlocksUpdatePacket var10 = new ClientboundSectionBlocksUpdatePacket(var6, var4, var9, this.resendLight);
                         this.broadcast(var10, false);
                         var10.runUpdates((param1, param2) -> this.broadcastBlockEntityIfNeeded(var0, param1, param2));
@@ -242,7 +241,7 @@ public class ChunkHolder {
     private void broadcastBlockEntity(Level param0, BlockPos param1) {
         BlockEntity var0 = param0.getBlockEntity(param1);
         if (var0 != null) {
-            ClientboundBlockEntityDataPacket var1 = var0.getUpdatePacket();
+            Packet<?> var1 = var0.getUpdatePacket();
             if (var1 != null) {
                 this.broadcast(var1, false);
             }

@@ -32,7 +32,7 @@ import net.minecraft.world.level.block.state.properties.Property;
 
 public class BlockPredicateArgument implements ArgumentType<BlockPredicateArgument.Result> {
     private static final Collection<String> EXAMPLES = Arrays.asList("stone", "minecraft:stone", "stone[foo=bar]", "#stone", "#stone[foo=bar]{baz=nbt}");
-    private static final DynamicCommandExceptionType ERROR_UNKNOWN_TAG = new DynamicCommandExceptionType(
+    static final DynamicCommandExceptionType ERROR_UNKNOWN_TAG = new DynamicCommandExceptionType(
         param0 -> new TranslatableComponent("arguments.block.tag.unknown", param0)
     );
 
@@ -41,17 +41,37 @@ public class BlockPredicateArgument implements ArgumentType<BlockPredicateArgume
     }
 
     public BlockPredicateArgument.Result parse(StringReader param0) throws CommandSyntaxException {
-        BlockStateParser var0 = new BlockStateParser(param0, true).parse(true);
+        final BlockStateParser var0 = new BlockStateParser(param0, true).parse(true);
         if (var0.getState() != null) {
-            BlockPredicateArgument.BlockPredicate var1 = new BlockPredicateArgument.BlockPredicate(
+            final BlockPredicateArgument.BlockPredicate var1 = new BlockPredicateArgument.BlockPredicate(
                 var0.getState(), var0.getProperties().keySet(), var0.getNbt()
             );
-            return param1 -> var1;
+            return new BlockPredicateArgument.Result() {
+                @Override
+                public Predicate<BlockInWorld> create(TagContainer param0) {
+                    return var1;
+                }
+
+                @Override
+                public boolean requiresNbt() {
+                    return var1.requiresNbt();
+                }
+            };
         } else {
-            ResourceLocation var2 = var0.getTag();
-            return param2 -> {
-                Tag<Block> var0x = param2.getTagOrThrow(Registry.BLOCK_REGISTRY, var2, param0x -> ERROR_UNKNOWN_TAG.create(param0x.toString()));
-                return new BlockPredicateArgument.TagPredicate(var0x, var0.getVagueProperties(), var0.getNbt());
+            final ResourceLocation var2 = var0.getTag();
+            return new BlockPredicateArgument.Result() {
+                @Override
+                public Predicate<BlockInWorld> create(TagContainer param0) throws CommandSyntaxException {
+                    Tag<Block> var0 = param0.getTagOrThrow(
+                        Registry.BLOCK_REGISTRY, var2, param0x -> BlockPredicateArgument.ERROR_UNKNOWN_TAG.create(param0x.toString())
+                    );
+                    return new BlockPredicateArgument.TagPredicate(var0, var0.getVagueProperties(), var0.getNbt());
+                }
+
+                @Override
+                public boolean requiresNbt() {
+                    return var0.getNbt() != null;
+                }
             };
         }
     }
@@ -106,14 +126,20 @@ public class BlockPredicateArgument implements ArgumentType<BlockPredicateArgume
                     return true;
                 } else {
                     BlockEntity var2 = param0.getEntity();
-                    return var2 != null && NbtUtils.compareNbt(this.nbt, var2.save(new CompoundTag()), true);
+                    return var2 != null && NbtUtils.compareNbt(this.nbt, var2.saveWithFullMetadata(), true);
                 }
             }
+        }
+
+        public boolean requiresNbt() {
+            return this.nbt != null;
         }
     }
 
     public interface Result {
         Predicate<BlockInWorld> create(TagContainer var1) throws CommandSyntaxException;
+
+        boolean requiresNbt();
     }
 
     static class TagPredicate implements Predicate<BlockInWorld> {
@@ -153,7 +179,7 @@ public class BlockPredicateArgument implements ArgumentType<BlockPredicateArgume
                     return true;
                 } else {
                     BlockEntity var4 = param0.getEntity();
-                    return var4 != null && NbtUtils.compareNbt(this.nbt, var4.save(new CompoundTag()), true);
+                    return var4 != null && NbtUtils.compareNbt(this.nbt, var4.saveWithFullMetadata(), true);
                 }
             }
         }

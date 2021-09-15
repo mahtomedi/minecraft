@@ -1,6 +1,7 @@
 package net.minecraft.world.entity.monster;
 
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
@@ -24,6 +25,7 @@ import net.minecraft.util.TimeUtil;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.IndirectEntityDamageSource;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
@@ -45,7 +47,11 @@ import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.ResetUniversalAngerTargetGoal;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.ThrownPotion;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.alchemy.Potion;
+import net.minecraft.world.item.alchemy.PotionUtils;
+import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
@@ -348,21 +354,37 @@ public class EnderMan extends Monster implements NeutralMob {
         if (this.isInvulnerableTo(param0)) {
             return false;
         } else if (param0 instanceof IndirectEntityDamageSource) {
-            for(int var0 = 0; var0 < 64; ++var0) {
+            Entity var0 = param0.getDirectEntity();
+            boolean var1;
+            if (var0 instanceof ThrownPotion) {
+                var1 = this.hurtWithCleanWater(param0, (ThrownPotion)var0, param1);
+            } else {
+                var1 = false;
+            }
+
+            for(int var3 = 0; var3 < 64; ++var3) {
                 if (this.teleport()) {
                     return true;
                 }
             }
 
-            return false;
+            return var1;
         } else {
-            boolean var1 = super.hurt(param0, param1);
+            boolean var4 = super.hurt(param0, param1);
             if (!this.level.isClientSide() && !(param0.getEntity() instanceof LivingEntity) && this.random.nextInt(10) != 0) {
                 this.teleport();
             }
 
-            return var1;
+            return var4;
         }
+    }
+
+    private boolean hurtWithCleanWater(DamageSource param0, ThrownPotion param1, float param2) {
+        ItemStack var0 = param1.getItem();
+        Potion var1 = PotionUtils.getPotion(var0);
+        List<MobEffectInstance> var2 = PotionUtils.getMobEffects(var0);
+        boolean var3 = var1 == Potions.WATER && var2.isEmpty();
+        return var3 ? super.hurt(param0, param2) : false;
     }
 
     public boolean isCreepy() {

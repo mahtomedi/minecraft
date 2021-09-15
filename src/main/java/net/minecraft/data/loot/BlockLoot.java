@@ -48,6 +48,7 @@ import net.minecraft.world.level.block.SnowLayerBlock;
 import net.minecraft.world.level.block.StemBlock;
 import net.minecraft.world.level.block.SweetBerryBushBlock;
 import net.minecraft.world.level.block.TntBlock;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.properties.BedPart;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.state.properties.Property;
@@ -256,7 +257,9 @@ public class BlockLoot implements Consumer<BiConsumer<ResourceLocation, LootTabl
                                         .copy("LootTable", "BlockEntityTag.LootTable")
                                         .copy("LootTableSeed", "BlockEntityTag.LootTableSeed")
                                 )
-                                .apply(SetContainerContents.setContents().withEntry(DynamicLoot.dynamicEntry(ShulkerBoxBlock.CONTENTS)))
+                                .apply(
+                                    SetContainerContents.setContents(BlockEntityType.SHULKER_BOX).withEntry(DynamicLoot.dynamicEntry(ShulkerBoxBlock.CONTENTS))
+                                )
                         )
                 )
             );

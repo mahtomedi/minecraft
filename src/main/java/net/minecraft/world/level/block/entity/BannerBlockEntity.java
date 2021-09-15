@@ -11,6 +11,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.Nameable;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.AbstractBannerBlock;
@@ -44,7 +45,7 @@ public class BannerBlockEntity extends BlockEntity implements Nameable {
     @Nullable
     public static ListTag getItemPatterns(ItemStack param0) {
         ListTag var0 = null;
-        CompoundTag var1 = param0.getTagElement("BlockEntityTag");
+        CompoundTag var1 = BlockItem.getBlockEntityData(param0);
         if (var1 != null && var1.contains("Patterns", 9)) {
             var0 = var1.getList("Patterns", 10).copy();
         }
@@ -76,8 +77,8 @@ public class BannerBlockEntity extends BlockEntity implements Nameable {
     }
 
     @Override
-    public CompoundTag save(CompoundTag param0) {
-        super.save(param0);
+    protected void saveAdditional(CompoundTag param0) {
+        super.saveAdditional(param0);
         if (this.itemPatterns != null) {
             param0.put("Patterns", this.itemPatterns);
         }
@@ -86,7 +87,6 @@ public class BannerBlockEntity extends BlockEntity implements Nameable {
             param0.putString("CustomName", Component.Serializer.toJson(this.name));
         }
 
-        return param0;
     }
 
     @Override
@@ -101,19 +101,17 @@ public class BannerBlockEntity extends BlockEntity implements Nameable {
         this.receivedData = true;
     }
 
-    @Nullable
-    @Override
     public ClientboundBlockEntityDataPacket getUpdatePacket() {
-        return new ClientboundBlockEntityDataPacket(this.worldPosition, 6, this.getUpdateTag());
+        return ClientboundBlockEntityDataPacket.create(this);
     }
 
     @Override
     public CompoundTag getUpdateTag() {
-        return this.save(new CompoundTag());
+        return this.saveWithoutMetadata();
     }
 
     public static int getPatternCount(ItemStack param0) {
-        CompoundTag var0 = param0.getTagElement("BlockEntityTag");
+        CompoundTag var0 = BlockItem.getBlockEntityData(param0);
         return var0 != null && var0.contains("Patterns") ? var0.getList("Patterns", 10).size() : 0;
     }
 
@@ -143,15 +141,16 @@ public class BannerBlockEntity extends BlockEntity implements Nameable {
     }
 
     public static void removeLastPattern(ItemStack param0) {
-        CompoundTag var0 = param0.getTagElement("BlockEntityTag");
+        CompoundTag var0 = BlockItem.getBlockEntityData(param0);
         if (var0 != null && var0.contains("Patterns", 9)) {
             ListTag var1 = var0.getList("Patterns", 10);
             if (!var1.isEmpty()) {
                 var1.remove(var1.size() - 1);
                 if (var1.isEmpty()) {
-                    param0.removeTagKey("BlockEntityTag");
+                    var0.remove("Patterns");
                 }
 
+                BlockItem.setBlockEntityData(param0, BlockEntityType.BANNER, var0);
             }
         }
     }
@@ -159,7 +158,9 @@ public class BannerBlockEntity extends BlockEntity implements Nameable {
     public ItemStack getItem() {
         ItemStack var0 = new ItemStack(BannerBlock.byColor(this.baseColor));
         if (this.itemPatterns != null && !this.itemPatterns.isEmpty()) {
-            var0.getOrCreateTagElement("BlockEntityTag").put("Patterns", this.itemPatterns.copy());
+            CompoundTag var1 = new CompoundTag();
+            var1.put("Patterns", this.itemPatterns.copy());
+            BlockItem.setBlockEntityData(var0, this.getType(), var1);
         }
 
         if (this.name != null) {

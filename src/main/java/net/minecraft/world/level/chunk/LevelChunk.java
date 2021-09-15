@@ -2,17 +2,9 @@ package net.minecraft.world.level.chunk;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
-import it.unimi.dsi.fastutil.longs.LongSet;
-import it.unimi.dsi.fastutil.shorts.ShortList;
-import java.util.BitSet;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -27,6 +19,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.game.ClientboundLevelChunkPacketData;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -49,15 +42,13 @@ import net.minecraft.world.level.gameevent.GameEventDispatcher;
 import net.minecraft.world.level.gameevent.GameEventListener;
 import net.minecraft.world.level.levelgen.DebugLevelSource;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.world.level.levelgen.feature.StructureFeature;
-import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class LevelChunk implements ChunkAccess {
+public class LevelChunk extends ChunkAccess {
     static final Logger LOGGER = LogManager.getLogger();
     private static final TickingBlockEntity NULL_TICKER = new TickingBlockEntity() {
         @Override
@@ -79,50 +70,31 @@ public class LevelChunk implements ChunkAccess {
             return "<null>";
         }
     };
-    @Nullable
-    public static final LevelChunkSection EMPTY_SECTION = null;
-    private final LevelChunkSection[] sections;
-    private ChunkBiomeContainer biomes;
-    private final Map<BlockPos, CompoundTag> pendingBlockEntities = Maps.newHashMap();
     private final Map<BlockPos, LevelChunk.RebindableTickingBlockEntityWrapper> tickersInLevel = Maps.newHashMap();
     private boolean loaded;
     final Level level;
-    private final Map<Heightmap.Types, Heightmap> heightmaps = Maps.newEnumMap(Heightmap.Types.class);
-    private final UpgradeData upgradeData;
-    private final Map<BlockPos, BlockEntity> blockEntities = Maps.newHashMap();
-    private final Map<StructureFeature<?>, StructureStart<?>> structureStarts = Maps.newHashMap();
-    private final Map<StructureFeature<?>, LongSet> structuresRefences = Maps.newHashMap();
-    private final ShortList[] postProcessing;
-    private TickList<Block> blockTicks;
-    private TickList<Fluid> liquidTicks;
-    private volatile boolean unsaved;
-    private long inhabitedTime;
     @Nullable
     private Supplier<ChunkHolder.FullChunkStatus> fullStatus;
     @Nullable
     private Consumer<LevelChunk> postLoad;
-    private final ChunkPos chunkPos;
-    private volatile boolean isLightCorrect;
     private final Int2ObjectMap<GameEventDispatcher> gameEventDispatcherSections;
 
-    public LevelChunk(Level param0, ChunkPos param1, ChunkBiomeContainer param2) {
-        this(param0, param1, param2, UpgradeData.EMPTY, EmptyTickList.empty(), EmptyTickList.empty(), 0L, null, null);
+    public LevelChunk(Level param0, ChunkPos param1) {
+        this(param0, param1, UpgradeData.EMPTY, EmptyTickList.empty(), EmptyTickList.empty(), 0L, null, null);
     }
 
     public LevelChunk(
         Level param0,
         ChunkPos param1,
-        ChunkBiomeContainer param2,
-        UpgradeData param3,
-        TickList<Block> param4,
-        TickList<Fluid> param5,
-        long param6,
-        @Nullable LevelChunkSection[] param7,
-        @Nullable Consumer<LevelChunk> param8
+        UpgradeData param2,
+        TickList<Block> param3,
+        TickList<Fluid> param4,
+        long param5,
+        @Nullable LevelChunkSection[] param6,
+        @Nullable Consumer<LevelChunk> param7
     ) {
+        super(param1, param2, param0, param0.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY), param5, param6, param3, param4);
         this.level = param0;
-        this.chunkPos = param1;
-        this.upgradeData = param3;
         this.gameEventDispatcherSections = new Int2ObjectOpenHashMap<>();
 
         for(Heightmap.Types var0 : Heightmap.Types.values()) {
@@ -131,28 +103,13 @@ public class LevelChunk implements ChunkAccess {
             }
         }
 
-        this.biomes = param2;
-        this.blockTicks = param4;
-        this.liquidTicks = param5;
-        this.inhabitedTime = param6;
-        this.postLoad = param8;
-        this.sections = new LevelChunkSection[param0.getSectionsCount()];
-        if (param7 != null) {
-            if (this.sections.length == param7.length) {
-                System.arraycopy(param7, 0, this.sections, 0, this.sections.length);
-            } else {
-                LOGGER.warn("Could not set level chunk sections, array length is {} instead of {}", param7.length, this.sections.length);
-            }
-        }
-
-        this.postProcessing = new ShortList[param0.getSectionsCount()];
+        this.postLoad = param7;
     }
 
     public LevelChunk(ServerLevel param0, ProtoChunk param1, @Nullable Consumer<LevelChunk> param2) {
         this(
             param0,
             param1.getPos(),
-            param1.getBiomes(),
             param1.getUpgradeData(),
             param1.getBlockTicks(),
             param1.getLiquidTicks(),
@@ -190,23 +147,6 @@ public class LevelChunk implements ChunkAccess {
     }
 
     @Override
-    public Heightmap getOrCreateHeightmapUnprimed(Heightmap.Types param0) {
-        return this.heightmaps.computeIfAbsent(param0, param0x -> new Heightmap(this, param0x));
-    }
-
-    @Override
-    public Set<BlockPos> getBlockEntitiesPos() {
-        Set<BlockPos> var0 = Sets.newHashSet(this.pendingBlockEntities.keySet());
-        var0.addAll(this.blockEntities.keySet());
-        return var0;
-    }
-
-    @Override
-    public LevelChunkSection[] getSections() {
-        return this.sections;
-    }
-
-    @Override
     public BlockState getBlockState(BlockPos param0) {
         int var0 = param0.getX();
         int var1 = param0.getY();
@@ -227,7 +167,7 @@ public class LevelChunk implements ChunkAccess {
                 int var4 = this.getSectionIndex(var1);
                 if (var4 >= 0 && var4 < this.sections.length) {
                     LevelChunkSection var5 = this.sections[var4];
-                    if (!LevelChunkSection.isEmpty(var5)) {
+                    if (!var5.hasOnlyAir()) {
                         return var5.getBlockState(var0 & 15, var1 & 15, var2 & 15);
                     }
                 }
@@ -252,7 +192,7 @@ public class LevelChunk implements ChunkAccess {
             int var0 = this.getSectionIndex(param1);
             if (var0 >= 0 && var0 < this.sections.length) {
                 LevelChunkSection var1 = this.sections[var0];
-                if (!LevelChunkSection.isEmpty(var1)) {
+                if (!var1.hasOnlyAir()) {
                     return var1.getFluidState(param0 & 15, param1 & 15, param2 & 15);
                 }
             }
@@ -270,64 +210,58 @@ public class LevelChunk implements ChunkAccess {
     @Override
     public BlockState setBlockState(BlockPos param0, BlockState param1, boolean param2) {
         int var0 = param0.getY();
-        int var1 = this.getSectionIndex(var0);
-        LevelChunkSection var2 = this.sections[var1];
-        if (var2 == EMPTY_SECTION) {
-            if (param1.isAir()) {
-                return null;
-            }
-
-            var2 = new LevelChunkSection(SectionPos.blockToSectionCoord(var0));
-            this.sections[var1] = var2;
-        }
-
-        boolean var3 = var2.isEmpty();
-        int var4 = param0.getX() & 15;
-        int var5 = var0 & 15;
-        int var6 = param0.getZ() & 15;
-        BlockState var7 = var2.setBlockState(var4, var5, var6, param1);
-        if (var7 == param1) {
+        LevelChunkSection var1 = this.getSection(this.getSectionIndex(var0));
+        boolean var2 = var1.hasOnlyAir();
+        if (var2 && param1.isAir()) {
             return null;
         } else {
-            Block var8 = param1.getBlock();
-            this.heightmaps.get(Heightmap.Types.MOTION_BLOCKING).update(var4, var0, var6, param1);
-            this.heightmaps.get(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES).update(var4, var0, var6, param1);
-            this.heightmaps.get(Heightmap.Types.OCEAN_FLOOR).update(var4, var0, var6, param1);
-            this.heightmaps.get(Heightmap.Types.WORLD_SURFACE).update(var4, var0, var6, param1);
-            boolean var9 = var2.isEmpty();
-            if (var3 != var9) {
-                this.level.getChunkSource().getLightEngine().updateSectionStatus(param0, var9);
-            }
-
-            boolean var10 = var7.hasBlockEntity();
-            if (!this.level.isClientSide) {
-                var7.onRemove(this.level, param0, param1, param2);
-            } else if (!var7.is(var8) && var10) {
-                this.removeBlockEntity(param0);
-            }
-
-            if (!var2.getBlockState(var4, var5, var6).is(var8)) {
+            int var3 = param0.getX() & 15;
+            int var4 = var0 & 15;
+            int var5 = param0.getZ() & 15;
+            BlockState var6 = var1.setBlockState(var3, var4, var5, param1);
+            if (var6 == param1) {
                 return null;
             } else {
+                Block var7 = param1.getBlock();
+                this.heightmaps.get(Heightmap.Types.MOTION_BLOCKING).update(var3, var0, var5, param1);
+                this.heightmaps.get(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES).update(var3, var0, var5, param1);
+                this.heightmaps.get(Heightmap.Types.OCEAN_FLOOR).update(var3, var0, var5, param1);
+                this.heightmaps.get(Heightmap.Types.WORLD_SURFACE).update(var3, var0, var5, param1);
+                boolean var8 = var1.hasOnlyAir();
+                if (var2 != var8) {
+                    this.level.getChunkSource().getLightEngine().updateSectionStatus(param0, var8);
+                }
+
+                boolean var9 = var6.hasBlockEntity();
                 if (!this.level.isClientSide) {
-                    param1.onPlace(this.level, param0, var7, param2);
+                    var6.onRemove(this.level, param0, param1, param2);
+                } else if (!var6.is(var7) && var9) {
+                    this.removeBlockEntity(param0);
                 }
 
-                if (param1.hasBlockEntity()) {
-                    BlockEntity var11 = this.getBlockEntity(param0, LevelChunk.EntityCreationType.CHECK);
-                    if (var11 == null) {
-                        var11 = ((EntityBlock)var8).newBlockEntity(param0, param1);
-                        if (var11 != null) {
-                            this.addAndRegisterBlockEntity(var11);
-                        }
-                    } else {
-                        var11.setBlockState(param1);
-                        this.updateBlockEntityTicker(var11);
+                if (!var1.getBlockState(var3, var4, var5).is(var7)) {
+                    return null;
+                } else {
+                    if (!this.level.isClientSide) {
+                        param1.onPlace(this.level, param0, var6, param2);
                     }
-                }
 
-                this.unsaved = true;
-                return var7;
+                    if (param1.hasBlockEntity()) {
+                        BlockEntity var10 = this.getBlockEntity(param0, LevelChunk.EntityCreationType.CHECK);
+                        if (var10 == null) {
+                            var10 = ((EntityBlock)var7).newBlockEntity(param0, param1);
+                            if (var10 != null) {
+                                this.addAndRegisterBlockEntity(var10);
+                            }
+                        } else {
+                            var10.setBlockState(param1);
+                            this.updateBlockEntityTicker(var10);
+                        }
+                    }
+
+                    this.unsaved = true;
+                    return var6;
+                }
             }
         }
     }
@@ -335,30 +269,6 @@ public class LevelChunk implements ChunkAccess {
     @Deprecated
     @Override
     public void addEntity(Entity param0) {
-    }
-
-    @Override
-    public int getHeight(Heightmap.Types param0, int param1, int param2) {
-        return this.heightmaps.get(param0).getFirstAvailable(param1 & 15, param2 & 15) - 1;
-    }
-
-    @Override
-    public BlockPos getHeighestPosition(Heightmap.Types param0) {
-        ChunkPos var0 = this.getPos();
-        int var1 = this.getMinBuildHeight();
-        BlockPos.MutableBlockPos var2 = new BlockPos.MutableBlockPos();
-
-        for(int var3 = var0.getMinBlockX(); var3 <= var0.getMaxBlockX(); ++var3) {
-            for(int var4 = var0.getMinBlockZ(); var4 <= var0.getMaxBlockZ(); ++var4) {
-                int var5 = this.getHeight(param0, var3 & 15, var4 & 15);
-                if (var5 > var1) {
-                    var1 = var5;
-                    var2.set(var3, var5, var4);
-                }
-            }
-        }
-
-        return var2.immutable();
     }
 
     @Nullable
@@ -438,17 +348,12 @@ public class LevelChunk implements ChunkAccess {
         }
     }
 
-    @Override
-    public void setBlockEntityNbt(CompoundTag param0) {
-        this.pendingBlockEntities.put(new BlockPos(param0.getInt("x"), param0.getInt("y"), param0.getInt("z")), param0);
-    }
-
     @Nullable
     @Override
     public CompoundTag getBlockEntityNbtForSaving(BlockPos param0) {
         BlockEntity var0 = this.getBlockEntity(param0);
         if (var0 != null && !var0.isRemoved()) {
-            CompoundTag var1 = var0.save(new CompoundTag());
+            CompoundTag var1 = var0.saveWithFullMetadata();
             var1.putBoolean("keepPacked", false);
             return var1;
         } else {
@@ -509,73 +414,31 @@ public class LevelChunk implements ChunkAccess {
 
     }
 
-    public void markUnsaved() {
-        this.unsaved = true;
-    }
-
     public boolean isEmpty() {
         return false;
     }
 
-    @Override
-    public ChunkPos getPos() {
-        return this.chunkPos;
-    }
+    public void replaceWithPacketData(FriendlyByteBuf param0, CompoundTag param1, Consumer<ClientboundLevelChunkPacketData.BlockEntityTagOutput> param2) {
+        this.clearAllBlockEntities();
 
-    public void replaceWithPacketData(@Nullable ChunkBiomeContainer param0, FriendlyByteBuf param1, CompoundTag param2, BitSet param3) {
-        boolean var0 = param0 != null;
-        if (var0) {
-            this.blockEntities.values().forEach(this::onBlockEntityRemove);
-            this.blockEntities.clear();
-        } else {
-            this.blockEntities.values().removeIf(param1x -> {
-                int var0x = this.getSectionIndex(param1x.getBlockPos().getY());
-                if (param3.get(var0x)) {
-                    param1x.setRemoved();
-                    return true;
-                } else {
-                    return false;
-                }
-            });
+        for(LevelChunkSection var0 : this.sections) {
+            var0.read(param0);
         }
 
-        for(int var1 = 0; var1 < this.sections.length; ++var1) {
-            LevelChunkSection var2 = this.sections[var1];
-            if (!param3.get(var1)) {
-                if (var0 && var2 != EMPTY_SECTION) {
-                    this.sections[var1] = EMPTY_SECTION;
-                }
-            } else {
-                if (var2 == EMPTY_SECTION) {
-                    var2 = new LevelChunkSection(this.getSectionYFromSectionIndex(var1));
-                    this.sections[var1] = var2;
-                }
-
-                var2.read(param1);
+        for(Heightmap.Types var1 : Heightmap.Types.values()) {
+            String var2 = var1.getSerializationKey();
+            if (param1.contains(var2, 12)) {
+                this.setHeightmap(var1, param1.getLongArray(var2));
             }
         }
 
-        if (param0 != null) {
-            this.biomes = param0;
-        }
-
-        for(Heightmap.Types var3 : Heightmap.Types.values()) {
-            String var4 = var3.getSerializationKey();
-            if (param2.contains(var4, 12)) {
-                this.setHeightmap(var3, param2.getLongArray(var4));
+        param2.accept((param0x, param1x, param2x) -> {
+            BlockEntity var0x = this.getBlockEntity(param0x, LevelChunk.EntityCreationType.IMMEDIATE);
+            if (var0x != null && param2x != null && var0x.getType() == param1x) {
+                var0x.load(param2x);
             }
-        }
 
-    }
-
-    private void onBlockEntityRemove(BlockEntity param0x) {
-        param0x.setRemoved();
-        this.tickersInLevel.remove(param0x.getBlockPos());
-    }
-
-    @Override
-    public ChunkBiomeContainer getBiomes() {
-        return this.biomes;
+        });
     }
 
     public void setLoaded(boolean param0) {
@@ -586,18 +449,8 @@ public class LevelChunk implements ChunkAccess {
         return this.level;
     }
 
-    @Override
-    public Collection<Entry<Heightmap.Types, Heightmap>> getHeightmaps() {
-        return Collections.unmodifiableSet(this.heightmaps.entrySet());
-    }
-
     public Map<BlockPos, BlockEntity> getBlockEntities() {
         return this.blockEntities;
-    }
-
-    @Override
-    public CompoundTag getBlockEntityNbt(BlockPos param0) {
-        return this.pendingBlockEntities.get(param0);
     }
 
     @Override
@@ -615,79 +468,6 @@ public class LevelChunk implements ChunkAccess {
                 false
             )
             .filter(param0 -> this.getBlockState(param0).getLightEmission() != 0);
-    }
-
-    @Override
-    public TickList<Block> getBlockTicks() {
-        return this.blockTicks;
-    }
-
-    @Override
-    public TickList<Fluid> getLiquidTicks() {
-        return this.liquidTicks;
-    }
-
-    @Override
-    public void setUnsaved(boolean param0) {
-        this.unsaved = param0;
-    }
-
-    @Override
-    public boolean isUnsaved() {
-        return this.unsaved;
-    }
-
-    @Nullable
-    @Override
-    public StructureStart<?> getStartForFeature(StructureFeature<?> param0) {
-        return this.structureStarts.get(param0);
-    }
-
-    @Override
-    public void setStartForFeature(StructureFeature<?> param0, StructureStart<?> param1) {
-        this.structureStarts.put(param0, param1);
-    }
-
-    @Override
-    public Map<StructureFeature<?>, StructureStart<?>> getAllStarts() {
-        return this.structureStarts;
-    }
-
-    @Override
-    public void setAllStarts(Map<StructureFeature<?>, StructureStart<?>> param0) {
-        this.structureStarts.clear();
-        this.structureStarts.putAll(param0);
-    }
-
-    @Override
-    public LongSet getReferencesForFeature(StructureFeature<?> param0) {
-        return this.structuresRefences.computeIfAbsent(param0, param0x -> new LongOpenHashSet());
-    }
-
-    @Override
-    public void addReferenceForFeature(StructureFeature<?> param0, long param1) {
-        this.structuresRefences.computeIfAbsent(param0, param0x -> new LongOpenHashSet()).add(param1);
-    }
-
-    @Override
-    public Map<StructureFeature<?>, LongSet> getAllReferences() {
-        return this.structuresRefences;
-    }
-
-    @Override
-    public void setAllReferences(Map<StructureFeature<?>, LongSet> param0) {
-        this.structuresRefences.clear();
-        this.structuresRefences.putAll(param0);
-    }
-
-    @Override
-    public long getInhabitedTime() {
-        return this.inhabitedTime;
-    }
-
-    @Override
-    public void setInhabitedTime(long param0) {
-        this.inhabitedTime = param0;
     }
 
     public void postProcessGeneration() {
@@ -741,16 +521,6 @@ public class LevelChunk implements ChunkAccess {
         return var1;
     }
 
-    @Override
-    public UpgradeData getUpgradeData() {
-        return this.upgradeData;
-    }
-
-    @Override
-    public ShortList[] getPostProcessing() {
-        return this.postProcessing;
-    }
-
     public void unpackTicks() {
         if (this.blockTicks instanceof ProtoTickList) {
             ((ProtoTickList)this.blockTicks).copyOut(this.level.getBlockTicks(), param0 -> this.getBlockState(param0).getBlock());
@@ -788,16 +558,6 @@ public class LevelChunk implements ChunkAccess {
     }
 
     @Override
-    public int getMinBuildHeight() {
-        return this.level.getMinBuildHeight();
-    }
-
-    @Override
-    public int getHeight() {
-        return this.level.getHeight();
-    }
-
-    @Override
     public ChunkStatus getStatus() {
         return ChunkStatus.FULL;
     }
@@ -810,19 +570,11 @@ public class LevelChunk implements ChunkAccess {
         this.fullStatus = param0;
     }
 
-    @Override
-    public boolean isLightCorrect() {
-        return this.isLightCorrect;
-    }
-
-    @Override
-    public void setLightCorrect(boolean param0) {
-        this.isLightCorrect = param0;
-        this.setUnsaved(true);
-    }
-
-    public void invalidateAllBlockEntities() {
-        this.blockEntities.values().forEach(this::onBlockEntityRemove);
+    public void clearAllBlockEntities() {
+        this.blockEntities.values().forEach(BlockEntity::setRemoved);
+        this.blockEntities.clear();
+        this.tickersInLevel.values().forEach(param0 -> param0.rebind(NULL_TICKER));
+        this.tickersInLevel.clear();
     }
 
     public void registerAllBlockEntitiesAfterLevelLoad() {

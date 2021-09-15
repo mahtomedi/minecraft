@@ -84,13 +84,12 @@ public class ChestBlockEntity extends RandomizableContainerBlockEntity implement
     }
 
     @Override
-    public CompoundTag save(CompoundTag param0) {
-        super.save(param0);
+    protected void saveAdditional(CompoundTag param0) {
+        super.saveAdditional(param0);
         if (!this.trySaveLootTable(param0)) {
             ContainerHelper.saveAllItems(param0, this.items);
         }
 
-        return param0;
     }
 
     public static void lidAnimateTick(Level param0, BlockPos param1, BlockState param2, ChestBlockEntity param3) {

@@ -523,6 +523,7 @@ public class Shulker extends AbstractGolem implements Enemy {
     public void recreateFromPacket(ClientboundAddMobPacket param0) {
         super.recreateFromPacket(param0);
         this.yBodyRot = 0.0F;
+        this.yBodyRotO = 0.0F;
     }
 
     @Override

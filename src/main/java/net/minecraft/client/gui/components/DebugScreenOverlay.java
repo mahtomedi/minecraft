@@ -43,6 +43,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.SectionPos;
 import net.minecraft.network.Connection;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.FrameTimer;
 import net.minecraft.util.Mth;
@@ -53,8 +54,11 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.NaturalSpawner;
+import net.minecraft.world.level.biome.BiomeSource;
+import net.minecraft.world.level.biome.Climate;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -321,16 +325,21 @@ public class DebugScreenOverlay extends GuiComponent {
 
             ServerLevel var30 = this.getServerLevel();
             if (var30 != null) {
-                NaturalSpawner.SpawnState var31 = var30.getChunkSource().getLastSpawnState();
-                if (var31 != null) {
-                    Object2IntMap<MobCategory> var32 = var31.getMobCategoryCounts();
-                    int var33 = var31.getSpawnableChunkCount();
+                ServerChunkCache var31 = var30.getChunkSource();
+                ChunkGenerator var32 = var31.getGenerator();
+                Climate.Sampler var33 = var32.climateSampler();
+                BiomeSource var34 = var32.getBiomeSource();
+                var34.addMultinoiseDebugInfo(var17, var6, var33);
+                NaturalSpawner.SpawnState var35 = var31.getLastSpawnState();
+                if (var35 != null) {
+                    Object2IntMap<MobCategory> var36 = var35.getMobCategoryCounts();
+                    int var37 = var35.getSpawnableChunkCount();
                     var17.add(
                         "SC: "
-                            + var33
+                            + var37
                             + ", "
                             + (String)Stream.of(MobCategory.values())
-                                .map(param1 -> Character.toUpperCase(param1.getName().charAt(0)) + ": " + var32.getInt(param1))
+                                .map(param1 -> Character.toUpperCase(param1.getName().charAt(0)) + ": " + var36.getInt(param1))
                                 .collect(Collectors.joining(", "))
                     );
                 } else {
@@ -338,9 +347,9 @@ public class DebugScreenOverlay extends GuiComponent {
                 }
             }
 
-            PostChain var34 = this.minecraft.gameRenderer.currentEffect();
-            if (var34 != null) {
-                var17.add("Shader: " + var34.getName());
+            PostChain var38 = this.minecraft.gameRenderer.currentEffect();
+            if (var38 != null) {
+                var17.add("Shader: " + var38.getName());
             }
 
             var17.add(

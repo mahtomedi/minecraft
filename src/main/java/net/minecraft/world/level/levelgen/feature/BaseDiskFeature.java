@@ -21,10 +21,10 @@ public class BaseDiskFeature extends Feature<DiskConfiguration> {
         WorldGenLevel var2 = param0.level();
         boolean var3 = false;
         int var4 = var1.getY();
-        int var5 = var4 + var0.halfHeight;
-        int var6 = var4 - var0.halfHeight - 1;
-        boolean var7 = var0.state.getBlock() instanceof FallingBlock;
-        int var8 = var0.radius.sample(param0.random());
+        int var5 = var4 + var0.halfHeight();
+        int var6 = var4 - var0.halfHeight() - 1;
+        boolean var7 = var0.state().getBlock() instanceof FallingBlock;
+        int var8 = var0.radius().sample(param0.random());
 
         for(int var9 = var1.getX() - var8; var9 <= var1.getX() + var8; ++var9) {
             for(int var10 = var1.getZ() - var8; var10 <= var1.getZ() + var8; ++var10) {
@@ -39,9 +39,9 @@ public class BaseDiskFeature extends Feature<DiskConfiguration> {
                         Block var17 = var16.getBlock();
                         boolean var18 = false;
                         if (var14 > var6) {
-                            for(BlockState var19 : var0.targets) {
+                            for(BlockState var19 : var0.targets()) {
                                 if (var19.is(var17)) {
-                                    var2.setBlock(var15, var0.state, 2);
+                                    var2.setBlock(var15, var0.state(), 2);
                                     this.markAboveForPostProcessing(var2, var15);
                                     var3 = true;
                                     var18 = true;
@@ -51,7 +51,9 @@ public class BaseDiskFeature extends Feature<DiskConfiguration> {
                         }
 
                         if (var7 && var13 && var16.isAir()) {
-                            BlockState var20 = var0.state.is(Blocks.RED_SAND) ? Blocks.RED_SANDSTONE.defaultBlockState() : Blocks.SANDSTONE.defaultBlockState();
+                            BlockState var20 = var0.state().is(Blocks.RED_SAND)
+                                ? Blocks.RED_SANDSTONE.defaultBlockState()
+                                : Blocks.SANDSTONE.defaultBlockState();
                             var2.setBlock(new BlockPos(var9, var14 + 1, var10), var20, 2);
                         }
 

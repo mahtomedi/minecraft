@@ -53,7 +53,7 @@ public class PistonMovingBlockEntity extends BlockEntity {
 
     @Override
     public CompoundTag getUpdateTag() {
-        return this.save(new CompoundTag());
+        return this.saveWithoutMetadata();
     }
 
     public boolean isExtending() {
@@ -329,14 +329,13 @@ public class PistonMovingBlockEntity extends BlockEntity {
     }
 
     @Override
-    public CompoundTag save(CompoundTag param0) {
-        super.save(param0);
+    protected void saveAdditional(CompoundTag param0) {
+        super.saveAdditional(param0);
         param0.put("blockState", NbtUtils.writeBlockState(this.movedState));
         param0.putInt("facing", this.direction.get3DDataValue());
         param0.putFloat("progress", this.progressO);
         param0.putBoolean("extending", this.extending);
         param0.putBoolean("source", this.isSourcePiston);
-        return param0;
     }
 
     public VoxelShape getCollisionShape(BlockGetter param0, BlockPos param1) {

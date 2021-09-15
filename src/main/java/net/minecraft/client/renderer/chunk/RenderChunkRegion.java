@@ -19,12 +19,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class RenderChunkRegion implements BlockAndTintGetter {
     protected final int centerX;
     protected final int centerZ;
-    protected final BlockPos start;
-    protected final int xLength;
-    protected final int yLength;
-    protected final int zLength;
     protected final LevelChunk[][] chunks;
-    protected final BlockState[] blockStates;
     protected final Level level;
 
     @Nullable
@@ -41,14 +36,7 @@ public class RenderChunkRegion implements BlockAndTintGetter {
             }
         }
 
-        if (isAllEmpty(param1, param2, var0, var1, var4)) {
-            return null;
-        } else {
-            int var7 = 1;
-            BlockPos var8 = param1.offset(-1, -1, -1);
-            BlockPos var9 = param2.offset(1, 1, 1);
-            return new RenderChunkRegion(param0, var0, var1, var4, var8, var9);
-        }
+        return isAllEmpty(param1, param2, var0, var1, var4) ? null : new RenderChunkRegion(param0, var0, var1, var4);
     }
 
     public static boolean isAllEmpty(BlockPos param0, BlockPos param1, int param2, int param3, LevelChunk[][] param4) {
@@ -64,46 +52,25 @@ public class RenderChunkRegion implements BlockAndTintGetter {
         return true;
     }
 
-    public RenderChunkRegion(Level param0, int param1, int param2, LevelChunk[][] param3, BlockPos param4, BlockPos param5) {
+    public RenderChunkRegion(Level param0, int param1, int param2, LevelChunk[][] param3) {
         this.level = param0;
         this.centerX = param1;
         this.centerZ = param2;
         this.chunks = param3;
-        this.start = param4;
-        this.xLength = param5.getX() - param4.getX() + 1;
-        this.yLength = param5.getY() - param4.getY() + 1;
-        this.zLength = param5.getZ() - param4.getZ() + 1;
-        this.blockStates = new BlockState[this.xLength * this.yLength * this.zLength];
-
-        for(BlockPos var0 : BlockPos.betweenClosed(param4, param5)) {
-            int var1 = SectionPos.blockToSectionCoord(var0.getX()) - param1;
-            int var2 = SectionPos.blockToSectionCoord(var0.getZ()) - param2;
-            LevelChunk var3 = param3[var1][var2];
-            int var4 = this.index(var0);
-            this.blockStates[var4] = var3.getBlockState(var0);
-        }
-
-    }
-
-    protected final int index(BlockPos param0) {
-        return this.index(param0.getX(), param0.getY(), param0.getZ());
-    }
-
-    protected int index(int param0, int param1, int param2) {
-        int var0 = param0 - this.start.getX();
-        int var1 = param1 - this.start.getY();
-        int var2 = param2 - this.start.getZ();
-        return var2 * this.xLength * this.yLength + var1 * this.xLength + var0;
     }
 
     @Override
     public BlockState getBlockState(BlockPos param0) {
-        return this.blockStates[this.index(param0)];
+        int var0 = SectionPos.blockToSectionCoord(param0.getX()) - this.centerX;
+        int var1 = SectionPos.blockToSectionCoord(param0.getZ()) - this.centerZ;
+        return this.chunks[var0][var1].getBlockState(param0);
     }
 
     @Override
     public FluidState getFluidState(BlockPos param0) {
-        return this.blockStates[this.index(param0)].getFluidState();
+        int var0 = SectionPos.blockToSectionCoord(param0.getX()) - this.centerX;
+        int var1 = SectionPos.blockToSectionCoord(param0.getZ()) - this.centerZ;
+        return this.chunks[var0][var1].getBlockState(param0).getFluidState();
     }
 
     @Override

@@ -9,7 +9,6 @@ import com.google.gson.JsonSerializationContext;
 import java.util.Set;
 import javax.annotation.Nullable;
 import net.minecraft.advancements.critereon.NbtPredicate;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.Entity;
@@ -25,7 +24,7 @@ public class ContextNbtProvider implements NbtProvider {
         @Override
         public Tag get(LootContext param0) {
             BlockEntity var0 = param0.getParamOrNull(LootContextParams.BLOCK_ENTITY);
-            return var0 != null ? var0.save(new CompoundTag()) : null;
+            return var0 != null ? var0.saveWithFullMetadata() : null;
         }
 
         @Override

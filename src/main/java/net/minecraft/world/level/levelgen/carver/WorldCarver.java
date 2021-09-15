@@ -10,7 +10,6 @@ import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
-import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.biome.Biome;
@@ -20,8 +19,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.levelgen.Aquifer;
-import net.minecraft.world.level.levelgen.BaseStoneSource;
-import net.minecraft.world.level.levelgen.SingleBaseStoneSource;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
@@ -37,7 +34,6 @@ public abstract class WorldCarver<C extends CarverConfiguration> {
     public static final WorldCarver<CaveCarverConfiguration> UNDERWATER_CAVE = register(
         "underwater_cave", new UnderwaterCaveWorldCarver(CaveCarverConfiguration.CODEC)
     );
-    protected static final BaseStoneSource STONE_SOURCE = new SingleBaseStoneSource(Blocks.STONE.defaultBlockState());
     protected static final BlockState AIR = Blocks.AIR.defaultBlockState();
     protected static final BlockState CAVE_AIR = Blocks.CAVE_AIR.defaultBlockState();
     protected static final FluidState WATER = Fluids.WATER.defaultFluidState();
@@ -74,6 +70,10 @@ public abstract class WorldCarver<C extends CarverConfiguration> {
         Blocks.SNOW,
         Blocks.PACKED_ICE,
         Blocks.DEEPSLATE,
+        Blocks.CALCITE,
+        Blocks.SAND,
+        Blocks.RED_SAND,
+        Blocks.GRAVEL,
         Blocks.TUFF,
         Blocks.GRANITE,
         Blocks.IRON_ORE,
@@ -190,19 +190,22 @@ public abstract class WorldCarver<C extends CarverConfiguration> {
         MutableBoolean param9
     ) {
         BlockState var0 = param2.getBlockState(param6);
-        BlockState var1 = param2.getBlockState(param7.setWithOffset(param6, Direction.UP));
         if (var0.is(Blocks.GRASS_BLOCK) || var0.is(Blocks.MYCELIUM)) {
             param9.setTrue();
         }
 
-        if (!this.canReplaceBlock(var0, var1) && !isDebugEnabled(param1)) {
+        if (!this.canReplaceBlock(var0) && !isDebugEnabled(param1)) {
             return false;
         } else {
-            BlockState var2 = this.getCarveState(param0, param1, param6, param8);
-            if (var2 == null) {
+            BlockState var1 = this.getCarveState(param0, param1, param6, param8);
+            if (var1 == null) {
                 return false;
             } else {
-                param2.setBlockState(param6, var2, false);
+                param2.setBlockState(param6, var1, false);
+                if (param8.shouldScheduleFluidUpdate() && !var1.getFluidState().isEmpty()) {
+                    param2.getLiquidTicks().scheduleTick(param6, var1.getFluidState().getType(), 0);
+                }
+
                 if (param9.isTrue()) {
                     param7.setWithOffset(param6, Direction.DOWN);
                     if (param2.getBlockState(param7).is(Blocks.DIRT)) {
@@ -222,8 +225,8 @@ public abstract class WorldCarver<C extends CarverConfiguration> {
         } else if (!param1.aquifersEnabled) {
             return isDebugEnabled(param1) ? getDebugState(param1, AIR) : AIR;
         } else {
-            BlockState var0 = param3.computeState(STONE_SOURCE, param2.getX(), param2.getY(), param2.getZ(), 0.0);
-            if (var0 == Blocks.STONE.defaultBlockState()) {
+            BlockState var0 = param3.computeSubstance(param2.getX(), param2.getY(), param2.getZ(), 0.0, 0.0);
+            if (var0 == null) {
                 return isDebugEnabled(param1) ? param1.debugSettings.getBarrierState() : null;
             } else {
                 return isDebugEnabled(param1) ? getDebugState(param1, var0) : var0;
@@ -250,10 +253,6 @@ public abstract class WorldCarver<C extends CarverConfiguration> {
 
     protected boolean canReplaceBlock(BlockState param0) {
         return this.replaceableBlocks.contains(param0.getBlock());
-    }
-
-    protected boolean canReplaceBlock(BlockState param0, BlockState param1) {
-        return this.canReplaceBlock(param0) || (param0.is(Blocks.SAND) || param0.is(Blocks.GRAVEL)) && !param1.getFluidState().is(FluidTags.WATER);
     }
 
     protected boolean hasDisallowedLiquid(ChunkAccess param0, int param1, int param2, int param3, int param4, int param5, int param6) {

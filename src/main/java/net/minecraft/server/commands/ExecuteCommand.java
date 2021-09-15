@@ -708,14 +708,12 @@ public class ExecuteCommand {
                                     return OptionalInt.empty();
                                 }
 
-                                CompoundTag var13 = var11.save(new CompoundTag());
-                                var13.remove("x");
-                                var13.remove("y");
-                                var13.remove("z");
-                                CompoundTag var14 = var12.save(new CompoundTag());
-                                var14.remove("x");
-                                var14.remove("y");
-                                var14.remove("z");
+                                if (var12.getType() != var11.getType()) {
+                                    return OptionalInt.empty();
+                                }
+
+                                CompoundTag var13 = var11.saveWithoutMetadata();
+                                CompoundTag var14 = var12.saveWithoutMetadata();
                                 if (!var13.equals(var14)) {
                                     return OptionalInt.empty();
                                 }

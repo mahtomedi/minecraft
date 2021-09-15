@@ -41,7 +41,7 @@ public class FossilFeature extends Feature<FossilFeatureConfiguration> {
         Vec3i var12 = var7.getSize(var3);
         int var13 = var0.nextInt(16 - var12.getX());
         int var14 = var0.nextInt(16 - var12.getZ());
-        int var15 = var1.getMaxBuildHeight();
+        int var15 = var2.getY();
 
         for(int var16 = 0; var16 < var12.getX(); ++var16) {
             for(int var17 = 0; var17 < var12.getZ(); ++var17) {

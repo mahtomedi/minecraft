@@ -11,9 +11,11 @@ import java.util.List;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.util.GsonHelper;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BannerPattern;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
@@ -29,7 +31,11 @@ public class SetBannerPatternFunction extends LootItemConditionalFunction {
 
     @Override
     protected ItemStack run(ItemStack param0, LootContext param1) {
-        CompoundTag var0 = param0.getOrCreateTagElement("BlockEntityTag");
+        CompoundTag var0 = BlockItem.getBlockEntityData(param0);
+        if (var0 == null) {
+            var0 = new CompoundTag();
+        }
+
         BannerPattern.Builder var1 = new BannerPattern.Builder();
         this.patterns.forEach(var1::addPattern);
         ListTag var2 = var1.toListTag();
@@ -42,6 +48,7 @@ public class SetBannerPatternFunction extends LootItemConditionalFunction {
         }
 
         var0.put("Patterns", var3);
+        BlockItem.setBlockEntityData(param0, BlockEntityType.BANNER, var0);
         return param0;
     }
 

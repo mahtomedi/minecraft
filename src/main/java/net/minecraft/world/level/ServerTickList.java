@@ -53,9 +53,9 @@ public class ServerTickList<T> implements TickList<T> {
             Iterator<TickNextTickData<T>> var1 = this.tickNextTickList.iterator();
             this.level.getProfiler().push("cleaning");
 
-            while(var0 > 0 && var1.hasNext()) {
+            while(var1.hasNext()) {
                 TickNextTickData<T> var2 = var1.next();
-                if (var2.triggerTick > this.level.getGameTime()) {
+                if (var0-- == 0 || var2.triggerTick > this.level.getGameTime()) {
                     break;
                 }
 
@@ -63,7 +63,6 @@ public class ServerTickList<T> implements TickList<T> {
                     var1.remove();
                     this.tickNextTickSet.remove(var2);
                     this.currentlyTicking.add(var2);
-                    --var0;
                 }
             }
 
@@ -71,18 +70,15 @@ public class ServerTickList<T> implements TickList<T> {
 
             TickNextTickData<T> var3;
             while((var3 = this.currentlyTicking.poll()) != null) {
-                if (this.level.isPositionTickingWithEntitiesLoaded(var3.pos)) {
-                    try {
-                        this.alreadyTicked.add(var3);
-                        this.ticker.accept(var3);
-                    } catch (Throwable var7) {
-                        CrashReport var5 = CrashReport.forThrowable(var7, "Exception while ticking");
-                        CrashReportCategory var6 = var5.addCategory("Block being ticked");
-                        CrashReportCategory.populateBlockDetails(var6, this.level, var3.pos, null);
-                        throw new ReportedException(var5);
-                    }
-                } else {
-                    this.scheduleTick(var3.pos, var3.getType(), 0);
+                this.alreadyTicked.add(var3);
+
+                try {
+                    this.ticker.accept(var3);
+                } catch (Throwable var7) {
+                    CrashReport var5 = CrashReport.forThrowable(var7, "Exception while ticking");
+                    CrashReportCategory var6 = var5.addCategory("Block being ticked");
+                    CrashReportCategory.populateBlockDetails(var6, this.level, var3.pos, null);
+                    throw new ReportedException(var5);
                 }
             }
 

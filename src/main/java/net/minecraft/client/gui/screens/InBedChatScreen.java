@@ -48,4 +48,13 @@ public class InBedChatScreen extends ChatScreen {
         ClientPacketListener var0 = this.minecraft.player.connection;
         var0.send(new ServerboundPlayerCommandPacket(this.minecraft.player, ServerboundPlayerCommandPacket.Action.STOP_SLEEPING));
     }
+
+    public void onPlayerWokeUp() {
+        if (this.input.getValue().isEmpty()) {
+            this.minecraft.setScreen(null);
+        } else {
+            this.minecraft.setScreen(new ChatScreen(this.input.getValue()));
+        }
+
+    }
 }

@@ -390,6 +390,10 @@ public class Mth {
         return (param0 - param1) / (param2 - param1);
     }
 
+    public static float inverseLerp(float param0, float param1, float param2) {
+        return (param0 - param1) / (param2 - param1);
+    }
+
     public static boolean rayIntersectsAABB(Vec3 param0, Vec3 param1, AABB param2) {
         double var0 = (param2.minX + param2.maxX) * 0.5;
         double var1 = (param2.maxX - param2.minX) * 0.5;
@@ -757,7 +761,15 @@ public class Mth {
         return clampedLerp(param3, param4, inverseLerp(param0, param1, param2));
     }
 
+    public static float clampedMap(float param0, float param1, float param2, float param3, float param4) {
+        return clampedLerp(param3, param4, inverseLerp(param0, param1, param2));
+    }
+
     public static double map(double param0, double param1, double param2, double param3, double param4) {
+        return lerp(inverseLerp(param0, param1, param2), param3, param4);
+    }
+
+    public static float map(float param0, float param1, float param2, float param3, float param4) {
         return lerp(inverseLerp(param0, param1, param2), param3, param4);
     }
 

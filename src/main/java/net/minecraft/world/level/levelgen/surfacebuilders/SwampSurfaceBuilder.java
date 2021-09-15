@@ -2,10 +2,9 @@ package net.minecraft.world.level.levelgen.surfacebuilders;
 
 import com.mojang.serialization.Codec;
 import java.util.Random;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.BlockColumn;
 
 public class SwampSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBaseConfiguration> {
     public SwampSurfaceBuilder(Codec<SurfaceBuilderBaseConfiguration> param0) {
@@ -14,7 +13,7 @@ public class SwampSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBaseConfig
 
     public void apply(
         Random param0,
-        ChunkAccess param1,
+        BlockColumn param1,
         Biome param2,
         int param3,
         int param4,
@@ -29,15 +28,10 @@ public class SwampSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBaseConfig
     ) {
         double var0 = Biome.BIOME_INFO_NOISE.getValue((double)param3 * 0.25, (double)param4 * 0.25, false);
         if (var0 > 0.0) {
-            int var1 = param3 & 15;
-            int var2 = param4 & 15;
-            BlockPos.MutableBlockPos var3 = new BlockPos.MutableBlockPos();
-
-            for(int var4 = param5; var4 >= param10; --var4) {
-                var3.set(var1, var4, var2);
-                if (!param1.getBlockState(var3).isAir()) {
-                    if (var4 == 62 && !param1.getBlockState(var3).is(param8.getBlock())) {
-                        param1.setBlockState(var3, param8, false);
+            for(int var1 = param5; var1 >= param10; --var1) {
+                if (!param1.getBlock(var1).isAir()) {
+                    if (var1 == 62 && !param1.getBlock(var1).is(param8.getBlock())) {
+                        param1.setBlock(var1, param8);
                     }
                     break;
                 }

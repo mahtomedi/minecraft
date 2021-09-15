@@ -12,10 +12,9 @@ public class ComparatorBlockEntity extends BlockEntity {
     }
 
     @Override
-    public CompoundTag save(CompoundTag param0) {
-        super.save(param0);
+    protected void saveAdditional(CompoundTag param0) {
+        super.saveAdditional(param0);
         param0.putInt("OutputSignal", this.output);
-        return param0;
     }
 
     @Override

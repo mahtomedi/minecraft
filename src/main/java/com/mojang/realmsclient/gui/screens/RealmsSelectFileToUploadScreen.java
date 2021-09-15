@@ -28,7 +28,6 @@ import org.apache.logging.log4j.Logger;
 public class RealmsSelectFileToUploadScreen extends RealmsScreen {
     private static final Logger LOGGER = LogManager.getLogger();
     static final Component WORLD_TEXT = new TranslatableComponent("selectWorld.world");
-    static final Component REQUIRES_CONVERSION_TEXT = new TranslatableComponent("selectWorld.conversion");
     static final Component HARDCORE_TEXT = new TranslatableComponent("mco.upload.hardcore").withStyle(ChatFormatting.DARK_RED);
     static final Component CHEATS_TEXT = new TranslatableComponent("selectWorld.cheats");
     private static final DateFormat DATE_FORMAT = new SimpleDateFormat();
@@ -50,13 +49,19 @@ public class RealmsSelectFileToUploadScreen extends RealmsScreen {
     }
 
     private void loadLevelList() throws Exception {
-        this.levelList = this.minecraft.getLevelSource().getLevelList().stream().sorted((param0, param1) -> {
-            if (param0.getLastPlayed() < param1.getLastPlayed()) {
-                return 1;
-            } else {
-                return param0.getLastPlayed() > param1.getLastPlayed() ? -1 : param0.getLevelId().compareTo(param1.getLevelId());
-            }
-        }).collect(Collectors.toList());
+        this.levelList = this.minecraft
+            .getLevelSource()
+            .getLevelList()
+            .stream()
+            .filter(param0 -> !param0.requiresManualConversion() && !param0.isLocked())
+            .sorted((param0, param1) -> {
+                if (param0.getLastPlayed() < param1.getLastPlayed()) {
+                    return 1;
+                } else {
+                    return param0.getLastPlayed() > param1.getLastPlayed() ? -1 : param0.getLevelId().compareTo(param1.getLevelId());
+                }
+            })
+            .collect(Collectors.toList());
 
         for(LevelSummary var0 : this.levelList) {
             this.worldSelectionList.addEntry(var0);
@@ -148,23 +153,18 @@ public class RealmsSelectFileToUploadScreen extends RealmsScreen {
             this.levelSummary = param0;
             this.name = param0.getLevelName();
             this.id = param0.getLevelId() + " (" + RealmsSelectFileToUploadScreen.formatLastPlayed(param0) + ")";
-            if (param0.isRequiresConversion()) {
-                this.info = RealmsSelectFileToUploadScreen.REQUIRES_CONVERSION_TEXT;
+            Component param1;
+            if (param0.isHardcore()) {
+                param1 = RealmsSelectFileToUploadScreen.HARDCORE_TEXT;
             } else {
-                Component param1;
-                if (param0.isHardcore()) {
-                    param1 = RealmsSelectFileToUploadScreen.HARDCORE_TEXT;
-                } else {
-                    param1 = RealmsSelectFileToUploadScreen.gameModeName(param0);
-                }
-
-                if (param0.hasCheats()) {
-                    param1 = param1.copy().append(", ").append(RealmsSelectFileToUploadScreen.CHEATS_TEXT);
-                }
-
-                this.info = param1;
+                param1 = RealmsSelectFileToUploadScreen.gameModeName(param0);
             }
 
+            if (param0.hasCheats()) {
+                param1 = param1.copy().append(", ").append(RealmsSelectFileToUploadScreen.CHEATS_TEXT);
+            }
+
+            this.info = param1;
         }
 
         @Override

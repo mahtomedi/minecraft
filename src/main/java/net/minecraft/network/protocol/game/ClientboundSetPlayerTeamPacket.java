@@ -50,7 +50,7 @@ public class ClientboundSetPlayerTeamPacket implements Packet<ClientGamePacketLi
     }
 
     public ClientboundSetPlayerTeamPacket(FriendlyByteBuf param0) {
-        this.name = param0.readUtf(16);
+        this.name = param0.readUtf();
         this.method = param0.readByte();
         if (shouldHaveParameters(this.method)) {
             this.parameters = Optional.of(new ClientboundSetPlayerTeamPacket.Parameters(param0));

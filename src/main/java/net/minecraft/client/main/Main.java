@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mojang.authlib.properties.PropertyMap;
 import com.mojang.authlib.properties.PropertyMap.Serializer;
-import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.platform.DisplayData;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferUploader;
@@ -17,11 +16,13 @@ import java.net.Proxy.Type;
 import java.util.List;
 import java.util.OptionalInt;
 import javax.annotation.Nullable;
+import jdk.jfr.FlightRecorder;
 import joptsimple.ArgumentAcceptingOptionSpec;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import net.minecraft.CrashReport;
+import net.minecraft.CrashReportCategory;
 import net.minecraft.DefaultUncaughtExceptionHandler;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
@@ -31,6 +32,8 @@ import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.obfuscate.DontObfuscate;
 import net.minecraft.server.Bootstrap;
 import net.minecraft.util.GsonHelper;
+import net.minecraft.util.NativeModuleLister;
+import net.minecraft.util.profiling.jfr.JfrRecording;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -44,6 +47,7 @@ public class Main {
     @DontObfuscate
     public static void main(String[] param0) {
         SharedConstants.tryDetectVersion();
+        JfrRecording.CUSTOM_EVENTS.forEach(FlightRecorder::register);
         OptionParser var0 = new OptionParser();
         var0.allowsUnrecognizedOptions();
         var0.accepts("demo");
@@ -51,88 +55,93 @@ public class Main {
         var0.accepts("disableChat");
         var0.accepts("fullscreen");
         var0.accepts("checkGlErrors");
-        OptionSpec<String> var1 = var0.accepts("server").withRequiredArg();
-        OptionSpec<Integer> var2 = var0.accepts("port").withRequiredArg().ofType(Integer.class).defaultsTo(25565);
-        OptionSpec<File> var3 = var0.accepts("gameDir").withRequiredArg().ofType(File.class).defaultsTo(new File("."));
-        OptionSpec<File> var4 = var0.accepts("assetsDir").withRequiredArg().ofType(File.class);
-        OptionSpec<File> var5 = var0.accepts("resourcePackDir").withRequiredArg().ofType(File.class);
-        OptionSpec<String> var6 = var0.accepts("proxyHost").withRequiredArg();
-        OptionSpec<Integer> var7 = var0.accepts("proxyPort").withRequiredArg().defaultsTo("8080").ofType(Integer.class);
-        OptionSpec<String> var8 = var0.accepts("proxyUser").withRequiredArg();
-        OptionSpec<String> var9 = var0.accepts("proxyPass").withRequiredArg();
-        OptionSpec<String> var10 = var0.accepts("username").withRequiredArg().defaultsTo("Player" + Util.getMillis() % 1000L);
-        OptionSpec<String> var11 = var0.accepts("uuid").withRequiredArg();
-        OptionSpec<String> var12 = var0.accepts("accessToken").withRequiredArg().required();
-        OptionSpec<String> var13 = var0.accepts("version").withRequiredArg().required();
-        OptionSpec<Integer> var14 = var0.accepts("width").withRequiredArg().ofType(Integer.class).defaultsTo(854);
-        OptionSpec<Integer> var15 = var0.accepts("height").withRequiredArg().ofType(Integer.class).defaultsTo(480);
-        OptionSpec<Integer> var16 = var0.accepts("fullscreenWidth").withRequiredArg().ofType(Integer.class);
-        OptionSpec<Integer> var17 = var0.accepts("fullscreenHeight").withRequiredArg().ofType(Integer.class);
-        OptionSpec<String> var18 = var0.accepts("userProperties").withRequiredArg().defaultsTo("{}");
-        OptionSpec<String> var19 = var0.accepts("profileProperties").withRequiredArg().defaultsTo("{}");
-        OptionSpec<String> var20 = var0.accepts("assetIndex").withRequiredArg();
-        OptionSpec<String> var21 = var0.accepts("userType").withRequiredArg().defaultsTo("legacy");
-        OptionSpec<String> var22 = var0.accepts("versionType").withRequiredArg().defaultsTo("release");
-        OptionSpec<String> var23 = var0.nonOptions();
-        OptionSet var24 = var0.parse(param0);
-        List<String> var25 = var24.valuesOf(var23);
-        if (!var25.isEmpty()) {
-            System.out.println("Completely ignored arguments: " + var25);
+        OptionSpec<Void> var1 = var0.accepts("jfrProfile");
+        OptionSpec<String> var2 = var0.accepts("server").withRequiredArg();
+        OptionSpec<Integer> var3 = var0.accepts("port").withRequiredArg().ofType(Integer.class).defaultsTo(25565);
+        OptionSpec<File> var4 = var0.accepts("gameDir").withRequiredArg().ofType(File.class).defaultsTo(new File("."));
+        OptionSpec<File> var5 = var0.accepts("assetsDir").withRequiredArg().ofType(File.class);
+        OptionSpec<File> var6 = var0.accepts("resourcePackDir").withRequiredArg().ofType(File.class);
+        OptionSpec<String> var7 = var0.accepts("proxyHost").withRequiredArg();
+        OptionSpec<Integer> var8 = var0.accepts("proxyPort").withRequiredArg().defaultsTo("8080").ofType(Integer.class);
+        OptionSpec<String> var9 = var0.accepts("proxyUser").withRequiredArg();
+        OptionSpec<String> var10 = var0.accepts("proxyPass").withRequiredArg();
+        OptionSpec<String> var11 = var0.accepts("username").withRequiredArg().defaultsTo("Player" + Util.getMillis() % 1000L);
+        OptionSpec<String> var12 = var0.accepts("uuid").withRequiredArg();
+        OptionSpec<String> var13 = var0.accepts("accessToken").withRequiredArg().required();
+        OptionSpec<String> var14 = var0.accepts("version").withRequiredArg().required();
+        OptionSpec<Integer> var15 = var0.accepts("width").withRequiredArg().ofType(Integer.class).defaultsTo(854);
+        OptionSpec<Integer> var16 = var0.accepts("height").withRequiredArg().ofType(Integer.class).defaultsTo(480);
+        OptionSpec<Integer> var17 = var0.accepts("fullscreenWidth").withRequiredArg().ofType(Integer.class);
+        OptionSpec<Integer> var18 = var0.accepts("fullscreenHeight").withRequiredArg().ofType(Integer.class);
+        OptionSpec<String> var19 = var0.accepts("userProperties").withRequiredArg().defaultsTo("{}");
+        OptionSpec<String> var20 = var0.accepts("profileProperties").withRequiredArg().defaultsTo("{}");
+        OptionSpec<String> var21 = var0.accepts("assetIndex").withRequiredArg();
+        OptionSpec<String> var22 = var0.accepts("userType").withRequiredArg().defaultsTo("legacy");
+        OptionSpec<String> var23 = var0.accepts("versionType").withRequiredArg().defaultsTo("release");
+        OptionSpec<String> var24 = var0.nonOptions();
+        OptionSet var25 = var0.parse(param0);
+        List<String> var26 = var25.valuesOf(var24);
+        if (!var26.isEmpty()) {
+            System.out.println("Completely ignored arguments: " + var26);
         }
 
-        String var26 = parseArgument(var24, var6);
-        Proxy var27 = Proxy.NO_PROXY;
-        if (var26 != null) {
+        String var27 = parseArgument(var25, var7);
+        Proxy var28 = Proxy.NO_PROXY;
+        if (var27 != null) {
             try {
-                var27 = new Proxy(Type.SOCKS, new InetSocketAddress(var26, parseArgument(var24, var7)));
-            } catch (Exception var70) {
+                var28 = new Proxy(Type.SOCKS, new InetSocketAddress(var27, parseArgument(var25, var8)));
+            } catch (Exception var71) {
             }
         }
 
-        final String var28 = parseArgument(var24, var8);
-        final String var29 = parseArgument(var24, var9);
-        if (!var27.equals(Proxy.NO_PROXY) && stringHasValue(var28) && stringHasValue(var29)) {
+        final String var29 = parseArgument(var25, var9);
+        final String var30 = parseArgument(var25, var10);
+        if (!var28.equals(Proxy.NO_PROXY) && stringHasValue(var29) && stringHasValue(var30)) {
             Authenticator.setDefault(new Authenticator() {
                 @Override
                 protected PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication(var28, var29.toCharArray());
+                    return new PasswordAuthentication(var29, var30.toCharArray());
                 }
             });
         }
 
-        int var30 = parseArgument(var24, var14);
-        int var31 = parseArgument(var24, var15);
-        OptionalInt var32 = ofNullable(parseArgument(var24, var16));
-        OptionalInt var33 = ofNullable(parseArgument(var24, var17));
-        boolean var34 = var24.has("fullscreen");
-        boolean var35 = var24.has("demo");
-        boolean var36 = var24.has("disableMultiplayer");
-        boolean var37 = var24.has("disableChat");
-        String var38 = parseArgument(var24, var13);
-        Gson var39 = new GsonBuilder().registerTypeAdapter(PropertyMap.class, new Serializer()).create();
-        PropertyMap var40 = GsonHelper.fromJson(var39, parseArgument(var24, var18), PropertyMap.class);
-        PropertyMap var41 = GsonHelper.fromJson(var39, parseArgument(var24, var19), PropertyMap.class);
-        String var42 = parseArgument(var24, var22);
-        File var43 = parseArgument(var24, var3);
-        File var44 = var24.has(var4) ? parseArgument(var24, var4) : new File(var43, "assets/");
-        File var45 = var24.has(var5) ? parseArgument(var24, var5) : new File(var43, "resourcepacks/");
-        String var46 = var24.has(var11) ? var11.value(var24) : Player.createPlayerUUID(var10.value(var24)).toString();
-        String var47 = var24.has(var20) ? var20.value(var24) : null;
-        String var48 = parseArgument(var24, var1);
-        Integer var49 = parseArgument(var24, var2);
+        int var31 = parseArgument(var25, var15);
+        int var32 = parseArgument(var25, var16);
+        OptionalInt var33 = ofNullable(parseArgument(var25, var17));
+        OptionalInt var34 = ofNullable(parseArgument(var25, var18));
+        boolean var35 = var25.has("fullscreen");
+        boolean var36 = var25.has("demo");
+        boolean var37 = var25.has("disableMultiplayer");
+        boolean var38 = var25.has("disableChat");
+        String var39 = parseArgument(var25, var14);
+        Gson var40 = new GsonBuilder().registerTypeAdapter(PropertyMap.class, new Serializer()).create();
+        PropertyMap var41 = GsonHelper.fromJson(var40, parseArgument(var25, var19), PropertyMap.class);
+        PropertyMap var42 = GsonHelper.fromJson(var40, parseArgument(var25, var20), PropertyMap.class);
+        String var43 = parseArgument(var25, var23);
+        File var44 = parseArgument(var25, var4);
+        File var45 = var25.has(var5) ? parseArgument(var25, var5) : new File(var44, "assets/");
+        File var46 = var25.has(var6) ? parseArgument(var25, var6) : new File(var44, "resourcepacks/");
+        String var47 = var25.has(var12) ? var12.value(var25) : Player.createPlayerUUID(var11.value(var25)).toString();
+        String var48 = var25.has(var21) ? var21.value(var25) : null;
+        String var49 = parseArgument(var25, var2);
+        Integer var50 = parseArgument(var25, var3);
+        if (var25.has(var1)) {
+            JfrRecording.start(JfrRecording.Environment.CLIENT);
+        }
+
         CrashReport.preload();
         Bootstrap.bootStrap();
         Bootstrap.validate();
         Util.startTimerHackThread();
-        User var50 = new User(var10.value(var24), var46, var12.value(var24), var21.value(var24));
-        GameConfig var51 = new GameConfig(
-            new GameConfig.UserData(var50, var40, var41, var27),
-            new DisplayData(var30, var31, var32, var33, var34),
-            new GameConfig.FolderData(var43, var45, var44, var47),
-            new GameConfig.GameData(var35, var38, var42, var36, var37),
-            new GameConfig.ServerData(var48, var49)
+        User var51 = new User(var11.value(var25), var47, var13.value(var25), var22.value(var25));
+        GameConfig var52 = new GameConfig(
+            new GameConfig.UserData(var51, var41, var42, var28),
+            new DisplayData(var31, var32, var33, var34, var35),
+            new GameConfig.FolderData(var44, var46, var45, var48),
+            new GameConfig.GameData(var36, var39, var43, var37, var38),
+            new GameConfig.ServerData(var49, var50)
         );
-        Thread var52 = new Thread("Client Shutdown Thread") {
+        Thread var53 = new Thread("Client Shutdown Thread") {
             @Override
             public void run() {
                 Minecraft var0 = Minecraft.getInstance();
@@ -145,31 +154,31 @@ public class Main {
                 }
             }
         };
-        var52.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(LOGGER));
-        Runtime.getRuntime().addShutdownHook(var52);
-        new RenderPipeline();
+        var53.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(LOGGER));
+        Runtime.getRuntime().addShutdownHook(var53);
 
         final Minecraft var54;
         try {
             Thread.currentThread().setName("Render thread");
             RenderSystem.initRenderThread();
             RenderSystem.beginInitialization();
-            var54 = new Minecraft(var51);
+            var54 = new Minecraft(var52);
             RenderSystem.finishInitialization();
-        } catch (SilentInitException var68) {
-            LOGGER.warn("Failed to create window: ", (Throwable)var68);
+        } catch (SilentInitException var69) {
+            LOGGER.warn("Failed to create window: ", (Throwable)var69);
             return;
-        } catch (Throwable var69) {
-            CrashReport var57 = CrashReport.forThrowable(var69, "Initializing game");
-            var57.addCategory("Initialization");
-            Minecraft.fillReport(null, null, var51.game.launchVersion, null, var57);
+        } catch (Throwable var70) {
+            CrashReport var57 = CrashReport.forThrowable(var70, "Initializing game");
+            CrashReportCategory var58 = var57.addCategory("Initialization");
+            NativeModuleLister.addCrashSection(var58);
+            Minecraft.fillReport(null, null, var52.game.launchVersion, null, var57);
             Minecraft.crash(var57);
             return;
         }
 
-        Thread var59;
+        Thread var60;
         if (var54.renderOnThread()) {
-            var59 = new Thread("Game thread") {
+            var60 = new Thread("Game thread") {
                 @Override
                 public void run() {
                     try {
@@ -181,18 +190,18 @@ public class Main {
 
                 }
             };
-            var59.start();
+            var60.start();
 
             while(var54.isRunning()) {
             }
         } else {
-            var59 = null;
+            var60 = null;
 
             try {
                 RenderSystem.initGameThread(false);
                 var54.run();
-            } catch (Throwable var67) {
-                LOGGER.error("Unhandled game exception", var67);
+            } catch (Throwable var68) {
+                LOGGER.error("Unhandled game exception", var68);
             }
         }
 
@@ -200,11 +209,11 @@ public class Main {
 
         try {
             var54.stop();
-            if (var59 != null) {
-                var59.join();
+            if (var60 != null) {
+                var60.join();
             }
-        } catch (InterruptedException var65) {
-            LOGGER.error("Exception during client thread shutdown", (Throwable)var65);
+        } catch (InterruptedException var66) {
+            LOGGER.error("Exception during client thread shutdown", (Throwable)var66);
         } finally {
             var54.destroy();
         }

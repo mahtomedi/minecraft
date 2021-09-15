@@ -47,15 +47,14 @@ public class SkullBlockEntity extends BlockEntity {
     }
 
     @Override
-    public CompoundTag save(CompoundTag param0) {
-        super.save(param0);
+    protected void saveAdditional(CompoundTag param0) {
+        super.saveAdditional(param0);
         if (this.owner != null) {
             CompoundTag var0 = new CompoundTag();
             NbtUtils.writeGameProfile(var0, this.owner);
             param0.put("SkullOwner", var0);
         }
 
-        return param0;
     }
 
     @Override
@@ -91,15 +90,13 @@ public class SkullBlockEntity extends BlockEntity {
         return this.owner;
     }
 
-    @Nullable
-    @Override
     public ClientboundBlockEntityDataPacket getUpdatePacket() {
-        return new ClientboundBlockEntityDataPacket(this.worldPosition, 4, this.getUpdateTag());
+        return ClientboundBlockEntityDataPacket.create(this);
     }
 
     @Override
     public CompoundTag getUpdateTag() {
-        return this.save(new CompoundTag());
+        return this.saveWithoutMetadata();
     }
 
     public void setOwner(@Nullable GameProfile param0) {

@@ -1,5 +1,6 @@
 package com.mojang.realmsclient.util;
 
+import com.google.common.base.Suppliers;
 import com.google.common.collect.Maps;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture.Type;
@@ -14,11 +15,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.IntBuffer;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
 import net.minecraft.client.Minecraft;
@@ -30,6 +30,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.lwjgl.BufferUtils;
 
 @OnlyIn(Dist.CLIENT)
 public class RealmsTextureManager {
@@ -143,34 +144,10 @@ public class RealmsTextureManager {
                 var1 = GlStateManager._genTexture();
             }
 
-            IntBuffer var3 = null;
-            int var4 = 0;
-            int var5 = 0;
-
-            try {
-                InputStream var6 = new ByteArrayInputStream(new Base64().decode(param1));
-
-                BufferedImage var7;
-                try {
-                    var7 = ImageIO.read(var6);
-                } finally {
-                    IOUtils.closeQuietly(var6);
-                }
-
-                var4 = var7.getWidth();
-                var5 = var7.getHeight();
-                int[] var9 = new int[var4 * var5];
-                var7.getRGB(0, 0, var4, var5, var9, 0, var4);
-                var3 = ByteBuffer.allocateDirect(4 * var4 * var5).order(ByteOrder.nativeOrder()).asIntBuffer();
-                var3.put(var9);
-                var3.flip();
-            } catch (IOException var13) {
-                var13.printStackTrace();
-            }
-
+            RealmsTextureManager.TextureData var3 = RealmsTextureManager.TextureData.load(param1);
             RenderSystem.activeTexture(33984);
             RenderSystem.bindTextureForSetup(var1);
-            TextureUtil.initTexture(var3, var4, var5);
+            TextureUtil.initTexture(var3.data, var3.width, var3.height);
             TEXTURES.put(param0, new RealmsTextureManager.RealmsTexture(param1, var1));
             return var1;
         }
@@ -184,6 +161,61 @@ public class RealmsTextureManager {
         public RealmsTexture(String param0, int param1) {
             this.image = param0;
             this.textureId = param1;
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    static class TextureData {
+        final int width;
+        final int height;
+        final IntBuffer data;
+        private static final Supplier<RealmsTextureManager.TextureData> MISSING = Suppliers.memoize(() -> {
+            int var0 = 16;
+            int var1 = 16;
+            IntBuffer var2 = BufferUtils.createIntBuffer(256);
+            int var3 = -16777216;
+            int var4 = -524040;
+
+            for(int var5 = 0; var5 < 16; ++var5) {
+                for(int var6 = 0; var6 < 16; ++var6) {
+                    if (var5 < 8 ^ var6 < 8) {
+                        var2.put(var6 + var5 * 16, -524040);
+                    } else {
+                        var2.put(var6 + var5 * 16, -16777216);
+                    }
+                }
+            }
+
+            return new RealmsTextureManager.TextureData(16, 16, var2);
+        });
+
+        private TextureData(int param0, int param1, IntBuffer param2) {
+            this.width = param0;
+            this.height = param1;
+            this.data = param2;
+        }
+
+        public static RealmsTextureManager.TextureData load(String param0) {
+            try {
+                InputStream var0 = new ByteArrayInputStream(new Base64().decode(param0));
+                BufferedImage var1 = ImageIO.read(var0);
+                if (var1 != null) {
+                    int var2 = var1.getWidth();
+                    int var3 = var1.getHeight();
+                    int[] var4 = new int[var2 * var3];
+                    var1.getRGB(0, 0, var2, var3, var4, 0, var2);
+                    IntBuffer var5 = BufferUtils.createIntBuffer(var2 * var3);
+                    var5.put(var4);
+                    var5.flip();
+                    return new RealmsTextureManager.TextureData(var2, var3, var5);
+                }
+
+                RealmsTextureManager.LOGGER.warn("Unknown image format: {}", param0);
+            } catch (IOException var7) {
+                RealmsTextureManager.LOGGER.warn("Failed to load world image: {}", param0, var7);
+            }
+
+            return MISSING.get();
         }
     }
 }

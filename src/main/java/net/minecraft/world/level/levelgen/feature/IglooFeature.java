@@ -1,6 +1,7 @@
 package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
+import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.level.ChunkPos;
@@ -8,6 +9,7 @@ import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 import net.minecraft.world.level.levelgen.structure.IglooPieces;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
@@ -33,13 +35,15 @@ public class IglooFeature extends StructureFeature<NoneFeatureConfiguration> {
             ChunkGenerator param1,
             StructureManager param2,
             ChunkPos param3,
-            Biome param4,
-            NoneFeatureConfiguration param5,
-            LevelHeightAccessor param6
+            NoneFeatureConfiguration param4,
+            LevelHeightAccessor param5,
+            Predicate<Biome> param6
         ) {
-            BlockPos var0 = new BlockPos(param3.getMinBlockX(), 90, param3.getMinBlockZ());
-            Rotation var1 = Rotation.getRandom(this.random);
-            IglooPieces.addPieces(param2, var0, var1, this, this.random);
+            if (StructureFeature.validBiomeOnTop(param1, param5, param6, Heightmap.Types.WORLD_SURFACE_WG, param3.getMiddleBlockX(), param3.getMiddleBlockZ())) {
+                BlockPos var0 = new BlockPos(param3.getMinBlockX(), 90, param3.getMinBlockZ());
+                Rotation var1 = Rotation.getRandom(this.random);
+                IglooPieces.addPieces(param2, var0, var1, this, this.random);
+            }
         }
     }
 }

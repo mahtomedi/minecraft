@@ -35,14 +35,13 @@ public abstract class BaseContainerBlockEntity extends BlockEntity implements Co
     }
 
     @Override
-    public CompoundTag save(CompoundTag param0) {
-        super.save(param0);
+    protected void saveAdditional(CompoundTag param0) {
+        super.saveAdditional(param0);
         this.lockKey.addToTag(param0);
         if (this.name != null) {
             param0.putString("CustomName", Component.Serializer.toJson(this.name));
         }
 
-        return param0;
     }
 
     public void setCustomName(Component param0) {

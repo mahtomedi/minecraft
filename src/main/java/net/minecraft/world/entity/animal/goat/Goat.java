@@ -2,6 +2,7 @@ package net.minecraft.world.entity.animal.goat;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Dynamic;
+import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -41,7 +42,9 @@ import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.level.pathfinder.PathFinder;
@@ -280,6 +283,19 @@ public class Goat extends Animal {
     @Override
     protected PathNavigation createNavigation(Level param0) {
         return new Goat.GoatPathNavigation(this, param0);
+    }
+
+    public static boolean checkGoatSpawnRules(EntityType<? extends Animal> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, Random param4) {
+        BlockState var0 = param1.getBlockState(param3.below());
+        return (
+                var0.is(Blocks.STONE)
+                    || var0.is(Blocks.SNOW)
+                    || var0.is(Blocks.POWDER_SNOW)
+                    || var0.is(Blocks.SNOW_BLOCK)
+                    || var0.is(Blocks.PACKED_ICE)
+                    || var0.is(Blocks.GRAVEL)
+            )
+            && param1.getRawBrightness(param3, 0) > 8;
     }
 
     static class GoatNodeEvaluator extends WalkNodeEvaluator {

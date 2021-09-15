@@ -81,15 +81,16 @@ public class UnderwaterCaveWorldCarver extends CaveWorldCarver {
     protected static boolean carveBlock(
         WorldCarver<?> param0, ChunkAccess param1, Random param2, BlockPos.MutableBlockPos param3, BlockPos.MutableBlockPos param4, Aquifer param5
     ) {
-        if (param5.computeState(WorldCarver.STONE_SOURCE, param3.getX(), param3.getY(), param3.getZ(), Double.NEGATIVE_INFINITY).isAir()) {
+        BlockState var0 = param5.computeSubstance(param3.getX(), param3.getY(), param3.getZ(), 0.0, Double.NEGATIVE_INFINITY);
+        if (var0 != null && var0.isAir()) {
             return false;
         } else {
-            BlockState var0 = param1.getBlockState(param3);
-            if (!param0.canReplaceBlock(var0)) {
+            BlockState var1 = param1.getBlockState(param3);
+            if (!param0.canReplaceBlock(var1)) {
                 return false;
             } else if (param3.getY() == 10) {
-                float var1 = param2.nextFloat();
-                if ((double)var1 < 0.25) {
+                float var2 = param2.nextFloat();
+                if ((double)var2 < 0.25) {
                     param1.setBlockState(param3, Blocks.MAGMA_BLOCK.defaultBlockState(), false);
                     param1.getBlockTicks().scheduleTick(param3, Blocks.MAGMA_BLOCK, 0);
                 } else {
@@ -102,13 +103,13 @@ public class UnderwaterCaveWorldCarver extends CaveWorldCarver {
                 return false;
             } else {
                 param1.setBlockState(param3, WATER.createLegacyBlock(), false);
-                int var2 = param1.getPos().x;
-                int var3 = param1.getPos().z;
+                int var3 = param1.getPos().x;
+                int var4 = param1.getPos().z;
 
-                for(Direction var4 : LiquidBlock.POSSIBLE_FLOW_DIRECTIONS) {
-                    param4.setWithOffset(param3, var4);
-                    if (SectionPos.blockToSectionCoord(param4.getX()) != var2
-                        || SectionPos.blockToSectionCoord(param4.getZ()) != var3
+                for(Direction var5 : LiquidBlock.POSSIBLE_FLOW_DIRECTIONS) {
+                    param4.setWithOffset(param3, var5);
+                    if (SectionPos.blockToSectionCoord(param4.getX()) != var3
+                        || SectionPos.blockToSectionCoord(param4.getZ()) != var4
                         || param1.getBlockState(param4).isAir()) {
                         param1.getLiquidTicks().scheduleTick(param3, WATER.getType(), 0);
                         break;

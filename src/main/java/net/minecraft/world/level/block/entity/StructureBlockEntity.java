@@ -56,8 +56,8 @@ public class StructureBlockEntity extends BlockEntity {
     }
 
     @Override
-    public CompoundTag save(CompoundTag param0) {
-        super.save(param0);
+    protected void saveAdditional(CompoundTag param0) {
+        super.saveAdditional(param0);
         param0.putString("name", this.getStructureName());
         param0.putString("author", this.author);
         param0.putString("metadata", this.metaData);
@@ -76,7 +76,6 @@ public class StructureBlockEntity extends BlockEntity {
         param0.putBoolean("showboundingbox", this.showBoundingBox);
         param0.putFloat("integrity", this.integrity);
         param0.putLong("seed", this.seed);
-        return param0;
     }
 
     @Override
@@ -137,15 +136,13 @@ public class StructureBlockEntity extends BlockEntity {
         }
     }
 
-    @Nullable
-    @Override
     public ClientboundBlockEntityDataPacket getUpdatePacket() {
-        return new ClientboundBlockEntityDataPacket(this.worldPosition, 7, this.getUpdateTag());
+        return ClientboundBlockEntityDataPacket.create(this);
     }
 
     @Override
     public CompoundTag getUpdateTag() {
-        return this.save(new CompoundTag());
+        return this.saveWithoutMetadata();
     }
 
     public boolean usedBy(Player param0) {

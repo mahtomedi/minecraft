@@ -71,6 +71,7 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.W
     static final Component SNAPSHOT_TOOLTIP_1 = new TranslatableComponent("selectWorld.tooltip.snapshot1").withStyle(ChatFormatting.GOLD);
     static final Component SNAPSHOT_TOOLTIP_2 = new TranslatableComponent("selectWorld.tooltip.snapshot2").withStyle(ChatFormatting.GOLD);
     static final Component WORLD_LOCKED_TOOLTIP = new TranslatableComponent("selectWorld.locked").withStyle(ChatFormatting.RED);
+    static final Component WORLD_REQUIRES_CONVERSION = new TranslatableComponent("selectWorld.conversion.tooltip").withStyle(ChatFormatting.RED);
     static final Component WORLD_PRE_WORLDHEIGHT_TOOLTIP = new TranslatableComponent("selectWorld.pre_worldheight").withStyle(ChatFormatting.RED);
     private final SelectWorldScreen screen;
     @Nullable
@@ -247,6 +248,11 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.W
                     GuiComponent.blit(param0, param3, param2, 96.0F, (float)var5, 32, 32, 256, 256);
                     if (var4) {
                         this.screen.setToolTip(this.minecraft.font.split(WorldSelectionList.WORLD_LOCKED_TOOLTIP, 175));
+                    }
+                } else if (this.summary.requiresManualConversion()) {
+                    GuiComponent.blit(param0, param3, param2, 96.0F, (float)var5, 32, 32, 256, 256);
+                    if (var4) {
+                        this.screen.setToolTip(this.minecraft.font.split(WorldSelectionList.WORLD_REQUIRES_CONVERSION, 175));
                     }
                 } else if (this.summary.isIncompatibleWorldHeight()) {
                     GuiComponent.blit(param0, param3, param2, 96.0F, 32.0F, 32, 32, 256, 256);

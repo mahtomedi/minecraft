@@ -2,6 +2,7 @@ package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
 import java.util.List;
+import java.util.function.Predicate;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
@@ -31,10 +32,9 @@ public class StrongholdFeature extends StructureFeature<NoneFeatureConfiguration
         long param2,
         WorldgenRandom param3,
         ChunkPos param4,
-        Biome param5,
-        ChunkPos param6,
-        NoneFeatureConfiguration param7,
-        LevelHeightAccessor param8
+        ChunkPos param5,
+        NoneFeatureConfiguration param6,
+        LevelHeightAccessor param7
     ) {
         return param0.hasStronghold(param4);
     }
@@ -52,9 +52,9 @@ public class StrongholdFeature extends StructureFeature<NoneFeatureConfiguration
             ChunkGenerator param1,
             StructureManager param2,
             ChunkPos param3,
-            Biome param4,
-            NoneFeatureConfiguration param5,
-            LevelHeightAccessor param6
+            NoneFeatureConfiguration param4,
+            LevelHeightAccessor param5,
+            Predicate<Biome> param6
         ) {
             int var0 = 0;
 

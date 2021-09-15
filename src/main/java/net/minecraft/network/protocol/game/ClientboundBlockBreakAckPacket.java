@@ -8,25 +8,29 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class ClientboundBlockBreakAckPacket implements Packet<ClientGamePacketListener> {
+public record ClientboundBlockBreakAckPacket(BlockPos pos, BlockState state, ServerboundPlayerActionPacket.Action action, boolean allGood)
+    implements Packet<ClientGamePacketListener> {
     private static final Logger LOGGER = LogManager.getLogger();
-    private final BlockPos pos;
-    private final BlockState state;
-    private final ServerboundPlayerActionPacket.Action action;
-    private final boolean allGood;
 
     public ClientboundBlockBreakAckPacket(BlockPos param0, BlockState param1, ServerboundPlayerActionPacket.Action param2, boolean param3, String param4) {
-        this.pos = param0.immutable();
+        this(param0, param1, param2, param3);
+    }
+
+    public ClientboundBlockBreakAckPacket(BlockPos param0, BlockState param1, ServerboundPlayerActionPacket.Action param2, boolean param3) {
+        param0 = param0.immutable();
+        this.pos = param0;
         this.state = param1;
         this.action = param2;
         this.allGood = param3;
     }
 
     public ClientboundBlockBreakAckPacket(FriendlyByteBuf param0) {
-        this.pos = param0.readBlockPos();
-        this.state = Block.BLOCK_STATE_REGISTRY.byId(param0.readVarInt());
-        this.action = param0.readEnum(ServerboundPlayerActionPacket.Action.class);
-        this.allGood = param0.readBoolean();
+        this(
+            param0.readBlockPos(),
+            Block.BLOCK_STATE_REGISTRY.byId(param0.readVarInt()),
+            param0.readEnum(ServerboundPlayerActionPacket.Action.class),
+            param0.readBoolean()
+        );
     }
 
     @Override
@@ -39,21 +43,5 @@ public class ClientboundBlockBreakAckPacket implements Packet<ClientGamePacketLi
 
     public void handle(ClientGamePacketListener param0) {
         param0.handleBlockBreakAck(this);
-    }
-
-    public BlockState getState() {
-        return this.state;
-    }
-
-    public BlockPos getPos() {
-        return this.pos;
-    }
-
-    public boolean allGood() {
-        return this.allGood;
-    }
-
-    public ServerboundPlayerActionPacket.Action action() {
-        return this.action;
     }
 }

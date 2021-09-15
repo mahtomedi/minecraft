@@ -31,13 +31,12 @@ public class EnchantmentTableBlockEntity extends BlockEntity implements Nameable
     }
 
     @Override
-    public CompoundTag save(CompoundTag param0) {
-        super.save(param0);
+    protected void saveAdditional(CompoundTag param0) {
+        super.saveAdditional(param0);
         if (this.hasCustomName()) {
             param0.putString("CustomName", Component.Serializer.toJson(this.name));
         }
 
-        return param0;
     }
 
     @Override

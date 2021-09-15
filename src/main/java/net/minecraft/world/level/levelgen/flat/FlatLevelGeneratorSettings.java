@@ -7,15 +7,11 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import net.minecraft.Util;
 import net.minecraft.core.Registry;
 import net.minecraft.data.worldgen.Features;
-import net.minecraft.data.worldgen.StructureFeatures;
 import net.minecraft.resources.RegistryLookupCodec;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeGenerationSettings;
@@ -27,11 +23,9 @@ import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.StructureSettings;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
-import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.levelgen.feature.configurations.LayerConfiguration;
-import net.minecraft.world.level.levelgen.feature.configurations.StructureFeatureConfiguration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -50,24 +44,6 @@ public class FlatLevelGeneratorSettings {
         )
         .comapFlatMap(FlatLevelGeneratorSettings::validateHeight, Function.identity())
         .stable();
-    private static final Map<StructureFeature<?>, ConfiguredStructureFeature<?, ?>> STRUCTURE_FEATURES = Util.make(Maps.newHashMap(), param0 -> {
-        param0.put(StructureFeature.MINESHAFT, StructureFeatures.MINESHAFT);
-        param0.put(StructureFeature.VILLAGE, StructureFeatures.VILLAGE_PLAINS);
-        param0.put(StructureFeature.STRONGHOLD, StructureFeatures.STRONGHOLD);
-        param0.put(StructureFeature.SWAMP_HUT, StructureFeatures.SWAMP_HUT);
-        param0.put(StructureFeature.DESERT_PYRAMID, StructureFeatures.DESERT_PYRAMID);
-        param0.put(StructureFeature.JUNGLE_TEMPLE, StructureFeatures.JUNGLE_TEMPLE);
-        param0.put(StructureFeature.IGLOO, StructureFeatures.IGLOO);
-        param0.put(StructureFeature.OCEAN_RUIN, StructureFeatures.OCEAN_RUIN_COLD);
-        param0.put(StructureFeature.SHIPWRECK, StructureFeatures.SHIPWRECK);
-        param0.put(StructureFeature.OCEAN_MONUMENT, StructureFeatures.OCEAN_MONUMENT);
-        param0.put(StructureFeature.END_CITY, StructureFeatures.END_CITY);
-        param0.put(StructureFeature.WOODLAND_MANSION, StructureFeatures.WOODLAND_MANSION);
-        param0.put(StructureFeature.NETHER_BRIDGE, StructureFeatures.NETHER_BRIDGE);
-        param0.put(StructureFeature.PILLAGER_OUTPOST, StructureFeatures.PILLAGER_OUTPOST);
-        param0.put(StructureFeature.RUINED_PORTAL, StructureFeatures.RUINED_PORTAL_STANDARD);
-        param0.put(StructureFeature.BASTION_REMNANT, StructureFeatures.BASTION_REMNANT);
-    });
     private final Registry<Biome> biomes;
     private final StructureSettings structureSettings;
     private final List<FlatLayerInfo> layersInfo = Lists.newArrayList();
@@ -153,38 +129,32 @@ public class FlatLevelGeneratorSettings {
             var2.addFeature(GenerationStep.Decoration.LAKES, Features.LAKE_LAVA);
         }
 
-        for(Entry<StructureFeature<?>, StructureFeatureConfiguration> var3 : this.structureSettings.structureConfig().entrySet()) {
-            var2.addStructureStart(var1.withBiomeConfig(STRUCTURE_FEATURES.get(var3.getKey())));
-        }
+        boolean var3 = (!this.voidGen || this.biomes.getResourceKey(var0).equals(Optional.of(Biomes.THE_VOID))) && this.decoration;
+        if (var3) {
+            List<List<Supplier<ConfiguredFeature<?, ?>>>> var4 = var1.features();
 
-        boolean var4 = (!this.voidGen || this.biomes.getResourceKey(var0).equals(Optional.of(Biomes.THE_VOID))) && this.decoration;
-        if (var4) {
-            List<List<Supplier<ConfiguredFeature<?, ?>>>> var5 = var1.features();
-
-            for(int var6 = 0; var6 < var5.size(); ++var6) {
-                if (var6 != GenerationStep.Decoration.UNDERGROUND_STRUCTURES.ordinal() && var6 != GenerationStep.Decoration.SURFACE_STRUCTURES.ordinal()) {
-                    for(Supplier<ConfiguredFeature<?, ?>> var8 : var5.get(var6)) {
-                        var2.addFeature(var6, var8);
+            for(int var5 = 0; var5 < var4.size(); ++var5) {
+                if (var5 != GenerationStep.Decoration.UNDERGROUND_STRUCTURES.ordinal() && var5 != GenerationStep.Decoration.SURFACE_STRUCTURES.ordinal()) {
+                    for(Supplier<ConfiguredFeature<?, ?>> var7 : var4.get(var5)) {
+                        var2.addFeature(var5, var7);
                     }
                 }
             }
         }
 
-        List<BlockState> var9 = this.getLayers();
+        List<BlockState> var8 = this.getLayers();
 
-        for(int var10 = 0; var10 < var9.size(); ++var10) {
-            BlockState var11 = var9.get(var10);
-            if (!Heightmap.Types.MOTION_BLOCKING.isOpaque().test(var11)) {
-                var9.set(var10, null);
-                var2.addFeature(GenerationStep.Decoration.TOP_LAYER_MODIFICATION, Feature.FILL_LAYER.configured(new LayerConfiguration(var10, var11)));
+        for(int var9 = 0; var9 < var8.size(); ++var9) {
+            BlockState var10 = var8.get(var9);
+            if (!Heightmap.Types.MOTION_BLOCKING.isOpaque().test(var10)) {
+                var8.set(var9, null);
+                var2.addFeature(GenerationStep.Decoration.TOP_LAYER_MODIFICATION, Feature.FILL_LAYER.configured(new LayerConfiguration(var9, var10)));
             }
         }
 
         return new Biome.BiomeBuilder()
             .precipitation(var0.getPrecipitation())
             .biomeCategory(var0.getBiomeCategory())
-            .depth(var0.getDepth())
-            .scale(var0.getScale())
             .temperature(var0.getBaseTemperature())
             .downfall(var0.getDownfall())
             .specialEffects(var0.getSpecialEffects())

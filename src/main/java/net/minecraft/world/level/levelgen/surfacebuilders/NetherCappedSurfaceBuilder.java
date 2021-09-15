@@ -6,11 +6,9 @@ import com.google.common.collect.ImmutableMap.Builder;
 import com.mojang.serialization.Codec;
 import java.util.Comparator;
 import java.util.Random;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.BlockColumn;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.synth.PerlinNoise;
 
@@ -26,7 +24,7 @@ public abstract class NetherCappedSurfaceBuilder extends SurfaceBuilder<SurfaceB
 
     public void apply(
         Random param0,
-        ChunkAccess param1,
+        BlockColumn param1,
         Biome param2,
         int param3,
         int param4,
@@ -40,56 +38,43 @@ public abstract class NetherCappedSurfaceBuilder extends SurfaceBuilder<SurfaceB
         SurfaceBuilderBaseConfiguration param12
     ) {
         int var0 = param9 + 1;
-        int var1 = param3 & 15;
-        int var2 = param4 & 15;
-        int var3 = (int)(param6 / 3.0 + 3.0 + param0.nextDouble() * 0.25);
-        int var4 = (int)(param6 / 3.0 + 3.0 + param0.nextDouble() * 0.25);
-        double var5 = 0.03125;
-        boolean var6 = this.patchNoise.getValue((double)param3 * 0.03125, 109.0, (double)param4 * 0.03125) * 75.0 + param0.nextDouble() > 0.0;
-        BlockState var7 = this.ceilingNoises
+        int var1 = (int)(param6 / 3.0 + 3.0 + param0.nextDouble() * 0.25);
+        int var2 = (int)(param6 / 3.0 + 3.0 + param0.nextDouble() * 0.25);
+        double var3 = 0.03125;
+        boolean var4 = this.patchNoise.getValue((double)param3 * 0.03125, 109.0, (double)param4 * 0.03125) * 75.0 + param0.nextDouble() > 0.0;
+        BlockState var5 = this.ceilingNoises
             .entrySet()
             .stream()
             .max(Comparator.comparing(param3x -> param3x.getValue().getValue((double)param3, (double)param9, (double)param4)))
             .get()
             .getKey();
-        BlockState var8 = this.floorNoises
+        BlockState var6 = this.floorNoises
             .entrySet()
             .stream()
             .max(Comparator.comparing(param3x -> param3x.getValue().getValue((double)param3, (double)param9, (double)param4)))
             .get()
             .getKey();
-        BlockPos.MutableBlockPos var9 = new BlockPos.MutableBlockPos();
-        BlockState var10 = param1.getBlockState(var9.set(var1, 128, var2));
+        BlockState var7 = param1.getBlock(128);
 
-        for(int var11 = 127; var11 >= param10; --var11) {
-            var9.set(var1, var11, var2);
-            BlockState var12 = param1.getBlockState(var9);
-            if (var10.is(param7.getBlock()) && (var12.isAir() || var12 == param8)) {
-                for(int var13 = 0; var13 < var3; ++var13) {
-                    var9.move(Direction.UP);
-                    if (!param1.getBlockState(var9).is(param7.getBlock())) {
-                        break;
-                    }
-
-                    param1.setBlockState(var9, var7, false);
+        for(int var8 = 127; var8 >= param10; --var8) {
+            BlockState var9 = param1.getBlock(var8);
+            if (var7.is(param7.getBlock()) && (var9.isAir() || var9 == param8)) {
+                for(int var10 = 0; var10 < var1 && param1.getBlock(var8 + var10).is(param7.getBlock()); ++var10) {
+                    param1.setBlock(var8 + var10, var5);
                 }
-
-                var9.set(var1, var11, var2);
             }
 
-            if ((var10.isAir() || var10 == param8) && var12.is(param7.getBlock())) {
-                for(int var14 = 0; var14 < var4 && param1.getBlockState(var9).is(param7.getBlock()); ++var14) {
-                    if (var6 && var11 >= var0 - 4 && var11 <= var0 + 1) {
-                        param1.setBlockState(var9, this.getPatchBlockState(), false);
+            if ((var7.isAir() || var7 == param8) && var9.is(param7.getBlock())) {
+                for(int var11 = 0; var11 < var2 && param1.getBlock(var8 - var11).is(param7.getBlock()); ++var11) {
+                    if (var4 && var8 >= var0 - 4 && var8 <= var0 + 1) {
+                        param1.setBlock(var8 - var11, this.getPatchBlockState());
                     } else {
-                        param1.setBlockState(var9, var8, false);
+                        param1.setBlock(var8 - var11, var6);
                     }
-
-                    var9.move(Direction.DOWN);
                 }
             }
 
-            var10 = var12;
+            var7 = var9;
         }
 
     }

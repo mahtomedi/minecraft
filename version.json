@@ -1,15 +1,16 @@
 {
-    "id": "1.17.1",
-    "name": "1.17.1",
-    "release_target": "1.17.1",
-    "world_version": 2730,
-    "protocol_version": 756,
+    "id": "21w37a",
+    "name": "21w37a",
+    "release_target": "1.18",
+    "world_version": 2834,
+    "series_id": "main",
+    "protocol_version": 1073741865,
     "pack_version": {
         "resource": 7,
-        "data": 7
+        "data": 8
     },
-    "build_time": "2021-07-06T11:59:45+00:00",
+    "build_time": "2021-09-15T16:02:43+00:00",
     "java_component": "java-runtime-alpha",
     "java_version": 16,
-    "stable": true
+    "stable": false
 }

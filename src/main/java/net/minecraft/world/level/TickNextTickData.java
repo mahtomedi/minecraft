@@ -25,12 +25,11 @@ public class TickNextTickData<T> {
 
     @Override
     public boolean equals(Object param0) {
-        if (!(param0 instanceof TickNextTickData)) {
-            return false;
-        } else {
-            TickNextTickData<?> var0 = (TickNextTickData)param0;
-            return this.pos.equals(var0.pos) && this.type == var0.type;
+        if (param0 instanceof TickNextTickData var0 && this.pos.equals(var0.pos) && this.type == var0.type) {
+            return true;
         }
+
+        return false;
     }
 
     @Override

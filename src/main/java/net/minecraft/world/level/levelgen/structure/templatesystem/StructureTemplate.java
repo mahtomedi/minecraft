@@ -94,24 +94,20 @@ public class StructureTemplate {
                 BlockState var8 = param0.getBlockState(var6);
                 if (param4 == null || !var8.is(param4)) {
                     BlockEntity var9 = param0.getBlockEntity(var6);
-                    StructureTemplate.StructureBlockInfo var11;
+                    StructureTemplate.StructureBlockInfo var10;
                     if (var9 != null) {
-                        CompoundTag var10 = var9.save(new CompoundTag());
-                        var10.remove("x");
-                        var10.remove("y");
-                        var10.remove("z");
-                        var11 = new StructureTemplate.StructureBlockInfo(var7, var8, var10.copy());
+                        var10 = new StructureTemplate.StructureBlockInfo(var7, var8, var9.saveWithId());
                     } else {
-                        var11 = new StructureTemplate.StructureBlockInfo(var7, var8, null);
+                        var10 = new StructureTemplate.StructureBlockInfo(var7, var8, null);
                     }
 
-                    addToLists(var11, var1, var2, var3);
+                    addToLists(var10, var1, var2, var3);
                 }
             }
 
-            List<StructureTemplate.StructureBlockInfo> var13 = buildInfoList(var1, var2, var3);
+            List<StructureTemplate.StructureBlockInfo> var12 = buildInfoList(var1, var2, var3);
             this.palettes.clear();
-            this.palettes.add(new StructureTemplate.Palette(var13));
+            this.palettes.add(new StructureTemplate.Palette(var12));
             if (param3) {
                 this.fillEntityList(param0, var4, var5.offset(1, 1, 1));
             } else {
@@ -246,9 +242,6 @@ public class StructureTemplate {
                             if (var12.nbt != null) {
                                 BlockEntity var17 = param0.getBlockEntity(var13);
                                 if (var17 != null) {
-                                    var12.nbt.putInt("x", var13.getX());
-                                    var12.nbt.putInt("y", var13.getY());
-                                    var12.nbt.putInt("z", var13.getZ());
                                     if (var17 instanceof RandomizableContainerBlockEntity) {
                                         var12.nbt.putLong("LootTableSeed", param4.nextLong());
                                     }

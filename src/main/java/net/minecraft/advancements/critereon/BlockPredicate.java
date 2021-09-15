@@ -52,7 +52,7 @@ public class BlockPredicate {
             } else {
                 if (this.nbt != NbtPredicate.ANY) {
                     BlockEntity var1 = param0.getBlockEntity(param1);
-                    if (var1 == null || !this.nbt.matches(var1.save(new CompoundTag()))) {
+                    if (var1 == null || !this.nbt.matches(var1.saveWithFullMetadata())) {
                         return false;
                     }
                 }

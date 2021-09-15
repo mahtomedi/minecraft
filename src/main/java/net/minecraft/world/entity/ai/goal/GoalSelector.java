@@ -4,8 +4,10 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Sets;
 import java.util.EnumMap;
 import java.util.EnumSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -50,37 +52,69 @@ public class GoalSelector {
         this.availableGoals.removeIf(param1 -> param1.getGoal() == param0);
     }
 
+    private static boolean goalContainsAnyFlags(WrappedGoal param0, EnumSet<Goal.Flag> param1) {
+        for(Goal.Flag var0 : param0.getFlags()) {
+            if (param1.contains(var0)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static boolean goalCanBeReplacedForAllFlags(WrappedGoal param0, Map<Goal.Flag, WrappedGoal> param1) {
+        for(Goal.Flag var0 : param0.getFlags()) {
+            if (!param1.getOrDefault(var0, NO_GOAL).canBeReplacedBy(param0)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public void tick() {
         ProfilerFiller var0 = this.profiler.get();
         var0.push("goalCleanup");
-        this.getRunningGoals()
-            .filter(param0 -> !param0.isRunning() || param0.getFlags().stream().anyMatch(this.disabledFlags::contains) || !param0.canContinueToUse())
-            .forEach(Goal::stop);
-        this.lockedFlags.forEach((param0, param1) -> {
-            if (!param1.isRunning()) {
-                this.lockedFlags.remove(param0);
-            }
 
-        });
+        for(WrappedGoal var1 : this.availableGoals) {
+            if (var1.isRunning() && (goalContainsAnyFlags(var1, this.disabledFlags) || !var1.canContinueToUse())) {
+                var1.stop();
+            }
+        }
+
+        Iterator<Entry<Goal.Flag, WrappedGoal>> var2 = this.lockedFlags.entrySet().iterator();
+
+        while(var2.hasNext()) {
+            Entry<Goal.Flag, WrappedGoal> var3 = var2.next();
+            if (!var3.getValue().isRunning()) {
+                var2.remove();
+            }
+        }
+
         var0.pop();
         var0.push("goalUpdate");
-        this.availableGoals
-            .stream()
-            .filter(param0 -> !param0.isRunning())
-            .filter(param0 -> param0.getFlags().stream().noneMatch(this.disabledFlags::contains))
-            .filter(param0 -> param0.getFlags().stream().allMatch(param1 -> this.lockedFlags.getOrDefault(param1, NO_GOAL).canBeReplacedBy(param0)))
-            .filter(WrappedGoal::canUse)
-            .forEach(param0 -> {
-                param0.getFlags().forEach(param1 -> {
-                    WrappedGoal var0x = this.lockedFlags.getOrDefault(param1, NO_GOAL);
-                    var0x.stop();
-                    this.lockedFlags.put(param1, param0);
-                });
-                param0.start();
-            });
+
+        for(WrappedGoal var4 : this.availableGoals) {
+            if (!var4.isRunning() && !goalContainsAnyFlags(var4, this.disabledFlags) && goalCanBeReplacedForAllFlags(var4, this.lockedFlags) && var4.canUse()) {
+                for(Goal.Flag var5 : var4.getFlags()) {
+                    WrappedGoal var6 = this.lockedFlags.getOrDefault(var5, NO_GOAL);
+                    var6.stop();
+                    this.lockedFlags.put(var5, var4);
+                }
+
+                var4.start();
+            }
+        }
+
         var0.pop();
         var0.push("goalTick");
-        this.getRunningGoals().forEach(WrappedGoal::tick);
+
+        for(WrappedGoal var7 : this.availableGoals) {
+            if (var7.isRunning()) {
+                var7.tick();
+            }
+        }
+
         var0.pop();
     }
 

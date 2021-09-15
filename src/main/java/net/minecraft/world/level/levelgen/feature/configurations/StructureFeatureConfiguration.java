@@ -16,7 +16,7 @@ public class StructureFeatureConfiguration {
                     .apply(param0, StructureFeatureConfiguration::new)
         )
         .comapFlatMap(
-            param0 -> param0.spacing <= param0.separation ? DataResult.error("Spacing has to be smaller than separation") : DataResult.success(param0),
+            param0 -> param0.spacing <= param0.separation ? DataResult.error("Spacing has to be larger than separation") : DataResult.success(param0),
             Function.identity()
         );
     private final int spacing;

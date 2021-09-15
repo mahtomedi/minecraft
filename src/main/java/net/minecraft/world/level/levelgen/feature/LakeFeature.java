@@ -4,13 +4,11 @@ import com.mojang.serialization.Codec;
 import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.levelgen.BaseStoneSource;
 import net.minecraft.world.level.levelgen.feature.configurations.BlockStateConfiguration;
 import net.minecraft.world.level.material.Material;
 
@@ -125,41 +123,13 @@ public class LakeFeature extends Feature<BlockStateConfiguration> {
                     }
                 }
 
-                if (var3.state.getMaterial() == Material.LAVA) {
-                    BaseStoneSource var35 = param0.chunkGenerator().getBaseStoneSource();
-
-                    for(int var36 = 0; var36 < 16; ++var36) {
-                        for(int var37 = 0; var37 < 16; ++var37) {
-                            for(int var38 = 0; var38 < 8; ++var38) {
-                                boolean var39 = !var4[(var36 * 16 + var37) * 8 + var38]
-                                    && (
-                                        var36 < 15 && var4[((var36 + 1) * 16 + var37) * 8 + var38]
-                                            || var36 > 0 && var4[((var36 - 1) * 16 + var37) * 8 + var38]
-                                            || var37 < 15 && var4[(var36 * 16 + var37 + 1) * 8 + var38]
-                                            || var37 > 0 && var4[(var36 * 16 + (var37 - 1)) * 8 + var38]
-                                            || var38 < 7 && var4[(var36 * 16 + var37) * 8 + var38 + 1]
-                                            || var38 > 0 && var4[(var36 * 16 + var37) * 8 + (var38 - 1)]
-                                    );
-                                if (var39 && (var38 < 4 || var2.nextInt(2) != 0)) {
-                                    BlockState var40 = var1.getBlockState(var0.offset(var36, var38, var37));
-                                    if (var40.getMaterial().isSolid() && !var40.is(BlockTags.LAVA_POOL_STONE_CANNOT_REPLACE)) {
-                                        BlockPos var41 = var0.offset(var36, var38, var37);
-                                        var1.setBlock(var41, var35.getBaseBlock(var41), 2);
-                                        this.markAboveForPostProcessing(var1, var41);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
                 if (var3.state.getMaterial() == Material.WATER) {
-                    for(int var42 = 0; var42 < 16; ++var42) {
-                        for(int var43 = 0; var43 < 16; ++var43) {
-                            int var44 = 4;
-                            BlockPos var45 = var0.offset(var42, 4, var43);
-                            if (var1.getBiome(var45).shouldFreeze(var1, var45, false)) {
-                                var1.setBlock(var45, Blocks.ICE.defaultBlockState(), 2);
+                    for(int var35 = 0; var35 < 16; ++var35) {
+                        for(int var36 = 0; var36 < 16; ++var36) {
+                            int var37 = 4;
+                            BlockPos var38 = var0.offset(var35, 4, var36);
+                            if (var1.getBiome(var38).shouldFreeze(var1, var38, false)) {
+                                var1.setBlock(var38, Blocks.ICE.defaultBlockState(), 2);
                             }
                         }
                     }

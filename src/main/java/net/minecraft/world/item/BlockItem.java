@@ -23,6 +23,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.ShulkerBoxBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.Property;
@@ -30,7 +31,7 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.shapes.CollisionContext;
 
 public class BlockItem extends Item {
-    public static final String BLOCK_ENTITY_TAG = "BlockEntityTag";
+    private static final String BLOCK_ENTITY_TAG = "BlockEntityTag";
     public static final String BLOCK_STATE_TAG = "BlockStateTag";
     @Deprecated
     private final Block block;
@@ -158,7 +159,7 @@ public class BlockItem extends Item {
         if (var0 == null) {
             return false;
         } else {
-            CompoundTag var1 = param3.getTagElement("BlockEntityTag");
+            CompoundTag var1 = getBlockEntityData(param3);
             if (var1 != null) {
                 BlockEntity var2 = param0.getBlockEntity(param2);
                 if (var2 != null) {
@@ -166,12 +167,9 @@ public class BlockItem extends Item {
                         return false;
                     }
 
-                    CompoundTag var3 = var2.save(new CompoundTag());
+                    CompoundTag var3 = var2.saveWithoutMetadata();
                     CompoundTag var4 = var3.copy();
                     var3.merge(var1);
-                    var3.putInt("x", param2.getX());
-                    var3.putInt("y", param2.getY());
-                    var3.putInt("z", param2.getZ());
                     if (!var3.equals(var4)) {
                         var2.load(var3);
                         var2.setChanged();
@@ -219,11 +217,27 @@ public class BlockItem extends Item {
     @Override
     public void onDestroyed(ItemEntity param0) {
         if (this.block instanceof ShulkerBoxBlock) {
-            CompoundTag var0 = param0.getItem().getTag();
-            if (var0 != null) {
-                ListTag var1 = var0.getCompound("BlockEntityTag").getList("Items", 10);
-                ItemUtils.onContainerDestroyed(param0, var1.stream().map(CompoundTag.class::cast).map(ItemStack::of));
+            ItemStack var0 = param0.getItem();
+            CompoundTag var1 = getBlockEntityData(var0);
+            if (var1 != null && var1.contains("Items", 9)) {
+                ListTag var2 = var1.getList("Items", 10);
+                ItemUtils.onContainerDestroyed(param0, var2.stream().map(CompoundTag.class::cast).map(ItemStack::of));
             }
+        }
+
+    }
+
+    @Nullable
+    public static CompoundTag getBlockEntityData(ItemStack param0) {
+        return param0.getTagElement("BlockEntityTag");
+    }
+
+    public static void setBlockEntityData(ItemStack param0, BlockEntityType<?> param1, CompoundTag param2) {
+        if (param2.isEmpty()) {
+            param0.removeTagKey("BlockEntityTag");
+        } else {
+            BlockEntity.addEntityType(param2, param1);
+            param0.addTagElement("BlockEntityTag", param2);
         }
 
     }

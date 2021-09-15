@@ -10,11 +10,13 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BannerItem;
 import net.minecraft.world.item.BannerPatternItem;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BannerPattern;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 
 public class LoomMenu extends AbstractContainerMenu {
     private static final int INV_SLOT_START = 4;
@@ -142,8 +144,8 @@ public class LoomMenu extends AbstractContainerMenu {
                 && this.selectedBannerPatternIndex.get() > 0
                 && (this.selectedBannerPatternIndex.get() < BannerPattern.COUNT - BannerPattern.PATTERN_ITEM_COUNT || !var2.isEmpty())) {
             if (!var2.isEmpty() && var2.getItem() instanceof BannerPatternItem) {
-                CompoundTag var4 = var0.getOrCreateTagElement("BlockEntityTag");
-                boolean var5 = var4.contains("Patterns", 9) && !var0.isEmpty() && var4.getList("Patterns", 10).size() >= 6;
+                CompoundTag var4 = BlockItem.getBlockEntityData(var0);
+                boolean var5 = var4 != null && var4.contains("Patterns", 9) && !var0.isEmpty() && var4.getList("Patterns", 10).size() >= 6;
                 if (var5) {
                     this.selectedBannerPatternIndex.set(0);
                 } else {
@@ -232,12 +234,16 @@ public class LoomMenu extends AbstractContainerMenu {
                 var2.setCount(1);
                 BannerPattern var3 = BannerPattern.values()[this.selectedBannerPatternIndex.get()];
                 DyeColor var4 = ((DyeItem)var1.getItem()).getDyeColor();
-                CompoundTag var5 = var2.getOrCreateTagElement("BlockEntityTag");
+                CompoundTag var5 = BlockItem.getBlockEntityData(var2);
                 ListTag var6;
-                if (var5.contains("Patterns", 9)) {
+                if (var5 != null && var5.contains("Patterns", 9)) {
                     var6 = var5.getList("Patterns", 10);
                 } else {
                     var6 = new ListTag();
+                    if (var5 == null) {
+                        var5 = new CompoundTag();
+                    }
+
                     var5.put("Patterns", var6);
                 }
 
@@ -245,6 +251,7 @@ public class LoomMenu extends AbstractContainerMenu {
                 var8.putString("Pattern", var3.getHashname());
                 var8.putInt("Color", var4.getId());
                 var6.add(var8);
+                BlockItem.setBlockEntityData(var2, BlockEntityType.BANNER, var5);
             }
 
             if (!ItemStack.matches(var2, this.resultSlot.getItem())) {

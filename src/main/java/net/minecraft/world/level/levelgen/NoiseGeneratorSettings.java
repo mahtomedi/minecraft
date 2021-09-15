@@ -16,36 +16,37 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.levelgen.feature.configurations.StructureFeatureConfiguration;
+import net.minecraft.world.level.levelgen.synth.NormalNoise;
 
 public final class NoiseGeneratorSettings {
     public static final Codec<NoiseGeneratorSettings> DIRECT_CODEC = RecordCodecBuilder.create(
         param0 -> param0.group(
                     StructureSettings.CODEC.fieldOf("structures").forGetter(NoiseGeneratorSettings::structureSettings),
                     NoiseSettings.CODEC.fieldOf("noise").forGetter(NoiseGeneratorSettings::noiseSettings),
+                    NoiseOctaves.CODEC.fieldOf("octaves").forGetter(NoiseGeneratorSettings::noiseOctaves),
                     BlockState.CODEC.fieldOf("default_block").forGetter(NoiseGeneratorSettings::getDefaultBlock),
                     BlockState.CODEC.fieldOf("default_fluid").forGetter(NoiseGeneratorSettings::getDefaultFluid),
                     Codec.INT.fieldOf("bedrock_roof_position").forGetter(NoiseGeneratorSettings::getBedrockRoofPosition),
                     Codec.INT.fieldOf("bedrock_floor_position").forGetter(NoiseGeneratorSettings::getBedrockFloorPosition),
                     Codec.INT.fieldOf("sea_level").forGetter(NoiseGeneratorSettings::seaLevel),
-                    Codec.INT.fieldOf("min_surface_level").forGetter(NoiseGeneratorSettings::getMinSurfaceLevel),
                     Codec.BOOL.fieldOf("disable_mob_generation").forGetter(NoiseGeneratorSettings::disableMobGeneration),
                     Codec.BOOL.fieldOf("aquifers_enabled").forGetter(NoiseGeneratorSettings::isAquifersEnabled),
                     Codec.BOOL.fieldOf("noise_caves_enabled").forGetter(NoiseGeneratorSettings::isNoiseCavesEnabled),
                     Codec.BOOL.fieldOf("deepslate_enabled").forGetter(NoiseGeneratorSettings::isDeepslateEnabled),
                     Codec.BOOL.fieldOf("ore_veins_enabled").forGetter(NoiseGeneratorSettings::isOreVeinsEnabled),
-                    Codec.BOOL.fieldOf("noodle_caves_enabled").forGetter(NoiseGeneratorSettings::isOreVeinsEnabled)
+                    Codec.BOOL.fieldOf("noodle_caves_enabled").forGetter(NoiseGeneratorSettings::isNoodleCavesEnabled)
                 )
                 .apply(param0, NoiseGeneratorSettings::new)
     );
     public static final Codec<Supplier<NoiseGeneratorSettings>> CODEC = RegistryFileCodec.create(Registry.NOISE_GENERATOR_SETTINGS_REGISTRY, DIRECT_CODEC);
     private final StructureSettings structureSettings;
     private final NoiseSettings noiseSettings;
+    private final NoiseOctaves noiseOctaves;
     private final BlockState defaultBlock;
     private final BlockState defaultFluid;
     private final int bedrockRoofPosition;
     private final int bedrockFloorPosition;
     private final int seaLevel;
-    private final int minSurfaceLevel;
     private final boolean disableMobGeneration;
     private final boolean aquifersEnabled;
     private final boolean noiseCavesEnabled;
@@ -73,9 +74,9 @@ public final class NoiseGeneratorSettings {
     private NoiseGeneratorSettings(
         StructureSettings param0,
         NoiseSettings param1,
-        BlockState param2,
+        NoiseOctaves param2,
         BlockState param3,
-        int param4,
+        BlockState param4,
         int param5,
         int param6,
         int param7,
@@ -88,12 +89,12 @@ public final class NoiseGeneratorSettings {
     ) {
         this.structureSettings = param0;
         this.noiseSettings = param1;
-        this.defaultBlock = param2;
-        this.defaultFluid = param3;
-        this.bedrockRoofPosition = param4;
-        this.bedrockFloorPosition = param5;
-        this.seaLevel = param6;
-        this.minSurfaceLevel = param7;
+        this.noiseOctaves = param2;
+        this.defaultBlock = param3;
+        this.defaultFluid = param4;
+        this.bedrockRoofPosition = param5;
+        this.bedrockFloorPosition = param6;
+        this.seaLevel = param7;
         this.disableMobGeneration = param8;
         this.aquifersEnabled = param9;
         this.noiseCavesEnabled = param10;
@@ -108,6 +109,10 @@ public final class NoiseGeneratorSettings {
 
     public NoiseSettings noiseSettings() {
         return this.noiseSettings;
+    }
+
+    public NoiseOctaves noiseOctaves() {
+        return this.noiseOctaves;
     }
 
     public BlockState getDefaultBlock() {
@@ -130,32 +135,28 @@ public final class NoiseGeneratorSettings {
         return this.seaLevel;
     }
 
-    public int getMinSurfaceLevel() {
-        return this.minSurfaceLevel;
-    }
-
     @Deprecated
     protected boolean disableMobGeneration() {
         return this.disableMobGeneration;
     }
 
-    protected boolean isAquifersEnabled() {
+    public boolean isAquifersEnabled() {
         return this.aquifersEnabled;
     }
 
-    protected boolean isNoiseCavesEnabled() {
+    public boolean isNoiseCavesEnabled() {
         return this.noiseCavesEnabled;
     }
 
-    protected boolean isDeepslateEnabled() {
+    public boolean isDeepslateEnabled() {
         return this.deepslateEnabled;
     }
 
-    protected boolean isOreVeinsEnabled() {
+    public boolean isOreVeinsEnabled() {
         return this.oreVeinsEnabled;
     }
 
-    protected boolean isNoodleCavesEnabled() {
+    public boolean isNoodleCavesEnabled() {
         return this.noodleCavesEnabled;
     }
 
@@ -164,8 +165,7 @@ public final class NoiseGeneratorSettings {
     }
 
     private static NoiseGeneratorSettings register(ResourceKey<NoiseGeneratorSettings> param0, NoiseGeneratorSettings param1) {
-        BuiltinRegistries.register(BuiltinRegistries.NOISE_GENERATOR_SETTINGS, param0.location(), param1);
-        return param1;
+        return BuiltinRegistries.register(BuiltinRegistries.NOISE_GENERATOR_SETTINGS, param0.location(), param1);
     }
 
     public static NoiseGeneratorSettings bootstrap() {
@@ -179,8 +179,8 @@ public final class NoiseGeneratorSettings {
                 0,
                 128,
                 new NoiseSamplingSettings(2.0, 1.0, 80.0, 160.0),
-                new NoiseSlideSettings(-3000, 64, -46),
-                new NoiseSlideSettings(-30, 7, 1),
+                new NoiseSlider(-23.4375, 64, -46),
+                new NoiseSlider(-0.234375, 7, 1),
                 2,
                 1,
                 0.0,
@@ -188,13 +188,21 @@ public final class NoiseGeneratorSettings {
                 true,
                 false,
                 param4,
-                false
+                false,
+                true
+            ),
+            new NoiseOctaves(
+                new NormalNoise.NoiseParameters(0, 0.0),
+                new NormalNoise.NoiseParameters(0, 0.0),
+                new NormalNoise.NoiseParameters(0, 0.0),
+                new NormalNoise.NoiseParameters(0, 0.0),
+                new NormalNoise.NoiseParameters(0, 0.0),
+                new NormalNoise.NoiseParameters(0, 0.0)
             ),
             param1,
             param2,
             Integer.MIN_VALUE,
             Integer.MIN_VALUE,
-            0,
             0,
             param3,
             false,
@@ -214,23 +222,31 @@ public final class NoiseGeneratorSettings {
                 0,
                 128,
                 new NoiseSamplingSettings(1.0, 3.0, 80.0, 60.0),
-                new NoiseSlideSettings(120, 3, 0),
-                new NoiseSlideSettings(320, 4, -1),
+                new NoiseSlider(0.9375, 3, 0),
+                new NoiseSlider(2.5, 4, -1),
                 1,
                 2,
                 0.0,
-                0.019921875,
+                -0.030078125,
                 false,
                 false,
                 false,
-                false
+                false,
+                true
+            ),
+            new NoiseOctaves(
+                new NormalNoise.NoiseParameters(-7, 1.0, 1.0),
+                new NormalNoise.NoiseParameters(-7, 1.0, 1.0),
+                new NormalNoise.NoiseParameters(-7, 1.0, 1.0),
+                new NormalNoise.NoiseParameters(-7, 1.0, 1.0),
+                new NormalNoise.NoiseParameters(-7, 1.0, 1.0),
+                new NormalNoise.NoiseParameters(0, 0.0)
             ),
             param1,
             param2,
             0,
             0,
             32,
-            0,
             false,
             false,
             false,
@@ -245,32 +261,40 @@ public final class NoiseGeneratorSettings {
         return new NoiseGeneratorSettings(
             param0,
             NoiseSettings.create(
-                0,
-                256,
+                -64,
+                384,
                 new NoiseSamplingSettings(0.9999999814507745, 0.9999999814507745, 80.0, 160.0),
-                new NoiseSlideSettings(-10, 3, 0),
-                new NoiseSlideSettings(15, 3, 0),
+                new NoiseSlider(-0.078125, 2, 8),
+                new NoiseSlider(0.1171875, 3, 0),
                 1,
                 2,
                 1.0,
-                -0.46875,
+                -0.51875,
                 true,
                 true,
                 false,
-                param1
+                param1,
+                false
+            ),
+            new NoiseOctaves(
+                new NormalNoise.NoiseParameters(-9, 1.5, 0.0, 1.0, 0.0, 0.0, 0.0),
+                new NormalNoise.NoiseParameters(-7, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0),
+                new NormalNoise.NoiseParameters(-9, 1.0, 1.0, 2.0, 2.0, 2.0, 1.0, 1.0, 1.0, 1.0),
+                new NormalNoise.NoiseParameters(-9, 1.0, 1.0, 0.0, 1.0, 1.0),
+                new NormalNoise.NoiseParameters(-7, 1.0, 2.0, 1.0, 0.0, 0.0, 0.0),
+                new NormalNoise.NoiseParameters(-3, 1.0, 1.0, 1.0, 0.0)
             ),
             Blocks.STONE.defaultBlockState(),
             Blocks.WATER.defaultBlockState(),
             Integer.MIN_VALUE,
             0,
             63,
-            0,
             false,
-            false,
-            false,
-            false,
-            false,
-            false
+            true,
+            true,
+            true,
+            true,
+            true
         );
     }
 

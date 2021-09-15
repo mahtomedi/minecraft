@@ -151,6 +151,11 @@ public class MappedRegistry<T> extends WritableRegistry<T> {
     }
 
     @Override
+    public int size() {
+        return this.storage.size();
+    }
+
+    @Override
     public Lifecycle lifecycle(T param0) {
         return this.lifecycles.get(param0);
     }

@@ -9,6 +9,7 @@ import java.util.Locale;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.CrashReport;
+import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
 import net.minecraft.Util;
 import net.minecraft.client.gui.chat.NarratorChatListener;
@@ -17,7 +18,7 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.SimpleOptionsSubScreen;
-import net.minecraft.client.gui.screens.controls.ControlsScreen;
+import net.minecraft.client.gui.screens.controls.KeyBindsScreen;
 import net.minecraft.client.gui.screens.debug.GameModeSwitcherScreen;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.commands.arguments.blocks.BlockStateParser;
@@ -30,6 +31,7 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.util.NativeModuleLister;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -263,7 +265,7 @@ public class KeyboardHandler {
                             });
                         } else {
                             BlockEntity var3 = this.minecraft.player.level.getBlockEntity(var1);
-                            CompoundTag var4 = var3 != null ? var3.save(new CompoundTag()) : null;
+                            CompoundTag var4 = var3 != null ? var3.saveWithoutMetadata() : null;
                             this.copyCreateBlockCommand(var2, var1, var4);
                             this.debugFeedbackTranslated("debug.inspect.client.block");
                         }
@@ -296,13 +298,6 @@ public class KeyboardHandler {
     }
 
     private void copyCreateBlockCommand(BlockState param0, BlockPos param1, @Nullable CompoundTag param2) {
-        if (param2 != null) {
-            param2.remove("x");
-            param2.remove("y");
-            param2.remove("z");
-            param2.remove("id");
-        }
-
         StringBuilder var0 = new StringBuilder(BlockStateParser.serialize(param0));
         if (param2 != null) {
             var0.append(param2);
@@ -343,7 +338,7 @@ public class KeyboardHandler {
             }
 
             Screen var0 = this.minecraft.screen;
-            if (param3 == 1 && (!(this.minecraft.screen instanceof ControlsScreen) || ((ControlsScreen)var0).lastKeySelection <= Util.getMillis() - 20L)) {
+            if (param3 == 1 && (!(this.minecraft.screen instanceof KeyBindsScreen) || ((KeyBindsScreen)var0).lastKeySelection <= Util.getMillis() - 20L)) {
                 if (this.minecraft.options.keyFullscreen.matches(param1, param2)) {
                     this.minecraft.getWindow().toggleFullScreen();
                     this.minecraft.options.fullscreen = this.minecraft.getWindow().isFullscreen();
@@ -500,7 +495,10 @@ public class KeyboardHandler {
                     Blaze3D.youJustLostTheGame();
                 }
 
-                throw new ReportedException(new CrashReport("Manually triggered debug crash", new Throwable()));
+                CrashReport var3 = new CrashReport("Manually triggered debug crash", new Throwable());
+                CrashReportCategory var4 = var3.addCategory("Manual crash details");
+                NativeModuleLister.addCrashSection(var4);
+                throw new ReportedException(var3);
             }
 
             if (var2 >= 1000L) {

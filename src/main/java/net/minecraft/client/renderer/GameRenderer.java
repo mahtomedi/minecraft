@@ -1102,7 +1102,7 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
         boolean var0 = this.shouldRenderBlockOutline();
         this.minecraft.getProfiler().popPush("camera");
         Camera var1 = this.mainCamera;
-        this.renderDistance = (float)(this.minecraft.options.renderDistance * 16);
+        this.renderDistance = (float)(this.minecraft.options.getEffectiveRenderDistance() * 16);
         PoseStack var2 = new PoseStack();
         double var3 = this.getFov(var1, param0, true);
         var2.last().pose().multiply(this.getProjectionMatrix(var3));

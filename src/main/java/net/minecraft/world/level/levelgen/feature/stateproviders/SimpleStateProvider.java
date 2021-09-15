@@ -9,7 +9,7 @@ public class SimpleStateProvider extends BlockStateProvider {
     public static final Codec<SimpleStateProvider> CODEC = BlockState.CODEC.fieldOf("state").xmap(SimpleStateProvider::new, param0 -> param0.state).codec();
     private final BlockState state;
 
-    public SimpleStateProvider(BlockState param0) {
+    protected SimpleStateProvider(BlockState param0) {
         this.state = param0;
     }
 

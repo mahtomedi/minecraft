@@ -172,32 +172,31 @@ public class MapItem extends ComplexItem {
                                 }
 
                                 var21 /= var0 * var0;
-                                double var33 = (var22 - var9) * 4.0 / (double)(var0 + 4) + ((double)(var8 + var10 & 1) - 0.5) * 0.4;
-                                int var34 = 1;
-                                if (var33 > 0.6) {
-                                    var34 = 2;
-                                }
-
-                                if (var33 < -0.6) {
-                                    var34 = 0;
-                                }
-
-                                MaterialColor var35 = Iterables.getFirst(Multisets.copyHighestCountFirst(var16), MaterialColor.NONE);
-                                if (var35 == MaterialColor.WATER) {
-                                    var33 = (double)var21 * 0.1 + (double)(var8 + var10 & 1) * 0.2;
-                                    var34 = 1;
-                                    if (var33 < 0.5) {
-                                        var34 = 2;
+                                MaterialColor var33 = Iterables.getFirst(Multisets.copyHighestCountFirst(var16), MaterialColor.NONE);
+                                MaterialColor.Brightness var35;
+                                if (var33 == MaterialColor.WATER) {
+                                    double var34 = (double)var21 * 0.1 + (double)(var8 + var10 & 1) * 0.2;
+                                    if (var34 < 0.5) {
+                                        var35 = MaterialColor.Brightness.HIGH;
+                                    } else if (var34 > 0.9) {
+                                        var35 = MaterialColor.Brightness.LOW;
+                                    } else {
+                                        var35 = MaterialColor.Brightness.NORMAL;
                                     }
-
-                                    if (var33 > 0.9) {
-                                        var34 = 0;
+                                } else {
+                                    double var38 = (var22 - var9) * 4.0 / (double)(var0 + 4) + ((double)(var8 + var10 & 1) - 0.5) * 0.4;
+                                    if (var38 > 0.6) {
+                                        var35 = MaterialColor.Brightness.HIGH;
+                                    } else if (var38 < -0.6) {
+                                        var35 = MaterialColor.Brightness.LOW;
+                                    } else {
+                                        var35 = MaterialColor.Brightness.NORMAL;
                                     }
                                 }
 
                                 var9 = var22;
                                 if (var10 >= 0 && var11 * var11 + var12 * var12 < var5 * var5 && (!var13 || (var8 + var10 & 1) != 0)) {
-                                    var7 |= param2.updateColor(var8, var10, (byte)(var35.id * 4 + var34));
+                                    var7 |= param2.updateColor(var8, var10, var33.getPackedId(var35));
                                 }
                             }
                         }
@@ -214,7 +213,7 @@ public class MapItem extends ComplexItem {
     }
 
     private static boolean isLand(Biome[] param0, int param1, int param2, int param3) {
-        return param0[param2 * param1 + param3 * param1 * 128 * param1].getDepth() >= 0.0F;
+        return true;
     }
 
     public static void renderBiomePreviewMap(ServerLevel param0, ItemStack param1) {
@@ -269,37 +268,19 @@ public class MapItem extends ComplexItem {
                                 --var10;
                             }
 
-                            int var11 = 3;
+                            MaterialColor.Brightness var11 = MaterialColor.Brightness.LOWEST;
                             MaterialColor var12 = MaterialColor.NONE;
-                            if (var9.getDepth() < 0.0F) {
-                                var12 = MaterialColor.COLOR_ORANGE;
-                                if (var10 > 7 && var8 % 2 == 0) {
-                                    var11 = (var7 + (int)(Mth.sin((float)var8 + 0.0F) * 7.0F)) / 8 % 5;
-                                    if (var11 == 3) {
-                                        var11 = 1;
-                                    } else if (var11 == 4) {
-                                        var11 = 0;
-                                    }
-                                } else if (var10 > 7) {
-                                    var12 = MaterialColor.NONE;
-                                } else if (var10 > 5) {
-                                    var11 = 1;
-                                } else if (var10 > 3) {
-                                    var11 = 0;
-                                } else if (var10 > 1) {
-                                    var11 = 0;
-                                }
-                            } else if (var10 > 0) {
+                            if (var10 > 0) {
                                 var12 = MaterialColor.COLOR_BROWN;
                                 if (var10 > 3) {
-                                    var11 = 1;
+                                    var11 = MaterialColor.Brightness.NORMAL;
                                 } else {
-                                    var11 = 3;
+                                    var11 = MaterialColor.Brightness.LOWEST;
                                 }
                             }
 
                             if (var12 != MaterialColor.NONE) {
-                                var0.setColor(var7, var8, (byte)(var12.id * 4 + var11));
+                                var0.setColor(var7, var8, var12.getPackedId(var11));
                             }
                         }
                     }

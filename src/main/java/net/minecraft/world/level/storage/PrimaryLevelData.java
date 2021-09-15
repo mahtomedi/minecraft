@@ -241,8 +241,9 @@ public class PrimaryLevelData implements ServerLevelData, WorldData {
         param1.putBoolean("WasModded", this.wasModded);
         CompoundTag var1 = new CompoundTag();
         var1.putString("Name", SharedConstants.getCurrentVersion().getName());
-        var1.putInt("Id", SharedConstants.getCurrentVersion().getWorldVersion());
+        var1.putInt("Id", SharedConstants.getCurrentVersion().getDataVersion().getVersion());
         var1.putBoolean("Snapshot", !SharedConstants.getCurrentVersion().isStable());
+        var1.putString("Series", SharedConstants.getCurrentVersion().getDataVersion().getSeries());
         param1.put("Version", var1);
         param1.putInt("DataVersion", SharedConstants.getCurrentVersion().getWorldVersion());
         RegistryWriteOps<Tag> var2 = RegistryWriteOps.create(NbtOps.INSTANCE, param0);

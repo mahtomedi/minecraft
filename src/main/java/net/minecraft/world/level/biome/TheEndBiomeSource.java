@@ -66,7 +66,7 @@ public class TheEndBiomeSource extends BiomeSource {
     }
 
     @Override
-    public Biome getNoiseBiome(int param0, int param1, int param2) {
+    public Biome getNoiseBiome(int param0, int param1, int param2, Climate.Sampler param3) {
         int var0 = param0 >> 2;
         int var1 = param2 >> 2;
         if ((long)var0 * (long)var0 + (long)var1 * (long)var1 <= 4096L) {

@@ -15,6 +15,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
@@ -95,17 +96,16 @@ public class LecternBlock extends BaseEntityBlock {
     public BlockState getStateForPlacement(BlockPlaceContext param0) {
         Level var0 = param0.getLevel();
         ItemStack var1 = param0.getItemInHand();
-        CompoundTag var2 = var1.getTag();
-        Player var3 = param0.getPlayer();
-        boolean var4 = false;
-        if (!var0.isClientSide && var3 != null && var2 != null && var3.canUseGameMasterBlocks() && var2.contains("BlockEntityTag")) {
-            CompoundTag var5 = var2.getCompound("BlockEntityTag");
-            if (var5.contains("Book")) {
-                var4 = true;
+        Player var2 = param0.getPlayer();
+        boolean var3 = false;
+        if (!var0.isClientSide && var2 != null && var2.canUseGameMasterBlocks()) {
+            CompoundTag var4 = BlockItem.getBlockEntityData(var1);
+            if (var4 != null && var4.contains("Book")) {
+                var3 = true;
             }
         }
 
-        return this.defaultBlockState().setValue(FACING, param0.getHorizontalDirection().getOpposite()).setValue(HAS_BOOK, Boolean.valueOf(var4));
+        return this.defaultBlockState().setValue(FACING, param0.getHorizontalDirection().getOpposite()).setValue(HAS_BOOK, Boolean.valueOf(var3));
     }
 
     @Override

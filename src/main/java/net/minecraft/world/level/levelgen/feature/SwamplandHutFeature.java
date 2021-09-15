@@ -1,6 +1,7 @@
 package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
+import java.util.function.Predicate;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.util.random.WeightedRandomList;
 import net.minecraft.world.entity.EntityType;
@@ -9,6 +10,7 @@ import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.levelgen.structure.SwamplandHutPiece;
@@ -51,12 +53,14 @@ public class SwamplandHutFeature extends StructureFeature<NoneFeatureConfigurati
             ChunkGenerator param1,
             StructureManager param2,
             ChunkPos param3,
-            Biome param4,
-            NoneFeatureConfiguration param5,
-            LevelHeightAccessor param6
+            NoneFeatureConfiguration param4,
+            LevelHeightAccessor param5,
+            Predicate<Biome> param6
         ) {
-            SwamplandHutPiece var0 = new SwamplandHutPiece(this.random, param3.getMinBlockX(), param3.getMinBlockZ());
-            this.addPiece(var0);
+            if (StructureFeature.validBiomeOnTop(param1, param5, param6, Heightmap.Types.WORLD_SURFACE_WG, param3.getMiddleBlockX(), param3.getMiddleBlockZ())) {
+                SwamplandHutPiece var0 = new SwamplandHutPiece(this.random, param3.getMinBlockX(), param3.getMinBlockZ());
+                this.addPiece(var0);
+            }
         }
     }
 }

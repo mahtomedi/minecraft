@@ -25,6 +25,8 @@ public class IcePatchFeature extends BaseDiskFeature {
             var4 = var4.below();
         }
 
-        return !var0.getBlockState(var4).is(Blocks.SNOW_BLOCK) ? false : super.place(new FeaturePlaceContext<>(var0, var1, var2, var4, var3));
+        return !var0.getBlockState(var4).is(Blocks.SNOW_BLOCK)
+            ? false
+            : super.place(new FeaturePlaceContext<>(param0.topFeature(), var0, param0.chunkGenerator(), param0.random(), var4, param0.config()));
     }
 }

@@ -23,7 +23,7 @@ public class BannerItem extends StandingAndWallBlockItem {
     }
 
     public static void appendHoverTextFromBannerBlockEntityTag(ItemStack param0, List<Component> param1) {
-        CompoundTag var0 = param0.getTagElement("BlockEntityTag");
+        CompoundTag var0 = BlockItem.getBlockEntityData(param0);
         if (var0 != null && var0.contains("Patterns")) {
             ListTag var1 = var0.getList("Patterns", 10);
 
