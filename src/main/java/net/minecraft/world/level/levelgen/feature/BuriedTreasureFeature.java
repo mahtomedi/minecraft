@@ -1,26 +1,23 @@
 package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
-import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
-import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.feature.configurations.ProbabilityFeatureConfiguration;
 import net.minecraft.world.level.levelgen.structure.BuriedTreasurePieces;
-import net.minecraft.world.level.levelgen.structure.StructureStart;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
+import net.minecraft.world.level.levelgen.structure.pieces.PieceGenerator;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePiecesBuilder;
 
 public class BuriedTreasureFeature extends StructureFeature<ProbabilityFeatureConfiguration> {
     private static final int RANDOM_SALT = 10387320;
 
     public BuriedTreasureFeature(Codec<ProbabilityFeatureConfiguration> param0) {
-        super(param0);
+        super(param0, BuriedTreasureFeature::generatePieces);
     }
 
     protected boolean isFeatureChunk(
@@ -37,35 +34,15 @@ public class BuriedTreasureFeature extends StructureFeature<ProbabilityFeatureCo
         return param3.nextFloat() < param6.probability;
     }
 
-    @Override
-    public StructureFeature.StructureStartFactory<ProbabilityFeatureConfiguration> getStartFactory() {
-        return BuriedTreasureFeature.BuriedTreasureStart::new;
+    private static void generatePieces(StructurePiecesBuilder param0x, ProbabilityFeatureConfiguration param1, PieceGenerator.Context param2) {
+        if (param2.validBiomeOnTop(Heightmap.Types.OCEAN_FLOOR_WG)) {
+            BlockPos var0 = new BlockPos(param2.chunkPos().getBlockX(9), 90, param2.chunkPos().getBlockZ(9));
+            param0x.addPiece(new BuriedTreasurePieces.BuriedTreasurePiece(var0));
+        }
     }
 
-    public static class BuriedTreasureStart extends StructureStart<ProbabilityFeatureConfiguration> {
-        public BuriedTreasureStart(StructureFeature<ProbabilityFeatureConfiguration> param0, ChunkPos param1, int param2, long param3) {
-            super(param0, param1, param2, param3);
-        }
-
-        public void generatePieces(
-            RegistryAccess param0,
-            ChunkGenerator param1,
-            StructureManager param2,
-            ChunkPos param3,
-            ProbabilityFeatureConfiguration param4,
-            LevelHeightAccessor param5,
-            Predicate<Biome> param6
-        ) {
-            if (StructureFeature.validBiomeOnTop(param1, param5, param6, Heightmap.Types.OCEAN_FLOOR_WG, param3.getMiddleBlockX(), param3.getMiddleBlockZ())) {
-                BlockPos var0 = new BlockPos(param3.getBlockX(9), 90, param3.getBlockZ(9));
-                this.addPiece(new BuriedTreasurePieces.BuriedTreasurePiece(var0));
-            }
-        }
-
-        @Override
-        public BlockPos getLocatePos() {
-            ChunkPos var0 = this.getChunkPos();
-            return new BlockPos(var0.getBlockX(9), 0, var0.getBlockZ(9));
-        }
+    @Override
+    public BlockPos getLocatePos(ChunkPos param0) {
+        return new BlockPos(param0.getBlockX(9), 0, param0.getBlockZ(9));
     }
 }

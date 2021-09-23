@@ -9,7 +9,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
@@ -21,6 +20,7 @@ import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.StructurePieceType;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSerializationContext;
 import net.minecraft.world.level.levelgen.structure.templatesystem.BlockIgnoreProcessor;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
@@ -1228,7 +1228,7 @@ public class WoodlandMansionPieces {
             super(StructurePieceType.WOODLAND_MANSION_PIECE, 0, param0, makeLocation(param1), param1, makeSettings(param4, param3), param2);
         }
 
-        public WoodlandMansionPiece(ServerLevel param0, CompoundTag param1) {
+        public WoodlandMansionPiece(StructureManager param0, CompoundTag param1) {
             super(
                 StructurePieceType.WOODLAND_MANSION_PIECE,
                 param1,
@@ -1255,7 +1255,7 @@ public class WoodlandMansionPieces {
         }
 
         @Override
-        protected void addAdditionalSaveData(ServerLevel param0, CompoundTag param1) {
+        protected void addAdditionalSaveData(StructurePieceSerializationContext param0, CompoundTag param1) {
             super.addAdditionalSaveData(param0, param1);
             param1.putString("Rot", this.placeSettings.getRotation().name());
             param1.putString("Mi", this.placeSettings.getMirror().name());

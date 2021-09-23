@@ -3,7 +3,7 @@ package net.minecraft.client.gui.screens.social;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.minecraft.SocialInteractionsService;
+import com.mojang.authlib.minecraft.UserApiService;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -18,10 +18,10 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class PlayerSocialManager {
     private final Minecraft minecraft;
     private final Set<UUID> hiddenPlayers = Sets.newHashSet();
-    private final SocialInteractionsService service;
+    private final UserApiService service;
     private final Map<String, UUID> discoveredNamesToUUID = Maps.newHashMap();
 
-    public PlayerSocialManager(Minecraft param0, SocialInteractionsService param1) {
+    public PlayerSocialManager(Minecraft param0, UserApiService param1) {
         this.minecraft = param0;
         this.service = param1;
     }

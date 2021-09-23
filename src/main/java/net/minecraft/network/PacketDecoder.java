@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.List;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketFlow;
-import net.minecraft.util.profiling.jfr.event.network.PacketReceivedEvent;
+import net.minecraft.util.profiling.jfr.JvmProfiler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
@@ -32,13 +32,9 @@ public class PacketDecoder extends ByteToMessageDecoder {
             if (var3 == null) {
                 throw new IOException("Bad packet id " + var2);
             } else {
-                if (PacketReceivedEvent.TYPE.isEnabled()) {
-                    int var4 = param0.channel().attr(Connection.ATTRIBUTE_PROTOCOL).get().getId();
-                    String var5 = "%d/%d (%s)".formatted(var4, var2, var3.getClass().getSimpleName());
-                    PacketReceivedEvent var6 = new PacketReceivedEvent(var5, param0.channel().remoteAddress(), var0);
-                    var6.commit();
-                }
-
+                int var4 = param0.channel().attr(Connection.ATTRIBUTE_PROTOCOL).get().getId();
+                JvmProfiler.INSTANCE
+                    .onPacketReceived(() -> "%d/%d (%s)".formatted(var4, var2, var3.getClass().getSimpleName()), param0.channel().remoteAddress(), var0);
                 if (var1.readableBytes() > 0) {
                     throw new IOException(
                         "Packet "

@@ -68,6 +68,7 @@ public class Options {
     public boolean hideLightningFlashes;
     public double sensitivity = 0.5;
     public int renderDistance;
+    public int simulationDistance;
     private int serverRenderDistance = 0;
     public float entityDistanceScaling = 1.0F;
     public int framerateLimit = 120;
@@ -221,11 +222,14 @@ public class Options {
         this.optionsFile = new File(param1, "options.txt");
         if (param0.is64Bit() && Runtime.getRuntime().maxMemory() >= 1000000000L) {
             Option.RENDER_DISTANCE.setMaxValue(32.0F);
+            Option.SIMULATION_DISTANCE.setMaxValue(32.0F);
         } else {
             Option.RENDER_DISTANCE.setMaxValue(16.0F);
+            Option.SIMULATION_DISTANCE.setMaxValue(16.0F);
         }
 
         this.renderDistance = param0.is64Bit() ? 12 : 8;
+        this.simulationDistance = param0.is64Bit() ? 12 : 8;
         this.syncWrites = Util.getPlatform() == Util.OS.WINDOWS;
         this.load();
     }
@@ -275,6 +279,7 @@ public class Options {
         this.fovEffectScale = param0.process("fovEffectScale", this.fovEffectScale);
         this.gamma = param0.process("gamma", this.gamma);
         this.renderDistance = param0.process("renderDistance", this.renderDistance);
+        this.simulationDistance = param0.process("simulationDistance", this.simulationDistance);
         this.entityDistanceScaling = param0.process("entityDistanceScaling", this.entityDistanceScaling);
         this.guiScale = param0.process("guiScale", this.guiScale);
         this.particles = param0.process("particles", this.particles, ParticleStatus::byId, ParticleStatus::getId);
@@ -738,6 +743,7 @@ public class Options {
             .add(Pair.of("reducedDebugInfo", String.valueOf(this.reducedDebugInfo)))
             .add(Pair.of("renderClouds", String.valueOf(this.renderClouds)))
             .add(Pair.of("renderDistance", String.valueOf(this.renderDistance)))
+            .add(Pair.of("simulationDistance", String.valueOf(this.simulationDistance)))
             .add(Pair.of("resourcePacks", String.valueOf(this.resourcePacks)))
             .add(Pair.of("screenEffectScale", String.valueOf(this.screenEffectScale)))
             .add(Pair.of("syncChunkWrites", String.valueOf(this.syncWrites)))

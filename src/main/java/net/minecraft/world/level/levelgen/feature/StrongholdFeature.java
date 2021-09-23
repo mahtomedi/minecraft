@@ -2,28 +2,21 @@ package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
 import java.util.List;
-import java.util.function.Predicate;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
-import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
-import net.minecraft.world.level.levelgen.structure.NoiseAffectingStructureStart;
+import net.minecraft.world.level.levelgen.structure.NoiseAffectingStructureFeature;
 import net.minecraft.world.level.levelgen.structure.StrongholdPieces;
 import net.minecraft.world.level.levelgen.structure.StructurePiece;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
+import net.minecraft.world.level.levelgen.structure.pieces.PieceGenerator;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePiecesBuilder;
 
-public class StrongholdFeature extends StructureFeature<NoneFeatureConfiguration> {
+public class StrongholdFeature extends NoiseAffectingStructureFeature<NoneFeatureConfiguration> {
     public StrongholdFeature(Codec<NoneFeatureConfiguration> param0) {
-        super(param0);
-    }
-
-    @Override
-    public StructureFeature.StructureStartFactory<NoneFeatureConfiguration> getStartFactory() {
-        return StrongholdFeature.StrongholdStart::new;
+        super(param0, StrongholdFeature::generatePieces);
     }
 
     protected boolean isFeatureChunk(
@@ -39,44 +32,27 @@ public class StrongholdFeature extends StructureFeature<NoneFeatureConfiguration
         return param0.hasStronghold(param4);
     }
 
-    public static class StrongholdStart extends NoiseAffectingStructureStart<NoneFeatureConfiguration> {
-        private final long seed;
+    private static void generatePieces(StructurePiecesBuilder param0x, NoneFeatureConfiguration param1, PieceGenerator.Context param2) {
+        int var0 = 0;
 
-        public StrongholdStart(StructureFeature<NoneFeatureConfiguration> param0, ChunkPos param1, int param2, long param3) {
-            super(param0, param1, param2, param3);
-            this.seed = param3;
-        }
+        StrongholdPieces.StartPiece var1;
+        do {
+            param0x.clear();
+            param2.random().setLargeFeatureSeed(param2.seed() + (long)(var0++), param2.chunkPos().x, param2.chunkPos().z);
+            StrongholdPieces.resetPieces();
+            var1 = new StrongholdPieces.StartPiece(param2.random(), param2.chunkPos().getBlockX(2), param2.chunkPos().getBlockZ(2));
+            param0x.addPiece(var1);
+            var1.addChildren(var1, param0x, param2.random());
+            List<StructurePiece> var2 = var1.pendingChildren;
 
-        public void generatePieces(
-            RegistryAccess param0,
-            ChunkGenerator param1,
-            StructureManager param2,
-            ChunkPos param3,
-            NoneFeatureConfiguration param4,
-            LevelHeightAccessor param5,
-            Predicate<Biome> param6
-        ) {
-            int var0 = 0;
+            while(!var2.isEmpty()) {
+                int var3 = param2.random().nextInt(var2.size());
+                StructurePiece var4 = var2.remove(var3);
+                var4.addChildren(var1, param0x, param2.random());
+            }
 
-            StrongholdPieces.StartPiece var1;
-            do {
-                this.clearPieces();
-                this.random.setLargeFeatureSeed(this.seed + (long)(var0++), param3.x, param3.z);
-                StrongholdPieces.resetPieces();
-                var1 = new StrongholdPieces.StartPiece(this.random, param3.getBlockX(2), param3.getBlockZ(2));
-                this.addPiece(var1);
-                var1.addChildren(var1, this, this.random);
-                List<StructurePiece> var2 = var1.pendingChildren;
+            param0x.moveBelowSeaLevel(param2.chunkGenerator().getSeaLevel(), param2.chunkGenerator().getMinY(), param2.random(), 10);
+        } while(param0x.isEmpty() || var1.portalRoomPiece == null);
 
-                while(!var2.isEmpty()) {
-                    int var3 = this.random.nextInt(var2.size());
-                    StructurePiece var4 = var2.remove(var3);
-                    var4.addChildren(var1, this, this.random);
-                }
-
-                this.moveBelowSeaLevel(param1.getSeaLevel(), param1.getMinY(), this.random, 10);
-            } while(this.hasNoPieces() || var1.portalRoomPiece == null);
-
-        }
     }
 }

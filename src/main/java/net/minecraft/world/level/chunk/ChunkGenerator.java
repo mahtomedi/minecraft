@@ -169,9 +169,7 @@ public abstract class ChunkGenerator implements BiomeManager.NoiseBiomeSource {
 
     @Nullable
     public BlockPos findNearestMapFeature(ServerLevel param0, StructureFeature<?> param1, BlockPos param2, int param3, boolean param4) {
-        if (!this.canGenerateStructure(param0, param1)) {
-            return null;
-        } else if (param1 == StructureFeature.STRONGHOLD) {
+        if (param1 == StructureFeature.STRONGHOLD) {
             this.generateStrongholds();
             BlockPos var0 = null;
             double var1 = Double.MAX_VALUE;
@@ -192,24 +190,20 @@ public abstract class ChunkGenerator implements BiomeManager.NoiseBiomeSource {
             return var0;
         } else {
             StructureFeatureConfiguration var5 = this.settings.getConfig(param1);
-            return var5 == null
-                ? null
-                : param1.getNearestGeneratedFeature(param0, param0.structureFeatureManager(), param2, param3, param4, param0.getSeed(), var5);
-        }
-    }
-
-    private boolean canGenerateStructure(ServerLevel param0, StructureFeature<?> param1) {
-        ImmutableMultimap<ConfiguredStructureFeature<?, ?>, ResourceKey<Biome>> var0 = this.settings.structures(param1);
-        if (var0.isEmpty()) {
-            return false;
-        } else {
-            Registry<Biome> var1 = param0.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY);
-            Set<ResourceKey<Biome>> var2 = this.runtimeBiomeSource
-                .possibleBiomes()
-                .stream()
-                .flatMap(param1x -> var1.getResourceKey(param1x).stream())
-                .collect(Collectors.toSet());
-            return var0.values().stream().anyMatch(var2::contains);
+            ImmutableMultimap<ConfiguredStructureFeature<?, ?>, ResourceKey<Biome>> var6 = this.settings.structures(param1);
+            if (var5 != null && !var6.isEmpty()) {
+                Registry<Biome> var7 = param0.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY);
+                Set<ResourceKey<Biome>> var8 = this.runtimeBiomeSource
+                    .possibleBiomes()
+                    .stream()
+                    .flatMap(param1x -> var7.getResourceKey(param1x).stream())
+                    .collect(Collectors.toSet());
+                return var6.values().stream().noneMatch(var8::contains)
+                    ? null
+                    : param1.getNearestGeneratedFeature(param0, param0.structureFeatureManager(), param2, param3, param4, param0.getSeed(), var5);
+            } else {
+                return null;
+            }
         }
     }
 
@@ -219,83 +213,79 @@ public abstract class ChunkGenerator implements BiomeManager.NoiseBiomeSource {
         int var2 = param1.getMinBlockX();
         int var3 = param1.getMinBlockZ();
         if (!SharedConstants.debugVoidTerrain(var2, var3)) {
-            Registry<Biome> var4 = param0.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY);
-            BlockPos var5 = new BlockPos(var2, param0.getMinBuildHeight(), var3);
-            int var6 = SectionPos.blockToSectionCoord(var5.getX());
-            int var7 = SectionPos.blockToSectionCoord(var5.getZ());
+            BlockPos var4 = new BlockPos(var2, param0.getMinBuildHeight(), var3);
+            int var5 = SectionPos.blockToSectionCoord(var4.getX());
+            int var6 = SectionPos.blockToSectionCoord(var4.getZ());
+            int var7 = SectionPos.sectionToBlockCoord(var5);
             int var8 = SectionPos.sectionToBlockCoord(var6);
-            int var9 = SectionPos.sectionToBlockCoord(var7);
-            int var10 = param0.getMinBuildHeight() + 1;
-            int var11 = param0.getMaxBuildHeight() - 1;
-            Map<Integer, List<StructureFeature<?>>> var12 = Registry.STRUCTURE_FEATURE
+            int var9 = param0.getMinBuildHeight() + 1;
+            int var10 = param0.getMaxBuildHeight() - 1;
+            Map<Integer, List<StructureFeature<?>>> var11 = Registry.STRUCTURE_FEATURE
                 .stream()
                 .collect(Collectors.groupingBy(param0x -> param0x.step().ordinal()));
-            ImmutableList<ImmutableList<ConfiguredFeature<?, ?>>> var13 = this.biomeSource.featuresPerStep();
-            WorldgenRandom var14 = new WorldgenRandom();
-            long var15 = var14.setDecorationSeed(param0.getSeed(), var2, var3);
+            ImmutableList<ImmutableList<ConfiguredFeature<?, ?>>> var12 = this.biomeSource.featuresPerStep();
+            WorldgenRandom var13 = new WorldgenRandom();
+            long var14 = var13.setDecorationSeed(param0.getSeed(), var2, var3);
 
             try {
-                Registry<ConfiguredFeature<?, ?>> var16 = param0.registryAccess().registryOrThrow(Registry.CONFIGURED_FEATURE_REGISTRY);
-                Registry<StructureFeature<?>> var17 = param0.registryAccess().registryOrThrow(Registry.STRUCTURE_FEATURE_REGISTRY);
-                int var18 = Math.max(GenerationStep.Decoration.values().length, var13.size());
+                Registry<ConfiguredFeature<?, ?>> var15 = param0.registryAccess().registryOrThrow(Registry.CONFIGURED_FEATURE_REGISTRY);
+                Registry<StructureFeature<?>> var16 = param0.registryAccess().registryOrThrow(Registry.STRUCTURE_FEATURE_REGISTRY);
+                int var17 = Math.max(GenerationStep.Decoration.values().length, var12.size());
 
-                for(int var19 = 0; var19 < var18; ++var19) {
-                    int var20 = 0;
+                for(int var18 = 0; var18 < var17; ++var18) {
+                    int var19 = 0;
                     if (param2.shouldGenerateFeatures()) {
-                        for(StructureFeature<?> var22 : var12.getOrDefault(var19, Collections.emptyList())) {
-                            var14.setFeatureSeed(var15, var20, var19);
-                            Supplier<String> var23 = () -> var17.getResourceKey(var22).map(Object::toString).orElseGet(var22::toString);
+                        for(StructureFeature<?> var21 : var11.getOrDefault(var18, Collections.emptyList())) {
+                            var13.setFeatureSeed(var14, var19, var18);
+                            Supplier<String> var22 = () -> var16.getResourceKey(var21).map(Object::toString).orElseGet(var21::toString);
 
                             try {
-                                ImmutableMultimap<ConfiguredStructureFeature<?, ?>, ResourceKey<Biome>> var24 = this.settings.structures(var22);
-                                param0.setCurrentlyGenerating(var23);
-                                Predicate<Biome> var25 = param2x -> this.validBiome(var4, var24::containsValue, param2x);
-                                param2.startsForFeature(SectionPos.of(var5), var22)
+                                param0.setCurrentlyGenerating(var22);
+                                param2.startsForFeature(SectionPos.of(var4), var21)
                                     .forEach(
-                                        param10 -> param10.placeInChunk(
+                                        param9 -> param9.placeInChunk(
                                                 param0,
                                                 param2,
                                                 this,
-                                                var14,
-                                                var25,
-                                                new BoundingBox(var8, var10, var9, var8 + 15, var11, var9 + 15),
-                                                new ChunkPos(var6, var7)
+                                                var13,
+                                                new BoundingBox(var7, var9, var8, var7 + 15, var10, var8 + 15),
+                                                new ChunkPos(var5, var6)
                                             )
                                     );
-                            } catch (Exception var321) {
-                                CrashReport var27 = CrashReport.forThrowable(var321, "Feature placement");
-                                var27.addCategory("Feature").setDetail("Description", var23::get);
-                                throw new ReportedException(var27);
+                            } catch (Exception var31) {
+                                CrashReport var24 = CrashReport.forThrowable(var31, "Feature placement");
+                                var24.addCategory("Feature").setDetail("Description", var22::get);
+                                throw new ReportedException(var24);
                             }
 
-                            ++var20;
+                            ++var19;
                         }
                     }
 
-                    if (var13.size() > var19) {
-                        for(ConfiguredFeature<?, ?> var28 : var13.get(var19)) {
-                            Supplier<String> var29 = () -> var16.getResourceKey(var28).map(Object::toString).orElseGet(var28::toString);
-                            var14.setFeatureSeed(var15, var20, var19);
+                    if (var12.size() > var18) {
+                        for(ConfiguredFeature<?, ?> var25 : var12.get(var18)) {
+                            Supplier<String> var26 = () -> var15.getResourceKey(var25).map(Object::toString).orElseGet(var25::toString);
+                            var13.setFeatureSeed(var14, var19, var18);
 
                             try {
-                                param0.setCurrentlyGenerating(var29);
-                                var28.placeWithBiomeCheck(Optional.of(var28), param0, this, var14, var5);
-                            } catch (Exception var331) {
-                                CrashReport var31 = CrashReport.forThrowable(var331, "Feature placement");
-                                var31.addCategory("Feature").setDetail("Description", var29::get);
-                                throw new ReportedException(var31);
+                                param0.setCurrentlyGenerating(var26);
+                                var25.placeWithBiomeCheck(Optional.of(var25), param0, this, var13, var4);
+                            } catch (Exception var32) {
+                                CrashReport var28 = CrashReport.forThrowable(var32, "Feature placement");
+                                var28.addCategory("Feature").setDetail("Description", var26::get);
+                                throw new ReportedException(var28);
                             }
 
-                            ++var20;
+                            ++var19;
                         }
                     }
                 }
 
                 param0.setCurrentlyGenerating(null);
-            } catch (Exception var34) {
-                CrashReport var33 = CrashReport.forThrowable(var34, "Biome decoration");
-                var33.addCategory("Generation").setDetail("CenterX", var0).setDetail("CenterZ", var1).setDetail("Seed", var15);
-                throw new ReportedException(var33);
+            } catch (Exception var33) {
+                CrashReport var30 = CrashReport.forThrowable(var33, "Biome decoration");
+                var30.addCategory("Generation").setDetail("CenterX", var0).setDetail("CenterZ", var1).setDetail("Seed", var14);
+                throw new ReportedException(var30);
             }
         }
     }
@@ -345,33 +335,35 @@ public abstract class ChunkGenerator implements BiomeManager.NoiseBiomeSource {
 
         Registry<Biome> var4 = param0.registryOrThrow(Registry.BIOME_REGISTRY);
 
-        label33:
+        label39:
         for(StructureFeature<?> var5 : Registry.STRUCTURE_FEATURE) {
-            StructureFeatureConfiguration var6 = this.settings.getConfig(var5);
-            if (var6 != null) {
-                int var7 = fetchReferences(param1, param2, var1, var5);
+            if (var5 != StructureFeature.STRONGHOLD) {
+                StructureFeatureConfiguration var6 = this.settings.getConfig(var5);
+                if (var6 != null) {
+                    int var7 = fetchReferences(param1, param2, var1, var5);
 
-                for(Entry<ConfiguredStructureFeature<?, ?>, Collection<ResourceKey<Biome>>> var8 : this.settings.structures(var5).asMap().entrySet()) {
-                    StructureStart<?> var9 = var8.getKey()
-                        .generate(
-                            param0,
-                            this,
-                            this.biomeSource,
-                            param3,
-                            param4,
-                            var0,
-                            var7,
-                            var6,
-                            param2,
-                            param2x -> this.validBiome(var4, var8.getValue()::contains, param2x)
-                        );
-                    if (var9.isValid()) {
-                        param1.setStartForFeature(var1, var5, var9, param2);
-                        continue label33;
+                    for(Entry<ConfiguredStructureFeature<?, ?>, Collection<ResourceKey<Biome>>> var8 : this.settings.structures(var5).asMap().entrySet()) {
+                        StructureStart<?> var9 = var8.getKey()
+                            .generate(
+                                param0,
+                                this,
+                                this.biomeSource,
+                                param3,
+                                param4,
+                                var0,
+                                var7,
+                                var6,
+                                param2,
+                                param2x -> this.validBiome(var4, var8.getValue()::contains, param2x)
+                            );
+                        if (var9.isValid()) {
+                            param1.setStartForFeature(var1, var5, var9, param2);
+                            continue label39;
+                        }
                     }
-                }
 
-                param1.setStartForFeature(var1, var5, StructureStart.INVALID_START, param2);
+                    param1.setStartForFeature(var1, var5, StructureStart.INVALID_START, param2);
+                }
             }
         }
 

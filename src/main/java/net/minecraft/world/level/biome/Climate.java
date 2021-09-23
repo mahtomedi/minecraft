@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
@@ -24,7 +23,9 @@ public class Climate {
     protected static final int PARAMETER_COUNT = 7;
 
     public static Climate.TargetPoint target(float param0, float param1, float param2, float param3, float param4, float param5) {
-        return new Climate.TargetPoint(param0, param1, param2, param3, param4, param5);
+        return new Climate.TargetPoint(
+            quantizeCoord(param0), quantizeCoord(param1), quantizeCoord(param2), quantizeCoord(param3), quantizeCoord(param4), quantizeCoord(param5)
+        );
     }
 
     public static Climate.ParameterPoint parameters(float param0, float param1, float param2, float param3, float param4, float param5, float param6) {
@@ -35,7 +36,7 @@ public class Climate {
             Climate.Parameter.point(param3),
             Climate.Parameter.point(param4),
             Climate.Parameter.point(param5),
-            param6
+            quantizeCoord(param6)
         );
     }
 
@@ -48,31 +49,32 @@ public class Climate {
         Climate.Parameter param5,
         float param6
     ) {
-        return new Climate.ParameterPoint(param0, param1, param2, param3, param4, param5, param6);
+        return new Climate.ParameterPoint(param0, param1, param2, param3, param4, param5, quantizeCoord(param6));
+    }
+
+    public static long quantizeCoord(float param0) {
+        return (long)(param0 * 10000.0F);
+    }
+
+    public static float unquantizeCoord(long param0) {
+        return (float)param0 / 10000.0F;
     }
 
     interface DistanceMetric<T> {
-        float distance(Climate.RTree.Node<T> var1, float[] var2);
+        long distance(Climate.RTree.Node<T> var1, long[] var2);
     }
 
-    public static final class Parameter {
+    public static record Parameter(long min, long max) {
         public static final Codec<Climate.Parameter> CODEC = ExtraCodecs.intervalCodec(
             Codec.floatRange(-2.0F, 2.0F),
             "min",
             "max",
             (param0, param1) -> param0.compareTo(param1) > 0
                     ? DataResult.error("Cannon construct interval, min > max (" + param0 + " > " + param1 + ")")
-                    : DataResult.success(new Climate.Parameter(param0, param1)),
-            Climate.Parameter::min,
-            Climate.Parameter::max
+                    : DataResult.success(new Climate.Parameter(Climate.quantizeCoord(param0), Climate.quantizeCoord(param1))),
+            param0 -> Climate.unquantizeCoord(param0.min()),
+            param0 -> Climate.unquantizeCoord(param0.max())
         );
-        private final float min;
-        private final float max;
-
-        private Parameter(float param0, float param1) {
-            this.min = param0;
-            this.max = param1;
-        }
 
         public static Climate.Parameter point(float param0) {
             return span(param0, param0);
@@ -82,7 +84,7 @@ public class Climate {
             if (param0 > param1) {
                 throw new IllegalArgumentException("min > max: " + param0 + " " + param1);
             } else {
-                return new Climate.Parameter(param0, param1);
+                return new Climate.Parameter(Climate.quantizeCoord(param0), Climate.quantizeCoord(param1));
             }
         }
 
@@ -94,46 +96,21 @@ public class Climate {
             }
         }
 
-        public float min() {
-            return this.min;
-        }
-
-        public float max() {
-            return this.max;
-        }
-
-        @Override
-        public boolean equals(Object param0) {
-            if (this == param0) {
-                return true;
-            } else if (param0 != null && this.getClass() == param0.getClass()) {
-                Climate.Parameter var0 = (Climate.Parameter)param0;
-                return Float.compare(var0.min, this.min) == 0 && Float.compare(var0.max, this.max) == 0;
-            } else {
-                return false;
-            }
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(this.min, this.max);
-        }
-
         @Override
         public String toString() {
-            return this.min == this.max ? String.format("%.2f", this.min) : String.format("[%.2f-%.2f]", this.min, this.max);
+            return this.min == this.max ? String.format("%d", this.min) : String.format("[%d-%d]", this.min, this.max);
         }
 
-        public float distance(float param0) {
-            float var0 = param0 - this.max;
-            float var1 = this.min - param0;
-            return var0 > 0.0F ? var0 : Math.max(var1, 0.0F);
+        public long distance(long param0) {
+            long var0 = param0 - this.max;
+            long var1 = this.min - param0;
+            return var0 > 0L ? var0 : Math.max(var1, 0L);
         }
 
-        public float distance(Climate.Parameter param0) {
-            float var0 = param0.min() - this.max;
-            float var1 = this.min - param0.max();
-            return var0 > 0.0F ? var0 : Math.max(var1, 0.0F);
+        public long distance(Climate.Parameter param0) {
+            long var0 = param0.min() - this.max;
+            long var1 = this.min - param0.max();
+            return var0 > 0L ? var0 : Math.max(var1, 0L);
         }
 
         public Climate.Parameter span(@Nullable Climate.Parameter param0) {
@@ -160,11 +137,11 @@ public class Climate {
 
         @VisibleForTesting
         public T findBiomeBruteForce(Climate.TargetPoint param0, Supplier<T> param1) {
-            float var0 = Float.MAX_VALUE;
+            long var0 = Long.MAX_VALUE;
             Supplier<T> var1 = param1;
 
             for(Pair<Climate.ParameterPoint, Supplier<T>> var2 : this.biomes()) {
-                float var3 = var2.getFirst().fitness(param0);
+                long var3 = var2.getFirst().fitness(param0);
                 if (var3 < var0) {
                     var0 = var3;
                     var1 = var2.getSecond();
@@ -183,7 +160,15 @@ public class Climate {
         }
     }
 
-    public static final class ParameterPoint {
+    public static record ParameterPoint(
+        Climate.Parameter temperature,
+        Climate.Parameter humidity,
+        Climate.Parameter continentalness,
+        Climate.Parameter erosion,
+        Climate.Parameter depth,
+        Climate.Parameter weirdness,
+        long offset
+    ) {
         public static final Codec<Climate.ParameterPoint> CODEC = RecordCodecBuilder.create(
             param0 -> param0.group(
                         Climate.Parameter.CODEC.fieldOf("temperature").forGetter(param0x -> param0x.temperature),
@@ -192,87 +177,15 @@ public class Climate {
                         Climate.Parameter.CODEC.fieldOf("erosion").forGetter(param0x -> param0x.erosion),
                         Climate.Parameter.CODEC.fieldOf("depth").forGetter(param0x -> param0x.depth),
                         Climate.Parameter.CODEC.fieldOf("weirdness").forGetter(param0x -> param0x.weirdness),
-                        Codec.floatRange(0.0F, 1.0F).fieldOf("offset").forGetter(param0x -> param0x.offset)
+                        Codec.floatRange(0.0F, 1.0F)
+                            .fieldOf("offset")
+                            .xmap(Climate::quantizeCoord, Climate::unquantizeCoord)
+                            .forGetter(param0x -> param0x.offset)
                     )
                     .apply(param0, Climate.ParameterPoint::new)
         );
-        private final Climate.Parameter temperature;
-        private final Climate.Parameter humidity;
-        private final Climate.Parameter continentalness;
-        private final Climate.Parameter erosion;
-        private final Climate.Parameter depth;
-        private final Climate.Parameter weirdness;
-        private final float offset;
 
-        ParameterPoint(
-            Climate.Parameter param0,
-            Climate.Parameter param1,
-            Climate.Parameter param2,
-            Climate.Parameter param3,
-            Climate.Parameter param4,
-            Climate.Parameter param5,
-            float param6
-        ) {
-            this.temperature = param0;
-            this.humidity = param1;
-            this.continentalness = param2;
-            this.erosion = param3;
-            this.depth = param4;
-            this.weirdness = param5;
-            this.offset = param6;
-        }
-
-        @Override
-        public String toString() {
-            return "[temp: "
-                + this.temperature
-                + ", hum: "
-                + this.humidity
-                + ", cont: "
-                + this.continentalness
-                + ", eros: "
-                + this.erosion
-                + ", depth: "
-                + this.depth
-                + ", weird: "
-                + this.weirdness
-                + ", offset: "
-                + this.offset
-                + "]";
-        }
-
-        @Override
-        public boolean equals(Object param0) {
-            if (this == param0) {
-                return true;
-            } else if (param0 != null && this.getClass() == param0.getClass()) {
-                Climate.ParameterPoint var0 = (Climate.ParameterPoint)param0;
-                if (!this.temperature.equals(var0.temperature)) {
-                    return false;
-                } else if (!this.humidity.equals(var0.humidity)) {
-                    return false;
-                } else if (!this.continentalness.equals(var0.continentalness)) {
-                    return false;
-                } else if (!this.erosion.equals(var0.erosion)) {
-                    return false;
-                } else if (!this.depth.equals(var0.depth)) {
-                    return false;
-                } else if (!this.weirdness.equals(var0.weirdness)) {
-                    return false;
-                } else {
-                    return Float.compare(var0.offset, this.offset) == 0;
-                }
-            } else {
-                return false;
-            }
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(this.temperature, this.humidity, this.continentalness, this.erosion, this.depth, this.weirdness, this.offset);
-        }
-
-        float fitness(Climate.TargetPoint param0) {
+        long fitness(Climate.TargetPoint param0) {
             return Mth.square(this.temperature.distance(param0.temperature))
                 + Mth.square(this.humidity.distance(param0.humidity))
                 + Mth.square(this.continentalness.distance(param0.continentalness))
@@ -282,42 +195,20 @@ public class Climate {
                 + Mth.square(this.offset);
         }
 
-        public Climate.Parameter temperature() {
-            return this.temperature;
-        }
-
-        public Climate.Parameter humidity() {
-            return this.humidity;
-        }
-
-        public Climate.Parameter continentalness() {
-            return this.continentalness;
-        }
-
-        public Climate.Parameter erosion() {
-            return this.erosion;
-        }
-
-        public Climate.Parameter depth() {
-            return this.depth;
-        }
-
-        public Climate.Parameter weirdness() {
-            return this.weirdness;
-        }
-
-        public float offset() {
-            return this.offset;
-        }
-
         protected List<Climate.Parameter> parameterSpace() {
             return ImmutableList.of(
-                this.temperature, this.humidity, this.continentalness, this.erosion, this.depth, this.weirdness, Climate.Parameter.point(this.offset)
+                this.temperature,
+                this.humidity,
+                this.continentalness,
+                this.erosion,
+                this.depth,
+                this.weirdness,
+                new Climate.Parameter(this.offset, this.offset)
             );
         }
     }
 
-    static final class RTree<T> {
+    protected static final class RTree<T> {
         private static final int CHILDREN_PER_NODE = 10;
         private final Climate.RTree.Node<T> root;
         private final ThreadLocal<Climate.RTree.Leaf<T>> lastResult = new ThreadLocal<>();
@@ -348,26 +239,26 @@ public class Climate {
             } else if (param1.size() == 1) {
                 return param1.get(0);
             } else if (param1.size() <= 10) {
-                param1.sort(Comparator.comparingDouble(param1x -> {
-                    float var0x = 0.0F;
+                param1.sort(Comparator.comparingLong(param1x -> {
+                    long var0x = 0L;
 
                     for(int var1x = 0; var1x < param0; ++var1x) {
                         Climate.Parameter var2x = param1x.parameterSpace[var1x];
-                        var0x += Math.abs((var2x.min() + var2x.max()) / 2.0F);
+                        var0x += Math.abs((var2x.min() + var2x.max()) / 2L);
                     }
 
-                    return (double)var0x;
+                    return var0x;
                 }));
                 return new Climate.RTree.SubTree<>(param1);
             } else {
-                float var0 = Float.POSITIVE_INFINITY;
+                long var0 = Long.MAX_VALUE;
                 int var1 = -1;
                 List<Climate.RTree.SubTree<T>> var2 = null;
 
                 for(int var3 = 0; var3 < param0; ++var3) {
                     sort(param1, param0, var3, false);
                     List<Climate.RTree.SubTree<T>> var4 = bucketize(param1);
-                    float var5 = 0.0F;
+                    long var5 = 0L;
 
                     for(Climate.RTree.SubTree<T> var6 : var4) {
                         var5 += cost(var6.parameterSpace);
@@ -396,10 +287,10 @@ public class Climate {
         }
 
         private static <T> Comparator<Climate.RTree.Node<T>> comparator(int param0, boolean param1) {
-            return Comparator.comparingDouble(param2 -> {
+            return Comparator.comparingLong(param2 -> {
                 Climate.Parameter var0x = param2.parameterSpace[param0];
-                float var1x = (var0x.min() + var0x.max()) / 2.0F;
-                return param1 ? (double)Math.abs(var1x) : (double)var1x;
+                long var1x = (var0x.min() + var0x.max()) / 2L;
+                return param1 ? Math.abs(var1x) : var1x;
             });
         }
 
@@ -423,8 +314,8 @@ public class Climate {
             return var0;
         }
 
-        private static float cost(Climate.Parameter[] param0) {
-            float var0 = 0.0F;
+        private static long cost(Climate.Parameter[] param0) {
+            long var0 = 0L;
 
             for(Climate.Parameter var1 : param0) {
                 var0 += Math.abs(var1.max() - var1.min());
@@ -455,7 +346,7 @@ public class Climate {
         }
 
         public T search(Climate.TargetPoint param0, Climate.DistanceMetric<T> param1) {
-            float[] var0 = param0.toParameterArray();
+            long[] var0 = param0.toParameterArray();
             Climate.RTree.Leaf<T> var1 = this.root.search(var0, this.lastResult.get(), param1);
             this.lastResult.set(var1);
             return var1.biome.get();
@@ -470,7 +361,7 @@ public class Climate {
             }
 
             @Override
-            protected Climate.RTree.Leaf<T> search(float[] param0, @Nullable Climate.RTree.Leaf<T> param1, Climate.DistanceMetric<T> param2) {
+            protected Climate.RTree.Leaf<T> search(long[] param0, @Nullable Climate.RTree.Leaf<T> param1, Climate.DistanceMetric<T> param2) {
                 return this;
             }
         }
@@ -482,10 +373,10 @@ public class Climate {
                 this.parameterSpace = param0.toArray(new Climate.Parameter[0]);
             }
 
-            protected abstract Climate.RTree.Leaf<T> search(float[] var1, @Nullable Climate.RTree.Leaf<T> var2, Climate.DistanceMetric<T> var3);
+            protected abstract Climate.RTree.Leaf<T> search(long[] var1, @Nullable Climate.RTree.Leaf<T> var2, Climate.DistanceMetric<T> var3);
 
-            protected float distance(float[] param0) {
-                float var0 = 0.0F;
+            protected long distance(long[] param0) {
+                long var0 = 0L;
 
                 for(int var1 = 0; var1 < 7; ++var1) {
                     var0 += Mth.square(this.parameterSpace[var1].distance(param0[var1]));
@@ -513,15 +404,15 @@ public class Climate {
             }
 
             @Override
-            protected Climate.RTree.Leaf<T> search(float[] param0, @Nullable Climate.RTree.Leaf<T> param1, Climate.DistanceMetric<T> param2) {
-                float var0 = param1 == null ? Float.POSITIVE_INFINITY : param2.distance(param1, param0);
+            protected Climate.RTree.Leaf<T> search(long[] param0, @Nullable Climate.RTree.Leaf<T> param1, Climate.DistanceMetric<T> param2) {
+                long var0 = param1 == null ? Long.MAX_VALUE : param2.distance(param1, param0);
                 Climate.RTree.Leaf<T> var1 = param1;
 
                 for(Climate.RTree.Node<T> var2 : this.children) {
-                    float var3 = param2.distance(var2, param0);
+                    long var3 = param2.distance(var2, param0);
                     if (var0 > var3) {
-                        Climate.RTree.Leaf<T> var4 = var2.search(param0, null, param2);
-                        float var5 = var2 == var4 ? var3 : param2.distance(var4, param0);
+                        Climate.RTree.Leaf<T> var4 = var2.search(param0, var1, param2);
+                        long var5 = var2 == var4 ? var3 : param2.distance(var4, param0);
                         if (var0 > var5) {
                             var0 = var5;
                             var1 = var4;
@@ -538,50 +429,10 @@ public class Climate {
         Climate.TargetPoint sample(int var1, int var2, int var3);
     }
 
-    public static final class TargetPoint {
-        final float temperature;
-        final float humidity;
-        final float continentalness;
-        final float erosion;
-        final float depth;
-        final float weirdness;
-
-        TargetPoint(float param0, float param1, float param2, float param3, float param4, float param5) {
-            this.temperature = param0;
-            this.humidity = param1;
-            this.continentalness = param2;
-            this.erosion = param3;
-            this.depth = param4;
-            this.weirdness = param5;
-        }
-
-        public float temperature() {
-            return this.temperature;
-        }
-
-        public float humidity() {
-            return this.humidity;
-        }
-
-        public float continentalness() {
-            return this.continentalness;
-        }
-
-        public float erosion() {
-            return this.erosion;
-        }
-
-        public float depth() {
-            return this.depth;
-        }
-
-        public float weirdness() {
-            return this.weirdness;
-        }
-
+    public static record TargetPoint(long temperature, long humidity, long continentalness, long erosion, long depth, long weirdness) {
         @VisibleForTesting
-        protected float[] toParameterArray() {
-            return new float[]{this.temperature, this.humidity, this.continentalness, this.erosion, this.depth, this.weirdness, 0.0F};
+        protected long[] toParameterArray() {
+            return new long[]{this.temperature, this.humidity, this.continentalness, this.erosion, this.depth, this.weirdness, 0L};
         }
     }
 }

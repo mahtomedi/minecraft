@@ -7,7 +7,6 @@ import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
@@ -30,6 +29,7 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.StructurePieceType;
 import net.minecraft.world.level.levelgen.feature.configurations.OceanRuinConfiguration;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSerializationContext;
 import net.minecraft.world.level.levelgen.structure.templatesystem.BlockIgnoreProcessor;
 import net.minecraft.world.level.levelgen.structure.templatesystem.BlockRotProcessor;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
@@ -204,7 +204,7 @@ public class OceanRuinPieces {
             this.isLarge = param6;
         }
 
-        public OceanRuinPiece(ServerLevel param0, CompoundTag param1) {
+        public OceanRuinPiece(StructureManager param0, CompoundTag param1) {
             super(StructurePieceType.OCEAN_RUIN, param1, param0, param1x -> makeSettings(Rotation.valueOf(param1.getString("Rot"))));
             this.integrity = param1.getFloat("Integrity");
             this.biomeType = OceanRuinFeature.Type.valueOf(param1.getString("BiomeType"));
@@ -216,7 +216,7 @@ public class OceanRuinPieces {
         }
 
         @Override
-        protected void addAdditionalSaveData(ServerLevel param0, CompoundTag param1) {
+        protected void addAdditionalSaveData(StructurePieceSerializationContext param0, CompoundTag param1) {
             super.addAdditionalSaveData(param0, param1);
             param1.putString("Rot", this.placeSettings.getRotation().name());
             param1.putFloat("Integrity", this.integrity);
@@ -253,7 +253,7 @@ public class OceanRuinPieces {
         }
 
         @Override
-        public boolean postProcess(
+        public void postProcess(
             WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
             this.placeSettings.clearProcessors().addProcessor(new BlockRotProcessor(this.integrity)).addProcessor(BlockIgnoreProcessor.STRUCTURE_AND_AIR);
@@ -269,7 +269,7 @@ public class OceanRuinPieces {
             this.templatePosition = new BlockPos(
                 this.templatePosition.getX(), this.getHeight(this.templatePosition, param0, var1), this.templatePosition.getZ()
             );
-            return super.postProcess(param0, param1, param2, param3, param4, param5, param6);
+            super.postProcess(param0, param1, param2, param3, param4, param5, param6);
         }
 
         private int getHeight(BlockPos param0, BlockGetter param1, BlockPos param2) {

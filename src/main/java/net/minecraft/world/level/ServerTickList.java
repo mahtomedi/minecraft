@@ -53,9 +53,9 @@ public class ServerTickList<T> implements TickList<T> {
             Iterator<TickNextTickData<T>> var1 = this.tickNextTickList.iterator();
             this.level.getProfiler().push("cleaning");
 
-            while(var1.hasNext()) {
+            while(var0 > 0 && var1.hasNext()) {
                 TickNextTickData<T> var2 = var1.next();
-                if (var0-- == 0 || var2.triggerTick > this.level.getGameTime()) {
+                if (var2.triggerTick > this.level.getGameTime()) {
                     break;
                 }
 
@@ -63,6 +63,7 @@ public class ServerTickList<T> implements TickList<T> {
                     var1.remove();
                     this.tickNextTickSet.remove(var2);
                     this.currentlyTicking.add(var2);
+                    --var0;
                 }
             }
 

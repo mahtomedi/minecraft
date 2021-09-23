@@ -25,16 +25,15 @@ public class CaveCarverConfiguration extends CarverConfiguration {
         HeightProvider param1,
         FloatProvider param2,
         VerticalAnchor param3,
-        boolean param4,
-        CarverDebugSettings param5,
+        CarverDebugSettings param4,
+        FloatProvider param5,
         FloatProvider param6,
-        FloatProvider param7,
-        FloatProvider param8
+        FloatProvider param7
     ) {
-        super(param0, param1, param2, param3, param4, param5);
-        this.horizontalRadiusMultiplier = param6;
-        this.verticalRadiusMultiplier = param7;
-        this.floorLevel = param8;
+        super(param0, param1, param2, param3, param4);
+        this.horizontalRadiusMultiplier = param5;
+        this.verticalRadiusMultiplier = param6;
+        this.floorLevel = param7;
     }
 
     public CaveCarverConfiguration(
@@ -47,10 +46,10 @@ public class CaveCarverConfiguration extends CarverConfiguration {
         FloatProvider param6,
         FloatProvider param7
     ) {
-        this(param0, param1, param2, param3, param4, CarverDebugSettings.DEFAULT, param5, param6, param7);
+        this(param0, param1, param2, param3, CarverDebugSettings.DEFAULT, param5, param6, param7);
     }
 
     public CaveCarverConfiguration(CarverConfiguration param0, FloatProvider param1, FloatProvider param2, FloatProvider param3) {
-        this(param0.probability, param0.y, param0.yScale, param0.lavaLevel, param0.aquifersEnabled, param0.debugSettings, param1, param2, param3);
+        this(param0.probability, param0.y, param0.yScale, param0.lavaLevel, param0.debugSettings, param1, param2, param3);
     }
 }

@@ -16,6 +16,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -28,7 +29,6 @@ import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.thread.ProcessorMailbox;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -77,7 +77,7 @@ public class TextFilterClient implements AutoCloseable {
                     int var5 = GsonHelper.getAsInt(var0, "hashesToDrop", -1);
                     int var6 = GsonHelper.getAsInt(var0, "maxConcurrentRequests", 7);
                     TextFilterClient.IgnoreStrategy var7 = TextFilterClient.IgnoreStrategy.select(var5);
-                    return new TextFilterClient(var1, new Base64().encodeToString(var2.getBytes(StandardCharsets.US_ASCII)), var3, var4, var7, var6);
+                    return new TextFilterClient(var1, Base64.getEncoder().encodeToString(var2.getBytes(StandardCharsets.US_ASCII)), var3, var4, var7, var6);
                 }
             } catch (Exception var9) {
                 LOGGER.warn("Failed to parse chat filter config {}", param0, var9);

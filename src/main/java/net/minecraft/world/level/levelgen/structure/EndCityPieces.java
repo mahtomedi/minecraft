@@ -7,7 +7,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.decoration.ItemFrame;
@@ -19,6 +18,7 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import net.minecraft.world.level.levelgen.feature.StructurePieceType;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSerializationContext;
 import net.minecraft.world.level.levelgen.structure.templatesystem.BlockIgnoreProcessor;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
@@ -251,7 +251,7 @@ public class EndCityPieces {
 
                 for(StructurePiece var3 : var0) {
                     var3.genDepth = var2;
-                    StructurePiece var4 = StructureStart.findCollisionPiece(param5, var3.getBoundingBox());
+                    StructurePiece var4 = StructurePiece.findCollisionPiece(param5, var3.getBoundingBox());
                     if (var4 != null && var4.genDepth != param3.genDepth) {
                         var1 = true;
                         break;
@@ -273,7 +273,7 @@ public class EndCityPieces {
             super(StructurePieceType.END_CITY_PIECE, 0, param0, makeResourceLocation(param1), param1, makeSettings(param4, param3), param2);
         }
 
-        public EndCityPiece(ServerLevel param0, CompoundTag param1) {
+        public EndCityPiece(StructureManager param0, CompoundTag param1) {
             super(
                 StructurePieceType.END_CITY_PIECE, param1, param0, param1x -> makeSettings(param1.getBoolean("OW"), Rotation.valueOf(param1.getString("Rot")))
             );
@@ -294,7 +294,7 @@ public class EndCityPieces {
         }
 
         @Override
-        protected void addAdditionalSaveData(ServerLevel param0, CompoundTag param1) {
+        protected void addAdditionalSaveData(StructurePieceSerializationContext param0, CompoundTag param1) {
             super.addAdditionalSaveData(param0, param1);
             param1.putString("Rot", this.placeSettings.getRotation().name());
             param1.putBoolean("OW", this.placeSettings.getProcessors().get(0) == BlockIgnoreProcessor.STRUCTURE_BLOCK);

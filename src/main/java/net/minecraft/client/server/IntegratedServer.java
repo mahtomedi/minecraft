@@ -37,6 +37,7 @@ import org.apache.logging.log4j.Logger;
 @OnlyIn(Dist.CLIENT)
 public class IntegratedServer extends MinecraftServer {
     private static final Logger LOGGER = LogManager.getLogger();
+    private static final int MIN_SIM_DISTANCE = 2;
     private final Minecraft minecraft;
     private boolean paused;
     private int publishedPort = -1;
@@ -44,6 +45,7 @@ public class IntegratedServer extends MinecraftServer {
     private GameType publishedGameType;
     private LanServerPinger lanPinger;
     private UUID uuid;
+    private int previousSimulationDistance = 0;
 
     public IntegratedServer(
         Thread param0,
@@ -98,6 +100,13 @@ public class IntegratedServer extends MinecraftServer {
             if (var2 != this.getPlayerList().getViewDistance()) {
                 LOGGER.info("Changing view distance to {}, from {}", var2, this.getPlayerList().getViewDistance());
                 this.getPlayerList().setViewDistance(var2);
+            }
+
+            int var3 = Math.max(2, this.minecraft.options.simulationDistance);
+            if (var3 != this.previousSimulationDistance) {
+                LOGGER.info("Changing simulation distance to {}, from {}", var3, this.previousSimulationDistance);
+                this.getPlayerList().setSimulationDistance(var3);
+                this.previousSimulationDistance = var3;
             }
 
         }

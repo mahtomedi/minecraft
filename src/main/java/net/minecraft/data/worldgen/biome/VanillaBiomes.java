@@ -1506,7 +1506,7 @@ public class VanillaBiomes {
         BiomeDefaultFeatures.addDefaultUndergroundVariety(var0);
         BiomeDefaultFeatures.addDefaultOres(var0);
         BiomeDefaultFeatures.addDefaultSoftDisks(var0);
-        BiomeDefaultFeatures.addTaigaTrees(var0);
+        BiomeDefaultFeatures.addGroveTrees(var0);
         BiomeDefaultFeatures.addDefaultExtraVegetation(var0);
         BiomeDefaultFeatures.addDefaultSprings(var0);
         BiomeDefaultFeatures.addExtraEmeralds(var0);

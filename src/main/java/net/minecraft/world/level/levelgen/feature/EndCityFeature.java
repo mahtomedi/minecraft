@@ -4,13 +4,10 @@ import com.google.common.collect.Lists;
 import com.mojang.serialization.Codec;
 import java.util.List;
 import java.util.Random;
-import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.QuartPos;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
-import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -19,14 +16,14 @@ import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 import net.minecraft.world.level.levelgen.structure.EndCityPieces;
 import net.minecraft.world.level.levelgen.structure.StructurePiece;
-import net.minecraft.world.level.levelgen.structure.StructureStart;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
+import net.minecraft.world.level.levelgen.structure.pieces.PieceGenerator;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePiecesBuilder;
 
 public class EndCityFeature extends StructureFeature<NoneFeatureConfiguration> {
     private static final int RANDOM_SALT = 10387313;
 
     public EndCityFeature(Codec<NoneFeatureConfiguration> param0) {
-        super(param0);
+        super(param0, EndCityFeature::generatePieces);
     }
 
     @Override
@@ -47,12 +44,7 @@ public class EndCityFeature extends StructureFeature<NoneFeatureConfiguration> {
         return getYPositionForFeature(param4, param0, param7) >= 60;
     }
 
-    @Override
-    public StructureFeature.StructureStartFactory<NoneFeatureConfiguration> getStartFactory() {
-        return EndCityFeature.EndCityStart::new;
-    }
-
-    static int getYPositionForFeature(ChunkPos param0, ChunkGenerator param1, LevelHeightAccessor param2) {
+    private static int getYPositionForFeature(ChunkPos param0, ChunkGenerator param1, LevelHeightAccessor param2) {
         Random var0 = new Random((long)(param0.x + param0.z * 10387313));
         Rotation var1 = Rotation.getRandom(var0);
         int var2 = 5;
@@ -75,29 +67,18 @@ public class EndCityFeature extends StructureFeature<NoneFeatureConfiguration> {
         return Math.min(Math.min(var6, var7), Math.min(var8, var9));
     }
 
-    public static class EndCityStart extends StructureStart<NoneFeatureConfiguration> {
-        public EndCityStart(StructureFeature<NoneFeatureConfiguration> param0, ChunkPos param1, int param2, long param3) {
-            super(param0, param1, param2, param3);
-        }
-
-        public void generatePieces(
-            RegistryAccess param0,
-            ChunkGenerator param1,
-            StructureManager param2,
-            ChunkPos param3,
-            NoneFeatureConfiguration param4,
-            LevelHeightAccessor param5,
-            Predicate<Biome> param6
-        ) {
-            Rotation var0 = Rotation.getRandom(this.random);
-            int var1 = EndCityFeature.getYPositionForFeature(param3, param1, param5);
-            if (var1 >= 60) {
-                BlockPos var2 = param3.getMiddleBlockPosition(var1);
-                if (param6.test(param1.getNoiseBiome(QuartPos.fromBlock(var2.getX()), QuartPos.fromBlock(var2.getY()), QuartPos.fromBlock(var2.getZ())))) {
-                    List<StructurePiece> var3 = Lists.newArrayList();
-                    EndCityPieces.startHouseTower(param2, var2, var0, var3, this.random);
-                    var3.forEach(this::addPiece);
-                }
+    private static void generatePieces(StructurePiecesBuilder param0x, NoneFeatureConfiguration param1, PieceGenerator.Context param2) {
+        Rotation var0 = Rotation.getRandom(param2.random());
+        int var1 = getYPositionForFeature(param2.chunkPos(), param2.chunkGenerator(), param2.heightAccessor());
+        if (var1 >= 60) {
+            BlockPos var2 = param2.chunkPos().getMiddleBlockPosition(var1);
+            if (param2.validBiome()
+                .test(param2.chunkGenerator().getNoiseBiome(QuartPos.fromBlock(var2.getX()), QuartPos.fromBlock(var2.getY()), QuartPos.fromBlock(var2.getZ())))
+                )
+             {
+                List<StructurePiece> var3 = Lists.newArrayList();
+                EndCityPieces.startHouseTower(param2.structureManager(), var2, var0, var3, param2.random());
+                var3.forEach(param0x::addPiece);
             }
         }
     }

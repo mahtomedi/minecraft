@@ -757,6 +757,10 @@ public class Mth {
         return param0 * param0;
     }
 
+    public static long square(long param0) {
+        return param0 * param0;
+    }
+
     public static double clampedMap(double param0, double param1, double param2, double param3, double param4) {
         return clampedLerp(param3, param4, inverseLerp(param0, param1, param2));
     }

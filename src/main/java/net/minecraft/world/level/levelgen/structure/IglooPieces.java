@@ -6,7 +6,6 @@ import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.StructureFeatureManager;
@@ -20,6 +19,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.StructurePieceType;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSerializationContext;
 import net.minecraft.world.level.levelgen.structure.templatesystem.BlockIgnoreProcessor;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
@@ -56,7 +56,7 @@ public class IglooPieces {
             super(StructurePieceType.IGLOO, 0, param0, param1, param1.toString(), makeSettings(param3, param1), makePosition(param1, param2, param4));
         }
 
-        public IglooPiece(ServerLevel param0, CompoundTag param1) {
+        public IglooPiece(StructureManager param0, CompoundTag param1) {
             super(StructurePieceType.IGLOO, param1, param0, param1x -> makeSettings(Rotation.valueOf(param1.getString("Rot")), param1x));
         }
 
@@ -73,7 +73,7 @@ public class IglooPieces {
         }
 
         @Override
-        protected void addAdditionalSaveData(ServerLevel param0, CompoundTag param1) {
+        protected void addAdditionalSaveData(StructurePieceSerializationContext param0, CompoundTag param1) {
             super.addAdditionalSaveData(param0, param1);
             param1.putString("Rot", this.placeSettings.getRotation().name());
         }
@@ -91,7 +91,7 @@ public class IglooPieces {
         }
 
         @Override
-        public boolean postProcess(
+        public void postProcess(
             WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
             ResourceLocation var0 = new ResourceLocation(this.templateName);
@@ -101,17 +101,16 @@ public class IglooPieces {
             int var4 = param0.getHeight(Heightmap.Types.WORLD_SURFACE_WG, var3.getX(), var3.getZ());
             BlockPos var5 = this.templatePosition;
             this.templatePosition = this.templatePosition.offset(0, var4 - 90 - 1, 0);
-            boolean var6 = super.postProcess(param0, param1, param2, param3, param4, param5, param6);
+            super.postProcess(param0, param1, param2, param3, param4, param5, param6);
             if (var0.equals(IglooPieces.STRUCTURE_LOCATION_IGLOO)) {
-                BlockPos var7 = this.templatePosition.offset(StructureTemplate.calculateRelativePosition(var1, new BlockPos(3, 0, 5)));
-                BlockState var8 = param0.getBlockState(var7.below());
-                if (!var8.isAir() && !var8.is(Blocks.LADDER)) {
-                    param0.setBlock(var7, Blocks.SNOW_BLOCK.defaultBlockState(), 3);
+                BlockPos var6 = this.templatePosition.offset(StructureTemplate.calculateRelativePosition(var1, new BlockPos(3, 0, 5)));
+                BlockState var7 = param0.getBlockState(var6.below());
+                if (!var7.isAir() && !var7.is(Blocks.LADDER)) {
+                    param0.setBlock(var6, Blocks.SNOW_BLOCK.defaultBlockState(), 3);
                 }
             }
 
             this.templatePosition = var5;
-            return var6;
         }
     }
 }

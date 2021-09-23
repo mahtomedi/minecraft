@@ -137,41 +137,37 @@ public abstract class WorldCarver<C extends CarverConfiguration> {
             int var12 = Math.min(Mth.floor(param7 + param10) + 1, param0.getMinGenY() + param0.getGenDepth() - 8);
             int var13 = Math.max(Mth.floor(param8 - param9) - var8 - 1, 0);
             int var14 = Math.min(Mth.floor(param8 + param9) - var8, 15);
-            if (!param1.aquifersEnabled && this.hasDisallowedLiquid(param2, var9, var10, var11, var12, var13, var14)) {
-                return false;
-            } else {
-                boolean var15 = false;
-                BlockPos.MutableBlockPos var16 = new BlockPos.MutableBlockPos();
-                BlockPos.MutableBlockPos var17 = new BlockPos.MutableBlockPos();
+            boolean var15 = false;
+            BlockPos.MutableBlockPos var16 = new BlockPos.MutableBlockPos();
+            BlockPos.MutableBlockPos var17 = new BlockPos.MutableBlockPos();
 
-                for(int var18 = var9; var18 <= var10; ++var18) {
-                    int var19 = var0.getBlockX(var18);
-                    double var20 = ((double)var19 + 0.5 - param6) / param9;
+            for(int var18 = var9; var18 <= var10; ++var18) {
+                int var19 = var0.getBlockX(var18);
+                double var20 = ((double)var19 + 0.5 - param6) / param9;
 
-                    for(int var21 = var13; var21 <= var14; ++var21) {
-                        int var22 = var0.getBlockZ(var21);
-                        double var23 = ((double)var22 + 0.5 - param8) / param9;
-                        if (!(var20 * var20 + var23 * var23 >= 1.0)) {
-                            MutableBoolean var24 = new MutableBoolean(false);
+                for(int var21 = var13; var21 <= var14; ++var21) {
+                    int var22 = var0.getBlockZ(var21);
+                    double var23 = ((double)var22 + 0.5 - param8) / param9;
+                    if (!(var20 * var20 + var23 * var23 >= 1.0)) {
+                        MutableBoolean var24 = new MutableBoolean(false);
 
-                            for(int var25 = var12; var25 > var11; --var25) {
-                                double var26 = ((double)var25 - 0.5 - param7) / param10;
-                                if (!param12.shouldSkip(param0, var20, var26, var23, var25)) {
-                                    int var27 = var25 - param0.getMinGenY();
-                                    int var28 = var18 | var21 << 4 | var27 << 8;
-                                    if (!param11.get(var28) || isDebugEnabled(param1)) {
-                                        param11.set(var28);
-                                        var16.set(var19, var25, var22);
-                                        var15 |= this.carveBlock(param0, param1, param2, param3, param11, var3, var16, var17, param5, var24);
-                                    }
+                        for(int var25 = var12; var25 > var11; --var25) {
+                            double var26 = ((double)var25 - 0.5 - param7) / param10;
+                            if (!param12.shouldSkip(param0, var20, var26, var23, var25)) {
+                                int var27 = var25 - param0.getMinGenY();
+                                int var28 = var18 | var21 << 4 | var27 << 8;
+                                if (!param11.get(var28) || isDebugEnabled(param1)) {
+                                    param11.set(var28);
+                                    var16.set(var19, var25, var22);
+                                    var15 |= this.carveBlock(param0, param1, param2, param3, param11, var3, var16, var17, param5, var24);
                                 }
                             }
                         }
                     }
                 }
-
-                return var15;
             }
+
+            return var15;
         } else {
             return false;
         }
@@ -222,8 +218,6 @@ public abstract class WorldCarver<C extends CarverConfiguration> {
     private BlockState getCarveState(CarvingContext param0, C param1, BlockPos param2, Aquifer param3) {
         if (param2.getY() <= param1.lavaLevel.resolveY(param0)) {
             return LAVA.createLegacyBlock();
-        } else if (!param1.aquifersEnabled) {
-            return isDebugEnabled(param1) ? getDebugState(param1, AIR) : AIR;
         } else {
             BlockState var0 = param3.computeSubstance(param2.getX(), param2.getY(), param2.getZ(), 0.0, 0.0);
             if (var0 == null) {

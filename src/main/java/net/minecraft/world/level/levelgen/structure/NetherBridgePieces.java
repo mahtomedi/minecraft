@@ -7,7 +7,6 @@ import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.StructureFeatureManager;
@@ -20,6 +19,7 @@ import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.StructurePieceType;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSerializationContext;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 
@@ -100,8 +100,8 @@ public class NetherBridgePieces {
             super(param0, param1);
         }
 
-        public BridgeCrossing(ServerLevel param0, CompoundTag param1) {
-            this(StructurePieceType.NETHER_FORTRESS_BRIDGE_CROSSING, param1);
+        public BridgeCrossing(CompoundTag param0) {
+            this(StructurePieceType.NETHER_FORTRESS_BRIDGE_CROSSING, param0);
         }
 
         @Override
@@ -119,7 +119,7 @@ public class NetherBridgePieces {
         }
 
         @Override
-        public boolean postProcess(
+        public void postProcess(
             WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
             this.generateBox(param0, param4, 7, 3, 0, 11, 4, 18, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
@@ -158,7 +158,6 @@ public class NetherBridgePieces {
                 }
             }
 
-            return true;
         }
     }
 
@@ -174,9 +173,9 @@ public class NetherBridgePieces {
             this.selfSeed = param1.nextInt();
         }
 
-        public BridgeEndFiller(ServerLevel param0, CompoundTag param1) {
-            super(StructurePieceType.NETHER_FORTRESS_BRIDGE_END_FILLER, param1);
-            this.selfSeed = param1.getInt("Seed");
+        public BridgeEndFiller(CompoundTag param0) {
+            super(StructurePieceType.NETHER_FORTRESS_BRIDGE_END_FILLER, param0);
+            this.selfSeed = param0.getInt("Seed");
         }
 
         public static NetherBridgePieces.BridgeEndFiller createPiece(
@@ -187,13 +186,13 @@ public class NetherBridgePieces {
         }
 
         @Override
-        protected void addAdditionalSaveData(ServerLevel param0, CompoundTag param1) {
+        protected void addAdditionalSaveData(StructurePieceSerializationContext param0, CompoundTag param1) {
             super.addAdditionalSaveData(param0, param1);
             param1.putInt("Seed", this.selfSeed);
         }
 
         @Override
-        public boolean postProcess(
+        public void postProcess(
             WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
             Random var0 = new Random((long)this.selfSeed);
@@ -248,7 +247,6 @@ public class NetherBridgePieces {
                 }
             }
 
-            return true;
         }
     }
 
@@ -262,8 +260,8 @@ public class NetherBridgePieces {
             this.setOrientation(param3);
         }
 
-        public BridgeStraight(ServerLevel param0, CompoundTag param1) {
-            super(StructurePieceType.NETHER_FORTRESS_BRIDGE_STRAIGHT, param1);
+        public BridgeStraight(CompoundTag param0) {
+            super(StructurePieceType.NETHER_FORTRESS_BRIDGE_STRAIGHT, param0);
         }
 
         @Override
@@ -279,7 +277,7 @@ public class NetherBridgePieces {
         }
 
         @Override
-        public boolean postProcess(
+        public void postProcess(
             WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
             this.generateBox(param0, param4, 0, 3, 0, 4, 4, 18, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
@@ -312,7 +310,6 @@ public class NetherBridgePieces {
             this.generateBox(param0, param4, 4, 3, 4, 4, 4, 4, var4, var4, false);
             this.generateBox(param0, param4, 4, 3, 14, 4, 4, 14, var4, var4, false);
             this.generateBox(param0, param4, 4, 1, 17, 4, 4, 17, var4, var4, false);
-            return true;
         }
     }
 
@@ -326,8 +323,8 @@ public class NetherBridgePieces {
             this.setOrientation(param2);
         }
 
-        public CastleCorridorStairsPiece(ServerLevel param0, CompoundTag param1) {
-            super(StructurePieceType.NETHER_FORTRESS_CASTLE_CORRIDOR_STAIRS, param1);
+        public CastleCorridorStairsPiece(CompoundTag param0) {
+            super(StructurePieceType.NETHER_FORTRESS_CASTLE_CORRIDOR_STAIRS, param0);
         }
 
         @Override
@@ -343,7 +340,7 @@ public class NetherBridgePieces {
         }
 
         @Override
-        public boolean postProcess(
+        public void postProcess(
             WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
             BlockState var0 = Blocks.NETHER_BRICK_STAIRS.defaultBlockState().setValue(StairBlock.FACING, Direction.SOUTH);
@@ -405,7 +402,6 @@ public class NetherBridgePieces {
                 }
             }
 
-            return true;
         }
     }
 
@@ -419,8 +415,8 @@ public class NetherBridgePieces {
             this.setOrientation(param2);
         }
 
-        public CastleCorridorTBalconyPiece(ServerLevel param0, CompoundTag param1) {
-            super(StructurePieceType.NETHER_FORTRESS_CASTLE_CORRIDOR_T_BALCONY, param1);
+        public CastleCorridorTBalconyPiece(CompoundTag param0) {
+            super(StructurePieceType.NETHER_FORTRESS_CASTLE_CORRIDOR_T_BALCONY, param0);
         }
 
         @Override
@@ -443,7 +439,7 @@ public class NetherBridgePieces {
         }
 
         @Override
-        public boolean postProcess(
+        public void postProcess(
             WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
             BlockState var0 = Blocks.NETHER_BRICK_FENCE
@@ -502,7 +498,6 @@ public class NetherBridgePieces {
                 }
             }
 
-            return true;
         }
     }
 
@@ -516,8 +511,8 @@ public class NetherBridgePieces {
             this.setOrientation(param3);
         }
 
-        public CastleEntrance(ServerLevel param0, CompoundTag param1) {
-            super(StructurePieceType.NETHER_FORTRESS_CASTLE_ENTRANCE, param1);
+        public CastleEntrance(CompoundTag param0) {
+            super(StructurePieceType.NETHER_FORTRESS_CASTLE_ENTRANCE, param0);
         }
 
         @Override
@@ -533,7 +528,7 @@ public class NetherBridgePieces {
         }
 
         @Override
-        public boolean postProcess(
+        public void postProcess(
             WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
             this.generateBox(param0, param4, 0, 3, 0, 12, 4, 12, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
@@ -680,7 +675,6 @@ public class NetherBridgePieces {
                 param0.getLiquidTicks().scheduleTick(var8, Fluids.LAVA, 0);
             }
 
-            return true;
         }
     }
 
@@ -694,8 +688,8 @@ public class NetherBridgePieces {
             this.setOrientation(param2);
         }
 
-        public CastleSmallCorridorCrossingPiece(ServerLevel param0, CompoundTag param1) {
-            super(StructurePieceType.NETHER_FORTRESS_CASTLE_SMALL_CORRIDOR_CROSSING, param1);
+        public CastleSmallCorridorCrossingPiece(CompoundTag param0) {
+            super(StructurePieceType.NETHER_FORTRESS_CASTLE_SMALL_CORRIDOR_CROSSING, param0);
         }
 
         @Override
@@ -715,7 +709,7 @@ public class NetherBridgePieces {
         }
 
         @Override
-        public boolean postProcess(
+        public void postProcess(
             WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
             this.generateBox(param0, param4, 0, 0, 0, 4, 1, 4, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
@@ -732,7 +726,6 @@ public class NetherBridgePieces {
                 }
             }
 
-            return true;
         }
     }
 
@@ -748,13 +741,13 @@ public class NetherBridgePieces {
             this.isNeedingChest = param1.nextInt(3) == 0;
         }
 
-        public CastleSmallCorridorLeftTurnPiece(ServerLevel param0, CompoundTag param1) {
-            super(StructurePieceType.NETHER_FORTRESS_CASTLE_SMALL_CORRIDOR_LEFT_TURN, param1);
-            this.isNeedingChest = param1.getBoolean("Chest");
+        public CastleSmallCorridorLeftTurnPiece(CompoundTag param0) {
+            super(StructurePieceType.NETHER_FORTRESS_CASTLE_SMALL_CORRIDOR_LEFT_TURN, param0);
+            this.isNeedingChest = param0.getBoolean("Chest");
         }
 
         @Override
-        protected void addAdditionalSaveData(ServerLevel param0, CompoundTag param1) {
+        protected void addAdditionalSaveData(StructurePieceSerializationContext param0, CompoundTag param1) {
             super.addAdditionalSaveData(param0, param1);
             param1.putBoolean("Chest", this.isNeedingChest);
         }
@@ -774,7 +767,7 @@ public class NetherBridgePieces {
         }
 
         @Override
-        public boolean postProcess(
+        public void postProcess(
             WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
             this.generateBox(param0, param4, 0, 0, 0, 4, 1, 4, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
@@ -807,7 +800,6 @@ public class NetherBridgePieces {
                 }
             }
 
-            return true;
         }
     }
 
@@ -821,8 +813,8 @@ public class NetherBridgePieces {
             this.setOrientation(param2);
         }
 
-        public CastleSmallCorridorPiece(ServerLevel param0, CompoundTag param1) {
-            super(StructurePieceType.NETHER_FORTRESS_CASTLE_SMALL_CORRIDOR, param1);
+        public CastleSmallCorridorPiece(CompoundTag param0) {
+            super(StructurePieceType.NETHER_FORTRESS_CASTLE_SMALL_CORRIDOR, param0);
         }
 
         @Override
@@ -838,7 +830,7 @@ public class NetherBridgePieces {
         }
 
         @Override
-        public boolean postProcess(
+        public void postProcess(
             WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
             this.generateBox(param0, param4, 0, 0, 0, 4, 1, 4, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
@@ -861,7 +853,6 @@ public class NetherBridgePieces {
                 }
             }
 
-            return true;
         }
     }
 
@@ -877,13 +868,13 @@ public class NetherBridgePieces {
             this.isNeedingChest = param1.nextInt(3) == 0;
         }
 
-        public CastleSmallCorridorRightTurnPiece(ServerLevel param0, CompoundTag param1) {
-            super(StructurePieceType.NETHER_FORTRESS_CASTLE_SMALL_CORRIDOR_RIGHT_TURN, param1);
-            this.isNeedingChest = param1.getBoolean("Chest");
+        public CastleSmallCorridorRightTurnPiece(CompoundTag param0) {
+            super(StructurePieceType.NETHER_FORTRESS_CASTLE_SMALL_CORRIDOR_RIGHT_TURN, param0);
+            this.isNeedingChest = param0.getBoolean("Chest");
         }
 
         @Override
-        protected void addAdditionalSaveData(ServerLevel param0, CompoundTag param1) {
+        protected void addAdditionalSaveData(StructurePieceSerializationContext param0, CompoundTag param1) {
             super.addAdditionalSaveData(param0, param1);
             param1.putBoolean("Chest", this.isNeedingChest);
         }
@@ -903,7 +894,7 @@ public class NetherBridgePieces {
         }
 
         @Override
-        public boolean postProcess(
+        public void postProcess(
             WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
             this.generateBox(param0, param4, 0, 0, 0, 4, 1, 4, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
@@ -936,7 +927,6 @@ public class NetherBridgePieces {
                 }
             }
 
-            return true;
         }
     }
 
@@ -950,8 +940,8 @@ public class NetherBridgePieces {
             this.setOrientation(param2);
         }
 
-        public CastleStalkRoom(ServerLevel param0, CompoundTag param1) {
-            super(StructurePieceType.NETHER_FORTRESS_CASTLE_STALK_ROOM, param1);
+        public CastleStalkRoom(CompoundTag param0) {
+            super(StructurePieceType.NETHER_FORTRESS_CASTLE_STALK_ROOM, param0);
         }
 
         @Override
@@ -968,7 +958,7 @@ public class NetherBridgePieces {
         }
 
         @Override
-        public boolean postProcess(
+        public void postProcess(
             WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
             this.generateBox(param0, param4, 0, 3, 0, 12, 4, 12, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
@@ -1154,7 +1144,6 @@ public class NetherBridgePieces {
                 }
             }
 
-            return true;
         }
     }
 
@@ -1169,13 +1158,13 @@ public class NetherBridgePieces {
             this.setOrientation(param2);
         }
 
-        public MonsterThrone(ServerLevel param0, CompoundTag param1) {
-            super(StructurePieceType.NETHER_FORTRESS_MONSTER_THRONE, param1);
-            this.hasPlacedSpawner = param1.getBoolean("Mob");
+        public MonsterThrone(CompoundTag param0) {
+            super(StructurePieceType.NETHER_FORTRESS_MONSTER_THRONE, param0);
+            this.hasPlacedSpawner = param0.getBoolean("Mob");
         }
 
         @Override
-        protected void addAdditionalSaveData(ServerLevel param0, CompoundTag param1) {
+        protected void addAdditionalSaveData(StructurePieceSerializationContext param0, CompoundTag param1) {
             super.addAdditionalSaveData(param0, param1);
             param1.putBoolean("Mob", this.hasPlacedSpawner);
         }
@@ -1188,7 +1177,7 @@ public class NetherBridgePieces {
         }
 
         @Override
-        public boolean postProcess(
+        public void postProcess(
             WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
             this.generateBox(param0, param4, 0, 2, 0, 6, 7, 7, Blocks.AIR.defaultBlockState(), Blocks.AIR.defaultBlockState(), false);
@@ -1284,7 +1273,6 @@ public class NetherBridgePieces {
                 }
             }
 
-            return true;
         }
     }
 
@@ -1298,7 +1286,7 @@ public class NetherBridgePieces {
         }
 
         @Override
-        protected void addAdditionalSaveData(ServerLevel param0, CompoundTag param1) {
+        protected void addAdditionalSaveData(StructurePieceSerializationContext param0, CompoundTag param1) {
         }
 
         private int updatePieceWeight(List<NetherBridgePieces.PieceWeight> param0) {
@@ -1615,8 +1603,8 @@ public class NetherBridgePieces {
             this.setOrientation(param2);
         }
 
-        public RoomCrossing(ServerLevel param0, CompoundTag param1) {
-            super(StructurePieceType.NETHER_FORTRESS_ROOM_CROSSING, param1);
+        public RoomCrossing(CompoundTag param0) {
+            super(StructurePieceType.NETHER_FORTRESS_ROOM_CROSSING, param0);
         }
 
         @Override
@@ -1634,7 +1622,7 @@ public class NetherBridgePieces {
         }
 
         @Override
-        public boolean postProcess(
+        public void postProcess(
             WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
             this.generateBox(param0, param4, 0, 0, 0, 6, 1, 6, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
@@ -1670,7 +1658,6 @@ public class NetherBridgePieces {
                 }
             }
 
-            return true;
         }
     }
 
@@ -1684,8 +1671,8 @@ public class NetherBridgePieces {
             this.setOrientation(param2);
         }
 
-        public StairsRoom(ServerLevel param0, CompoundTag param1) {
-            super(StructurePieceType.NETHER_FORTRESS_STAIRS_ROOM, param1);
+        public StairsRoom(CompoundTag param0) {
+            super(StructurePieceType.NETHER_FORTRESS_STAIRS_ROOM, param0);
         }
 
         @Override
@@ -1699,7 +1686,7 @@ public class NetherBridgePieces {
         }
 
         @Override
-        public boolean postProcess(
+        public void postProcess(
             WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
             this.generateBox(param0, param4, 0, 0, 0, 6, 1, 6, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
@@ -1736,7 +1723,6 @@ public class NetherBridgePieces {
                 }
             }
 
-            return true;
         }
     }
 
@@ -1764,8 +1750,8 @@ public class NetherBridgePieces {
 
         }
 
-        public StartPiece(ServerLevel param0, CompoundTag param1) {
-            super(StructurePieceType.NETHER_FORTRESS_START, param1);
+        public StartPiece(CompoundTag param0) {
+            super(StructurePieceType.NETHER_FORTRESS_START, param0);
         }
     }
 }

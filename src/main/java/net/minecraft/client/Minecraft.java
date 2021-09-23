@@ -10,8 +10,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.GameProfileRepository;
 import com.mojang.authlib.exceptions.AuthenticationException;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
-import com.mojang.authlib.minecraft.OfflineSocialInteractions;
-import com.mojang.authlib.minecraft.SocialInteractionsService;
+import com.mojang.authlib.minecraft.UserApiService;
 import com.mojang.authlib.properties.PropertyMap;
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import com.mojang.blaze3d.pipeline.MainTarget;
@@ -316,7 +315,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     private final SplashManager splashManager;
     private final GpuWarnlistManager gpuWarnlistManager;
     private final MinecraftSessionService minecraftSessionService;
-    private final SocialInteractionsService socialInteractionsService;
+    private final UserApiService userApiService;
     private final SkinManager skinManager;
     private final ModelManager modelManager;
     private final BlockRenderDispatcher blockRenderer;
@@ -328,6 +327,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     private final PlayerSocialManager playerSocialManager;
     private final EntityModelSet entityModels;
     private final BlockEntityRenderDispatcher blockEntityRenderDispatcher;
+    private final UUID deviceSessionId = UUID.randomUUID();
     @Nullable
     public MultiPlayerGameMode gameMode;
     @Nullable
@@ -341,6 +341,8 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     @Nullable
     private Connection pendingConnection;
     private boolean isLocalServer;
+    @Nullable
+    private ClientTelemetryManager telemetryManager;
     @Nullable
     public Entity cameraEntity;
     @Nullable
@@ -401,7 +403,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         this.proxy = param0.user.proxy;
         YggdrasilAuthenticationService var1 = new YggdrasilAuthenticationService(this.proxy);
         this.minecraftSessionService = var1.createMinecraftSessionService();
-        this.socialInteractionsService = this.createSocialInteractions(var1, param0);
+        this.userApiService = this.createUserApiService(var1, param0);
         this.user = param0.user.user;
         LOGGER.info("Setting user: {}", this.user.getName());
         LOGGER.debug("(Session ID is {})", this.user.getSessionId());
@@ -504,7 +506,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         this.renderBuffers = new RenderBuffers();
         this.gameRenderer = new GameRenderer(this, this.resourceManager, this.renderBuffers);
         this.resourceManager.registerReloadListener(this.gameRenderer);
-        this.playerSocialManager = new PlayerSocialManager(this, this.socialInteractionsService);
+        this.playerSocialManager = new PlayerSocialManager(this, this.userApiService);
         this.blockRenderer = new BlockRenderDispatcher(this.modelManager.getBlockModelShaper(), var11, this.blockColors);
         this.resourceManager.registerReloadListener(this.blockRenderer);
         this.levelRenderer = new LevelRenderer(this, this.renderBuffers);
@@ -577,7 +579,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
 
     private String createTitle() {
         StringBuilder var0 = new StringBuilder("Minecraft");
-        if (this.isProbablyModded()) {
+        if (isProbablyModded()) {
             var0.append("*");
         }
 
@@ -600,16 +602,16 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         return var0.toString();
     }
 
-    private SocialInteractionsService createSocialInteractions(YggdrasilAuthenticationService param0, GameConfig param1) {
+    private UserApiService createUserApiService(YggdrasilAuthenticationService param0, GameConfig param1) {
         try {
-            return param0.createSocialInteractionsService(param1.user.user.getAccessToken());
+            return param0.createUserApiService(param1.user.user.getAccessToken());
         } catch (AuthenticationException var4) {
             LOGGER.error("Failed to verify authentication", (Throwable)var4);
-            return new OfflineSocialInteractions();
+            return UserApiService.OFFLINE;
         }
     }
 
-    public boolean isProbablyModded() {
+    public static boolean isProbablyModded() {
         return !"vanilla".equals(ClientBrandRetriever.getClientModName()) || Minecraft.class.getSigners() == null;
     }
 
@@ -644,6 +646,9 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
 
     public void run() {
         this.gameThread = Thread.currentThread();
+        if (Runtime.getRuntime().availableProcessors() > 4) {
+            this.gameThread.setPriority(10);
+        }
 
         try {
             boolean var0 = false;
@@ -1832,6 +1837,10 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         }
     }
 
+    public ClientTelemetryManager createTelemetryManager() {
+        return new ClientTelemetryManager(this, this.userApiService, this.user.getXuid(), this.user.getClientId(), this.deviceSessionId);
+    }
+
     public void loadLevel(String param0) {
         this.doLoadLevel(param0, RegistryAccess.builtin(), Minecraft::loadDataPacks, Minecraft::loadWorldData, false, Minecraft.ExperimentalDialogType.BACKUP);
     }
@@ -2135,11 +2144,11 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     }
 
     public boolean allowsMultiplayer() {
-        return this.allowsMultiplayer && this.socialInteractionsService.serversAllowed();
+        return this.allowsMultiplayer && this.userApiService.serversAllowed();
     }
 
     public boolean allowsRealms() {
-        return this.socialInteractionsService.realmsAllowed();
+        return this.userApiService.realmsAllowed();
     }
 
     public boolean isBlocked(UUID param0) {
@@ -2156,7 +2165,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         } else if (!this.allowsChat) {
             return Minecraft.ChatStatus.DISABLED_BY_LAUNCHER;
         } else {
-            return !this.socialInteractionsService.chatAllowed() ? Minecraft.ChatStatus.DISABLED_BY_PROFILE : Minecraft.ChatStatus.ENABLED;
+            return !this.userApiService.chatAllowed() ? Minecraft.ChatStatus.DISABLED_BY_PROFILE : Minecraft.ChatStatus.ENABLED;
         }
     }
 

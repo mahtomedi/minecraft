@@ -203,6 +203,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
             param1,
             param7,
             param0.getPlayerList().getViewDistance(),
+            param0.getPlayerList().getSimulationDistance(),
             var0,
             param6,
             this.entityManager::updateChunkStatus,
@@ -384,18 +385,20 @@ public class ServerLevel extends Level implements WorldGenLevel {
                         var0.push("checkDespawn");
                         param1.checkDespawn();
                         var0.pop();
-                        Entity var0x = param1.getVehicle();
-                        if (var0x != null) {
-                            if (!var0x.isRemoved() && var0x.hasPassenger(param1)) {
-                                return;
+                        if (this.chunkSource.chunkMap.getDistanceManager().inEntityTickingRange(ChunkPos.asLong(param1.blockPosition()))) {
+                            Entity var0x = param1.getVehicle();
+                            if (var0x != null) {
+                                if (!var0x.isRemoved() && var0x.hasPassenger(param1)) {
+                                    return;
+                                }
+
+                                param1.stopRiding();
                             }
 
-                            param1.stopRiding();
+                            var0.push("tick");
+                            this.guardEntityTick(this::tickNonPassenger, param1);
+                            var0.pop();
                         }
-
-                        var0.push("tick");
-                        this.guardEntityTick(this::tickNonPassenger, param1);
-                        var0.pop();
                     }
                 }
             });

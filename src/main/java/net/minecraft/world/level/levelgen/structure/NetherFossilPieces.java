@@ -5,7 +5,6 @@ import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.StructureFeatureManager;
@@ -14,6 +13,7 @@ import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.StructurePieceType;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSerializationContext;
 import net.minecraft.world.level.levelgen.structure.templatesystem.BlockIgnoreProcessor;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
@@ -46,7 +46,7 @@ public class NetherFossilPieces {
             super(StructurePieceType.NETHER_FOSSIL, 0, param0, param1, param1.toString(), makeSettings(param3), param2);
         }
 
-        public NetherFossilPiece(ServerLevel param0, CompoundTag param1) {
+        public NetherFossilPiece(StructureManager param0, CompoundTag param1) {
             super(StructurePieceType.NETHER_FOSSIL, param1, param0, param1x -> makeSettings(Rotation.valueOf(param1.getString("Rot"))));
         }
 
@@ -55,7 +55,7 @@ public class NetherFossilPieces {
         }
 
         @Override
-        protected void addAdditionalSaveData(ServerLevel param0, CompoundTag param1) {
+        protected void addAdditionalSaveData(StructurePieceSerializationContext param0, CompoundTag param1) {
             super.addAdditionalSaveData(param0, param1);
             param1.putString("Rot", this.placeSettings.getRotation().name());
         }
@@ -65,11 +65,11 @@ public class NetherFossilPieces {
         }
 
         @Override
-        public boolean postProcess(
+        public void postProcess(
             WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
             param4.encapsulate(this.template.getBoundingBox(this.placeSettings, this.templatePosition));
-            return super.postProcess(param0, param1, param2, param3, param4, param5, param6);
+            super.postProcess(param0, param1, param2, param3, param4, param5, param6);
         }
     }
 }

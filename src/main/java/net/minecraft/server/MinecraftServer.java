@@ -49,7 +49,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
-import jdk.jfr.FlightRecorder;
 import net.minecraft.CrashReport;
 import net.minecraft.ReportedException;
 import net.minecraft.SharedConstants;
@@ -105,9 +104,8 @@ import net.minecraft.util.profiling.ProfileResults;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.util.profiling.ResultField;
 import net.minecraft.util.profiling.SingleTickProfiler;
-import net.minecraft.util.profiling.jfr.JfrRecording;
-import net.minecraft.util.profiling.jfr.event.ticking.ServerTickTimeEvent;
-import net.minecraft.util.profiling.jfr.event.worldgen.WorldLoadFinishedEvent;
+import net.minecraft.util.profiling.jfr.JvmProfiler;
+import net.minecraft.util.profiling.jfr.callback.ProfiledDuration;
 import net.minecraft.util.profiling.metrics.profiling.ActiveMetricsRecorder;
 import net.minecraft.util.profiling.metrics.profiling.InactiveMetricsRecorder;
 import net.minecraft.util.profiling.metrics.profiling.MetricsRecorder;
@@ -164,6 +162,7 @@ import org.apache.logging.log4j.Logger;
 
 public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTask> implements SnooperPopulator, CommandSource, AutoCloseable {
     private static final Logger LOGGER = LogManager.getLogger();
+    public static final String VANILLA_BRAND = "vanilla";
     private static final float AVERAGE_TICK_TIME_SMOOTHING = 0.8F;
     private static final int TICK_STATS_SPAN = 100;
     public static final int MS_PER_TICK = 50;
@@ -259,6 +258,10 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         AtomicReference<S> var0 = new AtomicReference<>();
         Thread var1 = new Thread(() -> var0.get().runServer(), "Server thread");
         var1.setUncaughtExceptionHandler((param0x, param1) -> LOGGER.error(param1));
+        if (Runtime.getRuntime().availableProcessors() > 4) {
+            var1.setPriority(8);
+        }
+
         S var2 = param0.apply(var1);
         var0.set(var2);
         var1.start();
@@ -310,29 +313,24 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
     protected abstract boolean initServer() throws IOException;
 
     protected void loadLevel() {
-        if (FlightRecorder.isAvailable() && !JfrRecording.isRunning()) {
+        if (!JvmProfiler.INSTANCE.isRunning()) {
         }
 
         boolean var0 = false;
-        WorldLoadFinishedEvent var1 = Util.make(new WorldLoadFinishedEvent(), param0 -> {
-            if (param0.isEnabled()) {
-                param0.begin();
-            }
-
-        });
+        ProfiledDuration var1 = JvmProfiler.INSTANCE.onWorldLoadedStarted();
         this.detectBundledResources();
         this.worldData.setModdedInfo(this.getServerModName(), this.getModdedStatus().isPresent());
         ChunkProgressListener var2 = this.progressListenerFactory.create(11);
         this.createLevels(var2);
         this.forceDifficulty();
         this.prepareLevels(var2);
-        if (var1.shouldCommit()) {
-            var1.commit();
+        if (var1 != null) {
+            var1.finish();
         }
 
         if (var0) {
             try {
-                JfrRecording.stop();
+                JvmProfiler.INSTANCE.stop();
             } catch (Throwable var5) {
                 LOGGER.warn("Failed to stop JFR profiling", var5);
             }
@@ -672,7 +670,6 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
                         new ServerStatus.Version(SharedConstants.getCurrentVersion().getName(), SharedConstants.getCurrentVersion().getProtocolVersion())
                     );
                 this.updateStatusIcon(this.status);
-                this.registerJFRhooks();
 
                 while(this.running) {
                     long var0 = Util.getMillis() - this.nextTickTime;
@@ -699,6 +696,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
                     this.profiler.pop();
                     this.endMetricsRecordingTick();
                     this.isReady = true;
+                    JvmProfiler.INSTANCE.onServerTick(this.averageTickTime);
                 }
             } else {
                 this.onServerCrash(null);
@@ -735,16 +733,6 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
 
         }
 
-    }
-
-    private void registerJFRhooks() {
-        FlightRecorder.addPeriodicEvent(ServerTickTimeEvent.class, () -> {
-            ServerTickTimeEvent var0 = new ServerTickTimeEvent(this.getAverageTickTime());
-            if (var0.shouldCommit()) {
-                var0.commit();
-            }
-
-        });
     }
 
     private boolean haveTime() {

@@ -9,7 +9,6 @@ import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.monster.ElderGuardian;
@@ -21,6 +20,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.StructurePieceType;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSerializationContext;
 
 public class OceanMonumentPieces {
     private OceanMonumentPieces() {
@@ -203,8 +203,8 @@ public class OceanMonumentPieces {
             this.childPieces.add(new OceanMonumentPieces.OceanMonumentPenthouse(param3, var8));
         }
 
-        public MonumentBuilding(ServerLevel param0, CompoundTag param1) {
-            super(StructurePieceType.OCEAN_MONUMENT_BUILDING, param1);
+        public MonumentBuilding(CompoundTag param0) {
+            super(StructurePieceType.OCEAN_MONUMENT_BUILDING, param0);
         }
 
         private List<OceanMonumentPieces.RoomDefinition> generateRoomGraph(Random param0) {
@@ -321,7 +321,7 @@ public class OceanMonumentPieces {
         }
 
         @Override
-        public boolean postProcess(
+        public void postProcess(
             WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
             int var0 = Math.max(param0.getSeaLevel(), 64) - this.boundingBox.minY();
@@ -374,7 +374,6 @@ public class OceanMonumentPieces {
                 }
             }
 
-            return true;
         }
 
         private void generateWing(boolean param0, int param1, WorldGenLevel param2, Random param3, BoundingBox param4) {
@@ -714,12 +713,12 @@ public class OceanMonumentPieces {
             super(StructurePieceType.OCEAN_MONUMENT_CORE_ROOM, 1, param0, param1, 2, 2, 2);
         }
 
-        public OceanMonumentCoreRoom(ServerLevel param0, CompoundTag param1) {
-            super(StructurePieceType.OCEAN_MONUMENT_CORE_ROOM, param1);
+        public OceanMonumentCoreRoom(CompoundTag param0) {
+            super(StructurePieceType.OCEAN_MONUMENT_CORE_ROOM, param0);
         }
 
         @Override
-        public boolean postProcess(
+        public void postProcess(
             WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
             this.generateBoxOnFillOnly(param0, param4, 1, 8, 0, 14, 8, 14, BASE_GRAY);
@@ -786,7 +785,6 @@ public class OceanMonumentPieces {
             this.generateBox(param0, param4, 3, 1, 13, 3, 1, 13, BASE_LIGHT, BASE_LIGHT, false);
             this.generateBox(param0, param4, 13, 1, 12, 13, 1, 13, BASE_LIGHT, BASE_LIGHT, false);
             this.generateBox(param0, param4, 12, 1, 13, 12, 1, 13, BASE_LIGHT, BASE_LIGHT, false);
-            return true;
         }
     }
 
@@ -795,12 +793,12 @@ public class OceanMonumentPieces {
             super(StructurePieceType.OCEAN_MONUMENT_DOUBLE_X_ROOM, 1, param0, param1, 2, 1, 1);
         }
 
-        public OceanMonumentDoubleXRoom(ServerLevel param0, CompoundTag param1) {
-            super(StructurePieceType.OCEAN_MONUMENT_DOUBLE_X_ROOM, param1);
+        public OceanMonumentDoubleXRoom(CompoundTag param0) {
+            super(StructurePieceType.OCEAN_MONUMENT_DOUBLE_X_ROOM, param0);
         }
 
         @Override
-        public boolean postProcess(
+        public void postProcess(
             WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
             OceanMonumentPieces.RoomDefinition var0 = this.roomDefinition.connections[Direction.EAST.get3DDataValue()];
@@ -859,7 +857,6 @@ public class OceanMonumentPieces {
                 this.generateWaterBox(param0, param4, 15, 1, 3, 15, 2, 4);
             }
 
-            return true;
         }
     }
 
@@ -868,12 +865,12 @@ public class OceanMonumentPieces {
             super(StructurePieceType.OCEAN_MONUMENT_DOUBLE_XY_ROOM, 1, param0, param1, 2, 2, 1);
         }
 
-        public OceanMonumentDoubleXYRoom(ServerLevel param0, CompoundTag param1) {
-            super(StructurePieceType.OCEAN_MONUMENT_DOUBLE_XY_ROOM, param1);
+        public OceanMonumentDoubleXYRoom(CompoundTag param0) {
+            super(StructurePieceType.OCEAN_MONUMENT_DOUBLE_XY_ROOM, param0);
         }
 
         @Override
-        public boolean postProcess(
+        public void postProcess(
             WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
             OceanMonumentPieces.RoomDefinition var0 = this.roomDefinition.connections[Direction.EAST.get3DDataValue()];
@@ -976,7 +973,6 @@ public class OceanMonumentPieces {
                 this.generateWaterBox(param0, param4, 15, 5, 3, 15, 6, 4);
             }
 
-            return true;
         }
     }
 
@@ -985,12 +981,12 @@ public class OceanMonumentPieces {
             super(StructurePieceType.OCEAN_MONUMENT_DOUBLE_Y_ROOM, 1, param0, param1, 1, 2, 1);
         }
 
-        public OceanMonumentDoubleYRoom(ServerLevel param0, CompoundTag param1) {
-            super(StructurePieceType.OCEAN_MONUMENT_DOUBLE_Y_ROOM, param1);
+        public OceanMonumentDoubleYRoom(CompoundTag param0) {
+            super(StructurePieceType.OCEAN_MONUMENT_DOUBLE_Y_ROOM, param0);
         }
 
         @Override
-        public boolean postProcess(
+        public void postProcess(
             WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
             if (this.roomDefinition.index / 25 > 0) {
@@ -1060,7 +1056,6 @@ public class OceanMonumentPieces {
                 var1 = var0;
             }
 
-            return true;
         }
     }
 
@@ -1069,12 +1064,12 @@ public class OceanMonumentPieces {
             super(StructurePieceType.OCEAN_MONUMENT_DOUBLE_YZ_ROOM, 1, param0, param1, 1, 2, 2);
         }
 
-        public OceanMonumentDoubleYZRoom(ServerLevel param0, CompoundTag param1) {
-            super(StructurePieceType.OCEAN_MONUMENT_DOUBLE_YZ_ROOM, param1);
+        public OceanMonumentDoubleYZRoom(CompoundTag param0) {
+            super(StructurePieceType.OCEAN_MONUMENT_DOUBLE_YZ_ROOM, param0);
         }
 
         @Override
-        public boolean postProcess(
+        public void postProcess(
             WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
             OceanMonumentPieces.RoomDefinition var0 = this.roomDefinition.connections[Direction.NORTH.get3DDataValue()];
@@ -1175,7 +1170,6 @@ public class OceanMonumentPieces {
                 this.generateBox(param0, param4, 6, 1, 13, 6, 3, 13, BASE_LIGHT, BASE_LIGHT, false);
             }
 
-            return true;
         }
     }
 
@@ -1184,12 +1178,12 @@ public class OceanMonumentPieces {
             super(StructurePieceType.OCEAN_MONUMENT_DOUBLE_Z_ROOM, 1, param0, param1, 1, 1, 2);
         }
 
-        public OceanMonumentDoubleZRoom(ServerLevel param0, CompoundTag param1) {
-            super(StructurePieceType.OCEAN_MONUMENT_DOUBLE_Z_ROOM, param1);
+        public OceanMonumentDoubleZRoom(CompoundTag param0) {
+            super(StructurePieceType.OCEAN_MONUMENT_DOUBLE_Z_ROOM, param0);
         }
 
         @Override
-        public boolean postProcess(
+        public void postProcess(
             WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
             OceanMonumentPieces.RoomDefinition var0 = this.roomDefinition.connections[Direction.NORTH.get3DDataValue()];
@@ -1267,7 +1261,6 @@ public class OceanMonumentPieces {
                 this.generateWaterBox(param0, param4, 7, 1, 11, 7, 2, 12);
             }
 
-            return true;
         }
     }
 
@@ -1276,12 +1269,12 @@ public class OceanMonumentPieces {
             super(StructurePieceType.OCEAN_MONUMENT_ENTRY_ROOM, 1, param0, param1, 1, 1, 1);
         }
 
-        public OceanMonumentEntryRoom(ServerLevel param0, CompoundTag param1) {
-            super(StructurePieceType.OCEAN_MONUMENT_ENTRY_ROOM, param1);
+        public OceanMonumentEntryRoom(CompoundTag param0) {
+            super(StructurePieceType.OCEAN_MONUMENT_ENTRY_ROOM, param0);
         }
 
         @Override
-        public boolean postProcess(
+        public void postProcess(
             WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
             this.generateBox(param0, param4, 0, 3, 0, 2, 3, 7, BASE_LIGHT, BASE_LIGHT, false);
@@ -1305,7 +1298,6 @@ public class OceanMonumentPieces {
                 this.generateWaterBox(param0, param4, 6, 1, 3, 7, 2, 4);
             }
 
-            return true;
         }
     }
 
@@ -1314,12 +1306,12 @@ public class OceanMonumentPieces {
             super(StructurePieceType.OCEAN_MONUMENT_PENTHOUSE, param0, 1, param1);
         }
 
-        public OceanMonumentPenthouse(ServerLevel param0, CompoundTag param1) {
-            super(StructurePieceType.OCEAN_MONUMENT_PENTHOUSE, param1);
+        public OceanMonumentPenthouse(CompoundTag param0) {
+            super(StructurePieceType.OCEAN_MONUMENT_PENTHOUSE, param0);
         }
 
         @Override
-        public boolean postProcess(
+        public void postProcess(
             WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
             this.generateBox(param0, param4, 2, -1, 2, 11, -1, 11, BASE_LIGHT, BASE_LIGHT, false);
@@ -1363,7 +1355,6 @@ public class OceanMonumentPieces {
             this.generateBox(param0, param4, 6, -1, 7, 7, -1, 8, BASE_BLACK, BASE_BLACK, false);
             this.generateWaterBox(param0, param4, 6, -1, 3, 7, -1, 4);
             this.spawnElder(param0, param4, 6, 1, 6);
-            return true;
         }
     }
 
@@ -1444,7 +1435,7 @@ public class OceanMonumentPieces {
         }
 
         @Override
-        protected void addAdditionalSaveData(ServerLevel param0, CompoundTag param1) {
+        protected void addAdditionalSaveData(StructurePieceSerializationContext param0, CompoundTag param1) {
         }
 
         protected void generateWaterBox(WorldGenLevel param0, BoundingBox param1, int param2, int param3, int param4, int param5, int param6, int param7) {
@@ -1527,12 +1518,12 @@ public class OceanMonumentPieces {
             this.mainDesign = param2.nextInt(3);
         }
 
-        public OceanMonumentSimpleRoom(ServerLevel param0, CompoundTag param1) {
-            super(StructurePieceType.OCEAN_MONUMENT_SIMPLE_ROOM, param1);
+        public OceanMonumentSimpleRoom(CompoundTag param0) {
+            super(StructurePieceType.OCEAN_MONUMENT_SIMPLE_ROOM, param0);
         }
 
         @Override
-        public boolean postProcess(
+        public void postProcess(
             WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
             if (this.roomDefinition.index / 25 > 0) {
@@ -1688,7 +1679,6 @@ public class OceanMonumentPieces {
                 this.generateBox(param0, param4, 3, 3, 3, 4, 3, 4, BASE_LIGHT, BASE_LIGHT, false);
             }
 
-            return true;
         }
     }
 
@@ -1697,12 +1687,12 @@ public class OceanMonumentPieces {
             super(StructurePieceType.OCEAN_MONUMENT_SIMPLE_TOP_ROOM, 1, param0, param1, 1, 1, 1);
         }
 
-        public OceanMonumentSimpleTopRoom(ServerLevel param0, CompoundTag param1) {
-            super(StructurePieceType.OCEAN_MONUMENT_SIMPLE_TOP_ROOM, param1);
+        public OceanMonumentSimpleTopRoom(CompoundTag param0) {
+            super(StructurePieceType.OCEAN_MONUMENT_SIMPLE_TOP_ROOM, param0);
         }
 
         @Override
-        public boolean postProcess(
+        public void postProcess(
             WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
             if (this.roomDefinition.index / 25 > 0) {
@@ -1743,7 +1733,6 @@ public class OceanMonumentPieces {
                 this.generateWaterBox(param0, param4, 3, 1, 0, 4, 2, 0);
             }
 
-            return true;
         }
     }
 
@@ -1755,12 +1744,12 @@ public class OceanMonumentPieces {
             this.mainDesign = param2 & 1;
         }
 
-        public OceanMonumentWingRoom(ServerLevel param0, CompoundTag param1) {
-            super(StructurePieceType.OCEAN_MONUMENT_WING_ROOM, param1);
+        public OceanMonumentWingRoom(CompoundTag param0) {
+            super(StructurePieceType.OCEAN_MONUMENT_WING_ROOM, param0);
         }
 
         @Override
-        public boolean postProcess(
+        public void postProcess(
             WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
             if (this.mainDesign == 0) {
@@ -1851,7 +1840,6 @@ public class OceanMonumentPieces {
                 this.spawnElder(param0, param4, 11, 5, 13);
             }
 
-            return true;
         }
     }
 

@@ -11,7 +11,6 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.RegistryReadOps;
 import net.minecraft.resources.RegistryWriteOps;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.WorldGenLevel;
@@ -20,6 +19,7 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.StructurePieceType;
 import net.minecraft.world.level.levelgen.feature.structures.JigsawJunction;
 import net.minecraft.world.level.levelgen.feature.structures.StructurePoolElement;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSerializationContext;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -42,12 +42,12 @@ public class PoolElementStructurePiece extends StructurePiece {
         this.rotation = param4;
     }
 
-    public PoolElementStructurePiece(ServerLevel param0, CompoundTag param1) {
+    public PoolElementStructurePiece(StructurePieceSerializationContext param0, CompoundTag param1) {
         super(StructurePieceType.JIGSAW, param1);
-        this.structureManager = param0.getStructureManager();
+        this.structureManager = param0.structureManager();
         this.position = new BlockPos(param1.getInt("PosX"), param1.getInt("PosY"), param1.getInt("PosZ"));
         this.groundLevelDelta = param1.getInt("ground_level_delta");
-        RegistryReadOps<Tag> var0 = RegistryReadOps.create(NbtOps.INSTANCE, param0.getServer().getResourceManager(), param0.getServer().registryAccess());
+        RegistryReadOps<Tag> var0 = RegistryReadOps.create(NbtOps.INSTANCE, param0.resourceManager(), param0.registryAccess());
         this.element = StructurePoolElement.CODEC
             .parse(var0, param1.getCompound("pool_element"))
             .resultOrPartial(LOGGER::error)
@@ -60,12 +60,12 @@ public class PoolElementStructurePiece extends StructurePiece {
     }
 
     @Override
-    protected void addAdditionalSaveData(ServerLevel param0, CompoundTag param1) {
+    protected void addAdditionalSaveData(StructurePieceSerializationContext param0, CompoundTag param1) {
         param1.putInt("PosX", this.position.getX());
         param1.putInt("PosY", this.position.getY());
         param1.putInt("PosZ", this.position.getZ());
         param1.putInt("ground_level_delta", this.groundLevelDelta);
-        RegistryWriteOps<Tag> var0 = RegistryWriteOps.create(NbtOps.INSTANCE, param0.getServer().registryAccess());
+        RegistryWriteOps<Tag> var0 = RegistryWriteOps.create(NbtOps.INSTANCE, param0.registryAccess());
         StructurePoolElement.CODEC.encodeStart(var0, this.element).resultOrPartial(LOGGER::error).ifPresent(param1x -> param1.put("pool_element", param1x));
         param1.putString("rotation", this.rotation.name());
         ListTag var1 = new ListTag();
@@ -78,16 +78,16 @@ public class PoolElementStructurePiece extends StructurePiece {
     }
 
     @Override
-    public boolean postProcess(
+    public void postProcess(
         WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
     ) {
-        return this.place(param0, param1, param2, param3, param4, param6, false);
+        this.place(param0, param1, param2, param3, param4, param6, false);
     }
 
-    public boolean place(
+    public void place(
         WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, BlockPos param5, boolean param6
     ) {
-        return this.element.place(this.structureManager, param0, param1, param2, this.position, param5, this.rotation, param4, param3, param6);
+        this.element.place(this.structureManager, param0, param1, param2, this.position, param5, this.rotation, param4, param3, param6);
     }
 
     @Override

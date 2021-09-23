@@ -17,7 +17,6 @@ public class TreeConfiguration implements FeatureConfiguration {
                     BlockStateProvider.CODEC.fieldOf("trunk_provider").forGetter(param0x -> param0x.trunkProvider),
                     TrunkPlacer.CODEC.fieldOf("trunk_placer").forGetter(param0x -> param0x.trunkPlacer),
                     BlockStateProvider.CODEC.fieldOf("foliage_provider").forGetter(param0x -> param0x.foliageProvider),
-                    BlockStateProvider.CODEC.fieldOf("sapling_provider").forGetter(param0x -> param0x.saplingProvider),
                     FoliagePlacer.CODEC.fieldOf("foliage_placer").forGetter(param0x -> param0x.foliagePlacer),
                     BlockStateProvider.CODEC.fieldOf("dirt_provider").forGetter(param0x -> param0x.dirtProvider),
                     FeatureSize.CODEC.fieldOf("minimum_size").forGetter(param0x -> param0x.minimumSize),
@@ -31,7 +30,6 @@ public class TreeConfiguration implements FeatureConfiguration {
     public final BlockStateProvider dirtProvider;
     public final TrunkPlacer trunkPlacer;
     public final BlockStateProvider foliageProvider;
-    public final BlockStateProvider saplingProvider;
     public final FoliagePlacer foliagePlacer;
     public final FeatureSize minimumSize;
     public final List<TreeDecorator> decorators;
@@ -42,46 +40,28 @@ public class TreeConfiguration implements FeatureConfiguration {
         BlockStateProvider param0,
         TrunkPlacer param1,
         BlockStateProvider param2,
-        BlockStateProvider param3,
-        FoliagePlacer param4,
-        BlockStateProvider param5,
-        FeatureSize param6,
-        List<TreeDecorator> param7,
-        boolean param8,
-        boolean param9
+        FoliagePlacer param3,
+        BlockStateProvider param4,
+        FeatureSize param5,
+        List<TreeDecorator> param6,
+        boolean param7,
+        boolean param8
     ) {
         this.trunkProvider = param0;
         this.trunkPlacer = param1;
         this.foliageProvider = param2;
-        this.foliagePlacer = param4;
-        this.dirtProvider = param5;
-        this.saplingProvider = param3;
-        this.minimumSize = param6;
-        this.decorators = param7;
-        this.ignoreVines = param8;
-        this.forceDirt = param9;
-    }
-
-    public TreeConfiguration withDecorators(List<TreeDecorator> param0) {
-        return new TreeConfiguration(
-            this.trunkProvider,
-            this.trunkPlacer,
-            this.foliageProvider,
-            this.saplingProvider,
-            this.foliagePlacer,
-            this.dirtProvider,
-            this.minimumSize,
-            param0,
-            this.ignoreVines,
-            this.forceDirt
-        );
+        this.foliagePlacer = param3;
+        this.dirtProvider = param4;
+        this.minimumSize = param5;
+        this.decorators = param6;
+        this.ignoreVines = param7;
+        this.forceDirt = param8;
     }
 
     public static class TreeConfigurationBuilder {
         public final BlockStateProvider trunkProvider;
         private final TrunkPlacer trunkPlacer;
         public final BlockStateProvider foliageProvider;
-        public final BlockStateProvider saplingProvider;
         private final FoliagePlacer foliagePlacer;
         private BlockStateProvider dirtProvider;
         private final FeatureSize minimumSize;
@@ -89,16 +69,13 @@ public class TreeConfiguration implements FeatureConfiguration {
         private boolean ignoreVines;
         private boolean forceDirt;
 
-        public TreeConfigurationBuilder(
-            BlockStateProvider param0, TrunkPlacer param1, BlockStateProvider param2, BlockStateProvider param3, FoliagePlacer param4, FeatureSize param5
-        ) {
+        public TreeConfigurationBuilder(BlockStateProvider param0, TrunkPlacer param1, BlockStateProvider param2, FoliagePlacer param3, FeatureSize param4) {
             this.trunkProvider = param0;
             this.trunkPlacer = param1;
             this.foliageProvider = param2;
-            this.saplingProvider = param3;
             this.dirtProvider = BlockStateProvider.simple(Blocks.DIRT);
-            this.foliagePlacer = param4;
-            this.minimumSize = param5;
+            this.foliagePlacer = param3;
+            this.minimumSize = param4;
         }
 
         public TreeConfiguration.TreeConfigurationBuilder dirt(BlockStateProvider param0) {
@@ -126,7 +103,6 @@ public class TreeConfiguration implements FeatureConfiguration {
                 this.trunkProvider,
                 this.trunkPlacer,
                 this.foliageProvider,
-                this.saplingProvider,
                 this.foliagePlacer,
                 this.dirtProvider,
                 this.minimumSize,

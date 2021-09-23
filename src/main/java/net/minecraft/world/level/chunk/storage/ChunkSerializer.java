@@ -50,6 +50,7 @@ import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSerializationContext;
 import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
@@ -185,7 +186,7 @@ public class ChunkSerializer {
 
         Heightmap.primeHeightmaps(var29, var34);
         CompoundTag var37 = var0.getCompound("Structures");
-        var29.setAllStarts(unpackStructureStart(param0, var37, param0.getSeed()));
+        var29.setAllStarts(unpackStructureStart(StructurePieceSerializationContext.fromLevel(param0), var37, param0.getSeed()));
         var29.setAllReferences(unpackStructureReferences(param2, var37));
         if (var0.getBoolean("shouldSave")) {
             var29.setUnsaved(true);
@@ -351,7 +352,7 @@ public class ChunkSerializer {
         }
 
         var2.put("Heightmaps", var27);
-        var2.put("Structures", packStructureData(param0, var0, param1.getAllStarts(), param1.getAllReferences()));
+        var2.put("Structures", packStructureData(StructurePieceSerializationContext.fromLevel(param0), var0, param1.getAllStarts(), param1.getAllReferences()));
         return var1;
     }
 
@@ -393,7 +394,10 @@ public class ChunkSerializer {
     }
 
     private static CompoundTag packStructureData(
-        ServerLevel param0, ChunkPos param1, Map<StructureFeature<?>, StructureStart<?>> param2, Map<StructureFeature<?>, LongSet> param3
+        StructurePieceSerializationContext param0,
+        ChunkPos param1,
+        Map<StructureFeature<?>, StructureStart<?>> param2,
+        Map<StructureFeature<?>, LongSet> param3
     ) {
         CompoundTag var0 = new CompoundTag();
         CompoundTag var1 = new CompoundTag();
@@ -413,7 +417,7 @@ public class ChunkSerializer {
         return var0;
     }
 
-    private static Map<StructureFeature<?>, StructureStart<?>> unpackStructureStart(ServerLevel param0, CompoundTag param1, long param2) {
+    private static Map<StructureFeature<?>, StructureStart<?>> unpackStructureStart(StructurePieceSerializationContext param0, CompoundTag param1, long param2) {
         Map<StructureFeature<?>, StructureStart<?>> var0 = Maps.newHashMap();
         CompoundTag var1 = param1.getCompound("Starts");
 

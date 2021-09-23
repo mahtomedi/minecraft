@@ -1,8 +1,10 @@
 package net.minecraft.world.level.levelgen.structure;
 
 import com.google.common.collect.ImmutableSet;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -10,7 +12,6 @@ import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelReader;
@@ -31,6 +32,7 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.NoiseEffect;
 import net.minecraft.world.level.levelgen.feature.StructurePieceType;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSerializationContext;
 import net.minecraft.world.level.material.FluidState;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -88,7 +90,7 @@ public abstract class StructurePiece {
         return Direction.Plane.HORIZONTAL.getRandomDirection(param0);
     }
 
-    public final CompoundTag createTag(ServerLevel param0) {
+    public final CompoundTag createTag(StructurePieceSerializationContext param0) {
         CompoundTag var0 = new CompoundTag();
         var0.putString("id", Registry.STRUCTURE_PIECE.getKey(this.getType()).toString());
         BoundingBox.CODEC.encodeStart(NbtOps.INSTANCE, this.boundingBox).resultOrPartial(LOGGER::error).ifPresent(param1 -> var0.put("BB", param1));
@@ -99,7 +101,7 @@ public abstract class StructurePiece {
         return var0;
     }
 
-    protected abstract void addAdditionalSaveData(ServerLevel var1, CompoundTag var2);
+    protected abstract void addAdditionalSaveData(StructurePieceSerializationContext var1, CompoundTag var2);
 
     public NoiseEffect getNoiseEffect() {
         return NoiseEffect.BEARD;
@@ -108,7 +110,7 @@ public abstract class StructurePiece {
     public void addChildren(StructurePiece param0, StructurePieceAccessor param1, Random param2) {
     }
 
-    public abstract boolean postProcess(
+    public abstract void postProcess(
         WorldGenLevel var1, StructureFeatureManager var2, ChunkGenerator var3, Random var4, BoundingBox var5, ChunkPos var6, BlockPos var7
     );
 
@@ -474,6 +476,22 @@ public abstract class StructurePiece {
 
     public void move(int param0, int param1, int param2) {
         this.boundingBox.move(param0, param1, param2);
+    }
+
+    public static BoundingBox createBoundingBox(Stream<StructurePiece> param0) {
+        return BoundingBox.encapsulatingBoxes(param0.map(StructurePiece::getBoundingBox)::iterator)
+            .orElseThrow(() -> new IllegalStateException("Unable to calculate boundingbox without pieces"));
+    }
+
+    @Nullable
+    public static StructurePiece findCollisionPiece(List<StructurePiece> param0, BoundingBox param1) {
+        for(StructurePiece var0 : param0) {
+            if (var0.getBoundingBox().intersects(param1)) {
+                return var0;
+            }
+        }
+
+        return null;
     }
 
     @Nullable

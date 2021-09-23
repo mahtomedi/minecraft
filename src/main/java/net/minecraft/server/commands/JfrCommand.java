@@ -8,7 +8,8 @@ import java.nio.file.Path;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.util.profiling.jfr.JfrRecording;
+import net.minecraft.util.profiling.jfr.Environment;
+import net.minecraft.util.profiling.jfr.JvmProfiler;
 
 public class JfrCommand {
     private static final SimpleCommandExceptionType START_FAILED = new SimpleCommandExceptionType(new TranslatableComponent("commands.jfr.start.failed"));
@@ -29,8 +30,8 @@ public class JfrCommand {
     }
 
     private static int startJfr(CommandSourceStack param0) throws CommandSyntaxException {
-        JfrRecording.Environment var0 = JfrRecording.Environment.from(param0.getServer());
-        if (!JfrRecording.start(var0)) {
+        Environment var0 = Environment.from(param0.getServer());
+        if (!JvmProfiler.INSTANCE.start(var0)) {
             throw START_FAILED.create();
         } else {
             param0.sendSuccess(new TranslatableComponent("commands.jfr.started"), false);
@@ -40,7 +41,7 @@ public class JfrCommand {
 
     private static int stopJfr(CommandSourceStack param0) throws CommandSyntaxException {
         try {
-            Path var0 = JfrRecording.stop();
+            Path var0 = JvmProfiler.INSTANCE.stop();
             param0.sendSuccess(new TranslatableComponent("commands.jfr.stopped", var0), false);
             return 1;
         } catch (Throwable var2) {

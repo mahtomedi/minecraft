@@ -4,7 +4,6 @@ import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.WorldGenLevel;
@@ -22,6 +21,7 @@ import net.minecraft.world.level.block.state.properties.AttachFace;
 import net.minecraft.world.level.block.state.properties.RedstoneSide;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.StructurePieceType;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSerializationContext;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 
 public class JunglePyramidPiece extends ScatteredFeaturePiece {
@@ -37,16 +37,16 @@ public class JunglePyramidPiece extends ScatteredFeaturePiece {
         super(StructurePieceType.JUNGLE_PYRAMID_PIECE, param1, 64, param2, 12, 10, 15, getRandomHorizontalDirection(param0));
     }
 
-    public JunglePyramidPiece(ServerLevel param0, CompoundTag param1) {
-        super(StructurePieceType.JUNGLE_PYRAMID_PIECE, param1);
-        this.placedMainChest = param1.getBoolean("placedMainChest");
-        this.placedHiddenChest = param1.getBoolean("placedHiddenChest");
-        this.placedTrap1 = param1.getBoolean("placedTrap1");
-        this.placedTrap2 = param1.getBoolean("placedTrap2");
+    public JunglePyramidPiece(CompoundTag param0) {
+        super(StructurePieceType.JUNGLE_PYRAMID_PIECE, param0);
+        this.placedMainChest = param0.getBoolean("placedMainChest");
+        this.placedHiddenChest = param0.getBoolean("placedHiddenChest");
+        this.placedTrap1 = param0.getBoolean("placedTrap1");
+        this.placedTrap2 = param0.getBoolean("placedTrap2");
     }
 
     @Override
-    protected void addAdditionalSaveData(ServerLevel param0, CompoundTag param1) {
+    protected void addAdditionalSaveData(StructurePieceSerializationContext param0, CompoundTag param1) {
         super.addAdditionalSaveData(param0, param1);
         param1.putBoolean("placedMainChest", this.placedMainChest);
         param1.putBoolean("placedHiddenChest", this.placedHiddenChest);
@@ -55,12 +55,10 @@ public class JunglePyramidPiece extends ScatteredFeaturePiece {
     }
 
     @Override
-    public boolean postProcess(
+    public void postProcess(
         WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
     ) {
-        if (!this.updateAverageGroundHeight(param0, param4, 0)) {
-            return false;
-        } else {
+        if (this.updateAverageGroundHeight(param0, param4, 0)) {
             this.generateBox(param0, param4, 0, -4, 0, this.width - 1, 0, this.depth - 1, false, param3, STONE_SELECTOR);
             this.generateBox(param0, param4, 2, 1, 2, 9, 2, 2, false, param3, STONE_SELECTOR);
             this.generateBox(param0, param4, 2, 1, 12, 9, 2, 12, false, param3, STONE_SELECTOR);
@@ -393,7 +391,6 @@ public class JunglePyramidPiece extends ScatteredFeaturePiece {
                 this.placedHiddenChest = this.createChest(param0, param4, param3, 9, -3, 10, BuiltInLootTables.JUNGLE_TEMPLE);
             }
 
-            return true;
         }
     }
 

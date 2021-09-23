@@ -19,8 +19,8 @@ import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ThreadedLevelLightEngine;
 import net.minecraft.server.level.WorldGenRegion;
-import net.minecraft.util.profiling.jfr.event.worldgen.ChunkGenerationEvent;
-import net.minecraft.world.level.ChunkPos;
+import net.minecraft.util.profiling.jfr.JvmProfiler;
+import net.minecraft.util.profiling.jfr.callback.ProfiledDuration;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
@@ -360,26 +360,17 @@ public class ChunkStatus {
         boolean param7
     ) {
         ChunkAccess var0 = param6.get(param6.size() / 2);
-        ChunkGenerationEvent var2;
-        if (ChunkGenerationEvent.TYPE.isEnabled()) {
-            ChunkPos var1 = var0.getPos();
-            var2 = new ChunkGenerationEvent(var1, param1.dimension(), this.name);
-            var2.begin();
-        } else {
-            var2 = null;
-        }
-
-        CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> var4 = this.generationTask
+        ProfiledDuration var1 = JvmProfiler.INSTANCE.onChunkGenerate(var0.getPos(), param1.dimension(), this.name);
+        CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> var2 = this.generationTask
             .doWork(this, param0, param1, param2, param3, param4, param5, param6, var0, param7);
-        return var2 != null && var2.shouldCommit()
-            ? var4.thenApply(
+        return var1 != null
+            ? var2.thenApply(
                 (Function<? super Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>, ? extends Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>>)(param1x -> {
-                    param1x.ifLeft(param1xx -> var2.success = true);
-                    var2.commit();
+                    var1.finish();
                     return param1x;
                 })
             )
-            : var4;
+            : var2;
     }
 
     public CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> load(

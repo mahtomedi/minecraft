@@ -3,14 +3,11 @@ package net.minecraft.world.level.levelgen.feature;
 import com.mojang.serialization.Codec;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import net.minecraft.core.QuartPos;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
-import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -20,12 +17,12 @@ import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.feature.configurations.MineshaftConfiguration;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.MineShaftPieces;
-import net.minecraft.world.level.levelgen.structure.StructureStart;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
+import net.minecraft.world.level.levelgen.structure.pieces.PieceGenerator;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePiecesBuilder;
 
 public class MineshaftFeature extends StructureFeature<MineshaftConfiguration> {
     public MineshaftFeature(Codec<MineshaftConfiguration> param0) {
-        super(param0);
+        super(param0, MineshaftFeature::generatePieces);
     }
 
     protected boolean isFeatureChunk(
@@ -43,41 +40,30 @@ public class MineshaftFeature extends StructureFeature<MineshaftConfiguration> {
         return param3.nextDouble() < var0;
     }
 
-    @Override
-    public StructureFeature.StructureStartFactory<MineshaftConfiguration> getStartFactory() {
-        return MineshaftFeature.MineShaftStart::new;
-    }
-
-    public static class MineShaftStart extends StructureStart<MineshaftConfiguration> {
-        public MineShaftStart(StructureFeature<MineshaftConfiguration> param0, ChunkPos param1, int param2, long param3) {
-            super(param0, param1, param2, param3);
-        }
-
-        public void generatePieces(
-            RegistryAccess param0,
-            ChunkGenerator param1,
-            StructureManager param2,
-            ChunkPos param3,
-            MineshaftConfiguration param4,
-            LevelHeightAccessor param5,
-            Predicate<Biome> param6
-        ) {
-            if (param6.test(
-                param1.getNoiseBiome(QuartPos.fromBlock(param3.getMiddleBlockX()), QuartPos.fromBlock(50), QuartPos.fromBlock(param3.getMiddleBlockZ()))
+    private static void generatePieces(StructurePiecesBuilder param0x, MineshaftConfiguration param1, PieceGenerator.Context param2) {
+        if (param2.validBiome()
+            .test(
+                param2.chunkGenerator()
+                    .getNoiseBiome(
+                        QuartPos.fromBlock(param2.chunkPos().getMiddleBlockX()),
+                        QuartPos.fromBlock(50),
+                        QuartPos.fromBlock(param2.chunkPos().getMiddleBlockZ())
+                    )
             )) {
-                MineShaftPieces.MineShaftRoom var0 = new MineShaftPieces.MineShaftRoom(0, this.random, param3.getBlockX(2), param3.getBlockZ(2), param4.type);
-                this.addPiece(var0);
-                var0.addChildren(var0, this, this.random);
-                if (param4.type == MineshaftFeature.Type.MESA) {
-                    int var1 = -5;
-                    BoundingBox var2 = this.getBoundingBox();
-                    int var3 = param1.getSeaLevel() - var2.maxY() + var2.getYSpan() / 2 - -5;
-                    this.offsetPiecesVertically(var3);
-                } else {
-                    this.moveBelowSeaLevel(param1.getSeaLevel(), param1.getMinY(), this.random, 10);
-                }
-
+            MineShaftPieces.MineShaftRoom var0 = new MineShaftPieces.MineShaftRoom(
+                0, param2.random(), param2.chunkPos().getBlockX(2), param2.chunkPos().getBlockZ(2), param1.type
+            );
+            param0x.addPiece(var0);
+            var0.addChildren(var0, param0x, param2.random());
+            if (param1.type == MineshaftFeature.Type.MESA) {
+                int var1 = -5;
+                BoundingBox var2 = param0x.getBoundingBox();
+                int var3 = param2.chunkGenerator().getSeaLevel() - var2.maxY() + var2.getYSpan() / 2 - -5;
+                param0x.offsetPiecesVertically(var3);
+            } else {
+                param0x.moveBelowSeaLevel(param2.chunkGenerator().getSeaLevel(), param2.chunkGenerator().getMinY(), param2.random(), 10);
             }
+
         }
     }
 

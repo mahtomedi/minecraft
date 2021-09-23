@@ -24,6 +24,7 @@ import java.nio.file.spi.FileSystemProvider;
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -63,6 +64,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class Util {
+    static final Logger LOGGER = LogManager.getLogger();
+    private static final int DEFAULT_MAX_THREADS = 255;
+    private static final String MAX_THREADS_SYSTEM_PROPERTY = "max.bg.threads";
     private static final AtomicInteger WORKER_COUNT = new AtomicInteger(1);
     private static final ExecutorService BOOTSTRAP_EXECUTOR = makeExecutor("Bootstrap");
     private static final ExecutorService BACKGROUND_EXECUTOR = makeExecutor("Main");
@@ -74,7 +78,8 @@ public class Util {
         .filter(param0 -> param0.getScheme().equalsIgnoreCase("jar"))
         .findFirst()
         .orElseThrow(() -> new IllegalStateException("No jar file system provider found"));
-    static final Logger LOGGER = LogManager.getLogger();
+    private static Consumer<String> thePauser = param0 -> {
+    };
 
     public static <K, V> Collector<Entry<? extends K, ? extends V>, ?, Map<K, V>> toMap() {
         return Collectors.toMap(Entry::getKey, Entry::getValue);
@@ -101,7 +106,7 @@ public class Util {
     }
 
     private static ExecutorService makeExecutor(String param0) {
-        int var0 = Mth.clamp(Runtime.getRuntime().availableProcessors() - 1, 1, 7);
+        int var0 = Mth.clamp(Runtime.getRuntime().availableProcessors() - 1, 1, getMaxThreads());
         ExecutorService var1;
         if (var0 <= 0) {
             var1 = MoreExecutors.newDirectExecutorService();
@@ -125,6 +130,24 @@ public class Util {
         }
 
         return var1;
+    }
+
+    private static int getMaxThreads() {
+        String var0 = System.getProperty("max.bg.threads");
+        if (var0 != null) {
+            try {
+                int var1 = Integer.parseInt(var0);
+                if (var1 >= 1 && var1 <= 255) {
+                    return var1;
+                }
+
+                LOGGER.error("Wrong {} property value '{}'. Should be an integer value between 1 and {}.", "max.bg.threads", var0, 255);
+            } catch (NumberFormatException var21) {
+                LOGGER.error("Could not parse {} property value '{}'. Should be an integer value between 1 and {}.", "max.bg.threads", var0, 255);
+            }
+        }
+
+        return 255;
     }
 
     public static ExecutorService bootstrapExecutor() {
@@ -380,7 +403,7 @@ public class Util {
     public static void logAndPauseIfInIde(String param0) {
         LOGGER.error(param0);
         if (SharedConstants.IS_RUNNING_IN_IDE) {
-            doPause();
+            doPause(param0);
         }
 
     }
@@ -388,21 +411,24 @@ public class Util {
     public static <T extends Throwable> T pauseInIde(T param0) {
         if (SharedConstants.IS_RUNNING_IN_IDE) {
             LOGGER.error("Trying to throw a fatal exception, pausing in IDE", param0);
-            doPause();
+            doPause(param0.getMessage());
         }
 
         return param0;
     }
 
-    private static void doPause() {
-        while(true) {
-            try {
-                Thread.sleep(1000L);
-                LOGGER.error("paused");
-            } catch (InterruptedException var1) {
-                return;
-            }
+    public static void setPause(Consumer<String> param0) {
+        thePauser = param0;
+    }
+
+    private static void doPause(String param0) {
+        Instant var0 = Instant.now();
+        LOGGER.warn("Did you remember to set a breakpoint here?");
+        boolean var1 = Duration.between(var0, Instant.now()).toMillis() > 500L;
+        if (!var1) {
+            thePauser.accept(param0);
         }
+
     }
 
     public static String describeError(Throwable param0) {
@@ -656,21 +682,27 @@ public class Util {
     }
 
     public static enum OS {
-        LINUX,
-        SOLARIS,
-        WINDOWS {
+        LINUX("linux"),
+        SOLARIS("solaris"),
+        WINDOWS("windows") {
             @Override
             protected String[] getOpenUrlArguments(URL param0) {
                 return new String[]{"rundll32", "url.dll,FileProtocolHandler", param0.toString()};
             }
         },
-        OSX {
+        OSX("mac") {
             @Override
             protected String[] getOpenUrlArguments(URL param0) {
                 return new String[]{"open", param0.toString()};
             }
         },
-        UNKNOWN;
+        UNKNOWN("unknown");
+
+        private final String telemetryName;
+
+        OS(String param0) {
+            this.telemetryName = param0;
+        }
 
         public void openUrl(URL param0) {
             try {
@@ -725,6 +757,10 @@ public class Util {
                 Util.LOGGER.error("Couldn't open uri '{}'", param0, var3);
             }
 
+        }
+
+        public String telemetryName() {
+            return this.telemetryName;
         }
     }
 }

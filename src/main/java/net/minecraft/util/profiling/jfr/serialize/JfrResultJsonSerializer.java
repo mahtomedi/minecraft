@@ -11,9 +11,11 @@ import com.mojang.datafixers.util.Pair;
 import java.time.Duration;
 import java.util.DoubleSummaryStatistics;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
+import java.util.stream.DoubleStream;
 import net.minecraft.Util;
 import net.minecraft.util.profiling.jfr.Percentiles;
 import net.minecraft.util.profiling.jfr.parse.JfrStatsResult;
@@ -110,12 +112,13 @@ public class JfrResultJsonSerializer {
             return JsonNull.INSTANCE;
         } else {
             JsonObject var0 = new JsonObject();
-            DoubleSummaryStatistics var1 = param0.stream().mapToDouble(TickTimeStat::currentAverage).summaryStatistics();
-            var0.addProperty("minMs", var1.getMin());
-            var0.addProperty("averageMs", var1.getAverage());
-            var0.addProperty("maxMs", var1.getMax());
-            Percentiles.evaluate(param0.stream().mapToDouble(TickTimeStat::currentAverage).toArray())
-                .forEach((param1, param2) -> var0.addProperty("p" + param1, param2));
+            double[] var1 = param0.stream().mapToDouble(param0x -> (double)param0x.currentAverage().toNanos() / 1000000.0).toArray();
+            DoubleSummaryStatistics var2 = DoubleStream.of(var1).summaryStatistics();
+            var0.addProperty("minMs", var2.getMin());
+            var0.addProperty("averageMs", var2.getAverage());
+            var0.addProperty("maxMs", var2.getMax());
+            Map<Integer, Double> var3 = Percentiles.evaluate(var1);
+            var3.forEach((param1, param2) -> var0.addProperty("p" + param1, param2));
             return var0;
         }
     }

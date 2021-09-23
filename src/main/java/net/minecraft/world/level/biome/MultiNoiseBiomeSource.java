@@ -96,45 +96,50 @@ public class MultiNoiseBiomeSource extends BiomeSource {
         int var1 = QuartPos.fromBlock(param1.getY());
         int var2 = QuartPos.fromBlock(param1.getZ());
         Climate.TargetPoint var3 = param2.sample(var0, var1, var2);
-        double var4 = (double)TerrainShaper.peaksAndValleys(var3.weirdness());
-        DecimalFormat var5 = new DecimalFormat("0.000");
+        float var4 = Climate.unquantizeCoord(var3.continentalness());
+        float var5 = Climate.unquantizeCoord(var3.erosion());
+        float var6 = Climate.unquantizeCoord(var3.temperature());
+        float var7 = Climate.unquantizeCoord(var3.humidity());
+        float var8 = Climate.unquantizeCoord(var3.weirdness());
+        double var9 = (double)TerrainShaper.peaksAndValleys(var8);
+        DecimalFormat var10 = new DecimalFormat("0.000");
         param0.add(
             "Multinoise C: "
-                + var5.format((double)var3.continentalness())
+                + var10.format((double)var4)
                 + " E: "
-                + var5.format((double)var3.erosion())
+                + var10.format((double)var5)
                 + " T: "
-                + var5.format((double)var3.temperature())
+                + var10.format((double)var6)
                 + " H: "
-                + var5.format((double)var3.humidity())
+                + var10.format((double)var7)
                 + " W: "
-                + var5.format((double)var3.weirdness())
+                + var10.format((double)var8)
         );
-        OverworldBiomeBuilder var6 = new OverworldBiomeBuilder();
+        OverworldBiomeBuilder var11 = new OverworldBiomeBuilder();
         param0.add(
             "Biome builder PV: "
-                + OverworldBiomeBuilder.getDebugStringForPeaksAndValleys(var4)
+                + OverworldBiomeBuilder.getDebugStringForPeaksAndValleys(var9)
                 + " C: "
-                + var6.getDebugStringForContinentalness((double)var3.continentalness())
+                + var11.getDebugStringForContinentalness((double)var4)
                 + " E: "
-                + var6.getDebugStringForErosion((double)var3.erosion())
+                + var11.getDebugStringForErosion((double)var5)
                 + " T: "
-                + var6.getDebugStringForTemperature((double)var3.temperature())
+                + var11.getDebugStringForTemperature((double)var6)
                 + " H: "
-                + var6.getDebugStringForHumidity((double)var3.humidity())
+                + var11.getDebugStringForHumidity((double)var7)
         );
         if (param2 instanceof NoiseSampler) {
-            NoiseSampler var7 = (NoiseSampler)param2;
-            TerrainInfo var8 = var7.terrainInfo(param1.getX(), param1.getZ(), var3.continentalness(), var3.weirdness(), var3.erosion());
+            NoiseSampler var12 = (NoiseSampler)param2;
+            TerrainInfo var13 = var12.terrainInfo(param1.getX(), param1.getZ(), var4, var8, var5);
             param0.add(
                 "Terrain PV: "
-                    + var5.format(var4)
+                    + var10.format(var9)
                     + " O: "
-                    + var5.format(var8.offset())
+                    + var10.format(var13.offset())
                     + " F: "
-                    + var5.format(var8.factor())
+                    + var10.format(var13.factor())
                     + " P: "
-                    + var5.format(var8.peaks())
+                    + var10.format(var13.peaks())
             );
         }
     }

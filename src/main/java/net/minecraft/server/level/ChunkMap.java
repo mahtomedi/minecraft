@@ -792,7 +792,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
         return this.visibleChunkMap.size();
     }
 
-    protected net.minecraft.server.level.DistanceManager getDistanceManager() {
+    public net.minecraft.server.level.DistanceManager getDistanceManager() {
         return this.distanceManager;
     }
 
@@ -814,26 +814,32 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
             .addColumn("ticket")
             .addColumn("spawning")
             .addColumn("block_entity_count")
+            .addColumn("ticking_ticket")
+            .addColumn("ticking_level")
             .build(param0);
+        TickingTracker var1 = this.distanceManager.tickingTracker();
 
-        for(Entry<ChunkHolder> var1 : this.visibleChunkMap.long2ObjectEntrySet()) {
-            ChunkPos var2 = new ChunkPos(var1.getLongKey());
-            ChunkHolder var3 = var1.getValue();
-            Optional<ChunkAccess> var4 = Optional.ofNullable(var3.getLastAvailable());
-            Optional<LevelChunk> var5 = var4.flatMap(param0x -> param0x instanceof LevelChunk ? Optional.of((LevelChunk)param0x) : Optional.empty());
+        for(Entry<ChunkHolder> var2 : this.visibleChunkMap.long2ObjectEntrySet()) {
+            long var3 = var2.getLongKey();
+            ChunkPos var4 = new ChunkPos(var3);
+            ChunkHolder var5 = var2.getValue();
+            Optional<ChunkAccess> var6 = Optional.ofNullable(var5.getLastAvailable());
+            Optional<LevelChunk> var7 = var6.flatMap(param0x -> param0x instanceof LevelChunk ? Optional.of((LevelChunk)param0x) : Optional.empty());
             var0.writeRow(
-                var2.x,
-                var2.z,
-                var3.getTicketLevel(),
-                var4.isPresent(),
-                var4.map(ChunkAccess::getStatus).orElse(null),
-                var5.map(LevelChunk::getFullStatus).orElse(null),
-                printFuture(var3.getFullChunkFuture()),
-                printFuture(var3.getTickingChunkFuture()),
-                printFuture(var3.getEntityTickingChunkFuture()),
-                this.distanceManager.getTicketDebugString(var1.getLongKey()),
-                !this.noPlayersCloseForSpawning(var2),
-                var5.<Integer>map(param0x -> param0x.getBlockEntities().size()).orElse(0)
+                var4.x,
+                var4.z,
+                var5.getTicketLevel(),
+                var6.isPresent(),
+                var6.map(ChunkAccess::getStatus).orElse(null),
+                var7.map(LevelChunk::getFullStatus).orElse(null),
+                printFuture(var5.getFullChunkFuture()),
+                printFuture(var5.getTickingChunkFuture()),
+                printFuture(var5.getEntityTickingChunkFuture()),
+                this.distanceManager.getTicketDebugString(var3),
+                !this.noPlayersCloseForSpawning(var4),
+                var7.<Integer>map(param0x -> param0x.getBlockEntities().size()).orElse(0),
+                var1.getTicketDebugString(var3),
+                var1.getLevel(var3)
             );
         }
 

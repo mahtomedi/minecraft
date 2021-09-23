@@ -8,15 +8,15 @@ import net.minecraft.world.level.levelgen.GenerationStep;
 
 public class BiomeDefaultFeatures {
     public static void addDefaultCarvers(BiomeGenerationSettings.Builder param0) {
-        param0.addCarver(GenerationStep.Carving.AIR, Carvers.PROTOTYPE_CAVE);
-        param0.addCarver(GenerationStep.Carving.AIR, Carvers.PROTOTYPE_CAVE_EXTRA_UNDERGROUND);
-        param0.addCarver(GenerationStep.Carving.AIR, Carvers.PROTOTYPE_CANYON);
+        param0.addCarver(GenerationStep.Carving.AIR, Carvers.CAVE);
+        param0.addCarver(GenerationStep.Carving.AIR, Carvers.CAVE_EXTRA_UNDERGROUND);
+        param0.addCarver(GenerationStep.Carving.AIR, Carvers.CANYON);
     }
 
     public static void addOceanCarvers(BiomeGenerationSettings.Builder param0) {
-        param0.addCarver(GenerationStep.Carving.AIR, Carvers.PROTOTYPE_CAVE);
-        param0.addCarver(GenerationStep.Carving.AIR, Carvers.PROTOTYPE_CAVE_EXTRA_UNDERGROUND);
-        param0.addCarver(GenerationStep.Carving.AIR, Carvers.PROTOTYPE_CANYON);
+        param0.addCarver(GenerationStep.Carving.AIR, Carvers.CAVE);
+        param0.addCarver(GenerationStep.Carving.AIR, Carvers.CAVE_EXTRA_UNDERGROUND);
+        param0.addCarver(GenerationStep.Carving.AIR, Carvers.CANYON);
     }
 
     public static void addDefaultLakes(BiomeGenerationSettings.Builder param0) {
@@ -33,16 +33,16 @@ public class BiomeDefaultFeatures {
     }
 
     public static void addDefaultUndergroundVariety(BiomeGenerationSettings.Builder param0) {
-        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.PROTOTYPE_ORE_DIRT);
-        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.PROTOTYPE_ORE_GRAVEL);
-        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.PROTOTYPE_ORE_GRANITE_UPPER);
-        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.PROTOTYPE_ORE_GRANITE_LOWER);
-        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.PROTOTYPE_ORE_DIORITE_UPPER);
-        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.PROTOTYPE_ORE_DIORITE_LOWER);
-        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.PROTOTYPE_ORE_ANDESITE_UPPER);
-        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.PROTOTYPE_ORE_ANDESITE_LOWER);
-        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.PROTOTYPE_ORE_TUFF);
-        param0.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, Features.PROTOTYPE_GLOW_LICHEN);
+        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_DIRT);
+        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_GRAVEL);
+        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_GRANITE_UPPER);
+        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_GRANITE_LOWER);
+        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_DIORITE_UPPER);
+        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_DIORITE_LOWER);
+        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_ANDESITE_UPPER);
+        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_ANDESITE_LOWER);
+        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_TUFF);
+        param0.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, Features.GLOW_LICHEN);
     }
 
     public static void addDripstone(BiomeGenerationSettings.Builder param0) {
@@ -56,20 +56,20 @@ public class BiomeDefaultFeatures {
     }
 
     public static void addDefaultOres(BiomeGenerationSettings.Builder param0, boolean param1) {
-        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.PROTOTYPE_ORE_COAL_UPPER);
-        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.PROTOTYPE_ORE_COAL_LOWER);
-        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.PROTOTYPE_ORE_IRON_UPPER);
-        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.PROTOTYPE_ORE_IRON_MIDDLE);
-        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.PROTOTYPE_ORE_IRON_SMALL);
-        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.PROTOTYPE_ORE_GOLD);
-        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.PROTOTYPE_ORE_REDSTONE);
-        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.PROTOTYPE_ORE_REDSTONE_LOWER);
-        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.PROTOTYPE_ORE_DIAMOND);
-        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.PROTOTYPE_ORE_DIAMOND_LARGE);
-        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.PROTOTYPE_ORE_LAPIS);
-        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.PROTOTYPE_ORE_LAPIS_BURIED);
-        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, param1 ? Features.PROTOTYPE_ORE_COPPER_LARGE : Features.PROTOTYPE_ORE_COPPER);
-        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.PROTOTYPE_UNDERWATER_MAGMA);
+        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_COAL_UPPER);
+        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_COAL_LOWER);
+        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_IRON_UPPER);
+        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_IRON_MIDDLE);
+        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_IRON_SMALL);
+        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_GOLD);
+        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_REDSTONE);
+        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_REDSTONE_LOWER);
+        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_DIAMOND);
+        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_DIAMOND_LARGE);
+        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_LAPIS);
+        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_LAPIS_BURIED);
+        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, param1 ? Features.ORE_COPPER_LARGE : Features.ORE_COPPER);
+        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.UNDERWATER_MAGMA);
     }
 
     public static void addExtraGold(BiomeGenerationSettings.Builder param0) {
@@ -77,11 +77,11 @@ public class BiomeDefaultFeatures {
     }
 
     public static void addExtraEmeralds(BiomeGenerationSettings.Builder param0) {
-        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.PROTOTYPE_ORE_EMERALD);
+        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Features.ORE_EMERALD);
     }
 
     public static void addInfestedStone(BiomeGenerationSettings.Builder param0) {
-        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_DECORATION, Features.PROTOTYPE_ORE_INFESTED);
+        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_DECORATION, Features.ORE_INFESTED);
     }
 
     public static void addDefaultSoftDisks(BiomeGenerationSettings.Builder param0) {
@@ -121,6 +121,10 @@ public class BiomeDefaultFeatures {
 
     public static void addTaigaTrees(BiomeGenerationSettings.Builder param0) {
         param0.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, Features.TAIGA_VEGETATION);
+    }
+
+    public static void addGroveTrees(BiomeGenerationSettings.Builder param0) {
+        param0.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, Features.GROVE_VEGETATION);
     }
 
     public static void addWaterTrees(BiomeGenerationSettings.Builder param0) {
@@ -293,7 +297,7 @@ public class BiomeDefaultFeatures {
 
     public static void addJungleExtraVegetation(BiomeGenerationSettings.Builder param0) {
         param0.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, Features.PATCH_MELON);
-        param0.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, Features.PROTOTYPE_VINES);
+        param0.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, Features.VINES);
     }
 
     public static void addDesertExtraVegetation(BiomeGenerationSettings.Builder param0) {
@@ -312,8 +316,8 @@ public class BiomeDefaultFeatures {
     }
 
     public static void addFossilDecoration(BiomeGenerationSettings.Builder param0) {
-        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_STRUCTURES, Features.PROTOTYPE_FOSSIL_UPPER);
-        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_STRUCTURES, Features.PROTOTYPE_FOSSIL_LOWER);
+        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_STRUCTURES, Features.FOSSIL_UPPER);
+        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_STRUCTURES, Features.FOSSIL_LOWER);
     }
 
     public static void addColdOceanExtraVegetation(BiomeGenerationSettings.Builder param0) {
@@ -329,7 +333,7 @@ public class BiomeDefaultFeatures {
     }
 
     public static void addDefaultSprings(BiomeGenerationSettings.Builder param0) {
-        param0.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, Features.PROTOTYPE_SPRING_WATER);
+        param0.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, Features.SPRING_WATER);
         param0.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, Features.SPRING_LAVA);
     }
 

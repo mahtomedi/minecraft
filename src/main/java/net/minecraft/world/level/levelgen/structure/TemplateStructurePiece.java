@@ -9,7 +9,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.StructureFeatureManager;
@@ -20,6 +19,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.StructureMode;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.StructurePieceType;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSerializationContext;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
@@ -44,13 +44,15 @@ public abstract class TemplateStructurePiece extends StructurePiece {
         this.placeSettings = param5;
     }
 
-    public TemplateStructurePiece(StructurePieceType param0, CompoundTag param1, ServerLevel param2, Function<ResourceLocation, StructurePlaceSettings> param3) {
+    public TemplateStructurePiece(
+        StructurePieceType param0, CompoundTag param1, StructureManager param2, Function<ResourceLocation, StructurePlaceSettings> param3
+    ) {
         super(param0, param1);
         this.setOrientation(Direction.NORTH);
         this.templateName = param1.getString("Template");
         this.templatePosition = new BlockPos(param1.getInt("TPX"), param1.getInt("TPY"), param1.getInt("TPZ"));
         ResourceLocation var0 = this.makeTemplateLocation();
-        this.template = param2.getStructureManager().getOrCreate(var0);
+        this.template = param2.getOrCreate(var0);
         this.placeSettings = param3.apply(var0);
         this.boundingBox = this.template.getBoundingBox(this.placeSettings, this.templatePosition);
     }
@@ -60,7 +62,7 @@ public abstract class TemplateStructurePiece extends StructurePiece {
     }
 
     @Override
-    protected void addAdditionalSaveData(ServerLevel param0, CompoundTag param1) {
+    protected void addAdditionalSaveData(StructurePieceSerializationContext param0, CompoundTag param1) {
         param1.putInt("TPX", this.templatePosition.getX());
         param1.putInt("TPY", this.templatePosition.getY());
         param1.putInt("TPZ", this.templatePosition.getZ());
@@ -68,7 +70,7 @@ public abstract class TemplateStructurePiece extends StructurePiece {
     }
 
     @Override
-    public boolean postProcess(
+    public void postProcess(
         WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
     ) {
         this.placeSettings.setBoundingBox(param4);
@@ -106,7 +108,6 @@ public abstract class TemplateStructurePiece extends StructurePiece {
             }
         }
 
-        return true;
     }
 
     protected abstract void handleDataMarker(String var1, BlockPos var2, ServerLevelAccessor var3, Random var4, BoundingBox var5);

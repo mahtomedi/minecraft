@@ -354,7 +354,7 @@ public final class OverworldBiomeBuilder {
                     0.0F,
                     var5
                 );
-                if (param1.max() < 0.0F) {
+                if (param1.max() < 0L) {
                     this.addSurfaceBiome(param0, var1, var3, this.coastContinentalness, this.erosions[4], param1, 0.0F, var9);
                     this.addSurfaceBiome(
                         param0,
@@ -391,7 +391,7 @@ public final class OverworldBiomeBuilder {
                     0.0F,
                     var7
                 );
-                if (param1.max() < 0.0F) {
+                if (param1.max() < 0L) {
                     this.addSurfaceBiome(param0, var1, var3, this.coastContinentalness, this.erosions[6], param1, 0.0F, var9);
                 } else {
                     this.addSurfaceBiome(param0, var1, var3, this.coastContinentalness, this.erosions[6], param1, 0.0F, var4);
@@ -525,7 +525,7 @@ public final class OverworldBiomeBuilder {
             Climate.Parameter.span(this.erosions[0], this.erosions[1]),
             param1,
             0.0F,
-            param1.max() < 0.0F ? Biomes.STONE_SHORE : Biomes.FROZEN_RIVER
+            param1.max() < 0L ? Biomes.STONE_SHORE : Biomes.FROZEN_RIVER
         );
         this.addSurfaceBiome(
             param0,
@@ -535,7 +535,7 @@ public final class OverworldBiomeBuilder {
             Climate.Parameter.span(this.erosions[0], this.erosions[1]),
             param1,
             0.0F,
-            param1.max() < 0.0F ? Biomes.STONE_SHORE : Biomes.RIVER
+            param1.max() < 0L ? Biomes.STONE_SHORE : Biomes.RIVER
         );
         this.addSurfaceBiome(
             param0,
@@ -631,7 +631,7 @@ public final class OverworldBiomeBuilder {
     }
 
     private ResourceKey<Biome> pickMiddleBiome(int param0, int param1, Climate.Parameter param2) {
-        if (param2.max() < 0.0F) {
+        if (param2.max() < 0L) {
             return this.MIDDLE_BIOMES[param0][param1];
         } else {
             ResourceKey<Biome> var0 = this.MIDDLE_BIOMES_VARIANT[param0][param1];
@@ -648,11 +648,11 @@ public final class OverworldBiomeBuilder {
     }
 
     private ResourceKey<Biome> maybePickShatteredBiome(int param0, int param1, Climate.Parameter param2, ResourceKey<Biome> param3) {
-        return param0 > 1 && param1 < 4 && param2.max() >= 0.0F ? Biomes.SHATTERED_SAVANNA : param3;
+        return param0 > 1 && param1 < 4 && param2.max() >= 0L ? Biomes.SHATTERED_SAVANNA : param3;
     }
 
     private ResourceKey<Biome> pickShatteredCoastBiome(int param0, int param1, Climate.Parameter param2) {
-        ResourceKey<Biome> var0 = param2.max() >= 0.0F ? this.pickMiddleBiome(param0, param1, param2) : this.pickBeachBiome(param0, param1);
+        ResourceKey<Biome> var0 = param2.max() >= 0L ? this.pickMiddleBiome(param0, param1, param2) : this.pickBeachBiome(param0, param1);
         return this.maybePickShatteredBiome(param0, param1, param2, var0);
     }
 
@@ -666,14 +666,14 @@ public final class OverworldBiomeBuilder {
 
     private ResourceKey<Biome> pickBadlandsBiome(int param0, Climate.Parameter param1) {
         if (param0 < 2) {
-            return param1.max() < 0.0F ? Biomes.ERODED_BADLANDS : Biomes.BADLANDS;
+            return param1.max() < 0L ? Biomes.ERODED_BADLANDS : Biomes.BADLANDS;
         } else {
             return param0 < 3 ? Biomes.BADLANDS : Biomes.WOODED_BADLANDS_PLATEAU;
         }
     }
 
     private ResourceKey<Biome> pickPlateauBiome(int param0, int param1, Climate.Parameter param2) {
-        if (param2.max() < 0.0F) {
+        if (param2.max() < 0L) {
             return this.PLATEAU_BIOMES[param0][param1];
         } else {
             ResourceKey<Biome> var0 = this.PLATEAU_BIOMES_VARIANT[param0][param1];
@@ -683,7 +683,7 @@ public final class OverworldBiomeBuilder {
 
     private ResourceKey<Biome> pickPeakBiome(int param0, int param1, Climate.Parameter param2) {
         if (param0 <= 2) {
-            return param2.max() < 0.0F ? Biomes.LOFTY_PEAKS : Biomes.SNOWCAPPED_PEAKS;
+            return param2.max() < 0L ? Biomes.LOFTY_PEAKS : Biomes.SNOWCAPPED_PEAKS;
         } else {
             return param0 == 3 ? Biomes.STONY_PEAKS : this.pickBadlandsBiome(param1, param2);
         }
@@ -726,7 +726,7 @@ public final class OverworldBiomeBuilder {
         float param6,
         ResourceKey<Biome> param7
     ) {
-        param0.accept(Pair.of(Climate.parameters(param1, param2, param3, param4, Climate.Parameter.span(0.1F, 0.9F), param5, param6), param7));
+        param0.accept(Pair.of(Climate.parameters(param1, param2, param3, param4, Climate.Parameter.span(0.2F, 0.9F), param5, param6), param7));
     }
 
     public static String getDebugStringForPeaksAndValleys(double param0) {

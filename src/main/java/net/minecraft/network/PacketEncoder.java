@@ -6,7 +6,7 @@ import io.netty.handler.codec.MessageToByteEncoder;
 import java.io.IOException;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketFlow;
-import net.minecraft.util.profiling.jfr.event.network.PacketSentEvent;
+import net.minecraft.util.profiling.jfr.JvmProfiler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
@@ -44,20 +44,16 @@ public class PacketEncoder extends MessageToByteEncoder<Packet<?>> {
                     if (var4 > 8388608) {
                         throw new IllegalArgumentException("Packet too big (is " + var4 + ", should be less than 8388608): " + param1);
                     } else {
-                        if (PacketSentEvent.TYPE.isEnabled()) {
-                            int var5 = param0.channel().attr(Connection.ATTRIBUTE_PROTOCOL).get().getId();
-                            String var6 = "%d/%d (%s)".formatted(var5, var1, param1.getClass().getSimpleName());
-                            PacketSentEvent var7 = new PacketSentEvent(var6, param0.channel().remoteAddress(), var4);
-                            var7.commit();
-                        }
-
+                        int var5 = param0.channel().attr(Connection.ATTRIBUTE_PROTOCOL).get().getId();
+                        JvmProfiler.INSTANCE
+                            .onPacketSent(() -> "%d/%d (%s)".formatted(var5, var1, param1.getClass().getSimpleName()), param0.channel().remoteAddress(), var4);
                     }
-                } catch (Throwable var12) {
-                    LOGGER.error(var12);
+                } catch (Throwable var10) {
+                    LOGGER.error(var10);
                     if (param1.isSkippable()) {
-                        throw new SkipPacketException(var12);
+                        throw new SkipPacketException(var10);
                     } else {
-                        throw var12;
+                        throw var10;
                     }
                 }
             }

@@ -2,10 +2,10 @@ package net.minecraft.client.resources;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.hash.Hashing;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.Locale;
@@ -40,7 +40,6 @@ import net.minecraft.server.packs.repository.RepositorySource;
 import net.minecraft.util.HttpUtil;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.comparator.LastModifiedFileComparator;
 import org.apache.commons.io.filefilter.TrueFileFilter;
@@ -110,7 +109,7 @@ public class ClientPackSource implements RepositorySource {
     }
 
     public CompletableFuture<?> downloadAndSelectResourcePack(String param0, String param1, boolean param2) {
-        String var0 = DigestUtils.sha1Hex(param0);
+        String var0 = Hashing.sha1().hashString(param0, StandardCharsets.UTF_8).toString();
         String var1 = SHA1.matcher(param1).matches() ? param1 : "";
         this.downloadLock.lock();
 
@@ -213,35 +212,20 @@ public class ClientPackSource implements RepositorySource {
 
     private boolean checkHash(String param0, File param1) {
         try {
-            FileInputStream var0 = new FileInputStream(param1);
-
-            String var1;
-            try {
-                var1 = DigestUtils.sha1Hex((InputStream)var0);
-            } catch (Throwable var8) {
-                try {
-                    var0.close();
-                } catch (Throwable var7) {
-                    var8.addSuppressed(var7);
-                }
-
-                throw var8;
-            }
-
-            var0.close();
+            String var0 = com.google.common.io.Files.asByteSource(param1).hash(Hashing.sha1()).toString();
             if (param0.isEmpty()) {
                 LOGGER.info("Found file {} without verification hash", param1);
                 return true;
             }
 
-            if (var1.toLowerCase(Locale.ROOT).equals(param0.toLowerCase(Locale.ROOT))) {
+            if (var0.toLowerCase(Locale.ROOT).equals(param0.toLowerCase(Locale.ROOT))) {
                 LOGGER.info("Found file {} matching requested hash {}", param1, param0);
                 return true;
             }
 
-            LOGGER.warn("File {} had wrong hash (expected {}, found {}).", param1, param0, var1);
-        } catch (IOException var9) {
-            LOGGER.warn("File {} couldn't be hashed.", param1, var9);
+            LOGGER.warn("File {} had wrong hash (expected {}, found {}).", param1, param0, var0);
+        } catch (IOException var4) {
+            LOGGER.warn("File {} couldn't be hashed.", param1, var4);
         }
 
         return false;

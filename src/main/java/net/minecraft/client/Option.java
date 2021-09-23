@@ -210,9 +210,21 @@ public abstract class Option {
     );
     public static final ProgressOption RENDER_DISTANCE = new ProgressOption(
         "options.renderDistance", 2.0, 16.0, 1.0F, param0 -> (double)param0.renderDistance, (param0, param1) -> {
-            param0.renderDistance = (int)param1.doubleValue();
+            param0.renderDistance = param1.intValue();
             Minecraft.getInstance().levelRenderer.needsUpdate();
         }, (param0, param1) -> {
+            double var0 = param1.get(param0);
+            return param1.genericValueLabel(new TranslatableComponent("options.chunks", (int)var0));
+        }
+    );
+    public static final ProgressOption SIMULATION_DISTANCE = new ProgressOption(
+        "options.simulationDistance",
+        2.0,
+        16.0,
+        1.0F,
+        param0 -> (double)param0.simulationDistance,
+        (param0, param1) -> param0.simulationDistance = param1.intValue(),
+        (param0, param1) -> {
             double var0 = param1.get(param0);
             return param1.genericValueLabel(new TranslatableComponent("options.chunks", (int)var0));
         }

@@ -72,10 +72,11 @@ public class ServerChunkCache extends ChunkSource {
         Executor param4,
         ChunkGenerator param5,
         int param6,
-        boolean param7,
-        ChunkProgressListener param8,
-        ChunkStatusUpdateListener param9,
-        Supplier<DimensionDataStorage> param10
+        int param7,
+        boolean param8,
+        ChunkProgressListener param9,
+        ChunkStatusUpdateListener param10,
+        Supplier<DimensionDataStorage> param11
     ) {
         this.level = param0;
         this.mainThreadProcessor = new ServerChunkCache.MainThreadExecutor(param0);
@@ -84,9 +85,10 @@ public class ServerChunkCache extends ChunkSource {
         File var1 = new File(var0, "data");
         var1.mkdirs();
         this.dataStorage = new DimensionDataStorage(var1, param2);
-        this.chunkMap = new ChunkMap(param0, param1, param2, param3, param4, this.mainThreadProcessor, this, param5, param8, param9, param10, param6, param7);
+        this.chunkMap = new ChunkMap(param0, param1, param2, param3, param4, this.mainThreadProcessor, this, param5, param9, param10, param11, param6, param8);
         this.lightEngine = this.chunkMap.getLightEngine();
         this.distanceManager = this.chunkMap.getDistanceManager();
+        this.distanceManager.updateSimulationDistance(param7);
         this.clearCache();
     }
 
@@ -455,6 +457,10 @@ public class ServerChunkCache extends ChunkSource {
 
     public void setViewDistance(int param0) {
         this.chunkMap.setViewDistance(param0);
+    }
+
+    public void setSimulationDistance(int param0) {
+        this.distanceManager.updateSimulationDistance(param0);
     }
 
     @Override

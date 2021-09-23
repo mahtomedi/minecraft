@@ -110,13 +110,13 @@ public class JfrStatsParser {
                 case "minecraft.ChunkGeneration":
                     this.chunkGenStats.add(ChunkGenStat.from(param0x));
                     break;
-                case "minecraft.WorldLoadFinishedEvent":
+                case "minecraft.LoadWorld":
                     this.worldCreationDuration = param0x.getDuration();
                     break;
                 case "minecraft.ServerTickTime":
                     this.tickTimes.add(TickTimeStat.from(param0x));
                     break;
-                case "minecraft.PacketRead":
+                case "minecraft.PacketReceived":
                     this.receivedPackets.add(PacketStat.from(param0x));
                     break;
                 case "minecraft.PacketSent":

@@ -14,7 +14,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelAccessor;
@@ -32,6 +31,7 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.StructurePieceType;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSerializationContext;
 import net.minecraft.world.level.levelgen.structure.templatesystem.AlwaysTrueTest;
 import net.minecraft.world.level.levelgen.structure.templatesystem.BlackstoneReplaceProcessor;
 import net.minecraft.world.level.levelgen.structure.templatesystem.BlockAgeProcessor;
@@ -73,14 +73,14 @@ public class RuinedPortalPiece extends TemplateStructurePiece {
         this.properties = param3;
     }
 
-    public RuinedPortalPiece(ServerLevel param0, CompoundTag param1) {
+    public RuinedPortalPiece(StructureManager param0, CompoundTag param1) {
         super(StructurePieceType.RUINED_PORTAL, param1, param0, param2 -> makeSettings(param0, param1, param2));
         this.verticalPlacement = RuinedPortalPiece.VerticalPlacement.byName(param1.getString("VerticalPlacement"));
         this.properties = RuinedPortalPiece.Properties.CODEC.parse(new Dynamic<>(NbtOps.INSTANCE, param1.get("Properties"))).getOrThrow(true, LOGGER::error);
     }
 
     @Override
-    protected void addAdditionalSaveData(ServerLevel param0, CompoundTag param1) {
+    protected void addAdditionalSaveData(StructurePieceSerializationContext param0, CompoundTag param1) {
         super.addAdditionalSaveData(param0, param1);
         param1.putString("Rotation", this.placeSettings.getRotation().name());
         param1.putString("Mirror", this.placeSettings.getMirror().name());
@@ -91,8 +91,8 @@ public class RuinedPortalPiece extends TemplateStructurePiece {
             .ifPresent(param1x -> param1.put("Properties", param1x));
     }
 
-    private static StructurePlaceSettings makeSettings(ServerLevel param0, CompoundTag param1, ResourceLocation param2) {
-        StructureTemplate var0 = param0.getStructureManager().getOrCreate(param2);
+    private static StructurePlaceSettings makeSettings(StructureManager param0, CompoundTag param1, ResourceLocation param2) {
+        StructureTemplate var0 = param0.getOrCreate(param2);
         BlockPos var1 = new BlockPos(var0.getSize().getX() / 2, 0, var0.getSize().getZ() / 2);
         return makeSettings(
             Mirror.valueOf(param1.getString("Mirror")),
@@ -139,15 +139,13 @@ public class RuinedPortalPiece extends TemplateStructurePiece {
     }
 
     @Override
-    public boolean postProcess(
+    public void postProcess(
         WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
     ) {
         BoundingBox var0 = this.template.getBoundingBox(this.placeSettings, this.templatePosition);
-        if (!param4.isInside(var0.getCenter())) {
-            return true;
-        } else {
+        if (param4.isInside(var0.getCenter())) {
             param4.encapsulate(var0);
-            boolean var1 = super.postProcess(param0, param1, param2, param3, param4, param5, param6);
+            super.postProcess(param0, param1, param2, param3, param4, param5, param6);
             this.spreadNetherrack(param3, param0);
             this.addNetherrackDripColumnsBelowPortal(param3, param0);
             if (this.properties.vines || this.properties.overgrown) {
@@ -163,7 +161,6 @@ public class RuinedPortalPiece extends TemplateStructurePiece {
                 });
             }
 
-            return var1;
         }
     }
 
@@ -311,7 +308,7 @@ public class RuinedPortalPiece extends TemplateStructurePiece {
         public Properties() {
         }
 
-        public <T> Properties(boolean param0, float param1, boolean param2, boolean param3, boolean param4, boolean param5) {
+        public Properties(boolean param0, float param1, boolean param2, boolean param3, boolean param4, boolean param5) {
             this.cold = param0;
             this.mossiness = param1;
             this.airPocket = param2;

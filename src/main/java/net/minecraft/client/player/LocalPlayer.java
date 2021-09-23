@@ -724,7 +724,7 @@ public class LocalPlayer extends AbstractClientPlayer {
 
         if (this.isSprinting()) {
             boolean var5 = !this.input.hasForwardImpulse() || !var4;
-            boolean var6 = var5 || this.horizontalCollision || this.isInWater() && !this.isUnderWater();
+            boolean var6 = var5 || this.horizontalCollision && !this.minorHorizontalCollision || this.isInWater() && !this.isUnderWater();
             if (this.isSwimming()) {
                 if (!this.onGround && !this.input.shiftKeyDown && var5 || !this.isInWater()) {
                     this.setSprinting(false);

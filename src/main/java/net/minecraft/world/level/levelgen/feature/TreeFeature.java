@@ -79,11 +79,7 @@ public class TreeFeature extends Feature<TreeConfiguration> {
         int var1 = param5.foliagePlacer.foliageHeight(param1, var0, param5);
         int var2 = var0 - var1;
         int var3 = param5.foliagePlacer.foliageRadius(param1, var2);
-        if (param2.getY() < param0.getMinBuildHeight() + 1 || param2.getY() + var0 + 1 > param0.getMaxBuildHeight()) {
-            return false;
-        } else if (!param5.saplingProvider.getState(param1, param2).canSurvive(param0, param2)) {
-            return false;
-        } else {
+        if (param2.getY() >= param0.getMinBuildHeight() + 1 && param2.getY() + var0 + 1 <= param0.getMaxBuildHeight()) {
             OptionalInt var4 = param5.minimumSize.minClippedHeight();
             int var5 = this.getMaxFreeTreeHeight(param0, var0, param2, param5);
             if (var5 >= var0 || var4.isPresent() && var5 >= var4.getAsInt()) {
@@ -93,6 +89,8 @@ public class TreeFeature extends Feature<TreeConfiguration> {
             } else {
                 return false;
             }
+        } else {
+            return false;
         }
     }
 

@@ -9,7 +9,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.vehicle.MinecartChest;
 import net.minecraft.world.level.BlockGetter;
@@ -30,6 +29,7 @@ import net.minecraft.world.level.block.state.properties.RailShape;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.MineshaftFeature;
 import net.minecraft.world.level.levelgen.feature.StructurePieceType;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSerializationContext;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -93,16 +93,16 @@ public class MineShaftPieces {
         private boolean hasPlacedSpider;
         private final int numSections;
 
-        public MineShaftCorridor(ServerLevel param0, CompoundTag param1) {
-            super(StructurePieceType.MINE_SHAFT_CORRIDOR, param1);
-            this.hasRails = param1.getBoolean("hr");
-            this.spiderCorridor = param1.getBoolean("sc");
-            this.hasPlacedSpider = param1.getBoolean("hps");
-            this.numSections = param1.getInt("Num");
+        public MineShaftCorridor(CompoundTag param0) {
+            super(StructurePieceType.MINE_SHAFT_CORRIDOR, param0);
+            this.hasRails = param0.getBoolean("hr");
+            this.spiderCorridor = param0.getBoolean("sc");
+            this.hasPlacedSpider = param0.getBoolean("hps");
+            this.numSections = param0.getInt("Num");
         }
 
         @Override
-        protected void addAdditionalSaveData(ServerLevel param0, CompoundTag param1) {
+        protected void addAdditionalSaveData(StructurePieceSerializationContext param0, CompoundTag param1) {
             super.addAdditionalSaveData(param0, param1);
             param1.putBoolean("hr", this.hasRails);
             param1.putBoolean("sc", this.spiderCorridor);
@@ -345,12 +345,10 @@ public class MineShaftPieces {
         }
 
         @Override
-        public boolean postProcess(
+        public void postProcess(
             WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
-            if (this.edgesLiquid(param0, param4)) {
-                return false;
-            } else {
+            if (!this.edgesLiquid(param0, param4)) {
                 int var0 = 0;
                 int var1 = 2;
                 int var2 = 0;
@@ -422,7 +420,6 @@ public class MineShaftPieces {
                     }
                 }
 
-                return true;
             }
         }
 
@@ -583,14 +580,14 @@ public class MineShaftPieces {
         private final Direction direction;
         private final boolean isTwoFloored;
 
-        public MineShaftCrossing(ServerLevel param0, CompoundTag param1) {
-            super(StructurePieceType.MINE_SHAFT_CROSSING, param1);
-            this.isTwoFloored = param1.getBoolean("tf");
-            this.direction = Direction.from2DDataValue(param1.getInt("D"));
+        public MineShaftCrossing(CompoundTag param0) {
+            super(StructurePieceType.MINE_SHAFT_CROSSING, param0);
+            this.isTwoFloored = param0.getBoolean("tf");
+            this.direction = Direction.from2DDataValue(param0.getInt("D"));
         }
 
         @Override
-        protected void addAdditionalSaveData(ServerLevel param0, CompoundTag param1) {
+        protected void addAdditionalSaveData(StructurePieceSerializationContext param0, CompoundTag param1) {
             super.addAdditionalSaveData(param0, param1);
             param1.putBoolean("tf", this.isTwoFloored);
             param1.putInt("D", this.direction.get2DDataValue());
@@ -714,12 +711,10 @@ public class MineShaftPieces {
         }
 
         @Override
-        public boolean postProcess(
+        public void postProcess(
             WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
-            if (this.edgesLiquid(param0, param4)) {
-                return false;
-            } else {
+            if (!this.edgesLiquid(param0, param4)) {
                 BlockState var0 = this.type.getPlanksState();
                 if (this.isTwoFloored) {
                     this.generateBox(
@@ -836,7 +831,6 @@ public class MineShaftPieces {
                     }
                 }
 
-                return true;
             }
         }
 
@@ -871,7 +865,7 @@ public class MineShaftPieces {
         }
 
         @Override
-        protected void addAdditionalSaveData(ServerLevel param0, CompoundTag param1) {
+        protected void addAdditionalSaveData(StructurePieceSerializationContext param0, CompoundTag param1) {
             param1.putInt("MST", this.type.ordinal());
         }
 
@@ -958,11 +952,11 @@ public class MineShaftPieces {
             this.type = param4;
         }
 
-        public MineShaftRoom(ServerLevel param0, CompoundTag param1) {
-            super(StructurePieceType.MINE_SHAFT_ROOM, param1);
+        public MineShaftRoom(CompoundTag param0) {
+            super(StructurePieceType.MINE_SHAFT_ROOM, param0);
             BoundingBox.CODEC
                 .listOf()
-                .parse(NbtOps.INSTANCE, param1.getList("Entrances", 11))
+                .parse(NbtOps.INSTANCE, param0.getList("Entrances", 11))
                 .resultOrPartial(MineShaftPieces.LOGGER::error)
                 .ifPresent(this.childEntranceBoxes::addAll);
         }
@@ -1071,12 +1065,10 @@ public class MineShaftPieces {
         }
 
         @Override
-        public boolean postProcess(
+        public void postProcess(
             WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
-            if (this.edgesLiquid(param0, param4)) {
-                return false;
-            } else {
+            if (!this.edgesLiquid(param0, param4)) {
                 this.generateBox(
                     param0,
                     param4,
@@ -1109,7 +1101,6 @@ public class MineShaftPieces {
                     CAVE_AIR,
                     false
                 );
-                return true;
             }
         }
 
@@ -1124,7 +1115,7 @@ public class MineShaftPieces {
         }
 
         @Override
-        protected void addAdditionalSaveData(ServerLevel param0, CompoundTag param1) {
+        protected void addAdditionalSaveData(StructurePieceSerializationContext param0, CompoundTag param1) {
             super.addAdditionalSaveData(param0, param1);
             BoundingBox.CODEC
                 .listOf()
@@ -1140,8 +1131,8 @@ public class MineShaftPieces {
             this.setOrientation(param2);
         }
 
-        public MineShaftStairs(ServerLevel param0, CompoundTag param1) {
-            super(StructurePieceType.MINE_SHAFT_STAIRS, param1);
+        public MineShaftStairs(CompoundTag param0) {
+            super(StructurePieceType.MINE_SHAFT_STAIRS, param0);
         }
 
         @Nullable
@@ -1188,12 +1179,10 @@ public class MineShaftPieces {
         }
 
         @Override
-        public boolean postProcess(
+        public void postProcess(
             WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
-            if (this.edgesLiquid(param0, param4)) {
-                return false;
-            } else {
+            if (!this.edgesLiquid(param0, param4)) {
                 this.generateBox(param0, param4, 0, 5, 0, 2, 7, 1, CAVE_AIR, CAVE_AIR, false);
                 this.generateBox(param0, param4, 0, 0, 7, 2, 2, 8, CAVE_AIR, CAVE_AIR, false);
 
@@ -1201,7 +1190,6 @@ public class MineShaftPieces {
                     this.generateBox(param0, param4, 0, 5 - var0 - (var0 < 4 ? 1 : 0), 2 + var0, 2, 7 - var0, 2 + var0, CAVE_AIR, CAVE_AIR, false);
                 }
 
-                return true;
             }
         }
     }

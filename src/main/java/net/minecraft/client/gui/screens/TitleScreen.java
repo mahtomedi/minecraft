@@ -15,6 +15,7 @@ import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ImageButton;
@@ -344,7 +345,7 @@ public class TitleScreen extends Screen {
                 var7 = var7 + ("release".equalsIgnoreCase(this.minecraft.getVersionType()) ? "" : "/" + this.minecraft.getVersionType());
             }
 
-            if (this.minecraft.isProbablyModded()) {
+            if (Minecraft.isProbablyModded()) {
                 var7 = var7 + I18n.get("menu.modded");
             }
 

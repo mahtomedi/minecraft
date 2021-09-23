@@ -1,12 +1,12 @@
 package net.minecraft.world.level.levelgen.structure;
 
+import java.util.Map;
 import java.util.Random;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.StructureFeatureManager;
@@ -18,6 +18,7 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.StructurePieceType;
 import net.minecraft.world.level.levelgen.feature.configurations.ShipwreckConfiguration;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSerializationContext;
 import net.minecraft.world.level.levelgen.structure.templatesystem.BlockIgnoreProcessor;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
@@ -60,6 +61,14 @@ public class ShipwreckPieces {
         new ResourceLocation("shipwreck/rightsideup_fronthalf_degraded"),
         new ResourceLocation("shipwreck/rightsideup_backhalf_degraded")
     };
+    static final Map<String, ResourceLocation> MARKERS_TO_LOOT = Map.of(
+        "map_chest",
+        BuiltInLootTables.SHIPWRECK_MAP,
+        "treasure_chest",
+        BuiltInLootTables.SHIPWRECK_TREASURE,
+        "supply_chest",
+        BuiltInLootTables.SHIPWRECK_SUPPLY
+    );
 
     public static void addPieces(
         StructureManager param0, BlockPos param1, Rotation param2, StructurePieceAccessor param3, Random param4, ShipwreckConfiguration param5
@@ -76,13 +85,13 @@ public class ShipwreckPieces {
             this.isBeached = param4;
         }
 
-        public ShipwreckPiece(ServerLevel param0, CompoundTag param1) {
+        public ShipwreckPiece(StructureManager param0, CompoundTag param1) {
             super(StructurePieceType.SHIPWRECK_PIECE, param1, param0, param1x -> makeSettings(Rotation.valueOf(param1.getString("Rot"))));
             this.isBeached = param1.getBoolean("isBeached");
         }
 
         @Override
-        protected void addAdditionalSaveData(ServerLevel param0, CompoundTag param1) {
+        protected void addAdditionalSaveData(StructurePieceSerializationContext param0, CompoundTag param1) {
             super.addAdditionalSaveData(param0, param1);
             param1.putBoolean("isBeached", this.isBeached);
             param1.putString("Rot", this.placeSettings.getRotation().name());
@@ -98,18 +107,15 @@ public class ShipwreckPieces {
 
         @Override
         protected void handleDataMarker(String param0, BlockPos param1, ServerLevelAccessor param2, Random param3, BoundingBox param4) {
-            if ("map_chest".equals(param0)) {
-                RandomizableContainerBlockEntity.setLootTable(param2, param3, param1.below(), BuiltInLootTables.SHIPWRECK_MAP);
-            } else if ("treasure_chest".equals(param0)) {
-                RandomizableContainerBlockEntity.setLootTable(param2, param3, param1.below(), BuiltInLootTables.SHIPWRECK_TREASURE);
-            } else if ("supply_chest".equals(param0)) {
-                RandomizableContainerBlockEntity.setLootTable(param2, param3, param1.below(), BuiltInLootTables.SHIPWRECK_SUPPLY);
+            ResourceLocation var0 = ShipwreckPieces.MARKERS_TO_LOOT.get(param0);
+            if (var0 != null) {
+                RandomizableContainerBlockEntity.setLootTable(param2, param3, param1.below(), var0);
             }
 
         }
 
         @Override
-        public boolean postProcess(
+        public void postProcess(
             WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
             int var0 = param0.getMaxBuildHeight();
@@ -133,7 +139,7 @@ public class ShipwreckPieces {
 
             int var8 = this.isBeached ? var0 - var2.getY() / 2 - param3.nextInt(3) : var1;
             this.templatePosition = new BlockPos(this.templatePosition.getX(), var8, this.templatePosition.getZ());
-            return super.postProcess(param0, param1, param2, param3, param4, param5, param6);
+            super.postProcess(param0, param1, param2, param3, param4, param5, param6);
         }
     }
 }

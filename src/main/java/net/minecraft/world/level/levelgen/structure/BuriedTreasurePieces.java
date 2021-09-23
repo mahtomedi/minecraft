@@ -4,7 +4,6 @@ import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.WorldGenLevel;
@@ -13,6 +12,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.StructurePieceType;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSerializationContext;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 
 public class BuriedTreasurePieces {
@@ -21,16 +21,16 @@ public class BuriedTreasurePieces {
             super(StructurePieceType.BURIED_TREASURE_PIECE, 0, new BoundingBox(param0));
         }
 
-        public BuriedTreasurePiece(ServerLevel param0, CompoundTag param1) {
-            super(StructurePieceType.BURIED_TREASURE_PIECE, param1);
+        public BuriedTreasurePiece(CompoundTag param0) {
+            super(StructurePieceType.BURIED_TREASURE_PIECE, param0);
         }
 
         @Override
-        protected void addAdditionalSaveData(ServerLevel param0, CompoundTag param1) {
+        protected void addAdditionalSaveData(StructurePieceSerializationContext param0, CompoundTag param1) {
         }
 
         @Override
-        public boolean postProcess(
+        public void postProcess(
             WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
             int var0 = param0.getHeight(Heightmap.Types.OCEAN_FLOOR_WG, this.boundingBox.minX(), this.boundingBox.minZ());
@@ -61,13 +61,13 @@ public class BuriedTreasurePieces {
                     }
 
                     this.boundingBox = new BoundingBox(var1);
-                    return this.createChest(param0, param4, param3, var1, BuiltInLootTables.BURIED_TREASURE, null);
+                    this.createChest(param0, param4, param3, var1, BuiltInLootTables.BURIED_TREASURE, null);
+                    return;
                 }
 
                 var1.move(0, -1, 0);
             }
 
-            return false;
         }
 
         private boolean isLiquid(BlockState param0) {

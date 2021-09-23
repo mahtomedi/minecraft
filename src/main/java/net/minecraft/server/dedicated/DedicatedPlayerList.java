@@ -15,6 +15,7 @@ public class DedicatedPlayerList extends PlayerList {
         super(param0, param1, param2, param0.getProperties().maxPlayers);
         DedicatedServerProperties var0 = param0.getProperties();
         this.setViewDistance(var0.viewDistance);
+        this.setSimulationDistance(var0.simulationDistance);
         super.setUsingWhiteList(var0.whiteList.get());
         this.loadUserBanList();
         this.saveUserBanList();
