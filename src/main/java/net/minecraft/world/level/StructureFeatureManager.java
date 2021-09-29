@@ -1,7 +1,9 @@
 package net.minecraft.world.level;
 
-import com.mojang.datafixers.DataFixUtils;
-import java.util.stream.Stream;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
+import it.unimi.dsi.fastutil.longs.LongSet;
+import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
@@ -10,6 +12,7 @@ import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.FeatureAccess;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
+import net.minecraft.world.level.levelgen.structure.StructurePiece;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 
 public class StructureFeatureManager {
@@ -29,14 +32,19 @@ public class StructureFeatureManager {
         }
     }
 
-    public Stream<? extends StructureStart<?>> startsForFeature(SectionPos param0, StructureFeature<?> param1) {
-        return this.level
-            .getChunk(param0.x(), param0.z(), ChunkStatus.STRUCTURE_REFERENCES)
-            .getReferencesForFeature(param1)
-            .stream()
-            .map(param0x -> SectionPos.of(new ChunkPos(param0x), this.level.getMinSection()))
-            .map(param1x -> this.getStartForFeature(param1x, param1, this.level.getChunk(param1x.x(), param1x.z(), ChunkStatus.STRUCTURE_STARTS)))
-            .filter(param0x -> param0x != null && param0x.isValid());
+    public List<? extends StructureStart<?>> startsForFeature(SectionPos param0, StructureFeature<?> param1) {
+        LongSet var0 = this.level.getChunk(param0.x(), param0.z(), ChunkStatus.STRUCTURE_REFERENCES).getReferencesForFeature(param1);
+        Builder<StructureStart<?>> var1 = ImmutableList.builder();
+
+        for(long var2 : var0) {
+            SectionPos var3 = SectionPos.of(new ChunkPos(var2), this.level.getMinSection());
+            StructureStart<?> var4 = this.getStartForFeature(var3, param1, this.level.getChunk(var3.x(), var3.z(), ChunkStatus.STRUCTURE_STARTS));
+            if (var4 != null && var4.isValid()) {
+                var1.add(var4);
+            }
+        }
+
+        return var1.build();
     }
 
     @Nullable
@@ -56,16 +64,30 @@ public class StructureFeatureManager {
         return this.worldGenSettings.generateFeatures();
     }
 
-    public StructureStart<?> getStructureAt(BlockPos param0, boolean param1, StructureFeature<?> param2) {
-        return DataFixUtils.orElse(
-            this.startsForFeature(SectionPos.of(param0), param2)
-                .filter(
-                    param2x -> param1
-                            ? param2x.getPieces().stream().anyMatch(param1x -> param1x.getBoundingBox().isInside(param0))
-                            : param2x.getBoundingBox().isInside(param0)
-                )
-                .findFirst(),
-            StructureStart.INVALID_START
-        );
+    public StructureStart<?> getStructureAt(BlockPos param0, StructureFeature<?> param1) {
+        for(StructureStart<?> var0 : this.startsForFeature(SectionPos.of(param0), param1)) {
+            if (var0.getBoundingBox().isInside(param0)) {
+                return var0;
+            }
+        }
+
+        return StructureStart.INVALID_START;
+    }
+
+    public StructureStart<?> getStructureWithPieceAt(BlockPos param0, StructureFeature<?> param1) {
+        for(StructureStart<?> var0 : this.startsForFeature(SectionPos.of(param0), param1)) {
+            for(StructurePiece var1 : var0.getPieces()) {
+                if (var1.getBoundingBox().isInside(param0)) {
+                    return var0;
+                }
+            }
+        }
+
+        return StructureStart.INVALID_START;
+    }
+
+    public boolean hasAnyStructureAt(BlockPos param0) {
+        SectionPos var0 = SectionPos.of(param0);
+        return this.level.getChunk(var0.x(), var0.z(), ChunkStatus.STRUCTURE_REFERENCES).hasAnyStructureReferences();
     }
 }

@@ -2,6 +2,7 @@ package net.minecraft.client.gui.screens.controls;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
+import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Options;
@@ -15,6 +16,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class KeyBindsScreen extends OptionsSubScreen {
+    @Nullable
     public KeyMapping selectedKey;
     public long lastKeySelection;
     private KeyBindsList keyBindsList;

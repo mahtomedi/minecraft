@@ -8,14 +8,6 @@ public class CompoundContainer implements Container {
     private final Container container2;
 
     public CompoundContainer(Container param0, Container param1) {
-        if (param0 == null) {
-            param0 = param1;
-        }
-
-        if (param1 == null) {
-            param1 = param0;
-        }
-
         this.container1 = param0;
         this.container2 = param1;
     }

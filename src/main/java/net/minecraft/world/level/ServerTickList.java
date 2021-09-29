@@ -105,7 +105,7 @@ public class ServerTickList<T> implements TickList<T> {
     public List<TickNextTickData<T>> fetchTicksInArea(BoundingBox param0, boolean param1, boolean param2) {
         List<TickNextTickData<T>> var0 = this.fetchTicksInArea(null, this.tickNextTickList, param0, param1);
         if (param1 && var0 != null) {
-            this.tickNextTickSet.removeAll(var0);
+            var0.forEach(this.tickNextTickSet::remove);
         }
 
         var0 = this.fetchTicksInArea(var0, this.currentlyTicking, param0, param1);

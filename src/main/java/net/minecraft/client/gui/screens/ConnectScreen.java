@@ -50,6 +50,7 @@ public class ConnectScreen extends Screen {
     public static void startConnecting(Screen param0, Minecraft param1, ServerAddress param2, @Nullable ServerData param3) {
         ConnectScreen var0 = new ConnectScreen(param0);
         param1.clearLevel();
+        param1.prepareForMultiplayer();
         param1.setCurrentServer(param3);
         param1.setScreen(var0);
         var0.connect(param1, param2);

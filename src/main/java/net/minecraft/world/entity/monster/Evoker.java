@@ -38,6 +38,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class Evoker extends SpellcasterIllager {
+    @Nullable
     private Sheep wololoTarget;
 
     public Evoker(EntityType<? extends Evoker> param0, Level param1) {

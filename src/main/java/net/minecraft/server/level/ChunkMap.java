@@ -5,6 +5,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Queues;
 import com.google.common.collect.Sets;
+import com.google.common.collect.ImmutableList.Builder;
 import com.google.gson.JsonElement;
 import com.mojang.datafixers.DataFixer;
 import com.mojang.datafixers.util.Either;
@@ -37,7 +38,6 @@ import java.util.function.IntFunction;
 import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
@@ -836,7 +836,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
                 printFuture(var5.getTickingChunkFuture()),
                 printFuture(var5.getEntityTickingChunkFuture()),
                 this.distanceManager.getTicketDebugString(var3),
-                !this.noPlayersCloseForSpawning(var4),
+                this.anyPlayerCloseEnoughForSpawning(var4),
                 var7.<Integer>map(param0x -> param0x.getBlockEntities().size()).orElse(0),
                 var1.getTicketDebugString(var3),
                 var1.getLevel(var3)
@@ -862,15 +862,45 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
         return var0 == null ? null : this.upgradeChunkTag(this.level.dimension(), this.overworldDataStorage, var0);
     }
 
-    boolean noPlayersCloseForSpawning(ChunkPos param0) {
-        return this.getPlayersCloseForSpawning(param0).findAny().isEmpty();
+    boolean anyPlayerCloseEnoughForSpawning(ChunkPos param0) {
+        long var0 = param0.toLong();
+        if (!this.distanceManager.hasPlayersNearby(var0)) {
+            return false;
+        } else {
+            for(ServerPlayer var1 : this.playerMap.getPlayers(var0)) {
+                if (this.playerIsCloseEnoughForSpawning(var1, param0)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 
-    public Stream<ServerPlayer> getPlayersCloseForSpawning(ChunkPos param0) {
+    public List<ServerPlayer> getPlayersCloseForSpawning(ChunkPos param0) {
         long var0 = param0.toLong();
-        return !this.distanceManager.hasPlayersNearby(var0)
-            ? Stream.empty()
-            : this.playerMap.getPlayers(var0).filter(param1 -> !param1.isSpectator() && euclideanDistanceSquared(param0, param1) < 16384.0);
+        if (!this.distanceManager.hasPlayersNearby(var0)) {
+            return List.of();
+        } else {
+            Builder<ServerPlayer> var1 = ImmutableList.builder();
+
+            for(ServerPlayer var2 : this.playerMap.getPlayers(var0)) {
+                if (this.playerIsCloseEnoughForSpawning(var2, param0)) {
+                    var1.add(var2);
+                }
+            }
+
+            return var1.build();
+        }
+    }
+
+    private boolean playerIsCloseEnoughForSpawning(ServerPlayer param0, ChunkPos param1) {
+        if (param0.isSpectator()) {
+            return false;
+        } else {
+            double var0 = euclideanDistanceSquared(param1, param0);
+            return var0 < 16384.0;
+        }
     }
 
     private boolean skipPlayer(ServerPlayer param0) {
@@ -998,18 +1028,18 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
     }
 
     @Override
-    public Stream<ServerPlayer> getPlayers(ChunkPos param0, boolean param1) {
-        return this.playerMap.getPlayers(param0.toLong()).filter(param2 -> {
-            if (param1) {
-                if (isChunkOnEuclideanBorder(param0, param2, true, this.viewDistance)) {
-                    return true;
-                }
-            } else if (isChunkInEuclideanRange(param0, param2, true, this.viewDistance)) {
-                return true;
-            }
+    public List<ServerPlayer> getPlayers(ChunkPos param0, boolean param1) {
+        Set<ServerPlayer> var0 = this.playerMap.getPlayers(param0.toLong());
+        Builder<ServerPlayer> var1 = ImmutableList.builder();
 
-            return false;
-        });
+        for(ServerPlayer var2 : var0) {
+            if (param1 && isChunkOnEuclideanBorder(param0, var2, true, this.viewDistance)
+                || !param1 && isChunkInEuclideanRange(param0, var2, true, this.viewDistance)) {
+                var1.add(var2);
+            }
+        }
+
+        return var1.build();
     }
 
     protected void addEntity(Entity param0) {

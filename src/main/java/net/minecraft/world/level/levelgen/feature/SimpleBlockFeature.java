@@ -17,25 +17,21 @@ public class SimpleBlockFeature extends Feature<SimpleBlockConfiguration> {
         SimpleBlockConfiguration var0 = param0.config();
         WorldGenLevel var1 = param0.level();
         BlockPos var2 = param0.origin();
-        if ((var0.placeOn.isEmpty() || var0.placeOn.contains(var1.getBlockState(var2.below())))
-            && (var0.placeIn.isEmpty() || var0.placeIn.contains(var1.getBlockState(var2)))
-            && (var0.placeUnder.isEmpty() || var0.placeUnder.contains(var1.getBlockState(var2.above())))) {
-            BlockState var3 = var0.toPlace.getState(param0.random(), var2);
-            if (var3.canSurvive(var1, var2)) {
-                if (var3.getBlock() instanceof DoublePlantBlock) {
-                    if (!var1.isEmptyBlock(var2.above())) {
-                        return false;
-                    }
-
-                    DoublePlantBlock.placeAt(var1, var3, var2, 2);
-                } else {
-                    var1.setBlock(var2, var3, 2);
+        BlockState var3 = var0.toPlace().getState(param0.random(), var2);
+        if (var3.canSurvive(var1, var2)) {
+            if (var3.getBlock() instanceof DoublePlantBlock) {
+                if (!var1.isEmptyBlock(var2.above())) {
+                    return false;
                 }
 
-                return true;
+                DoublePlantBlock.placeAt(var1, var3, var2, 2);
+            } else {
+                var1.setBlock(var2, var3, 2);
             }
-        }
 
-        return false;
+            return true;
+        } else {
+            return false;
+        }
     }
 }

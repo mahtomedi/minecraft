@@ -327,51 +327,61 @@ public class ServerChunkCache extends ChunkSource {
 
     private void tickChunks() {
         long var0 = this.level.getGameTime();
-        long var1 = var0 - this.lastInhabitedUpdate;
         this.lastInhabitedUpdate = var0;
-        LevelData var2 = this.level.getLevelData();
-        boolean var3 = this.level.isDebug();
-        boolean var4 = this.level.getGameRules().getBoolean(GameRules.RULE_DOMOBSPAWNING);
-        if (!var3) {
-            this.level.getProfiler().push("pollingChunks");
-            int var5 = this.level.getGameRules().getInt(GameRules.RULE_RANDOMTICKING);
-            boolean var6 = var2.getGameTime() % 400L == 0L;
-            this.level.getProfiler().push("naturalSpawnCount");
-            int var7 = this.distanceManager.getNaturalSpawnChunkCount();
-            NaturalSpawner.SpawnState var8 = NaturalSpawner.createState(
-                var7, this.level.getAllEntities(), this::getFullChunk, new LocalMobCapCalculator(this.chunkMap)
+        boolean var1 = this.level.isDebug();
+        if (var1) {
+            this.chunkMap.tick();
+        } else {
+            LevelData var2 = this.level.getLevelData();
+            ProfilerFiller var3 = this.level.getProfiler();
+            var3.push("pollingChunks");
+            int var4 = this.level.getGameRules().getInt(GameRules.RULE_RANDOMTICKING);
+            boolean var5 = var2.getGameTime() % 400L == 0L;
+            var3.push("naturalSpawnCount");
+            int var6 = this.distanceManager.getNaturalSpawnChunkCount();
+            NaturalSpawner.SpawnState var7 = NaturalSpawner.createState(
+                var6, this.level.getAllEntities(), this::getFullChunk, new LocalMobCapCalculator(this.chunkMap)
             );
-            this.lastSpawnState = var8;
-            this.level.getProfiler().pop();
-            List<ChunkHolder> var9 = Lists.newArrayList(this.chunkMap.getChunks());
-            Collections.shuffle(var9);
-            var9.forEach(param5 -> {
-                Optional<LevelChunk> var0x = param5.getTickingChunkFuture().getNow(ChunkHolder.UNLOADED_LEVEL_CHUNK).left();
-                if (var0x.isPresent()) {
-                    LevelChunk var1x = var0x.get();
-                    ChunkPos var2x = var1x.getPos();
-                    if (this.level.isPositionEntityTicking(var2x) && !this.chunkMap.noPlayersCloseForSpawning(var2x)) {
-                        var1x.setInhabitedTime(var1x.getInhabitedTime() + var1);
-                        if (var4 && (this.spawnEnemies || this.spawnFriendlies) && this.level.getWorldBorder().isWithinBounds(var2x)) {
-                            NaturalSpawner.spawnForChunk(this.level, var1x, var8, this.spawnFriendlies, this.spawnEnemies, var6);
-                        }
+            this.lastSpawnState = var7;
+            var3.popPush("filteringLoadedChunks");
+            List<ServerChunkCache.ChunkAndHolder> var8 = Lists.newArrayListWithCapacity(var6);
 
-                        this.level.tickChunk(var1x, var5);
-                    }
+            for(ChunkHolder var9 : this.chunkMap.getChunks()) {
+                LevelChunk var10 = var9.getTickingChunk();
+                if (var10 != null) {
+                    var8.add(new ServerChunkCache.ChunkAndHolder(var10, var9));
                 }
-            });
-            this.level.getProfiler().push("customSpawners");
-            if (var4) {
+            }
+
+            var3.popPush("spawnAndTick");
+            boolean var11 = this.level.getGameRules().getBoolean(GameRules.RULE_DOMOBSPAWNING);
+            long var12 = var0 - this.lastInhabitedUpdate;
+            Collections.shuffle(var8);
+
+            for(ServerChunkCache.ChunkAndHolder var13 : var8) {
+                LevelChunk var14 = var13.chunk;
+                ChunkPos var15 = var14.getPos();
+                if (this.level.isPositionEntityTicking(var15) && this.chunkMap.anyPlayerCloseEnoughForSpawning(var15)) {
+                    var14.incrementInhabitedTime(var12);
+                    if (var11 && (this.spawnEnemies || this.spawnFriendlies) && this.level.getWorldBorder().isWithinBounds(var15)) {
+                        NaturalSpawner.spawnForChunk(this.level, var14, var7, this.spawnFriendlies, this.spawnEnemies, var5);
+                    }
+
+                    this.level.tickChunk(var14, var4);
+                }
+            }
+
+            var3.popPush("customSpawners");
+            if (var11) {
                 this.level.tickCustomSpawners(this.spawnEnemies, this.spawnFriendlies);
             }
 
-            this.level.getProfiler().popPush("broadcast");
-            var9.forEach(param0 -> param0.getTickingChunkFuture().getNow(ChunkHolder.UNLOADED_LEVEL_CHUNK).left().ifPresent(param0::broadcastChanges));
-            this.level.getProfiler().pop();
-            this.level.getProfiler().pop();
+            var3.popPush("broadcast");
+            var8.forEach(param0 -> param0.holder.broadcastChanges(param0.chunk));
+            var3.pop();
+            var3.pop();
+            this.chunkMap.tick();
         }
-
-        this.chunkMap.tick();
     }
 
     private void getFullChunk(long param0, Consumer<LevelChunk> param1) {
@@ -485,6 +495,9 @@ public class ServerChunkCache extends ChunkSource {
     @VisibleForDebug
     public NaturalSpawner.SpawnState getLastSpawnState() {
         return this.lastSpawnState;
+    }
+
+    static record ChunkAndHolder(LevelChunk chunk, ChunkHolder holder) {
     }
 
     final class MainThreadExecutor extends BlockableEventLoop<Runnable> {

@@ -2,13 +2,13 @@ package net.minecraft.world.level.levelgen.carver;
 
 import com.google.common.collect.ImmutableSet;
 import com.mojang.serialization.Codec;
-import java.util.BitSet;
 import java.util.Random;
 import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.CarvingMask;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.levelgen.Aquifer;
 import net.minecraft.world.level.material.Fluids;
@@ -59,22 +59,21 @@ public class NetherWorldCarver extends CaveWorldCarver {
         CaveCarverConfiguration param1,
         ChunkAccess param2,
         Function<BlockPos, Biome> param3,
-        BitSet param4,
-        Random param5,
+        CarvingMask param4,
+        BlockPos.MutableBlockPos param5,
         BlockPos.MutableBlockPos param6,
-        BlockPos.MutableBlockPos param7,
-        Aquifer param8,
-        MutableBoolean param9
+        Aquifer param7,
+        MutableBoolean param8
     ) {
-        if (this.canReplaceBlock(param2.getBlockState(param6))) {
+        if (this.canReplaceBlock(param2.getBlockState(param5))) {
             BlockState var0;
-            if (param6.getY() <= param0.getMinGenY() + 31) {
+            if (param5.getY() <= param0.getMinGenY() + 31) {
                 var0 = LAVA.createLegacyBlock();
             } else {
                 var0 = CAVE_AIR;
             }
 
-            param2.setBlockState(param6, var0, false);
+            param2.setBlockState(param5, var0, false);
             return true;
         } else {
             return false;

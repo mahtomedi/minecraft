@@ -20,6 +20,7 @@ public abstract class TargetGoal extends Goal {
     private int reachCache;
     private int reachCacheTime;
     private int unseenTicks;
+    @Nullable
     protected LivingEntity targetMob;
     protected int unseenMemoryTicks = 60;
 
@@ -57,7 +58,7 @@ public abstract class TargetGoal extends Goal {
                     if (this.mustSee) {
                         if (this.mob.getSensing().hasLineOfSight(var0)) {
                             this.unseenTicks = 0;
-                        } else if (++this.unseenTicks > this.unseenMemoryTicks) {
+                        } else if (++this.unseenTicks > reducedTickDelay(this.unseenMemoryTicks)) {
                             return false;
                         }
                     }
@@ -113,7 +114,7 @@ public abstract class TargetGoal extends Goal {
     }
 
     private boolean canReach(LivingEntity param0) {
-        this.reachCacheTime = 10 + this.mob.getRandom().nextInt(5);
+        this.reachCacheTime = reducedTickDelay(10 + this.mob.getRandom().nextInt(5));
         Path var0 = this.mob.getNavigation().createPath(param0, 0);
         if (var0 == null) {
             return false;

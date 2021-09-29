@@ -7,6 +7,7 @@ import com.mojang.authlib.minecraft.UserApiService;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -20,6 +21,8 @@ public class PlayerSocialManager {
     private final Set<UUID> hiddenPlayers = Sets.newHashSet();
     private final UserApiService service;
     private final Map<String, UUID> discoveredNamesToUUID = Maps.newHashMap();
+    private boolean onlineMode;
+    private CompletableFuture<?> pendingBlockListRefresh = CompletableFuture.completedFuture(null);
 
     public PlayerSocialManager(Minecraft param0, UserApiService param1) {
         this.minecraft = param0;
@@ -42,8 +45,22 @@ public class PlayerSocialManager {
         return this.hiddenPlayers.contains(param0);
     }
 
+    public void startOnlineMode() {
+        this.onlineMode = true;
+        this.pendingBlockListRefresh = this.pendingBlockListRefresh.thenRunAsync(this.service::refreshBlockList, Util.ioPool());
+    }
+
+    public void stopOnlineMode() {
+        this.onlineMode = false;
+    }
+
     public boolean isBlocked(UUID param0) {
-        return this.service.isBlockedPlayer(param0);
+        if (!this.onlineMode) {
+            return false;
+        } else {
+            this.pendingBlockListRefresh.join();
+            return this.service.isBlockedPlayer(param0);
+        }
     }
 
     public Set<UUID> getHiddenPlayers() {

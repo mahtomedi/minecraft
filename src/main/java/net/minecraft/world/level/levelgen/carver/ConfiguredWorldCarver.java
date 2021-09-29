@@ -1,7 +1,6 @@
 package net.minecraft.world.level.levelgen.carver;
 
 import com.mojang.serialization.Codec;
-import java.util.BitSet;
 import java.util.List;
 import java.util.Random;
 import java.util.function.Function;
@@ -12,6 +11,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.resources.RegistryFileCodec;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.chunk.CarvingMask;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.levelgen.Aquifer;
 
@@ -38,7 +38,7 @@ public class ConfiguredWorldCarver<WC extends CarverConfiguration> {
     }
 
     public boolean carve(
-        CarvingContext param0, ChunkAccess param1, Function<BlockPos, Biome> param2, Random param3, Aquifer param4, ChunkPos param5, BitSet param6
+        CarvingContext param0, ChunkAccess param1, Function<BlockPos, Biome> param2, Random param3, Aquifer param4, ChunkPos param5, CarvingMask param6
     ) {
         return SharedConstants.debugVoidTerrain(param1.getPos().getMinBlockX(), param1.getPos().getMinBlockZ())
             ? false

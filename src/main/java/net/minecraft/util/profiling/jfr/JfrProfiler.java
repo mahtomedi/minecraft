@@ -181,7 +181,7 @@ public class JfrProfiler implements JvmProfiler {
     @Override
     public void onPacketSent(Supplier<String> param0, SocketAddress param1, int param2) {
         if (EventType.getEventType(PacketSentEvent.class).isEnabled()) {
-            new PacketReceivedEvent(param0.get(), param1, param2).commit();
+            new PacketSentEvent(param0.get(), param1, param2).commit();
         }
 
     }

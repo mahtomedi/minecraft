@@ -17,7 +17,7 @@ import net.minecraft.world.level.Level;
 
 public class ChaseCommand {
     private static final String DEFAULT_CONNECT_HOST = "localhost";
-    private static final String DEFAULT_BIND_ADDRESS = "localhost";
+    private static final String DEFAULT_BIND_ADDRESS = "0.0.0.0";
     private static final int DEFAULT_PORT = 10000;
     private static final int BROADCAST_INTERVAL_MS = 100;
     public static BiMap<String, ResourceKey<Level>> DIMENSION_NAMES = ImmutableBiMap.of("o", Level.OVERWORLD, "n", Level.NETHER, "e", Level.END);
@@ -63,7 +63,7 @@ public class ChaseCommand {
                                         )
                                 )
                         )
-                        .executes(param0x -> lead(param0x.getSource(), "localhost", 10000))
+                        .executes(param0x -> lead(param0x.getSource(), "0.0.0.0", 10000))
                 )
                 .then(Commands.literal("stop").executes(param0x -> stop(param0x.getSource())))
         );

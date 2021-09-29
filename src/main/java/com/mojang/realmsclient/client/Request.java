@@ -10,6 +10,8 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import javax.annotation.Nullable;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -85,7 +87,7 @@ public abstract class Request<T extends Request<T>> {
     public String text() {
         try {
             this.connect();
-            String var0 = null;
+            String var0;
             if (this.responseCode() >= 400) {
                 var0 = this.read(this.connection.getErrorStream());
             } else {
@@ -94,16 +96,16 @@ public abstract class Request<T extends Request<T>> {
 
             this.dispose();
             return var0;
-        } catch (IOException var2) {
-            throw new RealmsHttpException(var2.getMessage(), var2);
+        } catch (IOException var21) {
+            throw new RealmsHttpException(var21.getMessage(), var21);
         }
     }
 
-    private String read(InputStream param0) throws IOException {
+    private String read(@Nullable InputStream param0) throws IOException {
         if (param0 == null) {
             return "";
         } else {
-            InputStreamReader var0 = new InputStreamReader(param0, "UTF-8");
+            InputStreamReader var0 = new InputStreamReader(param0, StandardCharsets.UTF_8);
             StringBuilder var1 = new StringBuilder();
 
             for(int var2 = var0.read(); var2 != -1; var2 = var0.read()) {

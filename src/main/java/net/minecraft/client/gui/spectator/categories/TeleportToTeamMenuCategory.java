@@ -75,7 +75,7 @@ public class TeleportToTeamMenuCategory implements SpectatorMenuCategory, Specta
     }
 
     @OnlyIn(Dist.CLIENT)
-    class TeamSelectionItem implements SpectatorMenuItem {
+    static class TeamSelectionItem implements SpectatorMenuItem {
         private final PlayerTeam team;
         private final ResourceLocation location;
         private final List<PlayerInfo> players;
@@ -84,19 +84,19 @@ public class TeleportToTeamMenuCategory implements SpectatorMenuCategory, Specta
             this.team = param0;
             this.players = Lists.newArrayList();
 
-            for(String param1 : param0.getPlayers()) {
-                PlayerInfo var0 = Minecraft.getInstance().getConnection().getPlayerInfo(param1);
-                if (var0 != null) {
-                    this.players.add(var0);
+            for(String var0 : param0.getPlayers()) {
+                PlayerInfo var1 = Minecraft.getInstance().getConnection().getPlayerInfo(var0);
+                if (var1 != null) {
+                    this.players.add(var1);
                 }
             }
 
             if (this.players.isEmpty()) {
                 this.location = DefaultPlayerSkin.getDefaultSkin();
             } else {
-                String var1 = this.players.get(new Random().nextInt(this.players.size())).getProfile().getName();
-                this.location = AbstractClientPlayer.getSkinLocation(var1);
-                AbstractClientPlayer.registerSkinTexture(this.location, var1);
+                String var2 = this.players.get(new Random().nextInt(this.players.size())).getProfile().getName();
+                this.location = AbstractClientPlayer.getSkinLocation(var2);
+                AbstractClientPlayer.registerSkinTexture(this.location, var2);
             }
 
         }

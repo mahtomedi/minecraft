@@ -72,7 +72,6 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.W
     static final Component SNAPSHOT_TOOLTIP_2 = new TranslatableComponent("selectWorld.tooltip.snapshot2").withStyle(ChatFormatting.GOLD);
     static final Component WORLD_LOCKED_TOOLTIP = new TranslatableComponent("selectWorld.locked").withStyle(ChatFormatting.RED);
     static final Component WORLD_REQUIRES_CONVERSION = new TranslatableComponent("selectWorld.conversion.tooltip").withStyle(ChatFormatting.RED);
-    static final Component WORLD_PRE_WORLDHEIGHT_TOOLTIP = new TranslatableComponent("selectWorld.pre_worldheight").withStyle(ChatFormatting.RED);
     private final SelectWorldScreen screen;
     @Nullable
     private List<LevelSummary> cachedList;
@@ -173,6 +172,7 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.W
         private final SelectWorldScreen screen;
         final LevelSummary summary;
         private final ResourceLocation iconLocation;
+        @Nullable
         private File iconFile;
         @Nullable
         private final DynamicTexture icon;
@@ -209,8 +209,6 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.W
             Component var1;
             if (this.summary.isLocked()) {
                 var1 = CommonComponents.joinForNarration(var0, WorldSelectionList.WORLD_LOCKED_TOOLTIP);
-            } else if (this.summary.isIncompatibleWorldHeight()) {
-                var1 = CommonComponents.joinForNarration(var0, WorldSelectionList.WORLD_PRE_WORLDHEIGHT_TOOLTIP);
             } else {
                 var1 = var0;
             }
@@ -253,11 +251,6 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.W
                     GuiComponent.blit(param0, param3, param2, 96.0F, (float)var5, 32, 32, 256, 256);
                     if (var4) {
                         this.screen.setToolTip(this.minecraft.font.split(WorldSelectionList.WORLD_REQUIRES_CONVERSION, 175));
-                    }
-                } else if (this.summary.isIncompatibleWorldHeight()) {
-                    GuiComponent.blit(param0, param3, param2, 96.0F, 32.0F, 32, 32, 256, 256);
-                    if (var4) {
-                        this.screen.setToolTip(this.minecraft.font.split(WorldSelectionList.WORLD_PRE_WORLDHEIGHT_TOOLTIP, 175));
                     }
                 } else if (this.summary.markVersionInList()) {
                     GuiComponent.blit(param0, param3, param2, 32.0F, (float)var5, 32, 32, 256, 256);

@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import javax.annotation.Nullable;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -110,7 +111,9 @@ public class TextRenderingUtils {
     @OnlyIn(Dist.CLIENT)
     public static class LineSegment {
         private final String fullText;
+        @Nullable
         private final String linkTitle;
+        @Nullable
         private final String linkUrl;
 
         private LineSegment(String param0) {
@@ -119,7 +122,7 @@ public class TextRenderingUtils {
             this.linkUrl = null;
         }
 
-        private LineSegment(String param0, String param1, String param2) {
+        private LineSegment(String param0, @Nullable String param1, @Nullable String param2) {
             this.fullText = param0;
             this.linkTitle = param1;
             this.linkUrl = param2;

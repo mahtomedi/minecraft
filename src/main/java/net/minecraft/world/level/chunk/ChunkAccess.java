@@ -317,6 +317,10 @@ public abstract class ChunkAccess implements BlockGetter, BiomeManager.NoiseBiom
         return this.inhabitedTime;
     }
 
+    public void incrementInhabitedTime(long param0) {
+        this.inhabitedTime += param0;
+    }
+
     public void setInhabitedTime(long param0) {
         this.inhabitedTime = param0;
     }
@@ -402,5 +406,9 @@ public abstract class ChunkAccess implements BlockGetter, BiomeManager.NoiseBiom
             var4.fillBiomesFromNoise(param0, param1, var1, var2);
         }
 
+    }
+
+    public boolean hasAnyStructureReferences() {
+        return !this.structuresRefences.isEmpty();
     }
 }

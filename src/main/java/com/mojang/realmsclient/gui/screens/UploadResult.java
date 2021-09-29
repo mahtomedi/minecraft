@@ -1,11 +1,13 @@
 package com.mojang.realmsclient.gui.screens;
 
+import javax.annotation.Nullable;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class UploadResult {
     public final int statusCode;
+    @Nullable
     public final String errorMessage;
 
     UploadResult(int param0, String param1) {
@@ -23,7 +25,7 @@ public class UploadResult {
             return this;
         }
 
-        public UploadResult.Builder withErrorMessage(String param0) {
+        public UploadResult.Builder withErrorMessage(@Nullable String param0) {
             this.errorMessage = param0;
             return this;
         }

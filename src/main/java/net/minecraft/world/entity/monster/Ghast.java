@@ -158,6 +158,11 @@ public class Ghast extends FlyingMob implements Enemy {
         }
 
         @Override
+        public boolean requiresUpdateEveryTick() {
+            return true;
+        }
+
+        @Override
         public void tick() {
             if (this.ghast.getTarget() == null) {
                 Vec3 var0 = this.ghast.getDeltaMovement();
@@ -242,36 +247,43 @@ public class Ghast extends FlyingMob implements Enemy {
         }
 
         @Override
+        public boolean requiresUpdateEveryTick() {
+            return true;
+        }
+
+        @Override
         public void tick() {
             LivingEntity var0 = this.ghast.getTarget();
-            double var1 = 64.0;
-            if (var0.distanceToSqr(this.ghast) < 4096.0 && this.ghast.hasLineOfSight(var0)) {
-                Level var2 = this.ghast.level;
-                ++this.chargeTime;
-                if (this.chargeTime == 10 && !this.ghast.isSilent()) {
-                    var2.levelEvent(null, 1015, this.ghast.blockPosition(), 0);
-                }
-
-                if (this.chargeTime == 20) {
-                    double var3 = 4.0;
-                    Vec3 var4 = this.ghast.getViewVector(1.0F);
-                    double var5 = var0.getX() - (this.ghast.getX() + var4.x * 4.0);
-                    double var6 = var0.getY(0.5) - (0.5 + this.ghast.getY(0.5));
-                    double var7 = var0.getZ() - (this.ghast.getZ() + var4.z * 4.0);
-                    if (!this.ghast.isSilent()) {
-                        var2.levelEvent(null, 1016, this.ghast.blockPosition(), 0);
+            if (var0 != null) {
+                double var1 = 64.0;
+                if (var0.distanceToSqr(this.ghast) < 4096.0 && this.ghast.hasLineOfSight(var0)) {
+                    Level var2 = this.ghast.level;
+                    ++this.chargeTime;
+                    if (this.chargeTime == 10 && !this.ghast.isSilent()) {
+                        var2.levelEvent(null, 1015, this.ghast.blockPosition(), 0);
                     }
 
-                    LargeFireball var8 = new LargeFireball(var2, this.ghast, var5, var6, var7, this.ghast.getExplosionPower());
-                    var8.setPos(this.ghast.getX() + var4.x * 4.0, this.ghast.getY(0.5) + 0.5, var8.getZ() + var4.z * 4.0);
-                    var2.addFreshEntity(var8);
-                    this.chargeTime = -40;
-                }
-            } else if (this.chargeTime > 0) {
-                --this.chargeTime;
-            }
+                    if (this.chargeTime == 20) {
+                        double var3 = 4.0;
+                        Vec3 var4 = this.ghast.getViewVector(1.0F);
+                        double var5 = var0.getX() - (this.ghast.getX() + var4.x * 4.0);
+                        double var6 = var0.getY(0.5) - (0.5 + this.ghast.getY(0.5));
+                        double var7 = var0.getZ() - (this.ghast.getZ() + var4.z * 4.0);
+                        if (!this.ghast.isSilent()) {
+                            var2.levelEvent(null, 1016, this.ghast.blockPosition(), 0);
+                        }
 
-            this.ghast.setCharging(this.chargeTime > 10);
+                        LargeFireball var8 = new LargeFireball(var2, this.ghast, var5, var6, var7, this.ghast.getExplosionPower());
+                        var8.setPos(this.ghast.getX() + var4.x * 4.0, this.ghast.getY(0.5) + 0.5, var8.getZ() + var4.z * 4.0);
+                        var2.addFreshEntity(var8);
+                        this.chargeTime = -40;
+                    }
+                } else if (this.chargeTime > 0) {
+                    --this.chargeTime;
+                }
+
+                this.ghast.setCharging(this.chargeTime > 10);
+            }
         }
     }
 

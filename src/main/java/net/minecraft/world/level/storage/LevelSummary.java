@@ -110,10 +110,6 @@ public class LevelSummary implements Comparable<LevelSummary> {
         return this.locked;
     }
 
-    public boolean isIncompatibleWorldHeight() {
-        return this.levelVersion.minecraftVersion().isInExtendedWorldHeightSegment();
-    }
-
     public boolean isDisabled() {
         if (!this.isLocked() && !this.requiresManualConversion()) {
             return !this.isCompatible();
@@ -123,7 +119,7 @@ public class LevelSummary implements Comparable<LevelSummary> {
     }
 
     public boolean isCompatible() {
-        return this.levelVersion.minecraftVersion().isCompatible(SharedConstants.getCurrentVersion().getDataVersion());
+        return SharedConstants.getCurrentVersion().getDataVersion().isCompatible(this.levelVersion.minecraftVersion());
     }
 
     public Component getInfo() {
@@ -139,9 +135,7 @@ public class LevelSummary implements Comparable<LevelSummary> {
             return new TranslatableComponent("selectWorld.locked").withStyle(ChatFormatting.RED);
         } else if (this.requiresManualConversion()) {
             return new TranslatableComponent("selectWorld.conversion").withStyle(ChatFormatting.RED);
-        } else if (this.isIncompatibleWorldHeight()) {
-            return new TranslatableComponent("selectWorld.pre_worldheight").withStyle(ChatFormatting.RED);
-        } else if (!this.levelVersion.minecraftVersion().isSameSeries(SharedConstants.getCurrentVersion().getDataVersion())) {
+        } else if (!this.isCompatible()) {
             return new TranslatableComponent("selectWorld.incompatible_series").withStyle(ChatFormatting.RED);
         } else {
             MutableComponent var0 = (MutableComponent)(this.isHardcore()

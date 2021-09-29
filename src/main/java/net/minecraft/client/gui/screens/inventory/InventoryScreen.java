@@ -76,7 +76,6 @@ public class InventoryScreen extends EffectRenderingInventoryScreen<InventoryMen
     @Override
     public void render(PoseStack param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
-        this.doRenderEffects = !this.recipeBookComponent.isVisible();
         if (this.recipeBookComponent.isVisible() && this.widthTooNarrow) {
             this.renderBg(param0, param3, param1, param2);
             this.recipeBookComponent.render(param0, param1, param2, param3);

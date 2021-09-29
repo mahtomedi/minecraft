@@ -18,11 +18,11 @@ public class CaveSurfaceDecorator extends FeatureDecorator<CaveDecoratorConfigur
         Optional<Column> var0 = Column.scan(
             param0.getLevel(), param3, param2.floorToCeilingSearchRange, BlockBehaviour.BlockStateBase::isAir, param0x -> param0x.getMaterial().isSolid()
         );
-        if (!var0.isPresent()) {
+        if (var0.isEmpty()) {
             return Stream.of();
         } else {
             OptionalInt var1 = param2.surface == CaveSurface.CEILING ? var0.get().getCeiling() : var0.get().getFloor();
-            return !var1.isPresent() ? Stream.of() : Stream.of(param3.atY(var1.getAsInt() - param2.surface.getY()));
+            return var1.isEmpty() ? Stream.of() : Stream.of(param3.atY(var1.getAsInt() - param2.surface.getY()));
         }
     }
 }

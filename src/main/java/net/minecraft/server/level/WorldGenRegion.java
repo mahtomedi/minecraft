@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
@@ -442,7 +441,7 @@ public class WorldGenRegion implements WorldGenLevel {
     }
 
     @Override
-    public Stream<? extends StructureStart<?>> startsForFeature(SectionPos param0, StructureFeature<?> param1) {
+    public List<? extends StructureStart<?>> startsForFeature(SectionPos param0, StructureFeature<?> param1) {
         return this.structureFeatureManager.startsForFeature(param0, param1);
     }
 

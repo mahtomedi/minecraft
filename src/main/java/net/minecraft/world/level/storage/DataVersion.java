@@ -26,19 +26,7 @@ public class DataVersion {
         return this.version;
     }
 
-    public boolean isSameSeries(DataVersion param0) {
-        return this.getSeries().equals(param0.getSeries()) && this.getVersion() == param0.getVersion();
-    }
-
     public boolean isCompatible(DataVersion param0) {
-        if (!this.isSameSeries(param0)) {
-            return false;
-        } else {
-            return this.isInExtendedWorldHeightSegment() == param0.isInExtendedWorldHeightSegment();
-        }
-    }
-
-    public boolean isInExtendedWorldHeightSegment() {
-        return this.version > 2692 && this.version <= 2706;
+        return this.getSeries().equals(param0.getSeries());
     }
 }

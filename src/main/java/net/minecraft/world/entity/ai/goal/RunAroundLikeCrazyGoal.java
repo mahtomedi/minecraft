@@ -49,7 +49,7 @@ public class RunAroundLikeCrazyGoal extends Goal {
 
     @Override
     public void tick() {
-        if (!this.horse.isTamed() && this.horse.getRandom().nextInt(50) == 0) {
+        if (!this.horse.isTamed() && this.horse.getRandom().nextInt(this.adjustedTickDelay(50)) == 0) {
             Entity var0 = this.horse.getPassengers().get(0);
             if (var0 == null) {
                 return;

@@ -15,7 +15,7 @@ public class SkinProcessor {
     private int height;
 
     @Nullable
-    public BufferedImage process(BufferedImage param0) {
+    public BufferedImage process(@Nullable BufferedImage param0) {
         if (param0 == null) {
             return null;
         } else {

@@ -72,7 +72,7 @@ public class MessageArgument implements ArgumentType<MessageArgument.Message> {
                 }
 
                 if (var1 < this.text.length()) {
-                    var0.append(this.text.substring(var1, this.text.length()));
+                    var0.append(this.text.substring(var1));
                 }
 
                 return var0;
@@ -95,7 +95,7 @@ public class MessageArgument implements ArgumentType<MessageArgument.Message> {
                     EntitySelector var5;
                     while(true) {
                         if (!param0.canRead()) {
-                            return new MessageArgument.Message(var0, var1.toArray(new MessageArgument.Part[var1.size()]));
+                            return new MessageArgument.Message(var0, var1.toArray(new MessageArgument.Part[0]));
                         }
 
                         if (param0.peek() == '@') {

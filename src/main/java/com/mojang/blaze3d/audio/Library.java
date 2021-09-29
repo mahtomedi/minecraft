@@ -153,7 +153,7 @@ public class Library {
         return var0;
     }
 
-    public boolean hasDefaultDeviceChanged() {
+    public synchronized boolean hasDefaultDeviceChanged() {
         String var0 = getDefaultDeviceName();
         if (Objects.equals(this.defaultDeviceName, var0)) {
             return false;

@@ -17,6 +17,7 @@ import java.nio.file.Path;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
@@ -49,9 +50,12 @@ public class FileDownload {
     volatile boolean finished;
     volatile boolean error;
     volatile boolean extracting;
+    @Nullable
     private volatile File tempFile;
     volatile File resourcePackPath;
+    @Nullable
     private volatile HttpGet request;
+    @Nullable
     private Thread currentThread;
     private final RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(120000).setConnectTimeout(120000).build();
     private static final String[] INVALID_FILE_NAMES = new String[]{
@@ -229,7 +233,7 @@ public class FileDownload {
         return param0;
     }
 
-    void untarGzipArchive(String param0, File param1, LevelStorageSource param2) throws IOException {
+    void untarGzipArchive(String param0, @Nullable File param1, LevelStorageSource param2) throws IOException {
         Pattern var0 = Pattern.compile(".*-([0-9]+)$");
         int var1 = 1;
 
@@ -248,8 +252,9 @@ public class FileDownload {
                 if (var3.getLevelId().toLowerCase(Locale.ROOT).startsWith(param0.toLowerCase(Locale.ROOT))) {
                     Matcher var4 = var0.matcher(var3.getLevelId());
                     if (var4.matches()) {
-                        if (Integer.valueOf(var4.group(1)) > var1) {
-                            var1 = Integer.valueOf(var4.group(1));
+                        int var5 = Integer.parseInt(var4.group(1));
+                        if (var5 > var1) {
+                            var1 = var5;
                         }
                     } else {
                         ++var1;
@@ -262,40 +267,40 @@ public class FileDownload {
             return;
         }
 
-        String var8;
+        String var9;
         if (param2.isNewLevelIdAcceptable(param0) && var1 <= 1) {
-            var8 = param0;
+            var9 = param0;
         } else {
-            var8 = param0 + (var1 == 1 ? "" : "-" + var1);
-            if (!param2.isNewLevelIdAcceptable(var8)) {
-                boolean var7 = false;
+            var9 = param0 + (var1 == 1 ? "" : "-" + var1);
+            if (!param2.isNewLevelIdAcceptable(var9)) {
+                boolean var8 = false;
 
-                while(!var7) {
+                while(!var8) {
                     ++var1;
-                    var8 = param0 + (var1 == 1 ? "" : "-" + var1);
-                    if (param2.isNewLevelIdAcceptable(var8)) {
-                        var7 = true;
+                    var9 = param0 + (var1 == 1 ? "" : "-" + var1);
+                    if (param2.isNewLevelIdAcceptable(var9)) {
+                        var8 = true;
                     }
                 }
             }
         }
 
-        TarArchiveInputStream var9 = null;
-        File var10 = new File(Minecraft.getInstance().gameDirectory.getAbsolutePath(), "saves");
+        TarArchiveInputStream var10 = null;
+        File var11 = new File(Minecraft.getInstance().gameDirectory.getAbsolutePath(), "saves");
 
         try {
-            var10.mkdir();
-            var9 = new TarArchiveInputStream(new GzipCompressorInputStream(new BufferedInputStream(new FileInputStream(param1))));
+            var11.mkdir();
+            var10 = new TarArchiveInputStream(new GzipCompressorInputStream(new BufferedInputStream(new FileInputStream(param1))));
 
-            for(TarArchiveEntry var11 = var9.getNextTarEntry(); var11 != null; var11 = var9.getNextTarEntry()) {
-                File var12 = new File(var10, var11.getName().replace("world", var8));
-                if (var11.isDirectory()) {
-                    var12.mkdirs();
+            for(TarArchiveEntry var12 = var10.getNextTarEntry(); var12 != null; var12 = var10.getNextTarEntry()) {
+                File var13 = new File(var11, var12.getName().replace("world", var9));
+                if (var12.isDirectory()) {
+                    var13.mkdirs();
                 } else {
-                    var12.createNewFile();
+                    var13.createNewFile();
 
-                    try (FileOutputStream var13 = new FileOutputStream(var12)) {
-                        IOUtils.copy(var9, var13);
+                    try (FileOutputStream var14 = new FileOutputStream(var13)) {
+                        IOUtils.copy(var10, var14);
                     }
                 }
             }
@@ -303,23 +308,23 @@ public class FileDownload {
             LOGGER.error("Error extracting world", (Throwable)var37);
             this.error = true;
         } finally {
-            if (var9 != null) {
-                var9.close();
+            if (var10 != null) {
+                var10.close();
             }
 
             if (param1 != null) {
                 param1.delete();
             }
 
-            try (LevelStorageSource.LevelStorageAccess var21 = param2.createAccess(var8)) {
-                var21.renameLevel(var8.trim());
-                Path var22 = var21.getLevelPath(LevelResource.LEVEL_DATA_FILE);
-                deletePlayerTag(var22.toFile());
+            try (LevelStorageSource.LevelStorageAccess var22 = param2.createAccess(var9)) {
+                var22.renameLevel(var9.trim());
+                Path var23 = var22.getLevelPath(LevelResource.LEVEL_DATA_FILE);
+                deletePlayerTag(var23.toFile());
             } catch (IOException var36) {
-                LOGGER.error("Failed to rename unpacked realms level {}", var8, var36);
+                LOGGER.error("Failed to rename unpacked realms level {}", var9, var36);
             }
 
-            this.resourcePackPath = new File(var10, var8 + File.separator + "resources.zip");
+            this.resourcePackPath = new File(var11, var9 + File.separator + "resources.zip");
         }
 
     }
@@ -339,7 +344,8 @@ public class FileDownload {
     }
 
     @OnlyIn(Dist.CLIENT)
-    class DownloadCountingOutputStream extends CountingOutputStream {
+    static class DownloadCountingOutputStream extends CountingOutputStream {
+        @Nullable
         private ActionListener listener;
 
         public DownloadCountingOutputStream(OutputStream param0) {

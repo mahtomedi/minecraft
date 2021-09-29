@@ -55,7 +55,7 @@ public final class TerrainShaper {
     @VisibleForDebug
     public CubicSpline<TerrainShaper.Point> factorSampler;
     @VisibleForDebug
-    public CubicSpline<TerrainShaper.Point> peakNoiseBlockAmplitudeSampler;
+    public CubicSpline<TerrainShaper.Point> jaggednessSampler;
 
     public TerrainShaper() {
         CubicSpline<TerrainShaper.Point> var0 = buildErosionOffsetSpline(-0.15F, 0.0F, 0.0F, 0.1F, 0.0F, -0.03F, false, false);
@@ -85,27 +85,51 @@ public final class TerrainShaper {
             .addPoint(0.03F, getErosionFactor(5.08F, true), 0.0F)
             .addPoint(0.06F, getErosionFactor(4.69F, false), 0.0F)
             .build();
-        this.peakNoiseBlockAmplitudeSampler = CubicSpline.builder(CONTINENTS_EXTRACTOR)
-            .addPoint(0.1F, 0.0F, 0.0F)
-            .addPoint(
-                0.2F,
-                CubicSpline.builder(EROSION_EXTRACTOR)
-                    .addPoint(
-                        -0.8F,
-                        CubicSpline.builder(RIDGES_EXTRACTOR)
-                            .addPoint(-1.0F, 0.0F, 0.0F)
-                            .addPoint(0.2F, 0.0F, 0.0F)
-                            .addPoint(
-                                1.0F, CubicSpline.builder(WEIRDNESS_EXTRACTOR).addPoint(-0.01F, 0.625F, 0.0F).addPoint(0.01F, 0.15625F, 0.0F).build(), 0.0F
-                            )
-                            .build(),
-                        0.0F
-                    )
-                    .addPoint(-0.4F, 0.0F, 0.0F)
-                    .build(),
-                0.0F
-            )
+        float var8 = 0.65F;
+        this.jaggednessSampler = CubicSpline.builder(CONTINENTS_EXTRACTOR)
+            .addPoint(-0.11F, 0.0F, 0.0F)
+            .addPoint(0.03F, this.buildErosionJaggednessSpline(1.0F, 0.5F, 0.0F, 0.0F), 0.0F)
+            .addPoint(0.65F, this.buildErosionJaggednessSpline(1.0F, 1.0F, 1.0F, 0.0F), 0.0F)
             .build();
+    }
+
+    private CubicSpline<TerrainShaper.Point> buildErosionJaggednessSpline(float param0, float param1, float param2, float param3) {
+        float var0 = -0.5775F;
+        CubicSpline<TerrainShaper.Point> var1 = this.buildRidgeJaggednessSpline(param0, param2);
+        CubicSpline<TerrainShaper.Point> var2 = this.buildRidgeJaggednessSpline(param1, param3);
+        return CubicSpline.builder(EROSION_EXTRACTOR)
+            .addPoint(-1.0F, var1, 0.0F)
+            .addPoint(-0.78F, var2, 0.0F)
+            .addPoint(-0.5775F, var2, 0.0F)
+            .addPoint(-0.375F, 0.0F, 0.0F)
+            .build();
+    }
+
+    private CubicSpline<TerrainShaper.Point> buildRidgeJaggednessSpline(float param0, float param1) {
+        float var0 = peaksAndValleys(0.4F);
+        float var1 = peaksAndValleys(0.56666666F);
+        float var2 = (var0 + var1) / 2.0F;
+        CubicSpline.Builder<TerrainShaper.Point> var3 = CubicSpline.builder(RIDGES_EXTRACTOR);
+        var3.addPoint(var0, 0.0F, 0.0F);
+        if (param1 > 0.0F) {
+            var3.addPoint(var2, this.buildWeirdnessJaggednessSpline(param1), 0.0F);
+        } else {
+            var3.addPoint(var2, 0.0F, 0.0F);
+        }
+
+        if (param0 > 0.0F) {
+            var3.addPoint(1.0F, this.buildWeirdnessJaggednessSpline(param0), 0.0F);
+        } else {
+            var3.addPoint(1.0F, 0.0F, 0.0F);
+        }
+
+        return var3.build();
+    }
+
+    private CubicSpline<TerrainShaper.Point> buildWeirdnessJaggednessSpline(float param0) {
+        float var0 = 0.63F * param0;
+        float var1 = 0.3F * param0;
+        return CubicSpline.builder(WEIRDNESS_EXTRACTOR).addPoint(-0.01F, var0, 0.0F).addPoint(0.01F, var1, 0.0F).build();
     }
 
     private static CubicSpline<TerrainShaper.Point> getErosionFactor(float param0, boolean param1) {
@@ -275,8 +299,8 @@ public final class TerrainShaper {
         return this.factorSampler.apply(param0);
     }
 
-    public float peaks(TerrainShaper.Point param0) {
-        return this.peakNoiseBlockAmplitudeSampler.apply(param0);
+    public float jaggedness(TerrainShaper.Point param0) {
+        return this.jaggednessSampler.apply(param0);
     }
 
     public TerrainShaper.Point makePoint(float param0, float param1, float param2) {

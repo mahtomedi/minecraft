@@ -3,7 +3,6 @@ package net.minecraft.world.level.chunk;
 import com.google.common.collect.Lists;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.shorts.ShortList;
-import java.util.BitSet;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -38,7 +37,7 @@ public class ProtoChunk extends ChunkAccess {
     private volatile ChunkStatus status = ChunkStatus.EMPTY;
     private final List<CompoundTag> entities = Lists.newArrayList();
     private final List<BlockPos> lights = Lists.newArrayList();
-    private final Map<GenerationStep.Carving, BitSet> carvingMasks = new Object2ObjectArrayMap<>();
+    private final Map<GenerationStep.Carving, CarvingMask> carvingMasks = new Object2ObjectArrayMap<>();
 
     public ProtoChunk(ChunkPos param0, UpgradeData param1, LevelHeightAccessor param2, Registry<Biome> param3) {
         this(
@@ -265,15 +264,15 @@ public class ProtoChunk extends ChunkAccess {
     }
 
     @Nullable
-    public BitSet getCarvingMask(GenerationStep.Carving param0) {
+    public CarvingMask getCarvingMask(GenerationStep.Carving param0) {
         return this.carvingMasks.get(param0);
     }
 
-    public BitSet getOrCreateCarvingMask(GenerationStep.Carving param0) {
-        return this.carvingMasks.computeIfAbsent(param0, param0x -> new BitSet(98304));
+    public CarvingMask getOrCreateCarvingMask(GenerationStep.Carving param0) {
+        return this.carvingMasks.computeIfAbsent(param0, param0x -> new CarvingMask(this.getHeight(), this.getMinBuildHeight()));
     }
 
-    public void setCarvingMask(GenerationStep.Carving param0, BitSet param1) {
+    public void setCarvingMask(GenerationStep.Carving param0, CarvingMask param1) {
         this.carvingMasks.put(param0, param1);
     }
 

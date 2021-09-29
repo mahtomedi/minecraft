@@ -23,15 +23,15 @@ public class MissingDimensionFix extends DataFix {
         super(param0, param1);
     }
 
-    private static <A> Type<Pair<A, Dynamic<?>>> fields(String param0, Type<A> param1) {
+    protected static <A> Type<Pair<A, Dynamic<?>>> fields(String param0, Type<A> param1) {
         return DSL.and(DSL.field(param0, param1), DSL.remainderType());
     }
 
-    private static <A> Type<Pair<Either<A, Unit>, Dynamic<?>>> optionalFields(String param0, Type<A> param1) {
+    protected static <A> Type<Pair<Either<A, Unit>, Dynamic<?>>> optionalFields(String param0, Type<A> param1) {
         return DSL.and(DSL.optional(DSL.field(param0, param1)), DSL.remainderType());
     }
 
-    private static <A1, A2> Type<Pair<Either<A1, Unit>, Pair<Either<A2, Unit>, Dynamic<?>>>> optionalFields(
+    protected static <A1, A2> Type<Pair<Either<A1, Unit>, Pair<Either<A2, Unit>, Dynamic<?>>>> optionalFields(
         String param0, Type<A1> param1, String param2, Type<A2> param3
     ) {
         return DSL.and(DSL.optional(DSL.field(param0, param1)), DSL.optional(DSL.field(param2, param3)), DSL.remainderType());
@@ -47,10 +47,7 @@ public class MissingDimensionFix extends DataFix {
                 "minecraft:debug",
                 DSL.remainderType(),
                 "minecraft:flat",
-                optionalFields(
-                    "settings",
-                    optionalFields("biome", var0.getType(References.BIOME), "layers", DSL.list(optionalFields("block", var0.getType(References.BLOCK_NAME))))
-                ),
+                flatType(var0),
                 "minecraft:noise",
                 optionalFields(
                     "biome_source",
@@ -100,6 +97,15 @@ public class MissingDimensionFix extends DataFix {
                         }))
             );
         }
+    }
+
+    protected static Type<? extends Pair<? extends Either<? extends Pair<? extends Either<?, Unit>, ? extends Pair<? extends Either<? extends List<? extends Pair<? extends Either<?, Unit>, Dynamic<?>>>, Unit>, Dynamic<?>>>, Unit>, Dynamic<?>>> flatType(
+        Schema param0
+    ) {
+        return optionalFields(
+            "settings",
+            optionalFields("biome", param0.getType(References.BIOME), "layers", DSL.list(optionalFields("block", param0.getType(References.BLOCK_NAME))))
+        );
     }
 
     private <T> Dynamic<T> recreateSettings(Dynamic<T> param0) {

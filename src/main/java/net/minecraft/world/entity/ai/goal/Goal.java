@@ -1,6 +1,7 @@
 package net.minecraft.world.entity.ai.goal;
 
 import java.util.EnumSet;
+import net.minecraft.util.Mth;
 
 public abstract class Goal {
     private final EnumSet<Goal.Flag> flags = EnumSet.noneOf(Goal.Flag.class);
@@ -21,6 +22,10 @@ public abstract class Goal {
     public void stop() {
     }
 
+    public boolean requiresUpdateEveryTick() {
+        return false;
+    }
+
     public void tick() {
     }
 
@@ -36,6 +41,14 @@ public abstract class Goal {
 
     public EnumSet<Goal.Flag> getFlags() {
         return this.flags;
+    }
+
+    protected int adjustedTickDelay(int param0) {
+        return this.requiresUpdateEveryTick() ? param0 : reducedTickDelay(param0);
+    }
+
+    protected static int reducedTickDelay(int param0) {
+        return Mth.positiveCeilDiv(param0, 2);
     }
 
     public static enum Flag {

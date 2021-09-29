@@ -45,6 +45,7 @@ public class SlideDownBlockTrigger extends SimpleCriterionTrigger<SlideDownBlock
     }
 
     public static class TriggerInstance extends AbstractCriterionTriggerInstance {
+        @Nullable
         private final Block block;
         private final StatePropertiesPredicate state;
 

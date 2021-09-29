@@ -40,11 +40,13 @@ public class ChunkStorage implements AutoCloseable {
             }
         }
 
+        param2.getCompound("Level").putString("__dimension", param0.location().toString());
         param2 = NbtUtils.update(this.fixerUpper, DataFixTypes.CHUNK, param2, Math.max(1493, var0));
         if (var0 < SharedConstants.getCurrentVersion().getWorldVersion()) {
             param2.putInt("DataVersion", SharedConstants.getCurrentVersion().getWorldVersion());
         }
 
+        param2.getCompound("Level").remove("__dimension");
         return param2;
     }
 

@@ -15,6 +15,7 @@ import net.minecraft.world.item.enchantment.Enchantment;
 public class EnchantmentPredicate {
     public static final EnchantmentPredicate ANY = new EnchantmentPredicate();
     public static final EnchantmentPredicate[] NONE = new EnchantmentPredicate[0];
+    @Nullable
     private final Enchantment enchantment;
     private final MinMaxBounds.Ints level;
 
@@ -35,10 +36,10 @@ public class EnchantmentPredicate {
             }
 
             int var0 = param0.get(this.enchantment);
-            if (this.level != null && !this.level.matches(var0)) {
+            if (this.level != MinMaxBounds.Ints.ANY && !this.level.matches(var0)) {
                 return false;
             }
-        } else if (this.level != null) {
+        } else if (this.level != MinMaxBounds.Ints.ANY) {
             for(Integer var1 : param0.values()) {
                 if (this.level.matches(var1)) {
                     return true;

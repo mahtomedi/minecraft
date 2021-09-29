@@ -31,6 +31,7 @@ public class SetNbtFunction extends LootItemConditionalFunction {
         return param0;
     }
 
+    @Deprecated
     public static LootItemConditionalFunction.Builder<?> setTag(CompoundTag param0) {
         return simpleBuilder(param1 -> new SetNbtFunction(param1, param0));
     }

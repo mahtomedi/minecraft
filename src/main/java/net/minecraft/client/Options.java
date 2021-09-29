@@ -230,6 +230,7 @@ public class Options {
 
         this.renderDistance = param0.is64Bit() ? 12 : 8;
         this.simulationDistance = param0.is64Bit() ? 12 : 8;
+        this.gamma = 0.5;
         this.syncWrites = Util.getPlatform() == Util.OS.WINDOWS;
         this.load();
     }

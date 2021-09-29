@@ -115,6 +115,7 @@ public class Bee extends Animal implements NeutralMob, FlyingAnimal {
     public static final String TAG_FLOWER_POS = "FlowerPos";
     public static final String TAG_HIVE_POS = "HivePos";
     private static final UniformInt PERSISTENT_ANGER_TIME = TimeUtil.rangeOfSeconds(20, 39);
+    @Nullable
     private UUID persistentAngerTarget;
     private float rollAmount;
     private float rollAmountO;
@@ -400,6 +401,7 @@ public class Bee extends Animal implements NeutralMob, FlyingAnimal {
         this.entityData.set(DATA_REMAINING_ANGER_TIME, param0);
     }
 
+    @Nullable
     @Override
     public UUID getPersistentAngerTarget() {
         return this.persistentAngerTarget;
@@ -804,7 +806,7 @@ public class Bee extends Animal implements NeutralMob, FlyingAnimal {
         public void tick() {
             if (Bee.this.hivePos != null) {
                 ++this.travellingTicks;
-                if (this.travellingTicks > 600) {
+                if (this.travellingTicks > this.adjustedTickDelay(600)) {
                     this.dropAndBlacklistHive();
                 } else if (!Bee.this.navigation.isInProgress()) {
                     if (!Bee.this.closerThan(Bee.this.hivePos, 16)) {
@@ -917,7 +919,7 @@ public class Bee extends Animal implements NeutralMob, FlyingAnimal {
         public void tick() {
             if (Bee.this.savedFlowerPos != null) {
                 ++this.travellingTicks;
-                if (this.travellingTicks > 600) {
+                if (this.travellingTicks > this.adjustedTickDelay(600)) {
                     Bee.this.savedFlowerPos = null;
                 } else if (!Bee.this.navigation.isInProgress()) {
                     if (Bee.this.isTooFarAway(Bee.this.savedFlowerPos)) {
@@ -955,7 +957,7 @@ public class Bee extends Animal implements NeutralMob, FlyingAnimal {
 
         @Override
         public void tick() {
-            if (Bee.this.random.nextInt(30) == 0) {
+            if (Bee.this.random.nextInt(this.adjustedTickDelay(30)) == 0) {
                 for(int var0 = 1; var0 <= 2; ++var0) {
                     BlockPos var1 = Bee.this.blockPosition().below(var0);
                     BlockState var2 = Bee.this.level.getBlockState(var1);
@@ -1095,6 +1097,7 @@ public class Bee extends Animal implements NeutralMob, FlyingAnimal {
         private int successfulPollinatingTicks;
         private int lastSoundPlayedTick;
         private boolean pollinating;
+        @Nullable
         private Vec3 hoverPos;
         private int pollinatingTicks;
         private static final int MAX_POLLINATING_TICKS = 600;
@@ -1178,6 +1181,11 @@ public class Bee extends Animal implements NeutralMob, FlyingAnimal {
             this.pollinating = false;
             Bee.this.navigation.stop();
             Bee.this.remainingCooldownBeforeLocatingNewFlower = 200;
+        }
+
+        @Override
+        public boolean requiresUpdateEveryTick() {
+            return true;
         }
 
         @Override

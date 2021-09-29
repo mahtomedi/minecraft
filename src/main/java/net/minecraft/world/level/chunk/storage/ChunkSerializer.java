@@ -6,7 +6,6 @@ import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import it.unimi.dsi.fastutil.shorts.ShortList;
 import java.util.Arrays;
-import java.util.BitSet;
 import java.util.EnumSet;
 import java.util.Locale;
 import java.util.Map;
@@ -35,6 +34,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.CarvingMask;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.chunk.ChunkStatus;
@@ -233,7 +233,7 @@ public class ChunkSerializer {
 
             for(String var53 : var52.getAllKeys()) {
                 GenerationStep.Carving var54 = GenerationStep.Carving.valueOf(var53);
-                var42.setCarvingMask(var54, BitSet.valueOf(var52.getByteArray(var53)));
+                var42.setCarvingMask(var54, new CarvingMask(var52.getLongArray(var53), var29.getMinBuildHeight()));
             }
 
             return var42;
@@ -315,9 +315,9 @@ public class ChunkSerializer {
             CompoundTag var22 = new CompoundTag();
 
             for(GenerationStep.Carving var23 : GenerationStep.Carving.values()) {
-                BitSet var24 = var20.getCarvingMask(var23);
+                CarvingMask var24 = var20.getCarvingMask(var23);
                 if (var24 != null) {
-                    var22.putByteArray(var23.toString(), var24.toByteArray());
+                    var22.putLongArray(var23.toString(), var24.toArray());
                 }
             }
 

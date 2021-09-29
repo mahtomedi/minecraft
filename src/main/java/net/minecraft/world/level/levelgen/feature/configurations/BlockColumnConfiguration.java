@@ -1,0 +1,39 @@
+package net.minecraft.world.level.levelgen.feature.configurations;
+
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import java.util.List;
+import net.minecraft.core.Direction;
+import net.minecraft.util.valueproviders.IntProvider;
+import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
+
+public record BlockColumnConfiguration(List<BlockColumnConfiguration.Layer> layers, Direction direction, boolean allowWater, boolean prioritizeTip)
+    implements FeatureConfiguration {
+    public static final Codec<BlockColumnConfiguration> CODEC = RecordCodecBuilder.create(
+        param0 -> param0.group(
+                    BlockColumnConfiguration.Layer.CODEC.listOf().fieldOf("layers").forGetter(BlockColumnConfiguration::layers),
+                    Direction.CODEC.fieldOf("direction").forGetter(BlockColumnConfiguration::direction),
+                    Codec.BOOL.fieldOf("allow_water").forGetter(BlockColumnConfiguration::allowWater),
+                    Codec.BOOL.fieldOf("prioritize_tip").forGetter(BlockColumnConfiguration::prioritizeTip)
+                )
+                .apply(param0, BlockColumnConfiguration::new)
+    );
+
+    public static BlockColumnConfiguration.Layer layer(IntProvider param0, BlockStateProvider param1) {
+        return new BlockColumnConfiguration.Layer(param0, param1);
+    }
+
+    public static BlockColumnConfiguration simple(IntProvider param0, BlockStateProvider param1) {
+        return new BlockColumnConfiguration(List.of(layer(param0, param1)), Direction.UP, false, false);
+    }
+
+    public static record Layer(IntProvider height, BlockStateProvider state) {
+        public static final Codec<BlockColumnConfiguration.Layer> CODEC = RecordCodecBuilder.create(
+            param0 -> param0.group(
+                        IntProvider.NON_NEGATIVE_CODEC.fieldOf("height").forGetter(BlockColumnConfiguration.Layer::height),
+                        BlockStateProvider.CODEC.fieldOf("provider").forGetter(BlockColumnConfiguration.Layer::state)
+                    )
+                    .apply(param0, BlockColumnConfiguration.Layer::new)
+        );
+    }
+}

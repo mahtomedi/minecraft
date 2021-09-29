@@ -51,20 +51,12 @@ public class SuffixArray<T> {
     public void generate() {
         int var0 = this.chars.size();
         int[] var1 = new int[var0];
-        final int[] var2 = new int[var0];
-        final int[] var3 = new int[var0];
+        int[] var2 = new int[var0];
+        int[] var3 = new int[var0];
         int[] var4 = new int[var0];
-        IntComparator var5 = new IntComparator() {
-            @Override
-            public int compare(int param0, int param1) {
-                return var2[param0] == var2[param1] ? Integer.compare(var3[param0], var3[param1]) : Integer.compare(var2[param0], var2[param1]);
-            }
-
-            @Override
-            public int compare(Integer param0, Integer param1) {
-                return this.compare(param0.intValue(), param1.intValue());
-            }
-        };
+        IntComparator var5 = (param2, param3) -> var2[param2] == var2[param3]
+                ? Integer.compare(var3[param2], var3[param3])
+                : Integer.compare(var2[param2], var2[param3]);
         Swapper var6 = (param3, param4) -> {
             if (param3 != param4) {
                 int var0x = var2[param3];
@@ -138,7 +130,7 @@ public class SuffixArray<T> {
                 var2.append('^');
             }
 
-            int var4 = this.chars.get(var1 + var3);
+            int var4 = this.chars.getInt(var1 + var3);
             if (var4 == -1) {
                 break;
             }

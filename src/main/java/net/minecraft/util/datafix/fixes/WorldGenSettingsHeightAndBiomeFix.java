@@ -1,0 +1,111 @@
+package net.minecraft.util.datafix.fixes;
+
+import com.google.common.collect.ImmutableMap;
+import com.mojang.datafixers.DSL;
+import com.mojang.datafixers.DataFix;
+import com.mojang.datafixers.OpticFinder;
+import com.mojang.datafixers.TypeRewriteRule;
+import com.mojang.datafixers.Typed;
+import com.mojang.datafixers.schemas.Schema;
+import com.mojang.datafixers.types.Type;
+import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Dynamic;
+import com.mojang.serialization.OptionalDynamic;
+import java.util.stream.Stream;
+import org.apache.commons.lang3.mutable.MutableBoolean;
+
+public class WorldGenSettingsHeightAndBiomeFix extends DataFix {
+    private static final String NAME = "WorldGenSettingsHeightAndBiomeFix";
+    public static final String WAS_PREVIOUSLY_INCREASED_KEY = "has_increased_height_already";
+
+    public WorldGenSettingsHeightAndBiomeFix(Schema param0) {
+        super(param0, true);
+    }
+
+    @Override
+    protected TypeRewriteRule makeRule() {
+        Type<?> var0 = this.getInputSchema().getType(References.WORLD_GEN_SETTINGS);
+        OpticFinder<?> var1 = var0.findField("dimensions");
+        Type<?> var2 = this.getOutputSchema().getType(References.WORLD_GEN_SETTINGS);
+        Type<?> var3 = var2.findFieldType("dimensions");
+        return this.fixTypeEverywhereTyped(
+            "WorldGenSettingsHeightAndBiomeFix",
+            var0,
+            var2,
+            param2 -> {
+                OptionalDynamic<?> var0x = param2.get(DSL.remainderFinder()).get("has_increased_height_already");
+                boolean var1x = var0x.result().isEmpty();
+                boolean var2x = var0x.asBoolean(true);
+                return param2.update(DSL.remainderFinder(), param0x -> param0x.remove("has_increased_height_already"))
+                    .updateTyped(
+                        var1,
+                        var3,
+                        param3 -> {
+                            Dynamic<?> var0xx = param3.write().result().orElseThrow(() -> new IllegalStateException("Malformed WorldGenSettings.dimensions"));
+                            var0xx = var0xx.update(
+                                "minecraft:overworld",
+                                param2x -> param2x.update(
+                                        "generator",
+                                        param2xx -> {
+                                            String var0xxx = param2xx.get("type").asString("");
+                                            if ("minecraft:noise".equals(var0xxx)) {
+                                                MutableBoolean var1xx = new MutableBoolean();
+                                                param2xx = param2xx.update(
+                                                    "biome_source",
+                                                    param2xxx -> {
+                                                        String var0xxxx = param2xxx.get("type").asString("");
+                                                        if ("minecraft:vanilla_layered".equals(var0xxxx) || var1x && "minecraft:multi_noise".equals(var0xxxx)) {
+                                                            if (param2xxx.get("large_biomes").asBoolean(false)) {
+                                                                var1xx.setTrue();
+                                                            }
+                        
+                                                            return param2xxx.createMap(
+                                                                ImmutableMap.of(
+                                                                    param2xxx.createString("preset"),
+                                                                    param2xxx.createString("minecraft:overworld"),
+                                                                    param2xxx.createString("type"),
+                                                                    param2xxx.createString("minecraft:multi_noise")
+                                                                )
+                                                            );
+                                                        } else {
+                                                            return param2xxx;
+                                                        }
+                                                    }
+                                                );
+                                                return var1xx.booleanValue()
+                                                    ? param2xx.update(
+                                                        "settings",
+                                                        param0x -> "minecraft:overworld".equals(param0x.asString(""))
+                                                                ? param0x.createString("minecraft:large_biomes")
+                                                                : param0x
+                                                    )
+                                                    : param2xx;
+                                            } else if ("minecraft:flat".equals(var0xxx)) {
+                                                return var2x
+                                                    ? param2xx
+                                                    : param2xx.update(
+                                                        "settings", param0x -> param0x.update("layers", WorldGenSettingsHeightAndBiomeFix::updateLayers)
+                                                    );
+                                            } else {
+                                                return param2xx;
+                                            }
+                                        }
+                                    )
+                            );
+                            return (Typed<?>)((Pair)var3.readTyped(var0xx)
+                                    .result()
+                                    .orElseThrow(() -> new IllegalStateException("WorldGenSettingsHeightAndBiomeFix failed.")))
+                                .getFirst();
+                        }
+                    );
+            }
+        );
+    }
+
+    private static Dynamic<?> updateLayers(Dynamic<?> param0) {
+        Dynamic<?> var0 = param0.createMap(
+            ImmutableMap.of(param0.createString("height"), param0.createInt(64), param0.createString("block"), param0.createString("minecraft:air"))
+        );
+        return param0.createList(Stream.concat(Stream.of(var0), param0.asStream()));
+    }
+}

@@ -3,6 +3,7 @@ package net.minecraft.client.resources.sounds;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import java.util.Optional;
 import java.util.Random;
+import javax.annotation.Nullable;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.core.BlockPos;
@@ -30,6 +31,7 @@ public class BiomeAmbientSoundsHandler implements AmbientSoundHandler {
     private Optional<AmbientMoodSettings> moodSettings = Optional.empty();
     private Optional<AmbientAdditionsSettings> additionsSettings = Optional.empty();
     private float moodiness;
+    @Nullable
     private Biome previousBiome;
 
     public BiomeAmbientSoundsHandler(LocalPlayer param0, SoundManager param1, BiomeManager param2) {

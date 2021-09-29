@@ -212,7 +212,7 @@ public class Vindicator extends AbstractIllager {
         @Override
         public boolean canUse() {
             Vindicator var0 = (Vindicator)this.mob;
-            return var0.hasActiveRaid() && var0.random.nextInt(10) == 0 && super.canUse();
+            return var0.hasActiveRaid() && var0.random.nextInt(reducedTickDelay(10)) == 0 && super.canUse();
         }
 
         @Override

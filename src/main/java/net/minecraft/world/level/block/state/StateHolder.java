@@ -150,9 +150,15 @@ public abstract class StateHolder<O, S> {
     }
 
     protected static <O, S extends StateHolder<O, S>> Codec<S> codec(Codec<O> param0, Function<O, S> param1) {
-        return param0.dispatch("Name", param0x -> param0x.owner, param1x -> {
-            S var0x = param1.apply(param1x);
-            return var0x.getValues().isEmpty() ? Codec.unit((S)var0x) : var0x.propertiesCodec.fieldOf("Properties").codec();
-        });
+        return param0.dispatch(
+            "Name",
+            param0x -> param0x.owner,
+            param1x -> {
+                S var0x = param1.apply(param1x);
+                return var0x.getValues().isEmpty()
+                    ? Codec.unit((S)var0x)
+                    : var0x.propertiesCodec.codec().optionalFieldOf("Properties").xmap(param1xx -> param1xx.orElse((S)var0x), Optional::of).codec();
+            }
+        );
     }
 }

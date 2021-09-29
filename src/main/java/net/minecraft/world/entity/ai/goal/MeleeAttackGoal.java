@@ -90,33 +90,37 @@ public class MeleeAttackGoal extends Goal {
     @Override
     public void tick() {
         LivingEntity var0 = this.mob.getTarget();
-        this.mob.getLookControl().setLookAt(var0, 30.0F, 30.0F);
-        double var1 = this.mob.distanceToSqr(var0.getX(), var0.getY(), var0.getZ());
-        this.ticksUntilNextPathRecalculation = Math.max(this.ticksUntilNextPathRecalculation - 1, 0);
-        if ((this.followingTargetEvenIfNotSeen || this.mob.getSensing().hasLineOfSight(var0))
-            && this.ticksUntilNextPathRecalculation <= 0
-            && (
-                this.pathedTargetX == 0.0 && this.pathedTargetY == 0.0 && this.pathedTargetZ == 0.0
-                    || var0.distanceToSqr(this.pathedTargetX, this.pathedTargetY, this.pathedTargetZ) >= 1.0
-                    || this.mob.getRandom().nextFloat() < 0.05F
-            )) {
-            this.pathedTargetX = var0.getX();
-            this.pathedTargetY = var0.getY();
-            this.pathedTargetZ = var0.getZ();
-            this.ticksUntilNextPathRecalculation = 4 + this.mob.getRandom().nextInt(7);
-            if (var1 > 1024.0) {
-                this.ticksUntilNextPathRecalculation += 10;
-            } else if (var1 > 256.0) {
-                this.ticksUntilNextPathRecalculation += 5;
+        if (var0 != null) {
+            this.mob.getLookControl().setLookAt(var0, 30.0F, 30.0F);
+            double var1 = this.mob.distanceToSqr(var0.getX(), var0.getY(), var0.getZ());
+            this.ticksUntilNextPathRecalculation = Math.max(this.ticksUntilNextPathRecalculation - 1, 0);
+            if ((this.followingTargetEvenIfNotSeen || this.mob.getSensing().hasLineOfSight(var0))
+                && this.ticksUntilNextPathRecalculation <= 0
+                && (
+                    this.pathedTargetX == 0.0 && this.pathedTargetY == 0.0 && this.pathedTargetZ == 0.0
+                        || var0.distanceToSqr(this.pathedTargetX, this.pathedTargetY, this.pathedTargetZ) >= 1.0
+                        || this.mob.getRandom().nextFloat() < 0.05F
+                )) {
+                this.pathedTargetX = var0.getX();
+                this.pathedTargetY = var0.getY();
+                this.pathedTargetZ = var0.getZ();
+                this.ticksUntilNextPathRecalculation = 4 + this.mob.getRandom().nextInt(7);
+                if (var1 > 1024.0) {
+                    this.ticksUntilNextPathRecalculation += 10;
+                } else if (var1 > 256.0) {
+                    this.ticksUntilNextPathRecalculation += 5;
+                }
+
+                if (!this.mob.getNavigation().moveTo(var0, this.speedModifier)) {
+                    this.ticksUntilNextPathRecalculation += 15;
+                }
+
+                this.ticksUntilNextPathRecalculation = this.adjustedTickDelay(this.ticksUntilNextPathRecalculation);
             }
 
-            if (!this.mob.getNavigation().moveTo(var0, this.speedModifier)) {
-                this.ticksUntilNextPathRecalculation += 15;
-            }
+            this.ticksUntilNextAttack = Math.max(this.ticksUntilNextAttack - 1, 0);
+            this.checkAndPerformAttack(var0, var1);
         }
-
-        this.ticksUntilNextAttack = Math.max(this.ticksUntilNextAttack - 1, 0);
-        this.checkAndPerformAttack(var0, var1);
     }
 
     protected void checkAndPerformAttack(LivingEntity param0, double param1) {
@@ -130,7 +134,7 @@ public class MeleeAttackGoal extends Goal {
     }
 
     protected void resetAttackCooldown() {
-        this.ticksUntilNextAttack = 20;
+        this.ticksUntilNextAttack = this.adjustedTickDelay(20);
     }
 
     protected boolean isTimeToAttack() {
@@ -142,7 +146,7 @@ public class MeleeAttackGoal extends Goal {
     }
 
     protected int getAttackInterval() {
-        return 20;
+        return this.adjustedTickDelay(20);
     }
 
     protected double getAttackReachSqr(LivingEntity param0) {

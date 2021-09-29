@@ -168,7 +168,7 @@ public final class NaturalSpawner {
                         if (isRightDistanceToPlayerAndSpawnPoint(param1, param2, var4, var18)) {
                             if (var10 == null) {
                                 Optional<MobSpawnSettings.SpawnerData> var19 = getRandomSpawnMobAt(param1, var0, var1, param0, param1.random, var4);
-                                if (!var19.isPresent()) {
+                                if (var19.isEmpty()) {
                                     break;
                                 }
 
@@ -294,7 +294,7 @@ public final class NaturalSpawner {
     public static boolean isInNetherFortressBounds(BlockPos param0, ServerLevel param1, MobCategory param2, StructureFeatureManager param3) {
         return param2 == MobCategory.MONSTER
             && param1.getBlockState(param0.below()).is(Blocks.NETHER_BRICKS)
-            && param3.getStructureAt(param0, false, StructureFeature.NETHER_BRIDGE).isValid();
+            && param3.getStructureAt(param0, StructureFeature.NETHER_BRIDGE).isValid();
     }
 
     private static BlockPos getRandomPosWithin(Level param0, LevelChunk param1) {

@@ -34,7 +34,7 @@ public class LakeFeature extends Feature<BlockStateConfiguration> {
             return false;
         } else {
             var0 = var0.below(4);
-            if (var1.startsForFeature(SectionPos.of(var0), StructureFeature.VILLAGE).findAny().isPresent()) {
+            if (!var1.startsForFeature(SectionPos.of(var0), StructureFeature.VILLAGE).isEmpty()) {
                 return false;
             } else {
                 boolean[] var4 = new boolean[2048];

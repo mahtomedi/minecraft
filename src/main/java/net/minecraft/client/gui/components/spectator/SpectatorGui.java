@@ -2,6 +2,7 @@ package net.minecraft.client.gui.components.spectator;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
@@ -23,6 +24,7 @@ public class SpectatorGui extends GuiComponent implements SpectatorMenuListener 
     private static final long FADE_OUT_TIME = 2000L;
     private final Minecraft minecraft;
     private long lastSelectionTime;
+    @Nullable
     private SpectatorMenu menu;
 
     public SpectatorGui(Minecraft param0) {
@@ -44,7 +46,7 @@ public class SpectatorGui extends GuiComponent implements SpectatorMenuListener 
         return Mth.clamp((float)var0 / 2000.0F, 0.0F, 1.0F);
     }
 
-    public void renderHotbar(PoseStack param0, float param1) {
+    public void renderHotbar(PoseStack param0) {
         if (this.menu != null) {
             float var0 = this.getHotbarAlpha();
             if (var0 <= 0.0F) {

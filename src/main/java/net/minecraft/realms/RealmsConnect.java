@@ -2,6 +2,7 @@ package net.minecraft.realms;
 
 import com.mojang.realmsclient.dto.RealmsServer;
 import java.net.InetSocketAddress;
+import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.screens.Screen;
@@ -23,6 +24,7 @@ public class RealmsConnect {
     static final Logger LOGGER = LogManager.getLogger();
     final Screen onlineScreen;
     volatile boolean aborted;
+    @Nullable
     Connection connection;
 
     public RealmsConnect(Screen param0) {
@@ -32,6 +34,7 @@ public class RealmsConnect {
     public void connect(final RealmsServer param0, ServerAddress param1) {
         final Minecraft var0 = Minecraft.getInstance();
         var0.setConnectedToRealms(true);
+        var0.prepareForMultiplayer();
         NarratorChatListener.INSTANCE.sayNow(new TranslatableComponent("mco.connect.success"));
         final String var1 = param1.getHost();
         final int var2 = param1.getPort();

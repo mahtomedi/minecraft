@@ -5,7 +5,6 @@ import com.google.common.collect.Sets;
 import com.google.common.collect.ImmutableList.Builder;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import java.util.BitSet;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.OptionalInt;
@@ -40,6 +39,7 @@ import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.BlockColumn;
+import net.minecraft.world.level.chunk.CarvingMask;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.chunk.LevelChunkSection;
@@ -380,7 +380,7 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
             this.globalFluidPicker
         );
         Aquifer var12 = var11.aquifer();
-        BitSet var13 = ((ProtoChunk)param4).getOrCreateCarvingMask(param5);
+        CarvingMask var13 = ((ProtoChunk)param4).getOrCreateCarvingMask(param5);
 
         for(int var14 = -8; var14 <= 8; ++var14) {
             for(int var15 = -8; var15 <= 8; ++var15) {
@@ -545,34 +545,38 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
 
     @Override
     public WeightedRandomList<MobSpawnSettings.SpawnerData> getMobsAt(Biome param0, StructureFeatureManager param1, MobCategory param2, BlockPos param3) {
-        if (param1.getStructureAt(param3, true, StructureFeature.SWAMP_HUT).isValid()) {
+        if (!param1.hasAnyStructureAt(param3)) {
+            return super.getMobsAt(param0, param1, param2, param3);
+        } else {
+            if (param1.getStructureWithPieceAt(param3, StructureFeature.SWAMP_HUT).isValid()) {
+                if (param2 == MobCategory.MONSTER) {
+                    return SwamplandHutFeature.SWAMPHUT_ENEMIES;
+                }
+
+                if (param2 == MobCategory.CREATURE) {
+                    return SwamplandHutFeature.SWAMPHUT_ANIMALS;
+                }
+            }
+
             if (param2 == MobCategory.MONSTER) {
-                return SwamplandHutFeature.SWAMPHUT_ENEMIES;
+                if (param1.getStructureAt(param3, StructureFeature.PILLAGER_OUTPOST).isValid()) {
+                    return PillagerOutpostFeature.OUTPOST_ENEMIES;
+                }
+
+                if (param1.getStructureAt(param3, StructureFeature.OCEAN_MONUMENT).isValid()) {
+                    return OceanMonumentFeature.MONUMENT_ENEMIES;
+                }
+
+                if (param1.getStructureWithPieceAt(param3, StructureFeature.NETHER_BRIDGE).isValid()) {
+                    return NetherFortressFeature.FORTRESS_ENEMIES;
+                }
             }
 
-            if (param2 == MobCategory.CREATURE) {
-                return SwamplandHutFeature.SWAMPHUT_ANIMALS;
-            }
+            return (param2 == MobCategory.UNDERGROUND_WATER_CREATURE || param2 == MobCategory.AXOLOTLS)
+                    && param1.getStructureAt(param3, StructureFeature.OCEAN_MONUMENT).isValid()
+                ? MobSpawnSettings.EMPTY_MOB_LIST
+                : super.getMobsAt(param0, param1, param2, param3);
         }
-
-        if (param2 == MobCategory.MONSTER) {
-            if (param1.getStructureAt(param3, false, StructureFeature.PILLAGER_OUTPOST).isValid()) {
-                return PillagerOutpostFeature.OUTPOST_ENEMIES;
-            }
-
-            if (param1.getStructureAt(param3, false, StructureFeature.OCEAN_MONUMENT).isValid()) {
-                return OceanMonumentFeature.MONUMENT_ENEMIES;
-            }
-
-            if (param1.getStructureAt(param3, true, StructureFeature.NETHER_BRIDGE).isValid()) {
-                return NetherFortressFeature.FORTRESS_ENEMIES;
-            }
-        }
-
-        return (param2 == MobCategory.UNDERGROUND_WATER_CREATURE || param2 == MobCategory.AXOLOTLS)
-                && param1.getStructureAt(param3, false, StructureFeature.OCEAN_MONUMENT).isValid()
-            ? MobSpawnSettings.EMPTY_MOB_LIST
-            : super.getMobsAt(param0, param1, param2, param3);
     }
 
     @Override

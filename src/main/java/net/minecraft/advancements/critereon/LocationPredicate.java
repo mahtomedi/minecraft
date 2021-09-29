@@ -117,6 +117,12 @@ public class LocationPredicate {
         );
     }
 
+    public static LocationPredicate atYLocation(MinMaxBounds.Doubles param0) {
+        return new LocationPredicate(
+            MinMaxBounds.Doubles.ANY, param0, MinMaxBounds.Doubles.ANY, null, null, null, null, LightPredicate.ANY, BlockPredicate.ANY, FluidPredicate.ANY
+        );
+    }
+
     public boolean matches(ServerLevel param0, double param1, double param2, double param3) {
         if (!this.x.matches(param1)) {
             return false;
@@ -133,7 +139,7 @@ public class LocationPredicate {
             if (!var2.isPresent()) {
                 return false;
             } else if (this.biome == null || var1 && this.biome == var2.get()) {
-                if (this.feature == null || var1 && param0.structureFeatureManager().getStructureAt(var0, true, this.feature).isValid()) {
+                if (this.feature == null || var1 && param0.structureFeatureManager().getStructureWithPieceAt(var0, this.feature).isValid()) {
                     if (this.smokey == null || var1 && this.smokey == CampfireBlock.isSmokeyPos(param0, var0)) {
                         if (!this.light.matches(param0, var0)) {
                             return false;

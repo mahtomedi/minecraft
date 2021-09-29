@@ -7,18 +7,17 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import net.minecraft.Util;
 import net.minecraft.advancements.critereon.DamageSourcePredicate;
 import net.minecraft.advancements.critereon.EntityFlagsPredicate;
 import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.core.Registry;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
@@ -31,7 +30,7 @@ import net.minecraft.world.level.storage.loot.entries.LootTableReference;
 import net.minecraft.world.level.storage.loot.entries.TagEntry;
 import net.minecraft.world.level.storage.loot.functions.LootingEnchantFunction;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
-import net.minecraft.world.level.storage.loot.functions.SetNbtFunction;
+import net.minecraft.world.level.storage.loot.functions.SetPotionFunction;
 import net.minecraft.world.level.storage.loot.functions.SmeltItemFunction;
 import net.minecraft.world.level.storage.loot.predicates.DamageSourceCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemEntityPropertyCondition;
@@ -863,7 +862,7 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
                             LootItem.lootTableItem(Items.TIPPED_ARROW)
                                 .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 1.0F)))
                                 .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)).setLimit(1))
-                                .apply(SetNbtFunction.setTag(Util.make(new CompoundTag(), param0x -> param0x.putString("Potion", "minecraft:slowness"))))
+                                .apply(SetPotionFunction.setPotion(Potions.SLOWNESS))
                         )
                         .when(LootItemKilledByPlayerCondition.killedByPlayer())
                 )
@@ -1180,7 +1179,7 @@ public class EntityLoot implements Consumer<BiConsumer<ResourceLocation, LootTab
             }
         }
 
-        this.map.forEach(param0::accept);
+        this.map.forEach(param0);
     }
 
     private void add(EntityType<?> param0, LootTable.Builder param1) {

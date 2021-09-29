@@ -7,13 +7,16 @@ import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.FrameType;
 import net.minecraft.advancements.RequirementsStrategy;
+import net.minecraft.advancements.critereon.BlockPredicate;
 import net.minecraft.advancements.critereon.ChanneledLightningTrigger;
 import net.minecraft.advancements.critereon.DamagePredicate;
 import net.minecraft.advancements.critereon.DamageSourcePredicate;
 import net.minecraft.advancements.critereon.DistancePredicate;
+import net.minecraft.advancements.critereon.DistanceTrigger;
 import net.minecraft.advancements.critereon.EntityEquipmentPredicate;
 import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.advancements.critereon.ItemPredicate;
+import net.minecraft.advancements.critereon.ItemUsedOnBlockTrigger;
 import net.minecraft.advancements.critereon.KilledByCrossbowTrigger;
 import net.minecraft.advancements.critereon.KilledTrigger;
 import net.minecraft.advancements.critereon.LighthingBoltPredicate;
@@ -35,6 +38,7 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.EntityTypeTags;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.raid.Raid;
 import net.minecraft.world.item.Item;
@@ -44,6 +48,10 @@ import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Blocks;
 
 public class AdventureAdvancements implements Consumer<Consumer<Advancement>> {
+    private static final int DISTANCE_FROM_BOTTOM_TO_TOP = 384;
+    private static final int Y_COORDINATE_AT_TOP = 320;
+    private static final int Y_COORDINATE_AT_BOTTOM = -64;
+    private static final int BEDROCK_THICKNESS = 5;
     private static final List<ResourceKey<Biome>> EXPLORABLE_BIOMES = ImmutableList.of(
         Biomes.BIRCH_FOREST_HILLS,
         Biomes.RIVER,
@@ -200,6 +208,25 @@ public class AdventureAdvancements implements Consumer<Consumer<Advancement>> {
             )
             .addCriterion("traded", TradeTrigger.TriggerInstance.tradedWithVillager())
             .save(param0, "adventure/trade");
+        Advancement.Builder.advancement()
+            .parent(var2)
+            .display(
+                Items.EMERALD,
+                new TranslatableComponent("advancements.adventure.trade_at_world_height.title"),
+                new TranslatableComponent("advancements.adventure.trade_at_world_height.description"),
+                null,
+                FrameType.TASK,
+                true,
+                true,
+                false
+            )
+            .addCriterion(
+                "trade_at_world_height",
+                TradeTrigger.TriggerInstance.tradedWithVillager(
+                    EntityPredicate.Builder.entity().located(LocationPredicate.atYLocation(MinMaxBounds.Doubles.atLeast(319.0)))
+                )
+            )
+            .save(param0, "adventure/trade_at_world_height");
         Advancement var3 = this.addMobsToKill(Advancement.Builder.advancement())
             .parent(var0)
             .display(
@@ -469,7 +496,7 @@ public class AdventureAdvancements implements Consumer<Consumer<Advancement>> {
             )
             .save(param0, "adventure/bullseye");
         Advancement.Builder.advancement()
-            .parent(var0)
+            .parent(var1)
             .display(
                 Items.LEATHER_BOOTS,
                 new TranslatableComponent("advancements.adventure.walk_on_powder_snow_with_leather_boots.title"),
@@ -530,6 +557,26 @@ public class AdventureAdvancements implements Consumer<Consumer<Advancement>> {
             .addCriterion("spyglass_at_ghast", lookAtThroughItem(EntityType.GHAST, Items.SPYGLASS))
             .save(param0, "adventure/spyglass_at_ghast");
         Advancement.Builder.advancement()
+            .parent(var1)
+            .display(
+                Items.JUKEBOX,
+                new TranslatableComponent("advancements.husbandry.play_jukebox_in_meadows.title"),
+                new TranslatableComponent("advancements.husbandry.play_jukebox_in_meadows.description"),
+                null,
+                FrameType.TASK,
+                true,
+                true,
+                false
+            )
+            .addCriterion(
+                "play_jukebox_in_meadows",
+                ItemUsedOnBlockTrigger.TriggerInstance.itemUsedOnBlock(
+                    LocationPredicate.Builder.location().setBiome(Biomes.MEADOW).setBlock(BlockPredicate.Builder.block().of(Blocks.JUKEBOX).build()),
+                    ItemPredicate.Builder.item().of(ItemTags.MUSIC_DISCS)
+                )
+            )
+            .save(param0, "husbandry/play_jukebox_in_meadows");
+        Advancement.Builder.advancement()
             .parent(var9)
             .display(
                 Items.SPYGLASS,
@@ -543,6 +590,27 @@ public class AdventureAdvancements implements Consumer<Consumer<Advancement>> {
             )
             .addCriterion("spyglass_at_dragon", lookAtThroughItem(EntityType.ENDER_DRAGON, Items.SPYGLASS))
             .save(param0, "adventure/spyglass_at_dragon");
+        Advancement.Builder.advancement()
+            .parent(var0)
+            .display(
+                Items.WATER_BUCKET,
+                new TranslatableComponent("advancements.adventure.fall_from_world_height.title"),
+                new TranslatableComponent("advancements.adventure.fall_from_world_height.description"),
+                null,
+                FrameType.TASK,
+                true,
+                true,
+                false
+            )
+            .addCriterion(
+                "fall_from_world_height",
+                DistanceTrigger.TriggerInstance.fallFromHeight(
+                    EntityPredicate.Builder.entity().located(LocationPredicate.atYLocation(MinMaxBounds.Doubles.atMost(-59.0))),
+                    DistancePredicate.vertical(MinMaxBounds.Doubles.atLeast(379.0)),
+                    LocationPredicate.atYLocation(MinMaxBounds.Doubles.atLeast(319.0))
+                )
+            )
+            .save(param0, "adventure/caves_and_cliffs");
     }
 
     private Advancement.Builder addMobsToKill(Advancement.Builder param0) {

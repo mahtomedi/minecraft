@@ -165,12 +165,13 @@ public abstract class Option {
     public static final ProgressOption GAMMA = new ProgressOption(
         "options.gamma", 0.0, 1.0, 0.0F, param0 -> param0.gamma, (param0, param1) -> param0.gamma = param1, (param0, param1) -> {
             double var0 = param1.toPct(param1.get(param0));
-            if (var0 == 0.0) {
+            int var1 = (int)(var0 * 100.0);
+            if (var1 == 0) {
                 return param1.genericValueLabel(new TranslatableComponent("options.gamma.min"));
+            } else if (var1 == 50) {
+                return param1.genericValueLabel(new TranslatableComponent("options.gamma.default"));
             } else {
-                return var0 == 1.0
-                    ? param1.genericValueLabel(new TranslatableComponent("options.gamma.max"))
-                    : param1.percentAddValueLabel((int)(var0 * 100.0));
+                return var1 == 100 ? param1.genericValueLabel(new TranslatableComponent("options.gamma.max")) : param1.genericValueLabel(var1);
             }
         }
     );

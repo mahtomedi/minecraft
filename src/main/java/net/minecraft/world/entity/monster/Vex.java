@@ -43,6 +43,7 @@ public class Vex extends Monster {
     public static final int TICKS_PER_FLAP = Mth.ceil((float) (Math.PI * 5.0 / 4.0));
     protected static final EntityDataAccessor<Byte> DATA_FLAGS_ID = SynchedEntityData.defineId(Vex.class, EntityDataSerializers.BYTE);
     private static final int FLAG_IS_CHARGING = 1;
+    @Nullable
     Mob owner;
     @Nullable
     private BlockPos boundOrigin;
@@ -130,6 +131,7 @@ public class Vex extends Monster {
 
     }
 
+    @Nullable
     public Mob getOwner() {
         return this.owner;
     }
@@ -219,7 +221,7 @@ public class Vex extends Monster {
 
         @Override
         public boolean canUse() {
-            if (Vex.this.getTarget() != null && !Vex.this.getMoveControl().hasWanted() && Vex.this.random.nextInt(7) == 0) {
+            if (Vex.this.getTarget() != null && !Vex.this.getMoveControl().hasWanted() && Vex.this.random.nextInt(reducedTickDelay(7)) == 0) {
                 return Vex.this.distanceToSqr(Vex.this.getTarget()) > 4.0;
             } else {
                 return false;
@@ -234,8 +236,11 @@ public class Vex extends Monster {
         @Override
         public void start() {
             LivingEntity var0 = Vex.this.getTarget();
-            Vec3 var1 = var0.getEyePosition();
-            Vex.this.moveControl.setWantedPosition(var1.x, var1.y, var1.z, 1.0);
+            if (var0 != null) {
+                Vec3 var1 = var0.getEyePosition();
+                Vex.this.moveControl.setWantedPosition(var1.x, var1.y, var1.z, 1.0);
+            }
+
             Vex.this.setIsCharging(true);
             Vex.this.playSound(SoundEvents.VEX_CHARGE, 1.0F, 1.0F);
         }
@@ -246,19 +251,26 @@ public class Vex extends Monster {
         }
 
         @Override
+        public boolean requiresUpdateEveryTick() {
+            return true;
+        }
+
+        @Override
         public void tick() {
             LivingEntity var0 = Vex.this.getTarget();
-            if (Vex.this.getBoundingBox().intersects(var0.getBoundingBox())) {
-                Vex.this.doHurtTarget(var0);
-                Vex.this.setIsCharging(false);
-            } else {
-                double var1 = Vex.this.distanceToSqr(var0);
-                if (var1 < 9.0) {
-                    Vec3 var2 = var0.getEyePosition();
-                    Vex.this.moveControl.setWantedPosition(var2.x, var2.y, var2.z, 1.0);
+            if (var0 != null) {
+                if (Vex.this.getBoundingBox().intersects(var0.getBoundingBox())) {
+                    Vex.this.doHurtTarget(var0);
+                    Vex.this.setIsCharging(false);
+                } else {
+                    double var1 = Vex.this.distanceToSqr(var0);
+                    if (var1 < 9.0) {
+                        Vec3 var2 = var0.getEyePosition();
+                        Vex.this.moveControl.setWantedPosition(var2.x, var2.y, var2.z, 1.0);
+                    }
                 }
-            }
 
+            }
         }
     }
 
@@ -319,7 +331,7 @@ public class Vex extends Monster {
 
         @Override
         public boolean canUse() {
-            return !Vex.this.getMoveControl().hasWanted() && Vex.this.random.nextInt(7) == 0;
+            return !Vex.this.getMoveControl().hasWanted() && Vex.this.random.nextInt(reducedTickDelay(7)) == 0;
         }
 
         @Override

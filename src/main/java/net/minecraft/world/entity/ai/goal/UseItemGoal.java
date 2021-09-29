@@ -12,6 +12,7 @@ public class UseItemGoal<T extends Mob> extends Goal {
     private final T mob;
     private final ItemStack item;
     private final Predicate<? super T> canUseSelector;
+    @Nullable
     private final SoundEvent finishUsingSound;
 
     public UseItemGoal(T param0, ItemStack param1, @Nullable SoundEvent param2, Predicate<? super T> param3) {

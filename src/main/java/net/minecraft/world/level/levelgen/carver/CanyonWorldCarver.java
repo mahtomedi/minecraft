@@ -1,21 +1,17 @@
 package net.minecraft.world.level.levelgen.carver;
 
 import com.mojang.serialization.Codec;
-import java.util.BitSet;
 import java.util.Random;
 import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.chunk.CarvingMask;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.levelgen.Aquifer;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 public class CanyonWorldCarver extends WorldCarver<CanyonCarverConfiguration> {
-    private static final Logger LOGGER = LogManager.getLogger();
-
     public CanyonWorldCarver(Codec<CanyonCarverConfiguration> param0) {
         super(param0);
     }
@@ -32,7 +28,7 @@ public class CanyonWorldCarver extends WorldCarver<CanyonCarverConfiguration> {
         Random param4,
         Aquifer param5,
         ChunkPos param6,
-        BitSet param7
+        CarvingMask param7
     ) {
         int var0 = (this.getRange() * 2 - 1) * 16;
         double var1 = (double)param6.getBlockX(param4.nextInt(16));
@@ -64,7 +60,7 @@ public class CanyonWorldCarver extends WorldCarver<CanyonCarverConfiguration> {
         int param12,
         int param13,
         double param14,
-        BitSet param15
+        CarvingMask param15
     ) {
         Random var0 = new Random(param4);
         float[] var1 = this.initWidthFactors(param0, param1, var0);
@@ -98,7 +94,6 @@ public class CanyonWorldCarver extends WorldCarver<CanyonCarverConfiguration> {
                     param1,
                     param2,
                     param3,
-                    param4,
                     param5,
                     param6,
                     param7,

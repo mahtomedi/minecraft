@@ -107,11 +107,16 @@ public class GoalSelector {
         }
 
         var0.pop();
+        this.tickRunningGoals(true);
+    }
+
+    public void tickRunningGoals(boolean param0) {
+        ProfilerFiller var0 = this.profiler.get();
         var0.push("goalTick");
 
-        for(WrappedGoal var7 : this.availableGoals) {
-            if (var7.isRunning()) {
-                var7.tick();
+        for(WrappedGoal var1 : this.availableGoals) {
+            if (var1.isRunning() && (param0 || var1.requiresUpdateEveryTick())) {
+                var1.tick();
             }
         }
 

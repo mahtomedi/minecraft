@@ -232,12 +232,12 @@ public class EditGameRulesScreen extends Screen {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public abstract class RuleEntry extends ContainerObjectSelectionList.Entry<EditGameRulesScreen.RuleEntry> {
+    public abstract static class RuleEntry extends ContainerObjectSelectionList.Entry<EditGameRulesScreen.RuleEntry> {
         @Nullable
         final List<FormattedCharSequence> tooltip;
 
-        public RuleEntry(List<FormattedCharSequence> param1) {
-            this.tooltip = param1;
+        public RuleEntry(@Nullable List<FormattedCharSequence> param0) {
+            this.tooltip = param0;
         }
     }
 

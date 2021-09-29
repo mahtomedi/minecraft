@@ -495,7 +495,7 @@ public class Dolphin extends WaterAnimal {
                     .getLookControl()
                     .setLookAt(var2.x, var2.y, var2.z, (float)(this.dolphin.getMaxHeadYRot() + 20), (float)this.dolphin.getMaxHeadXRot());
                 this.dolphin.getNavigation().moveTo(var2.x, var2.y, var2.z, 1.3);
-                if (var0.random.nextInt(80) == 0) {
+                if (var0.random.nextInt(this.adjustedTickDelay(80)) == 0) {
                     var0.broadcastEntityEvent(this.dolphin, (byte)38);
                 }
             }
@@ -506,6 +506,7 @@ public class Dolphin extends WaterAnimal {
     static class DolphinSwimWithPlayerGoal extends Goal {
         private final Dolphin dolphin;
         private final double speedModifier;
+        @Nullable
         private Player player;
 
         DolphinSwimWithPlayerGoal(Dolphin param0, double param1) {

@@ -52,7 +52,7 @@ public class DualNoiseProvider extends NoiseProvider {
     @Override
     public BlockState getState(Random param0, BlockPos param1) {
         double var0 = this.getSlowNoiseValue(param1);
-        int var1 = (int)Mth.map(var0, -1.0, 1.0, (double)this.variety.minInclusive().intValue(), (double)(this.variety.maxInclusive() + 1));
+        int var1 = (int)Mth.clampedMap(var0, -1.0, 1.0, (double)this.variety.minInclusive().intValue(), (double)(this.variety.maxInclusive() + 1));
         List<BlockState> var2 = Lists.newArrayListWithCapacity(var1);
 
         for(int var3 = 0; var3 < var1; ++var3) {

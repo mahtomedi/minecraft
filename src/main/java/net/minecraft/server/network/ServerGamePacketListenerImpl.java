@@ -894,7 +894,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
                                 this.player.doCheckFallDamage(this.player.getY() - var9, param0.isOnGround());
                                 this.player.setOnGround(param0.isOnGround());
                                 if (var18) {
-                                    this.player.fallDistance = 0.0F;
+                                    this.player.resetFallDistance();
                                 }
 
                                 this.player.checkMovementStatistics(this.player.getX() - var6, this.player.getY() - var7, this.player.getZ() - var8);

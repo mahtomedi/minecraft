@@ -16,6 +16,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
+import javax.annotation.Nullable;
 import net.minecraft.client.User;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -45,6 +46,7 @@ public class FileUpload {
     private final String clientVersion;
     private final UploadStatus uploadStatus;
     private final AtomicBoolean cancelled = new AtomicBoolean(false);
+    @Nullable
     private CompletableFuture<UploadResult> uploadTask;
     private final RequestConfig requestConfig = RequestConfig.custom()
         .setSocketTimeout((int)TimeUnit.MINUTES.toMillis(10L))
@@ -112,7 +114,7 @@ public class FileUpload {
         }
     }
 
-    private void cleanup(HttpPost param0, CloseableHttpClient param1) {
+    private void cleanup(HttpPost param0, @Nullable CloseableHttpClient param1) {
         param0.releaseConnection();
         if (param1 != null) {
             try {

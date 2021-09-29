@@ -1,5 +1,6 @@
 package net.minecraft.client.resources.sounds;
 
+import javax.annotation.Nullable;
 import net.minecraft.client.sounds.SoundEngine;
 import net.minecraft.client.sounds.Weighted;
 import net.minecraft.resources.ResourceLocation;
@@ -93,6 +94,7 @@ public class Sound implements Weighted<Sound> {
             this.name = param0;
         }
 
+        @Nullable
         public static Sound.Type getByName(String param0) {
             for(Sound.Type var0 : values()) {
                 if (var0.name.equals(param0)) {

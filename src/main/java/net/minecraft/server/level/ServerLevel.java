@@ -1364,7 +1364,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
     }
 
     @Override
-    public Stream<? extends StructureStart<?>> startsForFeature(SectionPos param0, StructureFeature<?> param1) {
+    public List<? extends StructureStart<?>> startsForFeature(SectionPos param0, StructureFeature<?> param1) {
         return this.structureFeatureManager().startsForFeature(param0, param1);
     }
 

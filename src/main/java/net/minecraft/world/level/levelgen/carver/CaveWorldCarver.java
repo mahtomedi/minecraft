@@ -1,7 +1,6 @@
 package net.minecraft.world.level.levelgen.carver;
 
 import com.mojang.serialization.Codec;
-import java.util.BitSet;
 import java.util.Random;
 import java.util.function.Function;
 import net.minecraft.core.BlockPos;
@@ -9,6 +8,7 @@ import net.minecraft.core.SectionPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.chunk.CarvingMask;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.levelgen.Aquifer;
 
@@ -29,7 +29,7 @@ public class CaveWorldCarver extends WorldCarver<CaveCarverConfiguration> {
         Random param4,
         Aquifer param5,
         ChunkPos param6,
-        BitSet param7
+        CarvingMask param7
     ) {
         int var0 = SectionPos.sectionToBlockCoord(this.getRange() * 2 - 1);
         int var1 = param4.nextInt(param4.nextInt(param4.nextInt(this.getCaveBound()) + 1) + 1);
@@ -46,7 +46,7 @@ public class CaveWorldCarver extends WorldCarver<CaveCarverConfiguration> {
             if (param4.nextInt(4) == 0) {
                 double var11 = (double)param1.yScale.sample(param4);
                 float var12 = 1.0F + param4.nextFloat() * 6.0F;
-                this.createRoom(param0, param1, param2, param3, param4.nextLong(), param5, var3, var4, var5, var12, var11, param7, var9);
+                this.createRoom(param0, param1, param2, param3, param5, var3, var4, var5, var12, var11, param7, var9);
                 var10 += param4.nextInt(4);
             }
 
@@ -105,19 +105,18 @@ public class CaveWorldCarver extends WorldCarver<CaveCarverConfiguration> {
         CaveCarverConfiguration param1,
         ChunkAccess param2,
         Function<BlockPos, Biome> param3,
-        long param4,
-        Aquifer param5,
+        Aquifer param4,
+        double param5,
         double param6,
         double param7,
-        double param8,
-        float param9,
-        double param10,
-        BitSet param11,
-        WorldCarver.CarveSkipChecker param12
+        float param8,
+        double param9,
+        CarvingMask param10,
+        WorldCarver.CarveSkipChecker param11
     ) {
-        double var0 = 1.5 + (double)(Mth.sin((float) (Math.PI / 2)) * param9);
-        double var1 = var0 * param10;
-        this.carveEllipsoid(param0, param1, param2, param3, param4, param5, param6 + 1.0, param7, param8, var0, var1, param11, param12);
+        double var0 = 1.5 + (double)(Mth.sin((float) (Math.PI / 2)) * param8);
+        double var1 = var0 * param9;
+        this.carveEllipsoid(param0, param1, param2, param3, param4, param5 + 1.0, param6, param7, var0, var1, param10, param11);
     }
 
     protected void createTunnel(
@@ -138,7 +137,7 @@ public class CaveWorldCarver extends WorldCarver<CaveCarverConfiguration> {
         int param14,
         int param15,
         double param16,
-        BitSet param17,
+        CarvingMask param17,
         WorldCarver.CarveSkipChecker param18
     ) {
         Random var0 = new Random(param4);
@@ -212,7 +211,7 @@ public class CaveWorldCarver extends WorldCarver<CaveCarverConfiguration> {
                     return;
                 }
 
-                this.carveEllipsoid(param0, param1, param2, param3, param4, param5, param6, param7, param8, var6 * param9, var7 * param10, param17, param18);
+                this.carveEllipsoid(param0, param1, param2, param3, param5, param6, param7, param8, var6 * param9, var7 * param10, param17, param18);
             }
         }
 

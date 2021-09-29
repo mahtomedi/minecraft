@@ -2,11 +2,13 @@ package com.mojang.blaze3d.shaders;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.Locale;
+import javax.annotation.Nullable;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class BlendMode {
+    @Nullable
     private static BlendMode lastApplied;
     private final int srcColorFactor;
     private final int srcAlphaFactor;

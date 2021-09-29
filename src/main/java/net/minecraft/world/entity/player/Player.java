@@ -1446,7 +1446,7 @@ public abstract class Player extends LivingEntity {
             Vec3 var8 = this.getDeltaMovement();
             this.setDeltaMovement(var8.x, var6 * 0.6, var8.z);
             this.flyingSpeed = var7;
-            this.fallDistance = 0.0F;
+            this.resetFallDistance();
             this.setSharedFlag(7, false);
         } else {
             super.travel(param0);

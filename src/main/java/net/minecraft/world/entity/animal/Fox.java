@@ -721,6 +721,7 @@ public class Fox extends Animal {
     class DefendTrustedTargetGoal extends NearestAttackableTargetGoal<LivingEntity> {
         @Nullable
         private LivingEntity trustedLastHurtBy;
+        @Nullable
         private LivingEntity trustedLastHurt;
         private int timestamp;
 
@@ -783,7 +784,7 @@ public class Fox extends Animal {
 
         @Override
         public void start() {
-            this.countdown = 40;
+            this.countdown = this.adjustedTickDelay(40);
         }
 
         @Override
@@ -1162,9 +1163,12 @@ public class Fox extends Animal {
             Fox.this.setIsPouncing(true);
             Fox.this.setIsInterested(false);
             LivingEntity var0 = Fox.this.getTarget();
-            Fox.this.getLookControl().setLookAt(var0, 60.0F, 30.0F);
-            Vec3 var1 = new Vec3(var0.getX() - Fox.this.getX(), var0.getY() - Fox.this.getY(), var0.getZ() - Fox.this.getZ()).normalize();
-            Fox.this.setDeltaMovement(Fox.this.getDeltaMovement().add(var1.x * 0.8, 0.9, var1.z * 0.8));
+            if (var0 != null) {
+                Fox.this.getLookControl().setLookAt(var0, 60.0F, 30.0F);
+                Vec3 var1 = new Vec3(var0.getX() - Fox.this.getX(), var0.getY() - Fox.this.getY(), var0.getZ() - Fox.this.getZ()).normalize();
+                Fox.this.setDeltaMovement(Fox.this.getDeltaMovement().add(var1.x * 0.8, 0.9, var1.z * 0.8));
+            }
+
             Fox.this.getNavigation().stop();
         }
 
@@ -1222,7 +1226,7 @@ public class Fox extends Animal {
                 return false;
             } else if (!Fox.this.canMove()) {
                 return false;
-            } else if (Fox.this.getRandom().nextInt(10) != 0) {
+            } else if (Fox.this.getRandom().nextInt(reducedTickDelay(10)) != 0) {
                 return false;
             } else {
                 List<ItemEntity> var0 = Fox.this.level
@@ -1339,12 +1343,12 @@ public class Fox extends Animal {
             double var0 = (Math.PI * 2) * Fox.this.getRandom().nextDouble();
             this.relX = Math.cos(var0);
             this.relZ = Math.sin(var0);
-            this.lookTime = 80 + Fox.this.getRandom().nextInt(20);
+            this.lookTime = this.adjustedTickDelay(80 + Fox.this.getRandom().nextInt(20));
         }
     }
 
     class SeekShelterGoal extends FleeSunGoal {
-        private int interval = 100;
+        private int interval = reducedTickDelay(100);
 
         public SeekShelterGoal(double param0) {
             super(Fox.this, param0);
@@ -1374,8 +1378,8 @@ public class Fox extends Animal {
     }
 
     class SleepGoal extends Fox.FoxBehaviorGoal {
-        private static final int WAIT_TIME_BEFORE_SLEEP = 140;
-        private int countdown = Fox.this.random.nextInt(140);
+        private static final int WAIT_TIME_BEFORE_SLEEP = reducedTickDelay(140);
+        private int countdown = Fox.this.random.nextInt(WAIT_TIME_BEFORE_SLEEP);
 
         public SleepGoal() {
             this.setFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK, Goal.Flag.JUMP));
@@ -1406,7 +1410,7 @@ public class Fox extends Animal {
 
         @Override
         public void stop() {
-            this.countdown = Fox.this.random.nextInt(140);
+            this.countdown = Fox.this.random.nextInt(WAIT_TIME_BEFORE_SLEEP);
             Fox.this.clearStates();
         }
 
@@ -1467,15 +1471,17 @@ public class Fox extends Animal {
         @Override
         public void tick() {
             LivingEntity var0 = Fox.this.getTarget();
-            Fox.this.getLookControl().setLookAt(var0, (float)Fox.this.getMaxHeadYRot(), (float)Fox.this.getMaxHeadXRot());
-            if (Fox.this.distanceToSqr(var0) <= 36.0) {
-                Fox.this.setIsInterested(true);
-                Fox.this.setIsCrouching(true);
-                Fox.this.getNavigation().stop();
-            } else {
-                Fox.this.getNavigation().moveTo(var0, 1.5);
-            }
+            if (var0 != null) {
+                Fox.this.getLookControl().setLookAt(var0, (float)Fox.this.getMaxHeadYRot(), (float)Fox.this.getMaxHeadXRot());
+                if (Fox.this.distanceToSqr(var0) <= 36.0) {
+                    Fox.this.setIsInterested(true);
+                    Fox.this.setIsCrouching(true);
+                    Fox.this.getNavigation().stop();
+                } else {
+                    Fox.this.getNavigation().moveTo(var0, 1.5);
+                }
 
+            }
         }
     }
 

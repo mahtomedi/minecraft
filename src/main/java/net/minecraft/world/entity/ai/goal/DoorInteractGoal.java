@@ -91,6 +91,11 @@ public abstract class DoorInteractGoal extends Goal {
     }
 
     @Override
+    public boolean requiresUpdateEveryTick() {
+        return true;
+    }
+
+    @Override
     public void tick() {
         float var0 = (float)((double)this.doorPos.getX() + 0.5 - this.mob.getX());
         float var1 = (float)((double)this.doorPos.getZ() + 0.5 - this.mob.getZ());

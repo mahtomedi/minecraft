@@ -77,7 +77,9 @@ public class Strider extends Animal implements ItemSteerable, Saddleable {
     private static final EntityDataAccessor<Boolean> DATA_SUFFOCATING = SynchedEntityData.defineId(Strider.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> DATA_SADDLE_ID = SynchedEntityData.defineId(Strider.class, EntityDataSerializers.BOOLEAN);
     private final ItemBasedSteering steering = new ItemBasedSteering(this.entityData, DATA_BOOST_TIME, DATA_SADDLE_ID);
+    @Nullable
     private TemptGoal temptGoal;
+    @Nullable
     private PanicGoal panicGoal;
 
     public Strider(EntityType<? extends Strider> param0, Level param1) {
@@ -286,7 +288,7 @@ public class Strider extends Animal implements ItemSteerable, Saddleable {
     protected void checkFallDamage(double param0, boolean param1, BlockState param2, BlockPos param3) {
         this.checkInsideBlocks();
         if (this.isInLava()) {
-            this.fallDistance = 0.0F;
+            this.resetFallDistance();
         } else {
             super.checkFallDamage(param0, param1, param2, param3);
         }

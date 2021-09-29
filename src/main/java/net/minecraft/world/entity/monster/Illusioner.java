@@ -234,7 +234,11 @@ public class Illusioner extends SpellcasterIllager implements RangedAttackMob {
         @Override
         public void start() {
             super.start();
-            this.lastTargetId = Illusioner.this.getTarget().getId();
+            LivingEntity var0 = Illusioner.this.getTarget();
+            if (var0 != null) {
+                this.lastTargetId = var0.getId();
+            }
+
         }
 
         @Override

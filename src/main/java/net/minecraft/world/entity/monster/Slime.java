@@ -372,7 +372,7 @@ public class Slime extends Mob implements Enemy {
 
         @Override
         public void start() {
-            this.growTiredTimer = 300;
+            this.growTiredTimer = reducedTickDelay(300);
             super.start();
         }
 
@@ -389,8 +389,17 @@ public class Slime extends Mob implements Enemy {
         }
 
         @Override
+        public boolean requiresUpdateEveryTick() {
+            return true;
+        }
+
+        @Override
         public void tick() {
-            this.slime.lookAt(this.slime.getTarget(), 10.0F, 10.0F);
+            LivingEntity var0 = this.slime.getTarget();
+            if (var0 != null) {
+                this.slime.lookAt(var0, 10.0F, 10.0F);
+            }
+
             ((Slime.SlimeMoveControl)this.slime.getMoveControl()).setDirection(this.slime.getYRot(), this.slime.isDealsDamage());
         }
     }
@@ -407,6 +416,11 @@ public class Slime extends Mob implements Enemy {
         @Override
         public boolean canUse() {
             return (this.slime.isInWater() || this.slime.isInLava()) && this.slime.getMoveControl() instanceof Slime.SlimeMoveControl;
+        }
+
+        @Override
+        public boolean requiresUpdateEveryTick() {
+            return true;
         }
 
         @Override
@@ -514,7 +528,7 @@ public class Slime extends Mob implements Enemy {
         @Override
         public void tick() {
             if (--this.nextRandomizeTime <= 0) {
-                this.nextRandomizeTime = 40 + this.slime.getRandom().nextInt(60);
+                this.nextRandomizeTime = this.adjustedTickDelay(40 + this.slime.getRandom().nextInt(60));
                 this.chosenDegrees = (float)this.slime.getRandom().nextInt(360);
             }
 

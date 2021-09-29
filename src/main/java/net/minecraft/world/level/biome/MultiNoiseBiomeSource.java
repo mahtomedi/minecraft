@@ -138,8 +138,8 @@ public class MultiNoiseBiomeSource extends BiomeSource {
                     + var10.format(var13.offset())
                     + " F: "
                     + var10.format(var13.factor())
-                    + " P: "
-                    + var10.format(var13.peaks())
+                    + " JA: "
+                    + var10.format(var13.jaggedness())
             );
         }
     }

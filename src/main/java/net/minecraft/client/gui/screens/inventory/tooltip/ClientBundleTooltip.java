@@ -6,7 +6,6 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.tooltip.BundleTooltip;
@@ -41,7 +40,7 @@ public class ClientBundleTooltip implements ClientTooltipComponent {
     }
 
     @Override
-    public void renderImage(Font param0, int param1, int param2, PoseStack param3, ItemRenderer param4, int param5, TextureManager param6) {
+    public void renderImage(Font param0, int param1, int param2, PoseStack param3, ItemRenderer param4, int param5) {
         int var0 = this.gridSizeX();
         int var1 = this.gridSizeY();
         boolean var2 = this.weight >= 64;
@@ -51,21 +50,19 @@ public class ClientBundleTooltip implements ClientTooltipComponent {
             for(int var5 = 0; var5 < var0; ++var5) {
                 int var6 = param1 + var5 * 18 + 1;
                 int var7 = param2 + var4 * 20 + 1;
-                this.renderSlot(var6, var7, var3++, var2, param0, param3, param4, param5, param6);
+                this.renderSlot(var6, var7, var3++, var2, param0, param3, param4, param5);
             }
         }
 
-        this.drawBorder(param1, param2, var0, var1, param3, param5, param6);
+        this.drawBorder(param1, param2, var0, var1, param3, param5);
     }
 
-    private void renderSlot(
-        int param0, int param1, int param2, boolean param3, Font param4, PoseStack param5, ItemRenderer param6, int param7, TextureManager param8
-    ) {
+    private void renderSlot(int param0, int param1, int param2, boolean param3, Font param4, PoseStack param5, ItemRenderer param6, int param7) {
         if (param2 >= this.items.size()) {
-            this.blit(param5, param0, param1, param7, param8, param3 ? ClientBundleTooltip.Texture.BLOCKED_SLOT : ClientBundleTooltip.Texture.SLOT);
+            this.blit(param5, param0, param1, param7, param3 ? ClientBundleTooltip.Texture.BLOCKED_SLOT : ClientBundleTooltip.Texture.SLOT);
         } else {
             ItemStack var0 = this.items.get(param2);
-            this.blit(param5, param0, param1, param7, param8, ClientBundleTooltip.Texture.SLOT);
+            this.blit(param5, param0, param1, param7, ClientBundleTooltip.Texture.SLOT);
             param6.renderAndDecorateItem(var0, param0 + 1, param1 + 1, param2);
             param6.renderGuiItemDecorations(param4, var0, param0 + 1, param1 + 1);
             if (param2 == 0) {
@@ -75,28 +72,28 @@ public class ClientBundleTooltip implements ClientTooltipComponent {
         }
     }
 
-    private void drawBorder(int param0, int param1, int param2, int param3, PoseStack param4, int param5, TextureManager param6) {
-        this.blit(param4, param0, param1, param5, param6, ClientBundleTooltip.Texture.BORDER_CORNER_TOP);
-        this.blit(param4, param0 + param2 * 18 + 1, param1, param5, param6, ClientBundleTooltip.Texture.BORDER_CORNER_TOP);
+    private void drawBorder(int param0, int param1, int param2, int param3, PoseStack param4, int param5) {
+        this.blit(param4, param0, param1, param5, ClientBundleTooltip.Texture.BORDER_CORNER_TOP);
+        this.blit(param4, param0 + param2 * 18 + 1, param1, param5, ClientBundleTooltip.Texture.BORDER_CORNER_TOP);
 
         for(int var0 = 0; var0 < param2; ++var0) {
-            this.blit(param4, param0 + 1 + var0 * 18, param1, param5, param6, ClientBundleTooltip.Texture.BORDER_HORIZONTAL_TOP);
-            this.blit(param4, param0 + 1 + var0 * 18, param1 + param3 * 20, param5, param6, ClientBundleTooltip.Texture.BORDER_HORIZONTAL_BOTTOM);
+            this.blit(param4, param0 + 1 + var0 * 18, param1, param5, ClientBundleTooltip.Texture.BORDER_HORIZONTAL_TOP);
+            this.blit(param4, param0 + 1 + var0 * 18, param1 + param3 * 20, param5, ClientBundleTooltip.Texture.BORDER_HORIZONTAL_BOTTOM);
         }
 
         for(int var1 = 0; var1 < param3; ++var1) {
-            this.blit(param4, param0, param1 + var1 * 20 + 1, param5, param6, ClientBundleTooltip.Texture.BORDER_VERTICAL);
-            this.blit(param4, param0 + param2 * 18 + 1, param1 + var1 * 20 + 1, param5, param6, ClientBundleTooltip.Texture.BORDER_VERTICAL);
+            this.blit(param4, param0, param1 + var1 * 20 + 1, param5, ClientBundleTooltip.Texture.BORDER_VERTICAL);
+            this.blit(param4, param0 + param2 * 18 + 1, param1 + var1 * 20 + 1, param5, ClientBundleTooltip.Texture.BORDER_VERTICAL);
         }
 
-        this.blit(param4, param0, param1 + param3 * 20, param5, param6, ClientBundleTooltip.Texture.BORDER_CORNER_BOTTOM);
-        this.blit(param4, param0 + param2 * 18 + 1, param1 + param3 * 20, param5, param6, ClientBundleTooltip.Texture.BORDER_CORNER_BOTTOM);
+        this.blit(param4, param0, param1 + param3 * 20, param5, ClientBundleTooltip.Texture.BORDER_CORNER_BOTTOM);
+        this.blit(param4, param0 + param2 * 18 + 1, param1 + param3 * 20, param5, ClientBundleTooltip.Texture.BORDER_CORNER_BOTTOM);
     }
 
-    private void blit(PoseStack param0, int param1, int param2, int param3, TextureManager param4, ClientBundleTooltip.Texture param5) {
+    private void blit(PoseStack param0, int param1, int param2, int param3, ClientBundleTooltip.Texture param4) {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.setShaderTexture(0, TEXTURE_LOCATION);
-        GuiComponent.blit(param0, param1, param2, param3, (float)param5.x, (float)param5.y, param5.w, param5.h, 128, 128);
+        GuiComponent.blit(param0, param1, param2, param3, (float)param4.x, (float)param4.y, param4.w, param4.h, 128, 128);
     }
 
     private int gridSizeX() {

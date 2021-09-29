@@ -36,7 +36,9 @@ import net.minecraft.client.gui.components.DebugScreenOverlay;
 import net.minecraft.client.gui.components.PlayerTabOverlay;
 import net.minecraft.client.gui.components.SubtitleOverlay;
 import net.minecraft.client.gui.components.spectator.SpectatorGui;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.gui.screens.inventory.EffectRenderingInventoryScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlas;
@@ -196,7 +198,7 @@ public class Gui extends GuiComponent {
         }
 
         if (this.minecraft.gameMode.getPlayerMode() == GameType.SPECTATOR) {
-            this.spectatorGui.renderHotbar(param0, param1);
+            this.spectatorGui.renderHotbar(param0);
         } else if (!this.minecraft.options.hideGui) {
             this.renderHotbar(param1, param0);
         }
@@ -443,57 +445,62 @@ public class Gui extends GuiComponent {
     protected void renderEffects(PoseStack param0) {
         Collection<MobEffectInstance> var0 = this.minecraft.player.getActiveEffects();
         if (!var0.isEmpty()) {
+            Screen var3 = this.minecraft.screen;
+            if (var3 instanceof EffectRenderingInventoryScreen var1 && var1.canSeeEffects()) {
+                return;
+            }
+
             RenderSystem.enableBlend();
-            int var1 = 0;
             int var2 = 0;
-            MobEffectTextureManager var3 = this.minecraft.getMobEffectTextures();
-            List<Runnable> var4 = Lists.newArrayListWithExpectedSize(var0.size());
+            int var3 = 0;
+            MobEffectTextureManager var4 = this.minecraft.getMobEffectTextures();
+            List<Runnable> var5 = Lists.newArrayListWithExpectedSize(var0.size());
             RenderSystem.setShaderTexture(0, AbstractContainerScreen.INVENTORY_LOCATION);
 
-            for(MobEffectInstance var5 : Ordering.natural().reverse().sortedCopy(var0)) {
-                MobEffect var6 = var5.getEffect();
-                if (var5.showIcon()) {
-                    int var7 = this.screenWidth;
-                    int var8 = 1;
+            for(MobEffectInstance var6 : Ordering.natural().reverse().sortedCopy(var0)) {
+                MobEffect var7 = var6.getEffect();
+                if (var6.showIcon()) {
+                    int var8 = this.screenWidth;
+                    int var9 = 1;
                     if (this.minecraft.isDemo()) {
-                        var8 += 15;
+                        var9 += 15;
                     }
 
-                    if (var6.isBeneficial()) {
-                        ++var1;
-                        var7 -= 25 * var1;
-                    } else {
+                    if (var7.isBeneficial()) {
                         ++var2;
-                        var7 -= 25 * var2;
-                        var8 += 26;
+                        var8 -= 25 * var2;
+                    } else {
+                        ++var3;
+                        var8 -= 25 * var3;
+                        var9 += 26;
                     }
 
                     RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-                    float var9 = 1.0F;
-                    if (var5.isAmbient()) {
-                        this.blit(param0, var7, var8, 165, 166, 24, 24);
+                    float var10 = 1.0F;
+                    if (var6.isAmbient()) {
+                        this.blit(param0, var8, var9, 165, 166, 24, 24);
                     } else {
-                        this.blit(param0, var7, var8, 141, 166, 24, 24);
-                        if (var5.getDuration() <= 200) {
-                            int var10 = 10 - var5.getDuration() / 20;
-                            var9 = Mth.clamp((float)var5.getDuration() / 10.0F / 5.0F * 0.5F, 0.0F, 0.5F)
-                                + Mth.cos((float)var5.getDuration() * (float) Math.PI / 5.0F) * Mth.clamp((float)var10 / 10.0F * 0.25F, 0.0F, 0.25F);
+                        this.blit(param0, var8, var9, 141, 166, 24, 24);
+                        if (var6.getDuration() <= 200) {
+                            int var11 = 10 - var6.getDuration() / 20;
+                            var10 = Mth.clamp((float)var6.getDuration() / 10.0F / 5.0F * 0.5F, 0.0F, 0.5F)
+                                + Mth.cos((float)var6.getDuration() * (float) Math.PI / 5.0F) * Mth.clamp((float)var11 / 10.0F * 0.25F, 0.0F, 0.25F);
                         }
                     }
 
-                    TextureAtlasSprite var11 = var3.get(var6);
-                    int var12 = var7;
+                    TextureAtlasSprite var12 = var4.get(var7);
                     int var13 = var8;
-                    float var14 = var9;
-                    var4.add(() -> {
-                        RenderSystem.setShaderTexture(0, var11.atlas().location());
-                        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, var14);
-                        blit(param0, var12 + 3, var13 + 3, this.getBlitOffset(), 18, 18, var11);
+                    int var14 = var9;
+                    float var15 = var10;
+                    var5.add(() -> {
+                        RenderSystem.setShaderTexture(0, var12.atlas().location());
+                        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, var15);
+                        blit(param0, var13 + 3, var14 + 3, this.getBlitOffset(), 18, 18, var12);
                     });
                 }
             }
 
-            var4.forEach(Runnable::run);
+            var5.forEach(Runnable::run);
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         }
     }

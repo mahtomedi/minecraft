@@ -782,7 +782,11 @@ public class Mth {
     }
 
     public static int roundToward(int param0, int param1) {
-        return (param0 + param1 - 1) / param1 * param1;
+        return positiveCeilDiv(param0, param1) * param1;
+    }
+
+    public static int positiveCeilDiv(int param0, int param1) {
+        return -Math.floorDiv(-param0, param1);
     }
 
     public static int randomBetweenInclusive(Random param0, int param1, int param2) {

@@ -141,7 +141,7 @@ public class NoiseChunk {
         double var7 = (double)Math.floorMod(param1, 4) / 4.0;
         double var8 = Mth.lerp2(var6, var7, var2.offset(), var4.offset(), var3.offset(), var5.offset());
         double var9 = Mth.lerp2(var6, var7, var2.factor(), var4.factor(), var3.factor(), var5.factor());
-        double var10 = Mth.lerp2(var6, var7, var2.peaks(), var4.peaks(), var3.peaks(), var5.peaks());
+        double var10 = Mth.lerp2(var6, var7, var2.jaggedness(), var4.jaggedness(), var3.jaggedness(), var5.jaggedness());
         return new TerrainInfo(var8, var9, var10);
     }
 

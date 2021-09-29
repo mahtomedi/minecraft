@@ -11,7 +11,6 @@ import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -174,7 +173,6 @@ public class RealmsWorldSlotButton extends Button {
         }
 
         Minecraft var1 = Minecraft.getInstance();
-        TextureManager var2 = var1.getTextureManager();
         if (param11) {
             RealmsTextureManager.bindWorldTemplate(String.valueOf(param8), param9);
         } else if (param10) {
@@ -190,16 +188,16 @@ public class RealmsWorldSlotButton extends Button {
         }
 
         if (param5) {
-            float var3 = 0.85F + 0.15F * Mth.cos((float)this.animTick * 0.2F);
-            RenderSystem.setShaderColor(var3, var3, var3, 1.0F);
+            float var2 = 0.85F + 0.15F * Mth.cos((float)this.animTick * 0.2F);
+            RenderSystem.setShaderColor(var2, var2, var2, 1.0F);
         } else {
             RenderSystem.setShaderColor(0.56F, 0.56F, 0.56F, 1.0F);
         }
 
         blit(param0, param1 + 3, param2 + 3, 0.0F, 0.0F, 74, 74, 74, 74);
         RenderSystem.setShaderTexture(0, SLOT_FRAME_LOCATION);
-        boolean var4 = var0 && param12 != RealmsWorldSlotButton.Action.NOTHING;
-        if (var4) {
+        boolean var3 = var0 && param12 != RealmsWorldSlotButton.Action.NOTHING;
+        if (var3) {
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         } else if (param5) {
             RenderSystem.setShaderColor(0.8F, 0.8F, 0.8F, 1.0F);
@@ -223,6 +221,7 @@ public class RealmsWorldSlotButton extends Button {
         final boolean isCurrentlyActiveSlot;
         final String slotName;
         final long imageId;
+        @Nullable
         final String image;
         public final boolean empty;
         public final boolean minigame;

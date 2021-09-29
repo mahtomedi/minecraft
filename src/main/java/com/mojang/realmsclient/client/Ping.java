@@ -10,6 +10,7 @@ import java.util.List;
 import net.minecraft.Util;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.apache.commons.io.IOUtils;
 
 @OnlyIn(Dist.CLIENT)
 public class Ping {
@@ -43,21 +44,11 @@ public class Ping {
             } catch (Exception var12) {
                 var1 += 700L;
             } finally {
-                close(var2);
+                IOUtils.closeQuietly(var2);
             }
         }
 
         return (int)((double)var1 / 5.0);
-    }
-
-    private static void close(Socket param0) {
-        try {
-            if (param0 != null) {
-                param0.close();
-            }
-        } catch (Throwable var2) {
-        }
-
     }
 
     private static long now() {

@@ -24,11 +24,7 @@ public abstract class RowButton {
     public void drawForRowAt(PoseStack param0, int param1, int param2, int param3, int param4) {
         int var0 = param1 + this.xOffset;
         int var1 = param2 + this.yOffset;
-        boolean var2 = false;
-        if (param3 >= var0 && param3 <= var0 + this.width && param4 >= var1 && param4 <= var1 + this.height) {
-            var2 = true;
-        }
-
+        boolean var2 = param3 >= var0 && param3 <= var0 + this.width && param4 >= var1 && param4 <= var1 + this.height;
         this.draw(param0, var0, var1, var2);
     }
 

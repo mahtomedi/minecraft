@@ -5,7 +5,6 @@ import com.mojang.math.Matrix4f;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.inventory.tooltip.BundleTooltip;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
@@ -33,6 +32,6 @@ public interface ClientTooltipComponent {
     default void renderText(Font param0, int param1, int param2, Matrix4f param3, MultiBufferSource.BufferSource param4) {
     }
 
-    default void renderImage(Font param0, int param1, int param2, PoseStack param3, ItemRenderer param4, int param5, TextureManager param6) {
+    default void renderImage(Font param0, int param1, int param2, PoseStack param3, ItemRenderer param4, int param5) {
     }
 }

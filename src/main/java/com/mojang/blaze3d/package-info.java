@@ -1,5 +1,6 @@
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
+@FieldsAreNonnullByDefault
 @OnlyIn(Dist.CLIENT)
 package com.mojang.blaze3d;
 

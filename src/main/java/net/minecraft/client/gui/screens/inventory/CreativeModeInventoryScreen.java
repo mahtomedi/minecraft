@@ -237,16 +237,6 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
     }
 
     @Override
-    protected void checkEffectRendering() {
-        int var0 = this.leftPos;
-        super.checkEffectRendering();
-        if (this.searchBox != null && this.leftPos != var0) {
-            this.searchBox.setX(this.leftPos + 82);
-        }
-
-    }
-
-    @Override
     protected void init() {
         if (this.minecraft.gameMode.hasInfiniteItems()) {
             super.init();

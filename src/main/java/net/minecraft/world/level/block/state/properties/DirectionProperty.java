@@ -1,6 +1,5 @@
 package net.minecraft.world.level.block.state.properties;
 
-import com.google.common.base.Predicates;
 import com.google.common.collect.Lists;
 import java.util.Arrays;
 import java.util.Collection;
@@ -14,7 +13,7 @@ public class DirectionProperty extends EnumProperty<Direction> {
     }
 
     public static DirectionProperty create(String param0) {
-        return create(param0, Predicates.alwaysTrue());
+        return create(param0, param0x -> true);
     }
 
     public static DirectionProperty create(String param0, Predicate<Direction> param1) {

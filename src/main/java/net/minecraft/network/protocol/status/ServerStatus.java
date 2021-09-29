@@ -11,17 +11,23 @@ import com.google.gson.JsonSerializer;
 import com.mojang.authlib.GameProfile;
 import java.lang.reflect.Type;
 import java.util.UUID;
+import javax.annotation.Nullable;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.GsonHelper;
 
 public class ServerStatus {
     public static final int FAVICON_WIDTH = 64;
     public static final int FAVICON_HEIGHT = 64;
+    @Nullable
     private Component description;
+    @Nullable
     private ServerStatus.Players players;
+    @Nullable
     private ServerStatus.Version version;
+    @Nullable
     private String favicon;
 
+    @Nullable
     public Component getDescription() {
         return this.description;
     }
@@ -30,6 +36,7 @@ public class ServerStatus {
         this.description = param0;
     }
 
+    @Nullable
     public ServerStatus.Players getPlayers() {
         return this.players;
     }
@@ -38,6 +45,7 @@ public class ServerStatus {
         this.players = param0;
     }
 
+    @Nullable
     public ServerStatus.Version getVersion() {
         return this.version;
     }
@@ -50,6 +58,7 @@ public class ServerStatus {
         this.favicon = param0;
     }
 
+    @Nullable
     public String getFavicon() {
         return this.favicon;
     }
@@ -57,6 +66,7 @@ public class ServerStatus {
     public static class Players {
         private final int maxPlayers;
         private final int numPlayers;
+        @Nullable
         private GameProfile[] sample;
 
         public Players(int param0, int param1) {
@@ -72,6 +82,7 @@ public class ServerStatus {
             return this.numPlayers;
         }
 
+        @Nullable
         public GameProfile[] getSample() {
             return this.sample;
         }
@@ -106,18 +117,19 @@ public class ServerStatus {
                 JsonObject var0 = new JsonObject();
                 var0.addProperty("max", param0.getMaxPlayers());
                 var0.addProperty("online", param0.getNumPlayers());
-                if (param0.getSample() != null && param0.getSample().length > 0) {
-                    JsonArray var1 = new JsonArray();
+                GameProfile[] var1 = param0.getSample();
+                if (var1 != null && var1.length > 0) {
+                    JsonArray var2 = new JsonArray();
 
-                    for(int var2 = 0; var2 < param0.getSample().length; ++var2) {
-                        JsonObject var3 = new JsonObject();
-                        UUID var4 = param0.getSample()[var2].getId();
-                        var3.addProperty("id", var4 == null ? "" : var4.toString());
-                        var3.addProperty("name", param0.getSample()[var2].getName());
-                        var1.add(var3);
+                    for(int var3 = 0; var3 < var1.length; ++var3) {
+                        JsonObject var4 = new JsonObject();
+                        UUID var5 = var1[var3].getId();
+                        var4.addProperty("id", var5 == null ? "" : var5.toString());
+                        var4.addProperty("name", var1[var3].getName());
+                        var2.add(var4);
                     }
 
-                    var0.add("sample", var1);
+                    var0.add("sample", var2);
                 }
 
                 return var0;

@@ -46,7 +46,7 @@ public class CatSpawner implements CustomSpawner {
                                 return this.spawnInVillage(param0, var4);
                             }
 
-                            if (param0.structureFeatureManager().getStructureAt(var4, true, StructureFeature.SWAMP_HUT).isValid()) {
+                            if (param0.structureFeatureManager().getStructureWithPieceAt(var4, StructureFeature.SWAMP_HUT).isValid()) {
                                 return this.spawnInHut(param0, var4);
                             }
                         }

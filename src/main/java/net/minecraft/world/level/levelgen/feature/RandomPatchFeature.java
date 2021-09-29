@@ -3,10 +3,9 @@ package net.minecraft.world.level.levelgen.feature;
 import com.mojang.serialization.Codec;
 import java.util.Random;
 import net.minecraft.core.BlockPos;
-import net.minecraft.tags.FluidTags;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.configurations.RandomPatchConfiguration;
 
 public class RandomPatchFeature extends Feature<RandomPatchConfiguration> {
@@ -20,42 +19,25 @@ public class RandomPatchFeature extends Feature<RandomPatchConfiguration> {
         Random var1 = param0.random();
         BlockPos var2 = param0.origin();
         WorldGenLevel var3 = param0.level();
-        BlockState var4 = var0.stateProvider.getState(var1, var2);
-        BlockPos var5;
-        if (var0.project) {
-            var5 = var3.getHeightmapPos(Heightmap.Types.WORLD_SURFACE_WG, var2);
-        } else {
-            var5 = var2;
-        }
+        int var4 = 0;
+        BlockPos.MutableBlockPos var5 = new BlockPos.MutableBlockPos();
+        int var6 = var0.xzSpread() + 1;
+        int var7 = var0.ySpread() + 1;
 
-        int var7 = 0;
-        BlockPos.MutableBlockPos var8 = new BlockPos.MutableBlockPos();
-
-        for(int var9 = 0; var9 < var0.tries; ++var9) {
-            var8.setWithOffset(
-                var5,
-                var1.nextInt(var0.xspread + 1) - var1.nextInt(var0.xspread + 1),
-                var1.nextInt(var0.yspread + 1) - var1.nextInt(var0.yspread + 1),
-                var1.nextInt(var0.zspread + 1) - var1.nextInt(var0.zspread + 1)
-            );
-            BlockPos var10 = var8.below();
-            BlockState var11 = var3.getBlockState(var10);
-            if ((var3.isEmptyBlock(var8) || var0.canReplace && var3.getBlockState(var8).getMaterial().isReplaceable())
-                && var4.canSurvive(var3, var8)
-                && (var0.whitelist.isEmpty() || var0.whitelist.contains(var11.getBlock()))
-                && !var0.blacklist.contains(var11)
-                && (
-                    !var0.needWater
-                        || var3.getFluidState(var10.west()).is(FluidTags.WATER)
-                        || var3.getFluidState(var10.east()).is(FluidTags.WATER)
-                        || var3.getFluidState(var10.north()).is(FluidTags.WATER)
-                        || var3.getFluidState(var10.south()).is(FluidTags.WATER)
-                )) {
-                var0.blockPlacer.place(var3, var8, var4, var1);
-                ++var7;
+        for(int var8 = 0; var8 < var0.tries(); ++var8) {
+            var5.setWithOffset(var2, var1.nextInt(var6) - var1.nextInt(var6), var1.nextInt(var7) - var1.nextInt(var7), var1.nextInt(var6) - var1.nextInt(var6));
+            if (isValid(var3, var5, var0) && var0.feature().get().place(var3, param0.chunkGenerator(), var1, var5)) {
+                ++var4;
             }
         }
 
-        return var7 > 0;
+        return var4 > 0;
+    }
+
+    public static boolean isValid(LevelAccessor param0, BlockPos param1, RandomPatchConfiguration param2) {
+        BlockState var0 = param0.getBlockState(param1.below());
+        return (!param2.onlyInAir() || param0.isEmptyBlock(param1))
+            && (param2.allowedOn().isEmpty() || param2.allowedOn().contains(var0.getBlock()))
+            && !param2.disallowedOn().contains(var0);
     }
 }
